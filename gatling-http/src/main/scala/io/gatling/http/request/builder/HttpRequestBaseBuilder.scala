@@ -36,53 +36,16 @@ object HttpRequestBaseBuilder {
  */
 class HttpRequestBaseBuilder(requestName: Expression[String]) {
 
-	/**
-	 * Starts the definition of an HTTP request with word DELETE
-	 *
-	 * @param url the function returning the url of this request
-	 */
-	def delete(url: Expression[String]) = DeleteHttpRequestBuilder(requestName, url)
+	def httpRequest(method: String, url: Expression[String]) = HttpRequestBuilder(method, requestName, url)
+	def get(url: Expression[String]) = httpRequest("GET", url)
+	def delete(url: Expression[String]) = httpRequest("DELETE", url)
 
-	/**
-	 * Starts the definition of an HTTP request with word GET
-	 *
-	 * @param url the function returning the url of this request
-	 */
-	def get(url: Expression[String]) = GetHttpRequestBuilder(requestName, url)
+	def httpRequestWithBody(method: String, url: Expression[String]) = HttpRequestWithBodyBuilder(method, requestName, url)
+	def put(url: Expression[String]) = httpRequestWithBody("PUT", url)
+	def patch(url: Expression[String]) = httpRequestWithBody("PATCH", url)
+	def head(url: Expression[String]) = httpRequestWithBody("HEAD", url)
+	def options(url: Expression[String]) = httpRequestWithBody("OPTIONS", url)
 
-	/**
-	 * Starts the definition of an HTTP request with word PATCH
-	 *
-	 * @param url the function returning the url of this request
-	 */
-	def patch(url: Expression[String]) = PatchHttpRequestBuilder(requestName, url)
-
-	/**
-	 * Starts the definition of an HTTP request with word POST
-	 *
-	 * @param url the function returning the url of this request
-	 */
-	def post(url: Expression[String]) = PostHttpRequestBuilder(requestName, url)
-
-	/**
-	 * Starts the definition of an HTTP request with word PUT
-	 *
-	 * @param url the function returning the url of this request
-	 */
-	def put(url: Expression[String]) = PutHttpRequestBuilder(requestName, url)
-
-	/**
-	 * Starts the definition of an HTTP request with word HEAD
-	 *
-	 * @param url the function returning the url of this request
-	 */
-	def head(url: Expression[String]) = HeadHttpRequestBuilder(requestName, url)
-
-	/**
-	 * Starts the definition of an HTTP request with word OPTIONS
-	 *
-	 * @param url the function returning the url of this request
-	 */
-	def options(url: Expression[String]) = OptionsHttpRequestBuilder(requestName, url)
+	def httpRequestWithBodyAndParams(method: String, url: Expression[String]) = HttpRequestWithBodyAndParamsBuilder(method, requestName, url)
+	def post(url: Expression[String]) = httpRequestWithBodyAndParams("POST", url)
 }
-

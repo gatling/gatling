@@ -69,3 +69,20 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		requestBuilder.flatMap(configureParts(session, _))
 	}
 }
+
+object HttpRequestWithBodyBuilder {
+
+    def apply(method: String, requestName: Expression[String], url: Expression[String]) = new HttpRequestWithBodyBuilder(HttpAttributes(requestName, method, url), BodyAttributes())
+}
+
+class HttpRequestWithBodyBuilder(
+    httpAttributes: HttpAttributes,
+    bodyAttributes: BodyAttributes)
+    extends AbstractHttpRequestWithBodyBuilder[HttpRequestWithBodyBuilder](httpAttributes, bodyAttributes) {
+
+    private[http] def newInstance(
+        httpAttributes: HttpAttributes,
+        bodyAttributes: BodyAttributes) = {
+        new HttpRequestWithBodyBuilder(httpAttributes, bodyAttributes)
+    }
+}

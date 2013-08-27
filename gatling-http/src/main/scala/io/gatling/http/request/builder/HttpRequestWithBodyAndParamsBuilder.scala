@@ -18,9 +18,10 @@ package io.gatling.http.request.builder
 import com.ning.http.client.RequestBuilder
 import com.ning.http.multipart.StringPart
 
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.{ ELCompiler, Expression, Session }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
+import io.gatling.http.config.HttpProtocol
 import io.gatling.http.util.HttpHelper
 
 /**
@@ -91,4 +92,29 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 		requestBuilderWithParams.flatMap(super.configureParts(session, _))
 	}
+}
+
+object HttpRequestWithBodyAndParamsBuilder {
+
+    def apply(method: String, requestName: Expression[String], url: Expression[String]) = new HttpRequestWithBodyAndParamsBuilder(HttpAttributes(requestName, method, url), BodyAttributes(), Nil)
+
+    def warmUp {
+        val expression = "foo".el[String]
+        HttpRequestWithBodyAndParamsBuilder("POST", expression, expression)
+            .header("bar", expression)
+            .param(expression, expression)
+            .build(Session("scenarioName", "0"), HttpProtocol.default)
+    }
+}
+
+class HttpRequestWithBodyAndParamsBuilder(
+    httpAttributes: HttpAttributes,
+    bodyAttributes: BodyAttributes,
+    params: List[HttpParam])
+    extends AbstractHttpRequestWithBodyAndParamsBuilder[HttpRequestWithBodyAndParamsBuilder](httpAttributes, bodyAttributes, params) {
+
+    private[http] def newInstance(
+        httpAttributes: HttpAttributes,
+        bodyAttributes: BodyAttributes,
+        params: List[HttpParam]) = new HttpRequestWithBodyAndParamsBuilder(httpAttributes, bodyAttributes, params)
 }

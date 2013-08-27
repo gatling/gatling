@@ -21,7 +21,7 @@ import com.ning.http.client.{ Realm, RequestBuilder }
 import com.ning.http.client.ProxyServer.Protocol
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.{ EL, Expression, Session }
+import io.gatling.core.session.{ EL, ELCompiler, Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, ValidationList }
 import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import io.gatling.http.action.HttpRequestActionBuilder
@@ -222,4 +222,25 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	def build: RequestFactory = (session: Session, protocol: HttpProtocol) => getAHCRequestBuilder(session, protocol).map(_.build)
 
 	def toActionBuilder = new HttpRequestActionBuilder(httpAttributes.requestName, this.build, httpAttributes.checks, httpAttributes.responseTransformer)
+}
+
+object HttpRequestBuilder {
+
+    def apply(method: String, requestName: Expression[String], url: Expression[String]) = new HttpRequestBuilder(HttpAttributes(requestName, method, url))
+
+    def warmUp {
+        val expression = "foo".el[String]
+        HttpRequestBuilder("GET", expression, expression)
+            .header("bar", expression)
+            .queryParam(expression, expression)
+            .build(Session("scenarioName", "0"), HttpProtocol.default)
+    }
+}
+
+/**
+ * This class defines an HTTP request with word GET in the DSL
+ */
+class HttpRequestBuilder(httpAttributes: HttpAttributes) extends AbstractHttpRequestBuilder[HttpRequestBuilder](httpAttributes) {
+
+    private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestBuilder(httpAttributes)
 }
