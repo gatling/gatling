@@ -24,11 +24,11 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.Status
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.{ ELCompiler, Expression, Session }
 import io.gatling.http.Headers.Names._
 import io.gatling.http.ahc.HttpClient
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.request.builder.{ GetHttpRequestBuilder, PostHttpRequestBuilder }
+import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
@@ -129,8 +129,19 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 		}
 
 		if (HttpProtocolBuilder.warmUpUrls.isEmpty) {
-			GetHttpRequestBuilder.warmUp
-			PostHttpRequestBuilder.warmUp
+			val expression = "foo".el[String]
+
+			HttpRequestBaseBuilder.http(expression)
+				.get(expression)
+				.header("bar", expression)
+				.queryParam(expression, expression)
+				.build(Session("scenarioName", "0"), HttpProtocol.default)
+
+			HttpRequestBaseBuilder.http(expression)
+				.post(expression)
+				.header("bar", expression)
+				.param(expression, expression)
+				.build(Session("scenarioName", "0"), HttpProtocol.default)
 		}
 
 		protocol

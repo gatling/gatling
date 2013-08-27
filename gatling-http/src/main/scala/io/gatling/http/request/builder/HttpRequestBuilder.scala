@@ -21,7 +21,7 @@ import com.ning.http.client.{ Realm, RequestBuilder }
 import com.ning.http.client.ProxyServer.Protocol
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.{ EL, ELCompiler, Expression, Session }
+import io.gatling.core.session.{ EL, Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, ValidationList }
 import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import io.gatling.http.action.HttpRequestActionBuilder
@@ -227,14 +227,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 object HttpRequestBuilder {
 
     def apply(method: String, requestName: Expression[String], url: Expression[String]) = new HttpRequestBuilder(HttpAttributes(requestName, method, url))
-
-    def warmUp {
-        val expression = "foo".el[String]
-        HttpRequestBuilder("GET", expression, expression)
-            .header("bar", expression)
-            .queryParam(expression, expression)
-            .build(Session("scenarioName", "0"), HttpProtocol.default)
-    }
 }
 
 /**
