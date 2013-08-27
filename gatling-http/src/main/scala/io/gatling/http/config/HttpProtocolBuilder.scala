@@ -92,7 +92,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 
 	def basicAuth(username: Expression[String], password: Expression[String]) = copy(protocol = protocol.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
 
-	def virtualHost(virtualHost: String) = protocol.copy(virtualHost = Some(virtualHost))
+	def virtualHost(virtualHost: Expression[String]) = protocol.copy(virtualHost = Some(virtualHost))
 
 	def extraInfoExtractor(f: (Status, Session, Request, Response) => List[Any]) = copy(protocol = protocol.copy(extraInfoExtractor = Some(f)))
 
