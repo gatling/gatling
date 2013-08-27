@@ -47,7 +47,6 @@ object Predef {
 		case any => any.expression
 	})
 	implicit def intToFiniteDuration(i: Int) = i seconds
-	implicit def intToFiniteDurationExpression(i: Int) = (session: Session) => (i seconds).success
 
 	def csv(fileName: String) = SeparatedValuesParser.csv(fileName)
 	def csv(file: File) = SeparatedValuesParser.csv(file.path)
