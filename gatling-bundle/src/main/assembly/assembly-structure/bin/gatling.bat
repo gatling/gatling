@@ -43,7 +43,7 @@ set JAVA_OPTS=-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms5
 set CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\conf;"%GATLING_HOME%"\user-files;%JAVA_CLASSPATH%
 set COMMAND=-cp %CLASSPATH% io.gatling.app.Gatling
 
-java %JAVA_OPTS% %COMMAND% %1 %2 %3 %4 %5 %6 %7 %8 %9
+java %JAVA_OPTS% %COMMAND% %*
 
 goto exit
 
