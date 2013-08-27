@@ -51,6 +51,13 @@ class HttpRequestBaseBuilder(requestName: Expression[String]) {
 	def get(url: Expression[String]) = GetHttpRequestBuilder(requestName, url)
 
 	/**
+	 * Starts the definition of an HTTP request with word PATCH
+	 *
+	 * @param url the function returning the url of this request
+	 */
+	def patch(url: Expression[String]) = PatchHttpRequestBuilder(requestName, url)
+
+	/**
 	 * Starts the definition of an HTTP request with word POST
 	 *
 	 * @param url the function returning the url of this request
