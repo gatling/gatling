@@ -69,7 +69,7 @@ case class HttpProtocol(
 	shareConnections: Boolean,
 	baseHeaders: Map[String, String],
 	basicAuth: Option[Expression[Realm]],
-	virtualHost: Option[String],
+	virtualHost: Option[Expression[String]],
 	localAddress: Option[InetAddress],
 	responseTransformer: Option[ResponseTransformer],
 	checks: List[HttpCheck],

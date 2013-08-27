@@ -40,7 +40,7 @@ case class HttpAttributes(
 	queryParams: List[HttpParam] = Nil,
 	headers: Map[String, Expression[String]] = Map.empty,
 	realm: Option[Expression[Realm]] = None,
-	virtualHost: Option[String] = None,
+	virtualHost: Option[Expression[String]] = None,
 	address: Option[InetAddress] = None,
 	checks: List[HttpCheck] = Nil,
 	responseTransformer: Option[ResponseTransformer] = None)
@@ -134,7 +134,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	/**
 	 * @param virtualHost a virtual host to override default compute one
 	 */
-	def virtualHost(virtualHost: String): B = newInstance(httpAttributes.copy(virtualHost = Some(virtualHost)))
+	def virtualHost(virtualHost: Expression[String]): B = newInstance(httpAttributes.copy(virtualHost = Some(virtualHost)))
 
 	def address(address: InetAddress): B = newInstance(httpAttributes.copy(address = Some(address)))
 
@@ -161,9 +161,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 			val proxy = if (url.startsWith(Protocol.HTTPS.getProtocol)) protocol.securedProxy else protocol.proxy
 			proxy.foreach(requestBuilder.setProxyServer)
 
-			val virtualHost = httpAttributes.virtualHost.orElse(protocol.virtualHost)
-			virtualHost.foreach(requestBuilder.setVirtualHost)
-
 			protocol.localAddress.foreach(requestBuilder.setLocalInetAddress)
 			httpAttributes.address.foreach(requestBuilder.setInetAddress)
 
@@ -173,6 +170,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 				HttpHelper.httpParamsToFluentMap(httpAttributes.queryParams, session).map(requestBuilder.setQueryParameters(_).setUrl(url))
 			else
 				requestBuilder.setUrl(url).success
+		}
+
+		def configureVirtualHost(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
+			val virtualHost = httpAttributes.virtualHost.orElse(protocol.virtualHost)
+			virtualHost.map(_(session).map(requestBuilder.setVirtualHost)).getOrElse(requestBuilder.success)
 		}
 
 		def configureHeaders(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
@@ -210,6 +212,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 		httpAttributes.url(session)
 			.flatMap(makeAbsolute)
 			.flatMap(configureQueryCookiesAndProxy)
+			.flatMap(configureVirtualHost)
 			.flatMap(configureHeaders)
 			.flatMap(configureRealm)
 	}
@@ -226,7 +229,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 
 object HttpRequestBuilder {
 
-    def apply(method: String, requestName: Expression[String], url: Expression[String]) = new HttpRequestBuilder(HttpAttributes(requestName, method, url))
+	def apply(method: String, requestName: Expression[String], url: Expression[String]) = new HttpRequestBuilder(HttpAttributes(requestName, method, url))
 }
 
 /**
@@ -234,5 +237,5 @@ object HttpRequestBuilder {
  */
 class HttpRequestBuilder(httpAttributes: HttpAttributes) extends AbstractHttpRequestBuilder[HttpRequestBuilder](httpAttributes) {
 
-    private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestBuilder(httpAttributes)
+	private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestBuilder(httpAttributes)
 }
