@@ -30,4 +30,4 @@ JAVA_OPTS="-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M
 
 CLASSPATH="$GATLING_HOME/lib/*:$GATLING_CONF:$GATLING_HOME/user-files:${JAVA_CLASSPATH}"
 
-java $JAVA_OPTS -cp $CLASSPATH io.gatling.app.Gatling $@
+java $JAVA_OPTS -cp $CLASSPATH io.gatling.app.Gatling "$@"

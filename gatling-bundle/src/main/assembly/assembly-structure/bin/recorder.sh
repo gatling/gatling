@@ -30,4 +30,4 @@ JAVA_OPTS="-Xms512M -Xmx512M -Xmn100M ${JAVA_OPTS}"
 
 CLASSPATH="$GATLING_HOME/lib/*:$GATLING_CONF:${JAVA_CLASSPATH}"
 
-java $JAVA_OPTS -cp $CLASSPATH io.gatling.recorder.GatlingRecorder $@
+java $JAVA_OPTS -cp $CLASSPATH io.gatling.recorder.GatlingRecorder "$@"
