@@ -33,7 +33,7 @@ object JdbcDataWriter {
 }
 
 /**
- * File implementation of the DataWriter
+ * JDBC implementation of the DataWriter
  *
  * It writes the data of the simulation to a database
  */
