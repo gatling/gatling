@@ -23,10 +23,9 @@ import scala.tools.nsc.io.Path.string2path
 import scala.util.Try
 
 import com.typesafe.scalalogging.slf4j.Logging
-import com.typesafe.zinc.{ Compiler, Inputs, Setup }
+import com.typesafe.zinc.{ Compiler, IncOptions, Inputs, Setup }
 
-import sbt.inc.IncOptions
-import xsbti.Logger
+import xsbti.{ F0, Logger }
 import xsbti.api.Compilation
 import xsbti.compile.CompileOrder
 
@@ -62,7 +61,7 @@ object ZincCompiler extends Logging {
 				forceClean = false,
 				javaOnly = false,
 				compileOrder = CompileOrder.JavaThenScala,
-				incOptions = IncOptions.Default,
+				incOptions = IncOptions(),
 				outputRelations = None,
 				outputProducts = None,
 				mirrorAnalysis = false)
@@ -89,17 +88,18 @@ object ZincCompiler extends Logging {
 				scalaExtra = List(scalaReflect),
 				sbtInterface = sbtInterfaceSrc,
 				compilerInterfaceSrc = compilerInterfaceSrc,
-				javaHomeDir = None)
+				javaHomeDir = None,
+				false)
 		}
 
 		// Setup the compiler
 		val setup = setupZincCompiler
 		val zincLogger = new Logger {
-			def error(arg: xsbti.F0[String]) { logger.error(arg.apply) }
-			def warn(arg: xsbti.F0[String]) { logger.warn(arg.apply) }
-			def info(arg: xsbti.F0[String]) { logger.info(arg.apply) }
-			def debug(arg: xsbti.F0[String]) { logger.debug(arg.apply) }
-			def trace(arg: xsbti.F0[Throwable]) { logger.trace("", arg.apply) }
+			def error(arg: F0[String]) { logger.error(arg.apply) }
+			def warn(arg: F0[String]) { logger.warn(arg.apply) }
+			def info(arg: F0[String]) { logger.info(arg.apply) }
+			def debug(arg: F0[String]) { logger.debug(arg.apply) }
+			def trace(arg: F0[Throwable]) { logger.trace("", arg.apply) }
 		}
 
 		val zincCompiler = Compiler.create(setup, zincLogger)

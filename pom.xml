@@ -397,12 +397,6 @@
 				<groupId>com.typesafe.zinc</groupId>
 				<artifactId>zinc</artifactId>
 				<version>${zinc.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>com.typesafe.sbt</groupId>
-						<artifactId>sbt-interface</artifactId>
-					</exclusion>
-				</exclusions>
 			</dependency>
 			<dependency>
 				<groupId>com.excilys.ebi</groupId>
