@@ -72,17 +72,17 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 
 object HttpRequestWithBodyBuilder {
 
-    def apply(method: String, requestName: Expression[String], url: Expression[String]) = new HttpRequestWithBodyBuilder(HttpAttributes(requestName, method, url), BodyAttributes())
+	def apply(method: String, requestName: Expression[String], url: Expression[String]) = new HttpRequestWithBodyBuilder(HttpAttributes(requestName, method, url), BodyAttributes())
 }
 
 class HttpRequestWithBodyBuilder(
-    httpAttributes: HttpAttributes,
-    bodyAttributes: BodyAttributes)
-    extends AbstractHttpRequestWithBodyBuilder[HttpRequestWithBodyBuilder](httpAttributes, bodyAttributes) {
+	httpAttributes: HttpAttributes,
+	bodyAttributes: BodyAttributes)
+	extends AbstractHttpRequestWithBodyBuilder[HttpRequestWithBodyBuilder](httpAttributes, bodyAttributes) {
 
-    private[http] def newInstance(
-        httpAttributes: HttpAttributes,
-        bodyAttributes: BodyAttributes) = {
-        new HttpRequestWithBodyBuilder(httpAttributes, bodyAttributes)
-    }
+	private[http] def newInstance(
+		httpAttributes: HttpAttributes,
+		bodyAttributes: BodyAttributes) = {
+		new HttpRequestWithBodyBuilder(httpAttributes, bodyAttributes)
+	}
 }

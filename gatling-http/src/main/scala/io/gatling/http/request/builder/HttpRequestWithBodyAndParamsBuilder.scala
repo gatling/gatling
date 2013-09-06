@@ -95,17 +95,17 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 
 object HttpRequestWithBodyAndParamsBuilder {
 
-    def apply(method: String, requestName: Expression[String], url: Expression[String]) = new HttpRequestWithBodyAndParamsBuilder(HttpAttributes(requestName, method, url), BodyAttributes(), Nil)
+	def apply(method: String, requestName: Expression[String], url: Expression[String]) = new HttpRequestWithBodyAndParamsBuilder(HttpAttributes(requestName, method, url), BodyAttributes(), Nil)
 }
 
 class HttpRequestWithBodyAndParamsBuilder(
-    httpAttributes: HttpAttributes,
-    bodyAttributes: BodyAttributes,
-    params: List[HttpParam])
-    extends AbstractHttpRequestWithBodyAndParamsBuilder[HttpRequestWithBodyAndParamsBuilder](httpAttributes, bodyAttributes, params) {
+	httpAttributes: HttpAttributes,
+	bodyAttributes: BodyAttributes,
+	params: List[HttpParam])
+	extends AbstractHttpRequestWithBodyAndParamsBuilder[HttpRequestWithBodyAndParamsBuilder](httpAttributes, bodyAttributes, params) {
 
-    private[http] def newInstance(
-        httpAttributes: HttpAttributes,
-        bodyAttributes: BodyAttributes,
-        params: List[HttpParam]) = new HttpRequestWithBodyAndParamsBuilder(httpAttributes, bodyAttributes, params)
+	private[http] def newInstance(
+		httpAttributes: HttpAttributes,
+		bodyAttributes: BodyAttributes,
+		params: List[HttpParam]) = new HttpRequestWithBodyAndParamsBuilder(httpAttributes, bodyAttributes, params)
 }
