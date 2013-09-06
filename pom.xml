@@ -135,7 +135,7 @@
 		<redis.version>2.10</redis.version>
 		<junit.version>4.11</junit.version>
 		<specs2.version>2.0</specs2.version>
-		<zinc.version>0.3.0-M1</zinc.version>
+		<zinc.version>0.3.0</zinc.version>
 		<plexus-selector.version>1.0.0</plexus-selector.version>
 		<opencsv.version>2.3</opencsv.version>
 		<mockito.version>1.9.5</mockito.version>
