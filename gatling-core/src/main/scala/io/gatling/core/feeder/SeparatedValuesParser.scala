@@ -35,6 +35,7 @@ object SeparatedValuesParser {
 	def ssv(fileName: String): AdvancedFeederBuilder[String] = ssv(GatlingFiles.feederResource(fileName))
 	def ssv(resource: Validation[Resource]) = AdvancedFeederBuilder(parse(resource, semicolonSeparator.charAt(0)))
 
+	def parse(fileName: String, separator: Char): Array[Record[String]] = parse(GatlingFiles.feederResource(fileName), separator)
 	def parse(resource: Validation[Resource], separator: Char): Array[Record[String]] = resource match {
 
 		case Success(res) =>
