@@ -28,16 +28,6 @@ import io.gatling.core.validation.SuccessWrapper
 
 trait Loops[B] extends Execs[B] {
 
-	def repeat(times: Int)(chain: ChainBuilder): B = repeat(times, UUID.randomUUID.toString)(chain)
-	def repeat(times: Int, counter: String)(chain: ChainBuilder): B = {
-
-		val increment = chainOf(new SessionHookBuilder(_.incrementLoop(counter).success))
-		val exit = chainOf(new SessionHookBuilder(_.exitLoop.success))
-		val reversedLoopContent = exit :: Stream.continually(List(chain, increment)).take(times).flatten.toList
-
-		exec(reversedLoopContent.reverse)
-	}
-
 	def repeat(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 
 		val continueCondition = (session: Session) => times(session).map(session.loopCounterValue(counterName) < _)
