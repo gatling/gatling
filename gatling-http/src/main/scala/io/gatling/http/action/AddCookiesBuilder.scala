@@ -22,24 +22,26 @@ import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.action.system
 import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.ValidationList
+import io.gatling.core.validation.SuccessWrapper
 
 case class Cookie(domain: Expression[String], name: Expression[String], value: Expression[String], path: Expression[String])
 
 object AddCookiesBuilder {
 
+	val emptyCookieListSuccess = List.empty[AHCCookie].success
+
 	def apply(url: Expression[String], cookies: List[Cookie]) = {
 
 		val cookiesExpression: Expression[List[AHCCookie]] = (session: Session) =>
-			cookies.map { cookie =>
+			cookies.foldLeft(emptyCookieListSuccess) { (cookies, cookie) =>
 				for {
+					cookies <- cookies
 					domain <- cookie.domain(session)
 					name <- cookie.name(session)
 					value <- cookie.value(session)
 					path <- cookie.path(session)
-
-				} yield new AHCCookie(domain, name, value, path, 100000, false)
-			}.sequence
+				} yield new AHCCookie(domain, name, value, path, 100000, false) :: cookies
+			}.map(_.reverse)
 
 		new AddCookiesBuilder(url, cookiesExpression)
 	}

@@ -17,6 +17,7 @@ package io.gatling.core
 
 import scala.reflect.ClassTag
 
+import io.gatling.core.session.Session
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 package object session {

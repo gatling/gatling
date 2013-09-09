@@ -18,6 +18,7 @@ package io.gatling.http.request.builder
 import java.io.{ File, InputStream }
 
 import com.ning.http.client.RequestBuilder
+import com.ning.http.multipart.Part
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation._
@@ -25,6 +26,10 @@ import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request._
 
 case class BodyAttributes(body: Option[Body] = None, bodyParts: List[BodyPart] = Nil)
+
+object AbstractHttpRequestWithBodyBuilder {
+	val emptyPartListSuccess = List.empty[Part].success
+}
 
 /**
  * This class serves as model to HTTP request with a body
@@ -56,11 +61,15 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 			bodyAttributes.body.map(_.setBody(requestBuilder, session)).getOrElse(requestBuilder.success)
 
 		else
-			bodyAttributes.bodyParts.reverse.map(_.toMultiPart(session)).sequence
-				.map { parts =>
-					parts.foreach(requestBuilder.addBodyPart)
-					requestBuilder
-				}
+			bodyAttributes.bodyParts.foldLeft(AbstractHttpRequestWithBodyBuilder.emptyPartListSuccess) { (parts, part) =>
+				for {
+					parts <- parts
+					part <- part.toMultiPart(session)
+				} yield part :: parts
+			}.map { parts =>
+				parts.foreach(requestBuilder.addBodyPart)
+				requestBuilder
+			}
 	}
 
 	protected override def getAHCRequestBuilder(session: Session, protocol: HttpProtocol): Validation[RequestBuilder] = {

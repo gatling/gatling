@@ -19,7 +19,7 @@ import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
 import io.gatling.core.util.TypeHelper.TypeCaster
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, ValidationList }
+import io.gatling.core.validation.{ emptyStringListSuccess, FailureWrapper, SuccessWrapper, Validation, ValidationList }
 
 trait Part[+T] {
 	def apply(session: Session): Validation[T]
@@ -105,12 +105,16 @@ object EL {
 		parsed match {
 			case List(StaticPart(string)) => (session: Session) => string.asValidation[T]
 			case List(dynamicPart) => (session: Session) => dynamicPart(session).flatMap(_.asValidation[T])
-			case parts => (session: Session) =>
-				val resolvedString = parts.map(_(session))
-					.sequence
-					.map(_.mkString)
-
-				resolvedString.flatMap(_.asValidation[T])
+			case parts => (session: Session) => parts.foldLeft(emptyStringListSuccess) { (parts, part) =>
+				part match {
+					case StaticPart(string) => parts.map(string :: _)
+					case _ =>
+						for {
+							parts <- parts
+							part <- part(session)
+						} yield part.toString :: parts
+				}
+			}.flatMap(_.reverse.mkString.asValidation[T])
 		}
 	}
 }

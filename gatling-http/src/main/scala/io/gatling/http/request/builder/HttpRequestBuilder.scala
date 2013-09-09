@@ -22,7 +22,7 @@ import com.ning.http.client.ProxyServer.Protocol
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ EL, Expression, Session }
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, ValidationList }
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.ahc.{ ConnectionPoolKeyStrategy, RequestFactory }
@@ -50,6 +50,7 @@ object AbstractHttpRequestBuilder {
 	val jsonHeaderValueExpression = EL.compile[String](HeaderValues.APPLICATION_JSON)
 	val xmlHeaderValueExpression = EL.compile[String](HeaderValues.APPLICATION_XML)
 	val multipartFormDataValueExpression = EL.compile[String](HeaderValues.MULTIPART_FORM_DATA)
+	val emptyHeaderListSuccess = List.empty[(String, String)].success
 }
 
 /**
@@ -179,17 +180,16 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 
 		def configureHeaders(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
-			val resolvedHeaders = httpAttributes.headers.map {
-				case (key, value) =>
-					for {
-						resolvedValue <- value(session)
-					} yield key -> resolvedValue
+			val resolvedHeaders = httpAttributes.headers.foldLeft(AbstractHttpRequestBuilder.emptyHeaderListSuccess) { (headers, header) =>
+				val (key, value) = header
+				for {
+					headers <- headers
+					value <- value(session)
+				} yield ((key -> value) :: headers)
 			}
-				.toList
-				.sequence
 
 			resolvedHeaders.map { headers =>
-				val newHeaders = RefererHandling.addStoredRefererHeader(protocol.baseHeaders ++ headers, session, protocol)
+				val newHeaders = RefererHandling.addStoredRefererHeader(protocol.baseHeaders ++ headers.reverse, session, protocol)
 				newHeaders.foreach { case (headerName, headerValue) => requestBuilder.addHeader(headerName, headerValue) }
 				requestBuilder
 			}
