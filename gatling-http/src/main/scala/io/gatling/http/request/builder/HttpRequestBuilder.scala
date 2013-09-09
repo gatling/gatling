@@ -43,6 +43,7 @@ case class HttpAttributes(
 	virtualHost: Option[Expression[String]] = None,
 	address: Option[InetAddress] = None,
 	checks: List[HttpCheck] = Nil,
+	ignoreDefaultChecks: Boolean = false,
 	responseTransformer: Option[ResponseTransformer] = None)
 
 object AbstractHttpRequestBuilder {
@@ -77,6 +78,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 * @param checks the checks that will be performed on the response
 	 */
 	def check(checks: HttpCheck*): B = newInstance(httpAttributes.copy(checks = httpAttributes.checks ::: checks.toList))
+
+	/**
+	 * Ignore the default checks configured on HttpProtocol
+	 */
+	def ignoreDefaultChecks: B = newInstance(httpAttributes.copy(ignoreDefaultChecks = true))
 
 	/**
 	 * Adds a query parameter to the request
@@ -224,7 +230,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 */
 	def build: RequestFactory = (session: Session, protocol: HttpProtocol) => getAHCRequestBuilder(session, protocol).map(_.build)
 
-	def toActionBuilder = new HttpRequestActionBuilder(httpAttributes.requestName, this.build, httpAttributes.checks, httpAttributes.responseTransformer)
+	def toActionBuilder = new HttpRequestActionBuilder(httpAttributes.requestName, this.build, httpAttributes.checks, httpAttributes.ignoreDefaultChecks, httpAttributes.responseTransformer)
 }
 
 object HttpRequestBuilder {

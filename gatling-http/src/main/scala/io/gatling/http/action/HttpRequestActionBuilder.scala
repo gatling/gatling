@@ -43,13 +43,18 @@ object HttpRequestActionBuilder {
  * @param requestBuilder the builder for the request that will be sent
  * @param next the next action to be executed
  */
-class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer]) extends ActionBuilder {
+class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], ignoreDefaultChecks: Boolean, responseTransformer: Option[ResponseTransformer]) extends ActionBuilder {
 
 	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
 
 		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
 
-		val resolvedChecks = (httpProtocol.checks ::: checks)
+		val totalChecks = if (ignoreDefaultChecks)
+			httpProtocol.checks
+		else
+			httpProtocol.checks ::: checks
+
+		val resolvedChecks = totalChecks
 			.find(_.order == Status)
 			.map(_ => checks)
 			.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
