@@ -121,8 +121,8 @@
 		<fastring.version>0.2.1</fastring.version>
 		<netty.version>3.7.0.Final</netty.version>
 		<grizzly.version>2.3.4</grizzly.version>
-		<joda-time.version>2.2</joda-time.version>
-		<joda-convert.version>1.2</joda-convert.version>
+		<joda-time.version>2.3</joda-time.version>
+		<joda-convert.version>1.4</joda-convert.version>
 		<scopt.version>3.1.0</scopt.version>
 		<scalalogging.version>1.0.1</scalalogging.version>
 		<jayway-jsonpath.version>0.8.2.fix24</jayway-jsonpath.version>
