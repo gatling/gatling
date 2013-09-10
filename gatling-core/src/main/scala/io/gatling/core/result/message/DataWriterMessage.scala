@@ -25,7 +25,7 @@ case class ShortScenarioDescription(name: String, nbUsers: Int)
 
 case class Init(runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
 
-case object Flush extends DataWriterMessage
+case object Terminate extends DataWriterMessage
 
 case class RequestMessage(
 	scenario: String,

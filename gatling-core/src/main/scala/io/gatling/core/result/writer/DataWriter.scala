@@ -21,7 +21,7 @@ import akka.actor.{ Actor, ActorRef, Props }
 import io.gatling.core.action.{ AkkaDefaults, BaseActor, system }
 import io.gatling.core.action.system.dispatcher
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.{ DataWriterMessage, End, Flush, GroupMessage, Init, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription }
+import io.gatling.core.result.message.{ DataWriterMessage, End, GroupMessage, Init, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription, Terminate }
 import io.gatling.core.result.terminator.Terminator
 import io.gatling.core.scenario.Scenario
 
@@ -61,7 +61,7 @@ trait DataWriter extends BaseActor {
 
 	def onRequestMessage(request: RequestMessage)
 
-	def onFlushDataWriter
+	def onTerminateDataWriter
 
 	def uninitialized: Receive = {
 		case Init(runMessage, scenarios) =>
@@ -91,9 +91,9 @@ trait DataWriter extends BaseActor {
 
 		case requestMessage: RequestMessage => onRequestMessage(requestMessage)
 
-		case Flush =>
+		case Terminate =>
 			try {
-				onFlushDataWriter
+				onTerminateDataWriter
 			} finally {
 				context.become(flushed)
 				sender ! true

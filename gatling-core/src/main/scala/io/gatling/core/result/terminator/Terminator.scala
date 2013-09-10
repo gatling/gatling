@@ -22,7 +22,7 @@ import scala.util.{ Failure, Success }
 
 import io.gatling.core.action.{ AkkaDefaults, BaseActor, system }
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.Flush
+import io.gatling.core.result.message.Terminate
 
 import akka.actor.{ ActorRef, Props }
 
@@ -75,8 +75,8 @@ class Terminator extends BaseActor {
 	def flush {
 		// just give DataWriters a chance to write more pending messages
 		// not perfect, they still could receive messages after this flush
-		logger.info("Asking DataWriters to flush")
-		Future.sequence(registeredDataWriters.map(_ ? Flush))
+		logger.info("Asking DataWriters to terminate")
+		Future.sequence(registeredDataWriters.map(_ ? Terminate))
 			.onComplete {
 				case Success(_) =>
 					latch.countDown

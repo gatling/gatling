@@ -164,7 +164,7 @@ class JdbcDataWriter extends DataWriter with Logging {
 		}
 	}
 
-	override def onFlushDataWriter {
+	override def onTerminateDataWriter {
 		logger.info("Received flush order")
 		//Flush all the batch jdbc execution
 		scenarioInsert.executeAndClearBatch
