@@ -66,8 +66,12 @@ object XPathExtractors {
 
 	def evaluate(criterion: String, namespaces: List[(String, String)], xdmNode: XdmNode): Seq[XdmItem] = {
 		val xPathSelector = cached(criterion, namespaces)
-		xPathSelector.setContextItem(xdmNode)
-		xPathSelector.evaluate.toSeq
+		try {
+			xPathSelector.setContextItem(xdmNode)
+			xPathSelector.evaluate.toSeq
+		} finally {
+			xPathSelector.getUnderlyingXPathContext.setContextItem(null)
+		}
 	}
 
 	val extractOne = (namespaces: List[(String, String)]) => (occurrence: Int) => new XPathExtractor[String] {
