@@ -126,6 +126,7 @@
 		<scopt.version>3.1.0</scopt.version>
 		<scalalogging.version>1.0.1</scalalogging.version>
 		<jayway-jsonpath.version>0.8.2.fix24</jayway-jsonpath.version>
+		<json-smart.version>1.2</json-smart.version>
 		<commons-math3.version>3.2</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
 		<commons-exec.version>1.1</commons-exec.version>
@@ -327,6 +328,11 @@
 				<groupId>com.jayway.jsonpath</groupId>
 				<artifactId>json-path</artifactId>
 				<version>${jayway-jsonpath.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.minidev</groupId>
+				<artifactId>json-smart</artifactId>
+				<version>${json-smart.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.commons</groupId>
