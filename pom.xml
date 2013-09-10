@@ -114,8 +114,7 @@
 		<ahc.version>1.7.19</ahc.version>
 		<akka.version>2.2.1</akka.version>
 		<config.version>1.0.2</config.version>
-		<jaxen.version>1.1.6</jaxen.version>
-		<xerces.version>2.11.0</xerces.version>
+		<saxon.version>9.5.1-2</saxon.version>
 		<logback.version>1.0.13</logback.version>
 		<slf4j.version>1.7.5</slf4j.version>
 		<fastring.version>0.2.1</fastring.version>
@@ -255,24 +254,9 @@
 				<version>${config.version}</version>
 			</dependency>
 			<dependency>
-				<groupId>jaxen</groupId>
-				<artifactId>jaxen</artifactId>
-				<version>${jaxen.version}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>maven-plugins</groupId>
-						<artifactId>maven-cobertura-plugin</artifactId>
-					</exclusion>
-					<exclusion>
-						<groupId>maven-plugins</groupId>
-						<artifactId>maven-findbugs-plugin</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>xerces</groupId>
-				<artifactId>xercesImpl</artifactId>
-				<version>${xerces.version}</version>
+				<groupId>net.sf.saxon</groupId>
+				<artifactId>Saxon-HE</artifactId>
+				<version>${saxon.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
