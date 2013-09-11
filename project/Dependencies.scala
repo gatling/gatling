@@ -13,7 +13,7 @@ object Dependencies {
 	private val netty             = "io.netty"              % "netty"              % "3.7.0.Final"
 	private val akkaActor         = "com.typesafe.akka"    %% "akka-actor"         % "2.2.1"
 	private val config            = "com.typesafe"          % "config"             % "1.0.2"
-	private val saxon             = "net.sf.saxon"          % "Saxon-HE"           % "9.5.1-2"
+	private val saxon             = "io.gatling.net.sf.saxon" % "Saxon-HE"         % "9.5.1-2"
 	private val slf4jApi          = "org.slf4j"             % "slf4j-api"          % "1.7.5"
 	private val fastring          = "com.dongxiguo"        %% "fastring"           % "0.2.1"
 	private val jodaTime          = "joda-time"             % "joda-time"          % "2.2"
