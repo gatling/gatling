@@ -72,9 +72,9 @@ case class AtOnceInjection(users: Int) extends InjectionStep {
  * The injection scheduling follows this equation
  * u = r1*t + (r2-r1)/(2*duration)*t²
  *
- * @r1 : initial injection rate in users/seconds
- * @r2 : final injection rate in users/seconds
- * @duration : injection duration
+ * @param r1 : initial injection rate in users/seconds
+ * @param r2 : final injection rate in users/seconds
+ * @param duration : injection duration
  */
 case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) extends InjectionStep {
 	require(r1 > 0 && r2 > 0, "injection rates must be strictly positive values")
