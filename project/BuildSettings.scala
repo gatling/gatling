@@ -5,8 +5,8 @@ import aether.WagonWrapper
 import aether.Aether._
 import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
+import com.typesafe.sbt.SbtSite.site
 import sbtrelease.ReleasePlugin._
-
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
 
 import Dependencies._
@@ -57,6 +57,12 @@ object BuildSettings {
 	lazy val noCodeToPublish = Seq(
 		publishArtifact in Compile := false
 	)
+
+	/****************************/
+	/** Documentation settings **/
+	/****************************/
+
+	lazy val docSettings = site.settings ++ site.sphinxSupport()
 
 	/**************************************/
 	/** gatling-charts specific settings **/
