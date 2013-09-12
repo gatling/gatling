@@ -5,6 +5,8 @@ import aether.WagonWrapper
 import aether.Aether._
 import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
+import sbtrelease.ReleasePlugin._
+
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
 
 import Dependencies._
@@ -12,7 +14,6 @@ import Dependencies._
 object BuildSettings {
 
 	lazy val basicSettings = Seq(
-		version               := "2.0.0-SNAPSHOT",
 		homepage              := Some(new URL("http://gatling.io")),
 		organization          := "io.gatling",
 		organizationHomepage  := Some(new URL("http://gatling.io")),
@@ -32,7 +33,7 @@ object BuildSettings {
 			"-language:implicitConversions",
 			"-language:postfixOps"
 		)
-	) ++ publishingSettings
+	) ++ publishingSettings ++ releaseSettings
 
 	lazy val gatlingModuleSettings = basicSettings ++ formattingSettings ++ graphSettings
 
