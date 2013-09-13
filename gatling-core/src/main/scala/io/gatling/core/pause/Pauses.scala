@@ -29,6 +29,10 @@ sealed abstract class PauseType {
 	def generator(duration: Expression[Duration]): Expression[Long]
 }
 
+object Disabled extends PauseType {
+	def generator(duration: Expression[Duration]) = throw new UnsupportedOperationException
+}
+
 object Constant extends PauseType {
 	def generator(duration: Expression[Duration]) = (session: Session) => duration(session).map(_.toMillis)
 }

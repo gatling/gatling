@@ -20,7 +20,7 @@ import scala.concurrent.duration.Duration
 import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.{ Pause, system }
 import io.gatling.core.config.ProtocolRegistry
-import io.gatling.core.pause.PauseProtocol
+import io.gatling.core.pause.{ Disabled, PauseProtocol }
 import io.gatling.core.session.Expression
 
 /**
@@ -33,9 +33,11 @@ class PauseBuilder(duration: Expression[Duration]) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
 
-		val pauseProtocol = protocolRegistry.getProtocol(PauseProtocol.default)
-		val generator = pauseProtocol.pauseType.generator(duration)
-
-		system.actorOf(Props(new Pause(generator, next)))
+		protocolRegistry.getProtocol(PauseProtocol.default).pauseType match {
+			case Disabled => next
+			case pauseType =>
+				val generator = pauseType.generator(duration)
+				system.actorOf(Props(new Pause(generator, next)))
+		}
 	}
 }
