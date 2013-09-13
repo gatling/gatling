@@ -15,10 +15,14 @@
  */
 package io.gatling.core.structure
 
+import scala.concurrent.duration.Duration
+
 import io.gatling.core.action.UserEnd
 import io.gatling.core.action.builder.{ ActionBuilder, UserStartBuilder }
 import io.gatling.core.config.{ Protocol, ProtocolRegistry }
+import io.gatling.core.pause.{ Constant, Custom, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
 import io.gatling.core.scenario.{ InjectionProfile, InjectionStep, Scenario }
+import io.gatling.core.session.Expression
 
 /**
  * The scenario builder is used in the DSL to define the scenario
@@ -38,6 +42,13 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = L
 case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, protocols: List[Protocol] = Nil) {
 
 	def protocols(protocol: Protocol, protocols: Protocol*) = copy(protocols = protocol :: protocols.toList)
+
+	def constantPauses = pauses(Constant)
+	def exponentialPauses = pauses(Exponential)
+	def customPauses(custom: Expression[Long]) = pauses(Custom(custom))
+	def uniform(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
+	def uniform(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
+	def pauses(pauseType: PauseType) = protocols(PauseProtocol(pauseType))
 
 	/**
 	 * @param protocolRegistry

@@ -18,7 +18,8 @@ package io.gatling.core.scenario
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.config.Protocol
-import io.gatling.core.pause.{ PauseProtocol, PauseType }
+import io.gatling.core.pause.{ Constant, Custom, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
+import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ Assertion, ChainBuilder, Metric, ProfiledScenarioBuilder }
 
 abstract class Simulation {
@@ -64,6 +65,11 @@ abstract class Simulation {
 			this
 		}
 
+		def constantPauses = pauses(Constant)
+		def exponentialPauses = pauses(Exponential)
+		def customPauses(custom: Expression[Long]) = pauses(Custom(custom))
+		def uniform(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
+		def uniform(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
 		def pauses(pauseType: PauseType) = {
 			_globalProtocols = PauseProtocol(pauseType) :: _globalProtocols
 			this
