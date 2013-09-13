@@ -9,6 +9,8 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "0.6.2")
 
 addSbtPlugin("no.arktekk.sbt" % "aether-deploy" % "0.10")
 
+addSbtPlugin("com.github.gseitz" % "sbt-release" % "0.7.1")
+
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "2.3.0")
 
 // Dependency needed for the WebDAV wagon
