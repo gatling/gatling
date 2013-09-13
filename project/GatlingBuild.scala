@@ -19,6 +19,7 @@ object GatlingBuild extends Build {
 		.aggregate(core, jdbc, redis, http, charts, metrics, app, recorder, bundle)
 		.settings(basicSettings: _*)
 		.settings(noCodeToPublish: _*)
+		.settings(docSettings: _*)
 
 	/*************/
 	/** Modules **/
