@@ -19,7 +19,7 @@ object BuildSettings {
 		organizationHomepage  := Some(new URL("http://gatling.io")),
 		startYear             := Some(2011),
 		licenses              := Seq("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
-		resolvers             := Seq(Resolver.mavenLocal, excilysNexus),
+		resolvers             := Seq(excilysNexus),
 		scalaVersion          := "2.10.2",
 		crossPaths            := false,
 		pomExtra              := scm ++ developersXml(developers),
@@ -35,7 +35,10 @@ object BuildSettings {
 		)
 	) ++ publishingSettings ++ releaseSettings
 
-	lazy val gatlingModuleSettings = basicSettings ++ formattingSettings ++ graphSettings
+	lazy val gatlingModuleSettings =
+		basicSettings ++ formattingSettings ++ graphSettings ++ Seq(
+			exportJars := true
+		)
 
 	/*************************/
 	/** Publishing settings **/
