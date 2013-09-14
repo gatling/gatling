@@ -18,7 +18,7 @@ object GatlingBuild extends Build {
 	lazy val root = Project("gatling-parent", file("."))
 		.aggregate(core, jdbc, redis, http, charts, metrics, app, recorder, bundle)
 		.settings(basicSettings: _*)
-		.settings(noCodeToPublish: _*)
+		.settings(noCodeToPublish: _*) // Doesn't work with aether-deploy
 		.settings(docSettings: _*)
 
 	/*************/
@@ -59,9 +59,9 @@ object GatlingBuild extends Build {
 		.dependsOn(core, http)
 		.settings(libraryDependencies ++= recorderDeps)
 
-	// FIXME : No need for aggregation if runtime dependencies could be part of gatling-bundle's classpath 
 	lazy val bundle = gatlingModule("gatling-bundle")
-		.aggregate(core, jdbc, redis, http, charts, metrics, app, recorder)
+		.dependsOn(Seq(app, recorder).map(_ % "runtime->runtime"): _*)
 		.settings(bundleSettings: _*)
-		.settings(noCodeToPublish: _*)
+		.settings(noCodeToPublish: _*) // Doesn't work with aether-deploy
+		.settings(exportJars := false) // Don't export gatling-bundle's jar 
 }

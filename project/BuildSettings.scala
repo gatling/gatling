@@ -35,7 +35,10 @@ object BuildSettings {
 		)
 	) ++ publishingSettings ++ releaseSettings
 
-	lazy val gatlingModuleSettings = basicSettings ++ formattingSettings ++ graphSettings
+	lazy val gatlingModuleSettings =
+		basicSettings ++ formattingSettings ++ graphSettings ++ Seq(
+			exportJars := true
+		)
 
 	/*************************/
 	/** Publishing settings **/
