@@ -36,16 +36,15 @@ object GatlingFiles {
 
 	private def resolvePath(path: String): Path = {
 		val rawPath = Path(path)
-		if (rawPath.exists) path else GATLING_HOME / path
+		if (rawPath.isAbsolute || rawPath.exists) path else GATLING_HOME / path
 	}
 
 	def dataDirectory: Path = resolvePath(configuration.core.directory.data)
-	def resultsRootDirectory: Path = resolvePath(configuration.core.directory.results)
 	def requestBodiesDirectory: Path = resolvePath(configuration.core.directory.requestBodies)
 	def sourcesDirectory: Directory = resolvePath(configuration.core.directory.sources).toDirectory
 	def reportsOnlyDirectory: Option[String] = configuration.core.directory.reportsOnly
 	def binariesDirectory: Option[Directory] = configuration.core.directory.binaries.map(_.toDirectory)
-	def resultDirectory(runUuid: String): Path = resultsRootDirectory / runUuid
+	def resultDirectory(runUuid: String): Path = resolvePath(configuration.core.directory.results) / runUuid
 	def jsDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_JS
 	def styleDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_STYLE
 
