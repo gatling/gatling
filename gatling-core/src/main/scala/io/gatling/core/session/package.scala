@@ -26,7 +26,7 @@ package object session {
 		def el[T: ClassTag] = EL.compile(string)
 	}
 
-	implicit class ELWrapper[T](val value: T) extends AnyVal {
+	implicit class ExpressionWrapper[T](val value: T) extends AnyVal {
 		def expression = (session: Session) => value.success
 	}
 

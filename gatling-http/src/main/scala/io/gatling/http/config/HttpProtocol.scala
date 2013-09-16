@@ -22,7 +22,7 @@ import com.ning.http.client.{ ProxyServer, Realm, Request }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Protocol
 import io.gatling.core.result.message.Status
-import io.gatling.core.session.{ ELWrapper, Expression, Session }
+import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
 import io.gatling.core.util.RoundRobin
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.{ Response, ResponseTransformer }
