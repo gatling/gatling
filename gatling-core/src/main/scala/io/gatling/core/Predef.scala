@@ -80,11 +80,18 @@ object Predef {
 		def user = users
 		def users = new UserNumber(number)
 	}
+	implicit class JavaUserNumberImplicit(val number: java.lang.Integer) extends AnyVal {
+		def user = users
+		def users = new UserNumber(number)
+	}
 	implicit class UsersPerSecImplicit(val rate: Double) extends AnyVal {
 		def userPerSec = usersPerSec
 		def usersPerSec = new UsersPerSec(rate)
 	}
-
+	implicit class JavaUsersPerSecImplicit(val rate: java.lang.Double) extends AnyVal {
+		def userPerSec = usersPerSec
+		def usersPerSec = new UsersPerSec(rate)
+	}
 	implicit def userNumber(number: Int) = new UserNumber(number)
 	implicit def userPerSec(rate: Double) = new UsersPerSec(rate)
 
