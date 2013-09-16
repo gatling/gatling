@@ -13,22 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core
+package io.gatling.core.session
 
 import scala.reflect.ClassTag
 
-import io.gatling.core.session.Session
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
+package object el {
 
-package object session {
-
-	type Expression[T] = Session => Validation[T]
-
-	implicit class ExpressionWrapper[T](val value: T) extends AnyVal {
-		def expression = (session: Session) => value.success
+	implicit class EL(val string: String) extends AnyVal {
+		def el[T: ClassTag]: Expression[T] = ELCompiler.compile[T](string)
 	}
-
-	val noopStringExpression = "".expression
-
-	def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression.map(_(session).map(Some(_))).getOrElse(None.success)
 }

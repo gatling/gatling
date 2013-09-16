@@ -24,7 +24,8 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.Status
-import io.gatling.core.session.{ ELCompiler, Expression, Session }
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.el.EL
 import io.gatling.http.Headers.Names._
 import io.gatling.http.ahc.HttpClient
 import io.gatling.http.check.HttpCheck

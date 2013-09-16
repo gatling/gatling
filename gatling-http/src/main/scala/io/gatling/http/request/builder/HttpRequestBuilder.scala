@@ -21,7 +21,8 @@ import com.ning.http.client.{ Realm, RequestBuilder }
 import com.ning.http.client.ProxyServer.Protocol
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.{ EL, Expression, Session }
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.el.EL
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import io.gatling.http.action.HttpRequestActionBuilder
@@ -48,9 +49,9 @@ case class HttpAttributes(
 
 object AbstractHttpRequestBuilder {
 
-	val jsonHeaderValueExpression = EL.compile[String](HeaderValues.APPLICATION_JSON)
-	val xmlHeaderValueExpression = EL.compile[String](HeaderValues.APPLICATION_XML)
-	val multipartFormDataValueExpression = EL.compile[String](HeaderValues.MULTIPART_FORM_DATA)
+	val jsonHeaderValueExpression = HeaderValues.APPLICATION_JSON.el[String]
+	val xmlHeaderValueExpression = HeaderValues.APPLICATION_XML.el[String]
+	val multipartFormDataValueExpression = HeaderValues.MULTIPART_FORM_DATA.el[String]
 	val emptyHeaderListSuccess = List.empty[(String, String)].success
 }
 
@@ -113,7 +114,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 *
 	 * @param newHeaders a scala map containing the headers to add
 	 */
-	def headers(newHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ newHeaders.mapValues(EL.compile[String])))
+	def headers(newHeaders: Map[String, String]): B = newInstance(httpAttributes.copy(headers = httpAttributes.headers ++ newHeaders.mapValues(_.el[String])))
 
 	/**
 	 * Adds Accept and Content-Type headers to the request set with "application/json" values

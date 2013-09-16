@@ -18,8 +18,7 @@ package io.gatling.core.structure
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.action.builder.PauseBuilder
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.SuccessWrapper
+import io.gatling.core.session.{ Expression, ExpressionWrapper }
 
 trait Pauses[B] extends Execs[B] {
 
@@ -29,6 +28,6 @@ trait Pauses[B] extends Execs[B] {
 	 * @param duration Expression that when resolved, provides the pause duration
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(duration: Duration): B = pause((session: Session) => duration.success)
+	def pause(duration: Duration): B = pause(duration.expression)
 	def pause(duration: Expression[Duration]): B = newInstance(new PauseBuilder(duration) :: actionBuilders)
 }

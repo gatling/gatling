@@ -22,6 +22,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 import io.gatling.core.result.message.{ GroupStackEntry, KO, OK, Status }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.TypeHelper.TypeCaster
+import io.gatling.core.session.el.ELMessages
 import io.gatling.core.validation.{ FailureWrapper, Validation }
 
 /**
@@ -36,7 +37,7 @@ case class SessionAttribute(session: Session, key: String) {
 
 	def as[T]: T = session.attributes(key).asInstanceOf[T]
 	def asOption[T]: Option[T] = session.attributes.get(key).map(_.asInstanceOf[T])
-	def validate[T: ClassTag]: Validation[T] = session.attributes.get(key).map(_.asValidation[T]).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
+	def validate[T: ClassTag]: Validation[T] = session.attributes.get(key).map(_.asValidation[T]).getOrElse(ELMessages.undefinedSessionAttributeMessage(key).failure[T])
 }
 
 /**

@@ -13,13 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.session
+package io.gatling.core.session.el
 
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TypeHelper.TypeCaster
-import io.gatling.core.validation.{ emptyStringListSuccess, FailureWrapper, SuccessWrapper, Validation, ValidationList }
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, emptyStringListSuccess }
+
+object ELMessages {
+	def undefinedSeqIndexMessage(name: String, index: Int) = s"Seq named '$name' is undefined for index $index"
+	def undefinedSessionAttributeMessage(name: String) = s"No attribute named '$name' is defined"
+}
 
 trait Part[+T] {
 	def apply(session: Session): Validation[T]
@@ -51,7 +57,7 @@ case class SeqElementPart(name: String, index: String) extends Part[Any] {
 		def seqElementPart(index: Int): Validation[Any] = session(name).validate[Seq[_]].flatMap {
 			_.lift(index) match {
 				case Some(e) => e.success
-				case None => undefinedSeqIndexMessage(name, index).failure
+				case None => ELMessages.undefinedSeqIndexMessage(name, index).failure
 			}
 		}
 
@@ -68,8 +74,7 @@ sealed abstract class ELParserException(message: String) extends Exception(messa
 class ELMissingAttributeName(el: String) extends ELParserException(s"An attribute name is missing in this expression : $el")
 class ELNestedAttributeDefinition(el: String) extends ELParserException(s"There is a nested attribute definition in this expression : $el")
 
-object EL {
-
+object ELCompiler {
 	val elPattern = """\$\{(.*?)\}""".r
 	val elSeqSizePattern = """(.+?)\.size""".r
 	val elSeqRandomPattern = """(.+?)\.random""".r

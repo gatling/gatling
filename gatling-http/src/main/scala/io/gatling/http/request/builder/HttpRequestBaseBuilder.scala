@@ -15,7 +15,7 @@
  */
 package io.gatling.http.request.builder
 
-import io.gatling.core.session.{ EL, Expression }
+import io.gatling.core.session.Expression
 
 /**
  * HttpRequestActionBuilder class companion
