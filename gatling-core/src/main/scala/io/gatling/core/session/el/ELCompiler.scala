@@ -108,8 +108,8 @@ object ELCompiler {
 		}
 
 		parsed match {
-			case List(StaticPart(string)) => (session: Session) => string.asValidation[T]
-			case List(dynamicPart) => (session: Session) => dynamicPart(session).flatMap(_.asValidation[T])
+			case List(StaticPart(string)) => _ => string.asValidation[T]
+			case List(dynamicPart) => dynamicPart(_).flatMap(_.asValidation[T])
 			case parts => (session: Session) => parts.foldLeft(emptyStringListSuccess) { (parts, part) =>
 				part match {
 					case StaticPart(string) => parts.map(string :: _)

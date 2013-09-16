@@ -34,7 +34,7 @@ trait Pauses[B] extends Execs[B] {
 	def pause(duration: Duration): B = pause(duration.expression)
 	def pause(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = {
 		val durationValue = duration.el[Int]
-		pause((session: Session) => durationValue(session).map(i => Duration(i, unit)))
+		pause(durationValue(_).map(i => Duration(i, unit)))
 	}
 	def pause(duration: Expression[Duration]): B = newInstance(new PauseBuilder(duration) :: actionBuilders)
 }
