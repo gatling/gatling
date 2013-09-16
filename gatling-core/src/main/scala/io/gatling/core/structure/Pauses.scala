@@ -15,10 +15,13 @@
  */
 package io.gatling.core.structure
 
+import java.util.concurrent.TimeUnit
+
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.action.builder.PauseBuilder
-import io.gatling.core.session.{ Expression, ExpressionWrapper }
+import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
+import io.gatling.core.session.el.EL
 
 trait Pauses[B] extends Execs[B] {
 
@@ -29,5 +32,9 @@ trait Pauses[B] extends Execs[B] {
 	 * @return a new builder with a pause added to its actions
 	 */
 	def pause(duration: Duration): B = pause(duration.expression)
+	def pause(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = {
+		val durationValue = duration.el[Int]
+		pause((session: Session) => durationValue(session).map(i => Duration(i, unit)))
+	}
 	def pause(duration: Expression[Duration]): B = newInstance(new PauseBuilder(duration) :: actionBuilders)
 }
