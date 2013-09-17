@@ -67,7 +67,7 @@ case class RequestElement(uri: String, method: String, headers: Map[String, Stri
 	}
 
 	def makeRelativeTo(baseUrl: String): RequestElement = {
-		if (baseUrl == this.baseUrl) printedUrl = pathQuery.split("?")(0)
+		if (baseUrl == this.baseUrl) printedUrl = pathQuery.split("""\?""")(0)
 		this
 	}
 
