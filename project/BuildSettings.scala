@@ -103,7 +103,7 @@ object BuildSettings {
 		GatlingDeveloper("rsertelon@excilys.com", "Romain Sertelon", true),
 		GatlingDeveloper("ybenkhaled@excilys.com", "Yassine Ben Khaled", true),
 		GatlingDeveloper("hcordier@excilys.com", "Hugo Cordier", true),
-		GatlingDeveloper("nicolas.remond@gmail.com", "Nicolas Rémond", false),
+		GatlingDeveloper("nremond@gmail.com", "Nicolas Rémond", false),
 		GatlingDeveloper("skuenzli@gmail.com", "Stephen Kuenzli", false),
 		GatlingDeveloper("pdalpra@excilys.com", "Pierre Dal-Pra", true),
 		GatlingDeveloper("gcoutant@excilys.com", "Grégory Coutant", true),
