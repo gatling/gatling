@@ -17,6 +17,7 @@ object Dependencies {
 	private val slf4jApi          = "org.slf4j"             % "slf4j-api"          % "1.7.5"
 	private val fastring          = "com.dongxiguo"        %% "fastring"           % "0.2.2"
 	private val jodaTime          = "joda-time"             % "joda-time"          % "2.3"
+	private val jodaConvert       = "org.joda"              % "joda-convert"       % "1.5"
 	private val scopt             = "com.github.scopt"     %% "scopt"              % "3.1.0"
 	private val scalalogging      = "com.typesafe"         %% "scalalogging-slf4j" % "1.0.1"
 	private val jsonSmart         = "net.minidev"           % "json-smart"         % "1.2"
@@ -43,7 +44,7 @@ object Dependencies {
 	private val testDeps = Seq(junit, specs2, akkaTestKit, mockitoCore)
 
 	val coreDeps = Seq(
-		scalaCompiler, akkaActor, saxon, jodaTime, slf4jApi, scalalogging, scalaReflect, jsonSmart,
+		scalaCompiler, akkaActor, saxon, jodaTime, jodaConvert, slf4jApi, scalalogging, scalaReflect, jsonSmart,
 		jsonPath, commonsMath, jsoup, joddLagarto, commonsIo, config, fastring, openCsv, logbackClassic) ++ testDeps
 
 	val redisDeps = Seq(redisClient) ++ testDeps
