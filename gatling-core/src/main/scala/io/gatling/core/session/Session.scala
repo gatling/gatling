@@ -22,6 +22,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 import io.gatling.core.result.message.{ GroupStackEntry, KO, OK, Status }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.TypeHelper.TypeCaster
+import io.gatling.core.session.el.ELMessages
 import io.gatling.core.validation.{ FailureWrapper, Validation }
 
 /**
@@ -36,7 +37,7 @@ case class SessionAttribute(session: Session, key: String) {
 
 	def as[T]: T = session.attributes(key).asInstanceOf[T]
 	def asOption[T]: Option[T] = session.attributes.get(key).map(_.asInstanceOf[T])
-	def validate[T: ClassTag]: Validation[T] = session.attributes.get(key).map(_.asValidation[T]).getOrElse(undefinedSessionAttributeMessage(key).failure[T])
+	def validate[T: ClassTag]: Validation[T] = session.attributes.get(key).map(_.asValidation[T]).getOrElse(ELMessages.undefinedSessionAttributeMessage(key).failure[T])
 }
 
 /**
@@ -51,7 +52,7 @@ case class SessionAttribute(session: Session, key: String) {
  */
 case class Session(
 	scenarioName: String,
-	userId: Int,
+	userId: String,
 	attributes: Map[String, Any] = Map.empty,
 	startDate: Long = 0L,
 	drift: Long = 0L,
@@ -79,10 +80,16 @@ case class Session(
 	private[gatling] def setDrift(drift: Long) = copy(drift = drift)
 	private[gatling] def increaseDrift(time: Long) = copy(drift = time + drift)
 
-	private[gatling] def enterGroup(groupName: String) = copy(groupStack = GroupStackEntry(groupName, nowMillis) :: groupStack, statusStack = OK :: statusStack)
+	private[gatling] def enterGroup(groupName: String) = copy(groupStack = GroupStackEntry(groupName, nowMillis, 0L, 0, 0) :: groupStack, statusStack = OK :: statusStack)
 	private[gatling] def exitGroup = statusStack match {
 		case KO :: _ :: tail => copy(statusStack = KO :: tail, groupStack = groupStack.tail) // propagate failure to upper block
 		case _ :: tail => copy(statusStack = tail, groupStack = groupStack.tail)
+	}
+	def logGroupRequest(responseTime: Long, status: Status) = groupStack match {
+		case Nil => this
+		case _ =>
+			val (ok, ko) = if (status == OK) (1, 0) else (0, 1)
+			copy(groupStack = groupStack.map { entry => entry.copy(cumulatedResponseTime = entry.cumulatedResponseTime + responseTime, oks = entry.oks + ok, kos = entry.kos + ko) })
 	}
 
 	private[gatling] def enterTryMax(interrupt: PartialFunction[Session, Unit]): Session = enterInterruptable(interrupt).copy(statusStack = OK :: statusStack)

@@ -17,35 +17,27 @@ package io.gatling.core.action.builder
 
 import scala.concurrent.duration.Duration
 
-import io.gatling.core.action.{ Pause, system }
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.util.NumberHelper.createUniformRandomLongGenerator
-import io.gatling.core.validation.Validation
-
 import akka.actor.{ ActorRef, Props }
+import io.gatling.core.action.{ Pause, system }
+import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.pause.{ Disabled, PauseProtocol }
+import io.gatling.core.session.Expression
 
 /**
  * Builder for the 'pause' action.
  *
  * @constructor create a new PauseBuilder
- * @param minDuration minimum duration of the generated pause
- * @param maxDuration maximum duration of the generated pause
+ * @param duration mean duration of the generated pause
  */
-class PauseBuilder(minDuration: Expression[Duration], maxDurationOption: Option[Expression[Duration]] = None) extends ActionBuilder {
+class PauseBuilder(duration: Expression[Duration]) extends ActionBuilder {
 
-	def build(next: ActorRef) = {
+	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
 
-		val pauseDuration = maxDurationOption match {
-			case Some(maxDuration) => (session: Session) => {
-				for {
-					min <- minDuration(session)
-					max <- maxDuration(session)
-				} yield createUniformRandomLongGenerator(min.toMillis, max.toMillis)()
-			}
-
-			case None => (session: Session) => minDuration(session).map(_.toMillis)
+		protocolRegistry.getProtocol(PauseProtocol.default).pauseType match {
+			case Disabled => next
+			case pauseType =>
+				val generator = pauseType.generator(duration)
+				system.actorOf(Props(new Pause(generator, next)))
 		}
-
-		system.actorOf(Props(new Pause(pauseDuration, next)))
 	}
 }

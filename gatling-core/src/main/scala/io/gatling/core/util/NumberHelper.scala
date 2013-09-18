@@ -22,38 +22,6 @@ import org.apache.commons.math3.distribution.ExponentialDistribution
 
 object NumberHelper {
 
-	/**
-	 * Create a function that generates uniformly-distributed random longs between the values min and max.
-	 * @param min is the minimum value of the uniform distribution
-	 * @param max is the maximum value of the uniform distribution
-	 * @return
-	 */
-	def createUniformRandomLongGenerator(min: Long, max: Long): () => Long = () =>
-		if (min == 0L && max == 0L) 0L
-		else ThreadLocalRandom.current.nextLong(min, max)
-
-	/**
-	 * Create a function that generates exponentially-distributed random doubles with the provided mean.
-	 *
-	 * @param avg is the desired mean of the exponential distribution
-	 * @return
-	 */
-	def createExpRandomDoubleGenerator(avg: Double): () => Double = {
-		val dist: ExponentialDistribution = new ExponentialDistribution(avg)
-		() => dist.sample()
-	}
-
-	/**
-	 * Create a function that generates exponentially-distributed random longs with the provided mean.
-	 *
-	 * @param mean is the desired mean of the exponential distribution
-	 * @return
-	 */
-	def createExpRandomLongGenerator(mean: Double): () => Long = {
-		val generator = createExpRandomDoubleGenerator(mean)
-		() => round(generator())
-	}
-
 	def formatNumberWithSuffix(n: Long) = {
 		val suffix = n % 10 match {
 			case _ if (11 to 13) contains n % 100 => "th"

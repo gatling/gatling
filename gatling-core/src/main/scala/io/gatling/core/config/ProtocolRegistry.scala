@@ -19,14 +19,6 @@ import scala.reflect.ClassTag
 
 object ProtocolRegistry {
 
-	private var _registry: Option[ProtocolRegistry] = None
-
-	def registry = _registry.getOrElse(throw new UnsupportedOperationException("ProtocolRegistry hasn't been set up"))
-
-	def setUp(protocols: Seq[Protocol]) {
-		_registry = Some(ProtocolRegistry(protocols))
-	}
-
 	def apply(protocols: Seq[Protocol]) = {
 		val indexedProtocols: Map[Class[_ <: Protocol], Protocol] = protocols
 			.groupBy(_.getClass)

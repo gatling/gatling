@@ -26,9 +26,9 @@ import akka.actor.ActorRef
  */
 abstract class AbstractStructureBuilder[B <: AbstractStructureBuilder[B]] extends Execs[B] with Pauses[B] with Feeds[B] with Loops[B] with ConditionalStatements[B] with Errors[B] with Groups[B] {
 
-	private[core] def buildChainedActions(exitPoint: ActorRef): ActorRef =
+	private[core] def buildChainedActions(exitPoint: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef =
 		actionBuilders.foldLeft(exitPoint) { (actorRef, actionBuilder) =>
-			actionBuilder.build(actorRef)
+			actionBuilder.build(actorRef, protocolRegistry)
 		}
 }
 

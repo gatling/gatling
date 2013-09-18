@@ -85,26 +85,19 @@ class AsyncHandlerActor extends BaseActor {
 			buff.toString
 		}
 
-		/**
-		 * Extract extra info from both request and response.
-		 *
-		 * @param response is the response to extract data from; request is retrieved from the property
-		 * @return the extracted Strings
-		 */
-		val extraInfo: List[Any] =
-			try {
-				task.protocol.extraInfoExtractor.map(_(status, session, task.request, response)).getOrElse(Nil)
-			} catch {
-				case e: Exception =>
-					logger.warn("Encountered error while extracting extra request info", e)
-					Nil
-			}
-
 		if (status == KO) {
 			logger.warn(s"Request '${task.requestName}' failed : ${errorMessage.getOrElse("")}")
 			if (!logger.underlying.isTraceEnabled) logger.debug(dump)
 		}
 		logger.trace(dump)
+
+		val extraInfo: List[Any] = try {
+			task.protocol.extraInfoExtractor.map(_(status, session, task.request, response)).getOrElse(Nil)
+		} catch {
+			case e: Exception =>
+				logger.warn("Encountered error while extracting extra request info", e)
+				Nil
+		}
 
 		DataWriter.tell(RequestMessage(session.scenarioName, session.userId, session.groupStack, task.requestName,
 			response.firstByteSent, response.firstByteSent, response.firstByteReceived, response.lastByteReceived,
@@ -116,19 +109,21 @@ class AsyncHandlerActor extends BaseActor {
 	 *
 	 * @param newSession the new Session
 	 */
-	private def executeNext(task: HttpTask, newSession: Session, response: Response) {
-		task.next ! newSession.increaseDrift(nowMillis - response.lastByteReceived)
+	private def executeNext(task: HttpTask, newSession: Session, status: Status, response: Response) {
+		task.next ! newSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
+	}
+
+	private def logAndExecuteNext(task: HttpTask, session: Session, status: Status, response: Response, message: Option[String]) {
+		logRequest(task, session, status, response, message)
+		executeNext(task, session, status, response)
 	}
 
 	private def ok(task: HttpTask, session: Session, response: Response) {
-		logRequest(task, session, OK, response, None)
-		executeNext(task, session, response)
+		logAndExecuteNext(task, session, OK, response, None)
 	}
 
 	private def ko(task: HttpTask, session: Session, response: Response, message: String) {
-		val failedSession = session.markAsFailed
-		logRequest(task, failedSession, KO, response, Some(message))
-		executeNext(task, failedSession, response)
+		logAndExecuteNext(task, session.markAsFailed, KO, response, Some(message))
 	}
 
 	/**

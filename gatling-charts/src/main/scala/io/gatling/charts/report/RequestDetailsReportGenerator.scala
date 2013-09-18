@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.report
 
-import io.gatling.charts.component.{ Component, ComponentLibrary, StatisticsTextComponent }
+import io.gatling.charts.component.{ Component, ComponentLibrary, ErrorTableComponent, StatisticsTextComponent }
 import io.gatling.charts.config.ChartsFiles.requestFile
 import io.gatling.charts.result.reader.RequestPath
 import io.gatling.charts.template.RequestDetailsPageTemplate
@@ -27,7 +27,7 @@ import io.gatling.core.result.reader.DataReader
 class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
 	def generate {
-		def generateDetailPage(path: String, requestName: Option[String], group: Option[Group]) {
+		def generateDetailPage(path: String, requestName: String, group: Option[Group]) {
 			def responseTimeChartComponent: Component = {
 				val responseTimesSuccessData = dataReader.responseTimeGroupByExecutionStartDate(OK, requestName, group)
 				val responseTimesFailuresData = dataReader.responseTimeGroupByExecutionStartDate(KO, requestName, group)
@@ -38,7 +38,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 			}
 
 			def responseTimeDistributionChartComponent: Component = {
-				val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, requestName, group)
+				val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, Some(requestName), group)
 				val okDistributionSeries = new Series[IntVsTimePlot]("Success", okDistribution, List(BLUE))
 				val koDistributionSeries = new Series[IntVsTimePlot]("Failure", koDistribution, List(RED))
 
@@ -70,7 +70,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 					group,
 					new StatisticsTextComponent,
 					componentLibrary.getRequestDetailsIndicatorChartComponent,
-					componentLibrary.getErrorTableComponent(dataReader.errors(requestName, group)),
+					new ErrorTableComponent(dataReader.errors(Some(requestName), group)),
 					responseTimeChartComponent,
 					responseTimeDistributionChartComponent,
 					latencyChartComponent,
@@ -80,7 +80,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 		}
 
 		dataReader.statsPaths.foreach {
-			case RequestStatsPath(request, group) => generateDetailPage(RequestPath.path(request, group), Some(request), group)
+			case RequestStatsPath(request, group) => generateDetailPage(RequestPath.path(request, group), request, group)
 			case _ =>
 		}
 	}

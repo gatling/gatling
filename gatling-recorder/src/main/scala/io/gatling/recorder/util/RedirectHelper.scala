@@ -19,7 +19,9 @@ import io.gatling.recorder.config.RecorderConfiguration.configuration
 
 object RedirectHelper {
 
-	def isRedirectCode(code: Int) = code >= 300 && code <= 399
+	val redirectCodes = Seq(301, 302, 303)
+
+	def isRedirectCode(code: Int) = redirectCodes.contains(code)
 
 	def isRequestRedirect(currentStatus: Int): Boolean = configuration.http.followRedirect && isRedirectCode(currentStatus)
 }

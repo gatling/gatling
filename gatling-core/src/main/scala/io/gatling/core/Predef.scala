@@ -22,7 +22,8 @@ import scala.reflect.io.{ File, Path }
 import io.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
 import io.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederWrapper, SeparatedValuesParser }
 import io.gatling.core.scenario.{ AtOnceInjection, ConstantRateInjection, HeavisideInjection, InjectionStep, NothingForInjection, RampInjection, RampRateInjection, SplitInjection }
-import io.gatling.core.session.{ ELCompiler, ELWrapper, Expression }
+import io.gatling.core.session.{ Expression, ExpressionWrapper }
+import io.gatling.core.session.el.EL
 import io.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
@@ -59,7 +60,7 @@ object Predef {
 	implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
-	val bootstrap = new ChainBuilder(Nil)
+	val bootstrap = ChainBuilder.empty
 
 	val assertions = new AssertionBuilder
 
@@ -80,11 +81,18 @@ object Predef {
 		def user = users
 		def users = new UserNumber(number)
 	}
+	implicit class JavaUserNumberImplicit(val number: java.lang.Integer) extends AnyVal {
+		def user = users
+		def users = new UserNumber(number)
+	}
 	implicit class UsersPerSecImplicit(val rate: Double) extends AnyVal {
 		def userPerSec = usersPerSec
 		def usersPerSec = new UsersPerSec(rate)
 	}
-
+	implicit class JavaUsersPerSecImplicit(val rate: java.lang.Double) extends AnyVal {
+		def userPerSec = usersPerSec
+		def usersPerSec = new UsersPerSec(rate)
+	}
 	implicit def userNumber(number: Int) = new UserNumber(number)
 	implicit def userPerSec(rate: Double) = new UsersPerSec(rate)
 

@@ -15,75 +15,73 @@
  */
 package io.gatling.core.check.extractor.xpath
 
-import java.io.{ InputStream, StringReader }
+import java.io.StringReader
 
-import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.JavaConversions.{ iterableAsScalaIterable, seqAsJavaList }
 import scala.collection.mutable
 
-import org.jaxen.dom.DOMXPath
-import org.w3c.dom.{ Document, Node }
-import org.xml.sax.{ EntityResolver, InputSource }
+import org.xml.sax.InputSource
 
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
-
-import javax.xml.parsers.{ DocumentBuilder, DocumentBuilderFactory }
+import javax.xml.transform.sax.SAXSource
+import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathSelector, XdmItem, XdmNode }
 
 object XPathExtractors {
 
-	System.setProperty("javax.xml.parsers.SAXParserFactory", configuration.core.extract.xpath.saxParserFactory)
-	System.setProperty("javax.xml.parsers.DOMParserFactory", configuration.core.extract.xpath.domParserFactory)
-	private val factory = {
-		val f = DocumentBuilderFactory.newInstance
-		f.setExpandEntityReferences(configuration.core.extract.xpath.expandEntityReferences)
-		f.setNamespaceAware(configuration.core.extract.xpath.namespaceAware)
-		f
+	val processor = new Processor(false)
+	val documentBuilder = processor.newDocumentBuilder
+
+	val compilerCache = mutable.Map.empty[List[(String, String)], XPathCompiler]
+	def compiler(namespaces: List[(String, String)]) = {
+		val xPathCompiler = processor.newXPathCompiler
+		for {
+			(prefix, uri) <- namespaces
+		} xPathCompiler.declareNamespace(prefix, uri)
+		xPathCompiler
 	}
 
-	val noopEntityResolver = new EntityResolver {
-		def resolveEntity(publicId: String, systemId: String) = new InputSource(new StringReader(""))
+	def parse(text: String) = {
+		val source = new SAXSource(new InputSource(new StringReader(text)))
+		documentBuilder.build(source)
 	}
 
-	val parserHolder = new ThreadLocal[DocumentBuilder] {
-		override def initialValue: DocumentBuilder = {
-			val documentBuilder = factory.newDocumentBuilder
-			documentBuilder.setEntityResolver(noopEntityResolver)
-			documentBuilder
-		}
-	}
+	val selectorCache = mutable.Map.empty[String, ThreadLocal[XPathSelector]]
+	def xpath(expression: String, xPathCompiler: XPathCompiler): XPathSelector = xPathCompiler.compile(expression).load
 
-	def parse(inputStream: InputStream): Document = withCloseable(inputStream) { is =>
-		val parser = parserHolder.get
-		val document = parser.parse(is)
-		parser.reset
-		document
-	}
+	def cached(expression: String, namespaces: List[(String, String)]): XPathSelector =
+		if (configuration.core.extract.xpath.cache) {
+			val xPathCompiler = compilerCache.getOrElseUpdate(namespaces, compiler(namespaces))
+			selectorCache.getOrElseUpdate(expression, new ThreadLocal[XPathSelector] {
+				override def initialValue = xpath(expression, xPathCompiler)
+			}).get
+		} else
+			xpath(expression, compiler(namespaces))
 
-	def xpath(expression: String, namespaces: List[(String, String)]) = {
-		val xpathExpression = new DOMXPath(expression)
-		namespaces.foreach {
-			case (prefix, uri) => xpathExpression.addNamespace(prefix, uri)
-		}
-		xpathExpression
-	}
-
-	val cache = mutable.Map.empty[String, DOMXPath]
-	def cached(expression: String, namespaces: List[(String, String)]) = if (configuration.core.extract.xpath.cache) cache.getOrElseUpdate(expression + namespaces, xpath(expression, namespaces)) else xpath(expression, namespaces)
-
-	abstract class XPathExtractor[X] extends Extractor[Option[Document], String, X] {
+	abstract class XPathExtractor[X] extends Extractor[Option[XdmNode], String, X] {
 		val name = "xpath"
+	}
+
+	def evaluate(criterion: String, namespaces: List[(String, String)], xdmNode: XdmNode): Seq[XdmItem] = {
+		val xPathSelector = cached(criterion, namespaces)
+		try {
+			xPathSelector.setContextItem(xdmNode)
+			xPathSelector.evaluate.toSeq
+		} finally {
+			xPathSelector.getUnderlyingXPathContext.setContextItem(null)
+		}
 	}
 
 	val extractOne = (namespaces: List[(String, String)]) => (occurrence: Int) => new XPathExtractor[String] {
 
-		def apply(prepared: Option[Document], criterion: String): Validation[Option[String]] = {
+		def apply(prepared: Option[XdmNode], criterion: String): Validation[Option[String]] = {
 
 			val result = for {
-				results <- prepared.map(cached(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]]) if (results.size > occurrence)
-				result = results.get(occurrence).getTextContent
+				text <- prepared
+				results = evaluate(criterion, namespaces, text) if (results.size > occurrence)
+				result = results.get(occurrence).getStringValue
 			} yield result
 
 			result.success
@@ -92,12 +90,13 @@ object XPathExtractors {
 
 	val extractMultiple = (namespaces: List[(String, String)]) => new XPathExtractor[Seq[String]] {
 
-		def apply(prepared: Option[Document], criterion: String): Validation[Option[Seq[String]]] =
-			prepared.flatMap(cached(criterion, namespaces).selectNodes(_).asInstanceOf[java.util.List[Node]].map(_.getTextContent).liftSeqOption).success
+		def apply(prepared: Option[XdmNode], criterion: String): Validation[Option[Seq[String]]] =
+			prepared.flatMap(evaluate(criterion, namespaces, _).map(_.getStringValue).liftSeqOption).success
 	}
 
 	val count = (namespaces: List[(String, String)]) => new XPathExtractor[Int] {
 
-		def apply(prepared: Option[Document], criterion: String): Validation[Option[Int]] = prepared.map(cached(criterion, namespaces).selectNodes(_).size).success
+		def apply(prepared: Option[XdmNode], criterion: String): Validation[Option[Int]] =
+			prepared.map(evaluate(criterion, namespaces, _).size).success
 	}
 }

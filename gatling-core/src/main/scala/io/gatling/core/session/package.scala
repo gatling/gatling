@@ -17,22 +17,18 @@ package io.gatling.core
 
 import scala.reflect.ClassTag
 
+import io.gatling.core.session.Session
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 package object session {
 
-	implicit class ELCompiler(val string: String) extends AnyVal {
-		def el[T: ClassTag] = EL.compile(string)
-	}
+	type Expression[T] = Session => Validation[T]
 
-	implicit class ELWrapper[T](val value: T) extends AnyVal {
+	implicit class ExpressionWrapper[T](val value: T) extends AnyVal {
 		def expression = (session: Session) => value.success
 	}
 
 	val noopStringExpression = "".expression
 
-	type Expression[T] = Session => Validation[T]
-	def undefinedSeqIndexMessage(name: String, index: Int) = s"Seq named '$name' is undefined for index $index"
-	def undefinedSessionAttributeMessage(name: String) = s"No attribute named '$name' is defined"
 	def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression.map(_(session).map(Some(_))).getOrElse(None.success)
 }

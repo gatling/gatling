@@ -25,9 +25,11 @@ import com.typesafe.scalalogging.slf4j.Logging
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.el.EL
 import io.gatling.http.Headers.Names._
 import io.gatling.http.ahc.HttpClient
-import io.gatling.http.request.builder.{ GetHttpRequestBuilder, PostHttpRequestBuilder }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
@@ -52,6 +54,8 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 	def baseURL(baseUrl: String) = copy(protocol = protocol.copy(baseURLs = List(baseUrl)))
 
 	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*) = copy(protocol = protocol.copy(baseURLs = baseUrl1 :: baseUrl2 :: baseUrls.toList))
+
+	def baseURLs(baseUrls: Seq[String]) = copy(protocol = protocol.copy(baseURLs = baseUrls))
 
 	def disableFollowRedirect = copy(protocol = protocol.copy(followRedirect = false))
 
@@ -89,7 +93,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 
 	def basicAuth(username: Expression[String], password: Expression[String]) = copy(protocol = protocol.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
 
-	def virtualHost(virtualHost: String) = protocol.copy(virtualHost = Some(virtualHost))
+	def virtualHost(virtualHost: Expression[String]) = protocol.copy(virtualHost = Some(virtualHost))
 
 	def extraInfoExtractor(f: (Status, Session, Request, Response) => List[Any]) = copy(protocol = protocol.copy(extraInfoExtractor = Some(f)))
 
@@ -98,6 +102,8 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 	def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = copy(protocol = protocol.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
 
 	def localAddress(localAddress: InetAddress) = copy(protocol = protocol.copy(localAddress = Some(localAddress)))
+
+	def check(checks: HttpCheck*) = copy(protocol = protocol.copy(checks = protocol.checks ::: checks.toList))
 
 	def build = {
 		require(!(!protocol.shareClient && protocol.shareConnections), "Invalid protocol configuration: can't stop sharing the HTTP client while still sharing connections!")
@@ -124,8 +130,19 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 		}
 
 		if (HttpProtocolBuilder.warmUpUrls.isEmpty) {
-			GetHttpRequestBuilder.warmUp
-			PostHttpRequestBuilder.warmUp
+			val expression = "foo".el[String]
+
+			HttpRequestBaseBuilder.http(expression)
+				.get(expression)
+				.header("bar", expression)
+				.queryParam(expression, expression)
+				.build(Session("scenarioName", "0"), HttpProtocol.default)
+
+			HttpRequestBaseBuilder.http(expression)
+				.post(expression)
+				.header("bar", expression)
+				.param(expression, expression)
+				.build(Session("scenarioName", "0"), HttpProtocol.default)
 		}
 
 		protocol

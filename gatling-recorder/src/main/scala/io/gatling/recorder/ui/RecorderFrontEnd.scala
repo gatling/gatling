@@ -15,12 +15,14 @@
  */
 package io.gatling.recorder.ui
 
+import scala.reflect.io.Path.string2path
 import scala.swing.Dialog
 import scala.swing.Swing.onEDT
 
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.RecorderMode
 import io.gatling.recorder.ui.swing.frame.{ ConfigurationFrame, RunningFrame }
+import io.gatling.recorder.ui.swing.component.DialogFileSelector
 
 object RecorderFrontend {
 
@@ -39,7 +41,7 @@ sealed abstract class RecorderFrontend(controller: RecorderController) {
 
 	def harFilePath: String
 
-	def handleMissingHarFile
+	def handleMissingHarFile(path: String)
 
 	def handleHarExportSuccess
 
@@ -85,11 +87,28 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
 
 	def harFilePath = configurationFrame.harFilePath
 
-	def handleMissingHarFile {
-		Dialog.showMessage(
-			title = "Error",
-			message = "You haven't selected an HAR file.",
-			messageType = Dialog.Message.Error)
+	def handleMissingHarFile(harFilePath: String) {
+		if (harFilePath.isEmpty) {
+			Dialog.showMessage(
+				title = "Error",
+				message = "You haven't selected an HAR file.",
+				messageType = Dialog.Message.Error)
+		} else {
+			val possibleMatches = lookupFiles(harFilePath)
+			if (possibleMatches.isEmpty) {
+				Dialog.showMessage(
+					title = "No matches found",
+					message = """	|No files that could closely match the
+									|selected file's name have been found.
+									|Please check the file's path is correct.""".stripMargin,
+					messageType = Dialog.Message.Warning)
+			} else {
+				val selector = new DialogFileSelector(configurationFrame, possibleMatches)
+				selector.open()
+				val parentPath = harFilePath.parent.path
+				configurationFrame.updateHarFilePath(selector.selectedFile.map(file => (parentPath / file).toString))
+			}
+		}
 	}
 
 	def handleHarExportSuccess {
@@ -102,7 +121,8 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
 	def handleHarExportFailure {
 		Dialog.showMessage(
 			title = "Error",
-			message = "Export to HAR File unsuccessful.\nSee logs for more information",
+			message = """	|Export to HAR File unsuccessful.
+							|See logs for more information""".stripMargin,
 			messageType = Dialog.Message.Error)
 	}
 
@@ -130,5 +150,10 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
 
 	def receiveEventInfo(eventInfo: EventInfo) {
 		onEDT(runningFrame.receiveEventInfo(eventInfo))
+	}
+
+	private def lookupFiles(path: String) = {
+		val parent = path.parent
+		parent.files.filter(_.path.startsWith(path)).map(_.name).toList
 	}
 }

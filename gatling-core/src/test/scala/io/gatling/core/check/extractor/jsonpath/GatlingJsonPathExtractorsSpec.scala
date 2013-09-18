@@ -89,7 +89,7 @@ class GatlingJsonPathExtractorsSpec extends ValidationSpecification {
 		//		}
 
 		"support multiple element filters" in {
-			GatlingJsonPathExtractors.extractOne(0)(prepared("/test2.json"), "$[?(@.id==19434 && @.foo==1)]") must succeedWith(Some("1"))
+			GatlingJsonPathExtractors.extractOne(0)(prepared("/test2.json"), "$[?(@.id==19434 && @.foo==1)].foo") must succeedWith(Some("1"))
 		}
 	}
 

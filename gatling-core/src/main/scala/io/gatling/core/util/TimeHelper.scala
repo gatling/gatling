@@ -17,14 +17,18 @@ package io.gatling.core.util
 
 import java.lang.System.{ currentTimeMillis, nanoTime }
 
+import scala.concurrent.duration.DurationInt
+
 object TimeHelper {
+
+	val zeroMs = 0 millisecond
 
 	val currentTimeMillisReference = currentTimeMillis
 	val nanoTimeReference = nanoTime
 
+	def nanosSinceReference = nanoTime - nanoTimeReference
+
 	def computeTimeMillisFromNanos(nanos: Long) = (nanos - nanoTimeReference) / 1000000 + currentTimeMillisReference
-
 	def nowMillis = computeTimeMillisFromNanos(nanoTime)
-
 	def nowSeconds = computeTimeMillisFromNanos(nanoTime) / 1000
 }

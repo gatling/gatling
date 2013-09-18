@@ -33,7 +33,7 @@ object JdbcDataWriter {
 }
 
 /**
- * File implementation of the DataWriter
+ * JDBC implementation of the DataWriter
  *
  * It writes the data of the simulation to a database
  */
@@ -107,7 +107,7 @@ class JdbcDataWriter extends DataWriter with Logging {
 		import scenario._
 		scenarioInsert.setInt(1, runId)
 		scenarioInsert.setString(2, scenarioName)
-		scenarioInsert.setInt(3, userId)
+		scenarioInsert.setString(3, userId)
 		scenarioInsert.setString(4, event.name)
 		scenarioInsert.setLong(5, startDate)
 		scenarioInsert.setLong(6, endDate)
@@ -126,7 +126,7 @@ class JdbcDataWriter extends DataWriter with Logging {
 		import group._
 		groupInsert.setInt(1, runId)
 		groupInsert.setString(2, scenarioName)
-		groupInsert.setInt(3, userId)
+		groupInsert.setString(3, userId)
 		groupInsert.setLong(4, entryDate)
 		groupInsert.setLong(5, exitDate)
 		groupInsert.setString(6, status.toString)
@@ -145,7 +145,7 @@ class JdbcDataWriter extends DataWriter with Logging {
 		import request._
 		requestInsert.setInt(1, runId)
 		requestInsert.setString(2, scenario)
-		requestInsert.setInt(3, userId)
+		requestInsert.setString(3, userId)
 		requestInsert.setString(4, name)
 		requestInsert.setLong(5, requestStartDate)
 		requestInsert.setLong(6, requestEndDate)
@@ -164,7 +164,7 @@ class JdbcDataWriter extends DataWriter with Logging {
 		}
 	}
 
-	override def onFlushDataWriter {
+	override def onTerminateDataWriter {
 		logger.info("Received flush order")
 		//Flush all the batch jdbc execution
 		scenarioInsert.executeAndClearBatch

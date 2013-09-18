@@ -18,15 +18,14 @@ package io.gatling.app
 import java.io.{ File => JFile }
 import java.net.URLClassLoader
 
-import scala.tools.nsc.io.{ Directory, Path }
-import scala.tools.nsc.io.Path.{ jfile2path, string2path }
+import scala.tools.nsc.io.Directory
+import scala.tools.nsc.io.Path.string2path
 import scala.util.Try
 
 import com.typesafe.scalalogging.slf4j.Logging
-import com.typesafe.zinc.{ Compiler, Inputs, Setup }
+import com.typesafe.zinc.{ Compiler, IncOptions, Inputs, Setup }
 
-import sbt.inc.IncOptions
-import xsbti.Logger
+import xsbti.{ F0, Logger }
 import xsbti.api.Compilation
 import xsbti.compile.CompileOrder
 
@@ -47,7 +46,7 @@ object ZincCompiler extends Logging {
 
 			val sources = sourceDirectory
 				.deepFiles
-				.collect { case file if (file.hasExtension("scala")) => file.jfile }
+				.collect { case file if file.hasExtension("scala") => file.jfile }
 				.toSeq
 
 			def analysisCacheMapEntry(directoryName: String) = (gatlingHome / directoryName).jfile -> (binDirectory / "cache" / directoryName).jfile
@@ -55,14 +54,14 @@ object ZincCompiler extends Logging {
 			Inputs.inputs(classpath = classpath,
 				sources = sources,
 				classesDirectory = classesDirectory.jfile,
-				scalacOptions = Seq("-encoding", encoding, "-target:jvm-1.6", "-deprecation", "-feature", "-unchecked", "-language:implicitConversions", "-language:reflectiveCalls", "-language:postfixOps"),
+				scalacOptions = Seq("-encoding", encoding, "-target:jvm-1.6", "-deprecation", "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps"),
 				javacOptions = Nil,
 				analysisCache = Some((binDirectory / "zincCache").jfile),
 				analysisCacheMap = Map(analysisCacheMapEntry("bin"), analysisCacheMapEntry("conf"), analysisCacheMapEntry("user-files")), // avoids having GATLING_HOME polluted with a "cache" folder
 				forceClean = false,
 				javaOnly = false,
 				compileOrder = CompileOrder.JavaThenScala,
-				incOptions = IncOptions.Default,
+				incOptions = IncOptions(),
 				outputRelations = None,
 				outputProducts = None,
 				mirrorAnalysis = false)
@@ -72,9 +71,8 @@ object ZincCompiler extends Logging {
 			def jarMatching(regex: String): JFile = {
 				val compiledRegex = regex.r
 				val jarUrl = classpathURLs
-					.filter(url => compiledRegex.findFirstMatchIn(url.toString).isDefined)
-					.headOption
-					.getOrElse(throw new RuntimeException("Can't find the jar matching " + regex))
+					.find(url => compiledRegex.findFirstMatchIn(url.toString).isDefined)
+					.getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
 
 				new JFile(jarUrl.toURI)
 			}
@@ -90,17 +88,18 @@ object ZincCompiler extends Logging {
 				scalaExtra = List(scalaReflect),
 				sbtInterface = sbtInterfaceSrc,
 				compilerInterfaceSrc = compilerInterfaceSrc,
-				javaHomeDir = None)
+				javaHomeDir = None,
+				false)
 		}
 
 		// Setup the compiler
 		val setup = setupZincCompiler
 		val zincLogger = new Logger {
-			def error(arg: xsbti.F0[String]) { logger.error(arg.apply) }
-			def warn(arg: xsbti.F0[String]) { logger.warn(arg.apply) }
-			def info(arg: xsbti.F0[String]) { logger.info(arg.apply) }
-			def debug(arg: xsbti.F0[String]) { logger.debug(arg.apply) }
-			def trace(arg: xsbti.F0[Throwable]) { logger.trace("", arg.apply) }
+			def error(arg: F0[String]) { logger.error(arg.apply) }
+			def warn(arg: F0[String]) { logger.warn(arg.apply) }
+			def info(arg: F0[String]) { logger.info(arg.apply) }
+			def debug(arg: F0[String]) { logger.debug(arg.apply) }
+			def trace(arg: F0[Throwable]) { logger.trace("", arg.apply) }
 		}
 
 		val zincCompiler = Compiler.create(setup, zincLogger)

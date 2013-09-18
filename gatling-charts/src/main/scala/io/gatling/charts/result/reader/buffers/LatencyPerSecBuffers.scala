@@ -25,10 +25,10 @@ trait LatencyPerSecBuffers {
 
 	val latencyPerSecBuffers = mutable.Map.empty[BufferKey, RangeBuffer]
 
-	def getLatencyPerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[Status]): RangeBuffer =
-		latencyPerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, status), new RangeBuffer)
+	def getLatencyPerSecBuffers(requestName: String, group: Option[Group], status: Option[Status]): RangeBuffer =
+		latencyPerSecBuffers.getOrElseUpdate(BufferKey(Some(requestName), group, status), new RangeBuffer)
 
 	def updateLatencyPerSecBuffers(record: RequestRecord) {
-		getLatencyPerSecBuffers(Some(record.name), record.group, Some(record.status)).update(record.requestStartBucket, record.latency)
+		getLatencyPerSecBuffers(record.name, record.group, Some(record.status)).update(record.requestStartBucket, record.latency)
 	}
 }

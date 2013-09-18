@@ -15,7 +15,7 @@
  */
 package io.gatling.core.validation
 
-sealed trait Validation[+T] {
+abstract class Validation[+T] {
 	def map[A](f: T => A): Validation[A]
 	def flatMap[A](f: T => Validation[A]): Validation[A]
 	def mapError(f: String => String): Validation[T]

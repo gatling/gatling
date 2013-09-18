@@ -95,15 +95,15 @@ class FileDataReaderSpec extends Specification {
 		val singleFileDataReader = new FileDataReader("run_single_node_with_known_stats")
 
 		"return expected minResponseTime for correct request data" in {
-			singleFileDataReader.generalStats().min must beEqualTo(2000L)
+			singleFileDataReader.requestGeneralStats().min must beEqualTo(2000L)
 		}
 
 		"return expected maxResponseTime for correct request data" in {
-			singleFileDataReader.generalStats().max must beEqualTo(9000L)
+			singleFileDataReader.requestGeneralStats().max must beEqualTo(9000L)
 		}
 
 		"return expected responseTimeStandardDeviation for correct request data" in {
-			singleFileDataReader.generalStats().stdDev must beEqualTo(2000L)
+			singleFileDataReader.requestGeneralStats().stdDev must beEqualTo(2000L)
 		}
 
 		"return expected responseTimePercentile for the (0, 0.7) percentiles" in {
@@ -114,8 +114,8 @@ class FileDataReaderSpec extends Specification {
 			props.put(CONF_CORE_DIRECTORY_RESULTS, "src/test/resources")
 			GatlingConfiguration.setUp(props)
 			val lowPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats")
-			lowPercentilesFileDataReader.generalStats().percentile1 must beEqualTo(2000L)
-			lowPercentilesFileDataReader.generalStats().percentile2 must beEqualTo(5000L)
+			lowPercentilesFileDataReader.requestGeneralStats().percentile1 must beEqualTo(2000L)
+			lowPercentilesFileDataReader.requestGeneralStats().percentile2 must beEqualTo(5000L)
 		}
 
 		"return expected result for the (99.99, 100) percentiles" in {
@@ -126,8 +126,8 @@ class FileDataReaderSpec extends Specification {
 			props.put(CONF_CORE_DIRECTORY_RESULTS, "src/test/resources")
 			GatlingConfiguration.setUp(props)
 			val highPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats")
-			highPercentilesFileDataReader.generalStats().percentile1 must beEqualTo(9000L)
-			highPercentilesFileDataReader.generalStats().percentile2 must beEqualTo(9000L)
+			highPercentilesFileDataReader.requestGeneralStats().percentile1 must beEqualTo(9000L)
+			highPercentilesFileDataReader.requestGeneralStats().percentile2 must beEqualTo(9000L)
 		}
 
 		"indicate that all the request have their response time in between 0 and 100000" in {

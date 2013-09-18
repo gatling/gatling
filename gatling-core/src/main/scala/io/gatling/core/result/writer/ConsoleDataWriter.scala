@@ -111,7 +111,7 @@ class ConsoleDataWriter extends DataWriter {
 		}
 	}
 
-	override def onFlushDataWriter {
+	override def onTerminateDataWriter {
 		if (!complete) display
 	}
 }

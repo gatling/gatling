@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.har
 
-import java.net.{ URI, URL }
+import java.net.URL
 
 import scala.concurrent.duration.DurationLong
 import scala.io.Source
@@ -74,7 +74,7 @@ object HarReader {
 					case None => buildContent(postData.params)
 				}
 			}
-			scenarioElements = RequestElement(new URI(uri), method, headers, body, statusCode, None) :: scenarioElements
+			scenarioElements = RequestElement(uri, method, headers, body, statusCode, None) :: scenarioElements
 		}
 
 		def createPause {

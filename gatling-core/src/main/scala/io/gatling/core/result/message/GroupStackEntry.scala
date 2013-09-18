@@ -15,4 +15,4 @@
  */
 package io.gatling.core.result.message
 
-case class GroupStackEntry(name: String, startDate: Long)
+case class GroupStackEntry(name: String, startDate: Long, cumulatedResponseTime: Long, oks: Int, kos: Int)

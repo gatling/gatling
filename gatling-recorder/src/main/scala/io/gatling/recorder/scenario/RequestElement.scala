@@ -15,7 +15,6 @@
  */
 package io.gatling.recorder.scenario
 
-import java.net.URI
 import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
@@ -29,6 +28,7 @@ import com.ning.http.util.Base64
 import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.scenario.template.RequestTemplate
+import io.gatling.recorder.util.URIHelper
 
 sealed trait RequestBody
 case class RequestBodyParams(params: List[(String, String)]) extends RequestBody
@@ -47,18 +47,18 @@ object RequestElement {
 		val containsFormParams = headers.get(CONTENT_TYPE).exists(_.contains(APPLICATION_X_WWW_FORM_URLENCODED))
 		val body = content.map(content => if (containsFormParams) RequestBodyParams(parseFormBody(new String(content, configuration.core.encoding))) else RequestBodyBytes(content))
 
-		RequestElement(new URI(request.getUri), request.getMethod.toString, headers, body, statusCode, simulationClass)
+		RequestElement(request.getUri, request.getMethod.toString, headers, body, statusCode, simulationClass)
 	}
 }
 
-case class RequestElement(uri: URI, method: String, headers: Map[String, String], body: Option[RequestBody], statusCode: Int, simulationClass: Option[String]) extends ScenarioElement {
+case class RequestElement(uri: String, method: String, headers: Map[String, String], body: Option[RequestBody], statusCode: Int, simulationClass: Option[String]) extends ScenarioElement {
 
-	val baseUrl = new URI(uri.getScheme, uri.getAuthority, null, null, null).toString
-	private var printedUrl = new URI(uri.getScheme, uri.getHost, uri.getPath, null, null).toString
+	val (baseUrl, pathQuery) = URIHelper.splitURI(uri)
+	private var printedUrl = uri.split("\\?")(0)
 
 	var filteredHeadersId: Option[Int] = None
 
-	val queryParams = if (uri.getQuery != null) convertParamsFromJavaToScala(new QueryStringDecoder(uri, Charset.forName(configuration.core.encoding)).getParameters) else Nil
+	val queryParams = convertParamsFromJavaToScala(new QueryStringDecoder(uri, Charset.forName(configuration.core.encoding)).getParameters)
 
 	var id: Int = 0
 
@@ -67,12 +67,7 @@ case class RequestElement(uri: URI, method: String, headers: Map[String, String]
 	}
 
 	def makeRelativeTo(baseUrl: String): RequestElement = {
-		if (baseUrl == this.baseUrl)
-			this.printedUrl = Option(uri.getPath).map {
-				case s if s.startsWith("/") => s
-				case s => "/" + s
-			}.getOrElse("/")
-
+		if (baseUrl == this.baseUrl) printedUrl = pathQuery.split("""\?""")(0)
 		this
 	}
 

@@ -15,24 +15,22 @@
  */
 package io.gatling.http.check.body
 
-import org.w3c.dom.Document
-
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.xpath.XPathExtractors
 import io.gatling.core.session.Expression
-import io.gatling.core.util.ByteBufferInputStream
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
+import net.sf.saxon.s9api.XdmNode
 
 object HttpBodyXPathCheckBuilder extends Logging {
 
-	val preparer: Preparer[Response, Option[Document]] = (response: Response) =>
+	val preparer: Preparer[Response, Option[XdmNode]] = (response: Response) =>
 		try {
-			val is = if (response.hasResponseBody) Some(new ByteBufferInputStream(response.getResponseBodyAsByteBuffer)) else None
-			is.map(XPathExtractors.parse).success
+			val is = if (response.hasResponseBody) Some(XPathExtractors.parse(response.getResponseBody)) else None
+			is.success
 
 		} catch {
 			case e: Exception =>
@@ -41,7 +39,7 @@ object HttpBodyXPathCheckBuilder extends Logging {
 				message.failure
 		}
 
-	def xpath(expression: Expression[String], namespaces: List[(String, String)]) = new HttpMultipleCheckBuilder[Option[Document], String, String](
+	def xpath(expression: Expression[String], namespaces: List[(String, String)]) = new HttpMultipleCheckBuilder[Option[XdmNode], String, String](
 		HttpCheckBuilders.bodyCheckFactory,
 		preparer,
 		XPathExtractors.extractOne(namespaces),

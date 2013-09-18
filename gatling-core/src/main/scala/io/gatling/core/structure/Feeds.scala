@@ -17,7 +17,7 @@ package io.gatling.core.structure
 
 import io.gatling.core.action.builder.FeedBuilder
 import io.gatling.core.feeder.FeederBuilder
-import io.gatling.core.session.{ ELWrapper, Expression }
+import io.gatling.core.session.{ Expression, ExpressionWrapper }
 
 object Feeds {
 	val oneExpression = 1.expression

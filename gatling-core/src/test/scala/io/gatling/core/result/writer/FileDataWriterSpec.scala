@@ -15,17 +15,19 @@
  */
 package io.gatling.core.result.writer
 
-import java.io.StringWriter
-
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
+import FileDataWriter.RequestMessageSerializer
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ OK, RequestMessage }
 import io.gatling.core.util.StringHelper.eol
 
 @RunWith(classOf[JUnitRunner])
 class FileDataWriterSpec extends Specification {
+
+	GatlingConfiguration.setUp()
 
 	import FileDataWriter._
 
@@ -34,14 +36,14 @@ class FileDataWriterSpec extends Specification {
 		def logMessage(record: RequestMessage): String = new String(record.getBytes)
 
 		"log a standard request record" in {
-			val record = new RequestMessage("scenario", 1, Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), Nil)
+			val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), Nil)
 
 			logMessage(record) must beEqualTo("REQUEST\tscenario\t1\t\trequestName\t2\t3\t4\t5\tOK\tmessage" + eol)
 		}
 
 		"append extra info to request records" in {
 			val extraInfo: List[String] = List("some", "extra info", "for the log")
-			val record = new RequestMessage("scenario", 1, Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), extraInfo)
+			val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), extraInfo)
 
 			logMessage(record) must beEqualTo("REQUEST\tscenario\t1\t\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + eol)
 		}

@@ -15,63 +15,26 @@
  */
 package io.gatling.core.structure
 
-import scala.concurrent.duration.{ Duration, DurationLong }
+import java.util.concurrent.TimeUnit
 
-import io.gatling.core.action.builder.{ CustomPauseBuilder, ExpPauseBuilder, PauseBuilder }
-import io.gatling.core.session.Expression
-import io.gatling.core.validation.SuccessWrapper
+import scala.concurrent.duration.Duration
+
+import io.gatling.core.action.builder.PauseBuilder
+import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
+import io.gatling.core.session.el.EL
 
 trait Pauses[B] extends Execs[B] {
 
 	/**
 	 * Method used to define a pause based on a duration defined in the session
 	 *
-	 * @param durationExp Expression that when resolved, provides the pause duration
+	 * @param duration Expression that when resolved, provides the pause duration
 	 * @return a new builder with a pause added to its actions
 	 */
-	def pause(durationExp: Expression[Duration]): B = newInstance(new PauseBuilder(durationExp) :: actionBuilders)
-
-	/**
-	 * Method used to define a pause based on a duration defined in the session
-	 *
-	 * @param minDurationExp Expression that when resolved, provides the minimum pause duration
-	 * @param maxDurationExp Expression that when resolved, provides the maximum pause duration
-	 * @return a new builder with a pause added to its actions
-	 */
-	def pause(minDurationExp: Expression[Duration], maxDurationExp: Expression[Duration]): B = newInstance(new PauseBuilder(minDurationExp, Some(maxDurationExp)) :: actionBuilders)
-
-	/**
-	 * Method used to define a random pause in seconds
-	 *
-	 * @param minDuration the minimum duration of the pause
-	 * @param maxDuration the maximum duration of the pause
-	 * @return a new builder with a pause added to its actions
-	 */
-	def pause(minDuration: Duration, maxDuration: Duration): B = pause(minDuration, Some(maxDuration))
-
-	/**
-	 * Method used to define a uniformly-distributed random pause
-	 *
-	 * @param minDuration the minimum value of the pause
-	 * @param maxDuration the maximum value of the pause
-	 * @return a new builder with a pause added to its actions
-	 */
-	def pause(minDuration: Duration, maxDuration: Option[Duration] = None): B = newInstance(new PauseBuilder((Session) => minDuration.success, maxDuration.map(m => (Session) => m.success)) :: actionBuilders)
-
-	/**
-	 * Method used to define drawn from an exponential distribution with the specified mean duration.
-	 *
-	 * @param meanDuration the mean duration of the pause
-	 * @return a new builder with a pause added to its actions
-	 */
-	def pauseExp(meanDuration: Duration): B = newInstance(new ExpPauseBuilder(meanDuration) :: actionBuilders)
-
-	/**
-	 * Define a pause with a custom strategy
-	 *
-	 * @param delayGenerator the strategy for computing the pauses, in milliseconds
-	 * @return a new builder with a pause added to its actions
-	 */
-	def pauseCustom(delayGenerator: Expression[Long]): B = newInstance(new CustomPauseBuilder(delayGenerator) :: actionBuilders)
-
+	def pause(duration: Duration): B = pause(duration.expression)
+	def pause(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = {
+		val durationValue = duration.el[Int]
+		pause(durationValue(_).map(i => Duration(i, unit)))
+	}
+	def pause(duration: Expression[Duration]): B = newInstance(new PauseBuilder(duration) :: actionBuilders)
 }

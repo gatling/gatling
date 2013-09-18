@@ -90,7 +90,8 @@ object FileDataWriter {
 		def serialize(groupMessage: GroupMessage) = {
 			import groupMessage._
 			val serializedGroups = serializeGroups(groupStack)
-			fast"${GroupMessageType.name}\t$scenarioName\t$userId\t$serializedGroups\t$entryDate\t$exitDate\t$status$eol"
+			val group = groupStack.head
+			fast"${GroupMessageType.name}\t$scenarioName\t$userId\t$serializedGroups\t$entryDate\t$exitDate\t${group.cumulatedResponseTime}\t${group.oks}\t${group.kos}\t$status$eol"
 		}
 	}
 
@@ -130,5 +131,5 @@ class FileDataWriter extends DataWriter {
 
 	override def onRequestMessage(request: RequestMessage) { os.write(request.getBytes) }
 
-	override def onFlushDataWriter { os.flush }
+	override def onTerminateDataWriter { os.flush }
 }

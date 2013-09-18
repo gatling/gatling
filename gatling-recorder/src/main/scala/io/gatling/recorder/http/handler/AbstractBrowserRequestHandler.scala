@@ -15,8 +15,6 @@
  */
 package io.gatling.recorder.http.handler
 
-import java.net.URI
-
 import scala.collection.JavaConversions.asScalaBuffer
 
 import org.jboss.netty.channel.{ ChannelFuture, ChannelFutureListener, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler }
@@ -28,6 +26,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 import io.gatling.http.Headers
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.controller.RecorderController
+import io.gatling.recorder.util.URIHelper
 
 abstract class AbstractBrowserRequestHandler(controller: RecorderController) extends SimpleChannelHandler with Logging {
 
@@ -69,14 +68,9 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController) ext
 	}
 
 	def buildRequestWithRelativeURI(request: HttpRequest) = {
-		val originalURI = new URI(request.getUri)
-		val relativeURI = new URI(null, null, originalURI.getPath, originalURI.getQuery, originalURI.getFragment)
-		val relativeURIString = relativeURI.toString match {
-			case s if s.startsWith("/") => s
-			case s => "/" + s
-		}
 
-		val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, relativeURIString)
+		val (_, pathQuery) = URIHelper.splitURI(request.getUri)
+		val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, pathQuery)
 		newRequest.setChunked(request.isChunked)
 		newRequest.setContent(request.getContent)
 		for (header <- request.getHeaders) newRequest.addHeader(header.getKey, header.getValue)

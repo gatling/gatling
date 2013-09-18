@@ -66,7 +66,7 @@ class GraphiteDataWriter extends DataWriter {
 		allRequests.update(request)
 	}
 
-	def onFlushDataWriter {
+	def onTerminateDataWriter {
 		graphiteSender ! Flush
 	}
 

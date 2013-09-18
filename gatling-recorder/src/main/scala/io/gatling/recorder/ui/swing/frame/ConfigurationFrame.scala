@@ -298,6 +298,10 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
 	def harFilePath = harPath.text
 
+	def updateHarFilePath(path: Option[String]) {
+		path.foreach(harPath.text = _)
+	}
+
 	/****************************************/
 	/**           CONFIGURATION            **/
 	/****************************************/

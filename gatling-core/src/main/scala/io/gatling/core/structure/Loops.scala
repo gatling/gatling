@@ -23,20 +23,10 @@ import scala.concurrent.duration.Duration
 import io.gatling.core.action.builder.{ SessionHookBuilder, WhileBuilder }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.ChainBuilder.chainOf
-import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.util.TimeHelper.{ nanosSinceReference, nowMillis }
 import io.gatling.core.validation.SuccessWrapper
 
 trait Loops[B] extends Execs[B] {
-
-	def repeat(times: Int)(chain: ChainBuilder): B = repeat(times, UUID.randomUUID.toString)(chain)
-	def repeat(times: Int, counter: String)(chain: ChainBuilder): B = {
-
-		val increment = chainOf(new SessionHookBuilder(_.incrementLoop(counter).success))
-		val exit = chainOf(new SessionHookBuilder(_.exitLoop.success))
-		val reversedLoopContent = exit :: Stream.continually(List(chain, increment)).take(times).flatten.toList
-
-		exec(reversedLoopContent.reverse)
-	}
 
 	def repeat(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 
@@ -59,6 +49,14 @@ trait Loops[B] extends Execs[B] {
 		val continueCondition = (session: Session) => (nowMillis - session.loopTimestampValue(counterName) <= durationMillis).success
 
 		asLongAs(continueCondition, counterName, exitASAP)(chain)
+	}
+
+	def maxSimulationDuration(duration: Duration, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
+
+		val durationNanos = duration.toNanos
+		val condition = (session: Session) => (nanosSinceReference <= durationNanos && session.loopCounterValue(counterName) == 0).success
+
+		asLongAs(condition, counterName)(chain)
 	}
 
 	def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =

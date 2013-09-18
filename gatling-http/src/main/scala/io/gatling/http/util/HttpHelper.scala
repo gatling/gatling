@@ -25,10 +25,12 @@ import com.ning.http.client.Realm.AuthScheme
 
 import io.gatling.core.config.Credentials
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ Validation, ValidationList }
+import io.gatling.core.validation.{ Validation, ValidationList, SuccessWrapper }
 import io.gatling.http.request.builder.HttpParam
 
 object HttpHelper {
+
+	val emptyParamListSuccess = List.empty[(String, Seq[String])].success
 
 	def parseFormBody(body: String): List[(String, String)] = {
 		def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)
@@ -44,15 +46,15 @@ object HttpHelper {
 	}
 
 	def resolveParams(params: List[HttpParam], session: Session): Validation[List[(String, Seq[String])]] = {
-		val validations = params.map {
-			case (key, values) =>
-				for {
-					resolvedKey <- key(session)
-					resolvedValues <- values(session)
-				} yield (resolvedKey, resolvedValues)
-		}
 
-		validations.sequence
+		params.foldLeft(emptyParamListSuccess) { (resolvedParams, param) =>
+			val (key, values) = param
+			for {
+				resolvedParams <- resolvedParams
+				key <- key(session)
+				values <- values(session)
+			} yield (key, values) :: resolvedParams
+		}.map(_.reverse)
 	}
 
 	def httpParamsToFluentMap(params: List[HttpParam], session: Session): Validation[FluentStringsMap] =

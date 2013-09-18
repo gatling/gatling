@@ -34,17 +34,6 @@ object HttpRequestActionBuilder {
 	 * This is the default HTTP check used to verify that the response status is 2XX
 	 */
 	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => (200 to 210).success).build
-
-	def apply(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer]) = {
-
-		val resolvedChecks = checks
-			.find(_.order == Status)
-			.map(_ => checks)
-			.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
-			.sorted
-
-		new HttpRequestActionBuilder(requestName, requestFactory, resolvedChecks, responseTransformer)
-	}
 }
 
 /**
@@ -54,12 +43,23 @@ object HttpRequestActionBuilder {
  * @param requestBuilder the builder for the request that will be sent
  * @param next the next action to be executed
  */
-class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer]) extends ActionBuilder {
+class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], ignoreDefaultChecks: Boolean, responseTransformer: Option[ResponseTransformer]) extends ActionBuilder {
 
-	private[gatling] def build(next: ActorRef): ActorRef = {
+	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
 
-		val httpProtocol = ProtocolRegistry.registry.getProtocol(HttpProtocol.default)
+		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
 
-		system.actorOf(Props(new HttpRequestAction(requestName, next, requestFactory, checks, responseTransformer, httpProtocol)))
+		val totalChecks = if (ignoreDefaultChecks)
+			httpProtocol.checks
+		else
+			httpProtocol.checks ::: checks
+
+		val resolvedChecks = totalChecks
+			.find(_.order == Status)
+			.map(_ => checks)
+			.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
+			.sorted
+
+		system.actorOf(Props(new HttpRequestAction(requestName, next, requestFactory, resolvedChecks, responseTransformer, httpProtocol)))
 	}
 }

@@ -51,6 +51,7 @@ object HttpBodyJsonPathCheckBuilder extends Logging {
 
 	def jsonPath(expression: Expression[String]): HttpMultipleCheckBuilder[_, String, String] =
 		configuration.core.extract.jsonPath.engine match {
+			// TODO NICO : something wrong in here ... 
 			case Gatling => HttpBodyJaywayJsonPathCheckBuilder.jsonPath(expression)
 			case Jayway => HttpBodyJaywayJsonPathCheckBuilder.jsonPath(expression)
 		}

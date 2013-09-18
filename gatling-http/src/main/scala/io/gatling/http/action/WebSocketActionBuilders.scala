@@ -27,24 +27,24 @@ import io.gatling.http.util.{ RequestLogger, WebSocketClient }
 
 class OpenWebSocketActionBuilder(actionName: Expression[String], attributeName: String, fUrl: Expression[String], webSocketClient: WebSocketClient, requestLogger: RequestLogger) extends ActionBuilder {
 
-	def build(next: ActorRef): ActorRef = {
-		val httpProtocol = ProtocolRegistry.registry.getProtocol(HttpProtocol.default)
+	def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
+		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
 		system.actorOf(Props(new OpenWebSocketAction(actionName, attributeName, fUrl, webSocketClient, requestLogger, next, httpProtocol)))
 	}
 }
 
 class SendWebSocketMessageActionBuilder(actionName: Expression[String], attributeName: String, fMessage: Expression[String], next: ActorRef = null) extends ActionBuilder {
 
-	def build(next: ActorRef): ActorRef = {
-		val httpProtocol = ProtocolRegistry.registry.getProtocol(HttpProtocol.default)
+	def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
+		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
 		system.actorOf(Props(new SendWebSocketMessageAction(actionName, attributeName, fMessage, next, httpProtocol)))
 	}
 }
 
 class CloseWebSocketActionBuilder(actionName: Expression[String], attributeName: String, next: ActorRef = null) extends ActionBuilder {
 
-	def build(next: ActorRef): ActorRef = {
-		val httpProtocol = ProtocolRegistry.registry.getProtocol(HttpProtocol.default)
+	def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
+		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
 		system.actorOf(Props(new CloseWebSocketAction(actionName, attributeName, next, httpProtocol)))
 	}
 }

@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.result.reader
 
-import io.gatling.charts.result.reader.buffers.{ ErrorsBuffers, GeneralStatsBuffers, LatencyPerSecBuffers, NamesBuffers, RequestsPerSecBuffers, ResponseTimePerSecBuffers, ResponseTimeRangeBuffers, SessionDeltaPerSecBuffers, TransactionsPerSecBuffers }
+import io.gatling.charts.result.reader.buffers._
 
 class ResultsHolder(minTime: Long, maxTime: Long)
 	extends GeneralStatsBuffers(maxTime - minTime)
@@ -26,7 +26,8 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 	with ResponseTimeRangeBuffers
 	with SessionDeltaPerSecBuffers
 	with TransactionsPerSecBuffers
-	with ErrorsBuffers {
+	with ErrorsBuffers
+	with GroupResponseTimePerSecBuffers {
 
 	def addScenarioRecord(record: ScenarioRecord) {
 		addSessionBuffers(record)
@@ -34,10 +35,10 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 	}
 
 	def addGroupRecord(record: GroupRecord) {
-		addGroupName(record.group, record.startDate)
-		updateGroupGeneralStatsBuffers(record.duration, record.group, record.status)
-		updateGroupResponseTimePerSecBuffers(record.startDateBucket, record.duration, record.group, record.status)
-		updateGroupResponseTimeRangeBuffer(record.duration, record.group, record.status)
+		addGroupName(record)
+		updateGroupGeneralStatsBuffers(record)
+		updateGroupResponseTimePerSecBuffers(record)
+		updateGroupResponseTimeRangeBuffer(record)
 	}
 
 	def addRequestRecord(record: RequestRecord) {
@@ -46,7 +47,7 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 		updateResponseTimePerSecBuffers(record)
 		updateLatencyPerSecBuffers(record)
 		addRequestName(record)
-		updateGeneralStatsBuffers(record)
+		updateRequestGeneralStatsBuffers(record)
 		updateResponseTimeRangeBuffer(record)
 		updateErrorBuffers(record)
 	}

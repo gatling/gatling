@@ -21,7 +21,8 @@ import org.apache.commons.io.IOUtils
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles
-import io.gatling.core.session.{ EL, Expression, Session }
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.el.EL
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.validation.Validation
 
@@ -33,7 +34,7 @@ object ELFileBodies {
 	def compileFile(path: String): Validation[Expression[String]] =
 		GatlingFiles.requestBodyResource(path)
 			.map(resource => withCloseable(resource.inputStream)(IOUtils.toString(_, configuration.core.encoding)))
-			.map(EL.compile[String])
+			.map(_.el[String])
 
 	def asString(filePath: Expression[String]): Expression[String] = (session: Session) =>
 		for {

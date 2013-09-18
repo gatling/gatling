@@ -15,39 +15,65 @@
  */
 package io.gatling.core.scenario
 
-import io.gatling.core.config.{ Protocol, ProtocolRegistry }
-import io.gatling.core.structure.{ Assertion, Metric, ProfiledScenarioBuilder }
+import scala.concurrent.duration.Duration
+
+import io.gatling.core.config.Protocol
+import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
+import io.gatling.core.session.Expression
+import io.gatling.core.structure.{ Assertion, ChainBuilder, Metric, ProfiledScenarioBuilder }
 
 abstract class Simulation {
 
 	private[scenario] var _scenarios = Seq.empty[ProfiledScenarioBuilder]
-	private[scenario] var _protocols = Seq.empty[Protocol]
+	private[scenario] var _globalProtocols = List.empty[Protocol]
 	private[scenario] var _assertions = Seq.empty[Assertion]
 
 	def scenarios: Seq[Scenario] = {
 		require(!_scenarios.isEmpty, "No scenario set up")
-		ProtocolRegistry.setUp(_protocols)
-		_scenarios.map(_.build)
+		_scenarios.map(_.build(_globalProtocols))
 	}
 
-	def protocols = _protocols
+	def protocols = _globalProtocols
 	def assertions = _assertions
 
 	def setUp(scenario: ProfiledScenarioBuilder, scenarios: ProfiledScenarioBuilder*) = {
 		_scenarios = scenario :: scenarios.toList
-		new SetUp(this) with Protocols with Assertions
+		new SetUp
 	}
 
-	class SetUp(val simulation: Simulation)
-	trait Protocols { this: SetUp =>
+	class SetUp {
+
 		def protocols(protocol: Protocol, protocols: Protocol*) = {
-			simulation._protocols = protocol :: protocols.toList
-			new SetUp(simulation) with Assertions
+			_globalProtocols = protocol :: protocols.toList ::: _globalProtocols
+			this
 		}
-	}
-	trait Assertions { this: SetUp =>
-		def assertions(metric: Metric, metrics: Metric*) {
-			simulation._assertions = metric.assertions ++ metrics.flatMap(_.assertions)
+
+		def assertions(metric: Metric, metrics: Metric*) = {
+			_assertions = metric.assertions ++ metrics.flatMap(_.assertions)
+			this
+		}
+
+		def maxDuration(duration: Duration) = {
+
+			_scenarios = _scenarios.map { profiledScenarioBuilder =>
+				val loop = ChainBuilder.empty.maxSimulationDuration(duration) {
+					new ChainBuilder(profiledScenarioBuilder.scenarioBuilder.actionBuilders)
+				}
+
+				profiledScenarioBuilder.copy(scenarioBuilder = profiledScenarioBuilder.scenarioBuilder.copy(actionBuilders = loop.actionBuilders))
+			}
+			this
+		}
+
+		def disablePauses = pauses(Disabled)
+		def constantPauses = pauses(Constant)
+		def exponentialPauses = pauses(Exponential)
+		def customPauses(custom: Expression[Long]) = pauses(Custom(custom))
+		def uniform(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
+		def uniform(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
+		def pauses(pauseType: PauseType) = {
+			_globalProtocols = PauseProtocol(pauseType) :: _globalProtocols
+			this
 		}
 	}
 }

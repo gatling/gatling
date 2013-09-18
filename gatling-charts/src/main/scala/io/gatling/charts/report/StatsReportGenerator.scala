@@ -18,7 +18,7 @@ package io.gatling.charts.report
 import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Statistics }
 import io.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, jsonStatsFile, tsvStatsFile }
 import io.gatling.charts.result.reader.RequestPath
-import io.gatling.charts.template.{ StatsJsTemplate, StatsJsonTemplate, StatsTsvTemplate }
+import io.gatling.charts.template.{ StatsJsTemplate, StatsJsonTemplate }
 import io.gatling.core.result.{ Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
@@ -29,9 +29,10 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 	def generate {
 
 		def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
-			val total = dataReader.generalStats(None, requestName, group)
-			val ok = dataReader.generalStats(Some(OK), requestName, group)
-			val ko = dataReader.generalStats(Some(KO), requestName, group)
+
+			val total = dataReader.requestGeneralStats(requestName, group, None)
+			val ok = dataReader.requestGeneralStats(requestName, group, Some(OK))
+			val ko = dataReader.requestGeneralStats(requestName, group, Some(KO))
 
 			val numberOfRequestsStatistics = Statistics("numberOfRequests", total.count, ok.count, ko.count)
 			val minResponseTimeStatistics = Statistics("minResponseTime", total.min, ok.min, ko.min)
@@ -55,6 +56,31 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 			RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
 		}
 
+		def computeGroupStats(name: String, group: Group): RequestStatistics = {
+
+			val total = dataReader.groupCumulatedResponseTimeGeneralStats(group, None)
+			val ok = dataReader.groupCumulatedResponseTimeGeneralStats(group, Some(OK))
+			val ko = dataReader.groupCumulatedResponseTimeGeneralStats(group, Some(KO))
+
+			val numberOfRequestsStatistics = Statistics("numberOfRequests", total.count, ok.count, ko.count)
+			val minResponseTimeStatistics = Statistics("minResponseTime", total.min, ok.min, ko.min)
+			val maxResponseTimeStatistics = Statistics("maxResponseTime", total.max, ok.max, ko.max)
+			val meanResponseTimeStatistics = Statistics("meanResponseTime", total.mean, ok.mean, ko.mean)
+			val stdDeviationStatistics = Statistics("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev)
+			val percentiles1 = Statistics("percentiles1", total.percentile1, ok.percentile1, ko.percentile1)
+			val percentiles2 = Statistics("percentiles2", total.percentile2, ok.percentile2, ko.percentile2)
+			val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
+
+			val groupedCounts = dataReader
+				.numberOfRequestInResponseTimeRange(None, Some(group)).map {
+					case (name, count) => GroupedCount(name, count, count * 100 / total.count)
+				}
+
+			val path = RequestPath.path(group)
+
+			RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
+		}
+
 		val rootContainer = GroupContainer.root(computeRequestStats(GLOBAL_PAGE_NAME, None, None))
 
 		dataReader.statsPaths.foreach {
@@ -63,13 +89,12 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 				rootContainer.addRequest(group, request, stats)
 
 			case GroupStatsPath(group) =>
-				val stats = computeRequestStats(group.name, None, Some(group))
+				val stats = computeGroupStats(group.name, group)
 				rootContainer.addGroup(group, stats)
 		}
 
 		new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(rootContainer).getOutput)
 		new TemplateWriter(jsonStatsFile(runOn)).writeToFile(new StatsJsonTemplate(rootContainer.stats, true).getOutput)
-		new TemplateWriter(tsvStatsFile(runOn)).writeToFile(new StatsTsvTemplate(rootContainer).getOutput)
 		println(ConsoleTemplate(rootContainer.stats))
 	}
 }

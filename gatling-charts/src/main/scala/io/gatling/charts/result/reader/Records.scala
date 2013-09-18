@@ -60,13 +60,16 @@ object RecordParser {
 		val group = parseGroup(strings(3))
 		val entryDate = (strings(4).toLong - runStart).toInt
 		val exitDate = (strings(5).toLong - runStart).toInt
-		val status = Status.valueOf(strings(6))
+		val cumulatedResponseTime = strings(6).toInt
+		val oks = strings(7).toInt
+		val kos = strings(8).toInt
+		val status = Status.valueOf(strings(9))
 		val duration = exitDate - entryDate
 		val executionDateBucket = bucketFunction(entryDate)
-		GroupRecord(group, reduceAccuracy(entryDate), reduceAccuracy(duration), status, executionDateBucket)
+		GroupRecord(group, reduceAccuracy(entryDate), reduceAccuracy(duration), reduceAccuracy(cumulatedResponseTime), oks, kos, status, executionDateBucket)
 	}
 }
 
 case class RequestRecord(group: Option[Group], name: String, requestStart: Int, responseEnd: Int, status: Status, requestStartBucket: Int, responseEndBucket: Int, responseTime: Int, latency: Int, errorMessage: Option[String])
 case class ScenarioRecord(scenario: String, startDate: Int, startDateBucket: Int, endDateBucket: Int)
-case class GroupRecord(group: Group, startDate: Int, duration: Int, status: Status, startDateBucket: Int)
+case class GroupRecord(group: Group, startDate: Int, duration: Int, cumulatedResponseTime: Int, oks: Int, kos: Int, status: Status, startDateBucket: Int)

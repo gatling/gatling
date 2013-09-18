@@ -23,6 +23,15 @@ class GroupDetailsPageTemplate(
 	statsTextComponent: Component,
 	indicChartComponent: Component,
 	errorTableComponent: Component,
-	rtChartComponent: Component,
-	percentilesChartComponent: Component)
-	extends PageTemplate(group.name, true, None, Some(group), statsTextComponent, indicChartComponent, errorTableComponent, rtChartComponent, percentilesChartComponent)
+	cumulatedResponseTimeChartComponent: Component,
+	cumulatedResponseTimeDistributionChartComponent: Component,
+	durationChartComponent: Component,
+	durationDistributionChartComponent: Component)
+	extends PageTemplate(group.name, true, None, Some(group),
+		statsTextComponent,
+		indicChartComponent,
+		errorTableComponent,
+		cumulatedResponseTimeChartComponent,
+		cumulatedResponseTimeDistributionChartComponent,
+		durationChartComponent,
+		durationDistributionChartComponent)

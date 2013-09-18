@@ -25,14 +25,10 @@ trait ResponseTimePerSecBuffers {
 
 	val responseTimePerSecBuffers = mutable.Map.empty[BufferKey, RangeBuffer]
 
-	def getResponseTimePerSecBuffers(requestName: Option[String], group: Option[Group], status: Option[Status]): RangeBuffer =
-		responseTimePerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, status), new RangeBuffer)
+	def getResponseTimePerSecBuffers(requestName: String, group: Option[Group], status: Option[Status]): RangeBuffer =
+		responseTimePerSecBuffers.getOrElseUpdate(BufferKey(Some(requestName), group, status), new RangeBuffer)
 
 	def updateResponseTimePerSecBuffers(record: RequestRecord) {
-		getResponseTimePerSecBuffers(Some(record.name), record.group, Some(record.status)).update(record.requestStartBucket, record.responseTime)
-	}
-
-	def updateGroupResponseTimePerSecBuffers(start: Int, duration: Int, group: Group, status: Status) {
-		getResponseTimePerSecBuffers(None, Some(group), Some(status)).update(start, duration)
+		getResponseTimePerSecBuffers(record.name, record.group, Some(record.status)).update(record.requestStartBucket, record.responseTime)
 	}
 }

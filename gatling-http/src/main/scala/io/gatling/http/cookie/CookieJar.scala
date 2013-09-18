@@ -23,42 +23,45 @@ import com.ning.http.client.Cookie
 
 object CookieJar {
 
-	// rfc6265#section-5.1.3.
-	def domainMatches(domain: String, host: String): Boolean = {
-		if (host == domain) {
-			true
-		} else if (host.length > domain.length) {
-			host.endsWith(domain) &&
-				host.charAt(host.length - domain.length - 1) == '.'
-		} else {
-			false
-		}
-	}
+	// rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
+	private def requestDomain(uri: URI) = uri.getHost.toLowerCase
+
+	// rfc6265#section-5.1.3
+	// check "The string is a host name (i.e., not an IP address)" ignored
+	def domainMatches(string: String, domain: String) = domain == string || string.endsWith("." + domain)
+
+	// rfc6265#section-5.1.4
+	def requestPath(requestURI: URI) =
+		Option(requestURI.getPath).map {
+			case requestPath if requestPath.count(_ == '/') <= 1 => "/"
+			case requestPath => requestPath.substring(0, requestPath.lastIndexOf('/'))
+		}.getOrElse("/")
+
+	// rfc6265#section-5.1.4
+	def pathMatches(cookiePath: String, requestPath: String) =
+		cookiePath == requestPath ||
+			requestPath.startsWith(cookiePath) &&
+			(cookiePath.last == '/' || requestPath.charAt(cookiePath.length) == '/')
+
+	// rfc6265#section-5.2.3
+	def cookieDomain(cookieDomain: String, requestDomain: String) = Option(cookieDomain)
+		// Let cookie-domain be the attribute-value without the leading %x2E (".") character.
+		.map(dom => (if (dom.charAt(0) == '.') dom.substring(1) else dom).toLowerCase)
+		.getOrElse(requestDomain)
+
+	// rfc6265#section-5.2.4
+	def cookiePath(rawCookiePath: String, defaultPath: String) = Option(rawCookiePath)
+		.map {
+			case path if path.startsWith("/") => path
+			case _ => defaultPath
+		}.getOrElse(defaultPath)
 
 	def apply(uri: URI, cookies: List[Cookie]) = (new CookieJar(Map.empty)).add(uri, cookies)
 }
 
-/*
- * rfc2109 and rfc2965 are now deprecated by rfc6265 (http://tools.ietf.org/html/rfc6265) 
- */
-class CookieJar(store: Map[URI, List[Cookie]]) {
-
-	import CookieJar.domainMatches
+case class CookieJar(store: Map[String, List[Cookie]]) {
 
 	private val MAX_AGE_UNSPECIFIED = -1L
-
-	private def getEffectiveUri(uri: URI) =
-		new URI(null, // scheme
-			uri.getHost, // rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
-			null, // path component
-			null, // query component
-			null) // fragment component
-
-	private def extractDomain(rawURI: URI, cookie: Cookie) = Option(cookie.getDomain)
-		// rfc6265#section-5.2.3  Let cookie-domain be the attribute-value without the leading %x2E (".") character.
-		.map(dom => if (dom.startsWith(".")) dom.substring(1).toLowerCase else dom.toLowerCase)
-		// rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
-		.getOrElse(rawURI.getHost)
 
 	/**
 	 * @param uri       the uri this cookie associated with.
@@ -66,18 +69,22 @@ class CookieJar(store: Map[URI, List[Cookie]]) {
 	 *                  with an URI
 	 * @param cookie    the cookie to store
 	 */
-	def add(rawURI: URI, rawCookies: List[Cookie]): CookieJar = {
-		val newCookies = rawCookies.map { cookie =>
-			val fixedDomain = extractDomain(rawURI, cookie)
-			val fixedPath = Option(cookie.getPath).getOrElse(rawURI.getPath)
+	def add(requestURI: URI, rawCookies: List[Cookie]): CookieJar = {
 
-			if (fixedDomain != cookie.getDomain || fixedPath != cookie.getPath)
+		val requestDomain = CookieJar.requestDomain(requestURI)
+		val requestPath = CookieJar.requestPath(requestURI)
+
+		val fixedCookies = rawCookies.map { cookie =>
+			val cookieDomain = CookieJar.cookieDomain(cookie.getDomain, requestDomain)
+			val cookiePath = CookieJar.cookiePath(cookie.getPath, requestPath)
+
+			if (cookieDomain != cookie.getDomain || cookiePath != cookie.getPath)
 				new Cookie(
-					fixedDomain,
+					cookieDomain,
 					cookie.getName,
 					cookie.getValue,
 					cookie.getRawValue,
-					fixedPath,
+					cookiePath,
 					cookie.getMaxAge,
 					cookie.isSecure,
 					cookie.getVersion,
@@ -89,11 +96,11 @@ class CookieJar(store: Map[URI, List[Cookie]]) {
 			else
 				cookie
 		} filter {
-			// Reject the cookies when the domains don't match, cf: RFC 2965 sec. 3.3.2
-			cookie => domainMatches(cookie.getDomain, rawURI.getHost)
+			// rfc6265#section-4.1.2.3 Reject the cookies when the domains don't match
+			cookie => CookieJar.domainMatches(requestDomain, cookie.getDomain)
 		}
 
-		def cookiesEquals(c1: Cookie, c2: Cookie) = c1.getName.equalsIgnoreCase(c2.getName) && c1.getDomain.equalsIgnoreCase(c2.getDomain) && c1.getPath == c2.getPath
+		def cookiesEquals(c1: Cookie, c2: Cookie) = c1.getName.equalsIgnoreCase(c2.getName) && c1.getDomain == c2.getDomain && c1.getPath == c2.getPath
 
 		@tailrec
 		def addOrReplaceCookies(newCookies: List[Cookie], oldCookies: List[Cookie]): List[Cookie] = newCookies match {
@@ -105,33 +112,29 @@ class CookieJar(store: Map[URI, List[Cookie]]) {
 
 		def hasExpired(c: Cookie): Boolean = c.getMaxAge != MAX_AGE_UNSPECIFIED && c.getMaxAge <= 0
 
-		val uri = getEffectiveUri(rawURI)
-		val cookiesWithExactURI = addOrReplaceCookies(newCookies, store.get(uri).getOrElse(List.empty))
-		val nonExpiredCookies = cookiesWithExactURI.filterNot(hasExpired)
-		new CookieJar(store + (uri -> nonExpiredCookies))
+		val newCookies = addOrReplaceCookies(fixedCookies, store.get(requestDomain).getOrElse(Nil))
+		val nonExpiredCookies = newCookies.filterNot(hasExpired)
+		new CookieJar(store + (requestDomain -> nonExpiredCookies))
 	}
 
-	def get(rawURI: URI): List[Cookie] = {
+	def get(requestURI: URI): List[Cookie] = {
 
-		val fixedPath = if (rawURI.getPath.isEmpty) "/" else rawURI.getPath
-		val uri = getEffectiveUri(rawURI)
+		val requestDomain = CookieJar.requestDomain(requestURI)
+		val requestPath = CookieJar.requestPath(requestURI)
 
-		def pathMatches(cookie: Cookie) = fixedPath.startsWith(Option(cookie.getPath).getOrElse("/"))
-
-		val cookiesWithExactDomain = store.get(uri).getOrElse(Nil).filter(pathMatches)
+		val cookiesWithExactDomain = store.get(requestDomain).getOrElse(Nil).filter(cookie => CookieJar.pathMatches(cookie.getPath, requestPath))
 		val cookiesWithExactDomainNames = cookiesWithExactDomain.map(_.getName.toLowerCase)
 
 		// known limitation: might return duplicates if more than 1 cookie with a given name with non exact domain
+		def matchSubDomain(cookie: Cookie) = !cookiesWithExactDomainNames.contains(cookie.getName.toLowerCase) &&
+			CookieJar.domainMatches(requestDomain, cookie.getDomain) &&
+			CookieJar.pathMatches(cookie.getPath, requestPath)
 
-		def matchSubDomain(cookie: Cookie) = !cookiesWithExactDomainNames.contains(cookie.getName.toLowerCase) && domainMatches(cookie.getDomain, rawURI.getHost) && pathMatches(cookie)
-
-		val cookiesWithMatchingDomain = store
-			.collect { case (key, cookies) if key != uri => cookies.filter(matchSubDomain) }
+		val cookiesWithMatchingSubDomain = store
+			.collect { case (key, cookies) if key != requestDomain => cookies.filter(matchSubDomain) }
 			.flatten
 
 		// known limitation: don't handle runtime expiration, intended for stress test
-		cookiesWithExactDomain ++ cookiesWithMatchingDomain
+		cookiesWithExactDomain ++ cookiesWithMatchingSubDomain
 	}
-
-	override def toString = "CookieStore=" + store.toString
 }

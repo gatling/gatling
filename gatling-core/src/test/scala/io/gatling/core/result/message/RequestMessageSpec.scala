@@ -24,7 +24,7 @@ class RequestMessageSpec extends Specification {
 
 	"constructor" should {
 		"have sensible defaults for optional parameters" in {
-			val record: RequestMessage = RequestMessage("scenarioName", 1, Nil, "requestName", 0L, 0L, 0L, 0L, OK, Some("requestMessage"), Nil)
+			val record: RequestMessage = RequestMessage("scenarioName", "1", Nil, "requestName", 0L, 0L, 0L, 0L, OK, Some("requestMessage"), Nil)
 
 			record.extraInfo should beEmpty
 		}

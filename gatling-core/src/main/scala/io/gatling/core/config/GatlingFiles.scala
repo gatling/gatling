@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,13 +18,14 @@ package io.gatling.core.config
 import scala.collection.mutable
 import scala.tools.nsc.io.{ Directory, Path }
 import scala.tools.nsc.io.Path.string2path
+import scala.util.Properties._
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object GatlingFiles {
 
-	val GATLING_HOME = Option(System.getenv("GATLING_HOME")).getOrElse(".")
+	val GATLING_HOME = envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", "."))
 	val GATLING_ASSETS_PACKAGE = "assets"
 	val GATLING_JS = "js"
 	val GATLING_STYLE = "style"
@@ -35,16 +36,15 @@ object GatlingFiles {
 
 	private def resolvePath(path: String): Path = {
 		val rawPath = Path(path)
-		if (rawPath.isAbsolute) path else GATLING_HOME / path
+		if (rawPath.isAbsolute || rawPath.exists) path else GATLING_HOME / path
 	}
 
 	def dataDirectory: Path = resolvePath(configuration.core.directory.data)
-	def resultsRootDirectory: Path = resolvePath(configuration.core.directory.results)
 	def requestBodiesDirectory: Path = resolvePath(configuration.core.directory.requestBodies)
 	def sourcesDirectory: Directory = resolvePath(configuration.core.directory.sources).toDirectory
 	def reportsOnlyDirectory: Option[String] = configuration.core.directory.reportsOnly
 	def binariesDirectory: Option[Directory] = configuration.core.directory.binaries.map(_.toDirectory)
-	def resultDirectory(runUuid: String): Path = resultsRootDirectory / runUuid
+	def resultDirectory(runUuid: String): Path = resolvePath(configuration.core.directory.results) / runUuid
 	def jsDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_JS
 	def styleDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_STYLE
 
@@ -60,9 +60,8 @@ object GatlingFiles {
 		}
 	}
 
-	def validateResource(filePath: Path, defaultFolder: String): Validation[Resource] = {
-		val defaultPath = defaultFolder / filePath
-		val classPathResource = Option(getClass.getClassLoader.getResource(defaultPath.toString.replace('\\', '/'))).map { url =>
+	def validateResource(filePath: Path, fileSystemFolder: Path): Validation[Resource] = {
+		val classPathResource = Option(getClass.getClassLoader.getResource(filePath.toString.replace('\\', '/'))).map { url =>
 			url.getProtocol match {
 				case "file" => FileResource(url.getFile.toFile)
 				case "jar" => ClassPathResource(url, filePath.extension)
@@ -70,11 +69,11 @@ object GatlingFiles {
 			}
 		}
 
-		val resource = classPathResource.orElse(filePath.ifFile(path => FileResource(path.toFile)))
+		val resource = classPathResource.orElse((fileSystemFolder / filePath).ifFile(path => FileResource(path.toFile)))
 		resource.map(_.success).getOrElse(s"file $filePath doesn't exist".failure)
 	}
 
-	def requestBodyResource(filePath: Path) = requestBodyFileMemo.getOrElseUpdate(filePath, validateResource(filePath, "request-bodies"))
+	def requestBodyResource(filePath: Path) = requestBodyFileMemo.getOrElseUpdate(filePath, validateResource(filePath, requestBodiesDirectory))
 
-	def feederResource(filePath: Path) = feederFileMemo.getOrElseUpdate(filePath, validateResource(filePath, "data"))
+	def feederResource(filePath: Path) = feederFileMemo.getOrElseUpdate(filePath, validateResource(filePath, dataDirectory))
 }
