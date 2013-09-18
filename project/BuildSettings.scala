@@ -20,7 +20,7 @@ object BuildSettings {
 		startYear             := Some(2011),
 		licenses              := Seq("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
 		resolvers             := Seq(excilysNexus),
-		scalaVersion          := "2.10.2",
+		scalaVersion          := "2.10.3-RC2",
 		crossPaths            := false,
 		pomExtra              := scm ++ developersXml(developers),
 		scalacOptions         := Seq(

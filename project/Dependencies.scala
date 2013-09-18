@@ -6,9 +6,9 @@ object Dependencies {
 	val excilysReleases = "Excilys Releases" at "http://repository.excilys.com/content/repositories/releases"
 	val cloudbeesSnapshots = "Cloudbees Private Repository" at "davs://repository-gatling.forge.cloudbees.com/snapshot"
 
-	private val scalaCompiler     = "org.scala-lang"        % "scala-compiler"     % "2.10.2"
-	private val scalaReflect      = "org.scala-lang"        % "scala-reflect"      % "2.10.2"
-	private val scalaSwing        = "org.scala-lang"        % "scala-swing"        % "2.10.2"
+	private val scalaCompiler     = "org.scala-lang"        % "scala-compiler"     % "2.10.3-RC2"
+	private val scalaReflect      = "org.scala-lang"        % "scala-reflect"      % "2.10.3-RC2"
+	private val scalaSwing        = "org.scala-lang"        % "scala-swing"        % "2.10.3-RC2"
 	private val ahc               = "com.ning"              % "async-http-client"  % "1.7.19"
 	private val netty             = "io.netty"              % "netty"              % "3.7.0.Final"
 	private val akkaActor         = "com.typesafe.akka"    %% "akka-actor"         % "2.2.1"
