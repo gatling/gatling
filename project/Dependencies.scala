@@ -22,7 +22,7 @@ object Dependencies {
 	private val scalalogging      = "com.typesafe"         %% "scalalogging-slf4j" % "1.0.1"
 	private val jsonSmart         = "net.minidev"           % "json-smart"         % "1.2"
 	private val jaywayJsonPath    = "com.jayway.jsonpath"   % "json-path"          % "0.8.2.fix24"
-	private val gatlingJsonpath   = "io.gatling"           %% "jsonpath"           % "0.2.2"
+	private val gatlingJsonpath   = "io.gatling"           %% "jsonpath"           % "0.2.3"
 	private val commonsMath       = "org.apache.commons"    % "commons-math3"      % "3.2"
 	private val jsoup             = "org.jsoup"             % "jsoup"              % "1.7.2"
 	private val joddLagarto       = "org.jodd"              % "jodd-lagarto"       % "3.4.7"

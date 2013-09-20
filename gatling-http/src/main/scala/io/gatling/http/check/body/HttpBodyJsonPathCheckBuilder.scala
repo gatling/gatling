@@ -16,7 +16,6 @@
 package io.gatling.http.check.body
 
 import com.typesafe.scalalogging.slf4j.Logging
-
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.jsonpath.JaywayJsonPathExtractors
 import io.gatling.core.config.{ Gatling, Jayway }
@@ -25,14 +24,15 @@ import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
+import io.gatling.core.check.extractor.jsonpath.GatlingJsonPathExtractors
+import io.gatling.core.check.extractor.jsonpath.JsonPathExtractors
 
 object HttpBodyJsonPathCheckBuilder extends Logging {
 
-	object HttpBodyJaywayJsonPathCheckBuilder {
+	class HttpBodyJsonPathCheckBuilder(extractor: JsonPathExtractors) {
 		val preparer: Preparer[Response, Any] = (response: Response) =>
 			try {
-				JaywayJsonPathExtractors.parse(response.getResponseBodyAsBytes).success
-
+				extractor.parse(response.getResponseBodyAsBytes).success
 			} catch {
 				case e: Exception =>
 					val message = s"Could not parse response into a JSON object: ${e.getMessage}"
@@ -43,16 +43,18 @@ object HttpBodyJsonPathCheckBuilder extends Logging {
 		def jsonPath(expression: Expression[String]) = new HttpMultipleCheckBuilder[Any, String, String](
 			HttpCheckBuilders.bodyCheckFactory,
 			preparer,
-			JaywayJsonPathExtractors.extractOne,
-			JaywayJsonPathExtractors.extractMultiple,
-			JaywayJsonPathExtractors.count,
+			extractor.extractOne,
+			extractor.extractMultiple,
+			extractor.count,
 			expression)
 	}
 
+	val gatlingJsonPathExtractor = new HttpBodyJsonPathCheckBuilder(GatlingJsonPathExtractors)
+	val jaywayJsonPathExtractor = new HttpBodyJsonPathCheckBuilder(JaywayJsonPathExtractors)
+
 	def jsonPath(expression: Expression[String]): HttpMultipleCheckBuilder[_, String, String] =
 		configuration.core.extract.jsonPath.engine match {
-			// TODO NICO : something wrong in here ... 
-			case Gatling => HttpBodyJaywayJsonPathCheckBuilder.jsonPath(expression)
-			case Jayway => HttpBodyJaywayJsonPathCheckBuilder.jsonPath(expression)
+			case Gatling => gatlingJsonPathExtractor.jsonPath(expression)
+			case Jayway => jaywayJsonPathExtractor.jsonPath(expression)
 		}
 }

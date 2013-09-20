@@ -25,9 +25,7 @@ import net.minidev.json.JSONArray
 import net.minidev.json.parser.JSONParser
 import io.gatling.jsonpath.jsonsmart.JsonPath
 
-object GatlingJsonPathExtractors {
-
-	def parse(bytes: Array[Byte]) = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(bytes)
+object GatlingJsonPathExtractors extends JsonPathExtractors {
 
 	abstract class JsonPathExtractor[X] extends Extractor[Any, String, X] {
 		val name = "jsonPath"
