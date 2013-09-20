@@ -27,10 +27,6 @@ import io.gatling.jsonpath.jsonsmart.JsonPath
 
 object GatlingJsonPathExtractors extends JsonPathExtractors {
 
-	abstract class JsonPathExtractor[X] extends Extractor[Any, String, X] {
-		val name = "jsonPath"
-	}
-
 	val cache = mutable.Map.empty[String, Validation[JsonPath]]
 
 	def compile(expression: String) = JsonPath.compile(expression) match {

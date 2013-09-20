@@ -29,10 +29,6 @@ import net.minidev.json.parser.JSONParser
 
 object JaywayJsonPathExtractors extends JsonPathExtractors {
 
-	abstract class JsonPathExtractor[X] extends Extractor[Any, String, X] {
-		val name = "jsonPath"
-	}
-
 	val cache = mutable.Map.empty[String, JsonPath]
 	def cached(expression: String): JsonPath =
 		if (configuration.core.extract.jsonPath.cache) cache.getOrElseUpdate(expression, JsonPath.compile(expression))
