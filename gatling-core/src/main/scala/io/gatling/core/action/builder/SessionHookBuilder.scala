@@ -15,10 +15,11 @@
  */
 package io.gatling.core.action.builder
 
-import akka.actor.{ ActorRef, Props }
-import io.gatling.core.action.{ Interruptable, SessionHook, system }
-import io.gatling.core.session.{ Expression, Session }
+import akka.actor.ActorDSL.actor
+import akka.actor.ActorRef
+import io.gatling.core.action.{ Interruptable, SessionHook }
 import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.session.{ Expression, Session }
 
 /**
  * Builder for SimpleAction
@@ -30,7 +31,7 @@ class SessionHookBuilder(sessionFunction: Expression[Session], bypassable: Boole
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) =
 		if (bypassable)
-			system.actorOf(Props(new SessionHook(sessionFunction, next) with Interruptable))
+			actor(new SessionHook(sessionFunction, next) with Interruptable)
 		else
-			system.actorOf(Props(new SessionHook(sessionFunction, next)))
+			actor(new SessionHook(sessionFunction, next))
 }

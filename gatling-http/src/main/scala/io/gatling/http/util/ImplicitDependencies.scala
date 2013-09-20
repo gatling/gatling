@@ -22,8 +22,8 @@ import java.net.URI
 import com.ning.http.client.websocket.{ WebSocketListener, WebSocketUpgradeHandler }
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.core.result.message.{ RequestMessage, Status }
-import io.gatling.core.result.writer.DataWriter
+import io.gatling.core.result.message.Status
+import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
 import io.gatling.core.session.Session
 import io.gatling.http.ahc.HttpClient
 

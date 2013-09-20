@@ -16,17 +16,16 @@
 package io.gatling.core.result.writer
 
 import java.io.FileOutputStream
-
 import com.dongxiguo.fastring.Fastring.Implicits._
 import com.typesafe.scalalogging.slf4j.Logging
-
 import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.Group
-import io.gatling.core.result.message.{ End, GroupMessage, GroupMessageType, GroupStackEntry, RequestMessage, RequestMessageType, RunMessage, RunMessageType, ScenarioMessage, ScenarioMessageType, ShortScenarioDescription }
+import io.gatling.core.session.GroupStackEntry
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.core.util.UnsynchronizedBufferedOutputStream
+import io.gatling.core.result.message.End
 
 object FileDataWriter {
 

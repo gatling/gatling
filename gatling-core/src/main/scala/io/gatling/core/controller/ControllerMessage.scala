@@ -13,6 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.result.message
+package io.gatling.core.controller
 
-case class GroupStackEntry(name: String, startDate: Long, cumulatedResponseTime: Long, oks: Int, kos: Int)
+import io.gatling.core.scenario.Simulation
+
+sealed trait ControllerMessage
+case class Run(simulation: Simulation, simulationId: String, description: String) extends ControllerMessage
+case object DataWriterDone extends ControllerMessage
+case object ForceTermination extends ControllerMessage

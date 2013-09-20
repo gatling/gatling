@@ -18,16 +18,14 @@ package io.gatling.metrics
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
+import akka.actor.Props
 import io.gatling.core.action.{ BaseActor, system }
 import io.gatling.core.action.system.dispatcher
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message._
-import io.gatling.core.result.writer.DataWriter
+import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription }
 import io.gatling.core.util.TimeHelper.nowSeconds
 import io.gatling.metrics.sender.MetricsSender
 import io.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetric }
-
-import akka.actor.Props
 
 class GraphiteDataWriter extends DataWriter {
 

@@ -22,7 +22,7 @@ import scala.concurrent.duration.DurationInt
 
 import io.gatling.core.action.system
 import io.gatling.core.action.system.dispatcher
-import io.gatling.core.result.message.{ End, GroupMessage, KO, OK, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription, Start }
+import io.gatling.core.result.message.{ End, KO, OK, Start }
 
 case object Display
 

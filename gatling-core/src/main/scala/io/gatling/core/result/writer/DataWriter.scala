@@ -21,9 +21,11 @@ import akka.actor.{ Actor, ActorRef, Props }
 import io.gatling.core.action.{ AkkaDefaults, BaseActor, system }
 import io.gatling.core.action.system.dispatcher
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.{ DataWriterMessage, End, GroupMessage, Init, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription, Terminate }
-import io.gatling.core.result.terminator.Terminator
+import io.gatling.core.controller.{ Controller, DataWriterDone }
+import io.gatling.core.result.message.End
 import io.gatling.core.scenario.Scenario
+
+case class InitDataWriter(totalNumberOfUsers: Int)
 
 object DataWriter extends AkkaDefaults {
 
@@ -36,11 +38,14 @@ object DataWriter extends AkkaDefaults {
 		dataWriters.foreach(_ ! message)
 	}
 
-	def askInit(runMessage: RunMessage, scenarios: Seq[Scenario]) = {
+	def askInit(runMessage: RunMessage, totalNumberOfUsers: Int, scenarios: Seq[Scenario]) = {
 		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.injectionProfile.users))
+		val responses = dataWriters.map(_ ? Init(runMessage, totalNumberOfUsers, shortScenarioDescriptions))
+		Future.sequence(responses)
+	}
 
-		val responses = dataWriters.map(_ ? Init(runMessage, shortScenarioDescriptions))
-
+	def askTerminate() = {
+		val responses = dataWriters.map(_ ? Terminate)
 		Future.sequence(responses)
 	}
 }
@@ -51,7 +56,9 @@ object DataWriter extends AkkaDefaults {
  * These writers are responsible for writing the logs that will be read to
  * generate the statistics
  */
-trait DataWriter extends BaseActor {
+abstract class DataWriter extends BaseActor {
+
+	var pendingEndUserMessages: Int = 0
 
 	def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription])
 
@@ -63,21 +70,23 @@ trait DataWriter extends BaseActor {
 
 	def onTerminateDataWriter
 
+	private def doTerminate() {
+		try {
+			onTerminateDataWriter
+		} finally {
+			context.become(flushed)
+			sender ! true
+		}
+	}
+
 	def uninitialized: Receive = {
-		case Init(runMessage, scenarios) =>
-
+		case Init(runMessage, totalNumberOfUsers, scenarios) =>
 			logger.info("Initializing")
-
-			val originalSender = sender
-
-			Terminator.askDataWriterRegistration(self).onSuccess {
-				case _ =>
-					logger.info("Going on with initialization after Terminator registration")
-					context.become(initialized)
-					onInitializeDataWriter(runMessage, scenarios)
-					originalSender ! true
-					logger.info("Initialized")
-			}
+			pendingEndUserMessages = totalNumberOfUsers
+			onInitializeDataWriter(runMessage, scenarios)
+			logger.info("Initialized")
+			context.become(initialized)
+			sender ! true
 
 		case m: DataWriterMessage => logger.error(s"Can't handle $m when in uninitialized state, discarding")
 	}
@@ -85,19 +94,23 @@ trait DataWriter extends BaseActor {
 	def initialized: Receive = {
 		case scenarioMessage: ScenarioMessage =>
 			onScenarioMessage(scenarioMessage)
-			if (scenarioMessage.event == End) Terminator.endUser
+			if (scenarioMessage.event == End) {
+				pendingEndUserMessages -= 1
+				if (pendingEndUserMessages == 0)
+					try {
+						onTerminateDataWriter
+					} finally {
+						context.become(flushed)
+						logger.info("Terminated")
+						Controller.controller ! DataWriterDone
+					}
+			}
 
 		case groupMessage: GroupMessage => onGroupMessage(groupMessage)
 
 		case requestMessage: RequestMessage => onRequestMessage(requestMessage)
 
-		case Terminate =>
-			try {
-				onTerminateDataWriter
-			} finally {
-				context.become(flushed)
-				sender ! true
-			}
+		case Terminate => doTerminate
 	}
 
 	def flushed: Receive = {

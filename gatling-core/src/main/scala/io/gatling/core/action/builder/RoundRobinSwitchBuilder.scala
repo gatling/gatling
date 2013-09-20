@@ -15,8 +15,9 @@
  */
 package io.gatling.core.action.builder
 
-import akka.actor.{ ActorRef, Props }
-import io.gatling.core.action.{ Switch, system }
+import akka.actor.ActorDSL.actor
+import akka.actor.ActorRef
+import io.gatling.core.action.Switch
 import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.structure.ChainBuilder
 import io.gatling.core.util.RoundRobin
@@ -34,6 +35,6 @@ class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionB
 
 		val nextAction = () => rr.next
 
-		system.actorOf(Props(new Switch(nextAction, next)))
+		actor(new Switch(nextAction, next))
 	}
 }

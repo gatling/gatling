@@ -16,12 +16,13 @@
 package io.gatling.core.action.builder
 
 import akka.actor.ActorRef
+import io.gatling.core.action.AkkaDefaults
 import io.gatling.core.config.ProtocolRegistry
 
 /**
  * Top level abstraction for components in charge of building Actions
  */
-trait ActionBuilder {
+trait ActionBuilder extends AkkaDefaults {
 
 	/**
 	 * @param next the Action that will be chained with the Action build by this builder

@@ -27,8 +27,9 @@ import io.gatling.charts.result.reader.stats.StatsHelper
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.{ ErrorStats, Group, GroupStatsPath, IntRangeVsTimePlot, IntVsTimePlot, RequestStatsPath, StatsPath }
-import io.gatling.core.result.message.{ GroupMessageType, KO, OK, RequestMessageType, RunMessage, RunMessageType, ScenarioMessageType, Status }
+import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
+import io.gatling.core.result.writer.{ GroupMessageType, RequestMessageType, RunMessage, RunMessageType, ScenarioMessageType }
 import io.gatling.core.util.DateHelper.parseTimestampString
 
 object FileDataReader {

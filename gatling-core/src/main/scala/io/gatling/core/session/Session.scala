@@ -16,10 +16,9 @@
 package io.gatling.core.session
 
 import scala.reflect.ClassTag
-
 import com.typesafe.scalalogging.slf4j.Logging
-
-import io.gatling.core.result.message.{ GroupStackEntry, KO, OK, Status }
+import io.gatling.core.result.message.{ KO, OK, Status }
+import io.gatling.core.session.GroupStackEntry
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.TypeHelper.TypeCaster
 import io.gatling.core.session.el.ELMessages

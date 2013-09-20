@@ -15,7 +15,8 @@
  */
 package io.gatling.metrics.types
 
-import io.gatling.core.result.message.{ End, ScenarioMessage, Start }
+import io.gatling.core.result.message.{ End, Start }
+import io.gatling.core.result.writer.ScenarioMessage
 
 class UserMetric(val nbUsers: Int) {
 
