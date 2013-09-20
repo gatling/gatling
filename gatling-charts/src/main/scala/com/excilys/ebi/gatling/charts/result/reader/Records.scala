@@ -25,10 +25,10 @@ object ActionRecord {
 		val scenario = strings(1).intern
 		val user = strings(2).toInt
 		val request = strings(3).intern
-		val executionStart = reduceAccuracy((strings(4).toLong - runStart).toInt)
-		val requestEnd = reduceAccuracy((strings(5).toLong - runStart).toInt)
-		val responseStart = reduceAccuracy((strings(6).toLong - runStart).toInt)
-		val executionEnd = reduceAccuracy((strings(7).toLong - runStart).toInt)
+		val executionStart = (strings(4).toLong - runStart).toInt
+		val requestEnd = (strings(5).toLong - runStart).toInt
+		val responseStart = (strings(6).toLong - runStart).toInt
+		val executionEnd = (strings(7).toLong - runStart).toInt
 		val status = RequestStatus.withName(strings(8))
 		val executionStartBucket = bucketFunction(executionStart)
 		val executionEndBucket = bucketFunction(executionEnd)
@@ -46,8 +46,8 @@ object ScenarioRecord {
 		val scenario = strings(1).intern
 		val user = strings(2).toInt
 		val event = strings(3).intern
-		val executionDate = reduceAccuracy((strings(4).toLong - runStart).toInt)
-		val executionDateBucket = bucketFunction(executionDate)
+		val executionDate = (strings(4).toLong - runStart).toInt
+		val executionDateBucket = bucketFunction(reduceAccuracy(executionDate))
 		ScenarioRecord(scenario, user, event, executionDate, executionDateBucket)
 	}
 }
@@ -61,8 +61,8 @@ object GroupRecord {
 		val group = strings(2).intern
 		val user = strings(3).toInt
 		val event = strings(4).intern
-		val executionDate = reduceAccuracy((strings(5).toLong - runStart).toInt)
-		val executionDateBucket = bucketFunction(executionDate)
+		val executionDate = (strings(5).toLong - runStart).toInt
+		val executionDateBucket = bucketFunction(reduceAccuracy(executionDate))
 		GroupRecord(scenario, group, user, event, executionDate, executionDateBucket)
 	}
 }
