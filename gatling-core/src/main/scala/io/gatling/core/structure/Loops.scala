@@ -51,14 +51,6 @@ trait Loops[B] extends Execs[B] {
 		asLongAs(continueCondition, counterName, exitASAP)(chain)
 	}
 
-	def maxSimulationDuration(duration: Duration, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
-
-		val durationNanos = duration.toNanos
-		val condition = (session: Session) => (nanosSinceReference <= durationNanos && session.loopCounterValue(counterName) == 0).success
-
-		asLongAs(condition, counterName)(chain)
-	}
-
 	def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
 		exec(new WhileBuilder(condition, chain, counterName, exitASAP))
 }

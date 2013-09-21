@@ -37,7 +37,7 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 			val simulation = simulationClass.newInstance
 
 			implicit val i = inbox()
-			Controller.controller ! Run(simulation, selection.simulationId, selection.description)
+			Controller.controller ! Run(simulation, selection.simulationId, selection.description, simulation.timings)
 
 			i.receive(configuration.core.timeOut.simulation seconds) match {
 				case SSuccess(runId: String) =>

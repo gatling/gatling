@@ -18,6 +18,6 @@ package io.gatling.core.controller
 import io.gatling.core.scenario.Simulation
 
 sealed trait ControllerMessage
-case class Run(simulation: Simulation, simulationId: String, description: String) extends ControllerMessage
+case class Run(simulation: Simulation, simulationId: String, description: String, timings: Timings) extends ControllerMessage
 case object DataWriterDone extends ControllerMessage
 case object ForceTermination extends ControllerMessage

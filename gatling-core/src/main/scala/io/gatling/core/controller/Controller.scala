@@ -17,7 +17,7 @@ package io.gatling.core.controller
 
 import java.util.UUID
 
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.util.{ Failure => SFailure, Success => SSuccess }
 
 import org.joda.time.DateTime.now
@@ -27,6 +27,8 @@ import akka.actor.ActorDSL.actor
 import io.gatling.core.action.{ AkkaDefaults, BaseActor }
 import io.gatling.core.result.writer.{ DataWriter, RunMessage }
 import io.gatling.core.util.TimeHelper
+
+case class Timings(maxDuration: Option[FiniteDuration])
 
 object Controller extends AkkaDefaults {
 
@@ -43,7 +45,7 @@ class Controller extends BaseActor {
 
 	val uninitialized: Receive = {
 
-		case Run(simulation, simulationId, description) =>
+		case Run(simulation, simulationId, description, timings) =>
 			// important, initialize time reference
 			val timeRef = TimeHelper.nanoTimeReference
 			caller = sender
@@ -73,6 +75,13 @@ class Controller extends BaseActor {
 							scenario.run(runUUID + "-", i)
 							i + scenario.injectionProfile.users
 						}
+
+						timings.maxDuration.foreach {
+							system.scheduler.scheduleOnce(_) {
+								self ! ForceTermination
+							}
+						}
+
 						logger.debug("Finished Launching scenarios executions")
 						context.become(initialized)
 				}
