@@ -83,7 +83,10 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
 		val rootContainer = GroupContainer.root(computeRequestStats(GLOBAL_PAGE_NAME, None, None))
 
-		dataReader.statsPaths.foreach {
+		dataReader.statsPaths.sortWith {
+			case (req1: RequestStatsPath, req2: GroupStatsPath) => false
+			case _ => true
+		}.foreach {
 			case RequestStatsPath(request, group) =>
 				val stats = computeRequestStats(request, Some(request), group)
 				rootContainer.addRequest(group, request, stats)
