@@ -48,6 +48,7 @@ object HttpProtocol {
 		localAddress = None,
 		responseTransformer = None,
 		checks = Nil,
+		maxRedirects = None,
 		extraInfoExtractor = None)
 }
 
@@ -73,6 +74,7 @@ case class HttpProtocol(
 	localAddress: Option[InetAddress],
 	responseTransformer: Option[ResponseTransformer],
 	checks: List[HttpCheck],
+	maxRedirects: Option[Int],
 	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends Protocol {
 
 	val roundRobinUrls = RoundRobin(baseURLs.toArray)

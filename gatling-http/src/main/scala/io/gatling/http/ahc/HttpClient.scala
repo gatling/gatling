@@ -36,7 +36,8 @@ case class HttpTask(session: Session,
 	checks: List[HttpCheck],
 	responseBuilderFactory: ResponseBuilderFactory,
 	protocol: HttpProtocol,
-	next: ActorRef)
+	next: ActorRef,
+	numberOfRedirects: Int = 0)
 
 object HttpClient extends Logging {
 

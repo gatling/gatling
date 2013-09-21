@@ -133,31 +133,36 @@ class AsyncHandlerActor extends BaseActor {
 
 		def redirect(sessionWithUpdatedCookies: Session) {
 
-			logRequest(task, sessionWithUpdatedCookies, OK, response)
+			if (task.protocol.maxRedirects.map(_ == task.numberOfRedirects).getOrElse(false)) {
+				ko(task, sessionWithUpdatedCookies, response, s"Reach max redirects of ${task.protocol.maxRedirects.get}")
+				
+			} else {
+				logRequest(task, sessionWithUpdatedCookies, OK, response)
 
-			val redirectURI = AsyncHttpProviderUtils.getRedirectUri(task.request.getURI, response.getHeader(HeaderNames.LOCATION))
+				val redirectURI = AsyncHttpProviderUtils.getRedirectUri(task.request.getURI, response.getHeader(HeaderNames.LOCATION))
 
-			val requestBuilder = new RequestBuilder(task.request)
-				.setMethod("GET")
-				.setBodyEncoding(configuration.core.encoding)
-				.setQueryParameters(null.asInstanceOf[FluentStringsMap])
-				.setParameters(null.asInstanceOf[FluentStringsMap])
-				.setUrl(redirectURI.toString)
-				.setConnectionPoolKeyStrategy(task.request.getConnectionPoolKeyStrategy)
+				val requestBuilder = new RequestBuilder(task.request)
+					.setMethod("GET")
+					.setBodyEncoding(configuration.core.encoding)
+					.setQueryParameters(null.asInstanceOf[FluentStringsMap])
+					.setParameters(null.asInstanceOf[FluentStringsMap])
+					.setUrl(redirectURI.toString)
+					.setConnectionPoolKeyStrategy(task.request.getConnectionPoolKeyStrategy)
 
-			for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectURI))
-				requestBuilder.addOrReplaceCookie(cookie)
+				for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectURI))
+					requestBuilder.addOrReplaceCookie(cookie)
 
-			val newRequest = requestBuilder.build
-			newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
-			newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
+				val newRequest = requestBuilder.build
+				newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
+				newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
 
-			val newRequestName = task.requestName match {
-				case AsyncHandlerActor.redirectedRequestNamePattern(requestBaseName, redirectCount) => requestBaseName + " Redirect " + (redirectCount.toInt + 1)
-				case _ => task.requestName + " Redirect 1"
+				val newRequestName = task.requestName match {
+					case AsyncHandlerActor.redirectedRequestNamePattern(requestBaseName, redirectCount) => s"$requestBaseName Redirect ${redirectCount.toInt + 1}"
+					case _ => task.requestName + " Redirect 1"
+				}
+
+				HttpClient.sendHttpRequest(task.copy(session = sessionWithUpdatedCookies, request = newRequest, requestName = newRequestName, numberOfRedirects = task.numberOfRedirects + 1))
 			}
-
-			HttpClient.sendHttpRequest(task.copy(session = sessionWithUpdatedCookies, request = newRequest, requestName = newRequestName))
 		}
 
 		def checkAndProceed(sessionWithUpdatedCookies: Session) {
