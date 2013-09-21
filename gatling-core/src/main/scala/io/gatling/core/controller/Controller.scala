@@ -17,6 +17,7 @@ package io.gatling.core.controller
 
 import java.util.UUID
 
+import scala.concurrent.duration.DurationInt
 import scala.util.{ Failure => SFailure, Success => SSuccess }
 
 import org.joda.time.DateTime.now
@@ -63,8 +64,8 @@ class Controller extends BaseActor {
 				DataWriter.askInit(runMessage, totalNumberOfUsers, scenarios).onComplete {
 					case f @ SFailure(_) => caller ! f
 
-					case SSuccess(dataWriterResponses) =>
-						pendingDataWritersDone = dataWriterResponses.size
+					case SSuccess(dataWritersNumber) =>
+						pendingDataWritersDone = dataWritersNumber
 						val runUUID = UUID.randomUUID.getMostSignificantBits
 
 						logger.debug("Launching All Scenarios")
@@ -89,7 +90,9 @@ class Controller extends BaseActor {
 				pendingDataWritersDone -= 1
 				if (pendingDataWritersDone == 0) {
 					logger.info("Terminating")
-					terminate
+					system.scheduler.scheduleOnce(1 second) {
+						terminate
+					}
 				}
 
 			case ForceTermination =>

@@ -38,15 +38,15 @@ object DataWriter extends AkkaDefaults {
 		dataWriters.foreach(_ ! message)
 	}
 
-	def askInit(runMessage: RunMessage, totalNumberOfUsers: Int, scenarios: Seq[Scenario]) = {
+	def askInit(runMessage: RunMessage, totalNumberOfUsers: Int, scenarios: Seq[Scenario]): Future[Int] = {
 		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.injectionProfile.users))
 		val responses = dataWriters.map(_ ? Init(runMessage, totalNumberOfUsers, shortScenarioDescriptions))
-		Future.sequence(responses)
+		Future.sequence(responses).map(_.size)
 	}
 
-	def askTerminate() = {
+	def askTerminate(): Future[Int] = {
 		val responses = dataWriters.map(_ ? Terminate)
-		Future.sequence(responses)
+		Future.sequence(responses).map(_.size)
 	}
 }
 
