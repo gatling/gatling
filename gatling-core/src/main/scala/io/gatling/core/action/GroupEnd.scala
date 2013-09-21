@@ -16,8 +16,7 @@
 package io.gatling.core.action
 
 import akka.actor.ActorRef
-import io.gatling.core.result.message.GroupMessage
-import io.gatling.core.result.writer.DataWriter
+import io.gatling.core.result.writer.{ DataWriter, GroupMessage }
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 

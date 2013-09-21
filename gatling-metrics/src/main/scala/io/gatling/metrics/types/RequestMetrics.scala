@@ -20,8 +20,8 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.RequestMessage
 import io.gatling.core.result.message.{ KO, OK }
+import io.gatling.core.result.writer.RequestMessage
 
 class RequestMetrics {
 

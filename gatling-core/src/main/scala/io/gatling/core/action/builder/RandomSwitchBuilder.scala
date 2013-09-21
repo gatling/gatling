@@ -18,8 +18,9 @@ package io.gatling.core.action.builder
 import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
-import akka.actor.{ ActorRef, Props }
-import io.gatling.core.action.{ Switch, system }
+import akka.actor.ActorDSL.actor
+import akka.actor.ActorRef
+import io.gatling.core.action.Switch
 import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.structure.ChainBuilder
 
@@ -50,6 +51,6 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends Acti
 			determineNextAction(ThreadLocalRandom.current.nextInt(1, 101), possibleActions)
 		}
 
-		system.actorOf(Props(new Switch(nextAction, next)))
+		actor(new Switch(nextAction, next))
 	}
 }

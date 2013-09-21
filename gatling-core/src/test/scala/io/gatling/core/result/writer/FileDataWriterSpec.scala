@@ -19,9 +19,8 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import FileDataWriter.RequestMessageSerializer
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.{ OK, RequestMessage }
+import io.gatling.core.result.message.OK
 import io.gatling.core.util.StringHelper.eol
 
 @RunWith(classOf[JUnitRunner])

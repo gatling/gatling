@@ -18,9 +18,9 @@ package io.gatling.core.action
 import scala.annotation.tailrec
 
 import akka.actor.ActorRef
-import io.gatling.core.result.message.{ GroupMessage, GroupStackEntry, KO }
-import io.gatling.core.result.writer.DataWriter
-import io.gatling.core.session.Session
+import io.gatling.core.result.message.KO
+import io.gatling.core.result.writer.{ DataWriter, GroupMessage }
+import io.gatling.core.session.{ GroupStackEntry, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 
 class ExitHereIfFailed(val next: ActorRef) extends Chainable {

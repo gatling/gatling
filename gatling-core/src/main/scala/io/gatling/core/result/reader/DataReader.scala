@@ -17,7 +17,8 @@ package io.gatling.core.result.reader
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.{ ErrorStats, Group, IntRangeVsTimePlot, IntVsTimePlot, StatsPath }
-import io.gatling.core.result.message.{ RunMessage, Status }
+import io.gatling.core.result.writer.RunMessage
+import io.gatling.core.result.message.Status
 
 object DataReader {
 	val NO_PLOT_MAGIC_VALUE = -1

@@ -15,7 +15,8 @@
  */
 package io.gatling.core.action
 
-import akka.actor.{ Actor, ActorRef, Props }
+import akka.actor.{ Actor, ActorRef }
+import akka.actor.ActorDSL.actor
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ Failure, Success }
 
@@ -33,7 +34,7 @@ class While(continueCondition: Expression[Boolean], counterName: String, exitASA
 
 	val uninitialized: Receive = {
 		case loopNext: ActorRef =>
-			innerWhile = context.actorOf(Props(new InnerWhile(continueCondition, loopNext, counterName, exitASAP, next)))
+			innerWhile = actor(new InnerWhile(continueCondition, loopNext, counterName, exitASAP, next))
 			context.become(initialized)
 	}
 

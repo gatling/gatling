@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.result.message
+package io.gatling.core.result.writer
 
 import io.gatling.core.util.FileHelper.tabulationSeparator
 
@@ -25,18 +25,22 @@ sealed abstract class MessageType {
 		if (array.length >= recordLength && array(0) == name) Some(array) else None
 	}
 }
+
 object RunMessageType extends MessageType {
 	val name = "RUN"
 	val recordLength = 4
 }
+
 object RequestMessageType extends MessageType {
 	val name = "REQUEST"
 	val recordLength = 10
 }
+
 object ScenarioMessageType extends MessageType {
 	val name = "SCENARIO"
 	val recordLength = 5
 }
+
 object GroupMessageType extends MessageType {
 	val name = "GROUP"
 	val recordLength = 7

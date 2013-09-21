@@ -17,23 +17,24 @@ package io.gatling.core.action.builder
 
 import scala.collection.mutable
 
-import akka.actor.{ ActorRef, Props }
-import io.gatling.core.action.{ Feed, SingletonFeed, system }
+import akka.actor.ActorDSL.actor
+import akka.actor.ActorRef
+import io.gatling.core.action.{ AkkaDefaults, Feed, SingletonFeed }
 import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.session.Expression
 
-object FeedBuilder {
+object FeedBuilder extends AkkaDefaults {
 
 	val instances = mutable.Map.empty[FeederBuilder[_], ActorRef]
 
 	def apply[T](feederBuilder: FeederBuilder[T], number: Expression[Int]) = {
-		def newInstance = system.actorOf(Props(new SingletonFeed(feederBuilder.build)))
+		def newInstance = actor(new SingletonFeed(feederBuilder.build))
 
 		new FeedBuilder(instances.getOrElseUpdate(feederBuilder, newInstance), number)
 	}
 }
 class FeedBuilder(instance: ActorRef, number: Expression[Int]) extends ActionBuilder {
 
-	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = system.actorOf(Props(new Feed(instance, number, next)))
+	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = actor(new Feed(instance, number, next))
 }

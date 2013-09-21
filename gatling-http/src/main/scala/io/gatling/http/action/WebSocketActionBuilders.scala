@@ -16,10 +16,9 @@
  */
 package io.gatling.http.action
 
-import akka.actor.{ ActorRef, Props }
-
+import akka.actor.ActorDSL.actor
+import akka.actor.ActorRef
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.action.system
 import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.session.Expression
 import io.gatling.http.config.HttpProtocol
@@ -29,7 +28,7 @@ class OpenWebSocketActionBuilder(actionName: Expression[String], attributeName: 
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
 		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
-		system.actorOf(Props(new OpenWebSocketAction(actionName, attributeName, fUrl, webSocketClient, requestLogger, next, httpProtocol)))
+		actor(new OpenWebSocketAction(actionName, attributeName, fUrl, webSocketClient, requestLogger, next, httpProtocol))
 	}
 }
 
@@ -37,7 +36,7 @@ class SendWebSocketMessageActionBuilder(actionName: Expression[String], attribut
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
 		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
-		system.actorOf(Props(new SendWebSocketMessageAction(actionName, attributeName, fMessage, next, httpProtocol)))
+		actor(new SendWebSocketMessageAction(actionName, attributeName, fMessage, next, httpProtocol))
 	}
 }
 
@@ -45,6 +44,6 @@ class CloseWebSocketActionBuilder(actionName: Expression[String], attributeName:
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
 		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
-		system.actorOf(Props(new CloseWebSocketAction(actionName, attributeName, next, httpProtocol)))
+		actor(new CloseWebSocketAction(actionName, attributeName, next, httpProtocol))
 	}
 }

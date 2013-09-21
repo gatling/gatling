@@ -20,11 +20,11 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles.{ ALL_SESSIONS_FILE, BOOTSTRAP_FILE, GATLING_JS_FILE, JQUERY_FILE, MENU_FILE, STATS_JS_FILE }
 import io.gatling.core.result.Group
-import io.gatling.core.result.message.RunMessage
+import io.gatling.core.result.writer.RunMessage
 import io.gatling.core.util.DateHelper.RichDateTime
 import io.gatling.core.util.FileHelper.FileRichString
 import io.gatling.core.util.HtmlHelper.HtmlRichString
-import io.gatling.core.util.StringHelper.{ eol, RichString }
+import io.gatling.core.util.StringHelper.{ RichString, eol }
 
 object PageTemplate {
 

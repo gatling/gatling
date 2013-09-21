@@ -26,8 +26,8 @@ import akka.routing.RoundRobinRouter
 import io.gatling.core.action.{ BaseActor, system }
 import io.gatling.core.check.Checks
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.{ KO, OK, RequestMessage, Status }
-import io.gatling.core.result.writer.DataWriter
+import io.gatling.core.result.message.{ KO, OK, Status }
+import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
 import io.gatling.core.session.Session
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.core.util.TimeHelper.nowMillis

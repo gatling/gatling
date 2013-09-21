@@ -15,8 +15,9 @@
  */
 package io.gatling.core.action.builder
 
-import akka.actor.{ ActorRef, Props }
-import io.gatling.core.action.{ While, system }
+import akka.actor.ActorRef
+import akka.actor.ActorDSL.actor
+import io.gatling.core.action.While
 import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ChainBuilder
@@ -29,7 +30,7 @@ import io.gatling.core.structure.ChainBuilder
 class WhileBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
-		val whileActor = system.actorOf(Props(new While(condition, counterName, exitASAP, next)))
+		val whileActor = actor(new While(condition, counterName, exitASAP, next))
 		val loopNextActor = loopNext.build(whileActor, protocolRegistry)
 		whileActor ! loopNextActor
 		whileActor
