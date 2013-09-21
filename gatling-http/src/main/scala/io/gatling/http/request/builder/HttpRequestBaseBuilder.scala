@@ -17,9 +17,6 @@ package io.gatling.http.request.builder
 
 import io.gatling.core.session.Expression
 
-/**
- * HttpRequestActionBuilder class companion
- */
 object HttpRequestBaseBuilder {
 
 	/**
@@ -29,9 +26,6 @@ object HttpRequestBaseBuilder {
 }
 
 /**
- * Builder for HttpRequestActionBuilder
- *
- * @constructor creates an HttpRequestActionBuilder
  * @param requestName the name of the request
  */
 class HttpRequestBaseBuilder(requestName: Expression[String]) {

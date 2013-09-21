@@ -37,7 +37,7 @@ object Predef {
 	implicit def proxyBuilder2HttpProtocolBuilder(hpb: HttpProxyBuilder): HttpProtocolBuilder = hpb.toHttpProtocolBuilder
 	implicit def proxyBuilder2HttpProtocol(hpb: HttpProxyBuilder): HttpProtocol = hpb.toHttpProtocolBuilder.build
 	implicit def httpProtocolBuilder2HttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
-	implicit def requestBuilder2ActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]): HttpRequestActionBuilder = requestBuilder.toActionBuilder
+	implicit def requestBuilder2ActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = HttpRequestActionBuilder(requestBuilder)
 
 	def http(requestName: Expression[String]) = HttpRequestBaseBuilder.http(requestName)
 	def addCookies(url: Expression[String], cookie: Cookie, cookies: Cookie*) = AddCookiesBuilder(url, cookie :: cookies.toList)

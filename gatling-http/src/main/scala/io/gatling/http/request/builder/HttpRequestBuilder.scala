@@ -60,7 +60,7 @@ object AbstractHttpRequestBuilder {
  *
  * @param httpAttributes the base HTTP attributes
  */
-abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](httpAttributes: HttpAttributes) {
+abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpAttributes: HttpAttributes) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -230,8 +230,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 * @param session the session of the current scenario
 	 */
 	def build: RequestFactory = (session: Session, protocol: HttpProtocol) => getAHCRequestBuilder(session, protocol).map(_.build)
-
-	def toActionBuilder = new HttpRequestActionBuilder(httpAttributes.requestName, this.build, httpAttributes.checks, httpAttributes.ignoreDefaultChecks, httpAttributes.responseTransformer)
 }
 
 object HttpRequestBuilder {
@@ -239,9 +237,6 @@ object HttpRequestBuilder {
 	def apply(method: String, requestName: Expression[String], url: Expression[String]) = new HttpRequestBuilder(HttpAttributes(requestName, method, url))
 }
 
-/**
- * This class defines an HTTP request with word GET in the DSL
- */
 class HttpRequestBuilder(httpAttributes: HttpAttributes) extends AbstractHttpRequestBuilder[HttpRequestBuilder](httpAttributes) {
 
 	private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestBuilder(httpAttributes)
