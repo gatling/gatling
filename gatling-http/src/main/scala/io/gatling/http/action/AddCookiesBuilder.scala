@@ -17,9 +17,9 @@ package io.gatling.http.action
 
 import com.ning.http.client.{ Cookie => AHCCookie }
 
-import akka.actor.{ ActorRef, Props }
+import akka.actor.ActorRef
+import akka.actor.ActorDSL.actor
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.action.system
 import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.SuccessWrapper
@@ -49,5 +49,5 @@ object AddCookiesBuilder {
 
 class AddCookiesBuilder(url: Expression[String], cookies: Expression[List[AHCCookie]]) extends ActionBuilder {
 
-	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = system.actorOf(Props(new AddCookies(url, cookies, next)))
+	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = actor(new AddCookies(url, cookies, next))
 }

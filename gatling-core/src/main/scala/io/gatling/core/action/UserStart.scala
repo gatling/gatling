@@ -16,10 +16,9 @@
 package io.gatling.core.action
 
 import akka.actor.ActorRef
-import io.gatling.core.result.message.{ ScenarioMessage, Start }
-import io.gatling.core.result.writer.DataWriter
+import io.gatling.core.result.message.Start
+import io.gatling.core.result.writer.{ DataWriter, ScenarioMessage }
 import io.gatling.core.session.Session
-import io.gatling.core.util.TimeHelper.nowMillis
 
 class UserStart(val next: ActorRef) extends Chainable {
 

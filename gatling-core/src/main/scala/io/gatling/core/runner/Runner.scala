@@ -15,24 +15,16 @@
  */
 package io.gatling.core.runner
 
-import java.util.UUID
-import java.util.concurrent.CountDownLatch
-import java.util.concurrent.TimeUnit.SECONDS
-
-import scala.concurrent.Await
-
-import org.joda.time.DateTime.now
+import scala.concurrent.duration.DurationInt
+import scala.util.{ Failure => SFailure, Success => SSuccess }
 
 import com.typesafe.scalalogging.slf4j.Logging
 
+import akka.actor.ActorDSL.{ inbox, senderFromInbox }
 import io.gatling.core.action.{ AkkaDefaults, system }
-import io.gatling.core.action.system.dispatcher
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.message.RunMessage
-import io.gatling.core.result.terminator.Terminator
-import io.gatling.core.result.writer.DataWriter
+import io.gatling.core.controller.{ Controller, Run }
 import io.gatling.core.scenario.Simulation
-import io.gatling.core.util.TimeHelper
 
 class Runner(selection: Selection) extends AkkaDefaults with Logging {
 
@@ -42,43 +34,18 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 			val simulationClass = selection.simulationClass
 			println(s"Simulation ${simulationClass.getName} started...")
 
-			val runMessage = RunMessage(now, selection.simulationId, selection.description)
-
-			val runUUID = UUID.randomUUID.getMostSignificantBits
-
 			val simulation = simulationClass.newInstance
-			val scenarios = simulation.scenarios
 
-			require(!scenarios.isEmpty, s"${simulationClass.getName} returned an empty scenario list. Did you forget to migrate your Simulations?")
-			val scenarioNames = scenarios.map(_.name)
-			require(scenarioNames.toSet.size == scenarioNames.size, s"Scenario names must be unique but found $scenarioNames")
+			implicit val i = inbox()
+			Controller.controller ! Run(simulation, selection.simulationId, selection.description)
 
-			val totalNumberOfUsers = scenarios.map(_.injectionProfile.users).sum
-			logger.info(s"Total number of users : $totalNumberOfUsers")
-
-			val terminatorLatch = new CountDownLatch(1)
-
-			val init = Terminator
-				.askInit(terminatorLatch, totalNumberOfUsers)
-				.flatMap(_ => DataWriter.askInit(runMessage, scenarios))
-
-			Await.result(init, defaultTimeOut.duration)
-
-			logger.debug("Launching All Scenarios")
-
-			// important, init TimeHelper
-			val ref = TimeHelper.nanoTimeReference
-
-			scenarios.foldLeft(0) { (i, scenario) =>
-				scenario.run(runUUID + "-", i)
-				i + scenario.injectionProfile.users
+			i.receive(configuration.core.timeOut.simulation seconds) match {
+				case SSuccess(runId: String) =>
+					println("Simulation finished")
+					(runId, simulation)
+				case SFailure(t) => throw t
+				case wtf => throw new UnsupportedOperationException(s"Controller replied an aknown message wtf")
 			}
-			logger.debug("Finished Launching scenarios executions")
-
-			terminatorLatch.await(configuration.core.timeOut.simulation, SECONDS)
-			println("Simulation finished.")
-
-			(runMessage.runId, simulation)
 
 		} finally {
 			system.shutdown

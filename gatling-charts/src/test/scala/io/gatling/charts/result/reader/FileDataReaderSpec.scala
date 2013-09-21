@@ -23,7 +23,6 @@ import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.ConfigurationConstants
 import io.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
-import io.gatling.core.result.message.RunMessage
 import io.gatling.core.util.DateHelper.parseTimestampString
 
 @RunWith(classOf[JUnitRunner])

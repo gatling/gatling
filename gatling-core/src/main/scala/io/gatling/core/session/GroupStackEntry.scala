@@ -13,15 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.result.terminator
+package io.gatling.core.session
 
-import java.util.concurrent.CountDownLatch
-
-import akka.actor.ActorRef
-
-sealed trait TerminatorMessage
-
-case class Initialize(latch: CountDownLatch, userCount: Int) extends TerminatorMessage
-case class RegisterDataWriter(dataWriter: ActorRef) extends TerminatorMessage
-case object EndUser extends TerminatorMessage
-case object ForceTermination extends TerminatorMessage
+case class GroupStackEntry(name: String, startDate: Long, cumulatedResponseTime: Long, oks: Int, kos: Int)

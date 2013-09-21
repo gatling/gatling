@@ -15,12 +15,11 @@
  */
 package io.gatling.core.action
 
+import akka.actor.ActorRef
+import io.gatling.core.controller.{ Controller, ForceTermination }
 import io.gatling.core.feeder.{ Feeder, Record }
-import io.gatling.core.result.terminator.Terminator
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ Failure, FailureWrapper, Success, SuccessWrapper, Validation }
-
-import akka.actor.ActorRef
 
 class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
 
@@ -35,7 +34,7 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
 		def pollRecord(): Record[T] = {
 			if (!feeder.hasNext) {
 				logger.error("Feeder is now empty, stopping engine")
-				Terminator.forceTermination
+				Controller.controller ! ForceTermination
 			}
 
 			feeder.next

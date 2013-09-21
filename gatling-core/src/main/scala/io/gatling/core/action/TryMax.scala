@@ -17,10 +17,12 @@ package io.gatling.core.action
 
 import scala.annotation.tailrec
 
-import akka.actor.{ Actor, ActorRef, Props }
-import io.gatling.core.result.message.{ GroupMessage, GroupStackEntry, KO, OK }
-import io.gatling.core.result.writer.DataWriter
-import io.gatling.core.session.Session
+import akka.actor.ActorRef
+import akka.actor.Actor
+import akka.actor.ActorDSL.actor
+import io.gatling.core.result.message.{ KO, OK }
+import io.gatling.core.result.writer.{ DataWriter, GroupMessage }
+import io.gatling.core.session.{ GroupStackEntry, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 
 class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
@@ -29,7 +31,7 @@ class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
 
 	val uninitialized: Receive = {
 		case loopNext: ActorRef =>
-			innerTryMax = context.actorOf(Props(new InnerTryMax(times, loopNext, counterName, next)))
+			innerTryMax = actor(new InnerTryMax(times, loopNext, counterName, next))
 			context.become(initialized)
 	}
 

@@ -15,9 +15,9 @@
  */
 package io.gatling.http.action
 
-import akka.actor.{ ActorRef, Props }
+import akka.actor.ActorRef
+import akka.actor.ActorDSL.actor
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.action.system
 import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.SuccessWrapper
@@ -60,6 +60,6 @@ class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: 
 			.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
 			.sorted
 
-		system.actorOf(Props(new HttpRequestAction(requestName, next, requestFactory, resolvedChecks, responseTransformer, httpProtocol)))
+		actor(new HttpRequestAction(requestName, next, requestFactory, resolvedChecks, responseTransformer, httpProtocol))
 	}
 }

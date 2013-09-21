@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.result.message
+package io.gatling.core.result.writer
 
-import org.specs2.mutable.Specification
 import org.junit.runner.RunWith
+import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
+
+import io.gatling.core.result.message.OK
 
 @RunWith(classOf[JUnitRunner])
 class RequestMessageSpec extends Specification {

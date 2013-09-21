@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.result.message
+package io.gatling.core.result.writer
 
 import org.joda.time.DateTime
 
+import io.gatling.core.result.message.{ MessageEvent, Status }
+import io.gatling.core.session.GroupStackEntry
 import io.gatling.core.util.DateHelper.RichDateTime
 
 sealed trait DataWriterMessage
 
 case class ShortScenarioDescription(name: String, nbUsers: Int)
 
-case class Init(runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
+case class Init(runMessage: RunMessage, totalNumberOfUsers: Int, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
 
 case object Terminate extends DataWriterMessage
 

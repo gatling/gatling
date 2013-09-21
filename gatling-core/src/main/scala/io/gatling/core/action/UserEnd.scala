@@ -15,15 +15,15 @@
  */
 package io.gatling.core.action
 
-import akka.actor.Props
-import io.gatling.core.result.message.{ End, ScenarioMessage }
-import io.gatling.core.result.writer.DataWriter
+import akka.actor.ActorDSL.actor
+import io.gatling.core.result.message.End
+import io.gatling.core.result.writer.{ DataWriter, ScenarioMessage }
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 
-object UserEnd {
+object UserEnd extends AkkaDefaults {
 
-	val userEnd = system.actorOf(Props(new UserEnd))
+	val userEnd = actor(new UserEnd)
 }
 
 class UserEnd extends Action {
