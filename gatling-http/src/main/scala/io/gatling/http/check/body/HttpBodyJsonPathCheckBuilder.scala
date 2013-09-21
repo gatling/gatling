@@ -16,32 +16,45 @@
 package io.gatling.http.check.body
 
 import com.typesafe.scalalogging.slf4j.Logging
-
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.jsonpath.JsonPathExtractors
+import io.gatling.core.check.extractor.jsonpath.JaywayJsonPathExtractors
+import io.gatling.core.config.{ Gatling, Jayway }
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
+import io.gatling.core.check.extractor.jsonpath.GatlingJsonPathExtractors
+import io.gatling.core.check.extractor.jsonpath.JsonPathExtractors
 
 object HttpBodyJsonPathCheckBuilder extends Logging {
 
-	val preparer: Preparer[Response, Any] = (response: Response) =>
-		try {
-			JsonPathExtractors.parse(response.getResponseBodyAsBytes).success
+	class HttpBodyJsonPathCheckBuilder(extractor: JsonPathExtractors) {
+		val preparer: Preparer[Response, Any] = (response: Response) =>
+			try {
+				extractor.parse(response.getResponseBodyAsBytes).success
+			} catch {
+				case e: Exception =>
+					val message = s"Could not parse response into a JSON object: ${e.getMessage}"
+					logger.info(message, e)
+					message.failure
+			}
 
-		} catch {
-			case e: Exception =>
-				val message = s"Could not parse response into a JSON object: ${e.getMessage}"
-				logger.info(message, e)
-				message.failure
+		def jsonPath(expression: Expression[String]) = new HttpMultipleCheckBuilder[Any, String, String](
+			HttpCheckBuilders.bodyCheckFactory,
+			preparer,
+			extractor.extractOne,
+			extractor.extractMultiple,
+			extractor.count,
+			expression)
+	}
+
+	val gatlingJsonPathExtractor = new HttpBodyJsonPathCheckBuilder(GatlingJsonPathExtractors)
+	val jaywayJsonPathExtractor = new HttpBodyJsonPathCheckBuilder(JaywayJsonPathExtractors)
+
+	def jsonPath(expression: Expression[String]): HttpMultipleCheckBuilder[_, String, String] =
+		configuration.core.extract.jsonPath.engine match {
+			case Gatling => gatlingJsonPathExtractor.jsonPath(expression)
+			case Jayway => jaywayJsonPathExtractor.jsonPath(expression)
 		}
-
-	def jsonPath(expression: Expression[String]) = new HttpMultipleCheckBuilder[Any, String, String](
-		HttpCheckBuilders.bodyCheckFactory,
-		preparer,
-		JsonPathExtractors.extractOne,
-		JsonPathExtractors.extractMultiple,
-		JsonPathExtractors.count,
-		expression)
 }
