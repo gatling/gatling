@@ -36,6 +36,7 @@ case class HttpTask(session: Session,
 	checks: List[HttpCheck],
 	responseBuilderFactory: ResponseBuilderFactory,
 	protocol: HttpProtocol,
+	maxRedirects: Option[Int],
 	next: ActorRef,
 	numberOfRedirects: Int = 0)
 

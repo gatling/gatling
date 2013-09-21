@@ -38,7 +38,7 @@ object HttpRequestActionBuilder {
 
 	def apply(requestBuilder: AbstractHttpRequestBuilder[_]): HttpRequestActionBuilder = {
 		import requestBuilder.httpAttributes._
-		new HttpRequestActionBuilder(requestName, requestBuilder.build, checks, ignoreDefaultChecks, responseTransformer)
+		new HttpRequestActionBuilder(requestName, requestBuilder.build, checks, ignoreDefaultChecks, responseTransformer, maxRedirects)
 	}
 }
 
@@ -49,7 +49,7 @@ object HttpRequestActionBuilder {
  * @param requestBuilder the builder for the request that will be sent
  * @param next the next action to be executed
  */
-class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], ignoreDefaultChecks: Boolean, responseTransformer: Option[ResponseTransformer]) extends ActionBuilder {
+class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], ignoreDefaultChecks: Boolean, responseTransformer: Option[ResponseTransformer], maxRedirects: Option[Int]) extends ActionBuilder {
 
 	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
 
@@ -66,6 +66,8 @@ class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: 
 			.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
 			.sorted
 
-		actor(new HttpRequestAction(requestName, next, requestFactory, resolvedChecks, responseTransformer, httpProtocol))
+		val resolvedMaxRedirects = maxRedirects.orElse(httpProtocol.maxRedirects)
+
+		actor(new HttpRequestAction(requestName, next, requestFactory, resolvedChecks, responseTransformer, resolvedMaxRedirects, httpProtocol))
 	}
 }

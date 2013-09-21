@@ -57,6 +57,7 @@ class HttpRequestAction(
 	requestFactory: RequestFactory,
 	checks: List[HttpCheck],
 	responseTransformer: Option[ResponseTransformer],
+	maxRedirects: Option[Int],
 	protocol: HttpProtocol) extends Interruptable with Failable {
 
 	val responseBuilderFactory = ResponseBuilder.newResponseBuilder(checks, responseTransformer, protocol)
@@ -71,8 +72,7 @@ class HttpRequestAction(
 
 			} else {
 				logger.info(s"Sending request '$resolvedRequestName': scenario '${newSession.scenarioName}', userId #${newSession.userId}")
-
-				HttpClient.sendHttpRequest(HttpTask(session, request, resolvedRequestName, checks, responseBuilderFactory, protocol, next))
+				HttpClient.sendHttpRequest(HttpTask(session, request, resolvedRequestName, checks, responseBuilderFactory, protocol, maxRedirects, next))
 			}
 		}
 

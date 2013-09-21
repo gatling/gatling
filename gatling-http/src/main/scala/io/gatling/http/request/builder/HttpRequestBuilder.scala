@@ -45,7 +45,8 @@ case class HttpAttributes(
 	address: Option[InetAddress] = None,
 	checks: List[HttpCheck] = Nil,
 	ignoreDefaultChecks: Boolean = false,
-	responseTransformer: Option[ResponseTransformer] = None)
+	responseTransformer: Option[ResponseTransformer] = None,
+	maxRedirects: Option[Int] = None)
 
 object AbstractHttpRequestBuilder {
 
@@ -150,6 +151,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * @param responseTransformer transforms the response before it's handled to the checks pipeline
 	 */
 	def transformResponse(responseTransformer: ResponseTransformer): B = newInstance(httpAttributes.copy(responseTransformer = Some(responseTransformer)))
+
+	def maxRedirects(max: Int): B = newInstance(httpAttributes.copy(maxRedirects = Some(max)))
 
 	/**
 	 * This method actually fills the request builder to avoid race conditions
