@@ -21,9 +21,10 @@ import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import akka.actor.ActorRef
-import io.gatling.core.ConfigurationConstants._
+import io.gatling.core.ConfigurationConstants.{ CONF_HTTP_SSL_KEY_STORE_ALGORITHM, CONF_HTTP_SSL_KEY_STORE_FILE, CONF_HTTP_SSL_KEY_STORE_PASSWORD, CONF_HTTP_SSL_KEY_STORE_TYPE, CONF_HTTP_SSL_TRUST_STORE_ALGORITHM, CONF_HTTP_SSL_TRUST_STORE_FILE, CONF_HTTP_SSL_TRUST_STORE_PASSWORD, CONF_HTTP_SSL_TRUST_STORE_TYPE }
 import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.controller.{ Controller, ThrottledRequest }
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
@@ -37,6 +38,7 @@ case class HttpTask(session: Session,
 	responseBuilderFactory: ResponseBuilderFactory,
 	protocol: HttpProtocol,
 	maxRedirects: Option[Int],
+	throttled: Boolean,
 	next: ActorRef,
 	numberOfRedirects: Int = 0)
 
@@ -143,6 +145,9 @@ object HttpClient extends Logging {
 					(task.copy(session = task.session.set(httpClientAttributeName, httpClient)), httpClient)
 				}
 
-		httpClient.executeRequest(newTask.request, new AsyncHandler(newTask))
+		if (task.throttled)
+			Controller.controller ! ThrottledRequest(task.session.scenarioName, () => httpClient.executeRequest(newTask.request, new AsyncHandler(newTask)))
+		else
+			httpClient.executeRequest(newTask.request, new AsyncHandler(newTask))
 	}
 }
