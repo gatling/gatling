@@ -19,6 +19,7 @@ import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.controller.throttle.ThrottlingProtocol
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.ahc.RequestFactory
@@ -67,7 +68,8 @@ class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: 
 			.sorted
 
 		val resolvedMaxRedirects = maxRedirects.orElse(httpProtocol.maxRedirects)
+		val throttled = protocolRegistry.getProtocol[ThrottlingProtocol].isDefined
 
-		actor(new HttpRequestAction(requestName, next, requestFactory, resolvedChecks, responseTransformer, resolvedMaxRedirects, httpProtocol))
+		actor(new HttpRequestAction(requestName, next, requestFactory, resolvedChecks, responseTransformer, resolvedMaxRedirects, throttled, httpProtocol))
 	}
 }

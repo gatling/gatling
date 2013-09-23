@@ -135,7 +135,7 @@ class AsyncHandlerActor extends BaseActor {
 
 			if (task.protocol.maxRedirects.map(_ == task.numberOfRedirects).getOrElse(false)) {
 				ko(task, sessionWithUpdatedCookies, response, s"Too many redirects, max is ${task.protocol.maxRedirects.get}")
-				
+
 			} else {
 				logRequest(task, sessionWithUpdatedCookies, OK, response)
 

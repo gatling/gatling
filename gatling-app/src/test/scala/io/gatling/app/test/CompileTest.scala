@@ -212,5 +212,6 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			global.responseTime.min.assert(_ % 2 == 0, (name, result) => "My custom assert on " + name + " (" + result + ")"),
 			details("Users" / "Search" / "Index page").responseTime.mean.greaterThan(0).lessThan(50),
 			details("Admins" / "Create").failedRequests.percent.lessThan(90))
+			.throttle(jumpTo(20) reach(40) in (10 seconds) holdFor(30 seconds))
 }
 
