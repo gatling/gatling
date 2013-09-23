@@ -15,7 +15,7 @@
  */
 package io.gatling.core.controller
 
-import java.util.UUID
+import java.util.UUID.randomUUID
 
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.util.{ Failure => SFailure, Success => SSuccess }
@@ -25,10 +25,11 @@ import org.joda.time.DateTime.now
 import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor
 import io.gatling.core.action.{ AkkaDefaults, BaseActor }
+import io.gatling.core.controller.throttle.{ Throttler, ThrottlingProtocol }
 import io.gatling.core.result.writer.{ DataWriter, RunMessage }
-import io.gatling.core.util.TimeHelper
+import io.gatling.core.util.TimeHelper.nanoTimeReference
 
-case class Timings(maxDuration: Option[FiniteDuration])
+case class Timings(maxDuration: Option[FiniteDuration], globalThrottling: Option[ThrottlingProtocol], perScenarioThrottlings: Map[String, ThrottlingProtocol])
 
 object Controller extends AkkaDefaults {
 
@@ -39,23 +40,30 @@ class Controller extends BaseActor {
 
 	import context._
 
-	var caller: ActorRef = _
+	var launcher: ActorRef = _
 	var pendingDataWritersDone = 0
 	var runId: String = _
+
+	var timings: Timings = _
+
+	var secondStartMillis: Long = 0L
+
+	var throttler: Throttler = _
 
 	val uninitialized: Receive = {
 
 		case Run(simulation, simulationId, description, timings) =>
 			// important, initialize time reference
-			val timeRef = TimeHelper.nanoTimeReference
-			caller = sender
+			val timeRef = nanoTimeReference
+			launcher = sender
+			this.timings = timings
 			val scenarios = simulation.scenarios
 
 			if (scenarios.isEmpty)
-				caller ! SFailure(new IllegalArgumentException(s"Simulation ${simulation.getClass} doesn't have any configured scenario"))
+				launcher ! SFailure(new IllegalArgumentException(s"Simulation ${simulation.getClass} doesn't have any configured scenario"))
 
 			else if (scenarios.map(_.name).toSet.size != scenarios.size)
-				caller ! SFailure(new IllegalArgumentException(s"Scenario names must be unique but found a duplicate"))
+				launcher ! SFailure(new IllegalArgumentException(s"Scenario names must be unique but found a duplicate"))
 
 			else {
 				val totalNumberOfUsers = scenarios.map(_.injectionProfile.users).sum
@@ -64,41 +72,54 @@ class Controller extends BaseActor {
 				val runMessage = RunMessage(now, simulationId, description)
 				runId = runMessage.runId
 				DataWriter.askInit(runMessage, totalNumberOfUsers, scenarios).onComplete {
-					case f @ SFailure(_) => caller ! f
+					case f @ SFailure(_) => launcher ! f
 
 					case SSuccess(dataWritersNumber) =>
 						pendingDataWritersDone = dataWritersNumber
-						val runUUID = UUID.randomUUID.getMostSignificantBits
+						val runUUID = randomUUID.getMostSignificantBits
 
 						logger.debug("Launching All Scenarios")
 						scenarios.foldLeft(0) { (i, scenario) =>
 							scenario.run(runUUID + "-", i)
 							i + scenario.injectionProfile.users
 						}
+						logger.debug("Finished Launching scenarios executions")
+
+						val newState = if (timings.globalThrottling.isDefined || !timings.perScenarioThrottlings.isEmpty) {
+							throttler = new Throttler(timings.globalThrottling, timings.perScenarioThrottlings)
+							system.scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
+							throttling.orElse(initialized)
+						} else
+							initialized
+
+						context.become(newState)
 
 						timings.maxDuration.foreach {
 							system.scheduler.scheduleOnce(_) {
 								self ! ForceTermination
 							}
 						}
-
-						logger.debug("Finished Launching scenarios executions")
-						context.become(initialized)
 				}
 			}
+	}
+
+	val throttling: Receive = {
+
+		case OneSecondTick => throttler.flushBuffer
+
+		case ThrottledRequest(scenarioName, request) => throttler.send(scenarioName, request)
 	}
 
 	val initialized: Receive = {
 
 		def terminate {
-			caller ! SSuccess(runId)
+			launcher ! SSuccess(runId)
 		}
 
 		{
 			case DataWriterDone =>
 				pendingDataWritersDone -= 1
 				if (pendingDataWritersDone == 0) {
-					logger.info("Terminating")
 					system.scheduler.scheduleOnce(1 second) {
 						terminate
 					}

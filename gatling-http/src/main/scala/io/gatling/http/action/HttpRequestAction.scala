@@ -30,7 +30,6 @@
 package io.gatling.http.action
 
 import com.ning.http.client.Request
-
 import akka.actor.ActorRef
 import io.gatling.core.action.{ Interruptable, Failable }
 import io.gatling.core.session.{ Expression, Session }
@@ -58,6 +57,7 @@ class HttpRequestAction(
 	checks: List[HttpCheck],
 	responseTransformer: Option[ResponseTransformer],
 	maxRedirects: Option[Int],
+	throttled: Boolean,
 	protocol: HttpProtocol) extends Interruptable with Failable {
 
 	val responseBuilderFactory = ResponseBuilder.newResponseBuilder(checks, responseTransformer, protocol)
@@ -72,7 +72,7 @@ class HttpRequestAction(
 
 			} else {
 				logger.info(s"Sending request '$resolvedRequestName': scenario '${newSession.scenarioName}', userId #${newSession.userId}")
-				HttpClient.sendHttpRequest(HttpTask(session, request, resolvedRequestName, checks, responseBuilderFactory, protocol, maxRedirects, next))
+				HttpClient.sendHttpRequest(HttpTask(session, request, resolvedRequestName, checks, responseBuilderFactory, protocol, maxRedirects, throttled, next))
 			}
 		}
 

@@ -19,25 +19,28 @@ import scala.concurrent.duration.{ Duration, FiniteDuration }
 
 import io.gatling.core.config.Protocol
 import io.gatling.core.controller.Timings
+import io.gatling.core.controller.throttle.{ Throttling, ThrottlingBuilder, ThrottlingProtocol }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ Assertion, Metric, ProfiledScenarioBuilder }
 
-abstract class Simulation {
+abstract class Simulation extends Throttling {
 
+	def throttlingSteps = Nil
 	private[scenario] var _scenarios = Seq.empty[ProfiledScenarioBuilder]
 	private[scenario] var _globalProtocols = List.empty[Protocol]
 	private[scenario] var _assertions = Seq.empty[Assertion]
 	private[scenario] var _maxDuration: Option[FiniteDuration] = None
+	private[scenario] var _globalThrottling: Option[ThrottlingProtocol] = None
 
 	def scenarios: Seq[Scenario] = {
 		require(!_scenarios.isEmpty, "No scenario set up")
 		_scenarios.map(_.build(_globalProtocols))
 	}
 
-	def protocols = _globalProtocols
+	def perScenarioThrottlings = _scenarios.map(scn => scn.protocols.collect { case p: ThrottlingProtocol => (scn.scenarioBuilder.name -> p) }).flatten.toMap
 	def assertions = _assertions
-	def timings = Timings(_maxDuration)
+	def timings = Timings(_maxDuration, _globalThrottling, perScenarioThrottlings)
 
 	def setUp(scenario: ProfiledScenarioBuilder, scenarios: ProfiledScenarioBuilder*) = {
 		_scenarios = scenario :: scenarios.toList
@@ -58,6 +61,13 @@ abstract class Simulation {
 
 		def maxDuration(duration: FiniteDuration) = {
 			_maxDuration = Some(duration)
+			this
+		}
+
+		def throttle(throttlingBuilder: ThrottlingBuilder) = {
+			val throttling = ThrottlingProtocol(throttlingBuilder.build())
+			_globalThrottling = Some(throttling)
+			_globalProtocols = throttling :: _globalProtocols
 			this
 		}
 
