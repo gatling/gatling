@@ -48,19 +48,19 @@ case class Jump(target: Int) extends ThrottleStep {
 }
 
 object Throttling {
-	val bootstrap = new Throttling {
+	val bootstrap = new ThrottlingSupport {
 		def steps = Nil
 	}
 }
 
-trait Throttling {
+trait ThrottlingSupport {
 	def steps: List[ThrottleStep]
 	def reach(target: Int) = ReachIntermediate(target, steps)
 	def holdFor(duration: Duration) = ThrottlingBuilder(Hold(duration) :: steps)
 	def jumpTo(target: Int) = ThrottlingBuilder(Jump(target) :: steps)
 }
 
-case class ThrottlingBuilder(steps: List[ThrottleStep]) extends Throttling {
+case class ThrottlingBuilder(steps: List[ThrottleStep]) extends ThrottlingSupport {
 
 	def build = {
 		@tailrec

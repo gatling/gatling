@@ -19,13 +19,13 @@ import scala.concurrent.duration.{ Duration, FiniteDuration }
 
 import io.gatling.core.config.Protocol
 import io.gatling.core.controller.Timings
-import io.gatling.core.controller.throttle.{ Throttling, ThrottlingBuilder, ThrottlingProtocol }
+import io.gatling.core.controller.throttle.{ ThrottlingBuilder, ThrottlingProtocol, ThrottlingSupport }
 import io.gatling.core.feeder.FeederSupport
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ Assertion, Metric, ProfiledScenarioBuilder }
 
-abstract class Simulation extends FeederSupport with Throttling {
+abstract class Simulation extends FeederSupport with ThrottlingSupport {
 
 	def steps = Nil
 	private[scenario] var _scenarios = Seq.empty[ProfiledScenarioBuilder]
