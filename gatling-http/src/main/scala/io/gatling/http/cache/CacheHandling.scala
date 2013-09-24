@@ -22,6 +22,7 @@ import com.ning.http.util.AsyncHttpProviderUtils
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.core.util.NumberHelper.isPositiveDigit
 import io.gatling.http.Headers
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.Response
@@ -42,24 +43,13 @@ object CacheHandling extends Logging {
 
 	val maxAgePrefix = "max-age="
 	val maxAgeZero = maxAgePrefix + "0"
-	def hasPositiveMaxAge(s: String) = {
-		val index = s.indexOf(maxAgePrefix)
-		val start = maxAgePrefix.length + index
-		if (index > 0 && start < s.length) {
-			val c = s.charAt(start)
-			if (Character.isDigit(c))
-				c.getNumericValue > 0
-			else
-				false
-		} else
-			false
-	}
+	def hasPositiveMaxAge(s: String) = s.startsWith(maxAgePrefix) && isPositiveDigit(s.charAt(maxAgePrefix.length))
 
 	def isResponseCacheable(httpProtocol: HttpProtocol, response: Response): Boolean = {
 		def pragmaNoCache = Option(response.getHeader(Headers.Names.PRAGMA)).exists(_.contains(Headers.Values.NO_CACHE))
 		def cacheControlNoCache = Option(response.getHeader(Headers.Names.CACHE_CONTROL))
 			.exists(h => h.contains(Headers.Values.NO_CACHE) || h.contains(Headers.Values.NO_STORE) || h.contains(maxAgeZero))
-		def cacheControlInFuture = Option(response.getHeader(Headers.Names.CACHE_CONTROL)).exists(hasPositiveMaxAge(_))
+		def cacheControlInFuture = Option(response.getHeader(Headers.Names.CACHE_CONTROL)).exists(hasPositiveMaxAge)
 		def expiresInFuture = Option(response.getHeader(Headers.Names.EXPIRES)).exists(isFutureExpire)
 
 		httpProtocol.cache && !pragmaNoCache && !cacheControlNoCache && (cacheControlInFuture || expiresInFuture)

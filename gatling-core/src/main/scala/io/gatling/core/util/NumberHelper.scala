@@ -33,4 +33,6 @@ object NumberHelper {
 
 		n + suffix
 	}
+
+	def isPositiveDigit(c: Char) = Character.isDigit(c) && c.getNumericValue > 0
 }
