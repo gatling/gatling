@@ -30,8 +30,6 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object Predef extends CheckSupport with FeederSupport with InjectionSupport with ThrottlingSupport {
 
-	def steps = Nil
-
 	type Session = io.gatling.core.session.Session
 	type Status = io.gatling.core.result.message.Status
 	type Simulation = io.gatling.core.scenario.Simulation

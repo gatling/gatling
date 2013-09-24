@@ -48,13 +48,13 @@ case class Jump(target: Int) extends ThrottleStep {
 }
 
 trait ThrottlingSupport {
-	def steps: List[ThrottleStep]
+	def steps: List[ThrottleStep] = Nil
 	def reachRps(target: Int) = ReachIntermediate(target, steps)
 	def holdFor(duration: Duration) = ThrottlingBuilder(Hold(duration) :: steps)
 	def jumpToRps(target: Int) = ThrottlingBuilder(Jump(target) :: steps)
 }
 
-case class ThrottlingBuilder(steps: List[ThrottleStep]) extends ThrottlingSupport {
+case class ThrottlingBuilder(override val steps: List[ThrottleStep]) extends ThrottlingSupport {
 
 	def build = {
 		@tailrec
