@@ -57,6 +57,9 @@ object Predef {
 	def responseTimeInMillis = HttpResponseTimeCheckBuilder.responseTimeInMillis
 	def latencyInMillis = HttpResponseTimeCheckBuilder.latencyInMillis
 
+	val HttpHeaderNames = Headers.Names
+	val HttpHeaderValues = Headers.Values
+
 	val gzipBody = BodyProcessors.gzip
 	val streamBody = BodyProcessors.stream
 
