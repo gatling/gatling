@@ -32,7 +32,7 @@ import io.gatling.core.session.Expression
  * @param name the name of the scenario
  * @param actionBuilders the list of all the actions that compose the scenario
  */
-case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = List(UserStartBuilder)) extends AbstractStructureBuilder[ScenarioBuilder] {
+case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = List(UserStartBuilder)) extends StructureBuilder[ScenarioBuilder] {
 
 	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = copy(actionBuilders = actionBuilders)
 
@@ -69,7 +69,7 @@ case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionPr
 			ProtocolRegistry(resolvedProtocols)
 		}
 
-		val entryPoint = scenarioBuilder.buildChainedActions(UserEnd.userEnd, protocolRegistry)
+		val entryPoint = scenarioBuilder.build(UserEnd.userEnd, protocolRegistry)
 		new Scenario(scenarioBuilder.name, entryPoint, injectionProfile)
 	}
 }

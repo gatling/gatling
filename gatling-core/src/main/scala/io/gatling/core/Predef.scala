@@ -27,10 +27,10 @@ import io.gatling.core.feeder.FeederSupport
 import io.gatling.core.pause.PauseSupport
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
 import io.gatling.core.session.el.EL
-import io.gatling.core.structure.{ ChainBuilder, ScenarioBuilder }
+import io.gatling.core.structure.{ ChainBuilder, ScenarioBuilder, StructureSupport }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
-object Predef extends PauseSupport with CheckSupport with FeederSupport with InjectionSupport with ThrottlingSupport with AssertionSupport {
+object Predef extends StructureSupport with PauseSupport with CheckSupport with FeederSupport with InjectionSupport with ThrottlingSupport with AssertionSupport {
 
 	type Session = io.gatling.core.session.Session
 	type Status = io.gatling.core.result.message.Status
@@ -47,7 +47,6 @@ object Predef extends PauseSupport with CheckSupport with FeederSupport with Inj
 	implicit def intToFiniteDuration(i: Int) = i seconds
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
-	val bootstrap = ChainBuilder.empty
 
 	implicit def string2path(string: String) = Path.string2path(string)
 }

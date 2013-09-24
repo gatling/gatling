@@ -15,24 +15,20 @@
  */
 package io.gatling.core.structure
 
-import io.gatling.core.action.builder.ActionBuilder
-import akka.actor.ActorRef
 import io.gatling.core.config.ProtocolRegistry
 
-object ChainBuilder {
-	val empty = new ChainBuilder(Nil)
-
-	def chainOf(actionBuilder: ActionBuilder*) = new ChainBuilder(actionBuilder.toList)
-}
+import akka.actor.ActorRef
 
 /**
- * This class defines chain related methods
+ * This class defines most of the scenario related DSL
  *
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
-class ChainBuilder(val actionBuilders: List[ActionBuilder]) extends StructureBuilder[ChainBuilder] {
+trait StructureBuilder[B <: StructureBuilder[B]] extends Execs[B] with Pauses[B] with Feeds[B] with Loops[B] with ConditionalStatements[B] with Errors[B] with Groups[B] {
 
-	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = new ChainBuilder(actionBuilders)
-
-	private[core] def getInstance = this
+	private[core] def build(exitPoint: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef =
+		actionBuilders.foldLeft(exitPoint) { (actorRef, actionBuilder) =>
+			actionBuilder.build(actorRef, protocolRegistry)
+		}
 }
+

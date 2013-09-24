@@ -94,7 +94,6 @@ import io.gatling.jdbc.Predef._
 import io.gatling.http.Headers.Names._
 import io.gatling.http.Headers.Values._
 import scala.concurrent.duration._
-import bootstrap._
 
 class $simulationClassName extends Simulation {
 
