@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import io.gatling.core.Predef.tsv
+import io.gatling.core.feeder.SeparatedValuesParser.tsv
 import io.gatling.core.config.GatlingConfiguration
 
 @RunWith(classOf[JUnitRunner])
