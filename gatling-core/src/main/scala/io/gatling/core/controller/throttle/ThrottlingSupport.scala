@@ -47,12 +47,6 @@ case class Jump(target: Int) extends ThrottleStep {
 	def rps(time: Long, previousLastValue: Int) = 0
 }
 
-object Throttling {
-	val bootstrap = new ThrottlingSupport {
-		def steps = Nil
-	}
-}
-
 trait ThrottlingSupport {
 	def steps: List[ThrottleStep]
 	def reachRps(target: Int) = ReachIntermediate(target, steps)
