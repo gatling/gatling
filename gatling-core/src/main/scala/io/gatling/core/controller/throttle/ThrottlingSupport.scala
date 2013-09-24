@@ -55,9 +55,9 @@ object Throttling {
 
 trait ThrottlingSupport {
 	def steps: List[ThrottleStep]
-	def reach(target: Int) = ReachIntermediate(target, steps)
+	def reachRps(target: Int) = ReachIntermediate(target, steps)
 	def holdFor(duration: Duration) = ThrottlingBuilder(Hold(duration) :: steps)
-	def jumpTo(target: Int) = ThrottlingBuilder(Jump(target) :: steps)
+	def jumpToRps(target: Int) = ThrottlingBuilder(Jump(target) :: steps)
 }
 
 case class ThrottlingBuilder(steps: List[ThrottleStep]) extends ThrottlingSupport {
