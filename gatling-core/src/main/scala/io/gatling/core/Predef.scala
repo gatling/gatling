@@ -66,12 +66,6 @@ object Predef {
 
 	implicit def string2path(string: String) = Path.string2path(string)
 
-	val toInt = (x: String) => x.toInt
-	val toLong = (x: String) => x.toInt
-	val toFloat = (x: String) => x.toFloat
-	val toDouble = (x: String) => x.toDouble
-	val toBoolean = (x: String) => x.toBoolean
-
 	/// Injection definitions
 
 	private[Predef] class UserNumber(val number: Int) extends AnyVal
