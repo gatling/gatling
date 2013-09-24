@@ -24,13 +24,13 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.app.CommandLineConstants._
 import io.gatling.charts.report.ReportsGenerator
+import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.{ GatlingFiles, GatlingPropertiesBuilder }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.reader.DataReader
 import io.gatling.core.runner.{ Runner, Selection }
 import io.gatling.core.scenario.Simulation
-import io.gatling.core.structure.Assertion
 import io.gatling.core.util.StringHelper.RichString
 import scopt.OptionParser
 

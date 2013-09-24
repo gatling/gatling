@@ -17,13 +17,14 @@ package io.gatling.core.scenario
 
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
+import io.gatling.core.assertion.{ Assertion, Metric }
 import io.gatling.core.config.Protocol
 import io.gatling.core.controller.Timings
 import io.gatling.core.controller.throttle.{ ThrottlingBuilder, ThrottlingProtocol, ThrottlingSupport }
 import io.gatling.core.feeder.FeederSupport
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
 import io.gatling.core.session.Expression
-import io.gatling.core.structure.{ Assertion, Metric, ProfiledScenarioBuilder }
+import io.gatling.core.structure.ProfiledScenarioBuilder
 
 abstract class Simulation {
 

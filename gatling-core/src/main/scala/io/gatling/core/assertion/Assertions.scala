@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.structure
+package io.gatling.core.assertion
 
 import scala.tools.nsc.io.Path
 
@@ -23,40 +23,7 @@ import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.NumberHelper
 
-class AssertionBuilder {
-
-	def global = new Selector((reader, status) => reader.requestGeneralStats(None, None, status), "Global")
-
-	def details(selector: Path) = {
-
-		def path(reader: DataReader, selector: Path): Option[StatsPath] =
-			if (selector.segments.isEmpty)
-				None
-			else {
-				val selectedPath = selector.segments
-				reader.statsPaths.find { statsPath =>
-					val path = statsPath match {
-						case RequestStatsPath(request, group) => group.map(_.hierarchy).getOrElse(Nil) :: List(request)
-						case GroupStatsPath(group) => group.hierarchy
-					}
-					path == selectedPath
-				}
-			}
-
-		def generalStats(selector: Path): (DataReader, Option[Status]) => GeneralStats = {
-			(reader, status) =>
-				path(reader, selector) match {
-					case Some(RequestStatsPath(request, group)) => reader.requestGeneralStats(Some(request), group, status)
-					case Some(GroupStatsPath(group)) => reader.requestGeneralStats(None, Some(group), status)
-					case None => reader.requestGeneralStats(None, None, status)
-				}
-		}
-
-		new Selector(generalStats(selector), selector.segments.mkString(" / "))
-	}
-}
-
-class Selector(stats: GeneralStatsByStatus, name: String) {
+class Selector(stats: (DataReader, Option[Status]) => GeneralStats, name: String) {
 	def responseTime = new ResponseTime(reader => stats(reader, None), name)
 
 	def allRequests = new Requests(stats, None, name)
@@ -87,7 +54,7 @@ class ResponseTime(responseTime: DataReader => GeneralStats, name: String) {
 	def percentile2 = Metric(reader => responseTime(reader).percentile2, s"$name : ${ResponseTime.percentile2} percentile response time")
 }
 
-class Requests(requests: GeneralStatsByStatus, status: Option[Status], name: String) {
+class Requests(requests: (DataReader, Option[Status]) => GeneralStats, status: Option[Status], name: String) {
 
 	private def message(message: String) = status match {
 		case Some(status) => s"$name $message $status"
