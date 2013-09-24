@@ -25,9 +25,8 @@ import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PausePro
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ Assertion, Metric, ProfiledScenarioBuilder }
 
-abstract class Simulation extends FeederSupport with ThrottlingSupport {
+abstract class Simulation {
 
-	def steps = Nil
 	private[scenario] var _scenarios = Seq.empty[ProfiledScenarioBuilder]
 	private[scenario] var _globalProtocols = List.empty[Protocol]
 	private[scenario] var _assertions = Seq.empty[Assertion]

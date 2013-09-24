@@ -17,17 +17,21 @@ package io.gatling.core
 
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.reflect.ClassTag
-import scala.reflect.io.{ File, Path }
+import scala.reflect.io.Path
 
-import io.gatling.core.check.{ Check, CheckBuilder, ExtractorCheckBuilder, MatcherCheckBuilder }
-import io.gatling.core.feeder.{ AdvancedFeederBuilder, Feeder, FeederBuilder, FeederWrapper, SeparatedValuesParser }
+import io.gatling.core.check.CheckSupport
+import io.gatling.core.controller.throttle.ThrottlingSupport
+import io.gatling.core.feeder.FeederSupport
 import io.gatling.core.scenario.{ AtOnceInjection, ConstantRateInjection, HeavisideInjection, InjectionStep, NothingForInjection, RampInjection, RampRateInjection, SplitInjection }
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
 import io.gatling.core.session.el.EL
 import io.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
-object Predef {
+object Predef extends CheckSupport with FeederSupport with ThrottlingSupport {
+
+	def steps = Nil
+
 	type Session = io.gatling.core.session.Session
 	type Status = io.gatling.core.result.message.Status
 	type Simulation = io.gatling.core.scenario.Simulation
@@ -36,12 +40,6 @@ object Predef {
 	implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
 	implicit def value2Success[T](value: T): Validation[T] = value.success
 	implicit def value2Expression[T](value: T): Expression[T] = value.expression
-	implicit def checkBuilder2Check[C <: Check[R], R, P, T, X, E](checkBuilder: CheckBuilder[C, R, P, T, X, E]) = checkBuilder.build
-	implicit def matcherCheckBuilder2CheckBuilder[C <: Check[R], R, P, T, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, P, T, X]) = matcherCheckBuilder.exists
-	implicit def matcherCheckBuilder2Check[C <: Check[R], R, P, T, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, P, T, X]) = matcherCheckBuilder.exists.build
-	implicit def extractorCheckBuilder2MatcherCheckBuilder[C <: Check[R], R, P, T, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, T, X]) = extractorCheckBuilder.find
-	implicit def extractorCheckBuilder2CheckBuilder[C <: Check[R], R, P, T, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, T, X]) = extractorCheckBuilder.find.exists
-	implicit def extractorCheckBuilder2Check[C <: Check[R], R, P, T, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, T, X]) = extractorCheckBuilder.find.exists.build
 	implicit def map2ExpressionMap(map: Map[String, Any]): Map[String, Expression[Any]] = map.mapValues(_ match {
 		case string: String => string.el
 		case any => any.expression
