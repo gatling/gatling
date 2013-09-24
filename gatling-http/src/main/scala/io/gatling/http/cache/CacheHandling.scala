@@ -43,7 +43,11 @@ object CacheHandling extends Logging {
 
 	val maxAgePrefix = "max-age="
 	val maxAgeZero = maxAgePrefix + "0"
-	def hasPositiveMaxAge(s: String) = s.startsWith(maxAgePrefix) && isPositiveDigit(s.charAt(maxAgePrefix.length))
+	def hasPositiveMaxAge(s: String) = {
+		val index = s.indexOf(maxAgePrefix)
+		val start = maxAgePrefix.length + index
+		index >= 0 && start <= s.length && isPositiveDigit(s.charAt(start))
+	}
 
 	def isResponseCacheable(httpProtocol: HttpProtocol, response: Response): Boolean = {
 		def pragmaNoCache = Option(response.getHeader(Headers.Names.PRAGMA)).exists(_.contains(Headers.Values.NO_CACHE))
