@@ -25,10 +25,8 @@ trait ThrottleStep {
 	def rps(time: Long, previousLastValue: Int): Int
 }
 
-case object Init extends ThrottleStep {
-	val durationInSec = 0L
-	def target(previousLastValue: Int) = 0
-	def rps(time: Long, previousLastValue: Int) = 0
+case class ReachIntermediate(target: Int, history: List[ThrottleStep]) {
+	def in(duration: Duration) = ThrottlingBuilder(Reach(target, duration) :: history)
 }
 
 case class Reach(target: Int, duration: Duration) extends ThrottleStep {
@@ -49,8 +47,10 @@ case class Jump(target: Int) extends ThrottleStep {
 	def rps(time: Long, previousLastValue: Int) = 0
 }
 
-case class ReachIntermediate(target: Int, history: List[ThrottleStep]) {
-	def in(duration: Duration) = ThrottlingBuilder(Reach(target, duration) :: history)
+object Throttling {
+	val bootstrap = new Throttling {
+		def steps = Nil
+	}
 }
 
 trait Throttling {
@@ -60,16 +60,9 @@ trait Throttling {
 	def jumpTo(target: Int) = ThrottlingBuilder(Jump(target) :: steps)
 }
 
-object Throttling {
-	val bootstrap = new Throttling {
-		def steps = Nil
-	}
-}
-
 case class ThrottlingBuilder(steps: List[ThrottleStep]) extends Throttling {
 
 	def build = {
-
 		@tailrec
 		def valueAt(steps: List[ThrottleStep], pendingTime: Long, previousLastValue: Int): Int = steps match {
 			case Nil => previousLastValue
