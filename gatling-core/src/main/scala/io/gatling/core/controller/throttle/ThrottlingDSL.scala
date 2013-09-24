@@ -60,6 +60,12 @@ trait Throttling {
 	def jumpTo(target: Int) = ThrottlingBuilder(Jump(target) :: steps)
 }
 
+object Throttling {
+	val bootstrap = new Throttling {
+		def steps = Nil
+	}
+}
+
 case class ThrottlingBuilder(steps: List[ThrottleStep]) extends Throttling {
 
 	def build = {
