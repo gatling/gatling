@@ -19,7 +19,6 @@ import io.gatling.core.Predef._
 import io.gatling.http.Headers.Names._
 import io.gatling.http.Predef._
 import io.gatling.jdbc.Predef._
-import io.gatling.core.pause._
 import bootstrap._
 
 import scala.concurrent.duration._
@@ -203,7 +202,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 	setUp(lambdaUser.inject(inject1),
 		lambdaUser.inject(inject1, inject2).throttle(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds)))
 		.protocols(httpProtocol)
-		.pauses(UniformDuration(1))
+		.pauses(uniformPausesPlusOrMinusPercentage(1))
 		.assertions(
 			global.responseTime.mean.lessThan(50),
 			global.responseTime.max.between(50, 500),
