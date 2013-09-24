@@ -31,7 +31,6 @@ object Predef {
 	type Session = io.gatling.core.session.Session
 	type Status = io.gatling.core.result.message.Status
 	type Simulation = io.gatling.core.scenario.Simulation
-	type Feeder[T] = io.gatling.core.feeder.Feeder[T]
 	type Assertion = io.gatling.core.structure.Assertion
 
 	implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
@@ -48,16 +47,6 @@ object Predef {
 		case any => any.expression
 	})
 	implicit def intToFiniteDuration(i: Int) = i seconds
-
-	def csv(fileName: String) = SeparatedValuesParser.csv(fileName)
-	def csv(file: File) = SeparatedValuesParser.csv(file.path)
-	def ssv(fileName: String) = SeparatedValuesParser.ssv(fileName)
-	def ssv(file: File) = SeparatedValuesParser.ssv(file.path)
-	def tsv(fileName: String) = SeparatedValuesParser.tsv(fileName)
-	def tsv(file: File) = SeparatedValuesParser.tsv(file.path)
-
-	implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): AdvancedFeederBuilder[T] = AdvancedFeederBuilder(data)
-	implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
 	val bootstrap = ChainBuilder.empty
