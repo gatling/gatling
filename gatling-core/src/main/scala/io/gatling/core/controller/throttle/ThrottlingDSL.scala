@@ -54,15 +54,15 @@ case class ReachIntermediate(target: Int, history: List[ThrottleStep]) {
 }
 
 trait Throttling {
-	def throttlingSteps: List[ThrottleStep]
-	def reach(target: Int) = ReachIntermediate(target, throttlingSteps)
-	def holdFor(duration: Duration) = ThrottlingBuilder(Hold(duration) :: throttlingSteps)
-	def jumpTo(target: Int) = ThrottlingBuilder(Jump(target) :: throttlingSteps)
+	def steps: List[ThrottleStep]
+	def reach(target: Int) = ReachIntermediate(target, steps)
+	def holdFor(duration: Duration) = ThrottlingBuilder(Hold(duration) :: steps)
+	def jumpTo(target: Int) = ThrottlingBuilder(Jump(target) :: steps)
 }
 
-case class ThrottlingBuilder(throttlingSteps: List[ThrottleStep]) extends Throttling {
+case class ThrottlingBuilder(steps: List[ThrottleStep]) extends Throttling {
 
-	def build() = {
+	def build = {
 
 		@tailrec
 		def valueAt(steps: List[ThrottleStep], pendingTime: Long, previousLastValue: Int): Int = steps match {
@@ -74,7 +74,7 @@ case class ThrottlingBuilder(throttlingSteps: List[ThrottleStep]) extends Thrott
 					valueAt(tail, pendingTime - head.durationInSec, head.target(previousLastValue))
 		}
 
-		val reversedSteps = throttlingSteps.reverse
+		val reversedSteps = steps.reverse
 		(now: Long) => valueAt(reversedSteps, now, 0)
 	}
 }

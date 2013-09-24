@@ -26,7 +26,7 @@ import io.gatling.core.structure.{ Assertion, Metric, ProfiledScenarioBuilder }
 
 abstract class Simulation extends Throttling {
 
-	def throttlingSteps = Nil
+	def steps = Nil
 	private[scenario] var _scenarios = Seq.empty[ProfiledScenarioBuilder]
 	private[scenario] var _globalProtocols = List.empty[Protocol]
 	private[scenario] var _assertions = Seq.empty[Assertion]
@@ -64,8 +64,10 @@ abstract class Simulation extends Throttling {
 			this
 		}
 
-		def throttle(throttlingBuilder: ThrottlingBuilder) = {
-			val throttling = ThrottlingProtocol(throttlingBuilder.build())
+		def throttle(throttlingBuilders: ThrottlingBuilder*) = {
+			
+			val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
+			val throttling = ThrottlingProtocol(ThrottlingBuilder(steps).build)
 			_globalThrottling = Some(throttling)
 			_globalProtocols = throttling :: _globalProtocols
 			this

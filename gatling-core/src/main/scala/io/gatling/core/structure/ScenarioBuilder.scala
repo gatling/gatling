@@ -16,13 +16,14 @@
 package io.gatling.core.structure
 
 import scala.concurrent.duration.Duration
+
 import io.gatling.core.action.UserEnd
 import io.gatling.core.action.builder.{ ActionBuilder, UserStartBuilder }
 import io.gatling.core.config.{ Protocol, ProtocolRegistry }
+import io.gatling.core.controller.throttle.{ ThrottlingBuilder, ThrottlingProtocol }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
 import io.gatling.core.scenario.{ InjectionProfile, InjectionStep, Scenario }
 import io.gatling.core.session.Expression
-import io.gatling.core.controller.throttle.ThrottlingProtocol
 
 /**
  * The scenario builder is used in the DSL to define the scenario
@@ -51,7 +52,10 @@ case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionPr
 	def uniform(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
 	def pauses(pauseType: PauseType) = protocols(PauseProtocol(pauseType))
 
-	def throttle(maxRps: Int): ProfiledScenarioBuilder = protocols(ThrottlingProtocol(_ => maxRps))
+	def throttle(throttlingBuilders: ThrottlingBuilder*) = {
+		val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
+		protocols(ThrottlingProtocol(ThrottlingBuilder(steps).build))
+	}
 
 	/**
 	 * @param protocolRegistry

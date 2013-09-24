@@ -201,7 +201,8 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 	val inject7 = split(1000 users).into(ramp(10 users) over (10 seconds)).separatedBy(atOnce(30 users))
 	val inject8 = heaviside(1000 users) over (20 seconds)
 
-	setUp(lambdaUser.inject(inject1), lambdaUser.inject(inject1, inject2))
+	setUp(lambdaUser.inject(inject1),
+		lambdaUser.inject(inject1, inject2).throttle(jumpTo(20), reach(40) in (10 seconds), holdFor(30 seconds)))
 		.protocols(httpProtocol)
 		.pauses(UniformDuration(1))
 		.assertions(
@@ -212,6 +213,6 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			global.responseTime.min.assert(_ % 2 == 0, (name, result) => "My custom assert on " + name + " (" + result + ")"),
 			details("Users" / "Search" / "Index page").responseTime.mean.greaterThan(0).lessThan(50),
 			details("Admins" / "Create").failedRequests.percent.lessThan(90))
-			.throttle(jumpTo(20) reach(40) in (10 seconds) holdFor(30 seconds))
+		.throttle(jumpTo(20) reach (40) in (10 seconds) holdFor (30 seconds))
 }
 
