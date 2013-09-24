@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.scenario
-import scala.concurrent.duration._
+package io.gatling.core.controller.inject
+
+import scala.concurrent.duration.{ DurationDouble, DurationInt }
+
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
+import org.specs2.mutable.Specification
 
 @RunWith(classOf[JUnitRunner])
 class InjectionStepSpec extends Specification {

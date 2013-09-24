@@ -19,6 +19,7 @@ import akka.actor.ActorRef
 import io.gatling.core.action.system
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.zeroMs
+import io.gatling.core.controller.inject.InjectionProfile
 
 case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: InjectionProfile) {
 

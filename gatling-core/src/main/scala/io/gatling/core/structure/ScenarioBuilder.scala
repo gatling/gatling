@@ -20,9 +20,10 @@ import scala.concurrent.duration.Duration
 import io.gatling.core.action.UserEnd
 import io.gatling.core.action.builder.{ ActionBuilder, UserStartBuilder }
 import io.gatling.core.config.{ Protocol, ProtocolRegistry }
+import io.gatling.core.controller.inject.{ InjectionProfile, InjectionStep }
 import io.gatling.core.controller.throttle.{ ThrottlingBuilder, ThrottlingProtocol }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
-import io.gatling.core.scenario.{ InjectionProfile, InjectionStep, Scenario }
+import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Expression
 
 /**

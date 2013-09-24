@@ -15,20 +15,20 @@
  */
 package io.gatling.core
 
-import scala.concurrent.duration.{ DurationInt, FiniteDuration }
+import scala.concurrent.duration.DurationInt
 import scala.reflect.ClassTag
 import scala.reflect.io.Path
 
 import io.gatling.core.check.CheckSupport
+import io.gatling.core.controller.inject.InjectionSupport
 import io.gatling.core.controller.throttle.ThrottlingSupport
 import io.gatling.core.feeder.FeederSupport
-import io.gatling.core.scenario.{ AtOnceInjection, ConstantRateInjection, HeavisideInjection, InjectionStep, NothingForInjection, RampInjection, RampRateInjection, SplitInjection }
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
 import io.gatling.core.session.el.EL
 import io.gatling.core.structure.{ AssertionBuilder, ChainBuilder, ScenarioBuilder }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
-object Predef extends CheckSupport with FeederSupport with ThrottlingSupport {
+object Predef extends CheckSupport with FeederSupport with InjectionSupport with ThrottlingSupport {
 
 	def steps = Nil
 
@@ -52,59 +52,4 @@ object Predef extends CheckSupport with FeederSupport with ThrottlingSupport {
 	val assertions = new AssertionBuilder
 
 	implicit def string2path(string: String) = Path.string2path(string)
-
-	/// Injection definitions
-
-	private[Predef] class UserNumber(val number: Int) extends AnyVal
-	private[Predef] class UsersPerSec(val rate: Double) extends AnyVal
-
-	implicit class UserNumberImplicit(val number: Int) extends AnyVal {
-		def user = users
-		def users = new UserNumber(number)
-	}
-	implicit class JavaUserNumberImplicit(val number: java.lang.Integer) extends AnyVal {
-		def user = users
-		def users = new UserNumber(number)
-	}
-	implicit class UsersPerSecImplicit(val rate: Double) extends AnyVal {
-		def userPerSec = usersPerSec
-		def usersPerSec = new UsersPerSec(rate)
-	}
-	implicit class JavaUsersPerSecImplicit(val rate: java.lang.Double) extends AnyVal {
-		def userPerSec = usersPerSec
-		def usersPerSec = new UsersPerSec(rate)
-	}
-	implicit def userNumber(number: Int) = new UserNumber(number)
-	implicit def userPerSec(rate: Double) = new UsersPerSec(rate)
-
-	case class RampBuilder(users: UserNumber) {
-		def over(d: FiniteDuration) = RampInjection(users.number, d)
-	}
-	case class HeavisideBuilder(users: UserNumber) {
-		def over(d: FiniteDuration) = HeavisideInjection(users.number, d)
-	}
-	case class ConstantRateBuilder(rate: UsersPerSec) {
-		def during(d: FiniteDuration) = ConstantRateInjection(rate.rate, d)
-	}
-	case class PartialRampRateBuilder(rate1: UsersPerSec) {
-		def to(rate2: UsersPerSec) = RampRateBuilder(rate1, rate2)
-	}
-	case class RampRateBuilder(rate1: UsersPerSec, rate2: UsersPerSec) {
-		def during(d: FiniteDuration) = RampRateInjection(rate1.rate, rate2.rate, d)
-	}
-	case class PartialSplitBuilder(users: UserNumber) {
-		def into(step: InjectionStep) = SplitBuilder(users, step)
-	}
-	case class SplitBuilder(users: UserNumber, step: InjectionStep) {
-		def separatedBy(separator: InjectionStep) = SplitInjection(users.number, step, separator)
-		def separatedBy(duration: FiniteDuration) = SplitInjection(users.number, step, NothingForInjection(duration))
-	}
-
-	def ramp(users: UserNumber) = RampBuilder(users)
-	def heaviside(users: UserNumber) = HeavisideBuilder(users)
-	def atOnce(users: UserNumber) = AtOnceInjection(users.number)
-	def nothingFor(d: FiniteDuration) = NothingForInjection(d)
-	def constantRate(rate: UsersPerSec) = ConstantRateBuilder(rate)
-	def rampRate(rate1: UsersPerSec) = PartialRampRateBuilder(rate1)
-	def split(users: UserNumber) = PartialSplitBuilder(users)
 }

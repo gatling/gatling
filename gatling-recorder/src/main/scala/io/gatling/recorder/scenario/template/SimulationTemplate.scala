@@ -106,7 +106,7 @@ $renderHeaders
 
 	$renderScenario
 
-	setUp(scn.inject(atOnce(1 user))).protocols(httpProtocol)
+	setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
 }""".toString
 	}
 }
