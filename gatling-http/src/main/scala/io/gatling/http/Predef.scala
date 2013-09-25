@@ -18,18 +18,13 @@ package io.gatling.http
 import io.gatling.core.result.message.{ KO, Status }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.action.{ AddCookieBuilder, HttpRequestActionBuilder }
-import io.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
-import io.gatling.http.check.checksum.HttpChecksumCheckBuilder
-import io.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
-import io.gatling.http.check.status.HttpStatusCheckBuilder
-import io.gatling.http.check.time.HttpResponseTimeCheckBuilder
-import io.gatling.http.check.url.CurrentLocationCheckBuilder
+import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.config.{ HttpProtocol, HttpProtocolBuilder, HttpProxyBuilder }
 import io.gatling.http.request.BodyProcessors
 import io.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequestBaseBuilder, WebSocketBaseBuilder }
 import io.gatling.http.util.{ DefaultRequestLogger, DefaultWebSocketClient }
 
-object Predef {
+object Predef extends HttpCheckSupport {
 	type Request = com.ning.http.client.Request
 	type Response = io.gatling.http.response.Response
 
@@ -38,37 +33,20 @@ object Predef {
 	implicit def httpProtocolBuilder2HttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
 	implicit def requestBuilder2ActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = HttpRequestActionBuilder(requestBuilder)
 
+	def http = HttpProtocolBuilder.default
+
 	def http(requestName: Expression[String]) = HttpRequestBaseBuilder.http(requestName)
 	def addCookie(name: Expression[String], value: Expression[String], domain: Option[Expression[String]] = None, path: Option[Expression[String]]) = new AddCookieBuilder(name, value, domain, path)
-	def http = HttpProtocolBuilder.default
-	def regex(pattern: Expression[String]) = HttpBodyRegexCheckBuilder.regex(pattern)
-	def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
-	def css(selector: Expression[String]) = HttpBodyCssCheckBuilder.css(selector, None)
-	def css(selector: Expression[String], nodeAttribute: String) = HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))
-	def jsonPath(expression: Expression[String]) = HttpBodyJsonPathCheckBuilder.jsonPath(expression)
-	def bodyString = HttpBodyStringCheckBuilder.bodyString
-	def header(headerName: Expression[String]) = HttpHeaderCheckBuilder.header(headerName)
-	def headerRegex(headerName: Expression[String], pattern: Expression[String]) = HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern)
-	def status = HttpStatusCheckBuilder.status
-	def currentLocation = CurrentLocationCheckBuilder.currentLocation
-	def md5 = HttpChecksumCheckBuilder.md5
-	def sha1 = HttpChecksumCheckBuilder.sha1
-	def responseTimeInMillis = HttpResponseTimeCheckBuilder.responseTimeInMillis
-	def latencyInMillis = HttpResponseTimeCheckBuilder.latencyInMillis
+
+	def websocket(actionName: Expression[String]) = WebSocketBaseBuilder.websocket(actionName)
+	implicit val defaultWebSocketClient = DefaultWebSocketClient
+	implicit val defaultRequestLogger = DefaultRequestLogger
 
 	val HttpHeaderNames = Headers.Names
 	val HttpHeaderValues = Headers.Values
 
 	val gzipBody = BodyProcessors.gzip
 	val streamBody = BodyProcessors.stream
-
-	val requestUrl = (request: Request) => List(request.getUrl)
-	val requestRawUrl = (request: Request) => List(request.getRawUrl)
-	val responseStatusCode = (response: Response) => List(response.getStatusCode.toString)
-	val responseStatusText = (response: Response) => List(response.getStatusText)
-	val responseContentType = (response: Response) => List(response.getContentType)
-	val responseContentLength = (response: Response) => List(response.getHeader(Headers.Names.CONTENT_LENGTH))
-	val responseUri = (response: Response) => List(response.getUri.toString)
 
 	def dumpSessionOnFailure(status: Status, session: Session, request: Request, response: Response): List[String] = status match {
 		case KO => List(session.toString)
@@ -86,8 +64,4 @@ object Predef {
 	def FileBodyPart = io.gatling.http.request.FileBodyPart
 	def RawFileBodyPart = io.gatling.http.request.RawFileBodyPart
 	def ELFileBodyPart = io.gatling.http.request.ELFileBodyPart
-
-	def websocket(actionName: Expression[String]) = WebSocketBaseBuilder.websocket(actionName)
-	implicit val defaultWebSocketClient = DefaultWebSocketClient
-	implicit val defaultRequestLogger = DefaultRequestLogger
 }
