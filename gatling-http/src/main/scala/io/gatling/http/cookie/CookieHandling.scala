@@ -40,4 +40,14 @@ object CookieHandling {
 				.getOrElse(session.set(cookieJarAttributeName, CookieJar(uri, cookies)))
 		else
 			session
+
+	def storeCookie(session: Session, cookie: Cookie): Session = {
+
+		val domain = cookie.getDomain
+		val cookies = List(cookie)
+
+		session(cookieJarAttributeName).asOption[CookieJar]
+			.map(cookieJar => session.set(cookieJarAttributeName, cookieJar.add(domain, cookies)))
+			.getOrElse(session.set(cookieJarAttributeName, CookieJar(domain, cookies)))
+	}
 }

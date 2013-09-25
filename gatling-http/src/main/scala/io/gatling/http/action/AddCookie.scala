@@ -15,20 +15,21 @@
  */
 package io.gatling.http.action
 
-import java.net.URI
-
-import com.ning.http.client.{ Cookie => AHCCookie }
+import com.ning.http.client.Cookie
 
 import akka.actor.ActorRef
-import io.gatling.core.action.{ Interruptable, Failable }
+import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.cookie.CookieHandling
 
-class AddCookies(url: Expression[String], cookies: Expression[List[AHCCookie]], val next: ActorRef) extends Interruptable with Failable {
+class AddCookie(name: Expression[String], value: Expression[String], domain: Expression[String], path: Expression[String], val next: ActorRef) extends Interruptable with Failable {
 
 	def executeOrFail(session: Session) =
 		for {
-			url <- url(session)
-			cookies <- cookies(session)
-		} yield next ! CookieHandling.storeCookies(session, URI.create(url), cookies)
+			name <- name(session)
+			value <- value(session)
+			domain <- domain(session)
+			path <- path(session)
+			cookie = new Cookie(name, value, domain, path, Integer.MAX_VALUE, false)
+		} yield next ! CookieHandling.storeCookie(session, cookie)
 }

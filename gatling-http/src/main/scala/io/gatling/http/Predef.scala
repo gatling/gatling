@@ -17,7 +17,7 @@ package io.gatling.http
 
 import io.gatling.core.result.message.{ KO, Status }
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.http.action.{ AddCookiesBuilder, HttpRequestActionBuilder }
+import io.gatling.http.action.{ AddCookieBuilder, HttpRequestActionBuilder }
 import io.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
 import io.gatling.http.check.checksum.HttpChecksumCheckBuilder
 import io.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
@@ -32,7 +32,6 @@ import io.gatling.http.util.{ DefaultRequestLogger, DefaultWebSocketClient }
 object Predef {
 	type Request = com.ning.http.client.Request
 	type Response = io.gatling.http.response.Response
-	type Cookie = io.gatling.http.action.Cookie
 
 	implicit def proxyBuilder2HttpProtocolBuilder(hpb: HttpProxyBuilder): HttpProtocolBuilder = hpb.toHttpProtocolBuilder
 	implicit def proxyBuilder2HttpProtocol(hpb: HttpProxyBuilder): HttpProtocol = hpb.toHttpProtocolBuilder.build
@@ -40,7 +39,7 @@ object Predef {
 	implicit def requestBuilder2ActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = HttpRequestActionBuilder(requestBuilder)
 
 	def http(requestName: Expression[String]) = HttpRequestBaseBuilder.http(requestName)
-	def addCookies(url: Expression[String], cookie: Cookie, cookies: Cookie*) = AddCookiesBuilder(url, cookie :: cookies.toList)
+	def addCookie(name: Expression[String], value: Expression[String], domain: Option[Expression[String]] = None, path: Option[Expression[String]]) = new AddCookieBuilder(name, value, domain, path)
 	def http = HttpProtocolBuilder.default
 	def regex(pattern: Expression[String]) = HttpBodyRegexCheckBuilder.regex(pattern)
 	def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)

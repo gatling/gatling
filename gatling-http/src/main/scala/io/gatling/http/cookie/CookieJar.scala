@@ -57,17 +57,34 @@ object CookieJar {
 		}.getOrElse(defaultPath)
 
 	def apply(uri: URI, cookies: List[Cookie]) = (new CookieJar(Map.empty)).add(uri, cookies)
+	def apply(domain: String, cookies: List[Cookie]) = (new CookieJar(Map.empty)).add(domain, cookies)
 }
 
 case class CookieJar(store: Map[String, List[Cookie]]) {
 
 	private val MAX_AGE_UNSPECIFIED = -1L
 
+	def add(domain: String, cookies: List[Cookie]) = {
+		def cookiesEquals(c1: Cookie, c2: Cookie) = c1.getName.equalsIgnoreCase(c2.getName) && c1.getDomain == c2.getDomain && c1.getPath == c2.getPath
+
+		@tailrec
+		def addOrReplaceCookies(newCookies: List[Cookie], oldCookies: List[Cookie]): List[Cookie] = newCookies match {
+			case Nil => oldCookies
+			case newCookie :: moreNewCookies =>
+				val updatedCookies = newCookie :: oldCookies.filterNot(cookiesEquals(_, newCookie))
+				addOrReplaceCookies(moreNewCookies, updatedCookies)
+		}
+
+		def hasExpired(c: Cookie): Boolean = c.getMaxAge != MAX_AGE_UNSPECIFIED && c.getMaxAge <= 0
+
+		val newCookies = addOrReplaceCookies(cookies, store.get(domain).getOrElse(Nil))
+		val nonExpiredCookies = newCookies.filterNot(hasExpired)
+		new CookieJar(store + (domain -> nonExpiredCookies))
+	}
+
 	/**
-	 * @param uri       the uri this cookie associated with.
-	 *                  if <tt>null</tt>, this cookie will not be associated
-	 *                  with an URI
-	 * @param cookie    the cookie to store
+	 * @param uri       the uri used to deduce defaults for  optional domains and paths
+	 * @param cookies    the cookies to store
 	 */
 	def add(requestURI: URI, rawCookies: List[Cookie]): CookieJar = {
 
@@ -100,21 +117,7 @@ case class CookieJar(store: Map[String, List[Cookie]]) {
 			cookie => CookieJar.domainMatches(requestDomain, cookie.getDomain)
 		}
 
-		def cookiesEquals(c1: Cookie, c2: Cookie) = c1.getName.equalsIgnoreCase(c2.getName) && c1.getDomain == c2.getDomain && c1.getPath == c2.getPath
-
-		@tailrec
-		def addOrReplaceCookies(newCookies: List[Cookie], oldCookies: List[Cookie]): List[Cookie] = newCookies match {
-			case Nil => oldCookies
-			case newCookie :: moreNewCookies =>
-				val updatedCookies = newCookie :: oldCookies.filterNot(cookiesEquals(_, newCookie))
-				addOrReplaceCookies(moreNewCookies, updatedCookies)
-		}
-
-		def hasExpired(c: Cookie): Boolean = c.getMaxAge != MAX_AGE_UNSPECIFIED && c.getMaxAge <= 0
-
-		val newCookies = addOrReplaceCookies(fixedCookies, store.get(requestDomain).getOrElse(Nil))
-		val nonExpiredCookies = newCookies.filterNot(hasExpired)
-		new CookieJar(store + (requestDomain -> nonExpiredCookies))
+		add(requestDomain, fixedCookies)
 	}
 
 	def get(requestURI: URI): List[Cookie] = {
