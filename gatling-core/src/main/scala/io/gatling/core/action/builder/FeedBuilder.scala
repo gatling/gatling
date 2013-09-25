@@ -29,13 +29,10 @@ object FeedBuilder extends AkkaDefaults {
 
 	val instances = mutable.Map.empty[FeederBuilder[_], ActorRef]
 
-	def apply[T](feederBuilder: FeederBuilder[T], number: Expression[Int]) = {
-		def newInstance = actor(new SingletonFeed(feederBuilder.build))
-
-		new FeedBuilder(instances.getOrElseUpdate(feederBuilder, newInstance), number)
-	}
+	def apply[T](feederBuilder: FeederBuilder[T], number: Expression[Int]) =
+		new FeedBuilder(instances.getOrElseUpdate(feederBuilder, actor(new SingletonFeed(feederBuilder.build))), number)
 }
-class FeedBuilder(instance: ActorRef, number: Expression[Int]) extends ActionBuilder {
+class FeedBuilder(instance: => ActorRef, number: Expression[Int]) extends ActionBuilder {
 
 	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = actor(new Feed(instance, number, next))
 }
