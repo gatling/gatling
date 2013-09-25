@@ -71,13 +71,17 @@ class GrizzlyProvider(threadPool: ExecutorService) extends HttpProvider {
 	import com.ning.http.client.providers.grizzly.{ GrizzlyAsyncHttpProvider, GrizzlyAsyncHttpProviderConfig, GrizzlyConnectionsPool }
 	import com.ning.http.client.providers.grizzly.GrizzlyConnectionsPool.DelayedExecutor
 
-	val connectionsPool = new GrizzlyConnectionsPool(
-		configuration.http.ahc.allowSslConnectionPool,
-		configuration.http.ahc.idleConnectionInPoolTimeOutInMs,
-		configuration.http.ahc.maxConnectionLifeTimeInMs,
-		configuration.http.ahc.maximumConnectionsPerHost,
-		configuration.http.ahc.maximumConnectionsTotal,
-		new DelayedExecutor(threadPool)).asInstanceOf[ConnectionsPool[_, _]]
+	val connectionsPool = {
+
+		val config = new AsyncHttpClientConfig.Builder()
+			.setAllowSslConnectionPool(configuration.http.ahc.allowSslConnectionPool)
+			.setMaxConnectionLifeTimeInMs(configuration.http.ahc.idleConnectionInPoolTimeOutInMs)
+			.setMaxConnectionLifeTimeInMs(configuration.http.ahc.maxConnectionLifeTimeInMs)
+			.setMaximumConnectionsPerHost(configuration.http.ahc.maximumConnectionsPerHost)
+			.setMaximumConnectionsTotal(configuration.http.ahc.maximumConnectionsTotal).build
+
+		new GrizzlyConnectionsPool(config).asInstanceOf[ConnectionsPool[_, _]]
+	}
 
 	val config = new GrizzlyAsyncHttpProviderConfig
 
