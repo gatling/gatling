@@ -30,7 +30,6 @@ object Dependencies {
 	private val commonsIo         = "commons-io"            % "commons-io"         % "2.4"
 	private val redisClient       = "net.debasishg"        %% "redisclient"        % "2.10"        exclude("org.scala-lang", "scala-actors")
 	private val zinc              = "com.typesafe.zinc"     % "zinc"               % "0.3.0"
-	private val plexusSelector    = "com.excilys.ebi"       % "plexus-selector"    % "1.0.0"
 	private val openCsv           = "net.sf.opencsv"        % "opencsv"            % "2.3"
 
 	private val grizzlyWebsockets = "org.glassfish.grizzly" % "grizzly-websockets" % "2.3.4"       % "provided" 
@@ -58,5 +57,5 @@ object Dependencies {
 
 	val appDeps = Seq(scopt, zinc)
 
-	val recorderDeps = Seq(scalaSwing, netty, logbackClassic, scopt, plexusSelector)
+	val recorderDeps = Seq(scalaSwing, netty, logbackClassic, scopt)
 }
