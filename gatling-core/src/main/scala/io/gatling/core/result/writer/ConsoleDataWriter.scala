@@ -20,8 +20,6 @@ import java.lang.System.currentTimeMillis
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
-import io.gatling.core.action.system
-import io.gatling.core.action.system.dispatcher
 import io.gatling.core.result.message.{ End, KO, OK, Start }
 
 case object Display
@@ -64,13 +62,11 @@ class ConsoleDataWriter extends DataWriter {
 
 	override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
 
-		import system.dispatcher
-
 		startUpTime = currentTimeMillis
 
 		scenarios.foreach(scenario => usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
 
-		system.scheduler.schedule(0 seconds, 5 seconds, self, Display)
+		scheduler.schedule(0 seconds, 5 seconds, self, Display)
 	}
 
 	override def onScenarioMessage(scenario: ScenarioMessage) {

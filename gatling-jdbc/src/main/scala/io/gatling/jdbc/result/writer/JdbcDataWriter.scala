@@ -19,7 +19,6 @@ import java.sql.{ Connection, Date => SQLDate, DriverManager, PreparedStatement,
 
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.core.action.system
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription }
 import io.gatling.jdbc.util.SQLHelper.withStatement

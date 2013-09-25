@@ -18,8 +18,7 @@ package io.gatling.core.result.writer
 import scala.concurrent.Future
 
 import akka.actor.{ Actor, ActorRef, Props }
-import io.gatling.core.action.{ AkkaDefaults, BaseActor, system }
-import io.gatling.core.action.system.dispatcher
+import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ Controller, DataWriterDone }
 import io.gatling.core.result.message.End

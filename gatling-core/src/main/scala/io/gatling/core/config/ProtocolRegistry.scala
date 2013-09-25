@@ -20,6 +20,9 @@ import scala.reflect.ClassTag
 object ProtocolRegistry {
 
 	def apply(protocols: Seq[Protocol]) = {
+
+		protocols.foreach(_.warmUp)
+
 		val indexedProtocols: Map[Class[_ <: Protocol], Protocol] = protocols
 			.groupBy(_.getClass)
 			.map {

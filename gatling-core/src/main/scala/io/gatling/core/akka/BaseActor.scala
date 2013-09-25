@@ -13,17 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.action
+package io.gatling.core.akka
 
-import scala.concurrent.duration.DurationInt
+import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import akka.actor.{ Actor, Terminated }
+import io.gatling.core.util.ClassSimpleNameToString
 
-import akka.pattern.AskSupport
-import akka.util.Timeout
+abstract class BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with Logging {
 
-trait AkkaDefaults extends AskSupport {
-
-	implicit val s = system
-	implicit val defaultTimeOut = Timeout(configuration.core.timeOut.actor seconds)
+	override def unhandled(message: Any) {
+		message match {
+			case Terminated(dead) => super.unhandled(message)
+			case unknown => throw new IllegalArgumentException(s"Actor $this doesn't support message $unknown")
+		}
+	}
 }

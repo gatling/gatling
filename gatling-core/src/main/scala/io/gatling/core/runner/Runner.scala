@@ -17,11 +17,9 @@ package io.gatling.core.runner
 
 import scala.concurrent.duration.DurationInt
 import scala.util.{ Failure => SFailure, Success => SSuccess }
-
 import com.typesafe.scalalogging.slf4j.Logging
-
 import akka.actor.ActorDSL.{ inbox, senderFromInbox }
-import io.gatling.core.action.{ AkkaDefaults, system }
+import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ Controller, Run }
 import io.gatling.core.scenario.Simulation

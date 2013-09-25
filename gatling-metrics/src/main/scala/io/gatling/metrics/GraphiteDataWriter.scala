@@ -19,8 +19,7 @@ import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
 import akka.actor.Props
-import io.gatling.core.action.{ BaseActor, system }
-import io.gatling.core.action.system.dispatcher
+import io.gatling.core.akka.BaseActor
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription }
 import io.gatling.core.util.TimeHelper.nowSeconds
@@ -42,10 +41,11 @@ class GraphiteDataWriter extends DataWriter {
 	private val percentiles2Name = "percentiles" + percentiles2
 
 	def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
+
 		metricRootPath = rootPathPrefix :+ run.simulationId
 		allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
 		scenarios.foreach(scenario => usersPerScenario += scenario.name -> new UserMetric(scenario.nbUsers))
-		system.scheduler.schedule(0 millisecond, 1000 milliseconds, self, Send)
+		scheduler.schedule(0 millisecond, 1000 milliseconds, self, Send)
 	}
 
 	def onScenarioMessage(scenario: ScenarioMessage) {

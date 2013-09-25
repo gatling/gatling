@@ -24,7 +24,7 @@ import org.joda.time.DateTime.now
 
 import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor
-import io.gatling.core.action.{ AkkaDefaults, BaseActor }
+import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.controller.throttle.{ Throttler, ThrottlingProtocol }
 import io.gatling.core.result.writer.{ DataWriter, RunMessage }
 import io.gatling.core.util.TimeHelper.nanoTimeReference
@@ -37,8 +37,6 @@ object Controller extends AkkaDefaults {
 }
 
 class Controller extends BaseActor {
-
-	import context._
 
 	var launcher: ActorRef = _
 	var pendingDataWritersDone = 0
@@ -87,7 +85,7 @@ class Controller extends BaseActor {
 
 						val newState = if (timings.globalThrottling.isDefined || !timings.perScenarioThrottlings.isEmpty) {
 							throttler = new Throttler(timings.globalThrottling, timings.perScenarioThrottlings)
-							system.scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
+							scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
 							throttling.orElse(initialized)
 						} else
 							initialized
@@ -95,7 +93,7 @@ class Controller extends BaseActor {
 						context.become(newState)
 
 						timings.maxDuration.foreach {
-							system.scheduler.scheduleOnce(_) {
+							scheduler.scheduleOnce(_) {
 								self ! ForceTermination
 							}
 						}
@@ -120,7 +118,7 @@ class Controller extends BaseActor {
 			case DataWriterDone =>
 				pendingDataWritersDone -= 1
 				if (pendingDataWritersDone == 0) {
-					system.scheduler.scheduleOnce(1 second) {
+					scheduler.scheduleOnce(1 second) {
 						terminate
 					}
 				}

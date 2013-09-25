@@ -15,22 +15,10 @@
  */
 package io.gatling.core.action
 
-import com.typesafe.scalalogging.slf4j.Logging
-
-import akka.actor.{ Actor, ActorRef, Terminated }
+import akka.actor.ActorRef
+import io.gatling.core.akka.BaseActor
 import io.gatling.core.session.Session
-import io.gatling.core.util.ClassSimpleNameToString
 import io.gatling.core.validation.{ Failure, Validation }
-
-abstract class BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with Logging {
-
-	override def unhandled(message: Any) {
-		message match {
-			case Terminated(dead) => super.unhandled(message)
-			case unknown => throw new IllegalArgumentException(s"Actor $this doesn't support message $unknown")
-		}
-	}
-}
 
 /**
  * Top level abstraction in charge or executing concrete actions along a scenario, for example sending an HTTP request.

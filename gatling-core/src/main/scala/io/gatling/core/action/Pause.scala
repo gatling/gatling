@@ -38,7 +38,6 @@ class Pause(pauseDuration: Expression[Long], val next: ActorRef) extends Interru
 	def executeOrFail(session: Session) = {
 
 		def schedule(durationInMillis: Long) = {
-			import system.dispatcher
 			val drift = session.drift
 
 			if (durationInMillis > drift) {
@@ -47,7 +46,7 @@ class Pause(pauseDuration: Expression[Long], val next: ActorRef) extends Interru
 				logger.info(s"Pausing for ${durationInMillis}ms (real=${durationMinusDrift}ms)")
 
 				val pauseStart = nowMillis
-				system.scheduler.scheduleOnce(durationMinusDrift milliseconds) {
+				scheduler.scheduleOnce(durationMinusDrift milliseconds) {
 					val newDrift = nowMillis - pauseStart - durationMinusDrift
 					next ! session.setDrift(newDrift)
 				}

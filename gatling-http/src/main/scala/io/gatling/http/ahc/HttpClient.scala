@@ -21,8 +21,8 @@ import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import akka.actor.ActorRef
-import io.gatling.core.ConfigurationConstants.{ CONF_HTTP_SSL_KEY_STORE_ALGORITHM, CONF_HTTP_SSL_KEY_STORE_FILE, CONF_HTTP_SSL_KEY_STORE_PASSWORD, CONF_HTTP_SSL_KEY_STORE_TYPE, CONF_HTTP_SSL_TRUST_STORE_ALGORITHM, CONF_HTTP_SSL_TRUST_STORE_FILE, CONF_HTTP_SSL_TRUST_STORE_PASSWORD, CONF_HTTP_SSL_TRUST_STORE_TYPE }
-import io.gatling.core.action.system
+import io.gatling.core.ConfigurationConstants._
+import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ Controller, ThrottledRequest }
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
@@ -42,7 +42,7 @@ case class HttpTask(session: Session,
 	next: ActorRef,
 	numberOfRedirects: Int = 0)
 
-object HttpClient extends Logging {
+object HttpClient extends AkkaDefaults with Logging {
 
 	val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
 		override def newThread(r: Runnable) = {

@@ -23,7 +23,7 @@ import com.ning.http.util.AsyncHttpProviderUtils
 
 import akka.actor.Props
 import akka.routing.RoundRobinRouter
-import io.gatling.core.action.{ BaseActor, system }
+import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.check.Checks
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.{ KO, OK, Status }
@@ -38,7 +38,7 @@ import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpStringBuilder
 
-object AsyncHandlerActor {
+object AsyncHandlerActor extends AkkaDefaults {
 	val redirectedRequestNamePattern = """(.+?) Redirect (\d+)""".r
 	val timeout = configuration.core.timeOut.simulation seconds
 

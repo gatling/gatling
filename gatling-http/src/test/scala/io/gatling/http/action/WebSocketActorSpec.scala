@@ -29,20 +29,19 @@ import org.specs2.mock.mockito.MocksCreation
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import org.specs2.specification.{ AllExpectations, Scope }
-
 import com.ning.http.client.websocket.{ WebSocket, WebSocketListener }
 
 import akka.actor.{ Actor, Props }
 import akka.testkit.TestActorRef
 import io.gatling.core.Predef.{ Session, stringToExpression }
-import io.gatling.core.action.system
+import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.{ GatlingConfiguration, ProtocolRegistry }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.http.Predef.websocket
 import io.gatling.http.util.{ RequestLogger, WebSocketClient }
 
 @RunWith(classOf[JUnitRunner])
-class WebSocketActorSpec extends Specification with AllExpectations with Mockito {
+class WebSocketActorSpec extends Specification with AllExpectations with Mockito with AkkaDefaults {
 
 	step {
 		// initialize logging to avoid substitute logger error messages

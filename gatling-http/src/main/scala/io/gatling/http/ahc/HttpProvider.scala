@@ -20,7 +20,7 @@ import java.util.concurrent.{ ExecutorService, Executors }
 
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, AsyncHttpProviderConfig, ConnectionsPool }
 
-import io.gatling.core.action.system
+import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.GatlingConfiguration.configuration
 
 object HttpProvider {
@@ -39,7 +39,7 @@ sealed trait HttpProvider {
 	def newAsyncHttpClient(config: AsyncHttpClientConfig): AsyncHttpClient
 }
 
-class NettyProvider(threadPool: ExecutorService) extends HttpProvider {
+class NettyProvider(threadPool: ExecutorService) extends HttpProvider with AkkaDefaults {
 
 	import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
 	import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }

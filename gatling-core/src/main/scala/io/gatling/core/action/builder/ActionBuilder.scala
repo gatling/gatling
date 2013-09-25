@@ -16,7 +16,7 @@
 package io.gatling.core.action.builder
 
 import akka.actor.ActorRef
-import io.gatling.core.action.AkkaDefaults
+import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.ProtocolRegistry
 
 /**

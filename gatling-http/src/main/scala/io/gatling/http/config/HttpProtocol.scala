@@ -17,14 +17,19 @@ package io.gatling.http.config
 
 import java.net.InetAddress
 
-import com.ning.http.client.{ ProxyServer, Realm, Request }
+import com.ning.http.client.{ ProxyServer, Realm, Request, RequestBuilder }
+import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Protocol
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
+import io.gatling.core.session.el.EL
 import io.gatling.core.util.RoundRobin
+import io.gatling.http.Headers.Names._
+import io.gatling.http.ahc.HttpClient
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.{ Response, ResponseTransformer }
 import io.gatling.http.util.HttpHelper.{ buildProxy, buildRealm }
 
@@ -49,6 +54,7 @@ object HttpProtocol {
 		responseTransformer = None,
 		checks = Nil,
 		maxRedirects = None,
+		warmUpUrl = configuration.http.warmUpUrl,
 		extraInfoExtractor = None)
 }
 
@@ -75,12 +81,57 @@ case class HttpProtocol(
 	responseTransformer: Option[ResponseTransformer],
 	checks: List[HttpCheck],
 	maxRedirects: Option[Int],
-	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends Protocol {
+	warmUpUrl: Option[String],
+	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends Protocol with Logging {
 
 	val roundRobinUrls = RoundRobin(baseURLs.toArray)
 
 	def baseURL(): Option[String] = baseURLs match {
 		case Nil => None
 		case _ => Some(roundRobinUrls.next)
+	}
+
+	override def warmUp() {
+
+		logger.info("Start warm up")
+
+		warmUpUrl.map { url =>
+			if (!HttpProtocolBuilder.warmUpUrls.contains(url)) {
+				HttpProtocolBuilder.warmUpUrls += url
+				val requestBuilder = new RequestBuilder().setUrl(url)
+					.setHeader(ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+					.setHeader(ACCEPT_LANGUAGE, "en-US,en;q=0.5")
+					.setHeader(ACCEPT_ENCODING, "gzip")
+					.setHeader(CONNECTION, "keep-alive")
+					.setHeader(USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
+
+				proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
+				securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
+
+				try {
+					HttpClient.default.executeRequest(requestBuilder.build).get
+				} catch {
+					case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
+				}
+			}
+		}
+
+		if (HttpProtocolBuilder.warmUpUrls.isEmpty) {
+			val expression = "foo".el[String]
+
+			HttpRequestBaseBuilder.http(expression)
+				.get(expression)
+				.header("bar", expression)
+				.queryParam(expression, expression)
+				.build(Session("scenarioName", "0"), HttpProtocol.default)
+
+			HttpRequestBaseBuilder.http(expression)
+				.post(expression)
+				.header("bar", expression)
+				.param(expression, expression)
+				.build(Session("scenarioName", "0"), HttpProtocol.default)
+		}
+
+		logger.info("Warm up done")
 	}
 }

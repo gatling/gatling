@@ -13,11 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core
+package io.gatling.core.akka
+
+import scala.concurrent.duration.DurationInt
 
 import akka.actor.ActorSystem
+import akka.pattern.AskSupport
+import akka.util.Timeout
+import io.gatling.core.config.GatlingConfiguration.configuration
 
-package object action {
+object AkkaDefaults {
+	val gatlingSystem = ActorSystem("GatlingSystem")
+}
 
-	val system = ActorSystem("GatlingSystem")
+trait AkkaDefaults extends AskSupport {
+
+	implicit def system = AkkaDefaults.gatlingSystem
+	implicit def dispatcher = system.dispatcher
+	implicit def scheduler = system.scheduler
+	implicit val defaultTimeOut = Timeout(configuration.core.timeOut.actor seconds)
 }

@@ -16,6 +16,7 @@
 package io.gatling.core.action
 
 import akka.actor.ActorRef
+import io.gatling.core.akka.BaseActor
 import io.gatling.core.controller.{ Controller, ForceTermination }
 import io.gatling.core.feeder.{ Feeder, Record }
 import io.gatling.core.session.{ Expression, Session }

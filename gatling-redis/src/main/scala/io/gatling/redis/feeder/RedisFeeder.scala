@@ -15,11 +15,12 @@
  */
 package io.gatling.redis.feeder
 
-import io.gatling.core.action.system
-import io.gatling.core.feeder.Feeder
 import com.redis.RedisClientPool
 
-object RedisFeeder {
+import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.feeder.Feeder
+
+object RedisFeeder extends AkkaDefaults {
 
 	def apply(clientPool: RedisClientPool, key: String): Feeder[String] = {
 

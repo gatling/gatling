@@ -19,17 +19,13 @@ import java.net.InetAddress
 
 import scala.collection.mutable
 
-import com.ning.http.client.{ ProxyServer, Request, RequestBuilder }
+import com.ning.http.client.{ ProxyServer, Request }
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.session.el.EL
 import io.gatling.http.Headers.Names._
-import io.gatling.http.ahc.HttpClient
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
@@ -38,7 +34,7 @@ import io.gatling.http.util.HttpHelper
  */
 object HttpProtocolBuilder {
 
-	val default = new HttpProtocolBuilder(HttpProtocol.default, configuration.http.warmUpUrl)
+	val default = new HttpProtocolBuilder(HttpProtocol.default)
 
 	val warmUpUrls = mutable.Set.empty[String]
 }
@@ -49,7 +45,7 @@ object HttpProtocolBuilder {
  * @param protocol the protocol being built
  * @param warmUpUrl a URL to be pinged in order to warm up the HTTP engine
  */
-case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]) extends Logging {
+case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 
 	def baseURL(baseUrl: String) = copy(protocol = protocol.copy(baseURLs = List(baseUrl)))
 
@@ -87,9 +83,9 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 
 	def userAgentHeader(value: String) = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (USER_AGENT -> value)))
 
-	def warmUp(url: String) = copy(warmUpUrl = Some(url))
+	def warmUp(url: String) = copy(protocol = protocol.copy(warmUpUrl = Some(url)))
 
-	def disableWarmUp = copy(warmUpUrl = None)
+	def disableWarmUp = copy(protocol = protocol.copy(warmUpUrl = None))
 
 	def basicAuth(username: Expression[String], password: Expression[String]) = copy(protocol = protocol.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
 
@@ -107,44 +103,6 @@ case class HttpProtocolBuilder(protocol: HttpProtocol, warmUpUrl: Option[String]
 
 	def build = {
 		require(!(!protocol.shareClient && protocol.shareConnections), "Invalid protocol configuration: can't stop sharing the HTTP client while still sharing connections!")
-
-		warmUpUrl.map { url =>
-			if (!HttpProtocolBuilder.warmUpUrls.contains(url)) {
-				HttpProtocolBuilder.warmUpUrls += url
-				val requestBuilder = new RequestBuilder().setUrl(url)
-					.setHeader(ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-					.setHeader(ACCEPT_LANGUAGE, "en-US,en;q=0.5")
-					.setHeader(ACCEPT_ENCODING, "gzip")
-					.setHeader(CONNECTION, "keep-alive")
-					.setHeader(USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
-
-				protocol.proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
-				protocol.securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
-
-				try {
-					HttpClient.default.executeRequest(requestBuilder.build).get
-				} catch {
-					case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
-				}
-			}
-		}
-
-		if (HttpProtocolBuilder.warmUpUrls.isEmpty) {
-			val expression = "foo".el[String]
-
-			HttpRequestBaseBuilder.http(expression)
-				.get(expression)
-				.header("bar", expression)
-				.queryParam(expression, expression)
-				.build(Session("scenarioName", "0"), HttpProtocol.default)
-
-			HttpRequestBaseBuilder.http(expression)
-				.post(expression)
-				.header("bar", expression)
-				.param(expression, expression)
-				.build(Session("scenarioName", "0"), HttpProtocol.default)
-		}
-
 		protocol
 	}
 }

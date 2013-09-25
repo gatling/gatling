@@ -16,6 +16,7 @@
 package io.gatling.core.action
 
 import akka.actor.ActorDSL.actor
+import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.result.message.End
 import io.gatling.core.result.writer.{ DataWriter, ScenarioMessage }
 import io.gatling.core.session.Session

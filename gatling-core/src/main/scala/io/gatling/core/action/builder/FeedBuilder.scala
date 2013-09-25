@@ -19,7 +19,8 @@ import scala.collection.mutable
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
-import io.gatling.core.action.{ AkkaDefaults, Feed, SingletonFeed }
+import io.gatling.core.action.{ Feed, SingletonFeed }
+import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.session.Expression

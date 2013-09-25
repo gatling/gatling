@@ -17,7 +17,8 @@ package io.gatling.core.controller.throttle
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
-import io.gatling.core.action.system
+
+import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.Protocol
 import io.gatling.core.util.TimeHelper.nowMillis
 
@@ -29,7 +30,7 @@ class ThisSecondThrottler(val limit: Int, var count: Int = 0) {
 	def limitNotReached = count < limit
 }
 
-class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map[String, ThrottlingProtocol]) {
+class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map[String, ThrottlingProtocol]) extends AkkaDefaults {
 
 	val buffer = collection.mutable.Queue.empty[(String, () => Unit)]
 
@@ -70,7 +71,7 @@ class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map
 			if (delay == 0) {
 				request()
 			} else {
-				system.scheduler.scheduleOnce(delay milliseconds) {
+				scheduler.scheduleOnce(delay milliseconds) {
 					request()
 				}
 			}

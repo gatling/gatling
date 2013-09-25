@@ -22,7 +22,8 @@ import java.net.URI
 import com.ning.http.client.websocket.{ WebSocket, WebSocketTextListener }
 
 import akka.actor.{ ActorRef, Props }
-import io.gatling.core.action.{ Action, BaseActor, Chainable, Failable, Interruptable }
+import io.gatling.core.akka.BaseActor
+import io.gatling.core.action.{ Action, Chainable, Failable, Interruptable }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
