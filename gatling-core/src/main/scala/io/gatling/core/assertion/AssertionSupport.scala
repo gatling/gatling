@@ -31,10 +31,10 @@ trait AssertionSupport {
 			if (selector.segments.isEmpty)
 				None
 			else {
-				val selectedPath = selector.segments
+				val selectedPath: List[String] = selector.segments
 				reader.statsPaths.find { statsPath =>
-					val path = statsPath match {
-						case RequestStatsPath(request, group) => group.map(_.hierarchy).getOrElse(Nil) :: List(request)
+					val path: List[String] = statsPath match {
+						case RequestStatsPath(request, group) => group.map(_.hierarchy).getOrElse(Nil) ::: List(request)
 						case GroupStatsPath(group) => group.hierarchy
 					}
 					path == selectedPath
