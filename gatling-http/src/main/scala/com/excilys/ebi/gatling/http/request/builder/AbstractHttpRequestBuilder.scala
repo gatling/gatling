@@ -22,6 +22,7 @@ import com.excilys.ebi.gatling.core.session.Session.{ attributeAsEvaluatableStri
 import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.ahc.GatlingConnectionPoolKeyStrategy
+import com.excilys.ebi.gatling.http.cache.CacheHandling
 import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
@@ -213,6 +214,9 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 
 		requestBuilder.setUrl(resolvedUrl)
 
+		CacheHandling.getLastModified(protocolConfiguration, session, resolvedUrl).foreach(requestBuilder.setHeader(HeaderNames.IF_MODIFIED_SINCE, _))
+		CacheHandling.getEtag(protocolConfiguration, session, resolvedUrl).foreach(requestBuilder.setHeader(HeaderNames.IF_NONE_MATCH, _))
+
 		for (cookie <- CookieHandling.getStoredCookies(session, resolvedUrl))
 			requestBuilder.addCookie(cookie)
 
@@ -226,7 +230,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 * @param session the session of the current scenario
 	 */
 	private def configureHeaders(requestBuilder: RequestBuilder, headers: Map[String, EvaluatableString], session: Session, protocolConfiguration: HttpProtocolConfiguration) {
-		requestBuilder.setHeaders(new FluentCaseInsensitiveStringsMap)
 
 		val baseHeaders = protocolConfiguration.baseHeaders
 		val resolvedRequestHeaders = headers.map { case (headerName, headerValue) => (headerName -> headerValue(session)) }

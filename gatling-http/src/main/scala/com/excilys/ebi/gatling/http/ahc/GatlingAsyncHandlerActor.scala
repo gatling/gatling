@@ -45,6 +45,7 @@ import akka.util.duration.intToDurationInt
 object GatlingAsyncHandlerActor {
 	val REDIRECTED_REQUEST_NAME_PATTERN = """(.+?) Redirect (\d+)""".r
 	val REDIRECT_STATUS_CODES = 301 to 303
+	val NOT_MODIFIED_PHASES = HttpPhase.phases.filter(p => p != HttpPhase.CompletePageReceived && p != HttpPhase.BodyPartReceived)
 
 	def newAsyncHandlerActorFactory(
 		checks: List[HttpCheck[_]],
@@ -130,9 +131,9 @@ class GatlingAsyncHandlerActor(
 			val buff = new StringBuilder
 			buff.append(END_OF_LINE).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(END_OF_LINE)
 			buff.append("Request:").append(END_OF_LINE).append(requestName).append(": ").append(requestStatus).append(" ").append(errorMessage.getOrElse("")).append(END_OF_LINE)
-            buff.append("=========================").append(END_OF_LINE)
-            buff.append("Session:").append(END_OF_LINE).append(session).append(END_OF_LINE)
-            buff.append("=========================").append(END_OF_LINE)
+			buff.append("=========================").append(END_OF_LINE)
+			buff.append("Session:").append(END_OF_LINE).append(session).append(END_OF_LINE)
+			buff.append("=========================").append(END_OF_LINE)
 			buff.append("HTTP request:").append(END_OF_LINE)
 			request.dumpTo(buff)
 			buff.append("=========================").append(END_OF_LINE)
@@ -210,11 +211,7 @@ class GatlingAsyncHandlerActor(
 
 		val sessionWithUpdatedCookies = CookieHandling.storeCookies(session, response.getUri, response.getCookies.toList)
 
-		if (GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES.contains(response.getStatusCode) && protocolConfiguration.followRedirectEnabled)
-			handleFollowRedirect(sessionWithUpdatedCookies)
-
-		else {
-			val sessionWithUpdatedCache = CacheHandling.cache(protocolConfiguration, sessionWithUpdatedCookies, request, response)
+		def checkAndProceed(session: Session, phases: List[HttpPhase]) {
 
 			@tailrec
 			def checkPhasesRec(session: Session, phases: List[HttpPhase]) {
@@ -238,8 +235,16 @@ class GatlingAsyncHandlerActor(
 				}
 			}
 
-			checkPhasesRec(sessionWithUpdatedCache, HttpPhase.phases)
+			val sessionWithUpdatedCache = CacheHandling.cache(protocolConfiguration, session, request, response)
+			checkPhasesRec(sessionWithUpdatedCache, phases)
 		}
+
+		if (response.getStatusCode == 304)
+			checkAndProceed(sessionWithUpdatedCookies, GatlingAsyncHandlerActor.NOT_MODIFIED_PHASES)
+		else if (GatlingAsyncHandlerActor.REDIRECT_STATUS_CODES.contains(response.getStatusCode) && protocolConfiguration.followRedirectEnabled)
+			handleFollowRedirect(sessionWithUpdatedCookies)
+		else
+			checkAndProceed(sessionWithUpdatedCookies, HttpPhase.phases)
 	}
 
 	/**

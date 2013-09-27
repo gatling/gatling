@@ -28,10 +28,8 @@ import akka.actor.{ ActorRef, Props }
 
 object HttpRequestActionBuilder {
 
-	/**
-	 * This is the default HTTP check used to verify that the response status is 2XX
-	 */
-	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => 200 to 210).build
+	val OK_CODES = (304 :: (200 to 210).toList).sorted
+	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => OK_CODES).build
 
 	def apply(requestName: EvaluatableString, requestBuilder: AbstractHttpRequestBuilder[_], checks: List[HttpCheck[_]]) = {
 

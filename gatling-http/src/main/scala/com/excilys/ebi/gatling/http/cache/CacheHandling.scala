@@ -26,7 +26,13 @@ import grizzled.slf4j.Logging
 
 object CacheHandling extends Logging {
 
-	val COOKIES_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.cache"
+	val CACHE_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.cache"
+	val LAST_MODIFIED_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.lastModified"
+	val ETAG_CONTEXT_KEY = GATLING_PRIVATE_ATTRIBUTE_PREFIX + "http.etag"
+
+	private def getCache(session: Session): Set[String] = session.getAttributeAsOption[Set[String]](CACHE_CONTEXT_KEY).getOrElse(Set.empty)
+	private def getLastModifiedStore(session: Session): Map[String, String] = session.getAttributeAsOption[Map[String, String]](LAST_MODIFIED_CONTEXT_KEY).getOrElse(Map.empty[String, String])
+	private def getEtagStore(session: Session): Map[String, String] = session.getAttributeAsOption[Map[String, String]](ETAG_CONTEXT_KEY).getOrElse(Map.empty[String, String])
 
 	def isFutureExpire(timeString: String): Boolean =
 		try {
@@ -42,6 +48,8 @@ object CacheHandling extends Logging {
 		}
 
 	def isCached(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request) = httpProtocolConfiguration.cachingEnabled && getCache(session).contains(request.getUrl)
+	def getLastModified(httpProtocol: HttpProtocolConfiguration, session: Session, url: String) = if (httpProtocol.cachingEnabled) getLastModifiedStore(session).get(url) else None
+	def getEtag(httpProtocol: HttpProtocolConfiguration, session: Session, url: String) = if (httpProtocol.cachingEnabled) getEtagStore(session).get(url) else None
 
 	def cache(httpProtocolConfiguration: HttpProtocolConfiguration, session: Session, request: Request, response: Response): Session = {
 
@@ -51,24 +59,42 @@ object CacheHandling extends Logging {
 			.map(isFutureExpire)
 			.getOrElse(false)
 
-		val isResponseCacheable = httpProtocolConfiguration.cachingEnabled && !pragmaNoCache && !cacheControlNoCache && expiresInFuture
+		def isResponseCacheable = httpProtocolConfiguration.cachingEnabled && !pragmaNoCache && !cacheControlNoCache && expiresInFuture
 
-		if (isResponseCacheable) {
+		val url = request.getUrl
+
+		def updateCache(session: Session) = {
 			val cache = getCache(session)
-			val url = request.getUrl
-
 			if (cache.contains(url)) {
-				info(url + " was already cached")
+				logger.info(url + " was already cached")
 				session
 
 			} else {
-				info("Caching url " + url)
-				session.setAttribute(COOKIES_CONTEXT_KEY, cache + url)
+				logger.info("Caching url " + url)
+				session.setAttribute(CACHE_CONTEXT_KEY, cache + url)
 			}
+		}
 
-		} else
+		def updateLastModified(session: Session) = Option(response.getHeader(Headers.Names.LAST_MODIFIED))
+			.map { lastModified =>
+				logger.info("Setting LastModified for url " + url)
+				val lastModifiedStore = getLastModifiedStore(session)
+				session.setAttribute(LAST_MODIFIED_CONTEXT_KEY, lastModifiedStore + (url -> lastModified))
+			}.getOrElse(session)
+
+		def updateEtag(session: Session) = Option(response.getHeader(Headers.Names.ETAG))
+			.map { etag =>
+				logger.info("Setting Etag for url " + url)
+				val etagStore = getEtagStore(session)
+				session.setAttribute(ETAG_CONTEXT_KEY, etagStore + (url -> etag))
+			}.getOrElse(session)
+
+		if (httpProtocolConfiguration.cachingEnabled)
+			if (isResponseCacheable)
+				updateCache(session)
+			else
+				updateEtag(updateLastModified(session))
+		else
 			session
 	}
-
-	private def getCache(session: Session): Set[String] = session.getAttributeAsOption[Set[String]](COOKIES_CONTEXT_KEY).getOrElse(Set.empty)
 }
