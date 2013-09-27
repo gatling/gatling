@@ -15,23 +15,22 @@
  */
 package io.gatling.recorder.scenario
 
-import io.gatling.http.Headers
+import io.gatling.http.HeaderNames
 import io.gatling.recorder.scenario.template.ProtocolTemplate
 
 object ProtocolElement {
 
 	val baseHeaders = Map(
-		Headers.Names.ACCEPT -> "acceptHeader",
-		Headers.Names.ACCEPT_CHARSET -> "acceptCharsetHeader",
-		Headers.Names.ACCEPT_ENCODING -> "acceptEncodingHeader",
-		Headers.Names.ACCEPT_LANGUAGE -> "acceptLanguageHeader",
-		Headers.Names.AUTHORIZATION -> "authorizationHeader",
-		Headers.Names.CONNECTION -> "connection",
-		Headers.Names.DO_NOT_TRACK -> "doNotTrackHeader",
-		Headers.Names.USER_AGENT -> "userAgentHeader")
+		HeaderNames.ACCEPT -> "acceptHeader",
+		HeaderNames.ACCEPT_CHARSET -> "acceptCharsetHeader",
+		HeaderNames.ACCEPT_ENCODING -> "acceptEncodingHeader",
+		HeaderNames.ACCEPT_LANGUAGE -> "acceptLanguageHeader",
+		HeaderNames.AUTHORIZATION -> "authorizationHeader",
+		HeaderNames.CONNECTION -> "connection",
+		HeaderNames.DO_NOT_TRACK -> "doNotTrackHeader",
+		HeaderNames.USER_AGENT -> "userAgentHeader")
 }
 class ProtocolElement(baseUrl: String, followRedirect: Boolean, automaticReferer: Boolean, headers: Map[String, String]) extends ScenarioElement {
 
 	override def toString = ProtocolTemplate.render(baseUrl, followRedirect, automaticReferer, headers)
-
 }

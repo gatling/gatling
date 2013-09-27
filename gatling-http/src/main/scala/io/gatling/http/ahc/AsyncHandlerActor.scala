@@ -32,8 +32,9 @@ import io.gatling.core.session.Session
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
-import io.gatling.http.Headers.{ Names => HeaderNames }
+import io.gatling.http.HeaderNames
 import io.gatling.http.cache.CacheHandling
+import io.gatling.http.check.{ HttpCheck, HttpCheckOrder }
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpStringBuilder
@@ -165,9 +166,9 @@ class AsyncHandlerActor extends BaseActor {
 			}
 		}
 
-		def checkAndProceed(sessionWithUpdatedCookies: Session) {
+		def checkAndProceed(sessionWithUpdatedCookies: Session, checks: List[HttpCheck]) {
 			val sessionWithUpdatedCache = CacheHandling.cache(task.protocol, sessionWithUpdatedCookies, task.request, response)
-			val checkResult = Checks.check(response, sessionWithUpdatedCache, task.checks)
+			val checkResult = Checks.check(response, sessionWithUpdatedCache, checks)
 
 			checkResult match {
 				case Success(newSession) => ok(task, newSession, response)
@@ -177,9 +178,11 @@ class AsyncHandlerActor extends BaseActor {
 
 		val sessionWithUpdatedCookies = CookieHandling.storeCookies(task.session, response.getUri, response.getCookies.toList)
 
-		if (response.isRedirected && task.protocol.followRedirect)
+		if (response.getStatusCode == 304)
+			checkAndProceed(sessionWithUpdatedCookies, task.checks.filter(_.order != HttpCheckOrder.Body))
+		else if (response.isRedirected && task.protocol.followRedirect)
 			redirect(sessionWithUpdatedCookies)
 		else
-			checkAndProceed(sessionWithUpdatedCookies)
+			checkAndProceed(sessionWithUpdatedCookies, task.checks)
 	}
 }

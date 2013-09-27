@@ -21,7 +21,7 @@ import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
-import io.gatling.http.Headers
+import io.gatling.http.HeaderNames
 import io.gatling.http.response.Response
 
 object HttpHeaderExtractors {
@@ -31,7 +31,7 @@ object HttpHeaderExtractors {
 	}
 
 	def decode(headerName: String, headerValue: String) =
-		if (headerName == Headers.Names.LOCATION)
+		if (headerName == HeaderNames.LOCATION)
 			URLDecoder.decode(headerValue, configuration.core.encoding)
 		else
 			headerValue

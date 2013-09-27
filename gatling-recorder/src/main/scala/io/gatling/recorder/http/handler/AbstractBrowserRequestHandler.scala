@@ -23,7 +23,7 @@ import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
 import com.ning.http.util.Base64
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.http.Headers
+import io.gatling.http.HeaderNames
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.util.URIHelper
@@ -44,7 +44,7 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController) ext
 						password <- configuration.proxy.outgoing.password
 					} {
 						val proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
-						request.setHeader(Headers.Names.PROXY_AUTHORIZATION, proxyAuth)
+						request.setHeader(HeaderNames.PROXY_AUTHORIZATION, proxyAuth)
 					}
 				}.getOrElse(request.removeHeader("Proxy-Connection")) // remove Proxy-Connection header if it's not significant
 

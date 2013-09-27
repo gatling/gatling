@@ -26,7 +26,7 @@ import org.joda.time.DateTime
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.RichString
-import io.gatling.http.Headers.Names.CONTENT_TYPE
+import io.gatling.http.HeaderNames.CONTENT_TYPE
 import io.gatling.recorder.scenario.{ PauseElement, RequestBodyBytes, RequestBodyParams, RequestElement, ScenarioElement }
 import io.gatling.recorder.util.FiltersHelper.isRequestAccepted
 import io.gatling.recorder.util.RedirectHelper.isRequestRedirect

@@ -20,7 +20,7 @@ import com.ning.http.multipart.StringPart
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
-import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
+import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.util.HttpHelper
 
 /**

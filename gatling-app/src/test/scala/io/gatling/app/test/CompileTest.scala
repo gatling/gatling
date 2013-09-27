@@ -16,7 +16,6 @@
 package io.gatling.app.test
 
 import io.gatling.core.Predef._
-import io.gatling.http.Headers.Names._
 import io.gatling.http.Predef._
 import io.gatling.jdbc.Predef._
 
@@ -170,7 +169,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				// Third request to be repeated
 				.exec(http("Liste Articles").get("/things").queryParam("firstname", "${firstname}").queryParam("lastname", "${lastname}"))
 				.pause(pause1)
-				.exec(http("Test Page").get("/tests").check(header(CONTENT_TYPE).is("text/html; charset=utf-8").saveAs("sessionParam")))
+				.exec(http("Test Page").get("/tests").check(header(HttpHeaderNames.CONTENT_TYPE).is("text/html; charset=utf-8").saveAs("sessionParam")))
 				// Fourth request to be repeated
 				.pause(100 milliseconds)
 				// switch

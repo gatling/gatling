@@ -22,8 +22,8 @@ import org.specs2.runner.JUnitRunner
 import com.ning.http.client.{ RequestBuilder, Response => AHCResponse }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
+import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.Headers
 import io.gatling.http.response.HttpResponse
 import io.gatling.core.config.ProtocolRegistry
 
@@ -47,18 +47,18 @@ class CacheHandlingSpec extends Specification with Mockito {
 		}
 
 		"correctly support Expires header" in {
-			isCacheable(List(Headers.Names.EXPIRES -> "3600")) must beTrue
+			isCacheable(List(HeaderNames.EXPIRES -> "3600")) must beTrue
 		}
 
 		"correctly support Pragma header" in {
-			isCacheable(List(Headers.Names.EXPIRES -> "3600", Headers.Names.PRAGMA -> Headers.Values.NO_CACHE)) must beFalse
+			isCacheable(List(HeaderNames.EXPIRES -> "3600", HeaderNames.PRAGMA -> HeaderValues.NO_CACHE)) must beFalse
 		}
 
 		"correctly support Cache-Control header" in {
-			isCacheable(List(Headers.Names.CACHE_CONTROL -> "private, max-age=3600, must-revalidate")) must beTrue
-			isCacheable(List(Headers.Names.EXPIRES -> "3600", Headers.Names.CACHE_CONTROL -> "public, no-cache")) must beFalse
-			isCacheable(List(Headers.Names.EXPIRES -> "3600", Headers.Names.CACHE_CONTROL -> "public, max-age=0")) must beFalse
-			isCacheable(List(Headers.Names.EXPIRES -> "3600", Headers.Names.CACHE_CONTROL -> "no-store")) must beFalse
+			isCacheable(List(HeaderNames.CACHE_CONTROL -> "private, max-age=3600, must-revalidate")) must beTrue
+			isCacheable(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "public, no-cache")) must beFalse
+			isCacheable(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "public, max-age=0")) must beFalse
+			isCacheable(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "no-store")) must beFalse
 		}
 	}
 

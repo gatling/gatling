@@ -26,7 +26,7 @@ import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
 import io.gatling.core.session.el.EL
 import io.gatling.core.util.RoundRobin
-import io.gatling.http.Headers.Names._
+import io.gatling.http.HeaderNames._
 import io.gatling.http.ahc.HttpClient
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.builder.HttpRequestBaseBuilder

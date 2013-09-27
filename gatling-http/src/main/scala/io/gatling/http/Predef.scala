@@ -42,8 +42,8 @@ object Predef extends HttpCheckSupport {
 	implicit val defaultWebSocketClient = DefaultWebSocketClient
 	implicit val defaultRequestLogger = DefaultRequestLogger
 
-	val HttpHeaderNames = Headers.Names
-	val HttpHeaderValues = Headers.Values
+	val HttpHeaderNames = HeaderNames
+	val HttpHeaderValues = HeaderValues
 
 	val gzipBody = BodyProcessors.gzip
 	val streamBody = BodyProcessors.stream

@@ -35,7 +35,8 @@ object HttpRequestActionBuilder {
 	/**
 	 * This is the default HTTP check used to verify that the response status is 2XX
 	 */
-	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(Session => (200 to 210).success).build
+	val OK_CODES = (304 :: (200 to 210).toList).sorted.success
+	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(_ => OK_CODES).build
 
 	def apply(requestBuilder: AbstractHttpRequestBuilder[_]): HttpRequestActionBuilder = {
 		import requestBuilder.httpAttributes._

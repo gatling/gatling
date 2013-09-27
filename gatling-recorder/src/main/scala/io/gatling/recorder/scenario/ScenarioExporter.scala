@@ -24,7 +24,7 @@ import scala.tools.nsc.io.{ Directory, File }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.util.IOHelper.withCloseable
-import io.gatling.http.Headers
+import io.gatling.http.HeaderNames
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.scenario.template.SimulationTemplate
 
@@ -118,7 +118,7 @@ object ScenarioExporter extends Logging {
 		}
 
 		// Aggregate headers
-		val filteredHeaders = Set(Headers.Names.COOKIE, Headers.Names.CONTENT_LENGTH, Headers.Names.HOST) ++ (if (configuration.http.automaticReferer) Set(Headers.Names.REFERER) else Set.empty)
+		val filteredHeaders = Set(HeaderNames.COOKIE, HeaderNames.CONTENT_LENGTH, HeaderNames.HOST) ++ (if (configuration.http.automaticReferer) Set(HeaderNames.REFERER) else Set.empty)
 
 		val headers: Map[Int, List[(String, String)]] = {
 

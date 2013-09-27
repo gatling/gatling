@@ -24,9 +24,9 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.session.el.EL
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
-import io.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
-import io.gatling.http.action.HttpRequestActionBuilder
+import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.ahc.{ ConnectionPoolKeyStrategy, RequestFactory }
+import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling
@@ -176,6 +176,9 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 			httpAttributes.address.foreach(requestBuilder.setInetAddress)
 
 			CookieHandling.getStoredCookies(session, url).foreach(requestBuilder.addCookie)
+
+			CacheHandling.getLastModified(protocol, session, url).foreach(requestBuilder.setHeader(HeaderNames.IF_MODIFIED_SINCE, _))
+			CacheHandling.getEtag(protocol, session, url).foreach(requestBuilder.setHeader(HeaderNames.IF_NONE_MATCH, _))
 
 			if (!httpAttributes.queryParams.isEmpty)
 				HttpHelper.httpParamsToFluentMap(httpAttributes.queryParams, session).map(requestBuilder.setQueryParameters(_).setUrl(url))
