@@ -179,7 +179,7 @@ class AsyncHandlerActor extends BaseActor {
 		val sessionWithUpdatedCookies = CookieHandling.storeCookies(task.session, response.getUri, response.getCookies.toList)
 
 		if (response.getStatusCode == 304)
-			checkAndProceed(sessionWithUpdatedCookies, task.checks.filter(_.order != HttpCheckOrder.Body))
+			checkAndProceed(sessionWithUpdatedCookies, task.checks.filter(c => c.order != HttpCheckOrder.Body && c.order != HttpCheckOrder.Checksum))
 		else if (response.isRedirected && task.protocol.followRedirect)
 			redirect(sessionWithUpdatedCookies)
 		else
