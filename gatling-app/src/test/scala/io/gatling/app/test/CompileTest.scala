@@ -75,7 +75,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			feed(testData)
 				.exec(http("Catégorie Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
 		}
-		.asLongAs(true) {
+		.forever {
 			feed(testData)
 				.exec(http("Catégorie Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
 		}

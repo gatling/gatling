@@ -26,6 +26,11 @@ import io.gatling.core.structure.ChainBuilder.chainOf
 import io.gatling.core.util.TimeHelper.{ nanosSinceReference, nowMillis }
 import io.gatling.core.validation.SuccessWrapper
 
+object Loops {
+
+	val trueExpression: Expression[Boolean] = _ => true.success
+}
+
 trait Loops[B] extends Execs[B] {
 
 	def repeat(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
@@ -50,6 +55,11 @@ trait Loops[B] extends Execs[B] {
 
 		asLongAs(continueCondition, counterName, exitASAP)(chain)
 	}
+
+	def forever(chain: ChainBuilder): B = forever(UUID.randomUUID.toString, true)(chain)
+
+	def forever(counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
+		asLongAs(Loops.trueExpression, counterName, exitASAP)(chain)
 
 	def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
 		exec(new WhileBuilder(condition, chain, counterName, exitASAP))
