@@ -22,13 +22,13 @@ sealed abstract class MessageType {
 	def recordLength: Int
 	def unapply(string: String) = {
 		val array = string.split(tabulationSeparator)
-		if (array.length >= recordLength && array(0) == name) Some(array) else None
+		if (array.length >= recordLength && array(2) == name) Some(array) else None
 	}
 }
 
 object RunMessageType extends MessageType {
 	val name = "RUN"
-	val recordLength = 4
+	val recordLength = 5
 }
 
 object RequestMessageType extends MessageType {
@@ -36,8 +36,8 @@ object RequestMessageType extends MessageType {
 	val recordLength = 10
 }
 
-object ScenarioMessageType extends MessageType {
-	val name = "SCENARIO"
+object UserMessageType extends MessageType {
+	val name = "USER"
 	val recordLength = 5
 }
 

@@ -24,7 +24,6 @@ import io.gatling.core.result.Group
 import io.gatling.core.session.GroupStackEntry
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.core.util.UnsynchronizedBufferedOutputStream
-import io.gatling.core.result.message.End
 
 object FileDataWriter {
 
@@ -42,16 +41,16 @@ object FileDataWriter {
 		def getBytes = {
 			import runMessage._
 			val description = if (runDescription.isEmpty) FileDataWriter.emptyField else runDescription
-			val string = s"${RunMessageType.name}\t$timestamp\t$simulationId\t$description$eol"
+			val string = s"$simulationClassName\t$simulationId\t${RunMessageType.name}\t$timestamp\t$description$eol"
 			string.getBytes(configuration.core.encoding)
 		}
 	}
 
-	implicit class ScenarioMessageSerializer(val scenarioMessage: ScenarioMessage) extends AnyVal {
+	implicit class UserMessageSerializer(val userMessage: UserMessage) extends AnyVal {
 
 		def getBytes = {
-			import scenarioMessage._
-			val string = s"${ScenarioMessageType.name}\t$scenarioName\t$userId\t$startDate\t$endDate$eol"
+			import userMessage._
+			val string = s"$scenarioName\t$userId\t${UserMessageType.name}\t${event.name}\t$startDate\t$endDate$eol"
 			string.getBytes(configuration.core.encoding)
 		}
 	}
@@ -66,7 +65,7 @@ object FileDataWriter {
 			val serializedGroups = GroupMessageSerializer.serializeGroups(groupStack)
 			val serializedExtraInfo = extraInfo.map(info => fast"\t${sanitize(info.toString)}").mkFastring
 
-			fast"${RequestMessageType.name}\t$scenario\t$userId\t$serializedGroups\t$name\t$requestStartDate\t$requestEndDate\t$responseStartDate\t$responseEndDate\t$status\t$nonEmptyMessage$serializedExtraInfo$eol"
+			fast"$scenario\t$userId\t${RequestMessageType.name}\t$serializedGroups\t$name\t$requestStartDate\t$requestEndDate\t$responseStartDate\t$responseEndDate\t$status\t$nonEmptyMessage$serializedExtraInfo$eol"
 		}
 	}
 
@@ -89,7 +88,7 @@ object FileDataWriter {
 			import groupMessage._
 			val serializedGroups = serializeGroups(groupStack)
 			val group = groupStack.head
-			fast"${GroupMessageType.name}\t$scenarioName\t$userId\t$serializedGroups\t$entryDate\t$exitDate\t${group.cumulatedResponseTime}\t${group.oks}\t${group.kos}\t$status$eol"
+			fast"$scenarioName\t$userId\t${GroupMessageType.name}\t$serializedGroups\t$entryDate\t$exitDate\t${group.cumulatedResponseTime}\t${group.oks}\t${group.kos}\t$status$eol"
 		}
 	}
 
@@ -121,9 +120,7 @@ class FileDataWriter extends DataWriter {
 		os.write(run.getBytes)
 	}
 
-	override def onScenarioMessage(scenario: ScenarioMessage) {
-		if (scenario.event == End) os.write(scenario.getBytes)
-	}
+	override def onUserMessage(userMessage: UserMessage) { os.write(userMessage.getBytes) }
 
 	override def onGroupMessage(group: GroupMessage) { os.write(group.getBytes) }
 

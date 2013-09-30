@@ -34,7 +34,7 @@ class ExitHereIfFailed(val next: ActorRef) extends Chainable {
 			stack match {
 				case Nil =>
 				case head :: tail =>
-					DataWriter.tell(GroupMessage(session.scenarioName, stack, session.userId, head.startDate, now, KO))
+					DataWriter.tell(GroupMessage(session.scenarioName, session.userId, stack, head.startDate, now, KO))
 					failAllPendingGroups(tail)
 			}
 		}

@@ -21,7 +21,7 @@ import scala.concurrent.duration.DurationInt
 import akka.actor.Props
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription }
+import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, UserMessage, ShortScenarioDescription }
 import io.gatling.core.util.TimeHelper.nowSeconds
 import io.gatling.metrics.sender.MetricsSender
 import io.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetric }
@@ -48,9 +48,9 @@ class GraphiteDataWriter extends DataWriter {
 		scheduler.schedule(0 millisecond, 1000 milliseconds, self, Send)
 	}
 
-	def onScenarioMessage(scenario: ScenarioMessage) {
-		usersPerScenario(scenario.scenarioName).update(scenario)
-		allUsers.update(scenario)
+	def onUserMessage(userMessage: UserMessage) {
+		usersPerScenario(userMessage.scenarioName).update(userMessage)
+		allUsers.update(userMessage)
 	}
 
 	def onGroupMessage(group: GroupMessage) {}

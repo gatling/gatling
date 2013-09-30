@@ -17,8 +17,9 @@ package io.gatling.core.action
 
 import akka.actor.ActorDSL.actor
 import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.controller.Controller
 import io.gatling.core.result.message.End
-import io.gatling.core.result.writer.{ DataWriter, ScenarioMessage }
+import io.gatling.core.result.writer.UserMessage
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 
@@ -30,7 +31,6 @@ object UserEnd extends AkkaDefaults {
 class UserEnd extends Action {
 
 	def execute(session: Session) {
-		logger.info(s"End user #${session.userId}")
-		DataWriter.tell(ScenarioMessage(session.scenarioName, session.userId, End, session.startDate, nowMillis))
+		Controller.controller ! UserMessage(session.scenarioName, session.userId, End, session.startDate, nowMillis)
 	}
 }

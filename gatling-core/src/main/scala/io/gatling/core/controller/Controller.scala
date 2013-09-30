@@ -17,6 +17,7 @@ package io.gatling.core.controller
 
 import java.util.UUID.randomUUID
 
+import scala.collection.mutable
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.util.{ Failure => SFailure, Success => SSuccess }
 
@@ -26,8 +27,9 @@ import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.controller.throttle.{ Throttler, ThrottlingProtocol }
-import io.gatling.core.result.writer.{ DataWriter, RunMessage }
-import io.gatling.core.util.TimeHelper.nanoTimeReference
+import io.gatling.core.result.message.{ End, Start }
+import io.gatling.core.result.writer.{ DataWriter, RunMessage, UserMessage }
+import io.gatling.core.util.TimeHelper.{ nanoTimeReference, nowMillis }
 
 case class Timings(maxDuration: Option[FiniteDuration], globalThrottling: Option[ThrottlingProtocol], perScenarioThrottlings: Map[String, ThrottlingProtocol])
 
@@ -38,13 +40,17 @@ object Controller extends AkkaDefaults {
 
 class Controller extends BaseActor {
 
+	val activeUsers = mutable.Map.empty[String, UserMessage]
+	var totalNumberOfUsers = 0
+	var finishedUsers = 0
+
 	var launcher: ActorRef = _
 	var pendingDataWritersDone = 0
 	var runId: String = _
 
 	var timings: Timings = _
 
-	var secondStartMillis: Long = 0L
+	var secondStartMillis = 0L
 
 	var throttler: Throttler = _
 
@@ -64,17 +70,17 @@ class Controller extends BaseActor {
 				launcher ! SFailure(new IllegalArgumentException(s"Scenario names must be unique but found a duplicate"))
 
 			else {
-				val totalNumberOfUsers = scenarios.map(_.injectionProfile.users).sum
+				totalNumberOfUsers = scenarios.map(_.injectionProfile.users).sum
 				logger.info(s"Total number of users : $totalNumberOfUsers")
 
-				val runMessage = RunMessage(now, simulationId, description)
+				val runMessage = RunMessage(simulation.getClass.getName, simulationId, now, description)
 				runId = runMessage.runId
-				DataWriter.askInit(runMessage, totalNumberOfUsers, scenarios).onComplete {
+				DataWriter.askInit(runMessage, scenarios).onComplete {
 					case f @ SFailure(_) => launcher ! f
 
 					case SSuccess(dataWritersNumber) =>
 						pendingDataWritersDone = dataWritersNumber
-						val runUUID = randomUUID.getMostSignificantBits
+						val runUUID = math.abs(randomUUID.getMostSignificantBits)
 
 						logger.debug("Launching All Scenarios")
 						scenarios.foldLeft(0) { (i, scenario) =>
@@ -114,7 +120,29 @@ class Controller extends BaseActor {
 			launcher ! SSuccess(runId)
 		}
 
+		def dispatchUserStartToDataWriters(userMessage: UserMessage) {
+			logger.info(s"Start user #${userMessage.userId}")
+			DataWriter.tell(userMessage)
+		}
+
+		def dispatchUserEndToDataWriters(userMessage: UserMessage) {
+			logger.info(s"End user #${userMessage.userId}")
+			DataWriter.tell(userMessage)
+		}
+
 		{
+			case userMessage @ UserMessage(_, userId, event, _, _) =>
+				if (event == Start) {
+					activeUsers += userId -> userMessage
+					dispatchUserStartToDataWriters(userMessage)
+				} else {
+					finishedUsers += 1
+					activeUsers -= userId
+					dispatchUserEndToDataWriters(userMessage)
+					if (finishedUsers == totalNumberOfUsers)
+						DataWriter.askTerminate.onComplete(_ => terminate)
+				}
+
 			case DataWriterDone =>
 				pendingDataWritersDone -= 1
 				if (pendingDataWritersDone == 0) {
@@ -124,6 +152,11 @@ class Controller extends BaseActor {
 				}
 
 			case ForceTermination =>
+				// flush all active users
+				val now = nowMillis
+				for (activeUser <- activeUsers.values) {
+					dispatchUserEndToDataWriters(activeUser.copy(event = End, endDate = now))
+				}
 				DataWriter.askTerminate.onComplete(_ => terminate)
 		}
 	}

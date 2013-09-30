@@ -17,8 +17,9 @@ package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 
-import io.gatling.charts.result.reader.ScenarioRecord
+import io.gatling.charts.result.reader.UserRecord
 import io.gatling.core.result.IntVsTimePlot
+import io.gatling.core.result.message.{ End, Start }
 
 object SessionDeltas {
 	val empty = SessionDeltas(0, 0)
@@ -59,14 +60,29 @@ class SessionDeltaBuffer {
 
 trait SessionDeltaPerSecBuffers {
 
-	val sessionDeltaPerSecBuffers: mutable.Map[Option[String], SessionDeltaBuffer] = mutable.HashMap.empty
+	val sessionDeltaPerSecBuffers: mutable.Map[Option[String], SessionDeltaBuffer] = mutable.Map.empty
+	val orphanStartRecords = mutable.Map.empty[String, UserRecord]
 
 	def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer)
 
-	def addSessionBuffers(record: ScenarioRecord) {
-		getSessionDeltaPerSecBuffers(None).addStart(record.startDateBucket)
-		getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.startDateBucket)
-		getSessionDeltaPerSecBuffers(None).addEnd(record.endDateBucket)
-		getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.endDateBucket)
+	def addSessionBuffers(record: UserRecord) {
+		record.event match {
+			case Start =>
+				getSessionDeltaPerSecBuffers(None).addStart(record.startDateBucket)
+				getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.startDateBucket)
+				orphanStartRecords += record.userId -> record
+
+			case End =>
+				getSessionDeltaPerSecBuffers(None).addEnd(record.endDateBucket)
+				getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.endDateBucket)
+				orphanStartRecords -= record.userId
+		}
+	}
+
+	def endOrphanUserRecords(endDateBucket: Int) {
+		orphanStartRecords.values.foreach { start =>
+			getSessionDeltaPerSecBuffers(None).addEnd(endDateBucket)
+			getSessionDeltaPerSecBuffers(Some(start.scenario)).addEnd(endDateBucket)
+		}
 	}
 }

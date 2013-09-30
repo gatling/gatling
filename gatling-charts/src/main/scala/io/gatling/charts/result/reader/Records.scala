@@ -18,7 +18,7 @@ package io.gatling.charts.result.reader
 import scala.collection.mutable
 
 import io.gatling.core.result.Group
-import io.gatling.core.result.message.{ KO, Status }
+import io.gatling.core.result.message.{ KO, MessageEvent, Status }
 import io.gatling.core.result.writer.FileDataWriter.GroupMessageSerializer
 
 object RecordParser {
@@ -47,12 +47,14 @@ object RecordParser {
 		RequestRecord(group, request, reduceAccuracy(executionStart), reduceAccuracy(executionEnd), status, executionStartBucket, executionEndBucket, reduceAccuracy(responseTime), reduceAccuracy(latency), errorMessage)
 	}
 
-	def parseScenarioRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): ScenarioRecord = {
+	def parseUserRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): UserRecord = {
 
-		val scenario = strings(1).intern
-		val startDate = reduceAccuracy((strings(3).toLong - runStart).toInt)
-		val endDate = reduceAccuracy((strings(4).toLong - runStart).toInt)
-		ScenarioRecord(scenario, startDate, bucketFunction(startDate), bucketFunction(endDate))
+		val scenario = strings(0).intern
+		val userId = strings(1)
+		val event = MessageEvent(strings(3))
+		val startDate = reduceAccuracy((strings(4).toLong - runStart).toInt)
+		val endDate = reduceAccuracy((strings(5).toLong - runStart).toInt)
+		UserRecord(scenario, userId, startDate, event, bucketFunction(startDate), bucketFunction(endDate))
 	}
 
 	def parseGroupRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): GroupRecord = {
@@ -71,5 +73,5 @@ object RecordParser {
 }
 
 case class RequestRecord(group: Option[Group], name: String, requestStart: Int, responseEnd: Int, status: Status, requestStartBucket: Int, responseEndBucket: Int, responseTime: Int, latency: Int, errorMessage: Option[String])
-case class ScenarioRecord(scenario: String, startDate: Int, startDateBucket: Int, endDateBucket: Int)
+case class UserRecord(scenario: String, userId: String, startDate: Int, event: MessageEvent, startDateBucket: Int, endDateBucket: Int)
 case class GroupRecord(group: Group, startDate: Int, duration: Int, cumulatedResponseTime: Int, oks: Int, kos: Int, status: Status, startDateBucket: Int)

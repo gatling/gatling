@@ -29,7 +29,7 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 	with ErrorsBuffers
 	with GroupResponseTimePerSecBuffers {
 
-	def addScenarioRecord(record: ScenarioRecord) {
+	def addUserRecord(record: UserRecord) {
 		addSessionBuffers(record)
 		addScenarioName(record)
 	}

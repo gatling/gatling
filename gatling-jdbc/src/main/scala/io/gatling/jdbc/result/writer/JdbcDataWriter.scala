@@ -20,7 +20,7 @@ import java.sql.{ Connection, Date => SQLDate, DriverManager, PreparedStatement,
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, ScenarioMessage, ShortScenarioDescription }
+import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, UserMessage, ShortScenarioDescription }
 import io.gatling.jdbc.util.SQLHelper.withStatement
 
 object JdbcDataWriter {
@@ -100,9 +100,9 @@ class JdbcDataWriter extends DataWriter with Logging {
 		}
 	}
 
-	override def onScenarioMessage(scenario: ScenarioMessage) {
+	override def onUserMessage(userMessage: UserMessage) {
 
-		import scenario._
+		import userMessage._
 		scenarioInsert.setInt(1, runId)
 		scenarioInsert.setString(2, scenarioName)
 		scenarioInsert.setString(3, userId)

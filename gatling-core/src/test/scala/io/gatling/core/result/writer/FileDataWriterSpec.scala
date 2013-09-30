@@ -37,14 +37,14 @@ class FileDataWriterSpec extends Specification {
 		"log a standard request record" in {
 			val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), Nil)
 
-			logMessage(record) must beEqualTo("REQUEST\tscenario\t1\t\trequestName\t2\t3\t4\t5\tOK\tmessage" + eol)
+			logMessage(record) must beEqualTo("scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage" + eol)
 		}
 
 		"append extra info to request records" in {
 			val extraInfo: List[String] = List("some", "extra info", "for the log")
 			val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), extraInfo)
 
-			logMessage(record) must beEqualTo("REQUEST\tscenario\t1\t\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + eol)
+			logMessage(record) must beEqualTo("scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + eol)
 		}
 
 		"sanitize extra info so that simulation log format is preserved" in {

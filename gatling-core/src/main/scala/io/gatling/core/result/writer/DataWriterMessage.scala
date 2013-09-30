@@ -25,7 +25,7 @@ sealed trait DataWriterMessage
 
 case class ShortScenarioDescription(name: String, nbUsers: Int)
 
-case class Init(runMessage: RunMessage, totalNumberOfUsers: Int, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
+case class Init(runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
 
 case object Terminate extends DataWriterMessage
 
@@ -45,17 +45,17 @@ case class RequestMessage(
 	def responseTime = responseEndDate - requestStartDate
 }
 
-case class RunMessage(runDate: DateTime, simulationId: String, runDescription: String) extends DataWriterMessage {
+case class RunMessage(simulationClassName: String, simulationId: String, runDate: DateTime, runDescription: String) extends DataWriterMessage {
 	val recordType = RunMessageType
 	val timestamp = runDate.toTimestamp
 	val runId = simulationId + "-" + timestamp
 }
 
-case class ScenarioMessage(scenarioName: String, userId: String, event: MessageEvent, startDate: Long, endDate: Long) extends DataWriterMessage {
-	val recordType = ScenarioMessageType
+case class UserMessage(scenarioName: String, userId: String, event: MessageEvent, startDate: Long, endDate: Long) extends DataWriterMessage {
+	val recordType = UserMessageType
 }
 
-case class GroupMessage(scenarioName: String, groupStack: List[GroupStackEntry], userId: String, entryDate: Long, exitDate: Long, status: Status) extends DataWriterMessage {
+case class GroupMessage(scenarioName: String, userId: String, groupStack: List[GroupStackEntry], entryDate: Long, exitDate: Long, status: Status) extends DataWriterMessage {
 	val recordType = GroupMessageType
 }
 

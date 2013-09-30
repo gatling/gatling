@@ -29,7 +29,7 @@ import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.{ ErrorStats, Group, GroupStatsPath, IntRangeVsTimePlot, IntVsTimePlot, RequestStatsPath, StatsPath }
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
-import io.gatling.core.result.writer.{ GroupMessageType, RequestMessageType, RunMessage, RunMessageType, ScenarioMessageType }
+import io.gatling.core.result.writer.{ GroupMessageType, RequestMessageType, RunMessage, RunMessageType, UserMessageType }
 import io.gatling.core.util.DateHelper.parseTimestampString
 
 object FileDataReader {
@@ -78,12 +78,12 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 					runStart = math.min(runStart, array(5).toLong)
 					runEnd = math.max(runEnd, array(8).toLong)
 
-				case ScenarioMessageType(array) =>
-					runStart = math.min(runStart, array(3).toLong)
-					runEnd = math.max(runEnd, array(4).toLong)
+				case UserMessageType(array) =>
+					runStart = math.min(runStart, array(4).toLong)
+					runEnd = math.max(runEnd, array(5).toLong)
 
 				case RunMessageType(array) =>
-					runMessages += RunMessage(parseTimestampString(array(1)), array(2), array(3).trim)
+					runMessages += RunMessage(array(0), array(1), parseTimestampString(array(3)), array(4).trim)
 
 				case _ =>
 			}
@@ -116,10 +116,12 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 				line match {
 					case RequestMessageType(array) => resultsHolder.addRequestRecord(RecordParser.parseRequestRecord(array, bucketFunction, runStart))
 					case GroupMessageType(array) => resultsHolder.addGroupRecord(RecordParser.parseGroupRecord(array, bucketFunction, runStart))
-					case ScenarioMessageType(array) => resultsHolder.addScenarioRecord(RecordParser.parseScenarioRecord(array, bucketFunction, runStart))
+					case UserMessageType(array) => resultsHolder.addUserRecord(RecordParser.parseUserRecord(array, bucketFunction, runStart))
 					case _ =>
 				}
 			}
+
+		resultsHolder.endOrphanUserRecords(bucketFunction(reduceAccuracy((runEnd - runStart).toInt)))
 
 		logger.info(s"Second pass: read $count lines")
 

@@ -23,12 +23,15 @@ import akka.util.Timeout
 import io.gatling.core.config.GatlingConfiguration.configuration
 
 object AkkaDefaults {
-	val gatlingSystem = ActorSystem("GatlingSystem")
+	var gatlingSystem: Option[ActorSystem] = None
+	def startAkka {
+		gatlingSystem = Some(ActorSystem("GatlingSystem"))
+	}
 }
 
 trait AkkaDefaults extends AskSupport {
 
-	implicit def system = AkkaDefaults.gatlingSystem
+	implicit def system = AkkaDefaults.gatlingSystem.getOrElse(throw new UnsupportedOperationException("Akka hasn't been started"))
 	implicit def dispatcher = system.dispatcher
 	implicit def scheduler = system.scheduler
 	implicit val defaultTimeOut = Timeout(configuration.core.timeOut.actor seconds)

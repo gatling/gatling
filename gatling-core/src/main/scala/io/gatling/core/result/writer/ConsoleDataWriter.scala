@@ -69,9 +69,9 @@ class ConsoleDataWriter extends DataWriter {
 		scheduler.schedule(0 seconds, 5 seconds, self, Display)
 	}
 
-	override def onScenarioMessage(scenario: ScenarioMessage) {
+	override def onUserMessage(userMessage: UserMessage) {
 
-		import scenario._
+		import userMessage._
 
 		event match {
 			case Start =>

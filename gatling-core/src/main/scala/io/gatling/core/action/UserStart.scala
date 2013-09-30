@@ -16,8 +16,9 @@
 package io.gatling.core.action
 
 import akka.actor.ActorRef
+import io.gatling.core.controller.Controller
 import io.gatling.core.result.message.Start
-import io.gatling.core.result.writer.{ DataWriter, ScenarioMessage }
+import io.gatling.core.result.writer.UserMessage
 import io.gatling.core.session.Session
 
 class UserStart(val next: ActorRef) extends Chainable {
@@ -25,9 +26,7 @@ class UserStart(val next: ActorRef) extends Chainable {
 	def execute(session: Session) {
 
 		val newSession = session.start
-
-		DataWriter.tell(ScenarioMessage(newSession.scenarioName, newSession.userId, Start, newSession.startDate, 0L))
-		logger.info(s"Start user #${newSession.userId}")
+		Controller.controller ! UserMessage(newSession.scenarioName, newSession.userId, Start, newSession.startDate, 0L)
 		next ! newSession
 	}
 }

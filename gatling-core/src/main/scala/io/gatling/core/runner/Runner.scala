@@ -33,6 +33,7 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 			println(s"Simulation ${simulationClass.getName} started...")
 
 			val simulation = simulationClass.newInstance
+			AkkaDefaults.startAkka
 
 			implicit val i = inbox()
 			Controller.controller ! Run(simulation, selection.simulationId, selection.description, simulation.timings)

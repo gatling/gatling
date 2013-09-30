@@ -56,7 +56,7 @@ class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next:
 						case `stackOnEntry` => session
 						case head :: _ =>
 							// the session contains more groups than when entering, fail head and recurse
-							DataWriter.tell(GroupMessage(session.scenarioName, session.groupStack, session.userId, head.startDate, now, KO))
+							DataWriter.tell(GroupMessage(session.scenarioName, session.userId, session.groupStack, head.startDate, now, KO))
 							failGroupsInsideTryMax(session.exitGroup)
 					}
 				}

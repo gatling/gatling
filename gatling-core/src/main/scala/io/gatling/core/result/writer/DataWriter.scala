@@ -37,9 +37,9 @@ object DataWriter extends AkkaDefaults {
 		dataWriters.foreach(_ ! message)
 	}
 
-	def askInit(runMessage: RunMessage, totalNumberOfUsers: Int, scenarios: Seq[Scenario]): Future[Int] = {
+	def askInit(runMessage: RunMessage, scenarios: Seq[Scenario]): Future[Int] = {
 		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.injectionProfile.users))
-		val responses = dataWriters.map(_ ? Init(runMessage, totalNumberOfUsers, shortScenarioDescriptions))
+		val responses = dataWriters.map(_ ? Init(runMessage, shortScenarioDescriptions))
 		Future.sequence(responses).map(_.size)
 	}
 
@@ -57,11 +57,9 @@ object DataWriter extends AkkaDefaults {
  */
 abstract class DataWriter extends BaseActor {
 
-	var pendingEndUserMessages: Int = 0
-
 	def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription])
 
-	def onScenarioMessage(scenario: ScenarioMessage)
+	def onUserMessage(userMessage: UserMessage)
 
 	def onGroupMessage(group: GroupMessage)
 
@@ -69,19 +67,9 @@ abstract class DataWriter extends BaseActor {
 
 	def onTerminateDataWriter
 
-	private def doTerminate() {
-		try {
-			onTerminateDataWriter
-		} finally {
-			context.become(flushed)
-			sender ! true
-		}
-	}
-
 	def uninitialized: Receive = {
-		case Init(runMessage, totalNumberOfUsers, scenarios) =>
+		case Init(runMessage, scenarios) =>
 			logger.info("Initializing")
-			pendingEndUserMessages = totalNumberOfUsers
 			onInitializeDataWriter(runMessage, scenarios)
 			logger.info("Initialized")
 			context.become(initialized)
@@ -91,25 +79,18 @@ abstract class DataWriter extends BaseActor {
 	}
 
 	def initialized: Receive = {
-		case scenarioMessage: ScenarioMessage =>
-			onScenarioMessage(scenarioMessage)
-			if (scenarioMessage.event == End) {
-				pendingEndUserMessages -= 1
-				if (pendingEndUserMessages == 0)
-					try {
-						onTerminateDataWriter
-					} finally {
-						context.become(flushed)
-						logger.info("Terminated")
-						Controller.controller ! DataWriterDone
-					}
-			}
+		case userMessage: UserMessage => onUserMessage(userMessage)
 
 		case groupMessage: GroupMessage => onGroupMessage(groupMessage)
 
 		case requestMessage: RequestMessage => onRequestMessage(requestMessage)
 
-		case Terminate => doTerminate
+		case Terminate => try {
+			onTerminateDataWriter
+		} finally {
+			context.become(flushed)
+			sender ! true
+		}
 	}
 
 	def flushed: Receive = {
