@@ -20,8 +20,7 @@ import scala.concurrent.Future
 import akka.actor.{ Actor, ActorRef, Props }
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.controller.{ Controller, DataWriterDone }
-import io.gatling.core.result.message.End
+import io.gatling.core.controller.{ DataWritersInitialized, DataWritersTerminated }
 import io.gatling.core.scenario.Scenario
 
 case class InitDataWriter(totalNumberOfUsers: Int)
@@ -37,15 +36,15 @@ object DataWriter extends AkkaDefaults {
 		dataWriters.foreach(_ ! message)
 	}
 
-	def askInit(runMessage: RunMessage, scenarios: Seq[Scenario]): Future[Int] = {
+	def init(runMessage: RunMessage, scenarios: Seq[Scenario], replyTo: ActorRef) {
 		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.injectionProfile.users))
 		val responses = dataWriters.map(_ ? Init(runMessage, shortScenarioDescriptions))
-		Future.sequence(responses).map(_.size)
+		Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersInitialized(_))
 	}
 
-	def askTerminate(): Future[Int] = {
+	def terminate(replyTo: ActorRef) {
 		val responses = dataWriters.map(_ ? Terminate)
-		Future.sequence(responses).map(_.size)
+		Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersTerminated(_))
 	}
 }
 

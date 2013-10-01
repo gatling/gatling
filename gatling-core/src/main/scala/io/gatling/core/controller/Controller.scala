@@ -29,6 +29,7 @@ import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.controller.throttle.{ Throttler, ThrottlingProtocol }
 import io.gatling.core.result.message.{ End, Start }
 import io.gatling.core.result.writer.{ DataWriter, RunMessage, UserMessage }
+import io.gatling.core.scenario.Scenario
 import io.gatling.core.util.TimeHelper.{ nanoTimeReference, nowMillis }
 
 case class Timings(maxDuration: Option[FiniteDuration], globalThrottling: Option[ThrottlingProtocol], perScenarioThrottlings: Map[String, ThrottlingProtocol])
@@ -40,18 +41,14 @@ object Controller extends AkkaDefaults {
 
 class Controller extends BaseActor {
 
-	val activeUsers = mutable.Map.empty[String, UserMessage]
+	var scenarios: Seq[Scenario] = _
 	var totalNumberOfUsers = 0
+	val activeUsers = mutable.Map.empty[String, UserMessage]
 	var finishedUsers = 0
-
 	var launcher: ActorRef = _
-	var pendingDataWritersDone = 0
 	var runId: String = _
-
 	var timings: Timings = _
-
 	var secondStartMillis = 0L
-
 	var throttler: Throttler = _
 
 	val uninitialized: Receive = {
@@ -61,7 +58,7 @@ class Controller extends BaseActor {
 			val timeRef = nanoTimeReference
 			launcher = sender
 			this.timings = timings
-			val scenarios = simulation.scenarios
+			scenarios = simulation.scenarios
 
 			if (scenarios.isEmpty)
 				launcher ! SFailure(new IllegalArgumentException(s"Simulation ${simulation.getClass} doesn't have any configured scenario"))
@@ -75,90 +72,91 @@ class Controller extends BaseActor {
 
 				val runMessage = RunMessage(simulation.getClass.getName, simulationId, now, description)
 				runId = runMessage.runId
-				DataWriter.askInit(runMessage, scenarios).onComplete {
-					case f @ SFailure(_) => launcher ! f
-
-					case SSuccess(dataWritersNumber) =>
-						pendingDataWritersDone = dataWritersNumber
-						val runUUID = math.abs(randomUUID.getMostSignificantBits)
-
-						val newState = if (timings.globalThrottling.isDefined || !timings.perScenarioThrottlings.isEmpty) {
-							throttler = new Throttler(timings.globalThrottling, timings.perScenarioThrottlings)
-							scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
-							throttling.orElse(initialized)
-						} else
-							initialized
-
-						context.become(newState)
-
-						logger.debug("Launching All Scenarios")
-						scenarios.foldLeft(0) { (i, scenario) =>
-							scenario.run(runUUID + "-", i)
-							i + scenario.injectionProfile.users
-						}
-						logger.debug("Finished Launching scenarios executions")
-
-						timings.maxDuration.foreach {
-							scheduler.scheduleOnce(_) {
-								self ! ForceTermination
-							}
-						}
-				}
+				DataWriter.init(runMessage, scenarios, self)
+				context.become(waitingForDataWriterToInit)
 			}
 	}
 
+	val waitingForDataWriterToInit: Receive = {
+
+		case DataWritersInitialized(result) => result match {
+			case f @ SFailure(_) => launcher ! f
+
+			case SSuccess(_) =>
+				val runUUID = math.abs(randomUUID.getMostSignificantBits)
+
+				val newState = if (timings.globalThrottling.isDefined || !timings.perScenarioThrottlings.isEmpty) {
+					throttler = new Throttler(timings.globalThrottling, timings.perScenarioThrottlings)
+					scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
+					throttling.orElse(initialized)
+				} else
+					initialized
+
+				logger.debug("Launching All Scenarios")
+				scenarios.foldLeft(0) { (i, scenario) =>
+					scenario.run(runUUID + "-", i)
+					i + scenario.injectionProfile.users
+				}
+				logger.debug("Finished Launching scenarios executions")
+
+				timings.maxDuration.foreach {
+					scheduler.scheduleOnce(_) {
+						self ! ForceTermination
+					}
+				}
+
+				context.become(newState)
+		}
+
+		case m => logger.error(s"Shouldn't happen. Ignore message $m while waiting for DataWriter to initialize")
+	}
+
 	val throttling: Receive = {
-
 		case OneSecondTick => throttler.flushBuffer
-
 		case ThrottledRequest(scenarioName, request) => throttler.send(scenarioName, request)
 	}
 
 	val initialized: Receive = {
 
-		def terminate {
-			launcher ! SSuccess(runId)
-		}
-
-		def dispatchUserStartToDataWriters(userMessage: UserMessage) {
+		def dispatchUserStartToDataWriter(userMessage: UserMessage) {
 			logger.info(s"Start user #${userMessage.userId}")
 			DataWriter.tell(userMessage)
 		}
 
-		def dispatchUserEndToDataWriters(userMessage: UserMessage) {
+		def dispatchUserEndToDataWriter(userMessage: UserMessage) {
 			logger.info(s"End user #${userMessage.userId}")
 			DataWriter.tell(userMessage)
 		}
 
 		{
-			case userMessage @ UserMessage(_, userId, event, _, _) =>
-				if (event == Start) {
+			case userMessage @ UserMessage(_, userId, event, _, _) => event match {
+				case Start =>
 					activeUsers += userId -> userMessage
-					dispatchUserStartToDataWriters(userMessage)
-				} else {
+					dispatchUserStartToDataWriter(userMessage)
+
+				case End =>
 					finishedUsers += 1
 					activeUsers -= userId
-					dispatchUserEndToDataWriters(userMessage)
+					dispatchUserEndToDataWriter(userMessage)
 					if (finishedUsers == totalNumberOfUsers)
-						DataWriter.askTerminate.onComplete(_ => terminate)
-				}
-
-			case DataWriterDone =>
-				pendingDataWritersDone -= 1
-				if (pendingDataWritersDone == 0) {
-					scheduler.scheduleOnce(1 second) {
-						terminate
-					}
-				}
+						DataWriter.terminate(self)
+					context.become(waitingForDataWriterToTerminate)
+			}
 
 			case ForceTermination =>
 				// flush all active users
 				val now = nowMillis
 				for (activeUser <- activeUsers.values) {
-					dispatchUserEndToDataWriters(activeUser.copy(event = End, endDate = now))
+					dispatchUserEndToDataWriter(activeUser.copy(event = End, endDate = now))
 				}
-				DataWriter.askTerminate.onComplete(_ => terminate)
+				DataWriter.terminate(self)
+				context.become(waitingForDataWriterToTerminate)
 		}
+	}
+
+	val waitingForDataWriterToTerminate: Receive = {
+		case DataWritersTerminated(result) => launcher ! SSuccess(runId)
+		case m => logger.debug(s"Ignore message $m while waiting for DataWriter to terminate")
 	}
 
 	def receive = uninitialized
