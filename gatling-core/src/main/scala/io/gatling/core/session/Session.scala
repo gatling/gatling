@@ -69,11 +69,11 @@ case class Session(
 	def removeAll(keys: String*) = copy(attributes = attributes -- keys)
 	def contains(attributeKey: String) = attributes.contains(attributeKey)
 
-	private[gatling] def setDrift(drift: Long) = copy(drift = drift)
-	private[gatling] def increaseDrift(time: Long) = copy(drift = time + drift)
+	def setDrift(drift: Long) = copy(drift = drift)
+	def increaseDrift(time: Long) = copy(drift = time + drift)
 
-	private[gatling] def enterGroup(groupName: String) = copy(groupStack = GroupStackEntry(groupName, nowMillis, 0L, 0, 0) :: groupStack, statusStack = OK :: statusStack)
-	private[gatling] def exitGroup = statusStack match {
+	def enterGroup(groupName: String) = copy(groupStack = GroupStackEntry(groupName, nowMillis, 0L, 0, 0) :: groupStack, statusStack = OK :: statusStack)
+	def exitGroup = statusStack match {
 		case KO :: _ :: tail => copy(statusStack = KO :: tail, groupStack = groupStack.tail) // propagate failure to upper block
 		case _ :: tail => copy(statusStack = tail, groupStack = groupStack.tail)
 	}
@@ -84,8 +84,8 @@ case class Session(
 			copy(groupStack = groupStack.map { entry => entry.copy(cumulatedResponseTime = entry.cumulatedResponseTime + responseTime, oks = entry.oks + ok, kos = entry.kos + ko) })
 	}
 
-	private[gatling] def enterTryMax(interrupt: PartialFunction[Session, Unit]): Session = enterInterruptable(interrupt).copy(statusStack = OK :: statusStack)
-	private[gatling] def exitTryMax: Session = statusStack match {
+	def enterTryMax(interrupt: PartialFunction[Session, Unit]): Session = enterInterruptable(interrupt).copy(statusStack = OK :: statusStack)
+	def exitTryMax: Session = statusStack match {
 		case KO :: _ :: tail => copy(statusStack = KO :: tail, interruptStack = interruptStack.tail) // propagate failure to upper block
 		case _ :: tail => copy(statusStack = tail, interruptStack = interruptStack.tail)
 	}
@@ -101,18 +101,18 @@ case class Session(
 		case _ => this
 	}
 
-	private[gatling] def enterInterruptable(interrupt: PartialFunction[Session, Unit]) = copy(interruptStack = interrupt :: interruptStack)
-	private[gatling] def exitInterruptable = copy(interruptStack = interruptStack.tail)
+	def enterInterruptable(interrupt: PartialFunction[Session, Unit]) = copy(interruptStack = interrupt :: interruptStack)
+	def exitInterruptable = copy(interruptStack = interruptStack.tail)
 
 	private def timestampName(counterName: String) = "timestamp." + counterName
 
-	private[gatling] def incrementLoop(counterName: String) = counterStack match {
+	def incrementLoop(counterName: String) = counterStack match {
 		case head :: _ if head == counterName =>
 			val counterValue = attributes(counterName).asInstanceOf[Int] + 1
 			copy(attributes = attributes + (counterName -> counterValue))
 		case _ => copy(attributes = attributes + (counterName -> 0) + (timestampName(counterName) -> nowMillis), counterStack = counterName :: counterStack)
 	}
-	private[gatling] def exitLoop = counterStack match {
+	def exitLoop = counterStack match {
 		case counterName :: tail => copy(attributes = attributes - counterName - timestampName(counterName), counterStack = tail)
 		case _ => this
 	}
