@@ -26,10 +26,10 @@ import io.gatling.core.util.TimeHelper.zeroMs
 
 case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: InjectionProfile) extends AkkaDefaults {
 
-	def run(runUUID: String, offset: Int) {
+	def run(userIdRoot: String, offset: Int) {
 
 		def startUser(i: Int) {
-			val session = Session(name, runUUID + (i + offset))
+			val session = Session(name, userIdRoot + (i + offset))
 			Controller.controller ! UserMessage(session.scenarioName, session.userId, Start, session.startDate, 0L)
 			entryPoint ! session
 		}

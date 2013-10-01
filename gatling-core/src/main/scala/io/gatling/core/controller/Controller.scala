@@ -48,7 +48,6 @@ class Controller extends BaseActor {
 	var launcher: ActorRef = _
 	var runId: String = _
 	var timings: Timings = _
-	var secondStartMillis = 0L
 	var throttler: Throttler = _
 
 	val uninitialized: Receive = {
@@ -83,27 +82,29 @@ class Controller extends BaseActor {
 			case f @ SFailure(_) => launcher ! f
 
 			case SSuccess(_) =>
-				val runUUID = math.abs(randomUUID.getMostSignificantBits)
-
-				val newState = if (timings.globalThrottling.isDefined || !timings.perScenarioThrottlings.isEmpty) {
-					throttler = new Throttler(timings.globalThrottling, timings.perScenarioThrottlings)
-					scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
-					throttling.orElse(initialized)
-				} else
-					initialized
+				val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
 
 				logger.debug("Launching All Scenarios")
 				scenarios.foldLeft(0) { (i, scenario) =>
-					scenario.run(runUUID + "-", i)
+					scenario.run(userIdRoot, i)
 					i + scenario.injectionProfile.users
 				}
 				logger.debug("Finished Launching scenarios executions")
 
 				timings.maxDuration.foreach {
+					logger.debug("Setting up max duration")
 					scheduler.scheduleOnce(_) {
 						self ! ForceTermination
 					}
 				}
+
+				val newState = if (timings.globalThrottling.isDefined || !timings.perScenarioThrottlings.isEmpty) {
+					logger.debug("Setting up throttling")
+					throttler = new Throttler(timings.globalThrottling, timings.perScenarioThrottlings)
+					scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
+					throttling.orElse(initialized)
+				} else
+					initialized
 
 				context.become(newState)
 		}
