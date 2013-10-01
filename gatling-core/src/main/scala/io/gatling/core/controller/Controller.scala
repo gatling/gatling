@@ -119,29 +119,29 @@ class Controller extends BaseActor {
 
 	val initialized: Receive = {
 
-		def dispatchUserStartToDataWriter(userMessage: UserMessage) {
-			logger.info(s"Start user #${userMessage.userId}")
-			DataWriter.tell(userMessage)
-		}
-
 		def dispatchUserEndToDataWriter(userMessage: UserMessage) {
 			logger.info(s"End user #${userMessage.userId}")
 			DataWriter.tell(userMessage)
+		}
+
+		def becomeTerminating() {
+			DataWriter.terminate(self)
+			context.become(waitingForDataWriterToTerminate)
 		}
 
 		{
 			case userMessage @ UserMessage(_, userId, event, _, _) => event match {
 				case Start =>
 					activeUsers += userId -> userMessage
-					dispatchUserStartToDataWriter(userMessage)
+					logger.info(s"Start user #${userMessage.userId}")
+					DataWriter.tell(userMessage)
 
 				case End =>
 					finishedUsers += 1
 					activeUsers -= userId
 					dispatchUserEndToDataWriter(userMessage)
 					if (finishedUsers == totalNumberOfUsers)
-						DataWriter.terminate(self)
-					context.become(waitingForDataWriterToTerminate)
+						becomeTerminating
 			}
 
 			case ForceTermination =>
@@ -150,8 +150,7 @@ class Controller extends BaseActor {
 				for (activeUser <- activeUsers.values) {
 					dispatchUserEndToDataWriter(activeUser.copy(event = End, endDate = now))
 				}
-				DataWriter.terminate(self)
-				context.become(waitingForDataWriterToTerminate)
+				becomeTerminating
 		}
 	}
 
