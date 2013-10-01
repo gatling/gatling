@@ -17,7 +17,10 @@ package io.gatling.core.scenario
 
 import akka.actor.ActorRef
 import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.controller.Controller
 import io.gatling.core.controller.inject.InjectionProfile
+import io.gatling.core.result.message.Start
+import io.gatling.core.result.writer.UserMessage
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.zeroMs
 
@@ -25,14 +28,20 @@ case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: Inject
 
 	def run(runUUID: String, offset: Int) {
 
-		def newSession(i: Int) = Session(name, runUUID + (i + offset))
+		def startUser(i: Int) {
+			val session = Session(name, runUUID + (i + offset))
+			Controller.controller ! UserMessage(session.scenarioName, session.userId, Start, session.startDate, 0L)
+			entryPoint ! session
+		}
 
 		injectionProfile.allUsers.zipWithIndex.foreach {
 			case (startingTime, index) =>
 				if (startingTime == zeroMs)
-					entryPoint ! newSession(index)
+					startUser(index)
 				else
-					scheduler.scheduleOnce(startingTime, entryPoint, newSession(index))
+					scheduler.scheduleOnce(startingTime) {
+						startUser(index)
+					}
 		}
 	}
 }

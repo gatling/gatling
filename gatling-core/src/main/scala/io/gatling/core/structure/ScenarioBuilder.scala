@@ -18,7 +18,7 @@ package io.gatling.core.structure
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.action.UserEnd
-import io.gatling.core.action.builder.{ ActionBuilder, UserStartBuilder }
+import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.{ Protocol, ProtocolRegistry }
 import io.gatling.core.controller.inject.{ InjectionProfile, InjectionStep }
 import io.gatling.core.controller.throttle.{ ThrottlingBuilder, ThrottlingProtocol }
@@ -32,7 +32,7 @@ import io.gatling.core.session.Expression
  * @param name the name of the scenario
  * @param actionBuilders the list of all the actions that compose the scenario
  */
-case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = List(UserStartBuilder)) extends StructureBuilder[ScenarioBuilder] {
+case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil) extends StructureBuilder[ScenarioBuilder] {
 
 	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = copy(actionBuilders = actionBuilders)
 

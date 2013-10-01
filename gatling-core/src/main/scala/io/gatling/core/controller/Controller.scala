@@ -82,13 +82,6 @@ class Controller extends BaseActor {
 						pendingDataWritersDone = dataWritersNumber
 						val runUUID = math.abs(randomUUID.getMostSignificantBits)
 
-						logger.debug("Launching All Scenarios")
-						scenarios.foldLeft(0) { (i, scenario) =>
-							scenario.run(runUUID + "-", i)
-							i + scenario.injectionProfile.users
-						}
-						logger.debug("Finished Launching scenarios executions")
-
 						val newState = if (timings.globalThrottling.isDefined || !timings.perScenarioThrottlings.isEmpty) {
 							throttler = new Throttler(timings.globalThrottling, timings.perScenarioThrottlings)
 							scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
@@ -97,6 +90,13 @@ class Controller extends BaseActor {
 							initialized
 
 						context.become(newState)
+
+						logger.debug("Launching All Scenarios")
+						scenarios.foldLeft(0) { (i, scenario) =>
+							scenario.run(runUUID + "-", i)
+							i + scenario.injectionProfile.users
+						}
+						logger.debug("Finished Launching scenarios executions")
 
 						timings.maxDuration.foreach {
 							scheduler.scheduleOnce(_) {

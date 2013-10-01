@@ -52,7 +52,7 @@ case class Session(
 	scenarioName: String,
 	userId: String,
 	attributes: Map[String, Any] = Map.empty,
-	startDate: Long = 0L,
+	startDate: Long = nowMillis,
 	drift: Long = 0L,
 	groupStack: List[GroupStackEntry] = Nil,
 	statusStack: List[Status] = List(OK),
@@ -64,8 +64,6 @@ case class Session(
 	def interrupt = reducedInterruptStack.get(this)
 
 	import SessionPrivateAttributes._
-
-	private[gatling] def start = copy(startDate = nowMillis)
 
 	def apply(name: String) = SessionAttribute(this, name)
 	def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)
