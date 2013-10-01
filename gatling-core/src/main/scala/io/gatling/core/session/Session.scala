@@ -59,10 +59,6 @@ case class Session(
 	interruptStack: List[PartialFunction[Session, Unit]] = Nil,
 	counterStack: List[String] = Nil) extends Logging {
 
-	val reducedInterruptStack = if (interruptStack.isEmpty) None else Some(interruptStack.reduceLeft(_ orElse _))
-	def shouldInterrupt = reducedInterruptStack.map(_.isDefinedAt(this)).getOrElse(false)
-	def interrupt = reducedInterruptStack.get(this)
-
 	import SessionPrivateAttributes._
 
 	def apply(name: String) = SessionAttribute(this, name)

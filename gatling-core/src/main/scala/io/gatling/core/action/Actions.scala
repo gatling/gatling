@@ -55,7 +55,7 @@ trait Chainable extends Action {
 trait Interruptable extends Chainable {
 
 	val interrupt: PartialFunction[Any, Unit] = {
-		case session: Session if session.shouldInterrupt => session.interrupt
+		case session: Session if (!session.interruptStack.isEmpty) => (session.interruptStack.reduceLeft(_ orElse _) orElse super.receive)(session)
 	}
 
 	abstract override def receive = interrupt orElse super.receive
