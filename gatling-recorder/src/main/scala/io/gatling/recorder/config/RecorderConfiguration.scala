@@ -61,28 +61,26 @@ object RecorderConfiguration extends Logging {
 			ConfigFactory.empty
 		}
 		val propertiesConfig = ConfigFactory.parseMap(props)
-		buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig))
+		configuration = buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig))
 		logger.debug(s"configured $configuration")
 	}
 
 	def reload(props: mutable.Map[String, _]) {
 		val frameConfig = ConfigFactory.parseMap(props)
-		buildConfig(frameConfig.withFallback(configuration.config))
+		configuration = buildConfig(frameConfig.withFallback(configuration.config))
 		logger.debug(s"reconfigured $configuration")
 	}
 
 	def saveConfig {
 		// Removes first empty line and remove the extra level of indentation
-		def cleanOutput(configToSave: String) = {
-			configToSave.split(eol).drop(1).map(remove4Spaces.replaceFirstIn(_, "")).mkString(eol)
-		}
+		def cleanOutput(configToSave: String) = configToSave.split("\n").drop(1).map(remove4Spaces.replaceFirstIn(_, "")).mkString(eol)
 
 		// Remove request bodies folder configuration (transient), keep only Gatling-related properties
 		val configToSave = configuration.config.withoutPath(REQUEST_BODIES_FOLDER).root.withOnlyKey(CONFIG_ROOT)
 		configFile.foreach(file => withCloseable(File(file).bufferedWriter)(_.write(cleanOutput(configToSave.render(renderOptions)))))
 	}
 
-	private def buildConfig(config: Config) {
+	private def buildConfig(config: Config) = {
 		def buildPatterns(patterns: List[String], patternsType: List[String]) = {
 			patterns.zip(patternsType).map { case (pattern, patternType) => Pattern(PatternType.withName(patternType), pattern) }
 		}
@@ -94,7 +92,7 @@ object RecorderConfiguration extends Logging {
 			if (config.hasPath(REQUEST_BODIES_FOLDER)) config.getString(REQUEST_BODIES_FOLDER)
 			else GatlingFiles.requestBodiesDirectory.toString
 
-		configuration = RecorderConfiguration(
+		RecorderConfiguration(
 			filters = FiltersConfiguration(
 				filterStrategy = FilterStrategy.withName(config.getString(FILTER_STRATEGY)),
 				patterns = buildPatterns(config.getStringList(PATTERNS).toList, config.getStringList(PATTERNS_TYPE).toList)),
