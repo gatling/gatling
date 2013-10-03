@@ -19,5 +19,5 @@ import io.gatling.http.response.Response
 
 sealed trait HttpEvent
 
-case class OnCompleted(task: HttpTask, response: Response) extends HttpEvent
-case class OnThrowable(task: HttpTask, response: Response, errorMessage: String) extends HttpEvent
+case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
+case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent

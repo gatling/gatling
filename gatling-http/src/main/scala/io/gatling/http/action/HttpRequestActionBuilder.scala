@@ -35,8 +35,8 @@ object HttpRequestActionBuilder {
 	/**
 	 * This is the default HTTP check used to verify that the response status is 2XX
 	 */
-	val OK_CODES = (304 :: (200 to 210).toList).sorted.success
-	val DEFAULT_HTTP_STATUS_CHECK = status.find.in(_ => OK_CODES).build
+	val okCodes = (304 :: (200 to 210).toList).sorted.success
+	val defaultHttpCheck = status.find.in(_ => okCodes).build
 
 	def apply(requestBuilder: AbstractHttpRequestBuilder[_]): HttpRequestActionBuilder = {
 		import requestBuilder.httpAttributes._
@@ -65,7 +65,7 @@ class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: 
 		val resolvedChecks = totalChecks
 			.find(_.order == Status)
 			.map(_ => checks)
-			.getOrElse(HttpRequestActionBuilder.DEFAULT_HTTP_STATUS_CHECK :: checks)
+			.getOrElse(HttpRequestActionBuilder.defaultHttpCheck :: checks)
 			.sorted
 
 		val resolvedMaxRedirects = maxRedirects.orElse(httpProtocol.maxRedirects)

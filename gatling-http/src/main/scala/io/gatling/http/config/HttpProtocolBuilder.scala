@@ -101,6 +101,21 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 
 	def check(checks: HttpCheck*) = copy(protocol = protocol.copy(checks = protocol.checks ::: checks.toList))
 
+	def fetchHtmlResources = copy(protocol = protocol.copy(fetchHtmlResources = true))
+
+	def maxConnectionsPerHostLikeFirefoxOld = maxConnectionsPerHost(2)
+	def maxConnectionsPerHostLikeFirefox = maxConnectionsPerHost(6)
+	def maxConnectionsPerHostLikeOperaOld = maxConnectionsPerHost(4)
+	def maxConnectionsPerHostLikeOpera = maxConnectionsPerHost(6)
+	def maxConnectionsPerHostLikeSafariOld = maxConnectionsPerHost(4)
+	def maxConnectionsPerHostLikeSafari = maxConnectionsPerHost(6)
+	def maxConnectionsPerHostLikeIE7 = maxConnectionsPerHost(2)
+	def maxConnectionsPerHostLikeIE8 = maxConnectionsPerHost(6)
+	def maxConnectionsPerHostLikeIE10 = maxConnectionsPerHost(8)
+	def maxConnectionsPerHostLikeChrome = maxConnectionsPerHost(6)
+
+	def maxConnectionsPerHost(max: Int) = copy(protocol = protocol.copy(maxConnectionsPerHost = max))
+
 	def build = {
 		require(!(!protocol.shareClient && protocol.shareConnections), "Invalid protocol configuration: can't stop sharing the HTTP client while still sharing connections!")
 		protocol

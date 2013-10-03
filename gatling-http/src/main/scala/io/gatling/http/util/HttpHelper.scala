@@ -20,12 +20,13 @@ import java.net.URLDecoder
 import scala.collection.JavaConversions.seqAsJavaList
 import scala.io.Codec.UTF8
 
-import com.ning.http.client.{ FluentStringsMap, ProxyServer, Realm }
+import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, FluentStringsMap, ProxyServer, Realm }
 import com.ning.http.client.Realm.AuthScheme
 
 import io.gatling.core.config.Credentials
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ Validation, ValidationList, SuccessWrapper }
+import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.http.HeaderNames
 import io.gatling.http.request.builder.HttpParam
 
 object HttpHelper {
@@ -86,4 +87,6 @@ object HttpHelper {
 			.getOrElse(new ProxyServer(protocol, host, port))
 			.setNtlmDomain(null)
 	}
+
+	def isHtml(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).map(_.contains("html")).getOrElse(false)
 }

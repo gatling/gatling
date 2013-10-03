@@ -16,7 +16,6 @@
 package io.gatling.http.ahc
 
 import scala.collection.JavaConversions.asScalaBuffer
-import scala.concurrent.duration.DurationInt
 
 import com.ning.http.client.{ FluentStringsMap, RequestBuilder }
 import com.ning.http.util.AsyncHttpProviderUtils
@@ -33,40 +32,38 @@ import io.gatling.core.util.StringHelper.eol
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.http.HeaderNames
+import io.gatling.http.action.HttpRequestAction
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.{ HttpCheck, HttpCheckOrder }
 import io.gatling.http.cookie.CookieHandling
+import io.gatling.http.dom.{ HtmlParser, ResourceFetched, ResourceFetcher }
 import io.gatling.http.response.Response
+import io.gatling.http.util.HttpHelper.isHtml
 import io.gatling.http.util.HttpStringBuilder
 
 object AsyncHandlerActor extends AkkaDefaults {
 	val redirectedRequestNamePattern = """(.+?) Redirect (\d+)""".r
-	val timeout = configuration.core.timeOut.simulation seconds
 
 	val asyncHandlerActor = system.actorOf(Props[AsyncHandlerActor].withRouter(RoundRobinRouter(nrOfInstances = 3 * Runtime.getRuntime.availableProcessors)))
 }
 
 class AsyncHandlerActor extends BaseActor {
 
-	override def preStart {
-		context.setReceiveTimeout(AsyncHandlerActor.timeout)
-	}
-
 	override def preRestart(reason: Throwable, message: Option[Any]) {
 		logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
 		message.foreach {
-			case OnCompleted(task, _) => task.next ! task.session.markAsFailed
-			case OnThrowable(task, _, _) => task.next ! task.session.markAsFailed
+			case OnCompleted(tx, _) => tx.next ! tx.session.markAsFailed
+			case OnThrowable(tx, _, _) => tx.next ! tx.session.markAsFailed
 		}
 	}
 
 	def receive = {
-		case OnCompleted(task, response) => processResponse(task, response)
-		case OnThrowable(task, response, errorMessage) => ko(task, task.session, response, errorMessage)
+		case OnCompleted(tx, response) => processResponse(tx, response)
+		case OnThrowable(tx, response, errorMessage) => ko(tx, tx.session, response, errorMessage)
 	}
 
 	private def logRequest(
-		task: HttpTask,
+		tx: HttpTx,
 		session: Session,
 		status: Status,
 		response: Response,
@@ -75,11 +72,11 @@ class AsyncHandlerActor extends BaseActor {
 		def dump = {
 			val buff = new StringBuilder
 			buff.append(eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(eol)
-			buff.append("Request:").append(eol).append(s"${task.requestName}: $status ${errorMessage.getOrElse("")}").append(eol)
+			buff.append("Request:").append(eol).append(s"${tx.requestName}: $status ${errorMessage.getOrElse("")}").append(eol)
 			buff.append("=========================").append(eol)
 			buff.append("Session:").append(eol).append(session).append(eol)
 			buff.append("=========================").append(eol)
-			buff.append("HTTP request:").append(eol).appendAHCRequest(task.request)
+			buff.append("HTTP request:").append(eol).appendAHCRequest(tx.request)
 			buff.append("=========================").append(eol)
 			buff.append("HTTP response:").append(eol).appendResponse(response).append(eol)
 			buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
@@ -87,20 +84,20 @@ class AsyncHandlerActor extends BaseActor {
 		}
 
 		if (status == KO) {
-			logger.warn(s"Request '${task.requestName}' failed : ${errorMessage.getOrElse("")}")
+			logger.warn(s"Request '${tx.requestName}' failed : ${errorMessage.getOrElse("")}")
 			if (!logger.underlying.isTraceEnabled) logger.debug(dump)
 		}
 		logger.trace(dump)
 
 		val extraInfo: List[Any] = try {
-			task.protocol.extraInfoExtractor.map(_(status, session, task.request, response)).getOrElse(Nil)
+			tx.protocol.extraInfoExtractor.map(_(status, session, tx.request, response)).getOrElse(Nil)
 		} catch {
 			case e: Exception =>
 				logger.warn("Encountered error while extracting extra request info", e)
 				Nil
 		}
 
-		DataWriter.tell(RequestMessage(session.scenarioName, session.userId, session.groupStack, task.requestName,
+		DataWriter.tell(RequestMessage(session.scenarioName, session.userId, session.groupStack, tx.requestName,
 			response.firstByteSent, response.firstByteSent, response.firstByteReceived, response.lastByteReceived,
 			status, errorMessage, extraInfo))
 	}
@@ -110,45 +107,68 @@ class AsyncHandlerActor extends BaseActor {
 	 *
 	 * @param newSession the new Session
 	 */
-	private def executeNext(task: HttpTask, newSession: Session, status: Status, response: Response) {
-		task.next ! newSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
+	private def executeNext(tx: HttpTx, newSession: Session, status: Status, response: Response) {
+
+		def next() {
+			if (tx.resourceFetching)
+				tx.next ! ResourceFetched(response.request, status)
+			else
+				tx.next ! newSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
+		}
+
+		def fetchResources(urls: Seq[String]) {
+			context.actorOf(Props(new ResourceFetcher(urls, tx)))
+		}
+
+		if (tx.protocol.fetchHtmlResources && isHtml(response.getHeaders)) {
+			logger.debug("Parsing html")
+			val urls = HtmlParser.getStaticResources(response.getResponseBody(configuration.core.encoding))
+			if (urls.isEmpty) {
+				logger.debug("No html resources")
+				next()
+			} else {
+				logger.debug(s"Will fetch ${urls.size} resources")
+				fetchResources(urls)
+			}
+		} else
+			next()
 	}
 
-	private def logAndExecuteNext(task: HttpTask, session: Session, status: Status, response: Response, message: Option[String]) {
-		logRequest(task, session, status, response, message)
-		executeNext(task, session, status, response)
+	private def logAndExecuteNext(tx: HttpTx, session: Session, status: Status, response: Response, message: Option[String]) {
+		logRequest(tx, session, status, response, message)
+		executeNext(tx, session, status, response)
 	}
 
-	private def ok(task: HttpTask, session: Session, response: Response) {
-		logAndExecuteNext(task, session, OK, response, None)
+	private def ok(tx: HttpTx, session: Session, response: Response) {
+		logAndExecuteNext(tx, session, OK, response, None)
 	}
 
-	private def ko(task: HttpTask, session: Session, response: Response, message: String) {
-		logAndExecuteNext(task, session.markAsFailed, KO, response, Some(message))
+	private def ko(tx: HttpTx, session: Session, response: Response, message: String) {
+		logAndExecuteNext(tx, session.markAsFailed, KO, response, Some(message))
 	}
 
 	/**
 	 * This method processes the response if needed for each checks given by the user
 	 */
-	private def processResponse(task: HttpTask, response: Response) {
+	private def processResponse(tx: HttpTx, response: Response) {
 
 		def redirect(sessionWithUpdatedCookies: Session) {
 
-			if (task.protocol.maxRedirects.map(_ == task.numberOfRedirects).getOrElse(false)) {
-				ko(task, sessionWithUpdatedCookies, response, s"Too many redirects, max is ${task.protocol.maxRedirects.get}")
+			if (tx.protocol.maxRedirects.map(_ == tx.numberOfRedirects).getOrElse(false)) {
+				ko(tx, sessionWithUpdatedCookies, response, s"Too many redirects, max is ${tx.protocol.maxRedirects.get}")
 
 			} else {
-				logRequest(task, sessionWithUpdatedCookies, OK, response)
+				logRequest(tx, sessionWithUpdatedCookies, OK, response)
 
-				val redirectURI = AsyncHttpProviderUtils.getRedirectUri(task.request.getURI, response.getHeader(HeaderNames.LOCATION))
+				val redirectURI = AsyncHttpProviderUtils.getRedirectUri(tx.request.getURI, response.getHeader(HeaderNames.LOCATION))
 
-				val requestBuilder = new RequestBuilder(task.request)
+				val requestBuilder = new RequestBuilder(tx.request)
 					.setMethod("GET")
 					.setBodyEncoding(configuration.core.encoding)
 					.setQueryParameters(null.asInstanceOf[FluentStringsMap])
 					.setParameters(null.asInstanceOf[FluentStringsMap])
 					.setUrl(redirectURI.toString)
-					.setConnectionPoolKeyStrategy(task.request.getConnectionPoolKeyStrategy)
+					.setConnectionPoolKeyStrategy(tx.request.getConnectionPoolKeyStrategy)
 
 				for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectURI))
 					requestBuilder.addOrReplaceCookie(cookie)
@@ -157,32 +177,33 @@ class AsyncHandlerActor extends BaseActor {
 				newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
 				newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
 
-				val newRequestName = task.requestName match {
+				val newRequestName = tx.requestName match {
 					case AsyncHandlerActor.redirectedRequestNamePattern(requestBaseName, redirectCount) => s"$requestBaseName Redirect ${redirectCount.toInt + 1}"
-					case _ => task.requestName + " Redirect 1"
+					case _ => tx.requestName + " Redirect 1"
 				}
 
-				HttpClient.sendHttpRequest(task.copy(session = sessionWithUpdatedCookies, request = newRequest, requestName = newRequestName, numberOfRedirects = task.numberOfRedirects + 1))
+				val redirectTx = tx.copy(session = sessionWithUpdatedCookies, request = newRequest, requestName = newRequestName, numberOfRedirects = tx.numberOfRedirects + 1)
+				HttpRequestAction.handleHttpTransaction(redirectTx)
 			}
 		}
 
 		def checkAndProceed(sessionWithUpdatedCookies: Session, checks: List[HttpCheck]) {
-			val sessionWithUpdatedCache = CacheHandling.cache(task.protocol, sessionWithUpdatedCookies, task.request, response)
+			val sessionWithUpdatedCache = CacheHandling.cache(tx.protocol, sessionWithUpdatedCookies, tx.request, response)
 			val checkResult = Checks.check(response, sessionWithUpdatedCache, checks)
 
 			checkResult match {
-				case Success(newSession) => ok(task, newSession, response)
-				case Failure(errorMessage) => ko(task, sessionWithUpdatedCache, response, errorMessage)
+				case Success(newSession) => ok(tx, newSession, response)
+				case Failure(errorMessage) => ko(tx, sessionWithUpdatedCache, response, errorMessage)
 			}
 		}
 
-		val sessionWithUpdatedCookies = CookieHandling.storeCookies(task.session, response.getUri, response.getCookies.toList)
+		val sessionWithUpdatedCookies = CookieHandling.storeCookies(tx.session, response.getUri, response.getCookies.toList)
 
 		if (response.getStatusCode == 304)
-			checkAndProceed(sessionWithUpdatedCookies, task.checks.filter(c => c.order != HttpCheckOrder.Body && c.order != HttpCheckOrder.Checksum))
-		else if (response.isRedirected && task.protocol.followRedirect)
+			checkAndProceed(sessionWithUpdatedCookies, tx.checks.filter(c => c.order != HttpCheckOrder.Body && c.order != HttpCheckOrder.Checksum))
+		else if (response.isRedirected && tx.protocol.followRedirect)
 			redirect(sessionWithUpdatedCookies)
 		else
-			checkAndProceed(sessionWithUpdatedCookies, task.checks)
+			checkAndProceed(sessionWithUpdatedCookies, tx.checks)
 	}
 }
