@@ -8,7 +8,6 @@ import sbtrelease.ReleasePlugin._
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
 import com.typesafe.sbteclipse.plugin.EclipsePlugin._
 
-import Dependencies._
 import Publishing._
 
 object BuildSettings {
@@ -19,7 +18,6 @@ object BuildSettings {
 		organizationHomepage  := Some(new URL("http://gatling.io")),
 		startYear             := Some(2011),
 		licenses              := Seq("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
-		resolvers             := Seq(excilysNexus),
 		scalaVersion          := "2.10.3",
 		scalacOptions         := Seq(
 			"-encoding",
