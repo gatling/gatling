@@ -19,6 +19,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.xpath.XPathExtractors
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
@@ -29,7 +30,7 @@ object HttpBodyXPathCheckBuilder extends Logging {
 
 	val preparer: Preparer[Response, Option[XdmNode]] = (response: Response) =>
 		try {
-			val is = if (response.hasResponseBody) Some(XPathExtractors.parse(response.getResponseBody)) else None
+			val is = if (response.hasResponseBody) Some(XPathExtractors.parse(response.getResponseBody(configuration.core.encoding))) else None
 			is.success
 
 		} catch {
