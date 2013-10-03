@@ -1,10 +1,7 @@
 import sbt._
 import sbt.Keys._
 
-import aether.WagonWrapper
-import aether.Aether._
-
-import Dependencies._
+import Resolvers._
 
 object Publishing {
 
@@ -12,31 +9,14 @@ object Publishing {
 	/** Publishing settings **/
 	/*************************/
 
-	lazy val allAetherSettings = aetherPublishSettings ++ aetherPublishLocalSettings
-
-	lazy val publishingSettings = allAetherSettings ++ Seq(
+	lazy val publishingSettings = Seq(
 		crossPaths           := false,
 		pomExtra             := scm ++ developersXml(developers),
+		publishMavenStyle    := true,
 		pomIncludeRepository := { _ => false },
-		wagons := {
-			if(isSnapshot.value) 
-				Seq(WagonWrapper("davs", "org.apache.maven.wagon.providers.webdav.WebDavWagon"))
-			else
-				Seq.empty
-			},
-		publishTo := {
-			if(isSnapshot.value)
-				Some(cloudbeesSnapshots)
-			else
-				Some(excilysReleases)
-			},
-		credentials += {
-			if(isSnapshot.value)
-				Credentials(file("/private/gatling/.credentials"))
-			else
-				Credentials(Path.userHome / ".sbt" / ".credentials")
-			}
-		)
+		publishTo            := Some(if(isSnapshot.value) sonatypeSnapshots else sonatypeStaging),
+		credentials          += Credentials(Path.userHome / ".sbt" / ".credentials")
+	)
 
 	/************************/
 	/** POM extra metadata **/

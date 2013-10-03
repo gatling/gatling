@@ -1,10 +1,6 @@
 import sbt._
 
-object Dependencies {
-
-	val excilysNexus = "Excilys Nexus" at "http://repository.excilys.com/content/groups/public"
-	val excilysReleases = "Excilys Releases" at "http://repository.excilys.com/content/repositories/releases"
-	val cloudbeesSnapshots = "Cloudbees Private Repository" at "davs://repository-gatling.forge.cloudbees.com/snapshot"
+object Dependencies { 
 
 	private val scalaCompiler     = "org.scala-lang"        % "scala-compiler"     % "2.10.3"
 	private val scalaReflect      = "org.scala-lang"        % "scala-reflect"      % "2.10.3"
@@ -45,7 +41,8 @@ object Dependencies {
 
 	val coreDeps = Seq(
 		scalaCompiler, akkaActor, saxon, jodaTime, jodaConvert, slf4jApi, scalalogging, scalaReflect, jsonSmart,
-		jaywayJsonPath, gatlingJsonpath, commonsMath, jsoup, joddLagarto, commonsIo, config, fastring, openCsv, logbackClassic) ++ testDeps
+		jaywayJsonPath, gatlingJsonpath, commonsMath, jsoup, joddLagarto, commonsIo, config, fastring, openCsv, logbackClassic
+	) ++ testDeps
 
 	val redisDeps = Seq(redisClient) ++ testDeps
 
