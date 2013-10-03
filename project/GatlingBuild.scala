@@ -18,7 +18,7 @@ object GatlingBuild extends Build {
 	lazy val root = Project("gatling-parent", file("."))
 		.aggregate(core, jdbc, redis, http, charts, metrics, app, recorder, bundle)
 		.settings(basicSettings: _*)
-		.settings(noCodeToPublish: _*) // Still publish main JAR with aether-deploy
+		.settings(noCodeToPublish: _*)
 		.settings(docSettings: _*)
 
 	/*************/
@@ -63,6 +63,6 @@ object GatlingBuild extends Build {
 	lazy val bundle = gatlingModule("gatling-bundle")
 		.dependsOn(Seq(app, recorder).map(_ % "runtime->runtime"): _*)
 		.settings(bundleSettings: _*)
-		.settings(noCodeToPublish: _*) // Still publish main JAR with aether-deploy
+		.settings(noCodeToPublish: _*)
 		.settings(exportJars := false) // Don't export gatling-bundle's jar 
 }
