@@ -32,7 +32,7 @@ object HttpBodyJsonPathCheckBuilder extends Logging {
 	class HttpBodyJsonPathCheckBuilder(extractor: JsonPathExtractors) {
 		val preparer: Preparer[Response, Any] = (response: Response) =>
 			try {
-				extractor.parse(response.getResponseBodyAsBytes).success
+				extractor.parse(response.getResponseBody(configuration.core.encoding)).success
 			} catch {
 				case e: Exception =>
 					val message = s"Could not parse response into a JSON object: ${e.getMessage}"

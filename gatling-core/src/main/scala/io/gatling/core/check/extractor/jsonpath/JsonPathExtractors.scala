@@ -9,7 +9,7 @@ abstract class JsonPathExtractors {
 		val name = "jsonPath"
 	}
 
-	def parse(bytes: Array[Byte]) = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(bytes)
+	def parse(string: String) = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(string)
 
 	def extractOne: (Int) => Extractor[Any, String, String]
 	def extractMultiple: Extractor[Any, String, Seq[String]]

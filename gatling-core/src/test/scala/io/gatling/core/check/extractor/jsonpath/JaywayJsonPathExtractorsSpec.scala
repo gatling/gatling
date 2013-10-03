@@ -22,6 +22,7 @@ import org.specs2.runner.JUnitRunner
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationSpecification
 import io.gatling.core.util.IOHelper.withCloseable
+import io.gatling.core.util.StringHelper.UTF_8
 
 @RunWith(classOf[JUnitRunner])
 class JaywayJsonPathExtractorsSpec extends ValidationSpecification {
@@ -29,8 +30,8 @@ class JaywayJsonPathExtractorsSpec extends ValidationSpecification {
 	def prepared(file: String) = {
 		GatlingConfiguration.setUp()
 		withCloseable(getClass.getResourceAsStream(file)) { is =>
-			val bytes = IOUtils.toByteArray(is)
-			JaywayJsonPathExtractors.parse(bytes)
+			val string = IOUtils.toString(is, UTF_8)
+			JaywayJsonPathExtractors.parse(string)
 		}
 	}
 

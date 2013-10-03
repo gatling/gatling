@@ -15,6 +15,7 @@
  */
 package io.gatling.core.util
 
+import java.nio.charset.Charset
 import java.text.Normalizer
 
 import com.dongxiguo.fastring.Fastring.Implicits._
@@ -23,6 +24,8 @@ import com.dongxiguo.fastring.Fastring.Implicits._
  * This object groups all utilities for strings
  */
 object StringHelper {
+
+	val UTF_8 = Charset.forName("UTF-8")
 
 	val substringCopiesCharArray = System.getProperty("java.version") >= "1.7.0_06"
 
