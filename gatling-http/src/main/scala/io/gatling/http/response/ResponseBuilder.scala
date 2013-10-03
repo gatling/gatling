@@ -25,72 +25,72 @@ import scala.math.max
 import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
 
 import io.gatling.core.util.StringHelper.bytes2Hex
-import io.gatling.core.util.TimeHelper.{ computeTimeMillisFromNanos, nowMillis }
+import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckOrder.Body
 import io.gatling.http.check.checksum.ChecksumCheck
 import io.gatling.http.config.HttpProtocol
+import io.gatling.http.util.HttpHelper.isHtml
 
 object ResponseBuilder {
 
 	val emptyBytes = Array.empty[Byte]
 
-	def newResponseBuilder(checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer], protocol: HttpProtocol): ResponseBuilderFactory = {
+	def newResponseBuilderFactory(checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer], protocol: HttpProtocol): ResponseBuilderFactory = {
 
 		val checksumChecks = checks.collect {
 			case checksumCheck: ChecksumCheck => checksumCheck
 		}
 
 		val storeBodyParts = !protocol.discardResponseChunks || checks.exists(_.order == Body)
-		request: Request => new ResponseBuilder(request, checksumChecks, responseTransformer, storeBodyParts)
+		request: Request => new ResponseBuilder(request, checksumChecks, responseTransformer, storeBodyParts, protocol.fetchHtmlResources)
 	}
 }
 
-class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], responseProcessor: Option[ResponseTransformer], storeBodyParts: Boolean) {
+class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], responseProcessor: Option[ResponseTransformer], storeBodyParts: Boolean, fetchHtmlResources: Boolean) {
 
 	var built = new AtomicBoolean(false)
 
 	val firstByteSent = nowMillis
+	val computeChecksums = !checksumChecks.isEmpty
 	@volatile var lastByteSent = 0L
 	@volatile var firstByteReceived = 0L
 	@volatile var lastByteReceived = 0L
 	@volatile private var status: HttpResponseStatus = _
 	@volatile private var headers: HttpResponseHeaders = _
 	private val bodies = Collections.synchronizedList(new ArrayList[HttpResponseBodyPart])
-	@volatile private var digests = if (!checksumChecks.isEmpty) { // FIXME sync
+	@volatile private var digests = if (computeChecksums) {
 		val map = mutable.Map.empty[String, MessageDigest]
 		checksumChecks.foreach(check => map += check.algorithm -> MessageDigest.getInstance(check.algorithm))
 		map
 	} else
 		Map.empty[String, MessageDigest]
 
-	def updateLastByteSent = {
+	def updateLastByteSent {
 		lastByteSent = nowMillis
-		this
 	}
 
-	def updateLastByteReceived = {
+	def updateLastByteReceived {
 		lastByteReceived = nowMillis
-		this
 	}
 
-	def accumulate(status: HttpResponseStatus) = {
+	def accumulate(status: HttpResponseStatus) {
 		this.status = status
 		val now = nowMillis
 		firstByteReceived = now
 		lastByteReceived = now
 	}
 
-	def accumulate(headers: HttpResponseHeaders) = {
+	def accumulate(headers: HttpResponseHeaders) {
 		this.headers = headers
 		updateLastByteReceived
 	}
 
-	def accumulate(bodyPart: HttpResponseBodyPart) = {
+	def accumulate(bodyPart: HttpResponseBodyPart) {
+
 		updateLastByteReceived
-		if (storeBodyParts) bodies.add(bodyPart)
-		if (!checksumChecks.isEmpty) digests.values.foreach(_.update(bodyPart.getBodyByteBuffer))
-		this
+		if (storeBodyParts || (fetchHtmlResources && isHtml(headers.getHeaders))) bodies.add(bodyPart)
+		if (computeChecksums) digests.values.foreach(_.update(bodyPart.getBodyByteBuffer))
 	}
 
 	def build: Response = {

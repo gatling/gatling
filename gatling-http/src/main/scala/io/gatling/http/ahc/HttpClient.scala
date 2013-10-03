@@ -31,15 +31,16 @@ import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.ResponseBuilderFactory
 import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
 
-case class HttpTask(session: Session,
+case class HttpTx(session: Session,
 	request: Request,
 	requestName: String,
 	checks: List[HttpCheck],
 	responseBuilderFactory: ResponseBuilderFactory,
 	protocol: HttpProtocol,
+	next: ActorRef,
 	maxRedirects: Option[Int],
 	throttled: Boolean,
-	next: ActorRef,
+	resourceFetching: Boolean = false,
 	numberOfRedirects: Int = 0)
 
 object HttpClient extends AkkaDefaults with Logging {
@@ -116,11 +117,10 @@ object HttpClient extends AkkaDefaults with Logging {
 				algorithm = session(CONF_HTTP_SSL_KEY_STORE_ALGORITHM).asOption[String]
 			} yield newKeyManagers(storeType, file, password, algorithm)
 
-			if (trustManagers.isDefined || keyManagers.isDefined) {
+			trustManagers.orElse(keyManagers).map { _ =>
 				logger.info(s"Setting a custom SSLContext for user ${session.userId}")
-				Some(new AsyncHttpClientConfig.Builder(defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build)
-			} else
-				None
+				new AsyncHttpClientConfig.Builder(defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build
+			}
 
 		}.getOrElse(defaultAhcConfig)
 
@@ -133,21 +133,21 @@ object HttpClient extends AkkaDefaults with Logging {
 
 	val httpClientAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.client"
 
-	def sendHttpRequest(task: HttpTask) {
+	def startHttpTransaction(tx: HttpTx) {
 
-		val (newTask, httpClient) = if (task.protocol.shareClient)
-			(task, default)
+		val (newTx, httpClient) = if (tx.protocol.shareClient)
+			(tx, default)
 		else
-			task.session(httpClientAttributeName).asOption[AsyncHttpClient]
-				.map((task, _))
+			tx.session(httpClientAttributeName).asOption[AsyncHttpClient]
+				.map((tx, _))
 				.getOrElse {
-					val httpClient = newClient(task.session)
-					(task.copy(session = task.session.set(httpClientAttributeName, httpClient)), httpClient)
+					val httpClient = newClient(tx.session)
+					(tx.copy(session = tx.session.set(httpClientAttributeName, httpClient)), httpClient)
 				}
 
-		if (task.throttled)
-			Controller.controller ! ThrottledRequest(task.session.scenarioName, () => httpClient.executeRequest(newTask.request, new AsyncHandler(newTask)))
+		if (tx.throttled)
+			Controller.controller ! ThrottledRequest(tx.session.scenarioName, () => httpClient.executeRequest(newTx.request, new AsyncHandler(newTx)))
 		else
-			httpClient.executeRequest(newTask.request, new AsyncHandler(newTask))
+			httpClient.executeRequest(newTx.request, new AsyncHandler(newTx))
 	}
 }

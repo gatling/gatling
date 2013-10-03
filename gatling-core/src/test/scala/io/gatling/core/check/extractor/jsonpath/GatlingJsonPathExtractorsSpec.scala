@@ -15,6 +15,8 @@
  */
 package io.gatling.core.check.extractor.jsonpath
 
+import scala.io.Codec.UTF8
+
 import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
@@ -22,7 +24,6 @@ import org.specs2.runner.JUnitRunner
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationSpecification
 import io.gatling.core.util.IOHelper.withCloseable
-import io.gatling.core.util.StringHelper.UTF_8
 
 @RunWith(classOf[JUnitRunner])
 class GatlingJsonPathExtractorsSpec extends ValidationSpecification {
@@ -30,7 +31,7 @@ class GatlingJsonPathExtractorsSpec extends ValidationSpecification {
 	def prepared(file: String) = {
 		GatlingConfiguration.setUp()
 		withCloseable(getClass.getResourceAsStream(file)) { is =>
-			val string = IOUtils.toString(is, UTF_8)
+			val string = IOUtils.toString(is, UTF8.charSet)
 			GatlingJsonPathExtractors.parse(string)
 		}
 	}

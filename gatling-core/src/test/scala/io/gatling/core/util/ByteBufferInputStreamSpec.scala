@@ -15,6 +15,8 @@
  */
 package io.gatling.core.util
 
+import scala.io.Codec.UTF8
+
 import java.nio.ByteBuffer
 
 import org.apache.commons.io.IOUtils
@@ -22,7 +24,6 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.test.ValidationSpecification
-import io.gatling.core.util.StringHelper.UTF_8
 
 @RunWith(classOf[JUnitRunner])
 class ByteBufferInputStreamSpec extends ValidationSpecification {
@@ -45,8 +46,8 @@ Aliquam ullamcorper, tellus et accumsan fermentum, massa quam dictum nunc, sed p
 	"bytes to buffer to stream and back" should {
 
 		def string2ByteBufferInputStreamAndBack(text: String) = {
-			IOHelper.withCloseable(new ByteBufferInputStream(ByteBuffer.wrap(text.getBytes(UTF_8)))) { is =>
-				IOUtils.toString(is, UTF_8)
+			IOHelper.withCloseable(new ByteBufferInputStream(ByteBuffer.wrap(text.getBytes(UTF8.charSet)))) { is =>
+				IOUtils.toString(is, UTF8.charSet)
 			}
 		}
 

@@ -1,0 +1,445 @@
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Akka</title>
+    
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+
+    <link rel="icon" type="image/png" href="http://akka.io/resources/favicon.ico">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="http://akka.io/resources/stylesheets/style.css" type="text/css" />
+    <link href='http://fonts.googleapis.com/css?family=Exo:300,400,600,700' rel='stylesheet' type='text/css'>
+
+<link href="http://akka.io/resources/stylesheets/prettify-frontpage.css" type="text/css" rel="stylesheet" />
+<link href="http://akka.io/resources/stylesheets/base.css" type="text/css" rel="stylesheet" />
+    <!--Google Analytics-->
+    <script type="text/javascript">
+    
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-21117439-1']);
+      _gaq.push(['_setDomainName', 'akka.io']);
+      _gaq.push(['_trackPageview']);
+    
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+</head>
+<body onload="prettyPrint()" >
+
+<!--<div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <div class="navbar-logo">
+        <a href="http://akka.io/"><img src="http://akka.io/resources/images/logo-small.png" /></a>
+      </div>    
+      <ul class="nav">
+              <li><a href="http://akka.io/docs/">Documentation</a></li>
+      <li><a href="http://akka.io/faq/">FAQ</a></li>
+      <li><a href="http://akka.io/downloads/">Download</a></li>
+      <li><a href="http://groups.google.com/group/akka-user">Mailing List</a></li>
+      <li><a href="http://github.com/akka/akka">Code</a></li>
+      <li><a href="http://typesafe.com/products/typesafe-subscription">Commercial Support</a></li>
+
+      </ul>
+    </div>
+  </div>
+</div>-->
+<div class="navbar">
+  <div class="navbar-inner">
+    <div class="container">
+      <div class="navbar-logo">
+        <a href="http://akka.io/"><img src="http://akka.io/resources/images/logo-small.png" /></a>
+      </div>    
+      <ul class="nav">
+              <li><a href="http://akka.io/docs/">Documentation</a></li>
+      <li><a href="http://akka.io/faq/">FAQ</a></li>
+      <li><a href="http://akka.io/downloads/">Download</a></li>
+      <li><a href="http://groups.google.com/group/akka-user">Mailing List</a></li>
+      <li><a href="http://github.com/akka/akka">Code</a></li>
+      <li><a href="http://typesafe.com/products/typesafe-subscription">Commercial Support</a></li>
+
+      </ul>
+    </div>
+  </div>
+</div>
+<div class="main">
+	<div class="container rel">
+		<div class="hexagons"></div>
+		<div class="row rel">
+			<div class="span4">
+				<div class="logo"><img src="http://akka.io/resources/images/logo_dropshadow.png"/></div>
+				<div class="box">Build powerful concurrent & distributed applications<br/><span class="bold">more easily</span>.</div>
+				<div class="small-box">Akka is a toolkit and runtime for building highly concurrent, distributed, and fault tolerant event-driven applications on the JVM.</div>
+			</div>
+			<div class="span8">
+				<div class="simple-concurrency">Simple Concurrency & Distribution
+					<p>Asynchronous and Distributed by design. High-level abstractions like Actors, Futures and STM.</p>
+				</div>
+				<div class="fault-tolerance">Resilient by Design
+					<p>Write systems that self-heal. Remote and/or local supervisor hierarchies.</p>
+				</div>
+				<div class="high-performance">High Performance
+					<p>50 million msg/sec on a single machine. Small memory footprint; ~2.5 million actors per GB of heap.</p>
+				</div>
+				<div class="no-global-state" style="width:220px;">Elastic & Decentralized
+					<p>Adaptive load balancing, routing, partitioning and configuration-driven remoting.</p>
+				</div>
+				<div class="extensible">Extensible
+					<p>Use Akka Extensions to adapt Akka to fit your needs.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="light-strip under-main">
+	<div class="container pad">
+
+		<div class="row normal">
+	    <div id="slider">
+	        <ul class="navigation breadcrumb">
+	            <li><a href="#actors">Actors</a></li>
+	            <li><a href="#remoting">Remoting</a></li>
+	            <li><a href="#supervision">Supervision</a></li>
+	        </ul>
+	        <div class="selected-arrow"></div>
+
+	        <div class="scroll" style="height: 620px">
+            <div class="scrollContainer">
+	            <div class="panel" id="actors">
+	            	<h2>Actors</h2>
+	            	<p>Actors are very lightweight concurrent entities. They process messages asynchronously using an event-driven receive loop. Pattern matching against messages is a convenient way to express an actor's behavior. They raise the abstraction level and make it much easier to write, test, understand and maintain concurrent and/or distributed systems. You focus on workflow—how the messages flow in the system—instead of low level primitives like threads, locks and socket IO. <a href="http://doc.akka.io/docs/akka/snapshot/general/actors.html">Learn More.</a></p>
+	            	<div class="language-header"><div class="scala-header"><a href="http://doc.akka.io/docs/akka/snapshot/scala/actors.html"><img src="http://akka.io/resources/images/scala-sm.png"/></a></div><div class="java-header"><a href="http://doc.akka.io/docs/akka/snapshot/java/untyped-actors.html">Java</a></div></div>
+	            	<div class="scala-codebox">
+<pre class="prettyprint lang-scala linenums">
+case class Greeting(who: String)
+
+class GreetingActor extends Actor with ActorLogging {
+  def receive = {
+    case Greeting(who) ⇒ log.info("Hello " + who)
+  }
+}
+
+val system = ActorSystem("MySystem")
+val greeter = system.actorOf(Props[GreetingActor], name = "greeter")
+greeter ! Greeting("Charlie Parker")
+</pre>
+								</div>
+	            	<div class="java-codebox">
+<pre class="prettyprint lang-java linenums">
+public class Greeting implements Serializable {
+  public final String who;
+  public Greeting(String who) { this.who = who; }
+}
+
+public class GreetingActor extends UntypedActor {
+  LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+
+  public void onReceive(Object message) throws Exception {
+    if (message instanceof Greeting)
+      log.info("Hello " + ((Greeting) message).who);
+  }
+}
+
+ActorSystem system = ActorSystem.create("MySystem");
+ActorRef greeter = system.actorOf(new Props(GreetingActor.class), "greeter");
+greeter.tell(new Greeting("Charlie Parker"), ActorRef.noSender());
+</pre>
+								</div>
+	            </div>
+	            <div class="panel" id="remoting" style="height: 1200px">
+<h2>Remoting</h2>
+<p>Actors are location transparent and distributable by design. This means that you can write your application without hardcoding how it
+will be deployed and distributed, and then later just configure your actor system against a certain topology with all of the application’s
+semantics, including actor supervision, retained. <a href="http://doc.akka.io/docs/akka/snapshot/general/remoting.html">Learn more.</a></p>
+	            	<div class="language-header"><div class="scala-header"><a href="http://doc.akka.io/docs/akka/snapshot/scala/remoting.html"><img src="http://akka.io/resources/images/scala-sm.png"/></a></div><div class="java-header"><a href="http://doc.akka.io/docs/akka/snapshot/java/remoting.html">Java</a></div></div>
+	            	<div class="scala-codebox">
+<pre class="prettyprint lang-scala linenums">
+// ------------------------------
+// config on all machines
+akka {
+ actor {
+   provider = akka.remote.RemoteActorRefProvider
+   deployment {
+     /greeter {
+       remote = akka.tcp://MySystem@machine1:2552
+     }
+   }
+ }
+}
+
+// ------------------------------
+// define the greeting actor and the greeting message
+case class Greeting(who: String) extends Serializable
+
+class GreetingActor extends Actor with ActorLogging {
+  def receive = {
+    case Greeting(who) ⇒ log.info("Hello " + who)
+  }
+}
+
+// ------------------------------
+// on machine 1: empty system, target for deployment from machine 2
+val system = ActorSystem("MySystem")
+
+// ------------------------------
+// on machine 2: Remote Deployment - deploying on machine1
+val system = ActorSystem("MySystem")
+val greeter = system.actorOf(Props[GreetingActor], name = "greeter")
+
+// ------------------------------
+// on machine 3: Remote Lookup (logical home of “greeter” is machine2, remote deployment is transparent)
+val system = ActorSystem("MySystem")
+val greeter = system.actorSelection("akka.tcp://MySystem@machine2:2552/user/greeter")
+greeter ! Greeting("Sonny Rollins")
+</pre>
+								</div>
+	            	<div class="java-codebox">
+<pre class="prettyprint lang-java linenums">
+// ------------------------------
+// config on all machines
+akka {
+  actor {
+    provider = akka.remote.RemoteActorRefProvider
+    deployment {
+      /greeter {
+        remote = akka.tcp://MySystem@machine1:2552
+      }
+    }
+  }
+}
+
+// ------------------------------
+// define the greeting actor and the greeting message
+public class Greeting implements Serializable {
+  public final String who;
+  public Greeting(String who) { this.who = who; }
+}
+
+public class GreetingActor extends UntypedActor {
+  LoggingAdapter log = Logging.getLogger(getContext().system(), this);
+
+  public void onReceive(Object message) throws Exception {
+    if (message instanceof Greeting)
+      log.info("Hello " + ((Greeting) message).who);
+  }
+}
+
+// ------------------------------
+// on machine 1: empty system, target for deployment from machine 2
+ActorSystem system = ActorSystem.create("MySystem");
+
+// ------------------------------
+// on machine 2: Remote Deployment - deploying on machine1
+ActorSystem system = ActorSystem.create("MySystem");
+ActorRef greeter = system.actorOf(new Props(GreetingActor.class), "greeter");
+
+// ------------------------------
+// on machine 3: Remote Lookup (logical home of “greeter” is machine2, remote deployment is transparent)
+ActorSystem system = ActorSystem.create("MySystem");
+ActorSelection greeter = system.actorSelection("akka.tcp://MySystem@machine2:2552/user/greeter");
+greeter.tell(new Greeting("Sonny Rollins"), ActorRef.noSender());
+</pre>
+								</div>
+	            </div>
+	            <div class="panel" id="supervision" style="height: 750px">
+	            	<h2>Supervision</h2>
+	            	<p>Actors form a tree with actors being parents to the actors they've created. As a parent, the actor is responsible for handling its
+children’s failures (so-called supervision), forming a chain of responsibility, all the way to the top. When an actor crashes, its
+parent can either restart or stop it, or escalate the failure up the hierarchy of actors. This enables a clean set of semantics for
+managing failures in a concurrent, distributed system and allows for writing highly fault-tolerant systems that self-heal. <a href="http://doc.akka.io/docs/akka/snapshot/general/actor-systems.html">Learn more.</a></p>
+								<div class="language-header"><div class="scala-header"><a href="http://doc.akka.io/docs/akka/snapshot/scala/fault-tolerance.html"><img src="http://akka.io/resources/images/scala-sm.png"/><a/></div><div class="java-header"><a href="http://doc.akka.io/docs/akka/snapshot/java/fault-tolerance.html">Java</a></div></div>
+	            	<div class="scala-codebox">
+<pre class="prettyprint lang-scala linenums">
+class Supervisor extends Actor {
+  override val supervisorStrategy =
+    OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 1 minute) {
+      case _: ArithmeticException      ⇒ Resume
+      case _: NullPointerException     ⇒ Restart
+      case _: Exception                ⇒ Escalate
+    }
+
+  val worker = context.actorOf(Props[Worker])
+
+  def receive = {
+    case n: Int => worker forward n
+  }
+}
+</pre>
+
+								</div>
+	            	<div class="java-codebox">
+<pre class="prettyprint lang-java linenums">
+class Supervisor extends UntypedActor {
+
+  private SupervisorStrategy strategy = new OneForOneStrategy(
+    10, Duration.parse("1 minute"), new Function<Throwable, Directive>() {
+      @Override
+      public Directive apply(Throwable t) {
+        if (t instanceof ArithmeticException) return resume();
+        else if (t instanceof NullPointerException) return restart();
+        else return escalate();
+      }
+    });
+
+  @Override
+  public SupervisorStrategy supervisorStrategy() {
+    return strategy;
+  }
+
+  ActorRef worker = context.actorOf(new Props(Worker.class));
+
+  public void onReceive(Object message) throws Exception {
+    if (message instanceof Integer) worker.forward(message, getContext());
+  }
+}
+</pre>
+								</div>
+	            </div>
+            </div>
+	        </div>
+	        <div id="shade"></div>
+	    </div>
+		</div>
+	</div>
+</div>
+
+<div class="under-light-strip"></div>
+<div class="darker-strip">
+	<div class="container pad">
+
+		<div class="row normal">
+			<div class="span12">
+				<div class="used-by-header"><span class="text">SELECTION OF PRODUCTION USERS</span></div>
+				<div class="used-by-logos">
+					<img src="http://akka.io/resources/images/ubs.png"/>
+<img src="http://akka.io/resources/images/klout.png"/>
+<img src="http://akka.io/resources/images/ign.png"/>
+<img src="http://akka.io/resources/images/tdc.png"/>
+<img src="http://akka.io/resources/images/vmware.png"/>
+<img src="http://akka.io/resources/images/csc.png"/>
+<img src="http://akka.io/resources/images/moshimonsters.png"/>
+<img src="http://akka.io/resources/images/amazon.png"/>
+<img src="http://akka.io/resources/images/zeebox.png"/>
+<img src="http://akka.io/resources/images/creditsuisse.png"/>
+<img src="http://akka.io/resources/images/autodesk.png"/>
+<img src="http://akka.io/resources/images/atos.png"/>
+<img src="http://akka.io/resources/images/blizzard.png"/>
+				</div>
+			</div>
+		</div>
+
+	</div>
+	<div class="between-dark-strips"></div>
+	<div class="container three-bars">
+		<div class="row">
+
+			<div class="span4">
+				<h2><a href="https://twitter.com/#!/akkateam">@akkateam</a> on Twitter</h2>
+					<div id="tweets" class="tweets"></div>
+			</div>
+
+			<div class="span4">
+				<h2><a href="http://letitcrash.com">Team Blog</a></h2>
+				<div id="blog-feed"></div>
+				<span class="rss-icon"><a href="http://letitcrash.com/rss"><img src="http://akka.io/resources/images/rss.png" height="20px" width="20px" /></a></span>
+			</div>
+
+			<div class="span4">
+				<h2><a href="http://akka.io/news">News</a></h2>
+				
+	<div class="news-item">
+		<div class="news-date">Aug 27 2013</div>
+		
+			<div class="news-title"><a href="http://akka.io/news/2013/08/27/coursera-course-reactive.html">New Coursera Course on Principles of Reactive Programming</a></div>
+		
+		
+			<div class="news-body">Course including Akka</div>
+		
+	</div>
+
+	<div class="news-item">
+		<div class="news-date">Aug 27 2013</div>
+		
+			<div class="news-title"><a href="http://akka.io/news/2013/08/27/akka-2.2.1-released.html">Akka 2.2.1 Released!</a></div>
+		
+		
+			<div class="news-body">Akka 2.2.1 Released</div>
+		
+	</div>
+
+	<div class="news-item">
+		<div class="news-date">Jul 09 2013</div>
+		
+			<div class="news-title"><a href="http://akka.io/news/2013/07/09/akka-2.2.0-released.html">Akka 2.2.0 Released!</a></div>
+		
+		
+			<div class="news-body">Akka 2.2.0 Released</div>
+		
+	</div>
+
+
+				<span class="rss-icon"><a href="https://github.com/akka/akka.github.com/commits/master/news/_posts.atom"><img src="http://akka.io/resources/images/rss.png" height="20px" width="20px" /></a></span>
+			</div>
+
+		</div>
+	</div>
+</div>
+
+<div class="footer">
+  <div class="container">
+    <ul>
+      <li><h5>Akka</h5></li>
+      <li><a href="http://akka.io/docs/">Documentation</a></li>
+      <li><a href="http://akka.io/faq/">FAQ</a></li>
+      <li><a href="http://akka.io/downloads/">Downloads</a></li>
+      <li><a href="http://akka.io/news/">News</a></li>
+      <li><a href="http://letitcrash.com">Blog</a></li>
+    </ul>
+    <ul>
+      <li><h5>Contribute</h5></li>
+      <li><a href="http://akka.io/community/">Community Projects</a></li>
+      <li><a href="http://github.com/akka/akka">Source Code</a></li>
+      <li><a href="http://groups.google.com/group/akka-user">Mailing List</a></li>
+      <li><a href="http://doc.akka.io/docs/akka/current/project/issue-tracking.html">Report a Bug</a></li>
+    </ul>
+    <ul>
+      <li><h5>Company</h5></li>
+      <li><a href="http://typesafe.com/products/typesafe-subscription">Commercial Support</a></li>
+      <li><a href="http://akka.io/team/">Team</a></li>
+      <li><a href="mailto:info@typesafe.com">Contact</a></li>
+    </ul>
+    <ul>
+      <li><img src="http://akka.io/resources/images/watermark.png" align="center"/></li>
+    </ul>
+  </div>
+  <div class="container copyright">
+    <p>
+      © 2011-2013 <a href="http://typesafe.com/">Typesafe Inc.</a> <span class="license">Akka is Open Source and available under the Apache 2 License.</span>
+			</p>
+    </p>
+  </div>
+</div>
+
+    <!-- javascript -->
+    <script src="http://akka.io/resources/javascript/jquery.js" type="text/javascript" ></script>
+    <script src="http://akka.io/resources/javascript/prettify.js" type="text/javascript" ></script>
+    <script src="http://akka.io/resources/javascript/slideleft.js" type="text/javascript" ></script>
+    <script src="http://akka.io/resources/javascript/jquery.livetwitter.js" type="text/javascript" ></script>
+		<script src="http://akka.io/resources/javascript/livetwitter.js" type="text/javascript" ></script>
+		<script src="http://akka.io/resources/javascript/jquery.rss.min.js" type="text/javascript" ></script>		
+		<script src="http://akka.io/resources/javascript/blogfeed.js" type="text/javascript" ></script>		
+		<script src="http://akka.io/resources/javascript/moment.js" type="text/javascript" ></script>				
+		<script src="http://akka.io/resources/javascript/dateparse.js" type="text/javascript" ></script>		
+		<script src="http://akka.io/resources/javascript/jquery.scrollTo-1.4.2-min.js" type="text/javascript" ></script>
+		<script src="http://akka.io/resources/javascript/jquery.localscroll-1.2.7-min.js" type="text/javascript" ></script>
+		<script src="http://akka.io/resources/javascript/jquery.serialScroll-1.2.2-min.js" type="text/javascript" ></script>
+		<script src="http://akka.io/resources/javascript/sliderbox.js" type="text/javascript" ></script>
+  </body>
+</html>
