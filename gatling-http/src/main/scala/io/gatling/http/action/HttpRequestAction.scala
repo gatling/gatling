@@ -29,16 +29,32 @@
  */
 package io.gatling.http.action
 
-import com.ning.http.client.Request
+import com.typesafe.scalalogging.slf4j.Logging
+
 import akka.actor.ActorRef
-import io.gatling.core.action.{ Interruptable, Failable }
+import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.http.ahc.{ HttpClient, HttpTask, RequestFactory }
+import io.gatling.http.ahc.{ HttpClient, HttpTx, RequestFactory }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.response.{ ResponseBuilder, ResponseTransformer }
+
+object HttpRequestAction extends Logging {
+
+	def handleHttpTransaction(tx: HttpTx) {
+
+		if (CacheHandling.isCached(tx.protocol, tx.session, tx.request)) {
+			logger.info(s"Skipping cached request '${tx.requestName}': scenario '${tx.session.scenarioName}', userId #${tx.session.userId}")
+			tx.next ! tx.session
+
+		} else {
+			logger.info(s"Sending request '${tx.requestName}': scenario '${tx.session.scenarioName}', userId #${tx.session.userId}")
+			HttpClient.startHttpTransaction(tx)
+		}
+	}
+}
 
 /**
  * This is an action that sends HTTP requests
@@ -60,27 +76,14 @@ class HttpRequestAction(
 	throttled: Boolean,
 	protocol: HttpProtocol) extends Interruptable with Failable {
 
-	val responseBuilderFactory = ResponseBuilder.newResponseBuilder(checks, responseTransformer, protocol)
+	val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(checks, responseTransformer, protocol)
 
-	def executeOrFail(session: Session) = {
-
-		def sendRequest(resolvedRequestName: String, request: Request, newSession: Session) = {
-
-			if (CacheHandling.isCached(protocol, newSession, request)) {
-				logger.info(s"Skipping cached request '$resolvedRequestName': scenario '${newSession.scenarioName}', userId #${newSession.userId}")
-				next ! newSession
-
-			} else {
-				logger.info(s"Sending request '$resolvedRequestName': scenario '${newSession.scenarioName}', userId #${newSession.userId}")
-				HttpClient.sendHttpRequest(HttpTask(session, request, resolvedRequestName, checks, responseBuilderFactory, protocol, maxRedirects, throttled, next))
-			}
-		}
-
+	def executeOrFail(session: Session) =
 		for {
 			resolvedRequestName <- requestName(session)
 			request <- requestFactory(session, protocol)
 			newSession = RefererHandling.storeReferer(request, session, protocol)
+			tx = HttpTx(newSession, request, resolvedRequestName, checks, responseBuilderFactory, protocol, next, maxRedirects, throttled)
 
-		} yield sendRequest(resolvedRequestName, request, newSession)
-	}
+		} yield HttpRequestAction.handleHttpTransaction(tx)
 }

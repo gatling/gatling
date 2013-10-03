@@ -30,8 +30,8 @@ object HttpBodyXPathCheckBuilder extends Logging {
 
 	val preparer: Preparer[Response, Option[XdmNode]] = (response: Response) =>
 		try {
-			val is = if (response.hasResponseBody) Some(XPathExtractors.parse(response.getResponseBody(configuration.core.encoding))) else None
-			is.success
+			val root = if (response.hasResponseBody) Some(XPathExtractors.parse(response.getResponseBody(configuration.core.encoding))) else None
+			root.success
 
 		} catch {
 			case e: Exception =>

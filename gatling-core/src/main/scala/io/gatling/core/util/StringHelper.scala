@@ -25,8 +25,6 @@ import com.dongxiguo.fastring.Fastring.Implicits._
  */
 object StringHelper {
 
-	val UTF_8 = Charset.forName("UTF-8")
-
 	val substringCopiesCharArray = System.getProperty("java.version") >= "1.7.0_06"
 
 	val eol = System.getProperty("line.separator")

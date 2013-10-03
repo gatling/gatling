@@ -29,12 +29,12 @@ import io.gatling.http.response.ResponseBuilder
  * It is part of the HttpRequestAction
  *
  * @constructor constructs a GatlingAsyncHandler
- * @param task the data about the request to be sent and processed
+ * @param tx the data about the request to be sent and processed
  * @param responseBuilder the builder for the response
  */
-class AsyncHandler(task: HttpTask) extends ProgressAsyncHandler[Unit] with Logging {
+class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with Logging {
 
-	val responseBuilder = task.responseBuilderFactory(task.request)
+	val responseBuilder = tx.responseBuilderFactory(tx.request)
 	private val done = new AtomicBoolean(false)
 
 	def onHeaderWriteCompleted = {
@@ -65,17 +65,21 @@ class AsyncHandler(task: HttpTask) extends ProgressAsyncHandler[Unit] with Loggi
 	}
 
 	def onCompleted {
-		if (!done.getAndSet(true)) AsyncHandlerActor.asyncHandlerActor ! OnCompleted(task, responseBuilder.build)
+		if (!done.getAndSet(true)) AsyncHandlerActor.asyncHandlerActor ! OnCompleted(tx, responseBuilder.build)
 	}
 
 	def onThrowable(throwable: Throwable) {
 		if (!done.getAndSet(true)) {
+			responseBuilder.updateLastByteReceived
+
 			val errorMessage = Option(throwable.getMessage).getOrElse(throwable.getClass.getName)
+
 			if (logger.underlying.isInfoEnabled)
-				logger.warn(s"Request '${task.requestName}' failed for user ${task.session.userId}", throwable)
+				logger.warn(s"Request '${tx.requestName}' failed for user ${tx.session.userId}", throwable)
 			else
-				logger.warn(s"Request '${task.requestName}' failed for user ${task.session.userId}: $errorMessage")
-			AsyncHandlerActor.asyncHandlerActor ! OnThrowable(task, responseBuilder.updateLastByteReceived.build, errorMessage)
+				logger.warn(s"Request '${tx.requestName}' failed for user ${tx.session.userId}: $errorMessage")
+
+			AsyncHandlerActor.asyncHandlerActor ! OnThrowable(tx, responseBuilder.build, errorMessage)
 		}
 	}
 }

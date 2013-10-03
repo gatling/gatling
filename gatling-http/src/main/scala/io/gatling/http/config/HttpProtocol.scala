@@ -55,6 +55,8 @@ object HttpProtocol {
 		checks = Nil,
 		maxRedirects = None,
 		warmUpUrl = configuration.http.warmUpUrl,
+		fetchHtmlResources = false,
+		maxConnectionsPerHost = 6,
 		extraInfoExtractor = None)
 }
 
@@ -82,6 +84,8 @@ case class HttpProtocol(
 	checks: List[HttpCheck],
 	maxRedirects: Option[Int],
 	warmUpUrl: Option[String],
+	fetchHtmlResources: Boolean,
+	maxConnectionsPerHost: Int,
 	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends Protocol with Logging {
 
 	val roundRobinUrls = RoundRobin(baseURLs.toArray)
