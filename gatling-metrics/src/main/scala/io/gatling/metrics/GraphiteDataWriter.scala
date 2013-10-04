@@ -18,7 +18,7 @@ package io.gatling.metrics
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
-import akka.actor.Props
+import akka.actor.ActorDSL.actor
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, UserMessage, ShortScenarioDescription }
@@ -28,7 +28,7 @@ import io.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetric }
 
 class GraphiteDataWriter extends DataWriter {
 
-	private val graphiteSender = context.actorOf(Props(new GraphiteSender))
+	private val graphiteSender = actor(context)(new GraphiteSender)
 	private val rootPathPrefix = configuration.data.graphite.rootPathPrefix.split('.').toList
 	private var metricRootPath: List[String] = Nil
 	private val allRequests = new RequestMetrics

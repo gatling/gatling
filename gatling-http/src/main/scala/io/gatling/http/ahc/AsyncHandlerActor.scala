@@ -20,6 +20,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 import com.ning.http.client.{ FluentStringsMap, RequestBuilder }
 import com.ning.http.util.AsyncHttpProviderUtils
 
+import akka.actor.ActorDSL.actor
 import akka.actor.Props
 import akka.routing.RoundRobinRouter
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
@@ -123,7 +124,7 @@ class AsyncHandlerActor extends BaseActor {
 				regularNext()
 			else {
 				logger.debug(s"Will fetch ${urls.size} HTML resources")
-				context.actorOf(Props(new ResourceFetcher(urls, tx)))
+				actor(context)(new ResourceFetcher(urls, tx))
 			}
 
 		} else

@@ -21,7 +21,8 @@ import java.net.URI
 
 import com.ning.http.client.websocket.{ WebSocket, WebSocketTextListener }
 
-import akka.actor.{ ActorRef, Props }
+import akka.actor.ActorDSL.actor
+import akka.actor.ActorRef
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.action.{ Action, Chainable, Failable, Interruptable }
 import io.gatling.core.result.message.{ KO, OK }
@@ -44,7 +45,7 @@ private[http] class OpenWebSocketAction(
 		def open(actionName: String, url: String) = {
 			logger.info(s"Opening websocket '$attributeName': Scenario '${session.scenarioName}', UserId #${session.userId}")
 
-			val actor = context.actorOf(Props(new WebSocketActor(attributeName, requestLogger)))
+			val wsActor = actor(context)(new WebSocketActor(attributeName, requestLogger))
 
 			val started = nowMillis
 			try {
@@ -53,11 +54,11 @@ private[http] class OpenWebSocketAction(
 
 					def onOpen(webSocket: WebSocket) {
 						opened = true
-						actor ! OnOpen(actionName, webSocket, started, nowMillis, next, session)
+						wsActor ! OnOpen(actionName, webSocket, started, nowMillis, next, session)
 					}
 
 					def onMessage(message: String) {
-						actor ! OnMessage(message)
+						wsActor ! OnMessage(message)
 					}
 
 					def onFragment(fragment: String, last: Boolean) {
@@ -66,23 +67,23 @@ private[http] class OpenWebSocketAction(
 					def onClose(webSocket: WebSocket) {
 						if (opened) {
 							opened = false
-							actor ! OnClose
+							wsActor ! OnClose
 						} else {
-							actor ! OnFailedOpen(actionName, "closed", started, nowMillis, next, session)
+							wsActor ! OnFailedOpen(actionName, "closed", started, nowMillis, next, session)
 						}
 					}
 
 					def onError(t: Throwable) {
 						if (opened) {
-							actor ! OnError(t)
+							wsActor ! OnError(t)
 						} else {
-							actor ! OnFailedOpen(actionName, t.getMessage, started, nowMillis, next, session)
+							wsActor ! OnFailedOpen(actionName, t.getMessage, started, nowMillis, next, session)
 						}
 					}
 				})
 			} catch {
 				case e: IOException =>
-					actor ! OnFailedOpen(actionName, e.getMessage, started, nowMillis, next, session)
+					wsActor ! OnFailedOpen(actionName, e.getMessage, started, nowMillis, next, session)
 			}
 		}
 
