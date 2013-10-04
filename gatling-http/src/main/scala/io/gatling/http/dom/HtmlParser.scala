@@ -105,7 +105,7 @@ object HtmlParser extends Logging {
 
 						rawResources += objectResourceUrl
 
-					case _ => // TODO: object, style attribute containing url()
+					case _ => // TODO: style attribute containing url()
 				}
 			}
 		}

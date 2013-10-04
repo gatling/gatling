@@ -15,6 +15,8 @@
  */
 package io.gatling.http.dom
 
+import java.net.URI
+
 import scala.io.Codec.UTF8
 
 import org.apache.commons.io.IOUtils
@@ -34,7 +36,7 @@ class HtmlParserSpec extends Specification {
 		}
 
 		"extract all urls" in {
-			HtmlParser.getStaticResources(htmlContent) must beEqualTo(Seq(
+			HtmlParser.getStaticResources(htmlContent, new URI("http://akka.io")) must beEqualTo(Seq(
 				"http://akka.io/resources/favicon.ico",
 				"http://akka.io/resources/stylesheets/style.css",
 				"http://fonts.googleapis.com/css?family=Exo:300,400,600,700",
