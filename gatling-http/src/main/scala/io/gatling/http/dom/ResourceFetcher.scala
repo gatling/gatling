@@ -38,9 +38,19 @@ class ResourceFetcher(urls: Seq[String], tx: HttpTx) extends BaseActor {
 
 	def handleResource(request: Request) {
 		logger.debug(s"Fetching ressource ${request.getUrl}")
+
+		val requestName = {
+			val uri = request.getURI.toString
+			val start = uri.lastIndexOf('/') + 1
+			if (start < uri.length)
+				uri.substring(start, uri.length)
+			else
+				"/"
+		}
+
 		val resourceTx = tx.copy(
 			request = request,
-			requestName = request.getUrl,
+			requestName = requestName,
 			checks = ResourceFetcher.resourceChecks,
 			responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(ResourceFetcher.resourceChecks, None, tx.protocol),
 			next = self,
