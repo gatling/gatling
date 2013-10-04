@@ -20,6 +20,7 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.action.{ AddCookieBuilder, HttpRequestActionBuilder }
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.config.{ HttpProtocol, HttpProtocolBuilder, HttpProxyBuilder }
+import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.request.BodyProcessors
 import io.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequestBaseBuilder, WebSocketBaseBuilder }
 import io.gatling.http.util.{ DefaultRequestLogger, DefaultWebSocketClient }
@@ -37,6 +38,7 @@ object Predef extends HttpCheckSupport {
 
 	def http(requestName: Expression[String]) = HttpRequestBaseBuilder.http(requestName)
 	def addCookie(name: Expression[String], value: Expression[String], domain: Option[Expression[String]] = None, path: Option[Expression[String]]) = new AddCookieBuilder(name, value, domain, path)
+	def flushSessionCookies = CookieHandling.flushSessionCookies
 
 	def websocket(actionName: Expression[String]) = WebSocketBaseBuilder.websocket(actionName)
 	implicit val defaultWebSocketClient = DefaultWebSocketClient

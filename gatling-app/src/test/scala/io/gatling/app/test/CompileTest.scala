@@ -187,6 +187,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.exec(http("Ajout au panier").get("/").check(regex("""<input id="text1" type="text" value="(.*)" />""").saveAs("input")))
 		.exec(http("Ajout au panier").get("/").check(regex(session => """<input id="text1" type="text" value="smth" />""").saveAs("input")))
 		.pause(pause1)
+		.exec(flushSessionCookies)
 
 	val inject1 = nothingFor(10 milliseconds)
 	val inject2 = rampUsers(10).over(10 minutes)

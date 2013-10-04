@@ -16,15 +16,16 @@
 package io.gatling.http.cookie
 
 import java.net.URI
-
 import com.ning.http.client.Cookie
-
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
-import io.gatling.core.validation.Success
+import io.gatling.core.validation.{ Success, SuccessWrapper }
+import io.gatling.core.session.Expression
 
 object CookieHandling {
 
 	val cookieJarAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cookies"
+
+	def cookieJar(session: Session): Option[CookieJar] = session(cookieJarAttributeName).asOption[CookieJar]
 
 	def getStoredCookies(session: Session, url: String): List[Cookie] = getStoredCookies(session, URI.create(url))
 
@@ -49,5 +50,13 @@ object CookieHandling {
 		session(cookieJarAttributeName).asOption[CookieJar]
 			.map(cookieJar => session.set(cookieJarAttributeName, cookieJar.add(domain, cookies)))
 			.getOrElse(session.set(cookieJarAttributeName, CookieJar(domain, cookies)))
+	}
+
+	val flushSessionCookies: Expression[Session] = session => {
+
+		cookieJar(session).map { cookieJar =>
+			val cookieJarWithoutSessionCookies = CookieJar(cookieJar.store.mapValues(_.filter(_.getMaxAge != -1)))
+			session.set(cookieJarAttributeName, cookieJarWithoutSessionCookies)
+		}.getOrElse(session).success
 	}
 }
