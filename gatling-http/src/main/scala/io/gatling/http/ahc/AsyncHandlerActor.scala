@@ -122,7 +122,7 @@ class AsyncHandlerActor extends BaseActor {
 
 		if (tx.protocol.fetchHtmlResources && isHtml(response.getHeaders)) {
 			logger.debug("Parsing html")
-			val urls = HtmlParser.getStaticResources(response.getResponseBody(configuration.core.encoding))
+			val urls = HtmlParser.getStaticResources(response.getResponseBody(configuration.core.encoding), response.request.getURI)
 			if (urls.isEmpty) {
 				logger.debug("No html resources")
 				next()

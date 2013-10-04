@@ -15,17 +15,23 @@
  */
 package io.gatling.http.dom
 
+import java.net.{ URI, URISyntaxException }
+
 import scala.collection.mutable
+
+import com.ning.http.util.AsyncHttpProviderUtils
+import com.typesafe.scalalogging.slf4j.Logging
 
 import jodd.lagarto.{ EmptyTagVisitor, LagartoParser, Tag }
 
-object HtmlParser {
+object HtmlParser extends Logging {
 
 	// TODO parse css content, filter out those with url(), cache and try to apply on DOM
-	def getStaticResources(htmlContent: String): Seq[String] = {
+	def getStaticResources(htmlContent: String, documentURI: URI): Seq[String] = {
 
 		// TODO more efficient solution? browser behavior? should this be done here of after resolving absolute urls?
-		val resources = mutable.LinkedHashSet.empty[String]
+		val rawResources = mutable.LinkedHashSet.empty[String]
+		var baseURI: Option[URI] = None
 
 		val lagartoParser = new LagartoParser(htmlContent)
 
@@ -34,7 +40,7 @@ object HtmlParser {
 			private def addAttribute(tag: Tag, attributeName: String) {
 				val url = tag.getAttributeValue(attributeName, false)
 				if (url != null)
-					resources += url
+					rawResources += url
 			}
 
 			override def script(tag: Tag, body: CharSequence) {
@@ -43,24 +49,71 @@ object HtmlParser {
 
 			override def tag(tag: Tag) {
 
+				def suffixedCodeBase() = Option(tag.getAttributeValue("codebase", false)).map { cb =>
+					if (cb.charAt(cb.size) != '/')
+						cb + '/'
+					else
+						cb
+				}
+
+				def prependCodeBase(url: String, codeBase: String) =
+					if (url.charAt(0) != 'h')
+						codeBase + url
+					else
+						url
+
 				tag.getName.toLowerCase match {
-					case "base" => addAttribute(tag, "href")
+					case "base" =>
+						val baseHref = Option(tag.getAttributeValue("href", false))
+						baseURI = try {
+							baseHref.map(new URI(_))
+						} catch {
+							case e: URISyntaxException =>
+								logger.debug(s"Malformed baseHref ${baseHref.get}")
+								None
+						}
+
 					case "link" => addAttribute(tag, "href")
 
 					case "bgsound" => addAttribute(tag, "src")
 					case "frame" => addAttribute(tag, "src")
 					case "iframe" => addAttribute(tag, "src")
 					case "img" => addAttribute(tag, "src")
+					case "embed" => addAttribute(tag, "src")
 					case "input" => addAttribute(tag, "src") // only if type=image?
 
 					case "body" => addAttribute(tag, "background")
-					case _ => // TODO: applet, embed, object, style attribute containing url()
+
+					case "applet" =>
+						val code = tag.getAttributeValue("code", false)
+						val codeBase = suffixedCodeBase
+						val archives = Option(tag.getAttributeValue("archive", false)).map(_.split(",").map(_.trim).toList)
+
+						val appletResources = archives.getOrElse(List(code))
+						val appletResourcesUrls = codeBase
+							.map(cb => appletResources.map(prependCodeBase(cb, _)))
+							.getOrElse(appletResources)
+
+						appletResourcesUrls.foreach(rawResources +=)
+
+					case "object" =>
+						val data = tag.getAttributeValue("data", false)
+						val codeBase = suffixedCodeBase
+						val objectResourceUrl = codeBase
+							.map(cb => prependCodeBase(cb, data))
+							.getOrElse(data)
+
+						rawResources += objectResourceUrl
+
+					case _ => // TODO: object, style attribute containing url()
 				}
 			}
 		}
 
 		lagartoParser.parse(visitor)
 
-		resources.toSeq
+		val rootURI = baseURI.getOrElse(documentURI)
+
+		rawResources.toSeq.map(AsyncHttpProviderUtils.getRedirectUri(rootURI, _).toString)
 	}
 }
