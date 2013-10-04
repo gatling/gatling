@@ -109,29 +109,25 @@ class AsyncHandlerActor extends BaseActor {
 	 */
 	private def executeNext(tx: HttpTx, newSession: Session, status: Status, response: Response) {
 
-		def next() {
-			if (tx.resourceFetching)
-				tx.next ! ResourceFetched(response.request, status)
-			else
-				tx.next ! newSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
+		def regularNext() {
+			tx.next ! newSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
 		}
 
-		def fetchResources(urls: Seq[String]) {
-			context.actorOf(Props(new ResourceFetcher(urls, tx)))
-		}
+		if (tx.resourceFetching) {
+			logger.debug(s"Fetched resource ${response.request.getURI}")
+			tx.next ! ResourceFetched(response.request, status)
 
-		if (tx.protocol.fetchHtmlResources && isHtml(response.getHeaders)) {
-			logger.debug("Parsing html")
+		} else if (tx.protocol.fetchHtmlResources && isHtml(response.getHeaders)) {
 			val urls = HtmlParser.getStaticResources(response.getResponseBody(configuration.core.encoding), response.request.getURI)
-			if (urls.isEmpty) {
-				logger.debug("No html resources")
-				next()
-			} else {
-				logger.debug(s"Will fetch ${urls.size} resources")
-				fetchResources(urls)
+			if (urls.isEmpty)
+				regularNext()
+			else {
+				logger.debug(s"Will fetch ${urls.size} HTML resources")
+				context.actorOf(Props(new ResourceFetcher(urls, tx)))
 			}
+
 		} else
-			next()
+			regularNext()
 	}
 
 	private def logAndExecuteNext(tx: HttpTx, session: Session, status: Status, response: Response, message: Option[String]) {
