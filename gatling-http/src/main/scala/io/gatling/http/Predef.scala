@@ -37,7 +37,7 @@ object Predef extends HttpCheckSupport {
 	def http = HttpProtocolBuilder.default
 
 	def http(requestName: Expression[String]) = HttpRequestBaseBuilder.http(requestName)
-	def addCookie(name: Expression[String], value: Expression[String], domain: Option[Expression[String]] = None, path: Option[Expression[String]]) = new AddCookieBuilder(name, value, domain, path)
+	def addCookie(name: Expression[String], value: Expression[String], domain: Option[Expression[String]] = None, path: Option[Expression[String]] = None, maxAge: Int = -1) = new AddCookieBuilder(name, value, domain, path, maxAge)
 	def flushSessionCookies = CookieHandling.flushSessionCookies
 
 	def websocket(actionName: Expression[String]) = WebSocketBaseBuilder.websocket(actionName)

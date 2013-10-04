@@ -17,13 +17,18 @@ package io.gatling.http.action
 
 import java.net.URI
 
+import com.ning.http.client.Cookie
+
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
+
+import io.gatling.core.action.SessionHook
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.config.HttpProtocol
+import io.gatling.http.cookie.CookieHandling.storeCookie
 
 object AddCookieBuilder {
 
@@ -35,7 +40,7 @@ object AddCookieBuilder {
 	val defaultPath: Expression[String] = _ => "/".success
 }
 
-class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]]) extends ActionBuilder {
+class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Int) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
 
@@ -44,6 +49,14 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 		val resolvedDomain = domain.getOrElse(AddCookieBuilder.defaultDomain(httpProtocol))
 		val resolvedPath = path.getOrElse(AddCookieBuilder.defaultPath)
 
-		actor(new AddCookie(name, value, resolvedDomain, resolvedPath, next))
+		val expression: Expression[Session] = session => for {
+			name <- name(session)
+			value <- value(session)
+			domain <- resolvedDomain(session)
+			path <- resolvedPath(session)
+			cookie = new Cookie(name, value, domain, path, maxAge, false)
+		} yield storeCookie(session, cookie)
+
+		actor(new SessionHook(expression, next))
 	}
 }
