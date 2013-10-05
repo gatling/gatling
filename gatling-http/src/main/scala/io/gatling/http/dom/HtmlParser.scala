@@ -26,6 +26,8 @@ import jodd.lagarto.{ EmptyTagVisitor, LagartoParser, Tag }
 
 object HtmlParser extends Logging {
 
+	val inlineStyleUrl = """.*url\('(.*)'\).*""".r
+
 	// TODO parse css content, filter out those with url(), cache and try to apply on DOM
 	def getStaticResources(htmlContent: String, documentURI: URI): Seq[String] = {
 
@@ -105,7 +107,10 @@ object HtmlParser extends Logging {
 
 						rawResources += objectResourceUrl
 
-					case _ => // TODO: style attribute containing url()
+					case _ =>
+						Option(tag.getAttributeValue("style", false)).foreach { style =>
+							inlineStyleUrl.findFirstIn(style).foreach(rawResources +=)
+						}
 				}
 			}
 		}
