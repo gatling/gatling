@@ -22,7 +22,7 @@ object Dependencies {
 	private val commonsMath       = "org.apache.commons"    % "commons-math3"      % "3.2"
 	private val jsoup             = "org.jsoup"             % "jsoup"              % "1.7.2"
 	private val joddLagarto       = "org.jodd"              % "jodd-lagarto"       % "3.4.7"
-	private val jzlib             = "com.jcraft"            % "jzlib"              % "1.1.2"
+	private val jzlib             = "com.jcraft"            % "jzlib"              % "1.1.3"
 	private val commonsIo         = "commons-io"            % "commons-io"         % "2.4"
 	private val redisClient       = "net.debasishg"        %% "redisclient"        % "2.10"        exclude("org.scala-lang", "scala-actors")
 	private val zinc              = "com.typesafe.zinc"     % "zinc"               % "0.3.0"
