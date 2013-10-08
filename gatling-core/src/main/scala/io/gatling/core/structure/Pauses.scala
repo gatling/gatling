@@ -17,11 +17,13 @@ package io.gatling.core.structure
 
 import java.util.concurrent.TimeUnit
 
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration.{ Duration, DurationLong }
+import scala.concurrent.forkjoin.ThreadLocalRandom
 
 import io.gatling.core.action.builder.PauseBuilder
 import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
 import io.gatling.core.session.el.EL
+import io.gatling.core.validation.SuccessWrapper
 
 trait Pauses[B] extends Execs[B] {
 
@@ -36,5 +38,42 @@ trait Pauses[B] extends Execs[B] {
 		val durationValue = duration.el[Int]
 		pause(durationValue(_).map(i => Duration(i, unit)))
 	}
+
+	def pause(min: Duration, max: Duration): B = {
+		val minMillis = min.toMillis
+		val maxMillis = max.toMillis
+
+		val expression = (session: Session) => (ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis).success
+
+		pause(expression)
+	}
+	def pause(min: String, max: String, unit: TimeUnit): B = {
+		val minExpression = min.el[Int]
+		val maxExpression = max.el[Int]
+
+		val expression = (session: Session) =>
+			for {
+				min <- minExpression(session)
+				max <- maxExpression(session)
+				minMillis = Duration(min, unit).toMillis
+				maxMillis = Duration(max, unit).toMillis
+
+			} yield (ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis)
+
+		pause(expression)
+	}
+	def pause(min: Expression[Duration], max: Expression[Duration]): B = {
+
+		val expression = (session: Session) =>
+			for {
+				min <- min(session)
+				max <- max(session)
+				minMillis = min.toMillis
+				maxMillis = max.toMillis
+			} yield (ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis)
+
+		pause(expression)
+	}
+
 	def pause(duration: Expression[Duration]): B = newInstance(new PauseBuilder(duration) :: actionBuilders)
 }
