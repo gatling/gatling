@@ -37,9 +37,9 @@ import io.gatling.http.action.HttpRequestAction
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.{ HttpCheck, HttpCheckOrder }
 import io.gatling.http.cookie.CookieHandling
-import io.gatling.http.dom.{ HtmlParser, ResourceFetched, ResourceFetcher }
+import io.gatling.http.dom.{ CssResourceFetched, HtmlResourceFetched, RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.response.Response
-import io.gatling.http.util.HttpHelper.isHtml
+import io.gatling.http.util.HttpHelper.{ isCss, isHtml }
 import io.gatling.http.util.HttpStringBuilder
 
 object AsyncHandlerActor extends AkkaDefaults {
@@ -110,25 +110,38 @@ class AsyncHandlerActor extends BaseActor {
 	 */
 	private def executeNext(tx: HttpTx, newSession: Session, status: Status, response: Response) {
 
-		def regularNext() {
-			tx.next ! newSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
-		}
+		val nextSession = newSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
+
+		def statusCode() =
+			if (response.hasResponseStatus)
+				Some(response.getStatusCode)
+			else None
+
+		def body() =
+			if (response.hasResponseStatus && response.getStatusCode == 200)
+				Option(response.getResponseBody(configuration.core.encoding))
+			else None
 
 		if (tx.resourceFetching) {
-			logger.debug(s"Fetched resource ${response.request.getURI}")
-			tx.next ! ResourceFetched(response.request, status)
+			val resourceMessage =
+				if (isCss(response.getHeaders)) {
+					CssResourceFetched(response.request.getURI, status, body())
 
-		} else if (tx.protocol.fetchHtmlResources && isHtml(response.getHeaders)) {
-			val urls = HtmlParser.getStaticResources(response.getResponseBody(configuration.core.encoding), response.request.getURI)
-			if (urls.isEmpty)
-				regularNext()
-			else {
-				logger.debug(s"Will fetch ${urls.size} HTML resources")
-				actor(context)(new ResourceFetcher(urls, tx))
-			}
+				} else if (isHtml(response.getHeaders)) {
+					HtmlResourceFetched(response.request.getURI, status, statusCode(), body())
+
+				} else
+					RegularResourceFetched(response.request.getURI, status)
+
+			tx.next ! resourceMessage
+
+		} else if (tx.protocol.fetchHtmlResources && response.hasResponseStatus && isHtml(response.getHeaders)) {
+
+			val resourceFetcher = ResourceFetcher(response.request.getURI, response.getStatusCode, body())
+			actor(context)(resourceFetcher(tx))
 
 		} else
-			regularNext()
+			tx.next ! nextSession
 	}
 
 	private def logAndExecuteNext(tx: HttpTx, session: Session, status: Status, response: Response, message: Option[String]) {

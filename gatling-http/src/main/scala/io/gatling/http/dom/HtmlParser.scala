@@ -26,27 +26,26 @@ import jodd.lagarto.{ EmptyTagVisitor, LagartoParser, Tag }
 
 object HtmlParser extends Logging {
 
-	val inlineStyleUrl = """.*url\('(.*)'\).*""".r
+	val inlineStyleUrl = """url\('(.*)'\)""".r
 
-	// TODO parse css content, filter out those with url(), cache and try to apply on DOM
-	def getStaticResources(htmlContent: String, documentURI: URI): Seq[String] = {
+	def getEmbeddedResources(documentURI: URI, htmlContent: String): Seq[EmbeddedResource] = {
 
 		// TODO more efficient solution? browser behavior? should this be done here of after resolving absolute urls?
-		val rawResources = mutable.LinkedHashSet.empty[String]
+		val rawResources = mutable.LinkedHashSet.empty[EmbeddedResource]
 		var baseURI: Option[URI] = None
 
 		val lagartoParser = new LagartoParser(htmlContent)
 
 		val visitor = new EmptyTagVisitor {
 
-			private def addAttribute(tag: Tag, attributeName: String) {
+			def addResource(tag: Tag, attributeName: String, resType: EmbeddedResourceType = Regular) {
 				val url = tag.getAttributeValue(attributeName, false)
 				if (url != null)
-					rawResources += url
+					rawResources += EmbeddedResource(url, resType)
 			}
 
 			override def script(tag: Tag, body: CharSequence) {
-				addAttribute(tag, "src")
+				addResource(tag, "src")
 			}
 
 			override def tag(tag: Tag) {
@@ -75,16 +74,21 @@ object HtmlParser extends Logging {
 								None
 						}
 
-					case "link" => addAttribute(tag, "href")
+					case "link" =>
+						val rel = tag.getAttributeValue("rel", false)
+						if (rel == "stylesheet")
+							addResource(tag, "href", Css)
+						else if (rel == "icon")
+							addResource(tag, "href")
 
-					case "bgsound" => addAttribute(tag, "src")
-					case "frame" => addAttribute(tag, "src")
-					case "iframe" => addAttribute(tag, "src")
-					case "img" => addAttribute(tag, "src")
-					case "embed" => addAttribute(tag, "src")
-					case "input" => addAttribute(tag, "src") // only if type=image?
+					case "bgsound" => addResource(tag, "src")
+					case "frame" => addResource(tag, "src", Html)
+					case "iframe" => addResource(tag, "src", Html)
+					case "img" => addResource(tag, "src")
+					case "embed" => addResource(tag, "src")
+					case "input" => addResource(tag, "src") // only if type=image?
 
-					case "body" => addAttribute(tag, "background")
+					case "body" => addResource(tag, "background")
 
 					case "applet" =>
 						val code = tag.getAttributeValue("code", false)
@@ -96,7 +100,7 @@ object HtmlParser extends Logging {
 							.map(cb => appletResources.map(prependCodeBase(cb, _)))
 							.getOrElse(appletResources)
 
-						appletResourcesUrls.foreach(rawResources +=)
+						appletResourcesUrls.foreach(rawResources += EmbeddedResource(_))
 
 					case "object" =>
 						val data = tag.getAttributeValue("data", false)
@@ -105,11 +109,11 @@ object HtmlParser extends Logging {
 							.map(cb => prependCodeBase(cb, data))
 							.getOrElse(data)
 
-						rawResources += objectResourceUrl
+						rawResources += EmbeddedResource(objectResourceUrl)
 
 					case _ =>
 						Option(tag.getAttributeValue("style", false)).foreach { style =>
-							inlineStyleUrl.findFirstIn(style).foreach(rawResources +=)
+							inlineStyleUrl.findAllIn(style).matchData.foreach(m => rawResources += EmbeddedResource(m.group(1)))
 						}
 				}
 			}
@@ -119,6 +123,8 @@ object HtmlParser extends Logging {
 
 		val rootURI = baseURI.getOrElse(documentURI)
 
-		rawResources.toSeq.map(AsyncHttpProviderUtils.getRedirectUri(rootURI, _).toString)
+		rawResources.toSeq.map { res =>
+			res.copy(url = AsyncHttpProviderUtils.getRedirectUri(rootURI, res.url).toString)
+		}
 	}
 }
