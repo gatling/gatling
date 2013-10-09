@@ -58,7 +58,7 @@ class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: 
 		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
 
 		val totalChecks = if (ignoreDefaultChecks)
-			httpProtocol.checks
+			checks
 		else
 			httpProtocol.checks ::: checks
 
