@@ -31,6 +31,11 @@ object BuildSettings {
 		)
 	) ++ publishingSettings ++ releaseSettings
 
+	lazy val javaSettings = Seq(
+		compileOrder := CompileOrder.JavaThenScala,
+		javacOptions := Seq("-source", "1.6", "-target", "1.6", "-Xlint:-options")
+	)
+
 	lazy val gatlingModuleSettings =
 		basicSettings ++ formattingSettings ++ graphSettings ++ eclipseSettings ++ Seq(
 			exportJars := true

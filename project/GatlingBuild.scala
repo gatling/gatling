@@ -58,7 +58,7 @@ object GatlingBuild extends Build {
 	lazy val recorder = gatlingModule("gatling-recorder")
 		.dependsOn(core, http)
 		.settings(libraryDependencies ++= recorderDeps)
-		.settings(compileOrder := CompileOrder.JavaThenScala)
+		.settings(javaSettings: _*)
 
 	lazy val bundle = gatlingModule("gatling-bundle")
 		.dependsOn(Seq(app, recorder).map(_ % "runtime->runtime"): _*)
