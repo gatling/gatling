@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.request
+package io.gatling.http.request.builder
 
 import io.gatling.core.session.Expression
 
-package object builder {
-
-	type HttpParam = (Expression[String], Expression[Seq[String]])
-}
+sealed trait HttpParam
+case class SimpleParam(key: Expression[String], value: Expression[Any]) extends HttpParam
+case class MultivaluedParam(key: Expression[String], values: Expression[Seq[Any]]) extends HttpParam
+case class ParamSeq(seq: Expression[Seq[(String, Any)]]) extends HttpParam
+case class ParamMap(map: Expression[Map[String, Any]]) extends HttpParam

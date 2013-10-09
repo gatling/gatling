@@ -27,11 +27,11 @@ import io.gatling.core.config.Credentials
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.HeaderNames
-import io.gatling.http.request.builder.HttpParam
+import io.gatling.http.request.builder.{ HttpParam, MultivaluedParam, ParamMap, ParamSeq, SimpleParam }
 
 object HttpHelper {
 
-	val emptyParamListSuccess = List.empty[(String, Seq[String])].success
+	val emptyParamListSuccess = List.empty[(String, String)].success
 
 	def parseFormBody(body: String): List[(String, String)] = {
 		def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)
@@ -46,25 +46,51 @@ object HttpHelper {
 			}.toList
 	}
 
-	def resolveParams(params: List[HttpParam], session: Session): Validation[List[(String, Seq[String])]] = {
+	def resolveParams(params: List[HttpParam], session: Session): Validation[Map[String, Seq[String]]] = {
 
-		params.foldLeft(emptyParamListSuccess) { (resolvedParams, param) =>
-			val (key, values) = param
-			for {
-				resolvedParams <- resolvedParams
-				key <- key(session)
-				values <- values(session)
-			} yield (key, values) :: resolvedParams
-		}.map(_.reverse)
+		val resolvedParams = params.foldLeft(emptyParamListSuccess) { (resolvedParams, param) =>
+			{
+
+				val newParams = param match {
+					case SimpleParam(key, value) =>
+						for {
+							key <- key(session)
+							value <- value(session)
+						} yield List(key -> value.toString)
+
+					case MultivaluedParam(key, values) =>
+						for {
+							key <- key(session)
+							values <- values(session)
+						} yield values.map(key -> _.toString).toList
+
+					case ParamSeq(seq) =>
+						for {
+							seq <- seq(session)
+						} yield seq.toList.map { case (key, value) => key -> value.toString }
+
+					case ParamMap(map) =>
+						for {
+							map <- map(session)
+						} yield map.toList.map { case (key, value) => key -> value.toString }
+				}
+
+				for {
+					newParams <- newParams
+					resolvedParams <- resolvedParams
+				} yield newParams ::: resolvedParams
+			}
+		}
+
+		// group by name
+		resolvedParams.map(_.groupBy(_._1).mapValues(_.map(_._2)))
 	}
 
 	def httpParamsToFluentMap(params: List[HttpParam], session: Session): Validation[FluentStringsMap] =
 		resolveParams(params, session).map { params =>
 
-			params.groupBy(_._1).foldLeft(new FluentStringsMap) {
-				case (fsm, (key, params)) =>
-					val values = params.map(_._2).flatten
-					fsm.add(key, values)
+			params.foldLeft(new FluentStringsMap) {
+				case (fsm, (key, values)) => fsm.add(key, values)
 			}
 		}
 

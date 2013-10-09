@@ -82,14 +82,14 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.group("C'est ici qu'on trouve des Poneys") {
 			exec(http("Catégorie Poney").post("/")
 				.param("baz", "${qix}")
-				.multiValuedParam("foo", Seq("bar")))
-				.exec(http("Catégorie Poney").post("/").multiValuedParam("foo", "${bar}"))
+				.multivaluedParam("foo", Seq("bar")))
+				.exec(http("Catégorie Poney").post("/").multivaluedParam("foo", "${bar}"))
 				.exec(http("Catégorie Poney").get("/").queryParam("omg", "foo"))
 				.exec(http("Catégorie Poney").get("/").queryParam("omg", "${foo}"))
 				.exec(http("Catégorie Poney").get("/").queryParam("omg", session => "foo"))
-				.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", List("foo")))
-				.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", "${foo}"))
-				.exec(http("Catégorie Poney").get("/").multiValuedQueryParam("omg", List("foo")))
+				.exec(http("Catégorie Poney").get("/").multivaluedQueryParam("omg", List("foo")))
+				.exec(http("Catégorie Poney").get("/").multivaluedQueryParam("omg", "${foo}"))
+				.exec(http("Catégorie Poney").get("/").multivaluedQueryParam("omg", List("foo")))
 		}
 		.randomSwitch(
 			40 -> exec(http("Catégorie Poney").get("/")),

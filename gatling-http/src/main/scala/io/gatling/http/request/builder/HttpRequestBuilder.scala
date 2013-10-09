@@ -87,21 +87,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 */
 	def ignoreDefaultChecks: B = newInstance(httpAttributes.copy(ignoreDefaultChecks = true))
 
-	/**
-	 * Adds a query parameter to the request
-	 *
-	 * @param param is a query parameter
-	 */
-	def queryParam(key: Expression[String], value: Expression[String]): B = {
-		val httpParam: HttpParam = (key, (session: Session) => value(session).map(Seq(_)))
-		queryParam(httpParam)
-	}
-
-	def multiValuedQueryParam(key: Expression[String], values: Expression[Seq[String]]): B = {
-		val httpParam: HttpParam = (key, values)
-		queryParam(httpParam)
-	}
-
+	def queryParam(key: Expression[String], value: Expression[Any]): B = queryParam(SimpleParam(key, value))
+	def multivaluedQueryParam(key: Expression[String], values: Expression[Seq[Any]]): B = queryParam(MultivaluedParam(key, values))
+	def queryParamsSequence(seq: Expression[Seq[(String, Any)]]): B = queryParam(ParamSeq(seq))
+	def queryParamsMap(map: Expression[Map[String, Any]]): B = queryParam(ParamMap(map))
 	private def queryParam(param: HttpParam): B = newInstance(httpAttributes.copy(queryParams = param :: httpAttributes.queryParams))
 
 	/**

@@ -54,16 +54,10 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		newInstance(httpAttributes, bodyAttributes, params)
 	}
 
-	def param(key: Expression[String], value: Expression[String]): B = {
-		val httpParam: HttpParam = (key, (s: Session) => value(s).map(Seq(_)))
-		param(httpParam)
-	}
-
-	def multiValuedParam(key: Expression[String], values: Expression[Seq[String]]): B = {
-		val httpParam: HttpParam = (key, values)
-		param(httpParam)
-	}
-
+	def param(key: Expression[String], value: Expression[Any]): B = param(SimpleParam(key, value))
+	def multivaluedParam(key: Expression[String], values: Expression[Seq[Any]]): B = param(MultivaluedParam(key, values))
+	def paramsSequence(seq: Expression[Seq[(String, Any)]]): B = param(ParamSeq(seq))
+	def paramsMap(map: Expression[Map[String, Any]]): B = param(ParamMap(map))
 	private def param(param: HttpParam): B = newInstance(httpAttributes, bodyAttributes, param :: params)
 
 	override protected def configureParts(session: Session, requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
