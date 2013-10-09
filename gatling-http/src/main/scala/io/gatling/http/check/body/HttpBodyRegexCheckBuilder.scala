@@ -15,13 +15,18 @@
  */
 package io.gatling.http.check.body
 
-import io.gatling.core.check.extractor.regex.RegexExtractors
+import io.gatling.core.check.extractor.regex.{ GroupExtractor, RegexExtractors }
 import io.gatling.core.session.Expression
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 
 object HttpBodyRegexCheckBuilder {
 
-	def regex(expression: Expression[String]) = new HttpMultipleCheckBuilder[String, String, String](
+	def regex(expression: Expression[String]) = genericRegex[String](expression)
+	def regexCapture2(expression: Expression[String]) = genericRegex[(String, String)](expression)
+	def regexCapture3(expression: Expression[String]) = genericRegex[(String, String, String)](expression)
+	def regexCapture4(expression: Expression[String]) = genericRegex[(String, String, String, String)](expression)
+
+	def genericRegex[X](expression: Expression[String])(implicit groupExtractor: GroupExtractor[X]) = new HttpMultipleCheckBuilder[String, String, X](
 		HttpCheckBuilders.bodyCheckFactory,
 		HttpCheckBuilders.stringResponsePreparer,
 		RegexExtractors.extractOne,

@@ -26,6 +26,9 @@ import io.gatling.http.check.url.CurrentLocationCheckBuilder
 trait HttpCheckSupport {
 
 	def regex(pattern: Expression[String]) = HttpBodyRegexCheckBuilder.regex(pattern)
+	def regexCapture2(pattern: Expression[String]) = HttpBodyRegexCheckBuilder.regexCapture2(pattern)
+	def regexCapture3(pattern: Expression[String]) = HttpBodyRegexCheckBuilder.regexCapture3(pattern)
+	def regexCapture4(pattern: Expression[String]) = HttpBodyRegexCheckBuilder.regexCapture4(pattern)
 	def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
 	def css(selector: Expression[String]) = HttpBodyCssCheckBuilder.css(selector, None)
 	def css(selector: Expression[String], nodeAttribute: String) = HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))

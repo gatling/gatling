@@ -20,11 +20,66 @@ import java.util.regex.{ Matcher, Pattern }
 import scala.annotation.tailrec
 import scala.collection.mutable
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.{ LiftedOption, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.substringCopiesCharArray
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
+
+object GroupExtractor extends Logging {
+
+	def ensureByteCopy(value: String) =
+		if (substringCopiesCharArray) value
+		else new String(value)
+
+	implicit val stringGroupExtractor = new GroupExtractor[String] {
+		def extract(matcher: Matcher): String = {
+			val value = matcher.group(matcher.groupCount min 1)
+			ensureByteCopy(value)
+		}
+	}
+
+	def safeGetGroupValue(matcher: Matcher, i: Int) =
+		if (matcher.groupCount >= i)
+			ensureByteCopy(matcher.group(i))
+		else {
+			logger.error(s"Regex group $i doesn't exist")
+			""
+		}
+
+	implicit val stringTuple2GroupExtractor = new GroupExtractor[(String, String)] {
+		def extract(matcher: Matcher): (String, String) = {
+			val value1 = safeGetGroupValue(matcher, 1)
+			val value2 = safeGetGroupValue(matcher, 2)
+			(value1, value2)
+		}
+	}
+
+	implicit val stringTuple3GroupExtractor = new GroupExtractor[(String, String, String)] {
+		def extract(matcher: Matcher): (String, String, String) = {
+			val value1 = safeGetGroupValue(matcher, 1)
+			val value2 = safeGetGroupValue(matcher, 2)
+			val value3 = safeGetGroupValue(matcher, 3)
+			(value1, value2, value3)
+		}
+	}
+
+	implicit val stringTuple4GroupExtractor = new GroupExtractor[(String, String, String, String)] {
+		def extract(matcher: Matcher): (String, String, String, String) = {
+			val value1 = safeGetGroupValue(matcher, 1)
+			val value2 = safeGetGroupValue(matcher, 2)
+			val value3 = safeGetGroupValue(matcher, 3)
+			val value4 = safeGetGroupValue(matcher, 4)
+			(value1, value2, value3, value4)
+		}
+	}
+}
+
+trait GroupExtractor[X] {
+	def extract(matcher: Matcher): X
+}
 
 object RegexExtractors {
 
@@ -44,7 +99,7 @@ object RegexExtractors {
 			temp
 		}
 
-		def findMatchN(n: Int): Option[String] = {
+		def findMatchN[X](n: Int)(implicit groupExtractor: GroupExtractor[X]): Option[X] = {
 
 			@tailrec
 			def findRec(countDown: Int): Boolean = {
@@ -57,38 +112,33 @@ object RegexExtractors {
 			}
 
 			if (findRec(n))
-				value.liftOption
+				value[X].liftOption
 			else
 				None
 		}
 
-		def value = {
-			// if a group is specified, return the group 1, else return group 0 (ie the match)
-			val value = matcher.group(matcher.groupCount min 1)
-			if (substringCopiesCharArray) value
-			else new String(value)
-		}
+		def value[X](implicit groupExtractor: GroupExtractor[X]): X = groupExtractor.extract(matcher)
 	}
 
-	def extract(string: String, pattern: String): Seq[String] = {
+	def extract[X](string: String, pattern: String)(implicit groupExtractor: GroupExtractor[X]): Seq[X] = {
 
 		val matcher = cached(pattern).matcher(string)
-		matcher.foldLeft(List.empty[String]) { (matcher, values) =>
+		matcher.foldLeft(List.empty[X]) { (matcher, values) =>
 			matcher.value :: values
 		}.reverse
 	}
 
-	def extractOne(occurrence: Int) = new RegexExtractor[String] {
+	def extractOne[X](occurrence: Int)(implicit groupExtractor: GroupExtractor[X]) = new RegexExtractor[X] {
 
-		def apply(prepared: String, criterion: String): Validation[Option[String]] = {
+		def apply(prepared: String, criterion: String): Validation[Option[X]] = {
 			val matcher = cached(criterion).matcher(prepared)
 			matcher.findMatchN(occurrence).success
 		}
 	}
 
-	val extractMultiple = new RegexExtractor[Seq[String]] {
+	def extractMultiple[X](implicit groupExtractor: GroupExtractor[X]) = new RegexExtractor[Seq[X]] {
 
-		def apply(prepared: String, criterion: String): Validation[Option[Seq[String]]] = extract(prepared, criterion).liftSeqOption.success
+		def apply(prepared: String, criterion: String): Validation[Option[Seq[X]]] = extract(prepared, criterion).liftSeqOption.success
 	}
 
 	val count = new RegexExtractor[Int] {

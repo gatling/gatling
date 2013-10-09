@@ -29,7 +29,10 @@ class RegexExtractorsSpec extends ValidationSpecification {
 	"extractMultiple" should {
 
 		"return expected result with anywhere expression" in {
-			RegexExtractors.extractMultiple("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""", """"SearchDefinitionID\\":(\d*)""") must succeedWith(Some(List("116", "108")))
+
+			val stringRegexExtractor = RegexExtractors.extractMultiple[String]
+
+			stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""", """"SearchDefinitionID\\":(\d*)""") must succeedWith(Some(List("116", "108")))
 		}
 	}
 }

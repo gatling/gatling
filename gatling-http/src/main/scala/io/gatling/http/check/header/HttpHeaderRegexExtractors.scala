@@ -30,7 +30,7 @@ object HttpHeaderRegexExtractors {
 	def extractHeadersValues(response: Response, headerNameAndPattern: (String, String)) = {
 		val (headerName, pattern) = headerNameAndPattern
 		val headerValues = HttpHeaderExtractors.decodedHeaders(response, headerName)
-		headerValues.map(RegexExtractors.extract(_, pattern)).flatten
+		headerValues.map(RegexExtractors.extract[String](_, pattern)).flatten
 	}
 
 	val extractOne = (occurrence: Int) => new HeaderRegexExtractor[String] {
