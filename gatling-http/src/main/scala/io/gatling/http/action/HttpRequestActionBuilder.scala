@@ -65,7 +65,7 @@ class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: 
 		val resolvedChecks = totalChecks
 			.find(_.order == Status)
 			.map(_ => checks)
-			.getOrElse(HttpRequestActionBuilder.defaultHttpCheck :: checks)
+			.getOrElse(HttpRequestActionBuilder.defaultHttpCheck :: totalChecks)
 			.sorted
 
 		val resolvedMaxRedirects = maxRedirects.orElse(httpProtocol.maxRedirects)
