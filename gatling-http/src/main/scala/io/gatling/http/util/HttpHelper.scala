@@ -61,14 +61,11 @@ object HttpHelper {
 	def httpParamsToFluentMap(params: List[HttpParam], session: Session): Validation[FluentStringsMap] =
 		resolveParams(params, session).map { params =>
 
-			val fsm = new FluentStringsMap
-			params.groupBy(_._1).foreach {
-				case (key, params) =>
+			params.groupBy(_._1).foldLeft(new FluentStringsMap) {
+				case (fsm, (key, params)) =>
 					val values = params.map(_._2).flatten
 					fsm.add(key, values)
 			}
-
-			fsm
 		}
 
 	def buildRealm(username: Expression[String], password: Expression[String]): Expression[Realm] = (session: Session) =>
