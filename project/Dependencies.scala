@@ -45,7 +45,7 @@ object Dependencies {
 
 	val redisDeps = Seq(redisClient) ++ testDeps
 
-	val httpDeps = Seq(ahc, netty, jzlib, grizzlyWebsockets) ++ testDeps
+	val httpDeps = Seq(ahc, jzlib, grizzlyWebsockets) ++ testDeps
 
 	val chartsDeps = testDeps
 
@@ -53,5 +53,5 @@ object Dependencies {
 
 	val appDeps = Seq(scopt, zinc)
 
-	val recorderDeps = Seq(scalaSwing, netty, logbackClassic, scopt)
+	val recorderDeps = Seq(scalaSwing, scopt)
 }
