@@ -18,7 +18,10 @@ package io.gatling.core.check.extractor.regex
 import java.util.regex.{ Matcher, Pattern }
 
 import scala.annotation.tailrec
-import scala.collection.mutable
+import scala.collection.JavaConversions.mapAsScalaConcurrentMap
+import scala.collection.concurrent
+
+import org.jboss.netty.util.internal.ConcurrentHashMap
 
 import com.typesafe.scalalogging.slf4j.Logging
 
@@ -79,7 +82,7 @@ trait GroupExtractor[X] {
 
 object RegexExtractors {
 
-	val cache = mutable.Map.empty[String, Pattern]
+	val cache: concurrent.Map[String, Pattern] = new ConcurrentHashMap[String, Pattern]
 	def cached(pattern: String) = if (configuration.core.extract.regex.cache) cache.getOrElseUpdate(pattern, Pattern.compile(pattern)) else Pattern.compile(pattern)
 
 	abstract class RegexExtractor[X] extends Extractor[String, String, X] {

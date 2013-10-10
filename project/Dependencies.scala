@@ -40,7 +40,7 @@ object Dependencies {
 
 	val coreDeps = Seq(
 		scalaCompiler, akkaActor, saxon, jodaTime, jodaConvert, slf4jApi, scalalogging, scalaReflect, jsonSmart,
-		jsonpath, commonsMath, jsoup, joddLagarto, commonsIo, config, fastring, openCsv, logbackClassic
+		jsonpath, commonsMath, jsoup, joddLagarto, commonsIo, config, fastring, openCsv, logbackClassic, netty
 	) ++ testDeps
 
 	val redisDeps = Seq(redisClient) ++ testDeps

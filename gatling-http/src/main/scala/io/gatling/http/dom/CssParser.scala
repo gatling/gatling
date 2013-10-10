@@ -16,12 +16,14 @@
 package io.gatling.http.dom
 
 import scala.annotation.switch
+import scala.collection.JavaConversions.mapAsScalaConcurrentMap
+import scala.collection.concurrent
 
 import org.jboss.netty.util.internal.ConcurrentHashMap
 
 object CssParser {
 
-	val cache = new ConcurrentHashMap[String, Seq[(String, String)]]
+	val cache: concurrent.Map[String, Seq[(String, String)]] = new ConcurrentHashMap[String, Seq[(String, String)]]
 
 	def extractSelectorsAndUrls(cssContent: String): Seq[(String, String)] = {
 

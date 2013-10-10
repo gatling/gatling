@@ -17,9 +17,10 @@ package io.gatling.core.check.extractor.xpath
 
 import java.io.StringReader
 
-import scala.collection.JavaConversions.{ iterableAsScalaIterable, seqAsJavaList }
-import scala.collection.mutable
+import scala.collection.JavaConversions.{ iterableAsScalaIterable, mapAsScalaConcurrentMap, seqAsJavaList }
+import scala.collection.concurrent
 
+import org.jboss.netty.util.internal.ConcurrentHashMap
 import org.xml.sax.InputSource
 
 import io.gatling.core.check.Extractor
@@ -34,7 +35,7 @@ object XPathExtractors {
 	val processor = new Processor(false)
 	val documentBuilder = processor.newDocumentBuilder
 
-	val compilerCache = mutable.Map.empty[List[(String, String)], XPathCompiler]
+	val compilerCache: concurrent.Map[List[(String, String)], XPathCompiler] = new ConcurrentHashMap[List[(String, String)], XPathCompiler]
 	def compiler(namespaces: List[(String, String)]) = {
 		val xPathCompiler = processor.newXPathCompiler
 		for {
@@ -48,7 +49,7 @@ object XPathExtractors {
 		documentBuilder.build(source)
 	}
 
-	val selectorCache = mutable.Map.empty[String, ThreadLocal[XPathSelector]]
+	val selectorCache: concurrent.Map[String, ThreadLocal[XPathSelector]] = new ConcurrentHashMap[String, ThreadLocal[XPathSelector]]
 	def xpath(expression: String, xPathCompiler: XPathCompiler): XPathSelector = xPathCompiler.compile(expression).load
 
 	def cached(expression: String, namespaces: List[(String, String)]): XPathSelector =

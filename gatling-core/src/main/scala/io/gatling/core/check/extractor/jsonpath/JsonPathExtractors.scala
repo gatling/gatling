@@ -1,16 +1,16 @@
 package io.gatling.core.check.extractor.jsonpath
 
-import io.gatling.core.check.Extractor
-import net.minidev.json.parser.JSONParser
-import scala.collection.JavaConversions.asScalaBuffer
-import scala.collection.mutable
+import scala.collection.JavaConversions.mapAsScalaConcurrentMap
+import scala.collection.concurrent
+
+import org.jboss.netty.util.internal.ConcurrentHashMap
+
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
-import net.minidev.json.JSONArray
-import net.minidev.json.parser.JSONParser
 import io.gatling.jsonpath.jsonsmart.JsonPath
+import net.minidev.json.parser.JSONParser
 
 object JsonPathExtractors {
 
@@ -18,7 +18,7 @@ object JsonPathExtractors {
 		val name = "jsonPath"
 	}
 
-	val cache = mutable.Map.empty[String, Validation[JsonPath]]
+	val cache: concurrent.Map[String, Validation[JsonPath]] = new ConcurrentHashMap[String, Validation[JsonPath]]
 	def cached(expression: String): Validation[JsonPath] =
 		if (configuration.core.extract.jsonPath.cache) cache.getOrElseUpdate(expression, compile(expression))
 		else compile(expression)
