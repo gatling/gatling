@@ -43,15 +43,30 @@ object ResourceFetcher {
 
 	val resourceChecks = List(HttpRequestActionBuilder.defaultHttpCheck)
 
-	def apply(uri: URI, statusCode: Int, html: Option[String]) = {
+	def apply(uri: URI, statusCode: Int, lastModifiedHeader: Option[String], html: Option[String]) = {
 
-		val initialResources: Seq[EmbeddedResource] = statusCode match {
-			case 200 => HtmlParser.getEmbeddedResources(uri, html.getOrElse(""))
-			case 304 => Nil // FIXME, get from cache
+		val directResources: Seq[EmbeddedResource] = statusCode match {
+			case 200 =>
+				// FIXME eTag + protocol.cache
+				lastModifiedHeader match {
+					case Some(lm) => HtmlParser.cache.get(uri) match {
+						case Some((cachedLastModified, resources)) if lm == cachedLastModified =>
+							resources
+						case _ =>
+							val resources = HtmlParser.getEmbeddedResources(uri, html.getOrElse(""))
+							HtmlParser.cache.put(uri, (lm, resources))
+							resources
+					}
+
+					case None => HtmlParser.getEmbeddedResources(uri, html.getOrElse(""))
+				}
+
+			case 304 =>
+				HtmlParser.cache.get(uri).map(_._2).getOrElse(Nil)
 		}
 
 		val nodeSelector: Option[NodeSelector] =
-			if (initialResources.exists(_.resType == Css))
+			if (directResources.exists(_.resType == Css))
 				html.map { h =>
 					val domBuilder = new LagartoDOMBuilder
 					domBuilder.setParseSpecialTagsAsCdata(true)
@@ -60,11 +75,11 @@ object ResourceFetcher {
 			else
 				None
 
-		(tx: HttpTx) => new ResourceFetcher(uri, initialResources, nodeSelector, tx)
+		(tx: HttpTx) => new ResourceFetcher(uri, directResources, nodeSelector, tx)
 	}
 }
 
-class ResourceFetcher(uri: URI, initialResources: Seq[EmbeddedResource], nodeSelector: Option[NodeSelector], tx: HttpTx) extends BaseActor {
+class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSelector: Option[NodeSelector], tx: HttpTx) extends BaseActor {
 
 	def fetchResource(request: Request) {
 		logger.debug(s"Fetching ressource ${request.getUrl}")
@@ -123,15 +138,15 @@ class ResourceFetcher(uri: URI, initialResources: Seq[EmbeddedResource], nodeSel
 		}
 	}
 
-	var orderedExpectedCss: List[String] = initialResources.collect { case EmbeddedResource(url, Css) => url }.toList
-	var fetchedCss: List[URI] = Nil
+	var orderedExpectedCss: List[String] = directResources.collect { case EmbeddedResource(url, Css) => url }.toList
+	var fetchedCss = 0
 	var globalStatus: Status = OK
-	var pendingRequestsCount = initialResources.size
+	var pendingRequestsCount = directResources.size
 	val bufferedRequestsByHost = collection.mutable.HashMap.empty[String, List[Request]].withDefaultValue(Nil)
 	val availableTokensByHost = collection.mutable.HashMap.empty[String, Int].withDefaultValue(tx.protocol.maxConnectionsPerHost)
 	val start = nowMillis
 
-	fetchOrBufferResources(initialResources)
+	fetchOrBufferResources(directResources)
 
 	def receive: Receive = {
 
@@ -174,46 +189,50 @@ class ResourceFetcher(uri: URI, initialResources: Seq[EmbeddedResource], nodeSel
 
 			def allCssReceived(nodeSelector: NodeSelector) {
 				// received all css, parsing 
-				val selectorsAndUrls = orderedExpectedCss.map { cssUrl =>
-					CssParser.cache.getOrElse(cssUrl, {
-						logger.warn(s"Found a css url $cssUrl missing from the result map?! Css url was maybe redirected (not supported yet, please report)")
-						Nil
-					})
+				val styleRules = orderedExpectedCss.map { cssUrl =>
+					CssParser.cache.get(cssUrl).map(_.styleRules)
+						.getOrElse {
+							logger.warn(s"Found a css url $cssUrl missing from the result map?!")
+							Nil
+						}
 				}.flatten
 
-				val sortedSelectorsAndUrls = selectorsAndUrls.zipWithIndex.toSeq.sortWith {
-					case (((selector1, url1), index1), ((selector2, url2), index2)) =>
+				val sortedStyleRules = styleRules.zipWithIndex.toSeq.sortWith {
+					case ((styleRule1, index1), (styleRule2, index2)) =>
+						val selector1 = styleRule1.selector
+						val selector2 = styleRule2.selector
 						if (selector1.startsWith(selector2) && selector1.charAt(selector2.length) == ' ') true // selector1 is less precise than selector2
 						else if (selector2.startsWith(selector1) && selector2.charAt(selector1.length) == ' ') false // selector1 is more precise than selector2
 						else index1 < index2 // default, use order in files
 				}.map(_._1)
 
-				val matchingSelectorUrls = sortedSelectorsAndUrls.map {
-					case (selector, url) =>
-						val nodes = nodeSelector.select(selector)
-						nodes.map(_ -> url)
+				val matchedUrls = sortedStyleRules.map { styleRule =>
+					val nodes = nodeSelector.select(styleRule.selector)
+					nodes.map(_ -> styleRule.url)
 				}.flatten
 					.toMap
 					.values.map(EmbeddedResource(_))
 
 				// have to fetch those images now
-				pendingRequestsCount += matchingSelectorUrls.size
-				fetchOrBufferResources(matchingSelectorUrls)
+				pendingRequestsCount += matchedUrls.size
+				fetchOrBufferResources(matchedUrls)
 			}
 
-			fetchedCss = uri :: fetchedCss
+			fetchedCss += 1
 
-			// update css cache
 			for {
-				content <- content
-				if status == OK
-				url = uri.toString
-				if (!CssParser.cache.contains(url)) // still have to do this not to extract for nothing
-			} CssParser.cache.putIfAbsent(url, CssParser.extractSelectorsAndUrls(content))
+				content <- content if status == OK
+			} {
+				val url = uri.toString
+				val rules = CssParser.cache.getOrElseUpdate(url, CssParser.extractRules(uri, content))
+				orderedExpectedCss = rules.importRules ::: orderedExpectedCss
+				fetchOrBufferResources(rules.importRules.map(EmbeddedResource(_, Css)))
+				CssParser.cache.putIfAbsent(url, rules)
+			}
 
 			for {
 				nodeSelector <- nodeSelector // FIXME nodeSelector should be cached, so never None
-				if fetchedCss.size == orderedExpectedCss.size
+				if fetchedCss == orderedExpectedCss.size
 			} allCssReceived(nodeSelector)
 		}
 

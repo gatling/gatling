@@ -137,7 +137,7 @@ class AsyncHandlerActor extends BaseActor {
 
 		} else if (tx.protocol.fetchHtmlResources && response.hasResponseStatus && isHtml(response.getHeaders)) {
 
-			val resourceFetcher = ResourceFetcher(response.request.getURI, response.getStatusCode, body())
+			val resourceFetcher = ResourceFetcher(response.request.getURI, response.getStatusCode, Option(response.getHeader(HeaderNames.LAST_MODIFIED)), body())
 			actor(context)(resourceFetcher(tx))
 
 		} else

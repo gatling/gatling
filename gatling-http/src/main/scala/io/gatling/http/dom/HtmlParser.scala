@@ -18,15 +18,18 @@ package io.gatling.http.dom
 import java.net.{ URI, URISyntaxException }
 
 import scala.collection.mutable
+import scala.collection.JavaConversions.mapAsScalaConcurrentMap
+import scala.collection.concurrent
+import org.jboss.netty.util.internal.ConcurrentHashMap
 
-import com.ning.http.util.AsyncHttpProviderUtils
 import com.typesafe.scalalogging.slf4j.Logging
 
+import io.gatling.http.util.HttpHelper
 import jodd.lagarto.{ EmptyTagVisitor, LagartoParser, Tag }
 
 object HtmlParser extends Logging {
 
-	val inlineStyleUrl = """url\((.*)\)""".r
+	val cache: concurrent.Map[URI, (String, Seq[EmbeddedResource])] = new ConcurrentHashMap[URI, (String, Seq[EmbeddedResource])]
 
 	def getEmbeddedResources(documentURI: URI, htmlContent: String): Seq[EmbeddedResource] = {
 
@@ -46,6 +49,12 @@ object HtmlParser extends Logging {
 
 			override def script(tag: Tag, body: CharSequence) {
 				addResource(tag, "src")
+			}
+
+			override def style(tag: Tag, body: CharSequence) {
+				CssParser.extractUrls(body, CssParser.styleImportsUrls).foreach {
+					rawResources += EmbeddedResource(_, Css)
+				}
 			}
 
 			override def tag(tag: Tag) {
@@ -113,10 +122,8 @@ object HtmlParser extends Logging {
 
 					case _ =>
 						Option(tag.getAttributeValue("style", false)).foreach { style =>
-							inlineStyleUrl.findAllIn(style).matchData.foreach { m =>
-								val raw = m.group(1)
-								val url = CssParser.extractUrl(raw, 0, raw.length)
-								rawResources += EmbeddedResource(url)
+							CssParser.extractUrls(style, CssParser.inlineStyleImageUrls).foreach {
+								rawResources += EmbeddedResource(_)
 							}
 						}
 				}
@@ -127,8 +134,9 @@ object HtmlParser extends Logging {
 
 		val rootURI = baseURI.getOrElse(documentURI)
 
-		rawResources.toSeq.map { res =>
-			res.copy(url = AsyncHttpProviderUtils.getRedirectUri(rootURI, res.url).toString)
-		}
+		rawResources
+			.map { res =>
+				HttpHelper.makeUrlAbsolute(rootURI, res.url).map(absoluteUrl => res.copy(url = absoluteUrl))
+			}.toSeq.flatten
 	}
 }

@@ -83,14 +83,14 @@ object CacheHandling extends Logging {
 
 		def updateLastModified(session: Session) = Option(response.getHeader(HeaderNames.LAST_MODIFIED))
 			.map { lastModified =>
-				logger.info(s"Setting LastModified for url $url")
+				logger.info(s"Setting LastModified $lastModified for url $url")
 				val lastModifiedStore = getLastModifiedStore(session)
 				session.set(httpLastModifiedStoreAttributeName, lastModifiedStore + (url -> lastModified))
 			}.getOrElse(session)
 
 		def updateEtag(session: Session) = Option(response.getHeader(HeaderNames.ETAG))
 			.map { etag =>
-				logger.info(s"Setting Etag for url $url")
+				logger.info(s"Setting Etag $etag for url $url")
 				val etagStore = getEtagStore(session)
 				session.set(httpEtagStoreAttributeName, etagStore + (url -> etag))
 			}.getOrElse(session)

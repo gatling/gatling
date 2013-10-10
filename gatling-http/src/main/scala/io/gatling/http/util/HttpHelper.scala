@@ -15,13 +15,15 @@
  */
 package io.gatling.http.util
 
-import java.net.URLDecoder
+import java.net.{ URI, URLDecoder }
 
 import scala.collection.JavaConversions.seqAsJavaList
 import scala.io.Codec.UTF8
 
 import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, FluentStringsMap, ProxyServer, Realm }
 import com.ning.http.client.Realm.AuthScheme
+import com.ning.http.util.AsyncHttpProviderUtils
+import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.Credentials
 import io.gatling.core.session.{ Expression, Session }
@@ -29,7 +31,7 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.request.builder.{ HttpParam, MultivaluedParam, ParamMap, ParamSeq, SimpleParam }
 
-object HttpHelper {
+object HttpHelper extends Logging {
 
 	val emptyParamListSuccess = List.empty[(String, String)].success
 
@@ -113,4 +115,15 @@ object HttpHelper {
 
 	def isCss(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).map(_.contains(HeaderValues.TEXT_CSS)).getOrElse(false)
 	def isHtml(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).map(ct => ct.contains(HeaderValues.TEXT_HTML) || ct.contains(HeaderValues.APPLICATION_XHTML)).getOrElse(false)
+
+	def makeUrlAbsolute(rootURI: URI, relative: String) = {
+
+		try {
+			Some(AsyncHttpProviderUtils.getRedirectUri(rootURI, relative).toString)
+		} catch {
+			case e: Exception =>
+				logger.info("Couldn't convert to absolute url", e)
+				None
+		}
+	}
 }
