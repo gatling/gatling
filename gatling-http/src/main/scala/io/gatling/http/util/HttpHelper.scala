@@ -26,7 +26,7 @@ import com.ning.http.client.Realm.AuthScheme
 import io.gatling.core.config.Credentials
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
-import io.gatling.http.HeaderNames
+import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.request.builder.{ HttpParam, MultivaluedParam, ParamMap, ParamSeq, SimpleParam }
 
 object HttpHelper {
@@ -111,5 +111,6 @@ object HttpHelper {
 			.setNtlmDomain(null)
 	}
 
-	def isHtml(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).map(_.contains("html")).getOrElse(false)
+	def isCss(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).map(_.contains(HeaderValues.TEXT_CSS)).getOrElse(false)
+	def isHtml(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).map(ct => ct.contains(HeaderValues.TEXT_HTML) || ct.contains(HeaderValues.APPLICATION_XHTML)).getOrElse(false)
 }
