@@ -37,6 +37,10 @@ object StringHelper {
 		buff.append(java.lang.Long.toString(b & 0xff, 16))
 	}.toString
 
+	def ensureByteCopy(value: String) =
+		if (substringCopiesCharArray) value
+		else new String(value)
+
 	implicit class RichString(val string: String) extends AnyVal {
 
 		def clean = {

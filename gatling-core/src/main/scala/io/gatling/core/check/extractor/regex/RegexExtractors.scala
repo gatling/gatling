@@ -25,14 +25,10 @@ import com.typesafe.scalalogging.slf4j.Logging
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.{ LiftedOption, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.StringHelper.substringCopiesCharArray
+import io.gatling.core.util.StringHelper.ensureByteCopy
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object GroupExtractor extends Logging {
-
-	def ensureByteCopy(value: String) =
-		if (substringCopiesCharArray) value
-		else new String(value)
 
 	implicit val stringGroupExtractor = new GroupExtractor[String] {
 		def extract(matcher: Matcher): String = {
