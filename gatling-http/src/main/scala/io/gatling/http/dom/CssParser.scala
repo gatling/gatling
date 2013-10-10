@@ -15,15 +15,45 @@
  */
 package io.gatling.http.dom
 
-import scala.annotation.switch
+import scala.annotation.{ switch, tailrec }
 import scala.collection.JavaConversions.mapAsScalaConcurrentMap
 import scala.collection.concurrent
 
 import org.jboss.netty.util.internal.ConcurrentHashMap
 
+import io.gatling.core.util.StringHelper.ensureByteCopy
+
 object CssParser {
 
 	val cache: concurrent.Map[String, Seq[(String, String)]] = new ConcurrentHashMap[String, Seq[(String, String)]]
+
+	def extractUrl(string: String, start: Int, end: Int) = {
+
+		@tailrec
+		def trimLeft(cur: Int): Int = (string.charAt(cur): @switch) match {
+			case ' ' => trimLeft(cur + 1)
+			case '\r' => trimLeft(cur + 1)
+			case '\n' => trimLeft(cur + 1)
+			case ''' => trimLeft(cur + 1)
+			case '"' => trimLeft(cur + 1)
+			case _ => cur
+		}
+
+		@tailrec
+		def trimRight(cur: Int): Int = (string.charAt(cur - 1): @switch) match {
+			case ' ' => trimRight(cur - 1)
+			case '\r' => trimRight(cur - 1)
+			case '\n' => trimRight(cur - 1)
+			case ''' => trimRight(cur - 1)
+			case '"' => trimRight(cur - 1)
+			case _ => cur
+		}
+
+		val trimmedStart = trimLeft(start)
+		val trimmedEnd = trimRight(end)
+
+		ensureByteCopy(string.substring(trimmedStart, trimmedEnd))
+	}
 
 	def extractSelectorsAndUrls(cssContent: String): Seq[(String, String)] = {
 
@@ -70,7 +100,6 @@ object CssParser {
 		var selectorsStart = 0
 		var selectorsEnd = 0
 		var urlStart = 0
-		var urlQuote = Option.empty[Char]
 
 		var i = 0
 		while (i < cssContent.length) {
@@ -95,29 +124,13 @@ object CssParser {
 					}
 				case 'u' =>
 					if (!withinComment && i < cssContent.length - 7 && cssContent.charAt(i + 1) == 'r' && cssContent.charAt(i + 2) == 'l' && cssContent.charAt(i + 3) == '(') {
-						(cssContent.charAt(i + 4): @switch) match {
-							case '\'' => {
-								i = i + 4
-								urlQuote = Some('\'')
-							}
-							case '"' =>
-								i = i + 4
-								urlQuote = Some('"')
-							case _ =>
-								i = i + 3
-								urlQuote = None
-						}
+						i = i + 3
 						urlStart = i + 1
 					}
 
 				case ')' =>
-					val urlEnd = urlQuote match {
-						case None => Some(i)
-						case Some(quote) if (i > 0 && cssContent.charAt(i - 1) == quote) => Some(i - 1)
-						case _ => None
-					}
-					if (urlEnd.isDefined) {
-						val url = cssContent.substring(urlStart, urlEnd.get).trim
+					if (!withinComment) {
+						val url = extractUrl(cssContent, urlStart, i)
 						for (selector <- extractSelectors(selectorsStart, selectorsEnd)) {
 							selectorsAndUrls += (selector -> url)
 						}

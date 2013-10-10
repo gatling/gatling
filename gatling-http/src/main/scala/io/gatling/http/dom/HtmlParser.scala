@@ -26,7 +26,7 @@ import jodd.lagarto.{ EmptyTagVisitor, LagartoParser, Tag }
 
 object HtmlParser extends Logging {
 
-	val inlineStyleUrl = """url\('(.*)'\)""".r
+	val inlineStyleUrl = """url\((.*)\)""".r
 
 	def getEmbeddedResources(documentURI: URI, htmlContent: String): Seq[EmbeddedResource] = {
 
@@ -113,7 +113,11 @@ object HtmlParser extends Logging {
 
 					case _ =>
 						Option(tag.getAttributeValue("style", false)).foreach { style =>
-							inlineStyleUrl.findAllIn(style).matchData.foreach(m => rawResources += EmbeddedResource(m.group(1)))
+							inlineStyleUrl.findAllIn(style).matchData.foreach { m =>
+								val raw = m.group(1)
+								val url = CssParser.extractUrl(raw, 0, raw.length)
+								rawResources += EmbeddedResource(url)
+							}
 						}
 				}
 			}

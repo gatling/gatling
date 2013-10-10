@@ -77,8 +77,6 @@ class CssParserSpec extends Specification {
 			// With spaces
 			val css4 =  """body { background: url( http://www.example.com/pinkish.png ) }"""
 			CssParser.extractSelectorsAndUrls(css4) must beEqualTo(Seq("body" -> "http://www.example.com/pinkish.png"))
-			
 		}
-		
 	}
 }
