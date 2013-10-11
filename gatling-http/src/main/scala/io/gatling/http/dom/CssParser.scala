@@ -210,7 +210,7 @@ object CssParser extends Logging {
 				case ')' if !withinComment =>
 					for {
 						url <- extractUrl(cssContent, urlStart, i)
-						absoluteUrl <- HttpHelper.makeUrlAbsolute(cssURI, url)
+						absoluteUrl <- HttpHelper.resolveFromURISilently(cssURI, url)
 					} {
 						if (withinImport) {
 							importRules += absoluteUrl

@@ -33,7 +33,7 @@ object HtmlParser extends Logging {
 
 	def getEmbeddedResources(documentURI: URI, htmlContent: String): Seq[EmbeddedResource] = {
 
-		// TODO more efficient solution? browser behavior? should this be done here of after resolving absolute urls?
+		// TODO efficient?
 		val rawResources = mutable.LinkedHashSet.empty[EmbeddedResource]
 		var baseURI: Option[URI] = None
 
@@ -136,7 +136,7 @@ object HtmlParser extends Logging {
 
 		rawResources
 			.map { res =>
-				HttpHelper.makeUrlAbsolute(rootURI, res.url).map(absoluteUrl => res.copy(url = absoluteUrl))
+				HttpHelper.resolveFromURISilently(rootURI, res.url).map(absoluteUrl => res.copy(url = absoluteUrl))
 			}.toSeq.flatten
 	}
 }

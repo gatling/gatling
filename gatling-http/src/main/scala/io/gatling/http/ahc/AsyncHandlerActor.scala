@@ -18,10 +18,9 @@ package io.gatling.http.ahc
 import scala.collection.JavaConversions.asScalaBuffer
 
 import com.ning.http.client.{ FluentStringsMap, RequestBuilder }
-import com.ning.http.util.AsyncHttpProviderUtils
 
-import akka.actor.ActorDSL.actor
 import akka.actor.Props
+import akka.actor.ActorDSL.actor
 import akka.routing.RoundRobinRouter
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.check.Checks
@@ -39,7 +38,7 @@ import io.gatling.http.check.{ HttpCheck, HttpCheckOrder }
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.dom.{ CssResourceFetched, HtmlResourceFetched, RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.response.Response
-import io.gatling.http.util.HttpHelper.{ isCss, isHtml }
+import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }
 import io.gatling.http.util.HttpStringBuilder
 
 object AsyncHandlerActor extends AkkaDefaults {
@@ -170,14 +169,14 @@ class AsyncHandlerActor extends BaseActor {
 			} else {
 				logRequest(tx, sessionWithUpdatedCookies, OK, response)
 
-				val redirectURI = AsyncHttpProviderUtils.getRedirectUri(tx.request.getURI, response.getHeader(HeaderNames.LOCATION))
+				val redirectURI = resolveFromURI(tx.request.getURI, response.getHeader(HeaderNames.LOCATION))
 
 				val requestBuilder = new RequestBuilder(tx.request)
 					.setMethod("GET")
 					.setBodyEncoding(configuration.core.encoding)
 					.setQueryParameters(null.asInstanceOf[FluentStringsMap])
 					.setParameters(null.asInstanceOf[FluentStringsMap])
-					.setUrl(redirectURI.toString)
+					.setUrl(redirectURI.toString) // FIXME accept an URI (AHC fix to come)
 					.setConnectionPoolKeyStrategy(tx.request.getConnectionPoolKeyStrategy)
 
 				for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectURI))
