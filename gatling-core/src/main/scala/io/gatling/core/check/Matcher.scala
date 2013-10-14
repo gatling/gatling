@@ -55,7 +55,7 @@ object Matcher {
 		def name: String = "in"
 	}
 
-	class Comparer[X](val name: String, message: String)(implicit comp: Comp[X]) extends Matcher[X, X] {
+	class Comparer[X](val name: String, message: String, comp: (X, X) => Boolean) extends Matcher[X, X] {
 
 		def apply(actual: Option[X], expected: X): Validation[Option[X]] =
 			actual.map { actualValue =>
@@ -67,10 +67,10 @@ object Matcher {
 			}.getOrElse(s"can't compare nothing and $expected".failure)
 	}
 
-	def lessThan[X](implicit comp: LessThan[X]) = new Comparer[X]("lessThan", "less than")
-	def lessThanOrEqual[X](implicit comp: LessThanOrEqual[X]) = new Comparer[X]("lessThanOrEqual", "less than or equal to")
-	def greaterThan[X](implicit comp: GreaterThan[X]) = new Comparer[X]("greaterThan", "greater than")
-	def greaterThanOrEqual[X](implicit comp: GreaterThanOrEqual[X]) = new Comparer[X]("greaterThanOrEqual", "greater than or equal to")
+	def lessThan[X](implicit ordering: Ordering[X]) = new Comparer[X]("lessThan", "less than", ordering.lt)
+	def lessThanOrEqual[X](implicit ordering: Ordering[X]) = new Comparer[X]("lessThanOrEqual", "less than or equal to", ordering.lteq)
+	def greaterThan[X](implicit ordering: Ordering[X]) = new Comparer[X]("greaterThan", "greater than", ordering.gt)
+	def greaterThanOrEqual[X](implicit ordering: Ordering[X]) = new Comparer[X]("greaterThanOrEqual", "greater than or equal to", ordering.gteq)
 
 	def exists[X] = new Matcher[X, String] {
 		def apply(actual: Option[X], expected: String): Validation[Option[X]] = actual match {
