@@ -53,13 +53,16 @@ case class MatcherCheckBuilder[C <: Check[R], R, P, T, X](
 
 	def matchWith[E](matcher: Matcher[X, E], expected: Expression[E]) = new CheckBuilder(this, matcher, expected) with SaveAs[C, R, P, T, X, E]
 
-	def is(expected: Expression[X]) = matchWith(Matchers.is, expected)
-	def not(expected: Expression[X]) = matchWith(Matchers.not, expected)
-	def in(expected: Expression[Seq[X]]) = matchWith(Matchers.in, expected)
-	def exists = matchWith(Matchers.exists, noopStringExpression)
-	def lessThan(expected: Expression[X]) = matchWith(Matchers.lessThan, expected)
-	def notExists = matchWith(Matchers.notExists, noopStringExpression)
-	def whatever = matchWith(Matchers.whatever, noopStringExpression)
+	def is(expected: Expression[X]) = matchWith(Matcher.is, expected)
+	def not(expected: Expression[X]) = matchWith(Matcher.not, expected)
+	def in(expected: Expression[Seq[X]]) = matchWith(Matcher.in, expected)
+	def exists = matchWith(Matcher.exists, noopStringExpression)
+	def lessThan(expected: Expression[X])(implicit comp: LessThan[X]) = matchWith(Matcher.lessThan, expected)
+	def lessThanOrEqual(expected: Expression[X])(implicit comp: LessThanOrEqual[X]) = matchWith(Matcher.lessThanOrEqual, expected)
+	def greaterThan(expected: Expression[X])(implicit comp: GreaterThan[X]) = matchWith(Matcher.greaterThan, expected)
+	def greaterThanOrEqual(expected: Expression[X])(implicit comp: GreaterThanOrEqual[X]) = matchWith(Matcher.greaterThanOrEqual, expected)
+	def notExists = matchWith(Matcher.notExists, noopStringExpression)
+	def whatever = matchWith(Matcher.whatever, noopStringExpression)
 }
 
 case class CheckBuilder[C <: Check[R], R, P, T, X, E](
