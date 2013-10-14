@@ -16,6 +16,10 @@
 package io.gatling.http.dom
 
 import java.net.URI
+
+import scala.collection.JavaConversions._
+import scala.collection.concurrent
+
 import com.ning.http.client.Request
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.message.{ KO, OK, Status }
@@ -29,7 +33,7 @@ import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.response.ResponseBuilder
 import jodd.lagarto.dom.LagartoDOMBuilder
 import jodd.lagarto.dom.NodeSelector
-import scala.collection.JavaConversions._
+import org.jboss.netty.util.internal.ConcurrentHashMap
 
 sealed trait ResourceFetched {
 	def uri: URI
@@ -41,6 +45,9 @@ case class HtmlResourceFetched(uri: URI, status: Status, statusCode: Option[Int]
 
 object ResourceFetcher {
 
+	val cssCache: concurrent.Map[String, CssContent] = new ConcurrentHashMap[String, CssContent]
+	val htmlCache: concurrent.Map[URI, (String, Seq[EmbeddedResource])] = new ConcurrentHashMap[URI, (String, Seq[EmbeddedResource])]
+
 	val resourceChecks = List(HttpRequestActionBuilder.defaultHttpCheck)
 
 	def apply(uri: URI, statusCode: Int, lastModifiedHeader: Option[String], html: Option[String]) = {
@@ -49,12 +56,12 @@ object ResourceFetcher {
 			case 200 =>
 				// FIXME eTag + protocol.cache
 				lastModifiedHeader match {
-					case Some(lm) => HtmlParser.cache.get(uri) match {
+					case Some(lm) => htmlCache.get(uri) match {
 						case Some((cachedLastModified, resources)) if lm == cachedLastModified =>
 							resources
 						case _ =>
 							val resources = HtmlParser.getEmbeddedResources(uri, html.getOrElse(""))
-							HtmlParser.cache.put(uri, (lm, resources))
+							htmlCache.put(uri, (lm, resources))
 							resources
 					}
 
@@ -62,7 +69,7 @@ object ResourceFetcher {
 				}
 
 			case 304 =>
-				HtmlParser.cache.get(uri).map(_._2).getOrElse(Nil)
+				htmlCache.get(uri).map(_._2).getOrElse(Nil)
 		}
 
 		val nodeSelector: Option[NodeSelector] =
@@ -190,7 +197,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 			def allCssReceived(nodeSelector: NodeSelector) {
 				// received all css, parsing 
 				val styleRules = orderedExpectedCss.map { cssUrl =>
-					CssParser.cache.get(cssUrl).map(_.styleRules)
+					ResourceFetcher.cssCache.get(cssUrl).map(_.styleRules)
 						.getOrElse {
 							logger.warn(s"Found a css url $cssUrl missing from the result map?!")
 							Nil
@@ -224,10 +231,10 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 				content <- content if status == OK
 			} {
 				val url = uri.toString
-				val rules = CssParser.cache.getOrElseUpdate(url, CssParser.extractRules(uri, content))
+				val rules = ResourceFetcher.cssCache.getOrElseUpdate(url, CssParser.extractRules(uri, content))
 				orderedExpectedCss = rules.importRules ::: orderedExpectedCss
 				fetchOrBufferResources(rules.importRules.map(EmbeddedResource(_, Css)))
-				CssParser.cache.putIfAbsent(url, rules)
+				ResourceFetcher.cssCache.putIfAbsent(url, rules)
 			}
 
 			for {

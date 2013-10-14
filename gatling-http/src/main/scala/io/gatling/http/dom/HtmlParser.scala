@@ -18,9 +18,6 @@ package io.gatling.http.dom
 import java.net.{ URI, URISyntaxException }
 
 import scala.collection.mutable
-import scala.collection.JavaConversions.mapAsScalaConcurrentMap
-import scala.collection.concurrent
-import org.jboss.netty.util.internal.ConcurrentHashMap
 
 import com.typesafe.scalalogging.slf4j.Logging
 
@@ -28,8 +25,6 @@ import io.gatling.http.util.HttpHelper
 import jodd.lagarto.{ EmptyTagVisitor, LagartoParser, Tag }
 
 object HtmlParser extends Logging {
-
-	val cache: concurrent.Map[URI, (String, Seq[EmbeddedResource])] = new ConcurrentHashMap[URI, (String, Seq[EmbeddedResource])]
 
 	def getEmbeddedResources(documentURI: URI, htmlContent: String): Seq[EmbeddedResource] = {
 

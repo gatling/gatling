@@ -18,12 +18,8 @@ package io.gatling.http.dom
 import java.net.URI
 
 import scala.annotation.{ switch, tailrec }
-import scala.collection.JavaConversions.mapAsScalaConcurrentMap
 import scala.collection.TraversableOnce.flattenTraversableOnce
-import scala.collection.concurrent
 import scala.util.matching.Regex
-
-import org.jboss.netty.util.internal.ConcurrentHashMap
 
 import com.typesafe.scalalogging.slf4j.Logging
 
@@ -34,8 +30,6 @@ case class CssContent(importRules: List[String], styleRules: Seq[StyleRule])
 case class StyleRule(selector: String, url: String)
 
 object CssParser extends Logging {
-
-	val cache: concurrent.Map[String, CssContent] = new ConcurrentHashMap[String, CssContent]
 
 	val inlineStyleImageUrls = """url\((.*)\)""".r
 	val styleImportsUrls = """@import.* url\((.*)\)""".r
