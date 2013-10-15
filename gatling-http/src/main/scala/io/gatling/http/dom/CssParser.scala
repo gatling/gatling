@@ -26,8 +26,8 @@ import com.typesafe.scalalogging.slf4j.Logging
 import io.gatling.core.util.StringHelper.ensureByteCopy
 import io.gatling.http.util.HttpHelper
 
-case class CssContent(importRules: List[String], styleRules: Seq[StyleRule])
-case class StyleRule(selector: String, url: String)
+case class CssContent(importRules: List[URI], styleRules: Seq[StyleRule])
+case class StyleRule(selector: String, uri: URI)
 
 object CssParser extends Logging {
 
@@ -148,7 +148,7 @@ object CssParser extends Logging {
 			new String(filtered, 0, filteredPosition).split(",").map(_.trim)
 		}
 
-		var importRules = collection.mutable.ArrayBuffer.empty[String]
+		var importRules = collection.mutable.ArrayBuffer.empty[URI]
 		var styleRules = collection.mutable.ArrayBuffer.empty[StyleRule]
 
 		var withinComment = false
@@ -204,15 +204,15 @@ object CssParser extends Logging {
 				case ')' if !withinComment =>
 					for {
 						url <- extractUrl(cssContent, urlStart, i)
-						absoluteUrl <- HttpHelper.resolveFromURISilently(cssURI, url)
+						absoluteUri <- HttpHelper.resolveFromURISilently(cssURI, url)
 					} {
 						if (withinImport) {
-							importRules += absoluteUrl
+							importRules += absoluteUri
 							withinImport = false
 
 						} else {
 							for (selector <- extractSelectors(selectorsStart, selectorsEnd)) {
-								styleRules += StyleRule(selector, absoluteUrl)
+								styleRules += StyleRule(selector, absoluteUri)
 							}
 						}
 					}

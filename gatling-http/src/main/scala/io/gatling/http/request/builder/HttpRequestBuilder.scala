@@ -15,7 +15,7 @@
  */
 package io.gatling.http.request.builder
 
-import java.net.InetAddress
+import java.net.{ InetAddress, URI }
 
 import com.ning.http.client.{ Realm, RequestBuilder }
 import com.ning.http.client.ProxyServer.Protocol
@@ -37,7 +37,7 @@ import io.gatling.http.util.HttpHelper
 case class HttpAttributes(
 	requestName: Expression[String],
 	method: String,
-	url: Expression[String],
+	urlOrURI: Either[Expression[String], Expression[URI]],
 	queryParams: List[HttpParam] = Nil,
 	headers: Map[String, Expression[String]] = Map.empty,
 	realm: Option[Expression[Realm]] = None,
@@ -153,29 +153,44 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 */
 	protected def getAHCRequestBuilder(session: Session, protocol: HttpProtocol): Validation[RequestBuilder] = {
 
-		def makeAbsolute(url: String): Validation[String] =
-			if (url.startsWith(Protocol.HTTP.getProtocol))
-				url.success
-			else
-				protocol.baseURL.map(baseURL => (baseURL + url).success).getOrElse(s"No protocol.baseURL defined but provided url is relative : $url".failure)
+		def buildURI(urlOrURI: Either[Expression[String], Expression[URI]]): Validation[URI] = {
 
-		def configureQueryCookiesAndProxy(url: String)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
+			def makeAbsolute(url: String): Validation[String] =
+				if (url.startsWith(Protocol.HTTP.getProtocol))
+					url.success
+				else
+					protocol.baseURL.map(baseURL => (baseURL + url).success).getOrElse(s"No protocol.baseURL defined but provided url is relative : $url".failure)
 
-			val proxy = if (url.startsWith(Protocol.HTTPS.getProtocol)) protocol.securedProxy else protocol.proxy
+			def createURI(url: String): Validation[URI] =
+				try {
+					URI.create(url).success
+				} catch {
+					case e: Exception => s"url $url can't be parsed into a URI: ${e.getMessage}".failure
+				}
+
+			urlOrURI match {
+				case Left(url) => url(session).flatMap(makeAbsolute).flatMap(createURI)
+				case Right(uri) => uri(session)
+			}
+		}
+
+		def configureQueryCookiesAndProxy(uri: URI)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
+
+			val proxy = if (uri.getScheme == Protocol.HTTPS.getProtocol) protocol.securedProxy else protocol.proxy
 			proxy.foreach(requestBuilder.setProxyServer)
 
 			protocol.localAddress.foreach(requestBuilder.setLocalInetAddress)
 			httpAttributes.address.foreach(requestBuilder.setInetAddress)
 
-			CookieHandling.getStoredCookies(session, url).foreach(requestBuilder.addCookie)
+			CookieHandling.getStoredCookies(session, uri).foreach(requestBuilder.addCookie)
 
-			CacheHandling.getLastModified(protocol, session, url).foreach(requestBuilder.setHeader(HeaderNames.IF_MODIFIED_SINCE, _))
-			CacheHandling.getEtag(protocol, session, url).foreach(requestBuilder.setHeader(HeaderNames.IF_NONE_MATCH, _))
+			CacheHandling.getLastModified(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IF_MODIFIED_SINCE, _))
+			CacheHandling.getEtag(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IF_NONE_MATCH, _))
 
 			if (!httpAttributes.queryParams.isEmpty)
-				HttpHelper.httpParamsToFluentMap(httpAttributes.queryParams, session).map(requestBuilder.setQueryParameters(_).setUrl(url))
+				HttpHelper.httpParamsToFluentMap(httpAttributes.queryParams, session).map(requestBuilder.setQueryParameters(_).setURI(uri))
 			else
-				requestBuilder.setUrl(url).success
+				requestBuilder.setURI(uri).success
 		}
 
 		def configureVirtualHost(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
@@ -214,8 +229,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 		if (!protocol.shareConnections) requestBuilder.setConnectionPoolKeyStrategy(new ConnectionPoolKeyStrategy(session))
 
-		httpAttributes.url(session)
-			.flatMap(makeAbsolute)
+		buildURI(httpAttributes.urlOrURI)
 			.flatMap(configureQueryCookiesAndProxy)
 			.flatMap(configureVirtualHost)
 			.flatMap(configureHeaders)
@@ -232,7 +246,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 object HttpRequestBuilder {
 
-	def apply(method: String, requestName: Expression[String], url: Expression[String]) = new HttpRequestBuilder(HttpAttributes(requestName, method, url))
+	def apply(method: String, requestName: Expression[String], urlOrURI: Either[Expression[String], Expression[URI]]) = new HttpRequestBuilder(HttpAttributes(requestName, method, urlOrURI))
 }
 
 class HttpRequestBuilder(httpAttributes: HttpAttributes) extends AbstractHttpRequestBuilder[HttpRequestBuilder](httpAttributes) {

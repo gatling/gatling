@@ -29,7 +29,7 @@ object HtmlParser extends Logging {
 	def getEmbeddedResources(documentURI: URI, htmlContent: String): Seq[EmbeddedResource] = {
 
 		// TODO efficient?
-		val rawResources = mutable.LinkedHashSet.empty[EmbeddedResource]
+		val rawResources = mutable.LinkedHashSet.empty[(String, EmbeddedResourceType)]
 		var baseURI: Option[URI] = None
 
 		val lagartoParser = new LagartoParser(htmlContent)
@@ -39,7 +39,7 @@ object HtmlParser extends Logging {
 			def addResource(tag: Tag, attributeName: String, resType: EmbeddedResourceType = Regular) {
 				val url = tag.getAttributeValue(attributeName, false)
 				if (url != null)
-					rawResources += EmbeddedResource(url, resType)
+					rawResources += url -> resType
 			}
 
 			override def script(tag: Tag, body: CharSequence) {
@@ -48,7 +48,7 @@ object HtmlParser extends Logging {
 
 			override def style(tag: Tag, body: CharSequence) {
 				CssParser.extractUrls(body, CssParser.styleImportsUrls).foreach {
-					rawResources += EmbeddedResource(_, Css)
+					rawResources += _ -> Css
 				}
 			}
 
@@ -104,7 +104,7 @@ object HtmlParser extends Logging {
 							.map(cb => appletResources.map(prependCodeBase(cb, _)))
 							.getOrElse(appletResources)
 
-						appletResourcesUrls.foreach(rawResources += EmbeddedResource(_))
+						appletResourcesUrls.foreach(rawResources += _ -> Regular)
 
 					case "object" =>
 						val data = tag.getAttributeValue("data", false)
@@ -113,12 +113,12 @@ object HtmlParser extends Logging {
 							.map(cb => prependCodeBase(cb, data))
 							.getOrElse(data)
 
-						rawResources += EmbeddedResource(objectResourceUrl)
+						rawResources += objectResourceUrl -> Regular
 
 					case _ =>
 						Option(tag.getAttributeValue("style", false)).foreach { style =>
 							CssParser.extractUrls(style, CssParser.inlineStyleImageUrls).foreach {
-								rawResources += EmbeddedResource(_)
+								rawResources += _ -> Regular
 							}
 						}
 				}
@@ -130,8 +130,9 @@ object HtmlParser extends Logging {
 		val rootURI = baseURI.getOrElse(documentURI)
 
 		rawResources
-			.map { res =>
-				HttpHelper.resolveFromURISilently(rootURI, res.url).map(absoluteUrl => res.copy(url = absoluteUrl))
+			.map {
+				case (url, resType) =>
+					HttpHelper.resolveFromURISilently(rootURI, url).map(EmbeddedResource(_, resType))
 			}.toSeq.flatten
 	}
 }

@@ -15,6 +15,8 @@
  */
 package io.gatling.http.request.builder
 
+import java.net.URI
+
 import io.gatling.core.session.Expression
 
 object HttpRequestBaseBuilder {
@@ -30,16 +32,17 @@ object HttpRequestBaseBuilder {
  */
 class HttpRequestBaseBuilder(requestName: Expression[String]) {
 
-	def httpRequest(method: String, url: Expression[String]) = HttpRequestBuilder(method, requestName, url)
-	def get(url: Expression[String]) = httpRequest("GET", url)
-	def delete(url: Expression[String]) = httpRequest("DELETE", url)
+	def get(url: Expression[String]) = httpRequest("GET", Left(url))
+	def getURI(uri: Expression[URI]) = httpRequest("GET", Right(uri))
+	def delete(url: Expression[String]) = httpRequest("DELETE", Left(url))
+	def httpRequest(method: String, urlOrURI: Either[Expression[String], Expression[URI]]) = HttpRequestBuilder(method, requestName, urlOrURI)
 
-	def httpRequestWithBody(method: String, url: Expression[String]) = HttpRequestWithBodyBuilder(method, requestName, url)
-	def put(url: Expression[String]) = httpRequestWithBody("PUT", url)
-	def patch(url: Expression[String]) = httpRequestWithBody("PATCH", url)
-	def head(url: Expression[String]) = httpRequestWithBody("HEAD", url)
-	def options(url: Expression[String]) = httpRequestWithBody("OPTIONS", url)
+	def put(url: Expression[String]) = httpRequestWithBody("PUT", Left(url))
+	def patch(url: Expression[String]) = httpRequestWithBody("PATCH", Left(url))
+	def head(url: Expression[String]) = httpRequestWithBody("HEAD", Left(url))
+	def options(url: Expression[String]) = httpRequestWithBody("OPTIONS", Left(url))
+	def httpRequestWithBody(method: String, urlOrURI: Either[Expression[String], Expression[URI]]) = HttpRequestWithBodyBuilder(method, requestName, urlOrURI)
 
-	def httpRequestWithBodyAndParams(method: String, url: Expression[String]) = HttpRequestWithBodyAndParamsBuilder(method, requestName, url)
-	def post(url: Expression[String]) = httpRequestWithBodyAndParams("POST", url)
+	def post(url: Expression[String]) = httpRequestWithBodyAndParams("POST", Left(url))
+	def httpRequestWithBodyAndParams(method: String, urlOrURI: Either[Expression[String], Expression[URI]]) = HttpRequestWithBodyAndParamsBuilder(method, requestName, urlOrURI)
 }

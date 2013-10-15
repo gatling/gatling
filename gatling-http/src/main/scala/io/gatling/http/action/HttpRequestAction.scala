@@ -44,8 +44,7 @@ import io.gatling.http.response.{ ResponseBuilder, ResponseTransformer }
 object HttpRequestAction extends Logging {
 
 	def handleHttpTransaction(tx: HttpTx) {
-
-		if (CacheHandling.isCached(tx.protocol, tx.session, tx.request)) {
+		if (CacheHandling.isCached(tx.protocol, tx.session, tx.request.getURI)) {
 			logger.info(s"Skipping cached request '${tx.requestName}': scenario '${tx.session.scenarioName}', userId #${tx.session.userId}")
 			tx.next ! tx.session
 

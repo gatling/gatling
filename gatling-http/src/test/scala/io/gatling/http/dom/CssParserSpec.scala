@@ -28,7 +28,7 @@ class CssParserSpec extends Specification {
 
 	"parsing CSS" should {
 
-		def rulesUri(css: String) = CssParser.extractRules(rootURI, css).styleRules.map(r => r.selector -> r.url)
+		def rulesUri(css: String) = CssParser.extractRules(rootURI, css).styleRules.map(r => r.selector -> r.uri.toString)
 
 		"work with an empty CSS" in {
 			rulesUri("") must beEqualTo(Nil)

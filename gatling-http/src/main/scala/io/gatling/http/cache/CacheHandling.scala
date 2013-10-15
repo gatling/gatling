@@ -15,6 +15,8 @@
  */
 package io.gatling.http.cache
 
+import java.net.URI
+
 import scala.util.Try
 
 import com.ning.http.client.Request
@@ -39,13 +41,13 @@ object CacheHandling extends Logging {
 		tryConvertExpiresField.orElse(tryConvertToInt).map(_ > 0).getOrElse(false)
 	}
 
-	private def getCache(session: Session): Set[String] = session(httpCacheAttributeName).asOption.getOrElse(Set.empty)
-	private def getLastModifiedStore(session: Session): Map[String, String] = session(httpLastModifiedStoreAttributeName).asOption.getOrElse(Map.empty[String, String])
-	private def getEtagStore(session: Session): Map[String, String] = session(httpEtagStoreAttributeName).asOption.getOrElse(Map.empty[String, String])
+	def getCache(session: Session): Set[URI] = session(httpCacheAttributeName).asOption.getOrElse(Set.empty)
+	def getLastModifiedStore(session: Session): Map[URI, String] = session(httpLastModifiedStoreAttributeName).asOption.getOrElse(Map.empty[URI, String])
+	def getEtagStore(session: Session): Map[URI, String] = session(httpEtagStoreAttributeName).asOption.getOrElse(Map.empty[URI, String])
 
-	def isCached(httpProtocol: HttpProtocol, session: Session, request: Request) = httpProtocol.cache && getCache(session).contains(request.getUrl)
-	def getLastModified(httpProtocol: HttpProtocol, session: Session, url: String) = if (httpProtocol.cache) getLastModifiedStore(session).get(url) else None
-	def getEtag(httpProtocol: HttpProtocol, session: Session, url: String) = if (httpProtocol.cache) getEtagStore(session).get(url) else None
+	def isCached(httpProtocol: HttpProtocol, session: Session, uri: URI) = httpProtocol.cache && getCache(session).contains(uri)
+	def getLastModified(httpProtocol: HttpProtocol, session: Session, uri: URI) = if (httpProtocol.cache) getLastModifiedStore(session).get(uri) else None
+	def getEtag(httpProtocol: HttpProtocol, session: Session, uri: URI) = if (httpProtocol.cache) getEtagStore(session).get(uri) else None
 
 	val maxAgePrefix = "max-age="
 	val maxAgeZero = maxAgePrefix + "0"
@@ -67,32 +69,32 @@ object CacheHandling extends Logging {
 
 	def cache(httpProtocol: HttpProtocol, session: Session, request: Request, response: Response): Session = {
 
-		val url = request.getUrl
+		val uri = request.getURI
 
 		def updateCache(session: Session) = {
 			val cache = getCache(session)
-			if (cache.contains(url)) {
-				logger.info(s"$url was already cached")
+			if (cache.contains(uri)) {
+				logger.info(s"$uri was already cached")
 				session
 
 			} else {
-				logger.info(s"Caching url $url")
-				session.set(httpCacheAttributeName, cache + url)
+				logger.info(s"Caching uri $uri")
+				session.set(httpCacheAttributeName, cache + uri)
 			}
 		}
 
 		def updateLastModified(session: Session) = Option(response.getHeader(HeaderNames.LAST_MODIFIED))
 			.map { lastModified =>
-				logger.info(s"Setting LastModified $lastModified for url $url")
+				logger.info(s"Setting LastModified $lastModified for uri $uri")
 				val lastModifiedStore = getLastModifiedStore(session)
-				session.set(httpLastModifiedStoreAttributeName, lastModifiedStore + (url -> lastModified))
+				session.set(httpLastModifiedStoreAttributeName, lastModifiedStore + (uri -> lastModified))
 			}.getOrElse(session)
 
 		def updateEtag(session: Session) = Option(response.getHeader(HeaderNames.ETAG))
 			.map { etag =>
-				logger.info(s"Setting Etag $etag for url $url")
+				logger.info(s"Setting Etag $etag for uri $uri")
 				val etagStore = getEtagStore(session)
-				session.set(httpEtagStoreAttributeName, etagStore + (url -> etag))
+				session.set(httpEtagStoreAttributeName, etagStore + (uri -> etag))
 			}.getOrElse(session)
 
 		if (httpProtocol.cache)

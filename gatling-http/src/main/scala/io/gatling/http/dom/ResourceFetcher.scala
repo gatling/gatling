@@ -45,7 +45,7 @@ case class HtmlResourceFetched(uri: URI, status: Status, statusCode: Option[Int]
 
 object ResourceFetcher {
 
-	val cssCache: concurrent.Map[String, CssContent] = new ConcurrentHashMap[String, CssContent]
+	val cssCache: concurrent.Map[URI, CssContent] = new ConcurrentHashMap[URI, CssContent]
 	val htmlCache: concurrent.Map[URI, (String, Seq[EmbeddedResource])] = new ConcurrentHashMap[URI, (String, Seq[EmbeddedResource])]
 
 	val resourceChecks = List(HttpRequestActionBuilder.defaultHttpCheck)
@@ -114,8 +114,9 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 	def fetchOrBufferResources(resources: Iterable[EmbeddedResource]) {
 
 		def buildRequest(resource: EmbeddedResource) = {
-			val urlExpression: Expression[String] = _ => resource.url.success
-			val requestBuilder = HttpRequestBaseBuilder.http(urlExpression).get(urlExpression)
+			val urlExpression: Expression[String] = _ => resource.uri.toString.success
+			val uriExpression: Expression[URI] = _ => resource.uri.success
+			val requestBuilder = HttpRequestBaseBuilder.http(urlExpression).getURI(uriExpression)
 			requestBuilder.build(tx.session, tx.protocol)
 		}
 
@@ -145,7 +146,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 		}
 	}
 
-	var orderedExpectedCss: List[String] = directResources.collect { case EmbeddedResource(url, Css) => url }.toList
+	var orderedExpectedCss: List[URI] = directResources.collect { case EmbeddedResource(uri, Css) => uri }.toList
 	var fetchedCss = 0
 	var globalStatus: Status = OK
 	var pendingRequestsCount = directResources.size
@@ -215,7 +216,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 
 				val matchedUrls = sortedStyleRules.map { styleRule =>
 					val nodes = nodeSelector.select(styleRule.selector)
-					nodes.map(_ -> styleRule.url)
+					nodes.map(_ -> styleRule.uri)
 				}.flatten
 					.toMap
 					.values.map(EmbeddedResource(_))
@@ -230,11 +231,10 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 			for {
 				content <- content if status == OK
 			} {
-				val url = uri.toString
-				val rules = ResourceFetcher.cssCache.getOrElseUpdate(url, CssParser.extractRules(uri, content))
+				val rules = ResourceFetcher.cssCache.getOrElseUpdate(uri, CssParser.extractRules(uri, content))
 				orderedExpectedCss = rules.importRules ::: orderedExpectedCss
 				fetchOrBufferResources(rules.importRules.map(EmbeddedResource(_, Css)))
-				ResourceFetcher.cssCache.putIfAbsent(url, rules)
+				ResourceFetcher.cssCache.putIfAbsent(uri, rules)
 			}
 
 			for {

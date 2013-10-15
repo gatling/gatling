@@ -176,7 +176,7 @@ class AsyncHandlerActor extends BaseActor {
 					.setBodyEncoding(configuration.core.encoding)
 					.setQueryParameters(null.asInstanceOf[FluentStringsMap])
 					.setParameters(null.asInstanceOf[FluentStringsMap])
-					.setUrl(redirectURI.toString) // FIXME accept an URI (AHC fix to come)
+					.setURI(redirectURI)
 					.setConnectionPoolKeyStrategy(tx.request.getConnectionPoolKeyStrategy)
 
 				for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectURI))

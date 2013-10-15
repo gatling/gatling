@@ -116,9 +116,9 @@ object HttpHelper extends Logging {
 	def isCss(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).map(_.contains(HeaderValues.TEXT_CSS)).getOrElse(false)
 	def isHtml(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).map(ct => ct.contains(HeaderValues.TEXT_HTML) || ct.contains(HeaderValues.APPLICATION_XHTML)).getOrElse(false)
 	def resolveFromURI(rootURI: URI, relative: String) = AsyncHttpProviderUtils.getRedirectUri(rootURI, relative)
-	def resolveFromURISilently(rootURI: URI, relative: String): Option[String] =
+	def resolveFromURISilently(rootURI: URI, relative: String): Option[URI] =
 		try {
-			Some(resolveFromURI(rootURI, relative).toString)
+			Some(resolveFromURI(rootURI, relative))
 		} catch {
 			case e: Exception =>
 				logger.error("Failed to resolve URI", e)

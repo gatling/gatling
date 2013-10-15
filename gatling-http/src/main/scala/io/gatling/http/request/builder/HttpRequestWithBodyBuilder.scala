@@ -16,6 +16,7 @@
 package io.gatling.http.request.builder
 
 import java.io.{ File, InputStream }
+import java.net.URI
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.multipart.Part
@@ -81,7 +82,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 
 object HttpRequestWithBodyBuilder {
 
-	def apply(method: String, requestName: Expression[String], url: Expression[String]) = new HttpRequestWithBodyBuilder(HttpAttributes(requestName, method, url), BodyAttributes())
+	def apply(method: String, requestName: Expression[String], urlOrURI: Either[Expression[String], Expression[URI]]) = new HttpRequestWithBodyBuilder(HttpAttributes(requestName, method, urlOrURI), BodyAttributes())
 }
 
 class HttpRequestWithBodyBuilder(

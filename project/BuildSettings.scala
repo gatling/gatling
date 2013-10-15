@@ -18,6 +18,7 @@ object BuildSettings {
 		organizationHomepage  := Some(new URL("http://gatling.io")),
 		startYear             := Some(2011),
 		licenses              := Seq("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
+		resolvers             := Seq(Resolver.sonatypeRepo("snapshots")),
 		scalaVersion          := "2.10.3",
 		scalacOptions         := Seq(
 			"-encoding",
