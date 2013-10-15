@@ -25,7 +25,7 @@ import io.gatling.core.check.Checks
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
-import io.gatling.core.session.{ Session, MutationList }
+import io.gatling.core.session.{ Session, UpdateList }
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
@@ -111,7 +111,7 @@ class AsyncHandlerActor extends BaseActor {
 	 *
 	 * @param mutatedSession the new Session
 	 */
-	private def executeNext(tx: HttpTx, mutations: List[Session => Session], status: Status, response: Response) {
+	private def executeNext(tx: HttpTx, updates: List[Session => Session], status: Status, response: Response) {
 
 		def statusCode() =
 			if (response.hasResponseStatus)
@@ -127,13 +127,13 @@ class AsyncHandlerActor extends BaseActor {
 		if (tx.resourceFetching) {
 			val resourceMessage =
 				if (isCss(response.getHeaders))
-					CssResourceFetched(response.request.getURI, status, mutations, body())
+					CssResourceFetched(response.request.getURI, status, updates, body())
 
 				else if (isHtml(response.getHeaders))
-					HtmlResourceFetched(response.request.getURI, status, mutations, statusCode(), body())
+					HtmlResourceFetched(response.request.getURI, status, updates, statusCode(), body())
 
 				else
-					RegularResourceFetched(response.request.getURI, status, mutations)
+					RegularResourceFetched(response.request.getURI, status, updates)
 
 			tx.next ! resourceMessage
 
@@ -146,20 +146,20 @@ class AsyncHandlerActor extends BaseActor {
 			tx.next ! tx.session.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
 	}
 
-	private def logAndExecuteNext(tx: HttpTx, mutations: List[Session => Session], status: Status, response: Response, message: Option[String]) {
+	private def logAndExecuteNext(tx: HttpTx, updates: List[Session => Session], status: Status, response: Response, message: Option[String]) {
 
-		val newTx = tx.copy(session = mutations.mutate(tx.session))
+		val newTx = tx.copy(session = updates.update(tx.session))
 
 		logRequest(newTx, status, response, message)
-		executeNext(newTx, mutations, status, response)
+		executeNext(newTx, updates, status, response)
 	}
 
-	private def ok(tx: HttpTx, mutations: List[Session => Session], response: Response) {
-		logAndExecuteNext(tx, mutations, OK, response, None)
+	private def ok(tx: HttpTx, updates: List[Session => Session], response: Response) {
+		logAndExecuteNext(tx, updates, OK, response, None)
 	}
 
-	private def ko(tx: HttpTx, mutations: List[Session => Session], response: Response, message: String) {
-		logAndExecuteNext(tx, AsyncHandlerActor.fail :: mutations, KO, response, Some(message))
+	private def ko(tx: HttpTx, updates: List[Session => Session], response: Response, message: String) {
+		logAndExecuteNext(tx, AsyncHandlerActor.fail :: updates, KO, response, Some(message))
 	}
 
 	/**
@@ -167,14 +167,14 @@ class AsyncHandlerActor extends BaseActor {
 	 */
 	private def processResponse(tx: HttpTx, response: Response) {
 
-		def redirect(mutations: List[Session => Session]) {
+		def redirect(updates: List[Session => Session]) {
 
 			if (tx.protocol.maxRedirects.map(_ == tx.numberOfRedirects).getOrElse(false)) {
-				ko(tx, mutations, response, s"Too many redirects, max is ${tx.protocol.maxRedirects.get}")
+				ko(tx, updates, response, s"Too many redirects, max is ${tx.protocol.maxRedirects.get}")
 
 			} else {
 
-				val newTx = tx.copy(session = mutations.mutate(tx.session))
+				val newTx = tx.copy(session = updates.update(tx.session))
 
 				logRequest(newTx, OK, response)
 
@@ -205,29 +205,27 @@ class AsyncHandlerActor extends BaseActor {
 			}
 		}
 
-		def checkAndProceed(mutations: List[Session => Session], checks: List[HttpCheck]) {
+		def checkAndProceed(updates: List[Session => Session], checks: List[HttpCheck]) {
 
-			val mutationsWithCacheUpdate = AsyncHandlerActor.updateCache(tx, response) :: mutations
+			val updatesWithCacheUpdate = AsyncHandlerActor.updateCache(tx, response) :: updates
 
-			val checkResult = Checks.check(response, tx.session, checks)
-
-			checkResult match {
-				case Success(saveCheckExtracts) => ok(tx, saveCheckExtracts :: mutationsWithCacheUpdate, response)
-				case Failure(errorMessage) => ko(tx, mutationsWithCacheUpdate, response, errorMessage)
+			Checks.check(response, tx.session, checks) match {
+				case Success(saveCheckExtracts) => ok(tx, saveCheckExtracts :: updatesWithCacheUpdate, response)
+				case Failure(errorMessage) => ko(tx, updatesWithCacheUpdate, response, errorMessage)
 			}
 		}
 
-		val mutationsWithUpdatedCookies = List(AsyncHandlerActor.updateCookies(tx, response))
+		val updatesWithUpdatedCookies = List(AsyncHandlerActor.updateCookies(tx, response))
 
 		if (response.isRedirected && tx.protocol.followRedirect)
-			redirect(mutationsWithUpdatedCookies)
+			redirect(updatesWithUpdatedCookies)
 		else {
 			val checks =
 				if (response.getStatusCode == 304)
 					tx.checks.filter(c => c.order != HttpCheckOrder.Body && c.order != HttpCheckOrder.Checksum)
 				else
 					tx.checks
-			checkAndProceed(mutationsWithUpdatedCookies, checks)
+			checkAndProceed(updatesWithUpdatedCookies, checks)
 		}
 	}
 }

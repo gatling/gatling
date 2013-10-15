@@ -32,9 +32,9 @@ package object session {
 
 	def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression.map(_(session).map(Some(_))).getOrElse(None.success)
 
-	implicit class MutationList(val mutations: List[Session => Session]) extends AnyVal {
+	implicit class UpdateList(val updates: List[Session => Session]) extends AnyVal {
 
-		def mutate(session: Session): Session = mutations.reverse.foldLeft(session) { (current, mutation) =>
+		def update(session: Session): Session = updates.reverse.foldLeft(session) { (current, mutation) =>
 			mutation(current)
 		}
 	}

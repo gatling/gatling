@@ -33,32 +33,33 @@ class CacheHandlingSpec extends Specification with Mockito {
 	// Default config
 	GatlingConfiguration.setUp()
 
+	// FIXME
 	"isResponseCacheable()" should {
 
 		val http = HttpProtocol.default.copy(cache = true)
 		val request = new RequestBuilder().setUrl("http://localhost").build
 
-		def isCacheable(headers: Seq[(String, String)]) = {
+		def getResponseExpire(headers: Seq[(String, String)]) = {
 			val ahcResponse = mock[AHCResponse].smart
 			headers.foreach { case (name, value) => ahcResponse.getHeader(name) returns value }
 			val response = HttpResponse(request, Some(ahcResponse), Map.empty, -1, -1, -1, -1, Array.empty)
 
-			CacheHandling.isResponseCacheable(http, response)
+			CacheHandling.getResponseExpire(http, response)
 		}
 
 		"correctly support Expires header" in {
-			isCacheable(List(HeaderNames.EXPIRES -> "3600")) must beTrue
+			getResponseExpire(List(HeaderNames.EXPIRES -> "3600")).isDefined must beTrue
 		}
 
 		"correctly support Pragma header" in {
-			isCacheable(List(HeaderNames.EXPIRES -> "3600", HeaderNames.PRAGMA -> HeaderValues.NO_CACHE)) must beFalse
+			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.PRAGMA -> HeaderValues.NO_CACHE)).isDefined must beFalse
 		}
 
 		"correctly support Cache-Control header" in {
-			isCacheable(List(HeaderNames.CACHE_CONTROL -> "private, max-age=3600, must-revalidate")) must beTrue
-			isCacheable(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "public, no-cache")) must beFalse
-			isCacheable(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "public, max-age=0")) must beFalse
-			isCacheable(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "no-store")) must beFalse
+			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "private, max-age=3600, must-revalidate")).isDefined must beTrue
+			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "public, no-cache")).isDefined must beFalse
+			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "public, max-age=0")).isDefined must beFalse
+			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "no-store")).isDefined must beFalse
 		}
 	}
 

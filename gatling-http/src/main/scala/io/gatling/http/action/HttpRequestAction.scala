@@ -34,6 +34,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 import akka.actor.ActorRef
 import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.{ HttpClient, HttpTx, RequestFactory }
 import io.gatling.http.cache.{ CacheHandling, URICacheKey }
 import io.gatling.http.check.HttpCheck
@@ -44,13 +45,23 @@ import io.gatling.http.response.{ ResponseBuilder, ResponseTransformer }
 object HttpRequestAction extends Logging {
 
 	def handleHttpTransaction(tx: HttpTx) {
-		if (CacheHandling.isCached(tx.protocol, tx.session, tx.request.getURI.toCacheKey)) {
-			logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-			tx.next ! tx.session
 
-		} else {
+		def send(tx: HttpTx) {
 			logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
 			HttpClient.startHttpTransaction(tx)
+		}
+
+		val url = tx.request.getURI.toCacheKey
+		CacheHandling.getExpire(tx.protocol, tx.session, url) match {
+			case None =>
+				send(tx)
+
+			case Some(expire) if nowMillis > expire =>
+				send(tx.copy(session = CacheHandling.clearExpire(tx.session, url)))
+
+			case _ =>
+				logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+				tx.next ! tx.session
 		}
 	}
 }

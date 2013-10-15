@@ -23,28 +23,26 @@ import scala.collection.concurrent
 import com.ning.http.client.Request
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.message.{ KO, OK, Status }
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, Session, UpdateList }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Success, SuccessWrapper }
-import io.gatling.http.action.HttpRequestAction
+import io.gatling.http.action.{ HttpRequestAction, HttpRequestActionBuilder }
 import io.gatling.http.ahc.HttpTx
+import io.gatling.http.cache.{ CacheHandling, URICacheKey }
 import io.gatling.http.request.builder.HttpRequestBaseBuilder
-import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.response.ResponseBuilder
 import jodd.lagarto.dom.LagartoDOMBuilder
 import jodd.lagarto.dom.NodeSelector
 import org.jboss.netty.util.internal.ConcurrentHashMap
-import io.gatling.core.session.{ Session, MutationList }
-import io.gatling.http.cache.{ CacheHandling, URICacheKey }
 
 sealed trait ResourceFetched {
 	def uri: URI
 	def status: Status
-	def mutations: List[Session => Session]
+	def updates: List[Session => Session]
 }
-case class RegularResourceFetched(uri: URI, status: Status, mutations: List[Session => Session]) extends ResourceFetched
-case class CssResourceFetched(uri: URI, status: Status, mutations: List[Session => Session], content: Option[String]) extends ResourceFetched
-case class HtmlResourceFetched(uri: URI, status: Status, mutations: List[Session => Session], statusCode: Option[Int], content: Option[String]) extends ResourceFetched
+case class RegularResourceFetched(uri: URI, status: Status, updates: List[Session => Session]) extends ResourceFetched
+case class CssResourceFetched(uri: URI, status: Status, updates: List[Session => Session], content: Option[String]) extends ResourceFetched
+case class HtmlResourceFetched(uri: URI, status: Status, updates: List[Session => Session], statusCode: Option[Int], content: Option[String]) extends ResourceFetched
 
 object ResourceFetcher {
 
@@ -150,12 +148,26 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 			.map {
 				case (host, requests) =>
 
-					val (cachedResources, nonCachedResources) = requests.partition(request => CacheHandling.isCached(tx.protocol, session, request.getURI.toCacheKey))
+					var cached: List[Request] = Nil
+					var nonCached: List[Request] = Nil
+					requests.foreach { request =>
+						val url = request.getURI.toCacheKey
+						CacheHandling.getExpire(tx.protocol, session, url) match {
+							case None => nonCached = request :: nonCached
 
-					cachedResources.foreach(handleCachedRequest)
+							case Some(expire) if nowMillis > expire =>
+								session = CacheHandling.clearExpire(session, url)
+								nonCached = request :: nonCached
+
+							case _ =>
+								cached = request :: cached
+						}
+					}
+
+					cached.reverse.foreach(handleCachedRequest)
 
 					val availableTokens = availableTokensByHost(host)
-					host -> nonCachedResources.splitAt(availableTokens)
+					host -> nonCached.reverse.splitAt(availableTokens)
 			}
 
 		immediateAndBufferedRequestsPerHost.foreach {
@@ -165,7 +177,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 		}
 	}
 
-	def resourceFetched(uri: URI, status: Status, mutations: List[Session => Session]) {
+	def resourceFetched(uri: URI, status: Status, updates: List[Session => Session]) {
 
 		def done(status: Status) {
 			logger.debug("All resources were fetched")
@@ -182,18 +194,26 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 
 				case request :: tail =>
 					bufferedRequestsByHost += host -> tail
-					if (CacheHandling.isCached(tx.protocol, session, request.getURI.toCacheKey)) {
-						handleCachedRequest(request)
-						releaseToken(host, tail)
-					} else {
-						// recycle token, fetch a buffered resource
-						fetchResource(request)
+					val url = request.getURI.toCacheKey
+					CacheHandling.getExpire(tx.protocol, session, url) match {
+						case None =>
+							// recycle token, fetch a buffered resource
+							fetchResource(request)
+
+						case Some(expire) if nowMillis > expire =>
+							// expire reached
+							session = CacheHandling.clearExpire(session, url)
+							fetchResource(request)
+
+						case _ =>
+							handleCachedRequest(request)
+							releaseToken(host, tail)
 					}
 			}
 		}
 
 		logger.debug(s"Resource $uri was fetched")
-		session = mutations.mutate(session)
+		session = updates.update(session)
 		pendingRequestsCount -= 1
 
 		if (status == KO)
@@ -205,7 +225,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 			releaseToken(uri.getHost, bufferedRequestsByHost.get(uri.getHost).getOrElse(Nil))
 	}
 
-	def cssFetched(uri: URI, status: Status, mutations: List[Session => Session], content: Option[String]) {
+	def cssFetched(uri: URI, status: Status, updates: List[Session => Session], content: Option[String]) {
 
 		def allCssReceived(nodeSelector: NodeSelector) {
 			// received all css, parsing 
@@ -256,10 +276,10 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 			if fetchedCss == orderedExpectedCss.size
 		} allCssReceived(nodeSelector)
 
-		resourceFetched(uri, status, mutations)
+		resourceFetched(uri, status, updates)
 	}
 
-	def htmlFetched(uri: URI, status: Status, mutations: List[Session => Session], statusCode: Option[Int], content: Option[String]) {
+	def htmlFetched(uri: URI, status: Status, updates: List[Session => Session], statusCode: Option[Int], content: Option[String]) {
 		// TODO
 		if (status == OK)
 			statusCode match {
@@ -268,7 +288,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 				case _ =>
 			}
 
-		resourceFetched(uri, status, mutations)
+		resourceFetched(uri, status, updates)
 	}
 
 	var orderedExpectedCss: List[URI] = directResources.collect { case EmbeddedResource(uri, Css) => uri }.toList
@@ -283,13 +303,13 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 	fetchOrBufferResources(directResources)
 
 	def receive: Receive = {
-		case RegularResourceFetched(uri, status, mutations) =>
-			resourceFetched(uri, status, mutations)
+		case RegularResourceFetched(uri, status, updates) =>
+			resourceFetched(uri, status, updates)
 
-		case CssResourceFetched(uri, status, mutations, content) =>
-			cssFetched(uri, status, mutations, content)
+		case CssResourceFetched(uri, status, updates, content) =>
+			cssFetched(uri, status, updates, content)
 
-		case HtmlResourceFetched(uri, status, mutations, statusCode, content) =>
-			htmlFetched(uri, status, mutations, statusCode, content)
+		case HtmlResourceFetched(uri, status, updates, statusCode, content) =>
+			htmlFetched(uri, status, updates, statusCode, content)
 	}
 }
