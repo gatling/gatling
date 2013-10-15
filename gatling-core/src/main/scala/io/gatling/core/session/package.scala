@@ -31,4 +31,11 @@ package object session {
 	val noopStringExpression = "".expression
 
 	def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression.map(_(session).map(Some(_))).getOrElse(None.success)
+
+	implicit class MutationList(val mutations: List[Session => Session]) extends AnyVal {
+
+		def mutate(session: Session): Session = mutations.reverse.foldLeft(session) { (current, mutation) =>
+			mutation(current)
+		}
+	}
 }

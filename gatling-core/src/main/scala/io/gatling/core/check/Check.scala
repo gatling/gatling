@@ -18,17 +18,15 @@ package io.gatling.core.check
 import scala.collection.mutable
 
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.core.validation.{ SuccessWrapper, Validation, ValidationList }
 
 object Checks {
 
-	def check[R](response: R, session: Session, checks: Seq[Check[R]]): Validation[Session] = {
+	def check[R](response: R, session: Session, checks: List[Check[R]]): Validation[Session => Session] = {
 
 		implicit val preparedCache = mutable.Map.empty[Any, Any]
 
-		checks.foldLeft(session.success) { (newSession, check) =>
-			newSession.flatMap(s => check.check(response, s))
-		}
+		checks.map(_.check(response, session)).sequence.map(_.reduce(_ andThen _))
 	}
 }
 
@@ -36,7 +34,7 @@ trait Check[R] {
 
 	type Cache = mutable.Map[Any, Any]
 
-	def check(response: R, session: Session)(implicit cache: Cache): Validation[Session]
+	def check(response: R, session: Session)(implicit cache: Cache): Validation[Session => Session]
 }
 
 case class CheckBase[R, P, T, X, E](
@@ -47,13 +45,13 @@ case class CheckBase[R, P, T, X, E](
 	expectedExpression: Expression[E],
 	saveAs: Option[String]) extends Check[R] {
 
-	def check(response: R, session: Session)(implicit cache: Cache): Validation[Session] = {
+	def check(response: R, session: Session)(implicit cache: Cache): Validation[Session => Session] = {
 
 		def memoizedPrepared: Validation[P] = cache
 			.getOrElseUpdate(preparer, preparer(response))
 			.asInstanceOf[Validation[P]]
 
-		def newSession(extractedValue: Option[Any]) =
+		def update(extractedValue: Option[Any]) = (session: Session) =>
 			(for {
 				key <- saveAs
 				value <- extractedValue
@@ -66,6 +64,6 @@ case class CheckBase[R, P, T, X, E](
 			expected <- expectedExpression(session).mapError(message => s"${extractor.name}(${criterion}).${matcher.name} failed: could not resolve expected value: $message")
 			matched <- matcher(actual, expected).mapError(message => s"${extractor.name}(${criterion}).${matcher.name}(${expected}) didn't match: $message")
 
-		} yield newSession(matched)
+		} yield update(matched)
 	}
 }
