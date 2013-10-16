@@ -15,8 +15,6 @@
  */
 package io.gatling.core
 
-import scala.reflect.ClassTag
-
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
@@ -31,11 +29,4 @@ package object session {
 	val noopStringExpression = "".expression
 
 	def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression.map(_(session).map(Some(_))).getOrElse(None.success)
-
-	implicit class UpdateList(val updates: List[Session => Session]) extends AnyVal {
-
-		def update(session: Session): Session = updates.reverse.foldLeft(session) { (current, mutation) =>
-			mutation(current)
-		}
-	}
 }

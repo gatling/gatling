@@ -23,7 +23,7 @@ import scala.collection.concurrent
 import com.ning.http.client.Request
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.message.{ KO, OK, Status }
-import io.gatling.core.session.{ Expression, Session, UpdateList }
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Success, SuccessWrapper }
 import io.gatling.http.action.{ HttpRequestAction, HttpRequestActionBuilder }
@@ -38,11 +38,11 @@ import org.jboss.netty.util.internal.ConcurrentHashMap
 sealed trait ResourceFetched {
 	def uri: URI
 	def status: Status
-	def updates: List[Session => Session]
+	def update: Session => Session
 }
-case class RegularResourceFetched(uri: URI, status: Status, updates: List[Session => Session]) extends ResourceFetched
-case class CssResourceFetched(uri: URI, status: Status, updates: List[Session => Session], content: Option[String]) extends ResourceFetched
-case class HtmlResourceFetched(uri: URI, status: Status, updates: List[Session => Session], statusCode: Option[Int], content: Option[String]) extends ResourceFetched
+case class RegularResourceFetched(uri: URI, status: Status, update: Session => Session) extends ResourceFetched
+case class CssResourceFetched(uri: URI, status: Status, update: Session => Session, content: Option[String]) extends ResourceFetched
+case class HtmlResourceFetched(uri: URI, status: Status, update: Session => Session, statusCode: Option[Int], content: Option[String]) extends ResourceFetched
 
 object ResourceFetcher {
 
@@ -115,11 +115,11 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 
 	def handleCachedRequest(request: Request) {
 		if (ResourceFetcher.cssCache.contains(request.getURI)) {
-			cssFetched(request.getURI, OK, Nil, None)
+			cssFetched(request.getURI, OK, identity, None)
 		} else if (ResourceFetcher.htmlCache.contains(request.getURI)) {
-			htmlFetched(uri, OK, Nil, None, None)
+			htmlFetched(uri, OK, identity, None, None)
 		} else {
-			resourceFetched(request.getURI, OK, Nil)
+			resourceFetched(request.getURI, OK, identity)
 		}
 	}
 
@@ -176,7 +176,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 		}
 	}
 
-	def resourceFetched(uri: URI, status: Status, updates: List[Session => Session]) {
+	def resourceFetched(uri: URI, status: Status, update: Session => Session) {
 
 		def done(status: Status) {
 			logger.debug("All resources were fetched")
@@ -212,7 +212,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 		}
 
 		logger.debug(s"Resource $uri was fetched")
-		session = updates.update(session)
+		session = update(session)
 		pendingRequestsCount -= 1
 
 		if (status == KO)
@@ -224,7 +224,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 			releaseToken(uri.getHost, bufferedRequestsByHost.get(uri.getHost).getOrElse(Nil))
 	}
 
-	def cssFetched(uri: URI, status: Status, updates: List[Session => Session], content: Option[String]) {
+	def cssFetched(uri: URI, status: Status, update: Session => Session, content: Option[String]) {
 
 		def allCssReceived(nodeSelector: NodeSelector) {
 			// received all css, parsing 
@@ -275,10 +275,10 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 			if fetchedCss == orderedExpectedCss.size
 		} allCssReceived(nodeSelector)
 
-		resourceFetched(uri, status, updates)
+		resourceFetched(uri, status, update)
 	}
 
-	def htmlFetched(uri: URI, status: Status, updates: List[Session => Session], statusCode: Option[Int], content: Option[String]) {
+	def htmlFetched(uri: URI, status: Status, update: Session => Session, statusCode: Option[Int], content: Option[String]) {
 		// TODO
 		if (status == OK)
 			statusCode match {
@@ -287,7 +287,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 				case _ =>
 			}
 
-		resourceFetched(uri, status, updates)
+		resourceFetched(uri, status, update)
 	}
 
 	var orderedExpectedCss: List[URI] = directResources.collect { case EmbeddedResource(uri, Css) => uri }.toList
@@ -302,13 +302,13 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 	fetchOrBufferResources(directResources)
 
 	def receive: Receive = {
-		case RegularResourceFetched(uri, status, updates) =>
-			resourceFetched(uri, status, updates)
+		case RegularResourceFetched(uri, status, update) =>
+			resourceFetched(uri, status, update)
 
-		case CssResourceFetched(uri, status, updates, content) =>
-			cssFetched(uri, status, updates, content)
+		case CssResourceFetched(uri, status, update, content) =>
+			cssFetched(uri, status, update, content)
 
-		case HtmlResourceFetched(uri, status, updates, statusCode, content) =>
-			htmlFetched(uri, status, updates, statusCode, content)
+		case HtmlResourceFetched(uri, status, update, statusCode, content) =>
+			htmlFetched(uri, status, update, statusCode, content)
 	}
 }
