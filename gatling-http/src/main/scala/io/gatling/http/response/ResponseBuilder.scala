@@ -30,7 +30,7 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckOrder.Body
 import io.gatling.http.check.checksum.ChecksumCheck
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.util.HttpHelper.isHtml
+import io.gatling.http.util.HttpHelper.{ isCss, isHtml }
 
 object ResponseBuilder {
 
@@ -53,6 +53,7 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 
 	val firstByteSent = nowMillis
 	val computeChecksums = !checksumChecks.isEmpty
+	@volatile var storeHtmlOrCss = false
 	@volatile var lastByteSent = 0L
 	@volatile var firstByteReceived = 0L
 	@volatile var lastByteReceived = 0L
@@ -83,13 +84,14 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 
 	def accumulate(headers: HttpResponseHeaders) {
 		this.headers = headers
+		storeHtmlOrCss = fetchHtmlResources && (isHtml(headers.getHeaders) || isCss(headers.getHeaders))
 		updateLastByteReceived
 	}
 
 	def accumulate(bodyPart: HttpResponseBodyPart) {
 
 		updateLastByteReceived
-		if (storeBodyParts || (fetchHtmlResources && isHtml(headers.getHeaders))) bodies.add(bodyPart)
+		if (storeBodyParts || storeHtmlOrCss) bodies.add(bodyPart)
 		if (computeChecksums) digests.values.foreach(_.update(bodyPart.getBodyByteBuffer))
 	}
 

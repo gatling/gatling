@@ -26,7 +26,7 @@ import jodd.lagarto.{ EmptyTagVisitor, LagartoParser, Tag }
 
 object HtmlParser extends Logging {
 
-	def getEmbeddedResources(documentURI: URI, htmlContent: String): Seq[EmbeddedResource] = {
+	def getEmbeddedResources(documentURI: URI, htmlContent: String): List[EmbeddedResource] = {
 
 		// TODO efficient?
 		val rawResources = mutable.LinkedHashSet.empty[(String, EmbeddedResourceType)]
@@ -133,6 +133,6 @@ object HtmlParser extends Logging {
 			.map {
 				case (url, resType) =>
 					HttpHelper.resolveFromURISilently(rootURI, url).map(EmbeddedResource(_, resType))
-			}.toSeq.flatten
+			}.toList.flatten
 	}
 }

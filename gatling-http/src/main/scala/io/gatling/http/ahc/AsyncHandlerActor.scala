@@ -111,7 +111,7 @@ class AsyncHandlerActor extends BaseActor {
 	 *
 	 * @param mutatedSession the new Session
 	 */
-	private def executeNext(tx: HttpTx, update: Session => Session, status: Status, response: Response) {
+	private def executeNext(tx: HttpTx, sessionUpdates: Session => Session, status: Status, response: Response) {
 
 		def statusCode() =
 			if (response.hasResponseStatus)
@@ -119,47 +119,55 @@ class AsyncHandlerActor extends BaseActor {
 			else None
 
 		def body() =
-			if (response.hasResponseStatus && response.getStatusCode == 200)
+			if (response.hasResponseStatus)
 				Option(response.getResponseBody(configuration.core.encoding))
 			else None
+
+		def regularExecuteNext() {
+			tx.next ! tx.session.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
+		}
 
 		// FIXME rewrite with extractors
 		if (tx.resourceFetching) {
 			val resourceMessage =
 				if (isCss(response.getHeaders))
-					CssResourceFetched(response.request.getURI, status, update, body())
+					CssResourceFetched(response.request.getURI, status, sessionUpdates, body())
 
 				else if (isHtml(response.getHeaders))
-					HtmlResourceFetched(response.request.getURI, status, update, statusCode(), body())
+					HtmlResourceFetched(response.request.getURI, status, sessionUpdates, statusCode(), body())
 
 				else
-					RegularResourceFetched(response.request.getURI, status, update)
+					RegularResourceFetched(response.request.getURI, status, sessionUpdates)
 
 			tx.next ! resourceMessage
 
 		} else if (tx.protocol.fetchHtmlResources && response.hasResponseStatus && isHtml(response.getHeaders)) {
 
-			val resourceFetcher = ResourceFetcher(response.request.getURI, response.getStatusCode, Option(response.getHeader(HeaderNames.LAST_MODIFIED)), body())
-			actor(context)(resourceFetcher(tx))
+			val resourceFetcherFactory = ResourceFetcher(response, tx.protocol, body())
+
+			resourceFetcherFactory match {
+				case Some(resourceFetcherFactory) => actor(context)(resourceFetcherFactory(tx))
+				case None => regularExecuteNext()
+			}
 
 		} else
-			tx.next ! tx.session.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
+			regularExecuteNext()
 	}
 
-	private def logAndExecuteNext(tx: HttpTx, update: Session => Session, status: Status, response: Response, message: Option[String]) {
+	private def logAndExecuteNext(tx: HttpTx, sessionUpdates: Session => Session, status: Status, response: Response, message: Option[String]) {
 
-		val newTx = tx.copy(session = update(tx.session))
+		val newTx = tx.copy(session = sessionUpdates(tx.session))
 
 		logRequest(newTx, status, response, message)
-		executeNext(newTx, update, status, response)
+		executeNext(newTx, sessionUpdates, status, response)
 	}
 
-	private def ok(tx: HttpTx, update: Session => Session, response: Response) {
-		logAndExecuteNext(tx, update, OK, response, None)
+	private def ok(tx: HttpTx, sessionUpdates: Session => Session, response: Response) {
+		logAndExecuteNext(tx, sessionUpdates, OK, response, None)
 	}
 
-	private def ko(tx: HttpTx, update: Session => Session, response: Response, message: String) {
-		logAndExecuteNext(tx, update andThen AsyncHandlerActor.fail, KO, response, Some(message))
+	private def ko(tx: HttpTx, sessionUpdates: Session => Session, response: Response, message: String) {
+		logAndExecuteNext(tx, sessionUpdates andThen AsyncHandlerActor.fail, KO, response, Some(message))
 	}
 
 	/**
@@ -167,14 +175,13 @@ class AsyncHandlerActor extends BaseActor {
 	 */
 	private def processResponse(tx: HttpTx, response: Response) {
 
-		def redirect(update: Session => Session) {
+		def redirect(sessionUpdates: Session => Session) {
 
 			if (tx.protocol.maxRedirects.map(_ == tx.numberOfRedirects).getOrElse(false)) {
-				ko(tx, update, response, s"Too many redirects, max is ${tx.protocol.maxRedirects.get}")
+				ko(tx, sessionUpdates, response, s"Too many redirects, max is ${tx.protocol.maxRedirects.get}")
 
 			} else {
-
-				val newTx = tx.copy(session = update(tx.session))
+				val newTx = tx.copy(session = sessionUpdates(tx.session))
 
 				logRequest(newTx, OK, response)
 
@@ -205,9 +212,9 @@ class AsyncHandlerActor extends BaseActor {
 			}
 		}
 
-		def checkAndProceed(update: Session => Session, checks: List[HttpCheck]) {
+		def checkAndProceed(sessionUpdates: Session => Session, checks: List[HttpCheck]) {
 
-			val updateWithCacheUpdate = update andThen AsyncHandlerActor.updateCache(tx, response)
+			val updateWithCacheUpdate = sessionUpdates andThen AsyncHandlerActor.updateCache(tx, response)
 
 			Checks.check(response, tx.session, checks) match {
 				case Success(saveCheckExtracts) => ok(tx, updateWithCacheUpdate andThen saveCheckExtracts, response)

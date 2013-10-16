@@ -32,7 +32,10 @@ object CacheHandling extends Logging {
 	val httpExpireStoreAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cache.expireStore"
 	def getExpireStore(session: Session): Map[String, Long] = session(httpExpireStoreAttributeName).asOption.getOrElse(Map.empty[String, Long])
 	def getExpire(httpProtocol: HttpProtocol, session: Session, url: String): Option[Long] = if (httpProtocol.cache) getExpireStore(session).get(url) else None
-	def clearExpire(session: Session, url: String) = session.set(httpExpireStoreAttributeName, getExpireStore(session) - url)
+	def clearExpire(session: Session, url: String) = {
+		logger.info(s"Resource $url caching expired")
+		session.set(httpExpireStoreAttributeName, getExpireStore(session) - url)
+	}
 
 	val httpLastModifiedStoreAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cache.lastModifiedStore"
 	def getLastModifiedStore(session: Session): Map[String, String] = session(httpLastModifiedStoreAttributeName).asOption.getOrElse(Map.empty[String, String])
@@ -87,21 +90,21 @@ object CacheHandling extends Logging {
 
 		val updateExpire = (session: Session) => getResponseExpire(httpProtocol, response)
 			.map { expire =>
-				logger.info(s"Setting expire for url $url")
+				logger.debug(s"Setting Expire $expire for url $url")
 				val expireStore = getExpireStore(session)
 				session.set(httpExpireStoreAttributeName, expireStore + (url -> expire))
 			}.getOrElse(session)
 
 		val updateLastModified = (session: Session) => Option(response.getHeader(HeaderNames.LAST_MODIFIED))
 			.map { lastModified =>
-				logger.info(s"Setting LastModified $lastModified for url $url")
+				logger.debug(s"Setting LastModified $lastModified for url $url")
 				val lastModifiedStore = getLastModifiedStore(session)
 				session.set(httpLastModifiedStoreAttributeName, lastModifiedStore + (url -> lastModified))
 			}.getOrElse(session)
 
 		val updateEtag = (session: Session) => Option(response.getHeader(HeaderNames.ETAG))
 			.map { etag =>
-				logger.info(s"Setting Etag $etag for url $url")
+				logger.debug(s"Setting Etag $etag for url $url")
 				val etagStore = getEtagStore(session)
 				session.set(httpEtagStoreAttributeName, etagStore + (url -> etag))
 			}.getOrElse(session)

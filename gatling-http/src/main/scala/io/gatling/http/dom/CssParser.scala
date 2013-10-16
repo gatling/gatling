@@ -153,6 +153,7 @@ object CssParser extends Logging {
 
 		var withinComment = false
 		var withinImport = false
+		var withinUrl = false
 		var selectorsStart = 0
 		var selectorsEnd = 0
 		var urlStart = 0
@@ -162,11 +163,13 @@ object CssParser extends Logging {
 
 			(cssContent.charAt(i): @switch) match {
 				case '/' =>
-					if (cssContent.charAt(i + 1) == '*') {
+					if (i < cssContent.length - 1 &&
+						cssContent.charAt(i + 1) == '*') {
 						withinComment = true
 						i += 1
 
-					} else if (i > 0 && cssContent.charAt(i - 1) == '*') {
+					} else if (i > 0 &&
+						cssContent.charAt(i - 1) == '*') {
 						withinComment = false
 					}
 
@@ -180,6 +183,7 @@ object CssParser extends Logging {
 
 				case '@' =>
 					if (!withinComment &&
+						i < cssContent.length - 6 &&
 						cssContent.charAt(i + 1) == 'i' &&
 						cssContent.charAt(i + 2) == 'm' &&
 						cssContent.charAt(i + 3) == 'p' &&
@@ -192,16 +196,18 @@ object CssParser extends Logging {
 					}
 
 				case 'u' =>
-					if (!withinComment && i < cssContent.length - 7 &&
+					if (!withinComment &&
+						i < cssContent.length - 3 &&
 						cssContent.charAt(i + 1) == 'r' &&
 						cssContent.charAt(i + 2) == 'l' &&
 						cssContent.charAt(i + 3) == '(') {
 
 						i = i + 3
 						urlStart = i + 1
+						withinUrl = true
 					}
 
-				case ')' if !withinComment =>
+				case ')' if (withinImport || withinUrl) && !withinComment =>
 					for {
 						url <- extractUrl(cssContent, urlStart, i)
 						absoluteUri <- HttpHelper.resolveFromURISilently(cssURI, url)
@@ -211,6 +217,7 @@ object CssParser extends Logging {
 							withinImport = false
 
 						} else {
+							withinUrl = false
 							for (selector <- extractSelectors(selectorsStart, selectorsEnd)) {
 								styleRules += StyleRule(selector, absoluteUri)
 							}

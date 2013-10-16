@@ -30,7 +30,6 @@
 package io.gatling.http.action
 
 import com.typesafe.scalalogging.slf4j.Logging
-
 import akka.actor.ActorRef
 import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.result.message.KO
@@ -43,14 +42,22 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.response.{ ResponseBuilder, ResponseTransformer }
+import io.gatling.http.dom.ResourceFetcher
+import akka.actor.ActorDSL.actor
+import io.gatling.core.akka.AkkaDefaults
 
-object HttpRequestAction extends Logging {
+object HttpRequestAction extends AkkaDefaults with Logging {
 
 	def handleHttpTransaction(tx: HttpTx) {
 
 		def send(tx: HttpTx) {
 			logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
 			HttpClient.startHttpTransaction(tx)
+		}
+
+		def bypass(tx: HttpTx) {
+			logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+			tx.next ! tx.session
 		}
 
 		val url = tx.request.getURI.toCacheKey
@@ -62,8 +69,21 @@ object HttpRequestAction extends Logging {
 				send(tx.copy(session = CacheHandling.clearExpire(tx.session, url)))
 
 			case _ =>
-				logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-				tx.next ! tx.session
+				// FIXME if html in cache, maybe resources are not cached and have to be fetched
+				if (tx.protocol.fetchHtmlResources) {
+
+					val resourceFetcherFactory = ResourceFetcher(tx.request.getURI)
+
+					resourceFetcherFactory match {
+						case Some(resourceFetcherFactory) =>
+							logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+							// FIXME pass a context and create as a child on the HttpRequestAction?
+							actor(resourceFetcherFactory(tx))
+						case None => bypass(tx)
+					}
+				} else {
+					bypass(tx)
+				}
 		}
 	}
 }

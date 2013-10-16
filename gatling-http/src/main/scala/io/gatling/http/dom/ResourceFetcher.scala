@@ -34,60 +34,106 @@ import io.gatling.http.response.ResponseBuilder
 import jodd.lagarto.dom.LagartoDOMBuilder
 import jodd.lagarto.dom.NodeSelector
 import org.jboss.netty.util.internal.ConcurrentHashMap
+import io.gatling.http.response.Response
+import io.gatling.http.config.HttpProtocol
+import io.gatling.http.HeaderNames
+import scala.annotation.switch
 
 sealed trait ResourceFetched {
 	def uri: URI
 	def status: Status
-	def update: Session => Session
+	def sessionUpdates: Session => Session
 }
-case class RegularResourceFetched(uri: URI, status: Status, update: Session => Session) extends ResourceFetched
-case class CssResourceFetched(uri: URI, status: Status, update: Session => Session, content: Option[String]) extends ResourceFetched
-case class HtmlResourceFetched(uri: URI, status: Status, update: Session => Session, statusCode: Option[Int], content: Option[String]) extends ResourceFetched
+case class RegularResourceFetched(uri: URI, status: Status, sessionUpdates: Session => Session) extends ResourceFetched
+case class CssResourceFetched(uri: URI, status: Status, sessionUpdates: Session => Session, content: Option[String]) extends ResourceFetched
+case class HtmlResourceFetched(uri: URI, status: Status, sessionUpdates: Session => Session, statusCode: Option[Int], content: Option[String]) extends ResourceFetched
 
 object ResourceFetcher {
 
+	// FIXME use Strings
 	val cssCache: concurrent.Map[URI, CssContent] = new ConcurrentHashMap[URI, CssContent]
-	val htmlCache: concurrent.Map[URI, (String, Seq[EmbeddedResource])] = new ConcurrentHashMap[URI, (String, Seq[EmbeddedResource])]
+	val htmlCache: concurrent.Map[URI, (String, List[EmbeddedResource])] = new ConcurrentHashMap[URI, (String, List[EmbeddedResource])]
 
 	val resourceChecks = List(HttpRequestActionBuilder.defaultHttpCheck)
 
-	def apply(uri: URI, statusCode: Int, lastModifiedHeader: Option[String], html: Option[String]) = {
+	sealed trait Resources
+	case class Cached(resources: List[EmbeddedResource]) extends Resources
+	case class Uncached(resources: List[EmbeddedResource]) extends Resources
 
-		val directResources: Seq[EmbeddedResource] = statusCode match {
-			case 200 =>
-				// FIXME eTag + protocol.cache
-				lastModifiedHeader match {
-					case Some(lm) => htmlCache.get(uri) match {
-						case Some((cachedLastModified, resources)) if lm == cachedLastModified =>
-							resources
-						case _ =>
-							val resources = HtmlParser.getEmbeddedResources(uri, html.getOrElse(""))
-							htmlCache.put(uri, (lm, resources))
-							resources
-					}
+	def apply(response: Response, protocol: HttpProtocol, html: => Option[String]): Option[HttpTx => ResourceFetcher] = {
 
-					case None => HtmlParser.getEmbeddedResources(uri, html.getOrElse(""))
-				}
+		val htmlDocumentURI = response.request.getURI
 
-			case 304 =>
-				htmlCache.get(uri).map(_._2).getOrElse(Nil)
-		}
-
-		val nodeSelector: Option[NodeSelector] =
-			if (directResources.exists(_.resType == Css))
-				html.map { h =>
-					val domBuilder = new LagartoDOMBuilder
-					domBuilder.setParseSpecialTagsAsCdata(true)
-					new NodeSelector(domBuilder.parse(h))
-				}
+		val htmlCacheExpireFlag =
+			if (protocol.cache)
+				Option(response.getHeader(HeaderNames.LAST_MODIFIED)).orElse(Option(response.getHeader(HeaderNames.ETAG)))
 			else
 				None
 
-		(tx: HttpTx) => new ResourceFetcher(uri, directResources, nodeSelector, tx)
+		val resources: Resources = (response.getStatusCode: @switch) match {
+			case 200 =>
+				htmlCacheExpireFlag match {
+					case Some(newHtmlCacheExpireFlag) =>
+						htmlCache.get(htmlDocumentURI) match {
+							case Some((oldHtmlCacheExpireFlag, resources)) if newHtmlCacheExpireFlag == oldHtmlCacheExpireFlag =>
+								//cache entry didn't expire, use it
+								Cached(resources)
+							case _ =>
+								// cache entry expired, flush it
+								htmlCache.remove(htmlDocumentURI)
+								Uncached(HtmlParser.getEmbeddedResources(htmlDocumentURI, html.getOrElse("")))
+						}
+
+					case None =>
+						// don't cache
+						Uncached(HtmlParser.getEmbeddedResources(htmlDocumentURI, html.getOrElse("")))
+				}
+
+			case 304 =>
+				// no content, retrieve from cache if exist
+				htmlCache.get(htmlDocumentURI).map(res => Cached(res._2)).getOrElse(Uncached(Nil))
+
+			case _ => Uncached(Nil)
+		}
+
+		resources match {
+			case Cached(Nil) => None
+			case Cached(resources) => Some((tx: HttpTx) => new ResourceFetcher(htmlDocumentURI, htmlCacheExpireFlag, resources, tx))
+			case Uncached(Nil) => None
+			case Uncached(resources) =>
+				val nodeSelector: Option[NodeSelector] =
+					if (resources.exists(_.resType == Css))
+						html.map { h =>
+							val domBuilder = new LagartoDOMBuilder
+							domBuilder.setParseSpecialTagsAsCdata(true)
+							new NodeSelector(domBuilder.parse(h))
+						}
+					else
+						None
+
+				Some((tx: HttpTx) => new IncompleteResourceFetcher(htmlDocumentURI, htmlCacheExpireFlag, resources, nodeSelector, tx))
+		}
+	}
+
+	def apply(htmlDocumentURI: URI) = {
+		val resources = htmlCache.get(htmlDocumentURI).map(res => Cached(res._2))
+
+		resources.flatMap {
+			case Cached(Nil) => None
+			case Cached(resources) => Some((tx: HttpTx) => new ResourceFetcher(htmlDocumentURI, None, resources, tx))
+		}
 	}
 }
 
-class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSelector: Option[NodeSelector], tx: HttpTx) extends BaseActor {
+class ResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String], initialResources: Seq[EmbeddedResource], tx: HttpTx) extends BaseActor {
+
+	var session = tx.session
+	val bufferedRequestsByHost = collection.mutable.HashMap.empty[String, List[Request]].withDefaultValue(Nil)
+	val availableTokensByHost = collection.mutable.HashMap.empty[String, Int].withDefaultValue(tx.protocol.maxConnectionsPerHost)
+	var pendingRequestsCount = initialResources.size
+	var globalStatus: Status = OK
+	val start = nowMillis
+	fetchOrBufferResources(initialResources)
 
 	def fetchResource(request: Request) {
 		logger.debug(s"Fetching ressource ${request.getUrl}")
@@ -117,7 +163,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 		if (ResourceFetcher.cssCache.contains(request.getURI)) {
 			cssFetched(request.getURI, OK, identity, None)
 		} else if (ResourceFetcher.htmlCache.contains(request.getURI)) {
-			htmlFetched(uri, OK, identity, None, None)
+			htmlFetched(htmlDocumentURI, OK, identity, None, None)
 		} else {
 			resourceFetched(request.getURI, OK, identity)
 		}
@@ -159,6 +205,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 								nonCached = request :: nonCached
 
 							case _ =>
+								logger.info(s"Fetching resource ${request.getURI} from cache")
 								cached = request :: cached
 						}
 					}
@@ -176,19 +223,18 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 		}
 	}
 
-	def resourceFetched(uri: URI, status: Status, update: Session => Session) {
+	def done(status: Status) {
+		logger.debug("All resources were fetched")
+		tx.next ! session.logGroupRequest(nowMillis - start, status)
+		context.stop(self)
+	}
 
-		def done(status: Status) {
-			logger.debug("All resources were fetched")
-			tx.next ! session.logGroupRequest(nowMillis - start, status)
-			context.stop(self)
-		}
+	def resourceFetched(uri: URI, status: Status, sessionUpdates: Session => Session) {
 
 		def releaseToken(host: String, bufferedRequests: List[Request]) {
 			bufferedRequests match {
 				case Nil =>
 					// nothing to send for this host
-					logger.debug(s"No resource left for host $host")
 					availableTokensByHost += host -> (availableTokensByHost(host) + 1)
 
 				case request :: tail =>
@@ -212,7 +258,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 		}
 
 		logger.debug(s"Resource $uri was fetched")
-		session = update(session)
+		session = sessionUpdates(session)
 		pendingRequestsCount -= 1
 
 		if (status == KO)
@@ -224,7 +270,48 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 			releaseToken(uri.getHost, bufferedRequestsByHost.get(uri.getHost).getOrElse(Nil))
 	}
 
-	def cssFetched(uri: URI, status: Status, update: Session => Session, content: Option[String]) {
+	def cssFetched(uri: URI, status: Status, sessionUpdates: Session => Session, content: Option[String]) {
+		resourceFetched(uri, status, sessionUpdates)
+	}
+
+	def htmlFetched(uri: URI, status: Status, sessionUpdates: Session => Session, statusCode: Option[Int], content: Option[String]) {
+		// TODO
+		if (status == OK)
+			statusCode match {
+				case Some(200) => // parse
+				case Some(304) => // cache
+				case _ =>
+			}
+
+		resourceFetched(uri, status, sessionUpdates)
+	}
+
+	def receive: Receive = {
+		case RegularResourceFetched(uri, status, sessionUpdates) => resourceFetched(uri, status, sessionUpdates)
+		case CssResourceFetched(uri, status, sessionUpdates, content) => cssFetched(uri, status, sessionUpdates, content)
+		case HtmlResourceFetched(uri, status, sessionUpdates, statusCode, content) => htmlFetched(uri, status, sessionUpdates, statusCode, content)
+	}
+}
+
+class IncompleteResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String], directResources: Seq[EmbeddedResource], nodeSelector: Option[NodeSelector], tx: HttpTx)
+	extends ResourceFetcher(htmlDocumentURI, htmlCacheExpireFlag, directResources, tx) {
+
+	var orderedExpectedCss: List[URI] = directResources.collect { case EmbeddedResource(uri, Css) => uri }.toList
+	var fetchedCss = 0
+	val resources = collection.mutable.ArrayBuffer.empty[EmbeddedResource] ++= directResources
+
+	override def done(status: Status) {
+		if (status == OK) {
+			// update cache if everything went fine
+			// FIXME what is a resource is always unavailable, shouldn't we cache?
+			htmlCacheExpireFlag.foreach { htmlCacheExpireFlag =>
+				ResourceFetcher.htmlCache.putIfAbsent(htmlDocumentURI, (htmlCacheExpireFlag, resources.toList))
+			}
+		}
+		super.done(status)
+	}
+
+	override def cssFetched(uri: URI, status: Status, sessionUpdates: Session => Session, content: Option[String]) {
 
 		def allCssReceived(nodeSelector: NodeSelector) {
 			// received all css, parsing 
@@ -245,15 +332,17 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 					else index1 < index2 // default, use order in files
 			}.map(_._1)
 
-			val matchedUrls = sortedStyleRules.map { styleRule =>
+			val appliedCssRulesImages = sortedStyleRules.map { styleRule =>
 				val nodes = nodeSelector.select(styleRule.selector)
 				nodes.map(_ -> styleRule.uri)
 			}.flatten
 				.toMap
 				.values.map(EmbeddedResource(_))
 
-			pendingRequestsCount += matchedUrls.size
-			fetchOrBufferResources(matchedUrls)
+			resources ++= appliedCssRulesImages
+
+			pendingRequestsCount += appliedCssRulesImages.size
+			fetchOrBufferResources(appliedCssRulesImages)
 		}
 
 		fetchedCss += 1
@@ -267,7 +356,9 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 
 		ResourceFetcher.cssCache.get(uri).foreach { rules =>
 			orderedExpectedCss = rules.importRules ::: orderedExpectedCss
-			fetchOrBufferResources(rules.importRules.map(EmbeddedResource(_, Css)))
+			val cssImports = rules.importRules.map(EmbeddedResource(_, Css))
+			resources ++= cssImports
+			fetchOrBufferResources(cssImports)
 		}
 
 		for {
@@ -275,40 +366,6 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 			if fetchedCss == orderedExpectedCss.size
 		} allCssReceived(nodeSelector)
 
-		resourceFetched(uri, status, update)
-	}
-
-	def htmlFetched(uri: URI, status: Status, update: Session => Session, statusCode: Option[Int], content: Option[String]) {
-		// TODO
-		if (status == OK)
-			statusCode match {
-				case Some(200) => // parse
-				case Some(304) => // cache
-				case _ =>
-			}
-
-		resourceFetched(uri, status, update)
-	}
-
-	var orderedExpectedCss: List[URI] = directResources.collect { case EmbeddedResource(uri, Css) => uri }.toList
-	var fetchedCss = 0
-	var pendingRequestsCount = directResources.size
-	var globalStatus: Status = OK
-	var session = tx.session
-	val bufferedRequestsByHost = collection.mutable.HashMap.empty[String, List[Request]].withDefaultValue(Nil)
-	val availableTokensByHost = collection.mutable.HashMap.empty[String, Int].withDefaultValue(tx.protocol.maxConnectionsPerHost)
-	val start = nowMillis
-
-	fetchOrBufferResources(directResources)
-
-	def receive: Receive = {
-		case RegularResourceFetched(uri, status, update) =>
-			resourceFetched(uri, status, update)
-
-		case CssResourceFetched(uri, status, update, content) =>
-			cssFetched(uri, status, update, content)
-
-		case HtmlResourceFetched(uri, status, update, statusCode, content) =>
-			htmlFetched(uri, status, update, statusCode, content)
+		super.cssFetched(uri, status, sessionUpdates, content)
 	}
 }
