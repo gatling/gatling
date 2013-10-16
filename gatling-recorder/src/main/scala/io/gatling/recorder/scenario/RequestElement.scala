@@ -15,13 +15,11 @@
  */
 package io.gatling.recorder.scenario
 
-import java.nio.charset.Charset
-
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
 
-import org.jboss.netty.handler.codec.http.{ HttpRequest, QueryStringDecoder }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ AUTHORIZATION, CONTENT_TYPE }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_X_WWW_FORM_URLENCODED
+import org.jboss.netty.handler.codec.http.HttpRequest
 
 import com.ning.http.util.Base64
 
@@ -54,11 +52,9 @@ object RequestElement {
 case class RequestElement(uri: String, method: String, headers: Map[String, String], body: Option[RequestBody], statusCode: Int, simulationClass: Option[String]) extends ScenarioElement {
 
 	val (baseUrl, pathQuery) = URIHelper.splitURI(uri)
-	private var printedUrl = uri.split("\\?")(0)
+	private var printedUrl = uri
 
 	var filteredHeadersId: Option[Int] = None
-
-	val queryParams = convertParamsFromJavaToScala(new QueryStringDecoder(uri, Charset.forName(configuration.core.encoding)).getParameters)
 
 	var id: Int = 0
 
@@ -97,7 +93,6 @@ case class RequestElement(uri: String, method: String, headers: Map[String, Stri
 			printedUrl,
 			filteredHeadersId,
 			basicAuthCredentials,
-			queryParams,
 			body,
 			statusCode)
 }

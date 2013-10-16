@@ -30,16 +30,10 @@ object RequestTemplate {
 		printedUrl: String,
 		headersId: Option[Int],
 		credentials: Option[(String, String)],
-		queryParams: List[(String, String)],
 		body: Option[RequestBody],
 		statusCode: Int) = {
 
-		def renderUrl = fast"""$tripleQuotes$printedUrl${
-			if (queryParams.isEmpty) ""
-			else "?" + queryParams.map {
-				case (name, value) => name + Option(value).map("=" + _).getOrElse("")
-			}.mkFastring("&")
-		}$tripleQuotes"""
+		def renderUrl = fast"""$tripleQuotes$printedUrl$tripleQuotes"""
 
 		def renderHeaders = headersId
 			.map { id =>
