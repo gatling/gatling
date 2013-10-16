@@ -67,11 +67,9 @@ trait Interruptable extends Chainable {
 trait Failable { self: Chainable =>
 
 	def execute(session: Session) {
-		executeOrFail(session) match {
-			case Failure(message) =>
-				logger.error(message)
-				next ! session.markAsFailed
-			case _ =>
+		executeOrFail(session).onFailure { message =>
+			logger.error(message)
+			next ! session.markAsFailed
 		}
 	}
 

@@ -19,6 +19,7 @@ import java.net.{ InetAddress, URI }
 
 import com.ning.http.client.{ Realm, RequestBuilder }
 import com.ning.http.client.ProxyServer.Protocol
+import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, Session }
@@ -62,7 +63,7 @@ object AbstractHttpRequestBuilder {
  *
  * @param httpAttributes the base HTTP attributes
  */
-abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpAttributes: HttpAttributes) {
+abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpAttributes: HttpAttributes) extends Logging {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -243,7 +244,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 *
 	 * @param session the session of the current scenario
 	 */
-	def build: RequestFactory = (session: Session, protocol: HttpProtocol) => getAHCRequestBuilder(session, protocol).map(_.build)
+	def build: RequestFactory = (session: Session, protocol: HttpProtocol) =>
+		try {
+			getAHCRequestBuilder(session, protocol).map(_.build)
+		} catch {
+			case e: Exception =>
+				logger.warn("Failed to build request", e)
+				s"Failed to build request: ${e.getMessage}".failure
+		}
 }
 
 object HttpRequestBuilder {

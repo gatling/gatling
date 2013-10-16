@@ -33,6 +33,8 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import akka.actor.ActorRef
 import io.gatling.core.action.{ Failable, Interruptable }
+import io.gatling.core.result.message.KO
+import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.{ HttpClient, HttpTx, RequestFactory }
@@ -88,12 +90,24 @@ class HttpRequestAction(
 
 	val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(checks, responseTransformer, protocol)
 
-	def executeOrFail(session: Session) =
-		for {
-			resolvedRequestName <- requestName(session)
-			request <- requestFactory(session, protocol)
-			newSession = RefererHandling.storeReferer(request, session, protocol)
-			tx = HttpTx(newSession, request, resolvedRequestName, checks, responseBuilderFactory, protocol, next, maxRedirects, throttled)
+	def executeOrFail(session: Session) = {
+		val foo = requestName(session).flatMap { resolvedRequestName =>
 
-		} yield HttpRequestAction.handleHttpTransaction(tx)
+			val buildResult = for {
+				request <- requestFactory(session, protocol)
+				newSession = RefererHandling.storeReferer(request, session, protocol)
+				tx = HttpTx(newSession, request, resolvedRequestName, checks, responseBuilderFactory, protocol, next, maxRedirects, throttled)
+
+			} yield HttpRequestAction.handleHttpTransaction(tx)
+
+			buildResult.onFailure { errorMessage =>
+				val now = nowMillis
+				DataWriter.tell(RequestMessage(session.scenarioName, session.userId, session.groupStack, resolvedRequestName, now, now, now, now, KO, Some(errorMessage), Nil))
+			}
+
+			buildResult
+		}
+
+		foo
+	}
 }
