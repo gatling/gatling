@@ -127,7 +127,7 @@ class ResourceFetcher(uri: URI, directResources: Seq[EmbeddedResource], nodeSele
 
 		def buildRequest(resource: EmbeddedResource) = {
 			val urlExpression: Expression[String] = _ => resource.uri.toString.success
-			val requestBuilder = HttpRequestBaseBuilder.http(urlExpression).getURI(resource.uri)
+			val requestBuilder = HttpRequestBaseBuilder.http(urlExpression).get(resource.uri)
 			requestBuilder.build(tx.session, tx.protocol)
 		}
 
