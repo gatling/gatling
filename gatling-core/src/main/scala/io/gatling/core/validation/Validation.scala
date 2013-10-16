@@ -21,6 +21,8 @@ abstract class Validation[+T] {
 	def mapError(f: String => String): Validation[T]
 	def foreach[A](f: T => A) { map(f) }
 	def filter(p: T => Boolean): Validation[T]
+	def onSuccess(f: T => Any): Unit
+	def onFailure(f: String => Any): Unit
 }
 
 case class Success[+T](value: T) extends Validation[T] {
@@ -28,6 +30,8 @@ case class Success[+T](value: T) extends Validation[T] {
 	def flatMap[A](f: T => Validation[A]): Validation[A] = f(value)
 	def mapError(f: String => String): Validation[T] = this
 	def filter(p: T => Boolean): Validation[T] = if (p(value)) this else Failure("Filtered")
+	def onSuccess(f: T => Any) { f(value) }
+	def onFailure(f: String => Any) {}
 }
 
 case class Failure(message: String) extends Validation[Nothing] {
@@ -35,4 +39,6 @@ case class Failure(message: String) extends Validation[Nothing] {
 	def flatMap[A](f: Nothing => Validation[A]): Validation[A] = this
 	def mapError(f: String => String): Validation[Nothing] = Failure(f(message))
 	def filter(p: Nothing => Boolean) = this
+	def onSuccess(f: Nothing => Any) {}
+	def onFailure(f: String => Any) { f(message) }
 }
