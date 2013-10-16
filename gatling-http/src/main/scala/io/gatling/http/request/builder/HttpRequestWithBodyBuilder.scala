@@ -82,7 +82,7 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 
 object HttpRequestWithBodyBuilder {
 
-	def apply(method: String, requestName: Expression[String], urlOrURI: Either[Expression[String], Expression[URI]]) = new HttpRequestWithBodyBuilder(HttpAttributes(requestName, method, urlOrURI), BodyAttributes())
+	def apply(method: String, requestName: Expression[String], urlOrURI: Either[Expression[String], URI]) = new HttpRequestWithBodyBuilder(HttpAttributes(requestName, method, urlOrURI), BodyAttributes())
 }
 
 class HttpRequestWithBodyBuilder(

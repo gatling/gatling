@@ -37,7 +37,7 @@ import io.gatling.http.util.HttpHelper
 case class HttpAttributes(
 	requestName: Expression[String],
 	method: String,
-	urlOrURI: Either[Expression[String], Expression[URI]],
+	urlOrURI: Either[Expression[String], URI],
 	queryParams: List[HttpParam] = Nil,
 	headers: Map[String, Expression[String]] = Map.empty,
 	realm: Option[Expression[Realm]] = None,
@@ -153,7 +153,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 */
 	protected def getAHCRequestBuilder(session: Session, protocol: HttpProtocol): Validation[RequestBuilder] = {
 
-		def buildURI(urlOrURI: Either[Expression[String], Expression[URI]]): Validation[URI] = {
+		def buildURI(urlOrURI: Either[Expression[String], URI]): Validation[URI] = {
 
 			def makeAbsolute(url: String): Validation[String] =
 				if (url.startsWith(Protocol.HTTP.getProtocol))
@@ -170,7 +170,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 			urlOrURI match {
 				case Left(url) => url(session).flatMap(makeAbsolute).flatMap(createURI)
-				case Right(uri) => uri(session)
+				case Right(uri) => uri.success
 			}
 		}
 
@@ -248,7 +248,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 object HttpRequestBuilder {
 
-	def apply(method: String, requestName: Expression[String], urlOrURI: Either[Expression[String], Expression[URI]]) = new HttpRequestBuilder(HttpAttributes(requestName, method, urlOrURI))
+	def apply(method: String, requestName: Expression[String], urlOrURI: Either[Expression[String], URI]) = new HttpRequestBuilder(HttpAttributes(requestName, method, urlOrURI))
 }
 
 class HttpRequestBuilder(httpAttributes: HttpAttributes) extends AbstractHttpRequestBuilder[HttpRequestBuilder](httpAttributes) {

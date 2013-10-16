@@ -33,16 +33,16 @@ object HttpRequestBaseBuilder {
 class HttpRequestBaseBuilder(requestName: Expression[String]) {
 
 	def get(url: Expression[String]) = httpRequest("GET", Left(url))
-	def getURI(uri: Expression[URI]) = httpRequest("GET", Right(uri))
+	def get(uri: URI) = httpRequest("GET", Right(uri))
 	def delete(url: Expression[String]) = httpRequest("DELETE", Left(url))
-	def httpRequest(method: String, urlOrURI: Either[Expression[String], Expression[URI]]) = HttpRequestBuilder(method, requestName, urlOrURI)
+	def httpRequest(method: String, urlOrURI: Either[Expression[String], URI]) = HttpRequestBuilder(method, requestName, urlOrURI)
 
 	def put(url: Expression[String]) = httpRequestWithBody("PUT", Left(url))
 	def patch(url: Expression[String]) = httpRequestWithBody("PATCH", Left(url))
 	def head(url: Expression[String]) = httpRequestWithBody("HEAD", Left(url))
 	def options(url: Expression[String]) = httpRequestWithBody("OPTIONS", Left(url))
-	def httpRequestWithBody(method: String, urlOrURI: Either[Expression[String], Expression[URI]]) = HttpRequestWithBodyBuilder(method, requestName, urlOrURI)
+	def httpRequestWithBody(method: String, urlOrURI: Either[Expression[String], URI]) = HttpRequestWithBodyBuilder(method, requestName, urlOrURI)
 
 	def post(url: Expression[String]) = httpRequestWithBodyAndParams("POST", Left(url))
-	def httpRequestWithBodyAndParams(method: String, urlOrURI: Either[Expression[String], Expression[URI]]) = HttpRequestWithBodyAndParamsBuilder(method, requestName, urlOrURI)
+	def httpRequestWithBodyAndParams(method: String, urlOrURI: Either[Expression[String], URI]) = HttpRequestWithBodyAndParamsBuilder(method, requestName, urlOrURI)
 }
