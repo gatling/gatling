@@ -30,7 +30,7 @@ import io.gatling.core.validation.{ Success, SuccessWrapper }
 import io.gatling.http.HeaderNames
 import io.gatling.http.action.{ HttpRequestAction, HttpRequestActionBuilder }
 import io.gatling.http.ahc.HttpTx
-import io.gatling.http.cache.{ CacheHandling, URICacheKey }
+import io.gatling.http.cache.CacheHandling
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.{ Response, ResponseBuilder }
@@ -195,12 +195,12 @@ class ResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String],
 					var cached: List[Request] = Nil
 					var nonCached: List[Request] = Nil
 					requests.foreach { request =>
-						val url = request.getURI.toCacheKey
-						CacheHandling.getExpire(tx.protocol, session, url) match {
+						val uri = request.getURI
+						CacheHandling.getExpire(tx.protocol, session, uri) match {
 							case None => nonCached = request :: nonCached
 
 							case Some(expire) if nowMillis > expire =>
-								session = CacheHandling.clearExpire(session, url)
+								session = CacheHandling.clearExpire(session, uri)
 								nonCached = request :: nonCached
 
 							case _ =>
@@ -238,15 +238,15 @@ class ResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String],
 
 				case request :: tail =>
 					bufferedRequestsByHost += host -> tail
-					val url = request.getURI.toCacheKey
-					CacheHandling.getExpire(tx.protocol, session, url) match {
+					val uri = request.getURI
+					CacheHandling.getExpire(tx.protocol, session, uri) match {
 						case None =>
 							// recycle token, fetch a buffered resource
 							fetchResource(request)
 
 						case Some(expire) if nowMillis > expire =>
 							// expire reached
-							session = CacheHandling.clearExpire(session, url)
+							session = CacheHandling.clearExpire(session, uri)
 							fetchResource(request)
 
 						case _ =>

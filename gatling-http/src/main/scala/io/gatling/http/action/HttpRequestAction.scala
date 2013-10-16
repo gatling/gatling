@@ -40,7 +40,7 @@ import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.{ HttpClient, HttpTx, RequestFactory }
-import io.gatling.http.cache.{ CacheHandling, URICacheKey }
+import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.dom.ResourceFetcher
@@ -61,13 +61,13 @@ object HttpRequestAction extends AkkaDefaults with Logging {
 			tx.next ! tx.session
 		}
 
-		val url = tx.request.getURI.toCacheKey
-		CacheHandling.getExpire(tx.protocol, tx.session, url) match {
+		val uri = tx.request.getURI
+		CacheHandling.getExpire(tx.protocol, tx.session, uri) match {
 			case None =>
 				send(tx)
 
 			case Some(expire) if nowMillis > expire =>
-				send(tx.copy(session = CacheHandling.clearExpire(tx.session, url)))
+				send(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
 
 			case _ =>
 				// FIXME if html in cache, maybe resources are not cached and have to be fetched

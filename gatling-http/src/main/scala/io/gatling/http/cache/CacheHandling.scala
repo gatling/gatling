@@ -15,6 +15,7 @@
  */
 package io.gatling.http.cache
 
+import java.net.URI
 import java.text.ParsePosition
 
 import scala.annotation.tailrec
@@ -33,20 +34,20 @@ import io.gatling.http.response.Response
 object CacheHandling extends Logging {
 
 	val httpExpireStoreAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cache.expireStore"
-	def getExpireStore(session: Session): Map[String, Long] = session(httpExpireStoreAttributeName).asOption.getOrElse(Map.empty[String, Long])
-	def getExpire(httpProtocol: HttpProtocol, session: Session, url: String): Option[Long] = if (httpProtocol.cache) getExpireStore(session).get(url) else None
-	def clearExpire(session: Session, url: String) = {
-		logger.info(s"Resource $url caching expired")
-		session.set(httpExpireStoreAttributeName, getExpireStore(session) - url)
+	def getExpireStore(session: Session): Map[URI, Long] = session(httpExpireStoreAttributeName).asOption.getOrElse(Map.empty[URI, Long])
+	def getExpire(httpProtocol: HttpProtocol, session: Session, uri: URI): Option[Long] = if (httpProtocol.cache) getExpireStore(session).get(uri) else None
+	def clearExpire(session: Session, uri: URI) = {
+		logger.info(s"Resource $uri caching expired")
+		session.set(httpExpireStoreAttributeName, getExpireStore(session) - uri)
 	}
 
 	val httpLastModifiedStoreAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cache.lastModifiedStore"
-	def getLastModifiedStore(session: Session): Map[String, String] = session(httpLastModifiedStoreAttributeName).asOption.getOrElse(Map.empty[String, String])
-	def getLastModified(httpProtocol: HttpProtocol, session: Session, url: String): Option[String] = if (httpProtocol.cache) getLastModifiedStore(session).get(url) else None
+	def getLastModifiedStore(session: Session): Map[URI, String] = session(httpLastModifiedStoreAttributeName).asOption.getOrElse(Map.empty[URI, String])
+	def getLastModified(httpProtocol: HttpProtocol, session: Session, uri: URI): Option[String] = if (httpProtocol.cache) getLastModifiedStore(session).get(uri) else None
 
 	val httpEtagStoreAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cache.etagStore"
-	def getEtagStore(session: Session): Map[String, String] = session(httpEtagStoreAttributeName).asOption.getOrElse(Map.empty[String, String])
-	def getEtag(httpProtocol: HttpProtocol, session: Session, url: String): Option[String] = if (httpProtocol.cache) getEtagStore(session).get(url) else None
+	def getEtagStore(session: Session): Map[URI, String] = session(httpEtagStoreAttributeName).asOption.getOrElse(Map.empty[URI, String])
+	def getEtag(httpProtocol: HttpProtocol, session: Session, uri: URI): Option[String] = if (httpProtocol.cache) getEtagStore(session).get(uri) else None
 
 	val maxAgePrefix = "max-age="
 	val maxAgeZero = maxAgePrefix + "0"
@@ -124,27 +125,27 @@ object CacheHandling extends Logging {
 
 	def cache(httpProtocol: HttpProtocol, session: Session, request: Request, response: Response): Session = {
 
-		val url: String = request.getURI.toCacheKey
+		val uri = request.getURI
 
 		val updateExpire = (session: Session) => getResponseExpires(httpProtocol, response)
 			.map { expires =>
-				logger.debug(s"Setting Expires $expires for url $url")
+				logger.debug(s"Setting Expires $expires for uri $uri")
 				val expireStore = getExpireStore(session)
-				session.set(httpExpireStoreAttributeName, expireStore + (url -> expires))
+				session.set(httpExpireStoreAttributeName, expireStore + (uri -> expires))
 			}.getOrElse(session)
 
 		val updateLastModified = (session: Session) => Option(response.getHeader(HeaderNames.LAST_MODIFIED))
 			.map { lastModified =>
-				logger.debug(s"Setting LastModified $lastModified for url $url")
+				logger.debug(s"Setting LastModified $lastModified for uri $uri")
 				val lastModifiedStore = getLastModifiedStore(session)
-				session.set(httpLastModifiedStoreAttributeName, lastModifiedStore + (url -> lastModified))
+				session.set(httpLastModifiedStoreAttributeName, lastModifiedStore + (uri -> lastModified))
 			}.getOrElse(session)
 
 		val updateEtag = (session: Session) => Option(response.getHeader(HeaderNames.ETAG))
 			.map { etag =>
-				logger.debug(s"Setting Etag $etag for url $url")
+				logger.debug(s"Setting Etag $etag for uri $uri")
 				val etagStore = getEtagStore(session)
-				session.set(httpEtagStoreAttributeName, etagStore + (url -> etag))
+				session.set(httpEtagStoreAttributeName, etagStore + (uri -> etag))
 			}.getOrElse(session)
 
 		if (httpProtocol.cache)

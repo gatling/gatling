@@ -27,7 +27,7 @@ import io.gatling.core.session.el.EL
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.ahc.{ ConnectionPoolKeyStrategy, RequestFactory }
-import io.gatling.http.cache.{ CacheHandling, URICacheKey }
+import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling
@@ -177,8 +177,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 		def configureQueryCookiesAndProxy(uri: URI)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
-			val cacheKey = uri.toCacheKey
-
 			val proxy = if (uri.getScheme == Protocol.HTTPS.getProtocol) protocol.securedProxy else protocol.proxy
 			proxy.foreach(requestBuilder.setProxyServer)
 
@@ -187,8 +185,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 			CookieHandling.getStoredCookies(session, uri).foreach(requestBuilder.addCookie)
 
-			CacheHandling.getLastModified(protocol, session, cacheKey).foreach(requestBuilder.setHeader(HeaderNames.IF_MODIFIED_SINCE, _))
-			CacheHandling.getEtag(protocol, session, cacheKey).foreach(requestBuilder.setHeader(HeaderNames.IF_NONE_MATCH, _))
+			CacheHandling.getLastModified(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IF_MODIFIED_SINCE, _))
+			CacheHandling.getEtag(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IF_NONE_MATCH, _))
 
 			if (!httpAttributes.queryParams.isEmpty)
 				HttpHelper.httpParamsToFluentMap(httpAttributes.queryParams, session).map(requestBuilder.setQueryParameters(_).setURI(uri))
