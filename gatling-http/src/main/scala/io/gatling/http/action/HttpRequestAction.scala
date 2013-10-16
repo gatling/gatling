@@ -70,11 +70,8 @@ object HttpRequestAction extends AkkaDefaults with Logging {
 				send(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
 
 			case _ =>
-				// FIXME if html in cache, maybe resources are not cached and have to be fetched
 				if (tx.protocol.fetchHtmlResources) {
-
 					val resourceFetcherFactory = ResourceFetcher(tx.request.getURI)
-
 					resourceFetcherFactory match {
 						case Some(resourceFetcherFactory) =>
 							logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")

@@ -110,7 +110,7 @@ object CacheHandling extends Logging {
 		def pragmaNoCache = Option(response.getHeader(HeaderNames.PRAGMA)).exists(_.contains(HeaderValues.NO_CACHE))
 		def cacheControlNoCache = Option(response.getHeader(HeaderNames.CACHE_CONTROL))
 			.exists(h => h.contains(HeaderValues.NO_CACHE) || h.contains(HeaderValues.NO_STORE) || h.contains(maxAgeZero))
-		def maxAgeAsExpiresValue = Option(response.getHeader(HeaderNames.CACHE_CONTROL)).flatMap(extractMaxAgeValue).map(nowMillis + _)
+		def maxAgeAsExpiresValue = Option(response.getHeader(HeaderNames.CACHE_CONTROL)).flatMap(extractMaxAgeValue).map(nowMillis + _ * 1000)
 		def expiresValue = Option(response.getHeader(HeaderNames.EXPIRES)).flatMap(extractExpiresValue).filter(_ > nowMillis)
 
 		if (pragmaNoCache || cacheControlNoCache) {
