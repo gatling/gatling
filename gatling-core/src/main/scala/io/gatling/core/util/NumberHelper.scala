@@ -15,11 +15,6 @@
  */
 package io.gatling.core.util
 
-import scala.math.round
-import scala.concurrent.forkjoin.ThreadLocalRandom
-
-import org.apache.commons.math3.distribution.ExponentialDistribution
-
 object NumberHelper {
 
 	def formatNumberWithSuffix(n: Long) = {
@@ -34,5 +29,16 @@ object NumberHelper {
 		n + suffix
 	}
 
-	def isPositiveDigit(c: Char) = Character.isDigit(c) && c.getNumericValue > 0
+	def extractLongValue(s: String, start: Int): Long = {
+		assume(start >= 0 && start < s.length, s"Start=$start is not an acceptable starting index for the string=$s")
+
+		var value = 0l
+		var k = start
+		var c = ' ';
+		while (k < s.length && { c = s.charAt(k); c.isDigit }) {
+			value = value * 10l + c.getNumericValue
+			k += 1
+		}
+		value
+	}
 }
