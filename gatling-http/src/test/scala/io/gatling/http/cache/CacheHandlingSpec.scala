@@ -33,7 +33,7 @@ class CacheHandlingSpec extends Specification with Mockito {
 	// Default config
 	GatlingConfiguration.setUp()
 
-	"getResponseExpire()" should {
+	"getResponseExpires()" should {
 
 		val http = HttpProtocol.default.copy(cache = true)
 		val request = new RequestBuilder().setUrl("http://localhost").build
@@ -43,7 +43,7 @@ class CacheHandlingSpec extends Specification with Mockito {
 			headers.foreach { case (name, value) => ahcResponse.getHeader(name) returns value }
 			val response = HttpResponse(request, Some(ahcResponse), Map.empty, -1, -1, -1, -1, Array.empty)
 
-			CacheHandling.getResponseMaxAge(http, response)
+			CacheHandling.getResponseExpires(http, response)
 		}
 
 		"correctly support Pragma header" in {
@@ -51,8 +51,8 @@ class CacheHandlingSpec extends Specification with Mockito {
 		}
 
 		"correctly support Cache-Control header" in {
-			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "max-age=1")) must beSome(1)
-			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "private, max-age=3600, must-revalidate")) must beSome(3600)
+			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "max-age=1")) must beSome
+			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "private, max-age=3600, must-revalidate")) must beSome
 			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "public, no-cache")) must beNone
 			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "public, max-age=-1")) must beNone
 			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "public, max-age=0")) must beNone
@@ -60,14 +60,14 @@ class CacheHandlingSpec extends Specification with Mockito {
 		}
 
 		"correctly support Expires header" in {
-			getResponseExpire(List(HeaderNames.EXPIRES -> "3600")) must beSome(3600)
+			getResponseExpire(List(HeaderNames.EXPIRES -> "Wed, 16 Oct 2033 21:56:44 GMT")) must beSome
 		}
 
 		"Cache-Control has priority over Expires" in {
-			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "no-store")) must beNone
-			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "max-age=-1")) must beNone
-			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "max-age=0")) must beNone
-			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "max-age=567")) must beSome(567)
+			getResponseExpire(List(HeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CACHE_CONTROL -> "no-store")) must beNone
+			getResponseExpire(List(HeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CACHE_CONTROL -> "max-age=-1")) must beNone
+			getResponseExpire(List(HeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CACHE_CONTROL -> "max-age=0")) must beNone
+			getResponseExpire(List(HeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CACHE_CONTROL -> "max-age=567")) must beSome
 		}
 
 		"Pragma has priority over Cache-Control" in {
@@ -79,17 +79,12 @@ class CacheHandlingSpec extends Specification with Mockito {
 	"extractExpiresValue()" should {
 
 		"supports Expires field format" in {
-			CacheHandling.extractExpiresAsMaxAgeValue("Thu, 01 Dec 1994 16:00:00 GMT").filter(_ > 0) must beNone
-			CacheHandling.extractExpiresAsMaxAgeValue("Tue, 19 Jan 2038 03:14:06 GMT").filter(_ > 0) must beSome
+			CacheHandling.extractExpiresValue("Thu, 01 Dec 1994 16:00:00 GMT") must beSome(786297600000L)
+			CacheHandling.extractExpiresValue("Tue, 19 Jan 2038 03:14:06 GMT") must beSome(2147483646000L)
 		}
 
-		"supports Int format" in {
-			CacheHandling.extractExpiresAsMaxAgeValue("0") must beSome(0)
-			CacheHandling.extractExpiresAsMaxAgeValue(Int.MaxValue.toString) must beSome(Int.MaxValue)
-		}
-
-		"defaults to false if it's not Expires field format nor Int format" in {
-			CacheHandling.extractExpiresAsMaxAgeValue("fail") must beNone
+		"defaults to false if it's not Expires field format" in {
+			CacheHandling.extractExpiresValue("fail") must beNone
 		}
 	}
 
@@ -100,8 +95,8 @@ class CacheHandlingSpec extends Specification with Mockito {
 			CacheHandling.extractMaxAgeValue("private, max-age=3600, must-revalidate") must beSome(3600)
 			CacheHandling.extractMaxAgeValue("private, max-age=nicolas, must-revalidate") must beNone
 			CacheHandling.extractMaxAgeValue("private, max-age=0, must-revalidate") must beSome(0)
-			CacheHandling.extractMaxAgeValue("max-age=-1") must beSome(-1)
-			CacheHandling.extractMaxAgeValue("max-age=-123") must beSome(-1)
+			CacheHandling.extractMaxAgeValue("max-age=-1") must beSome(Long.MinValue)
+			CacheHandling.extractMaxAgeValue("max-age=-123") must beSome(Long.MinValue)
 			CacheHandling.extractMaxAgeValue("max-age=5") must beSome(5)
 			CacheHandling.extractMaxAgeValue("max-age=567") must beSome(567)
 		}

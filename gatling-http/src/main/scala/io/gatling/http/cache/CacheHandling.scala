@@ -15,7 +15,9 @@
  */
 package io.gatling.http.cache
 
-import scala.util.Try
+import java.text.ParsePosition
+
+import scala.annotation.tailrec
 
 import com.ning.http.client.Request
 import com.ning.http.util.AsyncHttpProviderUtils
@@ -49,12 +51,53 @@ object CacheHandling extends Logging {
 	val maxAgePrefix = "max-age="
 	val maxAgeZero = maxAgePrefix + "0"
 
+	def extractExpiresValue(timestring: String): Option[Long] = {
+
+		def removeQuote(s: String) =
+			if (!s.isEmpty) {
+				var changed = false
+				var start = 0
+				var end = s.length
+
+				if (s.charAt(0) == '"')
+					start += 1
+
+				if (s.charAt(s.length() - 1) == '"')
+					end -= 1
+
+				if (changed)
+					s.substring(start, end)
+				else
+					s
+			} else
+				s
+
+		val trimmedTimeString = removeQuote(timestring.trim)
+		val sdfs = AsyncHttpProviderUtils.get
+
+		@tailrec
+		def parse(i: Int): Option[Long] = {
+			if (i == sdfs.length) {
+				logger.debug(s"Not a valid expire field $trimmedTimeString")
+				None
+			} else {
+				val date = sdfs(i).parse(trimmedTimeString, new ParsePosition(0))
+				if (date != null)
+					Some(date.getTime)
+				else
+					parse(i + 1)
+			}
+		}
+
+		parse(0)
+	}
+
 	def extractMaxAgeValue(s: String): Option[Long] = {
 		val index = s.indexOf(maxAgePrefix)
 		val start = maxAgePrefix.length + index
 		if (index >= 0 && start <= s.length)
 			s.charAt(start) match {
-				case '-' => Some(-1) // whatever the value when it's negative
+				case '-' => Some(Long.MinValue)
 				case c if c.isDigit => Some(extractLongValue(s, start))
 				case _ => None
 			}
@@ -62,25 +105,19 @@ object CacheHandling extends Logging {
 			None
 	}
 
-	def extractExpiresAsMaxAgeValue(timeString: String): Option[Long] = {
-		val tryConvertExpiresFieldIntoMaxAge = Try(AsyncHttpProviderUtils.convertExpireField(timeString)).map(_.toLong)
-		val tryConvertToInt = Try(timeString.toLong)
-		tryConvertExpiresFieldIntoMaxAge.orElse(tryConvertToInt).toOption
-	}
-
-	def getResponseMaxAge(httpProtocol: HttpProtocol, response: Response): Option[Long] = {
+	def getResponseExpires(httpProtocol: HttpProtocol, response: Response): Option[Long] = {
 		def pragmaNoCache = Option(response.getHeader(HeaderNames.PRAGMA)).exists(_.contains(HeaderValues.NO_CACHE))
 		def cacheControlNoCache = Option(response.getHeader(HeaderNames.CACHE_CONTROL))
 			.exists(h => h.contains(HeaderValues.NO_CACHE) || h.contains(HeaderValues.NO_STORE) || h.contains(maxAgeZero))
-		def maxAgeValue = Option(response.getHeader(HeaderNames.CACHE_CONTROL)).flatMap(extractMaxAgeValue)
-		def expiresAsMaxAgeValue = Option(response.getHeader(HeaderNames.EXPIRES)).flatMap(extractExpiresAsMaxAgeValue)
+		def maxAgeAsExpiresValue = Option(response.getHeader(HeaderNames.CACHE_CONTROL)).flatMap(extractMaxAgeValue).map(nowMillis + _)
+		def expiresValue = Option(response.getHeader(HeaderNames.EXPIRES)).flatMap(extractExpiresValue).filter(_ > nowMillis)
 
 		if (pragmaNoCache || cacheControlNoCache) {
 			None
 		} else {
 			// If a response includes both an Expires header and a max-age directive, the max-age directive overrides the Expires header, 
 			// even if the Expires header is more restrictive. (http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3)
-			maxAgeValue.orElse(expiresAsMaxAgeValue).filter(_ > 0)
+			maxAgeAsExpiresValue.orElse(expiresValue).filter(_ > 0)
 		}
 
 	}
@@ -89,11 +126,11 @@ object CacheHandling extends Logging {
 
 		val url: String = request.getURI.toCacheKey
 
-		val updateExpire = (session: Session) => getResponseMaxAge(httpProtocol, response)
-			.map { maxAge =>
-				logger.debug(s"Setting MaxAge $maxAge for url $url")
+		val updateExpire = (session: Session) => getResponseExpires(httpProtocol, response)
+			.map { expires =>
+				logger.debug(s"Setting Expires $expires for url $url")
 				val expireStore = getExpireStore(session)
-				session.set(httpExpireStoreAttributeName, expireStore + (url -> (nowMillis + maxAge)))
+				session.set(httpExpireStoreAttributeName, expireStore + (url -> expires))
 			}.getOrElse(session)
 
 		val updateLastModified = (session: Session) => Option(response.getHeader(HeaderNames.LAST_MODIFIED))
