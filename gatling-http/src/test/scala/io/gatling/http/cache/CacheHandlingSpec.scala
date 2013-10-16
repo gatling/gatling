@@ -19,13 +19,13 @@ import org.junit.runner.RunWith
 import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
+
 import com.ning.http.client.{ RequestBuilder, Response => AHCResponse }
+
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.Session
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.HttpResponse
-import io.gatling.core.config.ProtocolRegistry
 
 @RunWith(classOf[JUnitRunner])
 class CacheHandlingSpec extends Specification with Mockito {
@@ -33,8 +33,7 @@ class CacheHandlingSpec extends Specification with Mockito {
 	// Default config
 	GatlingConfiguration.setUp()
 
-	// FIXME
-	"isResponseCacheable()" should {
+	"getResponseExpire()" should {
 
 		val http = HttpProtocol.default.copy(cache = true)
 		val request = new RequestBuilder().setUrl("http://localhost").build
@@ -47,47 +46,64 @@ class CacheHandlingSpec extends Specification with Mockito {
 			CacheHandling.getResponseExpire(http, response)
 		}
 
-		"correctly support Expires header" in {
-			getResponseExpire(List(HeaderNames.EXPIRES -> "3600")).isDefined must beTrue
-		}
-
 		"correctly support Pragma header" in {
-			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.PRAGMA -> HeaderValues.NO_CACHE)).isDefined must beFalse
+			getResponseExpire(List(HeaderNames.PRAGMA -> HeaderValues.NO_CACHE)) must beNone
 		}
 
 		"correctly support Cache-Control header" in {
-			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "private, max-age=3600, must-revalidate")).isDefined must beTrue
-			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "public, no-cache")).isDefined must beFalse
-			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "public, max-age=0")).isDefined must beFalse
-			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "no-store")).isDefined must beFalse
+			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "max-age=1")) must beSome(1)
+			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "private, max-age=3600, must-revalidate")) must beSome(3600)
+			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "public, no-cache")) must beNone
+			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "public, max-age=-1")) must beNone
+			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "public, max-age=0")) must beNone
+			getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "no-store")) must beNone
+		}
+
+		"correctly support Expires header" in {
+			getResponseExpire(List(HeaderNames.EXPIRES -> "3600")) must beSome(3600)
+		}
+
+		"Cache-Control has priority over Expires" in {
+			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "no-store")) must beNone
+			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "max-age=-1")) must beNone
+			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "max-age=0")) must beNone
+			getResponseExpire(List(HeaderNames.EXPIRES -> "3600", HeaderNames.CACHE_CONTROL -> "max-age=567")) must beSome(567)
+		}
+
+		"Pragma has priority over Cache-Control" in {
+			getResponseExpire(List(HeaderNames.PRAGMA -> "no-cache", HeaderNames.CACHE_CONTROL -> "max-age=3600")) must beNone
+			getResponseExpire(List(HeaderNames.PRAGMA -> "no-cache", HeaderNames.EXPIRES -> "3600")) must beNone
 		}
 	}
 
-	"convertExpireField()" should {
+	"extractExpiresValue()" should {
 
 		"supports Expires field format" in {
-			CacheHandling.isFutureExpire("Thu, 01 Dec 1994 16:00:00 GMT") must beFalse
-			CacheHandling.isFutureExpire("Tue, 19 Jan 2038 03:14:06 GMT") must beTrue
+			CacheHandling.extractExpiresValue("Thu, 01 Dec 1994 16:00:00 GMT").filter(_ > 0) must beNone
+			CacheHandling.extractExpiresValue("Tue, 19 Jan 2038 03:14:06 GMT").filter(_ > 0) must beSome
 		}
 
 		"supports Int format" in {
-			CacheHandling.isFutureExpire("0") must beFalse
-			CacheHandling.isFutureExpire(Int.MaxValue.toString) must beTrue
+			CacheHandling.extractExpiresValue("0") must beSome(0)
+			CacheHandling.extractExpiresValue(Int.MaxValue.toString) must beSome(Int.MaxValue)
 		}
 
 		"defaults to false if it's not Expires field format nor Int format" in {
-			CacheHandling.isFutureExpire("fail") must beFalse
+			CacheHandling.extractExpiresValue("fail") must beNone
 		}
 	}
 
-	"hasPositiveMaxAge()" should {
+	"extractMaxAgeValue()" should {
 
-		"tell if there is a 'max-age' control and if it's value is superior to zero" in {
-
-			CacheHandling.hasPositiveMaxAge("private, max-age=3600, must-revalidate") must beTrue
-			CacheHandling.hasPositiveMaxAge("public") must beFalse
-			CacheHandling.hasPositiveMaxAge("private, max-age=nicolas, must-revalidate") must beFalse
-			CacheHandling.hasPositiveMaxAge("private, max-age=0, must-revalidate") must beFalse
+		"tell if there is a 'max-age' control and gets its value if superior to zero" in {
+			CacheHandling.extractMaxAgeValue("public") must beNone
+			CacheHandling.extractMaxAgeValue("private, max-age=3600, must-revalidate") must beSome(3600)
+			CacheHandling.extractMaxAgeValue("private, max-age=nicolas, must-revalidate") must beNone
+			CacheHandling.extractMaxAgeValue("private, max-age=0, must-revalidate") must beSome(0)
+			CacheHandling.extractMaxAgeValue("max-age=-1") must beSome(-1)
+			CacheHandling.extractMaxAgeValue("max-age=-123") must beSome(-1)
+			CacheHandling.extractMaxAgeValue("max-age=5") must beSome(5)
+			CacheHandling.extractMaxAgeValue("max-age=567") must beSome(567)
 		}
 	}
 }

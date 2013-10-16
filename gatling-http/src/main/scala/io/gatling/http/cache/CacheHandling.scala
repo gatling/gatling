@@ -22,18 +22,12 @@ import com.ning.http.util.AsyncHttpProviderUtils
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
-import io.gatling.core.util.NumberHelper.isPositiveDigit
+import io.gatling.core.util.NumberHelper.extractLongValue
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.Response
 
 object CacheHandling extends Logging {
-
-	def isFutureExpire(timeString: String): Boolean = {
-		val tryConvertExpiresField = Try(AsyncHttpProviderUtils.convertExpireField(timeString))
-		val tryConvertToInt = Try(timeString.toInt)
-		tryConvertExpiresField.orElse(tryConvertToInt).map(_ > 0).getOrElse(false)
-	}
 
 	val httpExpireStoreAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cache.expireStore"
 	def getExpireStore(session: Session): Map[String, Long] = session(httpExpireStoreAttributeName).asOption.getOrElse(Map.empty[String, Long])
@@ -50,24 +44,41 @@ object CacheHandling extends Logging {
 
 	val maxAgePrefix = "max-age="
 	val maxAgeZero = maxAgePrefix + "0"
-	def hasPositiveMaxAge(s: String) = {
+
+	def extractMaxAgeValue(s: String): Option[Long] = {
 		val index = s.indexOf(maxAgePrefix)
 		val start = maxAgePrefix.length + index
-		index >= 0 && start <= s.length && isPositiveDigit(s.charAt(start))
+		if (index >= 0 && start <= s.length)
+			s.charAt(start) match {
+				case '-' => Some(-1) // whatever the value when it's negative
+				case c if c.isDigit => Some(extractLongValue(s, start))
+				case _ => None
+			}
+		else
+			None
+	}
+
+	def extractExpiresValue(timeString: String): Option[Long] = {
+		val tryConvertExpiresField = Try(AsyncHttpProviderUtils.convertExpireField(timeString)).map(_.toLong)
+		val tryConvertToInt = Try(timeString.toLong)
+		tryConvertExpiresField.orElse(tryConvertToInt).toOption
 	}
 
 	def getResponseExpire(httpProtocol: HttpProtocol, response: Response): Option[Long] = {
 		def pragmaNoCache = Option(response.getHeader(HeaderNames.PRAGMA)).exists(_.contains(HeaderValues.NO_CACHE))
 		def cacheControlNoCache = Option(response.getHeader(HeaderNames.CACHE_CONTROL))
 			.exists(h => h.contains(HeaderValues.NO_CACHE) || h.contains(HeaderValues.NO_STORE) || h.contains(maxAgeZero))
-		def cacheControlInFuture = Option(response.getHeader(HeaderNames.CACHE_CONTROL)).exists(hasPositiveMaxAge)
-		def expiresInFuture = Option(response.getHeader(HeaderNames.EXPIRES)).exists(isFutureExpire)
+		def cacheControlValue = Option(response.getHeader(HeaderNames.CACHE_CONTROL)).flatMap(extractMaxAgeValue)
+		def expiresValue = Option(response.getHeader(HeaderNames.EXPIRES)).flatMap(extractExpiresValue)
 
-		// TODO are the first 2 tests worth it? 
-		if (!pragmaNoCache && !cacheControlNoCache && (cacheControlInFuture || expiresInFuture))
-			Some(Long.MaxValue) // FIXME set proper value
-		else
+		if (pragmaNoCache || cacheControlNoCache) {
 			None
+		} else {
+			// If a response includes both an Expires header and a max-age directive, the max-age directive overrides the Expires header, 
+			// even if the Expires header is more restrictive. (http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3)
+			cacheControlValue.orElse(expiresValue).filter(_ > 0)
+		}
+
 	}
 
 	def cache(httpProtocol: HttpProtocol, session: Session, request: Request, response: Response): Session = {
