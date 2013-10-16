@@ -37,7 +37,7 @@ object RequestTemplate {
 		def renderUrl = fast"""$tripleQuotes$printedUrl${
 			if (queryParams.isEmpty) ""
 			else "?" + queryParams.map {
-				case (name, value) => name + "=" + Option(value).getOrElse("")
+				case (name, value) => name + Option(value).map("=" + _).getOrElse("")
 			}.mkFastring("&")
 		}$tripleQuotes"""
 
