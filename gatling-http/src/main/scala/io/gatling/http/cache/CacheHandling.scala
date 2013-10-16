@@ -98,7 +98,7 @@ object CacheHandling extends Logging {
 		val start = maxAgePrefix.length + index
 		if (index >= 0 && start <= s.length)
 			s.charAt(start) match {
-				case '-' => Some(Long.MinValue)
+				case '-' => Some(-1)
 				case c if c.isDigit => Some(extractLongValue(s, start))
 				case _ => None
 			}
@@ -110,7 +110,12 @@ object CacheHandling extends Logging {
 		def pragmaNoCache = Option(response.getHeader(HeaderNames.PRAGMA)).exists(_.contains(HeaderValues.NO_CACHE))
 		def cacheControlNoCache = Option(response.getHeader(HeaderNames.CACHE_CONTROL))
 			.exists(h => h.contains(HeaderValues.NO_CACHE) || h.contains(HeaderValues.NO_STORE) || h.contains(maxAgeZero))
-		def maxAgeAsExpiresValue = Option(response.getHeader(HeaderNames.CACHE_CONTROL)).flatMap(extractMaxAgeValue).map(nowMillis + _ * 1000)
+		def maxAgeAsExpiresValue = Option(response.getHeader(HeaderNames.CACHE_CONTROL)).flatMap(extractMaxAgeValue).map { maxAge =>
+			if (maxAge < 0)
+				maxAge
+			else
+				maxAge * 1000 + nowMillis
+		}
 		def expiresValue = Option(response.getHeader(HeaderNames.EXPIRES)).flatMap(extractExpiresValue).filter(_ > nowMillis)
 
 		if (pragmaNoCache || cacheControlNoCache) {

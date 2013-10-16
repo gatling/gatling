@@ -95,8 +95,8 @@ class CacheHandlingSpec extends Specification with Mockito {
 			CacheHandling.extractMaxAgeValue("private, max-age=3600, must-revalidate") must beSome(3600)
 			CacheHandling.extractMaxAgeValue("private, max-age=nicolas, must-revalidate") must beNone
 			CacheHandling.extractMaxAgeValue("private, max-age=0, must-revalidate") must beSome(0)
-			CacheHandling.extractMaxAgeValue("max-age=-1") must beSome(Long.MinValue)
-			CacheHandling.extractMaxAgeValue("max-age=-123") must beSome(Long.MinValue)
+			CacheHandling.extractMaxAgeValue("max-age=-1") must beSome(-1)
+			CacheHandling.extractMaxAgeValue("max-age=-123") must beSome(-1)
 			CacheHandling.extractMaxAgeValue("max-age=5") must beSome(5)
 			CacheHandling.extractMaxAgeValue("max-age=567") must beSome(567)
 		}
