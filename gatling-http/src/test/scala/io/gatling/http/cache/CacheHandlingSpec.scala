@@ -43,7 +43,7 @@ class CacheHandlingSpec extends Specification with Mockito {
 			headers.foreach { case (name, value) => ahcResponse.getHeader(name) returns value }
 			val response = HttpResponse(request, Some(ahcResponse), Map.empty, -1, -1, -1, -1, Array.empty)
 
-			CacheHandling.getResponseExpire(http, response)
+			CacheHandling.getResponseMaxAge(http, response)
 		}
 
 		"correctly support Pragma header" in {
@@ -79,17 +79,17 @@ class CacheHandlingSpec extends Specification with Mockito {
 	"extractExpiresValue()" should {
 
 		"supports Expires field format" in {
-			CacheHandling.extractExpiresValue("Thu, 01 Dec 1994 16:00:00 GMT").filter(_ > 0) must beNone
-			CacheHandling.extractExpiresValue("Tue, 19 Jan 2038 03:14:06 GMT").filter(_ > 0) must beSome
+			CacheHandling.extractExpiresAsMaxAgeValue("Thu, 01 Dec 1994 16:00:00 GMT").filter(_ > 0) must beNone
+			CacheHandling.extractExpiresAsMaxAgeValue("Tue, 19 Jan 2038 03:14:06 GMT").filter(_ > 0) must beSome
 		}
 
 		"supports Int format" in {
-			CacheHandling.extractExpiresValue("0") must beSome(0)
-			CacheHandling.extractExpiresValue(Int.MaxValue.toString) must beSome(Int.MaxValue)
+			CacheHandling.extractExpiresAsMaxAgeValue("0") must beSome(0)
+			CacheHandling.extractExpiresAsMaxAgeValue(Int.MaxValue.toString) must beSome(Int.MaxValue)
 		}
 
 		"defaults to false if it's not Expires field format nor Int format" in {
-			CacheHandling.extractExpiresValue("fail") must beNone
+			CacheHandling.extractExpiresAsMaxAgeValue("fail") must beNone
 		}
 	}
 
