@@ -20,13 +20,19 @@ import io.gatling.core.result.writer.{ DataWriter, GroupMessage }
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 
-class GroupEnd(val next: ActorRef) extends Chainable {
+object GroupEnd {
 
-	def execute(session: Session) {
-
+	def endGroup(session: Session, next: ActorRef) {
 		val stack = session.groupStack
 		DataWriter.tell(GroupMessage(session.scenarioName, session.userId, stack, stack.head.startDate, nowMillis, session.statusStack.head))
 
 		next ! session.exitGroup
+	}
+}
+
+class GroupEnd(val next: ActorRef) extends Chainable {
+
+	def execute(session: Session) {
+		GroupEnd.endGroup(session, next)
 	}
 }

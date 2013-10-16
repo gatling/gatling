@@ -22,6 +22,7 @@ import scala.collection.JavaConversions._
 import scala.collection.concurrent
 
 import com.ning.http.client.Request
+import io.gatling.core.action.GroupEnd
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.{ Expression, Session }
@@ -126,7 +127,7 @@ object ResourceFetcher {
 
 class ResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String], initialResources: Seq[EmbeddedResource], tx: HttpTx) extends BaseActor {
 
-	var session = tx.session
+	var session = tx.session.enterGroup(s"${tx.requestName} embedded resources")
 	val bufferedRequestsByHost = collection.mutable.HashMap.empty[String, List[Request]].withDefaultValue(Nil)
 	val availableTokensByHost = collection.mutable.HashMap.empty[String, Int].withDefaultValue(tx.protocol.maxConnectionsPerHost)
 	var pendingRequestsCount = initialResources.size
@@ -224,7 +225,7 @@ class ResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String],
 
 	def done(status: Status) {
 		logger.debug("All resources were fetched")
-		tx.next ! session.logGroupRequest(nowMillis - start, status)
+		GroupEnd.endGroup(session.logGroupRequest(nowMillis - start, status), tx.next)
 		context.stop(self)
 	}
 

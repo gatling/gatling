@@ -20,5 +20,5 @@ import io.gatling.core.session.{ Expression, Session }
 
 class GroupStart(groupName: Expression[String], val next: ActorRef) extends Chainable with Failable {
 
-	def executeOrFail(session: Session) = groupName(session).map(name => next ! session.enterGroup(name))
+	def executeOrFail(session: Session) = groupName(session).map(next ! session.enterGroup(_))
 }
