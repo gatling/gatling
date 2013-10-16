@@ -90,8 +90,8 @@ class HttpRequestAction(
 
 	val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(checks, responseTransformer, protocol)
 
-	def executeOrFail(session: Session) = {
-		val foo = requestName(session).flatMap { resolvedRequestName =>
+	def executeOrFail(session: Session) =
+		requestName(session).flatMap { resolvedRequestName =>
 
 			val buildResult = for {
 				request <- requestFactory(session, protocol)
@@ -107,7 +107,4 @@ class HttpRequestAction(
 
 			buildResult
 		}
-
-		foo
-	}
 }
