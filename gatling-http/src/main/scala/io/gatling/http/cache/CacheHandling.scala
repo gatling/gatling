@@ -23,6 +23,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.NumberHelper.extractLongValue
+import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.Response
@@ -61,25 +62,25 @@ object CacheHandling extends Logging {
 			None
 	}
 
-	def extractExpiresValue(timeString: String): Option[Long] = {
-		val tryConvertExpiresField = Try(AsyncHttpProviderUtils.convertExpireField(timeString)).map(_.toLong)
+	def extractExpiresAsMaxAgeValue(timeString: String): Option[Long] = {
+		val tryConvertExpiresFieldIntoMaxAge = Try(AsyncHttpProviderUtils.convertExpireField(timeString)).map(_.toLong)
 		val tryConvertToInt = Try(timeString.toLong)
-		tryConvertExpiresField.orElse(tryConvertToInt).toOption
+		tryConvertExpiresFieldIntoMaxAge.orElse(tryConvertToInt).toOption
 	}
 
-	def getResponseExpire(httpProtocol: HttpProtocol, response: Response): Option[Long] = {
+	def getResponseMaxAge(httpProtocol: HttpProtocol, response: Response): Option[Long] = {
 		def pragmaNoCache = Option(response.getHeader(HeaderNames.PRAGMA)).exists(_.contains(HeaderValues.NO_CACHE))
 		def cacheControlNoCache = Option(response.getHeader(HeaderNames.CACHE_CONTROL))
 			.exists(h => h.contains(HeaderValues.NO_CACHE) || h.contains(HeaderValues.NO_STORE) || h.contains(maxAgeZero))
-		def cacheControlValue = Option(response.getHeader(HeaderNames.CACHE_CONTROL)).flatMap(extractMaxAgeValue)
-		def expiresValue = Option(response.getHeader(HeaderNames.EXPIRES)).flatMap(extractExpiresValue)
+		def maxAgeValue = Option(response.getHeader(HeaderNames.CACHE_CONTROL)).flatMap(extractMaxAgeValue)
+		def expiresAsMaxAgeValue = Option(response.getHeader(HeaderNames.EXPIRES)).flatMap(extractExpiresAsMaxAgeValue)
 
 		if (pragmaNoCache || cacheControlNoCache) {
 			None
 		} else {
 			// If a response includes both an Expires header and a max-age directive, the max-age directive overrides the Expires header, 
 			// even if the Expires header is more restrictive. (http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3)
-			cacheControlValue.orElse(expiresValue).filter(_ > 0)
+			maxAgeValue.orElse(expiresAsMaxAgeValue).filter(_ > 0)
 		}
 
 	}
@@ -88,11 +89,11 @@ object CacheHandling extends Logging {
 
 		val url: String = request.getURI.toCacheKey
 
-		val updateExpire = (session: Session) => getResponseExpire(httpProtocol, response)
-			.map { expire =>
-				logger.debug(s"Setting Expire $expire for url $url")
+		val updateExpire = (session: Session) => getResponseMaxAge(httpProtocol, response)
+			.map { maxAge =>
+				logger.debug(s"Setting MaxAge $maxAge for url $url")
 				val expireStore = getExpireStore(session)
-				session.set(httpExpireStoreAttributeName, expireStore + (url -> expire))
+				session.set(httpExpireStoreAttributeName, expireStore + (url -> (nowMillis + maxAge)))
 			}.getOrElse(session)
 
 		val updateLastModified = (session: Session) => Option(response.getHeader(HeaderNames.LAST_MODIFIED))

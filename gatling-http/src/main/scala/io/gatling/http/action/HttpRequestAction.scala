@@ -30,8 +30,11 @@
 package io.gatling.http.action
 
 import com.typesafe.scalalogging.slf4j.Logging
+
 import akka.actor.ActorRef
+import akka.actor.ActorDSL.actor
 import io.gatling.core.action.{ Failable, Interruptable }
+import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.result.message.KO
 import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
 import io.gatling.core.session.{ Expression, Session }
@@ -40,11 +43,9 @@ import io.gatling.http.ahc.{ HttpClient, HttpTx, RequestFactory }
 import io.gatling.http.cache.{ CacheHandling, URICacheKey }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
+import io.gatling.http.dom.ResourceFetcher
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.response.{ ResponseBuilder, ResponseTransformer }
-import io.gatling.http.dom.ResourceFetcher
-import akka.actor.ActorDSL.actor
-import io.gatling.core.akka.AkkaDefaults
 
 object HttpRequestAction extends AkkaDefaults with Logging {
 

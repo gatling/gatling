@@ -17,6 +17,7 @@ package io.gatling.http.dom
 
 import java.net.URI
 
+import scala.annotation.switch
 import scala.collection.JavaConversions._
 import scala.collection.concurrent
 
@@ -26,18 +27,16 @@ import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Success, SuccessWrapper }
+import io.gatling.http.HeaderNames
 import io.gatling.http.action.{ HttpRequestAction, HttpRequestActionBuilder }
 import io.gatling.http.ahc.HttpTx
 import io.gatling.http.cache.{ CacheHandling, URICacheKey }
+import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.HttpRequestBaseBuilder
-import io.gatling.http.response.ResponseBuilder
+import io.gatling.http.response.{ Response, ResponseBuilder }
 import jodd.lagarto.dom.LagartoDOMBuilder
 import jodd.lagarto.dom.NodeSelector
 import org.jboss.netty.util.internal.ConcurrentHashMap
-import io.gatling.http.response.Response
-import io.gatling.http.config.HttpProtocol
-import io.gatling.http.HeaderNames
-import scala.annotation.switch
 
 sealed trait ResourceFetched {
 	def uri: URI
