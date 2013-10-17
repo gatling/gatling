@@ -92,7 +92,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 
 	def virtualHost(virtualHost: Expression[String]) = protocol.copy(virtualHost = Some(virtualHost))
 
-	def extraInfoExtractor(f: (Status, Session, Request, Response) => List[Any]) = copy(protocol = protocol.copy(extraInfoExtractor = Some(f)))
+	def extraInfoExtractor(f: (String, Status, Session, Request, Response) => List[Any]) = copy(protocol = protocol.copy(extraInfoExtractor = Some(f)))
 
 	def proxy(host: String, port: Int) = new HttpProxyBuilder(this, host, port)
 

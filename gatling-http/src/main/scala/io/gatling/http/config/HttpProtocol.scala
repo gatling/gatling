@@ -89,7 +89,7 @@ case class HttpProtocol(
 	fetchHtmlResources: Boolean,
 	fetchHtmlResourcesFilters: List[FilterList],
 	maxConnectionsPerHost: Int,
-	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends Protocol with Logging {
+	extraInfoExtractor: Option[(String, Status, Session, Request, Response) => List[Any]]) extends Protocol with Logging {
 
 	val roundRobinUrls = RoundRobin(baseURLs.toArray)
 
