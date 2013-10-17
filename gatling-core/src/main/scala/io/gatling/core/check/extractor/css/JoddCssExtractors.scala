@@ -20,7 +20,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
-import jodd.lagarto.dom.{ LagartoDOMBuilder, Node, NodeSelector }
+import jodd.lagarto.dom.{ Node, NodeSelector }
 
 object JoddCssExtractors {
 
@@ -28,7 +28,7 @@ object JoddCssExtractors {
 		val name = "css"
 	}
 
-	def parse(string: String) = new NodeSelector(new LagartoDOMBuilder().parse(string))
+	def parse(string: String) = new NodeSelector(new SilentLagartoDOMBuilder().parse(string))
 
 	private def extractAll(selector: NodeSelector, expression: String, nodeAttribute: Option[String]): Seq[String] = selector
 		.select(expression)

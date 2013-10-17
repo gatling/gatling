@@ -24,6 +24,7 @@ import scala.collection.concurrent
 import com.ning.http.client.Request
 import io.gatling.core.action.GroupEnd
 import io.gatling.core.akka.BaseActor
+import io.gatling.core.check.extractor.css.SilentLagartoDOMBuilder
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
@@ -35,7 +36,6 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.{ Response, ResponseBuilder }
-import jodd.lagarto.dom.LagartoDOMBuilder
 import jodd.lagarto.dom.NodeSelector
 import org.jboss.netty.util.internal.ConcurrentHashMap
 
@@ -104,8 +104,7 @@ object ResourceFetcher {
 				val nodeSelector: Option[NodeSelector] =
 					if (resources.exists(_.resType == Css))
 						html.map { h =>
-							val domBuilder = new LagartoDOMBuilder
-							domBuilder.setParseSpecialTagsAsCdata(true)
+							val domBuilder = new SilentLagartoDOMBuilder().setParseSpecialTagsAsCdata(true)
 							new NodeSelector(domBuilder.parse(h))
 						}
 					else
