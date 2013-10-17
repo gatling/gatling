@@ -131,13 +131,13 @@ class AsyncHandlerActor extends BaseActor {
 		if (tx.resourceFetching) {
 			val resourceMessage =
 				if (isCss(response.getHeaders))
-					CssResourceFetched(response.request.getURI, status, sessionUpdates, body())
+					CssResourceFetched(response.request.getOriginalURI, status, sessionUpdates, body())
 
 				else if (isHtml(response.getHeaders))
-					HtmlResourceFetched(response.request.getURI, status, sessionUpdates, statusCode(), body())
+					HtmlResourceFetched(response.request.getOriginalURI, status, sessionUpdates, statusCode(), body())
 
 				else
-					RegularResourceFetched(response.request.getURI, status, sessionUpdates)
+					RegularResourceFetched(response.request.getOriginalURI, status, sessionUpdates)
 
 			tx.next ! resourceMessage
 

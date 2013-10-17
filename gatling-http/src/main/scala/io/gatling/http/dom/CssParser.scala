@@ -26,7 +26,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 import io.gatling.core.util.StringHelper.ensureByteCopy
 import io.gatling.http.util.HttpHelper
 
-case class CssContent(importRules: List[URI], styleRules: Seq[StyleRule])
+case class CssContent(importRules: List[URI], fontFaceRules: List[URI], styleRules: Seq[StyleRule])
 case class StyleRule(selector: String, uri: URI)
 
 object CssParser extends Logging {
@@ -44,7 +44,7 @@ object CssParser extends Logging {
 	val singleQuoteEscapeChar = Some(''')
 	val doubleQuoteEscapeChar = Some('"')
 
-	def extractUrl(string: String, start: Int, end: Int) = {
+	def extractUrl(string: String, start: Int, end: Int): Option[String] = {
 
 		var protectChar: Option[Char] = None
 		var broken = false
@@ -104,7 +104,7 @@ object CssParser extends Logging {
 		if (!broken) {
 			Some(ensureByteCopy(string.substring(trimmedStart, trimmedEnd)))
 		} else {
-			logger.info(s"css url broken between positions $trimmedStart and $trimmedEnd")
+			logger.info(s"css url broken between positions ${string.substring(trimmedStart, trimmedEnd)}")
 			None
 		}
 	}
@@ -149,14 +149,32 @@ object CssParser extends Logging {
 		}
 
 		var importRules = collection.mutable.ArrayBuffer.empty[URI]
+		var fontFaceRules = collection.mutable.ArrayBuffer.empty[URI]
 		var styleRules = collection.mutable.ArrayBuffer.empty[StyleRule]
 
 		var withinComment = false
 		var withinImport = false
+		var withinFontFace = false
 		var withinUrl = false
 		var selectorsStart = 0
 		var selectorsEnd = 0
 		var urlStart = 0
+
+		def charsMatch(i: Int, str: String): Boolean = {
+
+			@tailrec
+			def charsMatchRec(j: Int): Boolean = {
+				if (j == str.length)
+					true
+				else if (cssContent.charAt(i + j) != str.charAt(j))
+					false
+				else
+					charsMatchRec(j + 1)
+
+			}
+
+			i < cssContent.length - str.length && charsMatchRec(1)
+		}
 
 		var i = 0
 		while (i < cssContent.length) {
@@ -182,32 +200,26 @@ object CssParser extends Logging {
 						selectorsStart = i + 2
 
 				case '@' =>
-					if (!withinComment &&
-						i < cssContent.length - 6 &&
-						cssContent.charAt(i + 1) == 'i' &&
-						cssContent.charAt(i + 2) == 'm' &&
-						cssContent.charAt(i + 3) == 'p' &&
-						cssContent.charAt(i + 4) == 'o' &&
-						cssContent.charAt(i + 5) == 'r' &&
-						cssContent.charAt(i + 6) == 't') {
+					if (!withinComment) {
+						if (charsMatch(i, "@import")) {
+							withinImport = true
+							i = i + "@import".length
 
-						withinImport = true
-						i = i + 7
+						} else if (charsMatch(i, "@font-face")) {
+							withinFontFace = true
+							i = i + "@font-face".length
+						}
 					}
 
 				case 'u' =>
-					if (!withinComment &&
-						i < cssContent.length - 3 &&
-						cssContent.charAt(i + 1) == 'r' &&
-						cssContent.charAt(i + 2) == 'l' &&
-						cssContent.charAt(i + 3) == '(') {
+					if (!withinComment && charsMatch(i, "url(")) {
 
-						i = i + 3
-						urlStart = i + 1
+						i = i + "url(".length
+						urlStart = i
 						withinUrl = true
 					}
 
-				case ')' if (withinImport || withinUrl) && !withinComment =>
+				case ')' if !withinComment && (withinImport || withinUrl) =>
 					for {
 						url <- extractUrl(cssContent, urlStart, i)
 						absoluteUri <- HttpHelper.resolveFromURISilently(cssURI, url)
@@ -215,6 +227,11 @@ object CssParser extends Logging {
 						if (withinImport) {
 							importRules += absoluteUri
 							withinImport = false
+
+						} else if (withinFontFace) {
+							fontFaceRules += absoluteUri
+							withinFontFace = false
+							withinUrl = false
 
 						} else {
 							withinUrl = false
@@ -230,6 +247,6 @@ object CssParser extends Logging {
 			i += 1
 		}
 
-		CssContent(importRules.toList, styleRules)
+		CssContent(importRules.toList, fontFaceRules.toList, styleRules)
 	}
 }

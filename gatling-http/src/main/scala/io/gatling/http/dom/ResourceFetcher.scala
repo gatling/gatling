@@ -314,42 +314,56 @@ class IncompleteResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Optio
 	override def cssFetched(uri: URI, status: Status, sessionUpdates: Session => Session, content: Option[String]) {
 
 		def allCssReceived(nodeSelector: NodeSelector) {
-			// received all css, parsing 
-			val styleRules = orderedExpectedCss.map { cssUrl =>
-				ResourceFetcher.cssCache.get(cssUrl).map(_.styleRules)
+			// received all css, parsing
+
+			def fetchCssResources(res: Iterable[EmbeddedResource]) {
+				resources ++= res
+				pendingRequestsCount += res.size
+				fetchOrBufferResources(res)
+			}
+
+			val fontFaceRules = orderedExpectedCss.map { cssUrl =>
+				ResourceFetcher.cssCache.get(cssUrl).map(_.fontFaceRules.map(EmbeddedResource(_)))
 					.getOrElse {
 						logger.warn(s"Found a css url $cssUrl missing from the result map?!")
 						Nil
 					}
 			}.flatten
 
-			val sortedStyleRules = styleRules.zipWithIndex.toSeq.sortWith {
-				case ((styleRule1, index1), (styleRule2, index2)) =>
-					val selector1 = styleRule1.selector
-					val selector2 = styleRule2.selector
-					if (selector1.startsWith(selector2) && selector1.charAt(selector2.length) == ' ') true // selector1 is less precise than selector2
-					else if (selector2.startsWith(selector1) && selector2.charAt(selector1.length) == ' ') false // selector1 is more precise than selector2
-					else index1 < index2 // default, use order in files
-			}.map(_._1)
+			val appliedCssRulesImages = {
 
-			val appliedCssRulesImages = sortedStyleRules.map { styleRule =>
-				val nodes = nodeSelector.select(styleRule.selector)
-				nodes.map(_ -> styleRule.uri)
-			}.flatten
-				.toMap
-				.values.map(EmbeddedResource(_))
+				val styleRules = orderedExpectedCss.map { cssUrl =>
+					ResourceFetcher.cssCache.get(cssUrl).map(_.styleRules)
+						.getOrElse {
+							logger.warn(s"Found a css url $cssUrl missing from the result map?!")
+							Nil
+						}
+				}.flatten
 
-			resources ++= appliedCssRulesImages
+				val sortedStyleRules = styleRules.zipWithIndex.toSeq.sortWith {
+					case ((styleRule1, index1), (styleRule2, index2)) =>
+						val selector1 = styleRule1.selector
+						val selector2 = styleRule2.selector
+						if (selector1.startsWith(selector2) && selector1.charAt(selector2.length) == ' ') true // selector1 is less precise than selector2
+						else if (selector2.startsWith(selector1) && selector2.charAt(selector1.length) == ' ') false // selector1 is more precise than selector2
+						else index1 < index2 // default, use order in files
+				}.map(_._1)
 
-			pendingRequestsCount += appliedCssRulesImages.size
-			fetchOrBufferResources(appliedCssRulesImages)
+				sortedStyleRules.map { styleRule =>
+					val nodes = nodeSelector.select(styleRule.selector)
+					nodes.map(_ -> styleRule.uri)
+				}.flatten
+					.toMap
+					.values.map(EmbeddedResource(_))
+			}
+
+			fetchCssResources(fontFaceRules)
+			fetchCssResources(appliedCssRulesImages)
 		}
 
 		fetchedCss += 1
 
-		for {
-			content <- content if status == OK
-		} {
+		for (content <- content if status == OK) {
 			val rules = CssParser.extractRules(uri, content)
 			ResourceFetcher.cssCache.putIfAbsent(uri, rules)
 		}
@@ -362,7 +376,7 @@ class IncompleteResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Optio
 		}
 
 		for {
-			nodeSelector <- nodeSelector // FIXME nodeSelector should be cached, so never None
+			nodeSelector <- nodeSelector
 			if fetchedCss == orderedExpectedCss.size
 		} allCssReceived(nodeSelector)
 
