@@ -51,7 +51,16 @@ object RequestElement {
 
 case class RequestElement(uri: String, method: String, headers: Map[String, String], body: Option[RequestBody], statusCode: Int, simulationClass: Option[String]) extends ScenarioElement {
 
-	val (baseUrl, pathQuery) = URIHelper.splitURI(uri)
+	val (baseUrl, pathQuery) = {
+		val (rawBaseUrl, pathQuery) = URIHelper.splitURI(uri)
+
+		val baseUrl = if (rawBaseUrl.startsWith("https://"))
+			rawBaseUrl.stripSuffix(":443")
+		else
+			rawBaseUrl.stripSuffix(":80")
+
+		(baseUrl, pathQuery)
+	}
 	private var printedUrl = uri
 
 	var filteredHeadersId: Option[Int] = None
