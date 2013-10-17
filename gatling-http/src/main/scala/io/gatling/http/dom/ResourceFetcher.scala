@@ -50,9 +50,8 @@ case class HtmlResourceFetched(uri: URI, status: Status, sessionUpdates: Session
 
 object ResourceFetcher {
 
-	// FIXME use Strings
-	val cssCache: concurrent.Map[URI, CssContent] = new ConcurrentHashMap[URI, CssContent]
-	val htmlCache: concurrent.Map[URI, (String, List[EmbeddedResource])] = new ConcurrentHashMap[URI, (String, List[EmbeddedResource])]
+	val cssCache: concurrent.Map[(HttpProtocol, URI), CssContent] = new ConcurrentHashMap[(HttpProtocol, URI), CssContent]
+	val htmlCache: concurrent.Map[(HttpProtocol, URI), (String, List[EmbeddedResource])] = new ConcurrentHashMap[(HttpProtocol, URI), (String, List[EmbeddedResource])]
 
 	val resourceChecks = List(HttpRequestActionBuilder.defaultHttpCheck)
 
@@ -74,24 +73,29 @@ object ResourceFetcher {
 			case 200 =>
 				htmlCacheExpireFlag match {
 					case Some(newHtmlCacheExpireFlag) =>
-						htmlCache.get(htmlDocumentURI) match {
+						htmlCache.get(protocol, htmlDocumentURI) match {
 							case Some((oldHtmlCacheExpireFlag, resources)) if newHtmlCacheExpireFlag == oldHtmlCacheExpireFlag =>
 								//cache entry didn't expire, use it
 								Cached(resources)
 							case _ =>
 								// cache entry expired, flush it
 								htmlCache.remove(htmlDocumentURI)
-								Uncached(HtmlParser.getEmbeddedResources(htmlDocumentURI, html.getOrElse("")))
+								val resources = HtmlParser.getEmbeddedResources(htmlDocumentURI, html.getOrElse(""))
+								Uncached(resources.filter(protocol.fetchHtmlResourcesFilters))
 						}
 
 					case None =>
 						// don't cache
-						Uncached(HtmlParser.getEmbeddedResources(htmlDocumentURI, html.getOrElse("")))
+						val resources = HtmlParser.getEmbeddedResources(htmlDocumentURI, html.getOrElse(""))
+						Uncached(resources.filter(protocol.fetchHtmlResourcesFilters))
 				}
 
 			case 304 =>
 				// no content, retrieve from cache if exist
-				htmlCache.get(htmlDocumentURI).map(res => Cached(res._2)).getOrElse(Uncached(Nil))
+				htmlCache.get(protocol, htmlDocumentURI).map {
+					case (_, resources) =>
+						Cached(resources.filter(protocol.fetchHtmlResourcesFilters))
+				}.getOrElse(Uncached(Nil))
 
 			case _ => Uncached(Nil)
 		}
@@ -110,18 +114,20 @@ object ResourceFetcher {
 					else
 						None
 
-				Some((tx: HttpTx) => new IncompleteResourceFetcher(htmlDocumentURI, htmlCacheExpireFlag, resources, nodeSelector, tx))
+				Some((tx: HttpTx) => new IncompleteResourceFetcher(htmlDocumentURI, protocol, htmlCacheExpireFlag, resources, nodeSelector, tx))
 		}
 	}
 
-	def apply(htmlDocumentURI: URI) = {
-		val resources = htmlCache.get(htmlDocumentURI).map(res => Cached(res._2))
+	def apply(htmlDocumentURI: URI, protocol: HttpProtocol): Option[HttpTx => ResourceFetcher] =
+		htmlCache.get(protocol, htmlDocumentURI).flatMap {
+			case (_, resources) =>
+				val filteredResources = resources.filter(protocol.fetchHtmlResourcesFilters)
 
-		resources.flatMap {
-			case Cached(Nil) => None
-			case Cached(resources) => Some((tx: HttpTx) => new ResourceFetcher(htmlDocumentURI, None, resources, tx))
+				filteredResources match {
+					case Nil => None
+					case filteredResources => Some((tx: HttpTx) => new ResourceFetcher(htmlDocumentURI, None, filteredResources, tx))
+				}
 		}
-	}
 }
 
 class ResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String], initialResources: Seq[EmbeddedResource], tx: HttpTx) extends BaseActor {
@@ -292,7 +298,7 @@ class ResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String],
 	}
 }
 
-class IncompleteResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String], directResources: Seq[EmbeddedResource], nodeSelector: Option[NodeSelector], tx: HttpTx)
+class IncompleteResourceFetcher(htmlDocumentURI: URI, protocol: HttpProtocol, htmlCacheExpireFlag: Option[String], directResources: Seq[EmbeddedResource], nodeSelector: Option[NodeSelector], tx: HttpTx)
 	extends ResourceFetcher(htmlDocumentURI, htmlCacheExpireFlag, directResources, tx) {
 
 	var orderedExpectedCss: List[URI] = directResources.collect { case EmbeddedResource(uri, Css) => uri }.toList
@@ -304,7 +310,7 @@ class IncompleteResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Optio
 			// update cache if everything went fine
 			// FIXME what is a resource is always unavailable, shouldn't we cache?
 			htmlCacheExpireFlag.foreach { htmlCacheExpireFlag =>
-				ResourceFetcher.htmlCache.putIfAbsent(htmlDocumentURI, (htmlCacheExpireFlag, resources.toList))
+				ResourceFetcher.htmlCache.putIfAbsent((protocol, htmlDocumentURI), (htmlCacheExpireFlag, resources.toList))
 			}
 		}
 		super.done(status)
@@ -322,7 +328,7 @@ class IncompleteResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Optio
 			}
 
 			val fontFaceRules = orderedExpectedCss.map { cssUrl =>
-				ResourceFetcher.cssCache.get(cssUrl).map(_.fontFaceRules.map(EmbeddedResource(_)))
+				ResourceFetcher.cssCache.get(protocol, cssUrl).map(_.fontFaceRules.map(EmbeddedResource(_)))
 					.getOrElse {
 						logger.warn(s"Found a css url $cssUrl missing from the result map?!")
 						Nil
@@ -332,7 +338,7 @@ class IncompleteResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Optio
 			val appliedCssRulesImages = {
 
 				val styleRules = orderedExpectedCss.map { cssUrl =>
-					ResourceFetcher.cssCache.get(cssUrl).map(_.styleRules)
+					ResourceFetcher.cssCache.get(protocol, cssUrl).map(_.styleRules)
 						.getOrElse {
 							logger.warn(s"Found a css url $cssUrl missing from the result map?!")
 							Nil
@@ -364,10 +370,10 @@ class IncompleteResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Optio
 
 		for (content <- content if status == OK) {
 			val rules = CssParser.extractRules(uri, content)
-			ResourceFetcher.cssCache.putIfAbsent(uri, rules)
+			ResourceFetcher.cssCache.putIfAbsent((protocol, uri), rules)
 		}
 
-		ResourceFetcher.cssCache.get(uri).foreach { rules =>
+		ResourceFetcher.cssCache.get(protocol, uri).foreach { rules =>
 			orderedExpectedCss = rules.importRules ::: orderedExpectedCss
 			val cssImports = rules.importRules.map(EmbeddedResource(_, Css))
 			resources ++= cssImports

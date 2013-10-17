@@ -72,7 +72,6 @@ class AsyncHandlerActor extends BaseActor {
 		response: Response,
 		errorMessage: Option[String] = None) {
 
-		// FIXME useless if logger.error 
 		def dump = {
 			val buff = new StringBuilder
 			buff.append(eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(eol)

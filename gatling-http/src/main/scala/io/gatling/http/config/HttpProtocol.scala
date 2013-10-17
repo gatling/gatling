@@ -22,6 +22,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Protocol
+import io.gatling.core.filter.FilterList
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
 import io.gatling.core.session.el.EL
@@ -56,6 +57,7 @@ object HttpProtocol {
 		maxRedirects = None,
 		warmUpUrl = configuration.http.warmUpUrl,
 		fetchHtmlResources = false,
+		fetchHtmlResourcesFilters = Nil,
 		maxConnectionsPerHost = 6,
 		extraInfoExtractor = None)
 }
@@ -85,6 +87,7 @@ case class HttpProtocol(
 	maxRedirects: Option[Int],
 	warmUpUrl: Option[String],
 	fetchHtmlResources: Boolean,
+	fetchHtmlResourcesFilters: List[FilterList],
 	maxConnectionsPerHost: Int,
 	extraInfoExtractor: Option[(Status, Session, Request, Response) => List[Any]]) extends Protocol with Logging {
 

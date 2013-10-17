@@ -71,7 +71,7 @@ object HttpRequestAction extends AkkaDefaults with Logging {
 
 			case _ =>
 				if (tx.protocol.fetchHtmlResources) {
-					val resourceFetcherFactory = ResourceFetcher(tx.request.getURI)
+					val resourceFetcherFactory = ResourceFetcher(tx.request.getURI, tx.protocol)
 					resourceFetcherFactory match {
 						case Some(resourceFetcherFactory) =>
 							logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")

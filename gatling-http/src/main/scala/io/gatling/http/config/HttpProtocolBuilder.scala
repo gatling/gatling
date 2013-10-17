@@ -22,6 +22,7 @@ import scala.collection.mutable
 import com.ning.http.client.{ ProxyServer, Request }
 import com.typesafe.scalalogging.slf4j.Logging
 
+import io.gatling.core.filter.{ BlackList, FilterList, WhiteList }
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.HeaderNames._
@@ -101,7 +102,11 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 
 	def check(checks: HttpCheck*) = copy(protocol = protocol.copy(checks = protocol.checks ::: checks.toList))
 
-	def fetchHtmlResources = copy(protocol = protocol.copy(fetchHtmlResources = true))
+	def fetchHtmlResources: HttpProtocolBuilder = fetchHtmlResources(Nil)
+	def fetchHtmlResources(white: WhiteList): HttpProtocolBuilder = fetchHtmlResources(List(white))
+	def fetchHtmlResources(white: WhiteList, black: BlackList): HttpProtocolBuilder = fetchHtmlResources(List(white, black))
+	def fetchHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil)): HttpProtocolBuilder = fetchHtmlResources(List(black, white))
+	private def fetchHtmlResources(filters: List[FilterList]): HttpProtocolBuilder = copy(protocol = protocol.copy(fetchHtmlResources = true, fetchHtmlResourcesFilters = filters))
 
 	def maxConnectionsPerHostLikeFirefoxOld = maxConnectionsPerHost(2)
 	def maxConnectionsPerHostLikeFirefox = maxConnectionsPerHost(6)
@@ -113,7 +118,6 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 	def maxConnectionsPerHostLikeIE8 = maxConnectionsPerHost(6)
 	def maxConnectionsPerHostLikeIE10 = maxConnectionsPerHost(8)
 	def maxConnectionsPerHostLikeChrome = maxConnectionsPerHost(6)
-
 	def maxConnectionsPerHost(max: Int) = copy(protocol = protocol.copy(maxConnectionsPerHost = max))
 
 	def build = {

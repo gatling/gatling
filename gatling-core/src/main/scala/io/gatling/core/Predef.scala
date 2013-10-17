@@ -48,5 +48,8 @@ object Predef extends StructureSupport with PauseSupport with CheckSupport with 
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
 
+	def WhiteList(regex: String*) = io.gatling.core.filter.WhiteList(regex.toList.map(_.r))
+	def BlackList(regex: String*) = io.gatling.core.filter.BlackList(regex.toList.map(_.r))
+
 	implicit def string2path(string: String) = Path.string2path(string)
 }
