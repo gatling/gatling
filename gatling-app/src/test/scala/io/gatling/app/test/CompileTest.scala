@@ -32,8 +32,8 @@ object CompileTest extends Simulation {
 
 	val httpProtocol = http
 		.baseURL("http://172.30.5.143:8080")
-		.proxy("172.31.76.106", 8080)
-		.httpsPort(8081)
+		.proxy(Proxy("172.31.76.106", 8080).httpsPort(8081))
+		.noProxyFor("localhost")
 		.acceptHeader("*/*")
 		.acceptCharsetHeader("ISO-8859-1,utf-8;q=0.7,*;q=0.3")
 		.acceptLanguageHeader("fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4")
@@ -182,7 +182,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 					.check(status.is(201).saveAs("status")))
 		}
 		// Head request
-		.exec(http("head on root").head("/"))
+		.exec(http("head on root").head("/").proxy(Proxy("172.31.76.106", 8080).httpsPort(8081)))
 		// Second request outside iteration
 		.exec(http("Ajout au panier").get("/").check(regex("""<input id="text1" type="text" value="(.*)" />""").saveAs("input")))
 		.exec(http("Ajout au panier").get("/").check(regex(session => """<input id="text1" type="text" value="smth" />""").count.lessThan(10).saveAs("input")))

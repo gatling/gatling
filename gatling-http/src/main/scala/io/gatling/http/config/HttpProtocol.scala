@@ -21,14 +21,14 @@ import com.ning.http.client.{ ProxyServer, Realm, Request, RequestBuilder }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.config.Protocol
+import io.gatling.core.config.{ Protocol, Proxy }
 import io.gatling.core.filter.FilterList
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
 import io.gatling.core.session.el.EL
 import io.gatling.core.util.RoundRobin
 import io.gatling.http.HeaderNames._
-import io.gatling.http.ahc.HttpClient
+import io.gatling.http.ahc.{ HttpClient, ProxyConverter }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.{ Response, ResponseTransformer }
@@ -40,8 +40,9 @@ import io.gatling.http.util.HttpHelper.{ buildProxy, buildRealm }
 object HttpProtocol {
 	val default = HttpProtocol(
 		baseURLs = configuration.http.baseURLs,
-		proxy = configuration.http.proxy.map(proxy => buildProxy(proxy.host, proxy.port, proxy.credentials, false)),
-		securedProxy = configuration.http.proxy.flatMap(proxy => proxy.securePort.map(port => buildProxy(proxy.host, port, proxy.credentials, true))),
+		proxy = configuration.http.proxy.map(_.proxyServer),
+		secureProxy = configuration.http.proxy.flatMap(_.secureProxyServer),
+		proxyExceptions = Nil,
 		followRedirect = configuration.http.followRedirect,
 		autoReferer = configuration.http.autoReferer,
 		cache = configuration.http.cache,
@@ -71,7 +72,8 @@ object HttpProtocol {
 case class HttpProtocol(
 	baseURLs: Seq[String],
 	proxy: Option[ProxyServer],
-	securedProxy: Option[ProxyServer],
+	secureProxy: Option[ProxyServer],
+	proxyExceptions: Seq[String],
 	followRedirect: Boolean,
 	autoReferer: Boolean,
 	cache: Boolean,
@@ -112,8 +114,10 @@ case class HttpProtocol(
 					.setHeader(CONNECTION, "keep-alive")
 					.setHeader(USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
 
-				proxy.map { proxy => if (url.startsWith("http://")) requestBuilder.setProxyServer(proxy) }
-				securedProxy.map { proxy => if (url.startsWith("https://")) requestBuilder.setProxyServer(proxy) }
+				if (url.startsWith("http://"))
+					proxy.foreach(requestBuilder.setProxyServer)
+				else
+					secureProxy.foreach(requestBuilder.setProxyServer)
 
 				try {
 					HttpClient.default.executeRequest(requestBuilder.build).get

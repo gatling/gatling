@@ -17,24 +17,21 @@ package io.gatling.http
 
 import io.gatling.core.result.message.{ KO, Status }
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.http.action.{ AddCookieBuilder, HttpRequestActionBuilder }
+import io.gatling.http.action.AddCookieBuilder
 import io.gatling.http.check.HttpCheckSupport
-import io.gatling.http.config.{ HttpProtocol, HttpProtocolBuilder, HttpProxyBuilder }
+import io.gatling.http.config.HttpProtocolBuilder
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.request.BodyProcessors
-import io.gatling.http.request.builder.{ AbstractHttpRequestBuilder, HttpRequestBaseBuilder, WebSocketBaseBuilder }
+import io.gatling.http.request.builder.{ HttpRequestBaseBuilder, WebSocketBaseBuilder }
 import io.gatling.http.util.{ DefaultRequestLogger, DefaultWebSocketClient }
 
 object Predef extends HttpCheckSupport {
 	type Request = com.ning.http.client.Request
 	type Response = io.gatling.http.response.Response
 
-	implicit def proxyBuilder2HttpProtocolBuilder(hpb: HttpProxyBuilder): HttpProtocolBuilder = hpb.toHttpProtocolBuilder
-	implicit def proxyBuilder2HttpProtocol(hpb: HttpProxyBuilder): HttpProtocol = hpb.toHttpProtocolBuilder.build
-	implicit def httpProtocolBuilder2HttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
-	implicit def requestBuilder2ActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = HttpRequestActionBuilder(requestBuilder)
-
 	def http = HttpProtocolBuilder.default
+
+	val Proxy = io.gatling.http.config.HttpProxyBuilder.apply _
 
 	def http(requestName: Expression[String]) = HttpRequestBaseBuilder.http(requestName)
 	def addCookie(name: Expression[String], value: Expression[String], domain: Option[Expression[String]] = None, path: Option[Expression[String]] = None, maxAge: Int = -1) = new AddCookieBuilder(name, value, domain, path, maxAge)

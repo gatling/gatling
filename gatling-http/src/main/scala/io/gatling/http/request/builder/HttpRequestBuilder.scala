@@ -18,15 +18,18 @@ package io.gatling.http.request.builder
 import java.net.{ InetAddress, URI }
 
 import com.ning.http.client.{ Realm, RequestBuilder }
+import com.ning.http.client.ProxyServer
 import com.ning.http.client.ProxyServer.Protocol
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.Proxy
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.session.el.EL
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.{ HeaderNames, HeaderValues }
-import io.gatling.http.ahc.{ ConnectionPoolKeyStrategy, RequestFactory }
+import io.gatling.http.action.HttpRequestActionBuilder
+import io.gatling.http.ahc.{ ConnectionPoolKeyStrategy, ProxyConverter, RequestFactory }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
@@ -48,7 +51,9 @@ case class HttpAttributes(
 	ignoreDefaultChecks: Boolean = false,
 	responseTransformer: Option[ResponseTransformer] = None,
 	maxRedirects: Option[Int] = None,
-	useRawUrl: Boolean = false)
+	useRawUrl: Boolean = false,
+	proxy: Option[ProxyServer] = None,
+	secureProxy: Option[ProxyServer] = None)
 
 object AbstractHttpRequestBuilder {
 
@@ -56,6 +61,8 @@ object AbstractHttpRequestBuilder {
 	val xmlHeaderValueExpression = HeaderValues.APPLICATION_XML.el[String]
 	val multipartFormDataValueExpression = HeaderValues.MULTIPART_FORM_DATA.el[String]
 	val emptyHeaderListSuccess = List.empty[(String, String)].success
+
+	implicit def toActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = HttpRequestActionBuilder(requestBuilder)
 }
 
 /**
@@ -147,6 +154,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 	def useRawUrl: B = newInstance(httpAttributes.copy(useRawUrl = true))
 
+	def proxy(httpProxy: Proxy): B = newInstance(httpAttributes.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
+
 	/**
 	 * This method actually fills the request builder to avoid race conditions
 	 *
@@ -177,8 +186,12 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 		def configureQueryCookiesAndProxy(uri: URI)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
-			val proxy = if (uri.getScheme == Protocol.HTTPS.getProtocol) protocol.securedProxy else protocol.proxy
-			proxy.foreach(requestBuilder.setProxyServer)
+			if (!protocol.proxyExceptions.contains(uri.getHost)) {
+				if (uri.getScheme == Protocol.HTTP.getProtocol)
+					httpAttributes.proxy.orElse(protocol.proxy).foreach(requestBuilder.setProxyServer)
+				else
+					httpAttributes.secureProxy.orElse(protocol.secureProxy).foreach(requestBuilder.setProxyServer)
+			}
 
 			protocol.localAddress.foreach(requestBuilder.setLocalInetAddress)
 			httpAttributes.address.foreach(requestBuilder.setInetAddress)

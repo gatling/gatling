@@ -22,10 +22,12 @@ import scala.collection.mutable
 import com.ning.http.client.{ ProxyServer, Request }
 import com.typesafe.scalalogging.slf4j.Logging
 
+import io.gatling.core.config.Proxy
 import io.gatling.core.filter.{ BlackList, FilterList, WhiteList }
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.HeaderNames._
+import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
@@ -38,6 +40,8 @@ object HttpProtocolBuilder {
 	val default = new HttpProtocolBuilder(HttpProtocol.default)
 
 	val warmUpUrls = mutable.Set.empty[String]
+	
+	implicit def toHttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
 }
 
 /**
@@ -48,11 +52,11 @@ object HttpProtocolBuilder {
  */
 case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 
-	def baseURL(baseUrl: String) = copy(protocol = protocol.copy(baseURLs = List(baseUrl)))
+	def baseURL(baseUrl: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseURLs = List(baseUrl)))
 
-	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*) = copy(protocol = protocol.copy(baseURLs = baseUrl1 :: baseUrl2 :: baseUrls.toList))
+	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*): HttpProtocolBuilder = copy(protocol = protocol.copy(baseURLs = baseUrl1 :: baseUrl2 :: baseUrls.toList))
 
-	def baseURLs(baseUrls: Seq[String]) = copy(protocol = protocol.copy(baseURLs = baseUrls))
+	def baseURLs(baseUrls: Seq[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseURLs = baseUrls))
 
 	def disableFollowRedirect = copy(protocol = protocol.copy(followRedirect = false))
 
@@ -94,9 +98,9 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 
 	def extraInfoExtractor(f: (String, Status, Session, Request, Response) => List[Any]) = copy(protocol = protocol.copy(extraInfoExtractor = Some(f)))
 
-	def proxy(host: String, port: Int) = new HttpProxyBuilder(this, host, port)
+	def proxy(httpProxy: Proxy) = copy(protocol = protocol.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
 
-	def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = copy(protocol = protocol.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
+	def noProxyFor(hosts: String*) = copy(protocol = protocol.copy(proxyExceptions = hosts))
 
 	def localAddress(localAddress: InetAddress) = copy(protocol = protocol.copy(localAddress = Some(localAddress)))
 

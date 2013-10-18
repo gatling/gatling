@@ -271,8 +271,8 @@ case class HttpConfiguration(
 case class Proxy(
 	host: String,
 	port: Int,
-	securePort: Option[Int],
-	credentials: Option[Credentials])
+	securePort: Option[Int] = None,
+	credentials: Option[Credentials] = None)
 
 case class Credentials(
 	username: String,

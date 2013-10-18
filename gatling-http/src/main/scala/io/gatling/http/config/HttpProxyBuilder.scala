@@ -15,16 +15,19 @@
  */
 package io.gatling.http.config
 
-import io.gatling.core.config.Credentials
+import io.gatling.core.config.{ Credentials, Proxy }
 import io.gatling.http.util.HttpHelper.buildProxy
 
-class HttpProxyBuilder(protocolBuilder: HttpProtocolBuilder, host: String, port: Int, sslPort: Option[Int], credentials: Option[Credentials]) {
+object HttpProxyBuilder {
 
-	def this(protocolBuilder: HttpProtocolBuilder, host: String, port: Int) = this(protocolBuilder, host, port, None, None)
+	def apply(host: String, port: Int) = new HttpProxyBuilder(Proxy(host, port))
 
-	def httpsPort(sslPort: Int) = new HttpProxyBuilder(protocolBuilder, host, port, Some(sslPort), credentials)
+	implicit def toProxy(proxyBuilder: HttpProxyBuilder): Proxy = proxyBuilder.proxy
+}
 
-	def credentials(username: String, password: String) = new HttpProxyBuilder(protocolBuilder, host, port, sslPort, Some(Credentials(username, password)))
+class HttpProxyBuilder(val proxy: Proxy) {
 
-	def toHttpProtocolBuilder = protocolBuilder.addProxies(buildProxy(host, port, credentials, false), sslPort.map(buildProxy(host, _, credentials, true)))
+	def httpsPort(port: Int) = new HttpProxyBuilder(proxy.copy(securePort = Some(port)))
+
+	def credentials(username: String, password: String) = new HttpProxyBuilder(proxy.copy(credentials = Some(Credentials(username, password))))
 }
