@@ -34,12 +34,12 @@ class HttpRequestBaseBuilder(requestName: Expression[String]) {
 
 	def get(url: Expression[String]) = httpRequest("GET", Left(url))
 	def get(uri: URI) = httpRequest("GET", Right(uri))
-	def delete(url: Expression[String]) = httpRequest("DELETE", Left(url))
 	def httpRequest(method: String, urlOrURI: Either[Expression[String], URI]) = HttpRequestBuilder(method, requestName, urlOrURI)
 
 	def put(url: Expression[String]) = httpRequestWithBody("PUT", Left(url))
 	def patch(url: Expression[String]) = httpRequestWithBody("PATCH", Left(url))
 	def head(url: Expression[String]) = httpRequestWithBody("HEAD", Left(url))
+	def delete(url: Expression[String]) = httpRequestWithBody("DELETE", Left(url))
 	def options(url: Expression[String]) = httpRequestWithBody("OPTIONS", Left(url))
 	def httpRequestWithBody(method: String, urlOrURI: Either[Expression[String], URI]) = HttpRequestWithBodyBuilder(method, requestName, urlOrURI)
 
