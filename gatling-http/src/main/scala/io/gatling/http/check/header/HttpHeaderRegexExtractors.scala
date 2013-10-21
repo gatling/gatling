@@ -17,7 +17,7 @@ package io.gatling.http.check.header
 
 import io.gatling.core.check.Extractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
-import io.gatling.core.check.extractor.regex.RegexExtractors
+import io.gatling.core.check.extractor.regex.{ GroupExtractor, RegexExtractors }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.response.Response
 
@@ -27,27 +27,27 @@ object HttpHeaderRegexExtractors {
 		val name = "headerRegex"
 	}
 
-	def extractHeadersValues(response: Response, headerNameAndPattern: (String, String)) = {
+	def extractHeadersValues[X](response: Response, headerNameAndPattern: (String, String))(implicit groupExtractor: GroupExtractor[X]) = {
 		val (headerName, pattern) = headerNameAndPattern
 		val headerValues = HttpHeaderExtractors.decodedHeaders(response, headerName)
-		headerValues.map(RegexExtractors.extract[String](_, pattern)).flatten
+		headerValues.map(RegexExtractors.extract(_, pattern)).flatten
 	}
 
-	val extractOne = (occurrence: Int) => new HeaderRegexExtractor[String] {
+	def extractOne[X](occurrence: Int)(implicit groupExtractor: GroupExtractor[X]) = new HeaderRegexExtractor[X] {
 
-		def apply(prepared: Response, criterion: (String, String)): Validation[Option[String]] =
+		def apply(prepared: Response, criterion: (String, String)): Validation[Option[X]] =
 			extractHeadersValues(prepared, criterion).lift(occurrence).success
 	}
 
-	val extractMultiple = new HeaderRegexExtractor[Seq[String]] {
+	def extractMultiple[X](implicit groupExtractor: GroupExtractor[X]) = new HeaderRegexExtractor[Seq[X]] {
 
-		def apply(prepared: Response, criterion: (String, String)): Validation[Option[Seq[String]]] =
+		def apply(prepared: Response, criterion: (String, String)): Validation[Option[Seq[X]]] =
 			extractHeadersValues(prepared, criterion).liftSeqOption.success
 	}
 
 	val count = new HeaderRegexExtractor[Int] {
 
 		def apply(prepared: Response, criterion: (String, String)): Validation[Option[Int]] =
-			extractHeadersValues(prepared, criterion).liftSeqOption.map(_.size).success
+			extractHeadersValues[String](prepared, criterion).liftSeqOption.map(_.size).success
 	}
 }

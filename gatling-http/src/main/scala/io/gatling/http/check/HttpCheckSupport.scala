@@ -27,7 +27,7 @@ import io.gatling.http.check.url.CurrentLocationCheckBuilder
 trait HttpCheckSupport {
 
 	val regex = regexCapture[String] _
-	def regexCapture[T](pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpBodyRegexCheckBuilder.regexCapture[T](pattern)
+	def regexCapture[T](pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpBodyRegexCheckBuilder.regex[T](pattern)
 
 	def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
 
@@ -40,7 +40,8 @@ trait HttpCheckSupport {
 
 	val header = HttpHeaderCheckBuilder.header _
 
-	val headerRegex = HttpHeaderRegexCheckBuilder.headerRegex _
+	val headerRegex = headerRegexCapture[String] _
+	def headerRegexCapture[T](headerName: Expression[String], pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpHeaderRegexCheckBuilder.headerRegex[T](headerName, pattern)
 
 	val status = HttpStatusCheckBuilder.status
 

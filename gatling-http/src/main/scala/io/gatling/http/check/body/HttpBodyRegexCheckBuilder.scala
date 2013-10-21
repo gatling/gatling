@@ -21,7 +21,7 @@ import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 
 object HttpBodyRegexCheckBuilder {
 
-	def regexCapture[X](expression: Expression[String])(implicit groupExtractor: GroupExtractor[X]) = new HttpMultipleCheckBuilder[String, String, X](
+	def regex[X](expression: Expression[String])(implicit groupExtractor: GroupExtractor[X]) = new HttpMultipleCheckBuilder[String, String, X](
 		HttpCheckBuilders.bodyCheckFactory,
 		HttpCheckBuilders.stringResponsePreparer,
 		RegexExtractors.extractOne,

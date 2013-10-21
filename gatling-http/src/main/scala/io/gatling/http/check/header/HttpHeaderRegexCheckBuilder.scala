@@ -17,11 +17,12 @@ package io.gatling.http.check.header
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
+import io.gatling.core.check.extractor.regex.GroupExtractor
 import io.gatling.http.response.Response
 
 object HttpHeaderRegexCheckBuilder {
 
-	def headerRegex(headerName: Expression[String], pattern: Expression[String]) = {
+	def headerRegex[X](headerName: Expression[String], pattern: Expression[String])(implicit groupExtractor: GroupExtractor[X]) = {
 
 		val headerAndPattern = (session: Session) => for {
 			h <- headerName(session)
