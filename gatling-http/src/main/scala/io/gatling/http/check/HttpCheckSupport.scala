@@ -15,6 +15,7 @@
  */
 package io.gatling.http.check
 
+import io.gatling.core.check.extractor.jsonpath.JsonFilter
 import io.gatling.core.check.extractor.regex.GroupExtractor
 import io.gatling.core.session.Expression
 import io.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
@@ -26,22 +27,23 @@ import io.gatling.http.check.url.CurrentLocationCheckBuilder
 
 trait HttpCheckSupport {
 
-	val regex = regexCapture[String] _
-	def regexCapture[T](pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpBodyRegexCheckBuilder.regex[T](pattern)
+	val regex = regexTyped[String] _
+	def regexTyped[T](pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpBodyRegexCheckBuilder.regex[T](pattern)
 
 	def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
 
 	def css(selector: Expression[String]) = HttpBodyCssCheckBuilder.css(selector, None)
 	def css(selector: Expression[String], nodeAttribute: String) = HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))
 
-	val jsonPath = HttpBodyJsonPathCheckBuilder.jsonPath _
+	val jsonPath = jsonPathTyped[String] _
+	def jsonPathTyped[T](path: Expression[String])(implicit groupExtractor: JsonFilter[T]) = HttpBodyJsonPathCheckBuilder.jsonPath[T](path)
 
 	val bodyString = HttpBodyStringCheckBuilder.bodyString
 
 	val header = HttpHeaderCheckBuilder.header _
 
-	val headerRegex = headerRegexCapture[String] _
-	def headerRegexCapture[T](headerName: Expression[String], pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpHeaderRegexCheckBuilder.headerRegex[T](headerName, pattern)
+	val headerRegex = headerRegexTyped[String] _
+	def headerRegexTyped[T](headerName: Expression[String], pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpHeaderRegexCheckBuilder.headerRegex[T](headerName, pattern)
 
 	val status = HttpStatusCheckBuilder.status
 

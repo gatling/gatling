@@ -18,7 +18,7 @@ package io.gatling.http.check.body
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.jsonpath.JsonPathExtractors
+import io.gatling.core.check.extractor.jsonpath.{ JsonFilter, JsonPathExtractors }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
@@ -37,11 +37,11 @@ object HttpBodyJsonPathCheckBuilder extends Logging {
 				message.failure
 		}
 
-	def jsonPath(expression: Expression[String]) = new HttpMultipleCheckBuilder[Any, String, String](
+	def jsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) = new HttpMultipleCheckBuilder[Any, String, X](
 		HttpCheckBuilders.bodyCheckFactory,
 		preparer,
 		JsonPathExtractors.extractOne,
 		JsonPathExtractors.extractMultiple,
 		JsonPathExtractors.count,
-		expression)
+		path)
 }
