@@ -3,13 +3,13 @@ import sbt.Keys._
 
 import Resolvers._
 
-object Publishing {
+object Publish {
 
 	/*************************/
 	/** Publishing settings **/
 	/*************************/
 
-	lazy val publishingSettings = Seq(
+	lazy val settings = Seq(
 		crossPaths           := false,
 		pomExtra             := scm ++ developersXml(developers),
 		publishMavenStyle    := true,
