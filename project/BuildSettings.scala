@@ -4,11 +4,8 @@ import sbt.Keys._
 import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import com.typesafe.sbt.SbtSite.site
-import sbtrelease.ReleasePlugin._
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
 import com.typesafe.sbteclipse.plugin.EclipsePlugin._
-
-import Publishing._
 
 object BuildSettings {
 
@@ -30,7 +27,7 @@ object BuildSettings {
 			"-language:implicitConversions",
 			"-language:postfixOps"
 		)
-	) ++ publishingSettings ++ releaseSettings
+	) ++ Publish.settings ++ Release.settings
 
 	lazy val javaSettings = Seq(
 		compileOrder := CompileOrder.JavaThenScala,
