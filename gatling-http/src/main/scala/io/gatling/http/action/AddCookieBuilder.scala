@@ -54,7 +54,7 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 			value <- value(session)
 			domain <- resolvedDomain(session)
 			path <- resolvedPath(session)
-			cookie = new Cookie(name, value, domain, path, maxAge, false)
+			cookie = new Cookie(domain, name, value, path, maxAge, false)
 		} yield storeCookie(session, cookie)
 
 		actor(new SessionHook(expression, next))
