@@ -27,7 +27,7 @@ object Dependencies {
 	private val zinc              = "com.typesafe.zinc"     % "zinc"               % "0.3.0"
 	private val openCsv           = "net.sf.opencsv"        % "opencsv"            % "2.3"
 
-	private val grizzlyWebsockets = "org.glassfish.grizzly" % "grizzly-websockets" % "2.3.4"       % "provided" 
+	private val grizzlyWebsockets = "org.glassfish.grizzly" % "grizzly-websockets" % "2.3.6"       % "provided" 
 
 	private val logbackClassic    = "ch.qos.logback"        % "logback-classic"    % "1.0.13"      % "runtime"
 
