@@ -48,20 +48,20 @@ object GroupExtractor extends Logging {
 			""
 		}
 
-	implicit val stringTuple2GroupExtractor = new GroupExtractor[(String, String)] {
+	implicit val groupExtractor2 = new GroupExtractor[(String, String)] {
 		def extract(matcher: Matcher) = (
 			safeGetGroupValue(matcher, 1),
 			safeGetGroupValue(matcher, 2))
 	}
 
-	implicit val stringTuple3GroupExtractor = new GroupExtractor[(String, String, String)] {
+	implicit val groupExtractor3 = new GroupExtractor[(String, String, String)] {
 		def extract(matcher: Matcher) = (
 			safeGetGroupValue(matcher, 1),
 			safeGetGroupValue(matcher, 2),
 			safeGetGroupValue(matcher, 3))
 	}
 
-	implicit val stringTuple4GroupExtractor = new GroupExtractor[(String, String, String, String)] {
+	implicit val groupExtractor4 = new GroupExtractor[(String, String, String, String)] {
 		def extract(matcher: Matcher) = (
 			safeGetGroupValue(matcher, 1),
 			safeGetGroupValue(matcher, 2),
@@ -69,7 +69,7 @@ object GroupExtractor extends Logging {
 			safeGetGroupValue(matcher, 4))
 	}
 
-	implicit val stringTuple5GroupExtractor = new GroupExtractor[(String, String, String, String, String)] {
+	implicit val groupExtractor5 = new GroupExtractor[(String, String, String, String, String)] {
 		def extract(matcher: Matcher) = (
 			safeGetGroupValue(matcher, 1),
 			safeGetGroupValue(matcher, 2),
@@ -78,7 +78,7 @@ object GroupExtractor extends Logging {
 			safeGetGroupValue(matcher, 5))
 	}
 
-	implicit val stringTuple6GroupExtractor = new GroupExtractor[(String, String, String, String, String, String)] {
+	implicit val groupExtractor6 = new GroupExtractor[(String, String, String, String, String, String)] {
 		def extract(matcher: Matcher) = (
 			safeGetGroupValue(matcher, 1),
 			safeGetGroupValue(matcher, 2),
@@ -88,7 +88,7 @@ object GroupExtractor extends Logging {
 			safeGetGroupValue(matcher, 6))
 	}
 
-	implicit val stringTuple7GroupExtractor = new GroupExtractor[(String, String, String, String, String, String, String)] {
+	implicit val groupExtractor7 = new GroupExtractor[(String, String, String, String, String, String, String)] {
 		def extract(matcher: Matcher) = (
 			safeGetGroupValue(matcher, 1),
 			safeGetGroupValue(matcher, 2),
@@ -99,7 +99,7 @@ object GroupExtractor extends Logging {
 			safeGetGroupValue(matcher, 7))
 	}
 
-	implicit val stringTuple8GroupExtractor = new GroupExtractor[(String, String, String, String, String, String, String, String)] {
+	implicit val groupExtractor8 = new GroupExtractor[(String, String, String, String, String, String, String, String)] {
 		def extract(matcher: Matcher) = (
 			safeGetGroupValue(matcher, 1),
 			safeGetGroupValue(matcher, 2),
