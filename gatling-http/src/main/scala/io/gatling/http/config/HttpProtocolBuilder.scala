@@ -40,7 +40,7 @@ object HttpProtocolBuilder {
 	val default = new HttpProtocolBuilder(HttpProtocol.default)
 
 	val warmUpUrls = mutable.Set.empty[String]
-	
+
 	implicit def toHttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
 }
 
