@@ -12,7 +12,7 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.jsonpath.jsonsmart.JsonPath
 import net.minidev.json.parser.JSONParser
 
-object JsonFilter {
+trait LowPriorityJsonFilterImplicits {
 
 	implicit val stringJsonFilter = new JsonFilter[String] {
 		val filter: PartialFunction[Any, String] = { case e: Any => e.toString }
@@ -46,6 +46,8 @@ object JsonFilter {
 		val filter: PartialFunction[Any, Any] = { case e => e }
 	}
 }
+
+object JsonFilter extends LowPriorityJsonFilterImplicits
 
 trait JsonFilter[X] {
 	def filter: PartialFunction[Any, X]

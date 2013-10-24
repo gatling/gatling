@@ -31,7 +31,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.ensureByteCopy
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
-object GroupExtractor extends Logging {
+trait LowPriorityGroupExtractorImplicits extends Logging {
 
 	implicit val stringGroupExtractor = new GroupExtractor[String] {
 		def extract(matcher: Matcher): String = {
@@ -111,6 +111,8 @@ object GroupExtractor extends Logging {
 			safeGetGroupValue(matcher, 8))
 	}
 }
+
+object GroupExtractor extends LowPriorityGroupExtractorImplicits
 
 trait GroupExtractor[X] {
 	def extract(matcher: Matcher): X
