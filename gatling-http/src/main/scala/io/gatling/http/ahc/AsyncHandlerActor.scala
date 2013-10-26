@@ -123,7 +123,8 @@ class AsyncHandlerActor extends BaseActor {
 			else None
 
 		def regularExecuteNext() {
-			tx.next ! tx.session.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
+			val updatedSession = sessionUpdates(tx.session)
+			tx.next ! updatedSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
 		}
 
 		// FIXME rewrite with extractors
