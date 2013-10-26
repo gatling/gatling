@@ -17,6 +17,7 @@ package io.gatling.http.util
 
 import java.net.{ URI, URLDecoder }
 
+import scala.collection.breakOut
 import scala.collection.JavaConversions.seqAsJavaList
 import scala.io.Codec.UTF8
 
@@ -45,7 +46,7 @@ object HttpHelper extends Logging {
 				val paramName = utf8Decode(pair(0))
 				val paramValue = if (pair.isDefinedAt(1)) utf8Decode(pair(1)) else ""
 				paramName -> paramValue
-			}.toList
+			}(breakOut)
 	}
 
 	def resolveParams(params: List[HttpParam], session: Session): Validation[Map[String, Seq[String]]] = {
@@ -53,7 +54,7 @@ object HttpHelper extends Logging {
 		val resolvedParams = params.foldLeft(emptyParamListSuccess) { (resolvedParams, param) =>
 			{
 
-				val newParams = param match {
+				val newParams: Validation[List[(String, String)]] = param match {
 					case SimpleParam(key, value) =>
 						for {
 							key <- key(session)
@@ -64,17 +65,17 @@ object HttpHelper extends Logging {
 						for {
 							key <- key(session)
 							values <- values(session)
-						} yield values.map(key -> _.toString).toList
+						} yield values.map(key -> _.toString)(breakOut)
 
 					case ParamSeq(seq) =>
 						for {
 							seq <- seq(session)
-						} yield seq.toList.map { case (key, value) => key -> value.toString }
+						} yield seq.map { case (key, value) => key -> value.toString }(breakOut)
 
 					case ParamMap(map) =>
 						for {
 							map <- map(session)
-						} yield map.toList.map { case (key, value) => key -> value.toString }
+						} yield map.map { case (key, value) => key -> value.toString }(breakOut)
 				}
 
 				for {

@@ -1,5 +1,6 @@
 package io.gatling.core.check.extractor.jsonpath
 
+import scala.collection.breakOut
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaConcurrentMap, mapAsScalaMap }
 import scala.collection.concurrent
 
@@ -39,7 +40,7 @@ trait LowPriorityJsonFilterImplicits {
 	}
 
 	implicit val jMapJsonFilter = new JsonFilter[Map[String, Any]] {
-		val filter: PartialFunction[Any, Map[String, Any]] = { case e: java.util.Map[_, _] => e.map { case (key, value) => key.toString -> value }.toMap }
+		val filter: PartialFunction[Any, Map[String, Any]] = { case e: java.util.Map[_, _] => e.map { case (key, value) => key.toString -> value }(breakOut) }
 	}
 
 	implicit val anyJsonFilter = new JsonFilter[Any] {

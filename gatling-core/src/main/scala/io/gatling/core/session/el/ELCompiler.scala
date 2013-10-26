@@ -15,6 +15,7 @@
  */
 package io.gatling.core.session.el
 
+import scala.collection.breakOut
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
@@ -84,9 +85,9 @@ object ELCompiler {
 
 		val parsed: List[Part[Any]] = {
 
-			val staticParts = elPattern.split(string).map(StaticPart(_)).toList
+			val staticParts: List[StaticPart] = elPattern.split(string).map(StaticPart(_))(breakOut)
 
-			val dynamicParts = elPattern
+			val dynamicParts: List[Part[Any]] = elPattern
 				.findAllIn(string)
 				.matchData
 				.map {

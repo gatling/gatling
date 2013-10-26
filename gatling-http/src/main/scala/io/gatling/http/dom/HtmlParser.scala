@@ -17,7 +17,7 @@ package io.gatling.http.dom
 
 import java.net.{ URI, URISyntaxException }
 
-import scala.collection.mutable
+import scala.collection.{ breakOut, mutable }
 
 import com.typesafe.scalalogging.slf4j.Logging
 
@@ -97,7 +97,7 @@ object HtmlParser extends Logging {
 					case "applet" =>
 						val code = tag.getAttributeValue("code", false)
 						val codeBase = suffixedCodeBase
-						val archives = Option(tag.getAttributeValue("archive", false)).map(_.split(",").map(_.trim).toList)
+						val archives = Option(tag.getAttributeValue("archive", false)).map(_.split(",").map(_.trim)(breakOut))
 
 						val appletResources = archives.getOrElse(List(code))
 						val appletResourcesUrls = codeBase
