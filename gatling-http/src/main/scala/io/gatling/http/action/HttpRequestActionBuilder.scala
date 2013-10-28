@@ -35,7 +35,7 @@ object HttpRequestActionBuilder {
 	/**
 	 * This is the default HTTP check used to verify that the response status is 2XX
 	 */
-	val okCodes = (304 :: (200 to 210).toList).sorted.success
+	val okCodes = Seq(200, 304, 201, 202, 203, 204, 205, 206, 207, 208, 209).success
 	val defaultHttpCheck = status.find.in(_ => okCodes).build
 
 	def apply(requestBuilder: AbstractHttpRequestBuilder[_]): HttpRequestActionBuilder = {
