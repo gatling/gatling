@@ -60,9 +60,9 @@ case class CheckBase[R, P, T, X, E](
 		for {
 			prepared <- memoizedPrepared.mapError(message => s"${extractor.name}.${matcher.name} failed, could not prepare: $message")
 			criterion <- extractorCriterion(session).mapError(message => s"${extractor.name}.${matcher.name} failed: could not resolve extractor criterion: $message")
-			actual <- extractor(prepared, criterion).mapError(message => s"${extractor.name}(${criterion}) failed: could not extract value: $message")
-			expected <- expectedExpression(session).mapError(message => s"${extractor.name}(${criterion}).${matcher.name} failed: could not resolve expected value: $message")
-			matched <- matcher(actual, expected).mapError(message => s"${extractor.name}(${criterion}).${matcher.name}(${expected}) didn't match: $message")
+			actual <- extractor(prepared, criterion).mapError(message => s"${extractor.name}($criterion) failed: could not extract value: $message")
+			expected <- expectedExpression(session).mapError(message => s"${extractor.name}($criterion).${matcher.name} failed: could not resolve expected value: $message")
+			matched <- matcher(actual, expected).mapError(message => s"${extractor.name}($criterion).${matcher.name}($expected) didn't match: $message")
 
 		} yield update(matched)
 	}
