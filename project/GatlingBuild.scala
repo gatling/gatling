@@ -61,7 +61,7 @@ object GatlingBuild extends Build {
 		.settings(javaSettings: _*)
 
 	lazy val bundle = gatlingModule("gatling-bundle")
-		.dependsOn(Seq(app, recorder).map(_ % "runtime->runtime"): _*)
+		.dependsOn(Seq(core, app, recorder).map(_ % "runtime->runtime"): _*)
 		.settings(bundleSettings: _*)
 		.settings(noCodeToPublish: _*)
 		.settings(exportJars := false) // Don't export gatling-bundle's jar 
