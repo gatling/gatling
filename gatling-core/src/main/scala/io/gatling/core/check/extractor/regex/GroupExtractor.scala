@@ -15,6 +15,8 @@
  */
 package io.gatling.core.check.extractor.regex
 
+import scala.annotation.implicitNotFound
+
 import java.util.regex.Matcher
 
 import com.typesafe.scalalogging.slf4j.Logging
@@ -104,6 +106,7 @@ trait LowPriorityGroupExtractorImplicits extends Logging {
 
 object GroupExtractor extends LowPriorityGroupExtractorImplicits
 
+@implicitNotFound(msg = "Cannot find GroupExtractor type class for type ${X}")
 trait GroupExtractor[X] {
 	def extract(matcher: Matcher): X
 }

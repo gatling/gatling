@@ -1,5 +1,6 @@
 package io.gatling.core.check.extractor.jsonpath
 
+import scala.annotation.implicitNotFound
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
 import scala.collection.breakOut
 
@@ -40,6 +41,7 @@ trait LowPriorityJsonFilterImplicits {
 
 object JsonFilter extends LowPriorityJsonFilterImplicits
 
+@implicitNotFound(msg = "Cannot find JsonFilter type class for type ${X}")
 trait JsonFilter[X] {
 	def filter: PartialFunction[Any, X]
 }
