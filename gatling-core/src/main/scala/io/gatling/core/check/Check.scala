@@ -24,7 +24,7 @@ object Checks {
 
 	def check[R](response: R, session: Session, checks: List[Check[R]]): Validation[Session => Session] = {
 
-		implicit val preparedCache = mutable.Map.empty[Any, Any]
+		implicit val cache = mutable.Map.empty[Any, Any]
 
 		checks.map(_.check(response, session)).sequence.map(_.reduce(_ andThen _))
 	}
@@ -32,9 +32,7 @@ object Checks {
 
 trait Check[R] {
 
-	type Cache = mutable.Map[Any, Any]
-
-	def check(response: R, session: Session)(implicit cache: Cache): Validation[Session => Session]
+	def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[Session => Session]
 }
 
 case class CheckBase[R, P, T, X, E](
@@ -45,7 +43,7 @@ case class CheckBase[R, P, T, X, E](
 	expectedExpression: Expression[E],
 	saveAs: Option[String]) extends Check[R] {
 
-	def check(response: R, session: Session)(implicit cache: Cache): Validation[Session => Session] = {
+	def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[Session => Session] = {
 
 		def memoizedPrepared: Validation[P] = cache
 			.getOrElseUpdate(preparer, preparer(response))
