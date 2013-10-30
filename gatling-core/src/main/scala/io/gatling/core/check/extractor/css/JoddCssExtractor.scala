@@ -38,7 +38,7 @@ abstract class JoddCssExtractor[X] extends CriterionExtractor[NodeSelector, Stri
 	val name = "css"
 }
 
-class OneJoddCssExtractor[X](val criterion: Expression[String], nodeAttribute: Option[String], occurrence: Int) extends JoddCssExtractor[String] {
+class SingleJoddCssExtractor[X](val criterion: Expression[String], nodeAttribute: Option[String], occurrence: Int) extends JoddCssExtractor[String] {
 
 	def extract(prepared: NodeSelector, criterion: String): Validation[Option[String]] =
 		JoddCssExtractor.extractAll(prepared, criterion, nodeAttribute).lift(occurrence).success

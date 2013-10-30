@@ -23,7 +23,7 @@ object HttpHeaderCheckBuilder {
 
 	def header(headerName: Expression[String]) =
 		new HttpMultipleCheckBuilder[Response, String](HttpCheckBuilders.headerCheckFactory, HttpCheckBuilders.passThroughResponsePreparer) {
-			def findExtractor(occurrence: Int) = new OneHttpHeaderExtractor(headerName, occurrence)
+			def findExtractor(occurrence: Int) = new SingleHttpHeaderExtractor(headerName, occurrence)
 			def findAllExtractor = new MultipleHttpHeaderExtractor(headerName)
 			def countExtractor = new CountHttpHeaderExtractor(headerName)
 		}

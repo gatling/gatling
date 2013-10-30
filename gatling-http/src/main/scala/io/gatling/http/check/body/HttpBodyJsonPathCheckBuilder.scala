@@ -18,7 +18,7 @@ package io.gatling.http.check.body
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.jsonpath.{ CountJsonPathExtractor, JsonFilter, JsonPathExtractor, MultipleJsonPathExtractor, OneJsonPathExtractor }
+import io.gatling.core.check.extractor.jsonpath.{ CountJsonPathExtractor, JsonFilter, JsonPathExtractor, MultipleJsonPathExtractor, SingleJsonPathExtractor }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
@@ -39,7 +39,7 @@ object HttpBodyJsonPathCheckBuilder extends Logging {
 
 	def jsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
 		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory, preparer) {
-			def findExtractor(occurrence: Int) = new OneJsonPathExtractor(path, occurrence)
+			def findExtractor(occurrence: Int) = new SingleJsonPathExtractor(path, occurrence)
 			def findAllExtractor = new MultipleJsonPathExtractor(path)
 			def countExtractor = new CountJsonPathExtractor(path)
 		}

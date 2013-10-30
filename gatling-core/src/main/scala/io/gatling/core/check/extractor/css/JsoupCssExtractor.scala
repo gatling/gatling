@@ -40,7 +40,7 @@ abstract class JsoupCssExtractor[X] extends CriterionExtractor[Document, String,
 	val name = "css"
 }
 
-class OneJsoupCssExtractor(val criterion: Expression[String], nodeAttribute: Option[String], occurrence: Int) extends JsoupCssExtractor[String] {
+class SingleJsoupCssExtractor(val criterion: Expression[String], nodeAttribute: Option[String], occurrence: Int) extends JsoupCssExtractor[String] {
 
 	def extract(prepared: Document, criterion: String): Validation[Option[String]] =
 		JsoupCssExtractor.extractAll(prepared, criterion, nodeAttribute).lift(occurrence).success

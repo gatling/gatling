@@ -30,7 +30,7 @@ object HttpHeaderRegexCheckBuilder {
 		} yield (headerName, pattern)
 
 		new HttpMultipleCheckBuilder[Response, String](HttpCheckBuilders.headerCheckFactory, HttpCheckBuilders.passThroughResponsePreparer) {
-			def findExtractor(occurrence: Int) = new OneHttpHeaderRegexExtractor(headerAndPattern, occurrence)
+			def findExtractor(occurrence: Int) = new SingleHttpHeaderRegexExtractor(headerAndPattern, occurrence)
 			def findAllExtractor = new MultipleHttpHeaderRegexExtractor(headerAndPattern)
 			def countExtractor = new CountHttpHeaderRegexExtractor(headerAndPattern)
 		}

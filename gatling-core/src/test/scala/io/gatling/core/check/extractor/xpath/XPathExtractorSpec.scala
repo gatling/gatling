@@ -46,38 +46,38 @@ class XPathExtractorSpec extends ValidationSpecification {
 		}
 	}
 
-	"extractOne" should {
+	"extractSingle" should {
 
 		"return expected result with anywhere expression and rank 0" in {
-			new OneXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "//author") must succeedWith(Some("Nigel Rees"))
+			new SingleXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "//author") must succeedWith(Some("Nigel Rees"))
 		}
 
 		"support name()" in {
-			new OneXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "//*[name()='author']") must succeedWith(Some("Nigel Rees"))
+			new SingleXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "//*[name()='author']") must succeedWith(Some("Nigel Rees"))
 		}
 
 		"return expected result with anywhere expression and rank 1" in {
-			new OneXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "//author") must succeedWith(Some("Nigel Rees"))
+			new SingleXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "//author") must succeedWith(Some("Nigel Rees"))
 		}
 
 		"return expected result with array expression" in {
-			new OneXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "/test/store/book[3]/author") must succeedWith(Some("Herman Melville"))
+			new SingleXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "/test/store/book[3]/author") must succeedWith(Some("Herman Melville"))
 		}
 
 		"return expected None with array expression" in {
-			new OneXPathExtractor(noopStringExpression, namespaces, 1).extract(prepared("/test.xml"), "/test/store/book[3]/author") must succeedWith(None)
+			new SingleXPathExtractor(noopStringExpression, namespaces, 1).extract(prepared("/test.xml"), "/test/store/book[3]/author") must succeedWith(None)
 		}
 
 		"return expected result with attribute expression" in {
-			new OneXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "/test/store/book[@att = 'foo']/title") must succeedWith(Some("Sayings of the Century"))
+			new SingleXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "/test/store/book[@att = 'foo']/title") must succeedWith(Some("Sayings of the Century"))
 		}
 
 		"return expected result with last function expression" in {
-			new OneXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "//book[last()]/title") must succeedWith(Some("The Lord of the Rings"))
+			new SingleXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "//book[last()]/title") must succeedWith(Some("The Lord of the Rings"))
 		}
 
 		"support default namespace" in {
-			new OneXPathExtractor(noopStringExpression, List("pre" -> "http://schemas.test.com/entityserver/runtime/1.0"), 0).extract(prepared("/test2.xml"), "//pre:name") must succeedWith(Some("HR"))
+			new SingleXPathExtractor(noopStringExpression, List("pre" -> "http://schemas.test.com/entityserver/runtime/1.0"), 0).extract(prepared("/test2.xml"), "//pre:name") must succeedWith(Some("HR"))
 		}
 	}
 

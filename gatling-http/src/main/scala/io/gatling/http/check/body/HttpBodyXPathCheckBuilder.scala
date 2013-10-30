@@ -18,7 +18,7 @@ package io.gatling.http.check.body
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.xpath.{ CountXPathExtractor, MultipleXPathExtractor, OneXPathExtractor, XPathExtractor }
+import io.gatling.core.check.extractor.xpath.{ CountXPathExtractor, MultipleXPathExtractor, SingleXPathExtractor, XPathExtractor }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
@@ -42,7 +42,7 @@ object HttpBodyXPathCheckBuilder extends Logging {
 
 	def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
 		new HttpMultipleCheckBuilder[Option[XdmNode], String](HttpCheckBuilders.bodyCheckFactory, preparer) {
-			def findExtractor(occurrence: Int) = new OneXPathExtractor(expression, namespaces, occurrence)
+			def findExtractor(occurrence: Int) = new SingleXPathExtractor(expression, namespaces, occurrence)
 			def findAllExtractor = new MultipleXPathExtractor(expression, namespaces)
 			def countExtractor = new CountXPathExtractor(expression, namespaces)
 		}

@@ -77,7 +77,7 @@ abstract class XPathExtractor[X] extends CriterionExtractor[Option[XdmNode], Str
 	val name = "xpath"
 }
 
-class OneXPathExtractor(val criterion: Expression[String], namespaces: List[(String, String)], occurrence: Int) extends XPathExtractor[String] {
+class SingleXPathExtractor(val criterion: Expression[String], namespaces: List[(String, String)], occurrence: Int) extends XPathExtractor[String] {
 
 	def extract(prepared: Option[XdmNode], criterion: String): Validation[Option[String]] = {
 

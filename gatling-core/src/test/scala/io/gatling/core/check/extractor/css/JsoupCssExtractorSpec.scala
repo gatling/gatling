@@ -89,22 +89,22 @@ class JsoupCssExtractorSpec extends ValidationSpecification {
 		}
 	}
 
-	"JsoupCssExtractor extractOne" should {
+	"JsoupCssExtractor extractSingle" should {
 
 		"return expected result with a class selector" in {
-			new OneJsoupCssExtractor(noopStringExpression, None, 1).extract(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(Some("Social"))
+			new SingleJsoupCssExtractor(noopStringExpression, None, 1).extract(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(Some("Social"))
 		}
 
 		"return None when the index is out of the range of returned elements" in {
-			new OneJsoupCssExtractor(noopStringExpression, None, 3).extract(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(None)
+			new SingleJsoupCssExtractor(noopStringExpression, None, 3).extract(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(None)
 		}
 
 		"return None when the selector doesn't match anything" in {
-			new OneJsoupCssExtractor(noopStringExpression, None, 1).extract(prepared("/GatlingHomePage.html"), "bad_selector") must succeedWith(None)
+			new SingleJsoupCssExtractor(noopStringExpression, None, 1).extract(prepared("/GatlingHomePage.html"), "bad_selector") must succeedWith(None)
 		}
 
 		"be able to extract a precise node attribute" in {
-			new OneJsoupCssExtractor(noopStringExpression, Some("id"), 1).extract(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(Some("social"))
+			new SingleJsoupCssExtractor(noopStringExpression, Some("id"), 1).extract(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(Some("social"))
 		}
 	}
 }

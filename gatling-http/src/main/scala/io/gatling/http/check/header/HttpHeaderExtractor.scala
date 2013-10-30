@@ -40,7 +40,7 @@ abstract class HttpHeaderExtractor[X] extends CriterionExtractor[Response, Strin
 	val name = "header"
 }
 
-class OneHttpHeaderExtractor(val criterion: Expression[String], occurrence: Int) extends HttpHeaderExtractor[String] {
+class SingleHttpHeaderExtractor(val criterion: Expression[String], occurrence: Int) extends HttpHeaderExtractor[String] {
 
 	def extract(prepared: Response, criterion: String): Validation[Option[String]] =
 		prepared.getHeadersSafe(criterion).lift(occurrence).map(HttpHeaderExtractor.decode(criterion, _)).success

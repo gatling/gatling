@@ -46,7 +46,7 @@ abstract class RegexExtractor[X] extends CriterionExtractor[String, String, X] {
 	val name = "regex"
 }
 
-class OneRegexExtractor[X](val criterion: Expression[String], occurrence: Int)(implicit groupExtractor: GroupExtractor[X]) extends RegexExtractor[X] {
+class SingleRegexExtractor[X](val criterion: Expression[String], occurrence: Int)(implicit groupExtractor: GroupExtractor[X]) extends RegexExtractor[X] {
 
 	def extract(prepared: String, criterion: String): Validation[Option[X]] = {
 		val matcher = RegexExtractor.cached(criterion).matcher(prepared)

@@ -20,7 +20,7 @@ import org.jsoup.nodes.Document
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.css.{ CountJoddCssExtractor, CountJsoupCssExtractor, JoddCssExtractor, JsoupCssExtractor, MultipleJoddCssExtractor, MultipleJsoupCssExtractor, OneJoddCssExtractor, OneJsoupCssExtractor }
+import io.gatling.core.check.extractor.css.{ CountJoddCssExtractor, CountJsoupCssExtractor, JoddCssExtractor, JsoupCssExtractor, MultipleJoddCssExtractor, MultipleJsoupCssExtractor, SingleJoddCssExtractor, SingleJsoupCssExtractor }
 import io.gatling.core.config.{ Jodd, Jsoup }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
@@ -48,7 +48,7 @@ object HttpBodyCssCheckBuilder extends Logging {
 
 		def css(expression: Expression[String], nodeAttribute: Option[String]) =
 			new HttpMultipleCheckBuilder[NodeSelector, String](HttpCheckBuilders.bodyCheckFactory, preparer) {
-				def findExtractor(occurrence: Int) = new OneJoddCssExtractor(expression, nodeAttribute, occurrence)
+				def findExtractor(occurrence: Int) = new SingleJoddCssExtractor(expression, nodeAttribute, occurrence)
 				def findAllExtractor = new MultipleJoddCssExtractor(expression, nodeAttribute)
 				def countExtractor = new CountJoddCssExtractor(expression, nodeAttribute)
 			}
@@ -71,7 +71,7 @@ object HttpBodyCssCheckBuilder extends Logging {
 
 		def css(expression: Expression[String], nodeAttribute: Option[String]) =
 			new HttpMultipleCheckBuilder[Document, String](HttpCheckBuilders.bodyCheckFactory, preparer) {
-				def findExtractor(occurrence: Int) = new OneJsoupCssExtractor(expression, nodeAttribute, occurrence)
+				def findExtractor(occurrence: Int) = new SingleJsoupCssExtractor(expression, nodeAttribute, occurrence)
 				def findAllExtractor = new MultipleJsoupCssExtractor(expression, nodeAttribute)
 				def countExtractor = new CountJsoupCssExtractor(expression, nodeAttribute)
 			}

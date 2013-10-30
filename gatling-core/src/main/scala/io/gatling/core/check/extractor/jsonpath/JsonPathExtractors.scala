@@ -35,7 +35,7 @@ abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] {
 	val name = "jsonPath"
 }
 
-class OneJsonPathExtractor[X](val criterion: Expression[String], occurrence: Int)(implicit filter: JsonFilter[X]) extends JsonPathExtractor[X] {
+class SingleJsonPathExtractor[X](val criterion: Expression[String], occurrence: Int)(implicit filter: JsonFilter[X]) extends JsonPathExtractor[X] {
 
 	def extract(prepared: Any, criterion: String): Validation[Option[X]] =
 		JsonPathExtractor.extractAll(prepared, criterion).map(_.toStream.liftSeqOption.flatMap(_.lift(occurrence)))

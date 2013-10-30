@@ -35,7 +35,7 @@ abstract class HttpHeaderRegexExtractor[X] extends CriterionExtractor[Response, 
 	val name = "headerRegex"
 }
 
-class OneHttpHeaderRegexExtractor[X](val criterion: Expression[(String, String)], occurrence: Int)(implicit groupExtractor: GroupExtractor[X]) extends HttpHeaderRegexExtractor[X] {
+class SingleHttpHeaderRegexExtractor[X](val criterion: Expression[(String, String)], occurrence: Int)(implicit groupExtractor: GroupExtractor[X]) extends HttpHeaderRegexExtractor[X] {
 
 	def extract(prepared: Response, criterion: (String, String)): Validation[Option[X]] =
 		HttpHeaderRegexExtractor.extractHeadersValues(prepared, criterion).lift(occurrence).success

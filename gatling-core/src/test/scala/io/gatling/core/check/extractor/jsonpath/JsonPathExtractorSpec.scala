@@ -48,51 +48,51 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 		}
 	}
 
-	"extractOne" should {
+	"extractSingle" should {
 
 		"return expected result with anywhere expression and rank 0" in {
-			new OneJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$..author") must succeedWith(Some("Nigel Rees"))
+			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$..author") must succeedWith(Some("Nigel Rees"))
 		}
 
 		"return expected result with anywhere expression and rank 1" in {
-			new OneJsonPathExtractor[String](noopStringExpression, 1).extract(prepared("/test.json"), "$..author") must succeedWith(Some("Evelyn Waugh"))
+			new SingleJsonPathExtractor[String](noopStringExpression, 1).extract(prepared("/test.json"), "$..author") must succeedWith(Some("Evelyn Waugh"))
 		}
 
 		"return expected result with array expression" in {
-			new OneJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$.store.book[2].author") must succeedWith(Some("Herman Melville"))
+			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$.store.book[2].author") must succeedWith(Some("Herman Melville"))
 		}
 
 		"return expected None with array expression" in {
-			new OneJsonPathExtractor[String](noopStringExpression, 1).extract(prepared("/test.json"), "$.store.book[2].author") must succeedWith(None)
+			new SingleJsonPathExtractor[String](noopStringExpression, 1).extract(prepared("/test.json"), "$.store.book[2].author") must succeedWith(None)
 		}
 
 		"return expected result with last function expression" in {
-			new OneJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$.store.book[-1].title") must succeedWith(Some("The Lord of the Rings"))
+			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$.store.book[-1].title") must succeedWith(Some("The Lord of the Rings"))
 		}
 
 		"not mess up if two nodes with the same name are placed in different locations" in {
-			new OneJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$.foo") must succeedWith(Some("bar"))
+			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$.foo") must succeedWith(Some("bar"))
 		}
 
 		"support bracket notation" in {
-			new OneJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$['@id']") must succeedWith(Some("ID"))
+			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$['@id']") must succeedWith(Some("ID"))
 		}
 
 		"support element filter with object root" in {
-			new OneJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$..book[?(@.category=='reference')].author") must succeedWith(Some("Nigel Rees"))
+			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$..book[?(@.category=='reference')].author") must succeedWith(Some("Nigel Rees"))
 		}
 
 		"support element filter with array root" in {
-			new OneJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test2.json"), "$[?(@.id==19434)].foo") must succeedWith(Some("1"))
+			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test2.json"), "$[?(@.id==19434)].foo") must succeedWith(Some("1"))
 		}
 
 		// $..[?()] is not a valid syntax
 		//		"support element filter with wildcard" in {
-		//			JsonPathExtractors.extractOne(0)(prepared("/test2.json"), "$..[?(@.id==19434)].foo") must succeedWith(Some("1"))
+		//			JsonPathExtractors.extractSingle(0)(prepared("/test2.json"), "$..[?(@.id==19434)].foo") must succeedWith(Some("1"))
 		//		}
 
 		"support multiple element filters" in {
-			new OneJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test2.json"), "$[?(@.id==19434 && @.foo==1)].foo") must succeedWith(Some("1"))
+			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test2.json"), "$[?(@.id==19434 && @.foo==1)].foo") must succeedWith(Some("1"))
 		}
 	}
 

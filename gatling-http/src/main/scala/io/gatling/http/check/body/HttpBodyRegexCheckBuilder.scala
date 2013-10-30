@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.body
 
-import io.gatling.core.check.extractor.regex.{ CountRegexExtractor, GroupExtractor, MultipleRegexExtractor, OneRegexExtractor }
+import io.gatling.core.check.extractor.regex.{ CountRegexExtractor, GroupExtractor, MultipleRegexExtractor, SingleRegexExtractor }
 import io.gatling.core.session.Expression
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 
@@ -23,7 +23,7 @@ object HttpBodyRegexCheckBuilder {
 
 	def regex[X](expression: Expression[String])(implicit groupExtractor: GroupExtractor[X]) =
 		new HttpMultipleCheckBuilder[String, X](HttpCheckBuilders.bodyCheckFactory, HttpCheckBuilders.stringResponsePreparer) {
-			def findExtractor(occurrence: Int) = new OneRegexExtractor(expression, occurrence)
+			def findExtractor(occurrence: Int) = new SingleRegexExtractor(expression, occurrence)
 			def findAllExtractor = new MultipleRegexExtractor(expression)
 			def countExtractor = new CountRegexExtractor(expression)
 		}
