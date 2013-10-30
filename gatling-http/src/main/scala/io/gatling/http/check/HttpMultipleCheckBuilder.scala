@@ -15,20 +15,19 @@
  */
 package io.gatling.http.check
 
-import io.gatling.core.check.{ CheckFactory, Extractor, ExtractorCheckBuilder, MatcherCheckBuilder, Preparer }
-import io.gatling.core.session.Expression
+import io.gatling.core.check.{ CheckFactory, Extractor, ExtractorCheckBuilder, Preparer, ValidatorCheckBuilder }
 import io.gatling.http.response.Response
 
-class HttpMultipleCheckBuilder[P, T, X](
+abstract class HttpMultipleCheckBuilder[P, X](
 	checkFactory: CheckFactory[HttpCheck, Response],
-	preparer: Preparer[Response, P],
-	findExtractor: Int => Extractor[P, T, X],
-	findAllExtractor: Extractor[P, T, Seq[X]],
-	countExtractor: Extractor[P, T, Int],
-	expression: Expression[T]) extends ExtractorCheckBuilder[HttpCheck, Response, P, T, X] {
+	preparer: Preparer[Response, P]) extends ExtractorCheckBuilder[HttpCheck, Response, P, X] {
+
+	def findExtractor(occurrence: Int): Extractor[P, X]
+	def findAllExtractor: Extractor[P, Seq[X]]
+	def countExtractor: Extractor[P, Int]
 
 	def find = find(0)
-	def find(occurrence: Int): MatcherCheckBuilder[HttpCheck, Response, P, T, X] = MatcherCheckBuilder(checkFactory, preparer, findExtractor(occurrence), expression)
-	def findAll: MatcherCheckBuilder[HttpCheck, Response, P, T, Seq[X]] = MatcherCheckBuilder(checkFactory, preparer, findAllExtractor, expression)
-	def count: MatcherCheckBuilder[HttpCheck, Response, P, T, Int] = MatcherCheckBuilder(checkFactory, preparer, countExtractor, expression)
+	def find(occurrence: Int): ValidatorCheckBuilder[HttpCheck, Response, P, X] = ValidatorCheckBuilder(checkFactory, preparer, findExtractor(occurrence))
+	def findAll: ValidatorCheckBuilder[HttpCheck, Response, P, Seq[X]] = ValidatorCheckBuilder(checkFactory, preparer, findAllExtractor)
+	def count: ValidatorCheckBuilder[HttpCheck, Response, P, Int] = ValidatorCheckBuilder(checkFactory, preparer, countExtractor)
 }

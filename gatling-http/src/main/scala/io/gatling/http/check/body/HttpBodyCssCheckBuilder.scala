@@ -15,16 +15,19 @@
  */
 package io.gatling.http.check.body
 
+import org.jsoup.nodes.Document
+
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.css.{ JoddCssExtractors, JsoupCssExtractors }
+import io.gatling.core.check.extractor.css.{ CountJoddCssExtractor, CountJsoupCssExtractor, JoddCssExtractor, JsoupCssExtractor, MultipleJoddCssExtractor, MultipleJsoupCssExtractor, OneJoddCssExtractor, OneJsoupCssExtractor }
 import io.gatling.core.config.{ Jodd, Jsoup }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
+import jodd.lagarto.dom.NodeSelector
 
 object HttpBodyCssCheckBuilder extends Logging {
 
@@ -34,7 +37,7 @@ object HttpBodyCssCheckBuilder extends Logging {
 
 		val preparer: Preparer[Response, NodeSelector] = (response: Response) =>
 			try {
-				JoddCssExtractors.parse(response.getResponseBody(configuration.core.encoding)).success
+				JoddCssExtractor.parse(response.getResponseBody(configuration.core.encoding)).success
 
 			} catch {
 				case e: Exception =>
@@ -43,13 +46,12 @@ object HttpBodyCssCheckBuilder extends Logging {
 					message.failure
 			}
 
-		def css(expression: Expression[String], nodeAttribute: Option[String]) = new HttpMultipleCheckBuilder[NodeSelector, String, String](
-			HttpCheckBuilders.bodyCheckFactory,
-			preparer,
-			JoddCssExtractors.extractOne(nodeAttribute),
-			JoddCssExtractors.extractMultiple(nodeAttribute),
-			JoddCssExtractors.count(nodeAttribute),
-			expression)
+		def css(expression: Expression[String], nodeAttribute: Option[String]) =
+			new HttpMultipleCheckBuilder[NodeSelector, String](HttpCheckBuilders.bodyCheckFactory, preparer) {
+				def findExtractor(occurrence: Int) = new OneJoddCssExtractor(expression, nodeAttribute, occurrence)
+				def findAllExtractor = new MultipleJoddCssExtractor(expression, nodeAttribute)
+				def countExtractor = new CountJoddCssExtractor(expression, nodeAttribute)
+			}
 	}
 
 	object HttpBodyJsoupCssCheckBuilder {
@@ -58,7 +60,7 @@ object HttpBodyCssCheckBuilder extends Logging {
 
 		val preparer: Preparer[Response, Document] = (response: Response) =>
 			try {
-				JsoupCssExtractors.parse(response.getResponseBody(configuration.core.encoding)).success
+				JsoupCssExtractor.parse(response.getResponseBody(configuration.core.encoding)).success
 
 			} catch {
 				case e: Exception =>
@@ -67,16 +69,15 @@ object HttpBodyCssCheckBuilder extends Logging {
 					message.failure
 			}
 
-		def css(expression: Expression[String], nodeAttribute: Option[String]) = new HttpMultipleCheckBuilder[Document, String, String](
-			HttpCheckBuilders.bodyCheckFactory,
-			preparer,
-			JsoupCssExtractors.extractOne(nodeAttribute),
-			JsoupCssExtractors.extractMultiple(nodeAttribute),
-			JsoupCssExtractors.count(nodeAttribute),
-			expression)
+		def css(expression: Expression[String], nodeAttribute: Option[String]) =
+			new HttpMultipleCheckBuilder[Document, String](HttpCheckBuilders.bodyCheckFactory, preparer) {
+				def findExtractor(occurrence: Int) = new OneJsoupCssExtractor(expression, nodeAttribute, occurrence)
+				def findAllExtractor = new MultipleJsoupCssExtractor(expression, nodeAttribute)
+				def countExtractor = new CountJsoupCssExtractor(expression, nodeAttribute)
+			}
 	}
 
-	def css(expression: Expression[String], nodeAttribute: Option[String]): HttpMultipleCheckBuilder[_, String, String] =
+	def css(expression: Expression[String], nodeAttribute: Option[String]): HttpMultipleCheckBuilder[_, String] =
 		configuration.core.extract.css.engine match {
 			case Jodd => HttpBodyJoddCssCheckBuilder.css(expression, nodeAttribute)
 			case Jsoup => HttpBodyJsoupCssCheckBuilder.css(expression, nodeAttribute)

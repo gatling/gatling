@@ -15,9 +15,9 @@
  */
 package io.gatling.http.check.header
 
+import io.gatling.core.check.extractor.regex.GroupExtractor
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
-import io.gatling.core.check.extractor.regex.GroupExtractor
 import io.gatling.http.response.Response
 
 object HttpHeaderRegexCheckBuilder {
@@ -25,16 +25,14 @@ object HttpHeaderRegexCheckBuilder {
 	def headerRegex[X](headerName: Expression[String], pattern: Expression[String])(implicit groupExtractor: GroupExtractor[X]) = {
 
 		val headerAndPattern = (session: Session) => for {
-			h <- headerName(session)
-			p <- pattern(session)
-		} yield (h, p)
+			headerName <- headerName(session)
+			pattern <- pattern(session)
+		} yield (headerName, pattern)
 
-		new HttpMultipleCheckBuilder[Response, (String, String), String](
-			HttpCheckBuilders.headerCheckFactory,
-			HttpCheckBuilders.noopResponsePreparer,
-			HttpHeaderRegexExtractors.extractOne,
-			HttpHeaderRegexExtractors.extractMultiple,
-			HttpHeaderRegexExtractors.count,
-			headerAndPattern)
+		new HttpMultipleCheckBuilder[Response, String](HttpCheckBuilders.headerCheckFactory, HttpCheckBuilders.passThroughResponsePreparer) {
+			def findExtractor(occurrence: Int) = new OneHttpHeaderRegexExtractor(headerAndPattern, occurrence)
+			def findAllExtractor = new MultipleHttpHeaderRegexExtractor(headerAndPattern)
+			def countExtractor = new CountHttpHeaderRegexExtractor(headerAndPattern)
+		}
 	}
 }

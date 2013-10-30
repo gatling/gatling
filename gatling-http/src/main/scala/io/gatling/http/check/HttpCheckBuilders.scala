@@ -32,6 +32,6 @@ object HttpCheckBuilders {
 	val bodyCheckFactory = httpCheckFactory(Body)
 	val timeCheckFactory = httpCheckFactory(Body)
 
-	val noopResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
+	val passThroughResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
 	val stringResponsePreparer: Preparer[Response, String] = (response: Response) => response.getResponseBody(configuration.core.encoding).success
 }

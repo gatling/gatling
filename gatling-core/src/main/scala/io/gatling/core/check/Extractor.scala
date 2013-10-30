@@ -13,14 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core
+package io.gatling.core.check
 
-import io.gatling.core.check.Check
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Validation
 
-package object check {
+trait Extractor[P, X] {
+	def name: String
+	def apply(session: Session, prepared: P): Validation[Option[X]]
+}
 
-	type Preparer[R, P] = R => Validation[P]
-
-	type CheckFactory[C <: Check[R], R] = Check[R] => C
+abstract class CriterionExtractor[P, T, X] extends Extractor[P, X] {
+	def criterion: Expression[T]
+	def extract(prepared: P, criterion: T): Validation[Option[X]]
+	def apply(session: Session, prepared: P): Validation[Option[X]] =
+		for {
+			criterion <- criterion(session).mapError(message => s"could not resolve extractor criterion: $message")
+			extracted <- extract(prepared, criterion).mapError(message => s"($criterion) could not extract : $message")
+		} yield extracted
 }

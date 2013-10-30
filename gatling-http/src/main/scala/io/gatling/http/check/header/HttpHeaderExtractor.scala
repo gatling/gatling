@@ -17,18 +17,15 @@ package io.gatling.http.check.header
 
 import java.net.URLDecoder
 
-import io.gatling.core.check.Extractor
+import io.gatling.core.check.CriterionExtractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.HeaderNames
 import io.gatling.http.response.Response
 
-object HttpHeaderExtractors {
-
-	abstract class HeaderExtractor[X] extends Extractor[Response, String, X] {
-		val name = "header"
-	}
+object HttpHeaderExtractor {
 
 	def decode(headerName: String, headerValue: String) =
 		if (headerName == HeaderNames.LOCATION)
@@ -37,22 +34,26 @@ object HttpHeaderExtractors {
 			headerValue
 
 	def decodedHeaders(response: Response, headerName: String): Seq[String] = response.getHeadersSafe(headerName).map(decode(headerName, _))
+}
 
-	val extractOne = (occurrence: Int) => new HeaderExtractor[String] {
+abstract class HttpHeaderExtractor[X] extends CriterionExtractor[Response, String, X] {
+	val name = "header"
+}
 
-		def apply(prepared: Response, criterion: String): Validation[Option[String]] =
-			prepared.getHeadersSafe(criterion).lift(occurrence).map(decode(criterion, _)).success
-	}
+class OneHttpHeaderExtractor(val criterion: Expression[String], occurrence: Int) extends HttpHeaderExtractor[String] {
 
-	val extractMultiple = new HeaderExtractor[Seq[String]] {
+	def extract(prepared: Response, criterion: String): Validation[Option[String]] =
+		prepared.getHeadersSafe(criterion).lift(occurrence).map(HttpHeaderExtractor.decode(criterion, _)).success
+}
 
-		def apply(prepared: Response, criterion: String): Validation[Option[Seq[String]]] =
-			decodedHeaders(prepared, criterion).liftSeqOption.success
-	}
+class MultipleHttpHeaderExtractor(val criterion: Expression[String]) extends HttpHeaderExtractor[Seq[String]] {
 
-	val count = new HeaderExtractor[Int] {
+	def extract(prepared: Response, criterion: String): Validation[Option[Seq[String]]] =
+		HttpHeaderExtractor.decodedHeaders(prepared, criterion).liftSeqOption.success
+}
 
-		def apply(prepared: Response, criterion: String): Validation[Option[Int]] =
-			prepared.getHeadersSafe(criterion).liftSeqOption.map(_.size).success
-	}
+class CountHttpHeaderExtractor(val criterion: Expression[String]) extends HttpHeaderExtractor[Int] {
+
+	def extract(prepared: Response, criterion: String): Validation[Option[Int]] =
+		prepared.getHeadersSafe(criterion).liftSeqOption.map(_.size).success
 }

@@ -17,32 +17,31 @@ package io.gatling.core.check
 
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.core.session.{ Expression, noopStringExpression }
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
-trait ExtractorCheckBuilder[C <: Check[R], R, P, T, X] {
+trait ExtractorCheckBuilder[C <: Check[R], R, P, X] {
 
-	def find: MatcherCheckBuilder[C, R, P, T, X]
+	def find: ValidatorCheckBuilder[C, R, P, X]
 }
 
-trait MultipleExtractorCheckBuilder[C <: Check[R], R, P, T, X] extends ExtractorCheckBuilder[C, R, P, T, X] {
+trait MultipleExtractorCheckBuilder[C <: Check[R], R, P, T, X] extends ExtractorCheckBuilder[C, R, P, X] {
 
-	def find(occurrence: Int): MatcherCheckBuilder[C, R, P, T, X]
+	def find(occurrence: Int): ValidatorCheckBuilder[C, R, P, X]
 
-	def findAll: MatcherCheckBuilder[C, R, P, T, X]
+	def findAll: ValidatorCheckBuilder[C, R, P, X]
 
-	def count: MatcherCheckBuilder[C, R, P, T, X]
+	def count: ValidatorCheckBuilder[C, R, P, X]
 }
 
-case class MatcherCheckBuilder[C <: Check[R], R, P, T, X](
+case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
 	checkFactory: CheckFactory[C, R],
 	preparer: Preparer[R, P],
-	extractor: Extractor[P, T, X],
-	extractorCriterion: Expression[T]) extends Logging {
+	extractor: Extractor[P, X]) extends Logging {
 
-	def transform[X2](transformation: Option[X] => Option[X2]): MatcherCheckBuilder[C, R, P, T, X2] = copy(extractor = new Extractor[P, T, X2] {
+	def transform[X2](transformation: Option[X] => Option[X2]): ValidatorCheckBuilder[C, R, P, X2] = copy(extractor = new Extractor[P, X2] {
 		def name = extractor.name + " transformed"
-		def apply(prepared: P, criterion: T): Validation[Option[X2]] = extractor(prepared, criterion).flatMap { extracted =>
+		def apply(session: Session, prepared: P): Validation[Option[X2]] = extractor(session, prepared).flatMap { extracted =>
 			try {
 				transformation(extracted).success
 			} catch {
@@ -51,32 +50,31 @@ case class MatcherCheckBuilder[C <: Check[R], R, P, T, X](
 		}
 	})
 
-	def matchWith[E](matcher: Matcher[X, E], expected: Expression[E]) = new CheckBuilder(this, matcher, expected) with SaveAs[C, R, P, T, X, E]
+	def validate(validator: Validator[X]) = new CheckBuilder(this, validator) with SaveAs[C, R, P, X]
 
-	def is(expected: Expression[X]) = matchWith(Matcher.is, expected)
-	def not(expected: Expression[X]) = matchWith(Matcher.not, expected)
-	def in(expected: Expression[Seq[X]]) = matchWith(Matcher.in, expected)
-	def exists = matchWith(Matcher.exists, noopStringExpression)
-	def lessThan(expected: Expression[X])(implicit ordering: Ordering[X]) = matchWith(Matcher.lessThan, expected)
-	def lessThanOrEqual(expected: Expression[X])(implicit ordering: Ordering[X]) = matchWith(Matcher.lessThanOrEqual, expected)
-	def greaterThan(expected: Expression[X])(implicit ordering: Ordering[X]) = matchWith(Matcher.greaterThan, expected)
-	def greaterThanOrEqual(expected: Expression[X])(implicit ordering: Ordering[X]) = matchWith(Matcher.greaterThanOrEqual, expected)
-	def notExists = matchWith(Matcher.notExists, noopStringExpression)
-	def whatever = matchWith(Matcher.whatever, noopStringExpression)
+	def is(expected: Expression[X]) = validate(new IsMatcher(expected))
+	def not(expected: Expression[X]) = validate(new NotMatcher(expected))
+	def in(expected: Expression[Seq[X]]) = validate(new InMatcher(expected))
+	def exists = validate(new ExistsValidator)
+	def notExists = validate(new NotExistsValidator)
+	def whatever = validate(new WhateverValidator)
+	def lessThan(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(new CompareMatcher("lessThan", "less than", implicitly[Ordering[X]].lt, expected))
+	def lessThanOrEqual(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(new CompareMatcher("lessThanOrEqual", "less than or equal to", implicitly[Ordering[X]].lteq, expected))
+	def greaterThan(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(new CompareMatcher("greaterThan", "greater than", implicitly[Ordering[X]].gt, expected))
+	def greaterThanOrEqual(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(new CompareMatcher("greaterThanOrEqual", "greater than or equal to", implicitly[Ordering[X]].gteq, expected))
 }
 
-case class CheckBuilder[C <: Check[R], R, P, T, X, E](
-	matcherCheckBuilder: MatcherCheckBuilder[C, R, P, T, X],
-	matcher: Matcher[X, E],
-	expected: Expression[E],
+case class CheckBuilder[C <: Check[R], R, P, X](
+	validatorCheckBuilder: ValidatorCheckBuilder[C, R, P, X],
+	validator: Validator[X],
 	saveAs: Option[String] = None) {
 
 	def build: C = {
-		val base = CheckBase(matcherCheckBuilder.preparer, matcherCheckBuilder.extractor, matcherCheckBuilder.extractorCriterion, matcher, expected, saveAs)
-		matcherCheckBuilder.checkFactory(base)
+		val base = CheckBase(validatorCheckBuilder.preparer, validatorCheckBuilder.extractor, validator, saveAs)
+		validatorCheckBuilder.checkFactory(base)
 	}
 }
 
-trait SaveAs[C <: Check[R], R, P, T, X, E] { this: CheckBuilder[C, R, P, T, X, E] =>
-	def saveAs(key: String): CheckBuilder[C, R, P, T, X, E] = copy(saveAs = Some(key))
+trait SaveAs[C <: Check[R], R, P, X] { this: CheckBuilder[C, R, P, X] =>
+	def saveAs(key: String): CheckBuilder[C, R, P, X] = copy(saveAs = Some(key))
 }

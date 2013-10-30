@@ -17,8 +17,8 @@ package io.gatling.core.check
 
 import scala.collection.mutable
 
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ SuccessWrapper, Validation, ValidationList }
+import io.gatling.core.session.Session
+import io.gatling.core.validation.{ Validation, ValidationList }
 
 object Checks {
 
@@ -35,19 +35,13 @@ trait Check[R] {
 	def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[Session => Session]
 }
 
-case class CheckBase[R, P, T, X, E](
+case class CheckBase[R, P, X](
 	preparer: Preparer[R, P],
-	extractor: Extractor[P, T, X],
-	extractorCriterion: Expression[T],
-	matcher: Matcher[X, E],
-	expectedExpression: Expression[E],
+	extractor: Extractor[P, X],
+	validator: Validator[X],
 	saveAs: Option[String]) extends Check[R] {
 
 	def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[Session => Session] = {
-
-		def memoizedPrepared: Validation[P] = cache
-			.getOrElseUpdate(preparer, preparer(response))
-			.asInstanceOf[Validation[P]]
 
 		def update(extractedValue: Option[Any]) = (session: Session) =>
 			(for {
@@ -55,12 +49,14 @@ case class CheckBase[R, P, T, X, E](
 				value <- extractedValue
 			} yield session.set(key, value)).getOrElse(session)
 
+		val memoizedPrepared: Validation[P] = cache
+			.getOrElseUpdate(preparer, preparer(response))
+			.asInstanceOf[Validation[P]]
+
 		for {
-			prepared <- memoizedPrepared.mapError(message => s"${extractor.name}.${matcher.name} failed, could not prepare: $message")
-			criterion <- extractorCriterion(session).mapError(message => s"${extractor.name}.${matcher.name} failed: could not resolve extractor criterion: $message")
-			actual <- extractor(prepared, criterion).mapError(message => s"${extractor.name}($criterion) failed: could not extract value: $message")
-			expected <- expectedExpression(session).mapError(message => s"${extractor.name}($criterion).${matcher.name} failed: could not resolve expected value: $message")
-			matched <- matcher(actual, expected).mapError(message => s"${extractor.name}($criterion).${matcher.name}($expected) didn't match: $message")
+			prepared <- memoizedPrepared.mapError(message => s"${extractor.name}.${validator.name} failed, could not prepare: $message")
+			actual <- extractor(session, prepared).mapError(message => s"${extractor.name}.${validator.name} failed: could not extract: $message")
+			matched <- validator(session, actual).mapError(message => s"${extractor.name}.${validator.name} didn't match: $message")
 
 		} yield update(matched)
 	}

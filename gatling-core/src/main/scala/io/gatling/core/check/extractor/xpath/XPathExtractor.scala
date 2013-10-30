@@ -23,14 +23,15 @@ import scala.collection.concurrent
 import org.jboss.netty.util.internal.ConcurrentHashMap
 import org.xml.sax.InputSource
 
-import io.gatling.core.check.Extractor
+import io.gatling.core.check.CriterionExtractor
 import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
 import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import javax.xml.transform.sax.SAXSource
 import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathSelector, XdmItem, XdmNode }
 
-object XPathExtractors {
+object XPathExtractor {
 
 	val processor = new Processor(false)
 	val documentBuilder = processor.newDocumentBuilder
@@ -61,10 +62,6 @@ object XPathExtractors {
 		} else
 			xpath(expression, compiler(namespaces))
 
-	abstract class XPathExtractor[X] extends Extractor[Option[XdmNode], String, X] {
-		val name = "xpath"
-	}
-
 	def evaluate(criterion: String, namespaces: List[(String, String)], xdmNode: XdmNode): Seq[XdmItem] = {
 		val xPathSelector = cached(criterion, namespaces)
 		try {
@@ -74,30 +71,34 @@ object XPathExtractors {
 			xPathSelector.getUnderlyingXPathContext.setContextItem(null)
 		}
 	}
+}
 
-	val extractOne = (namespaces: List[(String, String)]) => (occurrence: Int) => new XPathExtractor[String] {
+abstract class XPathExtractor[X] extends CriterionExtractor[Option[XdmNode], String, X] {
+	val name = "xpath"
+}
 
-		def apply(prepared: Option[XdmNode], criterion: String): Validation[Option[String]] = {
+class OneXPathExtractor(val criterion: Expression[String], namespaces: List[(String, String)], occurrence: Int) extends XPathExtractor[String] {
 
-			val result = for {
-				text <- prepared
-				results = evaluate(criterion, namespaces, text) if (results.size > occurrence)
-				result = results.get(occurrence).getStringValue
-			} yield result
+	def extract(prepared: Option[XdmNode], criterion: String): Validation[Option[String]] = {
 
-			result.success
-		}
+		val result = for {
+			text <- prepared
+			results = XPathExtractor.evaluate(criterion, namespaces, text) if (results.size > occurrence)
+			result = results.get(occurrence).getStringValue
+		} yield result
+
+		result.success
 	}
+}
 
-	val extractMultiple = (namespaces: List[(String, String)]) => new XPathExtractor[Seq[String]] {
+class MultipleXPathExtractor(val criterion: Expression[String], namespaces: List[(String, String)]) extends XPathExtractor[Seq[String]] {
 
-		def apply(prepared: Option[XdmNode], criterion: String): Validation[Option[Seq[String]]] =
-			prepared.flatMap(evaluate(criterion, namespaces, _).map(_.getStringValue).liftSeqOption).success
-	}
+	def extract(prepared: Option[XdmNode], criterion: String): Validation[Option[Seq[String]]] =
+		prepared.flatMap(XPathExtractor.evaluate(criterion, namespaces, _).map(_.getStringValue).liftSeqOption).success
+}
 
-	val count = (namespaces: List[(String, String)]) => new XPathExtractor[Int] {
+class CountXPathExtractor(val criterion: Expression[String], namespaces: List[(String, String)]) extends XPathExtractor[Int] {
 
-		def apply(prepared: Option[XdmNode], criterion: String): Validation[Option[Int]] =
-			prepared.map(evaluate(criterion, namespaces, _).size).success
-	}
+	def extract(prepared: Option[XdmNode], criterion: String): Validation[Option[Int]] =
+		prepared.map(XPathExtractor.evaluate(criterion, namespaces, _).size).success
 }

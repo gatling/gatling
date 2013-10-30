@@ -16,20 +16,19 @@
 package io.gatling.http.check.body
 
 import io.gatling.core.check.Extractor
-import io.gatling.core.session.noopStringExpression
+import io.gatling.core.session.Session
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 
 object HttpBodyStringCheckBuilder {
 
-	val extractor = new Extractor[String, String, String] {
+	val extractor = new Extractor[String, String] {
 		val name = "bodyString"
-		def apply(prepared: String, criterion: String) = Some(prepared).success
+		def apply(session: Session, prepared: String) = Some(prepared).success
 	}
 
-	val bodyString = new HttpSingleCheckBuilder[String, String, String](
+	val bodyString = new HttpSingleCheckBuilder[String, String](
 		HttpCheckBuilders.bodyCheckFactory,
 		HttpCheckBuilders.stringResponsePreparer,
-		extractor,
-		noopStringExpression)
+		extractor)
 }

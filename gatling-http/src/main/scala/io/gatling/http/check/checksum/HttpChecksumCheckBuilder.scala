@@ -15,8 +15,8 @@
  */
 package io.gatling.http.check.checksum
 
-import io.gatling.core.check.{ Check, CheckFactory, Extractor }
-import io.gatling.core.session.noopStringExpression
+import io.gatling.core.check.{ Check, Extractor }
+import io.gatling.core.session.Session
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 import io.gatling.http.response.Response
@@ -26,16 +26,15 @@ object HttpChecksumCheckBuilder {
 	def checksum(algorythm: String) = {
 
 		val checksumCheckFactory = (wrapped: Check[Response]) => new ChecksumCheck(algorythm, wrapped)
-		val extractor = new Extractor[Response, String, String] {
+		val extractor = new Extractor[Response, String] {
 			val name = algorythm
-			def apply(prepared: Response, criterion: String) = prepared.checksum(algorythm).success
+			def apply(session: Session, prepared: Response) = prepared.checksum(algorythm).success
 		}
 
-		new HttpSingleCheckBuilder[Response, String, String](
+		new HttpSingleCheckBuilder[Response, String](
 			checksumCheckFactory,
-			HttpCheckBuilders.noopResponsePreparer,
-			extractor,
-			noopStringExpression)
+			HttpCheckBuilders.passThroughResponsePreparer,
+			extractor)
 	}
 
 	val md5 = checksum("MD5")

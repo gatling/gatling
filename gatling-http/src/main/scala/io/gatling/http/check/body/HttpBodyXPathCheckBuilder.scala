@@ -18,7 +18,7 @@ package io.gatling.http.check.body
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.xpath.XPathExtractors
+import io.gatling.core.check.extractor.xpath.{ CountXPathExtractor, MultipleXPathExtractor, OneXPathExtractor, XPathExtractor }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
@@ -30,7 +30,7 @@ object HttpBodyXPathCheckBuilder extends Logging {
 
 	val preparer: Preparer[Response, Option[XdmNode]] = (response: Response) =>
 		try {
-			val root = if (response.hasResponseBody) Some(XPathExtractors.parse(response.getResponseBody(configuration.core.encoding))) else None
+			val root = if (response.hasResponseBody) Some(XPathExtractor.parse(response.getResponseBody(configuration.core.encoding))) else None
 			root.success
 
 		} catch {
@@ -40,11 +40,10 @@ object HttpBodyXPathCheckBuilder extends Logging {
 				message.failure
 		}
 
-	def xpath(expression: Expression[String], namespaces: List[(String, String)]) = new HttpMultipleCheckBuilder[Option[XdmNode], String, String](
-		HttpCheckBuilders.bodyCheckFactory,
-		preparer,
-		XPathExtractors.extractOne(namespaces),
-		XPathExtractors.extractMultiple(namespaces),
-		XPathExtractors.count(namespaces),
-		expression)
+	def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
+		new HttpMultipleCheckBuilder[Option[XdmNode], String](HttpCheckBuilders.bodyCheckFactory, preparer) {
+			def findExtractor(occurrence: Int) = new OneXPathExtractor(expression, namespaces, occurrence)
+			def findAllExtractor = new MultipleXPathExtractor(expression, namespaces)
+			def countExtractor = new CountXPathExtractor(expression, namespaces)
+		}
 }

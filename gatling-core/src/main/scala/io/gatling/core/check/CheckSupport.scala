@@ -17,10 +17,10 @@ package io.gatling.core.check
 
 trait CheckSupport {
 
-	implicit def checkBuilder2Check[C <: Check[R], R, P, T, X, E](checkBuilder: CheckBuilder[C, R, P, T, X, E]) = checkBuilder.build
-	implicit def matcherCheckBuilder2CheckBuilder[C <: Check[R], R, P, T, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, P, T, X]) = matcherCheckBuilder.exists
-	implicit def matcherCheckBuilder2Check[C <: Check[R], R, P, T, X](matcherCheckBuilder: MatcherCheckBuilder[C, R, P, T, X]) = matcherCheckBuilder.exists.build
-	implicit def extractorCheckBuilder2MatcherCheckBuilder[C <: Check[R], R, P, T, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, T, X]) = extractorCheckBuilder.find
-	implicit def extractorCheckBuilder2CheckBuilder[C <: Check[R], R, P, T, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, T, X]) = extractorCheckBuilder.find.exists
-	implicit def extractorCheckBuilder2Check[C <: Check[R], R, P, T, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, T, X]) = extractorCheckBuilder.find.exists.build
+	implicit def checkBuilder2Check[C <: Check[R], R, P, X](checkBuilder: CheckBuilder[C, R, P, X]) = checkBuilder.build
+	implicit def validatorCheckBuilder2CheckBuilder[C <: Check[R], R, P, X](validatorCheckBuilder: ValidatorCheckBuilder[C, R, P, X]) = validatorCheckBuilder.exists
+	implicit def validatorCheckBuilder2Check[C <: Check[R], R, P, X](validatorCheckBuilder: ValidatorCheckBuilder[C, R, P, X]) = validatorCheckBuilder.exists.build
+	implicit def extractorCheckBuilder2ValidatorCheckBuilder[C <: Check[R], R, P, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, X]) = extractorCheckBuilder.find
+	implicit def extractorCheckBuilder2CheckBuilder[C <: Check[R], R, P, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, X]) = extractorCheckBuilder.find.exists
+	implicit def extractorCheckBuilder2Check[C <: Check[R], R, P, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, X]) = extractorCheckBuilder.find.exists.build
 }
