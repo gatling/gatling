@@ -39,6 +39,7 @@ object CompileTest extends Simulation {
 		.acceptLanguageHeader("fr-FR,fr;q=0.8,en-US;q=0.6,en;q=0.4")
 		.acceptEncodingHeader("gzip,deflate,sdch")
 		.userAgentHeader("Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.19 (KHTML, like Gecko) Ubuntu/12.04 Chromium/18.0.1025.151 Chrome/18.0.1025.151 Safari/535.19")
+		.check(bodyString.transform(_.map(_.size)).lessThan(100000))
 
 	val httpConfToVerifyUserProvidedInfoExtractors = http
 		.extraInfoExtractor((requestName, requestStatus, session, request, response) => Nil)
@@ -214,4 +215,3 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			details("Admins" / "Create").failedRequests.percent.lessThan(90))
 		.throttle(jumpToRps(20) reachRps (40) in (10 seconds) holdFor (30 seconds))
 }
-
