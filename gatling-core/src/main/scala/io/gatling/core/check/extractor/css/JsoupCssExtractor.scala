@@ -32,7 +32,7 @@ object JsoupCssExtractor {
 	def extractAll(selector: Document, expression: String, nodeAttribute: Option[String]): Seq[String] = selector
 		.select(expression)
 		.map { element =>
-			nodeAttribute.map(element.attr(_)).getOrElse(element.text)
+			nodeAttribute.map(element.attr).getOrElse(element.text)
 		}
 }
 

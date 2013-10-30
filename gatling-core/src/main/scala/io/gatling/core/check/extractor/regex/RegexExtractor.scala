@@ -31,9 +31,10 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation }
 object RegexExtractor {
 
 	val cache: concurrent.Map[String, Pattern] = new ConcurrentHashMap[String, Pattern]
+
 	def cached(pattern: String) = if (configuration.core.extract.regex.cache) cache.getOrElseUpdate(pattern, Pattern.compile(pattern)) else Pattern.compile(pattern)
 
-	def extractAll[X](string: String, pattern: String)(implicit groupExtractor: GroupExtractor[X]): Seq[X] = {
+	def extractAll[X: GroupExtractor](string: String, pattern: String): Seq[X] = {
 
 		val matcher = cached(pattern).matcher(string)
 		matcher.foldLeft(List.empty[X]) { (matcher, values) =>
@@ -46,7 +47,7 @@ abstract class RegexExtractor[X] extends CriterionExtractor[String, String, X] {
 	val name = "regex"
 }
 
-class SingleRegexExtractor[X](val criterion: Expression[String], occurrence: Int)(implicit groupExtractor: GroupExtractor[X]) extends RegexExtractor[X] {
+class SingleRegexExtractor[X: GroupExtractor](val criterion: Expression[String], occurrence: Int) extends RegexExtractor[X] {
 
 	def extract(prepared: String, criterion: String): Validation[Option[X]] = {
 		val matcher = RegexExtractor.cached(criterion).matcher(prepared)
@@ -54,7 +55,7 @@ class SingleRegexExtractor[X](val criterion: Expression[String], occurrence: Int
 	}
 }
 
-class MultipleRegexExtractor[X](val criterion: Expression[String])(implicit groupExtractor: GroupExtractor[X]) extends RegexExtractor[Seq[X]] {
+class MultipleRegexExtractor[X: GroupExtractor](val criterion: Expression[String]) extends RegexExtractor[Seq[X]] {
 
 	def extract(prepared: String, criterion: String): Validation[Option[Seq[X]]] = RegexExtractor.extractAll(prepared, criterion).liftSeqOption.success
 }

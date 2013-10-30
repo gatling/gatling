@@ -37,6 +37,7 @@ object XPathExtractor {
 	val documentBuilder = processor.newDocumentBuilder
 
 	val compilerCache: concurrent.Map[List[(String, String)], XPathCompiler] = new ConcurrentHashMap[List[(String, String)], XPathCompiler]
+
 	def compiler(namespaces: List[(String, String)]) = {
 		val xPathCompiler = processor.newXPathCompiler
 		for {
@@ -51,6 +52,7 @@ object XPathExtractor {
 	}
 
 	val selectorCache: concurrent.Map[String, ThreadLocal[XPathSelector]] = new ConcurrentHashMap[String, ThreadLocal[XPathSelector]]
+
 	def xpath(expression: String, xPathCompiler: XPathCompiler): XPathSelector = xPathCompiler.compile(expression).load
 
 	def cached(expression: String, namespaces: List[(String, String)]): XPathSelector =
@@ -83,7 +85,7 @@ class SingleXPathExtractor(val criterion: Expression[String], namespaces: List[(
 
 		val result = for {
 			text <- prepared
-			results = XPathExtractor.evaluate(criterion, namespaces, text) if (results.size > occurrence)
+			results = XPathExtractor.evaluate(criterion, namespaces, text) if results.size > occurrence
 			result = results.get(occurrence).getStringValue
 		} yield result
 

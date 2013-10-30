@@ -33,7 +33,7 @@ package object regex {
 			temp
 		}
 
-		def findMatchN[X](n: Int)(implicit groupExtractor: GroupExtractor[X]): Option[X] = {
+		def findMatchN[X: GroupExtractor](n: Int): Option[X] = {
 
 			@tailrec
 			def findRec(countDown: Int): Boolean = {
@@ -51,6 +51,6 @@ package object regex {
 				None
 		}
 
-		def value[X](implicit groupExtractor: GroupExtractor[X]): X = groupExtractor.extract(matcher)
+		def value[X: GroupExtractor]: X = implicitly[GroupExtractor[X]].extract(matcher)
 	}
 }

@@ -16,6 +16,7 @@ import net.minidev.json.parser.JSONParser
 object JsonPathExtractor {
 
 	val cache: concurrent.Map[String, Validation[JsonPath]] = new ConcurrentHashMap[String, Validation[JsonPath]]
+
 	def cached(expression: String): Validation[JsonPath] =
 		if (configuration.core.extract.jsonPath.cache) cache.getOrElseUpdate(expression, compile(expression))
 		else compile(expression)
@@ -27,21 +28,21 @@ object JsonPathExtractor {
 		case Right(path) => path.success
 	}
 
-	def extractAll[X](json: Any, expression: String)(implicit filter: JsonFilter[X]): Validation[Iterator[X]] =
-		cached(expression).map(_.query(json).collect(filter.filter))
+	def extractAll[X: JsonFilter](json: Any, expression: String): Validation[Iterator[X]] =
+		cached(expression).map(_.query(json).collect(implicitly[JsonFilter[X]].filter))
 }
 
 abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] {
 	val name = "jsonPath"
 }
 
-class SingleJsonPathExtractor[X](val criterion: Expression[String], occurrence: Int)(implicit filter: JsonFilter[X]) extends JsonPathExtractor[X] {
+class SingleJsonPathExtractor[X: JsonFilter](val criterion: Expression[String], occurrence: Int) extends JsonPathExtractor[X] {
 
 	def extract(prepared: Any, criterion: String): Validation[Option[X]] =
 		JsonPathExtractor.extractAll(prepared, criterion).map(_.toStream.liftSeqOption.flatMap(_.lift(occurrence)))
 }
 
-class MultipleJsonPathExtractor[X](val criterion: Expression[String])(implicit filter: JsonFilter[X]) extends JsonPathExtractor[Seq[X]] {
+class MultipleJsonPathExtractor[X: JsonFilter](val criterion: Expression[String]) extends JsonPathExtractor[Seq[X]] {
 
 	def extract(prepared: Any, criterion: String): Validation[Option[Seq[X]]] =
 		JsonPathExtractor.extractAll(prepared, criterion).map(_.toVector.liftSeqOption.flatMap(_.liftSeqOption))

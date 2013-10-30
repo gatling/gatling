@@ -26,7 +26,7 @@ class SilentLagartoDOMBuilder extends LagartoDOMBuilder {
 		// parser flags
 		lagartoParser.setParseSpecialTagsAsCdata(parseSpecialTagsAsCdata)
 		lagartoParser.setEnableConditionalComments(enableConditionalComments)
-		lagartoParser.setCalculatePosition(calculatePosition);
+		lagartoParser.setCalculatePosition(calculatePosition)
 
 		val domBuilderTagVisitor = new LagartoDOMBuilderTagVisitor(this) {
 			override def error(message: String) {}
