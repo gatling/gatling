@@ -37,11 +37,11 @@ abstract class Matcher[A, E] extends Validator[A] {
 		} yield matchResult
 }
 
-class IsMatcher[X](val expected: Expression[X]) extends Matcher[X, X] {
+class IsMatcher[A](val expected: Expression[A]) extends Matcher[A, A] {
 
 	val name = "is"
 
-	def doMatch(actual: Option[X], expected: X): Validation[Option[X]] = actual match {
+	def doMatch(actual: Option[A], expected: A): Validation[Option[A]] = actual match {
 		case Some(actualValue) =>
 			if (actualValue == expected)
 				actual.success
@@ -51,11 +51,11 @@ class IsMatcher[X](val expected: Expression[X]) extends Matcher[X, X] {
 	}
 }
 
-class NotMatcher[X](val expected: Expression[X]) extends Matcher[X, X] {
+class NotMatcher[A](val expected: Expression[A]) extends Matcher[A, A] {
 
 	val name = "not"
 
-	def doMatch(actual: Option[X], expected: X): Validation[Option[X]] = actual match {
+	def doMatch(actual: Option[A], expected: A): Validation[Option[A]] = actual match {
 		case Some(actualValue) =>
 			if (actualValue != expected)
 				actual.success
@@ -65,11 +65,11 @@ class NotMatcher[X](val expected: Expression[X]) extends Matcher[X, X] {
 	}
 }
 
-class InMatcher[X](val expected: Expression[Seq[X]]) extends Matcher[X, Seq[X]] {
+class InMatcher[A](val expected: Expression[Seq[A]]) extends Matcher[A, Seq[A]] {
 
 	val name = "in"
 
-	def doMatch(actual: Option[X], expected: Seq[X]): Validation[Option[X]] = actual match {
+	def doMatch(actual: Option[A], expected: Seq[A]): Validation[Option[A]] = actual match {
 		case Some(actualValue) =>
 			if (expected.contains(actualValue))
 				actual.success
@@ -79,9 +79,9 @@ class InMatcher[X](val expected: Expression[Seq[X]]) extends Matcher[X, Seq[X]] 
 	}
 }
 
-class CompareMatcher[X: Ordering](val name: String, message: String, comp: (X, X) => Boolean, val expected: Expression[X]) extends Matcher[X, X] {
+class CompareMatcher[A: Ordering](val name: String, message: String, comp: (A, A) => Boolean, val expected: Expression[A]) extends Matcher[A, A] {
 
-	def doMatch(actual: Option[X], expected: X): Validation[Option[X]] = actual.map { actualValue =>
+	def doMatch(actual: Option[A], expected: A): Validation[Option[A]] = actual.map { actualValue =>
 		if (comp(actualValue, expected))
 			actual.success
 		else
@@ -90,23 +90,23 @@ class CompareMatcher[X: Ordering](val name: String, message: String, comp: (X, X
 	}.getOrElse(s"can't compare nothing and $expected".failure)
 }
 
-class ExistsValidator[X] extends Validator[X] {
+class ExistsValidator[A] extends Validator[A] {
 	val name = "exists"
-	def apply(session: Session, actual: Option[X]): Validation[Option[X]] = actual match {
+	def apply(session: Session, actual: Option[A]): Validation[Option[A]] = actual match {
 		case Some(actualValue) => actual.success
 		case None => Validator.foundNothingFailure
 	}
 }
 
-class NotExistsValidator[X] extends Validator[X] {
+class NotExistsValidator[A] extends Validator[A] {
 	val name = "notExists"
-	def apply(session: Session, actual: Option[X]): Validation[Option[X]] = actual match {
+	def apply(session: Session, actual: Option[A]): Validation[Option[A]] = actual match {
 		case Some(actualValue) => s"unexpectedly found $actualValue".failure
 		case None => None.success
 	}
 }
 
-class NoopValidator[X] extends Validator[X] {
+class NoopValidator[A] extends Validator[A] {
 	val name = "noop"
-	def apply(session: Session, actual: Option[X]): Validation[Option[X]] = actual.success
+	def apply(session: Session, actual: Option[A]): Validation[Option[A]] = actual.success
 }
