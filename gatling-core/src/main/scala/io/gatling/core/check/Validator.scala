@@ -18,6 +18,10 @@ package io.gatling.core.check
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
+object Validator {
+	val foundNothingFailure = "found nothing".failure
+}
+
 trait Validator[A] {
 	def name: String
 	def apply(session: Session, actual: Option[A]): Validation[Option[A]]
@@ -43,7 +47,7 @@ class IsMatcher[X](val expected: Expression[X]) extends Matcher[X, X] {
 				actual.success
 			else
 				s"found $actualValue".failure
-		case None => "found nothing".failure
+		case None => Validator.foundNothingFailure
 	}
 }
 
@@ -71,7 +75,7 @@ class InMatcher[X](val expected: Expression[Seq[X]]) extends Matcher[X, Seq[X]] 
 				actual.success
 			else
 				s"found $actualValue".failure
-		case None => "found nothing".failure
+		case None => Validator.foundNothingFailure
 	}
 }
 
@@ -90,7 +94,7 @@ class ExistsValidator[X] extends Validator[X] {
 	val name = "exists"
 	def apply(session: Session, actual: Option[X]): Validation[Option[X]] = actual match {
 		case Some(actualValue) => actual.success
-		case None => "found nothing".failure
+		case None => Validator.foundNothingFailure
 	}
 }
 
