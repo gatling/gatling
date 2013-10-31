@@ -15,7 +15,8 @@
  */
 package io.gatling.http.check
 
-import io.gatling.core.check.{ CheckFactory, Extractor, ExtractorCheckBuilder, Preparer, ValidatorCheckBuilder }
+import io.gatling.core.check.{ CheckFactory, ExtractorCheckBuilder, Preparer, ValidatorCheckBuilder }
+import io.gatling.core.check.extractor.Extractor
 import io.gatling.http.response.Response
 
 class HttpSingleCheckBuilder[P, X](

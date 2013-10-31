@@ -5,8 +5,7 @@ import scala.collection.concurrent
 
 import org.jboss.netty.util.internal.ConcurrentHashMap
 
-import io.gatling.core.check.CriterionExtractor
-import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
+import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }

@@ -15,7 +15,8 @@
  */
 package io.gatling.http.check.checksum
 
-import io.gatling.core.check.{ Check, Extractor }
+import io.gatling.core.check.Check
+import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.Session
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }

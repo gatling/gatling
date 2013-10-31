@@ -15,20 +15,13 @@
  */
 package io.gatling.core.check
 
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.Validation
+package object extractor {
 
-trait Extractor[P, X] {
-	def name: String
-	def apply(session: Session, prepared: P): Validation[Option[X]]
-}
+	implicit class LiftedOption[X](val value: X) extends AnyVal {
+		def liftOption = Some(value)
+	}
 
-abstract class CriterionExtractor[P, T, X] extends Extractor[P, X] {
-	def criterion: Expression[T]
-	def extract(prepared: P, criterion: T): Validation[Option[X]]
-	def apply(session: Session, prepared: P): Validation[Option[X]] =
-		for {
-			criterion <- criterion(session).mapError(message => s"could not resolve extractor criterion: $message")
-			extracted <- extract(prepared, criterion).mapError(message => s"($criterion) could not extract : $message")
-		} yield extracted
+	implicit class LiftedSeqOption[X](val values: Seq[X]) extends AnyVal {
+		def liftSeqOption = if (values.isEmpty) None else Some(values)
+	}
 }

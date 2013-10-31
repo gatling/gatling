@@ -19,6 +19,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.check.extractor.Extractor
 
 trait ExtractorCheckBuilder[C <: Check[R], R, P, X] {
 

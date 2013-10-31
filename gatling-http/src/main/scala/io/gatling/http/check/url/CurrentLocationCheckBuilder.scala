@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.url
 
-import io.gatling.core.check.Extractor
+import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.Session
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }

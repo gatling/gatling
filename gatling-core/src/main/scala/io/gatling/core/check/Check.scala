@@ -19,6 +19,7 @@ import scala.collection.mutable
 
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ Validation, ValidationList }
+import io.gatling.core.check.extractor.Extractor
 
 object Checks {
 

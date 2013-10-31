@@ -15,8 +15,7 @@
  */
 package io.gatling.http.check.header
 
-import io.gatling.core.check.CriterionExtractor
-import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
+import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.check.extractor.regex.{ GroupExtractor, RegexExtractor }
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ SuccessWrapper, Validation }

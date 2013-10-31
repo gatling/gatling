@@ -17,8 +17,7 @@ package io.gatling.core.check.extractor.css
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import io.gatling.core.check.CriterionExtractor
-import io.gatling.core.check.extractor.Extractors.LiftedSeqOption
+import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import jodd.lagarto.dom.NodeSelector
