@@ -31,7 +31,7 @@ object TypeHelper {
 					value.toString.asInstanceOf[T].success
 
 				else {
-					val valueClazz = value.getClass.getName match {
+					def valueClazz = value.getClass.getName match {
 						case "java.lang.Boolean" => classOf[Boolean]
 						case "java.lang.Integer" => classOf[Int]
 						case "java.lang.Long" => classOf[Long]
