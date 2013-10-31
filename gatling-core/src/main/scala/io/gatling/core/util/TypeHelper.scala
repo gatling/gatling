@@ -26,21 +26,25 @@ object TypeHelper {
 		def asValidation[T: ClassTag]: Validation[T] = {
 			Option(value).map { v =>
 				val clazz = implicitly[ClassTag[T]].runtimeClass
-				val valueClazz = value.getClass.getName match {
-					case "java.lang.Boolean" => classOf[Boolean]
-					case "java.lang.Integer" => classOf[Int]
-					case "java.lang.Long" => classOf[Long]
-					case "java.lang.Double" => classOf[Double]
-					case "java.lang.Float" => classOf[Float]
-					case _ => value.getClass
-				}
 
 				if (clazz == classOf[String])
 					value.toString.asInstanceOf[T].success
-				else if (clazz.isAssignableFrom(value.getClass) || clazz.isAssignableFrom(valueClazz))
-					value.asInstanceOf[T].success
-				else
-					s"Can't cast value $value of type ${value.getClass} into $clazz".failure
+
+				else {
+					val valueClazz = value.getClass.getName match {
+						case "java.lang.Boolean" => classOf[Boolean]
+						case "java.lang.Integer" => classOf[Int]
+						case "java.lang.Long" => classOf[Long]
+						case "java.lang.Double" => classOf[Double]
+						case "java.lang.Float" => classOf[Float]
+						case _ => value.getClass
+					}
+
+					if (clazz.isAssignableFrom(value.getClass) || clazz.isAssignableFrom(valueClazz))
+						value.asInstanceOf[T].success
+					else
+						s"Can't cast value $value of type ${value.getClass} into $clazz".failure
+				}
 			}.getOrElse(s"Value is null".failure)
 		}
 	}
