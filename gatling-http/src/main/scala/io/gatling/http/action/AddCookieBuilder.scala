@@ -37,7 +37,10 @@ object AddCookieBuilder {
 		(session: Session) => baseUrlHost.map(_.success).getOrElse("Neither cookie domain nor baseURL".failure)
 	}
 
-	val defaultPath: Expression[String] = _ => "/".success
+	val defaultPath: Expression[String] = {
+		val rootSuccess = "/".success
+		_ => rootSuccess
+	}
 }
 
 class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Int) extends ActionBuilder {

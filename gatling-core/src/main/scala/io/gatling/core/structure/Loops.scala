@@ -28,7 +28,10 @@ import io.gatling.core.validation.SuccessWrapper
 
 object Loops {
 
-	val trueExpression: Expression[Boolean] = _ => true.success
+	val trueExpression: Expression[Boolean] = {
+		val trueSuccess = true.success
+		_ => trueSuccess
+	}
 }
 
 trait Loops[B] extends Execs[B] {
