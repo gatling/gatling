@@ -23,7 +23,10 @@ package object session {
 	type Expression[T] = Session => Validation[T]
 
 	implicit class ExpressionWrapper[T](val value: T) extends AnyVal {
-		def expression = (session: Session) => value.success
+		def expression: Expression[T] = {
+			val valueS = value.success
+			_ => valueS
+		}
 	}
 
 	val noopStringExpression = "".expression
