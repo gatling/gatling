@@ -21,7 +21,7 @@ import scala.reflect.ClassTag
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TypeHelper.TypeCaster
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, emptyStringListSuccess }
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object ELMessages {
 	def undefinedSeqIndexMessage(name: String, index: Int) = s"Seq named '$name' is undefined for index $index"

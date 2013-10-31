@@ -19,7 +19,7 @@ import scala.annotation.tailrec
 
 package object validation {
 
-	val emptyStringListSuccess = List.empty[String].success
+	val noneSuccess = None.success
 
 	implicit class SuccessWrapper[T](val value: T) extends AnyVal {
 		def success: Validation[T] = Success(value)

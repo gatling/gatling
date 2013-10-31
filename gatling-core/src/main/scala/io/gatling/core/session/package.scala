@@ -16,7 +16,7 @@
 package io.gatling.core
 
 import io.gatling.core.session.Session
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.core.validation.{ noneSuccess, SuccessWrapper, Validation }
 
 package object session {
 
@@ -31,5 +31,5 @@ package object session {
 
 	val noopStringExpression = "".expression
 
-	def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression.map(_(session).map(Some(_))).getOrElse(None.success)
+	def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression.map(_(session).map(Some(_))).getOrElse(noneSuccess)
 }

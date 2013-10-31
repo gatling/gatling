@@ -16,7 +16,7 @@
 package io.gatling.core.check
 
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.validation.{ noneSuccess, FailureWrapper, SuccessWrapper, Validation }
 
 object Validator {
 	val foundNothingFailure = "found nothing".failure
@@ -61,7 +61,7 @@ class NotMatcher[A](val expected: Expression[A]) extends Matcher[A, A] {
 				actual.success
 			else
 				s"unexpectedly found $actualValue".failure
-		case None => None.success
+		case None => noneSuccess
 	}
 }
 
@@ -102,7 +102,7 @@ class NotExistsValidator[A] extends Validator[A] {
 	val name = "notExists"
 	def apply(session: Session, actual: Option[A]): Validation[Option[A]] = actual match {
 		case Some(actualValue) => s"unexpectedly found $actualValue".failure
-		case None => None.success
+		case None => noneSuccess
 	}
 }
 
