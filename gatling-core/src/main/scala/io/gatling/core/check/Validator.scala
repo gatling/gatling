@@ -106,7 +106,7 @@ class NotExistsValidator[X] extends Validator[X] {
 	}
 }
 
-class WhateverValidator[X] extends Validator[X] {
-	val name = "whatever"
+class NoopValidator[X] extends Validator[X] {
+	val name = "noop"
 	def apply(session: Session, actual: Option[X]): Validation[Option[X]] = actual.success
 }

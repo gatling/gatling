@@ -58,7 +58,7 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
 	def in(expected: Expression[Seq[X]]) = validate(new InMatcher(expected))
 	def exists = validate(new ExistsValidator)
 	def notExists = validate(new NotExistsValidator)
-	def whatever = validate(new WhateverValidator)
+	def dontValidate = validate(new NoopValidator)
 	def lessThan(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(new CompareMatcher("lessThan", "less than", implicitly[Ordering[X]].lt, expected))
 	def lessThanOrEqual(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(new CompareMatcher("lessThanOrEqual", "less than or equal to", implicitly[Ordering[X]].lteq, expected))
 	def greaterThan(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(new CompareMatcher("greaterThan", "greater than", implicitly[Ordering[X]].gt, expected))
