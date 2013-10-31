@@ -18,19 +18,6 @@ package io.gatling.core.filter
 import scala.annotation.tailrec
 import scala.util.matching.Regex
 
-object FilterList {
-
-	@tailrec
-	def accept(string: String, filters: List[FilterList]): Boolean = filters match {
-		case Nil => true
-		case head :: tail =>
-			if (head.accept(string))
-				accept(string, tail)
-			else
-				false
-	}
-}
-
 sealed trait FilterList { def accept(url: String): Boolean }
 
 case class WhiteList(regexs: List[Regex]) extends FilterList {
@@ -40,19 +27,11 @@ case class WhiteList(regexs: List[Regex]) extends FilterList {
 		@tailrec
 		def acceptRec(regexs: List[Regex]): Boolean = regexs match {
 			case Nil => false
-			case head :: tail =>
-				head.findFirstIn(url) match {
-					case None => acceptRec(tail)
-					case _ => true
-				}
+			case head :: tail => head.pattern.matcher(url).find || acceptRec(tail)
 		}
 
-		if (regexs.isEmpty)
-			true
-		else
-			acceptRec(regexs)
+		regexs.isEmpty || acceptRec(regexs)
 	}
-
 }
 
 case class BlackList(regexs: List[Regex]) extends FilterList {
@@ -62,16 +41,9 @@ case class BlackList(regexs: List[Regex]) extends FilterList {
 		@tailrec
 		def acceptRec(regexs: List[Regex]): Boolean = regexs match {
 			case Nil => true
-			case head :: tail =>
-				head.findFirstIn(url) match {
-					case None => acceptRec(tail)
-					case _ => false
-				}
+			case head :: tail => !head.pattern.matcher(url).find || acceptRec(tail)
 		}
 
-		if (regexs.isEmpty)
-			true
-		else
-			acceptRec(regexs)
+		acceptRec(regexs)
 	}
 }

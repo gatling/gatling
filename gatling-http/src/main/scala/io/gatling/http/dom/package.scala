@@ -15,17 +15,14 @@
  */
 package io.gatling.http
 
-import java.net.URI
-
-import scala.annotation.tailrec
-
-import io.gatling.core.filter.FilterList
+import io.gatling.core.filter.{ FilterList, FilterListWrapper }
+import io.gatling.http.dom.EmbeddedResource
 
 package object dom {
 
 	implicit class EmbeddedResourcesWrapper(val resources: List[EmbeddedResource]) extends AnyVal {
 
 		def filter(filters: List[FilterList]): List[EmbeddedResource] =
-			resources.filter(res => FilterList.accept(res.uri.toString, filters))
+			resources.filter(res => filters.accept(res.uri.toString))
 	}
 }

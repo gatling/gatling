@@ -13,36 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.check.extractor
-
-import java.util.regex.Matcher
+package io.gatling.core
 
 import scala.annotation.tailrec
 
-import io.gatling.core.check.extractor.regex.GroupExtractor
+package object filter {
 
-package object regex {
+	implicit class FilterListWrapper(val filters: List[FilterList]) extends AnyVal {
 
-	implicit class RichMatcher(val matcher: Matcher) extends AnyVal {
-
-		def foldLeft[T](zero: T)(f: (Matcher, T) => T): T = {
-			var temp = zero
-			while (matcher.find)
-				temp = f(matcher, temp)
-			temp
-		}
-
-		def findMatchN[X: GroupExtractor](n: Int): Option[X] = {
-
+		def accept(string: String): Boolean = {
 			@tailrec
-			def findRec(countDown: Int): Boolean = matcher.find && (countDown == 0 || findRec(countDown - 1))
+			def acceptRec(string: String, filters: List[FilterList]): Boolean = filters match {
+				case Nil => true
+				case head :: tail => head.accept(string) && acceptRec(string, tail)
+			}
 
-			if (findRec(n))
-				value[X].liftOption
-			else
-				None
+			acceptRec(string, filters)
 		}
-
-		def value[X: GroupExtractor]: X = implicitly[GroupExtractor[X]].extract(matcher)
 	}
 }
