@@ -83,7 +83,7 @@ object ELCompiler {
 
 	def compile[T: ClassTag](string: String): Expression[T] = {
 
-		val parsed: List[Part[Any]] = {
+		val parts: List[Part[Any]] = {
 
 			val staticParts: List[StaticPart] = elPattern.split(string).map(StaticPart(_))(breakOut)
 
@@ -108,22 +108,25 @@ object ELCompiler {
 			(indexedStaticParts ::: indexedDynamicParts).sortBy(_._2).map(_._1)
 		}
 
-		parsed match {
-			case List(StaticPart(string)) => 
+		parts match {
+			case List(StaticPart(string)) => {
 				val stringV = string.asValidation[T]
 				_ => stringV
-			
+			}
+
 			case List(dynamicPart) => dynamicPart(_).flatMap(_.asValidation[T])
-			case parts => (session: Session) => parts.foldLeft(emptyStringListSuccess) { (parts, part) =>
-				part match {
-					case StaticPart(string) => parts.map(string :: _)
-					case _ =>
-						for {
-							parts <- parts
-							part <- part(session)
-						} yield part.toString :: parts
-				}
-			}.flatMap(_.reverse.mkString.asValidation[T])
+
+			case _ =>
+				(session: Session) => parts.foldLeft(new StringBuilder().success) { (sb, part) =>
+					part match {
+						case StaticPart(string) => sb.map(_.append(string))
+						case _ =>
+							for {
+								sb <- sb
+								part <- part(session)
+							} yield sb.append(part)
+					}
+				}.flatMap(_.toString.asValidation[T])
 		}
 	}
 }
