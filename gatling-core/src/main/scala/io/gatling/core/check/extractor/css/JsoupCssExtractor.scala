@@ -28,11 +28,9 @@ object JsoupCssExtractor {
 
 	def parse(string: String) = Jsoup.parse(string, "")
 
-	def extractAll(selector: Document, expression: String, nodeAttribute: Option[String]): Seq[String] = selector
-		.select(expression)
-		.map { element =>
-			nodeAttribute.map(element.attr).getOrElse(element.text)
-		}
+	def extractAll(selector: Document, expression: String, nodeAttribute: Option[String]): Seq[String] =
+		selector.select(expression)
+			.map { element => nodeAttribute.map(element.attr).getOrElse(element.text) }
 }
 
 abstract class JsoupCssExtractor[X] extends CriterionExtractor[Document, String, X] {

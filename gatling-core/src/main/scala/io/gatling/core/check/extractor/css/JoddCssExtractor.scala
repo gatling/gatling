@@ -26,11 +26,9 @@ object JoddCssExtractor {
 
 	def parse(string: String) = new NodeSelector(new SilentLagartoDOMBuilder().parse(string))
 
-	def extractAll(selector: NodeSelector, expression: String, nodeAttribute: Option[String]): Seq[String] = selector
-		.select(expression)
-		.map { node =>
-			nodeAttribute.map(node.getAttribute).getOrElse(node.getTextContent.trim)
-		}
+	def extractAll(selector: NodeSelector, expression: String, nodeAttribute: Option[String]): Seq[String] =
+		selector.select(expression)
+			.map { node => nodeAttribute.map(node.getAttribute).getOrElse(node.getTextContent.trim) }
 }
 
 abstract class JoddCssExtractor[X] extends CriterionExtractor[NodeSelector, String, X] {
