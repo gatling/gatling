@@ -86,8 +86,6 @@ object HtmlParser extends Logging {
 							addResource(tag, "href")
 
 					case "bgsound" => addResource(tag, "src")
-					case "frame" => addResource(tag, "src", Html)
-					case "iframe" => addResource(tag, "src", Html)
 					case "img" => addResource(tag, "src")
 					case "embed" => addResource(tag, "src")
 					case "input" => addResource(tag, "src") // only if type=image?

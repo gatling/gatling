@@ -20,9 +20,8 @@ import io.gatling.http.dom.EmbeddedResource
 
 package object dom {
 
-	implicit class EmbeddedResourcesWrapper(val resources: List[EmbeddedResource]) extends AnyVal {
+	implicit class EmbeddedResourcesFilter(val filters: List[FilterList]) extends AnyVal {
 
-		def filter(filters: List[FilterList]): List[EmbeddedResource] =
-			resources.filter(res => filters.accept(res.uri.toString))
+		def filter(resources: List[EmbeddedResource]) = resources.filter(res => filters.accept(res.uri.toString))
 	}
 }

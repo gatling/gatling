@@ -24,6 +24,7 @@ import scala.math.max
 
 import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
 
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.bytes2Hex
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.check.HttpCheck
@@ -96,6 +97,7 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 	}
 
 	def build: Response = {
+
 		// time measurement is imprecise due to multi-core nature
 		// moreover, there seems to be a bug in AHC where ProgressListener might be called AFTER regular methods
 		// ensure request doesn't end before starting
@@ -106,9 +108,20 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 		lastByteReceived = max(lastByteReceived, firstByteReceived)
 		val ahcResponse = Option(status).map(_.provider.prepareResponse(status, headers, bodies))
 		val checksums = digests.mapValues(md => bytes2Hex(md.digest)).toMap
-		val bytes = ahcResponse.map(_.getResponseBodyAsBytes).getOrElse(ResponseBuilder.emptyBytes)
-		val rawResponse = HttpResponse(request, ahcResponse, checksums, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived, bytes)
+
+		val bytesOrString = ahcResponse.map { response =>
+
+			val contentType = response.getContentType
+			val isText = contentType.contains("text") || contentType.contains("json") || contentType.contains("javascript") || contentType.contains("xml")
+			if (isText)
+				Right(response.getResponseBody(configuration.core.encoding))
+			else
+				Left(response.getResponseBodyAsBytes)
+		}.getOrElse(Left(ResponseBuilder.emptyBytes))
+
 		bodies.clear
+
+		val rawResponse = HttpResponse(request, ahcResponse, checksums, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived, bytesOrString)
 
 		responseProcessor
 			.map(_.applyOrElse(rawResponse, identity[Response]))

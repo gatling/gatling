@@ -41,7 +41,7 @@ class CacheHandlingSpec extends Specification with Mockito {
 		def getResponseExpire(headers: Seq[(String, String)]) = {
 			val ahcResponse = mock[AHCResponse].smart
 			headers.foreach { case (name, value) => ahcResponse.getHeader(name) returns value }
-			val response = HttpResponse(request, Some(ahcResponse), Map.empty, -1, -1, -1, -1, Array.empty)
+			val response = HttpResponse(request, Some(ahcResponse), Map.empty, -1, -1, -1, -1, Left(Array.empty))
 
 			CacheHandling.getResponseExpires(http, response)
 		}

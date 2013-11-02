@@ -19,7 +19,6 @@ import java.net.URI
 
 sealed trait EmbeddedResourceType
 case object Css extends EmbeddedResourceType
-case object Html extends EmbeddedResourceType
 case object Regular extends EmbeddedResourceType
 
 case class EmbeddedResource(uri: URI, resType: EmbeddedResourceType = Regular)

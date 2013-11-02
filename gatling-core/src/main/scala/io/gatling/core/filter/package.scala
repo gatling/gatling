@@ -30,5 +30,7 @@ package object filter {
 
 			acceptRec(string, filters)
 		}
+
+		def filter(strings: List[String]) = strings.filter(accept)
 	}
 }

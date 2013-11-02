@@ -83,10 +83,14 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
 		val rootContainer = GroupContainer.root(computeRequestStats(GLOBAL_PAGE_NAME, None, None))
 
-		dataReader.statsPaths.sortWith {
+		// FIXME this is a hack, should only be sorted by time, weird recursive algo should handle properly
+		val sortedPaths = dataReader.statsPaths.sortWith {
 			case (req1: RequestStatsPath, req2: GroupStatsPath) => false
+			case (req1: GroupStatsPath, req2: GroupStatsPath) => req1.group.hierarchy.toString < req2.group.hierarchy.toString
 			case _ => true
-		}.foreach {
+		}
+
+		sortedPaths.foreach {
 			case RequestStatsPath(request, group) =>
 				val stats = computeRequestStats(request, Some(request), group)
 				rootContainer.addRequest(group, request, stats)

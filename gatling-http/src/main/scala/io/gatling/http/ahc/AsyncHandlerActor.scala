@@ -34,7 +34,7 @@ import io.gatling.http.action.HttpRequestAction
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.{ HttpCheck, HttpCheckOrder }
 import io.gatling.http.cookie.CookieHandling
-import io.gatling.http.dom.{ CssResourceFetched, HtmlResourceFetched, RegularResourceFetched, ResourceFetcher }
+import io.gatling.http.dom.{ CssResourceFetched, RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }
 import io.gatling.http.util.HttpStringBuilder
@@ -117,11 +117,6 @@ class AsyncHandlerActor extends BaseActor {
 				Some(response.getStatusCode)
 			else None
 
-		def body() =
-			if (response.hasResponseStatus)
-				Option(response.getResponseBody(configuration.core.encoding))
-			else None
-
 		def regularExecuteNext() {
 			val updatedSession = sessionUpdates(tx.session)
 			tx.next ! updatedSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
@@ -131,10 +126,7 @@ class AsyncHandlerActor extends BaseActor {
 		if (tx.resourceFetching) {
 			val resourceMessage =
 				if (isCss(response.getHeaders))
-					CssResourceFetched(response.request.getOriginalURI, status, sessionUpdates, body())
-
-				else if (isHtml(response.getHeaders))
-					HtmlResourceFetched(response.request.getOriginalURI, status, sessionUpdates, statusCode(), body())
+					CssResourceFetched(response.request.getOriginalURI, status, sessionUpdates, response.getResponseBody)
 
 				else
 					RegularResourceFetched(response.request.getOriginalURI, status, sessionUpdates)
@@ -143,10 +135,8 @@ class AsyncHandlerActor extends BaseActor {
 
 		} else if (tx.protocol.fetchHtmlResources && response.hasResponseStatus && isHtml(response.getHeaders)) {
 
-			val resourceFetcherFactory = ResourceFetcher(response, tx.protocol, body())
-
-			resourceFetcherFactory match {
-				case Some(resourceFetcherFactory) => actor(context)(resourceFetcherFactory(tx))
+			ResourceFetcher.fromReceivedHtmlPage(response, tx) match {
+				case Some(resourceFetcher) => actor(context)(resourceFetcher())
 				case None => regularExecuteNext()
 			}
 
