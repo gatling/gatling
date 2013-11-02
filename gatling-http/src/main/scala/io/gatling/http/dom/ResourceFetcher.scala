@@ -25,11 +25,11 @@ import scala.collection.mutable
 import com.ning.http.client.Request
 import io.gatling.core.action.GroupEnd
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.check.extractor.css.SilentLagartoDOMBuilder
 import io.gatling.core.filter.FilterListWrapper
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.validation.Validation
 import io.gatling.core.validation.{ Success, SuccessWrapper }
 import io.gatling.http.HeaderNames
 import io.gatling.http.action.{ HttpRequestAction, HttpRequestActionBuilder }
@@ -38,7 +38,6 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.{ Response, ResponseBuilder }
-import jodd.lagarto.dom.NodeSelector
 import org.jboss.netty.util.internal.ConcurrentHashMap
 
 sealed trait ResourceFetched {
@@ -172,7 +171,7 @@ class ResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String],
 
 	def fetchOrBufferResources(resources: Iterable[EmbeddedResource]) {
 
-		def buildRequest(resource: EmbeddedResource) = {
+		def buildRequest(resource: EmbeddedResource): Validation[Request] = {
 			val urlExpression: Expression[String] = _ => resource.uri.toString.success
 			val requestBuilder = HttpRequestBaseBuilder.http(urlExpression).get(resource.uri)
 			requestBuilder.build(tx.session, tx.protocol)
@@ -290,33 +289,14 @@ class IncompleteResourceFetcher(htmlDocumentURI: URI, protocol: HttpProtocol, ht
 	override def cssFetched(uri: URI, status: Status, sessionUpdates: Session => Session, content: String) {
 
 		def allCssReceived() {
-			val nodeSelector = body.map { b =>
-				val domBuilder = new SilentLagartoDOMBuilder().setParseSpecialTagsAsCdata(true)
-				new NodeSelector(domBuilder.parse(b))
-			}
 
-			nodeSelector.foreach { nodeSelector =>
+			val cssResources = CssParser.cssResources(body, expectedCss.map { cssUrl => ResourceFetcher.cssCache.get(protocol, cssUrl) }.flatten)
+			resources ++= cssResources
+			pendingRequestsCount += cssResources.size
+			fetchOrBufferResources(cssResources)
 
-				def fetchCssResources(res: Iterable[EmbeddedResource]) {
-					resources ++= res
-					pendingRequestsCount += res.size
-					fetchOrBufferResources(res)
-				}
-
-				val cssContents = expectedCss.map { cssUrl => ResourceFetcher.cssCache.get(protocol, cssUrl) }.flatten
-
-				// FIXME cache this
-				val cssResources = cssContents.foldLeft(collection.mutable.HashSet.empty[URI]) { (uris, cssContent) =>
-					uris ++= cssContent.fontFaceRules
-					uris ++= cssContent.styleRules.collect { case styleRule if !nodeSelector.select(styleRule.selector).isEmpty => styleRule.uri }
-				}.map(EmbeddedResource(_))
-
-				// FIXME always cache css resources?
-				fetchCssResources(cssResources)
-
-				htmlCacheExpireFlag.foreach { htmlCacheExpireFlag =>
-					ResourceFetcher.htmlCache.putIfAbsent((protocol, htmlDocumentURI), (htmlCacheExpireFlag, resources.toList))
-				}
+			htmlCacheExpireFlag.foreach { htmlCacheExpireFlag =>
+				ResourceFetcher.htmlCache.putIfAbsent((protocol, htmlDocumentURI), (htmlCacheExpireFlag, resources.toList))
 			}
 		}
 

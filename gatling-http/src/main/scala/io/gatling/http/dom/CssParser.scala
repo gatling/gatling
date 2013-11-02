@@ -23,8 +23,10 @@ import scala.util.matching.Regex
 
 import com.typesafe.scalalogging.slf4j.Logging
 
+import io.gatling.core.check.extractor.css.SilentLagartoDOMBuilder
 import io.gatling.core.util.StringHelper.ensureByteCopy
 import io.gatling.http.util.HttpHelper
+import jodd.lagarto.dom.NodeSelector
 
 case class CssContent(importRules: List[URI], fontFaceRules: List[URI], styleRules: Seq[StyleRule])
 case class StyleRule(selector: String, uri: URI)
@@ -249,4 +251,14 @@ object CssParser extends Logging {
 
 		CssContent(importRules.toList, fontFaceRules.toList, styleRules)
 	}
+
+	def cssResources(body: Option[String], cssContents: List[CssContent]): Iterable[EmbeddedResource] = body.map { b =>
+		val domBuilder = new SilentLagartoDOMBuilder().setParseSpecialTagsAsCdata(true)
+		val nodeSelector = new NodeSelector(domBuilder.parse(b))
+
+		cssContents.foldLeft(collection.mutable.HashSet.empty[URI]) { (uris, cssContent) =>
+			uris ++= cssContent.fontFaceRules
+			uris ++= cssContent.styleRules.collect { case styleRule if !nodeSelector.select(styleRule.selector).isEmpty => styleRule.uri }
+		}.map(EmbeddedResource(_))
+	}.getOrElse(Nil)
 }
