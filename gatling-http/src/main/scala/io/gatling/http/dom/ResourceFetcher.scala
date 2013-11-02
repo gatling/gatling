@@ -131,7 +131,7 @@ object ResourceFetcher {
 
 class ResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String], resources: Seq[EmbeddedResource], tx: HttpTx) extends BaseActor {
 
-	var session = tx.session.enterGroup(s"${tx.requestName} embedded resources")
+	var session = tx.session
 	val bufferedRequestsByHost = mutable.HashMap.empty[String, List[Request]].withDefaultValue(Nil)
 	val availableTokensByHost = mutable.HashMap.empty[String, Int].withDefaultValue(tx.protocol.maxConnectionsPerHost)
 	var pendingRequestsCount = resources.size
@@ -225,7 +225,7 @@ class ResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String],
 
 	def done(status: Status) {
 		logger.debug("All resources were fetched")
-		GroupEnd.endGroup(session.logGroupRequest(nowMillis - start, status), tx.next)
+		tx.next ! session
 		context.stop(self)
 	}
 
