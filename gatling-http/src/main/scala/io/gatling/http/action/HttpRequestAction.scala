@@ -48,38 +48,36 @@ import io.gatling.http.response.ResponseBuilder
 
 object HttpRequestAction extends AkkaDefaults with Logging {
 
-	def handleHttpTransaction(tx: HttpTx) {
+	def beginHttpTransaction(tx: HttpTx) {
 
 		def send(tx: HttpTx) {
 			logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
 			HttpClient.startHttpTransaction(tx)
 		}
 
-		def bypass(tx: HttpTx) {
+		def skipCached(tx: HttpTx) {
 			logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
 			tx.next ! tx.session
 		}
 
 		val uri = tx.request.getURI
 		CacheHandling.getExpire(tx.protocol, tx.session, uri) match {
-			case None =>
-				send(tx)
 
-			case Some(expire) if nowMillis > expire =>
-				send(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
+			case None => send(tx)
 
-			case _ =>
-				if (tx.protocol.fetchHtmlResources) {
-					ResourceFetcher.fromCachedRequest(tx.request.getURI, tx) match {
-						case Some(resourceFetcher) =>
-							logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-							// FIXME pass a context and create as a child on the HttpRequestAction?
-							actor(resourceFetcher())
-						case None => bypass(tx)
-					}
-				} else {
-					bypass(tx)
+			case Some(expire) if nowMillis > expire => send(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
+
+			case _ if tx.protocol.fetchHtmlResources =>
+				ResourceFetcher.fromCachedRequest(tx.request.getURI, tx) match {
+					case Some(resourceFetcher) =>
+						logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+						// FIXME pass a context and create as a child on the HttpRequestAction?
+						actor(resourceFetcher())
+
+					case None => skipCached(tx)
 				}
+
+			case _ => skipCached(tx)
 		}
 	}
 }
@@ -106,9 +104,9 @@ class HttpRequestAction(httpRequest: HttpRequest, val next: ActorRef) extends In
 			val buildResult = for {
 				ahcRequest <- ahcRequest(session)
 				newSession = RefererHandling.storeReferer(ahcRequest, session, protocol)
-				tx = HttpTx(newSession, ahcRequest, resolvedRequestName, checks, responseBuilderFactory, protocol, next, maxRedirects, throttled)
+				tx = HttpTx(newSession, ahcRequest, resolvedRequestName, checks, responseBuilderFactory, protocol, next, maxRedirects, throttled, resources)
 
-			} yield HttpRequestAction.handleHttpTransaction(tx)
+			} yield HttpRequestAction.beginHttpTransaction(tx)
 
 			buildResult.onFailure { errorMessage =>
 				val now = nowMillis

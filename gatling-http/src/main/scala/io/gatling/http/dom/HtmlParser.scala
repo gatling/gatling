@@ -28,27 +28,27 @@ object HtmlParser extends Logging {
 
 	def getEmbeddedResources(documentURI: URI, htmlContent: String): List[EmbeddedResource] = {
 
-		// TODO efficient?
-		val rawResources = mutable.LinkedHashSet.empty[(String, EmbeddedResourceType)]
+		// FIXME perf? add an index and sort later?
+		val rawResources = mutable.LinkedHashMap.empty[String, URI => EmbeddedResource]
 		var baseURI: Option[URI] = None
 
 		val lagartoParser = new LagartoParser(htmlContent)
 
 		val visitor = new EmptyTagVisitor {
 
-			def addResource(tag: Tag, attributeName: String, resType: EmbeddedResourceType = Regular) {
+			def addResource(tag: Tag, attributeName: String, factory: URI => EmbeddedResource) {
 				val url = tag.getAttributeValue(attributeName, false)
 				if (url != null)
-					rawResources += url -> resType
+					rawResources += url -> factory
 			}
 
 			override def script(tag: Tag, body: CharSequence) {
-				addResource(tag, "src")
+				addResource(tag, "src", RegularResource)
 			}
 
 			override def style(tag: Tag, body: CharSequence) {
 				CssParser.extractUrls(body, CssParser.styleImportsUrls).foreach {
-					rawResources += _ -> Css
+					rawResources += _ -> CssResource
 				}
 			}
 
@@ -79,18 +79,17 @@ object HtmlParser extends Logging {
 						}
 
 					case "link" =>
-						val rel = tag.getAttributeValue("rel", false)
-						if (rel == "stylesheet")
-							addResource(tag, "href", Css)
-						else if (rel == "icon")
-							addResource(tag, "href")
+						tag.getAttributeValue("rel", false) match {
+							case "stylesheet" => addResource(tag, "href", CssResource)
+							case "icon" => addResource(tag, "href", RegularResource)
+							case _ =>
+						}
 
-					case "bgsound" => addResource(tag, "src")
-					case "img" => addResource(tag, "src")
-					case "embed" => addResource(tag, "src")
-					case "input" => addResource(tag, "src") // only if type=image?
-
-					case "body" => addResource(tag, "background")
+					case "bgsound" => addResource(tag, "src", RegularResource)
+					case "img" => addResource(tag, "src", RegularResource)
+					case "embed" => addResource(tag, "src", RegularResource)
+					case "input" => addResource(tag, "src", RegularResource) // only if type=image?
+					case "body" => addResource(tag, "background", RegularResource)
 
 					case "applet" =>
 						val code = tag.getAttributeValue("code", false)
@@ -101,8 +100,8 @@ object HtmlParser extends Logging {
 						val appletResourcesUrls = codeBase
 							.map(cb => appletResources.map(prependCodeBase(cb, _)))
 							.getOrElse(appletResources)
-
-						appletResourcesUrls.foreach(rawResources += _ -> Regular)
+							.map(_ -> RegularResource)
+						rawResources ++= appletResourcesUrls
 
 					case "object" =>
 						val data = tag.getAttributeValue("data", false)
@@ -110,14 +109,12 @@ object HtmlParser extends Logging {
 						val objectResourceUrl = codeBase
 							.map(cb => prependCodeBase(cb, data))
 							.getOrElse(data)
-
-						rawResources += objectResourceUrl -> Regular
+						rawResources += objectResourceUrl -> RegularResource
 
 					case _ =>
 						Option(tag.getAttributeValue("style", false)).foreach { style =>
-							CssParser.extractUrls(style, CssParser.inlineStyleImageUrls).foreach {
-								rawResources += _ -> Regular
-							}
+							val styleUrls = CssParser.extractUrls(style, CssParser.inlineStyleImageUrls).map(_ -> RegularResource)
+							rawResources ++= styleUrls
 						}
 				}
 			}
@@ -127,10 +124,6 @@ object HtmlParser extends Logging {
 
 		val rootURI = baseURI.getOrElse(documentURI)
 
-		rawResources
-			.map {
-				case (url, resType) =>
-					HttpHelper.resolveFromURISilently(rootURI, url).map(EmbeddedResource(_, resType))
-			}.toList.flatten
+		rawResources.map { case (url, factory) => HttpHelper.resolveFromURISilently(rootURI, url).map(factory) }.flatten.toList
 	}
 }

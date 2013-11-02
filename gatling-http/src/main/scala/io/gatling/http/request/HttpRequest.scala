@@ -43,4 +43,5 @@ case class HttpRequest(
 	responseTransformer: Option[ResponseTransformer],
 	maxRedirects: Option[Int],
 	throttled: Boolean,
-	protocol: HttpProtocol)
+	protocol: HttpProtocol,
+	resources: Seq[HttpRequest])

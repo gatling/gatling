@@ -135,6 +135,14 @@ class AsyncHandlerActor extends BaseActor {
 
 		} else if (tx.protocol.fetchHtmlResources && response.hasResponseStatus && isHtml(response.getHeaders)) {
 
+			val explicitResources =
+				if (!tx.resources.isEmpty) {
+					val updatedSession = sessionUpdates(tx.session)
+					//FIXME at least log an error on Failures
+					tx.resources.map(_.ahcRequest(updatedSession)).collect { case Success(request) => request }
+				} else
+					Nil
+
 			ResourceFetcher.fromReceivedHtmlPage(response, tx) match {
 				case Some(resourceFetcher) => actor(context)(resourceFetcher())
 				case None => regularExecuteNext()
@@ -198,7 +206,7 @@ class AsyncHandlerActor extends BaseActor {
 				}
 
 				val redirectTx = newTx.copy(request = newRequest, requestName = newRequestName, numberOfRedirects = tx.numberOfRedirects + 1)
-				HttpRequestAction.handleHttpTransaction(redirectTx)
+				HttpRequestAction.beginHttpTransaction(redirectTx)
 			}
 		}
 

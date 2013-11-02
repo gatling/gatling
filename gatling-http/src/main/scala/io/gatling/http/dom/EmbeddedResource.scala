@@ -17,8 +17,41 @@ package io.gatling.http.dom
 
 import java.net.URI
 
-sealed trait EmbeddedResourceType
-case object Css extends EmbeddedResourceType
-case object Regular extends EmbeddedResourceType
+import com.ning.http.client.Request
 
-case class EmbeddedResource(uri: URI, resType: EmbeddedResourceType = Regular)
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.validation.{ Success, SuccessWrapper }
+import io.gatling.http.config.HttpProtocol
+import io.gatling.http.request.builder.HttpRequestBaseBuilder
+
+case class NamedRequest(name: String, ahcRequest: Request)
+
+sealed abstract class EmbeddedResource {
+
+	def uri: URI
+
+	def toRequest(protocol: HttpProtocol): Option[NamedRequest] = {
+		val url = uri.toString
+		val urlExpression: Expression[String] = _ => url.success
+		val httpRequest = HttpRequestBaseBuilder.http(urlExpression).get(uri).build(protocol, false)
+		httpRequest.ahcRequest(Session("foo", "bar")) match {
+			case Success(ahcRequest) => {
+
+				val requestName = {
+					val start = url.lastIndexOf('/') + 1
+					if (start < url.length)
+						url.substring(start, url.length)
+					else
+						"/"
+				}
+
+				Some(NamedRequest(requestName, ahcRequest))
+			}
+
+			case _ => None
+		}
+	}
+}
+case class CssResource(uri: URI) extends EmbeddedResource
+case class RegularResource(uri: URI) extends EmbeddedResource
+

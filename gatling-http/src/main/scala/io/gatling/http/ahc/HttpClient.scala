@@ -28,6 +28,7 @@ import io.gatling.core.controller.{ Controller, ThrottledRequest }
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
+import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilderFactory
 import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
 
@@ -40,6 +41,7 @@ case class HttpTx(session: Session,
 	next: ActorRef,
 	maxRedirects: Option[Int],
 	throttled: Boolean,
+	resources: Seq[HttpRequest],
 	resourceFetching: Boolean = false,
 	numberOfRedirects: Int = 0)
 
