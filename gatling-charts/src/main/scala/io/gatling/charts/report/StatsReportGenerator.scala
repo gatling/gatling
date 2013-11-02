@@ -15,14 +15,15 @@
  */
 package io.gatling.charts.report
 
+import scala.annotation.tailrec
+
 import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Statistics }
-import io.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, jsonStatsFile, tsvStatsFile }
+import io.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, jsonStatsFile }
 import io.gatling.charts.result.reader.RequestPath
-import io.gatling.charts.template.{ StatsJsTemplate, StatsJsonTemplate }
+import io.gatling.charts.template.{ ConsoleTemplate, StatsJsTemplate, StatsJsonTemplate }
 import io.gatling.core.result.{ Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
-import io.gatling.charts.template.ConsoleTemplate
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
 
@@ -83,21 +84,35 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
 		val rootContainer = GroupContainer.root(computeRequestStats(GLOBAL_PAGE_NAME, None, None))
 
-		// FIXME this is a hack, should only be sorted by time, weird recursive algo should handle properly
-		val sortedPaths = dataReader.statsPaths.sortWith {
-			case (req1: RequestStatsPath, req2: GroupStatsPath) => false
-			case (req1: GroupStatsPath, req2: GroupStatsPath) => req1.group.hierarchy.toString < req2.group.hierarchy.toString
-			case _ => true
-		}
+		val statsPaths = dataReader.statsPaths
 
-		sortedPaths.foreach {
-			case RequestStatsPath(request, group) =>
-				val stats = computeRequestStats(request, Some(request), group)
-				rootContainer.addRequest(group, request, stats)
+		val groupStatsPaths = statsPaths.collect { case path: GroupStatsPath => path.group.hierarchy.reverse -> path }.toMap
+		val seenGroups = collection.mutable.HashSet.empty[List[String]]
 
-			case GroupStatsPath(group) =>
+		@tailrec
+		def addGroupsRec(hierarchy: List[String]) {
+
+			if (!seenGroups.contains(hierarchy)) {
+				seenGroups += hierarchy
+				val group = groupStatsPaths(hierarchy).group
 				val stats = computeGroupStats(group.name, group)
 				rootContainer.addGroup(group, stats)
+
+				hierarchy match {
+					case head :: tail if !tail.isEmpty => addGroupsRec(tail)
+					case _ =>
+				}
+			}
+		}
+
+		val requestStatsPaths = statsPaths.collect { case path: RequestStatsPath => path }
+		requestStatsPaths.foreach {
+			case RequestStatsPath(request, group) =>
+				group.foreach { group =>
+					addGroupsRec(group.hierarchy.reverse)
+				}
+				val stats = computeRequestStats(request, Some(request), group)
+				rootContainer.addRequest(group, request, stats)
 		}
 
 		new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(rootContainer).getOutput)
