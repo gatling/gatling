@@ -173,8 +173,8 @@ class ResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String],
 
 		def buildRequest(resource: EmbeddedResource): Validation[Request] = {
 			val urlExpression: Expression[String] = _ => resource.uri.toString.success
-			val requestBuilder = HttpRequestBaseBuilder.http(urlExpression).get(resource.uri)
-			requestBuilder.build(tx.session, tx.protocol)
+			val httpRequest = HttpRequestBaseBuilder.http(urlExpression).get(resource.uri).build(tx.protocol, tx.throttled)
+			httpRequest.ahcRequest(tx.session)
 		}
 
 		def sendRequests(host: String, requests: Iterable[Request]) {

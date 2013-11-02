@@ -21,7 +21,7 @@ import com.ning.http.client.{ ProxyServer, Realm, Request, RequestBuilder }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.config.{ Protocol, Proxy }
+import io.gatling.core.config.Protocol
 import io.gatling.core.filter.FilterList
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
@@ -32,7 +32,7 @@ import io.gatling.http.ahc.{ HttpClient, ProxyConverter }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.{ Response, ResponseTransformer }
-import io.gatling.http.util.HttpHelper.{ buildProxy, buildRealm }
+import io.gatling.http.util.HttpHelper.buildRealm
 
 /**
  * HttpProtocol class companion
@@ -134,13 +134,13 @@ case class HttpProtocol(
 				.get(expression)
 				.header("bar", expression)
 				.queryParam(expression, expression)
-				.build(Session("scenarioName", "0"), HttpProtocol.default)
+				.build(HttpProtocol.default, false)
 
 			HttpRequestBaseBuilder.http(expression)
 				.post(expression)
 				.header("bar", expression)
 				.param(expression, expression)
-				.build(Session("scenarioName", "0"), HttpProtocol.default)
+				.build(HttpProtocol.default, false)
 		}
 
 		logger.info("Warm up done")

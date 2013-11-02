@@ -29,12 +29,14 @@ import io.gatling.core.session.el.EL
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.action.HttpRequestActionBuilder
-import io.gatling.http.ahc.{ ConnectionPoolKeyStrategy, ProxyConverter, RequestFactory }
+import io.gatling.http.ahc.{ ConnectionPoolKeyStrategy, ProxyConverter }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckOrder.Status
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.referer.RefererHandling
+import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseTransformer
 import io.gatling.http.util.HttpHelper
 
@@ -62,7 +64,7 @@ object AbstractHttpRequestBuilder {
 	val multipartFormDataValueExpression = HeaderValues.MULTIPART_FORM_DATA.el[String]
 	val emptyHeaderListSuccess = List.empty[(String, String)].success
 
-	implicit def toActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = HttpRequestActionBuilder(requestBuilder)
+	implicit def toActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = new HttpRequestActionBuilder(requestBuilder)
 }
 
 /**
@@ -255,14 +257,39 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 *
 	 * @param session the session of the current scenario
 	 */
-	def build: RequestFactory = (session: Session, protocol: HttpProtocol) =>
-		try {
-			getAHCRequestBuilder(session, protocol).map(_.build)
-		} catch {
-			case e: Exception =>
-				logger.warn("Failed to build request", e)
-				s"Failed to build request: ${e.getMessage}".failure
-		}
+	def build(protocol: HttpProtocol, throttled: Boolean): HttpRequest = {
+
+		val ahcRequest = (session: Session) =>
+			try {
+				getAHCRequestBuilder(session, protocol).map(_.build)
+			} catch {
+				case e: Exception =>
+					logger.warn("Failed to build request", e)
+					s"Failed to build request: ${e.getMessage}".failure
+			}
+
+		val totalChecks = if (httpAttributes.ignoreDefaultChecks)
+			httpAttributes.checks
+		else
+			protocol.checks ::: httpAttributes.checks
+
+		val resolvedChecks = totalChecks
+			.find(_.order == Status)
+			.map(_ => httpAttributes.checks)
+			.getOrElse(HttpRequestActionBuilder.defaultHttpCheck :: totalChecks)
+			.sorted
+
+		val resolvedMaxRedirects = httpAttributes.maxRedirects.orElse(protocol.maxRedirects)
+
+		HttpRequest(
+			httpAttributes.requestName,
+			ahcRequest,
+			totalChecks,
+			httpAttributes.responseTransformer,
+			httpAttributes.maxRedirects,
+			throttled,
+			protocol)
+	}
 }
 
 object HttpRequestBuilder {

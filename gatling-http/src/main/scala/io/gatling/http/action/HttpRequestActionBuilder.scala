@@ -20,15 +20,10 @@ import akka.actor.ActorRef
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.controller.throttle.ThrottlingProtocol
-import io.gatling.core.session.Expression
 import io.gatling.core.validation.SuccessWrapper
-import io.gatling.http.ahc.RequestFactory
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckOrder.Status
 import io.gatling.http.check.status.HttpStatusCheckBuilder.status
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.AbstractHttpRequestBuilder
-import io.gatling.http.response.ResponseTransformer
 
 object HttpRequestActionBuilder {
 
@@ -37,11 +32,6 @@ object HttpRequestActionBuilder {
 	 */
 	val okCodes = Seq(200, 304, 201, 202, 203, 204, 205, 206, 207, 208, 209).success
 	val defaultHttpCheck = status.find.in(_ => okCodes).build
-
-	def apply(requestBuilder: AbstractHttpRequestBuilder[_]): HttpRequestActionBuilder = {
-		import requestBuilder.httpAttributes._
-		new HttpRequestActionBuilder(requestName, requestBuilder.build, checks, ignoreDefaultChecks, responseTransformer, maxRedirects)
-	}
 }
 
 /**
@@ -49,28 +39,14 @@ object HttpRequestActionBuilder {
  *
  * @constructor creates an HttpRequestActionBuilder
  * @param requestBuilder the builder for the request that will be sent
- * @param next the next action to be executed
  */
-class HttpRequestActionBuilder(requestName: Expression[String], requestFactory: RequestFactory, checks: List[HttpCheck], ignoreDefaultChecks: Boolean, responseTransformer: Option[ResponseTransformer], maxRedirects: Option[Int]) extends ActionBuilder {
+class HttpRequestActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) extends ActionBuilder {
 
 	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
 
 		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
-
-		val totalChecks = if (ignoreDefaultChecks)
-			checks
-		else
-			httpProtocol.checks ::: checks
-
-		val resolvedChecks = totalChecks
-			.find(_.order == Status)
-			.map(_ => checks)
-			.getOrElse(HttpRequestActionBuilder.defaultHttpCheck :: totalChecks)
-			.sorted
-
-		val resolvedMaxRedirects = maxRedirects.orElse(httpProtocol.maxRedirects)
 		val throttled = protocolRegistry.getProtocol[ThrottlingProtocol].isDefined
 
-		actor(new HttpRequestAction(requestName, next, requestFactory, resolvedChecks, responseTransformer, resolvedMaxRedirects, throttled, httpProtocol))
+		actor(new HttpRequestAction(requestBuilder.build(httpProtocol, throttled), next))
 	}
 }

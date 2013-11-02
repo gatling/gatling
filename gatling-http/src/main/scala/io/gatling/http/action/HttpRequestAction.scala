@@ -37,15 +37,14 @@ import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.result.message.KO
 import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.http.ahc.{ HttpClient, HttpTx, RequestFactory }
+import io.gatling.http.ahc.{ HttpClient, HttpTx }
 import io.gatling.http.cache.CacheHandling
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.config.HttpProtocol
 import io.gatling.http.dom.ResourceFetcher
 import io.gatling.http.referer.RefererHandling
-import io.gatling.http.response.{ ResponseBuilder, ResponseTransformer }
+import io.gatling.http.request.HttpRequest
+import io.gatling.http.response.ResponseBuilder
 
 object HttpRequestAction extends AkkaDefaults with Logging {
 
@@ -95,15 +94,9 @@ object HttpRequestAction extends AkkaDefaults with Logging {
  * @param checks the checks that will be performed on the response
  * @param protocol the protocol specific configuration
  */
-class HttpRequestAction(
-	requestName: Expression[String],
-	val next: ActorRef,
-	requestFactory: RequestFactory,
-	checks: List[HttpCheck],
-	responseTransformer: Option[ResponseTransformer],
-	maxRedirects: Option[Int],
-	throttled: Boolean,
-	protocol: HttpProtocol) extends Interruptable with Failable {
+class HttpRequestAction(httpRequest: HttpRequest, val next: ActorRef) extends Interruptable with Failable {
+
+	import httpRequest._
 
 	val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(checks, responseTransformer, protocol)
 
@@ -111,9 +104,9 @@ class HttpRequestAction(
 		requestName(session).flatMap { resolvedRequestName =>
 
 			val buildResult = for {
-				request <- requestFactory(session, protocol)
-				newSession = RefererHandling.storeReferer(request, session, protocol)
-				tx = HttpTx(newSession, request, resolvedRequestName, checks, responseBuilderFactory, protocol, next, maxRedirects, throttled)
+				ahcRequest <- ahcRequest(session)
+				newSession = RefererHandling.storeReferer(ahcRequest, session, protocol)
+				tx = HttpTx(newSession, ahcRequest, resolvedRequestName, checks, responseBuilderFactory, protocol, next, maxRedirects, throttled)
 
 			} yield HttpRequestAction.handleHttpTransaction(tx)
 

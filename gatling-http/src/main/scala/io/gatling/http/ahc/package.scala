@@ -17,16 +17,10 @@ package io.gatling.http
 
 import com.ning.http.client.ProxyServer
 import com.ning.http.client.ProxyServer.Protocol
-import com.ning.http.client.Request
 
 import io.gatling.core.config.Proxy
-import io.gatling.core.session.Session
-import io.gatling.core.validation.Validation
-import io.gatling.http.config.HttpProtocol
 
 package object ahc {
-
-	type RequestFactory = (Session, HttpProtocol) => Validation[Request]
 
 	implicit class ProxyConverter(val proxy: Proxy) extends AnyVal {
 
