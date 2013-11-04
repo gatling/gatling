@@ -19,23 +19,24 @@ import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.action.Switch
 import io.gatling.core.config.ProtocolRegistry
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.ChainBuilder
-import io.gatling.core.util.RoundRobin
-import io.gatling.core.validation.SuccessWrapper
 
-class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionBuilder {
+class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder {
 
-	require(possibilities.size >= 2, "Round robin switch requires at least 2 possibilities")
+	require(possibilities.size >= 2, "Switch requires at least 2 possibilities")
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
 
-		val rr = {
-			val possibleActions = possibilities.map(_.build(next, protocolRegistry)).toArray
-			RoundRobin(possibleActions)
-		}
+		val possibleActions = possibilities.map {
+			case (percentage, possibility) =>
+				val possibilityAction = possibility.build(next, protocolRegistry)
+				(percentage, possibilityAction)
+		}.toMap
 
-		val nextAction: Expression[ActorRef] = _ => rr.next.success
+		val elseNextActor = elseNext.map(_.build(next, protocolRegistry)).getOrElse(next)
+
+		val nextAction = (session: Session) => value(session).map { v => possibleActions.get(v).getOrElse(elseNextActor) }
 
 		actor(new Switch(nextAction, next))
 	}

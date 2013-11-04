@@ -15,7 +15,7 @@
  */
 package io.gatling.core.structure
 
-import io.gatling.core.action.builder.{ IfBuilder, RandomSwitchBuilder, RoundRobinSwitchBuilder }
+import io.gatling.core.action.builder.{ IfBuilder, RandomSwitchBuilder, RoundRobinSwitchBuilder, SwitchBuilder }
 import io.gatling.core.session.{ Expression, Session }
 
 trait ConditionalStatements[B] extends Execs[B] {
@@ -78,7 +78,17 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * @param elseNext the chain to be executed if the condition is not satisfied
 	 * @return a new builder with a conditional execution added to its actions
 	 */
-	private def doIf(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B = newInstance(new IfBuilder(condition = condition, thenNext = thenNext, elseNext = elseNext) :: actionBuilders)
+	private def doIf(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B =
+		newInstance(new IfBuilder(condition, thenNext, elseNext) :: actionBuilders)
+
+	def doSwitch(value: Expression[Any])(possibility1: (Any, ChainBuilder), possibility2: (Any, ChainBuilder), possibilities: (Any, ChainBuilder)*): B =
+		doSwitch(value, possibility1 :: possibility2 :: possibilities.toList, None)
+
+	def doSwitchOrElse(value: Expression[Any])(possibility1: (Any, ChainBuilder), possibility2: (Any, ChainBuilder), possibilities: (Any, ChainBuilder)*)(elseNext: ChainBuilder): B =
+		doSwitch(value, possibility1 :: possibility2 :: possibilities.toList, Some(elseNext))
+
+	private def doSwitch(value: Expression[Any], possibilities: List[(Any, ChainBuilder)], elseNext: Option[ChainBuilder]): B =
+		newInstance(new SwitchBuilder(value, possibilities, elseNext) :: actionBuilders)
 
 	/**
 	 * Add a switch in the chain. Every possible subchain is defined with a percentage.
@@ -89,7 +99,8 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * @param possibilities the rest of the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def randomSwitch(possibility1: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B = newInstance(new RandomSwitchBuilder(possibility1 :: possibilities.toList) :: actionBuilders)
+	def randomSwitch(possibility1: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B =
+		newInstance(new RandomSwitchBuilder(possibility1 :: possibilities.toList) :: actionBuilders)
 
 	/**
 	 * Add a switch in the chain. Selection uses a random strategy
@@ -117,6 +128,7 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * @param possibilities the rest of the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def roundRobinSwitch(possibility1: ChainBuilder, possibilities: ChainBuilder*): B = newInstance(new RoundRobinSwitchBuilder(possibility1 :: possibilities.toList) :: actionBuilders)
+	def roundRobinSwitch(possibility1: ChainBuilder, possibilities: ChainBuilder*): B =
+		newInstance(new RoundRobinSwitchBuilder(possibility1 :: possibilities.toList) :: actionBuilders)
 
 }

@@ -191,6 +191,13 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.pause(pause1)
 		.exec(flushSessionCookies)
 		.exec(addCookie("foo", "bar"))
+		.doSwitch("${foo}")(
+			"a" -> exec(http("a").get("/")),
+			"b" -> exec(http("b").get("/")))
+		.doSwitchOrElse("${foo}")(
+			"a" -> exec(http("a").get("/")),
+			"b" -> exec(http("b").get("/")) //
+			)(exec(http("else").get("/")))
 
 	val inject1 = nothingFor(10 milliseconds)
 	val inject2 = rampUsers(10).over(10 minutes)

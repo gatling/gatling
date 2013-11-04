@@ -20,9 +20,12 @@ import scala.concurrent.forkjoin.ThreadLocalRandom
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
+import io.gatling.core.session.Expression
 import io.gatling.core.action.Switch
 import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.session.Expression
 import io.gatling.core.structure.ChainBuilder
+import io.gatling.core.validation.SuccessWrapper
 
 class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends ActionBuilder {
 
@@ -36,7 +39,7 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends Acti
 				(percentage, possibilityAction)
 		}
 
-		val nextAction = () => {
+		val nextAction: Expression[ActorRef] = _ => {
 
 			@tailrec
 			def determineNextAction(index: Int, possibilities: List[(Int, ActorRef)]): ActorRef = possibilities match {
@@ -48,7 +51,7 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends Acti
 						determineNextAction(index - percentage, others)
 			}
 
-			determineNextAction(ThreadLocalRandom.current.nextInt(1, 101), possibleActions)
+			determineNextAction(ThreadLocalRandom.current.nextInt(1, 101), possibleActions).success
 		}
 
 		actor(new Switch(nextAction, next))
