@@ -18,6 +18,8 @@ package io.gatling.core.action.builder
 import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
+import com.typesafe.scalalogging.slf4j.Logging
+
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.session.Expression
@@ -27,9 +29,12 @@ import io.gatling.core.session.Expression
 import io.gatling.core.structure.ChainBuilder
 import io.gatling.core.validation.SuccessWrapper
 
-class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends ActionBuilder {
+class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder with Logging {
 
-	require(possibilities.map(_._1).sum <= 100, "Can't build a random switch with percentage sum > 100")
+	val sum = possibilities.map(_._1).sum
+	require(sum <= 100, "Can't build a random switch with percentage sum > 100")
+	if (sum < 100 && elseNext.isDefined)
+		logger.warn("Randow switch has a 100% sum, yet a else is defined?!")
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
 
@@ -39,11 +44,13 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)]) extends Acti
 				(percentage, possibilityAction)
 		}
 
+		val elseNextActor = elseNext.map(_.build(next, protocolRegistry)).getOrElse(next)
+
 		val nextAction: Expression[ActorRef] = _ => {
 
 			@tailrec
 			def determineNextAction(index: Int, possibilities: List[(Int, ActorRef)]): ActorRef = possibilities match {
-				case Nil => next
+				case Nil => elseNextActor
 				case (percentage, possibleAction) :: others =>
 					if (percentage >= index)
 						possibleAction

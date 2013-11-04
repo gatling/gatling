@@ -100,7 +100,13 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * @return a new builder with a random switch added to its actions
 	 */
 	def randomSwitch(possibility1: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B =
-		newInstance(new RandomSwitchBuilder(possibility1 :: possibilities.toList) :: actionBuilders)
+		randomSwitch(possibility1 :: possibilities.toList, None)
+
+	def randomSwitchOrElse(possibility1: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*)(elseNext: ChainBuilder): B =
+		randomSwitch(possibility1 :: possibilities.toList, Some(elseNext))
+
+	private def randomSwitch(possibilities: List[(Int, ChainBuilder)], elseNext: Option[ChainBuilder]): B =
+		newInstance(new RandomSwitchBuilder(possibilities, elseNext) :: actionBuilders)
 
 	/**
 	 * Add a switch in the chain. Selection uses a random strategy
@@ -118,7 +124,7 @@ trait ConditionalStatements[B] extends Execs[B] {
 
 		val possibilitiesWithPercentage = (firstPercentage, possibility1) :: tailPossibilities.map((basePercentage, _))
 
-		newInstance(new RandomSwitchBuilder(possibilitiesWithPercentage) :: actionBuilders)
+		randomSwitch(possibilitiesWithPercentage, None)
 	}
 
 	/**
