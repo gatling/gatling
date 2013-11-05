@@ -475,6 +475,7 @@
 						<excludes>
 							<exclude>**/jquery.min.js</exclude>
 							<exclude>**/bootstrap.min.*</exclude>
+							<exclude>doc/**</exclude>
 						</excludes>
 					</configuration>
 					<executions>
