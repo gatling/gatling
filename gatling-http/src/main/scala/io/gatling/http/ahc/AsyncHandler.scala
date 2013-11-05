@@ -65,21 +65,31 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with Logging {
 	}
 
 	def onCompleted {
-		if (!done.getAndSet(true)) AsyncHandlerActor.asyncHandlerActor ! OnCompleted(tx, responseBuilder.build)
+		if (!done.getAndSet(true)) {
+			try {
+				val response = responseBuilder.build
+				AsyncHandlerActor.asyncHandlerActor ! OnCompleted(tx, response)
+			} catch {
+				case e: Exception => sendOnThrowable(e)
+			}
+		}
 	}
 
 	def onThrowable(throwable: Throwable) {
 		if (!done.getAndSet(true)) {
 			responseBuilder.updateLastByteReceived
-
-			val errorMessage = Option(throwable.getMessage).getOrElse(throwable.getClass.getName)
-
-			if (logger.underlying.isInfoEnabled)
-				logger.warn(s"Request '${tx.requestName}' failed for user ${tx.session.userId}", throwable)
-			else
-				logger.warn(s"Request '${tx.requestName}' failed for user ${tx.session.userId}: $errorMessage")
-
-			AsyncHandlerActor.asyncHandlerActor ! OnThrowable(tx, responseBuilder.build, errorMessage)
+			sendOnThrowable(throwable)
 		}
+	}
+
+	def sendOnThrowable(throwable: Throwable) {
+		val errorMessage = Option(throwable.getMessage).getOrElse(throwable.getClass.getName)
+
+		if (logger.underlying.isInfoEnabled)
+			logger.warn(s"Request '${tx.requestName}' failed for user ${tx.session.userId}", throwable)
+		else
+			logger.warn(s"Request '${tx.requestName}' failed for user ${tx.session.userId}: $errorMessage")
+
+		AsyncHandlerActor.asyncHandlerActor ! OnThrowable(tx, responseBuilder.build, errorMessage)
 	}
 }
