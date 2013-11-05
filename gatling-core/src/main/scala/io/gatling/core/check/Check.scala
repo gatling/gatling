@@ -22,13 +22,13 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation, ValidationList }
 import io.gatling.core.check.extractor.Extractor
 
 object Checks {
-	
+
 	val noopUpdate = (identity[Session] _).success
 
 	def check[R](response: R, session: Session, checks: List[Check[R]]): Validation[Session => Session] = {
 
 		implicit val cache = mutable.Map.empty[Any, Any]
-		
+
 		checks match {
 			case Nil => noopUpdate
 			case checks => checks.map(_.check(response, session)).sequence.map(_.reduce(_ andThen _))

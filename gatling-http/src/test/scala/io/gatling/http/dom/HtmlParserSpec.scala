@@ -34,7 +34,7 @@ class HtmlParserSpec extends Specification {
 		val htmlContent = withCloseable(getClass.getClassLoader.getResourceAsStream("akka.io.html")) {
 			IOUtils.toString(_, UTF8.charSet)
 		}
-		
+
 		implicit def string2URI(string: String) = URI.create(string)
 
 		"extract all urls" in {
