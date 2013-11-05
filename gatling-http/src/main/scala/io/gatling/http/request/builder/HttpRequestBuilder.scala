@@ -219,16 +219,17 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 		def configureHeaders(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
-			val resolvedHeaders = httpAttributes.headers.foldLeft(AbstractHttpRequestBuilder.emptyHeaderListSuccess) { (headers, header) =>
+			val allHeaders = protocol.baseHeaders ++ httpAttributes.headers
+			val resolvedHeaders = allHeaders.foldLeft(AbstractHttpRequestBuilder.emptyHeaderListSuccess) { (headers, header) =>
 				val (key, value) = header
 				for {
 					headers <- headers
 					value <- value(session)
 				} yield ((key -> value) :: headers)
-			}
+			}.map(_.toMap)
 
 			resolvedHeaders.map { headers =>
-				val newHeaders = RefererHandling.addStoredRefererHeader(protocol.baseHeaders ++ headers.reverse, session, protocol)
+				val newHeaders = RefererHandling.addStoredRefererHeader(headers, session, protocol)
 				newHeaders.foreach { case (headerName, headerValue) => requestBuilder.addHeader(headerName, headerValue) }
 				requestBuilder
 			}
