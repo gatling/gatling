@@ -80,7 +80,7 @@ case class HttpProtocol(
 	discardResponseChunks: Boolean,
 	shareClient: Boolean,
 	shareConnections: Boolean,
-	baseHeaders: Map[String, String],
+	baseHeaders: Map[String, Expression[String]],
 	basicAuth: Option[Expression[Realm]],
 	virtualHost: Option[Expression[String]],
 	localAddress: Option[InetAddress],

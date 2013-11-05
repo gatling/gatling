@@ -26,6 +26,7 @@ import io.gatling.core.config.Proxy
 import io.gatling.core.filter.{ BlackList, FilterList, WhiteList }
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.el.EL
 import io.gatling.http.HeaderNames._
 import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.check.HttpCheck
@@ -53,9 +54,7 @@ object HttpProtocolBuilder {
 case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 
 	def baseURL(baseUrl: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseURLs = List(baseUrl)))
-
 	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*): HttpProtocolBuilder = copy(protocol = protocol.copy(baseURLs = baseUrl1 :: baseUrl2 :: baseUrls.toList))
-
 	def baseURLs(baseUrls: Seq[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseURLs = baseUrls))
 
 	def disableFollowRedirect: HttpProtocolBuilder = copy(protocol = copy(protocol.copy(followRedirect = false)))
@@ -70,26 +69,17 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 
 	def shareConnections: HttpProtocolBuilder = copy(protocol = copy(protocol.copy(shareConnections = true)))
 
-	def baseHeaders(headers: Map[String, String]): HttpProtocolBuilder = copy(protocol.copy(baseHeaders = protocol.baseHeaders ++ headers))
-
-	def acceptHeader(value: String): HttpProtocolBuilder = copy(protocol = copy(protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT -> value))))
-
-	def acceptCharsetHeader(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT_CHARSET -> value)))
-
-	def acceptEncodingHeader(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT_ENCODING -> value)))
-
-	def acceptLanguageHeader(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT_LANGUAGE -> value)))
-
-	def authorizationHeader(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (AUTHORIZATION -> value)))
-
-	def connection(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (CONNECTION -> value)))
-
-	def doNotTrackHeader(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (DO_NOT_TRACK -> value)))
-
-	def userAgentHeader(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (USER_AGENT -> value)))
+	def baseHeaders(headers: Map[String, String]): HttpProtocolBuilder = copy(protocol.copy(baseHeaders = protocol.baseHeaders ++ headers.mapValues(_.el[String])))
+	def acceptHeader(value: Expression[String]): HttpProtocolBuilder = copy(protocol = copy(protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT -> value))))
+	def acceptCharsetHeader(value: Expression[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT_CHARSET -> value)))
+	def acceptEncodingHeader(value: Expression[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT_ENCODING -> value)))
+	def acceptLanguageHeader(value: Expression[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT_LANGUAGE -> value)))
+	def authorizationHeader(value: Expression[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (AUTHORIZATION -> value)))
+	def connection(value: Expression[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (CONNECTION -> value)))
+	def doNotTrackHeader(value: Expression[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (DO_NOT_TRACK -> value)))
+	def userAgentHeader(value: Expression[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (USER_AGENT -> value)))
 
 	def warmUp(url: String): HttpProtocolBuilder = copy(protocol = copy(protocol.copy(warmUpUrl = Some(url))))
-
 	def disableWarmUp: HttpProtocolBuilder = copy(protocol = protocol.copy(warmUpUrl = None))
 
 	def basicAuth(username: Expression[String], password: Expression[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
@@ -99,7 +89,6 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 	def extraInfoExtractor(f: (String, Status, Session, Request, Response) => List[Any]): HttpProtocolBuilder = copy(protocol = protocol.copy(extraInfoExtractor = Some(f)))
 
 	def proxy(httpProxy: Proxy): HttpProtocolBuilder = copy(protocol = protocol.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
-
 	def noProxyFor(hosts: String*): HttpProtocolBuilder = copy(protocol = protocol.copy(proxyExceptions = hosts))
 
 	def localAddress(localAddress: InetAddress): HttpProtocolBuilder = copy(protocol = protocol.copy(localAddress = Some(localAddress)))
