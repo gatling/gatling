@@ -58,53 +58,53 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 
 	def baseURLs(baseUrls: Seq[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseURLs = baseUrls))
 
-	def disableFollowRedirect = copy(protocol = protocol.copy(followRedirect = false))
+	def disableFollowRedirect: HttpProtocolBuilder = copy(protocol = copy(protocol.copy(followRedirect = false)))
 
-	def disableAutoReferer = copy(protocol = protocol.copy(autoReferer = false))
+	def disableAutoReferer: HttpProtocolBuilder = copy(protocol = copy(protocol.copy(autoReferer = false)))
 
-	def disableCaching = copy(protocol = protocol.copy(cache = false))
+	def disableCaching: HttpProtocolBuilder = copy(protocol = copy(protocol.copy(cache = false)))
 
-	def disableResponseChunksDiscarding = copy(protocol = protocol.copy(discardResponseChunks = false))
+	def disableResponseChunksDiscarding: HttpProtocolBuilder = copy(protocol = protocol.copy(discardResponseChunks = false))
 
-	def disableClientSharing = copy(protocol = protocol.copy(shareClient = false))
+	def disableClientSharing: HttpProtocolBuilder = copy(protocol = copy(protocol.copy(shareClient = false)))
 
-	def shareConnections = copy(protocol = protocol.copy(shareConnections = true))
+	def shareConnections: HttpProtocolBuilder = copy(protocol = copy(protocol.copy(shareConnections = true)))
 
-	def baseHeaders(headers: Map[String, String]) = protocol.copy(baseHeaders = protocol.baseHeaders ++ headers)
+	def baseHeaders(headers: Map[String, String]): HttpProtocolBuilder = copy(protocol.copy(baseHeaders = protocol.baseHeaders ++ headers))
 
-	def acceptHeader(value: String) = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT -> value)))
+	def acceptHeader(value: String): HttpProtocolBuilder = copy(protocol = copy(protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT -> value))))
 
-	def acceptCharsetHeader(value: String) = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT_CHARSET -> value)))
+	def acceptCharsetHeader(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT_CHARSET -> value)))
 
-	def acceptEncodingHeader(value: String) = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT_ENCODING -> value)))
+	def acceptEncodingHeader(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT_ENCODING -> value)))
 
-	def acceptLanguageHeader(value: String) = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT_LANGUAGE -> value)))
+	def acceptLanguageHeader(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (ACCEPT_LANGUAGE -> value)))
 
-	def authorizationHeader(value: String) = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (AUTHORIZATION -> value)))
+	def authorizationHeader(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (AUTHORIZATION -> value)))
 
-	def connection(value: String) = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (CONNECTION -> value)))
+	def connection(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (CONNECTION -> value)))
 
-	def doNotTrackHeader(value: String) = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (DO_NOT_TRACK -> value)))
+	def doNotTrackHeader(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (DO_NOT_TRACK -> value)))
 
-	def userAgentHeader(value: String) = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (USER_AGENT -> value)))
+	def userAgentHeader(value: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseHeaders = protocol.baseHeaders + (USER_AGENT -> value)))
 
-	def warmUp(url: String) = copy(protocol = protocol.copy(warmUpUrl = Some(url)))
+	def warmUp(url: String): HttpProtocolBuilder = copy(protocol = copy(protocol.copy(warmUpUrl = Some(url))))
 
-	def disableWarmUp = copy(protocol = protocol.copy(warmUpUrl = None))
+	def disableWarmUp: HttpProtocolBuilder = copy(protocol = protocol.copy(warmUpUrl = None))
 
-	def basicAuth(username: Expression[String], password: Expression[String]) = copy(protocol = protocol.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
+	def basicAuth(username: Expression[String], password: Expression[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
 
-	def virtualHost(virtualHost: Expression[String]) = protocol.copy(virtualHost = Some(virtualHost))
+	def virtualHost(virtualHost: Expression[String]): HttpProtocolBuilder = copy(protocol.copy(virtualHost = Some(virtualHost)))
 
-	def extraInfoExtractor(f: (String, Status, Session, Request, Response) => List[Any]) = copy(protocol = protocol.copy(extraInfoExtractor = Some(f)))
+	def extraInfoExtractor(f: (String, Status, Session, Request, Response) => List[Any]): HttpProtocolBuilder = copy(protocol = protocol.copy(extraInfoExtractor = Some(f)))
 
-	def proxy(httpProxy: Proxy) = copy(protocol = protocol.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
+	def proxy(httpProxy: Proxy): HttpProtocolBuilder = copy(protocol = protocol.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
 
-	def noProxyFor(hosts: String*) = copy(protocol = protocol.copy(proxyExceptions = hosts))
+	def noProxyFor(hosts: String*): HttpProtocolBuilder = copy(protocol = protocol.copy(proxyExceptions = hosts))
 
-	def localAddress(localAddress: InetAddress) = copy(protocol = protocol.copy(localAddress = Some(localAddress)))
+	def localAddress(localAddress: InetAddress): HttpProtocolBuilder = copy(protocol = protocol.copy(localAddress = Some(localAddress)))
 
-	def check(checks: HttpCheck*) = copy(protocol = protocol.copy(checks = protocol.checks ::: checks.toList))
+	def check(checks: HttpCheck*): HttpProtocolBuilder = copy(protocol = protocol.copy(checks = protocol.checks ::: checks.toList))
 
 	def fetchHtmlResources: HttpProtocolBuilder = fetchHtmlResources(Nil)
 	def fetchHtmlResources(white: WhiteList): HttpProtocolBuilder = fetchHtmlResources(List(white))
@@ -122,7 +122,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 	def maxConnectionsPerHostLikeIE8 = maxConnectionsPerHost(6)
 	def maxConnectionsPerHostLikeIE10 = maxConnectionsPerHost(8)
 	def maxConnectionsPerHostLikeChrome = maxConnectionsPerHost(6)
-	def maxConnectionsPerHost(max: Int) = copy(protocol = protocol.copy(maxConnectionsPerHost = max))
+	def maxConnectionsPerHost(max: Int): HttpProtocolBuilder = copy(protocol = protocol.copy(maxConnectionsPerHost = max))
 
 	def build = {
 		require(!(!protocol.shareClient && protocol.shareConnections), "Invalid protocol configuration: can't stop sharing the HTTP client while still sharing connections!")
