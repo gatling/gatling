@@ -54,12 +54,12 @@ object Gatling {
 		sys.exit(runGatling(args))
 	}
 
-	def fromMap(props: mutable.Map[String, Any]) = {
+	def fromMap(props: mutable.Map[String, Any], simulationClass: Option[Class[Simulation]] = None) = {
 		GatlingConfiguration.setUp(props)
-		new Gatling().start
+		new Gatling(simulationClass).start
 	}
 
-	def runGatling(args: Array[String]) = {
+	def runGatling(args: Array[String], simulationClass: Option[Class[Simulation]] = None) = {
 		val props = new GatlingPropertiesBuilder
 
 		val cliOptsParser = new OptionParser[Unit]("gatling") {
@@ -77,13 +77,13 @@ object Gatling {
 		}
 
 		// if arguments are incorrect, usage message is displayed
-		if (cliOptsParser.parse(args)) fromMap(props.build)
+		if (cliOptsParser.parse(args)) fromMap(props.build, simulationClass)
 		else GatlingStatusCodes.invalidArguments
 	}
 
 }
 
-class Gatling extends Logging {
+class Gatling(simulationClass: Option[Class[Simulation]]) extends Logging {
 
 	def start = {
 
@@ -165,7 +165,7 @@ class Gatling extends Logging {
 			println(s"Please open the following file : $indexFile")
 		}
 
-		val simulations = {
+		val simulations = simulationClass.map(List(_)).getOrElse {
 			if (configuration.core.disableCompiler) {
 				configuration.core.simulationClass
 					.map(clazz => List(Class.forName(clazz).asInstanceOf[Class[Simulation]]))
