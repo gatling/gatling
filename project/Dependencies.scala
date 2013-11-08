@@ -6,7 +6,7 @@ object Dependencies {
 	private val scalaReflect      = "org.scala-lang"        % "scala-reflect"      % "2.10.3"
 	private val scalaSwing        = "org.scala-lang"        % "scala-swing"        % "2.10.3"
 	private val ahc               = "com.ning"              % "async-http-client"  % "1.7.21"
-	private val netty             = "io.netty"              % "netty"              % "3.7.0.Final"
+	private val netty             = "io.netty"              % "netty"              % "3.8.0.Final"
 	private val akkaActor         = "com.typesafe.akka"    %% "akka-actor"         % "2.2.3"
 	private val config            = "com.typesafe"          % "config"             % "1.0.2"
 	private val saxon             = "net.sf.saxon"          % "Saxon-HE"           % "9.5.1-3"    classifier "compressed"
