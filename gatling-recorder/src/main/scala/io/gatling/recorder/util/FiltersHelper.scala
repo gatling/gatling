@@ -15,43 +15,24 @@
  */
 package io.gatling.recorder.util
 
-import java.net.URI
-
-import org.codehaus.plexus.util.SelectorUtils
-
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.config.Pattern
-import io.gatling.recorder.enumeration.{ FilterStrategy, PatternType }
+import io.gatling.recorder.enumeration.FilterStrategy
 
 object FiltersHelper {
 
 	private val supportedHttpMethods = List("POST", "GET", "PUT", "DELETE", "HEAD")
 
+	private def checkWhiteList = configuration.filters.whitelist.accept _
+
+	private def checkBlackList = configuration.filters.blacklist.accept _
+
 	def isRequestAccepted(uri: String, method: String): Boolean = {
-
-		def requestMatched = {
-			val path = new URI(uri).getPath
-
-			def gatlingPatternToPlexusPattern(pattern: Pattern) = {
-
-				val prefix = pattern.patternType match {
-					case PatternType.ANT => SelectorUtils.ANT_HANDLER_PREFIX
-					case PatternType.JAVA => SelectorUtils.REGEX_HANDLER_PREFIX
-				}
-
-				prefix + pattern.pattern + SelectorUtils.PATTERN_HANDLER_SUFFIX
-			}
-
-			def isPatternMatched(pattern: Pattern) =
-				SelectorUtils.matchPath(gatlingPatternToPlexusPattern(pattern), path)
-
-			configuration.filters.patterns.exists(isPatternMatched)
-		}
-
 		def requestPassFilters = configuration.filters.filterStrategy match {
-			case FilterStrategy.EXCEPT => !requestMatched
-			case FilterStrategy.ONLY => requestMatched
-			case FilterStrategy.NONE => true
+			case FilterStrategy.WHITELIST_FIRST =>
+				checkWhiteList(uri) && checkBlackList(uri)
+			case FilterStrategy.BLACKLIST_FIRST =>
+				checkBlackList(uri) && checkWhiteList(uri)
+			case FilterStrategy.DISABLED => true
 		}
 
 		supportedHttpMethods.contains(method) && requestPassFilters

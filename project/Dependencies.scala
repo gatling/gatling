@@ -53,5 +53,5 @@ object Dependencies {
 
 	val appDeps = Seq(scopt, zinc)
 
-	val recorderDeps = Seq(scalaSwing, scopt)
+	val recorderDeps = Seq(scalaSwing, scopt) ++ testDeps
 }

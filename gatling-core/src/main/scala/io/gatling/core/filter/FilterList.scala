@@ -20,28 +20,32 @@ import scala.util.matching.Regex
 
 sealed trait FilterList { def accept(url: String): Boolean }
 
-case class WhiteList(regexs: List[Regex]) extends FilterList {
+case class WhiteList(patterns: List[String]) extends FilterList {
+
+	private val regexs = patterns.map(_.r)
 
 	def accept(url: String): Boolean = {
 
 		@tailrec
 		def acceptRec(regexs: List[Regex]): Boolean = regexs match {
 			case Nil => false
-			case head :: tail => head.pattern.matcher(url).find || acceptRec(tail)
+			case head :: tail => head.pattern.matcher(url).matches || acceptRec(tail)
 		}
 
 		regexs.isEmpty || acceptRec(regexs)
 	}
 }
 
-case class BlackList(regexs: List[Regex]) extends FilterList {
+case class BlackList(patterns: List[String]) extends FilterList {
+
+	private val regexs = patterns.map(_.r)
 
 	def accept(url: String): Boolean = {
 
 		@tailrec
 		def acceptRec(regexs: List[Regex]): Boolean = regexs match {
 			case Nil => true
-			case head :: tail => !head.pattern.matcher(url).find || acceptRec(tail)
+			case head :: tail => !head.pattern.matcher(url).matches && acceptRec(tail)
 		}
 
 		acceptRec(regexs)

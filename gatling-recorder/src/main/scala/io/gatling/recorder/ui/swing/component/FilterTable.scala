@@ -18,7 +18,6 @@ package io.gatling.recorder.ui.swing.component
 import java.awt.{ Dimension, Component, Color, BorderLayout }
 import java.awt.event.{ MouseListener, MouseEvent, MouseAdapter, ActionListener, ActionEvent }
 
-import io.gatling.recorder.config.Pattern
 import io.gatling.recorder.enumeration.PatternType.{ PatternType, JAVA, ANT }
 
 import javax.swing.{ JTable, JScrollPane, JRadioButton, JPopupMenu, JPanel, JMenuItem, ButtonGroup, AbstractCellEditor }
@@ -90,7 +89,7 @@ class FilterTable extends JPanel with MouseListener {
 		model.addRow(Array[Object](""))
 	}
 
-	def addRow(pattern: Pattern) = model.addRow(Array[Object](pattern.pattern, new SelectPatternPanel(pattern.patternType)))
+	def addRow(pattern: String) = model.addRow(Array[Object](pattern, new SelectPatternPanel(JAVA)))
 
 	def removeSelectedRow = removeRows(getSelectedRows.toList)
 
@@ -100,7 +99,7 @@ class FilterTable extends JPanel with MouseListener {
 
 	def getRowCount = model.getRowCount
 
-	def getPattern(row: Int) = Pattern(getPatternTypeAt(row), model.getValueAt(row, 0).toString)
+	def getPattern(row: Int) = model.getValueAt(row, 0).toString
 
 	def getPatterns = (for (i <- 0 until getRowCount) yield getPattern(i)).toList
 
@@ -184,12 +183,11 @@ class SelectPatternPanel(patternType: PatternType = ANT) extends JPanel {
 	group.add(radio2)
 
 	patternType match {
-		case ANT => radio1.setSelected(true)
-		case JAVA => radio2.setSelected(true)
+		case _ => radio2.setSelected(true)
 	}
 
 	add(radio1)
 	add(radio2)
 
-	def getPatternType = if (radio1.isSelected) ANT else JAVA
+	def getPatternType = JAVA
 }
