@@ -44,9 +44,9 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController) ext
 						password <- configuration.proxy.outgoing.password
 					} {
 						val proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
-						request.setHeader(HeaderNames.PROXY_AUTHORIZATION, proxyAuth)
+						request.headers.set(HeaderNames.PROXY_AUTHORIZATION, proxyAuth)
 					}
-				}.getOrElse(request.removeHeader("Proxy-Connection")) // remove Proxy-Connection header if it's not significant
+				}.getOrElse(request.headers.remove("Proxy-Connection")) // remove Proxy-Connection header if it's not significant
 
 				propagateRequest(ctx, request)
 
@@ -73,7 +73,7 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController) ext
 		val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, pathQuery)
 		newRequest.setChunked(request.isChunked)
 		newRequest.setContent(request.getContent)
-		for (header <- request.getHeaders) newRequest.addHeader(header.getKey, header.getValue)
+		for (header <- request.headers.entries) newRequest.headers.add(header.getKey, header.getValue)
 		newRequest
 	}
 }
