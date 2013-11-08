@@ -88,7 +88,7 @@ object HarReader {
 			lastRequestTimestamp = timestamp
 		}
 
-		if (isRequestAccepted(entry.request.url, entry.request.method)) {
+		if (isRequestAccepted(entry.request.url)) {
 			if (lastEntry == null && isRequestRedirect(entry.response.status)) {
 				createPause
 				lastEntry = entry

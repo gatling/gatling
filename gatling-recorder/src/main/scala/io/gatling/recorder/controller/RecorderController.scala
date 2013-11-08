@@ -152,7 +152,7 @@ class RecorderController extends Logging {
 		}
 
 		synchronized {
-			if (isRequestAccepted(request.getUri, request.getMethod.toString)) {
+			if (isRequestAccepted(request.getUri)) {
 				if (redirectChainStart == null && isRequestRedirect(response.getStatus.getCode)) {
 					// enter redirect chain
 					processPause
