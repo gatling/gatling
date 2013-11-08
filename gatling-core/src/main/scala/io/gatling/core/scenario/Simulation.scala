@@ -36,6 +36,7 @@ abstract class Simulation {
 
 	def scenarios: Seq[Scenario] = {
 		require(!_scenarios.isEmpty, "No scenario set up")
+		_scenarios.foreach(scn => require(!scn.scenarioBuilder.actionBuilders.isEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
 		_scenarios.map(_.build(_globalProtocols))
 	}
 
