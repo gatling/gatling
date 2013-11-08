@@ -60,8 +60,14 @@ object RecorderConfiguration extends Logging {
 			ConfigFactory.empty
 		}
 		val propertiesConfig = ConfigFactory.parseMap(props)
-		configuration = buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig))
-		logger.debug(s"configured $configuration")
+		try {
+			configuration = buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig))
+			logger.debug(s"configured $configuration")
+		} catch {
+			case e: Exception =>
+				logger.warn(s"Loading configuration crashed: ${e.getMessage}. Probable cause is a format change, resetting.")
+				configuration = buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(defaultsConfig))
+		}
 	}
 
 	def reload(props: mutable.Map[String, _]) {
