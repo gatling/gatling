@@ -66,6 +66,7 @@ object RecorderConfiguration extends Logging {
 		} catch {
 			case e: Exception =>
 				logger.warn(s"Loading configuration crashed: ${e.getMessage}. Probable cause is a format change, resetting.")
+				configFile.foreach(_.delete)
 				configuration = buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(defaultsConfig))
 		}
 	}
