@@ -20,21 +20,17 @@ import io.gatling.recorder.enumeration.FilterStrategy
 
 object FiltersHelper {
 
-	private val supportedHttpMethods = List("POST", "GET", "PUT", "DELETE", "HEAD")
-
 	private def checkWhiteList = configuration.filters.whitelist.accept _
 
 	private def checkBlackList = configuration.filters.blacklist.accept _
 
-	def isRequestAccepted(uri: String, method: String): Boolean = {
-		def requestPassFilters = configuration.filters.filterStrategy match {
+	def isRequestAccepted(uri: String): Boolean = {
+		configuration.filters.filterStrategy match {
 			case FilterStrategy.WHITELIST_FIRST =>
 				checkWhiteList(uri) && checkBlackList(uri)
 			case FilterStrategy.BLACKLIST_FIRST =>
 				checkBlackList(uri) && checkWhiteList(uri)
 			case FilterStrategy.DISABLED => true
 		}
-
-		supportedHttpMethods.contains(method) && requestPassFilters
 	}
 }

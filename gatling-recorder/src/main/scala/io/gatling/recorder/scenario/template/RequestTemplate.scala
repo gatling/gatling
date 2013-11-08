@@ -22,6 +22,8 @@ import io.gatling.recorder.scenario.{ RequestBody, RequestBodyBytes, RequestBody
 
 object RequestTemplate {
 
+	val builtInHttpMethods = List("GET", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS", "POST")
+
 	def headersBlockName(id: Int) = fast"headers_$id"
 
 	def render(simulationClass: String,
@@ -32,6 +34,13 @@ object RequestTemplate {
 		credentials: Option[(String, String)],
 		body: Option[RequestBody],
 		statusCode: Int) = {
+
+		def renderMethod =
+			if (builtInHttpMethods.contains(method)) {
+				fast"${method.toLowerCase}($renderUrl)"
+			} else {
+				fast"""httpRequestWithBody("$method", Left($renderUrl))"""
+			}
 
 		def renderUrl = fast"""$tripleQuotes$printedUrl$tripleQuotes"""
 
@@ -64,6 +73,6 @@ object RequestTemplate {
 			} else ""
 
 		fast"""exec(http("request_$id")
-			.${method.toLowerCase}($renderUrl)$renderHeaders$renderBodyOrParams$renderCredentials$renderStatusCheck)""".toString
+			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderStatusCheck)""".toString
 	}
 }

@@ -4,9 +4,9 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import io.gatling.core.filter.{BlackList, WhiteList}
-import io.gatling.recorder.config.{FiltersConfiguration, RecorderConfiguration}
-import io.gatling.recorder.config.RecorderConfiguration.{configuration, configuration_= => configuration_=}
+import io.gatling.core.filter.{ BlackList, WhiteList }
+import io.gatling.recorder.config.{ FiltersConfiguration, RecorderConfiguration }
+import io.gatling.recorder.config.RecorderConfiguration.{ configuration, configuration_= => configuration_= }
 import io.gatling.recorder.enumeration.FilterStrategy
 
 @RunWith(classOf[JUnitRunner])
@@ -80,14 +80,14 @@ class FiltersHelperSpec extends Specification {
 		"not filter anything while disabled" in {
 			configuration = defaults.filterAndCheck(FilterStrategy.DISABLED)
 
-			(FiltersHelper.isRequestAccepted((_: String), "GET") must beTrue).foreach(urls)
+			(FiltersHelper.isRequestAccepted((_: String)) must beTrue).foreach(urls)
 		}
 
 		def isRequestAccepted(partition: (List[String], List[String])) = {
 			val (valid, invalid) = partition
 
-			(FiltersHelper.isRequestAccepted((_: String), "GET") must beTrue).foreach(valid)
-			(FiltersHelper.isRequestAccepted((_: String), "GET") must beFalse).foreach(invalid)
+			(FiltersHelper.isRequestAccepted((_: String)) must beTrue).foreach(valid)
+			(FiltersHelper.isRequestAccepted((_: String)) must beFalse).foreach(invalid)
 		}
 
 		"filter whitelist correctly when blacklist is empty" in {
