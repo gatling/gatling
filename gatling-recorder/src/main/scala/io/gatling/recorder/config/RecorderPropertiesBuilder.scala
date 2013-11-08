@@ -27,9 +27,9 @@ class RecorderPropertiesBuilder {
 
 	def filterStrategy(strategy: String) { props += FILTER_STRATEGY -> strategy }
 
-	def patterns(patterns: JList[String]) { props += PATTERNS -> patterns }
+	def whitelist(patterns: JList[String]) { props += WHITELIST_PATTERNS -> patterns }
 
-	def patternsType(patternsType: JList[String]) { props += PATTERNS_TYPE -> patternsType }
+	def blacklist(patterns: JList[String]) { props += BLACKLIST_PATTERNS -> patterns }
 
 	def automaticReferer(status: Boolean) { props += AUTOMATIC_REFERER -> status }
 
