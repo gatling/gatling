@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ *                 http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,7 @@ import scala.swing.ListView.Renderer
 import scala.swing.Swing.pair2Dimension
 import scala.swing.event.{ KeyReleased, SelectionChanged }
 import scala.util.Try
+import java.awt.Font
 
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.recorder.{ Har, Proxy, RecorderMode }
@@ -75,11 +76,17 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 	private val outputFolderBrowserButton = Button("Browse")(outputFolderChooser.selection.foreach(outputFolderPath.text = _))
 
 	/* Filters panel components */
-	private val filtersTable = new FilterTable
+	private val whiteListTable = new FilterTable("Whitelist")
+	private val addWhiteListFilter = Button("+")(whiteListTable.addRow)
+	private val removeWhiteListFilter = Button("-")(whiteListTable.removeSelectedRow)
+	private val clearWhiteListFilters = Button("Clear")(whiteListTable.removeAllElements)
+
+	private val blackListTable = new FilterTable("Blacklist")
+	private val addBlackListFilter = Button("+")(blackListTable.addRow)
+	private val removeBlackListFilter = Button("-")(blackListTable.removeSelectedRow)
+	private val clearBlackListFilters = Button("Clear")(blackListTable.removeAllElements)
+
 	private val filterStrategies = new ComboBox[FilterStrategy.Value](FilterStrategy.values.toSeq)
-	private val addFilter = Button("+")(filtersTable.addRow)
-	private val removeFilter = Button("-")(filtersTable.removeSelectedRow)
-	private val clearFilters = Button("Clear")(filtersTable.removeAllElements)
 
 	/* Bottom panel components */
 	private val savePreferences = new CheckBox("Save preferences") { horizontalTextPosition = Alignment.Left }
@@ -195,16 +202,40 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 			val filters = new BorderPanel {
 				border = titledBorder("Filters")
 
-				val actions = new CenterAlignedFlowPanel {
-					contents += new Label("Strategy")
-					contents += filterStrategies
-					contents += addFilter
-					contents += removeFilter
-					contents += clearFilters
+				val labelAndStrategySelection = new BorderPanel {
+					val label = new Label("Java regular expressions that matches the entire URI")
+					label.font_=(label.font.deriveFont(Font.PLAIN))
+					val strategy = new RightAlignedFlowPanel {
+						contents += new Label("Strategy")
+						contents += filterStrategies
+					}
+					layout(label) = West
+					layout(strategy) = East
 				}
 
-				layout(filtersTable) = Center
-				layout(actions) = South
+				val whiteList = new BoxPanel(Orientation.Vertical) {
+					contents += whiteListTable
+					contents += new CenterAlignedFlowPanel {
+						contents += addWhiteListFilter
+						contents += removeWhiteListFilter
+						contents += clearWhiteListFilters
+					}
+				}
+
+				val blackList = new BoxPanel(Orientation.Vertical) {
+					contents += blackListTable
+					contents += new CenterAlignedFlowPanel {
+						contents += addBlackListFilter
+						contents += removeBlackListFilter
+						contents += clearBlackListFilters
+					}
+				}
+
+				val bothLists = new SplitPane(Orientation.Vertical, whiteList, blackList)
+				bothLists.resizeWeight = 0.5
+
+				layout(labelAndStrategySelection) = North
+				layout(bothLists) = Center
 			}
 
 			contents += network
@@ -244,13 +275,15 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 					root.center.har.visible = true
 			}
 		case SelectionChanged(`filterStrategies`) =>
-			val isNotNoneStrategy = filterStrategies.selection.item != FilterStrategy.DISABLED
-			toggleFiltersEdition(isNotNoneStrategy)
+			val isNotDisabledStrategy = filterStrategies.selection.item != FilterStrategy.DISABLED
+			toggleFiltersEdition(isNotDisabledStrategy)
 	}
 
 	private def toggleFiltersEdition(enabled: Boolean) {
-		filtersTable.setEnabled(enabled)
-		filtersTable.setFocusable(enabled)
+		whiteListTable.setEnabled(enabled)
+		whiteListTable.setFocusable(enabled)
+		blackListTable.setEnabled(enabled)
+		blackListTable.setFocusable(enabled)
 	}
 
 	/* Reactions II : fields validation */
@@ -329,7 +362,8 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 		filterStrategies.selection.item = configuration.filters.filterStrategy
 		followRedirects.selected = configuration.http.followRedirect
 		automaticReferers.selected = configuration.http.automaticReferer
-		configuration.filters.whitelist.patterns.foreach(filtersTable.addRow)
+		configuration.filters.blacklist.patterns.foreach(blackListTable.addRow(_))
+		configuration.filters.whitelist.patterns.foreach(whiteListTable.addRow(_))
 		outputFolderPath.text = configuration.core.outputFolder
 		outputEncoding.selection.item = CharsetHelper.charsetNameToLabel(configuration.core.encoding)
 	}
@@ -340,7 +374,8 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 	 */
 	private def reloadConfigurationAndStart {
 		// validate filters
-		filtersTable.validateCells
+		whiteListTable.validateCells
+		blackListTable.validateCells
 
 		val props = new RecorderPropertiesBuilder
 
@@ -367,7 +402,8 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
 		// Filters
 		props.filterStrategy(filterStrategies.selection.item.toString)
-		props.whitelist(filtersTable.getPatterns)
+		props.whitelist(whiteListTable.getRegexs)
+		props.blacklist(blackListTable.getRegexs)
 
 		// Simulation config
 		props.simulationPackage(simulationPackage.text)
