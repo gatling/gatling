@@ -20,8 +20,8 @@ object ConfigurationConstants {
 	val CONFIG_ROOT = "recorder"
 
 	val FILTER_STRATEGY = "recorder.filters.filterStrategy"
-	val PATTERNS = "recorder.filters.patterns"
-	val PATTERNS_TYPE = "recorder.filters.patternsType"
+	val WHITELIST_PATTERNS = "recorder.filters.whitelist"
+	val BLACKLIST_PATTERNS = "recorder.filters.blacklist"
 
 	val AUTOMATIC_REFERER = "recorder.http.automaticReferer"
 	val FOLLOW_REDIRECT = "recorder.http.followRedirect"

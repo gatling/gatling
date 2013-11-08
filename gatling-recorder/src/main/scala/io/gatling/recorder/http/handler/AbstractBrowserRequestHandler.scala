@@ -17,8 +17,8 @@ package io.gatling.recorder.http.handler
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import org.jboss.netty.channel.{ ChannelFuture, ChannelFutureListener, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler }
-import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
+import org.jboss.netty.channel.{ChannelFuture, ChannelFutureListener, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler}
+import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpRequest}
 
 import com.ning.http.util.Base64
 import com.typesafe.scalalogging.slf4j.Logging

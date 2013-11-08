@@ -29,6 +29,7 @@ import io.gatling.recorder.{ Har, Proxy, RecorderMode }
 import io.gatling.recorder.config.{ RecorderConfiguration, RecorderPropertiesBuilder }
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.enumeration.FilterStrategy
+import io.gatling.recorder.enumeration.PatternType
 import io.gatling.recorder.ui.RecorderFrontend
 import io.gatling.recorder.ui.swing.Commons.{ iconList, logoSmall }
 import io.gatling.recorder.ui.swing.component.FilterTable
@@ -244,7 +245,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 					root.center.har.visible = true
 			}
 		case SelectionChanged(`filterStrategies`) =>
-			val isNotNoneStrategy = filterStrategies.selection.item != FilterStrategy.NONE
+			val isNotNoneStrategy = filterStrategies.selection.item != FilterStrategy.DISABLED
 			toggleFiltersEdition(isNotNoneStrategy)
 	}
 
@@ -329,7 +330,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 		filterStrategies.selection.item = configuration.filters.filterStrategy
 		followRedirects.selected = configuration.http.followRedirect
 		automaticReferers.selected = configuration.http.automaticReferer
-		configuration.filters.patterns.map(filtersTable.addRow(_))
+		configuration.filters.whitelist.patterns.foreach(filtersTable.addRow)
 		outputFolderPath.text = configuration.core.outputFolder
 		outputEncoding.selection.item = CharsetHelper.charsetNameToLabel(configuration.core.encoding)
 	}
@@ -367,12 +368,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
 		// Filters
 		props.filterStrategy(filterStrategies.selection.item.toString)
-		val (patterns, patternTypes) = {
-			for (pattern <- filtersTable.getPatterns)
-				yield (pattern.pattern, pattern.patternType.toString)
-		}.unzip
-		props.patterns(patterns)
-		props.patternsType(patternTypes)
+		props.whitelist(filtersTable.getPatterns)
 
 		// Simulation config
 		props.simulationPackage(simulationPackage.text)
