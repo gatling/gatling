@@ -71,11 +71,13 @@ class FilterTable extends JPanel with MouseListener {
 	}
 
 	def removeDuplicates {
-		for {
+		val toRemove = for {
 			i <- 0 until model.getRowCount
-			j <- 0 until model.getRowCount
+			j <- i until model.getRowCount
 			if i != j && getPattern(i) == getPattern(j)
-		} model.removeRow(j)
+		} yield j
+		/* Remove the duplicated indexes and sort them in reverse order, so that we don't modify the indexes of the row we want to remove */
+		toRemove.toSet.toList.sortWith(_ >= _).foreach(model.removeRow)
 	}
 
 	override def setEnabled(enabled: Boolean) {
