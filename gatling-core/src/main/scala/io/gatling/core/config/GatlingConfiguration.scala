@@ -63,12 +63,7 @@ object GatlingConfiguration {
 						expandEntityReferences = config.getBoolean(CONF_CORE_EXTRACT_XPATH_EXPAND_ENTITY_REFERENCES),
 						namespaceAware = config.getBoolean(CONF_CORE_EXTRACT_XPATH_NAMESPACE_AWARE)),
 					jsonPath = JsonPathConfiguration(
-						cache = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_CACHE)),
-					css = CssConfiguration(
-						engine = config.getString(CONF_CORE_EXTRACT_CSS_ENGINE) match {
-							case "jsoup" => Jsoup
-							case _ => Jodd
-						})),
+						cache = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_CACHE))),
 				timeOut = TimeOutConfiguration(
 					simulation = config.getInt(CONF_CORE_TIMEOUT_SIMULATION),
 					actor = config.getInt(CONF_CORE_TIMEOUT_ACTOR)),
@@ -209,8 +204,7 @@ case class TimeOutConfiguration(
 case class ExtractConfiguration(
 	regex: RegexConfiguration,
 	xpath: XPathConfiguration,
-	jsonPath: JsonPathConfiguration,
-	css: CssConfiguration)
+	jsonPath: JsonPathConfiguration)
 
 case class RegexConfiguration(
 	cache: Boolean)
@@ -224,9 +218,6 @@ case class XPathConfiguration(
 
 case class JsonPathConfiguration(
 	cache: Boolean)
-
-case class CssConfiguration(
-	engine: CssEngine)
 
 case class DirectoryConfiguration(
 	data: String,
@@ -360,7 +351,3 @@ case class GatlingConfiguration(
 	http: HttpConfiguration,
 	data: DataConfiguration,
 	config: Config)
-
-sealed trait CssEngine
-case object Jodd extends CssEngine
-case object Jsoup extends CssEngine

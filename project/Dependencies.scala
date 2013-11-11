@@ -19,7 +19,6 @@ object Dependencies {
 	private val jsonSmart         = "net.minidev"           % "json-smart"         % "1.2"
 	private val jsonpath          = "io.gatling"           %% "jsonpath"           % "0.2.3"
 	private val commonsMath       = "org.apache.commons"    % "commons-math3"      % "3.2"
-	private val jsoup             = "org.jsoup"             % "jsoup"              % "1.7.2"
 	private val joddLagarto       = "org.jodd"              % "jodd-lagarto"       % "3.4.8"
 	private val jzlib             = "com.jcraft"            % "jzlib"              % "1.1.3"
 	private val commonsIo         = "commons-io"            % "commons-io"         % "2.4"
@@ -40,7 +39,7 @@ object Dependencies {
 
 	val coreDeps = Seq(
 		scalaCompiler, akkaActor, saxon, jodaTime, jodaConvert, slf4jApi, scalalogging, scalaReflect, jsonSmart,
-		jsonpath, commonsMath, jsoup, joddLagarto, commonsIo, config, fastring, openCsv, logbackClassic, netty
+		jsonpath, commonsMath, joddLagarto, commonsIo, config, fastring, openCsv, logbackClassic, netty
 	) ++ testDeps
 
 	val redisDeps = Seq(redisClient) ++ testDeps

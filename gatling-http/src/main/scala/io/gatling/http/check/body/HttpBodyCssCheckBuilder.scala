@@ -15,13 +15,10 @@
  */
 package io.gatling.http.check.body
 
-import org.jsoup.nodes.Document
-
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.css.{ CountJoddCssExtractor, CountJsoupCssExtractor, JoddCssExtractor, JsoupCssExtractor, MultipleJoddCssExtractor, MultipleJsoupCssExtractor, SingleJoddCssExtractor, SingleJsoupCssExtractor }
-import io.gatling.core.config.{ Jodd, Jsoup }
+import io.gatling.core.check.extractor.css.{ CountJoddCssExtractor, JoddCssExtractor, MultipleJoddCssExtractor, SingleJoddCssExtractor }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
@@ -31,55 +28,21 @@ import jodd.lagarto.dom.NodeSelector
 
 object HttpBodyCssCheckBuilder extends Logging {
 
-	object HttpBodyJoddCssCheckBuilder {
+	val preparer: Preparer[Response, NodeSelector] = (response: Response) =>
+		try {
+			JoddCssExtractor.parse(response.getResponseBody(configuration.core.encoding)).success
 
-		import jodd.lagarto.dom.NodeSelector
+		} catch {
+			case e: Exception =>
+				val message = s"Could not parse response into a Jodd NodeSelector: ${e.getMessage}"
+				logger.info(message, e)
+				message.failure
+		}
 
-		val preparer: Preparer[Response, NodeSelector] = (response: Response) =>
-			try {
-				JoddCssExtractor.parse(response.getResponseBody(configuration.core.encoding)).success
-
-			} catch {
-				case e: Exception =>
-					val message = s"Could not parse response into a Jodd NodeSelector: ${e.getMessage}"
-					logger.info(message, e)
-					message.failure
-			}
-
-		def css(expression: Expression[String], nodeAttribute: Option[String]) =
-			new HttpMultipleCheckBuilder[NodeSelector, String](HttpCheckBuilders.bodyCheckFactory, preparer) {
-				def findExtractor(occurrence: Int) = new SingleJoddCssExtractor(expression, nodeAttribute, occurrence)
-				def findAllExtractor = new MultipleJoddCssExtractor(expression, nodeAttribute)
-				def countExtractor = new CountJoddCssExtractor(expression, nodeAttribute)
-			}
-	}
-
-	object HttpBodyJsoupCssCheckBuilder {
-
-		import org.jsoup.nodes.Document
-
-		val preparer: Preparer[Response, Document] = (response: Response) =>
-			try {
-				JsoupCssExtractor.parse(response.getResponseBody(configuration.core.encoding)).success
-
-			} catch {
-				case e: Exception =>
-					val message = s"Could not parse response into a Jsoup Document: ${e.getMessage}"
-					logger.info(message, e)
-					message.failure
-			}
-
-		def css(expression: Expression[String], nodeAttribute: Option[String]) =
-			new HttpMultipleCheckBuilder[Document, String](HttpCheckBuilders.bodyCheckFactory, preparer) {
-				def findExtractor(occurrence: Int) = new SingleJsoupCssExtractor(expression, nodeAttribute, occurrence)
-				def findAllExtractor = new MultipleJsoupCssExtractor(expression, nodeAttribute)
-				def countExtractor = new CountJsoupCssExtractor(expression, nodeAttribute)
-			}
-	}
-
-	def css(expression: Expression[String], nodeAttribute: Option[String]): HttpMultipleCheckBuilder[_, String] =
-		configuration.core.extract.css.engine match {
-			case Jodd => HttpBodyJoddCssCheckBuilder.css(expression, nodeAttribute)
-			case Jsoup => HttpBodyJsoupCssCheckBuilder.css(expression, nodeAttribute)
+	def css(expression: Expression[String], nodeAttribute: Option[String]) =
+		new HttpMultipleCheckBuilder[NodeSelector, String](HttpCheckBuilders.bodyCheckFactory, preparer) {
+			def findExtractor(occurrence: Int) = new SingleJoddCssExtractor(expression, nodeAttribute, occurrence)
+			def findAllExtractor = new MultipleJoddCssExtractor(expression, nodeAttribute)
+			def countExtractor = new CountJoddCssExtractor(expression, nodeAttribute)
 		}
 }

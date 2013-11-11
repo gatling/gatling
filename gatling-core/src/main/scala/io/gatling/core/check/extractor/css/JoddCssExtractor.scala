@@ -31,9 +31,7 @@ object JoddCssExtractor {
 			.map { node => nodeAttribute.map(node.getAttribute).getOrElse(node.getTextContent.trim) }
 }
 
-abstract class JoddCssExtractor[X] extends CriterionExtractor[NodeSelector, String, X] {
-	val name = "css"
-}
+abstract class JoddCssExtractor[X] extends CriterionExtractor[NodeSelector, String, X] { val name = "css" }
 
 class SingleJoddCssExtractor[X](val criterion: Expression[String], nodeAttribute: Option[String], occurrence: Int) extends JoddCssExtractor[String] {
 
