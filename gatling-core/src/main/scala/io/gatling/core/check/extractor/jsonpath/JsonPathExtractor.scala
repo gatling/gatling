@@ -22,7 +22,7 @@ object JsonPathExtractor {
 
 	def parse(string: String) = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(string)
 
-	def compile(expression: String) = JsonPath.compile(expression) match {
+	def compile(expression: String): Validation[JsonPath] = JsonPath.compile(expression) match {
 		case Left(error) => error.reason.failure
 		case Right(path) => path.success
 	}
@@ -31,9 +31,7 @@ object JsonPathExtractor {
 		cached(expression).map(_.query(json).collect(implicitly[JsonFilter[X]].filter))
 }
 
-abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] {
-	val name = "jsonPath"
-}
+abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] { val name = "jsonPath" }
 
 class SingleJsonPathExtractor[X: JsonFilter](val criterion: Expression[String], occurrence: Int) extends JsonPathExtractor[X] {
 

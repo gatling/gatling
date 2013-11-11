@@ -74,9 +74,7 @@ object XPathExtractor {
 	}
 }
 
-abstract class XPathExtractor[X] extends CriterionExtractor[Option[XdmNode], String, X] {
-	val name = "xpath"
-}
+abstract class XPathExtractor[X] extends CriterionExtractor[Option[XdmNode], String, X] { val name = "xpath" }
 
 class SingleXPathExtractor(val criterion: Expression[String], namespaces: List[(String, String)], occurrence: Int) extends XPathExtractor[String] {
 
