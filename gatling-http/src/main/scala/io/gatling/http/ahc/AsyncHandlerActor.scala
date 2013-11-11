@@ -175,7 +175,7 @@ class AsyncHandlerActor extends BaseActor {
 
 		def redirect(sessionUpdates: Session => Session) {
 
-			if (tx.protocol.maxRedirects.map(_ == tx.numberOfRedirects).getOrElse(false)) {
+			if (tx.protocol.maxRedirects.exists(_ == tx.numberOfRedirects)) {
 				ko(tx, sessionUpdates, response, s"Too many redirects, max is ${tx.protocol.maxRedirects.get}")
 
 			} else {

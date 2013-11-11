@@ -204,7 +204,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 	}
 
 	private case class contains(str: String) extends ArgumentMatcher[Option[String]] {
-		def matches(argument: Any) = argument.asInstanceOf[Option[String]].map(_.contains(str)).getOrElse(false)
+		def matches(argument: Any) = argument.asInstanceOf[Option[String]].exists(_.contains(str))
 	}
 }
 

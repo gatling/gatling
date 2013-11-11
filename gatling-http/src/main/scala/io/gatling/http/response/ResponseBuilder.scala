@@ -111,9 +111,9 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 
 		val bytesOrString = ahcResponse.map { response =>
 
-			val isText = Option(response.getContentType).map { contentType =>
+			val isText = Option(response.getContentType).exists { contentType =>
 				contentType.contains("text") || contentType.contains("json") || contentType.contains("javascript") || contentType.contains("xml")
-			}.getOrElse(false)
+			}
 
 			if (isText)
 				Right(response.getResponseBody(configuration.core.encoding))
