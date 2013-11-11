@@ -5,7 +5,6 @@ import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import com.typesafe.sbt.SbtSite.site
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
-import com.typesafe.sbteclipse.plugin.EclipsePlugin._
 
 object BuildSettings {
 
@@ -35,7 +34,7 @@ object BuildSettings {
 	)
 
 	lazy val gatlingModuleSettings =
-		basicSettings ++ formattingSettings ++ graphSettings ++ eclipseSettings ++ Seq(
+		basicSettings ++ formattingSettings ++ graphSettings ++ Seq(
 			exportJars := true
 		)
 
@@ -80,12 +79,4 @@ object BuildSettings {
 			.setPreference(DoubleIndentClassDeclaration, false)
 			.setPreference(IndentWithTabs, true)
 
-	/**********************/
-	/** Eclipse settings **/
-	/**********************/
-
-	lazy val eclipseSettings = Seq(
-		EclipseKeys.withSource := true,
-		EclipseKeys.createSrc := EclipseCreateSrc.Default + EclipseCreateSrc.Resource
-	)
 }
