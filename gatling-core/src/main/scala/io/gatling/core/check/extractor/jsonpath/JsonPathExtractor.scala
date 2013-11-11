@@ -28,7 +28,7 @@ object JsonPathExtractor {
 	}
 
 	def extractAll[X: JsonFilter](json: Any, expression: String): Validation[Iterator[X]] =
-		cached(expression).map(_.query(json).collect(implicitly[JsonFilter[X]].filter))
+		cached(expression).map(_.queryJsonObject(json).collect(implicitly[JsonFilter[X]].filter))
 }
 
 abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] { val name = "jsonPath" }
