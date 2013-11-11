@@ -21,13 +21,17 @@ import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
-import io.gatling.core.session.noopStringExpression
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.session.Session
+import io.gatling.core.session.el.EL
+import io.gatling.core.session.noopStringExpression
 import io.gatling.core.test.ValidationSpecification
 import io.gatling.core.util.IOHelper.withCloseable
 
 @RunWith(classOf[JUnitRunner])
 class JsonPathExtractorSpec extends ValidationSpecification {
+
+	val noopSession = new Session("foo", "bar")
 
 	def prepared(file: String) = {
 		GatlingConfiguration.setUp()
@@ -38,52 +42,56 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 	}
 
 	"count" should {
+		
+		def count(path: String, file: String) = new CountJsonPathExtractor(path.el)(noopSession, prepared(file))
 
 		"return expected result with anywhere expression" in {
-			new CountJsonPathExtractor(noopStringExpression).extract(prepared("/test.json"), "$..author") must succeedWith(Some(4))
+			count("$..author", "/test.json") must succeedWith(Some(4))
 		}
 
 		"return expected result with array expression" in {
-			new CountJsonPathExtractor(noopStringExpression).extract(prepared("/test.json"), "$.store.book[2].author") must succeedWith(Some(1))
+			count("$.store.book[2].author", "/test.json") must succeedWith(Some(1))
 		}
 	}
 
 	"extractSingle" should {
+		
+		def extractSingle(path: String, occurrence: Int, file: String) = new SingleJsonPathExtractor[String](path.el, occurrence).apply(noopSession, prepared(file))
 
 		"return expected result with anywhere expression and rank 0" in {
-			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$..author") must succeedWith(Some("Nigel Rees"))
+			extractSingle("$..author", 0, "/test.json") must succeedWith(Some("Nigel Rees"))
 		}
 
 		"return expected result with anywhere expression and rank 1" in {
-			new SingleJsonPathExtractor[String](noopStringExpression, 1).extract(prepared("/test.json"), "$..author") must succeedWith(Some("Evelyn Waugh"))
+			extractSingle("$..author", 1, "/test.json") must succeedWith(Some("Evelyn Waugh"))
 		}
 
 		"return expected result with array expression" in {
-			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$.store.book[2].author") must succeedWith(Some("Herman Melville"))
+			extractSingle("$.store.book[2].author", 0, "/test.json") must succeedWith(Some("Herman Melville"))
 		}
 
 		"return expected None with array expression" in {
-			new SingleJsonPathExtractor[String](noopStringExpression, 1).extract(prepared("/test.json"), "$.store.book[2].author") must succeedWith(None)
+			extractSingle("$.store.book[2].author", 1, "/test.json") must succeedWith(None)
 		}
 
 		"return expected result with last function expression" in {
-			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$.store.book[-1].title") must succeedWith(Some("The Lord of the Rings"))
+			extractSingle("$.store.book[-1].title", 0, "/test.json") must succeedWith(Some("The Lord of the Rings"))
 		}
 
 		"not mess up if two nodes with the same name are placed in different locations" in {
-			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$.foo") must succeedWith(Some("bar"))
+			extractSingle("$.foo", 0, "/test.json") must succeedWith(Some("bar"))
 		}
 
 		"support bracket notation" in {
-			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$['@id']") must succeedWith(Some("ID"))
+			extractSingle("$['@id']", 0, "/test.json") must succeedWith(Some("ID"))
 		}
 
 		"support element filter with object root" in {
-			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test.json"), "$..book[?(@.category=='reference')].author") must succeedWith(Some("Nigel Rees"))
+			extractSingle("$..book[?(@.category=='reference')].author", 0, "/test.json") must succeedWith(Some("Nigel Rees"))
 		}
 
 		"support element filter with array root" in {
-			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test2.json"), "$[?(@.id==19434)].foo") must succeedWith(Some("1"))
+			extractSingle("$[?(@.id==19434)].foo", 0, "/test2.json") must succeedWith(Some("1"))
 		}
 
 		// $..[?()] is not a valid syntax
@@ -92,38 +100,40 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 		//		}
 
 		"support multiple element filters" in {
-			new SingleJsonPathExtractor[String](noopStringExpression, 0).extract(prepared("/test2.json"), "$[?(@.id==19434 && @.foo==1)].foo") must succeedWith(Some("1"))
+			extractSingle("$[?(@.id==19434 && @.foo==1)].foo", 0, "/test2.json") must succeedWith(Some("1"))
 		}
 	}
 
 	"extractMultiple" should {
+		
+		def extractMultiple(path: String, file: String) = new MultipleJsonPathExtractor[String](path.el).apply(noopSession, prepared(file))
 
 		"return expected result with anywhere expression" in {
-			new MultipleJsonPathExtractor[String](noopStringExpression).extract(prepared("/test.json"), "$..author") must succeedWith(Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
+			extractMultiple("$..author", "/test.json") must succeedWith(Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
 		}
 
 		"return expected result with array expression" in {
-			new MultipleJsonPathExtractor[String](noopStringExpression).extract(prepared("/test.json"), "$.store.book[2].author") must succeedWith(Some(List("Herman Melville")))
+			extractMultiple("$.store.book[2].author", "/test.json") must succeedWith(Some(List("Herman Melville")))
 		}
 
 		"support wildcard at first level" in {
-			new MultipleJsonPathExtractor[String](noopStringExpression).extract(prepared("/test2.json"), "$[*].id") must succeedWith(Some(List("19434", "19435")))
+			extractMultiple("$[*].id", "/test2.json") must succeedWith(Some(List("19434", "19435")))
 		}
 
 		"support wildcard at first level with multiple sublevels" in {
-			new MultipleJsonPathExtractor[String](noopStringExpression).extract(prepared("/test2.json"), "$..owner.id") must succeedWith(Some(List("18957", "18957")))
+			extractMultiple("$..owner.id", "/test2.json") must succeedWith(Some(List("18957", "18957")))
 		}
 
 		"support wildcard at second level" in {
-			new MultipleJsonPathExtractor[String](noopStringExpression).extract(prepared("/test.json"), "$..store..category") must succeedWith(Some(List("reference", "fiction", "fiction", "fiction")))
+			extractMultiple("$..store..category", "/test.json") must succeedWith(Some(List("reference", "fiction", "fiction", "fiction")))
 		}
 
 		"support array slicing" in {
-			new MultipleJsonPathExtractor[String](noopStringExpression).extract(prepared("/test.json"), "$.store.book[1:3].title") must succeedWith(Some(List("Sword of Honour", "Moby Dick")))
+			extractMultiple("$.store.book[1:3].title", "/test.json") must succeedWith(Some(List("Sword of Honour", "Moby Dick")))
 		}
 
 		"support a step parameter in array slicing" in {
-			new MultipleJsonPathExtractor[String](noopStringExpression).extract(prepared("/test.json"), "$.store.book[::-2].title") must succeedWith(Some(List("The Lord of the Rings", "Sword of Honour")))
+			extractMultiple("$.store.book[::-2].title", "/test.json") must succeedWith(Some(List("The Lord of the Rings", "Sword of Honour")))
 		}
 	}
 }
