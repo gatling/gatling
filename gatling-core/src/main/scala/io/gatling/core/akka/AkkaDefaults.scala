@@ -23,9 +23,14 @@ import akka.util.Timeout
 import io.gatling.core.config.GatlingConfiguration.configuration
 
 object AkkaDefaults {
+
 	var gatlingSystem: Option[ActorSystem] = None
+
 	def startAkka {
 		gatlingSystem = Some(ActorSystem("GatlingSystem"))
+	}
+	def shutdownAkka {
+		gatlingSystem.foreach(_.shutdown)
 	}
 }
 

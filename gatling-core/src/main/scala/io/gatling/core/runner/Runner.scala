@@ -47,7 +47,7 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 			}
 
 		} finally {
-			system.shutdown
+			AkkaDefaults.shutdownAkka
 		}
 	}
 }
