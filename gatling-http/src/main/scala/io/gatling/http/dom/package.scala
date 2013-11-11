@@ -15,13 +15,13 @@
  */
 package io.gatling.http
 
-import io.gatling.core.filter.{ FilterList, FilterListWrapper }
+import io.gatling.core.filter.{ Filters, FilterList }
 import io.gatling.http.dom.EmbeddedResource
 
 package object dom {
 
-	implicit class EmbeddedResourcesFilter[T <: EmbeddedResource](val resources: List[T]) extends AnyVal {
+	implicit class EmbeddedResourcesFilters(val filters: Filters) extends AnyVal {
 
-		def applyFilterList(filters: List[FilterList]) = resources.filter(res => filters.accept(res.uri.toString))
+		def filter[T <: EmbeddedResource](resources: List[T]) = resources.filter(res => filters.accept(res.uri.toString))
 	}
 }

@@ -25,7 +25,7 @@ import scala.collection.mutable
 import com.ning.http.client.Request
 import io.gatling.core.action.GroupEnd
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.filter.FilterListWrapper
+import io.gatling.core.filter.Filters
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
@@ -85,14 +85,14 @@ object ResourceFetcher {
 								// cache entry missing or expired, flush it
 								resourceCache.remove(protocol, htmlDocumentURI)
 								val resources = HtmlParser.getEmbeddedResources(htmlDocumentURI, response.getResponseBody)
-								val filteredResources = resources.applyFilterList(protocol.fetchHtmlResourcesFilters)
+								val filteredResources = protocol.fetchHtmlResourcesFilters.map(_.filter(resources)).getOrElse(resources)
 								Uncached(filteredResources)
 						}
 
 					case None =>
 						// don't cache
 						val resources = HtmlParser.getEmbeddedResources(htmlDocumentURI, response.getResponseBody)
-						val filteredResources = resources.applyFilterList(protocol.fetchHtmlResourcesFilters)
+						val filteredResources = protocol.fetchHtmlResourcesFilters.map(_.filter(resources)).getOrElse(resources)
 						Uncached(filteredResources)
 				}
 
@@ -269,7 +269,7 @@ class IncompleteResourceFetcher(htmlDocumentURI: URI, protocol: HttpProtocol, ht
 
 			val cssContents = expectedCss.map { cssResource => ResourceFetcher.cssCache.get(cssResource.uri) }.flatten
 			val cssResources = CssParser.cssResources(body, cssContents)
-			val filteredCssResources = cssResources.applyFilterList(protocol.fetchHtmlResourcesFilters)
+			val filteredCssResources = protocol.fetchHtmlResourcesFilters.map(_.filter(cssResources)).getOrElse(cssResources)
 			val cssResourceRequests = filteredCssResources.flatMap(_.toRequest(protocol))
 			totalRequests ++= cssResourceRequests
 			pendingRequestsCount += cssResourceRequests.size
@@ -289,7 +289,7 @@ class IncompleteResourceFetcher(htmlDocumentURI: URI, protocol: HttpProtocol, ht
 
 		ResourceFetcher.cssCache.get(uri).foreach { rules =>
 			val cssImports = rules.importRules.map(CssResource)
-			val filteredCssImports = cssImports.applyFilterList(protocol.fetchHtmlResourcesFilters)
+			val filteredCssImports = protocol.fetchHtmlResourcesFilters.map(_.filter(cssImports)).getOrElse(cssImports)
 			expectedCss = filteredCssImports ::: expectedCss
 			val cssImportRequests = filteredCssImports.flatMap(_.toRequest(protocol))
 			totalRequests ++= cssImportRequests

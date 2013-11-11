@@ -18,6 +18,11 @@ package io.gatling.core.filter
 import scala.annotation.tailrec
 import scala.util.matching.Regex
 
+case class Filters(first: FilterList, second: Option[FilterList]) {
+
+	def accept(url: String) = first.accept(url) && second.exists(_.accept(url))
+}
+
 sealed trait FilterList { def accept(url: String): Boolean }
 
 case class WhiteList(patterns: List[String]) extends FilterList {

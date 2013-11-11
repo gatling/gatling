@@ -23,7 +23,7 @@ import com.ning.http.client.{ ProxyServer, Request }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.Proxy
-import io.gatling.core.filter.{ BlackList, FilterList, WhiteList }
+import io.gatling.core.filter.{ BlackList, Filters, FilterList, WhiteList }
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.session.el.EL
@@ -95,11 +95,11 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 
 	def check(checks: HttpCheck*): HttpProtocolBuilder = copy(protocol = protocol.copy(checks = protocol.checks ::: checks.toList))
 
-	def fetchHtmlResources: HttpProtocolBuilder = fetchHtmlResources(Nil)
-	def fetchHtmlResources(white: WhiteList): HttpProtocolBuilder = fetchHtmlResources(List(white))
-	def fetchHtmlResources(white: WhiteList, black: BlackList): HttpProtocolBuilder = fetchHtmlResources(List(white, black))
-	def fetchHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil)): HttpProtocolBuilder = fetchHtmlResources(List(black, white))
-	private def fetchHtmlResources(filters: List[FilterList]): HttpProtocolBuilder = copy(protocol = protocol.copy(fetchHtmlResources = true, fetchHtmlResourcesFilters = filters))
+	def fetchHtmlResources: HttpProtocolBuilder = fetchHtmlResources(None)
+	def fetchHtmlResources(white: WhiteList): HttpProtocolBuilder = fetchHtmlResources(Some(Filters(white, None)))
+	def fetchHtmlResources(white: WhiteList, black: BlackList): HttpProtocolBuilder = fetchHtmlResources(Some(Filters(white, Some(black))))
+	def fetchHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil)): HttpProtocolBuilder = fetchHtmlResources(Some(Filters(black, Some(white))))
+	private def fetchHtmlResources(filters: Option[Filters]): HttpProtocolBuilder = copy(protocol = protocol.copy(fetchHtmlResources = true, fetchHtmlResourcesFilters = filters))
 
 	def maxConnectionsPerHostLikeFirefoxOld = maxConnectionsPerHost(2)
 	def maxConnectionsPerHostLikeFirefox = maxConnectionsPerHost(6)
