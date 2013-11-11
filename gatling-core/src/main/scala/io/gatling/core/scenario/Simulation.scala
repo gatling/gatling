@@ -44,20 +44,20 @@ abstract class Simulation {
 	def assertions = _assertions
 	def timings = Timings(_maxDuration, _globalThrottling, perScenarioThrottlings)
 
-	def setUp(scenario: ProfiledScenarioBuilder, scenarios: ProfiledScenarioBuilder*) = {
-		_scenarios = scenario :: scenarios.toList
+	def setUp(scenarios: ProfiledScenarioBuilder*) = {
+		_scenarios = scenarios.toList
 		new SetUp
 	}
 
 	class SetUp {
 
-		def protocols(protocol: Protocol, protocols: Protocol*) = {
-			_globalProtocols = protocol :: protocols.toList ::: _globalProtocols
+		def protocols(protocols: Protocol*) = {
+			_globalProtocols = protocols.toList ::: _globalProtocols
 			this
 		}
 
-		def assertions(metric: Metric, metrics: Metric*) = {
-			_assertions = metric.assertions ++ metrics.flatMap(_.assertions)
+		def assertions(metrics: Metric*) = {
+			_assertions = metrics.flatMap(_.assertions)
 			this
 		}
 
