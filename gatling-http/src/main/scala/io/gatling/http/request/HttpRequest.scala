@@ -30,11 +30,32 @@
 package io.gatling.http.request
 
 import com.ning.http.client.Request
+import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
+import io.gatling.http.dom.NamedRequest
 import io.gatling.http.response.ResponseTransformer
+
+object HttpRequest extends Logging {
+
+	def buildNamedRequests(resources: Seq[HttpRequest], session: Session): List[NamedRequest] = resources.foldLeft(List.empty[NamedRequest]) { (acc, res) =>
+
+		val namedRequest = for {
+			name <- res.requestName(session)
+			request <- res.ahcRequest(session)
+		} yield NamedRequest(name, request)
+
+		namedRequest match {
+			case Success(request) => request :: acc
+			case Failure(message) =>
+				logger.warn(s"Couldn't fetch resource: $message")
+				acc
+		}
+	}.reverse
+}
 
 case class HttpRequest(
 	requestName: Expression[String],
@@ -44,4 +65,4 @@ case class HttpRequest(
 	maxRedirects: Option[Int],
 	throttled: Boolean,
 	protocol: HttpProtocol,
-	resources: Seq[HttpRequest])
+	explicitResources: Seq[HttpRequest])

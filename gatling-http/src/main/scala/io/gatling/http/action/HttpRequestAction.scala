@@ -66,8 +66,10 @@ object HttpRequestAction extends Logging {
 
 			case Some(expire) if nowMillis > expire => send(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
 
-			case _ if tx.protocol.fetchHtmlResources =>
-				ResourceFetcher.fromCachedRequest(tx.request.getURI, tx) match {
+			case _ if tx.protocol.htmlResourcesFetchingMode.isDefined =>
+				val explicitResources = HttpRequest.buildNamedRequests(tx.explicitResources, tx.session)
+
+				ResourceFetcher.fromCache(tx.request.getURI, tx, explicitResources) match {
 					case Some(resourceFetcher) =>
 						logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
 						actor(resourceFetcher())
@@ -102,7 +104,7 @@ class HttpRequestAction(httpRequest: HttpRequest, val next: ActorRef) extends In
 			val buildResult = for {
 				ahcRequest <- ahcRequest(session)
 				newSession = RefererHandling.storeReferer(ahcRequest, session, protocol)
-				tx = HttpTx(newSession, ahcRequest, resolvedRequestName, checks, responseBuilderFactory, protocol, next, maxRedirects, throttled, resources)
+				tx = HttpTx(newSession, ahcRequest, resolvedRequestName, checks, responseBuilderFactory, protocol, next, maxRedirects, throttled, explicitResources)
 
 			} yield HttpRequestAction.beginHttpTransaction(tx)
 

@@ -34,7 +34,7 @@ import io.gatling.http.response.Response
 object CacheHandling extends Logging {
 
 	val httpExpireStoreAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cache.expireStore"
-	def getExpireStore(session: Session): Map[URI, Long] = session(httpExpireStoreAttributeName).asOption match {
+	def getExpireStore(session: Session): Map[URI, Long] = session(httpExpireStoreAttributeName).asOption[Map[URI, Long]] match {
 		case Some(store) => store
 		case _ => Map.empty
 	}
@@ -45,14 +45,14 @@ object CacheHandling extends Logging {
 	}
 
 	val httpLastModifiedStoreAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cache.lastModifiedStore"
-	def getLastModifiedStore(session: Session): Map[URI, String] = session(httpLastModifiedStoreAttributeName).asOption match {
+	def getLastModifiedStore(session: Session): Map[URI, String] = session(httpLastModifiedStoreAttributeName).asOption[Map[URI, String]] match {
 		case Some(store) => store
 		case _ => Map.empty
 	}
 	def getLastModified(httpProtocol: HttpProtocol, session: Session, uri: URI): Option[String] = if (httpProtocol.cache) getLastModifiedStore(session).get(uri) else None
 
 	val httpEtagStoreAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cache.etagStore"
-	def getEtagStore(session: Session): Map[URI, String] = session(httpEtagStoreAttributeName).asOption match {
+	def getEtagStore(session: Session): Map[URI, String] = session(httpEtagStoreAttributeName).asOption[Map[URI, String]] match {
 		case Some(store) => store
 		case _ => Map.empty
 	}

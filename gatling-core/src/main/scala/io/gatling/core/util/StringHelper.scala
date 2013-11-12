@@ -25,6 +25,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
  */
 object StringHelper {
 
+	// FIXME test other JDKs than Hotspot
 	val substringCopiesCharArray = System.getProperty("java.version") >= "1.7.0_06"
 
 	val eol = System.getProperty("line.separator")

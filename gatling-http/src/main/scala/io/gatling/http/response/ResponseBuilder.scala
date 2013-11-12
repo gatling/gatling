@@ -44,7 +44,7 @@ object ResponseBuilder {
 		}
 
 		val storeBodyParts = !protocol.discardResponseChunks || checks.exists(_.order == Body)
-		request: Request => new ResponseBuilder(request, checksumChecks, responseTransformer, storeBodyParts, protocol.fetchHtmlResources)
+		request: Request => new ResponseBuilder(request, checksumChecks, responseTransformer, storeBodyParts, protocol.htmlResourcesFetchingMode.isDefined)
 	}
 }
 

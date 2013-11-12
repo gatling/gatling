@@ -29,6 +29,7 @@ case class NamedRequest(name: String, ahcRequest: Request)
 sealed abstract class EmbeddedResource {
 
 	def uri: URI
+	def url: String
 
 	def toRequest(protocol: HttpProtocol): Option[NamedRequest] = {
 		val url = uri.toString
@@ -52,6 +53,10 @@ sealed abstract class EmbeddedResource {
 		}
 	}
 }
-case class CssResource(uri: URI) extends EmbeddedResource
-case class RegularResource(uri: URI) extends EmbeddedResource
+case class CssResource(uri: URI) extends EmbeddedResource {
+	val url = uri.toString
+}
+case class RegularResource(uri: URI) extends EmbeddedResource {
+	val url = uri.toString
+}
 

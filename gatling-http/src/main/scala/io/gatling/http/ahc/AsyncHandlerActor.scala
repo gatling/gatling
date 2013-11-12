@@ -35,10 +35,10 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.{ HttpCheck, HttpCheckOrder }
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.dom.{ CssResourceFetched, RegularResourceFetched, ResourceFetcher }
+import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }
 import io.gatling.http.util.HttpStringBuilder
-import io.gatling.core.validation.Validation
 
 object AsyncHandlerActor extends AkkaDefaults {
 	val redirectedRequestNamePattern = """(.+?) Redirect (\d+)""".r
@@ -129,24 +129,22 @@ class AsyncHandlerActor extends BaseActor {
 		if (tx.resourceFetching) {
 			val resourceMessage =
 				if (isCss(response.getHeaders))
-					CssResourceFetched(response.request.getOriginalURI, status, sessionUpdates, response.getResponseBody)
+					CssResourceFetched(response.request.getOriginalURI, status, sessionUpdates, response.getStatusCode, ResourceFetcher.lastModifiedOrEtag(response, tx.protocol), response.getResponseBody)
 
 				else
 					RegularResourceFetched(response.request.getOriginalURI, status, sessionUpdates)
 
 			tx.next ! resourceMessage
 
-		} else if (tx.protocol.fetchHtmlResources && response.hasResponseStatus && isHtml(response.getHeaders)) {
+		} else if (tx.protocol.htmlResourcesFetchingMode.isDefined && response.hasResponseStatus && isHtml(response.getHeaders)) {
 
 			val explicitResources =
-				if (!tx.resources.isEmpty) {
-					val updatedSession = sessionUpdates(tx.session)
-					//FIXME at least log an error on Failures
-					tx.resources.map(_.ahcRequest(updatedSession)).collect { case Success(request) => request }
-				} else
+				if (!tx.explicitResources.isEmpty)
+					HttpRequest.buildNamedRequests(tx.explicitResources, sessionUpdates(tx.session))
+				else
 					Nil
 
-			ResourceFetcher.fromReceivedHtmlPage(response, tx) match {
+			ResourceFetcher.fromPage(response, tx, explicitResources) match {
 				case Some(resourceFetcher) => actor(context)(resourceFetcher())
 				case None => regularExecuteNext()
 			}

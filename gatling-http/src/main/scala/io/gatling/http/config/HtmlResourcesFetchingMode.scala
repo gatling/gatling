@@ -13,15 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http
+package io.gatling.http.config
 
-import io.gatling.core.filter.{ Filters, FilterList }
-import io.gatling.http.dom.EmbeddedResource
-
-package object dom {
-
-	implicit class EmbeddedResourcesFilters(val filters: Filters) extends AnyVal {
-
-		def filter[T <: EmbeddedResource](resources: List[T]) = resources.filter(res => filters.accept(res.url))
-	}
-}
+sealed trait HtmlResourcesFetchingMode
+object AggressiveHtmlResourcesFetching extends HtmlResourcesFetchingMode
+object SoftHtmlResourcesFetching extends HtmlResourcesFetchingMode

@@ -56,7 +56,7 @@ case class HttpAttributes(
 	useRawUrl: Boolean = false,
 	proxy: Option[ProxyServer] = None,
 	secureProxy: Option[ProxyServer] = None,
-	resources: Seq[AbstractHttpRequestBuilder[_]] = Nil)
+	explicitResources: Seq[AbstractHttpRequestBuilder[_]] = Nil)
 
 object AbstractHttpRequestBuilder {
 
@@ -159,7 +159,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 	def proxy(httpProxy: Proxy): B = newInstance(httpAttributes.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
 
-	def resources(res: AbstractHttpRequestBuilder[_]*): B = newInstance(httpAttributes.copy(resources = res))
+	def resources(res: AbstractHttpRequestBuilder[_]*): B = newInstance(httpAttributes.copy(explicitResources = res))
 
 	/**
 	 * This method actually fills the request builder to avoid race conditions
@@ -285,7 +285,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 		val resolvedMaxRedirects = httpAttributes.maxRedirects.orElse(protocol.maxRedirects)
 
-		val resolvedResources = httpAttributes.resources.filter(_.httpAttributes.method == "GET").map(_.build(protocol, throttled))
+		val resolvedResources = httpAttributes.explicitResources.filter(_.httpAttributes.method == "GET").map(_.build(protocol, throttled))
 
 		HttpRequest(
 			httpAttributes.requestName,

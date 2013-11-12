@@ -41,7 +41,7 @@ case class HttpTx(session: Session,
 	next: ActorRef,
 	maxRedirects: Option[Int],
 	throttled: Boolean,
-	resources: Seq[HttpRequest],
+	explicitResources: Seq[HttpRequest],
 	resourceFetching: Boolean = false,
 	numberOfRedirects: Int = 0)
 

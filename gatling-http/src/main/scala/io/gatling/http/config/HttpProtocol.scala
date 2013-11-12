@@ -57,8 +57,8 @@ object HttpProtocol {
 		checks = Nil,
 		maxRedirects = None,
 		warmUpUrl = configuration.http.warmUpUrl,
-		fetchHtmlResources = false,
-		fetchHtmlResourcesFilters = None,
+		htmlResourcesFetchingMode = None,
+		htmlResourcesFetchingFilters = None,
 		maxConnectionsPerHost = 6,
 		extraInfoExtractor = None)
 }
@@ -88,8 +88,8 @@ case class HttpProtocol(
 	checks: List[HttpCheck],
 	maxRedirects: Option[Int],
 	warmUpUrl: Option[String],
-	fetchHtmlResources: Boolean,
-	fetchHtmlResourcesFilters: Option[Filters],
+	htmlResourcesFetchingMode: Option[HtmlResourcesFetchingMode],
+	htmlResourcesFetchingFilters: Option[Filters],
 	maxConnectionsPerHost: Int,
 	extraInfoExtractor: Option[(String, Status, Session, Request, Response) => List[Any]]) extends Protocol with Logging {
 

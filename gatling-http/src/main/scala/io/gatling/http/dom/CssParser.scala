@@ -28,9 +28,6 @@ import io.gatling.core.util.StringHelper.ensureByteCopy
 import io.gatling.http.util.HttpHelper
 import jodd.lagarto.dom.NodeSelector
 
-case class CssContent(importRules: List[URI], fontFaceRules: List[URI], styleRules: Seq[StyleRule])
-case class StyleRule(selector: String, uri: URI)
-
 object CssParser extends Logging {
 
 	val inlineStyleImageUrls = """url\((.*)\)""".r
@@ -107,54 +104,14 @@ object CssParser extends Logging {
 		}
 	}
 
-	def extractRules(cssURI: URI, cssContent: String): CssContent = {
+	def extractResources(cssURI: URI, cssContent: String): List[EmbeddedResource] = {
 
-		def extractSelectors(start: Int, end: Int): Array[String] = {
-
-			var withinComment = false
-			val filtered = new Array[Char](end - start + 1)
-			var filteredPosition = 0
-
-			var i = start
-			while (i < end) {
-
-				val curr = cssContent.charAt(i)
-
-				(curr: @switch) match {
-
-					case '/' =>
-						if (cssContent.charAt(i + 1) == '*') {
-							withinComment = true
-							i += 1
-						} else if (i > 0 && cssContent.charAt(i - 1) == '*') {
-							withinComment = false
-						}
-
-					case '\r' | '\n' =>
-
-					case _ =>
-						if (!withinComment) {
-							filtered(filteredPosition) = curr
-							filteredPosition += 1
-						}
-				}
-
-				i += 1
-			}
-
-			new String(filtered, 0, filteredPosition).split(",").map(_.trim)
-		}
-
-		var importRules = collection.mutable.ArrayBuffer.empty[URI]
-		var fontFaceRules = collection.mutable.ArrayBuffer.empty[URI]
-		var styleRules = collection.mutable.ArrayBuffer.empty[StyleRule]
+		val resources = collection.mutable.ArrayBuffer.empty[EmbeddedResource]
 
 		var withinComment = false
 		var withinImport = false
 		var withinFontFace = false
 		var withinUrl = false
-		var selectorsStart = 0
-		var selectorsEnd = 0
 		var urlStart = 0
 
 		def charsMatch(i: Int, str: String): Boolean = {
@@ -188,14 +145,6 @@ object CssParser extends Logging {
 						withinComment = false
 					}
 
-				case '{' =>
-					if (!withinComment)
-						selectorsEnd = i
-
-				case '}' =>
-					if (!withinComment && i < cssContent.length)
-						selectorsStart = i + 2
-
 				case '@' =>
 					if (!withinComment) {
 						if (charsMatch(i, "@import")) {
@@ -222,19 +171,17 @@ object CssParser extends Logging {
 						absoluteUri <- HttpHelper.resolveFromURISilently(cssURI, url)
 					} {
 						if (withinImport) {
-							importRules += absoluteUri
+							resources += CssResource(absoluteUri)
 							withinImport = false
 
 						} else if (withinFontFace) {
-							fontFaceRules += absoluteUri
+							resources += RegularResource(absoluteUri)
 							withinFontFace = false
 							withinUrl = false
 
 						} else {
 							withinUrl = false
-							for (selector <- extractSelectors(selectorsStart, selectorsEnd)) {
-								styleRules += StyleRule(selector, absoluteUri)
-							}
+							resources += RegularResource(absoluteUri)
 						}
 					}
 
@@ -244,19 +191,6 @@ object CssParser extends Logging {
 			i += 1
 		}
 
-		CssContent(importRules.toList, fontFaceRules.toList, styleRules)
-	}
-
-	def cssResources(body: Option[String], cssContents: List[CssContent]): List[EmbeddedResource] = body match {
-		case Some(b) =>
-			val domBuilder = new SilentLagartoDOMBuilder().setParseSpecialTagsAsCdata(true)
-			val nodeSelector = new NodeSelector(domBuilder.parse(b))
-
-			cssContents.foldLeft(collection.mutable.HashSet.empty[URI]) { (uris, cssContent) =>
-				uris ++= cssContent.fontFaceRules
-				uris ++= cssContent.styleRules.collect { case styleRule if !nodeSelector.select(styleRule.selector).isEmpty => styleRule.uri }
-			}.map(RegularResource).toList
-
-		case _ => Nil
+		resources.toList
 	}
 }
