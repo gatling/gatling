@@ -106,7 +106,7 @@ class RecorderController extends Logging {
 	def receiveRequest(request: HttpRequest) {
 		synchronized {
 			// If Outgoing Proxy set, we record the credentials to use them when sending the request
-			Option(request.getHeader(PROXY_AUTHORIZATION)).map {
+			Option(request.headers.get(PROXY_AUTHORIZATION)).map {
 				header =>
 					// Split on " " and take 2nd group (Basic credentialsInBase64==)
 					val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")

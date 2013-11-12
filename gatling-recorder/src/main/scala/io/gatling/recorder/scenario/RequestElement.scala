@@ -35,7 +35,7 @@ case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
 object RequestElement {
 
 	def apply(request: HttpRequest, statusCode: Int, simulationClass: Option[String]): RequestElement = {
-		val headers: Map[String, String] = request.getHeaders.map { entry => (entry.getKey, entry.getValue) }.toMap
+		val headers: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }.toMap
 		val content = if (request.getContent.readableBytes > 0) {
 			val bufferBytes = new Array[Byte](request.getContent.readableBytes)
 			request.getContent.getBytes(request.getContent.readerIndex, bufferBytes)
