@@ -93,9 +93,9 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.exec(http("Catégorie Poney").get("/").multivaluedQueryParam("omg", List("foo")))
 		}
 		.randomSwitch(
-			40 -> exec(http("Catégorie Poney").get("/")),
-			50 -> exec(http("Catégorie Poney").get("/")))
-		.randomSwitch(40 -> exec(http("Catégorie Poney").get("/")))
+			40d -> exec(http("Catégorie Poney").get("/")),
+			50d -> exec(http("Catégorie Poney").get("/")))
+		.randomSwitch(40d -> exec(http("Catégorie Poney").get("/")))
 		.pause(pause2)
 		// Loop
 		.repeat(iterations, "titi") {
@@ -175,8 +175,8 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.pause(100 milliseconds)
 				// switch
 				.randomSwitch(
-					40 -> exec(http("Possibility 1").get("/p1")),
-					55 -> exec(http("Possibility 2").get("/p2")) // last 5% bypass
+					40d -> exec(http("Possibility 1").get("/p1")),
+					55d -> exec(http("Possibility 2").get("/p2")) // last 5% bypass
 					)
 				.exec(http("Create Thing omgomg")
 					.post("/things").queryParam("postTest", "${sessionParam}").body(RawFileBody("create_thing.txt")).asJSON

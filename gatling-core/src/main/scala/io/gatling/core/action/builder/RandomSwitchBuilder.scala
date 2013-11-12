@@ -29,7 +29,7 @@ import io.gatling.core.session.Expression
 import io.gatling.core.structure.ChainBuilder
 import io.gatling.core.validation.SuccessWrapper
 
-class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder with Logging {
+class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder with Logging {
 
 	val sum = possibilities.map(_._1).sum
 	require(sum <= 100, "Can't build a random switch with percentage sum > 100")
@@ -49,7 +49,7 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
 		val nextAction: Expression[ActorRef] = _ => {
 
 			@tailrec
-			def determineNextAction(index: Int, possibilities: List[(Int, ActorRef)]): ActorRef = possibilities match {
+			def determineNextAction(index: Double, possibilities: List[(Double, ActorRef)]): ActorRef = possibilities match {
 				case Nil => elseNextActor
 				case (percentage, possibleAction) :: others =>
 					if (percentage >= index)
@@ -58,7 +58,7 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
 						determineNextAction(index - percentage, others)
 			}
 
-			determineNextAction(ThreadLocalRandom.current.nextInt(1, 101), possibleActions).success
+			determineNextAction(ThreadLocalRandom.current.nextDouble(1, 101), possibleActions).success
 		}
 
 		actor(new Switch(nextAction, next))
