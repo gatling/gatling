@@ -53,9 +53,7 @@ object CssParser extends Logging {
 
 		@tailrec
 		def trimLeft(cur: Int): Int = (string.charAt(cur): @switch) match {
-			case ' ' => trimLeft(cur + 1)
-			case '\r' => trimLeft(cur + 1)
-			case '\n' => trimLeft(cur + 1)
+			case ' ' | '\r' | '\n' => trimLeft(cur + 1)
 			case ''' =>
 				protectChar match {
 					case None =>
@@ -80,9 +78,7 @@ object CssParser extends Logging {
 
 		@tailrec
 		def trimRight(cur: Int): Int = (string.charAt(cur - 1): @switch) match {
-			case ' ' => trimRight(cur - 1)
-			case '\r' => trimRight(cur - 1)
-			case '\n' => trimRight(cur - 1)
+			case ' ' | '\r' | '\n' => trimRight(cur - 1)
 			case ''' => protectChar match {
 				case `singleQuoteEscapeChar` =>
 					trimRight(cur - 1)
@@ -134,8 +130,7 @@ object CssParser extends Logging {
 							withinComment = false
 						}
 
-					case '\r' =>
-					case '\n' =>
+					case '\r' | '\n' =>
 
 					case _ =>
 						if (!withinComment) {
