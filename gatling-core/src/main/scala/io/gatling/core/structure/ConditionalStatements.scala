@@ -99,13 +99,13 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * @param possibilities the rest of the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def randomSwitch(possibility1: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*): B =
+	def randomSwitch(possibility1: (Double, ChainBuilder), possibilities: (Double, ChainBuilder)*): B =
 		randomSwitch(possibility1 :: possibilities.toList, None)
 
-	def randomSwitchOrElse(possibility1: (Int, ChainBuilder), possibilities: (Int, ChainBuilder)*)(elseNext: ChainBuilder): B =
+	def randomSwitchOrElse(possibility1: (Double, ChainBuilder), possibilities: (Double, ChainBuilder)*)(elseNext: ChainBuilder): B =
 		randomSwitch(possibility1 :: possibilities.toList, Some(elseNext))
 
-	private def randomSwitch(possibilities: List[(Int, ChainBuilder)], elseNext: Option[ChainBuilder]): B =
+	private def randomSwitch(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]): B =
 		newInstance(new RandomSwitchBuilder(possibilities, elseNext) :: actionBuilders)
 
 	/**
@@ -119,8 +119,8 @@ trait ConditionalStatements[B] extends Execs[B] {
 	def randomSwitch(possibility1: ChainBuilder, possibility2: ChainBuilder, possibilities: ChainBuilder*): B = {
 
 		val tailPossibilities = possibility2 :: possibilities.toList
-		val basePercentage = 100 / (tailPossibilities.size + 1)
-		val firstPercentage = 100 - basePercentage * tailPossibilities.size
+		val basePercentage = 100d / (tailPossibilities.size + 1)
+		val firstPercentage = 100d - basePercentage * tailPossibilities.size
 
 		val possibilitiesWithPercentage = (firstPercentage, possibility1) :: tailPossibilities.map((basePercentage, _))
 
