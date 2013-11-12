@@ -25,7 +25,7 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 	with ResponseTimePerSecBuffers
 	with ResponseTimeRangeBuffers
 	with SessionDeltaPerSecBuffers
-	with TransactionsPerSecBuffers
+	with ResponsesPerSecBuffers
 	with ErrorsBuffers
 	with GroupResponseTimePerSecBuffers {
 
@@ -43,7 +43,7 @@ class ResultsHolder(minTime: Long, maxTime: Long)
 
 	def addRequestRecord(record: RequestRecord) {
 		updateRequestsPerSecBuffers(record)
-		updateTransactionsPerSecBuffers(record)
+		updateResponsesPerSecBuffers(record)
 		updateResponseTimePerSecBuffers(record)
 		updateLatencyPerSecBuffers(record)
 		addRequestName(record)

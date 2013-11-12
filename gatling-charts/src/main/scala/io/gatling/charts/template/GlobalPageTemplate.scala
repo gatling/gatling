@@ -26,5 +26,5 @@ class GlobalPageTemplate(
 	activeSessionsComponent: Component,
 	responseTimeDistributionChartComponent: Component,
 	requestsComponent: Component,
-	transactionsComponent: Component)
-	extends PageTemplate(GLOBAL_PAGE_NAME, false, None, None, statisticsComponent, indicatorsComponent, statisticsTableComponent, errorTableComponent, activeSessionsComponent, responseTimeDistributionChartComponent, requestsComponent, transactionsComponent)
+	responsesComponent: Component)
+	extends PageTemplate(GLOBAL_PAGE_NAME, false, None, None, statisticsComponent, indicatorsComponent, statisticsTableComponent, errorTableComponent, activeSessionsComponent, responseTimeDistributionChartComponent, requestsComponent, responsesComponent)

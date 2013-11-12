@@ -158,8 +158,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 	def numberOfRequestsPerSecond(status: Option[Status], requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] =
 		countBuffer2IntVsTimePlots(resultsHolder.getRequestsPerSecBuffer(requestName, group, status))
 
-	def numberOfTransactionsPerSecond(status: Option[Status], requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] =
-		countBuffer2IntVsTimePlots(resultsHolder.getTransactionsPerSecBuffer(requestName, group, status))
+	def numberOfResponsesPerSecond(status: Option[Status], requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] =
+		countBuffer2IntVsTimePlots(resultsHolder.getResponsesPerSecBuffer(requestName, group, status))
 
 	private def distribution(slotsNumber: Int, allBuffer: GeneralStatsBuffer, okBuffers: GeneralStatsBuffer, koBuffer: GeneralStatsBuffer): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) = {
 

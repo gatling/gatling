@@ -87,7 +87,7 @@ function setDetailsMenu(){
 function setGlobalMenu(){
     $$('.nav ul').append('<li><div class="item"><a href="#active_sessions">Active Sessions</a></div></li> \\
         <li><div class="item"><a href="#requests">Requests / sec</a></div></li> \\
-        <li><div class="item"><a href="#transactions">Transactions / sec</a></div></li>');
+        <li><div class="item"><a href="#responses">Responses / sec</a></div></li>');
 }
 
 function getLink(link){

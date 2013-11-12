@@ -50,17 +50,17 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			componentLibrary.getRequestsChartComponent(dataReader.runStart, allSeries, kosSeries, oksSeries, pieRequestsSeries)
 		}
 
-		def transactionsChartComponent: Component = {
-			val all = dataReader.numberOfTransactionsPerSecond().sortBy(_.time)
-			val oks = dataReader.numberOfTransactionsPerSecond(Some(OK)).sortBy(_.time)
-			val kos = dataReader.numberOfTransactionsPerSecond(Some(KO)).sortBy(_.time)
+		def responsesChartComponent: Component = {
+			val all = dataReader.numberOfResponsesPerSecond().sortBy(_.time)
+			val oks = dataReader.numberOfResponsesPerSecond(Some(OK)).sortBy(_.time)
+			val kos = dataReader.numberOfResponsesPerSecond(Some(KO)).sortBy(_.time)
 
-			val allSeries = new Series[IntVsTimePlot]("All transactions", all, List(BLUE))
-			val kosSeries = new Series[IntVsTimePlot]("Failed transactions", kos, List(RED))
-			val oksSeries = new Series[IntVsTimePlot]("Succeeded transactions", oks, List(GREEN))
+			val allSeries = new Series[IntVsTimePlot]("All responses", all, List(BLUE))
+			val kosSeries = new Series[IntVsTimePlot]("Failed responses", kos, List(RED))
+			val oksSeries = new Series[IntVsTimePlot]("Succeeded responses", oks, List(GREEN))
 			val pieRequestsSeries = new Series[PieSlice]("Distribution", PieSlice("Success", count(oks)) :: PieSlice("Failures", count(kos)) :: Nil, List(GREEN, RED))
 
-			componentLibrary.getTransactionsChartComponent(dataReader.runStart, allSeries, kosSeries, oksSeries, pieRequestsSeries)
+			componentLibrary.getResponsesChartComponent(dataReader.runStart, allSeries, kosSeries, oksSeries, pieRequestsSeries)
 		}
 
 		def responseTimeDistributionChartComponent: Component = {
@@ -79,7 +79,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 			activeSessionsChartComponent,
 			responseTimeDistributionChartComponent,
 			requestsChartComponent,
-			transactionsChartComponent)
+			responsesChartComponent)
 
 		new TemplateWriter(globalFile(runOn)).writeToFile(template.getOutput)
 	}

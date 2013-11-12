@@ -21,18 +21,18 @@ import io.gatling.charts.result.reader.RequestRecord
 import io.gatling.core.result.Group
 import io.gatling.core.result.message.Status
 
-trait TransactionsPerSecBuffers {
+trait ResponsesPerSecBuffers {
 
-	val transactionsPerSecBuffers = mutable.Map.empty[BufferKey, CountBuffer]
+	val responsesPerSecBuffers = mutable.Map.empty[BufferKey, CountBuffer]
 
-	def getTransactionsPerSecBuffer(requestName: Option[String], group: Option[Group], status: Option[Status]): CountBuffer =
-		transactionsPerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, status), new CountBuffer)
+	def getResponsesPerSecBuffer(requestName: Option[String], group: Option[Group], status: Option[Status]): CountBuffer =
+		responsesPerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, status), new CountBuffer)
 
-	def updateTransactionsPerSecBuffers(record: RequestRecord) {
-		getTransactionsPerSecBuffer(Some(record.name), record.group, None).update(record.responseEndBucket)
-		getTransactionsPerSecBuffer(Some(record.name), record.group, Some(record.status)).update(record.responseEndBucket)
+	def updateResponsesPerSecBuffers(record: RequestRecord) {
+		getResponsesPerSecBuffer(Some(record.name), record.group, None).update(record.responseEndBucket)
+		getResponsesPerSecBuffer(Some(record.name), record.group, Some(record.status)).update(record.responseEndBucket)
 
-		getTransactionsPerSecBuffer(None, None, None).update(record.responseEndBucket)
-		getTransactionsPerSecBuffer(None, None, Some(record.status)).update(record.responseEndBucket)
+		getResponsesPerSecBuffer(None, None, None).update(record.responseEndBucket)
+		getResponsesPerSecBuffer(None, None, Some(record.status)).update(record.responseEndBucket)
 	}
 }
