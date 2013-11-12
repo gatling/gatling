@@ -31,10 +31,9 @@ package io.gatling.http.action
 
 import com.typesafe.scalalogging.slf4j.Logging
 
-import akka.actor.ActorRef
+import akka.actor.{ ActorContext, ActorRef }
 import akka.actor.ActorDSL.actor
 import io.gatling.core.action.{ Failable, Interruptable }
-import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.result.message.KO
 import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
 import io.gatling.core.session.Session
@@ -46,9 +45,9 @@ import io.gatling.http.referer.RefererHandling
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder
 
-object HttpRequestAction extends AkkaDefaults with Logging {
+object HttpRequestAction extends Logging {
 
-	def beginHttpTransaction(tx: HttpTx) {
+	def beginHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext) {
 
 		def send(tx: HttpTx) {
 			logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
@@ -71,7 +70,6 @@ object HttpRequestAction extends AkkaDefaults with Logging {
 				ResourceFetcher.fromCachedRequest(tx.request.getURI, tx) match {
 					case Some(resourceFetcher) =>
 						logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-						// FIXME pass a context and create as a child on the HttpRequestAction?
 						actor(resourceFetcher())
 
 					case None => skipCached(tx)
