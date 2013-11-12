@@ -106,9 +106,10 @@ object HtmlParser extends Logging {
 					case "object" =>
 						val data = tag.getAttributeValue("data", false)
 						val codeBase = suffixedCodeBase
-						val objectResourceUrl = codeBase
-							.map(cb => prependCodeBase(cb, data))
-							.getOrElse(data)
+						val objectResourceUrl = codeBase match {
+							case Some(cb) => prependCodeBase(cb, data)
+							case _ => data
+						}
 						rawResources += objectResourceUrl -> RegularResource
 
 					case _ =>

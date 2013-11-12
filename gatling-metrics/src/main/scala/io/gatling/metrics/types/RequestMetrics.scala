@@ -54,7 +54,7 @@ class Metrics(bucketWidth: Int = configuration.data.graphite.bucketWidth) {
 	var count = 0L
 	var max = 0L
 	var min = Long.MaxValue
-	private val buckets = mutable.HashMap.empty[Long, Long]
+	private val buckets = mutable.HashMap.empty[Long, Long].withDefaultValue(0L)
 
 	def update(value: Long) {
 		count += 1
@@ -62,7 +62,7 @@ class Metrics(bucketWidth: Int = configuration.data.graphite.bucketWidth) {
 		min = min.min(value)
 
 		val bucket = value / bucketWidth
-		val newCount = buckets.get(bucket).map(_ + 1L).getOrElse(1L)
+		val newCount = buckets(bucket) + 1L
 		buckets += (bucket -> newCount)
 	}
 

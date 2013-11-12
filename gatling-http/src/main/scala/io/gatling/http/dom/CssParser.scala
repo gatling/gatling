@@ -247,13 +247,16 @@ object CssParser extends Logging {
 		CssContent(importRules.toList, fontFaceRules.toList, styleRules)
 	}
 
-	def cssResources(body: Option[String], cssContents: List[CssContent]): List[EmbeddedResource] = body.map { b =>
-		val domBuilder = new SilentLagartoDOMBuilder().setParseSpecialTagsAsCdata(true)
-		val nodeSelector = new NodeSelector(domBuilder.parse(b))
+	def cssResources(body: Option[String], cssContents: List[CssContent]): List[EmbeddedResource] = body match {
+		case Some(b) =>
+			val domBuilder = new SilentLagartoDOMBuilder().setParseSpecialTagsAsCdata(true)
+			val nodeSelector = new NodeSelector(domBuilder.parse(b))
 
-		cssContents.foldLeft(collection.mutable.HashSet.empty[URI]) { (uris, cssContent) =>
-			uris ++= cssContent.fontFaceRules
-			uris ++= cssContent.styleRules.collect { case styleRule if !nodeSelector.select(styleRule.selector).isEmpty => styleRule.uri }
-		}.map(RegularResource).toList
-	}.getOrElse(Nil)
+			cssContents.foldLeft(collection.mutable.HashSet.empty[URI]) { (uris, cssContent) =>
+				uris ++= cssContent.fontFaceRules
+				uris ++= cssContent.styleRules.collect { case styleRule if !nodeSelector.select(styleRule.selector).isEmpty => styleRule.uri }
+			}.map(RegularResource).toList
+
+		case _ => Nil
+	}
 }

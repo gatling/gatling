@@ -32,15 +32,18 @@ import io.gatling.http.cookie.CookieHandling.storeCookie
 
 object AddCookieBuilder {
 
+	val noBaseUrlFailure = "Neither cookie domain nor baseURL".failure
+	val rootSuccess = "/".success
+
 	def defaultDomain(httpProtocol: HttpProtocol) = {
 		val baseUrlHost = httpProtocol.baseURL.map(url => URI.create(url).getHost)
-		(session: Session) => baseUrlHost.map(_.success).getOrElse("Neither cookie domain nor baseURL".failure)
+		(session: Session) => baseUrlHost match {
+			case Some(baseUrlHost) => baseUrlHost.success
+			case _ => noBaseUrlFailure
+		}
 	}
 
-	val defaultPath: Expression[String] = {
-		val rootSuccess = "/".success
-		_ => rootSuccess
-	}
+	val defaultPath: Expression[String] = _ => rootSuccess
 }
 
 class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Int) extends ActionBuilder {

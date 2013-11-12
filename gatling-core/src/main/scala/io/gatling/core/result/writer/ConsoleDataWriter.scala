@@ -75,16 +75,16 @@ class ConsoleDataWriter extends DataWriter {
 
 		event match {
 			case Start =>
-				usersCounters
-					.get(scenarioName)
-					.map(_.userStart)
-					.getOrElse(logger.error(s"Internal error, scenario '${scenarioName}' has not been correctly initialized"))
+				usersCounters.get(scenarioName) match {
+					case Some(name) => name.userStart
+					case _ => logger.error(s"Internal error, scenario '${scenarioName}' has not been correctly initialized")
+				}
 
 			case End =>
-				usersCounters
-					.get(scenarioName)
-					.map(_.userDone)
-					.getOrElse(logger.error(s"Internal error, scenario '${scenarioName}' has not been correctly initialized"))
+				usersCounters.get(scenarioName) match {
+					case Some(name) => name.userDone
+					case _ => logger.error(s"Internal error, scenario '${scenarioName}' has not been correctly initialized")
+				}
 		}
 	}
 

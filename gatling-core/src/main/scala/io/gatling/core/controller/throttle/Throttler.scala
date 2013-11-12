@@ -27,7 +27,7 @@ case class ThrottlingProtocol(limit: Long => Int) extends Protocol
 class ThisSecondThrottler(val limit: Int, var count: Int = 0) {
 
 	def increment { count += 1 }
-	def limitNotReached = count < limit
+	def limitReached = count >= limit
 }
 
 class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map[String, ThrottlingProtocol]) extends AkkaDefaults {
@@ -61,7 +61,7 @@ class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map
 	private def throttle(scenarioName: String, request: () => Unit, shift: Int) = {
 		val scenarioThrottler = thisTickPerScenarioThrottlers.get(scenarioName)
 
-		val sending = thisTickGlobalThrottler.map(_.limitNotReached).getOrElse(true) && scenarioThrottler.map(_.limitNotReached).getOrElse(true)
+		val sending = !thisTickGlobalThrottler.exists(_.limitReached) && !scenarioThrottler.exists(_.limitReached)
 		if (sending) {
 			thisTickGlobalThrottler.foreach(_.increment)
 			scenarioThrottler.foreach(_.increment)

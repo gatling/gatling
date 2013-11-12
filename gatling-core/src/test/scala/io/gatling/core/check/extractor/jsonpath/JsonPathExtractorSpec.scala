@@ -42,7 +42,7 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 	}
 
 	"count" should {
-		
+
 		def count(path: String, file: String) = new CountJsonPathExtractor(path.el)(noopSession, prepared(file))
 
 		"return expected result with anywhere expression" in {
@@ -55,7 +55,7 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 	}
 
 	"extractSingle" should {
-		
+
 		def extractSingle(path: String, occurrence: Int, file: String) = new SingleJsonPathExtractor[String](path.el, occurrence).apply(noopSession, prepared(file))
 
 		"return expected result with anywhere expression and rank 0" in {
@@ -105,7 +105,7 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 	}
 
 	"extractMultiple" should {
-		
+
 		def extractMultiple(path: String, file: String) = new MultipleJsonPathExtractor[String](path.el).apply(noopSession, prepared(file))
 
 		"return expected result with anywhere expression" in {

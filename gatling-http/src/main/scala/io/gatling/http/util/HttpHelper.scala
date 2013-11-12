@@ -108,10 +108,11 @@ object HttpHelper extends Logging {
 	def buildProxy(host: String, port: Int, credentials: Option[Credentials], secure: Boolean) = {
 
 		val protocol = if (secure) ProxyServer.Protocol.HTTPS else ProxyServer.Protocol.HTTP
-		credentials
-			.map(c => new ProxyServer(protocol, host, port, c.username, c.password))
-			.getOrElse(new ProxyServer(protocol, host, port))
-			.setNtlmDomain(null)
+		val proxyServer = credentials match {
+			case Some(c) => new ProxyServer(protocol, host, port, c.username, c.password)
+			case _ => new ProxyServer(protocol, host, port)
+		}
+		proxyServer.setNtlmDomain(null)
 	}
 
 	def isCss(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).exists(_.contains(HeaderValues.TEXT_CSS))

@@ -85,7 +85,7 @@ object ELCompiler {
 
 		val parts: List[Part[Any]] = {
 
-			val staticParts: List[StaticPart] = elPattern.split(string).map(StaticPart(_))(breakOut)
+			val staticParts: List[StaticPart] = elPattern.split(string).map(StaticPart)(breakOut)
 
 			val dynamicParts: List[Part[Any]] = elPattern
 				.findAllIn(string)

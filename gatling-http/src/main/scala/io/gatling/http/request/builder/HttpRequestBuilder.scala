@@ -174,7 +174,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 				if (url.startsWith(Protocol.HTTP.getProtocol))
 					url.success
 				else
-					protocol.baseURL.map(baseURL => (baseURL + url).success).getOrElse(s"No protocol.baseURL defined but provided url is relative : $url".failure)
+					protocol.baseURL match {
+						case Some(baseURL) => (baseURL + url).success
+						case _ => s"No protocol.baseURL defined but provided url is relative : $url".failure
+					}
 
 			def createURI(url: String): Validation[URI] =
 				try {
@@ -212,10 +215,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 				requestBuilder.setURI(uri).success
 		}
 
-		def configureVirtualHost(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
-			val virtualHost = httpAttributes.virtualHost.orElse(protocol.virtualHost)
-			virtualHost.map(_(session).map(requestBuilder.setVirtualHost)).getOrElse(requestBuilder.success)
-		}
+		def configureVirtualHost(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
+			httpAttributes.virtualHost.orElse(protocol.virtualHost) match {
+				case Some(virtualHost) => virtualHost(session).map(requestBuilder.setVirtualHost)
+				case _ => requestBuilder.success
+			}
 
 		def configureHeaders(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
@@ -235,15 +239,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 			}
 		}
 
-		def configureRealm(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
-
-			val realm = httpAttributes.realm.orElse(protocol.basicAuth)
-
-			realm match {
+		def configureRealm(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
+			httpAttributes.realm.orElse(protocol.basicAuth) match {
 				case Some(realm) => realm(session).map(requestBuilder.setRealm)
 				case None => requestBuilder.success
 			}
-		}
 
 		implicit val requestBuilder = new RequestBuilder(httpAttributes.method, configuration.http.ahc.useRawUrl).setBodyEncoding(configuration.core.encoding)
 

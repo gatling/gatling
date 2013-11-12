@@ -93,7 +93,10 @@ class AsyncHandlerActor extends BaseActor {
 		logger.trace(dump)
 
 		val extraInfo: List[Any] = try {
-			tx.protocol.extraInfoExtractor.map(_(tx.requestName, status, tx.session, tx.request, response)).getOrElse(Nil)
+			tx.protocol.extraInfoExtractor match {
+				case Some(extractor) => extractor(tx.requestName, status, tx.session, tx.request, response)
+				case _ => Nil
+			}
 		} catch {
 			case e: Exception =>
 				logger.warn("Encountered error while extracting extra request info", e)

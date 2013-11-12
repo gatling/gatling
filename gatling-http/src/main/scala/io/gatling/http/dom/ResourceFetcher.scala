@@ -85,20 +85,29 @@ object ResourceFetcher {
 								// cache entry missing or expired, flush it
 								resourceCache.remove(protocol, htmlDocumentURI)
 								val resources = HtmlParser.getEmbeddedResources(htmlDocumentURI, response.getResponseBody)
-								val filteredResources = protocol.fetchHtmlResourcesFilters.map(_.filter(resources)).getOrElse(resources)
+								val filteredResources = protocol.fetchHtmlResourcesFilters match {
+									case Some(filters) => filters.filter(resources)
+									case none => resources
+								}
 								Uncached(filteredResources)
 						}
 
 					case None =>
 						// don't cache
 						val resources = HtmlParser.getEmbeddedResources(htmlDocumentURI, response.getResponseBody)
-						val filteredResources = protocol.fetchHtmlResourcesFilters.map(_.filter(resources)).getOrElse(resources)
+						val filteredResources = protocol.fetchHtmlResourcesFilters match {
+							case Some(filters) => filters.filter(resources)
+							case none => resources
+						}
 						Uncached(filteredResources)
 				}
 
 			case 304 =>
 				// no content, retrieve from cache if exist
-				resourceCache.get(protocol, htmlDocumentURI).map(v => Cached(v.requests)).getOrElse(Uncached(Nil))
+				resourceCache.get(protocol, htmlDocumentURI) match {
+					case Some(v) => Cached(v.requests)
+					case _ => Uncached(Nil)
+				}
 
 			case _ => Uncached(Nil)
 		}
@@ -241,8 +250,13 @@ class ResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String],
 
 		if (pendingRequestsCount == 0)
 			done(globalStatus)
-		else
-			releaseToken(uri.getHost, bufferedRequestsByHost.get(uri.getHost).getOrElse(Nil))
+		else {
+			val requests = bufferedRequestsByHost.get(uri.getHost) match {
+				case Some(requests) => requests
+				case _ => Nil
+			}
+			releaseToken(uri.getHost, requests)
+		}
 	}
 
 	def cssFetched(uri: URI, status: Status, sessionUpdates: Session => Session, content: String) {
@@ -258,7 +272,7 @@ class ResourceFetcher(htmlDocumentURI: URI, htmlCacheExpireFlag: Option[String],
 class IncompleteResourceFetcher(htmlDocumentURI: URI, protocol: HttpProtocol, htmlCacheExpireFlag: Option[String], resources: List[EmbeddedResource], body: Option[String], tx: HttpTx)
 	extends ResourceFetcher(htmlDocumentURI, htmlCacheExpireFlag, resources.flatMap(_.toRequest(protocol)), tx) {
 
-	// FIXME add a flag for telling provided resources appart and not caching them
+	// FIXME add a flag for telling provided resources apart and not caching them
 	var expectedCss: List[CssResource] = resources.collect { case css: CssResource => css }
 	var fetchedCss = 0
 	val totalRequests = collection.mutable.ArrayBuffer.empty[NamedRequest] ++= requests
@@ -269,7 +283,10 @@ class IncompleteResourceFetcher(htmlDocumentURI: URI, protocol: HttpProtocol, ht
 
 			val cssContents = expectedCss.map { cssResource => ResourceFetcher.cssCache.get(cssResource.uri) }.flatten
 			val cssResources = CssParser.cssResources(body, cssContents)
-			val filteredCssResources = protocol.fetchHtmlResourcesFilters.map(_.filter(cssResources)).getOrElse(cssResources)
+			val filteredCssResources = protocol.fetchHtmlResourcesFilters match {
+				case Some(filters) => filters.filter(cssResources)
+				case _ => cssResources
+			}
 			val cssResourceRequests = filteredCssResources.flatMap(_.toRequest(protocol))
 			totalRequests ++= cssResourceRequests
 			pendingRequestsCount += cssResourceRequests.size
@@ -289,7 +306,10 @@ class IncompleteResourceFetcher(htmlDocumentURI: URI, protocol: HttpProtocol, ht
 
 		ResourceFetcher.cssCache.get(uri).foreach { rules =>
 			val cssImports = rules.importRules.map(CssResource)
-			val filteredCssImports = protocol.fetchHtmlResourcesFilters.map(_.filter(cssImports)).getOrElse(cssImports)
+			val filteredCssImports = protocol.fetchHtmlResourcesFilters match {
+				case Some(filters) => filters.filter(cssImports)
+				case None => cssImports
+			}
 			expectedCss = filteredCssImports ::: expectedCss
 			val cssImportRequests = filteredCssImports.flatMap(_.toRequest(protocol))
 			totalRequests ++= cssImportRequests

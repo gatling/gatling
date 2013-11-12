@@ -54,8 +54,8 @@ case class HttpResponse(
 	def reponseTimeInMillis = lastByteReceived - firstByteSent
 	def latencyInMillis = firstByteReceived - firstByteReceived
 	def isReceived = ahcResponse.isDefined
-	def getHeaderSafe(name: String) = ahcResponse.flatMap(r => Option(r.getHeader(name)))
-	def getHeadersSafe(name: String) = ahcResponse.flatMap(r => Option(r.getHeaders(name))).map(_.toSeq).getOrElse(Nil)
+	def getHeaderSafe(name: String): Option[String] = ahcResponse.flatMap(r => Option(r.getHeader(name)))
+	def getHeadersSafe(name: String): Seq[String] = ahcResponse.flatMap(r => Option(r.getHeaders(name))).map(_.toSeq).getOrElse(Nil)
 
 	override def toString = ahcResponse.toString
 

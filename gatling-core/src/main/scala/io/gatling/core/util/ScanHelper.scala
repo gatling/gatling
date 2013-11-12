@@ -46,7 +46,7 @@ object ScanHelper {
 				case "file" =>
 					val rootDir = File(new JFile(new URI(packageURL.toString).getSchemeSpecificPart)).toDirectory
 					val files = if (deep) rootDir.deepFiles else rootDir.files
-					files.map(new FileResource(_))
+					files.map(FileResource)
 
 				case "jar" =>
 					val connection = packageURL.openConnection.asInstanceOf[JarURLConnection]

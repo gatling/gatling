@@ -36,7 +36,10 @@ object AkkaDefaults {
 
 trait AkkaDefaults extends AskSupport {
 
-	implicit def system = AkkaDefaults.gatlingSystem.getOrElse(throw new UnsupportedOperationException("Akka hasn't been started"))
+	implicit def system = AkkaDefaults.gatlingSystem match {
+		case Some(s) => s
+		case _ => throw new UnsupportedOperationException("Akka hasn't been started")
+	}
 	implicit def dispatcher = system.dispatcher
 	implicit def scheduler = system.scheduler
 	implicit val defaultTimeOut = Timeout(configuration.core.timeOut.actor seconds)

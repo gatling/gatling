@@ -30,15 +30,17 @@ object CookieHandling {
 	def getStoredCookies(session: Session, url: String): List[Cookie] = getStoredCookies(session, URI.create(url))
 
 	def getStoredCookies(session: Session, uri: URI): List[Cookie] =
-		session(cookieJarAttributeName).asOption[CookieJar]
-			.map(_.get(uri))
-			.getOrElse(Nil)
+		session(cookieJarAttributeName).asOption[CookieJar] match {
+			case Some(cookieJar) => cookieJar.get(uri)
+			case _ => Nil
+		}
 
 	def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session =
 		if (!cookies.isEmpty)
-			session(cookieJarAttributeName).asOption[CookieJar]
-				.map(cookieJar => session.set(cookieJarAttributeName, cookieJar.add(uri, cookies)))
-				.getOrElse(session.set(cookieJarAttributeName, CookieJar(uri, cookies)))
+			session(cookieJarAttributeName).asOption[CookieJar] match {
+				case Some(cookieJar) => session.set(cookieJarAttributeName, cookieJar.add(uri, cookies))
+				case _ => session.set(cookieJarAttributeName, CookieJar(uri, cookies))
+			}
 		else
 			session
 
@@ -47,16 +49,19 @@ object CookieHandling {
 		val domain = cookie.getDomain
 		val cookies = List(cookie)
 
-		session(cookieJarAttributeName).asOption[CookieJar]
-			.map(cookieJar => session.set(cookieJarAttributeName, cookieJar.add(domain, cookies)))
-			.getOrElse(session.set(cookieJarAttributeName, CookieJar(domain, cookies)))
+		session(cookieJarAttributeName).asOption[CookieJar] match {
+			case Some(cookieJar) => session.set(cookieJarAttributeName, cookieJar.add(domain, cookies))
+			case _ => session.set(cookieJarAttributeName, CookieJar(domain, cookies))
+		}
 	}
 
 	val flushSessionCookies: Expression[Session] = session => {
 
-		cookieJar(session).map { cookieJar =>
-			val cookieJarWithoutSessionCookies = CookieJar(cookieJar.store.mapValues(_.filter(_.getMaxAge != -1)))
-			session.set(cookieJarAttributeName, cookieJarWithoutSessionCookies)
-		}.getOrElse(session).success
+		(cookieJar(session) match {
+			case Some(cookieJar) =>
+				val cookieJarWithoutSessionCookies = CookieJar(cookieJar.store.mapValues(_.filter(_.getMaxAge != -1)))
+				session.set(cookieJarAttributeName, cookieJarWithoutSessionCookies)
+			case _ => session
+		}).success
 	}
 }

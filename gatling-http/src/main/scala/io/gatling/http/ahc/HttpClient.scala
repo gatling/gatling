@@ -140,12 +140,13 @@ object HttpClient extends AkkaDefaults with Logging {
 		val (newTx, httpClient) = if (tx.protocol.shareClient)
 			(tx, default)
 		else
-			tx.session(httpClientAttributeName).asOption[AsyncHttpClient]
-				.map((tx, _))
-				.getOrElse {
+			tx.session(httpClientAttributeName).asOption[AsyncHttpClient] match {
+				case Some(client) => (tx, client)
+				case _ =>
 					val httpClient = newClient(tx.session)
 					(tx.copy(session = tx.session.set(httpClientAttributeName, httpClient)), httpClient)
-				}
+
+			}
 
 		if (tx.throttled)
 			Controller.controller ! ThrottledRequest(tx.session.scenarioName, () => httpClient.executeRequest(newTx.request, new AsyncHandler(newTx)))

@@ -69,8 +69,10 @@ object GatlingFiles {
 			}
 		}
 
-		val resource = classPathResource.orElse((fileSystemFolder / filePath).ifFile(path => FileResource(path.toFile)))
-		resource.map(_.success).getOrElse(s"file $filePath doesn't exist".failure)
+		classPathResource.orElse((fileSystemFolder / filePath).ifFile(path => FileResource(path.toFile))) match {
+			case Some(resource) => resource.success
+			case _ => s"file $filePath doesn't exist".failure
+		}
 	}
 
 	def requestBodyResource(filePath: Path) = requestBodyFileMemo.getOrElseUpdate(filePath, validateResource(filePath, requestBodiesDirectory))

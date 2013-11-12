@@ -34,7 +34,10 @@ object FileDataWriter {
 	/**
 	 * Converts whitespace characters that would break the simulation log format into spaces.
 	 */
-	def sanitize(s: String): String = Option(s).map(s => sanitizerPattern.replaceAllIn(s, " ")).getOrElse("")
+	def sanitize(s: String): String = Option(s) match {
+		case Some(s) => sanitizerPattern.replaceAllIn(s, " ")
+		case _ => ""
+	}
 
 	implicit class RunMessageSerializer(val runMessage: RunMessage) extends AnyVal {
 
@@ -61,7 +64,10 @@ object FileDataWriter {
 		def serialize(requestMessage: RequestMessage) = {
 			import requestMessage._
 
-			val nonEmptyMessage = message.getOrElse(emptyField)
+			val nonEmptyMessage = message match {
+				case Some(r) => r
+				case None => emptyField
+			}
 			val serializedGroups = GroupMessageSerializer.serializeGroups(groupStack)
 			val serializedExtraInfo = extraInfo.map(info => fast"\t${sanitize(info.toString)}").mkFastring
 

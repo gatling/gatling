@@ -34,7 +34,11 @@ trait AssertionSupport {
 				val selectedPath: List[String] = selector.segments
 				val foundPath = reader.statsPaths.find { statsPath =>
 					val path: List[String] = statsPath match {
-						case RequestStatsPath(request, group) => group.map(_.hierarchy).getOrElse(Nil) ::: List(request)
+						case RequestStatsPath(request, group) =>
+							group match {
+								case Some(g) => g.hierarchy ::: List(request)
+								case _ => List(request)
+							}
 						case GroupStatsPath(group) => group.hierarchy
 					}
 					path == selectedPath

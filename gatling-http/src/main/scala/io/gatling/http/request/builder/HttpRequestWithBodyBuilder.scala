@@ -59,7 +59,10 @@ abstract class AbstractHttpRequestWithBodyBuilder[B <: AbstractHttpRequestWithBo
 		require(!bodyAttributes.body.isDefined || bodyAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
 		if (bodyAttributes.body.isDefined)
-			bodyAttributes.body.map(_.setBody(requestBuilder, session)).getOrElse(requestBuilder.success)
+			bodyAttributes.body match {
+				case Some(body) => body.setBody(requestBuilder, session)
+				case _ => requestBuilder.success
+			}
 
 		else
 			bodyAttributes.bodyParts.foldLeft(AbstractHttpRequestWithBodyBuilder.emptyPartListSuccess) { (parts, part) =>

@@ -31,11 +31,10 @@ object CookieJar {
 	def domainMatches(string: String, domain: String) = domain == string || string.endsWith("." + domain)
 
 	// rfc6265#section-5.1.4
-	def requestPath(requestURI: URI) =
-		Option(requestURI.getPath).map {
-			case requestPath if requestPath.count(_ == '/') <= 1 => "/"
-			case requestPath => requestPath.substring(0, requestPath.lastIndexOf('/'))
-		}.getOrElse("/")
+	def requestPath(requestURI: URI) = Option(requestURI.getPath) match {
+		case Some(requestPath) if requestPath.count(_ == '/') > 1 => requestPath.substring(0, requestPath.lastIndexOf('/'))
+		case _ => "/"
+	}
 
 	// rfc6265#section-5.1.4
 	def pathMatches(cookiePath: String, requestPath: String) =
@@ -44,17 +43,17 @@ object CookieJar {
 			(cookiePath.last == '/' || requestPath.charAt(cookiePath.length) == '/')
 
 	// rfc6265#section-5.2.3
-	def cookieDomain(cookieDomain: String, requestDomain: String) = Option(cookieDomain)
-		// Let cookie-domain be the attribute-value without the leading %x2E (".") character.
-		.map(dom => (if (dom.charAt(0) == '.') dom.substring(1) else dom).toLowerCase)
-		.getOrElse(requestDomain)
+	// Let cookie-domain be the attribute-value without the leading %x2E (".") character.
+	def cookieDomain(cookieDomain: String, requestDomain: String) = Option(cookieDomain) match {
+		case Some(dom) => (if (dom.charAt(0) == '.') dom.substring(1) else dom).toLowerCase
+		case None => requestDomain
+	}
 
 	// rfc6265#section-5.2.4
-	def cookiePath(rawCookiePath: String, defaultPath: String) = Option(rawCookiePath)
-		.map {
-			case path if path.startsWith("/") => path
-			case _ => defaultPath
-		}.getOrElse(defaultPath)
+	def cookiePath(rawCookiePath: String, defaultPath: String) = Option(rawCookiePath) match {
+		case Some(path) if path.startsWith("/") => path
+		case _ => defaultPath
+	}
 
 	def apply(uri: URI, cookies: List[Cookie]) = (new CookieJar(Map.empty)).add(uri, cookies)
 	def apply(domain: String, cookies: List[Cookie]) = (new CookieJar(Map.empty)).add(domain, cookies)

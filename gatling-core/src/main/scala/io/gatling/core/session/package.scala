@@ -31,5 +31,8 @@ package object session {
 
 	val noopStringExpression = "".expression
 
-	def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression.map(_(session).map(Some(_))).getOrElse(noneSuccess)
+	def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression match {
+		case Some(e) => e(session).map(Some.apply)
+		case _ => noneSuccess
+	}
 }

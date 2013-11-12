@@ -36,7 +36,7 @@ package object validation {
 			def sequenceRec(validations: List[Validation[T]], successes: List[T]): Validation[List[T]] = validations match {
 				case Nil => successes.success
 				case head :: tail => head match {
-					case failure @ Failure(_) => failure.asInstanceOf[Validation[List[T]]]
+					case failure: Failure => failure.asInstanceOf[Validation[List[T]]]
 					case Success(entry) => sequenceRec(tail, entry :: successes)
 				}
 			}

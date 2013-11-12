@@ -21,31 +21,35 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object TypeHelper {
 
+	val nullValueFailure = s"Value is null".failure
+
 	implicit class TypeCaster(val value: Any) extends AnyVal {
 
-		def asValidation[T: ClassTag]: Validation[T] = {
-			Option(value).map { v =>
-				val clazz = implicitly[ClassTag[T]].runtimeClass
+		def asValidation[T: ClassTag]: Validation[T] = Option(value).map { v =>
 
-				if (clazz == classOf[String])
-					value.toString.asInstanceOf[T].success
+			val clazz = implicitly[ClassTag[T]].runtimeClass
 
-				else {
-					def valueClazz = value.getClass.getName match {
-						case "java.lang.Boolean" => classOf[Boolean]
-						case "java.lang.Integer" => classOf[Int]
-						case "java.lang.Long" => classOf[Long]
-						case "java.lang.Double" => classOf[Double]
-						case "java.lang.Float" => classOf[Float]
-						case _ => value.getClass
-					}
+			if (clazz == classOf[String])
+				value.toString.asInstanceOf[T].success
 
-					if (clazz.isAssignableFrom(value.getClass) || clazz.isAssignableFrom(valueClazz))
-						value.asInstanceOf[T].success
-					else
-						s"Can't cast value $value of type ${value.getClass} into $clazz".failure
+			else {
+				def valueClazz = value.getClass.getName match {
+					case "java.lang.Boolean" => classOf[Boolean]
+					case "java.lang.Integer" => classOf[Int]
+					case "java.lang.Long" => classOf[Long]
+					case "java.lang.Double" => classOf[Double]
+					case "java.lang.Float" => classOf[Float]
+					case _ => value.getClass
 				}
-			}.getOrElse(s"Value is null".failure)
+
+				if (clazz.isAssignableFrom(value.getClass) || clazz.isAssignableFrom(valueClazz))
+					value.asInstanceOf[T].success
+				else
+					s"Can't cast value $value of type ${value.getClass} into $clazz".failure
+			}
+		} match {
+			case Some(validation) => validation
+			case _ => nullValueFailure
 		}
 	}
 }

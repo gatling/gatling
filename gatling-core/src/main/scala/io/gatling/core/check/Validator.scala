@@ -81,13 +81,15 @@ class InMatcher[A](val expected: Expression[Seq[A]]) extends Matcher[A, Seq[A]] 
 
 class CompareMatcher[A](val name: String, message: String, compare: (A, A) => Boolean, val expected: Expression[A]) extends Matcher[A, A] {
 
-	def doMatch(actual: Option[A], expected: A): Validation[Option[A]] = actual.map { actualValue =>
-		if (compare(actualValue, expected))
-			actual.success
-		else
-			s"$actualValue is not $message $expected".failure
+	def doMatch(actual: Option[A], expected: A): Validation[Option[A]] = actual match {
+		case Some(actualValue) =>
+			if (compare(actualValue, expected))
+				actual.success
+			else
+				s"$actualValue is not $message $expected".failure
 
-	}.getOrElse(s"can't compare nothing and $expected".failure)
+		case _ => s"can't compare nothing and $expected".failure
+	}
 }
 
 class ExistsValidator[A] extends Validator[A] {
