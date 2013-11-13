@@ -63,7 +63,9 @@ object GatlingConfiguration {
 						expandEntityReferences = config.getBoolean(CONF_CORE_EXTRACT_XPATH_EXPAND_ENTITY_REFERENCES),
 						namespaceAware = config.getBoolean(CONF_CORE_EXTRACT_XPATH_NAMESPACE_AWARE)),
 					jsonPath = JsonPathConfiguration(
-						cache = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_CACHE))),
+						cache = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_CACHE)),
+					css = CssConfiguration(
+						cache = config.getBoolean(CONF_CORE_EXTRACT_CSS_CACHE))),
 				timeOut = TimeOutConfiguration(
 					simulation = config.getInt(CONF_CORE_TIMEOUT_SIMULATION),
 					actor = config.getInt(CONF_CORE_TIMEOUT_ACTOR)),
@@ -204,7 +206,8 @@ case class TimeOutConfiguration(
 case class ExtractConfiguration(
 	regex: RegexConfiguration,
 	xpath: XPathConfiguration,
-	jsonPath: JsonPathConfiguration)
+	jsonPath: JsonPathConfiguration,
+	css: CssConfiguration)
 
 case class RegexConfiguration(
 	cache: Boolean)
@@ -217,6 +220,9 @@ case class XPathConfiguration(
 	namespaceAware: Boolean)
 
 case class JsonPathConfiguration(
+	cache: Boolean)
+
+case class CssConfiguration(
 	cache: Boolean)
 
 case class DirectoryConfiguration(
