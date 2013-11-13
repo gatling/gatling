@@ -22,7 +22,9 @@ import io.gatling.core.util.StringHelper
 
 class ErrorTableComponent(errors: Seq[ErrorStats]) extends Component {
 
-	def js = StringHelper.emptyFastring
+	def js = fast"""
+	    $$('#container_errors').sortable('#container_errors');
+    """
 
 	def html = if (errors.isEmpty)
 		StringHelper.emptyFastring
@@ -34,13 +36,13 @@ class ErrorTableComponent(errors: Seq[ErrorStats]) extends Component {
     <table id="container_errors" class="statistics-in extensible-geant">
         <thead>
             <tr>
-                <th class="header"><span>Error</span></th>
-                <th class="header"><span>Count</span></th>
-                <th class="header"><span>Percentage</span></th>
+                <th id="error-col-1" class="header sortable"><span>Error</span></th>
+                <th id="error-col-2" class="header sortable"><span>Count</span></th>
+                <th id="error-col-3" class="header sortable"><span>Percentage</span></th>
             </tr>
         </thead>
 		<tbody>
-		    ${errors.map { error => fast"""<tr><td class="total">${error.message}</td><td class="value total">${error.count}</td><td class="value total">${error.percentage} %</td></tr>""" }.mkFastring}
+		    ${errors.zipWithIndex.map { case (error, index) => fast"""<tr><td class="error-col-1 total">${error.message}<span class="value" style="display:none">$index</span></td><td class="value error-col-2 total">${error.count}</td><td class="value error-col-3 total">${error.percentage} %</td></tr>""" }.mkFastring}
 		</tbody>
     </table>
 </div>

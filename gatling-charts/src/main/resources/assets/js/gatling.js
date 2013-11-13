@@ -113,14 +113,18 @@
 		}
 
 		function sortLines (lines, group) {
-			var sortedLines = lines.filter('.child-of-' + group).sort(function (a, b) {
+            var notErrorTable = col.search("error") == -1;
+            var linesToSort = notErrorTable ? lines.filter('.child-of-' + group) : lines;
+
+            var sortedLines = linesToSort.sort(function (a, b) {
 				return desc ? getValue(b) - getValue(a): getValue(a) - getValue(b);
 			}).toArray();
 
 			var result = [];
 			$.each(sortedLines, function (i, line) {
 				result.push(line);
-				result = result.concat(sortLines(lines, $(line).attr('id')));
+                if (notErrorTable)
+				    result = result.concat(sortLines(lines, $(line).attr('id')));
 			});
 
 			return result;
