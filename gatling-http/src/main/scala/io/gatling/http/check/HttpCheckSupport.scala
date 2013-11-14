@@ -18,7 +18,7 @@ package io.gatling.http.check
 import io.gatling.core.check.extractor.jsonpath.JsonFilter
 import io.gatling.core.check.extractor.regex.GroupExtractor
 import io.gatling.core.session.Expression
-import io.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
+import io.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyJsonpJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
 import io.gatling.http.check.checksum.HttpChecksumCheckBuilder
 import io.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
 import io.gatling.http.check.status.HttpStatusCheckBuilder
@@ -37,6 +37,8 @@ trait HttpCheckSupport {
 
 	val jsonPath = jsonPathTyped[String] _
 	def jsonPathTyped[T](path: Expression[String])(implicit groupExtractor: JsonFilter[T]) = HttpBodyJsonPathCheckBuilder.jsonPath[T](path)
+	val jsonpJsonPath = jsonpJsonPathTyped[String] _
+	def jsonpJsonPathTyped[T](regex: String, path: Expression[String])(implicit groupExtractor: JsonFilter[T]) = HttpBodyJsonpJsonPathCheckBuilder.jsonpJsonPath[T](regex, path)
 
 	val bodyString = HttpBodyStringCheckBuilder.bodyString
 
