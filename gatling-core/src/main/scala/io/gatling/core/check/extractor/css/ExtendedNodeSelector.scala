@@ -15,7 +15,10 @@
  */
 package io.gatling.core.check.extractor.css
 
-import scala.collection.JavaConversions.{ asScalaBuffer, seqAsJavaList }
+import java.util.{ List => JList }
+
+import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.mutable
 
 import jodd.csselly.{ CSSelly, CssSelector }
 import jodd.lagarto.dom.{ Node, NodeSelector }
@@ -23,20 +26,20 @@ import jodd.util.StringUtil
 
 object ExtendedNodeSelector {
 
-	def parseQuery(query: String): Seq[CssSelector] = {
+	def parseQuery(query: String): Seq[JList[CssSelector]] = {
 		val singleQueries = StringUtil.splitc(query, ',')
-		singleQueries.flatMap(new CSSelly(_).parse)
+		singleQueries.map(new CSSelly(_).parse)
 	}
 }
 
 class ExtendedNodeSelector(rootNode: Node) extends NodeSelector(rootNode) {
 
-	def select(selectors: Seq[CssSelector]): Seq[Node] = {
+	def select(selectorsSeq: Seq[JList[CssSelector]]): Seq[Node] = {
 
-		val results = collection.mutable.ArrayBuffer.empty[Node]
+		val results = mutable.ArrayBuffer.empty[Node]
 
 		for {
-			selector <- selectors
+			selectors <- selectorsSeq
 			selectedNode <- select(rootNode, selectors) if !results.contains(selectedNode)
 		} {
 			results += selectedNode

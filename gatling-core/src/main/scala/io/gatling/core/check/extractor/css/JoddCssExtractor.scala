@@ -15,6 +15,8 @@
  */
 package io.gatling.core.check.extractor.css
 
+import java.util.{ List => JList }
+
 import scala.collection.JavaConversions.mapAsScalaConcurrentMap
 import scala.collection.concurrent
 
@@ -28,7 +30,7 @@ import jodd.csselly.CssSelector
 
 object JoddCssExtractor {
 
-	val cache: concurrent.Map[String, Seq[CssSelector]] = new ConcurrentHashMap[String, Seq[CssSelector]]
+	val cache: concurrent.Map[String, Seq[JList[CssSelector]]] = new ConcurrentHashMap[String, Seq[JList[CssSelector]]]
 
 	def cached(query: String) = if (configuration.core.extract.css.cache) cache.getOrElseUpdate(query, ExtendedNodeSelector.parseQuery(query)) else ExtendedNodeSelector.parseQuery(query)
 
