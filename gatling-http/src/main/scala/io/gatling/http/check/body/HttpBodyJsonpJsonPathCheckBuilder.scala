@@ -15,6 +15,8 @@
  */
 package io.gatling.http.check.body
 
+import scala.util.matching.Regex
+
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
@@ -25,13 +27,13 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
 
-case class JsonpPreparer(regex: String) extends Preparer[Response, Any] with Logging {
+case class JsonpPreparer(regex: Regex) extends Preparer[Response, Any] with Logging {
 
 	def apply(response: Response) =
 		try {
 			val bodyString = response.getResponseBody(configuration.core.encoding)
 			bodyString match {
-				case regex.r(jsonp) => JsonPathExtractor.parse(jsonp).success
+				case regex(jsonp) => JsonPathExtractor.parse(jsonp).success
 				case _ =>
 					val message = s"Regex $regex could not extract JSON object from JSONP response"
 					logger.info(message)
@@ -47,8 +49,9 @@ case class JsonpPreparer(regex: String) extends Preparer[Response, Any] with Log
 }
 
 object HttpBodyJsonpJsonPathCheckBuilder extends Logging {
+	val JSONP_REGEX = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\)$""".r
 
-	def jsonpJsonPath[X](regex: String, path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
+	def jsonpJsonPath[X](regex: Regex, path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
 		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory, JsonpPreparer(regex)) {
 			def findExtractor(occurrence: Int) = new SingleJsonPathExtractor(path, occurrence)
 			def findAllExtractor = new MultipleJsonPathExtractor(path)

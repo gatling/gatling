@@ -38,7 +38,7 @@ trait HttpCheckSupport {
 	val jsonPath = jsonPathTyped[String] _
 	def jsonPathTyped[T](path: Expression[String])(implicit groupExtractor: JsonFilter[T]) = HttpBodyJsonPathCheckBuilder.jsonPath[T](path)
 	val jsonpJsonPath = jsonpJsonPathTyped[String] _
-	def jsonpJsonPathTyped[T](regex: String, path: Expression[String])(implicit groupExtractor: JsonFilter[T]) = HttpBodyJsonpJsonPathCheckBuilder.jsonpJsonPath[T](regex, path)
+	def jsonpJsonPathTyped[T](path: Expression[String])(implicit groupExtractor: JsonFilter[T]) = HttpBodyJsonpJsonPathCheckBuilder.jsonpJsonPath[T](HttpBodyJsonpJsonPathCheckBuilder.JSONP_REGEX, path)
 
 	val bodyString = HttpBodyStringCheckBuilder.bodyString
 
