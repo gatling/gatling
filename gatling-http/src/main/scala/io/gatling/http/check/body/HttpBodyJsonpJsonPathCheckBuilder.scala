@@ -47,6 +47,7 @@ case class JsonpPreparer(regex: String) extends Preparer[Response, Any] with Log
 }
 
 object HttpBodyJsonpJsonPathCheckBuilder extends Logging {
+	val JSONP_REGEX = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\)$"""
 
 	def jsonpJsonPath[X](regex: String, path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
 		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory, JsonpPreparer(regex)) {
