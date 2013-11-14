@@ -32,11 +32,10 @@ import io.gatling.http.util.HttpHelper
  * @param body the body that should be added to the request
  * @param params the parameters that should be added to the request
  */
-abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](
+abstract class AbstractHttpRequestWithParamsBuilder[B <: AbstractHttpRequestWithParamsBuilder[B]](
 	httpAttributes: HttpAttributes,
-	bodyAttributes: BodyAttributes,
 	params: List[HttpParam])
-	extends AbstractHttpRequestWithBodyBuilder[B](httpAttributes, bodyAttributes) {
+	extends AbstractHttpRequestBuilder[B](httpAttributes) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -47,20 +46,18 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 */
 	private[http] def newInstance(
 		httpAttributes: HttpAttributes,
-		bodyAttributes: BodyAttributes,
 		params: List[HttpParam]): B
 
 	private[http] def newInstance(
-		httpAttributes: HttpAttributes,
-		bodyAttributes: BodyAttributes): B = {
-		newInstance(httpAttributes, bodyAttributes, params)
+		httpAttributes: HttpAttributes): B = {
+		newInstance(httpAttributes, params)
 	}
 
 	def param(key: Expression[String], value: Expression[Any]): B = param(SimpleParam(key, value))
 	def multivaluedParam(key: Expression[String], values: Expression[Seq[Any]]): B = param(MultivaluedParam(key, values))
 	def paramsSequence(seq: Expression[Seq[(String, Any)]]): B = param(ParamSeq(seq))
 	def paramsMap(map: Expression[Map[String, Any]]): B = param(ParamMap(map))
-	private def param(param: HttpParam): B = newInstance(httpAttributes, bodyAttributes, param :: params)
+	private def param(param: HttpParam): B = newInstance(httpAttributes, param :: params)
 
 	override protected def configureParts(session: Session, requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
@@ -82,26 +79,24 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 			}
 
 		val requestBuilderWithParams =
-			if (bodyAttributes.bodyParts.isEmpty) configureAsParams
+			if (httpAttributes.bodyParts.isEmpty) configureAsParams
 			else configureAsStringParts
 
 		requestBuilderWithParams.flatMap(super.configureParts(session, _))
 	}
 }
 
-object HttpRequestWithBodyAndParamsBuilder {
+object HttpRequestWithParamsBuilder {
 
-	def apply(method: String, requestName: Expression[String], urlOrURI: Either[Expression[String], URI]) = new HttpRequestWithBodyAndParamsBuilder(HttpAttributes(requestName, method, urlOrURI), BodyAttributes(), Nil)
+	def apply(method: String, requestName: Expression[String], urlOrURI: Either[Expression[String], URI]) = new HttpRequestWithParamsBuilder(HttpAttributes(requestName, method, urlOrURI), Nil)
 }
 
-class HttpRequestWithBodyAndParamsBuilder(
+class HttpRequestWithParamsBuilder(
 	httpAttributes: HttpAttributes,
-	bodyAttributes: BodyAttributes,
 	params: List[HttpParam])
-	extends AbstractHttpRequestWithBodyAndParamsBuilder[HttpRequestWithBodyAndParamsBuilder](httpAttributes, bodyAttributes, params) {
+	extends AbstractHttpRequestWithParamsBuilder[HttpRequestWithParamsBuilder](httpAttributes, params) {
 
 	private[http] def newInstance(
 		httpAttributes: HttpAttributes,
-		bodyAttributes: BodyAttributes,
-		params: List[HttpParam]) = new HttpRequestWithBodyAndParamsBuilder(httpAttributes, bodyAttributes, params)
+		params: List[HttpParam]) = new HttpRequestWithParamsBuilder(httpAttributes, params)
 }

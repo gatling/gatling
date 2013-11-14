@@ -20,6 +20,7 @@ import java.net.{ InetAddress, URI }
 import com.ning.http.client.{ Realm, RequestBuilder }
 import com.ning.http.client.ProxyServer
 import com.ning.http.client.ProxyServer.Protocol
+import com.ning.http.multipart.Part
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -36,7 +37,7 @@ import io.gatling.http.check.HttpCheckOrder.Status
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.referer.RefererHandling
-import io.gatling.http.request.HttpRequest
+import io.gatling.http.request.{ Body, BodyPart, HttpRequest }
 import io.gatling.http.response.ResponseTransformer
 import io.gatling.http.util.HttpHelper
 
@@ -56,7 +57,9 @@ case class HttpAttributes(
 	useRawUrl: Boolean = false,
 	proxy: Option[ProxyServer] = None,
 	secureProxy: Option[ProxyServer] = None,
-	explicitResources: Seq[AbstractHttpRequestBuilder[_]] = Nil)
+	explicitResources: Seq[AbstractHttpRequestBuilder[_]] = Nil,
+	body: Option[Body] = None,
+	bodyParts: List[BodyPart] = Nil)
 
 object AbstractHttpRequestBuilder {
 
@@ -64,6 +67,7 @@ object AbstractHttpRequestBuilder {
 	val xmlHeaderValueExpression = HeaderValues.APPLICATION_XML.el[String]
 	val multipartFormDataValueExpression = HeaderValues.MULTIPART_FORM_DATA.el[String]
 	val emptyHeaderListSuccess = List.empty[(String, String)].success
+	val emptyPartListSuccess = List.empty[Part].success
 
 	implicit def toActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = new HttpRequestActionBuilder(requestBuilder)
 }
@@ -159,7 +163,34 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 	def proxy(httpProxy: Proxy): B = newInstance(httpAttributes.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
 
+	def body(bd: Body): B = newInstance(httpAttributes.copy(body = Some(bd)))
+
+	def processRequestBody(processor: Body => Body): B = newInstance(httpAttributes.copy(body = httpAttributes.body.map(processor)))
+
+	def bodyPart(bodyPart: BodyPart): B = newInstance(httpAttributes.copy(bodyParts = bodyPart :: httpAttributes.bodyParts))
+
 	def resources(res: AbstractHttpRequestBuilder[_]*): B = newInstance(httpAttributes.copy(explicitResources = res))
+
+	protected def configureParts(session: Session, requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
+		require(!httpAttributes.body.isDefined || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
+
+		if (httpAttributes.body.isDefined)
+			httpAttributes.body match {
+				case Some(body) => body.setBody(requestBuilder, session)
+				case _ => requestBuilder.success
+			}
+
+		else
+			httpAttributes.bodyParts.foldLeft(AbstractHttpRequestBuilder.emptyPartListSuccess) { (parts, part) =>
+				for {
+					parts <- parts
+					part <- part.toMultiPart(session)
+				} yield part :: parts
+			}.map { parts =>
+				parts.foreach(requestBuilder.addBodyPart)
+				requestBuilder
+			}
+	}
 
 	/**
 	 * This method actually fills the request builder to avoid race conditions
@@ -254,6 +285,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 			.flatMap(configureVirtualHost)
 			.flatMap(configureHeaders)
 			.flatMap(configureRealm)
+			.flatMap(configureParts(session, _))
 	}
 
 	/**
