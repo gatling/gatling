@@ -15,8 +15,6 @@
  */
 package io.gatling.http.check.body
 
-import scala.util.matching.Regex
-
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
@@ -27,15 +25,17 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
 
-case class JsonpPreparer(regex: Regex) extends Preparer[Response, Any] with Logging {
+object HttpBodyJsonpJsonPathCheckBuilder extends Logging {
 
-	def apply(response: Response) =
+	val jsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\)$""".r
+
+	val jsonpPreparer: Preparer[Response, Any] = (response: Response) =>
 		try {
 			val bodyString = response.getResponseBody(configuration.core.encoding)
 			bodyString match {
-				case regex(jsonp) => JsonPathExtractor.parse(jsonp).success
+				case jsonpRegex(jsonp) => JsonPathExtractor.parse(jsonp).success
 				case _ =>
-					val message = s"Regex $regex could not extract JSON object from JSONP response"
+					val message = "Regex could not extract JSON object from JSONP response"
 					logger.info(message)
 					message.failure
 			}
@@ -46,13 +46,9 @@ case class JsonpPreparer(regex: Regex) extends Preparer[Response, Any] with Logg
 				logger.info(message, e)
 				message.failure
 		}
-}
 
-object HttpBodyJsonpJsonPathCheckBuilder extends Logging {
-	val JSONP_REGEX = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\)$""".r
-
-	def jsonpJsonPath[X](regex: Regex, path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
-		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory, JsonpPreparer(regex)) {
+	def jsonpJsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
+		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory, jsonpPreparer) {
 			def findExtractor(occurrence: Int) = new SingleJsonPathExtractor(path, occurrence)
 			def findAllExtractor = new MultipleJsonPathExtractor(path)
 			def countExtractor = new CountJsonPathExtractor(path)
