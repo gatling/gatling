@@ -14,7 +14,7 @@ Gatling is for you!
 
 Gatling is developed in Scala and built upon :
 
-* [Async Http Client](https://github.com/sonatype/async-http-client) and [Netty](http://netty.io) for non blocking HTTP
+* [Async Http Client](https://github.com/AsyncHttpClient/async-http-client) and [Netty](http://netty.io) for non blocking HTTP
 * [Akka](http://akka.io) for actions (requests, pauses, assertions, etc...) modeling and orchestration
 ...
 
