@@ -93,7 +93,7 @@ object ScenarioExporter extends Logging {
 			resolveBaseHeaders(Map.empty, ProtocolElement.baseHeaders.keySet.toList)
 		}
 
-		val protocolConfigElement = new ProtocolElement(baseUrl, configuration.http.followRedirect, configuration.http.automaticReferer, baseHeaders)
+		val protocolConfigElement = new ProtocolElement(baseUrl, baseHeaders)
 
 		// Add simulationClass to request elements
 		val elementsList: List[ScenarioElement] = scenarioElements.map {
@@ -108,10 +108,8 @@ object ScenarioExporter extends Logging {
 				i = i + 1
 				e.makeRelativeTo(baseUrl).setId(i)
 				e.body.map {
-					_ match {
-						case RequestBodyBytes(bytes) => dumpRequestBody(i, bytes, configuration.core.className)
-						case _ =>
-					}
+					case RequestBodyBytes(bytes) => dumpRequestBody(i, bytes, configuration.core.className)
+					case _ =>
 				}
 
 			case _ =>

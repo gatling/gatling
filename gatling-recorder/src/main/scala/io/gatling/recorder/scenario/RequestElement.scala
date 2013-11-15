@@ -76,12 +76,6 @@ case class RequestElement(uri: String, method: String, headers: Map[String, Stri
 		this
 	}
 
-	private def convertParamsFromJavaToScala(params: java.util.Map[String, java.util.List[String]]): List[(String, String)] =
-		for {
-			(key, list) <- params.toList
-			e <- list
-		} yield (key, e)
-
 	private val basicAuthCredentials: Option[(String, String)] = {
 		def parseCredentials(header: String) = {
 			val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")

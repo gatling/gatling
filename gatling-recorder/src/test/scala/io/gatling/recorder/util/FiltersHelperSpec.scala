@@ -47,11 +47,11 @@ class FiltersHelperSpec extends Specification {
 		def listsAndCheck(whitelist: WhiteList, blacklist: BlackList) = {
 			val tmpConf = configuration.copy(
 				filters = configuration.filters.copy(
-					whitelist = whitelist,
-					blacklist = blacklist))
+					whiteList = whitelist,
+					blackList = blacklist))
 
-			tmpConf.filters.whitelist must be equalTo whitelist
-			tmpConf.filters.blacklist must be equalTo blacklist
+			tmpConf.filters.whiteList must be equalTo whitelist
+			tmpConf.filters.blackList must be equalTo blacklist
 
 			tmpConf
 		}
@@ -60,8 +60,8 @@ class FiltersHelperSpec extends Specification {
 	val defaults = RecorderConfiguration(
 		filters = FiltersConfiguration(
 			filterStrategy = FilterStrategy.DISABLED,
-			whitelist = whitelist,
-			blacklist = blacklist),
+			whiteList = whitelist,
+			blackList = blacklist),
 		http = null,
 		proxy = null,
 		core = null,
@@ -73,8 +73,8 @@ class FiltersHelperSpec extends Specification {
 			configuration = defaults
 
 			configuration.filters.filterStrategy must be equalTo FilterStrategy.DISABLED
-			configuration.filters.whitelist must be equalTo whitelist
-			configuration.filters.blacklist must be equalTo blacklist
+			configuration.filters.whiteList must be equalTo whitelist
+			configuration.filters.blackList must be equalTo blacklist
 		}
 
 		"not filter anything while disabled" in {

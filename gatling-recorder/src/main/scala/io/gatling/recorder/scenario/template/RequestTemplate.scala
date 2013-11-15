@@ -51,14 +51,12 @@ object RequestTemplate {
 			}.getOrElse("")
 
 		def renderBodyOrParams = body.map {
-			_ match {
-				case RequestBodyBytes(_) => fast"""
+			case RequestBodyBytes(_) => fast"""
 			.body(RawFileBody("${simulationClass}_request_$id.txt"))"""
-				case RequestBodyParams(params) => params.map {
-					case (key, value) => fast"""
+			case RequestBodyParams(params) => params.map {
+				case (key, value) => fast"""
 			.param($tripleQuotes$key$tripleQuotes, $tripleQuotes$value$tripleQuotes)"""
-				}.mkFastring
-			}
+			}.mkFastring
 		}.getOrElse(emptyFastring)
 
 		def renderCredentials = credentials.map {

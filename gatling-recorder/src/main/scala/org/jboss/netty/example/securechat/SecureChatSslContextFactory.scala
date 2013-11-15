@@ -67,7 +67,7 @@ object SecureChatSslContextFactory extends Logging {
 
 		val keystoreStream = sys.props.get(PROPERTY_KEYSTORE_PATH)
 			.map { keystorePath =>
-				logger.info(s"Loading user-specified keystore: '${keystorePath}'")
+				logger.info(s"Loading user-specified keystore: '$keystorePath'")
 				new FileInputStream(keystorePath)
 			}.getOrElse {
 				logger.info("Loading default keystore gatling.jks")

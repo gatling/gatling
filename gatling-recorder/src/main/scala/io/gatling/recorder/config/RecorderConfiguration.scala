@@ -99,8 +99,8 @@ object RecorderConfiguration extends Logging {
 		RecorderConfiguration(
 			filters = FiltersConfiguration(
 				filterStrategy = FilterStrategy.withName(config.getString(FILTER_STRATEGY)),
-				whitelist = WhiteList(config.getStringList(WHITELIST_PATTERNS).toList),
-				blacklist = BlackList(config.getStringList(BLACKLIST_PATTERNS).toList)),
+				whiteList = WhiteList(config.getStringList(WHITELIST_PATTERNS).toList),
+				blackList = BlackList(config.getStringList(BLACKLIST_PATTERNS).toList)),
 			http = HttpConfiguration(
 				automaticReferer = config.getBoolean(AUTOMATIC_REFERER),
 				followRedirect = config.getBoolean(FOLLOW_REDIRECT)),
@@ -125,8 +125,8 @@ object RecorderConfiguration extends Logging {
 
 case class FiltersConfiguration(
 	filterStrategy: FilterStrategy,
-	whitelist: WhiteList,
-	blacklist: BlackList)
+	whiteList: WhiteList,
+	blackList: BlackList)
 
 case class HttpConfiguration(
 	automaticReferer: Boolean,

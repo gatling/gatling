@@ -362,8 +362,8 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 		filterStrategies.selection.item = configuration.filters.filterStrategy
 		followRedirects.selected = configuration.http.followRedirect
 		automaticReferers.selected = configuration.http.automaticReferer
-		configuration.filters.blacklist.patterns.foreach(blackListTable.addRow(_))
-		configuration.filters.whitelist.patterns.foreach(whiteListTable.addRow(_))
+		configuration.filters.blackList.patterns.foreach(blackListTable.addRow(_))
+		configuration.filters.whiteList.patterns.foreach(whiteListTable.addRow(_))
 		outputFolderPath.text = configuration.core.outputFolder
 		outputEncoding.selection.item = CharsetHelper.charsetNameToLabel(configuration.core.encoding)
 	}

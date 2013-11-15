@@ -20,9 +20,9 @@ import io.gatling.recorder.enumeration.FilterStrategy
 
 object FiltersHelper {
 
-	private def checkWhiteList = configuration.filters.whitelist.accept _
+	private def checkWhiteList = configuration.filters.whiteList.accept _
 
-	private def checkBlackList = configuration.filters.blacklist.accept _
+	private def checkBlackList = configuration.filters.blackList.accept _
 
 	def isRequestAccepted(uri: String): Boolean = {
 		configuration.filters.filterStrategy match {

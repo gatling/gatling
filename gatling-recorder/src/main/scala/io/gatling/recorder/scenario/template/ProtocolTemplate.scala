@@ -25,7 +25,7 @@ object ProtocolTemplate {
 
 	val indent = "\t" * 2
 
-	def render(baseUrl: String, followRedirect: Boolean, automaticReferer: Boolean, headers: Map[String, String]) = {
+	def render(baseUrl: String, headers: Map[String, String]) = {
 
 		def renderProxy = {
 			def renderSslPort = configuration.proxy.outgoing.sslPort.map(proxySslPort => s".httpsPort($proxySslPort)").getOrElse("")
@@ -44,9 +44,9 @@ object ProtocolTemplate {
 			credentials.getOrElse("")
 		}
 
-		def renderFollowRedirect = if (!followRedirect) s"$eol$indent.disableFollowRedirect" else ""
+		def renderFollowRedirect = if (!configuration.http.followRedirect) s"$eol$indent.disableFollowRedirect" else ""
 
-		def renderAutomaticReferer = if (!automaticReferer) s"$eol$indent.disableAutoReferer" else ""
+		def renderAutomaticReferer = if (!configuration.http.automaticReferer) s"$eol$indent.disableAutoReferer" else ""
 
 		def renderHeaders = {
 			def renderHeader(methodName: String, headerValue: String) = fast"""$eol$indent.$methodName("$headerValue")"""

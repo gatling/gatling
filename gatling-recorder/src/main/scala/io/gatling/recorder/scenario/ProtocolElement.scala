@@ -30,7 +30,7 @@ object ProtocolElement {
 		HeaderNames.DO_NOT_TRACK -> "doNotTrackHeader",
 		HeaderNames.USER_AGENT -> "userAgentHeader")
 }
-class ProtocolElement(baseUrl: String, followRedirect: Boolean, automaticReferer: Boolean, headers: Map[String, String]) extends ScenarioElement {
+class ProtocolElement(baseUrl: String, headers: Map[String, String]) extends ScenarioElement {
 
-	override def toString = ProtocolTemplate.render(baseUrl, followRedirect, automaticReferer, headers)
+	override def toString = ProtocolTemplate.render(baseUrl, headers)
 }
