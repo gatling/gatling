@@ -35,9 +35,7 @@ object HttpHeaderExtractor {
 	def decodedHeaders(response: Response, headerName: String): Seq[String] = response.getHeadersSafe(headerName).map(decode(headerName, _))
 }
 
-abstract class HttpHeaderExtractor[X] extends CriterionExtractor[Response, String, X] {
-	val name = "header"
-}
+abstract class HttpHeaderExtractor[X] extends CriterionExtractor[Response, String, X] { val criterionName = "header" }
 
 class SingleHttpHeaderExtractor(val criterion: Expression[String], occurrence: Int) extends HttpHeaderExtractor[String] {
 

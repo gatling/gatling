@@ -30,9 +30,7 @@ object HttpHeaderRegexExtractor {
 	}
 }
 
-abstract class HttpHeaderRegexExtractor[X] extends CriterionExtractor[Response, (String, String), X] {
-	val name = "headerRegex"
-}
+abstract class HttpHeaderRegexExtractor[X] extends CriterionExtractor[Response, (String, String), X] { val criterionName = "headerRegex" }
 
 class SingleHttpHeaderRegexExtractor[X](val criterion: Expression[(String, String)], occurrence: Int)(implicit groupExtractor: GroupExtractor[X]) extends HttpHeaderRegexExtractor[X] {
 
