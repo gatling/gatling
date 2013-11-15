@@ -21,7 +21,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.validation.{ SuccessWrapper, Validation, ValidationList }
 import io.gatling.core.check.extractor.Extractor
 
-object Checks {
+object Check {
 
 	val noopUpdate = (identity[Session] _).success
 
@@ -61,8 +61,8 @@ case class CheckBase[R, P, X](
 
 		for {
 			prepared <- memoizedPrepared.mapError(message => s"${extractor.name}.${validator.name} failed, could not prepare: $message")
-			actual <- extractor(session, prepared).mapError(message => s"${extractor.name}.${validator.name} failed: could not extract: $message")
-			matched <- validator(session, actual).mapError(message => s"${extractor.name}.${validator.name} didn't match: $message")
+			actual <- extractor(session, prepared).mapError(message => s"${extractor.name}.${validator.name} failed, could not extract: $message")
+			matched <- validator(session, actual).mapError(message => s"${extractor.name}.${validator.name}$message")
 
 		} yield update(matched)
 	}

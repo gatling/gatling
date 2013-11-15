@@ -33,7 +33,7 @@ abstract class Matcher[A, E] extends Validator[A] {
 	def apply(session: Session, actual: Option[A]): Validation[Option[A]] =
 		for {
 			expected <- expected(session).mapError(message => s"could not resolve expected value: $message")
-			matchResult <- doMatch(actual, expected).mapError(message => s"($expected) didn't match: $message")
+			matchResult <- doMatch(actual, expected).mapError(message => s"($expected) failed: $message")
 		} yield matchResult
 }
 

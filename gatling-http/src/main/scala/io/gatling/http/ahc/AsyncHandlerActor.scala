@@ -21,7 +21,7 @@ import akka.actor.Props
 import akka.actor.ActorDSL.actor
 import akka.routing.RoundRobinRouter
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
-import io.gatling.core.check.Checks
+import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
@@ -215,7 +215,7 @@ class AsyncHandlerActor extends BaseActor {
 
 			val updateWithCacheUpdate = sessionUpdates andThen AsyncHandlerActor.updateCache(tx, response)
 
-			Checks.check(response, tx.session, checks) match {
+			Check.check(response, tx.session, checks) match {
 				case Success(saveCheckExtracts) => ok(tx, updateWithCacheUpdate andThen saveCheckExtracts, response)
 				case Failure(errorMessage) => ko(tx, updateWithCacheUpdate, response, errorMessage)
 			}
