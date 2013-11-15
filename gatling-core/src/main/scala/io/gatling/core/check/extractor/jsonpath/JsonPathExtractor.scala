@@ -31,7 +31,7 @@ object JsonPathExtractor {
 		cached(expression).map(_.queryJsonObject(json).collect(implicitly[JsonFilter[X]].filter))
 }
 
-abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] { val name = "jsonPath" }
+abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] { val criterionName = "jsonPath" }
 
 class SingleJsonPathExtractor[X: JsonFilter](val criterion: Expression[String], occurrence: Int) extends JsonPathExtractor[X] {
 

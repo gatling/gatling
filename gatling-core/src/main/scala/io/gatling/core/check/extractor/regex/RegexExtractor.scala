@@ -42,7 +42,7 @@ object RegexExtractor {
 	}
 }
 
-abstract class RegexExtractor[X] extends CriterionExtractor[String, String, X] { val name = "regex" }
+abstract class RegexExtractor[X] extends CriterionExtractor[String, String, X] { val criterionName = "regex" }
 
 class SingleRegexExtractor[X: GroupExtractor](val criterion: Expression[String], occurrence: Int) extends RegexExtractor[X] {
 

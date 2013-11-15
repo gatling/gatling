@@ -49,7 +49,7 @@ object JoddCssExtractor {
 	}
 }
 
-abstract class JoddCssExtractor[X] extends CriterionExtractor[ExtendedNodeSelector, String, X] { val name = "css" }
+abstract class JoddCssExtractor[X] extends CriterionExtractor[ExtendedNodeSelector, String, X] { val criterionName = "css" }
 
 class SingleJoddCssExtractor[X](val criterion: Expression[String], nodeAttribute: Option[String], occurrence: Int) extends JoddCssExtractor[String] {
 
