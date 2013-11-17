@@ -37,12 +37,6 @@ import scopt.OptionParser
 /**
  * Object containing entry point of application
  */
-object GatlingStatusCodes {
-	val success = 0
-	val invalidArguments = 1
-	val assertionsFailed = 2
-}
-
 object Gatling {
 
 	/**
