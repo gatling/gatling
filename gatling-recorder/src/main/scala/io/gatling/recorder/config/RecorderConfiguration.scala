@@ -50,7 +50,7 @@ object RecorderConfiguration extends Logging {
 	GatlingConfiguration.setUp()
 
 	def initialSetup(props: mutable.Map[String, _], recorderConfigFile: Option[File]) {
-		val classLoader = getClass.getClassLoader
+		val classLoader = Thread.currentThread.getContextClassLoader
 		val defaultsConfig = ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
 		configFile = recorderConfigFile.map(_.jfile).orElse(Option(classLoader.getResource("recorder.conf")).map(url => new JFile(url.getFile)))
 		val customConfig = configFile.map(ConfigFactory.parseFile).getOrElse {
