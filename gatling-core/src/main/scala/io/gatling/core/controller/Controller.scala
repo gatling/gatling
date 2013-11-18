@@ -79,9 +79,9 @@ class Controller extends BaseActor {
 	val waitingForDataWriterToInit: Receive = {
 
 		case DataWritersInitialized(result) => result match {
-			case f @ SFailure(_) => launcher ! f
+			case f: SFailure[_] => launcher ! f
 
-			case SSuccess(_) =>
+			case _ =>
 				val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
 
 				logger.debug("Launching All Scenarios")

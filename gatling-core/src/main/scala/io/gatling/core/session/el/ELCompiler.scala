@@ -66,7 +66,7 @@ case class SeqElementPart(name: String, index: String) extends Part[Any] {
 			val intIndex = index.toInt
 			seqElementPart(intIndex)
 		} catch {
-			case e: NumberFormatException => session(index).validate[Int].flatMap(seqElementPart(_))
+			case e: NumberFormatException => session(index).validate[Int].flatMap(seqElementPart)
 		}
 	}
 }

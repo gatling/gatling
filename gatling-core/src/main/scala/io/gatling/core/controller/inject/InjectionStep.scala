@@ -141,8 +141,8 @@ case class HeavisideInjection(users: Int, duration: FiniteDuration) extends Inje
 	import io.gatling.core.util.Erf.erfinv
 
 	override def chain(iterator: Iterator[FiniteDuration]) = {
-		def heavisideInv(u: Double) = {
-			val x = u / (users + 1)
+		def heavisideInv(u: Int) = {
+			val x = u.toDouble / (users + 1)
 			erfinv(2 * x - 1)
 		}
 
@@ -150,6 +150,6 @@ case class HeavisideInjection(users: Int, duration: FiniteDuration) extends Inje
 		val d = t0 * 2
 		val k = duration.toMillis / d
 
-		Iterator.range(1, users + 1).map(heavisideInv(_)).map(t => (k * (t + t0)).toLong.milliseconds)
+		Iterator.range(1, users + 1).map(heavisideInv).map(t => (k * (t + t0)).toLong.milliseconds)
 	}
 }

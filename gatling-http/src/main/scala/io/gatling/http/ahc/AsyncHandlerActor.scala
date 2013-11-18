@@ -44,10 +44,9 @@ object AsyncHandlerActor extends AkkaDefaults {
 
 	val asyncHandlerActor = system.actorOf(Props[AsyncHandlerActor].withRouter(RoundRobinRouter(nrOfInstances = 3 * Runtime.getRuntime.availableProcessors)))
 
-	def updateCookies(tx: HttpTx, response: Response): (Session => Session) = session => CookieHandling.storeCookies(session, response.getUri, response.getCookies.toList)
-	def updateCache(tx: HttpTx, response: Response): (Session => Session) = session => CacheHandling.cache(tx.protocol, session, tx.request, response)
-	val fail = (session: Session) => session.markAsFailed
-
+	def updateCookies(tx: HttpTx, response: Response): Session => Session = CookieHandling.storeCookies(_, response.getUri, response.getCookies.toList)
+	def updateCache(tx: HttpTx, response: Response): Session => Session = CacheHandling.cache(tx.protocol, _, tx.request, response)
+	val fail: Session => Session = _.markAsFailed
 }
 
 class AsyncHandlerActor extends BaseActor {

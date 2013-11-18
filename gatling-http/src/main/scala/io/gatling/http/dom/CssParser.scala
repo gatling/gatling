@@ -56,7 +56,7 @@ object CssParser extends Logging {
 					case None =>
 						protectChar = singleQuoteEscapeChar
 						trimLeft(cur + 1)
-					case Some(_) =>
+					case _ =>
 						broken = true
 						cur
 
@@ -66,7 +66,7 @@ object CssParser extends Logging {
 					case None =>
 						protectChar = doubleQuoteEscapeChar
 						trimLeft(cur + 1)
-					case Some(_) =>
+					case _ =>
 						broken = true
 						cur
 				}
