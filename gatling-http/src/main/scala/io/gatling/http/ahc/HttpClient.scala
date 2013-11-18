@@ -43,7 +43,7 @@ case class HttpTx(session: Session,
 	throttled: Boolean,
 	explicitResources: Seq[HttpRequest],
 	resourceFetching: Boolean = false,
-	numberOfRedirects: Int = 0)
+	redirectCount: Int = 0)
 
 object HttpClient extends AkkaDefaults with Logging {
 

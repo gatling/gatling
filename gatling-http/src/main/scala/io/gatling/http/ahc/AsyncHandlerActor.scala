@@ -41,7 +41,6 @@ import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }
 import io.gatling.http.util.HttpStringBuilder
 
 object AsyncHandlerActor extends AkkaDefaults {
-	val redirectedRequestNamePattern = """(.+?) Redirect (\d+)""".r
 
 	val asyncHandlerActor = system.actorOf(Props[AsyncHandlerActor].withRouter(RoundRobinRouter(nrOfInstances = 3 * Runtime.getRuntime.availableProcessors)))
 
@@ -72,10 +71,14 @@ class AsyncHandlerActor extends BaseActor {
 		response: Response,
 		errorMessage: Option[String] = None) {
 
+		val fullRequestName = if (tx.redirectCount > 0)
+			s"${tx.requestName} Redirect ${tx.redirectCount}"
+		else tx.requestName
+
 		def dump = {
 			val buff = new StringBuilder
 			buff.append(eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(eol)
-			buff.append("Request:").append(eol).append(s"${tx.requestName}: $status ${errorMessage.getOrElse("")}").append(eol)
+			buff.append("Request:").append(eol).append(s"$fullRequestName: $status ${errorMessage.getOrElse("")}").append(eol)
 			buff.append("=========================").append(eol)
 			buff.append("Session:").append(eol).append(tx.session).append(eol)
 			buff.append("=========================").append(eol)
@@ -87,7 +90,7 @@ class AsyncHandlerActor extends BaseActor {
 		}
 
 		if (status == KO) {
-			logger.warn(s"Request '${tx.requestName}' failed : ${errorMessage.getOrElse("")}")
+			logger.warn(s"Request '$fullRequestName' failed : ${errorMessage.getOrElse("")}")
 			if (!logger.underlying.isTraceEnabled) logger.debug(dump)
 		}
 		logger.trace(dump)
@@ -103,7 +106,7 @@ class AsyncHandlerActor extends BaseActor {
 				Nil
 		}
 
-		DataWriter.tell(RequestMessage(tx.session.scenarioName, tx.session.userId, tx.session.groupStack, tx.requestName,
+		DataWriter.tell(RequestMessage(tx.session.scenarioName, tx.session.userId, tx.session.groupStack, fullRequestName,
 			response.firstByteSent, response.firstByteSent, response.firstByteReceived, response.lastByteReceived,
 			status, errorMessage, extraInfo))
 	}
@@ -176,7 +179,7 @@ class AsyncHandlerActor extends BaseActor {
 
 		def redirect(sessionUpdates: Session => Session) {
 
-			if (tx.protocol.maxRedirects.exists(_ == tx.numberOfRedirects)) {
+			if (tx.protocol.maxRedirects.exists(_ == tx.redirectCount)) {
 				ko(tx, sessionUpdates, response, s"Too many redirects, max is ${tx.protocol.maxRedirects.get}")
 
 			} else {
@@ -201,12 +204,7 @@ class AsyncHandlerActor extends BaseActor {
 				newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
 				newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
 
-				val newRequestName = tx.requestName match {
-					case AsyncHandlerActor.redirectedRequestNamePattern(requestBaseName, redirectCount) => s"$requestBaseName Redirect ${redirectCount.toInt + 1}"
-					case _ => tx.requestName + " Redirect 1"
-				}
-
-				val redirectTx = newTx.copy(request = newRequest, requestName = newRequestName, numberOfRedirects = tx.numberOfRedirects + 1)
+				val redirectTx = newTx.copy(request = newRequest, redirectCount = tx.redirectCount + 1)
 				HttpRequestAction.beginHttpTransaction(redirectTx)
 			}
 		}
