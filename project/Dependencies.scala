@@ -14,7 +14,7 @@ object Dependencies {
 	private val fastring          = "com.dongxiguo"        %% "fastring"           % "0.2.2"
 	private val jodaTime          = "joda-time"             % "joda-time"          % "2.3"
 	private val jodaConvert       = "org.joda"              % "joda-convert"       % "1.5"
-	private val scopt             = "com.github.scopt"     %% "scopt"              % "3.1.0"
+	private val scopt             = "com.github.scopt"     %% "scopt"              % "3.2.0"
 	private val scalalogging      = "com.typesafe"         %% "scalalogging-slf4j" % "1.0.1"
 	private val jsonSmart         = "net.minidev"           % "json-smart"         % "1.2"
 	private val jsonpath          = "io.gatling"           %% "jsonpath"           % "0.2.4"
