@@ -22,7 +22,7 @@ object Dependencies {
 	private val joddLagarto       = "org.jodd"              % "jodd-lagarto"       % "3.4.8"
 	private val jzlib             = "com.jcraft"            % "jzlib"              % "1.1.3"
 	private val commonsIo         = "commons-io"            % "commons-io"         % "2.4"
-	private val redisClient       = "net.debasishg"        %% "redisclient"        % "2.10"        exclude("org.scala-lang", "scala-actors")
+	private val redisClient       = "net.debasishg"        %% "redisclient"        % "2.11"        exclude("org.scala-lang", "scala-actors")
 	private val zinc              = "com.typesafe.zinc"     % "zinc"               % "0.3.1-M1"
 	private val openCsv           = "net.sf.opencsv"        % "opencsv"            % "2.3"
 
