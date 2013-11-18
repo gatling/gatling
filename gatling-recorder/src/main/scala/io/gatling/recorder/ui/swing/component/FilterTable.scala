@@ -15,36 +15,28 @@
  */
 package io.gatling.recorder.ui.swing.component
 
-import java.awt.{ Dimension, Color, BorderLayout }
-import java.awt.event.{ MouseListener, MouseEvent, MouseAdapter, ActionListener, ActionEvent }
-
-import javax.swing.{ JTable, JScrollPane, JPopupMenu, JPanel, JMenuItem }
+import java.awt.Color
+import java.awt.event.{ ActionEvent, ActionListener }
 import javax.swing.table.DefaultTableModel
+import javax.swing.{ JMenuItem, JPopupMenu }
+import scala.swing.{ Dimension, ScrollPane, Table }
+import scala.swing.event.{ MouseEvent, MouseButtonEvent }
 
-class FilterTable(header: String) extends JPanel with MouseListener {
-
+class FilterTable(headerTitle: String) extends ScrollPane {
+	private val table = new Table
 	private val model = new DefaultTableModel
-	private val table = new JTable
 
-	model.addColumn(header)
-
-	table.setModel(model)
-	table.setRowHeight(30)
-	table.getTableHeader.setReorderingAllowed(false)
-
-	setLayout(new BorderLayout)
-
-	val scrollPane = new JScrollPane(table)
-	scrollPane.setPreferredSize(new Dimension(200, 300))
-	add(scrollPane)
-	scrollPane.addMouseListener(this)
-
+	contents = table
+	model.addColumn(headerTitle)
+	table.model = model
+	table.rowHeight = 30
+	preferredSize = new Dimension(200, 300)
 	initPopupMenu
 
 	def validateCells {
 		stopCellEditing
 		var toRemove: List[Int] = Nil
-		for (i <- 0 until model.getRowCount if model.getValueAt(i, 0).toString.isEmpty)
+		for (i <- 0 until table.rowCount if table(i, 0).toString.isEmpty)
 			toRemove = i :: toRemove
 
 		removeRows(toRemove)
@@ -56,23 +48,23 @@ class FilterTable(header: String) extends JPanel with MouseListener {
 	}
 
 	def stopCellEditing {
-		if (table.isEditing && table.getSelectedRow != -1)
-			table.getCellEditor.stopCellEditing
+		if (table.peer.isEditing && table.peer.getSelectedRow != -1)
+			table.peer.getCellEditor.stopCellEditing
 	}
 
 	def removeDuplicates {
 		val toRemove = for {
-			i <- 0 until model.getRowCount
-			j <- i until model.getRowCount
+			i <- 0 until table.rowCount
+			j <- i until table.rowCount
 			if i != j && getRegex(i) == getRegex(j)
 		} yield j
 		/* Remove the duplicated indexes and sort them in reverse order, so that we don't modify the indexes of the row we want to remove */
 		toRemove.toSet.toList.sortWith(_ >= _).foreach(model.removeRow)
 	}
 
-	override def setEnabled(enabled: Boolean) {
-		table.setEnabled(enabled)
-		table.setBackground(if (enabled) Color.WHITE else Color.LIGHT_GRAY)
+	def setEnabled(enabled: Boolean) {
+		table.enabled = enabled
+		table.background = if (enabled) Color.WHITE else Color.LIGHT_GRAY
 	}
 
 	def addRow {
@@ -82,15 +74,15 @@ class FilterTable(header: String) extends JPanel with MouseListener {
 
 	def addRow(pattern: String) = model.addRow(Array[Object](pattern))
 
-	def removeSelectedRow = removeRows(getSelectedRows.toList)
+	def removeSelectedRow = removeRows(table.selection.rows.toList)
 
 	def removeAllElements = removeRows((0 until model.getRowCount).toList)
 
-	def getSelectedRows = table.getSelectedRows
+	def setFocusable(focusable: Boolean) = table.focusable = focusable
 
 	def getRowCount = model.getRowCount
 
-	def getRegex(row: Int) = table.getValueAt(row, 0).asInstanceOf[String]
+	def getRegex(row: Int) = table(row, 0).asInstanceOf[String]
 
 	def getRegexs = (for (i <- 0 until getRowCount) yield getRegex(i)).toList
 
@@ -105,32 +97,15 @@ class FilterTable(header: String) extends JPanel with MouseListener {
 
 		popup.add(menuItem)
 
-		table.addMouseListener(new MouseAdapter() {
+		listenTo(table.mouse.clicks)
 
-			override def mousePressed(e: MouseEvent) {
-				maybeShowPopup(e)
-			}
+		reactions += {
+			case e: MouseButtonEvent => maybeShowPopup(e)
+		}
 
-			override def mouseReleased(e: MouseEvent) {
-				maybeShowPopup(e)
-			}
-
-			private def maybeShowPopup(e: MouseEvent) {
-				if (e.isPopupTrigger)
-					popup.show(e.getComponent, e.getX, e.getY)
-			}
-		})
-	}
-
-	override def mouseReleased(e: MouseEvent) {}
-
-	override def mousePressed(e: MouseEvent) {}
-
-	override def mouseExited(e: MouseEvent) {}
-
-	override def mouseEntered(e: MouseEvent) {}
-
-	override def mouseClicked(e: MouseEvent) {
-		stopCellEditing
+		def maybeShowPopup(e: MouseEvent) {
+			if (e.peer.isPopupTrigger)
+				popup.show(e.peer.getComponent, e.peer.getX, e.peer.getY)
+		}
 	}
 }
