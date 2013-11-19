@@ -29,7 +29,7 @@ case class Success[+T](value: T) extends Validation[T] {
 	def map[A](f: T => A): Validation[A] = Success(f(value))
 	def flatMap[A](f: T => Validation[A]): Validation[A] = f(value)
 	def mapError(f: String => String): Validation[T] = this
-	def filter(p: T => Boolean): Validation[T] = if (p(value)) this else Failure("Filtered")
+	def filter(p: T => Boolean): Validation[T] = if (p(value)) this else Failure("Predicate does not hold for " + value)
 	def onSuccess(f: T => Any) { f(value) }
 	def onFailure(f: String => Any) {}
 }
