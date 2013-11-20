@@ -35,7 +35,6 @@ import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.GatlingHttpProxy
 import io.gatling.recorder.scenario.{ PauseElement, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
 import io.gatling.recorder.ui._
-import io.gatling.recorder.util.FiltersHelper.isRequestAccepted
 import io.gatling.recorder.util.RedirectHelper._
 import io.gatling.recorder.har.HarReader
 
@@ -152,7 +151,7 @@ class RecorderController extends Logging {
 		}
 
 		synchronized {
-			if (isRequestAccepted(request.getUri)) {
+			if (configuration.filters.filters.map(_.accept(request.getUri)).getOrElse(true)) {
 				if (redirectChainStart == null && isRequestRedirect(response.getStatus.getCode)) {
 					// enter redirect chain
 					processPause

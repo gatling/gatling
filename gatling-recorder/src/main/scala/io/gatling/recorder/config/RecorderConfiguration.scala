@@ -16,15 +16,12 @@
 package io.gatling.recorder.config
 
 import java.io.{ File => JFile }
-
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsJavaMap }
 import scala.collection.mutable
 import scala.tools.nsc.io.File
 import scala.util.Properties.userHome
-
 import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
 import com.typesafe.scalalogging.slf4j.Logging
-
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.filter.{ BlackList, WhiteList }
 import io.gatling.core.util.IOHelper.withCloseable
@@ -32,6 +29,8 @@ import io.gatling.core.util.StringHelper.{ RichString, eol }
 import io.gatling.recorder.config.ConfigurationConstants._
 import io.gatling.recorder.enumeration.FilterStrategy
 import io.gatling.recorder.enumeration.FilterStrategy.FilterStrategy
+import io.gatling.core.filter.Filters
+import io.gatling.core.filter.Filters
 
 object RecorderConfiguration extends Logging {
 
@@ -126,7 +125,14 @@ object RecorderConfiguration extends Logging {
 case class FiltersConfiguration(
 	filterStrategy: FilterStrategy,
 	whiteList: WhiteList,
-	blackList: BlackList)
+	blackList: BlackList) {
+
+	def filters: Option[Filters] = filterStrategy match {
+		case FilterStrategy.DISABLED => None
+		case FilterStrategy.BLACKLIST_FIRST => Some(Filters(blackList, whiteList))
+		case FilterStrategy.WHITELIST_FIRST => Some(Filters(whiteList, blackList))
+	}
+}
 
 case class HttpConfiguration(
 	automaticReferer: Boolean,

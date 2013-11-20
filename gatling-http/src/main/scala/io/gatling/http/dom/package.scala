@@ -15,7 +15,7 @@
  */
 package io.gatling.http
 
-import io.gatling.core.filter.{ Filters, FilterList }
+import io.gatling.core.filter.Filters
 import io.gatling.http.dom.EmbeddedResource
 
 package object dom {

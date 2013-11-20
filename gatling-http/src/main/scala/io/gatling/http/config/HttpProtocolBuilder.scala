@@ -23,7 +23,7 @@ import com.ning.http.client.{ ProxyServer, Request }
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.config.Proxy
-import io.gatling.core.filter.{ BlackList, Filters, FilterList, WhiteList }
+import io.gatling.core.filter.{ BlackList, Filter, Filters, WhiteList }
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.session.el.EL
@@ -96,9 +96,9 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
 	def check(checks: HttpCheck*): HttpProtocolBuilder = copy(protocol = protocol.copy(checks = protocol.checks ::: checks.toList))
 
 	def fetchHtmlResources(aggressive: Boolean): HttpProtocolBuilder = fetchHtmlResources(aggressive, None)
-	def fetchHtmlResources(aggressive: Boolean, white: WhiteList): HttpProtocolBuilder = fetchHtmlResources(aggressive, Some(Filters(white, None)))
-	def fetchHtmlResources(aggressive: Boolean, white: WhiteList, black: BlackList): HttpProtocolBuilder = fetchHtmlResources(aggressive, Some(Filters(white, Some(black))))
-	def fetchHtmlResources(aggressive: Boolean, black: BlackList, white: WhiteList = WhiteList(Nil)): HttpProtocolBuilder = fetchHtmlResources(aggressive, Some(Filters(black, Some(white))))
+	def fetchHtmlResources(aggressive: Boolean, white: WhiteList): HttpProtocolBuilder = fetchHtmlResources(aggressive, Some(Filters(white, BlackList())))
+	def fetchHtmlResources(aggressive: Boolean, white: WhiteList, black: BlackList): HttpProtocolBuilder = fetchHtmlResources(aggressive, Some(Filters(white, black)))
+	def fetchHtmlResources(aggressive: Boolean, black: BlackList, white: WhiteList = WhiteList(Nil)): HttpProtocolBuilder = fetchHtmlResources(aggressive, Some(Filters(black, white)))
 	private def fetchHtmlResources(aggressive: Boolean, filters: Option[Filters]): HttpProtocolBuilder = copy(protocol = protocol.copy(htmlResourcesFetchingMode = Some(if (aggressive) AggressiveHtmlResourcesFetching else SoftHtmlResourcesFetching), htmlResourcesFetchingFilters = filters))
 
 	def maxConnectionsPerHostLikeFirefoxOld = maxConnectionsPerHost(2)

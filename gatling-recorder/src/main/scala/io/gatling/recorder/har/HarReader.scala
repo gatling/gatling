@@ -27,8 +27,8 @@ import org.joda.time.DateTime
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.HeaderNames.CONTENT_TYPE
+import io.gatling.recorder.config.RecorderConfiguration.{ configuration => recorderConfiguration }
 import io.gatling.recorder.scenario.{ PauseElement, RequestBodyBytes, RequestBodyParams, RequestElement, ScenarioElement }
-import io.gatling.recorder.util.FiltersHelper.isRequestAccepted
 import io.gatling.recorder.util.RedirectHelper.isRequestRedirect
 
 object HarReader {
@@ -88,7 +88,7 @@ object HarReader {
 			lastRequestTimestamp = timestamp
 		}
 
-		if (isRequestAccepted(entry.request.url)) {
+		if (recorderConfiguration.filters.filters.map(_.accept(entry.request.url)).getOrElse(true)) {
 			if (lastEntry == null && isRequestRedirect(entry.response.status)) {
 				createPause
 				lastEntry = entry

@@ -18,14 +18,14 @@ package io.gatling.core.filter
 import scala.annotation.tailrec
 import scala.util.matching.Regex
 
-case class Filters(first: FilterList, second: Option[FilterList]) {
+case class Filters(first: Filter, second: Filter) {
 
-	def accept(url: String) = first.accept(url) && second.exists(_.accept(url))
+	def accept(url: String) = first.accept(url) && second.accept(url)
 }
 
-sealed trait FilterList { def accept(url: String): Boolean }
+sealed trait Filter { def accept(url: String): Boolean }
 
-case class WhiteList(patterns: List[String]) extends FilterList {
+case class WhiteList(patterns: List[String] = Nil) extends Filter {
 
 	private val regexs = patterns.map(_.r)
 
@@ -41,7 +41,7 @@ case class WhiteList(patterns: List[String]) extends FilterList {
 	}
 }
 
-case class BlackList(patterns: List[String]) extends FilterList {
+case class BlackList(patterns: List[String] = Nil) extends Filter {
 
 	private val regexs = patterns.map(_.r)
 
