@@ -15,12 +15,12 @@
  */
 package io.gatling.core.check.extractor.css
 
-import jodd.lagarto.dom.LagartoDOMBuilder
-import jodd.lagarto.dom.LagartoDOMBuilderTagVisitor
-import jodd.lagarto.LagartoParser
-import jodd.lagarto.dom.Document
+import com.typesafe.scalalogging.slf4j.Logging
 
-class SilentLagartoDOMBuilder extends LagartoDOMBuilder {
+import jodd.lagarto.LagartoParser
+import jodd.lagarto.dom.{ Document, LagartoDOMBuilder, LagartoDOMBuilderTagVisitor }
+
+class SilentLagartoDOMBuilder extends LagartoDOMBuilder with Logging {
 
 	override def doParse(lagartoParser: LagartoParser): Document = {
 		// parser flags
@@ -29,7 +29,9 @@ class SilentLagartoDOMBuilder extends LagartoDOMBuilder {
 		lagartoParser.setCalculatePosition(calculatePosition)
 
 		val domBuilderTagVisitor = new LagartoDOMBuilderTagVisitor(this) {
-			override def error(message: String) {}
+			override def error(message: String) {
+				logger.info(message)
+			}
 		}
 
 		lagartoParser.parse(domBuilderTagVisitor)
