@@ -60,7 +60,7 @@ object GatlingBuild extends Build {
 		.settings(libraryDependencies ++= recorderDeps)
 
 	lazy val bundle = gatlingModule("gatling-bundle")
-		.dependsOn(Seq(app, core, charts, http, jdbc, redis, recorder).map(_ % "provided->provided"): _*)
+		.dependsOn(app, core, charts, http, jdbc, redis, recorder)
 		.settings(bundleSettings: _*)
 		.settings(noCodeToPublish: _*)
 		.settings(exportJars := false) // Don't export gatling-bundle's jar 
