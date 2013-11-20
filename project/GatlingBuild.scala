@@ -52,16 +52,15 @@ object GatlingBuild extends Build {
 		.settings(libraryDependencies ++= metricsDeps)
 
 	lazy val app = gatlingModule("gatling-app")
-		.dependsOn(core, http, jdbc, redis, charts, metrics)
+		.dependsOn(core, charts)
 		.settings(libraryDependencies ++= appDeps)
 
 	lazy val recorder = gatlingModule("gatling-recorder")
 		.dependsOn(core, http)
 		.settings(libraryDependencies ++= recorderDeps)
-		.settings(javaSettings: _*)
 
 	lazy val bundle = gatlingModule("gatling-bundle")
-		.dependsOn(Seq(core, app, recorder).map(_ % "runtime->runtime"): _*)
+		.dependsOn(app, core, charts, http, jdbc, redis, recorder)
 		.settings(bundleSettings: _*)
 		.settings(noCodeToPublish: _*)
 		.settings(exportJars := false) // Don't export gatling-bundle's jar 
