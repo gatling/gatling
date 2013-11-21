@@ -28,7 +28,7 @@ object Dependencies {
 
 	private val grizzlyWebsockets = "org.glassfish.grizzly" % "grizzly-websockets" % "2.3.6"       % "provided" 
 
-	private val logbackClassic    = "ch.qos.logback"        % "logback-classic"    % "1.0.13"      % "runtime"
+	private val logbackClassic    = "ch.qos.logback"        % "logback-classic"    % "1.0.13"
 
 	private val junit             = "junit"                 % "junit"              % "4.11"        % "test"
 	private val specs2            = "org.specs2"           %% "specs2"             % "2.0"         % "test"
