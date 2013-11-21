@@ -2,11 +2,9 @@ package basic
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.jdbc.Predef._
-import io.gatling.http.Headers.Names._
+
 import scala.concurrent.duration._
-import bootstrap._
-import assertions._
+
 
 class BasicExampleSimulation extends Simulation {
 
@@ -37,20 +35,20 @@ class BasicExampleSimulation extends Simulation {
 					.get("/")
 					.headers(headers_1)
 					.check(status.is(302)))
-				.pause(0 milliseconds, 100 milliseconds)
-				.exec(
-					http("request_2")
-						.get("/public/login.html")
-						.headers(headers_1))
-				.pause(12, 13)
-				.feed(csv("user_information.csv"))
-				.exec(
-					http("request_3")
-						.post("/login")
-						.param("username", "${username}")
-						.param("password", "${password}")
-						.headers(headers_3)
-						.check(status.is(302)))
+			.pause(0 milliseconds, 100 milliseconds)
+			.exec(
+				http("request_2")
+					.get("/public/login.html")
+					.headers(headers_1))
+			.pause(12, 13)
+			.feed(csv("user_information.csv"))
+			.exec(
+				http("request_3")
+					.post("/login")
+					.param("username", "${username}")
+					.param("password", "${password}")
+					.headers(headers_3)
+					.check(status.is(302)))
 		}
 		.pause(0 milliseconds, 100 milliseconds)
 		.repeat(5) {
@@ -90,9 +88,10 @@ class BasicExampleSimulation extends Simulation {
 				.get("/public/login.html")
 				.headers(headers_1))
 
-	setUp(scn.inject(ramp(3 users) over (10 seconds)))
+	setUp(scn.inject(rampUsers(3) over (10 seconds)))
 		.protocols(httpProtocol)
 		.assertions(
-			global.successfulRequests.percent.is(100), details("Login" / "request_2").responseTime.max.lessThan(2000),
+			global.successfulRequests.percent.is(100), 
+			details("Login" / "request_2").responseTime.max.lessThan(2000),
 			details("request_9").requestsPerSec.greaterThan(10))
 }

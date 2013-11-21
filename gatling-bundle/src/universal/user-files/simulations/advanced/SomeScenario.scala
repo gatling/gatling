@@ -1,8 +1,11 @@
 package advanced
+
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import Headers._
+
 import scala.concurrent.duration._
+
+import Headers._
 import bootstrap._
 
 object SomeScenario {
