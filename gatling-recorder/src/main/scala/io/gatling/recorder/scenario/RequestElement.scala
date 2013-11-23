@@ -77,13 +77,11 @@ case class RequestElement(uri: String, method: String, headers: Map[String, Stri
 	}
 
 	private val basicAuthCredentials: Option[(String, String)] = {
-		def parseCredentials(header: String) = {
-			val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
-			if (credentials.length == 2)
-				Some(credentials(0), credentials(1))
-			else
-				None
-		}
+		def parseCredentials(header: String) =
+			new String(Base64.decode(header.split(" ")(1))).split(":") match {
+				case Array(username, password) => Some(username, password)
+				case _ => None
+			}
 
 		headers.get(AUTHORIZATION).filter(_.startsWith("Basic ")).flatMap(parseCredentials)
 	}
