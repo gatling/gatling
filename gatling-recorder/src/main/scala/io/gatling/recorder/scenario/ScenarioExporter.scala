@@ -31,54 +31,53 @@ import io.gatling.recorder.scenario.template.SimulationTemplate
 object ScenarioExporter extends Logging {
 	private val EVENTS_GROUPING = 100
 
+	def getBaseUrl(scenarioElements: List[ScenarioElement]): String = {
+		val urlsOccurrences = scenarioElements.collect {
+			case reqElm: RequestElement => reqElm.baseUrl
+		}.groupBy(identity).mapValues(_.size).toSeq
+
+		urlsOccurrences.maxBy(_._2)._1
+	}
+
+	def getMostFrequentHeaderValue(scenarioElements: List[ScenarioElement], headerName: String): Option[String] = {
+		val headers = scenarioElements.flatMap {
+			case reqElm: RequestElement => reqElm.headers.collect { case (name, value) if name == headerName => value }
+			case _ => Nil
+		}
+
+		if (headers.isEmpty) None
+		else {
+			val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
+			val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
+			Some(mostFrequentValue)
+		}
+	}
+
+	def getChains(scenarioElements: List[ScenarioElement]): Either[List[ScenarioElement], List[List[ScenarioElement]]] = {
+
+		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING)
+			Right(scenarioElements.grouped(ScenarioExporter.EVENTS_GROUPING).toList)
+		else
+			Left(scenarioElements)
+	}
+
+	def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String) {
+		val fileName = s"${simulationClass}_request_$idEvent.txt"
+		withCloseable(File(getFolder(configuration.core.requestBodiesFolder) / fileName).outputStream()) {
+			fw =>
+				try {
+					fw.write(content)
+				} catch {
+					case e: IOException => logger.error("Error, while dumping request body...", e)
+				}
+		}
+	}
+
 	def saveScenario(scenarioElements: List[ScenarioElement]) {
-
-		def getBaseUrl(scenarioElements: List[ScenarioElement]): String = {
-			val urlsOccurrences = scenarioElements.collect {
-				case reqElm: RequestElement => reqElm.baseUrl
-			}.groupBy(identity).mapValues(_.size).toSeq
-
-			urlsOccurrences.maxBy(_._2)._1
-		}
-
-		def getMostFrequentHeaderValue(scenarioElements: List[ScenarioElement], headerName: String): Option[String] = {
-			val headers = scenarioElements.flatMap {
-				case reqElm: RequestElement => reqElm.headers.collect { case (name, value) if name == headerName => value }
-				case _ => Nil
-			}
-
-			if (headers.isEmpty) None
-			else {
-				val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
-				val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
-				Some(mostFrequentValue)
-			}
-		}
-
-		def getChains(scenarioElements: List[ScenarioElement]): Either[List[ScenarioElement], List[List[ScenarioElement]]] = {
-
-			if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING)
-				Right(scenarioElements.grouped(ScenarioExporter.EVENTS_GROUPING).toList)
-			else
-				Left(scenarioElements)
-		}
-
-		def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String) {
-			val fileName = s"${simulationClass}_request_$idEvent.txt"
-			withCloseable(File(getFolder(configuration.core.requestBodiesFolder) / fileName).outputStream()) {
-				fw =>
-					try {
-						fw.write(content)
-					} catch {
-						case e: IOException => logger.error("Error, while dumping request body...", e)
-					}
-			}
-		}
 
 		val baseUrl = getBaseUrl(scenarioElements)
 
 		val baseHeaders: Map[String, String] = {
-
 			def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] =
 				getMostFrequentHeaderValue(scenarioElements, headerName)
 					.map(headerValue => appendTo + (headerName -> headerValue))
@@ -102,12 +101,10 @@ object ScenarioExporter extends Logging {
 		}
 
 		// Updates URLs that contain baseUrl, set ids on requests and dump request body if needed
-		var i = 0
-		elementsList.foreach {
-			case e: RequestElement =>
-				i = i + 1
+		elementsList.zipWithIndex.foreach {
+			case (e: RequestElement, i) =>
 				e.makeRelativeTo(baseUrl).setId(i)
-				e.body.map {
+				e.body.foreach {
 					case RequestBodyBytes(bytes) => dumpRequestBody(i, bytes, configuration.core.className)
 					case _ =>
 				}
