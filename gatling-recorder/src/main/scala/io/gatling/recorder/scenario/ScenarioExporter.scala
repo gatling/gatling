@@ -94,23 +94,20 @@ object ScenarioExporter extends Logging {
 
 		val protocolConfigElement = new ProtocolElement(baseUrl, baseHeaders)
 
-		// Add simulationClass to request elements
+		// extract the request elements and set all the necessary
 		val elementsList: List[ScenarioElement] = scenarioElements.map {
-			case e: RequestElement => e.copy(simulationClass = Some(configuration.core.className))
-			case e => e
+			case reqEl: RequestElement => reqEl.copy(simulationClass = Some(configuration.core.className))
+			case el => el
 		}
 
-		// Updates URLs that contain baseUrl, set ids on requests and dump request body if needed
-		elementsList.zipWithIndex.foreach {
-			case (e: RequestElement, i) =>
-				e.makeRelativeTo(baseUrl).setId(i)
-				e.body.foreach {
-					case RequestBodyBytes(bytes) => dumpRequestBody(i, bytes, configuration.core.className)
-					case _ =>
-				}
+		val requestElements: List[RequestElement] = elementsList.collect { case reqEl: RequestElement => reqEl }
+			.zipWithIndex.map { case (reqEl, index) => reqEl.makeRelativeTo(baseUrl).setId(index) }
 
+		// dump request body if needed
+		requestElements.foreach(el => el.body.foreach {
+			case RequestBodyBytes(bytes) => dumpRequestBody(el.id, bytes, configuration.core.className)
 			case _ =>
-		}
+		})
 
 		// Aggregate headers
 		val filteredHeaders = Set(HeaderNames.COOKIE, HeaderNames.CONTENT_LENGTH, HeaderNames.HOST) ++ (if (configuration.http.automaticReferer) Set(HeaderNames.REFERER) else Set.empty)
@@ -147,11 +144,6 @@ object ScenarioExporter extends Logging {
 
 					generateHeaders(others, newHeaders)
 				}
-			}
-
-			val requestElements = elementsList.flatMap {
-				case request: RequestElement => Some(request)
-				case _ => None
 			}
 
 			SortedMap(generateHeaders(requestElements, Map.empty).toSeq: _*)

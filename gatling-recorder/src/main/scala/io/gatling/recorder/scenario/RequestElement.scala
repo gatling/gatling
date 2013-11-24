@@ -67,8 +67,9 @@ case class RequestElement(uri: String, method: String, headers: Map[String, Stri
 
 	var id: Int = 0
 
-	def setId(id: Int) {
+	def setId(id: Int) = {
 		this.id = id
+		this
 	}
 
 	def makeRelativeTo(baseUrl: String): RequestElement = {
