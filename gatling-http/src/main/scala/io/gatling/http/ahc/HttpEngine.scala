@@ -45,7 +45,25 @@ case class HttpTx(session: Session,
 	resourceFetching: Boolean = false,
 	redirectCount: Int = 0)
 
-object HttpClient extends AkkaDefaults with Logging {
+object HttpEngine extends AkkaDefaults with Logging {
+
+	private var _instance: Option[HttpEngine] = None
+
+	def startHttpEngine() {
+		if (!_instance.isDefined) {
+			val client = new HttpEngine
+			_instance = Some(client)
+			system.registerOnTermination(_instance = None)
+		}
+	}
+
+	def instance: HttpEngine = _instance match {
+		case Some(engine) => engine
+		case _ => throw new UnsupportedOperationException("HTTP engine hasn't been started")
+	}
+}
+
+class HttpEngine extends AkkaDefaults with Logging {
 
 	val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
 		override def newThread(r: Runnable) = {
@@ -100,9 +118,9 @@ object HttpClient extends AkkaDefaults with Logging {
 		ahcConfigBuilder.build
 	}
 
-	def newClient(session: Session): AsyncHttpClient = newClient(Some(session))
-	def newClient(session: Option[Session]) = {
+	def newAHC(session: Session): AsyncHttpClient = newAHC(Some(session))
 
+	def newAHC(session: Option[Session]) = {
 		val ahcConfig = session.flatMap { session =>
 
 			val trustManagers = for {
@@ -131,20 +149,20 @@ object HttpClient extends AkkaDefaults with Logging {
 		client
 	}
 
-	lazy val default = newClient(None)
+	lazy val defaultAHC = newAHC(None)
 
-	val httpClientAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.client"
+	val ahcAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.ahc"
 
 	def startHttpTransaction(tx: HttpTx) {
 
 		val (newTx, httpClient) = if (tx.protocol.shareClient)
-			(tx, default)
+			(tx, defaultAHC)
 		else
-			tx.session(httpClientAttributeName).asOption[AsyncHttpClient] match {
+			tx.session(ahcAttributeName).asOption[AsyncHttpClient] match {
 				case Some(client) => (tx, client)
 				case _ =>
-					val httpClient = newClient(tx.session)
-					(tx.copy(session = tx.session.set(httpClientAttributeName, httpClient)), httpClient)
+					val httpClient = newAHC(tx.session)
+					(tx.copy(session = tx.session.set(ahcAttributeName, httpClient)), httpClient)
 
 			}
 

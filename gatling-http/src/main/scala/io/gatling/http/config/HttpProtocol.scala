@@ -28,7 +28,7 @@ import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
 import io.gatling.core.session.el.EL
 import io.gatling.core.util.RoundRobin
 import io.gatling.http.HeaderNames._
-import io.gatling.http.ahc.{ HttpClient, ProxyConverter }
+import io.gatling.http.ahc.{ HttpEngine, ProxyConverter }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.{ Response, ResponseTransformer }
@@ -104,6 +104,8 @@ case class HttpProtocol(
 
 		logger.info("Start warm up")
 
+		HttpEngine.startHttpEngine()
+
 		warmUpUrl.map { url =>
 			if (!HttpProtocolBuilder.warmUpUrls.contains(url)) {
 				HttpProtocolBuilder.warmUpUrls += url
@@ -120,7 +122,7 @@ case class HttpProtocol(
 					secureProxy.foreach(requestBuilder.setProxyServer)
 
 				try {
-					HttpClient.default.executeRequest(requestBuilder.build).get
+					HttpEngine.instance.defaultAHC.executeRequest(requestBuilder.build).get
 				} catch {
 					case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
 				}

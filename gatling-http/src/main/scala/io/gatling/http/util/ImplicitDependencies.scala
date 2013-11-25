@@ -25,7 +25,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 import io.gatling.core.result.message.Status
 import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
 import io.gatling.core.session.Session
-import io.gatling.http.ahc.HttpClient
+import io.gatling.http.ahc.HttpEngine
 
 trait WebSocketClient {
 	@throws(classOf[IOException])
@@ -39,7 +39,7 @@ trait RequestLogger {
 /** The default AsyncHttpClient WebSocket client. */
 object DefaultWebSocketClient extends WebSocketClient with Logging {
 	def open(uri: URI, listener: WebSocketListener) {
-		HttpClient.default.prepareGet(uri.toString).execute(
+		HttpEngine.instance.defaultAHC.prepareGet(uri.toString).execute(
 			new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build())
 	}
 }

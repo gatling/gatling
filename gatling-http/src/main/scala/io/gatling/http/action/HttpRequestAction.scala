@@ -38,7 +38,7 @@ import io.gatling.core.result.message.KO
 import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.http.ahc.{ HttpClient, HttpTx }
+import io.gatling.http.ahc.{ HttpEngine, HttpTx }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.dom.ResourceFetcher
 import io.gatling.http.referer.RefererHandling
@@ -51,7 +51,7 @@ object HttpRequestAction extends Logging {
 
 		def send(tx: HttpTx) {
 			logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-			HttpClient.startHttpTransaction(tx)
+			HttpEngine.instance.startHttpTransaction(tx)
 		}
 
 		def skipCached(tx: HttpTx) {
