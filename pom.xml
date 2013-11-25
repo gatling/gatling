@@ -114,7 +114,7 @@
 		<scala.version>2.9.3</scala.version>
 		<ahc.version>1.7.21</ahc.version>
 		<akka.version>2.0.4</akka.version>
-		<config.version>1.0.1</config.version>
+		<config.version>1.0.2</config.version>
 		<jaxen.version>1.1.6</jaxen.version>
 		<xerces.version>2.11.0</xerces.version>
 		<xml-apis.version>1.4.01</xml-apis.version>
@@ -122,8 +122,8 @@
 		<slf4j.version>1.7.5</slf4j.version>
 		<scalate.version>1.6.1</scalate.version>
 		<netty.version>3.8.0.Final</netty.version>
-		<joda-time.version>2.2</joda-time.version>
-		<joda-convert.version>1.2</joda-convert.version>
+		<joda-time.version>2.3</joda-time.version>
+		<joda-convert.version>1.5</joda-convert.version>
 		<xstream.version>1.4.3</xstream.version>
 		<scopt.version>2.1.0</scopt.version>
 		<grizzled-slf4j.version>0.6.10</grizzled-slf4j.version>
@@ -132,7 +132,7 @@
 		<commons-io.version>2.4</commons-io.version>
 		<commons-exec.version>1.1</commons-exec.version>
 		<jodd.version>3.4.8</jodd.version>
-		<jsoup.version>1.7.2</jsoup.version>
+		<jsoup.version>1.7.3</jsoup.version>
 		<redis.version>2.10</redis.version>
 		<junit.version>4.11</junit.version>
 		<specs2.version>1.12.3</specs2.version>
@@ -143,7 +143,7 @@
 		<maven-source-plugin.version>2.2</maven-source-plugin.version>
 		<maven-assembly-plugin.version>2.2.2</maven-assembly-plugin.version>
 		<maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-		<scala-maven-plugin.version>3.1.5</scala-maven-plugin.version>
+		<scala-maven-plugin.version>3.1.6</scala-maven-plugin.version>
 		<maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
 		<maven-release-plugin.version>2.3.2</maven-release-plugin.version>
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
