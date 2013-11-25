@@ -15,6 +15,7 @@
  */
 package io.gatling.core.structure
 
+import scala.annotation.migration
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.action.UserEnd
@@ -41,9 +42,9 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = N
 	def inject(is: InjectionStep, iss: InjectionStep*) = new ProfiledScenarioBuilder(this, InjectionProfile(is +: iss))
 }
 
-case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, protocols: List[Protocol] = Nil) {
+case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) {
 
-	def protocols(protocol: Protocol, protocols: Protocol*) = copy(protocols = protocol :: protocols.toList)
+	def protocols(ps: Protocol*) = copy(protocols = protocols ++ ps.map(p => p.getClass -> p))
 
 	def disablePauses = pauses(Disabled)
 	def constantPauses = pauses(Constant)
@@ -62,11 +63,14 @@ case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionPr
 	 * @param protocolRegistry
 	 * @return the scenario
 	 */
-	private[core] def build(globalProtocols: List[Protocol]): Scenario = {
+	private[core] def build(globalProtocols: Map[Class[_ <: Protocol], Protocol]): Scenario = {
 
 		val protocolRegistry = {
-			val resolvedProtocols = (globalProtocols.groupBy(_.getClass) ++ protocols.groupBy(_.getClass)).values.toSeq.flatten
-			ProtocolRegistry(resolvedProtocols)
+			var resolvedProtocols = globalProtocols ++ protocols
+			if (resolvedProtocols.contains(classOf[ThrottlingProtocol]))
+				resolvedProtocols = resolvedProtocols + (classOf[PauseProtocol] -> PauseProtocol(Disabled))
+
+			ProtocolRegistry(resolvedProtocols.values.toSeq)
 		}
 
 		val entryPoint = scenarioBuilder.build(UserEnd.userEnd, protocolRegistry)
