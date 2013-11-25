@@ -111,9 +111,9 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 		/* Top panel : Gatling logo & Recorder mode */
 		val top = new BorderPanel {
 			val logo = new CenterAlignedFlowPanel { contents += new Label { icon = logoSmall } }
-			val modeSelection = new BorderPanel {
+			val modeSelection = new GridBagPanel {
 				border = titledBorder("Recorder mode")
-				layout(modeSelector) = Center
+				layout(modeSelector) = new Constraints
 			}
 
 			layout(logo) = West
