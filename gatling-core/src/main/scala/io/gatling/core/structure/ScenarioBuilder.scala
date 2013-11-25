@@ -73,7 +73,7 @@ case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionPr
 			ProtocolRegistry(resolvedProtocols.values.toSeq)
 		}
 
-		val entryPoint = scenarioBuilder.build(UserEnd.userEnd, protocolRegistry)
+		val entryPoint = scenarioBuilder.build(UserEnd.instance, protocolRegistry)
 		new Scenario(scenarioBuilder.name, entryPoint, injectionProfile)
 	}
 }

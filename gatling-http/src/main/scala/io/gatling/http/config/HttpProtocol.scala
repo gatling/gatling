@@ -27,8 +27,8 @@ import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
 import io.gatling.core.session.el.EL
 import io.gatling.core.util.RoundRobin
-import io.gatling.http.HeaderNames._
-import io.gatling.http.ahc.{ HttpEngine, ProxyConverter }
+import io.gatling.http.HeaderNames.{ ACCEPT, ACCEPT_ENCODING, ACCEPT_LANGUAGE, CONNECTION, USER_AGENT }
+import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine, ProxyConverter }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.{ Response, ResponseTransformer }
@@ -104,7 +104,8 @@ case class HttpProtocol(
 
 		logger.info("Start warm up")
 
-		HttpEngine.startHttpEngine()
+		HttpEngine.start()
+		AsyncHandlerActor.start()
 
 		warmUpUrl.map { url =>
 			if (!HttpProtocolBuilder.warmUpUrls.contains(url)) {

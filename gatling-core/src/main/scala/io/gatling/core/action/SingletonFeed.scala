@@ -35,7 +35,7 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
 		def pollRecord(): Record[T] = {
 			if (!feeder.hasNext) {
 				logger.error("Feeder is now empty, stopping engine")
-				Controller.controller ! ForceTermination
+				Controller.instance ! ForceTermination
 			}
 
 			feeder.next

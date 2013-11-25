@@ -17,9 +17,11 @@ package io.gatling.core.runner
 
 import scala.concurrent.duration.DurationInt
 import scala.util.{ Failure => SFailure, Success => SSuccess }
+
 import com.typesafe.scalalogging.slf4j.Logging
+
 import akka.actor.ActorDSL.{ inbox, senderFromInbox }
-import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.akka.{ AkkaDefaults, GatlingActorSystem }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ Controller, Run }
 import io.gatling.core.scenario.Simulation
@@ -33,21 +35,22 @@ class Runner(selection: Selection) extends AkkaDefaults with Logging {
 			println(s"Simulation ${simulationClass.getName} started...")
 
 			val simulation = simulationClass.newInstance
-			AkkaDefaults.startAkka
+			GatlingActorSystem.start
+			Controller.start
 
 			implicit val i = inbox()
-			Controller.controller ! Run(simulation, selection.simulationId, selection.description, simulation.timings)
+			Controller.instance ! Run(simulation, selection.simulationId, selection.description, simulation.timings)
 
 			i.receive(configuration.core.timeOut.simulation seconds) match {
 				case SSuccess(runId: String) =>
 					println("Simulation finished")
 					(runId, simulation)
 				case SFailure(t) => throw t
-				case wtf => throw new UnsupportedOperationException(s"Controller replied an aknown message wtf")
+				case unexpected => throw new UnsupportedOperationException(s"Controller replied an unexpected message $unexpected")
 			}
 
 		} finally {
-			AkkaDefaults.shutdownAkka
+			GatlingActorSystem.shutdown
 		}
 	}
 }

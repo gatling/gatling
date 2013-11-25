@@ -176,19 +176,26 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends Logging {
 			}
 		}
 
-		val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory
-			.map((_, getSingleSimulation(simulations)))
-			.getOrElse {
-				val selection = configuration.core.simulationClass.map { _ =>
-					val simulation = simulations.head
-					val outputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
-					val runDescription = configuration.core.runDescription.getOrElse(outputDirectoryBaseName)
-					new Selection(simulation, outputDirectoryBaseName, runDescription)
-				}.getOrElse(interactiveSelect(simulations))
+		val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory match {
+			case Some(dir) =>
+				(dir, getSingleSimulation(simulations))
+
+			case None =>
+				val selection = configuration.core.simulationClass match {
+					case Some(_) =>
+						// FIXME ugly
+						val simulation = simulations.head
+						val outputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
+						val runDescription = configuration.core.runDescription.getOrElse(outputDirectoryBaseName)
+						new Selection(simulation, outputDirectoryBaseName, runDescription)
+
+					case None =>
+						interactiveSelect(simulations)
+				}
 
 				val (runId, simulation) = new Runner(selection).run
 				(runId, Some(simulation))
-			}
+		}
 
 		lazy val dataReader = DataReader.newInstance(outputDirectoryName)
 

@@ -28,6 +28,7 @@ import io.gatling.core.util.StringHelper.RichString
  */
 object GatlingConfiguration {
 
+	// FIXME
 	var configuration: GatlingConfiguration = _
 
 	implicit class ConfigStringSeq(val string: String) extends AnyVal {

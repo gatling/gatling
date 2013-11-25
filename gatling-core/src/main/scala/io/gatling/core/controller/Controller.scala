@@ -25,6 +25,7 @@ import org.joda.time.DateTime.now
 
 import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor
+import io.gatling.core.action.UserEnd
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.controller.throttle.{ Throttler, ThrottlingProtocol }
 import io.gatling.core.result.message.{ End, Start }
@@ -36,7 +37,18 @@ case class Timings(maxDuration: Option[FiniteDuration], globalThrottling: Option
 
 object Controller extends AkkaDefaults {
 
-	val controller = actor(new Controller)
+	private var _instance: Option[ActorRef] = None
+
+	def start() {
+		_instance = Some(actor(new Controller))
+		system.registerOnTermination(_instance = None)
+		UserEnd.start
+	}
+
+	def instance() = _instance match {
+		case Some(c) => c
+		case _ => throw new UnsupportedOperationException("Controller hasn't been started")
+	}
 }
 
 class Controller extends BaseActor {

@@ -27,6 +27,7 @@ import io.gatling.core.session.Expression
 
 object FeedBuilder extends AkkaDefaults {
 
+	// FIXME not very clean
 	val instances = mutable.Map.empty[FeederBuilder[_], ActorRef]
 
 	def apply[T](feederBuilder: FeederBuilder[T], number: Expression[Int]) =

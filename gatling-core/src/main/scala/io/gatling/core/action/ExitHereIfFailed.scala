@@ -41,7 +41,7 @@ class ExitHereIfFailed(val next: ActorRef) extends Chainable {
 
 		if (session.status == KO) {
 			failAllPendingGroups(session.groupStack)
-			UserEnd.userEnd ! session
+			UserEnd.instance ! session
 		} else next ! session
 	}
 }

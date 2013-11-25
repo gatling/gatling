@@ -15,16 +15,22 @@
  */
 package io.gatling.core.akka
 
-import scala.concurrent.duration.DurationInt
+import akka.actor.ActorSystem
 
-import akka.pattern.AskSupport
-import akka.util.Timeout
-import io.gatling.core.config.GatlingConfiguration.configuration
+object GatlingActorSystem {
 
-trait AkkaDefaults extends AskSupport {
+	private var _instance: Option[ActorSystem] = None
 
-	implicit def system = GatlingActorSystem.instance
-	implicit def dispatcher = system.dispatcher
-	implicit def scheduler = system.scheduler
-	implicit val defaultTimeOut = Timeout(configuration.core.timeOut.actor seconds)
+	def start {
+		_instance = Some(ActorSystem("GatlingSystem"))
+	}
+
+	def instance() = _instance match {
+		case Some(a) => a
+		case None => throw new UnsupportedOperationException("Gatling Actor system hasn't been started")
+	}
+
+	def shutdown {
+		_instance.foreach(_.shutdown)
+	}
 }

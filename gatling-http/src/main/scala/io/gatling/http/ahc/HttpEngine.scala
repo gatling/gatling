@@ -49,7 +49,7 @@ object HttpEngine extends AkkaDefaults with Logging {
 
 	private var _instance: Option[HttpEngine] = None
 
-	def startHttpEngine() {
+	def start() {
 		if (!_instance.isDefined) {
 			val client = new HttpEngine
 			_instance = Some(client)
@@ -167,7 +167,7 @@ class HttpEngine extends AkkaDefaults with Logging {
 			}
 
 		if (tx.throttled)
-			Controller.controller ! ThrottledRequest(tx.session.scenarioName, () => httpClient.executeRequest(newTx.request, new AsyncHandler(newTx)))
+			Controller.instance ! ThrottledRequest(tx.session.scenarioName, () => httpClient.executeRequest(newTx.request, new AsyncHandler(newTx)))
 		else
 			httpClient.executeRequest(newTx.request, new AsyncHandler(newTx))
 	}

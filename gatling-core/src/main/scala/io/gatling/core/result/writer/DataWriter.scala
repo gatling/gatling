@@ -27,37 +27,37 @@ case class InitDataWriter(totalNumberOfUsers: Int)
 
 object DataWriter extends AkkaDefaults {
 
-	private var _dataWriters: Option[Seq[ActorRef]] = None
+	private var _instances: Option[Seq[ActorRef]] = None
 
-	def dataWriters() = _dataWriters match {
+	def instances() = _instances match {
 		case Some(dw) => dw
 		case _ => throw new UnsupportedOperationException("DataWriters haven't been initialized")
 	}
 
 	def tell(message: Any) {
-		dataWriters.foreach(_ ! message)
+		instances.foreach(_ ! message)
 	}
 
 	def init(runMessage: RunMessage, scenarios: Seq[Scenario], replyTo: ActorRef) {
 
-		_dataWriters = {
+		_instances = {
 			val dw = configuration.data.dataWriterClasses.map { className =>
 				val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
 				system.actorOf(Props(clazz))
 			}
 
-			system.registerOnTermination(_dataWriters = None)
+			system.registerOnTermination(_instances = None)
 
 			Some(dw)
 		}
 
 		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.injectionProfile.users))
-		val responses = dataWriters.map(_ ? Init(runMessage, shortScenarioDescriptions))
+		val responses = instances.map(_ ? Init(runMessage, shortScenarioDescriptions))
 		Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersInitialized(_))
 	}
 
 	def terminate(replyTo: ActorRef) {
-		val responses = dataWriters.map(_ ? Terminate)
+		val responses = instances.map(_ ? Terminate)
 		Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersTerminated(_))
 	}
 }

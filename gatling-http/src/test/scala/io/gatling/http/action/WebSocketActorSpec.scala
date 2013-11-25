@@ -29,12 +29,13 @@ import org.specs2.mock.mockito.MocksCreation
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import org.specs2.specification.{ AllExpectations, Scope }
+
 import com.ning.http.client.websocket.{ WebSocket, WebSocketListener }
 
 import akka.actor.{ Actor, Props }
 import akka.testkit.TestActorRef
 import io.gatling.core.Predef.{ Session, stringToExpression }
-import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.akka.GatlingActorSystem
 import io.gatling.core.config.{ GatlingConfiguration, ProtocolRegistry }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.http.Predef.websocket
@@ -48,7 +49,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 		LoggerFactory.getLogger(classOf[WebSocketActorSpec])
 		// set up configuration to avoid NPEs constructing actors
 		GatlingConfiguration.setUp()
-		AkkaDefaults.startAkka
+		GatlingActorSystem.start
 		success
 	}
 
@@ -159,7 +160,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 		}
 
 		def open(webSocketClient: WebSocketClient) {
-			next = TestActorRef[DummyAction](Props(new DummyAction))(AkkaDefaults.gatlingSystem.get)
+			next = TestActorRef[DummyAction](Props(new DummyAction))(GatlingActorSystem.instance)
 			val action = websocket("testRequestName")
 				.open("ws://dummy/", "testAttributeName")(webSocketClient, requestLogger)
 				.build(next, ProtocolRegistry(Nil))
@@ -184,7 +185,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 
 		def sendMessage(message: String) {
 			val session = next.underlyingActor.session.get
-			next = TestActorRef[DummyAction](Props(new DummyAction))(AkkaDefaults.gatlingSystem.get)
+			next = TestActorRef[DummyAction](Props(new DummyAction))(GatlingActorSystem.instance)
 			val action = websocket("testRequestName")
 				.sendMessage(message, "testAttributeName")
 				.build(next, ProtocolRegistry(Nil))
@@ -194,7 +195,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 
 		def close() {
 			val session = next.underlyingActor.session.get
-			next = TestActorRef[DummyAction](Props(new DummyAction))(AkkaDefaults.gatlingSystem.get)
+			next = TestActorRef[DummyAction](Props(new DummyAction))(GatlingActorSystem.instance)
 			val action = websocket("testRequestName")
 				.close("testAttributeName")
 				.build(next, ProtocolRegistry(Nil))

@@ -16,8 +16,10 @@
 package io.gatling.http.ahc
 
 import scala.collection.JavaConversions.asScalaBuffer
+
 import com.ning.http.client.{ FluentStringsMap, RequestBuilder }
-import akka.actor.Props
+
+import akka.actor.{ ActorRef, Props }
 import akka.actor.ActorDSL.actor
 import akka.routing.RoundRobinRouter
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
@@ -42,7 +44,19 @@ import io.gatling.http.util.HttpStringBuilder
 
 object AsyncHandlerActor extends AkkaDefaults {
 
-	val asyncHandlerActor = system.actorOf(Props[AsyncHandlerActor].withRouter(RoundRobinRouter(nrOfInstances = 3 * Runtime.getRuntime.availableProcessors)))
+	private var _instance: Option[ActorRef] = None
+
+	def start() {
+		if (!_instance.isDefined) {
+			_instance = Some(system.actorOf(Props[AsyncHandlerActor].withRouter(RoundRobinRouter(nrOfInstances = 3 * Runtime.getRuntime.availableProcessors))))
+			system.registerOnTermination(_instance = None)
+		}
+	}
+
+	def instance() = _instance match {
+		case Some(a) => a
+		case _ => throw new UnsupportedOperationException("AsyncHandlerActor pool hasn't been started")
+	}
 
 	def updateCookies(tx: HttpTx, response: Response): Session => Session = CookieHandling.storeCookies(_, response.getUri, response.getCookies.toList)
 	def updateCache(tx: HttpTx, response: Response): Session => Session = CacheHandling.cache(tx.protocol, _, tx.request, response)
