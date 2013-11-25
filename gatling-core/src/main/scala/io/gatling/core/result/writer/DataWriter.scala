@@ -27,9 +27,11 @@ case class InitDataWriter(totalNumberOfUsers: Int)
 
 object DataWriter extends AkkaDefaults {
 
-	private val dataWriters: Seq[ActorRef] = configuration.data.dataWriterClasses.map { className =>
-		val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
-		system.actorOf(Props(clazz))
+	private var _dataWriters: Option[Seq[ActorRef]] = None
+
+	def dataWriters() = _dataWriters match {
+		case Some(dw) => dw
+		case _ => throw new UnsupportedOperationException("DataWriters haven't been initialized")
 	}
 
 	def tell(message: Any) {
@@ -37,6 +39,18 @@ object DataWriter extends AkkaDefaults {
 	}
 
 	def init(runMessage: RunMessage, scenarios: Seq[Scenario], replyTo: ActorRef) {
+
+		_dataWriters = {
+			val dw = configuration.data.dataWriterClasses.map { className =>
+				val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
+				system.actorOf(Props(clazz))
+			}
+
+			system.registerOnTermination(_dataWriters = None)
+
+			Some(dw)
+		}
+
 		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.injectionProfile.users))
 		val responses = dataWriters.map(_ ? Init(runMessage, shortScenarioDescriptions))
 		Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersInitialized(_))
