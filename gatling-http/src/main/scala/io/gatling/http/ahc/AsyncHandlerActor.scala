@@ -36,7 +36,7 @@ import io.gatling.http.action.HttpRequestAction
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.{ HttpCheck, HttpCheckOrder }
 import io.gatling.http.cookie.CookieHandling
-import io.gatling.http.dom.{ CssResourceFetched, RegularResourceFetched, ResourceFetcher }
+import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }

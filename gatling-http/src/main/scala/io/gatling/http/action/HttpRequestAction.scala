@@ -40,7 +40,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
 import io.gatling.http.cache.CacheHandling
-import io.gatling.http.dom.ResourceFetcher
+import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder

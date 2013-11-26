@@ -16,9 +16,8 @@
 package io.gatling.http
 
 import io.gatling.core.filter.Filters
-import io.gatling.http.dom.EmbeddedResource
 
-package object dom {
+package object fetch {
 
 	implicit class EmbeddedResourcesFilters(val filters: Filters) extends AnyVal {
 

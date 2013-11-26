@@ -36,7 +36,7 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.dom.NamedRequest
+import io.gatling.http.fetch.NamedRequest
 import io.gatling.http.response.ResponseTransformer
 
 object HttpRequest extends Logging {
