@@ -23,16 +23,20 @@ import scala.collection.concurrent
 import org.jboss.netty.util.internal.ConcurrentHashMap
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.config.GatlingFiles
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.config.Resource
+import io.gatling.core.session.Expression
 import io.gatling.core.validation.Validation
 
 object RawFileBodies {
 
 	val cache: concurrent.Map[String, Validation[File]] = new ConcurrentHashMap[String, Validation[File]]
-	def cached(path: String) = if (configuration.http.cacheRawFileBodies) cache.getOrElseUpdate(path, GatlingFiles.requestBodyResource(path).map(_.jfile)) else GatlingFiles.requestBodyResource(path).map(_.jfile)
+	def cached(path: String) =
+		if (configuration.http.cacheRawFileBodies)
+			cache.getOrElseUpdate(path, Resource.requestBody(path).map(_.jfile))
+		else
+			Resource.requestBody(path).map(_.jfile)
 
-	def asFile(filePath: Expression[String]): Expression[File] = (session: Session) =>
+	def asFile(filePath: Expression[String]): Expression[File] = session =>
 		for {
 			path <- filePath(session)
 			file <- cached(path)

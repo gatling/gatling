@@ -15,19 +15,31 @@
  */
 package io.gatling.core.feeder
 
-import scala.reflect.io.{ File, Path }
+import scala.reflect.io.File
+
+import io.gatling.core.config.Resource
+import io.gatling.core.util.FileHelper.{ commaSeparator, semicolonSeparator, tabulationSeparator }
+import io.gatling.core.validation.{ Failure, Success, Validation }
 
 trait FeederSupport {
 
 	type Feeder[T] = io.gatling.core.feeder.Feeder[T]
 
-	def csv(fileName: String) = SeparatedValuesParser.csv(fileName)
-	def csv(file: File) = SeparatedValuesParser.csv(file.path)
-	def ssv(fileName: String) = SeparatedValuesParser.ssv(fileName)
-	def ssv(file: File) = SeparatedValuesParser.ssv(file.path)
-	def tsv(fileName: String) = SeparatedValuesParser.tsv(fileName)
-	def tsv(file: File) = SeparatedValuesParser.tsv(file.path)
-
 	implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): AdvancedFeederBuilder[T] = AdvancedFeederBuilder(data)
 	implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
+
+	def csv(file: File): AdvancedFeederBuilder[String] = csv(file.path)
+	def csv(fileName: String): AdvancedFeederBuilder[String] = separatedValues(fileName, commaSeparator.charAt(0))
+	def ssv(file: File): AdvancedFeederBuilder[String] = ssv(file.path)
+	def ssv(fileName: String): AdvancedFeederBuilder[String] = separatedValues(fileName, semicolonSeparator.charAt(0))
+	def tsv(file: File): AdvancedFeederBuilder[String] = tsv(file.path)
+	def tsv(fileName: String): AdvancedFeederBuilder[String] = separatedValues(fileName, tabulationSeparator.charAt(0))
+
+	def separatedValues(fileName: String, separator: Char): AdvancedFeederBuilder[String] = separatedValues(Resource.feeder(fileName), separator)
+
+	def separatedValues(resource: Validation[Resource], separator: Char): AdvancedFeederBuilder[String] = resource match {
+		case Success(resource) => AdvancedFeederBuilder(SeparatedValuesParser.parse(resource, separator))
+
+		case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file; $message")
+	}
 }

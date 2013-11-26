@@ -15,17 +15,15 @@
  */
 package io.gatling.http.request
 
-import scala.collection.mutable
 import scala.collection.JavaConversions.mapAsScalaConcurrentMap
 import scala.collection.concurrent
 
+import org.apache.commons.io.IOUtils
 import org.jboss.netty.util.internal.ConcurrentHashMap
 
-import org.apache.commons.io.IOUtils
-
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.config.GatlingFiles
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.config.Resource
+import io.gatling.core.session.Expression
 import io.gatling.core.session.el.EL
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.validation.Validation
@@ -36,11 +34,11 @@ object ELFileBodies {
 	def cached(path: String) = if (configuration.http.cacheELFileBodies) cache.getOrElseUpdate(path, compileFile(path)) else compileFile(path)
 
 	def compileFile(path: String): Validation[Expression[String]] =
-		GatlingFiles.requestBodyResource(path)
+		Resource.requestBody(path)
 			.map(resource => withCloseable(resource.inputStream)(IOUtils.toString(_, configuration.core.encoding)))
 			.map(_.el[String])
 
-	def asString(filePath: Expression[String]): Expression[String] = (session: Session) =>
+	def asString(filePath: Expression[String]): Expression[String] = session =>
 		for {
 			path <- filePath(session)
 			expression <- cached(path)

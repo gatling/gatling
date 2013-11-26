@@ -19,35 +19,19 @@ import scala.io.Source
 
 import au.com.bytecode.opencsv.CSVParser
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.config.{ GatlingFiles, Resource }
-import io.gatling.core.util.FileHelper.{ commaSeparator, semicolonSeparator, tabulationSeparator }
+import io.gatling.core.config.Resource
 import io.gatling.core.util.IOHelper.withSource
-import io.gatling.core.validation.{ Failure, Success, Validation }
 
 object SeparatedValuesParser {
 
-	def csv(fileName: String): AdvancedFeederBuilder[String] = csv(GatlingFiles.feederResource(fileName))
-	def csv(resource: Validation[Resource]) = AdvancedFeederBuilder(parse(resource, commaSeparator.charAt(0)))
+	def parse(resource: Resource, separator: Char): Array[Record[String]] = {
 
-	def tsv(fileName: String): AdvancedFeederBuilder[String] = tsv(GatlingFiles.feederResource(fileName))
-	def tsv(resource: Validation[Resource]) = AdvancedFeederBuilder(parse(resource, tabulationSeparator.charAt(0)))
+		val parser = new CSVParser(separator)
 
-	def ssv(fileName: String): AdvancedFeederBuilder[String] = ssv(GatlingFiles.feederResource(fileName))
-	def ssv(resource: Validation[Resource]) = AdvancedFeederBuilder(parse(resource, semicolonSeparator.charAt(0)))
-
-	def parse(fileName: String, separator: Char): Array[Record[String]] = parse(GatlingFiles.feederResource(fileName), separator)
-	def parse(resource: Validation[Resource], separator: Char): Array[Record[String]] = resource match {
-
-		case Success(res) =>
-			withSource(Source.fromInputStream(res.inputStream, configuration.core.encoding)) { source =>
-
-				val parser = new CSVParser(separator)
-				val rawLines = source.getLines.map(parser.parseLine)
-				val headers = rawLines.next
-
-				rawLines.map(headers.zip(_).toMap).toArray
-			}
-
-		case Failure(msg) => throw new IllegalArgumentException(msg)
+		withSource(Source.fromInputStream(resource.inputStream, configuration.core.encoding)) { source =>
+			val rawLines = source.getLines.map(parser.parseLine)
+			val headers = rawLines.next
+			rawLines.map(headers.zip(_).toMap).toArray
+		}
 	}
 }

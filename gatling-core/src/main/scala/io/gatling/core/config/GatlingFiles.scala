@@ -15,13 +15,11 @@
  */
 package io.gatling.core.config
 
-import scala.collection.mutable
 import scala.tools.nsc.io.{ Directory, Path }
 import scala.tools.nsc.io.Path.string2path
-import scala.util.Properties._
+import scala.util.Properties.{ envOrElse, propOrElse }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object GatlingFiles {
 
@@ -31,8 +29,6 @@ object GatlingFiles {
 	val GATLING_STYLE = "style"
 	val GATLING_ASSETS_JS_PACKAGE = GATLING_ASSETS_PACKAGE / GATLING_JS
 	val GATLING_ASSETS_STYLE_PACKAGE = GATLING_ASSETS_PACKAGE / GATLING_STYLE
-	private val requestBodyFileMemo = mutable.Map.empty[Path, Validation[Resource]]
-	private val feederFileMemo = mutable.Map.empty[Path, Validation[Resource]]
 
 	private def resolvePath(path: String): Path = {
 		val rawPath = Path(path)
@@ -59,23 +55,4 @@ object GatlingFiles {
 			dir.toDirectory
 		}
 	}
-
-	def validateResource(filePath: Path, fileSystemFolder: Path): Validation[Resource] = {
-		val classPathResource = Option(getClass.getClassLoader.getResource(filePath.toString.replace('\\', '/'))).map { url =>
-			url.getProtocol match {
-				case "file" => FileResource(url.getFile.toFile)
-				case "jar" => ClassPathResource(url, filePath.extension)
-				case _ => throw new UnsupportedOperationException
-			}
-		}
-
-		classPathResource.orElse((fileSystemFolder / filePath).ifFile(path => FileResource(path.toFile))) match {
-			case Some(resource) => resource.success
-			case _ => s"file $filePath doesn't exist".failure
-		}
-	}
-
-	def requestBodyResource(filePath: Path) = requestBodyFileMemo.getOrElseUpdate(filePath, validateResource(filePath, requestBodiesDirectory))
-
-	def feederResource(filePath: Path) = feederFileMemo.getOrElseUpdate(filePath, validateResource(filePath, dataDirectory))
 }

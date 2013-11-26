@@ -18,9 +18,33 @@ package io.gatling.core.config
 import java.io.{ File => JFile, InputStream }
 import java.net.URL
 
-import scala.reflect.io.File
+import scala.reflect.io.{ File, Path }
+import scala.tools.nsc.io.Path.string2path
 
 import org.apache.commons.io.FileUtils.copyInputStreamToFile
+
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+
+object Resource {
+
+	private def load(filePath: Path, fileSystemFolder: Path): Validation[Resource] = {
+		val classPathResource = Option(getClass.getClassLoader.getResource(filePath.toString.replace('\\', '/'))).map { url =>
+			url.getProtocol match {
+				case "file" => FileResource(url.getFile.toFile)
+				case "jar" => ClassPathResource(url, filePath.extension)
+				case _ => throw new UnsupportedOperationException
+			}
+		}
+
+		classPathResource.orElse((fileSystemFolder / filePath).ifFile(path => FileResource(path.toFile))) match {
+			case Some(resource) => resource.success
+			case _ => s"file $filePath doesn't exist".failure
+		}
+	}
+
+	def feeder(fileName: String): Validation[Resource] = load(fileName, GatlingFiles.dataDirectory)
+	def requestBody(fileName: String): Validation[Resource] = load(fileName, GatlingFiles.requestBodiesDirectory)
+}
 
 sealed trait Resource {
 	def inputStream: InputStream

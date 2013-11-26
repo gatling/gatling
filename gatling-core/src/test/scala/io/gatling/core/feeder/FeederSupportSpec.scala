@@ -13,19 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.feeder.csv
-
-import scala.tools.nsc.io.File
+package io.gatling.core.feeder
 
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import io.gatling.core.feeder.SeparatedValuesParser.tsv
 import io.gatling.core.config.GatlingConfiguration
 
 @RunWith(classOf[JUnitRunner])
-class SeparatedValuesParserSpec extends Specification {
+class FeederSupportSpec extends Specification with FeederSupport {
 
 	GatlingConfiguration.setUp()
 
