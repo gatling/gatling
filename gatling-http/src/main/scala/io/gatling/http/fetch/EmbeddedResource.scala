@@ -32,9 +32,10 @@ sealed abstract class EmbeddedResource {
 	def url: String
 
 	def toRequest(protocol: HttpProtocol): Option[NamedRequest] = {
-		val url = uri.toString
 		val urlExpression: Expression[String] = _ => url.success
 		val httpRequest = HttpRequestBaseBuilder.http(urlExpression).get(uri).build(protocol, false)
+		
+		// TODO NICOLAS - fix that weird hardcoded session ?
 		httpRequest.ahcRequest(Session("foo", "bar")) match {
 			case Success(ahcRequest) => {
 
@@ -53,9 +54,11 @@ sealed abstract class EmbeddedResource {
 		}
 	}
 }
+
 case class CssResource(uri: URI) extends EmbeddedResource {
 	val url = uri.toString
 }
+
 case class RegularResource(uri: URI) extends EmbeddedResource {
 	val url = uri.toString
 }
