@@ -28,7 +28,7 @@ import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import jodd.csselly.CssSelector
 
-object JoddCssExtractor {
+object CssExtractor {
 
 	val cache: concurrent.Map[String, Seq[JList[CssSelector]]] = new ConcurrentHashMap[String, Seq[JList[CssSelector]]]
 
@@ -49,22 +49,22 @@ object JoddCssExtractor {
 	}
 }
 
-abstract class JoddCssExtractor[X] extends CriterionExtractor[ExtendedNodeSelector, String, X] { val criterionName = "css" }
+abstract class CssExtractor[X] extends CriterionExtractor[ExtendedNodeSelector, String, X] { val criterionName = "css" }
 
-class SingleJoddCssExtractor[X](val criterion: Expression[String], nodeAttribute: Option[String], occurrence: Int) extends JoddCssExtractor[String] {
+class SingleCssExtractor[X](val criterion: Expression[String], nodeAttribute: Option[String], occurrence: Int) extends CssExtractor[String] {
 
 	def extract(prepared: ExtendedNodeSelector, criterion: String): Validation[Option[String]] =
-		JoddCssExtractor.extractAll(prepared, criterion, nodeAttribute).lift(occurrence).success
+		CssExtractor.extractAll(prepared, criterion, nodeAttribute).lift(occurrence).success
 }
 
-class MultipleJoddCssExtractor[X](val criterion: Expression[String], nodeAttribute: Option[String]) extends JoddCssExtractor[Seq[String]] {
+class MultipleCssExtractor[X](val criterion: Expression[String], nodeAttribute: Option[String]) extends CssExtractor[Seq[String]] {
 
 	def extract(prepared: ExtendedNodeSelector, criterion: String): Validation[Option[Seq[String]]] =
-		JoddCssExtractor.extractAll(prepared, criterion, nodeAttribute).liftSeqOption.success
+		CssExtractor.extractAll(prepared, criterion, nodeAttribute).liftSeqOption.success
 }
 
-class CountJoddCssExtractor(val criterion: Expression[String], nodeAttribute: Option[String]) extends JoddCssExtractor[Int] {
+class CountCssExtractor(val criterion: Expression[String], nodeAttribute: Option[String]) extends CssExtractor[Int] {
 
 	def extract(prepared: ExtendedNodeSelector, criterion: String): Validation[Option[Int]] =
-		JoddCssExtractor.extractAll(prepared, criterion, nodeAttribute).liftSeqOption.map(_.size).success
+		CssExtractor.extractAll(prepared, criterion, nodeAttribute).liftSeqOption.map(_.size).success
 }
