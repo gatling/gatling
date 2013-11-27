@@ -30,11 +30,13 @@ import jodd.csselly.CssSelector
 
 object CssExtractor {
 
+	val domBuilder = new SilentLagartoDOMBuilder
+
 	val cache: concurrent.Map[String, Seq[JList[CssSelector]]] = new ConcurrentHashMap[String, Seq[JList[CssSelector]]]
 
 	def cached(query: String) = if (configuration.core.extract.css.cache) cache.getOrElseUpdate(query, ExtendedNodeSelector.parseQuery(query)) else ExtendedNodeSelector.parseQuery(query)
 
-	def parse(string: String) = new ExtendedNodeSelector(new SilentLagartoDOMBuilder().parse(string))
+	def parse(string: String) = new ExtendedNodeSelector(domBuilder.parse(string))
 
 	def extractAll(selector: ExtendedNodeSelector, query: String, nodeAttribute: Option[String]): Seq[String] = {
 
