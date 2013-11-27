@@ -18,7 +18,7 @@ package io.gatling.http.check.body
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.css.{ CountJoddCssExtractor, ExtendedNodeSelector, JoddCssExtractor, MultipleJoddCssExtractor, SingleJoddCssExtractor }
+import io.gatling.core.check.extractor.css.{ CountCssExtractor, ExtendedNodeSelector, CssExtractor, MultipleCssExtractor, SingleCssExtractor }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
@@ -29,7 +29,7 @@ object HttpBodyCssCheckBuilder extends Logging {
 
 	val preparer: Preparer[Response, ExtendedNodeSelector] = (response: Response) =>
 		try {
-			JoddCssExtractor.parse(response.getResponseBody(configuration.core.encoding)).success
+			CssExtractor.parse(response.getResponseBody(configuration.core.encoding)).success
 
 		} catch {
 			case e: Exception =>
@@ -40,8 +40,8 @@ object HttpBodyCssCheckBuilder extends Logging {
 
 	def css(expression: Expression[String], nodeAttribute: Option[String]) =
 		new HttpMultipleCheckBuilder[ExtendedNodeSelector, String](HttpCheckBuilders.bodyCheckFactory, preparer) {
-			def findExtractor(occurrence: Int) = new SingleJoddCssExtractor(expression, nodeAttribute, occurrence)
-			def findAllExtractor = new MultipleJoddCssExtractor(expression, nodeAttribute)
-			def countExtractor = new CountJoddCssExtractor(expression, nodeAttribute)
+			def findExtractor(occurrence: Int) = new SingleCssExtractor(expression, nodeAttribute, occurrence)
+			def findAllExtractor = new MultipleCssExtractor(expression, nodeAttribute)
+			def countExtractor = new CountCssExtractor(expression, nodeAttribute)
 		}
 }
