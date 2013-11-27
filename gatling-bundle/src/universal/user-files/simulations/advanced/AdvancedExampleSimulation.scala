@@ -2,8 +2,6 @@ package advanced
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.jdbc.Predef._
-
 import scala.concurrent.duration._
 
 class AdvancedExampleSimulation extends Simulation {
