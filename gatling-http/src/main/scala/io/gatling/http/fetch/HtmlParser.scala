@@ -28,7 +28,8 @@ object HtmlParser extends Logging {
 
 	def getEmbeddedResources(documentURI: URI, htmlContent: String): List[EmbeddedResource] = {
 
-		val rawResources = mutable.ListBuffer.empty[(String, URI => EmbeddedResource)]
+		// FIXME perf? add an index and sort later?
+		val rawResources = mutable.LinkedHashMap.empty[String, URI => EmbeddedResource]
 		var baseURI: Option[URI] = None
 
 		val lagartoParser = new LagartoParser(htmlContent)
