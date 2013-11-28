@@ -28,7 +28,7 @@ object SeparatedValuesParser {
 
 		val parser = new CSVParser(separator)
 
-		withSource(Source.fromInputStream(resource.inputStream, configuration.core.encoding)) { source =>
+		withSource(Source.fromInputStream(resource.inputStream)(configuration.core.codec)) { source =>
 			val rawLines = source.getLines.map(parser.parseLine)
 			val headers = rawLines.next
 			rawLines.map(headers.zip(_).toMap).toArray

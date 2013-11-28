@@ -18,8 +18,7 @@ package io.gatling.http.check.body
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.css.{ CountCssExtractor, ExtendedNodeSelector, CssExtractor, MultipleCssExtractor, SingleCssExtractor }
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.check.extractor.css.{ CountCssExtractor, CssExtractor, ExtendedNodeSelector, MultipleCssExtractor, SingleCssExtractor }
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
@@ -29,7 +28,7 @@ object HttpBodyCssCheckBuilder extends Logging {
 
 	val preparer: Preparer[Response, ExtendedNodeSelector] = (response: Response) =>
 		try {
-			CssExtractor.parse(response.getResponseBody(configuration.core.encoding)).success
+			CssExtractor.parse(response.charBuffer).success
 
 		} catch {
 			case e: Exception =>

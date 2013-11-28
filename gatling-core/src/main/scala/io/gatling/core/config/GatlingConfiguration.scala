@@ -15,13 +15,13 @@
  */
 package io.gatling.core.config
 
+import java.nio.charset.Charset
 import scala.collection.JavaConversions.mapAsJavaMap
 import scala.collection.mutable
-
 import com.typesafe.config.{ Config, ConfigFactory }
-
 import io.gatling.core.ConfigurationConstants._
 import io.gatling.core.util.StringHelper.RichString
+import scala.io.Codec
 
 /**
  * Configuration loader of Gatling
@@ -198,7 +198,11 @@ case class CoreConfiguration(
 	extract: ExtractConfiguration,
 	timeOut: TimeOutConfiguration,
 	directory: DirectoryConfiguration,
-	zinc: ZincConfiguration)
+	zinc: ZincConfiguration) {
+
+	val charSet = Charset.forName(encoding)
+	val codec: Codec = charSet
+}
 
 case class TimeOutConfiguration(
 	simulation: Int,

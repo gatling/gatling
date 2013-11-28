@@ -15,7 +15,7 @@
  */
 package io.gatling.core.check.extractor.xpath
 
-import java.io.StringReader
+import java.io.InputStream
 
 import scala.collection.JavaConversions.{ iterableAsScalaIterable, mapAsScalaConcurrentMap, seqAsJavaList }
 import scala.collection.concurrent
@@ -45,8 +45,9 @@ object XPathExtractor {
 		xPathCompiler
 	}
 
-	def parse(text: String) = {
-		val source = new SAXSource(new InputSource(new StringReader(text)))
+	def parse(is: InputStream) = {
+		val inputSource = new InputSource(is)
+		val source = new SAXSource(inputSource)
 		documentBuilder.build(source)
 	}
 

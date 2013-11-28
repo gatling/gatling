@@ -15,6 +15,9 @@
  */
 package io.gatling.core.check.extractor.css
 
+import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
+
 import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
@@ -30,7 +33,9 @@ import io.gatling.core.util.IOHelper.withCloseable
 class CssExtractorSpec extends ValidationSpecification {
 
 	def prepared(file: String) = withCloseable(getClass.getResourceAsStream(file)) { is =>
-		CssExtractor.parse(IOUtils.toString(is))
+		val bytes = IOUtils.toByteArray(is)
+		val chars = StandardCharsets.UTF_8.decode(ByteBuffer.wrap(bytes))
+		CssExtractor.parse(chars)
 	}
 
 	"CssExtractor" should {

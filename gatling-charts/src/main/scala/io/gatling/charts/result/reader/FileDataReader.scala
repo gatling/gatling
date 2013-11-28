@@ -53,7 +53,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
 
 	private def doWithInputFiles[T](f: Iterator[String] => T): T = {
 
-		def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_, configuration.core.encoding).getLines).reduce((first, second) => first ++ second)
+		def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_)(configuration.core.codec).getLines).reduce((first, second) => first ++ second)
 
 		val streams = inputFiles.map(new FileInputStream(_))
 		try f(multipleFileIterator(streams))

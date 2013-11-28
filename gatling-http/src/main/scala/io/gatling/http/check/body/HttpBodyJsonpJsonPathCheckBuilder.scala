@@ -19,7 +19,6 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.jsonpath.{ CountJsonPathExtractor, JsonFilter, JsonPathExtractor, MultipleJsonPathExtractor, SingleJsonPathExtractor }
-import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
@@ -31,8 +30,8 @@ object HttpBodyJsonpJsonPathCheckBuilder extends Logging {
 
 	val jsonpPreparer: Preparer[Response, Any] = (response: Response) =>
 		try {
-			val bodyString = response.getResponseBody(configuration.core.encoding)
-			bodyString match {
+			val charBuffer = response.charBuffer
+			charBuffer match {
 				case jsonpRegex(jsonp) => JsonPathExtractor.parse(jsonp).success
 				case _ =>
 					val message = "Regex could not extract JSON object from JSONP response"

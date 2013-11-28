@@ -20,6 +20,7 @@ object JsonPathExtractor {
 		if (configuration.core.extract.jsonPath.cache) cache.getOrElseUpdate(expression, compile(expression))
 		else compile(expression)
 
+	def parse(bytes: Array[Byte]) = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(bytes)
 	def parse(string: String) = new JSONParser(JSONParser.DEFAULT_PERMISSIVE_MODE).parse(string)
 
 	def compile(expression: String): Validation[JsonPath] = JsonPath.compile(expression) match {

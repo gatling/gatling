@@ -15,13 +15,14 @@
  */
 package io.gatling.http.response
 
-import java.io.ByteArrayInputStream
-import java.nio.ByteBuffer
+import java.nio.{ ByteBuffer, CharBuffer }
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import io.gatling.core.config.GatlingConfiguration.configuration
 import com.ning.http.client.{ Request, Response => AHCResponse }
+
+import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.util.BytesInputStream
 
 trait Response extends AHCResponse {
 
@@ -38,6 +39,7 @@ trait Response extends AHCResponse {
 	def isReceived: Boolean
 	def getHeaderSafe(name: String): Option[String]
 	def getHeadersSafe(name: String): Seq[String]
+	def charBuffer: CharBuffer
 }
 
 case class HttpResponse(
@@ -48,7 +50,7 @@ case class HttpResponse(
 	lastByteSent: Long,
 	firstByteReceived: Long,
 	lastByteReceived: Long,
-	bytesOrString: Either[Array[Byte], String]) extends Response {
+	bytes: Array[Byte]) extends Response {
 
 	def checksum(algorithm: String) = checksums.get(algorithm)
 	def reponseTimeInMillis = lastByteReceived - firstByteSent
@@ -57,24 +59,21 @@ case class HttpResponse(
 	def getHeaderSafe(name: String): Option[String] = ahcResponse.flatMap(r => Option(r.getHeader(name)))
 	def getHeadersSafe(name: String): Seq[String] = ahcResponse.flatMap(r => Option(r.getHeaders(name))).map(_.toSeq).getOrElse(Nil)
 
+	lazy val string = new String(bytes, configuration.core.charSet)
+	lazy val charBuffer = configuration.core.charSet.decode(ByteBuffer.wrap(bytes))
+
 	override def toString = ahcResponse.toString
 
 	private def receivedResponse = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built"))
 	def getStatusCode = receivedResponse.getStatusCode
 	def getStatusText = receivedResponse.getStatusText
-	def getResponseBodyAsBytes = bytesOrString match {
-		case Left(bytes) => bytes
-		case Right(string) => string.getBytes(configuration.core.encoding)
-	}
-	def getResponseBodyAsStream = throw new UnsupportedOperationException
+	def getResponseBodyAsBytes = bytes
+	def getResponseBodyAsStream = new BytesInputStream(bytes)
 	def getResponseBodyAsByteBuffer = throw new UnsupportedOperationException
 	def getResponseBodyExcerpt(maxLength: Int, charset: String) = throw new UnsupportedOperationException
-	def getResponseBody(charset: String) = bytesOrString match {
-		case Left(bytes) => new String(bytes, charset)
-		case Right(string) => string
-	}
+	def getResponseBody(charset: String) = new String(bytes, charset)
 	def getResponseBodyExcerpt(maxLength: Int) = throw new UnsupportedOperationException
-	def getResponseBody = getResponseBody(configuration.core.encoding)
+	def getResponseBody = string
 	def getUri = receivedResponse.getUri
 	def getContentType = receivedResponse.getContentType
 	def getHeader(name: String) = receivedResponse.getHeader(name)
@@ -84,10 +83,7 @@ case class HttpResponse(
 	def getCookies = receivedResponse.getCookies
 	def hasResponseStatus = receivedResponse.hasResponseStatus
 	def hasResponseHeaders = receivedResponse.hasResponseHeaders
-	def hasResponseBody = bytesOrString match {
-		case Left(bytes) => !bytes.isEmpty
-		case Right(string) => !string.isEmpty
-	}
+	def hasResponseBody = bytes.length != 0
 }
 
 class DelegatingReponse(delegate: Response) extends Response {
@@ -125,4 +121,5 @@ class DelegatingReponse(delegate: Response) extends Response {
 	def hasResponseStatus = delegate.hasResponseStatus
 	def hasResponseHeaders = delegate.hasResponseHeaders
 	def hasResponseBody = delegate.hasResponseHeaders
+	def charBuffer = delegate.charBuffer
 }

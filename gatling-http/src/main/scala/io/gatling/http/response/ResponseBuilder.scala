@@ -109,21 +109,14 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 		val ahcResponse = Option(status).map(_.provider.prepareResponse(status, headers, bodies))
 		val checksums = digests.mapValues(md => bytes2Hex(md.digest)).toMap
 
-		val bytesOrString = ahcResponse.map { response =>
-
-			val isText = Option(response.getContentType).exists { contentType =>
-				contentType.contains("text") || contentType.contains("json") || contentType.contains("javascript") || contentType.contains("xml")
-			}
-
-			if (isText)
-				Right(response.getResponseBody(configuration.core.encoding))
-			else
-				Left(response.getResponseBodyAsBytes)
-		}.getOrElse(Left(ResponseBuilder.emptyBytes))
+		val bytes = ahcResponse match {
+			case Some(r) => r.getResponseBodyAsBytes
+			case None => ResponseBuilder.emptyBytes
+		}
 
 		bodies.clear
 
-		val rawResponse = HttpResponse(request, ahcResponse, checksums, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived, bytesOrString)
+		val rawResponse = HttpResponse(request, ahcResponse, checksums, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived, bytes)
 
 		responseProcessor
 			.map(_.applyOrElse(rawResponse, identity[Response]))

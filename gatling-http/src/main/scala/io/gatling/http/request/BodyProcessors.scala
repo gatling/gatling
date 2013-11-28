@@ -15,10 +15,11 @@
  */
 package io.gatling.http.request
 
-import java.io.{ BufferedInputStream, ByteArrayInputStream, FileInputStream }
+import java.io.{ BufferedInputStream, FileInputStream }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Session
+import io.gatling.core.util.BytesInputStream
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.http.util.GZIPHelper
 
@@ -40,8 +41,8 @@ object BodyProcessors {
 	val stream = (body: Body) => {
 
 		val stream = body match {
-			case StringBody(string) => (session: Session) => string(session).map(s => new BufferedInputStream(new ByteArrayInputStream(s.getBytes(configuration.core.encoding))))
-			case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(b => new BufferedInputStream(new ByteArrayInputStream(b)))
+			case StringBody(string) => (session: Session) => string(session).map(s => new BufferedInputStream(new BytesInputStream(s.getBytes(configuration.core.encoding))))
+			case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(b => new BufferedInputStream(new BytesInputStream(b)))
 			case RawFileBody(file) => (session: Session) => file(session).map(f => new BufferedInputStream(new FileInputStream(f)))
 			case InputStreamBody(inputStream) => inputStream
 			case _ => throw new UnsupportedOperationException(s"streamBody doesn't support $body")

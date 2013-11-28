@@ -22,6 +22,7 @@ import org.specs2.runner.JUnitRunner
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.noopStringExpression
 import io.gatling.core.test.ValidationSpecification
+import io.gatling.core.util.IOHelper.withCloseable
 
 @RunWith(classOf[JUnitRunner])
 class XPathExtractorSpec extends ValidationSpecification {
@@ -32,7 +33,9 @@ class XPathExtractorSpec extends ValidationSpecification {
 
 	def prepared(file: String) = {
 		GatlingConfiguration.setUp()
-		Some(XPathExtractor.parse(IOUtils.toString(getClass.getResourceAsStream(file))))
+		withCloseable(getClass.getResourceAsStream(file)) { is =>
+            Some(XPathExtractor.parse(is))
+        }
 	}
 
 	"count" should {

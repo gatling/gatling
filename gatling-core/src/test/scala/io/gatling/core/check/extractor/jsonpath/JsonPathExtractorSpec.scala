@@ -36,8 +36,8 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 	def prepared(file: String) = {
 		GatlingConfiguration.setUp()
 		withCloseable(getClass.getResourceAsStream(file)) { is =>
-			val string = IOUtils.toString(is, UTF8.charSet)
-			JsonPathExtractor.parse(string)
+			val bytes = IOUtils.toByteArray(is)
+			JsonPathExtractor.parse(bytes)
 		}
 	}
 

@@ -15,10 +15,11 @@
  */
 package io.gatling.http.check
 
+import java.nio.CharBuffer
+
 import io.gatling.core.check.{ Check, CheckFactory, Preparer }
-import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.SuccessWrapper
-import io.gatling.http.check.HttpCheckOrder._
+import io.gatling.http.check.HttpCheckOrder.{ Body, Checksum, Header, HttpCheckOrder, Status, Url }
 import io.gatling.http.response.Response
 
 object HttpCheckBuilders {
@@ -33,5 +34,6 @@ object HttpCheckBuilders {
 	val timeCheckFactory = httpCheckFactory(Body)
 
 	val passThroughResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
-	val stringResponsePreparer: Preparer[Response, String] = (response: Response) => response.getResponseBody(configuration.core.encoding).success
+	val charsResponsePreparer: Preparer[Response, CharBuffer] = (response: Response) => response.charBuffer.success
+	val stringResponsePreparer: Preparer[Response, String] = (response: Response) => response.getResponseBody.success
 }

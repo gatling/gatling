@@ -19,7 +19,6 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.jsonpath.{ CountJsonPathExtractor, JsonFilter, JsonPathExtractor, MultipleJsonPathExtractor, SingleJsonPathExtractor }
-import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
@@ -29,7 +28,7 @@ object HttpBodyJsonPathCheckBuilder extends Logging {
 
 	val preparer: Preparer[Response, Any] = (response: Response) =>
 		try {
-			JsonPathExtractor.parse(response.getResponseBody(configuration.core.encoding)).success
+			JsonPathExtractor.parse(response.getResponseBodyAsBytes).success
 		} catch {
 			case e: Exception =>
 				val message = s"Could not parse response into a JSON object: ${e.getMessage}"

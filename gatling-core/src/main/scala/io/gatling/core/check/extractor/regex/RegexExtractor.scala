@@ -33,20 +33,20 @@ object RegexExtractor {
 
 	def cached(pattern: String) = if (configuration.core.extract.regex.cache) cache.getOrElseUpdate(pattern, Pattern.compile(pattern)) else Pattern.compile(pattern)
 
-	def extractAll[X: GroupExtractor](string: String, pattern: String): Seq[X] = {
+	def extractAll[X: GroupExtractor](chars: CharSequence, pattern: String): Seq[X] = {
 
-		val matcher = cached(pattern).matcher(string)
+		val matcher = cached(pattern).matcher(chars)
 		matcher.foldLeft(List.empty[X]) { (matcher, values) =>
 			matcher.value :: values
 		}.reverse
 	}
 }
 
-abstract class RegexExtractor[X] extends CriterionExtractor[String, String, X] { val criterionName = "regex" }
+abstract class RegexExtractor[X] extends CriterionExtractor[CharSequence, String, X] { val criterionName = "regex" }
 
 class SingleRegexExtractor[X: GroupExtractor](val criterion: Expression[String], occurrence: Int) extends RegexExtractor[X] {
 
-	def extract(prepared: String, criterion: String): Validation[Option[X]] = {
+	def extract(prepared: CharSequence, criterion: String): Validation[Option[X]] = {
 		val matcher = RegexExtractor.cached(criterion).matcher(prepared)
 		matcher.findMatchN(occurrence).success
 	}
@@ -54,12 +54,12 @@ class SingleRegexExtractor[X: GroupExtractor](val criterion: Expression[String],
 
 class MultipleRegexExtractor[X: GroupExtractor](val criterion: Expression[String]) extends RegexExtractor[Seq[X]] {
 
-	def extract(prepared: String, criterion: String): Validation[Option[Seq[X]]] = RegexExtractor.extractAll(prepared, criterion).liftSeqOption.success
+	def extract(prepared: CharSequence, criterion: String): Validation[Option[Seq[X]]] = RegexExtractor.extractAll(prepared, criterion).liftSeqOption.success
 }
 
 class CountRegexExtractor(val criterion: Expression[String]) extends RegexExtractor[Int] {
 
-	def extract(prepared: String, criterion: String): Validation[Option[Int]] = {
+	def extract(prepared: CharSequence, criterion: String): Validation[Option[Int]] = {
 		val matcher = RegexExtractor.cached(criterion).matcher(prepared)
 		matcher.foldLeft(0) { (_, count) =>
 			count + 1
