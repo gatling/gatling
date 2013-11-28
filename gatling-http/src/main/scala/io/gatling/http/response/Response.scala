@@ -79,10 +79,10 @@ case class HttpResponse(
 	def getHeader(name: String) = receivedResponse.getHeader(name)
 	def getHeaders(name: String) = receivedResponse.getHeaders(name)
 	def getHeaders = receivedResponse.getHeaders
-	def isRedirected = receivedResponse.isRedirected
+	def isRedirected = ahcResponse.map(_.isRedirected).getOrElse(false)
 	def getCookies = receivedResponse.getCookies
-	def hasResponseStatus = receivedResponse.hasResponseStatus
-	def hasResponseHeaders = receivedResponse.hasResponseHeaders
+	def hasResponseStatus = ahcResponse.map(_.hasResponseStatus).getOrElse(false)
+	def hasResponseHeaders = ahcResponse.map(_.hasResponseHeaders).getOrElse(false)
 	def hasResponseBody = bytes.length != 0
 }
 
