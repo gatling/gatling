@@ -24,32 +24,41 @@ import com.typesafe.scalalogging.slf4j.Logging
 import io.gatling.http.util.HttpHelper
 import jodd.lagarto.{ EmptyTagVisitor, LagartoParser, Tag }
 
+sealed abstract class RawResource {
+	def rawUrl: String
+	def uri(rootURI: URI): Option[URI] = HttpHelper.resolveFromURISilently(rootURI, rawUrl)
+	def toEmbeddedResource(rootURI: URI): Option[EmbeddedResource]
+}
+case class CssRawResource(rawUrl: String) extends RawResource {
+	def toEmbeddedResource(rootURI: URI): Option[EmbeddedResource] = uri(rootURI).map(CssResource)
+}
+case class RegularRawResource(rawUrl: String) extends RawResource {
+	def toEmbeddedResource(rootURI: URI): Option[EmbeddedResource] = uri(rootURI).map(RegularResource)
+}
+
 object HtmlParser extends Logging {
 
 	def getEmbeddedResources(documentURI: URI, htmlContent: String): List[EmbeddedResource] = {
 
-		// FIXME perf? add an index and sort later?
-		val rawResources = mutable.LinkedHashMap.empty[String, URI => EmbeddedResource]
+		val rawResources = mutable.ArrayBuffer.empty[RawResource]
 		var baseURI: Option[URI] = None
 
 		val lagartoParser = new LagartoParser(htmlContent)
 
 		val visitor = new EmptyTagVisitor {
 
-			def addResource(tag: Tag, attributeName: String, factory: URI => EmbeddedResource) {
+			def addResource(tag: Tag, attributeName: String, factory: String => RawResource) {
 				val url = tag.getAttributeValue(attributeName, false)
 				if (url != null)
-					rawResources += url -> factory
+					rawResources += factory(url)
 			}
 
 			override def script(tag: Tag, body: CharSequence) {
-				addResource(tag, "src", RegularResource)
+				addResource(tag, "src", RegularRawResource)
 			}
 
 			override def style(tag: Tag, body: CharSequence) {
-				CssParser.extractUrls(body, CssParser.styleImportsUrls).foreach {
-					rawResources += _ -> CssResource
-				}
+				rawResources ++= CssParser.extractUrls(body, CssParser.styleImportsUrls).map(CssRawResource)
 			}
 
 			override def tag(tag: Tag) {
@@ -80,27 +89,27 @@ object HtmlParser extends Logging {
 
 					case "link" =>
 						tag.getAttributeValue("rel", false) match {
-							case "stylesheet" => addResource(tag, "href", CssResource)
-							case "icon" => addResource(tag, "href", RegularResource)
+							case "stylesheet" => addResource(tag, "href", CssRawResource)
+							case "icon" => addResource(tag, "href", RegularRawResource)
 							case _ =>
 						}
 
-					case "bgsound" => addResource(tag, "src", RegularResource)
-					case "img" => addResource(tag, "src", RegularResource)
-					case "embed" => addResource(tag, "src", RegularResource)
-					case "input" => addResource(tag, "src", RegularResource) // only if type=image?
-					case "body" => addResource(tag, "background", RegularResource)
+					case "bgsound" => addResource(tag, "src", RegularRawResource)
+					case "img" => addResource(tag, "src", RegularRawResource)
+					case "embed" => addResource(tag, "src", RegularRawResource)
+					case "input" => addResource(tag, "src", RegularRawResource) // only if type=image?
+					case "body" => addResource(tag, "background", RegularRawResource)
 
 					case "applet" =>
 						val code = tag.getAttributeValue("code", false)
 						val codeBase = suffixedCodeBase
 						val archives = Option(tag.getAttributeValue("archive", false)).map(_.split(",").map(_.trim)(breakOut))
 
-						val appletResources = archives.getOrElse(List(code))
+						val appletResources = archives.getOrElse(List(code)).iterator
 						val appletResourcesUrls = codeBase
 							.map(cb => appletResources.map(prependCodeBase(cb, _)))
 							.getOrElse(appletResources)
-							.map(_ -> RegularResource)
+							.map(RegularRawResource)
 						rawResources ++= appletResourcesUrls
 
 					case "object" =>
@@ -110,11 +119,11 @@ object HtmlParser extends Logging {
 							case Some(cb) => prependCodeBase(cb, data)
 							case _ => data
 						}
-						rawResources += objectResourceUrl -> RegularResource
+						rawResources += RegularRawResource(objectResourceUrl)
 
 					case _ =>
 						Option(tag.getAttributeValue("style", false)).foreach { style =>
-							val styleUrls = CssParser.extractUrls(style, CssParser.inlineStyleImageUrls).map(_ -> RegularResource)
+							val styleUrls = CssParser.extractUrls(style, CssParser.inlineStyleImageUrls).map(RegularRawResource)
 							rawResources ++= styleUrls
 						}
 				}
@@ -125,6 +134,9 @@ object HtmlParser extends Logging {
 
 		val rootURI = baseURI.getOrElse(documentURI)
 
-		rawResources.map { case (url, factory) => HttpHelper.resolveFromURISilently(rootURI, url).map(factory) }.flatten.toList
+		rawResources
+			.distinct
+			.flatMap(_.toEmbeddedResource(rootURI))
+			.toList
 	}
 }
