@@ -87,7 +87,7 @@ object ResourceFetcher extends Logging {
 
 		def pageResourcesRequests(): List[NamedRequest] =
 			pageResources(htmlDocumentURI, protocol.htmlResourcesFetchingFilters, response.getResponseBody)
-				.flatMap(_.toRequest(protocol))
+				.flatMap(_.toRequest(protocol, tx.throttled))
 
 		val inferredResources: List[NamedRequest] = (response.getStatusCode: @switch) match {
 			case 200 =>
@@ -100,6 +100,7 @@ object ResourceFetcher extends Logging {
 							case _ =>
 								// cache entry missing or expired, update it
 								val inferredResources = pageResourcesRequests()
+								// FIXME add throttle to cache key?
 								inferredResourcesCache.put((protocol, htmlDocumentURI), InferredPageResources(newLastModifiedOrEtag, inferredResources))
 								inferredResources
 						}
@@ -290,14 +291,14 @@ class ResourceFetcher(tx: HttpTx, initialResources: Iterable[NamedRequest]) exte
 									case _ =>
 										// cache entry missing or expired, update it
 										ResourceFetcher.cssContentCache.remove(protocol -> uri)
-										val inferredResources = ResourceFetcher.cssResources(uri, protocol.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol))
+										val inferredResources = ResourceFetcher.cssResources(uri, protocol.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
 										ResourceFetcher.inferredResourcesCache.put((protocol, uri), InferredPageResources(newLastModifiedOrEtag, inferredResources))
 										inferredResources
 								}
 
 							case None =>
 								// don't cache
-								ResourceFetcher.cssResources(uri, protocol.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol))
+								ResourceFetcher.cssResources(uri, protocol.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
 						}
 
 					case 304 =>

@@ -26,17 +26,22 @@ import io.gatling.http.request.builder.HttpRequestBaseBuilder
 
 case class NamedRequest(name: String, ahcRequest: Request)
 
+object EmbeddedResource {
+
+	val mockSession = Session("foo", "bar")
+}
+
 sealed abstract class EmbeddedResource {
 
 	def uri: URI
 	def url: String
 
-	def toRequest(protocol: HttpProtocol): Option[NamedRequest] = {
+	def toRequest(protocol: HttpProtocol, throttled: Boolean): Option[NamedRequest] = {
 		val urlExpression: Expression[String] = _ => url.success
-		val httpRequest = HttpRequestBaseBuilder.http(urlExpression).get(uri).build(protocol, false)
-		
-		// TODO NICOLAS - fix that weird hardcoded session ?
-		httpRequest.ahcRequest(Session("foo", "bar")) match {
+		val httpRequest = HttpRequestBaseBuilder.http(urlExpression).get(uri).build(protocol, throttled)
+
+		// for now, no better way to build a request than reusing HttpRequestBaseBuilder and passing a mock session
+		httpRequest.ahcRequest(EmbeddedResource.mockSession) match {
 			case Success(ahcRequest) => {
 
 				val requestName = {
