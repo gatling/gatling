@@ -21,19 +21,18 @@ import java.util.{ List => JList }
 import scala.collection.JavaConversions.mapAsScalaConcurrentMap
 import scala.collection.concurrent
 
-import org.jboss.netty.util.internal.ConcurrentHashMap
-
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import jodd.csselly.CssSelector
+import jsr166e.ConcurrentHashMapV8
 
 object CssExtractor {
 
 	val domBuilder = new SilentLagartoDOMBuilder
 
-	val cache: concurrent.Map[String, Seq[JList[CssSelector]]] = new ConcurrentHashMap[String, Seq[JList[CssSelector]]]
+	val cache: concurrent.Map[String, Seq[JList[CssSelector]]] = new ConcurrentHashMapV8[String, Seq[JList[CssSelector]]]
 
 	def cached(query: String) = if (configuration.core.extract.css.cache) cache.getOrElseUpdate(query, ExtendedNodeSelector.parseQuery(query)) else ExtendedNodeSelector.parseQuery(query)
 

@@ -39,12 +39,12 @@ object Dependencies {
 
 	val coreDeps = Seq(
 		scalaCompiler, akkaActor, saxon, jodaTime, jodaConvert, slf4jApi, scalalogging, scalaReflect, jsonSmart,
-		jsonpath, commonsMath, joddLagarto, commonsIo, config, fastring, openCsv, logbackClassic, netty
+		jsonpath, commonsMath, joddLagarto, commonsIo, config, fastring, openCsv, logbackClassic
 	) ++ testDeps
 
 	val redisDeps = Seq(redisClient) ++ testDeps
 
-	val httpDeps = Seq(ahc, jzlib, grizzlyWebsockets) ++ testDeps
+	val httpDeps = Seq(ahc, netty, jzlib, grizzlyWebsockets) ++ testDeps
 
 	val chartsDeps = testDeps
 

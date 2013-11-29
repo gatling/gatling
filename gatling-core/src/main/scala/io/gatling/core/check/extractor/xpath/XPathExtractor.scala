@@ -20,7 +20,6 @@ import java.io.InputStream
 import scala.collection.JavaConversions.{ iterableAsScalaIterable, mapAsScalaConcurrentMap, seqAsJavaList }
 import scala.collection.concurrent
 
-import org.jboss.netty.util.internal.ConcurrentHashMap
 import org.xml.sax.InputSource
 
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
@@ -28,6 +27,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import javax.xml.transform.sax.SAXSource
+import jsr166e.ConcurrentHashMapV8
 import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathSelector, XdmItem, XdmNode }
 
 object XPathExtractor {
@@ -35,7 +35,7 @@ object XPathExtractor {
 	val processor = new Processor(false)
 	val documentBuilder = processor.newDocumentBuilder
 
-	val compilerCache: concurrent.Map[List[(String, String)], XPathCompiler] = new ConcurrentHashMap[List[(String, String)], XPathCompiler]
+	val compilerCache: concurrent.Map[List[(String, String)], XPathCompiler] = new ConcurrentHashMapV8[List[(String, String)], XPathCompiler]
 
 	def compiler(namespaces: List[(String, String)]) = {
 		val xPathCompiler = processor.newXPathCompiler
@@ -51,7 +51,7 @@ object XPathExtractor {
 		documentBuilder.build(source)
 	}
 
-	val selectorCache: concurrent.Map[String, ThreadLocal[XPathSelector]] = new ConcurrentHashMap[String, ThreadLocal[XPathSelector]]
+	val selectorCache: concurrent.Map[String, ThreadLocal[XPathSelector]] = new ConcurrentHashMapV8[String, ThreadLocal[XPathSelector]]
 
 	def xpath(expression: String, xPathCompiler: XPathCompiler): XPathSelector = xPathCompiler.compile(expression).load
 

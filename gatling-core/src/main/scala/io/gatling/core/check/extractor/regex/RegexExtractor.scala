@@ -20,16 +20,15 @@ import java.util.regex.Pattern
 import scala.collection.JavaConversions.mapAsScalaConcurrentMap
 import scala.collection.concurrent
 
-import org.jboss.netty.util.internal.ConcurrentHashMap
-
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedOption, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import jsr166e.ConcurrentHashMapV8
 
 object RegexExtractor {
 
-	val cache: concurrent.Map[String, Pattern] = new ConcurrentHashMap[String, Pattern]
+	val cache: concurrent.Map[String, Pattern] = new ConcurrentHashMapV8[String, Pattern]
 
 	def cached(pattern: String) = if (configuration.core.extract.regex.cache) cache.getOrElseUpdate(pattern, Pattern.compile(pattern)) else Pattern.compile(pattern)
 

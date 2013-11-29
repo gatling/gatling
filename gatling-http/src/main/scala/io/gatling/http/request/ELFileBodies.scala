@@ -19,7 +19,7 @@ import scala.collection.JavaConversions.mapAsScalaConcurrentMap
 import scala.collection.concurrent
 
 import org.apache.commons.io.IOUtils
-import org.jboss.netty.util.internal.ConcurrentHashMap
+import jsr166e.ConcurrentHashMapV8
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
@@ -30,7 +30,7 @@ import io.gatling.core.validation.Validation
 
 object ELFileBodies {
 
-	val cache: concurrent.Map[String, Validation[Expression[String]]] = new ConcurrentHashMap[String, Validation[Expression[String]]]
+	val cache: concurrent.Map[String, Validation[Expression[String]]] = new ConcurrentHashMapV8[String, Validation[Expression[String]]]
 	def cached(path: String) = if (configuration.http.cacheELFileBodies) cache.getOrElseUpdate(path, compileFile(path)) else compileFile(path)
 
 	def compileFile(path: String): Validation[Expression[String]] =

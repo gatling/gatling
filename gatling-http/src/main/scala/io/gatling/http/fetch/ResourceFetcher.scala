@@ -39,7 +39,7 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.config.{ HttpProtocol, AggressiveHtmlResourcesFetching }
 import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.{ Response, ResponseBuilder }
-import org.jboss.netty.util.internal.ConcurrentHashMap
+import jsr166e.ConcurrentHashMapV8
 
 sealed trait ResourceFetched {
 	def uri: URI
@@ -53,8 +53,8 @@ case class InferredPageResources(expire: String, requests: List[NamedRequest])
 
 object ResourceFetcher extends Logging {
 
-	val cssContentCache: concurrent.Map[URI, List[EmbeddedResource]] = new ConcurrentHashMap[URI, List[EmbeddedResource]]
-	val inferredResourcesCache: concurrent.Map[(HttpProtocol, URI), InferredPageResources] = new ConcurrentHashMap[(HttpProtocol, URI), InferredPageResources]
+	val cssContentCache: concurrent.Map[URI, List[EmbeddedResource]] = new ConcurrentHashMapV8[URI, List[EmbeddedResource]]
+	val inferredResourcesCache: concurrent.Map[(HttpProtocol, URI), InferredPageResources] = new ConcurrentHashMapV8[(HttpProtocol, URI), InferredPageResources]
 
 	val resourceChecks = List(HttpRequestActionBuilder.defaultHttpCheck)
 
