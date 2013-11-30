@@ -68,15 +68,12 @@ class RecorderController extends Logging {
 				selectedMode match {
 					case Har =>
 						try {
-							HarReader.processHarFile(harFilePath)
-							ScenarioExporter.saveScenario(HarReader.scenarioElements.reverse)
+							ScenarioExporter.saveScenario(HarReader(harFilePath))
 							frontEnd.handleHarExportSuccess
 						} catch {
 							case e: Exception =>
 								logger.error("Error while processing HAR file", e)
 								frontEnd.handleHarExportFailure
-						} finally {
-							HarReader.cleanHarReaderState
 						}
 					case Proxy =>
 						proxy = new GatlingHttpProxy(this, configuration.proxy.port, configuration.proxy.sslPort)
