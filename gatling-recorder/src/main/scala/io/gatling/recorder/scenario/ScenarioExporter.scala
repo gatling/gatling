@@ -16,17 +16,16 @@
 package io.gatling.recorder.scenario
 
 import java.io.{ FileOutputStream, IOException }
-
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
 import scala.tools.nsc.io.{ Directory, File }
-
 import com.typesafe.scalalogging.slf4j.Logging
-
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.http.HeaderNames
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.scenario.template.SimulationTemplate
+import io.gatling.http.fetch.HtmlParser
+import java.net.URI
 
 object ScenarioExporter extends Logging {
 	private val EVENTS_GROUPING = 100
@@ -73,6 +72,15 @@ object ScenarioExporter extends Logging {
 		}
 	}
 
+	val htmlDoctype = """(?i)\s*<!doctype\s+html""".r
+
+	def isHtml(s: String): Boolean = {
+		s match {
+			case htmlDoctype() => true
+			case _ => false
+		}
+	}
+
 	def saveScenario(scenarioElements: List[ScenarioElement]) {
 
 		val baseUrl = getBaseUrl(scenarioElements)
@@ -96,12 +104,22 @@ object ScenarioExporter extends Logging {
 
 		// extract the request elements and set all the necessary
 		val elementsList: List[ScenarioElement] = scenarioElements.map {
-			case reqEl: RequestElement => reqEl.copy(simulationClass = Some(configuration.core.className))
+			case reqEl: RequestElement => reqEl.copy(simulationClass = Some(configuration.core.className)).makeRelativeTo(baseUrl)
 			case el => el
 		}
 
 		val requestElements: List[RequestElement] = elementsList.collect { case reqEl: RequestElement => reqEl }
-			.zipWithIndex.map { case (reqEl, index) => reqEl.makeRelativeTo(baseUrl).setId(index) }
+			.zipWithIndex.map { case (reqEl, index) => reqEl.setId(index) }
+
+		val embeddedResources =
+			requestElements.collect { case RequestElement(uri, _, _, Some(RequestBodyBytes(bytes)), _, _) => (uri, new String(bytes)) }
+				.filter { case (uri, body) => isHtml(body) }
+				.map { case (uri, html) => (uri, HtmlParser.getEmbeddedResources(new URI(uri), html)) }
+
+		embeddedResources.foreach {
+			case (uri, resources) =>
+				println(s"""l'uri $uri a tout ça ${resources.mkString(";")}""")
+		}
 
 		// dump request body if needed
 		requestElements.foreach(el => el.body.foreach {

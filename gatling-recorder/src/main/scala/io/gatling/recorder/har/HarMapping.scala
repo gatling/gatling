@@ -16,15 +16,33 @@
 package io.gatling.recorder.har
 
 import scala.util.Try
-
 import io.gatling.recorder.util.Json
+import java.io.InputStream
+import org.joda.convert.StringConvert.{ INSTANCE => convertInstance }
+import org.joda.time.DateTime
 
 object HarMapping {
-	def jsonToHttpArchive(json: String): HttpArchive = HttpArchive(buildLog(Json.parseJson(json).log))
 
-	private def buildLog(log: Json) = Log(log.entries.map(buildEntry))
+	def jsonToHttpArchive(json: Json): HttpArchive =
+		HttpArchive(buildLog(json.log))
 
-	private def buildEntry(entry: Json): Entry = Entry(entry.startedDateTime, buildRequest(entry.request), buildResponse(entry.response))
+	private def parseMillisFromIso8601DateTime(time: String): Long =
+		convertInstance.convertFromString(classOf[DateTime], time).getMillis
+
+	private def buildLog(log: Json) = {
+		val startedTimestamps = log.entries.map(e => parseMillisFromIso8601DateTime(e.startedDateTime))
+		val initTime = startedTimestamps.headOption.getOrElse(0l)
+		val timeBetweenRequests = startedTimestamps.zip(initTime +: startedTimestamps).map { case (t2, t1) => t2 - t1 }
+
+		val entries = timeBetweenRequests.zip(log.entries)
+			.map { case (lag, entry) => Entry(lag, buildRequest(entry.request), buildResponse(entry.response)) }
+
+		Log(entries)
+	}
+
+	private def buildEntry(entry: Json): Entry =
+		Entry(parseMillisFromIso8601DateTime(entry.startedDateTime),
+			buildRequest(entry.request), buildResponse(entry.response))
 
 	private def buildRequest(request: Json) = {
 		// FIXME : try early resolution of postData, to trigger the exception
@@ -54,7 +72,7 @@ case class HttpArchive(log: Log)
 
 case class Log(entries: Seq[Entry])
 
-case class Entry(startedDateTime: String, request: Request, response: Response)
+case class Entry(lag: Long, request: Request, response: Response)
 
 case class Request(method: String, url: String, headers: Seq[Header], postData: Option[PostData])
 
