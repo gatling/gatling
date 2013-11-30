@@ -34,8 +34,8 @@ class XPathExtractorSpec extends ValidationSpecification {
 	def prepared(file: String) = {
 		GatlingConfiguration.setUp()
 		withCloseable(getClass.getResourceAsStream(file)) { is =>
-            Some(XPathExtractor.parse(is))
-        }
+			Some(XPathExtractor.parse(is))
+		}
 	}
 
 	"count" should {
