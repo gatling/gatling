@@ -23,7 +23,6 @@ import scala.util.matching.Regex
 
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.core.check.extractor.css.SilentLagartoDOMBuilder
 import io.gatling.core.util.StringHelper.ensureByteCopy
 import io.gatling.http.util.HttpHelper
 import jodd.lagarto.dom.NodeSelector

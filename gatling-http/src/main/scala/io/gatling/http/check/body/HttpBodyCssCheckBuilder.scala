@@ -18,15 +18,16 @@ package io.gatling.http.check.body
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.css.{ CountCssExtractor, CssExtractor, ExtendedNodeSelector, MultipleCssExtractor, SingleCssExtractor }
+import io.gatling.core.check.extractor.css.{ CountCssExtractor, CssExtractor, MultipleCssExtractor, SingleCssExtractor }
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
+import jodd.lagarto.dom.NodeSelector
 
 object HttpBodyCssCheckBuilder extends Logging {
 
-	val preparer: Preparer[Response, ExtendedNodeSelector] = (response: Response) =>
+	val preparer: Preparer[Response, NodeSelector] = (response: Response) =>
 		try {
 			CssExtractor.parse(response.charBuffer).success
 
@@ -38,7 +39,7 @@ object HttpBodyCssCheckBuilder extends Logging {
 		}
 
 	def css(expression: Expression[String], nodeAttribute: Option[String]) =
-		new HttpMultipleCheckBuilder[ExtendedNodeSelector, String](HttpCheckBuilders.bodyCheckFactory, preparer) {
+		new HttpMultipleCheckBuilder[NodeSelector, String](HttpCheckBuilders.bodyCheckFactory, preparer) {
 			def findExtractor(occurrence: Int) = new SingleCssExtractor(expression, nodeAttribute, occurrence)
 			def findAllExtractor = new MultipleCssExtractor(expression, nodeAttribute)
 			def countExtractor = new CountCssExtractor(expression, nodeAttribute)

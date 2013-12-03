@@ -18,27 +18,29 @@ package io.gatling.core.check.extractor.css
 import java.nio.CharBuffer
 import java.util.{ List => JList }
 
-import scala.collection.JavaConversions.mapAsScalaConcurrentMap
+import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaConcurrentMap }
 import scala.collection.concurrent
 
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
-import jodd.csselly.CssSelector
+import jodd.csselly.{ CSSelly, CssSelector }
+import jodd.lagarto.dom.{ LagartoDOMBuilder, NodeSelector }
 import jsr166e.ConcurrentHashMapV8
 
 object CssExtractor {
 
-	val domBuilder = new SilentLagartoDOMBuilder
+	val domBuilder = new LagartoDOMBuilder
+	domBuilder.setParsingErrorLogLevelName("INFO")
 
-	val cache: concurrent.Map[String, Seq[JList[CssSelector]]] = new ConcurrentHashMapV8[String, Seq[JList[CssSelector]]]
+	val cache: concurrent.Map[String, JList[JList[CssSelector]]] = new ConcurrentHashMapV8[String, JList[JList[CssSelector]]]
 
-	def cached(query: String) = if (configuration.core.extract.css.cache) cache.getOrElseUpdate(query, ExtendedNodeSelector.parseQuery(query)) else ExtendedNodeSelector.parseQuery(query)
+	def cached(query: String) = if (configuration.core.extract.css.cache) cache.getOrElseUpdate(query, CSSelly.parse(query)) else CSSelly.parse(query)
 
-	def parse(chars: CharBuffer) = new ExtendedNodeSelector(domBuilder.parse(chars))
+	def parse(chars: CharBuffer) = new NodeSelector(domBuilder.parse(chars))
 
-	def extractAll(selector: ExtendedNodeSelector, query: String, nodeAttribute: Option[String]): Seq[String] = {
+	def extractAll(selector: NodeSelector, query: String, nodeAttribute: Option[String]): Seq[String] = {
 
 		val selectors = cached(query)
 
@@ -51,22 +53,22 @@ object CssExtractor {
 	}
 }
 
-abstract class CssExtractor[X] extends CriterionExtractor[ExtendedNodeSelector, String, X] { val criterionName = "css" }
+abstract class CssExtractor[X] extends CriterionExtractor[NodeSelector, String, X] { val criterionName = "css" }
 
 class SingleCssExtractor[X](val criterion: Expression[String], nodeAttribute: Option[String], occurrence: Int) extends CssExtractor[String] {
 
-	def extract(prepared: ExtendedNodeSelector, criterion: String): Validation[Option[String]] =
+	def extract(prepared: NodeSelector, criterion: String): Validation[Option[String]] =
 		CssExtractor.extractAll(prepared, criterion, nodeAttribute).lift(occurrence).success
 }
 
 class MultipleCssExtractor[X](val criterion: Expression[String], nodeAttribute: Option[String]) extends CssExtractor[Seq[String]] {
 
-	def extract(prepared: ExtendedNodeSelector, criterion: String): Validation[Option[Seq[String]]] =
+	def extract(prepared: NodeSelector, criterion: String): Validation[Option[Seq[String]]] =
 		CssExtractor.extractAll(prepared, criterion, nodeAttribute).liftSeqOption.success
 }
 
 class CountCssExtractor(val criterion: Expression[String], nodeAttribute: Option[String]) extends CssExtractor[Int] {
 
-	def extract(prepared: ExtendedNodeSelector, criterion: String): Validation[Option[Int]] =
+	def extract(prepared: NodeSelector, criterion: String): Validation[Option[Int]] =
 		CssExtractor.extractAll(prepared, criterion, nodeAttribute).liftSeqOption.map(_.size).success
 }
