@@ -25,8 +25,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
  */
 object StringHelper {
 
-	// FIXME test other JDKs than Hotspot
-	val substringCopiesCharArray = System.getProperty("java.version") >= "1.7.0_06"
+	val stringCopyChars = UnsafeHelper.hasUnsafe && UnsafeHelper.stringCountFieldOffset == -1L
 
 	val eol = System.getProperty("line.separator")
 
@@ -39,7 +38,7 @@ object StringHelper {
 	}.toString
 
 	def ensureByteCopy(value: String) =
-		if (substringCopiesCharArray) value
+		if (stringCopyChars) value
 		else new String(value)
 
 	implicit class RichString(val string: String) extends AnyVal {
