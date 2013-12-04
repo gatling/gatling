@@ -15,8 +15,9 @@
  */
 package io.gatling.core.util
 
-import sun.misc.Unsafe
 import scala.util.Try
+
+import sun.misc.Unsafe
 
 object UnsafeHelper {
 
