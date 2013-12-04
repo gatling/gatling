@@ -19,21 +19,21 @@ import sun.misc.Unsafe
 
 object UnsafeHelper {
 
-	val unsafe: Unsafe =
+	val unsafe: Option[Unsafe] =
 		try {
 			val unsafeField = classOf[Unsafe].getDeclaredField("theUnsafe")
 			unsafeField.setAccessible(true)
-			unsafeField.get(null).asInstanceOf[Unsafe]
+			Some(unsafeField.get(null).asInstanceOf[Unsafe])
 
 		} catch {
-			case e: Exception => null
+			case e: Exception => None
 		}
 
 	val (stringValueFieldOffset, stringOffsetFieldOffset, stringCountFieldOffset): (Long, Long, Long) = {
 
 		var stringValueFieldOffset, stringOffsetFieldOffset, stringCountFieldOffset = -1L
 
-		if (unsafe != null)
+		unsafe.foreach { unsafe =>
 			try {
 				stringValueFieldOffset = unsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
 				stringOffsetFieldOffset = unsafe.objectFieldOffset(classOf[String].getDeclaredField("offset"))
@@ -42,8 +42,8 @@ object UnsafeHelper {
 				case e: Exception =>
 			}
 
+		}
+
 		(stringValueFieldOffset, stringOffsetFieldOffset, stringCountFieldOffset)
 	}
-
-	def hasUnsafe = unsafe != null
 }

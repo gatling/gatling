@@ -25,7 +25,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
  */
 object StringHelper {
 
-	val stringCopyChars = UnsafeHelper.hasUnsafe && UnsafeHelper.stringCountFieldOffset == -1L
+	val stringCopyChars = UnsafeHelper.unsafe.isDefined && UnsafeHelper.stringCountFieldOffset == -1L
 
 	val eol = System.getProperty("line.separator")
 
