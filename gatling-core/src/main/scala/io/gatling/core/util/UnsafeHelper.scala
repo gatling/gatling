@@ -27,22 +27,7 @@ object UnsafeHelper {
 		unsafeField.get(null).asInstanceOf[Unsafe]
 	}.toOption
 
-	val (stringValueFieldOffset, stringOffsetFieldOffset, stringCountFieldOffset): (Long, Long, Long) = {
-
-		var stringValueFieldOffset, stringOffsetFieldOffset, stringCountFieldOffset = -1L
-
-		unsafe.foreach { unsafe =>
-			try {
-				stringValueFieldOffset = unsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
-				// offset and count can be undefined depending on String version, that's exactly what we want to know
-				stringOffsetFieldOffset = unsafe.objectFieldOffset(classOf[String].getDeclaredField("offset"))
-				stringCountFieldOffset = unsafe.objectFieldOffset(classOf[String].getDeclaredField("count"))
-			} catch {
-				case e: Exception =>
-			}
-
-		}
-
-		(stringValueFieldOffset, stringOffsetFieldOffset, stringCountFieldOffset)
-	}
+	val stringValueFieldOffset: Long = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("value"))).toOption).getOrElse(-1L)
+	val stringOffsetFieldOffset: Long = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("offset"))).toOption).getOrElse(-1L)
+	val stringCountFieldOffset: Long = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("count"))).toOption).getOrElse(-1L)
 }
