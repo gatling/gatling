@@ -16,24 +16,19 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.http.request.HttpRequestBody
 
 object PostHttpRequestBuilder {
 
-	def apply(requestName: EvaluatableString, url: EvaluatableString) = new PostHttpRequestBuilder(HttpAttributes(requestName, "POST", url, Nil, Map.empty, None, None, Nil), None, HttpParamsAttributes(Nil, Nil))
+	def apply(requestName: EvaluatableString, url: EvaluatableString) =
+		new PostHttpRequestBuilder(HttpAttributes(requestName, "POST", url, Nil, Map.empty, None, None, Nil, None), HttpParamsAttributes(Nil, Nil))
 }
 
 /**
  * This class defines an HTTP request with word POST in the DSL
  */
-class PostHttpRequestBuilder(
-	httpAttributes: HttpAttributes,
-	body: Option[HttpRequestBody],
-	paramsAttributes: HttpParamsAttributes)
-		extends AbstractHttpRequestWithBodyAndParamsBuilder[PostHttpRequestBuilder](httpAttributes, body, paramsAttributes) {
+class PostHttpRequestBuilder(httpAttributes: HttpAttributes, paramsAttributes: HttpParamsAttributes)
+	extends AbstractHttpRequestWithParamsBuilder[PostHttpRequestBuilder](httpAttributes, paramsAttributes) {
 
-	private[http] def newInstance(
-		httpAttributes: HttpAttributes,
-		body: Option[HttpRequestBody],
-		paramsAttributes: HttpParamsAttributes) = new PostHttpRequestBuilder(httpAttributes, body, paramsAttributes)
+	private[http] def newInstance(httpAttributes: HttpAttributes, paramsAttributes: HttpParamsAttributes) =
+		new PostHttpRequestBuilder(httpAttributes, paramsAttributes)
 }

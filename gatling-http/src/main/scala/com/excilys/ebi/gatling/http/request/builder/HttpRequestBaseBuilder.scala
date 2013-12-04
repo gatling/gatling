@@ -120,5 +120,8 @@ class HttpRequestBaseBuilder(requestName: EvaluatableString) {
 	 * @param url the function returning the url of this request
 	 */
 	def options(url: EvaluatableString) = OptionsHttpRequestBuilder(requestName, url)
+
+	def httpRequest(method: String, url: String) = HttpRequestBuilder(method, requestName, parseEL(url))
+	def httpRequest(method: String, url: EvaluatableString) = HttpRequestBuilder(method, requestName, url)
 }
 

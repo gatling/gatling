@@ -16,21 +16,16 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.http.request.HttpRequestBody
 
 object OptionsHttpRequestBuilder {
 
-	def apply(requestName: EvaluatableString, url: EvaluatableString) = new OptionsHttpRequestBuilder(HttpAttributes(requestName, "OPTIONS", url, Nil, Map.empty, None, None, Nil), None)
+	def apply(requestName: EvaluatableString, url: EvaluatableString) = new OptionsHttpRequestBuilder(HttpAttributes(requestName, "OPTIONS", url, Nil, Map.empty, None, None, Nil, None))
 }
 
 /**
  * This class defines an HTTP request with word OPTIONS in the DSL
  */
-class OptionsHttpRequestBuilder(httpAttributes: HttpAttributes, body: Option[HttpRequestBody]) extends AbstractHttpRequestWithBodyBuilder[OptionsHttpRequestBuilder](httpAttributes, body) {
+class OptionsHttpRequestBuilder(httpAttributes: HttpAttributes) extends AbstractHttpRequestBuilder[OptionsHttpRequestBuilder](httpAttributes) {
 
-	private[http] def newInstance(
-		httpAttributes: HttpAttributes,
-		body: Option[HttpRequestBody]) = {
-		new OptionsHttpRequestBuilder(httpAttributes, body)
-	}
+	private[http] def newInstance(httpAttributes: HttpAttributes) = new OptionsHttpRequestBuilder(httpAttributes)
 }

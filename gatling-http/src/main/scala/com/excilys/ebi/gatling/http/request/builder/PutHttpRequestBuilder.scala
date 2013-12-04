@@ -16,24 +16,16 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.http.request.HttpRequestBody
 
 object PutHttpRequestBuilder {
 
-	def apply(requestName: EvaluatableString, url: EvaluatableString) = new PutHttpRequestBuilder(HttpAttributes(requestName, "PUT", url, Nil, Map.empty, None, None, Nil), None)
+	def apply(requestName: EvaluatableString, url: EvaluatableString) = new PutHttpRequestBuilder(HttpAttributes(requestName, "PUT", url, Nil, Map.empty, None, None, Nil, None))
 }
 
 /**
  * This class defines an HTTP request with word PUT in the DSL
  */
-class PutHttpRequestBuilder(
-	httpAttributes: HttpAttributes,
-	body: Option[HttpRequestBody])
-		extends AbstractHttpRequestWithBodyBuilder[PutHttpRequestBuilder](httpAttributes, body) {
+class PutHttpRequestBuilder(httpAttributes: HttpAttributes) extends AbstractHttpRequestBuilder[PutHttpRequestBuilder](httpAttributes) {
 
-	private[http] def newInstance(
-		httpAttributes: HttpAttributes,
-		body: Option[HttpRequestBody]) = {
-		new PutHttpRequestBuilder(httpAttributes, body)
-	}
+	private[http] def newInstance(httpAttributes: HttpAttributes) = new PutHttpRequestBuilder(httpAttributes)
 }

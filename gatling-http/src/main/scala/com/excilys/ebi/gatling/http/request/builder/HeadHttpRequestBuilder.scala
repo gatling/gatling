@@ -16,21 +16,16 @@
 package com.excilys.ebi.gatling.http.request.builder
 
 import com.excilys.ebi.gatling.core.session.EvaluatableString
-import com.excilys.ebi.gatling.http.request.HttpRequestBody
 
 object HeadHttpRequestBuilder {
 
-	def apply(requestName: EvaluatableString, url: EvaluatableString) = new HeadHttpRequestBuilder(HttpAttributes(requestName, "HEAD", url, Nil, Map.empty, None, None, Nil), None)
+	def apply(requestName: EvaluatableString, url: EvaluatableString) = new HeadHttpRequestBuilder(HttpAttributes(requestName, "HEAD", url, Nil, Map.empty, None, None, Nil, None))
 }
 
 /**
  * This class defines an HTTP request with word HEAD in the DSL
  */
-class HeadHttpRequestBuilder(httpAttributes: HttpAttributes, body: Option[HttpRequestBody]) extends AbstractHttpRequestWithBodyBuilder[HeadHttpRequestBuilder](httpAttributes, body) {
+class HeadHttpRequestBuilder(httpAttributes: HttpAttributes) extends AbstractHttpRequestBuilder[HeadHttpRequestBuilder](httpAttributes) {
 
-	private[http] def newInstance(
-		httpAttributes: HttpAttributes,
-		body: Option[HttpRequestBody]) = {
-		new HeadHttpRequestBuilder(httpAttributes, body)
-	}
+	private[http] def newInstance(httpAttributes: HttpAttributes) = new HeadHttpRequestBuilder(httpAttributes)
 }

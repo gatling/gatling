@@ -38,11 +38,10 @@ case class HttpParamsAttributes(
  * @param body the body that should be added to the request
  * @param params the parameters that should be added to the request
  */
-abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequestWithBodyAndParamsBuilder[B]](
+abstract class AbstractHttpRequestWithParamsBuilder[B <: AbstractHttpRequestWithParamsBuilder[B]](
 	httpAttributes: HttpAttributes,
-	body: Option[HttpRequestBody],
 	paramsAttributes: HttpParamsAttributes)
-		extends AbstractHttpRequestWithBodyBuilder[B](httpAttributes, body) {
+		extends AbstractHttpRequestBuilder[B](httpAttributes) {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type
@@ -53,14 +52,10 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 	 */
 	private[http] def newInstance(
 		httpAttributes: HttpAttributes,
-		body: Option[HttpRequestBody],
 		paramsAttributes: HttpParamsAttributes): B
 
 	private[http] def newInstance(
-		httpAttributes: HttpAttributes,
-		body: Option[HttpRequestBody]): B = {
-		newInstance(httpAttributes, body, paramsAttributes)
-	}
+		httpAttributes: HttpAttributes): B = newInstance(httpAttributes, paramsAttributes)
 
 	protected override def getAHCRequestBuilder(session: Session, protocolConfiguration: HttpProtocolConfiguration): RequestBuilder = {
 		val requestBuilder = super.getAHCRequestBuilder(session, protocolConfiguration)
@@ -98,11 +93,11 @@ abstract class AbstractHttpRequestWithBodyAndParamsBuilder[B <: AbstractHttpRequ
 		param(httpParam)
 	}
 
-	private def param(param: HttpParam): B = newInstance(httpAttributes, body, paramsAttributes.copy(params = param :: paramsAttributes.params))
+	private def param(param: HttpParam): B = newInstance(httpAttributes, paramsAttributes.copy(params = param :: paramsAttributes.params))
 
 	def upload(paramKey: EvaluatableString, fileName: EvaluatableString, mimeType: String = HeaderValues.APPLICATION_OCTET_STREAM, charset: String = configuration.core.encoding): B =
 
-		newInstance(httpAttributes, body, paramsAttributes.copy(uploadedFiles = new UploadedFile(paramKey, fileName, mimeType, charset) :: paramsAttributes.uploadedFiles))
+		newInstance(httpAttributes, paramsAttributes.copy(uploadedFiles = new UploadedFile(paramKey, fileName, mimeType, charset) :: paramsAttributes.uploadedFiles))
 			.header(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
 
 	/**

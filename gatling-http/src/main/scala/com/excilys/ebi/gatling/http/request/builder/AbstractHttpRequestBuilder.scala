@@ -15,11 +15,19 @@
  */
 package com.excilys.ebi.gatling.http.request.builder
 
+import org.fusesource.scalate.{ Binding, TemplateEngine }
+import org.fusesource.scalate.support.ScalaCompiler
+
+import com.excilys.ebi.gatling.core.action.system
 import com.excilys.ebi.gatling.core.config.GatlingConfiguration.configuration
+import com.excilys.ebi.gatling.core.config.GatlingFiles
 import com.excilys.ebi.gatling.core.session.{ EvaluatableString, EvaluatableStringSeq, Session }
 import com.excilys.ebi.gatling.core.session.ELParser.parseEL
 import com.excilys.ebi.gatling.core.session.Session.{ attributeAsEvaluatableString, attributeAsEvaluatableStringSeq, evaluatableStringToEvaluatableStringSeq }
-import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames, Values => HeaderValues }
+import com.excilys.ebi.gatling.core.util.FileHelper.SSP_EXTENSION
+import com.excilys.ebi.gatling.http.Headers.{ Names => HeaderNames }
+import com.excilys.ebi.gatling.http.Headers.Names.CONTENT_LENGTH
+import com.excilys.ebi.gatling.http.Headers.{ Values => HeaderValues }
 import com.excilys.ebi.gatling.http.action.HttpRequestActionBuilder
 import com.excilys.ebi.gatling.http.ahc.GatlingConnectionPoolKeyStrategy
 import com.excilys.ebi.gatling.http.cache.CacheHandling
@@ -27,9 +35,9 @@ import com.excilys.ebi.gatling.http.check.HttpCheck
 import com.excilys.ebi.gatling.http.config.HttpProtocolConfiguration
 import com.excilys.ebi.gatling.http.cookie.CookieHandling
 import com.excilys.ebi.gatling.http.referer.RefererHandling
+import com.excilys.ebi.gatling.http.request.{ ByteArrayBody, FilePathBody, HttpRequestBody, SessionByteArrayBody, StringBody, TemplateBody }
 import com.excilys.ebi.gatling.http.util.HttpHelper.httpParamsToFluentMap
 import com.ning.http.client.{ Request, RequestBuilder }
-import com.ning.http.client.FluentCaseInsensitiveStringsMap
 import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.client.Realm
 import com.ning.http.client.Realm.AuthScheme
@@ -42,7 +50,18 @@ case class HttpAttributes(
 	headers: Map[String, EvaluatableString],
 	realm: Option[Session => Realm],
 	virtualHost: Option[String],
-	checks: List[HttpCheck[_]])
+	checks: List[HttpCheck[_]],
+	body: Option[HttpRequestBody])
+
+object AbstractHttpRequestBuilder {
+	val TEMPLATE_ENGINE = {
+		val engine = new TemplateEngine(List(GatlingFiles.requestBodiesDirectory.jfile))
+		engine.allowReload = false
+		engine.escapeMarkup = false
+		system.registerOnTermination(engine.compiler.asInstanceOf[ScalaCompiler].compiler.askShutdown)
+		engine
+	}
+}
 
 /**
  * This class serves as model for all HttpRequestBuilders
@@ -162,6 +181,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 		configureHeaders(requestBuilder, httpAttributes.headers, session, protocolConfiguration)
 		configureRealm(requestBuilder, httpAttributes.realm, session)
 		configureVirtualHost(requestBuilder, protocolConfiguration)
+		configureBody(requestBuilder, httpAttributes.body, session)
 
 		requestBuilder
 	}
@@ -250,5 +270,103 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 		realm.map { realm => requestBuilder.setRealm(realm(session)) }
 	}
 
+	/**
+	 * Adds a body to the request
+	 *
+	 * @param body a string containing the body of the request
+	 */
+	def body(body: EvaluatableString): B = newInstance(httpAttributes.copy(body = Some(StringBody(body))))
+
+	/**
+	 * Adds a body from a file to the request
+	 *
+	 * @param filePath the path of the file relative to directory containing the templates
+	 */
+	def fileBody(filePath: String): B = newInstance(httpAttributes.copy(body = Some(FilePathBody(filePath))))
+
+	/**
+	 * Adds a body from a template that has to be compiled
+	 *
+	 * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
+	 * @param values the values that should be merged into the template
+	 */
+	def fileBody(tplPath: String, values: Map[String, EvaluatableString]): B = newInstance(httpAttributes.copy(body = Some(TemplateBody(tplPath, values))))
+
+	/**
+	 * Adds a body from a byteArray Session function to the request
+	 *
+	 * @param byteArray - The callback function which returns the ByteArray from which to build the body
+	 */
+	def byteArrayBody(byteArray: (Session) => Array[Byte]): B = newInstance(httpAttributes.copy(body = Some(SessionByteArrayBody(byteArray))))
+
+	/**
+	 * This method adds the body to the request builder
+	 *
+	 * @param requestBuilder the request builder to which the body should be added
+	 * @param body the body that should be added
+	 * @param session the session of the current scenario
+	 */
+	private def configureBody(requestBuilder: RequestBuilder, body: Option[HttpRequestBody], session: Session) {
+
+		val contentLength = body.map {
+			_ match {
+				case FilePathBody(filePath) =>
+					val file = (GatlingFiles.requestBodiesDirectory / filePath).jfile
+					requestBuilder.setBody(file)
+					file.length
+
+				case StringBody(string) =>
+					val body = string(session)
+					requestBuilder.setBody(body)
+					body.length
+
+				case TemplateBody(tplPath, values) =>
+					val body = compileBody(tplPath, values, session)
+					requestBuilder.setBody(body)
+					body.length
+
+				case ByteArrayBody(byteArray) =>
+					val body = byteArray()
+					requestBuilder.setBody(body)
+					body.length
+
+				case SessionByteArrayBody(byteArray) =>
+					val body = byteArray(session)
+					requestBuilder.setBody(body)
+					body.length
+			}
+		}
+
+		contentLength.map(length => requestBuilder.setHeader(CONTENT_LENGTH, length.toString))
+	}
+
+	/**
+	 * This method compiles the template for a TemplateBody
+	 *
+	 * @param tplPath the path to the template relative to GATLING_TEMPLATES_FOLDER
+	 * @param params the params that should be merged into the template
+	 * @param session the session of the current scenario
+	 */
+	private def compileBody(tplPath: String, params: Map[String, EvaluatableString], session: Session): String = {
+
+		val bindings = for ((key, _) <- params) yield Binding(key, "String")
+		val templateValues = for ((key, value) <- params) yield (key -> (value(session)))
+
+		AbstractHttpRequestBuilder.TEMPLATE_ENGINE.layout(tplPath + SSP_EXTENSION, templateValues, bindings)
+	}
+
 	private[gatling] def toActionBuilder = HttpRequestActionBuilder(httpAttributes.requestName, this, httpAttributes.checks)
+}
+
+object HttpRequestBuilder {
+
+	def apply(method: String, requestName: EvaluatableString, url: EvaluatableString) = new HttpRequestBuilder(HttpAttributes(requestName, method, url, Nil, Map.empty, None, None, Nil, None))
+}
+
+/**
+ * This class defines an HTTP request with word GET in the DSL
+ */
+class HttpRequestBuilder(httpAttributes: HttpAttributes) extends AbstractHttpRequestBuilder[HttpRequestBuilder](httpAttributes) {
+
+	private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestBuilder(httpAttributes)
 }
