@@ -170,6 +170,8 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.pause(1000 milliseconds, 3000 milliseconds)
 				// Second request to be repeated
 				.exec(http("Create Thing blabla").post("/things").queryParam("login").queryParam("password").fileBody("create_thing", Map("name" -> "blabla")).asJSON)
+				.exec(http("Create Thing blabla").get("/things").queryParam("login").queryParam("password").fileBody("create_thing", Map("name" -> "blabla")).asJSON)
+				exec(http("Create Thing blabla").httpRequest("FOO", "/things").queryParam("login").queryParam("password").fileBody("create_thing", Map("name" -> "blabla")).asJSON)
 				.pause(pause1)
 				// Third request to be repeated
 				.exec(http("Liste Articles").get("/things").queryParam("firstname").queryParam("lastname"))
