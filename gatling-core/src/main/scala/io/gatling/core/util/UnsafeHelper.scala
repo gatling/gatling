@@ -16,18 +16,15 @@
 package io.gatling.core.util
 
 import sun.misc.Unsafe
+import scala.util.Try
 
 object UnsafeHelper {
 
-	val unsafe: Option[Unsafe] =
-		try {
-			val unsafeField = classOf[Unsafe].getDeclaredField("theUnsafe")
-			unsafeField.setAccessible(true)
-			Some(unsafeField.get(null).asInstanceOf[Unsafe])
-
-		} catch {
-			case e: Exception => None
-		}
+	val unsafe: Option[Unsafe] = Try {
+		val unsafeField = classOf[Unsafe].getDeclaredField("theUnsafe")
+		unsafeField.setAccessible(true)
+		unsafeField.get(null).asInstanceOf[Unsafe]
+	}.toOption
 
 	val (stringValueFieldOffset, stringOffsetFieldOffset, stringCountFieldOffset): (Long, Long, Long) = {
 
@@ -36,6 +33,7 @@ object UnsafeHelper {
 		unsafe.foreach { unsafe =>
 			try {
 				stringValueFieldOffset = unsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
+				// offset and count can be undefined depending on String version, that's exactly what we want to know
 				stringOffsetFieldOffset = unsafe.objectFieldOffset(classOf[String].getDeclaredField("offset"))
 				stringCountFieldOffset = unsafe.objectFieldOffset(classOf[String].getDeclaredField("count"))
 			} catch {
