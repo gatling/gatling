@@ -23,7 +23,7 @@ import scala.util.matching.Regex
 
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.core.util.StringHelper.ensureByteCopy
+import io.gatling.core.util.StringHelper.ensureCharCopy
 import io.gatling.http.util.HttpHelper
 import jodd.lagarto.dom.NodeSelector
 
@@ -96,7 +96,7 @@ object CssParser extends Logging {
 		val trimmedEnd = trimRight(end)
 
 		if (!broken) {
-			Some(ensureByteCopy(string.substring(trimmedStart, trimmedEnd)))
+			Some(ensureCharCopy(string.substring(trimmedStart, trimmedEnd)))
 		} else {
 			logger.info(s"css url broken between positions ${string.substring(trimmedStart, trimmedEnd)}")
 			None

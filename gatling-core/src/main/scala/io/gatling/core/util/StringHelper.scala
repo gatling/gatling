@@ -37,7 +37,7 @@ object StringHelper {
 		buff.append(java.lang.Long.toString(b & 0xff, 16))
 	}.toString
 
-	def ensureByteCopy(value: String) =
+	def ensureCharCopy(value: String) =
 		if (stringCopyChars) value
 		else new String(value)
 
