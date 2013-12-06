@@ -16,101 +16,64 @@
 package io.gatling.recorder.scenario
 
 import java.io.{ FileOutputStream, IOException }
+import java.net.URI
 
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
+import scala.reflect.io.Path.string2path
 import scala.tools.nsc.io.{ Directory, File }
 
 import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.http.HeaderNames
+import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.scenario.template.SimulationTemplate
 
 object ScenarioExporter extends Logging {
 	private val EVENTS_GROUPING = 100
 
-	def getBaseUrl(scenarioElements: List[ScenarioElement]): String = {
-		val urlsOccurrences = scenarioElements.collect {
-			case reqElm: RequestElement => reqElm.baseUrl
-		}.groupBy(identity).mapValues(_.size).toSeq
+	def getSimulationFileName: String = s"${configuration.core.className}.scala"
 
-		urlsOccurrences.maxBy(_._2)._1
+	def getOutputFolder = {
+		val path = configuration.core.outputFolder + File.separator + configuration.core.pkg.replace(".", File.separator)
+		getFolder(path)
 	}
 
-	def getMostFrequentHeaderValue(scenarioElements: List[ScenarioElement], headerName: String): Option[String] = {
-		val headers = scenarioElements.flatMap {
-			case reqElm: RequestElement => reqElm.headers.collect { case (name, value) if name == headerName => value }
-			case _ => Nil
-		}
+	def saveScenario(scenarioElements: List[ScenarioElement]): Unit = {
+		require(!scenarioElements.isEmpty)
+		
+		val output = renderScenarioAndDumpBodies(scenarioElements)
 
-		if (headers.isEmpty) None
-		else {
-			val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
-			val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
-			Some(mostFrequentValue)
+		withCloseable(new FileOutputStream(File(getOutputFolder / getSimulationFileName).jfile)) {
+			_.write(output.getBytes(configuration.core.encoding))
 		}
 	}
 
-	def getChains(scenarioElements: List[ScenarioElement]): Either[List[ScenarioElement], List[List[ScenarioElement]]] = {
-
-		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING)
-			Right(scenarioElements.grouped(ScenarioExporter.EVENTS_GROUPING).toList)
-		else
-			Left(scenarioElements)
-	}
-
-	def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String) {
-		val fileName = s"${simulationClass}_request_$idEvent.txt"
-		withCloseable(File(getFolder(configuration.core.requestBodiesFolder) / fileName).outputStream()) {
-			fw =>
-				try {
-					fw.write(content)
-				} catch {
-					case e: IOException => logger.error("Error, while dumping request body...", e)
-				}
-		}
-	}
-
-	def saveScenario(scenarioElements: List[ScenarioElement]) {
+	private def renderScenarioAndDumpBodies(scenarioElements: List[ScenarioElement]): String = {
+		// Aggregate headers
+		val filteredHeaders = Set(HeaderNames.COOKIE, HeaderNames.CONTENT_LENGTH, HeaderNames.HOST) ++
+			(if (configuration.http.automaticReferer) Set(HeaderNames.REFERER) else Set.empty)
 
 		val baseUrl = getBaseUrl(scenarioElements)
-
-		val baseHeaders: Map[String, String] = {
-			def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] =
-				getMostFrequentHeaderValue(scenarioElements, headerName)
-					.map(headerValue => appendTo + (headerName -> headerValue))
-					.getOrElse(appendTo)
-
-			@tailrec
-			def resolveBaseHeaders(headers: Map[String, String], headerNames: List[String]): Map[String, String] = headerNames match {
-				case Nil => headers
-				case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
-			}
-
-			resolveBaseHeaders(Map.empty, ProtocolElement.baseHeaders.keySet.toList)
-		}
-
+		val baseHeaders = getBaseHeaders(scenarioElements)
 		val protocolConfigElement = new ProtocolElement(baseUrl, baseHeaders)
 
 		// extract the request elements and set all the necessary
 		val elementsList: List[ScenarioElement] = scenarioElements.map {
-			case reqEl: RequestElement => reqEl.copy(simulationClass = Some(configuration.core.className))
+			case reqEl: RequestElement => reqEl.copy(simulationClass = Some(configuration.core.className)).makeRelativeTo(baseUrl)
 			case el => el
 		}
 
 		val requestElements: List[RequestElement] = elementsList.collect { case reqEl: RequestElement => reqEl }
-			.zipWithIndex.map { case (reqEl, index) => reqEl.makeRelativeTo(baseUrl).setId(index) }
+			.zipWithIndex.map { case (reqEl, index) => reqEl.setId(index) }
 
 		// dump request body if needed
 		requestElements.foreach(el => el.body.foreach {
 			case RequestBodyBytes(bytes) => dumpRequestBody(el.id, bytes, configuration.core.className)
 			case _ =>
 		})
-
-		// Aggregate headers
-		val filteredHeaders = Set(HeaderNames.COOKIE, HeaderNames.CONTENT_LENGTH, HeaderNames.HOST) ++ (if (configuration.http.automaticReferer) Set(HeaderNames.REFERER) else Set.empty)
 
 		val headers: Map[Int, List[(String, String)]] = {
 
@@ -151,18 +114,64 @@ object ScenarioExporter extends Logging {
 
 		val newScenarioElements = getChains(elementsList)
 
-		val output = SimulationTemplate.render(configuration.core.pkg, configuration.core.className, protocolConfigElement, headers, "Scenario Name", newScenarioElements)
+		SimulationTemplate.render(configuration.core.pkg, configuration.core.className, protocolConfigElement, headers, "Scenario Name", newScenarioElements)
+	}
 
-		withCloseable(new FileOutputStream(File(getOutputFolder / getSimulationFileName).jfile)) {
-			_.write(output.getBytes(configuration.core.encoding))
+	private def getBaseHeaders(scenarioElements: List[ScenarioElement]): Map[String, String] = {
+		def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] =
+			getMostFrequentHeaderValue(scenarioElements, headerName)
+				.map(headerValue => appendTo + (headerName -> headerValue))
+				.getOrElse(appendTo)
+
+		@tailrec
+		def resolveBaseHeaders(headers: Map[String, String], headerNames: List[String]): Map[String, String] = headerNames match {
+			case Nil => headers
+			case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
+		}
+
+		resolveBaseHeaders(Map.empty, ProtocolElement.baseHeaders.keySet.toList)
+	}
+
+	private def getBaseUrl(scenarioElements: List[ScenarioElement]): String = {
+		val urlsOccurrences = scenarioElements.collect {
+			case reqElm: RequestElement => reqElm.baseUrl
+		}.groupBy(identity).mapValues(_.size).toSeq
+
+		urlsOccurrences.maxBy(_._2)._1
+	}
+
+	private def getMostFrequentHeaderValue(scenarioElements: List[ScenarioElement], headerName: String): Option[String] = {
+		val headers = scenarioElements.flatMap {
+			case reqElm: RequestElement => reqElm.headers.collect { case (name, value) if name == headerName => value }
+			case _ => Nil
+		}
+
+		if (headers.isEmpty) None
+		else {
+			val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
+			val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
+			Some(mostFrequentValue)
 		}
 	}
 
-	def getSimulationFileName: String = s"${configuration.core.className}.scala"
+	private def getChains(scenarioElements: List[ScenarioElement]): Either[List[ScenarioElement], List[List[ScenarioElement]]] = {
 
-	def getOutputFolder = {
-		val path = configuration.core.outputFolder + File.separator + configuration.core.pkg.replace(".", File.separator)
-		getFolder(path)
+		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING)
+			Right(scenarioElements.grouped(ScenarioExporter.EVENTS_GROUPING).toList)
+		else
+			Left(scenarioElements)
+	}
+
+	private def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String) {
+		val fileName = s"${simulationClass}_request_$idEvent.txt"
+		withCloseable(File(getFolder(configuration.core.requestBodiesFolder) / fileName).outputStream()) {
+			fw =>
+				try {
+					fw.write(content)
+				} catch {
+					case e: IOException => logger.error("Error, while dumping request body...", e)
+				}
+		}
 	}
 
 	private def getFolder(folderPath: String) = Directory(folderPath).createDirectory()
