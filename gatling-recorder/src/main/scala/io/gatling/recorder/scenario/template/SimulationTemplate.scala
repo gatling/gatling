@@ -26,7 +26,7 @@ object SimulationTemplate {
 		protocol: ProtocolElement,
 		headers: Map[Int, List[(String, String)]],
 		scenarioName: String,
-		scenarioElements: Either[List[ScenarioElement], List[List[ScenarioElement]]]): String = {
+		scenarioElements: Either[Seq[ScenarioElement], Seq[Seq[ScenarioElement]]]): String = {
 
 		def renderPackage = if (!packageName.isEmpty) fast"package $packageName\n" else ""
 

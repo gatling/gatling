@@ -16,11 +16,11 @@
 package io.gatling.recorder.util
 
 import scala.language.dynamics
-
 import net.minidev.json.{ JSONArray, JSONValue, JSONObject }
+import java.io.InputStream
 
 object Json {
-	def parseJson(s: String) = new Json(JSONValue.parse(s))
+	def parseJson(is: InputStream) = new Json(JSONValue.parse(is))
 
 	implicit def JsonToString(s: Json) = s.toString
 	implicit def JsonToInt(s: Json) = s.toInt
