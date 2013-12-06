@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import io.gatling.core.util.IOHelper
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.scenario.{PauseElement, RequestElement}
+import io.gatling.recorder.scenario.{ PauseElement, RequestElement }
 import io.gatling.recorder.util.Json.parseJson
 import org.specs2.runner.JUnitRunner
 

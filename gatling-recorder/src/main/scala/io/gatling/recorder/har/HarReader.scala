@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.har
 
-import java.io.{FileInputStream, InputStream}
+import java.io.{ FileInputStream, InputStream }
 import java.net.URL
 
 import scala.concurrent.duration.DurationLong
@@ -25,7 +25,7 @@ import io.gatling.core.util.IOHelper
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.HeaderNames.CONTENT_TYPE
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.scenario.{PauseElement, RequestBodyBytes, RequestBodyParams, RequestElement, ScenarioElement}
+import io.gatling.recorder.scenario.{ PauseElement, RequestBodyBytes, RequestBodyParams, RequestElement, ScenarioElement }
 import io.gatling.recorder.util.Json
 import io.gatling.recorder.util.RedirectHelper.isRequestRedirect
 

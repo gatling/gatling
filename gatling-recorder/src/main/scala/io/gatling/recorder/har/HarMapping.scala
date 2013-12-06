@@ -17,11 +17,11 @@ package io.gatling.recorder.har
 
 import scala.util.Try
 
-import org.joda.convert.StringConvert.{INSTANCE => convertInstance}
+import org.joda.convert.StringConvert.{ INSTANCE => convertInstance }
 import org.joda.time.DateTime
 
 import io.gatling.recorder.util.Json
-import io.gatling.recorder.util.Json.{JsonToInt, JsonToString}
+import io.gatling.recorder.util.Json.{ JsonToInt, JsonToString }
 
 object HarMapping {
 
