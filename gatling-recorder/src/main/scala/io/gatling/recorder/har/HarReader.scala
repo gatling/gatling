@@ -77,7 +77,7 @@ object HarReader {
 			}
 		}
 
-		RequestElement(uri, method, headers, body, entry.response.status, None)
+		RequestElement(uri, method, headers, body, entry.response.status)
 	}
 
 	private def buildHeaders(entry: Entry): Map[String, String] = {

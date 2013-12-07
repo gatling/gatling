@@ -62,7 +62,7 @@ object ScenarioExporter extends Logging {
 
 		// extract the request elements and set all the necessary
 		val elementsList: List[ScenarioElement] = scenarioElements.map {
-			case reqEl: RequestElement => reqEl.copy(simulationClass = Some(configuration.core.className)).makeRelativeTo(baseUrl)
+			case reqEl: RequestElement => reqEl.makeRelativeTo(baseUrl)
 			case el => el
 		}
 

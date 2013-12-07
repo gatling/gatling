@@ -141,7 +141,7 @@ class RecorderController extends Logging {
 		def processRequest(request: HttpRequest, statusCode: Int) {
 
 			// Store request in scenario elements
-			scenarioElements = RequestElement(request, statusCode, None) :: scenarioElements
+			scenarioElements = RequestElement(request, statusCode) :: scenarioElements
 
 			// Send request information to view
 			frontEnd.receiveEventInfo(RequestInfo(request, response))

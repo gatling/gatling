@@ -57,7 +57,7 @@ class HarReaderSpec extends Specification {
 
 		"return the right request elements" in {
 			val (googleFontUris, uris) = elts
-				.collect { case RequestElement(uri, _, _, _, _, _) => uri }
+				.collect { case RequestElement(uri, _, _, _, _) => uri }
 				.partition(_.contains("google"))
 
 			(uris must contain(startingWith("https://www.kernel.org")).forall) and

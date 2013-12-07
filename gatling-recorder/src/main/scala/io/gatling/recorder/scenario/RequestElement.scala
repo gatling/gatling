@@ -34,7 +34,7 @@ case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
 
 object RequestElement {
 
-	def apply(request: HttpRequest, statusCode: Int, simulationClass: Option[String]): RequestElement = {
+	def apply(request: HttpRequest, statusCode: Int): RequestElement = {
 		val headers: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }.toMap
 		val content = if (request.getContent.readableBytes > 0) {
 			val bufferBytes = new Array[Byte](request.getContent.readableBytes)
@@ -45,11 +45,11 @@ object RequestElement {
 		val containsFormParams = headers.get(CONTENT_TYPE).exists(_.contains(APPLICATION_X_WWW_FORM_URLENCODED))
 		val body = content.map(content => if (containsFormParams) RequestBodyParams(parseFormBody(new String(content, configuration.core.encoding))) else RequestBodyBytes(content))
 
-		RequestElement(request.getUri, request.getMethod.toString, headers, body, statusCode, simulationClass)
+		RequestElement(request.getUri, request.getMethod.toString, headers, body, statusCode)
 	}
 }
 
-case class RequestElement(uri: String, method: String, headers: Map[String, String], body: Option[RequestBody], statusCode: Int, simulationClass: Option[String]) extends ScenarioElement {
+case class RequestElement(uri: String, method: String, headers: Map[String, String], body: Option[RequestBody], statusCode: Int) extends ScenarioElement {
 
 	val (baseUrl, pathQuery) = {
 		val (rawBaseUrl, pathQuery) = URIHelper.splitURI(uri)
@@ -90,7 +90,7 @@ case class RequestElement(uri: String, method: String, headers: Map[String, Stri
 
 	override def toString =
 		RequestTemplate.render(
-			simulationClass.getOrElse(throw new UnsupportedOperationException("simulationName should be set before printing a request element!")),
+			configuration.core.className,
 			id,
 			method,
 			printedUrl,
