@@ -48,7 +48,7 @@ object HarReader {
 			.toList
 	}
 
-	private def createScenarioElements(entry: Entry): List[ScenarioElement] = {
+	private def createScenarioElements(entry: Exchange): List[ScenarioElement] = {
 		if (isRequestRedirect(entry.response.status)) {
 			List()
 		} else {
@@ -61,7 +61,7 @@ object HarReader {
 		}
 	}
 
-	private def createRequest(entry: Entry): RequestElement = {
+	private def createRequest(entry: Exchange): RequestElement = {
 		def buildContent(postParams: Seq[PostParam]) =
 			RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
 
@@ -72,7 +72,8 @@ object HarReader {
 		// NetExport doesn't copy post params to text field
 		val body = entry.request.postData.map { postData =>
 			postData.text.trimToOption match {
-				case Some(string) => RequestBodyBytes(string.getBytes(configuration.core.encoding))
+				// TODO NICO : shouldn't the encoding be taken from the Content-Type header ?
+				case Some(string) => RequestBodyBytes(string.getBytes(configuration.core.encoding)) 
 				case None => buildContent(postData.params)
 			}
 		}
@@ -80,7 +81,7 @@ object HarReader {
 		RequestElement(uri, method, headers, body, entry.response.status)
 	}
 
-	private def buildHeaders(entry: Entry): Map[String, String] = {
+	private def buildHeaders(entry: Exchange): Map[String, String] = {
 		val headers = entry.request.headers.map(h => (h.name, h.value)).toMap
 		// NetExport doesn't add Content-Type to headers when POSTing, but both Chrome Dev Tools and NetExport set mimeType
 		entry.request.postData.map(postData => headers.updated(CONTENT_TYPE, postData.mimeType)).getOrElse(headers)
