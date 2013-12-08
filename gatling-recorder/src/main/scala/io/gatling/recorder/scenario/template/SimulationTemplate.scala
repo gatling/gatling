@@ -24,7 +24,7 @@ object SimulationTemplate {
 	def render(packageName: String,
 		simulationClassName: String,
 		protocol: ProtocolElement,
-		headers: Map[Int, List[(String, String)]],
+		headers: Map[Int, Seq[(String, String)]],
 		scenarioName: String,
 		scenarioElements: Either[Seq[ScenarioElement], Seq[Seq[ScenarioElement]]]): String = {
 
@@ -32,7 +32,7 @@ object SimulationTemplate {
 
 		def renderHeaders = {
 
-			def printHeaders(headers: List[(String, String)]) = {
+			def printHeaders(headers: Seq[(String, String)]) = {
 				if (headers.size > 1) {
 					val mapContent = headers.map { case (name, value) => fast"		$tripleQuotes$name$tripleQuotes -> $tripleQuotes$value$tripleQuotes" }.mkFastring(",\n")
 					fast"""Map(
@@ -53,7 +53,7 @@ $mapContent)"""
 				case Left(elements) =>
 					val scenarioElements = elements.map { element =>
 						val prefix = element match {
-							case _: TagElement => ""
+							case TagElement(_) => ""
 							case _ => "."
 						}
 						fast"$prefix$element"
@@ -68,7 +68,7 @@ $mapContent)"""
 							var firstNonTagElement = true
 							val chainContent = chain.map { element =>
 								val prefix = element match {
-									case _: TagElement => ""
+									case TagElement(_) => ""
 									case _ => if (firstNonTagElement) { firstNonTagElement = false; "" } else "."
 								}
 								fast"$prefix$element"
