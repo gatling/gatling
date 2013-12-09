@@ -16,7 +16,6 @@
 package io.gatling.recorder.scenario
 
 import java.io.{ FileOutputStream, IOException }
-import java.net.URI
 
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
@@ -27,11 +26,11 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.http.HeaderNames
-import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.scenario.template.SimulationTemplate
 
 object ScenarioExporter extends Logging {
+
 	private val EVENTS_GROUPING = 100
 
 	def getSimulationFileName: String = s"${configuration.core.className}.scala"
@@ -41,7 +40,7 @@ object ScenarioExporter extends Logging {
 		getFolder(path)
 	}
 
-	def saveScenario(scenarioElements: Seq[ScenarioElement]): Unit = {
+	def saveScenario(scenarioElements: Scenario): Unit = {
 		require(!scenarioElements.isEmpty)
 
 		val output = renderScenarioAndDumpBodies(scenarioElements)
@@ -51,11 +50,12 @@ object ScenarioExporter extends Logging {
 		}
 	}
 
-	private def renderScenarioAndDumpBodies(scenarioElements: Seq[ScenarioElement]): String = {
+	private def renderScenarioAndDumpBodies(scenario: Scenario): String = {
 		// Aggregate headers
 		val filteredHeaders = Set(HeaderNames.COOKIE, HeaderNames.CONTENT_LENGTH, HeaderNames.HOST) ++
 			(if (configuration.http.automaticReferer) Set(HeaderNames.REFERER) else Set.empty)
 
+		val scenarioElements = scenario.elements
 		val baseUrl = getBaseUrl(scenarioElements)
 		val baseHeaders = getBaseHeaders(scenarioElements)
 		val protocolConfigElement = new ProtocolElement(baseUrl, baseHeaders)

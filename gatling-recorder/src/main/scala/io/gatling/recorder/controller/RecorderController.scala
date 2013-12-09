@@ -16,27 +16,24 @@
 package io.gatling.recorder.controller
 
 import java.net.URI
-
-import scala.annotation.tailrec
+import java.util.concurrent.ConcurrentLinkedDeque
+import scala.collection.JavaConversions.collectionAsScalaIterable
 import scala.collection.mutable
 import scala.concurrent.duration.DurationLong
+import scala.reflect.io.Path.string2path
 import scala.tools.nsc.io.File
-
 import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
-
 import com.ning.http.util.Base64
 import com.typesafe.scalalogging.slf4j.Logging
-
 import io.gatling.recorder.{ Har, Proxy }
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.GatlingHttpProxy
-import io.gatling.recorder.scenario.{ PauseElement, RequestElement, ScenarioElement, ScenarioExporter, TagElement }
-import io.gatling.recorder.ui._
-import io.gatling.recorder.util.RedirectHelper._
-import io.gatling.recorder.har.HarReader
+import io.gatling.recorder.scenario.{ RequestElement, Scenario, ScenarioExporter, TagElement }
+import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
+import io.gatling.recorder.util.RedirectHelper
 
 object RecorderController {
 
@@ -49,10 +46,13 @@ object RecorderController {
 class RecorderController extends Logging {
 
 	private val frontEnd = RecorderFrontend.newFrontend(this)
-	@volatile private var lastRequestTimestamp: Long = 0
-	@volatile private var redirectChainStart: HttpRequest = _
+
 	@volatile private var proxy: GatlingHttpProxy = _
-	@volatile private var scenarioElements: List[ScenarioElement] = Nil
+
+	// Collection of tuples, (arrivalTime, request)
+	private var currentRequests: ConcurrentLinkedDeque[(Long, RequestElement)] = new ConcurrentLinkedDeque
+	// Collection of tuples, (arrivalTime, tag)
+	private var currentTags: ConcurrentLinkedDeque[(Long, TagElement)] = new ConcurrentLinkedDeque
 
 	frontEnd.init
 
@@ -68,7 +68,8 @@ class RecorderController extends Logging {
 				selectedMode match {
 					case Har =>
 						try {
-							ScenarioExporter.saveScenario(HarReader(harFilePath))
+							// TODO HarReader(harFilePath)
+							//ScenarioExporter.saveScenario()
 							frontEnd.handleHarExportSuccess
 						} catch {
 							case e: Exception =>
@@ -86,10 +87,12 @@ class RecorderController extends Logging {
 	def stopRecording(save: Boolean) {
 		frontEnd.recordingStopped
 		try {
-			if (scenarioElements.isEmpty)
+			if (currentRequests.isEmpty)
 				logger.info("Nothing was recorded, skipping scenario generation")
-			else
-				ScenarioExporter.saveScenario(scenarioElements.reverse)
+			else {
+				val scenario = Scenario(currentRequests.toVector, currentTags.toVector)
+				ScenarioExporter.saveScenario(scenario)
+			}
 
 			proxy.shutdown
 
@@ -100,6 +103,7 @@ class RecorderController extends Logging {
 	}
 
 	def receiveRequest(request: HttpRequest) {
+		// TODO NICO - that's not the appropriate place to synchronize !
 		synchronized {
 			// If Outgoing Proxy set, we record the credentials to use them when sending the request
 			Option(request.headers.get(PROXY_AUTHORIZATION)).map {
@@ -115,62 +119,25 @@ class RecorderController extends Logging {
 	}
 
 	def receiveResponse(request: HttpRequest, response: HttpResponse) {
+		if (configuration.filters.filters.map(_.accept(request.getUri)).getOrElse(true)) {
+			val arrivalTime = System.currentTimeMillis
+			val previousArrivalTime = Option(currentRequests.peekLast).map(_._1)
 
-		def processPause {
-			// Pause calculation
-			if (lastRequestTimestamp != 0) {
-				val newRequestTimestamp = System.currentTimeMillis
-				val diff = newRequestTimestamp - lastRequestTimestamp
-				if (diff > 10) {
-					val pauseDuration = diff.milliseconds
-					lastRequestTimestamp = newRequestTimestamp
-					frontEnd.receiveEventInfo(PauseInfo(pauseDuration))
+			val requestEl = RequestElement(request, response.getStatus.getCode)
+			currentRequests.add(arrivalTime -> requestEl)
 
-					@tailrec
-					def insertPauseAfterTags(elements: List[ScenarioElement], tags: List[TagElement]): List[ScenarioElement] = elements match {
-						case Nil => (new PauseElement(pauseDuration) :: tags).reverse
-						case (t: TagElement) :: others => insertPauseAfterTags(others, t :: tags)
-						case _ => tags reverse_::: new PauseElement(pauseDuration) :: elements
-					}
-					scenarioElements = insertPauseAfterTags(scenarioElements, Nil)
-				}
-			} else
-				lastRequestTimestamp = System.currentTimeMillis
-		}
-
-		def processRequest(request: HttpRequest, statusCode: Int) {
-
-			// Store request in scenario elements
-			scenarioElements = RequestElement(request, statusCode) :: scenarioElements
-
-			// Send request information to view
-			frontEnd.receiveEventInfo(RequestInfo(request, response))
-		}
-
-		synchronized {
-			if (configuration.filters.filters.map(_.accept(request.getUri)).getOrElse(true)) {
-				if (redirectChainStart == null && isRequestRedirect(response.getStatus.getCode)) {
-					// enter redirect chain
-					processPause
-					redirectChainStart = request
-
-				} else if (redirectChainStart != null && !isRequestRedirect(response.getStatus.getCode)) {
-					// exit redirect chain
-					// process request with new status
-					processRequest(redirectChainStart, response.getStatus.getCode)
-					redirectChainStart = null
-
-				} else if (redirectChainStart == null) {
-					// standard use case
-					processPause
-					processRequest(request, response.getStatus.getCode)
-				}
+			// Notify the frontend
+			previousArrivalTime.foreach { t =>
+				val delta = arrivalTime - t
+				if (delta > 50) // TODO NICO : config required for this !
+					frontEnd.receiveEventInfo(PauseInfo(delta milliseconds))
 			}
+			frontEnd.receiveEventInfo(RequestInfo(request, response)) /// TODO NICO: why does the frontend need to know about the response ?
 		}
 	}
 
 	def addTag(text: String) {
-		scenarioElements = new TagElement(text) :: scenarioElements
+		currentTags.add(System.currentTimeMillis -> TagElement(text))
 		frontEnd.receiveEventInfo(TagInfo(text))
 	}
 
@@ -179,8 +146,8 @@ class RecorderController extends Logging {
 	}
 
 	def clearRecorderState {
-		scenarioElements = Nil
-		lastRequestTimestamp = 0
+		currentRequests.clear
+		currentTags.clear
 	}
 
 }

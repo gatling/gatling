@@ -32,18 +32,14 @@ object HarMapping {
 		convertInstance.convertFromString(classOf[DateTime], time).getMillis
 
 	private def buildLog(log: Json) = {
-		val startedTimestamps = log.entries.map(e => parseMillisFromIso8601DateTime(e.startedDateTime))
-		val initTime = startedTimestamps.headOption.getOrElse(0l)
-		val timeBetweenRequests = startedTimestamps.zip(initTime +: startedTimestamps).map { case (t2, t1) => t2 - t1 }
-
-		val entries = timeBetweenRequests.zip(log.entries)
-			.map { case (lag, entry) => Exchange(lag, buildRequest(entry.request), buildResponse(entry.response)) }
+		val entries = log.entries
+			.map { case e => Entry(parseMillisFromIso8601DateTime(e.startedDateTime), buildRequest(e.request), buildResponse(e.response)) }
 
 		Log(entries)
 	}
 
-	private def buildEntry(entry: Json): Exchange =
-		Exchange(parseMillisFromIso8601DateTime(entry.startedDateTime),
+	private def buildEntry(entry: Json): Entry =
+		Entry(parseMillisFromIso8601DateTime(entry.startedDateTime),
 			buildRequest(entry.request), buildResponse(entry.response))
 
 	private def buildRequest(request: Json) = {
@@ -72,9 +68,9 @@ object HarMapping {
  */
 case class HttpArchive(log: Log)
 
-case class Log(exchanges: Seq[Exchange])
+case class Log(exchanges: Seq[Entry])
 
-case class Exchange(lag: Long, request: Request, response: Response)
+case class Entry(arrivalTime: Long, request: Request, response: Response)
 
 case class Request(method: String, url: String, headers: Seq[Header], postData: Option[PostData])
 
