@@ -47,6 +47,7 @@ object XPathExtractor {
 
 	def parse(is: InputStream) = {
 		val inputSource = new InputSource(is)
+		inputSource.setEncoding(configuration.core.encoding)
 		val source = new SAXSource(inputSource)
 		documentBuilder.build(source)
 	}
