@@ -61,7 +61,6 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController) ext
 	override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent) {
 		logger.error("Exception caught", e.getCause)
 
-		// Properly closing
 		val future = ctx.getChannel.getCloseFuture
 		future.addListener(ChannelFutureListener.CLOSE)
 		ctx.sendUpstream(e)

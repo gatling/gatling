@@ -15,16 +15,15 @@
  */
 package io.gatling.recorder.http.channel
 
-import org.jboss.netty.bootstrap.{ ServerBootstrap, ClientBootstrap }
-import org.jboss.netty.channel.{ ChannelPipelineFactory, ChannelPipeline, ChannelHandlerContext }
-import org.jboss.netty.channel.Channels
-import org.jboss.netty.channel.socket.nio.{ NioServerSocketChannelFactory, NioClientSocketChannelFactory }
-import org.jboss.netty.handler.codec.http.{ HttpResponseEncoder, HttpRequestDecoder, HttpRequest, HttpContentDecompressor, HttpContentCompressor, HttpClientCodec, HttpChunkAggregator }
+import org.jboss.netty.bootstrap.{ ClientBootstrap, ServerBootstrap }
+import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelPipeline, ChannelPipelineFactory, Channels }
+import org.jboss.netty.channel.socket.nio.{ NioClientSocketChannelFactory, NioServerSocketChannelFactory }
+import org.jboss.netty.handler.codec.http.{ HttpChunkAggregator, HttpClientCodec, HttpContentCompressor, HttpContentDecompressor, HttpRequest, HttpRequestDecoder, HttpResponseEncoder }
 import org.jboss.netty.handler.ssl.SslHandler
 
 import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.http.handler.{ ServerHttpResponseHandler, BrowserHttpsRequestHandler, BrowserHttpRequestHandler }
-import io.gatling.recorder.http.ssl.{ SSLEngineFactory, FirstEventIsUnsecuredConnectSslHandler }
+import io.gatling.recorder.http.handler.{ BrowserHttpRequestHandler, BrowserHttpsRequestHandler, ServerHttpResponseHandler }
+import io.gatling.recorder.http.ssl.SSLEngineFactory
 
 object BootstrapFactory {
 
@@ -66,8 +65,6 @@ object BootstrapFactory {
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory {
 			def getPipeline: ChannelPipeline = {
 				val pipeline = Channels.pipeline
-				if (ssl)
-					pipeline.addLast(SSL_HANDLER_NAME, new FirstEventIsUnsecuredConnectSslHandler(SSLEngineFactory.newServerSSLEngine))
 				pipeline.addLast("decoder", new HttpRequestDecoder)
 				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
 				pipeline.addLast("encoder", new HttpResponseEncoder)
@@ -85,5 +82,11 @@ object BootstrapFactory {
 		bootstrap.setOption("child.keepAlive", true)
 
 		bootstrap
+	}
+
+	def upgradeProtocol(pipeline: ChannelPipeline, controller: RecorderController, ctx: ChannelHandlerContext, request: HttpRequest) {
+		pipeline.remove("codec")
+		pipeline.addFirst("codec", new HttpClientCodec)
+		pipeline.addFirst(SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newClientSSLEngine))
 	}
 }

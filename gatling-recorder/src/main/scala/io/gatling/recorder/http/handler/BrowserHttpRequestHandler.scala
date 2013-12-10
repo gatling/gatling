@@ -44,6 +44,9 @@ class BrowserHttpRequestHandler(controller: RecorderController) extends Abstract
 
 		bootstrap
 			.connect(new InetSocketAddress(proxyHost, proxyPort))
-			.addListener { future: ChannelFuture => future.getChannel.write(buildRequestWithRelativeURI(request)) }
+			.addListener { future: ChannelFuture =>
+				val relativeRequest = configuration.proxy.outgoing.host.map(_ => request).getOrElse(buildRequestWithRelativeURI(request))
+				future.getChannel.write(relativeRequest)
+			}
 	}
 }
