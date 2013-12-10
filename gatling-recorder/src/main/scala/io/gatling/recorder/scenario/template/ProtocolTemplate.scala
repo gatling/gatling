@@ -27,21 +27,21 @@ object ProtocolTemplate {
 
 	def render(baseUrl: String, headers: Map[String, String]) = {
 
-		def renderProxy = {
-			def renderSslPort = configuration.proxy.outgoing.sslPort.map(proxySslPort => s".httpsPort($proxySslPort)").getOrElse("")
-			val protocol = for {
-				proxyHost <- configuration.proxy.outgoing.host
-				proxyPort <- configuration.proxy.outgoing.port
-			} yield s"""$eol$indent.proxy("$proxyHost",$proxyPort)$renderSslPort"""
-			protocol.getOrElse("")
-		}
-
 		def renderCredentials = {
 			val credentials = for {
 				proxyUsername <- configuration.proxy.outgoing.username
 				proxyPassword <- configuration.proxy.outgoing.password
 			} yield s"""$eol$indent.credentials("$proxyUsername","$proxyPassword")"""
 			credentials.getOrElse("")
+		}
+
+		def renderProxy = {
+			def renderSslPort = configuration.proxy.outgoing.sslPort.map(proxySslPort => s".httpsPort($proxySslPort)").getOrElse("")
+			val protocol = for {
+				proxyHost <- configuration.proxy.outgoing.host
+				proxyPort <- configuration.proxy.outgoing.port
+			} yield s"""$eol$indent.proxy(Proxy("$proxyHost", $proxyPort)$renderSslPort$renderCredentials)"""
+			protocol.getOrElse("")
 		}
 
 		def renderFollowRedirect = if (!configuration.http.followRedirect) s"$eol$indent.disableFollowRedirect" else ""
@@ -54,6 +54,6 @@ object ProtocolTemplate {
 		}
 
 		fast"""
-		.baseURL("$baseUrl")$renderProxy$renderCredentials$renderFollowRedirect$renderAutomaticReferer$renderHeaders""".toString
+		.baseURL("$baseUrl")$renderProxy$renderFollowRedirect$renderAutomaticReferer$renderHeaders""".toString
 	}
 }
