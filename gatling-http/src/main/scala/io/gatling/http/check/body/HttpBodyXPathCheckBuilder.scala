@@ -41,8 +41,8 @@ object HttpBodyXPathCheckBuilder extends Logging {
 
 	def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
 		new HttpMultipleCheckBuilder[Option[XdmNode], String](HttpCheckBuilders.bodyCheckFactory, preparer) {
-			def findExtractor(occurrence: Int) = new SingleXPathExtractor(expression, namespaces, occurrence)
-			def findAllExtractor = new MultipleXPathExtractor(expression, namespaces)
-			def countExtractor = new CountXPathExtractor(expression, namespaces)
+			def findExtractor(occurrence: Int) = session => expression(session).map(new SingleXPathExtractor(_, namespaces, occurrence))
+			def findAllExtractor = session => expression(session).map(new MultipleXPathExtractor(_, namespaces))
+			def countExtractor = session => expression(session).map(new CountXPathExtractor(_, namespaces))
 		}
 }

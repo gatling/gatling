@@ -17,12 +17,13 @@ package io.gatling.http.check
 
 import io.gatling.core.check.{ CheckFactory, ExtractorCheckBuilder, Preparer, ValidatorCheckBuilder }
 import io.gatling.core.check.extractor.Extractor
+import io.gatling.core.session.Expression
 import io.gatling.http.response.Response
 
 class HttpSingleCheckBuilder[P, X](
 	checkFactory: CheckFactory[HttpCheck, Response],
 	preparer: Preparer[Response, P],
-	extractor: Extractor[P, X]) extends ExtractorCheckBuilder[HttpCheck, Response, P, X] {
+	extractor: Expression[Extractor[P, X]]) extends ExtractorCheckBuilder[HttpCheck, Response, P, X] {
 
 	def find: ValidatorCheckBuilder[HttpCheck, Response, P, X] = ValidatorCheckBuilder(checkFactory, preparer, extractor)
 }

@@ -15,12 +15,10 @@
  */
 package io.gatling.core.check.extractor.xpath
 
-import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.noopStringExpression
 import io.gatling.core.test.ValidationSpecification
 import io.gatling.core.util.IOHelper.withCloseable
 
@@ -41,61 +39,61 @@ class XPathExtractorSpec extends ValidationSpecification {
 	"count" should {
 
 		"return expected result with anywhere expression" in {
-			new CountXPathExtractor(noopStringExpression, namespaces).extract(prepared("/test.xml"), "//author") must succeedWith(Some(4))
+			new CountXPathExtractor("//author", namespaces)(prepared("/test.xml")) must succeedWith(Some(4))
 		}
 
 		"return expected result with array expression" in {
-			new CountXPathExtractor(noopStringExpression, namespaces).extract(prepared("/test.xml"), "/test/store/book[3]/author") must succeedWith(Some(1))
+			new CountXPathExtractor("/test/store/book[3]/author", namespaces)(prepared("/test.xml")) must succeedWith(Some(1))
 		}
 	}
 
 	"extractSingle" should {
 
 		"return expected result with anywhere expression and rank 0" in {
-			new SingleXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "//author") must succeedWith(Some("Nigel Rees"))
+			new SingleXPathExtractor("//author", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("Nigel Rees"))
 		}
 
 		"support name()" in {
-			new SingleXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "//*[name()='author']") must succeedWith(Some("Nigel Rees"))
+			new SingleXPathExtractor("//*[name()='author']", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("Nigel Rees"))
 		}
 
 		"return expected result with anywhere expression and rank 1" in {
-			new SingleXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "//author") must succeedWith(Some("Nigel Rees"))
+			new SingleXPathExtractor("//author", namespaces, 0).extract(prepared("/test.xml")) must succeedWith(Some("Nigel Rees"))
 		}
 
 		"return expected result with array expression" in {
-			new SingleXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "/test/store/book[3]/author") must succeedWith(Some("Herman Melville"))
+			new SingleXPathExtractor("/test/store/book[3]/author", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("Herman Melville"))
 		}
 
 		"return expected None with array expression" in {
-			new SingleXPathExtractor(noopStringExpression, namespaces, 1).extract(prepared("/test.xml"), "/test/store/book[3]/author") must succeedWith(None)
+			new SingleXPathExtractor("/test/store/book[3]/author", namespaces, 1)(prepared("/test.xml")) must succeedWith(None)
 		}
 
 		"return expected result with attribute expression" in {
-			new SingleXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "/test/store/book[@att = 'foo']/title") must succeedWith(Some("Sayings of the Century"))
+			new SingleXPathExtractor("/test/store/book[@att = 'foo']/title", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("Sayings of the Century"))
 		}
 
 		"return expected result with last function expression" in {
-			new SingleXPathExtractor(noopStringExpression, namespaces, 0).extract(prepared("/test.xml"), "//book[last()]/title") must succeedWith(Some("The Lord of the Rings"))
+			new SingleXPathExtractor("//book[last()]/title", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("The Lord of the Rings"))
 		}
 
 		"support default namespace" in {
-			new SingleXPathExtractor(noopStringExpression, List("pre" -> "http://schemas.test.com/entityserver/runtime/1.0"), 0).extract(prepared("/test2.xml"), "//pre:name") must succeedWith(Some("HR"))
+			new SingleXPathExtractor("//pre:name", List("pre" -> "http://schemas.test.com/entityserver/runtime/1.0"), 0)(prepared("/test2.xml")) must succeedWith(Some("HR"))
 		}
 	}
 
 	"extractMultiple" should {
 
 		"return expected result with anywhere expression" in {
-			new MultipleXPathExtractor(noopStringExpression, namespaces).extract(prepared("/test.xml"), "//author") must succeedWith(Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
+			new MultipleXPathExtractor("//author", namespaces)(prepared("/test.xml")) must succeedWith(Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
 		}
 
 		"return expected result with array expression" in {
-			new MultipleXPathExtractor(noopStringExpression, namespaces).extract(prepared("/test.xml"), "/test/store/book[3]/author") must succeedWith(Some(List("Herman Melville")))
+			new MultipleXPathExtractor("/test/store/book[3]/author", namespaces)(prepared("/test.xml")) must succeedWith(Some(List("Herman Melville")))
 		}
 
 		"return expected result with anywhere namespaced element" in {
-			new MultipleXPathExtractor(noopStringExpression, namespaces).extract(prepared("/test.xml"), "//foo:bar") must succeedWith(Some(List("fooBar")))
+			new MultipleXPathExtractor("//foo:bar", namespaces)(prepared("/test.xml")) must succeedWith(Some(List("fooBar")))
 		}
 	}
 }

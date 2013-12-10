@@ -18,14 +18,13 @@ package io.gatling.http.check.body
 import io.gatling.core.check.extractor.regex.{ CountRegexExtractor, GroupExtractor, MultipleRegexExtractor, SingleRegexExtractor }
 import io.gatling.core.session.Expression
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
-import java.nio.CharBuffer
 
 object HttpBodyRegexCheckBuilder {
 
 	def regex[X](expression: Expression[String])(implicit groupExtractor: GroupExtractor[X]) =
 		new HttpMultipleCheckBuilder[CharSequence, X](HttpCheckBuilders.bodyCheckFactory, HttpCheckBuilders.charsResponsePreparer) {
-			def findExtractor(occurrence: Int) = new SingleRegexExtractor(expression, occurrence)
-			def findAllExtractor = new MultipleRegexExtractor(expression)
-			def countExtractor = new CountRegexExtractor(expression)
+			def findExtractor(occurrence: Int) = session => expression(session).map(new SingleRegexExtractor(_, occurrence))
+			def findAllExtractor = session => expression(session).map(new MultipleRegexExtractor(_))
+			def countExtractor = session => expression(session).map(new CountRegexExtractor(_))
 		}
 }

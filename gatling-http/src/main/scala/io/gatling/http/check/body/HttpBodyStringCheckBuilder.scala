@@ -16,7 +16,7 @@
 package io.gatling.http.check.body
 
 import io.gatling.core.check.extractor.Extractor
-import io.gatling.core.session.Session
+import io.gatling.core.session.ExpressionWrapper
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 
@@ -24,8 +24,8 @@ object HttpBodyStringCheckBuilder {
 
 	val extractor = new Extractor[String, String] {
 		val name = "bodyString"
-		def apply(session: Session, prepared: String) = Some(prepared).success
-	}
+		def apply(prepared: String) = Some(prepared).success
+	}.expression
 
 	val bodyString = new HttpSingleCheckBuilder[String, String](
 		HttpCheckBuilders.bodyCheckFactory,

@@ -22,7 +22,6 @@ import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
-import io.gatling.core.session.noopStringExpression
 import io.gatling.core.test.ValidationSpecification
 import io.gatling.core.util.IOHelper.withCloseable
 
@@ -40,76 +39,76 @@ class CssExtractorSpec extends ValidationSpecification {
 
 	"CssExtractor" should {
 		"support browser conditional tests and behave as a non-IE browser" in {
-			new CountCssExtractor(noopStringExpression, None).extract(prepared("/IeConditionalTests.html"), "#helloworld") must succeedWith(Some(1))
+			new CountCssExtractor("#helloworld", None).extract(prepared("/IeConditionalTests.html")) must succeedWith(Some(1))
 		}
 	}
 
 	"CssExtractor count" should {
 
 		"return expected result with a class selector" in {
-			new CountCssExtractor(noopStringExpression, None).extract(prepared("/GatlingHomePage.html"), ".nav-menu") must succeedWith(Some(3))
+			new CountCssExtractor(".nav-menu", None).extract(prepared("/GatlingHomePage.html")) must succeedWith(Some(3))
 		}
 
 		"return expected result with an id selector" in {
-			new CountCssExtractor(noopStringExpression, None).extract(prepared("/GatlingHomePage.html"), "#twitter_button") must succeedWith(Some(1))
+			new CountCssExtractor("#twitter_button", None).extract(prepared("/GatlingHomePage.html")) must succeedWith(Some(1))
 		}
 
 		"return expected result with an :empty selector" in {
-			new CountCssExtractor(noopStringExpression, None).extract(prepared("/GatlingHomePage.html"), ".frise:empty") must succeedWith(Some(1))
+			new CountCssExtractor(".frise:empty", None).extract(prepared("/GatlingHomePage.html")) must succeedWith(Some(1))
 		}
 
 		"return None when the selector doesn't match anything" in {
-			new CountCssExtractor(noopStringExpression, None).extract(prepared("/GatlingHomePage.html"), "bad_selector") must succeedWith(None)
+			new CountCssExtractor("bad_selector", None).extract(prepared("/GatlingHomePage.html")) must succeedWith(None)
 		}
 	}
 
 	"CssExtractor extractMultiple" should {
 
 		"return expected result with a class selector" in {
-			new MultipleCssExtractor(noopStringExpression, None).extract(prepared("/GatlingHomePage.html"), "#social") must succeedWith(Some(List("Social")))
+			new MultipleCssExtractor("#social", None).extract(prepared("/GatlingHomePage.html")) must succeedWith(Some(List("Social")))
 		}
 
 		"return expected result with an id selector" in {
-			new MultipleCssExtractor(noopStringExpression, None).extract(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(Some(List("Sponsors", "Social")))
+			new MultipleCssExtractor(".nav", None).extract(prepared("/GatlingHomePage.html")) must succeedWith(Some(List("Sponsors", "Social")))
 		}
 
 		"return expected result with an attribute containg a given substring" in {
-			new MultipleCssExtractor(noopStringExpression, None).extract(prepared("/GatlingHomePage.html"), ".article a[href*=api]") must succeedWith(Some(List("API Documentation")))
+			new MultipleCssExtractor(".article a[href*=api]", None).extract(prepared("/GatlingHomePage.html")) must succeedWith(Some(List("API Documentation")))
 		}
 
 		"return expected result with an element being the n-th child of its parent" in {
-			new MultipleCssExtractor(noopStringExpression, None).extract(prepared("/GatlingHomePage.html"), ".article a:nth-child(2)") must succeedWith(Some(List("JMeter's")))
+			new MultipleCssExtractor(".article a:nth-child(2)", None).extract(prepared("/GatlingHomePage.html")) must succeedWith(Some(List("JMeter's")))
 		}
 
 		"return expected result with a predecessor selector" in {
-			new MultipleCssExtractor(noopStringExpression, None).extract(prepared("/GatlingHomePage.html"), "img ~ p") must succeedWith(Some(List("Efficient Load Testing")))
+			new MultipleCssExtractor("img ~ p", None).extract(prepared("/GatlingHomePage.html")) must succeedWith(Some(List("Efficient Load Testing")))
 		}
 
 		"return None when the selector doesn't match anything" in {
-			new MultipleCssExtractor(noopStringExpression, None).extract(prepared("/GatlingHomePage.html"), "bad_selector") must succeedWith(None)
+			new MultipleCssExtractor("bad_selector", None).extract(prepared("/GatlingHomePage.html")) must succeedWith(None)
 		}
 
 		"be able to extract a precise node attribute" in {
-			new MultipleCssExtractor(noopStringExpression, Some("href")).extract(prepared("/GatlingHomePage.html"), "#sample_requests") must succeedWith(Some(List("http://gatling-tool.org/sample/requests.html")))
+			new MultipleCssExtractor("#sample_requests", Some("href")).extract(prepared("/GatlingHomePage.html")) must succeedWith(Some(List("http://gatling-tool.org/sample/requests.html")))
 		}
 	}
 
 	"CssExtractor extractSingle" should {
 
 		"return expected result with a class selector" in {
-			new SingleCssExtractor(noopStringExpression, None, 1).extract(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(Some("Social"))
+			new SingleCssExtractor(".nav", None, 1).extract(prepared("/GatlingHomePage.html")) must succeedWith(Some("Social"))
 		}
 
 		"return None when the index is out of the range of returned elements" in {
-			new SingleCssExtractor(noopStringExpression, None, 3).extract(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(None)
+			new SingleCssExtractor(".nav", None, 3).extract(prepared("/GatlingHomePage.html")) must succeedWith(None)
 		}
 
 		"return None when the selector doesn't match anything" in {
-			new SingleCssExtractor(noopStringExpression, None, 1).extract(prepared("/GatlingHomePage.html"), "bad_selector") must succeedWith(None)
+			new SingleCssExtractor("bad_selector", None, 1).extract(prepared("/GatlingHomePage.html")) must succeedWith(None)
 		}
 
 		"be able to extract a precise node attribute" in {
-			new SingleCssExtractor(noopStringExpression, Some("id"), 1).extract(prepared("/GatlingHomePage.html"), ".nav") must succeedWith(Some("social"))
+			new SingleCssExtractor(".nav", Some("id"), 1).extract(prepared("/GatlingHomePage.html")) must succeedWith(Some("social"))
 		}
 	}
 }

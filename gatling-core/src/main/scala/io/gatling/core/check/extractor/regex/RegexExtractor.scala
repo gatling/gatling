@@ -22,7 +22,6 @@ import scala.collection.concurrent
 
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedOption, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import jsr166e.ConcurrentHashMapV8
 
@@ -43,22 +42,22 @@ object RegexExtractor {
 
 abstract class RegexExtractor[X] extends CriterionExtractor[CharSequence, String, X] { val criterionName = "regex" }
 
-class SingleRegexExtractor[X: GroupExtractor](val criterion: Expression[String], occurrence: Int) extends RegexExtractor[X] {
+class SingleRegexExtractor[X: GroupExtractor](val criterion: String, occurrence: Int) extends RegexExtractor[X] {
 
-	def extract(prepared: CharSequence, criterion: String): Validation[Option[X]] = {
+	def extract(prepared: CharSequence): Validation[Option[X]] = {
 		val matcher = RegexExtractor.cached(criterion).matcher(prepared)
 		matcher.findMatchN(occurrence).success
 	}
 }
 
-class MultipleRegexExtractor[X: GroupExtractor](val criterion: Expression[String]) extends RegexExtractor[Seq[X]] {
+class MultipleRegexExtractor[X: GroupExtractor](val criterion: String) extends RegexExtractor[Seq[X]] {
 
-	def extract(prepared: CharSequence, criterion: String): Validation[Option[Seq[X]]] = RegexExtractor.extractAll(prepared, criterion).liftSeqOption.success
+	def extract(prepared: CharSequence): Validation[Option[Seq[X]]] = RegexExtractor.extractAll(prepared, criterion).liftSeqOption.success
 }
 
-class CountRegexExtractor(val criterion: Expression[String]) extends RegexExtractor[Int] {
+class CountRegexExtractor(val criterion: String) extends RegexExtractor[Int] {
 
-	def extract(prepared: CharSequence, criterion: String): Validation[Option[Int]] = {
+	def extract(prepared: CharSequence): Validation[Option[Int]] = {
 		val matcher = RegexExtractor.cached(criterion).matcher(prepared)
 		matcher.foldLeft(0) { (_, count) =>
 			count + 1

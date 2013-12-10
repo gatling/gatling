@@ -40,8 +40,8 @@ object HttpBodyCssCheckBuilder extends Logging {
 
 	def css(expression: Expression[String], nodeAttribute: Option[String]) =
 		new HttpMultipleCheckBuilder[NodeSelector, String](HttpCheckBuilders.bodyCheckFactory, preparer) {
-			def findExtractor(occurrence: Int) = new SingleCssExtractor(expression, nodeAttribute, occurrence)
-			def findAllExtractor = new MultipleCssExtractor(expression, nodeAttribute)
-			def countExtractor = new CountCssExtractor(expression, nodeAttribute)
+			def findExtractor(occurrence: Int) = session => expression(session).map(new SingleCssExtractor(_, nodeAttribute, occurrence))
+			def findAllExtractor = session => expression(session).map(new MultipleCssExtractor(_, nodeAttribute))
+			def countExtractor = session => expression(session).map(new CountCssExtractor(_, nodeAttribute))
 		}
 }

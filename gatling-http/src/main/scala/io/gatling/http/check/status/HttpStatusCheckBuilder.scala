@@ -16,7 +16,7 @@
 package io.gatling.http.check.status
 
 import io.gatling.core.check.extractor.Extractor
-import io.gatling.core.session.Session
+import io.gatling.core.session.ExpressionWrapper
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 import io.gatling.http.response.Response
@@ -25,8 +25,8 @@ object HttpStatusCheckBuilder {
 
 	val statusExtractor = new Extractor[Response, Int] {
 		val name = "status"
-		def apply(session: Session, prepared: Response) = Some(prepared.getStatusCode).success
-	}
+		def apply(prepared: Response) = Some(prepared.getStatusCode).success
+	}.expression
 
 	val status = new HttpSingleCheckBuilder[Response, Int](
 		HttpCheckBuilders.statusCheckFactory,

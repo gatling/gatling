@@ -16,7 +16,7 @@
 package io.gatling.http.check.time
 
 import io.gatling.core.check.extractor.Extractor
-import io.gatling.core.session.Session
+import io.gatling.core.session.ExpressionWrapper
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 import io.gatling.http.response.Response
@@ -25,16 +25,16 @@ object HttpResponseTimeCheckBuilder {
 
 	val responseTimeInMillis = apply(new Extractor[Response, Long] {
 		val name = "responseTime"
-		def apply(session: Session, prepared: Response) = Some(prepared.reponseTimeInMillis).success
+		def apply(prepared: Response) = Some(prepared.reponseTimeInMillis).success
 	})
 
 	val latencyInMillis = apply(new Extractor[Response, Long] {
 		val name = "latency"
-		def apply(session: Session, prepared: Response) = Some(prepared.latencyInMillis).success
+		def apply(prepared: Response) = Some(prepared.latencyInMillis).success
 	})
 
 	def apply(extractor: Extractor[Response, Long]) = new HttpSingleCheckBuilder[Response, Long](
 		HttpCheckBuilders.timeCheckFactory,
 		HttpCheckBuilders.passThroughResponsePreparer,
-		extractor)
+		extractor.expression)
 }

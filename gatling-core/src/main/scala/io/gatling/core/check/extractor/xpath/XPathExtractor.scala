@@ -24,7 +24,6 @@ import org.xml.sax.InputSource
 
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import javax.xml.transform.sax.SAXSource
 import jsr166e.ConcurrentHashMapV8
@@ -78,9 +77,9 @@ object XPathExtractor {
 
 abstract class XPathExtractor[X] extends CriterionExtractor[Option[XdmNode], String, X] { val criterionName = "xpath" }
 
-class SingleXPathExtractor(val criterion: Expression[String], namespaces: List[(String, String)], occurrence: Int) extends XPathExtractor[String] {
+class SingleXPathExtractor(val criterion: String, namespaces: List[(String, String)], occurrence: Int) extends XPathExtractor[String] {
 
-	def extract(prepared: Option[XdmNode], criterion: String): Validation[Option[String]] = {
+	def extract(prepared: Option[XdmNode]): Validation[Option[String]] = {
 
 		val result = for {
 			text <- prepared
@@ -92,14 +91,14 @@ class SingleXPathExtractor(val criterion: Expression[String], namespaces: List[(
 	}
 }
 
-class MultipleXPathExtractor(val criterion: Expression[String], namespaces: List[(String, String)]) extends XPathExtractor[Seq[String]] {
+class MultipleXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends XPathExtractor[Seq[String]] {
 
-	def extract(prepared: Option[XdmNode], criterion: String): Validation[Option[Seq[String]]] =
+	def extract(prepared: Option[XdmNode]): Validation[Option[Seq[String]]] =
 		prepared.flatMap(XPathExtractor.evaluate(criterion, namespaces, _).map(_.getStringValue).liftSeqOption).success
 }
 
-class CountXPathExtractor(val criterion: Expression[String], namespaces: List[(String, String)]) extends XPathExtractor[Int] {
+class CountXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends XPathExtractor[Int] {
 
-	def extract(prepared: Option[XdmNode], criterion: String): Validation[Option[Int]] =
+	def extract(prepared: Option[XdmNode]): Validation[Option[Int]] =
 		prepared.map(XPathExtractor.evaluate(criterion, namespaces, _).size).success
 }

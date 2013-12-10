@@ -30,9 +30,9 @@ object HttpHeaderRegexCheckBuilder {
 		} yield (headerName, pattern)
 
 		new HttpMultipleCheckBuilder[Response, String](HttpCheckBuilders.headerCheckFactory, HttpCheckBuilders.passThroughResponsePreparer) {
-			def findExtractor(occurrence: Int) = new SingleHttpHeaderRegexExtractor(headerAndPattern, occurrence)
-			def findAllExtractor = new MultipleHttpHeaderRegexExtractor(headerAndPattern)
-			def countExtractor = new CountHttpHeaderRegexExtractor(headerAndPattern)
+			def findExtractor(occurrence: Int) = session => headerAndPattern(session).map(new SingleHttpHeaderRegexExtractor(_, occurrence))
+			def findAllExtractor = session => headerAndPattern(session).map(new MultipleHttpHeaderRegexExtractor(_))
+			def countExtractor = session => headerAndPattern(session).map(new CountHttpHeaderRegexExtractor(_))
 		}
 	}
 }

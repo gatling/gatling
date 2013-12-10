@@ -23,7 +23,6 @@ import scala.collection.concurrent
 
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import jodd.csselly.{ CSSelly, CssSelector }
 import jodd.lagarto.dom.{ LagartoDOMBuilder, NodeSelector }
@@ -55,20 +54,20 @@ object CssExtractor {
 
 abstract class CssExtractor[X] extends CriterionExtractor[NodeSelector, String, X] { val criterionName = "css" }
 
-class SingleCssExtractor[X](val criterion: Expression[String], nodeAttribute: Option[String], occurrence: Int) extends CssExtractor[String] {
+class SingleCssExtractor[X](val criterion: String, nodeAttribute: Option[String], occurrence: Int) extends CssExtractor[String] {
 
-	def extract(prepared: NodeSelector, criterion: String): Validation[Option[String]] =
+	def extract(prepared: NodeSelector): Validation[Option[String]] =
 		CssExtractor.extractAll(prepared, criterion, nodeAttribute).lift(occurrence).success
 }
 
-class MultipleCssExtractor[X](val criterion: Expression[String], nodeAttribute: Option[String]) extends CssExtractor[Seq[String]] {
+class MultipleCssExtractor[X](val criterion: String, nodeAttribute: Option[String]) extends CssExtractor[Seq[String]] {
 
-	def extract(prepared: NodeSelector, criterion: String): Validation[Option[Seq[String]]] =
+	def extract(prepared: NodeSelector): Validation[Option[Seq[String]]] =
 		CssExtractor.extractAll(prepared, criterion, nodeAttribute).liftSeqOption.success
 }
 
-class CountCssExtractor(val criterion: Expression[String], nodeAttribute: Option[String]) extends CssExtractor[Int] {
+class CountCssExtractor(val criterion: String, nodeAttribute: Option[String]) extends CssExtractor[Int] {
 
-	def extract(prepared: NodeSelector, criterion: String): Validation[Option[Int]] =
+	def extract(prepared: NodeSelector): Validation[Option[Int]] =
 		CssExtractor.extractAll(prepared, criterion, nodeAttribute).liftSeqOption.map(_.size).success
 }

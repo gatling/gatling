@@ -17,9 +17,9 @@ package io.gatling.core.check
 
 import com.typesafe.scalalogging.slf4j.Logging
 
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.core.check.extractor.Extractor
+import io.gatling.core.session.Expression
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 trait ExtractorCheckBuilder[C <: Check[R], R, P, X] {
 
@@ -38,18 +38,21 @@ trait MultipleExtractorCheckBuilder[C <: Check[R], R, P, T, X] extends Extractor
 case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
 	checkFactory: CheckFactory[C, R],
 	preparer: Preparer[R, P],
-	extractor: Extractor[P, X]) extends Logging {
+	extractor: Expression[Extractor[P, X]]) extends Logging {
 
-	def transform[X2](transformation: Option[X] => Option[X2]): ValidatorCheckBuilder[C, R, P, X2] = copy(extractor = new Extractor[P, X2] {
-		def name = extractor.name + " transformed"
-		def apply(session: Session, prepared: P): Validation[Option[X2]] = extractor(session, prepared).flatMap { extracted =>
-			try {
-				transformation(extracted).success
-			} catch {
-				case e: Exception => s"transform crashed with a exception: ${e.getMessage}".failure
+	def transform[X2](transformation: Option[X] => Option[X2]): ValidatorCheckBuilder[C, R, P, X2] = copy(extractor = session =>
+		extractor(session).map { extractor =>
+			new Extractor[P, X2] {
+				def name = extractor.name + " transformed"
+				def apply(prepared: P): Validation[Option[X2]] = extractor(prepared).flatMap { extracted =>
+					try {
+						transformation(extracted).success
+					} catch {
+						case e: Exception => s"transform crashed with a exception: ${e.getMessage}".failure
+					}
+				}
 			}
-		}
-	})
+		})
 
 	def validate(validator: Validator[X]) = new CheckBuilder(this, validator) with SaveAs[C, R, P, X]
 

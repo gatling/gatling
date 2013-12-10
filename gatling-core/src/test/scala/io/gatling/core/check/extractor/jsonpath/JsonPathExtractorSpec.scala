@@ -15,23 +15,16 @@
  */
 package io.gatling.core.check.extractor.jsonpath
 
-import scala.io.Codec.UTF8
-
 import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.Session
-import io.gatling.core.session.el.EL
-import io.gatling.core.session.noopStringExpression
 import io.gatling.core.test.ValidationSpecification
 import io.gatling.core.util.IOHelper.withCloseable
 
 @RunWith(classOf[JUnitRunner])
 class JsonPathExtractorSpec extends ValidationSpecification {
-
-	val noopSession = new Session("foo", "bar")
 
 	def prepared(file: String) = {
 		GatlingConfiguration.setUp()
@@ -43,7 +36,7 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 
 	"count" should {
 
-		def count(path: String, file: String) = new CountJsonPathExtractor(path.el)(noopSession, prepared(file))
+		def count(path: String, file: String) = new CountJsonPathExtractor(path)(prepared(file))
 
 		"return expected result with anywhere expression" in {
 			count("$..author", "/test.json") must succeedWith(Some(4))
@@ -56,7 +49,7 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 
 	"extractSingle" should {
 
-		def extractSingle(path: String, occurrence: Int, file: String) = new SingleJsonPathExtractor[String](path.el, occurrence).apply(noopSession, prepared(file))
+		def extractSingle(path: String, occurrence: Int, file: String) = new SingleJsonPathExtractor[String](path, occurrence).apply(prepared(file))
 
 		"return expected result with anywhere expression and rank 0" in {
 			extractSingle("$..author", 0, "/test.json") must succeedWith(Some("Nigel Rees"))
@@ -106,7 +99,7 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 
 	"extractMultiple" should {
 
-		def extractMultiple(path: String, file: String) = new MultipleJsonPathExtractor[String](path.el).apply(noopSession, prepared(file))
+		def extractMultiple(path: String, file: String) = new MultipleJsonPathExtractor[String](path).apply(prepared(file))
 
 		"return expected result with anywhere expression" in {
 			extractMultiple("$..author", "/test.json") must succeedWith(Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))

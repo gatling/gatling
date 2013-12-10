@@ -17,9 +17,9 @@ package io.gatling.core.check
 
 import scala.collection.mutable
 
-import io.gatling.core.session.Session
-import io.gatling.core.validation.{ SuccessWrapper, Validation, ValidationList }
 import io.gatling.core.check.extractor.Extractor
+import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.validation.{ SuccessWrapper, Validation, ValidationList }
 
 object Check {
 
@@ -43,7 +43,7 @@ trait Check[R] {
 
 case class CheckBase[R, P, X](
 	preparer: Preparer[R, P],
-	extractor: Extractor[P, X],
+	extractor: Expression[Extractor[P, X]],
 	validator: Validator[X],
 	saveAs: Option[String]) extends Check[R] {
 
@@ -60,8 +60,9 @@ case class CheckBase[R, P, X](
 			.asInstanceOf[Validation[P]]
 
 		for {
+			extractor <- extractor(session).mapError(message => s"Check extractor resolution crashed: $message")
 			prepared <- memoizedPrepared.mapError(message => s"${extractor.name}.${validator.name} failed, could not prepare: $message")
-			actual <- extractor(session, prepared).mapError(message => s"${extractor.name}.${validator.name} failed, could not extract: $message")
+			actual <- extractor(prepared).mapError(message => s"${extractor.name}.${validator.name} failed, could not extract: $message")
 			matched <- validator(session, actual).mapError(message => s"${extractor.name}.${validator.name}: $message")
 
 		} yield update(matched)

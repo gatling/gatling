@@ -17,7 +17,7 @@ package io.gatling.http.check.checksum
 
 import io.gatling.core.check.Check
 import io.gatling.core.check.extractor.Extractor
-import io.gatling.core.session.Session
+import io.gatling.core.session.ExpressionWrapper
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 import io.gatling.http.response.Response
@@ -29,8 +29,8 @@ object HttpChecksumCheckBuilder {
 		val checksumCheckFactory = (wrapped: Check[Response]) => new ChecksumCheck(algorythm, wrapped)
 		val extractor = new Extractor[Response, String] {
 			val name = algorythm
-			def apply(session: Session, prepared: Response) = prepared.checksum(algorythm).success
-		}
+			def apply(prepared: Response) = prepared.checksum(algorythm).success
+		}.expression
 
 		new HttpSingleCheckBuilder[Response, String](
 			checksumCheckFactory,

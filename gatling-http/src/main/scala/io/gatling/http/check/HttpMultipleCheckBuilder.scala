@@ -17,15 +17,16 @@ package io.gatling.http.check
 
 import io.gatling.core.check.{ CheckFactory, ExtractorCheckBuilder, Preparer, ValidatorCheckBuilder }
 import io.gatling.core.check.extractor.Extractor
+import io.gatling.core.session.Expression
 import io.gatling.http.response.Response
 
 abstract class HttpMultipleCheckBuilder[P, X](
 	checkFactory: CheckFactory[HttpCheck, Response],
 	preparer: Preparer[Response, P]) extends ExtractorCheckBuilder[HttpCheck, Response, P, X] {
 
-	def findExtractor(occurrence: Int): Extractor[P, X]
-	def findAllExtractor: Extractor[P, Seq[X]]
-	def countExtractor: Extractor[P, Int]
+	def findExtractor(occurrence: Int): Expression[Extractor[P, X]]
+	def findAllExtractor: Expression[Extractor[P, Seq[X]]]
+	def countExtractor: Expression[Extractor[P, Int]]
 
 	def find = find(0)
 	def find(occurrence: Int): ValidatorCheckBuilder[HttpCheck, Response, P, X] = ValidatorCheckBuilder(checkFactory, preparer, findExtractor(occurrence))

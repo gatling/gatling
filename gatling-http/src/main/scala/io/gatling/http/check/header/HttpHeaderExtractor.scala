@@ -19,7 +19,6 @@ import java.net.URLDecoder
 
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.HeaderNames
 import io.gatling.http.response.Response
@@ -37,20 +36,20 @@ object HttpHeaderExtractor {
 
 abstract class HttpHeaderExtractor[X] extends CriterionExtractor[Response, String, X] { val criterionName = "header" }
 
-class SingleHttpHeaderExtractor(val criterion: Expression[String], occurrence: Int) extends HttpHeaderExtractor[String] {
+class SingleHttpHeaderExtractor(val criterion: String, occurrence: Int) extends HttpHeaderExtractor[String] {
 
-	def extract(prepared: Response, criterion: String): Validation[Option[String]] =
+	def extract(prepared: Response): Validation[Option[String]] =
 		prepared.getHeadersSafe(criterion).lift(occurrence).map(HttpHeaderExtractor.decode(criterion, _)).success
 }
 
-class MultipleHttpHeaderExtractor(val criterion: Expression[String]) extends HttpHeaderExtractor[Seq[String]] {
+class MultipleHttpHeaderExtractor(val criterion: String) extends HttpHeaderExtractor[Seq[String]] {
 
-	def extract(prepared: Response, criterion: String): Validation[Option[Seq[String]]] =
+	def extract(prepared: Response): Validation[Option[Seq[String]]] =
 		HttpHeaderExtractor.decodedHeaders(prepared, criterion).liftSeqOption.success
 }
 
-class CountHttpHeaderExtractor(val criterion: Expression[String]) extends HttpHeaderExtractor[Int] {
+class CountHttpHeaderExtractor(val criterion: String) extends HttpHeaderExtractor[Int] {
 
-	def extract(prepared: Response, criterion: String): Validation[Option[Int]] =
+	def extract(prepared: Response): Validation[Option[Int]] =
 		prepared.getHeadersSafe(criterion).liftSeqOption.map(_.size).success
 }

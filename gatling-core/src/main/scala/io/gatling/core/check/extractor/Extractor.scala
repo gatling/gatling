@@ -15,22 +15,20 @@
  */
 package io.gatling.core.check.extractor
 
-import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Validation
 
 trait Extractor[P, X] {
 	def name: String
-	def apply(session: Session, prepared: P): Validation[Option[X]]
+	def apply(prepared: P): Validation[Option[X]]
 }
 
 abstract class CriterionExtractor[P, T, X] extends Extractor[P, X] {
-	def criterion: Expression[T]
-	def extract(prepared: P, criterion: T): Validation[Option[X]]
+	def criterion: T
+	protected def extract(prepared: P): Validation[Option[X]]
 	def criterionName: String
 	def name = s"$criterionName($criterion)"
-	def apply(session: Session, prepared: P): Validation[Option[X]] =
+	def apply(prepared: P): Validation[Option[X]] =
 		for {
-			criterionValue <- criterion(session).mapError(message => s"could not resolve extractor criterion: $message")
-			extracted <- extract(prepared, criterionValue).mapError(message => s"($criterionValue) could not extract : $message")
+			extracted <- extract(prepared).mapError(message => s" could not extract : $message")
 		} yield extracted
 }

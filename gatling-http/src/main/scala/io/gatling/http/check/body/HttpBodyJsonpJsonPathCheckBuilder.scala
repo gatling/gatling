@@ -48,8 +48,8 @@ object HttpBodyJsonpJsonPathCheckBuilder extends Logging {
 
 	def jsonpJsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
 		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory, jsonpPreparer) {
-			def findExtractor(occurrence: Int) = new SingleJsonPathExtractor(path, occurrence)
-			def findAllExtractor = new MultipleJsonPathExtractor(path)
-			def countExtractor = new CountJsonPathExtractor(path)
+			def findExtractor(occurrence: Int) = session => path(session).map(new SingleJsonPathExtractor(_, occurrence))
+			def findAllExtractor = session => path(session).map(new MultipleJsonPathExtractor(_))
+			def countExtractor = session => path(session).map(new CountJsonPathExtractor(_))
 		}
 }

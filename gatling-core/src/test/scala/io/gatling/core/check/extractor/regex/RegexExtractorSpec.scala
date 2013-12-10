@@ -19,7 +19,6 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.noopStringExpression
 import io.gatling.core.test.ValidationSpecification
 
 @RunWith(classOf[JUnitRunner])
@@ -31,9 +30,9 @@ class RegexExtractorSpec extends ValidationSpecification {
 
 		"return expected result with anywhere expression" in {
 
-			val stringRegexExtractor = new MultipleRegexExtractor[String](noopStringExpression)
+			val stringRegexExtractor = new MultipleRegexExtractor[String](""""SearchDefinitionID\\":(\d*)""")
 
-			stringRegexExtractor.extract("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""", """"SearchDefinitionID\\":(\d*)""") must succeedWith(Some(List("116", "108")))
+			stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""") must succeedWith(Some(List("116", "108")))
 		}
 	}
 }

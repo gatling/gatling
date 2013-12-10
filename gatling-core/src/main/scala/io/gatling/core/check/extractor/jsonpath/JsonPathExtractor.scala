@@ -5,7 +5,6 @@ import scala.collection.concurrent
 
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.Expression
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.jsonpath.jsonsmart.JsonPath
 import jsr166e.ConcurrentHashMapV8
@@ -33,20 +32,20 @@ object JsonPathExtractor {
 
 abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] { val criterionName = "jsonPath" }
 
-class SingleJsonPathExtractor[X: JsonFilter](val criterion: Expression[String], occurrence: Int) extends JsonPathExtractor[X] {
+class SingleJsonPathExtractor[X: JsonFilter](val criterion: String, occurrence: Int) extends JsonPathExtractor[X] {
 
-	def extract(prepared: Any, criterion: String): Validation[Option[X]] =
+	def extract(prepared: Any): Validation[Option[X]] =
 		JsonPathExtractor.extractAll(prepared, criterion).map(_.toStream.liftSeqOption.flatMap(_.lift(occurrence)))
 }
 
-class MultipleJsonPathExtractor[X: JsonFilter](val criterion: Expression[String]) extends JsonPathExtractor[Seq[X]] {
+class MultipleJsonPathExtractor[X: JsonFilter](val criterion: String) extends JsonPathExtractor[Seq[X]] {
 
-	def extract(prepared: Any, criterion: String): Validation[Option[Seq[X]]] =
+	def extract(prepared: Any): Validation[Option[Seq[X]]] =
 		JsonPathExtractor.extractAll(prepared, criterion).map(_.toVector.liftSeqOption.flatMap(_.liftSeqOption))
 }
 
-class CountJsonPathExtractor(val criterion: Expression[String]) extends JsonPathExtractor[Int] {
+class CountJsonPathExtractor(val criterion: String) extends JsonPathExtractor[Int] {
 
-	def extract(prepared: Any, criterion: String): Validation[Option[Int]] =
+	def extract(prepared: Any): Validation[Option[Int]] =
 		JsonPathExtractor.extractAll[Any](prepared, criterion).map(i => Some(i.size))
 }
