@@ -15,8 +15,7 @@
  */
 package io.gatling.core.check
 
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ noneSuccess, FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, noneSuccess }
 
 object Validator {
 	val foundNothingFailure = "found nothing".failure
@@ -24,24 +23,23 @@ object Validator {
 
 trait Validator[A] {
 	def name: String
-	def apply(session: Session, actual: Option[A]): Validation[Option[A]]
+	def apply(actual: Option[A]): Validation[Option[A]]
 }
 
 abstract class Matcher[A, E] extends Validator[A] {
-	def expected: Expression[E]
-	def doMatch(actual: Option[A], expected: E): Validation[Option[A]]
-	def apply(session: Session, actual: Option[A]): Validation[Option[A]] =
+	def expected: E
+	def doMatch(actual: Option[A]): Validation[Option[A]]
+	def apply(actual: Option[A]): Validation[Option[A]] =
 		for {
-			expected <- expected(session).mapError(message => s"could not resolve expected value: $message")
-			matchResult <- doMatch(actual, expected).mapError(message => s"($expected) failed: $message")
+			matchResult <- doMatch(actual).mapError(message => s"($expected) failed: $message")
 		} yield matchResult
 }
 
-class IsMatcher[A](val expected: Expression[A]) extends Matcher[A, A] {
+class IsMatcher[E](val expected: E) extends Matcher[E, E] {
 
 	val name = "is"
 
-	def doMatch(actual: Option[A], expected: A): Validation[Option[A]] = actual match {
+	def doMatch(actual: Option[E]): Validation[Option[E]] = actual match {
 		case Some(actualValue) =>
 			if (actualValue == expected)
 				actual.success
@@ -51,11 +49,11 @@ class IsMatcher[A](val expected: Expression[A]) extends Matcher[A, A] {
 	}
 }
 
-class NotMatcher[A](val expected: Expression[A]) extends Matcher[A, A] {
+class NotMatcher[E](val expected: E) extends Matcher[E, E] {
 
 	val name = "not"
 
-	def doMatch(actual: Option[A], expected: A): Validation[Option[A]] = actual match {
+	def doMatch(actual: Option[E]): Validation[Option[E]] = actual match {
 		case Some(actualValue) =>
 			if (actualValue != expected)
 				actual.success
@@ -65,11 +63,11 @@ class NotMatcher[A](val expected: Expression[A]) extends Matcher[A, A] {
 	}
 }
 
-class InMatcher[A](val expected: Expression[Seq[A]]) extends Matcher[A, Seq[A]] {
+class InMatcher[E](val expected: Seq[E]) extends Matcher[E, Seq[E]] {
 
 	val name = "in"
 
-	def doMatch(actual: Option[A], expected: Seq[A]): Validation[Option[A]] = actual match {
+	def doMatch(actual: Option[E]): Validation[Option[E]] = actual match {
 		case Some(actualValue) =>
 			if (expected.contains(actualValue))
 				actual.success
@@ -79,9 +77,9 @@ class InMatcher[A](val expected: Expression[Seq[A]]) extends Matcher[A, Seq[A]] 
 	}
 }
 
-class CompareMatcher[A](val name: String, message: String, compare: (A, A) => Boolean, val expected: Expression[A]) extends Matcher[A, A] {
+class CompareMatcher[E](val name: String, message: String, compare: (E, E) => Boolean, val expected: E) extends Matcher[E, E] {
 
-	def doMatch(actual: Option[A], expected: A): Validation[Option[A]] = actual match {
+	def doMatch(actual: Option[E]): Validation[Option[E]] = actual match {
 		case Some(actualValue) =>
 			if (compare(actualValue, expected))
 				actual.success
@@ -94,7 +92,7 @@ class CompareMatcher[A](val name: String, message: String, compare: (A, A) => Bo
 
 class ExistsValidator[A] extends Validator[A] {
 	val name = "exists"
-	def apply(session: Session, actual: Option[A]): Validation[Option[A]] = actual match {
+	def apply(actual: Option[A]): Validation[Option[A]] = actual match {
 		case Some(actualValue) => actual.success
 		case None => Validator.foundNothingFailure
 	}
@@ -102,7 +100,7 @@ class ExistsValidator[A] extends Validator[A] {
 
 class NotExistsValidator[A] extends Validator[A] {
 	val name = "notExists"
-	def apply(session: Session, actual: Option[A]): Validation[Option[A]] = actual match {
+	def apply(actual: Option[A]): Validation[Option[A]] = actual match {
 		case Some(actualValue) => s"unexpectedly found $actualValue".failure
 		case None => noneSuccess
 	}
@@ -110,5 +108,5 @@ class NotExistsValidator[A] extends Validator[A] {
 
 class NoopValidator[A] extends Validator[A] {
 	val name = "noop"
-	def apply(session: Session, actual: Option[A]): Validation[Option[A]] = actual.success
+	def apply(actual: Option[A]): Validation[Option[A]] = actual.success
 }

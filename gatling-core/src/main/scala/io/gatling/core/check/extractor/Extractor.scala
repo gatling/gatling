@@ -24,7 +24,7 @@ trait Extractor[P, X] {
 
 abstract class CriterionExtractor[P, T, X] extends Extractor[P, X] {
 	def criterion: T
-	protected def extract(prepared: P): Validation[Option[X]]
+	def extract(prepared: P): Validation[Option[X]]
 	def criterionName: String
 	def name = s"$criterionName($criterion)"
 	def apply(prepared: P): Validation[Option[X]] =
