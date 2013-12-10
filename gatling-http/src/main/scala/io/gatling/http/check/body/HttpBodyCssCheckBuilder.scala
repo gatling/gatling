@@ -19,7 +19,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.css.{ CountCssExtractor, CssExtractor, MultipleCssExtractor, SingleCssExtractor }
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
@@ -40,8 +40,8 @@ object HttpBodyCssCheckBuilder extends Logging {
 
 	def css(expression: Expression[String], nodeAttribute: Option[String]) =
 		new HttpMultipleCheckBuilder[NodeSelector, String](HttpCheckBuilders.bodyCheckFactory, preparer) {
-			def findExtractor(occurrence: Int) = session => expression(session).map(new SingleCssExtractor(_, nodeAttribute, occurrence))
-			def findAllExtractor = session => expression(session).map(new MultipleCssExtractor(_, nodeAttribute))
-			def countExtractor = session => expression(session).map(new CountCssExtractor(_, nodeAttribute))
+			def findExtractor(occurrence: Int) = expression.map(new SingleCssExtractor(_, nodeAttribute, occurrence))
+			def findAllExtractor = expression.map(new MultipleCssExtractor(_, nodeAttribute))
+			def countExtractor = expression.map(new CountCssExtractor(_, nodeAttribute))
 		}
 }

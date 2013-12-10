@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.header
 
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
 
@@ -23,8 +23,8 @@ object HttpHeaderCheckBuilder {
 
 	def header(headerName: Expression[String]) =
 		new HttpMultipleCheckBuilder[Response, String](HttpCheckBuilders.headerCheckFactory, HttpCheckBuilders.passThroughResponsePreparer) {
-			def findExtractor(occurrence: Int) = session => headerName(session).map(new SingleHttpHeaderExtractor(_, occurrence))
-			def findAllExtractor = session => headerName(session).map(new MultipleHttpHeaderExtractor(_))
-			def countExtractor = session => headerName(session).map(new CountHttpHeaderExtractor(_))
+			def findExtractor(occurrence: Int) = headerName.map(new SingleHttpHeaderExtractor(_, occurrence))
+			def findAllExtractor = headerName.map(new MultipleHttpHeaderExtractor(_))
+			def countExtractor = headerName.map(new CountHttpHeaderExtractor(_))
 		}
 }
