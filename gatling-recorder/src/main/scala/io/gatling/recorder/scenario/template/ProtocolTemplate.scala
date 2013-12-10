@@ -27,20 +27,23 @@ object ProtocolTemplate {
 
 	def render(baseUrl: String, headers: Map[String, String]) = {
 
-		def renderCredentials = {
-			val credentials = for {
-				proxyUsername <- configuration.proxy.outgoing.username
-				proxyPassword <- configuration.proxy.outgoing.password
-			} yield s"""$eol$indent.credentials("$proxyUsername","$proxyPassword")"""
-			credentials.getOrElse("")
-		}
-
 		def renderProxy = {
+
 			def renderSslPort = configuration.proxy.outgoing.sslPort.map(proxySslPort => s".httpsPort($proxySslPort)").getOrElse("")
+
+			def renderCredentials = {
+				val credentials = for {
+					proxyUsername <- configuration.proxy.outgoing.username
+					proxyPassword <- configuration.proxy.outgoing.password
+				} yield s"""$eol$indent.credentials("$proxyUsername","$proxyPassword")"""
+				credentials.getOrElse("")
+			}
+
 			val protocol = for {
 				proxyHost <- configuration.proxy.outgoing.host
 				proxyPort <- configuration.proxy.outgoing.port
 			} yield s"""$eol$indent.proxy(Proxy("$proxyHost", $proxyPort)$renderSslPort$renderCredentials)"""
+
 			protocol.getOrElse("")
 		}
 
