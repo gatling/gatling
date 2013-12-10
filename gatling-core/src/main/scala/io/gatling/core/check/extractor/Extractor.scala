@@ -30,7 +30,7 @@ abstract class CriterionExtractor[P, T, X] extends Extractor[P, X] {
 	def name = s"$criterionName($criterion)"
 	def apply(session: Session, prepared: P): Validation[Option[X]] =
 		for {
-			criterion <- criterion(session).mapError(message => s"could not resolve extractor criterion: $message")
-			extracted <- extract(prepared, criterion).mapError(message => s"($criterion) could not extract : $message")
+			criterionValue <- criterion(session).mapError(message => s"could not resolve extractor criterion: $message")
+			extracted <- extract(prepared, criterionValue).mapError(message => s"($criterionValue) could not extract : $message")
 		} yield extracted
 }
