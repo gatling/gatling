@@ -25,6 +25,10 @@ import io.gatling.core.util.StringHelper.eol
 
 class StatisticsTableComponent extends Component {
 
+  private val MAX_REQUEST_NAME_SIZE = 20
+  private val NUMBER_OF_CHARS_BEFORE_DOTS = 8
+  private val NUMBER_OF_CHARS_AFTER_DOTS = 8
+
 	val html = {
 
 		val pct1 = formatNumberWithSuffix(configuration.charting.indicators.percentile1) + " pct"
@@ -68,6 +72,14 @@ class StatisticsTableComponent extends Component {
 	}
 
 	val js = fast"""
+
+  function shortenNameAndDisplayFullOnHover(name){
+   if (name.length < $MAX_REQUEST_NAME_SIZE)
+       return name;
+   else
+     return "<span class='tooltipContent'>"+name+"</span>" + name.substr(0,$NUMBER_OF_CHARS_BEFORE_DOTS)+"..."+name.substr(name.length-$NUMBER_OF_CHARS_AFTER_DOTS,name.length);
+  }
+
 function generateHtmlRow(request, level, index, parent, group) {
     if (request.name == '$GLOBAL_PAGE_NAME')
         var url = 'index.html';
@@ -83,7 +95,7 @@ function generateHtmlRow(request, level, index, parent, group) {
     return '<tr id="' + request.pathFormatted + '" class="child-of-' + parent + '"> \\
         <td class="total col-1"> \\
             <span id="' + request.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '">&nbsp;</span> \\
-            <a href="' + url +'">' + request.name + '</a><span class="value" style="display:none;">' + index + '</span> \\
+            <a href="' + url +'" class="withTooltip">' + shortenNameAndDisplayFullOnHover(request.name) + '</a><span class="value" style="display:none;">' + index + '</span> \\
         </td> \\
         <td></td> \\
         <td class="value total col-2">' + request.stats.numberOfRequests.total + '</td> \\
