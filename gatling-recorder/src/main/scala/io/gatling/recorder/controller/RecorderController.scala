@@ -17,9 +17,7 @@ package io.gatling.recorder.controller
 
 import java.net.URI
 
-import scala.collection.JavaConversions.collectionAsScalaIterable
 import scala.collection.mutable
-import scala.collection.mutable.{ ArrayBuffer, SynchronizedBuffer }
 import scala.concurrent.duration.DurationLong
 import scala.reflect.io.Path.string2path
 import scala.tools.nsc.io.File
@@ -34,6 +32,7 @@ import io.gatling.recorder.{ Har, Proxy }
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
+import io.gatling.recorder.har.HarReader
 import io.gatling.recorder.http.GatlingHttpProxy
 import io.gatling.recorder.scenario.{ RequestElement, Scenario, ScenarioExporter, TagElement }
 import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
@@ -72,8 +71,7 @@ class RecorderController extends Logging {
 				selectedMode match {
 					case Har =>
 						try {
-							// TODO HarReader(harFilePath)
-							//ScenarioExporter.saveScenario()
+							ScenarioExporter.saveScenario(HarReader(harFilePath))
 							frontEnd.handleHarExportSuccess
 						} catch {
 							case e: Exception =>

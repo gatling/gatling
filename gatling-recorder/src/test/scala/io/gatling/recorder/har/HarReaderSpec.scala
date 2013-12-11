@@ -17,32 +17,30 @@ package io.gatling.recorder.har
 
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
-
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-
 import io.gatling.core.util.IOHelper
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario.{ PauseElement, RequestElement }
 import io.gatling.recorder.util.Json.parseJson
+import io.gatling.core.scenario.Scenario
 
 @RunWith(classOf[JUnitRunner])
 class HarReaderSpec extends Specification {
 
 	def resourceAsStream(p: String) = getClass.getClassLoader.getResourceAsStream(p)
-	val harEmptyJson = IOHelper.withCloseable(resourceAsStream("har/empty.har"))(parseJson(_))
-	val harKernelJson = IOHelper.withCloseable(resourceAsStream("har/www.kernel.org.har"))(parseJson(_))
 
 	RecorderConfiguration.initialSetup(mutable.HashMap.empty, None)
 
 	"HarReader" should {
 
 		"work with empty JSON" in {
-			HarReader(harEmptyJson) must beEmpty
+			HarReader(resourceAsStream("har/empty.har")) must beEmpty
 		}
 
-		val elts = HarReader(harKernelJson).elements
+		val scn = HarReader(resourceAsStream("har/www.kernel.org.har"))
+		val elts = scn.elements
 		val pauseElts = elts.collect { case PauseElement(duration) => duration }
 
 		"return the correct number of Pause elements" in {

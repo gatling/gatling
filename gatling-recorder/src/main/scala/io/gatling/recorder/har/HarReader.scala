@@ -17,23 +17,22 @@ package io.gatling.recorder.har
 
 import java.io.{ FileInputStream, InputStream }
 import java.net.URL
-import scala.concurrent.duration.DurationLong
+
 import scala.util.Try
+
 import io.gatling.core.util.IOHelper
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.HeaderNames.CONTENT_TYPE
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.scenario.{ PauseElement, RequestBodyBytes, RequestBodyParams, RequestElement, ScenarioElement }
+import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams, RequestElement, Scenario }
 import io.gatling.recorder.util.Json
-import io.gatling.recorder.util.RedirectHelper
-import io.gatling.recorder.scenario.Scenario
 
 object HarReader {
 
-	def apply(path: String): List[ScenarioElement] =
+	def apply(path: String): Scenario =
 		IOHelper.withCloseable(new FileInputStream(path))(apply(_))
 
-	def apply(jsonStream: InputStream): List[ScenarioElement] =
+	def apply(jsonStream: InputStream): Scenario =
 		apply(Json.parseJson(jsonStream))
 
 	def apply(json: Json): Scenario = {
