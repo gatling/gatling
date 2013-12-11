@@ -28,8 +28,6 @@ import io.gatling.recorder.util.URIHelper
 
 class ServerHttpResponseHandler(controller: RecorderController, requestContext: ChannelHandlerContext, request: HttpRequest, var expectConnect: Boolean) extends SimpleChannelHandler with Logging {
 
-	
-	
 	def buildRequestWithRelativeURI(request: HttpRequest) = {
 
 		val (_, pathQuery) = URIHelper.splitURI(request.getUri)
