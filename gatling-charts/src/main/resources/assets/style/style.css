@@ -578,3 +578,18 @@ h1 span {
 .right {
 	float: right;
 }
+
+.withTooltip {outline:none; }
+.withTooltip:hover {text-decoration:none;}
+.withTooltip .tooltipContent {
+    z-index:10;display:none;
+    margin-top: -5px;
+    padding: 4px;
+    box-shadow: 1px 1px 1px rgba(18, 18, 18, 0.7);
+    border-radius:4px;
+    position:absolute; color:#ffffff;
+    background:#d16b00;
+}
+.withTooltip:hover .tooltipContent{
+    display:inline;
+}
