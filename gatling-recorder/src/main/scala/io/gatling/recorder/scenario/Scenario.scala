@@ -42,11 +42,11 @@ object Scenario {
 		// Compute the pause elements
 		val arrivalTimes = sortedRequests.map(_._1)
 		val initTime = arrivalTimes.headOption.getOrElse(0l)
-		val timeBetweenEls = arrivalTimes.zip(initTime +: arrivalTimes).map { case (t2, t1) => t2 - t1 }
+		val timeBetweenEls = arrivalTimes.zip(initTime +: arrivalTimes).map { case (t2, t1) => (t2 - t1).milliseconds }
 		val liftedRequestsWithPause = sortedRequests.zip(timeBetweenEls).map {
 			case ((arrivalTime, request), lag) =>
-				if (lag > 50) // TODO NICO - set a config for that
-					(arrivalTime, Vector(new PauseElement(lag milliseconds), request))
+				if (lag > configuration.core.thresholdForPauseCreation)
+					(arrivalTime, Vector(new PauseElement(lag), request))
 				else
 					(arrivalTime, Vector(request))
 		}

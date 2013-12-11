@@ -59,5 +59,7 @@ class RecorderPropertiesBuilder {
 
 	def simulationClassName(className: String) { props += SIMULATION_CLASS_NAME -> className }
 
+	def thresholdForPauseCreation(threshold: String) { props += THRESHOLD_FOR_PAUSE_CREATION -> threshold }
+
 	def build = props
 }

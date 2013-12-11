@@ -40,4 +40,5 @@ object ConfigurationConstants {
 	val REQUEST_BODIES_FOLDER = "recorder.core.requestBodiesFolder"
 	val SIMULATION_PACKAGE = "recorder.core.package"
 	val SIMULATION_CLASS_NAME = "recorder.core.className"
+	val THRESHOLD_FOR_PAUSE_CREATION = "recorder.core.thresholdForPauseCreation"
 }

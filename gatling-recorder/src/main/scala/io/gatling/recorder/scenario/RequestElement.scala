@@ -47,7 +47,7 @@ object RequestElement {
 			if (containsFormParams) RequestBodyParams(parseFormBody(new String(content, configuration.core.encoding)))
 			else RequestBodyBytes(content))
 
-		RequestElement(request.getUri, request.getMethod.toString, headers, body, statusCode)
+		RequestElement(new String(request.getUri), request.getMethod.toString, headers, body, statusCode)
 	}
 }
 

@@ -16,16 +16,20 @@
 package io.gatling.recorder.controller
 
 import java.net.URI
-import java.util.concurrent.ConcurrentLinkedDeque
+
 import scala.collection.JavaConversions.collectionAsScalaIterable
 import scala.collection.mutable
+import scala.collection.mutable.{ ArrayBuffer, SynchronizedBuffer }
 import scala.concurrent.duration.DurationLong
 import scala.reflect.io.Path.string2path
 import scala.tools.nsc.io.File
+
 import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
+
 import com.ning.http.util.Base64
 import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.recorder.{ Har, Proxy }
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.configuration
@@ -33,9 +37,6 @@ import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.GatlingHttpProxy
 import io.gatling.recorder.scenario.{ RequestElement, Scenario, ScenarioExporter, TagElement }
 import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
-import io.gatling.recorder.util.RedirectHelper
-import scala.collection.mutable.SynchronizedBuffer
-import scala.collection.mutable.ArrayBuffer
 
 object RecorderController {
 
@@ -53,9 +54,9 @@ class RecorderController extends Logging {
 
 	// Can use ConcurrentLinkedDeque when dropping support of JDK6
 	// Collection of tuples, (arrivalTime, request)
-	private val currentRequests = new ArrayBuffer[(Long, RequestElement)] with SynchronizedBuffer[(Long, RequestElement)]
+	private val currentRequests = new mutable.ArrayBuffer[(Long, RequestElement)] with mutable.SynchronizedBuffer[(Long, RequestElement)]
 	// Collection of tuples, (arrivalTime, tag)
-	private val currentTags = new ArrayBuffer[(Long, TagElement)] with SynchronizedBuffer[(Long, TagElement)]
+	private val currentTags = new mutable.ArrayBuffer[(Long, TagElement)] with mutable.SynchronizedBuffer[(Long, TagElement)]
 
 	frontEnd.init
 
@@ -109,7 +110,7 @@ class RecorderController extends Logging {
 		// TODO NICO - that's not the appropriate place to synchronize !
 		synchronized {
 			// If Outgoing Proxy set, we record the credentials to use them when sending the request
-			Option(request.headers.get(PROXY_AUTHORIZATION)).map {
+			Option(request.headers.get(PROXY_AUTHORIZATION)).foreach {
 				header =>
 					// Split on " " and take 2nd group (Basic credentialsInBase64==)
 					val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
@@ -132,11 +133,11 @@ class RecorderController extends Logging {
 
 			// Notify the frontend
 			previousArrivalTime.foreach { t =>
-				val delta = arrivalTime - t
-				if (delta > 50) // TODO NICO : config required for this !
-					frontEnd.receiveEventInfo(PauseInfo(delta milliseconds))
+				val delta = (arrivalTime - t).milliseconds
+				if (delta > configuration.core.thresholdForPauseCreation)
+					frontEnd.receiveEventInfo(PauseInfo(delta))
 			}
-			frontEnd.receiveEventInfo(RequestInfo(request, response)) /// TODO NICO: why does the frontend need to know about the response ?
+			frontEnd.receiveEventInfo(RequestInfo(request, response))
 		}
 	}
 
