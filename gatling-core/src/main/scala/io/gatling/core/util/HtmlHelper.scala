@@ -19,8 +19,6 @@ import java.util.ResourceBundle
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 
-import io.gatling.core.util.FileHelper.FileRichString
-
 object HtmlHelper {
 
 	val entities = ResourceBundle.getBundle("html-entities")

@@ -21,8 +21,7 @@ import scala.concurrent.forkjoin.ThreadLocalRandom
 
 import org.apache.commons.math3.distribution.ExponentialDistribution
 
-import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
-import io.gatling.core.validation.SuccessWrapper
+import io.gatling.core.session.{ Expression, ExpressionWrapper }
 
 sealed abstract class PauseType {
 	def generator(duration: Duration): Expression[Long] = generator(duration.expression)

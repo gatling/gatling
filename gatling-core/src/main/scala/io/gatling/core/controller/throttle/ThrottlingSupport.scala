@@ -15,8 +15,8 @@
  */
 package io.gatling.core.controller.throttle
 
-import scala.concurrent.duration._
 import scala.annotation.tailrec
+import scala.concurrent.duration.Duration
 
 trait ThrottleStep {
 

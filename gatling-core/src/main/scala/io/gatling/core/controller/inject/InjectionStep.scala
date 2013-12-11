@@ -18,6 +18,8 @@ package io.gatling.core.controller.inject
 import scala.concurrent.duration.{ DurationLong, FiniteDuration }
 import scala.math.{ abs, sqrt }
 
+import io.gatling.core.util.Erf.erfinv
+
 trait InjectionStep {
 	/**
 	 * Iterator of time deltas in between any injected user and the beginning of the simulation

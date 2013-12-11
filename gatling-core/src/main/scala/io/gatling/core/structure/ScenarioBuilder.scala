@@ -15,7 +15,6 @@
  */
 package io.gatling.core.structure
 
-import scala.annotation.migration
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.action.UserEnd

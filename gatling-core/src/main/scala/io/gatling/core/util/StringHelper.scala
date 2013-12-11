@@ -15,7 +15,6 @@
  */
 package io.gatling.core.util
 
-import java.nio.charset.Charset
 import java.text.Normalizer
 
 import com.dongxiguo.fastring.Fastring.Implicits._

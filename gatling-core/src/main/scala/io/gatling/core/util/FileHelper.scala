@@ -18,7 +18,7 @@ package io.gatling.core.util
 import java.security.MessageDigest
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.StringHelper._
+import io.gatling.core.util.StringHelper.{ RichString, bytes2Hex }
 
 /**
  * This object groups all utilities for files

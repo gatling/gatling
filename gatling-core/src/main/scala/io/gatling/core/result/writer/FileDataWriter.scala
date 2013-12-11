@@ -16,8 +16,9 @@
 package io.gatling.core.result.writer
 
 import java.io.FileOutputStream
+
 import com.dongxiguo.fastring.Fastring.Implicits._
-import com.typesafe.scalalogging.slf4j.Logging
+
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.Group

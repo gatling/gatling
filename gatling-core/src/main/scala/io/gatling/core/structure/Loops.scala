@@ -17,13 +17,12 @@ package io.gatling.core.structure
 
 import java.util.UUID
 
-import scala.collection.immutable.Stream
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.action.builder.{ SessionHookBuilder, WhileBuilder }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.ChainBuilder.chainOf
-import io.gatling.core.util.TimeHelper.{ nanosSinceReference, nowMillis }
+import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.SuccessWrapper
 
 object Loops {

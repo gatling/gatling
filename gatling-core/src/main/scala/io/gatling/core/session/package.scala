@@ -16,7 +16,7 @@
 package io.gatling.core
 
 import io.gatling.core.session.Session
-import io.gatling.core.validation.{ noneSuccess, SuccessWrapper, Validation }
+import io.gatling.core.validation.{ SuccessWrapper, Validation, noneSuccess }
 
 package object session {
 

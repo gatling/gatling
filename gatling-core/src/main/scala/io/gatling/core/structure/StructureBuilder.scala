@@ -15,9 +15,8 @@
  */
 package io.gatling.core.structure
 
-import io.gatling.core.config.ProtocolRegistry
-
 import akka.actor.ActorRef
+import io.gatling.core.config.ProtocolRegistry
 
 /**
  * This class defines most of the scenario related DSL

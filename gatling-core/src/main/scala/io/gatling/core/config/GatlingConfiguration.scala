@@ -16,12 +16,15 @@
 package io.gatling.core.config
 
 import java.nio.charset.Charset
+
 import scala.collection.JavaConversions.mapAsJavaMap
 import scala.collection.mutable
+import scala.io.Codec
+
 import com.typesafe.config.{ Config, ConfigFactory }
+
 import io.gatling.core.ConfigurationConstants._
 import io.gatling.core.util.StringHelper.RichString
-import scala.io.Codec
 
 /**
  * Configuration loader of Gatling

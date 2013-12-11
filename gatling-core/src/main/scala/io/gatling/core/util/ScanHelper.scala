@@ -20,7 +20,7 @@ import java.net.{ JarURLConnection, URI }
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 import scala.tools.nsc.io.{ File, Fileish, Jar, Path }
-import scala.tools.nsc.io.Path.{ string2path, jfile2path }
+import scala.tools.nsc.io.Path.{ jfile2path, string2path }
 
 import org.apache.commons.io.IOUtils
 

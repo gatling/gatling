@@ -23,8 +23,8 @@ import org.joda.time.format.DateTimeFormat
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-import io.gatling.core.util.StringHelper.{ RichString, eol }
 import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.util.StringHelper.{ RichString, eol }
 
 object ConsoleSummary {
 

@@ -16,8 +16,6 @@
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder.ActionBuilder
-import akka.actor.ActorRef
-import io.gatling.core.config.ProtocolRegistry
 
 object ChainBuilder {
 	val empty = new ChainBuilder(Nil)
