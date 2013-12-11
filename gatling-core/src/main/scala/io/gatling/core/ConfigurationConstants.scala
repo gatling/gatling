@@ -96,6 +96,8 @@ object ConfigurationConstants {
 	val CONF_HTTP_AHC_USER_AGENT = "gatling.http.ahc.userAgent"
 	val CONF_HTTP_AHC_USE_RAW_URL = "gatling.http.ahc.useRawUrl"
 	val CONF_HTTP_AHC_RFC6265_COOKIE_ENCODING = "gatling.http.ahc.rfc6265CookieEncoding"
+	val CONF_HTTP_AHC_WEBSOCKET_IDLE_TIMEOUT_IN_MS = "gatling.http.ahc.webSocketIdleTimeoutInMs"
+	val CONF_HTTP_AHC_USE_RELATIVE_URIS_WITH_SSL_PROXIES = "gatling.http.ahc.useRelativeURIsWithSSLProxies"
 
 	val CONF_DATA_WRITER_CLASS_NAMES = "gatling.data.writers"
 	val CONF_DATA_READER_CLASS_NAME = "gatling.data.reader"
