@@ -54,7 +54,7 @@ case class HttpAttributes(
 	ignoreDefaultChecks: Boolean = false,
 	responseTransformer: Option[ResponseTransformer] = None,
 	maxRedirects: Option[Int] = None,
-	useRawUrl: Boolean = false,
+	useRawUrl: Option[Boolean] = None,
 	proxy: Option[ProxyServer] = None,
 	secureProxy: Option[ProxyServer] = None,
 	explicitResources: Seq[AbstractHttpRequestBuilder[_]] = Nil,
@@ -159,7 +159,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 	def maxRedirects(max: Int): B = newInstance(httpAttributes.copy(maxRedirects = Some(max)))
 
-	def useRawUrl: B = newInstance(httpAttributes.copy(useRawUrl = true))
+	def useRawUrl: B = newInstance(httpAttributes.copy(useRawUrl = Some(true)))
 
 	def proxy(httpProxy: Proxy): B = newInstance(httpAttributes.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
 
@@ -276,7 +276,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 				case None => requestBuilder.success
 			}
 
-		implicit val requestBuilder = new RequestBuilder(httpAttributes.method, configuration.http.ahc.useRawUrl).setBodyEncoding(configuration.core.encoding)
+		val useRawUrl = httpAttributes.useRawUrl.getOrElse(configuration.http.ahc.useRawUrl)
+		implicit val requestBuilder = new RequestBuilder(httpAttributes.method, useRawUrl).setBodyEncoding(configuration.core.encoding)
 
 		if (!protocol.shareConnections) requestBuilder.setConnectionPoolKeyStrategy(new ConnectionPoolKeyStrategy(session))
 
