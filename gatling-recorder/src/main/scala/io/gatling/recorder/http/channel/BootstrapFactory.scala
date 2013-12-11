@@ -35,7 +35,7 @@ object BootstrapFactory {
 
 	private val serverChannelFactory = new NioServerSocketChannelFactory
 
-	def newClientBootstrap(controller: RecorderController, requestContext: ChannelHandlerContext, browserRequest: HttpRequest, ssl: Boolean): ClientBootstrap = {
+	def newClientBootstrap(controller: RecorderController, requestContext: ChannelHandlerContext, browserRequest: HttpRequest, ssl: Boolean, expectConnect: Boolean): ClientBootstrap = {
 		val bootstrap = new ClientBootstrap(clientChannelFactory)
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory {
 			def getPipeline: ChannelPipeline = {
@@ -46,7 +46,7 @@ object BootstrapFactory {
 				pipeline.addLast("codec", new HttpClientCodec)
 				pipeline.addLast("inflater", new HttpContentDecompressor)
 				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
-				pipeline.addLast("gatling", new ServerHttpResponseHandler(controller, requestContext, browserRequest))
+				pipeline.addLast("gatling", new ServerHttpResponseHandler(controller, requestContext, browserRequest, expectConnect))
 
 				pipeline
 			}

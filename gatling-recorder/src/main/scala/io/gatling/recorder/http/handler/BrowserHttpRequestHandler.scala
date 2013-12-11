@@ -29,7 +29,7 @@ class BrowserHttpRequestHandler(controller: RecorderController) extends Abstract
 
 	def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest) {
 
-		val bootstrap = newClientBootstrap(controller, requestContext, request, false)
+		val bootstrap = newClientBootstrap(controller, requestContext, request, false, false)
 
 		val (proxyHost, proxyPort) = (for {
 			host <- configuration.proxy.outgoing.host

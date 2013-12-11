@@ -26,8 +26,10 @@ import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory
 import io.gatling.recorder.util.URIHelper
 
-class ServerHttpResponseHandler(controller: RecorderController, requestContext: ChannelHandlerContext, request: HttpRequest) extends SimpleChannelHandler with Logging {
+class ServerHttpResponseHandler(controller: RecorderController, requestContext: ChannelHandlerContext, request: HttpRequest, var expectConnect: Boolean) extends SimpleChannelHandler with Logging {
 
+	
+	
 	def buildRequestWithRelativeURI(request: HttpRequest) = {
 
 		val (_, pathQuery) = URIHelper.splitURI(request.getUri)
@@ -44,7 +46,8 @@ class ServerHttpResponseHandler(controller: RecorderController, requestContext: 
 
 		event.getMessage match {
 			case response: HttpResponse =>
-				if (response.getStatus().getReasonPhrase.contains("Connection established")) {
+				if (expectConnect) {
+					expectConnect = false
 					BootstrapFactory.upgradeProtocol(context.getChannel.getPipeline, controller, context, request)
 					context.getChannel.write(buildRequestWithRelativeURI(request))
 
