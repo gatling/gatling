@@ -34,6 +34,8 @@ import io.gatling.recorder.http.GatlingHttpProxy
 import io.gatling.recorder.scenario.{ RequestElement, Scenario, ScenarioExporter, TagElement }
 import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
 import io.gatling.recorder.util.RedirectHelper
+import scala.collection.mutable.SynchronizedBuffer
+import scala.collection.mutable.ArrayBuffer
 
 object RecorderController {
 
@@ -49,10 +51,11 @@ class RecorderController extends Logging {
 
 	@volatile private var proxy: GatlingHttpProxy = _
 
+	// Can use ConcurrentLinkedDeque when dropping support of JDK6
 	// Collection of tuples, (arrivalTime, request)
-	private var currentRequests: ConcurrentLinkedDeque[(Long, RequestElement)] = new ConcurrentLinkedDeque
+	private val currentRequests = new ArrayBuffer[(Long, RequestElement)] with SynchronizedBuffer[(Long, RequestElement)]
 	// Collection of tuples, (arrivalTime, tag)
-	private var currentTags: ConcurrentLinkedDeque[(Long, TagElement)] = new ConcurrentLinkedDeque
+	private val currentTags = new ArrayBuffer[(Long, TagElement)] with SynchronizedBuffer[(Long, TagElement)]
 
 	frontEnd.init
 
@@ -121,10 +124,11 @@ class RecorderController extends Logging {
 	def receiveResponse(request: HttpRequest, response: HttpResponse) {
 		if (configuration.filters.filters.map(_.accept(request.getUri)).getOrElse(true)) {
 			val arrivalTime = System.currentTimeMillis
-			val previousArrivalTime = Option(currentRequests.peekLast).map(_._1)
+
+			val previousArrivalTime = currentRequests.lastOption.map(_._1)
 
 			val requestEl = RequestElement(request, response.getStatus.getCode)
-			currentRequests.add(arrivalTime -> requestEl)
+			currentRequests += arrivalTime -> requestEl
 
 			// Notify the frontend
 			previousArrivalTime.foreach { t =>
@@ -137,7 +141,7 @@ class RecorderController extends Logging {
 	}
 
 	def addTag(text: String) {
-		currentTags.add(System.currentTimeMillis -> TagElement(text))
+		currentTags += System.currentTimeMillis -> TagElement(text)
 		frontEnd.receiveEventInfo(TagInfo(text))
 	}
 
