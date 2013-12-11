@@ -68,9 +68,13 @@ class BrowserHttpsRequestHandler(controller: RecorderController) extends Abstrac
 					// standard case
 					val bootstrap = newClientBootstrap(controller, ctx, request, true, false)
 
-					val connectFuture = bootstrap.connect(new InetSocketAddress(targetHostURI.getHost, targetHostURI.getPort))
-					val handshakeFuture = connectFuture.getChannel.getPipeline.get(BootstrapFactory.SSL_HANDLER_NAME).asInstanceOf[SslHandler].handshake
-					handshakeFuture.getChannel.write(buildRequestWithRelativeURI(request))
+					bootstrap.connect(new InetSocketAddress(targetHostURI.getHost, targetHostURI.getPort))
+						.addListener { connectFuture: ChannelFuture =>
+							connectFuture.getChannel.getPipeline.get(BootstrapFactory.SSL_HANDLER_NAME).asInstanceOf[SslHandler].handshake
+								.addListener { handshakeFuture: ChannelFuture =>
+									handshakeFuture.getChannel.write(buildRequestWithRelativeURI(request))
+								}
+						}
 
 				case Some((outGoingProxyHost, outGoingProxyPort)) =>
 					// have to CONNECT over HTTP, before performing request over HTTPS
