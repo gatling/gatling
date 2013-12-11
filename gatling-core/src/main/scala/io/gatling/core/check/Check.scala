@@ -43,8 +43,8 @@ trait Check[R] {
 
 case class CheckBase[R, P, X](
 	preparer: Preparer[R, P],
-	extractor: Expression[Extractor[P, X]],
-	validator: Expression[Validator[X]],
+	extractorExpression: Expression[Extractor[P, X]],
+	validatorExpression: Expression[Validator[X]],
 	saveAs: Option[String]) extends Check[R] {
 
 	def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[Session => Session] = {
@@ -60,8 +60,8 @@ case class CheckBase[R, P, X](
 			.asInstanceOf[Validation[P]]
 
 		for {
-			extractor <- extractor(session).mapError(message => s"Check extractor resolution crashed: $message")
-			validator <- validator(session).mapError(message => s"Check validator resolution crashed: $message")
+			extractor <- extractorExpression(session).mapError(message => s"Check extractor resolution crashed: $message")
+			validator <- validatorExpression(session).mapError(message => s"Check validator resolution crashed: $message")
 			prepared <- memoizedPrepared.mapError(message => s"${extractor.name}.${validator.name} failed, could not prepare: $message")
 			actual <- extractor(prepared).mapError(message => s"${extractor.name}.${validator.name} failed, could not extract: $message")
 			matched <- validator(actual).mapError(message => s"${extractor.name}.${validator.name}: $message")
