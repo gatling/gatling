@@ -105,6 +105,8 @@ class HttpEngine extends AkkaDefaults with Logging {
 			.setAsyncHttpClientProviderConfig(provider.config)
 			.setConnectionsPool(provider.connectionsPool)
 			.setRfc6265CookieEncoding(configuration.http.ahc.rfc6265CookieEncoding)
+			.setWebSocketIdleTimeoutInMs(configuration.http.ahc.webSocketIdleTimeoutInMs)
+			.setUseRelativeURIsWithSSLProxies(configuration.http.ahc.useRelativeURIsWithSSLProxies)
 
 		val trustManagers = configuration.http.ssl.trustStore
 			.map(config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm))
