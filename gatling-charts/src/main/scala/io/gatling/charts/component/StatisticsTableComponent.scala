@@ -25,9 +25,9 @@ import io.gatling.core.util.StringHelper.eol
 
 class StatisticsTableComponent extends Component {
 
-  private val MAX_REQUEST_NAME_SIZE = 20
-  private val NUMBER_OF_CHARS_BEFORE_DOTS = 8
-  private val NUMBER_OF_CHARS_AFTER_DOTS = 8
+	private val MAX_REQUEST_NAME_SIZE = 20
+	private val NUMBER_OF_CHARS_BEFORE_DOTS = 8
+	private val NUMBER_OF_CHARS_AFTER_DOTS = 8
 
 	val html = {
 
