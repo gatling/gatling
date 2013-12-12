@@ -101,9 +101,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
 	/* Frame setup */
 	title = "Gatling Recorder - Configuration"
-	minimumSize = (1024, 768)
 	resizable = true
-	centerOnScreen()
 	peer.setIconImages(iconList)
 
 	/* Layout setup */
@@ -255,7 +253,11 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 		layout(bottom) = South
 	}
 
-	contents = root
+	val scrollPane = new ScrollPane(root)
+
+	contents = scrollPane
+
+	centerOnScreen()
 
 	/*****************************************/
 	/**           EVENTS HANDLING           **/

@@ -61,8 +61,6 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with Logging {
 
 	/* Frame setup */
 	title = "Gatling Recorder - Running..."
-	minimumSize = (1024, 768)
-	centerOnScreen()
 	peer.setIconImages(iconList)
 
 	/* Layout setup */
@@ -123,7 +121,11 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with Logging {
 		layout(bottom) = South
 	}
 
-	contents = root
+	val scrollPane = new ScrollPane(root)
+
+	contents = scrollPane
+
+	centerOnScreen()
 
 	/*****************************************/
 	/**           EVENTS HANDLING           **/
