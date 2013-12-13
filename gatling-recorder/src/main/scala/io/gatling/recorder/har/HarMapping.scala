@@ -43,7 +43,6 @@ object HarMapping {
 			buildRequest(entry.request), buildResponse(entry.response))
 
 	private def buildRequest(request: Json) = {
-		// FIXME : try early resolution of postData, to trigger the exception
 		val postData = Try(request.postData.toString).toOption.map(_ => request.postData)
 		Request(request.method, request.url, request.headers.map(buildHeader), postData.map(buildPostData))
 	}

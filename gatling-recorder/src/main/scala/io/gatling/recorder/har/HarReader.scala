@@ -18,6 +18,7 @@ package io.gatling.recorder.har
 import java.io.{ FileInputStream, InputStream }
 import java.net.URL
 
+import scala.concurrent.duration.DurationLong
 import scala.util.Try
 
 import io.gatling.core.util.IOHelper
@@ -27,6 +28,9 @@ import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams, RequestElement, Scenario }
 import io.gatling.recorder.util.Json
 
+/**
+ * Implementation according to http://www.softwareishard.com/blog/har-12-spec/
+ */
 object HarReader {
 
 	def apply(path: String): Scenario =
@@ -58,8 +62,8 @@ object HarReader {
 		// NetExport doesn't copy post params to text field
 		val body = entry.request.postData.map { postData =>
 			postData.text.trimToOption match {
-				// TODO NICO : shouldn't the encoding be taken from the Content-Type header ?
-				case Some(string) => RequestBodyBytes(string.getBytes(configuration.core.encoding))
+				// HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
+				case Some(string) => RequestBodyBytes(string.getBytes("UTF-8"))
 				case None => buildContent(postData.params)
 			}
 		}
