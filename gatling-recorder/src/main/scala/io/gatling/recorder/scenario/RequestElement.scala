@@ -43,9 +43,11 @@ object RequestElement {
 		} else None
 
 		val containsFormParams = headers.get(CONTENT_TYPE).exists(_.contains(APPLICATION_X_WWW_FORM_URLENCODED))
-		val body = content.map(content => if (containsFormParams) RequestBodyParams(parseFormBody(new String(content, configuration.core.encoding))) else RequestBodyBytes(content))
+		val body = content.map(content =>
+			if (containsFormParams) RequestBodyParams(parseFormBody(new String(content, configuration.core.encoding)))
+			else RequestBodyBytes(content))
 
-		RequestElement(request.getUri, request.getMethod.toString, headers, body, statusCode)
+		RequestElement(new String(request.getUri), request.getMethod.toString, headers, body, statusCode)
 	}
 }
 

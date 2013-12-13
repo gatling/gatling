@@ -16,7 +16,6 @@
 package io.gatling.recorder.scenario
 
 import java.io.{ FileOutputStream, IOException }
-import java.net.URI
 
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
@@ -27,11 +26,11 @@ import com.typesafe.scalalogging.slf4j.Logging
 
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.http.HeaderNames
-import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.scenario.template.SimulationTemplate
 
 object ScenarioExporter extends Logging {
+
 	private val EVENTS_GROUPING = 100
 
 	def getSimulationFileName: String = s"${configuration.core.className}.scala"
@@ -41,9 +40,9 @@ object ScenarioExporter extends Logging {
 		getFolder(path)
 	}
 
-	def saveScenario(scenarioElements: List[ScenarioElement]): Unit = {
+	def saveScenario(scenarioElements: Scenario): Unit = {
 		require(!scenarioElements.isEmpty)
-		
+
 		val output = renderScenarioAndDumpBodies(scenarioElements)
 
 		withCloseable(new FileOutputStream(File(getOutputFolder / getSimulationFileName).jfile)) {
@@ -51,22 +50,23 @@ object ScenarioExporter extends Logging {
 		}
 	}
 
-	private def renderScenarioAndDumpBodies(scenarioElements: List[ScenarioElement]): String = {
+	private def renderScenarioAndDumpBodies(scenario: Scenario): String = {
 		// Aggregate headers
 		val filteredHeaders = Set(HeaderNames.COOKIE, HeaderNames.CONTENT_LENGTH, HeaderNames.HOST) ++
 			(if (configuration.http.automaticReferer) Set(HeaderNames.REFERER) else Set.empty)
 
+		val scenarioElements = scenario.elements
 		val baseUrl = getBaseUrl(scenarioElements)
 		val baseHeaders = getBaseHeaders(scenarioElements)
 		val protocolConfigElement = new ProtocolElement(baseUrl, baseHeaders)
 
 		// extract the request elements and set all the necessary
-		val elementsList: List[ScenarioElement] = scenarioElements.map {
+		val elements = scenarioElements.map {
 			case reqEl: RequestElement => reqEl.makeRelativeTo(baseUrl)
 			case el => el
 		}
 
-		val requestElements: List[RequestElement] = elementsList.collect { case reqEl: RequestElement => reqEl }
+		val requestElements: Seq[RequestElement] = elements.collect { case reqEl: RequestElement => reqEl }
 			.zipWithIndex.map { case (reqEl, index) => reqEl.setId(index) }
 
 		// dump request body if needed
@@ -75,12 +75,12 @@ object ScenarioExporter extends Logging {
 			case _ =>
 		})
 
-		val headers: Map[Int, List[(String, String)]] = {
+		val headers: Map[Int, Seq[(String, String)]] = {
 
 			@tailrec
-			def generateHeaders(elements: List[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
-				case Nil => headers
-				case element :: others => {
+			def generateHeaders(elements: Seq[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
+				case Seq() => headers
+				case element +: others => {
 					val acceptedHeaders = element.headers.toList
 						.filterNot {
 							case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).exists(_ == headerValue)
@@ -112,12 +112,12 @@ object ScenarioExporter extends Logging {
 			SortedMap(generateHeaders(requestElements, Map.empty).toSeq: _*)
 		}
 
-		val newScenarioElements = getChains(elementsList)
+		val newScenarioElements = getChains(elements)
 
 		SimulationTemplate.render(configuration.core.pkg, configuration.core.className, protocolConfigElement, headers, "Scenario Name", newScenarioElements)
 	}
 
-	private def getBaseHeaders(scenarioElements: List[ScenarioElement]): Map[String, String] = {
+	private def getBaseHeaders(scenarioElements: Seq[ScenarioElement]): Map[String, String] = {
 		def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] =
 			getMostFrequentHeaderValue(scenarioElements, headerName)
 				.map(headerValue => appendTo + (headerName -> headerValue))
@@ -132,7 +132,7 @@ object ScenarioExporter extends Logging {
 		resolveBaseHeaders(Map.empty, ProtocolElement.baseHeaders.keySet.toList)
 	}
 
-	private def getBaseUrl(scenarioElements: List[ScenarioElement]): String = {
+	private def getBaseUrl(scenarioElements: Seq[ScenarioElement]): String = {
 		val urlsOccurrences = scenarioElements.collect {
 			case reqElm: RequestElement => reqElm.baseUrl
 		}.groupBy(identity).mapValues(_.size).toSeq
@@ -140,7 +140,7 @@ object ScenarioExporter extends Logging {
 		urlsOccurrences.maxBy(_._2)._1
 	}
 
-	private def getMostFrequentHeaderValue(scenarioElements: List[ScenarioElement], headerName: String): Option[String] = {
+	private def getMostFrequentHeaderValue(scenarioElements: Seq[ScenarioElement], headerName: String): Option[String] = {
 		val headers = scenarioElements.flatMap {
 			case reqElm: RequestElement => reqElm.headers.collect { case (name, value) if name == headerName => value }
 			case _ => Nil
@@ -154,7 +154,7 @@ object ScenarioExporter extends Logging {
 		}
 	}
 
-	private def getChains(scenarioElements: List[ScenarioElement]): Either[List[ScenarioElement], List[List[ScenarioElement]]] = {
+	private def getChains(scenarioElements: Seq[ScenarioElement]): Either[Seq[ScenarioElement], List[Seq[ScenarioElement]]] = {
 
 		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING)
 			Right(scenarioElements.grouped(ScenarioExporter.EVENTS_GROUPING).toList)

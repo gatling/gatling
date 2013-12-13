@@ -18,50 +18,36 @@ package io.gatling.recorder.har
 import java.io.{ FileInputStream, InputStream }
 import java.net.URL
 
-import scala.concurrent.duration.DurationLong
 import scala.util.Try
 
 import io.gatling.core.util.IOHelper
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.HeaderNames.CONTENT_TYPE
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.scenario.{ PauseElement, RequestBodyBytes, RequestBodyParams, RequestElement, ScenarioElement }
+import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams, RequestElement, Scenario }
 import io.gatling.recorder.util.Json
-import io.gatling.recorder.util.RedirectHelper.isRequestRedirect
 
 object HarReader {
 
-	def apply(path: String): List[ScenarioElement] =
+	def apply(path: String): Scenario =
 		IOHelper.withCloseable(new FileInputStream(path))(apply(_))
 
-	def apply(jsonStream: InputStream): List[ScenarioElement] =
+	def apply(jsonStream: InputStream): Scenario =
 		apply(Json.parseJson(jsonStream))
 
-	def apply(json: Json): List[ScenarioElement] = {
+	def apply(json: Json): Scenario = {
 		val HttpArchive(Log(entries)) = HarMapping.jsonToHttpArchive(json)
-		entries.iterator
+		val elements = entries.iterator
 			.filter(e => isValidURL(e.request.url))
-			// MOVE THIS OUT - we want a sequence of filters ... 
-			// the fetch resources need to be applied here too.
+			// TODO NICO : can't we move this in Scenario as well ?
 			.filter(e => configuration.filters.filters.map(_.accept(e.request.url)).getOrElse(true))
-			.flatMap(createScenarioElements(_))
-			.toList
+			.map(createRequestWithArrivalTime)
+			.toVector
+
+		Scenario(elements, Nil)
 	}
 
-	private def createScenarioElements(entry: Exchange): List[ScenarioElement] = {
-		if (isRequestRedirect(entry.response.status)) {
-			List()
-		} else {
-			val req = createRequest(entry)
-			// TODO we should have a configuration for that.
-			if (entry.lag <= 10) {
-				List(req)
-			} else
-				List(new PauseElement(entry.lag milliseconds), req)
-		}
-	}
-
-	private def createRequest(entry: Exchange): RequestElement = {
+	private def createRequestWithArrivalTime(entry: Entry) = {
 		def buildContent(postParams: Seq[PostParam]) =
 			RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
 
@@ -73,15 +59,15 @@ object HarReader {
 		val body = entry.request.postData.map { postData =>
 			postData.text.trimToOption match {
 				// TODO NICO : shouldn't the encoding be taken from the Content-Type header ?
-				case Some(string) => RequestBodyBytes(string.getBytes(configuration.core.encoding)) 
+				case Some(string) => RequestBodyBytes(string.getBytes(configuration.core.encoding))
 				case None => buildContent(postData.params)
 			}
 		}
 
-		RequestElement(uri, method, headers, body, entry.response.status)
+		(entry.arrivalTime, RequestElement(uri, method, headers, body, entry.response.status))
 	}
 
-	private def buildHeaders(entry: Exchange): Map[String, String] = {
+	private def buildHeaders(entry: Entry): Map[String, String] = {
 		val headers = entry.request.headers.map(h => (h.name, h.value)).toMap
 		// NetExport doesn't add Content-Type to headers when POSTing, but both Chrome Dev Tools and NetExport set mimeType
 		entry.request.postData.map(postData => headers.updated(CONTENT_TYPE, postData.mimeType)).getOrElse(headers)

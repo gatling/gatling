@@ -22,6 +22,4 @@ object RedirectHelper {
 	val redirectCodes = Seq(301, 302, 303)
 
 	def isRedirectCode(code: Int) = redirectCodes.contains(code)
-
-	def isRequestRedirect(currentStatus: Int): Boolean = configuration.http.followRedirect && isRedirectCode(currentStatus)
 }
