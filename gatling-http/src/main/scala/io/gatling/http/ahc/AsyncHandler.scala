@@ -17,11 +17,9 @@ package io.gatling.http.ahc
 
 import java.util.concurrent.atomic.AtomicBoolean
 
-import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, ProgressAsyncHandler }
+import com.ning.http.client.{ AsyncHandlerExtensions, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, ProgressAsyncHandler }
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
 import com.typesafe.scalalogging.slf4j.Logging
-
-import io.gatling.http.response.ResponseBuilder
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -32,10 +30,18 @@ import io.gatling.http.response.ResponseBuilder
  * @param tx the data about the request to be sent and processed
  * @param responseBuilder the builder for the response
  */
-class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with Logging {
+class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with Logging {
 
 	val responseBuilder = tx.responseBuilderFactory(tx.request)
 	private val done = new AtomicBoolean(false)
+
+	def onRequestSent {
+		responseBuilder.updateFirstByteSent
+	}
+
+	def onRetry {
+		responseBuilder.reset
+	}
 
 	def onHeaderWriteCompleted = {
 		if (!done.get) responseBuilder.updateLastByteSent

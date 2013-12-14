@@ -52,9 +52,9 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 
 	var built = new AtomicBoolean(false)
 
-	val firstByteSent = nowMillis
 	val computeChecksums = !checksumChecks.isEmpty
 	@volatile var storeHtmlOrCss = false
+	@volatile var firstByteSent = nowMillis
 	@volatile var lastByteSent = 0L
 	@volatile var firstByteReceived = 0L
 	@volatile var lastByteReceived = 0L
@@ -67,6 +67,17 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 		map
 	} else
 		Map.empty[String, MessageDigest]
+
+	def updateFirstByteSent {
+		firstByteSent = nowMillis
+	}
+
+	def reset {
+		firstByteSent = nowMillis
+		lastByteSent = 0L
+		firstByteReceived = 0L
+		lastByteReceived = 0L
+	}
 
 	def updateLastByteSent {
 		lastByteSent = nowMillis
