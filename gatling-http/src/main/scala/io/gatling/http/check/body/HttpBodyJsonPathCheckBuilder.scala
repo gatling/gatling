@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.body
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.jsonpath.{ CountJsonPathExtractor, JsonFilter, JsonPathExtractor, MultipleJsonPathExtractor, SingleJsonPathExtractor }
@@ -24,7 +24,7 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
 
-object HttpBodyJsonPathCheckBuilder extends Logging {
+object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
 	val preparer: Preparer[Response, Any] = (response: Response) =>
 		try {

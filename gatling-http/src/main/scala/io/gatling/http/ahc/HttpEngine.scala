@@ -18,7 +18,7 @@ package io.gatling.http.ahc
 import java.util.concurrent.{ Executors, ThreadFactory }
 
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import akka.actor.ActorRef
 import io.gatling.core.ConfigurationConstants._
@@ -45,7 +45,7 @@ case class HttpTx(session: Session,
 	resourceFetching: Boolean = false,
 	redirectCount: Int = 0)
 
-object HttpEngine extends AkkaDefaults with Logging {
+object HttpEngine extends AkkaDefaults with StrictLogging {
 
 	private var _instance: Option[HttpEngine] = None
 
@@ -63,7 +63,7 @@ object HttpEngine extends AkkaDefaults with Logging {
 	}
 }
 
-class HttpEngine extends AkkaDefaults with Logging {
+class HttpEngine extends AkkaDefaults with StrictLogging {
 
 	val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
 		override def newThread(r: Runnable) = {

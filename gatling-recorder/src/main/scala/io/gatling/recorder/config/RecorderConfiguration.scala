@@ -26,7 +26,7 @@ import scala.tools.nsc.io.File
 import scala.util.Properties.userHome
 
 import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
@@ -36,7 +36,7 @@ import io.gatling.recorder.config.ConfigurationConstants._
 import io.gatling.recorder.enumeration.FilterStrategy
 import io.gatling.recorder.enumeration.FilterStrategy.FilterStrategy
 
-object RecorderConfiguration extends Logging {
+object RecorderConfiguration extends StrictLogging {
 
 	implicit class IntOption(val value: Int) extends AnyVal {
 		def toOption = if (value != 0) Some(value) else None

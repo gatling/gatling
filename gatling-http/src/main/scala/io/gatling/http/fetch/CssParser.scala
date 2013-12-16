@@ -21,13 +21,13 @@ import scala.annotation.{ switch, tailrec }
 import scala.collection.TraversableOnce.flattenTraversableOnce
 import scala.util.matching.Regex
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.util.StringHelper.ensureCharCopy
 import io.gatling.http.util.HttpHelper
 import jodd.lagarto.dom.NodeSelector
 
-object CssParser extends Logging {
+object CssParser extends StrictLogging {
 
 	val inlineStyleImageUrls = """url\((.*)\)""".r
 	val styleImportsUrls = """@import.* url\((.*)\)""".r

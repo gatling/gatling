@@ -24,7 +24,7 @@ import scala.io.Codec.UTF8
 import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, FluentStringsMap, ProxyServer, Realm }
 import com.ning.http.client.Realm.AuthScheme
 import com.ning.http.util.AsyncHttpProviderUtils
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.Credentials
 import io.gatling.core.session.{ Expression, Session }
@@ -32,7 +32,7 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.request.builder.{ HttpParam, MultivaluedParam, ParamMap, ParamSeq, SimpleParam }
 
-object HttpHelper extends Logging {
+object HttpHelper extends StrictLogging {
 
 	val emptyParamListSuccess = List.empty[(String, String)].success
 

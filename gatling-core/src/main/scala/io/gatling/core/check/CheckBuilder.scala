@@ -15,7 +15,7 @@
  */
 package io.gatling.core.check
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.{ Expression, ExpressionWrapper, RichExpression }
@@ -38,7 +38,7 @@ trait MultipleExtractorCheckBuilder[C <: Check[R], R, P, T, X] extends Extractor
 case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
 	checkFactory: CheckFactory[C, R],
 	preparer: Preparer[R, P],
-	extractor: Expression[Extractor[P, X]]) extends Logging {
+	extractor: Expression[Extractor[P, X]]) extends StrictLogging {
 
 	def transform[X2](transformation: Option[X] => Option[X2]): ValidatorCheckBuilder[C, R, P, X2] = copy(extractor = extractor.map { extractor =>
 		new Extractor[P, X2] {

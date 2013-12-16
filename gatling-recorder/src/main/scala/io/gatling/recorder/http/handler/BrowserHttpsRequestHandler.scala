@@ -23,7 +23,7 @@ import org.jboss.netty.channel.{ ChannelFuture, ChannelHandlerContext }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
 import org.jboss.netty.handler.ssl.SslHandler
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.controller.RecorderController
@@ -31,7 +31,7 @@ import io.gatling.recorder.http.channel.BootstrapFactory
 import io.gatling.recorder.http.channel.BootstrapFactory.newClientBootstrap
 import io.gatling.recorder.http.ssl.SSLEngineFactory
 
-class BrowserHttpsRequestHandler(controller: RecorderController) extends AbstractBrowserRequestHandler(controller) with Logging {
+class BrowserHttpsRequestHandler(controller: RecorderController) extends AbstractBrowserRequestHandler(controller) with StrictLogging {
 
 	@volatile var targetHostURI: URI = _
 

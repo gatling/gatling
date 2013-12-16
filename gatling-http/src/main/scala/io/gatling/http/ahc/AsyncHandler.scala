@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import com.ning.http.client.{ AsyncHandlerExtensions, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, ProgressAsyncHandler }
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -30,7 +30,7 @@ import com.typesafe.scalalogging.slf4j.Logging
  * @param tx the data about the request to be sent and processed
  * @param responseBuilder the builder for the response
  */
-class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with Logging {
+class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with StrictLogging {
 
 	val responseBuilder = tx.responseBuilderFactory(tx.request)
 	private val done = new AtomicBoolean(false)

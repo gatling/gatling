@@ -26,7 +26,7 @@ import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
 import com.ning.http.util.Base64
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.recorder.{ Har, Proxy }
 import io.gatling.recorder.config.RecorderConfiguration
@@ -45,7 +45,7 @@ object RecorderController {
 	}
 }
 
-class RecorderController extends Logging {
+class RecorderController extends StrictLogging {
 
 	private val frontEnd = RecorderFrontend.newFrontend(this)
 

@@ -19,11 +19,11 @@ import scala.annotation.implicitNotFound
 
 import java.util.regex.Matcher
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.util.StringHelper.ensureCharCopy
 
-trait LowPriorityGroupExtractorImplicits extends Logging {
+trait LowPriorityGroupExtractorImplicits extends StrictLogging {
 
 	implicit val stringGroupExtractor = new GroupExtractor[String] {
 		def extract(matcher: Matcher): String = {

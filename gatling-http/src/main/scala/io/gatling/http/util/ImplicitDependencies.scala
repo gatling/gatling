@@ -20,7 +20,7 @@ import java.io.IOException
 import java.net.URI
 
 import com.ning.http.client.websocket.{ WebSocketListener, WebSocketUpgradeHandler }
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.result.message.Status
 import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
@@ -37,7 +37,7 @@ trait RequestLogger {
 }
 
 /** The default AsyncHttpClient WebSocket client. */
-object DefaultWebSocketClient extends WebSocketClient with Logging {
+object DefaultWebSocketClient extends WebSocketClient with StrictLogging {
 	def open(uri: URI, listener: WebSocketListener) {
 		HttpEngine.instance.defaultAHC.prepareGet(uri.toString).execute(
 			new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build())

@@ -20,7 +20,7 @@ import java.net.InetAddress
 import scala.collection.mutable
 
 import com.ning.http.client.{ ProxyServer, Request }
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.Proxy
 import io.gatling.core.filter.{ BlackList, Filter, Filters, WhiteList }
@@ -51,7 +51,7 @@ object HttpProtocolBuilder {
  * @param protocol the protocol being built
  * @param warmUpUrl a URL to be pinged in order to warm up the HTTP engine
  */
-case class HttpProtocolBuilder(protocol: HttpProtocol) extends Logging {
+case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
 
 	def baseURL(baseUrl: String): HttpProtocolBuilder = copy(protocol = protocol.copy(baseURLs = List(baseUrl)))
 	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*): HttpProtocolBuilder = copy(protocol = protocol.copy(baseURLs = baseUrl1 :: baseUrl2 :: baseUrls.toList))

@@ -18,12 +18,12 @@ package io.gatling.charts.component
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 
 import com.dongxiguo.fastring.Fastring
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.charts.component.impl.ComponentLibraryImpl
 import io.gatling.core.result.{ IntRangeVsTimePlot, IntVsTimePlot, PieSlice, Series }
 
-object ComponentLibrary extends Logging {
+object ComponentLibrary extends StrictLogging {
 
 	val instance: ComponentLibrary = {
 
