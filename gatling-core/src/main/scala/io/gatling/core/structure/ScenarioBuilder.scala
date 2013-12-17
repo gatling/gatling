@@ -38,7 +38,10 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = N
 
 	private[core] def getInstance = this
 
-	def inject(is: InjectionStep, iss: InjectionStep*) = new ProfiledScenarioBuilder(this, InjectionProfile(is +: iss))
+	def inject(iss: InjectionStep*) = {
+		if (iss.isEmpty) System.err.println(s"Scenario '$name' has no injection step.")
+		new ProfiledScenarioBuilder(this, InjectionProfile(iss))
+	}
 }
 
 case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) {
@@ -54,6 +57,7 @@ case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionPr
 	def pauses(pauseType: PauseType) = protocols(PauseProtocol(pauseType))
 
 	def throttle(throttlingBuilders: ThrottlingBuilder*) = {
+		if (throttlingBuilders.isEmpty) System.err.println(s"Scenario '${scenarioBuilder.name}' has an empty throttling definition.")
 		val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
 		protocols(ThrottlingProtocol(ThrottlingBuilder(steps).build))
 	}
