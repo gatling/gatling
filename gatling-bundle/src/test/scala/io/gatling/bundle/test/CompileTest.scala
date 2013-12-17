@@ -40,6 +40,9 @@ object CompileTest extends Simulation {
 		.acceptEncodingHeader("gzip,deflate,sdch")
 		.userAgentHeader("Mozilla/5.0 (X11; Linux i686) AppleWebKit/535.19 (KHTML, like Gecko) Ubuntu/12.04 Chromium/18.0.1025.151 Chrome/18.0.1025.151 Safari/535.19")
 		.check(bodyString.transform(_.map(_.size)).lessThan(100000))
+		.disableCaching
+		.disableWarmUp
+		.warmUp("http://gatling.io")
 		.fetchHtmlResources(aggressive = true, white = WhiteList(".*\\.html"))
 
 	val httpConfToVerifyUserProvidedInfoExtractors = http
@@ -199,6 +202,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			"a" -> exec(http("a").get("/")),
 			"b" -> exec(http("b").get("/")) //
 			)(exec(http("else").get("/")))
+		
 
 	val inject1 = nothingFor(10 milliseconds)
 	val inject2 = rampUsers(10).over(10 minutes)
@@ -215,6 +219,9 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		lambdaUser.inject(inject1, inject2).throttle(jumpToRps(20), reachRps(40) in (10 seconds), holdFor(30 seconds)))
 		.protocols(httpProtocol)
 		.pauses(uniformPausesPlusOrMinusPercentage(1))
+		.disablePauses
+		.constantPauses
+		.exponentialPauses
 		.assertions(
 			global.responseTime.mean.lessThan(50),
 			global.responseTime.max.between(50, 500),
