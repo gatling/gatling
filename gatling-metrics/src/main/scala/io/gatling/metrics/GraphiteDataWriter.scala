@@ -116,13 +116,13 @@ class GraphiteDataWriter extends DataWriter {
 			}
 
 			def sendRequestMetrics(path: List[String], requestMetrics: RequestMetrics) {
-				val rootPath = MetricPath(sanitizeStringList(path))
+				val metricPath = MetricPath(sanitizeStringList(path))
 
 				val (okMetrics, koMetrics, allMetrics) = requestMetrics.metrics
 
-				sendMetrics(rootPath + "ok", okMetrics)
-				sendMetrics(rootPath + "ko", koMetrics)
-				sendMetrics(rootPath + "all", allMetrics)
+				sendMetrics(metricPath + "ok", okMetrics)
+				sendMetrics(metricPath + "ko", koMetrics)
+				sendMetrics(metricPath + "all", allMetrics)
 
 				requestMetrics.reset
 			}
