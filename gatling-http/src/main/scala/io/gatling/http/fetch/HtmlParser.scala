@@ -19,7 +19,7 @@ import java.net.{ URI, URISyntaxException }
 
 import scala.collection.{ breakOut, mutable }
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.http.util.HttpHelper
 import jodd.lagarto.{ EmptyTagVisitor, LagartoParser, Tag }
@@ -36,7 +36,7 @@ case class RegularRawResource(rawUrl: String) extends RawResource {
 	def toEmbeddedResource(rootURI: URI): Option[EmbeddedResource] = uri(rootURI).map(RegularResource)
 }
 
-object HtmlParser extends Logging {
+object HtmlParser extends StrictLogging {
 
 	def getEmbeddedResources(documentURI: URI, htmlContent: String): List[EmbeddedResource] = {
 

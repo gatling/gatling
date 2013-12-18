@@ -18,7 +18,7 @@ package io.gatling.core.action.builder
 import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
@@ -29,7 +29,7 @@ import io.gatling.core.session.Expression
 import io.gatling.core.structure.ChainBuilder
 import io.gatling.core.validation.SuccessWrapper
 
-class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder with Logging {
+class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder with StrictLogging {
 
 	val sum = possibilities.map(_._1).sum
 	require(sum <= 100, "Can't build a random switch with percentage sum > 100")

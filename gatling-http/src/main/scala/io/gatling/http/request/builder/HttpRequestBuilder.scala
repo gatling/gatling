@@ -21,7 +21,7 @@ import com.ning.http.client.{ Realm, RequestBuilder }
 import com.ning.http.client.ProxyServer
 import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.multipart.Part
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Proxy
@@ -77,7 +77,7 @@ object AbstractHttpRequestBuilder {
  *
  * @param httpAttributes the base HTTP attributes
  */
-abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpAttributes: HttpAttributes) extends Logging {
+abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](val httpAttributes: HttpAttributes) extends StrictLogging {
 
 	/**
 	 * Method overridden in children to create a new instance of the correct type

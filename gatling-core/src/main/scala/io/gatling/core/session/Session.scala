@@ -17,7 +17,7 @@ package io.gatling.core.session
 
 import scala.reflect.ClassTag
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.el.ELMessages
@@ -62,7 +62,7 @@ case class Session(
 	groupStack: List[GroupStackEntry] = Nil,
 	statusStack: List[Status] = List(OK),
 	interruptStack: List[PartialFunction[Session, Unit]] = Nil,
-	counterStack: List[String] = Nil) extends Logging {
+	counterStack: List[String] = Nil) extends StrictLogging {
 
 	import SessionPrivateAttributes._
 

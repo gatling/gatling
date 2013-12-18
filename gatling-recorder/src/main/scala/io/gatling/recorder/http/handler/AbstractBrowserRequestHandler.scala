@@ -21,14 +21,14 @@ import org.jboss.netty.channel.{ ChannelFuture, ChannelFutureListener, ChannelHa
 import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
 
 import com.ning.http.util.Base64
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.http.HeaderNames
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.util.URIHelper
 
-abstract class AbstractBrowserRequestHandler(controller: RecorderController) extends SimpleChannelHandler with Logging {
+abstract class AbstractBrowserRequestHandler(controller: RecorderController) extends SimpleChannelHandler with StrictLogging {
 
 	implicit def function2ChannelFutureListener(thunk: ChannelFuture => Any) = new ChannelFutureListener {
 		def operationComplete(future: ChannelFuture) { thunk(future) }

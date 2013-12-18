@@ -29,7 +29,7 @@
  */
 package io.gatling.http.action
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import akka.actor.{ ActorContext, ActorRef }
 import akka.actor.ActorDSL.actor
@@ -45,7 +45,7 @@ import io.gatling.http.referer.RefererHandling
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder
 
-object HttpRequestAction extends Logging {
+object HttpRequestAction extends StrictLogging {
 
 	def beginHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext) {
 

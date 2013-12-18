@@ -22,14 +22,14 @@ import scala.tools.nsc.io.Directory
 import scala.tools.nsc.io.Path.string2path
 import scala.util.Try
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import com.typesafe.zinc.{ Compiler, IncOptions, Inputs, Setup }
 
 import xsbti.{ F0, Logger }
 import xsbti.api.Compilation
 import xsbti.compile.CompileOrder
 
-object ZincCompiler extends Logging {
+object ZincCompiler extends StrictLogging {
 
 	def main(args: Array[String]) {
 

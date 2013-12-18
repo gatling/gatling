@@ -20,7 +20,7 @@ import java.io.{ FileInputStream, InputStream }
 import scala.collection.mutable
 import scala.io.Source
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.charts.result.reader.buffers.{ CountBuffer, GeneralStatsBuffer, RangeBuffer }
 import io.gatling.charts.result.reader.stats.StatsHelper
@@ -40,7 +40,7 @@ object FileDataReader {
 	val simulationFilesNamePattern = """.*\.log"""
 }
 
-class FileDataReader(runUuid: String) extends DataReader(runUuid) with Logging {
+class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLogging {
 
 	println("Parsing log file(s)...")
 

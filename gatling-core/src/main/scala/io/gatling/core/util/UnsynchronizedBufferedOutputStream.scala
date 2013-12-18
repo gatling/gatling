@@ -17,9 +17,9 @@ package io.gatling.core.util
 
 import java.io.OutputStream
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
-class UnsynchronizedBufferedOutputStream(os: OutputStream, bufferSize: Int) extends Logging {
+class UnsynchronizedBufferedOutputStream(os: OutputStream, bufferSize: Int) extends StrictLogging {
 
 	private var bufferPosition = 0
 	private val buffer = new Array[Byte](bufferSize)

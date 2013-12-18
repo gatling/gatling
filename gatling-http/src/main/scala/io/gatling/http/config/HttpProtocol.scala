@@ -18,7 +18,7 @@ package io.gatling.http.config
 import java.net.InetAddress
 
 import com.ning.http.client.{ ProxyServer, Realm, Request, RequestBuilder }
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Protocol
@@ -91,7 +91,7 @@ case class HttpProtocol(
 	htmlResourcesFetchingMode: Option[HtmlResourcesFetchingMode],
 	htmlResourcesFetchingFilters: Option[Filters],
 	maxConnectionsPerHost: Int,
-	extraInfoExtractor: Option[(String, Status, Session, Request, Response) => List[Any]]) extends Protocol with Logging {
+	extraInfoExtractor: Option[(String, Status, Session, Request, Response) => List[Any]]) extends Protocol with StrictLogging {
 
 	val roundRobinUrls = RoundRobin(baseURLs.toArray)
 

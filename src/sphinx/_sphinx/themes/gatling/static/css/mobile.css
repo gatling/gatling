@@ -1,0 +1,67 @@
+#logos {
+	height:auto;
+	background:#eee;
+	text-align:center;
+	width:90%;
+	margin:10px auto;
+}
+#paddles .span4 { height:auto; min-height:auto; }
+html>body #paddles .span4 { height:auto; min-height:0; }
+
+#header nav {
+
+	position:relative;
+	left:0px;
+	top:0;
+	width:100%;
+	display:block;
+	clear:both;;
+}
+ul#header-zone {
+
+	position:relative;
+	display:block;
+	width:100%;
+	clear:both;
+	background:none;
+}
+#header a.logo:link, #header a.logo:visited, #header a.logo:hover {
+
+	position:relative;
+	left:0;
+	top:0;
+	width:100%;
+	display:block;
+	clear:both;
+}
+#header {
+	height:auto;
+	background:#e8e7e2;
+}
+#header nav ol li { border:none; }
+#slider .arrow-left, #slider .arrow-right {
+	top:5px;
+	width:24px;
+	height:24px;
+}
+#slider .arrow-left {
+	left:5px;
+	background:url(../img/slider-arrow-left-off-small.png) left top no-repeat;
+}
+#slider .arrow-left:hover {	background:url(../img/slider-arrow-left-on-small.png) left top no-repeat; }
+#slider .arrow-right {
+	right:5px;
+	background:url(../img/slider-arrow-right-off-small.png) left top no-repeat;
+}
+#slider .arrow-right:hover { background:url(../img/slider-arrow-right-on-small.png) left top no-repeat; }
+#slider .slide div > .span4 img,
+#slider .slide div > .span5 img,
+#slider .slide div > .span6 img,
+#slider .slide div > .span7 img,
+#slider .slide div > .span8 img,
+#slider .slide div > .span9 img,
+#slider .slide div > .span10 img,
+#slider .slide div > .span11 img,
+#slider .slide div > .span12 img {
+	display:none;
+}

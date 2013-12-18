@@ -22,14 +22,14 @@ import scala.swing.ListView.IntervalMode.Single
 import scala.swing.Swing.pair2Dimension
 import scala.swing.event.ListSelectionChanged
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.recorder.ui._
 import io.gatling.recorder.ui.swing.component.TextAreaPanel
 import io.gatling.recorder.ui.swing.Commons.iconList
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
-class RunningFrame(frontend: RecorderFrontend) extends MainFrame with Logging {
+class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogging {
 
 	/************************************/
 	/**           COMPONENTS           **/

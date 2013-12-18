@@ -23,7 +23,7 @@ import scala.collection.concurrent
 import scala.collection.mutable
 
 import com.ning.http.client.Request
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.action.GroupEnd
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.filter.Filters
@@ -51,7 +51,7 @@ case class CssResourceFetched(uri: URI, status: Status, sessionUpdates: Session 
 
 case class InferredPageResources(expire: String, requests: List[NamedRequest])
 
-object ResourceFetcher extends Logging {
+object ResourceFetcher extends StrictLogging {
 
 	val cssContentCache: concurrent.Map[URI, List[EmbeddedResource]] = new ConcurrentHashMapV8[URI, List[EmbeddedResource]]
 	val inferredResourcesCache: concurrent.Map[(HttpProtocol, URI), InferredPageResources] = new ConcurrentHashMapV8[(HttpProtocol, URI), InferredPageResources]

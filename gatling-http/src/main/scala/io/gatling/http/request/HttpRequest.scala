@@ -30,7 +30,7 @@
 package io.gatling.http.request
 
 import com.ning.http.client.Request
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ Failure, Success }
@@ -39,7 +39,7 @@ import io.gatling.http.config.HttpProtocol
 import io.gatling.http.fetch.NamedRequest
 import io.gatling.http.response.ResponseTransformer
 
-object HttpRequest extends Logging {
+object HttpRequest extends StrictLogging {
 
 	def buildNamedRequests(resources: Seq[HttpRequest], session: Session): List[NamedRequest] = resources.foldLeft(List.empty[NamedRequest]) { (acc, res) =>
 

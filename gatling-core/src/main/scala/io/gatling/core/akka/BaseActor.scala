@@ -17,7 +17,7 @@ package io.gatling.core.akka
 
 import scala.concurrent.duration.DurationInt
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import akka.actor.{ Actor, Terminated }
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -27,7 +27,7 @@ object BaseActor {
 	val timeout = configuration.core.timeOut.simulation seconds
 }
 
-abstract class BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with Logging {
+abstract class BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with StrictLogging {
 
 	override def preStart {
 		context.setReceiveTimeout(BaseActor.timeout)

@@ -8,7 +8,12 @@ import sys, os
 # Extensions #
 ##############
 
-extensions = []
+extensions = ['sphinx.ext.todo', 'sphinx.ext.extlinks']
+todo_include_todos = True
+extlinks = {
+	"issue" : ("https://github.com/excilys/gatling/issues/%s", "#"),
+	"version" : ("https://github.com/excilys/gatling/issues?milestone=%s&state=closed", None)
+}
 
 ################
 # Project info #
@@ -26,12 +31,15 @@ release = version
 master_doc = 'index'
 add_function_parentheses = False
 highlight_language = 'scala'
+exclude_patterns = ['_build']
 nitpicky = True
 
 ###############
 # HTML output #
 ###############
 
+html_theme = 'gatling'
+html_theme_path = ['_sphinx/themes']
 html_title = "Gatling documentation"
 html_domain_indices = False
 html_use_index = False

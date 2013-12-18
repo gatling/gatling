@@ -17,7 +17,7 @@ package io.gatling.jdbc.result.writer
 
 import java.sql.{ Connection, Date => SQLDate, DriverManager, PreparedStatement, ResultSet }
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, UserMessage, ShortScenarioDescription }
@@ -35,7 +35,7 @@ object JdbcDataWriter {
  *
  * It writes the data of the simulation to a database
  */
-class JdbcDataWriter extends DataWriter with Logging {
+class JdbcDataWriter extends DataWriter with StrictLogging {
 
 	import JdbcDataWriter._
 

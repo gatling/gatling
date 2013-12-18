@@ -20,7 +20,7 @@ import java.lang.System.currentTimeMillis
 import scala.collection.mutable
 import scala.util.Try
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.app.CommandLineConstants._
 import io.gatling.charts.report.ReportsGenerator
@@ -77,7 +77,7 @@ object Gatling {
 
 }
 
-class Gatling(simulationClass: Option[Class[Simulation]]) extends Logging {
+class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging {
 
 	def start = {
 

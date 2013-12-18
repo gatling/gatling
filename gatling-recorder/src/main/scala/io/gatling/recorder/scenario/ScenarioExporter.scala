@@ -22,14 +22,14 @@ import scala.collection.immutable.SortedMap
 import scala.reflect.io.Path.string2path
 import scala.tools.nsc.io.{ Directory, File }
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.http.HeaderNames
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.scenario.template.SimulationTemplate
 
-object ScenarioExporter extends Logging {
+object ScenarioExporter extends StrictLogging {
 
 	private val EVENTS_GROUPING = 100
 

@@ -20,13 +20,13 @@ import scala.collection.JavaConversions.asScalaBuffer
 import org.jboss.netty.channel.{ ChannelHandlerContext, MessageEvent, SimpleChannelHandler }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest, HttpResponse }
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory
 import io.gatling.recorder.util.URIHelper
 
-class ServerHttpResponseHandler(controller: RecorderController, requestContext: ChannelHandlerContext, request: HttpRequest, var expectConnect: Boolean) extends SimpleChannelHandler with Logging {
+class ServerHttpResponseHandler(controller: RecorderController, requestContext: ChannelHandlerContext, request: HttpRequest, var expectConnect: Boolean) extends SimpleChannelHandler with StrictLogging {
 
 	def buildRequestWithRelativeURI(request: HttpRequest) = {
 

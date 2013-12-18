@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.body
 
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.xpath.{ CountXPathExtractor, MultipleXPathExtractor, SingleXPathExtractor, XPathExtractor }
@@ -25,7 +25,7 @@ import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
 import net.sf.saxon.s9api.XdmNode
 
-object HttpBodyXPathCheckBuilder extends Logging {
+object HttpBodyXPathCheckBuilder extends StrictLogging {
 
 	val preparer: Preparer[Response, Option[XdmNode]] = (response: Response) =>
 		try {
