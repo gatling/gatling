@@ -46,7 +46,7 @@ class InjectionStepSpec extends Specification {
 		"the first and the last users should be correctly scheduled" in {
 			val first = scheduling.head
 			val last = scheduling.last
-			first must beEqualTo(0 second) and (last must beEqualTo(1 second))
+			first must beEqualTo(0 second) and (last must beEqualTo(1 second)) and (scheduling must beSorted)
 		}
 	}
 
@@ -153,12 +153,19 @@ class InjectionStepSpec extends Specification {
 		}
 
 		"provide correct values" in {
-			scheduling(1) must beEqualTo(292 milliseconds)
+			scheduling(1) must beEqualTo(292 milliseconds) and (scheduling must beSorted)
 		}
 
 		"have most of the scheduling values close to half of the duration" in {
 			val l = scheduling.filter((t) => (t > (1.5 seconds)) && (t < (3.5 seconds))).length
 			l must beEqualTo(66)
+		}
+	}
+	
+	"Injection chaining" should {
+		"provide a monotonically increasing serie of duration" in {
+			val scheduling = RampInjection(3, 2 seconds).chain(RampInjection(3, 2 seconds).chain(Iterator.empty)).toVector
+			scheduling must beSorted
 		}
 	}
 
