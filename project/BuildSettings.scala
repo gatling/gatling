@@ -6,6 +6,8 @@ import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import com.typesafe.sbt.SbtSite.site
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
 
+import Resolvers._
+
 object BuildSettings {
 
 	lazy val basicSettings = Seq(
@@ -15,7 +17,7 @@ object BuildSettings {
 		startYear             := Some(2011),
 		licenses              := Seq("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
 		scalaVersion          := "2.10.3",
-		resolvers             := Seq("Local Maven Repository" at "file://"+Path.userHome.absolutePath+"/.m2/repository"),
+		resolvers             := Seq(sonatypeSnapshots),
 		scalacOptions         := Seq(
 			"-encoding",
 			"UTF-8",
