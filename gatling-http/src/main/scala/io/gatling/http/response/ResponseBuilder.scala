@@ -16,15 +16,13 @@
 package io.gatling.http.response
 
 import java.security.MessageDigest
-import java.util.{ ArrayList, Collections }
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.ArrayList
 
 import scala.collection.mutable
 import scala.math.max
 
 import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
 
-import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.bytes2Hex
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.check.HttpCheck
@@ -50,18 +48,16 @@ object ResponseBuilder {
 
 class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], responseProcessor: Option[ResponseTransformer], storeBodyParts: Boolean, fetchHtmlResources: Boolean) {
 
-	var built = new AtomicBoolean(false)
-
 	val computeChecksums = !checksumChecks.isEmpty
-	@volatile var storeHtmlOrCss = false
-	@volatile var firstByteSent = nowMillis
-	@volatile var lastByteSent = 0L
-	@volatile var firstByteReceived = 0L
-	@volatile var lastByteReceived = 0L
-	@volatile private var status: HttpResponseStatus = _
-	@volatile private var headers: HttpResponseHeaders = _
-	private val bodies = Collections.synchronizedList(new ArrayList[HttpResponseBodyPart])
-	@volatile private var digests = if (computeChecksums) {
+	var storeHtmlOrCss = false
+	var firstByteSent = nowMillis
+	var lastByteSent = 0L
+	var firstByteReceived = 0L
+	var lastByteReceived = 0L
+	private var status: HttpResponseStatus = _
+	private var headers: HttpResponseHeaders = _
+	private val bodies = new ArrayList[HttpResponseBodyPart]
+	private var digests = if (computeChecksums) {
 		val map = mutable.Map.empty[String, MessageDigest]
 		checksumChecks.foreach(check => map += check.algorithm -> MessageDigest.getInstance(check.algorithm))
 		map
@@ -110,7 +106,7 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 	def build: Response = {
 
 		// time measurement is imprecise due to multi-core nature
-		// moreover, there seems to be a bug in AHC where ProgressListener might be called AFTER regular methods
+		// moreover, ProgressListener might be called AFTER ChannelHandler methods 
 		// ensure request doesn't end before starting
 		lastByteSent = max(lastByteSent, firstByteSent)
 		// ensure response doesn't start before request ends
