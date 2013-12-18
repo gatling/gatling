@@ -18,7 +18,7 @@ object Dependencies {
 	private val scopt             = "com.github.scopt"     %% "scopt"              % "3.2.0"
 	private val scalalogging      = "com.typesafe"         %% "scalalogging-slf4j" % "1.0.1"
 	private val jsonSmart         = "net.minidev"           % "json-smart"         % "1.2"
-	private val jsonpath          = "io.gatling"           %% "jsonpath"           % "0.2.4"
+	private val jsonpath          = "io.gatling"           %% "jsonpath"           % "0.3.0"
 	private val commonsMath       = "org.apache.commons"    % "commons-math3"      % "3.2"
 	private val joddLagarto       = "org.jodd"              % "jodd-lagarto"       % "3.4.9"
 	private val jzlib             = "com.jcraft"            % "jzlib"              % "1.1.3"

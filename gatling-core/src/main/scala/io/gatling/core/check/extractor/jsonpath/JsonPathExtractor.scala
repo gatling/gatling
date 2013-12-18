@@ -6,7 +6,7 @@ import scala.collection.concurrent
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
-import io.gatling.jsonpath.jsonsmart.JsonPath
+import io.gatling.jsonpath.JsonPath
 import jsr166e.ConcurrentHashMapV8
 import net.minidev.json.parser.JSONParser
 
@@ -27,7 +27,7 @@ object JsonPathExtractor {
 	}
 
 	def extractAll[X: JsonFilter](json: Any, expression: String): Validation[Iterator[X]] =
-		cached(expression).map(_.queryJsonObject(json).collect(implicitly[JsonFilter[X]].filter))
+		cached(expression).map(_.query(json).collect(implicitly[JsonFilter[X]].filter))
 }
 
 abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] { val criterionName = "jsonPath" }
