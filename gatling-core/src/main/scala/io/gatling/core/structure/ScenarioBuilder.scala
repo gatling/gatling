@@ -52,8 +52,8 @@ case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionPr
 	def constantPauses = pauses(Constant)
 	def exponentialPauses = pauses(Exponential)
 	def customPauses(custom: Expression[Long]) = pauses(Custom(custom))
-	def uniform(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
-	def uniform(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
+	def uniformPauses(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
+	def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
 	def pauses(pauseType: PauseType) = protocols(PauseProtocol(pauseType))
 
 	def throttle(throttlingBuilders: ThrottlingBuilder*) = {

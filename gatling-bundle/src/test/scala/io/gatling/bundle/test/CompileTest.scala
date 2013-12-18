@@ -202,7 +202,6 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			"a" -> exec(http("a").get("/")),
 			"b" -> exec(http("b").get("/")) //
 			)(exec(http("else").get("/")))
-		
 
 	val inject1 = nothingFor(10 milliseconds)
 	val inject2 = rampUsers(10).over(10 minutes)
@@ -222,6 +221,8 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.disablePauses
 		.constantPauses
 		.exponentialPauses
+		.uniformPauses(1.5)
+		.uniformPauses(1337 seconds)
 		.assertions(
 			global.responseTime.mean.lessThan(50),
 			global.responseTime.max.between(50, 500),
@@ -231,4 +232,11 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 			details("Users" / "Search" / "Index page").responseTime.mean.greaterThan(0).lessThan(50),
 			details("Admins" / "Create").failedRequests.percent.lessThan(90))
 		.throttle(jumpToRps(20) reachRps (40) in (10 seconds) holdFor (30 seconds))
+		// Applies on the setup
+		.constantPauses
+		.disablePauses
+		.exponentialPauses
+		.uniformPauses(1.5)
+		.uniformPauses(1337 seconds)
+		
 }
