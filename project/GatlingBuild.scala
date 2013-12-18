@@ -52,7 +52,7 @@ object GatlingBuild extends Build {
 		.settings(libraryDependencies ++= metricsDeps)
 
 	lazy val app = gatlingModule("gatling-app")
-		.dependsOn(core, charts)
+		.dependsOn(core, http, jdbc, redis, metrics, charts)
 		.settings(libraryDependencies ++= appDeps)
 
 	lazy val recorder = gatlingModule("gatling-recorder")
