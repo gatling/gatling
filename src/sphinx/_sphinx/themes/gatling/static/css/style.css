@@ -1,0 +1,705 @@
+/* <---- common */
+html, body {
+	margin:0;
+	padding:0;
+	width:100%;
+	height:100%;
+}
+body {
+
+	background:#e8e7e2 url(../img/body-bg.jpg) center 115px no-repeat;
+	font-family:Arial,Verdana,Tahoma,sans-serif;
+	color:#111;
+    min-width: 790px;
+}
+a:link, a:visited, a:hover {
+
+	color:#DF7700;
+	text-decoration:none;
+}
+a:hover { text-decoration:underline; }
+a img { border:none; }
+h1, h2, h3, h4, h5, h6 { margin:0; padding:0; font-family: "Maven Pro", sans-serif; }
+/* common ----> */
+
+
+
+/* <--- special buttons */
+/* <---- btn-simple */
+.btn-simple, a.btn-simple:link, a.btn-simple:visited, a.btn-simple:hover {
+
+	background:#d1d0ca;
+	color:#fff;
+	padding:3px 10px;
+	text-decoration:none;
+	font-size:0.9em;
+	font-weight:bold;
+	cursor:pointer;
+
+ 	-webkit-transition: all .2s ease-in;
+    -moz-transition: all .2s ease-in;
+    -o-transition: all .2s ease-in;
+    transition: all .2s ease-in;
+
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+
+	behavior:url('/gatling/css/pie/PIE.php');
+}
+.btn-simple:hover, a.btn-simple:hover {
+	background:#DF7700;
+	text-decoration:none;
+}
+/* btn-simple ----> */
+
+/* <---- btn-gatling */
+.btn-gatling, a.btn-gatling:link, a.btn-gatling:visited, a.btn-gatling:hover {
+
+	background:#DF7700 url(../img/btn-gatling-bg.jpg) left top repeat-x;
+	border:solid 2px #fff;
+	color:#eee;
+	padding:3px 10px;
+	text-decoration:none;
+	font-size:1em;
+	font-weight:bold;
+	cursor:pointer;
+
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+
+	behavior:url('/gatling/css/pie/PIE.php');
+}
+.btn-gatling:hover, a.btn-gatling:hover { color:#fff; }
+/* btn-gatling ----> */
+
+i.icon-arrow-gatling {
+
+	background:url(../img/btn-arrow1.png) left top no-repeat;
+	width:17px;
+	height:17px;
+	display:inline-block;
+	margin:0 4px;
+	line-height:15px;
+	vertical-align:text-top;
+}
+/* special gatling buttons ----> */
+
+
+
+/* <---- structure */
+.content {
+position:relative; left:0; top:0;
+width:100%;
+max-width:900px;
+margin:auto;
+}
+#sidebar {
+background: #FFF;
+padding: 20px;
+width: 280px;
+}
+#sidebar h3{
+background:url(../img/puce2.png) left no-repeat;
+padding-left: 15px;
+margin: 10px 0;
+}
+.affix-top,.affix{
+	position: static;
+}
+#sidebar.affix {
+-webkit-transform: translatez(0);
+-moz-transform: translatez(0);
+-ms-transform: translatez(0);
+-o-transform: translatez(0);
+transform: translatez(0);
+position: fixed;
+top:30px;
+}
+.documentation {
+	padding: 30px;
+}
+.documentation  h1, .documentation  h2, .documentation  h3 {
+	color:#DF7700;
+	font-weight:normal;
+}
+.documentation  h1 {
+	font-size: 2.2em;
+	background:url(../img/puce2.png) left no-repeat;
+	padding-left: 20px;
+}
+.documentation  h2 {
+	font-size: 1.7em;
+}
+.documentation  h3 {
+	font-size: 1.2em;
+}
+.documentation  a.headerlink {
+    color: transparent;
+    padding: 0 4px 0 4px;
+    text-decoration: none;
+}
+
+
+/* <--- header */
+#header {
+	position:relative; left:0; top:0;;
+	height:115px;
+	overflow:hidden;
+}
+#header a.logo:link, #header a.logo:visited, #header a.logo:hover {
+
+	position:absolute;
+	left:0;
+	top:5px;
+	width:283px;
+	height:95px;
+	background:url(../img/gatling.png) left top no-repeat;
+	display:block;
+}
+
+
+
+/* <---- header zone */
+ul#header-zone {
+
+	position:absolute;
+	right:0;
+	top:0;
+	width:335px;
+	height:41px;
+	background:url(../img/header-zone-bg.jpg) left top no-repeat;
+	list-style-type:none;
+	margin:0;
+	padding:0 0 0 40px;
+	z-index:100;
+}
+ul#header-zone li {
+
+	position:relative;
+	left:0;
+	top:0;
+	float:left;
+	margin:0 3px;
+	color:#777;
+}
+ul#header-zone li.first { margin-top:8px; }
+ul#header-zone li a:link .on, ul#header-zone li a:visited .on { display:none; }
+ul#header-zone li a:hover .on { display:block; }
+ul#header-zone li a:link .off, ul#header-zone li a:visited .off { display:block; }
+ul#header-zone li a:hover .off { display:none; }
+ul#header-zone li a:link p, ul#header-zone li a:visited p, ul#header-zone li a:hover p {
+
+	display:none;
+	position:absolute;
+	left:0;
+	top:50px;
+	text-align:center;
+	color:#fff;
+	background:#85837e;
+	padding:3px 9px;
+	line-height:1em;
+	font-size:0.9em;
+
+	-webkit-border-radius: 10px;
+	-moz-border-radius: 10px;
+	border-radius: 10px;
+}
+ul#header-zone li a:hover p { display:block; }
+/* header zone ---> */
+
+
+
+/* <---- nav */
+#header nav {
+	position:absolute;
+	left:310px;
+	top:85px;
+}
+#header nav ol {
+
+	width:100%;
+	list-style-type:none;
+	display:inline-block;
+	padding:0;
+	margin:0;
+}
+#header nav ol li {
+
+	position:relative;
+	left:0;
+	top:0;
+	float:left;
+	margin:0 0 3px 0;
+	padding:0 3px 0 5px;
+	border-left:solid 1px #a4a39a;
+}
+#header nav ol li.first { border:none; }
+#header nav ol li a:link, #header nav ol li a:visited, #header nav ol li a:hover {
+
+	position:relative; left:0; top:0;;
+	padding:3px 8px;
+	background:#a4a39a;
+	color:#fff;
+	text-decoration:none;
+
+ 	-webkit-transition: all .2s ease-in;
+    -moz-transition: all .2s ease-in;
+    -o-transition: all .2s ease-in;
+    transition: all .2s ease-in;
+
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+
+	behavior:url('/gatling/css/pie/PIE.php');
+}
+#header nav ol li a:hover {
+	background:#8a8982;
+}
+/* nav ----> */
+/* header ----> */
+
+
+/* <---- sidebar */
+.sidebar {
+	background: #FFF;
+}
+/* sidebar ----> */
+
+
+/* <---- page */
+#page {	margin-top:25px;}
+#page .content {
+	background:#fff;
+	padding-bottom:20px;
+}
+/* page ----> */
+
+
+
+/* <---- footer */
+#footer .content {
+	background:#97958f;
+	height:35px;
+	padding:5px 0;
+	color:#fff;
+	font-size:0.9em;
+	overflow:hidden;
+}
+#footer .content span.floatl {
+
+	position:relative;
+	left:0;
+	top:0;
+	float:left;
+	margin-left:10px;
+}
+#footer .content span.floatr {
+
+	position:relative;
+	left:0;
+	top:0;
+	float:right;
+	margin-right:10px;
+}
+#footer a.logo:link, #footer a.logo:visited, #footer a.logo:hover {
+	position:relative;
+	left:0;
+	top:-2px;
+	width:80px;
+	height:29px;
+	display:block;
+	background:url(../img/gatling-nb.png) left top no-repeat;
+}
+/* footer ----> */
+/* structure ----> */
+
+
+
+/* <---- homepage logos */
+#logos {
+
+	position:relative;
+	left:0;
+	top:0;;
+	width:100%;
+	height:87px;
+	background:url(../img/logos-bg.png) left top no-repeat;
+	margin:30px 0 0 -16px;
+	padding:0 0 0 20px;
+}
+#logos strong {
+
+	position:absolute;
+	left:20px;
+	top:-20px;
+	background:#DF7700;
+	color:#fff;
+	font-size:0.8em;
+	padding:2px 10px;
+    height: 20px;
+	display:block;
+	text-align:center;
+
+
+	font-family: "Maven Pro", sans-serif;
+
+	-webkit-border-radius: 8px 8px 0 0;
+	-moz-border-radius: 8px 8px 0 0;
+	border-radius: 8px 8px 0 0;
+
+	/*behavior:url('/gatling/css/pie/PIE.php');*/
+}
+
+#logos .quote {
+    display: none;
+}
+
+#logos a:hover + .quote, #logos .quote:hover {
+    display: block;
+    position: absolute;
+    z-index: 1;
+}
+/* homepage logos ----> */
+
+
+
+/* <--- slider */
+#slider {
+
+	position:relative; left:0; top:0;;
+	width:100%;
+	height:300px;
+	border-bottom:solid 1px #eee;
+	color:#494844;
+}
+#slider .slides {
+
+	position:relative; left:0; top:0;;
+	width:100%;
+	height:270px;
+	overflow:hidden;
+}
+#slider .slides .slide {
+
+	display:none;
+	width:95%;
+}
+#slider .arrow-left, #slider .arrow-right {
+
+	position:absolute;
+	top:90px;
+	width:30px;
+	height:40px;
+	display:block;
+	cursor:pointer;
+	z-index:100;
+}
+#slider .arrow-left {
+
+	left:-30px;
+	background:url(../img/slider-arrow-left-off.png) left top no-repeat;
+}
+#slider .arrow-left:hover {	background:url(../img/slider-arrow-left-on.png) left top no-repeat; }
+#slider .arrow-right {
+	right:-30px;
+	background:url(../img/slider-arrow-right-off.png) left top no-repeat;
+}
+#slider .arrow-right:hover { background:url(../img/slider-arrow-right-on.png) left top no-repeat; }
+
+.slide {
+	position:absolute;
+	left:0;
+	top:20px;
+	height:240px;
+	width:100%;
+}
+#slider h1,#slider h2,#slider h3,#slider h4,#slider h5,#slider h6 {
+	color:#DF7700;
+	font-weight:normal;
+}
+#slider h3 {
+
+	position:relative;
+	left:0;
+	top:0;
+	background:url(../img/puce2.png) left 9px no-repeat;
+	padding-left:16px;
+	font-size:1.8em;
+	/*margin:3px 0 3px -22px;*/
+	margin:3px 0 3px 0;
+	display:block;
+}
+#slider strong {
+
+	font-family: "Maven Pro", sans-serif;
+	font-size:1.4em;
+	font-weight:normal;
+}
+#slider strong small { font-weight:normal; }
+#slider .anchors {
+	position:absolute;
+	right:10px;
+	bottom:10px;
+	z-index:100;
+}
+#slider .anchors span {
+
+	position:relative;
+	left:0;
+	top:0;
+	float:left;
+	display:block;
+	width:12px;
+	height:12px;
+	background:url(../img/slider-anchor-bg.png) left top no-repeat;
+	cursor:pointer;
+	margin:0 3px;
+	z-index:100;
+}
+#slider .anchors span.on { background:url(../img/slider-anchor-on-bg.png) left top no-repeat; }
+#slider .slide .prettyprint-container {
+	overflow:auto;
+	background:#eee;
+}
+#slider .slide .prettyprint-container pre {
+	background:transparent;
+	border:none;
+}
+/* slider ---> */
+
+
+
+/* <--- testimonies */
+#testimonies  {
+	padding: 30px;
+}
+#testimonies h3 {
+	background:url(../img/puce2.png) left 9px no-repeat;
+	padding-left:16px;
+	font-size:1.8em;
+	margin:3px 0 3px 0;
+	color:#DF7700;
+}
+#testimonies ul {
+	list-style-type: none;
+	padding: 0;
+}
+#testimonies blockquote {
+	background: #FDF5EE;
+	margin-bottom: 10px;
+}
+#testimonies  .right-blockquote {
+	margin-left: 150px;
+	border-left: 2px solid #DF7700;
+}
+#testimonies  .left-blockquote {
+	margin-right: 150px;
+	border-right: 2px solid #DF7700;
+	border-left: none;
+}
+#testimonies ul li{
+	margin-top: 30px;
+	padding-bottom: 15px;
+	border-bottom:solid 1px #eee;
+	color: #555;
+	text-align:justify;
+}
+#testimonies .no-border {
+    border: none;
+	padding-bottom: 0;
+}
+#testimonies small{
+	color: #999;
+	margin-top: 10px;
+	font-size:0.6em;
+}
+/* testimonies ---> */
+
+
+
+/* <--- paddles */
+/*#paddles .span4 { height:400px; }*/
+html>body #paddles .col-xs-4 { height:auto; min-height:400px; }
+
+.paddle {
+
+	position:relative;
+	left:0;
+	top:0;
+	/*width:95%;*/
+	/*margin:auto;*/
+
+	font-size:0.9em;
+	line-height:1.2em;
+}
+.paddle section table {
+
+	position:relative;
+	left:0;
+	top:0;
+	display:block;
+	border-collapse:collapse;
+	margin:0;
+	padding:0;
+}
+.paddle section table tr td {
+	padding:0 3px;
+	vertical-align:top;
+}
+
+/* <---- paddle twitter */
+#paddle-twitter {
+
+	border-left:solid 2px #d1d0ca;
+	border-right:solid 2px #d1d0ca;
+
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+}
+#paddle-twitter .header {
+
+	background:#d1d0ca;
+
+	-webkit-border-radius: 8px 8px 0 0;
+	-moz-border-radius: 8px 8px 0 0;
+	border-radius: 8px 8px 0 0;
+}
+#paddle-twitter header h3 {
+
+	color:#fff;
+	font-size:1.6em;
+	padding-left:30px;
+	margin-left:5px;
+	background:url(../img/icon-gatling.png) left 6px no-repeat;
+}
+#paddle-twitter header h3 a, #paddle-twitter header h3 a:visited {
+    color:#fff;
+    /*font-size:1.6em;*/
+}
+#paddle-twitter .footer {
+
+	-webkit-border-radius: 0 0 8px 8px;
+	-moz-border-radius: 0 0 8px 8px;
+	border-radius: 0 0 8px 8px;
+
+	color:#fff;
+	padding:15px 0 5px;
+	text-align:center;
+	background:#d1d0ca url(../img/icon-twitter-w.png) 5px 13px no-repeat;
+	font-size:1.1em;
+    margin-top: -10px;
+}
+#paddle-twitter .footer a:link, #paddle-twitter .footer a:visited, #paddle-twitter .footer a:hover { color:#fff; text-decoration:none; }
+#paddle-twitter section {
+
+	background:#fff;
+	border-top:solid 1px #d3d2cc;
+	margin:5px auto;
+	padding:5px 0;
+	width:95%;
+}
+#paddle-twitter section b {
+	font-weight:normal;
+	color:#DF7700;
+}
+#paddle-twitter section.first { border:none; }
+#paddle-twitter section footer {
+	text-align:center;
+	color:#DF7700;
+}
+/* paddle twitter ----> */
+
+
+
+/* <---- paddle news */
+#span-news {
+	border-right:solid 1px #ddd;
+}
+#paddle-news header h3 {
+	color:#DF7700;
+	font-size:1.6em;
+}
+#paddle-news section {
+	padding:5px 0;
+	margin:5px 0;
+}
+#paddle-news section footer {
+	position:relative;
+	left:0;
+	top:0;
+	width:100%;
+	display:block;
+	clear:both;
+	text-align:right;
+}
+/* paddle news ----> */
+
+
+/* <---- paddle text */
+#paddle-text {
+
+	background:#d1d0ca;
+	/*width:90%;*/
+	padding:0 10px;
+
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
+	border-radius: 8px;
+}
+#paddle-text header h3 {
+
+	color:#5c5454;
+	font-size:1.6em;
+	text-indent:10px;
+}
+#paddle-text ul {
+
+	list-style-type:none;
+	margin:0;
+	padding:0;
+}
+#paddle-text ul li {
+
+	margin:10px auto;
+	padding-left:20px;
+	background:url(../img/puce1.png) left top no-repeat;
+	line-height:1.2em;
+}
+#paddle-text footer {
+
+	position:relative;
+	left:0;
+	top:0;
+	display:block;
+	text-align:right;
+	padding-top:10px;
+	height:40px;
+}
+/* paddle text ----> */
+/* paddles ----> */
+
+/* bootstrap 2.3 compatibility */
+.row-fluid {
+    width: 100%;
+    display: table;
+    content: "";
+    min-height: 30px;
+/*
+    line-height: 0;
+*/
+}
+
+.row-fluid .col-xs-6 {
+    padding: 0px;
+}
+h1,h2,h3 {
+    line-height: 40px;
+}
+
+img {
+    max-width: 100%;
+}
