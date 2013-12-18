@@ -6,7 +6,7 @@ object Dependencies {
 	private val scalaReflect      = "org.scala-lang"        % "scala-reflect"      % "2.10.3"
 	private val scalaSwing        = "org.scala-lang"        % "scala-swing"        % "2.10.3"
 	private val jsr166e           = "io.gatling"            % "jsr166e"            % "1.0"
-	private val ahc               = "com.ning"              % "async-http-client"  % "1.7.23-SNAPSHOT"
+	private val ahc               = "com.ning"              % "async-http-client"  % "1.7.23"
 	private val netty             = "io.netty"              % "netty"              % "3.8.0.Final"
 	private val akkaActor         = "com.typesafe.akka"    %% "akka-actor"         % "2.2.3"
 	private val config            = "com.typesafe"          % "config"             % "1.0.2"
