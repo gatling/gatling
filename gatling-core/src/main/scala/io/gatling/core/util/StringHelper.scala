@@ -36,7 +36,7 @@ object StringHelper {
 		buff.append(java.lang.Long.toString(b & 0xff, 16))
 	}.toString
 
-	def ensureCharCopy(value: String) =
+	def ensureCharCopy(value: String): String =
 		if (stringCopyChars) value
 		else new String(value)
 
@@ -70,6 +70,34 @@ object StringHelper {
 				string + padder * paddingLength
 			else
 				string
+		}
+
+		def unsafeChars(): Array[Char] = UnsafeHelper.unsafe match {
+			case Some(unsafe) =>
+				val value = unsafe.getObject(string, UnsafeHelper.stringValueFieldOffset).asInstanceOf[Array[Char]]
+
+				UnsafeHelper.stringOffsetFieldOffset match {
+					case -1L =>
+						// new String version (7u6), no offset
+						value
+
+					case offsetField =>
+						// old String version with offset and count
+						val offset = unsafe.getObject(string, offsetField).asInstanceOf[Int]
+						val count = unsafe.getObject(string, UnsafeHelper.stringCountFieldOffset).asInstanceOf[Int]
+
+						if (offset == 0 && count == value.length) {
+							// no need to copy
+							value
+
+						} else {
+							val result = new Array[Char](count)
+							System.arraycopy(value, offset, result, 0, count)
+							result
+						}
+				}
+
+			case None => string.toCharArray
 		}
 	}
 }

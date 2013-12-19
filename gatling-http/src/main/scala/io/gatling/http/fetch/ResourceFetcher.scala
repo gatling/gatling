@@ -58,8 +58,8 @@ object ResourceFetcher extends StrictLogging {
 
 	val resourceChecks = List(HttpRequestActionBuilder.defaultHttpCheck)
 
-	def pageResources(htmlDocumentURI: URI, filters: Option[Filters], responseBody: String): List[EmbeddedResource] = {
-		val htmlInferredResources = HtmlParser.getEmbeddedResources(htmlDocumentURI, responseBody)
+	def pageResources(htmlDocumentURI: URI, filters: Option[Filters], responseChars: Array[Char]): List[EmbeddedResource] = {
+		val htmlInferredResources = HtmlParser.getEmbeddedResources(htmlDocumentURI, responseChars)
 		filters match {
 			case Some(filters) => filters.filter(htmlInferredResources)
 			case none => htmlInferredResources
@@ -86,7 +86,7 @@ object ResourceFetcher extends StrictLogging {
 		val protocol = tx.protocol
 
 		def pageResourcesRequests(): List[NamedRequest] =
-			pageResources(htmlDocumentURI, protocol.htmlResourcesFetchingFilters, response.getResponseBody)
+			pageResources(htmlDocumentURI, protocol.htmlResourcesFetchingFilters, response.chars)
 				.flatMap(_.toRequest(protocol, tx.throttled))
 
 		val inferredResources: List[NamedRequest] = (response.getStatusCode: @switch) match {

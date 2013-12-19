@@ -38,7 +38,7 @@ case class RegularRawResource(rawUrl: String) extends RawResource {
 
 object HtmlParser extends StrictLogging {
 
-	def getEmbeddedResources(documentURI: URI, htmlContent: String): List[EmbeddedResource] = {
+	def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char]): List[EmbeddedResource] = {
 
 		val rawResources = mutable.ArrayBuffer.empty[RawResource]
 		var baseURI: Option[URI] = None

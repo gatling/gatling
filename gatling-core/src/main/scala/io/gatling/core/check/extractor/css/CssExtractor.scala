@@ -15,7 +15,6 @@
  */
 package io.gatling.core.check.extractor.css
 
-import java.nio.CharBuffer
 import java.util.{ List => JList }
 
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaConcurrentMap }
@@ -37,7 +36,8 @@ object CssExtractor {
 
 	def cached(query: String) = if (configuration.core.extract.css.cache) cache.getOrElseUpdate(query, CSSelly.parse(query)) else CSSelly.parse(query)
 
-	def parse(chars: CharBuffer) = new NodeSelector(domBuilder.parse(chars))
+	def parse(chars: Array[Char]) = new NodeSelector(domBuilder.parse(chars))
+	def parse(string: String) = new NodeSelector(domBuilder.parse(string))
 
 	def extractAll(selector: NodeSelector, query: String, nodeAttribute: Option[String]): Seq[String] = {
 

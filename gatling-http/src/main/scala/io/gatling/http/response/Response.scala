@@ -23,6 +23,7 @@ import com.ning.http.client.{ Request, Response => AHCResponse }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.BytesInputStream
+import io.gatling.core.util.StringHelper.RichString
 
 trait Response extends AHCResponse {
 
@@ -40,6 +41,7 @@ trait Response extends AHCResponse {
 	def getHeaderSafe(name: String): Option[String]
 	def getHeadersSafe(name: String): Seq[String]
 	def charBuffer: CharBuffer
+	def chars: Array[Char]
 }
 
 case class HttpResponse(
@@ -61,6 +63,7 @@ case class HttpResponse(
 
 	lazy val string = new String(bytes, configuration.core.charSet)
 	lazy val charBuffer = configuration.core.charSet.decode(ByteBuffer.wrap(bytes))
+	lazy val chars = string.unsafeChars
 
 	override def toString = ahcResponse.toString
 
@@ -122,4 +125,5 @@ class DelegatingReponse(delegate: Response) extends Response {
 	def hasResponseHeaders = delegate.hasResponseHeaders
 	def hasResponseBody = delegate.hasResponseHeaders
 	def charBuffer = delegate.charBuffer
+	def chars = delegate.chars
 }
