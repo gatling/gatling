@@ -59,6 +59,6 @@ echo Please set GATLING_HOME and try to launch Gatling again.
 goto exit
 
 :exit
-pause
+if not defined NO_PAUSE pause
 endlocal
 exit /b 0
