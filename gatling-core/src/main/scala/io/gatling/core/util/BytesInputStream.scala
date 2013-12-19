@@ -39,11 +39,11 @@ class BytesInputStream(array: Array[Byte]) extends InputStream {
 	override def available(): Int = length - position
 
 	override def skip(n: Long): Long = {
-		if (n <= length - position) {
+		if (n <= available) {
 			position += n.toInt
 			n
 		} else {
-			val n = length - position
+			val n = available
 			position = length
 			n
 		}
