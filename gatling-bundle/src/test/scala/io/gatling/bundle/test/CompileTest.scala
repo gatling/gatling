@@ -43,7 +43,7 @@ object CompileTest extends Simulation {
 		.disableCaching
 		.disableWarmUp
 		.warmUp("http://gatling.io")
-		.fetchHtmlResources(aggressive = true, white = WhiteList(".*\\.html"))
+		.fetchHtmlResources(white = WhiteList(".*\\.html"))
 
 	val httpConfToVerifyUserProvidedInfoExtractors = http
 		.extraInfoExtractor((requestName, requestStatus, session, request, response) => Nil)
@@ -238,5 +238,5 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.exponentialPauses
 		.uniformPauses(1.5)
 		.uniformPauses(1337 seconds)
-		
+
 }

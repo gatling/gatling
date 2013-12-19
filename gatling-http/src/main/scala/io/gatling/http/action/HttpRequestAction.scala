@@ -66,7 +66,7 @@ object HttpRequestAction extends StrictLogging {
 
 			case Some(expire) if nowMillis > expire => send(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
 
-			case _ if tx.protocol.htmlResourcesFetchingMode.isDefined =>
+			case _ if tx.protocol.fetchHtmlResources =>
 				val explicitResources = HttpRequest.buildNamedRequests(tx.explicitResources, tx.session)
 
 				ResourceFetcher.fromCache(tx.request.getURI, tx, explicitResources) match {

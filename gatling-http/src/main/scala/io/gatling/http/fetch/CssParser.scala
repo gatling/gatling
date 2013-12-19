@@ -25,8 +25,8 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.util.StringHelper.ensureCharCopy
 import io.gatling.http.util.HttpHelper
-import jodd.lagarto.dom.NodeSelector
 
+// FIXME Would it be more efficient to work with Array[Char] instead of String?
 object CssParser extends StrictLogging {
 
 	val inlineStyleImageUrls = """url\((.*)\)""".r
@@ -41,6 +41,8 @@ object CssParser extends StrictLogging {
 
 	val singleQuoteEscapeChar = Some(''')
 	val doubleQuoteEscapeChar = Some('"')
+	val atImportChars = "@import".toCharArray
+	val urlStartChars = "url(".toCharArray
 
 	def extractUrl(string: String, start: Int, end: Int): Option[String] = {
 
@@ -109,24 +111,23 @@ object CssParser extends StrictLogging {
 
 		var withinComment = false
 		var withinImport = false
-		var withinFontFace = false
 		var withinUrl = false
 		var urlStart = 0
 
-		def charsMatch(i: Int, str: String): Boolean = {
+		def charsMatch(i: Int, chars: Array[Char]): Boolean = {
 
 			@tailrec
 			def charsMatchRec(j: Int): Boolean = {
-				if (j == str.length)
+				if (j == chars.length)
 					true
-				else if (cssContent.charAt(i + j) != str.charAt(j))
+				else if (cssContent.charAt(i + j) != chars(j))
 					false
 				else
 					charsMatchRec(j + 1)
 
 			}
 
-			i < cssContent.length - str.length && charsMatchRec(1)
+			i < cssContent.length - chars.length && charsMatchRec(1)
 		}
 
 		var i = 0
@@ -144,44 +145,25 @@ object CssParser extends StrictLogging {
 						withinComment = false
 					}
 
-				case '@' =>
-					if (!withinComment) {
-						if (charsMatch(i, "@import")) {
-							withinImport = true
-							i = i + "@import".length
+				case '@' if !withinComment && charsMatch(i, atImportChars) => {
+					withinImport = true
+					i = i + "@import".length
+				}
 
-						} else if (charsMatch(i, "@font-face")) {
-							withinFontFace = true
-							i = i + "@font-face".length
-						}
-					}
+				case 'u' if !withinComment && withinImport && charsMatch(i, urlStartChars) => {
+					i = i + urlStartChars.length
+					urlStart = i
+					withinUrl = true
+				}
 
-				case 'u' =>
-					if (!withinComment && charsMatch(i, "url(")) {
-
-						i = i + "url(".length
-						urlStart = i
-						withinUrl = true
-					}
-
-				case ')' if !withinComment && (withinImport || withinUrl) =>
+				case ')' if !withinComment && withinUrl =>
 					for {
 						url <- extractUrl(cssContent, urlStart, i)
 						absoluteUri <- HttpHelper.resolveFromURISilently(cssURI, url)
 					} {
-						if (withinImport) {
-							resources += CssResource(absoluteUri)
-							withinImport = false
-
-						} else if (withinFontFace) {
-							resources += RegularResource(absoluteUri)
-							withinFontFace = false
-							withinUrl = false
-
-						} else {
-							withinUrl = false
-							resources += RegularResource(absoluteUri)
-						}
+						resources += CssResource(absoluteUri)
+						withinUrl = false
+						withinImport = false
 					}
 
 				case _ =>

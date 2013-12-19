@@ -152,7 +152,7 @@ class AsyncHandlerActor extends BaseActor {
 
 			tx.next ! resourceMessage
 
-		} else if (tx.protocol.htmlResourcesFetchingMode.isDefined && response.hasResponseStatus && isHtml(response.getHeaders)) {
+		} else if (tx.protocol.fetchHtmlResources && response.hasResponseStatus && isHtml(response.getHeaders)) {
 
 			val explicitResources =
 				if (!tx.explicitResources.isEmpty)

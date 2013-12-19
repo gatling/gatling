@@ -95,11 +95,10 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
 
 	def check(checks: HttpCheck*): HttpProtocolBuilder = copy(protocol = protocol.copy(checks = protocol.checks ::: checks.toList))
 
-	def fetchHtmlResources(aggressive: Boolean): HttpProtocolBuilder = fetchHtmlResources(aggressive, None)
-	def fetchHtmlResources(aggressive: Boolean, white: WhiteList): HttpProtocolBuilder = fetchHtmlResources(aggressive, Some(Filters(white, BlackList())))
-	def fetchHtmlResources(aggressive: Boolean, white: WhiteList, black: BlackList): HttpProtocolBuilder = fetchHtmlResources(aggressive, Some(Filters(white, black)))
-	def fetchHtmlResources(aggressive: Boolean, black: BlackList, white: WhiteList = WhiteList(Nil)): HttpProtocolBuilder = fetchHtmlResources(aggressive, Some(Filters(black, white)))
-	private def fetchHtmlResources(aggressive: Boolean, filters: Option[Filters]): HttpProtocolBuilder = copy(protocol = protocol.copy(htmlResourcesFetchingMode = Some(if (aggressive) AggressiveHtmlResourcesFetching else SoftHtmlResourcesFetching), htmlResourcesFetchingFilters = filters))
+	def fetchHtmlResources(white: WhiteList): HttpProtocolBuilder = fetchHtmlResources(Some(Filters(white, BlackList())))
+	def fetchHtmlResources(white: WhiteList, black: BlackList): HttpProtocolBuilder = fetchHtmlResources(Some(Filters(white, black)))
+	def fetchHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil)): HttpProtocolBuilder = fetchHtmlResources(Some(Filters(black, white)))
+	private def fetchHtmlResources(filters: Option[Filters]): HttpProtocolBuilder = copy(protocol = protocol.copy(fetchHtmlResources = true, htmlResourcesFetchingFilters = filters))
 
 	def maxConnectionsPerHostLikeFirefoxOld = maxConnectionsPerHost(2)
 	def maxConnectionsPerHostLikeFirefox = maxConnectionsPerHost(6)

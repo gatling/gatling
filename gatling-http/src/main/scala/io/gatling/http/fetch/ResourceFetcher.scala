@@ -36,7 +36,7 @@ import io.gatling.http.HeaderNames
 import io.gatling.http.action.{ HttpRequestAction, HttpRequestActionBuilder }
 import io.gatling.http.ahc.HttpTx
 import io.gatling.http.cache.CacheHandling
-import io.gatling.http.config.{ HttpProtocol, AggressiveHtmlResourcesFetching }
+import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.{ Response, ResponseBuilder }
 import jsr166e.ConcurrentHashMapV8
@@ -275,49 +275,46 @@ class ResourceFetcher(tx: HttpTx, initialResources: Iterable[NamedRequest]) exte
 
 		val protocol = tx.protocol
 
-		protocol.htmlResourcesFetchingMode match {
-			case Some(AggressiveHtmlResourcesFetching) if status == OK =>
-				// this css might contain some resources
+		if (status == OK) {
+			// this css might contain some resources
 
-				val rawCssResources: List[NamedRequest] = (statusCode: @switch) match {
-					case 200 =>
-						// try to get from cache
-						lastModifiedOrEtag match {
-							case Some(newLastModifiedOrEtag) =>
-								ResourceFetcher.inferredResourcesCache.get(protocol, uri) match {
-									case Some(InferredPageResources(`newLastModifiedOrEtag`, inferredResources)) =>
-										//cache entry didn't expire, use it
-										inferredResources
-									case _ =>
-										// cache entry missing or expired, update it
-										ResourceFetcher.cssContentCache.remove(protocol -> uri)
-										val inferredResources = ResourceFetcher.cssResources(uri, protocol.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
-										ResourceFetcher.inferredResourcesCache.put((protocol, uri), InferredPageResources(newLastModifiedOrEtag, inferredResources))
-										inferredResources
-								}
+			val rawCssResources: List[NamedRequest] = (statusCode: @switch) match {
+				case 200 =>
+					// try to get from cache
+					lastModifiedOrEtag match {
+						case Some(newLastModifiedOrEtag) =>
+							ResourceFetcher.inferredResourcesCache.get(protocol, uri) match {
+								case Some(InferredPageResources(`newLastModifiedOrEtag`, inferredResources)) =>
+									//cache entry didn't expire, use it
+									inferredResources
+								case _ =>
+									// cache entry missing or expired, update it
+									ResourceFetcher.cssContentCache.remove(protocol -> uri)
+									val inferredResources = ResourceFetcher.cssResources(uri, protocol.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
+									ResourceFetcher.inferredResourcesCache.put((protocol, uri), InferredPageResources(newLastModifiedOrEtag, inferredResources))
+									inferredResources
+							}
 
-							case None =>
-								// don't cache
-								ResourceFetcher.cssResources(uri, protocol.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
-						}
+						case None =>
+							// don't cache
+							ResourceFetcher.cssResources(uri, protocol.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
+					}
 
-					case 304 =>
-						// no content, retrieve from cache if exist
-						ResourceFetcher.inferredResourcesCache.get(protocol, uri) match {
-							case Some(inferredPageResources) => inferredPageResources.requests
-							case _ =>
-								logger.warn(s"Got a 304 for $uri but could find cache entry?!")
-								Nil
-						}
-					case _ => Nil
-				}
+				case 304 =>
+					// no content, retrieve from cache if exist
+					ResourceFetcher.inferredResourcesCache.get(protocol, uri) match {
+						case Some(inferredPageResources) => inferredPageResources.requests
+						case _ =>
+							logger.warn(s"Got a 304 for $uri but could find cache entry?!")
+							Nil
+					}
+				case _ => Nil
+			}
 
-				val filtered = rawCssResources.filterNot(res => alreadySeen.contains(res.ahcRequest.getURI))
+			val filtered = rawCssResources.filterNot(res => alreadySeen.contains(res.ahcRequest.getURI))
 
-				pendingRequestsCount += filtered.size
-				fetchOrBufferResources(filtered)
-
-			case _ =>
+			pendingRequestsCount += filtered.size
+			fetchOrBufferResources(filtered)
 		}
 	}
 

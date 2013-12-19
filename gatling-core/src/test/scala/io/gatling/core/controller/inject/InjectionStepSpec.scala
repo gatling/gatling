@@ -161,7 +161,7 @@ class InjectionStepSpec extends Specification {
 			l must beEqualTo(66)
 		}
 	}
-	
+
 	"Injection chaining" should {
 		"provide a monotonically increasing serie of duration" in {
 			val scheduling = RampInjection(3, 2 seconds).chain(RampInjection(3, 2 seconds).chain(Iterator.empty)).toVector
