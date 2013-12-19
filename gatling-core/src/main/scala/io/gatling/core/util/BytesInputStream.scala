@@ -59,10 +59,10 @@ class BytesInputStream(array: Array[Byte]) extends InputStream {
 	}
 
 	override def read(b: Array[Byte], offset: Int, length: Int): Int = {
-		if (length == position) {
+		if (this.length == position) {
 			if (length == 0) 0 else -1
 		} else {
-			val n = math.min(length, length - position)
+			val n = math.min(length, available)
 			System.arraycopy(array, offset + position, b, offset, n)
 			position += n
 			n
