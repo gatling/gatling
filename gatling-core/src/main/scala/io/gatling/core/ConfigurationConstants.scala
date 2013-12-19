@@ -30,6 +30,9 @@ object ConfigurationConstants {
 	val CONF_CORE_EXTRACT_XPATH_EXPAND_ENTITY_REFERENCES = "gatling.core.extract.xpath.expandEntityReferences"
 	val CONF_CORE_EXTRACT_XPATH_NAMESPACE_AWARE = "gatling.core.extract.xpath.namespaceAware"
 	val CONF_CORE_EXTRACT_JSONPATH_CACHE = "gatling.core.extract.jsonPath.cache"
+	val CONF_CORE_EXTRACT_JSONPATH_JACKSON_ALLOW_COMMENTS = "gatling.core.extract.jsonPath.jackson.allowComments"
+	val CONF_CORE_EXTRACT_JSONPATH_JACKSON_ALLOW_UNQUOTED_FIELD_NAMES = "gatling.core.extract.jsonPath.jackson.allowUnquotedFieldNames"
+	val CONF_CORE_EXTRACT_JSONPATH_JACKSON_ALLOW_SINGLE_QUOTES = "gatling.core.extract.jsonPath.jackson.allowSingleQuotes"
 	val CONF_CORE_EXTRACT_CSS_CACHE = "gatling.core.extract.css.cache"
 
 	val CONF_CORE_TIMEOUT_SIMULATION = "gatling.core.timeOut.simulation"

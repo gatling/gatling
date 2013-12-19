@@ -67,7 +67,11 @@ object GatlingConfiguration {
 						expandEntityReferences = config.getBoolean(CONF_CORE_EXTRACT_XPATH_EXPAND_ENTITY_REFERENCES),
 						namespaceAware = config.getBoolean(CONF_CORE_EXTRACT_XPATH_NAMESPACE_AWARE)),
 					jsonPath = JsonPathConfiguration(
-						cache = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_CACHE)),
+						cache = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_CACHE),
+						jackson = JacksonConfiguration(
+							allowComments = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_JACKSON_ALLOW_COMMENTS),
+							allowUnquotedFieldNames = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_JACKSON_ALLOW_UNQUOTED_FIELD_NAMES),
+							allowSingleQuotes = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_JACKSON_ALLOW_SINGLE_QUOTES))),
 					css = CssConfiguration(
 						cache = config.getBoolean(CONF_CORE_EXTRACT_CSS_CACHE))),
 				timeOut = TimeOutConfiguration(
@@ -230,7 +234,13 @@ case class XPathConfiguration(
 	namespaceAware: Boolean)
 
 case class JsonPathConfiguration(
-	cache: Boolean)
+	cache: Boolean,
+	jackson: JacksonConfiguration)
+
+case class JacksonConfiguration(
+	allowComments: Boolean,
+	allowUnquotedFieldNames: Boolean,
+	allowSingleQuotes: Boolean)
 
 case class CssConfiguration(
 	cache: Boolean)

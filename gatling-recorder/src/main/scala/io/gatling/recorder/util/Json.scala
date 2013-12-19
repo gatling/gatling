@@ -15,12 +15,17 @@
  */
 package io.gatling.recorder.util
 
-import scala.language.dynamics
-import net.minidev.json.{ JSONArray, JSONValue, JSONObject }
 import java.io.InputStream
+import java.util.{ List => JList, Map => JMap }
+
+import scala.language.dynamics
+
+import com.fasterxml.jackson.databind.ObjectMapper
 
 object Json {
-	def parseJson(is: InputStream) = new Json(JSONValue.parse(is))
+	val objectMapper = new ObjectMapper
+
+	def parseJson(is: InputStream) = new Json(objectMapper.readValue(is, classOf[Object]))
 
 	implicit def JsonToString(s: Json) = s.toString
 	implicit def JsonToInt(s: Json) = s.toInt
@@ -50,23 +55,23 @@ class Json(o: Object) extends Seq[Json] with Dynamic {
 	}
 
 	def apply(key: String): Json = o match {
-		case m: JSONObject => new Json(m.get(key))
+		case m: JMap[_, _] => new Json(m.get(key).asInstanceOf[Object])
 		case _ => throw new JsonException
 	}
 
 	def apply(idx: Int): Json = o match {
-		case a: JSONArray => new Json(a.get(idx))
+		case a: JList[_] => new Json(a.get(idx).asInstanceOf[Object])
 		case _ => throw new JsonException
 	}
 
 	def length: Int = o match {
-		case a: JSONArray => a.size
-		case m: JSONObject => m.size
+		case a: JList[_] => a.size
+		case m: JMap[_, _] => m.size
 		case _ => throw new JsonException
 	}
 
 	def iterator: Iterator[Json] = o match {
-		case a: JSONArray => new JsonIterator(a.iterator)
+		case a: JList[_] => new JsonIterator(a.asInstanceOf[JList[Object]].iterator)
 		case _ => Iterator.empty
 	}
 
