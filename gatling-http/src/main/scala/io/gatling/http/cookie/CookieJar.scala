@@ -31,7 +31,7 @@ object CookieJar {
 	def domainMatches(string: String, domain: String) = domain == string || string.endsWith("." + domain)
 
 	// rfc6265#section-5.1.4
-	def requestPath(requestURI: URI) = Option(requestURI.getPath) match {
+	def cookieDefaultPath(requestURI: URI) = Option(requestURI.getPath) match {
 		case Some(requestPath) if requestPath.count(_ == '/') > 1 => requestPath.substring(0, requestPath.lastIndexOf('/'))
 		case _ => "/"
 	}
@@ -39,8 +39,7 @@ object CookieJar {
 	// rfc6265#section-5.1.4
 	def pathMatches(cookiePath: String, requestPath: String) =
 		cookiePath == requestPath ||
-			requestPath.startsWith(cookiePath) &&
-			(cookiePath.last == '/' || requestPath.charAt(cookiePath.length) == '/')
+			(requestPath.startsWith(cookiePath) && (cookiePath.last == '/' || requestPath.charAt(cookiePath.length) == '/'))
 
 	// rfc6265#section-5.2.3
 	// Let cookie-domain be the attribute-value without the leading %x2E (".") character.
@@ -50,9 +49,9 @@ object CookieJar {
 	}
 
 	// rfc6265#section-5.2.4
-	def cookiePath(rawCookiePath: String, defaultPath: String) = Option(rawCookiePath) match {
+	def cookiePath(rawCookiePath: String, requestURI: URI) = Option(rawCookiePath) match {
 		case Some(path) if path.startsWith("/") => path
-		case _ => defaultPath
+		case _ => CookieJar.cookieDefaultPath(requestURI)
 	}
 
 	def apply(uri: URI, cookies: List[Cookie]) = (new CookieJar(Map.empty)).add(uri, cookies)
@@ -88,11 +87,10 @@ case class CookieJar(store: Map[String, List[Cookie]]) {
 	def add(requestURI: URI, rawCookies: List[Cookie]): CookieJar = {
 
 		val requestDomain = CookieJar.requestDomain(requestURI)
-		val requestPath = CookieJar.requestPath(requestURI)
 
 		val fixedCookies = rawCookies.map { cookie =>
 			val cookieDomain = CookieJar.cookieDomain(cookie.getDomain, requestDomain)
-			val cookiePath = CookieJar.cookiePath(cookie.getPath, requestPath)
+			val cookiePath = CookieJar.cookiePath(cookie.getPath, requestURI)
 
 			if (cookieDomain != cookie.getDomain || cookiePath != cookie.getPath)
 				new Cookie(
@@ -121,8 +119,11 @@ case class CookieJar(store: Map[String, List[Cookie]]) {
 
 	def get(requestURI: URI): List[Cookie] = {
 
+		val requestPath = requestURI.getPath match {
+			case "" => "/"
+			case p => p
+		}
 		val requestDomain = CookieJar.requestDomain(requestURI)
-		val requestPath = CookieJar.requestPath(requestURI)
 
 		val cookiesWithExactDomain = store.get(requestDomain).getOrElse(Nil).filter(cookie => CookieJar.pathMatches(cookie.getPath, requestPath))
 		val cookiesWithExactDomainNames = cookiesWithExactDomain.map(_.getName.toLowerCase)
