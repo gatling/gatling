@@ -95,6 +95,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
 
 	def check(checks: HttpCheck*): HttpProtocolBuilder = copy(protocol = protocol.copy(checks = protocol.checks ::: checks.toList))
 
+	def fetchHtmlResources(): HttpProtocolBuilder = fetchHtmlResources(None)
 	def fetchHtmlResources(white: WhiteList): HttpProtocolBuilder = fetchHtmlResources(Some(Filters(white, BlackList())))
 	def fetchHtmlResources(white: WhiteList, black: BlackList): HttpProtocolBuilder = fetchHtmlResources(Some(Filters(white, black)))
 	def fetchHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil)): HttpProtocolBuilder = fetchHtmlResources(Some(Filters(black, white)))
