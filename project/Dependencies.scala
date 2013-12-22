@@ -36,6 +36,8 @@ object Dependencies {
 	private val akkaTestKit       = "com.typesafe.akka"    %% "akka-testkit"       % "2.2.3"       % "test"
 	private val mockitoCore       = "org.mockito"           % "mockito-core"       % "1.9.5"       % "test"
 
+	private val jmsApi            = "javax.jms"             % "jms-api"            % "1.1-rev-1"
+
 	private val testDeps = Seq(junit, specs2, akkaTestKit, mockitoCore)
 
 	val coreDeps = Seq(
@@ -54,4 +56,6 @@ object Dependencies {
 	val appDeps = Seq(scopt, zinc)
 
 	val recorderDeps = Seq(scalaSwing, scopt, jackson) ++ testDeps
+
+	val jmsDeps = Seq(jmsApi) ++ testDeps
 }
