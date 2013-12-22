@@ -20,18 +20,18 @@ package io.gatling.jms
  * @author jasonk@bluedevel.com
  */
 object JmsBuilder {
-  /**
-   * jms() is the entry pointk
-   */
-  def jms(requestName: String) = new JmsBuilder(requestName)
+	/**
+	 * jms() is the entry pointk
+	 */
+	def jms(requestName: String) = new JmsBuilder(requestName)
 }
 
 class JmsBuilder(val requestName: String) {
 
-  /**
-   * Builds a request reply JMS test
-   */
-  def reqreply = JmsReqReplyBuilder(requestName)
+	/**
+	 * Builds a request reply JMS test
+	 */
+	def reqreply = JmsReqReplyBuilder(requestName)
 
 }
 

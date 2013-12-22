@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- package io.gatling.jms
+package io.gatling.jms
 
 /**
  * Imports to be used to simplify the DSL
@@ -23,20 +23,19 @@
  */
 object Predef {
 
-  /**
-   * DSL text to start the jms builder
-   * 
-   * @param requestName human readable name of request
-   * @return a PingBuilder instance which can be used to build up a ping
-   */
-  def jms(requestName: String) = JmsBuilder.jms(requestName)
+	/**
+	 * DSL text to start the jms builder
+	 *
+	 * @param requestName human readable name of request
+	 * @return a PingBuilder instance which can be used to build up a ping
+	 */
+	def jms(requestName: String) = JmsBuilder.jms(requestName)
 
+	/**
+	 * Convert a JmsProtocolBuilder to a JmsProtocol
+	 * <p>
+	 * Simplifies the API somewhat (you can pass the builder reference to the scenario .protocolConfig() method)
+	 */
+	implicit def jmsProtocolBuilder2jmsProtocol(builder: JmsProtocolBuilder): JmsProtocol = builder.build
 
-  /**
-   * Convert a JmsProtocolBuilder to a JmsProtocol
-   * <p>
-   * Simplifies the API somewhat (you can pass the builder reference to the scenario .protocolConfig() method)
-   */
-  implicit def jmsProtocolBuilder2jmsProtocol(builder: JmsProtocolBuilder): JmsProtocol = builder.build
-  
 }

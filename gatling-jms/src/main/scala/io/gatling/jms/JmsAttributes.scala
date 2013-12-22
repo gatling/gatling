@@ -25,13 +25,13 @@ package io.gatling.jms
  * @author jasonk@bluedevel.com
  */
 case class JmsAttributes(
-  requestName: String,
-  queueName: String,
-  textMessage: String,
-  bytesMessage: Array[Byte],
-  mapMessage: Map[String, Object],
-  objectMessage: java.io.Serializable,
-  messageProperties: Map[String, Object],
-  messageType: JmsMessageClass.JmsMessageClass,
-  checks: List[JmsCheck])
+	requestName: String,
+	queueName: String,
+	textMessage: String,
+	bytesMessage: Array[Byte],
+	mapMessage: Map[String, Object],
+	objectMessage: java.io.Serializable,
+	messageProperties: Map[String, Object],
+	messageType: JmsMessageClass.JmsMessageClass,
+	checks: List[JmsCheck])
 

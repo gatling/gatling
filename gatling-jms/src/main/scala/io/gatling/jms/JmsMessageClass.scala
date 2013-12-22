@@ -20,8 +20,7 @@ package io.gatling.jms
  * @author jasonk@bluedevel.com
  */
 object JmsMessageClass extends Enumeration {
-  type JmsMessageClass = Value
-  val BytesJmsMessage, MapJmsMessage, ObjectJmsMessage, TextJmsMessage = Value
+	type JmsMessageClass = Value
+	val BytesJmsMessage, MapJmsMessage, ObjectJmsMessage, TextJmsMessage = Value
 }
-
 
