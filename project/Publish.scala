@@ -43,7 +43,8 @@ object Publish {
 		GatlingDeveloper("pdalpra@excilys.com", "Pierre Dal-Pra", true),
 		GatlingDeveloper("gcoutant@excilys.com", "Grégory Coutant", true),
 		GatlingDeveloper("blemale@excilys.com", "Bastien Lemale", true),
-		GatlingDeveloper("aduffy@gilt.com", "Andrew Duffy", false)
+		GatlingDeveloper("aduffy@gilt.com", "Andrew Duffy", false),
+		GatlingDeveloper("jasonk@bluedevel.com", "Jason Koch", false)
 	)
 
 	private def developersXml(devs: Seq[GatlingDeveloper]) = {
