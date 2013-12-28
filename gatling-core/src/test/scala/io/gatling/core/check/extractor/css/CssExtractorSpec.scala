@@ -21,6 +21,7 @@ import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationSpecification
 import io.gatling.core.util.IOHelper.withCloseable
 
@@ -29,6 +30,8 @@ import io.gatling.core.util.IOHelper.withCloseable
  */
 @RunWith(classOf[JUnitRunner])
 class CssExtractorSpec extends ValidationSpecification {
+
+	GatlingConfiguration.setUp()
 
 	def prepared(file: String) = withCloseable(getClass.getResourceAsStream(file)) { is =>
 		val string = IOUtils.toString(is, StandardCharsets.UTF_8)
