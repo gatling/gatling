@@ -69,11 +69,8 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
 	/**
 	 * Writes a property map to the message properties
 	 */
-	private def writePropsToMessage(props: Map[String, Object], message: Message) = {
-		props.foreach {
-			case (key: String, value: Object) => message.setObjectProperty(key, value)
-		}
-	}
+	private def writePropsToMessage(props: Map[String, Object], message: Message) =
+		props.foreach { case (key, value) => message.setObjectProperty(key, value) }
 
 	/**
 	 * Wrapper to send a BytesMessage, returns the message ID of the sent message
@@ -94,9 +91,7 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
 	 */
 	def sendMapMessage(map: Map[String, Object], props: Map[String, Object]): String = {
 		val message = session.createMapMessage
-		map.foreach {
-			case (key: String, value: Object) => message.setObject(key, value)
-		}
+		map.foreach { case (key, value) => message.setObject(key, value) }
 		writePropsToMessage(props, message)
 		sendMessage(message)
 	}
@@ -131,6 +126,5 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
 
 		// return the message id
 		message.getJMSMessageID
-
 	}
 }
