@@ -26,12 +26,11 @@ import io.gatling.core.util.IOHelper.withCloseable
 @RunWith(classOf[JUnitRunner])
 class JsonPathExtractorSpec extends ValidationSpecification {
 
-	def prepared(file: String) = {
-		GatlingConfiguration.setUp()
-		withCloseable(getClass.getResourceAsStream(file)) { is =>
-			val bytes = IOUtils.toByteArray(is)
-			JsonPathExtractor.parse(bytes)
-		}
+	GatlingConfiguration.setUp()
+
+	def prepared(file: String) = withCloseable(getClass.getResourceAsStream(file)) { is =>
+		val bytes = IOUtils.toByteArray(is)
+		JsonPathExtractor.parse(bytes)
 	}
 
 	"count" should {
