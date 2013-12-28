@@ -15,11 +15,12 @@
  */
 package io.gatling.jms
 
+import scala.collection.immutable.ListMap
+
+import JmsMessageClass.{ BytesJmsMessage, MapJmsMessage, ObjectJmsMessage, TextJmsMessage }
+import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.ProtocolRegistry
-import akka.actor._
-import scala.collection.immutable.ListMap
-import javax.jms.Message
 
 /**
  * Builds a request reply JMS

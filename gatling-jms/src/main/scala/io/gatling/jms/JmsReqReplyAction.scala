@@ -15,16 +15,11 @@
  */
 package io.gatling.jms
 
-import io.gatling.core.Predef._
+import JmsMessageClass.{ BytesJmsMessage, MapJmsMessage, ObjectJmsMessage, TextJmsMessage }
+import akka.actor.ActorRef
 import io.gatling.core.action.Chainable
-import akka.actor.{ ActorRef, Actor, Props }
-import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.result.writer.RequestMessage
-import io.gatling.core.result.message.OK
-import java.util.{ Hashtable => JHashtable }
-import javax.naming._
-import javax.jms._
+import javax.jms.Message
 
 /**
  * Core JMS Action to handle Request-Reply semantics
@@ -69,8 +64,8 @@ class JmsReqReplyAction(val next: ActorRef, val attributes: JmsAttributes,
 				}
 			}
 		})
-		thread.start
 
+		thread.start
 	}
 
 	/**
@@ -93,6 +88,5 @@ class JmsReqReplyAction(val next: ActorRef, val attributes: JmsAttributes,
 
 		// notify the tracker that a message was sent
 		tracker ! MessageSent(msgid, start, nowMillis, attributes.checks, session, next, attributes.requestName)
-
 	}
 }

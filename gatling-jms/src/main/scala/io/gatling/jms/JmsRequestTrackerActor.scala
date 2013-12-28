@@ -15,13 +15,13 @@
  */
 package io.gatling.jms
 
-import akka.actor.{ ActorRef, Actor, Props }
 import scala.collection.mutable.HashMap
-import io.gatling.core.result.writer.DataWriter
-import io.gatling.core.result.writer.RequestMessage
-import io.gatling.core.result.message.{ OK, KO }
-import javax.jms.Message
+
+import akka.actor.{ Actor, ActorRef }
 import io.gatling.core.Predef.Session
+import io.gatling.core.result.message.{ KO, OK }
+import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
+import javax.jms.Message
 
 /**
  * Advise actor a message was sent to JMS provider
@@ -96,5 +96,4 @@ class JmsRequestTrackerActor extends Actor {
 			startSend, received, endSend, received, gatling_response, None, Nil))
 		next ! session
 	}
-
 }

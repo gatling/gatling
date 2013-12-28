@@ -15,16 +15,10 @@
  */
 package io.gatling.jms
 
-import io.gatling.core.Predef._
-import io.gatling.core.action.Chainable
-import akka.actor.{ ActorRef, Actor, Props }
-import io.gatling.core.result.writer.DataWriter
-import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.result.writer.RequestMessage
-import io.gatling.core.result.message.OK
 import java.util.{ Hashtable => JHashtable }
-import javax.naming._
-import javax.jms._
+
+import javax.jms.{ ConnectionFactory, Message, Session }
+import javax.naming.{ Context, InitialContext }
 
 /**
  * Trivial JMS client, allows sending messages and use of a MessageListener
@@ -140,6 +134,4 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
 		message.getJMSMessageID
 
 	}
-
 }
-
