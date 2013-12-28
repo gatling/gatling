@@ -47,7 +47,7 @@ class CookieJarSpec extends Specification {
 
 			cookieStore.get(new URI("http://www.foo.com/bar/")).length must beEqualTo(1)
 		}
-		
+
 		"return the cookie when it was set on a parent path" in {
 			val cookies = decode("ALPHA; Domain=www.foo.com; path=/bar").toList
 			val cookieStore = CookieJar(new URI("http://www.foo.com"), cookies)
