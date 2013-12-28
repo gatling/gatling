@@ -15,9 +15,9 @@
  */
 package io.gatling.jms
 
-import JmsMessageClass.{ BytesJmsMessage, MapJmsMessage, ObjectJmsMessage, TextJmsMessage }
 import akka.actor.ActorRef
 import io.gatling.core.action.Chainable
+import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 import javax.jms.Message
 
@@ -28,11 +28,11 @@ import javax.jms.Message
  * This implementation then forwards it on to a tracking actor.
  * @author jasonk@bluedevel.com
  */
-class JmsReqReplyAction(val next: ActorRef, val attributes: JmsAttributes,
-	val protocol: JmsProtocol, val tracker: ActorRef) extends Chainable {
+case class JmsReqReplyAction(next: ActorRef, attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef) extends Chainable {
 
 	// Create a client to refer to
 	// this assumes the protocol has been validated by the builder
+	// FIXME change DSL so that mandatory information cannot be ommitted
 	val client = new SimpleJmsClient(protocol.connectionFactoryName.get,
 		attributes.queueName, protocol.jmsUrl.get,
 		protocol.username, protocol.password,
@@ -49,6 +49,7 @@ class JmsReqReplyAction(val next: ActorRef, val attributes: JmsAttributes,
 	 */
 	private def startConsumerThread = {
 
+		// FIXME why create a thread? Why not just a scheduled task?
 		val thread = new Thread(new Runnable {
 			def run = {
 				val replyConsumer = client.createReplyConsumer
@@ -74,19 +75,22 @@ class JmsReqReplyAction(val next: ActorRef, val attributes: JmsAttributes,
 	 * Note this does not catch any exceptions (even JMSException) as generally these indicate a
 	 * configuration failure that is unlikely to be addressed by retrying with another message
 	 */
-	def execute(session: io.gatling.core.Predef.Session) {
-		import JmsMessageClass._
+	def execute(session: Session) {
 
-		// send the message
-		val start = nowMillis
-		val msgid = attributes.messageType match {
-			case BytesJmsMessage => client.sendBytesMessage(attributes.bytesMessage, attributes.messageProperties)
-			case MapJmsMessage => client.sendMapMessage(attributes.mapMessage, attributes.messageProperties)
-			case ObjectJmsMessage => client.sendObjectMessage(attributes.objectMessage, attributes.messageProperties)
-			case TextJmsMessage => client.sendTextMessage(attributes.textMessage, attributes.messageProperties)
+		// FIXME change DSL so that mandatory message cannot be ommitted
+		attributes.message.foreach { message =>
+
+			// send the message
+			val start = nowMillis
+			val msgid = message match {
+				case BytesJmsMessage(bytes) => client.sendBytesMessage(bytes, attributes.messageProperties)
+				case MapJmsMessage(map) => client.sendMapMessage(map, attributes.messageProperties)
+				case ObjectJmsMessage(o) => client.sendObjectMessage(o, attributes.messageProperties)
+				case TextJmsMessage(txt) => client.sendTextMessage(txt, attributes.messageProperties)
+			}
+
+			// notify the tracker that a message was sent
+			tracker ! MessageSent(msgid, start, nowMillis, attributes.checks, session, next, attributes.requestName)
 		}
-
-		// notify the tracker that a message was sent
-		tracker ! MessageSent(msgid, start, nowMillis, attributes.checks, session, next, attributes.requestName)
 	}
 }

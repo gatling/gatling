@@ -15,6 +15,8 @@
  */
 package io.gatling.jms
 
+import java.io.{ Serializable => JSerializable }
+
 /**
  * JmsAttributes carries around the JMS settings.
  * <p>
@@ -27,11 +29,6 @@ package io.gatling.jms
 case class JmsAttributes(
 	requestName: String,
 	queueName: String,
-	textMessage: String,
-	bytesMessage: Array[Byte],
-	mapMessage: Map[String, Object],
-	objectMessage: java.io.Serializable,
+	message: Option[JmsMessage],
 	messageProperties: Map[String, Object],
-	messageType: JmsMessageClass.JmsMessageClass,
 	checks: List[JmsCheck])
-

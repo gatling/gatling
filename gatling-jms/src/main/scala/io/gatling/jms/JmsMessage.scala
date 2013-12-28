@@ -15,12 +15,14 @@
  */
 package io.gatling.jms
 
+import java.io.{ Serializable => JSerializable }
+
 /**
  * Provides the enumeration of JMSMessage types that the implementation supports
  * @author jasonk@bluedevel.com
  */
-object JmsMessageClass extends Enumeration {
-	type JmsMessageClass = Value
-	val BytesJmsMessage, MapJmsMessage, ObjectJmsMessage, TextJmsMessage = Value
-}
-
+sealed trait JmsMessage
+case class BytesJmsMessage(bytes: Array[Byte]) extends JmsMessage
+case class MapJmsMessage(map: Map[String, Object]) extends JmsMessage
+case class ObjectJmsMessage(o: JSerializable) extends JmsMessage
+case class TextJmsMessage(text: String) extends JmsMessage

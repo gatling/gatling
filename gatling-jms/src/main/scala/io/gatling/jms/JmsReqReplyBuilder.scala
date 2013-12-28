@@ -15,9 +15,10 @@
  */
 package io.gatling.jms
 
+import java.io.{ Serializable => JSerializable }
+
 import scala.collection.immutable.ListMap
 
-import JmsMessageClass.{ BytesJmsMessage, MapJmsMessage, ObjectJmsMessage, TextJmsMessage }
 import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.ProtocolRegistry
@@ -30,11 +31,7 @@ object JmsReqReplyBuilder {
 	def apply(requestName: String) = new JmsReqReplyBuilder(JmsAttributes(
 		requestName = requestName,
 		queueName = "",
-		textMessage = "",
-		bytesMessage = new Array[Byte](0),
-		objectMessage = null,
-		mapMessage = new ListMap[String, Object],
-		messageType = JmsMessageClass.TextJmsMessage,
+		message = None,
 		messageProperties = new ListMap[String, Object],
 		checks = Nil))
 }
@@ -47,8 +44,6 @@ object JmsReqReplyBuilder {
  */
 class JmsReqReplyBuilder(val attributes: JmsAttributes) extends ActionBuilder {
 
-	import JmsMessageClass._
-
 	/**
 	 * Set the queue name
 	 */
@@ -57,22 +52,22 @@ class JmsReqReplyBuilder(val attributes: JmsAttributes) extends ActionBuilder {
 	/**
 	 * Send a TextMessage
 	 */
-	def textMessage(text: String) = new JmsReqReplyBuilder(attributes.copy(textMessage = text, messageType = TextJmsMessage))
+	def textMessage(text: String) = new JmsReqReplyBuilder(attributes.copy(message = Some(TextJmsMessage(text))))
 
 	/**
 	 * Send a BytesMessage
 	 */
-	def bytesMessage(bytes: Array[Byte]) = new JmsReqReplyBuilder(attributes.copy(bytesMessage = bytes, messageType = BytesJmsMessage))
+	def bytesMessage(bytes: Array[Byte]) = new JmsReqReplyBuilder(attributes.copy(message = Some(BytesJmsMessage(bytes))))
 
 	/**
 	 * Send a MapMessage
 	 */
-	def mapMessage(map: Map[String, Object]) = new JmsReqReplyBuilder(attributes.copy(mapMessage = map, messageType = MapJmsMessage))
+	def mapMessage(map: Map[String, Object]) = new JmsReqReplyBuilder(attributes.copy(message = Some(MapJmsMessage(map))))
 
 	/**
 	 * Send an ObjectMessage
 	 */
-	def objectMessage(o: java.io.Serializable) = new JmsReqReplyBuilder(attributes.copy(objectMessage = o, messageType = ObjectJmsMessage))
+	def objectMessage(o: JSerializable) = new JmsReqReplyBuilder(attributes.copy(message = Some(ObjectJmsMessage(o))))
 
 	/**
 	 * Add JMS message properties (aka headers) to the outbound message
