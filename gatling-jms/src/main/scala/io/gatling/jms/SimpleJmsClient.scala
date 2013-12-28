@@ -17,6 +17,9 @@ package io.gatling.jms
 
 import java.util.{ Hashtable => JHashtable }
 
+import com.typesafe.scalalogging.slf4j.StrictLogging
+
+import io.gatling.core.config.Credentials
 import javax.jms.{ ConnectionFactory, Message, Session }
 import javax.naming.{ Context, InitialContext }
 
@@ -25,34 +28,30 @@ import javax.naming.{ Context, InitialContext }
  * @author jasonk@bluedevel.com
  */
 class SimpleJmsClient(val qcfName: String, val queueName: String, val url: String,
-	val username: Option[String], val password: Option[String], val contextFactory: String,
-	val deliveryMode: Int) {
+	val credentials: Option[Credentials], val contextFactory: String,
+	val deliveryMode: Int) extends StrictLogging {
 
 	// create InitialContext
 	val properties = new JHashtable[String, String]
 	properties.put(Context.INITIAL_CONTEXT_FACTORY, contextFactory)
 	properties.put(Context.PROVIDER_URL, url)
-	username match {
-		case None => None
-		case Some(s) => properties.put(Context.SECURITY_PRINCIPAL, s)
-	}
-	password match {
-		case None => None
-		case Some(s) => properties.put(Context.SECURITY_CREDENTIALS, s)
+	credentials.foreach { credentials =>
+		properties.put(Context.SECURITY_PRINCIPAL, credentials.username)
+		properties.put(Context.SECURITY_CREDENTIALS, credentials.password)
 	}
 
 	val ctx = new InitialContext(properties)
-	println("Got InitialContext " + ctx.toString())
+	logger.info("Got InitialContext " + ctx)
 
 	// create QueueConnectionFactory
 	val qcf = (ctx.lookup(qcfName)).asInstanceOf[ConnectionFactory]
-	println("Got ConnectionFactory " + qcf.toString())
+	logger.info("Got ConnectionFactory " + qcf)
 
 	// create QueueConnection
 	val conn = qcf.createConnection()
 	conn.start()
 	val session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)
-	println("Got Connection " + conn.toString())
+	logger.info("Got Connection " + conn)
 
 	// reply queue and target destination/producer
 	val replyQ = session.createTemporaryQueue()

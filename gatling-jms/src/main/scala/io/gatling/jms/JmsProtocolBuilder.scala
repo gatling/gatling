@@ -15,6 +15,9 @@
  */
 package io.gatling.jms
 
+import io.gatling.core.config.Credentials
+import javax.jms.DeliveryMode
+
 /**
  * JmsProtocolBuilder
  * @author jasonk@bluedevel.com
@@ -45,7 +48,7 @@ case class JmsProtocolBuilder(protocol: JmsProtocol) {
 	/**
 	 * Configures the JMS connection credentials - see your JMS provider docs
 	 */
-	def credentials(user: String, pass: String) = copy(protocol = protocol.copy(username = Some(user), password = Some(pass)))
+	def credentials(user: String, pass: String) = copy(protocol = protocol.copy(credentials = Some(Credentials(user, pass))))
 
 	/**
 	 * Configures the context factory name - see your JMS provider docs
@@ -72,11 +75,9 @@ case class JmsProtocolBuilder(protocol: JmsProtocol) {
 		require(!protocol.jmsUrl.isEmpty, "JMS URL must be set")
 		require(!protocol.contextFactory.isEmpty, "Context Factory must be set")
 		require(protocol.listenerCount >= 1, "JMS response listener count must be at least 1")
-		require(protocol.username.isEmpty == protocol.password.isEmpty, "Username or password should both be set or neither")
-		require((protocol.deliveryMode == javax.jms.DeliveryMode.PERSISTENT)
-			|| (protocol.deliveryMode == javax.jms.DeliveryMode.NON_PERSISTENT),
+		require((protocol.deliveryMode == DeliveryMode.PERSISTENT)
+			|| (protocol.deliveryMode == DeliveryMode.NON_PERSISTENT),
 			"DeliveryMode must be set to either PERSISTENT or NON_PERSISTENT as per JMS API specs.")
 		protocol
 	}
-
 }

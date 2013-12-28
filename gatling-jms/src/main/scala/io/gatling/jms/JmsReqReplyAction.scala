@@ -33,9 +33,11 @@ case class JmsReqReplyAction(next: ActorRef, attributes: JmsAttributes, protocol
 	// Create a client to refer to
 	// this assumes the protocol has been validated by the builder
 	// FIXME change DSL so that mandatory information cannot be ommitted
-	val client = new SimpleJmsClient(protocol.connectionFactoryName.get,
-		attributes.queueName, protocol.jmsUrl.get,
-		protocol.username, protocol.password,
+	val client = new SimpleJmsClient(
+		protocol.connectionFactoryName.get,
+		attributes.queueName,
+		protocol.jmsUrl.get,
+		protocol.credentials,
 		protocol.contextFactory.get,
 		protocol.deliveryMode)
 
@@ -58,7 +60,7 @@ case class JmsReqReplyAction(next: ActorRef, attributes: JmsAttributes, protocol
 					m match {
 						case msg: Message => tracker ! MessageReceived(msg.getJMSCorrelationID, nowMillis, msg)
 						case _ => {
-							println("Blocking receive returned null. Possibly the consumer was closed.")
+							logger.error("Blocking receive returned null. Possibly the consumer was closed.")
 							throw new Exception("Blocking receive returned null. Possibly the consumer was closed.")
 						}
 					}

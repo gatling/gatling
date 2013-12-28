@@ -16,6 +16,8 @@
 package io.gatling.jms
 
 import io.gatling.core.config.Protocol
+import javax.jms.DeliveryMode
+import io.gatling.core.config.Credentials
 
 /**
  * Wraps a JMS protocol configuration
@@ -26,10 +28,9 @@ object JmsProtocol {
 		contextFactory = None,
 		connectionFactoryName = None,
 		jmsUrl = None,
-		username = None,
-		password = None,
+		credentials = None,
 		listenerCount = 1,
-		deliveryMode = javax.jms.DeliveryMode.NON_PERSISTENT)
+		deliveryMode = DeliveryMode.NON_PERSISTENT)
 }
 
 /**
@@ -39,8 +40,6 @@ case class JmsProtocol(
 	contextFactory: Option[String],
 	connectionFactoryName: Option[String],
 	jmsUrl: Option[String],
-	username: Option[String],
-	password: Option[String],
+	credentials: Option[Credentials],
 	listenerCount: Int,
 	deliveryMode: Int) extends Protocol
-
