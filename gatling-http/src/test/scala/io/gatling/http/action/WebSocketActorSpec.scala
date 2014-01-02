@@ -149,6 +149,10 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 		}
 	}
 
+	step {
+		GatlingActorSystem.shutdown
+	}
+
 	private trait scope extends Scope with MocksCreation {
 		val requestLogger = mock[RequestLogger]
 		var next: TestActorRef[DummyAction] = _
