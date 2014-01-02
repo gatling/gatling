@@ -23,11 +23,13 @@ case class Filters(first: Filter, second: Filter) {
 	def accept(url: String) = first.accept(url) && second.accept(url)
 }
 
-sealed trait Filter { def accept(url: String): Boolean }
+sealed abstract class Filter {
+	def patterns: List[String]
+	val regexs = patterns.map(_.r)
+	def accept(url: String): Boolean
+}
 
 case class WhiteList(patterns: List[String] = Nil) extends Filter {
-
-	private val regexs = patterns.map(_.r)
 
 	def accept(url: String): Boolean = {
 
@@ -42,8 +44,6 @@ case class WhiteList(patterns: List[String] = Nil) extends Filter {
 }
 
 case class BlackList(patterns: List[String] = Nil) extends Filter {
-
-	private val regexs = patterns.map(_.r)
 
 	def accept(url: String): Boolean = {
 
