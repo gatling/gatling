@@ -26,7 +26,7 @@ package object validation {
 	}
 
 	implicit class FailureWrapper(val message: String) extends AnyVal {
-		def failure[T]: Validation[T] = Failure(message)
+		def failure = Failure(message)
 	}
 
 	implicit class ValidationList[T](val validations: List[Validation[T]]) extends AnyVal {
