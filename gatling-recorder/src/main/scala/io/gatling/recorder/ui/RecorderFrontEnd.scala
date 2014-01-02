@@ -19,10 +19,10 @@ import scala.reflect.io.Path.string2path
 import scala.swing.Dialog
 import scala.swing.Swing.onEDT
 
-import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.RecorderMode
-import io.gatling.recorder.ui.swing.frame.{ ConfigurationFrame, RunningFrame }
+import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.swing.component.DialogFileSelector
+import io.gatling.recorder.ui.swing.frame.{ ConfigurationFrame, RunningFrame }
 
 object RecorderFrontend {
 
@@ -46,6 +46,8 @@ sealed abstract class RecorderFrontend(controller: RecorderController) {
 	def handleHarExportSuccess
 
 	def handleHarExportFailure
+
+	def handleFilterValidationFailures(failures: Seq[String])
 
 	def askSimulationOverwrite: Boolean
 
@@ -123,6 +125,13 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
 			title = "Error",
 			message = """	|Export to HAR File unsuccessful.
 							|See logs for more information""".stripMargin,
+			messageType = Dialog.Message.Error)
+	}
+
+	def handleFilterValidationFailures(failures: Seq[String]) {
+		Dialog.showMessage(
+			title = "Error",
+			message = failures.mkString("\n"),
 			messageType = Dialog.Message.Error)
 	}
 

@@ -15,27 +15,29 @@
  */
 package io.gatling.recorder.ui.swing.frame
 
+import java.awt.Font
+
 import scala.collection.JavaConversions.seqAsJavaList
+import scala.language.reflectiveCalls._
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.FileChooser.SelectionMode
 import scala.swing.ListView.Renderer
-import scala.swing.Swing.pair2Dimension
 import scala.swing.event.{ KeyReleased, SelectionChanged }
 import scala.util.Try
-import java.awt.Font
 
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.recorder.{ Har, Proxy, RecorderMode }
-import io.gatling.recorder.config.{ RecorderConfiguration, RecorderPropertiesBuilder }
+import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.configuration
+import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.enumeration.FilterStrategy
 import io.gatling.recorder.ui.RecorderFrontend
 import io.gatling.recorder.ui.swing.Commons.{ iconList, logoSmall }
 import io.gatling.recorder.ui.swing.component.FilterTable
-import io.gatling.recorder.ui.swing.frame.ValidationHelper._
+import io.gatling.recorder.ui.swing.frame.ValidationHelper.{ Validator, isNonEmpty, isValidPort, keyReleased, updateValidationStatus }
 import io.gatling.recorder.ui.swing.util.CharsetHelper
-import io.gatling.recorder.ui.swing.util.UIHelper._
+import io.gatling.recorder.ui.swing.util.UIHelper.{ CenterAlignedFlowPanel, LeftAlignedFlowPanel, RichFileChooser, RightAlignedFlowPanel, titledBorder }
 
 class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
@@ -375,52 +377,64 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 	 * and start recording
 	 */
 	private def reloadConfigurationAndStart {
-		// validate filters
-		whiteListTable.validateCells
-		blackListTable.validateCells
+		// clean up filters
+		whiteListTable.cleanUp
+		blackListTable.cleanUp
 
-		val props = new RecorderPropertiesBuilder
+		val filterValidationFailures =
+			if (filterStrategies.selection.item == FilterStrategy.DISABLED)
+				Nil
+			else
+				whiteListTable.validate ::: blackListTable.validate
 
-		// Local proxy
-		props.localPort(Try(localProxyHttpPort.text.toInt).getOrElse(0))
-		props.localSslPort(Try(localProxyHttpsPort.text.toInt).getOrElse(0))
+		if (!filterValidationFailures.isEmpty) {
+			frontend.handleFilterValidationFailures(filterValidationFailures)
 
-		// Outgoing proxy
-		outgoingProxyHost.text.trimToOption match {
-			case Some(host) =>
-				props.proxyHost(host)
-				props.proxyPort(outgoingProxyHttpPort.text.toInt)
-				props.proxySslPort(outgoingProxyHttpsPort.text.toInt)
-				outgoingProxyUsername.text.trimToOption.foreach(props.proxyUsername)
-				outgoingProxyPassword.text.trimToOption.foreach(props.proxyPassword)
+		} else {
 
-			case None =>
-				props.proxyHost("")
-				props.proxyPort(0)
-				props.proxySslPort(0)
-				props.proxyUsername("")
-				props.proxyPassword("")
+			val props = new RecorderPropertiesBuilder
+
+			// Local proxy
+			props.localPort(Try(localProxyHttpPort.text.toInt).getOrElse(0))
+			props.localSslPort(Try(localProxyHttpsPort.text.toInt).getOrElse(0))
+
+			// Outgoing proxy
+			outgoingProxyHost.text.trimToOption match {
+				case Some(host) =>
+					props.proxyHost(host)
+					props.proxyPort(outgoingProxyHttpPort.text.toInt)
+					props.proxySslPort(outgoingProxyHttpsPort.text.toInt)
+					outgoingProxyUsername.text.trimToOption.foreach(props.proxyUsername)
+					outgoingProxyPassword.text.trimToOption.foreach(props.proxyPassword)
+
+				case None =>
+					props.proxyHost("")
+					props.proxyPort(0)
+					props.proxySslPort(0)
+					props.proxyUsername("")
+					props.proxyPassword("")
+			}
+
+			// Filters
+			props.filterStrategy(filterStrategies.selection.item.toString)
+			props.whitelist(whiteListTable.getRegexs)
+			props.blacklist(blackListTable.getRegexs)
+
+			// Simulation config
+			props.simulationPackage(simulationPackage.text)
+			props.simulationClassName(simulationClassName.text.trim)
+			props.followRedirect(followRedirects.selected)
+			props.automaticReferer(automaticReferers.selected)
+			props.simulationOutputFolder(outputFolderPath.text.trim)
+			props.encoding(CharsetHelper.labelToCharsetName(outputEncoding.selection.item))
+
+			RecorderConfiguration.reload(props.build)
+
+			if (savePreferences.selected) {
+				RecorderConfiguration.saveConfig
+			}
+
+			frontend.startRecording
 		}
-
-		// Filters
-		props.filterStrategy(filterStrategies.selection.item.toString)
-		props.whitelist(whiteListTable.getRegexs)
-		props.blacklist(blackListTable.getRegexs)
-
-		// Simulation config
-		props.simulationPackage(simulationPackage.text)
-		props.simulationClassName(simulationClassName.text.trim)
-		props.followRedirect(followRedirects.selected)
-		props.automaticReferer(automaticReferers.selected)
-		props.simulationOutputFolder(outputFolderPath.text.trim)
-		props.encoding(CharsetHelper.labelToCharsetName(outputEncoding.selection.item))
-
-		RecorderConfiguration.reload(props.build)
-
-		if (savePreferences.selected) {
-			RecorderConfiguration.saveConfig
-		}
-
-		frontend.startRecording
 	}
 }

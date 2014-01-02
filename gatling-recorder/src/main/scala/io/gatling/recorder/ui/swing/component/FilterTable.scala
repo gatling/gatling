@@ -20,11 +20,13 @@ import java.awt.event.{ ActionEvent, ActionListener }
 
 import scala.swing.{ Component, Dimension, ScrollPane, Table }
 import scala.swing.event.{ MouseButtonEvent, MouseEvent }
+import scala.util.{ Failure, Try }
 
 import javax.swing.{ JMenuItem, JPopupMenu }
 import javax.swing.table.DefaultTableModel
 
 class FilterTable(headerTitle: String) extends ScrollPane {
+
 	private val table = new Table {
 		override def rendererComponent(isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = {
 			val c = super.rendererComponent(isSelected, focused, row, column)
@@ -32,6 +34,7 @@ class FilterTable(headerTitle: String) extends ScrollPane {
 			c
 		}
 	}
+
 	private val model = new DefaultTableModel
 
 	contents = table
@@ -41,7 +44,7 @@ class FilterTable(headerTitle: String) extends ScrollPane {
 	preferredSize = new Dimension(200, 300)
 	initPopupMenu
 
-	def validateCells {
+	def cleanUp {
 		stopCellEditing
 		var toRemove: List[Int] = Nil
 		for (i <- 0 until table.rowCount if table(i, 0).toString.isEmpty)
@@ -51,7 +54,14 @@ class FilterTable(headerTitle: String) extends ScrollPane {
 		removeDuplicates
 	}
 
-	def removeRows(toRemove: List[Int]) {
+	def validate: List[String] =
+		getRegexs
+			.map { str => (str, Try(str.r)) }
+			.collect {
+				case (str, fail: Failure[_]) => s"$str is not a valid regular expression: ${fail.exception.getMessage}"
+			}
+
+	def removeRows(toRemove: Seq[Int]) {
 		toRemove.sorted.reverse.foreach(model.removeRow)
 	}
 
@@ -72,7 +82,7 @@ class FilterTable(headerTitle: String) extends ScrollPane {
 
 	def setEnabled(enabled: Boolean) {
 		table.enabled = enabled
-		table.background = if (enabled) Color.WHITE else Color.LIGHT_GRAY
+		table.background = if (enabled) Color.white else Color.lightGray
 	}
 
 	def addRow {
@@ -82,9 +92,9 @@ class FilterTable(headerTitle: String) extends ScrollPane {
 
 	def addRow(pattern: String) = model.addRow(Array[Object](pattern))
 
-	def removeSelectedRow = removeRows(table.selection.rows.toList)
+	def removeSelectedRow = removeRows(table.selection.rows.toSeq)
 
-	def removeAllElements = removeRows((0 until model.getRowCount).toList)
+	def removeAllElements = removeRows(0 until model.getRowCount)
 
 	def setFocusable(focusable: Boolean) = table.focusable = focusable
 
