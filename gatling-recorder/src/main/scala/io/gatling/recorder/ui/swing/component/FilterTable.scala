@@ -17,13 +17,21 @@ package io.gatling.recorder.ui.swing.component
 
 import java.awt.Color
 import java.awt.event.{ ActionEvent, ActionListener }
-import javax.swing.table.DefaultTableModel
+
+import scala.swing.{ Component, Dimension, ScrollPane, Table }
+import scala.swing.event.{ MouseButtonEvent, MouseEvent }
+
 import javax.swing.{ JMenuItem, JPopupMenu }
-import scala.swing.{ Dimension, ScrollPane, Table }
-import scala.swing.event.{ MouseEvent, MouseButtonEvent }
+import javax.swing.table.DefaultTableModel
 
 class FilterTable(headerTitle: String) extends ScrollPane {
-	private val table = new Table
+	private val table = new Table {
+		override def rendererComponent(isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = {
+			val c = super.rendererComponent(isSelected, focused, row, column)
+			c.background = Color.lightGray
+			c
+		}
+	}
 	private val model = new DefaultTableModel
 
 	contents = table
