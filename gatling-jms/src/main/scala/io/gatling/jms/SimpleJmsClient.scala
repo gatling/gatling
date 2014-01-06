@@ -27,9 +27,13 @@ import javax.naming.{ Context, InitialContext }
  * Trivial JMS client, allows sending messages and use of a MessageListener
  * @author jasonk@bluedevel.com
  */
-class SimpleJmsClient(val qcfName: String, val queueName: String, val url: String,
-	val credentials: Option[Credentials], val contextFactory: String,
-	val deliveryMode: Int) extends StrictLogging {
+class SimpleJmsClient(
+	connectionFactoryName: String,
+	queueName: String,
+	url: String,
+	credentials: Option[Credentials],
+	contextFactory: String,
+	deliveryMode: Int) extends StrictLogging {
 
 	// create InitialContext
 	val properties = new JHashtable[String, String]
@@ -44,17 +48,17 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
 	logger.info("Got InitialContext " + ctx)
 
 	// create QueueConnectionFactory
-	val qcf = (ctx.lookup(qcfName)).asInstanceOf[ConnectionFactory]
+	val qcf = (ctx.lookup(connectionFactoryName)).asInstanceOf[ConnectionFactory]
 	logger.info("Got ConnectionFactory " + qcf)
 
 	// create QueueConnection
-	val conn = qcf.createConnection()
-	conn.start()
+	val conn = qcf.createConnection
+	conn.start
 	val session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)
 	logger.info("Got Connection " + conn)
 
 	// reply queue and target destination/producer
-	val replyQ = session.createTemporaryQueue()
+	val replyQ = session.createTemporaryQueue
 	val destination = session.createQueue(queueName)
 	val producer = session.createProducer(destination)
 
@@ -69,13 +73,13 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
 	/**
 	 * Writes a property map to the message properties
 	 */
-	private def writePropsToMessage(props: Map[String, Object], message: Message) =
+	private def writePropsToMessage(props: Map[String, Any], message: Message) =
 		props.foreach { case (key, value) => message.setObjectProperty(key, value) }
 
 	/**
 	 * Wrapper to send a BytesMessage, returns the message ID of the sent message
 	 */
-	def sendBytesMessage(bytes: Array[Byte], props: Map[String, Object]): String = {
+	def sendBytesMessage(bytes: Array[Byte], props: Map[String, Any]): String = {
 		val message = session.createBytesMessage
 		message.writeBytes(bytes)
 		writePropsToMessage(props, message)
@@ -89,7 +93,7 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
 	 * for the objectified primitive object types (Integer, Double, Long ...), String objects,
 	 * and byte arrays."
 	 */
-	def sendMapMessage(map: Map[String, Object], props: Map[String, Object]): String = {
+	def sendMapMessage(map: Map[String, Object], props: Map[String, Any]): String = {
 		val message = session.createMapMessage
 		map.foreach { case (key, value) => message.setObject(key, value) }
 		writePropsToMessage(props, message)
@@ -99,7 +103,7 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
 	/**
 	 * Wrapper to send an ObjectMessage, returns the message ID of the sent message
 	 */
-	def sendObjectMessage(o: java.io.Serializable, props: Map[String, Object]): String = {
+	def sendObjectMessage(o: java.io.Serializable, props: Map[String, Any]): String = {
 		val message = session.createObjectMessage(o)
 		writePropsToMessage(props, message)
 		sendMessage(message)
@@ -108,7 +112,7 @@ class SimpleJmsClient(val qcfName: String, val queueName: String, val url: Strin
 	/**
 	 * Wrapper to send a TextMessage, returns the message ID of the sent message
 	 */
-	def sendTextMessage(messageText: String, props: Map[String, Object]): String = {
+	def sendTextMessage(messageText: String, props: Map[String, Any]): String = {
 		val message = session.createTextMessage(messageText)
 		writePropsToMessage(props, message)
 		sendMessage(message)

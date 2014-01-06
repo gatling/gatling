@@ -31,8 +31,6 @@ import javax.jms.Message
 case class JmsReqReplyAction(next: ActorRef, attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef) extends Chainable {
 
 	// Create a client to refer to
-	// this assumes the protocol has been validated by the builder
-	// FIXME change DSL so that mandatory information cannot be ommitted
 	val client = new SimpleJmsClient(
 		protocol.connectionFactoryName,
 		attributes.queueName,
@@ -79,20 +77,17 @@ case class JmsReqReplyAction(next: ActorRef, attributes: JmsAttributes, protocol
 	 */
 	def execute(session: Session) {
 
-		// FIXME change DSL so that mandatory message cannot be ommitted
-		attributes.message.foreach { message =>
+		// send the message
+		val start = nowMillis
 
-			// send the message
-			val start = nowMillis
-			val msgid = message match {
-				case BytesJmsMessage(bytes) => client.sendBytesMessage(bytes, attributes.messageProperties)
-				case MapJmsMessage(map) => client.sendMapMessage(map, attributes.messageProperties)
-				case ObjectJmsMessage(o) => client.sendObjectMessage(o, attributes.messageProperties)
-				case TextJmsMessage(txt) => client.sendTextMessage(txt, attributes.messageProperties)
-			}
-
-			// notify the tracker that a message was sent
-			tracker ! MessageSent(msgid, start, nowMillis, attributes.checks, session, next, attributes.requestName)
+		val msgid = attributes.message match {
+			case BytesJmsMessage(bytes) => client.sendBytesMessage(bytes, attributes.messageProperties)
+			case MapJmsMessage(map) => client.sendMapMessage(map, attributes.messageProperties)
+			case ObjectJmsMessage(o) => client.sendObjectMessage(o, attributes.messageProperties)
+			case TextJmsMessage(txt) => client.sendTextMessage(txt, attributes.messageProperties)
 		}
+
+		// notify the tracker that a message was sent
+		tracker ! MessageSent(msgid, start, nowMillis, attributes.checks, session, next, attributes.requestName)
 	}
 }

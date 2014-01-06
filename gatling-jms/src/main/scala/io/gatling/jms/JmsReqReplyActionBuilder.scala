@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,23 +15,18 @@
  */
 package io.gatling.jms
 
-/**
- * Wraps up the DSL entry point, exposed through the Predef's
- * @author jasonk@bluedevel.com
- */
-object JmsBuilder {
-	/**
-	 * jms() is the entry pointk
-	 */
-	def jms(requestName: String) = new JmsBuilder(requestName)
-}
+import akka.actor.{ ActorRef, Props }
+import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.config.ProtocolRegistry
 
-class JmsBuilder(val requestName: String) {
+case class JmsReqReplyActionBuilder(attributes: JmsAttributes) extends ActionBuilder {
 
 	/**
-	 * Builds a request reply JMS test
+	 * Builds an action instance
 	 */
-	def reqreply = JmsReqReplyBuilder(requestName)
-
+	def build(next: ActorRef, registry: ProtocolRegistry) = {
+		val jmsProtocol = registry.getProtocol[JmsProtocol].getOrElse(throw new IllegalStateException("Missing JMS protocol set up"))
+		val tracker = system.actorOf(Props[JmsRequestTrackerActor])
+		system.actorOf(Props(new JmsReqReplyAction(next, attributes, jmsProtocol, tracker)))
+	}
 }
-

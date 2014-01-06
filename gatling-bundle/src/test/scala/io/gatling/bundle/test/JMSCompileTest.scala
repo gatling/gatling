@@ -36,11 +36,23 @@ class JMSCompileTest extends Simulation {
 			.queue("jmstestq")
 			// -- four message types are supported; only StreamMessage is not currently supported
 			.textMessage("hello from gatling jms dsl")
-			//      .bytesMessage(new Array[Byte](1))
-			//      .mapMessage(new ListMap[String, Object])
-			//      .objectMessage("hello!")
 			.addProperty("test_header", "test_value")
-			.addCheck(checkBodyTextCorrect))
+			.check(checkBodyTextCorrect))
+		exec(jms("req reply testing").reqreply
+			.queue("jmstestq")
+			.bytesMessage(new Array[Byte](1))
+			.addProperty("test_header", "test_value")
+			.check(checkBodyTextCorrect))
+		exec(jms("req reply testing").reqreply
+			.queue("jmstestq")
+			.mapMessage(Map("foo" -> "bar"))
+			.addProperty("test_header", "test_value")
+			.check(checkBodyTextCorrect))
+		exec(jms("req reply testing").reqreply
+			.queue("jmstestq")
+			.objectMessage("hello!")
+			.addProperty("test_header", "test_value")
+			.check(checkBodyTextCorrect))
 	}
 
 	setUp(scn.inject(rampUsersPerSec(10) to (1000) during (2 minutes)))

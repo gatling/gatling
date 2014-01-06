@@ -15,6 +15,8 @@
  */
 package io.gatling.jms
 
+import io.gatling.core.action.builder.ActionBuilder
+
 /**
  * Imports to be used to simplify the DSL
  * <p>
@@ -22,8 +24,8 @@ package io.gatling.jms
  * @author jasonk@bluedevel.com
  */
 object Predef {
-	
-	val jms = ConnectionFactoryNameStep
+
+	val jms = JmsProtocolBuilderBase
 
 	/**
 	 * DSL text to start the jms builder
@@ -31,7 +33,7 @@ object Predef {
 	 * @param requestName human readable name of request
 	 * @return a PingBuilder instance which can be used to build up a ping
 	 */
-	def jms(requestName: String) = JmsBuilder.jms(requestName)
+	def jms(requestName: String) = JmsRequestBuilderBase(requestName)
 
 	/**
 	 * Convert a JmsProtocolBuilder to a JmsProtocol
@@ -39,5 +41,6 @@ object Predef {
 	 * Simplifies the API somewhat (you can pass the builder reference to the scenario .protocolConfig() method)
 	 */
 	implicit def jmsProtocolBuilder2jmsProtocol(builder: JmsProtocolBuilder): JmsProtocol = builder.build
-
+	
+	implicit def jmsRequestBuilder2ActionBuilder(builder: JmsRequestBuilder): ActionBuilder = builder.build
 }

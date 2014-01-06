@@ -17,7 +17,6 @@ package io.gatling.jms
 
 import io.gatling.core.config.Credentials
 import javax.jms.DeliveryMode
-import io.gatling.core.config.Credentials
 
 /**
  * JmsProtocolBuilder allows building of the JMS protocol
@@ -28,24 +27,24 @@ import io.gatling.core.config.Credentials
  *
  * @author jasonk@bluedevel.com
  */
-case object ConnectionFactoryNameStep {
+case object JmsProtocolBuilderBase {
 
-	def connectionFactoryName(cfn: String) = UrlStep(cfn)
+	def connectionFactoryName(cfn: String) = JmsProtocolBuilderUrlStep(cfn)
 }
 
-case class UrlStep(connectionFactoryName: String) {
+case class JmsProtocolBuilderUrlStep(connectionFactoryName: String) {
 
-	def url(theUrl: String) = ContextFactoryStep(connectionFactoryName, theUrl)
+	def url(theUrl: String) = JmsProtocolBuilderContextFactoryStep(connectionFactoryName, theUrl)
 }
 
-case class ContextFactoryStep(connectionFactoryName: String, url: String, credentials: Option[Credentials] = None) {
+case class JmsProtocolBuilderContextFactoryStep(connectionFactoryName: String, url: String, credentials: Option[Credentials] = None) {
 
 	def credentials(user: String, password: String) = copy(credentials = Some(Credentials(user, password)))
 
-	def contextFactory(cf: String) = ListenerCountStep(connectionFactoryName, url, credentials, cf)
+	def contextFactory(cf: String) = JmsProtocolBuilderListenerCountStep(connectionFactoryName, url, credentials, cf)
 }
 
-case class ListenerCountStep(connectionFactoryName: String, url: String, credentials: Option[Credentials], contextFactory: String) {
+case class JmsProtocolBuilderListenerCountStep(connectionFactoryName: String, url: String, credentials: Option[Credentials], contextFactory: String) {
 
 	def listenerCount(count: Int) = {
 		require(count > 0, "JMS response listener count must be at least 1")
@@ -59,10 +58,10 @@ case class JmsProtocolBuilder(connectionFactoryName: String, url: String, creden
 	def useNonPersistentDeliveryMode() = copy(deliveryMode = DeliveryMode.NON_PERSISTENT)
 
 	def build = new JmsProtocol(
-		contextFactory = this.contextFactory,
-		connectionFactoryName = this.connectionFactoryName,
-		url = this.url,
-		credentials = this.credentials,
-		listenerCount = this.listenerCount,
+		contextFactory = contextFactory,
+		connectionFactoryName = connectionFactoryName,
+		url = url,
+		credentials = credentials,
+		listenerCount = listenerCount,
 		deliveryMode = deliveryMode)
 }
