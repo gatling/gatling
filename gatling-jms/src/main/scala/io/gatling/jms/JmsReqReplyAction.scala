@@ -16,7 +16,7 @@
 package io.gatling.jms
 
 import akka.actor.ActorRef
-import io.gatling.core.action.Chainable
+import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 import javax.jms.Message
@@ -28,7 +28,7 @@ import javax.jms.Message
  * This implementation then forwards it on to a tracking actor.
  * @author jasonk@bluedevel.com
  */
-case class JmsReqReplyAction(next: ActorRef, attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef) extends Chainable {
+case class JmsReqReplyAction(next: ActorRef, attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef) extends Interruptable with Failable {
 
 	// Create a client to refer to
 	val client = new SimpleJmsClient(
@@ -75,19 +75,21 @@ case class JmsReqReplyAction(next: ActorRef, attributes: JmsAttributes, protocol
 	 * Note this does not catch any exceptions (even JMSException) as generally these indicate a
 	 * configuration failure that is unlikely to be addressed by retrying with another message
 	 */
-	def execute(session: Session) {
+	def executeOrFail(session: Session) = {
 
 		// send the message
 		val start = nowMillis
 
 		val msgid = attributes.message match {
-			case BytesJmsMessage(bytes) => client.sendBytesMessage(bytes, attributes.messageProperties)
-			case MapJmsMessage(map) => client.sendMapMessage(map, attributes.messageProperties)
-			case ObjectJmsMessage(o) => client.sendObjectMessage(o, attributes.messageProperties)
-			case TextJmsMessage(txt) => client.sendTextMessage(txt, attributes.messageProperties)
+			case BytesJmsMessage(bytes) => bytes(session).map(bytes => client.sendBytesMessage(bytes, attributes.messageProperties))
+			case MapJmsMessage(map) => map(session).map(map => client.sendMapMessage(map, attributes.messageProperties))
+			case ObjectJmsMessage(o) => o(session).map(o => client.sendObjectMessage(o, attributes.messageProperties))
+			case TextJmsMessage(txt) => txt(session).map(txt => client.sendTextMessage(txt, attributes.messageProperties))
 		}
 
-		// notify the tracker that a message was sent
-		tracker ! MessageSent(msgid, start, nowMillis, attributes.checks, session, next, attributes.requestName)
+		msgid.map { msgid =>
+			// notify the tracker that a message was sent
+			tracker ! MessageSent(msgid, start, nowMillis, attributes.checks, session, next, attributes.requestName)
+		}
 	}
 }

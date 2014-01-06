@@ -15,12 +15,14 @@
  */
 package io.gatling.jms
 
-import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.ProtocolRegistry
-import akka.actor.ActorRef
-import io.gatling.core.akka.AkkaDefaults
-import akka.actor.Props
 import java.io.{ Serializable => JSerializable }
+
+import akka.actor.{ ActorRef, Props }
+import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.session.Expression
+import io.gatling.core.session._
 import io.gatling.jms._
 
 case class JmsRequestBuilderBase(requestName: String) {
@@ -35,10 +37,11 @@ case class JmsRequestBuilderQueue(requestName: String, factory: JmsAttributes =>
 
 case class JmsRequestBuilderMessage(requestName: String, queueName: String, factory: JmsAttributes => ActionBuilder) {
 
-	def textMessage(text: String) = message(TextJmsMessage(text))
-	def bytesMessage(bytes: Array[Byte]) = message(BytesJmsMessage(bytes))
-	def mapMessage(map: Map[String, Object]) = message(MapJmsMessage(map))
-	def objectMessage(o: JSerializable) = message(ObjectJmsMessage(o))
+	def textMessage(text: Expression[String]) = message(TextJmsMessage(text))
+	def bytesMessage(bytes: Expression[Array[Byte]]) = message(BytesJmsMessage(bytes))
+	def mapMessage(map: Map[String, Any]): JmsRequestBuilder = mapMessage(map.expression)
+	def mapMessage(map: Expression[Map[String, Any]]): JmsRequestBuilder = message(MapJmsMessage(map))
+	def objectMessage(o: Expression[JSerializable]) = message(ObjectJmsMessage(o))
 	private def message(mess: JmsMessage) = JmsRequestBuilder(JmsAttributes(requestName, queueName, mess), factory)
 }
 

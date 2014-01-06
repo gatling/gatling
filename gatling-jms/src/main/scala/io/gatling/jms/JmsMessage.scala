@@ -17,12 +17,14 @@ package io.gatling.jms
 
 import java.io.{ Serializable => JSerializable }
 
+import io.gatling.core.session.Expression
+
 /**
  * Provides the enumeration of JMSMessage types that the implementation supports
  * @author jasonk@bluedevel.com
  */
 sealed trait JmsMessage
-case class BytesJmsMessage(bytes: Array[Byte]) extends JmsMessage
-case class MapJmsMessage(map: Map[String, Object]) extends JmsMessage
-case class ObjectJmsMessage(o: JSerializable) extends JmsMessage
-case class TextJmsMessage(text: String) extends JmsMessage
+case class BytesJmsMessage(bytes: Expression[Array[Byte]]) extends JmsMessage
+case class MapJmsMessage(map: Expression[Map[String, Any]]) extends JmsMessage
+case class ObjectJmsMessage(o: Expression[JSerializable]) extends JmsMessage
+case class TextJmsMessage(text: Expression[String]) extends JmsMessage

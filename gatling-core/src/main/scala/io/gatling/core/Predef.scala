@@ -40,10 +40,6 @@ object Predef extends StructureSupport with PauseSupport with CheckSupport with 
 	implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
 	implicit def value2Success[T](value: T): Validation[T] = value.success
 	implicit def value2Expression[T](value: T): Expression[T] = value.expression
-	implicit def map2ExpressionMap(map: Map[String, Any]): Map[String, Expression[Any]] = map.mapValues(_ match {
-		case string: String => string.el
-		case any => any.expression
-	})
 	implicit def intToFiniteDuration(i: Int) = i seconds
 
 	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)

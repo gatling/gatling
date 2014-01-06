@@ -93,7 +93,7 @@ class SimpleJmsClient(
 	 * for the objectified primitive object types (Integer, Double, Long ...), String objects,
 	 * and byte arrays."
 	 */
-	def sendMapMessage(map: Map[String, Object], props: Map[String, Any]): String = {
+	def sendMapMessage(map: Map[String, Any], props: Map[String, Any]): String = {
 		val message = session.createMapMessage
 		map.foreach { case (key, value) => message.setObject(key, value) }
 		writePropsToMessage(props, message)
