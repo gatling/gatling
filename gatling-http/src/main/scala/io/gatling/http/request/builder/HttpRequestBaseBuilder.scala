@@ -19,14 +19,6 @@ import java.net.URI
 
 import io.gatling.core.session.Expression
 
-object HttpRequestBaseBuilder {
-
-	/**
-	 * This method is used in DSL to declare a new HTTP request
-	 */
-	def http(requestName: Expression[String]) = new HttpRequestBaseBuilder(requestName)
-}
-
 /**
  * @param requestName the name of the request
  */

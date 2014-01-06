@@ -133,13 +133,13 @@ case class HttpProtocol(
 		if (HttpProtocolBuilder.warmUpUrls.isEmpty) {
 			val expression = "foo".el[String]
 
-			HttpRequestBaseBuilder.http(expression)
+			new HttpRequestBaseBuilder(expression)
 				.get(expression)
 				.header("bar", expression)
 				.queryParam(expression, expression)
 				.build(HttpProtocol.default, false)
 
-			HttpRequestBaseBuilder.http(expression)
+			new HttpRequestBaseBuilder(expression)
 				.post(expression)
 				.header("bar", expression)
 				.param(expression, expression)

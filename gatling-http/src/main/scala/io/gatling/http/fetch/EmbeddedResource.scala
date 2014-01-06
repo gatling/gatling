@@ -38,7 +38,7 @@ sealed abstract class EmbeddedResource {
 
 	def toRequest(protocol: HttpProtocol, throttled: Boolean): Option[NamedRequest] = {
 		val urlExpression: Expression[String] = _ => url.success
-		val httpRequest = HttpRequestBaseBuilder.http(urlExpression).get(uri).build(protocol, throttled)
+		val httpRequest = new HttpRequestBaseBuilder(urlExpression).get(uri).build(protocol, throttled)
 
 		// for now, no better way to build a request than reusing HttpRequestBaseBuilder and passing a mock session
 		httpRequest.ahcRequest(EmbeddedResource.mockSession) match {
