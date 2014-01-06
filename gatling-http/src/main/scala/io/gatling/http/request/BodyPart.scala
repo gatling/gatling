@@ -25,7 +25,7 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object RawFileBodyPart {
 
-	def apply(name: Expression[String], filePath: Expression[String], contentType: String) = FileBodyPart(name, RawFileBodies.asFile(filePath), contentType)
+	def apply(name: Expression[String], filePath: Expression[String]) = FileBodyPart(name, RawFileBodies.asFile(filePath))
 }
 
 object ELFileBodyPart {
@@ -41,14 +41,14 @@ sealed trait BodyPart {
 case class StringBodyPart(
 	name: Expression[String],
 	string: Expression[String],
-	charset: String = configuration.core.encoding,
 	contentType: Option[String] = None,
+	charset: String = configuration.core.encoding,
 	transferEncoding: Option[Expression[String]] = None,
 	contentId: Option[Expression[String]] = None) extends BodyPart {
 
+	def withContentType(contentType: String) = copy(contentType = Some(contentType))
 	def withCharset(charset: String) = copy(charset = charset)
 	def withContentId(contentId: Expression[String]) = copy(contentId = Some(contentId))
-	def withContentType(contentType: String) = copy(contentType = Some(contentType))
 	def withTransferEncoding(transferEncoding: Expression[String]) = copy(transferEncoding = Some(transferEncoding))
 
 	def toMultiPart(session: Session): Validation[Part] =
@@ -68,12 +68,13 @@ case class StringBodyPart(
 case class ByteArrayBodyPart(
 	name: Expression[String],
 	bytes: Expression[Array[Byte]],
-	contentType: String,
+	contentType: Option[String] = None,
 	charset: String = configuration.core.encoding,
 	fileName: Option[Expression[String]] = None,
 	transferEncoding: Option[Expression[String]] = None,
 	contentId: Option[Expression[String]] = None) extends BodyPart {
 
+	def withContentType(contentType: String) = copy(contentType = Some(contentType))
 	def withCharset(charset: String) = copy(charset = charset)
 	def withFileName(fileName: Expression[String]) = copy(fileName = Some(fileName))
 	def withContentId(contentId: Expression[String]) = copy(contentId = Some(contentId))
@@ -88,7 +89,7 @@ case class ByteArrayBodyPart(
 			transferEncoding <- resolveOptionalExpression(transferEncoding, session)
 		} yield {
 			val source = new ByteArrayPartSource(fileName.getOrElse(null), bytes)
-			val part = new FilePart(name, source, contentType, charset, contentId.getOrElse(null))
+			val part = new FilePart(name, source, contentType.getOrElse(null), charset, contentId.getOrElse(null))
 			transferEncoding.foreach(part.setTransferEncoding)
 			part
 		}
@@ -97,19 +98,19 @@ case class ByteArrayBodyPart(
 case class FileBodyPart(
 	name: Expression[String],
 	file: Expression[File],
-	contentType: String,
+	contentType: Option[String] = None,
 	charset: String = configuration.core.encoding,
 	fileName: Option[Expression[String]] = None,
 	transferEncoding: Option[Expression[String]] = None,
 	contentId: Option[Expression[String]] = None) extends BodyPart {
 
+	def withContentType(contentType: String) = copy(contentType = Some(contentType))
 	def withCharset(charset: String) = copy(charset = charset)
 	def withFileName(fileName: Expression[String]) = copy(fileName = Some(fileName))
 	def withContentId(contentId: Expression[String]) = copy(contentId = Some(contentId))
 	def withTransferEncoding(transferEncoding: Expression[String]) = copy(transferEncoding = Some(transferEncoding))
 
-	def toMultiPart(session: Session): Validation[Part] = {
-
+	def toMultiPart(session: Session): Validation[Part] =
 		for {
 			name <- name(session)
 			file <- file(session)
@@ -118,9 +119,8 @@ case class FileBodyPart(
 			transferEncoding <- resolveOptionalExpression(transferEncoding, session)
 		} yield {
 			val source = new FilePartSource(fileName.getOrElse(null), file)
-			val part = new FilePart(name, source, contentType, charset, contentId.getOrElse(null))
+			val part = new FilePart(name, source, contentType.getOrElse(null), charset, contentId.getOrElse(null))
 			transferEncoding.foreach(part.setTransferEncoding)
 			part
 		}
-	}
 }
