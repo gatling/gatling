@@ -41,6 +41,24 @@ import io.gatling.http.request.{ Body, BodyPart, HttpRequest }
 import io.gatling.http.response.ResponseTransformer
 import io.gatling.http.util.HttpHelper
 
+/**
+ * @param requestName the name of the request
+ */
+class HttpRequestBaseBuilder(requestName: Expression[String]) {
+
+	def get(url: Expression[String]) = httpRequest("GET", Left(url))
+	def get(uri: URI) = httpRequest("GET", Right(uri))
+	def put(url: Expression[String]) = httpRequest("PUT", Left(url))
+	def patch(url: Expression[String]) = httpRequest("PATCH", Left(url))
+	def head(url: Expression[String]) = httpRequest("HEAD", Left(url))
+	def delete(url: Expression[String]) = httpRequest("DELETE", Left(url))
+	def options(url: Expression[String]) = httpRequest("OPTIONS", Left(url))
+	def httpRequest(method: String, urlOrURI: Either[Expression[String], URI]) = HttpRequestBuilder(method, requestName, urlOrURI)
+
+	def post(url: Expression[String]) = httpRequestWithParams("POST", Left(url))
+	def httpRequestWithParams(method: String, urlOrURI: Either[Expression[String], URI]) = HttpRequestWithParamsBuilder(method, requestName, urlOrURI)
+}
+
 case class HttpAttributes(
 	requestName: Expression[String],
 	method: String,
