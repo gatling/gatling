@@ -15,7 +15,11 @@
  */
 package io.gatling.core.util
 
+import java.io.{ File => JFile }
+import java.net.{ URISyntaxException, URL }
 import java.security.MessageDigest
+
+import scala.util.Try
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.{ RichString, bytes2Hex }
@@ -52,4 +56,10 @@ object FileHelper {
 		def toRequestFileName = s"req_${string.toFileName}.html"
 	}
 
+	implicit class RichURL(val url: URL) extends AnyVal {
+
+		def jfile(): JFile = Try(new JFile(url.toURI))
+			.recover { case e: URISyntaxException => new JFile(url.getPath) }
+			.get
+	}
 }

@@ -16,14 +16,15 @@
 package io.gatling.core.util
 
 import java.io.{ File => JFile }
-import java.net.{ JarURLConnection, URI }
+import java.net.JarURLConnection
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 import scala.tools.nsc.io.{ File, Fileish, Jar, Path }
-import scala.tools.nsc.io.Path.{ jfile2path, string2path }
+import scala.tools.nsc.io.Path.jfile2path
 
 import org.apache.commons.io.IOUtils
 
+import io.gatling.core.util.FileHelper.RichURL
 import io.gatling.core.util.IOHelper.withCloseable
 
 object ScanHelper {
@@ -41,15 +42,15 @@ object ScanHelper {
 				fileish.parent == rootDir
 		}
 
-		getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).flatMap { packageURL =>
-			packageURL.getProtocol match {
+		getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).flatMap { pkgURL =>
+			pkgURL.getProtocol match {
 				case "file" =>
-					val rootDir = File(new JFile(new URI(packageURL.toString).getSchemeSpecificPart)).toDirectory
+					val rootDir = File(pkgURL.jfile).toDirectory
 					val files = if (deep) rootDir.deepFiles else rootDir.files
 					files.map(FileResource)
 
 				case "jar" =>
-					val connection = packageURL.openConnection.asInstanceOf[JarURLConnection]
+					val connection = pkgURL.openConnection.asInstanceOf[JarURLConnection]
 					val rootDir: Path = connection.getJarEntry.getName
 					val jar = new Jar(File(new JFile(connection.getJarFileURL.toURI)))
 					jar.fileishIterator.collect { case fileish if isResourceInRootDir(fileish, rootDir) => new FileishResource(fileish) }

@@ -24,14 +24,15 @@ import scala.tools.nsc.io.Path.string2path
 import org.apache.commons.io.FileUtils.copyInputStreamToFile
 
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.util.FileHelper.RichURL
 
 object Resource {
 
 	private def load(filePath: Path, fileSystemFolder: Path): Validation[Resource] = {
 		val classPathResource = Option(getClass.getClassLoader.getResource(filePath.toString.replace('\\', '/'))).map { url =>
 			url.getProtocol match {
-				case "file" => FileResource(url.getFile.toFile)
-				case "jar" => ClassPathResource(url, filePath.extension)
+				case "file" => FileResource(File(url.jfile))
+				case "jar" => ArchiveResource(url, filePath.extension)
 				case _ => throw new UnsupportedOperationException
 			}
 		}
@@ -56,7 +57,7 @@ case class FileResource(file: File) extends Resource {
 	def jfile = file.jfile
 }
 
-case class ClassPathResource(url: URL, extension: String) extends Resource {
+case class ArchiveResource(url: URL, extension: String) extends Resource {
 
 	def inputStream = url.openStream
 
