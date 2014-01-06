@@ -22,6 +22,8 @@ package io.gatling.jms
  * @author jasonk@bluedevel.com
  */
 object Predef {
+	
+	val jms = ConnectionFactoryNameStep
 
 	/**
 	 * DSL text to start the jms builder

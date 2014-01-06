@@ -17,14 +17,7 @@ package io.gatling.jms
 
 import io.gatling.core.config.Credentials
 import javax.jms.DeliveryMode
-
-/**
- * JmsProtocolBuilder
- * @author jasonk@bluedevel.com
- */
-object JmsProtocolBuilder {
-	val default = new JmsProtocolBuilder(JmsProtocol.default)
-}
+import io.gatling.core.config.Credentials
 
 /**
  * JmsProtocolBuilder allows building of the JMS protocol
@@ -32,52 +25,44 @@ object JmsProtocolBuilder {
  * This allows multiple scenarios or jms methods to refer to a single protocol configuration.
  * <p>
  * See your JMS provider documentation for information on the values to set here.
+ *
+ * @author jasonk@bluedevel.com
  */
-case class JmsProtocolBuilder(protocol: JmsProtocol) {
+case object ConnectionFactoryNameStep {
 
-	/**
-	 * Configures the JMS Connection factory name - see your JMS provider docs
-	 */
-	def connectionFactoryName(cf: String) = copy(protocol = protocol.copy(connectionFactoryName = Some(cf)))
+	def connectionFactoryName(cfn: String) = UrlStep(cfn)
+}
 
-	/**
-	 * Configures the JMS URL - see your JMS provider docs
-	 */
-	def url(theUrl: String) = copy(protocol = protocol.copy(jmsUrl = Some(theUrl)))
+case class UrlStep(connectionFactoryName: String) {
 
-	/**
-	 * Configures the JMS connection credentials - see your JMS provider docs
-	 */
-	def credentials(user: String, pass: String) = copy(protocol = protocol.copy(credentials = Some(Credentials(user, pass))))
+	def url(theUrl: String) = ContextFactoryStep(connectionFactoryName, theUrl)
+}
 
-	/**
-	 * Configures the context factory name - see your JMS provider docs
-	 */
-	def contextFactory(factory: String) = copy(protocol = protocol.copy(contextFactory = Some(factory)))
+case class ContextFactoryStep(connectionFactoryName: String, url: String, credentials: Option[Credentials] = None) {
 
-	/**
-	 * A number (default=1) of listener threads will be set up to wait for JMS response messages.
-	 * <p>
-	 * In extremely high volume testing you may need to set up multiple listener threads.
-	 */
-	def listenerCount(count: Int) = copy(protocol = protocol.copy(listenerCount = count))
+	def credentials(user: String, password: String) = copy(credentials = Some(Credentials(user, password)))
 
-	/**
-	 * Configure the JMS [[javax.jms.DeliveryMode]].
-	 */
-	def deliveryMode(mode: Int) = copy(protocol = protocol.copy(deliveryMode = mode))
+	def contextFactory(cf: String) = ListenerCountStep(connectionFactoryName, url, credentials, cf)
+}
 
-	/**
-	 * Builds the required protocol. Generally only used by Gatling.
-	 */
-	def build = {
-		require(!protocol.connectionFactoryName.isEmpty, "Connection factory must be set")
-		require(!protocol.jmsUrl.isEmpty, "JMS URL must be set")
-		require(!protocol.contextFactory.isEmpty, "Context Factory must be set")
-		require(protocol.listenerCount >= 1, "JMS response listener count must be at least 1")
-		require((protocol.deliveryMode == DeliveryMode.PERSISTENT)
-			|| (protocol.deliveryMode == DeliveryMode.NON_PERSISTENT),
-			"DeliveryMode must be set to either PERSISTENT or NON_PERSISTENT as per JMS API specs.")
-		protocol
+case class ListenerCountStep(connectionFactoryName: String, url: String, credentials: Option[Credentials], contextFactory: String) {
+
+	def listenerCount(count: Int) = {
+		require(count > 0, "JMS response listener count must be at least 1")
+		JmsProtocolBuilder(connectionFactoryName, url, credentials, contextFactory, count)
 	}
+}
+
+case class JmsProtocolBuilder(connectionFactoryName: String, url: String, credentials: Option[Credentials], contextFactory: String, listenerCount: Int, deliveryMode: Int = DeliveryMode.NON_PERSISTENT) {
+
+	def usePersistentDeliveryMode() = copy(deliveryMode = DeliveryMode.PERSISTENT)
+	def useNonPersistentDeliveryMode() = copy(deliveryMode = DeliveryMode.NON_PERSISTENT)
+
+	def build = new JmsProtocol(
+		contextFactory = this.contextFactory,
+		connectionFactoryName = this.connectionFactoryName,
+		url = this.url,
+		credentials = this.credentials,
+		listenerCount = this.listenerCount,
+		deliveryMode = deliveryMode)
 }

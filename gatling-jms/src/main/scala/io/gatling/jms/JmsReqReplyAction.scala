@@ -34,11 +34,11 @@ case class JmsReqReplyAction(next: ActorRef, attributes: JmsAttributes, protocol
 	// this assumes the protocol has been validated by the builder
 	// FIXME change DSL so that mandatory information cannot be ommitted
 	val client = new SimpleJmsClient(
-		protocol.connectionFactoryName.get,
+		protocol.connectionFactoryName,
 		attributes.queueName,
-		protocol.jmsUrl.get,
+		protocol.url,
 		protocol.credentials,
-		protocol.contextFactory.get,
+		protocol.contextFactory,
 		protocol.deliveryMode)
 
 	// start the requested number of listener threads

@@ -23,23 +23,10 @@ import io.gatling.core.config.Credentials
  * Wraps a JMS protocol configuration
  * @author jasonk@bluedevel.com
  */
-object JmsProtocol {
-	val default = JmsProtocol(
-		contextFactory = None,
-		connectionFactoryName = None,
-		jmsUrl = None,
-		credentials = None,
-		listenerCount = 1,
-		deliveryMode = DeliveryMode.NON_PERSISTENT)
-}
-
-/**
- * Wraps a JMS protocol configuration
- */
 case class JmsProtocol(
-	contextFactory: Option[String],
-	connectionFactoryName: Option[String],
-	jmsUrl: Option[String],
+	contextFactory: String,
+	connectionFactoryName: String,
+	url: String,
 	credentials: Option[Credentials],
 	listenerCount: Int,
 	deliveryMode: Int) extends Protocol
