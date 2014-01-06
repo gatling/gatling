@@ -5,7 +5,8 @@ Development is currently focusing on HTTP support.
 
 # Motivation
 
-* Fed up with fancy GUIs that generate huge unreadable XML scenarios, what you want is scripts and a user friendly DSL?
+* Finding fancy GUIs not that convenient for describing stress tests, what you want is a friendly expressive DSL?
+* Wanting something more convenient than huge XML dumps to store in your source version control system?
 * Fed up with having to host a farm of injecting servers because your tool uses blocking IO and one-thread-per-user architecture?
 
 Gatling is for you!
