@@ -50,7 +50,7 @@ case class JmsRequestBuilder(attributes: JmsAttributes, factory: JmsAttributes =
 	/**
 	 * Add JMS message properties (aka headers) to the outbound message
 	 */
-	def addProperty(key: String, value: Any) = new JmsRequestBuilder(attributes.copy(messageProperties = attributes.messageProperties + (key -> value)), factory)
+	def property(key: String, value: Any) = new JmsRequestBuilder(attributes.copy(messageProperties = attributes.messageProperties + (key -> value)), factory)
 
 	/**
 	 * Add a check that will be perfomed on each received JMS response message before giving Gatling on OK/KO response
