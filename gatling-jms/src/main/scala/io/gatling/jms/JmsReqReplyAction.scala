@@ -20,6 +20,12 @@ import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 import javax.jms.Message
+import java.util.concurrent.atomic.AtomicBoolean
+
+object JmsReqReplyAction {
+
+	val blockingReceiveReturnedNull = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
+}
 
 /**
  * Core JMS Action to handle Request-Reply semantics
@@ -28,7 +34,7 @@ import javax.jms.Message
  * This implementation then forwards it on to a tracking actor.
  * @author jasonk@bluedevel.com
  */
-case class JmsReqReplyAction(next: ActorRef, attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef) extends Interruptable with Failable {
+class JmsReqReplyAction(val next: ActorRef, attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef) extends Interruptable with Failable {
 
 	// Create a client to refer to
 	val client = new SimpleJmsClient(
@@ -39,34 +45,29 @@ case class JmsReqReplyAction(next: ActorRef, attributes: JmsAttributes, protocol
 		protocol.contextFactory,
 		protocol.deliveryMode)
 
-	// start the requested number of listener threads
-	for (i <- 1 to protocol.listenerCount) {
-		startConsumerThread
-	}
-
-	/**
-	 * Creates a consumer thread to pull from the client
-	 */
-	private def startConsumerThread = {
-
-		// FIXME why create a thread? Why not just a scheduled task?
-		val thread = new Thread(new Runnable {
-			def run = {
-				val replyConsumer = client.createReplyConsumer
-				while (true) {
-					val m = replyConsumer.receive()
-					m match {
-						case msg: Message => tracker ! MessageReceived(msg.getJMSCorrelationID, nowMillis, msg)
-						case _ => {
-							logger.error("Blocking receive returned null. Possibly the consumer was closed.")
-							throw new Exception("Blocking receive returned null. Possibly the consumer was closed.")
-						}
+	class ListenerThread(val continue: AtomicBoolean = new AtomicBoolean(true)) extends Thread(new Runnable {
+		def run = {
+			val replyConsumer = client.createReplyConsumer
+			while (continue.get) {
+				val m = replyConsumer.receive
+				m match {
+					case msg: Message => tracker ! MessageReceived(msg.getJMSCorrelationID, nowMillis, msg)
+					case _ => {
+						logger.error(JmsReqReplyAction.blockingReceiveReturnedNull.getMessage)
+						throw JmsReqReplyAction.blockingReceiveReturnedNull
 					}
 				}
 			}
-		})
+		}
+	})
 
-		thread.start
+	val listenerThreads = (1 to protocol.listenerCount).map(_ => new ListenerThread)
+
+	listenerThreads.foreach(_.start)
+
+	override def postStop() {
+		client.close
+		listenerThreads.foreach(_.continue.set(false))
 	}
 
 	/**

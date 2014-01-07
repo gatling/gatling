@@ -48,7 +48,7 @@ class SimpleJmsClient(
 	logger.info("Got InitialContext " + ctx)
 
 	// create QueueConnectionFactory
-	val qcf = (ctx.lookup(connectionFactoryName)).asInstanceOf[ConnectionFactory]
+	val qcf = ctx.lookup(connectionFactoryName).asInstanceOf[ConnectionFactory]
 	logger.info("Got ConnectionFactory " + qcf)
 
 	// create QueueConnection
@@ -130,5 +130,12 @@ class SimpleJmsClient(
 
 		// return the message id
 		message.getJMSMessageID
+	}
+
+	def close() {
+		replyQ.delete
+		producer.close
+		session.close
+		conn.stop
 	}
 }
