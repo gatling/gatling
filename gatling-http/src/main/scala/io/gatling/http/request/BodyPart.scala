@@ -41,25 +41,25 @@ sealed trait BodyPart {
 case class StringBodyPart(
 	name: Expression[String],
 	string: Expression[String],
-	contentType: Option[String] = None,
-	charset: String = configuration.core.encoding,
-	transferEncoding: Option[Expression[String]] = None,
-	contentId: Option[Expression[String]] = None) extends BodyPart {
+	_contentType: Option[String] = None,
+	_charset: String = configuration.core.encoding,
+	_transferEncoding: Option[Expression[String]] = None,
+	_contentId: Option[Expression[String]] = None) extends BodyPart {
 
-	def withContentType(contentType: String) = copy(contentType = Some(contentType))
-	def withCharset(charset: String) = copy(charset = charset)
-	def withContentId(contentId: Expression[String]) = copy(contentId = Some(contentId))
-	def withTransferEncoding(transferEncoding: Expression[String]) = copy(transferEncoding = Some(transferEncoding))
+	def contentType(contentType: String) = copy(_contentType = Some(contentType))
+	def charset(charset: String) = copy(_charset = charset)
+	def contentId(contentId: Expression[String]) = copy(_contentId = Some(contentId))
+	def transferEncoding(transferEncoding: Expression[String]) = copy(_transferEncoding = Some(transferEncoding))
 
 	def toMultiPart(session: Session): Validation[Part] =
 		for {
 			name <- name(session)
 			string <- string(session)
-			contentId <- resolveOptionalExpression(contentId, session)
-			transferEncoding <- resolveOptionalExpression(transferEncoding, session)
+			contentId <- resolveOptionalExpression(_contentId, session)
+			transferEncoding <- resolveOptionalExpression(_transferEncoding, session)
 		} yield {
-			val part = new StringPart(name, string, charset, contentId.getOrElse(null))
-			contentType.foreach(part.setContentType)
+			val part = new StringPart(name, string, _charset, contentId.getOrElse(null))
+			_contentType.foreach(part.setContentType)
 			transferEncoding.foreach(part.setTransferEncoding)
 			part
 		}
@@ -68,28 +68,28 @@ case class StringBodyPart(
 case class ByteArrayBodyPart(
 	name: Expression[String],
 	bytes: Expression[Array[Byte]],
-	contentType: Option[String] = None,
-	charset: String = configuration.core.encoding,
-	fileName: Option[Expression[String]] = None,
-	transferEncoding: Option[Expression[String]] = None,
-	contentId: Option[Expression[String]] = None) extends BodyPart {
+	_contentType: Option[String] = None,
+	_charset: String = configuration.core.encoding,
+	_fileName: Option[Expression[String]] = None,
+	_transferEncoding: Option[Expression[String]] = None,
+	_contentId: Option[Expression[String]] = None) extends BodyPart {
 
-	def withContentType(contentType: String) = copy(contentType = Some(contentType))
-	def withCharset(charset: String) = copy(charset = charset)
-	def withFileName(fileName: Expression[String]) = copy(fileName = Some(fileName))
-	def withContentId(contentId: Expression[String]) = copy(contentId = Some(contentId))
-	def withTransferEncoding(transferEncoding: Expression[String]) = copy(transferEncoding = Some(transferEncoding))
+	def contentType(contentType: String) = copy(_contentType = Some(contentType))
+	def charset(charset: String) = copy(_charset = charset)
+	def fileName(fileName: Expression[String]) = copy(_fileName = Some(fileName))
+	def contentId(contentId: Expression[String]) = copy(_contentId = Some(contentId))
+	def transferEncoding(transferEncoding: Expression[String]) = copy(_transferEncoding = Some(transferEncoding))
 
 	def toMultiPart(session: Session): Validation[Part] =
 		for {
 			name <- name(session)
 			bytes <- bytes(session)
-			fileName <- resolveOptionalExpression(fileName, session)
-			contentId <- resolveOptionalExpression(contentId, session)
-			transferEncoding <- resolveOptionalExpression(transferEncoding, session)
+			fileName <- resolveOptionalExpression(_fileName, session)
+			contentId <- resolveOptionalExpression(_contentId, session)
+			transferEncoding <- resolveOptionalExpression(_transferEncoding, session)
 		} yield {
 			val source = new ByteArrayPartSource(fileName.getOrElse(null), bytes)
-			val part = new FilePart(name, source, contentType.getOrElse(null), charset, contentId.getOrElse(null))
+			val part = new FilePart(name, source, _contentType.getOrElse(null), _charset, contentId.getOrElse(null))
 			transferEncoding.foreach(part.setTransferEncoding)
 			part
 		}
@@ -98,28 +98,28 @@ case class ByteArrayBodyPart(
 case class FileBodyPart(
 	name: Expression[String],
 	file: Expression[File],
-	contentType: Option[String] = None,
-	charset: String = configuration.core.encoding,
-	fileName: Option[Expression[String]] = None,
-	transferEncoding: Option[Expression[String]] = None,
-	contentId: Option[Expression[String]] = None) extends BodyPart {
+	_contentType: Option[String] = None,
+	_charset: String = configuration.core.encoding,
+	_fileName: Option[Expression[String]] = None,
+	_transferEncoding: Option[Expression[String]] = None,
+	_contentId: Option[Expression[String]] = None) extends BodyPart {
 
-	def withContentType(contentType: String) = copy(contentType = Some(contentType))
-	def withCharset(charset: String) = copy(charset = charset)
-	def withFileName(fileName: Expression[String]) = copy(fileName = Some(fileName))
-	def withContentId(contentId: Expression[String]) = copy(contentId = Some(contentId))
-	def withTransferEncoding(transferEncoding: Expression[String]) = copy(transferEncoding = Some(transferEncoding))
+	def contentType(contentType: String) = copy(_contentType = Some(contentType))
+	def charset(charset: String) = copy(_charset = charset)
+	def fileName(fileName: Expression[String]) = copy(_fileName = Some(fileName))
+	def contentId(contentId: Expression[String]) = copy(_contentId = Some(contentId))
+	def transferEncoding(transferEncoding: Expression[String]) = copy(_transferEncoding = Some(transferEncoding))
 
 	def toMultiPart(session: Session): Validation[Part] =
 		for {
 			name <- name(session)
 			file <- file(session)
-			fileName <- resolveOptionalExpression(fileName, session)
-			contentId <- resolveOptionalExpression(contentId, session)
-			transferEncoding <- resolveOptionalExpression(transferEncoding, session)
+			fileName <- resolveOptionalExpression(_fileName, session)
+			contentId <- resolveOptionalExpression(_contentId, session)
+			transferEncoding <- resolveOptionalExpression(_transferEncoding, session)
 		} yield {
 			val source = new FilePartSource(fileName.getOrElse(null), file)
-			val part = new FilePart(name, source, contentType.getOrElse(null), charset, contentId.getOrElse(null))
+			val part = new FilePart(name, source, _contentType.getOrElse(null), _charset, contentId.getOrElse(null))
 			transferEncoding.foreach(part.setTransferEncoding)
 			part
 		}
