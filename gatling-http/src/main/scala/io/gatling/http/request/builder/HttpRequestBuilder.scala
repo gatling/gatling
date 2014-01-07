@@ -192,22 +192,25 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	protected def configureParts(session: Session, requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 		require(!httpAttributes.body.isDefined || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
-		if (httpAttributes.body.isDefined)
-			httpAttributes.body match {
-				case Some(body) => body.setBody(requestBuilder, session)
-				case _ => requestBuilder.success
-			}
+		httpAttributes.body match {
+			case Some(body) =>
+				body.setBody(requestBuilder, session)
 
-		else
-			httpAttributes.bodyParts.foldLeft(AbstractHttpRequestBuilder.emptyPartListSuccess) { (parts, part) =>
-				for {
-					parts <- parts
-					part <- part.toMultiPart(session)
-				} yield part :: parts
-			}.map { parts =>
-				parts.foreach(requestBuilder.addBodyPart)
-				requestBuilder
-			}
+			case None =>
+				httpAttributes.bodyParts match {
+					case Nil => requestBuilder.success
+					case bodyParts =>
+						bodyParts.foldLeft(AbstractHttpRequestBuilder.emptyPartListSuccess) { (parts, part) =>
+							for {
+								parts <- parts
+								part <- part.toMultiPart(session)
+							} yield part :: parts
+						}.map { parts =>
+							parts.foreach(requestBuilder.addBodyPart)
+							requestBuilder
+						}
+				}
+		}
 	}
 
 	/**
