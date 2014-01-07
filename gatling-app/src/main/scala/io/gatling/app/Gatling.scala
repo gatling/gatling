@@ -16,12 +16,9 @@
 package io.gatling.app
 
 import java.lang.System.currentTimeMillis
-
 import scala.collection.mutable
 import scala.util.Try
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
-
 import io.gatling.app.CommandLineConstants._
 import io.gatling.charts.report.ReportsGenerator
 import io.gatling.core.assertion.Assertion
@@ -33,6 +30,7 @@ import io.gatling.core.runner.{ Runner, Selection }
 import io.gatling.core.scenario.Simulation
 import io.gatling.core.util.StringHelper.RichString
 import scopt.OptionParser
+import scala.annotation.tailrec
 
 /**
  * Object containing entry point of application
@@ -124,14 +122,22 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
 
 			val myDefaultOutputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
 
-			println(s"Select simulation id (default is '$myDefaultOutputDirectoryBaseName'). Accepted characters are a-z, A-Z, 0-9, - and _")
-			val simulationId = {
-				val userInput = Console.readLine.trim
-
-				require(userInput.matches("[\\w-_]*"), s"$userInput contains illegal characters")
-
-				if (!userInput.isEmpty) userInput else myDefaultOutputDirectoryBaseName
+			val userInput: String = {
+				@tailrec
+				def _userInput: String = {
+					println(s"Select simulation id (default is '$myDefaultOutputDirectoryBaseName'). Accepted characters are a-z, A-Z, 0-9, - and _")
+					val input = Console.readLine.trim
+					if (input.matches("[\\w-_]*"))
+						input
+					else {
+						println(s"$input contains illegal characters")
+						_userInput
+					}
+				}
+				_userInput
 			}
+
+			val simulationId = if (!userInput.isEmpty) userInput else myDefaultOutputDirectoryBaseName
 
 			println("Select run description (optional)")
 			val runDescription = Console.readLine.trim
