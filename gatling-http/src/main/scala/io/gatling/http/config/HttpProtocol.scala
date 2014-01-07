@@ -22,7 +22,7 @@ import scala.collection.mutable
 import com.ning.http.client.{ ProxyServer, Realm, Request, RequestBuilder }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.akka.GatlingActorSystem
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Protocol
 import io.gatling.core.filter.Filters
@@ -40,7 +40,7 @@ import io.gatling.http.util.HttpHelper.buildRealm
 /**
  * HttpProtocol class companion
  */
-object HttpProtocol extends AkkaDefaults {
+object HttpProtocol {
 	val default = HttpProtocol(
 		baseURLs = configuration.http.baseURLs,
 		proxy = configuration.http.proxy.map(_.proxyServer),
@@ -66,7 +66,8 @@ object HttpProtocol extends AkkaDefaults {
 		extraInfoExtractor = None)
 
 	val warmUpUrls = mutable.Set.empty[String]
-	system.registerOnTermination(warmUpUrls.clear)
+
+	GatlingActorSystem.instanceOpt.foreach(_.registerOnTermination(warmUpUrls.clear))
 }
 
 /**

@@ -19,18 +19,18 @@ import akka.actor.ActorSystem
 
 object GatlingActorSystem {
 
-	private var _instance: Option[ActorSystem] = None
+	var instanceOpt: Option[ActorSystem] = None
 
 	def start {
-		_instance = Some(ActorSystem("GatlingSystem"))
+		instanceOpt = Some(ActorSystem("GatlingSystem"))
 	}
 
-	def instance() = _instance match {
+	def instance() = instanceOpt match {
 		case Some(a) => a
 		case None => throw new UnsupportedOperationException("Gatling Actor system hasn't been started")
 	}
 
 	def shutdown {
-		_instance.foreach(_.shutdown)
+		instanceOpt.foreach(_.shutdown)
 	}
 }
