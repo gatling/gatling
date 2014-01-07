@@ -17,8 +17,6 @@ package io.gatling.http.config
 
 import java.net.InetAddress
 
-import scala.collection.mutable
-
 import com.ning.http.client.{ ProxyServer, Request }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
@@ -39,8 +37,6 @@ import io.gatling.http.util.HttpHelper
 object HttpProtocolBuilder {
 
 	val default = new HttpProtocolBuilder(HttpProtocol.default)
-
-	val warmUpUrls = mutable.Set.empty[String]
 
 	implicit def toHttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
 }

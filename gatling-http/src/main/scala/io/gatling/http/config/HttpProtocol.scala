@@ -17,9 +17,12 @@ package io.gatling.http.config
 
 import java.net.InetAddress
 
+import scala.collection.mutable
+
 import com.ning.http.client.{ ProxyServer, Realm, Request, RequestBuilder }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
+import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Protocol
 import io.gatling.core.filter.Filters
@@ -37,7 +40,7 @@ import io.gatling.http.util.HttpHelper.buildRealm
 /**
  * HttpProtocol class companion
  */
-object HttpProtocol {
+object HttpProtocol extends AkkaDefaults {
 	val default = HttpProtocol(
 		baseURLs = configuration.http.baseURLs,
 		proxy = configuration.http.proxy.map(_.proxyServer),
@@ -61,6 +64,9 @@ object HttpProtocol {
 		htmlResourcesFetchingFilters = None,
 		maxConnectionsPerHost = 6,
 		extraInfoExtractor = None)
+
+	val warmUpUrls = mutable.Set.empty[String]
+	system.registerOnTermination(warmUpUrls.clear)
 }
 
 /**
@@ -108,8 +114,8 @@ case class HttpProtocol(
 		AsyncHandlerActor.start()
 
 		warmUpUrl.map { url =>
-			if (!HttpProtocolBuilder.warmUpUrls.contains(url)) {
-				HttpProtocolBuilder.warmUpUrls += url
+			if (!HttpProtocol.warmUpUrls.contains(url)) {
+				HttpProtocol.warmUpUrls += url
 				val requestBuilder = new RequestBuilder().setUrl(url)
 					.setHeader(ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
 					.setHeader(ACCEPT_LANGUAGE, "en-US,en;q=0.5")
@@ -130,7 +136,7 @@ case class HttpProtocol(
 			}
 		}
 
-		if (HttpProtocolBuilder.warmUpUrls.isEmpty) {
+		if (HttpProtocol.warmUpUrls.isEmpty) {
 			val expression = "foo".el[String]
 
 			new HttpRequestBaseBuilder(expression)
