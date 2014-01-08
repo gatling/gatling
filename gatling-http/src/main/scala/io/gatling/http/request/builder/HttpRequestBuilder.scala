@@ -200,6 +200,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 				httpAttributes.bodyParts match {
 					case Nil => requestBuilder.success
 					case bodyParts =>
+						if (!httpAttributes.headers.contains(HeaderNames.CONTENT_TYPE)) {
+							requestBuilder.addHeader(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
+						}
+
 						bodyParts.foldLeft(AbstractHttpRequestBuilder.emptyPartListSuccess) { (parts, part) =>
 							for {
 								parts <- parts
