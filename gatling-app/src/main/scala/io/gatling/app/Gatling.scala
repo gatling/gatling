@@ -16,9 +16,13 @@
 package io.gatling.app
 
 import java.lang.System.currentTimeMillis
+
+import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.util.Try
+
 import com.typesafe.scalalogging.slf4j.StrictLogging
+
 import io.gatling.app.CommandLineConstants._
 import io.gatling.charts.report.ReportsGenerator
 import io.gatling.core.assertion.Assertion
@@ -30,7 +34,6 @@ import io.gatling.core.runner.{ Runner, Selection }
 import io.gatling.core.scenario.Simulation
 import io.gatling.core.util.StringHelper.RichString
 import scopt.OptionParser
-import scala.annotation.tailrec
 
 /**
  * Object containing entry point of application
