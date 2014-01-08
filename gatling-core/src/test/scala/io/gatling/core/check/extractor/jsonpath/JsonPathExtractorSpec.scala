@@ -15,6 +15,8 @@
  */
 package io.gatling.core.check.extractor.jsonpath
 
+import java.nio.charset.StandardCharsets
+
 import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
@@ -28,9 +30,9 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 
 	GatlingConfiguration.setUp()
 
-	def prepared(file: String) = withCloseable(getClass.getResourceAsStream(file)) { is =>
-		val bytes = IOUtils.toByteArray(is)
-		JsonPathExtractor.parse(bytes)
+	def prepared(file: String): Object = withCloseable(getClass.getResourceAsStream(file)) { is =>
+		val string = IOUtils.toString(is, StandardCharsets.UTF_8)
+		BoonParser.parse(string)
 	}
 
 	"count" should {
@@ -88,7 +90,7 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 
 		// $..[?()] is not a valid syntax
 		//		"support element filter with wildcard" in {
-		//			JsonPathExtractors.extractSingle(0)(prepared("/test2.json"), "$..[?(@.id==19434)].foo") must succeedWith(Some("1"))
+		//			extractSingle("$..[?(@.id==19434)].foo", 0, "/test2.json") must succeedWith(Some("1"))
 		//		}
 
 		"support multiple element filters" in {

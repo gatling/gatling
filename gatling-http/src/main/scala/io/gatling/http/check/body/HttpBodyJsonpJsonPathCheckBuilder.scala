@@ -18,8 +18,9 @@ package io.gatling.http.check.body
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.jsonpath.{ CountJsonPathExtractor, JsonFilter, JsonPathExtractor, MultipleJsonPathExtractor, SingleJsonPathExtractor }
+import io.gatling.core.check.extractor.jsonpath.{ BoonParser, CountJsonPathExtractor, JacksonParser, JsonFilter, MultipleJsonPathExtractor, SingleJsonPathExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
+import io.gatling.core.util.JVMHelper
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
@@ -28,23 +29,22 @@ object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
 
 	val jsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\)$""".r
 
-	val jsonpPreparer: Preparer[Response, Any] = (response: Response) =>
-		try {
+	val jsonpPreparer: Preparer[Response, Any] = {
+
+		val jsonParser = if (JVMHelper.java6) JacksonParser else BoonParser
+
+		HttpBodyJsonPathCheckBuilder.handleParseException { response =>
 			val charBuffer = response.charBuffer
 			charBuffer match {
-				case jsonpRegex(jsonp) => JsonPathExtractor.parse(jsonp).success
+				case jsonpRegex(jsonp) =>
+					jsonParser.parse(jsonp).success
 				case _ =>
 					val message = "Regex could not extract JSON object from JSONP response"
 					logger.info(message)
 					message.failure
 			}
-
-		} catch {
-			case e: Exception =>
-				val message = s"Could not extract JSON object from JSONP response : ${e.getMessage}"
-				logger.info(message, e)
-				message.failure
 		}
+	}
 
 	def jsonpJsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
 		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory, jsonpPreparer) {

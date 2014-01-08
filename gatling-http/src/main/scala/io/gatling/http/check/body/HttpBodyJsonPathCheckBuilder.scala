@@ -18,23 +18,34 @@ package io.gatling.http.check.body
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.check.Preparer
-import io.gatling.core.check.extractor.jsonpath.{ CountJsonPathExtractor, JsonFilter, JsonPathExtractor, MultipleJsonPathExtractor, SingleJsonPathExtractor }
+import io.gatling.core.check.extractor.jsonpath.{ BoonParser, CountJsonPathExtractor, JacksonParser, JsonFilter, MultipleJsonPathExtractor, SingleJsonPathExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
+import io.gatling.core.util.JVMHelper
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
 
 object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
-	val preparer: Preparer[Response, Any] = (response: Response) =>
+	def handleParseException(block: Response => Any) = (response: Response) =>
 		try {
-			JsonPathExtractor.parse(response.getResponseBodyAsBytes).success
+			block(response).success
 		} catch {
 			case e: Exception =>
 				val message = s"Could not parse response into a JSON object: ${e.getMessage}"
 				logger.info(message, e)
 				message.failure
 		}
+
+	val preparer: Preparer[Response, Any] =
+		if (JVMHelper.java6)
+			handleParseException { response =>
+				JacksonParser.parse(response.getResponseBodyAsBytes)
+			}
+		else
+			handleParseException { response =>
+				BoonParser.parse(response.getResponseBody)
+			}
 
 	def jsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
 		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory, preparer) {

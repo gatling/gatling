@@ -22,6 +22,7 @@ object Dependencies {
 	private val scopt             = "com.github.scopt"          %% "scopt"              % "3.2.0"
 	private val scalalogging      = "com.typesafe"              %% "scalalogging-slf4j" % "1.0.1"
 	private val jackson           = "com.fasterxml.jackson.core" % "jackson-databind"   % "2.3.0"
+	private val boon              = "io.fastjson"                % "boon"               % "0.5"
 	private val jsonpath          = "io.gatling"                %% "jsonpath"           % "0.3.0"
 	private val commonsMath       = "org.apache.commons"         % "commons-math3"      % "3.2"
 	private val joddLagarto       = "org.jodd"                   % "jodd-lagarto"       % "3.4.10"
@@ -56,7 +57,7 @@ object Dependencies {
 
 	val coreDeps = Seq(
 		scalaCompiler, jsr166e, akkaActor, saxon, jodaTime, jodaConvert, slf4jApi, scalalogging, scalaReflect, jsonpath,
-		jackson, commonsMath, joddLagarto, commonsIo, config, fastring, openCsv, logbackClassic) ++ testDeps
+		jackson, boon, commonsMath, joddLagarto, commonsIo, config, fastring, openCsv, logbackClassic) ++ testDeps
 
 	val redisDeps = redisClient +: testDeps
 
@@ -71,5 +72,4 @@ object Dependencies {
 	val appDeps = Seq(scopt, zinc)
 
 	val recorderDeps = Seq(scalaSwing, scopt, jackson) ++ testDeps
-
 }
