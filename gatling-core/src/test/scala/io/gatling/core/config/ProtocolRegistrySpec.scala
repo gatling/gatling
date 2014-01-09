@@ -41,8 +41,8 @@ class ProtocolRegistrySpec extends Specification {
 			ProtocolRegistry().getProtocol[FooProtocol] must beNone
 		}
 
-		"fail when multiple configurations of the same type" in {
-			ProtocolRegistry().register(Seq(new FooProtocol("foo1"), new FooProtocol("foo2"))) must throwA[ExceptionInInitializerError]
+		"override with latest when multiple configurations of the same type" in {
+			ProtocolRegistry().register(Seq(new FooProtocol("foo1"), new FooProtocol("foo2"))).getProtocol[FooProtocol] must beSome.which(_.foo == "foo2")
 		}
 	}
 }

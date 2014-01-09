@@ -39,6 +39,7 @@ import io.gatling.core.akka.GatlingActorSystem
 import io.gatling.core.config.{ GatlingConfiguration, ProtocolRegistry }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.http.Predef.websocket
+import io.gatling.http.config.HttpProtocol
 import io.gatling.http.util.{ RequestLogger, WebSocketClient }
 
 @RunWith(classOf[JUnitRunner])
@@ -167,7 +168,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 			next = TestActorRef[DummyAction](Props(new DummyAction))(GatlingActorSystem.instance)
 			val action = websocket("testRequestName")
 				.open("ws://dummy/", "testAttributeName")(webSocketClient, requestLogger)
-				.build(next, ProtocolRegistry(Nil))
+				.build(next, ProtocolRegistry().register(HttpProtocol.default))
 
 			action ! new Session("test", "0")
 		}
@@ -192,7 +193,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 			next = TestActorRef[DummyAction](Props(new DummyAction))(GatlingActorSystem.instance)
 			val action = websocket("testRequestName")
 				.sendMessage(message, "testAttributeName")
-				.build(next, ProtocolRegistry(Nil))
+				.build(next, ProtocolRegistry().register(HttpProtocol.default))
 
 			action ! session
 		}
@@ -202,7 +203,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 			next = TestActorRef[DummyAction](Props(new DummyAction))(GatlingActorSystem.instance)
 			val action = websocket("testRequestName")
 				.close("testAttributeName")
-				.build(next, ProtocolRegistry(Nil))
+				.build(next, ProtocolRegistry().register(HttpProtocol.default))
 
 			action ! session
 		}
