@@ -50,7 +50,7 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
 
-		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
+		val httpProtocol = protocolRegistry.getProtocol[HttpProtocol].getOrElse(throw new UnsupportedOperationException("Http Protocol wasn't registered"))
 
 		val resolvedDomain = domain.getOrElse(AddCookieBuilder.defaultDomain(httpProtocol))
 		val resolvedPath = path.getOrElse(AddCookieBuilder.defaultPath)
@@ -65,4 +65,6 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 
 		actor(new SessionHook(expression, next))
 	}
+
+	override val defaultProtocol = Some(HttpProtocol.default)
 }

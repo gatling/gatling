@@ -35,7 +35,7 @@ class PauseBuilder(duration: Expression[Duration]) extends ActionBuilder {
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
 
 		val pauseProtocol = protocolRegistry.getProtocol[PauseProtocol].getOrElse(throw new UnsupportedOperationException("Pause protocol hasn't been registered"))
-		
+
 		pauseProtocol.pauseType match {
 			case Disabled => next
 			case pauseType =>

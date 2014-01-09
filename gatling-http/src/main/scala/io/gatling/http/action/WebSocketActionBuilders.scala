@@ -27,23 +27,29 @@ import io.gatling.http.util.{ RequestLogger, WebSocketClient }
 class OpenWebSocketActionBuilder(actionName: Expression[String], attributeName: String, fUrl: Expression[String], webSocketClient: WebSocketClient, requestLogger: RequestLogger) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
-		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
+		val httpProtocol = protocolRegistry.getProtocol[HttpProtocol].getOrElse(throw new UnsupportedOperationException("Http Protocol wasn't registered"))
 		actor(new OpenWebSocketAction(actionName, attributeName, fUrl, webSocketClient, requestLogger, next, httpProtocol))
 	}
+
+	override val defaultProtocol = Some(HttpProtocol.default)
 }
 
 class SendWebSocketMessageActionBuilder(actionName: Expression[String], attributeName: String, fMessage: Expression[String], next: ActorRef = null) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
-		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
+		val httpProtocol = protocolRegistry.getProtocol[HttpProtocol].getOrElse(throw new UnsupportedOperationException("Http Protocol wasn't registered"))
 		actor(new SendWebSocketMessageAction(actionName, attributeName, fMessage, next, httpProtocol))
 	}
+
+	override val defaultProtocol = Some(HttpProtocol.default)
 }
 
 class CloseWebSocketActionBuilder(actionName: Expression[String], attributeName: String, next: ActorRef = null) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
-		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
+		val httpProtocol = protocolRegistry.getProtocol[HttpProtocol].getOrElse(throw new UnsupportedOperationException("Http Protocol wasn't registered"))
 		actor(new CloseWebSocketAction(actionName, attributeName, next, httpProtocol))
 	}
+
+	override val defaultProtocol = Some(HttpProtocol.default)
 }
