@@ -31,6 +31,4 @@ object ChainBuilder {
 class ChainBuilder(val actionBuilders: List[ActionBuilder]) extends StructureBuilder[ChainBuilder] {
 
 	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = new ChainBuilder(actionBuilders)
-
-	private[core] def getInstance = this
 }

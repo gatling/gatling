@@ -36,8 +36,6 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = N
 
 	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = copy(actionBuilders = actionBuilders)
 
-	private[core] def getInstance = this
-
 	def inject(iss: InjectionStep*) = {
 		if (iss.isEmpty) System.err.println(s"Scenario '$name' has no injection step.")
 		new ProfiledScenarioBuilder(this, InjectionProfile(iss))

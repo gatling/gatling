@@ -21,7 +21,5 @@ trait StructureSupport extends StructureBuilder[ChainBuilder] {
 
 	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = new ChainBuilder(actionBuilders)
 
-	private[core] def getInstance = ChainBuilder.empty
-
 	private[core] def actionBuilders: List[ActionBuilder] = Nil
 }

@@ -22,7 +22,6 @@ trait Execs[B] {
 
 	private[core] def actionBuilders: List[ActionBuilder]
 	private[core] def newInstance(actionBuilders: List[ActionBuilder]): B
-	private[core] def getInstance: B
 
 	def exec(sessionFunction: Expression[Session]): B = exec(new SessionHookBuilder(sessionFunction, true))
 	def exec(actionBuilder: ActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
