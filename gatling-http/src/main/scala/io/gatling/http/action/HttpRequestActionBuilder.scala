@@ -17,12 +17,10 @@ package io.gatling.http.action
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
-import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.controller.throttle.ThrottlingProtocol
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.status.HttpStatusCheckBuilder.status
-import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.AbstractHttpRequestBuilder
 
 object HttpRequestActionBuilder {
@@ -40,15 +38,11 @@ object HttpRequestActionBuilder {
  * @constructor creates an HttpRequestActionBuilder
  * @param requestBuilder the builder for the request that will be sent
  */
-class HttpRequestActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) extends ActionBuilder {
+class HttpRequestActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) extends HttpActionBuilder {
 
 	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
 
-		val httpProtocol = protocolRegistry.getProtocol[HttpProtocol].getOrElse(throw new UnsupportedOperationException("Http Protocol wasn't registered"))
 		val throttled = protocolRegistry.getProtocol[ThrottlingProtocol].isDefined
-
-		actor(new HttpRequestAction(requestBuilder.build(httpProtocol, throttled), next))
+		actor(new HttpRequestAction(requestBuilder.build(httpProtocol(protocolRegistry), throttled), next))
 	}
-
-	override val defaultProtocol = Some(HttpProtocol.default)
 }

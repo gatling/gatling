@@ -21,9 +21,7 @@ import com.ning.http.client.Cookie
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
-
 import io.gatling.core.action.SessionHook
-import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
@@ -46,13 +44,11 @@ object AddCookieBuilder {
 	val defaultPath: Expression[String] = _ => rootSuccess
 }
 
-class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Int) extends ActionBuilder {
+class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Int) extends HttpActionBuilder {
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
 
-		val httpProtocol = protocolRegistry.getProtocol[HttpProtocol].getOrElse(throw new UnsupportedOperationException("Http Protocol wasn't registered"))
-
-		val resolvedDomain = domain.getOrElse(AddCookieBuilder.defaultDomain(httpProtocol))
+		val resolvedDomain = domain.getOrElse(AddCookieBuilder.defaultDomain(httpProtocol(protocolRegistry)))
 		val resolvedPath = path.getOrElse(AddCookieBuilder.defaultPath)
 
 		val expression: Expression[Session] = session => for {
@@ -65,6 +61,4 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 
 		actor(new SessionHook(expression, next))
 	}
-
-	override val defaultProtocol = Some(HttpProtocol.default)
 }
