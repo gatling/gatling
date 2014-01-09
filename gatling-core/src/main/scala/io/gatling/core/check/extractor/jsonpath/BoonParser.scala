@@ -22,9 +22,8 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 object BoonParser extends JsonParser {
 
 	def newLazyChopParser = {
-		// FIXME use regular parser for now
-		val jsonParser = new JsonParserCharArray(null.asInstanceOf[org.boon.core.reflection.fields.FieldsAccessor])
-		//		val jsonParser = new JsonFastParser(null, false, false, true)
+		//		val jsonParser = new JsonParserCharArray(null.asInstanceOf[org.boon.core.reflection.fields.FieldsAccessor])
+		val jsonParser = new JsonFastParser(null, false, false, true)
 		jsonParser.setCharset(configuration.core.charSet)
 		jsonParser
 	}
