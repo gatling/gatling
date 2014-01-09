@@ -17,7 +17,7 @@ package io.gatling.core.action.builder
 
 import akka.actor.ActorRef
 import io.gatling.core.akka.AkkaDefaults
-import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.config.{ Protocol, ProtocolRegistry }
 
 /**
  * Top level abstraction for components in charge of building Actions
@@ -30,4 +30,6 @@ trait ActionBuilder extends AkkaDefaults {
 	 * @return the built Action
 	 */
 	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef
+
+	private[gatling] def defaultProtocol: Option[Protocol] = None
 }

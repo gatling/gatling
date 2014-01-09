@@ -79,7 +79,7 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * @return a new builder with a conditional execution added to its actions
 	 */
 	private def doIf(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B =
-		newInstance(new IfBuilder(condition, thenNext, elseNext) :: actionBuilders)
+		exec(new IfBuilder(condition, thenNext, elseNext))
 
 	def doSwitch(value: Expression[Any])(possibility1: (Any, ChainBuilder), possibility2: (Any, ChainBuilder), possibilities: (Any, ChainBuilder)*): B =
 		doSwitch(value, possibility1 :: possibility2 :: possibilities.toList, None)
@@ -88,7 +88,7 @@ trait ConditionalStatements[B] extends Execs[B] {
 		doSwitch(value, possibility1 :: possibility2 :: possibilities.toList, Some(elseNext))
 
 	private def doSwitch(value: Expression[Any], possibilities: List[(Any, ChainBuilder)], elseNext: Option[ChainBuilder]): B =
-		newInstance(new SwitchBuilder(value, possibilities, elseNext) :: actionBuilders)
+		exec(new SwitchBuilder(value, possibilities, elseNext))
 
 	/**
 	 * Add a switch in the chain. Every possible subchain is defined with a percentage.
@@ -106,7 +106,7 @@ trait ConditionalStatements[B] extends Execs[B] {
 		randomSwitch(possibility1 :: possibilities.toList, Some(elseNext))
 
 	private def randomSwitch(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]): B =
-		newInstance(new RandomSwitchBuilder(possibilities, elseNext) :: actionBuilders)
+		exec(new RandomSwitchBuilder(possibilities, elseNext))
 
 	/**
 	 * Add a switch in the chain. Selection uses a random strategy
@@ -135,6 +135,5 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * @return a new builder with a random switch added to its actions
 	 */
 	def roundRobinSwitch(possibility1: ChainBuilder, possibilities: ChainBuilder*): B =
-		newInstance(new RoundRobinSwitchBuilder(possibility1 :: possibilities.toList) :: actionBuilders)
-
+		exec(new RoundRobinSwitchBuilder(possibility1 :: possibilities.toList))
 }

@@ -17,28 +17,10 @@ package io.gatling.core.config
 
 import scala.reflect.ClassTag
 
-object ProtocolRegistry {
-
-	def apply(protocols: Seq[Protocol]) = {
-
-		protocols.foreach(_.warmUp)
-
-		val indexedProtocols: Map[Class[_ <: Protocol], Protocol] = protocols
-			.groupBy(_.getClass)
-			.map {
-				case (protocolType, configs) =>
-					if (configs.length > 1) throw new ExceptionInInitializerError(s"Protocol ${protocolType.getName} configured multiple times")
-					(protocolType -> configs.head)
-			}.toMap
-
-		new ProtocolRegistry(indexedProtocols)
-	}
-}
-
 /**
  * A placeholder for Protocols
  */
-class ProtocolRegistry(protocols: Map[Class[_ <: Protocol], Protocol]) {
+case class ProtocolRegistry(protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) {
 
 	/**
 	 * @param protocolType
@@ -46,5 +28,12 @@ class ProtocolRegistry(protocols: Map[Class[_ <: Protocol], Protocol]) {
 	 */
 	def getProtocol[T <: Protocol: ClassTag]: Option[T] = protocols.get(implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]).map(_.asInstanceOf[T])
 
-	def getProtocol[T <: Protocol: ClassTag](default: => T): T = getProtocol[T].getOrElse(default)
+	def register(protocol: Protocol): ProtocolRegistry = register(Seq(protocol))
+	def register(protocols: Seq[Protocol]): ProtocolRegistry = ProtocolRegistry(this.protocols ++ protocols.map(p => p.getClass -> p))
+
+	def ++(other: ProtocolRegistry) = ProtocolRegistry(protocols ++ other.protocols)
+
+	def warmUp {
+		protocols.foreach { case (_, protocol) => protocol.warmUp }
+	}
 }

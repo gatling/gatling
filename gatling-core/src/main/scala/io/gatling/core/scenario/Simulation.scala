@@ -18,7 +18,7 @@ package io.gatling.core.scenario
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
 import io.gatling.core.assertion.{ Assertion, Metric }
-import io.gatling.core.config.Protocol
+import io.gatling.core.config.{ Protocol, ProtocolRegistry }
 import io.gatling.core.controller.Timings
 import io.gatling.core.controller.throttle.{ ThrottlingBuilder, ThrottlingProtocol }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
@@ -28,7 +28,7 @@ import io.gatling.core.structure.ProfiledScenarioBuilder
 abstract class Simulation {
 
 	private[scenario] var _scenarios = Seq.empty[ProfiledScenarioBuilder]
-	private[scenario] var _globalProtocols = Map.empty[Class[_ <: Protocol], Protocol]
+	private[scenario] var _globalProtocols = ProtocolRegistry()
 	private[scenario] var _assertions = Seq.empty[Assertion]
 	private[scenario] var _maxDuration: Option[FiniteDuration] = None
 	private[scenario] var _globalThrottling: Option[ThrottlingProtocol] = None
@@ -43,7 +43,7 @@ abstract class Simulation {
 	def timings = {
 		val perScenarioThrottlings: Map[String, ThrottlingProtocol] = _scenarios
 			.map(scn => scn
-				.protocols.get(classOf[ThrottlingProtocol])
+				.protocolRegistry.getProtocol[ThrottlingProtocol]
 				.map(throttling => scn.scenarioBuilder.name -> throttling.asInstanceOf[ThrottlingProtocol])).flatten.toMap
 		Timings(_maxDuration, _globalThrottling, perScenarioThrottlings)
 	}
@@ -56,7 +56,7 @@ abstract class Simulation {
 	class SetUp {
 
 		def protocols(ps: Protocol*) = {
-			_globalProtocols = _globalProtocols ++ ps.map(p => p.getClass -> p)
+			_globalProtocols = _globalProtocols.register(ps)
 			this
 		}
 
@@ -75,7 +75,7 @@ abstract class Simulation {
 			val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
 			val throttling = ThrottlingProtocol(ThrottlingBuilder(steps).build)
 			_globalThrottling = Some(throttling)
-			_globalProtocols = _globalProtocols + (classOf[ThrottlingProtocol] -> throttling)
+			_globalProtocols = _globalProtocols.register(throttling)
 			this
 		}
 
@@ -86,7 +86,7 @@ abstract class Simulation {
 		def uniformPauses(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
 		def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
 		def pauses(pauseType: PauseType) = {
-			_globalProtocols = _globalProtocols + (classOf[PauseProtocol] -> PauseProtocol(pauseType))
+			_globalProtocols = _globalProtocols.register(PauseProtocol(pauseType))
 			this
 		}
 	}

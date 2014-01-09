@@ -28,21 +28,21 @@ class ProtocolRegistrySpec extends Specification {
 	"building registry" should {
 
 		"return the configuration when 1 configuration" in {
-			ProtocolRegistry(List(new FooProtocol("foo"))).getProtocol[FooProtocol] must beSome.which(_.foo == "foo")
+			ProtocolRegistry().register(new FooProtocol("foo")).getProtocol[FooProtocol] must beSome.which(_.foo == "foo")
 		}
 
 		"return the configurations when 2 different configurations" in {
-			val registry = ProtocolRegistry(List(new FooProtocol("foo"), new BarProtocol("bar")))
+			val registry = ProtocolRegistry().register(Seq(new FooProtocol("foo"), new BarProtocol("bar")))
 			registry.getProtocol[FooProtocol] must beSome.which(_.foo == "foo")
 			registry.getProtocol[BarProtocol] must beSome.which(_.bar == "bar")
 		}
 
 		"not fail when no configuration" in {
-			ProtocolRegistry(List.empty).getProtocol[FooProtocol] must beNone
+			ProtocolRegistry().getProtocol[FooProtocol] must beNone
 		}
 
 		"fail when multiple configurations of the same type" in {
-			ProtocolRegistry(List(new FooProtocol("foo1"), new FooProtocol("foo2"))) must throwA[ExceptionInInitializerError]
+			ProtocolRegistry().register(Seq(new FooProtocol("foo1"), new FooProtocol("foo2"))) must throwA[ExceptionInInitializerError]
 		}
 	}
 }

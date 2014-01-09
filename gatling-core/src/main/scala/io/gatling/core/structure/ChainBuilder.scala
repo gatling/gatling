@@ -16,6 +16,7 @@
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.config.ProtocolRegistry
 
 object ChainBuilder {
 	val empty = new ChainBuilder(Nil)
@@ -28,7 +29,7 @@ object ChainBuilder {
  *
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
-class ChainBuilder(val actionBuilders: List[ActionBuilder]) extends StructureBuilder[ChainBuilder] {
+case class ChainBuilder(actionBuilders: List[ActionBuilder], protocolRegistry: ProtocolRegistry = new ProtocolRegistry(Map.empty)) extends StructureBuilder[ChainBuilder] {
 
-	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = new ChainBuilder(actionBuilders)
+	private[core] def newInstance(actionBuilders: List[ActionBuilder], protocolRegistry: ProtocolRegistry) = ChainBuilder(actionBuilders, protocolRegistry)
 }

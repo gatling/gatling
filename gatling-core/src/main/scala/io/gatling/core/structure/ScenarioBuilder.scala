@@ -17,6 +17,8 @@ package io.gatling.core.structure
 
 import scala.concurrent.duration.Duration
 
+import com.typesafe.scalalogging.slf4j.StrictLogging
+
 import io.gatling.core.action.UserEnd
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.{ Protocol, ProtocolRegistry }
@@ -32,19 +34,19 @@ import io.gatling.core.session.Expression
  * @param name the name of the scenario
  * @param actionBuilders the list of all the actions that compose the scenario
  */
-case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil) extends StructureBuilder[ScenarioBuilder] {
+case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil, protocolRegistry: ProtocolRegistry = new ProtocolRegistry(Map.empty)) extends StructureBuilder[ScenarioBuilder] {
 
-	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = copy(actionBuilders = actionBuilders)
+	private[core] def newInstance(actionBuilders: List[ActionBuilder], protocolRegistry: ProtocolRegistry) = copy(actionBuilders = actionBuilders, protocolRegistry = protocolRegistry)
 
 	def inject(iss: InjectionStep*) = {
 		if (iss.isEmpty) System.err.println(s"Scenario '$name' has no injection step.")
-		new ProfiledScenarioBuilder(this, InjectionProfile(iss))
+		new ProfiledScenarioBuilder(this, InjectionProfile(iss), protocolRegistry)
 	}
 }
 
-case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) {
+case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, protocolRegistry: ProtocolRegistry) extends StrictLogging {
 
-	def protocols(ps: Protocol*) = copy(protocols = protocols ++ ps.map(p => p.getClass -> p))
+	def protocols(ps: Protocol*) = copy(protocolRegistry = protocolRegistry.register(ps))
 
 	def disablePauses = pauses(Disabled)
 	def constantPauses = pauses(Constant)
@@ -64,17 +66,18 @@ case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionPr
 	 * @param protocolRegistry
 	 * @return the scenario
 	 */
-	private[core] def build(globalProtocols: Map[Class[_ <: Protocol], Protocol]): Scenario = {
+	private[core] def build(globalProtocols: ProtocolRegistry): Scenario = {
 
-		val protocolRegistry = {
-			var resolvedProtocols = globalProtocols ++ protocols
-			if (resolvedProtocols.contains(classOf[ThrottlingProtocol]))
-				resolvedProtocols = resolvedProtocols + (classOf[PauseProtocol] -> PauseProtocol(Disabled))
-
-			ProtocolRegistry(resolvedProtocols.values.toSeq)
+		val newProtocols = (globalProtocols ++ protocolRegistry).getProtocol[ThrottlingProtocol] match {
+			case Some(_) =>
+				logger.info("Throttle is enabled, disabling pauses")
+				protocolRegistry.register(PauseProtocol(Disabled))
+			case None => protocolRegistry
 		}
 
-		val entryPoint = scenarioBuilder.build(UserEnd.instance, protocolRegistry)
+		newProtocols.warmUp
+
+		val entryPoint = scenarioBuilder.build(UserEnd.instance, newProtocols)
 		new Scenario(scenarioBuilder.name, entryPoint, injectionProfile)
 	}
 }

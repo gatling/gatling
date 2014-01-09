@@ -34,11 +34,15 @@ class PauseBuilder(duration: Expression[Duration]) extends ActionBuilder {
 
 	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
 
-		protocolRegistry.getProtocol(PauseProtocol.default).pauseType match {
+		val pauseProtocol = protocolRegistry.getProtocol[PauseProtocol].getOrElse(throw new UnsupportedOperationException("Pause protocol hasn't been registered"))
+		
+		pauseProtocol.pauseType match {
 			case Disabled => next
 			case pauseType =>
 				val generator = pauseType.generator(duration)
 				actor(new Pause(generator, next))
 		}
 	}
+
+	override val defaultProtocol = Some(PauseProtocol.default)
 }

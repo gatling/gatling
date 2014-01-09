@@ -75,5 +75,5 @@ trait Pauses[B] extends Execs[B] {
 		pause(expression)
 	}
 
-	def pause(duration: Expression[Duration]): B = newInstance(new PauseBuilder(duration) :: actionBuilders)
+	def pause(duration: Expression[Duration]): B = exec(new PauseBuilder(duration))
 }

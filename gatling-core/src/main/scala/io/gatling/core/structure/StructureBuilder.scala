@@ -30,4 +30,3 @@ trait StructureBuilder[B <: StructureBuilder[B]] extends Execs[B] with Pauses[B]
 			actionBuilder.build(actorRef, protocolRegistry)
 		}
 }
-

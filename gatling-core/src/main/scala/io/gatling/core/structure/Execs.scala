@@ -16,17 +16,26 @@
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder.{ ActionBuilder, SessionHookBuilder }
+import io.gatling.core.config.ProtocolRegistry
 import io.gatling.core.session.{ Expression, Session }
 
 trait Execs[B] {
 
 	private[core] def actionBuilders: List[ActionBuilder]
-	private[core] def newInstance(actionBuilders: List[ActionBuilder]): B
+	private[core] def protocolRegistry: ProtocolRegistry
+	private[core] def newInstance(actionBuilders: List[ActionBuilder], protocolRegistry: ProtocolRegistry): B
 
 	def exec(sessionFunction: Expression[Session]): B = exec(new SessionHookBuilder(sessionFunction, true))
-	def exec(actionBuilder: ActionBuilder): B = newInstance(actionBuilder :: actionBuilders)
+	def exec(actionBuilder: ActionBuilder): B = chain(List(actionBuilder))
 	def exec(chains: ChainBuilder*): B = exec(chains.toIterable)
 	def exec(chains: Iterator[ChainBuilder]): B = exec(chains.toIterable)
-	def exec(chains: Iterable[ChainBuilder]): B = newInstance(chains.toList.reverse.flatMap(_.actionBuilders) ::: actionBuilders)
-	def exec(scenario: ScenarioBuilder): B = newInstance(scenario.actionBuilders.dropRight(1) ::: actionBuilders)
+	def exec(chains: Iterable[ChainBuilder]): B = chain(chains.toList.reverse.flatMap(_.actionBuilders))
+	def exec(scenario: ScenarioBuilder): B = chain(scenario.actionBuilders.dropRight(1) ::: actionBuilders)
+
+	private[core] def chain(newActionBuilders: Seq[ActionBuilder]): B = {
+		val newProtocolRegistry = newActionBuilders.foldLeft(protocolRegistry) { (protocols, actionBuilder) =>
+			actionBuilder.defaultProtocol.map(protocols.register).getOrElse(protocols)
+		}
+		newInstance(newActionBuilders.toList ::: actionBuilders, newProtocolRegistry)
+	}
 }

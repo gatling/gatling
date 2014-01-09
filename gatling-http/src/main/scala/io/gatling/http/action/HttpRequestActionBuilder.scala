@@ -44,9 +44,11 @@ class HttpRequestActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) ex
 
 	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
 
-		val httpProtocol = protocolRegistry.getProtocol(HttpProtocol.default)
+		val httpProtocol = protocolRegistry.getProtocol[HttpProtocol].getOrElse(throw new UnsupportedOperationException("Http Protocol wasn't registered"))
 		val throttled = protocolRegistry.getProtocol[ThrottlingProtocol].isDefined
 
 		actor(new HttpRequestAction(requestBuilder.build(httpProtocol, throttled), next))
 	}
+
+	override val defaultProtocol = Some(HttpProtocol.default)
 }
