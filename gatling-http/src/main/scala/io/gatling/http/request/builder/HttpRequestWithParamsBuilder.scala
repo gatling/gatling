@@ -56,7 +56,7 @@ abstract class AbstractHttpRequestWithParamsBuilder[B <: AbstractHttpRequestWith
 	def paramsMap(map: Expression[Map[String, Any]]): B = param(ParamMap(map))
 	private def param(param: HttpParam): B = newInstance(httpAttributes, param :: params)
 
-	override protected def configureParts(session: Session, requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
+	override protected def configureParts(session: Session)(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
 		def configureAsParams: Validation[RequestBuilder] = params match {
 			case Nil => requestBuilder.success
@@ -80,7 +80,7 @@ abstract class AbstractHttpRequestWithParamsBuilder[B <: AbstractHttpRequestWith
 			case _ => configureAsStringParts
 		}
 
-		requestBuilderWithParams.flatMap(super.configureParts(session, _))
+		requestBuilderWithParams.flatMap(super.configureParts(session))
 	}
 }
 
