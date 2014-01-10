@@ -20,7 +20,7 @@ import java.io.{ Serializable => JSerializable }
 import akka.actor.{ ActorRef, Props }
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.akka.AkkaDefaults
-import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression
 import io.gatling.core.session._
 import io.gatling.jms._

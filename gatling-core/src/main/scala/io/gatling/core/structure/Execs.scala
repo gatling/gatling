@@ -16,14 +16,14 @@
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder.{ ActionBuilder, SessionHookBuilder }
-import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.config.Protocols
 import io.gatling.core.session.{ Expression, Session }
 
 trait Execs[B] {
 
 	private[core] def actionBuilders: List[ActionBuilder]
-	private[core] def protocolRegistry: ProtocolRegistry
-	private[core] def newInstance(actionBuilders: List[ActionBuilder], protocolRegistry: ProtocolRegistry): B
+	private[core] def protocols: Protocols
+	private[core] def newInstance(actionBuilders: List[ActionBuilder], Protocols: Protocols): B
 
 	def exec(sessionFunction: Expression[Session]): B = exec(new SessionHookBuilder(sessionFunction, true))
 	def exec(actionBuilder: ActionBuilder): B = chain(List(actionBuilder))
@@ -33,9 +33,9 @@ trait Execs[B] {
 	def exec(scenario: ScenarioBuilder): B = chain(scenario.actionBuilders.dropRight(1) ::: actionBuilders)
 
 	private[core] def chain(newActionBuilders: Seq[ActionBuilder]): B = {
-		val newProtocolRegistry = newActionBuilders.foldLeft(protocolRegistry) { (protocols, actionBuilder) =>
+		val newProtocols = newActionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
 			actionBuilder.defaultProtocol.map(protocols.register).getOrElse(protocols)
 		}
-		newInstance(newActionBuilders.toList ::: actionBuilders, newProtocolRegistry)
+		newInstance(newActionBuilders.toList ::: actionBuilders, newProtocols)
 	}
 }

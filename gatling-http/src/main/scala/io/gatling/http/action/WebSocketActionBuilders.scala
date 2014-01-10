@@ -18,24 +18,24 @@ package io.gatling.http.action
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
-import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression
 import io.gatling.http.util.{ RequestLogger, WebSocketClient }
 
 class OpenWebSocketActionBuilder(actionName: Expression[String], attributeName: String, fUrl: Expression[String], webSocketClient: WebSocketClient, requestLogger: RequestLogger) extends HttpActionBuilder {
 
-	def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef =
-		actor(new OpenWebSocketAction(actionName, attributeName, fUrl, webSocketClient, requestLogger, next, httpProtocol(protocolRegistry)))
+	def build(next: ActorRef, protocols: Protocols): ActorRef =
+		actor(new OpenWebSocketAction(actionName, attributeName, fUrl, webSocketClient, requestLogger, next, httpProtocol(protocols)))
 }
 
 class SendWebSocketMessageActionBuilder(actionName: Expression[String], attributeName: String, fMessage: Expression[String], next: ActorRef = null) extends HttpActionBuilder {
 
-	def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef =
-		actor(new SendWebSocketMessageAction(actionName, attributeName, fMessage, next, httpProtocol(protocolRegistry)))
+	def build(next: ActorRef, protocols: Protocols): ActorRef =
+		actor(new SendWebSocketMessageAction(actionName, attributeName, fMessage, next, httpProtocol(protocols)))
 }
 
 class CloseWebSocketActionBuilder(actionName: Expression[String], attributeName: String, next: ActorRef = null) extends HttpActionBuilder {
 
-	def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef =
-		actor(new CloseWebSocketAction(actionName, attributeName, next, httpProtocol(protocolRegistry)))
+	def build(next: ActorRef, protocols: Protocols): ActorRef =
+		actor(new CloseWebSocketAction(actionName, attributeName, next, httpProtocol(protocols)))
 }

@@ -24,7 +24,7 @@ import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.session.Expression
 import io.gatling.core.action.Switch
-import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ChainBuilder
 import io.gatling.core.validation.SuccessWrapper
@@ -36,15 +36,15 @@ class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext:
 	if (sum < 100 && elseNext.isDefined)
 		logger.warn("Randow switch has a 100% sum, yet a else is defined?!")
 
-	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
+	def build(next: ActorRef, protocols: Protocols) = {
 
 		val possibleActions = possibilities.map {
 			case (percentage, possibility) =>
-				val possibilityAction = possibility.build(next, protocolRegistry)
+				val possibilityAction = possibility.build(next, protocols)
 				(percentage, possibilityAction)
 		}
 
-		val elseNextActor = elseNext.map(_.build(next, protocolRegistry)).getOrElse(next)
+		val elseNextActor = elseNext.map(_.build(next, protocols)).getOrElse(next)
 
 		val nextAction: Expression[ActorRef] = _ => {
 

@@ -16,12 +16,12 @@
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.config.Protocols
 
 trait StructureSupport extends StructureBuilder[ChainBuilder] {
 
-	private[core] def newInstance(actionBuilders: List[ActionBuilder], protocolRegistry: ProtocolRegistry) = new ChainBuilder(actionBuilders, protocolRegistry)
+	private[core] def newInstance(actionBuilders: List[ActionBuilder], protocols: Protocols) = new ChainBuilder(actionBuilders, protocols)
 
 	private[core] def actionBuilders: List[ActionBuilder] = Nil
-	private[core] def protocolRegistry = new ProtocolRegistry(Map.empty)
+	private[core] def protocols = Protocols()
 }

@@ -18,11 +18,11 @@ package io.gatling.http.action
 
 import akka.actor.ActorRef
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.config.Protocols
 import io.gatling.http.config.HttpProtocol
 
 abstract class HttpActionBuilder extends ActionBuilder {
 
 	override val defaultProtocol = Some(HttpProtocol.default)
-	def httpProtocol(protocolRegistry: ProtocolRegistry) = protocolRegistry.getProtocol[HttpProtocol].getOrElse(throw new UnsupportedOperationException("Http Protocol wasn't registered"))
+	def httpProtocol(protocols: Protocols) = protocols.getProtocol[HttpProtocol].getOrElse(throw new UnsupportedOperationException("Http Protocol wasn't registered"))
 }

@@ -20,7 +20,7 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class ProtocolRegistrySpec extends Specification {
+class ProtocolSpec extends Specification {
 
 	class FooProtocol(val foo: String) extends Protocol
 	class BarProtocol(val bar: String) extends Protocol
@@ -28,21 +28,21 @@ class ProtocolRegistrySpec extends Specification {
 	"building registry" should {
 
 		"return the configuration when 1 configuration" in {
-			ProtocolRegistry().register(new FooProtocol("foo")).getProtocol[FooProtocol] must beSome.which(_.foo == "foo")
+			Protocols().register(new FooProtocol("foo")).getProtocol[FooProtocol] must beSome.which(_.foo == "foo")
 		}
 
 		"return the configurations when 2 different configurations" in {
-			val registry = ProtocolRegistry().register(Seq(new FooProtocol("foo"), new BarProtocol("bar")))
+			val registry = Protocols().register(Seq(new FooProtocol("foo"), new BarProtocol("bar")))
 			registry.getProtocol[FooProtocol] must beSome.which(_.foo == "foo")
 			registry.getProtocol[BarProtocol] must beSome.which(_.bar == "bar")
 		}
 
 		"not fail when no configuration" in {
-			ProtocolRegistry().getProtocol[FooProtocol] must beNone
+			Protocols().getProtocol[FooProtocol] must beNone
 		}
 
 		"override with latest when multiple configurations of the same type" in {
-			ProtocolRegistry().register(Seq(new FooProtocol("foo1"), new FooProtocol("foo2"))).getProtocol[FooProtocol] must beSome.which(_.foo == "foo2")
+			Protocols().register(Seq(new FooProtocol("foo1"), new FooProtocol("foo2"))).getProtocol[FooProtocol] must beSome.which(_.foo == "foo2")
 		}
 	}
 }

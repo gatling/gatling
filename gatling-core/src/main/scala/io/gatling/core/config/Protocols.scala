@@ -20,7 +20,7 @@ import scala.reflect.ClassTag
 /**
  * A placeholder for Protocols
  */
-case class ProtocolRegistry(protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) {
+case class Protocols(protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) {
 
 	/**
 	 * @param protocolType
@@ -28,10 +28,10 @@ case class ProtocolRegistry(protocols: Map[Class[_ <: Protocol], Protocol] = Map
 	 */
 	def getProtocol[T <: Protocol: ClassTag]: Option[T] = protocols.get(implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]).map(_.asInstanceOf[T])
 
-	def register(protocol: Protocol): ProtocolRegistry = register(Seq(protocol))
-	def register(protocols: Seq[Protocol]): ProtocolRegistry = ProtocolRegistry(this.protocols ++ protocols.map(p => p.getClass -> p))
+	def register(protocol: Protocol): Protocols = register(Seq(protocol))
+	def register(protocols: Seq[Protocol]): Protocols = Protocols(this.protocols ++ protocols.map(p => p.getClass -> p))
 
-	def ++(other: ProtocolRegistry) = ProtocolRegistry(protocols ++ other.protocols)
+	def ++(other: Protocols) = Protocols(protocols ++ other.protocols)
 
 	def warmUp {
 		protocols.foreach { case (_, protocol) => protocol.warmUp }

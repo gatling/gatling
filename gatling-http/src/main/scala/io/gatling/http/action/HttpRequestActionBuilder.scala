@@ -17,7 +17,7 @@ package io.gatling.http.action
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
-import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.config.Protocols
 import io.gatling.core.controller.throttle.ThrottlingProtocol
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.status.HttpStatusCheckBuilder.status
@@ -40,9 +40,9 @@ object HttpRequestActionBuilder {
  */
 class HttpRequestActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) extends HttpActionBuilder {
 
-	private[gatling] def build(next: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef = {
+	private[gatling] def build(next: ActorRef, protocols: Protocols): ActorRef = {
 
-		val throttled = protocolRegistry.getProtocol[ThrottlingProtocol].isDefined
-		actor(new HttpRequestAction(requestBuilder.build(httpProtocol(protocolRegistry), throttled), next))
+		val throttled = protocols.getProtocol[ThrottlingProtocol].isDefined
+		actor(new HttpRequestAction(requestBuilder.build(httpProtocol(protocols), throttled), next))
 	}
 }

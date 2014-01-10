@@ -18,7 +18,7 @@ package io.gatling.core.scenario
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
 import io.gatling.core.assertion.{ Assertion, Metric }
-import io.gatling.core.config.{ Protocol, ProtocolRegistry }
+import io.gatling.core.config.{ Protocol, Protocols }
 import io.gatling.core.controller.Timings
 import io.gatling.core.controller.throttle.{ ThrottlingBuilder, ThrottlingProtocol }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
@@ -28,7 +28,7 @@ import io.gatling.core.structure.PopulatedScenarioBuilder
 abstract class Simulation {
 
 	private[scenario] var _scenarios = Seq.empty[PopulatedScenarioBuilder]
-	private[scenario] var _globalProtocols = ProtocolRegistry()
+	private[scenario] var _globalProtocols = Protocols()
 	private[scenario] var _assertions = Seq.empty[Assertion]
 	private[scenario] var _maxDuration: Option[FiniteDuration] = None
 	private[scenario] var _globalThrottling: Option[ThrottlingProtocol] = None

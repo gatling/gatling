@@ -18,7 +18,7 @@ package io.gatling.core.action.builder
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.action.Switch
-import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.config.Protocols
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.ChainBuilder
 
@@ -26,15 +26,15 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
 	require(possibilities.size >= 2, "Switch requires at least 2 possibilities")
 
-	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
+	def build(next: ActorRef, protocols: Protocols) = {
 
 		val possibleActions = possibilities.map {
 			case (percentage, possibility) =>
-				val possibilityAction = possibility.build(next, protocolRegistry)
+				val possibilityAction = possibility.build(next, protocols)
 				(percentage, possibilityAction)
 		}.toMap
 
-		val elseNextActor = elseNext.map(_.build(next, protocolRegistry)).getOrElse(next)
+		val elseNextActor = elseNext.map(_.build(next, protocols)).getOrElse(next)
 
 		val nextAction = (session: Session) => value(session).map { v => possibleActions.get(v).getOrElse(elseNextActor) }
 

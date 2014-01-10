@@ -22,7 +22,7 @@ import com.ning.http.client.Cookie
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.action.SessionHook
-import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.config.Protocols
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.config.HttpProtocol
@@ -46,9 +46,9 @@ object AddCookieBuilder {
 
 class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Int) extends HttpActionBuilder {
 
-	def build(next: ActorRef, protocolRegistry: ProtocolRegistry) = {
+	def build(next: ActorRef, protocols: Protocols) = {
 
-		val resolvedDomain = domain.getOrElse(AddCookieBuilder.defaultDomain(httpProtocol(protocolRegistry)))
+		val resolvedDomain = domain.getOrElse(AddCookieBuilder.defaultDomain(httpProtocol(protocols)))
 		val resolvedPath = path.getOrElse(AddCookieBuilder.defaultPath)
 
 		val expression: Expression[Session] = session => for {

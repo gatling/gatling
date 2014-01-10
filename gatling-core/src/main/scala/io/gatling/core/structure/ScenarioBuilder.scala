@@ -21,7 +21,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.action.UserEnd
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.{ Protocol, ProtocolRegistry }
+import io.gatling.core.config.{ Protocol, Protocols }
 import io.gatling.core.controller.inject.{ InjectionProfile, InjectionStep }
 import io.gatling.core.controller.throttle.{ ThrottlingBuilder, ThrottlingProtocol }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
@@ -34,17 +34,17 @@ import io.gatling.core.session.Expression
  * @param name the name of the scenario
  * @param actionBuilders the list of all the actions that compose the scenario
  */
-case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil, protocolRegistry: ProtocolRegistry = new ProtocolRegistry(Map.empty)) extends StructureBuilder[ScenarioBuilder] {
+case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil, protocols: Protocols = Protocols()) extends StructureBuilder[ScenarioBuilder] {
 
-	private[core] def newInstance(actionBuilders: List[ActionBuilder], protocolRegistry: ProtocolRegistry) = copy(actionBuilders = actionBuilders, protocolRegistry = protocolRegistry)
+	private[core] def newInstance(actionBuilders: List[ActionBuilder], protocols: Protocols) = copy(actionBuilders = actionBuilders, protocols = protocols)
 
 	def inject(iss: InjectionStep*) = {
 		if (iss.isEmpty) System.err.println(s"Scenario '$name' has no injection step.")
-		new PopulatedScenarioBuilder(this, InjectionProfile(iss), protocolRegistry)
+		new PopulatedScenarioBuilder(this, InjectionProfile(iss), protocols)
 	}
 }
 
-case class PopulatedScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, defaultProtocols: ProtocolRegistry, populationProtocols: ProtocolRegistry = ProtocolRegistry()) extends StrictLogging {
+case class PopulatedScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, defaultProtocols: Protocols, populationProtocols: Protocols = Protocols()) extends StrictLogging {
 
 	def protocols(protocols: Protocol*) = copy(populationProtocols = this.populationProtocols.register(protocols))
 
@@ -63,10 +63,10 @@ case class PopulatedScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionP
 	}
 
 	/**
-	 * @param protocolRegistry
+	 * @param Protocols
 	 * @return the scenario
 	 */
-	private[core] def build(globalProtocols: ProtocolRegistry): Scenario = {
+	private[core] def build(globalProtocols: Protocols): Scenario = {
 
 		val protocols = (defaultProtocols ++ globalProtocols ++ populationProtocols)
 		val newProtocols = protocols.getProtocol[ThrottlingProtocol] match {

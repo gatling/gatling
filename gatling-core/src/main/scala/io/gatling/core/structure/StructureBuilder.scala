@@ -16,7 +16,7 @@
 package io.gatling.core.structure
 
 import akka.actor.ActorRef
-import io.gatling.core.config.ProtocolRegistry
+import io.gatling.core.config.Protocols
 
 /**
  * This class defines most of the scenario related DSL
@@ -25,8 +25,8 @@ import io.gatling.core.config.ProtocolRegistry
  */
 trait StructureBuilder[B <: StructureBuilder[B]] extends Execs[B] with Pauses[B] with Feeds[B] with Loops[B] with ConditionalStatements[B] with Errors[B] with Groups[B] {
 
-	private[core] def build(exitPoint: ActorRef, protocolRegistry: ProtocolRegistry): ActorRef =
+	private[core] def build(exitPoint: ActorRef, protocols: Protocols): ActorRef =
 		actionBuilders.foldLeft(exitPoint) { (actorRef, actionBuilder) =>
-			actionBuilder.build(actorRef, protocolRegistry)
+			actionBuilder.build(actorRef, protocols)
 		}
 }
