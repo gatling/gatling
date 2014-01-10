@@ -27,11 +27,6 @@ object RefererHandling {
 
 	def getStoredReferer(session: Session): Option[String] = session(refererAttributeName).asOption
 
-	def addStoredRefererHeader(headers: Map[String, String], session: Session, protocol: HttpProtocol): Map[String, String] = getStoredReferer(session) match {
-		case Some(referer) if (protocol.autoReferer && !headers.contains(HeaderNames.REFERER)) => headers + (HeaderNames.REFERER -> referer)
-		case _ => headers
-	}
-
 	def storeReferer(request: Request, session: Session, protocol: HttpProtocol): Session = {
 
 		def isRealPage(request: Request): Boolean = !request.getHeaders.containsKey(HeaderNames.X_REQUESTED_WITH) && Option(request.getHeaders.get(HeaderNames.ACCEPT)).exists(_.get(0).contains("html"))

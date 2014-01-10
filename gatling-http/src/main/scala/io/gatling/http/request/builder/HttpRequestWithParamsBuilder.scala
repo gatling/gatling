@@ -48,10 +48,7 @@ abstract class AbstractHttpRequestWithParamsBuilder[B <: AbstractHttpRequestWith
 		httpAttributes: HttpAttributes,
 		params: List[HttpParam]): B
 
-	private[http] def newInstance(
-		httpAttributes: HttpAttributes): B = {
-		newInstance(httpAttributes, params)
-	}
+	private[http] def newInstance(httpAttributes: HttpAttributes): B = newInstance(httpAttributes, params)
 
 	def param(key: Expression[String], value: Expression[Any]): B = param(SimpleParam(key, value))
 	def multivaluedParam(key: Expression[String], values: Expression[Seq[Any]]): B = param(MultivaluedParam(key, values))
@@ -61,12 +58,12 @@ abstract class AbstractHttpRequestWithParamsBuilder[B <: AbstractHttpRequestWith
 
 	override protected def configureParts(session: Session, requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
-		def configureAsParams: Validation[RequestBuilder] =
-			if (!params.isEmpty)
+		def configureAsParams: Validation[RequestBuilder] = params match {
+			case Nil => requestBuilder.success
+			case _ =>
 				// As a side effect, requestBuilder.setParameters() resets the body data, so, it should not be called with empty parameters 
 				HttpHelper.httpParamsToFluentMap(params, session).map(requestBuilder.setParameters)
-			else
-				requestBuilder.success
+		}
 
 		def configureAsStringParts: Validation[RequestBuilder] =
 			HttpHelper.resolveParams(params, session).map { params =>
@@ -78,9 +75,10 @@ abstract class AbstractHttpRequestWithParamsBuilder[B <: AbstractHttpRequestWith
 				requestBuilder
 			}
 
-		val requestBuilderWithParams =
-			if (httpAttributes.bodyParts.isEmpty) configureAsParams
-			else configureAsStringParts
+		val requestBuilderWithParams = httpAttributes.bodyParts match {
+			case Nil => configureAsParams
+			case _ => configureAsStringParts
+		}
 
 		requestBuilderWithParams.flatMap(super.configureParts(session, _))
 	}

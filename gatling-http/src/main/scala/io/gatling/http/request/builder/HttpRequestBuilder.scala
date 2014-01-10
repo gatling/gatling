@@ -84,8 +84,6 @@ object AbstractHttpRequestBuilder {
 	val jsonHeaderValueExpression = HeaderValues.APPLICATION_JSON.el[String]
 	val xmlHeaderValueExpression = HeaderValues.APPLICATION_XML.el[String]
 	val multipartFormDataValueExpression = HeaderValues.MULTIPART_FORM_DATA.el[String]
-	val emptyHeaderListSuccess = List.empty[(String, String)].success
-	val emptyPartListSuccess = List.empty[Part].success
 
 	implicit def toActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = new HttpRequestActionBuilder(requestBuilder)
 }
@@ -189,7 +187,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 	def resources(res: AbstractHttpRequestBuilder[_]*): B = newInstance(httpAttributes.copy(explicitResources = res))
 
-	protected def configureParts(session: Session, requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
+	protected def configureParts(session: Session)(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 		require(!httpAttributes.body.isDefined || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
 		httpAttributes.body match {
@@ -200,18 +198,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 				httpAttributes.bodyParts match {
 					case Nil => requestBuilder.success
 					case bodyParts =>
-						if (!httpAttributes.headers.contains(HeaderNames.CONTENT_TYPE)) {
+						if (!httpAttributes.headers.contains(HeaderNames.CONTENT_TYPE))
 							requestBuilder.addHeader(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
-						}
 
-						bodyParts.foldLeft(AbstractHttpRequestBuilder.emptyPartListSuccess) { (parts, part) =>
+						bodyParts.foldLeft(requestBuilder.success) { (requestBuilder, part) =>
 							for {
-								parts <- parts
+								requestBuilder <- requestBuilder
 								part <- part.toMultiPart(session)
-							} yield part :: parts
-						}.map { parts =>
-							parts.foreach(requestBuilder.addBodyPart)
-							requestBuilder
+							} yield requestBuilder.addBodyPart(part)
 						}
 				}
 		}
@@ -248,7 +242,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 			}
 		}
 
-		def configureQueryCookiesAndProxy(uri: URI)(implicit requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
+		def configureQueryCookiesAndProxy(requestBuilder: RequestBuilder)(uri: URI): Validation[RequestBuilder] = {
 
 			if (!protocol.proxyExceptions.contains(uri.getHost)) {
 				if (uri.getScheme == Protocol.HTTP.getProtocol)
@@ -279,19 +273,25 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 		def configureHeaders(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
-			val allHeaders = protocol.baseHeaders ++ httpAttributes.headers
-			val resolvedHeaders = allHeaders.foldLeft(AbstractHttpRequestBuilder.emptyHeaderListSuccess) { (headers, header) =>
+			val headers = protocol.baseHeaders ++ httpAttributes.headers
+
+			val requestBuilderWithHeaders = headers.foldLeft(requestBuilder.success) { (requestBuilder, header) =>
 				val (key, value) = header
 				for {
-					headers <- headers
+					requestBuilder <- requestBuilder
 					value <- value(session)
-				} yield ((key -> value) :: headers)
-			}.map(_.toMap)
+				} yield requestBuilder.addHeader(key, value)
+			}
 
-			resolvedHeaders.map { headers =>
-				val newHeaders = RefererHandling.addStoredRefererHeader(headers, session, protocol)
-				newHeaders.foreach { case (headerName, headerValue) => requestBuilder.addHeader(headerName, headerValue) }
-				requestBuilder
+			val additionalRefererHeader =
+				if (headers.contains(HeaderNames.REFERER))
+					None
+				else
+					RefererHandling.getStoredReferer(session)
+
+			additionalRefererHeader match {
+				case Some(referer) => requestBuilderWithHeaders.map(_.addHeader(HeaderNames.REFERER, referer))
+				case _ => requestBuilderWithHeaders
 			}
 		}
 
@@ -302,16 +302,16 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 			}
 
 		val useRawUrl = httpAttributes.useRawUrl.getOrElse(configuration.http.ahc.useRawUrl)
-		implicit val requestBuilder = new RequestBuilder(httpAttributes.method, useRawUrl).setBodyEncoding(configuration.core.encoding)
+		val requestBuilder = new RequestBuilder(httpAttributes.method, useRawUrl).setBodyEncoding(configuration.core.encoding)
 
 		if (!protocol.shareConnections) requestBuilder.setConnectionPoolKeyStrategy(new ConnectionPoolKeyStrategy(session))
 
 		buildURI(httpAttributes.urlOrURI)
-			.flatMap(configureQueryCookiesAndProxy)
+			.flatMap(configureQueryCookiesAndProxy(requestBuilder))
 			.flatMap(configureVirtualHost)
 			.flatMap(configureHeaders)
 			.flatMap(configureRealm)
-			.flatMap(configureParts(session, _))
+			.flatMap(configureParts(session))
 	}
 
 	/**
@@ -322,23 +322,24 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	def build(protocol: HttpProtocol, throttled: Boolean): HttpRequest = {
 
 		val ahcRequest = (session: Session) =>
-			try {
+			try
 				getAHCRequestBuilder(session, protocol).map(_.build)
-			} catch {
+			catch {
 				case e: Exception =>
 					logger.warn("Failed to build request", e)
 					s"Failed to build request: ${e.getMessage}".failure
 			}
 
-		val totalChecks = if (httpAttributes.ignoreDefaultChecks)
-			httpAttributes.checks
-		else
-			protocol.checks ::: httpAttributes.checks
+		val checks =
+			if (httpAttributes.ignoreDefaultChecks)
+				httpAttributes.checks
+			else
+				protocol.checks ::: httpAttributes.checks
 
-		val resolvedChecks = totalChecks
+		val resolvedChecks = checks
 			.find(_.order == Status)
 			.map(_ => httpAttributes.checks)
-			.getOrElse(HttpRequestActionBuilder.defaultHttpCheck :: totalChecks)
+			.getOrElse(HttpRequestActionBuilder.defaultHttpCheck :: checks)
 			.sorted
 
 		val resolvedMaxRedirects = httpAttributes.maxRedirects.orElse(protocol.maxRedirects)
@@ -348,7 +349,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		HttpRequest(
 			httpAttributes.requestName,
 			ahcRequest,
-			totalChecks,
+			checks,
 			httpAttributes.responseTransformer,
 			httpAttributes.maxRedirects,
 			throttled,
