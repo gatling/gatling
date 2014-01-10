@@ -43,8 +43,8 @@ abstract class Simulation {
 	def timings = {
 		val perScenarioThrottlings: Map[String, ThrottlingProtocol] = _scenarios
 			.map(scn => scn
-				.protocolRegistry.getProtocol[ThrottlingProtocol]
-				.map(throttling => scn.scenarioBuilder.name -> throttling.asInstanceOf[ThrottlingProtocol])).flatten.toMap
+				.populationProtocols.getProtocol[ThrottlingProtocol]
+				.map(throttling => scn.scenarioBuilder.name -> throttling)).flatten.toMap
 		Timings(_maxDuration, _globalThrottling, perScenarioThrottlings)
 	}
 

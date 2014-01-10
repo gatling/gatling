@@ -44,9 +44,9 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = N
 	}
 }
 
-case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, protocolRegistry: ProtocolRegistry) extends StrictLogging {
+case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, defaultProtocols: ProtocolRegistry, populationProtocols: ProtocolRegistry = ProtocolRegistry()) extends StrictLogging {
 
-	def protocols(ps: Protocol*) = copy(protocolRegistry = protocolRegistry.register(ps))
+	def protocols(protocols: Protocol*) = copy(populationProtocols = this.populationProtocols.register(protocols))
 
 	def disablePauses = pauses(Disabled)
 	def constantPauses = pauses(Constant)
@@ -68,11 +68,12 @@ case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionPr
 	 */
 	private[core] def build(globalProtocols: ProtocolRegistry): Scenario = {
 
-		val newProtocols = (globalProtocols ++ protocolRegistry).getProtocol[ThrottlingProtocol] match {
+		val protocols = (defaultProtocols ++ globalProtocols ++ populationProtocols)
+		val newProtocols = protocols.getProtocol[ThrottlingProtocol] match {
 			case Some(_) =>
 				logger.info("Throttle is enabled, disabling pauses")
-				protocolRegistry.register(PauseProtocol(Disabled))
-			case None => protocolRegistry
+				protocols.register(PauseProtocol(Disabled))
+			case None => protocols
 		}
 
 		newProtocols.warmUp
