@@ -20,9 +20,9 @@ import java.net.URI
 import com.ning.http.client.RequestBuilder
 import com.ning.http.multipart.StringPart
 
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.{ Expression, RichExpression, Session }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
-import io.gatling.http.{ HeaderNames, HeaderValues }
+import io.gatling.http.request.{ FileBodyPart, RawFileBodies }
 import io.gatling.http.util.HttpHelper
 
 /**
@@ -55,6 +55,14 @@ abstract class AbstractHttpRequestWithParamsBuilder[B <: AbstractHttpRequestWith
 	def paramsSequence(seq: Expression[Seq[(String, Any)]]): B = param(ParamSeq(seq))
 	def paramsMap(map: Expression[Map[String, Any]]): B = param(ParamMap(map))
 	private def param(param: HttpParam): B = newInstance(httpAttributes, param :: params)
+
+	def formUpload(name: Expression[String], filePath: Expression[String]) = {
+
+		val file = RawFileBodies.asFile(filePath)
+		val filename = file.map(_.getName)
+
+		bodyPart(FileBodyPart(name, file, _fileName = Some(filename))).asMultipartForm
+	}
 
 	override protected def configureParts(session: Session)(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
