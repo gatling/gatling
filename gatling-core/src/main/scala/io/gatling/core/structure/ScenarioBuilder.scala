@@ -34,13 +34,13 @@ import io.gatling.core.session.Expression
  * @param name the name of the scenario
  * @param actionBuilders the list of all the actions that compose the scenario
  */
-case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil, protocols: Protocols = Protocols()) extends StructureBuilder[ScenarioBuilder] {
+case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil, defaultProtocols: Protocols = Protocols()) extends StructureBuilder[ScenarioBuilder] {
 
-	private[core] def newInstance(actionBuilders: List[ActionBuilder], protocols: Protocols) = copy(actionBuilders = actionBuilders, protocols = protocols)
+	private[core] def newInstance(actionBuilders: List[ActionBuilder], defaultProtocols: Protocols) = copy(actionBuilders = actionBuilders, defaultProtocols = defaultProtocols)
 
 	def inject(iss: InjectionStep*) = {
-		if (iss.isEmpty) System.err.println(s"Scenario '$name' has no injection step.")
-		new PopulatedScenarioBuilder(this, InjectionProfile(iss), protocols)
+		require(!iss.isEmpty, "Calling inject with empty injection steps")
+		new PopulatedScenarioBuilder(this, InjectionProfile(iss), defaultProtocols)
 	}
 }
 

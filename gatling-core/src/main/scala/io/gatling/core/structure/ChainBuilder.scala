@@ -29,7 +29,7 @@ object ChainBuilder {
  *
  * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
  */
-case class ChainBuilder(actionBuilders: List[ActionBuilder], protocols: Protocols = Protocols()) extends StructureBuilder[ChainBuilder] {
+case class ChainBuilder(actionBuilders: List[ActionBuilder], defaultProtocols: Protocols = Protocols()) extends StructureBuilder[ChainBuilder] {
 
-	private[core] def newInstance(actionBuilders: List[ActionBuilder], Protocols: Protocols) = ChainBuilder(actionBuilders, Protocols)
+	private[core] def newInstance(actionBuilders: List[ActionBuilder], defaultProtocols: Protocols) = ChainBuilder(actionBuilders, defaultProtocols)
 }
