@@ -38,19 +38,22 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
 			GatlingActorSystem.start
 			Controller.start
 
+			simulation._beforeSteps.foreach(_())
+
 			implicit val i = inbox()
 			Controller.instance ! Run(simulation, selection.simulationId, selection.description, simulation.timings)
 
 			i.receive(configuration.core.timeOut.simulation seconds) match {
 				case SSuccess(runId: String) =>
 					println("Simulation finished")
+					simulation._afterSteps.foreach(_())
 					(runId, simulation)
+
 				case SFailure(t) => throw t
 				case unexpected => throw new UnsupportedOperationException(s"Controller replied an unexpected message $unexpected")
 			}
 
-		} finally {
+		} finally
 			GatlingActorSystem.shutdown
-		}
 	}
 }

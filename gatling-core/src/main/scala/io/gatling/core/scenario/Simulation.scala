@@ -27,11 +27,13 @@ import io.gatling.core.structure.PopulatedScenarioBuilder
 
 abstract class Simulation {
 
-	private[scenario] var _scenarios = Seq.empty[PopulatedScenarioBuilder]
-	private[scenario] var _globalProtocols = Protocols()
-	private[scenario] var _assertions = Seq.empty[Assertion]
-	private[scenario] var _maxDuration: Option[FiniteDuration] = None
-	private[scenario] var _globalThrottling: Option[ThrottlingProtocol] = None
+	private[core] var _scenarios = Seq.empty[PopulatedScenarioBuilder]
+	private[core] var _globalProtocols = Protocols()
+	private[core] var _assertions = Seq.empty[Assertion]
+	private[core] var _maxDuration: Option[FiniteDuration] = None
+	private[core] var _globalThrottling: Option[ThrottlingProtocol] = None
+	private[core] var _beforeSteps: List[() => Unit] = Nil
+	private[core] var _afterSteps: List[() => Unit] = Nil
 
 	def scenarios: Seq[Scenario] = {
 		require(!_scenarios.isEmpty, "No scenario set up")
@@ -48,9 +50,17 @@ abstract class Simulation {
 		Timings(_maxDuration, _globalThrottling, perScenarioThrottlings)
 	}
 
+	def before(step: => Unit) {
+		_beforeSteps = _beforeSteps ::: List(() => step)
+	}
+
 	def setUp(scenarios: PopulatedScenarioBuilder*) = {
 		_scenarios = scenarios.toList
 		new SetUp
+	}
+
+	def after(step: => Unit) {
+		_afterSteps = _afterSteps ::: List(() => step)
 	}
 
 	class SetUp {
