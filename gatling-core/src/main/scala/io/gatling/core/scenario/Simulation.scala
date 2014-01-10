@@ -23,11 +23,11 @@ import io.gatling.core.controller.Timings
 import io.gatling.core.controller.throttle.{ ThrottlingBuilder, ThrottlingProtocol }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
 import io.gatling.core.session.Expression
-import io.gatling.core.structure.ProfiledScenarioBuilder
+import io.gatling.core.structure.PopulatedScenarioBuilder
 
 abstract class Simulation {
 
-	private[scenario] var _scenarios = Seq.empty[ProfiledScenarioBuilder]
+	private[scenario] var _scenarios = Seq.empty[PopulatedScenarioBuilder]
 	private[scenario] var _globalProtocols = ProtocolRegistry()
 	private[scenario] var _assertions = Seq.empty[Assertion]
 	private[scenario] var _maxDuration: Option[FiniteDuration] = None
@@ -48,7 +48,7 @@ abstract class Simulation {
 		Timings(_maxDuration, _globalThrottling, perScenarioThrottlings)
 	}
 
-	def setUp(scenarios: ProfiledScenarioBuilder*) = {
+	def setUp(scenarios: PopulatedScenarioBuilder*) = {
 		_scenarios = scenarios.toList
 		new SetUp
 	}

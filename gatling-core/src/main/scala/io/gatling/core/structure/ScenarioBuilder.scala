@@ -40,11 +40,11 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = N
 
 	def inject(iss: InjectionStep*) = {
 		if (iss.isEmpty) System.err.println(s"Scenario '$name' has no injection step.")
-		new ProfiledScenarioBuilder(this, InjectionProfile(iss), protocolRegistry)
+		new PopulatedScenarioBuilder(this, InjectionProfile(iss), protocolRegistry)
 	}
 }
 
-case class ProfiledScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, defaultProtocols: ProtocolRegistry, populationProtocols: ProtocolRegistry = ProtocolRegistry()) extends StrictLogging {
+case class PopulatedScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, defaultProtocols: ProtocolRegistry, populationProtocols: ProtocolRegistry = ProtocolRegistry()) extends StrictLogging {
 
 	def protocols(protocols: Protocol*) = copy(populationProtocols = this.populationProtocols.register(protocols))
 
