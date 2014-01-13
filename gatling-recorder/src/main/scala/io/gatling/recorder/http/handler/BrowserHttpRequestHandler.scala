@@ -21,15 +21,13 @@ import org.jboss.netty.channel.{ ChannelFuture, ChannelHandlerContext }
 import org.jboss.netty.handler.codec.http.HttpRequest
 
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.http.channel.BootstrapFactory.newClientBootstrap
+import io.gatling.recorder.http.GatlingHttpProxy
+import io.gatling.recorder.http.channel.BootstrapFactory
 import io.gatling.recorder.util.URIHelper
 
-class BrowserHttpRequestHandler(controller: RecorderController) extends AbstractBrowserRequestHandler(controller) {
+class BrowserHttpRequestHandler(proxy: GatlingHttpProxy) extends AbstractBrowserRequestHandler(proxy.controller) {
 
 	def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest) {
-
-		val bootstrap = newClientBootstrap(controller, requestContext, request, false, false)
 
 		val (proxyHost, proxyPort) = (for {
 			host <- configuration.proxy.outgoing.host
@@ -42,9 +40,10 @@ class BrowserHttpRequestHandler(controller: RecorderController) extends Abstract
 				(uri.getHost, if (uri.getPort == -1) 80 else uri.getPort)
 			}
 
-		bootstrap
+		proxy.clientBootstrap
 			.connect(new InetSocketAddress(proxyHost, proxyPort))
 			.addListener { future: ChannelFuture =>
+				future.getChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, requestContext, request, false))
 				val relativeRequest = configuration.proxy.outgoing.host.map(_ => request).getOrElse(buildRequestWithRelativeURI(request))
 				future.getChannel.write(relativeRequest)
 			}

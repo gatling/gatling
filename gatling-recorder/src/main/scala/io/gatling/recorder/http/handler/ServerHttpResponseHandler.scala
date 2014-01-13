@@ -40,7 +40,7 @@ class ServerHttpResponseHandler(controller: RecorderController, requestContext: 
 
 	override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
 
-		context.sendUpstream(event);
+		context.sendUpstream(event)
 
 		event.getMessage match {
 			case response: HttpResponse =>

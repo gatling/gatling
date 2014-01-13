@@ -20,18 +20,24 @@ import java.net.InetSocketAddress
 import org.jboss.netty.channel.group.DefaultChannelGroup
 
 import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.http.channel.BootstrapFactory.newServerBootstrap
+import io.gatling.recorder.http.channel.BootstrapFactory.{ newClientBootstrap, newServerBootstrap }
 
-class GatlingHttpProxy(controller: RecorderController, port: Int, sslPort: Int) {
+case class GatlingHttpProxy(controller: RecorderController, port: Int, sslPort: Int) {
 
 	private val group = new DefaultChannelGroup("Gatling_Recorder")
-	private val bootstrap = newServerBootstrap(controller, false)
-	private val secureBootstrap = newServerBootstrap(controller, true)
+	val clientBootstrap = newClientBootstrap(false)
+	val secureClientBootstrap = newClientBootstrap(true)
+	private val serverBootstrap = newServerBootstrap(this, false)
+	private val secureServerBootstrap = newServerBootstrap(this, true)
 
-	group.add(bootstrap.bind(new InetSocketAddress(port)))
-	group.add(secureBootstrap.bind(new InetSocketAddress(sslPort)))
+	group.add(serverBootstrap.bind(new InetSocketAddress(port)))
+	group.add(secureServerBootstrap.bind(new InetSocketAddress(sslPort)))
 
 	def shutdown {
 		group.close.awaitUninterruptibly
+		serverBootstrap.shutdown
+		secureClientBootstrap.shutdown
+		clientBootstrap.shutdown
+		secureClientBootstrap.shutdown
 	}
 }

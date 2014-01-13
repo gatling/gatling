@@ -19,28 +19,27 @@ import java.net.{ InetSocketAddress, URI }
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import org.jboss.netty.channel.{ ChannelFuture, ChannelHandlerContext }
+import org.jboss.netty.channel.{ ChannelFuture, ChannelFutureListener, ChannelHandlerContext, ExceptionEvent }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
 import org.jboss.netty.handler.ssl.SslHandler
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.controller.RecorderController
+import io.gatling.recorder.http.GatlingHttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory
-import io.gatling.recorder.http.channel.BootstrapFactory.newClientBootstrap
 import io.gatling.recorder.http.ssl.SSLEngineFactory
+import javax.net.ssl.SSLException
 
-class BrowserHttpsRequestHandler(controller: RecorderController) extends AbstractBrowserRequestHandler(controller) with StrictLogging {
+class BrowserHttpsRequestHandler(proxy: GatlingHttpProxy) extends AbstractBrowserRequestHandler(proxy.controller) with StrictLogging {
 
-	@volatile var targetHostURI: URI = _
+	var targetHostURI: URI = _
 
 	def propagateRequest(ctx: ChannelHandlerContext, request: HttpRequest) {
 
 		def handleConnect {
 			targetHostURI = new URI("https://" + request.getUri)
-			logger.warn(s"Trying to connect to $targetHostURI, make sure you've accepted the recorder certificate for this site")
-			controller.secureConnection(targetHostURI)
+			proxy.controller.secureConnection(targetHostURI)
 			ctx.getChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
 
 			ctx.getPipeline().addFirst("ssl", new SslHandler(SSLEngineFactory.newServerSSLEngine))
@@ -66,22 +65,23 @@ class BrowserHttpsRequestHandler(controller: RecorderController) extends Abstrac
 			outGoingProxy match {
 				case None =>
 					// standard case
-					val bootstrap = newClientBootstrap(controller, ctx, request, true, false)
-
-					bootstrap.connect(new InetSocketAddress(targetHostURI.getHost, targetHostURI.getPort))
+					proxy.secureClientBootstrap //newClientBootstrap(controller, ctx, request, true, false)
+						.connect(new InetSocketAddress(targetHostURI.getHost, targetHostURI.getPort))
 						.addListener { connectFuture: ChannelFuture =>
 							connectFuture.getChannel.getPipeline.get(BootstrapFactory.SSL_HANDLER_NAME).asInstanceOf[SslHandler].handshake
 								.addListener { handshakeFuture: ChannelFuture =>
+									handshakeFuture.getChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, ctx, request, false))
 									handshakeFuture.getChannel.write(buildRequestWithRelativeURI(request))
 								}
 						}
 
 				case Some((outGoingProxyHost, outGoingProxyPort)) =>
 					// have to CONNECT over HTTP, before performing request over HTTPS
-					val bootstrap = newClientBootstrap(controller, ctx, request, false, true)
-
-					bootstrap.connect(new InetSocketAddress(outGoingProxyHost, outGoingProxyPort))
+					//					val bootstrap = newClientBootstrap(controller, ctx, request, false, true)
+					proxy.clientBootstrap
+						.connect(new InetSocketAddress(outGoingProxyHost, outGoingProxyPort))
 						.addListener { connectFuture: ChannelFuture =>
+							connectFuture.getChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, ctx, request, true))
 							connectFuture.getChannel.write(buildConnectRequest)
 						}
 			}
@@ -90,5 +90,17 @@ class BrowserHttpsRequestHandler(controller: RecorderController) extends Abstrac
 		logger.info(s"Received ${request.getMethod} on ${request.getUri}")
 		if (request.getMethod == HttpMethod.CONNECT) handleConnect
 		else handlePropagatableRequest
+	}
+
+	override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent) {
+
+		e.getCause match {
+			case ssle: SSLException =>
+				logger.error(s"SSLException ${ssle.getMessage}, did you accept the certificate for $targetHostURI?")
+				val future = ctx.getChannel.getCloseFuture
+				future.addListener(ChannelFutureListener.CLOSE)
+				ctx.sendUpstream(e)
+			case _ => super.exceptionCaught(ctx, e)
+		}
 	}
 }

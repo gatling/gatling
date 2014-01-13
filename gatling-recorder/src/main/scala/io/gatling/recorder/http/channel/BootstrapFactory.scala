@@ -22,12 +22,14 @@ import org.jboss.netty.handler.codec.http.{ HttpChunkAggregator, HttpClientCodec
 import org.jboss.netty.handler.ssl.SslHandler
 
 import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.http.handler.{ BrowserHttpRequestHandler, BrowserHttpsRequestHandler, ServerHttpResponseHandler }
+import io.gatling.recorder.http.GatlingHttpProxy
+import io.gatling.recorder.http.handler.{ BrowserHttpRequestHandler, BrowserHttpsRequestHandler }
 import io.gatling.recorder.http.ssl.SSLEngineFactory
 
 object BootstrapFactory {
 
 	val SSL_HANDLER_NAME = "ssl"
+	val GATLING_HANDLER_NAME = "gatling"
 
 	private val CHUNK_MAX_SIZE = 100 * 1024 * 1024 // 100Mo
 
@@ -35,19 +37,16 @@ object BootstrapFactory {
 
 	private val serverChannelFactory = new NioServerSocketChannelFactory
 
-	def newClientBootstrap(controller: RecorderController, requestContext: ChannelHandlerContext, browserRequest: HttpRequest, ssl: Boolean, expectConnect: Boolean): ClientBootstrap = {
+	def newClientBootstrap(ssl: Boolean): ClientBootstrap = {
 		val bootstrap = new ClientBootstrap(clientChannelFactory)
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory {
 			def getPipeline: ChannelPipeline = {
 				val pipeline = Channels.pipeline
-
 				if (ssl)
 					pipeline.addLast(SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newClientSSLEngine))
 				pipeline.addLast("codec", new HttpClientCodec)
 				pipeline.addLast("inflater", new HttpContentDecompressor)
 				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
-				pipeline.addLast("gatling", new ServerHttpResponseHandler(controller, requestContext, browserRequest, expectConnect))
-
 				pipeline
 			}
 		})
@@ -58,7 +57,7 @@ object BootstrapFactory {
 		bootstrap
 	}
 
-	def newServerBootstrap(controller: RecorderController, ssl: Boolean): ServerBootstrap = {
+	def newServerBootstrap(proxy: GatlingHttpProxy, ssl: Boolean): ServerBootstrap = {
 
 		val bootstrap = new ServerBootstrap(serverChannelFactory)
 
@@ -69,11 +68,7 @@ object BootstrapFactory {
 				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
 				pipeline.addLast("encoder", new HttpResponseEncoder)
 				pipeline.addLast("deflater", new HttpContentCompressor)
-				if (ssl)
-					pipeline.addLast("gatling", new BrowserHttpsRequestHandler(controller))
-				else
-					pipeline.addLast("gatling", new BrowserHttpRequestHandler(controller))
-
+				pipeline.addLast(GATLING_HANDLER_NAME, if (ssl) new BrowserHttpsRequestHandler(proxy) else new BrowserHttpRequestHandler(proxy))
 				pipeline
 			}
 		})
