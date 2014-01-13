@@ -20,7 +20,7 @@ import java.util.{ List => JList }
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaConcurrentMap }
 import scala.collection.concurrent
 
-import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
+import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedCountOption, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import jodd.csselly.{ CSSelly, CssSelector }
@@ -70,6 +70,6 @@ class CountCssExtractor(val criterion: String, nodeAttribute: Option[String]) ex
 
 	def extract(prepared: NodeSelector): Validation[Option[Int]] = {
 		val count = CssExtractor.extractAll(prepared, criterion, nodeAttribute).size
-		Some(count).success
+		count.liftCountOptionV
 	}
 }

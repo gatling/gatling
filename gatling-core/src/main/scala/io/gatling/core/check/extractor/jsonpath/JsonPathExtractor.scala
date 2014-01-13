@@ -18,7 +18,7 @@ package io.gatling.core.check.extractor.jsonpath
 import scala.collection.JavaConversions.mapAsScalaConcurrentMap
 import scala.collection.concurrent
 
-import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
+import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedCountOption, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.jsonpath.JsonPath
@@ -58,5 +58,5 @@ class MultipleJsonPathExtractor[X: JsonFilter](val criterion: String) extends Js
 class CountJsonPathExtractor(val criterion: String) extends JsonPathExtractor[Int] {
 
 	def extract(prepared: Any): Validation[Option[Int]] =
-		JsonPathExtractor.extractAll[Any](prepared, criterion).map(i => Some(i.size))
+		JsonPathExtractor.extractAll[Any](prepared, criterion).map(i => i.size.liftCountOption)
 }
