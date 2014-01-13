@@ -84,8 +84,7 @@ class SingleXPathExtractor(val criterion: String, namespaces: List[(String, Stri
 		val result = for {
 			text <- prepared
 			results = XPathExtractor.evaluate(criterion, namespaces, text) if results.size > occurrence
-			result = results.get(occurrence).getStringValue
-		} yield result
+		} yield results(occurrence).getStringValue
 
 		result.success
 	}
