@@ -17,7 +17,7 @@ package io.gatling.core.check.extractor.xpath
 
 import java.io.InputStream
 
-import scala.collection.JavaConversions.{ iterableAsScalaIterable, mapAsScalaConcurrentMap, seqAsJavaList }
+import scala.collection.JavaConversions.{ iterableAsScalaIterable, mapAsScalaConcurrentMap }
 import scala.collection.concurrent
 
 import org.xml.sax.InputSource
@@ -27,7 +27,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import javax.xml.transform.sax.SAXSource
 import jsr166e.ConcurrentHashMapV8
-import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathSelector, XdmItem, XdmNode }
+import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathExecutable, XPathSelector, XdmItem, XdmNode }
 
 object XPathExtractor {
 
@@ -51,21 +51,19 @@ object XPathExtractor {
 		documentBuilder.build(source)
 	}
 
-	val selectorCache: concurrent.Map[String, ThreadLocal[XPathSelector]] = new ConcurrentHashMapV8[String, ThreadLocal[XPathSelector]]
+	val xpathExecutableCache: concurrent.Map[String, XPathExecutable] = new ConcurrentHashMapV8[String, XPathExecutable]
 
-	def xpath(expression: String, xPathCompiler: XPathCompiler): XPathSelector = xPathCompiler.compile(expression).load
+	def xpath(expression: String, xPathCompiler: XPathCompiler): XPathExecutable = xPathCompiler.compile(expression)
 
-	def cached(expression: String, namespaces: List[(String, String)]): XPathSelector =
+	def cached(expression: String, namespaces: List[(String, String)]): XPathExecutable =
 		if (configuration.core.extract.xpath.cache) {
 			val xPathCompiler = compilerCache.getOrElseUpdate(namespaces, compiler(namespaces))
-			selectorCache.getOrElseUpdate(expression, new ThreadLocal[XPathSelector] {
-				override def initialValue = xpath(expression, xPathCompiler)
-			}).get
+			xpathExecutableCache.getOrElseUpdate(expression, xpath(expression, xPathCompiler))
 		} else
 			xpath(expression, compiler(namespaces))
 
 	def evaluate(criterion: String, namespaces: List[(String, String)], xdmNode: XdmNode): Seq[XdmItem] = {
-		val xPathSelector = cached(criterion, namespaces)
+		val xPathSelector = cached(criterion, namespaces).load
 		try {
 			xPathSelector.setContextItem(xdmNode)
 			xPathSelector.evaluate.toSeq
