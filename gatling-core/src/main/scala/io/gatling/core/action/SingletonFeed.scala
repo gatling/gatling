@@ -45,9 +45,8 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
 			numberOfRecords match {
 				case 1 => session.setAll(pollRecord).success
 				case n if n > 0 =>
-					val translatedRecords = for (i <- 1 to n) yield translateRecord(pollRecord, i)
-					val mergedRecord = translatedRecords.reduce(_ ++ _)
-					session.setAll(mergedRecord).success
+					val translatedRecords = Iterator.tabulate(n) { i => translateRecord(pollRecord, i + 1) }.reduce(_ ++ _)
+					session.setAll(translatedRecords).success
 				case n => (s"$n is not a valid number of records").failure
 			}
 
