@@ -24,7 +24,8 @@ import io.gatling.core.validation.{ Success, SuccessWrapper, Validation }
 
 object Check {
 
-	val noopUpdate = (identity[Session] _).success
+	val noopUpdate = identity[Session] _
+	val noopUpdateSuccess = noopUpdate.success
 
 	def check[R](response: R, session: Session, checks: List[Check[R]]): Validation[Session => Session] = {
 
@@ -41,7 +42,7 @@ object Check {
 			}
 		}
 
-		checkRec(checks, noopUpdate)
+		checkRec(checks, noopUpdateSuccess)
 	}
 }
 
@@ -58,11 +59,11 @@ case class CheckBase[R, P, X](
 
 	def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[Session => Session] = {
 
-		def update(extractedValue: Option[Any]) = (session: Session) =>
+		def update(extractedValue: Option[Any]) =
 			(for {
 				key <- saveAs
 				value <- extractedValue
-			} yield session.set(key, value)).getOrElse(session)
+			} yield (session: Session) => session.set(key, value)).getOrElse(Check.noopUpdate)
 
 		val memoizedPrepared: Validation[P] = cache
 			.getOrElseUpdate(preparer, preparer(response))
