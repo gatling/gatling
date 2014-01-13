@@ -15,8 +15,6 @@
  */
 package io.gatling.core
 
-import scala.annotation.tailrec
-
 package object validation {
 
 	val noneSuccess = None.success
@@ -27,20 +25,5 @@ package object validation {
 
 	implicit class FailureWrapper(val message: String) extends AnyVal {
 		def failure = Failure(message)
-	}
-
-	implicit class ValidationList[T](val validations: List[Validation[T]]) extends AnyVal {
-		def sequence: Validation[List[T]] = {
-
-			@tailrec
-			def sequenceRec(validations: List[Validation[T]], successes: List[T]): Validation[List[T]] = validations match {
-				case Nil => successes.success
-				case head :: tail => head match {
-					case failure: Failure => failure.asInstanceOf[Validation[List[T]]]
-					case Success(entry) => sequenceRec(tail, entry :: successes)
-				}
-			}
-			sequenceRec(validations, Nil).map(_.reverse)
-		}
 	}
 }

@@ -15,11 +15,12 @@
  */
 package io.gatling.core.check
 
+import scala.annotation.tailrec
 import scala.collection.mutable
 
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ SuccessWrapper, Validation, ValidationList }
+import io.gatling.core.validation.{ Success, SuccessWrapper, Validation }
 
 object Check {
 
@@ -29,10 +30,18 @@ object Check {
 
 		implicit val cache = mutable.Map.empty[Any, Any]
 
-		checks match {
-			case Nil => noopUpdate
-			case checks => checks.map(_.check(response, session)).sequence.map(_.reduce(_ andThen _))
+		@tailrec
+		def checkRec(checks: List[Check[R]], updates: Validation[Session => Session]): Validation[Session => Session] = checks match {
+			case Nil => updates
+			case head :: tail => head.check(response, session) match {
+				case Success(update) =>
+					val newUpdates = updates.map(_ andThen update)
+					checkRec(tail, newUpdates)
+				case failure => failure
+			}
 		}
+
+		checkRec(checks, noopUpdate)
 	}
 }
 
