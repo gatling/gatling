@@ -17,10 +17,6 @@ package io.gatling.core.check
 
 package object extractor {
 
-	implicit class LiftedOption[X](val value: X) extends AnyVal {
-		def liftOption = Some(value)
-	}
-
 	implicit class LiftedSeqOption[X](val values: Seq[X]) extends AnyVal {
 		def liftSeqOption = if (values.isEmpty) None else Some(values)
 	}

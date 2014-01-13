@@ -20,7 +20,7 @@ import java.util.regex.Pattern
 import scala.collection.JavaConversions.mapAsScalaConcurrentMap
 import scala.collection.concurrent
 
-import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedOption, LiftedSeqOption }
+import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import jsr166e.ConcurrentHashMapV8
@@ -59,8 +59,11 @@ class CountRegexExtractor(val criterion: String) extends RegexExtractor[Int] {
 
 	def extract(prepared: CharSequence): Validation[Option[Int]] = {
 		val matcher = RegexExtractor.cached(criterion).matcher(prepared)
-		matcher.foldLeft(0) { (_, count) =>
-			count + 1
-		}.liftOption.success
+
+		var count = 0
+		while (matcher.find)
+			count = count + 1
+
+		Some(count).success
 	}
 }

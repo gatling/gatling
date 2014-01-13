@@ -38,7 +38,7 @@ package object regex {
 			def findRec(countDown: Int): Boolean = matcher.find && (countDown == 0 || findRec(countDown - 1))
 
 			if (findRec(n))
-				value[X].liftOption
+				Some(value[X])
 			else
 				None
 		}
