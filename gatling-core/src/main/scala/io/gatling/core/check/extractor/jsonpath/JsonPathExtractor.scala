@@ -18,9 +18,6 @@ package io.gatling.core.check.extractor.jsonpath
 import scala.collection.JavaConversions.mapAsScalaConcurrentMap
 import scala.collection.concurrent
 
-import com.fasterxml.jackson.core.JsonParser.Feature
-import com.fasterxml.jackson.databind.ObjectMapper
-
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
@@ -49,13 +46,13 @@ abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] {
 class SingleJsonPathExtractor[X: JsonFilter](val criterion: String, occurrence: Int) extends JsonPathExtractor[X] {
 
 	def extract(prepared: Any): Validation[Option[X]] =
-		JsonPathExtractor.extractAll(prepared, criterion).map(_.toStream.liftSeqOption.flatMap(_.lift(occurrence)))
+		JsonPathExtractor.extractAll(prepared, criterion).map(_.toSeq.lift(occurrence))
 }
 
 class MultipleJsonPathExtractor[X: JsonFilter](val criterion: String) extends JsonPathExtractor[Seq[X]] {
 
 	def extract(prepared: Any): Validation[Option[Seq[X]]] =
-		JsonPathExtractor.extractAll(prepared, criterion).map(_.toVector.liftSeqOption.flatMap(_.liftSeqOption))
+		JsonPathExtractor.extractAll(prepared, criterion).map(_.toVector.liftSeqOption)
 }
 
 class CountJsonPathExtractor(val criterion: String) extends JsonPathExtractor[Int] {
