@@ -23,9 +23,9 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 object JacksonParser extends JsonParser {
 
 	val objectMapper = new ObjectMapper
-	if (configuration.core.extract.jsonPath.jackson.allowComments) objectMapper.configure(Feature.ALLOW_COMMENTS, true)
-	if (configuration.core.extract.jsonPath.jackson.allowSingleQuotes) objectMapper.configure(Feature.ALLOW_SINGLE_QUOTES, true)
-	if (configuration.core.extract.jsonPath.jackson.allowUnquotedFieldNames) objectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true)
+	objectMapper.configure(Feature.ALLOW_COMMENTS, configuration.core.extract.jsonPath.jackson.allowComments)
+	objectMapper.configure(Feature.ALLOW_SINGLE_QUOTES, configuration.core.extract.jsonPath.jackson.allowSingleQuotes)
+	objectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, configuration.core.extract.jsonPath.jackson.allowUnquotedFieldNames)
 
 	def parse(bytes: Array[Byte]) = objectMapper.readValue(bytes, classOf[Object])
 	def parse(string: String) = objectMapper.readValue(string, classOf[Object])
