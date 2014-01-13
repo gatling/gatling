@@ -17,7 +17,7 @@ package io.gatling.core.check.extractor.xpath
 
 import java.io.InputStream
 
-import scala.collection.JavaConversions.{ iterableAsScalaIterable, mapAsScalaConcurrentMap }
+import scala.collection.JavaConversions._
 import scala.collection.concurrent
 
 import org.xml.sax.InputSource
@@ -27,7 +27,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import javax.xml.transform.sax.SAXSource
 import jsr166e.ConcurrentHashMapV8
-import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathExecutable, XPathSelector, XdmItem, XdmNode }
+import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathExecutable, XdmNode, XdmValue }
 
 object XPathExtractor {
 
@@ -62,11 +62,11 @@ object XPathExtractor {
 		} else
 			xpath(expression, compiler(namespaces))
 
-	def evaluate(criterion: String, namespaces: List[(String, String)], xdmNode: XdmNode): Seq[XdmItem] = {
+	def evaluate(criterion: String, namespaces: List[(String, String)], xdmNode: XdmNode): XdmValue = {
 		val xPathSelector = cached(criterion, namespaces).load
 		try {
 			xPathSelector.setContextItem(xdmNode)
-			xPathSelector.evaluate.toSeq
+			xPathSelector.evaluate
 		} finally {
 			xPathSelector.getUnderlyingXPathContext.setContextItem(null)
 		}
@@ -78,11 +78,11 @@ abstract class XPathExtractor[X] extends CriterionExtractor[Option[XdmNode], Str
 class SingleXPathExtractor(val criterion: String, namespaces: List[(String, String)], occurrence: Int) extends XPathExtractor[String] {
 
 	def extract(prepared: Option[XdmNode]): Validation[Option[String]] = {
-
 		val result = for {
 			text <- prepared
-			results = XPathExtractor.evaluate(criterion, namespaces, text) if results.size > occurrence
-		} yield results(occurrence).getStringValue
+			// XdmValue is an Iterable, so toSeq is a Stream
+			result <- XPathExtractor.evaluate(criterion, namespaces, text).toSeq.lift(occurrence)
+		} yield result.getStringValue
 
 		result.success
 	}
@@ -90,8 +90,14 @@ class SingleXPathExtractor(val criterion: String, namespaces: List[(String, Stri
 
 class MultipleXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends XPathExtractor[Seq[String]] {
 
-	def extract(prepared: Option[XdmNode]): Validation[Option[Seq[String]]] =
-		prepared.flatMap(XPathExtractor.evaluate(criterion, namespaces, _).map(_.getStringValue).liftSeqOption).success
+	def extract(prepared: Option[XdmNode]): Validation[Option[Seq[String]]] = {
+		val result = for {
+			node <- prepared
+			items <- XPathExtractor.evaluate(criterion, namespaces, node).iterator.map(_.getStringValue).toVector.liftSeqOption
+		} yield items
+
+		result.success
+	}
 }
 
 class CountXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends XPathExtractor[Int] {
