@@ -68,6 +68,8 @@ class MultipleCssExtractor[X](val criterion: String, nodeAttribute: Option[Strin
 
 class CountCssExtractor(val criterion: String, nodeAttribute: Option[String]) extends CssExtractor[Int] {
 
-	def extract(prepared: NodeSelector): Validation[Option[Int]] =
-		CssExtractor.extractAll(prepared, criterion, nodeAttribute).liftSeqOption.map(_.size).success
+	def extract(prepared: NodeSelector): Validation[Option[Int]] = {
+		val count = CssExtractor.extractAll(prepared, criterion, nodeAttribute).size
+		Some(count).success
+	}
 }
