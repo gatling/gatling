@@ -17,35 +17,47 @@ package io.gatling.recorder.http.handler
 
 import java.net.{ InetSocketAddress, URI }
 
-import org.jboss.netty.channel.{ ChannelFuture, ChannelHandlerContext }
+import org.jboss.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext }
 import org.jboss.netty.handler.codec.http.HttpRequest
 
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.http.GatlingHttpProxy
+import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory
+import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureListener
 import io.gatling.recorder.util.URIHelper
 
-class BrowserHttpRequestHandler(proxy: GatlingHttpProxy) extends AbstractBrowserRequestHandler(proxy.controller) {
+class BrowserHttpRequestHandler(proxy: HttpProxy) extends AbstractBrowserRequestHandler(proxy.controller) {
+
+	private def writeRequest(request: HttpRequest, channel: Channel) {
+		val relativeRequest = configuration.proxy.outgoing.host.map(_ => request).getOrElse(AbstractBrowserRequestHandler.buildRequestWithRelativeURI(request))
+		channel.write(relativeRequest)
+	}
 
 	def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest) {
 
-		val (proxyHost, proxyPort) = (for {
-			host <- configuration.proxy.outgoing.host
-			port <- configuration.proxy.outgoing.port
-		} yield (host, port))
-			.getOrElse {
-				// the URI sometimes contains invalid characters, so we truncate as we only need the host and port
-				val (schemeHostPort, _) = URIHelper.splitURI(request.getUri)
-				val uri = new URI(schemeHostPort)
-				(uri.getHost, if (uri.getPort == -1) 80 else uri.getPort)
-			}
+		_clientChannel match {
+			case Some(channel) if channel.isConnected => writeRequest(request, channel)
+			case _ =>
+				_clientChannel = None
 
-		proxy.clientBootstrap
-			.connect(new InetSocketAddress(proxyHost, proxyPort))
-			.addListener { future: ChannelFuture =>
-				future.getChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, requestContext, request, false))
-				val relativeRequest = configuration.proxy.outgoing.host.map(_ => request).getOrElse(buildRequestWithRelativeURI(request))
-				future.getChannel.write(relativeRequest)
-			}
+				val (host, port) = (for {
+					proxyHost <- configuration.proxy.outgoing.host
+					proxyPort <- configuration.proxy.outgoing.port
+				} yield (proxyHost, proxyPort))
+					.getOrElse {
+						// the URI sometimes contains invalid characters, so we truncate as we only need the host and port
+						val (schemeHostPort, _) = URIHelper.splitURI(request.getUri)
+						val uri = new URI(schemeHostPort)
+						(uri.getHost, if (uri.getPort == -1) 80 else uri.getPort)
+					}
+
+				proxy.clientBootstrap
+					.connect(new InetSocketAddress(host, port))
+					.addListener { future: ChannelFuture =>
+						future.getChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, requestContext, request, false))
+						_clientChannel = Some(future.getChannel)
+						writeRequest(request, future.getChannel)
+					}
+		}
 	}
 }

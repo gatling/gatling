@@ -17,7 +17,7 @@ package io.gatling.recorder.http.handler
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import org.jboss.netty.channel.{ ChannelFuture, ChannelFutureListener, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler }
+import org.jboss.netty.channel.{ Channel, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
 
 import com.ning.http.util.Base64
@@ -28,11 +28,21 @@ import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.util.URIHelper
 
+object AbstractBrowserRequestHandler {
+	def buildRequestWithRelativeURI(request: HttpRequest) = {
+
+		val (_, pathQuery) = URIHelper.splitURI(request.getUri)
+		val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, pathQuery)
+		newRequest.setChunked(request.isChunked)
+		newRequest.setContent(request.getContent)
+		for (header <- request.headers.entries) newRequest.headers.add(header.getKey, header.getValue)
+		newRequest
+	}
+}
+
 abstract class AbstractBrowserRequestHandler(controller: RecorderController) extends SimpleChannelHandler with StrictLogging {
 
-	implicit def function2ChannelFutureListener(thunk: ChannelFuture => Any) = new ChannelFutureListener {
-		def operationComplete(future: ChannelFuture) { thunk(future) }
-	}
+	var _clientChannel: Option[Channel] = None
 
 	override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent) {
 
@@ -60,19 +70,8 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController) ext
 
 	override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent) {
 		logger.error("Exception caught", e.getCause)
-
-		val future = ctx.getChannel.getCloseFuture
-		future.addListener(ChannelFutureListener.CLOSE)
 		ctx.sendUpstream(e)
-	}
-
-	def buildRequestWithRelativeURI(request: HttpRequest) = {
-
-		val (_, pathQuery) = URIHelper.splitURI(request.getUri)
-		val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, pathQuery)
-		newRequest.setChunked(request.isChunked)
-		newRequest.setContent(request.getContent)
-		for (header <- request.headers.entries) newRequest.headers.add(header.getKey, header.getValue)
-		newRequest
+		ctx.getChannel.close
+		_clientChannel.map(_.close)
 	}
 }

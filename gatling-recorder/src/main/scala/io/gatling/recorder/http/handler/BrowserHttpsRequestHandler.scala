@@ -19,31 +19,30 @@ import java.net.{ InetSocketAddress, URI }
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import org.jboss.netty.channel.{ ChannelFuture, ChannelFutureListener, ChannelHandlerContext, ExceptionEvent }
+import org.jboss.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext, ExceptionEvent }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
 import org.jboss.netty.handler.ssl.SslHandler
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.http.GatlingHttpProxy
+import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory
+import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureListener
 import io.gatling.recorder.http.ssl.SSLEngineFactory
 import javax.net.ssl.SSLException
 
-class BrowserHttpsRequestHandler(proxy: GatlingHttpProxy) extends AbstractBrowserRequestHandler(proxy.controller) with StrictLogging {
+class BrowserHttpsRequestHandler(proxy: HttpProxy) extends AbstractBrowserRequestHandler(proxy.controller) with StrictLogging {
 
+	private var _channel: Option[Channel] = None
 	var targetHostURI: URI = _
 
 	def propagateRequest(ctx: ChannelHandlerContext, request: HttpRequest) {
 
 		def handleConnect {
 			targetHostURI = new URI("https://" + request.getUri)
-			proxy.controller.secureConnection(targetHostURI)
 			ctx.getChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
-
-			ctx.getPipeline().addFirst("ssl", new SslHandler(SSLEngineFactory.newServerSSLEngine))
-
+			ctx.getPipeline.addFirst(BootstrapFactory.SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newServerSSLEngine))
 		}
 
 		def buildConnectRequest = {
@@ -57,39 +56,44 @@ class BrowserHttpsRequestHandler(proxy: GatlingHttpProxy) extends AbstractBrowse
 			// set full uri so that it's correctly recorded FIXME ugly
 			request.setUri(targetHostURI.resolve(request.getUri).toString)
 
-			val outGoingProxy = for {
-				host <- configuration.proxy.outgoing.host
-				port <- configuration.proxy.outgoing.port
-			} yield (host, port)
+			_clientChannel match {
+				case Some(channel) if channel.isConnected =>
+					channel.write(AbstractBrowserRequestHandler.buildRequestWithRelativeURI(request))
 
-			outGoingProxy match {
-				case None =>
-					// standard case
-					proxy.secureClientBootstrap //newClientBootstrap(controller, ctx, request, true, false)
-						.connect(new InetSocketAddress(targetHostURI.getHost, targetHostURI.getPort))
-						.addListener { connectFuture: ChannelFuture =>
-							connectFuture.getChannel.getPipeline.get(BootstrapFactory.SSL_HANDLER_NAME).asInstanceOf[SslHandler].handshake
-								.addListener { handshakeFuture: ChannelFuture =>
-									handshakeFuture.getChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, ctx, request, false))
-									handshakeFuture.getChannel.write(buildRequestWithRelativeURI(request))
+				case _ =>
+					_clientChannel = None
+					(configuration.proxy.outgoing.host, configuration.proxy.outgoing.port) match {
+						case (Some(proxyHost), Some(proxyPort)) =>
+							// proxy: have to CONNECT over HTTP, before performing request over HTTPS
+							proxy.clientBootstrap
+								.connect(new InetSocketAddress(proxyHost, proxyPort))
+								.addListener { connectFuture: ChannelFuture =>
+									connectFuture.getChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, ctx, request, true))
+									_clientChannel = Some(connectFuture.getChannel)
+									connectFuture.getChannel.write(buildConnectRequest)
 								}
-						}
 
-				case Some((outGoingProxyHost, outGoingProxyPort)) =>
-					// have to CONNECT over HTTP, before performing request over HTTPS
-					//					val bootstrap = newClientBootstrap(controller, ctx, request, false, true)
-					proxy.clientBootstrap
-						.connect(new InetSocketAddress(outGoingProxyHost, outGoingProxyPort))
-						.addListener { connectFuture: ChannelFuture =>
-							connectFuture.getChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, ctx, request, true))
-							connectFuture.getChannel.write(buildConnectRequest)
-						}
+						case _ =>
+							// direct connection
+							proxy.secureClientBootstrap
+								.connect(new InetSocketAddress(targetHostURI.getHost, targetHostURI.getPort))
+								.addListener { connectFuture: ChannelFuture =>
+									connectFuture.getChannel.getPipeline.get(BootstrapFactory.SSL_HANDLER_NAME).asInstanceOf[SslHandler].handshake
+										.addListener { handshakeFuture: ChannelFuture =>
+											handshakeFuture.getChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, ctx, request, false))
+											_clientChannel = Some(connectFuture.getChannel)
+											handshakeFuture.getChannel.write(AbstractBrowserRequestHandler.buildRequestWithRelativeURI(request))
+										}
+								}
+					}
 			}
 		}
 
 		logger.info(s"Received ${request.getMethod} on ${request.getUri}")
-		if (request.getMethod == HttpMethod.CONNECT) handleConnect
-		else handlePropagatableRequest
+		if (request.getMethod == HttpMethod.CONNECT)
+			handleConnect
+		else
+			handlePropagatableRequest
 	}
 
 	override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent) {
@@ -97,9 +101,10 @@ class BrowserHttpsRequestHandler(proxy: GatlingHttpProxy) extends AbstractBrowse
 		e.getCause match {
 			case ssle: SSLException =>
 				logger.error(s"SSLException ${ssle.getMessage}, did you accept the certificate for $targetHostURI?")
-				val future = ctx.getChannel.getCloseFuture
-				future.addListener(ChannelFutureListener.CLOSE)
+				proxy.controller.secureConnection(targetHostURI)
 				ctx.sendUpstream(e)
+				ctx.getChannel.close
+				_clientChannel.map(_.close)
 			case _ => super.exceptionCaught(ctx, e)
 		}
 	}

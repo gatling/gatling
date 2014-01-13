@@ -17,26 +17,17 @@ package io.gatling.recorder.http.handler
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import org.jboss.netty.channel.{ ChannelHandlerContext, MessageEvent, SimpleChannelHandler }
-import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest, HttpResponse }
+import org.jboss.netty.channel.{ ChannelFuture, ChannelHandlerContext, MessageEvent, SimpleChannelHandler }
+import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpHeaders, HttpRequest, HttpResponse }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory
+import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureListener
 import io.gatling.recorder.util.URIHelper
 
 class ServerHttpResponseHandler(controller: RecorderController, requestContext: ChannelHandlerContext, request: HttpRequest, var expectConnect: Boolean) extends SimpleChannelHandler with StrictLogging {
-
-	def buildRequestWithRelativeURI(request: HttpRequest) = {
-
-		val (_, pathQuery) = URIHelper.splitURI(request.getUri)
-		val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, pathQuery)
-		newRequest.setChunked(request.isChunked)
-		newRequest.setContent(request.getContent)
-		for (header <- request.headers.entries) newRequest.headers.add(header.getKey, header.getValue)
-		newRequest
-	}
 
 	override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
 
@@ -46,12 +37,26 @@ class ServerHttpResponseHandler(controller: RecorderController, requestContext: 
 			case response: HttpResponse =>
 				if (expectConnect) {
 					expectConnect = false
-					BootstrapFactory.upgradeProtocol(context.getChannel.getPipeline, controller, context, request)
-					context.getChannel.write(buildRequestWithRelativeURI(request))
+					BootstrapFactory.upgradeProtocol(context.getChannel.getPipeline)
+					context.getChannel.write(AbstractBrowserRequestHandler.buildRequestWithRelativeURI(request))
 
 				} else {
 					controller.receiveResponse(request, response)
-					requestContext.getChannel.write(response)
+					requestContext.getChannel.write(response).addListener { future: ChannelFuture =>
+
+						val keepAlive = (for {
+							requestKeepAlive <- Option(request.headers.get(HttpHeaders.Names.CONNECTION)) if (HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase(requestKeepAlive))
+							responseKeepAlive <- Option(response.headers.get(HttpHeaders.Names.CONNECTION))
+						} yield HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase(responseKeepAlive)).getOrElse(false)
+
+						if (keepAlive) {
+							logger.debug("Both request and response are willing to keep the connection alive, reusing channels")
+						} else {
+							logger.debug("Request and/or response is not willing to keep the connection alive, closing both channels")
+							context.getChannel.close
+							future.getChannel.close
+						}
+					}
 				}
 			case unknown => logger.warn(s"Received unknown message: $unknown")
 		}

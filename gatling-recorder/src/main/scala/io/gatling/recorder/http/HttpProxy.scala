@@ -22,7 +22,7 @@ import org.jboss.netty.channel.group.DefaultChannelGroup
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory.{ newClientBootstrap, newServerBootstrap }
 
-case class GatlingHttpProxy(controller: RecorderController, port: Int, sslPort: Int) {
+case class HttpProxy(controller: RecorderController, port: Int, sslPort: Int) {
 
 	private val group = new DefaultChannelGroup("Gatling_Recorder")
 	val clientBootstrap = newClientBootstrap(false)

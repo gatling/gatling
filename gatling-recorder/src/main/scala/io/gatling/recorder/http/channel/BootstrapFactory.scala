@@ -16,31 +16,29 @@
 package io.gatling.recorder.http.channel
 
 import org.jboss.netty.bootstrap.{ ClientBootstrap, ServerBootstrap }
-import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelPipeline, ChannelPipelineFactory, Channels }
+import org.jboss.netty.channel.{ ChannelPipeline, ChannelPipelineFactory, Channels }
 import org.jboss.netty.channel.socket.nio.{ NioClientSocketChannelFactory, NioServerSocketChannelFactory }
-import org.jboss.netty.handler.codec.http.{ HttpChunkAggregator, HttpClientCodec, HttpContentCompressor, HttpContentDecompressor, HttpRequest, HttpRequestDecoder, HttpResponseEncoder }
+import org.jboss.netty.handler.codec.http.{ HttpChunkAggregator, HttpClientCodec, HttpContentCompressor, HttpContentDecompressor, HttpRequestDecoder, HttpResponseEncoder }
 import org.jboss.netty.handler.ssl.SslHandler
 
-import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.http.GatlingHttpProxy
+import com.typesafe.scalalogging.slf4j.StrictLogging
+
+import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.handler.{ BrowserHttpRequestHandler, BrowserHttpsRequestHandler }
 import io.gatling.recorder.http.ssl.SSLEngineFactory
 
-object BootstrapFactory {
+object BootstrapFactory extends StrictLogging {
 
 	val SSL_HANDLER_NAME = "ssl"
 	val GATLING_HANDLER_NAME = "gatling"
 
 	private val CHUNK_MAX_SIZE = 100 * 1024 * 1024 // 100Mo
 
-	private val clientChannelFactory = new NioClientSocketChannelFactory
-
-	private val serverChannelFactory = new NioServerSocketChannelFactory
-
 	def newClientBootstrap(ssl: Boolean): ClientBootstrap = {
-		val bootstrap = new ClientBootstrap(clientChannelFactory)
+		val bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory)
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory {
 			def getPipeline: ChannelPipeline = {
+				logger.debug("Open new client channel")
 				val pipeline = Channels.pipeline
 				if (ssl)
 					pipeline.addLast(SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newClientSSLEngine))
@@ -57,12 +55,13 @@ object BootstrapFactory {
 		bootstrap
 	}
 
-	def newServerBootstrap(proxy: GatlingHttpProxy, ssl: Boolean): ServerBootstrap = {
+	def newServerBootstrap(proxy: HttpProxy, ssl: Boolean): ServerBootstrap = {
 
-		val bootstrap = new ServerBootstrap(serverChannelFactory)
+		val bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory)
 
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory {
 			def getPipeline: ChannelPipeline = {
+				logger.debug("Open new server channel")
 				val pipeline = Channels.pipeline
 				pipeline.addLast("decoder", new HttpRequestDecoder)
 				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
@@ -79,7 +78,7 @@ object BootstrapFactory {
 		bootstrap
 	}
 
-	def upgradeProtocol(pipeline: ChannelPipeline, controller: RecorderController, ctx: ChannelHandlerContext, request: HttpRequest) {
+	def upgradeProtocol(pipeline: ChannelPipeline) {
 		pipeline.remove("codec")
 		pipeline.addFirst("codec", new HttpClientCodec)
 		pipeline.addFirst(SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newClientSSLEngine))

@@ -33,7 +33,7 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.har.HarReader
-import io.gatling.recorder.http.GatlingHttpProxy
+import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.scenario.{ RequestElement, Scenario, ScenarioExporter, TagElement }
 import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
 
@@ -49,7 +49,7 @@ class RecorderController extends StrictLogging {
 
 	private val frontEnd = RecorderFrontend.newFrontend(this)
 
-	@volatile private var proxy: GatlingHttpProxy = _
+	@volatile private var proxy: HttpProxy = _
 
 	// Can use ConcurrentLinkedDeque when dropping support of JDK6
 	// Collection of tuples, (arrivalTime, request)
@@ -79,7 +79,7 @@ class RecorderController extends StrictLogging {
 								frontEnd.handleHarExportFailure
 						}
 					case Proxy =>
-						proxy = new GatlingHttpProxy(this, configuration.proxy.port, configuration.proxy.sslPort)
+						proxy = new HttpProxy(this, configuration.proxy.port, configuration.proxy.sslPort)
 						frontEnd.recordingStarted
 				}
 			}
