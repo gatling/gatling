@@ -168,7 +168,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 			next = TestActorRef[DummyAction](Props(new DummyAction))(GatlingActorSystem.instance)
 			val action = websocket("testRequestName")
 				.open("ws://dummy/", "testAttributeName")(webSocketClient, requestLogger)
-				.build(next, Protocols().register(HttpProtocol.default))
+				.build(next, Protocols() + HttpProtocol.default)
 
 			action ! new Session("test", "0")
 		}
@@ -193,7 +193,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 			next = TestActorRef[DummyAction](Props(new DummyAction))(GatlingActorSystem.instance)
 			val action = websocket("testRequestName")
 				.sendMessage(message, "testAttributeName")
-				.build(next, Protocols().register(HttpProtocol.default))
+				.build(next, Protocols() + HttpProtocol.default)
 
 			action ! session
 		}
@@ -203,7 +203,7 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 			next = TestActorRef[DummyAction](Props(new DummyAction))(GatlingActorSystem.instance)
 			val action = websocket("testRequestName")
 				.close("testAttributeName")
-				.build(next, Protocols().register(HttpProtocol.default))
+				.build(next, Protocols() + HttpProtocol.default)
 
 			action ! session
 		}

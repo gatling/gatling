@@ -44,5 +44,5 @@ class PauseBuilder(duration: Expression[Duration]) extends ActionBuilder {
 		}
 	}
 
-	override val defaultProtocol = Some(PauseProtocol.default)
+	override def registerDefaultProtocols(protocols: Protocols): Protocols = protocols + PauseProtocol.default
 }

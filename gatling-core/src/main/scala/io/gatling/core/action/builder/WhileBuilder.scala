@@ -35,4 +35,9 @@ class WhileBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, count
 		whileActor ! loopNextActor
 		whileActor
 	}
+
+	override private[gatling] def registerDefaultProtocols(protocols: Protocols) =
+		loopNext.actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
+			actionBuilder.registerDefaultProtocols(protocols)
+		}
 }

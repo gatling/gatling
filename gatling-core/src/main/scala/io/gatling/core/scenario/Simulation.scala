@@ -66,7 +66,7 @@ abstract class Simulation {
 	class SetUp {
 
 		def protocols(ps: Protocol*) = {
-			_globalProtocols = _globalProtocols.register(ps)
+			_globalProtocols = _globalProtocols ++ ps
 			this
 		}
 
@@ -85,7 +85,7 @@ abstract class Simulation {
 			val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
 			val throttling = ThrottlingProtocol(ThrottlingBuilder(steps).build)
 			_globalThrottling = Some(throttling)
-			_globalProtocols = _globalProtocols.register(throttling)
+			_globalProtocols = _globalProtocols + throttling
 			this
 		}
 
@@ -96,7 +96,7 @@ abstract class Simulation {
 		def uniformPauses(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
 		def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
 		def pauses(pauseType: PauseType) = {
-			_globalProtocols = _globalProtocols.register(PauseProtocol(pauseType))
+			_globalProtocols = _globalProtocols + PauseProtocol(pauseType)
 			this
 		}
 	}

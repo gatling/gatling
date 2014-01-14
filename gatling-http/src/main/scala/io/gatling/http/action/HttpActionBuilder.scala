@@ -23,6 +23,6 @@ import io.gatling.http.config.HttpProtocol
 
 abstract class HttpActionBuilder extends ActionBuilder {
 
-	override val defaultProtocol = Some(HttpProtocol.default)
 	def httpProtocol(protocols: Protocols) = protocols.getProtocol[HttpProtocol].getOrElse(throw new UnsupportedOperationException("Http Protocol wasn't registered"))
+	override def registerDefaultProtocols(protocols: Protocols) = protocols + HttpProtocol.default
 }

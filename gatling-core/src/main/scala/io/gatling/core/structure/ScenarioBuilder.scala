@@ -34,19 +34,24 @@ import io.gatling.core.session.Expression
  * @param name the name of the scenario
  * @param actionBuilders the list of all the actions that compose the scenario
  */
-case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil, defaultProtocols: Protocols = Protocols()) extends StructureBuilder[ScenarioBuilder] {
+case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil) extends StructureBuilder[ScenarioBuilder] {
 
-	private[core] def newInstance(actionBuilders: List[ActionBuilder], defaultProtocols: Protocols) = copy(actionBuilders = actionBuilders, defaultProtocols = defaultProtocols)
+	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = copy(actionBuilders = actionBuilders)
 
 	def inject(iss: InjectionStep*) = {
 		require(!iss.isEmpty, "Calling inject with empty injection steps")
+
+		val defaultProtocols = actionBuilders.foldLeft(Protocols()) { (protocols, actionBuilder) =>
+			actionBuilder.registerDefaultProtocols(protocols)
+		}
+
 		new PopulatedScenarioBuilder(this, InjectionProfile(iss), defaultProtocols)
 	}
 }
 
 case class PopulatedScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, defaultProtocols: Protocols, populationProtocols: Protocols = Protocols()) extends StrictLogging {
 
-	def protocols(protocols: Protocol*) = copy(populationProtocols = this.populationProtocols.register(protocols))
+	def protocols(protocols: Protocol*) = copy(populationProtocols = this.populationProtocols ++ protocols)
 
 	def disablePauses = pauses(Disabled)
 	def constantPauses = pauses(Constant)
@@ -72,7 +77,7 @@ case class PopulatedScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionP
 		val newProtocols = protocols.getProtocol[ThrottlingProtocol] match {
 			case Some(_) =>
 				logger.info("Throttle is enabled, disabling pauses")
-				protocols.register(PauseProtocol(Disabled))
+				protocols + PauseProtocol(Disabled)
 			case None => protocols
 		}
 

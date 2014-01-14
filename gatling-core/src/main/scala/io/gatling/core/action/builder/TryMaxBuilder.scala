@@ -29,4 +29,9 @@ class TryMaxBuilder(times: Int, counterName: String, loopNext: ChainBuilder) ext
 		tryMaxActor ! loopContent
 		tryMaxActor
 	}
+
+	override private[gatling] def registerDefaultProtocols(protocols: Protocols) =
+		loopNext.actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
+			actionBuilder.registerDefaultProtocols(protocols)
+		}
 }

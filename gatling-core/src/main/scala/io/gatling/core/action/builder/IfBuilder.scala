@@ -34,4 +34,13 @@ class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext
 		val elseNextActor = elseNext.map(_.build(next, protocols)).getOrElse(next)
 		actor(new If(condition, thenNextActor, elseNextActor, next))
 	}
+
+	override private[gatling] def registerDefaultProtocols(protocols: Protocols) = {
+
+		val actionBuilders = thenNext.actionBuilders ::: elseNext.map(_.actionBuilders).getOrElse(Nil)
+
+		actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
+			actionBuilder.registerDefaultProtocols(protocols)
+		}
+	}
 }

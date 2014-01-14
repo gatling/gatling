@@ -31,5 +31,5 @@ trait ActionBuilder extends AkkaDefaults {
 	 */
 	private[gatling] def build(next: ActorRef, protocols: Protocols): ActorRef
 
-	private[gatling] def defaultProtocol: Option[Protocol] = None
+	private[gatling] def registerDefaultProtocols(protocols: Protocols): Protocols = protocols
 }

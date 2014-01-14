@@ -17,10 +17,15 @@ package io.gatling.core.config
 
 import scala.reflect.ClassTag
 
+object Protocols {
+
+	def apply(protocols: Protocol*) = new Protocols() ++ protocols
+}
+
 /**
  * A placeholder for Protocols
  */
-case class Protocols(protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) {
+class Protocols(val protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) {
 
 	/**
 	 * @param protocolType
@@ -28,10 +33,10 @@ case class Protocols(protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty)
 	 */
 	def getProtocol[T <: Protocol: ClassTag]: Option[T] = protocols.get(implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]).map(_.asInstanceOf[T])
 
-	def register(protocol: Protocol): Protocols = register(Seq(protocol))
-	def register(protocols: Seq[Protocol]): Protocols = Protocols(this.protocols ++ protocols.map(p => p.getClass -> p))
+	def +(protocol: Protocol): Protocols = new Protocols(protocols + (protocol.getClass -> protocol))
+	def ++(protocols: Seq[Protocol]): Protocols = new Protocols(this.protocols ++ protocols.map(p => p.getClass -> p))
 
-	def ++(other: Protocols) = Protocols(protocols ++ other.protocols)
+	def ++(other: Protocols) = new Protocols(protocols ++ other.protocols)
 
 	def warmUp {
 		protocols.foreach { case (_, protocol) => protocol.warmUp }

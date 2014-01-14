@@ -40,4 +40,13 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
 		actor(new Switch(nextAction, next))
 	}
+
+	override private[gatling] def registerDefaultProtocols(protocols: Protocols) = {
+
+		val actionBuilders = possibilities.flatMap { case (_, chainBuilder) => chainBuilder.actionBuilders } ::: elseNext.map(_.actionBuilders).getOrElse(Nil)
+
+		actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
+			actionBuilder.registerDefaultProtocols(protocols)
+		}
+	}
 }
