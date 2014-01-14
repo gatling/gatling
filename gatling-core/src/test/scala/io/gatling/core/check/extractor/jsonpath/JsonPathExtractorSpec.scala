@@ -46,6 +46,10 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 		"return expected result with array expression" in {
 			count("$.store.book[2].author", "/test.json") must succeedWith(Some(1))
 		}
+
+		"return Some(0) when no results" in {
+			count("$.bar", "/test.json") must succeedWith(Some(0))
+		}
 	}
 
 	"extractSingle" should {

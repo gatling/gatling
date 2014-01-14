@@ -45,6 +45,10 @@ class XPathExtractorSpec extends ValidationSpecification {
 		"return expected result with array expression" in {
 			new CountXPathExtractor("/test/store/book[3]/author", namespaces)(prepared("/test.xml")) must succeedWith(Some(1))
 		}
+
+		"return Some(0) when no results" in {
+			new CountXPathExtractor("/foo", namespaces)(prepared("/test.xml")) must succeedWith(Some(0))
+		}
 	}
 
 	"extractSingle" should {

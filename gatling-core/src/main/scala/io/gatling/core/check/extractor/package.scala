@@ -22,9 +22,4 @@ package object extractor {
 	implicit class LiftedSeqOption[X](val values: Seq[X]) extends AnyVal {
 		def liftSeqOption = if (values.isEmpty) None else Some(values)
 	}
-
-	implicit class LiftedCountOption[X](val count: Int) extends AnyVal {
-		def liftCountOption = if (count == 0) None else Some(count)
-		def liftCountOptionV = if (count == 0) noneSuccess else Some(count).success
-	}
 }

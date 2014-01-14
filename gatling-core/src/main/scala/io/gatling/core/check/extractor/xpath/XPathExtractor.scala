@@ -22,7 +22,7 @@ import scala.collection.concurrent
 
 import org.xml.sax.InputSource
 
-import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedCountOption, LiftedSeqOption }
+import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import javax.xml.transform.sax.SAXSource
@@ -102,6 +102,8 @@ class MultipleXPathExtractor(val criterion: String, namespaces: List[(String, St
 
 class CountXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends XPathExtractor[Int] {
 
-	def extract(prepared: Option[XdmNode]): Validation[Option[Int]] =
-		prepared.flatMap(XPathExtractor.evaluate(criterion, namespaces, _).size.liftCountOption).success
+	def extract(prepared: Option[XdmNode]): Validation[Option[Int]] = {
+		val count = prepared.map(XPathExtractor.evaluate(criterion, namespaces, _).size).getOrElse(0)
+		Some(count).success
+	}
 }

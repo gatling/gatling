@@ -59,7 +59,7 @@ class CssExtractorSpec extends ValidationSpecification {
 		}
 
 		"return None when the selector doesn't match anything" in {
-			new CountCssExtractor("bad_selector", None).extract(prepared("/GatlingHomePage.html")) must succeedWith(None)
+			new CountCssExtractor("bad_selector", None).extract(prepared("/GatlingHomePage.html")) must succeedWith(Some(0))
 		}
 	}
 
