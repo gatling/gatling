@@ -96,6 +96,15 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 		"support multiple element filters" in {
 			extractSingle("$[?(@.id==19434 && @.foo==1)].foo", 0, "/test2.json") must succeedWith(Some("1"))
 		}
+
+		"not try to be too smart and try funky stuff to parse dates" in {
+
+			val string = """{
+  "email":"bobby.tables@example.com"
+}"""
+
+			new SingleJsonPathExtractor[String]("$.email", 0).apply(BoonParser.parse(string)) must succeedWith(Some("bobby.tables@example.com"))
+		}
 	}
 
 	"extractMultiple" should {
