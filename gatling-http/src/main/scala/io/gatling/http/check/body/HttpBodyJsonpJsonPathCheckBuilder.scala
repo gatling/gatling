@@ -33,17 +33,23 @@ object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
 
 		val jsonParser = if (JVMHelper.java6) JacksonParser else BoonParser
 
-		HttpBodyJsonPathCheckBuilder.handleParseException { response =>
+		response =>
 			val charBuffer = response.charBuffer
 			charBuffer match {
 				case jsonpRegex(jsonp) =>
-					jsonParser.parse(jsonp).success
+					try {
+						jsonParser.parse(jsonp).success
+					} catch {
+						case e: Exception =>
+							val message = s"Could not parse JSONP string into a JSON object: ${e.getMessage}"
+							logger.info(message, e)
+							message.failure
+					}
 				case _ =>
 					val message = "Regex could not extract JSON object from JSONP response"
 					logger.info(message)
 					message.failure
 			}
-		}
 	}
 
 	def jsonpJsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
