@@ -100,7 +100,7 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 
 		updateLastByteReceived
 		if (storeBodyParts || storeHtmlOrCss) bodies.add(bodyPart)
-		if (computeChecksums) digests.values.foreach(_.update(bodyPart.getBodyByteBuffer))
+		if (computeChecksums) digests.values.foreach(_.update(bodyPart.getBodyPartBytes))
 	}
 
 	def build: Response = {
