@@ -15,14 +15,17 @@
  */
 package io.gatling.recorder.scenario
 
-import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
+import java.nio.charset.Charset
 
+import scala.collection.JavaConversions.asScalaBuffer
+
+import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ AUTHORIZATION, CONTENT_TYPE }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_X_WWW_FORM_URLENCODED
-import org.jboss.netty.handler.codec.http.HttpRequest
 
 import com.ning.http.util.Base64
 
+import io.gatling.http.fetch.{ EmbeddedResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.scenario.template.RequestTemplate
@@ -34,24 +37,39 @@ case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
 
 object RequestElement {
 
-	def apply(request: HttpRequest, statusCode: Int): RequestElement = {
-		val headers: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }.toMap
+	def apply(request: HttpRequest, response: HttpResponse): RequestElement = {
+
+		val htmlContentType = """text/html\s*(;\s+charset=(.+))?$""".r
+
+		val responseContentType = Option(response.headers.get(CONTENT_TYPE))
+		val resources = responseContentType.collect {
+			case htmlContentType(_, headerCharset) => {
+				val charsetName = Option(headerCharset).filter(Charset.isSupported).getOrElse("UTF-8")
+				val charset = Charset.forName(charsetName)
+				val htmlContent = response.getContent.toString(charset)
+
+				HtmlParser.getEmbeddedResources(new java.net.URI(request.getUri), htmlContent.toCharArray)
+			}
+		}.getOrElse(Nil)
+
+		val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }.toMap
 		val content = if (request.getContent.readableBytes > 0) {
 			val bufferBytes = new Array[Byte](request.getContent.readableBytes)
 			request.getContent.getBytes(request.getContent.readerIndex, bufferBytes)
 			Some(bufferBytes)
 		} else None
 
-		val containsFormParams = headers.get(CONTENT_TYPE).exists(_.contains(APPLICATION_X_WWW_FORM_URLENCODED))
+		val containsFormParams = requestHeaders.get(CONTENT_TYPE).exists(_.contains(APPLICATION_X_WWW_FORM_URLENCODED))
 		val body = content.map(content =>
 			if (containsFormParams) RequestBodyParams(parseFormBody(new String(content, configuration.core.encoding)))
 			else RequestBodyBytes(content))
 
-		RequestElement(new String(request.getUri), request.getMethod.toString, headers, body, statusCode)
+		RequestElement(new String(request.getUri), request.getMethod.toString, requestHeaders, body, response.getStatus.getCode, resources)
 	}
 }
 
-case class RequestElement(uri: String, method: String, headers: Map[String, String], body: Option[RequestBody], statusCode: Int) extends ScenarioElement {
+case class RequestElement(uri: String, method: String, headers: Map[String, String], body: Option[RequestBody],
+	statusCode: Int, embeddedResources: List[EmbeddedResource]) extends ScenarioElement {
 
 	val (baseUrl, pathQuery) = {
 		val (rawBaseUrl, pathQuery) = URIHelper.splitURI(uri)

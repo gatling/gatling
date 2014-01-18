@@ -25,6 +25,7 @@ object ConfigurationConstants {
 
 	val AUTOMATIC_REFERER = "recorder.http.automaticReferer"
 	val FOLLOW_REDIRECT = "recorder.http.followRedirect"
+	val FETCH_HTML_RESOURCES = "recorder.http.fetchHtmlResources"
 
 	val LOCAL_PORT = "recorder.proxy.port"
 	val LOCAL_SSL_PORT = "recorder.proxy.sslPort"

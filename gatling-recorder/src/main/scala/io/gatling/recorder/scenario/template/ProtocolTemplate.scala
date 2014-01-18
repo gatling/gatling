@@ -15,6 +15,7 @@
  */
 package io.gatling.recorder.scenario.template
 
+import io.gatling.recorder.enumeration.FilterStrategy._
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.scenario.ProtocolElement.baseHeaders
@@ -42,14 +43,30 @@ object ProtocolTemplate {
 			val protocol = for {
 				proxyHost <- configuration.proxy.outgoing.host
 				proxyPort <- configuration.proxy.outgoing.port
-			} yield s"""$eol$indent.proxy(Proxy("$proxyHost", $proxyPort)$renderSslPort$renderCredentials)"""
+			} yield fast"""$eol$indent.proxy(Proxy("$proxyHost", $proxyPort)$renderSslPort$renderCredentials)"""
 
-			protocol.getOrElse("")
+			protocol.getOrElse(fast"")
 		}
 
-		def renderFollowRedirect = if (!configuration.http.followRedirect) s"$eol$indent.disableFollowRedirect" else ""
+		def renderFollowRedirect = if (!configuration.http.followRedirect) fast"$eol$indent.disableFollowRedirect" else fast""
 
-		def renderAutomaticReferer = if (!configuration.http.automaticReferer) s"$eol$indent.disableAutoReferer" else ""
+		def renderFetchHtmlResources = if (configuration.http.fetchHtmlResources) {
+			val filtersConfig = configuration.filters
+
+			def quotedStringList(xs: Seq[String]): String = xs.map(p => "\"\"\"" + p + "\"\"\"").mkString(", ")
+			def backlistPatterns = fast"black = BlackList(${quotedStringList(filtersConfig.blackList.patterns)})"
+			def whitelistPatterns = fast"white = WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
+
+			val patterns = filtersConfig.filterStrategy match {
+				case WHITELIST_FIRST => fast"$whitelistPatterns, $backlistPatterns"
+				case BLACKLIST_FIRST => fast"$backlistPatterns, $whitelistPatterns"
+				case DISABLED => fast"white = WhiteList()"
+			}
+
+			fast"$eol$indent.fetchHtmlResources($patterns)"
+		} else fast""
+
+		def renderAutomaticReferer = if (!configuration.http.automaticReferer) fast"$eol$indent.disableAutoReferer" else fast""
 
 		def renderHeaders = {
 			def renderHeader(methodName: String, headerValue: String) = fast"""$eol$indent.$methodName("$headerValue")"""
@@ -57,6 +74,6 @@ object ProtocolTemplate {
 		}
 
 		fast"""
-		.baseURL("$baseUrl")$renderProxy$renderFollowRedirect$renderAutomaticReferer$renderHeaders""".toString
+		.baseURL("$baseUrl")$renderProxy$renderFollowRedirect$renderFetchHtmlResources$renderAutomaticReferer$renderHeaders""".toString
 	}
 }

@@ -15,27 +15,46 @@
  */
 package io.gatling.recorder.scenario
 
+import java.net.URI
+
+import scala.collection.mutable
+
+import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import org.junit.runner.RunWith
+
+import io.gatling.http.fetch.{ CssResource, RegularResource }
+import io.gatling.recorder.config.ConfigurationConstants.{ FETCH_HTML_RESOURCES, FOLLOW_REDIRECT }
+import io.gatling.recorder.config.RecorderConfiguration
 
 @RunWith(classOf[JUnitRunner])
 class ScenarioSpec extends Specification {
 
-	"groupAsLongAsPredicate()" should {
+	"Scenario" should {
 
-		"group elements as long as the predicate applies" in {
-			val reqs = Vector(200, 200, 304, 304, 200, 304, 200, 200).zipWithIndex.map(_.swap)
-			val expectedReqs = List(
-				((0, 200) :: Nil),
-				((1, 200) :: Nil),
-				((2, 304) :: (3, 304) :: (4, 200) :: Nil),
-				((5, 304) :: (6, 200) :: Nil),
-				((7, 200) :: Nil))
+		RecorderConfiguration.initialSetup(
+			mutable.Map(FETCH_HTML_RESOURCES -> true, FOLLOW_REDIRECT -> true), None)
 
-			val groupReqs = Scenario.groupAsLongAsPredicate((t: (Int, Int)) => t._2 == 304)(reqs)
+		"remove HTTP redirection " in {
+			val r1 = RequestElement("http://gatling.io/", "GET", Map.empty, None, 200, List.empty)
+			val r2 = RequestElement("http://gatling.io/rn1.html", "GET", Map.empty, None, 302, List.empty)
+			val r3 = RequestElement("http://gatling.io/release-note-1.html", "GET", Map.empty, None, 200, List.empty)
+			val r4 = RequestElement("http://gatling.io/details.html", "GET", Map.empty, None, 200, List.empty)
 
-			groupReqs must beEqualTo(expectedReqs)
+			val scn = Scenario(List(1l -> r1, 2l -> r2, 3l -> r3, 4l -> r4), List.empty)
+			scn.elements should beEqualTo(List(r1, r2.copy(statusCode = 200), r4))
+		}
+
+		"filter out embedded resources of HTML documents" in {
+			val r1 = RequestElement("http://gatling.io", "GET", Map.empty, None, 200,
+				List(CssResource(new URI("http://gatling.io/main.css")), RegularResource(new URI("http://gatling.io/img.jpg"))))
+			val r2 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
+			val r3 = RequestElement("http://gatling.io/img.jpg", "GET", Map.empty, None, 200, List.empty)
+			val r4 = RequestElement("http://gatling.io/details.html", "GET", Map.empty, None, 200, List.empty)
+
+			val scn = Scenario(List(1l -> r1, 2l -> r2, 3l -> r3, 4l -> r4), List.empty)
+			scn.elements should beEqualTo(List(r1, r4))
 		}
 	}
+
 }

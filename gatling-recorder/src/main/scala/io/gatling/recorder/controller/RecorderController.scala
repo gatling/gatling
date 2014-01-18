@@ -126,7 +126,7 @@ class RecorderController extends StrictLogging {
 
 			val previousArrivalTime = currentRequests.lastOption.map(_._1)
 
-			val requestEl = RequestElement(request, response.getStatus.getCode)
+			val requestEl = RequestElement(request, response)
 			currentRequests += arrivalTime -> requestEl
 
 			// Notify the frontend
