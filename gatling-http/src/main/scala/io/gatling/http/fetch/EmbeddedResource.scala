@@ -34,7 +34,7 @@ object EmbeddedResource {
 sealed abstract class EmbeddedResource {
 
 	def uri: URI
-	def url: String
+	val url = uri.toString
 
 	def toRequest(protocol: HttpProtocol, throttled: Boolean): Option[NamedRequest] = {
 		val urlExpression: Expression[String] = _ => url.success
@@ -60,11 +60,7 @@ sealed abstract class EmbeddedResource {
 	}
 }
 
-case class CssResource(uri: URI) extends EmbeddedResource {
-	val url = uri.toString
-}
+case class CssResource(uri: URI) extends EmbeddedResource
 
-case class RegularResource(uri: URI) extends EmbeddedResource {
-	val url = uri.toString
-}
+case class RegularResource(uri: URI) extends EmbeddedResource
 

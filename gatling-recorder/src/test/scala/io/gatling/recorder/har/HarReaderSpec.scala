@@ -17,14 +17,14 @@ package io.gatling.recorder.har
 
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
+
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import io.gatling.core.util.IOHelper
+
+import io.gatling.recorder.config.ConfigurationConstants.FETCH_HTML_RESOURCES
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario.{ PauseElement, RequestElement }
-import io.gatling.recorder.util.Json.parseJson
-import io.gatling.core.scenario.Scenario
 
 @RunWith(classOf[JUnitRunner])
 class HarReaderSpec extends Specification {
@@ -39,6 +39,8 @@ class HarReaderSpec extends Specification {
 			HarReader(resourceAsStream("har/empty.har")) must beEmpty
 		}
 
+		// Here, we assume that we don't want to filter out the HTML resources
+		RecorderConfiguration.reload(mutable.Map(FETCH_HTML_RESOURCES -> false))
 		val scn = HarReader(resourceAsStream("har/www.kernel.org.har"))
 		val elts = scn.elements
 		val pauseElts = elts.collect { case PauseElement(duration) => duration }
@@ -57,7 +59,7 @@ class HarReaderSpec extends Specification {
 
 		"return the appropriate request elements" in {
 			val (googleFontUris, uris) = elts
-				.collect { case RequestElement(uri, _, _, _, _) => uri }
+				.collect { case RequestElement(uri, _, _, _, _, _) => uri }
 				.partition(_.contains("google"))
 
 			(uris must contain(startingWith("https://www.kernel.org")).forall) and
@@ -82,6 +84,15 @@ class HarReaderSpec extends Specification {
 				(el1.headers must haveKeys("User-Agent", "Host", "Accept-Encoding", "Accept-Language"))
 		}
 
+		// Let's now build 
+		RecorderConfiguration.reload(mutable.Map(FETCH_HTML_RESOURCES -> true))
+		val scn2 = HarReader(resourceAsStream("har/www.kernel.org.har"))
+		val elts2 = scn2.elements
+
+		"have the embedded HTML resources filtered out" in {
+			elts2.size must beLessThan(elts.size) and
+				(elts2 must contain("https://www.kernel.org/theme/css/main.css") not)
+		}
 	}
 
 	// Deactivate Specs2 implicit to be able to use the ones provided in scala.concurrent.duration

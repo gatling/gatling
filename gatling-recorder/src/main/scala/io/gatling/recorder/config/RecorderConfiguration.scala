@@ -106,7 +106,8 @@ object RecorderConfiguration extends StrictLogging {
 				blackList = BlackList(config.getStringList(BLACKLIST_PATTERNS).toList)),
 			http = HttpConfiguration(
 				automaticReferer = config.getBoolean(AUTOMATIC_REFERER),
-				followRedirect = config.getBoolean(FOLLOW_REDIRECT)),
+				followRedirect = config.getBoolean(FOLLOW_REDIRECT),
+				fetchHtmlResources = config.getBoolean(FETCH_HTML_RESOURCES)),
 			proxy = ProxyConfiguration(
 				port = config.getInt(LOCAL_PORT),
 				sslPort = config.getInt(LOCAL_SSL_PORT),
@@ -141,7 +142,8 @@ case class FiltersConfiguration(
 
 case class HttpConfiguration(
 	automaticReferer: Boolean,
-	followRedirect: Boolean)
+	followRedirect: Boolean,
+	fetchHtmlResources: Boolean)
 
 case class OutgoingProxyConfiguration(
 	host: Option[String],

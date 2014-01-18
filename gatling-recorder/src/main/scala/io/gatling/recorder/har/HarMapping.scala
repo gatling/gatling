@@ -53,7 +53,10 @@ object HarMapping {
 		case _ => string
 	}
 
-	private def buildResponse(response: Json) = Response(response.status)
+	private def buildResponse(response: Json) = {
+		val content = Content(response.content.mimeType, Try(response.content.text.toString).toOption)
+		Response(response.status, content)
+	}
 
 	private def buildHeader(header: Json) = Header(header.name, unprotected(header.value))
 
@@ -73,7 +76,9 @@ case class Entry(arrivalTime: Long, request: Request, response: Response)
 
 case class Request(method: String, url: String, headers: Seq[Header], postData: Option[PostData])
 
-case class Response(status: Int)
+case class Response(status: Int, content: Content)
+
+case class Content(mimeType: String, text: Option[String])
 
 case class Header(name: String, value: String)
 

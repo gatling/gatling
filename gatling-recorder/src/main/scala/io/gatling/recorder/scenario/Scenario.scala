@@ -1,8 +1,11 @@
 package io.gatling.recorder.scenario
 
 import scala.concurrent.duration.DurationLong
-import io.gatling.recorder.util.RedirectHelper
+
 import io.gatling.recorder.config.RecorderConfiguration.configuration
+
+import io.gatling.recorder.util.RedirectHelper
+import io.gatling.recorder.util.collection._
 
 case class Scenario(elements: Seq[ScenarioElement]) {
 	def isEmpty = elements.isEmpty
@@ -10,22 +13,10 @@ case class Scenario(elements: Seq[ScenarioElement]) {
 
 object Scenario {
 
-	// See ScenarioSpec for example
-	def groupAsLongAsPredicate[T](p: T => Boolean)(elts: Seq[T]): Seq[Seq[T]] = {
-		elts.foldRight(List[List[T]]()) {
-			case (t, Nil) => (t :: Nil) :: Nil
-			case (t, xs @ xh :: xt) =>
-				if (p(t)) (t :: xh) :: xt
-				else (t :: Nil) :: xs
-		}
-	}
-
 	private def isRedirection(t: (Long, RequestElement)) = RedirectHelper.isRedirectCode(t._2.statusCode)
 
-	private val groupAsLongAsRedirection = groupAsLongAsPredicate(isRedirection) _
-
-	private def filterRedirection(requests: Seq[(Long, RequestElement)]): Seq[(Long, RequestElement)] = {
-		val groupedRequests = groupAsLongAsRedirection(requests)
+	private def filterRedirection(requests: Seq[(Long, RequestElement)]): List[(Long, RequestElement)] = {
+		val groupedRequests = requests.groupAsLongAs(isRedirection)
 
 		// Remove the redirection and keep the last status code
 		groupedRequests.map {
@@ -37,8 +28,23 @@ object Scenario {
 		}.flatten
 	}
 
-	private def mergeWithPauses(sortedRequests: Seq[(Long, RequestElement)], tags: Seq[(Long, TagElement)]): Seq[ScenarioElement] = {
+	private def hasEmbeddedResources(t: (Long, RequestElement)) = t._2.embeddedResources.isEmpty
 
+	private def filterFetchedResources(requests: Seq[(Long, RequestElement)]): Seq[(Long, RequestElement)] = {
+		val groupedRequests = requests.splitWhen(hasEmbeddedResources)
+
+		groupedRequests.map {
+			case (time, request) :: t if !request.embeddedResources.isEmpty => {
+				val resourceUrls = request.embeddedResources.map(_.url).toSet
+
+				// TODO NRE : are we sure they are both absolute URLs?
+				(time, request) :: t.filter { case (t, r) => !resourceUrls.contains(r.uri) }
+			}
+			case l => l
+		}.flatten
+	}
+
+	private def mergeWithPauses(sortedRequests: Seq[(Long, RequestElement)], tags: Seq[(Long, TagElement)]): Seq[ScenarioElement] = {
 		// Compute the pause elements
 		val arrivalTimes = sortedRequests.map(_._1)
 		val initTime = arrivalTimes.headOption.getOrElse(0l)
@@ -57,12 +63,12 @@ object Scenario {
 	}
 
 	def apply(requests: Seq[(Long, RequestElement)], tags: Seq[(Long, TagElement)]): Scenario = {
-
 		val sortedRequests = requests.sortBy(_._1)
 
 		val requests1 = if (configuration.http.followRedirect) filterRedirection(requests) else requests
+		val requests2 = if (configuration.http.fetchHtmlResources) filterFetchedResources(requests1) else requests
 
-		val allElements = mergeWithPauses(requests1, tags)
+		val allElements = mergeWithPauses(requests2, tags)
 		apply(allElements)
 	}
 

@@ -35,6 +35,8 @@ class RecorderPropertiesBuilder {
 
 	def followRedirect(status: Boolean) { props += FOLLOW_REDIRECT -> status }
 
+	def fetchHtmlResources(status: Boolean) { props += FETCH_HTML_RESOURCES -> status }
+
 	def localPort(port: Int) { props += LOCAL_PORT -> port }
 
 	def localSslPort(port: Int) { props += LOCAL_SSL_PORT -> port }

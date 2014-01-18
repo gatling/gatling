@@ -18,12 +18,12 @@ package io.gatling.recorder.har
 import java.io.{ FileInputStream, InputStream }
 import java.net.URL
 
-import scala.concurrent.duration.DurationLong
 import scala.util.Try
 
 import io.gatling.core.util.IOHelper
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.HeaderNames.CONTENT_TYPE
+import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams, RequestElement, Scenario }
 import io.gatling.recorder.util.Json
@@ -68,7 +68,13 @@ object HarReader {
 			}
 		}
 
-		(entry.arrivalTime, RequestElement(uri, method, headers, body, entry.response.status))
+		val embeddedResources = entry.response.content match {
+			case Content("text/html", Some(text)) =>
+				HtmlParser.getEmbeddedResources(new java.net.URI(uri), text.toCharArray)
+			case _ => Nil
+		}
+
+		(entry.arrivalTime, RequestElement(uri, method, headers, body, entry.response.status, embeddedResources))
 	}
 
 	private def buildHeaders(entry: Entry): Map[String, String] = {
