@@ -19,7 +19,6 @@ import java.io.{ File => JFile }
 
 import scala.Array.canBuildFrom
 import scala.collection.JavaConversions._
-import scala.collection.mutable
 import scala.concurrent.duration.{ Duration, DurationInt }
 import scala.reflect.io.Path.jfile2path
 import scala.tools.nsc.io.File
@@ -52,7 +51,7 @@ object RecorderConfiguration extends StrictLogging {
 
 	GatlingConfiguration.setUp()
 
-	def initialSetup(props: mutable.Map[String, _], recorderConfigFile: Option[File]) {
+	def initialSetup(props: Map[String, _], recorderConfigFile: Option[File]) {
 		val classLoader = Thread.currentThread.getContextClassLoader
 		val defaultsConfig = ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
 		configFile = recorderConfigFile.map(_.jfile).orElse(Option(classLoader.getResource("recorder.conf")).map(url => new JFile(url.getFile)))
@@ -74,7 +73,7 @@ object RecorderConfiguration extends StrictLogging {
 		}
 	}
 
-	def reload(props: mutable.Map[String, _]) {
+	def reload(props: Map[String, _]) {
 		val frameConfig = ConfigFactory.parseMap(props)
 		configuration = buildConfig(frameConfig.withFallback(configuration.config))
 		logger.debug(s"reconfigured $configuration")

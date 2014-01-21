@@ -15,7 +15,6 @@
  */
 package io.gatling.recorder.har
 
-import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
 import org.junit.runner.RunWith
@@ -31,16 +30,16 @@ class HarReaderSpec extends Specification {
 
 	def resourceAsStream(p: String) = getClass.getClassLoader.getResourceAsStream(p)
 
-	RecorderConfiguration.initialSetup(mutable.HashMap.empty, None)
-
 	"HarReader" should {
+
+		RecorderConfiguration.initialSetup(Map.empty, None)
 
 		"work with empty JSON" in {
 			HarReader(resourceAsStream("har/empty.har")) must beEmpty
 		}
 
 		// Here, we assume that we don't want to filter out the HTML resources
-		RecorderConfiguration.reload(mutable.Map(FETCH_HTML_RESOURCES -> false))
+		RecorderConfiguration.reload(Map(FETCH_HTML_RESOURCES -> false))
 		val scn = HarReader(resourceAsStream("har/www.kernel.org.har"))
 		val elts = scn.elements
 		val pauseElts = elts.collect { case PauseElement(duration) => duration }
@@ -85,7 +84,7 @@ class HarReaderSpec extends Specification {
 		}
 
 		// Let's now build 
-		RecorderConfiguration.reload(mutable.Map(FETCH_HTML_RESOURCES -> true))
+		RecorderConfiguration.reload(Map(FETCH_HTML_RESOURCES -> true))
 		val scn2 = HarReader(resourceAsStream("har/www.kernel.org.har"))
 		val elts2 = scn2.elements
 
