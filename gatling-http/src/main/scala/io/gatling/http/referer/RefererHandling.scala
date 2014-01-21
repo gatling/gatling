@@ -25,7 +25,7 @@ object RefererHandling {
 
 	val refererAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.referer"
 
-	def getStoredReferer(session: Session): Option[String] = session(refererAttributeName).asOption
+	def getStoredReferer(session: Session): Option[String] = session(refererAttributeName).asOption[String]
 
 	def storeReferer(request: Request, session: Session, protocol: HttpProtocol): Session = {
 

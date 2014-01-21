@@ -19,6 +19,7 @@ import scala.reflect.ClassTag
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
+import io.gatling.core.NotNothing
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.el.ELMessages
 import io.gatling.core.util.TimeHelper.nowMillis
@@ -35,9 +36,9 @@ object SessionPrivateAttributes {
 
 case class SessionAttribute(session: Session, key: String) {
 
-	def as[T]: T = session.attributes(key).asInstanceOf[T]
-	def asOption[T]: Option[T] = session.attributes.get(key).map(_.asInstanceOf[T])
-	def validate[T: ClassTag]: Validation[T] = session.attributes.get(key) match {
+	def as[T: NotNothing]: T = session.attributes(key).asInstanceOf[T]
+	def asOption[T: NotNothing]: Option[T] = session.attributes.get(key).map(_.asInstanceOf[T])
+	def validate[T](implicit ct: ClassTag[T], nn: NotNothing[T]): Validation[T] = session.attributes.get(key) match {
 		case Some(value) => value.asValidation[T]
 		case None => ELMessages.undefinedSessionAttributeMessage(key).failure
 	}
