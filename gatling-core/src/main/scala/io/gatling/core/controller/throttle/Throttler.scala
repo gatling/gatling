@@ -15,7 +15,6 @@
  */
 package io.gatling.core.controller.throttle
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 
 import io.gatling.core.akka.AkkaDefaults
