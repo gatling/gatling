@@ -23,6 +23,7 @@ import scala.util.Try
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.{ RichString, bytes2Hex }
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 /**
  * This object groups all utilities for files
@@ -61,5 +62,16 @@ object FileHelper {
 		def jfile(): JFile = Try(new JFile(url.toURI))
 			.recover { case e: URISyntaxException => new JFile(url.getPath) }
 			.get
+	}
+
+	implicit class RichFile(val file: JFile) extends AnyVal {
+
+		def validateExistingReadable(): Validation[JFile] =
+			if (!file.exists)
+				s"File $file doesn't exist".failure
+			else if (!file.canRead)
+				s"File $file can't be read".failure
+			else
+				file.success
 	}
 }

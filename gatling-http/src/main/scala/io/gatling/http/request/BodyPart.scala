@@ -21,7 +21,8 @@ import com.ning.http.multipart.{ ByteArrayPartSource, FilePart, FilePartSource, 
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, resolveOptionalExpression, Session }
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.util.FileHelper.RichFile
 
 object RawFileBodyPart {
 
@@ -112,13 +113,14 @@ case class FileBodyPart(
 
 	def toMultiPart(session: Session): Validation[Part] =
 		for {
-			name <- name(session)
 			file <- file(session)
+			validatedFile <- file.validateExistingReadable
+			name <- name(session)
 			fileName <- resolveOptionalExpression(_fileName, session)
 			contentId <- resolveOptionalExpression(_contentId, session)
 			transferEncoding <- resolveOptionalExpression(_transferEncoding, session)
 		} yield {
-			val source = new FilePartSource(fileName.getOrElse(null), file)
+			val source = new FilePartSource(fileName.getOrElse(null), validatedFile)
 			val part = new FilePart(name, source, _contentType.getOrElse(null), _charset, contentId.getOrElse(null))
 			transferEncoding.foreach(part.setTransferEncoding)
 			part

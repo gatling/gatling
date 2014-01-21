@@ -20,12 +20,12 @@ import java.io.File
 import scala.collection.JavaConversions.mapAsScalaConcurrentMap
 import scala.collection.concurrent
 
-import jsr166e.ConcurrentHashMapV8
-
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
 import io.gatling.core.session.Expression
+import io.gatling.core.util.FileHelper.RichFile
 import io.gatling.core.validation.Validation
+import jsr166e.ConcurrentHashMapV8
 
 object RawFileBodies {
 
@@ -40,5 +40,6 @@ object RawFileBodies {
 		for {
 			path <- filePath(session)
 			file <- cached(path)
-		} yield file
+			validatedFile <- file.validateExistingReadable
+		} yield validatedFile
 }
