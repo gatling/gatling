@@ -31,4 +31,4 @@ object ProtocolDefinition {
 		HeaderNames.USER_AGENT -> "userAgentHeader")
 }
 
-case class ProtocolDefinition(baseUrl: String, headers: Map[String, String]) 
+case class ProtocolDefinition(baseUrl: String, headers: Map[String, String])

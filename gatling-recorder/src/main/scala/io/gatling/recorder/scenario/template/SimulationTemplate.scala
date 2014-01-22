@@ -57,7 +57,7 @@ $mapContent)"""
 
 		def renderProtocol(p: ProtocolDefinition) = ProtocolTemplate.render(p)
 
-		def renderScenario = {		
+		def renderScenario = {
 			scenarioElements match {
 				case Left(elements) =>
 					val scenarioElements = elements.map { element =>
