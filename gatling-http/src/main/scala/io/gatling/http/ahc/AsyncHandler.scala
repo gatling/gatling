@@ -15,8 +15,6 @@
  */
 package io.gatling.http.ahc
 
-import java.util.concurrent.atomic.AtomicBoolean
-
 import com.ning.http.client.{ AsyncHandlerExtensions, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, ProgressAsyncHandler }
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
 import com.typesafe.scalalogging.slf4j.StrictLogging
@@ -33,7 +31,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with StrictLogging {
 
 	val responseBuilder = tx.responseBuilderFactory(tx.request)
-	private val done = new AtomicBoolean(false)
+	private var done = false
 
 	def onRequestSent {
 		responseBuilder.updateFirstByteSent
@@ -44,34 +42,35 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
 	}
 
 	def onHeaderWriteCompleted = {
-		if (!done.get) responseBuilder.updateLastByteSent
+		if (!done) responseBuilder.updateLastByteSent
 		CONTINUE
 	}
 
 	def onContentWriteCompleted = {
-		if (!done.get) responseBuilder.updateLastByteSent
+		if (!done) responseBuilder.updateLastByteSent
 		CONTINUE
 	}
 
 	def onContentWriteProgress(amount: Long, current: Long, total: Long) = CONTINUE
 
 	def onStatusReceived(status: HttpResponseStatus) = {
-		if (!done.get) responseBuilder.accumulate(status)
+		if (!done) responseBuilder.accumulate(status)
 		CONTINUE
 	}
 
 	def onHeadersReceived(headers: HttpResponseHeaders) = {
-		if (!done.get) responseBuilder.accumulate(headers)
+		if (!done) responseBuilder.accumulate(headers)
 		CONTINUE
 	}
 
 	def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
-		if (!done.get) responseBuilder.accumulate(bodyPart)
+		if (!done) responseBuilder.accumulate(bodyPart)
 		CONTINUE
 	}
 
 	def onCompleted {
-		if (!done.getAndSet(true)) {
+		if (!done) {
+			done = true
 			try {
 				val response = responseBuilder.build
 				AsyncHandlerActor.instance ! OnCompleted(tx, response)
@@ -82,7 +81,8 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
 	}
 
 	def onThrowable(throwable: Throwable) {
-		if (!done.getAndSet(true)) {
+		if (!done) {
+			done = true
 			responseBuilder.updateLastByteReceived
 			sendOnThrowable(throwable)
 		}
