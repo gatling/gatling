@@ -63,6 +63,7 @@ object RecorderConfiguration extends StrictLogging {
 		val classLoader = getClassLoader()
 		val defaultConfig = getDefaultConfig(classLoader)
 		configFile = Option(classLoader.getResource("recorder.conf")).map(url => new JFile(url.getFile))
+		
 		val customConfig = configFile.map(ConfigFactory.parseFile).getOrElse {
 			// Should only happens with a manually (and incorrectly) updated Maven archetype or SBT template
 			println("Maven archetype or SBT template outdated: Please create a new one or check the migration guide on how to update it.")
