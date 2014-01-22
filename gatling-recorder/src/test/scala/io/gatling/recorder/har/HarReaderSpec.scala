@@ -22,7 +22,7 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.recorder.config.ConfigurationConstants.FETCH_HTML_RESOURCES
-import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 import io.gatling.recorder.scenario.{ PauseElement, RequestElement }
 
 @RunWith(classOf[JUnitRunner])
@@ -32,14 +32,13 @@ class HarReaderSpec extends Specification {
 
 	"HarReader" should {
 
-		RecorderConfiguration.initialSetup(Map.empty, None)
+		// By default, we assume that we doHeren't want to filter out the HTML resources
+		implicit val config = fakeConfig(Map(FETCH_HTML_RESOURCES -> false))
 
 		"work with empty JSON" in {
 			HarReader(resourceAsStream("har/empty.har")) must beEmpty
 		}
 
-		// Here, we assume that we don't want to filter out the HTML resources
-		RecorderConfiguration.reload(Map(FETCH_HTML_RESOURCES -> false))
 		val scn = HarReader(resourceAsStream("har/www.kernel.org.har"))
 		val elts = scn.elements
 		val pauseElts = elts.collect { case PauseElement(duration) => duration }
@@ -83,12 +82,10 @@ class HarReaderSpec extends Specification {
 				(el1.headers must haveKeys("User-Agent", "Host", "Accept-Encoding", "Accept-Language"))
 		}
 
-		// Let's now build 
-		RecorderConfiguration.reload(Map(FETCH_HTML_RESOURCES -> true))
-		val scn2 = HarReader(resourceAsStream("har/www.kernel.org.har"))
-		val elts2 = scn2.elements
-
 		"have the embedded HTML resources filtered out" in {
+			val configWithResourcesFiltering = fakeConfig(Map(FETCH_HTML_RESOURCES -> true))
+			val scn2 = HarReader(resourceAsStream("har/www.kernel.org.har"))(configWithResourcesFiltering)
+			val elts2 = scn2.elements
 			elts2.size must beLessThan(elts.size) and
 				(elts2 must contain("https://www.kernel.org/theme/css/main.css") not)
 		}

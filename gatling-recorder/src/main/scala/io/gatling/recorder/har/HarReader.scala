@@ -24,7 +24,7 @@ import io.gatling.core.util.IOHelper
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.HeaderNames.CONTENT_TYPE
 import io.gatling.http.fetch.HtmlParser
-import io.gatling.recorder.config.RecorderConfiguration.configuration
+import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams, RequestElement, Scenario }
 import io.gatling.recorder.util.Json
 
@@ -33,18 +33,19 @@ import io.gatling.recorder.util.Json
  */
 object HarReader {
 
-	def apply(path: String): Scenario =
+	def apply(path: String)(implicit config: RecorderConfiguration): Scenario =
 		IOHelper.withCloseable(new FileInputStream(path))(apply(_))
 
-	def apply(jsonStream: InputStream): Scenario =
+	def apply(jsonStream: InputStream)(implicit config: RecorderConfiguration): Scenario =
 		apply(Json.parseJson(jsonStream))
 
-	def apply(json: Json): Scenario = {
+	def apply(json: Json)(implicit config: RecorderConfiguration): Scenario = {
 		val HttpArchive(Log(entries)) = HarMapping.jsonToHttpArchive(json)
+
 		val elements = entries.iterator
 			.filter(e => isValidURL(e.request.url))
 			// TODO NICO : can't we move this in Scenario as well ?
-			.filter(e => configuration.filters.filters.map(_.accept(e.request.url)).getOrElse(true))
+			.filter(e => config.filters.filters.map(_.accept(e.request.url)).getOrElse(true))
 			.map(createRequestWithArrivalTime)
 			.toVector
 

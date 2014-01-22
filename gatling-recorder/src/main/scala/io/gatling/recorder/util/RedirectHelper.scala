@@ -15,8 +15,6 @@
  */
 package io.gatling.recorder.util
 
-import io.gatling.recorder.config.RecorderConfiguration.configuration
-
 object RedirectHelper {
 
 	val redirectCodes = Seq(301, 302, 303)

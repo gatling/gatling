@@ -39,8 +39,8 @@ import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInf
 
 object RecorderController {
 
-	def apply(props: Map[String, Any], recorderConfigFile: Option[File] = None) {
-		RecorderConfiguration.initialSetup(props, recorderConfigFile)
+	def apply(props: Map[String, Any]) {
+		RecorderConfiguration.initialSetup(props)
 		new RecorderController
 	}
 }
@@ -51,7 +51,6 @@ class RecorderController extends StrictLogging {
 
 	@volatile private var proxy: HttpProxy = _
 
-	// Can use ConcurrentLinkedDeque when dropping support of JDK6
 	// Collection of tuples, (arrivalTime, request)
 	private val currentRequests = new mutable.ArrayBuffer[(Long, RequestElement)] with mutable.SynchronizedBuffer[(Long, RequestElement)]
 	// Collection of tuples, (arrivalTime, tag)
@@ -71,6 +70,7 @@ class RecorderController extends StrictLogging {
 				selectedMode match {
 					case Har =>
 						try {
+							implicit val config = configuration
 							ScenarioExporter.saveScenario(HarReader(harFilePath))
 							frontEnd.handleHarExportSuccess
 						} catch {
@@ -92,6 +92,7 @@ class RecorderController extends StrictLogging {
 			if (currentRequests.isEmpty)
 				logger.info("Nothing was recorded, skipping scenario generation")
 			else {
+				implicit val config = configuration
 				val scenario = Scenario(currentRequests.toVector, currentTags.toVector)
 				ScenarioExporter.saveScenario(scenario)
 			}
@@ -124,12 +125,11 @@ class RecorderController extends StrictLogging {
 		if (configuration.filters.filters.map(_.accept(request.getUri)).getOrElse(true)) {
 			val arrivalTime = System.currentTimeMillis
 
-			val previousArrivalTime = currentRequests.lastOption.map(_._1)
-
 			val requestEl = RequestElement(request, response)
 			currentRequests += arrivalTime -> requestEl
 
 			// Notify the frontend
+			val previousArrivalTime = currentRequests.lastOption.map(_._1)
 			previousArrivalTime.foreach { t =>
 				val delta = (arrivalTime - t).milliseconds
 				if (delta > configuration.core.thresholdForPauseCreation)

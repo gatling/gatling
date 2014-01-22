@@ -51,10 +51,18 @@ object RecorderConfiguration extends StrictLogging {
 
 	GatlingConfiguration.setUp()
 
-	def initialSetup(props: Map[String, _], recorderConfigFile: Option[File]) {
-		val classLoader = Thread.currentThread.getContextClassLoader
-		val defaultsConfig = ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
-		configFile = recorderConfigFile.map(_.jfile).orElse(Option(classLoader.getResource("recorder.conf")).map(url => new JFile(url.getFile)))
+	private[this] def getClassLoader() = Thread.currentThread.getContextClassLoader
+	private[this] def getDefaultConfig(classLoader: ClassLoader) = ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
+
+	def fakeConfig(props: Map[String, _]): RecorderConfiguration = {
+		val defaultConfig = getDefaultConfig(getClassLoader)
+		buildConfig(ConfigFactory.parseMap(props).withFallback(defaultConfig))
+	}
+
+	def initialSetup(props: Map[String, _]) {
+		val classLoader = getClassLoader()
+		val defaultConfig = getDefaultConfig(classLoader)
+		configFile = Option(classLoader.getResource("recorder.conf")).map(url => new JFile(url.getFile))
 		val customConfig = configFile.map(ConfigFactory.parseFile).getOrElse {
 			// Should only happens with a manually (and incorrectly) updated Maven archetype or SBT template
 			println("Maven archetype or SBT template outdated: Please create a new one or check the migration guide on how to update it.")
@@ -62,14 +70,16 @@ object RecorderConfiguration extends StrictLogging {
 			ConfigFactory.empty
 		}
 		val propertiesConfig = ConfigFactory.parseMap(props)
+
 		try {
-			configuration = buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig))
+			configuration = buildConfig(ConfigFactory.systemProperties
+				.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultConfig))
 			logger.debug(s"configured $configuration")
 		} catch {
 			case e: Exception =>
 				logger.warn(s"Loading configuration crashed: ${e.getMessage}. Probable cause is a format change, resetting.")
 				configFile.foreach(_.delete)
-				configuration = buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(defaultsConfig))
+				configuration = buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(defaultConfig))
 		}
 	}
 
