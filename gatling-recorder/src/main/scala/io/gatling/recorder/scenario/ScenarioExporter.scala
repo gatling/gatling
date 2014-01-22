@@ -40,7 +40,7 @@ object ScenarioExporter extends StrictLogging {
 		getFolder(path)
 	}
 
-	def saveScenario(scenarioElements: Scenario): Unit = {
+	def saveScenario(scenarioElements: ScenarioDefinition): Unit = {
 		require(!scenarioElements.isEmpty)
 
 		val output = renderScenarioAndDumpBodies(scenarioElements)
@@ -50,7 +50,7 @@ object ScenarioExporter extends StrictLogging {
 		}
 	}
 
-	private def renderScenarioAndDumpBodies(scenario: Scenario): String = {
+	private def renderScenarioAndDumpBodies(scenario: ScenarioDefinition): String = {
 		// Aggregate headers
 		val filteredHeaders = Set(HeaderNames.COOKIE, HeaderNames.CONTENT_LENGTH, HeaderNames.HOST) ++
 			(if (configuration.http.automaticReferer) Set(HeaderNames.REFERER) else Set.empty)
@@ -58,7 +58,7 @@ object ScenarioExporter extends StrictLogging {
 		val scenarioElements = scenario.elements
 		val baseUrl = getBaseUrl(scenarioElements)
 		val baseHeaders = getBaseHeaders(scenarioElements)
-		val protocolConfigElement = new ProtocolElement(baseUrl, baseHeaders)
+		val protocolConfigElement = new ProtocolDefinition(baseUrl, baseHeaders)
 
 		// extract the request elements and set all the necessary
 		val elements = scenarioElements.map {
@@ -129,7 +129,7 @@ object ScenarioExporter extends StrictLogging {
 			case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
 		}
 
-		resolveBaseHeaders(Map.empty, ProtocolElement.baseHeaders.keySet.toList)
+		resolveBaseHeaders(Map.empty, ProtocolDefinition.baseHeaders.keySet.toList)
 	}
 
 	private def getBaseUrl(scenarioElements: Seq[ScenarioElement]): String = {
@@ -154,23 +154,20 @@ object ScenarioExporter extends StrictLogging {
 		}
 	}
 
-	private def getChains(scenarioElements: Seq[ScenarioElement]): Either[Seq[ScenarioElement], List[Seq[ScenarioElement]]] = {
-
+	private def getChains(scenarioElements: Seq[ScenarioElement]): Either[Seq[ScenarioElement], List[Seq[ScenarioElement]]] =
 		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING)
 			Right(scenarioElements.grouped(ScenarioExporter.EVENTS_GROUPING).toList)
 		else
 			Left(scenarioElements)
-	}
 
 	private def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String) {
 		val fileName = s"${simulationClass}_request_$idEvent.txt"
-		withCloseable(File(getFolder(configuration.core.requestBodiesFolder) / fileName).outputStream()) {
-			fw =>
-				try {
-					fw.write(content)
-				} catch {
-					case e: IOException => logger.error("Error, while dumping request body...", e)
-				}
+		withCloseable(File(getFolder(configuration.core.requestBodiesFolder) / fileName).outputStream()) { fw =>
+			try {
+				fw.write(content)
+			} catch {
+				case e: IOException => logger.error("Error, while dumping request body...", e)
+			}
 		}
 	}
 

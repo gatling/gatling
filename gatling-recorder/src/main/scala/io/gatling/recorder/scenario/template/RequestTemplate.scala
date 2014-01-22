@@ -16,9 +16,9 @@
 package io.gatling.recorder.scenario.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
-
 import io.gatling.core.util.StringHelper.emptyFastring
 import io.gatling.recorder.scenario.{ RequestBody, RequestBodyBytes, RequestBodyParams }
+import io.gatling.recorder.scenario.RequestElement
 
 object RequestTemplate {
 
@@ -26,51 +26,44 @@ object RequestTemplate {
 
 	def headersBlockName(id: Int) = fast"headers_$id"
 
-	def render(simulationClass: String,
-		id: Int,
-		method: String,
-		printedUrl: String,
-		headersId: Option[Int],
-		credentials: Option[(String, String)],
-		body: Option[RequestBody],
-		statusCode: Int) = {
+	def render(simulationClass: String, request: RequestElement) = {
 
 		def renderMethod =
-			if (builtInHttpMethods.contains(method)) {
-				fast"${method.toLowerCase}($renderUrl)"
+			if (builtInHttpMethods.contains(request.method)) {
+				fast"${request.method.toLowerCase}($renderUrl)"
 			} else {
-				fast"""httpRequestWithBody("$method", Left($renderUrl))"""
+				fast"""httpRequestWithBody("$request.method", Left($renderUrl))"""
 			}
 
-		def renderUrl = fast"""$tripleQuotes$printedUrl$tripleQuotes"""
+		def renderUrl = fast"""$tripleQuotes${request.printedUrl}$tripleQuotes"""
 
-		def renderHeaders = headersId
+		def renderHeaders = request.filteredHeadersId
 			.map { id =>
 				s"""
 			.headers(${headersBlockName(id)})"""
 			}.getOrElse("")
 
-		def renderBodyOrParams = body.map {
+		def renderBodyOrParams = request.body.map {
 			case RequestBodyBytes(_) => fast"""
-			.body(RawFileBody("${simulationClass}_request_$id.txt"))"""
+			.body(RawFileBody("${simulationClass}_request_${request.id}.txt"))"""
 			case RequestBodyParams(params) => params.map {
 				case (key, value) => fast"""
 			.param($tripleQuotes$key$tripleQuotes, $tripleQuotes$value$tripleQuotes)"""
 			}.mkFastring
 		}.getOrElse(emptyFastring)
 
-		def renderCredentials = credentials.map {
+		def renderCredentials = request.basicAuthCredentials.map {
 			case (username, password) => s"""
 			.basicAuth($tripleQuotes$username$tripleQuotes,$tripleQuotes$password$tripleQuotes)"""
 		}.getOrElse("")
 
 		def renderStatusCheck =
-			if (statusCode > 210 || statusCode < 200) {
-				s"""
-			.check(status.is($statusCode))"""
+			if (request.statusCode > 210 || request.statusCode < 200) {
+				fast"""
+			.check(status.is(${request.statusCode}))"""
 			} else ""
 
-		fast"""exec(http("request_$id")
+		fast"""exec(http("request_${request.id}")
 			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderStatusCheck)""".toString
 	}
 }

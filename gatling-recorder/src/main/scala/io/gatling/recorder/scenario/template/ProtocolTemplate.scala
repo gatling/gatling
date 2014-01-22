@@ -18,15 +18,15 @@ package io.gatling.recorder.scenario.template
 import io.gatling.recorder.enumeration.FilterStrategy._
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.scenario.ProtocolElement.baseHeaders
-
+import io.gatling.recorder.scenario.ProtocolDefinition.baseHeaders
 import com.dongxiguo.fastring.Fastring.Implicits._
+import io.gatling.recorder.scenario.ProtocolDefinition
 
 object ProtocolTemplate {
 
 	val indent = "\t" * 2
 
-	def render(baseUrl: String, headers: Map[String, String]) = {
+	def render(protocol: ProtocolDefinition) = {
 
 		def renderProxy = {
 
@@ -69,11 +69,11 @@ object ProtocolTemplate {
 		def renderAutomaticReferer = if (!configuration.http.automaticReferer) fast"$eol$indent.disableAutoReferer" else fast""
 
 		def renderHeaders = {
-			def renderHeader(methodName: String, headerValue: String) = fast"""$eol$indent.$methodName("$headerValue")"""
-			headers.toList.sorted.flatMap { case (headerName, headerValue) => baseHeaders.get(headerName).map(renderHeader(_, headerValue)) }.mkFastring
+			def renderHeader(methodName: String, headerValue: String) = fast"""$eol$indent.$methodName(\"\"\"$headerValue\"\"\")"""
+			protocol.headers.toList.sorted.flatMap { case (headerName, headerValue) => baseHeaders.get(headerName).map(renderHeader(_, headerValue)) }.mkFastring
 		}
 
 		fast"""
-		.baseURL("$baseUrl")$renderProxy$renderFollowRedirect$renderFetchHtmlResources$renderAutomaticReferer$renderHeaders""".toString
+		.baseURL("${protocol.baseUrl}")$renderProxy$renderFollowRedirect$renderFetchHtmlResources$renderAutomaticReferer$renderHeaders""".toString
 	}
 }

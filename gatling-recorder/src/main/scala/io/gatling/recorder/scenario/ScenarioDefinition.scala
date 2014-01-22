@@ -8,11 +8,11 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.util.RedirectHelper
 import io.gatling.recorder.util.collection.RichSeq
 
-case class Scenario(elements: Seq[ScenarioElement]) {
+case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
 	def isEmpty = elements.isEmpty
 }
 
-object Scenario extends StrictLogging {
+object ScenarioDefinition extends StrictLogging {
 
 	private def isRedirection(t: (Long, RequestElement)) = RedirectHelper.isRedirectCode(t._2.statusCode)
 
@@ -64,7 +64,7 @@ object Scenario extends StrictLogging {
 		(liftedTags ++ liftedRequestsWithPause).sortBy(_._1).map(_._2).flatten
 	}
 
-	def apply(requests: Seq[(Long, RequestElement)], tags: Seq[(Long, TagElement)])(implicit config: RecorderConfiguration): Scenario = {
+	def apply(requests: Seq[(Long, RequestElement)], tags: Seq[(Long, TagElement)])(implicit config: RecorderConfiguration): ScenarioDefinition = {
 		val sortedRequests = requests.sortBy(_._1)
 
 		val requests1 = if (config.http.followRedirect) filterRedirection(requests) else requests

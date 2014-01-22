@@ -34,7 +34,7 @@ import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.har.HarReader
 import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.scenario.{ RequestElement, Scenario, ScenarioExporter, TagElement }
+import io.gatling.recorder.scenario.{ RequestElement, ScenarioDefinition, ScenarioExporter, TagElement }
 import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
 
 object RecorderController {
@@ -93,7 +93,7 @@ class RecorderController extends StrictLogging {
 				logger.info("Nothing was recorded, skipping scenario generation")
 			else {
 				implicit val config = configuration
-				val scenario = Scenario(currentRequests.toVector, currentTags.toVector)
+				val scenario = ScenarioDefinition(currentRequests.toVector, currentTags.toVector)
 				ScenarioExporter.saveScenario(scenario)
 			}
 
