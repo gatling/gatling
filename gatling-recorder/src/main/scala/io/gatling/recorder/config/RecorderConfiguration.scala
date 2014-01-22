@@ -88,10 +88,14 @@ object RecorderConfiguration extends StrictLogging {
 		configFile.foreach(file => withCloseable(File(file).bufferedWriter)(_.write(cleanOutput(configToSave.render(renderOptions)))))
 	}
 
-	private def buildConfig(config: Config) = {
+	private def buildConfig(config: Config): RecorderConfiguration = {
 
 		def getOutputFolder(folder: String) = {
-			folder.trimToOption.getOrElse(sys.env.get("GATLING_HOME").map(_ => GatlingFiles.sourcesDirectory.toString).getOrElse(userHome))
+			folder.trimToOption match {
+				case Some(f) => f
+				case _ if sys.env.contains("GATLING_HOME") => GatlingFiles.sourcesDirectory.toString
+				case _ => userHome
+			}
 		}
 
 		def getRequestBodiesFolder =
