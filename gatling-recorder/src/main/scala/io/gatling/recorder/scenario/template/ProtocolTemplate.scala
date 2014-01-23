@@ -17,7 +17,7 @@ package io.gatling.recorder.scenario.template
 
 import io.gatling.recorder.enumeration.FilterStrategy._
 import io.gatling.core.util.StringHelper.eol
-import io.gatling.recorder.config.RecorderConfiguration.configuration
+import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario.ProtocolDefinition.baseHeaders
 import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.recorder.scenario.ProtocolDefinition
@@ -26,32 +26,32 @@ object ProtocolTemplate {
 
 	val indent = "\t" * 2
 
-	def render(protocol: ProtocolDefinition) = {
+	def render(protocol: ProtocolDefinition)(implicit config: RecorderConfiguration) = {
 
 		def renderProxy = {
 
-			def renderSslPort = configuration.proxy.outgoing.sslPort.map(proxySslPort => s".httpsPort($proxySslPort)").getOrElse("")
+			def renderSslPort = config.proxy.outgoing.sslPort.map(proxySslPort => s".httpsPort($proxySslPort)").getOrElse("")
 
 			def renderCredentials = {
 				val credentials = for {
-					proxyUsername <- configuration.proxy.outgoing.username
-					proxyPassword <- configuration.proxy.outgoing.password
+					proxyUsername <- config.proxy.outgoing.username
+					proxyPassword <- config.proxy.outgoing.password
 				} yield s"""$eol$indent.credentials("$proxyUsername","$proxyPassword")"""
 				credentials.getOrElse("")
 			}
 
 			val protocol = for {
-				proxyHost <- configuration.proxy.outgoing.host
-				proxyPort <- configuration.proxy.outgoing.port
+				proxyHost <- config.proxy.outgoing.host
+				proxyPort <- config.proxy.outgoing.port
 			} yield fast"""$eol$indent.proxy(Proxy("$proxyHost", $proxyPort)$renderSslPort$renderCredentials)"""
 
 			protocol.getOrElse(fast"")
 		}
 
-		def renderFollowRedirect = if (!configuration.http.followRedirect) fast"$eol$indent.disableFollowRedirect" else fast""
+		def renderFollowRedirect = if (!config.http.followRedirect) fast"$eol$indent.disableFollowRedirect" else fast""
 
-		def renderFetchHtmlResources = if (configuration.http.fetchHtmlResources) {
-			val filtersConfig = configuration.filters
+		def renderFetchHtmlResources = if (config.http.fetchHtmlResources) {
+			val filtersConfig = config.filters
 
 			def quotedStringList(xs: Seq[String]): String = xs.map(p => "\"\"\"" + p + "\"\"\"").mkString(", ")
 			def backlistPatterns = fast"black = BlackList(${quotedStringList(filtersConfig.blackList.patterns)})"
@@ -66,7 +66,7 @@ object ProtocolTemplate {
 			fast"$eol$indent.fetchHtmlResources($patterns)"
 		} else fast""
 
-		def renderAutomaticReferer = if (!configuration.http.automaticReferer) fast"$eol$indent.disableAutoReferer" else fast""
+		def renderAutomaticReferer = if (!config.http.automaticReferer) fast"$eol$indent.disableAutoReferer" else fast""
 
 		def renderHeaders = {
 			def renderHeader(methodName: String, headerValue: String) = fast"""$eol$indent.$methodName(\"\"\"$headerValue\"\"\")"""

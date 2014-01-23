@@ -26,34 +26,37 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.http.HeaderNames
-import io.gatling.recorder.config.RecorderConfiguration.configuration
+import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario.template.SimulationTemplate
 
 object ScenarioExporter extends StrictLogging {
 
 	private val EVENTS_GROUPING = 100
 
-	def getSimulationFileName: String = s"${configuration.core.className}.scala"
+	def simulationFilePath(implicit config: RecorderConfiguration) = {
+		def getSimulationFileName: String = s"${config.core.className}.scala"
+		def getOutputFolder = {
+			val path = config.core.outputFolder + File.separator + config.core.pkg.replace(".", File.separator)
+			getFolder(path)
+		}
 
-	def getOutputFolder = {
-		val path = configuration.core.outputFolder + File.separator + configuration.core.pkg.replace(".", File.separator)
-		getFolder(path)
+		getOutputFolder / getSimulationFileName
 	}
 
-	def saveScenario(scenarioElements: ScenarioDefinition): Unit = {
+	def saveScenario(scenarioElements: ScenarioDefinition)(implicit config: RecorderConfiguration) {
 		require(!scenarioElements.isEmpty)
 
 		val output = renderScenarioAndDumpBodies(scenarioElements)
 
-		withCloseable(new FileOutputStream(File(getOutputFolder / getSimulationFileName).jfile)) {
-			_.write(output.getBytes(configuration.core.encoding))
+		withCloseable(new FileOutputStream(File(simulationFilePath).jfile)) {
+			_.write(output.getBytes(config.core.encoding))
 		}
 	}
 
-	private def renderScenarioAndDumpBodies(scenario: ScenarioDefinition): String = {
+	private def renderScenarioAndDumpBodies(scenario: ScenarioDefinition)(implicit config: RecorderConfiguration): String = {
 		// Aggregate headers
 		val filteredHeaders = Set(HeaderNames.COOKIE, HeaderNames.CONTENT_LENGTH, HeaderNames.HOST) ++
-			(if (configuration.http.automaticReferer) Set(HeaderNames.REFERER) else Set.empty)
+			(if (config.http.automaticReferer) Set(HeaderNames.REFERER) else Set.empty)
 
 		val scenarioElements = scenario.elements
 		val baseUrl = getBaseUrl(scenarioElements)
@@ -71,7 +74,7 @@ object ScenarioExporter extends StrictLogging {
 
 		// dump request body if needed
 		requestElements.foreach(el => el.body.foreach {
-			case RequestBodyBytes(bytes) => dumpRequestBody(el.id, bytes, configuration.core.className)
+			case RequestBodyBytes(bytes) => dumpRequestBody(el.id, bytes, config.core.className)
 			case _ =>
 		})
 
@@ -114,7 +117,7 @@ object ScenarioExporter extends StrictLogging {
 
 		val newScenarioElements = getChains(elements)
 
-		SimulationTemplate.render(configuration.core.pkg, configuration.core.className, protocolConfigElement, headers, "Scenario Name", newScenarioElements)
+		SimulationTemplate.render(config.core.pkg, config.core.className, protocolConfigElement, headers, "Scenario Name", newScenarioElements)
 	}
 
 	private def getBaseHeaders(scenarioElements: Seq[ScenarioElement]): Map[String, String] = {
@@ -160,9 +163,9 @@ object ScenarioExporter extends StrictLogging {
 		else
 			Left(scenarioElements)
 
-	private def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String) {
+	private def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String)(implicit config: RecorderConfiguration) {
 		val fileName = s"${simulationClass}_request_$idEvent.txt"
-		withCloseable(File(getFolder(configuration.core.requestBodiesFolder) / fileName).outputStream()) { fw =>
+		withCloseable(File(getFolder(config.core.requestBodiesFolder) / fileName).outputStream()) { fw =>
 			try {
 				fw.write(content)
 			} catch {

@@ -63,13 +63,14 @@ class RecorderController extends StrictLogging {
 		if (selectedMode == Har && !File(harFilePath).exists) {
 			frontEnd.handleMissingHarFile(harFilePath)
 		} else {
-			val simulationFile = File(ScenarioExporter.getOutputFolder / ScenarioExporter.getSimulationFileName)
+			implicit val config = configuration
+			val simulationFile = File(ScenarioExporter.simulationFilePath)
 			val proceed = if (simulationFile.exists) frontEnd.askSimulationOverwrite else true
 			if (proceed) {
 				selectedMode match {
 					case Har =>
 						try {
-							implicit val config = configuration
+
 							ScenarioExporter.saveScenario(HarReader(harFilePath))
 							frontEnd.handleHarExportSuccess
 						} catch {
@@ -78,7 +79,7 @@ class RecorderController extends StrictLogging {
 								frontEnd.handleHarExportFailure
 						}
 					case Proxy =>
-						proxy = new HttpProxy(this, configuration.proxy.port, configuration.proxy.sslPort)
+						proxy = new HttpProxy(this, config.proxy.port, config.proxy.sslPort)
 						frontEnd.recordingStarted
 				}
 			}
