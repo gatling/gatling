@@ -38,7 +38,7 @@ import io.gatling.recorder.scenario.{ RequestElement, ScenarioDefinition, Scenar
 import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
 
 object RecorderController {
-	def apply(props: Map[String, Any]) {
+	def apply(props: Map[String, Any], recorderConfigFile: Option[File] = None) {
 		RecorderConfiguration.initialSetup(props)
 		new RecorderController
 	}

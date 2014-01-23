@@ -59,10 +59,10 @@ object RecorderConfiguration extends StrictLogging {
 		buildConfig(ConfigFactory.parseMap(props).withFallback(defaultConfig))
 	}
 
-	def initialSetup(props: Map[String, _]) {
+	def initialSetup(props: Map[String, _], recorderConfigFile: Option[File] = None) {
 		val classLoader = getClassLoader()
 		val defaultConfig = getDefaultConfig(classLoader)
-		configFile = Option(classLoader.getResource("recorder.conf")).map(url => new JFile(url.getFile))
+		configFile = recorderConfigFile.map(_.jfile).orElse(Option(classLoader.getResource("recorder.conf")).map(url => new JFile(url.getFile)))
 
 		val customConfig = configFile.map(ConfigFactory.parseFile).getOrElse {
 			// Should only happens with a manually (and incorrectly) updated Maven archetype or SBT template
