@@ -19,7 +19,7 @@ import scala.concurrent.duration.DurationInt
 
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.Protocol
-import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.util.TimeHelper.{ nowMillis, secondsSinceReference }
 
 case class ThrottlingProtocol(limit: Long => Int) extends Protocol
 
@@ -43,7 +43,7 @@ class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map
 
 	private def newSecond() {
 		thisTickStart = nowMillis
-		thisTickGlobalThrottler = globalProfile.map(p => new ThisSecondThrottler(p.limit(thisTickStart)))
+		thisTickGlobalThrottler = globalProfile.map(p => new ThisSecondThrottler(p.limit(secondsSinceReference)))
 		thisTickPerScenarioThrottlers = scenarioProfiles.mapValues(p => new ThisSecondThrottler(p.limit(thisTickStart)))
 		val globalLimit = thisTickGlobalThrottler.map(_.limit)
 		val perScenarioLimits = thisTickPerScenarioThrottlers.map(_._2.limit)

@@ -56,10 +56,10 @@ trait ThrottlingSupport {
 
 case class ThrottlingBuilder(override val steps: List[ThrottleStep]) extends ThrottlingSupport {
 
-	def build = {
+	def build: (Long => Int) = {
 		@tailrec
 		def valueAt(steps: List[ThrottleStep], pendingTime: Long, previousLastValue: Int): Int = steps match {
-			case Nil => previousLastValue
+			case Nil => Int.MaxValue
 			case head :: tail =>
 				if (pendingTime < head.durationInSec)
 					head.rps(pendingTime, previousLastValue)
