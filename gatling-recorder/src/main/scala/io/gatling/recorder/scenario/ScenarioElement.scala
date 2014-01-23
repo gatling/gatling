@@ -15,10 +15,12 @@
  */
 package io.gatling.recorder.scenario
 
+import java.net.URI
 import java.nio.charset.Charset
 
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.concurrent.duration.FiniteDuration
+import scala.io.Codec.UTF8
 
 import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ AUTHORIZATION, CONTENT_TYPE }
@@ -28,7 +30,6 @@ import com.ning.http.util.Base64
 
 import io.gatling.http.fetch.{ EmbeddedResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
-import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.util.URIHelper
 
 sealed trait ScenarioElement
@@ -42,32 +43,37 @@ case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
 
 object RequestElement {
 
-	val htmlContentType = """text/html\s*(;\s+charset=(.+))?$""".r
+	val htmlContentType = """(?i)text/html\s*(;\s+charset=(.+))?""".r
 
 	def apply(request: HttpRequest, response: HttpResponse): RequestElement = {
-
-		val responseContentType = Option(response.headers.get(CONTENT_TYPE))
-		val resources = responseContentType.collect {
-			case htmlContentType(_, headerCharset) => {
-				val charsetName = Option(headerCharset).filter(Charset.isSupported).getOrElse("UTF-8")
-				val charset = Charset.forName(charsetName)
-				val htmlContent = response.getContent.toString(charset)
-
-				HtmlParser.getEmbeddedResources(new java.net.URI(request.getUri), htmlContent.toCharArray)
-			}
-		}.getOrElse(Nil)
-
 		val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }.toMap
-		val content = if (request.getContent.readableBytes > 0) {
+		val responseContentType = requestHeaders.get(CONTENT_TYPE)
+
+		val contentBuff = if (request.getContent.readableBytes > 0) {
 			val bufferBytes = new Array[Byte](request.getContent.readableBytes)
 			request.getContent.getBytes(request.getContent.readerIndex, bufferBytes)
 			Some(bufferBytes)
 		} else None
 
-		val containsFormParams = requestHeaders.get(CONTENT_TYPE).exists(_.contains(APPLICATION_X_WWW_FORM_URLENCODED))
-		val body = content.map(content =>
-			if (containsFormParams) RequestBodyParams(parseFormBody(new String(content, configuration.core.encoding)))
-			else RequestBodyBytes(content))
+		val resources = responseContentType.collect {
+			case htmlContentType(_, headerCharset) => {
+				val charsetName = Option(headerCharset).filter(Charset.isSupported).getOrElse(UTF8.name)
+				val charset = Charset.forName(charsetName)
+				contentBuff.map(bytes => {
+					val htmlBuff = new String(bytes, charset).toCharArray
+					HtmlParser.getEmbeddedResources(new URI(request.getUri), htmlBuff)
+				})
+			}
+		}.flatten.getOrElse(Nil)
+
+		val containsFormParams = responseContentType.exists(_.contains(APPLICATION_X_WWW_FORM_URLENCODED))
+		val body = contentBuff.map(content =>
+			if (containsFormParams)
+				// The payload consists of a Unicode string using only characters in the range U+0000 to U+007F
+				// cf: http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-decoding-algorithm
+				RequestBodyParams(parseFormBody(new String(content, UTF8.name)))
+			else
+				RequestBodyBytes(content))
 
 		RequestElement(new String(request.getUri), request.getMethod.toString, requestHeaders, body, response.getStatus.getCode, resources)
 	}
