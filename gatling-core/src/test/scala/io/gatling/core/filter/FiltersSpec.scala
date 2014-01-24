@@ -7,13 +7,6 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class FiltersSpec extends Specification {
 
-	"Filters" should {
-		"be able to deal with incorrect patterns" in {
-			val w = WhiteList(List("http://foo\\.com.*", "},{"))
-			(w.regexes must not beEmpty) and (w.accept("http://foo.com/bar.html") must beTrue)
-		}
-	}
-
 	val hosts = List(
 		"http://excilys.com",
 		"http://ebusinessinformation.fr",
@@ -35,7 +28,7 @@ class FiltersSpec extends Specification {
 	val blackList = BlackList(List("http://.*/assets/.*"))
 	val emptyBlackList = BlackList()
 
-	"FiltersHelper" should {
+	"Filters" should {
 
 		def isRequestAccepted(filters: Filters, partition: (List[String], List[String])) = {
 			val (expectedAccepted, expectedRejected) = partition
@@ -68,6 +61,11 @@ class FiltersSpec extends Specification {
 			isRequestAccepted(Filters(blackList, whiteList), urls.partition { url =>
 				!url.contains("assets") && url.contains("excilys")
 			})
+		}
+
+		"be able to deal with incorrect patterns" in {
+			val w = WhiteList(List("http://foo\\.com.*", "},{"))
+			(w.regexes must not beEmpty) and (w.accept("http://foo.com/bar.html") must beTrue)
 		}
 	}
 }
