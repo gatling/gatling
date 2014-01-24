@@ -336,11 +336,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 			else
 				protocol.checks ::: httpAttributes.checks
 
-		val resolvedChecks = checks
-			.find(_.order == Status)
-			.map(_ => httpAttributes.checks)
-			.getOrElse(HttpRequestActionBuilder.defaultHttpCheck :: checks)
-			.sorted
+		val resolvedChecks = (checks.find(_.order == Status) match {
+			case None => HttpRequestActionBuilder.defaultHttpCheck :: checks
+			case _ => httpAttributes.checks
+		}).sorted
 
 		val resolvedMaxRedirects = httpAttributes.maxRedirects.orElse(protocol.maxRedirects)
 
@@ -349,9 +348,9 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		HttpRequest(
 			httpAttributes.requestName,
 			ahcRequest,
-			checks,
+			resolvedChecks,
 			httpAttributes.responseTransformer,
-			httpAttributes.maxRedirects,
+			resolvedMaxRedirects,
 			throttled,
 			protocol,
 			resolvedResources)
