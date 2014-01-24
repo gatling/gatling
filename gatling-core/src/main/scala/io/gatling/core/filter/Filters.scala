@@ -45,28 +45,9 @@ sealed abstract class Filter {
 }
 
 case class WhiteList(patterns: List[String] = Nil) extends Filter {
-
-	def accept(url: String): Boolean = {
-		@tailrec
-		def acceptRec(regexs: List[Regex]): Boolean = regexs match {
-			case Nil => false
-			case head :: tail => head.pattern.matcher(url).matches || acceptRec(tail)
-		}
-
-		regexes.isEmpty || acceptRec(regexes)
-	}
+	def accept(url: String): Boolean = regexes.forall(_.pattern.matcher(url).matches)
 }
 
 case class BlackList(patterns: List[String] = Nil) extends Filter {
-
-	def accept(url: String): Boolean = {
-
-		@tailrec
-		def acceptRec(regexs: List[Regex]): Boolean = regexs match {
-			case Nil => true
-			case head :: tail => !head.pattern.matcher(url).matches && acceptRec(tail)
-		}
-
-		acceptRec(regexes)
-	}
+	def accept(url: String): Boolean = regexes.forall(!_.pattern.matcher(url).matches)
 }

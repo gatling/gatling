@@ -21,6 +21,7 @@ class FiltersSpec extends Specification {
 
 	val paths = List(
 		"",
+		"infos.html",
 		"/assets/images/foo.png",
 		"/assets/js/bar.js")
 
@@ -37,7 +38,6 @@ class FiltersSpec extends Specification {
 	"FiltersHelper" should {
 
 		def isRequestAccepted(filters: Filters, partition: (List[String], List[String])) = {
-
 			val (expectedAccepted, expectedRejected) = partition
 
 			(filters.accept(_: String) must beTrue).foreach(expectedAccepted) and (
