@@ -20,6 +20,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.css.{ CountCssExtractor, CssExtractor, MultipleCssExtractor, SingleCssExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
+import io.gatling.core.util.StringHelper.RichString
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
@@ -29,7 +30,7 @@ object HttpBodyCssCheckBuilder extends StrictLogging {
 
 	val preparer: Preparer[Response, NodeSelector] = (response: Response) =>
 		try {
-			CssExtractor.parse(response.chars).success
+			CssExtractor.parse(response.bodyString.unsafeChars).success
 
 		} catch {
 			case e: Exception =>

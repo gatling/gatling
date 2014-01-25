@@ -25,7 +25,7 @@ object HttpStatusCheckBuilder {
 
 	val statusExtractor = new Extractor[Response, Int] {
 		val name = "status"
-		def apply(prepared: Response) = Some(prepared.getStatusCode).success
+		def apply(prepared: Response) = Some(prepared.statusCode).success
 	}.expression
 
 	val status = new HttpSingleCheckBuilder[Response, Int](

@@ -123,7 +123,7 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 
 		bodies.clear
 
-		val rawResponse = HttpResponse(request, ahcResponse, checksums, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived, bytes)
+		val rawResponse = HttpResponse(request, ahcResponse, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived, checksums, bytes)
 
 		responseProcessor
 			.map(_.applyOrElse(rawResponse, identity[Response]))

@@ -20,6 +20,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.xpath.{ CountXPathExtractor, MultipleXPathExtractor, SingleXPathExtractor, XPathExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
+import io.gatling.core.util.BytesInputStream
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
@@ -29,7 +30,7 @@ object HttpBodyXPathCheckBuilder extends StrictLogging {
 
 	val preparer: Preparer[Response, Option[XdmNode]] = (response: Response) =>
 		try {
-			val root = if (response.hasResponseBody) Some(XPathExtractor.parse(response.getResponseBodyAsStream)) else None
+			val root = if (response.hasResponseBody) Some(XPathExtractor.parse(new BytesInputStream(response.bodyBytes))) else None
 			root.success
 
 		} catch {

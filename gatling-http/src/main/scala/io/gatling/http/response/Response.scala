@@ -16,114 +16,113 @@
 package io.gatling.http.response
 
 import java.nio.{ ByteBuffer, CharBuffer }
-
 import scala.collection.JavaConversions.asScalaBuffer
-
-import com.ning.http.client.{ Request, Response => AHCResponse }
-
+import com.ning.http.client.{ Request => AHCRequest, Response => AHCResponse }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.BytesInputStream
 import io.gatling.core.util.StringHelper.RichString
+import java.net.URI
+import com.ning.http.client.Cookie
+import com.ning.http.client.FluentCaseInsensitiveStringsMap
 
-trait Response extends AHCResponse {
+trait Response {
 
-	def request: Request
+	def request: AHCRequest
 	def ahcResponse: Option[AHCResponse]
-	def checksums: Map[String, String]
+	def isReceived: Boolean
+
 	def firstByteSent: Long
 	def lastByteSent: Long
 	def firstByteReceived: Long
 	def lastByteReceived: Long
-	def checksum(algorithm: String): Option[String]
 	def reponseTimeInMillis: Long
 	def latencyInMillis: Long
-	def isReceived: Boolean
-	def getHeaderSafe(name: String): Option[String]
-	def getHeadersSafe(name: String): Seq[String]
-	def charBuffer: CharBuffer
-	def chars: Array[Char]
+
+	def statusCode: Int
+	def statusText: String
+	def isRedirected: Boolean
+	def uri: URI
+
+	def header(name: String): String
+	def headers: FluentCaseInsensitiveStringsMap
+	def headers(name: String): Seq[String]
+	def headerSafe(name: String): Option[String]
+	def headersSafe(name: String): Seq[String]
+	def contentType: String
+	def cookies: Seq[Cookie]
+
+	def checksums: Map[String, String]
+	def checksum(algorithm: String): Option[String]
+	def hasResponseBody: Boolean
+	def bodyString: String
+	def bodyBytes: Array[Byte]
 }
 
 case class HttpResponse(
-	request: Request,
+	request: AHCRequest,
 	ahcResponse: Option[AHCResponse],
-	checksums: Map[String, String],
 	firstByteSent: Long,
 	lastByteSent: Long,
 	firstByteReceived: Long,
 	lastByteReceived: Long,
-	bytes: Array[Byte]) extends Response {
+	checksums: Map[String, String],
+	bodyBytes: Array[Byte]) extends Response {
 
-	def checksum(algorithm: String) = checksums.get(algorithm)
+	def isReceived = ahcResponse.isDefined
+
 	def reponseTimeInMillis = lastByteReceived - firstByteSent
 	def latencyInMillis = firstByteReceived - firstByteReceived
-	def isReceived = ahcResponse.isDefined
-	def getHeaderSafe(name: String): Option[String] = ahcResponse.flatMap(r => Option(r.getHeader(name)))
-	def getHeadersSafe(name: String): Seq[String] = ahcResponse.flatMap(r => Option(r.getHeaders(name))).map(_.toSeq).getOrElse(Nil)
 
-	lazy val string = new String(bytes, configuration.core.charSet)
-	lazy val charBuffer = configuration.core.charSet.decode(ByteBuffer.wrap(bytes))
-	lazy val chars = string.unsafeChars
+	def statusCode = receivedResponse.getStatusCode
+	def statusText = receivedResponse.getStatusText
+	def isRedirected = ahcResponse.map(_.isRedirected).getOrElse(false)
+	def uri = receivedResponse.getUri
 
-	override def toString = ahcResponse.toString
+	def header(name: String) = receivedResponse.getHeader(name)
+	def headers = receivedResponse.getHeaders
+	def headers(name: String) = receivedResponse.getHeaders(name)
+	def headerSafe(name: String): Option[String] = ahcResponse.flatMap(r => Option(r.getHeader(name)))
+	def headersSafe(name: String): Seq[String] = ahcResponse.flatMap(r => Option(r.getHeaders(name))).map(_.toSeq).getOrElse(Nil)
+	def contentType = receivedResponse.getContentType
+	def cookies = receivedResponse.getCookies
+
+	def checksum(algorithm: String) = checksums.get(algorithm)
+	def hasResponseBody = bodyBytes.length != 0
+	lazy val bodyString = new String(bodyBytes, configuration.core.charSet)
 
 	private def receivedResponse = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built"))
-	def getStatusCode = receivedResponse.getStatusCode
-	def getStatusText = receivedResponse.getStatusText
-	def getResponseBodyAsBytes = bytes
-	def getResponseBodyAsStream = new BytesInputStream(bytes)
-	def getResponseBodyAsByteBuffer = throw new UnsupportedOperationException
-	def getResponseBodyExcerpt(maxLength: Int, charset: String) = throw new UnsupportedOperationException
-	def getResponseBody(charset: String) = new String(bytes, charset)
-	def getResponseBodyExcerpt(maxLength: Int) = throw new UnsupportedOperationException
-	def getResponseBody = string
-	def getUri = receivedResponse.getUri
-	def getContentType = receivedResponse.getContentType
-	def getHeader(name: String) = receivedResponse.getHeader(name)
-	def getHeaders(name: String) = receivedResponse.getHeaders(name)
-	def getHeaders = receivedResponse.getHeaders
-	def isRedirected = ahcResponse.map(_.isRedirected).getOrElse(false)
-	def getCookies = receivedResponse.getCookies
-	def hasResponseStatus = ahcResponse.map(_.hasResponseStatus).getOrElse(false)
-	def hasResponseHeaders = ahcResponse.map(_.hasResponseHeaders).getOrElse(false)
-	def hasResponseBody = bytes.length != 0
+	override def toString = ahcResponse.toString
 }
 
 class DelegatingReponse(delegate: Response) extends Response {
 
-	def request: Request = delegate.request
+	def request: AHCRequest = delegate.request
 	def ahcResponse = delegate.ahcResponse
-	def checksums = delegate.checksums
+	def isReceived = delegate.isReceived
+
 	def firstByteSent = delegate.firstByteSent
 	def lastByteSent = delegate.lastByteSent
 	def firstByteReceived = delegate.firstByteReceived
 	def lastByteReceived = delegate.lastByteReceived
-	def checksum(algorithm: String) = delegate.checksum(algorithm)
 	def reponseTimeInMillis = delegate.reponseTimeInMillis
 	def latencyInMillis = delegate.latencyInMillis
-	def isReceived = delegate.isReceived
-	def getHeaderSafe(name: String) = delegate.getHeaderSafe(name)
-	def getHeadersSafe(name: String) = delegate.getHeadersSafe(name)
 
-	def getStatusCode = delegate.getStatusCode
-	def getStatusText = delegate.getStatusText
-	def getResponseBodyAsBytes = delegate.getResponseBodyAsBytes
-	def getResponseBodyAsStream = delegate.getResponseBodyAsStream
-	def getResponseBodyAsByteBuffer = delegate.getResponseBodyAsByteBuffer
-	def getResponseBodyExcerpt(maxLength: Int, charset: String) = delegate.getResponseBodyExcerpt(maxLength, charset)
-	def getResponseBody(charset: String) = delegate.getResponseBody(charset)
-	def getResponseBodyExcerpt(maxLength: Int) = delegate.getResponseBodyExcerpt(maxLength)
-	def getResponseBody = delegate.getResponseBody
-	def getUri = delegate.getUri
-	def getContentType = delegate.getContentType
-	def getHeader(name: String) = delegate.getHeader(name)
-	def getHeaders(name: String) = delegate.getHeaders(name)
-	def getHeaders = delegate.getHeaders
+	def statusCode = delegate.statusCode
+	def statusText = delegate.statusText
 	def isRedirected = delegate.isRedirected
-	def getCookies = delegate.getCookies
-	def hasResponseStatus = delegate.hasResponseStatus
-	def hasResponseHeaders = delegate.hasResponseHeaders
-	def hasResponseBody = delegate.hasResponseHeaders
-	def charBuffer = delegate.charBuffer
-	def chars = delegate.chars
+	def uri = delegate.uri
+
+	def header(name: String) = delegate.header(name)
+	def headers = delegate.headers
+	def headers(name: String) = delegate.headers(name)
+	def headerSafe(name: String) = delegate.headerSafe(name)
+	def headersSafe(name: String) = delegate.headersSafe(name)
+	def contentType = delegate.contentType
+	def cookies = delegate.cookies
+
+	def checksums = delegate.checksums
+	def checksum(algorithm: String) = delegate.checksum(algorithm)
+	def hasResponseBody = delegate.hasResponseBody
+	def bodyBytes = delegate.bodyBytes
+	def bodyString = delegate.bodyString
 }

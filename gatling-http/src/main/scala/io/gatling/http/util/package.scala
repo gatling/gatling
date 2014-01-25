@@ -87,7 +87,7 @@ package object util {
 				}
 
 				if (response.hasResponseBody)
-					buff.append("body=").append(eol).append(response.getResponseBody)
+					buff.append("body=").append(eol).append(response.bodyString)
 			}
 
 			buff

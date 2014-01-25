@@ -116,16 +116,16 @@ object CacheHandling extends StrictLogging {
 	}
 
 	def getResponseExpires(httpProtocol: HttpProtocol, response: Response): Option[Long] = {
-		def pragmaNoCache = Option(response.getHeader(HeaderNames.PRAGMA)).exists(_.contains(HeaderValues.NO_CACHE))
-		def cacheControlNoCache = Option(response.getHeader(HeaderNames.CACHE_CONTROL))
+		def pragmaNoCache = Option(response.header(HeaderNames.PRAGMA)).exists(_.contains(HeaderValues.NO_CACHE))
+		def cacheControlNoCache = Option(response.header(HeaderNames.CACHE_CONTROL))
 			.exists(h => h.contains(HeaderValues.NO_CACHE) || h.contains(HeaderValues.NO_STORE) || h.contains(maxAgeZero))
-		def maxAgeAsExpiresValue = Option(response.getHeader(HeaderNames.CACHE_CONTROL)).flatMap(extractMaxAgeValue).map { maxAge =>
+		def maxAgeAsExpiresValue = Option(response.header(HeaderNames.CACHE_CONTROL)).flatMap(extractMaxAgeValue).map { maxAge =>
 			if (maxAge < 0)
 				maxAge
 			else
 				maxAge * 1000 + nowMillis
 		}
-		def expiresValue = Option(response.getHeader(HeaderNames.EXPIRES)).flatMap(extractExpiresValue).filter(_ > nowMillis)
+		def expiresValue = Option(response.header(HeaderNames.EXPIRES)).flatMap(extractExpiresValue).filter(_ > nowMillis)
 
 		if (pragmaNoCache || cacheControlNoCache) {
 			None
@@ -150,7 +150,7 @@ object CacheHandling extends StrictLogging {
 			case None => session
 		}
 
-		val updateLastModified = (session: Session) => Option(response.getHeader(HeaderNames.LAST_MODIFIED)) match {
+		val updateLastModified = (session: Session) => Option(response.header(HeaderNames.LAST_MODIFIED)) match {
 			case Some(lastModified) =>
 				logger.debug(s"Setting LastModified $lastModified for uri $uri")
 				val lastModifiedStore = getLastModifiedStore(session)
@@ -159,7 +159,7 @@ object CacheHandling extends StrictLogging {
 			case None => session
 		}
 
-		val updateEtag = (session: Session) => Option(response.getHeader(HeaderNames.ETAG)) match {
+		val updateEtag = (session: Session) => Option(response.header(HeaderNames.ETAG)) match {
 			case Some(etag) =>
 				logger.debug(s"Setting Etag $etag for uri $uri")
 				val etagStore = getEtagStore(session)

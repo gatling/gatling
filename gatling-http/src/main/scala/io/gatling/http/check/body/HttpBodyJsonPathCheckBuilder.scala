@@ -40,11 +40,11 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 	val preparer: Preparer[Response, Any] =
 		if (directCharsBasedStringImplementation)
 			handleParseException { response =>
-				JacksonParser.parse(response.getResponseBodyAsBytes)
+				JacksonParser.parse(response.bodyBytes)
 			}
 		else
 			handleParseException { response =>
-				BoonParser.parse(response.getResponseBody)
+				BoonParser.parse(response.bodyString)
 			}
 
 	def jsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =

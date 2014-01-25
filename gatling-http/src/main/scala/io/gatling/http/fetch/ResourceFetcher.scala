@@ -29,6 +29,7 @@ import io.gatling.core.akka.BaseActor
 import io.gatling.core.filter.Filters
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Validation
 import io.gatling.core.validation.{ Success, SuccessWrapper }
@@ -76,7 +77,7 @@ object ResourceFetcher extends StrictLogging {
 
 	def lastModifiedOrEtag(response: Response, protocol: HttpProtocol): Option[String] =
 		if (protocol.cache)
-			response.getHeaderSafe(HeaderNames.LAST_MODIFIED).orElse(response.getHeaderSafe(HeaderNames.ETAG))
+			response.headerSafe(HeaderNames.LAST_MODIFIED).orElse(response.headerSafe(HeaderNames.ETAG))
 		else
 			None
 
@@ -86,10 +87,10 @@ object ResourceFetcher extends StrictLogging {
 		val protocol = tx.protocol
 
 		def pageResourcesRequests(): List[NamedRequest] =
-			pageResources(htmlDocumentURI, protocol.htmlResourcesFetchingFilters, response.chars)
+			pageResources(htmlDocumentURI, protocol.htmlResourcesFetchingFilters, response.bodyString.unsafeChars)
 				.flatMap(_.toRequest(protocol, tx.throttled))
 
-		val inferredResources: List[NamedRequest] = (response.getStatusCode: @switch) match {
+		val inferredResources: List[NamedRequest] = (response.statusCode: @switch) match {
 			case 200 =>
 				lastModifiedOrEtag(response, protocol) match {
 					case Some(newLastModifiedOrEtag) =>

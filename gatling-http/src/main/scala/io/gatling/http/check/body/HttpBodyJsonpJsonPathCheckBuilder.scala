@@ -34,7 +34,7 @@ object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
 		val jsonParser = if (directCharsBasedStringImplementation) BoonParser else JacksonParser
 
 		response =>
-			val charBuffer = response.charBuffer
+			val charBuffer = response.bodyString
 			charBuffer match {
 				case jsonpRegex(jsonp) =>
 					try {

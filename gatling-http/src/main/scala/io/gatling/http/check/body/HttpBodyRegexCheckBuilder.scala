@@ -22,7 +22,7 @@ import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 object HttpBodyRegexCheckBuilder {
 
 	def regex[X](expression: Expression[String])(implicit groupExtractor: GroupExtractor[X]) =
-		new HttpMultipleCheckBuilder[CharSequence, X](HttpCheckBuilders.bodyCheckFactory, HttpCheckBuilders.charsResponsePreparer) {
+		new HttpMultipleCheckBuilder[CharSequence, X](HttpCheckBuilders.bodyCheckFactory, HttpCheckBuilders.responseBodyStringPreparer) {
 			def findExtractor(occurrence: Int) = expression.map(new SingleRegexExtractor(_, occurrence))
 			def findAllExtractor = expression.map(new MultipleRegexExtractor(_))
 			def countExtractor = expression.map(new CountRegexExtractor(_))
