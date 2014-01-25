@@ -15,31 +15,24 @@
  */
 package io.gatling.core.filter
 
-import scala.annotation.tailrec
-import scala.util.matching.Regex
+import scala.util.{ Failure, Success, Try }
+
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import scala.util.Try
-import scala.util.Success
 
 case class Filters(first: Filter, second: Filter) {
 	def accept(url: String) = first.accept(url) && second.accept(url)
 }
 
-object SafeRegexes extends StrictLogging {
-	def apply(patterns: Seq[String]): Vector[Regex] = {
-		val (regexes, incorrectPatterns) = patterns.map(p => Try(p.r)).partition(_.isSuccess)
-
-		incorrectPatterns.map(_.failed.get).foreach { exp =>
-			logger.error("Incorrect filter pattern. " + exp.getMessage)
-		}
-
-		regexes.map(_.get).toVector
-	}
-}
-
-sealed abstract class Filter {
+sealed abstract class Filter extends StrictLogging {
 	def patterns: Seq[String]
-	val regexes = SafeRegexes(patterns)
+	val regexes = (patterns.flatMap { p =>
+		Try(p.r) match {
+			case Success(regex) => Some(regex)
+			case Failure(t) =>
+				logger.error(s"""Incorrect filter pattern "$p": ${t.getMessage}""")
+				None
+		}
+	}).toVector
 	def accept(url: String): Boolean
 }
 
