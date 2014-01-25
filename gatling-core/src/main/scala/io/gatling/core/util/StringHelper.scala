@@ -24,7 +24,9 @@ import com.dongxiguo.fastring.Fastring.Implicits._
  */
 object StringHelper {
 
-	val stringCopyChars = UnsafeHelper.unsafe.isDefined && UnsafeHelper.stringCountFieldOffset == -1L
+	val directCharsBasedStringImplementation = UnsafeHelper.unsafe.isDefined && !UnsafeHelper.stringOffsetFieldOffset.isDefined
+	val offsetBasedStringImplementation = UnsafeHelper.unsafe.isDefined && UnsafeHelper.stringOffsetFieldOffset.isDefined
+	val unknowStringImplementation = !UnsafeHelper.unsafe.isDefined
 
 	val eol = System.getProperty("line.separator")
 
@@ -37,8 +39,47 @@ object StringHelper {
 	}.toString
 
 	def ensureCharCopy(value: String): String =
-		if (stringCopyChars) value
-		else new String(value)
+		if (offsetBasedStringImplementation) new String(value)
+		else value
+
+	val stringCharsExtractor =
+		if (directCharsBasedStringImplementation) new DirectCharsStringImplementationCharsExtractor
+		else if (offsetBasedStringImplementation) new OffsetBasedStringImplementationCharsExtractor
+		else new UnknownStringImplementationCharsExtractor
+
+	sealed trait StringCharsExtractor {
+		def getChars(string: String): Array[Char]
+	}
+
+	class DirectCharsStringImplementationCharsExtractor extends StringCharsExtractor {
+		val unsafe = UnsafeHelper.unsafe.get
+		val stringValueFieldOffset = UnsafeHelper.stringValueFieldOffset.get
+
+		def getChars(string: String) = unsafe.getObject(string, stringValueFieldOffset).asInstanceOf[Array[Char]]
+	}
+
+	class OffsetBasedStringImplementationCharsExtractor extends StringCharsExtractor {
+		val unsafe = UnsafeHelper.unsafe.get
+		val stringValueFieldOffset = UnsafeHelper.stringValueFieldOffset.get
+		val stringOffsetFieldOffset = UnsafeHelper.stringOffsetFieldOffset.get
+		val stringCountFieldOffset = UnsafeHelper.stringCountFieldOffset.get
+
+		def getChars(string: String) = {
+			val value = unsafe.getObject(string, stringValueFieldOffset).asInstanceOf[Array[Char]]
+			val offset = unsafe.getObject(string, stringOffsetFieldOffset).asInstanceOf[Int]
+			val count = unsafe.getObject(string, stringCountFieldOffset).asInstanceOf[Int]
+
+			if (offset == 0 && count == value.length)
+				// no need to copy
+				value
+			else
+				string.toCharArray
+		}
+	}
+
+	class UnknownStringImplementationCharsExtractor extends StringCharsExtractor {
+		def getChars(string: String) = string.toCharArray
+	}
 
 	implicit class RichString(val string: String) extends AnyVal {
 
@@ -72,32 +113,6 @@ object StringHelper {
 				string
 		}
 
-		def unsafeChars(): Array[Char] = UnsafeHelper.unsafe match {
-			case Some(unsafe) =>
-				val value = unsafe.getObject(string, UnsafeHelper.stringValueFieldOffset).asInstanceOf[Array[Char]]
-
-				UnsafeHelper.stringOffsetFieldOffset match {
-					case -1L =>
-						// new String version (7u6), no offset
-						value
-
-					case offsetField =>
-						// old String version with offset and count
-						val offset = unsafe.getObject(string, offsetField).asInstanceOf[Int]
-						val count = unsafe.getObject(string, UnsafeHelper.stringCountFieldOffset).asInstanceOf[Int]
-
-						if (offset == 0 && count == value.length) {
-							// no need to copy
-							value
-
-						} else {
-							val result = new Array[Char](count)
-							System.arraycopy(value, offset, result, 0, count)
-							result
-						}
-				}
-
-			case None => string.toCharArray
-		}
+		def unsafeChars(): Array[Char] = stringCharsExtractor.getChars(string)
 	}
 }

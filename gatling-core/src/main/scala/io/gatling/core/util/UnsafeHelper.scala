@@ -27,7 +27,7 @@ object UnsafeHelper {
 		unsafeField.get(null).asInstanceOf[Unsafe]
 	}.toOption
 
-	val stringValueFieldOffset: Long = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("value"))).toOption).getOrElse(-1L)
-	val stringOffsetFieldOffset: Long = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("offset"))).toOption).getOrElse(-1L)
-	val stringCountFieldOffset: Long = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("count"))).toOption).getOrElse(-1L)
+	val stringValueFieldOffset: Option[Long] = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("value"))).toOption)
+	val stringOffsetFieldOffset: Option[Long] = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("offset"))).toOption)
+	val stringCountFieldOffset: Option[Long] = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("count"))).toOption)
 }

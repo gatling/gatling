@@ -20,7 +20,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.jsonpath.{ BoonParser, CountJsonPathExtractor, JacksonParser, JsonFilter, MultipleJsonPathExtractor, SingleJsonPathExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.core.util.JVMHelper
+import io.gatling.core.util.StringHelper.directCharsBasedStringImplementation
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
@@ -38,7 +38,7 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 		}
 
 	val preparer: Preparer[Response, Any] =
-		if (JVMHelper.java6)
+		if (directCharsBasedStringImplementation)
 			handleParseException { response =>
 				JacksonParser.parse(response.getResponseBodyAsBytes)
 			}
