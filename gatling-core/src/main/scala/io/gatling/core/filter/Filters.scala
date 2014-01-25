@@ -22,32 +22,31 @@ import scala.util.Try
 import scala.util.Success
 
 case class Filters(first: Filter, second: Filter) {
-
 	def accept(url: String) = first.accept(url) && second.accept(url)
 }
 
 object SafeRegexes extends StrictLogging {
-	def apply(patterns: List[String]): List[Regex] = {
+	def apply(patterns: Seq[String]): Vector[Regex] = {
 		val (regexes, incorrectPatterns) = patterns.map(p => Try(p.r)).partition(_.isSuccess)
 
 		incorrectPatterns.map(_.failed.get).foreach { exp =>
 			logger.error("Incorrect filter pattern. " + exp.getMessage)
 		}
 
-		regexes.map(_.get)
+		regexes.map(_.get).toVector
 	}
 }
 
 sealed abstract class Filter {
-	def patterns: List[String]
+	def patterns: Seq[String]
 	val regexes = SafeRegexes(patterns)
 	def accept(url: String): Boolean
 }
 
-case class WhiteList(patterns: List[String] = Nil) extends Filter {
-	def accept(url: String): Boolean = regexes.forall(_.pattern.matcher(url).matches)
+case class WhiteList(patterns: Seq[String] = Nil) extends Filter {
+	def accept(url: String): Boolean = regexes.isEmpty || regexes.exists(_.pattern.matcher(url).matches)
 }
 
-case class BlackList(patterns: List[String] = Nil) extends Filter {
+case class BlackList(patterns: Seq[String] = Nil) extends Filter {
 	def accept(url: String): Boolean = regexes.forall(!_.pattern.matcher(url).matches)
 }
