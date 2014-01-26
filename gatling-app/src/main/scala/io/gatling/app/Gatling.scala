@@ -205,7 +205,7 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
 							if(simulationClass.isDefined) {
 								Selection(simulationClass.get, defaultOutputDirectoryBaseName(simulationClass.get), "")
 							} else {
-								throw new UnsupportedOperationException("Mute mode is currently uses by Gatling SBT plugin only.")
+								throw new UnsupportedOperationException("Mute mode is currently used by Gatling SBT plugin only.")
 							}
 						else
 							interactiveSelect(simulations)
