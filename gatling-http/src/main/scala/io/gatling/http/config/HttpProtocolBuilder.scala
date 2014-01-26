@@ -90,7 +90,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
 	def localAddress(localAddress: InetAddress): HttpProtocolBuilder = copy(protocol = protocol.copy(localAddress = Some(localAddress)))
 
 	def transformResponse(responseTransformer: ResponseTransformer): HttpProtocolBuilder = copy(protocol = protocol.copy(responseTransformer = Some(responseTransformer)))
-	
+
 	def check(checks: HttpCheck*): HttpProtocolBuilder = copy(protocol = protocol.copy(checks = protocol.checks ::: checks.toList))
 
 	def fetchHtmlResources(): HttpProtocolBuilder = fetchHtmlResources(None)
