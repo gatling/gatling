@@ -60,6 +60,7 @@ object Gatling {
 		val cliOptsParser = new OptionParser[Unit]("gatling") {
 			help(HELP).abbr(HELP_SHORT).text("Show help (this message) and exit")
 			opt[Unit](NO_REPORTS).abbr(NO_REPORTS_SHORT).foreach(_ => props.noReports).text("Runs simulation but does not generate reports")
+			opt[Unit](MUTE).abbr(MUTE_SHORT).foreach(_ => props.mute).text("Runs in mute mode : don't asks for run description nor simulation ID, use defaults").hidden()
 			opt[String](REPORTS_ONLY).abbr(REPORTS_ONLY_SHORT).foreach(props.reportsOnly).valueName("<directoryName>").text("Generates the reports for the simulation in <directoryName>")
 			opt[String](DATA_FOLDER).abbr(DATA_FOLDER_SHORT).foreach(props.dataDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where feeders are stored")
 			opt[String](RESULTS_FOLDER).abbr(RESULTS_FOLDER_SHORT).foreach(props.resultsDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where results are stored")
@@ -88,6 +89,7 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
 
 		def interactiveSelect(simulations: List[Class[Simulation]]): Selection = {
 
+			@tailrec
 			def selectSimulationClass(simulations: List[Class[Simulation]]): Class[Simulation] = {
 
 				def readSimulationNumber: Int =
@@ -199,7 +201,14 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
 						new Selection(simulation, outputDirectoryBaseName, runDescription)
 
 					case None =>
-						interactiveSelect(simulations)
+						if (configuration.core.muteMode)
+							if(simulationClass.isDefined) {
+								Selection(simulationClass.get, defaultOutputDirectoryBaseName(simulationClass.get), "")
+							} else {
+								throw new UnsupportedOperationException("Mute mode is currently uses by Gatling SBT plugin only.")
+							}
+						else
+							interactiveSelect(simulations)
 				}
 
 				val (runId, simulation) = new Runner(selection).run
