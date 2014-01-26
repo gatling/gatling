@@ -341,6 +341,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 			case _ => httpAttributes.checks
 		}).sorted
 
+		val resolvedResponseTransformer = httpAttributes.responseTransformer.orElse(protocol.responseTransformer)
+
 		val resolvedMaxRedirects = httpAttributes.maxRedirects.orElse(protocol.maxRedirects)
 
 		val resolvedResources = httpAttributes.explicitResources.filter(_.httpAttributes.method == "GET").map(_.build(protocol, throttled))
@@ -349,7 +351,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 			httpAttributes.requestName,
 			ahcRequest,
 			resolvedChecks,
-			httpAttributes.responseTransformer,
+			resolvedResponseTransformer,
 			resolvedMaxRedirects,
 			throttled,
 			protocol,
