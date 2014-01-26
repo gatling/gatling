@@ -38,7 +38,7 @@ object Dependencies {
 	/** Optional dependencies **/
 	/***************************/
 
-	private val grizzlyWebsockets = "org.glassfish.grizzly"      % "grizzly-websockets" % "2.3.6"       % "provided"
+	private val grizzlyWebsockets = "org.glassfish.grizzly"      % "grizzly-websockets" % "2.3.11"      % "provided"
 
 	/***********************/
 	/** Test dependencies **/
