@@ -23,8 +23,11 @@ import scala.util.{ Failure => SFailure, Success => SSuccess }
 
 import org.joda.time.DateTime.now
 
+import com.typesafe.scalalogging.slf4j.StrictLogging
+
 import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor
+import akka.util.Timeout
 import io.gatling.core.action.UserEnd
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.controller.throttle.{ Throttler, ThrottlingProtocol }
@@ -35,7 +38,7 @@ import io.gatling.core.util.TimeHelper.{ nanoTimeReference, nowMillis }
 
 case class Timings(maxDuration: Option[FiniteDuration], globalThrottling: Option[ThrottlingProtocol], perScenarioThrottlings: Map[String, ThrottlingProtocol])
 
-object Controller extends AkkaDefaults {
+object Controller extends AkkaDefaults with StrictLogging {
 
 	private var _instance: Option[ActorRef] = None
 
@@ -45,9 +48,16 @@ object Controller extends AkkaDefaults {
 		UserEnd.start
 	}
 
-	def instance() = _instance match {
-		case Some(c) => c
-		case _ => throw new UnsupportedOperationException("Controller hasn't been started")
+	def !(message: Any) {
+		_instance match {
+			case Some(c) => c ! message
+			case None => logger.error("Controller hasn't been started")
+		}
+	}
+
+	def ?(message: Any)(implicit timeout: Timeout) = _instance match {
+		case Some(c) => c.ask(message)(timeout)
+		case None => throw new UnsupportedOperationException("Controller has not been started")
 	}
 }
 

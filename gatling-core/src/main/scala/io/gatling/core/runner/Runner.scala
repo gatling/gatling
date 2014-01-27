@@ -15,12 +15,13 @@
  */
 package io.gatling.core.runner
 
+import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
 import scala.util.{ Failure => SFailure, Success => SSuccess }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import akka.actor.ActorDSL.{ inbox, senderFromInbox }
+import akka.util.Timeout
 import io.gatling.core.akka.{ AkkaDefaults, GatlingActorSystem }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ Controller, Run }
@@ -38,22 +39,24 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
 			GatlingActorSystem.start
 			Controller.start
 
-			simulation._beforeSteps.foreach(_())
+			simulation._beforeSteps.foreach(_.apply)
 
-			implicit val i = inbox()
-			Controller.instance ! Run(simulation, selection.simulationId, selection.description, simulation.timings)
+			//override defaultTimeOut
+			implicit val defaultTimeOut = Timeout(configuration.core.timeOut.simulation seconds)
+			val runResult = Controller ? Run(simulation, selection.simulationId, selection.description, simulation.timings)
 
-			i.receive(configuration.core.timeOut.simulation seconds) match {
+			Await.result(runResult, defaultTimeOut.duration) match {
 				case SSuccess(runId: String) =>
 					println("Simulation finished")
-					simulation._afterSteps.foreach(_())
+					simulation._afterSteps.foreach(_.apply)
 					(runId, simulation)
 
 				case SFailure(t) => throw t
 				case unexpected => throw new UnsupportedOperationException(s"Controller replied an unexpected message $unexpected")
 			}
 
-		} finally
+		} finally {
 			GatlingActorSystem.shutdown
+		}
 	}
 }

@@ -30,7 +30,7 @@ case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: Inject
 
 		def startUser(i: Int) {
 			val session = Session(name, userIdRoot + (i + offset))
-			Controller.instance ! UserMessage(session.scenarioName, session.userId, Start, session.startDate, 0L)
+			Controller ! UserMessage(session.scenarioName, session.userId, Start, session.startDate, 0L)
 			entryPoint ! session
 		}
 

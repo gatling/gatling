@@ -57,7 +57,7 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
 			case Success(newSession) => newSession
 			case Failure(message) =>
 				logger.error(message)
-				Controller.instance ! ForceTermination(Some(new IllegalStateException(message)))
+				Controller ! ForceTermination(Some(new IllegalStateException(message)))
 				session
 		}
 

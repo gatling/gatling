@@ -169,7 +169,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 			}
 
 		if (tx.throttled)
-			Controller.instance ! ThrottledRequest(tx.session.scenarioName, () => httpClient.executeRequest(newTx.request, new AsyncHandler(newTx)))
+			Controller ! ThrottledRequest(tx.session.scenarioName, () => httpClient.executeRequest(newTx.request, new AsyncHandler(newTx)))
 		else
 			httpClient.executeRequest(newTx.request, new AsyncHandler(newTx))
 	}
