@@ -19,7 +19,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.{ Expression, ExpressionWrapper, RichExpression }
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.validation.{ FailureWrapper, Validation }
 
 trait ExtractorCheckBuilder[C <: Check[R], R, P, X] {
 
@@ -40,14 +40,14 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
 	preparer: Preparer[R, P],
 	extractor: Expression[Extractor[P, X]]) extends StrictLogging {
 
-	def transform[X2](transformation: Option[X] => Option[X2]): ValidatorCheckBuilder[C, R, P, X2] = copy(extractor = extractor.map { extractor =>
+	def transform[X2](transformation: Option[X] => Validation[Option[X2]]): ValidatorCheckBuilder[C, R, P, X2] = copy(extractor = extractor.map { extractor =>
 		new Extractor[P, X2] {
 			def name = extractor.name + " transformed"
 			def apply(prepared: P): Validation[Option[X2]] = extractor(prepared).flatMap { extracted =>
 				try {
-					transformation(extracted).success
+					transformation(extracted)
 				} catch {
-					case e: Exception => s"transform crashed with a exception: ${e.getMessage}".failure
+					case e: Exception => s"transform crashed: ${e.getMessage}".failure
 				}
 			}
 		}
