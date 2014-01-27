@@ -17,19 +17,18 @@ package io.gatling.core.util
 
 object RoundRobin {
 
-	def apply[T](values: Array[T]) =
-		if (values.isEmpty)
-			Iterator.empty
-		else if (values.length == 1) {
-			val value = values(0)
+	def apply[T](values: Array[T]) = values.length match {
+		case 0 => Iterator.empty
+		case 1 =>
 			new Iterator[T] {
-				def hasNext = true
-				def next = value
+				val hasNext = true
+				val next = values(0)
 			}
-		} else
+		case _ =>
 			new Iterator[T] {
 				val counter = new CyclicCounter(values.length)
-				def hasNext = true
+				val hasNext = true
 				def next = values(counter.nextVal)
 			}
+	}
 }
