@@ -18,7 +18,7 @@ package io.gatling.recorder.http.handler
 import java.net.{ InetSocketAddress, URI }
 
 import org.jboss.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext }
-import org.jboss.netty.handler.codec.http.HttpRequest
+import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpRequest, HttpResponseStatus, HttpVersion }
 
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.http.HttpProxy
@@ -26,19 +26,20 @@ import io.gatling.recorder.http.channel.BootstrapFactory
 import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureListener
 import io.gatling.recorder.util.URIHelper
 
-class BrowserHttpRequestHandler(proxy: HttpProxy) extends AbstractBrowserRequestHandler(proxy.controller) {
+class ClientHttpRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(proxy.controller) {
 
-	private def writeRequest(request: HttpRequest, channel: Channel) {
-		val relativeRequest = configuration.proxy.outgoing.host.map(_ => request).getOrElse(AbstractBrowserRequestHandler.buildRequestWithRelativeURI(request))
-		channel.write(relativeRequest)
+	private def writeRequest(request: HttpRequest, serverChannel: Channel) {
+		val relativeRequest = configuration.proxy.outgoing.host.map(_ => request).getOrElse(ClientRequestHandler.buildRequestWithRelativeURI(request))
+		serverChannel.getPipeline.get(classOf[ServerHttpResponseHandler]).request = request
+		serverChannel.write(relativeRequest)
 	}
 
 	def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest) {
 
-		_clientChannel match {
-			case Some(channel) if channel.isConnected && channel.isOpen => writeRequest(request, channel)
+		_serverChannel match {
+			case Some(serverChannel) if serverChannel.isConnected && serverChannel.isOpen => writeRequest(request, serverChannel)
 			case _ =>
-				_clientChannel = None
+				_serverChannel = None
 
 				val (host, port) = (for {
 					proxyHost <- configuration.proxy.outgoing.host
@@ -54,9 +55,20 @@ class BrowserHttpRequestHandler(proxy: HttpProxy) extends AbstractBrowserRequest
 				proxy.clientBootstrap
 					.connect(new InetSocketAddress(host, port))
 					.addListener { future: ChannelFuture =>
-						future.getChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, requestContext, request, false))
-						_clientChannel = Some(future.getChannel)
-						writeRequest(request, future.getChannel)
+						if (future.isSuccess) {
+							val serverChannel = future.getChannel
+							serverChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, false))
+							_serverChannel = Some(serverChannel)
+							writeRequest(request, serverChannel)
+						} else {
+							val t = future.getCause
+
+							// FIXME could be 404 or 500 depending on exception
+							val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND)
+
+							requestContext.getChannel.write(response)
+							requestContext.getChannel.close
+						}
 					}
 		}
 	}

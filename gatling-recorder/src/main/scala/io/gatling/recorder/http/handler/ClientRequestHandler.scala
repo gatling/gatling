@@ -28,7 +28,7 @@ import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.util.URIHelper
 
-object AbstractBrowserRequestHandler {
+object ClientRequestHandler {
 	def buildRequestWithRelativeURI(request: HttpRequest) = {
 
 		val (_, pathQuery) = URIHelper.splitURI(request.getUri)
@@ -40,9 +40,9 @@ object AbstractBrowserRequestHandler {
 	}
 }
 
-abstract class AbstractBrowserRequestHandler(controller: RecorderController) extends SimpleChannelHandler with StrictLogging {
+abstract class ClientRequestHandler(controller: RecorderController) extends SimpleChannelHandler with StrictLogging {
 
-	var _clientChannel: Option[Channel] = None
+	var _serverChannel: Option[Channel] = None
 
 	override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent) {
 
@@ -70,8 +70,7 @@ abstract class AbstractBrowserRequestHandler(controller: RecorderController) ext
 
 	override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent) {
 		logger.error("Exception caught", e.getCause)
-		ctx.sendUpstream(e)
 		ctx.getChannel.close
-		_clientChannel.map(_.close)
+		_serverChannel.map(_.close)
 	}
 }

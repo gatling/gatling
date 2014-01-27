@@ -15,37 +15,42 @@
  */
 package io.gatling.recorder.http.handler
 
-import scala.collection.JavaConversions.asScalaBuffer
-
-import org.jboss.netty.channel.{ ChannelFuture, ChannelHandlerContext, MessageEvent, SimpleChannelHandler }
-import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpHeaders, HttpRequest, HttpResponse }
+import org.jboss.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext, MessageEvent, SimpleChannelHandler }
+import org.jboss.netty.handler.codec.http.{ HttpHeaders, HttpRequest, HttpResponse }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory
 import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureListener
-import io.gatling.recorder.util.URIHelper
 
-class ServerHttpResponseHandler(controller: RecorderController, requestContext: ChannelHandlerContext, request: HttpRequest, var expectConnect: Boolean) extends SimpleChannelHandler with StrictLogging {
+class ServerHttpResponseHandler(controller: RecorderController, clientChannel: Channel, @volatile var request: HttpRequest, var expectConnect: Boolean) extends SimpleChannelHandler with StrictLogging {
 
 	override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
 
 		context.sendUpstream(event)
+
+		val serverChannel = context.getChannel
 
 		event.getMessage match {
 			case response: HttpResponse =>
 				if (expectConnect) {
 					expectConnect = false
 					BootstrapFactory.upgradeProtocol(context.getChannel.getPipeline)
-					context.getChannel.write(AbstractBrowserRequestHandler.buildRequestWithRelativeURI(request))
+					serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request))
 
 				} else {
 					controller.receiveResponse(request, response)
-					requestContext.getChannel.write(response).addListener { future: ChannelFuture =>
+
+					val requestConnectionHeader = Option(request.headers.get(HttpHeaders.Names.CONNECTION))
+
+					// FIXME not very clean
+					request = null
+
+					clientChannel.write(response).addListener { future: ChannelFuture =>
 
 						val keepAlive = (for {
-							requestKeepAlive <- Option(request.headers.get(HttpHeaders.Names.CONNECTION)) if (HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase(requestKeepAlive))
+							requestKeepAlive <- requestConnectionHeader if (HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase(requestKeepAlive))
 							responseKeepAlive <- Option(response.headers.get(HttpHeaders.Names.CONNECTION))
 						} yield HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase(responseKeepAlive)).getOrElse(false)
 
@@ -53,8 +58,8 @@ class ServerHttpResponseHandler(controller: RecorderController, requestContext: 
 							logger.debug("Both request and response are willing to keep the connection alive, reusing channels")
 						} else {
 							logger.debug("Request and/or response is not willing to keep the connection alive, closing both channels")
-							context.getChannel.close
-							future.getChannel.close
+							serverChannel.close
+							clientChannel.close
 						}
 					}
 				}

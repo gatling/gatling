@@ -15,11 +15,12 @@
  */
 package io.gatling.recorder.http.handler
 
+import java.io.IOException
 import java.net.{ InetSocketAddress, URI }
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import org.jboss.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext, ExceptionEvent }
+import org.jboss.netty.channel.{ ChannelFuture, ChannelHandlerContext, ExceptionEvent }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
 import org.jboss.netty.handler.ssl.SslHandler
 
@@ -32,17 +33,16 @@ import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureLis
 import io.gatling.recorder.http.ssl.SSLEngineFactory
 import javax.net.ssl.SSLException
 
-class BrowserHttpsRequestHandler(proxy: HttpProxy) extends AbstractBrowserRequestHandler(proxy.controller) with StrictLogging {
+class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(proxy.controller) with StrictLogging {
 
-	private var _channel: Option[Channel] = None
 	var targetHostURI: URI = _
 
-	def propagateRequest(ctx: ChannelHandlerContext, request: HttpRequest) {
+	def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest) {
 
 		def handleConnect {
 			targetHostURI = new URI("https://" + request.getUri)
-			ctx.getChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
-			ctx.getPipeline.addFirst(BootstrapFactory.SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newServerSSLEngine))
+			requestContext.getChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+			requestContext.getPipeline.addFirst(BootstrapFactory.SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newServerSSLEngine))
 		}
 
 		def buildConnectRequest = {
@@ -56,21 +56,23 @@ class BrowserHttpsRequestHandler(proxy: HttpProxy) extends AbstractBrowserReques
 			// set full uri so that it's correctly recorded FIXME ugly
 			request.setUri(targetHostURI.resolve(request.getUri).toString)
 
-			_clientChannel match {
-				case Some(channel) if channel.isConnected && channel.isOpen =>
-					channel.write(AbstractBrowserRequestHandler.buildRequestWithRelativeURI(request))
+			_serverChannel match {
+				case Some(serverChannel) if serverChannel.isConnected && serverChannel.isOpen =>
+					serverChannel.getPipeline.get(classOf[ServerHttpResponseHandler]).request = request
+					serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request))
 
 				case _ =>
-					_clientChannel = None
+					_serverChannel = None
 					(configuration.proxy.outgoing.host, configuration.proxy.outgoing.port) match {
 						case (Some(proxyHost), Some(proxyPort)) =>
 							// proxy: have to CONNECT over HTTP, before performing request over HTTPS
 							proxy.clientBootstrap
 								.connect(new InetSocketAddress(proxyHost, proxyPort))
 								.addListener { connectFuture: ChannelFuture =>
-									connectFuture.getChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, ctx, request, true))
-									_clientChannel = Some(connectFuture.getChannel)
-									connectFuture.getChannel.write(buildConnectRequest)
+									val serverChannel = connectFuture.getChannel
+									serverChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, true))
+									_serverChannel = Some(serverChannel)
+									serverChannel.write(buildConnectRequest)
 								}
 
 						case _ =>
@@ -80,9 +82,10 @@ class BrowserHttpsRequestHandler(proxy: HttpProxy) extends AbstractBrowserReques
 								.addListener { connectFuture: ChannelFuture =>
 									connectFuture.getChannel.getPipeline.get(BootstrapFactory.SSL_HANDLER_NAME).asInstanceOf[SslHandler].handshake
 										.addListener { handshakeFuture: ChannelFuture =>
-											handshakeFuture.getChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, ctx, request, false))
-											_clientChannel = Some(connectFuture.getChannel)
-											handshakeFuture.getChannel.write(AbstractBrowserRequestHandler.buildRequestWithRelativeURI(request))
+											val serverChannel = handshakeFuture.getChannel
+											serverChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, serverChannel, request, false))
+											_serverChannel = Some(serverChannel)
+											serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request))
 										}
 								}
 					}
@@ -90,21 +93,24 @@ class BrowserHttpsRequestHandler(proxy: HttpProxy) extends AbstractBrowserReques
 		}
 
 		logger.info(s"Received ${request.getMethod} on ${request.getUri}")
-		if (request.getMethod == HttpMethod.CONNECT)
-			handleConnect
-		else
-			handlePropagatableRequest
+		request.getMethod match {
+			case HttpMethod.CONNECT => handleConnect
+			case _ => handlePropagatableRequest
+		}
 	}
 
 	override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent) {
 
+		def handleSslException(e: Exception) {
+			logger.error(s"${e.getClass.getSimpleName} ${e.getMessage}, did you accept the certificate for $targetHostURI?")
+			proxy.controller.secureConnection(targetHostURI)
+			ctx.getChannel.close
+			_serverChannel.map(_.close)
+		}
+
 		e.getCause match {
-			case ssle: SSLException =>
-				logger.error(s"SSLException ${ssle.getMessage}, did you accept the certificate for $targetHostURI?")
-				proxy.controller.secureConnection(targetHostURI)
-				ctx.sendUpstream(e)
-				ctx.getChannel.close
-				_clientChannel.map(_.close)
+			case ioe: IOException if (ioe.getMessage == "Broken pipe") => handleSslException(ioe)
+			case ssle: SSLException => handleSslException(ssle)
 			case _ => super.exceptionCaught(ctx, e)
 		}
 	}

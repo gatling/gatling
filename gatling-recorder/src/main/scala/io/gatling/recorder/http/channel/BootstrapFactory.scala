@@ -24,7 +24,7 @@ import org.jboss.netty.handler.ssl.SslHandler
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.http.handler.{ BrowserHttpRequestHandler, BrowserHttpsRequestHandler }
+import io.gatling.recorder.http.handler.{ ClientHttpRequestHandler, ClientHttpsRequestHandler }
 import io.gatling.recorder.http.ssl.SSLEngineFactory
 
 object BootstrapFactory extends StrictLogging {
@@ -67,7 +67,7 @@ object BootstrapFactory extends StrictLogging {
 				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
 				pipeline.addLast("encoder", new HttpResponseEncoder)
 				pipeline.addLast("deflater", new HttpContentCompressor)
-				pipeline.addLast(GATLING_HANDLER_NAME, if (ssl) new BrowserHttpsRequestHandler(proxy) else new BrowserHttpRequestHandler(proxy))
+				pipeline.addLast(GATLING_HANDLER_NAME, if (ssl) new ClientHttpsRequestHandler(proxy) else new ClientHttpRequestHandler(proxy))
 				pipeline
 			}
 		})
