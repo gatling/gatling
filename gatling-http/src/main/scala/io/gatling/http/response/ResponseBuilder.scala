@@ -57,12 +57,13 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 	private var status: HttpResponseStatus = _
 	private var headers: HttpResponseHeaders = _
 	private val bodies = new ArrayList[HttpResponseBodyPart]
-	private var digests = if (computeChecksums) {
-		val map = mutable.Map.empty[String, MessageDigest]
-		checksumChecks.foreach(check => map += check.algorithm -> MessageDigest.getInstance(check.algorithm))
-		map
-	} else
-		Map.empty[String, MessageDigest]
+	private var digests: Map[String, MessageDigest] =
+		if (computeChecksums)
+			checksumChecks.foldLeft(Map.empty[String, MessageDigest]) { (map, check) =>
+				map + (check.algorithm -> MessageDigest.getInstance(check.algorithm))
+			}
+		else
+			Map.empty[String, MessageDigest]
 
 	def updateFirstByteSent {
 		firstByteSent = nowMillis
@@ -114,7 +115,10 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 		// ensure response doesn't end before starting
 		lastByteReceived = max(lastByteReceived, firstByteReceived)
 		val ahcResponse = Option(status).map(_.provider.prepareResponse(status, headers, bodies))
-		val checksums = digests.mapValues(md => bytes2Hex(md.digest)).toMap
+		val checksums = digests.foldLeft(Map.empty[String, String]) { (map, entry) =>
+			val (algo, md) = entry
+			map + (algo -> bytes2Hex(md.digest))
+		}
 
 		val bytes = ahcResponse match {
 			case Some(r) => r.getResponseBodyAsBytes
@@ -125,8 +129,9 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 
 		val rawResponse = HttpResponse(request, ahcResponse, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived, checksums, bytes)
 
-		responseProcessor
-			.map(_.applyOrElse(rawResponse, identity[Response]))
-			.getOrElse(rawResponse)
+		responseProcessor match {
+			case Some(processor) => processor.applyOrElse(rawResponse, identity[Response])
+			case _ => rawResponse
+		}
 	}
 }
