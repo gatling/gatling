@@ -26,8 +26,7 @@ object TimeHelper {
 	val currentTimeMillisReference = currentTimeMillis
 	val nanoTimeReference = nanoTime
 
-	def nanosSinceReference = nanoTime - nanoTimeReference
-	def secondsSinceReference = nanosSinceReference / 1000000000
+	def secondsSinceReference = (nanoTime - nanoTimeReference) / 1000000000
 
 	def computeTimeMillisFromNanos(nanos: Long) = (nanos - nanoTimeReference) / 1000000 + currentTimeMillisReference
 	def nowMillis = computeTimeMillisFromNanos(nanoTime)

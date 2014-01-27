@@ -15,11 +15,13 @@
  */
 package io.gatling.core.controller.throttle
 
+import java.lang.System.nanoTime
+
 import scala.concurrent.duration.DurationInt
 
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.Protocol
-import io.gatling.core.util.TimeHelper.{ nowMillis, secondsSinceReference }
+import io.gatling.core.util.TimeHelper.secondsSinceReference
 
 case class ThrottlingProtocol(limit: Long => Int) extends Protocol
 
@@ -33,7 +35,7 @@ class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map
 
 	val buffer = collection.mutable.Queue.empty[(String, () => Unit)]
 
-	var thisTickStart: Long = _
+	var thisTickStartNanoRef: Long = _
 	var thisTickGlobalThrottler: Option[ThisSecondThrottler] = _
 	var thisTickPerScenarioThrottlers: Map[String, ThisSecondThrottler] = _
 	var requestPeriod: Double = _
@@ -42,9 +44,10 @@ class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map
 	newSecond()
 
 	private def newSecond() {
-		thisTickStart = nowMillis
-		thisTickGlobalThrottler = globalProfile.map(p => new ThisSecondThrottler(p.limit(secondsSinceReference)))
-		thisTickPerScenarioThrottlers = scenarioProfiles.mapValues(p => new ThisSecondThrottler(p.limit(thisTickStart)))
+		thisTickStartNanoRef = nanoTime
+		val thisTickStartSeconds = secondsSinceReference
+		thisTickGlobalThrottler = globalProfile.map(p => new ThisSecondThrottler(p.limit(thisTickStartSeconds)))
+		thisTickPerScenarioThrottlers = Map.empty ++ scenarioProfiles.mapValues(p => new ThisSecondThrottler(p.limit(thisTickStartSeconds)))
 		val globalLimit = thisTickGlobalThrottler.map(_.limit)
 		val perScenarioLimits = thisTickPerScenarioThrottlers.map(_._2.limit)
 		val maxNumberOfRequests =
@@ -57,30 +60,31 @@ class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map
 		thisTickRequestCount = 0
 	}
 
-	private def throttle(scenarioName: String, request: () => Unit, shift: Int) = {
+	private def throttle(scenarioName: String, request: () => Unit, shiftInMillis: Int) = {
 		val scenarioThrottler = thisTickPerScenarioThrottlers.get(scenarioName)
 
 		val sending = !thisTickGlobalThrottler.exists(_.limitReached) && !scenarioThrottler.exists(_.limitReached)
 		if (sending) {
 			thisTickGlobalThrottler.foreach(_.increment)
 			scenarioThrottler.foreach(_.increment)
-			val delay = math.max(0, (requestPeriod * thisTickRequestCount).toInt - shift)
+			val delay = (requestPeriod * thisTickRequestCount).toInt - shiftInMillis
 			thisTickRequestCount += 1
 
-			if (delay == 0) {
-				request()
-			} else {
+			if (delay > 0)
 				scheduler.scheduleOnce(delay milliseconds) {
 					request()
 				}
-			}
+			else
+				request()
 		}
 
 		sending
 	}
 
+	def millisSinceTickStart: Int = ((nanoTime - thisTickStartNanoRef) / 1000000).toInt
+
 	def send(scenarioName: String, request: () => Unit) {
-		if (!throttle(scenarioName, request, (nowMillis - thisTickStart).toInt))
+		if (!throttle(scenarioName, request, millisSinceTickStart))
 			buffer += scenarioName -> request
 	}
 
