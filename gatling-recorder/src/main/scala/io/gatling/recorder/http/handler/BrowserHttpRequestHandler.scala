@@ -36,7 +36,7 @@ class BrowserHttpRequestHandler(proxy: HttpProxy) extends AbstractBrowserRequest
 	def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest) {
 
 		_clientChannel match {
-			case Some(channel) if channel.isConnected => writeRequest(request, channel)
+			case Some(channel) if channel.isConnected && channel.isOpen => writeRequest(request, channel)
 			case _ =>
 				_clientChannel = None
 

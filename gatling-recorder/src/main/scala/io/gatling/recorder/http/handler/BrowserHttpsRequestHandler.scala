@@ -57,7 +57,7 @@ class BrowserHttpsRequestHandler(proxy: HttpProxy) extends AbstractBrowserReques
 			request.setUri(targetHostURI.resolve(request.getUri).toString)
 
 			_clientChannel match {
-				case Some(channel) if channel.isConnected =>
+				case Some(channel) if channel.isConnected && channel.isOpen =>
 					channel.write(AbstractBrowserRequestHandler.buildRequestWithRelativeURI(request))
 
 				case _ =>
