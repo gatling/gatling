@@ -15,15 +15,13 @@
  */
 package io.gatling.http.response
 
-import java.nio.{ ByteBuffer, CharBuffer }
-import scala.collection.JavaConversions.asScalaBuffer
-import com.ning.http.client.{ Request => AHCRequest, Response => AHCResponse }
-import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.BytesInputStream
-import io.gatling.core.util.StringHelper.RichString
 import java.net.URI
-import com.ning.http.client.Cookie
-import com.ning.http.client.FluentCaseInsensitiveStringsMap
+
+import scala.collection.JavaConversions.asScalaBuffer
+
+import com.ning.http.client.{ Cookie, FluentCaseInsensitiveStringsMap, Request => AHCRequest, Response => AHCResponse }
+
+import io.gatling.core.config.GatlingConfiguration.configuration
 
 trait Response {
 

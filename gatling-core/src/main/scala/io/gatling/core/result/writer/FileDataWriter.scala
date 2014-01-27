@@ -24,7 +24,7 @@ import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.Group
 import io.gatling.core.session.GroupStackEntry
 import io.gatling.core.util.StringHelper.eol
-import io.gatling.core.util.UnsynchronizedBufferedOutputStream
+import io.gatling.core.util.UnsyncBufferedOutputStream
 
 object FileDataWriter {
 
@@ -117,13 +117,13 @@ class FileDataWriter extends DataWriter {
 
 	import FileDataWriter._
 
-	private var os: UnsynchronizedBufferedOutputStream = _
+	private var os: UnsyncBufferedOutputStream = _
 
 	override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
 		val simulationLog = simulationLogDirectory(run.runId) / "simulation.log"
 		val fos = new FileOutputStream(simulationLog.toString)
 		system.registerOnTermination(fos.close)
-		os = new UnsynchronizedBufferedOutputStream(fos, configuration.data.file.bufferSize)
+		os = new UnsyncBufferedOutputStream(fos, configuration.data.file.bufferSize)
 		os.write(run.getBytes)
 	}
 

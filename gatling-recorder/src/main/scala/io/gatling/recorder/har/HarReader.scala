@@ -20,7 +20,7 @@ import java.net.URL
 
 import scala.util.Try
 
-import io.gatling.core.util.IOHelper
+import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.HeaderNames.CONTENT_TYPE
 import io.gatling.http.fetch.HtmlParser
@@ -34,7 +34,7 @@ import io.gatling.recorder.util.Json
 object HarReader {
 
 	def apply(path: String)(implicit config: RecorderConfiguration): ScenarioDefinition =
-		IOHelper.withCloseable(new FileInputStream(path))(apply(_))
+		withCloseable(new FileInputStream(path))(apply(_))
 
 	def apply(jsonStream: InputStream)(implicit config: RecorderConfiguration): ScenarioDefinition =
 		apply(Json.parseJson(jsonStream))
