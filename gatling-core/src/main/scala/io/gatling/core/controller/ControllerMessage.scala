@@ -22,7 +22,7 @@ import io.gatling.core.scenario.Simulation
 sealed trait ControllerMessage
 case class Run(simulation: Simulation, simulationId: String, description: String, timings: Timings) extends ControllerMessage
 case class DataWritersInitialized(count: Try[Unit]) extends ControllerMessage
-case object ForceTermination extends ControllerMessage
+case class ForceTermination(e: Option[Exception] = None) extends ControllerMessage
 case class DataWritersTerminated(count: Try[Unit]) extends ControllerMessage
 case object OneSecondTick extends ControllerMessage
 case class ThrottledRequest(scenarioName: String, request: () => Unit) extends ControllerMessage

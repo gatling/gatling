@@ -106,7 +106,7 @@ class Controller extends BaseActor {
 				timings.maxDuration.foreach {
 					logger.debug("Setting up max duration")
 					scheduler.scheduleOnce(_) {
-						self ! ForceTermination
+						self ! ForceTermination(None)
 					}
 				}
 
@@ -136,9 +136,9 @@ class Controller extends BaseActor {
 			DataWriter.tell(userMessage)
 		}
 
-		def becomeTerminating() {
+		def becomeTerminating(exception: Option[Exception]) {
 			DataWriter.terminate(self)
-			context.become(waitingForDataWriterToTerminate)
+			context.become(waitingForDataWriterToTerminate(exception))
 		}
 
 		{
@@ -153,21 +153,25 @@ class Controller extends BaseActor {
 					activeUsers -= userId
 					dispatchUserEndToDataWriter(userMessage)
 					if (finishedUsers == totalNumberOfUsers)
-						becomeTerminating
+						becomeTerminating(None)
 			}
 
-			case ForceTermination =>
+			case ForceTermination(exception) =>
 				// flush all active users
 				val now = nowMillis
 				for (activeUser <- activeUsers.values) {
 					dispatchUserEndToDataWriter(activeUser.copy(event = End, endDate = now))
 				}
-				becomeTerminating
+				becomeTerminating(exception)
 		}
 	}
 
-	val waitingForDataWriterToTerminate: Receive = {
-		case DataWritersTerminated(result) => launcher ! SSuccess(runId)
+	def waitingForDataWriterToTerminate(exception: Option[Exception]): Receive = {
+		case DataWritersTerminated(result) =>
+			exception match {
+				case Some(e) => launcher ! SFailure(e)
+				case _ => launcher ! SSuccess(runId)
+			}
 		case m => logger.debug(s"Ignore message $m while waiting for DataWriter to terminate")
 	}
 

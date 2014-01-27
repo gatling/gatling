@@ -32,27 +32,33 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
 
 		def translateRecord(record: Record[T], suffix: Int): Record[T] = record.map { case (key, value) => (key + suffix) -> value }
 
-		def pollRecord(): Record[T] = {
-			if (!feeder.hasNext) {
-				logger.error("Feeder is now empty, stopping engine")
-				Controller.instance ! ForceTermination
-			}
-
-			feeder.next
+		def pollRecord(): Validation[Record[T]] = {
+			if (!feeder.hasNext)
+				"Feeder is now empty, stopping engine".failure
+			else
+				feeder.next.success
 		}
 
 		def injectRecords(numberOfRecords: Int): Validation[Session] =
 			numberOfRecords match {
-				case 1 => session.setAll(pollRecord).success
+				case 1 =>
+					pollRecord.map(session.setAll)
 				case n if n > 0 =>
-					val translatedRecords = Iterator.tabulate(n) { i => translateRecord(pollRecord, i + 1) }.reduce(_ ++ _)
-					session.setAll(translatedRecords).success
+					val translatedRecords = Iterator.tabulate(n) { i =>
+						pollRecord.map(translateRecord(_, i + 1))
+					}.reduce {
+						for (record1 <- _; record2 <- _) yield record1 ++ record2
+					}
+					translatedRecords.map(session.setAll)
 				case n => (s"$n is not a valid number of records").failure
 			}
 
 		val newSession = number(session).flatMap(injectRecords) match {
 			case Success(newSession) => newSession
-			case Failure(message) => logger.error(message); session
+			case Failure(message) =>
+				logger.error(message)
+				Controller.instance ! ForceTermination(Some(new IllegalStateException(message)))
+				session
 		}
 
 		next ! newSession
