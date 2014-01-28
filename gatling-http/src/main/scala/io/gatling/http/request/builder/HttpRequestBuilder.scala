@@ -338,7 +338,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 		val resolvedChecks = (checks.find(_.order == Status) match {
 			case None => HttpRequestActionBuilder.defaultHttpCheck :: checks
-			case _ => httpAttributes.checks
+			case _ => checks
 		}).sorted
 
 		val resolvedResponseTransformer = httpAttributes.responseTransformer.orElse(protocol.responseTransformer)
