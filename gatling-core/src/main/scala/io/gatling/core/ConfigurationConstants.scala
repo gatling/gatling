@@ -22,6 +22,7 @@ object ConfigurationConstants {
 	val CONF_CORE_ENCODING = "gatling.core.encoding"
 	val CONF_CORE_SIMULATION_CLASS = "gatling.core.simulationClass"
 	val CONF_CORE_DISABLE_COMPILER = "gatling.core.disableCompiler"
+	val CONF_CORE_MUTE = "gatling.core.mute"
 
 	val CONF_CORE_EXTRACT_REGEXP_CACHE = "gatling.core.extract.regex.cache"
 	val CONF_CORE_EXTRACT_XPATH_CACHE = "gatling.core.extract.xpath.cache"

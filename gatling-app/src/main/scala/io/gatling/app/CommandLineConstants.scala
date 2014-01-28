@@ -39,4 +39,6 @@ object CommandLineConstants {
 	val OUTPUT_DIRECTORY_BASE_NAME_SHORT = "on"
 	val SIMULATION_DESCRIPTION = "simulation-description"
 	val SIMULATION_DESCRIPTION_SHORT = "sd"
+	val MUTE = "mute"
+	val MUTE_SHORT = "m"
 }
