@@ -41,4 +41,12 @@ object NumberHelper {
 		}
 		value
 	}
+
+	object IntString {
+		def unapply(s: String): Option[Int] =
+			if (s.forall(char => char >= '0' && char <= '9'))
+				Some(s.toInt)
+			else
+				None
+	}
 }

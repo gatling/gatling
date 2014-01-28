@@ -20,6 +20,7 @@ import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.util.NumberHelper.IntString
 import io.gatling.core.util.TypeHelper.TypeCaster
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
@@ -62,11 +63,9 @@ case class SeqElementPart(name: String, index: String) extends Part[Any] {
 			}
 		}
 
-		try {
-			val intIndex = index.toInt
-			seqElementPart(intIndex)
-		} catch {
-			case e: NumberFormatException => session(index).validate[Int].flatMap(seqElementPart)
+		index match {
+			case IntString(i) => seqElementPart(i)
+			case _ => session(index).validate[Int].flatMap(seqElementPart)
 		}
 	}
 }
