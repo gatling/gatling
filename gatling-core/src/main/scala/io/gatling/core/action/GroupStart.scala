@@ -18,7 +18,7 @@ package io.gatling.core.action
 import akka.actor.ActorRef
 import io.gatling.core.session.{ Expression, Session }
 
-class GroupStart(groupName: Expression[String], val next: ActorRef) extends Chainable with Failable {
+class GroupStart(groupName: Expression[String], val next: ActorRef) extends Interruptable with Failable {
 
 	def executeOrFail(session: Session) = groupName(session).map(next ! session.enterGroup(_))
 }
