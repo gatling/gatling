@@ -37,7 +37,7 @@ import io.gatling.http.check.HttpCheckOrder.Status
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.referer.RefererHandling
-import io.gatling.http.request.{ Body, BodyPart, HttpRequest }
+import io.gatling.http.request.{ Body, BodyPart, ExtraInfoExtractor, HttpRequest }
 import io.gatling.http.response.ResponseTransformer
 import io.gatling.http.util.HttpHelper
 
@@ -77,7 +77,8 @@ case class HttpAttributes(
 	secureProxy: Option[ProxyServer] = None,
 	explicitResources: Seq[AbstractHttpRequestBuilder[_]] = Nil,
 	body: Option[Body] = None,
-	bodyParts: List[BodyPart] = Nil)
+	bodyParts: List[BodyPart] = Nil,
+	extraInfoExtractor: Option[ExtraInfoExtractor] = None)
 
 object AbstractHttpRequestBuilder {
 
@@ -117,6 +118,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 	 * Ignore the default checks configured on HttpProtocol
 	 */
 	def ignoreDefaultChecks: B = newInstance(httpAttributes.copy(ignoreDefaultChecks = true))
+
+	def extraInfoExtractor(f: ExtraInfoExtractor): B = newInstance(httpAttributes.copy(extraInfoExtractor = Some(f)))
 
 	def queryParam(key: Expression[String], value: Expression[Any]): B = queryParam(SimpleParam(key, value))
 	def multivaluedQueryParam(key: Expression[String], values: Expression[Seq[Any]]): B = queryParam(MultivaluedParam(key, values))
@@ -347,11 +350,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 		val resolvedResources = httpAttributes.explicitResources.filter(_.httpAttributes.method == "GET").map(_.build(protocol, throttled))
 
+		val resolvedExtraInfoExtractor = httpAttributes.extraInfoExtractor.orElse(protocol.extraInfoExtractor)
+
 		HttpRequest(
 			httpAttributes.requestName,
 			ahcRequest,
 			resolvedChecks,
 			resolvedResponseTransformer,
+			resolvedExtraInfoExtractor,
 			resolvedMaxRedirects,
 			throttled,
 			protocol,

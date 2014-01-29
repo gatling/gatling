@@ -28,6 +28,7 @@ import io.gatling.core.session.el.EL
 import io.gatling.http.HeaderNames._
 import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.response.{ Response, ResponseTransformer }
 import io.gatling.http.util.HttpHelper
 
@@ -82,7 +83,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
 
 	def virtualHost(virtualHost: Expression[String]): HttpProtocolBuilder = copy(protocol.copy(virtualHost = Some(virtualHost)))
 
-	def extraInfoExtractor(f: (String, Status, Session, Request, Response) => List[Any]): HttpProtocolBuilder = copy(protocol = protocol.copy(extraInfoExtractor = Some(f)))
+	def extraInfoExtractor(f: ExtraInfoExtractor): HttpProtocolBuilder = copy(protocol = protocol.copy(extraInfoExtractor = Some(f)))
 
 	def proxy(httpProxy: Proxy): HttpProtocolBuilder = copy(protocol = protocol.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
 	def noProxyFor(hosts: String*): HttpProtocolBuilder = copy(protocol = protocol.copy(proxyExceptions = hosts))

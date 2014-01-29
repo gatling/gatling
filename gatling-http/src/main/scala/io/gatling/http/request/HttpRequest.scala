@@ -62,6 +62,7 @@ case class HttpRequest(
 	ahcRequest: Expression[Request],
 	checks: List[HttpCheck],
 	responseTransformer: Option[ResponseTransformer],
+	extraInfoExtractor: Option[ExtraInfoExtractor],
 	maxRedirects: Option[Int],
 	throttled: Boolean,
 	protocol: HttpProtocol,

@@ -33,6 +33,7 @@ import io.gatling.core.util.RoundRobin
 import io.gatling.http.HeaderNames.{ ACCEPT, ACCEPT_ENCODING, ACCEPT_LANGUAGE, CONNECTION, USER_AGENT }
 import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine, ProxyConverter }
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.{ Response, ResponseTransformer }
 import io.gatling.http.util.HttpHelper.buildRealm
@@ -98,7 +99,7 @@ case class HttpProtocol(
 	fetchHtmlResources: Boolean,
 	htmlResourcesFetchingFilters: Option[Filters],
 	maxConnectionsPerHost: Int,
-	extraInfoExtractor: Option[(String, Status, Session, Request, Response) => List[Any]]) extends Protocol with StrictLogging {
+	extraInfoExtractor: Option[ExtraInfoExtractor]) extends Protocol with StrictLogging {
 
 	val roundRobinUrls = RoundRobin(baseURLs.toArray)
 

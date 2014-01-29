@@ -104,7 +104,7 @@ class HttpRequestAction(httpRequest: HttpRequest, val next: ActorRef) extends In
 			val buildResult = for {
 				ahcRequest <- ahcRequest(session)
 				newSession = RefererHandling.storeReferer(ahcRequest, session, protocol)
-				tx = HttpTx(newSession, ahcRequest, resolvedRequestName, checks, responseBuilderFactory, protocol, next, maxRedirects, throttled, explicitResources)
+				tx = HttpTx(newSession, ahcRequest, resolvedRequestName, checks, responseBuilderFactory, protocol, next, maxRedirects, throttled, explicitResources, extraInfoExtractor)
 
 			} yield HttpRequestAction.beginHttpTransaction(tx)
 
