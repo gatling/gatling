@@ -64,4 +64,6 @@ object CookieHandling {
 			case _ => session
 		}).success
 	}
+
+	val flushCookieJar: Expression[Session] = _.remove(cookieJarAttributeName).success
 }

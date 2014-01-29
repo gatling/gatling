@@ -16,7 +16,7 @@
 package io.gatling.http
 
 import io.gatling.core.result.message.{ KO, Status }
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.{ Expression, RichExpression, Session }
 import io.gatling.http.action.AddCookieBuilder
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.config.HttpProtocolBuilder
@@ -24,6 +24,7 @@ import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.request.BodyProcessors
 import io.gatling.http.request.builder.{ HttpRequestBaseBuilder, WebSocketBaseBuilder }
 import io.gatling.http.util.{ DefaultRequestLogger, DefaultWebSocketClient }
+import io.gatling.http.cache.CacheHandling
 
 object Predef extends HttpCheckSupport {
 	type Request = com.ning.http.client.Request
@@ -36,7 +37,10 @@ object Predef extends HttpCheckSupport {
 	def http(requestName: Expression[String]) = new HttpRequestBaseBuilder(requestName)
 	def addCookie(name: Expression[String], value: Expression[String], domain: Option[Expression[String]] = None, path: Option[Expression[String]] = None, maxAge: Int = -1) = new AddCookieBuilder(name, value, domain, path, maxAge)
 	def flushSessionCookies = CookieHandling.flushSessionCookies
-
+	def flushCookieJar = CookieHandling.flushCookieJar
+	def flushCache = CacheHandling.flushCache
+	def flushAllHttpState: Expression[Session] = session => flushSessionCookies(session).flatMap(flushCookieJar).flatMap(flushCache)
+	
 	def websocket(actionName: Expression[String]) = WebSocketBaseBuilder.websocket(actionName)
 	implicit val defaultWebSocketClient = DefaultWebSocketClient
 	implicit val defaultRequestLogger = DefaultRequestLogger
