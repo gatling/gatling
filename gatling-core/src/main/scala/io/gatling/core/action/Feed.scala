@@ -19,7 +19,7 @@ import akka.actor.ActorRef
 import io.gatling.core.session.Session
 import io.gatling.core.session.Expression
 
-class Feed(singleton: ActorRef, number: Expression[Int], next: ActorRef) extends Action {
+class Feed(singleton: ActorRef, number: Expression[Int], val next: ActorRef) extends Action with Interruptable {
 
 	def execute(session: Session) {
 		singleton ! FeedMessage(session, number, next)

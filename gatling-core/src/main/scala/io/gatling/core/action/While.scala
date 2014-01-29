@@ -43,9 +43,9 @@ class While(continueCondition: Expression[Boolean], counterName: String, exitASA
 	override def receive = uninitialized
 }
 
-class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, counterName: String, exitASAP: Boolean, val next: ActorRef) extends Chainable {
+class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, counterName: String, exitASAP: Boolean, val next: ActorRef) extends Interruptable {
 
-	val interrupt: PartialFunction[Session, Unit] = {
+	val whileInterrupt: PartialFunction[Session, Unit] = {
 
 		def continue(session: Session) = continueCondition(session) match {
 			case Success(c) => c
@@ -70,6 +70,6 @@ class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, cou
 		val initializedSession = if (!session.contains(counterName) && exitASAP) session.enterInterruptable(interrupt) else session
 		val incrementedSession = initializedSession.incrementLoop(counterName)
 
-		interrupt.applyOrElse(incrementedSession, (s: Session) => loopNext ! s)
+		whileInterrupt.applyOrElse(incrementedSession, (s: Session) => loopNext ! s)
 	}
 }
