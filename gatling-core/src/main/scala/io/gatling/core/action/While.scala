@@ -67,7 +67,7 @@ class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, cou
 	 */
 	def execute(session: Session) {
 
-		val initializedSession = if (!session.contains(counterName) && exitASAP) session.enterInterruptable(interrupt) else session
+		val initializedSession = if (!session.contains(counterName) && exitASAP) session.enterInterruptable(whileInterrupt) else session
 		val incrementedSession = initializedSession.incrementLoop(counterName)
 
 		whileInterrupt.applyOrElse(incrementedSession, (s: Session) => loopNext ! s)
