@@ -83,9 +83,12 @@ class Metrics(bucketWidth: Int = configuration.data.graphite.bucketWidth) {
 			def getQuantileRec(buckets: List[(Long, Long)], count: Long): Long = buckets match {
 				case (bucketTime, bucketCount) :: tail =>
 					val newCount = count + bucketCount
-					if (newCount >= limit) max.min((bucketTime * bucketWidth) + bucketWidth)
-					else getQuantileRec(tail, newCount)
-				case Nil => throw new IllegalArgumentException("Can't compute 100th quantile")
+					if (newCount >= limit)
+						max.min((bucketTime * bucketWidth) + bucketWidth)
+					else
+						getQuantileRec(tail, newCount)
+
+				case Nil => max
 			}
 
 			getQuantileRec(buckets.toList.sorted, 0L)
