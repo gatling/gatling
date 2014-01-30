@@ -35,12 +35,12 @@ class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
 			context.become(initialized)
 	}
 
-	val initialized: Receive = { case m => innerTryMax forward m }
+	val initialized: Receive = Interruptable.interruptOrElse({ case m => innerTryMax forward m })
 
 	override def receive = uninitialized
 }
 
-class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next: ActorRef) extends Interruptable {
+class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next: ActorRef) extends Chainable {
 
 	def interrupt(stackOnEntry: List[GroupStackEntry]): PartialFunction[Session, Unit] = {
 		case session if session.statusStack.head == KO => {

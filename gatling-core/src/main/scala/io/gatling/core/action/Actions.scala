@@ -52,13 +52,23 @@ trait Chainable extends Action {
 	}
 }
 
+object Interruptable {
+
+	def interruptOrElse(continue: PartialFunction[Any, Unit]): PartialFunction[Any, Unit] = {
+
+		val maybeInterrupt: PartialFunction[Any, Unit] = {
+			case session: Session if (!session.interruptStack.isEmpty) => (session.interruptStack.reduceLeft(_ orElse _) orElse continue)(session)
+		}
+
+		maybeInterrupt orElse continue
+	}
+}
+
 trait Interruptable extends Chainable {
 
-	val interrupt: PartialFunction[Any, Unit] = {
-		case session: Session if (!session.interruptStack.isEmpty) => (session.interruptStack.reduceLeft(_ orElse _) orElse super.receive)(session)
-	}
+	val interrupt = Interruptable.interruptOrElse(super.receive)
 
-	abstract override def receive = interrupt orElse super.receive
+	abstract override def receive = interrupt
 }
 
 /**

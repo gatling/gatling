@@ -38,12 +38,12 @@ class While(continueCondition: Expression[Boolean], counterName: String, exitASA
 			context.become(initialized)
 	}
 
-	val initialized: Receive = { case m => innerWhile forward m }
+	val initialized: Receive = Interruptable.interruptOrElse({ case m => innerWhile forward m })
 
 	override def receive = uninitialized
 }
 
-class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, counterName: String, exitASAP: Boolean, val next: ActorRef) extends Interruptable {
+class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, counterName: String, exitASAP: Boolean, val next: ActorRef) extends Chainable {
 
 	val whileInterrupt: PartialFunction[Session, Unit] = {
 
