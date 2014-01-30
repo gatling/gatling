@@ -25,11 +25,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 
 object HttpProvider {
 
-	def apply(threadPool: ExecutorService): HttpProvider =
-		if (configuration.http.ahc.provider.equalsIgnoreCase("grizzly"))
-			new GrizzlyProvider(threadPool)
-		else
-			new NettyProvider(threadPool)
+	def apply(threadPool: ExecutorService): HttpProvider = new NettyProvider(threadPool)
 }
 
 sealed trait HttpProvider {
@@ -64,26 +60,4 @@ class NettyProvider(threadPool: ExecutorService) extends HttpProvider with AkkaD
 	}
 
 	def newAsyncHttpClient(config: AsyncHttpClientConfig) = new AsyncHttpClient(config)
-}
-
-class GrizzlyProvider(threadPool: ExecutorService) extends HttpProvider {
-
-	import com.ning.http.client.providers.grizzly.{ GrizzlyAsyncHttpProvider, GrizzlyAsyncHttpProviderConfig, GrizzlyConnectionsPool }
-	import com.ning.http.client.providers.grizzly.GrizzlyConnectionsPool.DelayedExecutor
-
-	val connectionsPool = {
-
-		val config = new AsyncHttpClientConfig.Builder()
-			.setAllowSslConnectionPool(configuration.http.ahc.allowSslConnectionPool)
-			.setMaxConnectionLifeTimeInMs(configuration.http.ahc.idleConnectionInPoolTimeOutInMs)
-			.setMaxConnectionLifeTimeInMs(configuration.http.ahc.maxConnectionLifeTimeInMs)
-			.setMaximumConnectionsPerHost(configuration.http.ahc.maximumConnectionsPerHost)
-			.setMaximumConnectionsTotal(configuration.http.ahc.maximumConnectionsTotal).build
-
-		new GrizzlyConnectionsPool(config).asInstanceOf[ConnectionsPool[_, _]]
-	}
-
-	val config = new GrizzlyAsyncHttpProviderConfig
-
-	def newAsyncHttpClient(config: AsyncHttpClientConfig) = new AsyncHttpClient(new GrizzlyAsyncHttpProvider(config), config)
 }

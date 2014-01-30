@@ -34,12 +34,6 @@ object Dependencies {
 	private val jmsApi            = "javax.jms"                  % "jms-api"            % "1.1-rev-1"
 	private val logbackClassic    = "ch.qos.logback"             % "logback-classic"    % "1.0.13"
 
-	/***************************/
-	/** Optional dependencies **/
-	/***************************/
-
-	private val grizzlyWebsockets = "org.glassfish.grizzly"      % "grizzly-websockets" % "2.3.11"      % "provided"
-
 	/***********************/
 	/** Test dependencies **/
 	/***********************/
@@ -61,7 +55,7 @@ object Dependencies {
 
 	val redisDeps = redisClient +: testDeps
 
-	val httpDeps = Seq(ahc, netty, jzlib, grizzlyWebsockets) ++ testDeps
+	val httpDeps = Seq(ahc, netty, jzlib) ++ testDeps
 
 	val jmsDeps = jmsApi +: testDeps
 
