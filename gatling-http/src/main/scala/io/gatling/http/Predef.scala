@@ -40,7 +40,7 @@ object Predef extends HttpCheckSupport {
 	def flushCookieJar = CookieHandling.flushCookieJar
 	def flushCache = CacheHandling.flushCache
 	def flushAllHttpState: Expression[Session] = session => flushSessionCookies(session).flatMap(flushCookieJar).flatMap(flushCache)
-	
+
 	def websocket(actionName: Expression[String]) = WebSocketBaseBuilder.websocket(actionName)
 	implicit val defaultWebSocketClient = DefaultWebSocketClient
 	implicit val defaultRequestLogger = DefaultRequestLogger
