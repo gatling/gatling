@@ -64,10 +64,10 @@ class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next:
 
 			} else session
 
-			if (sessionWithGroupsExited.loopCounterValue(counterName) < times)
-				self ! sessionWithGroupsExited
-			else
+			if (sessionWithGroupsExited.loopCounterValue(counterName) >= times)
 				next ! sessionWithGroupsExited.exitTryMax.exitLoop
+			else
+				self ! sessionWithGroupsExited
 		}
 	}
 
