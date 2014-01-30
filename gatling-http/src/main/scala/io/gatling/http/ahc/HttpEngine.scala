@@ -15,9 +15,14 @@
  */
 package io.gatling.http.ahc
 
+import java.util.Timer
 import java.util.concurrent.{ Executors, ThreadFactory }
 
+import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
+import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
+
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
+import com.ning.http.client.providers.netty.{ NettyAsyncHttpProviderConfig, NettyConnectionsPool }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import akka.actor.ActorRef
@@ -28,7 +33,7 @@ import io.gatling.core.controller.{ Controller, ThrottledRequest }
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request. { ExtraInfoExtractor, HttpRequest }
+import io.gatling.http.request.{ ExtraInfoExtractor, HttpRequest }
 import io.gatling.http.response.ResponseBuilderFactory
 import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
 
@@ -82,7 +87,22 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 		}
 	})
 
-	val provider = HttpProvider(applicationThreadPool)
+	// set up Netty LoggerFactory for slf4j instead of default JDK
+	InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
+
+	val connectionsPool = new NettyConnectionsPool(configuration.http.ahc.maximumConnectionsTotal,
+		configuration.http.ahc.maximumConnectionsPerHost,
+		configuration.http.ahc.idleConnectionInPoolTimeOutInMs,
+		configuration.http.ahc.maxConnectionLifeTimeInMs,
+		configuration.http.ahc.allowSslConnectionPool,
+		new Timer(true))
+
+	val config = {
+		val numWorkers = configuration.http.ahc.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
+		val socketChannelFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool, applicationThreadPool, numWorkers)
+		system.registerOnTermination(socketChannelFactory.releaseExternalResources)
+		new NettyAsyncHttpProviderConfig().addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
+	}
 
 	val defaultAhcConfig = {
 		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
@@ -103,8 +123,8 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 			.setUseRawUrl(configuration.http.ahc.useRawUrl)
 			.setExecutorService(applicationThreadPool)
 			.setScheduledExecutorService(reaper)
-			.setAsyncHttpClientProviderConfig(provider.config)
-			.setConnectionsPool(provider.connectionsPool)
+			.setAsyncHttpClientProviderConfig(config)
+			.setConnectionsPool(connectionsPool)
 			.setRfc6265CookieEncoding(configuration.http.ahc.rfc6265CookieEncoding)
 			.setWebSocketIdleTimeoutInMs(configuration.http.ahc.webSocketIdleTimeoutInMs)
 			.setUseRelativeURIsWithSSLProxies(configuration.http.ahc.useRelativeURIsWithSSLProxies)
@@ -147,7 +167,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
 		}.getOrElse(defaultAhcConfig)
 
-		val client = provider.newAsyncHttpClient(ahcConfig)
+		val client = new AsyncHttpClient(ahcConfig)
 		system.registerOnTermination(client.close)
 		client
 	}
