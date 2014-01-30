@@ -156,6 +156,7 @@ object GatlingConfiguration {
 					case "file" => "io.gatling.core.result.writer.FileDataWriter"
 					case "graphite" => "io.gatling.metrics.GraphiteDataWriter"
 					case "jdbc" => "io.gatling.jdbc.result.writer.JdbcDataWriter"
+					case "leak" => "io.gatling.core.result.writer.LeakReporterDataWriter"
 					case clazz => clazz
 				},
 				dataReaderClass = (config.getString(CONF_DATA_READER_CLASS_NAME)).trim match {
