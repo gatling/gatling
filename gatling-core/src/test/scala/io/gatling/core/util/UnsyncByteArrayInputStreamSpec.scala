@@ -17,7 +17,6 @@ package io.gatling.core.util
 
 import org.junit.runner.RunWith
 import io.gatling.core.test.ValidationSpecification
-import io.gatling.core.util.UnsyncByteArrayInputStream
 import org.specs2.runner.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
