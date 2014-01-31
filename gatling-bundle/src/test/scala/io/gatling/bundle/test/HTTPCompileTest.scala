@@ -96,9 +96,10 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 				.exec(http("Catégorie Poney").get("/").multivaluedQueryParam("omg", "${foo}"))
 				.exec(http("Catégorie Poney").get("/").multivaluedQueryParam("omg", List("foo")))
 		}
+		.uniformRandomSwitch(exec(http("Catégorie Poney").get("/")), exec(http("Catégorie Licorne").get("/")))
 		.randomSwitch(
 			40d -> exec(http("Catégorie Poney").get("/")),
-			50d -> exec(http("Catégorie Poney").get("/")))
+			50d -> exec(http("Catégorie Licorne").get("/")))
 		.randomSwitch(40d -> exec(http("Catégorie Poney").get("/")))
 		.pause(pause2)
 		// Loop

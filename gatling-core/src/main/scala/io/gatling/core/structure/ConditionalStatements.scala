@@ -81,11 +81,15 @@ trait ConditionalStatements[B] extends Execs[B] {
 	private def doIf(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B =
 		exec(new IfBuilder(condition, thenNext, elseNext))
 
-	def doSwitch(value: Expression[Any])(possibility1: (Any, ChainBuilder), possibility2: (Any, ChainBuilder), possibilities: (Any, ChainBuilder)*): B =
-		doSwitch(value, possibility1 :: possibility2 :: possibilities.toList, None)
+	def doSwitch(value: Expression[Any])(possibilities: (Any, ChainBuilder)*): B = {
+		require(possibilities.size >= 2, "doSwitch()() requires at least 2 possibilities")
+		doSwitch(value, possibilities.toList, None)
+	}
 
-	def doSwitchOrElse(value: Expression[Any])(possibility1: (Any, ChainBuilder), possibility2: (Any, ChainBuilder), possibilities: (Any, ChainBuilder)*)(elseNext: ChainBuilder): B =
-		doSwitch(value, possibility1 :: possibility2 :: possibilities.toList, Some(elseNext))
+	def doSwitchOrElse(value: Expression[Any])(possibilities: (Any, ChainBuilder)*)(elseNext: ChainBuilder): B = {
+		require(possibilities.size >= 2, "doSwitchOrElse()()() requires at least 2 possibilities")
+		doSwitch(value, possibilities.toList, Some(elseNext))
+	}
 
 	private def doSwitch(value: Expression[Any], possibilities: List[(Any, ChainBuilder)], elseNext: Option[ChainBuilder]): B =
 		exec(new SwitchBuilder(value, possibilities, elseNext))
@@ -95,30 +99,32 @@ trait ConditionalStatements[B] extends Execs[B] {
 	 * Switch is selected randomly. If no switch is selected (ie random number exceeds percentages sum), switch is bypassed.
 	 * Percentages sum can't exceed 100%.
 	 *
-	 * @param possibility1 a possible subchain
-	 * @param possibilities the rest of the possible subchains
+	 * @param possibilities the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def randomSwitch(possibility1: (Double, ChainBuilder), possibilities: (Double, ChainBuilder)*): B =
-		randomSwitch(possibility1 :: possibilities.toList, None)
+	def randomSwitch(possibilities: (Double, ChainBuilder)*): B = {
+		require(possibilities.size >= 1, "randomSwitch() requires at least 1 possibility")
+		randomSwitch(possibilities.toList, None)
+	}
 
-	def randomSwitchOrElse(possibility1: (Double, ChainBuilder), possibilities: (Double, ChainBuilder)*)(elseNext: ChainBuilder): B =
-		randomSwitch(possibility1 :: possibilities.toList, Some(elseNext))
+	def randomSwitchOrElse(possibilities: (Double, ChainBuilder)*)(elseNext: ChainBuilder): B = {
+		require(possibilities.size >= 1, "randomSwitchOrElse() requires at least 1 possibility")
+		randomSwitch(possibilities.toList, Some(elseNext))
+	}
 
 	private def randomSwitch(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]): B =
 		exec(new RandomSwitchBuilder(possibilities, elseNext))
 
 	/**
-	 * Add a switch in the chain. Selection uses a random strategy
+	 * Add a switch in the chain. Selection uses a uniformly distributed random strategy
 	 *
-	 * @param possibility1 the first possible subchain
-	 * @param possibility2 the second possible subchain
-	 * @param possibilities the rest of the possible subchains
+	 * @param possibilities the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def randomSwitch(possibility1: ChainBuilder, possibility2: ChainBuilder, possibilities: ChainBuilder*): B = {
+	def uniformRandomSwitch(possibilities: ChainBuilder*): B = {
+		require(possibilities.size >= 2, "uniformRandomSwitch() requires at least 2 possibilities")
 
-		val tailPossibilities = possibility2 :: possibilities.toList
+		val possibility1 :: tailPossibilities = possibilities.toList
 		val basePercentage = 100d / (tailPossibilities.size + 1)
 		val firstPercentage = 100d - basePercentage * tailPossibilities.size
 
@@ -130,10 +136,11 @@ trait ConditionalStatements[B] extends Execs[B] {
 	/**
 	 * Add a switch in the chain. Selection uses a round robin strategy
 	 *
-	 * @param possibility1 a possible subchain
-	 * @param possibilities the rest of the possible subchains
+	 * @param possibilities the possible subchains
 	 * @return a new builder with a random switch added to its actions
 	 */
-	def roundRobinSwitch(possibility1: ChainBuilder, possibilities: ChainBuilder*): B =
-		exec(new RoundRobinSwitchBuilder(possibility1 :: possibilities.toList))
+	def roundRobinSwitch(possibilities: ChainBuilder*): B = {
+		require(possibilities.size >= 1, "roundRobinSwitch() requires at least 1 possibility")
+		exec(new RoundRobinSwitchBuilder(possibilities.toList))
+	}
 }
