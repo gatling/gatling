@@ -15,11 +15,11 @@
  */
 package io.gatling.http.ahc
 
-import java.util.Timer
 import java.util.concurrent.{ Executors, ThreadFactory }
 
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
+import org.jboss.netty.util.HashedWheelTimer
 
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
 import com.ning.http.client.providers.netty.{ NettyAsyncHttpProviderConfig, NettyConnectionsPool }
@@ -79,13 +79,8 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 		}
 	})
 
-	val reaper = Executors.newScheduledThreadPool(Runtime.getRuntime.availableProcessors, new ThreadFactory {
-		override def newThread(r: Runnable): Thread = {
-			val t = new Thread(r, "AsyncHttpClient-Reaper")
-			t.setDaemon(true)
-			t
-		}
-	})
+	val hashedWheelTimer = new HashedWheelTimer
+	hashedWheelTimer.start
 
 	// set up Netty LoggerFactory for slf4j instead of default JDK
 	InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
@@ -95,13 +90,16 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 		configuration.http.ahc.idleConnectionInPoolTimeOutInMs,
 		configuration.http.ahc.maxConnectionLifeTimeInMs,
 		configuration.http.ahc.allowSslConnectionPool,
-		new Timer(true))
+		hashedWheelTimer)
 
-	val config = {
+	val nettyConfig = {
 		val numWorkers = configuration.http.ahc.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
 		val socketChannelFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool, applicationThreadPool, numWorkers)
 		system.registerOnTermination(socketChannelFactory.releaseExternalResources)
-		new NettyAsyncHttpProviderConfig().addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
+		val nettyConfig = new NettyAsyncHttpProviderConfig
+		nettyConfig.addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
+		nettyConfig.setHashedWheelTimer(hashedWheelTimer)
+		nettyConfig
 	}
 
 	val defaultAhcConfig = {
@@ -122,8 +120,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 			.setUserAgent(configuration.http.ahc.userAgent)
 			.setUseRawUrl(configuration.http.ahc.useRawUrl)
 			.setExecutorService(applicationThreadPool)
-			.setScheduledExecutorService(reaper)
-			.setAsyncHttpClientProviderConfig(config)
+			.setAsyncHttpClientProviderConfig(nettyConfig)
 			.setConnectionsPool(connectionsPool)
 			.setRfc6265CookieEncoding(configuration.http.ahc.rfc6265CookieEncoding)
 			.setWebSocketIdleTimeoutInMs(configuration.http.ahc.webSocketIdleTimeoutInMs)
@@ -169,6 +166,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
 		val client = new AsyncHttpClient(ahcConfig)
 		system.registerOnTermination(client.close)
+		system.registerOnTermination(hashedWheelTimer.stop)
 		client
 	}
 
