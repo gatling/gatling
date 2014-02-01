@@ -16,17 +16,23 @@
 package io.gatling.recorder.http
 
 import java.net.InetSocketAddress
-
 import org.jboss.netty.channel.group.DefaultChannelGroup
-
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory.{ newClientBootstrap, newServerBootstrap }
+import io.gatling.recorder.config.RecorderConfiguration
 
-case class HttpProxy(controller: RecorderController, port: Int, sslPort: Int) {
+case class HttpProxy(config: RecorderConfiguration, controller: RecorderController) {
 
-	private val group = new DefaultChannelGroup("Gatling_Recorder")
+	private def port = config.proxy.port
+	private def sslPort = config.proxy.sslPort
+	def outgoingHost = config.proxy.outgoing.host
+	def outgoingPort = config.proxy.outgoing.port
+	def outgoingUsername = config.proxy.outgoing.username
+	def outgoingPassword = config.proxy.outgoing.password
+
 	val clientBootstrap = newClientBootstrap(false)
 	val secureClientBootstrap = newClientBootstrap(true)
+	private val group = new DefaultChannelGroup("Gatling_Recorder")
 	private val serverBootstrap = newServerBootstrap(this, false)
 	private val secureServerBootstrap = newServerBootstrap(this, true)
 

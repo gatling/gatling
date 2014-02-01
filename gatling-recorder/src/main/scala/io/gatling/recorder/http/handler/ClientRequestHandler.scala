@@ -17,15 +17,14 @@ package io.gatling.recorder.http.handler
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import org.jboss.netty.channel.{ Channel, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler }
-import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
+import org.jboss.netty.channel.{Channel, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler}
+import org.jboss.netty.handler.codec.http.{DefaultHttpRequest, HttpRequest}
 
 import com.ning.http.util.Base64
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.http.HeaderNames
-import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.controller.RecorderController
+import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.util.URIHelper
 
 object ClientRequestHandler {
@@ -40,7 +39,7 @@ object ClientRequestHandler {
 	}
 }
 
-abstract class ClientRequestHandler(controller: RecorderController) extends SimpleChannelHandler with StrictLogging {
+abstract class ClientRequestHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
 
 	var _serverChannel: Option[Channel] = None
 
@@ -48,10 +47,10 @@ abstract class ClientRequestHandler(controller: RecorderController) extends Simp
 
 		event.getMessage match {
 			case request: HttpRequest =>
-				configuration.proxy.outgoing.host.map { _ =>
+				proxy.outgoingHost.map { _ =>
 					for {
-						username <- configuration.proxy.outgoing.username
-						password <- configuration.proxy.outgoing.password
+						username <- proxy.outgoingUsername
+						password <- proxy.outgoingPassword
 					} {
 						val proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
 						request.headers.set(HeaderNames.PROXY_AUTHORIZATION, proxyAuth)
@@ -60,7 +59,7 @@ abstract class ClientRequestHandler(controller: RecorderController) extends Simp
 
 				propagateRequest(ctx, request)
 
-				controller.receiveRequest(request)
+				proxy.controller.receiveRequest(request)
 
 			case unknown => logger.warn(s"Received unknown message: $unknown")
 		}

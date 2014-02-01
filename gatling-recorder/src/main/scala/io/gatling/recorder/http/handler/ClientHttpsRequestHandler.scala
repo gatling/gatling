@@ -26,14 +26,13 @@ import org.jboss.netty.handler.ssl.SslHandler
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory
 import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureListener
 import io.gatling.recorder.http.ssl.SSLEngineFactory
 import javax.net.ssl.SSLException
 
-class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(proxy.controller) with StrictLogging {
+class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(proxy) with StrictLogging {
 
 	var targetHostURI: URI = _
 
@@ -63,7 +62,7 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
 
 				case _ =>
 					_serverChannel = None
-					(configuration.proxy.outgoing.host, configuration.proxy.outgoing.port) match {
+					(proxy.outgoingHost, proxy.outgoingPort) match {
 						case (Some(proxyHost), Some(proxyPort)) =>
 							// proxy: have to CONNECT over HTTP, before performing request over HTTPS
 							proxy.clientBootstrap

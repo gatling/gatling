@@ -79,7 +79,7 @@ class RecorderController extends StrictLogging {
 								frontEnd.handleHarExportFailure
 						}
 					case Proxy =>
-						proxy = new HttpProxy(this, config.proxy.port, config.proxy.sslPort)
+						proxy = new HttpProxy(config, this )
 						frontEnd.recordingStarted
 				}
 			}

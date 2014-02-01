@@ -20,16 +20,15 @@ import java.net.{ InetSocketAddress, URI }
 import org.jboss.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpRequest, HttpResponseStatus, HttpVersion }
 
-import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory
 import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureListener
 import io.gatling.recorder.util.URIHelper
 
-class ClientHttpRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(proxy.controller) {
+class ClientHttpRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(proxy) {
 
 	private def writeRequest(request: HttpRequest, serverChannel: Channel) {
-		val relativeRequest = configuration.proxy.outgoing.host.map(_ => request).getOrElse(ClientRequestHandler.buildRequestWithRelativeURI(request))
+		val relativeRequest = proxy.outgoingHost.map(_ => request).getOrElse(ClientRequestHandler.buildRequestWithRelativeURI(request))
 		serverChannel.getPipeline.get(classOf[ServerHttpResponseHandler]).request = request
 		serverChannel.write(relativeRequest)
 	}
@@ -42,8 +41,8 @@ class ClientHttpRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(pr
 				_serverChannel = None
 
 				val (host, port) = (for {
-					proxyHost <- configuration.proxy.outgoing.host
-					proxyPort <- configuration.proxy.outgoing.port
+					proxyHost <- proxy.outgoingHost
+					proxyPort <- proxy.outgoingPort
 				} yield (proxyHost, proxyPort))
 					.getOrElse {
 						// the URI sometimes contains invalid characters, so we truncate as we only need the host and port
