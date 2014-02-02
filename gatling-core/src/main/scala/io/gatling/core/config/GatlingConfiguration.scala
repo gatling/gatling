@@ -57,6 +57,7 @@ object GatlingConfiguration {
 				encoding = config.getString(CONF_CORE_ENCODING),
 				simulationClass = config.getString(CONF_CORE_SIMULATION_CLASS).trimToOption,
 				disableCompiler = config.getBoolean(CONF_CORE_DISABLE_COMPILER),
+				muteMode = config.getBoolean(CONF_CORE_MUTE),
 				extract = ExtractConfiguration(
 					regex = RegexConfiguration(
 						cache = config.getBoolean(CONF_CORE_EXTRACT_REGEXP_CACHE)),
@@ -203,6 +204,7 @@ case class CoreConfiguration(
 	extract: ExtractConfiguration,
 	timeOut: TimeOutConfiguration,
 	directory: DirectoryConfiguration,
+	muteMode: Boolean,
 	zinc: ZincConfiguration) {
 
 	val charSet = Charset.forName(encoding)
