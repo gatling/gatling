@@ -20,7 +20,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.jsonpath.{ BoonParser, CountJsonPathExtractor, JacksonParser, JsonFilter, MultipleJsonPathExtractor, SingleJsonPathExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.core.util.StringHelper.directCharsBasedStringImplementation
+import io.gatling.core.util.StringHelper.{ DirectCharsBasedStringImplementation, stringImplementation }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.{ ByteArrayResponseBodyUsage, InputStreamResponseBodyUsage, Response, ResponseBodyUsageStrategy, StringResponseBodyUsage }
@@ -39,21 +39,24 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 				message.failure
 		}
 
-	val preparer: Preparer[Response, Any] =
-		if (directCharsBasedStringImplementation)
+	val preparer: Preparer[Response, Any] = stringImplementation match {
+
+		case DirectCharsBasedStringImplementation =>
 			handleParseException { response =>
 				if (response.bodyLength <= charsParsingThreashold)
 					BoonParser.parse(response.body.string)
 				else
 					BoonParser.parse(response.body.stream, response.charset)
 			}
-		else
+
+		case _ =>
 			handleParseException { response =>
 				if (response.bodyLength <= charsParsingThreashold)
 					JacksonParser.parse(response.body.bytes, response.charset)
 				else
 					JacksonParser.parse(response.body.stream, response.charset)
 			}
+	}
 
 	val boonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
 		def bodyUsage(bodyLength: Int) =
@@ -71,11 +74,10 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 				InputStreamResponseBodyUsage
 	}
 
-	val responseBodyUsageStrategy =
-		if (directCharsBasedStringImplementation)
-			boonResponseBodyUsageStrategy
-		else
-			jacksonResponseBodyUsageStrategy
+	val responseBodyUsageStrategy = stringImplementation match {
+		case DirectCharsBasedStringImplementation => boonResponseBodyUsageStrategy
+		case _ => jacksonResponseBodyUsageStrategy
+	}
 
 	def jsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
 		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory(responseBodyUsageStrategy), preparer) {

@@ -23,7 +23,7 @@ import scala.util.matching.Regex
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.util.StringHelper.ensureCharCopy
+import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.util.HttpHelper
 
 // FIXME Would it be more efficient to work with Array[Char] instead of String?
@@ -98,7 +98,7 @@ object CssParser extends StrictLogging {
 		val trimmedEnd = trimRight(end)
 
 		if (!broken) {
-			Some(ensureCharCopy(string.substring(trimmedStart, trimmedEnd)))
+			Some(string.substring(trimmedStart, trimmedEnd).ensureTrimmedCharsArray)
 		} else {
 			logger.info(s"css url broken between positions ${string.substring(trimmedStart, trimmedEnd)}")
 			None

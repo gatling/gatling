@@ -21,20 +21,18 @@ import java.util.regex.Matcher
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.util.StringHelper.ensureCharCopy
+import io.gatling.core.util.StringHelper.RichString
 
 trait LowPriorityGroupExtractorImplicits extends StrictLogging {
 
 	implicit val stringGroupExtractor = new GroupExtractor[String] {
-		def extract(matcher: Matcher): String = {
-			val value = matcher.group(matcher.groupCount min 1)
-			ensureCharCopy(value)
-		}
+		def extract(matcher: Matcher): String =
+			matcher.group(matcher.groupCount min 1).ensureTrimmedCharsArray
 	}
 
 	def safeGetGroupValue(matcher: Matcher, i: Int) =
 		if (matcher.groupCount >= i)
-			ensureCharCopy(matcher.group(i))
+			matcher.group(i).ensureTrimmedCharsArray
 		else {
 			logger.error(s"Regex group $i doesn't exist")
 			""
