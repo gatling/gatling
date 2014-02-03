@@ -18,17 +18,17 @@ package io.gatling.charts.template
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.charts.component.RequestStatistics
-import io.gatling.charts.component.Statistics.PrintableStat
+import io.gatling.charts.component.Statistics.printable
 
 class StatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
 
 	def getOutput: Fastring = {
 
-		def style(value: Long) =
+		def style[T: Numeric](value: T) =
 			if (raw) // raw mode is used for JSON extract, non-raw for displaying in the reports
 				value.toString
 			else
-				s""""${value.printable}""""
+				s""""${printable(value)}""""
 
 		fast"""{
     "name": "${stats.name}",

@@ -70,7 +70,7 @@ abstract class Simulation {
 			this
 		}
 
-		def assertions(metrics: Metric*) = {
+		def assertions[T: Numeric](metrics: Metric[T]*) = {
 			_assertions = metrics.flatMap(_.assertions)
 			this
 		}

@@ -18,15 +18,15 @@ package io.gatling.charts.template
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.charts.component.{ GroupedCount, RequestStatistics, Statistics }
-import io.gatling.charts.component.Statistics.PrintableStat
+import io.gatling.charts.component.Statistics.printable
 import io.gatling.core.result.writer.ConsoleSummary.{ newBlock, outputLength, writeSubTitle }
 import io.gatling.core.util.StringHelper.{ eol, RichString }
 
 object ConsoleTemplate {
 
-	def writeRequestCounters(statistics: Statistics): Fastring = {
+	def writeRequestCounters[T: Numeric](statistics: Statistics[T]): Fastring = {
 		import statistics._
-		fast"> ${name.rightPad(outputLength - 32)} ${total.printable.leftPad(7)} (OK=${success.printable.rightPad(6)} KO=${failure.printable.rightPad(6)})"
+		fast"> ${name.rightPad(outputLength - 32)} ${printable(total).leftPad(7)} (OK=${printable(success).rightPad(6)} KO=${printable(failure).rightPad(6)})"
 	}
 	def writeGroupedCounters(groupedCount: GroupedCount): Fastring = {
 		import groupedCount._

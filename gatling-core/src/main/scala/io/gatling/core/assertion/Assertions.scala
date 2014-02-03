@@ -66,18 +66,18 @@ class Requests(requests: (DataReader, Option[Status]) => GeneralStats, status: O
 	def count = Metric(reader => requests(reader, status).count, message("number of requests"))
 }
 
-case class Metric(value: DataReader => Int, name: String, assertions: List[Assertion] = List()) {
-	def assert(assertion: (Int) => Boolean, message: (String, Boolean) => String) = copy(assertions = assertions :+ new Assertion(reader => assertion(value(reader)), result => message(name, result)))
+case class Metric[T: Numeric](value: DataReader => T, name: String, assertions: List[Assertion] = List()) {
+	def assert(assertion: (T) => Boolean, message: (String, Boolean) => String) = copy(assertions = assertions :+ new Assertion(reader => assertion(value(reader)), result => message(name, result)))
 
-	def lessThan(threshold: Int) = assert(_ < threshold, (name, result) => s"$name is less than $threshold : $result")
+	def lessThan(threshold: T) = assert(implicitly[Numeric[T]].lt(_, threshold), (name, result) => s"$name is less than $threshold : $result")
 
-	def greaterThan(threshold: Int) = assert(_ > threshold, (name, result) => s"$name is greater than $threshold : $result")
+	def greaterThan(threshold: T) = assert(implicitly[Numeric[T]].gt(_, threshold), (name, result) => s"$name is greater than $threshold : $result")
 
-	def between(min: Int, max: Int) = assert(value => value >= min && value <= max, (name, result) => s"$name between $min and $max : $result")
+	def between(min: T, max: T) = assert(v => implicitly[Numeric[T]].gteq(v, min) && implicitly[Numeric[T]].lteq(v, max), (name, result) => s"$name between $min and $max : $result")
 
-	def is(v: Int) = assert(_ == v, (name, result) => s"$name is equal to $v : $result")
+	def is(v: T) = assert(_ == v, (name, result) => s"$name is equal to $v : $result")
 
-	def in(set: Set[Int]) = assert(set.contains, (name, result) => s"$name is in $set")
+	def in(set: Set[T]) = assert(set.contains, (name, result) => s"$name is in $set")
 }
 
 object Assertion {
