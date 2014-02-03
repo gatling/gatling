@@ -31,7 +31,7 @@ object Statistics {
 			case _ =>
 				implicitly[Numeric[T]].toDouble(value) match {
 					case d if d >= 1000.0d => d.round.toString
-					case d if d >= 100.0d => f"$d%.2f"
+					case d if d >= 100.0d => f"$d%.1f"
 					case d => f"$d%.2f"
 				}
 		}
