@@ -33,7 +33,7 @@ class StatisticsTableComponent extends Component {
 
 		val pct1 = formatNumberWithSuffix(configuration.charting.indicators.percentile1) + " pct"
 		val pct2 = formatNumberWithSuffix(configuration.charting.indicators.percentile2) + " pct"
-		val responseTimeFields: List[String] = List("Min", "Max", "Mean", "Std Dev", pct1, pct2, "Req/s")
+		val responseTimeFields = Vector("Min", "Max", "Mean", "Std Dev", pct1, pct2, "Req/s")
 
 		fast"""
                         <div class="statistics extensible-geant collapsed">
