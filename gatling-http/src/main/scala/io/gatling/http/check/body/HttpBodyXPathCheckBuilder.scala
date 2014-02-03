@@ -20,7 +20,6 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.check.Preparer
 import io.gatling.core.check.extractor.xpath.{ CountXPathExtractor, MultipleXPathExtractor, SingleXPathExtractor, XPathExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.core.util.UnsyncByteArrayInputStream
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
@@ -30,7 +29,7 @@ object HttpBodyXPathCheckBuilder extends StrictLogging {
 
 	val preparer: Preparer[Response, Option[XdmNode]] = (response: Response) =>
 		try {
-			val root = if (response.hasResponseBody) Some(XPathExtractor.parse(new UnsyncByteArrayInputStream(response.bodyBytes))) else None
+			val root = if (response.hasResponseBody) Some(XPathExtractor.parse(response.body.stream)) else None
 			root.success
 
 		} catch {
@@ -41,7 +40,7 @@ object HttpBodyXPathCheckBuilder extends StrictLogging {
 		}
 
 	def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
-		new HttpMultipleCheckBuilder[Option[XdmNode], String](HttpCheckBuilders.bodyCheckFactory, preparer) {
+		new HttpMultipleCheckBuilder[Option[XdmNode], String](HttpCheckBuilders.streamBodyCheckFactory, preparer) {
 			def findExtractor(occurrence: Int) = expression.map(new SingleXPathExtractor(_, namespaces, occurrence))
 			def findAllExtractor = expression.map(new MultipleXPathExtractor(_, namespaces))
 			def countExtractor = expression.map(new CountXPathExtractor(_, namespaces))

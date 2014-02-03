@@ -35,7 +35,7 @@ object ELFileBodies {
 
 	def compileFile(path: String): Validation[Expression[String]] =
 		Resource.requestBody(path)
-			.map(resource => withCloseable(resource.inputStream)(IOUtils.toString(_, configuration.core.charSet)))
+			.map(resource => withCloseable(resource.inputStream)(IOUtils.toString(_, configuration.core.charset)))
 			.map(_.el[String])
 
 	def asString(filePath: Expression[String]): Expression[String] = session =>

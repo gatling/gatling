@@ -34,7 +34,7 @@ object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
 		val jsonParser = if (directCharsBasedStringImplementation) BoonParser else JacksonParser
 
 		response =>
-			val charBuffer = response.bodyString
+			val charBuffer = response.body.string
 			charBuffer match {
 				case jsonpRegex(jsonp) =>
 					try {
@@ -53,7 +53,7 @@ object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
 	}
 
 	def jsonpJsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
-		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory, jsonpPreparer) {
+		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.stringBodyCheckFactory, jsonpPreparer) {
 			def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
 			def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))
 			def countExtractor = path.map(new CountJsonPathExtractor(_))

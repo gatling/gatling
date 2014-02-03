@@ -37,7 +37,7 @@ trait Body {
 case class StringBody(string: Expression[String]) extends Body {
 
 	def asBytes: ByteArrayBody = {
-		val bytes = (session: Session) => string(session).map(_.getBytes(configuration.core.charSet))
+		val bytes = (session: Session) => string(session).map(_.getBytes(configuration.core.charset))
 		ByteArrayBody(bytes)
 	}
 
@@ -54,7 +54,7 @@ object RawFileBody {
 class RawFileBody(val file: Expression[JFile]) extends Body {
 
 	def asString: StringBody = {
-		val string = (session: Session) => file(session).map(FileUtils.readFileToString(_, configuration.core.charSet))
+		val string = (session: Session) => file(session).map(FileUtils.readFileToString(_, configuration.core.charset))
 		StringBody(string)
 	}
 

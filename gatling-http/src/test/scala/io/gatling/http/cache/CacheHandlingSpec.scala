@@ -20,12 +20,13 @@ import org.specs2.mock.Mockito
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import com.ning.http.client.{ RequestBuilder, Response => AHCResponse }
+import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, HttpResponseStatus, RequestBuilder }
 
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.util.StandardCharsets
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.response.HttpResponse
+import io.gatling.http.response.{ HttpResponse, ResponseBody }
 
 @RunWith(classOf[JUnitRunner])
 class CacheHandlingSpec extends Specification with Mockito {
@@ -39,9 +40,11 @@ class CacheHandlingSpec extends Specification with Mockito {
 		val request = new RequestBuilder().setUrl("http://localhost").build
 
 		def getResponseExpire(headers: Seq[(String, String)]) = {
-			val ahcResponse = mock[AHCResponse].smart
-			headers.foreach { case (name, value) => ahcResponse.getHeader(name) returns value }
-			val response = HttpResponse(request, Some(ahcResponse), -1, -1, -1, -1, Map.empty, Array.empty)
+			val status = mock[HttpResponseStatus].smart
+			val body = mock[ResponseBody].smart
+			val headersMap = new FluentCaseInsensitiveStringsMap
+			headers.foreach { case (name, value) => headersMap.add(name, value) }
+			val response = HttpResponse(request, Some(status), headersMap, body, Map.empty, 0, StandardCharsets.UTF_8, -1, -1, -1, -1)
 
 			CacheHandling.getResponseExpires(http, response)
 		}

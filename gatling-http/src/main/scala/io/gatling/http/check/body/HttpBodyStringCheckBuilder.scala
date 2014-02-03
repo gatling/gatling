@@ -28,7 +28,7 @@ object HttpBodyStringCheckBuilder {
 	}.expression
 
 	val bodyString = new HttpSingleCheckBuilder[String, String](
-		HttpCheckBuilders.bodyCheckFactory,
+		HttpCheckBuilders.stringBodyCheckFactory,
 		HttpCheckBuilders.responseBodyStringPreparer,
 		extractor)
 }

@@ -46,7 +46,7 @@ object FileDataWriter {
 			import runMessage._
 			val description = if (runDescription.isEmpty) FileDataWriter.emptyField else runDescription
 			val string = s"$simulationClassName\t$simulationId\t${RunMessageType.name}\t$timestamp\t$description$eol"
-			string.getBytes(configuration.core.charSet)
+			string.getBytes(configuration.core.charset)
 		}
 	}
 
@@ -55,7 +55,7 @@ object FileDataWriter {
 		def getBytes = {
 			import userMessage._
 			val string = s"$scenarioName\t$userId\t${UserMessageType.name}\t${event.name}\t$startDate\t$endDate$eol"
-			string.getBytes(configuration.core.charSet)
+			string.getBytes(configuration.core.charset)
 		}
 	}
 
@@ -80,7 +80,7 @@ object FileDataWriter {
 
 		def getBytes = {
 			val string = RequestMessageSerializer.serialize(requestMessage).toString
-			string.getBytes(configuration.core.charSet)
+			string.getBytes(configuration.core.charset)
 		}
 	}
 
@@ -103,7 +103,7 @@ object FileDataWriter {
 
 		def getBytes = {
 			val string = GroupMessageSerializer.serialize(groupMessage).toString
-			string.getBytes(configuration.core.charSet)
+			string.getBytes(configuration.core.charset)
 		}
 	}
 }

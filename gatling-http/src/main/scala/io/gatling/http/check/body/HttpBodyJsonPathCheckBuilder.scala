@@ -23,9 +23,11 @@ import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.core.util.StringHelper.directCharsBasedStringImplementation
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
-import io.gatling.http.response.Response
+import io.gatling.http.response.{ ByteArrayResponseBodyUsage, InputStreamResponseBodyUsage, Response, ResponseBodyUsageStrategy, StringResponseBodyUsage }
 
 object HttpBodyJsonPathCheckBuilder extends StrictLogging {
+
+	val charsParsingThreashold = 1000000
 
 	def handleParseException(block: Response => Any) = (response: Response) =>
 		try {
@@ -40,15 +42,43 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 	val preparer: Preparer[Response, Any] =
 		if (directCharsBasedStringImplementation)
 			handleParseException { response =>
-				JacksonParser.parse(response.bodyBytes)
+				if (response.bodyLength <= charsParsingThreashold)
+					BoonParser.parse(response.body.string)
+				else
+					BoonParser.parse(response.body.stream, response.charset)
 			}
 		else
 			handleParseException { response =>
-				BoonParser.parse(response.bodyString)
+				if (response.bodyLength <= charsParsingThreashold)
+					JacksonParser.parse(response.body.bytes, response.charset)
+				else
+					JacksonParser.parse(response.body.stream, response.charset)
 			}
 
+	val boonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
+		def bodyUsage(bodyLength: Int) =
+			if (bodyLength <= charsParsingThreashold)
+				StringResponseBodyUsage
+			else
+				InputStreamResponseBodyUsage
+	}
+
+	val jacksonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
+		def bodyUsage(bodyLength: Int) =
+			if (bodyLength <= charsParsingThreashold)
+				ByteArrayResponseBodyUsage
+			else
+				InputStreamResponseBodyUsage
+	}
+
+	val responseBodyUsageStrategy =
+		if (directCharsBasedStringImplementation)
+			boonResponseBodyUsageStrategy
+		else
+			jacksonResponseBodyUsageStrategy
+
 	def jsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
-		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory, preparer) {
+		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory(responseBodyUsageStrategy), preparer) {
 			def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
 			def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))
 			def countExtractor = path.map(new CountJsonPathExtractor(_))

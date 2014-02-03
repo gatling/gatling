@@ -23,5 +23,5 @@ object StringBodies {
 	def buildExpression[T](expression: Expression[String], f: String => T): Expression[T] = (session: Session) =>
 		expression(session).map(f)
 
-	def asBytes(expression: Expression[String]): Expression[Array[Byte]] = buildExpression(expression, _.getBytes(configuration.core.charSet))
+	def asBytes(expression: Expression[String]): Expression[Array[Byte]] = buildExpression(expression, _.getBytes(configuration.core.charset))
 }

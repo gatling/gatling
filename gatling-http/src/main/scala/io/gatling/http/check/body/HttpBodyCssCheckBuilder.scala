@@ -30,7 +30,7 @@ object HttpBodyCssCheckBuilder extends StrictLogging {
 
 	val preparer: Preparer[Response, NodeSelector] = (response: Response) =>
 		try {
-			CssExtractor.parse(response.bodyString.unsafeChars).success
+			CssExtractor.parse(response.body.string.unsafeChars).success
 
 		} catch {
 			case e: Exception =>
@@ -40,7 +40,7 @@ object HttpBodyCssCheckBuilder extends StrictLogging {
 		}
 
 	def css(expression: Expression[String], nodeAttribute: Option[String]) =
-		new HttpMultipleCheckBuilder[NodeSelector, String](HttpCheckBuilders.bodyCheckFactory, preparer) {
+		new HttpMultipleCheckBuilder[NodeSelector, String](HttpCheckBuilders.stringBodyCheckFactory, preparer) {
 			def findExtractor(occurrence: Int) = expression.map(new SingleCssExtractor(_, nodeAttribute, occurrence))
 			def findAllExtractor = expression.map(new MultipleCssExtractor(_, nodeAttribute))
 			def countExtractor = expression.map(new CountCssExtractor(_, nodeAttribute))

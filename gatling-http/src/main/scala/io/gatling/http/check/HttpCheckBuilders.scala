@@ -15,24 +15,25 @@
  */
 package io.gatling.http.check
 
-import java.nio.CharBuffer
-
 import io.gatling.core.check.{ Check, CheckFactory, Preparer }
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.HttpCheckOrder.{ Body, Checksum, Header, HttpCheckOrder, Status, Url }
-import io.gatling.http.response.Response
+import io.gatling.http.response.{ InputStreamResponseBodyUsageStrategy, Response, ResponseBodyUsageStrategy, StringResponseBodyUsageStrategy }
 
 object HttpCheckBuilders {
 
-	private def httpCheckFactory(order: HttpCheckOrder): CheckFactory[HttpCheck, Response] = (wrapped: Check[Response]) => HttpCheck(wrapped, order)
+	private def httpCheckFactory(order: HttpCheckOrder, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]): CheckFactory[HttpCheck, Response] =
+		(wrapped: Check[Response]) => HttpCheck(wrapped, order, responseBodyUsageStrategy)
 
-	val statusCheckFactory = httpCheckFactory(Status)
-	val urlCheckFactory = httpCheckFactory(Url)
-	val checksumCheckFactory = httpCheckFactory(Checksum)
-	val headerCheckFactory = httpCheckFactory(Header)
-	val bodyCheckFactory = httpCheckFactory(Body)
-	val timeCheckFactory = httpCheckFactory(Body)
+	val statusCheckFactory = httpCheckFactory(Status, None)
+	val urlCheckFactory = httpCheckFactory(Url, None)
+	val checksumCheckFactory = httpCheckFactory(Checksum, None)
+	val headerCheckFactory = httpCheckFactory(Header, None)
+	def bodyCheckFactory(responseBodyUsageStrategy: ResponseBodyUsageStrategy) = httpCheckFactory(Body, Some(responseBodyUsageStrategy))
+	val stringBodyCheckFactory = bodyCheckFactory(StringResponseBodyUsageStrategy)
+	val streamBodyCheckFactory = bodyCheckFactory(InputStreamResponseBodyUsageStrategy)
+	val timeCheckFactory = httpCheckFactory(Body, None)
 
 	val passThroughResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
-	val responseBodyStringPreparer: Preparer[Response, String] = (response: Response) => response.bodyString.success
+	val responseBodyStringPreparer: Preparer[Response, String] = (response: Response) => response.body.string.success
 }

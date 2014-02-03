@@ -15,18 +15,22 @@
  */
 package io.gatling.http.response
 
+import java.nio.charset.Charset
 import java.security.MessageDigest
-import java.util.ArrayList
 
-import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 import scala.math.max
 
-import com.ning.http.client.{ HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
+import org.jboss.netty.buffer.ChannelBuffer
 
+import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
+import com.ning.http.client.providers.netty.ResponseBodyPart
+
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.bytes2Hex
 import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.http.HeaderNames
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckOrder.Body
 import io.gatling.http.check.checksum.ChecksumCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml }
@@ -35,18 +39,23 @@ object ResponseBuilder {
 
 	val emptyBytes = Array.empty[Byte]
 
+	val emptyHeaders = new FluentCaseInsensitiveStringsMap
+
 	def newResponseBuilderFactory(checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer], protocol: HttpProtocol): ResponseBuilderFactory = {
 
 		val checksumChecks = checks.collect {
 			case checksumCheck: ChecksumCheck => checksumCheck
 		}
 
-		val storeBodyParts = !protocol.discardResponseChunks || checks.exists(_.order == Body)
-		request: Request => new ResponseBuilder(request, checksumChecks, responseTransformer, storeBodyParts, protocol.fetchHtmlResources)
+		val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy).toSet
+
+		val storeBodyParts = !protocol.discardResponseChunks || !responseBodyUsageStrategies.isEmpty
+
+		request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, protocol.fetchHtmlResources)
 	}
 }
 
-class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], responseProcessor: Option[ResponseTransformer], storeBodyParts: Boolean, fetchHtmlResources: Boolean) {
+class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bodyUsageStrategies: Set[ResponseBodyUsageStrategy], responseProcessor: Option[ResponseTransformer], storeBodyParts: Boolean, fetchHtmlResources: Boolean) {
 
 	val computeChecksums = !checksumChecks.isEmpty
 	var storeHtmlOrCss = false
@@ -54,10 +63,12 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 	var lastByteSent = 0L
 	var firstByteReceived = 0L
 	var lastByteReceived = 0L
-	private var status: HttpResponseStatus = _
-	private var headers: HttpResponseHeaders = _
-	private val bodies = new ArrayList[HttpResponseBodyPart]
-	private var digests: Map[String, MessageDigest] =
+	private var status: Option[HttpResponseStatus] = None
+	private var headers: FluentCaseInsensitiveStringsMap = ResponseBuilder.emptyHeaders
+	private val chunks = new ArrayBuffer[ChannelBuffer]
+	private var digests: Map[String, MessageDigest] = initDigests()
+
+	def initDigests(): Map[String, MessageDigest] =
 		if (computeChecksums)
 			checksumChecks.foldLeft(Map.empty[String, MessageDigest]) { (map, check) =>
 				map + (check.algorithm -> MessageDigest.getInstance(check.algorithm))
@@ -74,6 +85,10 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 		lastByteSent = 0L
 		firstByteReceived = 0L
 		lastByteReceived = 0L
+		status = None
+		headers = ResponseBuilder.emptyHeaders
+		chunks.clear
+		digests = initDigests()
 	}
 
 	def updateLastByteSent {
@@ -85,14 +100,14 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 	}
 
 	def accumulate(status: HttpResponseStatus) {
-		this.status = status
+		this.status = Some(status)
 		val now = nowMillis
 		firstByteReceived = now
 		lastByteReceived = now
 	}
 
 	def accumulate(headers: HttpResponseHeaders) {
-		this.headers = headers
+		this.headers = headers.getHeaders
 		storeHtmlOrCss = fetchHtmlResources && (isHtml(headers.getHeaders) || isCss(headers.getHeaders))
 		updateLastByteReceived
 	}
@@ -100,8 +115,14 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 	def accumulate(bodyPart: HttpResponseBodyPart) {
 
 		updateLastByteReceived
-		if (storeBodyParts || storeHtmlOrCss) bodies.add(bodyPart)
-		if (computeChecksums) digests.values.foreach(_.update(bodyPart.getBodyPartBytes))
+
+		val channelBuffer = bodyPart.asInstanceOf[ResponseBodyPart].getChannelBuffer
+
+		if (storeBodyParts || storeHtmlOrCss)
+			chunks += channelBuffer
+
+		if (computeChecksums)
+			digests.values.foreach(_.update(channelBuffer.toByteBuffer))
 	}
 
 	def build: Response = {
@@ -114,23 +135,32 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], res
 		firstByteReceived = max(firstByteReceived, lastByteSent)
 		// ensure response doesn't end before starting
 		lastByteReceived = max(lastByteReceived, firstByteReceived)
-		val ahcResponse = Option(status).map(_.provider.prepareResponse(status, headers, bodies))
+
 		val checksums = digests.foldLeft(Map.empty[String, String]) { (map, entry) =>
 			val (algo, md) = entry
 			map + (algo -> bytes2Hex(md.digest))
 		}
 
-		val bytes = ahcResponse match {
-			case Some(r) => r.getResponseBodyAsBytes
-			case None => ResponseBuilder.emptyBytes
-		}
+		val bodyLength = chunks.map(_.readableBytes).sum
 
-		bodies.clear
+		val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
 
-		val rawResponse = HttpResponse(request, ahcResponse, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived, checksums, bytes)
+		val charset = Option(headers.getFirstValue(HeaderNames.CONTENT_ENCODING)).map(Charset.forName).getOrElse(configuration.core.charset)
+
+		val body: ResponseBody =
+			if (bodyUsages.contains(ByteArrayResponseBodyUsage))
+				ByteArrayResponseBody(chunks, charset)
+
+			else if (bodyUsages.contains(InputStreamResponseBodyUsage) || bodyUsages.isEmpty)
+				InputStreamResponseBody(chunks, charset)
+
+			else
+				StringResponseBody(chunks, charset)
+
+		val rawResponse = HttpResponse(request, status, headers, body, checksums, bodyLength, charset, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
 
 		responseProcessor match {
-			case Some(processor) => processor.applyOrElse(rawResponse, identity[Response])
+			case Some(processor) if processor.isDefinedAt(rawResponse) => processor.apply(rawResponse)
 			case _ => rawResponse
 		}
 	}

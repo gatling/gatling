@@ -58,7 +58,7 @@ object AsyncHandlerActor extends AkkaDefaults {
 		case _ => throw new UnsupportedOperationException("AsyncHandlerActor pool hasn't been started")
 	}
 
-	def updateCookies(tx: HttpTx, response: Response): Session => Session = CookieHandling.storeCookies(_, response.uri, response.cookies.toList)
+	def updateCookies(tx: HttpTx, response: Response): Session => Session = CookieHandling.storeCookies(_, response.uri, response.cookies)
 	def updateCache(tx: HttpTx, response: Response): Session => Session = CacheHandling.cache(tx.protocol, _, tx.request, response)
 	val fail: Session => Session = _.markAsFailed
 }
@@ -131,11 +131,6 @@ class AsyncHandlerActor extends BaseActor {
 	 */
 	private def executeNext(tx: HttpTx, sessionUpdates: Session => Session, status: Status, response: Response) {
 
-		def statusCode() =
-			if (response.isReceived)
-				Some(response.statusCode)
-			else None
-
 		def regularExecuteNext() {
 			val updatedSession = sessionUpdates(tx.session)
 			tx.next ! updatedSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
@@ -145,7 +140,7 @@ class AsyncHandlerActor extends BaseActor {
 		if (tx.resourceFetching) {
 			val resourceMessage =
 				if (isCss(response.headers))
-					CssResourceFetched(response.request.getOriginalURI, status, sessionUpdates, response.statusCode, ResourceFetcher.lastModifiedOrEtag(response, tx.protocol), response.bodyString)
+					CssResourceFetched(response.request.getOriginalURI, status, sessionUpdates, response.statusCode, ResourceFetcher.lastModifiedOrEtag(response, tx.protocol), response.body.string)
 
 				else
 					RegularResourceFetched(response.request.getOriginalURI, status, sessionUpdates)
@@ -200,7 +195,8 @@ class AsyncHandlerActor extends BaseActor {
 
 				logRequest(newTx, OK, response)
 
-				val redirectURI = resolveFromURI(tx.request.getURI, response.header(HeaderNames.LOCATION))
+				// FIXME handle error when redirect without location?
+				val redirectURI = resolveFromURI(tx.request.getURI, response.header(HeaderNames.LOCATION).get)
 
 				val requestBuilder = new RequestBuilder(tx.request)
 					.setMethod("GET")
@@ -237,11 +233,12 @@ class AsyncHandlerActor extends BaseActor {
 		if (response.isRedirected && tx.protocol.followRedirect)
 			redirect(updateWithUpdatedCookies)
 		else {
-			val checks =
-				if (response.statusCode == 304)
+			val checks = response.status match {
+				case Some(status) if status.getStatusCode == 304 =>
 					tx.checks.filter(c => c.order != HttpCheckOrder.Body && c.order != HttpCheckOrder.Checksum)
-				else
+				case _ =>
 					tx.checks
+			}
 			checkAndProceed(updateWithUpdatedCookies, checks)
 		}
 	}

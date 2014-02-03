@@ -77,17 +77,16 @@ package object util {
 
 		def appendResponse(response: Response) = {
 
-			response.ahcResponse.map { r =>
-				if (r.hasResponseStatus)
-					buff.append("status=").append(eol).append(r.getStatusCode).append(" ").append(r.getStatusText).append(eol)
+			response.status.foreach { status =>
+				buff.append("status=").append(eol).append(status.getStatusCode).append(" ").append(status.getStatusText).append(eol)
 
-				if (r.hasResponseHeaders) {
+				if (!response.headers.isEmpty) {
 					buff.append("headers= ").append(eol)
-					buff.appendAHCStringsMap(r.getHeaders).append(eol)
+					buff.appendAHCStringsMap(response.headers).append(eol)
 				}
 
 				if (response.hasResponseBody)
-					buff.append("body=").append(eol).append(response.bodyString)
+					buff.append("body=").append(eol).append(response.body.string)
 			}
 
 			buff

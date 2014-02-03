@@ -50,7 +50,7 @@ object FileHelper {
 			}
 
 			val md = MessageDigest.getInstance("md5")
-			md.update(trimmed.getBytes(configuration.core.charSet))
+			md.update(trimmed.getBytes(configuration.core.charset))
 			trimmed.clean + "-" + bytes2Hex(md.digest)
 		}
 

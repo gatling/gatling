@@ -13,11 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.checksum
+package io.gatling.core.util
 
-import io.gatling.core.check.Check
-import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckOrder.Checksum
-import io.gatling.http.response.Response
+import java.nio.charset.Charset
 
-class ChecksumCheck(val algorithm: String, wrapped: Check[Response]) extends HttpCheck(wrapped, Checksum, None)
+object StandardCharsets {
+
+	val UTF_8 = Charset.forName("UTF-8")
+	val UTF_16 = Charset.forName("UTF-16")
+	val UTF_32 = Charset.forName("UTF-32")
+}

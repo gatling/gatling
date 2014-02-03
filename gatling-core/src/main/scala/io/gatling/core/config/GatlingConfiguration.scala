@@ -207,8 +207,8 @@ case class CoreConfiguration(
 	muteMode: Boolean,
 	zinc: ZincConfiguration) {
 
-	val charSet = Charset.forName(encoding)
-	val codec: Codec = charSet
+	val charset = Charset.forName(encoding)
+	val codec: Codec = charset
 }
 
 case class TimeOutConfiguration(

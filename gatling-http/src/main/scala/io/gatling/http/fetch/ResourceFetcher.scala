@@ -17,7 +17,6 @@ package io.gatling.http.fetch
 
 import java.net.URI
 
-import scala.annotation.switch
 import scala.collection.JavaConversions._
 import scala.collection.concurrent
 import scala.collection.mutable
@@ -48,7 +47,7 @@ sealed trait ResourceFetched {
 	def sessionUpdates: Session => Session
 }
 case class RegularResourceFetched(uri: URI, status: Status, sessionUpdates: Session => Session) extends ResourceFetched
-case class CssResourceFetched(uri: URI, status: Status, sessionUpdates: Session => Session, statusCode: Int, lastModifiedOrEtag: Option[String], content: String) extends ResourceFetched
+case class CssResourceFetched(uri: URI, status: Status, sessionUpdates: Session => Session, statusCode: Option[Int], lastModifiedOrEtag: Option[String], content: String) extends ResourceFetched
 
 case class InferredPageResources(expire: String, requests: List[NamedRequest])
 
@@ -77,7 +76,7 @@ object ResourceFetcher extends StrictLogging {
 
 	def lastModifiedOrEtag(response: Response, protocol: HttpProtocol): Option[String] =
 		if (protocol.cache)
-			response.headerSafe(HeaderNames.LAST_MODIFIED).orElse(response.headerSafe(HeaderNames.ETAG))
+			response.header(HeaderNames.LAST_MODIFIED).orElse(response.header(HeaderNames.ETAG))
 		else
 			None
 
@@ -87,11 +86,11 @@ object ResourceFetcher extends StrictLogging {
 		val protocol = tx.protocol
 
 		def pageResourcesRequests(): List[NamedRequest] =
-			pageResources(htmlDocumentURI, protocol.htmlResourcesFetchingFilters, response.bodyString.unsafeChars)
+			pageResources(htmlDocumentURI, protocol.htmlResourcesFetchingFilters, response.body.string.unsafeChars)
 				.flatMap(_.toRequest(protocol, tx.throttled))
 
-		val inferredResources: List[NamedRequest] = (response.statusCode: @switch) match {
-			case 200 =>
+		val inferredResources: List[NamedRequest] = response.statusCode match {
+			case Some(200) =>
 				lastModifiedOrEtag(response, protocol) match {
 					case Some(newLastModifiedOrEtag) =>
 						inferredResourcesCache.get(protocol, htmlDocumentURI) match {
@@ -111,7 +110,7 @@ object ResourceFetcher extends StrictLogging {
 						pageResourcesRequests()
 				}
 
-			case 304 =>
+			case Some(304) =>
 				// no content, retrieve from cache if exist
 				inferredResourcesCache.get(protocol, htmlDocumentURI) match {
 					case Some(inferredPageResources) => inferredPageResources.requests
@@ -178,7 +177,7 @@ class ResourceFetcher(tx: HttpTx, initialResources: Iterable[NamedRequest]) exte
 		logger.info(s"Fetching resource ${request.ahcRequest.getURI} from cache")
 		// FIXME check if it's a css this way or use the Content-Type?
 		val resourceFetched = if (ResourceFetcher.cssContentCache.contains(request.ahcRequest.getURI))
-			CssResourceFetched(request.ahcRequest.getURI, OK, identity, 0, None, "")
+			CssResourceFetched(request.ahcRequest.getURI, OK, identity, None, None, "")
 		else
 			RegularResourceFetched(request.ahcRequest.getURI, OK, identity)
 
@@ -272,15 +271,15 @@ class ResourceFetcher(tx: HttpTx, initialResources: Iterable[NamedRequest]) exte
 		}
 	}
 
-	def cssFetched(uri: URI, status: Status, statusCode: Int, lastModifiedOrEtag: Option[String], content: String) {
+	def cssFetched(uri: URI, status: Status, statusCode: Option[Int], lastModifiedOrEtag: Option[String], content: String) {
 
 		val protocol = tx.protocol
 
 		if (status == OK) {
 			// this css might contain some resources
 
-			val rawCssResources: List[NamedRequest] = (statusCode: @switch) match {
-				case 200 =>
+			val rawCssResources: List[NamedRequest] = statusCode match {
+				case Some(200) =>
 					// try to get from cache
 					lastModifiedOrEtag match {
 						case Some(newLastModifiedOrEtag) =>
@@ -301,7 +300,7 @@ class ResourceFetcher(tx: HttpTx, initialResources: Iterable[NamedRequest]) exte
 							ResourceFetcher.cssResources(uri, protocol.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
 					}
 
-				case 304 =>
+				case Some(304) =>
 					// no content, retrieve from cache if exist
 					ResourceFetcher.inferredResourcesCache.get(protocol, uri) match {
 						case Some(inferredPageResources) => inferredPageResources.requests

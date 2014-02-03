@@ -16,18 +16,38 @@
 package io.gatling.http.response
 
 import java.net.URI
+import java.nio.charset.Charset
 
-import scala.collection.JavaConversions.asScalaBuffer
+import scala.Vector
+import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet }
+import scala.collection.mutable.ArrayBuffer
 
-import com.ning.http.client.{ Cookie, FluentCaseInsensitiveStringsMap, Request => AHCRequest, Response => AHCResponse }
+import com.ning.http.client.{ Cookie, FluentCaseInsensitiveStringsMap, HttpResponseStatus, Request => AHCRequest }
+import com.ning.org.jboss.netty.handler.codec.http.CookieDecoder
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.http.HeaderNames
 
 trait Response {
 
 	def request: AHCRequest
-	def ahcResponse: Option[AHCResponse]
 	def isReceived: Boolean
+
+	def status: Option[HttpResponseStatus]
+	def statusCode: Option[Int]
+	def isRedirected: Boolean
+	def uri: URI
+
+	def header(name: String): Option[String]
+	def headers: FluentCaseInsensitiveStringsMap
+	def headers(name: String): Seq[String]
+	def cookies: List[Cookie]
+
+	def checksums: Map[String, String]
+	def checksum(algorithm: String): Option[String]
+	def hasResponseBody: Boolean
+	def body: ResponseBody
+	def bodyLength: Int
+	def charset: Charset
 
 	def firstByteSent: Long
 	def lastByteSent: Long
@@ -35,68 +55,84 @@ trait Response {
 	def lastByteReceived: Long
 	def reponseTimeInMillis: Long
 	def latencyInMillis: Long
+}
 
-	def statusCode: Int
-	def statusText: String
-	def isRedirected: Boolean
-	def uri: URI
+object HttpResponse {
 
-	def header(name: String): String
-	def headers: FluentCaseInsensitiveStringsMap
-	def headers(name: String): Seq[String]
-	def headerSafe(name: String): Option[String]
-	def headersSafe(name: String): Seq[String]
-	def contentType: String
-	def cookies: Seq[Cookie]
-
-	def checksums: Map[String, String]
-	def checksum(algorithm: String): Option[String]
-	def hasResponseBody: Boolean
-	def bodyString: String
-	def bodyBytes: Array[Byte]
+	val redirectStatusCodes = Vector(301, 302, 303, 307, 308)
 }
 
 case class HttpResponse(
 	request: AHCRequest,
-	ahcResponse: Option[AHCResponse],
+	status: Option[HttpResponseStatus],
+	headers: FluentCaseInsensitiveStringsMap,
+	body: ResponseBody,
+	checksums: Map[String, String],
+	bodyLength: Int,
+	charset: Charset,
 	firstByteSent: Long,
 	lastByteSent: Long,
 	firstByteReceived: Long,
-	lastByteReceived: Long,
-	checksums: Map[String, String],
-	bodyBytes: Array[Byte]) extends Response {
+	lastByteReceived: Long) extends Response {
 
-	def isReceived = ahcResponse.isDefined
+	def isReceived = status.isDefined
+	val statusCode = status.map(_.getStatusCode)
 
 	def reponseTimeInMillis = lastByteReceived - firstByteSent
 	def latencyInMillis = firstByteReceived - firstByteReceived
 
-	def statusCode = receivedResponse.getStatusCode
-	def statusText = receivedResponse.getStatusText
-	def isRedirected = ahcResponse.map(_.isRedirected).getOrElse(false)
-	def uri = receivedResponse.getUri
+	val isRedirected = status match {
+		case Some(s) if HttpResponse.redirectStatusCodes.contains(s.getStatusCode) => true
+		case _ => false
+	}
+	def uri = status.map(_.getUrl).getOrElse(throw new UnsupportedOperationException("Response not built"))
 
-	def header(name: String) = receivedResponse.getHeader(name)
-	def headers = receivedResponse.getHeaders
-	def headers(name: String) = receivedResponse.getHeaders(name)
-	def headerSafe(name: String): Option[String] = ahcResponse.flatMap(r => Option(r.getHeader(name)))
-	def headersSafe(name: String): Seq[String] = ahcResponse.flatMap(r => Option(r.getHeaders(name))).map(_.toSeq).getOrElse(Nil)
-	def contentType = receivedResponse.getContentType
-	def cookies = receivedResponse.getCookies
+	def header(name: String): Option[String] = Option(headers.getFirstValue(name))
+	def headers(name: String): Seq[String] = Option(headers.get(name)) match {
+		case Some(h) => h.toSeq
+		case _ => Nil
+	}
+	lazy val cookies =
+		if (headers.isEmpty) {
+			Nil
+		} else {
+			val buffer = new ArrayBuffer[Cookie]
+
+			headers.entrySet.foreach { entry =>
+				if (entry.getKey.equalsIgnoreCase(HeaderNames.SET_COOKIE))
+					entry.getValue.foreach { string =>
+						buffer ++= CookieDecoder.decode(string)
+					}
+			}
+
+			buffer.toList
+		}
 
 	def checksum(algorithm: String) = checksums.get(algorithm)
-	def hasResponseBody = bodyBytes.length != 0
-	lazy val bodyString = new String(bodyBytes, configuration.core.charSet)
-
-	private def receivedResponse = ahcResponse.getOrElse(throw new IllegalStateException("Response was not built"))
-	override def toString = ahcResponse.toString
+	def hasResponseBody = bodyLength != 0
 }
 
-class DelegatingReponse(delegate: Response) extends Response {
+class ReponseWrapper(delegate: Response) extends Response {
 
 	def request: AHCRequest = delegate.request
-	def ahcResponse = delegate.ahcResponse
 	def isReceived = delegate.isReceived
+
+	def status = delegate.status
+	def statusCode = delegate.statusCode
+	def isRedirected = delegate.isRedirected
+	def uri = delegate.uri
+
+	def header(name: String) = delegate.header(name)
+	def headers = delegate.headers
+	def headers(name: String) = delegate.headers(name)
+	def cookies = delegate.cookies
+
+	def checksums = delegate.checksums
+	def checksum(algorithm: String) = delegate.checksum(algorithm)
+	def hasResponseBody = delegate.hasResponseBody
+	def body = delegate.body
+	def bodyLength = delegate.bodyLength
+	def charset = delegate.charset
 
 	def firstByteSent = delegate.firstByteSent
 	def lastByteSent = delegate.lastByteSent
@@ -104,23 +140,4 @@ class DelegatingReponse(delegate: Response) extends Response {
 	def lastByteReceived = delegate.lastByteReceived
 	def reponseTimeInMillis = delegate.reponseTimeInMillis
 	def latencyInMillis = delegate.latencyInMillis
-
-	def statusCode = delegate.statusCode
-	def statusText = delegate.statusText
-	def isRedirected = delegate.isRedirected
-	def uri = delegate.uri
-
-	def header(name: String) = delegate.header(name)
-	def headers = delegate.headers
-	def headers(name: String) = delegate.headers(name)
-	def headerSafe(name: String) = delegate.headerSafe(name)
-	def headersSafe(name: String) = delegate.headersSafe(name)
-	def contentType = delegate.contentType
-	def cookies = delegate.cookies
-
-	def checksums = delegate.checksums
-	def checksum(algorithm: String) = delegate.checksum(algorithm)
-	def hasResponseBody = delegate.hasResponseBody
-	def bodyBytes = delegate.bodyBytes
-	def bodyString = delegate.bodyString
 }

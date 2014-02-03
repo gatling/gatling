@@ -21,7 +21,7 @@ import io.gatling.core.check.Check
 import io.gatling.core.session.Session
 import io.gatling.core.validation.Validation
 import io.gatling.http.check.HttpCheckOrder.HttpCheckOrder
-import io.gatling.http.response.Response
+import io.gatling.http.response.{ Response, ResponseBodyUsageStrategy }
 
 /**
  * This class serves as model for the HTTP-specific checks
@@ -29,7 +29,7 @@ import io.gatling.http.response.Response
  * @param wrapped the underlying check
  * @param order the check priority
  */
-case class HttpCheck(wrapped: Check[Response], order: HttpCheckOrder) extends Check[Response] with Ordered[HttpCheck] {
+case class HttpCheck(wrapped: Check[Response], order: HttpCheckOrder, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]) extends Check[Response] with Ordered[HttpCheck] {
 	def check(response: Response, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[Session => Session] = wrapped.check(response, session)
 	def compare(that: HttpCheck) = order.compare(that.order)
 }

@@ -15,18 +15,26 @@
  */
 package io.gatling.core.check.extractor.jsonpath
 
-import org.boon.json.implementation.{ JsonParserCharArray, JsonFastParser }
+import java.io.{ InputStream, InputStreamReader }
+import java.nio.charset.Charset
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import org.boon.json.implementation.{ JsonFastParser, JsonParserUsingCharacterSource }
 
 object BoonParser extends JsonParser {
 
-	def newLazyChopParser = {
-		val jsonParser = new JsonFastParser(false, false, true, false)
-		jsonParser.setCharset(configuration.core.charSet)
-		jsonParser
+	def parse(bytes: Array[Byte], charset: Charset) = {
+		val parser = new JsonFastParser(false, false, true, false)
+		parser.setCharset(charset)
+		parser.parse(bytes)
 	}
 
-	def parse(bytes: Array[Byte]) = newLazyChopParser.parse(bytes)
-	def parse(string: String) = newLazyChopParser.parse(string)
+	def parse(string: String) = {
+		val parser = new JsonFastParser(false, false, true, false)
+		parser.parse(string)
+	}
+
+	def parse(stream: InputStream, charset: Charset) = {
+		val parser = new JsonParserUsingCharacterSource
+		parser.parse(new InputStreamReader(stream, charset))
+	}
 }

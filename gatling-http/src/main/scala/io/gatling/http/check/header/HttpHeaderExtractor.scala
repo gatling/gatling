@@ -31,7 +31,7 @@ object HttpHeaderExtractor {
 		else
 			headerValue
 
-	def decodedHeaders(response: Response, headerName: String): Seq[String] = response.headersSafe(headerName).map(decode(headerName, _))
+	def decodedHeaders(response: Response, headerName: String): Seq[String] = response.headers(headerName).map(decode(headerName, _))
 }
 
 abstract class HttpHeaderExtractor[X] extends CriterionExtractor[Response, String, X] { val criterionName = "header" }
@@ -39,7 +39,7 @@ abstract class HttpHeaderExtractor[X] extends CriterionExtractor[Response, Strin
 class SingleHttpHeaderExtractor(val criterion: String, occurrence: Int) extends HttpHeaderExtractor[String] {
 
 	def extract(prepared: Response): Validation[Option[String]] =
-		prepared.headersSafe(criterion).lift(occurrence).map(HttpHeaderExtractor.decode(criterion, _)).success
+		prepared.headers(criterion).lift(occurrence).map(HttpHeaderExtractor.decode(criterion, _)).success
 }
 
 class MultipleHttpHeaderExtractor(val criterion: String) extends HttpHeaderExtractor[Seq[String]] {
@@ -51,5 +51,5 @@ class MultipleHttpHeaderExtractor(val criterion: String) extends HttpHeaderExtra
 class CountHttpHeaderExtractor(val criterion: String) extends HttpHeaderExtractor[Int] {
 
 	def extract(prepared: Response): Validation[Option[Int]] =
-		prepared.headersSafe(criterion).liftSeqOption.map(_.size).success
+		prepared.headers(criterion).liftSeqOption.map(_.size).success
 }
