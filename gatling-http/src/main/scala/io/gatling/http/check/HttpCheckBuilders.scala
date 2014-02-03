@@ -18,7 +18,7 @@ package io.gatling.http.check
 import io.gatling.core.check.{ Check, CheckFactory, Preparer }
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.HttpCheckOrder.{ Body, Checksum, Header, HttpCheckOrder, Status, Url }
-import io.gatling.http.response.{ InputStreamResponseBodyUsageStrategy, Response, ResponseBodyUsageStrategy, StringResponseBodyUsageStrategy }
+import io.gatling.http.response.{ ByteArrayResponseBodyUsageStrategy, InputStreamResponseBodyUsageStrategy, Response, ResponseBodyUsageStrategy, StringResponseBodyUsageStrategy }
 
 object HttpCheckBuilders {
 
@@ -32,6 +32,7 @@ object HttpCheckBuilders {
 	def bodyCheckFactory(responseBodyUsageStrategy: ResponseBodyUsageStrategy) = httpCheckFactory(Body, Some(responseBodyUsageStrategy))
 	val stringBodyCheckFactory = bodyCheckFactory(StringResponseBodyUsageStrategy)
 	val streamBodyCheckFactory = bodyCheckFactory(InputStreamResponseBodyUsageStrategy)
+	val bytesBodyCheckFactory = bodyCheckFactory(ByteArrayResponseBodyUsageStrategy)
 	val timeCheckFactory = httpCheckFactory(Body, None)
 
 	val passThroughResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
