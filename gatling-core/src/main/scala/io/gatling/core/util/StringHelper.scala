@@ -64,8 +64,8 @@ object StringHelper {
 
 			string => {
 				val value = unsafe.getObject(string, stringValueFieldOffset).asInstanceOf[Array[Char]]
-				val offset = unsafe.getObject(string, stringOffsetFieldOffset).asInstanceOf[Int]
-				val count = unsafe.getObject(string, stringCountFieldOffset).asInstanceOf[Int]
+				val offset = unsafe.getInt(string, stringOffsetFieldOffset)
+				val count = unsafe.getInt(string, stringCountFieldOffset)
 
 				if (offset == 0 && count == value.length)
 					// no need to copy
