@@ -4,8 +4,8 @@ import scala.concurrent.duration.{ Duration, DurationLong }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
+import io.gatling.http.util.HttpHelper
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.util.RedirectHelper
 import io.gatling.recorder.util.collection.RichSeq
 
 case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
@@ -14,7 +14,7 @@ case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
 
 object ScenarioDefinition extends StrictLogging {
 
-	private def isRedirection(t: (Long, RequestElement)) = RedirectHelper.isRedirectCode(t._2.statusCode)
+	private def isRedirection(t: (Long, RequestElement)) = HttpHelper.isRedirect(t._2.statusCode)
 
 	private def filterRedirection(requests: Seq[(Long, RequestElement)]): List[(Long, RequestElement)] = {
 		val groupedRequests = requests.groupAsLongAs(isRedirection)

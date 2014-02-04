@@ -18,7 +18,6 @@ package io.gatling.http.response
 import java.net.URI
 import java.nio.charset.Charset
 
-import scala.Vector
 import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet }
 import scala.collection.mutable.ArrayBuffer
 
@@ -26,6 +25,7 @@ import com.ning.http.client.{ Cookie, FluentCaseInsensitiveStringsMap, HttpRespo
 import com.ning.org.jboss.netty.handler.codec.http.CookieDecoder
 
 import io.gatling.http.HeaderNames
+import io.gatling.http.util.HttpHelper
 
 trait Response {
 
@@ -34,7 +34,7 @@ trait Response {
 
 	def status: Option[HttpResponseStatus]
 	def statusCode: Option[Int]
-	def isRedirected: Boolean
+	def isRedirect: Boolean
 	def uri: URI
 
 	def header(name: String): Option[String]
@@ -57,11 +57,6 @@ trait Response {
 	def latencyInMillis: Long
 }
 
-object HttpResponse {
-
-	val redirectStatusCodes = Vector(301, 302, 303, 307, 308)
-}
-
 case class HttpResponse(
 	request: AHCRequest,
 	status: Option[HttpResponseStatus],
@@ -81,8 +76,8 @@ case class HttpResponse(
 	def reponseTimeInMillis = lastByteReceived - firstByteSent
 	def latencyInMillis = firstByteReceived - firstByteReceived
 
-	val isRedirected = status match {
-		case Some(s) if HttpResponse.redirectStatusCodes.contains(s.getStatusCode) => true
+	val isRedirect = status match {
+		case Some(s) if HttpHelper.isRedirect(s.getStatusCode) => true
 		case _ => false
 	}
 	def uri = status.map(_.getUrl).getOrElse(throw new UnsupportedOperationException("Response not built"))
@@ -119,7 +114,7 @@ class ReponseWrapper(delegate: Response) extends Response {
 
 	def status = delegate.status
 	def statusCode = delegate.statusCode
-	def isRedirected = delegate.isRedirected
+	def isRedirect = delegate.isRedirect
 	def uri = delegate.uri
 
 	def header(name: String) = delegate.header(name)

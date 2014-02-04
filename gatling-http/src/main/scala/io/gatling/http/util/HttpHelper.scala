@@ -126,4 +126,7 @@ object HttpHelper extends StrictLogging {
 				logger.error("Failed to resolve URI", e)
 				None
 		}
+
+	val redirectStatusCodes = Vector(301, 302, 303, 307, 308)
+	def isRedirect(statusCode: Int) = redirectStatusCodes.contains(statusCode)
 }

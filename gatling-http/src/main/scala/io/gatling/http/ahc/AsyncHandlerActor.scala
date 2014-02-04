@@ -230,7 +230,7 @@ class AsyncHandlerActor extends BaseActor {
 
 		val updateWithUpdatedCookies = AsyncHandlerActor.updateCookies(tx, response)
 
-		if (response.isRedirected && tx.protocol.followRedirect)
+		if (response.isRedirect && tx.protocol.followRedirect)
 			redirect(updateWithUpdatedCookies)
 		else {
 			val checks = response.status match {
