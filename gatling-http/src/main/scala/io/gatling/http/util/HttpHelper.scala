@@ -44,7 +44,7 @@ object HttpHelper extends StrictLogging {
 			.map(_.split("=", 2))
 			.map { pair =>
 				val paramName = utf8Decode(pair(0))
-				val paramValue = if (pair.isDefinedAt(1)) utf8Decode(pair(1)) else ""
+				val paramValue = if (pair.length > 1) utf8Decode(pair(1)) else ""
 				paramName -> paramValue
 			}(breakOut)
 	}

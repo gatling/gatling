@@ -160,7 +160,7 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bod
 		val rawResponse = HttpResponse(request, status, headers, body, checksums, bodyLength, charset, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
 
 		responseProcessor match {
-			case Some(processor) if processor.isDefinedAt(rawResponse) => processor.apply(rawResponse)
+			case Some(processor) => processor.applyOrElse(rawResponse, identity[Response])
 			case _ => rawResponse
 		}
 	}
