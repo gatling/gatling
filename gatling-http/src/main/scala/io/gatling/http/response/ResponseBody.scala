@@ -70,8 +70,17 @@ object ResponseBody {
 				getBytes(headChunk, readerIndex, readableBytes)
 
 		case _ =>
-			val composite = ChannelBuffers.wrappedBuffer(chunks.map(_.duplicate): _*)
+			val composite = ChannelBuffers.wrappedBuffer(chunks: _*)
 			getBytes(composite, composite.readerIndex, composite.readableBytes)
+	}
+
+	def chunks2String(chunks: Seq[ChannelBuffer], charset: Charset): String = (chunks.size: @switch) match {
+
+		case 0 => ""
+
+		case 1 => chunks.head.toString(charset)
+
+		case _ => ChannelBuffers.wrappedBuffer(chunks: _*).toString(charset)
 	}
 }
 
@@ -84,8 +93,8 @@ sealed trait ResponseBody {
 object StringResponseBody {
 
 	def apply(chunks: Seq[ChannelBuffer], charset: Charset) = {
-		val bytes = ResponseBody.chunks2Bytes(chunks)
-		new StringResponseBody(new String(bytes, charset), charset)
+		val string = ResponseBody.chunks2String(chunks, charset)
+		new StringResponseBody(string, charset)
 	}
 }
 
@@ -111,6 +120,8 @@ case class ByteArrayResponseBody(bytes: Array[Byte], charset: Charset) extends R
 
 case class InputStreamResponseBody(chunks: Seq[ChannelBuffer], charset: Charset) extends ResponseBody {
 
+	var bytesLoaded = false
+
 	def stream() = (chunks.size: @switch) match {
 
 		case 0 => new UnsyncByteArrayInputStream(ResponseBody.emptyBytes)
@@ -123,7 +134,15 @@ case class InputStreamResponseBody(chunks: Seq[ChannelBuffer], charset: Charset)
 			new ChannelBufferInputStream(composite)
 	}
 
-	lazy val bytes = ResponseBody.chunks2Bytes(chunks)
+	lazy val bytes = {
+		bytesLoaded = true
+		ResponseBody.chunks2Bytes(chunks)
+	}
 
-	lazy val string = new String(bytes, charset)
+	lazy val string = {
+		if (bytesLoaded)
+		    new String(bytes, charset)
+		else
+			ResponseBody.chunks2String(chunks, charset)
+	}
 }
