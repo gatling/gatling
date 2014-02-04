@@ -60,7 +60,7 @@ object Gatling {
 		val cliOptsParser = new OptionParser[Unit]("gatling") {
 			help(HELP).abbr(HELP_SHORT).text("Show help (this message) and exit")
 			opt[Unit](NO_REPORTS).abbr(NO_REPORTS_SHORT).foreach(_ => props.noReports).text("Runs simulation but does not generate reports")
-			opt[Unit](MUTE).abbr(MUTE_SHORT).foreach(_ => props.mute).text("Runs in mute mode : don't asks for run description nor simulation ID, use defaults").hidden()
+			opt[Unit](MUTE).abbr(MUTE_SHORT).foreach(_ => props.mute).text("Runs in mute mode: don't asks for run description nor simulation ID, use defaults").hidden()
 			opt[String](REPORTS_ONLY).abbr(REPORTS_ONLY_SHORT).foreach(props.reportsOnly).valueName("<directoryName>").text("Generates the reports for the simulation in <directoryName>")
 			opt[String](DATA_FOLDER).abbr(DATA_FOLDER_SHORT).foreach(props.dataDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where feeders are stored")
 			opt[String](RESULTS_FOLDER).abbr(RESULTS_FOLDER_SHORT).foreach(props.resultsDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where results are stored")
@@ -167,7 +167,7 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
 			val start = currentTimeMillis
 			val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader)
 			println(s"Reports generated in ${(currentTimeMillis - start) / 1000}s.")
-			println(s"Please open the following file : $indexFile")
+			println(s"Please open the following file: $indexFile")
 		}
 
 		val simulations = simulationClass.map(List(_)).getOrElse {

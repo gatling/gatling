@@ -103,7 +103,7 @@ class AsyncHandlerActor extends BaseActor {
 		}
 
 		if (status == KO) {
-			logger.warn(s"Request '$fullRequestName' failed : ${errorMessage.getOrElse("")}")
+			logger.warn(s"Request '$fullRequestName' failed: ${errorMessage.getOrElse("")}")
 			if (!logger.underlying.isTraceEnabled) logger.debug(dump)
 		}
 		logger.trace(dump)

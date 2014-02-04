@@ -109,7 +109,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
 	/* Layout setup */
 	val root = new BorderPanel {
-		/* Top panel : Gatling logo & Recorder mode */
+		/* Top panel: Gatling logo & Recorder mode */
 		val top = new BorderPanel {
 			val logo = new CenterAlignedFlowPanel { contents += new Label { icon = logoSmall } }
 			val modeSelection = new GridBagPanel {
@@ -120,13 +120,13 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 			layout(logo) = West
 			layout(modeSelection) = East
 		}
-		/* Center panel : network config or har import, simulation config, output config & filters */
+		/* Center panel: network config or har import, simulation config, output config & filters */
 		val center = new BoxPanel(Orientation.Vertical) {
 			val network = new BorderPanel {
 				border = titledBorder("Network")
 
 				val localProxy = new LeftAlignedFlowPanel {
-					contents += new Label("Listening port* : ")
+					contents += new Label("Listening port*: ")
 					contents += new Label("    localhost")
 					contents += new Label("HTTP")
 					contents += localProxyHttpPort
@@ -135,7 +135,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
 				}
 				val outgoingProxy = new LeftAlignedFlowPanel {
-					contents += new Label("Outgoing proxy : ")
+					contents += new Label("Outgoing proxy: ")
 					contents += new Label("host:")
 					contents += outgoingProxyHost
 					contents += new Label("HTTP")
@@ -156,7 +156,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 				visible = false
 
 				val fileSelection = new LeftAlignedFlowPanel {
-					contents += new Label("HAR File : ")
+					contents += new Label("HAR File: ")
 					contents += harPath
 					contents += harFileBrowserButton
 				}
@@ -191,7 +191,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 				border = titledBorder("Output")
 
 				val folderSelection = new LeftAlignedFlowPanel {
-					contents += new Label("Output folder* : ")
+					contents += new Label("Output folder*: ")
 					contents += outputFolderPath
 					contents += outputFolderBrowserButton
 				}
@@ -248,7 +248,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 			contents += outputConfig
 			contents += filters
 		}
-		/* Bottom panel : Save preferences & start recording/ export HAR */
+		/* Bottom panel: Save preferences & start recording/ export HAR */
 		val bottom = new RightAlignedFlowPanel {
 			contents += savePreferences
 			contents += start
@@ -269,7 +269,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 	/**           EVENTS HANDLING           **/
 	/*****************************************/
 
-	/* Reactions I : handling filters table edition and switching between Proxy and HAR mode */
+	/* Reactions I: handling filters table edition and switching between Proxy and HAR mode */
 	listenTo(filterStrategies.selection, modeSelector.selection)
 	// Backticks are needed to match the components, see section 8.1.5 of Scala spec.
 	reactions += {
@@ -294,7 +294,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 		blackListTable.setFocusable(enabled)
 	}
 
-	/* Reactions II : fields validation */
+	/* Reactions II: fields validation */
 	listenTo(localProxyHttpPort.keys, localProxyHttpsPort.keys)
 	listenTo(outgoingProxyHost.keys, outgoingProxyHttpPort.keys, outgoingProxyHttpsPort.keys)
 	listenTo(outputFolderPath.keys, simulationClassName.keys)

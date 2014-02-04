@@ -32,7 +32,7 @@ class Selector(stats: (DataReader, Option[Status]) => GeneralStats, name: String
 
 	def successfulRequests = new Requests(stats, Some(OK), name)
 
-	def requestsPerSec = Metric(reader => stats(reader, None).meanRequestsPerSec, s"$name : requests per second")
+	def requestsPerSec = Metric(reader => stats(reader, None).meanRequestsPerSec, s"$name: requests per second")
 }
 
 object ResponseTime {
@@ -41,17 +41,17 @@ object ResponseTime {
 }
 
 class ResponseTime(responseTime: DataReader => GeneralStats, name: String) {
-	def min = Metric(reader => responseTime(reader).min, s"$name : min response time")
+	def min = Metric(reader => responseTime(reader).min, s"$name: min response time")
 
-	def max = Metric(reader => responseTime(reader).max, s"$name : max response time")
+	def max = Metric(reader => responseTime(reader).max, s"$name: max response time")
 
-	def mean = Metric(reader => responseTime(reader).mean, s"$name : mean response time")
+	def mean = Metric(reader => responseTime(reader).mean, s"$name: mean response time")
 
-	def stdDev = Metric(reader => responseTime(reader).stdDev, s"$name : standard deviation response time")
+	def stdDev = Metric(reader => responseTime(reader).stdDev, s"$name: standard deviation response time")
 
-	def percentile1 = Metric(reader => responseTime(reader).percentile1, s"$name : ${ResponseTime.percentile1} percentile response time")
+	def percentile1 = Metric(reader => responseTime(reader).percentile1, s"$name: ${ResponseTime.percentile1} percentile response time")
 
-	def percentile2 = Metric(reader => responseTime(reader).percentile2, s"$name : ${ResponseTime.percentile2} percentile response time")
+	def percentile2 = Metric(reader => responseTime(reader).percentile2, s"$name: ${ResponseTime.percentile2} percentile response time")
 }
 
 class Requests(requests: (DataReader, Option[Status]) => GeneralStats, status: Option[Status], name: String) {
@@ -69,13 +69,13 @@ class Requests(requests: (DataReader, Option[Status]) => GeneralStats, status: O
 case class Metric[T: Numeric](value: DataReader => T, name: String, assertions: List[Assertion] = List()) {
 	def assert(assertion: (T) => Boolean, message: (String, Boolean) => String) = copy(assertions = assertions :+ new Assertion(reader => assertion(value(reader)), result => message(name, result)))
 
-	def lessThan(threshold: T) = assert(implicitly[Numeric[T]].lt(_, threshold), (name, result) => s"$name is less than $threshold : $result")
+	def lessThan(threshold: T) = assert(implicitly[Numeric[T]].lt(_, threshold), (name, result) => s"$name is less than $threshold: $result")
 
-	def greaterThan(threshold: T) = assert(implicitly[Numeric[T]].gt(_, threshold), (name, result) => s"$name is greater than $threshold : $result")
+	def greaterThan(threshold: T) = assert(implicitly[Numeric[T]].gt(_, threshold), (name, result) => s"$name is greater than $threshold: $result")
 
-	def between(min: T, max: T) = assert(v => implicitly[Numeric[T]].gteq(v, min) && implicitly[Numeric[T]].lteq(v, max), (name, result) => s"$name between $min and $max : $result")
+	def between(min: T, max: T) = assert(v => implicitly[Numeric[T]].gteq(v, min) && implicitly[Numeric[T]].lteq(v, max), (name, result) => s"$name between $min and $max: $result")
 
-	def is(v: T) = assert(_ == v, (name, result) => s"$name is equal to $v : $result")
+	def is(v: T) = assert(_ == v, (name, result) => s"$name is equal to $v: $result")
 
 	def in(set: Set[T]) = assert(set.contains, (name, result) => s"$name is in $set")
 }

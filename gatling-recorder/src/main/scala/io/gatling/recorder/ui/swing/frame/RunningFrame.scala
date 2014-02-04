@@ -65,12 +65,12 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 
 	/* Layout setup */
 	val root = new BorderPanel {
-		/* Top panel : Add tag, clear status, cancel recording, save simulation */
+		/* Top panel: Add tag, clear status, cancel recording, save simulation */
 		val top = new BorderPanel {
 			border = titledBorder("Controls")
 
 			val tag = new LeftAlignedFlowPanel {
-				contents += new Label("Tag :")
+				contents += new Label("Tag:")
 				contents += tagField
 				contents += tagButton
 			}
@@ -86,7 +86,7 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 			layout(clear) = Center
 			layout(cancelStop) = East
 		}
-		/* Center panel : events info, request/response headers & body */
+		/* Center panel: events info, request/response headers & body */
 		val center = new BorderPanel {
 			val elements = new BorderPanel {
 				border = titledBorder("Executed Events")
@@ -109,7 +109,7 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 			layout(responses) = East
 
 		}
-		/* Bottom panel : Secured hosts requiring certificates */
+		/* Bottom panel: Secured hosts requiring certificates */
 		val bottom = new BorderPanel {
 			border = titledBorder("Secured hosts requiring accepting a certificate:")
 
