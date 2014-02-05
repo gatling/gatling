@@ -34,8 +34,8 @@ trait Response {
 
 	def status: Option[HttpResponseStatus]
 	def statusCode: Option[Int]
+	def uri: Option[URI]
 	def isRedirect: Boolean
-	def uri: URI
 
 	def header(name: String): Option[String]
 	def headers: FluentCaseInsensitiveStringsMap
@@ -77,10 +77,10 @@ case class HttpResponse(
 	def latencyInMillis = firstByteReceived - firstByteReceived
 
 	val isRedirect = status match {
-		case Some(s) if HttpHelper.isRedirect(s.getStatusCode) => true
+		case Some(s) => HttpHelper.isRedirect(s.getStatusCode)
 		case _ => false
 	}
-	def uri = status.map(_.getUrl).getOrElse(throw new UnsupportedOperationException("Response not built"))
+	def uri = status.map(_.getUrl)
 
 	def header(name: String): Option[String] = Option(headers.getFirstValue(name))
 	def headers(name: String): Seq[String] = Option(headers.get(name)) match {

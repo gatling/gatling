@@ -15,7 +15,7 @@
  */
 package io.gatling.http.ahc
 
-import scala.collection.JavaConversions.asScalaBuffer
+import scala.concurrent.duration.DurationInt
 
 import com.ning.http.client.{ FluentStringsMap, RequestBuilder }
 
@@ -39,6 +39,7 @@ import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.Response
+import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }
 import io.gatling.http.util.HttpStringBuilder
 
@@ -58,18 +59,31 @@ object AsyncHandlerActor extends AkkaDefaults {
 		case _ => throw new UnsupportedOperationException("AsyncHandlerActor pool hasn't been started")
 	}
 
-	def updateCookies(tx: HttpTx, response: Response): Session => Session = CookieHandling.storeCookies(_, response.uri, response.cookies)
 	def updateCache(tx: HttpTx, response: Response): Session => Session = CacheHandling.cache(tx.protocol, _, tx.request, response)
 	val fail: Session => Session = _.markAsFailed
+
+	val timeout = configuration.core.timeOut.simulation seconds
 }
 
 class AsyncHandlerActor extends BaseActor {
 
+	override def preStart {
+		context.setReceiveTimeout(AsyncHandlerActor.timeout)
+	}
+
 	override def preRestart(reason: Throwable, message: Option[Any]) {
-		logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
-		message.foreach {
-			case OnCompleted(tx, _) => tx.next ! tx.session.markAsFailed
-			case OnThrowable(tx, _, _) => tx.next ! tx.session.markAsFailed
+
+		message match {
+			case Some(OnCompleted(tx, _)) =>
+				logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
+				tx.next ! tx.session.markAsFailed
+
+			case Some(OnThrowable(tx, _, _)) =>
+				logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
+				tx.next ! tx.session.markAsFailed
+
+			case _ =>
+				logger.error(s"AsyncHandlerActor crashed on unknow message $message, dropping")
 		}
 	}
 
@@ -228,18 +242,26 @@ class AsyncHandlerActor extends BaseActor {
 			}
 		}
 
-		val updateWithUpdatedCookies = AsyncHandlerActor.updateCookies(tx, response)
+		response.status match {
 
-		if (response.isRedirect && tx.protocol.followRedirect)
-			redirect(updateWithUpdatedCookies)
-		else {
-			val checks = response.status match {
-				case Some(status) if status.getStatusCode == 304 =>
-					tx.checks.filter(c => c.order != HttpCheckOrder.Body && c.order != HttpCheckOrder.Checksum)
-				case _ =>
-					tx.checks
-			}
-			checkAndProceed(updateWithUpdatedCookies, checks)
+			case Some(status) =>
+				val updateWithUpdatedCookies: Session => Session = CookieHandling.storeCookies(_, status.getUrl, response.cookies)
+
+				if (HttpHelper.isRedirect(status.getStatusCode) && tx.protocol.followRedirect)
+					redirect(updateWithUpdatedCookies)
+
+				else {
+					val checks =
+						if (HttpHelper.isNotModified(status.getStatusCode))
+							tx.checks.filter(c => c.order != HttpCheckOrder.Body && c.order != HttpCheckOrder.Checksum)
+						else
+							tx.checks
+
+					checkAndProceed(updateWithUpdatedCookies, checks)
+				}
+
+			case None =>
+				ko(tx, identity, response, "How come OnComplete was sent with no status?!")
 		}
 	}
 }

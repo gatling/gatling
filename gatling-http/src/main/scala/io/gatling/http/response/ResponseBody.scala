@@ -141,7 +141,7 @@ case class InputStreamResponseBody(chunks: Seq[ChannelBuffer], charset: Charset)
 
 	lazy val string = {
 		if (bytesLoaded)
-		    new String(bytes, charset)
+			new String(bytes, charset)
 		else
 			ResponseBody.chunks2String(chunks, charset)
 	}

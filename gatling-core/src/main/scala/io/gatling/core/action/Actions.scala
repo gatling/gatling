@@ -44,10 +44,12 @@ trait Chainable extends Action {
 	def next: ActorRef
 
 	override def preRestart(reason: Throwable, message: Option[Any]) {
-		logger.error(s"Action $this crashed on message $message, forwarding user to the next one", reason)
 		message.foreach {
-			case session: Session => next ! session.markAsFailed
+			case session: Session =>
+				logger.error(s"Action $this crashed on session $message, forwarding to the next one", reason)
+				next ! session.markAsFailed
 			case _ =>
+				logger.error(s"Action $this crashed on unknow message $message, dropping", reason)
 		}
 	}
 }

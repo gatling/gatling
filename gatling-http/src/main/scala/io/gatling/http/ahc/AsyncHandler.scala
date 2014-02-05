@@ -34,11 +34,12 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
 	private var done = false
 
 	def onRequestSent {
-		responseBuilder.updateFirstByteSent
+		if (!done) responseBuilder.updateFirstByteSent
 	}
 
 	def onRetry {
-		responseBuilder.reset
+		if (!done) responseBuilder.reset
+		else logger.error("onRetry is not supposed to be called once done")
 	}
 
 	def onHeaderWriteCompleted = {

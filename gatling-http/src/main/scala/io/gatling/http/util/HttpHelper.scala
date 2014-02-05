@@ -129,4 +129,5 @@ object HttpHelper extends StrictLogging {
 
 	val redirectStatusCodes = Vector(301, 302, 303, 307, 308)
 	def isRedirect(statusCode: Int) = redirectStatusCodes.contains(statusCode)
+	def isNotModified(statusCode: Int) = statusCode == 304
 }
