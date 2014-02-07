@@ -21,6 +21,8 @@ import scala.annotation.tailrec
 
 import com.ning.http.client.cookie.Cookie
 
+import io.gatling.core.util.TimeHelper.nowMillis
+
 object CookieJar {
 
 	// rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
@@ -60,7 +62,8 @@ object CookieJar {
 
 case class CookieJar(store: Map[String, List[Cookie]]) {
 
-	private val MAX_AGE_UNSPECIFIED = -1L
+	private val MAX_AGE_UNSPECIFIED = -1
+	private val EXPIRES_UNSPECIFIED = -1L
 
 	def add(domain: String, cookies: List[Cookie]) = {
 		def cookiesEquals(c1: Cookie, c2: Cookie) = c1.getName.equalsIgnoreCase(c2.getName) && c1.getDomain == c2.getDomain && c1.getPath == c2.getPath
@@ -73,7 +76,11 @@ case class CookieJar(store: Map[String, List[Cookie]]) {
 				addOrReplaceCookies(moreNewCookies, updatedCookies)
 		}
 
-		def hasExpired(c: Cookie): Boolean = c.getMaxAge != MAX_AGE_UNSPECIFIED && c.getMaxAge <= 0
+		def hasExpired(c: Cookie): Boolean = {
+			val maxAge = c.getMaxAge
+			val expires = c.getExpires
+			(maxAge != MAX_AGE_UNSPECIFIED && maxAge <= 0) || (expires != EXPIRES_UNSPECIFIED && expires <= nowMillis)
+		}
 
 		val newCookies = addOrReplaceCookies(cookies, store.get(domain).getOrElse(Nil))
 		val nonExpiredCookies = newCookies.filterNot(hasExpired)
