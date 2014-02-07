@@ -26,7 +26,7 @@ trait Validator[A] {
 	def apply(actual: Option[A]): Validation[Option[A]]
 }
 
-sealed abstract class Matcher[A, E] extends Validator[A] {
+abstract class Matcher[A, E] extends Validator[A] {
 	def expected: E
 	def doMatch(actual: Option[A]): Validation[Option[A]]
 	def apply(actual: Option[A]): Validation[Option[A]] =
@@ -37,7 +37,7 @@ sealed abstract class Matcher[A, E] extends Validator[A] {
 
 class IsMatcher[E](val expected: E) extends Matcher[E, E] {
 
-	val name = s"is($expected)"
+	def name = s"is($expected)"
 
 	def doMatch(actual: Option[E]): Validation[Option[E]] = actual match {
 		case Some(actualValue) =>
@@ -49,10 +49,9 @@ class IsMatcher[E](val expected: E) extends Matcher[E, E] {
 	}
 }
 
-// TODO RENAME to IsNotMatcher
 class NotMatcher[E](val expected: E) extends Matcher[E, E] {
 
-	val name = s"not($expected)"
+	def name = s"not($expected)"
 
 	def doMatch(actual: Option[E]): Validation[Option[E]] = actual match {
 		case Some(actualValue) =>
@@ -66,7 +65,7 @@ class NotMatcher[E](val expected: E) extends Matcher[E, E] {
 
 class InMatcher[E](val expected: Seq[E]) extends Matcher[E, Seq[E]] {
 
-	val name = s"in(${expected.mkString(",")})"
+	def name = expected.mkString("in(", ",", ")")
 
 	def doMatch(actual: Option[E]): Validation[Option[E]] = actual match {
 		case Some(actualValue) =>
@@ -80,7 +79,7 @@ class InMatcher[E](val expected: Seq[E]) extends Matcher[E, Seq[E]] {
 
 class CompareMatcher[E](val comparisonName: String, message: String, compare: (E, E) => Boolean, val expected: E) extends Matcher[E, E] {
 
-	val name = s"$comparisonName($expected)"
+	def name = s"$comparisonName($expected)"
 
 	def doMatch(actual: Option[E]): Validation[Option[E]] = actual match {
 		case Some(actualValue) =>
