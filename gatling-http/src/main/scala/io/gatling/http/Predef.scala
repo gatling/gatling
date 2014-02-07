@@ -17,7 +17,7 @@ package io.gatling.http
 
 import io.gatling.core.result.message.{ KO, Status }
 import io.gatling.core.session.{ Expression, RichExpression, Session }
-import io.gatling.http.action.AddCookieBuilder
+import io.gatling.http.action.{ AddCookieBuilder, CookieDSL }
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.config.HttpProtocolBuilder
 import io.gatling.http.cookie.CookieHandling
@@ -35,7 +35,7 @@ object Predef extends HttpCheckSupport {
 	val Proxy = io.gatling.http.config.HttpProxyBuilder.apply _
 
 	def http(requestName: Expression[String]) = new HttpRequestBaseBuilder(requestName)
-	def addCookie(name: Expression[String], value: Expression[String], domain: Option[Expression[String]] = None, path: Option[Expression[String]] = None, expires: Long = -1L, maxAge: Int = -1) = new AddCookieBuilder(name, value, domain, path, expires, maxAge)
+	def addCookie(cookie: CookieDSL) = new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.expires.getOrElse(-1L), cookie.maxAge.getOrElse(-1))
 	def flushSessionCookies = CookieHandling.flushSessionCookies
 	def flushCookieJar = CookieHandling.flushCookieJar
 	def flushCache = CacheHandling.flushCache
@@ -55,6 +55,8 @@ object Predef extends HttpCheckSupport {
 		case KO => List(session.toString)
 		case _ => Nil
 	}
+
+	def Cookie = CookieDSL
 
 	def ELFileBody = io.gatling.http.request.ELFileBody
 	def StringBody = io.gatling.http.request.StringBody

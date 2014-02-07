@@ -195,7 +195,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.exec(http("Ajout au panier").get("/").check(regexTyped[(String, String)](session => """<input id="(.*)" type="text" value="(.*)" />""").saveAs("input")))
 		.pause(pause1)
 		.exec(flushSessionCookies)
-		.exec(addCookie("foo", "bar"))
+		.exec(addCookie(Cookie("foo", "bar").withDomain("/")))
 		.doSwitch("${foo}")(
 			"a" -> exec(http("a").get("/")),
 			"b" -> exec(http("b").get("/")))

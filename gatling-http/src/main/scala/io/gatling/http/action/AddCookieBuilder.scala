@@ -28,6 +28,18 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling.storeCookie
 
+case class CookieDSL(name: Expression[String], value: Expression[String],
+	domain: Option[Expression[String]] = None,
+	path: Option[Expression[String]] = None,
+	expires: Option[Long] = None,
+	maxAge: Option[Int] = None) {
+
+	def withDomain(domain: Expression[String]) = copy(domain = Some(domain))
+	def withPath(path: Expression[String]) = copy(path = Some(path))
+	def withExpires(expires: Long) = copy(expires = Some(expires))
+	def withMaxAge(maxAge: Int) = copy(maxAge = Some(maxAge))
+}
+
 object AddCookieBuilder {
 
 	val noBaseUrlFailure = "Neither cookie domain nor baseURL".failure
