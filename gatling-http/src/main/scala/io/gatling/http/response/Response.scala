@@ -21,8 +21,8 @@ import java.nio.charset.Charset
 import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet }
 import scala.collection.mutable.ArrayBuffer
 
-import com.ning.http.client.{ Cookie, FluentCaseInsensitiveStringsMap, HttpResponseStatus, Request => AHCRequest }
-import com.ning.org.jboss.netty.handler.codec.http.CookieDecoder
+import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, HttpResponseStatus, Request => AHCRequest }
+import com.ning.http.client.cookie.{ Cookie, CookieDecoder }
 
 import io.gatling.http.HeaderNames
 import io.gatling.http.util.HttpHelper
@@ -96,7 +96,7 @@ case class HttpResponse(
 			headers.entrySet.foreach { entry =>
 				if (entry.getKey.equalsIgnoreCase(HeaderNames.SET_COOKIE))
 					entry.getValue.foreach { string =>
-						buffer ++= CookieDecoder.decode(string)
+						buffer += CookieDecoder.decode(string)
 					}
 			}
 

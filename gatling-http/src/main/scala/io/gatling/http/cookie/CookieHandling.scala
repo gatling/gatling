@@ -16,7 +16,7 @@
 package io.gatling.http.cookie
 
 import java.net.URI
-import com.ning.http.client.Cookie
+import com.ning.http.client.cookie.Cookie
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.validation.{ Success, SuccessWrapper }
 import io.gatling.core.session.Expression

@@ -17,7 +17,7 @@ package io.gatling.http.action
 
 import java.net.URI
 
-import com.ning.http.client.Cookie
+import com.ning.http.client.cookie.Cookie
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
@@ -44,7 +44,7 @@ object AddCookieBuilder {
 	val defaultPath: Expression[String] = _ => rootSuccess
 }
 
-class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Int) extends HttpActionBuilder {
+class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], expires: Long, maxAge: Int) extends HttpActionBuilder {
 
 	def build(next: ActorRef, protocols: Protocols) = {
 
@@ -56,7 +56,7 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 			value <- value(session)
 			domain <- resolvedDomain(session)
 			path <- resolvedPath(session)
-			cookie = new Cookie(domain, name, value, path, maxAge, false)
+			cookie = new Cookie(name, value, value, domain, path, expires, maxAge, false, false)
 		} yield storeCookie(session, cookie)
 
 		actor(new SessionHook(expression, next))

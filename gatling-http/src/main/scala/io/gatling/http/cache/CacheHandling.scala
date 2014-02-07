@@ -16,12 +16,9 @@
 package io.gatling.http.cache
 
 import java.net.URI
-import java.text.ParsePosition
-
-import scala.annotation.tailrec
 
 import com.ning.http.client.Request
-import com.ning.http.util.AsyncHttpProviderUtils
+import com.ning.http.client.date.RFC2616DateParser
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.session.{ Expression, Session, SessionPrivateAttributes }
@@ -29,6 +26,7 @@ import io.gatling.core.util.NumberHelper.extractLongValue
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.{ HeaderNames, HeaderValues }
+import io.gatling.http.ahc.JodaTimeConverter
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.Response
 
@@ -83,24 +81,10 @@ object CacheHandling extends StrictLogging {
 			} else
 				s
 
+		// FIXME use offset instead of 2 substrings
 		val trimmedTimeString = removeQuote(timestring.trim)
-		val sdfs = AsyncHttpProviderUtils.get
 
-		@tailrec
-		def parse(i: Int): Option[Long] = {
-			if (i == sdfs.length) {
-				logger.debug(s"Not a valid expire field $trimmedTimeString")
-				None
-			} else {
-				val date = sdfs(i).parse(trimmedTimeString, new ParsePosition(0))
-				if (date != null)
-					Some(date.getTime)
-				else
-					parse(i + 1)
-			}
-		}
-
-		parse(0)
+		Option(new RFC2616DateParser(trimmedTimeString).parse).map(JodaTimeConverter.toTime)
 	}
 
 	def extractMaxAgeValue(s: String): Option[Long] = {

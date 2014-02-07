@@ -122,9 +122,11 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 			.setExecutorService(applicationThreadPool)
 			.setAsyncHttpClientProviderConfig(nettyConfig)
 			.setConnectionsPool(connectionsPool)
-			.setRfc6265CookieEncoding(configuration.http.ahc.rfc6265CookieEncoding)
 			.setWebSocketIdleTimeoutInMs(configuration.http.ahc.webSocketIdleTimeoutInMs)
 			.setUseRelativeURIsWithSSLProxies(configuration.http.ahc.useRelativeURIsWithSSLProxies)
+
+		// FIXME chain when upgrading AHC 1.8.3
+		ahcConfigBuilder.setTimeConverter(JodaTimeConverter)
 
 		val trustManagers = configuration.http.ssl.trustStore
 			.map(config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm))

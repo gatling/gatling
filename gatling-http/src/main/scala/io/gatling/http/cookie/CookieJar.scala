@@ -19,7 +19,7 @@ import java.net.URI
 
 import scala.annotation.tailrec
 
-import com.ning.http.client.Cookie
+import com.ning.http.client.cookie.Cookie
 
 object CookieJar {
 
@@ -94,19 +94,15 @@ case class CookieJar(store: Map[String, List[Cookie]]) {
 
 			if (cookieDomain != cookie.getDomain || cookiePath != cookie.getPath)
 				new Cookie(
-					cookieDomain,
 					cookie.getName,
 					cookie.getValue,
 					cookie.getRawValue,
+					cookieDomain,
 					cookiePath,
+					cookie.getExpires,
 					cookie.getMaxAge,
 					cookie.isSecure,
-					cookie.getVersion,
-					cookie.isHttpOnly,
-					cookie.isDiscard,
-					cookie.getComment,
-					cookie.getCommentUrl,
-					cookie.getPorts)
+					cookie.isHttpOnly)
 			else
 				cookie
 		} filter {

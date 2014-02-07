@@ -35,7 +35,7 @@ object Predef extends HttpCheckSupport {
 	val Proxy = io.gatling.http.config.HttpProxyBuilder.apply _
 
 	def http(requestName: Expression[String]) = new HttpRequestBaseBuilder(requestName)
-	def addCookie(name: Expression[String], value: Expression[String], domain: Option[Expression[String]] = None, path: Option[Expression[String]] = None, maxAge: Int = -1) = new AddCookieBuilder(name, value, domain, path, maxAge)
+	def addCookie(name: Expression[String], value: Expression[String], domain: Option[Expression[String]] = None, path: Option[Expression[String]] = None, expires: Long = -1L, maxAge: Int = -1) = new AddCookieBuilder(name, value, domain, path, expires, maxAge)
 	def flushSessionCookies = CookieHandling.flushSessionCookies
 	def flushCookieJar = CookieHandling.flushCookieJar
 	def flushCache = CacheHandling.flushCache
