@@ -119,7 +119,7 @@
 		<xerces.version>2.11.0</xerces.version>
 		<xml-apis.version>1.4.01</xml-apis.version>
 		<logback.version>1.0.13</logback.version>
-		<slf4j.version>1.7.5</slf4j.version>
+		<slf4j.version>1.7.6</slf4j.version>
 		<scalate.version>1.6.1</scalate.version>
 		<netty.version>3.8.0.Final</netty.version>
 		<joda-time.version>2.3</joda-time.version>
