@@ -147,7 +147,6 @@ object GatlingConfiguration {
 					useProxyProperties = config.getBoolean(CONF_HTTP_AHC_USE_PROXY_PROPERTIES),
 					userAgent = config.getString(CONF_HTTP_AHC_USER_AGENT),
 					useRawUrl = config.getBoolean(CONF_HTTP_AHC_USE_RAW_URL),
-					rfc6265CookieEncoding = config.getBoolean(CONF_HTTP_AHC_RFC6265_COOKIE_ENCODING),
 					webSocketIdleTimeoutInMs = config.getInt(CONF_HTTP_AHC_WEBSOCKET_IDLE_TIMEOUT_IN_MS),
 					useRelativeURIsWithSSLProxies = config.getBoolean(CONF_HTTP_AHC_USE_RELATIVE_URIS_WITH_SSL_PROXIES))),
 			data = DataConfiguration(
@@ -306,7 +305,6 @@ case class AHCConfiguration(
 	useProxyProperties: Boolean,
 	userAgent: String,
 	useRawUrl: Boolean,
-	rfc6265CookieEncoding: Boolean,
 	webSocketIdleTimeoutInMs: Int,
 	useRelativeURIsWithSSLProxies: Boolean)
 
