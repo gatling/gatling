@@ -74,32 +74,20 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 
 		/* Center panel: controls and events */
 		val center = new BoxPanel(Orientation.Vertical) {
-			/* Add tag, clear status, cancel recording, save simulation */
-			val controls = new BorderPanel {
-				border = titledBorder("Controls")
-
-				val tag = new LeftAlignedFlowPanel {
-					contents += new Label("Tag:")
-					contents += tagField
-					contents += tagButton
-				}
-
-				val clear = new CenterAlignedFlowPanel { contents += clearButton }
-				val cancelStop = new LeftAlignedFlowPanel {
-					contents += cancelButton
-					contents += stopButton
-				}
-
-				layout(tag) = West
-				layout(clear) = Center
-				layout(cancelStop) = East
-			}
-
 			/* Events info, request/response headers & body */
 			val info = new BorderPanel {
 				val elements = new BorderPanel {
 					border = titledBorder("Executed Events")
 
+					/* Add tag, clear status */
+					val tag = new LeftAlignedFlowPanel {
+						contents += new Label("Tag:")
+						contents += tagField
+						contents += tagButton
+						contents += clearButton
+					}
+
+					layout(tag) = North
 					layout(new ScrollPane(events)) = Center
 				}
 
@@ -120,7 +108,6 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 				layout(responses) = East
 			}
 
-			contents += controls
 			contents += info
 		}
 
@@ -128,7 +115,14 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 		val bottom = new BorderPanel {
 			border = titledBorder("Secured hosts requiring accepting a certificate:")
 
+			/* Add cancel recording, save simulation */
+			val cancelStop = new CenterAlignedFlowPanel {
+				contents += cancelButton
+				contents += stopButton
+			}
+
 			layout(new ScrollPane(hostsRequiringCertificates)) = Center
+			layout(cancelStop) = South
 		}
 
 		layout(top) = North
