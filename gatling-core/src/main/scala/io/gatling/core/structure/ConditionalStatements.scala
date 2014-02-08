@@ -81,11 +81,30 @@ trait ConditionalStatements[B] extends Execs[B] {
 	private def doIf(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext: Option[ChainBuilder]): B =
 		exec(new IfBuilder(condition, thenNext, elseNext))
 
+	/**
+	 * Add a switch in the chain. Every possible subchain is defined with a key.
+	 * Switch is selected through the matching of a key with the evaluation of the passed expression.
+	 * If no switch is selected, switch is bypassed.
+	 *
+	 * @param value expression to evaluate and match to find the right subchain
+	 * @param possibilities tuples of key and subchain
+	 * @return a new builder with a switch added to its actions
+	 */
 	def doSwitch(value: Expression[Any])(possibilities: (Any, ChainBuilder)*): B = {
 		require(possibilities.size >= 2, "doSwitch()() requires at least 2 possibilities")
 		doSwitch(value, possibilities.toList, None)
 	}
 
+	/**
+	 * Add a switch in the chain. Every possible subchain is defined with a key.
+	 * Switch is selected through the matching of a key with the evaluation of the passed expression.
+	 * If no switch is selected, the fallback subchain is used.
+	 *
+	 * @param value expression to evaluate and match to find the right subchain
+	 * @param possibilities tuples of key and subchain
+	 * @param elseNext fallback subchain
+	 * @return a new builder with a switch added to its actions
+	 */
 	def doSwitchOrElse(value: Expression[Any])(possibilities: (Any, ChainBuilder)*)(elseNext: ChainBuilder): B = {
 		require(possibilities.size >= 2, "doSwitchOrElse()()() requires at least 2 possibilities")
 		doSwitch(value, possibilities.toList, Some(elseNext))
@@ -96,7 +115,7 @@ trait ConditionalStatements[B] extends Execs[B] {
 
 	/**
 	 * Add a switch in the chain. Every possible subchain is defined with a percentage.
-	 * Switch is selected randomly. If no switch is selected (ie random number exceeds percentages sum), switch is bypassed.
+	 * Switch is selected randomly. If no switch is selected (ie: random number exceeds percentages sum), switch is bypassed.
 	 * Percentages sum can't exceed 100%.
 	 *
 	 * @param possibilities the possible subchains
@@ -107,6 +126,16 @@ trait ConditionalStatements[B] extends Execs[B] {
 		randomSwitch(possibilities.toList, None)
 	}
 
+	/**
+	 * Add a switch in the chain. Every possible subchain is defined with a percentage.
+	 * Switch is selected randomly. If no switch is selected (ie: random number exceeds percentages sum),
+	 * the subchain defined as the fallback will be used.
+	 * Percentages sum must be below 100%.
+	 *
+	 * @param possibilities the possible subchains
+	 * @param elseNext fallback subchain
+	 * @return a new builder with a random switch added to its actions
+	 */
 	def randomSwitchOrElse(possibilities: (Double, ChainBuilder)*)(elseNext: ChainBuilder): B = {
 		require(possibilities.size >= 1, "randomSwitchOrElse() requires at least 1 possibility")
 		randomSwitch(possibilities.toList, Some(elseNext))
