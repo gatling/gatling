@@ -61,15 +61,9 @@ object AsyncHandlerActor extends AkkaDefaults {
 
 	def updateCache(tx: HttpTx, response: Response): Session => Session = CacheHandling.cache(tx.protocol, _, tx.request, response)
 	val fail: Session => Session = _.markAsFailed
-
-	val timeout = configuration.core.timeOut.simulation seconds
 }
 
 class AsyncHandlerActor extends BaseActor {
-
-	override def preStart {
-		context.setReceiveTimeout(AsyncHandlerActor.timeout)
-	}
 
 	override def preRestart(reason: Throwable, message: Option[Any]) {
 
