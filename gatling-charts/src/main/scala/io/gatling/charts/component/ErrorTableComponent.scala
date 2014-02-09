@@ -18,7 +18,8 @@ package io.gatling.charts.component
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.result.ErrorStats
-import io.gatling.core.util.StringHelper
+import io.gatling.core.util.StringHelper.emptyFastring
+import io.gatling.core.util.HtmlHelper.HtmlRichString
 
 class ErrorTableComponent(errors: Seq[ErrorStats]) extends Component {
 
@@ -27,7 +28,7 @@ class ErrorTableComponent(errors: Seq[ErrorStats]) extends Component {
     """
 
 	def html = if (errors.isEmpty)
-		StringHelper.emptyFastring
+		emptyFastring
 	else
 		fast"""<div class="statistics extensible-geant collapsed">
     <div class="title">
@@ -42,7 +43,16 @@ class ErrorTableComponent(errors: Seq[ErrorStats]) extends Component {
             </tr>
         </thead>
 		<tbody>
-		    ${errors.zipWithIndex.map { case (error, index) => fast"""<tr><td class="error-col-1 total">${error.message}<span class="value" style="display:none">$index</span></td><td class="value error-col-2 total">${error.count}</td><td class="value error-col-3 total">${error.percentage} %</td></tr>""" }.mkFastring}
+		    ${
+			errors.zipWithIndex.map {
+				case (error, index) => fast"""
+		    <tr>
+		    	<td class="error-col-1 total">${error.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
+		    	<td class="value error-col-2 total">${error.count}</td>
+		    	<td class="value error-col-3 total">${error.percentage} %</td>
+		    </tr>"""
+			}.mkFastring
+		}
 		</tbody>
     </table>
 </div>
