@@ -103,9 +103,11 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 					layout(new SplitPane(Orientation.Horizontal, new ScrollPane(responseHeaders), new ScrollPane(responseBodies))) = Center
 				}
 
+				val informations = new SplitPane(Orientation.Vertical, requests, responses)
+				informations.resizeWeight = 0.5
+
 				layout(elements) = North
-				layout(requests) = West
-				layout(responses) = East
+				layout(informations) = Center
 			}
 
 			contents += info
