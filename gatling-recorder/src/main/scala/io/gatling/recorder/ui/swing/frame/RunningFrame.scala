@@ -26,7 +26,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.recorder.ui._
 import io.gatling.recorder.ui.swing.component.TextAreaPanel
-import io.gatling.recorder.ui.swing.Commons.iconList
+import io.gatling.recorder.ui.swing.Commons.{ iconList, logoSmall }
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
 class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogging {
@@ -65,55 +65,66 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 
 	/* Layout setup */
 	val root = new BorderPanel {
-		/* Top panel: Add tag, clear status, cancel recording, save simulation */
+		/* Top panel: Gatling logo */
 		val top = new BorderPanel {
-			border = titledBorder("Controls")
+			val logo = new CenterAlignedFlowPanel { contents += new Label { icon = logoSmall } }
 
-			val tag = new LeftAlignedFlowPanel {
-				contents += new Label("Tag:")
-				contents += tagField
-				contents += tagButton
-			}
-
-			val clear = new CenterAlignedFlowPanel { contents += clearButton }
-
-			val cancelStop = new LeftAlignedFlowPanel {
-				contents += cancelButton
-				contents += stopButton
-			}
-
-			layout(tag) = West
-			layout(clear) = Center
-			layout(cancelStop) = East
+			layout(logo) = West
 		}
-		/* Center panel: events info, request/response headers & body */
-		val center = new BorderPanel {
-			val elements = new BorderPanel {
-				border = titledBorder("Executed Events")
 
-				layout(new ScrollPane(events)) = Center
+		/* Center panel: controls and events */
+		val center = new BoxPanel(Orientation.Vertical) {
+			/* Events info, request/response headers & body */
+			val info = new BorderPanel {
+				val elements = new BorderPanel {
+					border = titledBorder("Executed Events")
+
+					/* Add tag, clear status */
+					val tag = new LeftAlignedFlowPanel {
+						contents += new Label("Tag:")
+						contents += tagField
+						contents += tagButton
+						contents += clearButton
+					}
+
+					layout(tag) = North
+					layout(new ScrollPane(events)) = Center
+				}
+
+				val requests = new BorderPanel {
+					border = titledBorder("Request Information")
+
+					layout(new SplitPane(Orientation.Horizontal, new ScrollPane(requestHeaders), new ScrollPane(requestBodies))) = Center
+				}
+
+				val responses = new BorderPanel {
+					border = titledBorder("Response Information")
+
+					layout(new SplitPane(Orientation.Horizontal, new ScrollPane(responseHeaders), new ScrollPane(responseBodies))) = Center
+				}
+
+				val informations = new SplitPane(Orientation.Vertical, requests, responses)
+				informations.resizeWeight = 0.5
+
+				layout(elements) = North
+				layout(informations) = Center
 			}
-			val requests = new BorderPanel {
-				border = titledBorder("Request Information")
 
-				layout(new SplitPane(Orientation.Horizontal, new ScrollPane(requestHeaders), new ScrollPane(requestBodies))) = Center
-			}
-			val responses = new BorderPanel {
-				border = titledBorder("Response Information")
-
-				layout(new SplitPane(Orientation.Horizontal, new ScrollPane(responseHeaders), new ScrollPane(responseBodies))) = Center
-			}
-
-			layout(elements) = North
-			layout(requests) = West
-			layout(responses) = East
-
+			contents += info
 		}
+
 		/* Bottom panel: Secured hosts requiring certificates */
 		val bottom = new BorderPanel {
 			border = titledBorder("Secured hosts requiring accepting a certificate:")
 
+			/* Add cancel recording, save simulation */
+			val cancelStop = new CenterAlignedFlowPanel {
+				contents += cancelButton
+				contents += stopButton
+			}
+
 			layout(new ScrollPane(hostsRequiringCertificates)) = Center
+			layout(cancelStop) = South
 		}
 
 		layout(top) = North
