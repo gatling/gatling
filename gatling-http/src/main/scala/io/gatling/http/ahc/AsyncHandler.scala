@@ -90,10 +90,7 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
 	}
 
 	def sendOnThrowable(throwable: Throwable) {
-		val errorMessage = Option(throwable.getMessage) match {
-			case Some(m) => m
-			case _ => throwable.getClass.getName
-		}
+		val errorMessage = throwable.getClass.getName + Option(throwable.getMessage).map(": " + _).getOrElse("")
 
 		if (logger.underlying.isInfoEnabled)
 			logger.warn(s"Request '${tx.requestName}' failed for user ${tx.session.userId}", throwable)
