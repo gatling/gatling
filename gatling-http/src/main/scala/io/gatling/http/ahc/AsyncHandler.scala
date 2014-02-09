@@ -90,9 +90,10 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
 	}
 
 	def sendOnThrowable(throwable: Throwable) {
-		val errorMessage = Option(throwable.getMessage) match {
-			case Some(m) => m
-			case _ => throwable.getClass.getName
+		val className = throwable.getClass.getName
+		val errorMessage = throwable.getMessage match {
+			case null => className
+			case m => s"$className: $m"
 		}
 
 		if (logger.underlying.isInfoEnabled)
