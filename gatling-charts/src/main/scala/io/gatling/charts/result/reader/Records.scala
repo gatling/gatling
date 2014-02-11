@@ -33,13 +33,13 @@ object RecordParser {
 			val groupString = strings(3)
 			if (groupString.isEmpty) None else Some(parseGroup(groupString))
 		}
-		val request = strings(4).intern
+		val request = strings(4)
 		val executionStart = (strings(5).toLong - runStart).toInt
 		val requestEnd = (strings(6).toLong - runStart).toInt
 		val responseStart = (strings(7).toLong - runStart).toInt
 		val executionEnd = (strings(8).toLong - runStart).toInt
 		val status = Status.valueOf(strings(9))
-		val errorMessage = if (status == KO) Some(strings(10).intern) else None
+		val errorMessage = if (status == KO) Some(strings(10)) else None
 		val executionStartBucket = bucketFunction(executionStart)
 		val executionEndBucket = bucketFunction(executionEnd)
 		val responseTime = executionEnd - executionStart
@@ -49,7 +49,7 @@ object RecordParser {
 
 	def parseUserRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): UserRecord = {
 
-		val scenario = strings(0).intern
+		val scenario = strings(0)
 		val userId = strings(1)
 		val event = MessageEvent(strings(3))
 		val startDate = reduceAccuracy((strings(4).toLong - runStart).toInt)
