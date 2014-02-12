@@ -194,6 +194,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.exec(http("Ajout au panier").get("/").check(regex(session => """<input id="text1" type="text" value="smth" />""").count.lessThan(10).saveAs("input")))
 		.exec(http("Ajout au panier").get("/").check(regexTyped[(String, String)](session => """<input id="(.*)" type="text" value="(.*)" />""").saveAs("input")))
 		.pause(pause1)
+		.rendezVous(100)
 		.exec(flushSessionCookies)
 		.exec(addCookie(Cookie("foo", "bar").withDomain("/")))
 		.doSwitch("${foo}")(

@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.{ Duration, DurationLong }
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
-import io.gatling.core.action.builder.PauseBuilder
+import io.gatling.core.action.builder.{ PauseBuilder, RendezVousBuilder }
 import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
 import io.gatling.core.session.el.EL
 import io.gatling.core.validation.SuccessWrapper
@@ -34,6 +34,7 @@ trait Pauses[B] extends Execs[B] {
 	 * @return a new builder with a pause added to its actions
 	 */
 	def pause(duration: Duration): B = pause(duration.expression)
+
 	def pause(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = {
 		val durationValue = duration.el[Int]
 		pause(durationValue(_).map(i => Duration(i, unit)))
@@ -47,6 +48,7 @@ trait Pauses[B] extends Execs[B] {
 
 		pause(expression)
 	}
+
 	def pause(min: String, max: String, unit: TimeUnit): B = {
 		val minExpression = min.el[Int]
 		val maxExpression = max.el[Int]
@@ -62,6 +64,7 @@ trait Pauses[B] extends Execs[B] {
 
 		pause(expression)
 	}
+
 	def pause(min: Expression[Duration], max: Expression[Duration]): B = {
 
 		val expression = (session: Session) =>
@@ -76,4 +79,6 @@ trait Pauses[B] extends Execs[B] {
 	}
 
 	def pause(duration: Expression[Duration]): B = exec(new PauseBuilder(duration))
+
+	def rendezVous(users: Int): B = exec(new RendezVousBuilder(users))
 }
