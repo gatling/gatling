@@ -59,7 +59,8 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
 		getGroupDurationGeneralStatsBuffers(group, None).update(duration)
 		getGroupDurationGeneralStatsBuffers(group, Some(status)).update(duration)
 		val (okCount, koCount) = getGroupRequestCounts(group)
-		requestCounts += BufferKey(None, Some(group), None) -> (okCount + oks, koCount + kos)
+		val counts = (okCount + oks, koCount + kos)
+		requestCounts += BufferKey(None, Some(group), None) -> counts
 	}
 }
 

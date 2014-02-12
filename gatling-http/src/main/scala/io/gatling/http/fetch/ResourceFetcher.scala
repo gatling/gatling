@@ -93,7 +93,8 @@ object ResourceFetcher extends StrictLogging {
 			case Some(200) =>
 				lastModifiedOrEtag(response, protocol) match {
 					case Some(newLastModifiedOrEtag) =>
-						inferredResourcesCache.get(protocol, htmlDocumentURI) match {
+						val cacheKey = (protocol, htmlDocumentURI)
+						inferredResourcesCache.get(cacheKey) match {
 							case Some(InferredPageResources(`newLastModifiedOrEtag`, inferredResources)) =>
 								//cache entry didn't expire, use it
 								inferredResources
@@ -112,7 +113,8 @@ object ResourceFetcher extends StrictLogging {
 
 			case Some(304) =>
 				// no content, retrieve from cache if exist
-				inferredResourcesCache.get(protocol, htmlDocumentURI) match {
+				val cacheKey = (protocol, htmlDocumentURI)
+				inferredResourcesCache.get(cacheKey) match {
 					case Some(inferredPageResources) => inferredPageResources.requests
 					case _ =>
 						logger.warn(s"Got a 304 for $htmlDocumentURI but could find cache entry?!")
@@ -126,7 +128,8 @@ object ResourceFetcher extends StrictLogging {
 	}
 
 	def fromCache(htmlDocumentURI: URI, tx: HttpTx, explicitResources: List[NamedRequest]): Option[() => ResourceFetcher] = {
-		val inferredResources = inferredResourcesCache.get(tx.protocol, htmlDocumentURI).map(_.requests).getOrElse(Nil)
+		val cacheKey = (tx.protocol, htmlDocumentURI)
+		val inferredResources = inferredResourcesCache.get(cacheKey).map(_.requests).getOrElse(Nil)
 
 		resourceFetcher(tx, inferredResources, explicitResources)
 	}
@@ -283,7 +286,8 @@ class ResourceFetcher(tx: HttpTx, initialResources: Iterable[NamedRequest]) exte
 					// try to get from cache
 					lastModifiedOrEtag match {
 						case Some(newLastModifiedOrEtag) =>
-							ResourceFetcher.inferredResourcesCache.get(protocol, uri) match {
+							val cacheKey = (protocol, uri)
+							ResourceFetcher.inferredResourcesCache.get(cacheKey) match {
 								case Some(InferredPageResources(`newLastModifiedOrEtag`, inferredResources)) =>
 									//cache entry didn't expire, use it
 									inferredResources
@@ -302,7 +306,8 @@ class ResourceFetcher(tx: HttpTx, initialResources: Iterable[NamedRequest]) exte
 
 				case Some(304) =>
 					// no content, retrieve from cache if exist
-					ResourceFetcher.inferredResourcesCache.get(protocol, uri) match {
+					val cacheKey = (protocol, uri)
+					ResourceFetcher.inferredResourcesCache.get(cacheKey) match {
 						case Some(inferredPageResources) => inferredPageResources.requests
 						case _ =>
 							logger.warn(s"Got a 304 for $uri but could find cache entry?!")

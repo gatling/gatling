@@ -60,7 +60,8 @@ class JmsRequestTrackerActor extends Actor {
 				}
 				case None => {
 					// normal path
-					sentMessages += corrId -> (startSend, endSend, checks, session, next, title)
+					val sentMessage = (startSend, endSend, checks, session, next, title)
+					sentMessages += corrId -> sentMessage
 				}
 			}
 		}
@@ -75,7 +76,8 @@ class JmsRequestTrackerActor extends Actor {
 				case None => {
 					// failed to find message; early receive? or bad return correlation id?
 					// let's add it to the received messages buffer just in case
-					receivedMessages += corrId -> (received, message)
+					val receivedMessage = (received, message)
+					receivedMessages += corrId -> receivedMessage
 				}
 			}
 		}
