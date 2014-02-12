@@ -17,7 +17,7 @@ package io.gatling.core.util
 
 object NumberHelper {
 
-	def formatNumberWithSuffix(n: Long) = {
+	def formatNumberWithSuffix(n: Int) = {
 		val suffix = n % 10 match {
 			case _ if (11 to 13) contains n % 100 => "th"
 			case 1 => "st"

@@ -45,7 +45,7 @@ class UnsyncByteArrayInputStream(array: Array[Byte]) extends InputStream {
 		} else {
 			val n = available
 			position = length
-			n
+			n.toLong
 		}
 	}
 

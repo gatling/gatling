@@ -42,9 +42,10 @@ object StringHelper {
 	val emptyFastring = fast""
 
 	def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new StringBuilder) { (buff, b) =>
-		if ((b & 0xff) < 0x10)
+		val shifted = b & 0xff
+		if (shifted < 0x10)
 			buff.append("0")
-		buff.append(java.lang.Long.toString(b & 0xff, 16))
+		buff.append(java.lang.Long.toString(shifted.toLong, 16))
 	}.toString
 
 	val stringCharsExtractor: String => Array[Char] = stringImplementation match {

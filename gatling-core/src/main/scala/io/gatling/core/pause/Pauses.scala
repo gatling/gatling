@@ -39,7 +39,7 @@ object Constant extends PauseType {
 object Exponential extends PauseType {
 
 	val distributionCache = mutable.Map.empty[Long, ExponentialDistribution]
-	def cachedDistribution(millis: Long) = distributionCache.getOrElseUpdate(millis, new ExponentialDistribution(millis))
+	def cachedDistribution(millis: Long) = distributionCache.getOrElseUpdate(millis, new ExponentialDistribution(millis.toDouble))
 
 	def generator(duration: Expression[Duration]) = duration(_).map(duration => math.round(cachedDistribution(duration.toMillis).sample))
 }
