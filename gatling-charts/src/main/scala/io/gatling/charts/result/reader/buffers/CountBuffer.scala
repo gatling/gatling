@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ *      http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,11 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core
+package io.gatling.charts.result.reader.buffers
 
-package object feeder {
+import scala.collection.mutable
 
-	type Record[T] = Map[String, T]
+import io.gatling.core.result.IntVsTimePlot
 
-	type Feeder[T] = Iterator[Map[String, T]]
+class CountBuffer {
+	val map = mutable.Map.empty[Int, IntVsTimePlot]
+
+	def update(bucket: Int) {
+		val current = map.getOrElse(bucket, IntVsTimePlot(bucket, 0))
+		map.put(bucket, current.copy(value = current.value + 1))
+	}
 }

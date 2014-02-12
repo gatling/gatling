@@ -25,7 +25,7 @@ trait FeederBuilder[T] {
 
 case class FeederWrapper[T](build: Feeder[T]) extends FeederBuilder[T]
 
-case class AdvancedFeederBuilder[T](data: Array[Record[T]], strategy: Strategy = Queue) extends FeederBuilder[T] {
+case class AdvancedFeederBuilder[T](data: Array[Record[T]], strategy: FeederStrategy = Queue) extends FeederBuilder[T] {
 
 	def convert(conversions: (String, T => Any)*): AdvancedFeederBuilder[Any] = {
 		val indexedConversions = conversions.toMap.withDefaultValue(identity[T] _)
