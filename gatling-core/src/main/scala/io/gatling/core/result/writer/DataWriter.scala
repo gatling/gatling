@@ -16,8 +16,10 @@
 package io.gatling.core.result.writer
 
 import scala.concurrent.Future
+import scala.concurrent.duration.DurationInt
 
 import akka.actor.{ Actor, ActorRef, Props }
+import akka.util.Timeout
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ DataWritersInitialized, DataWritersTerminated }
@@ -26,6 +28,8 @@ import io.gatling.core.scenario.Scenario
 case class InitDataWriter(totalNumberOfUsers: Int)
 
 object DataWriter extends AkkaDefaults {
+
+	implicit val dataWriterTimeOut = Timeout(5 seconds)
 
 	private var _instances: Option[Seq[ActorRef]] = None
 

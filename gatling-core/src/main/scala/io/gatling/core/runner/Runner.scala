@@ -41,11 +41,10 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
 
 			simulation._beforeSteps.foreach(_.apply)
 
-			//override defaultTimeOut
-			implicit val defaultTimeOut = Timeout(configuration.core.timeOut.simulation seconds)
+			implicit val timeOut = Timeout(simulationTimeOut)
 			val runResult = Controller ? Run(simulation, selection.simulationId, selection.description, simulation.timings)
 
-			Await.result(runResult, defaultTimeOut.duration) match {
+			Await.result(runResult, simulationTimeOut) match {
 				case SSuccess(runId: String) =>
 					println("Simulation finished")
 					simulation._afterSteps.foreach(_.apply)

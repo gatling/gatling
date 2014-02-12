@@ -72,8 +72,7 @@ object GatlingConfiguration {
 					css = CssConfiguration(
 						cache = config.getBoolean(CONF_CORE_EXTRACT_CSS_CACHE))),
 				timeOut = TimeOutConfiguration(
-					simulation = config.getInt(CONF_CORE_TIMEOUT_SIMULATION),
-					actor = config.getInt(CONF_CORE_TIMEOUT_ACTOR)),
+					simulation = config.getInt(CONF_CORE_TIMEOUT_SIMULATION)),
 				directory = DirectoryConfiguration(
 					data = config.getString(CONF_CORE_DIRECTORY_DATA),
 					requestBodies = config.getString(CONF_CORE_DIRECTORY_REQUEST_BODIES),
@@ -211,8 +210,7 @@ case class CoreConfiguration(
 }
 
 case class TimeOutConfiguration(
-	simulation: Int,
-	actor: Int)
+	simulation: Int)
 
 case class ExtractConfiguration(
 	regex: RegexConfiguration,

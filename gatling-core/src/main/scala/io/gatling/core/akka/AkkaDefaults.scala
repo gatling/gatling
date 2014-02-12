@@ -26,5 +26,5 @@ trait AkkaDefaults extends AskSupport {
 	implicit def system = GatlingActorSystem.instance
 	implicit def dispatcher = system.dispatcher
 	implicit def scheduler = system.scheduler
-	implicit val defaultTimeOut = Timeout(configuration.core.timeOut.actor seconds)
+	val simulationTimeOut = configuration.core.timeOut.simulation seconds
 }

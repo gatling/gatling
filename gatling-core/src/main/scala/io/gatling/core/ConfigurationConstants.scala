@@ -33,7 +33,6 @@ object ConfigurationConstants {
 	val CONF_CORE_EXTRACT_CSS_CACHE = "gatling.core.extract.css.cache"
 
 	val CONF_CORE_TIMEOUT_SIMULATION = "gatling.core.timeOut.simulation"
-	val CONF_CORE_TIMEOUT_ACTOR = "gatling.core.timeOut.actor"
 
 	val CONF_CORE_DIRECTORY_DATA = "gatling.core.directory.data"
 	val CONF_CORE_DIRECTORY_REQUEST_BODIES = "gatling.core.directory.requestBodies"
