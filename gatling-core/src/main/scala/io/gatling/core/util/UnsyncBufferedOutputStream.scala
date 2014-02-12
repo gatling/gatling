@@ -23,7 +23,7 @@ class UnsyncBufferedOutputStream(os: OutputStream, bufferSize: Int) extends Stri
 	private var bufferPosition = 0
 	private val buffer = new Array[Byte](bufferSize)
 
-	def flush {
+	def flush() {
 		os.write(buffer, 0, bufferPosition)
 		bufferPosition = 0
 	}

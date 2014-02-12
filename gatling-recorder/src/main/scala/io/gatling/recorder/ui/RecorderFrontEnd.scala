@@ -43,19 +43,19 @@ sealed abstract class RecorderFrontend(controller: RecorderController) {
 
 	def handleMissingHarFile(path: String)
 
-	def handleHarExportSuccess
+	def handleHarExportSuccess()
 
-	def handleHarExportFailure
+	def handleHarExportFailure()
 
 	def handleFilterValidationFailures(failures: Seq[String])
 
 	def askSimulationOverwrite: Boolean
 
-	def init
+	def init()
 
-	def recordingStarted
+	def recordingStarted()
 
-	def recordingStopped
+	def recordingStopped()
 
 	def receiveEventInfo(eventInfo: EventInfo)
 
@@ -63,21 +63,13 @@ sealed abstract class RecorderFrontend(controller: RecorderController) {
 	/**  Frontend => Controller  **/
 	/******************************/
 
-	def addTag(tag: String) {
-		controller.addTag(tag)
-	}
+	def addTag(tag: String) { controller.addTag(tag) }
 
-	def startRecording {
-		controller.startRecording
-	}
+	def startRecording() { controller.startRecording }
 
-	def stopRecording(save: Boolean) {
-		controller.stopRecording(save)
-	}
+	def stopRecording(save: Boolean) { controller.stopRecording(save) }
 
-	def clearRecorderState {
-		controller.clearRecorderState
-	}
+	def clearRecorderState() { controller.clearRecorderState }
 }
 
 private class SwingFrontend(controller: RecorderController) extends RecorderFrontend(controller) {
@@ -113,14 +105,14 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
 		}
 	}
 
-	def handleHarExportSuccess {
+	def handleHarExportSuccess() {
 		Dialog.showMessage(
 			title = "Conversion complete",
 			message = "Successfully converted HAR file to a Gatling simulation",
 			messageType = Dialog.Message.Info)
 	}
 
-	def handleHarExportFailure {
+	def handleHarExportFailure() {
 		Dialog.showMessage(
 			title = "Error",
 			message = """	|Export to HAR File unsuccessful.
@@ -143,17 +135,17 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
 			messageType = Dialog.Message.Warning) == Dialog.Result.Ok
 	}
 
-	def init {
+	def init() {
 		configurationFrame.visible = true
 		runningFrame.visible = false
 	}
 
-	def recordingStarted {
+	def recordingStarted() {
 		runningFrame.visible = true
 		configurationFrame.visible = false
 	}
 
-	def recordingStopped {
+	def recordingStopped() {
 		runningFrame.clearState
 	}
 

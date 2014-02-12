@@ -27,7 +27,7 @@ case class ThrottlingProtocol(limit: Long => Int) extends Protocol
 
 class ThisSecondThrottler(val limit: Int, var count: Int = 0) {
 
-	def increment { count += 1 }
+	def increment() { count += 1 }
 	def limitReached = count >= limit
 }
 

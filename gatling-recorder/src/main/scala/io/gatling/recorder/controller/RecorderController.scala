@@ -57,7 +57,7 @@ class RecorderController extends StrictLogging {
 
 	frontEnd.init
 
-	def startRecording {
+	def startRecording() {
 		val selectedMode = frontEnd.selectedMode
 		val harFilePath = frontEnd.harFilePath
 		if (selectedMode == Har && !File(harFilePath).exists) {
@@ -148,7 +148,7 @@ class RecorderController extends StrictLogging {
 		frontEnd.receiveEventInfo(SSLInfo(securedHostURI.toString))
 	}
 
-	def clearRecorderState {
+	def clearRecorderState() {
 		currentRequests.clear
 		currentTags.clear
 	}

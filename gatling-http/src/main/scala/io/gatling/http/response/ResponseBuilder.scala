@@ -76,11 +76,11 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bod
 		else
 			Map.empty[String, MessageDigest]
 
-	def updateFirstByteSent {
+	def updateFirstByteSent() {
 		firstByteSent = nowMillis
 	}
 
-	def reset {
+	def reset() {
 		firstByteSent = nowMillis
 		lastByteSent = 0L
 		firstByteReceived = 0L
@@ -91,11 +91,11 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bod
 		digests = initDigests()
 	}
 
-	def updateLastByteSent {
+	def updateLastByteSent() {
 		lastByteSent = nowMillis
 	}
 
-	def updateLastByteReceived {
+	def updateLastByteReceived() {
 		lastByteReceived = nowMillis
 	}
 

@@ -31,5 +31,5 @@ class TcpSender extends MetricsSender with AkkaDefaults {
 
 	def sendToGraphite(bytes: Array[Byte]) { os.write(bytes) }
 
-	def flush { os.flush }
+	def flush() { os.flush }
 }

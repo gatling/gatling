@@ -26,7 +26,7 @@ import io.gatling.core.result.reader.DataReader
 
 class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
-	def generate {
+	def generate() {
 		def generateDetailPage(path: String, requestName: String, group: Option[Group]) {
 			def responseTimeChartComponent: Component = {
 				val responseTimesSuccessData = dataReader.responseTimeGroupByExecutionStartDate(OK, requestName, group)

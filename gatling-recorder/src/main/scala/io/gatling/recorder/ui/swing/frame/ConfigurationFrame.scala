@@ -299,7 +299,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 	listenTo(outgoingProxyHost.keys, outgoingProxyHttpPort.keys, outgoingProxyHttpsPort.keys)
 	listenTo(outputFolderPath.keys, simulationClassName.keys)
 
-	private def registerValidators {
+	private def registerValidators() {
 		ValidationHelper.registerValidator(localProxyHttpPort, Validator(isValidPort))
 		ValidationHelper.registerValidator(localProxyHttpsPort, Validator(isValidPort))
 		ValidationHelper.registerValidator(outgoingProxyHost, Validator(isNonEmpty, enableConfig, disableConfig, true))
@@ -350,7 +350,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 	/**
 	 * Configure fields, checkboxes, filters... based on the current Recorder configuration
 	 */
-	private def populateItemsFromConfiguration {
+	private def populateItemsFromConfiguration() {
 		localProxyHttpPort.text = configuration.proxy.port.toString
 		localProxyHttpsPort.text = configuration.proxy.sslPort.toString
 
@@ -381,7 +381,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 	 * Reload configuration from the content of the configuration frame
 	 * and start recording
 	 */
-	private def reloadConfigurationAndStart {
+	private def reloadConfigurationAndStart() {
 		// clean up filters
 		whiteListTable.cleanUp
 		blackListTable.cleanUp

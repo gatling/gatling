@@ -25,7 +25,7 @@ import io.gatling.core.result.reader.DataReader
 
 class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
-	def generate {
+	def generate() {
 		def activeSessionsChartComponent = {
 			val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = dataReader
 				.scenarioNames

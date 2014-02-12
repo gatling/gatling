@@ -90,7 +90,7 @@ object RecorderConfiguration extends StrictLogging {
 		logger.debug(s"reconfigured $configuration")
 	}
 
-	def saveConfig {
+	def saveConfig() {
 		// Removes first empty line and remove the extra level of indentation
 		def cleanOutput(configToSave: String) = configToSave.split("\n").drop(1).map(remove4Spaces.replaceFirstIn(_, "")).mkString(eol)
 

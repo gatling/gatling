@@ -32,5 +32,5 @@ class UdpSender extends MetricsSender with AkkaDefaults {
 		socket.send(packet)
 	}
 
-	def flush {}
+	def flush() {}
 }

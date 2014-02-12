@@ -38,7 +38,7 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
 
 	def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest) {
 
-		def handleConnect {
+		def handleConnect() {
 			targetHostURI = new URI("https://" + request.getUri)
 			requestContext.getChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
 			requestContext.getPipeline.addFirst(BootstrapFactory.SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newServerSSLEngine))
@@ -50,7 +50,7 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
 			connect
 		}
 
-		def handlePropagatableRequest {
+		def handlePropagatableRequest() {
 
 			// set full uri so that it's correctly recorded FIXME ugly
 			request.setUri(targetHostURI.resolve(request.getUri).toString)

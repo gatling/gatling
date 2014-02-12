@@ -26,7 +26,7 @@ import io.gatling.jdbc.util.SQLHelper.withStatement
 object JdbcDataWriter {
 
 	implicit class ExecuteAndClearBatch(val statement: PreparedStatement) extends AnyVal {
-		def executeAndClearBatch = { statement.executeBatch; statement.clearBatch; statement.getConnection.commit }
+		def executeAndClearBatch() { statement.executeBatch; statement.clearBatch; statement.getConnection.commit }
 	}
 }
 
@@ -162,7 +162,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
 		}
 	}
 
-	override def onTerminateDataWriter {
+	override def onTerminateDataWriter() {
 		logger.info("Received flush order")
 		//Flush all the batch jdbc execution
 		scenarioInsert.executeAndClearBatch

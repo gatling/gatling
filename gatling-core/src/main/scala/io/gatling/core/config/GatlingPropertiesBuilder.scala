@@ -23,9 +23,9 @@ class GatlingPropertiesBuilder {
 
 	private val props = mutable.Map.empty[String, Any]
 
-	def mute { props += CONF_CORE_MUTE -> true }
+	def mute() { props += CONF_CORE_MUTE -> true }
 
-	def noReports { props += CONF_CHARTING_NO_REPORTS -> true }
+	def noReports() { props += CONF_CHARTING_NO_REPORTS -> true }
 
 	def reportsOnly(v: String) { props += CONF_CORE_DIRECTORY_REPORTS_ONLY -> v }
 

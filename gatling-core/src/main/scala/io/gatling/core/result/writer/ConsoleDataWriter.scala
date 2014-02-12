@@ -32,8 +32,8 @@ class UserCounters(val totalCount: Int) {
 	def runningCount = _runningCount
 	def doneCount = _doneCount
 
-	def userStart { _runningCount += 1 }
-	def userDone { _runningCount -= 1; _doneCount += 1 }
+	def userStart() { _runningCount += 1 }
+	def userDone() { _runningCount -= 1; _doneCount += 1 }
 	def waitingCount = totalCount - _runningCount - _doneCount
 }
 
@@ -47,7 +47,7 @@ class ConsoleDataWriter extends DataWriter {
 	private var globalRequestCounters = new RequestCounters
 	private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
 
-	def display {
+	def display() {
 		val now = currentTimeMillis
 		val runDuration = (now - startUpTime) / 1000
 
@@ -107,7 +107,7 @@ class ConsoleDataWriter extends DataWriter {
 		}
 	}
 
-	override def onTerminateDataWriter {
+	override def onTerminateDataWriter() {
 		if (!complete) display
 	}
 }

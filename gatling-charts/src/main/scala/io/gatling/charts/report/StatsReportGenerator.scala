@@ -27,7 +27,7 @@ import io.gatling.core.result.reader.DataReader
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
 
-	def generate {
+	def generate() {
 
 		def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
 

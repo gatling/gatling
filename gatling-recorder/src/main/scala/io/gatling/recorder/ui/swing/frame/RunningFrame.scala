@@ -145,7 +145,7 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 	/**
 	 * Add a new tag to the list of scenario elements
 	 */
-	private def addTag {
+	private def addTag() {
 		if (!tagField.text.isEmpty) {
 			frontend.addTag(tagField.text)
 			tagField.clear
@@ -169,7 +169,7 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 	 * Clear all the panels showing info about scenarios elements
 	 * or requests of their content
 	 */
-	def clearState {
+	def clearState() {
 		events.listData = Seq.empty
 		infoPanels.foreach(_.textArea.clear)
 		tagField.clear

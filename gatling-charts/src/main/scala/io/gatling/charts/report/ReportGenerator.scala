@@ -19,5 +19,5 @@ import io.gatling.charts.component.ComponentLibrary
 import io.gatling.core.result.reader.DataReader
 
 abstract class ReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
-	def generate
+	def generate()
 }

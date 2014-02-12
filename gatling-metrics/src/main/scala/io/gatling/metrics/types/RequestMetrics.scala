@@ -42,7 +42,7 @@ class RequestMetrics {
 
 	def metrics = (okMetrics, koMetrics, allMetrics)
 
-	def reset {
+	def reset() {
 		okMetrics.reset
 		koMetrics.reset
 		allMetrics.reset
@@ -66,7 +66,7 @@ class Metrics(bucketWidth: Int = configuration.data.graphite.bucketWidth) {
 		buckets += (bucket -> newCount)
 	}
 
-	def reset {
+	def reset() {
 		count = 0L
 		max = 0L
 		min = Long.MaxValue

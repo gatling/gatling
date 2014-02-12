@@ -82,7 +82,7 @@ abstract class DataWriter extends BaseActor {
 
 	def onRequestMessage(request: RequestMessage)
 
-	def onTerminateDataWriter
+	def onTerminateDataWriter()
 
 	def uninitialized: Receive = {
 		case Init(runMessage, scenarios) =>

@@ -32,5 +32,5 @@ abstract class MetricsSender {
 
 	def sendToGraphite(bytes: Array[Byte])
 
-	def flush
+	def flush()
 }

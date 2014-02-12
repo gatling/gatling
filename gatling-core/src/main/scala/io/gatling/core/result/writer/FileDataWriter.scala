@@ -133,5 +133,5 @@ class FileDataWriter extends DataWriter {
 
 	override def onRequestMessage(request: RequestMessage) { os.write(request.getBytes) }
 
-	override def onTerminateDataWriter { os.flush }
+	override def onTerminateDataWriter() { os.flush }
 }

@@ -27,7 +27,7 @@ class LeakReporterDataWriter extends DataWriter {
 	private var lastTouch = 0L
 	private val events = mutable.Map.empty[String, DataWriterMessage]
 
-	def display {
+	def display() {
 		val timeSinceLastTouch = (currentTimeMillis - lastTouch) / 1000
 
 		if (timeSinceLastTouch > 30 && !events.isEmpty) {
@@ -75,6 +75,5 @@ class LeakReporterDataWriter extends DataWriter {
 		events += userId -> request
 	}
 
-	override def onTerminateDataWriter {
-	}
+	override def onTerminateDataWriter() {}
 }

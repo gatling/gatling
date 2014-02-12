@@ -29,11 +29,11 @@ object ReportsGenerator {
 
 	def generateFor(outputDirectoryName: String, dataReader: DataReader): Path = {
 
-		def generateMenu = new TemplateWriter(menuFile(outputDirectoryName)).writeToFile(new MenuTemplate().getOutput)
+		def generateMenu() { new TemplateWriter(menuFile(outputDirectoryName)).writeToFile(new MenuTemplate().getOutput) }
 
-		def generateStats = new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance).generate
+		def generateStats() { new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance).generate }
 
-		def copyAssets {
+		def copyAssets() {
 			deepCopyPackageContent(GATLING_ASSETS_STYLE_PACKAGE, styleDirectory(outputDirectoryName))
 			deepCopyPackageContent(GATLING_ASSETS_JS_PACKAGE, jsDirectory(outputDirectoryName))
 		}

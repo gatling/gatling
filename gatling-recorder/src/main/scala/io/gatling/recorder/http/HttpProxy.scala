@@ -39,7 +39,7 @@ case class HttpProxy(config: RecorderConfiguration, controller: RecorderControll
 	group.add(serverBootstrap.bind(new InetSocketAddress(port)))
 	group.add(secureServerBootstrap.bind(new InetSocketAddress(sslPort)))
 
-	def shutdown {
+	def shutdown() {
 		group.close.awaitUninterruptibly
 		serverBootstrap.shutdown
 		secureClientBootstrap.shutdown
