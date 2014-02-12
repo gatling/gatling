@@ -19,14 +19,23 @@ object BuildSettings {
 		scalaVersion          := "2.10.3",
 		resolvers             := Seq(sonatypeSnapshots, Resolver.mavenLocal),
 		scalacOptions         := Seq(
-			"-encoding",
-			"UTF-8",
+			"-encoding", "UTF-8",
 			"-target:jvm-1.6",
 			"-deprecation",
 			"-feature",
 			"-unchecked",
 			"-language:implicitConversions",
-			"-language:postfixOps"
+			"-language:postfixOps"/*,
+            "-language:existentials",
+            "-language:experimental.macros",
+            "-language:higherKinds",
+            "-Xfatal-warnings",
+            "-Xlint",
+            "-Yno-adapted-args",
+            "-Ywarn-all",
+            "-Ywarn-dead-code", // N.B. doesn't work well with the ??? hole
+            "-Ywarn-numeric-widen",
+            "-Ywarn-value-discard"*/
 		)
 	) ++ Publish.settings ++ Release.settings
 
