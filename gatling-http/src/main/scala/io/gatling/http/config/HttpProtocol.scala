@@ -44,31 +44,47 @@ import io.gatling.http.util.HttpHelper.buildRealm
 object HttpProtocol {
 	val default = HttpProtocol(
 		baseURLs = configuration.http.baseURLs,
-		proxy = configuration.http.proxy.map(_.proxyServer),
-		secureProxy = configuration.http.proxy.flatMap(_.secureProxyServer),
-		proxyExceptions = Nil,
-		followRedirect = configuration.http.followRedirect,
-		autoReferer = configuration.http.autoReferer,
-		cache = configuration.http.cache,
-		discardResponseChunks = configuration.http.discardResponseChunks,
-		shareClient = configuration.http.shareClient,
-		shareConnections = configuration.http.shareConnections,
-		basicAuth = configuration.http.basicAuth.map(credentials => buildRealm(credentials.username, credentials.password).expression),
-		baseHeaders = Map.empty,
-		virtualHost = None,
-		localAddress = None,
-		responseTransformer = None,
-		checks = Nil,
-		maxRedirects = None,
 		warmUpUrl = configuration.http.warmUpUrl,
-		fetchHtmlResources = false,
-		htmlResourcesFetchingFilters = None,
-		maxConnectionsPerHost = 6,
-		extraInfoExtractor = None)
+		enginePart = HttpProtocolEnginePart(
+			shareClient = configuration.http.shareClient,
+			shareConnections = configuration.http.shareConnections,
+			maxConnectionsPerHost = 6,
+			virtualHost = None,
+			localAddress = None),
+		requestPart = HttpProtocolRequestPart(
+			baseHeaders = Map.empty,
+			basicAuth = configuration.http.basicAuth.map(credentials => buildRealm(credentials.username, credentials.password).expression),
+			autoReferer = configuration.http.autoReferer,
+			cache = configuration.http.cache),
+		responsePart = HttpProtocolResponsePart(
+			followRedirect = configuration.http.followRedirect,
+			maxRedirects = None,
+			discardResponseChunks = configuration.http.discardResponseChunks,
+			responseTransformer = None,
+			checks = Nil,
+			extraInfoExtractor = None,
+			fetchHtmlResources = false,
+			htmlResourcesFetchingFilters = None),
+		wsPart = HttpProtocolWsPart(
+			wsBaseURLs = Nil,
+			reconnect = false),
+		proxyPart = HttpProtocolProxyPart(
+			proxy = configuration.http.proxy.map(_.proxyServer),
+			secureProxy = configuration.http.proxy.flatMap(_.secureProxyServer),
+			proxyExceptions = Nil))
 
 	val warmUpUrls = mutable.Set.empty[String]
 
 	GatlingActorSystem.instanceOpt.foreach(_.registerOnTermination(warmUpUrls.clear))
+
+	def nextBaseUrlF(urls: List[String]): () => Option[String] = {
+		val roundRobinUrls = RoundRobin(urls.toArray)
+		urls match {
+			case Nil => () => None
+			case url :: Nil => () => Some(url)
+			case _ => () => Some(roundRobinUrls.next)
+		}
+	}
 }
 
 /**
@@ -78,35 +94,16 @@ object HttpProtocol {
  * @param proxy a proxy through which all the requests must pass to succeed
  */
 case class HttpProtocol(
-	baseURLs: Seq[String],
-	proxy: Option[ProxyServer],
-	secureProxy: Option[ProxyServer],
-	proxyExceptions: Seq[String],
-	followRedirect: Boolean,
-	autoReferer: Boolean,
-	cache: Boolean,
-	discardResponseChunks: Boolean,
-	shareClient: Boolean,
-	shareConnections: Boolean,
-	baseHeaders: Map[String, Expression[String]],
-	basicAuth: Option[Expression[Realm]],
-	virtualHost: Option[Expression[String]],
-	localAddress: Option[InetAddress],
-	responseTransformer: Option[ResponseTransformer],
-	checks: List[HttpCheck],
-	maxRedirects: Option[Int],
+	baseURLs: List[String],
 	warmUpUrl: Option[String],
-	fetchHtmlResources: Boolean,
-	htmlResourcesFetchingFilters: Option[Filters],
-	maxConnectionsPerHost: Int,
-	extraInfoExtractor: Option[ExtraInfoExtractor]) extends Protocol with StrictLogging {
+	enginePart: HttpProtocolEnginePart,
+	requestPart: HttpProtocolRequestPart,
+	responsePart: HttpProtocolResponsePart,
+	wsPart: HttpProtocolWsPart,
+	proxyPart: HttpProtocolProxyPart) extends Protocol with StrictLogging {
 
-	val roundRobinUrls = RoundRobin(baseURLs.toArray)
-
-	def baseURL(): Option[String] = baseURLs match {
-		case Nil => None
-		case _ => Some(roundRobinUrls.next)
-	}
+	private val baseURLF = HttpProtocol.nextBaseUrlF(baseURLs)
+	def baseURL(): Option[String] = baseURLF()
 
 	override def warmUp() {
 
@@ -126,9 +123,9 @@ case class HttpProtocol(
 					.setHeader(USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
 
 				if (url.startsWith("http://"))
-					proxy.foreach(requestBuilder.setProxyServer)
+					proxyPart.proxy.foreach(requestBuilder.setProxyServer)
 				else
-					secureProxy.foreach(requestBuilder.setProxyServer)
+					proxyPart.secureProxy.foreach(requestBuilder.setProxyServer)
 
 				try {
 					HttpEngine.instance.defaultAHC.executeRequest(requestBuilder.build).get
@@ -157,3 +154,39 @@ case class HttpProtocol(
 		logger.info("Warm up done")
 	}
 }
+
+case class HttpProtocolEnginePart(
+	shareClient: Boolean,
+	shareConnections: Boolean,
+	maxConnectionsPerHost: Int,
+	virtualHost: Option[Expression[String]],
+	localAddress: Option[InetAddress])
+
+case class HttpProtocolRequestPart(
+	baseHeaders: Map[String, Expression[String]],
+	basicAuth: Option[Expression[Realm]],
+	autoReferer: Boolean,
+	cache: Boolean)
+
+case class HttpProtocolResponsePart(
+	followRedirect: Boolean,
+	maxRedirects: Option[Int],
+	discardResponseChunks: Boolean,
+	responseTransformer: Option[ResponseTransformer],
+	checks: List[HttpCheck],
+	extraInfoExtractor: Option[ExtraInfoExtractor],
+	fetchHtmlResources: Boolean,
+	htmlResourcesFetchingFilters: Option[Filters])
+
+case class HttpProtocolWsPart(
+	wsBaseURLs: List[String],
+	reconnect: Boolean) {
+
+	private val wsBaseURLF = HttpProtocol.nextBaseUrlF(wsBaseURLs)
+	def wsBaseURL(): Option[String] = wsBaseURLF()
+}
+
+case class HttpProtocolProxyPart(
+	proxy: Option[ProxyServer],
+	secureProxy: Option[ProxyServer],
+	proxyExceptions: Seq[String])

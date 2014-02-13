@@ -69,6 +69,8 @@ object ConfigurationConstants {
 	val CONF_HTTP_BASIC_AUTH_USERNAME = "gatling.http.basicAuth.username"
 	val CONF_HTTP_BASIC_AUTH_PASSWORD = "gatling.http.basicAuth.password"
 	val CONF_HTTP_WARM_UP_URL = "gatling.http.warmUpUrl"
+	val CONF_HTTP_WS_BASE_URLS = "gatling.http.ws.baseUrls"
+	val CONF_HTTP_WS_RECONNECT = "gatling.http.ws.reconnect"
 	val CONF_HTTP_SSL_TRUST_STORE_TYPE = "gatling.http.ssl.trustStore.type"
 	val CONF_HTTP_SSL_TRUST_STORE_FILE = "gatling.http.ssl.trustStore.file"
 	val CONF_HTTP_SSL_TRUST_STORE_PASSWORD = "gatling.http.ssl.trustStore.password"

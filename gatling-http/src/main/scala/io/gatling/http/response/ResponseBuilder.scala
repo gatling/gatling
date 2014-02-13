@@ -49,9 +49,9 @@ object ResponseBuilder {
 
 		val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy).toSet
 
-		val storeBodyParts = !protocol.discardResponseChunks || !responseBodyUsageStrategies.isEmpty
+		val storeBodyParts = !protocol.responsePart.discardResponseChunks || !responseBodyUsageStrategies.isEmpty
 
-		request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, protocol.fetchHtmlResources)
+		request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, protocol.responsePart.fetchHtmlResources)
 	}
 }
 

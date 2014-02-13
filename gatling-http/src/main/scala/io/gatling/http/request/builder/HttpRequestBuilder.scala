@@ -247,14 +247,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 
 		def configureQueryCookiesAndProxy(requestBuilder: RequestBuilder)(uri: URI): Validation[RequestBuilder] = {
 
-			if (!protocol.proxyExceptions.contains(uri.getHost)) {
+			if (!protocol.proxyPart.proxyExceptions.contains(uri.getHost)) {
 				if (uri.getScheme == Protocol.HTTP.getProtocol)
-					httpAttributes.proxy.orElse(protocol.proxy).foreach(requestBuilder.setProxyServer)
+					httpAttributes.proxy.orElse(protocol.proxyPart.proxy).foreach(requestBuilder.setProxyServer)
 				else
-					httpAttributes.secureProxy.orElse(protocol.secureProxy).foreach(requestBuilder.setProxyServer)
+					httpAttributes.secureProxy.orElse(protocol.proxyPart.secureProxy).foreach(requestBuilder.setProxyServer)
 			}
 
-			protocol.localAddress.foreach(requestBuilder.setLocalInetAddress)
+			protocol.enginePart.localAddress.foreach(requestBuilder.setLocalInetAddress)
 			httpAttributes.address.foreach(requestBuilder.setInetAddress)
 
 			CookieHandling.getStoredCookies(session, uri).foreach(requestBuilder.addCookie)
@@ -269,14 +269,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		}
 
 		def configureVirtualHost(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
-			httpAttributes.virtualHost.orElse(protocol.virtualHost) match {
+			httpAttributes.virtualHost.orElse(protocol.enginePart.virtualHost) match {
 				case Some(virtualHost) => virtualHost(session).map(requestBuilder.setVirtualHost)
 				case _ => requestBuilder.success
 			}
 
 		def configureHeaders(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
 
-			val headers = protocol.baseHeaders ++ httpAttributes.headers
+			val headers = protocol.requestPart.baseHeaders ++ httpAttributes.headers
 
 			val requestBuilderWithHeaders = headers.foldLeft(requestBuilder.success) { (requestBuilder, header) =>
 				val (key, value) = header
@@ -299,7 +299,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		}
 
 		def configureRealm(requestBuilder: RequestBuilder): Validation[RequestBuilder] =
-			httpAttributes.realm.orElse(protocol.basicAuth) match {
+			httpAttributes.realm.orElse(protocol.requestPart.basicAuth) match {
 				case Some(realm) => realm(session).map(requestBuilder.setRealm)
 				case None => requestBuilder.success
 			}
@@ -307,7 +307,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 		val useRawUrl = httpAttributes.useRawUrl.getOrElse(configuration.http.ahc.useRawUrl)
 		val requestBuilder = new RequestBuilder(httpAttributes.method, useRawUrl).setBodyEncoding(configuration.core.encoding)
 
-		if (!protocol.shareConnections) requestBuilder.setConnectionPoolKeyStrategy(new ConnectionPoolKeyStrategy(session))
+		if (!protocol.enginePart.shareConnections) requestBuilder.setConnectionPoolKeyStrategy(new ConnectionPoolKeyStrategy(session))
 
 		buildURI(httpAttributes.urlOrURI)
 			.flatMap(configureQueryCookiesAndProxy(requestBuilder))
@@ -337,20 +337,20 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](va
 			if (httpAttributes.ignoreDefaultChecks)
 				httpAttributes.checks
 			else
-				protocol.checks ::: httpAttributes.checks
+				protocol.responsePart.checks ::: httpAttributes.checks
 
 		val resolvedChecks = (checks.find(_.order == Status) match {
 			case None => HttpRequestActionBuilder.defaultHttpCheck :: checks
 			case _ => checks
 		}).sorted
 
-		val resolvedResponseTransformer = httpAttributes.responseTransformer.orElse(protocol.responseTransformer)
+		val resolvedResponseTransformer = httpAttributes.responseTransformer.orElse(protocol.responsePart.responseTransformer)
 
-		val resolvedMaxRedirects = httpAttributes.maxRedirects.orElse(protocol.maxRedirects)
+		val resolvedMaxRedirects = httpAttributes.maxRedirects.orElse(protocol.responsePart.maxRedirects)
 
 		val resolvedResources = httpAttributes.explicitResources.filter(_.httpAttributes.method == "GET").map(_.build(protocol, throttled))
 
-		val resolvedExtraInfoExtractor = httpAttributes.extraInfoExtractor.orElse(protocol.extraInfoExtractor)
+		val resolvedExtraInfoExtractor = httpAttributes.extraInfoExtractor.orElse(protocol.responsePart.extraInfoExtractor)
 
 		HttpRequest(
 			httpAttributes.requestName,

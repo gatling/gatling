@@ -176,7 +176,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
 	def startHttpTransaction(tx: HttpTx) {
 
-		val (newTx, httpClient) = if (tx.protocol.shareClient)
+		val (newTx, httpClient) = if (tx.protocol.enginePart.shareClient)
 			(tx, defaultAHC)
 		else
 			tx.session(ahcAttributeName).asOption[AsyncHttpClient] match {

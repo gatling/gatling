@@ -75,7 +75,7 @@ object ResourceFetcher extends StrictLogging {
 	}
 
 	def lastModifiedOrEtag(response: Response, protocol: HttpProtocol): Option[String] =
-		if (protocol.cache)
+		if (protocol.requestPart.cache)
 			response.header(HeaderNames.LAST_MODIFIED).orElse(response.header(HeaderNames.ETAG))
 		else
 			None
@@ -86,7 +86,7 @@ object ResourceFetcher extends StrictLogging {
 		val protocol = tx.protocol
 
 		def pageResourcesRequests(): List[NamedRequest] =
-			pageResources(htmlDocumentURI, protocol.htmlResourcesFetchingFilters, response.body.string.unsafeChars)
+			pageResources(htmlDocumentURI, protocol.responsePart.htmlResourcesFetchingFilters, response.body.string.unsafeChars)
 				.flatMap(_.toRequest(protocol, tx.throttled))
 
 		val inferredResources: List[NamedRequest] = response.statusCode match {
@@ -153,7 +153,7 @@ class ResourceFetcher(tx: HttpTx, initialResources: Iterable[NamedRequest]) exte
 	var session = tx.session
 	val alreadySeen: Set[URI] = initialResources.map(_.ahcRequest.getURI).toSet
 	val bufferedRequestsByHost = mutable.HashMap.empty[String, List[NamedRequest]].withDefaultValue(Nil)
-	val availableTokensByHost = mutable.HashMap.empty[String, Int].withDefaultValue(tx.protocol.maxConnectionsPerHost)
+	val availableTokensByHost = mutable.HashMap.empty[String, Int].withDefaultValue(tx.protocol.enginePart.maxConnectionsPerHost)
 	var pendingRequestsCount = initialResources.size
 	var globalStatus: Status = OK
 	val start = nowMillis
@@ -294,14 +294,14 @@ class ResourceFetcher(tx: HttpTx, initialResources: Iterable[NamedRequest]) exte
 								case _ =>
 									// cache entry missing or expired, update it
 									ResourceFetcher.cssContentCache.remove(protocol -> uri)
-									val inferredResources = ResourceFetcher.cssResources(uri, protocol.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
+									val inferredResources = ResourceFetcher.cssResources(uri, protocol.responsePart.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
 									ResourceFetcher.inferredResourcesCache.put((protocol, uri), InferredPageResources(newLastModifiedOrEtag, inferredResources))
 									inferredResources
 							}
 
 						case None =>
 							// don't cache
-							ResourceFetcher.cssResources(uri, protocol.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
+							ResourceFetcher.cssResources(uri, protocol.responsePart.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
 					}
 
 				case Some(304) =>

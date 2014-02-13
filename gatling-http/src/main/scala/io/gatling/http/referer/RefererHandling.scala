@@ -31,6 +31,6 @@ object RefererHandling {
 
 		def isRealPage(request: Request): Boolean = !request.getHeaders.containsKey(HeaderNames.X_REQUESTED_WITH) && Option(request.getHeaders.get(HeaderNames.ACCEPT)).exists(_.get(0).contains("html"))
 
-		if (protocol.autoReferer && isRealPage(request)) session.set(refererAttributeName, request.getUrl) else session
+		if (protocol.requestPart.autoReferer && isRealPage(request)) session.set(refererAttributeName, request.getUrl) else session
 	}
 }

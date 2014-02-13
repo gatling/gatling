@@ -117,7 +117,7 @@ class AsyncHandlerActor extends BaseActor {
 		logger.trace(dump)
 
 		val extraInfo: List[Any] = try {
-			tx.protocol.extraInfoExtractor match {
+			tx.protocol.responsePart.extraInfoExtractor match {
 				case Some(extractor) => extractor(tx.requestName, status, tx.session, tx.request, response)
 				case _ => Nil
 			}
@@ -155,7 +155,7 @@ class AsyncHandlerActor extends BaseActor {
 
 			tx.next ! resourceMessage
 
-		} else if (tx.protocol.fetchHtmlResources && response.isReceived && isHtml(response.headers)) {
+		} else if (tx.protocol.responsePart.fetchHtmlResources && response.isReceived && isHtml(response.headers)) {
 
 			val explicitResources =
 				if (!tx.explicitResources.isEmpty)
@@ -195,34 +195,35 @@ class AsyncHandlerActor extends BaseActor {
 
 		def redirect(sessionUpdates: Session => Session) {
 
-			if (tx.protocol.maxRedirects.exists(_ == tx.redirectCount)) {
-				ko(tx, sessionUpdates, response, s"Too many redirects, max is ${tx.protocol.maxRedirects.get}")
+			tx.protocol.responsePart.maxRedirects match {
+				case Some(maxRedirects) if maxRedirects == tx.redirectCount =>
+					ko(tx, sessionUpdates, response, s"Too many redirects, max is $maxRedirects")
 
-			} else {
-				val newTx = tx.copy(session = sessionUpdates(tx.session))
+				case _ =>
+					val newTx = tx.copy(session = sessionUpdates(tx.session))
 
-				logRequest(newTx, OK, response)
+					logRequest(newTx, OK, response)
 
-				// FIXME handle error when redirect without location?
-				val redirectURI = resolveFromURI(tx.request.getURI, response.header(HeaderNames.LOCATION).get)
+					// FIXME handle error when redirect without location?
+					val redirectURI = resolveFromURI(tx.request.getURI, response.header(HeaderNames.LOCATION).get)
 
-				val requestBuilder = new RequestBuilder(tx.request)
-					.setMethod("GET")
-					.setBodyEncoding(configuration.core.encoding)
-					.setQueryParameters(null.asInstanceOf[FluentStringsMap])
-					.setParameters(null.asInstanceOf[FluentStringsMap])
-					.setURI(redirectURI)
-					.setConnectionPoolKeyStrategy(tx.request.getConnectionPoolKeyStrategy)
+					val requestBuilder = new RequestBuilder(tx.request)
+						.setMethod("GET")
+						.setBodyEncoding(configuration.core.encoding)
+						.setQueryParameters(null.asInstanceOf[FluentStringsMap])
+						.setParameters(null.asInstanceOf[FluentStringsMap])
+						.setURI(redirectURI)
+						.setConnectionPoolKeyStrategy(tx.request.getConnectionPoolKeyStrategy)
 
-				for (cookie <- CookieHandling.getStoredCookies(newTx.session, redirectURI))
-					requestBuilder.addOrReplaceCookie(cookie)
+					for (cookie <- CookieHandling.getStoredCookies(newTx.session, redirectURI))
+						requestBuilder.addOrReplaceCookie(cookie)
 
-				val newRequest = requestBuilder.build
-				newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
-				newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
+					val newRequest = requestBuilder.build
+					newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
+					newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
 
-				val redirectTx = newTx.copy(request = newRequest, redirectCount = tx.redirectCount + 1)
-				HttpRequestAction.beginHttpTransaction(redirectTx)
+					val redirectTx = newTx.copy(request = newRequest, redirectCount = tx.redirectCount + 1)
+					HttpRequestAction.beginHttpTransaction(redirectTx)
 			}
 		}
 
@@ -241,7 +242,7 @@ class AsyncHandlerActor extends BaseActor {
 			case Some(status) =>
 				val updateWithUpdatedCookies: Session => Session = CookieHandling.storeCookies(_, status.getUrl, response.cookies)
 
-				if (HttpHelper.isRedirect(status.getStatusCode) && tx.protocol.followRedirect)
+				if (HttpHelper.isRedirect(status.getStatusCode) && tx.protocol.responsePart.followRedirect)
 					redirect(updateWithUpdatedCookies)
 
 				else {

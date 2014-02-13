@@ -21,13 +21,14 @@ import java.net.URI
 
 import com.ning.http.client.websocket.{ WebSocket, WebSocketTextListener }
 
-import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
-import io.gatling.core.akka.BaseActor
+import akka.actor.ActorDSL.actor
 import io.gatling.core.action.{ Action, Chainable, Failable, Interruptable }
+import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.util.{ RequestLogger, WebSocketClient }
 
@@ -39,6 +40,15 @@ private[http] class OpenWebSocketAction(
 	requestLogger: RequestLogger,
 	val next: ActorRef,
 	protocol: HttpProtocol) extends Interruptable with Failable {
+
+	def makeAbsolute(url: String): Validation[String] =
+		if (url.startsWith("ws"))
+			url.success
+		else
+			protocol.wsPart.wsBaseURL match {
+				case Some(baseURL) => (baseURL + url).success
+				case _ => s"No protocol.wsBaseURL defined but provided url is relative : $url".failure
+			}
 
 	def executeOrFail(session: Session) = {
 
@@ -90,7 +100,8 @@ private[http] class OpenWebSocketAction(
 		for {
 			actionName <- actionName(session)
 			url <- url(session)
-		} yield open(actionName, url)
+			absoluteUrl <- makeAbsolute(url)
+		} yield open(actionName, absoluteUrl)
 	}
 }
 

@@ -40,7 +40,7 @@ class HttpProtocolBuilderSpec extends Specification {
 				.extraInfoExtractor(expectedExtractor)
 			val config: HttpProtocol = builder.build
 
-			config.extraInfoExtractor.get should beEqualTo(expectedExtractor)
+			config.responsePart.extraInfoExtractor.get should beEqualTo(expectedExtractor)
 		}
 
 		"be able to support a base URL" in {

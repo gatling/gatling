@@ -36,7 +36,8 @@ class CacheHandlingSpec extends Specification with Mockito {
 
 	"getResponseExpires()" should {
 
-		val http = HttpProtocol.default.copy(cache = true)
+		val defaultHttp = HttpProtocol.default
+		val http = defaultHttp.copy(requestPart = defaultHttp.requestPart.copy(cache = true))
 		val request = new RequestBuilder().setUrl("http://localhost").build
 
 		def getResponseExpire(headers: Seq[(String, String)]) = {

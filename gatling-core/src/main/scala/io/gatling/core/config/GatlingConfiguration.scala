@@ -35,9 +35,9 @@ object GatlingConfiguration {
 	var configuration: GatlingConfiguration = _
 
 	implicit class ConfigStringSeq(val string: String) extends AnyVal {
-		def toStringSeq: Seq[String] = string.trim match {
+		def toStringList: List[String] = string.trim match {
 			case "" => Nil
-			case s => s.split(",").map(_.trim)
+			case s => s.split(",").map(_.trim).toList
 		}
 	}
 
@@ -93,7 +93,7 @@ object GatlingConfiguration {
 					percentile1 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE1),
 					percentile2 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE2))),
 			http = HttpConfiguration(
-				baseURLs = config.getString(CONF_HTTP_BASE_URLS).toStringSeq,
+				baseURLs = config.getString(CONF_HTTP_BASE_URLS).toStringList,
 				proxy = config.getString(CONF_HTTP_PROXY_HOST).trimToOption.map { host =>
 					val port = config.getInt(CONF_HTTP_PROXY_PORT)
 					val securedPort = config.getInt(CONF_HTTP_PROXY_SECURED_PORT) match {
@@ -113,6 +113,8 @@ object GatlingConfiguration {
 				shareConnections = config.getBoolean(CONF_HTTP_SHARE_CONNECTIONS),
 				basicAuth = config.getString(CONF_HTTP_BASIC_AUTH_USERNAME).trimToOption.map(username => Credentials(username, config.getString(CONF_HTTP_BASIC_AUTH_PASSWORD))),
 				warmUpUrl = config.getString(CONF_HTTP_WARM_UP_URL).trimToOption,
+				wsBaseURLs = config.getString(CONF_HTTP_WS_BASE_URLS).toStringList,
+				wsReconnect = config.getBoolean(CONF_HTTP_WS_RECONNECT),
 				ssl = {
 					def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
 
@@ -149,7 +151,7 @@ object GatlingConfiguration {
 					webSocketIdleTimeoutInMs = config.getInt(CONF_HTTP_AHC_WEBSOCKET_IDLE_TIMEOUT_IN_MS),
 					useRelativeURIsWithSSLProxies = config.getBoolean(CONF_HTTP_AHC_USE_RELATIVE_URIS_WITH_SSL_PROXIES))),
 			data = DataConfiguration(
-				dataWriterClasses = config.getString(CONF_DATA_WRITER_CLASS_NAMES).toStringSeq.map {
+				dataWriterClasses = config.getString(CONF_DATA_WRITER_CLASS_NAMES).toStringList.map {
 					case "console" => "io.gatling.core.result.writer.ConsoleDataWriter"
 					case "file" => "io.gatling.core.result.writer.FileDataWriter"
 					case "graphite" => "io.gatling.metrics.GraphiteDataWriter"
@@ -261,7 +263,7 @@ case class IndicatorsConfiguration(
 	percentile2: Int)
 
 case class HttpConfiguration(
-	baseURLs: Seq[String],
+	baseURLs: List[String],
 	proxy: Option[Proxy],
 	followRedirect: Boolean,
 	autoReferer: Boolean,
@@ -273,6 +275,8 @@ case class HttpConfiguration(
 	shareConnections: Boolean,
 	basicAuth: Option[Credentials],
 	warmUpUrl: Option[String],
+	wsBaseURLs: List[String],
+	wsReconnect: Boolean,
 	ssl: SslConfiguration,
 	ahc: AHCConfiguration)
 
