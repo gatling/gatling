@@ -34,7 +34,7 @@ import io.gatling.http.HeaderNames.{ ACCEPT, ACCEPT_ENCODING, ACCEPT_LANGUAGE, C
 import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine, ProxyConverter }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
-import io.gatling.http.request.builder.HttpRequestBaseBuilder
+import io.gatling.http.request.builder.Http
 import io.gatling.http.response.{ Response, ResponseTransformer }
 import io.gatling.http.util.HttpHelper.buildRealm
 
@@ -138,13 +138,13 @@ case class HttpProtocol(
 		if (HttpProtocol.warmUpUrls.isEmpty) {
 			val expression = "foo".el[String]
 
-			new HttpRequestBaseBuilder(expression)
+			new Http(expression)
 				.get(expression)
 				.header("bar", expression)
 				.queryParam(expression, expression)
 				.build(HttpProtocol.default, false)
 
-			new HttpRequestBaseBuilder(expression)
+			new Http(expression)
 				.post(expression)
 				.header("bar", expression)
 				.param(expression, expression)

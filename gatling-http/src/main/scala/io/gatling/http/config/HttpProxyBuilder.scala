@@ -16,7 +16,6 @@
 package io.gatling.http.config
 
 import io.gatling.core.config.{ Credentials, Proxy }
-import io.gatling.http.util.HttpHelper.buildProxy
 
 object HttpProxyBuilder {
 

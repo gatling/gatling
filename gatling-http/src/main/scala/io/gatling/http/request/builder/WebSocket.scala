@@ -16,23 +16,27 @@
  */
 package io.gatling.http.request.builder
 
-import io.gatling.core.session.Expression
-import io.gatling.http.action.{ CloseWebSocketActionBuilder, OpenWebSocketActionBuilder, SendWebSocketMessageActionBuilder }
-import io.gatling.http.util.{ RequestLogger, WebSocketClient }
+import io.gatling.core.session.{ Expression, SessionPrivateAttributes }
+import io.gatling.http.action.ws.{ CloseWebSocketActionBuilder, SendWebSocketMessageActionBuilder }
+import io.gatling.http.request.builder.WebSocket.defaultWebSocketName
+
+object WebSocket {
+
+	val defaultWebSocketName = SessionPrivateAttributes.privateAttributePrefix + "http.webSocket"
+}
 
 /**
  * @param actionName The action name in the log
  */
-class WebSocketBaseBuilder(val actionName: Expression[String]) {
-	private val DEFAULT_ATTRIBUTE_NAME = "io.gatling.http.request.builder.WebSocket"
+class WebSocket(requestName: Expression[String]) {
 
 	/**
 	 * Opens a web socket and stores it in the session.
 	 *
-	 * @param fUrl The socket URL
+	 * @param url The socket URL
 	 * @param attributeName The name of the session attribute used to store the socket
 	 */
-	def open(fUrl: Expression[String], attributeName: String = DEFAULT_ATTRIBUTE_NAME)(implicit webSocketClient: WebSocketClient, requestLogger: RequestLogger) = new OpenWebSocketActionBuilder(actionName, attributeName, fUrl, webSocketClient, requestLogger)
+	def open(url: Expression[String], wsName: String = defaultWebSocketName) = new OpenWebSocketRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), wsName)
 
 	/**
 	 * Sends a message on the given socket.
@@ -40,16 +44,12 @@ class WebSocketBaseBuilder(val actionName: Expression[String]) {
 	 * @param fMessage The message
 	 * @param attributeName The name of the session attribute storing the socket
 	 */
-	def sendMessage(fMessage: Expression[String], attributeName: String = DEFAULT_ATTRIBUTE_NAME) = new SendWebSocketMessageActionBuilder(actionName, attributeName, fMessage)
+	def sendMessage(message: Expression[String], wsName: String = defaultWebSocketName) = new SendWebSocketMessageActionBuilder(requestName, wsName, message)
 
 	/**
 	 * Closes a web socket.
 	 *
 	 * @param attributeName The name of the session attribute storing the socket
 	 */
-	def close(attributeName: String = DEFAULT_ATTRIBUTE_NAME) = new CloseWebSocketActionBuilder(actionName, attributeName)
-}
-
-object WebSocketBaseBuilder {
-	def websocket(actionName: Expression[String]) = new WebSocketBaseBuilder(actionName)
+	def close(wsName: String = defaultWebSocketName) = new CloseWebSocketActionBuilder(requestName, wsName)
 }

@@ -22,7 +22,7 @@ import com.ning.http.client.Request
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ Success, SuccessWrapper }
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request.builder.HttpRequestBaseBuilder
+import io.gatling.http.request.builder.Http
 
 case class NamedRequest(name: String, ahcRequest: Request)
 
@@ -38,7 +38,7 @@ sealed abstract class EmbeddedResource {
 
 	def toRequest(protocol: HttpProtocol, throttled: Boolean): Option[NamedRequest] = {
 		val urlExpression: Expression[String] = _ => url.success
-		val httpRequest = new HttpRequestBaseBuilder(urlExpression).get(uri).build(protocol, throttled)
+		val httpRequest = new Http(urlExpression).get(uri).build(protocol, throttled)
 
 		// for now, no better way to build a request than reusing HttpRequestBaseBuilder and passing a mock session
 		httpRequest.ahcRequest(EmbeddedResource.mockSession) match {

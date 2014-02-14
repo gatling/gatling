@@ -37,7 +37,6 @@ import io.gatling.http.action.{ HttpRequestAction, HttpRequestActionBuilder }
 import io.gatling.http.ahc.HttpTx
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request.builder.HttpRequestBaseBuilder
 import io.gatling.http.response.{ Response, ResponseBuilder }
 import jsr166e.ConcurrentHashMapV8
 

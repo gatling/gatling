@@ -15,15 +15,10 @@
  */
 package io.gatling.http.request.builder
 
-import java.net.URI
-
-import com.ning.http.client.RequestBuilder
-import com.ning.http.multipart.StringPart
-
 import io.gatling.core.session.{ Expression, RichExpression, Session }
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.{ FileBodyPart, RawFileBodies }
-import io.gatling.http.util.HttpHelper
+import io.gatling.http.request.builder.ahc.AHCHttpRequestWithParamsBuilder
 
 /**
  * This class serves as model to HTTP request with a body and parameters
@@ -32,29 +27,20 @@ import io.gatling.http.util.HttpHelper
  * @param body the body that should be added to the request
  * @param params the parameters that should be added to the request
  */
-abstract class AbstractHttpRequestWithParamsBuilder[B <: AbstractHttpRequestWithParamsBuilder[B]](
+class HttpRequestWithParamsBuilder(
+	commonAttributes: CommonAttributes,
 	httpAttributes: HttpAttributes,
 	params: List[HttpParam])
-	extends AbstractHttpRequestBuilder[B](httpAttributes) {
+	extends AbstractHttpRequestBuilder[HttpRequestWithParamsBuilder](commonAttributes, httpAttributes) {
 
-	/**
-	 * Method overridden in children to create a new instance of the correct type
-	 *
-	 * @param params the parameters that should be added to the request
-	 * @param body the body that should be added to the request
-	 * @param paramsAttributes the attributes for requests with HTTP params
-	 */
-	private[http] def newInstance(
-		httpAttributes: HttpAttributes,
-		params: List[HttpParam]): B
+	private[http] def newInstance(commonAttributes: CommonAttributes) = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, params)
+	private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, params)
 
-	private[http] def newInstance(httpAttributes: HttpAttributes): B = newInstance(httpAttributes, params)
-
-	def param(key: Expression[String], value: Expression[Any]): B = param(SimpleParam(key, value))
-	def multivaluedParam(key: Expression[String], values: Expression[Seq[Any]]): B = param(MultivaluedParam(key, values))
-	def paramsSequence(seq: Expression[Seq[(String, Any)]]): B = param(ParamSeq(seq))
-	def paramsMap(map: Expression[Map[String, Any]]): B = param(ParamMap(map))
-	private def param(param: HttpParam): B = newInstance(httpAttributes, param :: params)
+	def param(key: Expression[String], value: Expression[Any]): HttpRequestWithParamsBuilder = param(SimpleParam(key, value))
+	def multivaluedParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestWithParamsBuilder = param(MultivaluedParam(key, values))
+	def paramsSequence(seq: Expression[Seq[(String, Any)]]): HttpRequestWithParamsBuilder = param(ParamSeq(seq))
+	def paramsMap(map: Expression[Map[String, Any]]): HttpRequestWithParamsBuilder = param(ParamMap(map))
+	private def param(param: HttpParam): HttpRequestWithParamsBuilder = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, param :: params)
 
 	def formUpload(name: Expression[String], filePath: Expression[String]) = {
 
@@ -64,45 +50,5 @@ abstract class AbstractHttpRequestWithParamsBuilder[B <: AbstractHttpRequestWith
 		bodyPart(FileBodyPart(name, file, _fileName = Some(filename))).asMultipartForm
 	}
 
-	override protected def configureParts(session: Session)(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
-
-		def configureAsParams: Validation[RequestBuilder] = params match {
-			case Nil => requestBuilder.success
-			case _ =>
-				// As a side effect, requestBuilder.setParameters() resets the body data, so, it should not be called with empty parameters 
-				HttpHelper.httpParamsToFluentMap(params, session).map(requestBuilder.setParameters)
-		}
-
-		def configureAsStringParts: Validation[RequestBuilder] =
-			HttpHelper.resolveParams(params, session).map { params =>
-				for {
-					(key, values) <- params
-					value <- values
-				} requestBuilder.addBodyPart(new StringPart(key, value))
-
-				requestBuilder
-			}
-
-		val requestBuilderWithParams = httpAttributes.bodyParts match {
-			case Nil => configureAsParams
-			case _ => configureAsStringParts
-		}
-
-		requestBuilderWithParams.flatMap(super.configureParts(session))
-	}
-}
-
-object HttpRequestWithParamsBuilder {
-
-	def apply(method: String, requestName: Expression[String], urlOrURI: Either[Expression[String], URI]) = new HttpRequestWithParamsBuilder(HttpAttributes(requestName, method, urlOrURI), Nil)
-}
-
-class HttpRequestWithParamsBuilder(
-	httpAttributes: HttpAttributes,
-	params: List[HttpParam])
-	extends AbstractHttpRequestWithParamsBuilder[HttpRequestWithParamsBuilder](httpAttributes, params) {
-
-	private[http] def newInstance(
-		httpAttributes: HttpAttributes,
-		params: List[HttpParam]) = new HttpRequestWithParamsBuilder(httpAttributes, params)
+	override def newAHCRequestBuilder(session: Session, protocol: HttpProtocol) = new AHCHttpRequestWithParamsBuilder(commonAttributes, httpAttributes, params, session, protocol)
 }

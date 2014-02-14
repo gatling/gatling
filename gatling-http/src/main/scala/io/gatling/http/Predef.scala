@@ -16,15 +16,14 @@
 package io.gatling.http
 
 import io.gatling.core.result.message.{ KO, Status }
-import io.gatling.core.session.{ Expression, RichExpression, Session }
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.action.{ AddCookieBuilder, CookieDSL }
+import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.config.HttpProtocolBuilder
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.request.BodyProcessors
-import io.gatling.http.request.builder.{ HttpRequestBaseBuilder, WebSocketBaseBuilder }
-import io.gatling.http.util.{ DefaultRequestLogger, DefaultWebSocketClient }
-import io.gatling.http.cache.CacheHandling
+import io.gatling.http.request.builder.{ Http, WebSocket }
 
 object Predef extends HttpCheckSupport {
 	type Request = com.ning.http.client.Request
@@ -34,16 +33,13 @@ object Predef extends HttpCheckSupport {
 
 	val Proxy = io.gatling.http.config.HttpProxyBuilder.apply _
 
-	def http(requestName: Expression[String]) = new HttpRequestBaseBuilder(requestName)
+	def http(requestName: Expression[String]) = new Http(requestName)
 	def addCookie(cookie: CookieDSL) = new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.expires.getOrElse(-1L), cookie.maxAge.getOrElse(-1))
 	def flushSessionCookies = CookieHandling.flushSessionCookies
 	def flushCookieJar = CookieHandling.flushCookieJar
-	def flushCache = CacheHandling.flushCache
-	def flushAllHttpState: Expression[Session] = session => flushSessionCookies(session).flatMap(flushCookieJar).flatMap(flushCache)
+	def flushHttpCache = CacheHandling.flushCache
 
-	def websocket(actionName: Expression[String]) = WebSocketBaseBuilder.websocket(actionName)
-	implicit val defaultWebSocketClient = DefaultWebSocketClient
-	implicit val defaultRequestLogger = DefaultRequestLogger
+	def websocket(requestName: Expression[String]) = new WebSocket(requestName)
 
 	val HttpHeaderNames = HeaderNames
 	val HttpHeaderValues = HeaderValues

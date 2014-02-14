@@ -174,22 +174,28 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
 	val ahcAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.ahc"
 
+	def httpClient(session: Session, protocol: HttpProtocol): (Session, AsyncHttpClient) = {
+		if (protocol.enginePart.shareClient)
+			(session, defaultAHC)
+		else
+			session(ahcAttributeName).asOption[AsyncHttpClient] match {
+				case Some(client) => (session, client)
+				case _ =>
+					val httpClient = newAHC(session)
+					(session.set(ahcAttributeName, httpClient), httpClient)
+			}
+	}
+
 	def startHttpTransaction(tx: HttpTx) {
 
-		val (newTx, httpClient) = if (tx.protocol.enginePart.shareClient)
-			(tx, defaultAHC)
-		else
-			tx.session(ahcAttributeName).asOption[AsyncHttpClient] match {
-				case Some(client) => (tx, client)
-				case _ =>
-					val httpClient = newAHC(tx.session)
-					(tx.copy(session = tx.session.set(ahcAttributeName, httpClient)), httpClient)
-
-			}
+		val (newTx, client) = {
+			val (newSession, client) = httpClient(tx.session, tx.protocol)
+			(tx.copy(session = newSession), client)
+		}
 
 		if (tx.throttled)
-			Controller ! ThrottledRequest(tx.session.scenarioName, () => httpClient.executeRequest(newTx.request, new AsyncHandler(newTx)))
+			Controller ! ThrottledRequest(tx.session.scenarioName, () => client.executeRequest(newTx.request, new AsyncHandler(newTx)))
 		else
-			httpClient.executeRequest(newTx.request, new AsyncHandler(newTx))
+			client.executeRequest(newTx.request, new AsyncHandler(newTx))
 	}
 }
