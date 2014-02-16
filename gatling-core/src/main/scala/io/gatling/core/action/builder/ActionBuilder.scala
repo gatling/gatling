@@ -20,16 +20,24 @@ import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.{ Protocol, Protocols }
 
 /**
- * Top level abstraction for components in charge of building Actions
+ * Top level abstraction for components in charge of building Actions.
+ * ActionBuilder is what is passed to the DSL exec() method.
  */
 trait ActionBuilder extends AkkaDefaults {
 
 	/**
 	 * @param next the Action that will be chained with the Action build by this builder
-	 * @param protocols
-	 * @return the built Action
+	 * @param protocols the protocols configurations
+	 * @return the resulting Action actor
 	 */
 	private[gatling] def build(next: ActorRef, protocols: Protocols): ActorRef
 
+	/**
+	 * Register default values of the protocols that the Actions produced by this ActionBuilder will use.
+	 * With this, the simulation is aware of the protocols and can trigger warmups.
+	 * 
+	 * @param protocols the default protocols
+	 * @return the defaultprotocols updated with the ones used here
+	 */
 	private[gatling] def registerDefaultProtocols(protocols: Protocols): Protocols = protocols
 }

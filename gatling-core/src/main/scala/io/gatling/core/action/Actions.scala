@@ -21,7 +21,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.validation.{ Failure, Validation }
 
 /**
- * Top level abstraction in charge or executing concrete actions along a scenario, for example sending an HTTP request.
+ * Top level abstraction in charge of executing concrete actions along a scenario, for example sending an HTTP request.
  * It is implemented as an Akka Actor that receives Session messages.
  */
 trait Action extends BaseActor {
@@ -39,10 +39,21 @@ trait Action extends BaseActor {
 	def execute(session: Session)
 }
 
+/**
+ * An Action that is to be chained with another.
+ * Almost all Gatling Actions are Chainable.
+ * For example, the final Action at the end of a scenario workflow is not.
+ */
 trait Chainable extends Action {
 
+	/**
+	 * @return the next Action in the scenario workflow
+	 */
 	def next: ActorRef
 
+	/**
+	 * Makes sure that in case of an actor crash, the Session is not lost but passed to the next Action.
+	 */
 	override def preRestart(reason: Throwable, message: Option[Any]) {
 		message.foreach {
 			case session: Session =>
@@ -66,6 +77,10 @@ object Interruptable {
 	}
 }
 
+/**
+ * An Action that can be interrupted/bypassed when some conditions are met.
+ * For example: actions within a loop.
+ */
 trait Interruptable extends Chainable {
 
 	val interrupt = Interruptable.interruptOrElse(super.receive)
@@ -74,7 +89,7 @@ trait Interruptable extends Chainable {
 }
 
 /**
- * Action that handles failures gracefully by returning a Validation
+ * An Action that handles failures gracefully by returning a Validation
  */
 trait Failable { self: Chainable =>
 
