@@ -15,10 +15,9 @@
  */
 package io.gatling.http.request.builder
 
-import io.gatling.core.session.{ Expression, RichExpression, Session }
+import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.{ FileBodyPart, RawFileBodies }
-import io.gatling.http.request.builder.ahc.AHCHttpRequestWithParamsBuilder
 
 /**
  * This class serves as model to HTTP request with a body and parameters
@@ -50,5 +49,5 @@ class HttpRequestWithParamsBuilder(
 		bodyPart(FileBodyPart(name, file, _fileName = Some(filename))).asMultipartForm
 	}
 
-	override def newAHCRequestBuilder(session: Session, protocol: HttpProtocol) = new AHCHttpRequestWithParamsBuilder(commonAttributes, httpAttributes, params, session, protocol)
+	def ahcRequest(protocol: HttpProtocol) = new HttpRequestWithParamsExpressionBuilder(commonAttributes, httpAttributes, params, protocol).build
 }

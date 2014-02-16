@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.request.builder.ahc
+package io.gatling.http.request.builder
 
-import io.gatling.core.session.Session
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request.builder.CommonAttributes
 
-class AHCWebSocketRequestBuilder(commonAttributes: CommonAttributes, session: Session, protocol: HttpProtocol) extends AHCRequestBuilder(commonAttributes, session, protocol) {
+class WebSocketRequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol)
+	extends RequestExpressionBuilder(commonAttributes, protocol) {
 
 	def makeAbsolute(url: String): Validation[String] =
 		if (url.startsWith("ws"))

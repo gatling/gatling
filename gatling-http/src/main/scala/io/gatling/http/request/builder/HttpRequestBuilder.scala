@@ -17,7 +17,7 @@ package io.gatling.http.request.builder
 
 import java.net.{ InetAddress, URI }
 
-import com.ning.http.client.Realm
+import com.ning.http.client.{ Realm, Request }
 import com.ning.http.client.ProxyServer
 import com.ning.http.client.ProxyServer.Protocol
 import com.ning.http.multipart.Part
@@ -40,7 +40,6 @@ import io.gatling.http.referer.RefererHandling
 import io.gatling.http.request.{ Body, BodyPart, ExtraInfoExtractor, HttpRequest }
 import io.gatling.http.response.ResponseTransformer
 import io.gatling.http.util.HttpHelper
-import io.gatling.http.request.builder.ahc.AHCHttpRequestBuilder
 
 case class HttpAttributes(
 	checks: List[HttpCheck] = Nil,
@@ -118,7 +117,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
 	def resources(res: AbstractHttpRequestBuilder[_]*): B = newInstance(httpAttributes.copy(explicitResources = res))
 
-	def newAHCRequestBuilder(session: Session, protocol: HttpProtocol) = new AHCHttpRequestBuilder(commonAttributes, httpAttributes, session, protocol)
+	def ahcRequest(protocol: HttpProtocol): Expression[Request]
 
 	/**
 	 * This method builds the request that will be sent
@@ -126,8 +125,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 	 * @param session the session of the current scenario
 	 */
 	def build(protocol: HttpProtocol, throttled: Boolean): HttpRequest = {
-
-		val ahcRequest = (session: Session) => newAHCRequestBuilder(session, protocol).ahcRequest
 
 		val checks =
 			if (httpAttributes.ignoreDefaultChecks)
@@ -150,7 +147,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
 		HttpRequest(
 			commonAttributes.requestName,
-			ahcRequest,
+			ahcRequest(protocol),
 			resolvedChecks,
 			resolvedResponseTransformer,
 			resolvedExtraInfoExtractor,
@@ -165,4 +162,5 @@ class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes: Htt
 
 	private[http] def newInstance(commonAttributes: CommonAttributes) = new HttpRequestBuilder(commonAttributes, httpAttributes)
 	private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestBuilder(commonAttributes, httpAttributes)
+	def ahcRequest(protocol: HttpProtocol) = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, protocol).build
 }

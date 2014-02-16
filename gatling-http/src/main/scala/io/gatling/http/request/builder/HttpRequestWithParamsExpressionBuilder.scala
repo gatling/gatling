@@ -13,33 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.request.builder.ahc
+package io.gatling.http.request.builder
 
-import com.ning.http.client.RequestBuilder
+import com.ning.http.client.{ RequestBuilder => AHCRequestBuilder }
 import com.ning.http.multipart.StringPart
 
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request.builder.{ CommonAttributes, HttpAttributes, HttpParam, HttpParams }
 
-class AHCHttpRequestWithParamsBuilder(
-	commonAttributes: CommonAttributes,
-	httpAttributes: HttpAttributes,
-	params: List[HttpParam],
-	session: Session,
-	protocol: HttpProtocol) extends AHCHttpRequestBuilder(commonAttributes, httpAttributes, session, protocol) {
+class HttpRequestWithParamsExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, params: List[HttpParam], protocol: HttpProtocol)
+	extends HttpRequestExpressionBuilder(commonAttributes, httpAttributes, protocol) {
 
-	override def configureParts(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
+	override def configureParts(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
 
-		def configureAsParams: Validation[RequestBuilder] = params match {
+		def configureAsParams: Validation[AHCRequestBuilder] = params match {
 			case Nil => requestBuilder.success
 			case _ =>
 				// As a side effect, requestBuilder.setParameters() resets the body data, so, it should not be called with empty parameters 
 				params.resolveFluentStringsMap(session).map(requestBuilder.setParameters)
 		}
 
-		def configureAsStringParts: Validation[RequestBuilder] =
+		def configureAsStringParts: Validation[AHCRequestBuilder] =
 			params.resolveParams(session).map { params =>
 				for {
 					(key, values) <- params
@@ -54,6 +49,6 @@ class AHCHttpRequestWithParamsBuilder(
 			case _ => configureAsStringParts
 		}
 
-		requestBuilderWithParams.flatMap(super.configureParts)
+		requestBuilderWithParams.flatMap(super.configureParts(session))
 	}
 }

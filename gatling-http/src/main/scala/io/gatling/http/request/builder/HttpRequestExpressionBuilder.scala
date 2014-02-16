@@ -13,24 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.request.builder.ahc
+package io.gatling.http.request.builder
 
 import java.net.URI
 
-import com.ning.http.client.RequestBuilder
+import com.ning.http.client.{ RequestBuilder => AHCRequestBuilder }
 
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request.builder.{ CommonAttributes, HttpAttributes }
 
-class AHCHttpRequestBuilder(
-	commonAttributes: CommonAttributes,
-	httpAttributes: HttpAttributes,
-	session: Session,
-	protocol: HttpProtocol) extends AHCRequestBuilder(commonAttributes, session, protocol) {
+class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, protocol: HttpProtocol)
+	extends RequestExpressionBuilder(commonAttributes, protocol) {
 
 	def makeAbsolute(url: String): Validation[String] =
 		if (url.startsWith("http"))
@@ -41,13 +37,13 @@ class AHCHttpRequestBuilder(
 				case _ => s"No protocol.baseURL defined but provided url is relative : $url".failure
 			}
 
-	def configureCaches(uri: URI)(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
+	def configureCaches(session: Session, uri: URI)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
 		CacheHandling.getLastModified(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IF_MODIFIED_SINCE, _))
 		CacheHandling.getEtag(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IF_NONE_MATCH, _))
 		requestBuilder.success
 	}
 
-	def configureParts(requestBuilder: RequestBuilder): Validation[RequestBuilder] = {
+	def configureParts(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
 		require(!httpAttributes.body.isDefined || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
 		httpAttributes.body match {
@@ -71,8 +67,8 @@ class AHCHttpRequestBuilder(
 		}
 	}
 
-	override protected def configureRequestBuilder(uri: URI, requestBuilder: RequestBuilder): Validation[RequestBuilder] =
-		super.configureRequestBuilder(uri, requestBuilder)
-			.flatMap(configureCaches(uri))
-			.flatMap(configureParts)
+	override protected def configureRequestBuilder(session: Session, uri: URI, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
+		super.configureRequestBuilder(session, uri, requestBuilder)
+			.flatMap(configureCaches(session, uri))
+			.flatMap(configureParts(session))
 }
