@@ -20,20 +20,45 @@ import com.ning.http.client.websocket.WebSocket
 
 import akka.actor.ActorRef
 import io.gatling.core.action.{ Action, Chainable, Failable }
+import io.gatling.core.result.message.KO
+import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.validation.{ Failure, Success, SuccessWrapper }
 import io.gatling.http.config.HttpProtocol
 
 class SendWebSocketMessageAction(requestName: Expression[String], wsName: String, message: Expression[String], val next: ActorRef, protocol: HttpProtocol) extends Action with Chainable with Failable {
 
 	def executeOrFail(session: Session) = {
 
-		def send(requestName: String, message: String) {
-			session(wsName).asOption[(ActorRef, WebSocket)].foreach(_._1 ! SendMessage(requestName, message, next, session))
+		def send(requestName: String, message: String) = {
+			session(wsName).validate[(ActorRef, WebSocket)] match {
+				case Success((wsActor, _)) =>
+					wsActor ! SendMessage(requestName, message, next, session)
+					session.success
+
+				case f @ Failure(message) =>
+					val now = nowMillis
+					DataWriter.tell(RequestMessage(
+						session.scenarioName,
+						session.userId,
+						Nil,
+						requestName,
+						now,
+						now,
+						now,
+						now,
+						KO,
+						Some(message),
+						Nil))
+					f
+			}
 		}
 
 		for {
 			requestName <- requestName(session)
 			message <- message(session)
-		} yield send(requestName, message)
+			outcome <- send(requestName, message)
+		} yield outcome
 	}
 }

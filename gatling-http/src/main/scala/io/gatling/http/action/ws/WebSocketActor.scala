@@ -57,7 +57,7 @@ class WebSocketActor(val wsName: String) extends BaseActor {
 			context.stop(self)
 
 		case OnMessage(message) =>
-			logger.debug(s"Received message on websocket '$wsName':\n$message")
+			logger.debug(s"Received message on websocket '$wsName':$message")
 
 		case OnClose =>
 			setOutOfBandError(s"Websocket '$wsName' was unexpectedly closed")

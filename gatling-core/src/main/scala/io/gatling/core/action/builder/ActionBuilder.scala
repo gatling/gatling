@@ -35,7 +35,7 @@ trait ActionBuilder extends AkkaDefaults {
 	/**
 	 * Register default values of the protocols that the Actions produced by this ActionBuilder will use.
 	 * With this, the simulation is aware of the protocols and can trigger warmups.
-	 * 
+	 *
 	 * @param protocols the default protocols
 	 * @return the defaultprotocols updated with the ones used here
 	 */
