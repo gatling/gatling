@@ -40,7 +40,7 @@ case class Failure(message: String) extends Validation[Nothing] {
 	def map[A](f: Nothing => A): Validation[A] = this
 	def flatMap[A](f: Nothing => Validation[A]): Validation[A] = this
 	def mapError(f: String => String): Validation[Nothing] = Failure(f(message))
-	def foreach[A](f: Nothing => A) { }
+	def foreach[A](f: Nothing => A) {}
 	def filter(p: Nothing => Boolean) = this
 	def onSuccess(f: Nothing => Any) {}
 	def onFailure(f: String => Any) { f(message) }
