@@ -172,7 +172,7 @@ class ResourceFetcher(tx: HttpTx, initialResources: Iterable[NamedRequest]) exte
 			next = self,
 			resourceFetching = true)
 
-		HttpRequestAction.beginHttpTransaction(resourceTx)
+		HttpRequestAction.startHttpTransaction(resourceTx)
 	}
 
 	def handleCachedRequest(request: NamedRequest) {

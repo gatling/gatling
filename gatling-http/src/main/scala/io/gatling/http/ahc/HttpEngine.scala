@@ -23,6 +23,7 @@ import org.jboss.netty.util.HashedWheelTimer
 
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
 import com.ning.http.client.providers.netty.{ NettyAsyncHttpProviderConfig, NettyConnectionsPool }
+import com.ning.http.client.websocket.WebSocketUpgradeHandler
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import akka.actor.ActorRef
@@ -31,6 +32,8 @@ import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ Controller, ThrottledRequest }
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.http.action.ws.{ OnFailedOpen, WebSocketListener }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.{ ExtraInfoExtractor, HttpRequest }
@@ -50,6 +53,13 @@ case class HttpTx(session: Session,
 	extraInfoExtractor: Option[ExtraInfoExtractor],
 	resourceFetching: Boolean = false,
 	redirectCount: Int = 0)
+
+case class WebSocketTx(session: Session,
+	request: Request,
+	requestName: String,
+	protocol: HttpProtocol,
+	next: ActorRef,
+	reconnectCount: Int = 0)
 
 object HttpEngine extends AkkaDefaults with StrictLogging {
 
@@ -197,5 +207,24 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 			Controller ! ThrottledRequest(tx.session.scenarioName, () => client.executeRequest(newTx.request, new AsyncHandler(newTx)))
 		else
 			client.executeRequest(newTx.request, new AsyncHandler(newTx))
+	}
+
+	def startWebSocketTransaction(tx: WebSocketTx, wsActor: ActorRef) {
+		val (newTx, client) = {
+			val (newSession, client) = httpClient(tx.session, tx.protocol)
+			(tx.copy(session = newSession), client)
+		}
+
+		val now = nowMillis
+		try {
+			val listener = new WebSocketListener(tx, wsActor, now)
+
+			val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
+			client.executeRequest(tx.request, handler)
+
+		} catch {
+			case e: Exception =>
+				wsActor ! OnFailedOpen(tx, e.getMessage, now, nowMillis)
+		}
 	}
 }

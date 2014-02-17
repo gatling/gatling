@@ -17,14 +17,17 @@
 package io.gatling.http.action.ws
 
 import com.ning.http.client.websocket.WebSocket
-import io.gatling.core.session.Session
+
 import akka.actor.ActorRef
+import io.gatling.core.session.Session
+import io.gatling.http.ahc.WebSocketTx
 
 sealed trait WebSocketEvents
-case class OnOpen(requestName: String, webSocket: WebSocket, started: Long, ended: Long, next: ActorRef, session: Session) extends WebSocketEvents
-case class OnFailedOpen(requestName: String, message: String, started: Long, ended: Long, next: ActorRef, session: Session) extends WebSocketEvents
+case class OnOpen(tx: WebSocketTx, webSocket: WebSocket, started: Long, ended: Long) extends WebSocketEvents
+case class OnFailedOpen(tx: WebSocketTx, message: String, started: Long, ended: Long) extends WebSocketEvents
 case class OnMessage(message: String) extends WebSocketEvents
 case object OnClose extends WebSocketEvents
+case object OnUnexpectedClose extends WebSocketEvents
 case class OnError(t: Throwable) extends WebSocketEvents
 
 case class SendTextMessage(requestName: String, message: String, next: ActorRef, session: Session) extends WebSocketEvents

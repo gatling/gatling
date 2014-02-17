@@ -67,7 +67,8 @@ object HttpProtocol {
 			htmlResourcesFetchingFilters = None),
 		wsPart = HttpProtocolWsPart(
 			wsBaseURLs = Nil,
-			reconnect = false),
+			reconnect = false,
+			maxReconnects = None),
 		proxyPart = HttpProtocolProxyPart(
 			proxy = configuration.http.proxy.map(_.proxyServer),
 			secureProxy = configuration.http.proxy.flatMap(_.secureProxyServer),
@@ -180,7 +181,8 @@ case class HttpProtocolResponsePart(
 
 case class HttpProtocolWsPart(
 	wsBaseURLs: List[String],
-	reconnect: Boolean) {
+	reconnect: Boolean,
+	maxReconnects: Option[Int]) {
 
 	private val wsBaseURLF = HttpProtocol.nextBaseUrlF(wsBaseURLs)
 	def wsBaseURL(): Option[String] = wsBaseURLF()

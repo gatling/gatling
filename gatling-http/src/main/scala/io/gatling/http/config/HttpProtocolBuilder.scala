@@ -108,6 +108,8 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
 	def wsBaseURL(baseUrl: String) = newWsPart(protocol.wsPart.copy(wsBaseURLs = List(baseUrl)))
 	def wsBaseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*) = newWsPart(protocol.wsPart.copy(wsBaseURLs = baseUrl1 :: baseUrl2 :: baseUrls.toList))
 	def wsBaseURLs(baseUrls: List[String]) = newWsPart(protocol.wsPart.copy(wsBaseURLs = baseUrls))
+	def wsReconnect = newWsPart(protocol.wsPart.copy(reconnect = true))
+	def wsMaxReconnects(max: Int) = newWsPart(protocol.wsPart.copy(maxReconnects = Some(max)))
 
 	// proxyPart
 	private def newProxyPart(proxyPart: HttpProtocolProxyPart) = copy(protocol = copy(protocol.copy(proxyPart = proxyPart)))
@@ -115,7 +117,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
 	def proxy(httpProxy: Proxy): HttpProtocolBuilder = newProxyPart(protocol.proxyPart.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
 
 	def build = {
-		require(!(!protocol.enginePart.shareClient && protocol.enginePart.shareConnections), "Invalid protocol configuration: can't stop sharing the HTTP client while still sharing connections!")
+		require(protocol.enginePart.shareClient || !protocol.enginePart.shareConnections, "Invalid protocol configuration: if you stop sharing the HTTP client, you can't share connections!")
 		protocol
 	}
 }

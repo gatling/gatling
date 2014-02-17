@@ -229,7 +229,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 					newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
 
 					val redirectTx = newTx.copy(request = newRequest, redirectCount = tx.redirectCount + 1)
-					HttpRequestAction.beginHttpTransaction(redirectTx)
+					HttpRequestAction.startHttpTransaction(redirectTx)
 			}
 		}
 

@@ -30,9 +30,9 @@ import io.gatling.http.response.ResponseBuilder
 
 object HttpRequestAction extends StrictLogging {
 
-	def beginHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext) {
+	def startHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext) {
 
-		def send(tx: HttpTx) {
+		def startHttpTransaction(tx: HttpTx) {
 			logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
 			HttpEngine.instance.startHttpTransaction(tx)
 		}
@@ -45,9 +45,9 @@ object HttpRequestAction extends StrictLogging {
 		val uri = tx.request.getURI
 		CacheHandling.getExpire(tx.protocol, tx.session, uri) match {
 
-			case None => send(tx)
+			case None => startHttpTransaction(tx)
 
-			case Some(expire) if nowMillis > expire => send(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
+			case Some(expire) if nowMillis > expire => startHttpTransaction(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
 
 			case _ if tx.protocol.responsePart.fetchHtmlResources =>
 				val explicitResources = HttpRequest.buildNamedRequests(tx.explicitResources, tx.session)
@@ -84,5 +84,5 @@ class HttpRequestAction(httpRequest: HttpRequest, val next: ActorRef) extends Re
 			ahcRequest <- ahcRequest(session)
 			newSession = RefererHandling.storeReferer(ahcRequest, session, protocol)
 			tx = HttpTx(newSession, ahcRequest, requestName, checks, responseBuilderFactory, protocol, next, maxRedirects, throttled, explicitResources, extraInfoExtractor)
-		} yield HttpRequestAction.beginHttpTransaction(tx)
+		} yield HttpRequestAction.startHttpTransaction(tx)
 }
