@@ -201,7 +201,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
 		def redirect(sessionUpdates: Session => Session) {
 
-			tx.protocol.responsePart.maxRedirects match {
+			tx.maxRedirects match {
 				case Some(maxRedirects) if maxRedirects == tx.redirectCount =>
 					ko(tx, sessionUpdates, response, s"Too many redirects, max is $maxRedirects")
 
