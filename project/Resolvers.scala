@@ -1,5 +1,4 @@
 import sbt._
-import java.nio.file.Paths
 
 object Resolvers {
 
