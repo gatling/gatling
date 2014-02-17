@@ -36,7 +36,8 @@ class WebSocket(requestName: Expression[String]) {
 	 * @param url The socket URL
 	 * @param attributeName The name of the session attribute used to store the socket
 	 */
-	def open(url: Expression[String], wsName: String = defaultWebSocketName) = new OpenWebSocketRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), wsName)
+	def open(url: Expression[String], wsName: String = defaultWebSocketName) =
+		new OpenWebSocketRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), wsName)
 
 	/**
 	 * Sends a binary message on the given socket.
@@ -44,7 +45,8 @@ class WebSocket(requestName: Expression[String]) {
 	 * @param fMessage The message
 	 * @param attributeName The name of the session attribute storing the socket
 	 */
-	def sendBinaryMessage(message: Expression[Array[Byte]], wsName: String = defaultWebSocketName) = new SendWebSocketBinaryMessageActionBuilder(requestName, wsName, message)
+	def sendBinaryMessage(message: Expression[Array[Byte]], wsName: String = defaultWebSocketName) =
+		new SendWebSocketBinaryMessageActionBuilder(requestName, wsName, message)
 
 	/**
 	 * Sends a text message on the given socket.
@@ -52,12 +54,14 @@ class WebSocket(requestName: Expression[String]) {
 	 * @param fMessage The message
 	 * @param attributeName The name of the session attribute storing the socket
 	 */
-	def sendTextMessage(message: Expression[String], wsName: String = defaultWebSocketName) = new SendWebSocketTextMessageActionBuilder(requestName, wsName, message)
+	def sendTextMessage(message: Expression[String], wsName: String = defaultWebSocketName) =
+		new SendWebSocketTextMessageActionBuilder(requestName, wsName, message)
 
 	/**
 	 * Closes a web socket.
 	 *
 	 * @param attributeName The name of the session attribute storing the socket
 	 */
-	def close(wsName: String = defaultWebSocketName) = new CloseWebSocketActionBuilder(requestName, wsName)
+	def close(wsName: String = defaultWebSocketName) =
+		new CloseWebSocketActionBuilder(requestName, wsName)
 }

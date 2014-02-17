@@ -17,48 +17,15 @@
 package io.gatling.http.action.ws
 
 import com.ning.http.client.{ AsyncHttpClient, Request }
-import com.ning.http.client.websocket.{ WebSocket, WebSocketTextListener => AHCWebSocketTextListener, WebSocketUpgradeHandler }
+import com.ning.http.client.websocket.WebSocketUpgradeHandler
 
 import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor
-import io.gatling.core.action.{ Failable, Interruptable }
+import io.gatling.core.action.Interruptable
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.config.HttpProtocol
-
-class WebSocketTextListener(requestName: String, request: Request, session: Session, httpClient: AsyncHttpClient, wsActor: ActorRef, started: Long, next: ActorRef)
-	extends AHCWebSocketTextListener {
-	var opened = false
-
-	def onOpen(webSocket: WebSocket) {
-		opened = true
-		wsActor ! OnOpen(requestName, webSocket, started, nowMillis, next, session)
-	}
-
-	def onMessage(message: String) {
-		wsActor ! OnMessage(message)
-	}
-
-	def onFragment(fragment: String, last: Boolean) {
-	}
-
-	def onClose(webSocket: WebSocket) {
-		if (opened) {
-			opened = false
-			wsActor ! OnClose
-		} else
-			wsActor ! OnFailedOpen(requestName, "closed", started, nowMillis, next, session)
-	}
-
-	def onError(t: Throwable) {
-		if (opened)
-			wsActor ! OnError(t)
-		else
-			wsActor ! OnFailedOpen(requestName, t.getMessage, started, nowMillis, next, session)
-	}
-}
 
 class OpenWebSocketAction(
 	requestName: Expression[String],
