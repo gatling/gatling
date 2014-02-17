@@ -1,6 +1,5 @@
 /**
- * Copyright 2011-2012 eBusiness Information, Groupe Excilys (www.excilys.com)
- * Copyright 2012 Gilt Groupe, Inc. (www.gilt.com)
+ * Copyright 2011-2014 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,46 +18,15 @@ package io.gatling.http.action.ws
 import com.ning.http.client.websocket.WebSocket
 
 import akka.actor.ActorRef
-import io.gatling.core.action.{ Action, Chainable, Failable }
-import io.gatling.core.result.message.KO
-import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.{ Failure, Success, SuccessWrapper }
+import io.gatling.http.action.RequestAction
 import io.gatling.http.config.HttpProtocol
 
-class SendWebSocketMessageAction(requestName: Expression[String], wsName: String, message: Expression[String], val next: ActorRef, protocol: HttpProtocol) extends Action with Chainable with Failable {
+class SendWebSocketMessageAction(val requestName: Expression[String], wsName: String, message: Expression[String], val next: ActorRef, protocol: HttpProtocol) extends RequestAction {
 
-	def executeOrFail(session: Session) = {
-
-		def send(requestName: String, message: String) = {
-			session(wsName).validate[(ActorRef, WebSocket)] match {
-				case Success((wsActor, _)) =>
-					wsActor ! SendMessage(requestName, message, next, session)
-					session.success
-
-				case f @ Failure(message) =>
-					val now = nowMillis
-					DataWriter.tell(RequestMessage(
-						session.scenarioName,
-						session.userId,
-						Nil,
-						requestName,
-						now,
-						now,
-						now,
-						now,
-						KO,
-						Some(message),
-						Nil))
-					f
-			}
-		}
-
+	def sendRequest(requestName: String, session: Session) =
 		for {
-			requestName <- requestName(session)
-			message <- message(session)
-			outcome <- send(requestName, message)
-		} yield outcome
-	}
+			(wsActor, _) <- session(wsName).validate[(ActorRef, WebSocket)]
+			resolvedMessage <- message(session)
+		} yield wsActor ! SendMessage(requestName, resolvedMessage, next, session)
 }
