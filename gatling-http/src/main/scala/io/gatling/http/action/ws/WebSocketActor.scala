@@ -65,10 +65,18 @@ class WebSocketActor(val wsName: String) extends BaseActor {
 		case OnError(t) =>
 			setOutOfBandError(s"Websocket '$wsName' gave an error: '${t.getMessage}'")
 
-		case SendMessage(requestName, message, next, session) =>
+		case SendTextMessage(requestName, message, next, session) =>
 			if (!handleOutOfBandError(requestName, next, session)) {
 				val started = nowMillis
 				webSocket.foreach(_.sendTextMessage(message))
+				logRequest(session, requestName, OK, started, nowMillis)
+				next ! session
+			}
+
+		case SendBinaryMessage(requestName, message, next, session) =>
+			if (!handleOutOfBandError(requestName, next, session)) {
+				val started = nowMillis
+				webSocket.foreach(_.sendMessage(message))
 				logRequest(session, requestName, OK, started, nowMillis)
 				next ! session
 			}

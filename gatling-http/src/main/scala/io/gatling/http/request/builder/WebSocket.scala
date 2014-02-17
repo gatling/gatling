@@ -17,7 +17,7 @@
 package io.gatling.http.request.builder
 
 import io.gatling.core.session.{ Expression, SessionPrivateAttributes }
-import io.gatling.http.action.ws.{ CloseWebSocketActionBuilder, SendWebSocketMessageActionBuilder }
+import io.gatling.http.action.ws.{ CloseWebSocketActionBuilder, SendWebSocketBinaryMessageActionBuilder, SendWebSocketTextMessageActionBuilder }
 import io.gatling.http.request.builder.WebSocket.defaultWebSocketName
 
 object WebSocket {
@@ -39,12 +39,20 @@ class WebSocket(requestName: Expression[String]) {
 	def open(url: Expression[String], wsName: String = defaultWebSocketName) = new OpenWebSocketRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), wsName)
 
 	/**
-	 * Sends a message on the given socket.
+	 * Sends a binary message on the given socket.
 	 *
 	 * @param fMessage The message
 	 * @param attributeName The name of the session attribute storing the socket
 	 */
-	def sendMessage(message: Expression[String], wsName: String = defaultWebSocketName) = new SendWebSocketMessageActionBuilder(requestName, wsName, message)
+	def sendBinaryMessage(message: Expression[Array[Byte]], wsName: String = defaultWebSocketName) = new SendWebSocketBinaryMessageActionBuilder(requestName, wsName, message)
+
+	/**
+	 * Sends a text message on the given socket.
+	 *
+	 * @param fMessage The message
+	 * @param attributeName The name of the session attribute storing the socket
+	 */
+	def sendTextMessage(message: Expression[String], wsName: String = defaultWebSocketName) = new SendWebSocketTextMessageActionBuilder(requestName, wsName, message)
 
 	/**
 	 * Closes a web socket.
