@@ -19,11 +19,11 @@ import scala.annotation.tailrec
 
 import akka.actor.ActorRef
 import io.gatling.core.result.message.KO
-import io.gatling.core.result.writer.{ DataWriter, GroupMessage }
+import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.{ GroupStackEntry, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 
-class ExitHereIfFailed(val next: ActorRef) extends Chainable {
+class ExitHereIfFailed(val next: ActorRef) extends Chainable with DataWriterClient {
 
 	def execute(session: Session) {
 
@@ -34,7 +34,7 @@ class ExitHereIfFailed(val next: ActorRef) extends Chainable {
 			stack match {
 				case Nil =>
 				case head :: tail =>
-					DataWriter.tell(GroupMessage(session.scenarioName, session.userId, stack, head.startDate, now, KO))
+					writeGroupData(session, stack, head.startDate, now, KO)
 					failAllPendingGroups(tail)
 			}
 		}

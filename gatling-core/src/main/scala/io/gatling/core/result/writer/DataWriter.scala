@@ -23,7 +23,9 @@ import akka.util.Timeout
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ DataWritersInitialized, DataWritersTerminated }
+import io.gatling.core.result.message.Status
 import io.gatling.core.scenario.Scenario
+import io.gatling.core.session.{ GroupStackEntry, Session }
 
 case class InitDataWriter(totalNumberOfUsers: Int)
 
@@ -38,7 +40,7 @@ object DataWriter extends AkkaDefaults {
 		case _ => throw new UnsupportedOperationException("DataWriters haven't been initialized")
 	}
 
-	def tell(message: Any) {
+	def dispatch(message: Any) {
 		instances.foreach(_ ! message)
 	}
 
@@ -115,4 +117,34 @@ abstract class DataWriter extends BaseActor {
 	}
 
 	def receive = uninitialized
+}
+
+trait DataWriterClient {
+
+	def writeRequestData(session: Session,
+		requestName: String,
+		requestStartDate: Long,
+		requestEndDate: Long,
+		responseStartDate: Long,
+		responseEndDate: Long,
+		status: Status,
+		message: Option[String] = None,
+		extraInfo: List[Any] = Nil) {
+		DataWriter.dispatch(RequestMessage(
+			session.scenarioName,
+			session.userId,
+			session.groupStack,
+			requestName,
+			requestStartDate,
+			requestEndDate,
+			responseStartDate,
+			responseEndDate,
+			status,
+			message,
+			extraInfo))
+	}
+
+	def writeGroupData(session: Session, groupStack: List[GroupStackEntry], entryDate: Long, exitDate: Long, status: Status) {
+		DataWriter.dispatch(GroupMessage(session.scenarioName, session.userId, groupStack, entryDate, entryDate, status))
+	}
 }

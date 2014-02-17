@@ -16,15 +16,15 @@
 package io.gatling.core.action
 
 import akka.actor.ActorRef
-import io.gatling.core.result.writer.{ DataWriter, GroupMessage }
+import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 
-object GroupEnd {
+object GroupEnd extends DataWriterClient {
 
 	def endGroup(session: Session, next: ActorRef) {
 		val stack = session.groupStack
-		DataWriter.tell(GroupMessage(session.scenarioName, session.userId, stack, stack.head.startDate, nowMillis, session.statusStack.head))
+		writeGroupData(session, stack, stack.head.startDate, nowMillis, session.statusStack.head)
 
 		next ! session.exitGroup
 	}

@@ -17,11 +17,10 @@ package io.gatling.core.action
 
 import scala.annotation.tailrec
 
-import akka.actor.ActorRef
-import akka.actor.Actor
+import akka.actor.{ Actor, ActorRef }
 import akka.actor.ActorDSL.actor
 import io.gatling.core.result.message.{ KO, OK }
-import io.gatling.core.result.writer.{ DataWriter, GroupMessage }
+import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.{ GroupStackEntry, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 
@@ -40,7 +39,7 @@ class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
 	override def receive = uninitialized
 }
 
-class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next: ActorRef) extends Chainable {
+class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next: ActorRef) extends Chainable with DataWriterClient {
 
 	def interrupt(stackOnEntry: List[GroupStackEntry]): PartialFunction[Session, Unit] = {
 		case session if session.statusStack.head == KO => {
@@ -55,7 +54,7 @@ class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next:
 						case Nil | `stackOnEntry` => session
 						case head :: _ =>
 							// the session contains more groups than when entering, fail head and recurse
-							DataWriter.tell(GroupMessage(session.scenarioName, session.userId, session.groupStack, head.startDate, now, KO))
+							writeGroupData(session, session.groupStack, head.startDate, now, KO)
 							failGroupsInsideTryMax(session.exitGroup)
 					}
 				}

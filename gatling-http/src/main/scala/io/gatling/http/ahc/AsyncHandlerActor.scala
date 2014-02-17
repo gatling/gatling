@@ -16,9 +16,7 @@
 package io.gatling.http.ahc
 
 import scala.concurrent.duration.DurationInt
-
 import com.ning.http.client.{ FluentStringsMap, RequestBuilder }
-
 import akka.actor.{ ActorRef, Props }
 import akka.actor.ActorDSL.actor
 import akka.routing.RoundRobinRouter
@@ -26,7 +24,7 @@ import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.{ KO, OK, Status }
-import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
+import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.session.Session
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.core.util.TimeHelper.nowMillis
@@ -42,6 +40,7 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }
 import io.gatling.http.util.HttpStringBuilder
+import io.gatling.core.result.writer.DataWriterClient
 
 object AsyncHandlerActor extends AkkaDefaults {
 
@@ -63,7 +62,7 @@ object AsyncHandlerActor extends AkkaDefaults {
 	val fail: Session => Session = _.markAsFailed
 }
 
-class AsyncHandlerActor extends BaseActor {
+class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
 	override def preRestart(reason: Throwable, message: Option[Any]) {
 
@@ -127,9 +126,16 @@ class AsyncHandlerActor extends BaseActor {
 				Nil
 		}
 
-		DataWriter.tell(RequestMessage(tx.session.scenarioName, tx.session.userId, tx.session.groupStack, fullRequestName,
-			response.firstByteSent, response.firstByteSent, response.firstByteReceived, response.lastByteReceived,
-			status, errorMessage, extraInfo))
+		writeRequestData(
+			tx.session,
+			fullRequestName,
+			response.firstByteSent,
+			response.lastByteSent,
+			response.firstByteReceived,
+			response.lastByteReceived,
+			status,
+			errorMessage,
+			extraInfo)
 	}
 
 	/**

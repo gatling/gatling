@@ -17,31 +17,28 @@
 package io.gatling.http.action.ws
 
 import com.ning.http.client.websocket.WebSocket
-
 import akka.actor.ActorRef
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.message.{ KO, OK, Status }
-import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
+import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.result.writer.DataWriterClient
 
-class WebSocketActor(val wsName: String) extends BaseActor {
+class WebSocketActor(val wsName: String) extends BaseActor with DataWriterClient {
 
 	private[this] var webSocket: Option[WebSocket] = None
 
 	def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None) {
-		DataWriter.tell(RequestMessage(
-			session.scenarioName,
-			session.userId,
-			Nil,
+		writeRequestData(
+			session,
 			requestName,
 			started,
 			ended,
 			ended,
 			ended,
 			status,
-			errorMessage,
-			Nil))
+			errorMessage)
 	}
 
 	def receive = {

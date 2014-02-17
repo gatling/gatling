@@ -17,12 +17,12 @@ package io.gatling.http.action
 
 import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.result.message.KO
-import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
+import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Validation
 
-abstract class RequestAction extends Interruptable with Failable {
+abstract class RequestAction extends Interruptable with Failable with DataWriterClient {
 
 	def requestName: Expression[String]
 	def sendRequest(requestName: String, session: Session): Validation[Unit]
@@ -34,7 +34,7 @@ abstract class RequestAction extends Interruptable with Failable {
 
 			outcome.onFailure { errorMessage =>
 				val now = nowMillis
-				DataWriter.tell(RequestMessage(session.scenarioName, session.userId, session.groupStack, resolvedRequestName, now, now, now, now, KO, Some(errorMessage), Nil))
+				writeRequestData(session, resolvedRequestName, now, now, now, now, KO, Some(errorMessage))
 			}
 
 			outcome

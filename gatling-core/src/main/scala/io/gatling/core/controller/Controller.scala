@@ -143,7 +143,7 @@ class Controller extends BaseActor {
 
 		def dispatchUserEndToDataWriter(userMessage: UserMessage) {
 			logger.info(s"End user #${userMessage.userId}")
-			DataWriter.tell(userMessage)
+			DataWriter.dispatch(userMessage)
 		}
 
 		def becomeTerminating(exception: Option[Exception]) {
@@ -156,7 +156,7 @@ class Controller extends BaseActor {
 				case Start =>
 					activeUsers += userId -> userMessage
 					logger.info(s"Start user #${userMessage.userId}")
-					DataWriter.tell(userMessage)
+					DataWriter.dispatch(userMessage)
 
 				case End =>
 					finishedUsers += 1

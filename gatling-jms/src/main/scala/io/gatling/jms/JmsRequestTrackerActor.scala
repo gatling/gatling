@@ -16,12 +16,13 @@
 package io.gatling.jms
 
 import scala.collection.mutable.HashMap
-
 import akka.actor.{ Actor, ActorRef }
 import io.gatling.core.Predef.Session
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
 import javax.jms.Message
+import io.gatling.core.akka.BaseActor
+import io.gatling.core.result.writer.DataWriterClient
 
 /**
  * Advise actor a message was sent to JMS provider
@@ -41,7 +42,7 @@ case class MessageReceived(correlationId: String, received: Long, message: Messa
  * Once a message is correlated, it publishes to the Gatling core DataWriter
  * @author jasonk@bluedevel.com
  */
-class JmsRequestTrackerActor extends Actor {
+class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
 
 	// messages to be tracked through this HashMap - note it is a mutable hashmap
 	val sentMessages = new HashMap[String, (Long, Long, List[JmsCheck], Session, ActorRef, String)]()
@@ -87,15 +88,14 @@ class JmsRequestTrackerActor extends Actor {
 	 * Processes a matched message
 	 */
 	def processMessage(session: Session, startSend: Long, received: Long, endSend: Long,
-		checks: List[JmsCheck], message: Message, next: ActorRef, title: String) = {
+		checks: List[JmsCheck], message: Message, next: ActorRef, title: String) {
 
 		// run all of the checks
 		val checksPassed = checks.forall((check: JmsCheck) => check(message))
-		val gatling_response = if (checksPassed) OK else KO
+		val status = if (checksPassed) OK else KO
 
 		// advise the Gatling API that it is complete and move to next
-		DataWriter.tell(RequestMessage(session.scenarioName, session.userId, Nil, title,
-			startSend, received, endSend, received, gatling_response, None, Nil))
+		writeRequestData(session, title, startSend, received, endSend, received, status)
 		next ! session
 	}
 }
