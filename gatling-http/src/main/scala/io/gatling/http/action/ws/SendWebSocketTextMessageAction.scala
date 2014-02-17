@@ -15,8 +15,6 @@
  */
 package io.gatling.http.action.ws
 
-import com.ning.http.client.websocket.WebSocket
-
 import akka.actor.ActorRef
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.action.RequestAction
@@ -26,7 +24,7 @@ class SendWebSocketTextMessageAction(val requestName: Expression[String], wsName
 
 	def sendRequest(requestName: String, session: Session) =
 		for {
-			(wsActor, _) <- session(wsName).validate[(ActorRef, WebSocket)]
+			wsActor <- session(wsName).validate[ActorRef]
 			resolvedMessage <- message(session)
 		} yield wsActor ! SendTextMessage(requestName, resolvedMessage, next, session)
 }

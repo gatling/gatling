@@ -45,7 +45,7 @@ class WebSocketActor(val wsName: String) extends BaseActor with DataWriterClient
 		case OnOpen(requestName, webSocket, started, ended, next, session) =>
 			logRequest(session, requestName, OK, started, ended)
 			this.webSocket = Some(webSocket)
-			next ! session.set(wsName, (self, webSocket))
+			next ! session.set(wsName, self)
 
 		case OnFailedOpen(requestName, message, started, ended, next, session) =>
 			logger.warn(s"Websocket '$wsName' failed to open: $message")
