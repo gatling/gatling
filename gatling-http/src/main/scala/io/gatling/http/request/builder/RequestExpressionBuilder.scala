@@ -16,10 +16,8 @@
 package io.gatling.http.request.builder
 
 import java.net.URI
-
 import com.ning.http.client.{ Request, RequestBuilder => AHCRequestBuilder }
 import com.typesafe.scalalogging.slf4j.StrictLogging
-
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
@@ -28,6 +26,7 @@ import io.gatling.http.ahc.ConnectionPoolKeyStrategy
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.referer.RefererHandling
+import io.gatling.http.util.HttpHelper
 
 abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol) extends StrictLogging {
 
@@ -50,10 +49,10 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
 
 	def configureProxy(uri: URI)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
 		if (!protocol.proxyPart.proxyExceptions.contains(uri.getHost)) {
-			if (uri.getScheme == "http" || uri.getScheme == "ws")
-				commonAttributes.proxy.orElse(protocol.proxyPart.proxy).foreach(requestBuilder.setProxyServer)
-			else
+			if (HttpHelper.isSecure(uri))
 				commonAttributes.secureProxy.orElse(protocol.proxyPart.secureProxy).foreach(requestBuilder.setProxyServer)
+			else
+				commonAttributes.proxy.orElse(protocol.proxyPart.proxy).foreach(requestBuilder.setProxyServer)
 		}
 		requestBuilder.success
 	}

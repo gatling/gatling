@@ -31,6 +31,11 @@ import io.gatling.http.{ HeaderNames, HeaderValues }
 
 object HttpHelper extends StrictLogging {
 
+	val httpScheme = "http"
+	val httpsScheme = "https"
+	val wsScheme = "ws"
+	val wssScheme = "wss"
+
 	def parseFormBody(body: String): List[(String, String)] = {
 		def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)
 
@@ -67,4 +72,10 @@ object HttpHelper extends StrictLogging {
 	val redirectStatusCodes = Vector(301, 302, 303, 307, 308)
 	def isRedirect(statusCode: Int) = redirectStatusCodes.contains(statusCode)
 	def isNotModified(statusCode: Int) = statusCode == 304
+
+	def isSecure(uri: URI) = uri.getScheme == httpsScheme || uri.getScheme == wssScheme
+
+	def isAbsoluteHttpUrl(url: String) = url.startsWith(httpScheme)
+	def isAbsoluteWsUrl(url: String) = url.startsWith(wsScheme)
 }
+

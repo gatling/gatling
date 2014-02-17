@@ -24,12 +24,13 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.config.HttpProtocol
+import io.gatling.http.util.HttpHelper
 
 class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, protocol: HttpProtocol)
 	extends RequestExpressionBuilder(commonAttributes, protocol) {
 
 	def makeAbsolute(url: String): Validation[String] =
-		if (url.startsWith("http"))
+		if (HttpHelper.isAbsoluteHttpUrl(url))
 			url.success
 		else
 			protocol.baseURL match {
