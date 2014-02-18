@@ -11,11 +11,11 @@ env:
 # Publish to Sonatype if building master and trigger builds
 after_success:
   - "[[ $TRAVIS_BRANCH == \"master\" ]] && sbt publish"
-  - ./trigger_build.py excilys/gatling-highcharts
-  - ./trigger_build.py excilys/gatling-vtd
-  - ./trigger_build.py excilys/gatling-maven-plugin
-  - ./trigger_build.py excilys/gatling-highcharts-maven-archetype
-  - ./trigger_build.py gatling/gatling-sbt
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && ./trigger_build.py excilys/gatling-highcharts"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && ./trigger_build.py excilys/gatling-vtd"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && ./trigger_build.py excilys/gatling-maven-plugin"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && ./trigger_build.py excilys/gatling-highcharts-maven-archetype"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && ./trigger_build.py gatling/gatling-sbt"
 
 # Blacklisting
 branches:
