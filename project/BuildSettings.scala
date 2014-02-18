@@ -5,6 +5,7 @@ import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import com.typesafe.sbt.SbtSite.site
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
+import sbtunidoc.Plugin.{ ScalaUnidoc, unidocSettings }
 
 import Resolvers._
 
@@ -52,7 +53,9 @@ object BuildSettings {
 	/** Documentation settings **/
 	/****************************/
 
-	lazy val docSettings = site.settings ++ site.sphinxSupport()
+	lazy val docSettings = unidocSettings ++ site.settings ++ site.sphinxSupport() ++ Seq(
+		site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "latest/api")
+	)
 
 	/**************************************/
 	/** gatling-charts specific settings **/
