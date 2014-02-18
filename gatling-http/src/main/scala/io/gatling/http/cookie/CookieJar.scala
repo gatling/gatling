@@ -52,7 +52,7 @@ object CookieJar {
 
 	// rfc6265#section-5.2.4
 	def cookiePath(rawCookiePath: String, requestURI: URI) = Option(rawCookiePath) match {
-		case Some(path) if path.startsWith("/") => path
+		case Some(path) if path.charAt(0) == '/' => path
 		case _ => CookieJar.cookieDefaultPath(requestURI)
 	}
 
