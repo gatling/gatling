@@ -49,13 +49,16 @@ object HttpHelper extends StrictLogging {
 			}(breakOut)
 	}
 
-	def buildRealm(username: Expression[String], password: Expression[String]): Expression[Realm] = (session: Session) =>
+	def buildBasicAuthRealm(username: Expression[String], password: Expression[String]) = buildRealm(username, password, AuthScheme.BASIC, true)
+	def buildDigestAuthRealm(username: Expression[String], password: Expression[String]) = buildRealm(username, password, AuthScheme.DIGEST, false)
+	def buildRealm(username: Expression[String], password: Expression[String], authScheme: AuthScheme, preemptive: Boolean): Expression[Realm] = (session: Session) =>
 		for {
 			usernameValue <- username(session)
 			passwordValue <- password(session)
-		} yield buildRealm(usernameValue, passwordValue)
+		} yield buildRealm(usernameValue, passwordValue, authScheme, preemptive)
 
-	def buildRealm(username: String, password: String): Realm = new Realm.RealmBuilder().setPrincipal(username).setPassword(password).setUsePreemptiveAuth(true).setScheme(AuthScheme.BASIC).build
+	def buildBasicAuthRealm(username: String, password: String) = buildRealm(username, password, AuthScheme.BASIC, true)
+	def buildRealm(username: String, password: String, authScheme: AuthScheme, preemptive: Boolean): Realm = new Realm.RealmBuilder().setPrincipal(username).setPassword(password).setUsePreemptiveAuth(preemptive).setScheme(authScheme).build
 
 	def isCss(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).exists(_.contains(HeaderValues.TEXT_CSS))
 	def isHtml(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).exists(ct => ct.contains(HeaderValues.TEXT_HTML) || ct.contains(HeaderValues.APPLICATION_XHTML))

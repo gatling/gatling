@@ -36,7 +36,7 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.request.builder.Http
 import io.gatling.http.response.{ Response, ResponseTransformer }
-import io.gatling.http.util.HttpHelper.buildRealm
+import io.gatling.http.util.HttpHelper.buildBasicAuthRealm
 
 /**
  * HttpProtocol class companion
@@ -53,7 +53,7 @@ object HttpProtocol {
 			localAddress = None),
 		requestPart = HttpProtocolRequestPart(
 			baseHeaders = Map.empty,
-			basicAuth = configuration.http.basicAuth.map(credentials => buildRealm(credentials.username, credentials.password).expression),
+			realm = configuration.http.basicAuth.map(credentials => buildBasicAuthRealm(credentials.username, credentials.password).expression),
 			autoReferer = configuration.http.autoReferer,
 			cache = configuration.http.cache),
 		responsePart = HttpProtocolResponsePart(
@@ -165,7 +165,7 @@ case class HttpProtocolEnginePart(
 
 case class HttpProtocolRequestPart(
 	baseHeaders: Map[String, Expression[String]],
-	basicAuth: Option[Expression[Realm]],
+	realm: Option[Expression[Realm]],
 	autoReferer: Boolean,
 	cache: Boolean)
 

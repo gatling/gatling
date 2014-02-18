@@ -17,7 +17,7 @@ package io.gatling.http.config
 
 import java.net.InetAddress
 
-import com.ning.http.client.{ ProxyServer, Request }
+import com.ning.http.client.{ ProxyServer, Realm, Request }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.Proxy
@@ -87,7 +87,9 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
 	def connection(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (CONNECTION -> value)))
 	def doNotTrackHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (DO_NOT_TRACK -> value)))
 	def userAgentHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (USER_AGENT -> value)))
-	def basicAuth(username: Expression[String], password: Expression[String]) = newRequestPart(protocol.requestPart.copy(basicAuth = Some(HttpHelper.buildRealm(username, password))))
+	def basicAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
+	def digestAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
+	def authRealm(realm: Expression[Realm]) = newRequestPart(protocol.requestPart.copy(realm = Some(realm)))
 
 	// responsePart
 	private def newResponsePart(responsePart: HttpProtocolResponsePart) = copy(protocol = copy(protocol.copy(responsePart = responsePart)))
