@@ -101,7 +101,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
 	}
 
 	def configureRealm(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
-		commonAttributes.realm.orElse(protocol.requestPart.basicAuth) match {
+		commonAttributes.realm.orElse(protocol.requestPart.realm) match {
 			case Some(realm) => realm(session).map(requestBuilder.setRealm)
 			case None => requestBuilder.success
 		}

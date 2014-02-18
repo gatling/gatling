@@ -69,7 +69,9 @@ abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: Comm
 	 * @param username the username needed
 	 * @param password the password needed
 	 */
-	def basicAuth(username: Expression[String], password: Expression[String]): B = newInstance(commonAttributes.copy(realm = Some(HttpHelper.buildRealm(username, password))))
+	def basicAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
+	def digestAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
+	def authRealm(realm: Expression[Realm]): B = newInstance(commonAttributes.copy(realm = Some(realm)))
 
 	/**
 	 * @param virtualHost a virtual host to override default compute one
