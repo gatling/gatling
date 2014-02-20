@@ -27,7 +27,7 @@ import io.gatling.core.structure.PopulatedScenarioBuilder
 
 abstract class Simulation {
 
-	private[core] var _scenarios = Seq.empty[PopulatedScenarioBuilder]
+	private[core] var _scenarios: List[PopulatedScenarioBuilder] = Nil
 	private[core] var _globalProtocols = Protocols()
 	private[core] var _assertions = Seq.empty[Assertion]
 	private[core] var _maxDuration: Option[FiniteDuration] = None
@@ -35,7 +35,7 @@ abstract class Simulation {
 	private[core] var _beforeSteps: List[() => Unit] = Nil
 	private[core] var _afterSteps: List[() => Unit] = Nil
 
-	def scenarios: Seq[Scenario] = {
+	def scenarios: List[Scenario] = {
 		require(!_scenarios.isEmpty, "No scenario set up")
 		_scenarios.foreach(scn => require(!scn.scenarioBuilder.actionBuilders.isEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
 		_scenarios.map(_.build(_globalProtocols))
@@ -55,6 +55,8 @@ abstract class Simulation {
 	}
 
 	def setUp(scenarios: PopulatedScenarioBuilder*) = {
+		if (!_scenarios.isEmpty)
+			throw new UnsupportedOperationException("setUp can only be called once")
 		_scenarios = scenarios.toList
 		new SetUp
 	}
