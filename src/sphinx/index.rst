@@ -14,6 +14,7 @@ User's guide
    :maxdepth: 2
 
    Quickstart
+   Recorder
    Operations
    FAQ
    gatling2
