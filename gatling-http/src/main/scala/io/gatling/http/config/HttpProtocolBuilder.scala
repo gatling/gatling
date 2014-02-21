@@ -50,9 +50,9 @@ object HttpProtocolBuilder {
  */
 case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
 
-	def baseURL(baseUrl: String) = copy(protocol = protocol.copy(baseURLs = List(baseUrl)))
-	def baseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*) = copy(protocol = protocol.copy(baseURLs = baseUrl1 :: baseUrl2 :: baseUrls.toList))
-	def baseURLs(baseUrls: List[String]) = copy(protocol = protocol.copy(baseURLs = baseUrls))
+	def baseURL(url: String) = copy(protocol = protocol.copy(baseURLs = List(url)))
+	def baseURLs(urls: String*): HttpProtocolBuilder = baseURLs(urls.toList)
+	def baseURLs(urls: List[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseURLs = urls))
 	def warmUp(url: String): HttpProtocolBuilder = copy(protocol = copy(protocol.copy(warmUpUrl = Some(url))))
 	def disableWarmUp: HttpProtocolBuilder = copy(protocol = protocol.copy(warmUpUrl = None))
 
@@ -107,9 +107,9 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
 
 	// wsPart
 	private def newWsPart(wsPart: HttpProtocolWsPart) = copy(protocol = copy(protocol.copy(wsPart = wsPart)))
-	def wsBaseURL(baseUrl: String) = newWsPart(protocol.wsPart.copy(wsBaseURLs = List(baseUrl)))
-	def wsBaseURLs(baseUrl1: String, baseUrl2: String, baseUrls: String*) = newWsPart(protocol.wsPart.copy(wsBaseURLs = baseUrl1 :: baseUrl2 :: baseUrls.toList))
-	def wsBaseURLs(baseUrls: List[String]) = newWsPart(protocol.wsPart.copy(wsBaseURLs = baseUrls))
+	def wsBaseURL(url: String) = newWsPart(protocol.wsPart.copy(wsBaseURLs = List(url)))
+	def wsBaseURLs(urls: String*) = newWsPart(protocol.wsPart.copy(wsBaseURLs = urls.toList))
+	def wsBaseURLs(urls: List[String]) = newWsPart(protocol.wsPart.copy(wsBaseURLs = urls))
 	def wsReconnect = newWsPart(protocol.wsPart.copy(reconnect = true))
 	def wsMaxReconnects(max: Int) = newWsPart(protocol.wsPart.copy(maxReconnects = Some(max)))
 
