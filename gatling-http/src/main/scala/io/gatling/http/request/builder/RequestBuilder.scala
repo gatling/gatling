@@ -23,6 +23,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.config.Proxy
 import io.gatling.core.session.Expression
 import io.gatling.core.session.el.EL
+import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.util.HttpHelper
 
@@ -38,6 +39,12 @@ case class CommonAttributes(
 	address: Option[InetAddress] = None,
 	proxy: Option[ProxyServer] = None,
 	secureProxy: Option[ProxyServer] = None)
+
+object RequestBuilder {
+
+	val jsonHeaderValueExpression = HeaderValues.APPLICATION_JSON.el[String]
+	val xmlHeaderValueExpression = HeaderValues.APPLICATION_XML.el[String]
+}
 
 abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: CommonAttributes) extends StrictLogging {
 
@@ -62,6 +69,16 @@ abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: Comm
 	 * @param newHeaders a scala map containing the headers to add
 	 */
 	def headers(newHeaders: Map[String, String]): B = newInstance(commonAttributes.copy(headers = commonAttributes.headers ++ newHeaders.mapValues(_.el[String])))
+
+	/**
+	 * Adds Accept and Content-Type headers to the request set with "application/json" values
+	 */
+	def asJSON: B = header(HeaderNames.ACCEPT, RequestBuilder.jsonHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, RequestBuilder.jsonHeaderValueExpression)
+
+	/**
+	 * Adds Accept and Content-Type headers to the request set with "application/xml" values
+	 */
+	def asXML: B = header(HeaderNames.ACCEPT, RequestBuilder.xmlHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, RequestBuilder.xmlHeaderValueExpression)
 
 	/**
 	 * Adds BASIC authentication to the request

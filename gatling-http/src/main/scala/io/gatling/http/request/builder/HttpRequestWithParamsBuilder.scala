@@ -16,8 +16,14 @@
 package io.gatling.http.request.builder
 
 import io.gatling.core.session.{ Expression, RichExpression }
+import io.gatling.core.session.el.EL
+import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.{ FileBodyPart, RawFileBodies }
+
+object HttpRequestWithParamsBuilder {
+	val multipartFormDataValueExpression = HeaderValues.MULTIPART_FORM_DATA.el[String]
+}
 
 /**
  * This class serves as model to HTTP request with a body and parameters
@@ -34,6 +40,11 @@ class HttpRequestWithParamsBuilder(
 
 	private[http] def newInstance(commonAttributes: CommonAttributes) = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, params)
 	private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, params)
+
+	/**
+	 * Adds Content-Type header to the request set with "multipart/form-data" value
+	 */
+	def asMultipartForm: HttpRequestWithParamsBuilder = header(HeaderNames.CONTENT_TYPE, HttpRequestWithParamsBuilder.multipartFormDataValueExpression)
 
 	def param(key: Expression[String], value: Expression[Any]): HttpRequestWithParamsBuilder = param(SimpleParam(key, value))
 	def multivaluedParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestWithParamsBuilder = param(MultivaluedParam(key, values))

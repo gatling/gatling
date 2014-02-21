@@ -53,10 +53,6 @@ case class HttpAttributes(
 
 object AbstractHttpRequestBuilder {
 
-	val jsonHeaderValueExpression = HeaderValues.APPLICATION_JSON.el[String]
-	val xmlHeaderValueExpression = HeaderValues.APPLICATION_XML.el[String]
-	val multipartFormDataValueExpression = HeaderValues.MULTIPART_FORM_DATA.el[String]
-
 	implicit def toActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = new HttpRequestActionBuilder(requestBuilder)
 }
 
@@ -86,21 +82,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 	def ignoreDefaultChecks: B = newInstance(httpAttributes.copy(ignoreDefaultChecks = true))
 
 	def extraInfoExtractor(f: ExtraInfoExtractor): B = newInstance(httpAttributes.copy(extraInfoExtractor = Some(f)))
-
-	/**
-	 * Adds Accept and Content-Type headers to the request set with "application/json" values
-	 */
-	def asJSON: B = header(HeaderNames.ACCEPT, AbstractHttpRequestBuilder.jsonHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, AbstractHttpRequestBuilder.jsonHeaderValueExpression)
-
-	/**
-	 * Adds Accept and Content-Type headers to the request set with "application/xml" values
-	 */
-	def asXML: B = header(HeaderNames.ACCEPT, AbstractHttpRequestBuilder.xmlHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, AbstractHttpRequestBuilder.xmlHeaderValueExpression)
-
-	/**
-	 * Adds Content-Type header to the request set with "multipart/form-data" value
-	 */
-	def asMultipartForm: B = header(HeaderNames.CONTENT_TYPE, AbstractHttpRequestBuilder.multipartFormDataValueExpression)
 
 	/**
 	 * @param responseTransformer transforms the response before it's handled to the checks pipeline
