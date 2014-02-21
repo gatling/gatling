@@ -24,6 +24,7 @@ abstract class Validation[+T] {
 	def filter(p: T => Boolean): Validation[T]
 	def onSuccess(f: T => Any): Unit
 	def onFailure(f: String => Any): Unit
+	def recover[A >: T](v: => A): Validation[A]
 }
 
 case class Success[+T](value: T) extends Validation[T] {
@@ -34,6 +35,7 @@ case class Success[+T](value: T) extends Validation[T] {
 	def filter(p: T => Boolean): Validation[T] = if (p(value)) this else Failure("Predicate does not hold for " + value)
 	def onSuccess(f: T => Any) { f(value) }
 	def onFailure(f: String => Any) {}
+	override def recover[A >: T](v: => A): Validation[A] = this
 }
 
 case class Failure(message: String) extends Validation[Nothing] {
@@ -44,4 +46,5 @@ case class Failure(message: String) extends Validation[Nothing] {
 	def filter(p: Nothing => Boolean) = this
 	def onSuccess(f: Nothing => Any) {}
 	def onFailure(f: String => Any) { f(message) }
+	override def recover[A >: Nothing](v: => A): Validation[A] = v.success
 }
