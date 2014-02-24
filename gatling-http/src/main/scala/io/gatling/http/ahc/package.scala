@@ -18,7 +18,7 @@ package io.gatling.http
 import com.ning.http.client.ProxyServer
 import com.ning.http.client.ProxyServer.Protocol
 
-import io.gatling.core.config.Proxy
+import io.gatling.http.config.Proxy
 
 package object ahc {
 

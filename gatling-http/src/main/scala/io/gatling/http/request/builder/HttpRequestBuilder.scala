@@ -24,7 +24,6 @@ import com.ning.http.multipart.Part
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.config.Proxy
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.session.el.EL
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
@@ -34,7 +33,7 @@ import io.gatling.http.ahc.{ ConnectionPoolKeyStrategy, ProxyConverter }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckOrder.Status
-import io.gatling.http.config.HttpProtocol
+import io.gatling.http.config.{ HttpProtocol, Proxy }
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.request.{ Body, BodyPart, ExtraInfoExtractor, HttpRequest }

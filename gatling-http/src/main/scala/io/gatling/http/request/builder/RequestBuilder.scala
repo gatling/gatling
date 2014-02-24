@@ -20,11 +20,11 @@ import java.net.{ InetAddress, URI }
 import com.ning.http.client.{ ProxyServer, Realm }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.config.Proxy
 import io.gatling.core.session.Expression
 import io.gatling.core.session.el.EL
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.ahc.ProxyConverter
+import io.gatling.http.config.Proxy
 import io.gatling.http.util.HttpHelper
 
 case class CommonAttributes(

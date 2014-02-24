@@ -20,7 +20,6 @@ import java.net.InetAddress
 import com.ning.http.client.{ ProxyServer, Realm, Request }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.config.Proxy
 import io.gatling.core.filter.{ BlackList, Filter, Filters, WhiteList }
 import io.gatling.core.result.message.Status
 import io.gatling.core.session.{ Expression, Session }

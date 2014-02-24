@@ -93,28 +93,9 @@ object GatlingConfiguration {
 					percentile1 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE1),
 					percentile2 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE2))),
 			http = HttpConfiguration(
-				baseURLs = config.getString(CONF_HTTP_BASE_URLS).toStringList,
-				proxy = config.getString(CONF_HTTP_PROXY_HOST).trimToOption.map { host =>
-					val port = config.getInt(CONF_HTTP_PROXY_PORT)
-					val securedPort = config.getInt(CONF_HTTP_PROXY_SECURED_PORT) match {
-						case -1 => None
-						case p => Some(p)
-					}
-					val credentials = config.getString(CONF_HTTP_PROXY_USERNAME).trimToOption.map(username => Credentials(username, config.getString(CONF_HTTP_PROXY_PASSWORD)))
-					Proxy(host, port, securedPort, credentials)
-				},
-				followRedirect = config.getBoolean(CONF_HTTP_FOLLOW_REDIRECT),
-				autoReferer = config.getBoolean(CONF_HTTP_AUTO_REFERER),
-				cache = config.getBoolean(CONF_HTTP_CACHE),
 				cacheELFileBodies = config.getBoolean(CONF_HTTP_CACHE_EL_FILE_BODIES),
 				cacheRawFileBodies = config.getBoolean(CONF_HTTP_CACHE_RAW_FILE_BODIES),
-				discardResponseChunks = config.getBoolean(CONF_HTTP_DISCARD_RESPONSE_CHUNKS),
-				shareClient = config.getBoolean(CONF_HTTP_SHARE_CLIENT),
-				shareConnections = config.getBoolean(CONF_HTTP_SHARE_CONNECTIONS),
-				basicAuth = config.getString(CONF_HTTP_BASIC_AUTH_USERNAME).trimToOption.map(username => Credentials(username, config.getString(CONF_HTTP_BASIC_AUTH_PASSWORD))),
 				warmUpUrl = config.getString(CONF_HTTP_WARM_UP_URL).trimToOption,
-				wsBaseURLs = config.getString(CONF_HTTP_WS_BASE_URLS).toStringList,
-				wsReconnect = config.getBoolean(CONF_HTTP_WS_RECONNECT),
 				ssl = {
 					def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
 
@@ -143,10 +124,8 @@ object GatlingConfiguration {
 					maximumConnectionsPerHost = config.getInt(CONF_HTTP_AHC_MAXIMUM_CONNECTIONS_PER_HOST),
 					maximumConnectionsTotal = config.getInt(CONF_HTTP_AHC_MAXIMUM_CONNECTIONS_TOTAL),
 					maxRetry = config.getInt(CONF_HTTP_AHC_MAX_RETRY),
-					requestCompressionLevel = config.getInt(CONF_HTTP_AHC_REQUEST_COMPRESSION_LEVEL),
 					requestTimeOutInMs = config.getInt(CONF_HTTP_AHC_REQUEST_TIMEOUT_IN_MS),
 					useProxyProperties = config.getBoolean(CONF_HTTP_AHC_USE_PROXY_PROPERTIES),
-					userAgent = config.getString(CONF_HTTP_AHC_USER_AGENT),
 					useRawUrl = config.getBoolean(CONF_HTTP_AHC_USE_RAW_URL),
 					webSocketIdleTimeoutInMs = config.getInt(CONF_HTTP_AHC_WEBSOCKET_IDLE_TIMEOUT_IN_MS),
 					useRelativeURIsWithSSLProxies = config.getBoolean(CONF_HTTP_AHC_USE_RELATIVE_URIS_WITH_SSL_PROXIES))),
@@ -263,32 +242,11 @@ case class IndicatorsConfiguration(
 	percentile2: Int)
 
 case class HttpConfiguration(
-	baseURLs: List[String],
-	proxy: Option[Proxy],
-	followRedirect: Boolean,
-	autoReferer: Boolean,
-	cache: Boolean,
 	cacheELFileBodies: Boolean,
 	cacheRawFileBodies: Boolean,
-	discardResponseChunks: Boolean,
-	shareClient: Boolean,
-	shareConnections: Boolean,
-	basicAuth: Option[Credentials],
 	warmUpUrl: Option[String],
-	wsBaseURLs: List[String],
-	wsReconnect: Boolean,
 	ssl: SslConfiguration,
 	ahc: AHCConfiguration)
-
-case class Proxy(
-	host: String,
-	port: Int,
-	securePort: Option[Int] = None,
-	credentials: Option[Credentials] = None)
-
-case class Credentials(
-	username: String,
-	password: String)
 
 case class AHCConfiguration(
 	allowPoolingConnection: Boolean,
@@ -302,10 +260,8 @@ case class AHCConfiguration(
 	maximumConnectionsPerHost: Int,
 	maximumConnectionsTotal: Int,
 	maxRetry: Int,
-	requestCompressionLevel: Int,
 	requestTimeOutInMs: Int,
 	useProxyProperties: Boolean,
-	userAgent: String,
 	useRawUrl: Boolean,
 	webSocketIdleTimeoutInMs: Int,
 	useRelativeURIsWithSSLProxies: Boolean)

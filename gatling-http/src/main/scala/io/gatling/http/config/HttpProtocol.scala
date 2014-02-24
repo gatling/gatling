@@ -43,23 +43,23 @@ import io.gatling.http.util.HttpHelper.buildBasicAuthRealm
  */
 object HttpProtocol {
 	val default = HttpProtocol(
-		baseURLs = configuration.http.baseURLs,
+		baseURLs = Nil,
 		warmUpUrl = configuration.http.warmUpUrl,
 		enginePart = HttpProtocolEnginePart(
-			shareClient = configuration.http.shareClient,
-			shareConnections = configuration.http.shareConnections,
+			shareClient = true,
+			shareConnections = false,
 			maxConnectionsPerHost = 6,
 			virtualHost = None,
 			localAddress = None),
 		requestPart = HttpProtocolRequestPart(
 			baseHeaders = Map.empty,
-			realm = configuration.http.basicAuth.map(credentials => buildBasicAuthRealm(credentials.username, credentials.password).expression),
-			autoReferer = configuration.http.autoReferer,
-			cache = configuration.http.cache),
+			realm = None,
+			autoReferer = true,
+			cache = true),
 		responsePart = HttpProtocolResponsePart(
-			followRedirect = configuration.http.followRedirect,
+			followRedirect = true,
 			maxRedirects = None,
-			discardResponseChunks = configuration.http.discardResponseChunks,
+			discardResponseChunks = true,
 			responseTransformer = None,
 			checks = Nil,
 			extraInfoExtractor = None,
@@ -70,8 +70,8 @@ object HttpProtocol {
 			reconnect = false,
 			maxReconnects = None),
 		proxyPart = HttpProtocolProxyPart(
-			proxy = configuration.http.proxy.map(_.proxyServer),
-			secureProxy = configuration.http.proxy.flatMap(_.secureProxyServer),
+			proxy = None,
+			secureProxy = None,
 			proxyExceptions = Nil))
 
 	val warmUpUrls = mutable.Set.empty[String]
