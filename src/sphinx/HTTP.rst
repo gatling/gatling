@@ -4,10 +4,6 @@ HTTP
 
 Gatling HTTP protocol is a dedicated DSL
 
-Preamble: Tuning
-================
-
-
 
 Building a request
 ==================
