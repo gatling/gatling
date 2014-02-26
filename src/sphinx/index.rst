@@ -15,6 +15,8 @@ User's guide
 
    Quickstart
    Recorder
+   HTTP
    Operations
    FAQ
+   Links
    gatling2
