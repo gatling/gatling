@@ -62,7 +62,7 @@ To make your scenario more understandable, you can add tags, they will appear as
 
 To add a tag, fill in the text field provided and press the **Add** button. After that, the tag will be displayed in the list below.
 
-.. example:: ``TAG | my tag``
+For example: ``TAG | my tag``
 
 
 Stop

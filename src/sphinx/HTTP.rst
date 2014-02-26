@@ -99,7 +99,7 @@ maxConnectionsPerHostLikeChrome
 maxConnectionsPerHost(max: Int)
 
 Request building parameters
-------------------
+---------------------------
 
 
 disableAutoReferer

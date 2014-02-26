@@ -14,7 +14,7 @@ Public talks
 
   - `<http://www.devoxx.com/display/DV12/Blast+your+webapp+with+Gatling>`_
   - `<http://parleys.com/#st=5&id=3542>`_
-  - `Slides <http://www.slideshare.net/slandelle/gatling-tool-in-action-at-devoxx-2012>`_
+  - `Slides <http://www.slideshare.net/slandelle/gatling-tool-in-action-at-devoxx-2012>`__
 
 * `YaJUG (in french) <http://www.parleys.com/#st=5&id=3416>`_
 * `Lausanne JUG (in french) <http://parleys.com/#st=5&id=3665&sl=0>`_
@@ -22,7 +22,7 @@ Public talks
 
   - `<http://www.devoxx.fr/display/FR12/Realiser+des+tests+de+charges+avec+Gatling>`_
   - `<http://parleys.com/#st=5&id=3317>`_
-  - `Slides <http://www.slideshare.net/slandelle/gatling-devoxxfr-2012-12715696>`_
+  - `Slides <http://www.slideshare.net/slandelle/gatling-devoxxfr-2012-12715696>`__
 
 Articles
 ========
