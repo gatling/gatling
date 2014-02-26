@@ -2,6 +2,11 @@
 Links
 *****
 
+Extensions
+========== 
+
+* `JWT for Gatling <https://bitbucket.org/atlassianlabs/gatling-jwt/>`_
+
 Public talks
 ============
 
@@ -19,8 +24,8 @@ Public talks
   - `<http://parleys.com/#st=5&id=3317>`_
   - `Slides <http://www.slideshare.net/slandelle/gatling-devoxxfr-2012-12715696>`_
 
-Articles about Gatling
-======================
+Articles
+========
 
 * `Osaxis - Gatling, nouvelle solution libre pour les tests de montée en charge (in French) <http://www.osaxis.fr/blog/gatling-nouvelle-solution-libre-pour-les-tests-de-montee-en-charge/>`_
 * `Martin Braun - Web application load testing - and why you should consider Gatling <http://blog.braun.io/2013/12/web-application-load-testing-and-why.html>`_
