@@ -1,17 +1,35 @@
+/**
+ * Copyright 2011-2014 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.gatling.core.action
 
-import akka.actor.ActorDSL._
+import java.util.concurrent.TimeUnit.SECONDS
+
+import scala.concurrent.duration.Duration
+
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import io.gatling.core.Predef._
-import java.util.concurrent.TimeUnit.SECONDS
-import scala.concurrent.duration.Duration
+
+import io.gatling.core.Predef.{ pace, value2Expression }
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.Session
 
 @RunWith(classOf[JUnitRunner])
 class PaceSpec extends Specification {
+
 	"pace" should {
 		"run actions with a minimum wait time" in new ActorSupport {
 			val instance = pace(Duration(3, SECONDS), "paceCounter").build(self, Protocols())

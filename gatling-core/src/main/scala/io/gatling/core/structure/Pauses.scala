@@ -15,16 +15,16 @@
  */
 package io.gatling.core.structure
 
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 
-import scala.concurrent.duration.{ FiniteDuration, Duration, DurationLong }
+import scala.concurrent.duration.{ Duration, DurationLong }
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
 import io.gatling.core.action.builder.{ PaceBuilder, PauseBuilder, RendezVousBuilder }
 import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
 import io.gatling.core.session.el.EL
-import io.gatling.core.validation.{ Validation, SuccessWrapper }
-import java.util.UUID
+import io.gatling.core.validation.SuccessWrapper
 
 trait Pauses[B] extends Execs[B] {
 
@@ -80,29 +80,17 @@ trait Pauses[B] extends Execs[B] {
 
 	def pause(duration: Expression[Duration]): B = exec(new PauseBuilder(duration))
 
-	def pace(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = {
-		pace(durationExpression(duration, unit))
-	}
+	def pace(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = pace(durationExpression(duration, unit))
 
-	def pace(min: Duration, max: Duration): B = {
-		pace(durationExpression(min, max))
-	}
+	def pace(min: Duration, max: Duration): B = pace(durationExpression(min, max))
 
-	def pace(min: String, max: String, unit: TimeUnit): B = {
-		pace(durationExpression(min, max, unit))
-	}
+	def pace(min: String, max: String, unit: TimeUnit): B = pace(durationExpression(min, max, unit))
 
-	def pace(min: Expression[Duration], max: Expression[Duration]): B = {
-		pace(durationExpression(min, max))
-	}
+	def pace(min: Expression[Duration], max: Expression[Duration]): B = pace(durationExpression(min, max))
 
-	def pace(duration: Expression[Duration]): B = {
-		pace(duration, UUID.randomUUID.toString)
-	}
+	def pace(duration: Expression[Duration]): B = pace(duration, UUID.randomUUID.toString)
 
-	def pace(duration: Expression[Duration], counter: String): B = {
-		exec(new PaceBuilder(duration, counter))
-	}
+	def pace(duration: Expression[Duration], counter: String): B = exec(new PaceBuilder(duration, counter))
 
 	def rendezVous(users: Int): B = exec(new RendezVousBuilder(users))
 }
