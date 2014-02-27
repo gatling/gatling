@@ -6,9 +6,9 @@ object Dependencies {
 	/** Compile dependencies **/
 	/**************************/
 
-	private val scalaCompiler     = "org.scala-lang"             % "scala-compiler"     % "2.10.3"
-	private val scalaReflect      = "org.scala-lang"             % "scala-reflect"      % "2.10.3"
-	private val scalaSwing        = "org.scala-lang"             % "scala-swing"        % "2.10.3"
+	private val scalaCompiler     = "org.scala-lang"             % "scala-compiler"     % "2.10.4-RC3"
+	private val scalaReflect      = "org.scala-lang"             % "scala-reflect"      % "2.10.4-RC3"
+	private val scalaSwing        = "org.scala-lang"             % "scala-swing"        % "2.10.4-RC3"
 	private val jsr166e           = "io.gatling"                 % "jsr166e"            % "1.0"
 	private val ahc               = "com.ning"                   % "async-http-client"  % "1.8.3"
 	private val netty             = "io.netty"                   % "netty"              % "3.9.0.Final"
