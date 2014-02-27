@@ -41,18 +41,18 @@ trait Pauses[B] extends Execs[B] {
 		durationValue(_).map(i => Duration(i, unit))
 	}
 
-	private def durationExpression(min: Duration, max: Duration)(session: Session): Validation[Duration] = {
+	private def durationExpression(min: Duration, max: Duration): Expression[Duration] = {
 		val minMillis = min.toMillis
 		val maxMillis = max.toMillis
 
-		(ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis).success
+		(session: Session) => (ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis).success
 	}
 
-	private def durationExpression(min: String, max: String, unit: TimeUnit)(session: Session): Validation[Duration] = {
+	private def durationExpression(min: String, max: String, unit: TimeUnit): Expression[Duration] = {
 		val minExpression = min.el[Int]
 		val maxExpression = max.el[Int]
 
-		for {
+		(session: Session) => for {
 			min <- minExpression(session)
 			max <- maxExpression(session)
 			minMillis = Duration(min, unit).toMillis
@@ -60,22 +60,23 @@ trait Pauses[B] extends Execs[B] {
 		} yield ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis
 	}
 
-	private def durationExpression(min: Expression[Duration], max: Expression[Duration])(session: Session): Validation[Duration] = {
-		for {
-			min <- min(session)
-			max <- max(session)
-			minMillis = min.toMillis
-			maxMillis = max.toMillis
-		} yield ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis
+	private def durationExpression(min: Expression[Duration], max: Expression[Duration]): Expression[Duration] = {
+		(session: Session) =>
+			for {
+				min <- min(session)
+				max <- max(session)
+				minMillis = min.toMillis
+				maxMillis = max.toMillis
+			} yield ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis
 	}
 
 	def pause(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = pause(durationExpression(duration, unit))
 
-	def pause(min: Duration, max: Duration): B = pause(durationExpression(min, max) _)
+	def pause(min: Duration, max: Duration): B = pause(durationExpression(min, max))
 
-	def pause(min: String, max: String, unit: TimeUnit): B = pause(durationExpression(min, max, unit) _)
+	def pause(min: String, max: String, unit: TimeUnit): B = pause(durationExpression(min, max, unit))
 
-	def pause(min: Expression[Duration], max: Expression[Duration]): B = pause(durationExpression(min, max) _)
+	def pause(min: Expression[Duration], max: Expression[Duration]): B = pause(durationExpression(min, max))
 
 	def pause(duration: Expression[Duration]): B = exec(new PauseBuilder(duration))
 
@@ -84,15 +85,15 @@ trait Pauses[B] extends Execs[B] {
 	}
 
 	def pace(min: Duration, max: Duration): B = {
-		pace(durationExpression(min, max) _)
+		pace(durationExpression(min, max))
 	}
 
 	def pace(min: String, max: String, unit: TimeUnit): B = {
-		pace(durationExpression(min, max, unit) _)
+		pace(durationExpression(min, max, unit))
 	}
 
 	def pace(min: Expression[Duration], max: Expression[Duration]): B = {
-		pace(durationExpression(min, max) _)
+		pace(durationExpression(min, max))
 	}
 
 	def pace(duration: Expression[Duration]): B = {

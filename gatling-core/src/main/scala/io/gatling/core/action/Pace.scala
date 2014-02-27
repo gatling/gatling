@@ -17,7 +17,7 @@ import scala.concurrent.duration._
 class Pace(intervalExpr: Expression[Duration], counter: String, val next: ActorRef) extends Interruptable with Failable {
 	/**
 	 * Pace keeps track of when it can next run using a counter in the session. If this counter does not exist, it will
-   * run immediately. On each run, it increments the counter by intervalExpr.
+	 * run immediately. On each run, it increments the counter by intervalExpr.
 	 *
 	 * @param session the session of the virtual user
 	 * @return Nothing
