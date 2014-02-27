@@ -22,12 +22,9 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 
 /**
-/**
- * Pace provides a means to limit the frequency with which an action is run, by specifying a minimum wait time between.
- * 
+ * Pace provides a means to limit the frequency with which an action is run, by specifying a minimum wait time between iterations.
+ *
  * Originally contributed by James Pickering.
- */
- * iterations.
  *
  * @param intervalExpr a function that decides how long to wait before the next iteration
  * @param counter the name of the counter used to keep track of the run state. Typically this would be random, but
