@@ -17,13 +17,14 @@ package io.gatling.core.structure
 
 import java.util.concurrent.TimeUnit
 
-import scala.concurrent.duration.{ Duration, DurationLong }
+import scala.concurrent.duration.{ FiniteDuration, Duration, DurationLong }
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
-import io.gatling.core.action.builder.{ PauseBuilder, RendezVousBuilder }
+import io.gatling.core.action.builder.{ PaceBuilder, PauseBuilder, RendezVousBuilder }
 import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
 import io.gatling.core.session.el.EL
-import io.gatling.core.validation.SuccessWrapper
+import io.gatling.core.validation.{ Validation, SuccessWrapper }
+import java.util.UUID
 
 trait Pauses[B] extends Execs[B] {
 
@@ -35,50 +36,73 @@ trait Pauses[B] extends Execs[B] {
 	 */
 	def pause(duration: Duration): B = pause(duration.expression)
 
-	def pause(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = {
+	private def durationExpression(duration: String, unit: TimeUnit): Expression[Duration] = {
 		val durationValue = duration.el[Int]
-		pause(durationValue(_).map(i => Duration(i, unit)))
+		durationValue(_).map(i => Duration(i, unit))
 	}
 
-	def pause(min: Duration, max: Duration): B = {
+	private def durationExpression(min: Duration, max: Duration): Expression[Duration] = {
 		val minMillis = min.toMillis
 		val maxMillis = max.toMillis
 
-		val expression = (session: Session) => (ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis).success
-
-		pause(expression)
+		(session: Session) => (ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis).success
 	}
 
-	def pause(min: String, max: String, unit: TimeUnit): B = {
+	private def durationExpression(min: String, max: String, unit: TimeUnit): Expression[Duration] = {
 		val minExpression = min.el[Int]
 		val maxExpression = max.el[Int]
 
-		val expression = (session: Session) =>
-			for {
-				min <- minExpression(session)
-				max <- maxExpression(session)
-				minMillis = Duration(min, unit).toMillis
-				maxMillis = Duration(max, unit).toMillis
-
-			} yield (ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis)
-
-		pause(expression)
+		(session: Session) => for {
+			min <- minExpression(session)
+			max <- maxExpression(session)
+			minMillis = Duration(min, unit).toMillis
+			maxMillis = Duration(max, unit).toMillis
+		} yield ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis
 	}
 
-	def pause(min: Expression[Duration], max: Expression[Duration]): B = {
-
-		val expression = (session: Session) =>
+	private def durationExpression(min: Expression[Duration], max: Expression[Duration]): Expression[Duration] = {
+		(session: Session) =>
 			for {
 				min <- min(session)
 				max <- max(session)
 				minMillis = min.toMillis
 				maxMillis = max.toMillis
-			} yield (ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis)
-
-		pause(expression)
+			} yield ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis
 	}
 
+	def pause(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = pause(durationExpression(duration, unit))
+
+	def pause(min: Duration, max: Duration): B = pause(durationExpression(min, max))
+
+	def pause(min: String, max: String, unit: TimeUnit): B = pause(durationExpression(min, max, unit))
+
+	def pause(min: Expression[Duration], max: Expression[Duration]): B = pause(durationExpression(min, max))
+
 	def pause(duration: Expression[Duration]): B = exec(new PauseBuilder(duration))
+
+	def pace(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = {
+		pace(durationExpression(duration, unit))
+	}
+
+	def pace(min: Duration, max: Duration): B = {
+		pace(durationExpression(min, max))
+	}
+
+	def pace(min: String, max: String, unit: TimeUnit): B = {
+		pace(durationExpression(min, max, unit))
+	}
+
+	def pace(min: Expression[Duration], max: Expression[Duration]): B = {
+		pace(durationExpression(min, max))
+	}
+
+	def pace(duration: Expression[Duration]): B = {
+		pace(duration, UUID.randomUUID.toString)
+	}
+
+	def pace(duration: Expression[Duration], counter: String): B = {
+		exec(new PaceBuilder(duration, counter))
+	}
 
 	def rendezVous(users: Int): B = exec(new RendezVousBuilder(users))
 }
