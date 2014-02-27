@@ -42,6 +42,7 @@ abstract class DataReader(runUuid: String) {
 	def responseTimeGroupByExecutionStartDate(status: Status, requestName: String, group: Option[Group] = None): Seq[IntRangeVsTimePlot]
 	def latencyGroupByExecutionStartDate(status: Status, requestName: String, group: Option[Group] = None): Seq[IntRangeVsTimePlot]
 	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group] = None): Seq[IntVsTimePlot]
+	def latencyAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group] = None): Seq[IntVsTimePlot]
 
 	def errors(requestName: Option[String], group: Option[Group]): Seq[ErrorStats]
 

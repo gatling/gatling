@@ -23,6 +23,7 @@ import io.gatling.charts.util.Colors.{ BLUE, RED, TRANSLUCID_BLUE, TRANSLUCID_RE
 import io.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot, RequestStatsPath, Series }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
+import io.gatling.core.result.message.Status
 
 class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
@@ -55,26 +56,33 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 				componentLibrary.getRequestDetailsLatencyChartComponent(dataReader.runStart, latencySuccessSeries, latencyFailuresSeries)
 			}
 
-			def scatterChartComponent: Component = {
-				val scatterPlotSuccessData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(OK, requestName, group)
-				val scatterPlotFailuresData = dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec(KO, requestName, group)
+			def scatterChartComponent(datasource: (Status, String, Option[Group]) => Seq[IntVsTimePlot],
+				componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component): Component = {
+
+				val scatterPlotSuccessData = datasource(OK, requestName, group)
+				val scatterPlotFailuresData = datasource(KO, requestName, group)
 				val scatterPlotSuccessSeries = new Series[IntVsTimePlot]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
 				val scatterPlotFailuresSeries = new Series[IntVsTimePlot]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
 
-				componentLibrary.getRequestDetailsScatterChartComponent(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
+				componentFactory(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
 			}
 
+			def responseTimeScatterChartComponent: Component =
+				scatterChartComponent(dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsResponseTimeScatterChartComponent)
+
+			def latencyScatterChartComponent: Component =
+				scatterChartComponent(dataReader.latencyAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsLatencyScatterChartComponent)
+
 			val template =
-				new RequestDetailsPageTemplate(path,
-					requestName,
-					group,
+				new RequestDetailsPageTemplate(path, requestName, group,
 					new StatisticsTextComponent,
 					componentLibrary.getRequestDetailsIndicatorChartComponent,
 					new ErrorTableComponent(dataReader.errors(Some(requestName), group)),
 					responseTimeChartComponent,
 					responseTimeDistributionChartComponent,
 					latencyChartComponent,
-					scatterChartComponent)
+					responseTimeScatterChartComponent,
+					latencyScatterChartComponent)
 
 			new TemplateWriter(requestFile(runOn, path)).writeToFile(template.getOutput)
 		}

@@ -265,12 +265,11 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 	def latencyGroupByExecutionStartDate(status: Status, requestName: String, group: Option[Group]): Seq[IntRangeVsTimePlot] =
 		rangeBuffer2IntRangeVsTimePlots(resultsHolder.getLatencyPerSecBuffers(requestName, group, Some(status)))
 
-	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
+	private def timeAgainstGlobalNumberOfRequestsPerSec(rangeBuffer: RangeBuffer, status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
 
 		val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None, None).map
 
-		resultsHolder
-			.getResponseTimePerSecBuffers(requestName, group, Some(status))
+		rangeBuffer
 			.map
 			.toSeq
 			.map {
@@ -278,6 +277,18 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 					val count = globalCountsByBucket(bucket).value
 					IntVsTimePlot(math.round(count / step * 1000).toInt, responseTimes.higher)
 			}.sortBy(_.time)
+	}
+
+	def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
+
+		val rangeBuffer = resultsHolder.getResponseTimePerSecBuffers(requestName, group, Some(status))
+		timeAgainstGlobalNumberOfRequestsPerSec(rangeBuffer, status, requestName, group)
+	}
+
+	def latencyAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
+
+		val rangeBuffer = resultsHolder.getLatencyPerSecBuffers(requestName, group, Some(status))
+		timeAgainstGlobalNumberOfRequestsPerSec(rangeBuffer, status, requestName, group)
 	}
 
 	def groupCumulatedResponseTimeGroupByExecutionStartDate(status: Status, group: Group): Seq[IntRangeVsTimePlot] =

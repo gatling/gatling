@@ -25,5 +25,14 @@ class RequestDetailsPageTemplate(title: String, requestName: String, group: Opti
 	rtChartComponent: Component,
 	percentilesChartComponent: Component,
 	latencyChartComponent: Component,
-	scatterChartComponent: Component)
-	extends PageTemplate(title, true, Some(requestName), group, statsTextComponent, indicChartComponent, errorTableComponent, rtChartComponent, percentilesChartComponent, latencyChartComponent, scatterChartComponent)
+	responseTimeScatterChartComponent: Component,
+	latencyScatterChartComponent: Component)
+	extends PageTemplate(title, true, Some(requestName), group,
+		statsTextComponent,
+		indicChartComponent,
+		errorTableComponent,
+		rtChartComponent,
+		percentilesChartComponent,
+		latencyChartComponent,
+		responseTimeScatterChartComponent,
+		latencyScatterChartComponent)
