@@ -25,22 +25,22 @@ trait FeederBuilder[T] {
 
 case class FeederWrapper[T](build: Feeder[T]) extends FeederBuilder[T]
 
-case class RecordArrayFeederBuilder[T](data: Array[Record[T]], strategy: FeederStrategy = Queue) extends FeederBuilder[T] {
+case class RecordArrayFeederBuilder[T](array: Array[Record[T]], strategy: FeederStrategy = Queue) extends FeederBuilder[T] {
 
 	def convert(conversion: PartialFunction[(String, T), Any]): RecordArrayFeederBuilder[Any] = {
 		val useValueAsIs: PartialFunction[(String, T), Any] = { case (_, value) => value }
 		val fullConversion = conversion orElse useValueAsIs
 
-		copy[Any](data = data.map(_.map { case (key, value) => key -> fullConversion(key, value) }))
+		copy[Any](array = array.map(_.map { case (key, value) => key -> fullConversion(key, value) }))
 	}
 
 	def build: Feeder[T] = strategy match {
-		case Queue => data.iterator
+		case Queue => array.iterator
 		case Random => new Feeder[T] {
-			def hasNext = data.length != 0
-			def next = data(ThreadLocalRandom.current.nextInt(data.length))
+			def hasNext = array.length != 0
+			def next = array(ThreadLocalRandom.current.nextInt(array.length))
 		}
-		case Circular => RoundRobin(data)
+		case Circular => RoundRobin(array)
 	}
 
 	def queue = copy(strategy = Queue)
