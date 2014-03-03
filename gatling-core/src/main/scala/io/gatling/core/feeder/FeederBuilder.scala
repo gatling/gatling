@@ -25,11 +25,13 @@ trait FeederBuilder[T] {
 
 case class FeederWrapper[T](build: Feeder[T]) extends FeederBuilder[T]
 
-case class AdvancedFeederBuilder[T](data: Array[Record[T]], strategy: FeederStrategy = Queue) extends FeederBuilder[T] {
+case class RecordArrayFeederBuilder[T](data: Array[Record[T]], strategy: FeederStrategy = Queue) extends FeederBuilder[T] {
 
-	def convert(conversions: (String, T => Any)*): AdvancedFeederBuilder[Any] = {
-		val indexedConversions = conversions.toMap.withDefaultValue(identity[T] _)
-		copy(data = data.map(_.map { case (key, value) => (key, indexedConversions(key)(value)) }))
+	def convert(conversion: PartialFunction[(String, T), Any]): RecordArrayFeederBuilder[Any] = {
+		val useValueAsIs: PartialFunction[(String, T), Any] = { case (_, value) => value }
+		val fullConversion = conversion orElse useValueAsIs
+
+		copy[Any](data = data.map(_.map { case (key, value) => key -> fullConversion(key, value) }))
 	}
 
 	def build: Feeder[T] = strategy match {
@@ -41,7 +43,7 @@ case class AdvancedFeederBuilder[T](data: Array[Record[T]], strategy: FeederStra
 		case Circular => RoundRobin(data)
 	}
 
-	def queue: AdvancedFeederBuilder[T] = copy(strategy = Queue)
-	def random: AdvancedFeederBuilder[T] = copy(strategy = Random)
-	def circular: AdvancedFeederBuilder[T] = copy(strategy = Circular)
+	def queue = copy(strategy = Queue)
+	def random = copy(strategy = Random)
+	def circular = copy(strategy = Circular)
 }
