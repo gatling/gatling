@@ -22,7 +22,7 @@ a img { border:none; }
 h1, h2, h3, h4, h5, h6 { margin:0; padding:0; font-family: "Maven Pro", sans-serif; }
 /* common ----> */
 
-
+.literal { padding: 1px 2px; background-color: #f5f5f5; border: 1px solid #888; -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; }
 
 /* <--- special buttons */
 /* <---- btn-simple */
