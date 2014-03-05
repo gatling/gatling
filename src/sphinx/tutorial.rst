@@ -386,14 +386,9 @@ Let's explained:
   1. The ``repeat`` builtin is a loop resolved at RUNTIME, it take the number of repetition and optionally the name of the counter.
   2. As we force the counter name we can use it in Gatling EL and access the nth page.
 
-As the max page is static and doesn't depend on the user, we might as well have a loop resolved at LOAD time.
-For this we use Scala For-Comprehensions which results in a sequence of ``exec`` statements::
-
-  def gotoUntil2(max: String) = exec(for (i <- 0 until max.toInt) yield gotoPage(i.toString))
-
 And finally we can write the ``browse`` process as follow::
 
-  val browse = gotoUntil2("4")
+  val browse = gotoUntil("4")
 
 Step 05: Check and failure management
 =====================================

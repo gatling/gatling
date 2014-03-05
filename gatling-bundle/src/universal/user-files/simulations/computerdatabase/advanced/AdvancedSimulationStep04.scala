@@ -36,10 +36,7 @@ class AdvancedSimulationStep04 extends Simulation {
       gotoPage("${i}") // Note how we force the counter name so we can reuse it
     }
 
-    // As the max page is static and doesn't depend on the user, we might as well have a loop resolved at LOAD time
-    def gotoUntil2(max: String) = exec(for (i <- 0 until max.toInt) yield gotoPage(i.toString))
-
-    val browse = gotoUntil2("4")
+    val browse = gotoUntil("4")
   }
 
   object Edit {
