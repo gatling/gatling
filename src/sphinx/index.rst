@@ -13,10 +13,16 @@ User's guide
 .. toctree::
    :maxdepth: 2
 
+   Getting-Started
+   Tutorial
    Quickstart
    Recorder
+   Session
    HTTP
    Operations
    FAQ
    Links
    gatling2
+   general_information/index
+   user_documentation/index
+   developing_gatling/index
