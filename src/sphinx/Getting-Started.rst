@@ -63,7 +63,7 @@ To run a simulation, simply type the number of the simulation you want to run, c
 
 And... voila!
 
-.. note:: If Gatling does not work as expected, see our FAQ.
+  Note: If Gatling does not work as expected, see our FAQ.
 
 Debugging
 #########
