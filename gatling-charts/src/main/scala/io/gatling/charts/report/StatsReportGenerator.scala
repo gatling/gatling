@@ -89,19 +89,20 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 		val groupStatsPaths = statsPaths.collect { case path: GroupStatsPath => path.group.hierarchy.reverse -> path }.toMap
 		val seenGroups = collection.mutable.HashSet.empty[List[String]]
 
-		@tailrec
 		def addGroupsRec(hierarchy: List[String]) {
 
 			if (!seenGroups.contains(hierarchy)) {
 				seenGroups += hierarchy
-				val group = groupStatsPaths(hierarchy).group
-				val stats = computeGroupStats(group.name, group)
-				rootContainer.addGroup(group, stats)
 
 				hierarchy match {
 					case head :: tail if !tail.isEmpty => addGroupsRec(tail)
 					case _ =>
 				}
+
+				val group = groupStatsPaths(hierarchy).group
+				val stats = computeGroupStats(group.name, group)
+				rootContainer.addGroup(group, stats)
+
 			}
 		}
 
