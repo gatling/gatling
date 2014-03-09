@@ -41,9 +41,7 @@ object BuildSettings {
 	) ++ Publish.settings ++ Release.settings
 
 	lazy val gatlingModuleSettings =
-		basicSettings ++ formattingSettings ++ graphSettings ++ Seq(
-			exportJars := true
-		)
+		basicSettings ++ formattingSettings ++ graphSettings
 
 	lazy val noCodeToPublish = Seq(
 		publishArtifact in Compile := false
