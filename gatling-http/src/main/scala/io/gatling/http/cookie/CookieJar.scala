@@ -56,8 +56,8 @@ object CookieJar {
 		case _ => CookieJar.cookieDefaultPath(requestURI)
 	}
 
-	def apply(uri: URI, cookies: List[Cookie]) = (new CookieJar(Map.empty)).add(uri, cookies)
-	def apply(domain: String, cookies: List[Cookie]) = (new CookieJar(Map.empty)).add(domain, cookies)
+	def apply(uri: URI, cookies: List[Cookie]): CookieJar = CookieJar(Map.empty).add(uri, cookies)
+	def apply(domain: String, cookies: List[Cookie]): CookieJar = CookieJar(Map.empty).add(domain, cookies)
 }
 
 case class CookieJar(store: Map[String, List[Cookie]]) {
@@ -65,7 +65,7 @@ case class CookieJar(store: Map[String, List[Cookie]]) {
 	private val MAX_AGE_UNSPECIFIED = -1
 	private val EXPIRES_UNSPECIFIED = -1L
 
-	def add(domain: String, cookies: List[Cookie]) = {
+	def add(domain: String, cookies: List[Cookie]): CookieJar = {
 		def cookiesEquals(c1: Cookie, c2: Cookie) = c1.getName.equalsIgnoreCase(c2.getName) && c1.getDomain == c2.getDomain && c1.getPath == c2.getPath
 
 		@tailrec
@@ -88,8 +88,8 @@ case class CookieJar(store: Map[String, List[Cookie]]) {
 	}
 
 	/**
-	 * @param uri       the uri used to deduce defaults for  optional domains and paths
-	 * @param cookies    the cookies to store
+	 * @param requestURI       the uri used to deduce defaults for  optional domains and paths
+	 * @param rawCookies    the cookies to store
 	 */
 	def add(requestURI: URI, rawCookies: List[Cookie]): CookieJar = {
 
