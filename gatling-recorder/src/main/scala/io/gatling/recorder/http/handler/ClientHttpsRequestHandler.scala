@@ -82,7 +82,7 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
 									connectFuture.getChannel.getPipeline.get(BootstrapFactory.SSL_HANDLER_NAME).asInstanceOf[SslHandler].handshake
 										.addListener { handshakeFuture: ChannelFuture =>
 											val serverChannel = handshakeFuture.getChannel
-											serverChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, serverChannel, request, false))
+											serverChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, false))
 											_serverChannel = Some(serverChannel)
 											serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request))
 										}
