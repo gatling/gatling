@@ -75,6 +75,7 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
 			context.stop(self)
 
 		case OnClose =>
+			// FIXME should reconnect OnClose or on next SendMessage?
 			if (tx.protocol.wsPart.reconnect) {
 				if (tx.protocol.wsPart.maxReconnects.map(_ > tx.reconnectCount).getOrElse(true)) {
 					HttpEngine.instance.startWebSocketTransaction(tx.copy(reconnectCount = tx.reconnectCount + 1), self)
