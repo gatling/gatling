@@ -30,9 +30,12 @@ trait LowPriorityGroupExtractorImplicits extends StrictLogging {
 			matcher.group(math.min(matcher.groupCount, 1)).ensureTrimmedCharsArray
 	}
 
-	def safeGetGroupValue(matcher: Matcher, i: Int) =
+	def safeGetGroupValue(matcher: Matcher, i: Int): String =
 		if (matcher.groupCount >= i)
-			matcher.group(i).ensureTrimmedCharsArray
+			matcher.group(i) match {
+				case null => ""
+				case value => value.ensureTrimmedCharsArray
+			}
 		else {
 			logger.error(s"Regex group $i doesn't exist")
 			""
