@@ -21,7 +21,7 @@ import io.gatling.jdbc.Predef._
 
 import scala.concurrent.duration._
 
-object CompileTest extends Simulation {
+object HttpCompileTest extends Simulation {
 
 	val iterations = 10
 	val pause1 = 1
