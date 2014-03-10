@@ -27,7 +27,7 @@ trait LowPriorityGroupExtractorImplicits extends StrictLogging {
 
 	implicit val stringGroupExtractor = new GroupExtractor[String] {
 		def extract(matcher: Matcher): String =
-			matcher.group(math.min(matcher.groupCount, 1)).ensureTrimmedCharsArray
+			safeGetGroupValue(matcher, math.min(matcher.groupCount, 1))
 	}
 
 	def safeGetGroupValue(matcher: Matcher, i: Int): String =
