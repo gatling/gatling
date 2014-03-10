@@ -22,12 +22,12 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
 import com.excilys.ebi.gatling.core.session.Session
-import com.ning.http.util.AsyncHttpProviderUtils
+import com.ning.http.client.cookie.CookieDecoder.decode
 
 @RunWith(classOf[JUnitRunner])
 class CookieHandlingSpec extends Specification {
 
-	val originalCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
+	val originalCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
 	val originalDomain = "docs.foo.com"
 	val originalCookieJar = new CookieJar(Map(originalDomain -> List(originalCookie)))
 	val originalSession = new Session("scenarioName", 1, Map(CookieHandling.COOKIES_CONTEXT_KEY -> originalCookieJar))
@@ -47,7 +47,7 @@ class CookieHandlingSpec extends Specification {
 
 	"storeCookies" should {
 		"be able to store a cookie in an empty session" in {
-			val newCookie = AsyncHttpProviderUtils.parseCookie("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
+			val newCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
 			CookieHandling.storeCookies(emptySession, new URI("https://docs.foo.com/accounts"), List(newCookie))
 
 			CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") must beEmpty

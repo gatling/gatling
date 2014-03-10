@@ -15,11 +15,11 @@
  */
 package com.excilys.ebi.gatling.http.ahc
 
-import java.util.Timer
 import java.util.concurrent.{ Executors, ThreadFactory }
 
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
+import org.jboss.netty.util.HashedWheelTimer
 
 import com.excilys.ebi.gatling.core.ConfigurationConstants._
 import com.excilys.ebi.gatling.core.action.system
@@ -56,18 +56,24 @@ object GatlingHttpClient extends Logging {
 			}
 		})
 
+		val hashedWheelTimer = new HashedWheelTimer
+		hashedWheelTimer.start
+
 		val connectionsPool = new NettyConnectionsPool(configuration.http.maximumConnectionsTotal,
 			configuration.http.maximumConnectionsPerHost,
 			configuration.http.idleConnectionInPoolTimeOutInMs,
 			configuration.http.maxConnectionLifeTimeInMs,
 			configuration.http.allowSslConnectionPool,
-			new Timer(true))
+			hashedWheelTimer)
 
 		val nettyConfig = {
 			val numWorkers = configuration.http.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
 			val socketChannelFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool, applicationThreadPool, numWorkers)
 			system.registerOnTermination(socketChannelFactory.releaseExternalResources)
-			new NettyAsyncHttpProviderConfig().addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
+			val nettyConfig = new NettyAsyncHttpProviderConfig
+			nettyConfig.addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
+			nettyConfig.setHashedWheelTimer(hashedWheelTimer)
+			nettyConfig
 		}
 	}
 
@@ -89,10 +95,9 @@ object GatlingHttpClient extends Logging {
 			.setUserAgent(configuration.http.userAgent)
 			.setUseRawUrl(configuration.http.useRawUrl)
 			.setExecutorService(SharedResources.applicationThreadPool)
-			.setScheduledExecutorService(SharedResources.reaper)
 			.setAsyncHttpClientProviderConfig(SharedResources.nettyConfig)
 			.setConnectionsPool(SharedResources.connectionsPool)
-			.setRfc6265CookieEncoding(configuration.http.rfc6265CookieEncoding)
+			.setTimeConverter(JodaTimeConverter)
 
 		val trustManagers = configuration.http.ssl.trustStore
 			.map { config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm) }
@@ -136,6 +141,7 @@ object GatlingHttpClient extends Logging {
 
 		val client = new AsyncHttpClient(ahcConfig)
 		system.registerOnTermination(client.close)
+		system.registerOnTermination(SharedResources.hashedWheelTimer.stop)
 		client
 	}
 

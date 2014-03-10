@@ -112,7 +112,7 @@
 		<maven.compiler.target>1.6</maven.compiler.target>
 		<encoding>UTF-8</encoding>
 		<scala.version>2.9.3</scala.version>
-		<ahc.version>1.7.24</ahc.version>
+		<ahc.version>1.8.3</ahc.version>
 		<akka.version>2.0.4</akka.version>
 		<config.version>1.0.2</config.version>
 		<jaxen.version>1.1.6</jaxen.version>
@@ -131,7 +131,7 @@
 		<commons-math3.version>3.1.1</commons-math3.version>
 		<commons-io.version>2.4</commons-io.version>
 		<commons-exec.version>1.1</commons-exec.version>
-		<jodd.version>3.4.8</jodd.version>
+		<jodd.version>3.4.10</jodd.version>
 		<jsoup.version>1.7.3</jsoup.version>
 		<redis.version>2.10</redis.version>
 		<junit.version>4.11</junit.version>
