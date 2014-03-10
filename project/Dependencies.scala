@@ -13,7 +13,7 @@ object Dependencies {
 	private val ahc               = "com.ning"                   % "async-http-client"  % "1.8.3"
 	private val netty             = "io.netty"                   % "netty"              % "3.9.0.Final"
 	private val akkaActor         = "com.typesafe.akka"         %% "akka-actor"         % "2.2.4"
-	private val config            = "com.typesafe"               % "config"             % "1.2.0"
+	private val config            = "com.typesafe"               % "config"             % "1.0.2"
 	private val saxon             = "net.sf.saxon"               % "Saxon-HE"           % "9.5.1-4"    classifier "compressed"
 	private val slf4jApi          = "org.slf4j"                  % "slf4j-api"          % "1.7.6"
 	private val fastring          = "com.dongxiguo"             %% "fastring"           % "0.2.2"
