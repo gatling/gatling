@@ -35,10 +35,10 @@ trait FeederSupport {
 	def tsv(file: File): RecordArrayFeederBuilder[String] = tsv(file.path)
 	def tsv(fileName: String): RecordArrayFeederBuilder[String] = separatedValues(fileName, tabulationSeparator.charAt(0))
 
-	def separatedValues(fileName: String, separator: Char): RecordArrayFeederBuilder[String] = separatedValues(Resource.feeder(fileName), separator)
+	def separatedValues(fileName: String, separator: Char, quoteChar: Char = '"'): RecordArrayFeederBuilder[String] = separatedValues(Resource.feeder(fileName), separator, quoteChar)
 
-	def separatedValues(resource: Validation[Resource], separator: Char): RecordArrayFeederBuilder[String] = resource match {
-		case Success(resource) => RecordArrayFeederBuilder(SeparatedValuesParser.parse(resource, separator))
+	def separatedValues(resource: Validation[Resource], separator: Char, quoteChar: Char): RecordArrayFeederBuilder[String] = resource match {
+		case Success(resource) => RecordArrayFeederBuilder(SeparatedValuesParser.parse(resource, separator, quoteChar))
 
 		case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file; $message")
 	}
