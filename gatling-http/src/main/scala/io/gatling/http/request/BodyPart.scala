@@ -17,111 +17,71 @@ package io.gatling.http.request
 
 import java.io.File
 
-import com.ning.http.multipart.{ ByteArrayPartSource, FilePart, FilePartSource, Part, StringPart }
+import com.ning.http.multipart.{ ByteArrayPartSource, FilePart, FilePartSource, Part, PartBase, StringPart }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.{ Expression, resolveOptionalExpression, Session }
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.session.{ Expression, RichExpression, Session, resolveOptionalExpression }
 import io.gatling.core.util.FileHelper.RichFile
+import io.gatling.core.validation.Validation
 
-object RawFileBodyPart {
+object BodyPart {
 
-	def apply(name: Expression[String], filePath: Expression[String]) = FileBodyPart(name, RawFileBodies.asFile(filePath))
-}
+	def rawFileBodyPart(name: Expression[String], filePath: Expression[String]) = fileBodyPart(name, RawFileBodies.asFile(filePath))
+	def elFileBodyPart(name: Expression[String], filePath: Expression[String]) = stringBodyPart(name, ELFileBodies.asString(filePath))
+	def stringBodyPart(name: Expression[String], string: Expression[String]) = BodyPart(name, stringBodyPartBuilder(string))
+	def byteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte]]) = BodyPart(name, byteArrayBodyPartBuilder(bytes))
+	def fileBodyPart(name: Expression[String], file: Expression[File]) = BodyPart(name, fileBodyPartBuilder(file))
 
-object ELFileBodyPart {
-
-	def apply(name: Expression[String], filePath: Expression[String]) = StringBodyPart(name, ELFileBodies.asString(filePath))
-}
-
-sealed trait BodyPart {
-
-	def toMultiPart(session: Session): Validation[Part]
-}
-
-case class StringBodyPart(
-	name: Expression[String],
-	string: Expression[String],
-	_contentType: Option[String] = None,
-	_charset: String = configuration.core.encoding,
-	_transferEncoding: Option[Expression[String]] = None,
-	_contentId: Option[Expression[String]] = None) extends BodyPart {
-
-	def contentType(contentType: String) = copy(_contentType = Some(contentType))
-	def charset(charset: String) = copy(_charset = charset)
-	def contentId(contentId: Expression[String]) = copy(_contentId = Some(contentId))
-	def transferEncoding(transferEncoding: Expression[String]) = copy(_transferEncoding = Some(transferEncoding))
-
-	def toMultiPart(session: Session): Validation[Part] =
-		for {
-			name <- name(session)
-			string <- string(session)
-			contentId <- resolveOptionalExpression(_contentId, session)
-			transferEncoding <- resolveOptionalExpression(_transferEncoding, session)
-		} yield {
-			val part = new StringPart(name, string, _charset, contentId.getOrElse(null))
-			_contentType.foreach(part.setContentType)
-			transferEncoding.foreach(part.setTransferEncoding)
-			part
+	private def stringBodyPartBuilder(string: Expression[String])(name: String, fileName: Option[String]): Expression[PartBase] =
+		fileName match {
+			case None => string.map(resolvedString => new StringPart(name, resolvedString))
+			case _ => byteArrayBodyPartBuilder(string.map(_.getBytes(configuration.core.charset)))(name, fileName)
 		}
-}
 
-case class ByteArrayBodyPart(
-	name: Expression[String],
-	bytes: Expression[Array[Byte]],
-	_contentType: Option[String] = None,
-	_charset: String = configuration.core.encoding,
-	_fileName: Option[Expression[String]] = None,
-	_transferEncoding: Option[Expression[String]] = None,
-	_contentId: Option[Expression[String]] = None) extends BodyPart {
-
-	def contentType(contentType: String) = copy(_contentType = Some(contentType))
-	def charset(charset: String) = copy(_charset = charset)
-	def fileName(fileName: Expression[String]) = copy(_fileName = Some(fileName))
-	def contentId(contentId: Expression[String]) = copy(_contentId = Some(contentId))
-	def transferEncoding(transferEncoding: Expression[String]) = copy(_transferEncoding = Some(transferEncoding))
-
-	def toMultiPart(session: Session): Validation[Part] =
-		for {
-			name <- name(session)
-			bytes <- bytes(session)
-			fileName <- resolveOptionalExpression(_fileName, session)
-			contentId <- resolveOptionalExpression(_contentId, session)
-			transferEncoding <- resolveOptionalExpression(_transferEncoding, session)
-		} yield {
-			val source = new ByteArrayPartSource(fileName.getOrElse(null), bytes)
-			val part = new FilePart(name, source, _contentType.getOrElse(null), _charset, contentId.getOrElse(null))
-			transferEncoding.foreach(part.setTransferEncoding)
-			part
+	private def byteArrayBodyPartBuilder(bytes: Expression[Array[Byte]])(name: String, fileName: Option[String]): Expression[PartBase] =
+		bytes.map { resolvedBytes =>
+			val source = new ByteArrayPartSource(fileName.getOrElse(null), resolvedBytes)
+			new FilePart(name, source)
 		}
+
+	private def fileBodyPartBuilder(file: Expression[File])(name: String, fileName: Option[String]): Expression[PartBase] =
+		session => for {
+			resolvedFile <- file(session)
+			validatedFile <- resolvedFile.validateExistingReadable
+			source = new FilePartSource(fileName.getOrElse(null), validatedFile)
+		} yield new FilePart(name, source)
 }
 
-case class FileBodyPart(
-	name: Expression[String],
-	file: Expression[File],
-	_contentType: Option[String] = None,
-	_charset: String = configuration.core.encoding,
-	_fileName: Option[Expression[String]] = None,
-	_transferEncoding: Option[Expression[String]] = None,
-	_contentId: Option[Expression[String]] = None) extends BodyPart {
+case class BodyPartAttributes(
+	contentType: Option[String] = None,
+	charset: String = configuration.core.encoding,
+	fileName: Option[Expression[String]] = None,
+	transferEncoding: Option[Expression[String]] = None,
+	contentId: Option[Expression[String]] = None)
 
-	def contentType(contentType: String) = copy(_contentType = Some(contentType))
-	def charset(charset: String) = copy(_charset = charset)
-	def fileName(fileName: Expression[String]) = copy(_fileName = Some(fileName))
-	def contentId(contentId: Expression[String]) = copy(_contentId = Some(contentId))
-	def transferEncoding(transferEncoding: Expression[String]) = copy(_transferEncoding = Some(transferEncoding))
+case class BodyPart(
+	name: Expression[String],
+	partBuilder: (String, Option[String]) => Expression[PartBase], // name, fileName
+	attributes: BodyPartAttributes = BodyPartAttributes() //	
+	) {
+
+	def contentType(contentType: String) = copy(attributes = attributes.copy(contentType = Some(contentType)))
+	def charset(charset: String) = copy(attributes = attributes.copy(charset = charset))
+	def fileName(fileName: Expression[String]) = copy(attributes = attributes.copy(fileName = Some(fileName)))
+	def contentId(contentId: Expression[String]) = copy(attributes = attributes.copy(contentId = Some(contentId)))
+	def transferEncoding(transferEncoding: Expression[String]) = copy(attributes = attributes.copy(transferEncoding = Some(transferEncoding)))
 
 	def toMultiPart(session: Session): Validation[Part] =
 		for {
-			file <- file(session)
-			validatedFile <- file.validateExistingReadable
 			name <- name(session)
-			fileName <- resolveOptionalExpression(_fileName, session)
-			contentId <- resolveOptionalExpression(_contentId, session)
-			transferEncoding <- resolveOptionalExpression(_transferEncoding, session)
+			fileName <- resolveOptionalExpression(attributes.fileName, session)
+			transferEncoding <- resolveOptionalExpression(attributes.transferEncoding, session)
+			contentId <- resolveOptionalExpression(attributes.contentId, session)
+			part <- partBuilder(name, fileName)(session)
 		} yield {
-			val source = new FilePartSource(fileName.getOrElse(null), validatedFile)
-			val part = new FilePart(name, source, _contentType.getOrElse(null), _charset, contentId.getOrElse(null))
+			part.setCharSet(attributes.charset)
+			contentId.foreach(part.setContentId)
+			attributes.contentType.foreach(part.setContentType)
 			transferEncoding.foreach(part.setTransferEncoding)
 			part
 		}
