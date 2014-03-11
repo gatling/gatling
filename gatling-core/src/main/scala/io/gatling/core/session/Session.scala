@@ -98,7 +98,7 @@ case class Session(
 
 	def isFailed = statusStack.contains(KO)
 	def status: Status = if (statusStack.contains(KO)) KO else OK
-	def markAsSucceed = statusStack match {
+	def markAsSucceeded = statusStack match {
 		case KO :: tail => copy(statusStack = OK :: tail)
 		case _ => this
 	}
