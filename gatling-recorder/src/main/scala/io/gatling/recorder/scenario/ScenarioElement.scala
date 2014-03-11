@@ -22,7 +22,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 import scala.concurrent.duration.FiniteDuration
 import scala.io.Codec.UTF8
 
-import org.jboss.netty.handler.codec.http.{HttpMessage, HttpRequest, HttpResponse}
+import org.jboss.netty.handler.codec.http.{ HttpMessage, HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ AUTHORIZATION, CONTENT_TYPE }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_X_WWW_FORM_URLENCODED
 
@@ -45,22 +45,22 @@ object RequestElement {
 
 	val htmlContentType = """(?i)text/html\s*(;\s+charset=(.+))?""".r
 
-  private def extractContent(message: HttpMessage)=
-    if (message.getContent.readableBytes > 0) {
-      val bufferBytes = new Array[Byte](message.getContent.readableBytes)
-      message.getContent.getBytes(message.getContent.readerIndex, bufferBytes)
-      Some(bufferBytes)
-    } else None
+	private def extractContent(message: HttpMessage) =
+		if (message.getContent.readableBytes > 0) {
+			val bufferBytes = new Array[Byte](message.getContent.readableBytes)
+			message.getContent.getBytes(message.getContent.readerIndex, bufferBytes)
+			Some(bufferBytes)
+		} else None
 
-  def apply(request: HttpRequest, response: HttpResponse): RequestElement = {
-    val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }.toMap
-    val responseContentType = Option(response.headers().get(CONTENT_TYPE))
+	def apply(request: HttpRequest, response: HttpResponse): RequestElement = {
+		val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }.toMap
+		val responseContentType = Option(response.headers().get(CONTENT_TYPE))
 
-    val resources = responseContentType.collect {
+		val resources = responseContentType.collect {
 			case htmlContentType(_, headerCharset) => {
 				val charsetName = Option(headerCharset).filter(Charset.isSupported).getOrElse(UTF8.name)
 				val charset = Charset.forName(charsetName)
-        extractContent(response).map(bytes => {
+				extractContent(response).map(bytes => {
 					val htmlBuff = new String(bytes, charset).toCharArray
 					HtmlParser.getEmbeddedResources(new URI(request.getUri), htmlBuff)
 				})
@@ -69,7 +69,7 @@ object RequestElement {
 
 		val containsFormParams = responseContentType.exists(_.contains(APPLICATION_X_WWW_FORM_URLENCODED))
 
-    val requestBody = extractContent(request).map(content =>
+		val requestBody = extractContent(request).map(content =>
 			if (containsFormParams)
 				// The payload consists of a Unicode string using only characters in the range U+0000 to U+007F
 				// cf: http://www.w3.org/TR/html5/forms.html#application/x-www-form-urlencoded-decoding-algorithm

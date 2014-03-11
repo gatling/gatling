@@ -11,7 +11,6 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario.RequestElement.htmlContentType
 import io.gatling.recorder.util.collection.RichSeq
 
-
 case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
 	def isEmpty = elements.isEmpty
 }
@@ -33,7 +32,7 @@ object ScenarioDefinition extends StrictLogging {
 		}.flatten
 	}
 
-	private def hasHtmlContentType(t: (Long, RequestElement)) = t._2.headers.get(CONTENT_TYPE).collect{case htmlContentType(_) => true}.getOrElse(false)
+	private def hasHtmlContentType(t: (Long, RequestElement)) = t._2.headers.get(CONTENT_TYPE).collect { case htmlContentType(_) => true }.getOrElse(false)
 
 	private def filterFetchedResources(requests: Seq[(Long, RequestElement)]): Seq[(Long, RequestElement)] = {
 		val groupedRequests = requests.splitWhen(hasHtmlContentType)
