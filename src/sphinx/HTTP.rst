@@ -1,17 +1,35 @@
+:tocdepth: 3
+
 .. _http:
 
 ****
 HTTP
 ****
 
-As the first protocol module of Gatling, Gatling HTTP allows you to load test web applications, web services or websites.
-It supports HTTP and HTTPS with almost every existing features of common browsers.
+HTTP is the main protocol Gatling targets, so that's where we place most of our efforts.
 
-HTTP requests are declared in ``exec()`` method, eg::
+Gatling HTTP allows you to load test web applications, web services or websites.
+It supports HTTP and HTTPS with almost every existing features of common browsers such as caching, cookies, redirect, etc.
 
-	exec( http(...).queryParam(...) )
+However, Gatling **is not a browser**: it won't run javascript, won't apply css styles and trigger css background-images download, won't react to UI events, etc.
+Gatling works on the HTTP protocol level.
 
-Gatling HTTP protocol is a dedicated DSL
+HTTP support is a dedicated DSL, whose entry point is the ``http(requestName: Expression[String])`` method.
+
+This request name is important because it will act as a key when computing stats for the reports.
+If the same name appears in multiple places in a Simulation, Gatling will consider those requests are of the same type and theirs statistics have to be aggregated.
+
+HTTP request have to be passed to the ``exec()`` method in order to be attached to the scenario and executed.
+::
+
+	// embedded style
+	scenario("MyScenario")
+	  .exec(http("RequestName").get("url"))
+	
+	// non embedded style
+	val request = http("RequestName").get("url")
+	scenario("MyScenario")
+	  .exec(request)
 
 
 Building a request
@@ -22,28 +40,32 @@ Common parameters
 
 .. _http-methods:
 
-Methods and URIs
+Method and URL
 ^^^^^^^^^^^^^^^^
 
-If you know HTTP protocol, you certainly know that for a request to be sent, there are mandatory parameters to be set. The first ones are the Method and the URI of the request.
+HTTP protocol requires 2 mandatory parameters: the method and the URL.
 
-Gatling currently supports all methods of the HTTP protocol and we have built-ins for the followings:
+Gatling provides built-ins for the most common methods. Those are simply the method name in minor case:
 
-* OPTIONS - Used to get communication **options** on the URI
-* HEAD - Used to **head** information stored at the URI
-* GET - Used to **get** information stored at the URI
-* POST - Used to **post** information to an HTTP server
-* PUT - Used to **update** existing information at the URI
-* DELETE - Used to **delete** existing information at the URI
+* ``get(url: Expression[String])``
+* ``put(url: Expression[String])``
+* ``post(url: Expression[String])``
+* ``delete(url: Expression[String])``
+* ``head(url: Expression[String])``
+* ``patch(url: Expression[String])``
+* ``options(url: Expression[String])``
 
 .. note:: These methods are the ones used in REST webservices and RESTful applications; thus, such services can be tested with Gatling.
 
-.. note:: Gatling also support custom methods, eg you can use the methods ``PURGE`` to purge Nginx cache.
+Gatling also support custom methods (e.g. you can use the method *PURGE* to purge Nginx cache):
+
+* ``httpRequest(method: String, url: Expression[String])``
+* ``httpRequestWithParams(method: String, url: Expression[String])`` for extending ``post``
 
 This is how an HTTP request is declared::
 
 	// general structure of an HTTP request
-	http("Name of the request").method(URI)
+	http(requestName).method(url)
 
 	// concrete examples
 	http("Retrieve home page").get("https://github.com/excilys/gatling")
@@ -55,52 +77,64 @@ This is how an HTTP request is declared::
 Query Parameters
 ^^^^^^^^^^^^^^^^
 
-To send information to a web server, frameworks and developers use query parameters, you can find them after the ``?`` of an URI::
+Frameworks and developers often pass additional information in the query, which is the part of the url after the *?*.
+
+A query is composed of *key=value* pairs, separated by *&*. Those are named *query parameters*.
+
+For example::
 
     https://github.com/excilys/gatling/issues?milestone=1&state=open
 
-Here the query parameters are:
+contains 2 query parameters:
 
-* *milestone=1* : the key is ``milestone`` and its value is ``1``
-* *state=open* : the key is ``state`` and its value is ``open``
+* *milestone=1* : the key is *milestone* and its value is *1*
+* *state=open* : the key is *state* and its value is *open*
 
-To define the query parameters of an HTTP request, you can use the method named ``queryParam(key: Expression[String], value: Expression[Any])``, eg::
+.. note:: Query parameter keys and values have to be `URL encoded <http://www.w3schools.com/tags/ref_urlencode.asp>`_, as per `RFC3986 <http://tools.ietf.org/html/rfc3986>`_.
+Sometimes, HTTP server implementations are very permissive, but Gatling currently isn't and sticks to the RFC.
 
-	// GET https://github.com/excilys/gatling/issues?milestone=1&state=open
+In order to set the query parameters of an HTTP request, you can:
+
+* either pass the full query in the url, e.g.::
+
+	http("Getting issues")
+	  .get("https://github.com/excilys/gatling/issues?milestone=1&state=open")
+
+
+* or pass query parameters one by one with the method named ``queryParam(key: Expression[String], value: Expression[Any])``, e.g.::
+
 	http("Getting issues")
 	  .get("https://github.com/excilys/gatling/issues")
 	  .queryParam("milestone", "1")
 	  .queryParam("state", "open")
 
-You can use ELs (defined :ref:`here <the-session>`) to get values from the session::
+Of course, you can use ELs (defined :ref:`here <the-session>`) to make those values dynamic based on data in the virtual user's session::
 
-	// GET https://github.com/excilys/gatling?myKey={valueFromSession}
-	http("Value from session example").get("https://github.com/excilys/gatling")
+	http("Value from session example")
+	  .get("https://github.com/excilys/gatling")
 	  // Global use case
 	  .queryParam("myKey", "${sessionKey}")
 	  // If the query parameter key and the session are the same
 	  .queryParam("myKey") // Equivalent to queryParam("myKey", "${myKey}")
 
-If you'd like to specify a query parameter without value, you must use ``queryParam("key", "")``::
+If you'd like to specify a query parameter without value, you have to use ``queryParam("key", "")``::
 
 	// GET https://github.com/excilys/gatling?myKey
 	http("Empty value example").get("https://github.com/excilys/gatling").queryParam("myKey", "")
 
-The method ``queryParam`` can also take directly an ``HttpParam`` instance, if you want to build it by hand.
-
 If you'd like to pass multiple values for your parameter, but all at once, you can use ``multivaluedQueryParam(key: Expression[String], values: Expression[Seq[Any]])``::
 
-	multiValuedQueryParam("omg", "foo")) // where foo is the name of a Seq Session attribute
-	multiValuedQueryParam("omg", List("foo")))
-	multiValuedQueryParam("omg", session => List("foo")))
+	multivaluedQueryParam("multi", "${foo}")) // where foo is the name of a Seq Session attribute
+	multivaluedQueryParam("multi", Seq("foo", "bar")))
+	multivaluedQueryParam("multi", session => Seq("foo", "bar")))
 
-If you want to add multiple query params at once, there are two suitable methods:
+If you want to add multiple query parameters at once, there are two suitable methods:
 
-* ``queryParamsSequence(seq: Expression[Seq[(String, Any)]])``::
+* ``queryParamsSeq(seq: Expression[Seq[(String, Any)]])``::
 
     http("Getting issues")
       .get("https://github.com/excilys/gatling/issues")
-      .queryParamsSequence(Seq(("milestone", "1"), ("state", "open")))
+      .queryParamsSeq(Seq(("milestone", "1"), ("state", "open")))
 
 * ``queryParamsMap(map: Expression[Map[String, Any]])``::
 
@@ -119,7 +153,9 @@ HTTP Headers
 ^^^^^^^^^^^^
 
 HTTP protocol uses headers to exchange information between client and server that is not part of the message (stored in the body of the request, if there is one).
+
 Gatling HTTP allows you to specify any header you want to with the ``header(name: String, value: Expression[String])`` and ``headers(newHeaders: Map[String, String])`` methods.
+
 Here are some examples::
 
   // Defining a map of headers before the scenario allows you to reuse these in several requests
@@ -147,14 +183,12 @@ Here are some examples::
 Authentication
 ^^^^^^^^^^^^^^
 
-HTTP provides two authentication methods to secure URIs:
+HTTP provides two authentication methods:
 
 * BASIC
 * DIGEST
 
-Gatling supports both authentication.
-
-To add authentication headers to a request, you must use the method ``basicAuth(username: String, password: String)`` or ``digestAuth(username: Expression[String], password: Expression[String])`` as follows::
+To add authentication headers to a request, use the method ``basicAuth(username: Expression[String], password: Expression[String])`` or ``digestAuth(username: Expression[String], password: Expression[String])`` as follows::
 
 	http("My BASIC secured request").get("http://my.secured.uri").basicAuth("myUser", "myPassword")
 
@@ -616,10 +650,10 @@ To add such parameters to a POST request, you must use the method ``param(key: E
 
 As for ``queryParam`` you have two methods to add multiple parameters at once:
 
-* paramsSequence(seq: Expression[Seq[(String, Any)]])::
+* paramsSeq(seq: Expression[Seq[(String, Any)]])::
 
     http("My Form Data").post("my.form-action.uri")
-      .paramsSequence(Seq(("myKey", "myValue"), ("anotherKey", "anotherValue")))
+      .paramsSeq(Seq(("myKey", "myValue"), ("anotherKey", "anotherValue")))
 
 * paramsMap(map: Expression[Map[String, Any]])::
 
