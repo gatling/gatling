@@ -27,7 +27,7 @@ import io.gatling.http.response.{ ByteArrayResponseBodyUsage, InputStreamRespons
 
 object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
-	val charsParsingThreshold = 100000000
+	val charsParsingThreshold = 1000000
 
 	def handleParseException(block: Response => Any) = (response: Response) =>
 		try {
