@@ -101,7 +101,7 @@ In order to set the query parameters of an HTTP request, you can:
 	  .get("https://github.com/excilys/gatling/issues?milestone=1&state=open")
 
 
-* or pass query parameters one by one with the method named ``queryParam(key: Expression[String], value: Expression[Any])``, e.g.::
+* or pass query parameters one by one to the method named ``queryParam(key: Expression[String], value: Expression[Any])``, e.g.::
 
 	http("Getting issues")
 	  .get("https://github.com/excilys/gatling/issues")
@@ -156,6 +156,7 @@ HTTP protocol uses headers to exchange information between client and server tha
 
 Gatling HTTP allows you to specify any header you want to with the ``header(name: String, value: Expression[String])`` and ``headers(newHeaders: Map[String, String])`` methods.
 
+
 Here are some examples::
 
   // Defining a map of headers before the scenario allows you to reuse these in several requests
@@ -178,6 +179,8 @@ Here are some examples::
 .. note:: There are two handful methods to help you deal with JSON requests and XML requests: ``asJSON`` and ``asXML``.
           They are equivalent to ``header(CONTENT_TYPE, APPLICATION_JSON).header(ACCEPT, APPLICATION_JSON)`` and ``header(CONTENT_TYPE, APPLICATION_XML).header(ACCEPT, APPLICATION_XML)`` respectively.
 
+.. note:: Headers can also be defined on the ``HttpProtocol``.
+
 .. _http-authentication:
 
 Authentication
@@ -198,6 +201,8 @@ Gatling provide also a more generic method to add authentication: ``authRealm(re
 Then the user is in charge of building a complete ``Realm`` instance suiting its needs.
 The two previous methods are in fact just shortcut for building a ``Realm`` instance.
 
+.. note:: Authentication can also be defined on the ``HttpProtocol``.
+
 .. _http-outgoing-proxy:
 
 Outgoing Proxy
@@ -209,6 +214,8 @@ You can set the HTTP proxy, on optional HTTPS proxy and optional credentials for
 	http("Getting issues")
       .get("https://github.com/excilys/gatling/issues")
       .proxy(Proxy("myProxyHost", 8080).httpsPort(8143).credentials("myUsername","myPassword"))
+
+.. note:: Proxy can also be defined on the ``HttpProtocol``.
 
 .. _http-virtual-host:
 
@@ -222,6 +229,7 @@ You can tell Gatling to override the default computed virtual host with the meth
       .get("https://www.github.com/excilys/gatling/issues")
       .virtualHost("mobile")
 
+.. note:: Virtual Host can also be defined on the ``HttpProtocol``.
 
 Regular HTTP request
 --------------------
@@ -231,23 +239,33 @@ Regular HTTP request
 Request Body
 ^^^^^^^^^^^^
 
-You can add a body to an http request with to dedicated methods:
+You can add a body to an HTTP request with two dedicated methods:
 
 * ``body(body)`` where body can be:
 
-  * ``ELFileBody(path)`` where path is the location of a EL template file, can be a String or an Expression[String]
-  * ``StringBody(string)`` where string can be a String or an Expression[String]
-  * ``RawFileBody(path)`` where path is the location of a file, can be String or an Expression[String]
-  * ``ByteArrayBody(bytes)`` where bytes can be an Array[Byte] or an Expression[Array[Byte]]
-  * ``InputStreamBody(stream)`` where stream can be an InputStream or an Expression[InputStream]
+  * ``RawFileBody(path: Expression[String])`` where path is the location of a file that will be uploaded as is
+  * ``ELFileBody(path: Expression[String])`` where path is the location of a file whose content will be parsed and resolved with Gatling EL engine
+  * ``StringBody(string: Expression[String])``
+  * ``ByteArrayBody(bytes: Expression[Array[Byte]])``
+  * ``InputStreamBody(stream: Expression[InputStream])``
 
 * ``bodyPart(bodyPart)`` for multipart request, where bodyPart can be:
 
-  * ``RawFileBodyPart(name, filePath, contentType)``
-  * ``ELFileBodyPart(name, filePath)``
-  * ``StringBodyPart(name, string, charset, contentType, transferEncoding, contentId)``
-  * ``ByteArrayBodyPart(name, bytes, charset, contentType, transferEncoding, contentId)``
-  * ``FileBodyPart(name, file, charset, contentType, transferEncoding, contentId)``
+  * ``RawFileBodyPart(name: Expression[String], filePath: Expression[String])`` where path is the location of a file that will be uploaded as is
+  * ``ELFileBodyPart(name: Expression[String], filePath: Expression[String])`` where path is the location of a file whose content will be parsed and resolved with Gatling EL engine
+  * ``StringBodyPart(name: Expression[String], string: Expression[String])``
+  * ``ByteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte])``
+  * ``FileBodyPart(name: Expression[String], file: Expression[File])``
+
+Once bootstrapped, BodyPart have the following methods for setting additional optional information:
+
+  * ``contentType(contentType: String)``
+  * ``charset(charset: String)`` if not set, will use the default one (from ``gatling.conf`` file)
+  * ``fileName(fileName: Expression[String])``
+  * ``contentId(contentId: Expression[String])``
+  * ``transferEncoding(transferEncoding: Expression[String])``
+
+.. note:: When you pass a path, Gatling searches first for an absolute path in the classpath and then in the ``request-bodies`` directory.
 
 Eg::
 
@@ -265,9 +283,8 @@ Eg::
 	http("Template Body").post("my.post.uri")
 	  .body(ELFileBody("myFileBody.json")).asJSON
 
-.. note:: When you pass a path, Gatling searches firstly for an absolute path in the classpath and then in user-files/request-bodies directory.
 
-Note that one can take full advantage of Scala 2.10 macros for writing template directly in Scala compiled code instead of relying on a template engine.
+Note that one can take full advantage of Scala 2.10 macros for writing template directly in Scala compiled code instead of relying on a templating engine.
 See `Scala 2.10 string interpolation <(http://docs.scala-lang.org/overviews/core/string-interpolation.html>`_ and `Fastring <https://github.com/Atry/fastring>`_.
 
 For example::
@@ -283,15 +300,7 @@ For example::
 	  }"""
 	}
 
-.. note:: For simple use cases, prefer EL based files, for more complex ones where programming capability is required, prefer standard String interpolation.
-
-.. _http-max-redirects:
-
-Max redirects
-^^^^^^^^^^^^^
-
-By default Gatling automatically follow redirects in case of 301 or 302 response status code.
-To avoid infinite redirection loops, you can specify a number max of redirects with:  ``maxRedirects(max: Int)``
+.. note:: For simple use cases, prefer EL strings or based files, for more complex ones where programming capability is required, prefer String interpolation.
 
 .. _http-dumping-custom-data:
 
