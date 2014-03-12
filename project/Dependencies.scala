@@ -20,7 +20,7 @@ object Dependencies {
 	private val jodaTime          = "joda-time"                  % "joda-time"          % "2.3"
 	private val jodaConvert       = "org.joda"                   % "joda-convert"       % "1.5"
 	private val scopt             = "com.github.scopt"          %% "scopt"              % "3.2.0"
-	private val scalalogging      = "com.typesafe"              %% "scalalogging-slf4j" % "1.0.1"
+	private val scalalogging      = "com.typesafe"              %% "scalalogging-slf4j" % "1.1.0"
 	private val jackson           = "com.fasterxml.jackson.core" % "jackson-databind"   % "2.3.2"
 	private val boon              = "io.fastjson"                % "boon"               % "0.13"
 	private val jsonpath          = "io.gatling"                %% "jsonpath"           % "0.4.0"
