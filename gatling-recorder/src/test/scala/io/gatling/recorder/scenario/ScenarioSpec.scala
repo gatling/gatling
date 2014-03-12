@@ -49,10 +49,9 @@ class ScenarioSpec extends Specification {
 			val r2 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
 			val r3 = RequestElement("http://gatling.io/img.jpg", "GET", Map(CONTENT_TYPE -> "text/css"), None, 200, List.empty)
 			val r4 = RequestElement("http://gatling.io/details.html", "GET", Map.empty, None, 200, List.empty)
-      val r5 = RequestElement("http://gatling.io", "GET", Map(CONTENT_TYPE -> "text/html;charset=UTF-8"), None, 200,
-        List(CssResource(new URI("http://gatling.io/main.css"))))
-      val r6 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
-
+			val r5 = RequestElement("http://gatling.io", "GET", Map(CONTENT_TYPE -> "text/html;charset=UTF-8"), None, 200,
+				List(CssResource(new URI("http://gatling.io/main.css"))))
+			val r6 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
 
 			val scn = ScenarioDefinition(List(1l -> r1, 2l -> r2, 3l -> r3, 4l -> r4, 5l -> r5, 6l -> r6), List.empty)
 			scn.elements should beEqualTo(List(r1, r4, r5))
