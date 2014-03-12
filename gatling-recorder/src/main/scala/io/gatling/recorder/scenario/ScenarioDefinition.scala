@@ -32,10 +32,10 @@ object ScenarioDefinition extends StrictLogging {
 		}.flatten
 	}
 
-	private def hasHtmlContentType(t: (Long, RequestElement)) = t._2.headers.get(CONTENT_TYPE).collect { case htmlContentType(_) => true }.getOrElse(false)
+	private def hasEmbeddedResources(t: (Long, RequestElement)) = !t._2.embeddedResources.isEmpty
 
 	private def filterFetchedResources(requests: Seq[(Long, RequestElement)]): Seq[(Long, RequestElement)] = {
-		val groupedRequests = requests.splitWhen(hasHtmlContentType)
+		val groupedRequests = requests.splitWhen(hasEmbeddedResources)
 
 		groupedRequests.map {
 			case (time, request) :: t if !request.embeddedResources.isEmpty => {
