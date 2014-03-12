@@ -25,7 +25,7 @@ object Dependencies {
 	private val boon              = "io.fastjson"                % "boon"               % "0.13"
 	private val jsonpath          = "io.gatling"                %% "jsonpath"           % "0.4.0"
 	private val commonsMath       = "org.apache.commons"         % "commons-math3"      % "3.2"
-	private val joddLagarto       = "org.jodd"                   % "jodd-lagarto"       % "3.4.10"
+	private val joddLagarto       = "org.jodd"                   % "jodd-lagarto"       % "3.5"
 	private val jzlib             = "com.jcraft"                 % "jzlib"              % "1.1.3"
 	private val commonsIo         = "commons-io"                 % "commons-io"         % "2.4"
 	private val redisClient       = "net.debasishg"             %% "redisclient"        % "2.11"        exclude("org.scala-lang", "scala-actors")
