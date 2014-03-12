@@ -43,7 +43,7 @@ object HarMapping {
 			buildRequest(entry.request), buildResponse(entry.response))
 
 	private def buildRequest(request: Json) = {
-		val postData = Try(request.postData.toString).toOption.map(_ => request.postData)
+		val postData = request.postData.toOption
 		Request(request.method, request.url, request.headers.map(buildHeader), postData.map(buildPostData))
 	}
 
@@ -54,7 +54,10 @@ object HarMapping {
 	}
 
 	private def buildResponse(response: Json) = {
-		val content = Content(response.content.mimeType, Try(response.content.text.toString).toOption)
+		val mimeType = response.content.mimeType
+		assert(mimeType.toOption.isDefined, s"Response content ${response.content} does not contains a mimeType")
+
+		val content = Content(mimeType, response.content.text.toOption.map(_.toString))
 		Response(response.status, content)
 	}
 

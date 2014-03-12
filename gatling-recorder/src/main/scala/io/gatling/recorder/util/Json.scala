@@ -39,9 +39,11 @@ class JsonIterator(i: java.util.Iterator[Object]) extends Iterator[Json] {
 	def next = new Json(i.next)
 }
 
-class Json(o: Object) extends Seq[Json] with Dynamic {
+class Json(val o: Object) extends Seq[Json] with Dynamic {
 
-	override def toString: String = o.toString
+	override def toString: String = if (o == null) "null" else o.toString
+
+	def toOption = if (o == null) None else Some(this)
 
 	def toInt: Int = o match {
 		case i: Integer => i
