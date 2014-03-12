@@ -32,7 +32,7 @@ object Json {
 	implicit def JsonToDouble(s: Json) = s.toDouble
 }
 
-class JsonException extends Exception
+class JsonException(desc: String) extends Exception(desc)
 
 class JsonIterator(i: java.util.Iterator[Object]) extends Iterator[Json] {
 	def hasNext = i.hasNext
@@ -45,29 +45,29 @@ class Json(o: Object) extends Seq[Json] with Dynamic {
 
 	def toInt: Int = o match {
 		case i: Integer => i
-		case _ => throw new JsonException
+		case _ => throw new JsonException(s"Object $o isn't a integer")
 	}
 
 	def toDouble: Double = o match {
 		case d: java.lang.Double => d
 		case f: java.lang.Float => f.toDouble
-		case _ => throw new JsonException
+		case _ => throw new JsonException(s"Object $o isn't a floating point number")
 	}
 
 	def apply(key: String): Json = o match {
 		case m: JMap[_, _] => new Json(m.get(key).asInstanceOf[Object])
-		case _ => throw new JsonException
+		case _ => throw new JsonException(s"Object $o isn't a map thus, can't select key=$key")
 	}
 
 	def apply(idx: Int): Json = o match {
 		case a: JList[_] => new Json(a.get(idx).asInstanceOf[Object])
-		case _ => throw new JsonException
+		case _ => throw new JsonException(s"Object $o isn't a list")
 	}
 
 	def length: Int = o match {
 		case a: JList[_] => a.size
 		case m: JMap[_, _] => m.size
-		case _ => throw new JsonException
+		case _ => throw new JsonException(s"Object $o isn't a list or map")
 	}
 
 	def iterator: Iterator[Json] = o match {
