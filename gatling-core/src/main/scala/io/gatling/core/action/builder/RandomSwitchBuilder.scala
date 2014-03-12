@@ -32,8 +32,8 @@ import io.gatling.core.validation.SuccessWrapper
 class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder with StrictLogging {
 
 	val sum = possibilities.map(_._1).sum
-	require(sum <= 100, "Can't build a random switch with percentage sum > 100")
-	if (sum < 100 && elseNext.isDefined)
+	require(sum <= 100.0, "Can't build a random switch with percentage sum > 100")
+	if (sum < 100.0 && elseNext.isDefined)
 		logger.warn("Randow switch has a 100% sum, yet a else is defined?!")
 
 	def build(next: ActorRef, protocols: Protocols) = {
@@ -58,7 +58,7 @@ class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext:
 						determineNextAction(index - percentage, others)
 			}
 
-			determineNextAction(ThreadLocalRandom.current.nextDouble(1, 101), possibleActions).success
+			determineNextAction(ThreadLocalRandom.current.nextDouble(0.0, 100.0), possibleActions).success
 		}
 
 		actor(new Switch(nextAction, next))
