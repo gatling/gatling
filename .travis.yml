@@ -1,0 +1,4 @@
+# Blacklisting
+branches:
+  except:
+    - 1.5.X
