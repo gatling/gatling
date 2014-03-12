@@ -35,64 +35,66 @@ class HarReaderSpec extends Specification {
 		// By default, we assume that we doHeren't want to filter out the HTML resources
 		implicit val config = fakeConfig(Map(FETCH_HTML_RESOURCES -> false))
 
-		"TUTU NICO" in {
-			HarReader(resourceAsStream("har/export.har")) must beEmpty
+		val configWithResourcesFiltering = fakeConfig(Map(FETCH_HTML_RESOURCES -> true))
+
+		"work with empty JSON" in {
+			HarReader(resourceAsStream("har/empty.har")) must beEmpty
 		}
-//		
-//		"work with empty JSON" in {
-//			HarReader(resourceAsStream("har/empty.har")) must beEmpty
-//		}
-//
-//		val scn = HarReader(resourceAsStream("har/www.kernel.org.har"))
-//		val elts = scn.elements
-//		val pauseElts = elts.collect { case PauseElement(duration) => duration }
-//
-//		"return the correct number of Pause elements" in {
-//			pauseElts.size must beLessThan(elts.size / 2)
-//		}
-//
-//		"return an appropriate pause duration" in {
-//			val pauseDuration = pauseElts.reduce(_ + _)
-//
-//			// The total duration of the HAR record is of 6454ms
-//			(pauseDuration must beLessThanOrEqualTo(88389 milliseconds)) and
-//				(pauseDuration must beGreaterThan(80000 milliseconds))
-//		}
-//
-//		"return the appropriate request elements" in {
-//			val (googleFontUris, uris) = elts
-//				.collect { case RequestElement(uri, _, _, _, _, _) => uri }
-//				.partition(_.contains("google"))
-//
-//			(uris must contain(startingWith("https://www.kernel.org")).forall) and
-//				(uris.size must beEqualTo(41)) and
-//				(googleFontUris.size must beEqualTo(16))
-//		}
-//
-//		"have the approriate first requests" in {
-//			// The first element can't be a pause.
-//			(elts.head must beAnInstanceOf[RequestElement]) and
-//				(elts.head.asInstanceOf[RequestElement].uri must beEqualTo("https://www.kernel.org/")) and
-//				(elts(1) must beAnInstanceOf[RequestElement]) and
-//				(elts(1).asInstanceOf[RequestElement].uri must beEqualTo("https://www.kernel.org/theme/css/main.css"))
-//		}
-//
-//		"have the headers correctly set" in {
-//			val el0 = elts.head.asInstanceOf[RequestElement]
-//			val el1 = elts(1).asInstanceOf[RequestElement]
-//
-//			(el0.headers must beEmpty) and
-//				(el1.headers must not beEmpty) and
-//				(el1.headers must haveKeys("User-Agent", "Host", "Accept-Encoding", "Accept-Language"))
-//		}
-//
-//		"have the embedded HTML resources filtered out" in {
-//			val configWithResourcesFiltering = fakeConfig(Map(FETCH_HTML_RESOURCES -> true))
-//			val scn2 = HarReader(resourceAsStream("har/www.kernel.org.har"))(configWithResourcesFiltering)
-//			val elts2 = scn2.elements
-//			elts2.size must beLessThan(elts.size) and
-//				(elts2 must contain("https://www.kernel.org/theme/css/main.css") not)
-//		}
+
+		val scn = HarReader(resourceAsStream("har/www.kernel.org.har"))
+		val elts = scn.elements
+		val pauseElts = elts.collect { case PauseElement(duration) => duration }
+
+		"return the correct number of Pause elements" in {
+			pauseElts.size must beLessThan(elts.size / 2)
+		}
+
+		"return an appropriate pause duration" in {
+			val pauseDuration = pauseElts.reduce(_ + _)
+
+			// The total duration of the HAR record is of 6454ms
+			(pauseDuration must beLessThanOrEqualTo(88389 milliseconds)) and
+				(pauseDuration must beGreaterThan(80000 milliseconds))
+		}
+
+		"return the appropriate request elements" in {
+			val (googleFontUris, uris) = elts
+				.collect { case RequestElement(uri, _, _, _, _, _) => uri }
+				.partition(_.contains("google"))
+
+			(uris must contain(startingWith("https://www.kernel.org")).forall) and
+				(uris.size must beEqualTo(41)) and
+				(googleFontUris.size must beEqualTo(16))
+		}
+
+		"have the approriate first requests" in {
+			// The first element can't be a pause.
+			(elts.head must beAnInstanceOf[RequestElement]) and
+				(elts.head.asInstanceOf[RequestElement].uri must beEqualTo("https://www.kernel.org/")) and
+				(elts(1) must beAnInstanceOf[RequestElement]) and
+				(elts(1).asInstanceOf[RequestElement].uri must beEqualTo("https://www.kernel.org/theme/css/main.css"))
+		}
+
+		"have the headers correctly set" in {
+			val el0 = elts.head.asInstanceOf[RequestElement]
+			val el1 = elts(1).asInstanceOf[RequestElement]
+
+			(el0.headers must beEmpty) and
+				(el1.headers must not beEmpty) and
+				(el1.headers must haveKeys("User-Agent", "Host", "Accept-Encoding", "Accept-Language"))
+		}
+
+		"have the embedded HTML resources filtered out" in {
+			val scn2 = HarReader(resourceAsStream("har/www.kernel.org.har"))(configWithResourcesFiltering)
+			val elts2 = scn2.elements
+			elts2.size must beLessThan(elts.size) and
+				(elts2 must contain("https://www.kernel.org/theme/css/main.css") not)
+		}
+
+		"deal correctly with file having a websockets record" in {
+			val scn = HarReader(resourceAsStream("har/play-chat.har"))(configWithResourcesFiltering)			
+			scn must not beEmpty
+		}
 	}
 
 	// Deactivate Specs2 implicit to be able to use the ones provided in scala.concurrent.duration
