@@ -16,8 +16,3 @@ after_success:
   - "[[ $TRAVIS_BRANCH == \"master\" ]] && ./trigger_build.py excilys/gatling-maven-plugin"
   - "[[ $TRAVIS_BRANCH == \"master\" ]] && ./trigger_build.py excilys/gatling-highcharts-maven-archetype"
   - "[[ $TRAVIS_BRANCH == \"master\" ]] && ./trigger_build.py gatling/gatling-sbt"
-
-# Blacklisting
-branches:
-  except:
-    - 1.5.X
