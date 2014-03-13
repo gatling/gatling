@@ -1,3 +1,5 @@
+.. _session_api:
+
 ###########
 Session API
 ###########

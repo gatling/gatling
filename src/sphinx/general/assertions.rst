@@ -1,3 +1,5 @@
+.. _assertions:
+
 ##########
 Assertions
 ##########

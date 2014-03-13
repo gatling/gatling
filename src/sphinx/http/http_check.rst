@@ -1,3 +1,5 @@
+.. _http_check:
+
 ######
 Checks
 ######
