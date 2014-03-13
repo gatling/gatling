@@ -1,5 +1,7 @@
-Developing Gatling
-==================
+.. _developing_gatling_index:
+
+Informations for Gatling Developers
+===================================
 
 .. toctree::
 	:maxdepth: 1
