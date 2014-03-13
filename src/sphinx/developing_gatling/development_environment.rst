@@ -4,7 +4,7 @@
 Development Environment
 #######################
 
-As we chose to push Gatling on Github, it is likely that other people will want to see how we did it, and hopefully help us; the aim of this page is to ease the "get-into-developing-gatling" process. To know how you can contribute to Gatling, visit :ref:`contributing`.
+As we chose to push Gatling on Github, it is likely that other people will want to see how we did it, and hopefully help us; the aim of this page is to ease the "get-into-developing-gatling" process. To know how you can contribute to Gatling, visit :ref:`contributing <developing_gatling_index>`.
 
 Software Requirements
 =====================
