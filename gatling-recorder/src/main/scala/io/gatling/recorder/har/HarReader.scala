@@ -16,7 +16,7 @@
 package io.gatling.recorder.har
 
 import java.io.{ FileInputStream, InputStream }
-import java.net.URL
+import java.net.{ URI, URL }
 
 import scala.util.Try
 
@@ -70,8 +70,7 @@ object HarReader {
 		}
 
 		val embeddedResources = entry.response.content match {
-			case Content("text/html", Some(text)) =>
-				HtmlParser.getEmbeddedResources(new java.net.URI(uri), text.toCharArray)
+			case Content("text/html", Some(text)) => HtmlParser.getEmbeddedResources(new URI(uri), text.toCharArray)
 			case _ => Nil
 		}
 
