@@ -49,8 +49,7 @@ case class Custom(custom: Expression[Long]) extends PauseType {
 }
 
 case class UniformPercentage(plusOrMinus: Double) extends PauseType {
-	def generator(duration: Expression[Duration]) = {
-
+	def generator(duration: Expression[Duration]) =
 		duration(_).map { duration =>
 			val mean = duration.toMillis
 			val halfWidth = math.round(mean * plusOrMinus / 100.0)
@@ -58,7 +57,6 @@ case class UniformPercentage(plusOrMinus: Double) extends PauseType {
 			val bound = mean + halfWidth + 1
 			ThreadLocalRandom.current.nextLong(least, bound)
 		}
-	}
 }
 
 case class UniformDuration(plusOrMinus: Duration) extends PauseType {
