@@ -25,9 +25,13 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import jodd.csselly.{ CSSelly, CssSelector }
 import jodd.lagarto.dom.{ LagartoDOMBuilder, NodeSelector }
+import jodd.log.LoggerFactory
+import jodd.log.impl.Slf4jLoggerFactory
 import jsr166e.ConcurrentHashMapV8
 
 object CssExtractor {
+
+	LoggerFactory.setLoggerFactory(new Slf4jLoggerFactory)
 
 	val domBuilder = new LagartoDOMBuilder
 	domBuilder.setParsingErrorLogLevelName("INFO")
