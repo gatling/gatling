@@ -39,7 +39,19 @@ If you must access your web application through a proxy, you can set it up in th
 Filters
 -------
 
-TODO 
+TODO
+
+Embedded resources fetching
+---------------------------
+
+If you check the option 'Fetch html resources?' option, the Recorder will fetch the embedded HTML resources as follow:
+
+* Add ``fetchHtmlResources`` with the proper white/black lists on the HTTP protocol definition.
+* Parse HTML response body to retrieve embedded HTML resources.
+* Filter requests corresponding to embedded HTML resources from resulting ``Scenario``.
+
+.. warning:: Gatling can't retrieve all the embedded resources in HTML as images embedded in a css embedded in HTML.
+             This remaining resources are currently loaded sequentially as regular requests.
 
 Running
 =======
