@@ -28,40 +28,40 @@ object GatlingBuild extends Build {
 	def gatlingModule(id: String) = Project(id, file(id)).settings(gatlingModuleSettings: _*)
 
 	lazy val core = gatlingModule("gatling-core")
-		.settings(libraryDependencies ++= coreDeps)
+		.settings(libraryDependencies ++= coreDependencies(scalaVersion.value))
 
 	lazy val jdbc = gatlingModule("gatling-jdbc")
 		.dependsOn(core)
 
 	lazy val redis = gatlingModule("gatling-redis")
 		.dependsOn(core)
-		.settings(libraryDependencies ++= redisDeps)
+		.settings(libraryDependencies ++= redisDependencies)
 
 	lazy val http = gatlingModule("gatling-http")
 		.dependsOn(core)
-		.settings(libraryDependencies ++= httpDeps)
+		.settings(libraryDependencies ++= httpDependencies)
 
 	lazy val charts = gatlingModule("gatling-charts")
 		.dependsOn(core)
-		.settings(libraryDependencies ++= chartsDeps)
+		.settings(libraryDependencies ++= chartsDependencies)
 		.settings(excludeDummyComponentLibrary: _*)
 		.settings(chartTestsSettings: _*)
 
 	lazy val metrics = gatlingModule("gatling-metrics")
 		.dependsOn(core)
-		.settings(libraryDependencies ++= metricsDeps)
+		.settings(libraryDependencies ++= metricsDependenciess)
 
 	lazy val app = gatlingModule("gatling-app")
 		.dependsOn(core, http, jdbc, redis, metrics, charts)
-		.settings(libraryDependencies ++= appDeps)
+		.settings(libraryDependencies ++= appDependencies)
 
 	lazy val recorder = gatlingModule("gatling-recorder")
 		.dependsOn(core, http)
-		.settings(libraryDependencies ++= recorderDeps)
+		.settings(libraryDependencies ++= recorderDependencies(scalaVersion.value))
 
 	lazy val jms = gatlingModule("gatling-jms")
 		.dependsOn(core)
-		.settings(libraryDependencies ++= jmsDeps)
+		.settings(libraryDependencies ++= jmsDependencies)
 
 	lazy val bundle = gatlingModule("gatling-bundle")
 		.dependsOn(app, core, charts, http, jdbc, redis, recorder, jms)
