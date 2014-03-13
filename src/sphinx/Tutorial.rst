@@ -166,7 +166,7 @@ HTTP protocol configuration
 ===========================
 
 The first element is the configuration of the HTTP protocol.
-In this example, this configuration is very basic and just defines the base URL that will be prepended to all the relative paths in the scenario definition.
+In this example, this configuration is very basic and just defines the base URL, that will be prepended to all the relative paths in the scenario definition, and common headers, that will be added on each request.
 Here, the base URL is http://computer-database.heroku.com.
 
 The HTTP Configuration is stored as a Scala value so that we can set it later in the simulation definition.
@@ -231,7 +231,7 @@ The last part of the file contains the simulation definition, this is where you 
   )
 
 Here Gatling will simulate **one user** behaving as we did.
-The protocolConfig is also added to the simulation to set the base URL.
+The protocolConfig is also added to the simulation to set the base URL and common headers.
 
 Go further with Gatling
 #######################
