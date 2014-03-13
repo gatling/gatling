@@ -35,6 +35,8 @@ class HarReaderSpec extends Specification {
 		// By default, we assume that we doHeren't want to filter out the HTML resources
 		implicit val config = fakeConfig(Map(FETCH_HTML_RESOURCES -> false))
 
+		val configWithResourcesFiltering = fakeConfig(Map(FETCH_HTML_RESOURCES -> true))
+
 		"work with empty JSON" in {
 			HarReader(resourceAsStream("har/empty.har")) must beEmpty
 		}
@@ -83,11 +85,15 @@ class HarReaderSpec extends Specification {
 		}
 
 		"have the embedded HTML resources filtered out" in {
-			val configWithResourcesFiltering = fakeConfig(Map(FETCH_HTML_RESOURCES -> true))
 			val scn2 = HarReader(resourceAsStream("har/www.kernel.org.har"))(configWithResourcesFiltering)
 			val elts2 = scn2.elements
 			elts2.size must beLessThan(elts.size) and
 				(elts2 must contain("https://www.kernel.org/theme/css/main.css") not)
+		}
+
+		"deal correctly with file having a websockets record" in {
+			val scn = HarReader(resourceAsStream("har/play-chat.har"))(configWithResourcesFiltering)			
+			scn must not beEmpty
 		}
 	}
 
