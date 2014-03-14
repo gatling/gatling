@@ -1,3 +1,5 @@
+.. _session:
+
 Session
 =======
 

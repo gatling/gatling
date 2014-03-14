@@ -67,8 +67,8 @@ And... voila!
 
   Note: If Gatling does not work as expected, see our FAQ.
 
-You will write your first simulation
-====================================
+Your first simulation!
+======================
 
 Here you are, waiting to know all about Gatling and all its secrets to achieve incredibly powerful performance testing.
 

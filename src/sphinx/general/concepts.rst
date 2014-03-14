@@ -101,7 +101,7 @@ Session
 For each simulated user, there is a session. This session is accessible to one and only one user at runtime.
 It allows Gatling to store information while processing the scenarios, but it also allows testers to dynamically store data and use it in their requests.
 
-For more information, check the :ref:`Session reference section <session>`.
+For more information, check the :ref:`Session reference section <session_api>`.
 
 Feeders
 =======
@@ -125,7 +125,7 @@ For example, when sending a HTTP request, one could expect a redirect; with a ch
 These checks allow you to be sure that the results obtained during the simulation are not related to server malfunctions.
 For example, Gatling could retrieve responses with good response times, but these responses may not be what they should, therefore, the analysis you could make on the results given by Gatling may be wrong.
 
-For more information, check the :ref:`Checks reference section <checks>`.
+For more information, check the :ref:`Checks reference section <http_check>`.
 
 Assertions
 ==========
@@ -140,4 +140,4 @@ Reports
 By default, Gatling automatically generates reports at the end of a simulation.
 They consist in HTML files, therefore, they are portable and they can be viewed on any device with a web browser.
 
-Reports are detailed in the :ref:`corresponding page <Reports>`
+Reports are detailed in the :ref:`corresponding page <reports>`

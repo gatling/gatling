@@ -58,11 +58,14 @@ Here's what the last example would look like with "for comprehension"::
 
 For more information, check the Scaladoc.
 
+.. _expression:
+
 Expression
 ==========
 
 Most Gatling DSL methods takes ``Expression[T]`` parameters, which is a type alias for ``Session => Validation[T]``.
 
+.. _gatling_el:
 
 Expression Language
 ===================
