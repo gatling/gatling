@@ -5,7 +5,6 @@ Quickstart
 ##########
 
 In this section we will use Gatling to load test a simple cloud hosted web server and will introduce you to the basic elements of the DSL.
-Altough we consider it possible to use the DSL without much `Scala <http://www.scala-lang.org/>`_ knowledge, we may recommand to have a quick look at `Scala School <http://twitter.github.io/scala_school>`_.
 
 Getting Gatling
 ===============
@@ -17,33 +16,31 @@ Requirements
 
 Gatling 2 is compiled with JDK7, yet into JDK6 bytecode.
 
-Yet, we recommend that you use the latest JDK7. NIO is based on native code, so it depends on JVM implementation and bugs are frequently fixed. For example, NIO have been broken on Oracle JDK7 until 1.7.0_10. Gatling is mostly tested on Oracle JDK7, OS X and Linux.
+Yet, we recommend that you use the **latest JDK7**. NIO is based on native code, so it depends on JVM implementation and bugs are frequently fixed. For example, NIO have been broken on Oracle JDK7 until 1.7.0_10. Gatling is mostly tested on Oracle JDK7, OS X and Linux.
 
 Installing Gatling
 ==================
 
 Just unzip the downloaded bundle to a folder of your choice.
 
-    X-platform users:
-        Don't use a path with spaces in it.
+We just ask you **don't use a path with spaces** in it, there might be some issues.
 
-    Windows users:
-        We recommend that you do not put Gatling in Programs folder as there might be permission issues.
+For Windows users, we also recommend that you do not place Gatling in *Programs* folder as there might be permission issues.
 
 
 Configure your OS
 =================
 
-You might first want to have a look at how to tune Gatling and your OS according to your use case.
+You might first want to have a look at how to **tune Gatling and your OS** according to your use case.
 
 A word on encoding
 ==================
 
-Gatling uses by default UTF-8. If you want to use a different one, you have to:
+Gatling uses by **default UTF-8**. If you want to use a different one, you have to:
 
-  * Select the proper encoding in the Recorder
-  * Configure the proper encoding in the gatling.conf file. This is the one that will be used for compiling your simulations and building your requests.
-  * Make sure your text editor is properly configured and doesn't change the original encoding.
+  * select the proper encoding in the Recorder
+  * configure the proper encoding in the gatling.conf file. This is the one that will be used for compiling your simulations and building your requests.
+  * make sure your text editor is properly configured and doesn't change the original encoding.
 
 Running Gatling
 ===============
@@ -55,11 +52,10 @@ Gatling offers a command line interface (CLI) that can be run using the followin
 Windows users:
     you can double click on the gatling.bat file located in GATLING_HOME/bin
 
-Once executed, you should see a menu with the simulation examples::
+Once launched, you should see a menu with the simulation examples::
 
   Choose a simulation number:
      [0] computerdatabase.Simulation
-  Invalid characters, please provide a correct simulation number:
 
 To run a simulation, simply type the number of the simulation you want to run, choose a name for the folder where the results will be generated, and a description for the run.
 
@@ -67,34 +63,29 @@ And... voila!
 
   Note: If Gatling does not work as expected, see our FAQ.
 
-Your first simulation!
+Your first simulation
 ======================
 
-Here you are, waiting to know all about Gatling and all its secrets to achieve incredibly powerful performance testing.
+Now, you're ready to go!
 
-This page will guide you through most of the features.
+This page will guide you through most of Gatling HTTP features.
+
 You'll learn about simulations, scenarios, feeders, recorder, loops, scala functions, etc.
-But don't worry, this won't be painful, we'll take care of you during this journey through the amazing Gatling!
-
-Our mission during these two pages will be to test the computer database scala sample provided with Play 2 distribution and hosted on Heroku.
-We will first decide what scenario we want to create, then, we'll create it thanks to the Gatling Recorder and run it to see how the application behaved during the performance test.
-
 
 You're going to see some Scala, but don't panic!
 ================================================
 
-Yes, the Gatling simulation scripts are Scala classes.
+Yes, Gatling simulation scripts are Scala classes.
 
-No, it won't be painful, Gatling doesn't expect you to be a hardcore Scala hacker, but just to read this manual so you can learn the DSL.
+Don't worry, Gatling doesn't expect you to be a hardcore Scala hacker.
 
-However, once in a while, you might run into a specific use case that's not supported out of the box and then want to write your own components.
-If you write complex simulations, you might want to split them into multiple classes/objects.
-In this case, you can :
+Just please read this manual properly and learn the DSL.
+In most situations, this DSL will cover most of your needs and you'll be able to build your scenarios without much `Scala <http://www.scala-lang.org/>`_ knowledge.
 
-  * Learn Scala. One very good starting point is `Twitter's Scala School <http://twitter.github.io/scala_school/>`_.
-  * Join the Google Group and ask for help.
+However, you might also sometimes run into situations where you have to hack a bit.
+We then recommend you have a look at `Scala School <http://twitter.github.io/scala_school>`_.
 
-Anyway, the Gatling DSL should suffice for most current needs.
+Feel also free to join our `Google Group <https://groups.google.com/forum/#!forum/gatling>`_ and ask for help.
 
 For the non Scala people, here's what a Gatling simulation class look like::
 
@@ -104,14 +95,14 @@ For the non Scala people, here's what a Gatling simulation class look like::
   import io.gatling.http.Predef._
   import scala.concurrent.duration._
 
-  class SimulationWithFollowRedirect extends Simulation { (3)
+  class MySimulation extends Simulation { (3)
 
     // your code starts here
     val scn = scenario("My scenario")
             .exec(http("My Page")
               .get("http://mywebsite.com/page.html")) (4)
 
-    setUp(scn.inject(atOnce(10 users)) (5)
+    setUp(scn.inject(atOnceUsers(10)) (5)
     // your code ends here
   }
 
@@ -121,18 +112,21 @@ Let's explain :
   2. The required imports.
   3. The class declaration. Note that your simulation extends ``Simulation``.
   4. Your scenario definition. ``val`` is the keyword for defining a non-re-assignable value.
-  5. The list of the scenarios declared in the class.
+  5. The set up, where you configure the scenarios you want to run and the injection profile.
 
 The application under test
 ==========================
 
 In this tutorial, you'll be playing with an application named 'computer-database' deployed on Heroku at the following url:
 
-http://computer-database.heroku.com/
+http://computer-database.heroku.com
+
+This application is one of the samples of `Play! <http://www.playframework.com/>`_'.
+You can also run it all your local machine: just download Play!'s bundle and check out the samples.
 
 This is a simple CRUD application for managing computer models. The main features available are:
 
-  * Creation / Edition / Visualization of computer models
+  * Creating / Editing / Listing computer models
   * Searching / Sorting / Paginating computer models
 
 Planning the test
@@ -168,10 +162,12 @@ Once launched, you get the following GUI, which lets use configure how requests 
 
 Set up Gatling Recorder with the following options:
 
-  * ``/**/*.css``, ``/**/*.js`` and ``/**/*.ico`` filters.
+  * ``computerdatabase`` package
+  * ``BasicSimulation`` name
   * ``Follow Redirects?`` checked.
   * ``Automatic Referers`` checked
-  * ``computerdatabase`` package
+  * ``Black list first`` filter strategy selected
+  * ``.*\.css``, ``.*\.js`` and ``.*\.ico`` filters.
 
 After configuring the recorder, all you have to do is to start it and configure your browser to use Gatling Recorder's proxy.
 
@@ -182,12 +178,15 @@ Recording the scenario
 
 All you have to do now is to browse the application:
 
-  1. Go to the website: http://computer-database.heroku.com/
-  2. Search for models with 'macbook' in their name.
-  3. Open one of the matching model by clicking on it name.
-  4. Go back to home page.
-  5. Iterates through the model pages by clicking on ``Next`` button.
-  6. Create a new computer model:
+  1. Enter 'Search' tag
+  2. Go to the website: http://computer-database.heroku.com/
+  3. Search for models with 'macbook' in their name.
+  4. Select 'Macbook pro'.
+  5. Enter 'Browse' tag
+  6. Go back to home page.
+  7. Iterates several times through the model pages by clicking on ``Next`` button.
+  8. Enter 'Edit' tag
+  9. Create a new computer model:
 
     * Click on ``Add new computer``.
     * Fill the form.
@@ -197,24 +196,23 @@ All you have to do now is to browse the application:
   This will make your scenario closer to real user behavior.
 
 When you have finished to play the scenario, you can click on Stop, and your first Gatling scenario will be created by the recorder.
-Its name will be ``SimulationYYYYMMDDHHMMSS.scala``
 
 The Gatling scenario corresponding to our example is available in the folder ``user-files/simulations/computerdatabase`` of your Gatling installation under the name ``BasicSimulation.scala``.
 
 Gatling scenario explained
 ==========================
 
-So now you've got a file with some mysterious dialect written in it.
-Nice! but... what does this mean? Don't worry, we are going to decrypt these bizarre words for you :-)
+So now you've got a file with some mysterious dialect.
+Nice! but... what does this mean? Don't worry, we are going to decode these bizarre words for you.
 
 This file is a real Scala class containing 4 different parts:
 
-  * The HTTP protocol configuration
-  * The headers definition
+  * The HTTP protocol configuration: a placeholder for common parameters for all the HTTP requests
+  * The headers definition: 
   * The scenario definition
-  * The simulation definition
+  * The setup definition
 
-Fore more details see `here <simulation_structure>`_.
+For more details see `here <general/simulation_structure.html>`_.
 
 Go further with Gatling
 =======================
