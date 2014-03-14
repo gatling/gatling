@@ -4,7 +4,7 @@ Configuration
 
 Gatling can be configured and optimized in three ways:
 
-* with configuration files, located in ``conf``directory
+* with configuration files, located in ``conf`` directory
 * with command line options
 * with ``$JAVA_OPTS`` environment variable
 
@@ -17,15 +17,15 @@ logback.xml
 This file allows you to configure the log level of Gatling.
 For further information, you should have a look at `Logback Documentation <http://logback.qos.ch/manual/index.html>`_.
 
-.. note:: In order to log requests and responses, uncomment the dedicated logger in the `default configuration file <https://github.com/excilys/gatling/blob/master/gatling-bundle/src/universal/conf/logback.xml>`_.
+.. note:: In order to log requests and responses, uncomment the dedicated logger in the `default logging configuration file <https://github.com/excilys/gatling/blob/master/gatling-bundle/src/universal/conf/logback.xml>`_.
 
 gatling.conf
 ------------
 
-Each value is described in the `default configuration file <https://github.com/excilys/gatling/tree/master/gatling-bundle/src/universal/conf>`_.
+Each value is described in the `default configuration file`_.
 
 If you don't specify an option in the configuration file, it will fall back to a default value.
-These values are also defined in the `default configuration file <https://github.com/excilys/gatling/tree/master/gatling-bundle/src/universal/conf>`_.
+These values are also defined in the `default configuration file`_.
 
 .. _gatling-cli-options:
 
@@ -56,3 +56,5 @@ If you want to override them, you'll have to edit these files and replace whatev
 If you want to set additional JAVA_OPTS to Gatling, you can do so by defining the JAVA_OPTS before the gatling command::
 
 	~$ JAVA_OPTS="myAdditionalOption" bin/gatling.sh
+
+.. _default configuration file: https://github.com/excilys/gatling/tree/master/gatling-bundle/src/universal/conf

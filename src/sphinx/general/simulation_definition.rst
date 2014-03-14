@@ -13,12 +13,12 @@ For this purpose you have to use the ``setUp`` method, eg::
   ).protocols(httpConf)
 
 
-The ``setUp`` method take a list of scenarios with their injection profile, for a deepest look at injection API see :ref:`here <injection_api>`_.
+The ``setUp`` method take a list of scenarios with their injection profile, for a deepest look at injection API see :ref:`here <injection_api>`.
 
 You can configure assertion and protocols with this two methods:
 
-* ``assertions``: set assertions on the simulation, see the dedicated section :ref:`here <assertions>`_
-* ``protocols``: set protocols definitions, see the dedicated section for http protocol definition :ref:`here <http_protocol>`_.
+* ``assertions``: set assertions on the simulation, see the dedicated section :ref:`here <assertions>`
+* ``protocols``: set protocols definitions, see the dedicated section for http protocol definition :ref:`here <http_protocol>`.
 
 Pause definition
 ================

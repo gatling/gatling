@@ -9,7 +9,7 @@ In this section we will use Gatling to load test a simple cloud hosted web serve
 Getting Gatling
 ===============
 
-You can get Gatling bundles as a .tar.gz or .zip file `here <https://github.com/excilys/gatling/wiki/Downloads>`_.
+You can get Gatling bundles as a .tar.gz or .zip file `here <https://github.com/excilys/gatling/wiki/Downloads>`__.
 
 Requirements
 ============
@@ -212,7 +212,7 @@ This file is a real Scala class containing 4 different parts:
   * The scenario definition: the workflow the virtual users will be playing
   * The setup definition: where you actually put everything altogether: virtual users, protocols, assertions, etc
 
-For more details see `here <general/simulation_structure.html>`_.
+For more details see `here <general/simulation_structure.html>`__.
 
 Go further with Gatling
 =======================

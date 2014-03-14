@@ -9,14 +9,14 @@ Getting Gatling Jenkins plugin
 
 Gatling Jenkins plugin is available in Jenkins plugin manager.
 
-You can also get Gatling Jenkins plugin as a ``.hpi`` file `here <http://repo.jenkins-ci.org/releases/org/jenkins-ci/plugins/gatling/1.0.3/gatling-1.0.3.hpi>`_.
+You can also get Gatling Jenkins plugin as a ``.hpi`` file `here <http://repo.jenkins-ci.org/releases/org/jenkins-ci/plugins/gatling/1.0.3/gatling-1.0.3.hpi>`__.
 
 Source code is hosted in a dedicated project: `gatling-plugin <https://github.com/jenkinsci/gatling-plugin>`_.
 
 Installing Gatling Jenkins plugin in Jenkins
 ============================================
 
-You can install the plugin manually by following the official Jenkins documentation `here <https://wiki.jenkins-ci.org/display/JENKINS/Plugins#Plugins-Howtoinstallplugins>`_.
+You can install the plugin manually by following the official Jenkins documentation `here <https://wiki.jenkins-ci.org/display/JENKINS/Plugins#Plugins-Howtoinstallplugins>`__.
 
 Jenkins plugin usage
 ====================
