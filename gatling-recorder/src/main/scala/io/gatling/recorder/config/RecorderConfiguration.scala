@@ -91,12 +91,9 @@ object RecorderConfiguration extends StrictLogging {
 	}
 
 	def saveConfig() {
-		// Removes first empty line and remove the extra level of indentation
-		def cleanOutput(configToSave: String) = configToSave.split("\n").drop(1).map(remove4Spaces.replaceFirstIn(_, "")).mkString(eol)
-
 		// Remove request bodies folder configuration (transient), keep only Gatling-related properties
 		val configToSave = configuration.config.withoutPath(REQUEST_BODIES_FOLDER).root.withOnlyKey(CONFIG_ROOT)
-		configFile.foreach(file => withCloseable(File(file).bufferedWriter)(_.write(cleanOutput(configToSave.render(renderOptions)))))
+		configFile.foreach(file => withCloseable(File(file).bufferedWriter)(_.write(configToSave.render(renderOptions))))
 	}
 
 	private def buildConfig(config: Config): RecorderConfiguration = {

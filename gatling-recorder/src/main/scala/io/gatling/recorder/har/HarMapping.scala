@@ -33,7 +33,11 @@ object HarMapping {
 
 	private def buildLog(log: Json) = {
 		val entries = log.entries
-			.map { case e => Entry(parseMillisFromIso8601DateTime(e.startedDateTime), buildRequest(e.request), buildResponse(e.response)) }
+			.collect {
+				// Filter out all non-HTTP protocols (eg: ws://)
+				case e if e.request.url.toString.toLowerCase.startsWith("http") =>
+					Entry(parseMillisFromIso8601DateTime(e.startedDateTime), buildRequest(e.request), buildResponse(e.response))
+			}
 
 		Log(entries)
 	}
@@ -43,7 +47,7 @@ object HarMapping {
 			buildRequest(entry.request), buildResponse(entry.response))
 
 	private def buildRequest(request: Json) = {
-		val postData = Try(request.postData.toString).toOption.map(_ => request.postData)
+		val postData = request.postData.toOption
 		Request(request.method, request.url, request.headers.map(buildHeader), postData.map(buildPostData))
 	}
 
@@ -54,7 +58,12 @@ object HarMapping {
 	}
 
 	private def buildResponse(response: Json) = {
-		val content = Content(response.content.mimeType, Try(response.content.text.toString).toOption)
+		val mimeType = response.content.mimeType
+		assert(mimeType.toOption.isDefined, s"Response content ${response.content} does not contains a mimeType")
+
+		val text = response.content.text.toOption.map(_.toString.trim).filter(!_.isEmpty)
+
+		val content = Content(mimeType, text)
 		Response(response.status, content)
 	}
 

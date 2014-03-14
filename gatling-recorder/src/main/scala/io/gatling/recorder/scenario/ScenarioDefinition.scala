@@ -2,10 +2,13 @@ package io.gatling.recorder.scenario
 
 import scala.concurrent.duration.{ Duration, DurationLong }
 
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
+
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.http.util.HttpHelper
 import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.scenario.RequestElement.htmlContentType
 import io.gatling.recorder.util.collection.RichSeq
 
 case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
@@ -23,13 +26,13 @@ object ScenarioDefinition extends StrictLogging {
 		groupedRequests.map {
 			case (firstArrivalTime, firstReq) :: redirectedReqs if !redirectedReqs.isEmpty => {
 				val (lastArrivalTime, lastReq) = redirectedReqs.last
-				(firstArrivalTime, firstReq.copy(statusCode = lastReq.statusCode)) :: Nil
+				(firstArrivalTime, firstReq.copy(statusCode = lastReq.statusCode, embeddedResources = lastReq.embeddedResources)) :: Nil
 			}
 			case reqs => reqs
 		}.flatten
 	}
 
-	private def hasEmbeddedResources(t: (Long, RequestElement)) = t._2.embeddedResources.isEmpty
+	private def hasEmbeddedResources(t: (Long, RequestElement)) = !t._2.embeddedResources.isEmpty
 
 	private def filterFetchedResources(requests: Seq[(Long, RequestElement)]): Seq[(Long, RequestElement)] = {
 		val groupedRequests = requests.splitWhen(hasEmbeddedResources)

@@ -17,6 +17,7 @@ package io.gatling.recorder.scenario
 
 import java.net.URI
 
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
@@ -46,11 +47,14 @@ class ScenarioSpec extends Specification {
 			val r1 = RequestElement("http://gatling.io", "GET", Map.empty, None, 200,
 				List(CssResource(new URI("http://gatling.io/main.css")), RegularResource(new URI("http://gatling.io/img.jpg"))))
 			val r2 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
-			val r3 = RequestElement("http://gatling.io/img.jpg", "GET", Map.empty, None, 200, List.empty)
-			val r4 = RequestElement("http://gatling.io/details.html", "GET", Map.empty, None, 200, List.empty)
+			val r3 = RequestElement("http://gatling.io/details.html", "GET", Map(CONTENT_TYPE -> "text/html;charset=UTF-8"), None, 200, List.empty)
+			val r4 = RequestElement("http://gatling.io/img.jpg", "GET", Map.empty, None, 200, List.empty)
+			val r5 = RequestElement("http://gatling.io", "GET", Map.empty, None, 200,
+				List(CssResource(new URI("http://gatling.io/main.css"))))
+			val r6 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
 
-			val scn = ScenarioDefinition(List(1l -> r1, 2l -> r2, 3l -> r3, 4l -> r4), List.empty)
-			scn.elements should beEqualTo(List(r1, r4))
+			val scn = ScenarioDefinition(List(1l -> r1, 2l -> r2, 3l -> r3, 4l -> r4, 5l -> r5, 6l -> r6), List.empty)
+			scn.elements should beEqualTo(List(r1, r3, r5))
 		}
 	}
 

@@ -44,7 +44,7 @@ class RichSeqSpec extends Specification {
 		"split the current sequence everytime the predicate applies" in {
 			val xs = List(1, 2, 2, 3, 3, 4, 4, 5)
 			val rs = xs.splitWhen((x: Int) => x % 2 == 0)
-			rs must beEqualTo(List(List(1, 2, 2), List(3), List(3, 4, 4), List(5)))
+			rs must beEqualTo(List(List(1), List(2), List(2, 3, 3), List(4), List(4, 5)))
 		}
 	}
 

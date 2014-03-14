@@ -19,7 +19,7 @@ import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.core.session.el.EL
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request.{ FileBodyPart, RawFileBodies }
+import io.gatling.http.request.{ BodyPart, RawFileBodies }
 
 object HttpRequestWithParamsBuilder {
 	val multipartFormDataValueExpression = HeaderValues.MULTIPART_FORM_DATA.el[String]
@@ -48,16 +48,16 @@ class HttpRequestWithParamsBuilder(
 
 	def param(key: Expression[String], value: Expression[Any]): HttpRequestWithParamsBuilder = param(SimpleParam(key, value))
 	def multivaluedParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestWithParamsBuilder = param(MultivaluedParam(key, values))
-	def paramsSequence(seq: Expression[Seq[(String, Any)]]): HttpRequestWithParamsBuilder = param(ParamSeq(seq))
+	def paramsSeq(seq: Expression[Seq[(String, Any)]]): HttpRequestWithParamsBuilder = param(ParamSeq(seq))
 	def paramsMap(map: Expression[Map[String, Any]]): HttpRequestWithParamsBuilder = param(ParamMap(map))
 	private def param(param: HttpParam): HttpRequestWithParamsBuilder = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, param :: params)
 
 	def formUpload(name: Expression[String], filePath: Expression[String]) = {
 
 		val file = RawFileBodies.asFile(filePath)
-		val filename = file.map(_.getName)
+		val fileName = file.map(_.getName)
 
-		bodyPart(FileBodyPart(name, file, _fileName = Some(filename))).asMultipartForm
+		bodyPart(BodyPart.fileBodyPart(name, file).fileName(fileName)).asMultipartForm
 	}
 
 	def ahcRequest(protocol: HttpProtocol) = new HttpRequestWithParamsExpressionBuilder(commonAttributes, httpAttributes, params, protocol).build

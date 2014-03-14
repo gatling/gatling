@@ -44,7 +44,6 @@ case class HttpAttributes(
 	checks: List[HttpCheck] = Nil,
 	ignoreDefaultChecks: Boolean = false,
 	responseTransformer: Option[ResponseTransformer] = None,
-	maxRedirects: Option[Int] = None,
 	explicitResources: Seq[AbstractHttpRequestBuilder[_]] = Nil,
 	body: Option[Body] = None,
 	bodyParts: List[BodyPart] = Nil,
@@ -87,8 +86,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 	 */
 	def transformResponse(responseTransformer: ResponseTransformer): B = newInstance(httpAttributes.copy(responseTransformer = Some(responseTransformer)))
 
-	def maxRedirects(max: Int): B = newInstance(httpAttributes.copy(maxRedirects = Some(max)))
-
 	def body(bd: Body): B = newInstance(httpAttributes.copy(body = Some(bd)))
 
 	def processRequestBody(processor: Body => Body): B = newInstance(httpAttributes.copy(body = httpAttributes.body.map(processor)))
@@ -119,8 +116,6 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
 		val resolvedResponseTransformer = httpAttributes.responseTransformer.orElse(protocol.responsePart.responseTransformer)
 
-		val resolvedMaxRedirects = httpAttributes.maxRedirects.orElse(protocol.responsePart.maxRedirects)
-
 		val resolvedResources = httpAttributes.explicitResources.filter(_.commonAttributes.method == "GET").map(_.build(protocol, throttled))
 
 		val resolvedExtraInfoExtractor = httpAttributes.extraInfoExtractor.orElse(protocol.responsePart.extraInfoExtractor)
@@ -131,7 +126,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 			resolvedChecks,
 			resolvedResponseTransformer,
 			resolvedExtraInfoExtractor,
-			resolvedMaxRedirects,
+			protocol.responsePart.maxRedirects,
 			throttled,
 			protocol,
 			resolvedResources)

@@ -27,7 +27,7 @@ import io.gatling.http.response.{ ByteArrayResponseBodyUsage, InputStreamRespons
 
 object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
-	val charsParsingThreashold = 1000000
+	val charsParsingThreshold = 1000000
 
 	def handleParseException(block: Response => Any) = (response: Response) =>
 		try {
@@ -43,7 +43,7 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
 		case DirectCharsBasedStringImplementation =>
 			handleParseException { response =>
-				if (response.bodyLength <= charsParsingThreashold)
+				if (response.bodyLength <= charsParsingThreshold)
 					BoonParser.parse(response.body.string)
 				else
 					BoonParser.parse(response.body.stream, response.charset)
@@ -51,7 +51,7 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
 		case _ =>
 			handleParseException { response =>
-				if (response.bodyLength <= charsParsingThreashold)
+				if (response.bodyLength <= charsParsingThreshold)
 					JacksonParser.parse(response.body.bytes, response.charset)
 				else
 					JacksonParser.parse(response.body.stream, response.charset)
@@ -60,7 +60,7 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
 	val boonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
 		def bodyUsage(bodyLength: Int) =
-			if (bodyLength <= charsParsingThreashold)
+			if (bodyLength <= charsParsingThreshold)
 				StringResponseBodyUsage
 			else
 				InputStreamResponseBodyUsage
@@ -68,7 +68,7 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
 	val jacksonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
 		def bodyUsage(bodyLength: Int) =
-			if (bodyLength <= charsParsingThreashold)
+			if (bodyLength <= charsParsingThreshold)
 				ByteArrayResponseBodyUsage
 			else
 				InputStreamResponseBodyUsage

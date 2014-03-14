@@ -54,10 +54,12 @@ abstract class Simulation {
 		_beforeSteps = _beforeSteps ::: List(() => step)
 	}
 
-	def setUp(scenarios: PopulatedScenarioBuilder*) = {
+	def setUp(scenarios: PopulatedScenarioBuilder*): SetUp = setUp(scenarios.toList)
+
+	def setUp(scenarios: List[PopulatedScenarioBuilder]): SetUp = {
 		if (!_scenarios.isEmpty)
 			throw new UnsupportedOperationException("setUp can only be called once")
-		_scenarios = scenarios.toList
+		_scenarios = scenarios
 		new SetUp
 	}
 

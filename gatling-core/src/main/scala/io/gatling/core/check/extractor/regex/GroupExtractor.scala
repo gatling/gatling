@@ -15,9 +15,9 @@
  */
 package io.gatling.core.check.extractor.regex
 
-import scala.annotation.implicitNotFound
-
 import java.util.regex.Matcher
+
+import scala.annotation.{ implicitNotFound, tailrec }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
@@ -26,8 +26,26 @@ import io.gatling.core.util.StringHelper.RichString
 trait LowPriorityGroupExtractorImplicits extends StrictLogging {
 
 	implicit val stringGroupExtractor = new GroupExtractor[String] {
-		def extract(matcher: Matcher): String =
-			matcher.group(math.min(matcher.groupCount, 1)).ensureTrimmedCharsArray
+
+		def extract(matcher: Matcher): String = {
+
+			@tailrec
+			def extractFirstNonNullGroupRec(i: Int, max: Int): String = {
+				matcher.group(i) match {
+					case null =>
+						if (i < max)
+							extractFirstNonNullGroupRec(i + 1, max)
+						else
+							"" // shouldn't happen, as the regex matched, we should have at least one non null group
+					case value => value.ensureTrimmedCharsArray
+				}
+			}
+
+			matcher.groupCount match {
+				case 0 => safeGetGroupValue(matcher, 0)
+				case count => extractFirstNonNullGroupRec(1, count)
+			}
+		}
 	}
 
 	def safeGetGroupValue(matcher: Matcher, i: Int): String =

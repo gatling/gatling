@@ -16,7 +16,7 @@ object collection {
 		def splitWhen(p: T => Boolean): List[List[T]] =
 			elts.foldLeft(List.empty[List[T]])({
 				case (Nil, x) => List(x) :: Nil
-				case (l @ (h :: t), x) => if (p(x)) (x :: h) :: t else List(x) :: l
+				case (l @ (h :: t), x) => if (p(x)) List(x) :: l else (x :: h) :: t
 			}).map(_.reverse).reverse
 	}
 }

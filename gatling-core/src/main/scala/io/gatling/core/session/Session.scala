@@ -95,15 +95,15 @@ case class Session(
 		case KO :: _ :: tail => copy(statusStack = KO :: tail, interruptStack = interruptStack.tail) // propagate failure to upper block
 		case _ :: tail => copy(statusStack = tail, interruptStack = interruptStack.tail)
 	}
-	def markAsFailed: Session = statusStack match {
-		case OK :: tail => copy(statusStack = KO :: tail)
-		case _ => this
-	}
 
 	def isFailed = statusStack.contains(KO)
 	def status: Status = if (statusStack.contains(KO)) KO else OK
-	def resetStatus = statusStack match {
+	def markAsSucceeded = statusStack match {
 		case KO :: tail => copy(statusStack = OK :: tail)
+		case _ => this
+	}
+	def markAsFailed: Session = statusStack match {
+		case OK :: tail => copy(statusStack = KO :: tail)
 		case _ => this
 	}
 

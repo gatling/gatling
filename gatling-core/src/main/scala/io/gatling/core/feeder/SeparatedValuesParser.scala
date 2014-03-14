@@ -24,9 +24,9 @@ import io.gatling.core.util.IOHelper.withSource
 
 object SeparatedValuesParser {
 
-	def parse(resource: Resource, separator: Char): Array[Record[String]] = {
+	def parse(resource: Resource, separator: Char, doubleQuote: Char): Array[Record[String]] = {
 
-		val parser = new CSVParser(separator)
+		val parser = new CSVParser(separator, doubleQuote)
 
 		withSource(Source.fromInputStream(resource.inputStream)(configuration.core.codec)) { source =>
 			val rawLines = source.getLines.map(parser.parseLine)
