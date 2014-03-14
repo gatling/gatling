@@ -220,7 +220,7 @@ Go further with Gatling
 Now we have a basic Simulation to work with, we will apply a suite of refactoring to introduce more advanced concepts and DSL constructs.
 
 Step 01: Isolate processes
------------------------------------
+--------------------------
 
 Presently our Simulation is one big monolithic scenario.
 
@@ -303,7 +303,7 @@ In our scenario let's have 10 regular users and 2 admins, and ramp them on 10 se
   ).protocols(httpConf)
 
 Step 03: Use dynamic data with Feeders
-------------------------------------
+--------------------------------------
 
 We have set our simulation to run a bunch of users, but they all search for the same model.
 Wouldn't it be nice if every user could search a different model name?
@@ -356,10 +356,10 @@ Let's explain :
   6. We use the previously save hyperlink to get a specific page.
 
 Step 04: Looping
--------------------------------
+----------------
 
 In the *browse* process we have a lot of repetition when iterating through the pages.
-We have four time the same request with a different query param value. Can we try to DRY this ?
+We have four time the same request with a different query param value. Can we try to DRY this?
 
 First we will extract the repeated ``exec`` block in a function.
 Indeed, ``Simulation``s are plain Scala classes so we can use all the power of the language if needed::
