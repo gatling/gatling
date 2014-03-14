@@ -5,16 +5,24 @@ Operations
 Java version
 ############
 
-Gatling has only been tested against Java packages provided by Oracle. Gatling 1 is compiled with JDK6, while Gatling 2 is compiled with JDK7, yet into JDK6 bytecode.
+Gatling is mostly tested against JDK7 packages provided by Oracle. Gatling 2 is compiled with JDK7, yet into JDK6 bytecode.
 
-The launch scripts set up JVM options that are only available since Java 6u21. If you use an older version of Java, please consider upgrading, or edit the scripts for removing the unsupported options. Versions of Java older than Java 6 are not supported, please upgrade.
+The launch scripts set up JVM options that are only available since Java 6u21, 64 bits version.
+If you use an older version of Java, please consider upgrading, or edit the scripts and remove the unsupported options.
+Versions of Java older than Java 6 are not supported.
 
-Yet, we recommend that you use the latest version of Java. NIO is based on native code, so it depends on JVM implementation and bugs are frequently fixed. For example, NIO have been broken on Oracle JDK7 until 1.7.0_10. Gatling is mostly tested on Oracle JDK7, OS X and Linux.
+Yet, we recommend that you use the latest JDK:
+
+  * NIO is based on native code, so it depends on JVM implementation and bugs are frequently fixed.
+    For example, NIO was broken on Oracle JDK7 until 7u10.
+  * Gatling is tested against modern JDKs
+  * Gatling has several optimizations that targets JDK7, e.g. based on new ``String`` implementation introduced in 7u6.
 
 OS tuning
 #########
 
-Gatling can consume a very large number of open file handles during normal operation. Typically, OSes are limiting this, so you will have to tweak a few options so that you can massively open new sockets and reach heavy load.
+Gatling can consume a very large number of open file handles during normal operation.
+Typically, OSes limit this, so you will have to tweak a few options so you can massively open new sockets and reach heavy load.
 
 Changing the limit
 ==================
