@@ -12,6 +12,9 @@ body {
 	color:#111;
     min-width: 790px;
 }
+
+ul { padding-left: 20px; }
+
 a:link, a:visited, a:hover {
 
 	color:#DF7700;
