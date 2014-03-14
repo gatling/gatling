@@ -101,3 +101,12 @@ Response Time over load
 	:scale: 70
 
 This chart shows how the response time for the given request is distributed, depending on the total load of the application at the same time.
+
+Latency over load
+=======================
+
+.. image:: img/reports/charts-latency-over-load.png
+	:alt: LatencyOverLoad
+	:scale: 70
+
+This chart shows how the latency for the given request is distributed, depending on the total load of the application at the same time.
