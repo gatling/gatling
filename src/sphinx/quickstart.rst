@@ -162,12 +162,12 @@ Once launched, you get the following GUI, which lets use configure how requests 
 
 Set up Gatling Recorder with the following options:
 
-  * ``computerdatabase`` package
-  * ``BasicSimulation`` name
+  * *computerdatabase* package
+  * *BasicSimulation* name
   * ``Follow Redirects?`` checked.
-  * ``Automatic Referers`` checked
+  * ``Automatic Referers?`` checked
   * ``Black list first`` filter strategy selected
-  * ``.*\.css``, ``.*\.js`` and ``.*\.ico`` filters.
+  * *.*\.css*, *.*\.js* and *.*\.ico* filters.
 
 After configuring the recorder, all you have to do is to start it and configure your browser to use Gatling Recorder's proxy.
 
@@ -184,20 +184,20 @@ All you have to do now is to browse the application:
   4. Select 'Macbook pro'.
   5. Enter 'Browse' tag
   6. Go back to home page.
-  7. Iterates several times through the model pages by clicking on ``Next`` button.
+  7. Iterates several times through the model pages by clicking on *Next* button.
   8. Enter 'Edit' tag
   9. Create a new computer model:
 
-    * Click on ``Add new computer``.
+    * Click on *Add new computer*.
     * Fill the form.
-    * Click on ``Create this computer``
+    * Click on *Create this computer*
 
   Try to act as a user, don't jump from one page to another without taking the time to read.
   This will make your scenario closer to real user behavior.
 
 When you have finished to play the scenario, you can click on Stop, and your first Gatling scenario will be created by the recorder.
 
-The Gatling scenario corresponding to our example is available in the folder ``user-files/simulations/computerdatabase`` of your Gatling installation under the name ``BasicSimulation.scala``.
+The Gatling scenario corresponding to our example is available in the folder ``user-files/simulations/``*computerdatabase* of your Gatling installation under the name *BasicSimulation.scala*.
 
 Gatling scenario explained
 ==========================
@@ -208,9 +208,9 @@ Nice! but... what does this mean? Don't worry, we are going to decode these biza
 This file is a real Scala class containing 4 different parts:
 
   * The HTTP protocol configuration: a placeholder for common parameters for all the HTTP requests
-  * The headers definition: 
-  * The scenario definition
-  * The setup definition
+  * The headers definition: headers blocks that are specific to some requests and can't be placed in the protocol
+  * The scenario definition: the workflow the virtual users will be playing
+  * The setup definition: where you actually put everything altogether: virtual users, protocols, assertions, etc
 
 For more details see `here <general/simulation_structure.html>`_.
 
@@ -219,14 +219,13 @@ Go further with Gatling
 
 Now we have a basic Simulation to work with, we will apply a suite of refactoring to introduce more advanced concepts and DSL constructs.
 
-The resulting simulations are available in the folder ``user-files/simulations/computerdatabase/advanced/``.
-
-Step 01: Bring order into this mess
+Step 01: Isolate processes
 -----------------------------------
 
-Presently our Simulation is a bit messy, we have a big scenario without real business meaning.
+Presently our Simulation is one big monolithic scenario.
+
 So first let split it in composable business processes, like one would do with PageObject pattern with Selenium.
-This will ease the writing of various scenarios by user population.
+This way, you'll be able to easily reuse some parts and build complex behaviors without sacrificing maintenance.
 
 In our scenario we have three separated processes:
 
@@ -234,7 +233,11 @@ In our scenario we have three separated processes:
   * Browse: browse the list of models
   * Edit: edit a given model
 
-So we will create three Scala objects, objects are native Scala singletons, to encapsulate these processes::
+We are going to extract those chains and store them into *objects*.
+
+Objects are native Scala singletons. For the non Scala developer, consider them as the same kind of placeholder as Java static utilitary classe.
+
+::
 
   object Search {
 
@@ -264,16 +267,16 @@ We can now rewrite our scenario using these reusable business processes::
 
    val scn = scenario("Scenario Name").exec(Search.search, Browse.browse, Edit.edit)
 
-Step 02: More users = more load!
+Step 02: Configure virtual users
 --------------------------------
 
 So, this is great, we can load test our server with... one user!
-We are going to increase the number of users.
+Let's increase the number of users.
 
 Let define two populations of users:
 
-  * The regular users: they can search and browse computer models.
-  * The admin users: they can search, browse and edit computer models.
+  * *regular* users: they can search and browse computer models.
+  * *admin* users: they can also edit computer models.
 
 Translating into scenario this gives::
 
@@ -286,7 +289,7 @@ To increase the number of simulated users, all you have to do is to change the c
 
   Note: Here we set only 10 users, because we don't want to flood our test web application, please be kind and don't crash our Heroku instance ;-)
 
-If you want to simulate 3 000 users, you don't want them to start at the same time.
+If you want to simulate 3 000 users, you might not want them to start at the same time.
 Indeed, they are more likely to connect to your web application gradually.
 
 Gatling provides the ``rampUsers`` builtin to implement this behavior.
@@ -299,7 +302,7 @@ In our scenario let's have 10 regular users and 2 admins, and ramp them on 10 se
     admins.inject(rampUsers(2) over (10 seconds))
   ).protocols(httpConf)
 
-Step 03: Dynamic values with Feeders
+Step 03: Use dynamic data with Feeders
 ------------------------------------
 
 We have set our simulation to run a bunch of users, but they all search for the same model.
@@ -312,105 +315,120 @@ Feeders are data sources containing all the values you want to use in your scena
 There are several types of Feeders, the simpliest being the CSV Feeder: this is the one we will use in our test.
 Feeders are explained in details in the Feeders reference.
 
-Here are the feeder we use and the modifications we made to our scenario::
+First let's create a file named *search.csv* and place it in ``user-files/data`` folder.
+
+This file contains the following lines::
+
+	searchCriterion,searchComputerName
+	Macbook,MacBook Pro
+	eee,ASUS Eee PC 1005PE
+
+Let's then declare a feeder and use it to feed our users::
 
   object Search {
 
-    val feeder = csv("search.csv").random (1) (2)
+    val feeder = csv("search.csv").random // (1) (2)
 
     val search = exec(http("Home")
       .get("/"))
       .pause(1)
-      .feed(feeder) (3)
+      .feed(feeder) // (3)
       .exec(http("Search")
         .get("/computers")
-        .queryParam("""f""", "${searchCriterion}") (4)
-        .check(regex("""<a href="([^"]+)">${searchComputerName}</a>""").saveAs("computerURL"))) (5)
+        .queryParam("f", "${searchCriterion}") // (4)
+        .check(regex("""<a href="([^"]+)">${searchComputerName}</a>""").saveAs("url"))) // (5)
       .pause(1)
       .exec(http("Select")
-        .get("${computerURL}") (6)
-        .check(status.is(200)))
+        .get("${url}")) // (6)
       .pause(1)
   }
 
+
 Let's explain :
 
-  1. First we create a feeder from a csv file with the following columns : ``searchCriterion``, ``searchComputerName``.
-  2. The default feeder is a queue, so for this test, we use a random one to avoid feeder starvation.
-  3. Every time a user passes here, a record is popped from the feeder and injected into the user's session.
-     Thus user has two new session data named ``searchCriterion``, ``searchComputerName``.
-  4. We use session data using Gatling's EL to parametrized the search.
-  5. We use a regex with an EL, to capture a part of the HTML response, here an hyperlink, and save it in the user session with the name ``computerURL``.
+  1. First we create a feeder from a csv file with the following columns : *searchCriterion*, *searchComputerName*.
+  2. The default feeder strategy is queue, so for this test, we use a random one instead in order to avoid feeder starvation.
+  3. Every time a user reaches the feed step, it pops a record from the feeder.
+     This user has two new session attributes named *searchCriterion*, *searchComputerName*.
+  4. We use session data using Gatling's EL to parameterize the search.
+  5. We use a regex with an EL, to capture a part of the HTML response, here an hyperlink, and save it in the user session with the name *computerURL*.
+     Note how Scala triple quotes are handy: you don't have to escape double quotes inside the regex with backslashes.
   6. We use the previously save hyperlink to get a specific page.
 
-Step 04: Don't repeat yourself!
+Step 04: Looping
 -------------------------------
 
-In the ``browse`` process we have a lot of repetition when iterating through the pages.
+In the *browse* process we have a lot of repetition when iterating through the pages.
 We have four time the same request with a different query param value. Can we try to DRY this ?
 
-First we will extract the repeated ``exec`` block in a function, yes ``Simulation`` are plain Scala so we can use all the power of the language if needed::
+First we will extract the repeated ``exec`` block in a function.
+Indeed, ``Simulation``s are plain Scala classes so we can use all the power of the language if needed::
 
-  def gotoPage(page: String) = exec(http("Page " + page)
-    .get("/computers")
-    .queryParam("""p""", page))
-    .pause(1)
+  object Browse {
+
+    def gotoPage(page: String) = exec(http("Page " + page)
+      .get("/computers?p=" + page)
+      .pause(1)
+
+    val browse = ???
+  }
 
 We can now call this function and pass the desired page number.
 But we have still repetition, it's time to introduce a new builtin structure::
 
-  def gotoUntil(max: String) = repeat(max.toInt, "i") { (1)
-    gotoPage("${i}") (2)
+  object Browse {
+
+    def gotoPage(page: String) = exec(http("Page " + page)
+      .get("/computers?p=" + page)
+      .pause(1)
+
+    val browse = repeat(5, "i") { // (1)
+      gotoPage("${i}") // (2)
+    }
   }
 
-Let's explained:
+Let's explain:
 
-  1. The ``repeat`` builtin is a loop resolved at RUNTIME, it take the number of repetition and optionally the name of the counter.
+  1. The ``repeat`` builtin is a loop resolved at **runtime**.
+     It takes the number of repetitions and optionally the name of the counter (that's stored in the user's Session).
   2. As we force the counter name we can use it in Gatling EL and access the nth page.
-
-And finally we can write the ``browse`` process as follow::
-
-  val browse = gotoUntil("4")
 
 Step 05: Check and failure management
 -------------------------------------
 
-Until now we use ``check`` to extract some data from the html response and store it in session.
-But ``check`` are also handy to check some properties of the http response.
-By default Gatling check if the http response status is 200x.
+Until now we used ``check`` to extract some data from the html response and store it in session.
+But ``check`` is also handy to check some properties of the http response.
+By default Gatling check if the http response status is *200x* or *304*.
 
-To demonstrate the failure management we will introduce a ``check`` on a condition that fails randomly::
+To demonstrate failure management we will introduce a ``check`` on a condition that fails randomly::
 
-  val random = ThreadLocalRandom.current() (1)
+  import scala.concurrent.forkjoin.ThreadLocalRandom // (1)
+
   val edit = exec(http("Form")
       .get("/computers/new"))
     .pause(1)
     .exec(http("Post")
       .post("/computers")
       ...
-      .check(status.is(session => 200 + random.nextInt(2)))) (2)
+      .check(status.is(session => 200 + ThreadLocalRandom.current.nextInt(2)))) // (2)
 
 Let's explained:
 
-  1. First we create a thread local random number generator to avoid contention.
+  1. First we import ``ThreadLocalRandom``. This class is just a backport of the JDK7 one for runnung with JDK6.
   2. We do a check on a condition that's been customized with a lambda.
-     It will be evaluated every time a user executes the request.
-     As response status is 200 the check will fail randomly.
+     It will be evaluated every time a user executes the request and randomly return *200* or *201*.
+     As response status is 200, the check will fail randomly.
 
 To handle this random failure we use the ``tryMax`` and ``exitHereIfFailed`` constructs as follow::
 
-  val edit = tryMax(2) { (1)
+  val edit = tryMax(2) { // (1)
     exec(...)
-  }.exitHereIfFailed (2)
+  }.exitHereIfFailed // (2)
 
 Let's explained:
 
-  1. ``tryMax`` allow to try a fix number of time an ``exec`` block in case of failure.
-     Here we try at max 2 times the block.
+  1. ``tryMax`` allow to try a fix number of times an ``exec`` block in case of failure.
+     Here we try at max twice.
   2. If the chain didn't finally succeed, the user exit the whole scenario due to ``exitHereIfFailed``.
 
 That's all Folks!
-
-
-
-
