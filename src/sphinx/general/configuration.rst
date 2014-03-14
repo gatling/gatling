@@ -2,16 +2,11 @@
 Configuration
 #############
 
-This page explains how Gatling can be configured
-
-Introduction
-============
-
 Gatling can be configured and optimized in three ways:
 
-* By the configuration files
-* By command line options
-* By ``$JAVA_OPTS`` environment variable
+* with configuration files, located in ``conf``directory
+* with command line options
+* with ``$JAVA_OPTS`` environment variable
 
 Configuration files
 ===================
@@ -27,11 +22,10 @@ For further information, you should have a look at `Logback Documentation <http:
 gatling.conf
 ------------
 
-This file allows you to set configurable values for the Engine and the modules of Gatling.
 Each value is described in the `default configuration file <https://github.com/excilys/gatling/tree/master/gatling-bundle/src/universal/conf>`_.
 
 If you don't specify an option in the configuration file, it will fall back to a default value.
-These values are also shown in the `default configuration file <https://github.com/excilys/gatling/tree/master/gatling-bundle/src/universal/conf>`_.
+These values are also defined in the `default configuration file <https://github.com/excilys/gatling/tree/master/gatling-bundle/src/universal/conf>`_.
 
 .. _gatling-cli-options:
 
@@ -40,6 +34,7 @@ Command Line Options
 
 Gatling can be started with several options listed below:
 
+* **-h** (**-help**): Help
 * **-nr** (**--no-reports**): Runs simulation but does not generate reports
 * **-ro <folderName>** (**--reports-only <folderName>**): Generates the reports for the simulation log file located in <gatling_home>/results/<folderName>
 * **-df <folderAbsolutePath>** (**--data-folder <folderAbsolutePath>**): Uses <folderAbsolutePath> as the folder where feeders are stored
@@ -50,7 +45,7 @@ Gatling can be started with several options listed below:
 * **-s <className>** (**--simulation <className>**): Uses <className> as the name of the simulation to be run
 * **-on <name>** (**--output-name <name>**): Uses <name> for the base name of the output directory
 * **-sd <description>** (**--simulation-description <description>**): A short <description> of the run to include in the report
-
+* **-m <description>** (**--mute**): Runs in mute mode: don't asks for run description nor simulation ID, use defaults
 
 $JAVA_OPTS
 ==========
@@ -61,5 +56,3 @@ If you want to override them, you'll have to edit these files and replace whatev
 If you want to set additional JAVA_OPTS to Gatling, you can do so by defining the JAVA_OPTS before the gatling command::
 
 	~$ JAVA_OPTS="myAdditionalOption" bin/gatling.sh
-
-
