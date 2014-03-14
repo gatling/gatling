@@ -117,11 +117,11 @@ Let's explain :
 The application under test
 ==========================
 
-In this tutorial, you'll be playing with an application named 'computer-database' deployed on Heroku at the following url:
+In this tutorial, you'll be playing with an application named *Computer-Database* deployed on Heroku at the following url:
 
 http://computer-database.heroku.com
 
-This application is one of the samples of `Play! <http://www.playframework.com/>`_'.
+This application is one of the samples of `Play! <http://www.playframework.com/>`_.
 You can also run it all your local machine: just download Play!'s bundle and check out the samples.
 
 This is a simple CRUD application for managing computer models. The main features available are:
@@ -197,7 +197,7 @@ All you have to do now is to browse the application:
 
 When you have finished to play the scenario, you can click on Stop, and your first Gatling scenario will be created by the recorder.
 
-The Gatling scenario corresponding to our example is available in the folder ``user-files/simulations/``*computerdatabase* of your Gatling installation under the name *BasicSimulation.scala*.
+The Gatling scenario corresponding to our example is available in the folder ``user-files/simulations/computerdatabase`` of your Gatling installation under the name *BasicSimulation.scala*.
 
 Gatling scenario explained
 ==========================
@@ -235,7 +235,7 @@ In our scenario we have three separated processes:
 
 We are going to extract those chains and store them into *objects*.
 
-Objects are native Scala singletons. For the non Scala developer, consider them as the same kind of placeholder as Java static utilitary classe.
+Objects are native Scala singletons. For Java developers, consider them as the same kind of placeholder as static utilitary class.
 
 ::
 
@@ -362,7 +362,7 @@ In the *browse* process we have a lot of repetition when iterating through the p
 We have four time the same request with a different query param value. Can we try to DRY this?
 
 First we will extract the repeated ``exec`` block in a function.
-Indeed, ``Simulation``s are plain Scala classes so we can use all the power of the language if needed::
+Indeed, ``Simulation``\ s are plain Scala classes so we can use all the power of the language if needed::
 
   object Browse {
 
