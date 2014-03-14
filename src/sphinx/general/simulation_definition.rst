@@ -20,6 +20,8 @@ You can configure assertion and protocols with this two methods:
 * ``assertions``: set assertions on the simulation, see the dedicated section :ref:`here <assertions>`_
 * ``protocols``: set protocols definitions, see the dedicated section for http protocol definition :ref:`here <http_protocol>`_.
 
+.. _pause_definition:
+
 Pause definition
 ================
 
@@ -35,6 +37,8 @@ The pauses can be configure on ``Simulation`` with a bunch of methods:
 
 .. note:: Pause definition can also be configure at scenario level.
 
+.. _throttling:
+
 Throttling
 ==========
 
@@ -46,7 +50,7 @@ Thus simulation will reach 100 req/s with a ramp of 10 seconds, then hold this t
 
 The building block for the throttling are:
 
-* ``reachRps(target) in (duration)``: target a throughput with a ramp of a given duration.
+* ``reachRps(target) in (duration)``: target a throughput with a ramp over a given duration.
 * ``jumpToRps(target)``: jump immediately to a given targeted throughput.
 * ``holdFor(duration)``: hold the current throughput for a given duration.
 
