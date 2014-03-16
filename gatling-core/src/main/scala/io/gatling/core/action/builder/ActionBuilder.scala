@@ -30,7 +30,7 @@ trait ActionBuilder extends AkkaDefaults {
 	 * @param protocols the protocols configurations
 	 * @return the resulting Action actor
 	 */
-	private[gatling] def build(next: ActorRef, protocols: Protocols): ActorRef
+	def build(next: ActorRef, protocols: Protocols): ActorRef
 
 	/**
 	 * Register default values of the protocols that the Actions produced by this ActionBuilder will use.
@@ -39,5 +39,5 @@ trait ActionBuilder extends AkkaDefaults {
 	 * @param protocols the default protocols
 	 * @return the defaultprotocols updated with the ones used here
 	 */
-	private[gatling] def registerDefaultProtocols(protocols: Protocols): Protocols = protocols
+	def registerDefaultProtocols(protocols: Protocols): Protocols = protocols
 }
