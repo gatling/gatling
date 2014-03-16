@@ -38,7 +38,7 @@ class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionB
 		actor(new Switch(nextAction, next))
 	}
 
-	override private[gatling] def registerDefaultProtocols(protocols: Protocols) = {
+	override def registerDefaultProtocols(protocols: Protocols) = {
 
 		val actionBuilders = possibilities.flatMap(_.actionBuilders)
 

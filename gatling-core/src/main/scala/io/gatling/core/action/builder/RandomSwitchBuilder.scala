@@ -64,7 +64,7 @@ class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext:
 		actor(new Switch(nextAction, next))
 	}
 
-	override private[gatling] def registerDefaultProtocols(protocols: Protocols) = {
+	override def registerDefaultProtocols(protocols: Protocols) = {
 
 		val actionBuilders = possibilities.flatMap { case (_, chainBuilder) => chainBuilder.actionBuilders } ::: elseNext.map(_.actionBuilders).getOrElse(Nil)
 

@@ -40,7 +40,7 @@ object HttpRequestActionBuilder {
  */
 class HttpRequestActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) extends HttpActionBuilder {
 
-	private[gatling] def build(next: ActorRef, protocols: Protocols): ActorRef = {
+	def build(next: ActorRef, protocols: Protocols): ActorRef = {
 
 		val throttled = protocols.getProtocol[ThrottlingProtocol].isDefined
 		val httpRequest = requestBuilder.build(httpProtocol(protocols), throttled)

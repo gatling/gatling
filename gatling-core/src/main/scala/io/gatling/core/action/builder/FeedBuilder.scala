@@ -35,5 +35,5 @@ object FeedBuilder extends AkkaDefaults {
 }
 class FeedBuilder(instance: => ActorRef, number: Expression[Int]) extends ActionBuilder {
 
-	private[gatling] def build(next: ActorRef, protocols: Protocols) = actor(new Feed(instance, number, next))
+	def build(next: ActorRef, protocols: Protocols) = actor(new Feed(instance, number, next))
 }

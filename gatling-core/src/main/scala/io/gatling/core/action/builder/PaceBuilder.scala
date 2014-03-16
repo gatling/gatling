@@ -29,7 +29,8 @@ import io.gatling.core.session.Expression
  * Originally contributed by James Pickering.
  */
 class PaceBuilder(interval: Expression[Duration], counter: String) extends ActionBuilder {
-	override private[gatling] def build(next: ActorRef, protocols: Protocols): ActorRef = {
+
+	override def build(next: ActorRef, protocols: Protocols): ActorRef = {
 		actor(new Pace(interval, counter, next))
 	}
 }
