@@ -4,67 +4,71 @@
 Quickstart
 ##########
 
+Preliminary
+===========
+
 In this section we will use Gatling to load test a simple cloud hosted web server and will introduce you to the basic elements of the DSL.
 
-Getting Gatling
-===============
+Getting the bundle
+------------------
 
 You can get Gatling bundles as a .tar.gz or .zip file `here <https://github.com/excilys/gatling/wiki/Downloads>`__.
 
 Requirements
-============
+------------
 
 Gatling 2 is compiled with JDK7, yet into JDK6 bytecode.
 
-Yet, we recommend that you use the **latest JDK7**. NIO is based on native code, so it depends on JVM implementation and bugs are frequently fixed. For example, NIO have been broken on Oracle JDK7 until 1.7.0_10. Gatling is mostly tested on Oracle JDK7, OS X and Linux.
+.. warning::
+    Yet, we recommend that you use the **latest JDK7**.
+    NIO is based on native code, so it depends on JVM implementation and bugs are frequently fixed.
+    For example, NIO have been broken on Oracle JDK7 until 1.7.0_10. Gatling is mostly tested on Oracle JDK7, OS X and Linux.
 
-Installing Gatling
-==================
+Installing
+----------
 
 Just unzip the downloaded bundle to a folder of your choice.
 
-We just ask you **don't use a path with spaces** in it, there might be some issues.
+.. warning::
+    We just ask you **don't use a path containing spaces**, there might be some issues.
 
-For Windows users, we also recommend that you do not place Gatling in *Programs* folder as there might be permission issues.
+    For Windows users, we also recommend that you do not place Gatling in *Programs* folder as there might be permission issues.
 
+Tuning the OS
+-------------
 
-Configure your OS
-=================
+You might first want to have a look at how to `tune your OS <general/operations.html>`_ according to your use case.
 
-You might first want to have a look at how to **tune Gatling and your OS** according to your use case.
+A Word on Encoding
+------------------
 
-A word on encoding
-==================
+Gatling's **default encoding is UTF-8**. If you want to use a different one, you have to:
 
-Gatling uses by **default UTF-8**. If you want to use a different one, you have to:
+    * select the proper encoding while using the Recorder
+    * configure the proper encoding in the ``gatling.conf`` file.
+      It will be used for compiling your simulations and building your requests.
+    * make sure your text editor encoding is properly configured to match.
 
-  * select the proper encoding in the Recorder
-  * configure the proper encoding in the gatling.conf file. This is the one that will be used for compiling your simulations and building your requests.
-  * make sure your text editor is properly configured and doesn't change the original encoding.
+A Word on Scala
+---------------
 
-Running Gatling
-===============
+**You're going to see some Scala, but don't panic!**
 
-Gatling offers a command line interface (CLI) that can be run using the following command::
+Yes, Gatling simulation scripts are `Scala <http://www.scala-lang.org/>`_ classes.
 
-  ~$ $GATLING_HOME/bin/gatling.sh
+Don't worry, Gatling doesn't expect you to be a hardcore Scala hacker.
 
-Windows users:
-    you can double click on the gatling.bat file located in GATLING_HOME/bin
+Just please read this manual properly and learn the DSL.
+In most situations, this DSL will cover most of your needs and you'll be able to build your scenarios without much Scala knowledge.
 
-Once launched, you should see a menu with the simulation examples::
+However, you might also sometimes run into situations where you have to hack a bit.
+We then recommend you have a look at `Scala School <http://twitter.github.io/scala_school>`_.
 
-  Choose a simulation number:
-     [0] computerdatabase.Simulation
+.. note::
+    Feel also free to join our `Google Group`_ and ask for help.
 
-To run a simulation, simply type the number of the simulation you want to run, choose a name for the folder where the results will be generated, and a description for the run.
-
-And... voila!
-
-  Note: If Gatling does not work as expected, see our FAQ.
-
-Your first simulation
-======================
+Test Case
+=========
 
 Now, you're ready to go!
 
@@ -72,50 +76,8 @@ This page will guide you through most of Gatling HTTP features.
 
 You'll learn about simulations, scenarios, feeders, recorder, loops, scala functions, etc.
 
-You're going to see some Scala, but don't panic!
-================================================
-
-Yes, Gatling simulation scripts are Scala classes.
-
-Don't worry, Gatling doesn't expect you to be a hardcore Scala hacker.
-
-Just please read this manual properly and learn the DSL.
-In most situations, this DSL will cover most of your needs and you'll be able to build your scenarios without much `Scala <http://www.scala-lang.org/>`_ knowledge.
-
-However, you might also sometimes run into situations where you have to hack a bit.
-We then recommend you have a look at `Scala School <http://twitter.github.io/scala_school>`_.
-
-Feel also free to join our `Google Group <https://groups.google.com/forum/#!forum/gatling>`_ and ask for help.
-
-For the non Scala people, here's what a Gatling simulation class look like::
-
-  package foo.bar (1)
-
-  import io.gatling.core.Predef._ (2)
-  import io.gatling.http.Predef._
-  import scala.concurrent.duration._
-
-  class MySimulation extends Simulation { (3)
-
-    // your code starts here
-    val scn = scenario("My scenario")
-            .exec(http("My Page")
-              .get("http://mywebsite.com/page.html")) (4)
-
-    setUp(scn.inject(atOnceUsers(10)) (5)
-    // your code ends here
-  }
-
-Let's explain :
-
-  1. The optional package.
-  2. The required imports.
-  3. The class declaration. Note that your simulation extends ``Simulation``.
-  4. Your scenario definition. ``val`` is the keyword for defining a non-re-assignable value.
-  5. The set up, where you configure the scenarios you want to run and the injection profile.
-
-The application under test
-==========================
+Application under Test
+----------------------
 
 In this tutorial, you'll be playing with an application named *Computer-Database* deployed on Heroku at the following url:
 
@@ -124,41 +86,35 @@ http://computer-database.heroku.com
 This application is one of the samples of `Play! <http://www.playframework.com/>`_.
 You can also run it all your local machine: just download Play!'s bundle and check out the samples.
 
-This is a simple CRUD application for managing computer models. The main features available are:
+This is a simple CRUD application for managing computer models.
 
-  * Creating / Editing / Listing computer models
-  * Searching / Sorting / Paginating computer models
-
-Planning the test
-=================
+Tested Behaviors
+----------------
 
 To test the performance of this application, we'd like to create scenarios representative of what really happens when users navigate it.
+
 So we tried to imagine what a real user would do with our application, shrank it and we got the following:
 
-  * The user opens the application.
+  * A user arrives on the application.
   * The user searches for 'macbook'.
   * The user opens one of the related model.
   * The user goes back to home page.
   * The user iterates through pages.
   * The user creates a new model.
 
-Now that we have decided what would be the common use of our application, we can create the scenario for Gatling.
+Basics
+======
 
-Gatling Recorder
-================
+Using the Recorder
+------------------
 
 To ease the creation of scenarios, we will use the Recorder, a tool provided with Gatling that allows you to record your actions on a web application and export them as Gatling scenarios.
 
-This tool is launched with a script located in the bin directory along the gatling one::
+This tool is launched with a script located in the ``bin`` directory::
 
-  ~$ $GATLING_HOME/bin/recorder.sh
+  ~$ $GATLING_HOME/bin/recorder.sh/bat
 
-Configuration
--------------
-
-Once launched, you get the following GUI, which lets use configure how requests and response will be recorded:
-
-.. image:: img/recorder.png
+Once launched, you get the following GUI, which lets use configure how requests and response will be recorded.
 
 Set up Gatling Recorder with the following options:
 
@@ -167,55 +123,122 @@ Set up Gatling Recorder with the following options:
   * ``Follow Redirects?`` checked.
   * ``Automatic Referers?`` checked
   * ``Black list first`` filter strategy selected
-  * *.*\.css*, *.*\.js* and *.*\.ico* filters.
+  * *.\*\\.css*, *.\*\\.js* and *.\*\\.ico* in the black list filters.
+
+.. image:: img/recorder.png
 
 After configuring the recorder, all you have to do is to start it and configure your browser to use Gatling Recorder's proxy.
 
-  For information about how to configure your browser, you can check out the Recorder's documentation.
+.. note::
+  For more information regarding Recorder and browser configuration, please check out `Recorder reference page <http/recorder.html>`_.
 
 Recording the scenario
 ----------------------
 
 All you have to do now is to browse the application:
-
-  1. Enter 'Search' tag
-  2. Go to the website: http://computer-database.heroku.com/
+  1. Enter 'Search' tag.
+  2. Go to the website: http://computer-database.heroku.com
   3. Search for models with 'macbook' in their name.
   4. Select 'Macbook pro'.
-  5. Enter 'Browse' tag
+  5. Enter 'Browse' tag.
   6. Go back to home page.
   7. Iterates several times through the model pages by clicking on *Next* button.
-  8. Enter 'Edit' tag
-  9. Create a new computer model:
+  8. Enter 'Edit' tag.
+  9. Click on *Add new computer*.
+  10. Fill the form.
+  11. Click on *Create this computer*.
 
-    * Click on *Add new computer*.
-    * Fill the form.
-    * Click on *Create this computer*
+Try to act as a user, don't jump from one page to another without taking the time to read.
+This will make your scenario closer to real users' behavior.
 
-  Try to act as a user, don't jump from one page to another without taking the time to read.
-  This will make your scenario closer to real user behavior.
+When you have finished playing the scenario, click on Stop in the Recorder interface
 
-When you have finished to play the scenario, you can click on Stop, and your first Gatling scenario will be created by the recorder.
-
-The Gatling scenario corresponding to our example is available in the folder ``user-files/simulations/computerdatabase`` of your Gatling installation under the name *BasicSimulation.scala*.
+The Simulation will be generated in the folder ``user-files/simulations/computerdatabase`` of your Gatling installation under the name *BasicSimulation.scala*.
 
 Gatling scenario explained
-==========================
+--------------------------
 
 So now you've got a file with some mysterious dialect.
-Nice! but... what does this mean? Don't worry, we are going to decode these bizarre words for you.
+Nice! but... what does this mean?
+::
 
-This file is a real Scala class containing 4 different parts:
+  package computerdatabase // (1)
 
-  * The HTTP protocol configuration: a placeholder for common parameters for all the HTTP requests
-  * The headers definition: headers blocks that are specific to some requests and can't be placed in the protocol
-  * The scenario definition: the workflow the virtual users will be playing
-  * The setup definition: where you actually put everything altogether: virtual users, protocols, assertions, etc
+  import io.gatling.core.Predef._ // (2)
+  import io.gatling.http.Predef._
+  import scala.concurrent.duration._
 
-For more details see `here <general/simulation_structure.html>`__.
+  class BasicSimulation extends Simulation { // (3)
 
-Go further with Gatling
-=======================
+    val httpConf = http // (4)
+      .baseURL("http://computer-database.heroku.com") // (5)
+      .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8") // (6)
+      .doNotTrackHeader("1")
+      .acceptLanguageHeader("en-US,en;q=0.5")
+      .acceptEncodingHeader("gzip, deflate")
+      .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:27.0) Gecko/20100101 Firefox/27.0")
+
+    val scn = scenario("BasicSimulation") // (7)
+      .exec(http("request_1")  // (8)
+        .get("/")) // (9)
+      .pause(5) // 10
+      ...
+
+    setUp( // (11)
+      scn.inject(atOnceUsers(1) // (12)
+    ).protocols(httpConf) // (13)
+  }
+
+
+Explanations:
+
+1. The optional package.
+2. The required imports.
+3. The class declaration. Note that your simulation extends ``Simulation``.
+4. The common configuration to all HTTP requests.
+
+.. note::
+    ``val`` is the keyword for defining a non-re-assignable value.
+    Types are not defined and are inferred by the Scala compiler.
+
+5. The baseURL that will be prepended to all relative urls.
+6. Common HTTP headers that will be sent with all the requests.
+7. The scenario definition.
+8. A HTTP request, named *request_1*. This name will be displayed in the final reports.
+9. The url this request targets with the *GET* method.
+10. Some pause/think time.
+
+.. note::
+    Duration unit defaults to ``seconds``, e.g. ``pause(5) is equivalent to ``pause(5 seconds)``.
+
+11. Where one set ups the scenarios that will be launched in this Simulation.
+12. Declaring to inject into scenario named *scn* one single user.
+13. Attaching the HTTP configuration declared above.
+
+.. note::
+    For more details regarding Simulation structure, please check out `Simulation reference page <general/simulation_structure.html>`__.
+
+Running Gatling
+---------------
+
+Launch the second script located in the ``bin`` directory::
+
+  ~$ $GATLING_HOME/bin/gatling.sh/bat
+
+
+You should see a menu with the simulation examples::
+
+  Choose a simulation number:
+     [0] computerdatabase.BasicSimulation`
+
+
+When the simulation is done, the console will display a link to the HTML reports.
+
+.. note::
+    If Gatling doesn't work as expected, see our `FAQ <project_information/faq.html>`_ or ask on our `Google Group`_.
+
+Going further
+=============
 
 Now we have a basic Simulation to work with, we will apply a suite of refactoring to introduce more advanced concepts and DSL constructs.
 
@@ -224,7 +247,7 @@ Step 01: Isolate processes
 
 Presently our Simulation is one big monolithic scenario.
 
-So first let split it in composable business processes, like one would do with PageObject pattern with Selenium.
+So first let split it into composable business processes, like one would do with PageObject pattern with Selenium.
 This way, you'll be able to easily reuse some parts and build complex behaviors without sacrificing maintenance.
 
 In our scenario we have three separated processes:
@@ -233,9 +256,7 @@ In our scenario we have three separated processes:
   * Browse: browse the list of models
   * Edit: edit a given model
 
-We are going to extract those chains and store them into *objects*.
-
-Objects are native Scala singletons. For Java developers, consider them as the same kind of placeholder as static utilitary class.
+We are going to extract those chains and store them into *objects*. Objects are native Scala singletons.
 
 ::
 
@@ -287,7 +308,8 @@ To increase the number of simulated users, all you have to do is to change the c
 
   setUp(users.inject(atOnceUsers(10)).protocols(httpConf))
 
-  Note: Here we set only 10 users, because we don't want to flood our test web application, please be kind and don't crash our Heroku instance ;-)
+
+Here we set only 10 users, because we don't want to flood our test web application, please be kind and don't crash our Heroku instance ;-)
 
 If you want to simulate 3 000 users, you might not want them to start at the same time.
 Indeed, they are more likely to connect to your web application gradually.
@@ -302,8 +324,8 @@ In our scenario let's have 10 regular users and 2 admins, and ramp them on 10 se
     admins.inject(rampUsers(2) over (10 seconds))
   ).protocols(httpConf)
 
-Step 03: Use dynamic data with Feeders
---------------------------------------
+Step 03: Use dynamic data with Feeders and Checks
+-------------------------------------------------
 
 We have set our simulation to run a bunch of users, but they all search for the same model.
 Wouldn't it be nice if every user could search a different model name?
@@ -312,8 +334,7 @@ We need dynamic data so that all users don't play the same and we end up with a 
 This is where Feeders will be useful.
 
 Feeders are data sources containing all the values you want to use in your scenarios.
-There are several types of Feeders, the simpliest being the CSV Feeder: this is the one we will use in our test.
-Feeders are explained in details in the Feeders reference.
+There are several types of Feeders, the most simple being the CSV Feeder: this is the one we will use in our test.
 
 First let's create a file named *search.csv* and place it in ``user-files/data`` folder.
 
@@ -344,7 +365,7 @@ Let's then declare a feeder and use it to feed our users::
   }
 
 
-Let's explain :
+Explanations:
 
   1. First we create a feeder from a csv file with the following columns : *searchCriterion*, *searchComputerName*.
   2. The default feeder strategy is queue, so for this test, we use a random one instead in order to avoid feeder starvation.
@@ -354,6 +375,11 @@ Let's explain :
   5. We use a regex with an EL, to capture a part of the HTML response, here an hyperlink, and save it in the user session with the name *computerURL*.
      Note how Scala triple quotes are handy: you don't have to escape double quotes inside the regex with backslashes.
   6. We use the previously save hyperlink to get a specific page.
+
+.. note::
+    For more details regarding Feeders, please check out `Feeder reference page <session/feeder.html>`_.
+
+    For more details regarding HTTP Checks, please check out `Checks reference page <http/http_check.html>`_.
 
 Step 04: Looping
 ----------------
@@ -387,18 +413,21 @@ But we have still repetition, it's time to introduce a new builtin structure::
     }
   }
 
-Let's explain:
+Explanations:
 
   1. The ``repeat`` builtin is a loop resolved at **runtime**.
      It takes the number of repetitions and optionally the name of the counter (that's stored in the user's Session).
   2. As we force the counter name we can use it in Gatling EL and access the nth page.
+
+.. note::
+    For more details regarding loops, please check out `Loops reference page <general/scenario.html#loop-statements>`_.
 
 Step 05: Check and failure management
 -------------------------------------
 
 Until now we used ``check`` to extract some data from the html response and store it in session.
 But ``check`` is also handy to check some properties of the http response.
-By default Gatling check if the http response status is *200x* or *304*.
+By default Gatling check if the http response status is *20x* or *304*.
 
 To demonstrate failure management we will introduce a ``check`` on a condition that fails randomly::
 
@@ -412,9 +441,9 @@ To demonstrate failure management we will introduce a ``check`` on a condition t
       ...
       .check(status.is(session => 200 + ThreadLocalRandom.current.nextInt(2)))) // (2)
 
-Let's explained:
+Explanations:
 
-  1. First we import ``ThreadLocalRandom``. This class is just a backport of the JDK7 one for runnung with JDK6.
+  1. First we import ``ThreadLocalRandom``. This class is just a backport of the JDK7 one for running with JDK6.
   2. We do a check on a condition that's been customized with a lambda.
      It will be evaluated every time a user executes the request and randomly return *200* or *201*.
      As response status is 200, the check will fail randomly.
@@ -425,10 +454,15 @@ To handle this random failure we use the ``tryMax`` and ``exitHereIfFailed`` con
     exec(...)
   }.exitHereIfFailed // (2)
 
-Let's explained:
+Explanations:
 
-  1. ``tryMax`` allow to try a fix number of times an ``exec`` block in case of failure.
+  1. ``tryMax`` tries a given block up to n times.
      Here we try at max twice.
-  2. If the chain didn't finally succeed, the user exit the whole scenario due to ``exitHereIfFailed``.
+  2. If all tentatives failed, the user exit the whole scenario due to ``exitHereIfFailed``.
+
+.. note::
+    For more details regarding conditional blocks, please check out `Conditional Statements reference page <general/scenario.html#conditional-statements>`_.
 
 That's all Folks!
+
+.. _Google Group: https://groups.google.com/forum/#!forum/gatling
