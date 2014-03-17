@@ -79,7 +79,6 @@ object Gatling {
 		if (cliOptsParser.parse(args)) fromMap(props.build, simulationClass)
 		else GatlingStatusCodes.invalidArguments
 	}
-
 }
 
 class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging {
