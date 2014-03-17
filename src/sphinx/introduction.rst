@@ -24,10 +24,12 @@ Why Gatling?
 Gatling was born from the following requirements:
 
   * scenarios that are real code:
+
     * a `DSL <http://en.wikipedia.org/wiki/Domain-specific_language>`_ is more self explanatory than an over bloated Graphical User Interface.
     * code is more convenient for developers.
     * have one single way of doing things: out-of-the-box features and user custom hacks use the same technology.
     * code is easier to maintain and can be injected into a VCS, on contrary to a huge GUI XML dump.
+
   * resource efficient, scaling out should be a last resort, once saturating the NIC.
   * run on a JVM, a widely spread execution platform that ops are used to administrate.
 
