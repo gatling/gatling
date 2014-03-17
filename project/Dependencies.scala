@@ -39,7 +39,7 @@ object Dependencies {
 	/***********************/
 
 	private val junit                          = "junit"                      % "junit"              % "4.11"        % "test"
-	private val specs2                         = "org.specs2"                %% "specs2"             % "2.0"         % "test"
+	private val specs2                         = "org.specs2"                %% "specs2"             % "2.3.10"      % "test"
 	private val akkaTestKit                    = "com.typesafe.akka"         %% "akka-testkit"       % "2.2.3"       % "test"
 	private val mockitoCore                    = "org.mockito"                % "mockito-core"       % "1.9.5"       % "test"
 
