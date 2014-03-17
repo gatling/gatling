@@ -20,7 +20,7 @@ User's guide
    :maxdepth: 1
 
    quickstart
-   introduction/index
+   introduction
    general/index
    session/index
    http/index
