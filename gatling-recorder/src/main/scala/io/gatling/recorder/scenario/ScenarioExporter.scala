@@ -117,7 +117,7 @@ object ScenarioExporter extends StrictLogging {
 
 		val newScenarioElements = getChains(elements)
 
-		SimulationTemplate.render(config.core.pkg, config.core.className, protocolConfigElement, headers, "Scenario Name", newScenarioElements)
+		SimulationTemplate.render(config.core.pkg, config.core.className, protocolConfigElement, headers, config.core.className, newScenarioElements)
 	}
 
 	private def getBaseHeaders(scenarioElements: Seq[ScenarioElement]): Map[String, String] = {
