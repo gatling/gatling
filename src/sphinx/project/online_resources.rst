@@ -7,6 +7,12 @@ Extensions
 
 * `JWT for Gatling <https://bitbucket.org/atlassianlabs/gatling-jwt>`_ by Robin Fernandes
 * `Gatling Clojure DSL <https://github.com/mhjort/clj-gatling>`_ by Markus Hjort
+* `Puppet GatlingJenkins Plugin <https://github.com/puppetlabs/puppet-gatling>`_ by PuppetLabs
+* `Gatling RabbitMQ <https://github.com/fhalim/gatling-rabbitmq`_ by Fawad Halim
+* `Gatling Leiningen Template <https://github.com/errordeveloper/gatling-lein-template>`_ by Ilya Dmitrichenko
+* `Gatling Gradle Plugin <https://github.com/buhe/gradle-gatling-plugin>`_ by Buhe
+* `Gatling Gradle Plugin <https://github.com/vincentkok/gradle-gatling>`_ by Vincent Kok
+* `unfiltered-rest-gatling Giter8 Template <https://github.com/mindcandy/unfiltered-rest-gatling.g8>`_ by MindCandy
 
 Public talks
 ============
@@ -28,6 +34,7 @@ Public talks
 Articles
 ========
 
+* Leonard Fingerman - `Performance testing – is it worth waiting for ? <http://testinmind.com/2014/03/08/performance-testing-is-it-worth-waiting-for>`_
 * Osaxis - `Gatling, nouvelle solution libre pour les tests de montée en charge (in French) <http://www.osaxis.fr/blog/gatling-nouvelle-solution-libre-pour-les-tests-de-montee-en-charge/>`_
 * Martin Braun - `Web application load testing - and why you should consider Gatling <http://blog.braun.io/2013/12/web-application-load-testing-and-why.html>`_
 * Shanker Balan - `Log Replay, Simulation And Stress Testing With Gatling <http://shankerbalan.net/blog/log-replay-simulation-and-stress-testing-with-gatling/>`_
@@ -58,4 +65,3 @@ Articles
 * Ska-La - `Gatling as a plugin for Play2  <http://ska-la.blogspot.fr/2012/03/gatling-tool-plugin-for-play-20.html>`_
 * Ska-La - `Gatling and Play2 continued <http://ska-la.blogspot.fr/2012/04/gatling-and-play20-continued.html>`_
 * `Zuberance <http://engineering.zuberance.com/2012/02/16/making-load-testing-fun-with-gatling>`_
-

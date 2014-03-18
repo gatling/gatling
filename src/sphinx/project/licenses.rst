@@ -46,6 +46,7 @@ Gatling uses several existing libraries. They are listed below along with their 
 * Logback - `LGPL 2.1 <http://www.gnu.org/licenses/lgpl-2.1.txt>`_
 * SLF4J - `MIT License <http://www.opensource.org/licenses/mit-license.php>`_
 * Joda Time - `Apache License v2.0 <http://www.apache.org/licenses/LICENSE-2.0.txt>`_
-* Jaxen - `Jaxen License <http://jaxen.codehaus.org/license.html>`_
-* Jackson Mapper - `Apache License v2.0 <http://www.apache.org/licenses/LICENSE-2.0.txt>`_
-* Specs2 - `Specs License <https://raw.github.com/etorreborre/specs2/1.8.2/LICENSE.txt>`_
+* Boon - `Apache License v2.0 <http://www.apache.org/licenses/LICENSE-2.0.txt>`_
+* Jackson - `Apache License v2.0 <http://www.apache.org/licenses/LICENSE-2.0.txt>`_
+* Saxon-HE - `Mozilla Public License v2.0 <http://www.mozilla.org/MPL/2.0>`_
+* Jodd - `Apache License v2.0 <http://www.apache.org/licenses/LICENSE-2.0.txt>`_

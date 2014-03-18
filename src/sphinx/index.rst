@@ -29,4 +29,4 @@ User's guide
    extensions/index
    cookbook/index
    developing_gatling/index
-   project_information/index
+   project/index
