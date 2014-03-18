@@ -72,7 +72,7 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
 			webSocket.close
 			logRequest(session, requestName, OK, started, nowMillis)
 			next ! session.remove(wsName)
-			context.stop(self)
+			context.become(closing)
 
 		case OnClose =>
 			if (tx.protocol.wsPart.reconnect)
@@ -86,6 +86,10 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
 
 		case OnError(t) =>
 			context.become(pendingErrorMessage(s"Websocket '$wsName' gave an error: '${t.getMessage}'"))
+	}
+
+	def closing: Receive = {
+		case OnClose => context.stop(self)
 	}
 
 	def disconnected(pendingSendMessages: Queue[WebSocketMessage], tx: WebSocketTx): Receive = {
