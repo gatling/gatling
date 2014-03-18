@@ -58,18 +58,10 @@ class JMSCompileTest extends Simulation {
 	setUp(scn.inject(rampUsersPerSec(10) to (1000) during (2 minutes)))
 		.protocols(jmsConfig)
 
-	/**
-	 * Checks if a body text is correct.
-	 * <p>
-	 * Note the contract on the checks is Message => Boolean, so you can perform
-	 * any processing you like on the message (check headers, check type, check body,
-	 * complex checks, etc).
-	 */
-	val BODY_SHOULD_BE = "HELLO FROM GATLING JMS DSL"
 	def checkBodyTextCorrect(m: Message) = {
 		// this assumes that the service just does an "uppercase" transform on the text
 		m match {
-			case tm: TextMessage => tm.getText.toString == BODY_SHOULD_BE
+			case tm: TextMessage => tm.getText.toString == "HELLO FROM GATLING JMS DSL"
 			case _ => false
 		}
 	}

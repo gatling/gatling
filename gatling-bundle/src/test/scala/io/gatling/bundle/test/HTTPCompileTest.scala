@@ -21,7 +21,7 @@ import io.gatling.jdbc.Predef._
 
 import scala.concurrent.duration._
 
-object HttpCompileTest extends Simulation {
+class HttpCompileTest extends Simulation {
 
 	val iterations = 10
 	val pause1 = 1
@@ -241,5 +241,4 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
 		.exponentialPauses
 		.uniformPauses(1.5)
 		.uniformPauses(1337 seconds)
-
 }

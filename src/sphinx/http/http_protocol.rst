@@ -12,7 +12,13 @@ It supports HTTP and HTTPS with almost every existing features of common browser
 However, Gatling **is not a browser**: it won't run javascript, won't apply css styles and trigger css background-images download, won't react to UI events, etc.
 Gatling works on the HTTP protocol level.
 
-As every protocol in Gatling, the HTTP protocol can be configured for a scenario. This is done thanks to the following statements::
+Bootstrapping
+=============
+
+Use the ``http`` object in order to create an HTTP protocol.
+
+As every protocol in Gatling, the HTTP protocol can be configured for a scenario.
+This is done thanks to the following statements::
 
 	val httpConf = http.baseURL("http://my.website.tld")
 	...

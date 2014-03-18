@@ -8,10 +8,10 @@ Extensions
 * `JWT for Gatling <https://bitbucket.org/atlassianlabs/gatling-jwt>`_ by Robin Fernandes
 * `Gatling Clojure DSL <https://github.com/mhjort/clj-gatling>`_ by Markus Hjort
 * `Puppet GatlingJenkins Plugin <https://github.com/puppetlabs/puppet-gatling>`_ by PuppetLabs
-* `Gatling RabbitMQ <https://github.com/fhalim/gatling-rabbitmq`_ by Fawad Halim
+* `Gatling RabbitMQ <https://github.com/fhalim/gatling-rabbitmq>`_ by Fawad Halim
 * `Gatling Leiningen Template <https://github.com/errordeveloper/gatling-lein-template>`_ by Ilya Dmitrichenko
-* `Gatling Gradle Plugin <https://github.com/buhe/gradle-gatling-plugin>`_ by Buhe
-* `Gatling Gradle Plugin <https://github.com/vincentkok/gradle-gatling>`_ by Vincent Kok
+* `Gatling Gradle Plugin <https://github.com/buhe/gradle-gatling-plugin>`__ by Buhe
+* `Gatling Gradle Plugin <https://github.com/vincentkok/gradle-gatling>`__ by Vincent Kok
 * `unfiltered-rest-gatling Giter8 Template <https://github.com/mindcandy/unfiltered-rest-gatling.g8>`_ by MindCandy
 
 Public talks
