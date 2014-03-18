@@ -63,15 +63,9 @@ This is how an HTTP request is declared::
 Query Parameters
 ----------------
 
-Frameworks and developers often pass additional information in the query, which is the part of the url after the *?*.
+Frameworks and developers often pass additional information in the query, which is the part of the url after the *?*. A query is composed of *key=value* pairs, separated by *&*. Those are named *query parameters*.sb
 
-A query is composed of *key=value* pairs, separated by *&*. Those are named *query parameters*.
-
-For example::
-
-    https://github.com/excilys/gatling/issues?milestone=1&state=open
-
-contains 2 query parameters:
+For example, *https://github.com/excilys/gatling/issues?milestone=1&state=open* contains 2 query parameters:
 
 * *milestone=1* : the key is *milestone* and its value is *1*
 * *state=open* : the key is *state* and its value is *open*
@@ -94,7 +88,7 @@ In order to set the query parameters of an HTTP request, you can:
 	  .queryParam("milestone", "1")
 	  .queryParam("state", "open")
 
-Of course, you can use :ref:<Gatling Expression LanguageEL <el>` to make those values dynamic based on data in the virtual user's session::
+Of course, you can use :ref:`Gatling Expression Language (EL) <el>` to make those values dynamic based on data in the virtual user's session::
 
 	http("Value from session example")
 	  .get("https://github.com/excilys/gatling")
