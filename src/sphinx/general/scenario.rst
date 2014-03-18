@@ -377,12 +377,12 @@ You can configure protocols at scenario level with ``protocols`` method::
 
   scn.protocols(httpConf)
 
-See the dedicated section for http protocol definition :ref:`here <http_protocol>`_.
+See the dedicated section for http protocol definition :ref:`here <http_protocol>`.
 
 Pause definition
 ================
 
-You can configure pause definition at scenario level, see :ref:`here <pause_definition>`__ for more information.
+You can configure pause definition at scenario level, see :ref:`here <pause_definition>` for more information.
 
 Throttling
 ==========
@@ -391,4 +391,4 @@ You can also configure throttling at scenario level with ``throttle`` method::
 
   scn.throttle(reachRps(100) in (10 seconds), holdFor(10 minute))
 
-For further information see the dedicated section :ref:`here <throttling>`__.
+For further information see the dedicated section :ref:`here <throttling>`.
