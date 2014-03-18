@@ -75,32 +75,35 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
 			context.stop(self)
 
 		case OnClose =>
-			// FIXME should reconnect OnClose or on next SendMessage?
-			if (tx.protocol.wsPart.reconnect) {
-				if (tx.protocol.wsPart.maxReconnects.map(_ > tx.reconnectCount).getOrElse(true)) {
-					HttpEngine.instance.startWebSocketTransaction(tx.copy(reconnectCount = tx.reconnectCount + 1), self)
-					context.become(reconnecting(Queue.empty[WebSocketEvents]))
-
-				} else
+			if (tx.protocol.wsPart.reconnect)
+				if (tx.protocol.wsPart.maxReconnects.map(_ > tx.reconnectCount).getOrElse(true))
+					context.become(disconnected(Queue.empty[WebSocketEvents], tx))
+				else
 					context.become(pendingErrorMessage(s"Websocket '$wsName' was unexpectedly closed and max reconnect reached"))
 
-			} else
+			else
 				context.become(pendingErrorMessage(s"Websocket '$wsName' was unexpectedly closed"))
 
 		case OnError(t) =>
 			context.become(pendingErrorMessage(s"Websocket '$wsName' gave an error: '${t.getMessage}'"))
 	}
 
-	def reconnecting(pendingSendMessages: Queue[WebSocketEvents]): Receive = {
+	def disconnected(pendingSendMessages: Queue[WebSocketMessage], tx: WebSocketTx): Receive = {
 
-		case message: SendTextMessage =>
-			pendingSendMessages += message
+		case message: WebSocketMessage =>
+			// reconnect on first client message tentative
+			HttpEngine.instance.startWebSocketTransaction(tx.copy(reconnectCount = tx.reconnectCount + 1), self)
 
-		case message: SendBinaryMessage =>
+			context.become(reconnecting(pendingSendMessages += message))
+	}
+
+
+	def reconnecting(pendingSendMessages: Queue[WebSocketMessage]): Receive = {
+
+		case message: WebSocketMessage =>
 			pendingSendMessages += message
 
 		case OnOpen(tx, webSocket, started, ended) =>
-
 			// send all pending messages
 			pendingSendMessages.foreach { self ! _ }
 

@@ -29,7 +29,8 @@ case class OnMessage(message: String) extends WebSocketEvents
 case object OnClose extends WebSocketEvents
 case object OnUnexpectedClose extends WebSocketEvents
 case class OnError(t: Throwable) extends WebSocketEvents
-
-case class SendTextMessage(requestName: String, message: String, next: ActorRef, session: Session) extends WebSocketEvents
-case class SendBinaryMessage(requestName: String, message: Array[Byte], next: ActorRef, session: Session) extends WebSocketEvents
 case class Close(requestName: String, next: ActorRef, session: Session) extends WebSocketEvents
+
+sealed trait WebSocketMessage extends WebSocketEvents
+case class SendTextMessage(requestName: String, message: String, next: ActorRef, session: Session) extends WebSocketMessage
+case class SendBinaryMessage(requestName: String, message: Array[Byte], next: ActorRef, session: Session) extends WebSocketMessage
