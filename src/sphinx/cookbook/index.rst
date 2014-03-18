@@ -7,4 +7,3 @@ Cookbook
 	scaling_out
 	passing_parameters
 	handling_jsf
-	inject_user_specific_data
