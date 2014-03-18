@@ -62,8 +62,7 @@ Besides escaping features described in the RFC, one can use a ``\`` character an
 	val ssvFeeder = csv("foo.ssv") // use a semicolon separator
 	val customSeparatorFeeder = separatedValues("foo.txt", "#") // use your own separator
 
-Those builtins returns ``RecordArrayFeederBuilder`` instances, meaning that the whole file is loaded in memory and parsed, so the resulting feeders doesn't read on disk during the simulation run.
-
+Those built-ins returns ``RecordArrayFeederBuilder`` instances, meaning that the whole file is loaded in memory and parsed, so the resulting feeders doesn't read on disk during the simulation run.
 
 JDBC feeder
 ===========
@@ -73,14 +72,16 @@ Gatling also provide a builtin that reads from a JDBC connection.
 
 	jdbcFeeder(databaseURL: String, username: String, password: String, sql: String)
 
-Just like File parser builtins, this return a `RecordArrayFeederBuilder` instance.
+Just like File parser built-ins, this return a `RecordArrayFeederBuilder` instance.
 
-The databaseURL must be a JDBC URL (ie: jdbc:postgresql:gatling), the username and password are the credentials to access the database and sql is the request that will get the values needed.
+    * The databaseURL must be a JDBC URL (e.g. jdbc:postgresql:gatling),
+    * the username and password are the credentials to access the database,
+    * sql is the request that will get the values needed.
 
 Only JDBC4 drivers are supported, so that they automatically registers to the DriverManager.
 
-Note: Do not forget to add the required JDBC driver jar in the classpath (lib/ folder in the bundle)
-
+.. note::
+    Do not forget to add the required JDBC driver jar in the classpath (``lib`` folder in the bundle)
 
 Redis feeder
 ============
@@ -97,18 +98,18 @@ Gatling can read from a Redis list::
 	// use a list, so there's one single value per record, which is here named "foo"
 	val feeder = redisFeeder(redisPool, "foo")
 
-Note that since v2.1.14, Redis supports mass insertion of data from a `file <http://redis.io/topics/mass-insert>`_. It is possible to load millions of keys in a few seconds in Redis and Gatling will read them off memory directly.
+Note that since v2.1.14, Redis supports mass insertion of data from a `file <http://redis.io/topics/mass-insert>`_.
+It is possible to load millions of keys in a few seconds in Redis and Gatling will read them off memory directly.
 
-For i.e : A simple Scala function to generate a file with 1 million different urls ready to be loaded in a Redis list named URLS::
+For example: a simple Scala function to generate a file with 1 million different urls ready to be loaded in a Redis list named *URLS*::
 
     import com.excilys.ebi.gatling.core.feeder.redis.util._
 
     def generateOneMillionUrls() = {
-        val fileLocation = "/tmp/loadtest.txt"
-        val writer = new PrintWriter(new File(fileLocation))
+        val writer = new PrintWriter(new File("/tmp/loadtest.txt"))
         try {
             for (i <- 0 to 1000000) {
-                val url = "test?id=" + i.toString()
+                val url = "test?id=" + i
                 writer.write(generateRedisProtocol("LPUSH", "URLS", url)) // note the list name "URLS" here
             }
         } finally {
@@ -127,8 +128,7 @@ Non shared data
 
 Sometimes, Gatling users still want all virtual users to play all the records in a file, and Feeder doesn't match this behavior.
 
-
-Still, it's quite easy to build::
+Still, it's quite easy to build, e.g.::
 
     val array = csv ("foo.csv").array
 
