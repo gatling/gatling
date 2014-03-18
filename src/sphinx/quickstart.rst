@@ -256,7 +256,9 @@ In our scenario we have three separated processes:
   * Browse: browse the list of models
   * Edit: edit a given model
 
-We are going to extract those chains and store them into *objects*. Objects are native Scala singletons.
+We are going to extract those chains and store them into *objects*.
+Objects are native Scala singletons.
+You can create those into dedicated files, or directly into the same file as the Simulation.
 
 ::
 
