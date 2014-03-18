@@ -13,7 +13,7 @@
 	<!-- Uncomment for logging ONLY FAILED HTTP request and responses -->
 	<!-- 	<logger name="io.gatling.http" level="DEBUG" /> -->
 
-	<root level="WARN">
+	<root level="ERROR">
 		<appender-ref ref="CONSOLE" />
 	</root>
 
