@@ -32,10 +32,3 @@ Highsoft AS
 
 Gatling's reports would not be as nice as they are if it wasn't for Highsoft libraries. They add incontestable value to these reports through their look and feel and their abilitiy to display nicely thousands of points.
 
-Cloudbees
-=========
-
-.. image:: img/devcloud-logo.png
-	:alt: Cloudbees
-
-Gatling is built on the excellent `Cloudbees <http://www.cloudbees.com>`_ PAAS.

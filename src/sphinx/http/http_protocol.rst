@@ -1,4 +1,4 @@
-.. _http_protocol:
+.. _http-protocol:
 
 #############
 HTTP Protocol
@@ -21,7 +21,7 @@ As every protocol in Gatling, the HTTP protocol can be configured for a scenario
 Core parameters
 ===============
 
-.. _http-base-url:
+.. _http-protocol-base-url:
 
 Base URL
 --------
@@ -53,7 +53,7 @@ If you want to stress several servers at the same time, to bypass a load-balance
 The selection of the URL is made at each request, using the ``Random`` generator.
 
 
-.. _http-warmup:
+.. _http-protocol-warmup:
 
 Automatic warm up
 -----------------
@@ -74,7 +74,7 @@ To change the warm up url, just add ``.warmUp("newUrl")``.
 Engine parameters
 =================
 
-.. _http-max-connection:
+.. _http-protocol-max-connection:
 
 Max connection per host
 -----------------------
@@ -100,7 +100,7 @@ Gatling ships a bunch of built-ins for well-known browser:
     // Firefox max connections per host preset.
     val httpConf= http.maxConnectionsPerHostLikeFirefox
 
-.. _http-connection-sharing:
+.. _http-protocol-connection-sharing:
 
 Connections sharing
 -------------------
@@ -120,6 +120,8 @@ localAddress(localAddress: InetAddress)
 Request building parameters
 ===========================
 
+.. _http-protocol-referer:
+
 Automatic Referer
 -----------------
 
@@ -127,6 +129,8 @@ The ``Referer`` HTTP header can be automatically computed.
 This feature is enabled by default.
 
 To disable this feature, just add ``.disableAutomaticReferer`` to an HTTP Protocol Configuration definition.
+
+.. _http-protocol-caching:
 
 Caching
 -------
@@ -139,6 +143,8 @@ Gatling supports this caching feature:
 * ETag
 
 To disable this feature, just add ``.disableCaching`` to an HTTP Protocol Configuration definition.
+
+.. _http-protocol-headers:
 
 HTTP Headers
 ------------
@@ -154,6 +160,8 @@ You have also the following built-ins for the more commons headers:
 * doNotTrackHeader(value: Expression[String]): set ``DNT`` header.
 * userAgentHeader(value: Expression[String]): set ``User-Agent`` header.
 
+.. _http-protocol-auth:
+
 Authentication
 --------------
 
@@ -168,6 +176,8 @@ You can set the authentication methods at protocol level with these methods:
 Response handling parameters
 ============================
 
+.. _http-protocol-redirect:
+
 Follow redirects
 ----------------
 
@@ -175,11 +185,15 @@ By default Gatling automatically follow redirects in case of 301 or 302 response
 
 To avoid infinite redirection loops, you can specify a number max of redirects with:  ``maxRedirects(max: Int)``
 
+.. _http-protocol-chunksdiscard:
+
 Response chunks discarding
 --------------------------
 
 Beware that, as an optimization, Gatling doesn't pile up response chunks unless a check is defined on the response body.
 However some people might want always keep the response chunks, thus you can disable the default behaviour with ``disableResponseChunksDiscarding``.
+
+.. _http-protocol-extractor:
 
 Dumping custom data
 -------------------
@@ -199,6 +213,8 @@ Thus your extractor need to return a ``List[Any]``, ``Any`` is the equivalent of
 The extra data will be appended to the relative records in the ``simulation.log`` file and reports generation will ignore them.
 It's up to the user to build his own analysis system for them.
 
+.. _http-protocol-processor:
+
 Response and request processors
 -------------------------------
 
@@ -206,13 +222,17 @@ Some people might want to process manually response, Gatling protocol provide a 
 
 .. note:: For more details see the dedicated section :ref:`here <http-processors>`.
 
+.. _http-protocol-check:
+
 Checks
 ------
 
 You can define checks at the http protocol definition level with: ``check(checks: HttpCheck*)``.
 They will be apply on all the requests, however you can disable them for given request thanks to thanks to the ``ignoreDefaultChecks`` method.
 
-.. note:: For more details see the dedicated section :ref:`here <http_check>`.
+.. note:: For more details see the dedicated section :ref:`here <http-check>`.
+
+.. _http-protocol-fetch:
 
 Resource fetching
 -----------------
@@ -246,6 +266,8 @@ You can also specify black/whith list or custom filters to have a more fine grai
 * ``fetchHtmlResources(white: WhiteList, black: BlackList)``: fetch all resources matching a pattern in the white list excepting those in the black list.
 * ``fetchHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil))``: fetch all resources excepting those matching a pattern in the black list and not in the white list.
 * ``fetchHtmlResources(filters: Option[Filters])``
+
+.. _http-protocol-proxy:
 
 Proxy parameters
 ----------------

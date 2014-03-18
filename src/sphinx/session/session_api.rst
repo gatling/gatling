@@ -1,11 +1,16 @@
-.. _session_api:
+.. _session:
 
 ###########
 Session API
 ###########
 
+.. _session-concept:
+
+Concept
+=======
+
 Going Stateful
-==============
+--------------
 
 In most load testing use cases, it's important that the virtual users don't play the same data.
 Otherwise, you might end up not testing your application but your caches.
@@ -15,7 +20,7 @@ Moreover, if you're running an application on a Java Virtual Machine, the Just I
 Though, **you have to make your scenario steps dynamics, based on virtual user specific data**.
 
 Session
-=======
+-------
 
 Session is a virtual user's state.
 
@@ -28,25 +33,27 @@ In Gatling, entries in this map are called **Session attributes**.
     ``Session``\ s are the actual messages that are passed along a scenario workflow.
 
 Injecting Data
-==============
+--------------
 
 The first step is to inject state into the virtual users.
 
 There's 3 ways of doing that:
 
-    * using `Feeders <feeder.html>`_
+    * using :ref:`Feeders <feeder>`
     * extracting data from responses and saving them, e.g. with :ref:`HTTP Check's saveAs <http-check-saveas>`
     * manually with the Session API
 
 Fetching Data
-=============
+-------------
 
 Once you have injected data into your virtual users, you'll naturally want retrieve and use it.
 
 There's 2 ways of doing that:
 
-    * using Gatling's `Expression Language <gatling_el.html>`_
+    * using Gatling's :ref:`Expression Language <el>`
     * manually with the Session API
+
+.. _session-api:
 
 Session API
 ===========

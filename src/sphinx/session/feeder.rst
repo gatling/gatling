@@ -1,4 +1,4 @@
-.. _feeders:
+.. _feeder:
 
 #######
 Feeders
@@ -25,6 +25,7 @@ Every time a virtual user reaches this step, it will pop a record out of the Fee
 
 If the Feeder can't produce enough records, Gatling will complain about it and your simulation will stop.
 
+.. _feeder-builder:
 
 RecordArrayFeederBuilder
 ========================
@@ -42,6 +43,8 @@ For example::
                        Map("foo" -> "foo2", "bar" -> "bar2"),
                        Map("foo" -> "foo3", "bar" -> "bar3")).random
 
+
+.. _feeder-fileparser:
 
 File parser feeders
 ===================
@@ -64,6 +67,8 @@ Besides escaping features described in the RFC, one can use a ``\`` character an
 
 Those built-ins returns ``RecordArrayFeederBuilder`` instances, meaning that the whole file is loaded in memory and parsed, so the resulting feeders doesn't read on disk during the simulation run.
 
+.. _feeder-jdbc:
+
 JDBC feeder
 ===========
 
@@ -82,6 +87,8 @@ Only JDBC4 drivers are supported, so that they automatically registers to the Dr
 
 .. note::
     Do not forget to add the required JDBC driver jar in the classpath (``lib`` folder in the bundle)
+
+.. _feeder-redis:
 
 Redis feeder
 ============
@@ -122,6 +129,8 @@ The urls can then be loaded in Redis using the following command::
 
   `cat /tmp/loadtest.txt | redis-cli --pipe`
 
+
+.. _feeder-nonshared:
 
 Non shared data
 ===============

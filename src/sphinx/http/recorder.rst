@@ -1,3 +1,5 @@
+.. _recorder:
+
 ########
 Recorder
 ########

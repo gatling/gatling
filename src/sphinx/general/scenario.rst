@@ -1,3 +1,5 @@
+.. _scenario:
+
 ########
 Scenario
 ########
@@ -15,6 +17,8 @@ You can use any character in the name of the scenario **except** tabulations: **
 Structure elements
 ==================
 
+.. _scenario-exec:
+
 Exec
 ----
 
@@ -29,6 +33,8 @@ For example, one using Gatling HTTP module would write the following line::
 
 Pause
 -----
+
+.. _scenario-pause:
 
 ``pause``
 ^^^^^^^^^
@@ -49,6 +55,8 @@ There are several ways of using it:
   * pause(min: Duration, max: Duration)
   * pause(min: String, max: String, unit: TimeUnit)
   * pause(min: Expression[Duration], max: Expression[Duration])
+
+.. _scenario-pace:
 
 ``pace``
 ^^^^^^^^
@@ -78,14 +86,20 @@ There are several ways of using it:
   * pace(min: String, max: String, unit: TimeUnit)
   * pace(min: Expression[Duration], max: Expression[Duration])
 
+.. _scenario-rendez-vous:
+
 ``rendezVous``
 ^^^^^^^^^^^^^^
 
 In some cases, you may want to run some requests, then pause users until all other users have reached a *rendezvous point*.
 For this purpose Gatling has the ``rendezVous(users: Int)`` method which takes the number of users to wait.
 
+.. _scenario-loops:
+
 Loop statements
 ---------------
+
+.. _scenario-repeat:
 
 ``repeat``
 ^^^^^^^^^^
@@ -109,6 +123,8 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
   .repeat("${myKey}") {}    // will loop on myChain as many times as the Int value of the Session attribute myKey
   .repeat(session => /* something that returns an Int*/) {}
 
+.. _scenario-foreach:
+
 ``foreach``
 ^^^^^^^^^^^
 
@@ -124,6 +140,8 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
 
 *counterName* is optional.
 
+.. _scenario-during:
+
 ``during``
 ^^^^^^^^^^
 
@@ -137,6 +155,8 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
 
 *counterName* is optional.
 
+.. _scenario-forever:
+
 ``forever``
 ^^^^^^^^^^^
 
@@ -147,6 +167,8 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
   }
 
 *counterName* is optional.
+
+.. _scenario-aslongas:
 
 ``asLongAs``
 ^^^^^^^^^^^^
@@ -161,8 +183,12 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
 
 *counterName* is optional.
 
+.. _scenario-conditions:
+
 Conditional statements
 ----------------------
+
+.. _scenario-doif:
 
 ``doIf``
 ^^^^^^^^
@@ -183,6 +209,8 @@ If you want to test other conditions than equality, you'll have to use an ``Expr
     exec( http("if true") ... ) // executed if the session value stored in "myKey" starts with "admin"
   }
 
+.. _scenario-doiforelse:
+
 ``doIfOrElse``
 ^^^^^^^^^^^^^^
 
@@ -197,6 +225,8 @@ Similar to ``doIf``, but with a fallback if the condition evaluates to false.
 
 .. warning:: ``doIfOrElse`` only takes an ``Expression[Boolean]``, not the key/value signature.
 
+.. _scenario-doifequalsorelse:
+
 ``doIfEqualsOrElse``
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -208,6 +238,8 @@ Similar to ``doIfOrElse`` but test the equality of an expected and an actual val
   } {
      exec( http("if false") ... ) // executed if the session value stored in "myKey" not equals to "expectedValue"
   }
+
+.. _scenario-doswitch:
 
 ``doSwitch``
 ^^^^^^^^^^^^
@@ -222,6 +254,8 @@ If no switch is selected, switch is bypassed.
     key1-> chain2
   }
 
+.. _scenario-doswitchorelse:
+
 ``doSwitchOrElse``
 ^^^^^^^^^^^^^^^^^^
 
@@ -234,6 +268,8 @@ Similar to ``doSwitch``, but with a fallback if no switch is selected.
   }{
     fallbackChain
   }
+
+.. _scenario-randomswitch:
 
 ``randomSwitch``
 ^^^^^^^^^^^^^^^^
@@ -253,6 +289,8 @@ Once users are done with the switch, they simply continue with the rest of the s
 
 .. note:: Percentages should be format as following: 50% -> 50, 33.3% -> 33.3 and so on.
 
+.. _scenario-randomswitchorelse:
+
 randomSwitchOrElse
 ^^^^^^^^^^^^^^^^^^
 
@@ -266,16 +304,20 @@ Similar to ``randomSwitch``, but with a fallback if no switch is selected (ie: r
     myFallbackChain
   }
 
+.. _scenario-uniformrandomswitch:
+
 ``uniformRandomSwitch``
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Similar to ``randomSwitch``, but with an uniform distribution amongst chain.
+Similar to ``randomSwitch``, but with an uniform distribution amongst chains.
 ::
 
   .uniformRandomSwitch( // beware: use parentheses, not brackets!
     chain1,
     chain2
   )
+
+.. _scenario-roundrobinswitch:
 
 ``roundRobinSwitch``
 ^^^^^^^^^^^^^^^^^^^^
@@ -288,8 +330,12 @@ Similar to ``randomSwitch``, but dispatch uses a round-robin strategy.
     chain2
   )
 
+.. _scenario-errors:
+
 Errors management
 -----------------
+
+.. _scenario-trymax:
 
 ``tryMax``
 ^^^^^^^^^^
@@ -307,6 +353,8 @@ If an error happens (a technical exception such as a time out, or a failed check
 
 *counterName* is optional.
 
+.. _scenario-exitblockonfail:
+
 ``exitBlockOnFail``
 ^^^^^^^^^^^^^^^^^^^
 
@@ -318,6 +366,8 @@ If an error happens (a technical exception such as a time out, or a failed check
 
 Quite similar to tryMax, but without looping on failure.
 
+.. _scenario-exithereiffailed:
+
 ``exitHereIfFailed``
 ^^^^^^^^^^^^^^^^^^^^
 
@@ -325,6 +375,8 @@ Quite similar to tryMax, but without looping on failure.
   .exitHereIfFailed
 
 Make the user exit the scenario from this point if it previously had an error.
+
+.. _scenario-groups:
 
 Groups definition
 -----------------
@@ -343,7 +395,7 @@ Aggregated statistics are displayed on the report like request statistics.
 
 Computed cumulated times currently include pauses.
 
-.. _injection_api:
+.. _scenario-inject:
 
 Injection API
 =============
@@ -370,6 +422,8 @@ The building blocks for profile injection the way you want are:
 *	``rampUsersPerSec(rate1) to rate2 during (duration)``: Injects users from starting rate to target rate, defined in users per second, during a given duration.
 *	``nothingFor(duration)``: Injects any user for a given duration.
 
+.. _scenario-protocols:
+
 Protocol definition
 ===================
 
@@ -377,12 +431,16 @@ You can configure protocols at scenario level with ``protocols`` method::
 
   scn.protocols(httpConf)
 
-See the dedicated section for http protocol definition :ref:`here <http_protocol>`.
+See the dedicated section for http protocol definition :ref:`here <http-protocol>`.
+
+.. _scenario-pause-def:
 
 Pause definition
 ================
 
-You can configure pause definition at scenario level, see :ref:`here <pause_definition>` for more information.
+You can configure pause definition at scenario level, see :ref:`here <simulation-setup-pause>` for more information.
+
+.. _scenario-throttling:
 
 Throttling
 ==========
@@ -391,4 +449,4 @@ You can also configure throttling at scenario level with ``throttle`` method::
 
   scn.throttle(reachRps(100) in (10 seconds), holdFor(10 minute))
 
-For further information see the dedicated section :ref:`here <throttling>`.
+For further information see the dedicated section :ref:`here <simulation-setup-throttling>`.

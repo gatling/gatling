@@ -1,29 +1,28 @@
-#####################
-Simulation definition
-#####################
+.. _simulation-setup:
 
-Set up
-======
+#####################
+Simulation Set up
+#####################
 
 The simulation definition, this is where you define the load you want to inject to your server.
 For this purpose you have to use the ``setUp`` method, eg::
 
   setUp(
     scn.inject(atOnceUsers(1))
-  ).protocols(httpConf)
+  )
 
 
-The ``setUp`` method take a list of scenarios with their injection profile, for a deepest look at injection API see :ref:`here <injection_api>`.
+The ``setUp`` method take a list of scenarios with their injection profile, for a deepest look at injection API see :ref:`here <scenario-inject>`.
 
-You can configure assertion and protocols with this two methods:
+You can configure assertions and protocols with this two methods:
 
 * ``assertions``: set assertions on the simulation, see the dedicated section :ref:`here <assertions>`
-* ``protocols``: set protocols definitions, see the dedicated section for http protocol definition :ref:`here <http_protocol>`.
+* ``protocols``: set protocols definitions, see the dedicated section for http protocol definition :ref:`here <http-protocol>`.
 
-.. _pause_definition:
+.. _simulation-setup-pause:
 
-Pause definition
-================
+Pause Configuration
+===================
 
 The pauses can be configure on ``Simulation`` with a bunch of methods:
 
@@ -37,7 +36,7 @@ The pauses can be configure on ``Simulation`` with a bunch of methods:
 
 .. note:: Pause definition can also be configure at scenario level.
 
-.. _throttling:
+.. _simulation-setup-throttling:
 
 Throttling
 ==========
@@ -58,6 +57,8 @@ The building block for the throttling are:
              Throttling try to ensure a targeted throughput on the simulation level with the given scenarios and their injection profiles.
 
 .. note:: Throttling can also be configure at scenario level.
+
+.. _simulation-setup-maxduration:
 
 Maximum duration
 ================

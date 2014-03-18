@@ -92,7 +92,7 @@ In order to set the query parameters of an HTTP request, you can:
 	  .queryParam("milestone", "1")
 	  .queryParam("state", "open")
 
-Of course, you can use ELs (defined :ref:`here <gatling_el>`) to make those values dynamic based on data in the virtual user's session::
+Of course, you can use :ref:<Gatling Expression LanguageEL <el>` to make those values dynamic based on data in the virtual user's session::
 
 	http("Value from session example")
 	  .get("https://github.com/excilys/gatling")

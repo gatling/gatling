@@ -130,7 +130,7 @@ Set up Gatling Recorder with the following options:
 After configuring the recorder, all you have to do is to start it and configure your browser to use Gatling Recorder's proxy.
 
 .. note::
-  For more information regarding Recorder and browser configuration, please check out `Recorder reference page <http/recorder.html>`_.
+  For more information regarding Recorder and browser configuration, please check out :ref:`Recorder reference page <recorder>`.
 
 Recording the scenario
 ----------------------
@@ -216,7 +216,7 @@ Explanations:
 13. Attaching the HTTP configuration declared above.
 
 .. note::
-    For more details regarding Simulation structure, please check out `Simulation reference page <general/simulation_structure.html>`__.
+    For more details regarding Simulation structure, please check out :ref:`Simulation reference page <simulation-structure>`.
 
 Running Gatling
 ---------------
@@ -235,7 +235,7 @@ You should see a menu with the simulation examples::
 When the simulation is done, the console will display a link to the HTML reports.
 
 .. note::
-    If Gatling doesn't work as expected, see our `FAQ <project_information/faq.html>`_ or ask on our `Google Group`_.
+    If Gatling doesn't work as expected, see our :ref:`FAQ <faq>` or ask on our `Google Group`_.
 
 Going further
 =============
@@ -379,9 +379,9 @@ Explanations:
   6. We use the previously save hyperlink to get a specific page.
 
 .. note::
-    For more details regarding Feeders, please check out `Feeder reference page <session/feeder.html>`_.
+    For more details regarding Feeders, please check out :ref:`Feeder reference page <feeder>`.
 
-    For more details regarding HTTP Checks, please check out `Checks reference page <http/http_check.html>`_.
+    For more details regarding HTTP Checks, please check out :ref:`Checks reference page <http-check>`.
 
 Step 04: Looping
 ----------------
@@ -422,7 +422,7 @@ Explanations:
   2. As we force the counter name we can use it in Gatling EL and access the nth page.
 
 .. note::
-    For more details regarding loops, please check out `Loops reference page <general/scenario.html#loop-statements>`_.
+    For more details regarding loops, please check out :ref:`Loops reference page <scenario-loops>`.
 
 Step 05: Check and failure management
 -------------------------------------
@@ -463,7 +463,7 @@ Explanations:
   2. If all tentatives failed, the user exit the whole scenario due to ``exitHereIfFailed``.
 
 .. note::
-    For more details regarding conditional blocks, please check out `Conditional Statements reference page <general/scenario.html#conditional-statements>`_.
+    For more details regarding conditional blocks, please check out :ref:`Conditional Statements reference page <scenario-conditions>`.
 
 That's all Folks!
 

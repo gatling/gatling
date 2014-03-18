@@ -1,4 +1,4 @@
-.. _http_check:
+.. _http-check:
 
 ######
 Checks

@@ -2,7 +2,7 @@
 Expression and EL
 #################
 
-.. _gatling_el:
+.. _el:
 
 Expression Language
 ===================

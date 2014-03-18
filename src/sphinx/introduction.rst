@@ -14,7 +14,7 @@ Typical goals are:
   * Anticipating problems on the live environment before they actually happen and damage business
   * Reproducing problems that happens on the live environment and investing them
 
-Thanks to the `Assertion API <general/assertions.html>`_, Gatling is also suited functional tests, typically on Web API, thus mutualizing the functional and performance testing efforts.
+Thanks to the :ref:`Assertion API <assertions>`, Gatling is also suited functional tests, typically on Web API, thus mutualizing the functional and performance testing efforts.
 
 Gatling's main focus is the HTTP protocol, but it can be extended so support other protocols as well.
 

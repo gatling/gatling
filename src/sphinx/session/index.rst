@@ -1,4 +1,4 @@
-.. _session:
+.. _session-toc:
 
 Session
 =======

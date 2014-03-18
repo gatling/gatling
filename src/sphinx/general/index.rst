@@ -9,7 +9,7 @@ General
 	operations
 	configuration
 	simulation_structure
-	simulation_definition
+	simulation_setup
 	scenario
 	assertions
 	reports

@@ -93,7 +93,7 @@ Each virtual user is backed by a ``Session``.
 Those Sessions are the actually messages that go down the scenario workflow.
 A Session is basically a state placeholder, where testers can inject or capture and store data.
 
-For more information, check the :ref:`Session reference section <session_api>`.
+For more information, check the :ref:`Session reference section <session>`.
 
 Feeders
 =======
@@ -104,7 +104,7 @@ Gatling doesn't provide the tools to generate this test data.
 
 Feeders are a convenient API for testers to inject data coming from an external source into the virtual users.
 
-For more information, check the :ref:`Feeders reference section <feeders>`.
+For more information, check the :ref:`Feeders reference section <feeder>`.
 
 Checks
 ======
@@ -118,7 +118,7 @@ For example, when sending a HTTP request, one could expect a redirect; with a ch
 
 Checks can also be used to capture some elements and store them into the Session so that they can be reused later, for example for building the next requests.
 
-For more information, check the :ref:`Checks reference section <http_check>`.
+For more information, check the :ref:`Checks reference section <http-check>`.
 
 Assertions
 ==========

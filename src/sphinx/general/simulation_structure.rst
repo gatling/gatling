@@ -1,4 +1,4 @@
-.. _simulation_structure:
+.. _simulation-structure:
 
 ####################
 Simulation structure
