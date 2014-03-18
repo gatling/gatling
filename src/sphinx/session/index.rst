@@ -4,8 +4,9 @@ Session
 =======
 
 .. toctree::
-	:maxdepth: 1
+	:maxdepth: 2
 
 	session_api
 	expression_el
 	feeder
+	validation

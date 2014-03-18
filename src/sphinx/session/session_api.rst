@@ -4,24 +4,55 @@
 Session API
 ###########
 
-``Session``\ s are the actual messages that are passed along a scenario workflow.
+Going Stateful
+==============
 
-A Session can be seen as a Map storage for data specific to a given virtual user.
-
-Injecting data into the Session
-===============================
-
-Purpose
--------
-
-In load testing, it's very important that the virtual users don't play the same data. Otherwise, you might be testing your caches instead of your application.
+In most load testing use cases, it's important that the virtual users don't play the same data.
+Otherwise, you might end up not testing your application but your caches.
 
 Moreover, if you're running an application on a Java Virtual Machine, the Just In Time compiler (JIT) will make dramatic optimizations and your system will behave very differently from your actual one.
 
-Though, you have to inject specific data into your virtual users/session.
+Though, **you have to make your scenario steps dynamics, based on virtual user specific data**.
 
-Manually
---------
+Session
+=======
+
+Session is a virtual user's state.
+
+Basically, it's a ``Map[String, Any]``: a map with key Strings.
+In Gatling, entries in this map are called **Session attributes**.
+
+.. note::
+    Remember that a Gatling scenario is a workflow where every step is backed by an Akka Actor?
+
+    ``Session``\ s are the actual messages that are passed along a scenario workflow.
+
+Injecting Data
+==============
+
+The first step is to inject state into the virtual users.
+
+There's 3 ways of doing that:
+
+    * using `Feeders <feeder.html>`_
+    * extracting data from responses and saving them, e.g. with :ref:`HTTP Check's saveAs <http-check-saveas>`
+    * manually with the Session API
+
+Fetching Data
+=============
+
+Once you have injected data into your virtual users, you'll naturally want retrieve and use it.
+
+There's 2 ways of doing that:
+
+    * using Gatling's `Expression Language <gatling_el.html>`_
+    * manually with the Session API
+
+Session API
+===========
+
+Setting Attributes
+------------------
 
 Session has the following methods:
 
@@ -48,21 +79,8 @@ Session has the following methods:
     // proper usage
     session.set("foo", "FOO").set("bar", "BAR")
 
-Feeders
--------
-
-See `Feeders documentation <feeder.html>`_.
-
-Check's saveAs
---------------
-
-Gatling Checks can let one extract data from responses and save it into the Session. See `Checks documentation <../http/http_check.html>`_.
-
-Fetching data from the Session
-==============================
-
-Manually
---------
+Getting Attributes
+------------------
 
 Let's say a Session instance variable named session contains a String attribute named "foo".
 ::
@@ -105,8 +123,3 @@ You can then access methods to retrieve the actual value in several ways:
     It will work fine, but the downside is that they might generate lots of expensive exceptions once things starts going wrong under load.
 
     We advise considering ``validate`` once accustomed to functional logic as it deals with unexpected results in a more efficient manner.
-
-Using Gatling EL
-----------------
-
-See `Gatling EL documentation <expression_el.html>`_.

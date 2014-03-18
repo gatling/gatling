@@ -120,10 +120,10 @@ Set up Gatling Recorder with the following options:
 
   * *computerdatabase* package
   * *BasicSimulation* name
-  * ``Follow Redirects?`` checked.
+  * ``Follow Redirects?`` checked
   * ``Automatic Referers?`` checked
   * ``Black list first`` filter strategy selected
-  * *.\*\\.css*, *.\*\\.js* and *.\*\\.ico* in the black list filters.
+  * *.\*\\.css*, *.\*\\.js* and *.\*\\.ico* in the black list filters
 
 .. image:: img/recorder.png
 

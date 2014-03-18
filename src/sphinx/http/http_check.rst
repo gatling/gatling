@@ -35,7 +35,7 @@ The HTTP Check implementation provides the following built-ins:
 HTTP status
 ************
 
-.. _checks-status:
+.. _http-check-status:
 
 * ``status``
 
@@ -44,7 +44,7 @@ Targets the HTTP response status code.
 .. note:: A status check is automatically added to a request when you don't specify one.
           It checks that the HTTP response has a 2XX status code.
 
-.. _checks-current-location:
+.. _http-check-current-location:
 
 * ``currentLocation``
 
@@ -55,14 +55,14 @@ Useful when following redirects in order to check if the landing page is indeed 
 HTTP header
 -----------
 
-.. _checks-header:
+.. _http-check-header:
 
 * ``header(headerName)``
 
 Targets the HTTP response header of the given name.
 *headerName* can be a simple String, an evaluable String containing expression, or an Expression[String].
 
-.. _check-headerRegex:
+.. _http-check-header-regex:
 
 * ``headerRegex(headerName, pattern)``
 
@@ -72,7 +72,7 @@ Same than above, but *pattern* is used to apply a regex on the header value.
 
 .. note:: ``Location`` header value is automatically decoded when performing a check on it
 
-.. _checks-response-body:
+.. _http-check-response-body:
 
 HTTP response body
 ------------------
@@ -142,7 +142,7 @@ Based on `Goessner's JsonPath <http://goessner.net/articles/JsonPath>`_.
           This might be a problem when it's an array and one want to target its elements.
           As a workaround, Gatling names it ``_``.
 
-.. _checks-css:
+.. _http-check-css:
 
 * ``css(expression, attribute)``
 
@@ -154,7 +154,7 @@ Gatling supports `CSS Selectors <http://jodd.org/doc/csselly>`_.
 When filled, check is performed against the attribute value.
 Otherwise check is performed against the node text content.
 
-.. _checks-checksum:
+.. _http-check-checksum:
 
 * ``md5`` and ``sha1``
 
@@ -224,7 +224,7 @@ Checks that the value doesn't exist and or is empty in case of multiple results.
 
 Checks that the value belongs to a given sequence.
 
-.. _checks-whatever:
+.. _http-check-whatever:
 
 * ``dontValidte``
 
@@ -233,6 +233,8 @@ Always true, used for capture an optional value.
 *expected* is a function that returns a sequence of values of the same type of the previous step (extraction or transformation).
 
 .. note:: In case of no verifying step is defined, a `exists`` is added implicitly.
+
+.. _http-check-saveas:
 
 Saving
 ======

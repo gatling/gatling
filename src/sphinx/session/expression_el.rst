@@ -4,8 +4,8 @@ Expression and EL
 
 .. _gatling_el:
 
-For the Impatient
-=================
+Expression Language
+===================
 
 Most Gatling DSL methods can be passed *Expression Language* Strings.
 
@@ -38,13 +38,10 @@ Moreover, Gatling EL provide the builtin functions::
 
     ``session => session("latitude").validate[Int].map(i => i + 24)``.
 
-In Depth
-========
-
 .. _expression:
 
 Expression
-----------
+==========
 
 Most Gatling DSL methods actually takes ``Expression[T]`` parameters, which is a type alias for ``Session => Validation[T]``.
 
@@ -55,56 +52,5 @@ The reason is that there is an implicit conversion that automagically parses tho
 .. warning::
     This implicit conversion is only triggered when trying to pass a String to a method that expects an Expression instead.
 
-Validation
-----------
-
-``Validation`` is an abstraction for describing something that can either be a valid result, or an error message.
-Scalaz has a great implementation, but Gatling has its own, both less powerful yet much more simple.
-
-The benefit of using this abstraction is that it's composable, so one can chain operations that consume and produce validations without having to determine on every operation if it's actually dealing with a succeeding operation or not.
-
-``Validation[T]`` has a type parameter ``T`` that is the type of the value in case of a success.
-
-It has 2 implementations:
-
-* ``Success[T](value: T)`` that wraps a value in case of a success
-* ``Failure(message: String)`` that wraps a String error message
-
-The goal of such an abstraction is to deal with "unexpected results" in a composable and cheap way instead of using Exceptions.
-
-``Validation`` has the standard Scala "monadic" methods such as ``map`` and ``flatMap`` so that you can compose and use Scala *"for comprehension"* syntactic sugar.
-
-For example::
-
-	val foo: Validation[String] = Success("foo")
-	val bar: Validation[String] = Success("bar")
-	val baz: Validation[String] = foo.flatMap(value => value + bar)
-	println(baz) // will print "foobar"
-
-::
-
-	val foo: Validation[String] = Success("foo")
-	val bar: Validation[String] = Failure("error")
-	val baz: Validation[String] = foo.flatMap(value => bar)
-	println(baz) // will print "error"
-
-::
-
-	val foo: Validation[String] = Failure("error")
-	val bar: Validation[String] = Success("bar")
-	val baz: Validation[String] = foo.flatMap(value => value + bar)
-	println(baz) // will print "error"
-
-
-You can also use Scala *"for comprehension"*.
-
-For the impatient, just consider it's like a super loop that can iterate other multiple objects of the same kind (like embedded loops) and can iterate over other things that collections, such as ``Validation``\ s or ``Option``\ s.
-
-Here's what the last example would look like with *"for comprehension"*::
-
-    val baz: Validation[String] = for {
-      fooValue <- foo
-      barValue <- bar
-    } yield fooValue + barValue
-
-For more information, check the Scaladoc.
+.. note::
+    For more information about ``Validation``, please check out :ref:`reference page <validation>`.
