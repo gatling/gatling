@@ -24,7 +24,7 @@ User's guide
    general/index
    session/index
    http/index
-   jms/index
+   jms
    graphite/index
    extensions/index
    cookbook/index
