@@ -742,3 +742,14 @@ h1,h2,h3 {
 img {
     max-width: 100%;
 }
+
+p.spaced {
+    margin: 0.8em 0 0.8em 0;
+    padding-left: 0.8em;
+}
+
+hr {
+    border-color: #DF7700;
+    border-style: solid none;
+    border-width: 1px 0;
+}

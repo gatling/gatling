@@ -1,13 +1,17 @@
 {# Switch to icon instead of text in `sm` view size for BS3 only. #}
 {%- if prev %}
-    <h4>Previous Chapter</h4>
-    <a href="{{ prev.link|e }}" title="{{ _('Previous Chapter: ') + prev.title }}">
-      {{ prev.title }}
-    </a>
+    <h4>Previous topic</h4>
+    <p class="spaced">
+        <a href="{{ prev.link|e }}" title="{{ _('Previous Chapter: ') + prev.title }}">
+            {{ prev.title }}
+        </a>
+    </p>
 {%- endif %}
 {%- if next %}
-    <h4>Next Chapter</h4>
-    <a href="{{ next.link|e }}" title="{{ _('Next Chapter: ') + next.title }}">
-      {{ next.title }}
-    </a>
+    <h4>Next topic</h4>
+    <p class="spaced">
+        <a href="{{ next.link|e }}" title="{{ _('Next Chapter: ') + next.title }}">
+            {{ next.title }}
+        </a>
+    </p>
 {%- endif %}

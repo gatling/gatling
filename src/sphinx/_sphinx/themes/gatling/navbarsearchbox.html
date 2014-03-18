@@ -1,4 +1,7 @@
 {%- if pagename != "search" %}
+<p class="spaced">
+  <h4>Quick search</h4>
+</p>
 <form action="{{ pathto('search') }}" method="get">
  <div class="form-group">
   <input type="text" name="q" class="form-control" placeholder="Search" />
