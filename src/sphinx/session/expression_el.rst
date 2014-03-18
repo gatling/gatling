@@ -2,6 +2,8 @@
 Expression and EL
 #################
 
+.. _gatling_el:
+
 For the Impatient
 =================
 
@@ -39,6 +41,8 @@ Moreover, Gatling EL provide the builtin functions::
 In Depth
 ========
 
+.. _expression:
+
 Expression
 ----------
 
@@ -49,7 +53,7 @@ How is it that one can also pass Strings then?
 The reason is that there is an implicit conversion that automagically parses those Strings when the Simulation is instanciated and turn them into Expressions.
 
 .. warning::
-This implicit conversion is only triggered when trying to pass a String to a method that expects an Expression instead.
+    This implicit conversion is only triggered when trying to pass a String to a method that expects an Expression instead.
 
 Validation
 ----------
