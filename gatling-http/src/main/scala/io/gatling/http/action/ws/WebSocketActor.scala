@@ -77,7 +77,7 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
 		case OnClose =>
 			if (tx.protocol.wsPart.reconnect)
 				if (tx.protocol.wsPart.maxReconnects.map(_ > tx.reconnectCount).getOrElse(true))
-					context.become(disconnected(Queue.empty[WebSocketEvents], tx))
+					context.become(disconnected(Queue.empty[WebSocketMessage], tx))
 				else
 					context.become(pendingErrorMessage(s"Websocket '$wsName' was unexpectedly closed and max reconnect reached"))
 
@@ -96,7 +96,6 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
 
 			context.become(reconnecting(pendingSendMessages += message))
 	}
-
 
 	def reconnecting(pendingSendMessages: Queue[WebSocketMessage]): Receive = {
 
