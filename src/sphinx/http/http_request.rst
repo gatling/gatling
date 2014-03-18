@@ -1,13 +1,15 @@
+.. _http-request:
+
 ############
 HTTP Request
 ############
 
-HTTP request support is a dedicated DSL, whose entry point is the ``http(requestName: Expression[String])`` method.
+HTTP support is a dedicated DSL, whose entry point is the ``http(requestName: Expression[String])`` method.
 
 This request name is important because it will act as a key when computing stats for the reports.
 If the same name appears in multiple places in a Simulation, Gatling will consider those requests are of the same type and theirs statistics have to be aggregated.
 
-HTTP request have to be passed to the ``exec()`` method in order to be attached to the scenario and executed.
+HTTP requests have to be passed to the ``exec()`` method in order to be attached to the scenario and be executed.
 ::
 
 	// embedded style

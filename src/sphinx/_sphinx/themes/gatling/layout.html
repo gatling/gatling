@@ -95,6 +95,9 @@
 						<h3><a href="{{ pathto(master_doc) }}">{{ _('Table Of Contents') }}</a></h3>
 						{{ toc }}
 					{%- endblock %}
+                     {% block relations %}
+                        {% include "relations.html" %}
+                     {% endblock %}
 					{% block navbarsearch %}
             			{% include "navbarsearchbox.html" %}
           			{% endblock %}
