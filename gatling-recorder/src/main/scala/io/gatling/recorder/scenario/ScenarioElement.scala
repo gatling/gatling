@@ -54,6 +54,7 @@ object RequestElement {
 
 	def apply(request: HttpRequest, response: HttpResponse): RequestElement = {
 		val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }.toMap
+		val requestContentType = requestHeaders.get(CONTENT_TYPE)
 		val responseContentType = Option(response.headers().get(CONTENT_TYPE))
 
 		val resources = responseContentType.collect {
@@ -67,7 +68,7 @@ object RequestElement {
 			}
 		}.flatten.getOrElse(Nil)
 
-		val containsFormParams = responseContentType.exists(_.contains(APPLICATION_X_WWW_FORM_URLENCODED))
+		val containsFormParams = requestContentType.exists(_.contains(APPLICATION_X_WWW_FORM_URLENCODED))
 
 		val requestBody = extractContent(request).map(content =>
 			if (containsFormParams)
