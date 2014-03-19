@@ -14,16 +14,6 @@ Getting the bundle
 
 You can get Gatling bundles as a .tar.gz or .zip file `here <https://github.com/excilys/gatling/wiki/Downloads>`__.
 
-Requirements
-------------
-
-Gatling 2 is compiled with JDK7, yet into JDK6 bytecode.
-
-.. warning::
-    Yet, we recommend that you use the **latest JDK7**.
-    NIO is based on native code, so it depends on JVM implementation and bugs are frequently fixed.
-    For example, NIO have been broken on Oracle JDK7 until 1.7.0_10. Gatling is mostly tested on Oracle JDK7, OS X and Linux.
-
 Installing
 ----------
 
@@ -34,10 +24,9 @@ Just unzip the downloaded bundle to a folder of your choice.
 
     For Windows users, we also recommend that you do not place Gatling in *Programs* folder as there might be permission issues.
 
-Tuning the OS
--------------
+In order to run Gatling, you need to have installed a JDK. We recommend you the last version. 
 
-You might first want to have a look at how to `tune your OS <general/operations.html>`_ according to your use case.
+For all details regarding the installation and the tuning of the operating system (OS), please refer to the :ref:`operations <operations>` section.
 
 A Word on Encoding
 ------------------
@@ -74,7 +63,7 @@ Now, you're ready to go!
 
 This page will guide you through most of Gatling HTTP features.
 
-You'll learn about simulations, scenarios, feeders, recorder, loops, scala functions, etc.
+You'll learn about simulations, scenarios, feeders, recorder, loops, Scala functions, etc.
 
 Application under Test
 ----------------------
