@@ -59,7 +59,8 @@ object CookieHandling {
 
 		(cookieJar(session) match {
 			case Some(cookieJar) =>
-				val cookieJarWithoutSessionCookies = CookieJar(cookieJar.store.mapValues(_.filter(_.getMaxAge != -1)))
+				val nonSessionCookies = cookieJar.store.mapValues(_.filter(cookie => cookie.getMaxAge != CookieJar.unspecifiedMaxAge && cookie.getExpires != CookieJar.unspecifiedExpires))
+				val cookieJarWithoutSessionCookies = CookieJar(nonSessionCookies)
 				session.set(cookieJarAttributeName, cookieJarWithoutSessionCookies)
 			case _ => session
 		}).success
