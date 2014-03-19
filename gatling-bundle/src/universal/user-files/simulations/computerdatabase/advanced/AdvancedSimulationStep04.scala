@@ -27,16 +27,13 @@ class AdvancedSimulationStep04 extends Simulation {
 
   object Browse {
 
-    def gotoPage(page: String) = exec(http("Page " + page)
-        .get("/computers")
-        .queryParam("""p""", page))
-      .pause(1)
-
-    def gotoUntil(max: String) = repeat(max.toInt, "i") { // repeat is a loop resolved at RUNTIME
-      gotoPage("${i}") // Note how we force the counter name so we can reuse it
-    }
-
-    val browse = gotoUntil("4")
+	  // repeat is a loop resolved at RUNTIME
+	  val browse = repeat(4, "i") { // Note how we force the counter name so we can reuse it
+		  exec(http("Page ${i}")
+			  .get("/computers")
+			  .queryParam("""p""", "${i}"))
+			  .pause(1)
+	  }
   }
 
   object Edit {

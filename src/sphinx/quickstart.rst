@@ -394,11 +394,11 @@ Indeed, ``Simulation``\ s are plain Scala classes so we can use all the power of
 
   object Browse {
 
-    def gotoPage(page: String) = exec(http("Page " + page)
+    def gotoPage(page: Int) = exec(http("Page " + page)
       .get("/computers?p=" + page)
       .pause(1)
 
-    val browse = ???
+    val browse = gotoPage(0).gotoPage(1).gotoPage(2).gotoPage(3).gotoPage(4)
   }
 
 We can now call this function and pass the desired page number.
@@ -406,12 +406,10 @@ But we have still repetition, it's time to introduce a new builtin structure::
 
   object Browse {
 
-    def gotoPage(page: String) = exec(http("Page " + page)
-      .get("/computers?p=" + page)
+    val browse = repeat(5, "n") { // (1)
+      exec(http("Page ${n}")
+        .get("/computers?p=${n}") // (2)
       .pause(1)
-
-    val browse = repeat(5, "i") { // (1)
-      gotoPage("${i}") // (2)
     }
   }
 

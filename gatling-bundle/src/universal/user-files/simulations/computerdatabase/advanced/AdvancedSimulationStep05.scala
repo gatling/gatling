@@ -28,18 +28,13 @@ class AdvancedSimulationStep05 extends Simulation {
 
   object Browse {
 
-    def gotoPage(page: String) = exec(http("Page " + page)
-        .get("/computers")
-        .queryParam("""p""", page))
-      .pause(1)
-
-    def gotoUntil(max: String) = repeat(max.toInt, "i") {
-      gotoPage("${i}")
-    }
-
-    def gotoUntil2(max: String) = exec(for (i <- 0 until max.toInt) yield gotoPage(i.toString))
-
-    val browse = gotoUntil2("4")
+	  // repeat is a loop resolved at RUNTIME
+	  val browse = repeat(4, "i") { // Note how we force the counter name so we can reuse it
+		  exec(http("Page ${i}")
+			  .get("/computers")
+			  .queryParam("""p""", "${i}"))
+			  .pause(1)
+	  }
   }
 
   object Edit {
@@ -49,9 +44,6 @@ class AdvancedSimulationStep05 extends Simulation {
     val headers_10 = Map("Content-Type" -> """application/x-www-form-urlencoded""")
 
     // let's demonstrate how we can retry: let's make the request fail randomly and retry a given number of times
-
-    // first, let's have a random number generator
-    val random = ThreadLocalRandom.current()
 
     val edit = tryMax(2) { // let's try at max 2 times
       exec(http("Form")
@@ -64,7 +56,7 @@ class AdvancedSimulationStep05 extends Simulation {
         .param("""introduced""", """2012-05-30""")
         .param("""discontinued""", """""")
         .param("""company""", """37""").
-        check(status.is(session => 200 + random.nextInt(2)))) // we do a check on a condition that's been customized with a lambda. It will be evaluated every time a user executes the request
+        check(status.is(session => 200 + ThreadLocalRandom.current.nextInt(2)))) // we do a check on a condition that's been customized with a lambda. It will be evaluated every time a user executes the request
     }.exitHereIfFailed // if the chain didn't finally succeed, have the user exit the whole scenario
   }
 
