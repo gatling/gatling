@@ -465,4 +465,8 @@ Explanations:
 
 That's all Folks!
 
+.. note::
+    The files for this tutorial can be found in the distribution in the ``user-files/simulations`` directory, and on Github `here <https://github.com/excilys/gatling/tree/master/gatling-bundle/src/universal/user-files/simulations>`__.
+
 .. _Google Group: https://groups.google.com/forum/#!forum/gatling
+.. _
