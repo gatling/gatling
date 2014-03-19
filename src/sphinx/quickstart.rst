@@ -41,17 +41,10 @@ Gatling's **default encoding is UTF-8**. If you want to use a different one, you
 A Word on Scala
 ---------------
 
-**You're going to see some Scala, but don't panic!**
+Gatling simulation scripts are written in `Scala <http://www.scala-lang.org/>`_, **but don't panic!**. You can use all the basic functions of Gatling without knowing much about Scala.
+In most situations, this DSL will cover most of your needs and you'll be able to build your scenarios.
 
-Yes, Gatling simulation scripts are `Scala <http://www.scala-lang.org/>`_ classes.
-
-Don't worry, Gatling doesn't expect you to be a hardcore Scala hacker.
-
-Just please read this manual properly and learn the DSL.
-In most situations, this DSL will cover most of your needs and you'll be able to build your scenarios without much Scala knowledge.
-
-However, you might also sometimes run into situations where you have to hack a bit.
-We then recommend you have a look at `Scala School <http://twitter.github.io/scala_school>`_.
+If you are interested in knowing more about Scala, we then recommend you have a look at `Scala School <http://twitter.github.io/scala_school>`_.
 
 .. note::
     Feel also free to join our `Google Group`_ and ask for help.
