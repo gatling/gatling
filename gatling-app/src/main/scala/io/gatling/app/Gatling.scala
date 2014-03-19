@@ -172,21 +172,35 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
 			println(s"Please open the following file: $indexFile")
 		}
 
-		val simulations = simulationClass.map(List(_)).getOrElse {
-			if (configuration.core.disableCompiler) {
-				configuration.core.simulationClass
-					.map(clazz => List(Class.forName(clazz).asInstanceOf[Class[Simulation]]))
-					.getOrElse(throw new IllegalArgumentException("Compiler is disable, but no simulation class is specified"))
+		val simulations = simulationClass match {
+			case Some(clazz) => List(clazz)
+			case None =>
+				if (configuration.core.disableCompiler) {
+					configuration.core.simulationClass match {
+						case Some(className) =>
+							List(Class.forName(className).asInstanceOf[Class[Simulation]])
 
-			} else {
-				val simulationClassLoader = GatlingFiles.binariesDirectory
-					.map(SimulationClassLoader.fromClasspathBinariesDirectory) // expect simulations to have been pre-compiled (ex: IDE)
-					.getOrElse(SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory))
+						case None =>
+							GatlingFiles.binariesDirectory match {
+								case Some(binDir) =>
+									val simulationClassLoader = SimulationClassLoader.fromClasspathBinariesDirectory(binDir)
 
-				simulationClassLoader
-					.simulationClasses(configuration.core.simulationClass)
-					.sortBy(_.getName)
-			}
+									simulationClassLoader
+										.simulationClasses(None)
+										.sortBy(_.getName)
+
+								case None =>
+									throw new IllegalArgumentException("Compiler is disable, but no simulation class or binary directory is specified")
+							}
+					}
+
+				} else {
+					val simulationClassLoader = SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory)
+
+					simulationClassLoader
+						.simulationClasses(configuration.core.simulationClass)
+						.sortBy(_.getName)
+				}
 		}
 
 		val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory match {

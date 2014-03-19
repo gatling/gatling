@@ -45,5 +45,7 @@ class GatlingPropertiesBuilder {
 
 	def runDescription(v: String) { props += CONF_CORE_RUN_DESCRIPTION -> v }
 
+	def disableCompiler() { props += CONF_CORE_DISABLE_COMPILER -> true }
+
 	def build = props
 }
