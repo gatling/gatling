@@ -35,8 +35,6 @@ Gatling is born from the following requirements:
 Technical Background
 ====================
 
-Gatling runs on a JVM, preferably on an up-to-date JDK7.
-
 Gatling's architecture is asynchronous as long as the underlying protocol, such as HTTP, can be implemented in a non blocking way.
 
 This kind of architecture let us implement virtual users as messages instead of dedicated threads, making them very cheap. Thus, running thousands of concurrent virtual users is not an issue.
