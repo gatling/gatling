@@ -395,33 +395,6 @@ Aggregated statistics are displayed on the report like request statistics.
 
 Computed cumulated times currently include pauses.
 
-.. _scenario-inject:
-
-Injection API
-=============
-
-Gatling offers a fluent API to inject users with the method ``inject`` which takes a list of injection steps processed sequentially.
-E.g.::
-
-  setUp(
-    users.inject(
-      nothingFor(4 seconds), // Injects nothing for 4 seconds
-      atOnceUsers(10), // Then injects 10 users at once
-      rampUsers(10) over (5 seconds), // Then injects 10 with a linear ramp over 5 seconds
-      constantUsersPerSec(20) during (15 seconds), // Finally injects 20 users/second during 15 seconds
-      ).protocols(httpConf)
-    )
-
-The building blocks for profile injection the way you want are:
-
-* ``rampUsers(nbUsers) over (duration)``: Injects a given number of users with a linear ramp over a given duration.
-*	``heavisideUsers(nbUsers) over (duration)``: Injects a given number of users with `heaviside distribution <http://en.wikipedia.org/wiki/Heaviside_step_function>`__ over a given *duration*.
-*	``atOnceUsers(nbUsers)``: Injects a given number of user at once.
-*	``splitUsers(nbUsers)``:
-*	``constantUsersPerSec(rate) during (duration)``: Injects users at a constant rate, defined in users per second, during a given duration.
-*	``rampUsersPerSec(rate1) to rate2 during (duration)``: Injects users from starting rate to target rate, defined in users per second, during a given duration.
-*	``nothingFor(duration)``: Injects any user for a given duration.
-
 .. _scenario-protocols:
 
 Protocol definition
