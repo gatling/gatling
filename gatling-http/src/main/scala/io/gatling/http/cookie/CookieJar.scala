@@ -25,6 +25,9 @@ import io.gatling.core.util.TimeHelper.nowMillis
 
 object CookieJar {
 
+	val unspecifiedMaxAge = -1
+	val unspecifiedExpires = -1L
+
 	// rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
 	private def requestDomain(uri: URI) = uri.getHost.toLowerCase
 
@@ -62,9 +65,6 @@ object CookieJar {
 
 case class CookieJar(store: Map[String, List[Cookie]]) {
 
-	private val MAX_AGE_UNSPECIFIED = -1
-	private val EXPIRES_UNSPECIFIED = -1L
-
 	def add(domain: String, cookies: List[Cookie]): CookieJar = {
 		def cookiesEquals(c1: Cookie, c2: Cookie) = c1.getName.equalsIgnoreCase(c2.getName) && c1.getDomain == c2.getDomain && c1.getPath == c2.getPath
 
@@ -79,7 +79,7 @@ case class CookieJar(store: Map[String, List[Cookie]]) {
 		def hasExpired(c: Cookie): Boolean = {
 			val maxAge = c.getMaxAge
 			val expires = c.getExpires
-			(maxAge != MAX_AGE_UNSPECIFIED && maxAge <= 0) || (expires != EXPIRES_UNSPECIFIED && expires <= nowMillis)
+			(maxAge != CookieJar.unspecifiedMaxAge && maxAge <= 0) || (expires != CookieJar.unspecifiedExpires && expires <= nowMillis)
 		}
 
 		val newCookies = addOrReplaceCookies(cookies, store.get(domain).getOrElse(Nil))
