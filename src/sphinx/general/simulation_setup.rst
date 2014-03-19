@@ -1,8 +1,8 @@
 .. _simulation-setup:
 
-#####################
-Simulation Set up
-#####################
+################
+Simulation setup
+################
 
 The simulation definition, this is where you define the load you want to inject to your server.
 For this purpose you have to use the ``setUp`` method, eg::
