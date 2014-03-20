@@ -291,8 +291,8 @@ Once users are done with the switch, they simply continue with the rest of the s
 
 .. _scenario-randomswitchorelse:
 
-randomSwitchOrElse
-^^^^^^^^^^^^^^^^^^
+``randomSwitchOrElse``
+^^^^^^^^^^^^^^^^^^^^^^
 
 Similar to ``randomSwitch``, but with a fallback if no switch is selected (ie: random number exceeds percentages sum).
 ::
