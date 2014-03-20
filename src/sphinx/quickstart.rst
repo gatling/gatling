@@ -14,16 +14,6 @@ Getting the bundle
 
 You can get Gatling bundles as a .tar.gz or .zip file `here <https://github.com/excilys/gatling/wiki/Downloads>`__.
 
-Requirements
-------------
-
-Gatling 2 is compiled with JDK7, yet into JDK6 bytecode.
-
-.. warning::
-    Yet, we recommend that you use the **latest JDK7**.
-    NIO is based on native code, so it depends on JVM implementation and bugs are frequently fixed.
-    For example, NIO have been broken on Oracle JDK7 until 1.7.0_10. Gatling is mostly tested on Oracle JDK7, OS X and Linux.
-
 Installing
 ----------
 
@@ -34,10 +24,9 @@ Just unzip the downloaded bundle to a folder of your choice.
 
     For Windows users, we also recommend that you do not place Gatling in *Programs* folder as there might be permission issues.
 
-Tuning the OS
--------------
+In order to run Gatling, you need to have installed a JDK. We recommend you the last version. 
 
-You might first want to have a look at how to `tune your OS <general/operations.html>`_ according to your use case.
+For all details regarding the installation and the tuning of the operating system (OS), please refer to the :ref:`operations <operations>` section.
 
 A Word on Encoding
 ------------------
@@ -52,17 +41,10 @@ Gatling's **default encoding is UTF-8**. If you want to use a different one, you
 A Word on Scala
 ---------------
 
-**You're going to see some Scala, but don't panic!**
+Gatling simulation scripts are written in `Scala <http://www.scala-lang.org/>`_, **but don't panic!** You can use all the basic functions of Gatling without knowing much about Scala.
+In most situations, this DSL will cover most of your needs and you'll be able to build your scenarios.
 
-Yes, Gatling simulation scripts are `Scala <http://www.scala-lang.org/>`_ classes.
-
-Don't worry, Gatling doesn't expect you to be a hardcore Scala hacker.
-
-Just please read this manual properly and learn the DSL.
-In most situations, this DSL will cover most of your needs and you'll be able to build your scenarios without much Scala knowledge.
-
-However, you might also sometimes run into situations where you have to hack a bit.
-We then recommend you have a look at `Scala School <http://twitter.github.io/scala_school>`_.
+If you are interested in knowing more about Scala, we then recommend you have a look at `Scala School <http://twitter.github.io/scala_school>`_.
 
 .. note::
     Feel also free to join our `Google Group`_ and ask for help.
@@ -70,37 +52,28 @@ We then recommend you have a look at `Scala School <http://twitter.github.io/sca
 Test Case
 =========
 
-Now, you're ready to go!
-
-This page will guide you through most of Gatling HTTP features.
-
-You'll learn about simulations, scenarios, feeders, recorder, loops, scala functions, etc.
+This page will guide you through most of Gatling HTTP features. You'll learn about *simulations*, *scenarios*, *feeders*, *recorder*, *loops*, etc.
 
 Application under Test
 ----------------------
 
-In this tutorial, you'll be playing with an application named *Computer-Database* deployed on Heroku at the following url:
+In this tutorial, we will use an application named *Computer-Database* deployed at the URL: `<http://computer-database.heroku.com>`__
 
-http://computer-database.heroku.com
+This application is a simple CRUD application for managing computer models, it is one of the samples of `Play! <http://www.playframework.com/>`_.
+You can also run it on your local machine: download Play!'s bundle and check out `the samples <https://github.com/playframework/playframework/tree/master/samples/scala/computer-database>`__.
 
-This application is one of the samples of `Play! <http://www.playframework.com/>`_.
-You can also run it all your local machine: just download Play!'s bundle and check out the samples.
+Scenario
+--------
 
-This is a simple CRUD application for managing computer models.
+To test the performance of this application, we will create scenarios representative of what really happens when users navigate it.
 
-Tested Behaviors
-----------------
-
-To test the performance of this application, we'd like to create scenarios representative of what really happens when users navigate it.
-
-So we tried to imagine what a real user would do with our application, shrank it and we got the following:
-
-  * A user arrives on the application.
-  * The user searches for 'macbook'.
-  * The user opens one of the related model.
-  * The user goes back to home page.
-  * The user iterates through pages.
-  * The user creates a new model.
+Here is what we think a real user would do with the application:
+  #. A user arrives on the application.
+  #. The user searches for 'macbook'.
+  #. The user opens one of the related model.
+  #. The user goes back to home page.
+  #. The user iterates through pages.
+  #. The user creates a new model.
 
 Basics
 ======
@@ -108,7 +81,7 @@ Basics
 Using the Recorder
 ------------------
 
-To ease the creation of scenarios, we will use the Recorder, a tool provided with Gatling that allows you to record your actions on a web application and export them as Gatling scenarios.
+To ease the creation of the scenario, we will use the *Recorder*, a tool provided with Gatling that allows you to record your actions on a web application and export them as a Gatling scenario.
 
 This tool is launched with a script located in the ``bin`` directory::
 
@@ -116,13 +89,12 @@ This tool is launched with a script located in the ``bin`` directory::
 
 Once launched, you get the following GUI, which lets use configure how requests and response will be recorded.
 
-Set up Gatling Recorder with the following options:
-
+Set it up with the following options:
   * *computerdatabase* package
   * *BasicSimulation* name
-  * ``Follow Redirects?`` checked
-  * ``Automatic Referers?`` checked
-  * ``Black list first`` filter strategy selected
+  * *Follow Redirects?* checked
+  * *Automatic Referers?* checked
+  * *Black list first* filter strategy selected
   * *.\*\\.css*, *.\*\\.js* and *.\*\\.ico* in the black list filters
 
 .. image:: img/recorder.png
@@ -135,18 +107,18 @@ After configuring the recorder, all you have to do is to start it and configure 
 Recording the scenario
 ----------------------
 
-All you have to do now is to browse the application:
-  1. Enter 'Search' tag.
-  2. Go to the website: http://computer-database.heroku.com
-  3. Search for models with 'macbook' in their name.
-  4. Select 'Macbook pro'.
-  5. Enter 'Browse' tag.
-  6. Go back to home page.
-  7. Iterates several times through the model pages by clicking on *Next* button.
-  8. Enter 'Edit' tag.
-  9. Click on *Add new computer*.
-  10. Fill the form.
-  11. Click on *Create this computer*.
+All you have to do now is to browse the application:  
+  #. Enter 'Search' tag.
+  #. Go to the website: http://computer-database.heroku.com
+  #. Search for models with 'macbook' in their name.
+  #. Select 'Macbook pro'.
+  #. Enter 'Browse' tag.
+  #. Go back to home page.
+  #. Iterates several times through the model pages by clicking on *Next* button.
+  #. Enter 'Edit' tag.
+  #. Click on *Add new computer*.
+  #. Fill the form.
+  #. Click on *Create this computer*.    
 
 Try to act as a user, don't jump from one page to another without taking the time to read.
 This will make your scenario closer to real users' behavior.
@@ -158,8 +130,7 @@ The Simulation will be generated in the folder ``user-files/simulations/computer
 Gatling scenario explained
 --------------------------
 
-So now you've got a file with some mysterious dialect.
-Nice! but... what does this mean?
+Here is the produced output:
 ::
 
   package computerdatabase // (1)
@@ -190,11 +161,11 @@ Nice! but... what does this mean?
   }
 
 
-Explanations:
+What does it mean?
 
 1. The optional package.
 2. The required imports.
-3. The class declaration. Note that your simulation extends ``Simulation``.
+3. The class declaration. Note that it extends ``Simulation``.
 4. The common configuration to all HTTP requests.
 
 .. note::
@@ -209,7 +180,7 @@ Explanations:
 10. Some pause/think time.
 
 .. note::
-    Duration unit defaults to ``seconds``, e.g. ``pause(5) is equivalent to ``pause(5 seconds)``.
+    Duration unit defaults to ``seconds``, e.g. ``pause(5)`` is equivalent to ``pause(5 seconds)``.
 
 11. Where one set ups the scenarios that will be launched in this Simulation.
 12. Declaring to inject into scenario named *scn* one single user.
@@ -229,7 +200,7 @@ Launch the second script located in the ``bin`` directory::
 You should see a menu with the simulation examples::
 
   Choose a simulation number:
-     [0] computerdatabase.BasicSimulation`
+     [0] computerdatabase.BasicSimulation
 
 
 When the simulation is done, the console will display a link to the HTML reports.
@@ -297,7 +268,6 @@ So, this is great, we can load test our server with... one user!
 Let's increase the number of users.
 
 Let define two populations of users:
-
   * *regular* users: they can search and browse computer models.
   * *admin* users: they can also edit computer models.
 
@@ -311,7 +281,7 @@ To increase the number of simulated users, all you have to do is to change the c
   setUp(users.inject(atOnceUsers(10)).protocols(httpConf))
 
 
-Here we set only 10 users, because we don't want to flood our test web application, please be kind and don't crash our Heroku instance ;-)
+Here we set only 10 users, because we don't want to flood our test web application. *Please*, be kind and don't crash our Heroku instance ;-)
 
 If you want to simulate 3 000 users, you might not want them to start at the same time.
 Indeed, they are more likely to connect to your web application gradually.
@@ -319,7 +289,7 @@ Indeed, they are more likely to connect to your web application gradually.
 Gatling provides the ``rampUsers`` builtin to implement this behavior.
 The value of the ramp indicates the duration over which the users will be linearly started.
 
-In our scenario let's have 10 regular users and 2 admins, and ramp them on 10 sec so we don't hammer the server::
+In our scenario let's have 10 regular users and 2 admins, and ramp them over 10 seconds so we don't hammer the server::
 
   setUp(
     users.inject(rampUsers(10) over (10 seconds)),
@@ -368,7 +338,6 @@ Let's then declare a feeder and use it to feed our users::
 
 
 Explanations:
-
   1. First we create a feeder from a csv file with the following columns : *searchCriterion*, *searchComputerName*.
   2. The default feeder strategy is queue, so for this test, we use a random one instead in order to avoid feeder starvation.
   3. Every time a user reaches the feed step, it pops a record from the feeder.
@@ -379,9 +348,9 @@ Explanations:
   6. We use the previously save hyperlink to get a specific page.
 
 .. note::
-    For more details regarding Feeders, please check out :ref:`Feeder reference page <feeder>`.
-
-    For more details regarding HTTP Checks, please check out :ref:`Checks reference page <http-check>`.
+    For more details regarding *Feeders*, please check out :ref:`Feeder reference page <feeder>`.
+    
+    For more details regarding *HTTP Checks*, please check out :ref:`Checks reference page <http-check>`.
 
 Step 04: Looping
 ----------------
@@ -414,7 +383,6 @@ But we have still repetition, it's time to introduce a new builtin structure::
   }
 
 Explanations:
-
   1. The ``repeat`` builtin is a loop resolved at **runtime**.
      It takes the number of repetitions and optionally the name of the counter (that's stored in the user's Session).
   2. As we force the counter name we can use it in Gatling EL and access the nth page.
@@ -442,7 +410,6 @@ To demonstrate failure management we will introduce a ``check`` on a condition t
       .check(status.is(session => 200 + ThreadLocalRandom.current.nextInt(2)))) // (2)
 
 Explanations:
-
   1. First we import ``ThreadLocalRandom``. This class is just a backport of the JDK7 one for running with JDK6.
   2. We do a check on a condition that's been customized with a lambda.
      It will be evaluated every time a user executes the request and randomly return *200* or *201*.
@@ -455,7 +422,6 @@ To handle this random failure we use the ``tryMax`` and ``exitHereIfFailed`` con
   }.exitHereIfFailed // (2)
 
 Explanations:
-
   1. ``tryMax`` tries a given block up to n times.
      Here we try at max twice.
   2. If all tentatives failed, the user exit the whole scenario due to ``exitHereIfFailed``.

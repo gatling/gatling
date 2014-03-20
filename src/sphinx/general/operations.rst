@@ -1,3 +1,5 @@
+.. _operations:
+
 ##########
 Operations
 ##########
