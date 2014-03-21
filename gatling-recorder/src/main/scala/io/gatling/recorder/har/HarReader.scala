@@ -39,7 +39,7 @@ object HarReader {
 	def apply(jsonStream: InputStream)(implicit config: RecorderConfiguration): ScenarioDefinition =
 		apply(Json.parseJson(jsonStream))
 
-	def apply(json: Json)(implicit config: RecorderConfiguration): ScenarioDefinition = {
+	private def apply(json: Json)(implicit config: RecorderConfiguration): ScenarioDefinition = {
 		val HttpArchive(Log(entries)) = HarMapping.jsonToHttpArchive(json)
 
 		val elements = entries.iterator
@@ -52,7 +52,7 @@ object HarReader {
 		ScenarioDefinition(elements, Nil)
 	}
 
-	private def createRequestWithArrivalTime(entry: Entry) = {
+	private def createRequestWithArrivalTime(entry: Entry): (Long, RequestElement) = {
 		def buildContent(postParams: Seq[PostParam]) =
 			RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
 
