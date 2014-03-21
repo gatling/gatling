@@ -65,5 +65,6 @@ case class HttpRequest(
 	extraInfoExtractor: Option[ExtraInfoExtractor],
 	maxRedirects: Option[Int],
 	throttled: Boolean,
+	silent: Boolean,
 	protocol: HttpProtocol,
 	explicitResources: Seq[HttpRequest])

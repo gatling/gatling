@@ -89,57 +89,62 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 		response: Response,
 		errorMessage: Option[String] = None) {
 
-		val fullRequestName = if (tx.redirectCount > 0)
-			s"${tx.requestName} Redirect ${tx.redirectCount}"
-		else tx.requestName
+		if (!tx.silent) {
+			val fullRequestName = if (tx.redirectCount > 0)
+				s"${tx.requestName} Redirect ${tx.redirectCount}"
+			else tx.requestName
 
-		def dump = {
-			val buff = new StringBuilder
-			buff.append(eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(eol)
-			buff.append("Request:").append(eol).append(s"$fullRequestName: $status ${errorMessage.getOrElse("")}").append(eol)
-			buff.append("=========================").append(eol)
-			buff.append("Session:").append(eol).append(tx.session).append(eol)
-			buff.append("=========================").append(eol)
-			buff.append("HTTP request:").append(eol).appendAHCRequest(tx.request)
-			buff.append("=========================").append(eol)
-			buff.append("HTTP response:").append(eol).appendResponse(response).append(eol)
-			buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
-			buff.toString
-		}
-
-		if (status == KO) {
-			logger.warn(s"Request '$fullRequestName' failed: ${errorMessage.getOrElse("")}")
-			if (!logger.underlying.isTraceEnabled) logger.debug(dump)
-		}
-		logger.trace(dump)
-
-		val extraInfo: List[Any] = try {
-			tx.protocol.responsePart.extraInfoExtractor match {
-				case Some(extractor) => extractor(tx.requestName, status, tx.session, tx.request, response)
-				case _ => Nil
+			def dump = {
+				val buff = new StringBuilder
+				buff.append(eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(eol)
+				buff.append("Request:").append(eol).append(s"$fullRequestName: $status ${errorMessage.getOrElse("")}").append(eol)
+				buff.append("=========================").append(eol)
+				buff.append("Session:").append(eol).append(tx.session).append(eol)
+				buff.append("=========================").append(eol)
+				buff.append("HTTP request:").append(eol).appendAHCRequest(tx.request)
+				buff.append("=========================").append(eol)
+				buff.append("HTTP response:").append(eol).appendResponse(response).append(eol)
+				buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
+				buff.toString()
 			}
-		} catch {
-			case e: Exception =>
-				logger.warn("Encountered error while extracting extra request info", e)
-				Nil
-		}
 
-		writeRequestData(
-			tx.session,
-			fullRequestName,
-			response.firstByteSent,
-			response.lastByteSent,
-			response.firstByteReceived,
-			response.lastByteReceived,
-			status,
-			errorMessage,
-			extraInfo)
+			if (status == KO) {
+				logger.warn(s"Request '$fullRequestName' failed: ${errorMessage.getOrElse("")}")
+				if (!logger.underlying.isTraceEnabled) logger.debug(dump)
+			}
+			logger.trace(dump)
+
+			val extraInfo: List[Any] = try {
+				tx.protocol.responsePart.extraInfoExtractor match {
+					case Some(extractor) => extractor(tx.requestName, status, tx.session, tx.request, response)
+					case _ => Nil
+				}
+			} catch {
+				case e: Exception =>
+					logger.warn("Encountered error while extracting extra request info", e)
+					Nil
+			}
+
+			writeRequestData(
+				tx.session,
+				fullRequestName,
+				response.firstByteSent,
+				response.lastByteSent,
+				response.firstByteReceived,
+				response.lastByteReceived,
+				status,
+				errorMessage,
+				extraInfo)
+		}
 	}
 
 	/**
 	 * This method is used to send a message to the data writer actor and then execute the next action
 	 *
-	 * @param mutatedSession the new Session
+	 * @param tx the HTTP transaction
+	 * @param sessionUpdates the updates to be applied on the Session
+	 * @param status the status of the request
+	 * @param response the response
 	 */
 	private def executeNext(tx: HttpTx, sessionUpdates: Session => Session, status: Status, response: Response) {
 
@@ -152,7 +157,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 		if (tx.resourceFetching) {
 			val resourceMessage =
 				if (isCss(response.headers))
-					CssResourceFetched(response.request.getOriginalURI, status, sessionUpdates, response.statusCode, ResourceFetcher.lastModifiedOrEtag(response, tx.protocol), response.body.string)
+					CssResourceFetched(response.request.getOriginalURI, status, sessionUpdates, response.statusCode, ResourceFetcher.lastModifiedOrEtag(response, tx.protocol), response.body.string())
 
 				else
 					RegularResourceFetched(response.request.getOriginalURI, status, sessionUpdates)

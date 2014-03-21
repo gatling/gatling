@@ -28,6 +28,7 @@ import io.gatling.http.response.ResponseTransformer
 case class HttpAttributes(
 	checks: List[HttpCheck] = Nil,
 	ignoreDefaultChecks: Boolean = false,
+	silent: Boolean = false,
 	responseTransformer: Option[ResponseTransformer] = None,
 	explicitResources: Seq[AbstractHttpRequestBuilder[_]] = Nil,
 	body: Option[Body] = None,
@@ -63,6 +64,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 	 * Ignore the default checks configured on HttpProtocol
 	 */
 	def ignoreDefaultChecks: B = newInstance(httpAttributes.copy(ignoreDefaultChecks = true))
+
+	def silent: B = newInstance(httpAttributes.copy(silent = true))
 
 	def extraInfoExtractor(f: ExtraInfoExtractor): B = newInstance(httpAttributes.copy(extraInfoExtractor = Some(f)))
 
@@ -114,6 +117,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 			resolvedExtraInfoExtractor,
 			protocol.responsePart.maxRedirects,
 			throttled,
+			httpAttributes.silent,
 			protocol,
 			resolvedResources)
 	}
