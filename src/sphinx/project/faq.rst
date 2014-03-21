@@ -88,10 +88,8 @@ Depending on your use case, you might either realize that the number of requests
 * **Does Gatling have a scheduler?**
 
 No.
-
-For now, We consider this is not a task for a stress tool.
-
-We provide a Jenkins plugin, and it's easy to call the Gatling launch scripts from the scheduler of your choice.
+For now, we consider this is not a task for a load testing tool.
+We provide a Jenkins plugin and it's easy to call the Gatling launch scripts from the scheduler of your choice.
 
 .. _faq-multiple-simulations:
 
