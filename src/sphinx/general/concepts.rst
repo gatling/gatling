@@ -17,7 +17,7 @@ Scenario
 To represent users' behaviors, testers will have to define scenarios which will be written as scripts given to Gatling.
 
 These scenarios can be the result of measurements on the running application with analytics tools, or expected users behavior of a new application.
-In any case, the creation of these scenarios is the key to meaningful results of the stress test.
+In any case, the creation of these scenarios is the key to meaningful results of the load test.
 
 A scenario represents a typical user behavior. It's a workflow that virtual users will follow.
 

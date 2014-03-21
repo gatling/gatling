@@ -49,10 +49,10 @@ This base URL will be prepended to all urls that does not start with ``http``, e
 
 	setUp(scn.protocolConfig(httpConf)...)
 
-Stressing several servers with client based load balancing
-----------------------------------------------------------
+Load testing several servers with client based load balancing
+-------------------------------------------------------------
 
-If you want to stress several servers at the same time, to bypass a load-balancer for example, you can use methods named ``baseURLs`` which accepts a ``String*`` or a ``List[String]``::
+If you want to load test several servers at the same time, to bypass a load-balancer for example, you can use methods named ``baseURLs`` which accepts a ``String*`` or a ``List[String]``::
 
 	val httpConf = http.baseURLs("http://my1.website.tld", "http://my2.website.tld", "http://my3.website.tld")
 
