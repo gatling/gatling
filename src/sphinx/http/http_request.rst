@@ -24,7 +24,7 @@ HTTP requests have to be passed to the ``exec()`` method in order to be attached
 Common parameters
 =================
 
-.. _http-methods:
+.. _http-request-methods:
 
 Method and URL
 --------------
@@ -58,7 +58,7 @@ This is how an HTTP request is declared::
 	http("Login").post("https://github.com/session")
 	http("Nginx cache purge").httpRequest("PURGE", "http://myNginx.com")
 
-.. _http-query-parameters:
+.. _http-request-query-parameters:
 
 Query Parameters
 ----------------
@@ -126,7 +126,7 @@ If you want to add multiple query parameters at once, there are two suitable met
           This function will be evaluated against the user session every time this one pass through it.
           For a deeper look at `Expression` see dedicated section :ref:`here <expression>`.
 
-.. _http-headers:
+.. _http-request-headers:
 
 HTTP Headers
 ------------
@@ -160,7 +160,7 @@ Here are some examples::
 
 .. note:: Headers can also be defined on the ``HttpProtocol``.
 
-.. _http-authentication:
+.. _http-request-authentication:
 
 Authentication
 --------------
@@ -182,7 +182,7 @@ The two previous methods are in fact just shortcut for building a ``Realm`` inst
 
 .. note:: Authentication can also be defined on the ``HttpProtocol``.
 
-.. _http-outgoing-proxy:
+.. _http-request-outgoing-proxy:
 
 Outgoing Proxy
 --------------
@@ -201,6 +201,8 @@ You can set the HTTP proxy, on optional HTTPS proxy and optional credentials for
 Virtual Host
 ------------
 
+.. _http-request-virtual-host:
+
 You can tell Gatling to override the default computed virtual host with the method ``virtualHost(virtualHost: Expression[String])``::
 
   // GET https://mobile.github.com/excilys/gatling instead of GET https://www.github.com/excilys/gatling
@@ -209,6 +211,54 @@ You can tell Gatling to override the default computed virtual host with the meth
       .virtualHost("mobile")
 
 .. note:: Virtual Host can also be defined on the ``HttpProtocol``.
+
+HTTP Checks
+-----------
+
+.. _http-request-check:
+
+You can add checks on a request::
+
+  http("Getting issues")
+      .get("https://www.github.com/excilys/gatling/issues")
+      .check(...)
+
+See :ref:`dedicated page <http-check>`.
+
+.. _http-request-ignore-default-checks:
+
+For a given request, you can also disable common checks that were defined on the ``HttpProtocol`` with ``ignoreDefaultChecks``::
+
+  http("Getting issues")
+      .get("https://www.github.com/excilys/gatling/issues")
+      .ignoreDefaultChecks
+
+FollowRedirect
+--------------
+
+.. _http-request-disable-follow-rredirect:
+
+For a given request, you can use ``disableFollowRedirect``, just like it can be done globally on the ``HttpProtocol``::
+
+  http("Getting issues")
+      .get("https://www.github.com/excilys/gatling/issues")
+      .disableFollowRedirect
+
+Logging
+-------
+
+.. _http-request-silent:
+
+One could want to issue a request, but not log it, e.g.::
+
+  * because this request is not related to the load test, but used for initializing the system
+  * because this load induced is relevant, but not the metrics, for example, with static resources
+
+One can then make the request ``silent``::
+
+  http("Getting issues")
+      .get("https://www.github.com/excilys/gatling/issues")
+      .silent
 
 Regular HTTP request
 ====================

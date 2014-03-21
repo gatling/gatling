@@ -177,7 +177,7 @@ You can set the authentication methods at protocol level with these methods:
 * digestAuth(username: Expression[String], password: Expression[String])
 * authRealm(realm: Expression[Realm])
 
-.. note:: For more details see the dedicated section :ref:`here <http-authentication>`.
+.. note:: For more details see the dedicated section :ref:`here <http-request-authentication>`.
 
 Response handling parameters
 ============================
