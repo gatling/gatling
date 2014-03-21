@@ -134,6 +134,7 @@ See `this page <http://aws.amazon.com/articles/1636185810492479>`_.
 Basically, Gatling/JVM's DNS cache has to tuned. A solution is to add ``-Dsun.net.inetaddr.ttl=0`` to the command line.
 
 .. _faq-bad_record_mac:
+
 * **I get some "bad_record_mac" Exceptions over SSL**
 
 This seems to be a Hostpot JDK7 bug and affects all Java programs, for example: https://github.com/rubygems/rubygems.org/issues/615.
