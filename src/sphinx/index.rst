@@ -20,6 +20,7 @@ User's guide
    :maxdepth: 1
 
    quickstart
+   advanced_tutorial
    introduction
    general/index
    session/index
