@@ -15,7 +15,10 @@
  */
 package io.gatling.recorder.scenario
 
+import com.dongxiguo.fastring.Fastring.Implicits._
+
 package object template {
 
-	val tripleQuotes = '"'.toString * 3
+	private val tripleQuotes = '"'.toString * 3
+	def protectWithTripleQuotes(string: String): Fastring = fast"$tripleQuotes$string$tripleQuotes"
 }

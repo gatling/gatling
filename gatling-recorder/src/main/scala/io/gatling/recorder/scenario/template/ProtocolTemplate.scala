@@ -37,7 +37,7 @@ object ProtocolTemplate {
 				val credentials = for {
 					proxyUsername <- config.proxy.outgoing.username
 					proxyPassword <- config.proxy.outgoing.password
-				} yield s"""$eol$indent.credentials("$proxyUsername","$proxyPassword")"""
+				} yield s"""$eol$indent.credentials(${protectWithTripleQuotes(proxyUsername)},${protectWithTripleQuotes(proxyPassword)})"""
 				credentials.getOrElse("")
 			}
 
@@ -55,12 +55,12 @@ object ProtocolTemplate {
 			val filtersConfig = config.filters
 
 			def quotedStringList(xs: Seq[String]): String = xs.map(p => "\"\"\"" + p + "\"\"\"").mkString(", ")
-			def backlistPatterns = fast"black = BlackList(${quotedStringList(filtersConfig.blackList.patterns)})"
-			def whitelistPatterns = fast"white = WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
+			def backListPatterns = fast"black = BlackList(${quotedStringList(filtersConfig.blackList.patterns)})"
+			def whiteListPatterns = fast"white = WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
 
 			val patterns = filtersConfig.filterStrategy match {
-				case WHITELIST_FIRST => fast"$whitelistPatterns, $backlistPatterns"
-				case BLACKLIST_FIRST => fast"$backlistPatterns, $whitelistPatterns"
+				case WHITELIST_FIRST => fast"$whiteListPatterns, $backListPatterns"
+				case BLACKLIST_FIRST => fast"$backListPatterns, $whiteListPatterns"
 				case DISABLED => emptyFastring
 			}
 

@@ -36,12 +36,12 @@ object SimulationTemplate {
 
 			def printHeaders(headers: Seq[(String, String)]) = {
 				if (headers.size > 1) {
-					val mapContent = headers.map { case (name, value) => fast"		$tripleQuotes$name$tripleQuotes -> $tripleQuotes$value$tripleQuotes" }.mkFastring(",\n")
+					val mapContent = headers.map { case (name, value) => fast"		${protectWithTripleQuotes(name)} -> ${protectWithTripleQuotes(value)}" }.mkFastring(",\n")
 					fast"""Map(
 $mapContent)"""
 				} else {
 					val (name, value) = headers(0)
-					fast"Map($tripleQuotes$name$tripleQuotes -> $tripleQuotes$value$tripleQuotes)"
+					fast"Map(${protectWithTripleQuotes(name)} -> ${protectWithTripleQuotes(value)})"
 				}
 			}
 

@@ -35,7 +35,7 @@ object RequestTemplate {
 				fast"""httpRequestWithBody("$request.method", Left($renderUrl))"""
 			}
 
-		def renderUrl = fast"""$tripleQuotes${request.printedUrl}$tripleQuotes"""
+		def renderUrl = protectWithTripleQuotes(request.printedUrl)
 
 		def renderHeaders = request.filteredHeadersId
 			.map { id =>
@@ -48,13 +48,13 @@ object RequestTemplate {
 			.body(RawFileBody("${simulationClass}_request_${request.id}.txt"))"""
 			case RequestBodyParams(params) => params.map {
 				case (key, value) => fast"""
-			.param($tripleQuotes$key$tripleQuotes, $tripleQuotes$value$tripleQuotes)"""
+			.param(${protectWithTripleQuotes(key)}, ${protectWithTripleQuotes(value)})"""
 			}.mkFastring
 		}.getOrElse(emptyFastring)
 
 		def renderCredentials = request.basicAuthCredentials.map {
 			case (username, password) => s"""
-			.basicAuth($tripleQuotes$username$tripleQuotes,$tripleQuotes$password$tripleQuotes)"""
+			.basicAuth(${protectWithTripleQuotes(username)},${protectWithTripleQuotes(password)})"""
 		}.getOrElse("")
 
 		def renderStatusCheck =
