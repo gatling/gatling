@@ -35,8 +35,7 @@ object HarMapping {
 		val entries = log.entries
 			.collect {
 				// Filter out all non-HTTP protocols (eg: ws://)
-				case e if e.request.url.toString.toLowerCase.startsWith("http") =>
-					Entry(parseMillisFromIso8601DateTime(e.startedDateTime), buildRequest(e.request), buildResponse(e.response))
+				case e if e.request.url.toString.toLowerCase.startsWith("http") => buildEntry(e)
 			}
 
 		Log(entries)
