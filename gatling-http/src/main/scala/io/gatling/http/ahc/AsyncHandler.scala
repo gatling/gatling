@@ -96,10 +96,10 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
 			case m => s"$className: $m"
 		}
 
-		if (logger.underlying.isInfoEnabled)
-			logger.warn(s"Request '${tx.requestName}' failed for user ${tx.session.userId}", throwable)
+		if (logger.underlying.isDebugEnabled)
+			logger.debug(s"Request '${tx.requestName}' failed for user ${tx.session.userId}", throwable)
 		else
-			logger.warn(s"Request '${tx.requestName}' failed for user ${tx.session.userId}: $errorMessage")
+			logger.info(s"Request '${tx.requestName}' failed for user ${tx.session.userId}: $errorMessage")
 
 		AsyncHandlerActor.instance ! OnThrowable(tx, responseBuilder.build, errorMessage)
 	}
