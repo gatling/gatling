@@ -33,11 +33,8 @@ object HarMapping {
 
 	private def buildLog(log: Json) = {
 		val entries = log.entries
-			.collect {
-				// Filter out all non-HTTP protocols (eg: ws://)
-				case e if e.request.url.toString.toLowerCase.startsWith("http") => buildEntry(e)
-			}
-
+			// Filter out all non-HTTP protocols (eg: ws://)	
+			.collect { case e if e.request.url.toString.toLowerCase.startsWith("http") => buildEntry(e) }
 		Log(entries)
 	}
 

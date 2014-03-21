@@ -78,7 +78,9 @@ object HarReader {
 	}
 
 	private def buildHeaders(entry: Entry): Map[String, String] = {
-		val headers = entry.request.headers.map(h => (h.name, h.value)).toMap
+		// Chrome adds extra headers, eg: ":host". We should have them in the Gatling scenario.
+		val headers = entry.request.headers.filter(!_.name.startsWith(":")).map(h => (h.name, h.value)).toMap
+
 		// NetExport doesn't add Content-Type to headers when POSTing, but both Chrome Dev Tools and NetExport set mimeType
 		entry.request.postData.map(postData => headers.updated(CONTENT_TYPE, postData.mimeType)).getOrElse(headers)
 	}

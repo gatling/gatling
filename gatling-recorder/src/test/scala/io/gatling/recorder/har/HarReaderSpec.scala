@@ -84,6 +84,12 @@ class HarReaderSpec extends Specification {
 				(el1.headers must haveKeys("User-Agent", "Host", "Accept-Encoding", "Accept-Language"))
 		}
 
+		"have requests with valid headers" in {
+			// Extra headers can be added by Chrome
+			val headerNames = elts.iterator.collect { case RequestElement(_, _, headers, _, _, _) => headers.keys }.flatten.toSet
+			headerNames must not containPattern (":.*")
+		}
+
 		"have the embedded HTML resources filtered out" in {
 			val scn2 = HarReader(resourceAsStream("har/www.kernel.org.har"))(configWithResourcesFiltering)
 			val elts2 = scn2.elements
