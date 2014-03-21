@@ -76,7 +76,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 				tx.next ! tx.session.markAsFailed
 
 			case _ =>
-				logger.error(s"AsyncHandlerActor crashed on unknow message $message, dropping")
+				logger.error(s"AsyncHandlerActor crashed on unknown message $message, dropping")
 		}
 	}
 
@@ -206,30 +206,36 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 					ko(tx, sessionUpdates, response, s"Too many redirects, max is $maxRedirects")
 
 				case _ =>
-					val newTx = tx.copy(session = sessionUpdates(tx.session))
+					response.header(HeaderNames.LOCATION) match {
+						case Some(location) =>
+							val newTx = tx.copy(session = sessionUpdates(tx.session))
 
-					logRequest(newTx, OK, response)
+							logRequest(newTx, OK, response)
 
-					// FIXME handle error when redirect without location?
-					val redirectURI = resolveFromURI(tx.request.getURI, response.header(HeaderNames.LOCATION).get)
+							val redirectURI = resolveFromURI(tx.request.getURI, location)
 
-					val requestBuilder = new RequestBuilder(tx.request)
-						.setMethod("GET")
-						.setBodyEncoding(configuration.core.encoding)
-						.setQueryParameters(null.asInstanceOf[FluentStringsMap])
-						.setParameters(null.asInstanceOf[FluentStringsMap])
-						.setURI(redirectURI)
-						.setConnectionPoolKeyStrategy(tx.request.getConnectionPoolKeyStrategy)
+							val requestBuilder = new RequestBuilder(tx.request)
+								.setMethod("GET")
+								.setBodyEncoding(configuration.core.encoding)
+								.setQueryParameters(null.asInstanceOf[FluentStringsMap])
+								.setParameters(null.asInstanceOf[FluentStringsMap])
+								.setURI(redirectURI)
+								.setConnectionPoolKeyStrategy(tx.request.getConnectionPoolKeyStrategy)
 
-					for (cookie <- CookieHandling.getStoredCookies(newTx.session, redirectURI))
-						requestBuilder.addOrReplaceCookie(cookie)
+							for (cookie <- CookieHandling.getStoredCookies(newTx.session, redirectURI))
+								requestBuilder.addOrReplaceCookie(cookie)
 
-					val newRequest = requestBuilder.build
-					newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
-					newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
+							val newRequest = requestBuilder.build
+							newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
+							newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
 
-					val redirectTx = newTx.copy(request = newRequest, redirectCount = tx.redirectCount + 1)
-					HttpRequestAction.startHttpTransaction(redirectTx)
+							val redirectTx = newTx.copy(request = newRequest, redirectCount = tx.redirectCount + 1)
+							HttpRequestAction.startHttpTransaction(redirectTx)
+
+						case None =>
+							ko(tx, sessionUpdates, response, "Redirect status, yet no Location header")
+
+					}
 			}
 		}
 
