@@ -29,6 +29,7 @@ case class HttpAttributes(
 	checks: List[HttpCheck] = Nil,
 	ignoreDefaultChecks: Boolean = false,
 	silent: Boolean = false,
+	followRedirect: Boolean = true,
 	responseTransformer: Option[ResponseTransformer] = None,
 	explicitResources: Seq[AbstractHttpRequestBuilder[_]] = Nil,
 	body: Option[Body] = None,
@@ -67,6 +68,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
 	def silent: B = newInstance(httpAttributes.copy(silent = true))
 
+	def disableFollowRedirect: B = newInstance(httpAttributes.copy(followRedirect = false))
+
 	def extraInfoExtractor(f: ExtraInfoExtractor): B = newInstance(httpAttributes.copy(extraInfoExtractor = Some(f)))
 
 	/**
@@ -103,6 +106,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 			case _ => checks
 		}).sorted
 
+		val resolvedFollowRedirect = protocol.responsePart.followRedirect && httpAttributes.followRedirect
+
 		val resolvedResponseTransformer = httpAttributes.responseTransformer.orElse(protocol.responsePart.responseTransformer)
 
 		val resolvedResources = httpAttributes.explicitResources.filter(_.commonAttributes.method == "GET").map(_.build(protocol, throttled))
@@ -118,6 +123,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 			protocol.responsePart.maxRedirects,
 			throttled,
 			httpAttributes.silent,
+			resolvedFollowRedirect,
 			protocol,
 			resolvedResources)
 	}

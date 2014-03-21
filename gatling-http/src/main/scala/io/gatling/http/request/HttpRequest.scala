@@ -66,5 +66,6 @@ case class HttpRequest(
 	maxRedirects: Option[Int],
 	throttled: Boolean,
 	silent: Boolean,
+	followRedirect: Boolean,
 	protocol: HttpProtocol,
 	explicitResources: Seq[HttpRequest])
