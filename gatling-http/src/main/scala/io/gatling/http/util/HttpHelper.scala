@@ -20,12 +20,11 @@ import java.net.{ URI, URLDecoder }
 import scala.collection.breakOut
 import scala.io.Codec.UTF8
 
-import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, ProxyServer, Realm }
+import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, Realm }
 import com.ning.http.client.Realm.AuthScheme
 import com.ning.http.util.AsyncHttpProviderUtils
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.config.Credentials
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 
@@ -49,15 +48,15 @@ object HttpHelper extends StrictLogging {
 			}(breakOut)
 	}
 
-	def buildBasicAuthRealm(username: Expression[String], password: Expression[String]) = buildRealm(username, password, AuthScheme.BASIC, true)
-	def buildDigestAuthRealm(username: Expression[String], password: Expression[String]) = buildRealm(username, password, AuthScheme.DIGEST, false)
+	def buildBasicAuthRealm(username: Expression[String], password: Expression[String]) = buildRealm(username, password, AuthScheme.BASIC, preemptive = true)
+	def buildDigestAuthRealm(username: Expression[String], password: Expression[String]) = buildRealm(username, password, AuthScheme.DIGEST, preemptive = false)
 	def buildRealm(username: Expression[String], password: Expression[String], authScheme: AuthScheme, preemptive: Boolean): Expression[Realm] = (session: Session) =>
 		for {
 			usernameValue <- username(session)
 			passwordValue <- password(session)
 		} yield buildRealm(usernameValue, passwordValue, authScheme, preemptive)
 
-	def buildBasicAuthRealm(username: String, password: String) = buildRealm(username, password, AuthScheme.BASIC, true)
+	def buildBasicAuthRealm(username: String, password: String) = buildRealm(username, password, AuthScheme.BASIC, preemptive = true)
 	def buildRealm(username: String, password: String, authScheme: AuthScheme, preemptive: Boolean): Realm = new Realm.RealmBuilder().setPrincipal(username).setPassword(password).setUsePreemptiveAuth(preemptive).setScheme(authScheme).build
 
 	def isCss(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).exists(_.contains(HeaderValues.TEXT_CSS))

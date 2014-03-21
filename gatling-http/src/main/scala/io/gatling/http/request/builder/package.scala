@@ -20,8 +20,8 @@ import scala.collection.breakOut
 
 import com.ning.http.client.FluentStringsMap
 
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.core.session.Session
+import io.gatling.core.validation.Validation
 
 package object builder {
 

@@ -102,20 +102,18 @@ object HtmlParser extends StrictLogging {
 
 					case "applet" =>
 						val code = tag.getAttributeValue("code", false)
-						val codeBase = suffixedCodeBase
 						val archives = Option(tag.getAttributeValue("archive", false)).map(_.split(",").map(_.trim)(breakOut))
 
 						val appletResources = archives.getOrElse(List(code)).iterator
-						val appletResourcesUrls = codeBase
-							.map(cb => appletResources.map(prependCodeBase(cb, _)))
-							.getOrElse(appletResources)
-							.map(RegularRawResource)
-						rawResources ++= appletResourcesUrls
+						val appletResourcesUrls = suffixedCodeBase() match {
+							case Some(cb) => appletResources.map(prependCodeBase(cb, _))
+							case None => appletResources
+						}
+						rawResources ++= appletResourcesUrls.map(RegularRawResource)
 
 					case "object" =>
 						val data = tag.getAttributeValue("data", false)
-						val codeBase = suffixedCodeBase
-						val objectResourceUrl = codeBase match {
+						val objectResourceUrl = suffixedCodeBase() match {
 							case Some(cb) => prependCodeBase(cb, data)
 							case _ => data
 						}

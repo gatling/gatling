@@ -15,30 +15,15 @@
  */
 package io.gatling.http.request.builder
 
-import java.net.{ InetAddress, URI }
+import com.ning.http.client.Request
 
-import com.ning.http.client.{ Realm, Request }
-import com.ning.http.client.ProxyServer
-import com.ning.http.client.ProxyServer.Protocol
-import com.ning.http.multipart.Part
-import com.typesafe.scalalogging.slf4j.StrictLogging
-
-import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.session.el.EL
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
-import io.gatling.http.{ HeaderNames, HeaderValues }
+import io.gatling.core.session.Expression
 import io.gatling.http.action.HttpRequestActionBuilder
-import io.gatling.http.ahc.{ ConnectionPoolKeyStrategy, ProxyConverter }
-import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckOrder.Status
-import io.gatling.http.config.{ HttpProtocol, Proxy }
-import io.gatling.http.cookie.CookieHandling
-import io.gatling.http.referer.RefererHandling
+import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.{ Body, BodyPart, ExtraInfoExtractor, HttpRequest }
 import io.gatling.http.response.ResponseTransformer
-import io.gatling.http.util.HttpHelper
 
 case class HttpAttributes(
 	checks: List[HttpCheck] = Nil,
@@ -99,7 +84,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 	/**
 	 * This method builds the request that will be sent
 	 *
-	 * @param session the session of the current scenario
+	 * @param protocol the protocol of the current scenario
+	 * @param throttled if throttling is enabled
 	 */
 	def build(protocol: HttpProtocol, throttled: Boolean): HttpRequest = {
 

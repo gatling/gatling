@@ -28,8 +28,8 @@ object HttpRequestWithParamsBuilder {
 /**
  * This class serves as model to HTTP request with a body and parameters
  *
- * @param httpRequestActionBuilder the HttpRequestActionBuilder with which this builder is linked
- * @param body the body that should be added to the request
+ * @param commonAttributes the CommonAttributes
+ * @param httpAttributes the HttpAttributes
  * @param params the parameters that should be added to the request
  */
 class HttpRequestWithParamsBuilder(

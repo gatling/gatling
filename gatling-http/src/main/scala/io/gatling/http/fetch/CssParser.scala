@@ -39,7 +39,7 @@ object CssParser extends StrictLogging {
 		}.flatten
 	}
 
-	val singleQuoteEscapeChar = Some(''')
+	val singleQuoteEscapeChar = Some('\'')
 	val doubleQuoteEscapeChar = Some('"')
 	val atImportChars = "@import".toCharArray
 	val urlStartChars = "url(".toCharArray
@@ -52,7 +52,7 @@ object CssParser extends StrictLogging {
 		@tailrec
 		def trimLeft(cur: Int): Int = (string.charAt(cur): @switch) match {
 			case ' ' | '\r' | '\n' => trimLeft(cur + 1)
-			case ''' =>
+			case '\'' =>
 				protectChar match {
 					case None =>
 						protectChar = singleQuoteEscapeChar
@@ -77,7 +77,7 @@ object CssParser extends StrictLogging {
 		@tailrec
 		def trimRight(cur: Int): Int = (string.charAt(cur - 1): @switch) match {
 			case ' ' | '\r' | '\n' => trimRight(cur - 1)
-			case ''' => protectChar match {
+			case '\'' => protectChar match {
 				case `singleQuoteEscapeChar` =>
 					trimRight(cur - 1)
 				case _ =>
@@ -145,16 +145,14 @@ object CssParser extends StrictLogging {
 						withinComment = false
 					}
 
-				case '@' if !withinComment && charsMatch(i, atImportChars) => {
+				case '@' if !withinComment && charsMatch(i, atImportChars) =>
 					withinImport = true
 					i = i + "@import".length
-				}
 
-				case 'u' if !withinComment && withinImport && charsMatch(i, urlStartChars) => {
+				case 'u' if !withinComment && withinImport && charsMatch(i, urlStartChars) =>
 					i = i + urlStartChars.length
 					urlStart = i
 					withinUrl = true
-				}
 
 				case ')' if !withinComment && withinUrl =>
 					for {

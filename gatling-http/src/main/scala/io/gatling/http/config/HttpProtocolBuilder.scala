@@ -17,18 +17,17 @@ package io.gatling.http.config
 
 import java.net.InetAddress
 
-import com.ning.http.client.{ ProxyServer, Realm, Request }
+import com.ning.http.client.Realm
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.filter.{ BlackList, Filter, Filters, WhiteList }
-import io.gatling.core.result.message.Status
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
+import io.gatling.core.session.Expression
 import io.gatling.core.session.el.EL
 import io.gatling.http.HeaderNames._
 import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
-import io.gatling.http.response.{ Response, ResponseTransformer }
+import io.gatling.http.response.ResponseTransformer
 import io.gatling.http.util.HttpHelper
 
 /**
@@ -45,7 +44,6 @@ object HttpProtocolBuilder {
  * Builder for HttpProtocol used in DSL
  *
  * @param protocol the protocol being built
- * @param warmUpUrl a URL to be pinged in order to warm up the HTTP engine
  */
 case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
 

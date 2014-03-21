@@ -42,8 +42,7 @@ sealed abstract class EmbeddedResource {
 
 		// for now, no better way to build a request than reusing HttpRequestBaseBuilder and passing a mock session
 		httpRequest.ahcRequest(EmbeddedResource.mockSession) match {
-			case Success(ahcRequest) => {
-
+			case Success(ahcRequest) =>
 				val requestName = {
 					val start = url.lastIndexOf('/') + 1
 					if (start < url.length)
@@ -53,7 +52,6 @@ sealed abstract class EmbeddedResource {
 				}
 
 				Some(NamedRequest(requestName, ahcRequest))
-			}
 
 			case _ => None
 		}

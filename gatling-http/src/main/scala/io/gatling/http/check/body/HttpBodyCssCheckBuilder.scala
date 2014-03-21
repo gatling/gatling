@@ -30,7 +30,7 @@ object HttpBodyCssCheckBuilder extends StrictLogging {
 
 	val preparer: Preparer[Response, NodeSelector] = (response: Response) =>
 		try {
-			CssExtractor.parse(response.body.string.unsafeChars).success
+			CssExtractor.parse(response.body.string().unsafeChars).success
 
 		} catch {
 			case e: Exception =>

@@ -59,7 +59,8 @@ abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: Comm
 	/**
 	 * Adds a header to the request
 	 *
-	 * @param header the header to add, eg: ("Content-Type", "application/json")
+	 * @param name the name of the header
+	 * @param value the value of the header
 	 */
 	def header(name: String, value: Expression[String]): B = newInstance(commonAttributes.copy(headers = commonAttributes.headers + (name -> value)))
 

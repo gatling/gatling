@@ -26,7 +26,7 @@ object WebSocket {
 }
 
 /**
- * @param actionName The action name in the log
+ * @param requestName The name of this request
  */
 class WebSocket(requestName: Expression[String]) {
 
@@ -34,7 +34,7 @@ class WebSocket(requestName: Expression[String]) {
 	 * Opens a web socket and stores it in the session.
 	 *
 	 * @param url The socket URL
-	 * @param attributeName The name of the session attribute used to store the socket
+	 * @param wsName The name of the session attribute used to store the socket
 	 */
 	def open(url: Expression[String], wsName: String = defaultWebSocketName) =
 		new OpenWebSocketRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), wsName)
@@ -42,8 +42,8 @@ class WebSocket(requestName: Expression[String]) {
 	/**
 	 * Sends a binary message on the given socket.
 	 *
-	 * @param fMessage The message
-	 * @param attributeName The name of the session attribute storing the socket
+	 * @param message The message
+	 * @param wsName The name of the session attribute storing the socket
 	 */
 	def sendBinaryMessage(message: Expression[Array[Byte]], wsName: String = defaultWebSocketName) =
 		new SendWebSocketBinaryMessageActionBuilder(requestName, wsName, message)
@@ -51,8 +51,8 @@ class WebSocket(requestName: Expression[String]) {
 	/**
 	 * Sends a text message on the given socket.
 	 *
-	 * @param fMessage The message
-	 * @param attributeName The name of the session attribute storing the socket
+	 * @param message The message
+	 * @param wsName The name of the session attribute storing the socket
 	 */
 	def sendTextMessage(message: Expression[String], wsName: String = defaultWebSocketName) =
 		new SendWebSocketTextMessageActionBuilder(requestName, wsName, message)
@@ -60,7 +60,7 @@ class WebSocket(requestName: Expression[String]) {
 	/**
 	 * Closes a web socket.
 	 *
-	 * @param attributeName The name of the session attribute storing the socket
+	 * @param wsName The name of the session attribute storing the socket
 	 */
 	def close(wsName: String = defaultWebSocketName) =
 		new CloseWebSocketActionBuilder(requestName, wsName)

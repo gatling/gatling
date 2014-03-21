@@ -36,5 +36,5 @@ object HttpCheckBuilders {
 	val timeCheckFactory = httpCheckFactory(Body, None)
 
 	val passThroughResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
-	val responseBodyStringPreparer: Preparer[Response, String] = (response: Response) => response.body.string.success
+	val responseBodyStringPreparer: Preparer[Response, String] = (response: Response) => response.body.string().success
 }

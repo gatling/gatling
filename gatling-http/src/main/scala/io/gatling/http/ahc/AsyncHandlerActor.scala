@@ -15,7 +15,6 @@
  */
 package io.gatling.http.ahc
 
-import scala.concurrent.duration.DurationInt
 import com.ning.http.client.{ FluentStringsMap, RequestBuilder }
 import akka.actor.{ ActorRef, Props }
 import akka.actor.ActorDSL.actor
@@ -24,7 +23,6 @@ import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.{ KO, OK, Status }
-import io.gatling.core.result.writer.DataWriter
 import io.gatling.core.session.Session
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.core.util.TimeHelper.nowMillis

@@ -19,24 +19,22 @@ import java.net.InetAddress
 
 import scala.collection.mutable
 
-import com.ning.http.client.{ ProxyServer, Realm, Request, RequestBuilder }
+import com.ning.http.client.{ ProxyServer, Realm, RequestBuilder }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.akka.GatlingActorSystem
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Protocol
 import io.gatling.core.filter.Filters
-import io.gatling.core.result.message.Status
-import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
+import io.gatling.core.session.Expression
 import io.gatling.core.session.el.EL
 import io.gatling.core.util.RoundRobin
 import io.gatling.http.HeaderNames.{ ACCEPT, ACCEPT_ENCODING, ACCEPT_LANGUAGE, CONNECTION, USER_AGENT }
-import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine, ProxyConverter }
+import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.request.builder.Http
-import io.gatling.http.response.{ Response, ResponseTransformer }
-import io.gatling.http.util.HttpHelper.buildBasicAuthRealm
+import io.gatling.http.response.ResponseTransformer
 
 /**
  * HttpProtocol class companion
@@ -76,14 +74,14 @@ object HttpProtocol {
 
 	val warmUpUrls = mutable.Set.empty[String]
 
-	GatlingActorSystem.instanceOpt.foreach(_.registerOnTermination(warmUpUrls.clear))
+	GatlingActorSystem.instanceOpt.foreach(_.registerOnTermination(warmUpUrls.clear()))
 
 	def nextBaseUrlF(urls: List[String]): () => Option[String] = {
 		val roundRobinUrls = RoundRobin(urls.toArray)
 		urls match {
 			case Nil => () => None
 			case url :: Nil => () => Some(url)
-			case _ => () => Some(roundRobinUrls.next)
+			case _ => () => Some(roundRobinUrls.next())
 		}
 	}
 }
@@ -91,8 +89,13 @@ object HttpProtocol {
 /**
  * Class containing the configuration for the HTTP protocol
  *
- * @param baseURL the radix of all the URLs that will be used (eg: http://mywebsite.tld)
- * @param proxy a proxy through which all the requests must pass to succeed
+ * @param baseURLs the radixes of all the URLs that will be used (eg: http://mywebsite.tld)
+ * @param warmUpUrl the url used to load the TCP stack
+ * @param enginePart the HTTP engine related configuration
+ * @param requestPart the request related configuration
+ * @param responsePart the response related configuration
+ * @param wsPart the WebSocket related configuration
+ * @param proxyPart the Proxy related configuration
  */
 case class HttpProtocol(
 	baseURLs: List[String],
@@ -143,13 +146,13 @@ case class HttpProtocol(
 				.get(expression)
 				.header("bar", expression)
 				.queryParam(expression, expression)
-				.build(HttpProtocol.default, false)
+				.build(HttpProtocol.default, throttled = false)
 
 			new Http(expression)
 				.post(expression)
 				.header("bar", expression)
 				.param(expression, expression)
-				.build(HttpProtocol.default, false)
+				.build(HttpProtocol.default, throttled = false)
 		}
 
 		logger.info("Warm up done")

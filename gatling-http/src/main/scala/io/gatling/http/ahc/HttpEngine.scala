@@ -90,7 +90,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 	})
 
 	val hashedWheelTimer = new HashedWheelTimer
-	hashedWheelTimer.start
+	hashedWheelTimer.start()
 
 	// set up Netty LoggerFactory for slf4j instead of default JDK
 	InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
@@ -105,7 +105,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 	val nettyConfig = {
 		val numWorkers = configuration.http.ahc.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
 		val socketChannelFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool, applicationThreadPool, numWorkers)
-		system.registerOnTermination(socketChannelFactory.releaseExternalResources)
+		system.registerOnTermination(socketChannelFactory.releaseExternalResources())
 		val nettyConfig = new NettyAsyncHttpProviderConfig
 		nettyConfig.addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
 		nettyConfig.setHashedWheelTimer(hashedWheelTimer)
@@ -174,7 +174,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 		}.getOrElse(defaultAhcConfig)
 
 		val client = new AsyncHttpClient(ahcConfig)
-		system.registerOnTermination(client.close)
+		system.registerOnTermination(client.close())
 		system.registerOnTermination(hashedWheelTimer.stop)
 		client
 	}
@@ -216,14 +216,14 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
 		val now = nowMillis
 		try {
-			val listener = new WebSocketListener(tx, wsActor, now)
+			val listener = new WebSocketListener(newTx, wsActor, now)
 
 			val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
-			client.executeRequest(tx.request, handler)
+			client.executeRequest(newTx.request, handler)
 
 		} catch {
 			case e: Exception =>
-				wsActor ! OnFailedOpen(tx, e.getMessage, now, nowMillis)
+				wsActor ! OnFailedOpen(newTx, e.getMessage, now, nowMillis)
 		}
 	}
 }

@@ -17,8 +17,6 @@ package io.gatling.http
 
 import com.ning.http.client.Request
 
-import io.gatling.http.response.ResponseBuilder
-
 package object response {
 
 	type ResponseBuilderFactory = Request => ResponseBuilder

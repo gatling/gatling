@@ -29,7 +29,7 @@ object HttpBodyXPathCheckBuilder extends StrictLogging {
 
 	val preparer: Preparer[Response, Option[XdmNode]] = (response: Response) =>
 		try {
-			val root = if (response.hasResponseBody) Some(XPathExtractor.parse(response.body.stream)) else None
+			val root = if (response.hasResponseBody) Some(XPathExtractor.parse(response.body.stream())) else None
 			root.success
 
 		} catch {

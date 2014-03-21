@@ -40,6 +40,6 @@ object RawFileBodies {
 		for {
 			path <- filePath(session)
 			file <- cached(path)
-			validatedFile <- file.validateExistingReadable
+			validatedFile <- file.validateExistingReadable()
 		} yield validatedFile
 }
