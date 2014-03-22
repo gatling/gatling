@@ -74,7 +74,7 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
 			next ! session.remove(wsName)
 			context.become(closing)
 
-		case OnClose =>
+		case OnUnexpectedClose | OnClose =>
 			if (tx.protocol.wsPart.reconnect)
 				if (tx.protocol.wsPart.maxReconnects.map(_ > tx.reconnectCount).getOrElse(true))
 					context.become(disconnected(Queue.empty[WebSocketMessage], tx))
