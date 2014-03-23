@@ -20,14 +20,14 @@ import io.gatling.http.config.HttpProtocol
 import io.gatling.http.util.HttpHelper
 
 class WebSocketRequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol)
-	extends RequestExpressionBuilder(commonAttributes, protocol) {
+    extends RequestExpressionBuilder(commonAttributes, protocol) {
 
-	def makeAbsolute(url: String): Validation[String] =
-		if (HttpHelper.isAbsoluteWsUrl(url))
-			url.success
-		else
-			protocol.wsPart.wsBaseURL() match {
-				case Some(baseURL) => (baseURL + url).success
-				case _ => s"No protocol.baseURL defined but provided url is relative : $url".failure
-			}
+  def makeAbsolute(url: String): Validation[String] =
+    if (HttpHelper.isAbsoluteWsUrl(url))
+      url.success
+    else
+      protocol.wsPart.wsBaseURL() match {
+        case Some(baseURL) => (baseURL + url).success
+        case _             => s"No protocol.baseURL defined but provided url is relative : $url".failure
+      }
 }

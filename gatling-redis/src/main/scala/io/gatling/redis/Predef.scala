@@ -19,5 +19,5 @@ import io.gatling.redis.feeder.RedisFeeder
 import com.redis.RedisClientPool
 
 object Predef {
-	def redisFeeder(clients: RedisClientPool, key: String) = RedisFeeder(clients, key)
+  def redisFeeder(clients: RedisClientPool, key: String) = RedisFeeder(clients, key)
 }

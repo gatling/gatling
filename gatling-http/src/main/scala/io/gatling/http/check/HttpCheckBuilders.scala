@@ -22,19 +22,19 @@ import io.gatling.http.response.{ ByteArrayResponseBodyUsageStrategy, InputStrea
 
 object HttpCheckBuilders {
 
-	private def httpCheckFactory(order: HttpCheckOrder, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]): CheckFactory[HttpCheck, Response] =
-		(wrapped: Check[Response]) => HttpCheck(wrapped, order, responseBodyUsageStrategy)
+  private def httpCheckFactory(order: HttpCheckOrder, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]): CheckFactory[HttpCheck, Response] =
+    (wrapped: Check[Response]) => HttpCheck(wrapped, order, responseBodyUsageStrategy)
 
-	val statusCheckFactory = httpCheckFactory(Status, None)
-	val urlCheckFactory = httpCheckFactory(Url, None)
-	val checksumCheckFactory = httpCheckFactory(Checksum, None)
-	val headerCheckFactory = httpCheckFactory(Header, None)
-	def bodyCheckFactory(responseBodyUsageStrategy: ResponseBodyUsageStrategy) = httpCheckFactory(Body, Some(responseBodyUsageStrategy))
-	val stringBodyCheckFactory = bodyCheckFactory(StringResponseBodyUsageStrategy)
-	val streamBodyCheckFactory = bodyCheckFactory(InputStreamResponseBodyUsageStrategy)
-	val bytesBodyCheckFactory = bodyCheckFactory(ByteArrayResponseBodyUsageStrategy)
-	val timeCheckFactory = httpCheckFactory(Body, None)
+  val statusCheckFactory = httpCheckFactory(Status, None)
+  val urlCheckFactory = httpCheckFactory(Url, None)
+  val checksumCheckFactory = httpCheckFactory(Checksum, None)
+  val headerCheckFactory = httpCheckFactory(Header, None)
+  def bodyCheckFactory(responseBodyUsageStrategy: ResponseBodyUsageStrategy) = httpCheckFactory(Body, Some(responseBodyUsageStrategy))
+  val stringBodyCheckFactory = bodyCheckFactory(StringResponseBodyUsageStrategy)
+  val streamBodyCheckFactory = bodyCheckFactory(InputStreamResponseBodyUsageStrategy)
+  val bytesBodyCheckFactory = bodyCheckFactory(ByteArrayResponseBodyUsageStrategy)
+  val timeCheckFactory = httpCheckFactory(Body, None)
 
-	val passThroughResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
-	val responseBodyStringPreparer: Preparer[Response, String] = (response: Response) => response.body.string().success
+  val passThroughResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
+  val responseBodyStringPreparer: Preparer[Response, String] = (response: Response) => response.body.string().success
 }

@@ -30,47 +30,47 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
  */
 object FileHelper {
 
-	val commaSeparator = ","
-	val semicolonSeparator = ";"
-	val tabulationSeparator = "\t"
+  val commaSeparator = ","
+  val semicolonSeparator = ";"
+  val tabulationSeparator = "\t"
 
-	implicit class FileRichString(val string: String) extends AnyVal {
+  implicit class FileRichString(val string: String) extends AnyVal {
 
-		/**
-		 * Transform a string to a simpler one that can be used safely as file name
-		 *
-		 * @return a simplified string
-		 */
-		def toFileName = {
+    /**
+     * Transform a string to a simpler one that can be used safely as file name
+     *
+     * @return a simplified string
+     */
+    def toFileName = {
 
-			val trimmed = string.trim match {
-				case "" => "missing_name"
-				case s => s
-			}
+      val trimmed = string.trim match {
+        case "" => "missing_name"
+        case s  => s
+      }
 
-			val md = MessageDigest.getInstance("md5")
-			md.update(trimmed.getBytes(configuration.core.charset))
-			trimmed.clean + "-" + bytes2Hex(md.digest)
-		}
+      val md = MessageDigest.getInstance("md5")
+      md.update(trimmed.getBytes(configuration.core.charset))
+      trimmed.clean + "-" + bytes2Hex(md.digest)
+    }
 
-		def toRequestFileName = s"req_${string.toFileName}.html"
-	}
+    def toRequestFileName = s"req_${string.toFileName}.html"
+  }
 
-	implicit class RichURL(val url: URL) extends AnyVal {
+  implicit class RichURL(val url: URL) extends AnyVal {
 
-		def jfile(): JFile = Try(new JFile(url.toURI))
-			.recover { case e: URISyntaxException => new JFile(url.getPath) }
-			.get
-	}
+    def jfile(): JFile = Try(new JFile(url.toURI))
+      .recover { case e: URISyntaxException => new JFile(url.getPath) }
+      .get
+  }
 
-	implicit class RichFile(val file: JFile) extends AnyVal {
+  implicit class RichFile(val file: JFile) extends AnyVal {
 
-		def validateExistingReadable(): Validation[JFile] =
-			if (!file.exists)
-				s"File $file doesn't exist".failure
-			else if (!file.canRead)
-				s"File $file can't be read".failure
-			else
-				file.success
-	}
+    def validateExistingReadable(): Validation[JFile] =
+      if (!file.exists)
+        s"File $file doesn't exist".failure
+      else if (!file.canRead)
+        s"File $file can't be read".failure
+      else
+        file.success
+  }
 }

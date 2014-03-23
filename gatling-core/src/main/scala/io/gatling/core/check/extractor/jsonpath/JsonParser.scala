@@ -20,7 +20,7 @@ import java.nio.charset.Charset
 
 trait JsonParser {
 
-	def parse(bytes: Array[Byte], charset: Charset): Object
-	def parse(string: String): Object
-	def parse(stream: InputStream, charset: Charset): Object
+  def parse(bytes: Array[Byte], charset: Charset): Object
+  def parse(string: String): Object
+  def parse(stream: InputStream, charset: Charset): Object
 }

@@ -18,5 +18,5 @@ package io.gatling.jdbc
 import io.gatling.jdbc.feeder.JdbcFeederSource
 
 object Predef {
-	def jdbcFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederSource(url, username, password, sql)
+  def jdbcFeeder(url: String, username: String, password: String, sql: String) = JdbcFeederSource(url, username, password, sql)
 }

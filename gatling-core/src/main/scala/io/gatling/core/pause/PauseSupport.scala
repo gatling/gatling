@@ -21,10 +21,10 @@ import io.gatling.core.session.Expression
 
 trait PauseSupport {
 
-	val disabledPauses = Disabled
-	val constantPauses = Constant
-	val exponentialPauses = Exponential
-	def customPauses(custom: Expression[Long]) = Custom(custom)
-	def uniformPausesPlusOrMinusPercentage(plusOrMinus: Double) = UniformPercentage(plusOrMinus)
-	def uniformPausesPlusOrMinusDuration(plusOrMinus: Duration) = UniformDuration(plusOrMinus)
+  val disabledPauses = Disabled
+  val constantPauses = Constant
+  val exponentialPauses = Exponential
+  def customPauses(custom: Expression[Long]) = Custom(custom)
+  def uniformPausesPlusOrMinusPercentage(plusOrMinus: Double) = UniformPercentage(plusOrMinus)
+  def uniformPausesPlusOrMinusDuration(plusOrMinus: Duration) = UniformDuration(plusOrMinus)
 }

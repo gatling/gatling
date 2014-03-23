@@ -19,7 +19,7 @@ import io.gatling.core.config.Protocol
 
 object PauseProtocol {
 
-	val default = PauseProtocol(Constant)
+  val default = PauseProtocol(Constant)
 }
 
 case class PauseProtocol(pauseType: PauseType) extends Protocol

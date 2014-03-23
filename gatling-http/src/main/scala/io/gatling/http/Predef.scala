@@ -26,43 +26,43 @@ import io.gatling.http.request.BodyProcessors
 import io.gatling.http.request.builder.{ Http, WebSocket }
 
 object Predef extends HttpCheckSupport {
-	type Request = com.ning.http.client.Request
-	type Response = io.gatling.http.response.Response
+  type Request = com.ning.http.client.Request
+  type Response = io.gatling.http.response.Response
 
-	def http = HttpProtocolBuilder.default
+  def http = HttpProtocolBuilder.default
 
-	val Proxy = io.gatling.http.config.HttpProxyBuilder.apply _
+  val Proxy = io.gatling.http.config.HttpProxyBuilder.apply _
 
-	def http(requestName: Expression[String]) = new Http(requestName)
-	def addCookie(cookie: CookieDSL) = new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.expires.getOrElse(-1L), cookie.maxAge.getOrElse(-1))
-	def flushSessionCookies = CookieHandling.flushSessionCookies
-	def flushCookieJar = CookieHandling.flushCookieJar
-	def flushHttpCache = CacheHandling.flushCache
+  def http(requestName: Expression[String]) = new Http(requestName)
+  def addCookie(cookie: CookieDSL) = new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.expires.getOrElse(-1L), cookie.maxAge.getOrElse(-1))
+  def flushSessionCookies = CookieHandling.flushSessionCookies
+  def flushCookieJar = CookieHandling.flushCookieJar
+  def flushHttpCache = CacheHandling.flushCache
 
-	def websocket(requestName: Expression[String]) = new WebSocket(requestName)
+  def websocket(requestName: Expression[String]) = new WebSocket(requestName)
 
-	val HttpHeaderNames = HeaderNames
-	val HttpHeaderValues = HeaderValues
+  val HttpHeaderNames = HeaderNames
+  val HttpHeaderValues = HeaderValues
 
-	val gzipBody = BodyProcessors.gzip
-	val streamBody = BodyProcessors.stream
+  val gzipBody = BodyProcessors.gzip
+  val streamBody = BodyProcessors.stream
 
-	def dumpSessionOnFailure(status: Status, session: Session, request: Request, response: Response): List[String] = status match {
-		case KO => List(session.toString)
-		case _ => Nil
-	}
+  def dumpSessionOnFailure(status: Status, session: Session, request: Request, response: Response): List[String] = status match {
+    case KO => List(session.toString)
+    case _  => Nil
+  }
 
-	def Cookie = CookieDSL
+  def Cookie = CookieDSL
 
-	def ELFileBody = io.gatling.http.request.ELFileBody
-	def StringBody = io.gatling.http.request.StringBody
-	def RawFileBody = io.gatling.http.request.RawFileBody
-	def ByteArrayBody = io.gatling.http.request.ByteArrayBody
-	def InputStreamBody = io.gatling.http.request.InputStreamBody
+  def ELFileBody = io.gatling.http.request.ELFileBody
+  def StringBody = io.gatling.http.request.StringBody
+  def RawFileBody = io.gatling.http.request.RawFileBody
+  def ByteArrayBody = io.gatling.http.request.ByteArrayBody
+  def InputStreamBody = io.gatling.http.request.InputStreamBody
 
-	def StringBodyPart = io.gatling.http.request.BodyPart.stringBodyPart _
-	def ByteArrayBodyPart = io.gatling.http.request.BodyPart.byteArrayBodyPart _
-	def FileBodyPart = io.gatling.http.request.BodyPart.fileBodyPart _
-	def RawFileBodyPart = io.gatling.http.request.BodyPart.rawFileBodyPart _
-	def ELFileBodyPart = io.gatling.http.request.BodyPart.elFileBodyPart _
+  def StringBodyPart = io.gatling.http.request.BodyPart.stringBodyPart _
+  def ByteArrayBodyPart = io.gatling.http.request.BodyPart.byteArrayBodyPart _
+  def FileBodyPart = io.gatling.http.request.BodyPart.fileBodyPart _
+  def RawFileBodyPart = io.gatling.http.request.BodyPart.rawFileBodyPart _
+  def ELFileBodyPart = io.gatling.http.request.BodyPart.elFileBodyPart _
 }

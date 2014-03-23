@@ -23,23 +23,23 @@ import scala.concurrent.duration.{ DurationLong, FiniteDuration }
 sealed trait EventInfo
 
 case class PauseInfo(duration: FiniteDuration) extends EventInfo {
-	val toPrint = if (duration > 1.second) s"${duration.toSeconds}s" else s"${duration.length}ms"
-	override def toString = s"PAUSE $toPrint"
+  val toPrint = if (duration > 1.second) s"${duration.toSeconds}s" else s"${duration.length}ms"
+  override def toString = s"PAUSE $toPrint"
 }
 
 case class RequestInfo(request: HttpRequest, response: HttpResponse) extends EventInfo {
 
-	private def getHttpBody(message: HttpMessage) = message.getContent.toString(Charset.forName(configuration.core.encoding))
+  private def getHttpBody(message: HttpMessage) = message.getContent.toString(Charset.forName(configuration.core.encoding))
 
-	val requestBody = getHttpBody(request)
+  val requestBody = getHttpBody(request)
 
-	val responseBody = getHttpBody(response)
+  val responseBody = getHttpBody(response)
 
-	override def toString = s"${request.getMethod} | ${request.getUri}"
+  override def toString = s"${request.getMethod} | ${request.getUri}"
 }
 
 case class SSLInfo(uri: String) extends EventInfo
 
 case class TagInfo(tag: String) extends EventInfo {
-	override def toString = s"TAG | $tag"
+  override def toString = s"TAG | $tag"
 }

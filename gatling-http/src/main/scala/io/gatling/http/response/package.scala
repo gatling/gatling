@@ -19,6 +19,6 @@ import com.ning.http.client.Request
 
 package object response {
 
-	type ResponseBuilderFactory = Request => ResponseBuilder
-	type ResponseTransformer = PartialFunction[Response, Response]
+  type ResponseBuilderFactory = Request => ResponseBuilder
+  type ResponseTransformer = PartialFunction[Response, Response]
 }

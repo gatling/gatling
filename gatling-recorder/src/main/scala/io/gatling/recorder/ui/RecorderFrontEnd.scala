@@ -26,135 +26,135 @@ import io.gatling.recorder.ui.swing.frame.{ ConfigurationFrame, RunningFrame }
 
 object RecorderFrontend {
 
-	// Currently hardwired to the Swing frontend
-	// Will select the desired frontend when more are implemented
-	def newFrontend(controller: RecorderController): RecorderFrontend =
-		new SwingFrontend(controller)
+  // Currently hardwired to the Swing frontend
+  // Will select the desired frontend when more are implemented
+  def newFrontend(controller: RecorderController): RecorderFrontend =
+    new SwingFrontend(controller)
 }
 sealed abstract class RecorderFrontend(controller: RecorderController) {
 
-	/******************************/
-	/**  Controller => Frontend  **/
-	/******************************/
+  /******************************/
+  /**  Controller => Frontend  **/
+  /******************************/
 
-	def selectedMode: RecorderMode
+  def selectedMode: RecorderMode
 
-	def harFilePath: String
+  def harFilePath: String
 
-	def handleMissingHarFile(path: String)
+  def handleMissingHarFile(path: String)
 
-	def handleHarExportSuccess()
+  def handleHarExportSuccess()
 
-	def handleHarExportFailure()
+  def handleHarExportFailure()
 
-	def handleFilterValidationFailures(failures: Seq[String])
+  def handleFilterValidationFailures(failures: Seq[String])
 
-	def askSimulationOverwrite: Boolean
+  def askSimulationOverwrite: Boolean
 
-	def init()
+  def init()
 
-	def recordingStarted()
+  def recordingStarted()
 
-	def recordingStopped()
+  def recordingStopped()
 
-	def receiveEventInfo(eventInfo: EventInfo)
+  def receiveEventInfo(eventInfo: EventInfo)
 
-	/******************************/
-	/**  Frontend => Controller  **/
-	/******************************/
+  /******************************/
+  /**  Frontend => Controller  **/
+  /******************************/
 
-	def addTag(tag: String) { controller.addTag(tag) }
+  def addTag(tag: String) { controller.addTag(tag) }
 
-	def startRecording() { controller.startRecording() }
+  def startRecording() { controller.startRecording() }
 
-	def stopRecording(save: Boolean) { controller.stopRecording(save) }
+  def stopRecording(save: Boolean) { controller.stopRecording(save) }
 
-	def clearRecorderState() { controller.clearRecorderState() }
+  def clearRecorderState() { controller.clearRecorderState() }
 }
 
 private class SwingFrontend(controller: RecorderController) extends RecorderFrontend(controller) {
 
-	private lazy val runningFrame = new RunningFrame(this)
-	private lazy val configurationFrame = new ConfigurationFrame(this)
+  private lazy val runningFrame = new RunningFrame(this)
+  private lazy val configurationFrame = new ConfigurationFrame(this)
 
-	def selectedMode = configurationFrame.selectedMode
+  def selectedMode = configurationFrame.selectedMode
 
-	def harFilePath = configurationFrame.harFilePath
+  def harFilePath = configurationFrame.harFilePath
 
-	def handleMissingHarFile(harFilePath: String) {
-		if (harFilePath.isEmpty) {
-			Dialog.showMessage(
-				title = "Error",
-				message = "You haven't selected an HAR file.",
-				messageType = Dialog.Message.Error)
-		} else {
-			val possibleMatches = lookupFiles(harFilePath)
-			if (possibleMatches.isEmpty) {
-				Dialog.showMessage(
-					title = "No matches found",
-					message = """	|No files that could closely match the
+  def handleMissingHarFile(harFilePath: String) {
+    if (harFilePath.isEmpty) {
+      Dialog.showMessage(
+        title = "Error",
+        message = "You haven't selected an HAR file.",
+        messageType = Dialog.Message.Error)
+    } else {
+      val possibleMatches = lookupFiles(harFilePath)
+      if (possibleMatches.isEmpty) {
+        Dialog.showMessage(
+          title = "No matches found",
+          message = """	|No files that could closely match the
 									|selected file's name have been found.
 									|Please check the file's path is correct.""".stripMargin,
-					messageType = Dialog.Message.Warning)
-			} else {
-				val selector = new DialogFileSelector(configurationFrame, possibleMatches)
-				selector.open()
-				val parentPath = harFilePath.parent.path
-				configurationFrame.updateHarFilePath(selector.selectedFile.map(file => (parentPath / file).toString()))
-			}
-		}
-	}
+          messageType = Dialog.Message.Warning)
+      } else {
+        val selector = new DialogFileSelector(configurationFrame, possibleMatches)
+        selector.open()
+        val parentPath = harFilePath.parent.path
+        configurationFrame.updateHarFilePath(selector.selectedFile.map(file => (parentPath / file).toString()))
+      }
+    }
+  }
 
-	def handleHarExportSuccess() {
-		Dialog.showMessage(
-			title = "Conversion complete",
-			message = "Successfully converted HAR file to a Gatling simulation",
-			messageType = Dialog.Message.Info)
-	}
+  def handleHarExportSuccess() {
+    Dialog.showMessage(
+      title = "Conversion complete",
+      message = "Successfully converted HAR file to a Gatling simulation",
+      messageType = Dialog.Message.Info)
+  }
 
-	def handleHarExportFailure() {
-		Dialog.showMessage(
-			title = "Error",
-			message = """	|Export to HAR File unsuccessful.
+  def handleHarExportFailure() {
+    Dialog.showMessage(
+      title = "Error",
+      message = """	|Export to HAR File unsuccessful.
 							|See logs for more information""".stripMargin,
-			messageType = Dialog.Message.Error)
-	}
+      messageType = Dialog.Message.Error)
+  }
 
-	def handleFilterValidationFailures(failures: Seq[String]) {
-		Dialog.showMessage(
-			title = "Error",
-			message = failures.mkString("\n"),
-			messageType = Dialog.Message.Error)
-	}
+  def handleFilterValidationFailures(failures: Seq[String]) {
+    Dialog.showMessage(
+      title = "Error",
+      message = failures.mkString("\n"),
+      messageType = Dialog.Message.Error)
+  }
 
-	def askSimulationOverwrite = {
-		Dialog.showConfirmation(
-			title = "Warning",
-			message = "You are about to overwrite an existing simulation.",
-			optionType = Dialog.Options.OkCancel,
-			messageType = Dialog.Message.Warning) == Dialog.Result.Ok
-	}
+  def askSimulationOverwrite = {
+    Dialog.showConfirmation(
+      title = "Warning",
+      message = "You are about to overwrite an existing simulation.",
+      optionType = Dialog.Options.OkCancel,
+      messageType = Dialog.Message.Warning) == Dialog.Result.Ok
+  }
 
-	def init() {
-		configurationFrame.visible = true
-		runningFrame.visible = false
-	}
+  def init() {
+    configurationFrame.visible = true
+    runningFrame.visible = false
+  }
 
-	def recordingStarted() {
-		runningFrame.visible = true
-		configurationFrame.visible = false
-	}
+  def recordingStarted() {
+    runningFrame.visible = true
+    configurationFrame.visible = false
+  }
 
-	def recordingStopped() {
-		runningFrame.clearState()
-	}
+  def recordingStopped() {
+    runningFrame.clearState()
+  }
 
-	def receiveEventInfo(eventInfo: EventInfo) {
-		onEDT(runningFrame.receiveEventInfo(eventInfo))
-	}
+  def receiveEventInfo(eventInfo: EventInfo) {
+    onEDT(runningFrame.receiveEventInfo(eventInfo))
+  }
 
-	private def lookupFiles(path: String) = {
-		val parent = path.parent
-		parent.files.filter(_.path.startsWith(path)).map(_.name).toList
-	}
+  private def lookupFiles(path: String) = {
+    val parent = path.parent
+    parent.files.filter(_.path.startsWith(path)).map(_.name).toList
+  }
 }

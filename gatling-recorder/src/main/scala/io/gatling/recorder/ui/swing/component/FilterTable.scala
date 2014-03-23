@@ -27,103 +27,103 @@ import javax.swing.table.DefaultTableModel
 
 class FilterTable(headerTitle: String) extends ScrollPane {
 
-	private val table = new Table {
-		override def rendererComponent(isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = {
-			val c = super.rendererComponent(isSelected, focused, row, column)
-			c.background = Color.lightGray
-			c
-		}
-	}
+  private val table = new Table {
+    override def rendererComponent(isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = {
+      val c = super.rendererComponent(isSelected, focused, row, column)
+      c.background = Color.lightGray
+      c
+    }
+  }
 
-	private val model = new DefaultTableModel
+  private val model = new DefaultTableModel
 
-	contents = table
-	model.addColumn(headerTitle)
-	table.model = model
-	table.rowHeight = 30
-	preferredSize = new Dimension(200, 300)
-	initPopupMenu()
+  contents = table
+  model.addColumn(headerTitle)
+  table.model = model
+  table.rowHeight = 30
+  preferredSize = new Dimension(200, 300)
+  initPopupMenu()
 
-	def cleanUp() {
-		stopCellEditing()
-		var toRemove: List[Int] = Nil
-		for (i <- 0 until table.rowCount if table(i, 0).toString.isEmpty)
-			toRemove = i :: toRemove
+  def cleanUp() {
+    stopCellEditing()
+    var toRemove: List[Int] = Nil
+    for (i <- 0 until table.rowCount if table(i, 0).toString.isEmpty)
+      toRemove = i :: toRemove
 
-		removeRows(toRemove)
-		removeDuplicates()
-	}
+    removeRows(toRemove)
+    removeDuplicates()
+  }
 
-	def validate: List[String] =
-		getRegexs
-			.map { str => (str, Try(str.r)) }
-			.collect {
-				case (str, fail: Failure[_]) => s"$str is not a valid regular expression: ${fail.exception.getMessage}"
-			}
+  def validate: List[String] =
+    getRegexs
+      .map { str => (str, Try(str.r)) }
+      .collect {
+        case (str, fail: Failure[_]) => s"$str is not a valid regular expression: ${fail.exception.getMessage}"
+      }
 
-	def removeRows(toRemove: Seq[Int]) {
-		toRemove.sorted.reverse.foreach(model.removeRow)
-	}
+  def removeRows(toRemove: Seq[Int]) {
+    toRemove.sorted.reverse.foreach(model.removeRow)
+  }
 
-	def stopCellEditing() {
-		if (table.peer.isEditing && table.peer.getSelectedRow != -1)
-			table.peer.getCellEditor.stopCellEditing
-	}
+  def stopCellEditing() {
+    if (table.peer.isEditing && table.peer.getSelectedRow != -1)
+      table.peer.getCellEditor.stopCellEditing
+  }
 
-	def removeDuplicates() {
-		val toRemove = for {
-			i <- 0 until table.rowCount
-			j <- i until table.rowCount
-			if i != j && getRegex(i) == getRegex(j)
-		} yield j
-		/* Remove the duplicated indexes and sort them in reverse order, so that we don't modify the indexes of the row we want to remove */
-		toRemove.toSet.toList.sortWith(_ >= _).foreach(model.removeRow)
-	}
+  def removeDuplicates() {
+    val toRemove = for {
+      i <- 0 until table.rowCount
+      j <- i until table.rowCount
+      if i != j && getRegex(i) == getRegex(j)
+    } yield j
+    /* Remove the duplicated indexes and sort them in reverse order, so that we don't modify the indexes of the row we want to remove */
+    toRemove.toSet.toList.sortWith(_ >= _).foreach(model.removeRow)
+  }
 
-	def setEnabled(enabled: Boolean) {
-		table.enabled = enabled
-		table.background = if (enabled) Color.white else Color.lightGray
-	}
+  def setEnabled(enabled: Boolean) {
+    table.enabled = enabled
+    table.background = if (enabled) Color.white else Color.lightGray
+  }
 
-	def addRow() {
-		stopCellEditing()
-		model.addRow(Array[Object](""))
-	}
+  def addRow() {
+    stopCellEditing()
+    model.addRow(Array[Object](""))
+  }
 
-	def addRow(pattern: String) { model.addRow(Array[Object](pattern)) }
+  def addRow(pattern: String) { model.addRow(Array[Object](pattern)) }
 
-	def removeSelectedRow() { removeRows(table.selection.rows.toSeq) }
+  def removeSelectedRow() { removeRows(table.selection.rows.toSeq) }
 
-	def removeAllElements() { removeRows(0 until model.getRowCount) }
+  def removeAllElements() { removeRows(0 until model.getRowCount) }
 
-	def setFocusable(focusable: Boolean) { table.focusable = focusable }
+  def setFocusable(focusable: Boolean) { table.focusable = focusable }
 
-	def getRowCount = model.getRowCount
+  def getRowCount = model.getRowCount
 
-	def getRegex(row: Int) = table(row, 0).asInstanceOf[String]
+  def getRegex(row: Int) = table(row, 0).asInstanceOf[String]
 
-	def getRegexs = (for (i <- 0 until getRowCount) yield getRegex(i)).toList
+  def getRegexs = (for (i <- 0 until getRowCount) yield getRegex(i)).toList
 
-	private def initPopupMenu() {
-		val popup = new JPopupMenu
-		val menuItem = new JMenuItem("Delete")
-		menuItem.addActionListener(new ActionListener {
-			def actionPerformed(e: ActionEvent) {
-				removeSelectedRow()
-			}
-		})
+  private def initPopupMenu() {
+    val popup = new JPopupMenu
+    val menuItem = new JMenuItem("Delete")
+    menuItem.addActionListener(new ActionListener {
+      def actionPerformed(e: ActionEvent) {
+        removeSelectedRow()
+      }
+    })
 
-		popup.add(menuItem)
+    popup.add(menuItem)
 
-		listenTo(table.mouse.clicks)
+    listenTo(table.mouse.clicks)
 
-		reactions += {
-			case e: MouseButtonEvent => maybeShowPopup(e)
-		}
+    reactions += {
+      case e: MouseButtonEvent => maybeShowPopup(e)
+    }
 
-		def maybeShowPopup(e: MouseEvent) {
-			if (e.peer.isPopupTrigger)
-				popup.show(e.peer.getComponent, e.peer.getX, e.peer.getY)
-		}
-	}
+      def maybeShowPopup(e: MouseEvent) {
+        if (e.peer.isPopupTrigger)
+          popup.show(e.peer.getComponent, e.peer.getX, e.peer.getY)
+      }
+  }
 }

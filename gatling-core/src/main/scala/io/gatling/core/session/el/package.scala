@@ -19,7 +19,7 @@ import scala.reflect.ClassTag
 
 package object el {
 
-	implicit class EL(val string: String) extends AnyVal {
-		def el[T: ClassTag]: Expression[T] = ELCompiler.compile[T](string)
-	}
+  implicit class EL(val string: String) extends AnyVal {
+    def el[T: ClassTag]: Expression[T] = ELCompiler.compile[T](string)
+  }
 }

@@ -22,27 +22,27 @@ import io.gatling.core.config.GatlingFiles.{ GATLING_JS, resultDirectory }
 import io.gatling.core.util.FileHelper.FileRichString
 
 object ChartsFiles {
-	val JQUERY_FILE = "jquery.min.js"
-	val BOOTSTRAP_FILE = "bootstrap.min.js"
-	val GATLING_JS_FILE = "gatling.js"
-	val MENU_FILE = "menu.js"
-	val ALL_SESSIONS_FILE = "all_sessions.js"
-	val STATS_JS_FILE = "stats.js"
-	val STATS_JSON_FILE = "global_stats.json"
-	val STATS_TSV_FILE = "stats.tsv"
-	val GLOBAL_PAGE_NAME = "Global Information"
+  val JQUERY_FILE = "jquery.min.js"
+  val BOOTSTRAP_FILE = "bootstrap.min.js"
+  val GATLING_JS_FILE = "gatling.js"
+  val MENU_FILE = "menu.js"
+  val ALL_SESSIONS_FILE = "all_sessions.js"
+  val STATS_JS_FILE = "stats.js"
+  val STATS_JSON_FILE = "global_stats.json"
+  val STATS_TSV_FILE = "stats.tsv"
+  val GLOBAL_PAGE_NAME = "Global Information"
 
-	def menuFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / MENU_FILE
+  def menuFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / MENU_FILE
 
-	def allSessionsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / ALL_SESSIONS_FILE
+  def allSessionsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / ALL_SESSIONS_FILE
 
-	def globalFile(runOn: String): Path = resultDirectory(runOn) / "index.html"
+  def globalFile(runOn: String): Path = resultDirectory(runOn) / "index.html"
 
-	def requestFile(runOn: String, requestName: String): Path = resultDirectory(runOn) / requestName.toRequestFileName
+  def requestFile(runOn: String, requestName: String): Path = resultDirectory(runOn) / requestName.toRequestFileName
 
-	def jsStatsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / STATS_JS_FILE
+  def jsStatsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / STATS_JS_FILE
 
-	def jsonStatsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / STATS_JSON_FILE
+  def jsonStatsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / STATS_JSON_FILE
 
-	def tsvStatsFile(runOn: String): Path = resultDirectory(runOn) / STATS_TSV_FILE
+  def tsvStatsFile(runOn: String): Path = resultDirectory(runOn) / STATS_TSV_FILE
 }

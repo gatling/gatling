@@ -24,47 +24,47 @@ import io.gatling.core.session.Expression
 
 object CookieHandling {
 
-	val cookieJarAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cookies"
+  val cookieJarAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cookies"
 
-	def cookieJar(session: Session): Option[CookieJar] = session(cookieJarAttributeName).asOption[CookieJar]
+  def cookieJar(session: Session): Option[CookieJar] = session(cookieJarAttributeName).asOption[CookieJar]
 
-	def getStoredCookies(session: Session, url: String): List[Cookie] = getStoredCookies(session, URI.create(url))
+  def getStoredCookies(session: Session, url: String): List[Cookie] = getStoredCookies(session, URI.create(url))
 
-	def getStoredCookies(session: Session, uri: URI): List[Cookie] =
-		session(cookieJarAttributeName).asOption[CookieJar] match {
-			case Some(cookieJar) => cookieJar.get(uri)
-			case _ => Nil
-		}
+  def getStoredCookies(session: Session, uri: URI): List[Cookie] =
+    session(cookieJarAttributeName).asOption[CookieJar] match {
+      case Some(cookieJar) => cookieJar.get(uri)
+      case _               => Nil
+    }
 
-	def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session =
-		if (!cookies.isEmpty)
-			session(cookieJarAttributeName).asOption[CookieJar] match {
-				case Some(cookieJar) => session.set(cookieJarAttributeName, cookieJar.add(uri, cookies))
-				case _ => session.set(cookieJarAttributeName, CookieJar(uri, cookies))
-			}
-		else
-			session
+  def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session =
+    if (!cookies.isEmpty)
+      session(cookieJarAttributeName).asOption[CookieJar] match {
+        case Some(cookieJar) => session.set(cookieJarAttributeName, cookieJar.add(uri, cookies))
+        case _               => session.set(cookieJarAttributeName, CookieJar(uri, cookies))
+      }
+    else
+      session
 
-	def storeCookie(session: Session, domain: String, path: String, cookie: Cookie): Session = {
+  def storeCookie(session: Session, domain: String, path: String, cookie: Cookie): Session = {
 
-		val cookieJar = session(cookieJarAttributeName).asOption[CookieJar] match {
-			case Some(cookieJar) => cookieJar
-			case _ => CookieJar(Map.empty)
-		}
+    val cookieJar = session(cookieJarAttributeName).asOption[CookieJar] match {
+      case Some(cookieJar) => cookieJar
+      case _               => CookieJar(Map.empty)
+    }
 
-		session.set(cookieJarAttributeName, cookieJar.add(domain, path, List(cookie)))
-	}
+    session.set(cookieJarAttributeName, cookieJar.add(domain, path, List(cookie)))
+  }
 
-	val flushSessionCookies: Expression[Session] = session => {
+  val flushSessionCookies: Expression[Session] = session => {
 
-		(cookieJar(session) match {
-			case Some(cookieJar) =>
-				val storeWithOnlyPersistentCookies = cookieJar.store.filter { case (_, storeCookie) => storeCookie.persistent }
-				session.set(cookieJarAttributeName, CookieJar(storeWithOnlyPersistentCookies))
+    (cookieJar(session) match {
+      case Some(cookieJar) =>
+        val storeWithOnlyPersistentCookies = cookieJar.store.filter { case (_, storeCookie) => storeCookie.persistent }
+        session.set(cookieJarAttributeName, CookieJar(storeWithOnlyPersistentCookies))
 
-			case _ => session
-		}).success
-	}
+      case _ => session
+    }).success
+  }
 
-	val flushCookieJar: Expression[Session] = _.remove(cookieJarAttributeName).success
+  val flushCookieJar: Expression[Session] = _.remove(cookieJarAttributeName).success
 }

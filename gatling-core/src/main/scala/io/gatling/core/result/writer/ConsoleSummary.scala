@@ -28,60 +28,60 @@ import io.gatling.core.util.StringHelper.{ RichString, eol }
 
 object ConsoleSummary {
 
-	val iso8601Format = "yyyy-MM-dd HH:mm:ss"
-	val dateTimeFormat = DateTimeFormat.forPattern(iso8601Format)
-	val outputLength = 80
-	val newBlock = "=" * outputLength
+  val iso8601Format = "yyyy-MM-dd HH:mm:ss"
+  val dateTimeFormat = DateTimeFormat.forPattern(iso8601Format)
+  val outputLength = 80
+  val newBlock = "=" * outputLength
 
-	def writeSubTitle(title: String) = ("---- " + title + " ").rightPad(outputLength, "-")
+  def writeSubTitle(title: String) = ("---- " + title + " ").rightPad(outputLength, "-")
 
-	def apply(runDuration: Long, usersCounters: Map[String, UserCounters], globalRequestCounters: RequestCounters, requestsCounters: Map[String, RequestCounters], time: DateTime = DateTime.now) = {
+  def apply(runDuration: Long, usersCounters: Map[String, UserCounters], globalRequestCounters: RequestCounters, requestsCounters: Map[String, RequestCounters], time: DateTime = DateTime.now) = {
 
-		def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
+      def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 
-			import userCounters._
+        import userCounters._
 
-			val width = outputLength - 6 // []3d%
+        val width = outputLength - 6 // []3d%
 
-			val donePercent = floor(100 * doneCount.toDouble / totalCount).toInt
-			val done = floor(width * doneCount.toDouble / totalCount).toInt
-			val running = ceil(width * runningCount.toDouble / totalCount).toInt
-			val waiting = width - done - running
+        val donePercent = floor(100 * doneCount.toDouble / totalCount).toInt
+        val done = floor(width * doneCount.toDouble / totalCount).toInt
+        val running = ceil(width * runningCount.toDouble / totalCount).toInt
+        val waiting = width - done - running
 
-			fast"""${writeSubTitle(scenarioName)}
+        fast"""${writeSubTitle(scenarioName)}
 [${"#" * done}${"-" * running}${" " * waiting}]${donePercent.toString.leftPad(3)}%
           waiting: ${waitingCount.toString.rightPad(6)} / running: ${runningCount.toString.rightPad(6)} / done:${doneCount.toString.rightPad(6)}"""
-		}
+      }
 
-		def writeRequestsCounter(actionName: String, requestCounters: RequestCounters): Fastring = {
+      def writeRequestsCounter(actionName: String, requestCounters: RequestCounters): Fastring = {
 
-			import requestCounters._
+        import requestCounters._
 
-			fast"> ${actionName.rightPad(outputLength - 24)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
-		}
+        fast"> ${actionName.rightPad(outputLength - 24)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
+      }
 
-		val text = fast"""
+    val text = fast"""
 $newBlock
 ${ConsoleSummary.dateTimeFormat.print(time)} ${(runDuration + "s elapsed").leftPad(outputLength - iso8601Format.length - 9)}
 ${usersCounters.map { case (scenarioName, usersStats) => writeUsersCounters(scenarioName, usersStats) }.mkFastring(eol)}
 ${writeSubTitle("Requests")}
 ${writeRequestsCounter("Global", globalRequestCounters)}
 ${
-			if (!configuration.data.console.light)
-				requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(eol)
-			else ""
-		}
+      if (!configuration.data.console.light)
+        requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(eol)
+      else ""
+    }
 $newBlock
 """.toString
 
-		val complete = {
-			val totalWaiting = usersCounters.values.map(_.waitingCount).sum
-			val totalRunning = usersCounters.values.map(_.runningCount).sum
-			(totalWaiting == 0) && (totalRunning == 0)
-		}
+    val complete = {
+      val totalWaiting = usersCounters.values.map(_.waitingCount).sum
+      val totalRunning = usersCounters.values.map(_.runningCount).sum
+      (totalWaiting == 0) && (totalRunning == 0)
+    }
 
-		new ConsoleSummary(text, complete)
-	}
+    new ConsoleSummary(text, complete)
+  }
 }
 
 case class ConsoleSummary(text: String, complete: Boolean)

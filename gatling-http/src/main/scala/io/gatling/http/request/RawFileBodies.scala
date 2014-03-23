@@ -29,17 +29,17 @@ import jsr166e.ConcurrentHashMapV8
 
 object RawFileBodies {
 
-	val cache: concurrent.Map[String, Validation[File]] = new ConcurrentHashMapV8[String, Validation[File]]
-	def cached(path: String) =
-		if (configuration.http.cacheRawFileBodies)
-			cache.getOrElseUpdate(path, Resource.requestBody(path).map(_.jfile))
-		else
-			Resource.requestBody(path).map(_.jfile)
+  val cache: concurrent.Map[String, Validation[File]] = new ConcurrentHashMapV8[String, Validation[File]]
+  def cached(path: String) =
+    if (configuration.http.cacheRawFileBodies)
+      cache.getOrElseUpdate(path, Resource.requestBody(path).map(_.jfile))
+    else
+      Resource.requestBody(path).map(_.jfile)
 
-	def asFile(filePath: Expression[String]): Expression[File] = session =>
-		for {
-			path <- filePath(session)
-			file <- cached(path)
-			validatedFile <- file.validateExistingReadable()
-		} yield validatedFile
+  def asFile(filePath: Expression[String]): Expression[File] = session =>
+    for {
+      path <- filePath(session)
+      file <- cached(path)
+      validatedFile <- file.validateExistingReadable()
+    } yield validatedFile
 }

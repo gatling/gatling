@@ -28,34 +28,34 @@ case class NamedRequest(name: String, ahcRequest: Request)
 
 object EmbeddedResource {
 
-	val mockSession = Session("foo", "bar")
+  val mockSession = Session("foo", "bar")
 }
 
 sealed abstract class EmbeddedResource {
 
-	def uri: URI
-	val url = uri.toString
+  def uri: URI
+  val url = uri.toString
 
-	def toRequest(protocol: HttpProtocol, throttled: Boolean): Option[NamedRequest] = {
-		val urlExpression: Expression[String] = _ => url.success
-		val httpRequest = new Http(urlExpression).get(uri).build(protocol, throttled)
+  def toRequest(protocol: HttpProtocol, throttled: Boolean): Option[NamedRequest] = {
+    val urlExpression: Expression[String] = _ => url.success
+    val httpRequest = new Http(urlExpression).get(uri).build(protocol, throttled)
 
-		// for now, no better way to build a request than reusing HttpRequestBaseBuilder and passing a mock session
-		httpRequest.ahcRequest(EmbeddedResource.mockSession) match {
-			case Success(ahcRequest) =>
-				val requestName = {
-					val start = url.lastIndexOf('/') + 1
-					if (start < url.length)
-						url.substring(start, url.length)
-					else
-						"/"
-				}
+    // for now, no better way to build a request than reusing HttpRequestBaseBuilder and passing a mock session
+    httpRequest.ahcRequest(EmbeddedResource.mockSession) match {
+      case Success(ahcRequest) =>
+        val requestName = {
+          val start = url.lastIndexOf('/') + 1
+          if (start < url.length)
+            url.substring(start, url.length)
+          else
+            "/"
+        }
 
-				Some(NamedRequest(requestName, ahcRequest))
+        Some(NamedRequest(requestName, ahcRequest))
 
-			case _ => None
-		}
-	}
+      case _ => None
+    }
+  }
 }
 
 case class CssResource(uri: URI) extends EmbeddedResource

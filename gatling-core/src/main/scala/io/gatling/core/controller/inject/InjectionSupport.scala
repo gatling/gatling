@@ -19,36 +19,36 @@ import scala.concurrent.duration.FiniteDuration
 
 trait InjectionSupport {
 
-	case class RampBuilder(users: Int) {
-		def over(d: FiniteDuration) = RampInjection(users, d)
-	}
-	case class HeavisideBuilder(users: Int) {
-		def over(d: FiniteDuration) = HeavisideInjection(users, d)
-	}
-	case class ConstantRateBuilder(rate: Double) {
-		def during(d: FiniteDuration) = ConstantRateInjection(rate, d)
-	}
-	case class PartialRampRateBuilder(rate1: Double) {
-		def to(rate2: Double) = RampRateBuilder(rate1, rate2)
-	}
-	case class RampRateBuilder(rate1: Double, rate2: Double) {
-		def during(d: FiniteDuration) = RampRateInjection(rate1, rate2, d)
-	}
-	case class PartialSplitBuilder(users: Int) {
-		def into(step: InjectionStep) = SplitBuilder(users, step)
-	}
-	case class SplitBuilder(users: Int, step: InjectionStep) {
-		def separatedBy(separator: InjectionStep) = SplitInjection(users, step, separator)
-		def separatedBy(duration: FiniteDuration) = SplitInjection(users, step, NothingForInjection(duration))
-	}
+  case class RampBuilder(users: Int) {
+    def over(d: FiniteDuration) = RampInjection(users, d)
+  }
+  case class HeavisideBuilder(users: Int) {
+    def over(d: FiniteDuration) = HeavisideInjection(users, d)
+  }
+  case class ConstantRateBuilder(rate: Double) {
+    def during(d: FiniteDuration) = ConstantRateInjection(rate, d)
+  }
+  case class PartialRampRateBuilder(rate1: Double) {
+    def to(rate2: Double) = RampRateBuilder(rate1, rate2)
+  }
+  case class RampRateBuilder(rate1: Double, rate2: Double) {
+    def during(d: FiniteDuration) = RampRateInjection(rate1, rate2, d)
+  }
+  case class PartialSplitBuilder(users: Int) {
+    def into(step: InjectionStep) = SplitBuilder(users, step)
+  }
+  case class SplitBuilder(users: Int, step: InjectionStep) {
+    def separatedBy(separator: InjectionStep) = SplitInjection(users, step, separator)
+    def separatedBy(duration: FiniteDuration) = SplitInjection(users, step, NothingForInjection(duration))
+  }
 
-	def rampUsers(users: Int) = RampBuilder(users)
-	def heavisideUsers(users: Int) = HeavisideBuilder(users)
-	def atOnceUsers(users: Int) = AtOnceInjection(users)
-	def splitUsers(users: Int) = PartialSplitBuilder(users)
+  def rampUsers(users: Int) = RampBuilder(users)
+  def heavisideUsers(users: Int) = HeavisideBuilder(users)
+  def atOnceUsers(users: Int) = AtOnceInjection(users)
+  def splitUsers(users: Int) = PartialSplitBuilder(users)
 
-	def constantUsersPerSec(rate: Double) = ConstantRateBuilder(rate)
-	def rampUsersPerSec(rate1: Double) = PartialRampRateBuilder(rate1)
+  def constantUsersPerSec(rate: Double) = ConstantRateBuilder(rate)
+  def rampUsersPerSec(rate1: Double) = PartialRampRateBuilder(rate1)
 
-	def nothingFor(d: FiniteDuration) = NothingForInjection(d)
+  def nothingFor(d: FiniteDuration) = NothingForInjection(d)
 }

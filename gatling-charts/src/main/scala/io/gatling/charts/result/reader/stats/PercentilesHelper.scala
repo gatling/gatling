@@ -21,28 +21,28 @@ import io.gatling.core.result.IntVsTimePlot
 
 object PercentilesHelper {
 
-	def processPercentiles(buckets: Seq[IntVsTimePlot], totalSize: Int, percentiles: Seq[Double]): Seq[Int] = {
+  def processPercentiles(buckets: Seq[IntVsTimePlot], totalSize: Int, percentiles: Seq[Double]): Seq[Int] = {
 
-		@tailrec
-		def findPercentile(buckets: Seq[IntVsTimePlot], limit: Int, count: Int): (Int, Seq[IntVsTimePlot]) = {
-			val newCount = count + buckets.head.value
+      @tailrec
+      def findPercentile(buckets: Seq[IntVsTimePlot], limit: Int, count: Int): (Int, Seq[IntVsTimePlot]) = {
+        val newCount = count + buckets.head.value
 
-			if (newCount >= limit)
-				(count, buckets)
-			else
-				findPercentile(buckets.tail, limit, newCount)
-		}
+        if (newCount >= limit)
+          (count, buckets)
+        else
+          findPercentile(buckets.tail, limit, newCount)
+      }
 
-		var currentBuckets = buckets
-		var currentCount = 0
+    var currentBuckets = buckets
+    var currentCount = 0
 
-		percentiles.sorted.map { p =>
-			val limit = math.round(totalSize * p).toInt
-			val (foundCount, foundBuckets) = findPercentile(currentBuckets, limit, currentCount)
-			currentCount = foundCount
-			currentBuckets = foundBuckets
-			currentBuckets.head.time
-		}
-	}
+    percentiles.sorted.map { p =>
+      val limit = math.round(totalSize * p).toInt
+      val (foundCount, foundBuckets) = findPercentile(currentBuckets, limit, currentCount)
+      currentCount = foundCount
+      currentBuckets = foundBuckets
+      currentBuckets.head.time
+    }
+  }
 }
 

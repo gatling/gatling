@@ -29,5 +29,5 @@ import io.gatling.core.session.Expression
  */
 class CustomPauseBuilder(delayGenerator: Expression[Long]) extends ActionBuilder {
 
-	def build(next: ActorRef, protocols: Protocols) = actor(new Pause(delayGenerator, next))
+  def build(next: ActorRef, protocols: Protocols) = actor(new Pause(delayGenerator, next))
 }

@@ -22,7 +22,7 @@ trait NotNothing[T]
 
 object NotNothing {
 
-	private val evidence: NotNothing[Any] = new Object with NotNothing[Any]
+  private val evidence: NotNothing[Any] = new Object with NotNothing[Any]
 
-	implicit def notNothingEv[T](implicit n: T =:= T): NotNothing[T] = evidence.asInstanceOf[NotNothing[T]]
+  implicit def notNothingEv[T](implicit n: T =:= T): NotNothing[T] = evidence.asInstanceOf[NotNothing[T]]
 }

@@ -22,17 +22,17 @@ import io.gatling.http.response.Response
 
 object HttpHeaderRegexCheckBuilder {
 
-	def headerRegex[X](headerName: Expression[String], pattern: Expression[String])(implicit groupExtractor: GroupExtractor[X]) = {
+  def headerRegex[X](headerName: Expression[String], pattern: Expression[String])(implicit groupExtractor: GroupExtractor[X]) = {
 
-		val headerAndPattern = (session: Session) => for {
-			headerName <- headerName(session)
-			pattern <- pattern(session)
-		} yield (headerName, pattern)
+    val headerAndPattern = (session: Session) => for {
+      headerName <- headerName(session)
+      pattern <- pattern(session)
+    } yield (headerName, pattern)
 
-		new HttpMultipleCheckBuilder[Response, String](HttpCheckBuilders.headerCheckFactory, HttpCheckBuilders.passThroughResponsePreparer) {
-			def findExtractor(occurrence: Int) = headerAndPattern.map(new SingleHttpHeaderRegexExtractor[String](_, occurrence))
-			def findAllExtractor = headerAndPattern.map(new MultipleHttpHeaderRegexExtractor[String](_))
-			def countExtractor = headerAndPattern.map(new CountHttpHeaderRegexExtractor(_))
-		}
-	}
+    new HttpMultipleCheckBuilder[Response, String](HttpCheckBuilders.headerCheckFactory, HttpCheckBuilders.passThroughResponsePreparer) {
+      def findExtractor(occurrence: Int) = headerAndPattern.map(new SingleHttpHeaderRegexExtractor[String](_, occurrence))
+      def findAllExtractor = headerAndPattern.map(new MultipleHttpHeaderRegexExtractor[String](_))
+      def countExtractor = headerAndPattern.map(new CountHttpHeaderRegexExtractor(_))
+    }
+  }
 }

@@ -56,45 +56,45 @@ import javax.net.ssl.{ KeyManagerFactory, SSLContext }
  */
 object SecureChatSslContextFactory extends StrictLogging {
 
-	val PROTOCOL = "TLS"
-	val PROPERTY_KEYSTORE_PATH = "gatling.recorder.keystore.path"
-	val PROPERTY_KEYSTORE_PASSPHRASE = "gatling.recorder.keystore.passphrase"
+  val PROTOCOL = "TLS"
+  val PROPERTY_KEYSTORE_PATH = "gatling.recorder.keystore.path"
+  val PROPERTY_KEYSTORE_PASSPHRASE = "gatling.recorder.keystore.passphrase"
 
-	val serverContext: SSLContext = {
+  val serverContext: SSLContext = {
 
-		val algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
-		val ks = KeyStore.getInstance("JKS")
+    val algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
+    val ks = KeyStore.getInstance("JKS")
 
-		val keystoreStream = sys.props.get(PROPERTY_KEYSTORE_PATH)
-			.map { keystorePath =>
-				logger.info(s"Loading user-specified keystore: '$keystorePath'")
-				new FileInputStream(keystorePath)
-			}.getOrElse {
-				logger.info("Loading default keystore gatling.jks")
-				ClassLoader.getSystemResourceAsStream("gatling.jks")
-			}
+    val keystoreStream = sys.props.get(PROPERTY_KEYSTORE_PATH)
+      .map { keystorePath =>
+        logger.info(s"Loading user-specified keystore: '$keystorePath'")
+        new FileInputStream(keystorePath)
+      }.getOrElse {
+        logger.info("Loading default keystore gatling.jks")
+        ClassLoader.getSystemResourceAsStream("gatling.jks")
+      }
 
-		val keystorePassphrase = System.getProperty(PROPERTY_KEYSTORE_PASSPHRASE, "gatling")
+    val keystorePassphrase = System.getProperty(PROPERTY_KEYSTORE_PASSPHRASE, "gatling")
 
-		withCloseable(keystoreStream) { in =>
-			val passphraseChars = keystorePassphrase.toCharArray
-			ks.load(in, passphraseChars)
+    withCloseable(keystoreStream) { in =>
+      val passphraseChars = keystorePassphrase.toCharArray
+      ks.load(in, passphraseChars)
 
-			// Set up key manager factory to use our key store
-			val kmf = KeyManagerFactory.getInstance(algorithm)
-			kmf.init(ks, passphraseChars)
+      // Set up key manager factory to use our key store
+      val kmf = KeyManagerFactory.getInstance(algorithm)
+      kmf.init(ks, passphraseChars)
 
-			// Initialize the SSLContext to work with our key managers.
-			val serverContext = SSLContext.getInstance(PROTOCOL)
-			serverContext.init(kmf.getKeyManagers, null, null)
+      // Initialize the SSLContext to work with our key managers.
+      val serverContext = SSLContext.getInstance(PROTOCOL)
+      serverContext.init(kmf.getKeyManagers, null, null)
 
-			serverContext
-		}
-	}
+      serverContext
+    }
+  }
 
-	val clientContext: SSLContext = {
-		val clientContext = SSLContext.getInstance(PROTOCOL)
-		clientContext.init(null, SecureChatTrustManagerFactory.trustManagers, null)
-		clientContext
-	}
+  val clientContext: SSLContext = {
+    val clientContext = SSLContext.getInstance(PROTOCOL)
+    clientContext.init(null, SecureChatTrustManagerFactory.trustManagers, null)
+    clientContext
+  }
 }

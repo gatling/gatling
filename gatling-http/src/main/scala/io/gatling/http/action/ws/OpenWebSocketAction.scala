@@ -26,25 +26,25 @@ import io.gatling.http.ahc.{ HttpEngine, WebSocketTx }
 import io.gatling.http.config.HttpProtocol
 
 class OpenWebSocketAction(
-	requestName: Expression[String],
-	wsName: String,
-	request: Expression[Request],
-	val next: ActorRef,
-	protocol: HttpProtocol) extends Interruptable {
+    requestName: Expression[String],
+    wsName: String,
+    request: Expression[Request],
+    val next: ActorRef,
+    protocol: HttpProtocol) extends Interruptable {
 
-	def execute(session: Session) {
+  def execute(session: Session) {
 
-		def open(tx: WebSocketTx) {
-			logger.info(s"Opening websocket '$wsName': Scenario '${session.scenarioName}', UserId #${session.userId}")
+      def open(tx: WebSocketTx) {
+        logger.info(s"Opening websocket '$wsName': Scenario '${session.scenarioName}', UserId #${session.userId}")
 
-			val wsActor = actor(context)(new WebSocketActor(wsName))
+        val wsActor = actor(context)(new WebSocketActor(wsName))
 
-			HttpEngine.instance.startWebSocketTransaction(tx, wsActor)
-		}
+        HttpEngine.instance.startWebSocketTransaction(tx, wsActor)
+      }
 
-		for {
-			requestName <- requestName(session)
-			request <- request(session)
-		} yield open(WebSocketTx(session, request, requestName, protocol, next))
-	}
+    for {
+      requestName <- requestName(session)
+      request <- request(session)
+    } yield open(WebSocketTx(session, request, requestName, protocol, next))
+  }
 }

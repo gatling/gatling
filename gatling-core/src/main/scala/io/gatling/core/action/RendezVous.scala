@@ -25,17 +25,17 @@ import io.gatling.core.session.Session
  */
 class RendezVous(users: Int, val next: ActorRef) extends Chainable {
 
-	val buffer = Queue.empty[Session]
+  val buffer = Queue.empty[Session]
 
-	val passThrough: Receive = {
-		case session: Session => next ! Session
-	}
+  val passThrough: Receive = {
+    case session: Session => next ! Session
+  }
 
-	def execute(session: Session) {
-		buffer += session
-		if (buffer.length == users) {
-			context.become(passThrough)
-			buffer.foreach(next ! _)
-		}
-	}
+  def execute(session: Session) {
+    buffer += session
+    if (buffer.length == users) {
+      context.become(passThrough)
+      buffer.foreach(next ! _)
+    }
+  }
 }

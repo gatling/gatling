@@ -30,119 +30,119 @@ case object ByteArrayResponseBodyUsage extends ResponseBodyUsage
 case object InputStreamResponseBodyUsage extends ResponseBodyUsage
 
 trait ResponseBodyUsageStrategy {
-	def bodyUsage(bodyLength: Int): ResponseBodyUsage
+  def bodyUsage(bodyLength: Int): ResponseBodyUsage
 }
 
 object StringResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
-	def bodyUsage(bodyLength: Int) = StringResponseBodyUsage
+  def bodyUsage(bodyLength: Int) = StringResponseBodyUsage
 }
 
 object ByteArrayResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
-	def bodyUsage(bodyLength: Int) = ByteArrayResponseBodyUsage
+  def bodyUsage(bodyLength: Int) = ByteArrayResponseBodyUsage
 }
 
 object InputStreamResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
-	def bodyUsage(bodyLength: Int) = InputStreamResponseBodyUsage
+  def bodyUsage(bodyLength: Int) = InputStreamResponseBodyUsage
 }
 
 object ResponseBody {
 
-	val emptyBytes = new Array[Byte](0)
+  val emptyBytes = new Array[Byte](0)
 
-	private def getBytes(buffer: ChannelBuffer, start: Int, length: Int): Array[Byte] = {
-		val array = new Array[Byte](length)
-		buffer.getBytes(start, array)
-		array
-	}
+  private def getBytes(buffer: ChannelBuffer, start: Int, length: Int): Array[Byte] = {
+    val array = new Array[Byte](length)
+    buffer.getBytes(start, array)
+    array
+  }
 
-	def chunks2Bytes(chunks: Seq[ChannelBuffer]): Array[Byte] = (chunks.size: @switch) match {
+  def chunks2Bytes(chunks: Seq[ChannelBuffer]): Array[Byte] = (chunks.size: @switch) match {
 
-		case 0 => emptyBytes
+    case 0 => emptyBytes
 
-		case 1 =>
-			val headChunk = chunks.head
-			val readableBytes = headChunk.readableBytes
-			val readerIndex = headChunk.readerIndex
+    case 1 =>
+      val headChunk = chunks.head
+      val readableBytes = headChunk.readableBytes
+      val readerIndex = headChunk.readerIndex
 
-			if (headChunk.hasArray && headChunk.arrayOffset == 0 && readerIndex == 0 && readableBytes == headChunk.array.length)
-				headChunk.array
-			else
-				getBytes(headChunk, readerIndex, readableBytes)
+      if (headChunk.hasArray && headChunk.arrayOffset == 0 && readerIndex == 0 && readableBytes == headChunk.array.length)
+        headChunk.array
+      else
+        getBytes(headChunk, readerIndex, readableBytes)
 
-		case _ =>
-			val composite = ChannelBuffers.wrappedBuffer(chunks: _*)
-			getBytes(composite, composite.readerIndex, composite.readableBytes)
-	}
+    case _ =>
+      val composite = ChannelBuffers.wrappedBuffer(chunks: _*)
+      getBytes(composite, composite.readerIndex, composite.readableBytes)
+  }
 
-	def chunks2String(chunks: Seq[ChannelBuffer], charset: Charset): String = (chunks.size: @switch) match {
+  def chunks2String(chunks: Seq[ChannelBuffer], charset: Charset): String = (chunks.size: @switch) match {
 
-		case 0 => ""
+    case 0 => ""
 
-		case 1 => chunks.head.toString(charset)
+    case 1 => chunks.head.toString(charset)
 
-		case _ => ChannelBuffers.wrappedBuffer(chunks: _*).toString(charset)
-	}
+    case _ => ChannelBuffers.wrappedBuffer(chunks: _*).toString(charset)
+  }
 }
 
 sealed trait ResponseBody {
-	def string(): String
-	def bytes(): Array[Byte]
-	def stream(): InputStream
+  def string(): String
+  def bytes(): Array[Byte]
+  def stream(): InputStream
 }
 
 object StringResponseBody {
 
-	def apply(chunks: Seq[ChannelBuffer], charset: Charset) = {
-		val string = ResponseBody.chunks2String(chunks, charset)
-		new StringResponseBody(string, charset)
-	}
+  def apply(chunks: Seq[ChannelBuffer], charset: Charset) = {
+    val string = ResponseBody.chunks2String(chunks, charset)
+    new StringResponseBody(string, charset)
+  }
 }
 
 case class StringResponseBody(string: String, charset: Charset) extends ResponseBody {
 
-	lazy val bytes = string.getBytes(charset)
-	def stream() = new ByteArrayInputStream(bytes)
+  lazy val bytes = string.getBytes(charset)
+  def stream() = new ByteArrayInputStream(bytes)
 }
 
 object ByteArrayResponseBody {
 
-	def apply(chunks: Seq[ChannelBuffer], charset: Charset) = {
-		val bytes = ResponseBody.chunks2Bytes(chunks)
-		new ByteArrayResponseBody(bytes, charset)
-	}
+  def apply(chunks: Seq[ChannelBuffer], charset: Charset) = {
+    val bytes = ResponseBody.chunks2Bytes(chunks)
+    new ByteArrayResponseBody(bytes, charset)
+  }
 }
 
 case class ByteArrayResponseBody(bytes: Array[Byte], charset: Charset) extends ResponseBody {
 
-	def stream() = new UnsyncByteArrayInputStream(bytes)
-	lazy val string = new String(bytes, charset)
+  def stream() = new UnsyncByteArrayInputStream(bytes)
+  lazy val string = new String(bytes, charset)
 }
 
 case class InputStreamResponseBody(chunks: Seq[ChannelBuffer], charset: Charset) extends ResponseBody {
 
-	var bytesLoaded = false
+  var bytesLoaded = false
 
-	def stream() = (chunks.size: @switch) match {
+  def stream() = (chunks.size: @switch) match {
 
-		case 0 => new UnsyncByteArrayInputStream(ResponseBody.emptyBytes)
+    case 0 => new UnsyncByteArrayInputStream(ResponseBody.emptyBytes)
 
-		case 1 =>
-			new ChannelBufferInputStream(chunks.head.duplicate)
+    case 1 =>
+      new ChannelBufferInputStream(chunks.head.duplicate)
 
-		case _ =>
-			val composite = ChannelBuffers.wrappedBuffer(chunks.map(_.duplicate): _*)
-			new ChannelBufferInputStream(composite)
-	}
+    case _ =>
+      val composite = ChannelBuffers.wrappedBuffer(chunks.map(_.duplicate): _*)
+      new ChannelBufferInputStream(composite)
+  }
 
-	lazy val bytes = {
-		bytesLoaded = true
-		ResponseBody.chunks2Bytes(chunks)
-	}
+  lazy val bytes = {
+    bytesLoaded = true
+    ResponseBody.chunks2Bytes(chunks)
+  }
 
-	lazy val string = {
-		if (bytesLoaded)
-			new String(bytes, charset)
-		else
-			ResponseBody.chunks2String(chunks, charset)
-	}
+  lazy val string = {
+    if (bytesLoaded)
+      new String(bytes, charset)
+    else
+      ResponseBody.chunks2String(chunks, charset)
+  }
 }

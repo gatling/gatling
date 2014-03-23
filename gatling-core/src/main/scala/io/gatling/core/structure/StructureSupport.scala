@@ -19,7 +19,7 @@ import io.gatling.core.action.builder.ActionBuilder
 
 trait StructureSupport extends StructureBuilder[ChainBuilder] {
 
-	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = new ChainBuilder(actionBuilders)
+  private[core] def newInstance(actionBuilders: List[ActionBuilder]) = new ChainBuilder(actionBuilders)
 
-	private[core] def actionBuilders: List[ActionBuilder] = Nil
+  private[core] def actionBuilders: List[ActionBuilder] = Nil
 }

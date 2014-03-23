@@ -22,14 +22,14 @@ import io.gatling.core.util.ClassSimpleNameToString
 
 abstract class BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with StrictLogging {
 
-	override def preStart() {
-		context.setReceiveTimeout(simulationTimeOut)
-	}
+  override def preStart() {
+    context.setReceiveTimeout(simulationTimeOut)
+  }
 
-	override def unhandled(message: Any) {
-		message match {
-			case Terminated(dead) => super.unhandled(message)
-			case unknown => throw new IllegalArgumentException(s"Actor $this doesn't support message $unknown")
-		}
-	}
+  override def unhandled(message: Any) {
+    message match {
+      case Terminated(dead) => super.unhandled(message)
+      case unknown          => throw new IllegalArgumentException(s"Actor $this doesn't support message $unknown")
+    }
+  }
 }

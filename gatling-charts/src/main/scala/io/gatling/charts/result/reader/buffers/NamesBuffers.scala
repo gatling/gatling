@@ -22,30 +22,30 @@ import io.gatling.core.result.{ GroupStatsPath, RequestStatsPath, StatsPath }
 
 trait NamesBuffers {
 
-	class NameBuffer[A] {
+  class NameBuffer[A] {
 
-		val map = mutable.Map.empty[A, Long]
+    val map = mutable.Map.empty[A, Long]
 
-		def update(name: A, time: Long) {
-			map += (name -> (time min map.getOrElse(name, Long.MaxValue)))
-		}
-	}
+    def update(name: A, time: Long) {
+      map += (name -> (time min map.getOrElse(name, Long.MaxValue)))
+    }
+  }
 
-	val groupAndRequestsNameBuffer = new NameBuffer[StatsPath]
-	val scenarioNameBuffer = new NameBuffer[String]
+  val groupAndRequestsNameBuffer = new NameBuffer[StatsPath]
+  val scenarioNameBuffer = new NameBuffer[String]
 
-	def addScenarioName(record: UserRecord) {
-		import record._
-		scenarioNameBuffer.update(scenario, startDate)
-	}
+  def addScenarioName(record: UserRecord) {
+    import record._
+    scenarioNameBuffer.update(scenario, startDate)
+  }
 
-	def addRequestName(record: RequestRecord) {
-		import record._
-		groupAndRequestsNameBuffer.update(RequestStatsPath(name, group), requestStart)
-	}
+  def addRequestName(record: RequestRecord) {
+    import record._
+    groupAndRequestsNameBuffer.update(RequestStatsPath(name, group), requestStart)
+  }
 
-	def addGroupName(record: GroupRecord) {
-		import record._
-		groupAndRequestsNameBuffer.update(GroupStatsPath(group), startDate)
-	}
+  def addGroupName(record: GroupRecord) {
+    import record._
+    groupAndRequestsNameBuffer.update(GroupStatsPath(group), startDate)
+  }
 }

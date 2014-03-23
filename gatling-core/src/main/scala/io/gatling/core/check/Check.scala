@@ -24,58 +24,58 @@ import io.gatling.core.validation.{ Success, SuccessWrapper, Validation }
 
 object Check {
 
-	val noopUpdate = identity[Session] _
-	val noopUpdateSuccess = noopUpdate.success
+  val noopUpdate = identity[Session] _
+  val noopUpdateSuccess = noopUpdate.success
 
-	def check[R](response: R, session: Session, checks: List[Check[R]]): Validation[Session => Session] = {
+  def check[R](response: R, session: Session, checks: List[Check[R]]): Validation[Session => Session] = {
 
-		implicit val cache = mutable.Map.empty[Any, Any]
+    implicit val cache = mutable.Map.empty[Any, Any]
 
-		@tailrec
-		def checkRec(checks: List[Check[R]], updates: Validation[Session => Session]): Validation[Session => Session] = checks match {
-			case Nil => updates
-			case head :: tail => head.check(response, session) match {
-				case Success(update) =>
-					val newUpdates = updates.map(_ andThen update)
-					checkRec(tail, newUpdates)
-				case failure => failure
-			}
-		}
+      @tailrec
+      def checkRec(checks: List[Check[R]], updates: Validation[Session => Session]): Validation[Session => Session] = checks match {
+        case Nil => updates
+        case head :: tail => head.check(response, session) match {
+          case Success(update) =>
+            val newUpdates = updates.map(_ andThen update)
+            checkRec(tail, newUpdates)
+          case failure => failure
+        }
+      }
 
-		checkRec(checks, noopUpdateSuccess)
-	}
+    checkRec(checks, noopUpdateSuccess)
+  }
 }
 
 trait Check[R] {
 
-	def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[Session => Session]
+  def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[Session => Session]
 }
 
 case class CheckBase[R, P, X](
-	preparer: Preparer[R, P],
-	extractorExpression: Expression[Extractor[P, X]],
-	validatorExpression: Expression[Validator[X]],
-	saveAs: Option[String]) extends Check[R] {
+    preparer: Preparer[R, P],
+    extractorExpression: Expression[Extractor[P, X]],
+    validatorExpression: Expression[Validator[X]],
+    saveAs: Option[String]) extends Check[R] {
 
-	def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[Session => Session] = {
+  def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[Session => Session] = {
 
-		def update(extractedValue: Option[Any]) =
-			(for {
-				key <- saveAs
-				value <- extractedValue
-			} yield (session: Session) => session.set(key, value)).getOrElse(Check.noopUpdate)
+      def update(extractedValue: Option[Any]) =
+        (for {
+          key <- saveAs
+          value <- extractedValue
+        } yield (session: Session) => session.set(key, value)).getOrElse(Check.noopUpdate)
 
-		val memoizedPrepared: Validation[P] = cache
-			.getOrElseUpdate(preparer, preparer(response))
-			.asInstanceOf[Validation[P]]
+    val memoizedPrepared: Validation[P] = cache
+      .getOrElseUpdate(preparer, preparer(response))
+      .asInstanceOf[Validation[P]]
 
-		for {
-			extractor <- extractorExpression(session).mapError(message => s"Check extractor resolution crashed: $message")
-			validator <- validatorExpression(session).mapError(message => s"Check validator resolution crashed: $message")
-			prepared <- memoizedPrepared.mapError(message => s"${extractor.name}.${validator.name} failed, could not prepare: $message")
-			actual <- extractor(prepared).mapError(message => s"${extractor.name}.${validator.name} failed, could not extract: $message")
-			matched <- validator(actual).mapError(message => s"${extractor.name}.${validator.name}, $message")
+    for {
+      extractor <- extractorExpression(session).mapError(message => s"Check extractor resolution crashed: $message")
+      validator <- validatorExpression(session).mapError(message => s"Check validator resolution crashed: $message")
+      prepared <- memoizedPrepared.mapError(message => s"${extractor.name}.${validator.name} failed, could not prepare: $message")
+      actual <- extractor(prepared).mapError(message => s"${extractor.name}.${validator.name} failed, could not extract: $message")
+      matched <- validator(actual).mapError(message => s"${extractor.name}.${validator.name}, $message")
 
-		} yield update(matched)
-	}
+    } yield update(matched)
+  }
 }

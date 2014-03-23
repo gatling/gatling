@@ -18,6 +18,6 @@ package io.gatling.core.util
 import java.util.concurrent.atomic.AtomicInteger
 
 class CyclicCounter(max: Int) {
-	private val counter = new AtomicInteger
-	def nextVal = counter.getAndIncrement % max
+  private val counter = new AtomicInteger
+  def nextVal = counter.getAndIncrement % max
 }

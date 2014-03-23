@@ -24,18 +24,18 @@ import io.gatling.core.util.StringHelper.{ eol, RichString }
 
 object ConsoleTemplate {
 
-	def writeRequestCounters[T: Numeric](statistics: Statistics[T]): Fastring = {
-		import statistics._
-		fast"> ${name.rightPad(outputLength - 32)} ${printable(total).leftPad(7)} (OK=${printable(success).rightPad(6)} KO=${printable(failure).rightPad(6)})"
-	}
-	def writeGroupedCounters(groupedCount: GroupedCount): Fastring = {
-		import groupedCount._
-		fast"> ${name.rightPad(outputLength - 32)} ${count.toString.leftPad(7)} (${percentage.toString.leftPad(3)}%)"
-	}
+  def writeRequestCounters[T: Numeric](statistics: Statistics[T]): Fastring = {
+    import statistics._
+    fast"> ${name.rightPad(outputLength - 32)} ${printable(total).leftPad(7)} (OK=${printable(success).rightPad(6)} KO=${printable(failure).rightPad(6)})"
+  }
+  def writeGroupedCounters(groupedCount: GroupedCount): Fastring = {
+    import groupedCount._
+    fast"> ${name.rightPad(outputLength - 32)} ${count.toString.leftPad(7)} (${percentage.toString.leftPad(3)}%)"
+  }
 
-	def apply(requestStatistics: RequestStatistics): String = {
-		import requestStatistics._
-		fast"""
+  def apply(requestStatistics: RequestStatistics): String = {
+    import requestStatistics._
+    fast"""
 $newBlock
 ${writeSubTitle("Global Information")}
 ${writeRequestCounters(numberOfRequestsStatistics)}
@@ -50,5 +50,5 @@ ${writeSubTitle("Response Time Distribution")}
 ${groupedCounts.map(writeGroupedCounters).mkFastring(eol)}
 $newBlock
 """.toString
-	}
+  }
 }

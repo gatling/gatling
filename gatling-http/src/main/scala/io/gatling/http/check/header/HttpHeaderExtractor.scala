@@ -25,31 +25,31 @@ import io.gatling.http.response.Response
 
 object HttpHeaderExtractor {
 
-	def decode(headerName: String, headerValue: String) =
-		if (headerName == HeaderNames.LOCATION)
-			URLDecoder.decode(headerValue, configuration.core.encoding)
-		else
-			headerValue
+  def decode(headerName: String, headerValue: String) =
+    if (headerName == HeaderNames.LOCATION)
+      URLDecoder.decode(headerValue, configuration.core.encoding)
+    else
+      headerValue
 
-	def decodedHeaders(response: Response, headerName: String): Seq[String] = response.headers(headerName).map(decode(headerName, _))
+  def decodedHeaders(response: Response, headerName: String): Seq[String] = response.headers(headerName).map(decode(headerName, _))
 }
 
 abstract class HttpHeaderExtractor[X] extends CriterionExtractor[Response, String, X] { val criterionName = "header" }
 
 class SingleHttpHeaderExtractor(val criterion: String, occurrence: Int) extends HttpHeaderExtractor[String] {
 
-	def extract(prepared: Response): Validation[Option[String]] =
-		prepared.headers(criterion).lift(occurrence).map(HttpHeaderExtractor.decode(criterion, _)).success
+  def extract(prepared: Response): Validation[Option[String]] =
+    prepared.headers(criterion).lift(occurrence).map(HttpHeaderExtractor.decode(criterion, _)).success
 }
 
 class MultipleHttpHeaderExtractor(val criterion: String) extends HttpHeaderExtractor[Seq[String]] {
 
-	def extract(prepared: Response): Validation[Option[Seq[String]]] =
-		HttpHeaderExtractor.decodedHeaders(prepared, criterion).liftSeqOption.success
+  def extract(prepared: Response): Validation[Option[Seq[String]]] =
+    HttpHeaderExtractor.decodedHeaders(prepared, criterion).liftSeqOption.success
 }
 
 class CountHttpHeaderExtractor(val criterion: String) extends HttpHeaderExtractor[Int] {
 
-	def extract(prepared: Response): Validation[Option[Int]] =
-		prepared.headers(criterion).liftSeqOption.map(_.size).success
+  def extract(prepared: Response): Validation[Option[Int]] =
+    prepared.headers(criterion).liftSeqOption.map(_.size).success
 }

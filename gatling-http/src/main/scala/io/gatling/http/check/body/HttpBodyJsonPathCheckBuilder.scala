@@ -27,62 +27,62 @@ import io.gatling.http.response.{ ByteArrayResponseBodyUsage, InputStreamRespons
 
 object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
-	val charsParsingThreshold = 1000000
+  val charsParsingThreshold = 1000000
 
-	def handleParseException(block: Response => Any) = (response: Response) =>
-		try {
-			block(response).success
-		} catch {
-			case e: Exception =>
-				val message = s"Could not parse response into a JSON object: ${e.getMessage}"
-				logger.info(message, e)
-				message.failure
-		}
+  def handleParseException(block: Response => Any) = (response: Response) =>
+    try {
+      block(response).success
+    } catch {
+      case e: Exception =>
+        val message = s"Could not parse response into a JSON object: ${e.getMessage}"
+        logger.info(message, e)
+        message.failure
+    }
 
-	val preparer: Preparer[Response, Any] = stringImplementation match {
+  val preparer: Preparer[Response, Any] = stringImplementation match {
 
-		case DirectCharsBasedStringImplementation =>
-			handleParseException { response =>
-				if (response.bodyLength <= charsParsingThreshold)
-					BoonParser.parse(response.body.string())
-				else
-					BoonParser.parse(response.body.stream(), response.charset)
-			}
+    case DirectCharsBasedStringImplementation =>
+      handleParseException { response =>
+        if (response.bodyLength <= charsParsingThreshold)
+          BoonParser.parse(response.body.string())
+        else
+          BoonParser.parse(response.body.stream(), response.charset)
+      }
 
-		case _ =>
-			handleParseException { response =>
-				if (response.bodyLength <= charsParsingThreshold)
-					JacksonParser.parse(response.body.bytes(), response.charset)
-				else
-					JacksonParser.parse(response.body.stream(), response.charset)
-			}
-	}
+    case _ =>
+      handleParseException { response =>
+        if (response.bodyLength <= charsParsingThreshold)
+          JacksonParser.parse(response.body.bytes(), response.charset)
+        else
+          JacksonParser.parse(response.body.stream(), response.charset)
+      }
+  }
 
-	val boonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
-		def bodyUsage(bodyLength: Int) =
-			if (bodyLength <= charsParsingThreshold)
-				StringResponseBodyUsage
-			else
-				InputStreamResponseBodyUsage
-	}
+  val boonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
+    def bodyUsage(bodyLength: Int) =
+      if (bodyLength <= charsParsingThreshold)
+        StringResponseBodyUsage
+      else
+        InputStreamResponseBodyUsage
+  }
 
-	val jacksonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
-		def bodyUsage(bodyLength: Int) =
-			if (bodyLength <= charsParsingThreshold)
-				ByteArrayResponseBodyUsage
-			else
-				InputStreamResponseBodyUsage
-	}
+  val jacksonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
+    def bodyUsage(bodyLength: Int) =
+      if (bodyLength <= charsParsingThreshold)
+        ByteArrayResponseBodyUsage
+      else
+        InputStreamResponseBodyUsage
+  }
 
-	val responseBodyUsageStrategy = stringImplementation match {
-		case DirectCharsBasedStringImplementation => boonResponseBodyUsageStrategy
-		case _ => jacksonResponseBodyUsageStrategy
-	}
+  val responseBodyUsageStrategy = stringImplementation match {
+    case DirectCharsBasedStringImplementation => boonResponseBodyUsageStrategy
+    case _                                    => jacksonResponseBodyUsageStrategy
+  }
 
-	def jsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
-		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory(responseBodyUsageStrategy), preparer) {
-			def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
-			def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))
-			def countExtractor = path.map(new CountJsonPathExtractor(_))
-		}
+  def jsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
+    new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory(responseBodyUsageStrategy), preparer) {
+      def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
+      def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))
+      def countExtractor = path.map(new CountJsonPathExtractor(_))
+    }
 }

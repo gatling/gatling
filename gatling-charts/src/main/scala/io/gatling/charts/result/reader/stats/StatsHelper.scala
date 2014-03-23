@@ -16,25 +16,25 @@
 package io.gatling.charts.result.reader.stats
 
 object StatsHelper {
-	def bucketsList(min: Int, max: Int, step: Double): Seq[Int] = {
-		val halfStep = step / 2
-		(0 until math.ceil((max - min) / step).toInt).map(i => math.round(min + step * i + halfStep).toInt)
-	}
+  def bucketsList(min: Int, max: Int, step: Double): Seq[Int] = {
+    val halfStep = step / 2
+    (0 until math.ceil((max - min) / step).toInt).map(i => math.round(min + step * i + halfStep).toInt)
+  }
 
-	def step(min: Int, max: Int, maxPlots: Int): Double = {
-		val range = max - min
-		if (range < maxPlots) 1.0
-		else range / maxPlots.toDouble
-	}
+  def step(min: Int, max: Int, maxPlots: Int): Double = {
+    val range = max - min
+    if (range < maxPlots) 1.0
+    else range / maxPlots.toDouble
+  }
 
-	def bucket(t: Int, min: Int, max: Int, step: Double, halfStep: Double): Int = {
-		val value = t min (max - 1)
-		math.round(value - (value - min) % step + halfStep).toInt
-	}
+  def bucket(t: Int, min: Int, max: Int, step: Double, halfStep: Double): Int = {
+    val value = t min (max - 1)
+    math.round(value - (value - min) % step + halfStep).toInt
+  }
 
-	def square(x: Double) = x * x
+  def square(x: Double) = x * x
 
-	def square(x: Int) = x * x
+  def square(x: Int) = x * x
 
-	def stdDev(squareMean: Double, mean: Double) = math.sqrt(squareMean - square(mean))
+  def stdDev(squareMean: Double, mean: Double) = math.sqrt(squareMean - square(mean))
 }

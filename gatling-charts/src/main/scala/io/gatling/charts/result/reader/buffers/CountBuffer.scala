@@ -20,10 +20,10 @@ import scala.collection.mutable
 import io.gatling.core.result.IntVsTimePlot
 
 class CountBuffer {
-	val map = mutable.Map.empty[Int, IntVsTimePlot]
+  val map = mutable.Map.empty[Int, IntVsTimePlot]
 
-	def update(bucket: Int) {
-		val current = map.getOrElse(bucket, IntVsTimePlot(bucket, 0))
-		map.put(bucket, current.copy(value = current.value + 1))
-	}
+  def update(bucket: Int) {
+    val current = map.getOrElse(bucket, IntVsTimePlot(bucket, 0))
+    map.put(bucket, current.copy(value = current.value + 1))
+  }
 }

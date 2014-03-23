@@ -23,24 +23,24 @@ import io.gatling.jdbc.util.SQLHelper.withConnection
 
 object JdbcFeederSource {
 
-	def apply(url: String, username: String, password: String, sql: String): Array[Record[Any]] = {
+  def apply(url: String, username: String, password: String, sql: String): Array[Record[Any]] = {
 
-		withConnection(DriverManager.getConnection(url, username, password)) { connection =>
-			val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY)
-			val resultSet = preparedStatement.executeQuery
-			val metadata = resultSet.getMetaData
-			val columnCount = metadata.getColumnCount
+    withConnection(DriverManager.getConnection(url, username, password)) { connection =>
+      val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY)
+      val resultSet = preparedStatement.executeQuery
+      val metadata = resultSet.getMetaData
+      val columnCount = metadata.getColumnCount
 
-			val columnNames = for (i <- 1 to columnCount) yield metadata.getColumnName(i)
+      val columnNames = for (i <- 1 to columnCount) yield metadata.getColumnName(i)
 
-			def computeRecord: Record[Any] = (for (i <- 1 to columnCount) yield columnNames(i - 1) -> resultSet.getObject(i)).toMap
+        def computeRecord: Record[Any] = (for (i <- 1 to columnCount) yield columnNames(i - 1) -> resultSet.getObject(i)).toMap
 
-			@tailrec
-			def loadRec(records: Vector[Record[Any]]): Vector[Record[Any]] =
-				if (!resultSet.next) records
-				else loadRec(records :+ computeRecord)
+        @tailrec
+        def loadRec(records: Vector[Record[Any]]): Vector[Record[Any]] =
+          if (!resultSet.next) records
+          else loadRec(records :+ computeRecord)
 
-			loadRec(Vector.empty).toArray
-		}
-	}
+      loadRec(Vector.empty).toArray
+    }
+  }
 }

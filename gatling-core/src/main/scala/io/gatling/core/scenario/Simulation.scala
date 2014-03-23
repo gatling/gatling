@@ -27,81 +27,81 @@ import io.gatling.core.structure.PopulatedScenarioBuilder
 
 abstract class Simulation {
 
-	private[core] var _scenarios: List[PopulatedScenarioBuilder] = Nil
-	private[core] var _globalProtocols = Protocols()
-	private[core] var _assertions = Seq.empty[Assertion]
-	private[core] var _maxDuration: Option[FiniteDuration] = None
-	private[core] var _globalThrottling: Option[ThrottlingProtocol] = None
-	private[core] var _beforeSteps: List[() => Unit] = Nil
-	private[core] var _afterSteps: List[() => Unit] = Nil
+  private[core] var _scenarios: List[PopulatedScenarioBuilder] = Nil
+  private[core] var _globalProtocols = Protocols()
+  private[core] var _assertions = Seq.empty[Assertion]
+  private[core] var _maxDuration: Option[FiniteDuration] = None
+  private[core] var _globalThrottling: Option[ThrottlingProtocol] = None
+  private[core] var _beforeSteps: List[() => Unit] = Nil
+  private[core] var _afterSteps: List[() => Unit] = Nil
 
-	def scenarios: List[Scenario] = {
-		require(!_scenarios.isEmpty, "No scenario set up")
-		_scenarios.foreach(scn => require(!scn.scenarioBuilder.actionBuilders.isEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
-		_scenarios.map(_.build(_globalProtocols))
-	}
+  def scenarios: List[Scenario] = {
+    require(!_scenarios.isEmpty, "No scenario set up")
+    _scenarios.foreach(scn => require(!scn.scenarioBuilder.actionBuilders.isEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
+    _scenarios.map(_.build(_globalProtocols))
+  }
 
-	def assertions = _assertions
-	def timings = {
-		val perScenarioThrottlings: Map[String, ThrottlingProtocol] = _scenarios
-			.map(scn => scn
-				.populationProtocols.getProtocol[ThrottlingProtocol]
-				.map(throttling => scn.scenarioBuilder.name -> throttling)).flatten.toMap
-		Timings(_maxDuration, _globalThrottling, perScenarioThrottlings)
-	}
+  def assertions = _assertions
+  def timings = {
+    val perScenarioThrottlings: Map[String, ThrottlingProtocol] = _scenarios
+      .map(scn => scn
+        .populationProtocols.getProtocol[ThrottlingProtocol]
+        .map(throttling => scn.scenarioBuilder.name -> throttling)).flatten.toMap
+    Timings(_maxDuration, _globalThrottling, perScenarioThrottlings)
+  }
 
-	def before(step: => Unit) {
-		_beforeSteps = _beforeSteps ::: List(() => step)
-	}
+  def before(step: => Unit) {
+    _beforeSteps = _beforeSteps ::: List(() => step)
+  }
 
-	def setUp(scenarios: PopulatedScenarioBuilder*): SetUp = setUp(scenarios.toList)
+  def setUp(scenarios: PopulatedScenarioBuilder*): SetUp = setUp(scenarios.toList)
 
-	def setUp(scenarios: List[PopulatedScenarioBuilder]): SetUp = {
-		if (!_scenarios.isEmpty)
-			throw new UnsupportedOperationException("setUp can only be called once")
-		_scenarios = scenarios
-		new SetUp
-	}
+  def setUp(scenarios: List[PopulatedScenarioBuilder]): SetUp = {
+    if (!_scenarios.isEmpty)
+      throw new UnsupportedOperationException("setUp can only be called once")
+    _scenarios = scenarios
+    new SetUp
+  }
 
-	def after(step: => Unit) {
-		_afterSteps = _afterSteps ::: List(() => step)
-	}
+  def after(step: => Unit) {
+    _afterSteps = _afterSteps ::: List(() => step)
+  }
 
-	class SetUp {
+  class SetUp {
 
-		def protocols(ps: Protocol*) = {
-			_globalProtocols = _globalProtocols ++ ps
-			this
-		}
+    def protocols(ps: Protocol*) = {
+      _globalProtocols = _globalProtocols ++ ps
+      this
+    }
 
-		def assertions(metrics: Metric[_]*) = {
-			_assertions = metrics.flatMap(_.assertions)
-			this
-		}
+    def assertions(metrics: Metric[_]*) = {
+      _assertions = metrics.flatMap(_.assertions)
+      this
+    }
 
-		def maxDuration(duration: FiniteDuration) = {
-			_maxDuration = Some(duration)
-			this
-		}
+    def maxDuration(duration: FiniteDuration) = {
+      _maxDuration = Some(duration)
+      this
+    }
 
-		def throttle(throttlingBuilders: ThrottlingBuilder*) = {
+    def throttle(throttlingBuilders: ThrottlingBuilder*) = {
 
-			val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
-			val throttling = ThrottlingProtocol(ThrottlingBuilder(steps).build)
-			_globalThrottling = Some(throttling)
-			_globalProtocols = _globalProtocols + throttling
-			this
-		}
+      val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
+      val throttling = ThrottlingProtocol(ThrottlingBuilder(steps).build)
+      _globalThrottling = Some(throttling)
+      _globalProtocols = _globalProtocols + throttling
+      this
+    }
 
-		def disablePauses = pauses(Disabled)
-		def constantPauses = pauses(Constant)
-		def exponentialPauses = pauses(Exponential)
-		def customPauses(custom: Expression[Long]) = pauses(Custom(custom))
-		def uniformPauses(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
-		def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
-		def pauses(pauseType: PauseType) = {
-			_globalProtocols = _globalProtocols + PauseProtocol(pauseType)
-			this
-		}
-	}
+    def disablePauses = pauses(Disabled)
+    def constantPauses = pauses(Constant)
+    def exponentialPauses = pauses(Exponential)
+    def customPauses(custom: Expression[Long]) = pauses(Custom(custom))
+    def uniformPauses(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
+    def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
+    def pauses(pauseType: PauseType) = {
+      _globalProtocols = _globalProtocols + PauseProtocol(pauseType)
+      this
+    }
+  }
 }

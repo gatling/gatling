@@ -22,7 +22,7 @@ import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.{ BodyPart, RawFileBodies }
 
 object HttpRequestWithParamsBuilder {
-	val multipartFormDataValueExpression = HeaderValues.MULTIPART_FORM_DATA.el[String]
+  val multipartFormDataValueExpression = HeaderValues.MULTIPART_FORM_DATA.el[String]
 }
 
 /**
@@ -33,32 +33,32 @@ object HttpRequestWithParamsBuilder {
  * @param params the parameters that should be added to the request
  */
 class HttpRequestWithParamsBuilder(
-	commonAttributes: CommonAttributes,
-	httpAttributes: HttpAttributes,
-	params: List[HttpParam])
-	extends AbstractHttpRequestBuilder[HttpRequestWithParamsBuilder](commonAttributes, httpAttributes) {
+  commonAttributes: CommonAttributes,
+  httpAttributes: HttpAttributes,
+  params: List[HttpParam])
+    extends AbstractHttpRequestBuilder[HttpRequestWithParamsBuilder](commonAttributes, httpAttributes) {
 
-	private[http] def newInstance(commonAttributes: CommonAttributes) = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, params)
-	private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, params)
+  private[http] def newInstance(commonAttributes: CommonAttributes) = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, params)
+  private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, params)
 
-	/**
-	 * Adds Content-Type header to the request set with "multipart/form-data" value
-	 */
-	def asMultipartForm: HttpRequestWithParamsBuilder = header(HeaderNames.CONTENT_TYPE, HttpRequestWithParamsBuilder.multipartFormDataValueExpression)
+  /**
+   * Adds Content-Type header to the request set with "multipart/form-data" value
+   */
+  def asMultipartForm: HttpRequestWithParamsBuilder = header(HeaderNames.CONTENT_TYPE, HttpRequestWithParamsBuilder.multipartFormDataValueExpression)
 
-	def param(key: Expression[String], value: Expression[Any]): HttpRequestWithParamsBuilder = param(SimpleParam(key, value))
-	def multivaluedParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestWithParamsBuilder = param(MultivaluedParam(key, values))
-	def paramsSeq(seq: Expression[Seq[(String, Any)]]): HttpRequestWithParamsBuilder = param(ParamSeq(seq))
-	def paramsMap(map: Expression[Map[String, Any]]): HttpRequestWithParamsBuilder = param(ParamMap(map))
-	private def param(param: HttpParam): HttpRequestWithParamsBuilder = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, param :: params)
+  def param(key: Expression[String], value: Expression[Any]): HttpRequestWithParamsBuilder = param(SimpleParam(key, value))
+  def multivaluedParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestWithParamsBuilder = param(MultivaluedParam(key, values))
+  def paramsSeq(seq: Expression[Seq[(String, Any)]]): HttpRequestWithParamsBuilder = param(ParamSeq(seq))
+  def paramsMap(map: Expression[Map[String, Any]]): HttpRequestWithParamsBuilder = param(ParamMap(map))
+  private def param(param: HttpParam): HttpRequestWithParamsBuilder = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, param :: params)
 
-	def formUpload(name: Expression[String], filePath: Expression[String]) = {
+  def formUpload(name: Expression[String], filePath: Expression[String]) = {
 
-		val file = RawFileBodies.asFile(filePath)
-		val fileName = file.map(_.getName)
+    val file = RawFileBodies.asFile(filePath)
+    val fileName = file.map(_.getName)
 
-		bodyPart(BodyPart.fileBodyPart(name, file).fileName(fileName)).asMultipartForm
-	}
+    bodyPart(BodyPart.fileBodyPart(name, file).fileName(fileName)).asMultipartForm
+  }
 
-	def ahcRequest(protocol: HttpProtocol) = new HttpRequestWithParamsExpressionBuilder(commonAttributes, httpAttributes, params, protocol).build
+  def ahcRequest(protocol: HttpProtocol) = new HttpRequestWithParamsExpressionBuilder(commonAttributes, httpAttributes, params, protocol).build
 }

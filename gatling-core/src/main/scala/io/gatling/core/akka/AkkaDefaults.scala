@@ -22,8 +22,8 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 
 trait AkkaDefaults extends AskSupport {
 
-	implicit def system = GatlingActorSystem.instance
-	implicit def dispatcher = system.dispatcher
-	implicit def scheduler = system.scheduler
-	val simulationTimeOut = configuration.core.timeOut.simulation seconds
+  implicit def system = GatlingActorSystem.instance
+  implicit def dispatcher = system.dispatcher
+  implicit def scheduler = system.scheduler
+  val simulationTimeOut = configuration.core.timeOut.simulation seconds
 }

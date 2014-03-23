@@ -31,79 +31,79 @@ import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathExecutable, XdmNode, 
 
 object XPathExtractor {
 
-	val processor = new Processor(false)
-	val documentBuilder = processor.newDocumentBuilder
+  val processor = new Processor(false)
+  val documentBuilder = processor.newDocumentBuilder
 
-	val compilerCache: concurrent.Map[List[(String, String)], XPathCompiler] = new ConcurrentHashMapV8[List[(String, String)], XPathCompiler]
+  val compilerCache: concurrent.Map[List[(String, String)], XPathCompiler] = new ConcurrentHashMapV8[List[(String, String)], XPathCompiler]
 
-	def compiler(namespaces: List[(String, String)]) = {
-		val xPathCompiler = processor.newXPathCompiler
-		for {
-			(prefix, uri) <- namespaces
-		} xPathCompiler.declareNamespace(prefix, uri)
-		xPathCompiler
-	}
+  def compiler(namespaces: List[(String, String)]) = {
+    val xPathCompiler = processor.newXPathCompiler
+    for {
+      (prefix, uri) <- namespaces
+    } xPathCompiler.declareNamespace(prefix, uri)
+    xPathCompiler
+  }
 
-	def parse(is: InputStream) = {
-		val inputSource = new InputSource(is)
-		inputSource.setEncoding(configuration.core.encoding)
-		val source = new SAXSource(inputSource)
-		documentBuilder.build(source)
-	}
+  def parse(is: InputStream) = {
+    val inputSource = new InputSource(is)
+    inputSource.setEncoding(configuration.core.encoding)
+    val source = new SAXSource(inputSource)
+    documentBuilder.build(source)
+  }
 
-	val xpathExecutableCache: concurrent.Map[String, XPathExecutable] = new ConcurrentHashMapV8[String, XPathExecutable]
+  val xpathExecutableCache: concurrent.Map[String, XPathExecutable] = new ConcurrentHashMapV8[String, XPathExecutable]
 
-	def xpath(expression: String, xPathCompiler: XPathCompiler): XPathExecutable = xPathCompiler.compile(expression)
+  def xpath(expression: String, xPathCompiler: XPathCompiler): XPathExecutable = xPathCompiler.compile(expression)
 
-	def cached(expression: String, namespaces: List[(String, String)]): XPathExecutable =
-		if (configuration.core.extract.xpath.cache) {
-			val xPathCompiler = compilerCache.getOrElseUpdate(namespaces, compiler(namespaces))
-			xpathExecutableCache.getOrElseUpdate(expression, xpath(expression, xPathCompiler))
-		} else
-			xpath(expression, compiler(namespaces))
+  def cached(expression: String, namespaces: List[(String, String)]): XPathExecutable =
+    if (configuration.core.extract.xpath.cache) {
+      val xPathCompiler = compilerCache.getOrElseUpdate(namespaces, compiler(namespaces))
+      xpathExecutableCache.getOrElseUpdate(expression, xpath(expression, xPathCompiler))
+    } else
+      xpath(expression, compiler(namespaces))
 
-	def evaluate(criterion: String, namespaces: List[(String, String)], xdmNode: XdmNode): XdmValue = {
-		val xPathSelector = cached(criterion, namespaces).load
-		try {
-			xPathSelector.setContextItem(xdmNode)
-			xPathSelector.evaluate
-		} finally {
-			xPathSelector.getUnderlyingXPathContext.setContextItem(null)
-		}
-	}
+  def evaluate(criterion: String, namespaces: List[(String, String)], xdmNode: XdmNode): XdmValue = {
+    val xPathSelector = cached(criterion, namespaces).load
+    try {
+      xPathSelector.setContextItem(xdmNode)
+      xPathSelector.evaluate
+    } finally {
+      xPathSelector.getUnderlyingXPathContext.setContextItem(null)
+    }
+  }
 }
 
 abstract class XPathExtractor[X] extends CriterionExtractor[Option[XdmNode], String, X] { val criterionName = "xpath" }
 
 class SingleXPathExtractor(val criterion: String, namespaces: List[(String, String)], occurrence: Int) extends XPathExtractor[String] {
 
-	def extract(prepared: Option[XdmNode]): Validation[Option[String]] = {
-		val result = for {
-			text <- prepared
-			// XdmValue is an Iterable, so toSeq is a Stream
-			result <- XPathExtractor.evaluate(criterion, namespaces, text).toSeq.lift(occurrence)
-		} yield result.getStringValue
+  def extract(prepared: Option[XdmNode]): Validation[Option[String]] = {
+    val result = for {
+      text <- prepared
+      // XdmValue is an Iterable, so toSeq is a Stream
+      result <- XPathExtractor.evaluate(criterion, namespaces, text).toSeq.lift(occurrence)
+    } yield result.getStringValue
 
-		result.success
-	}
+    result.success
+  }
 }
 
 class MultipleXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends XPathExtractor[Seq[String]] {
 
-	def extract(prepared: Option[XdmNode]): Validation[Option[Seq[String]]] = {
-		val result = for {
-			node <- prepared
-			items <- XPathExtractor.evaluate(criterion, namespaces, node).iterator.map(_.getStringValue).toVector.liftSeqOption
-		} yield items
+  def extract(prepared: Option[XdmNode]): Validation[Option[Seq[String]]] = {
+    val result = for {
+      node <- prepared
+      items <- XPathExtractor.evaluate(criterion, namespaces, node).iterator.map(_.getStringValue).toVector.liftSeqOption
+    } yield items
 
-		result.success
-	}
+    result.success
+  }
 }
 
 class CountXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends XPathExtractor[Int] {
 
-	def extract(prepared: Option[XdmNode]): Validation[Option[Int]] = {
-		val count = prepared.map(XPathExtractor.evaluate(criterion, namespaces, _).size).getOrElse(0)
-		Some(count).success
-	}
+  def extract(prepared: Option[XdmNode]): Validation[Option[Int]] = {
+    val count = prepared.map(XPathExtractor.evaluate(criterion, namespaces, _).size).getOrElse(0)
+    Some(count).success
+  }
 }

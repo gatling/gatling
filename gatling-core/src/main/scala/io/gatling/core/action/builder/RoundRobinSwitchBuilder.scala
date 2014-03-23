@@ -26,24 +26,24 @@ import io.gatling.core.validation.SuccessWrapper
 
 class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionBuilder {
 
-	require(possibilities.size >= 2, "Round robin switch requires at least 2 possibilities")
+  require(possibilities.size >= 2, "Round robin switch requires at least 2 possibilities")
 
-	def build(next: ActorRef, protocols: Protocols) = {
+  def build(next: ActorRef, protocols: Protocols) = {
 
-		val possibleActions = possibilities.map(_.build(next, protocols)).toArray
-		val roundRobin = RoundRobin(possibleActions)
+    val possibleActions = possibilities.map(_.build(next, protocols)).toArray
+    val roundRobin = RoundRobin(possibleActions)
 
-		val nextAction: Expression[ActorRef] = _ => roundRobin.next.success
+    val nextAction: Expression[ActorRef] = _ => roundRobin.next.success
 
-		actor(new Switch(nextAction, next))
-	}
+    actor(new Switch(nextAction, next))
+  }
 
-	override def registerDefaultProtocols(protocols: Protocols) = {
+  override def registerDefaultProtocols(protocols: Protocols) = {
 
-		val actionBuilders = possibilities.flatMap(_.actionBuilders)
+    val actionBuilders = possibilities.flatMap(_.actionBuilders)
 
-		actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
-			actionBuilder.registerDefaultProtocols(protocols)
-		}
-	}
+    actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
+      actionBuilder.registerDefaultProtocols(protocols)
+    }
+  }
 }

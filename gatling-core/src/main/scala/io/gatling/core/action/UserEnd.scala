@@ -26,22 +26,22 @@ import io.gatling.core.util.TimeHelper.nowMillis
 
 object UserEnd extends AkkaDefaults {
 
-	var _instance: Option[ActorRef] = None
+  var _instance: Option[ActorRef] = None
 
-	def start() {
-		_instance = Some(actor(new UserEnd))
-		system.registerOnTermination(_instance = None)
-	}
+  def start() {
+    _instance = Some(actor(new UserEnd))
+    system.registerOnTermination(_instance = None)
+  }
 
-	def instance() = _instance match {
-		case Some(a) => a
-		case None => throw new UnsupportedOperationException("UserEnd hasn't been initialized")
-	}
+  def instance() = _instance match {
+    case Some(a) => a
+    case None    => throw new UnsupportedOperationException("UserEnd hasn't been initialized")
+  }
 }
 
 class UserEnd extends Action {
 
-	def execute(session: Session) {
-		Controller ! UserMessage(session.scenarioName, session.userId, End, session.startDate, nowMillis)
-	}
+  def execute(session: Session) {
+    Controller ! UserMessage(session.scenarioName, session.userId, End, session.startDate, nowMillis)
+  }
 }

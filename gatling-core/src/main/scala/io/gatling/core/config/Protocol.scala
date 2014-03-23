@@ -20,5 +20,5 @@ package io.gatling.core.config
  */
 trait Protocol {
 
-	def warmUp() {}
+  def warmUp() {}
 }

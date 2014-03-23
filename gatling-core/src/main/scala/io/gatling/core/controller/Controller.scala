@@ -40,150 +40,150 @@ case class Timings(maxDuration: Option[FiniteDuration], globalThrottling: Option
 
 object Controller extends AkkaDefaults with StrictLogging {
 
-	private var _instance: Option[ActorRef] = None
+  private var _instance: Option[ActorRef] = None
 
-	def start() {
-		_instance = Some(actor(new Controller))
-		system.registerOnTermination(_instance = None)
-		UserEnd.start
-	}
+  def start() {
+    _instance = Some(actor(new Controller))
+    system.registerOnTermination(_instance = None)
+    UserEnd.start
+  }
 
-	def !(message: Any) {
-		_instance match {
-			case Some(c) => c ! message
-			case None => logger.error("Controller hasn't been started")
-		}
-	}
+  def !(message: Any) {
+    _instance match {
+      case Some(c) => c ! message
+      case None    => logger.error("Controller hasn't been started")
+    }
+  }
 
-	def ?(message: Any)(implicit timeout: Timeout) = _instance match {
-		case Some(c) => c.ask(message)(timeout)
-		case None => throw new UnsupportedOperationException("Controller has not been started")
-	}
+  def ?(message: Any)(implicit timeout: Timeout) = _instance match {
+    case Some(c) => c.ask(message)(timeout)
+    case None    => throw new UnsupportedOperationException("Controller has not been started")
+  }
 }
 
 class Controller extends BaseActor {
 
-	var scenarios: Seq[Scenario] = _
-	var totalNumberOfUsers = 0
-	val activeUsers = mutable.Map.empty[String, UserMessage]
-	var finishedUsers = 0
-	var launcher: ActorRef = _
-	var runId: String = _
-	var timings: Timings = _
-	var throttler: Throttler = _
+  var scenarios: Seq[Scenario] = _
+  var totalNumberOfUsers = 0
+  val activeUsers = mutable.Map.empty[String, UserMessage]
+  var finishedUsers = 0
+  var launcher: ActorRef = _
+  var runId: String = _
+  var timings: Timings = _
+  var throttler: Throttler = _
 
-	val uninitialized: Receive = {
+  val uninitialized: Receive = {
 
-		case Run(simulation, simulationId, description, timings) =>
-			// important, initialize time reference
-			val timeRef = nanoTimeReference
-			launcher = sender
-			this.timings = timings
-			scenarios = simulation.scenarios
+    case Run(simulation, simulationId, description, timings) =>
+      // important, initialize time reference
+      val timeRef = nanoTimeReference
+      launcher = sender
+      this.timings = timings
+      scenarios = simulation.scenarios
 
-			if (scenarios.isEmpty)
-				launcher ! SFailure(new IllegalArgumentException(s"Simulation ${simulation.getClass} doesn't have any configured scenario"))
+      if (scenarios.isEmpty)
+        launcher ! SFailure(new IllegalArgumentException(s"Simulation ${simulation.getClass} doesn't have any configured scenario"))
 
-			else if (scenarios.map(_.name).toSet.size != scenarios.size)
-				launcher ! SFailure(new IllegalArgumentException(s"Scenario names must be unique but found a duplicate"))
+      else if (scenarios.map(_.name).toSet.size != scenarios.size)
+        launcher ! SFailure(new IllegalArgumentException(s"Scenario names must be unique but found a duplicate"))
 
-			else {
-				totalNumberOfUsers = scenarios.map(_.injectionProfile.users).sum
-				logger.info(s"Total number of users : $totalNumberOfUsers")
+      else {
+        totalNumberOfUsers = scenarios.map(_.injectionProfile.users).sum
+        logger.info(s"Total number of users : $totalNumberOfUsers")
 
-				val runMessage = RunMessage(simulation.getClass.getName, simulationId, now, description)
-				runId = runMessage.runId
-				DataWriter.init(runMessage, scenarios, self)
-				context.become(waitingForDataWriterToInit)
-			}
-	}
+        val runMessage = RunMessage(simulation.getClass.getName, simulationId, now, description)
+        runId = runMessage.runId
+        DataWriter.init(runMessage, scenarios, self)
+        context.become(waitingForDataWriterToInit)
+      }
+  }
 
-	val waitingForDataWriterToInit: Receive = {
+  val waitingForDataWriterToInit: Receive = {
 
-		case DataWritersInitialized(result) => result match {
-			case f: SFailure[_] => launcher ! f
+    case DataWritersInitialized(result) => result match {
+      case f: SFailure[_] => launcher ! f
 
-			case _ =>
-				val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
+      case _ =>
+        val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
 
-				logger.debug("Launching All Scenarios")
-				scenarios.foldLeft(0) { (i, scenario) =>
-					scenario.run(userIdRoot, i)
-					i + scenario.injectionProfile.users
-				}
-				logger.debug("Finished Launching scenarios executions")
+        logger.debug("Launching All Scenarios")
+        scenarios.foldLeft(0) { (i, scenario) =>
+          scenario.run(userIdRoot, i)
+          i + scenario.injectionProfile.users
+        }
+        logger.debug("Finished Launching scenarios executions")
 
-				timings.maxDuration.foreach {
-					logger.debug("Setting up max duration")
-					scheduler.scheduleOnce(_) {
-						self ! ForceTermination(None)
-					}
-				}
+        timings.maxDuration.foreach {
+          logger.debug("Setting up max duration")
+          scheduler.scheduleOnce(_) {
+            self ! ForceTermination(None)
+          }
+        }
 
-				val newState = if (timings.globalThrottling.isDefined || !timings.perScenarioThrottlings.isEmpty) {
-					logger.debug("Setting up throttling")
-					throttler = new Throttler(timings.globalThrottling, timings.perScenarioThrottlings)
-					scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
-					throttling.orElse(initialized)
-				} else
-					initialized
+        val newState = if (timings.globalThrottling.isDefined || !timings.perScenarioThrottlings.isEmpty) {
+          logger.debug("Setting up throttling")
+          throttler = new Throttler(timings.globalThrottling, timings.perScenarioThrottlings)
+          scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
+          throttling.orElse(initialized)
+        } else
+          initialized
 
-				context.become(newState)
-		}
+        context.become(newState)
+    }
 
-		case m => logger.error(s"Shouldn't happen. Ignore message $m while waiting for DataWriter to initialize")
-	}
+    case m => logger.error(s"Shouldn't happen. Ignore message $m while waiting for DataWriter to initialize")
+  }
 
-	val throttling: Receive = {
-		case OneSecondTick => throttler.flushBuffer
-		case ThrottledRequest(scenarioName, request) => throttler.send(scenarioName, request)
-	}
+  val throttling: Receive = {
+    case OneSecondTick                           => throttler.flushBuffer
+    case ThrottledRequest(scenarioName, request) => throttler.send(scenarioName, request)
+  }
 
-	val initialized: Receive = {
+  val initialized: Receive = {
 
-		def dispatchUserEndToDataWriter(userMessage: UserMessage) {
-			logger.info(s"End user #${userMessage.userId}")
-			DataWriter.dispatch(userMessage)
-		}
+      def dispatchUserEndToDataWriter(userMessage: UserMessage) {
+        logger.info(s"End user #${userMessage.userId}")
+        DataWriter.dispatch(userMessage)
+      }
 
-		def becomeTerminating(exception: Option[Exception]) {
-			DataWriter.terminate(self)
-			context.become(waitingForDataWriterToTerminate(exception))
-		}
+      def becomeTerminating(exception: Option[Exception]) {
+        DataWriter.terminate(self)
+        context.become(waitingForDataWriterToTerminate(exception))
+      }
 
-		{
-			case userMessage @ UserMessage(_, userId, event, _, _) => event match {
-				case Start =>
-					activeUsers += userId -> userMessage
-					logger.info(s"Start user #${userMessage.userId}")
-					DataWriter.dispatch(userMessage)
+    {
+      case userMessage @ UserMessage(_, userId, event, _, _) => event match {
+        case Start =>
+          activeUsers += userId -> userMessage
+          logger.info(s"Start user #${userMessage.userId}")
+          DataWriter.dispatch(userMessage)
 
-				case End =>
-					finishedUsers += 1
-					activeUsers -= userId
-					dispatchUserEndToDataWriter(userMessage)
-					if (finishedUsers == totalNumberOfUsers)
-						becomeTerminating(None)
-			}
+        case End =>
+          finishedUsers += 1
+          activeUsers -= userId
+          dispatchUserEndToDataWriter(userMessage)
+          if (finishedUsers == totalNumberOfUsers)
+            becomeTerminating(None)
+      }
 
-			case ForceTermination(exception) =>
-				// flush all active users
-				val now = nowMillis
-				for (activeUser <- activeUsers.values) {
-					dispatchUserEndToDataWriter(activeUser.copy(event = End, endDate = now))
-				}
-				becomeTerminating(exception)
-		}
-	}
+      case ForceTermination(exception) =>
+        // flush all active users
+        val now = nowMillis
+        for (activeUser <- activeUsers.values) {
+          dispatchUserEndToDataWriter(activeUser.copy(event = End, endDate = now))
+        }
+        becomeTerminating(exception)
+    }
+  }
 
-	def waitingForDataWriterToTerminate(exception: Option[Exception]): Receive = {
-		case DataWritersTerminated(result) =>
-			exception match {
-				case Some(e) => launcher ! SFailure(e)
-				case _ => launcher ! SSuccess(runId)
-			}
-		case m => logger.debug(s"Ignore message $m while waiting for DataWriter to terminate")
-	}
+  def waitingForDataWriterToTerminate(exception: Option[Exception]): Receive = {
+    case DataWritersTerminated(result) =>
+      exception match {
+        case Some(e) => launcher ! SFailure(e)
+        case _       => launcher ! SSuccess(runId)
+      }
+    case m => logger.debug(s"Ignore message $m while waiting for DataWriter to terminate")
+  }
 
-	def receive = uninitialized
+  def receive = uninitialized
 }

@@ -24,7 +24,7 @@ import io.gatling.core.util.IOHelper.withCloseable
 
 class TemplateWriter(path: Path) {
 
-	def writeToFile(output: Fastring) {
-		withCloseable(File(path)(configuration.core.codec).writer()) { output.appendTo }
-	}
+  def writeToFile(output: Fastring) {
+    withCloseable(File(path)(configuration.core.codec).writer()) { output.appendTo }
+  }
 }

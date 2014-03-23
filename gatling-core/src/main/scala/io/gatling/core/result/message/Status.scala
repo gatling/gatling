@@ -16,11 +16,11 @@
 package io.gatling.core.result.message
 
 object Status {
-	def valueOf(string: String) = string match {
-		case "OK" => OK
-		case "KO" => KO
-		case _ => throw new IllegalArgumentException("Illegal Status value $string")
-	}
+  def valueOf(string: String) = string match {
+    case "OK" => OK
+    case "KO" => KO
+    case _    => throw new IllegalArgumentException("Illegal Status value $string")
+  }
 }
 
 sealed trait Status

@@ -27,33 +27,33 @@ import io.gatling.core.scenario.Simulation
 
 class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
 
-	def run: (String, Simulation) = {
+  def run: (String, Simulation) = {
 
-		try {
-			val simulationClass = selection.simulationClass
-			println(s"Simulation ${simulationClass.getName} started...")
+    try {
+      val simulationClass = selection.simulationClass
+      println(s"Simulation ${simulationClass.getName} started...")
 
-			val simulation = simulationClass.newInstance
-			GatlingActorSystem.start()
-			Controller.start()
+      val simulation = simulationClass.newInstance
+      GatlingActorSystem.start()
+      Controller.start()
 
-			simulation._beforeSteps.foreach(_.apply)
+      simulation._beforeSteps.foreach(_.apply)
 
-			implicit val timeOut = Timeout(simulationTimeOut)
-			val runResult = Controller ? Run(simulation, selection.simulationId, selection.description, simulation.timings)
+      implicit val timeOut = Timeout(simulationTimeOut)
+      val runResult = Controller ? Run(simulation, selection.simulationId, selection.description, simulation.timings)
 
-			Await.result(runResult, simulationTimeOut) match {
-				case SSuccess(runId: String) =>
-					println("Simulation finished")
-					simulation._afterSteps.foreach(_.apply)
-					(runId, simulation)
+      Await.result(runResult, simulationTimeOut) match {
+        case SSuccess(runId: String) =>
+          println("Simulation finished")
+          simulation._afterSteps.foreach(_.apply)
+          (runId, simulation)
 
-				case SFailure(t) => throw t
-				case unexpected => throw new UnsupportedOperationException(s"Controller replied an unexpected message $unexpected")
-			}
+        case SFailure(t) => throw t
+        case unexpected  => throw new UnsupportedOperationException(s"Controller replied an unexpected message $unexpected")
+      }
 
-		} finally {
-			GatlingActorSystem.shutdown()
-		}
-	}
+    } finally {
+      GatlingActorSystem.shutdown()
+    }
+  }
 }

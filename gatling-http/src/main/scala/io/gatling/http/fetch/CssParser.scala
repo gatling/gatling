@@ -29,147 +29,147 @@ import io.gatling.http.util.HttpHelper
 // FIXME Would it be more efficient to work with Array[Char] instead of String?
 object CssParser extends StrictLogging {
 
-	val inlineStyleImageUrls = """url\((.*)\)""".r
-	val styleImportsUrls = """@import.* url\((.*)\)""".r
+  val inlineStyleImageUrls = """url\((.*)\)""".r
+  val styleImportsUrls = """@import.* url\((.*)\)""".r
 
-	def extractUrls(string: CharSequence, regex: Regex): Iterator[String] = {
-		regex.findAllIn(string).matchData.map { m =>
-			val raw = m.group(1)
-			extractUrl(raw, 0, raw.length)
-		}.flatten
-	}
+  def extractUrls(string: CharSequence, regex: Regex): Iterator[String] = {
+    regex.findAllIn(string).matchData.map { m =>
+      val raw = m.group(1)
+      extractUrl(raw, 0, raw.length)
+    }.flatten
+  }
 
-	val singleQuoteEscapeChar = Some('\'')
-	val doubleQuoteEscapeChar = Some('"')
-	val atImportChars = "@import".toCharArray
-	val urlStartChars = "url(".toCharArray
+  val singleQuoteEscapeChar = Some('\'')
+  val doubleQuoteEscapeChar = Some('"')
+  val atImportChars = "@import".toCharArray
+  val urlStartChars = "url(".toCharArray
 
-	def extractUrl(string: String, start: Int, end: Int): Option[String] = {
+  def extractUrl(string: String, start: Int, end: Int): Option[String] = {
 
-		var protectChar: Option[Char] = None
-		var broken = false
+    var protectChar: Option[Char] = None
+    var broken = false
 
-		@tailrec
-		def trimLeft(cur: Int): Int = (string.charAt(cur): @switch) match {
-			case ' ' | '\r' | '\n' => trimLeft(cur + 1)
-			case '\'' =>
-				protectChar match {
-					case None =>
-						protectChar = singleQuoteEscapeChar
-						trimLeft(cur + 1)
-					case _ =>
-						broken = true
-						cur
+      @tailrec
+      def trimLeft(cur: Int): Int = (string.charAt(cur): @switch) match {
+        case ' ' | '\r' | '\n' => trimLeft(cur + 1)
+        case '\'' =>
+          protectChar match {
+            case None =>
+              protectChar = singleQuoteEscapeChar
+              trimLeft(cur + 1)
+            case _ =>
+              broken = true
+              cur
 
-				}
-			case '"' =>
-				protectChar match {
-					case None =>
-						protectChar = doubleQuoteEscapeChar
-						trimLeft(cur + 1)
-					case _ =>
-						broken = true
-						cur
-				}
-			case _ => cur
-		}
+          }
+        case '"' =>
+          protectChar match {
+            case None =>
+              protectChar = doubleQuoteEscapeChar
+              trimLeft(cur + 1)
+            case _ =>
+              broken = true
+              cur
+          }
+        case _ => cur
+      }
 
-		@tailrec
-		def trimRight(cur: Int): Int = (string.charAt(cur - 1): @switch) match {
-			case ' ' | '\r' | '\n' => trimRight(cur - 1)
-			case '\'' => protectChar match {
-				case `singleQuoteEscapeChar` =>
-					trimRight(cur - 1)
-				case _ =>
-					broken = true
-					cur
-			}
-			case '"' => protectChar match {
-				case `doubleQuoteEscapeChar` =>
-					trimRight(cur - 1)
-				case _ =>
-					broken = true
-					cur
-			}
-			case _ => cur
-		}
+      @tailrec
+      def trimRight(cur: Int): Int = (string.charAt(cur - 1): @switch) match {
+        case ' ' | '\r' | '\n' => trimRight(cur - 1)
+        case '\'' => protectChar match {
+          case `singleQuoteEscapeChar` =>
+            trimRight(cur - 1)
+          case _ =>
+            broken = true
+            cur
+        }
+        case '"' => protectChar match {
+          case `doubleQuoteEscapeChar` =>
+            trimRight(cur - 1)
+          case _ =>
+            broken = true
+            cur
+        }
+        case _ => cur
+      }
 
-		val trimmedStart = trimLeft(start)
-		val trimmedEnd = trimRight(end)
+    val trimmedStart = trimLeft(start)
+    val trimmedEnd = trimRight(end)
 
-		if (!broken) {
-			Some(string.substring(trimmedStart, trimmedEnd).ensureTrimmedCharsArray)
-		} else {
-			logger.info(s"css url broken between positions ${string.substring(trimmedStart, trimmedEnd)}")
-			None
-		}
-	}
+    if (!broken) {
+      Some(string.substring(trimmedStart, trimmedEnd).ensureTrimmedCharsArray)
+    } else {
+      logger.info(s"css url broken between positions ${string.substring(trimmedStart, trimmedEnd)}")
+      None
+    }
+  }
 
-	def extractResources(cssURI: URI, cssContent: String): List[EmbeddedResource] = {
+  def extractResources(cssURI: URI, cssContent: String): List[EmbeddedResource] = {
 
-		val resources = collection.mutable.ArrayBuffer.empty[EmbeddedResource]
+    val resources = collection.mutable.ArrayBuffer.empty[EmbeddedResource]
 
-		var withinComment = false
-		var withinImport = false
-		var withinUrl = false
-		var urlStart = 0
+    var withinComment = false
+    var withinImport = false
+    var withinUrl = false
+    var urlStart = 0
 
-		def charsMatch(i: Int, chars: Array[Char]): Boolean = {
+      def charsMatch(i: Int, chars: Array[Char]): Boolean = {
 
-			@tailrec
-			def charsMatchRec(j: Int): Boolean = {
-				if (j == chars.length)
-					true
-				else if (cssContent.charAt(i + j) != chars(j))
-					false
-				else
-					charsMatchRec(j + 1)
+          @tailrec
+          def charsMatchRec(j: Int): Boolean = {
+            if (j == chars.length)
+              true
+            else if (cssContent.charAt(i + j) != chars(j))
+              false
+            else
+              charsMatchRec(j + 1)
 
-			}
+          }
 
-			i < cssContent.length - chars.length && charsMatchRec(1)
-		}
+        i < cssContent.length - chars.length && charsMatchRec(1)
+      }
 
-		var i = 0
-		while (i < cssContent.length) {
+    var i = 0
+    while (i < cssContent.length) {
 
-			(cssContent.charAt(i): @switch) match {
-				case '/' =>
-					if (i < cssContent.length - 1 &&
-						cssContent.charAt(i + 1) == '*') {
-						withinComment = true
-						i += 1
+      (cssContent.charAt(i): @switch) match {
+        case '/' =>
+          if (i < cssContent.length - 1 &&
+            cssContent.charAt(i + 1) == '*') {
+            withinComment = true
+            i += 1
 
-					} else if (i > 0 &&
-						cssContent.charAt(i - 1) == '*') {
-						withinComment = false
-					}
+          } else if (i > 0 &&
+            cssContent.charAt(i - 1) == '*') {
+            withinComment = false
+          }
 
-				case '@' if !withinComment && charsMatch(i, atImportChars) =>
-					withinImport = true
-					i = i + "@import".length
+        case '@' if !withinComment && charsMatch(i, atImportChars) =>
+          withinImport = true
+          i = i + "@import".length
 
-				case 'u' if !withinComment && withinImport && charsMatch(i, urlStartChars) =>
-					i = i + urlStartChars.length
-					urlStart = i
-					withinUrl = true
+        case 'u' if !withinComment && withinImport && charsMatch(i, urlStartChars) =>
+          i = i + urlStartChars.length
+          urlStart = i
+          withinUrl = true
 
-				case ')' if !withinComment && withinUrl =>
-					for {
-						url <- extractUrl(cssContent, urlStart, i)
-						absoluteUri <- HttpHelper.resolveFromURISilently(cssURI, url)
-					} {
-						resources += CssResource(absoluteUri)
-						withinUrl = false
-						withinImport = false
-					}
+        case ')' if !withinComment && withinUrl =>
+          for {
+            url <- extractUrl(cssContent, urlStart, i)
+            absoluteUri <- HttpHelper.resolveFromURISilently(cssURI, url)
+          } {
+            resources += CssResource(absoluteUri)
+            withinUrl = false
+            withinImport = false
+          }
 
-				case _ =>
-			}
+        case _ =>
+      }
 
-			i += 1
-		}
+      i += 1
+    }
 
-		resources.toList
-	}
+    resources.toList
+  }
 }

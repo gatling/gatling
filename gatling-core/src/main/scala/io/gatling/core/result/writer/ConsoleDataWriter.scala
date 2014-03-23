@@ -26,88 +26,88 @@ case object Display
 
 class UserCounters(val totalCount: Int) {
 
-	private var _runningCount: Int = 0
-	private var _doneCount: Int = 0
+  private var _runningCount: Int = 0
+  private var _doneCount: Int = 0
 
-	def runningCount = _runningCount
-	def doneCount = _doneCount
+  def runningCount = _runningCount
+  def doneCount = _doneCount
 
-	def userStart() { _runningCount += 1 }
-	def userDone() { _runningCount -= 1; _doneCount += 1 }
-	def waitingCount = totalCount - _runningCount - _doneCount
+  def userStart() { _runningCount += 1 }
+  def userDone() { _runningCount -= 1; _doneCount += 1 }
+  def waitingCount = totalCount - _runningCount - _doneCount
 }
 
 class RequestCounters(var successfulCount: Int = 0, var failedCount: Int = 0)
 
 class ConsoleDataWriter extends DataWriter {
 
-	private var startUpTime = 0L
-	private var complete = false
-	private val usersCounters = mutable.Map.empty[String, UserCounters]
-	private var globalRequestCounters = new RequestCounters
-	private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
+  private var startUpTime = 0L
+  private var complete = false
+  private val usersCounters = mutable.Map.empty[String, UserCounters]
+  private var globalRequestCounters = new RequestCounters
+  private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
 
-	def display() {
-		val now = currentTimeMillis
-		val runDuration = (now - startUpTime) / 1000
+  def display() {
+    val now = currentTimeMillis
+    val runDuration = (now - startUpTime) / 1000
 
-		val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters)
-		complete = summary.complete
-		println(summary.text)
-	}
+    val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters)
+    complete = summary.complete
+    println(summary.text)
+  }
 
-	override def initialized: Receive = super.initialized.orElse {
-		case Display => display
-	}
+  override def initialized: Receive = super.initialized.orElse {
+    case Display => display
+  }
 
-	override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
+  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
 
-		startUpTime = currentTimeMillis
+    startUpTime = currentTimeMillis
 
-		scenarios.foreach(scenario => usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
+    scenarios.foreach(scenario => usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
 
-		scheduler.schedule(0 seconds, 5 seconds, self, Display)
-	}
+    scheduler.schedule(0 seconds, 5 seconds, self, Display)
+  }
 
-	override def onUserMessage(userMessage: UserMessage) {
+  override def onUserMessage(userMessage: UserMessage) {
 
-		import userMessage._
+    import userMessage._
 
-		event match {
-			case Start =>
-				usersCounters.get(scenarioName) match {
-					case Some(name) => name.userStart
-					case _ => logger.error(s"Internal error, scenario '${scenarioName}' has not been correctly initialized")
-				}
+    event match {
+      case Start =>
+        usersCounters.get(scenarioName) match {
+          case Some(name) => name.userStart
+          case _          => logger.error(s"Internal error, scenario '${scenarioName}' has not been correctly initialized")
+        }
 
-			case End =>
-				usersCounters.get(scenarioName) match {
-					case Some(name) => name.userDone
-					case _ => logger.error(s"Internal error, scenario '${scenarioName}' has not been correctly initialized")
-				}
-		}
-	}
+      case End =>
+        usersCounters.get(scenarioName) match {
+          case Some(name) => name.userDone
+          case _          => logger.error(s"Internal error, scenario '${scenarioName}' has not been correctly initialized")
+        }
+    }
+  }
 
-	override def onGroupMessage(group: GroupMessage) {}
+  override def onGroupMessage(group: GroupMessage) {}
 
-	override def onRequestMessage(request: RequestMessage) {
+  override def onRequestMessage(request: RequestMessage) {
 
-		import request._
+    import request._
 
-		val requestPath = (name :: groupStack.map(_.name)).reverse.mkString(" / ")
-		val requestCounters = requestsCounters.getOrElseUpdate(requestPath, new RequestCounters)
+    val requestPath = (name :: groupStack.map(_.name)).reverse.mkString(" / ")
+    val requestCounters = requestsCounters.getOrElseUpdate(requestPath, new RequestCounters)
 
-		status match {
-			case OK =>
-				globalRequestCounters.successfulCount += 1
-				requestCounters.successfulCount += 1
-			case KO =>
-				globalRequestCounters.failedCount += 1
-				requestCounters.failedCount += 1
-		}
-	}
+    status match {
+      case OK =>
+        globalRequestCounters.successfulCount += 1
+        requestCounters.successfulCount += 1
+      case KO =>
+        globalRequestCounters.failedCount += 1
+        requestCounters.failedCount += 1
+    }
+  }
 
-	override def onTerminateDataWriter() {
-		if (!complete) display
-	}
+  override def onTerminateDataWriter() {
+    if (!complete) display
+  }
 }

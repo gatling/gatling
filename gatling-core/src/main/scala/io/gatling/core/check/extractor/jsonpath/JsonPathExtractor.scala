@@ -26,37 +26,37 @@ import jsr166e.ConcurrentHashMapV8
 
 object JsonPathExtractor {
 
-	val cache: concurrent.Map[String, Validation[JsonPath]] = new ConcurrentHashMapV8[String, Validation[JsonPath]]
+  val cache: concurrent.Map[String, Validation[JsonPath]] = new ConcurrentHashMapV8[String, Validation[JsonPath]]
 
-	def cached(expression: String): Validation[JsonPath] =
-		if (configuration.core.extract.jsonPath.cache) cache.getOrElseUpdate(expression, compile(expression))
-		else compile(expression)
+  def cached(expression: String): Validation[JsonPath] =
+    if (configuration.core.extract.jsonPath.cache) cache.getOrElseUpdate(expression, compile(expression))
+    else compile(expression)
 
-	def compile(expression: String): Validation[JsonPath] = JsonPath.compile(expression) match {
-		case Left(error) => error.reason.failure
-		case Right(path) => path.success
-	}
+  def compile(expression: String): Validation[JsonPath] = JsonPath.compile(expression) match {
+    case Left(error) => error.reason.failure
+    case Right(path) => path.success
+  }
 
-	def extractAll[X: JsonFilter](json: Any, expression: String): Validation[Iterator[X]] =
-		cached(expression).map(_.query(json).collect(implicitly[JsonFilter[X]].filter))
+  def extractAll[X: JsonFilter](json: Any, expression: String): Validation[Iterator[X]] =
+    cached(expression).map(_.query(json).collect(implicitly[JsonFilter[X]].filter))
 }
 
 abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] { val criterionName = "jsonPath" }
 
 class SingleJsonPathExtractor[X: JsonFilter](val criterion: String, occurrence: Int) extends JsonPathExtractor[X] {
 
-	def extract(prepared: Any): Validation[Option[X]] =
-		JsonPathExtractor.extractAll(prepared, criterion).map(_.toSeq.lift(occurrence))
+  def extract(prepared: Any): Validation[Option[X]] =
+    JsonPathExtractor.extractAll(prepared, criterion).map(_.toSeq.lift(occurrence))
 }
 
 class MultipleJsonPathExtractor[X: JsonFilter](val criterion: String) extends JsonPathExtractor[Seq[X]] {
 
-	def extract(prepared: Any): Validation[Option[Seq[X]]] =
-		JsonPathExtractor.extractAll(prepared, criterion).map(_.toVector.liftSeqOption)
+  def extract(prepared: Any): Validation[Option[Seq[X]]] =
+    JsonPathExtractor.extractAll(prepared, criterion).map(_.toVector.liftSeqOption)
 }
 
 class CountJsonPathExtractor(val criterion: String) extends JsonPathExtractor[Int] {
 
-	def extract(prepared: Any): Validation[Option[Int]] =
-		JsonPathExtractor.extractAll[Any](prepared, criterion).map(i => Some(i.size))
+  def extract(prepared: Any): Validation[Option[Int]] =
+    JsonPathExtractor.extractAll[Any](prepared, criterion).map(i => Some(i.size))
 }

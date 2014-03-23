@@ -23,14 +23,14 @@ import io.gatling.core.util.HtmlHelper.HtmlRichString
 
 class ErrorTableComponent(errors: Seq[ErrorStats]) extends Component {
 
-	def js = fast"""
+  def js = fast"""
 	    $$('#container_errors').sortable('#container_errors');
     """
 
-	def html = if (errors.isEmpty)
-		emptyFastring
-	else
-		fast"""<div class="statistics extensible-geant collapsed">
+  def html = if (errors.isEmpty)
+    emptyFastring
+  else
+    fast"""<div class="statistics extensible-geant collapsed">
     <div class="title">
         <div class="title_collapsed" style="cursor: auto;">ERRORS</div>
     </div>
@@ -44,19 +44,19 @@ class ErrorTableComponent(errors: Seq[ErrorStats]) extends Component {
         </thead>
 		<tbody>
 		    ${
-			errors.zipWithIndex.map {
-				case (error, index) => fast"""
+      errors.zipWithIndex.map {
+        case (error, index) => fast"""
 		    <tr>
 		    	<td class="error-col-1 total">${error.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
 		    	<td class="value error-col-2 total">${error.count}</td>
 		    	<td class="value error-col-3 total">${error.percentage} %</td>
 		    </tr>"""
-			}.mkFastring
-		}
+      }.mkFastring
+    }
 		</tbody>
     </table>
 </div>
 """
 
-	def jsFiles: Seq[String] = Seq.empty
+  def jsFiles: Seq[String] = Seq.empty
 }

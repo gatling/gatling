@@ -30,39 +30,39 @@ import io.gatling.http.response.ResponseBuilder
 
 object HttpRequestAction extends StrictLogging {
 
-	def startHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext) {
+  def startHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext) {
 
-		def startHttpTransaction(tx: HttpTx) {
-			logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-			HttpEngine.instance.startHttpTransaction(tx)
-		}
+      def startHttpTransaction(tx: HttpTx) {
+        logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+        HttpEngine.instance.startHttpTransaction(tx)
+      }
 
-		def skipCached(tx: HttpTx) {
-			logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-			tx.next ! tx.session
-		}
+      def skipCached(tx: HttpTx) {
+        logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+        tx.next ! tx.session
+      }
 
-		val uri = tx.request.getURI
-		CacheHandling.getExpire(tx.protocol, tx.session, uri) match {
+    val uri = tx.request.getURI
+    CacheHandling.getExpire(tx.protocol, tx.session, uri) match {
 
-			case None => startHttpTransaction(tx)
+      case None                               => startHttpTransaction(tx)
 
-			case Some(expire) if nowMillis > expire => startHttpTransaction(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
+      case Some(expire) if nowMillis > expire => startHttpTransaction(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
 
-			case _ if tx.protocol.responsePart.fetchHtmlResources =>
-				val explicitResources = HttpRequest.buildNamedRequests(tx.explicitResources, tx.session)
+      case _ if tx.protocol.responsePart.fetchHtmlResources =>
+        val explicitResources = HttpRequest.buildNamedRequests(tx.explicitResources, tx.session)
 
-				ResourceFetcher.fromCache(tx.request.getURI, tx, explicitResources) match {
-					case Some(resourceFetcher) =>
-						logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-						actor(resourceFetcher())
+        ResourceFetcher.fromCache(tx.request.getURI, tx, explicitResources) match {
+          case Some(resourceFetcher) =>
+            logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+            actor(resourceFetcher())
 
-					case None => skipCached(tx)
-				}
+          case None => skipCached(tx)
+        }
 
-			case _ => skipCached(tx)
-		}
-	}
+      case _ => skipCached(tx)
+    }
+  }
 }
 
 /**
@@ -74,15 +74,15 @@ object HttpRequestAction extends StrictLogging {
  */
 class HttpRequestAction(httpRequest: HttpRequest, val next: ActorRef) extends RequestAction {
 
-	import httpRequest._
+  import httpRequest._
 
-	val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(checks, responseTransformer, protocol)
-	val requestName = httpRequest.requestName
+  val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(checks, responseTransformer, protocol)
+  val requestName = httpRequest.requestName
 
-	def sendRequest(requestName: String, session: Session) =
-		for {
-			ahcRequest <- ahcRequest(session)
-			newSession = RefererHandling.storeReferer(ahcRequest, session, protocol)
-			tx = HttpTx(newSession, ahcRequest, requestName, checks, responseBuilderFactory, protocol, next, followRedirect, maxRedirects, throttled, silent, explicitResources, extraInfoExtractor)
-		} yield HttpRequestAction.startHttpTransaction(tx)
+  def sendRequest(requestName: String, session: Session) =
+    for {
+      ahcRequest <- ahcRequest(session)
+      newSession = RefererHandling.storeReferer(ahcRequest, session, protocol)
+      tx = HttpTx(newSession, ahcRequest, requestName, checks, responseBuilderFactory, protocol, next, followRedirect, maxRedirects, throttled, silent, explicitResources, extraInfoExtractor)
+    } yield HttpRequestAction.startHttpTransaction(tx)
 }

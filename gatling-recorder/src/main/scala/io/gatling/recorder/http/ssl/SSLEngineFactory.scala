@@ -21,15 +21,15 @@ import javax.net.ssl.SSLEngine
 
 object SSLEngineFactory {
 
-	def newServerSSLEngine: SSLEngine = {
-		val ctx = SecureChatSslContextFactory.serverContext.createSSLEngine
-		ctx.setUseClientMode(false)
-		ctx
-	}
+  def newServerSSLEngine: SSLEngine = {
+    val ctx = SecureChatSslContextFactory.serverContext.createSSLEngine
+    ctx.setUseClientMode(false)
+    ctx
+  }
 
-	def newClientSSLEngine: SSLEngine = {
-		val ctx = SecureChatSslContextFactory.clientContext.createSSLEngine
-		ctx.setUseClientMode(true)
-		ctx
-	}
+  def newClientSSLEngine: SSLEngine = {
+    val ctx = SecureChatSslContextFactory.clientContext.createSSLEngine
+    ctx.setUseClientMode(true)
+    ctx
+  }
 }

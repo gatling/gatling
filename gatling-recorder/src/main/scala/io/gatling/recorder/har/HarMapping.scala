@@ -25,49 +25,49 @@ import io.gatling.recorder.util.Json.{ JsonToInt, JsonToString }
 
 object HarMapping {
 
-	def jsonToHttpArchive(json: Json): HttpArchive =
-		HttpArchive(buildLog(json.log))
+  def jsonToHttpArchive(json: Json): HttpArchive =
+    HttpArchive(buildLog(json.log))
 
-	private def parseMillisFromIso8601DateTime(time: String): Long =
-		convertInstance.convertFromString(classOf[DateTime], time).getMillis
+  private def parseMillisFromIso8601DateTime(time: String): Long =
+    convertInstance.convertFromString(classOf[DateTime], time).getMillis
 
-	private def buildLog(log: Json) = {
-		val entries = log.entries
-			// Filter out all non-HTTP protocols (eg: ws://)	
-			.collect { case e if e.request.url.toString.toLowerCase.startsWith("http") => buildEntry(e) }
-		Log(entries)
-	}
+  private def buildLog(log: Json) = {
+    val entries = log.entries
+      // Filter out all non-HTTP protocols (eg: ws://)	
+      .collect { case e if e.request.url.toString.toLowerCase.startsWith("http") => buildEntry(e) }
+    Log(entries)
+  }
 
-	private def buildEntry(entry: Json): Entry =
-		Entry(parseMillisFromIso8601DateTime(entry.startedDateTime),
-			buildRequest(entry.request), buildResponse(entry.response))
+  private def buildEntry(entry: Json): Entry =
+    Entry(parseMillisFromIso8601DateTime(entry.startedDateTime),
+      buildRequest(entry.request), buildResponse(entry.response))
 
-	private def buildRequest(request: Json) = {
-		val postData = request.postData.toOption
-		Request(request.method, request.url, request.headers.map(buildHeader), postData.map(buildPostData))
-	}
+  private def buildRequest(request: Json) = {
+    val postData = request.postData.toOption
+    Request(request.method, request.url, request.headers.map(buildHeader), postData.map(buildPostData))
+  }
 
-	private val protectedValue = """"(.*)\"""".r
-	private def unprotected(string: String) = string match {
-		case protectedValue(unprotected) => unprotected
-		case _ => string
-	}
+  private val protectedValue = """"(.*)\"""".r
+  private def unprotected(string: String) = string match {
+    case protectedValue(unprotected) => unprotected
+    case _                           => string
+  }
 
-	private def buildResponse(response: Json) = {
-		val mimeType = response.content.mimeType
-		assert(mimeType.toOption.isDefined, s"Response content ${response.content} does not contains a mimeType")
+  private def buildResponse(response: Json) = {
+    val mimeType = response.content.mimeType
+    assert(mimeType.toOption.isDefined, s"Response content ${response.content} does not contains a mimeType")
 
-		val text = response.content.text.toOption.map(_.toString.trim).filter(!_.isEmpty)
+    val text = response.content.text.toOption.map(_.toString.trim).filter(!_.isEmpty)
 
-		val content = Content(mimeType, text)
-		Response(response.status, content)
-	}
+    val content = Content(mimeType, text)
+    Response(response.status, content)
+  }
 
-	private def buildHeader(header: Json) = Header(header.name, unprotected(header.value))
+  private def buildHeader(header: Json) = Header(header.name, unprotected(header.value))
 
-	private def buildPostData(postData: Json) = PostData(postData.mimeType, postData.text, postData.params.map(buildPostParam))
+  private def buildPostData(postData: Json) = PostData(postData.mimeType, postData.text, postData.params.map(buildPostParam))
 
-	private def buildPostParam(postParam: Json) = PostParam(postParam.name, unprotected(postParam.value))
+  private def buildPostParam(postParam: Json) = PostParam(postParam.name, unprotected(postParam.value))
 }
 
 /*

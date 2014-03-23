@@ -17,13 +17,13 @@ package io.gatling.core
 
 package object validation {
 
-	val noneSuccess = None.success
+  val noneSuccess = None.success
 
-	implicit class SuccessWrapper[T](val value: T) extends AnyVal {
-		def success: Validation[T] = Success(value)
-	}
+  implicit class SuccessWrapper[T](val value: T) extends AnyVal {
+    def success: Validation[T] = Success(value)
+  }
 
-	implicit class FailureWrapper(val message: String) extends AnyVal {
-		def failure = Failure(message)
-	}
+  implicit class FailureWrapper(val message: String) extends AnyVal {
+    def failure = Failure(message)
+  }
 }

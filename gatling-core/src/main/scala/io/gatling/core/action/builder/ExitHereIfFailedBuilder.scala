@@ -22,5 +22,5 @@ import io.gatling.core.config.Protocols
 
 object ExitHereIfFailedBuilder extends ActionBuilder {
 
-	def build(next: ActorRef, protocols: Protocols) = actor(new ExitHereIfFailed(next))
+  def build(next: ActorRef, protocols: Protocols) = actor(new ExitHereIfFailed(next))
 }

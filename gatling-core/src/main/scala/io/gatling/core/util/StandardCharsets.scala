@@ -19,7 +19,7 @@ import java.nio.charset.Charset
 
 object StandardCharsets {
 
-	val UTF_8 = Charset.forName("UTF-8")
-	val UTF_16 = Charset.forName("UTF-16")
-	val UTF_32 = Charset.forName("UTF-32")
+  val UTF_8 = Charset.forName("UTF-8")
+  val UTF_16 = Charset.forName("UTF-16")
+  val UTF_32 = Charset.forName("UTF-32")
 }

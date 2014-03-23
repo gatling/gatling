@@ -19,12 +19,12 @@ import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME
 
 class GlobalPageTemplate(
-	statisticsComponent: Component,
-	indicatorsComponent: Component,
-	statisticsTableComponent: Component,
-	errorTableComponent: Component,
-	activeSessionsComponent: Component,
-	responseTimeDistributionChartComponent: Component,
-	requestsComponent: Component,
-	responsesComponent: Component)
-	extends PageTemplate(GLOBAL_PAGE_NAME, false, None, None, statisticsComponent, indicatorsComponent, statisticsTableComponent, errorTableComponent, activeSessionsComponent, responseTimeDistributionChartComponent, requestsComponent, responsesComponent)
+  statisticsComponent: Component,
+  indicatorsComponent: Component,
+  statisticsTableComponent: Component,
+  errorTableComponent: Component,
+  activeSessionsComponent: Component,
+  responseTimeDistributionChartComponent: Component,
+  requestsComponent: Component,
+  responsesComponent: Component)
+    extends PageTemplate(GLOBAL_PAGE_NAME, false, None, None, statisticsComponent, indicatorsComponent, statisticsTableComponent, errorTableComponent, activeSessionsComponent, responseTimeDistributionChartComponent, requestsComponent, responsesComponent)

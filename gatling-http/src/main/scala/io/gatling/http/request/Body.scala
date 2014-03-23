@@ -27,49 +27,49 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Validation
 
 object ELFileBody {
-	def apply(filePath: Expression[String]) = StringBody(ELFileBodies.asString(filePath))
+  def apply(filePath: Expression[String]) = StringBody(ELFileBodies.asString(filePath))
 }
 
 trait Body {
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder]
+  def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder]
 }
 
 case class StringBody(string: Expression[String]) extends Body {
 
-	def asBytes: ByteArrayBody = {
-		val bytes = (session: Session) => string(session).map(_.getBytes(configuration.core.charset))
-		ByteArrayBody(bytes)
-	}
+  def asBytes: ByteArrayBody = {
+    val bytes = (session: Session) => string(session).map(_.getBytes(configuration.core.charset))
+    ByteArrayBody(bytes)
+  }
 
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = string(session).map(requestBuilder.setBody)
+  def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = string(session).map(requestBuilder.setBody)
 }
 
 object RawFileBody {
 
-	def apply(filePath: Expression[String]) = new RawFileBody(RawFileBodies.asFile(filePath))
+  def apply(filePath: Expression[String]) = new RawFileBody(RawFileBodies.asFile(filePath))
 
-	def unapply(b: RawFileBody) = Some(b.file)
+  def unapply(b: RawFileBody) = Some(b.file)
 }
 
 class RawFileBody(val file: Expression[JFile]) extends Body {
 
-	def asString: StringBody = {
-		val string = (session: Session) => file(session).map(FileUtils.readFileToString(_, configuration.core.charset))
-		StringBody(string)
-	}
+  def asString: StringBody = {
+    val string = (session: Session) => file(session).map(FileUtils.readFileToString(_, configuration.core.charset))
+    StringBody(string)
+  }
 
-	def asBytes: ByteArrayBody = {
-		val bytes = (session: Session) => file(session).map(FileUtils.readFileToByteArray)
-		ByteArrayBody(bytes)
-	}
+  def asBytes: ByteArrayBody = {
+    val bytes = (session: Session) => file(session).map(FileUtils.readFileToByteArray)
+    ByteArrayBody(bytes)
+  }
 
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = file(session).map(requestBuilder.setBody)
+  def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = file(session).map(requestBuilder.setBody)
 }
 
 case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body {
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = bytes(session).map(requestBuilder.setBody)
+  def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = bytes(session).map(requestBuilder.setBody)
 }
 
 case class InputStreamBody(is: Expression[InputStream]) extends Body {
-	def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
+  def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
 }

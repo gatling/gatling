@@ -25,37 +25,37 @@ import javax.net.ssl.{ KeyManager, KeyManagerFactory, SSLContext, TrustManager, 
 
 object SSLHelper {
 
-	def newTrustManagers(storeType: Option[String], file: String, password: String, algorithm: Option[String]): Array[TrustManager] = {
+  def newTrustManagers(storeType: Option[String], file: String, password: String, algorithm: Option[String]): Array[TrustManager] = {
 
-		withCloseable(new FileInputStream(new File(file))) { is =>
-			val trustStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
-			trustStore.load(is, password.toCharArray)
-			val algo = algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
-			val tmf = TrustManagerFactory.getInstance(algo)
-			tmf.init(trustStore)
-			tmf.getTrustManagers
-		}
-	}
+    withCloseable(new FileInputStream(new File(file))) { is =>
+      val trustStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
+      trustStore.load(is, password.toCharArray)
+      val algo = algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
+      val tmf = TrustManagerFactory.getInstance(algo)
+      tmf.init(trustStore)
+      tmf.getTrustManagers
+    }
+  }
 
-	def newKeyManagers(storeType: Option[String], file: String, password: String, algorithm: Option[String]): Array[KeyManager] = {
+  def newKeyManagers(storeType: Option[String], file: String, password: String, algorithm: Option[String]): Array[KeyManager] = {
 
-		withCloseable(new FileInputStream(new File(file))) { is =>
-			val keyStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
-			val passwordCharArray = password.toCharArray
-			keyStore.load(is, passwordCharArray)
-			val algo = algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
-			val kmf = KeyManagerFactory.getInstance(algo)
-			kmf.init(keyStore, passwordCharArray)
-			kmf.getKeyManagers
-		}
-	}
+    withCloseable(new FileInputStream(new File(file))) { is =>
+      val keyStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
+      val passwordCharArray = password.toCharArray
+      keyStore.load(is, passwordCharArray)
+      val algo = algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
+      val kmf = KeyManagerFactory.getInstance(algo)
+      kmf.init(keyStore, passwordCharArray)
+      kmf.getKeyManagers
+    }
+  }
 
-	implicit class RichAsyncHttpClientConfigBuilder(val ahcConfigBuilder: AsyncHttpClientConfig.Builder) extends AnyVal {
+  implicit class RichAsyncHttpClientConfigBuilder(val ahcConfigBuilder: AsyncHttpClientConfig.Builder) extends AnyVal {
 
-		def setSSLContext(trustManagers: Option[Array[TrustManager]], keyManagers: Option[Array[KeyManager]]): AsyncHttpClientConfig.Builder = {
-			val sslContext = SSLContext.getInstance("TLS")
-			sslContext.init(keyManagers.getOrElse(null), trustManagers.getOrElse(null), new SecureRandom)
-			ahcConfigBuilder.setSSLContext(sslContext)
-		}
-	}
+    def setSSLContext(trustManagers: Option[Array[TrustManager]], keyManagers: Option[Array[KeyManager]]): AsyncHttpClientConfig.Builder = {
+      val sslContext = SSLContext.getInstance("TLS")
+      sslContext.init(keyManagers.getOrElse(null), trustManagers.getOrElse(null), new SecureRandom)
+      ahcConfigBuilder.setSSLContext(sslContext)
+    }
+  }
 }

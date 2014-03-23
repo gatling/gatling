@@ -19,7 +19,7 @@ package io.gatling.http.check
  * Enumeration used to prioritize HttpChecks
  */
 object HttpCheckOrder extends Enumeration {
-	type HttpCheckOrder = Value
-	val Status, Url, Time, Checksum, Header, Body = Value
-	val orders = List(Status, Url, Time, Checksum, Header, Body)
+  type HttpCheckOrder = Value
+  val Status, Url, Time, Checksum, Header, Body = Value
+  val orders = List(Status, Url, Time, Checksum, Header, Body)
 }

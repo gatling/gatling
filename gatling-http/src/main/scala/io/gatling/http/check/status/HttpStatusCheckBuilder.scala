@@ -23,16 +23,16 @@ import io.gatling.http.response.Response
 
 object HttpStatusCheckBuilder {
 
-	val statusExtractor = new Extractor[Response, Int] {
-		val name = "status"
-		def apply(prepared: Response) = prepared.statusCode match {
-			case code @ Some(_) => code.success
-			case None => "Response wasn't received".failure
-		}
-	}.expression
+  val statusExtractor = new Extractor[Response, Int] {
+    val name = "status"
+    def apply(prepared: Response) = prepared.statusCode match {
+      case code @ Some(_) => code.success
+      case None           => "Response wasn't received".failure
+    }
+  }.expression
 
-	val status = new HttpSingleCheckBuilder[Response, Int](
-		HttpCheckBuilders.statusCheckFactory,
-		HttpCheckBuilders.passThroughResponsePreparer,
-		statusExtractor)
+  val status = new HttpSingleCheckBuilder[Response, Int](
+    HttpCheckBuilders.statusCheckFactory,
+    HttpCheckBuilders.passThroughResponsePreparer,
+    statusExtractor)
 }

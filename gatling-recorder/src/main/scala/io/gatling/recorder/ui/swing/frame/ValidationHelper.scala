@@ -27,42 +27,42 @@ import io.gatling.core.util.StringHelper.RichString
 
 object ValidationHelper {
 
-	case class Validator(
-		condition: String => Boolean,
-		successCallback: Component => Unit = setStandardBorder,
-		failureCallback: Component => Unit = setErrorBorder,
-		alwaysValid: Boolean = false)
+  case class Validator(
+    condition: String => Boolean,
+    successCallback: Component => Unit = setStandardBorder,
+    failureCallback: Component => Unit = setErrorBorder,
+    alwaysValid: Boolean = false)
 
-	def keyReleased(c: Component) = KeyReleased(c, null, 0, null)(null)
+  def keyReleased(c: Component) = KeyReleased(c, null, 0, null)(null)
 
-	private val standardBorder = new TextField().border
-	private val errorBorder = MatteBorder(2, 2, 2, 2, Color.red)
+  private val standardBorder = new TextField().border
+  private val errorBorder = MatteBorder(2, 2, 2, 2, Color.red)
 
-	/* Default validators */
-	private val portRange = 0 to 65536
-	def isValidPort(s: String) = Try(s.toInt).toOption.exists(portRange.contains)
-	def isNonEmpty(s: String) = s.trimToOption.isDefined
+  /* Default validators */
+  private val portRange = 0 to 65536
+  def isValidPort(s: String) = Try(s.toInt).toOption.exists(portRange.contains)
+  def isNonEmpty(s: String) = s.trimToOption.isDefined
 
-	/* Default callbacks */
-	def setStandardBorder(c: Component) { c.border = standardBorder }
-	def setErrorBorder(c: Component) { c.border = errorBorder }
+  /* Default callbacks */
+  def setStandardBorder(c: Component) { c.border = standardBorder }
+  def setErrorBorder(c: Component) { c.border = errorBorder }
 
-	private val validators = mutable.Map.empty[TextField, Validator]
-	private val status = mutable.Map.empty[TextField, Boolean]
+  private val validators = mutable.Map.empty[TextField, Validator]
+  private val status = mutable.Map.empty[TextField, Boolean]
 
-	def registerValidator(textField: TextField, validator: Validator) {
-		validators += (textField -> validator)
-	}
+  def registerValidator(textField: TextField, validator: Validator) {
+    validators += (textField -> validator)
+  }
 
-	def updateValidationStatus(field: TextField) = validators.get(field) match {
-		case Some(validator) =>
-			val isValid = validator.condition(field.text)
-			val callback = if (isValid) validator.successCallback else validator.failureCallback
-			callback(field)
-			status += (field -> (validator.alwaysValid || isValid))
-		case None =>
-			throw new IllegalStateException(s"No validator registered for component : $field")
-	}
+  def updateValidationStatus(field: TextField) = validators.get(field) match {
+    case Some(validator) =>
+      val isValid = validator.condition(field.text)
+      val callback = if (isValid) validator.successCallback else validator.failureCallback
+      callback(field)
+      status += (field -> (validator.alwaysValid || isValid))
+    case None =>
+      throw new IllegalStateException(s"No validator registered for component : $field")
+  }
 
-	def validationStatus = status.values.forall(identity)
+  def validationStatus = status.values.forall(identity)
 }

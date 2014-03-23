@@ -20,10 +20,10 @@ import scala.collection.mutable
 import io.gatling.core.result.IntRangeVsTimePlot
 
 class RangeBuffer {
-	val map = mutable.Map.empty[Int, IntRangeVsTimePlot]
+  val map = mutable.Map.empty[Int, IntRangeVsTimePlot]
 
-	def update(bucket: Int, value: Int) {
-		val current = map.getOrElse(bucket, IntRangeVsTimePlot(bucket, Int.MaxValue, Int.MinValue))
-		map.put(bucket, current.copy(lower = math.min(value, current.lower), higher = math.max(value, current.higher)))
-	}
+  def update(bucket: Int, value: Int) {
+    val current = map.getOrElse(bucket, IntRangeVsTimePlot(bucket, Int.MaxValue, Int.MinValue))
+    map.put(bucket, current.copy(lower = math.min(value, current.lower), higher = math.max(value, current.higher)))
+  }
 }

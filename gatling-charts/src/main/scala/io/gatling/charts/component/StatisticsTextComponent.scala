@@ -24,56 +24,56 @@ import io.gatling.core.util.NumberHelper.formatNumberWithSuffix
 import io.gatling.core.util.StringHelper.emptyFastring
 
 object Statistics {
-	def printable[T: Numeric](value: T) =
-		value match {
-			case NO_PLOT_MAGIC_VALUE => "-"
-			case (_: Int) | (_: Long) => value.toString
-			case _ =>
-				implicitly[Numeric[T]].toDouble(value) match {
-					case d if d >= 1000.0d => d.round.toString
-					case d if d >= 100.0d => f"$d%.1f"
-					case d => f"$d%.2f"
-				}
-		}
+  def printable[T: Numeric](value: T) =
+    value match {
+      case NO_PLOT_MAGIC_VALUE  => "-"
+      case (_: Int) | (_: Long) => value.toString
+      case _ =>
+        implicitly[Numeric[T]].toDouble(value) match {
+          case d if d >= 1000.0d => d.round.toString
+          case d if d >= 100.0d  => f"$d%.1f"
+          case d                 => f"$d%.2f"
+        }
+    }
 }
 
 case class Statistics[T: Numeric](name: String, total: T, success: T, failure: T) {
-	def all = List(total, success, failure)
+  def all = List(total, success, failure)
 }
 
 case class GroupedCount(name: String, count: Int, percentage: Int)
 
 case class RequestStatistics(name: String,
-	path: String,
-	numberOfRequestsStatistics: Statistics[Int],
-	minResponseTimeStatistics: Statistics[Int],
-	maxResponseTimeStatistics: Statistics[Int],
-	meanStatistics: Statistics[Int],
-	stdDeviationStatistics: Statistics[Int],
-	percentiles1: Statistics[Int],
-	percentiles2: Statistics[Int],
-	groupedCounts: Seq[GroupedCount],
-	meanNumberOfRequestsPerSecondStatistics: Statistics[Double]) {
+                             path: String,
+                             numberOfRequestsStatistics: Statistics[Int],
+                             minResponseTimeStatistics: Statistics[Int],
+                             maxResponseTimeStatistics: Statistics[Int],
+                             meanStatistics: Statistics[Int],
+                             stdDeviationStatistics: Statistics[Int],
+                             percentiles1: Statistics[Int],
+                             percentiles2: Statistics[Int],
+                             groupedCounts: Seq[GroupedCount],
+                             meanNumberOfRequestsPerSecondStatistics: Statistics[Double]) {
 
-	def mkFastring = {
-		val outputName = List(if (name == GLOBAL_PAGE_NAME) name else path)
-		List(
-			outputName,
-			numberOfRequestsStatistics.all,
-			minResponseTimeStatistics.all,
-			maxResponseTimeStatistics.all,
-			meanStatistics.all,
-			stdDeviationStatistics.all,
-			percentiles1.all,
-			percentiles2.all,
-			groupedCounts.flatMap(groupedCount => List(groupedCount.name, groupedCount.count, groupedCount.percentage)),
-			meanNumberOfRequestsPerSecondStatistics.all).flatten.mkFastring(configuration.charting.statsTsvSeparator)
-	}
+  def mkFastring = {
+    val outputName = List(if (name == GLOBAL_PAGE_NAME) name else path)
+    List(
+      outputName,
+      numberOfRequestsStatistics.all,
+      minResponseTimeStatistics.all,
+      maxResponseTimeStatistics.all,
+      meanStatistics.all,
+      stdDeviationStatistics.all,
+      percentiles1.all,
+      percentiles2.all,
+      groupedCounts.flatMap(groupedCount => List(groupedCount.name, groupedCount.count, groupedCount.percentage)),
+      meanNumberOfRequestsPerSecondStatistics.all).flatten.mkFastring(configuration.charting.statsTsvSeparator)
+  }
 }
 
 class StatisticsTextComponent extends Component {
 
-	def html = fast"""
+  def html = fast"""
                         <div class="infos">
                             <div class="infos-in">
 	                        <div class="infos-title">STATISTICS</div>
@@ -153,7 +153,7 @@ class StatisticsTextComponent extends Component {
                         </div>
 """
 
-	val js = emptyFastring
+  val js = emptyFastring
 
-	val jsFiles: Seq[String] = Seq.empty
+  val jsFiles: Seq[String] = Seq.empty
 }

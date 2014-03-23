@@ -28,48 +28,48 @@ import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.util.URIHelper
 
 object ClientRequestHandler {
-	def buildRequestWithRelativeURI(request: HttpRequest) = {
+  def buildRequestWithRelativeURI(request: HttpRequest) = {
 
-		val (_, pathQuery) = URIHelper.splitURI(request.getUri)
-		val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, pathQuery)
-		newRequest.setChunked(request.isChunked)
-		newRequest.setContent(request.getContent)
-		for (header <- request.headers.entries) newRequest.headers.add(header.getKey, header.getValue)
-		newRequest
-	}
+    val (_, pathQuery) = URIHelper.splitURI(request.getUri)
+    val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, pathQuery)
+    newRequest.setChunked(request.isChunked)
+    newRequest.setContent(request.getContent)
+    for (header <- request.headers.entries) newRequest.headers.add(header.getKey, header.getValue)
+    newRequest
+  }
 }
 
 abstract class ClientRequestHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
 
-	var _serverChannel: Option[Channel] = None
+  var _serverChannel: Option[Channel] = None
 
-	override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent) {
+  override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent) {
 
-		event.getMessage match {
-			case request: HttpRequest =>
-				proxy.outgoingHost.map { _ =>
-					for {
-						username <- proxy.outgoingUsername
-						password <- proxy.outgoingPassword
-					} {
-						val proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
-						request.headers.set(HeaderNames.PROXY_AUTHORIZATION, proxyAuth)
-					}
-				}.getOrElse(request.headers.remove("Proxy-Connection")) // remove Proxy-Connection header if it's not significant
+    event.getMessage match {
+      case request: HttpRequest =>
+        proxy.outgoingHost.map { _ =>
+          for {
+            username <- proxy.outgoingUsername
+            password <- proxy.outgoingPassword
+          } {
+            val proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
+            request.headers.set(HeaderNames.PROXY_AUTHORIZATION, proxyAuth)
+          }
+        }.getOrElse(request.headers.remove("Proxy-Connection")) // remove Proxy-Connection header if it's not significant
 
-				propagateRequest(ctx, request)
+        propagateRequest(ctx, request)
 
-				proxy.controller.receiveRequest(request)
+        proxy.controller.receiveRequest(request)
 
-			case unknown => logger.warn(s"Received unknown message: $unknown")
-		}
-	}
+      case unknown => logger.warn(s"Received unknown message: $unknown")
+    }
+  }
 
-	def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest)
+  def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest)
 
-	override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent) {
-		logger.error("Exception caught", e.getCause)
-		ctx.getChannel.close
-		_serverChannel.map(_.close)
-	}
+  override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent) {
+    logger.error("Exception caught", e.getCause)
+    ctx.getChannel.close
+    _serverChannel.map(_.close)
+  }
 }

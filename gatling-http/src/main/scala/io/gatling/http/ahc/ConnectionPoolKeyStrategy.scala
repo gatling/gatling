@@ -22,5 +22,5 @@ import com.ning.http.client.{ ConnectionPoolKeyStrategy => AHCConnectionPoolKeyS
 
 class ConnectionPoolKeyStrategy(session: Session) extends AHCConnectionPoolKeyStrategy {
 
-	def getKey(uri: URI) = session.userId + DefaultConnectionPoolStrategy.INSTANCE.getKey(uri)
+  def getKey(uri: URI) = session.userId + DefaultConnectionPoolStrategy.INSTANCE.getKey(uri)
 }

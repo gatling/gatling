@@ -26,37 +26,37 @@ import io.gatling.core.util.StringHelper.RichString
 
 class StatsJsTemplate(stats: GroupContainer) {
 
-	def getOutput: Fastring = {
+  def getOutput: Fastring = {
 
-		def renderStatsRequest(request: RequestStatistics) = {
-			val jsonStats = new StatsJsonTemplate(request, false).getOutput
+      def renderStatsRequest(request: RequestStatistics) = {
+        val jsonStats = new StatsJsonTemplate(request, false).getOutput
 
-			fast"""name: "${request.name.escapeJsDoubleQuoteString}",
+        fast"""name: "${request.name.escapeJsDoubleQuoteString}",
 path: "${request.path.escapeJsDoubleQuoteString}",
 pathFormatted: "${request.path.toFileName}",
 stats: ${jsonStats}"""
-		}
+      }
 
-		def renderStatsGroup(group: GroupContainer): Fastring = fast"""type: "$GROUP",
+      def renderStatsGroup(group: GroupContainer): Fastring = fast"""type: "$GROUP",
 contents: {
 ${
-			(group.contents.values.map {
-				_ match {
-					case subGroup: GroupContainer => fast""""${subGroup.name.toFileName}": {
+        (group.contents.values.map {
+          _ match {
+            case subGroup: GroupContainer => fast""""${subGroup.name.toFileName}": {
         ${renderStatsGroup(subGroup)}
     }"""
-					case request: RequestContainer => fast""""${request.name.toFileName}": {
+            case request: RequestContainer => fast""""${request.name.toFileName}": {
         type: "${REQUEST}",
         ${renderStatsRequest(request.stats)}
     }"""
-				}
-			}).mkFastring(",")
-		}
+          }
+        }).mkFastring(",")
+      }
 },
 ${renderStatsRequest(group.stats)}
 """
 
-		fast"""var stats = {
+    fast"""var stats = {
     ${renderStatsGroup(stats)}
 }
 
@@ -94,5 +94,5 @@ function fillStats(stat){
     $$("#meanNumberOfRequestsPerSecondKO").append(stat.meanNumberOfRequestsPerSecond.ko);
 }
 """
-	}
+  }
 }

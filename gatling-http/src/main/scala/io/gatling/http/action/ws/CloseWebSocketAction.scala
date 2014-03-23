@@ -22,9 +22,9 @@ import io.gatling.http.config.HttpProtocol
 
 class CloseWebSocketAction(val requestName: Expression[String], wsName: String, val next: ActorRef, protocol: HttpProtocol) extends RequestAction {
 
-	def sendRequest(requestName: String, session: Session) =
-		for {
-			wsActor <- session(wsName).validate[ActorRef]
-		} yield wsActor ! Close(requestName, next, session)
+  def sendRequest(requestName: String, session: Session) =
+    for {
+      wsActor <- session(wsName).validate[ActorRef]
+    } yield wsActor ! Close(requestName, next, session)
 
 }

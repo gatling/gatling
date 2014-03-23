@@ -19,5 +19,5 @@ import scala.concurrent.duration.{ DurationLong, FiniteDuration }
 
 object PauseTemplate {
 
-	def render(duration: FiniteDuration) = s"pause(${if (duration > 1.second) duration.toSeconds else duration})"
+  def render(duration: FiniteDuration) = s"pause(${if (duration > 1.second) duration.toSeconds else duration})"
 }

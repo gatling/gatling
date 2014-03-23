@@ -28,42 +28,42 @@ import io.gatling.core.util.FileHelper.RichURL
 
 object Resource {
 
-	private def load(filePath: Path, fileSystemFolder: Path): Validation[Resource] = {
-		val classPathResource = Option(getClass.getClassLoader.getResource(filePath.toString().replace('\\', '/'))).map { url =>
-			url.getProtocol match {
-				case "file" => FileResource(File(url.jfile()))
-				case "jar" => ArchiveResource(url, filePath.extension)
-				case _ => throw new UnsupportedOperationException
-			}
-		}
+  private def load(filePath: Path, fileSystemFolder: Path): Validation[Resource] = {
+    val classPathResource = Option(getClass.getClassLoader.getResource(filePath.toString().replace('\\', '/'))).map { url =>
+      url.getProtocol match {
+        case "file" => FileResource(File(url.jfile()))
+        case "jar"  => ArchiveResource(url, filePath.extension)
+        case _      => throw new UnsupportedOperationException
+      }
+    }
 
-		classPathResource.orElse((fileSystemFolder / filePath).ifFile(path => FileResource(path.toFile))) match {
-			case Some(resource) => resource.success
-			case _ => s"file $filePath doesn't exist".failure
-		}
-	}
+    classPathResource.orElse((fileSystemFolder / filePath).ifFile(path => FileResource(path.toFile))) match {
+      case Some(resource) => resource.success
+      case _              => s"file $filePath doesn't exist".failure
+    }
+  }
 
-	def feeder(fileName: String): Validation[Resource] = load(fileName, GatlingFiles.dataDirectory)
-	def requestBody(fileName: String): Validation[Resource] = load(fileName, GatlingFiles.requestBodiesDirectory)
+  def feeder(fileName: String): Validation[Resource] = load(fileName, GatlingFiles.dataDirectory)
+  def requestBody(fileName: String): Validation[Resource] = load(fileName, GatlingFiles.requestBodiesDirectory)
 }
 
 sealed trait Resource {
-	def inputStream: InputStream
-	def jfile: JFile
+  def inputStream: InputStream
+  def jfile: JFile
 }
 
 case class FileResource(file: File) extends Resource {
-	def inputStream = file.inputStream()
-	def jfile = file.jfile
+  def inputStream = file.inputStream()
+  def jfile = file.jfile
 }
 
 case class ArchiveResource(url: URL, extension: String) extends Resource {
 
-	def inputStream = url.openStream
+  def inputStream = url.openStream
 
-	def jfile = {
-		val tempFile = File.makeTemp("gatling", "." + extension).jfile
-		copyInputStreamToFile(inputStream, tempFile)
-		tempFile
-	}
+  def jfile = {
+    val tempFile = File.makeTemp("gatling", "." + extension).jfile
+    copyInputStreamToFile(inputStream, tempFile)
+    tempFile
+  }
 }

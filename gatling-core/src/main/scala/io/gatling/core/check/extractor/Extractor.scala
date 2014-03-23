@@ -18,17 +18,17 @@ package io.gatling.core.check.extractor
 import io.gatling.core.validation.Validation
 
 trait Extractor[P, X] {
-	def name: String
-	def apply(prepared: P): Validation[Option[X]]
+  def name: String
+  def apply(prepared: P): Validation[Option[X]]
 }
 
 abstract class CriterionExtractor[P, T, X] extends Extractor[P, X] {
-	def criterion: T
-	def extract(prepared: P): Validation[Option[X]]
-	def criterionName: String
-	def name = s"$criterionName($criterion)"
-	def apply(prepared: P): Validation[Option[X]] =
-		for {
-			extracted <- extract(prepared).mapError(message => s" could not extract : $message")
-		} yield extracted
+  def criterion: T
+  def extract(prepared: P): Validation[Option[X]]
+  def criterionName: String
+  def name = s"$criterionName($criterion)"
+  def apply(prepared: P): Validation[Option[X]] =
+    for {
+      extracted <- extract(prepared).mapError(message => s" could not extract : $message")
+    } yield extracted
 }

@@ -30,54 +30,54 @@ import io.gatling.http.{ HeaderNames, HeaderValues }
 
 object HttpHelper extends StrictLogging {
 
-	val httpScheme = "http"
-	val httpsScheme = "https"
-	val wsScheme = "ws"
-	val wssScheme = "wss"
+  val httpScheme = "http"
+  val httpsScheme = "https"
+  val wsScheme = "ws"
+  val wssScheme = "wss"
 
-	def parseFormBody(body: String): List[(String, String)] = {
-		def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)
+  def parseFormBody(body: String): List[(String, String)] = {
+      def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)
 
-		body
-			.split("&")
-			.map(_.split("=", 2))
-			.map { pair =>
-				val paramName = utf8Decode(pair(0))
-				val paramValue = if (pair.length > 1) utf8Decode(pair(1)) else ""
-				paramName -> paramValue
-			}(breakOut)
-	}
+    body
+      .split("&")
+      .map(_.split("=", 2))
+      .map { pair =>
+        val paramName = utf8Decode(pair(0))
+        val paramValue = if (pair.length > 1) utf8Decode(pair(1)) else ""
+        paramName -> paramValue
+      }(breakOut)
+  }
 
-	def buildBasicAuthRealm(username: Expression[String], password: Expression[String]) = buildRealm(username, password, AuthScheme.BASIC, preemptive = true)
-	def buildDigestAuthRealm(username: Expression[String], password: Expression[String]) = buildRealm(username, password, AuthScheme.DIGEST, preemptive = false)
-	def buildRealm(username: Expression[String], password: Expression[String], authScheme: AuthScheme, preemptive: Boolean): Expression[Realm] = (session: Session) =>
-		for {
-			usernameValue <- username(session)
-			passwordValue <- password(session)
-		} yield buildRealm(usernameValue, passwordValue, authScheme, preemptive)
+  def buildBasicAuthRealm(username: Expression[String], password: Expression[String]) = buildRealm(username, password, AuthScheme.BASIC, preemptive = true)
+  def buildDigestAuthRealm(username: Expression[String], password: Expression[String]) = buildRealm(username, password, AuthScheme.DIGEST, preemptive = false)
+  def buildRealm(username: Expression[String], password: Expression[String], authScheme: AuthScheme, preemptive: Boolean): Expression[Realm] = (session: Session) =>
+    for {
+      usernameValue <- username(session)
+      passwordValue <- password(session)
+    } yield buildRealm(usernameValue, passwordValue, authScheme, preemptive)
 
-	def buildBasicAuthRealm(username: String, password: String) = buildRealm(username, password, AuthScheme.BASIC, preemptive = true)
-	def buildRealm(username: String, password: String, authScheme: AuthScheme, preemptive: Boolean): Realm = new Realm.RealmBuilder().setPrincipal(username).setPassword(password).setUsePreemptiveAuth(preemptive).setScheme(authScheme).build
+  def buildBasicAuthRealm(username: String, password: String) = buildRealm(username, password, AuthScheme.BASIC, preemptive = true)
+  def buildRealm(username: String, password: String, authScheme: AuthScheme, preemptive: Boolean): Realm = new Realm.RealmBuilder().setPrincipal(username).setPassword(password).setUsePreemptiveAuth(preemptive).setScheme(authScheme).build
 
-	def isCss(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).exists(_.contains(HeaderValues.TEXT_CSS))
-	def isHtml(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).exists(ct => ct.contains(HeaderValues.TEXT_HTML) || ct.contains(HeaderValues.APPLICATION_XHTML))
-	def resolveFromURI(rootURI: URI, relative: String) = AsyncHttpProviderUtils.getRedirectUri(rootURI, relative)
-	def resolveFromURISilently(rootURI: URI, relative: String): Option[URI] =
-		try {
-			Some(resolveFromURI(rootURI, relative))
-		} catch {
-			case e: Exception =>
-				logger.error("Failed to resolve URI", e)
-				None
-		}
+  def isCss(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).exists(_.contains(HeaderValues.TEXT_CSS))
+  def isHtml(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).exists(ct => ct.contains(HeaderValues.TEXT_HTML) || ct.contains(HeaderValues.APPLICATION_XHTML))
+  def resolveFromURI(rootURI: URI, relative: String) = AsyncHttpProviderUtils.getRedirectUri(rootURI, relative)
+  def resolveFromURISilently(rootURI: URI, relative: String): Option[URI] =
+    try {
+      Some(resolveFromURI(rootURI, relative))
+    } catch {
+      case e: Exception =>
+        logger.error("Failed to resolve URI", e)
+        None
+    }
 
-	val redirectStatusCodes = Vector(301, 302, 303, 307, 308)
-	def isRedirect(statusCode: Int) = redirectStatusCodes.contains(statusCode)
-	def isNotModified(statusCode: Int) = statusCode == 304
+  val redirectStatusCodes = Vector(301, 302, 303, 307, 308)
+  def isRedirect(statusCode: Int) = redirectStatusCodes.contains(statusCode)
+  def isNotModified(statusCode: Int) = statusCode == 304
 
-	def isSecure(uri: URI) = uri.getScheme == httpsScheme || uri.getScheme == wssScheme
+  def isSecure(uri: URI) = uri.getScheme == httpsScheme || uri.getScheme == wssScheme
 
-	def isAbsoluteHttpUrl(url: String) = url.startsWith(httpScheme)
-	def isAbsoluteWsUrl(url: String) = url.startsWith(wsScheme)
+  def isAbsoluteHttpUrl(url: String) = url.startsWith(httpScheme)
+  def isAbsoluteWsUrl(url: String) = url.startsWith(wsScheme)
 }
 

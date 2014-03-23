@@ -22,13 +22,13 @@ import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
 
 object HttpBodyStringCheckBuilder {
 
-	val extractor = new Extractor[String, String] {
-		val name = "bodyString"
-		def apply(prepared: String) = Some(prepared).success
-	}.expression
+  val extractor = new Extractor[String, String] {
+    val name = "bodyString"
+    def apply(prepared: String) = Some(prepared).success
+  }.expression
 
-	val bodyString = new HttpSingleCheckBuilder[String, String](
-		HttpCheckBuilders.stringBodyCheckFactory,
-		HttpCheckBuilders.responseBodyStringPreparer,
-		extractor)
+  val bodyString = new HttpSingleCheckBuilder[String, String](
+    HttpCheckBuilders.stringBodyCheckFactory,
+    HttpCheckBuilders.responseBodyStringPreparer,
+    extractor)
 }

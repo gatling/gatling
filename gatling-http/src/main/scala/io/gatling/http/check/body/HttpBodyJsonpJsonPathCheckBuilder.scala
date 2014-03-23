@@ -27,38 +27,38 @@ import io.gatling.http.response.Response
 
 object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
 
-	val jsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\)$""".r
+  val jsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\)$""".r
 
-	val jsonpPreparer: Preparer[Response, Any] = {
+  val jsonpPreparer: Preparer[Response, Any] = {
 
-		val jsonParser = stringImplementation match {
-			case DirectCharsBasedStringImplementation => BoonParser
-			case _ => JacksonParser
-		}
+    val jsonParser = stringImplementation match {
+      case DirectCharsBasedStringImplementation => BoonParser
+      case _                                    => JacksonParser
+    }
 
-		response =>
-			val charBuffer = response.body.string
-			charBuffer match {
-				case jsonpRegex(jsonp) =>
-					try {
-						jsonParser.parse(jsonp).success
-					} catch {
-						case e: Exception =>
-							val message = s"Could not parse JSONP string into a JSON object: ${e.getMessage}"
-							logger.info(message, e)
-							message.failure
-					}
-				case _ =>
-					val message = "Regex could not extract JSON object from JSONP response"
-					logger.info(message)
-					message.failure
-			}
-	}
+    response =>
+      val charBuffer = response.body.string
+      charBuffer match {
+        case jsonpRegex(jsonp) =>
+          try {
+            jsonParser.parse(jsonp).success
+          } catch {
+            case e: Exception =>
+              val message = s"Could not parse JSONP string into a JSON object: ${e.getMessage}"
+              logger.info(message, e)
+              message.failure
+          }
+        case _ =>
+          val message = "Regex could not extract JSON object from JSONP response"
+          logger.info(message)
+          message.failure
+      }
+  }
 
-	def jsonpJsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
-		new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.stringBodyCheckFactory, jsonpPreparer) {
-			def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
-			def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))
-			def countExtractor = path.map(new CountJsonPathExtractor(_))
-		}
+  def jsonpJsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
+    new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.stringBodyCheckFactory, jsonpPreparer) {
+      def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
+      def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))
+      def countExtractor = path.map(new CountJsonPathExtractor(_))
+    }
 }

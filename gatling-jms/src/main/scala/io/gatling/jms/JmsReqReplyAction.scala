@@ -24,7 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 object JmsReqReplyAction {
 
-	val blockingReceiveReturnedNull = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
+  val blockingReceiveReturnedNull = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
 }
 
 /**
@@ -36,60 +36,60 @@ object JmsReqReplyAction {
  */
 class JmsReqReplyAction(val next: ActorRef, attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef) extends Interruptable with Failable {
 
-	// Create a client to refer to
-	val client = new SimpleJmsClient(
-		protocol.connectionFactoryName,
-		attributes.queueName,
-		protocol.url,
-		protocol.credentials,
-		protocol.contextFactory,
-		protocol.deliveryMode)
+  // Create a client to refer to
+  val client = new SimpleJmsClient(
+    protocol.connectionFactoryName,
+    attributes.queueName,
+    protocol.url,
+    protocol.credentials,
+    protocol.contextFactory,
+    protocol.deliveryMode)
 
-	class ListenerThread(val continue: AtomicBoolean = new AtomicBoolean(true)) extends Thread(new Runnable {
-		def run() = {
-			val replyConsumer = client.createReplyConsumer
-			while (continue.get) {
-				val m = replyConsumer.receive
-				m match {
-					case msg: Message => tracker ! MessageReceived(msg.getJMSCorrelationID, nowMillis, msg)
-					case _ =>
-						logger.error(JmsReqReplyAction.blockingReceiveReturnedNull.getMessage)
-						throw JmsReqReplyAction.blockingReceiveReturnedNull
-				}
-			}
-		}
-	})
+  class ListenerThread(val continue: AtomicBoolean = new AtomicBoolean(true)) extends Thread(new Runnable {
+    def run() = {
+      val replyConsumer = client.createReplyConsumer
+      while (continue.get) {
+        val m = replyConsumer.receive
+        m match {
+          case msg: Message => tracker ! MessageReceived(msg.getJMSCorrelationID, nowMillis, msg)
+          case _ =>
+            logger.error(JmsReqReplyAction.blockingReceiveReturnedNull.getMessage)
+            throw JmsReqReplyAction.blockingReceiveReturnedNull
+        }
+      }
+    }
+  })
 
-	val listenerThreads = (1 to protocol.listenerCount).map(_ => new ListenerThread)
+  val listenerThreads = (1 to protocol.listenerCount).map(_ => new ListenerThread)
 
-	listenerThreads.foreach(_.start)
+  listenerThreads.foreach(_.start)
 
-	override def postStop() {
-		client.close()
-		listenerThreads.foreach(_.continue.set(false))
-	}
+  override def postStop() {
+    client.close()
+    listenerThreads.foreach(_.continue.set(false))
+  }
 
-	/**
-	 * Framework calls the execute() method to send a single request
-	 * <p>
-	 * Note this does not catch any exceptions (even JMSException) as generally these indicate a
-	 * configuration failure that is unlikely to be addressed by retrying with another message
-	 */
-	def executeOrFail(session: Session) = {
+  /**
+   * Framework calls the execute() method to send a single request
+   * <p>
+   * Note this does not catch any exceptions (even JMSException) as generally these indicate a
+   * configuration failure that is unlikely to be addressed by retrying with another message
+   */
+  def executeOrFail(session: Session) = {
 
-		// send the message
-		val start = nowMillis
+    // send the message
+    val start = nowMillis
 
-		val msgid = attributes.message match {
-			case BytesJmsMessage(bytes) => bytes(session).map(bytes => client.sendBytesMessage(bytes, attributes.messageProperties))
-			case MapJmsMessage(map) => map(session).map(map => client.sendMapMessage(map, attributes.messageProperties))
-			case ObjectJmsMessage(o) => o(session).map(o => client.sendObjectMessage(o, attributes.messageProperties))
-			case TextJmsMessage(txt) => txt(session).map(txt => client.sendTextMessage(txt, attributes.messageProperties))
-		}
+    val msgid = attributes.message match {
+      case BytesJmsMessage(bytes) => bytes(session).map(bytes => client.sendBytesMessage(bytes, attributes.messageProperties))
+      case MapJmsMessage(map)     => map(session).map(map => client.sendMapMessage(map, attributes.messageProperties))
+      case ObjectJmsMessage(o)    => o(session).map(o => client.sendObjectMessage(o, attributes.messageProperties))
+      case TextJmsMessage(txt)    => txt(session).map(txt => client.sendTextMessage(txt, attributes.messageProperties))
+    }
 
-		msgid.map { msgid =>
-			// notify the tracker that a message was sent
-			tracker ! MessageSent(msgid, start, nowMillis, attributes.checks, session, next, attributes.requestName)
-		}
-	}
+    msgid.map { msgid =>
+      // notify the tracker that a message was sent
+      tracker ! MessageSent(msgid, start, nowMillis, attributes.checks, session, next, attributes.requestName)
+    }
+  }
 }

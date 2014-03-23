@@ -23,38 +23,38 @@ import io.gatling.charts.result.reader.GroupRecord
 
 trait ResponseTimeRangeBuffers {
 
-	val responseTimeRangeBuffers = mutable.Map.empty[BufferKey, ResponseTimeRangeBuffer]
+  val responseTimeRangeBuffers = mutable.Map.empty[BufferKey, ResponseTimeRangeBuffer]
 
-	def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group]): ResponseTimeRangeBuffer =
-		responseTimeRangeBuffers.getOrElseUpdate(BufferKey(requestName, group, None), new ResponseTimeRangeBuffer)
+  def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group]): ResponseTimeRangeBuffer =
+    responseTimeRangeBuffers.getOrElseUpdate(BufferKey(requestName, group, None), new ResponseTimeRangeBuffer)
 
-	def updateResponseTimeRangeBuffer(record: RequestRecord) {
-		import record._
-		getResponseTimeRangeBuffers(Some(name), group).update(responseTime, status)
-		getResponseTimeRangeBuffers(None, None).update(responseTime, status)
-	}
+  def updateResponseTimeRangeBuffer(record: RequestRecord) {
+    import record._
+    getResponseTimeRangeBuffers(Some(name), group).update(responseTime, status)
+    getResponseTimeRangeBuffers(None, None).update(responseTime, status)
+  }
 
-	def updateGroupResponseTimeRangeBuffer(record: GroupRecord) {
-		import record._
-		getResponseTimeRangeBuffers(None, Some(group)).update(duration, status)
-	}
+  def updateGroupResponseTimeRangeBuffer(record: GroupRecord) {
+    import record._
+    getResponseTimeRangeBuffers(None, Some(group)).update(duration, status)
+  }
 
-	class ResponseTimeRangeBuffer {
+  class ResponseTimeRangeBuffer {
 
-		import io.gatling.core.config.GatlingConfiguration.configuration
+    import io.gatling.core.config.GatlingConfiguration.configuration
 
-		var low = 0
-		var middle = 0
-		var high = 0
-		var ko = 0
+    var low = 0
+    var middle = 0
+    var high = 0
+    var ko = 0
 
-		def update(time: Int, status: Status) {
+    def update(time: Int, status: Status) {
 
-			if (status == KO) ko += 1
-			else if (time < configuration.charting.indicators.lowerBound) low += 1
-			else if (time > configuration.charting.indicators.higherBound) high += 1
-			else middle += 1
-		}
-	}
+      if (status == KO) ko += 1
+      else if (time < configuration.charting.indicators.lowerBound) low += 1
+      else if (time > configuration.charting.indicators.higherBound) high += 1
+      else middle += 1
+    }
+  }
 
 }

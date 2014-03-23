@@ -30,32 +30,32 @@ case class Init(runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]
 case object Terminate extends DataWriterMessage
 
 case class RequestMessage(
-	scenario: String,
-	userId: String,
-	groupStack: List[GroupStackEntry],
-	name: String,
-	requestStartDate: Long,
-	requestEndDate: Long,
-	responseStartDate: Long,
-	responseEndDate: Long,
-	status: Status,
-	message: Option[String],
-	extraInfo: List[Any]) extends DataWriterMessage {
-	val recordType = RequestMessageType
-	def responseTime = responseEndDate - requestStartDate
+    scenario: String,
+    userId: String,
+    groupStack: List[GroupStackEntry],
+    name: String,
+    requestStartDate: Long,
+    requestEndDate: Long,
+    responseStartDate: Long,
+    responseEndDate: Long,
+    status: Status,
+    message: Option[String],
+    extraInfo: List[Any]) extends DataWriterMessage {
+  val recordType = RequestMessageType
+  def responseTime = responseEndDate - requestStartDate
 }
 
 case class RunMessage(simulationClassName: String, simulationId: String, runDate: DateTime, runDescription: String) extends DataWriterMessage {
-	val recordType = RunMessageType
-	val timestamp = runDate.toTimestamp
-	val runId = simulationId + "-" + timestamp
+  val recordType = RunMessageType
+  val timestamp = runDate.toTimestamp
+  val runId = simulationId + "-" + timestamp
 }
 
 case class UserMessage(scenarioName: String, userId: String, event: MessageEvent, startDate: Long, endDate: Long) extends DataWriterMessage {
-	val recordType = UserMessageType
+  val recordType = UserMessageType
 }
 
 case class GroupMessage(scenarioName: String, userId: String, groupStack: List[GroupStackEntry], entryDate: Long, exitDate: Long, status: Status) extends DataWriterMessage {
-	val recordType = GroupMessageType
+  val recordType = GroupMessageType
 }
 

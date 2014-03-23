@@ -31,86 +31,86 @@ import xsbti.compile.CompileOrder
 
 object ZincCompiler extends StrictLogging {
 
-	def main(args: Array[String]) {
+  def main(args: Array[String]) {
 
-		val gatlingHome = args(0)
-		val sourceDirectory = Directory(args(1))
-		val binDirectory = args(2)
-		val classesDirectory = args(3)
-		val encoding = args(4)
+    val gatlingHome = args(0)
+    val sourceDirectory = Directory(args(1))
+    val binDirectory = args(2)
+    val classesDirectory = args(3)
+    val encoding = args(4)
 
-		val classpathURLs = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader].getURLs
+    val classpathURLs = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader].getURLs
 
-		def simulationInputs = {
-			val classpath = classpathURLs.map(url => new JFile(url.toURI))
+      def simulationInputs = {
+        val classpath = classpathURLs.map(url => new JFile(url.toURI))
 
-			val sources = sourceDirectory
-				.deepFiles
-				.collect { case file if file.hasExtension("scala") => file.jfile }
-				.toSeq
+        val sources = sourceDirectory
+          .deepFiles
+          .collect { case file if file.hasExtension("scala") => file.jfile }
+          .toSeq
 
-			def analysisCacheMapEntry(directoryName: String) = (gatlingHome / directoryName).jfile -> (binDirectory / "cache" / directoryName).jfile
+          def analysisCacheMapEntry(directoryName: String) = (gatlingHome / directoryName).jfile -> (binDirectory / "cache" / directoryName).jfile
 
-			Inputs.inputs(classpath = classpath,
-				sources = sources,
-				classesDirectory = classesDirectory.jfile,
-				scalacOptions = Seq("-encoding", encoding, "-target:jvm-1.6", "-deprecation", "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps"),
-				javacOptions = Nil,
-				analysisCache = Some((binDirectory / "zincCache").jfile),
-				analysisCacheMap = Map(analysisCacheMapEntry("bin"), analysisCacheMapEntry("conf"), analysisCacheMapEntry("user-files")), // avoids having GATLING_HOME polluted with a "cache" folder
-				forceClean = false,
-				javaOnly = false,
-				compileOrder = CompileOrder.JavaThenScala,
-				incOptions = IncOptions(),
-				outputRelations = None,
-				outputProducts = None,
-				mirrorAnalysis = false)
-		}
+        Inputs.inputs(classpath = classpath,
+          sources = sources,
+          classesDirectory = classesDirectory.jfile,
+          scalacOptions = Seq("-encoding", encoding, "-target:jvm-1.6", "-deprecation", "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps"),
+          javacOptions = Nil,
+          analysisCache = Some((binDirectory / "zincCache").jfile),
+          analysisCacheMap = Map(analysisCacheMapEntry("bin"), analysisCacheMapEntry("conf"), analysisCacheMapEntry("user-files")), // avoids having GATLING_HOME polluted with a "cache" folder
+          forceClean = false,
+          javaOnly = false,
+          compileOrder = CompileOrder.JavaThenScala,
+          incOptions = IncOptions(),
+          outputRelations = None,
+          outputProducts = None,
+          mirrorAnalysis = false)
+      }
 
-		def setupZincCompiler(): Setup = {
-			def jarMatching(regex: String): JFile = {
-				val compiledRegex = regex.r
-				val jarUrl = classpathURLs
-					.find(url => compiledRegex.findFirstMatchIn(url.toString).isDefined)
-					.getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
+      def setupZincCompiler(): Setup = {
+          def jarMatching(regex: String): JFile = {
+            val compiledRegex = regex.r
+            val jarUrl = classpathURLs
+              .find(url => compiledRegex.findFirstMatchIn(url.toString).isDefined)
+              .getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
 
-				new JFile(jarUrl.toURI)
-			}
+            new JFile(jarUrl.toURI)
+          }
 
-			val scalaCompiler = jarMatching("""(.*scala-compiler.*\.jar)$""")
-			val scalaLibrary = jarMatching("""(.*scala-library.*\.jar)$""")
-			val scalaReflect = jarMatching("""(.*scala-reflect.*\.jar)$""")
-			val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.toURI)
-			val compilerInterfaceSrc: JFile = jarMatching("""(.*compiler-interface-.*-sources.jar)$""")
+        val scalaCompiler = jarMatching("""(.*scala-compiler.*\.jar)$""")
+        val scalaLibrary = jarMatching("""(.*scala-library.*\.jar)$""")
+        val scalaReflect = jarMatching("""(.*scala-reflect.*\.jar)$""")
+        val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.toURI)
+        val compilerInterfaceSrc: JFile = jarMatching("""(.*compiler-interface-.*-sources.jar)$""")
 
-			Setup.setup(scalaCompiler = scalaCompiler,
-				scalaLibrary = scalaLibrary,
-				scalaExtra = List(scalaReflect),
-				sbtInterface = sbtInterfaceSrc,
-				compilerInterfaceSrc = compilerInterfaceSrc,
-				javaHomeDir = None,
-				false)
-		}
+        Setup.setup(scalaCompiler = scalaCompiler,
+          scalaLibrary = scalaLibrary,
+          scalaExtra = List(scalaReflect),
+          sbtInterface = sbtInterfaceSrc,
+          compilerInterfaceSrc = compilerInterfaceSrc,
+          javaHomeDir = None,
+          false)
+      }
 
-		// Setup the compiler
-		val setup = setupZincCompiler
-		val zincLogger = new Logger {
-			def error(arg: F0[String]) { logger.error(arg.apply) }
-			def warn(arg: F0[String]) { logger.warn(arg.apply) }
-			def info(arg: F0[String]) { logger.info(arg.apply) }
-			def debug(arg: F0[String]) { logger.debug(arg.apply) }
-			def trace(arg: F0[Throwable]) { logger.trace("", arg.apply) }
-		}
+    // Setup the compiler
+    val setup = setupZincCompiler
+    val zincLogger = new Logger {
+      def error(arg: F0[String]) { logger.error(arg.apply) }
+      def warn(arg: F0[String]) { logger.warn(arg.apply) }
+      def info(arg: F0[String]) { logger.info(arg.apply) }
+      def debug(arg: F0[String]) { logger.debug(arg.apply) }
+      def trace(arg: F0[Throwable]) { logger.trace("", arg.apply) }
+    }
 
-		val zincCompiler = Compiler.create(setup, zincLogger)
+    val zincCompiler = Compiler.create(setup, zincLogger)
 
-		// Define the inputs
-		val inputs = simulationInputs
-		Inputs.debug(inputs, zincLogger)
+    // Define the inputs
+    val inputs = simulationInputs
+    Inputs.debug(inputs, zincLogger)
 
-		if (Try(zincCompiler.compile(inputs)(zincLogger)).isFailure) {
-			// Zinc is already logging all the issues, no need to deal with the exception.
-			System.exit(1)
-		}
-	}
+    if (Try(zincCompiler.compile(inputs)(zincLogger)).isFailure) {
+      // Zinc is already logging all the issues, no need to deal with the exception.
+      System.exit(1)
+    }
+  }
 }

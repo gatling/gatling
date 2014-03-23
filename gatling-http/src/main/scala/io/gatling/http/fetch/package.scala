@@ -19,8 +19,8 @@ import io.gatling.core.filter.Filters
 
 package object fetch {
 
-	implicit class EmbeddedResourcesFilters(val filters: Filters) extends AnyVal {
+  implicit class EmbeddedResourcesFilters(val filters: Filters) extends AnyVal {
 
-		def filter[T <: EmbeddedResource](resources: List[T]) = resources.filter(res => filters.accept(res.url))
-	}
+    def filter[T <: EmbeddedResource](resources: List[T]) = resources.filter(res => filters.accept(res.url))
+  }
 }

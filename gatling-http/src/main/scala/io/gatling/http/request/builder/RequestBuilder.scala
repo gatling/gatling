@@ -28,77 +28,77 @@ import io.gatling.http.config.Proxy
 import io.gatling.http.util.HttpHelper
 
 case class CommonAttributes(
-	requestName: Expression[String],
-	method: String,
-	urlOrURI: Either[Expression[String], URI],
-	useRawUrl: Option[Boolean] = None,
-	queryParams: List[HttpParam] = Nil,
-	headers: Map[String, Expression[String]] = Map.empty,
-	realm: Option[Expression[Realm]] = None,
-	virtualHost: Option[Expression[String]] = None,
-	address: Option[InetAddress] = None,
-	proxy: Option[ProxyServer] = None,
-	secureProxy: Option[ProxyServer] = None)
+  requestName: Expression[String],
+  method: String,
+  urlOrURI: Either[Expression[String], URI],
+  useRawUrl: Option[Boolean] = None,
+  queryParams: List[HttpParam] = Nil,
+  headers: Map[String, Expression[String]] = Map.empty,
+  realm: Option[Expression[Realm]] = None,
+  virtualHost: Option[Expression[String]] = None,
+  address: Option[InetAddress] = None,
+  proxy: Option[ProxyServer] = None,
+  secureProxy: Option[ProxyServer] = None)
 
 object RequestBuilder {
 
-	val jsonHeaderValueExpression = HeaderValues.APPLICATION_JSON.el[String]
-	val xmlHeaderValueExpression = HeaderValues.APPLICATION_XML.el[String]
+  val jsonHeaderValueExpression = HeaderValues.APPLICATION_JSON.el[String]
+  val xmlHeaderValueExpression = HeaderValues.APPLICATION_XML.el[String]
 }
 
 abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: CommonAttributes) extends StrictLogging {
 
-	private[http] def newInstance(commonAttributes: CommonAttributes): B
+  private[http] def newInstance(commonAttributes: CommonAttributes): B
 
-	def queryParam(key: Expression[String], value: Expression[Any]): B = queryParam(SimpleParam(key, value))
-	def multivaluedQueryParam(key: Expression[String], values: Expression[Seq[Any]]): B = queryParam(MultivaluedParam(key, values))
-	def queryParamsSeq(seq: Expression[Seq[(String, Any)]]): B = queryParam(ParamSeq(seq))
-	def queryParamsMap(map: Expression[Map[String, Any]]): B = queryParam(ParamMap(map))
-	private def queryParam(param: HttpParam): B = newInstance(commonAttributes.copy(queryParams = param :: commonAttributes.queryParams))
+  def queryParam(key: Expression[String], value: Expression[Any]): B = queryParam(SimpleParam(key, value))
+  def multivaluedQueryParam(key: Expression[String], values: Expression[Seq[Any]]): B = queryParam(MultivaluedParam(key, values))
+  def queryParamsSeq(seq: Expression[Seq[(String, Any)]]): B = queryParam(ParamSeq(seq))
+  def queryParamsMap(map: Expression[Map[String, Any]]): B = queryParam(ParamMap(map))
+  private def queryParam(param: HttpParam): B = newInstance(commonAttributes.copy(queryParams = param :: commonAttributes.queryParams))
 
-	/**
-	 * Adds a header to the request
-	 *
-	 * @param name the name of the header
-	 * @param value the value of the header
-	 */
-	def header(name: String, value: Expression[String]): B = newInstance(commonAttributes.copy(headers = commonAttributes.headers + (name -> value)))
+  /**
+   * Adds a header to the request
+   *
+   * @param name the name of the header
+   * @param value the value of the header
+   */
+  def header(name: String, value: Expression[String]): B = newInstance(commonAttributes.copy(headers = commonAttributes.headers + (name -> value)))
 
-	/**
-	 * Adds several headers to the request at the same time
-	 *
-	 * @param newHeaders a scala map containing the headers to add
-	 */
-	def headers(newHeaders: Map[String, String]): B = newInstance(commonAttributes.copy(headers = commonAttributes.headers ++ newHeaders.mapValues(_.el[String])))
+  /**
+   * Adds several headers to the request at the same time
+   *
+   * @param newHeaders a scala map containing the headers to add
+   */
+  def headers(newHeaders: Map[String, String]): B = newInstance(commonAttributes.copy(headers = commonAttributes.headers ++ newHeaders.mapValues(_.el[String])))
 
-	/**
-	 * Adds Accept and Content-Type headers to the request set with "application/json" values
-	 */
-	def asJSON: B = header(HeaderNames.ACCEPT, RequestBuilder.jsonHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, RequestBuilder.jsonHeaderValueExpression)
+  /**
+   * Adds Accept and Content-Type headers to the request set with "application/json" values
+   */
+  def asJSON: B = header(HeaderNames.ACCEPT, RequestBuilder.jsonHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, RequestBuilder.jsonHeaderValueExpression)
 
-	/**
-	 * Adds Accept and Content-Type headers to the request set with "application/xml" values
-	 */
-	def asXML: B = header(HeaderNames.ACCEPT, RequestBuilder.xmlHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, RequestBuilder.xmlHeaderValueExpression)
+  /**
+   * Adds Accept and Content-Type headers to the request set with "application/xml" values
+   */
+  def asXML: B = header(HeaderNames.ACCEPT, RequestBuilder.xmlHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, RequestBuilder.xmlHeaderValueExpression)
 
-	/**
-	 * Adds BASIC authentication to the request
-	 *
-	 * @param username the username needed
-	 * @param password the password needed
-	 */
-	def basicAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
-	def digestAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
-	def authRealm(realm: Expression[Realm]): B = newInstance(commonAttributes.copy(realm = Some(realm)))
+  /**
+   * Adds BASIC authentication to the request
+   *
+   * @param username the username needed
+   * @param password the password needed
+   */
+  def basicAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
+  def digestAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
+  def authRealm(realm: Expression[Realm]): B = newInstance(commonAttributes.copy(realm = Some(realm)))
 
-	/**
-	 * @param virtualHost a virtual host to override default compute one
-	 */
-	def virtualHost(virtualHost: Expression[String]): B = newInstance(commonAttributes.copy(virtualHost = Some(virtualHost)))
+  /**
+   * @param virtualHost a virtual host to override default compute one
+   */
+  def virtualHost(virtualHost: Expression[String]): B = newInstance(commonAttributes.copy(virtualHost = Some(virtualHost)))
 
-	def address(address: InetAddress): B = newInstance(commonAttributes.copy(address = Some(address)))
+  def address(address: InetAddress): B = newInstance(commonAttributes.copy(address = Some(address)))
 
-	def useRawUrl: B = newInstance(commonAttributes.copy(useRawUrl = Some(true)))
+  def useRawUrl: B = newInstance(commonAttributes.copy(useRawUrl = Some(true)))
 
-	def proxy(httpProxy: Proxy): B = newInstance(commonAttributes.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
+  def proxy(httpProxy: Proxy): B = newInstance(commonAttributes.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
 }

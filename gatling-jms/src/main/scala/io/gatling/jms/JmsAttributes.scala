@@ -25,8 +25,8 @@ package io.gatling.jms
  * @author jasonk@bluedevel.com
  */
 case class JmsAttributes(
-	requestName: String,
-	queueName: String,
-	message: JmsMessage,
-	messageProperties: Map[String, Any] = Map.empty,
-	checks: List[JmsCheck] = Nil)
+  requestName: String,
+  queueName: String,
+  message: JmsMessage,
+  messageProperties: Map[String, Any] = Map.empty,
+  checks: List[JmsCheck] = Nil)

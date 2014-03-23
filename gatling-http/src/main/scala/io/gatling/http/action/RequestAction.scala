@@ -24,19 +24,19 @@ import io.gatling.core.validation.Validation
 
 abstract class RequestAction extends Interruptable with Failable with DataWriterClient {
 
-	def requestName: Expression[String]
-	def sendRequest(requestName: String, session: Session): Validation[Unit]
+  def requestName: Expression[String]
+  def sendRequest(requestName: String, session: Session): Validation[Unit]
 
-	def executeOrFail(session: Session) =
-		requestName(session).flatMap { resolvedRequestName =>
+  def executeOrFail(session: Session) =
+    requestName(session).flatMap { resolvedRequestName =>
 
-			val outcome = sendRequest(resolvedRequestName, session)
+      val outcome = sendRequest(resolvedRequestName, session)
 
-			outcome.onFailure { errorMessage =>
-				val now = nowMillis
-				writeRequestData(session, resolvedRequestName, now, now, now, now, KO, Some(errorMessage))
-			}
+      outcome.onFailure { errorMessage =>
+        val now = nowMillis
+        writeRequestData(session, resolvedRequestName, now, now, now, now, KO, Some(errorMessage))
+      }
 
-			outcome
-		}
+      outcome
+    }
 }

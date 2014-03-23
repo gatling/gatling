@@ -17,14 +17,14 @@ package io.gatling.recorder.util
 
 object URIHelper {
 
-	def splitURI(uri: String) = {
-		val slashes = uri.zipWithIndex.filter(_._1 == '/')
-		val schemeHostPort = slashes.lift(2).map { case (_, index) => uri.substring(0, index) }.getOrElse(uri)
-		val pathQuery = if (uri.length > schemeHostPort.length)
-			uri.substring(schemeHostPort.length)
-		else
-			"/"
+  def splitURI(uri: String) = {
+    val slashes = uri.zipWithIndex.filter(_._1 == '/')
+    val schemeHostPort = slashes.lift(2).map { case (_, index) => uri.substring(0, index) }.getOrElse(uri)
+    val pathQuery = if (uri.length > schemeHostPort.length)
+      uri.substring(schemeHostPort.length)
+    else
+      "/"
 
-		(schemeHostPort, pathQuery)
-	}
+    (schemeHostPort, pathQuery)
+  }
 }

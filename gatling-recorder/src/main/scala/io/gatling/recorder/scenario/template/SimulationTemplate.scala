@@ -23,80 +23,80 @@ import io.gatling.recorder.config.RecorderConfiguration
 
 object SimulationTemplate {
 
-	def render(packageName: String,
-		simulationClassName: String,
-		protocol: ProtocolDefinition,
-		headers: Map[Int, Seq[(String, String)]],
-		scenarioName: String,
-		scenarioElements: Either[Seq[ScenarioElement], Seq[Seq[ScenarioElement]]])(implicit config: RecorderConfiguration): String = {
+  def render(packageName: String,
+             simulationClassName: String,
+             protocol: ProtocolDefinition,
+             headers: Map[Int, Seq[(String, String)]],
+             scenarioName: String,
+             scenarioElements: Either[Seq[ScenarioElement], Seq[Seq[ScenarioElement]]])(implicit config: RecorderConfiguration): String = {
 
-		def renderPackage = if (!packageName.isEmpty) fast"package $packageName\n" else ""
+      def renderPackage = if (!packageName.isEmpty) fast"package $packageName\n" else ""
 
-		def renderHeaders = {
+      def renderHeaders = {
 
-			def printHeaders(headers: Seq[(String, String)]) = {
-				if (headers.size > 1) {
-					val mapContent = headers.map { case (name, value) => fast"		${protectWithTripleQuotes(name)} -> ${protectWithTripleQuotes(value)}" }.mkFastring(",\n")
-					fast"""Map(
+          def printHeaders(headers: Seq[(String, String)]) = {
+            if (headers.size > 1) {
+              val mapContent = headers.map { case (name, value) => fast"		${protectWithTripleQuotes(name)} -> ${protectWithTripleQuotes(value)}" }.mkFastring(",\n")
+              fast"""Map(
 $mapContent)"""
-				} else {
-					val (name, value) = headers(0)
-					fast"Map(${protectWithTripleQuotes(name)} -> ${protectWithTripleQuotes(value)})"
-				}
-			}
+            } else {
+              val (name, value) = headers(0)
+              fast"Map(${protectWithTripleQuotes(name)} -> ${protectWithTripleQuotes(value)})"
+            }
+          }
 
-			headers
-				.map { case (headersBlockIndex, headersBlock) => fast"""	val ${RequestTemplate.headersBlockName(headersBlockIndex)} = ${printHeaders(headersBlock)}""" }
-				.mkFastring("\n\n")
-		}
+        headers
+          .map { case (headersBlockIndex, headersBlock) => fast"""	val ${RequestTemplate.headersBlockName(headersBlockIndex)} = ${printHeaders(headersBlock)}""" }
+          .mkFastring("\n\n")
+      }
 
-		def renderScenarioElement(se: ScenarioElement) = se match {
-			case TagElement(text) => fast"// $text"
-			case PauseElement(duration) => PauseTemplate.render(duration)
-			case request: RequestElement => RequestTemplate.render(simulationClassName, request)
-		}
+      def renderScenarioElement(se: ScenarioElement) = se match {
+        case TagElement(text)        => fast"// $text"
+        case PauseElement(duration)  => PauseTemplate.render(duration)
+        case request: RequestElement => RequestTemplate.render(simulationClassName, request)
+      }
 
-		def renderProtocol(p: ProtocolDefinition) = ProtocolTemplate.render(p)
+      def renderProtocol(p: ProtocolDefinition) = ProtocolTemplate.render(p)
 
-		def renderScenario = {
-			scenarioElements match {
-				case Left(elements) =>
-					val scenarioElements = elements.map { element =>
-						val prefix = element match {
-							case TagElement(_) => ""
-							case _ => "."
-						}
-						fast"$prefix${renderScenarioElement(element)}"
-					}.mkFastring("\n\t\t")
+      def renderScenario = {
+        scenarioElements match {
+          case Left(elements) =>
+            val scenarioElements = elements.map { element =>
+              val prefix = element match {
+                case TagElement(_) => ""
+                case _             => "."
+              }
+              fast"$prefix${renderScenarioElement(element)}"
+            }.mkFastring("\n\t\t")
 
-					fast"""val scn = scenario("$scenarioName")
+            fast"""val scn = scenario("$scenarioName")
 		$scenarioElements"""
 
-				case Right(chains) =>
-					val chainElements = chains.zipWithIndex.map {
-						case (chain, i) =>
-							var firstNonTagElement = true
-							val chainContent = chain.map { element =>
-								val prefix = element match {
-									case TagElement(_) => ""
-									case _ => if (firstNonTagElement) { firstNonTagElement = false; "" } else "."
-								}
-								fast"$prefix${renderScenarioElement(element)}"
-							}.mkFastring("\n\t\t")
-							fast"val chain_$i = $chainContent"
-					}.mkFastring("\n\n")
+          case Right(chains) =>
+            val chainElements = chains.zipWithIndex.map {
+              case (chain, i) =>
+                var firstNonTagElement = true
+                val chainContent = chain.map { element =>
+                  val prefix = element match {
+                    case TagElement(_) => ""
+                    case _             => if (firstNonTagElement) { firstNonTagElement = false; "" } else "."
+                  }
+                  fast"$prefix${renderScenarioElement(element)}"
+                }.mkFastring("\n\t\t")
+                fast"val chain_$i = $chainContent"
+            }.mkFastring("\n\n")
 
-					val chainsList = (for (i <- 0 until chains.size) yield fast"chain_$i").mkFastring(", ")
+            val chainsList = (for (i <- 0 until chains.size) yield fast"chain_$i").mkFastring(", ")
 
-					fast"""$chainElements
+            fast"""$chainElements
 					
 	val scn = scenario("$scenarioName").exec(
 		$chainsList)"""
-			}
+        }
 
-		}
+      }
 
-		fast"""$renderPackage
+    fast"""$renderPackage
 import scala.concurrent.duration._
 
 import io.gatling.core.Predef._
@@ -113,5 +113,5 @@ $renderHeaders
 
 	setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
 }""".toString()
-	}
+  }
 }

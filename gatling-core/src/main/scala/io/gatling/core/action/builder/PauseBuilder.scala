@@ -32,17 +32,17 @@ import io.gatling.core.session.Expression
  */
 class PauseBuilder(duration: Expression[Duration]) extends ActionBuilder {
 
-	def build(next: ActorRef, protocols: Protocols) = {
+  def build(next: ActorRef, protocols: Protocols) = {
 
-		val pauseProtocol = protocols.getProtocol[PauseProtocol].getOrElse(throw new UnsupportedOperationException("Pause protocol hasn't been registered"))
+    val pauseProtocol = protocols.getProtocol[PauseProtocol].getOrElse(throw new UnsupportedOperationException("Pause protocol hasn't been registered"))
 
-		pauseProtocol.pauseType match {
-			case Disabled => next
-			case pauseType =>
-				val generator = pauseType.generator(duration)
-				actor(new Pause(generator, next))
-		}
-	}
+    pauseProtocol.pauseType match {
+      case Disabled => next
+      case pauseType =>
+        val generator = pauseType.generator(duration)
+        actor(new Pause(generator, next))
+    }
+  }
 
-	override def registerDefaultProtocols(protocols: Protocols): Protocols = protocols + PauseProtocol.default
+  override def registerDefaultProtocols(protocols: Protocols): Protocols = protocols + PauseProtocol.default
 }

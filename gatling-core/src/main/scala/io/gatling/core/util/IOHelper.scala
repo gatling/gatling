@@ -21,17 +21,17 @@ import scala.io.Source
 
 object IOHelper {
 
-	def withCloseable[T, C <: Closeable](closeable: C)(block: C => T) = {
-		try
-			block(closeable)
-		finally
-			closeable.close()
-	}
+  def withCloseable[T, C <: Closeable](closeable: C)(block: C => T) = {
+    try
+      block(closeable)
+    finally
+      closeable.close()
+  }
 
-	def withSource[T, C <: Source](closeable: C)(block: C => T) = {
-		try
-			block(closeable)
-		finally
-			closeable.close()
-	}
+  def withSource[T, C <: Source](closeable: C)(block: C => T) = {
+    try
+      block(closeable)
+    finally
+      closeable.close()
+  }
 }

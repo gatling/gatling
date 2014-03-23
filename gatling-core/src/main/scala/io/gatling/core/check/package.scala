@@ -19,7 +19,7 @@ import io.gatling.core.validation.Validation
 
 package object check {
 
-	type Preparer[R, P] = R => Validation[P]
+  type Preparer[R, P] = R => Validation[P]
 
-	type CheckFactory[C <: Check[R], R] = Check[R] => C
+  type CheckFactory[C <: Check[R], R] = Check[R] => C
 }

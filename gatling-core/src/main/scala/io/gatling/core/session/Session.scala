@@ -31,17 +31,17 @@ import io.gatling.core.validation.{ FailureWrapper, Validation }
  */
 object SessionPrivateAttributes {
 
-	val privateAttributePrefix = "gatling."
+  val privateAttributePrefix = "gatling."
 }
 
 case class SessionAttribute(session: Session, key: String) {
 
-	def as[T: NotNothing]: T = session.attributes(key).asInstanceOf[T]
-	def asOption[T: NotNothing]: Option[T] = session.attributes.get(key).map(_.asInstanceOf[T])
-	def validate[T](implicit ct: ClassTag[T], nn: NotNothing[T]): Validation[T] = session.attributes.get(key) match {
-		case Some(value) => value.asValidation[T]
-		case None => ELMessages.undefinedSessionAttributeMessage(key).failure
-	}
+  def as[T: NotNothing]: T = session.attributes(key).asInstanceOf[T]
+  def asOption[T: NotNothing]: Option[T] = session.attributes.get(key).map(_.asInstanceOf[T])
+  def validate[T](implicit ct: ClassTag[T], nn: NotNothing[T]): Validation[T] = session.attributes.get(key) match {
+    case Some(value) => value.asValidation[T]
+    case None        => ELMessages.undefinedSessionAttributeMessage(key).failure
+  }
 }
 
 /**
@@ -55,74 +55,74 @@ case class SessionAttribute(session: Session, key: String) {
  * @param data the map that stores all values needed
  */
 case class Session(
-	scenarioName: String,
-	userId: String,
-	attributes: Map[String, Any] = Map.empty,
-	startDate: Long = nowMillis,
-	drift: Long = 0L,
-	groupStack: List[GroupStackEntry] = Nil,
-	statusStack: List[Status] = List(OK),
-	interruptStack: List[PartialFunction[Session, Unit]] = Nil,
-	counterStack: List[String] = Nil) extends StrictLogging {
+    scenarioName: String,
+    userId: String,
+    attributes: Map[String, Any] = Map.empty,
+    startDate: Long = nowMillis,
+    drift: Long = 0L,
+    groupStack: List[GroupStackEntry] = Nil,
+    statusStack: List[Status] = List(OK),
+    interruptStack: List[PartialFunction[Session, Unit]] = Nil,
+    counterStack: List[String] = Nil) extends StrictLogging {
 
-	import SessionPrivateAttributes._
+  import SessionPrivateAttributes._
 
-	def apply(name: String) = SessionAttribute(this, name)
-	def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)
-	def setAll(newAttributes: Iterable[(String, Any)]): Session = copy(attributes = attributes ++ newAttributes)
-	def set(key: String, value: Any) = copy(attributes = attributes + (key -> value))
-	def remove(key: String) = if (contains(key)) copy(attributes = attributes - key) else this
-	def removeAll(keys: String*) = copy(attributes = attributes -- keys)
-	def contains(attributeKey: String) = attributes.contains(attributeKey)
+  def apply(name: String) = SessionAttribute(this, name)
+  def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)
+  def setAll(newAttributes: Iterable[(String, Any)]): Session = copy(attributes = attributes ++ newAttributes)
+  def set(key: String, value: Any) = copy(attributes = attributes + (key -> value))
+  def remove(key: String) = if (contains(key)) copy(attributes = attributes - key) else this
+  def removeAll(keys: String*) = copy(attributes = attributes -- keys)
+  def contains(attributeKey: String) = attributes.contains(attributeKey)
 
-	def setDrift(drift: Long) = copy(drift = drift)
-	def increaseDrift(time: Long) = copy(drift = time + drift)
+  def setDrift(drift: Long) = copy(drift = drift)
+  def increaseDrift(time: Long) = copy(drift = time + drift)
 
-	def enterGroup(groupName: String) = copy(groupStack = GroupStackEntry(groupName, nowMillis, 0L, 0, 0) :: groupStack, statusStack = OK :: statusStack)
-	def exitGroup = statusStack match {
-		case KO :: _ :: tail => copy(statusStack = KO :: tail, groupStack = groupStack.tail) // propagate failure to upper block
-		case _ :: tail => copy(statusStack = tail, groupStack = groupStack.tail)
-	}
-	def logGroupRequest(responseTime: Long, status: Status) = groupStack match {
-		case Nil => this
-		case _ =>
-			val (ok, ko) = if (status == OK) (1, 0) else (0, 1)
-			copy(groupStack = groupStack.map { entry => entry.copy(cumulatedResponseTime = entry.cumulatedResponseTime + responseTime, oks = entry.oks + ok, kos = entry.kos + ko) })
-	}
+  def enterGroup(groupName: String) = copy(groupStack = GroupStackEntry(groupName, nowMillis, 0L, 0, 0) :: groupStack, statusStack = OK :: statusStack)
+  def exitGroup = statusStack match {
+    case KO :: _ :: tail => copy(statusStack = KO :: tail, groupStack = groupStack.tail) // propagate failure to upper block
+    case _ :: tail       => copy(statusStack = tail, groupStack = groupStack.tail)
+  }
+  def logGroupRequest(responseTime: Long, status: Status) = groupStack match {
+    case Nil => this
+    case _ =>
+      val (ok, ko) = if (status == OK) (1, 0) else (0, 1)
+      copy(groupStack = groupStack.map { entry => entry.copy(cumulatedResponseTime = entry.cumulatedResponseTime + responseTime, oks = entry.oks + ok, kos = entry.kos + ko) })
+  }
 
-	def enterTryMax(interrupt: PartialFunction[Session, Unit]): Session = enterInterruptable(interrupt).copy(statusStack = OK :: statusStack)
-	def exitTryMax: Session = statusStack match {
-		case KO :: _ :: tail => copy(statusStack = KO :: tail, interruptStack = interruptStack.tail) // propagate failure to upper block
-		case _ :: tail => copy(statusStack = tail, interruptStack = interruptStack.tail)
-	}
+  def enterTryMax(interrupt: PartialFunction[Session, Unit]): Session = enterInterruptable(interrupt).copy(statusStack = OK :: statusStack)
+  def exitTryMax: Session = statusStack match {
+    case KO :: _ :: tail => copy(statusStack = KO :: tail, interruptStack = interruptStack.tail) // propagate failure to upper block
+    case _ :: tail       => copy(statusStack = tail, interruptStack = interruptStack.tail)
+  }
 
-	def isFailed = statusStack.contains(KO)
-	def status: Status = if (statusStack.contains(KO)) KO else OK
-	def markAsSucceeded = statusStack match {
-		case KO :: tail => copy(statusStack = OK :: tail)
-		case _ => this
-	}
-	def markAsFailed: Session = statusStack match {
-		case OK :: tail => copy(statusStack = KO :: tail)
-		case _ => this
-	}
+  def isFailed = statusStack.contains(KO)
+  def status: Status = if (statusStack.contains(KO)) KO else OK
+  def markAsSucceeded = statusStack match {
+    case KO :: tail => copy(statusStack = OK :: tail)
+    case _          => this
+  }
+  def markAsFailed: Session = statusStack match {
+    case OK :: tail => copy(statusStack = KO :: tail)
+    case _          => this
+  }
 
-	def enterInterruptable(interrupt: PartialFunction[Session, Unit]) = copy(interruptStack = interrupt :: interruptStack)
-	def exitInterruptable = copy(interruptStack = interruptStack.tail)
+  def enterInterruptable(interrupt: PartialFunction[Session, Unit]) = copy(interruptStack = interrupt :: interruptStack)
+  def exitInterruptable = copy(interruptStack = interruptStack.tail)
 
-	private def timestampName(counterName: String) = "timestamp." + counterName
+  private def timestampName(counterName: String) = "timestamp." + counterName
 
-	def incrementLoop(counterName: String) = counterStack match {
-		case head :: _ if head == counterName =>
-			val counterValue = attributes(counterName).asInstanceOf[Int] + 1
-			copy(attributes = attributes + (counterName -> counterValue))
-		case _ => copy(attributes = attributes + (counterName -> 0) + (timestampName(counterName) -> nowMillis), counterStack = counterName :: counterStack)
-	}
-	def exitLoop = counterStack match {
-		case counterName :: tail => copy(attributes = attributes - counterName - timestampName(counterName), counterStack = tail)
-		case _ => this
-	}
+  def incrementLoop(counterName: String) = counterStack match {
+    case head :: _ if head == counterName =>
+      val counterValue = attributes(counterName).asInstanceOf[Int] + 1
+      copy(attributes = attributes + (counterName -> counterValue))
+    case _ => copy(attributes = attributes + (counterName -> 0) + (timestampName(counterName) -> nowMillis), counterStack = counterName :: counterStack)
+  }
+  def exitLoop = counterStack match {
+    case counterName :: tail => copy(attributes = attributes - counterName - timestampName(counterName), counterStack = tail)
+    case _                   => this
+  }
 
-	def loopCounterValue(counterName: String) = attributes(counterName).asInstanceOf[Int]
-	def loopTimestampValue(counterName: String) = attributes(timestampName(counterName)).asInstanceOf[Long]
+  def loopCounterValue(counterName: String) = attributes(counterName).asInstanceOf[Int]
+  def loopTimestampValue(counterName: String) = attributes(timestampName(counterName)).asInstanceOf[Long]
 }

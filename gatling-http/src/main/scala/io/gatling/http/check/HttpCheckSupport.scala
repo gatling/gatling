@@ -27,33 +27,33 @@ import io.gatling.http.check.url.CurrentLocationCheckBuilder
 
 trait HttpCheckSupport {
 
-	val regex = regexTyped[String] _
-	def regexTyped[T](pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpBodyRegexCheckBuilder.regex[T](pattern)
+  val regex = regexTyped[String] _
+  def regexTyped[T](pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpBodyRegexCheckBuilder.regex[T](pattern)
 
-	def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
+  def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
 
-	def css(selector: Expression[String]) = HttpBodyCssCheckBuilder.css(selector, None)
-	def css(selector: Expression[String], nodeAttribute: String) = HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))
+  def css(selector: Expression[String]) = HttpBodyCssCheckBuilder.css(selector, None)
+  def css(selector: Expression[String], nodeAttribute: String) = HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))
 
-	val jsonPath = jsonPathTyped[String] _
-	def jsonPathTyped[T](path: Expression[String])(implicit groupExtractor: JsonFilter[T]) = HttpBodyJsonPathCheckBuilder.jsonPath[T](path)
-	val jsonpJsonPath = jsonpJsonPathTyped[String] _
-	def jsonpJsonPathTyped[T](path: Expression[String])(implicit groupExtractor: JsonFilter[T]) = HttpBodyJsonpJsonPathCheckBuilder.jsonpJsonPath[T](path)
+  val jsonPath = jsonPathTyped[String] _
+  def jsonPathTyped[T](path: Expression[String])(implicit groupExtractor: JsonFilter[T]) = HttpBodyJsonPathCheckBuilder.jsonPath[T](path)
+  val jsonpJsonPath = jsonpJsonPathTyped[String] _
+  def jsonpJsonPathTyped[T](path: Expression[String])(implicit groupExtractor: JsonFilter[T]) = HttpBodyJsonpJsonPathCheckBuilder.jsonpJsonPath[T](path)
 
-	val bodyString = HttpBodyStringCheckBuilder.bodyString
+  val bodyString = HttpBodyStringCheckBuilder.bodyString
 
-	val header = HttpHeaderCheckBuilder.header _
+  val header = HttpHeaderCheckBuilder.header _
 
-	val headerRegex = headerRegexTyped[String] _
-	def headerRegexTyped[T](headerName: Expression[String], pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpHeaderRegexCheckBuilder.headerRegex[T](headerName, pattern)
+  val headerRegex = headerRegexTyped[String] _
+  def headerRegexTyped[T](headerName: Expression[String], pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpHeaderRegexCheckBuilder.headerRegex[T](headerName, pattern)
 
-	val status = HttpStatusCheckBuilder.status
+  val status = HttpStatusCheckBuilder.status
 
-	val currentLocation = CurrentLocationCheckBuilder.currentLocation
+  val currentLocation = CurrentLocationCheckBuilder.currentLocation
 
-	val md5 = HttpChecksumCheckBuilder.md5
-	val sha1 = HttpChecksumCheckBuilder.sha1
+  val md5 = HttpChecksumCheckBuilder.md5
+  val sha1 = HttpChecksumCheckBuilder.sha1
 
-	val responseTimeInMillis = HttpResponseTimeCheckBuilder.responseTimeInMillis
-	val latencyInMillis = HttpResponseTimeCheckBuilder.latencyInMillis
+  val responseTimeInMillis = HttpResponseTimeCheckBuilder.responseTimeInMillis
+  val latencyInMillis = HttpResponseTimeCheckBuilder.latencyInMillis
 }

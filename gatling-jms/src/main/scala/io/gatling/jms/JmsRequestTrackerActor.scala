@@ -28,7 +28,7 @@ import io.gatling.core.result.writer.DataWriterClient
  * @author jasonk@bluedevel.com
  */
 case class MessageSent(correlationId: String, startSend: Long, endSend: Long,
-	checks: List[JmsCheck], session: Session, next: ActorRef, title: String)
+                       checks: List[JmsCheck], session: Session, next: ActorRef, title: String)
 
 /**
  * Advise actor a response message was received from JMS provider
@@ -43,54 +43,54 @@ case class MessageReceived(correlationId: String, received: Long, message: Messa
  */
 class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
 
-	// messages to be tracked through this HashMap - note it is a mutable hashmap
-	val sentMessages = new mutable.HashMap[String, (Long, Long, List[JmsCheck], Session, ActorRef, String)]()
-	val receivedMessages = new mutable.HashMap[String, (Long, Message)]()
+  // messages to be tracked through this HashMap - note it is a mutable hashmap
+  val sentMessages = new mutable.HashMap[String, (Long, Long, List[JmsCheck], Session, ActorRef, String)]()
+  val receivedMessages = new mutable.HashMap[String, (Long, Message)]()
 
-	// Actor receive loop
-	def receive = {
+  // Actor receive loop
+  def receive = {
 
-		// message was sent; add the timestamps to the map
-		case MessageSent(corrId, startSend, endSend, checks, session, next, title) =>
-			receivedMessages.get(corrId) match {
-				case Some((received, message)) =>
-					// message was received out of order, lets just deal with it
-					processMessage(session, startSend, received, endSend, checks, message, next, title)
-					receivedMessages -= corrId
+    // message was sent; add the timestamps to the map
+    case MessageSent(corrId, startSend, endSend, checks, session, next, title) =>
+      receivedMessages.get(corrId) match {
+        case Some((received, message)) =>
+          // message was received out of order, lets just deal with it
+          processMessage(session, startSend, received, endSend, checks, message, next, title)
+          receivedMessages -= corrId
 
-				case None =>
-					// normal path
-					val sentMessage = (startSend, endSend, checks, session, next, title)
-					sentMessages += corrId -> sentMessage
-		}
+        case None =>
+          // normal path
+          val sentMessage = (startSend, endSend, checks, session, next, title)
+          sentMessages += corrId -> sentMessage
+      }
 
-		// message was received; publish to the datawriter and remove from the hashmap
-		case MessageReceived(corrId, received, message) =>
-			sentMessages.get(corrId) match {
-				case Some((startSend, endSend, checks, session, next, title)) =>
-					processMessage(session, startSend, received, endSend, checks, message, next, title)
-					sentMessages -= corrId
+    // message was received; publish to the datawriter and remove from the hashmap
+    case MessageReceived(corrId, received, message) =>
+      sentMessages.get(corrId) match {
+        case Some((startSend, endSend, checks, session, next, title)) =>
+          processMessage(session, startSend, received, endSend, checks, message, next, title)
+          sentMessages -= corrId
 
-				case None =>
-					// failed to find message; early receive? or bad return correlation id?
-					// let's add it to the received messages buffer just in case
-					val receivedMessage = (received, message)
-					receivedMessages += corrId -> receivedMessage
-			}
-	}
+        case None =>
+          // failed to find message; early receive? or bad return correlation id?
+          // let's add it to the received messages buffer just in case
+          val receivedMessage = (received, message)
+          receivedMessages += corrId -> receivedMessage
+      }
+  }
 
-	/**
-	 * Processes a matched message
-	 */
-	def processMessage(session: Session, startSend: Long, received: Long, endSend: Long,
-		checks: List[JmsCheck], message: Message, next: ActorRef, title: String) {
+  /**
+   * Processes a matched message
+   */
+  def processMessage(session: Session, startSend: Long, received: Long, endSend: Long,
+                     checks: List[JmsCheck], message: Message, next: ActorRef, title: String) {
 
-		// run all of the checks
-		val checksPassed = checks.forall((check: JmsCheck) => check(message))
-		val status = if (checksPassed) OK else KO
+    // run all of the checks
+    val checksPassed = checks.forall((check: JmsCheck) => check(message))
+    val status = if (checksPassed) OK else KO
 
-		// advise the Gatling API that it is complete and move to next
-		writeRequestData(session, title, startSend, received, endSend, received, status)
-		next ! session
-	}
+    // advise the Gatling API that it is complete and move to next
+    writeRequestData(session, title, startSend, received, endSend, received, status)
+    next ! session
+  }
 }

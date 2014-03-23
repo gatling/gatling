@@ -25,29 +25,29 @@ import io.gatling.http.util.GZIPHelper
 
 object BodyProcessors {
 
-	val gzip = (body: Body) => {
+  val gzip = (body: Body) => {
 
-		val gzippedBytes = body match {
-			case StringBody(string) => (session: Session) => string(session).map(GZIPHelper.gzip)
-			case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(GZIPHelper.gzip)
-			case RawFileBody(file) => (session: Session) => file(session).map { f => withCloseable(new FileInputStream(f))(GZIPHelper.gzip) }
-			case InputStreamBody(inputStream) => (session: Session) => inputStream(session).map { withCloseable(_)(GZIPHelper.gzip) }
-			case _ => throw new UnsupportedOperationException(s"requestCompressor doesn't support $body")
-		}
+    val gzippedBytes = body match {
+      case StringBody(string) => (session: Session) => string(session).map(GZIPHelper.gzip)
+      case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(GZIPHelper.gzip)
+      case RawFileBody(file) => (session: Session) => file(session).map { f => withCloseable(new FileInputStream(f))(GZIPHelper.gzip) }
+      case InputStreamBody(inputStream) => (session: Session) => inputStream(session).map { withCloseable(_)(GZIPHelper.gzip) }
+      case _ => throw new UnsupportedOperationException(s"requestCompressor doesn't support $body")
+    }
 
-		ByteArrayBody(gzippedBytes)
-	}
+    ByteArrayBody(gzippedBytes)
+  }
 
-	val stream = (body: Body) => {
+  val stream = (body: Body) => {
 
-		val stream = body match {
-			case StringBody(string) => (session: Session) => string(session).map(s => new BufferedInputStream(new UnsyncByteArrayInputStream(s.getBytes(configuration.core.encoding))))
-			case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(b => new BufferedInputStream(new UnsyncByteArrayInputStream(b)))
-			case RawFileBody(file) => (session: Session) => file(session).map(f => new BufferedInputStream(new FileInputStream(f)))
-			case InputStreamBody(inputStream) => inputStream
-			case _ => throw new UnsupportedOperationException(s"streamBody doesn't support $body")
-		}
+    val stream = body match {
+      case StringBody(string) => (session: Session) => string(session).map(s => new BufferedInputStream(new UnsyncByteArrayInputStream(s.getBytes(configuration.core.encoding))))
+      case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(b => new BufferedInputStream(new UnsyncByteArrayInputStream(b)))
+      case RawFileBody(file) => (session: Session) => file(session).map(f => new BufferedInputStream(new FileInputStream(f)))
+      case InputStreamBody(inputStream) => inputStream
+      case _ => throw new UnsupportedOperationException(s"streamBody doesn't support $body")
+    }
 
-		InputStreamBody(stream)
-	}
+    InputStreamBody(stream)
+  }
 }

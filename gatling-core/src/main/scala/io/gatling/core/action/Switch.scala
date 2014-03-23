@@ -20,5 +20,5 @@ import io.gatling.core.session.{ Expression, Session }
 
 class Switch(nextAction: Expression[ActorRef], val next: ActorRef) extends Interruptable with Failable {
 
-	def executeOrFail(session: Session) = nextAction(session).map(_ ! session)
+  def executeOrFail(session: Session) = nextAction(session).map(_ ! session)
 }

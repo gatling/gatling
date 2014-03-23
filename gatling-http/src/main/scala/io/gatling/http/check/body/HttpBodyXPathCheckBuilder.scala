@@ -27,22 +27,22 @@ import net.sf.saxon.s9api.XdmNode
 
 object HttpBodyXPathCheckBuilder extends StrictLogging {
 
-	val preparer: Preparer[Response, Option[XdmNode]] = (response: Response) =>
-		try {
-			val root = if (response.hasResponseBody) Some(XPathExtractor.parse(response.body.stream())) else None
-			root.success
+  val preparer: Preparer[Response, Option[XdmNode]] = (response: Response) =>
+    try {
+      val root = if (response.hasResponseBody) Some(XPathExtractor.parse(response.body.stream())) else None
+      root.success
 
-		} catch {
-			case e: Exception =>
-				val message = s"Could not parse response into a DOM Document: ${e.getMessage}"
-				logger.info(message, e)
-				message.failure
-		}
+    } catch {
+      case e: Exception =>
+        val message = s"Could not parse response into a DOM Document: ${e.getMessage}"
+        logger.info(message, e)
+        message.failure
+    }
 
-	def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
-		new HttpMultipleCheckBuilder[Option[XdmNode], String](HttpCheckBuilders.streamBodyCheckFactory, preparer) {
-			def findExtractor(occurrence: Int) = expression.map(new SingleXPathExtractor(_, namespaces, occurrence))
-			def findAllExtractor = expression.map(new MultipleXPathExtractor(_, namespaces))
-			def countExtractor = expression.map(new CountXPathExtractor(_, namespaces))
-		}
+  def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
+    new HttpMultipleCheckBuilder[Option[XdmNode], String](HttpCheckBuilders.streamBodyCheckFactory, preparer) {
+      def findExtractor(occurrence: Int) = expression.map(new SingleXPathExtractor(_, namespaces, occurrence))
+      def findAllExtractor = expression.map(new MultipleXPathExtractor(_, namespaces))
+      def countExtractor = expression.map(new CountXPathExtractor(_, namespaces))
+    }
 }

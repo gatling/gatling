@@ -29,58 +29,58 @@ import io.gatling.recorder.http.ssl.SSLEngineFactory
 
 object BootstrapFactory extends StrictLogging {
 
-	val SSL_HANDLER_NAME = "ssl"
-	val GATLING_HANDLER_NAME = "gatling"
+  val SSL_HANDLER_NAME = "ssl"
+  val GATLING_HANDLER_NAME = "gatling"
 
-	private val CHUNK_MAX_SIZE = 100 * 1024 * 1024 // 100Mo
+  private val CHUNK_MAX_SIZE = 100 * 1024 * 1024 // 100Mo
 
-	def newClientBootstrap(ssl: Boolean): ClientBootstrap = {
-		val bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory)
-		bootstrap.setPipelineFactory(new ChannelPipelineFactory {
-			def getPipeline: ChannelPipeline = {
-				logger.debug("Open new client channel")
-				val pipeline = Channels.pipeline
-				if (ssl)
-					pipeline.addLast(SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newClientSSLEngine))
-				pipeline.addLast("codec", new HttpClientCodec)
-				pipeline.addLast("inflater", new HttpContentDecompressor)
-				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
-				pipeline
-			}
-		})
+  def newClientBootstrap(ssl: Boolean): ClientBootstrap = {
+    val bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory)
+    bootstrap.setPipelineFactory(new ChannelPipelineFactory {
+      def getPipeline: ChannelPipeline = {
+        logger.debug("Open new client channel")
+        val pipeline = Channels.pipeline
+        if (ssl)
+          pipeline.addLast(SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newClientSSLEngine))
+        pipeline.addLast("codec", new HttpClientCodec)
+        pipeline.addLast("inflater", new HttpContentDecompressor)
+        pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
+        pipeline
+      }
+    })
 
-		bootstrap.setOption("child.tcpNoDelay", true)
-		bootstrap.setOption("child.keepAlive", true)
+    bootstrap.setOption("child.tcpNoDelay", true)
+    bootstrap.setOption("child.keepAlive", true)
 
-		bootstrap
-	}
+    bootstrap
+  }
 
-	def newServerBootstrap(proxy: HttpProxy, ssl: Boolean): ServerBootstrap = {
+  def newServerBootstrap(proxy: HttpProxy, ssl: Boolean): ServerBootstrap = {
 
-		val bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory)
+    val bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory)
 
-		bootstrap.setPipelineFactory(new ChannelPipelineFactory {
-			def getPipeline: ChannelPipeline = {
-				logger.debug("Open new server channel")
-				val pipeline = Channels.pipeline
-				pipeline.addLast("decoder", new HttpRequestDecoder)
-				pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
-				pipeline.addLast("encoder", new HttpResponseEncoder)
-				pipeline.addLast("deflater", new HttpContentCompressor)
-				pipeline.addLast(GATLING_HANDLER_NAME, if (ssl) new ClientHttpsRequestHandler(proxy) else new ClientHttpRequestHandler(proxy))
-				pipeline
-			}
-		})
+    bootstrap.setPipelineFactory(new ChannelPipelineFactory {
+      def getPipeline: ChannelPipeline = {
+        logger.debug("Open new server channel")
+        val pipeline = Channels.pipeline
+        pipeline.addLast("decoder", new HttpRequestDecoder)
+        pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
+        pipeline.addLast("encoder", new HttpResponseEncoder)
+        pipeline.addLast("deflater", new HttpContentCompressor)
+        pipeline.addLast(GATLING_HANDLER_NAME, if (ssl) new ClientHttpsRequestHandler(proxy) else new ClientHttpRequestHandler(proxy))
+        pipeline
+      }
+    })
 
-		bootstrap.setOption("child.tcpNoDelay", true)
-		bootstrap.setOption("child.keepAlive", true)
+    bootstrap.setOption("child.tcpNoDelay", true)
+    bootstrap.setOption("child.keepAlive", true)
 
-		bootstrap
-	}
+    bootstrap
+  }
 
-	def upgradeProtocol(pipeline: ChannelPipeline) {
-		pipeline.remove("codec")
-		pipeline.addFirst("codec", new HttpClientCodec)
-		pipeline.addFirst(SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newClientSSLEngine))
-	}
+  def upgradeProtocol(pipeline: ChannelPipeline) {
+    pipeline.remove("codec")
+    pipeline.addFirst("codec", new HttpClientCodec)
+    pipeline.addFirst(SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newClientSSLEngine))
+  }
 }

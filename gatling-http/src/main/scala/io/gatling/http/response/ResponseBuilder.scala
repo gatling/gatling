@@ -37,131 +37,131 @@ import io.gatling.http.util.HttpHelper.{ isCss, isHtml }
 
 object ResponseBuilder {
 
-	val emptyBytes = Array.empty[Byte]
+  val emptyBytes = Array.empty[Byte]
 
-	val emptyHeaders = new FluentCaseInsensitiveStringsMap
+  val emptyHeaders = new FluentCaseInsensitiveStringsMap
 
-	def newResponseBuilderFactory(checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer], protocol: HttpProtocol): ResponseBuilderFactory = {
+  def newResponseBuilderFactory(checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer], protocol: HttpProtocol): ResponseBuilderFactory = {
 
-		val checksumChecks = checks.collect {
-			case checksumCheck: ChecksumCheck => checksumCheck
-		}
+    val checksumChecks = checks.collect {
+      case checksumCheck: ChecksumCheck => checksumCheck
+    }
 
-		val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy).toSet
+    val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy).toSet
 
-		val storeBodyParts = !protocol.responsePart.discardResponseChunks || !responseBodyUsageStrategies.isEmpty
+    val storeBodyParts = !protocol.responsePart.discardResponseChunks || !responseBodyUsageStrategies.isEmpty
 
-		request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, protocol.responsePart.fetchHtmlResources)
-	}
+    request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, protocol.responsePart.fetchHtmlResources)
+  }
 }
 
 class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bodyUsageStrategies: Set[ResponseBodyUsageStrategy], responseProcessor: Option[ResponseTransformer], storeBodyParts: Boolean, fetchHtmlResources: Boolean) {
 
-	val computeChecksums = !checksumChecks.isEmpty
-	var storeHtmlOrCss = false
-	var firstByteSent = nowMillis
-	var lastByteSent = 0L
-	var firstByteReceived = 0L
-	var lastByteReceived = 0L
-	private var status: Option[HttpResponseStatus] = None
-	private var headers: FluentCaseInsensitiveStringsMap = ResponseBuilder.emptyHeaders
-	private val chunks = new ArrayBuffer[ChannelBuffer]
-	private var digests: Map[String, MessageDigest] = initDigests()
+  val computeChecksums = !checksumChecks.isEmpty
+  var storeHtmlOrCss = false
+  var firstByteSent = nowMillis
+  var lastByteSent = 0L
+  var firstByteReceived = 0L
+  var lastByteReceived = 0L
+  private var status: Option[HttpResponseStatus] = None
+  private var headers: FluentCaseInsensitiveStringsMap = ResponseBuilder.emptyHeaders
+  private val chunks = new ArrayBuffer[ChannelBuffer]
+  private var digests: Map[String, MessageDigest] = initDigests()
 
-	def initDigests(): Map[String, MessageDigest] =
-		if (computeChecksums)
-			checksumChecks.foldLeft(Map.empty[String, MessageDigest]) { (map, check) =>
-				map + (check.algorithm -> MessageDigest.getInstance(check.algorithm))
-			}
-		else
-			Map.empty[String, MessageDigest]
+  def initDigests(): Map[String, MessageDigest] =
+    if (computeChecksums)
+      checksumChecks.foldLeft(Map.empty[String, MessageDigest]) { (map, check) =>
+        map + (check.algorithm -> MessageDigest.getInstance(check.algorithm))
+      }
+    else
+      Map.empty[String, MessageDigest]
 
-	def updateFirstByteSent() {
-		firstByteSent = nowMillis
-	}
+  def updateFirstByteSent() {
+    firstByteSent = nowMillis
+  }
 
-	def reset() {
-		firstByteSent = nowMillis
-		lastByteSent = 0L
-		firstByteReceived = 0L
-		lastByteReceived = 0L
-		status = None
-		headers = ResponseBuilder.emptyHeaders
-		chunks.clear
-		digests = initDigests()
-	}
+  def reset() {
+    firstByteSent = nowMillis
+    lastByteSent = 0L
+    firstByteReceived = 0L
+    lastByteReceived = 0L
+    status = None
+    headers = ResponseBuilder.emptyHeaders
+    chunks.clear
+    digests = initDigests()
+  }
 
-	def updateLastByteSent() {
-		lastByteSent = nowMillis
-	}
+  def updateLastByteSent() {
+    lastByteSent = nowMillis
+  }
 
-	def updateLastByteReceived() {
-		lastByteReceived = nowMillis
-	}
+  def updateLastByteReceived() {
+    lastByteReceived = nowMillis
+  }
 
-	def accumulate(status: HttpResponseStatus) {
-		this.status = Some(status)
-		val now = nowMillis
-		firstByteReceived = now
-		lastByteReceived = now
-	}
+  def accumulate(status: HttpResponseStatus) {
+    this.status = Some(status)
+    val now = nowMillis
+    firstByteReceived = now
+    lastByteReceived = now
+  }
 
-	def accumulate(headers: HttpResponseHeaders) {
-		this.headers = headers.getHeaders
-		storeHtmlOrCss = fetchHtmlResources && (isHtml(headers.getHeaders) || isCss(headers.getHeaders))
-		updateLastByteReceived
-	}
+  def accumulate(headers: HttpResponseHeaders) {
+    this.headers = headers.getHeaders
+    storeHtmlOrCss = fetchHtmlResources && (isHtml(headers.getHeaders) || isCss(headers.getHeaders))
+    updateLastByteReceived
+  }
 
-	def accumulate(bodyPart: HttpResponseBodyPart) {
+  def accumulate(bodyPart: HttpResponseBodyPart) {
 
-		updateLastByteReceived
+    updateLastByteReceived
 
-		val channelBuffer = bodyPart.asInstanceOf[ResponseBodyPart].getChannelBuffer
+    val channelBuffer = bodyPart.asInstanceOf[ResponseBodyPart].getChannelBuffer
 
-		if (storeBodyParts || storeHtmlOrCss)
-			chunks += channelBuffer
+    if (storeBodyParts || storeHtmlOrCss)
+      chunks += channelBuffer
 
-		if (computeChecksums)
-			digests.values.foreach(_.update(channelBuffer.toByteBuffer))
-	}
+    if (computeChecksums)
+      digests.values.foreach(_.update(channelBuffer.toByteBuffer))
+  }
 
-	def build: Response = {
+  def build: Response = {
 
-		// time measurement is imprecise due to multi-core nature
-		// moreover, ProgressListener might be called AFTER ChannelHandler methods 
-		// ensure request doesn't end before starting
-		lastByteSent = max(lastByteSent, firstByteSent)
-		// ensure response doesn't start before request ends
-		firstByteReceived = max(firstByteReceived, lastByteSent)
-		// ensure response doesn't end before starting
-		lastByteReceived = max(lastByteReceived, firstByteReceived)
+    // time measurement is imprecise due to multi-core nature
+    // moreover, ProgressListener might be called AFTER ChannelHandler methods 
+    // ensure request doesn't end before starting
+    lastByteSent = max(lastByteSent, firstByteSent)
+    // ensure response doesn't start before request ends
+    firstByteReceived = max(firstByteReceived, lastByteSent)
+    // ensure response doesn't end before starting
+    lastByteReceived = max(lastByteReceived, firstByteReceived)
 
-		val checksums = digests.foldLeft(Map.empty[String, String]) { (map, entry) =>
-			val (algo, md) = entry
-			map + (algo -> bytes2Hex(md.digest))
-		}
+    val checksums = digests.foldLeft(Map.empty[String, String]) { (map, entry) =>
+      val (algo, md) = entry
+      map + (algo -> bytes2Hex(md.digest))
+    }
 
-		val bodyLength = chunks.map(_.readableBytes).sum
+    val bodyLength = chunks.map(_.readableBytes).sum
 
-		val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
+    val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
 
-		val charset = Option(headers.getFirstValue(HeaderNames.CONTENT_ENCODING)).map(Charset.forName).getOrElse(configuration.core.charset)
+    val charset = Option(headers.getFirstValue(HeaderNames.CONTENT_ENCODING)).map(Charset.forName).getOrElse(configuration.core.charset)
 
-		val body: ResponseBody =
-			if (bodyUsages.contains(ByteArrayResponseBodyUsage))
-				ByteArrayResponseBody(chunks, charset)
+    val body: ResponseBody =
+      if (bodyUsages.contains(ByteArrayResponseBodyUsage))
+        ByteArrayResponseBody(chunks, charset)
 
-			else if (bodyUsages.contains(InputStreamResponseBodyUsage) || bodyUsages.isEmpty)
-				InputStreamResponseBody(chunks, charset)
+      else if (bodyUsages.contains(InputStreamResponseBodyUsage) || bodyUsages.isEmpty)
+        InputStreamResponseBody(chunks, charset)
 
-			else
-				StringResponseBody(chunks, charset)
+      else
+        StringResponseBody(chunks, charset)
 
-		val rawResponse = HttpResponse(request, status, headers, body, checksums, bodyLength, charset, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
+    val rawResponse = HttpResponse(request, status, headers, body, checksums, bodyLength, charset, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
 
-		responseProcessor match {
-			case Some(processor) => processor.applyOrElse(rawResponse, identity[Response])
-			case _ => rawResponse
-		}
-	}
+    responseProcessor match {
+      case Some(processor) => processor.applyOrElse(rawResponse, identity[Response])
+      case _               => rawResponse
+    }
+  }
 }
