@@ -17,7 +17,7 @@ package io.gatling.recorder.scenario.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.util.StringHelper.emptyFastring
-import io.gatling.recorder.scenario.{ RequestBody, RequestBodyBytes, RequestBodyParams }
+import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams }
 import io.gatling.recorder.scenario.RequestElement
 
 object RequestTemplate {

@@ -26,6 +26,6 @@ object RedisHelper {
 	def generateRedisProtocol(d: String*): String = {
 		val protocol = new StringBuilder().append("*").append(d.length).append(crlf)
 		d.foreach(x => protocol.append("$").append(x.length).append(crlf).append(x).append(crlf))
-		protocol.toString
+		protocol.toString()
 	}
 }

@@ -42,16 +42,16 @@ class FilterTable(headerTitle: String) extends ScrollPane {
 	table.model = model
 	table.rowHeight = 30
 	preferredSize = new Dimension(200, 300)
-	initPopupMenu
+	initPopupMenu()
 
 	def cleanUp() {
-		stopCellEditing
+		stopCellEditing()
 		var toRemove: List[Int] = Nil
 		for (i <- 0 until table.rowCount if table(i, 0).toString.isEmpty)
 			toRemove = i :: toRemove
 
 		removeRows(toRemove)
-		removeDuplicates
+		removeDuplicates()
 	}
 
 	def validate: List[String] =
@@ -86,7 +86,7 @@ class FilterTable(headerTitle: String) extends ScrollPane {
 	}
 
 	def addRow() {
-		stopCellEditing
+		stopCellEditing()
 		model.addRow(Array[Object](""))
 	}
 
@@ -109,7 +109,7 @@ class FilterTable(headerTitle: String) extends ScrollPane {
 		val menuItem = new JMenuItem("Delete")
 		menuItem.addActionListener(new ActionListener {
 			def actionPerformed(e: ActionEvent) {
-				removeSelectedRow
+				removeSelectedRow()
 			}
 		})
 

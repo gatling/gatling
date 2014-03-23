@@ -58,14 +58,13 @@ object RequestElement {
 		val responseContentType = Option(response.headers().get(CONTENT_TYPE))
 
 		val resources = responseContentType.collect {
-			case htmlContentType(_, headerCharset) => {
+			case htmlContentType(_, headerCharset) =>
 				val charsetName = Option(headerCharset).filter(Charset.isSupported).getOrElse(UTF8.name)
 				val charset = Charset.forName(charsetName)
 				extractContent(response).map(bytes => {
 					val htmlBuff = new String(bytes, charset).toCharArray
 					HtmlParser.getEmbeddedResources(new URI(request.getUri), htmlBuff)
 				})
-			}
 		}.flatten.getOrElse(Nil)
 
 		val containsFormParams = requestContentType.exists(_.contains(APPLICATION_X_WWW_FORM_URLENCODED))

@@ -93,8 +93,8 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
 
 		logger.info(s"Received ${request.getMethod} on ${request.getUri}")
 		request.getMethod match {
-			case HttpMethod.CONNECT => handleConnect
-			case _ => handlePropagatableRequest
+			case HttpMethod.CONNECT => handleConnect()
+			case _ => handlePropagatableRequest()
 		}
 	}
 
@@ -108,7 +108,7 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
 		}
 
 		e.getCause match {
-			case ioe: IOException if (ioe.getMessage == "Broken pipe") => handleSslException(ioe)
+			case ioe: IOException if ioe.getMessage == "Broken pipe" => handleSslException(ioe)
 			case ssle: SSLException => handleSslException(ssle)
 			case _ => super.exceptionCaught(ctx, e)
 		}

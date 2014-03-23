@@ -26,7 +26,7 @@ import io.gatling.jdbc.util.SQLHelper.withStatement
 object JdbcDataWriter {
 
 	implicit class ExecuteAndClearBatch(val statement: PreparedStatement) extends AnyVal {
-		def executeAndClearBatch() { statement.executeBatch; statement.clearBatch; statement.getConnection.commit }
+		def executeAndClearBatch() { statement.executeBatch; statement.clearBatch(); statement.getConnection.commit() }
 	}
 }
 
@@ -55,7 +55,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
 
 	override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
 		conn = DriverManager.getConnection(configuration.data.jdbc.db.url, configuration.data.jdbc.db.username, configuration.data.jdbc.db.password)
-		system.registerOnTermination(conn.close)
+		system.registerOnTermination(conn.close())
 
 		conn.setAutoCommit(false)
 
@@ -81,11 +81,11 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
 			insertGroupRecord <- configuration.data.jdbc.insertStatements.insertGroupRecord
 		} {
 			scenarioInsert = conn.prepareStatement(insertScenarioRecord)
-			system.registerOnTermination(scenarioInsert.close)
+			system.registerOnTermination(scenarioInsert.close())
 			groupInsert = conn.prepareStatement(insertGroupRecord)
-			system.registerOnTermination(groupInsert.close)
+			system.registerOnTermination(groupInsert.close())
 			requestInsert = conn.prepareStatement(insertRequestRecord)
-			system.registerOnTermination(requestInsert.close)
+			system.registerOnTermination(requestInsert.close())
 
 			//Filling in run information
 			withStatement(conn.prepareStatement(insertRunRecord)) { runInsert =>
@@ -109,12 +109,12 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
 		scenarioInsert.setString(4, event.name)
 		scenarioInsert.setLong(5, startDate)
 		scenarioInsert.setLong(6, endDate)
-		scenarioInsert.addBatch
+		scenarioInsert.addBatch()
 
 		scenarioCounter += 1
 
 		if (scenarioCounter == bufferSize) {
-			scenarioInsert.executeAndClearBatch
+			scenarioInsert.executeAndClearBatch()
 			scenarioCounter = 0
 		}
 	}
@@ -128,12 +128,12 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
 		groupInsert.setLong(4, entryDate)
 		groupInsert.setLong(5, exitDate)
 		groupInsert.setString(6, status.toString)
-		groupInsert.addBatch
+		groupInsert.addBatch()
 
 		groupCounter += 1
 
 		if (groupCounter > bufferSize) {
-			groupInsert.executeAndClearBatch
+			groupInsert.executeAndClearBatch()
 			groupCounter = 0
 		}
 	}
@@ -152,12 +152,12 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
 		requestInsert.setString(9, status.toString)
 		requestInsert.setString(10, message.getOrElse(null))
 		requestInsert.setLong(11, responseTime)
-		requestInsert.addBatch
+		requestInsert.addBatch()
 
 		requestCounter += 1
 
 		if (requestCounter > bufferSize) {
-			requestInsert.executeAndClearBatch
+			requestInsert.executeAndClearBatch()
 			requestCounter = 0
 		}
 	}
@@ -165,8 +165,8 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
 	override def onTerminateDataWriter() {
 		logger.info("Received flush order")
 		//Flush all the batch jdbc execution
-		scenarioInsert.executeAndClearBatch
-		groupInsert.executeAndClearBatch
-		requestInsert.executeAndClearBatch
+		scenarioInsert.executeAndClearBatch()
+		groupInsert.executeAndClearBatch()
+		requestInsert.executeAndClearBatch()
 	}
 }

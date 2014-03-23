@@ -33,7 +33,7 @@ object JdbcFeederSource {
 
 			val columnNames = for (i <- 1 to columnCount) yield metadata.getColumnName(i)
 
-			def computeRecord: Record[Any] = (for (i <- 1 to columnCount) yield (columnNames(i - 1) -> resultSet.getObject(i))).toMap
+			def computeRecord: Record[Any] = (for (i <- 1 to columnCount) yield columnNames(i - 1) -> resultSet.getObject(i)).toMap
 
 			@tailrec
 			def loadRec(records: Vector[Record[Any]]): Vector[Record[Any]] =

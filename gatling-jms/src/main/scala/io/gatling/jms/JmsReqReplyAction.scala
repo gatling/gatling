@@ -46,16 +46,15 @@ class JmsReqReplyAction(val next: ActorRef, attributes: JmsAttributes, protocol:
 		protocol.deliveryMode)
 
 	class ListenerThread(val continue: AtomicBoolean = new AtomicBoolean(true)) extends Thread(new Runnable {
-		def run = {
+		def run() = {
 			val replyConsumer = client.createReplyConsumer
 			while (continue.get) {
 				val m = replyConsumer.receive
 				m match {
 					case msg: Message => tracker ! MessageReceived(msg.getJMSCorrelationID, nowMillis, msg)
-					case _ => {
+					case _ =>
 						logger.error(JmsReqReplyAction.blockingReceiveReturnedNull.getMessage)
 						throw JmsReqReplyAction.blockingReceiveReturnedNull
-					}
 				}
 			}
 		}
@@ -66,7 +65,7 @@ class JmsReqReplyAction(val next: ActorRef, attributes: JmsAttributes, protocol:
 	listenerThreads.foreach(_.start)
 
 	override def postStop() {
-		client.close
+		client.close()
 		listenerThreads.foreach(_.continue.set(false))
 	}
 

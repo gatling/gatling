@@ -148,7 +148,7 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 	private def addTag() {
 		if (!tagField.text.isEmpty) {
 			frontend.addTag(tagField.text)
-			tagField.clear
+			tagField.clear()
 		}
 	}
 
@@ -172,7 +172,7 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 	def clearState() {
 		events.listData = Seq.empty
 		infoPanels.foreach(_.textArea.clear)
-		tagField.clear
+		tagField.clear()
 	}
 
 	/**

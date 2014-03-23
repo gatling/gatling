@@ -64,7 +64,7 @@ class GraphiteDataWriter extends DataWriter {
 		allRequests.update(request)
 	}
 
-	def onTerminateDataWriter {
+	def onTerminateDataWriter() {
 		graphiteSender ! Flush
 	}
 
@@ -80,13 +80,13 @@ class GraphiteDataWriter extends DataWriter {
 		private val sanitizeStringListMemo = mutable.Map.empty[List[String], List[String]]
 		private var metricsSender: MetricsSender = _
 
-		override def preStart {
+		override def preStart() {
 			metricsSender = MetricsSender.newMetricsSender
 		}
 
 		def receive = {
 			case Send => sendMetricsToGraphite(nowSeconds)
-			case Flush => metricsSender.flush
+			case Flush => metricsSender.flush()
 		}
 
 		private def sendMetricsToGraphite(epoch: Long) {
@@ -124,7 +124,7 @@ class GraphiteDataWriter extends DataWriter {
 				sendMetrics(metricPath + "ko", koMetrics)
 				sendMetrics(metricPath + "all", allMetrics)
 
-				requestMetrics.reset
+				requestMetrics.reset()
 			}
 
 			sendUserMetrics("allUsers", allUsers)
@@ -134,7 +134,7 @@ class GraphiteDataWriter extends DataWriter {
 			if (!configuration.data.graphite.light)
 				for ((path, requestMetric) <- perRequest) sendRequestMetrics(path, requestMetric)
 
-			metricsSender.flush
+			metricsSender.flush()
 		}
 	}
 

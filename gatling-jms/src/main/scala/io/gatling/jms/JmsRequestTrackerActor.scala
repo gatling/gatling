@@ -15,11 +15,10 @@
  */
 package io.gatling.jms
 
-import scala.collection.mutable.HashMap
-import akka.actor.{ Actor, ActorRef }
+import scala.collection.mutable
+import akka.actor.ActorRef
 import io.gatling.core.Predef.Session
 import io.gatling.core.result.message.{ KO, OK }
-import io.gatling.core.result.writer.{ DataWriter, RequestMessage }
 import javax.jms.Message
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.writer.DataWriterClient
@@ -45,43 +44,39 @@ case class MessageReceived(correlationId: String, received: Long, message: Messa
 class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
 
 	// messages to be tracked through this HashMap - note it is a mutable hashmap
-	val sentMessages = new HashMap[String, (Long, Long, List[JmsCheck], Session, ActorRef, String)]()
-	val receivedMessages = new HashMap[String, (Long, Message)]()
+	val sentMessages = new mutable.HashMap[String, (Long, Long, List[JmsCheck], Session, ActorRef, String)]()
+	val receivedMessages = new mutable.HashMap[String, (Long, Message)]()
 
 	// Actor receive loop
 	def receive = {
 
 		// message was sent; add the timestamps to the map
-		case MessageSent(corrId, startSend, endSend, checks, session, next, title) => {
+		case MessageSent(corrId, startSend, endSend, checks, session, next, title) =>
 			receivedMessages.get(corrId) match {
-				case Some((received, message)) => {
+				case Some((received, message)) =>
 					// message was received out of order, lets just deal with it
 					processMessage(session, startSend, received, endSend, checks, message, next, title)
 					receivedMessages -= corrId
-				}
-				case None => {
+
+				case None =>
 					// normal path
 					val sentMessage = (startSend, endSend, checks, session, next, title)
 					sentMessages += corrId -> sentMessage
-				}
-			}
 		}
 
 		// message was received; publish to the datawriter and remove from the hashmap
-		case MessageReceived(corrId, received, message) => {
+		case MessageReceived(corrId, received, message) =>
 			sentMessages.get(corrId) match {
-				case Some((startSend, endSend, checks, session, next, title)) => {
+				case Some((startSend, endSend, checks, session, next, title)) =>
 					processMessage(session, startSend, received, endSend, checks, message, next, title)
 					sentMessages -= corrId
-				}
-				case None => {
+
+				case None =>
 					// failed to find message; early receive? or bad return correlation id?
 					// let's add it to the received messages buffer just in case
 					val receivedMessage = (received, message)
 					receivedMessages += corrId -> receivedMessage
-				}
 			}
-		}
 	}
 
 	/**

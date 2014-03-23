@@ -23,13 +23,13 @@ object SQLHelper {
 		try
 			block(closeable)
 		finally
-			closeable.close
+			closeable.close()
 	}
 
 	def withStatement[T, S <: Statement](statement: S)(block: S => T) = {
 		try
 			block(statement)
 		finally
-			statement.close
+			statement.close()
 	}
 }

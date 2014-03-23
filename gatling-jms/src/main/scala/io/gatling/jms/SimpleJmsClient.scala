@@ -53,7 +53,7 @@ class SimpleJmsClient(
 
 	// create QueueConnection
 	val conn = qcf.createConnection
-	conn.start
+	conn.start()
 	val session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)
 	logger.info("Got Connection " + conn)
 
@@ -133,9 +133,9 @@ class SimpleJmsClient(
 	}
 
 	def close() {
-		replyQ.delete
-		producer.close
-		session.close
-		conn.stop
+		replyQ.delete()
+		producer.close()
+		session.close()
+		conn.stop()
 	}
 }

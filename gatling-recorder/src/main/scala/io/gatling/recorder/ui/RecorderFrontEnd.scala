@@ -65,11 +65,11 @@ sealed abstract class RecorderFrontend(controller: RecorderController) {
 
 	def addTag(tag: String) { controller.addTag(tag) }
 
-	def startRecording() { controller.startRecording }
+	def startRecording() { controller.startRecording() }
 
 	def stopRecording(save: Boolean) { controller.stopRecording(save) }
 
-	def clearRecorderState() { controller.clearRecorderState }
+	def clearRecorderState() { controller.clearRecorderState() }
 }
 
 private class SwingFrontend(controller: RecorderController) extends RecorderFrontend(controller) {
@@ -100,7 +100,7 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
 				val selector = new DialogFileSelector(configurationFrame, possibleMatches)
 				selector.open()
 				val parentPath = harFilePath.parent.path
-				configurationFrame.updateHarFilePath(selector.selectedFile.map(file => (parentPath / file).toString))
+				configurationFrame.updateHarFilePath(selector.selectedFile.map(file => (parentPath / file).toString()))
 			}
 		}
 	}
@@ -146,7 +146,7 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
 	}
 
 	def recordingStopped() {
-		runningFrame.clearState
+		runningFrame.clearState()
 	}
 
 	def receiveEventInfo(eventInfo: EventInfo) {

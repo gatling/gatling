@@ -28,14 +28,13 @@ class UserMetric(val nbUsers: Int) {
 
 	def update(userMessage: UserMessage) {
 		userMessage.event match {
-			case Start => {
+			case Start =>
 				_active += 1
 				_waiting -= 1
-			}
-			case End => {
+
+			case End =>
 				activeBuffer += 1
 				doneBuffer += 1
-			}
 		}
 	}
 

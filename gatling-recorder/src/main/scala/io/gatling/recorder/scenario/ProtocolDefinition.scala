@@ -16,7 +16,6 @@
 package io.gatling.recorder.scenario
 
 import io.gatling.http.HeaderNames
-import io.gatling.recorder.scenario.template.ProtocolTemplate
 
 object ProtocolDefinition {
 

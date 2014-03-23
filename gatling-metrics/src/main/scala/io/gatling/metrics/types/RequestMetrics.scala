@@ -43,9 +43,9 @@ class RequestMetrics {
 	def metrics = (okMetrics, koMetrics, allMetrics)
 
 	def reset() {
-		okMetrics.reset
-		koMetrics.reset
-		allMetrics.reset
+		okMetrics.reset()
+		koMetrics.reset()
+		allMetrics.reset()
 	}
 }
 
@@ -70,7 +70,7 @@ class Metrics(bucketWidth: Int = configuration.data.graphite.bucketWidth) {
 		count = 0L
 		max = 0L
 		min = Long.MaxValue
-		buckets.clear
+		buckets.clear()
 	}
 
 	def getQuantile(quantile: Int): Long = {

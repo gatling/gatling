@@ -46,7 +46,7 @@ $mapContent)"""
 			}
 
 			headers
-				.map { case (headersBlockIndex, headers) => fast"""	val ${RequestTemplate.headersBlockName(headersBlockIndex)} = ${printHeaders(headers)}""" }
+				.map { case (headersBlockIndex, headersBlock) => fast"""	val ${RequestTemplate.headersBlockName(headersBlockIndex)} = ${printHeaders(headersBlock)}""" }
 				.mkFastring("\n\n")
 		}
 
@@ -112,6 +112,6 @@ $renderHeaders
 	$renderScenario
 
 	setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
-}""".toString
+}""".toString()
 	}
 }
