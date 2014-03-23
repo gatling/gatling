@@ -29,7 +29,7 @@ trait Execs[B] {
 	def exec(chains: ChainBuilder*): B = exec(chains.toIterable)
 	def exec(chains: Iterator[ChainBuilder]): B = exec(chains.toIterable)
 	def exec(chains: Iterable[ChainBuilder]): B = chain(chains.toList.reverse.flatMap(_.actionBuilders))
-	def exec(scenario: ScenarioBuilder): B = chain(scenario.actionBuilders.dropRight(1) ::: actionBuilders)
+	def exec(scenario: ScenarioBuilder): B = chain(scenario.actionBuilders)
 
 	private[core] def chain(newActionBuilders: Seq[ActionBuilder]): B = newInstance(newActionBuilders.toList ::: actionBuilders)
 }
