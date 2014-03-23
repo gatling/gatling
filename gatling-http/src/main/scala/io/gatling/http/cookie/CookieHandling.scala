@@ -16,6 +16,7 @@
 package io.gatling.http.cookie
 
 import java.net.URI
+
 import com.ning.http.client.cookie.Cookie
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.validation.SuccessWrapper
@@ -44,24 +45,23 @@ object CookieHandling {
 		else
 			session
 
-	def storeCookie(session: Session, cookie: Cookie): Session = {
+	def storeCookie(session: Session, domain: String, path: String, cookie: Cookie): Session = {
 
-		val domain = cookie.getDomain
-		val cookies = List(cookie)
-
-		session(cookieJarAttributeName).asOption[CookieJar] match {
-			case Some(cookieJar) => session.set(cookieJarAttributeName, cookieJar.add(domain, cookies))
-			case _ => session.set(cookieJarAttributeName, CookieJar(domain, cookies))
+		val cookieJar = session(cookieJarAttributeName).asOption[CookieJar] match {
+			case Some(cookieJar) => cookieJar
+			case _ => CookieJar(Map.empty)
 		}
+
+		session.set(cookieJarAttributeName, cookieJar.add(domain, path, List(cookie)))
 	}
 
 	val flushSessionCookies: Expression[Session] = session => {
 
 		(cookieJar(session) match {
 			case Some(cookieJar) =>
-				val nonSessionCookies = cookieJar.store.mapValues(_.filter(cookie => cookie.getMaxAge != CookieJar.unspecifiedMaxAge && cookie.getExpires != CookieJar.unspecifiedExpires))
-				val cookieJarWithoutSessionCookies = CookieJar(nonSessionCookies)
-				session.set(cookieJarAttributeName, cookieJarWithoutSessionCookies)
+				val storeWithOnlyPersistentCookies = cookieJar.store.filter { case (_, storeCookie) => storeCookie.persistent }
+				session.set(cookieJarAttributeName, CookieJar(storeWithOnlyPersistentCookies))
+
 			case _ => session
 		}).success
 	}
