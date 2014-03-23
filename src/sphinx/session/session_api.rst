@@ -17,7 +17,7 @@ Otherwise, you might end up not testing your application but your caches.
 
 Moreover, if you're running an application on a Java Virtual Machine, the Just In Time compiler (JIT) will make dramatic optimizations and your system will behave very differently from your actual one.
 
-Though, **you have to make your scenario steps dynamics, based on virtual user specific data**.
+Though, **you have to make your scenario steps dynamic, based on virtual user specific data**.
 
 Session
 -------

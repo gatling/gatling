@@ -5,7 +5,7 @@ Operations
 ##########
 
 Java version
-############
+============
 
 Gatling is mostly tested against JDK7 packages provided by Oracle. Gatling 2 is compiled with JDK7, yet into JDK6 bytecode.
 
@@ -21,13 +21,13 @@ Yet, we recommend that you use the latest JDK:
   * Gatling has several optimizations that targets JDK7, e.g. based on new ``String`` implementation introduced in 7u6.
 
 OS tuning
-#########
+=========
 
 Gatling can consume a very large number of open file handles during normal operation.
 Typically, OSes limit this, so you will have to tweak a few options so you can massively open new sockets and reach heavy load.
 
 Changing the limit
-==================
+------------------
 
 Most operating systems can change the open-files limit using the ``ulimit -n`` command. Example:
 
@@ -38,7 +38,7 @@ Most operating systems can change the open-files limit using the ``ulimit -n`` c
 However, this only changes the limit for the current shell session. Changing the limit on a system-wide, permanent basis varies more between systems.
 
 Linux
-=====
+^^^^^
 
 Edit ``/etc/security/limits.conf`` and append the following two lines:
 
@@ -51,7 +51,7 @@ Save the file. Restart so that the limits take effect. You can now verify with `
 
 
 Mac OS/X
-========
+^^^^^^^^
 
 On Mac you need to run the following commands in order to "unbuckle the belts":
 

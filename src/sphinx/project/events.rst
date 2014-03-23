@@ -5,11 +5,12 @@ Events
 Upcoming
 ========
 
-* *March 19th, 2014* `MontpellierJUG <http://www.jug-montpellier.org>`_ with Stéphane Landelle
+*No upcoming events*
 
 Passed
 ======
 
+* *March 19th, 2014* `MontpellierJUG <http://www.jug-montpellier.org>`_ with Stéphane Landelle
 * *February 2nd, 2014* `Brussels FOSDEM <https://fosdem.org/2014/schedule/event/performance_testing_puppet_with_gatling>`__ with Brian Cain
 * *December 12th, 2013* `Paris PerfUG <http://blog.octo.com/perfug-gatling-par-stephane-landelle>`__ with Stéphane Landelle
 * *September 17th, 2013* `LyonJUG <http://www.lyonjug.org>`__ with Stéphane Landelle

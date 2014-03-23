@@ -33,7 +33,7 @@ Defining the check type
 The HTTP Check implementation provides the following built-ins:
 
 HTTP status
-************
+-----------
 
 .. _http-check-status:
 

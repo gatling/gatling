@@ -12,7 +12,7 @@ For example, it currently also ships JMS support.
 
 The :ref:`quickstart <quickstart>` has an overview of the most important concepts, walking you through the setup of a simple scenario for load testing an HTTP server.
 
-Having *scenarios* that are code and beeing resource efficient are the two requirements that motivated us to create Gatling. Based on an expressive `DSL <http://en.wikipedia.org/wiki/Domain-specific_language>`_, the *scenarios* are self explanatory. They are easy to maintain and can be kept into a version control system. 
+Having *scenarios* that are code and being resource efficient are the two requirements that motivated us to create Gatling. Based on an expressive `DSL <http://en.wikipedia.org/wiki/Domain-specific_language>`_, the *scenarios* are self explanatory. They are easy to maintain and can be kept into a version control system.
 
 Gatling's architecture is asynchronous as long as the underlying protocol, such as HTTP, can be implemented in a non blocking way. This kind of architecture let us implement virtual users as messages instead of dedicated threads, making them very cheap. Thus, running thousands of concurrent virtual users is not an issue.
 

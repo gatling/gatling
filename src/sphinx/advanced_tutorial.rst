@@ -4,7 +4,7 @@
 Advanced Tutorial
 #################
 
-In this section, we assume that you have already gone thru the :ref:`quickstart<quickstart>` section and that you  have a basic simulation to work with. We will apply to it a suite of refactoring to introduce more advanced concepts and DSL constructs.
+In this section, we assume that you have already gone through the :ref:`quickstart<quickstart>` section and that you  have a basic simulation to work with. We will apply to it a suite of refactoring to introduce more advanced concepts and DSL constructs.
 
 Step 01: Isolate processes
 ==========================

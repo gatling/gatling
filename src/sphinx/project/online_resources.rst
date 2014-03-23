@@ -1,9 +1,9 @@
-###############
-Online resource
-###############
+################
+Online resources
+################
 
 Extensions
-========== 
+==========
 
 * `JWT for Gatling <https://bitbucket.org/atlassianlabs/gatling-jwt>`_ by Robin Fernandes
 * `Gatling Clojure DSL <https://github.com/mhjort/clj-gatling>`_ by Markus Hjort
