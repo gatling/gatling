@@ -15,7 +15,6 @@
  */
 package io.gatling.core
 
-import io.gatling.core.check.Check
 import io.gatling.core.validation.Validation
 
 package object check {

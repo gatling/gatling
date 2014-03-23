@@ -18,7 +18,7 @@ package io.gatling.core.action
 import akka.actor.ActorRef
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.session.Session
-import io.gatling.core.validation.{ Failure, Validation }
+import io.gatling.core.validation.Validation
 
 /**
  * Top level abstraction in charge of executing concrete actions along a scenario, for example sending an HTTP request.

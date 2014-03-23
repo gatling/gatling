@@ -19,8 +19,6 @@ import java.util.regex.Matcher
 
 import scala.annotation.tailrec
 
-import io.gatling.core.check.extractor.regex.GroupExtractor
-
 package object regex {
 
 	implicit class RichMatcher(val matcher: Matcher) extends AnyVal {

@@ -30,7 +30,7 @@ class UnsyncBufferedOutputStream(os: OutputStream, bufferSize: Int) extends Stri
 
 	def write(bytes: Array[Byte]) {
 		if (bytes.length + bufferPosition > bufferSize) {
-			flush
+			flush()
 		}
 
 		if (bytes.length > bufferSize) {

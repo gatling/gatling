@@ -36,25 +36,25 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
 			if (!feeder.hasNext)
 				"Feeder is now empty, stopping engine".failure
 			else
-				feeder.next.success
+				feeder.next().success
 		}
 
 		def injectRecords(numberOfRecords: Int): Validation[Session] =
 			numberOfRecords match {
 				case 1 =>
-					pollRecord.map(session.setAll)
+					pollRecord().map(session.setAll)
 				case n if n > 0 =>
 					val translatedRecords = Iterator.tabulate(n) { i =>
-						pollRecord.map(translateRecord(_, i + 1))
-					}.reduce {
-						for (record1 <- _; record2 <- _) yield record1 ++ record2
+						pollRecord().map(translateRecord(_, i + 1))
+					}.reduce { (record1V, record2V) =>
+						for (record1 <- record1V; record2 <- record2V) yield record1 ++ record2
 					}
 					translatedRecords.map(session.setAll)
-				case n => (s"$n is not a valid number of records").failure
+				case n => s"$n is not a valid number of records".failure
 			}
 
 		val newSession = number(session).flatMap(injectRecords) match {
-			case Success(newSession) => newSession
+			case Success(s) => s
 			case Failure(message) =>
 				logger.error(message)
 				Controller ! ForceTermination(Some(new IllegalStateException(message)))

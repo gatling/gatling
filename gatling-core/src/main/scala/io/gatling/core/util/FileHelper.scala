@@ -39,7 +39,6 @@ object FileHelper {
 		/**
 		 * Transform a string to a simpler one that can be used safely as file name
 		 *
-		 * @param s the string to be simplified
 		 * @return a simplified string
 		 */
 		def toFileName = {

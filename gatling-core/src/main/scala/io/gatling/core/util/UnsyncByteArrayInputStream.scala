@@ -43,7 +43,7 @@ class UnsyncByteArrayInputStream(array: Array[Byte]) extends InputStream {
 			position += n.toInt
 			n
 		} else {
-			val n = available
+			val n = available()
 			position = length
 			n.toLong
 		}
@@ -62,7 +62,7 @@ class UnsyncByteArrayInputStream(array: Array[Byte]) extends InputStream {
 		if (this.length == position) {
 			if (length == 0) 0 else -1
 		} else {
-			val n = math.min(length, available)
+			val n = math.min(length, available())
 			System.arraycopy(array, offset + position, b, offset, n)
 			position += n
 			n

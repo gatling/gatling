@@ -25,13 +25,13 @@ object IOHelper {
 		try
 			block(closeable)
 		finally
-			closeable.close
+			closeable.close()
 	}
 
 	def withSource[T, C <: Source](closeable: C)(block: C => T) = {
 		try
 			block(closeable)
 		finally
-			closeable.close
+			closeable.close()
 	}
 }

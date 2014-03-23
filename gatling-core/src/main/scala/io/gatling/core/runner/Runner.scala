@@ -16,14 +16,12 @@
 package io.gatling.core.runner
 
 import scala.concurrent.Await
-import scala.concurrent.duration.DurationInt
 import scala.util.{ Failure => SFailure, Success => SSuccess }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import akka.util.Timeout
 import io.gatling.core.akka.{ AkkaDefaults, GatlingActorSystem }
-import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ Controller, Run }
 import io.gatling.core.scenario.Simulation
 
@@ -36,8 +34,8 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
 			println(s"Simulation ${simulationClass.getName} started...")
 
 			val simulation = simulationClass.newInstance
-			GatlingActorSystem.start
-			Controller.start
+			GatlingActorSystem.start()
+			Controller.start()
 
 			simulation._beforeSteps.foreach(_.apply)
 
@@ -55,7 +53,7 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
 			}
 
 		} finally {
-			GatlingActorSystem.shutdown
+			GatlingActorSystem.shutdown()
 		}
 	}
 }

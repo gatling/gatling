@@ -39,6 +39,6 @@ class Protocols(val protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) 
 	def ++(other: Protocols) = new Protocols(protocols ++ other.protocols)
 
 	def warmUp() {
-		protocols.foreach { case (_, protocol) => protocol.warmUp }
+		protocols.foreach { case (_, protocol) => protocol.warmUp() }
 	}
 }

@@ -24,7 +24,7 @@ import io.gatling.core.util.TimeHelper.nowMillis
 /**
  * PauseAction provides a convenient means to implement pause actions based on random distributions.
  *
- * @param generateDelayInMillis a function that can be used to generate a delays for the pause action
+ * @param pauseDuration a function that can be used to generate a delay for the pause action
  * @param next the next action to execute, which will be notified after the pause is complete
  */
 class Pause(pauseDuration: Expression[Long], val next: ActorRef) extends Interruptable with Failable {

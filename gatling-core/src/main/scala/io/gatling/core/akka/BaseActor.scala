@@ -22,7 +22,7 @@ import io.gatling.core.util.ClassSimpleNameToString
 
 abstract class BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with StrictLogging {
 
-	override def preStart {
+	override def preStart() {
 		context.setReceiveTimeout(simulationTimeOut)
 	}
 

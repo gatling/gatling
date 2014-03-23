@@ -39,7 +39,7 @@ trait Loops[B] extends Execs[B] {
 
 		val continueCondition = (session: Session) => times(session).map(session.loopCounterValue(counterName) < _)
 
-		asLongAs(continueCondition, counterName, false)(chain)
+		asLongAs(continueCondition, counterName, exitASAP = false)(chain)
 	}
 
 	def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
@@ -47,7 +47,7 @@ trait Loops[B] extends Execs[B] {
 		val exposeCurrentValue = (session: Session) => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName))))
 		val continueCondition = (session: Session) => seq(session).map(_.size > session.loopCounterValue(counterName))
 
-		asLongAs(continueCondition, counterName, false)(chainOf(new SessionHookBuilder(exposeCurrentValue)).exec(chain))
+		asLongAs(continueCondition, counterName, exitASAP = false)(chainOf(new SessionHookBuilder(exposeCurrentValue)).exec(chain))
 	}
 
 	def during(duration: Duration, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B = {
@@ -58,7 +58,7 @@ trait Loops[B] extends Execs[B] {
 		asLongAs(continueCondition, counterName, exitASAP)(chain)
 	}
 
-	def forever(chain: ChainBuilder): B = forever(UUID.randomUUID.toString, true)(chain)
+	def forever(chain: ChainBuilder): B = forever(UUID.randomUUID.toString, exitASAP = true)(chain)
 
 	def forever(counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
 		asLongAs(Loops.trueExpression, counterName, exitASAP)(chain)

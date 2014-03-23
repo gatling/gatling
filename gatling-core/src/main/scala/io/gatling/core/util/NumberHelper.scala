@@ -34,7 +34,7 @@ object NumberHelper {
 
 		var value = 0l
 		var k = start
-		var c = ' ';
+		var c = ' '
 		while (k < s.length && { c = s.charAt(k); c.isDigit }) {
 			value = value * 10l + c.getNumericValue
 			k += 1

@@ -25,14 +25,14 @@ case class Filters(first: Filter, second: Filter) {
 
 sealed abstract class Filter extends StrictLogging {
 	def patterns: Seq[String]
-	val regexes = (patterns.flatMap { p =>
+	val regexes = patterns.flatMap { p =>
 		Try(p.r) match {
 			case Success(regex) => Some(regex)
 			case Failure(t) =>
 				logger.error(s"""Incorrect filter pattern "$p": ${t.getMessage}""")
 				None
 		}
-	}).toVector
+	}.toVector
 	def accept(url: String): Boolean
 }
 

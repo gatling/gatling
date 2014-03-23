@@ -29,9 +29,9 @@ import io.gatling.core.util.FileHelper.RichURL
 object Resource {
 
 	private def load(filePath: Path, fileSystemFolder: Path): Validation[Resource] = {
-		val classPathResource = Option(getClass.getClassLoader.getResource(filePath.toString.replace('\\', '/'))).map { url =>
+		val classPathResource = Option(getClass.getClassLoader.getResource(filePath.toString().replace('\\', '/'))).map { url =>
 			url.getProtocol match {
-				case "file" => FileResource(File(url.jfile))
+				case "file" => FileResource(File(url.jfile()))
 				case "jar" => ArchiveResource(url, filePath.extension)
 				case _ => throw new UnsupportedOperationException
 			}
@@ -53,7 +53,7 @@ sealed trait Resource {
 }
 
 case class FileResource(file: File) extends Resource {
-	def inputStream = file.inputStream
+	def inputStream = file.inputStream()
 	def jfile = file.jfile
 }
 

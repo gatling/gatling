@@ -28,7 +28,7 @@ object RoundRobin {
 			new Iterator[T] {
 				val counter = new CyclicCounter(values.length)
 				val hasNext = true
-				def next = values(counter.nextVal)
+				def next() = values(counter.nextVal)
 			}
 	}
 }

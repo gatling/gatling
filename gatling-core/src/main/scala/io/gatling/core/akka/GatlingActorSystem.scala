@@ -31,6 +31,6 @@ object GatlingActorSystem {
 	}
 
 	def shutdown() {
-		instanceOpt.foreach(_.shutdown)
+		instanceOpt.foreach(_.shutdown())
 	}
 }

@@ -38,7 +38,7 @@ trait FeederSupport {
 	def separatedValues(fileName: String, separator: Char, quoteChar: Char = '"'): RecordArrayFeederBuilder[String] = separatedValues(Resource.feeder(fileName), separator, quoteChar)
 
 	def separatedValues(resource: Validation[Resource], separator: Char, quoteChar: Char): RecordArrayFeederBuilder[String] = resource match {
-		case Success(resource) => RecordArrayFeederBuilder(SeparatedValuesParser.parse(resource, separator, quoteChar))
+		case Success(res) => RecordArrayFeederBuilder(SeparatedValuesParser.parse(res, separator, quoteChar))
 
 		case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file; $message")
 	}

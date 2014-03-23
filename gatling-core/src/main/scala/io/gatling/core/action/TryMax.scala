@@ -42,7 +42,7 @@ class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
 class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next: ActorRef) extends Chainable with DataWriterClient {
 
 	def interrupt(stackOnEntry: List[GroupStackEntry]): PartialFunction[Session, Unit] = {
-		case session if session.statusStack.head == KO => {
+		case session if session.statusStack.head == KO =>
 
 			val sessionWithGroupsExited = if (session.groupStack.size > stackOnEntry.size) {
 
@@ -67,7 +67,6 @@ class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next:
 				next ! sessionWithGroupsExited.exitTryMax.exitLoop
 			else
 				self ! sessionWithGroupsExited
-		}
 	}
 
 	/**

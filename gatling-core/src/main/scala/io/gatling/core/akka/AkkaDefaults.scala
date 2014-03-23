@@ -18,7 +18,6 @@ package io.gatling.core.akka
 import scala.concurrent.duration.DurationInt
 
 import akka.pattern.AskSupport
-import akka.util.Timeout
 import io.gatling.core.config.GatlingConfiguration.configuration
 
 trait AkkaDefaults extends AskSupport {

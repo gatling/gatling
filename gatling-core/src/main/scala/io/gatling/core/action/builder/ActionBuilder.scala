@@ -17,7 +17,7 @@ package io.gatling.core.action.builder
 
 import akka.actor.ActorRef
 import io.gatling.core.akka.AkkaDefaults
-import io.gatling.core.config.{ Protocol, Protocols }
+import io.gatling.core.config.Protocols
 
 /**
  * Top level abstraction for components in charge of building Actions.
