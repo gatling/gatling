@@ -23,15 +23,15 @@ import io.gatling.core.structure.ChainBuilder
 
 class TryMaxBuilder(times: Int, counterName: String, loopNext: ChainBuilder) extends ActionBuilder {
 
-	def build(next: ActorRef, protocols: Protocols) = {
-		val tryMaxActor = actor(new TryMax(times, counterName, next))
-		val loopContent = loopNext.build(tryMaxActor, protocols)
-		tryMaxActor ! loopContent
-		tryMaxActor
-	}
+  def build(next: ActorRef, protocols: Protocols) = {
+    val tryMaxActor = actor(new TryMax(times, counterName, next))
+    val loopContent = loopNext.build(tryMaxActor, protocols)
+    tryMaxActor ! loopContent
+    tryMaxActor
+  }
 
-	override def registerDefaultProtocols(protocols: Protocols) =
-		loopNext.actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
-			actionBuilder.registerDefaultProtocols(protocols)
-		}
+  override def registerDefaultProtocols(protocols: Protocols) =
+    loopNext.actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
+      actionBuilder.registerDefaultProtocols(protocols)
+    }
 }

@@ -25,23 +25,23 @@ import io.gatling.core.util.TimeHelper.nowMillis
 
 class ExitHereIfFailed(val next: ActorRef) extends Chainable with DataWriterClient {
 
-	def execute(session: Session) {
+  def execute(session: Session) {
 
-		val now = nowMillis
+    val now = nowMillis
 
-		@tailrec
-		def failAllPendingGroups(stack: List[GroupStackEntry]) {
-			stack match {
-				case Nil =>
-				case head :: tail =>
-					writeGroupData(session, stack, head.startDate, now, KO)
-					failAllPendingGroups(tail)
-			}
-		}
+      @tailrec
+      def failAllPendingGroups(stack: List[GroupStackEntry]) {
+        stack match {
+          case Nil =>
+          case head :: tail =>
+            writeGroupData(session, stack, head.startDate, now, KO)
+            failAllPendingGroups(tail)
+        }
+      }
 
-		if (session.status == KO) {
-			failAllPendingGroups(session.groupStack)
-			UserEnd.instance ! session
-		} else next ! session
-	}
+    if (session.status == KO) {
+      failAllPendingGroups(session.groupStack)
+      UserEnd.instance ! session
+    } else next ! session
+  }
 }

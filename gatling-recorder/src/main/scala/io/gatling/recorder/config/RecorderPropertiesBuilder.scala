@@ -21,45 +21,45 @@ import io.gatling.recorder.config.ConfigurationConstants._
 
 class RecorderPropertiesBuilder {
 
-	var props = Map.empty[String, Any]
+  var props = Map.empty[String, Any]
 
-	def filterStrategy(strategy: String) { props += FILTER_STRATEGY -> strategy }
+  def filterStrategy(strategy: String) { props += FILTER_STRATEGY -> strategy }
 
-	def whitelist(patterns: JList[String]) { props += WHITELIST_PATTERNS -> patterns }
+  def whitelist(patterns: JList[String]) { props += WHITELIST_PATTERNS -> patterns }
 
-	def blacklist(patterns: JList[String]) { props += BLACKLIST_PATTERNS -> patterns }
+  def blacklist(patterns: JList[String]) { props += BLACKLIST_PATTERNS -> patterns }
 
-	def automaticReferer(status: Boolean) { props += AUTOMATIC_REFERER -> status }
+  def automaticReferer(status: Boolean) { props += AUTOMATIC_REFERER -> status }
 
-	def followRedirect(status: Boolean) { props += FOLLOW_REDIRECT -> status }
+  def followRedirect(status: Boolean) { props += FOLLOW_REDIRECT -> status }
 
-	def fetchHtmlResources(status: Boolean) { props += FETCH_HTML_RESOURCES -> status }
+  def fetchHtmlResources(status: Boolean) { props += FETCH_HTML_RESOURCES -> status }
 
-	def localPort(port: Int) { props += LOCAL_PORT -> port }
+  def localPort(port: Int) { props += LOCAL_PORT -> port }
 
-	def localSslPort(port: Int) { props += LOCAL_SSL_PORT -> port }
+  def localSslPort(port: Int) { props += LOCAL_SSL_PORT -> port }
 
-	def proxyHost(host: String) { props += PROXY_HOST -> host }
+  def proxyHost(host: String) { props += PROXY_HOST -> host }
 
-	def proxyUsername(username: String) { props += PROXY_USERNAME -> username }
+  def proxyUsername(username: String) { props += PROXY_USERNAME -> username }
 
-	def proxyPassword(password: String) { props += PROXY_PASSWORD -> password }
+  def proxyPassword(password: String) { props += PROXY_PASSWORD -> password }
 
-	def proxyPort(port: Int) { props += PROXY_PORT -> port }
+  def proxyPort(port: Int) { props += PROXY_PORT -> port }
 
-	def proxySslPort(port: Int) { props += PROXY_SSL_PORT -> port }
+  def proxySslPort(port: Int) { props += PROXY_SSL_PORT -> port }
 
-	def encoding(encoding: String) { props += ENCODING -> encoding }
+  def encoding(encoding: String) { props += ENCODING -> encoding }
 
-	def simulationOutputFolder(folder: String) { props += SIMULATION_OUTPUT_FOLDER -> folder }
+  def simulationOutputFolder(folder: String) { props += SIMULATION_OUTPUT_FOLDER -> folder }
 
-	def requestBodiesFolder(folder: String) { props += REQUEST_BODIES_FOLDER -> folder }
+  def requestBodiesFolder(folder: String) { props += REQUEST_BODIES_FOLDER -> folder }
 
-	def simulationPackage(pkg: String) { props += SIMULATION_PACKAGE -> pkg }
+  def simulationPackage(pkg: String) { props += SIMULATION_PACKAGE -> pkg }
 
-	def simulationClassName(className: String) { props += SIMULATION_CLASS_NAME -> className }
+  def simulationClassName(className: String) { props += SIMULATION_CLASS_NAME -> className }
 
-	def thresholdForPauseCreation(threshold: String) { props += THRESHOLD_FOR_PAUSE_CREATION -> threshold }
+  def thresholdForPauseCreation(threshold: String) { props += THRESHOLD_FOR_PAUSE_CREATION -> threshold }
 
-	def build = props
+  def build = props
 }

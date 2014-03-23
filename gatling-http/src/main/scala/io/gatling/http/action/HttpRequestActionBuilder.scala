@@ -25,11 +25,11 @@ import io.gatling.http.request.builder.AbstractHttpRequestBuilder
 
 object HttpRequestActionBuilder {
 
-	/**
-	 * This is the default HTTP check used to verify that the response status is 2XX
-	 */
-	val okCodes = Vector(200, 304, 201, 202, 203, 204, 205, 206, 207, 208, 209).success
-	val defaultHttpCheck = status.find.in(_ => okCodes).build
+  /**
+   * This is the default HTTP check used to verify that the response status is 2XX
+   */
+  val okCodes = Vector(200, 304, 201, 202, 203, 204, 205, 206, 207, 208, 209).success
+  val defaultHttpCheck = status.find.in(_ => okCodes).build
 }
 
 /**
@@ -40,10 +40,10 @@ object HttpRequestActionBuilder {
  */
 class HttpRequestActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) extends HttpActionBuilder {
 
-	def build(next: ActorRef, protocols: Protocols): ActorRef = {
+  def build(next: ActorRef, protocols: Protocols): ActorRef = {
 
-		val throttled = protocols.getProtocol[ThrottlingProtocol].isDefined
-		val httpRequest = requestBuilder.build(httpProtocol(protocols), throttled)
-		actor(new HttpRequestAction(httpRequest, next))
-	}
+    val throttled = protocols.getProtocol[ThrottlingProtocol].isDefined
+    val httpRequest = requestBuilder.build(httpProtocol(protocols), throttled)
+    actor(new HttpRequestAction(httpRequest, next))
+  }
 }

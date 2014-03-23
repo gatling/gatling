@@ -23,23 +23,23 @@ import io.gatling.core.validation.{ Failure, Success, Validation }
 
 trait FeederSupport {
 
-	type Feeder[T] = io.gatling.core.feeder.Feeder[T]
+  type Feeder[T] = io.gatling.core.feeder.Feeder[T]
 
-	implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): RecordArrayFeederBuilder[T] = RecordArrayFeederBuilder(data)
-	implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
+  implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): RecordArrayFeederBuilder[T] = RecordArrayFeederBuilder(data)
+  implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
 
-	def csv(file: File): RecordArrayFeederBuilder[String] = csv(file.path)
-	def csv(fileName: String): RecordArrayFeederBuilder[String] = separatedValues(fileName, commaSeparator.charAt(0))
-	def ssv(file: File): RecordArrayFeederBuilder[String] = ssv(file.path)
-	def ssv(fileName: String): RecordArrayFeederBuilder[String] = separatedValues(fileName, semicolonSeparator.charAt(0))
-	def tsv(file: File): RecordArrayFeederBuilder[String] = tsv(file.path)
-	def tsv(fileName: String): RecordArrayFeederBuilder[String] = separatedValues(fileName, tabulationSeparator.charAt(0))
+  def csv(file: File): RecordArrayFeederBuilder[String] = csv(file.path)
+  def csv(fileName: String): RecordArrayFeederBuilder[String] = separatedValues(fileName, commaSeparator.charAt(0))
+  def ssv(file: File): RecordArrayFeederBuilder[String] = ssv(file.path)
+  def ssv(fileName: String): RecordArrayFeederBuilder[String] = separatedValues(fileName, semicolonSeparator.charAt(0))
+  def tsv(file: File): RecordArrayFeederBuilder[String] = tsv(file.path)
+  def tsv(fileName: String): RecordArrayFeederBuilder[String] = separatedValues(fileName, tabulationSeparator.charAt(0))
 
-	def separatedValues(fileName: String, separator: Char, quoteChar: Char = '"'): RecordArrayFeederBuilder[String] = separatedValues(Resource.feeder(fileName), separator, quoteChar)
+  def separatedValues(fileName: String, separator: Char, quoteChar: Char = '"'): RecordArrayFeederBuilder[String] = separatedValues(Resource.feeder(fileName), separator, quoteChar)
 
-	def separatedValues(resource: Validation[Resource], separator: Char, quoteChar: Char): RecordArrayFeederBuilder[String] = resource match {
-		case Success(res) => RecordArrayFeederBuilder(SeparatedValuesParser.parse(res, separator, quoteChar))
+  def separatedValues(resource: Validation[Resource], separator: Char, quoteChar: Char): RecordArrayFeederBuilder[String] = resource match {
+    case Success(res)     => RecordArrayFeederBuilder(SeparatedValuesParser.parse(res, separator, quoteChar))
 
-		case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file; $message")
-	}
+    case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file; $message")
+  }
 }

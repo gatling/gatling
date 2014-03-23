@@ -18,9 +18,9 @@ package io.gatling.core.structure
 import io.gatling.core.action.builder.ActionBuilder
 
 object ChainBuilder {
-	val empty = new ChainBuilder(Nil)
+  val empty = new ChainBuilder(Nil)
 
-	def chainOf(actionBuilder: ActionBuilder*) = new ChainBuilder(actionBuilder.toList)
+  def chainOf(actionBuilder: ActionBuilder*) = new ChainBuilder(actionBuilder.toList)
 }
 
 /**
@@ -30,5 +30,5 @@ object ChainBuilder {
  */
 case class ChainBuilder(actionBuilders: List[ActionBuilder]) extends StructureBuilder[ChainBuilder] {
 
-	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = ChainBuilder(actionBuilders)
+  private[core] def newInstance(actionBuilders: List[ActionBuilder]) = ChainBuilder(actionBuilders)
 }

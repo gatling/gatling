@@ -22,19 +22,19 @@ import org.boon.json.implementation.{ JsonFastParser, JsonParserUsingCharacterSo
 
 object BoonParser extends JsonParser {
 
-	def parse(bytes: Array[Byte], charset: Charset) = {
-		val parser = new JsonFastParser(false, false, true, false)
-		parser.setCharset(charset)
-		parser.parse(bytes)
-	}
+  def parse(bytes: Array[Byte], charset: Charset) = {
+    val parser = new JsonFastParser(false, false, true, false)
+    parser.setCharset(charset)
+    parser.parse(bytes)
+  }
 
-	def parse(string: String) = {
-		val parser = new JsonFastParser(false, false, true, false)
-		parser.parse(string)
-	}
+  def parse(string: String) = {
+    val parser = new JsonFastParser(false, false, true, false)
+    parser.parse(string)
+  }
 
-	def parse(stream: InputStream, charset: Charset) = {
-		val parser = new JsonParserUsingCharacterSource
-		parser.parse(new InputStreamReader(stream, charset))
-	}
+  def parse(stream: InputStream, charset: Charset) = {
+    val parser = new JsonParserUsingCharacterSource
+    parser.parse(new InputStreamReader(stream, charset))
+  }
 }

@@ -21,13 +21,13 @@ import io.gatling.core.action.builder.{ ExitHereIfFailedBuilder, TryMaxBuilder }
 
 trait Errors[B] extends Execs[B] {
 
-	def exitBlockOnFail(chain: ChainBuilder): B = tryMax(1)(chain)
-	def tryMax(times: Int, counter: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
+  def exitBlockOnFail(chain: ChainBuilder): B = tryMax(1)(chain)
+  def tryMax(times: Int, counter: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 
-		require(times >= 1, "Can't set up a max try <= 1")
+    require(times >= 1, "Can't set up a max try <= 1")
 
-		exec(new TryMaxBuilder(times, counter, chain))
-	}
+    exec(new TryMaxBuilder(times, counter, chain))
+  }
 
-	def exitHereIfFailed: B = exec(ExitHereIfFailedBuilder)
+  def exitHereIfFailed: B = exec(ExitHereIfFailedBuilder)
 }

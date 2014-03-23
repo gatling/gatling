@@ -20,16 +20,16 @@ import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
 
 object Feeds {
-	val oneExpression = 1.expression
+  val oneExpression = 1.expression
 }
 
 trait Feeds[B] extends Execs[B] {
 
-	/**
-	 * Method used to load data from a feeder in the current scenario
-	 *
-	 * @param feederBuilder the feeder from which the values will be loaded
-	 * @param number the number of records to be polled (default 1)
-	 */
-	def feed(feederBuilder: FeederBuilder[_], number: Expression[Int] = Feeds.oneExpression): B = exec(FeedBuilder(feederBuilder, number))
+  /**
+   * Method used to load data from a feeder in the current scenario
+   *
+   * @param feederBuilder the feeder from which the values will be loaded
+   * @param number the number of records to be polled (default 1)
+   */
+  def feed(feederBuilder: FeederBuilder[_], number: Expression[Int] = Feeds.oneExpression): B = exec(FeedBuilder(feederBuilder, number))
 }

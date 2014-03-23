@@ -23,13 +23,13 @@ import io.gatling.core.util.UnsyncBufferedOutputStream
 
 class TcpSender extends MetricsSender with AkkaDefaults {
 
-	val os = {
-		val sos = new Socket(configuration.data.graphite.host, configuration.data.graphite.port).getOutputStream
-		system.registerOnTermination(sos.close())
-		new UnsyncBufferedOutputStream(sos, configuration.data.graphite.bufferSize)
-	}
+  val os = {
+    val sos = new Socket(configuration.data.graphite.host, configuration.data.graphite.port).getOutputStream
+    system.registerOnTermination(sos.close())
+    new UnsyncBufferedOutputStream(sos, configuration.data.graphite.bufferSize)
+  }
 
-	def sendToGraphite(bytes: Array[Byte]) { os.write(bytes) }
+  def sendToGraphite(bytes: Array[Byte]) { os.write(bytes) }
 
-	def flush() { os.flush() }
+  def flush() { os.flush() }
 }

@@ -30,18 +30,18 @@ import io.gatling.core.validation.Validation
 
 object ELFileBodies {
 
-	val cache: concurrent.Map[String, Validation[Expression[String]]] = new ConcurrentHashMapV8[String, Validation[Expression[String]]]
-	def cached(path: String) = if (configuration.http.cacheELFileBodies) cache.getOrElseUpdate(path, compileFile(path)) else compileFile(path)
+  val cache: concurrent.Map[String, Validation[Expression[String]]] = new ConcurrentHashMapV8[String, Validation[Expression[String]]]
+  def cached(path: String) = if (configuration.http.cacheELFileBodies) cache.getOrElseUpdate(path, compileFile(path)) else compileFile(path)
 
-	def compileFile(path: String): Validation[Expression[String]] =
-		Resource.requestBody(path)
-			.map(resource => withCloseable(resource.inputStream)(IOUtils.toString(_, configuration.core.charset)))
-			.map(_.el[String])
+  def compileFile(path: String): Validation[Expression[String]] =
+    Resource.requestBody(path)
+      .map(resource => withCloseable(resource.inputStream)(IOUtils.toString(_, configuration.core.charset)))
+      .map(_.el[String])
 
-	def asString(filePath: Expression[String]): Expression[String] = session =>
-		for {
-			path <- filePath(session)
-			expression <- cached(path)
-			body <- expression(session)
-		} yield body
+  def asString(filePath: Expression[String]): Expression[String] = session =>
+    for {
+      path <- filePath(session)
+      expression <- cached(path)
+      body <- expression(session)
+    } yield body
 }

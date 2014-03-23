@@ -22,67 +22,67 @@ import io.gatling.core.result.IntVsTimePlot
 import io.gatling.core.result.message.{ End, Start }
 
 object SessionDeltas {
-	val empty = SessionDeltas(0, 0)
+  val empty = SessionDeltas(0, 0)
 }
 
 case class SessionDeltas(starts: Int, ends: Int) {
 
-	def addStart() = copy(starts = starts + 1)
-	def addEnd() = copy(ends = ends + 1)
+  def addStart() = copy(starts = starts + 1)
+  def addEnd() = copy(ends = ends + 1)
 }
 
 class SessionDeltaBuffer {
 
-	val map = mutable.HashMap.empty[Int, SessionDeltas].withDefaultValue(SessionDeltas.empty)
+  val map = mutable.HashMap.empty[Int, SessionDeltas].withDefaultValue(SessionDeltas.empty)
 
-	def addStart(bucket: Int) {
-		val deltas = map(bucket)
-		map += (bucket -> deltas.addStart)
-	}
+  def addStart(bucket: Int) {
+    val deltas = map(bucket)
+    map += (bucket -> deltas.addStart)
+  }
 
-	def addEnd(bucket: Int) {
-		val delta = map(bucket)
-		map += (bucket -> delta.addEnd)
-	}
+  def addEnd(bucket: Int) {
+    val delta = map(bucket)
+    map += (bucket -> delta.addEnd)
+  }
 
-	def compute(buckets: Seq[Int]): List[IntVsTimePlot] = {
+  def compute(buckets: Seq[Int]): List[IntVsTimePlot] = {
 
-		val (_, _, sessions) = buckets.foldLeft(0, 0, List.empty[IntVsTimePlot]) { (accumulator, bucket) =>
-			val (previousSessions, previousEnds, sessions) = accumulator
-			val delta = map(bucket)
-			val bucketSessions = previousSessions - previousEnds + delta.starts
-			(bucketSessions, delta.ends, IntVsTimePlot(bucket, bucketSessions) :: sessions)
-		}
+    val (_, _, sessions) = buckets.foldLeft(0, 0, List.empty[IntVsTimePlot]) { (accumulator, bucket) =>
+      val (previousSessions, previousEnds, sessions) = accumulator
+      val delta = map(bucket)
+      val bucketSessions = previousSessions - previousEnds + delta.starts
+      (bucketSessions, delta.ends, IntVsTimePlot(bucket, bucketSessions) :: sessions)
+    }
 
-		sessions.reverse
-	}
+    sessions.reverse
+  }
 }
 
 trait SessionDeltaPerSecBuffers {
 
-	val sessionDeltaPerSecBuffers: mutable.Map[Option[String], SessionDeltaBuffer] = mutable.Map.empty
-	val orphanStartRecords = mutable.Map.empty[String, UserRecord]
+  val sessionDeltaPerSecBuffers: mutable.Map[Option[String], SessionDeltaBuffer] = mutable.Map.empty
+  val orphanStartRecords = mutable.Map.empty[String, UserRecord]
 
-	def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer)
+  def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer)
 
-	def addSessionBuffers(record: UserRecord) {
-		record.event match {
-			case Start =>
-				getSessionDeltaPerSecBuffers(None).addStart(record.startDateBucket)
-				getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.startDateBucket)
-				orphanStartRecords += record.userId -> record
+  def addSessionBuffers(record: UserRecord) {
+    record.event match {
+      case Start =>
+        getSessionDeltaPerSecBuffers(None).addStart(record.startDateBucket)
+        getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.startDateBucket)
+        orphanStartRecords += record.userId -> record
 
-			case End =>
-				getSessionDeltaPerSecBuffers(None).addEnd(record.endDateBucket)
-				getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.endDateBucket)
-				orphanStartRecords -= record.userId
-		}
-	}
+      case End =>
+        getSessionDeltaPerSecBuffers(None).addEnd(record.endDateBucket)
+        getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.endDateBucket)
+        orphanStartRecords -= record.userId
+    }
+  }
 
-	def endOrphanUserRecords(endDateBucket: Int) {
-		orphanStartRecords.values.foreach { start =>
-			getSessionDeltaPerSecBuffers(None).addEnd(endDateBucket)
-			getSessionDeltaPerSecBuffers(Some(start.scenario)).addEnd(endDateBucket)
-		}
-	}
+  def endOrphanUserRecords(endDateBucket: Int) {
+    orphanStartRecords.values.foreach { start =>
+      getSessionDeltaPerSecBuffers(None).addEnd(endDateBucket)
+      getSessionDeltaPerSecBuffers(Some(start.scenario)).addEnd(endDateBucket)
+    }
+  }
 }

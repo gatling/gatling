@@ -31,41 +31,41 @@ case class InitDataWriter(totalNumberOfUsers: Int)
 
 object DataWriter extends AkkaDefaults {
 
-	implicit val dataWriterTimeOut = Timeout(5 seconds)
+  implicit val dataWriterTimeOut = Timeout(5 seconds)
 
-	private var _instances: Option[Seq[ActorRef]] = None
+  private var _instances: Option[Seq[ActorRef]] = None
 
-	def instances() = _instances match {
-		case Some(dw) => dw
-		case _ => throw new UnsupportedOperationException("DataWriters haven't been initialized")
-	}
+  def instances() = _instances match {
+    case Some(dw) => dw
+    case _        => throw new UnsupportedOperationException("DataWriters haven't been initialized")
+  }
 
-	def dispatch(message: Any) {
-		instances.foreach(_ ! message)
-	}
+  def dispatch(message: Any) {
+    instances.foreach(_ ! message)
+  }
 
-	def init(runMessage: RunMessage, scenarios: Seq[Scenario], replyTo: ActorRef) {
+  def init(runMessage: RunMessage, scenarios: Seq[Scenario], replyTo: ActorRef) {
 
-		_instances = {
-			val dw = configuration.data.dataWriterClasses.map { className =>
-				val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
-				system.actorOf(Props(clazz))
-			}
+    _instances = {
+      val dw = configuration.data.dataWriterClasses.map { className =>
+        val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
+        system.actorOf(Props(clazz))
+      }
 
-			system.registerOnTermination(_instances = None)
+      system.registerOnTermination(_instances = None)
 
-			Some(dw)
-		}
+      Some(dw)
+    }
 
-		val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.injectionProfile.users))
-		val responses = instances.map(_ ? Init(runMessage, shortScenarioDescriptions))
-		Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersInitialized(_))
-	}
+    val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.injectionProfile.users))
+    val responses = instances.map(_ ? Init(runMessage, shortScenarioDescriptions))
+    Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersInitialized(_))
+  }
 
-	def terminate(replyTo: ActorRef) {
-		val responses = instances.map(_ ? Terminate)
-		Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersTerminated(_))
-	}
+  def terminate(replyTo: ActorRef) {
+    val responses = instances.map(_ ? Terminate)
+    Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersTerminated(_))
+  }
 }
 
 /**
@@ -76,75 +76,75 @@ object DataWriter extends AkkaDefaults {
  */
 abstract class DataWriter extends BaseActor {
 
-	def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription])
+  def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription])
 
-	def onUserMessage(userMessage: UserMessage)
+  def onUserMessage(userMessage: UserMessage)
 
-	def onGroupMessage(group: GroupMessage)
+  def onGroupMessage(group: GroupMessage)
 
-	def onRequestMessage(request: RequestMessage)
+  def onRequestMessage(request: RequestMessage)
 
-	def onTerminateDataWriter()
+  def onTerminateDataWriter()
 
-	def uninitialized: Receive = {
-		case Init(runMessage, scenarios) =>
-			logger.info("Initializing")
-			onInitializeDataWriter(runMessage, scenarios)
-			logger.info("Initialized")
-			context.become(initialized)
-			sender ! true
+  def uninitialized: Receive = {
+    case Init(runMessage, scenarios) =>
+      logger.info("Initializing")
+      onInitializeDataWriter(runMessage, scenarios)
+      logger.info("Initialized")
+      context.become(initialized)
+      sender ! true
 
-		case m: DataWriterMessage => logger.error(s"Can't handle $m when in uninitialized state, discarding")
-	}
+    case m: DataWriterMessage => logger.error(s"Can't handle $m when in uninitialized state, discarding")
+  }
 
-	def initialized: Receive = {
-		case userMessage: UserMessage => onUserMessage(userMessage)
+  def initialized: Receive = {
+    case userMessage: UserMessage       => onUserMessage(userMessage)
 
-		case groupMessage: GroupMessage => onGroupMessage(groupMessage)
+    case groupMessage: GroupMessage     => onGroupMessage(groupMessage)
 
-		case requestMessage: RequestMessage => onRequestMessage(requestMessage)
+    case requestMessage: RequestMessage => onRequestMessage(requestMessage)
 
-		case Terminate => try {
-			onTerminateDataWriter
-		} finally {
-			context.become(flushed)
-			sender ! true
-		}
-	}
+    case Terminate => try {
+      onTerminateDataWriter
+    } finally {
+      context.become(flushed)
+      sender ! true
+    }
+  }
 
-	def flushed: Receive = {
-		case m => logger.info(s"Can't handle $m after being flush")
-	}
+  def flushed: Receive = {
+    case m => logger.info(s"Can't handle $m after being flush")
+  }
 
-	def receive = uninitialized
+  def receive = uninitialized
 }
 
 trait DataWriterClient {
 
-	def writeRequestData(session: Session,
-		requestName: String,
-		requestStartDate: Long,
-		requestEndDate: Long,
-		responseStartDate: Long,
-		responseEndDate: Long,
-		status: Status,
-		message: Option[String] = None,
-		extraInfo: List[Any] = Nil) {
-		DataWriter.dispatch(RequestMessage(
-			session.scenarioName,
-			session.userId,
-			session.groupStack,
-			requestName,
-			requestStartDate,
-			requestEndDate,
-			responseStartDate,
-			responseEndDate,
-			status,
-			message,
-			extraInfo))
-	}
+  def writeRequestData(session: Session,
+                       requestName: String,
+                       requestStartDate: Long,
+                       requestEndDate: Long,
+                       responseStartDate: Long,
+                       responseEndDate: Long,
+                       status: Status,
+                       message: Option[String] = None,
+                       extraInfo: List[Any] = Nil) {
+    DataWriter.dispatch(RequestMessage(
+      session.scenarioName,
+      session.userId,
+      session.groupStack,
+      requestName,
+      requestStartDate,
+      requestEndDate,
+      responseStartDate,
+      responseEndDate,
+      status,
+      message,
+      extraInfo))
+  }
 
-	def writeGroupData(session: Session, groupStack: List[GroupStackEntry], entryDate: Long, exitDate: Long, status: Status) {
-		DataWriter.dispatch(GroupMessage(session.scenarioName, session.userId, groupStack, entryDate, exitDate, status))
-	}
+  def writeGroupData(session: Session, groupStack: List[GroupStackEntry], entryDate: Long, exitDate: Long, status: Status) {
+    DataWriter.dispatch(GroupMessage(session.scenarioName, session.userId, groupStack, entryDate, exitDate, status))
+  }
 }

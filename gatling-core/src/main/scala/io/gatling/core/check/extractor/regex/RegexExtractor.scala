@@ -27,43 +27,43 @@ import jsr166e.ConcurrentHashMapV8
 
 object RegexExtractor {
 
-	val cache: concurrent.Map[String, Pattern] = new ConcurrentHashMapV8[String, Pattern]
+  val cache: concurrent.Map[String, Pattern] = new ConcurrentHashMapV8[String, Pattern]
 
-	def cached(pattern: String) = if (configuration.core.extract.regex.cache) cache.getOrElseUpdate(pattern, Pattern.compile(pattern)) else Pattern.compile(pattern)
+  def cached(pattern: String) = if (configuration.core.extract.regex.cache) cache.getOrElseUpdate(pattern, Pattern.compile(pattern)) else Pattern.compile(pattern)
 
-	def extractAll[X: GroupExtractor](chars: CharSequence, pattern: String): Seq[X] = {
+  def extractAll[X: GroupExtractor](chars: CharSequence, pattern: String): Seq[X] = {
 
-		val matcher = cached(pattern).matcher(chars)
-		matcher.foldLeft(List.empty[X]) { (matcher, values) =>
-			matcher.value :: values
-		}.reverse
-	}
+    val matcher = cached(pattern).matcher(chars)
+    matcher.foldLeft(List.empty[X]) { (matcher, values) =>
+      matcher.value :: values
+    }.reverse
+  }
 }
 
 abstract class RegexExtractor[X] extends CriterionExtractor[CharSequence, String, X] { val criterionName = "regex" }
 
 class SingleRegexExtractor[X: GroupExtractor](val criterion: String, occurrence: Int) extends RegexExtractor[X] {
 
-	def extract(prepared: CharSequence): Validation[Option[X]] = {
-		val matcher = RegexExtractor.cached(criterion).matcher(prepared)
-		matcher.findMatchN(occurrence).success
-	}
+  def extract(prepared: CharSequence): Validation[Option[X]] = {
+    val matcher = RegexExtractor.cached(criterion).matcher(prepared)
+    matcher.findMatchN(occurrence).success
+  }
 }
 
 class MultipleRegexExtractor[X: GroupExtractor](val criterion: String) extends RegexExtractor[Seq[X]] {
 
-	def extract(prepared: CharSequence): Validation[Option[Seq[X]]] = RegexExtractor.extractAll(prepared, criterion).liftSeqOption.success
+  def extract(prepared: CharSequence): Validation[Option[Seq[X]]] = RegexExtractor.extractAll(prepared, criterion).liftSeqOption.success
 }
 
 class CountRegexExtractor(val criterion: String) extends RegexExtractor[Int] {
 
-	def extract(prepared: CharSequence): Validation[Option[Int]] = {
-		val matcher = RegexExtractor.cached(criterion).matcher(prepared)
+  def extract(prepared: CharSequence): Validation[Option[Int]] = {
+    val matcher = RegexExtractor.cached(criterion).matcher(prepared)
 
-		var count = 0
-		while (matcher.find)
-			count = count + 1
+    var count = 0
+    while (matcher.find)
+      count = count + 1
 
-		Some(count).success
-	}
+    Some(count).success
+  }
 }

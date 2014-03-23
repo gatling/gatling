@@ -19,23 +19,23 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation, noneSuccess }
 
 package object session {
 
-	type Expression[T] = Session => Validation[T]
+  type Expression[T] = Session => Validation[T]
 
-	implicit class ExpressionWrapper[T](val value: T) extends AnyVal {
-		def expression: Expression[T] = {
-			val valueS = value.success
-			_ => valueS
-		}
-	}
+  implicit class ExpressionWrapper[T](val value: T) extends AnyVal {
+    def expression: Expression[T] = {
+      val valueS = value.success
+      _ => valueS
+    }
+  }
 
-	implicit class RichExpression[T](val expression: Expression[T]) extends AnyVal {
-		def map[T2](f: T => T2): Expression[T2] = session => expression(session).map(f)
-	}
+  implicit class RichExpression[T](val expression: Expression[T]) extends AnyVal {
+    def map[T2](f: T => T2): Expression[T2] = session => expression(session).map(f)
+  }
 
-	val noopStringExpression = "".expression
+  val noopStringExpression = "".expression
 
-	def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression match {
-		case Some(e) => e(session).map(Some.apply)
-		case _ => noneSuccess
-	}
+  def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression match {
+    case Some(e) => e(session).map(Some.apply)
+    case _       => noneSuccess
+  }
 }

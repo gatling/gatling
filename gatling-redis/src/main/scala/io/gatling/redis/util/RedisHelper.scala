@@ -17,15 +17,15 @@ package io.gatling.redis.util
 
 object RedisHelper {
 
-	val crlf = "\r\n"
+  val crlf = "\r\n"
 
-	/**
-	 * Generate Redis protocol required for mass insert
-	 * i.e  generateRedisProtocol("LPUSH", "SIM", "SOMETHING COOL!")
-	 */
-	def generateRedisProtocol(d: String*): String = {
-		val protocol = new StringBuilder().append("*").append(d.length).append(crlf)
-		d.foreach(x => protocol.append("$").append(x.length).append(crlf).append(x).append(crlf))
-		protocol.toString()
-	}
+  /**
+   * Generate Redis protocol required for mass insert
+   * i.e  generateRedisProtocol("LPUSH", "SIM", "SOMETHING COOL!")
+   */
+  def generateRedisProtocol(d: String*): String = {
+    val protocol = new StringBuilder().append("*").append(d.length).append(crlf)
+    d.foreach(x => protocol.append("$").append(x.length).append(crlf).append(x).append(crlf))
+    protocol.toString()
+  }
 }

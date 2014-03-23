@@ -30,77 +30,77 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
  */
 class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with StrictLogging {
 
-	val responseBuilder = tx.responseBuilderFactory(tx.request)
-	private var done = false
+  val responseBuilder = tx.responseBuilderFactory(tx.request)
+  private var done = false
 
-	def onRequestSent {
-		if (!done) responseBuilder.updateFirstByteSent
-	}
+  def onRequestSent {
+    if (!done) responseBuilder.updateFirstByteSent
+  }
 
-	def onRetry {
-		if (!done) responseBuilder.reset
-		else logger.error("onRetry is not supposed to be called once done")
-	}
+  def onRetry {
+    if (!done) responseBuilder.reset
+    else logger.error("onRetry is not supposed to be called once done")
+  }
 
-	def onHeaderWriteCompleted = {
-		if (!done) responseBuilder.updateLastByteSent
-		CONTINUE
-	}
+  def onHeaderWriteCompleted = {
+    if (!done) responseBuilder.updateLastByteSent
+    CONTINUE
+  }
 
-	def onContentWriteCompleted = {
-		if (!done) responseBuilder.updateLastByteSent
-		CONTINUE
-	}
+  def onContentWriteCompleted = {
+    if (!done) responseBuilder.updateLastByteSent
+    CONTINUE
+  }
 
-	def onContentWriteProgress(amount: Long, current: Long, total: Long) = CONTINUE
+  def onContentWriteProgress(amount: Long, current: Long, total: Long) = CONTINUE
 
-	def onStatusReceived(status: HttpResponseStatus) = {
-		if (!done) responseBuilder.accumulate(status)
-		CONTINUE
-	}
+  def onStatusReceived(status: HttpResponseStatus) = {
+    if (!done) responseBuilder.accumulate(status)
+    CONTINUE
+  }
 
-	def onHeadersReceived(headers: HttpResponseHeaders) = {
-		if (!done) responseBuilder.accumulate(headers)
-		CONTINUE
-	}
+  def onHeadersReceived(headers: HttpResponseHeaders) = {
+    if (!done) responseBuilder.accumulate(headers)
+    CONTINUE
+  }
 
-	def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
-		if (!done) responseBuilder.accumulate(bodyPart)
-		CONTINUE
-	}
+  def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
+    if (!done) responseBuilder.accumulate(bodyPart)
+    CONTINUE
+  }
 
-	def onCompleted {
-		if (!done) {
-			done = true
-			try {
-				val response = responseBuilder.build
-				AsyncHandlerActor.instance ! OnCompleted(tx, response)
-			} catch {
-				case e: Exception => sendOnThrowable(e)
-			}
-		}
-	}
+  def onCompleted {
+    if (!done) {
+      done = true
+      try {
+        val response = responseBuilder.build
+        AsyncHandlerActor.instance ! OnCompleted(tx, response)
+      } catch {
+        case e: Exception => sendOnThrowable(e)
+      }
+    }
+  }
 
-	def onThrowable(throwable: Throwable) {
-		if (!done) {
-			done = true
-			responseBuilder.updateLastByteReceived
-			sendOnThrowable(throwable)
-		}
-	}
+  def onThrowable(throwable: Throwable) {
+    if (!done) {
+      done = true
+      responseBuilder.updateLastByteReceived
+      sendOnThrowable(throwable)
+    }
+  }
 
-	def sendOnThrowable(throwable: Throwable) {
-		val className = throwable.getClass.getName
-		val errorMessage = throwable.getMessage match {
-			case null => className
-			case m => s"$className: $m"
-		}
+  def sendOnThrowable(throwable: Throwable) {
+    val className = throwable.getClass.getName
+    val errorMessage = throwable.getMessage match {
+      case null => className
+      case m    => s"$className: $m"
+    }
 
-		if (logger.underlying.isDebugEnabled)
-			logger.debug(s"Request '${tx.requestName}' failed for user ${tx.session.userId}", throwable)
-		else
-			logger.info(s"Request '${tx.requestName}' failed for user ${tx.session.userId}: $errorMessage")
+    if (logger.underlying.isDebugEnabled)
+      logger.debug(s"Request '${tx.requestName}' failed for user ${tx.session.userId}", throwable)
+    else
+      logger.info(s"Request '${tx.requestName}' failed for user ${tx.session.userId}: $errorMessage")
 
-		AsyncHandlerActor.instance ! OnThrowable(tx, responseBuilder.build, errorMessage)
-	}
+    AsyncHandlerActor.instance ! OnThrowable(tx, responseBuilder.build, errorMessage)
+  }
 }

@@ -21,10 +21,10 @@ import io.gatling.http.response.Response
 
 object HttpHeaderCheckBuilder {
 
-	def header(headerName: Expression[String]) =
-		new HttpMultipleCheckBuilder[Response, String](HttpCheckBuilders.headerCheckFactory, HttpCheckBuilders.passThroughResponsePreparer) {
-			def findExtractor(occurrence: Int) = headerName.map(new SingleHttpHeaderExtractor(_, occurrence))
-			def findAllExtractor = headerName.map(new MultipleHttpHeaderExtractor(_))
-			def countExtractor = headerName.map(new CountHttpHeaderExtractor(_))
-		}
+  def header(headerName: Expression[String]) =
+    new HttpMultipleCheckBuilder[Response, String](HttpCheckBuilders.headerCheckFactory, HttpCheckBuilders.passThroughResponsePreparer) {
+      def findExtractor(occurrence: Int) = headerName.map(new SingleHttpHeaderExtractor(_, occurrence))
+      def findAllExtractor = headerName.map(new MultipleHttpHeaderExtractor(_))
+      def countExtractor = headerName.map(new CountHttpHeaderExtractor(_))
+    }
 }

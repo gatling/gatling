@@ -21,26 +21,26 @@ import scala.annotation.tailrec
 
 package object regex {
 
-	implicit class RichMatcher(val matcher: Matcher) extends AnyVal {
+  implicit class RichMatcher(val matcher: Matcher) extends AnyVal {
 
-		def foldLeft[T](zero: T)(f: (Matcher, T) => T): T = {
-			var temp = zero
-			while (matcher.find)
-				temp = f(matcher, temp)
-			temp
-		}
+    def foldLeft[T](zero: T)(f: (Matcher, T) => T): T = {
+      var temp = zero
+      while (matcher.find)
+        temp = f(matcher, temp)
+      temp
+    }
 
-		def findMatchN[X: GroupExtractor](n: Int): Option[X] = {
+    def findMatchN[X: GroupExtractor](n: Int): Option[X] = {
 
-			@tailrec
-			def findRec(countDown: Int): Boolean = matcher.find && (countDown == 0 || findRec(countDown - 1))
+        @tailrec
+        def findRec(countDown: Int): Boolean = matcher.find && (countDown == 0 || findRec(countDown - 1))
 
-			if (findRec(n))
-				Some(value[X])
-			else
-				None
-		}
+      if (findRec(n))
+        Some(value[X])
+      else
+        None
+    }
 
-		def value[X: GroupExtractor]: X = implicitly[GroupExtractor[X]].extract(matcher)
-	}
+    def value[X: GroupExtractor]: X = implicitly[GroupExtractor[X]].extract(matcher)
+  }
 }

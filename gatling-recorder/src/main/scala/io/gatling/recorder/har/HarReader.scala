@@ -33,57 +33,57 @@ import io.gatling.recorder.util.Json
  */
 object HarReader {
 
-	def apply(path: String)(implicit config: RecorderConfiguration): ScenarioDefinition =
-		withCloseable(new FileInputStream(path))(apply(_))
+  def apply(path: String)(implicit config: RecorderConfiguration): ScenarioDefinition =
+    withCloseable(new FileInputStream(path))(apply(_))
 
-	def apply(jsonStream: InputStream)(implicit config: RecorderConfiguration): ScenarioDefinition =
-		apply(Json.parseJson(jsonStream))
+  def apply(jsonStream: InputStream)(implicit config: RecorderConfiguration): ScenarioDefinition =
+    apply(Json.parseJson(jsonStream))
 
-	private def apply(json: Json)(implicit config: RecorderConfiguration): ScenarioDefinition = {
-		val HttpArchive(Log(entries)) = HarMapping.jsonToHttpArchive(json)
+  private def apply(json: Json)(implicit config: RecorderConfiguration): ScenarioDefinition = {
+    val HttpArchive(Log(entries)) = HarMapping.jsonToHttpArchive(json)
 
-		val elements = entries.iterator
-			.filter(e => isValidURL(e.request.url))
-			// TODO NICO : can't we move this in Scenario as well ?
-			.filter(e => config.filters.filters.map(_.accept(e.request.url)).getOrElse(true))
-			.map(createRequestWithArrivalTime)
-			.toVector
+    val elements = entries.iterator
+      .filter(e => isValidURL(e.request.url))
+      // TODO NICO : can't we move this in Scenario as well ?
+      .filter(e => config.filters.filters.map(_.accept(e.request.url)).getOrElse(true))
+      .map(createRequestWithArrivalTime)
+      .toVector
 
-		ScenarioDefinition(elements, Nil)
-	}
+    ScenarioDefinition(elements, Nil)
+  }
 
-	private def createRequestWithArrivalTime(entry: Entry): (Long, RequestElement) = {
-		def buildContent(postParams: Seq[PostParam]) =
-			RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
+  private def createRequestWithArrivalTime(entry: Entry): (Long, RequestElement) = {
+      def buildContent(postParams: Seq[PostParam]) =
+        RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
 
-		val uri = entry.request.url
-		val method = entry.request.method
-		val headers = buildHeaders(entry)
+    val uri = entry.request.url
+    val method = entry.request.method
+    val headers = buildHeaders(entry)
 
-		// NetExport doesn't copy post params to text field
-		val body = entry.request.postData.map { postData =>
-			postData.text.trimToOption match {
-				// HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
-				case Some(string) => RequestBodyBytes(string.getBytes("UTF-8"))
-				case None => buildContent(postData.params)
-			}
-		}
+    // NetExport doesn't copy post params to text field
+    val body = entry.request.postData.map { postData =>
+      postData.text.trimToOption match {
+        // HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
+        case Some(string) => RequestBodyBytes(string.getBytes("UTF-8"))
+        case None         => buildContent(postData.params)
+      }
+    }
 
-		val embeddedResources = entry.response.content match {
-			case Content("text/html", Some(text)) => HtmlParser.getEmbeddedResources(new URI(uri), text.toCharArray)
-			case _ => Nil
-		}
+    val embeddedResources = entry.response.content match {
+      case Content("text/html", Some(text)) => HtmlParser.getEmbeddedResources(new URI(uri), text.toCharArray)
+      case _                                => Nil
+    }
 
-		(entry.arrivalTime, RequestElement(uri, method, headers, body, entry.response.status, embeddedResources))
-	}
+    (entry.arrivalTime, RequestElement(uri, method, headers, body, entry.response.status, embeddedResources))
+  }
 
-	private def buildHeaders(entry: Entry): Map[String, String] = {
-		// Chrome adds extra headers, eg: ":host". We should have them in the Gatling scenario.
-		val headers = entry.request.headers.filter(!_.name.startsWith(":")).map(h => (h.name, h.value)).toMap
+  private def buildHeaders(entry: Entry): Map[String, String] = {
+    // Chrome adds extra headers, eg: ":host". We should have them in the Gatling scenario.
+    val headers = entry.request.headers.filter(!_.name.startsWith(":")).map(h => (h.name, h.value)).toMap
 
-		// NetExport doesn't add Content-Type to headers when POSTing, but both Chrome Dev Tools and NetExport set mimeType
-		entry.request.postData.map(postData => headers.updated(CONTENT_TYPE, postData.mimeType)).getOrElse(headers)
-	}
+    // NetExport doesn't add Content-Type to headers when POSTing, but both Chrome Dev Tools and NetExport set mimeType
+    entry.request.postData.map(postData => headers.updated(CONTENT_TYPE, postData.mimeType)).getOrElse(headers)
+  }
 
-	private def isValidURL(url: String): Boolean = Try(new URL(url)).isSuccess
+  private def isValidURL(url: String): Boolean = Try(new URL(url)).isSuccess
 }

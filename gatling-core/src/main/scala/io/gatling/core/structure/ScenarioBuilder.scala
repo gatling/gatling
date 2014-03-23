@@ -36,54 +36,54 @@ import io.gatling.core.session.Expression
  */
 case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = Nil) extends StructureBuilder[ScenarioBuilder] {
 
-	private[core] def newInstance(actionBuilders: List[ActionBuilder]) = copy(actionBuilders = actionBuilders)
+  private[core] def newInstance(actionBuilders: List[ActionBuilder]) = copy(actionBuilders = actionBuilders)
 
-	def inject(iss: InjectionStep*) = {
-		require(!iss.isEmpty, "Calling inject with empty injection steps")
+  def inject(iss: InjectionStep*) = {
+    require(!iss.isEmpty, "Calling inject with empty injection steps")
 
-		val defaultProtocols = actionBuilders.foldLeft(Protocols()) { (protocols, actionBuilder) =>
-			actionBuilder.registerDefaultProtocols(protocols)
-		}
+    val defaultProtocols = actionBuilders.foldLeft(Protocols()) { (protocols, actionBuilder) =>
+      actionBuilder.registerDefaultProtocols(protocols)
+    }
 
-		new PopulatedScenarioBuilder(this, InjectionProfile(iss), defaultProtocols)
-	}
+    new PopulatedScenarioBuilder(this, InjectionProfile(iss), defaultProtocols)
+  }
 }
 
 case class PopulatedScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, defaultProtocols: Protocols, populationProtocols: Protocols = Protocols()) extends StrictLogging {
 
-	def protocols(protocols: Protocol*) = copy(populationProtocols = this.populationProtocols ++ protocols)
+  def protocols(protocols: Protocol*) = copy(populationProtocols = this.populationProtocols ++ protocols)
 
-	def disablePauses = pauses(Disabled)
-	def constantPauses = pauses(Constant)
-	def exponentialPauses = pauses(Exponential)
-	def customPauses(custom: Expression[Long]) = pauses(Custom(custom))
-	def uniformPauses(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
-	def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
-	def pauses(pauseType: PauseType) = protocols(PauseProtocol(pauseType))
+  def disablePauses = pauses(Disabled)
+  def constantPauses = pauses(Constant)
+  def exponentialPauses = pauses(Exponential)
+  def customPauses(custom: Expression[Long]) = pauses(Custom(custom))
+  def uniformPauses(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
+  def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
+  def pauses(pauseType: PauseType) = protocols(PauseProtocol(pauseType))
 
-	def throttle(throttlingBuilders: ThrottlingBuilder*) = {
-		if (throttlingBuilders.isEmpty) System.err.println(s"Scenario '${scenarioBuilder.name}' has an empty throttling definition.")
-		val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
-		protocols(ThrottlingProtocol(ThrottlingBuilder(steps).build))
-	}
+  def throttle(throttlingBuilders: ThrottlingBuilder*) = {
+    if (throttlingBuilders.isEmpty) System.err.println(s"Scenario '${scenarioBuilder.name}' has an empty throttling definition.")
+    val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
+    protocols(ThrottlingProtocol(ThrottlingBuilder(steps).build))
+  }
 
-	/**
-	 * @param Protocols
-	 * @return the scenario
-	 */
-	private[core] def build(globalProtocols: Protocols): Scenario = {
+  /**
+   * @param Protocols
+   * @return the scenario
+   */
+  private[core] def build(globalProtocols: Protocols): Scenario = {
 
-		val protocols = (defaultProtocols ++ globalProtocols ++ populationProtocols)
-		val newProtocols = protocols.getProtocol[ThrottlingProtocol] match {
-			case Some(_) =>
-				logger.info("Throttle is enabled, disabling pauses")
-				protocols + PauseProtocol(Disabled)
-			case None => protocols
-		}
+    val protocols = (defaultProtocols ++ globalProtocols ++ populationProtocols)
+    val newProtocols = protocols.getProtocol[ThrottlingProtocol] match {
+      case Some(_) =>
+        logger.info("Throttle is enabled, disabling pauses")
+        protocols + PauseProtocol(Disabled)
+      case None => protocols
+    }
 
-		newProtocols.warmUp
+    newProtocols.warmUp
 
-		val entryPoint = scenarioBuilder.build(UserEnd.instance, newProtocols)
-		new Scenario(scenarioBuilder.name, entryPoint, injectionProfile)
-	}
+    val entryPoint = scenarioBuilder.build(UserEnd.instance, newProtocols)
+    new Scenario(scenarioBuilder.name, entryPoint, injectionProfile)
+  }
 }

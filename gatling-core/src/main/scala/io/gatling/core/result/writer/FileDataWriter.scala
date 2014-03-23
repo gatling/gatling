@@ -28,84 +28,84 @@ import io.gatling.core.util.UnsyncBufferedOutputStream
 
 object FileDataWriter {
 
-	val emptyField = " "
+  val emptyField = " "
 
-	val sanitizerPattern = """[\n\r\t]""".r
+  val sanitizerPattern = """[\n\r\t]""".r
 
-	/**
-	 * Converts whitespace characters that would break the simulation log format into spaces.
-	 */
-	def sanitize(s: String): String = Option(s) match {
-		case Some(s) => sanitizerPattern.replaceAllIn(s, " ")
-		case _ => ""
-	}
+  /**
+   * Converts whitespace characters that would break the simulation log format into spaces.
+   */
+  def sanitize(s: String): String = Option(s) match {
+    case Some(s) => sanitizerPattern.replaceAllIn(s, " ")
+    case _       => ""
+  }
 
-	implicit class RunMessageSerializer(val runMessage: RunMessage) extends AnyVal {
+  implicit class RunMessageSerializer(val runMessage: RunMessage) extends AnyVal {
 
-		def getBytes = {
-			import runMessage._
-			val description = if (runDescription.isEmpty) FileDataWriter.emptyField else runDescription
-			val string = s"$simulationClassName\t$simulationId\t${RunMessageType.name}\t$timestamp\t$description$eol"
-			string.getBytes(configuration.core.charset)
-		}
-	}
+    def getBytes = {
+      import runMessage._
+      val description = if (runDescription.isEmpty) FileDataWriter.emptyField else runDescription
+      val string = s"$simulationClassName\t$simulationId\t${RunMessageType.name}\t$timestamp\t$description$eol"
+      string.getBytes(configuration.core.charset)
+    }
+  }
 
-	implicit class UserMessageSerializer(val userMessage: UserMessage) extends AnyVal {
+  implicit class UserMessageSerializer(val userMessage: UserMessage) extends AnyVal {
 
-		def getBytes = {
-			import userMessage._
-			val string = s"$scenarioName\t$userId\t${UserMessageType.name}\t${event.name}\t$startDate\t$endDate$eol"
-			string.getBytes(configuration.core.charset)
-		}
-	}
+    def getBytes = {
+      import userMessage._
+      val string = s"$scenarioName\t$userId\t${UserMessageType.name}\t${event.name}\t$startDate\t$endDate$eol"
+      string.getBytes(configuration.core.charset)
+    }
+  }
 
-	// fastring macro won't work inside a value class in 2.10
-	object RequestMessageSerializer {
+  // fastring macro won't work inside a value class in 2.10
+  object RequestMessageSerializer {
 
-		def serialize(requestMessage: RequestMessage) = {
-			import requestMessage._
+    def serialize(requestMessage: RequestMessage) = {
+      import requestMessage._
 
-			val nonEmptyMessage = message match {
-				case Some(r) => r
-				case None => emptyField
-			}
-			val serializedGroups = GroupMessageSerializer.serializeGroups(groupStack)
-			val serializedExtraInfo = extraInfo.map(info => fast"\t${sanitize(info.toString)}").mkFastring
+      val nonEmptyMessage = message match {
+        case Some(r) => r
+        case None    => emptyField
+      }
+      val serializedGroups = GroupMessageSerializer.serializeGroups(groupStack)
+      val serializedExtraInfo = extraInfo.map(info => fast"\t${sanitize(info.toString)}").mkFastring
 
-			fast"$scenario\t$userId\t${RequestMessageType.name}\t$serializedGroups\t$name\t$requestStartDate\t$requestEndDate\t$responseStartDate\t$responseEndDate\t$status\t$nonEmptyMessage$serializedExtraInfo$eol"
-		}
-	}
+      fast"$scenario\t$userId\t${RequestMessageType.name}\t$serializedGroups\t$name\t$requestStartDate\t$requestEndDate\t$responseStartDate\t$responseEndDate\t$status\t$nonEmptyMessage$serializedExtraInfo$eol"
+    }
+  }
 
-	implicit class RequestMessageSerializer(val requestMessage: RequestMessage) extends AnyVal {
+  implicit class RequestMessageSerializer(val requestMessage: RequestMessage) extends AnyVal {
 
-		def getBytes = {
-			val string = RequestMessageSerializer.serialize(requestMessage).toString
-			string.getBytes(configuration.core.charset)
-		}
-	}
+    def getBytes = {
+      val string = RequestMessageSerializer.serialize(requestMessage).toString
+      string.getBytes(configuration.core.charset)
+    }
+  }
 
-	// fastring macro won't work inside a value class in 2.10
-	object GroupMessageSerializer {
+  // fastring macro won't work inside a value class in 2.10
+  object GroupMessageSerializer {
 
-		def serializeGroups(groupStack: List[GroupStackEntry]) = groupStack.reverse.map(_.name).mkFastring(",")
+    def serializeGroups(groupStack: List[GroupStackEntry]) = groupStack.reverse.map(_.name).mkFastring(",")
 
-		def deserializeGroups(string: String) = Group(string.split(",").toList)
+    def deserializeGroups(string: String) = Group(string.split(",").toList)
 
-		def serialize(groupMessage: GroupMessage) = {
-			import groupMessage._
-			val serializedGroups = serializeGroups(groupStack)
-			val group = groupStack.head
-			fast"$scenarioName\t$userId\t${GroupMessageType.name}\t$serializedGroups\t$entryDate\t$exitDate\t${group.cumulatedResponseTime}\t${group.oks}\t${group.kos}\t$status$eol"
-		}
-	}
+    def serialize(groupMessage: GroupMessage) = {
+      import groupMessage._
+      val serializedGroups = serializeGroups(groupStack)
+      val group = groupStack.head
+      fast"$scenarioName\t$userId\t${GroupMessageType.name}\t$serializedGroups\t$entryDate\t$exitDate\t${group.cumulatedResponseTime}\t${group.oks}\t${group.kos}\t$status$eol"
+    }
+  }
 
-	implicit class GroupMessageSerializer(val groupMessage: GroupMessage) extends AnyVal {
+  implicit class GroupMessageSerializer(val groupMessage: GroupMessage) extends AnyVal {
 
-		def getBytes = {
-			val string = GroupMessageSerializer.serialize(groupMessage).toString
-			string.getBytes(configuration.core.charset)
-		}
-	}
+    def getBytes = {
+      val string = GroupMessageSerializer.serialize(groupMessage).toString
+      string.getBytes(configuration.core.charset)
+    }
+  }
 }
 
 /**
@@ -115,23 +115,23 @@ object FileDataWriter {
  */
 class FileDataWriter extends DataWriter {
 
-	import FileDataWriter._
+  import FileDataWriter._
 
-	private var os: UnsyncBufferedOutputStream = _
+  private var os: UnsyncBufferedOutputStream = _
 
-	override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
-		val simulationLog = simulationLogDirectory(run.runId) / "simulation.log"
-		val fos = new FileOutputStream(simulationLog.toString)
-		system.registerOnTermination(fos.close)
-		os = new UnsyncBufferedOutputStream(fos, configuration.data.file.bufferSize)
-		os.write(run.getBytes)
-	}
+  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
+    val simulationLog = simulationLogDirectory(run.runId) / "simulation.log"
+    val fos = new FileOutputStream(simulationLog.toString)
+    system.registerOnTermination(fos.close)
+    os = new UnsyncBufferedOutputStream(fos, configuration.data.file.bufferSize)
+    os.write(run.getBytes)
+  }
 
-	override def onUserMessage(userMessage: UserMessage) { os.write(userMessage.getBytes) }
+  override def onUserMessage(userMessage: UserMessage) { os.write(userMessage.getBytes) }
 
-	override def onGroupMessage(group: GroupMessage) { os.write(group.getBytes) }
+  override def onGroupMessage(group: GroupMessage) { os.write(group.getBytes) }
 
-	override def onRequestMessage(request: RequestMessage) { os.write(request.getBytes) }
+  override def onRequestMessage(request: RequestMessage) { os.write(request.getBytes) }
 
-	override def onTerminateDataWriter() { os.flush }
+  override def onTerminateDataWriter() { os.flush }
 }

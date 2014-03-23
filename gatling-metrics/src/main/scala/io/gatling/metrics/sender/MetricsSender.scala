@@ -18,19 +18,19 @@ package io.gatling.metrics.sender
 import io.gatling.core.config.GatlingConfiguration.configuration
 
 object MetricsSender {
-	def newMetricsSender: MetricsSender = configuration.data.graphite.protocol match {
-		case "tcp" => new TcpSender
-		case "udp" => new UdpSender
-	}
+  def newMetricsSender: MetricsSender = configuration.data.graphite.protocol match {
+    case "tcp" => new TcpSender
+    case "udp" => new UdpSender
+  }
 }
 abstract class MetricsSender {
 
-	def sendToGraphite(metricPath: String, value: Long, epoch: Long) {
-		val bytes = s"$metricPath $value $epoch\n".getBytes(configuration.core.charset)
-		sendToGraphite(bytes)
-	}
+  def sendToGraphite(metricPath: String, value: Long, epoch: Long) {
+    val bytes = s"$metricPath $value $epoch\n".getBytes(configuration.core.charset)
+    sendToGraphite(bytes)
+  }
 
-	def sendToGraphite(bytes: Array[Byte])
+  def sendToGraphite(bytes: Array[Byte])
 
-	def flush()
+  def flush()
 }

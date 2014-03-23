@@ -22,15 +22,15 @@ import io.gatling.charts.component.Statistics.printable
 
 class StatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
 
-	def getOutput: Fastring = {
+  def getOutput: Fastring = {
 
-		def style[T: Numeric](value: T) =
-			if (raw) // raw mode is used for JSON extract, non-raw for displaying in the reports
-				value.toString
-			else
-				s""""${printable(value)}""""
+      def style[T: Numeric](value: T) =
+        if (raw) // raw mode is used for JSON extract, non-raw for displaying in the reports
+          value.toString
+        else
+          s""""${printable(value)}""""
 
-		fast"""{
+    fast"""{
     "name": "${stats.name}",
     "numberOfRequests": {
         "total": ${style(stats.numberOfRequestsStatistics.total)},
@@ -93,5 +93,5 @@ class StatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
         "ko": ${style(stats.meanNumberOfRequestsPerSecondStatistics.failure)}
     }
 }"""
-	}
+  }
 }

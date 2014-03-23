@@ -18,37 +18,37 @@ package io.gatling.charts.result.reader
 import io.gatling.charts.result.reader.buffers._
 
 class ResultsHolder(minTime: Long, maxTime: Long)
-	extends GeneralStatsBuffers(maxTime - minTime)
-	with LatencyPerSecBuffers
-	with NamesBuffers
-	with RequestsPerSecBuffers
-	with ResponseTimePerSecBuffers
-	with ResponseTimeRangeBuffers
-	with SessionDeltaPerSecBuffers
-	with ResponsesPerSecBuffers
-	with ErrorsBuffers
-	with GroupResponseTimePerSecBuffers {
+    extends GeneralStatsBuffers(maxTime - minTime)
+    with LatencyPerSecBuffers
+    with NamesBuffers
+    with RequestsPerSecBuffers
+    with ResponseTimePerSecBuffers
+    with ResponseTimeRangeBuffers
+    with SessionDeltaPerSecBuffers
+    with ResponsesPerSecBuffers
+    with ErrorsBuffers
+    with GroupResponseTimePerSecBuffers {
 
-	def addUserRecord(record: UserRecord) {
-		addSessionBuffers(record)
-		addScenarioName(record)
-	}
+  def addUserRecord(record: UserRecord) {
+    addSessionBuffers(record)
+    addScenarioName(record)
+  }
 
-	def addGroupRecord(record: GroupRecord) {
-		addGroupName(record)
-		updateGroupGeneralStatsBuffers(record)
-		updateGroupResponseTimePerSecBuffers(record)
-		updateGroupResponseTimeRangeBuffer(record)
-	}
+  def addGroupRecord(record: GroupRecord) {
+    addGroupName(record)
+    updateGroupGeneralStatsBuffers(record)
+    updateGroupResponseTimePerSecBuffers(record)
+    updateGroupResponseTimeRangeBuffer(record)
+  }
 
-	def addRequestRecord(record: RequestRecord) {
-		updateRequestsPerSecBuffers(record)
-		updateResponsesPerSecBuffers(record)
-		updateResponseTimePerSecBuffers(record)
-		updateLatencyPerSecBuffers(record)
-		addRequestName(record)
-		updateRequestGeneralStatsBuffers(record)
-		updateResponseTimeRangeBuffer(record)
-		updateErrorBuffers(record)
-	}
+  def addRequestRecord(record: RequestRecord) {
+    updateRequestsPerSecBuffers(record)
+    updateResponsesPerSecBuffers(record)
+    updateResponseTimePerSecBuffers(record)
+    updateLatencyPerSecBuffers(record)
+    addRequestName(record)
+    updateRequestGeneralStatsBuffers(record)
+    updateResponseTimeRangeBuffer(record)
+    updateErrorBuffers(record)
+  }
 }

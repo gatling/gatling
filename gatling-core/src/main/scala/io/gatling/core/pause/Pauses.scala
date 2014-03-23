@@ -24,47 +24,47 @@ import org.apache.commons.math3.distribution.ExponentialDistribution
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
 
 sealed abstract class PauseType {
-	def generator(duration: Duration): Expression[Long] = generator(duration.expression)
-	def generator(duration: Expression[Duration]): Expression[Long]
+  def generator(duration: Duration): Expression[Long] = generator(duration.expression)
+  def generator(duration: Expression[Duration]): Expression[Long]
 }
 
 object Disabled extends PauseType {
-	def generator(duration: Expression[Duration]) = throw new UnsupportedOperationException
+  def generator(duration: Expression[Duration]) = throw new UnsupportedOperationException
 }
 
 object Constant extends PauseType {
-	def generator(duration: Expression[Duration]) = duration(_).map(_.toMillis)
+  def generator(duration: Expression[Duration]) = duration(_).map(_.toMillis)
 }
 
 object Exponential extends PauseType {
 
-	val distributionCache = mutable.Map.empty[Long, ExponentialDistribution]
-	def cachedDistribution(millis: Long) = distributionCache.getOrElseUpdate(millis, new ExponentialDistribution(millis.toDouble))
+  val distributionCache = mutable.Map.empty[Long, ExponentialDistribution]
+  def cachedDistribution(millis: Long) = distributionCache.getOrElseUpdate(millis, new ExponentialDistribution(millis.toDouble))
 
-	def generator(duration: Expression[Duration]) = duration(_).map(duration => math.round(cachedDistribution(duration.toMillis).sample))
+  def generator(duration: Expression[Duration]) = duration(_).map(duration => math.round(cachedDistribution(duration.toMillis).sample))
 }
 
 case class Custom(custom: Expression[Long]) extends PauseType {
-	def generator(duration: Expression[Duration]) = custom
+  def generator(duration: Expression[Duration]) = custom
 }
 
 case class UniformPercentage(plusOrMinus: Double) extends PauseType {
-	def generator(duration: Expression[Duration]) =
-		duration(_).map { duration =>
-			val mean = duration.toMillis
-			val halfWidth = math.round(mean * plusOrMinus / 100.0)
-			val least = mean - halfWidth
-			val bound = mean + halfWidth + 1
-			ThreadLocalRandom.current.nextLong(least, bound)
-		}
+  def generator(duration: Expression[Duration]) =
+    duration(_).map { duration =>
+      val mean = duration.toMillis
+      val halfWidth = math.round(mean * plusOrMinus / 100.0)
+      val least = mean - halfWidth
+      val bound = mean + halfWidth + 1
+      ThreadLocalRandom.current.nextLong(least, bound)
+    }
 }
 
 case class UniformDuration(plusOrMinus: Duration) extends PauseType {
-	def generator(duration: Expression[Duration]) = duration(_).map { duration =>
-		val mean = duration.toMillis
-		val halfWidth = plusOrMinus.toMillis
-		val least = math.max(mean - halfWidth, 0L)
-		val bound = mean + halfWidth + 1
-		ThreadLocalRandom.current.nextLong(least, bound)
-	}
+  def generator(duration: Expression[Duration]) = duration(_).map { duration =>
+    val mean = duration.toMillis
+    val halfWidth = plusOrMinus.toMillis
+    val least = math.max(mean - halfWidth, 0L)
+    val bound = mean + halfWidth + 1
+    ThreadLocalRandom.current.nextLong(least, bound)
+  }
 }

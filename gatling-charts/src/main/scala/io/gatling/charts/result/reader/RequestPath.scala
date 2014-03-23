@@ -18,7 +18,7 @@ package io.gatling.charts.result.reader
 import io.gatling.core.result.Group
 
 object RequestPath {
-	val SEPARATOR = " / "
-	def path(group: Group) = group.hierarchy.mkString(SEPARATOR)
-	def path(requestName: String, group: Option[Group]): String = (group.map(_.hierarchy).getOrElse(Nil) ::: List(requestName)).mkString(SEPARATOR)
+  val SEPARATOR = " / "
+  def path(group: Group) = group.hierarchy.mkString(SEPARATOR)
+  def path(requestName: String, group: Option[Group]): String = (group.map(_.hierarchy).getOrElse(Nil) ::: List(requestName)).mkString(SEPARATOR)
 }

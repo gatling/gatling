@@ -24,20 +24,20 @@ import io.gatling.http.response.Response
 
 object HttpChecksumCheckBuilder {
 
-	def checksum(algorythm: String) = {
+  def checksum(algorythm: String) = {
 
-		val checksumCheckFactory = (wrapped: Check[Response]) => new ChecksumCheck(algorythm, wrapped)
-		val extractor = new Extractor[Response, String] {
-			val name = algorythm
-			def apply(prepared: Response) = prepared.checksum(algorythm).success
-		}.expression
+    val checksumCheckFactory = (wrapped: Check[Response]) => new ChecksumCheck(algorythm, wrapped)
+    val extractor = new Extractor[Response, String] {
+      val name = algorythm
+      def apply(prepared: Response) = prepared.checksum(algorythm).success
+    }.expression
 
-		new HttpSingleCheckBuilder[Response, String](
-			checksumCheckFactory,
-			HttpCheckBuilders.passThroughResponsePreparer,
-			extractor)
-	}
+    new HttpSingleCheckBuilder[Response, String](
+      checksumCheckFactory,
+      HttpCheckBuilders.passThroughResponsePreparer,
+      extractor)
+  }
 
-	val md5 = checksum("MD5")
-	val sha1 = checksum("SHA1")
+  val md5 = checksum("MD5")
+  val sha1 = checksum("SHA1")
 }

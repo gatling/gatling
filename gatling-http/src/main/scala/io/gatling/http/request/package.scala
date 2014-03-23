@@ -22,5 +22,5 @@ import io.gatling.core.session.Session
 import io.gatling.http.response.Response
 
 package object request {
-	type ExtraInfoExtractor = (String, Status, Session, Request, Response) => List[Any]
+  type ExtraInfoExtractor = (String, Status, Session, Request, Response) => List[Any]
 }

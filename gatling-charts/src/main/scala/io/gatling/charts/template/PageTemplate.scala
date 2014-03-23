@@ -28,37 +28,37 @@ import io.gatling.core.util.StringHelper.{ RichString, eol }
 
 object PageTemplate {
 
-	private var runMessage: RunMessage = _
-	private var runStart: Long = _
-	private var runEnd: Long = _
+  private var runMessage: RunMessage = _
+  private var runStart: Long = _
+  private var runEnd: Long = _
 
-	def setRunInfo(runMessage: RunMessage, runStart: Long, runEnd: Long) {
-		this.runMessage = runMessage
-		this.runStart = runStart
-		this.runEnd = runEnd
-	}
+  def setRunInfo(runMessage: RunMessage, runStart: Long, runEnd: Long) {
+    this.runMessage = runMessage
+    this.runStart = runStart
+    this.runEnd = runEnd
+  }
 }
 
 abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Option[String], group: Option[Group], components: Component*) {
 
-	def jsFiles: Seq[String] = (Seq(JQUERY_FILE, BOOTSTRAP_FILE, GATLING_JS_FILE, MENU_FILE, ALL_SESSIONS_FILE, STATS_JS_FILE) ++ components.flatMap(_.jsFiles)).distinct
+  def jsFiles: Seq[String] = (Seq(JQUERY_FILE, BOOTSTRAP_FILE, GATLING_JS_FILE, MENU_FILE, ALL_SESSIONS_FILE, STATS_JS_FILE) ++ components.flatMap(_.jsFiles)).distinct
 
-	def getOutput: Fastring = {
-		val runMessage = PageTemplate.runMessage
-		val runStart = PageTemplate.runStart
-		val runEnd = PageTemplate.runEnd
-		val duration = (runEnd - runStart) / 1000
+  def getOutput: Fastring = {
+    val runMessage = PageTemplate.runMessage
+    val runStart = PageTemplate.runStart
+    val runEnd = PageTemplate.runEnd
+    val duration = (runEnd - runStart) / 1000
 
-		val pageStats =
-			if (isDetails) {
-				val groupHierarchy = group.map(_.hierarchy).getOrElse(Nil)
-				val req = requestName.map(List(_)).getOrElse(Nil)
-				s"""var pageStats = stats.contents['${(groupHierarchy ::: req).map(_.toFileName).mkString("'].contents['")}'].stats;"""
-			} else {
-				"var pageStats = stats.stats;"
-			}
+    val pageStats =
+      if (isDetails) {
+        val groupHierarchy = group.map(_.hierarchy).getOrElse(Nil)
+        val req = requestName.map(List(_)).getOrElse(Nil)
+        s"""var pageStats = stats.contents['${(groupHierarchy ::: req).map(_.toFileName).mkString("'].contents['")}'].stats;"""
+      } else {
+        "var pageStats = stats.stats;"
+      }
 
-		fast"""
+    fast"""
 <!DOCTYPE html>
 <html>
 <head>
@@ -119,5 +119,5 @@ ${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"><
 </body>
 </html>
 """
-	}
+  }
 }

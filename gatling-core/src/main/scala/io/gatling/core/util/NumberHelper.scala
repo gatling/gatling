@@ -17,36 +17,36 @@ package io.gatling.core.util
 
 object NumberHelper {
 
-	def formatNumberWithSuffix(n: Int) = {
-		val suffix = n % 10 match {
-			case _ if (11 to 13) contains n % 100 => "th"
-			case 1 => "st"
-			case 2 => "nd"
-			case 3 => "rd"
-			case _ => "th"
-		}
+  def formatNumberWithSuffix(n: Int) = {
+    val suffix = n % 10 match {
+      case _ if (11 to 13) contains n % 100 => "th"
+      case 1                                => "st"
+      case 2                                => "nd"
+      case 3                                => "rd"
+      case _                                => "th"
+    }
 
-		n + suffix
-	}
+    n + suffix
+  }
 
-	def extractLongValue(s: String, start: Int): Long = {
-		assume(start >= 0 && start < s.length, s"Start=$start is not an acceptable starting index for the string=$s")
+  def extractLongValue(s: String, start: Int): Long = {
+    assume(start >= 0 && start < s.length, s"Start=$start is not an acceptable starting index for the string=$s")
 
-		var value = 0l
-		var k = start
-		var c = ' '
-		while (k < s.length && { c = s.charAt(k); c.isDigit }) {
-			value = value * 10l + c.getNumericValue
-			k += 1
-		}
-		value
-	}
+    var value = 0l
+    var k = start
+    var c = ' '
+    while (k < s.length && { c = s.charAt(k); c.isDigit }) {
+      value = value * 10l + c.getNumericValue
+      k += 1
+    }
+    value
+  }
 
-	object IntString {
-		def unapply(s: String): Option[Int] =
-			if (s.forall(char => char >= '0' && char <= '9'))
-				Some(s.toInt)
-			else
-				None
-	}
+  object IntString {
+    def unapply(s: String): Option[Int] =
+      if (s.forall(char => char >= '0' && char <= '9'))
+        Some(s.toInt)
+      else
+        None
+  }
 }

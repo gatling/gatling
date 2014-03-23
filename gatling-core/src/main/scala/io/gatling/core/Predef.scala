@@ -32,20 +32,20 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object Predef extends StructureSupport with PauseSupport with CheckSupport with FeederSupport with InjectionSupport with ThrottlingSupport with AssertionSupport {
 
-	type Session = io.gatling.core.session.Session
-	type Status = io.gatling.core.result.message.Status
-	type Simulation = io.gatling.core.scenario.Simulation
-	type Assertion = io.gatling.core.assertion.Assertion
+  type Session = io.gatling.core.session.Session
+  type Status = io.gatling.core.result.message.Status
+  type Simulation = io.gatling.core.scenario.Simulation
+  type Assertion = io.gatling.core.assertion.Assertion
 
-	implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
-	implicit def value2Success[T](value: T): Validation[T] = value.success
-	implicit def value2Expression[T](value: T): Expression[T] = value.expression
-	implicit def intToFiniteDuration(i: Int) = i seconds
+  implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
+  implicit def value2Success[T](value: T): Validation[T] = value.success
+  implicit def value2Expression[T](value: T): Expression[T] = value.expression
+  implicit def intToFiniteDuration(i: Int) = i seconds
 
-	def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
+  def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
 
-	def WhiteList(patterns: String*) = io.gatling.core.filter.WhiteList(patterns.toList)
-	def BlackList(patterns: String*) = io.gatling.core.filter.BlackList(patterns.toList)
+  def WhiteList(patterns: String*) = io.gatling.core.filter.WhiteList(patterns.toList)
+  def BlackList(patterns: String*) = io.gatling.core.filter.BlackList(patterns.toList)
 
-	implicit def string2path(string: String) = Path.string2path(string)
+  implicit def string2path(string: String) = Path.string2path(string)
 }

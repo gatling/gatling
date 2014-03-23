@@ -27,69 +27,69 @@ import io.gatling.core.result.message.Status
 
 class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
-	def generate() {
-		def generateDetailPage(path: String, requestName: String, group: Option[Group]) {
-			def responseTimeChartComponent: Component = {
-				val responseTimesSuccessData = dataReader.responseTimeGroupByExecutionStartDate(OK, requestName, group)
-				val responseTimesFailuresData = dataReader.responseTimeGroupByExecutionStartDate(KO, requestName, group)
-				val responseTimesSuccessSeries = new Series[IntRangeVsTimePlot]("Response Time (success)", responseTimesSuccessData, List(BLUE))
-				val responseTimesFailuresSeries = new Series[IntRangeVsTimePlot]("Response Time (failure)", responseTimesFailuresData, List(RED))
+  def generate() {
+      def generateDetailPage(path: String, requestName: String, group: Option[Group]) {
+          def responseTimeChartComponent: Component = {
+            val responseTimesSuccessData = dataReader.responseTimeGroupByExecutionStartDate(OK, requestName, group)
+            val responseTimesFailuresData = dataReader.responseTimeGroupByExecutionStartDate(KO, requestName, group)
+            val responseTimesSuccessSeries = new Series[IntRangeVsTimePlot]("Response Time (success)", responseTimesSuccessData, List(BLUE))
+            val responseTimesFailuresSeries = new Series[IntRangeVsTimePlot]("Response Time (failure)", responseTimesFailuresData, List(RED))
 
-				componentLibrary.getRequestDetailsResponseTimeChartComponent(dataReader.runStart, responseTimesSuccessSeries, responseTimesFailuresSeries)
-			}
+            componentLibrary.getRequestDetailsResponseTimeChartComponent(dataReader.runStart, responseTimesSuccessSeries, responseTimesFailuresSeries)
+          }
 
-			def responseTimeDistributionChartComponent: Component = {
-				val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, Some(requestName), group)
-				val okDistributionSeries = new Series[IntVsTimePlot]("Success", okDistribution, List(BLUE))
-				val koDistributionSeries = new Series[IntVsTimePlot]("Failure", koDistribution, List(RED))
+          def responseTimeDistributionChartComponent: Component = {
+            val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, Some(requestName), group)
+            val okDistributionSeries = new Series[IntVsTimePlot]("Success", okDistribution, List(BLUE))
+            val koDistributionSeries = new Series[IntVsTimePlot]("Failure", koDistribution, List(RED))
 
-				componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
-			}
+            componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
+          }
 
-			def latencyChartComponent: Component = {
-				val latencySuccessData = dataReader.latencyGroupByExecutionStartDate(OK, requestName, group)
-				val latencyFailuresData = dataReader.latencyGroupByExecutionStartDate(KO, requestName, group)
+          def latencyChartComponent: Component = {
+            val latencySuccessData = dataReader.latencyGroupByExecutionStartDate(OK, requestName, group)
+            val latencyFailuresData = dataReader.latencyGroupByExecutionStartDate(KO, requestName, group)
 
-				val latencySuccessSeries = new Series[IntRangeVsTimePlot]("Latency (success)", latencySuccessData, List(BLUE))
-				val latencyFailuresSeries = new Series[IntRangeVsTimePlot]("Latency (failure)", latencyFailuresData, List(RED))
+            val latencySuccessSeries = new Series[IntRangeVsTimePlot]("Latency (success)", latencySuccessData, List(BLUE))
+            val latencyFailuresSeries = new Series[IntRangeVsTimePlot]("Latency (failure)", latencyFailuresData, List(RED))
 
-				componentLibrary.getRequestDetailsLatencyChartComponent(dataReader.runStart, latencySuccessSeries, latencyFailuresSeries)
-			}
+            componentLibrary.getRequestDetailsLatencyChartComponent(dataReader.runStart, latencySuccessSeries, latencyFailuresSeries)
+          }
 
-			def scatterChartComponent(datasource: (Status, String, Option[Group]) => Seq[IntVsTimePlot],
-				componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component): Component = {
+          def scatterChartComponent(datasource: (Status, String, Option[Group]) => Seq[IntVsTimePlot],
+                                    componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component): Component = {
 
-				val scatterPlotSuccessData = datasource(OK, requestName, group)
-				val scatterPlotFailuresData = datasource(KO, requestName, group)
-				val scatterPlotSuccessSeries = new Series[IntVsTimePlot]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
-				val scatterPlotFailuresSeries = new Series[IntVsTimePlot]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
+            val scatterPlotSuccessData = datasource(OK, requestName, group)
+            val scatterPlotFailuresData = datasource(KO, requestName, group)
+            val scatterPlotSuccessSeries = new Series[IntVsTimePlot]("Successes", scatterPlotSuccessData, List(TRANSLUCID_BLUE))
+            val scatterPlotFailuresSeries = new Series[IntVsTimePlot]("Failures", scatterPlotFailuresData, List(TRANSLUCID_RED))
 
-				componentFactory(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
-			}
+            componentFactory(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
+          }
 
-			def responseTimeScatterChartComponent: Component =
-				scatterChartComponent(dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsResponseTimeScatterChartComponent)
+          def responseTimeScatterChartComponent: Component =
+            scatterChartComponent(dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsResponseTimeScatterChartComponent)
 
-			def latencyScatterChartComponent: Component =
-				scatterChartComponent(dataReader.latencyAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsLatencyScatterChartComponent)
+          def latencyScatterChartComponent: Component =
+            scatterChartComponent(dataReader.latencyAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsLatencyScatterChartComponent)
 
-			val template =
-				new RequestDetailsPageTemplate(path, requestName, group,
-					new StatisticsTextComponent,
-					componentLibrary.getRequestDetailsIndicatorChartComponent,
-					new ErrorTableComponent(dataReader.errors(Some(requestName), group)),
-					responseTimeChartComponent,
-					responseTimeDistributionChartComponent,
-					latencyChartComponent,
-					responseTimeScatterChartComponent,
-					latencyScatterChartComponent)
+        val template =
+          new RequestDetailsPageTemplate(path, requestName, group,
+            new StatisticsTextComponent,
+            componentLibrary.getRequestDetailsIndicatorChartComponent,
+            new ErrorTableComponent(dataReader.errors(Some(requestName), group)),
+            responseTimeChartComponent,
+            responseTimeDistributionChartComponent,
+            latencyChartComponent,
+            responseTimeScatterChartComponent,
+            latencyScatterChartComponent)
 
-			new TemplateWriter(requestFile(runOn, path)).writeToFile(template.getOutput)
-		}
+        new TemplateWriter(requestFile(runOn, path)).writeToFile(template.getOutput)
+      }
 
-		dataReader.statsPaths.foreach {
-			case RequestStatsPath(request, group) => generateDetailPage(RequestPath.path(request, group), request, group)
-			case _ =>
-		}
-	}
+    dataReader.statsPaths.foreach {
+      case RequestStatsPath(request, group) => generateDetailPage(RequestPath.path(request, group), request, group)
+      case _                                =>
+    }
+  }
 }

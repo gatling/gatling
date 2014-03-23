@@ -22,17 +22,17 @@ import io.gatling.core.util.TimeHelper.nowMillis
 
 object GroupEnd extends DataWriterClient {
 
-	def endGroup(session: Session, next: ActorRef) {
-		val stack = session.groupStack
-		writeGroupData(session, stack, stack.head.startDate, nowMillis, session.statusStack.head)
+  def endGroup(session: Session, next: ActorRef) {
+    val stack = session.groupStack
+    writeGroupData(session, stack, stack.head.startDate, nowMillis, session.statusStack.head)
 
-		next ! session.exitGroup
-	}
+    next ! session.exitGroup
+  }
 }
 
 class GroupEnd(val next: ActorRef) extends Chainable {
 
-	def execute(session: Session) {
-		GroupEnd.endGroup(session, next)
-	}
+  def execute(session: Session) {
+    GroupEnd.endGroup(session, next)
+  }
 }

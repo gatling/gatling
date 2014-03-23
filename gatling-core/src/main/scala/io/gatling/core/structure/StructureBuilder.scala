@@ -25,8 +25,8 @@ import io.gatling.core.config.Protocols
  */
 trait StructureBuilder[B <: StructureBuilder[B]] extends Execs[B] with Pauses[B] with Feeds[B] with Loops[B] with ConditionalStatements[B] with Errors[B] with Groups[B] {
 
-	private[core] def build(exitPoint: ActorRef, protocols: Protocols): ActorRef =
-		actionBuilders.foldLeft(exitPoint) { (actorRef, actionBuilder) =>
-			actionBuilder.build(actorRef, protocols)
-		}
+  private[core] def build(exitPoint: ActorRef, protocols: Protocols): ActorRef =
+    actionBuilders.foldLeft(exitPoint) { (actorRef, actionBuilder) =>
+      actionBuilder.build(actorRef, protocols)
+    }
 }

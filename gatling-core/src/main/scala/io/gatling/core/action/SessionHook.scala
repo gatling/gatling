@@ -27,10 +27,10 @@ import io.gatling.core.session.{ Expression, Session }
  */
 class SessionHook(sessionFunction: Expression[Session], val next: ActorRef) extends Chainable with Failable {
 
-	/**
-	 * Applies the function to the Session
-	 *
-	 * @param session the session of the virtual user
-	 */
-	def executeOrFail(session: Session) = sessionFunction(session).map(newSession => next ! newSession)
+  /**
+   * Applies the function to the Session
+   *
+   * @param session the session of the virtual user
+   */
+  def executeOrFail(session: Session) = sessionFunction(session).map(newSession => next ! newSession)
 }

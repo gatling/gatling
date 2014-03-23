@@ -26,19 +26,19 @@ import io.gatling.http.request.{ Body, BodyPart, ExtraInfoExtractor, HttpRequest
 import io.gatling.http.response.ResponseTransformer
 
 case class HttpAttributes(
-	checks: List[HttpCheck] = Nil,
-	ignoreDefaultChecks: Boolean = false,
-	silent: Boolean = false,
-	followRedirect: Boolean = true,
-	responseTransformer: Option[ResponseTransformer] = None,
-	explicitResources: Seq[AbstractHttpRequestBuilder[_]] = Nil,
-	body: Option[Body] = None,
-	bodyParts: List[BodyPart] = Nil,
-	extraInfoExtractor: Option[ExtraInfoExtractor] = None)
+  checks: List[HttpCheck] = Nil,
+  ignoreDefaultChecks: Boolean = false,
+  silent: Boolean = false,
+  followRedirect: Boolean = true,
+  responseTransformer: Option[ResponseTransformer] = None,
+  explicitResources: Seq[AbstractHttpRequestBuilder[_]] = Nil,
+  body: Option[Body] = None,
+  bodyParts: List[BodyPart] = Nil,
+  extraInfoExtractor: Option[ExtraInfoExtractor] = None)
 
 object AbstractHttpRequestBuilder {
 
-	implicit def toActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = new HttpRequestActionBuilder(requestBuilder)
+  implicit def toActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) = new HttpRequestActionBuilder(requestBuilder)
 }
 
 /**
@@ -47,91 +47,91 @@ object AbstractHttpRequestBuilder {
  * @param httpAttributes the base HTTP attributes
  */
 abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](commonAttributes: CommonAttributes, val httpAttributes: HttpAttributes)
-	extends RequestBuilder[B](commonAttributes) {
+    extends RequestBuilder[B](commonAttributes) {
 
-	/**
-	 * Method overridden in children to create a new instance of the correct type
-	 */
-	private[http] def newInstance(httpAttributes: HttpAttributes): B
+  /**
+   * Method overridden in children to create a new instance of the correct type
+   */
+  private[http] def newInstance(httpAttributes: HttpAttributes): B
 
-	/**
-	 * Stops defining the request and adds checks on the response
-	 *
-	 * @param checks the checks that will be performed on the response
-	 */
-	def check(checks: HttpCheck*): B = newInstance(httpAttributes.copy(checks = httpAttributes.checks ::: checks.toList))
+  /**
+   * Stops defining the request and adds checks on the response
+   *
+   * @param checks the checks that will be performed on the response
+   */
+  def check(checks: HttpCheck*): B = newInstance(httpAttributes.copy(checks = httpAttributes.checks ::: checks.toList))
 
-	/**
-	 * Ignore the default checks configured on HttpProtocol
-	 */
-	def ignoreDefaultChecks: B = newInstance(httpAttributes.copy(ignoreDefaultChecks = true))
+  /**
+   * Ignore the default checks configured on HttpProtocol
+   */
+  def ignoreDefaultChecks: B = newInstance(httpAttributes.copy(ignoreDefaultChecks = true))
 
-	def silent: B = newInstance(httpAttributes.copy(silent = true))
+  def silent: B = newInstance(httpAttributes.copy(silent = true))
 
-	def disableFollowRedirect: B = newInstance(httpAttributes.copy(followRedirect = false))
+  def disableFollowRedirect: B = newInstance(httpAttributes.copy(followRedirect = false))
 
-	def extraInfoExtractor(f: ExtraInfoExtractor): B = newInstance(httpAttributes.copy(extraInfoExtractor = Some(f)))
+  def extraInfoExtractor(f: ExtraInfoExtractor): B = newInstance(httpAttributes.copy(extraInfoExtractor = Some(f)))
 
-	/**
-	 * @param responseTransformer transforms the response before it's handled to the checks pipeline
-	 */
-	def transformResponse(responseTransformer: ResponseTransformer): B = newInstance(httpAttributes.copy(responseTransformer = Some(responseTransformer)))
+  /**
+   * @param responseTransformer transforms the response before it's handled to the checks pipeline
+   */
+  def transformResponse(responseTransformer: ResponseTransformer): B = newInstance(httpAttributes.copy(responseTransformer = Some(responseTransformer)))
 
-	def body(bd: Body): B = newInstance(httpAttributes.copy(body = Some(bd)))
+  def body(bd: Body): B = newInstance(httpAttributes.copy(body = Some(bd)))
 
-	def processRequestBody(processor: Body => Body): B = newInstance(httpAttributes.copy(body = httpAttributes.body.map(processor)))
+  def processRequestBody(processor: Body => Body): B = newInstance(httpAttributes.copy(body = httpAttributes.body.map(processor)))
 
-	def bodyPart(bodyPart: BodyPart): B = newInstance(httpAttributes.copy(bodyParts = bodyPart :: httpAttributes.bodyParts))
+  def bodyPart(bodyPart: BodyPart): B = newInstance(httpAttributes.copy(bodyParts = bodyPart :: httpAttributes.bodyParts))
 
-	def resources(res: AbstractHttpRequestBuilder[_]*): B = newInstance(httpAttributes.copy(explicitResources = res))
+  def resources(res: AbstractHttpRequestBuilder[_]*): B = newInstance(httpAttributes.copy(explicitResources = res))
 
-	def ahcRequest(protocol: HttpProtocol): Expression[Request]
+  def ahcRequest(protocol: HttpProtocol): Expression[Request]
 
-	/**
-	 * This method builds the request that will be sent
-	 *
-	 * @param protocol the protocol of the current scenario
-	 * @param throttled if throttling is enabled
-	 */
-	def build(protocol: HttpProtocol, throttled: Boolean): HttpRequest = {
+  /**
+   * This method builds the request that will be sent
+   *
+   * @param protocol the protocol of the current scenario
+   * @param throttled if throttling is enabled
+   */
+  def build(protocol: HttpProtocol, throttled: Boolean): HttpRequest = {
 
-		val checks =
-			if (httpAttributes.ignoreDefaultChecks)
-				httpAttributes.checks
-			else
-				protocol.responsePart.checks ::: httpAttributes.checks
+    val checks =
+      if (httpAttributes.ignoreDefaultChecks)
+        httpAttributes.checks
+      else
+        protocol.responsePart.checks ::: httpAttributes.checks
 
-		val resolvedChecks = (checks.find(_.order == Status) match {
-			case None => HttpRequestActionBuilder.defaultHttpCheck :: checks
-			case _ => checks
-		}).sorted
+    val resolvedChecks = (checks.find(_.order == Status) match {
+      case None => HttpRequestActionBuilder.defaultHttpCheck :: checks
+      case _    => checks
+    }).sorted
 
-		val resolvedFollowRedirect = protocol.responsePart.followRedirect && httpAttributes.followRedirect
+    val resolvedFollowRedirect = protocol.responsePart.followRedirect && httpAttributes.followRedirect
 
-		val resolvedResponseTransformer = httpAttributes.responseTransformer.orElse(protocol.responsePart.responseTransformer)
+    val resolvedResponseTransformer = httpAttributes.responseTransformer.orElse(protocol.responsePart.responseTransformer)
 
-		val resolvedResources = httpAttributes.explicitResources.filter(_.commonAttributes.method == "GET").map(_.build(protocol, throttled))
+    val resolvedResources = httpAttributes.explicitResources.filter(_.commonAttributes.method == "GET").map(_.build(protocol, throttled))
 
-		val resolvedExtraInfoExtractor = httpAttributes.extraInfoExtractor.orElse(protocol.responsePart.extraInfoExtractor)
+    val resolvedExtraInfoExtractor = httpAttributes.extraInfoExtractor.orElse(protocol.responsePart.extraInfoExtractor)
 
-		HttpRequest(
-			commonAttributes.requestName,
-			ahcRequest(protocol),
-			resolvedChecks,
-			resolvedResponseTransformer,
-			resolvedExtraInfoExtractor,
-			protocol.responsePart.maxRedirects,
-			throttled,
-			httpAttributes.silent,
-			resolvedFollowRedirect,
-			protocol,
-			resolvedResources)
-	}
+    HttpRequest(
+      commonAttributes.requestName,
+      ahcRequest(protocol),
+      resolvedChecks,
+      resolvedResponseTransformer,
+      resolvedExtraInfoExtractor,
+      protocol.responsePart.maxRedirects,
+      throttled,
+      httpAttributes.silent,
+      resolvedFollowRedirect,
+      protocol,
+      resolvedResources)
+  }
 }
 
 class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes) extends AbstractHttpRequestBuilder[HttpRequestBuilder](commonAttributes, httpAttributes) {
 
-	private[http] def newInstance(commonAttributes: CommonAttributes) = new HttpRequestBuilder(commonAttributes, httpAttributes)
-	private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestBuilder(commonAttributes, httpAttributes)
-	def ahcRequest(protocol: HttpProtocol) = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, protocol).build
+  private[http] def newInstance(commonAttributes: CommonAttributes) = new HttpRequestBuilder(commonAttributes, httpAttributes)
+  private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestBuilder(commonAttributes, httpAttributes)
+  def ahcRequest(protocol: HttpProtocol) = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, protocol).build
 }

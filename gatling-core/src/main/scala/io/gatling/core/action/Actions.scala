@@ -26,17 +26,17 @@ import io.gatling.core.validation.Validation
  */
 trait Action extends BaseActor {
 
-	def receive = {
-		case session: Session => execute(session)
-	}
+  def receive = {
+    case session: Session => execute(session)
+  }
 
-	/**
-	 * Core method executed when the Action received a Session message
-	 *
-	 * @param session the session of the virtual user
-	 * @return Nothing
-	 */
-	def execute(session: Session)
+  /**
+   * Core method executed when the Action received a Session message
+   *
+   * @param session the session of the virtual user
+   * @return Nothing
+   */
+  def execute(session: Session)
 }
 
 /**
@@ -46,35 +46,35 @@ trait Action extends BaseActor {
  */
 trait Chainable extends Action {
 
-	/**
-	 * @return the next Action in the scenario workflow
-	 */
-	def next: ActorRef
+  /**
+   * @return the next Action in the scenario workflow
+   */
+  def next: ActorRef
 
-	/**
-	 * Makes sure that in case of an actor crash, the Session is not lost but passed to the next Action.
-	 */
-	override def preRestart(reason: Throwable, message: Option[Any]) {
-		message.foreach {
-			case session: Session =>
-				logger.error(s"Action $this crashed on session $message, forwarding to the next one", reason)
-				next ! session.markAsFailed
-			case _ =>
-				logger.error(s"Action $this crashed on unknow message $message, dropping", reason)
-		}
-	}
+  /**
+   * Makes sure that in case of an actor crash, the Session is not lost but passed to the next Action.
+   */
+  override def preRestart(reason: Throwable, message: Option[Any]) {
+    message.foreach {
+      case session: Session =>
+        logger.error(s"Action $this crashed on session $message, forwarding to the next one", reason)
+        next ! session.markAsFailed
+      case _ =>
+        logger.error(s"Action $this crashed on unknow message $message, dropping", reason)
+    }
+  }
 }
 
 object Interruptable {
 
-	def interruptOrElse(continue: PartialFunction[Any, Unit]): PartialFunction[Any, Unit] = {
+  def interruptOrElse(continue: PartialFunction[Any, Unit]): PartialFunction[Any, Unit] = {
 
-		val maybeInterrupt: PartialFunction[Any, Unit] = {
-			case session: Session if (!session.interruptStack.isEmpty) => (session.interruptStack.reduceLeft(_ orElse _) orElse continue)(session)
-		}
+    val maybeInterrupt: PartialFunction[Any, Unit] = {
+      case session: Session if (!session.interruptStack.isEmpty) => (session.interruptStack.reduceLeft(_ orElse _) orElse continue)(session)
+    }
 
-		maybeInterrupt orElse continue
-	}
+    maybeInterrupt orElse continue
+  }
 }
 
 /**
@@ -83,9 +83,9 @@ object Interruptable {
  */
 trait Interruptable extends Chainable {
 
-	val interrupt = Interruptable.interruptOrElse(super.receive)
+  val interrupt = Interruptable.interruptOrElse(super.receive)
 
-	abstract override def receive = interrupt
+  abstract override def receive = interrupt
 }
 
 /**
@@ -93,12 +93,12 @@ trait Interruptable extends Chainable {
  */
 trait Failable { self: Chainable =>
 
-	def execute(session: Session) {
-		executeOrFail(session).onFailure { message =>
-			logger.error(message)
-			next ! session.markAsFailed
-		}
-	}
+  def execute(session: Session) {
+    executeOrFail(session).onFailure { message =>
+      logger.error(message)
+      next ! session.markAsFailed
+    }
+  }
 
-	def executeOrFail(session: Session): Validation[_]
+  def executeOrFail(session: Session): Validation[_]
 }

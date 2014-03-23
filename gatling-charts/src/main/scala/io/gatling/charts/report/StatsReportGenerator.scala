@@ -27,98 +27,98 @@ import io.gatling.core.result.reader.DataReader
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
 
-	def generate() {
+  def generate() {
 
-		def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
+      def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
 
-			val total = dataReader.requestGeneralStats(requestName, group, None)
-			val ok = dataReader.requestGeneralStats(requestName, group, Some(OK))
-			val ko = dataReader.requestGeneralStats(requestName, group, Some(KO))
+        val total = dataReader.requestGeneralStats(requestName, group, None)
+        val ok = dataReader.requestGeneralStats(requestName, group, Some(OK))
+        val ko = dataReader.requestGeneralStats(requestName, group, Some(KO))
 
-			val numberOfRequestsStatistics = Statistics("numberOfRequests", total.count, ok.count, ko.count)
-			val minResponseTimeStatistics = Statistics("minResponseTime", total.min, ok.min, ko.min)
-			val maxResponseTimeStatistics = Statistics("maxResponseTime", total.max, ok.max, ko.max)
-			val meanResponseTimeStatistics = Statistics("meanResponseTime", total.mean, ok.mean, ko.mean)
-			val stdDeviationStatistics = Statistics("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev)
-			val percentiles1 = Statistics("percentiles1", total.percentile1, ok.percentile1, ko.percentile1)
-			val percentiles2 = Statistics("percentiles2", total.percentile2, ok.percentile2, ko.percentile2)
-			val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
+        val numberOfRequestsStatistics = Statistics("numberOfRequests", total.count, ok.count, ko.count)
+        val minResponseTimeStatistics = Statistics("minResponseTime", total.min, ok.min, ko.min)
+        val maxResponseTimeStatistics = Statistics("maxResponseTime", total.max, ok.max, ko.max)
+        val meanResponseTimeStatistics = Statistics("meanResponseTime", total.mean, ok.mean, ko.mean)
+        val stdDeviationStatistics = Statistics("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev)
+        val percentiles1 = Statistics("percentiles1", total.percentile1, ok.percentile1, ko.percentile1)
+        val percentiles2 = Statistics("percentiles2", total.percentile2, ok.percentile2, ko.percentile2)
+        val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
-			val groupedCounts = dataReader
-				.numberOfRequestInResponseTimeRange(requestName, group).map {
-					case (name, count) => GroupedCount(name, count, math.round(count * 100.0f / total.count))
-				}
+        val groupedCounts = dataReader
+          .numberOfRequestInResponseTimeRange(requestName, group).map {
+            case (name, count) => GroupedCount(name, count, math.round(count * 100.0f / total.count))
+          }
 
-			val path = requestName match {
-				case Some(name) => RequestPath.path(name, group)
-				case None => group.map(RequestPath.path).getOrElse("")
-			}
+        val path = requestName match {
+          case Some(name) => RequestPath.path(name, group)
+          case None       => group.map(RequestPath.path).getOrElse("")
+        }
 
-			RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
-		}
+        RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
+      }
 
-		def computeGroupStats(name: String, group: Group): RequestStatistics = {
+      def computeGroupStats(name: String, group: Group): RequestStatistics = {
 
-			val total = dataReader.groupCumulatedResponseTimeGeneralStats(group, None)
-			val ok = dataReader.groupCumulatedResponseTimeGeneralStats(group, Some(OK))
-			val ko = dataReader.groupCumulatedResponseTimeGeneralStats(group, Some(KO))
+        val total = dataReader.groupCumulatedResponseTimeGeneralStats(group, None)
+        val ok = dataReader.groupCumulatedResponseTimeGeneralStats(group, Some(OK))
+        val ko = dataReader.groupCumulatedResponseTimeGeneralStats(group, Some(KO))
 
-			val numberOfRequestsStatistics = Statistics("numberOfRequests", total.count, ok.count, ko.count)
-			val minResponseTimeStatistics = Statistics("minResponseTime", total.min, ok.min, ko.min)
-			val maxResponseTimeStatistics = Statistics("maxResponseTime", total.max, ok.max, ko.max)
-			val meanResponseTimeStatistics = Statistics("meanResponseTime", total.mean, ok.mean, ko.mean)
-			val stdDeviationStatistics = Statistics("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev)
-			val percentiles1 = Statistics("percentiles1", total.percentile1, ok.percentile1, ko.percentile1)
-			val percentiles2 = Statistics("percentiles2", total.percentile2, ok.percentile2, ko.percentile2)
-			val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
+        val numberOfRequestsStatistics = Statistics("numberOfRequests", total.count, ok.count, ko.count)
+        val minResponseTimeStatistics = Statistics("minResponseTime", total.min, ok.min, ko.min)
+        val maxResponseTimeStatistics = Statistics("maxResponseTime", total.max, ok.max, ko.max)
+        val meanResponseTimeStatistics = Statistics("meanResponseTime", total.mean, ok.mean, ko.mean)
+        val stdDeviationStatistics = Statistics("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev)
+        val percentiles1 = Statistics("percentiles1", total.percentile1, ok.percentile1, ko.percentile1)
+        val percentiles2 = Statistics("percentiles2", total.percentile2, ok.percentile2, ko.percentile2)
+        val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
-			val groupedCounts = dataReader
-				.numberOfRequestInResponseTimeRange(None, Some(group)).map {
-					case (name, count) => GroupedCount(name, count, count * 100 / total.count)
-				}
+        val groupedCounts = dataReader
+          .numberOfRequestInResponseTimeRange(None, Some(group)).map {
+            case (name, count) => GroupedCount(name, count, count * 100 / total.count)
+          }
 
-			val path = RequestPath.path(group)
+        val path = RequestPath.path(group)
 
-			RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
-		}
+        RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
+      }
 
-		val rootContainer = GroupContainer.root(computeRequestStats(GLOBAL_PAGE_NAME, None, None))
+    val rootContainer = GroupContainer.root(computeRequestStats(GLOBAL_PAGE_NAME, None, None))
 
-		val statsPaths = dataReader.statsPaths
+    val statsPaths = dataReader.statsPaths
 
-		val groupStatsPaths = statsPaths.collect { case path: GroupStatsPath => path.group.hierarchy.reverse -> path }.toMap
-		val seenGroups = collection.mutable.HashSet.empty[List[String]]
+    val groupStatsPaths = statsPaths.collect { case path: GroupStatsPath => path.group.hierarchy.reverse -> path }.toMap
+    val seenGroups = collection.mutable.HashSet.empty[List[String]]
 
-		def addGroupsRec(hierarchy: List[String]) {
+      def addGroupsRec(hierarchy: List[String]) {
 
-			if (!seenGroups.contains(hierarchy)) {
-				seenGroups += hierarchy
+        if (!seenGroups.contains(hierarchy)) {
+          seenGroups += hierarchy
 
-				hierarchy match {
-					case head :: tail if !tail.isEmpty => addGroupsRec(tail)
-					case _ =>
-				}
+          hierarchy match {
+            case head :: tail if !tail.isEmpty => addGroupsRec(tail)
+            case _                             =>
+          }
 
-				val group = groupStatsPaths(hierarchy).group
-				val stats = computeGroupStats(group.name, group)
-				rootContainer.addGroup(group, stats)
+          val group = groupStatsPaths(hierarchy).group
+          val stats = computeGroupStats(group.name, group)
+          rootContainer.addGroup(group, stats)
 
-			}
-		}
+        }
+      }
 
-		val requestStatsPaths = statsPaths.collect { case path: RequestStatsPath => path }
-		requestStatsPaths.foreach {
-			case RequestStatsPath(request, group) =>
-				group.foreach { group =>
-					addGroupsRec(group.hierarchy.reverse)
-				}
-				val stats = computeRequestStats(request, Some(request), group)
-				rootContainer.addRequest(group, request, stats)
-		}
+    val requestStatsPaths = statsPaths.collect { case path: RequestStatsPath => path }
+    requestStatsPaths.foreach {
+      case RequestStatsPath(request, group) =>
+        group.foreach { group =>
+          addGroupsRec(group.hierarchy.reverse)
+        }
+        val stats = computeRequestStats(request, Some(request), group)
+        rootContainer.addRequest(group, request, stats)
+    }
 
-		new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(rootContainer).getOutput)
-		new TemplateWriter(jsonStatsFile(runOn)).writeToFile(new StatsJsonTemplate(rootContainer.stats, true).getOutput)
-		println(ConsoleTemplate(rootContainer.stats))
-	}
+    new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(rootContainer).getOutput)
+    new TemplateWriter(jsonStatsFile(runOn)).writeToFile(new StatsJsonTemplate(rootContainer.stats, true).getOutput)
+    println(ConsoleTemplate(rootContainer.stats))
+  }
 }
 

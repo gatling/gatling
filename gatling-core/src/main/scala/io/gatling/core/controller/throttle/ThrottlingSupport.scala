@@ -20,54 +20,54 @@ import scala.concurrent.duration.Duration
 
 trait ThrottleStep {
 
-	val durationInSec: Long
-	def target(previousLastValue: Int): Int
-	def rps(time: Long, previousLastValue: Int): Int
+  val durationInSec: Long
+  def target(previousLastValue: Int): Int
+  def rps(time: Long, previousLastValue: Int): Int
 }
 
 case class ReachIntermediate(target: Int, history: List[ThrottleStep]) {
-	def in(duration: Duration) = ThrottlingBuilder(Reach(target, duration) :: history)
+  def in(duration: Duration) = ThrottlingBuilder(Reach(target, duration) :: history)
 }
 
 case class Reach(target: Int, duration: Duration) extends ThrottleStep {
-	val durationInSec = duration.toSeconds
-	def target(previousLastValue: Int) = target
-	def rps(time: Long, previousLastValue: Int): Int = ((target - previousLastValue) * time / durationInSec + previousLastValue).toInt
+  val durationInSec = duration.toSeconds
+  def target(previousLastValue: Int) = target
+  def rps(time: Long, previousLastValue: Int): Int = ((target - previousLastValue) * time / durationInSec + previousLastValue).toInt
 }
 
 case class Hold(duration: Duration) extends ThrottleStep {
-	val durationInSec = duration.toSeconds
-	def target(previousLastValue: Int) = previousLastValue
-	def rps(time: Long, previousLastValue: Int) = previousLastValue
+  val durationInSec = duration.toSeconds
+  def target(previousLastValue: Int) = previousLastValue
+  def rps(time: Long, previousLastValue: Int) = previousLastValue
 }
 
 case class Jump(target: Int) extends ThrottleStep {
-	val durationInSec = 0L
-	def target(previousLastValue: Int) = target
-	def rps(time: Long, previousLastValue: Int) = 0
+  val durationInSec = 0L
+  def target(previousLastValue: Int) = target
+  def rps(time: Long, previousLastValue: Int) = 0
 }
 
 trait ThrottlingSupport {
-	def steps: List[ThrottleStep] = Nil
-	def reachRps(target: Int) = ReachIntermediate(target, steps)
-	def holdFor(duration: Duration) = ThrottlingBuilder(Hold(duration) :: steps)
-	def jumpToRps(target: Int) = ThrottlingBuilder(Jump(target) :: steps)
+  def steps: List[ThrottleStep] = Nil
+  def reachRps(target: Int) = ReachIntermediate(target, steps)
+  def holdFor(duration: Duration) = ThrottlingBuilder(Hold(duration) :: steps)
+  def jumpToRps(target: Int) = ThrottlingBuilder(Jump(target) :: steps)
 }
 
 case class ThrottlingBuilder(override val steps: List[ThrottleStep]) extends ThrottlingSupport {
 
-	def build: (Long => Int) = {
-		@tailrec
-		def valueAt(steps: List[ThrottleStep], pendingTime: Long, previousLastValue: Int): Int = steps match {
-			case Nil => Int.MaxValue
-			case head :: tail =>
-				if (pendingTime < head.durationInSec)
-					head.rps(pendingTime, previousLastValue)
-				else
-					valueAt(tail, pendingTime - head.durationInSec, head.target(previousLastValue))
-		}
+  def build: (Long => Int) = {
+      @tailrec
+      def valueAt(steps: List[ThrottleStep], pendingTime: Long, previousLastValue: Int): Int = steps match {
+        case Nil => Int.MaxValue
+        case head :: tail =>
+          if (pendingTime < head.durationInSec)
+            head.rps(pendingTime, previousLastValue)
+          else
+            valueAt(tail, pendingTime - head.durationInSec, head.target(previousLastValue))
+      }
 
-		val reversedSteps = steps.reverse
-		(now: Long) => valueAt(reversedSteps, now, 0)
-	}
+    val reversedSteps = steps.reverse
+    (now: Long) => valueAt(reversedSteps, now, 0)
+  }
 }

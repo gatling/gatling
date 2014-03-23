@@ -16,5 +16,5 @@
 package io.gatling.core.result
 
 case class Group(hierarchy: List[String]) {
-	val name = hierarchy.last
+  val name = hierarchy.last
 }

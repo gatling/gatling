@@ -22,9 +22,9 @@ import io.gatling.core.config.{ Credentials, Protocol }
  * @author jasonk@bluedevel.com
  */
 case class JmsProtocol(
-	contextFactory: String,
-	connectionFactoryName: String,
-	url: String,
-	credentials: Option[Credentials],
-	listenerCount: Int,
-	deliveryMode: Int) extends Protocol
+  contextFactory: String,
+  connectionFactoryName: String,
+  url: String,
+  credentials: Option[Credentials],
+  listenerCount: Int,
+  deliveryMode: Int) extends Protocol

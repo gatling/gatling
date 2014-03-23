@@ -29,15 +29,15 @@ import io.gatling.core.structure.ChainBuilder
  */
 class WhileBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean) extends ActionBuilder {
 
-	def build(next: ActorRef, protocols: Protocols) = {
-		val whileActor = actor(new While(condition, counterName, exitASAP, next))
-		val loopNextActor = loopNext.build(whileActor, protocols)
-		whileActor ! loopNextActor
-		whileActor
-	}
+  def build(next: ActorRef, protocols: Protocols) = {
+    val whileActor = actor(new While(condition, counterName, exitASAP, next))
+    val loopNextActor = loopNext.build(whileActor, protocols)
+    whileActor ! loopNextActor
+    whileActor
+  }
 
-	override def registerDefaultProtocols(protocols: Protocols) =
-		loopNext.actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
-			actionBuilder.registerDefaultProtocols(protocols)
-		}
+  override def registerDefaultProtocols(protocols: Protocols) =
+    loopNext.actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
+      actionBuilder.registerDefaultProtocols(protocols)
+    }
 }

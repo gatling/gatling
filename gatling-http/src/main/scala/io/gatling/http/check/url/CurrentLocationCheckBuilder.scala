@@ -23,13 +23,13 @@ import io.gatling.http.response.Response
 
 object CurrentLocationCheckBuilder {
 
-	val currentLocationExtractor = new Extractor[Response, String] {
-		val name = "currentLocation"
-		def apply(prepared: Response) = Some(prepared.request.getUrl).success
-	}
+  val currentLocationExtractor = new Extractor[Response, String] {
+    val name = "currentLocation"
+    def apply(prepared: Response) = Some(prepared.request.getUrl).success
+  }
 
-	val currentLocation = new HttpSingleCheckBuilder[Response, String](
-		HttpCheckBuilders.urlCheckFactory,
-		HttpCheckBuilders.passThroughResponsePreparer,
-		currentLocationExtractor.expression)
+  val currentLocation = new HttpSingleCheckBuilder[Response, String](
+    HttpCheckBuilders.urlCheckFactory,
+    HttpCheckBuilders.passThroughResponsePreparer,
+    currentLocationExtractor.expression)
 }

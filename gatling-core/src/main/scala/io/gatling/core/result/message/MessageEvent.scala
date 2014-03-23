@@ -16,11 +16,11 @@
 package io.gatling.core.result.message
 
 object MessageEvent {
-	def apply(name: String) = if (name == Start.name) Start else End
+  def apply(name: String) = if (name == Start.name) Start else End
 }
 
 sealed trait MessageEvent {
-	def name: String
+  def name: String
 }
 case object Start extends MessageEvent { val name = "START" }
 case object End extends MessageEvent { val name = "END" }

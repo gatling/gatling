@@ -22,9 +22,9 @@ import io.gatling.http.config.HttpProtocol
 
 class SendWebSocketBinaryMessageAction(val requestName: Expression[String], wsName: String, message: Expression[Array[Byte]], val next: ActorRef, protocol: HttpProtocol) extends RequestAction {
 
-	def sendRequest(requestName: String, session: Session) =
-		for {
-			wsActor <- session(wsName).validate[ActorRef]
-			resolvedMessage <- message(session)
-		} yield wsActor ! SendBinaryMessage(requestName, resolvedMessage, next, session)
+  def sendRequest(requestName: String, session: Session) =
+    for {
+      wsActor <- session(wsName).validate[ActorRef]
+      resolvedMessage <- message(session)
+    } yield wsActor ! SendBinaryMessage(requestName, resolvedMessage, next, session)
 }

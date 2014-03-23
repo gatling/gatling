@@ -30,46 +30,46 @@ import io.gatling.core.validation.{ Failure, Success }
  */
 class While(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, next: ActorRef) extends Actor {
 
-	var innerWhile: ActorRef = _
+  var innerWhile: ActorRef = _
 
-	val uninitialized: Receive = {
-		case loopNext: ActorRef =>
-			innerWhile = actor(new InnerWhile(continueCondition, loopNext, counterName, exitASAP, next))
-			context.become(initialized)
-	}
+  val uninitialized: Receive = {
+    case loopNext: ActorRef =>
+      innerWhile = actor(new InnerWhile(continueCondition, loopNext, counterName, exitASAP, next))
+      context.become(initialized)
+  }
 
-	val initialized: Receive = Interruptable.interruptOrElse({ case m => innerWhile forward m })
+  val initialized: Receive = Interruptable.interruptOrElse({ case m => innerWhile forward m })
 
-	override def receive = uninitialized
+  override def receive = uninitialized
 }
 
 class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, counterName: String, exitASAP: Boolean, val next: ActorRef) extends Chainable {
 
-	val whileInterrupt: PartialFunction[Session, Unit] = {
+  val whileInterrupt: PartialFunction[Session, Unit] = {
 
-		def continue(session: Session) = continueCondition(session) match {
-			case Success(c) => c
-			case Failure(message) => logger.error(s"Could not evaluate condition: $message, exiting loop"); false
-		}
+      def continue(session: Session) = continueCondition(session) match {
+        case Success(c)       => c
+        case Failure(message) => logger.error(s"Could not evaluate condition: $message, exiting loop"); false
+      }
 
-		{
-			case session if !continue(session) =>
-				val nextSession = (if (exitASAP) session.exitInterruptable else session).exitLoop
-				next ! nextSession
-		}
-	}
+    {
+      case session if !continue(session) =>
+        val nextSession = (if (exitASAP) session.exitInterruptable else session).exitLoop
+        next ! nextSession
+    }
+  }
 
-	/**
-	 * Evaluates the condition and if true executes the first action of loopNext
-	 * else it executes next
-	 *
-	 * @param session the session of the virtual user
-	 */
-	def execute(session: Session) {
+  /**
+   * Evaluates the condition and if true executes the first action of loopNext
+   * else it executes next
+   *
+   * @param session the session of the virtual user
+   */
+  def execute(session: Session) {
 
-		val initializedSession = if (!session.contains(counterName) && exitASAP) session.enterInterruptable(whileInterrupt) else session
-		val incrementedSession = initializedSession.incrementLoop(counterName)
+    val initializedSession = if (!session.contains(counterName) && exitASAP) session.enterInterruptable(whileInterrupt) else session
+    val incrementedSession = initializedSession.incrementLoop(counterName)
 
-		whileInterrupt.applyOrElse(incrementedSession, (s: Session) => loopNext ! s)
-	}
+    whileInterrupt.applyOrElse(incrementedSession, (s: Session) => loopNext ! s)
+  }
 }

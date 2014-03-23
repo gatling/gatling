@@ -41,191 +41,191 @@ import io.gatling.http.response.ResponseBuilderFactory
 import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
 
 case class HttpTx(session: Session,
-	request: Request,
-	requestName: String,
-	checks: List[HttpCheck],
-	responseBuilderFactory: ResponseBuilderFactory,
-	protocol: HttpProtocol,
-	next: ActorRef,
-	followRedirect: Boolean,
-	maxRedirects: Option[Int],
-	throttled: Boolean,
-	silent: Boolean,
-	explicitResources: Seq[HttpRequest],
-	extraInfoExtractor: Option[ExtraInfoExtractor],
-	resourceFetching: Boolean = false,
-	redirectCount: Int = 0)
+                  request: Request,
+                  requestName: String,
+                  checks: List[HttpCheck],
+                  responseBuilderFactory: ResponseBuilderFactory,
+                  protocol: HttpProtocol,
+                  next: ActorRef,
+                  followRedirect: Boolean,
+                  maxRedirects: Option[Int],
+                  throttled: Boolean,
+                  silent: Boolean,
+                  explicitResources: Seq[HttpRequest],
+                  extraInfoExtractor: Option[ExtraInfoExtractor],
+                  resourceFetching: Boolean = false,
+                  redirectCount: Int = 0)
 
 case class WebSocketTx(session: Session,
-	request: Request,
-	requestName: String,
-	protocol: HttpProtocol,
-	next: ActorRef,
-	reconnectCount: Int = 0)
+                       request: Request,
+                       requestName: String,
+                       protocol: HttpProtocol,
+                       next: ActorRef,
+                       reconnectCount: Int = 0)
 
 object HttpEngine extends AkkaDefaults with StrictLogging {
 
-	private var _instance: Option[HttpEngine] = None
+  private var _instance: Option[HttpEngine] = None
 
-	def start() {
-		if (!_instance.isDefined) {
-			val client = new HttpEngine
-			_instance = Some(client)
-			system.registerOnTermination(_instance = None)
-		}
-	}
+  def start() {
+    if (!_instance.isDefined) {
+      val client = new HttpEngine
+      _instance = Some(client)
+      system.registerOnTermination(_instance = None)
+    }
+  }
 
-	def instance: HttpEngine = _instance match {
-		case Some(engine) => engine
-		case _ => throw new UnsupportedOperationException("HTTP engine hasn't been started")
-	}
+  def instance: HttpEngine = _instance match {
+    case Some(engine) => engine
+    case _            => throw new UnsupportedOperationException("HTTP engine hasn't been started")
+  }
 }
 
 class HttpEngine extends AkkaDefaults with StrictLogging {
 
-	val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
-		override def newThread(r: Runnable) = {
-			val t = new Thread(r, "Netty Thread")
-			t.setDaemon(true)
-			t
-		}
-	})
+  val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
+    override def newThread(r: Runnable) = {
+      val t = new Thread(r, "Netty Thread")
+      t.setDaemon(true)
+      t
+    }
+  })
 
-	val hashedWheelTimer = new HashedWheelTimer
-	hashedWheelTimer.start()
+  val hashedWheelTimer = new HashedWheelTimer
+  hashedWheelTimer.start()
 
-	// set up Netty LoggerFactory for slf4j instead of default JDK
-	InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
+  // set up Netty LoggerFactory for slf4j instead of default JDK
+  InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
 
-	val connectionsPool = new NettyConnectionsPool(configuration.http.ahc.maximumConnectionsTotal,
-		configuration.http.ahc.maximumConnectionsPerHost,
-		configuration.http.ahc.idleConnectionInPoolTimeOutInMs,
-		configuration.http.ahc.maxConnectionLifeTimeInMs,
-		configuration.http.ahc.allowSslConnectionPool,
-		hashedWheelTimer)
+  val connectionsPool = new NettyConnectionsPool(configuration.http.ahc.maximumConnectionsTotal,
+    configuration.http.ahc.maximumConnectionsPerHost,
+    configuration.http.ahc.idleConnectionInPoolTimeOutInMs,
+    configuration.http.ahc.maxConnectionLifeTimeInMs,
+    configuration.http.ahc.allowSslConnectionPool,
+    hashedWheelTimer)
 
-	val nettyConfig = {
-		val numWorkers = configuration.http.ahc.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
-		val socketChannelFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool, applicationThreadPool, numWorkers)
-		system.registerOnTermination(socketChannelFactory.releaseExternalResources())
-		val nettyConfig = new NettyAsyncHttpProviderConfig
-		nettyConfig.addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
-		nettyConfig.setHashedWheelTimer(hashedWheelTimer)
-		nettyConfig
-	}
+  val nettyConfig = {
+    val numWorkers = configuration.http.ahc.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
+    val socketChannelFactory = new NioClientSocketChannelFactory(Executors.newCachedThreadPool, applicationThreadPool, numWorkers)
+    system.registerOnTermination(socketChannelFactory.releaseExternalResources())
+    val nettyConfig = new NettyAsyncHttpProviderConfig
+    nettyConfig.addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
+    nettyConfig.setHashedWheelTimer(hashedWheelTimer)
+    nettyConfig
+  }
 
-	val defaultAhcConfig = {
-		val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
-			.setAllowPoolingConnection(configuration.http.ahc.allowPoolingConnection)
-			.setAllowSslConnectionPool(configuration.http.ahc.allowSslConnectionPool)
-			.setCompressionEnabled(configuration.http.ahc.compressionEnabled)
-			.setConnectionTimeoutInMs(configuration.http.ahc.connectionTimeOut)
-			.setIdleConnectionInPoolTimeoutInMs(configuration.http.ahc.idleConnectionInPoolTimeOutInMs)
-			.setIdleConnectionTimeoutInMs(configuration.http.ahc.idleConnectionTimeOutInMs)
-			.setIOThreadMultiplier(configuration.http.ahc.ioThreadMultiplier)
-			.setMaximumConnectionsPerHost(configuration.http.ahc.maximumConnectionsPerHost)
-			.setMaximumConnectionsTotal(configuration.http.ahc.maximumConnectionsTotal)
-			.setMaxRequestRetry(configuration.http.ahc.maxRetry)
-			.setRequestTimeoutInMs(configuration.http.ahc.requestTimeOutInMs)
-			.setUseProxyProperties(configuration.http.ahc.useProxyProperties)
-			.setUserAgent("Gatling/2.0")
-			.setUseRawUrl(configuration.http.ahc.useRawUrl)
-			.setExecutorService(applicationThreadPool)
-			.setAsyncHttpClientProviderConfig(nettyConfig)
-			.setConnectionsPool(connectionsPool)
-			.setWebSocketIdleTimeoutInMs(configuration.http.ahc.webSocketIdleTimeoutInMs)
-			.setUseRelativeURIsWithSSLProxies(configuration.http.ahc.useRelativeURIsWithSSLProxies)
-			.setTimeConverter(JodaTimeConverter)
+  val defaultAhcConfig = {
+    val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
+      .setAllowPoolingConnection(configuration.http.ahc.allowPoolingConnection)
+      .setAllowSslConnectionPool(configuration.http.ahc.allowSslConnectionPool)
+      .setCompressionEnabled(configuration.http.ahc.compressionEnabled)
+      .setConnectionTimeoutInMs(configuration.http.ahc.connectionTimeOut)
+      .setIdleConnectionInPoolTimeoutInMs(configuration.http.ahc.idleConnectionInPoolTimeOutInMs)
+      .setIdleConnectionTimeoutInMs(configuration.http.ahc.idleConnectionTimeOutInMs)
+      .setIOThreadMultiplier(configuration.http.ahc.ioThreadMultiplier)
+      .setMaximumConnectionsPerHost(configuration.http.ahc.maximumConnectionsPerHost)
+      .setMaximumConnectionsTotal(configuration.http.ahc.maximumConnectionsTotal)
+      .setMaxRequestRetry(configuration.http.ahc.maxRetry)
+      .setRequestTimeoutInMs(configuration.http.ahc.requestTimeOutInMs)
+      .setUseProxyProperties(configuration.http.ahc.useProxyProperties)
+      .setUserAgent("Gatling/2.0")
+      .setUseRawUrl(configuration.http.ahc.useRawUrl)
+      .setExecutorService(applicationThreadPool)
+      .setAsyncHttpClientProviderConfig(nettyConfig)
+      .setConnectionsPool(connectionsPool)
+      .setWebSocketIdleTimeoutInMs(configuration.http.ahc.webSocketIdleTimeoutInMs)
+      .setUseRelativeURIsWithSSLProxies(configuration.http.ahc.useRelativeURIsWithSSLProxies)
+      .setTimeConverter(JodaTimeConverter)
 
-		val trustManagers = configuration.http.ssl.trustStore
-			.map(config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm))
+    val trustManagers = configuration.http.ssl.trustStore
+      .map(config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm))
 
-		val keyManagers = configuration.http.ssl.keyStore
-			.map(config => newKeyManagers(config.storeType, config.file, config.password, config.algorithm))
+    val keyManagers = configuration.http.ssl.keyStore
+      .map(config => newKeyManagers(config.storeType, config.file, config.password, config.algorithm))
 
-		if (trustManagers.isDefined || keyManagers.isDefined)
-			ahcConfigBuilder.setSSLContext(trustManagers, keyManagers)
+    if (trustManagers.isDefined || keyManagers.isDefined)
+      ahcConfigBuilder.setSSLContext(trustManagers, keyManagers)
 
-		ahcConfigBuilder.build
-	}
+    ahcConfigBuilder.build
+  }
 
-	def newAHC(session: Session): AsyncHttpClient = newAHC(Some(session))
+  def newAHC(session: Session): AsyncHttpClient = newAHC(Some(session))
 
-	def newAHC(session: Option[Session]) = {
-		val ahcConfig = session.flatMap { session =>
+  def newAHC(session: Option[Session]) = {
+    val ahcConfig = session.flatMap { session =>
 
-			val trustManagers = for {
-				file <- session(CONF_HTTP_SSL_TRUST_STORE_FILE).asOption[String]
-				password <- session(CONF_HTTP_SSL_TRUST_STORE_PASSWORD).asOption[String]
-				storeType = session(CONF_HTTP_SSL_TRUST_STORE_TYPE).asOption[String]
-				algorithm = session(CONF_HTTP_SSL_TRUST_STORE_ALGORITHM).asOption[String]
-			} yield newTrustManagers(storeType, file, password, algorithm)
+      val trustManagers = for {
+        file <- session(CONF_HTTP_SSL_TRUST_STORE_FILE).asOption[String]
+        password <- session(CONF_HTTP_SSL_TRUST_STORE_PASSWORD).asOption[String]
+        storeType = session(CONF_HTTP_SSL_TRUST_STORE_TYPE).asOption[String]
+        algorithm = session(CONF_HTTP_SSL_TRUST_STORE_ALGORITHM).asOption[String]
+      } yield newTrustManagers(storeType, file, password, algorithm)
 
-			val keyManagers = for {
-				file <- session(CONF_HTTP_SSL_KEY_STORE_FILE).asOption[String]
-				password <- session(CONF_HTTP_SSL_KEY_STORE_PASSWORD).asOption[String]
-				storeType = session(CONF_HTTP_SSL_KEY_STORE_TYPE).asOption[String]
-				algorithm = session(CONF_HTTP_SSL_KEY_STORE_ALGORITHM).asOption[String]
-			} yield newKeyManagers(storeType, file, password, algorithm)
+      val keyManagers = for {
+        file <- session(CONF_HTTP_SSL_KEY_STORE_FILE).asOption[String]
+        password <- session(CONF_HTTP_SSL_KEY_STORE_PASSWORD).asOption[String]
+        storeType = session(CONF_HTTP_SSL_KEY_STORE_TYPE).asOption[String]
+        algorithm = session(CONF_HTTP_SSL_KEY_STORE_ALGORITHM).asOption[String]
+      } yield newKeyManagers(storeType, file, password, algorithm)
 
-			trustManagers.orElse(keyManagers).map { _ =>
-				logger.info(s"Setting a custom SSLContext for user ${session.userId}")
-				new AsyncHttpClientConfig.Builder(defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build
-			}
+      trustManagers.orElse(keyManagers).map { _ =>
+        logger.info(s"Setting a custom SSLContext for user ${session.userId}")
+        new AsyncHttpClientConfig.Builder(defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build
+      }
 
-		}.getOrElse(defaultAhcConfig)
+    }.getOrElse(defaultAhcConfig)
 
-		val client = new AsyncHttpClient(ahcConfig)
-		system.registerOnTermination(client.close())
-		system.registerOnTermination(hashedWheelTimer.stop)
-		client
-	}
+    val client = new AsyncHttpClient(ahcConfig)
+    system.registerOnTermination(client.close())
+    system.registerOnTermination(hashedWheelTimer.stop)
+    client
+  }
 
-	lazy val defaultAHC = newAHC(None)
+  lazy val defaultAHC = newAHC(None)
 
-	val ahcAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.ahc"
+  val ahcAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.ahc"
 
-	def httpClient(session: Session, protocol: HttpProtocol): (Session, AsyncHttpClient) = {
-		if (protocol.enginePart.shareClient)
-			(session, defaultAHC)
-		else
-			session(ahcAttributeName).asOption[AsyncHttpClient] match {
-				case Some(client) => (session, client)
-				case _ =>
-					val httpClient = newAHC(session)
-					(session.set(ahcAttributeName, httpClient), httpClient)
-			}
-	}
+  def httpClient(session: Session, protocol: HttpProtocol): (Session, AsyncHttpClient) = {
+    if (protocol.enginePart.shareClient)
+      (session, defaultAHC)
+    else
+      session(ahcAttributeName).asOption[AsyncHttpClient] match {
+        case Some(client) => (session, client)
+        case _ =>
+          val httpClient = newAHC(session)
+          (session.set(ahcAttributeName, httpClient), httpClient)
+      }
+  }
 
-	def startHttpTransaction(tx: HttpTx) {
+  def startHttpTransaction(tx: HttpTx) {
 
-		val (newTx, client) = {
-			val (newSession, client) = httpClient(tx.session, tx.protocol)
-			(tx.copy(session = newSession), client)
-		}
+    val (newTx, client) = {
+      val (newSession, client) = httpClient(tx.session, tx.protocol)
+      (tx.copy(session = newSession), client)
+    }
 
-		if (tx.throttled)
-			Controller ! ThrottledRequest(tx.session.scenarioName, () => client.executeRequest(newTx.request, new AsyncHandler(newTx)))
-		else
-			client.executeRequest(newTx.request, new AsyncHandler(newTx))
-	}
+    if (tx.throttled)
+      Controller ! ThrottledRequest(tx.session.scenarioName, () => client.executeRequest(newTx.request, new AsyncHandler(newTx)))
+    else
+      client.executeRequest(newTx.request, new AsyncHandler(newTx))
+  }
 
-	def startWebSocketTransaction(tx: WebSocketTx, wsActor: ActorRef) {
-		val (newTx, client) = {
-			val (newSession, client) = httpClient(tx.session, tx.protocol)
-			(tx.copy(session = newSession), client)
-		}
+  def startWebSocketTransaction(tx: WebSocketTx, wsActor: ActorRef) {
+    val (newTx, client) = {
+      val (newSession, client) = httpClient(tx.session, tx.protocol)
+      (tx.copy(session = newSession), client)
+    }
 
-		val now = nowMillis
-		try {
-			val listener = new WebSocketListener(newTx, wsActor, now)
+    val now = nowMillis
+    try {
+      val listener = new WebSocketListener(newTx, wsActor, now)
 
-			val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
-			client.executeRequest(newTx.request, handler)
+      val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
+      client.executeRequest(newTx.request, handler)
 
-		} catch {
-			case e: Exception =>
-				wsActor ! OnFailedOpen(newTx, e.getMessage, now, nowMillis)
-		}
-	}
+    } catch {
+      case e: Exception =>
+        wsActor ! OnFailedOpen(newTx, e.getMessage, now, nowMillis)
+    }
+  }
 }

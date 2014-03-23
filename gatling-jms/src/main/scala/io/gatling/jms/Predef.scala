@@ -25,22 +25,22 @@ import io.gatling.core.action.builder.ActionBuilder
  */
 object Predef {
 
-	val jms = JmsProtocolBuilderBase
+  val jms = JmsProtocolBuilderBase
 
-	/**
-	 * DSL text to start the jms builder
-	 *
-	 * @param requestName human readable name of request
-	 * @return a PingBuilder instance which can be used to build up a ping
-	 */
-	def jms(requestName: String) = JmsRequestBuilderBase(requestName)
+  /**
+   * DSL text to start the jms builder
+   *
+   * @param requestName human readable name of request
+   * @return a PingBuilder instance which can be used to build up a ping
+   */
+  def jms(requestName: String) = JmsRequestBuilderBase(requestName)
 
-	/**
-	 * Convert a JmsProtocolBuilder to a JmsProtocol
-	 * <p>
-	 * Simplifies the API somewhat (you can pass the builder reference to the scenario .protocolConfig() method)
-	 */
-	implicit def jmsProtocolBuilder2jmsProtocol(builder: JmsProtocolBuilder): JmsProtocol = builder.build
+  /**
+   * Convert a JmsProtocolBuilder to a JmsProtocol
+   * <p>
+   * Simplifies the API somewhat (you can pass the builder reference to the scenario .protocolConfig() method)
+   */
+  implicit def jmsProtocolBuilder2jmsProtocol(builder: JmsProtocolBuilder): JmsProtocol = builder.build
 
-	implicit def jmsRequestBuilder2ActionBuilder(builder: JmsRequestBuilder): ActionBuilder = builder.build()
+  implicit def jmsRequestBuilder2ActionBuilder(builder: JmsRequestBuilder): ActionBuilder = builder.build()
 }

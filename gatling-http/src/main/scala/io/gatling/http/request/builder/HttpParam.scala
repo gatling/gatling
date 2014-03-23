@@ -19,7 +19,7 @@ import io.gatling.core.session.Expression
 import io.gatling.core.validation.SuccessWrapper
 
 object HttpParam {
-	val emptyParamListSuccess = List.empty[(String, String)].success
+  val emptyParamListSuccess = List.empty[(String, String)].success
 }
 
 sealed trait HttpParam

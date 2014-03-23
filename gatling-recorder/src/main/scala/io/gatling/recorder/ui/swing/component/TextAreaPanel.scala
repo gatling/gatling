@@ -20,11 +20,11 @@ import scala.swing.BorderPanel.Position._
 
 class TextAreaPanel(title: String, initialSize: Dimension) extends BorderPanel {
 
-	preferredSize = initialSize
+  preferredSize = initialSize
 
-	val textArea = new TextArea { editable = false }
-	private val titleLabel = new Label(title) { horizontalAlignment = Alignment.Center }
+  val textArea = new TextArea { editable = false }
+  private val titleLabel = new Label(title) { horizontalAlignment = Alignment.Center }
 
-	layout(titleLabel) = North
-	layout(textArea) = Center
+  layout(titleLabel) = North
+  layout(textArea) = Center
 }

@@ -23,37 +23,37 @@ import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 
 trait AssertionSupport {
 
-	val global = new Selector((reader, status) => reader.requestGeneralStats(None, None, status), "Global")
+  val global = new Selector((reader, status) => reader.requestGeneralStats(None, None, status), "Global")
 
-	def details(selector: Path) = {
+  def details(selector: Path) = {
 
-		def findMatchingStatsPath(reader: DataReader, selector: Path): Option[StatsPath] =
-			if (selector.segments.isEmpty)
-				None
-			else {
-				val selectedPath: List[String] = selector.segments
-				val foundPath = reader.statsPaths.find { statsPath =>
-					val path: List[String] = statsPath match {
-						case RequestStatsPath(request, group) =>
-							group match {
-								case Some(g) => g.hierarchy ::: List(request)
-								case _ => List(request)
-							}
-						case GroupStatsPath(group) => group.hierarchy
-					}
-					path == selectedPath
-				}
-				assert(foundPath.isDefined, s"Could not find stats matching selector $selector")
-				foundPath
-			}
+      def findMatchingStatsPath(reader: DataReader, selector: Path): Option[StatsPath] =
+        if (selector.segments.isEmpty)
+          None
+        else {
+          val selectedPath: List[String] = selector.segments
+          val foundPath = reader.statsPaths.find { statsPath =>
+            val path: List[String] = statsPath match {
+              case RequestStatsPath(request, group) =>
+                group match {
+                  case Some(g) => g.hierarchy ::: List(request)
+                  case _       => List(request)
+                }
+              case GroupStatsPath(group) => group.hierarchy
+            }
+            path == selectedPath
+          }
+          assert(foundPath.isDefined, s"Could not find stats matching selector $selector")
+          foundPath
+        }
 
-		def generalStats(reader: DataReader, status: Option[Status]): GeneralStats = findMatchingStatsPath(reader, selector) match {
+      def generalStats(reader: DataReader, status: Option[Status]): GeneralStats = findMatchingStatsPath(reader, selector) match {
 
-			case Some(RequestStatsPath(request, group)) => reader.requestGeneralStats(Some(request), group, status)
-			case Some(GroupStatsPath(group)) => reader.requestGeneralStats(None, Some(group), status)
-			case None => reader.requestGeneralStats(None, None, status)
-		}
+        case Some(RequestStatsPath(request, group)) => reader.requestGeneralStats(Some(request), group, status)
+        case Some(GroupStatsPath(group))            => reader.requestGeneralStats(None, Some(group), status)
+        case None                                   => reader.requestGeneralStats(None, None, status)
+      }
 
-		new Selector(generalStats, selector.segments.mkString(" / "))
-	}
+    new Selector(generalStats, selector.segments.mkString(" / "))
+  }
 }

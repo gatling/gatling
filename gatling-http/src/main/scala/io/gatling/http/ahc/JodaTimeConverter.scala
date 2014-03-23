@@ -21,14 +21,14 @@ import com.ning.http.client.date.{ RFC2616Date, TimeConverter }
 
 object JodaTimeConverter extends TimeConverter {
 
-	def toTime(date: RFC2616Date): Long =
-		new DateTime(
-			date.year(),
-			date.month(),
-			date.dayOfMonth(),
-			date.hour(),
-			date.minute(),
-			date.second(),
-			DateTimeZone.UTC //
-			).toDate.getTime
+  def toTime(date: RFC2616Date): Long =
+    new DateTime(
+      date.year(),
+      date.month(),
+      date.dayOfMonth(),
+      date.hour(),
+      date.minute(),
+      date.second(),
+      DateTimeZone.UTC //
+      ).toDate.getTime
 }

@@ -31,148 +31,148 @@ import io.gatling.recorder.scenario.template.SimulationTemplate
 
 object ScenarioExporter extends StrictLogging {
 
-	private val EVENTS_GROUPING = 100
+  private val EVENTS_GROUPING = 100
 
-	def simulationFilePath(implicit config: RecorderConfiguration) = {
-		def getSimulationFileName: String = s"${config.core.className}.scala"
-		def getOutputFolder = {
-			val path = config.core.outputFolder + File.separator + config.core.pkg.replace(".", File.separator)
-			getFolder(path)
-		}
+  def simulationFilePath(implicit config: RecorderConfiguration) = {
+      def getSimulationFileName: String = s"${config.core.className}.scala"
+      def getOutputFolder = {
+        val path = config.core.outputFolder + File.separator + config.core.pkg.replace(".", File.separator)
+        getFolder(path)
+      }
 
-		getOutputFolder / getSimulationFileName
-	}
+    getOutputFolder / getSimulationFileName
+  }
 
-	def saveScenario(scenarioElements: ScenarioDefinition)(implicit config: RecorderConfiguration) {
-		require(!scenarioElements.isEmpty)
+  def saveScenario(scenarioElements: ScenarioDefinition)(implicit config: RecorderConfiguration) {
+    require(!scenarioElements.isEmpty)
 
-		val output = renderScenarioAndDumpBodies(scenarioElements)
+    val output = renderScenarioAndDumpBodies(scenarioElements)
 
-		withCloseable(new FileOutputStream(File(simulationFilePath).jfile)) {
-			_.write(output.getBytes(config.core.encoding))
-		}
-	}
+    withCloseable(new FileOutputStream(File(simulationFilePath).jfile)) {
+      _.write(output.getBytes(config.core.encoding))
+    }
+  }
 
-	private def renderScenarioAndDumpBodies(scenario: ScenarioDefinition)(implicit config: RecorderConfiguration): String = {
-		// Aggregate headers
-		val filteredHeaders = Set(HeaderNames.COOKIE, HeaderNames.CONTENT_LENGTH, HeaderNames.HOST) ++
-			(if (config.http.automaticReferer) Set(HeaderNames.REFERER) else Set.empty)
+  private def renderScenarioAndDumpBodies(scenario: ScenarioDefinition)(implicit config: RecorderConfiguration): String = {
+    // Aggregate headers
+    val filteredHeaders = Set(HeaderNames.COOKIE, HeaderNames.CONTENT_LENGTH, HeaderNames.HOST) ++
+      (if (config.http.automaticReferer) Set(HeaderNames.REFERER) else Set.empty)
 
-		val scenarioElements = scenario.elements
-		val baseUrl = getBaseUrl(scenarioElements)
-		val baseHeaders = getBaseHeaders(scenarioElements)
-		val protocolConfigElement = new ProtocolDefinition(baseUrl, baseHeaders)
+    val scenarioElements = scenario.elements
+    val baseUrl = getBaseUrl(scenarioElements)
+    val baseHeaders = getBaseHeaders(scenarioElements)
+    val protocolConfigElement = new ProtocolDefinition(baseUrl, baseHeaders)
 
-		// extract the request elements and set all the necessary
-		val elements = scenarioElements.map {
-			case reqEl: RequestElement => reqEl.makeRelativeTo(baseUrl)
-			case el => el
-		}
+    // extract the request elements and set all the necessary
+    val elements = scenarioElements.map {
+      case reqEl: RequestElement => reqEl.makeRelativeTo(baseUrl)
+      case el                    => el
+    }
 
-		val requestElements: Seq[RequestElement] = elements.collect { case reqEl: RequestElement => reqEl }
-			.zipWithIndex.map { case (reqEl, index) => reqEl.setId(index) }
+    val requestElements: Seq[RequestElement] = elements.collect { case reqEl: RequestElement => reqEl }
+      .zipWithIndex.map { case (reqEl, index) => reqEl.setId(index) }
 
-		// dump request body if needed
-		requestElements.foreach(el => el.body.foreach {
-			case RequestBodyBytes(bytes) => dumpRequestBody(el.id, bytes, config.core.className)
-			case _ =>
-		})
+    // dump request body if needed
+    requestElements.foreach(el => el.body.foreach {
+      case RequestBodyBytes(bytes) => dumpRequestBody(el.id, bytes, config.core.className)
+      case _                       =>
+    })
 
-		val headers: Map[Int, Seq[(String, String)]] = {
+    val headers: Map[Int, Seq[(String, String)]] = {
 
-			@tailrec
-			def generateHeaders(elements: Seq[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
-				case Seq() => headers
-				case element +: others => {
-					val acceptedHeaders = element.headers.toList
-						.filterNot {
-							case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).exists(_ == headerValue)
-						}
-						.sortBy(_._1)
+        @tailrec
+        def generateHeaders(elements: Seq[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
+          case Seq() => headers
+          case element +: others => {
+            val acceptedHeaders = element.headers.toList
+              .filterNot {
+                case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).exists(_ == headerValue)
+              }
+              .sortBy(_._1)
 
-					val newHeaders = if (acceptedHeaders.isEmpty) {
-						element.filteredHeadersId = None
-						headers
+            val newHeaders = if (acceptedHeaders.isEmpty) {
+              element.filteredHeadersId = None
+              headers
 
-					} else {
-						val headersSeq = headers.toSeq
-						headersSeq.indexWhere {
-							case (id, existingHeaders) => existingHeaders == acceptedHeaders
-						} match {
-							case -1 =>
-								element.filteredHeadersId = Some(element.id)
-								headers + (element.id -> acceptedHeaders)
-							case index =>
-								element.filteredHeadersId = Some(headersSeq(index)._1)
-								headers
-						}
-					}
+            } else {
+              val headersSeq = headers.toSeq
+              headersSeq.indexWhere {
+                case (id, existingHeaders) => existingHeaders == acceptedHeaders
+              } match {
+                case -1 =>
+                  element.filteredHeadersId = Some(element.id)
+                  headers + (element.id -> acceptedHeaders)
+                case index =>
+                  element.filteredHeadersId = Some(headersSeq(index)._1)
+                  headers
+              }
+            }
 
-					generateHeaders(others, newHeaders)
-				}
-			}
+            generateHeaders(others, newHeaders)
+          }
+        }
 
-			SortedMap(generateHeaders(requestElements, Map.empty).toSeq: _*)
-		}
+      SortedMap(generateHeaders(requestElements, Map.empty).toSeq: _*)
+    }
 
-		val newScenarioElements = getChains(elements)
+    val newScenarioElements = getChains(elements)
 
-		SimulationTemplate.render(config.core.pkg, config.core.className, protocolConfigElement, headers, config.core.className, newScenarioElements)
-	}
+    SimulationTemplate.render(config.core.pkg, config.core.className, protocolConfigElement, headers, config.core.className, newScenarioElements)
+  }
 
-	private def getBaseHeaders(scenarioElements: Seq[ScenarioElement]): Map[String, String] = {
-		def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] =
-			getMostFrequentHeaderValue(scenarioElements, headerName)
-				.map(headerValue => appendTo + (headerName -> headerValue))
-				.getOrElse(appendTo)
+  private def getBaseHeaders(scenarioElements: Seq[ScenarioElement]): Map[String, String] = {
+      def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] =
+        getMostFrequentHeaderValue(scenarioElements, headerName)
+          .map(headerValue => appendTo + (headerName -> headerValue))
+          .getOrElse(appendTo)
 
-		@tailrec
-		def resolveBaseHeaders(headers: Map[String, String], headerNames: List[String]): Map[String, String] = headerNames match {
-			case Nil => headers
-			case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
-		}
+      @tailrec
+      def resolveBaseHeaders(headers: Map[String, String], headerNames: List[String]): Map[String, String] = headerNames match {
+        case Nil                  => headers
+        case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
+      }
 
-		resolveBaseHeaders(Map.empty, ProtocolDefinition.baseHeaders.keySet.toList)
-	}
+    resolveBaseHeaders(Map.empty, ProtocolDefinition.baseHeaders.keySet.toList)
+  }
 
-	private def getBaseUrl(scenarioElements: Seq[ScenarioElement]): String = {
-		val urlsOccurrences = scenarioElements.collect {
-			case reqElm: RequestElement => reqElm.baseUrl
-		}.groupBy(identity).mapValues(_.size).toSeq
+  private def getBaseUrl(scenarioElements: Seq[ScenarioElement]): String = {
+    val urlsOccurrences = scenarioElements.collect {
+      case reqElm: RequestElement => reqElm.baseUrl
+    }.groupBy(identity).mapValues(_.size).toSeq
 
-		urlsOccurrences.maxBy(_._2)._1
-	}
+    urlsOccurrences.maxBy(_._2)._1
+  }
 
-	private def getMostFrequentHeaderValue(scenarioElements: Seq[ScenarioElement], headerName: String): Option[String] = {
-		val headers = scenarioElements.flatMap {
-			case reqElm: RequestElement => reqElm.headers.collect { case (name, value) if name == headerName => value }
-			case _ => Nil
-		}
+  private def getMostFrequentHeaderValue(scenarioElements: Seq[ScenarioElement], headerName: String): Option[String] = {
+    val headers = scenarioElements.flatMap {
+      case reqElm: RequestElement => reqElm.headers.collect { case (name, value) if name == headerName => value }
+      case _                      => Nil
+    }
 
-		if (headers.isEmpty) None
-		else {
-			val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
-			val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
-			Some(mostFrequentValue)
-		}
-	}
+    if (headers.isEmpty) None
+    else {
+      val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
+      val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
+      Some(mostFrequentValue)
+    }
+  }
 
-	private def getChains(scenarioElements: Seq[ScenarioElement]): Either[Seq[ScenarioElement], List[Seq[ScenarioElement]]] =
-		if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING)
-			Right(scenarioElements.grouped(ScenarioExporter.EVENTS_GROUPING).toList)
-		else
-			Left(scenarioElements)
+  private def getChains(scenarioElements: Seq[ScenarioElement]): Either[Seq[ScenarioElement], List[Seq[ScenarioElement]]] =
+    if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING)
+      Right(scenarioElements.grouped(ScenarioExporter.EVENTS_GROUPING).toList)
+    else
+      Left(scenarioElements)
 
-	private def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String)(implicit config: RecorderConfiguration) {
-		val fileName = s"${simulationClass}_request_$idEvent.txt"
-		withCloseable(File(getFolder(config.core.requestBodiesFolder) / fileName).outputStream()) { fw =>
-			try {
-				fw.write(content)
-			} catch {
-				case e: IOException => logger.error("Error, while dumping request body...", e)
-			}
-		}
-	}
+  private def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String)(implicit config: RecorderConfiguration) {
+    val fileName = s"${simulationClass}_request_$idEvent.txt"
+    withCloseable(File(getFolder(config.core.requestBodiesFolder) / fileName).outputStream()) { fw =>
+      try {
+        fw.write(content)
+      } catch {
+        case e: IOException => logger.error("Error, while dumping request body...", e)
+      }
+    }
+  }
 
-	private def getFolder(folderPath: String) = Directory(folderPath).createDirectory()
+  private def getFolder(folderPath: String) = Directory(folderPath).createDirectory()
 }

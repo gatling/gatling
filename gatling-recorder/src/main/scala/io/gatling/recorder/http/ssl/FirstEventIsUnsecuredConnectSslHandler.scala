@@ -24,22 +24,22 @@ import javax.net.ssl.SSLEngine
 
 class FirstEventIsUnsecuredConnectSslHandler(sslEngine: SSLEngine) extends SslHandler(sslEngine, false) {
 
-	private val sslEnabled = new AtomicBoolean(false)
+  private val sslEnabled = new AtomicBoolean(false)
 
-	override def handleUpstream(context: ChannelHandlerContext, evt: ChannelEvent) {
-		if (sslEnabled.get)
-			super.handleUpstream(context, evt)
-		else
-			context.sendUpstream(evt)
-	}
+  override def handleUpstream(context: ChannelHandlerContext, evt: ChannelEvent) {
+    if (sslEnabled.get)
+      super.handleUpstream(context, evt)
+    else
+      context.sendUpstream(evt)
+  }
 
-	override def handleDownstream(context: ChannelHandlerContext, evt: ChannelEvent) {
-		if (sslEnabled.get)
-			super.handleDownstream(context, evt)
-		else {
-			// enable SSL once the CONNECT request has been replied to
-			sslEnabled.set(true)
-			context.sendDownstream(evt)
-		}
-	}
+  override def handleDownstream(context: ChannelHandlerContext, evt: ChannelEvent) {
+    if (sslEnabled.get)
+      super.handleDownstream(context, evt)
+    else {
+      // enable SSL once the CONNECT request has been replied to
+      sslEnabled.set(true)
+      context.sendDownstream(evt)
+    }
+  }
 }

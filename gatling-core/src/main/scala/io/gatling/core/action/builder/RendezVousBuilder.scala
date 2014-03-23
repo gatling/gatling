@@ -22,6 +22,6 @@ import io.gatling.core.action.RendezVous
 
 class RendezVousBuilder(users: Int) extends ActionBuilder {
 
-	def build(next: ActorRef, protocols: Protocols) =
-		actor(new RendezVous(users, next))
+  def build(next: ActorRef, protocols: Protocols) =
+    actor(new RendezVous(users, next))
 }

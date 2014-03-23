@@ -21,37 +21,37 @@ import javax.swing.JComponent
 
 object UIHelper {
 
-	def titledBorder(title: String) = Swing.TitledBorder(null, title)
+  def titledBorder(title: String) = Swing.TitledBorder(null, title)
 
-	class LeftAlignedFlowPanel extends FlowPanel(FlowPanel.Alignment.Left)()
-	class CenterAlignedFlowPanel extends FlowPanel(FlowPanel.Alignment.Center)()
-	class RightAlignedFlowPanel extends FlowPanel(FlowPanel.Alignment.Right)()
+  class LeftAlignedFlowPanel extends FlowPanel(FlowPanel.Alignment.Left)()
+  class CenterAlignedFlowPanel extends FlowPanel(FlowPanel.Alignment.Center)()
+  class RightAlignedFlowPanel extends FlowPanel(FlowPanel.Alignment.Right)()
 
-	implicit def wrapComponent(component: JComponent) = Component.wrap(component)
+  implicit def wrapComponent(component: JComponent) = Component.wrap(component)
 
-	implicit class RichListView[T](val listView: ListView[T]) extends AnyVal {
+  implicit class RichListView[T](val listView: ListView[T]) extends AnyVal {
 
-		def add(elem: T) {
-			listView.listData = listView.listData :+ elem
-			listView.ensureIndexIsVisible(listView.listData.size - 1)
-		}
+    def add(elem: T) {
+      listView.listData = listView.listData :+ elem
+      listView.ensureIndexIsVisible(listView.listData.size - 1)
+    }
 
-	}
+  }
 
-	implicit class RichTextComponent[T <: TextComponent](val textComponent: T) extends AnyVal {
+  implicit class RichTextComponent[T <: TextComponent](val textComponent: T) extends AnyVal {
 
-		def clear() {
-			textComponent.text = ""
-		}
-	}
+    def clear() {
+      textComponent.text = ""
+    }
+  }
 
-	implicit class RichFileChooser(val fileChooser: FileChooser) extends AnyVal {
+  implicit class RichFileChooser(val fileChooser: FileChooser) extends AnyVal {
 
-		def selection = {
-			if (fileChooser.showSaveDialog(null) != FileChooser.Result.Approve)
-				None
-			else
-				Some(fileChooser.selectedFile.getPath)
-		}
-	}
+    def selection = {
+      if (fileChooser.showSaveDialog(null) != FileChooser.Result.Approve)
+        None
+      else
+        Some(fileChooser.selectedFile.getPath)
+    }
+  }
 }

@@ -22,7 +22,7 @@ import io.gatling.recorder.ui.swing.util.UIHelper._
 import io.gatling.recorder.ui.swing.frame.ConfigurationFrame
 
 object DialogFileSelector {
-	val message = """	|A Swing bug on Mac OS X prevents the Recorder from getting
+  val message = """	|A Swing bug on Mac OS X prevents the Recorder from getting
 						|the correct path for file with some known extensions.
 						|Those files closely matches the file you selected, please select
 						|the correct one :
@@ -30,27 +30,27 @@ object DialogFileSelector {
 }
 class DialogFileSelector(configurationFrame: ConfigurationFrame, possibleFiles: List[String]) extends Dialog(configurationFrame) {
 
-	var selectedFile: Option[String] = None
+  var selectedFile: Option[String] = None
 
-	val radioButtons = possibleFiles.map(new RadioButton(_))
-	val radiosGroup = new ButtonGroup(radioButtons: _*)
-	val cancelButton = Button("Cancel")(close())
-	val okButton = Button("OK") { radiosGroup.selected.foreach(button => selectedFile = Some(button.text)); close() }
-	val defaultBackground = background
+  val radioButtons = possibleFiles.map(new RadioButton(_))
+  val radiosGroup = new ButtonGroup(radioButtons: _*)
+  val cancelButton = Button("Cancel")(close())
+  val okButton = Button("OK") { radiosGroup.selected.foreach(button => selectedFile = Some(button.text)); close() }
+  val defaultBackground = background
 
-	contents = new BorderPanel {
-		val messageLabel = new TextArea(DialogFileSelector.message) { background = defaultBackground }
-		val radiosPanel = new BoxPanel(Orientation.Vertical) { radioButtons.foreach(contents += _) }
-		val buttonsPanel = new CenterAlignedFlowPanel {
-			contents += okButton
-			contents += cancelButton
-		}
+  contents = new BorderPanel {
+    val messageLabel = new TextArea(DialogFileSelector.message) { background = defaultBackground }
+    val radiosPanel = new BoxPanel(Orientation.Vertical) { radioButtons.foreach(contents += _) }
+    val buttonsPanel = new CenterAlignedFlowPanel {
+      contents += okButton
+      contents += cancelButton
+    }
 
-		layout(messageLabel) = North
-		layout(radiosPanel) = Center
-		layout(buttonsPanel) = South
-	}
+    layout(messageLabel) = North
+    layout(radiosPanel) = Center
+    layout(buttonsPanel) = South
+  }
 
-	modal = true
-	setLocationRelativeTo(configurationFrame)
+  modal = true
+  setLocationRelativeTo(configurationFrame)
 }

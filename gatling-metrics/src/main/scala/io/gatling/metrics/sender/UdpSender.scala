@@ -23,14 +23,14 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 
 class UdpSender extends MetricsSender with AkkaDefaults {
 
-	private val address = new InetSocketAddress(configuration.data.graphite.host, configuration.data.graphite.port)
-	private val socket: DatagramSocket = DatagramChannel.open.socket
-	system.registerOnTermination(socket.close())
+  private val address = new InetSocketAddress(configuration.data.graphite.host, configuration.data.graphite.port)
+  private val socket: DatagramSocket = DatagramChannel.open.socket
+  system.registerOnTermination(socket.close())
 
-	def sendToGraphite(bytes: Array[Byte]) {
-		val packet = new DatagramPacket(bytes, bytes.length, address)
-		socket.send(packet)
-	}
+  def sendToGraphite(bytes: Array[Byte]) {
+    val packet = new DatagramPacket(bytes, bytes.length, address)
+    socket.send(packet)
+  }
 
-	def flush() {}
+  def flush() {}
 }

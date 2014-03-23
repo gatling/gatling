@@ -41,31 +41,31 @@ import io.gatling.http.response.ResponseTransformer
 
 object HttpRequest extends StrictLogging {
 
-	def buildNamedRequests(resources: Seq[HttpRequest], session: Session): List[NamedRequest] = resources.foldLeft(List.empty[NamedRequest]) { (acc, res) =>
+  def buildNamedRequests(resources: Seq[HttpRequest], session: Session): List[NamedRequest] = resources.foldLeft(List.empty[NamedRequest]) { (acc, res) =>
 
-		val namedRequest = for {
-			name <- res.requestName(session)
-			request <- res.ahcRequest(session)
-		} yield NamedRequest(name, request)
+    val namedRequest = for {
+      name <- res.requestName(session)
+      request <- res.ahcRequest(session)
+    } yield NamedRequest(name, request)
 
-		namedRequest match {
-			case Success(request) => request :: acc
-			case Failure(message) =>
-				logger.warn(s"Couldn't fetch resource: $message")
-				acc
-		}
-	}.reverse
+    namedRequest match {
+      case Success(request) => request :: acc
+      case Failure(message) =>
+        logger.warn(s"Couldn't fetch resource: $message")
+        acc
+    }
+  }.reverse
 }
 
 case class HttpRequest(
-	requestName: Expression[String],
-	ahcRequest: Expression[Request],
-	checks: List[HttpCheck],
-	responseTransformer: Option[ResponseTransformer],
-	extraInfoExtractor: Option[ExtraInfoExtractor],
-	maxRedirects: Option[Int],
-	throttled: Boolean,
-	silent: Boolean,
-	followRedirect: Boolean,
-	protocol: HttpProtocol,
-	explicitResources: Seq[HttpRequest])
+  requestName: Expression[String],
+  ahcRequest: Expression[Request],
+  checks: List[HttpCheck],
+  responseTransformer: Option[ResponseTransformer],
+  extraInfoExtractor: Option[ExtraInfoExtractor],
+  maxRedirects: Option[Int],
+  throttled: Boolean,
+  silent: Boolean,
+  followRedirect: Boolean,
+  protocol: HttpProtocol,
+  explicitResources: Seq[HttpRequest])

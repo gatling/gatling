@@ -22,7 +22,7 @@ import io.gatling.http.request.builder.WebSocket.defaultWebSocketName
 
 object WebSocket {
 
-	val defaultWebSocketName = SessionPrivateAttributes.privateAttributePrefix + "http.webSocket"
+  val defaultWebSocketName = SessionPrivateAttributes.privateAttributePrefix + "http.webSocket"
 }
 
 /**
@@ -30,38 +30,38 @@ object WebSocket {
  */
 class WebSocket(requestName: Expression[String]) {
 
-	/**
-	 * Opens a web socket and stores it in the session.
-	 *
-	 * @param url The socket URL
-	 * @param wsName The name of the session attribute used to store the socket
-	 */
-	def open(url: Expression[String], wsName: String = defaultWebSocketName) =
-		new OpenWebSocketRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), wsName)
+  /**
+   * Opens a web socket and stores it in the session.
+   *
+   * @param url The socket URL
+   * @param wsName The name of the session attribute used to store the socket
+   */
+  def open(url: Expression[String], wsName: String = defaultWebSocketName) =
+    new OpenWebSocketRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), wsName)
 
-	/**
-	 * Sends a binary message on the given socket.
-	 *
-	 * @param message The message
-	 * @param wsName The name of the session attribute storing the socket
-	 */
-	def sendBinaryMessage(message: Expression[Array[Byte]], wsName: String = defaultWebSocketName) =
-		new SendWebSocketBinaryMessageActionBuilder(requestName, wsName, message)
+  /**
+   * Sends a binary message on the given socket.
+   *
+   * @param message The message
+   * @param wsName The name of the session attribute storing the socket
+   */
+  def sendBinaryMessage(message: Expression[Array[Byte]], wsName: String = defaultWebSocketName) =
+    new SendWebSocketBinaryMessageActionBuilder(requestName, wsName, message)
 
-	/**
-	 * Sends a text message on the given socket.
-	 *
-	 * @param message The message
-	 * @param wsName The name of the session attribute storing the socket
-	 */
-	def sendTextMessage(message: Expression[String], wsName: String = defaultWebSocketName) =
-		new SendWebSocketTextMessageActionBuilder(requestName, wsName, message)
+  /**
+   * Sends a text message on the given socket.
+   *
+   * @param message The message
+   * @param wsName The name of the session attribute storing the socket
+   */
+  def sendTextMessage(message: Expression[String], wsName: String = defaultWebSocketName) =
+    new SendWebSocketTextMessageActionBuilder(requestName, wsName, message)
 
-	/**
-	 * Closes a web socket.
-	 *
-	 * @param wsName The name of the session attribute storing the socket
-	 */
-	def close(wsName: String = defaultWebSocketName) =
-		new CloseWebSocketActionBuilder(requestName, wsName)
+  /**
+   * Closes a web socket.
+   *
+   * @param wsName The name of the session attribute storing the socket
+   */
+  def close(wsName: String = defaultWebSocketName) =
+    new CloseWebSocketActionBuilder(requestName, wsName)
 }

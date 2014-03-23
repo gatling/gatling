@@ -23,12 +23,12 @@ import io.gatling.core.result.message.Status
 
 trait LatencyPerSecBuffers {
 
-	val latencyPerSecBuffers = mutable.Map.empty[BufferKey, RangeBuffer]
+  val latencyPerSecBuffers = mutable.Map.empty[BufferKey, RangeBuffer]
 
-	def getLatencyPerSecBuffers(requestName: String, group: Option[Group], status: Option[Status]): RangeBuffer =
-		latencyPerSecBuffers.getOrElseUpdate(BufferKey(Some(requestName), group, status), new RangeBuffer)
+  def getLatencyPerSecBuffers(requestName: String, group: Option[Group], status: Option[Status]): RangeBuffer =
+    latencyPerSecBuffers.getOrElseUpdate(BufferKey(Some(requestName), group, status), new RangeBuffer)
 
-	def updateLatencyPerSecBuffers(record: RequestRecord) {
-		getLatencyPerSecBuffers(record.name, record.group, Some(record.status)).update(record.requestStartBucket, record.latency)
-	}
+  def updateLatencyPerSecBuffers(record: RequestRecord) {
+    getLatencyPerSecBuffers(record.name, record.group, Some(record.status)).update(record.requestStartBucket, record.latency)
+  }
 }

@@ -21,13 +21,13 @@ import sun.misc.Unsafe
 
 object UnsafeHelper {
 
-	val unsafe: Option[Unsafe] = Try {
-		val unsafeField = classOf[Unsafe].getDeclaredField("theUnsafe")
-		unsafeField.setAccessible(true)
-		unsafeField.get(null).asInstanceOf[Unsafe]
-	}.toOption
+  val unsafe: Option[Unsafe] = Try {
+    val unsafeField = classOf[Unsafe].getDeclaredField("theUnsafe")
+    unsafeField.setAccessible(true)
+    unsafeField.get(null).asInstanceOf[Unsafe]
+  }.toOption
 
-	val stringValueFieldOffset: Option[Long] = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("value"))).toOption)
-	val stringOffsetFieldOffset: Option[Long] = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("offset"))).toOption)
-	val stringCountFieldOffset: Option[Long] = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("count"))).toOption)
+  val stringValueFieldOffset: Option[Long] = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("value"))).toOption)
+  val stringOffsetFieldOffset: Option[Long] = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("offset"))).toOption)
+  val stringCountFieldOffset: Option[Long] = unsafe.flatMap(u => Try(u.objectFieldOffset(classOf[String].getDeclaredField("count"))).toOption)
 }

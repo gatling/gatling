@@ -22,17 +22,17 @@ import javax.net.ssl.{ ManagerFactoryParameters, TrustManager, TrustManagerFacto
 
 object SecureChatTrustManagerFactory {
 
-	val trustManagers = Array[TrustManager](new X509TrustManager {
-		def getAcceptedIssuers = Array.empty[X509Certificate]
+  val trustManagers = Array[TrustManager](new X509TrustManager {
+    def getAcceptedIssuers = Array.empty[X509Certificate]
 
-		def checkClientTrusted(chain: Array[X509Certificate], authType: String) {
-			// Always trust
-		}
+    def checkClientTrusted(chain: Array[X509Certificate], authType: String) {
+      // Always trust
+    }
 
-		def checkServerTrusted(chain: Array[X509Certificate], authType: String) {
-			// Always trust
-		}
-	})
+    def checkServerTrusted(chain: Array[X509Certificate], authType: String) {
+      // Always trust
+    }
+  })
 
 }
 
@@ -47,13 +47,13 @@ object SecureChatTrustManagerFactory {
  */
 class SecureChatTrustManagerFactory extends TrustManagerFactorySpi {
 
-	def engineGetTrustManagers = SecureChatTrustManagerFactory.trustManagers
+  def engineGetTrustManagers = SecureChatTrustManagerFactory.trustManagers
 
-	def engineInit(keystore: KeyStore) {
-		// Unused
-	}
+  def engineInit(keystore: KeyStore) {
+    // Unused
+  }
 
-	def engineInit(managerFactoryParameters: ManagerFactoryParameters) {
-		// Unused
-	}
+  def engineInit(managerFactoryParameters: ManagerFactoryParameters) {
+    // Unused
+  }
 }

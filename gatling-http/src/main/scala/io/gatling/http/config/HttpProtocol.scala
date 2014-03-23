@@ -40,50 +40,50 @@ import io.gatling.http.response.ResponseTransformer
  * HttpProtocol class companion
  */
 object HttpProtocol {
-	val default = HttpProtocol(
-		baseURLs = Nil,
-		warmUpUrl = configuration.http.warmUpUrl,
-		enginePart = HttpProtocolEnginePart(
-			shareClient = true,
-			shareConnections = false,
-			maxConnectionsPerHost = 6,
-			virtualHost = None,
-			localAddress = None),
-		requestPart = HttpProtocolRequestPart(
-			baseHeaders = Map.empty,
-			realm = None,
-			autoReferer = true,
-			cache = true),
-		responsePart = HttpProtocolResponsePart(
-			followRedirect = true,
-			maxRedirects = None,
-			discardResponseChunks = true,
-			responseTransformer = None,
-			checks = Nil,
-			extraInfoExtractor = None,
-			fetchHtmlResources = false,
-			htmlResourcesFetchingFilters = None),
-		wsPart = HttpProtocolWsPart(
-			wsBaseURLs = Nil,
-			reconnect = false,
-			maxReconnects = None),
-		proxyPart = HttpProtocolProxyPart(
-			proxy = None,
-			secureProxy = None,
-			proxyExceptions = Nil))
+  val default = HttpProtocol(
+    baseURLs = Nil,
+    warmUpUrl = configuration.http.warmUpUrl,
+    enginePart = HttpProtocolEnginePart(
+      shareClient = true,
+      shareConnections = false,
+      maxConnectionsPerHost = 6,
+      virtualHost = None,
+      localAddress = None),
+    requestPart = HttpProtocolRequestPart(
+      baseHeaders = Map.empty,
+      realm = None,
+      autoReferer = true,
+      cache = true),
+    responsePart = HttpProtocolResponsePart(
+      followRedirect = true,
+      maxRedirects = None,
+      discardResponseChunks = true,
+      responseTransformer = None,
+      checks = Nil,
+      extraInfoExtractor = None,
+      fetchHtmlResources = false,
+      htmlResourcesFetchingFilters = None),
+    wsPart = HttpProtocolWsPart(
+      wsBaseURLs = Nil,
+      reconnect = false,
+      maxReconnects = None),
+    proxyPart = HttpProtocolProxyPart(
+      proxy = None,
+      secureProxy = None,
+      proxyExceptions = Nil))
 
-	val warmUpUrls = mutable.Set.empty[String]
+  val warmUpUrls = mutable.Set.empty[String]
 
-	GatlingActorSystem.instanceOpt.foreach(_.registerOnTermination(warmUpUrls.clear()))
+  GatlingActorSystem.instanceOpt.foreach(_.registerOnTermination(warmUpUrls.clear()))
 
-	def nextBaseUrlF(urls: List[String]): () => Option[String] = {
-		val roundRobinUrls = RoundRobin(urls.toArray)
-		urls match {
-			case Nil => () => None
-			case url :: Nil => () => Some(url)
-			case _ => () => Some(roundRobinUrls.next())
-		}
-	}
+  def nextBaseUrlF(urls: List[String]): () => Option[String] = {
+    val roundRobinUrls = RoundRobin(urls.toArray)
+    urls match {
+      case Nil => () => None
+      case url :: Nil => () => Some(url)
+      case _ => () => Some(roundRobinUrls.next())
+    }
+  }
 }
 
 /**
@@ -98,100 +98,100 @@ object HttpProtocol {
  * @param proxyPart the Proxy related configuration
  */
 case class HttpProtocol(
-	baseURLs: List[String],
-	warmUpUrl: Option[String],
-	enginePart: HttpProtocolEnginePart,
-	requestPart: HttpProtocolRequestPart,
-	responsePart: HttpProtocolResponsePart,
-	wsPart: HttpProtocolWsPart,
-	proxyPart: HttpProtocolProxyPart) extends Protocol with StrictLogging {
+    baseURLs: List[String],
+    warmUpUrl: Option[String],
+    enginePart: HttpProtocolEnginePart,
+    requestPart: HttpProtocolRequestPart,
+    responsePart: HttpProtocolResponsePart,
+    wsPart: HttpProtocolWsPart,
+    proxyPart: HttpProtocolProxyPart) extends Protocol with StrictLogging {
 
-	private val baseURLF = HttpProtocol.nextBaseUrlF(baseURLs)
-	def baseURL(): Option[String] = baseURLF()
+  private val baseURLF = HttpProtocol.nextBaseUrlF(baseURLs)
+  def baseURL(): Option[String] = baseURLF()
 
-	override def warmUp() {
+  override def warmUp() {
 
-		logger.info("Start warm up")
+    logger.info("Start warm up")
 
-		HttpEngine.start()
-		AsyncHandlerActor.start()
+    HttpEngine.start()
+    AsyncHandlerActor.start()
 
-		warmUpUrl.map { url =>
-			if (!HttpProtocol.warmUpUrls.contains(url)) {
-				HttpProtocol.warmUpUrls += url
-				val requestBuilder = new RequestBuilder().setUrl(url)
-					.setHeader(ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-					.setHeader(ACCEPT_LANGUAGE, "en-US,en;q=0.5")
-					.setHeader(ACCEPT_ENCODING, "gzip")
-					.setHeader(CONNECTION, "keep-alive")
-					.setHeader(USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
+    warmUpUrl.map { url =>
+      if (!HttpProtocol.warmUpUrls.contains(url)) {
+        HttpProtocol.warmUpUrls += url
+        val requestBuilder = new RequestBuilder().setUrl(url)
+          .setHeader(ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+          .setHeader(ACCEPT_LANGUAGE, "en-US,en;q=0.5")
+          .setHeader(ACCEPT_ENCODING, "gzip")
+          .setHeader(CONNECTION, "keep-alive")
+          .setHeader(USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
 
-				if (url.startsWith("http://"))
-					proxyPart.proxy.foreach(requestBuilder.setProxyServer)
-				else
-					proxyPart.secureProxy.foreach(requestBuilder.setProxyServer)
+        if (url.startsWith("http://"))
+          proxyPart.proxy.foreach(requestBuilder.setProxyServer)
+        else
+          proxyPart.secureProxy.foreach(requestBuilder.setProxyServer)
 
-				try {
-					HttpEngine.instance.defaultAHC.executeRequest(requestBuilder.build).get
-				} catch {
-					case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
-				}
-			}
-		}
+        try {
+          HttpEngine.instance.defaultAHC.executeRequest(requestBuilder.build).get
+        } catch {
+          case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
+        }
+      }
+    }
 
-		if (HttpProtocol.warmUpUrls.isEmpty) {
-			val expression = "foo".el[String]
+    if (HttpProtocol.warmUpUrls.isEmpty) {
+      val expression = "foo".el[String]
 
-			new Http(expression)
-				.get(expression)
-				.header("bar", expression)
-				.queryParam(expression, expression)
-				.build(HttpProtocol.default, throttled = false)
+      new Http(expression)
+        .get(expression)
+        .header("bar", expression)
+        .queryParam(expression, expression)
+        .build(HttpProtocol.default, throttled = false)
 
-			new Http(expression)
-				.post(expression)
-				.header("bar", expression)
-				.param(expression, expression)
-				.build(HttpProtocol.default, throttled = false)
-		}
+      new Http(expression)
+        .post(expression)
+        .header("bar", expression)
+        .param(expression, expression)
+        .build(HttpProtocol.default, throttled = false)
+    }
 
-		logger.info("Warm up done")
-	}
+    logger.info("Warm up done")
+  }
 }
 
 case class HttpProtocolEnginePart(
-	shareClient: Boolean,
-	shareConnections: Boolean,
-	maxConnectionsPerHost: Int,
-	virtualHost: Option[Expression[String]],
-	localAddress: Option[InetAddress])
+  shareClient: Boolean,
+  shareConnections: Boolean,
+  maxConnectionsPerHost: Int,
+  virtualHost: Option[Expression[String]],
+  localAddress: Option[InetAddress])
 
 case class HttpProtocolRequestPart(
-	baseHeaders: Map[String, Expression[String]],
-	realm: Option[Expression[Realm]],
-	autoReferer: Boolean,
-	cache: Boolean)
+  baseHeaders: Map[String, Expression[String]],
+  realm: Option[Expression[Realm]],
+  autoReferer: Boolean,
+  cache: Boolean)
 
 case class HttpProtocolResponsePart(
-	followRedirect: Boolean,
-	maxRedirects: Option[Int],
-	discardResponseChunks: Boolean,
-	responseTransformer: Option[ResponseTransformer],
-	checks: List[HttpCheck],
-	extraInfoExtractor: Option[ExtraInfoExtractor],
-	fetchHtmlResources: Boolean,
-	htmlResourcesFetchingFilters: Option[Filters])
+  followRedirect: Boolean,
+  maxRedirects: Option[Int],
+  discardResponseChunks: Boolean,
+  responseTransformer: Option[ResponseTransformer],
+  checks: List[HttpCheck],
+  extraInfoExtractor: Option[ExtraInfoExtractor],
+  fetchHtmlResources: Boolean,
+  htmlResourcesFetchingFilters: Option[Filters])
 
 case class HttpProtocolWsPart(
-	wsBaseURLs: List[String],
-	reconnect: Boolean,
-	maxReconnects: Option[Int]) {
+    wsBaseURLs: List[String],
+    reconnect: Boolean,
+    maxReconnects: Option[Int]) {
 
-	private val wsBaseURLF = HttpProtocol.nextBaseUrlF(wsBaseURLs)
-	def wsBaseURL(): Option[String] = wsBaseURLF()
+  private val wsBaseURLF = HttpProtocol.nextBaseUrlF(wsBaseURLs)
+  def wsBaseURL(): Option[String] = wsBaseURLF()
 }
 
 case class HttpProtocolProxyPart(
-	proxy: Option[ProxyServer],
-	secureProxy: Option[ProxyServer],
-	proxyExceptions: Seq[String])
+  proxy: Option[ProxyServer],
+  secureProxy: Option[ProxyServer],
+  proxyExceptions: Seq[String])

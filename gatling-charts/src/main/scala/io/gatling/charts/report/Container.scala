@@ -22,8 +22,8 @@ import io.gatling.charts.component.RequestStatistics
 import io.gatling.core.result.Group
 
 object Container {
-	val GROUP = "GROUP"
-	val REQUEST = "REQUEST"
+  val GROUP = "GROUP"
+  val REQUEST = "REQUEST"
 }
 
 trait Container
@@ -31,31 +31,31 @@ trait Container
 case class RequestContainer(name: String, stats: RequestStatistics) extends Container
 
 object GroupContainer {
-	def root(requestStats: RequestStatistics) = GroupContainer("ROOT", requestStats)
+  def root(requestStats: RequestStatistics) = GroupContainer("ROOT", requestStats)
 }
 
 case class GroupContainer(name: String,
-	stats: RequestStatistics,
-	contents: mutable.Map[String, Container] = mutable.LinkedHashMap.empty) extends Container {
+                          stats: RequestStatistics,
+                          contents: mutable.Map[String, Container] = mutable.LinkedHashMap.empty) extends Container {
 
-	private def findGroup(path: List[String]) = {
+  private def findGroup(path: List[String]) = {
 
-		@tailrec
-		def getGroupRec(g: GroupContainer, path: List[String]): GroupContainer = path match {
-			case head :: tail => getGroupRec(g.contents(head).asInstanceOf[GroupContainer], tail)
-			case _ => g
-		}
+      @tailrec
+      def getGroupRec(g: GroupContainer, path: List[String]): GroupContainer = path match {
+        case head :: tail => getGroupRec(g.contents(head).asInstanceOf[GroupContainer], tail)
+        case _            => g
+      }
 
-		getGroupRec(this, path)
-	}
+    getGroupRec(this, path)
+  }
 
-	def addGroup(group: Group, stats: RequestStatistics) {
-		val parentGroup = group.hierarchy.dropRight(1)
-		findGroup(parentGroup).contents += (group.name -> GroupContainer(group.name, stats))
-	}
+  def addGroup(group: Group, stats: RequestStatistics) {
+    val parentGroup = group.hierarchy.dropRight(1)
+    findGroup(parentGroup).contents += (group.name -> GroupContainer(group.name, stats))
+  }
 
-	def addRequest(group: Option[Group], requestName: String, stats: RequestStatistics) {
-		val parentGroup = group.map(_.hierarchy).getOrElse(Nil)
-		findGroup(parentGroup).contents += (requestName -> RequestContainer(requestName, stats))
-	}
+  def addRequest(group: Option[Group], requestName: String, stats: RequestStatistics) {
+    val parentGroup = group.map(_.hierarchy).getOrElse(Nil)
+    findGroup(parentGroup).contents += (requestName -> RequestContainer(requestName, stats))
+  }
 }

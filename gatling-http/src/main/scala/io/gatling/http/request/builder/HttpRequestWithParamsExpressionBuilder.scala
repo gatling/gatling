@@ -23,32 +23,32 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.config.HttpProtocol
 
 class HttpRequestWithParamsExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, params: List[HttpParam], protocol: HttpProtocol)
-	extends HttpRequestExpressionBuilder(commonAttributes, httpAttributes, protocol) {
+    extends HttpRequestExpressionBuilder(commonAttributes, httpAttributes, protocol) {
 
-	override def configureParts(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+  override def configureParts(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
 
-		def configureAsParams: Validation[AHCRequestBuilder] = params match {
-			case Nil => requestBuilder.success
-			case _ =>
-				// As a side effect, requestBuilder.setParameters() resets the body data, so, it should not be called with empty parameters 
-				params.resolveFluentStringsMap(session).map(requestBuilder.setParameters)
-		}
+      def configureAsParams: Validation[AHCRequestBuilder] = params match {
+        case Nil => requestBuilder.success
+        case _ =>
+          // As a side effect, requestBuilder.setParameters() resets the body data, so, it should not be called with empty parameters 
+          params.resolveFluentStringsMap(session).map(requestBuilder.setParameters)
+      }
 
-		def configureAsStringParts: Validation[AHCRequestBuilder] =
-			params.resolveParams(session).map { params =>
-				for {
-					(key, values) <- params
-					value <- values
-				} requestBuilder.addBodyPart(new StringPart(key, value))
+      def configureAsStringParts: Validation[AHCRequestBuilder] =
+        params.resolveParams(session).map { params =>
+          for {
+            (key, values) <- params
+            value <- values
+          } requestBuilder.addBodyPart(new StringPart(key, value))
 
-				requestBuilder
-			}
+          requestBuilder
+        }
 
-		val requestBuilderWithParams = httpAttributes.bodyParts match {
-			case Nil => configureAsParams
-			case _ => configureAsStringParts
-		}
+    val requestBuilderWithParams = httpAttributes.bodyParts match {
+      case Nil => configureAsParams
+      case _   => configureAsStringParts
+    }
 
-		requestBuilderWithParams.flatMap(super.configureParts(session))
-	}
+    requestBuilderWithParams.flatMap(super.configureParts(session))
+  }
 }

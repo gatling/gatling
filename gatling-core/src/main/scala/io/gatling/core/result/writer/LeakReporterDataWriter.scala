@@ -24,56 +24,56 @@ import io.gatling.core.result.message.{ End, Start }
 
 class LeakReporterDataWriter extends DataWriter {
 
-	private var lastTouch = 0L
-	private val events = mutable.Map.empty[String, DataWriterMessage]
+  private var lastTouch = 0L
+  private val events = mutable.Map.empty[String, DataWriterMessage]
 
-	def display() {
-		val timeSinceLastTouch = (currentTimeMillis - lastTouch) / 1000
+  def display() {
+    val timeSinceLastTouch = (currentTimeMillis - lastTouch) / 1000
 
-		if (timeSinceLastTouch > 30 && !events.isEmpty) {
-			System.err.println("Gatling had no activity during last 30s. It could be a virtual user leak, here's their last events:")
-			events.values.foreach(System.err.println)
-		}
-	}
+    if (timeSinceLastTouch > 30 && !events.isEmpty) {
+      System.err.println("Gatling had no activity during last 30s. It could be a virtual user leak, here's their last events:")
+      events.values.foreach(System.err.println)
+    }
+  }
 
-	override def initialized: Receive = super.initialized.orElse {
-		case Display => display
-	}
+  override def initialized: Receive = super.initialized.orElse {
+    case Display => display
+  }
 
-	override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
+  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
 
-		lastTouch = currentTimeMillis
+    lastTouch = currentTimeMillis
 
-		scheduler.schedule(0 seconds, 30 seconds, self, Display)
-	}
+    scheduler.schedule(0 seconds, 30 seconds, self, Display)
+  }
 
-	override def onUserMessage(userMessage: UserMessage) {
+  override def onUserMessage(userMessage: UserMessage) {
 
-		lastTouch = currentTimeMillis
+    lastTouch = currentTimeMillis
 
-		import userMessage._
+    import userMessage._
 
-		event match {
-			case Start => events += userId -> userMessage
-			case End => events -= userId
-		}
-	}
+    event match {
+      case Start => events += userId -> userMessage
+      case End   => events -= userId
+    }
+  }
 
-	override def onGroupMessage(group: GroupMessage) {
+  override def onGroupMessage(group: GroupMessage) {
 
-		lastTouch = currentTimeMillis
+    lastTouch = currentTimeMillis
 
-		import group._
-		events += userId -> group
-	}
+    import group._
+    events += userId -> group
+  }
 
-	override def onRequestMessage(request: RequestMessage) {
+  override def onRequestMessage(request: RequestMessage) {
 
-		lastTouch = currentTimeMillis
+    lastTouch = currentTimeMillis
 
-		import request._
-		events += userId -> request
-	}
+    import request._
+    events += userId -> request
+  }
 
-	override def onTerminateDataWriter() {}
+  override def onTerminateDataWriter() {}
 }

@@ -23,16 +23,16 @@ import io.gatling.core.result.message.Status
 
 trait RequestsPerSecBuffers {
 
-	val requestsPerSecBuffers = mutable.Map.empty[BufferKey, CountBuffer]
+  val requestsPerSecBuffers = mutable.Map.empty[BufferKey, CountBuffer]
 
-	def getRequestsPerSecBuffer(requestName: Option[String], group: Option[Group], status: Option[Status]): CountBuffer =
-		requestsPerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, status), new CountBuffer)
+  def getRequestsPerSecBuffer(requestName: Option[String], group: Option[Group], status: Option[Status]): CountBuffer =
+    requestsPerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, status), new CountBuffer)
 
-	def updateRequestsPerSecBuffers(record: RequestRecord) {
-		getRequestsPerSecBuffer(Some(record.name), record.group, None).update(record.requestStartBucket)
-		getRequestsPerSecBuffer(Some(record.name), record.group, Some(record.status)).update(record.requestStartBucket)
+  def updateRequestsPerSecBuffers(record: RequestRecord) {
+    getRequestsPerSecBuffer(Some(record.name), record.group, None).update(record.requestStartBucket)
+    getRequestsPerSecBuffer(Some(record.name), record.group, Some(record.status)).update(record.requestStartBucket)
 
-		getRequestsPerSecBuffer(None, None, None).update(record.requestStartBucket)
-		getRequestsPerSecBuffer(None, None, Some(record.status)).update(record.requestStartBucket)
-	}
+    getRequestsPerSecBuffer(None, None, None).update(record.requestStartBucket)
+    getRequestsPerSecBuffer(None, None, Some(record.status)).update(record.requestStartBucket)
+  }
 }

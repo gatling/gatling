@@ -24,29 +24,29 @@ import io.gatling.core.structure.ChainBuilder
 
 class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder {
 
-	require(possibilities.size >= 2, "Switch requires at least 2 possibilities")
+  require(possibilities.size >= 2, "Switch requires at least 2 possibilities")
 
-	def build(next: ActorRef, protocols: Protocols) = {
+  def build(next: ActorRef, protocols: Protocols) = {
 
-		val possibleActions = possibilities.map {
-			case (percentage, possibility) =>
-				val possibilityAction = possibility.build(next, protocols)
-				(percentage, possibilityAction)
-		}.toMap
+    val possibleActions = possibilities.map {
+      case (percentage, possibility) =>
+        val possibilityAction = possibility.build(next, protocols)
+        (percentage, possibilityAction)
+    }.toMap
 
-		val elseNextActor = elseNext.map(_.build(next, protocols)).getOrElse(next)
+    val elseNextActor = elseNext.map(_.build(next, protocols)).getOrElse(next)
 
-		val nextAction = (session: Session) => value(session).map { v => possibleActions.get(v).getOrElse(elseNextActor) }
+    val nextAction = (session: Session) => value(session).map { v => possibleActions.get(v).getOrElse(elseNextActor) }
 
-		actor(new Switch(nextAction, next))
-	}
+    actor(new Switch(nextAction, next))
+  }
 
-	override def registerDefaultProtocols(protocols: Protocols) = {
+  override def registerDefaultProtocols(protocols: Protocols) = {
 
-		val actionBuilders = possibilities.flatMap { case (_, chainBuilder) => chainBuilder.actionBuilders } ::: elseNext.map(_.actionBuilders).getOrElse(Nil)
+    val actionBuilders = possibilities.flatMap { case (_, chainBuilder) => chainBuilder.actionBuilders } ::: elseNext.map(_.actionBuilders).getOrElse(Nil)
 
-		actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
-			actionBuilder.registerDefaultProtocols(protocols)
-		}
-	}
+    actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
+      actionBuilder.registerDefaultProtocols(protocols)
+    }
+  }
 }

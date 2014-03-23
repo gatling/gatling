@@ -23,34 +23,34 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.WebSocketTx
 
 class WebSocketListener(tx: WebSocketTx, wsActor: ActorRef, started: Long)
-	extends AHCWebSocketTextListener with WebSocketCloseCodeReasonListener {
-	var opened = false
+    extends AHCWebSocketTextListener with WebSocketCloseCodeReasonListener {
+  var opened = false
 
-	def onOpen(webSocket: WebSocket) {
-		opened = true
-		wsActor ! OnOpen(tx, webSocket, started, nowMillis)
-	}
+  def onOpen(webSocket: WebSocket) {
+    opened = true
+    wsActor ! OnOpen(tx, webSocket, started, nowMillis)
+  }
 
-	def onMessage(message: String) {
-		wsActor ! OnMessage(message)
-	}
+  def onMessage(message: String) {
+    wsActor ! OnMessage(message)
+  }
 
-	def onFragment(fragment: String, last: Boolean) {}
+  def onFragment(fragment: String, last: Boolean) {}
 
-	def onClose(webSocket: WebSocket) {}
+  def onClose(webSocket: WebSocket) {}
 
-	def onClose(webSocket: WebSocket, statusCode: Int, reason: String) {
-		if (opened) {
-			opened = false
-			if (statusCode == 1006) {
-				wsActor ! OnUnexpectedClose
-			} else
-				wsActor ! OnClose
-		}
-	}
+  def onClose(webSocket: WebSocket, statusCode: Int, reason: String) {
+    if (opened) {
+      opened = false
+      if (statusCode == 1006) {
+        wsActor ! OnUnexpectedClose
+      } else
+        wsActor ! OnClose
+    }
+  }
 
-	def onError(t: Throwable) {
-		if (opened)
-			wsActor ! OnError(t)
-	}
+  def onError(t: Throwable) {
+    if (opened)
+      wsActor ! OnError(t)
+  }
 }

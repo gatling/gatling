@@ -27,13 +27,13 @@ import io.gatling.core.session.Expression
 
 object FeedBuilder extends AkkaDefaults {
 
-	// FIXME not very clean
-	val instances = mutable.Map.empty[FeederBuilder[_], ActorRef]
+  // FIXME not very clean
+  val instances = mutable.Map.empty[FeederBuilder[_], ActorRef]
 
-	def apply[T](feederBuilder: FeederBuilder[T], number: Expression[Int]) =
-		new FeedBuilder(instances.getOrElseUpdate(feederBuilder, actor(new SingletonFeed(feederBuilder.build))), number)
+  def apply[T](feederBuilder: FeederBuilder[T], number: Expression[Int]) =
+    new FeedBuilder(instances.getOrElseUpdate(feederBuilder, actor(new SingletonFeed(feederBuilder.build))), number)
 }
 class FeedBuilder(instance: => ActorRef, number: Expression[Int]) extends ActionBuilder {
 
-	def build(next: ActorRef, protocols: Protocols) = actor(new Feed(instance, number, next))
+  def build(next: ActorRef, protocols: Protocols) = actor(new Feed(instance, number, next))
 }

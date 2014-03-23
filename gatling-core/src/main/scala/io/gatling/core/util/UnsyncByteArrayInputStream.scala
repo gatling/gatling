@@ -19,53 +19,53 @@ import java.io.InputStream
 
 class UnsyncByteArrayInputStream(array: Array[Byte]) extends InputStream {
 
-	var offset: Int = _
-	var length: Int = array.length
-	var position: Int = _
-	var mark: Int = _
+  var offset: Int = _
+  var length: Int = array.length
+  var position: Int = _
+  var mark: Int = _
 
-	override def markSupported = true
+  override def markSupported = true
 
-	override def reset() {
-		position = mark
-	}
+  override def reset() {
+    position = mark
+  }
 
-	override def close() {}
+  override def close() {}
 
-	override def mark(dummy: Int) {
-		mark = position
-	}
+  override def mark(dummy: Int) {
+    mark = position
+  }
 
-	override def available(): Int = length - position
+  override def available(): Int = length - position
 
-	override def skip(n: Long): Long = {
-		if (n <= available) {
-			position += n.toInt
-			n
-		} else {
-			val n = available()
-			position = length
-			n.toLong
-		}
-	}
+  override def skip(n: Long): Long = {
+    if (n <= available) {
+      position += n.toInt
+      n
+    } else {
+      val n = available()
+      position = length
+      n.toLong
+    }
+  }
 
-	override def read(): Int = {
-		if (length == position) -1
-		else {
-			val oldPosition = position
-			position += 1
-			array(offset + oldPosition) & 0xFF
-		}
-	}
+  override def read(): Int = {
+    if (length == position) -1
+    else {
+      val oldPosition = position
+      position += 1
+      array(offset + oldPosition) & 0xFF
+    }
+  }
 
-	override def read(b: Array[Byte], offset: Int, length: Int): Int = {
-		if (this.length == position) {
-			if (length == 0) 0 else -1
-		} else {
-			val n = math.min(length, available())
-			System.arraycopy(array, offset + position, b, offset, n)
-			position += n
-			n
-		}
-	}
+  override def read(b: Array[Byte], offset: Int, length: Int): Int = {
+    if (this.length == position) {
+      if (length == 0) 0 else -1
+    } else {
+      val n = math.min(length, available())
+      System.arraycopy(array, offset + position, b, offset, n)
+      position += n
+      n
+    }
+  }
 }

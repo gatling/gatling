@@ -29,110 +29,110 @@ import io.gatling.http.util.HttpHelper
 
 trait Response {
 
-	def request: AHCRequest
-	def isReceived: Boolean
+  def request: AHCRequest
+  def isReceived: Boolean
 
-	def status: Option[HttpResponseStatus]
-	def statusCode: Option[Int]
-	def uri: Option[URI]
-	def isRedirect: Boolean
+  def status: Option[HttpResponseStatus]
+  def statusCode: Option[Int]
+  def uri: Option[URI]
+  def isRedirect: Boolean
 
-	def header(name: String): Option[String]
-	def headers: FluentCaseInsensitiveStringsMap
-	def headers(name: String): Seq[String]
-	def cookies: List[Cookie]
+  def header(name: String): Option[String]
+  def headers: FluentCaseInsensitiveStringsMap
+  def headers(name: String): Seq[String]
+  def cookies: List[Cookie]
 
-	def checksums: Map[String, String]
-	def checksum(algorithm: String): Option[String]
-	def hasResponseBody: Boolean
-	def body: ResponseBody
-	def bodyLength: Int
-	def charset: Charset
+  def checksums: Map[String, String]
+  def checksum(algorithm: String): Option[String]
+  def hasResponseBody: Boolean
+  def body: ResponseBody
+  def bodyLength: Int
+  def charset: Charset
 
-	def firstByteSent: Long
-	def lastByteSent: Long
-	def firstByteReceived: Long
-	def lastByteReceived: Long
-	def reponseTimeInMillis: Long
-	def latencyInMillis: Long
+  def firstByteSent: Long
+  def lastByteSent: Long
+  def firstByteReceived: Long
+  def lastByteReceived: Long
+  def reponseTimeInMillis: Long
+  def latencyInMillis: Long
 }
 
 case class HttpResponse(
-	request: AHCRequest,
-	status: Option[HttpResponseStatus],
-	headers: FluentCaseInsensitiveStringsMap,
-	body: ResponseBody,
-	checksums: Map[String, String],
-	bodyLength: Int,
-	charset: Charset,
-	firstByteSent: Long,
-	lastByteSent: Long,
-	firstByteReceived: Long,
-	lastByteReceived: Long) extends Response {
+    request: AHCRequest,
+    status: Option[HttpResponseStatus],
+    headers: FluentCaseInsensitiveStringsMap,
+    body: ResponseBody,
+    checksums: Map[String, String],
+    bodyLength: Int,
+    charset: Charset,
+    firstByteSent: Long,
+    lastByteSent: Long,
+    firstByteReceived: Long,
+    lastByteReceived: Long) extends Response {
 
-	def isReceived = status.isDefined
-	val statusCode = status.map(_.getStatusCode)
+  def isReceived = status.isDefined
+  val statusCode = status.map(_.getStatusCode)
 
-	def reponseTimeInMillis = lastByteReceived - firstByteSent
-	def latencyInMillis = firstByteReceived - firstByteReceived
+  def reponseTimeInMillis = lastByteReceived - firstByteSent
+  def latencyInMillis = firstByteReceived - firstByteReceived
 
-	val isRedirect = status match {
-		case Some(s) => HttpHelper.isRedirect(s.getStatusCode)
-		case _ => false
-	}
-	def uri = status.map(_.getUrl)
+  val isRedirect = status match {
+    case Some(s) => HttpHelper.isRedirect(s.getStatusCode)
+    case _       => false
+  }
+  def uri = status.map(_.getUrl)
 
-	def header(name: String): Option[String] = Option(headers.getFirstValue(name))
-	def headers(name: String): Seq[String] = Option(headers.get(name)) match {
-		case Some(h) => h.toSeq
-		case _ => Nil
-	}
-	lazy val cookies =
-		if (headers.isEmpty) {
-			Nil
-		} else {
-			val buffer = new ArrayBuffer[Cookie]
+  def header(name: String): Option[String] = Option(headers.getFirstValue(name))
+  def headers(name: String): Seq[String] = Option(headers.get(name)) match {
+    case Some(h) => h.toSeq
+    case _       => Nil
+  }
+  lazy val cookies =
+    if (headers.isEmpty) {
+      Nil
+    } else {
+      val buffer = new ArrayBuffer[Cookie]
 
-			headers.entrySet.foreach { entry =>
-				if (entry.getKey.equalsIgnoreCase(HeaderNames.SET_COOKIE))
-					entry.getValue.foreach { string =>
-						buffer += CookieDecoder.decode(string)
-					}
-			}
+      headers.entrySet.foreach { entry =>
+        if (entry.getKey.equalsIgnoreCase(HeaderNames.SET_COOKIE))
+          entry.getValue.foreach { string =>
+            buffer += CookieDecoder.decode(string)
+          }
+      }
 
-			buffer.toList
-		}
+      buffer.toList
+    }
 
-	def checksum(algorithm: String) = checksums.get(algorithm)
-	def hasResponseBody = bodyLength != 0
+  def checksum(algorithm: String) = checksums.get(algorithm)
+  def hasResponseBody = bodyLength != 0
 }
 
 class ReponseWrapper(delegate: Response) extends Response {
 
-	def request: AHCRequest = delegate.request
-	def isReceived = delegate.isReceived
+  def request: AHCRequest = delegate.request
+  def isReceived = delegate.isReceived
 
-	def status = delegate.status
-	def statusCode = delegate.statusCode
-	def isRedirect = delegate.isRedirect
-	def uri = delegate.uri
+  def status = delegate.status
+  def statusCode = delegate.statusCode
+  def isRedirect = delegate.isRedirect
+  def uri = delegate.uri
 
-	def header(name: String) = delegate.header(name)
-	def headers = delegate.headers
-	def headers(name: String) = delegate.headers(name)
-	def cookies = delegate.cookies
+  def header(name: String) = delegate.header(name)
+  def headers = delegate.headers
+  def headers(name: String) = delegate.headers(name)
+  def cookies = delegate.cookies
 
-	def checksums = delegate.checksums
-	def checksum(algorithm: String) = delegate.checksum(algorithm)
-	def hasResponseBody = delegate.hasResponseBody
-	def body = delegate.body
-	def bodyLength = delegate.bodyLength
-	def charset = delegate.charset
+  def checksums = delegate.checksums
+  def checksum(algorithm: String) = delegate.checksum(algorithm)
+  def hasResponseBody = delegate.hasResponseBody
+  def body = delegate.body
+  def bodyLength = delegate.bodyLength
+  def charset = delegate.charset
 
-	def firstByteSent = delegate.firstByteSent
-	def lastByteSent = delegate.lastByteSent
-	def firstByteReceived = delegate.firstByteReceived
-	def lastByteReceived = delegate.lastByteReceived
-	def reponseTimeInMillis = delegate.reponseTimeInMillis
-	def latencyInMillis = delegate.latencyInMillis
+  def firstByteSent = delegate.firstByteSent
+  def lastByteSent = delegate.lastByteSent
+  def firstByteReceived = delegate.firstByteReceived
+  def lastByteReceived = delegate.lastByteReceived
+  def reponseTimeInMillis = delegate.reponseTimeInMillis
+  def latencyInMillis = delegate.latencyInMillis
 }

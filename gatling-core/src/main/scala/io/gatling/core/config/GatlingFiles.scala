@@ -23,36 +23,36 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 
 object GatlingFiles {
 
-	val GATLING_HOME = envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", "."))
-	val GATLING_ASSETS_PACKAGE = "assets"
-	val GATLING_JS = "js"
-	val GATLING_STYLE = "style"
-	val GATLING_ASSETS_JS_PACKAGE = GATLING_ASSETS_PACKAGE / GATLING_JS
-	val GATLING_ASSETS_STYLE_PACKAGE = GATLING_ASSETS_PACKAGE / GATLING_STYLE
+  val GATLING_HOME = envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", "."))
+  val GATLING_ASSETS_PACKAGE = "assets"
+  val GATLING_JS = "js"
+  val GATLING_STYLE = "style"
+  val GATLING_ASSETS_JS_PACKAGE = GATLING_ASSETS_PACKAGE / GATLING_JS
+  val GATLING_ASSETS_STYLE_PACKAGE = GATLING_ASSETS_PACKAGE / GATLING_STYLE
 
-	private def resolvePath(path: String): Path = {
-		val rawPath = Path(path)
-		if (rawPath.isAbsolute || rawPath.exists) path else GATLING_HOME / path
-	}
+  private def resolvePath(path: String): Path = {
+    val rawPath = Path(path)
+    if (rawPath.isAbsolute || rawPath.exists) path else GATLING_HOME / path
+  }
 
-	def dataDirectory: Path = resolvePath(configuration.core.directory.data)
-	def requestBodiesDirectory: Path = resolvePath(configuration.core.directory.requestBodies)
-	def sourcesDirectory: Directory = resolvePath(configuration.core.directory.sources).toDirectory
-	def reportsOnlyDirectory: Option[String] = configuration.core.directory.reportsOnly
-	def binariesDirectory: Option[Directory] = configuration.core.directory.binaries.map(_.toDirectory)
-	def resultDirectory(runUuid: String): Path = resolvePath(configuration.core.directory.results) / runUuid
-	def jsDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_JS
-	def styleDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_STYLE
+  def dataDirectory: Path = resolvePath(configuration.core.directory.data)
+  def requestBodiesDirectory: Path = resolvePath(configuration.core.directory.requestBodies)
+  def sourcesDirectory: Directory = resolvePath(configuration.core.directory.sources).toDirectory
+  def reportsOnlyDirectory: Option[String] = configuration.core.directory.reportsOnly
+  def binariesDirectory: Option[Directory] = configuration.core.directory.binaries.map(_.toDirectory)
+  def resultDirectory(runUuid: String): Path = resolvePath(configuration.core.directory.results) / runUuid
+  def jsDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_JS
+  def styleDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_STYLE
 
-	def simulationLogDirectory(runUuid: String, create: Boolean = true): Directory = {
-		val dir = resultDirectory(runUuid)
-		if (create)
-			dir.createDirectory()
-		else {
-			require(dir.exists, s"simulation directory '${dir.toAbsolute}' doesn't exist")
-			require(dir.isDirectory, s"simulation directory '${dir.toAbsolute}' is not a directory")
+  def simulationLogDirectory(runUuid: String, create: Boolean = true): Directory = {
+    val dir = resultDirectory(runUuid)
+    if (create)
+      dir.createDirectory()
+    else {
+      require(dir.exists, s"simulation directory '${dir.toAbsolute}' doesn't exist")
+      require(dir.isDirectory, s"simulation directory '${dir.toAbsolute}' is not a directory")
 
-			dir.toDirectory
-		}
-	}
+      dir.toDirectory
+    }
+  }
 }

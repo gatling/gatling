@@ -22,9 +22,9 @@ import io.gatling.http.config.HttpProtocol
 
 class SendWebSocketTextMessageAction(val requestName: Expression[String], wsName: String, message: Expression[String], val next: ActorRef, protocol: HttpProtocol) extends RequestAction {
 
-	def sendRequest(requestName: String, session: Session) =
-		for {
-			wsActor <- session(wsName).validate[ActorRef]
-			resolvedMessage <- message(session)
-		} yield wsActor ! SendTextMessage(requestName, resolvedMessage, next, session)
+  def sendRequest(requestName: String, session: Session) =
+    for {
+      wsActor <- session(wsName).validate[ActorRef]
+      resolvedMessage <- message(session)
+    } yield wsActor ! SendTextMessage(requestName, resolvedMessage, next, session)
 }

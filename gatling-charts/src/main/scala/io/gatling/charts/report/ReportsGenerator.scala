@@ -27,31 +27,31 @@ import io.gatling.core.util.ScanHelper.deepCopyPackageContent
 
 object ReportsGenerator {
 
-	def generateFor(outputDirectoryName: String, dataReader: DataReader): Path = {
+  def generateFor(outputDirectoryName: String, dataReader: DataReader): Path = {
 
-		def generateMenu() { new TemplateWriter(menuFile(outputDirectoryName)).writeToFile(new MenuTemplate().getOutput) }
+      def generateMenu() { new TemplateWriter(menuFile(outputDirectoryName)).writeToFile(new MenuTemplate().getOutput) }
 
-		def generateStats() { new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance).generate() }
+      def generateStats() { new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance).generate() }
 
-		def copyAssets() {
-			deepCopyPackageContent(GATLING_ASSETS_STYLE_PACKAGE, styleDirectory(outputDirectoryName))
-			deepCopyPackageContent(GATLING_ASSETS_JS_PACKAGE, jsDirectory(outputDirectoryName))
-		}
+      def copyAssets() {
+        deepCopyPackageContent(GATLING_ASSETS_STYLE_PACKAGE, styleDirectory(outputDirectoryName))
+        deepCopyPackageContent(GATLING_ASSETS_JS_PACKAGE, jsDirectory(outputDirectoryName))
+      }
 
-		if (!dataReader.statsPaths.collectFirst { case r @ RequestStatsPath(_, _) => r }.isDefined) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
+    if (!dataReader.statsPaths.collectFirst { case r @ RequestStatsPath(_, _) => r }.isDefined) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
 
-		val reportGenerators =
-			List(new AllSessionsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
-				new GlobalReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
-				new RequestDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
-				new GroupDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance))
+    val reportGenerators =
+      List(new AllSessionsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
+        new GlobalReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
+        new RequestDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
+        new GroupDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance))
 
-		copyAssets()
-		generateMenu()
-		PageTemplate.setRunInfo(dataReader.runMessage, dataReader.runStart, dataReader.runEnd)
-		reportGenerators.foreach(_.generate)
-		generateStats()
+    copyAssets()
+    generateMenu()
+    PageTemplate.setRunInfo(dataReader.runMessage, dataReader.runStart, dataReader.runEnd)
+    reportGenerators.foreach(_.generate)
+    generateStats()
 
-		globalFile(outputDirectoryName)
-	}
+    globalFile(outputDirectoryName)
+  }
 }

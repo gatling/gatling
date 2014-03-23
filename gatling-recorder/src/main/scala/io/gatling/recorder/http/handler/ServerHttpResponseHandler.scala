@@ -26,44 +26,44 @@ import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureLis
 
 class ServerHttpResponseHandler(controller: RecorderController, clientChannel: Channel, @volatile var request: HttpRequest, var expectConnect: Boolean) extends SimpleChannelHandler with StrictLogging {
 
-	override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
+  override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
 
-		context.sendUpstream(event)
+    context.sendUpstream(event)
 
-		val serverChannel = context.getChannel
+    val serverChannel = context.getChannel
 
-		event.getMessage match {
-			case response: HttpResponse =>
-				if (expectConnect) {
-					expectConnect = false
-					BootstrapFactory.upgradeProtocol(context.getChannel.getPipeline)
-					serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request))
+    event.getMessage match {
+      case response: HttpResponse =>
+        if (expectConnect) {
+          expectConnect = false
+          BootstrapFactory.upgradeProtocol(context.getChannel.getPipeline)
+          serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request))
 
-				} else {
-					controller.receiveResponse(request, response)
+        } else {
+          controller.receiveResponse(request, response)
 
-					val requestConnectionHeader = Option(request.headers.get(HttpHeaders.Names.CONNECTION))
+          val requestConnectionHeader = Option(request.headers.get(HttpHeaders.Names.CONNECTION))
 
-					// FIXME not very clean
-					request = null
+          // FIXME not very clean
+          request = null
 
-					clientChannel.write(response).addListener { future: ChannelFuture =>
+          clientChannel.write(response).addListener { future: ChannelFuture =>
 
-						val keepAlive = (for {
-							requestKeepAlive <- requestConnectionHeader if (HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase(requestKeepAlive))
-							responseKeepAlive <- Option(response.headers.get(HttpHeaders.Names.CONNECTION))
-						} yield HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase(responseKeepAlive)).getOrElse(false)
+            val keepAlive = (for {
+              requestKeepAlive <- requestConnectionHeader if (HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase(requestKeepAlive))
+              responseKeepAlive <- Option(response.headers.get(HttpHeaders.Names.CONNECTION))
+            } yield HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase(responseKeepAlive)).getOrElse(false)
 
-						if (keepAlive) {
-							logger.debug("Both request and response are willing to keep the connection alive, reusing channels")
-						} else {
-							logger.debug("Request and/or response is not willing to keep the connection alive, closing both channels")
-							serverChannel.close
-							clientChannel.close
-						}
-					}
-				}
-			case unknown => logger.warn(s"Received unknown message: $unknown")
-		}
-	}
+            if (keepAlive) {
+              logger.debug("Both request and response are willing to keep the connection alive, reusing channels")
+            } else {
+              logger.debug("Request and/or response is not willing to keep the connection alive, closing both channels")
+              serverChannel.close
+              clientChannel.close
+            }
+          }
+        }
+      case unknown => logger.warn(s"Received unknown message: $unknown")
+    }
+  }
 }

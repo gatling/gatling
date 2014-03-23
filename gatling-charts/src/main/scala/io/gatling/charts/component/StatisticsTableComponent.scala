@@ -25,17 +25,17 @@ import io.gatling.core.util.StringHelper.eol
 
 class StatisticsTableComponent extends Component {
 
-	private val MAX_REQUEST_NAME_SIZE = 20
-	private val NUMBER_OF_CHARS_BEFORE_DOTS = 8
-	private val NUMBER_OF_CHARS_AFTER_DOTS = 8
+  private val MAX_REQUEST_NAME_SIZE = 20
+  private val NUMBER_OF_CHARS_BEFORE_DOTS = 8
+  private val NUMBER_OF_CHARS_AFTER_DOTS = 8
 
-	val html = {
+  val html = {
 
-		val pct1 = formatNumberWithSuffix(configuration.charting.indicators.percentile1) + " pct"
-		val pct2 = formatNumberWithSuffix(configuration.charting.indicators.percentile2) + " pct"
-		val responseTimeFields = Vector("Min", "Max", "Mean", "Std Dev", pct1, pct2, "Req/s")
+    val pct1 = formatNumberWithSuffix(configuration.charting.indicators.percentile1) + " pct"
+    val pct2 = formatNumberWithSuffix(configuration.charting.indicators.percentile2) + " pct"
+    val responseTimeFields = Vector("Min", "Max", "Mean", "Std Dev", pct1, pct2, "Req/s")
 
-		fast"""
+    fast"""
                         <div class="statistics extensible-geant collapsed">
                             <div class="title">
                                 <div class="right">
@@ -69,9 +69,9 @@ class StatisticsTableComponent extends Component {
                             </div>
                         </div>
 """
-	}
+  }
 
-	val js = fast"""
+  val js = fast"""
 
   function shortenNameAndDisplayFullOnHover(name){
    if (name.length < $MAX_REQUEST_NAME_SIZE)
@@ -159,5 +159,5 @@ else {
 }
 """
 
-	val jsFiles: Seq[String] = Seq.empty
+  val jsFiles: Seq[String] = Seq.empty
 }

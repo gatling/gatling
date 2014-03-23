@@ -29,36 +29,36 @@ import io.gatling.core.util.TimeHelper.nowMillis
  */
 class Pause(pauseDuration: Expression[Long], val next: ActorRef) extends Interruptable with Failable {
 
-	/**
-	 * Generates a duration if required or use the one given and defer
-	 * next actor execution of this duration
-	 *
-	 * @param session the session of the virtual user
-	 */
-	def executeOrFail(session: Session) = {
+  /**
+   * Generates a duration if required or use the one given and defer
+   * next actor execution of this duration
+   *
+   * @param session the session of the virtual user
+   */
+  def executeOrFail(session: Session) = {
 
-		def schedule(durationInMillis: Long) = {
-			val drift = session.drift
+      def schedule(durationInMillis: Long) = {
+        val drift = session.drift
 
-			if (durationInMillis > drift) {
-				// can make pause
-				val durationMinusDrift = durationInMillis - drift
-				logger.info(s"Pausing for ${durationInMillis}ms (real=${durationMinusDrift}ms)")
+        if (durationInMillis > drift) {
+          // can make pause
+          val durationMinusDrift = durationInMillis - drift
+          logger.info(s"Pausing for ${durationInMillis}ms (real=${durationMinusDrift}ms)")
 
-				val pauseStart = nowMillis
-				scheduler.scheduleOnce(durationMinusDrift milliseconds) {
-					val newDrift = nowMillis - pauseStart - durationMinusDrift
-					next ! session.setDrift(newDrift)
-				}
+          val pauseStart = nowMillis
+          scheduler.scheduleOnce(durationMinusDrift milliseconds) {
+            val newDrift = nowMillis - pauseStart - durationMinusDrift
+            next ! session.setDrift(newDrift)
+          }
 
-			} else {
-				// drift is too big
-				val remainingDrift = drift - durationInMillis
-				logger.info(s"can't pause (remaining drift=${remainingDrift}ms)")
-				next ! session.setDrift(remainingDrift)
-			}
-		}
+        } else {
+          // drift is too big
+          val remainingDrift = drift - durationInMillis
+          logger.info(s"can't pause (remaining drift=${remainingDrift}ms)")
+          next ! session.setDrift(remainingDrift)
+        }
+      }
 
-		pauseDuration(session).map(schedule)
-	}
+    pauseDuration(session).map(schedule)
+  }
 }

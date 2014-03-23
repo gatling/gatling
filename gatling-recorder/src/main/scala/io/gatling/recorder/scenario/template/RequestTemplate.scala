@@ -22,48 +22,48 @@ import io.gatling.recorder.scenario.RequestElement
 
 object RequestTemplate {
 
-	val builtInHttpMethods = List("GET", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS", "POST")
+  val builtInHttpMethods = List("GET", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS", "POST")
 
-	def headersBlockName(id: Int) = fast"headers_$id"
+  def headersBlockName(id: Int) = fast"headers_$id"
 
-	def render(simulationClass: String, request: RequestElement) = {
+  def render(simulationClass: String, request: RequestElement) = {
 
-		def renderMethod =
-			if (builtInHttpMethods.contains(request.method)) {
-				fast"${request.method.toLowerCase}($renderUrl)"
-			} else {
-				fast"""httpRequestWithBody("$request.method", Left($renderUrl))"""
-			}
+      def renderMethod =
+        if (builtInHttpMethods.contains(request.method)) {
+          fast"${request.method.toLowerCase}($renderUrl)"
+        } else {
+          fast"""httpRequestWithBody("$request.method", Left($renderUrl))"""
+        }
 
-		def renderUrl = protectWithTripleQuotes(request.printedUrl)
+      def renderUrl = protectWithTripleQuotes(request.printedUrl)
 
-		def renderHeaders = request.filteredHeadersId
-			.map { id =>
-				s"""
+      def renderHeaders = request.filteredHeadersId
+        .map { id =>
+          s"""
 			.headers(${headersBlockName(id)})"""
-			}.getOrElse("")
+        }.getOrElse("")
 
-		def renderBodyOrParams = request.body.map {
-			case RequestBodyBytes(_) => fast"""
+      def renderBodyOrParams = request.body.map {
+        case RequestBodyBytes(_) => fast"""
 			.body(RawFileBody("${simulationClass}_request_${request.id}.txt"))"""
-			case RequestBodyParams(params) => params.map {
-				case (key, value) => fast"""
+        case RequestBodyParams(params) => params.map {
+          case (key, value) => fast"""
 			.param(${protectWithTripleQuotes(key)}, ${protectWithTripleQuotes(value)})"""
-			}.mkFastring
-		}.getOrElse(emptyFastring)
+        }.mkFastring
+      }.getOrElse(emptyFastring)
 
-		def renderCredentials = request.basicAuthCredentials.map {
-			case (username, password) => s"""
+      def renderCredentials = request.basicAuthCredentials.map {
+        case (username, password) => s"""
 			.basicAuth(${protectWithTripleQuotes(username)},${protectWithTripleQuotes(password)})"""
-		}.getOrElse("")
+      }.getOrElse("")
 
-		def renderStatusCheck =
-			if (request.statusCode > 210 || request.statusCode < 200) {
-				fast"""
+      def renderStatusCheck =
+        if (request.statusCode > 210 || request.statusCode < 200) {
+          fast"""
 			.check(status.is(${request.statusCode}))"""
-			} else ""
+        } else ""
 
-		fast"""exec(http("request_${request.id}")
+    fast"""exec(http("request_${request.id}")
 			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderStatusCheck)""".toString
-	}
+  }
 }

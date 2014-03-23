@@ -18,30 +18,30 @@ package io.gatling.core.result.writer
 import io.gatling.core.util.FileHelper.tabulationSeparator
 
 sealed abstract class MessageType {
-	def name: String
-	def recordLength: Int
-	def unapply(string: String) = {
-		val array = string.split(tabulationSeparator)
-		if (array.length >= recordLength && array(2) == name) Some(array) else None
-	}
+  def name: String
+  def recordLength: Int
+  def unapply(string: String) = {
+    val array = string.split(tabulationSeparator)
+    if (array.length >= recordLength && array(2) == name) Some(array) else None
+  }
 }
 
 object RunMessageType extends MessageType {
-	val name = "RUN"
-	val recordLength = 5
+  val name = "RUN"
+  val recordLength = 5
 }
 
 object RequestMessageType extends MessageType {
-	val name = "REQUEST"
-	val recordLength = 10
+  val name = "REQUEST"
+  val recordLength = 10
 }
 
 object UserMessageType extends MessageType {
-	val name = "USER"
-	val recordLength = 5
+  val name = "USER"
+  val recordLength = 5
 }
 
 object GroupMessageType extends MessageType {
-	val name = "GROUP"
-	val recordLength = 7
+  val name = "GROUP"
+  val recordLength = 7
 }

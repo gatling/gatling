@@ -28,74 +28,74 @@ import io.gatling.core.util.IOHelper.withCloseable
 
 object ScanHelper {
 
-	val SEPARATOR = Character.valueOf(28).toString
+  val SEPARATOR = Character.valueOf(28).toString
 
-	def getPackageResources(pkg: Path, deep: Boolean): Iterator[Resource] = {
+  def getPackageResources(pkg: Path, deep: Boolean): Iterator[Resource] = {
 
-		def isResourceInRootDir(fileish: Fileish, rootDir: Path): Boolean = {
-			if (fileish.path.extension.isEmpty)
-				false
-			else if (deep)
-				fileish.path.startsWith(rootDir)
-			else
-				fileish.parent == rootDir
-		}
+      def isResourceInRootDir(fileish: Fileish, rootDir: Path): Boolean = {
+        if (fileish.path.extension.isEmpty)
+          false
+        else if (deep)
+          fileish.path.startsWith(rootDir)
+        else
+          fileish.parent == rootDir
+      }
 
-		getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).flatMap { pkgURL =>
-			pkgURL.getProtocol match {
-				case "file" =>
-					val rootDir = File(pkgURL.jfile).toDirectory
-					val files = if (deep) rootDir.deepFiles else rootDir.files
-					files.map(FileResource)
+    getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).flatMap { pkgURL =>
+      pkgURL.getProtocol match {
+        case "file" =>
+          val rootDir = File(pkgURL.jfile).toDirectory
+          val files = if (deep) rootDir.deepFiles else rootDir.files
+          files.map(FileResource)
 
-				case "jar" =>
-					val connection = pkgURL.openConnection.asInstanceOf[JarURLConnection]
-					val rootDir: Path = connection.getJarEntry.getName
-					val jar = new Jar(File(new JFile(connection.getJarFileURL.toURI)))
-					jar.fileishIterator.collect { case fileish if isResourceInRootDir(fileish, rootDir) => new FileishResource(fileish) }
+        case "jar" =>
+          val connection = pkgURL.openConnection.asInstanceOf[JarURLConnection]
+          val rootDir: Path = connection.getJarEntry.getName
+          val jar = new Jar(File(new JFile(connection.getJarFileURL.toURI)))
+          jar.fileishIterator.collect { case fileish if isResourceInRootDir(fileish, rootDir) => new FileishResource(fileish) }
 
-				case _ => throw new UnsupportedOperationException
-			}
-		}
-	}
+        case _ => throw new UnsupportedOperationException
+      }
+    }
+  }
 
-	def deepCopyPackageContent(pkg: Path, targetDirectoryPath: Path) {
+  def deepCopyPackageContent(pkg: Path, targetDirectoryPath: Path) {
 
-		def getPathStringAfterPackage(path: Path, pkg: Path): Path = {
-			val pathString = path.segments.mkString(SEPARATOR)
-			val pkgString = pkg.segments.mkString(SEPARATOR)
-			Path(pathString.split(pkgString).last.split(SEPARATOR))
-		}
+      def getPathStringAfterPackage(path: Path, pkg: Path): Path = {
+        val pathString = path.segments.mkString(SEPARATOR)
+        val pkgString = pkg.segments.mkString(SEPARATOR)
+        Path(pathString.split(pkgString).last.split(SEPARATOR))
+      }
 
-		getPackageResources(pkg, true).foreach { resource =>
-			val target = targetDirectoryPath / getPathStringAfterPackage(resource.path, pkg)
-			resource.copyTo(target)
-		}
-	}
+    getPackageResources(pkg, true).foreach { resource =>
+      val target = targetDirectoryPath / getPathStringAfterPackage(resource.path, pkg)
+      resource.copyTo(target)
+    }
+  }
 }
 
 sealed trait Resource {
-	def path: Path
-	def copyTo(target: Path)
+  def path: Path
+  def copyTo(target: Path)
 }
 
 case class FileResource(file: File) extends Resource {
-	def path = file.path
-	def copyTo(target: Path) {
-		target.parent.createDirectory()
-		file.copyTo(target, true)
-	}
+  def path = file.path
+  def copyTo(target: Path) {
+    target.parent.createDirectory()
+    file.copyTo(target, true)
+  }
 }
 
 case class FileishResource(fileish: Fileish) extends Resource {
-	def path = fileish.path
-	def copyTo(target: Path) {
-		target.parent.createDirectory()
+  def path = fileish.path
+  def copyTo(target: Path) {
+    target.parent.createDirectory()
 
-		withCloseable(fileish.input()) { input =>
-			withCloseable(target.toFile.outputStream(false)) { output =>
-				IOUtils.copy(input, output)
-			}
-		}
-	}
+    withCloseable(fileish.input()) { input =>
+      withCloseable(target.toFile.outputStream(false)) { output =>
+        IOUtils.copy(input, output)
+      }
+    }
+  }
 }

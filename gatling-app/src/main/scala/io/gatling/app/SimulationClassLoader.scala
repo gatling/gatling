@@ -26,43 +26,43 @@ import io.gatling.core.scenario.Simulation
 
 object SimulationClassLoader {
 
-	def fromSourcesDirectory(sourceDirectory: Directory): SimulationClassLoader = {
+  def fromSourcesDirectory(sourceDirectory: Directory): SimulationClassLoader = {
 
-		// Compile the classes
-		val classesDir = ZincCompilerLauncher(sourceDirectory)
+    // Compile the classes
+    val classesDir = ZincCompilerLauncher(sourceDirectory)
 
-		// Pass the compiled classes to a ClassLoader
-		val byteCodeDir = PlainFile.fromPath(classesDir)
-		val classLoader = new AbstractFileClassLoader(byteCodeDir, getClass.getClassLoader)
+    // Pass the compiled classes to a ClassLoader
+    val byteCodeDir = PlainFile.fromPath(classesDir)
+    val classLoader = new AbstractFileClassLoader(byteCodeDir, getClass.getClassLoader)
 
-		new SimulationClassLoader(classLoader, classesDir)
-	}
+    new SimulationClassLoader(classLoader, classesDir)
+  }
 
-	def fromClasspathBinariesDirectory(binariesDirectory: Directory) = new SimulationClassLoader(getClass.getClassLoader, binariesDirectory)
+  def fromClasspathBinariesDirectory(binariesDirectory: Directory) = new SimulationClassLoader(getClass.getClassLoader, binariesDirectory)
 }
 
 class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Directory) {
 
-	def simulationClasses(requestedClassName: Option[String]): List[Class[Simulation]] = {
+  def simulationClasses(requestedClassName: Option[String]): List[Class[Simulation]] = {
 
-		def isSimulationClass(clazz: Class[_]): Boolean = classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
+      def isSimulationClass(clazz: Class[_]): Boolean = classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
 
-		def pathToClassName(path: Path, root: Path): String = (path.parent / path.stripExtension)
-			.toString()
-			.stripPrefix(root + File.separator)
-			.replace(File.separator, ".")
+      def pathToClassName(path: Path, root: Path): String = (path.parent / path.stripExtension)
+        .toString()
+        .stripPrefix(root + File.separator)
+        .replace(File.separator, ".")
 
-		requestedClassName.map { requestedClassName =>
-			val clazz = classLoader.loadClass(requestedClassName)
-			assert(isSimulationClass(clazz), s"Requested class name $requestedClassName does not extend Simulation")
-			List(clazz.asInstanceOf[Class[Simulation]])
+    requestedClassName.map { requestedClassName =>
+      val clazz = classLoader.loadClass(requestedClassName)
+      assert(isSimulationClass(clazz), s"Requested class name $requestedClassName does not extend Simulation")
+      List(clazz.asInstanceOf[Class[Simulation]])
 
-		}.getOrElse {
-			binaryDir
-				.deepFiles
-				.collect { case file if file.hasExtension("class") => classLoader.loadClass(pathToClassName(file, binaryDir)) }
-				.collect { case clazz if isSimulationClass(clazz) => clazz.asInstanceOf[Class[Simulation]] }
-				.toList
-		}
-	}
+    }.getOrElse {
+      binaryDir
+        .deepFiles
+        .collect { case file if file.hasExtension("class") => classLoader.loadClass(pathToClassName(file, binaryDir)) }
+        .collect { case clazz if isSimulationClass(clazz) => clazz.asInstanceOf[Class[Simulation]] }
+        .toList
+    }
+  }
 }

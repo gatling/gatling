@@ -20,35 +20,35 @@ import io.gatling.core.result.writer.UserMessage
 
 class UserMetric(val nbUsers: Int) {
 
-	private var _active = 0
-	private var activeBuffer = 0
-	private var _waiting = nbUsers
-	private var _done = 0
-	private var doneBuffer = 0
+  private var _active = 0
+  private var activeBuffer = 0
+  private var _waiting = nbUsers
+  private var _done = 0
+  private var doneBuffer = 0
 
-	def update(userMessage: UserMessage) {
-		userMessage.event match {
-			case Start =>
-				_active += 1
-				_waiting -= 1
+  def update(userMessage: UserMessage) {
+    userMessage.event match {
+      case Start =>
+        _active += 1
+        _waiting -= 1
 
-			case End =>
-				activeBuffer += 1
-				doneBuffer += 1
-		}
-	}
+      case End =>
+        activeBuffer += 1
+        doneBuffer += 1
+    }
+  }
 
-	def active = {
-		_active -= activeBuffer
-		activeBuffer = 0
-		_active
-	}
+  def active = {
+    _active -= activeBuffer
+    activeBuffer = 0
+    _active
+  }
 
-	def waiting = _waiting
+  def waiting = _waiting
 
-	def done = {
-		_done += doneBuffer
-		doneBuffer = 0
-		_done
-	}
+  def done = {
+    _done += doneBuffer
+    doneBuffer = 0
+    _done
+  }
 }

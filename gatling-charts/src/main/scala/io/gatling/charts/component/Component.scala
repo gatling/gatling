@@ -19,9 +19,9 @@ import com.dongxiguo.fastring.Fastring
 
 trait Component {
 
-	def html: Fastring
+  def html: Fastring
 
-	def js: Fastring
+  def js: Fastring
 
-	def jsFiles: Seq[String]
+  def jsFiles: Seq[String]
 }

@@ -20,28 +20,28 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 class UnsyncBufferedOutputStream(os: OutputStream, bufferSize: Int) extends StrictLogging {
 
-	private var bufferPosition = 0
-	private val buffer = new Array[Byte](bufferSize)
+  private var bufferPosition = 0
+  private val buffer = new Array[Byte](bufferSize)
 
-	def flush() {
-		os.write(buffer, 0, bufferPosition)
-		bufferPosition = 0
-	}
+  def flush() {
+    os.write(buffer, 0, bufferPosition)
+    bufferPosition = 0
+  }
 
-	def write(bytes: Array[Byte]) {
-		if (bytes.length + bufferPosition > bufferSize) {
-			flush()
-		}
+  def write(bytes: Array[Byte]) {
+    if (bytes.length + bufferPosition > bufferSize) {
+      flush()
+    }
 
-		if (bytes.length > bufferSize) {
-			// can't write in buffer
-			logger.warn(s"Buffer size $bufferSize is not sufficient for message of size ${bytes.length}")
-			os.write(bytes)
+    if (bytes.length > bufferSize) {
+      // can't write in buffer
+      logger.warn(s"Buffer size $bufferSize is not sufficient for message of size ${bytes.length}")
+      os.write(bytes)
 
-		} else {
-			System.arraycopy(bytes, 0, buffer, bufferPosition, bytes.length)
-			bufferPosition += bytes.length
-		}
-	}
+    } else {
+      System.arraycopy(bytes, 0, buffer, bufferPosition, bytes.length)
+      bufferPosition += bytes.length
+    }
+  }
 }
 

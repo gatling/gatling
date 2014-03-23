@@ -20,26 +20,26 @@ import scala.util.{ Failure, Success, Try }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 case class Filters(first: Filter, second: Filter) {
-	def accept(url: String) = first.accept(url) && second.accept(url)
+  def accept(url: String) = first.accept(url) && second.accept(url)
 }
 
 sealed abstract class Filter extends StrictLogging {
-	def patterns: Seq[String]
-	val regexes = patterns.flatMap { p =>
-		Try(p.r) match {
-			case Success(regex) => Some(regex)
-			case Failure(t) =>
-				logger.error(s"""Incorrect filter pattern "$p": ${t.getMessage}""")
-				None
-		}
-	}.toVector
-	def accept(url: String): Boolean
+  def patterns: Seq[String]
+  val regexes = patterns.flatMap { p =>
+    Try(p.r) match {
+      case Success(regex) => Some(regex)
+      case Failure(t) =>
+        logger.error(s"""Incorrect filter pattern "$p": ${t.getMessage}""")
+        None
+    }
+  }.toVector
+  def accept(url: String): Boolean
 }
 
 case class WhiteList(patterns: Seq[String] = Nil) extends Filter {
-	def accept(url: String): Boolean = regexes.isEmpty || regexes.exists(_.pattern.matcher(url).matches)
+  def accept(url: String): Boolean = regexes.isEmpty || regexes.exists(_.pattern.matcher(url).matches)
 }
 
 case class BlackList(patterns: Seq[String] = Nil) extends Filter {
-	def accept(url: String): Boolean = regexes.forall(!_.pattern.matcher(url).matches)
+  def accept(url: String): Boolean = regexes.forall(!_.pattern.matcher(url).matches)
 }

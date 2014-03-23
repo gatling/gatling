@@ -29,13 +29,13 @@ import io.gatling.core.session.{ Expression, Session }
  */
 class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, val next: ActorRef) extends Interruptable with Failable {
 
-	/**
-	 * Evaluates the condition and decides what to do next
-	 *
-	 * @param session the session of the virtual user
-	 */
-	def executeOrFail(session: Session) = condition(session).map { condition =>
-		val n = if (condition) thenNext else elseNext
-		n ! session
-	}
+  /**
+   * Evaluates the condition and decides what to do next
+   *
+   * @param session the session of the virtual user
+   */
+  def executeOrFail(session: Session) = condition(session).map { condition =>
+    val n = if (condition) thenNext else elseNext
+    n ! session
+  }
 }

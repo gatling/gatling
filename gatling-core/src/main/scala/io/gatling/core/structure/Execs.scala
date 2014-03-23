@@ -21,15 +21,15 @@ import io.gatling.core.session.{ Expression, Session }
 
 trait Execs[B] {
 
-	private[core] def actionBuilders: List[ActionBuilder]
-	private[core] def newInstance(actionBuilders: List[ActionBuilder]): B
+  private[core] def actionBuilders: List[ActionBuilder]
+  private[core] def newInstance(actionBuilders: List[ActionBuilder]): B
 
-	def exec(sessionFunction: Expression[Session]): B = exec(new SessionHookBuilder(sessionFunction, true))
-	def exec(actionBuilder: ActionBuilder): B = chain(List(actionBuilder))
-	def exec(chains: ChainBuilder*): B = exec(chains.toIterable)
-	def exec(chains: Iterator[ChainBuilder]): B = exec(chains.toIterable)
-	def exec(chains: Iterable[ChainBuilder]): B = chain(chains.toList.reverse.flatMap(_.actionBuilders))
-	def exec(scenario: ScenarioBuilder): B = chain(scenario.actionBuilders)
+  def exec(sessionFunction: Expression[Session]): B = exec(new SessionHookBuilder(sessionFunction, true))
+  def exec(actionBuilder: ActionBuilder): B = chain(List(actionBuilder))
+  def exec(chains: ChainBuilder*): B = exec(chains.toIterable)
+  def exec(chains: Iterator[ChainBuilder]): B = exec(chains.toIterable)
+  def exec(chains: Iterable[ChainBuilder]): B = chain(chains.toList.reverse.flatMap(_.actionBuilders))
+  def exec(scenario: ScenarioBuilder): B = chain(scenario.actionBuilders)
 
-	private[core] def chain(newActionBuilders: Seq[ActionBuilder]): B = newInstance(newActionBuilders.toList ::: actionBuilders)
+  private[core] def chain(newActionBuilders: Seq[ActionBuilder]): B = newInstance(newActionBuilders.toList ::: actionBuilders)
 }

@@ -23,14 +23,14 @@ import io.gatling.http.config.HttpProtocol
 
 object RefererHandling {
 
-	val refererAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.referer"
+  val refererAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.referer"
 
-	def getStoredReferer(session: Session): Option[String] = session(refererAttributeName).asOption[String]
+  def getStoredReferer(session: Session): Option[String] = session(refererAttributeName).asOption[String]
 
-	def storeReferer(request: Request, session: Session, protocol: HttpProtocol): Session = {
+  def storeReferer(request: Request, session: Session, protocol: HttpProtocol): Session = {
 
-		def isRealPage(request: Request): Boolean = !request.getHeaders.containsKey(HeaderNames.X_REQUESTED_WITH) && Option(request.getHeaders.get(HeaderNames.ACCEPT)).exists(_.get(0).contains("html"))
+      def isRealPage(request: Request): Boolean = !request.getHeaders.containsKey(HeaderNames.X_REQUESTED_WITH) && Option(request.getHeaders.get(HeaderNames.ACCEPT)).exists(_.get(0).contains("html"))
 
-		if (protocol.requestPart.autoReferer && isRealPage(request)) session.set(refererAttributeName, request.getUrl) else session
-	}
+    if (protocol.requestPart.autoReferer && isRealPage(request)) session.set(refererAttributeName, request.getUrl) else session
+  }
 }

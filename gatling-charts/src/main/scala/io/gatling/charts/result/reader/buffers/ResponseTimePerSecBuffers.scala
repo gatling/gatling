@@ -23,12 +23,12 @@ import io.gatling.core.result.message.Status
 
 trait ResponseTimePerSecBuffers {
 
-	val responseTimePerSecBuffers = mutable.Map.empty[BufferKey, RangeBuffer]
+  val responseTimePerSecBuffers = mutable.Map.empty[BufferKey, RangeBuffer]
 
-	def getResponseTimePerSecBuffers(requestName: String, group: Option[Group], status: Option[Status]): RangeBuffer =
-		responseTimePerSecBuffers.getOrElseUpdate(BufferKey(Some(requestName), group, status), new RangeBuffer)
+  def getResponseTimePerSecBuffers(requestName: String, group: Option[Group], status: Option[Status]): RangeBuffer =
+    responseTimePerSecBuffers.getOrElseUpdate(BufferKey(Some(requestName), group, status), new RangeBuffer)
 
-	def updateResponseTimePerSecBuffers(record: RequestRecord) {
-		getResponseTimePerSecBuffers(record.name, record.group, Some(record.status)).update(record.requestStartBucket, record.responseTime)
-	}
+  def updateResponseTimePerSecBuffers(record: RequestRecord) {
+    getResponseTimePerSecBuffers(record.name, record.group, Some(record.status)).update(record.requestStartBucket, record.responseTime)
+  }
 }

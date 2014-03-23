@@ -25,26 +25,26 @@ import io.gatling.core.util.IOHelper.withCloseable
 
 object GZIPHelper {
 
-	def gzip(string: String): Array[Byte] = gzip(string.getBytes)
+  def gzip(string: String): Array[Byte] = gzip(string.getBytes)
 
-	def gzip(bytes: Array[Byte]): Array[Byte] = {
-		val bytesOut = new ByteArrayOutputStream(bytes.length)
+  def gzip(bytes: Array[Byte]): Array[Byte] = {
+    val bytesOut = new ByteArrayOutputStream(bytes.length)
 
-		withCloseable(new GZIPOutputStream(bytesOut)) {
-			_.write(bytes)
-		}
+    withCloseable(new GZIPOutputStream(bytesOut)) {
+      _.write(bytes)
+    }
 
-		bytesOut.toByteArray
-	}
+    bytesOut.toByteArray
+  }
 
-	def gzip(in: InputStream): Array[Byte] = {
+  def gzip(in: InputStream): Array[Byte] = {
 
-		val bytesOut = new ByteArrayOutputStream(512)
+    val bytesOut = new ByteArrayOutputStream(512)
 
-		withCloseable(new GZIPOutputStream(bytesOut)) {
-			IOUtils.copy(in, _)
-		}
+    withCloseable(new GZIPOutputStream(bytesOut)) {
+      IOUtils.copy(in, _)
+    }
 
-		bytesOut.toByteArray
-	}
+    bytesOut.toByteArray
+  }
 }

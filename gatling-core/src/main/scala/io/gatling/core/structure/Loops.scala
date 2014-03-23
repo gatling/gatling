@@ -27,42 +27,42 @@ import io.gatling.core.validation.SuccessWrapper
 
 object Loops {
 
-	val trueExpression: Expression[Boolean] = {
-		val trueSuccess = true.success
-		_ => trueSuccess
-	}
+  val trueExpression: Expression[Boolean] = {
+    val trueSuccess = true.success
+    _ => trueSuccess
+  }
 }
 
 trait Loops[B] extends Execs[B] {
 
-	def repeat(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
+  def repeat(times: Expression[Int], counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 
-		val continueCondition = (session: Session) => times(session).map(session.loopCounterValue(counterName) < _)
+    val continueCondition = (session: Session) => times(session).map(session.loopCounterValue(counterName) < _)
 
-		asLongAs(continueCondition, counterName, exitASAP = false)(chain)
-	}
+    asLongAs(continueCondition, counterName, exitASAP = false)(chain)
+  }
 
-	def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
+  def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
 
-		val exposeCurrentValue = (session: Session) => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName))))
-		val continueCondition = (session: Session) => seq(session).map(_.size > session.loopCounterValue(counterName))
+    val exposeCurrentValue = (session: Session) => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName))))
+    val continueCondition = (session: Session) => seq(session).map(_.size > session.loopCounterValue(counterName))
 
-		asLongAs(continueCondition, counterName, exitASAP = false)(chainOf(new SessionHookBuilder(exposeCurrentValue)).exec(chain))
-	}
+    asLongAs(continueCondition, counterName, exitASAP = false)(chainOf(new SessionHookBuilder(exposeCurrentValue)).exec(chain))
+  }
 
-	def during(duration: Duration, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B = {
+  def during(duration: Duration, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B = {
 
-		val durationMillis = duration.toMillis
-		val continueCondition = (session: Session) => (nowMillis - session.loopTimestampValue(counterName) <= durationMillis).success
+    val durationMillis = duration.toMillis
+    val continueCondition = (session: Session) => (nowMillis - session.loopTimestampValue(counterName) <= durationMillis).success
 
-		asLongAs(continueCondition, counterName, exitASAP)(chain)
-	}
+    asLongAs(continueCondition, counterName, exitASAP)(chain)
+  }
 
-	def forever(chain: ChainBuilder): B = forever(UUID.randomUUID.toString, exitASAP = true)(chain)
+  def forever(chain: ChainBuilder): B = forever(UUID.randomUUID.toString, exitASAP = true)(chain)
 
-	def forever(counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
-		asLongAs(Loops.trueExpression, counterName, exitASAP)(chain)
+  def forever(counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
+    asLongAs(Loops.trueExpression, counterName, exitASAP)(chain)
 
-	def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
-		exec(new WhileBuilder(condition, chain, counterName, exitASAP))
+  def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
+    exec(new WhileBuilder(condition, chain, counterName, exitASAP))
 }
