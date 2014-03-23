@@ -86,5 +86,7 @@ The last part of the file contains the simulation definition, this is where you 
     .protocols(httpConf) // (2)
   )
 
+which correspond to:
+
   1. We inject one single into the *scn* scenario
   2. We configure *httpConf* on the *SetUp* so that we pass the base URL and the common headers.
