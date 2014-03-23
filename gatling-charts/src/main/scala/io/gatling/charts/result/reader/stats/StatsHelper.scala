@@ -29,7 +29,7 @@ object StatsHelper {
 
 	def bucket(t: Int, min: Int, max: Int, step: Double, halfStep: Double): Int = {
 		val value = t min (max - 1)
-		math.round((value - (value - min) % step + halfStep)).toInt
+		math.round(value - (value - min) % step + halfStep).toInt
 	}
 
 	def square(x: Double) = x * x

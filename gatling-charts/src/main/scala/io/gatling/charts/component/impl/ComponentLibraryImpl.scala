@@ -23,8 +23,6 @@ import io.gatling.core.result.{ IntRangeVsTimePlot, IntVsTimePlot, PieSlice, Ser
 /**
  * Mock implementation that is removed from the binary.
  * A unique implementation is expected to be present in the classpath.
- *
- * @author stephanelandelle
  */
 class ComponentLibraryImpl extends ComponentLibrary {
 

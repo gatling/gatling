@@ -48,7 +48,7 @@ class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Directory) {
 		def isSimulationClass(clazz: Class[_]): Boolean = classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
 
 		def pathToClassName(path: Path, root: Path): String = (path.parent / path.stripExtension)
-			.toString
+			.toString()
 			.stripPrefix(root + File.separator)
 			.replace(File.separator, ".")
 

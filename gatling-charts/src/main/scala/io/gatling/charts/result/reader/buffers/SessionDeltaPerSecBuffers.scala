@@ -27,8 +27,8 @@ object SessionDeltas {
 
 case class SessionDeltas(starts: Int, ends: Int) {
 
-	def addStart = copy(starts = starts + 1)
-	def addEnd = copy(ends = ends + 1)
+	def addStart() = copy(starts = starts + 1)
+	def addEnd() = copy(ends = ends + 1)
 }
 
 class SessionDeltaBuffer {

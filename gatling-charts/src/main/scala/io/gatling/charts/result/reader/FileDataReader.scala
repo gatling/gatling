@@ -45,7 +45,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 	println("Parsing log file(s)...")
 
 	val inputFiles = simulationLogDirectory(runUuid, create = false).files
-		.collect { case file if (file.name.matches(FileDataReader.simulationFilesNamePattern)) => file.jfile }
+		.collect { case file if file.name.matches(FileDataReader.simulationFilesNamePattern) => file.jfile }
 		.toList
 
 	logger.info(s"Collected $inputFiles from $runUuid")

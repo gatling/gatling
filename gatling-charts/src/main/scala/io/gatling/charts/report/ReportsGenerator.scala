@@ -31,7 +31,7 @@ object ReportsGenerator {
 
 		def generateMenu() { new TemplateWriter(menuFile(outputDirectoryName)).writeToFile(new MenuTemplate().getOutput) }
 
-		def generateStats() { new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance).generate }
+		def generateStats() { new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance).generate() }
 
 		def copyAssets() {
 			deepCopyPackageContent(GATLING_ASSETS_STYLE_PACKAGE, styleDirectory(outputDirectoryName))
@@ -46,11 +46,11 @@ object ReportsGenerator {
 				new RequestDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
 				new GroupDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance))
 
-		copyAssets
-		generateMenu
+		copyAssets()
+		generateMenu()
 		PageTemplate.setRunInfo(dataReader.runMessage, dataReader.runStart, dataReader.runEnd)
 		reportGenerators.foreach(_.generate)
-		generateStats
+		generateStats()
 
 		globalFile(outputDirectoryName)
 	}
