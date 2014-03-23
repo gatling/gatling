@@ -9,7 +9,7 @@ This is where you define the load you want to inject to your server.
 You can configure assertions and protocols with this two methods:
 
 * ``assertions``: set assertions on the simulation, see the dedicated section :ref:`here <assertions>`
-* ``protocols``: set protocols definitions, see the dedicated section for http protocol definition :ref:`here <http-protocol>`.
+* ``protocols``: set protocols definitions, see the dedicated section :ref:`here <http-protocol>`.
 
 .. _simulation-inject:
 
