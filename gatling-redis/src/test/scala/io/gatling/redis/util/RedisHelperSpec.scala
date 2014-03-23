@@ -24,14 +24,14 @@ import io.gatling.redis.util.RedisHelper.generateRedisProtocol
 @RunWith(classOf[JUnitRunner])
 class RedisHelperSpec extends Specification {
 
-	private val crlf = "\r\n"
+  private val crlf = "\r\n"
 
-	"generateRedisProtocol" should {
+  "generateRedisProtocol" should {
 
-		"generate a correct protocol" in {
-			val correctProtocol = List("*3", "$3", "SET", "$5", "mykey", "$7", "myvalue").mkString("", crlf, crlf)
+    "generate a correct protocol" in {
+      val correctProtocol = List("*3", "$3", "SET", "$5", "mykey", "$7", "myvalue").mkString("", crlf, crlf)
 
-			generateRedisProtocol("SET", "mykey", "myvalue") must be equalTo correctProtocol
-		}
-	}
+      generateRedisProtocol("SET", "mykey", "myvalue") must be equalTo correctProtocol
+    }
+  }
 }

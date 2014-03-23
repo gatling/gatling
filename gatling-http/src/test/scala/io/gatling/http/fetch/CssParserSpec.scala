@@ -24,32 +24,32 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class CssParserSpec extends Specification {
 
-	val rootURI = new URI("http://akka.io/")
+  val rootURI = new URI("http://akka.io/")
 
-	"parsing CSS" should {
+  "parsing CSS" should {
 
-		def rulesUri(css: String) = CssParser.extractResources(rootURI, css).map(_.url)
+      def rulesUri(css: String) = CssParser.extractResources(rootURI, css).map(_.url)
 
-		"handle an empty CSS" in {
-			rulesUri("") must beEqualTo(Nil)
-		}
+    "handle an empty CSS" in {
+      rulesUri("") must beEqualTo(Nil)
+    }
 
-		"fetch imports" in {
-			val css = """
+    "fetch imports" in {
+      val css = """
 				@import url("import1.css");
 				body{background-image: url('backgrounds/blizzard.png');}
 				@import url("import2.css");
 				"""
-			rulesUri(css) must beEqualTo(Seq("http://akka.io/import1.css", "http://akka.io/import2.css"))
-		}
+      rulesUri(css) must beEqualTo(Seq("http://akka.io/import1.css", "http://akka.io/import2.css"))
+    }
 
-		"ignore commented imports with a simple CSS" in {
-			val css = """
+    "ignore commented imports with a simple CSS" in {
+      val css = """
 				/*@import url("import1.css");*/
 				body{background-image: url('backgrounds/blizzard.png');}
 				@import url("import2.css");
 				"""
-			rulesUri(css) must beEqualTo(Seq("http://akka.io/import2.css"))
-		}
-	}
+      rulesUri(css) must beEqualTo(Seq("http://akka.io/import2.css"))
+    }
+  }
 }

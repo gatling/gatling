@@ -22,27 +22,27 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class ProtocolSpec extends Specification {
 
-	case class FooProtocol(foo: String) extends Protocol
-	case class BarProtocol(bar: String) extends Protocol
+  case class FooProtocol(foo: String) extends Protocol
+  case class BarProtocol(bar: String) extends Protocol
 
-	"building registry" should {
+  "building registry" should {
 
-		"return the configuration when 1 configuration" in {
-			Protocols(new FooProtocol("foo")).getProtocol[FooProtocol] must beSome.which(_.foo == "foo")
-		}
+    "return the configuration when 1 configuration" in {
+      Protocols(new FooProtocol("foo")).getProtocol[FooProtocol] must beSome.which(_.foo == "foo")
+    }
 
-		"return the configurations when 2 different configurations" in {
-			val protocols = Protocols(new FooProtocol("foo"), new BarProtocol("bar"))
-			protocols.getProtocol[FooProtocol] must beSome.which(_.foo == "foo")
-			protocols.getProtocol[BarProtocol] must beSome.which(_.bar == "bar")
-		}
+    "return the configurations when 2 different configurations" in {
+      val protocols = Protocols(new FooProtocol("foo"), new BarProtocol("bar"))
+      protocols.getProtocol[FooProtocol] must beSome.which(_.foo == "foo")
+      protocols.getProtocol[BarProtocol] must beSome.which(_.bar == "bar")
+    }
 
-		"not fail when no configuration" in {
-			Protocols().getProtocol[FooProtocol] must beNone
-		}
+    "not fail when no configuration" in {
+      Protocols().getProtocol[FooProtocol] must beNone
+    }
 
-		"override with latest when multiple configurations of the same type" in {
-			Protocols(new FooProtocol("foo1"), new FooProtocol("foo2")).getProtocol[FooProtocol] must beSome.which(_.foo == "foo2")
-		}
-	}
+    "override with latest when multiple configurations of the same type" in {
+      Protocols(new FooProtocol("foo1"), new FooProtocol("foo2")).getProtocol[FooProtocol] must beSome.which(_.foo == "foo2")
+    }
+  }
 }

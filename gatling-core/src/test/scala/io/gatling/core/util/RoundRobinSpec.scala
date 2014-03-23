@@ -22,25 +22,25 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class RoundRobinSpec extends Specification {
 
-	"round robin" should {
+  "round robin" should {
 
-		"work fine with non empty Iterable" in {
+    "work fine with non empty Iterable" in {
 
-			val rr = RoundRobin(Array(1, 2, 3))
+      val rr = RoundRobin(Array(1, 2, 3))
 
-			rr.next should beEqualTo(1)
-			rr.next should beEqualTo(2)
-			rr.next should beEqualTo(3)
-			rr.next should beEqualTo(1)
-			rr.next should beEqualTo(2)
-			rr.next should beEqualTo(3)
-		}
+      rr.next should beEqualTo(1)
+      rr.next should beEqualTo(2)
+      rr.next should beEqualTo(3)
+      rr.next should beEqualTo(1)
+      rr.next should beEqualTo(2)
+      rr.next should beEqualTo(3)
+    }
 
-		"throw NoSuchElementException with iterating on an empty Iterable" in {
+    "throw NoSuchElementException with iterating on an empty Iterable" in {
 
-			val rr = RoundRobin(Array.empty[Int])
+      val rr = RoundRobin(Array.empty[Int])
 
-			rr.next should throwA[NoSuchElementException]
-		}
-	}
+      rr.next should throwA[NoSuchElementException]
+    }
+  }
 }

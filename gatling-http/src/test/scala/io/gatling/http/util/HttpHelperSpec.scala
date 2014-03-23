@@ -22,18 +22,18 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class HttpHelperSpec extends Specification {
 
-	"parseFormBody" should {
+  "parseFormBody" should {
 
-		"support unique param" in {
-			HttpHelper.parseFormBody("foo=bar") must beEqualTo(List("foo" -> "bar"))
-		}
+    "support unique param" in {
+      HttpHelper.parseFormBody("foo=bar") must beEqualTo(List("foo" -> "bar"))
+    }
 
-		"support multiple params" in {
-			HttpHelper.parseFormBody("foo=bar&baz=qux") must beEqualTo(List("foo" -> "bar", "baz" -> "qux"))
-		}
+    "support multiple params" in {
+      HttpHelper.parseFormBody("foo=bar&baz=qux") must beEqualTo(List("foo" -> "bar", "baz" -> "qux"))
+    }
 
-		"support empty value param" in {
-			HttpHelper.parseFormBody("foo=&baz=qux") must beEqualTo(List("foo" -> "", "baz" -> "qux"))
-		}
-	}
+    "support empty value param" in {
+      HttpHelper.parseFormBody("foo=&baz=qux") must beEqualTo(List("foo" -> "", "baz" -> "qux"))
+    }
+  }
 }

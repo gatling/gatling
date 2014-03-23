@@ -21,14 +21,14 @@ import akka.testkit.{ ImplicitSender, TestKit }
 import io.gatling.core.akka.GatlingActorSystem
 
 object ActorSupport {
-	def gatlingActorSystem = GatlingActorSystem.synchronized {
-		GatlingActorSystem.instanceOpt match {
-			case None =>
-				GatlingActorSystem.start()
-				GatlingActorSystem.instance
-			case Some(system) => system
-		}
-	}
+  def gatlingActorSystem = GatlingActorSystem.synchronized {
+    GatlingActorSystem.instanceOpt match {
+      case None =>
+        GatlingActorSystem.start()
+        GatlingActorSystem.instance
+      case Some(system) => system
+    }
+  }
 }
 
 class ActorSupport extends TestKit(ActorSupport.gatlingActorSystem) with ImplicitSender with Scope

@@ -22,46 +22,46 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class NumberHelperSpec extends Specification {
 
-	"formatNumberWithSuffix" should {
+  "formatNumberWithSuffix" should {
 
-		"return '1st' for 1" in {
-			NumberHelper.formatNumberWithSuffix(1) must beEqualTo("1st")
-		}
+    "return '1st' for 1" in {
+      NumberHelper.formatNumberWithSuffix(1) must beEqualTo("1st")
+    }
 
-		"return '2nd' for 2" in {
-			NumberHelper.formatNumberWithSuffix(2) must beEqualTo("2nd")
-		}
+    "return '2nd' for 2" in {
+      NumberHelper.formatNumberWithSuffix(2) must beEqualTo("2nd")
+    }
 
-		"return '3rd' for 3" in {
-			NumberHelper.formatNumberWithSuffix(3) must beEqualTo("3rd")
-		}
+    "return '3rd' for 3" in {
+      NumberHelper.formatNumberWithSuffix(3) must beEqualTo("3rd")
+    }
 
-		"return '4th' for 4" in {
-			NumberHelper.formatNumberWithSuffix(4) must beEqualTo("4th")
-		}
+    "return '4th' for 4" in {
+      NumberHelper.formatNumberWithSuffix(4) must beEqualTo("4th")
+    }
 
-		"return '11th' for 11" in {
-			NumberHelper.formatNumberWithSuffix(11) must beEqualTo("11th")
-		}
+    "return '11th' for 11" in {
+      NumberHelper.formatNumberWithSuffix(11) must beEqualTo("11th")
+    }
 
-		"return '12th' for 12" in {
-			NumberHelper.formatNumberWithSuffix(12) must beEqualTo("12th")
-		}
+    "return '12th' for 12" in {
+      NumberHelper.formatNumberWithSuffix(12) must beEqualTo("12th")
+    }
 
-		"return '13th' for 13" in {
-			NumberHelper.formatNumberWithSuffix(13) must beEqualTo("13th")
-		}
+    "return '13th' for 13" in {
+      NumberHelper.formatNumberWithSuffix(13) must beEqualTo("13th")
+    }
 
-		"return '21st' for 21" in {
-			NumberHelper.formatNumberWithSuffix(21) must beEqualTo("21st")
-		}
+    "return '21st' for 21" in {
+      NumberHelper.formatNumberWithSuffix(21) must beEqualTo("21st")
+    }
 
-		"return '12341st' for 12341" in {
-			NumberHelper.formatNumberWithSuffix(12341) must beEqualTo("12341st")
-		}
+    "return '12341st' for 12341" in {
+      NumberHelper.formatNumberWithSuffix(12341) must beEqualTo("12341st")
+    }
 
-		"return '12311th' for 12311" in {
-			NumberHelper.formatNumberWithSuffix(12311) must beEqualTo("12311th")
-		}
-	}
+    "return '12311th' for 12311" in {
+      NumberHelper.formatNumberWithSuffix(12311) must beEqualTo("12311th")
+    }
+  }
 }

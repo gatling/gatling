@@ -28,42 +28,42 @@ import io.gatling.core.util.StringHelper.RichString
 @RunWith(classOf[JUnitRunner])
 class StringHelperSpec extends Specification {
 
-	val fileBytes = IOUtils.toByteArray(getClass.getResource("/emoticon.png"))
+  val fileBytes = IOUtils.toByteArray(getClass.getResource("/emoticon.png"))
 
-	"bytes2Hex" should {
+  "bytes2Hex" should {
 
-		"correctly compute file sha-1" in {
-			val md = MessageDigest.getInstance("SHA-1")
-			md.update(fileBytes)
-			val digestBytes = md.digest
-			StringHelper.bytes2Hex(digestBytes) must beEqualTo("665a5bf97191eb3d8b2a20d833182313343af073")
-		}
+    "correctly compute file sha-1" in {
+      val md = MessageDigest.getInstance("SHA-1")
+      md.update(fileBytes)
+      val digestBytes = md.digest
+      StringHelper.bytes2Hex(digestBytes) must beEqualTo("665a5bf97191eb3d8b2a20d833182313343af073")
+    }
 
-		"correctly compute file md5" in {
-			val md = MessageDigest.getInstance("MD5")
-			md.update(fileBytes)
-			val digestBytes = md.digest
-			StringHelper.bytes2Hex(digestBytes) must beEqualTo("08f6575e7712febe2f529e1ea2c0179e")
-		}
-	}
+    "correctly compute file md5" in {
+      val md = MessageDigest.getInstance("MD5")
+      md.update(fileBytes)
+      val digestBytes = md.digest
+      StringHelper.bytes2Hex(digestBytes) must beEqualTo("08f6575e7712febe2f529e1ea2c0179e")
+    }
+  }
 
-	"leftPad" should {
-		"pad correctly a two digits number" in {
-			"12".leftPad(6) must beEqualTo("    12")
-		}
+  "leftPad" should {
+    "pad correctly a two digits number" in {
+      "12".leftPad(6) must beEqualTo("    12")
+    }
 
-		"not pad when the number of digits is higher than the expected string size" in {
-			"123456".leftPad(4) must beEqualTo("123456")
-		}
-	}
+    "not pad when the number of digits is higher than the expected string size" in {
+      "123456".leftPad(4) must beEqualTo("123456")
+    }
+  }
 
-	"rightPad" should {
-		"pad correctly a two digits number" in {
-			"12".rightPad(6) must beEqualTo("12    ")
-		}
+  "rightPad" should {
+    "pad correctly a two digits number" in {
+      "12".rightPad(6) must beEqualTo("12    ")
+    }
 
-		"not pad when the number of digits is higher than the expected string size" in {
-			"123456".rightPad(4) must beEqualTo("123456")
-		}
-	}
+    "not pad when the number of digits is higher than the expected string size" in {
+      "123456".rightPad(4) must beEqualTo("123456")
+    }
+  }
 }

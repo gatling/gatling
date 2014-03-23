@@ -24,28 +24,28 @@ import io.gatling.recorder.util.collection._
 @RunWith(classOf[JUnitRunner])
 class RichSeqSpec extends Specification {
 
-	"groupAsLongAs()" should {
-		"group elements as long as the predicate applies" in {
-			val reqs = Vector(200, 200, 304, 304, 200, 304, 200, 200).zipWithIndex.map(_.swap)
-			val expectedReqs = List(
-				((0, 200) :: Nil),
-				((1, 200) :: Nil),
-				((2, 304) :: (3, 304) :: (4, 200) :: Nil),
-				((5, 304) :: (6, 200) :: Nil),
-				((7, 200) :: Nil))
+  "groupAsLongAs()" should {
+    "group elements as long as the predicate applies" in {
+      val reqs = Vector(200, 200, 304, 304, 200, 304, 200, 200).zipWithIndex.map(_.swap)
+      val expectedReqs = List(
+        ((0, 200) :: Nil),
+        ((1, 200) :: Nil),
+        ((2, 304) :: (3, 304) :: (4, 200) :: Nil),
+        ((5, 304) :: (6, 200) :: Nil),
+        ((7, 200) :: Nil))
 
-			val groupedReqs = reqs.groupAsLongAs((t: (Int, Int)) => t._2 == 304)
+      val groupedReqs = reqs.groupAsLongAs((t: (Int, Int)) => t._2 == 304)
 
-			groupedReqs must beEqualTo(expectedReqs)
-		}
-	}
+      groupedReqs must beEqualTo(expectedReqs)
+    }
+  }
 
-	"splitWhen()" should {
-		"split the current sequence everytime the predicate applies" in {
-			val xs = List(1, 2, 2, 3, 3, 4, 4, 5)
-			val rs = xs.splitWhen((x: Int) => x % 2 == 0)
-			rs must beEqualTo(List(List(1), List(2), List(2, 3, 3), List(4), List(4, 5)))
-		}
-	}
+  "splitWhen()" should {
+    "split the current sequence everytime the predicate applies" in {
+      val xs = List(1, 2, 2, 3, 3, 4, 4, 5)
+      val rs = xs.splitWhen((x: Int) => x % 2 == 0)
+      rs must beEqualTo(List(List(1), List(2), List(2, 3, 3), List(4), List(4, 5)))
+    }
+  }
 
 }

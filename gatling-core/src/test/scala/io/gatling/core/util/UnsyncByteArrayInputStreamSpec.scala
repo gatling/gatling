@@ -22,19 +22,19 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class UnsyncByteArrayInputStreamSpec extends ValidationSpecification {
 
-	"BytesInputStream" should {
+  "BytesInputStream" should {
 
-		val bytes = "test string".getBytes("utf-8")
+    val bytes = "test string".getBytes("utf-8")
 
-		"signal eof when all bytes are read" in {
-			val byteStream = new UnsyncByteArrayInputStream(bytes)
-			byteStream.read(bytes, 0, bytes.length)
-			byteStream.read(bytes, 0, 1) should beEqualTo(-1)
-		}
+    "signal eof when all bytes are read" in {
+      val byteStream = new UnsyncByteArrayInputStream(bytes)
+      byteStream.read(bytes, 0, bytes.length)
+      byteStream.read(bytes, 0, 1) should beEqualTo(-1)
+    }
 
-		"not allow to read more than available bytes" in {
-			val byteStream = new UnsyncByteArrayInputStream(bytes)
-			byteStream.read(bytes, 0, bytes.length + 1) should beEqualTo(bytes.length)
-		}
-	}
+    "not allow to read more than available bytes" in {
+      val byteStream = new UnsyncByteArrayInputStream(bytes)
+      byteStream.read(bytes, 0, bytes.length + 1) should beEqualTo(bytes.length)
+    }
+  }
 }

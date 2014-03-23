@@ -24,20 +24,20 @@ import io.gatling.core.config.GatlingConfiguration
 @RunWith(classOf[JUnitRunner])
 class FeederSupportSpec extends Specification with FeederSupport {
 
-	GatlingConfiguration.setUp()
+  GatlingConfiguration.setUp()
 
-	"tsv" should {
+  "tsv" should {
 
-		"handle file without escape char" in {
-			val data = tsv("sample1.tsv").build.toArray
+    "handle file without escape char" in {
+      val data = tsv("sample1.tsv").build.toArray
 
-			data must beEqualTo(Array(Map("foo" -> "hello", "bar" -> "world")))
-		}
+      data must beEqualTo(Array(Map("foo" -> "hello", "bar" -> "world")))
+    }
 
-		"handle file with escape char" in {
-			val data = tsv("sample2.tsv").build.toArray
+    "handle file with escape char" in {
+      val data = tsv("sample2.tsv").build.toArray
 
-			data must beEqualTo(Array(Map("foo" -> "hello", "bar" -> "world")))
-		}
-	}
+      data must beEqualTo(Array(Map("foo" -> "hello", "bar" -> "world")))
+    }
+  }
 }

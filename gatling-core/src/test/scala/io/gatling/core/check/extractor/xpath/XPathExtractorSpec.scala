@@ -25,79 +25,79 @@ import io.gatling.core.util.IOHelper.withCloseable
 @RunWith(classOf[JUnitRunner])
 class XPathExtractorSpec extends ValidationSpecification {
 
-	GatlingConfiguration.setUp()
+  GatlingConfiguration.setUp()
 
-	val namespaces = List("foo" -> "http://foo/foo")
+  val namespaces = List("foo" -> "http://foo/foo")
 
-	def prepared(file: String) = {
-		GatlingConfiguration.setUp()
-		withCloseable(getClass.getResourceAsStream(file)) { is =>
-			Some(XPathExtractor.parse(is))
-		}
-	}
+  def prepared(file: String) = {
+    GatlingConfiguration.setUp()
+    withCloseable(getClass.getResourceAsStream(file)) { is =>
+      Some(XPathExtractor.parse(is))
+    }
+  }
 
-	"count" should {
+  "count" should {
 
-		"return expected result with anywhere expression" in {
-			new CountXPathExtractor("//author", namespaces)(prepared("/test.xml")) must succeedWith(Some(4))
-		}
+    "return expected result with anywhere expression" in {
+      new CountXPathExtractor("//author", namespaces)(prepared("/test.xml")) must succeedWith(Some(4))
+    }
 
-		"return expected result with array expression" in {
-			new CountXPathExtractor("/test/store/book[3]/author", namespaces)(prepared("/test.xml")) must succeedWith(Some(1))
-		}
+    "return expected result with array expression" in {
+      new CountXPathExtractor("/test/store/book[3]/author", namespaces)(prepared("/test.xml")) must succeedWith(Some(1))
+    }
 
-		"return Some(0) when no results" in {
-			new CountXPathExtractor("/foo", namespaces)(prepared("/test.xml")) must succeedWith(Some(0))
-		}
-	}
+    "return Some(0) when no results" in {
+      new CountXPathExtractor("/foo", namespaces)(prepared("/test.xml")) must succeedWith(Some(0))
+    }
+  }
 
-	"extractSingle" should {
+  "extractSingle" should {
 
-		"return expected result with anywhere expression and rank 0" in {
-			new SingleXPathExtractor("//author", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("Nigel Rees"))
-		}
+    "return expected result with anywhere expression and rank 0" in {
+      new SingleXPathExtractor("//author", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("Nigel Rees"))
+    }
 
-		"support name()" in {
-			new SingleXPathExtractor("//*[name()='author']", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("Nigel Rees"))
-		}
+    "support name()" in {
+      new SingleXPathExtractor("//*[name()='author']", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("Nigel Rees"))
+    }
 
-		"return expected result with anywhere expression and rank 1" in {
-			new SingleXPathExtractor("//author", namespaces, 0).extract(prepared("/test.xml")) must succeedWith(Some("Nigel Rees"))
-		}
+    "return expected result with anywhere expression and rank 1" in {
+      new SingleXPathExtractor("//author", namespaces, 0).extract(prepared("/test.xml")) must succeedWith(Some("Nigel Rees"))
+    }
 
-		"return expected result with array expression" in {
-			new SingleXPathExtractor("/test/store/book[3]/author", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("Herman Melville"))
-		}
+    "return expected result with array expression" in {
+      new SingleXPathExtractor("/test/store/book[3]/author", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("Herman Melville"))
+    }
 
-		"return expected None with array expression" in {
-			new SingleXPathExtractor("/test/store/book[3]/author", namespaces, 1)(prepared("/test.xml")) must succeedWith(None)
-		}
+    "return expected None with array expression" in {
+      new SingleXPathExtractor("/test/store/book[3]/author", namespaces, 1)(prepared("/test.xml")) must succeedWith(None)
+    }
 
-		"return expected result with attribute expression" in {
-			new SingleXPathExtractor("/test/store/book[@att = 'foo']/title", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("Sayings of the Century"))
-		}
+    "return expected result with attribute expression" in {
+      new SingleXPathExtractor("/test/store/book[@att = 'foo']/title", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("Sayings of the Century"))
+    }
 
-		"return expected result with last function expression" in {
-			new SingleXPathExtractor("//book[last()]/title", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("The Lord of the Rings"))
-		}
+    "return expected result with last function expression" in {
+      new SingleXPathExtractor("//book[last()]/title", namespaces, 0)(prepared("/test.xml")) must succeedWith(Some("The Lord of the Rings"))
+    }
 
-		"support default namespace" in {
-			new SingleXPathExtractor("//pre:name", List("pre" -> "http://schemas.test.com/entityserver/runtime/1.0"), 0)(prepared("/test2.xml")) must succeedWith(Some("HR"))
-		}
-	}
+    "support default namespace" in {
+      new SingleXPathExtractor("//pre:name", List("pre" -> "http://schemas.test.com/entityserver/runtime/1.0"), 0)(prepared("/test2.xml")) must succeedWith(Some("HR"))
+    }
+  }
 
-	"extractMultiple" should {
+  "extractMultiple" should {
 
-		"return expected result with anywhere expression" in {
-			new MultipleXPathExtractor("//author", namespaces)(prepared("/test.xml")) must succeedWith(Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
-		}
+    "return expected result with anywhere expression" in {
+      new MultipleXPathExtractor("//author", namespaces)(prepared("/test.xml")) must succeedWith(Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
+    }
 
-		"return expected result with array expression" in {
-			new MultipleXPathExtractor("/test/store/book[3]/author", namespaces)(prepared("/test.xml")) must succeedWith(Some(List("Herman Melville")))
-		}
+    "return expected result with array expression" in {
+      new MultipleXPathExtractor("/test/store/book[3]/author", namespaces)(prepared("/test.xml")) must succeedWith(Some(List("Herman Melville")))
+    }
 
-		"return expected result with anywhere namespaced element" in {
-			new MultipleXPathExtractor("//foo:bar", namespaces)(prepared("/test.xml")) must succeedWith(Some(List("fooBar")))
-		}
-	}
+    "return expected result with anywhere namespaced element" in {
+      new MultipleXPathExtractor("//foo:bar", namespaces)(prepared("/test.xml")) must succeedWith(Some(List("fooBar")))
+    }
+  }
 }

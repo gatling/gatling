@@ -30,30 +30,30 @@ import io.gatling.core.session.Session
 @RunWith(classOf[JUnitRunner])
 class CookieHandlingSpec extends Specification {
 
-	val originalCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-	val originalDomain = "docs.foo.com"
-	val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
-	val originalSession = Session("scenarioName", "1", Map(CookieHandling.cookieJarAttributeName -> originalCookieJar))
+  val originalCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
+  val originalDomain = "docs.foo.com"
+  val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
+  val originalSession = Session("scenarioName", "1", Map(CookieHandling.cookieJarAttributeName -> originalCookieJar))
 
-	val emptySession = Session("scenarioName", "2")
+  val emptySession = Session("scenarioName", "2")
 
-	"getStoredCookies" should {
+  "getStoredCookies" should {
 
-		"be able to get a cookie from session" in {
-			CookieHandling.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.getValue) must beEqualTo(List("VALUE1"))
-		}
+    "be able to get a cookie from session" in {
+      CookieHandling.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.getValue) must beEqualTo(List("VALUE1"))
+    }
 
-		"be called with an empty session" in {
-			CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") must beEmpty
-		}
-	}
+    "be called with an empty session" in {
+      CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") must beEmpty
+    }
+  }
 
-	"storeCookies" should {
-		"be able to store a cookie in an empty session" in {
-			val newCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-			CookieHandling.storeCookies(emptySession, new URI("https://docs.foo.com/accounts"), List(newCookie))
+  "storeCookies" should {
+    "be able to store a cookie in an empty session" in {
+      val newCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
+      CookieHandling.storeCookies(emptySession, new URI("https://docs.foo.com/accounts"), List(newCookie))
 
-			CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") must beEmpty
-		}
-	}
+      CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") must beEmpty
+    }
+  }
 }

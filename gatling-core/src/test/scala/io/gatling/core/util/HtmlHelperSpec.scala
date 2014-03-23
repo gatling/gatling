@@ -24,10 +24,10 @@ import io.gatling.core.util.HtmlHelper.HtmlRichString
 @RunWith(classOf[JUnitRunner])
 class HtmlHelperSpec extends Specification {
 
-	"htmlEscape" should {
+  "htmlEscape" should {
 
-		"escape with entity chars" in {
-			"fooYéfoo".htmlEscape must beEqualTo("fooY&eacute;foo")
-		}
-	}
+    "escape with entity chars" in {
+      "fooYéfoo".htmlEscape must beEqualTo("fooY&eacute;foo")
+    }
+  }
 }

@@ -26,31 +26,31 @@ import io.gatling.core.util.StringHelper.eol
 @RunWith(classOf[JUnitRunner])
 class FileDataWriterSpec extends Specification {
 
-	GatlingConfiguration.setUp()
+  GatlingConfiguration.setUp()
 
-	import FileDataWriter._
+  import FileDataWriter._
 
-	"file data writer" should {
+  "file data writer" should {
 
-		def logMessage(record: RequestMessage): String = new String(record.getBytes)
+      def logMessage(record: RequestMessage): String = new String(record.getBytes)
 
-		"log a standard request record" in {
-			val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), Nil)
+    "log a standard request record" in {
+      val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), Nil)
 
-			logMessage(record) must beEqualTo("scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage" + eol)
-		}
+      logMessage(record) must beEqualTo("scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage" + eol)
+    }
 
-		"append extra info to request records" in {
-			val extraInfo: List[String] = List("some", "extra info", "for the log")
-			val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), extraInfo)
+    "append extra info to request records" in {
+      val extraInfo: List[String] = List("some", "extra info", "for the log")
+      val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), extraInfo)
 
-			logMessage(record) must beEqualTo("scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + eol)
-		}
+      logMessage(record) must beEqualTo("scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + eol)
+    }
 
-		"sanitize extra info so that simulation log format is preserved" in {
-			FileDataWriter.sanitize("\nnewlines \n are\nnot \n\n allowed\n") must beEqualTo(" newlines   are not    allowed ")
-			FileDataWriter.sanitize("\rcarriage returns \r are\rnot \r\r allowed\r") must beEqualTo(" carriage returns   are not    allowed ")
-			FileDataWriter.sanitize("\ttabs \t are\tnot \t\t allowed\t") must beEqualTo(" tabs   are not    allowed ")
-		}
-	}
+    "sanitize extra info so that simulation log format is preserved" in {
+      FileDataWriter.sanitize("\nnewlines \n are\nnot \n\n allowed\n") must beEqualTo(" newlines   are not    allowed ")
+      FileDataWriter.sanitize("\rcarriage returns \r are\rnot \r\r allowed\r") must beEqualTo(" carriage returns   are not    allowed ")
+      FileDataWriter.sanitize("\ttabs \t are\tnot \t\t allowed\t") must beEqualTo(" tabs   are not    allowed ")
+    }
+  }
 }

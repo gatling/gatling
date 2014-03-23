@@ -27,53 +27,53 @@ import io.gatling.core.config.GatlingConfiguration
 @RunWith(classOf[JUnitRunner])
 class ConsoleDataWriterSpec extends Specification {
 
-	GatlingConfiguration.setUp()
+  GatlingConfiguration.setUp()
 
-	val time = new DateTime().withDate(2012, 8, 24).withTime(13, 37, 0, 0)
+  val time = new DateTime().withDate(2012, 8, 24).withTime(13, 37, 0, 0)
 
-	def progressBar(summary: ConsoleSummary) = summary.toString.split("\r?\n")(4)
+  def progressBar(summary: ConsoleSummary) = summary.toString.split("\r?\n")(4)
 
-	"console summary progress bar" should {
+  "console summary progress bar" should {
 
-		"handle it correctly when all the users are waiting" in {
+    "handle it correctly when all the users are waiting" in {
 
-			val counters = new UserCounters(11)
+      val counters = new UserCounters(11)
 
-			val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, time)
-			summary.complete must beFalse
-			progressBar(summary) must beEqualTo("[                                                                          ]  0%")
-		}
+      val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, time)
+      summary.complete must beFalse
+      progressBar(summary) must beEqualTo("[                                                                          ]  0%")
+    }
 
-		"handle it correctly when all the users are running" in {
+    "handle it correctly when all the users are running" in {
 
-			val counters = new UserCounters(11)
-			for (i <- 1 to 11) counters.userStart
+      val counters = new UserCounters(11)
+      for (i <- 1 to 11) counters.userStart
 
-			val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, time)
-			summary.complete must beFalse
-			progressBar(summary) must beEqualTo("[--------------------------------------------------------------------------]  0%")
-		}
+      val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, time)
+      summary.complete must beFalse
+      progressBar(summary) must beEqualTo("[--------------------------------------------------------------------------]  0%")
+    }
 
-		"handle it correctly when all the users are done" in {
+    "handle it correctly when all the users are done" in {
 
-			val counters = new UserCounters(11)
-			for (i <- 1 to 11) counters.userStart
-			for (i <- 1 to 11) counters.userDone
+      val counters = new UserCounters(11)
+      for (i <- 1 to 11) counters.userStart
+      for (i <- 1 to 11) counters.userDone
 
-			val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, time)
-			summary.complete must beTrue
-			progressBar(summary) must beEqualTo("[##########################################################################]100%")
-		}
+      val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, time)
+      summary.complete must beTrue
+      progressBar(summary) must beEqualTo("[##########################################################################]100%")
+    }
 
-		"handle it correctly when there are running and done users" in {
+    "handle it correctly when there are running and done users" in {
 
-			val counters = new UserCounters(11)
-			for (i <- 1 to 11) counters.userStart
-			for (i <- 1 to 10) counters.userDone
+      val counters = new UserCounters(11)
+      for (i <- 1 to 11) counters.userStart
+      for (i <- 1 to 10) counters.userDone
 
-			val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, time)
-			summary.complete must beFalse
-			progressBar(summary) must beEqualTo("[###################################################################-------] 90%")
-		}
-	}
+      val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, time)
+      summary.complete must beFalse
+      progressBar(summary) must beEqualTo("[###################################################################-------] 90%")
+    }
+  }
 }

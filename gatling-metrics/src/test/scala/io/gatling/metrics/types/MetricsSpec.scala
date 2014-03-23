@@ -22,59 +22,59 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class MetricsSpec extends Specification {
 
-	"getQuantile" should {
-		"work when there is no measure" in {
-			val metrics = new Metrics(100)
-			metrics.getQuantile(91) must beEqualTo(0L)
-		}
+  "getQuantile" should {
+    "work when there is no measure" in {
+      val metrics = new Metrics(100)
+      metrics.getQuantile(91) must beEqualTo(0L)
+    }
 
-		"work when there is one measure" in {
-			val metrics = new Metrics(100)
-			metrics.update(53)
-			metrics.getQuantile(91) must beEqualTo(53L)
-		}
+    "work when there is one measure" in {
+      val metrics = new Metrics(100)
+      metrics.update(53)
+      metrics.getQuantile(91) must beEqualTo(53L)
+    }
 
-		"work with a small number of measures" in {
-			val metrics = new Metrics(100)
-			for (i <- 1 to 100)
-				metrics.update(i)
+    "work with a small number of measures" in {
+      val metrics = new Metrics(100)
+      for (i <- 1 to 100)
+        metrics.update(i)
 
-			metrics.getQuantile(91) must beEqualTo(100L)
-		}
+      metrics.getQuantile(91) must beEqualTo(100L)
+    }
 
-		"work with a large number of measures" in {
-			val metrics = new Metrics(100)
-			for (i <- 1 to 10000)
-				metrics.update(i)
+    "work with a large number of measures" in {
+      val metrics = new Metrics(100)
+      for (i <- 1 to 10000)
+        metrics.update(i)
 
-			metrics.getQuantile(91) must beEqualTo(9200L)
-		}
+      metrics.getQuantile(91) must beEqualTo(9200L)
+    }
 
-		"work with a low percentiles" in {
-			val metrics = new Metrics(100)
-			for (i <- 1 to 10000)
-				metrics.update(i)
+    "work with a low percentiles" in {
+      val metrics = new Metrics(100)
+      for (i <- 1 to 10000)
+        metrics.update(i)
 
-			metrics.getQuantile(0) must beEqualTo(100L)
-			metrics.getQuantile(1) must beEqualTo(200L)
-		}
+      metrics.getQuantile(0) must beEqualTo(100L)
+      metrics.getQuantile(1) must beEqualTo(200L)
+    }
 
-		"work with a large percentiles" in {
-			val metrics = new Metrics(100)
-			for (i <- 1 to 10000)
-				metrics.update(i)
-			metrics.getQuantile(99) must beEqualTo(10000L)
-			metrics.getQuantile(100) must beEqualTo(10000L)
-		}
+    "work with a large percentiles" in {
+      val metrics = new Metrics(100)
+      for (i <- 1 to 10000)
+        metrics.update(i)
+      metrics.getQuantile(99) must beEqualTo(10000L)
+      metrics.getQuantile(100) must beEqualTo(10000L)
+    }
 
-		"work after a reset" in {
-			val metrics = new Metrics(100)
-			for (i <- 1 to 10000)
-				metrics.update(i)
-			metrics.reset
-			for (i <- 1 to 100)
-				metrics.update(i)
-			metrics.getQuantile(100) must beEqualTo(100L)
-		}
-	}
+    "work after a reset" in {
+      val metrics = new Metrics(100)
+      for (i <- 1 to 10000)
+        metrics.update(i)
+      metrics.reset
+      for (i <- 1 to 100)
+        metrics.update(i)
+      metrics.getQuantile(100) must beEqualTo(100L)
+    }
+  }
 }
