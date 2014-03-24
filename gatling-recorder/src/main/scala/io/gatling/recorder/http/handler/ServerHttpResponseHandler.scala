@@ -25,15 +25,12 @@ import io.gatling.recorder.http.channel.BootstrapFactory
 import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureListener
 import io.gatling.http.util.HttpHelper.OkCodes
 
-class ServerHttpResponseHandler(controller: RecorderController, clientChannel: Channel) extends SimpleChannelHandler with StrictLogging {
-
-  var expectConnect: Boolean = false
-  // FIXME ugly
-  @volatile var request: HttpRequest = null
+// FIXME ugly
+class ServerHttpResponseHandler(controller: RecorderController, clientChannel: Channel, @volatile var request: HttpRequest = null, var expectConnect: Boolean = false) extends SimpleChannelHandler with StrictLogging {
 
   override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
 
-    def isKeepAlive(headers: HttpHeaders) = Option(headers.get(HttpHeaders.Names.CONNECTION)).map(HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase).getOrElse(false)
+      def isKeepAlive(headers: HttpHeaders) = Option(headers.get(HttpHeaders.Names.CONNECTION)).map(HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase).getOrElse(false)
 
     context.sendUpstream(event)
 
