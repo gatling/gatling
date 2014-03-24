@@ -28,15 +28,16 @@ import io.gatling.recorder.util.URIHelper
 class ClientHttpRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(proxy) {
 
   private def writeRequest(request: HttpRequest, serverChannel: Channel) {
-    val relativeRequest = proxy.outgoingHost.map(_ => request).getOrElse(ClientRequestHandler.buildRequestWithRelativeURI(request))
     serverChannel.getPipeline.get(classOf[ServerHttpResponseHandler]).request = request
+    val relativeRequest = proxy.outgoingHost.map(_ => request).getOrElse(ClientRequestHandler.buildRequestWithRelativeURI(request))
     serverChannel.write(relativeRequest)
   }
 
   def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest) {
 
     _serverChannel match {
-      case Some(serverChannel) if serverChannel.isConnected && serverChannel.isOpen => writeRequest(request, serverChannel)
+      case Some(serverChannel) if serverChannel.isConnected && serverChannel.isOpen =>
+        writeRequest(request, serverChannel)
       case _ =>
         _serverChannel = None
 
@@ -61,12 +62,11 @@ class ClientHttpRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(pr
               writeRequest(request, serverChannel)
             } else {
               val t = future.getCause
-
+              logger.error(t.getMessage, t)
               // FIXME could be 404 or 500 depending on exception
               val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND)
 
               requestContext.getChannel.write(response)
-              requestContext.getChannel.close
             }
           }
     }

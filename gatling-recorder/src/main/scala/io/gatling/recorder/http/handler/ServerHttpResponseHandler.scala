@@ -23,10 +23,17 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory
 import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureListener
+import io.gatling.http.util.HttpHelper.OkCodes
 
-class ServerHttpResponseHandler(controller: RecorderController, clientChannel: Channel, @volatile var request: HttpRequest, var expectConnect: Boolean) extends SimpleChannelHandler with StrictLogging {
+class ServerHttpResponseHandler(controller: RecorderController, clientChannel: Channel) extends SimpleChannelHandler with StrictLogging {
+
+  var expectConnect: Boolean = false
+  // FIXME ugly
+  @volatile var request: HttpRequest = null
 
   override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
+
+    def isKeepAlive(headers: HttpHeaders) = Option(headers.get(HttpHeaders.Names.CONNECTION)).map(HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase).getOrElse(false)
 
     context.sendUpstream(event)
 
@@ -34,32 +41,28 @@ class ServerHttpResponseHandler(controller: RecorderController, clientChannel: C
 
     event.getMessage match {
       case response: HttpResponse =>
+
         if (expectConnect) {
           expectConnect = false
           BootstrapFactory.upgradeProtocol(context.getChannel.getPipeline)
           serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request))
 
         } else {
+          val keepAlive = isKeepAlive(request.headers) && isKeepAlive(response.headers)
+
           controller.receiveResponse(request, response)
 
-          val requestConnectionHeader = Option(request.headers.get(HttpHeaders.Names.CONNECTION))
-
-          // FIXME not very clean
+          // FIXME ugly
           request = null
 
           clientChannel.write(response).addListener { future: ChannelFuture =>
 
-            val keepAlive = (for {
-              requestKeepAlive <- requestConnectionHeader if (HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase(requestKeepAlive))
-              responseKeepAlive <- Option(response.headers.get(HttpHeaders.Names.CONNECTION))
-            } yield HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase(responseKeepAlive)).getOrElse(false)
-
-            if (keepAlive) {
+            if (keepAlive && OkCodes.contains(response.getStatus.getCode)) {
               logger.debug("Both request and response are willing to keep the connection alive, reusing channels")
             } else {
               logger.debug("Request and/or response is not willing to keep the connection alive, closing both channels")
-              serverChannel.close
               clientChannel.close
+              serverChannel.close
             }
           }
         }
