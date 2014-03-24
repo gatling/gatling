@@ -84,6 +84,8 @@ Two types of metrics are provided by Gatling  :
  * Users metrics
  * Requests metrics
 
+Gatling pushes those data to Graphite every second.
+
 User metrics
 ------------
 
