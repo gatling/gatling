@@ -207,6 +207,10 @@ When the simulation is done, the console will display a link to the HTML reports
 .. note::
     If Gatling doesn't work as expected, see our :ref:`FAQ <faq>` or ask on our `Google Group`_.
 
+Going Further
+-------------
+
+When you're ready to go further, please check out the :ref:`Advanced Tutorial <advanced_tutorial>`.
 
 
 .. _Google Group: https://groups.google.com/forum/#!forum/gatling
