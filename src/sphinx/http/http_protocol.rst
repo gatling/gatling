@@ -85,7 +85,7 @@ Engine parameters
 Max connection per host
 -----------------------
 
-You can configure the max parallel connections per host with ``maxConnectionsPerHost(max: Int)`` in order to mimic real web browser.
+In order to mimic real web browser, you can configure the max concurrent connections per host **per virtual user**  with ``maxConnectionsPerHost(max: Int)``.
 Gatling ships a bunch of built-ins for well-known browser:
 
 * maxConnectionsPerHostLikeFirefoxOld
@@ -120,8 +120,24 @@ This can be tuned with the ``shareConnections`` configuration param.
 If you need more isolation of your user, for instance if you need a dedicated key store per user,
 Gatling lets you have an instance of the http client per user with ``disableClientSharing``.
 
-virtualHost(virtualHost: Expression[String])
-localAddress(localAddress: InetAddress)
+Virtual Host
+------------
+
+.. _http-protocol-virtual-host:
+
+On can set a different Host than the url one::
+
+  virtualHost(virtualHost: Expression[String])
+
+Local address
+------------
+
+.. _http-protocol-local-address:
+
+One can bind teh sockets from a specific local address instead of the default one::
+
+  localAddress(localAddress: InetAddress)
+
 
 Request building parameters
 ===========================
