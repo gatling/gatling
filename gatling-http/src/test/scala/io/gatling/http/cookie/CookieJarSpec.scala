@@ -23,25 +23,6 @@ import org.specs2.runner.JUnitRunner
 
 import com.ning.http.client.cookie.CookieDecoder.decode
 
-object CookieJarSpec {
-
-  def main(args: Array[String]) {
-    val cookie0 = decode("cookie=VALUE0; path=/")
-    val cookieStore0 = CookieJar(new URI("http://www.foo.com/"), List(cookie0))
-
-    val cookie1 = decode("cookie=VALUE1; path=/foo/bar")
-    val cookieStore1 = cookieStore0.add(new URI("http://www.foo.com/foo/bar"), List(cookie1))
-
-    val cookie2 = decode("cookie=VALUE2; path=/foo/baz")
-    val cookieStore2 = cookieStore1.add(new URI("http://www.foo.com/foo/baz"), List(cookie2))
-
-    val barCookies = cookieStore2.get(new URI("http://www.foo.com/foo/bar"))
-    //val bazCookies = cookieStore2.get(new URI("http://www.foo.com/foo/baz"))
-
-    println(barCookies)
-  }
-}
-
 @RunWith(classOf[JUnitRunner])
 class CookieJarSpec extends Specification {
 
@@ -249,23 +230,34 @@ class CookieJarSpec extends Specification {
 
     "properly deal with same name cookies" in {
       val cookie0 = decode("cookie=VALUE0; path=/")
-      val cookieStore0 = CookieJar(new URI("http://www.foo.com/"), List(cookie0))
+      val cookieStore0 = CookieJar(new URI("http://www.foo.com"), List(cookie0))
 
-      val cookie1 = decode("cookie=VALUE1; path=/foo/bar")
+      val cookie1 = decode("cookie=VALUE1; path=/foo/bar/")
       val cookieStore1 = cookieStore0.add(new URI("http://www.foo.com/foo/bar"), List(cookie1))
 
-      val cookie2 = decode("cookie=VALUE2; path=/foo/baz")
+      val cookie2 = decode("cookie=VALUE2; path=/foo/baz/")
       val cookieStore2 = cookieStore1.add(new URI("http://www.foo.com/foo/baz"), List(cookie2))
 
-      val barCookies = cookieStore2.get(new URI("http://www.foo.com/foo/bar"))
+      val barCookies = cookieStore2.get(new URI("http://www.foo.com/foo/bar/"))
       barCookies.length must beEqualTo(2)
       barCookies(0).getRawValue must beEqualTo("VALUE1")
       barCookies(1).getRawValue must beEqualTo("VALUE0")
 
-      val bazCookies = cookieStore2.get(new URI("http://www.foo.com/foo/baz"))
+      val bazCookies = cookieStore2.get(new URI("http://www.foo.com/foo/baz/"))
       bazCookies.length must beEqualTo(2)
       bazCookies(0).getRawValue must beEqualTo("VALUE2")
       bazCookies(1).getRawValue must beEqualTo("VALUE0")
+    }
+
+    "properly deal with trailing slashes in paths" in {
+
+      val cookie = decode("JSESSIONID=211D17F016132BCBD31D9ABB31D90960; Path=/app/consumer/; HttpOnly")
+      val uri = new URI("https://vagrant.moolb.com/app/consumer/j_spring_cas_security_check?ticket=ST-5-Q7gzqPpvG3N3Bb02bm3q-llinder-vagrantmgr.moolb.com")
+      val cookieStore = CookieJar(uri, List(cookie))
+
+      val cookies = cookieStore.get(new URI("https://vagrant.moolb.com/app/consumer/"))
+      cookies.length must beEqualTo(1)
+      cookies(0).getRawValue must beEqualTo("211D17F016132BCBD31D9ABB31D90960")
     }
   }
 }

@@ -36,34 +36,26 @@ object CookieHandling {
       case _               => Nil
     }
 
-  def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session =
-    if (!cookies.isEmpty)
-      session(cookieJarAttributeName).asOption[CookieJar] match {
-        case Some(cookieJar) => session.set(cookieJarAttributeName, cookieJar.add(uri, cookies))
-        case _               => session.set(cookieJarAttributeName, CookieJar(uri, cookies))
-      }
-    else
-      session
-
-  def storeCookie(session: Session, domain: String, path: String, cookie: Cookie): Session = {
-
-    val cookieJar = session(cookieJarAttributeName).asOption[CookieJar] match {
+  private def getCookieJar(session: Session) =
+    session(cookieJarAttributeName).asOption[CookieJar] match {
       case Some(cookieJar) => cookieJar
       case _               => CookieJar(Map.empty)
     }
 
+  def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session = {
+    val cookieJar = getCookieJar(session)
+    session.set(cookieJarAttributeName, cookieJar.add(uri, cookies))
+  }
+
+  def storeCookie(session: Session, domain: String, path: String, cookie: Cookie): Session = {
+    val cookieJar = getCookieJar(session)
     session.set(cookieJarAttributeName, cookieJar.add(domain, path, List(cookie)))
   }
 
   val flushSessionCookies: Expression[Session] = session => {
-
-    (cookieJar(session) match {
-      case Some(cookieJar) =>
-        val storeWithOnlyPersistentCookies = cookieJar.store.filter { case (_, storeCookie) => storeCookie.persistent }
-        session.set(cookieJarAttributeName, CookieJar(storeWithOnlyPersistentCookies))
-
-      case _ => session
-    }).success
+    val cookieJar = getCookieJar(session)
+    val storeWithOnlyPersistentCookies = cookieJar.store.filter { case (_, storeCookie) => storeCookie.persistent }
+    session.set(cookieJarAttributeName, CookieJar(storeWithOnlyPersistentCookies)).success
   }
 
   val flushCookieJar: Expression[Session] = _.remove(cookieJarAttributeName).success
