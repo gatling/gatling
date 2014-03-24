@@ -148,3 +148,35 @@ The files are definitively public.
 There's 99,99% chances that you're logged with a Google enterprise account and Google permissions get messed up.
 
 Just log off and you'll be able to download just fine.
+
+https://github.com/excilys/gatling/wiki/FAQ#method-too-large
+
+I have a **HUGE** simulation and I get a "Method too large" compile error.
+
+In Java and Scala, there's a method size limit. Here, the method is your Simulation constructor.
+
+Typically, you have to move your chains out of your Simulation class, for example into objects::
+
+  object ChainLibrary1 {
+    val chain1 = ???
+    val chain2 = ???
+    ...
+    val chain100 = ???
+  }
+
+  object ChainLibrary2 {
+    val chain101 = ???
+    val chain102 = ???
+    ...
+    val chain150 = ???
+  }
+
+  class MyVeryBigSimulation {
+
+    import ChainLibrary1._
+    import ChainLibrary2._
+
+    val scn = scenario("Name").exec(chain1, ..., chain150)
+    ...
+  }
+
