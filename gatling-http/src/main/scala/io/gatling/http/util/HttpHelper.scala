@@ -34,6 +34,7 @@ object HttpHelper extends StrictLogging {
   val httpsScheme = "https"
   val wsScheme = "ws"
   val wssScheme = "wss"
+  val OkCodes = Vector(200, 304, 201, 202, 203, 204, 205, 206, 207, 208, 209)
 
   def parseFormBody(body: String): List[(String, String)] = {
       def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)

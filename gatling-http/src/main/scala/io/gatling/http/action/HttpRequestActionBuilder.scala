@@ -19,17 +19,18 @@ import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.config.Protocols
 import io.gatling.core.controller.throttle.ThrottlingProtocol
-import io.gatling.core.validation.SuccessWrapper
+import io.gatling.core.session.ExpressionWrapper
 import io.gatling.http.check.status.HttpStatusCheckBuilder.status
 import io.gatling.http.request.builder.AbstractHttpRequestBuilder
+import io.gatling.http.util.HttpHelper.OkCodes
 
 object HttpRequestActionBuilder {
 
   /**
    * This is the default HTTP check used to verify that the response status is 2XX
    */
-  val okCodes = Vector(200, 304, 201, 202, 203, 204, 205, 206, 207, 208, 209).success
-  val defaultHttpCheck = status.find.in(_ => okCodes).build
+  val OkCodesExpression = OkCodes.expression
+  val DefaultHttpCheck = status.find.in(OkCodesExpression).build
 }
 
 /**

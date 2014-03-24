@@ -55,7 +55,7 @@ object ResourceFetcher extends StrictLogging {
   val cssContentCache: concurrent.Map[URI, List[EmbeddedResource]] = new ConcurrentHashMapV8[URI, List[EmbeddedResource]]
   val inferredResourcesCache: concurrent.Map[(HttpProtocol, URI), InferredPageResources] = new ConcurrentHashMapV8[(HttpProtocol, URI), InferredPageResources]
 
-  val resourceChecks = List(HttpRequestActionBuilder.defaultHttpCheck)
+  val resourceChecks = List(HttpRequestActionBuilder.DefaultHttpCheck)
 
   def pageResources(htmlDocumentURI: URI, filters: Option[Filters], responseChars: Array[Char]): List[EmbeddedResource] = {
     val htmlInferredResources = HtmlParser.getEmbeddedResources(htmlDocumentURI, responseChars)
