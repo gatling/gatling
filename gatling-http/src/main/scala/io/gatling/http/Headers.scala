@@ -118,4 +118,5 @@ object HeaderValues {
   val VIDEO_QUICKTIME = "video/quicktime"
   val NO_CACHE = "no-cache"
   val NO_STORE = "no-store"
+  val XML_HTTP_REQUEST = "XMLHttpRequest"
 }

@@ -18,8 +18,9 @@ package io.gatling.http.referer
 import com.ning.http.client.Request
 
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
-import io.gatling.http.HeaderNames
 import io.gatling.http.config.HttpProtocol
+import io.gatling.http.util.HttpHelper.{ isAjax, isHtml }
+import io.gatling.http.response.Response
 
 object RefererHandling {
 
@@ -27,10 +28,9 @@ object RefererHandling {
 
   def getStoredReferer(session: Session): Option[String] = session(refererAttributeName).asOption[String]
 
-  def storeReferer(request: Request, session: Session, protocol: HttpProtocol): Session = {
-
-      def isRealPage(request: Request): Boolean = !request.getHeaders.containsKey(HeaderNames.X_REQUESTED_WITH) && Option(request.getHeaders.get(HeaderNames.ACCEPT)).exists(_.get(0).contains("html"))
-
-    if (protocol.requestPart.autoReferer && isRealPage(request)) session.set(refererAttributeName, request.getUrl) else session
-  }
+  def storeReferer(request: Request, response: Response,  session: Session, protocol: HttpProtocol): Session =
+    if (protocol.requestPart.autoReferer && !isAjax(request.getHeaders) && isHtml(response.headers))
+      session.set(refererAttributeName, request.getUrl)
+    else
+      session
 }

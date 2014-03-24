@@ -24,7 +24,6 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.fetch.ResourceFetcher
-import io.gatling.http.referer.RefererHandling
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder
 
@@ -82,7 +81,6 @@ class HttpRequestAction(httpRequest: HttpRequest, val next: ActorRef) extends Re
   def sendRequest(requestName: String, session: Session) =
     for {
       ahcRequest <- ahcRequest(session)
-      newSession = RefererHandling.storeReferer(ahcRequest, session, protocol)
-      tx = HttpTx(newSession, ahcRequest, requestName, checks, responseBuilderFactory, protocol, next, followRedirect, maxRedirects, throttled, silent, explicitResources, extraInfoExtractor)
+      tx = HttpTx(session, ahcRequest, requestName, checks, responseBuilderFactory, protocol, next, followRedirect, maxRedirects, throttled, silent, explicitResources, extraInfoExtractor)
     } yield HttpRequestAction.startHttpTransaction(tx)
 }

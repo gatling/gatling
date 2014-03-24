@@ -39,6 +39,7 @@ import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }
 import io.gatling.http.util.HttpStringBuilder
 import io.gatling.core.result.writer.DataWriterClient
+import io.gatling.http.referer.RefererHandling
 
 object AsyncHandlerActor extends AkkaDefaults {
 
@@ -267,7 +268,9 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
             else
               tx.checks
 
-          checkAndProceed(updateWithUpdatedCookies, checks)
+          val updateWithReferer: Session => Session = RefererHandling.storeReferer(tx.request, response, _, tx.protocol)
+
+          checkAndProceed(updateWithUpdatedCookies andThen updateWithReferer, checks)
         }
 
       case None =>
