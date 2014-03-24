@@ -256,7 +256,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     response.status match {
 
       case Some(status) =>
-        val updateWithUpdatedCookies: Session => Session = CookieHandling.storeCookies(_, status.getUrl, response.cookies)
+        val updateWithUpdatedCookies: Session => Session = CookieHandling.storeCookies(_, tx.request.getURI, response.cookies)
 
         if (HttpHelper.isRedirect(status.getStatusCode) && tx.followRedirect)
           redirect(updateWithUpdatedCookies)
