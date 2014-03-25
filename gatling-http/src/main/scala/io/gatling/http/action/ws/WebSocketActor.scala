@@ -156,4 +156,5 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
       logRequest(session, requestName, KO, started, ended, Some(message))
       next ! session.markAsFailed
       context.stop(self)
+  }
 }
