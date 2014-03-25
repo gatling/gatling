@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.bundle.test
+package io.gatling.http
 
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.jdbc.Predef._
-
 import scala.concurrent.duration._
 
 class HttpCompileTest extends Simulation {
@@ -55,13 +53,6 @@ class HttpCompileTest extends Simulation {
   val testData = tsv("test-data.tsv")
 
   val richTestData = testData.convert { case ("keyOfAMultivaluedColumn", value) => value.split(",") }
-
-  val testData2 = jdbcFeeder("jdbc:postgresql:gatling", "gatling", "gatling", """
-select login as "username", password
-from usr
-where id in (select usr_id from usr_role where role_id='ROLE_USER')
-and id not in (select usr_id from usr_role where role_id='ROLE_ADMIN')
-and (select count(*) from usr_account where usr_id=id) >=2""")
 
   val testData3 = Array(Map("foo" -> "bar")).circular
 
