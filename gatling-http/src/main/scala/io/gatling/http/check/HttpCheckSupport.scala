@@ -27,8 +27,8 @@ import io.gatling.http.check.url.CurrentLocationCheckBuilder
 
 trait HttpCheckSupport {
 
-  val regex = regexTyped[String] _
-  def regexTyped[T](pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpBodyRegexCheckBuilder.regex[T](pattern)
+  val regex = regexOfType[String] _
+  def regexOfType[T](pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpBodyRegexCheckBuilder.regex[T](pattern)
 
   def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
 
@@ -37,15 +37,15 @@ trait HttpCheckSupport {
 
   val jsonPath = jsonPathTyped[String] _
   def jsonPathTyped[T](path: Expression[String])(implicit groupExtractor: JsonFilter[T]) = HttpBodyJsonPathCheckBuilder.jsonPath[T](path)
-  val jsonpJsonPath = jsonpJsonPathTyped[String] _
-  def jsonpJsonPathTyped[T](path: Expression[String])(implicit groupExtractor: JsonFilter[T]) = HttpBodyJsonpJsonPathCheckBuilder.jsonpJsonPath[T](path)
+  val jsonpJsonPath = jsonpJsonPathOfType[String] _
+  def jsonpJsonPathOfType[T](path: Expression[String])(implicit groupExtractor: JsonFilter[T]) = HttpBodyJsonpJsonPathCheckBuilder.jsonpJsonPath[T](path)
 
   val bodyString = HttpBodyStringCheckBuilder.bodyString
 
   val header = HttpHeaderCheckBuilder.header _
 
-  val headerRegex = headerRegexTyped[String] _
-  def headerRegexTyped[T](headerName: Expression[String], pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpHeaderRegexCheckBuilder.headerRegex[T](headerName, pattern)
+  val headerRegex = headerRegexOfType[String] _
+  def headerRegexOfType[T](headerName: Expression[String], pattern: Expression[String])(implicit groupExtractor: GroupExtractor[T]) = HttpHeaderRegexCheckBuilder.headerRegex[T](headerName, pattern)
 
   val status = HttpStatusCheckBuilder.status
 

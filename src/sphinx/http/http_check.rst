@@ -72,6 +72,19 @@ Same than above, but *pattern* is used to apply a regex on the header value.
 
 .. note:: ``Location`` header value is automatically decoded when performing a check on it
 
+.. _http-check-header-regex-of-type:
+
+* ``headerRegexOfType[T](headerName, pattern)``
+
+Same as above, but supports more than one capture group.
+
+Gatling provides built-in support for extracting String tuples from ``Tuple2[String]`` to ``Tuple8[String]``.
+
+The example below will capture two capture groups::
+
+  headerRegexOfType[(String, String)]("header", "foo(.*)bar(.*)baz")
+
+
 .. _http-check-response-body:
 
 HTTP response body
@@ -81,25 +94,31 @@ HTTP checks are performed in the order of HTTP element precedence: first status,
 
 Beware that, as an optimization, Gatling doesn't pile up response chunks unless a check is defined on the response body.
 
-.. _check-response-time:
+.. _http-check-response-time:
 
 * ``responseTimeInMillis``
 
 Returns the response time of this request in milliseconds = the time between starting to send the request and finishing to receive the response.
 
+.. _http-check-latency:
+
 * ``latencyInMillis``
 
 Returns the latency of this request in milliseconds = the time between finishing to send the request and starting to receive the response.
+
+.. _http-check-body-string:
 
 * ``bodyString``
 
 Return the full response body.
 
+.. _http-check-regex:
+
 * ``regex(expression)``
 
 Defines a Java regular expression to be applied on any text response body.
 
-*expression* can be a simple String, an evaluatable String containing expression, or an Expression[String].
+*expression* can be a simple String, a String containing an expression, or an Expression[String].
 
 It can contain 0 or 1 capture group.
 
@@ -112,7 +131,21 @@ It can contain 0 or 1 capture group.
 .. note:: In Scala, you can use escaped strings with this notation: ``"""my "non-escaped" string"""``.
           This simplifies the writing and reading of regular expressions.
 
+.. _http-check-regex-type:
+
+* ``regexOfType[T](headerName, pattern)``
+
+Same as above, but supports more than one capture group.
+
+Gatling provides built-in support for extracting String tuples from ``Tuple2[String]`` to ``Tuple8[String]``.
+
+The example below will capture two capture groups::
+
+  regexOfType[(String, String)]("header", "foo(.*)bar(.*)baz")
+
 * ``xpath(expression, namespaces)``
+
+.. _http-check-xpath:
 
 Defines an XPath 1.0 expression to be applied on an XML response body.
 
@@ -130,6 +163,8 @@ Defines an XPath 1.0 expression to be applied on an XML response body.
 
 * ``jsonPath(expression)``
 
+.. _http-check-jsonpath:
+
 Based on `Goessner's JsonPath <http://goessner.net/articles/JsonPath>`_.
 
 *expression* can be a simple String, a String containing an EL expression, or an Expression[String].
@@ -141,6 +176,41 @@ Based on `Goessner's JsonPath <http://goessner.net/articles/JsonPath>`_.
 .. note:: In JSON, the root element has no name.
           This might be a problem when it's an array and one want to target its elements.
           As a workaround, Gatling names it ``_``.
+
+.. _http-check-jsonpath-type:
+
+* ``jsonPathOfType[T](expression)``
+
+Same as above, but can extract other types than Strings.
+
+Gatling provides built-in support for the following types:
+
+  * String
+  * Int
+  * Long
+  * Double
+  * Float
+  * Seq (JSON array)
+  * Map (JSON object)
+  * Any
+
+
+The example below shows how to extract Ints::
+
+  jsonPathOfType[Int]("$..foo")
+
+.. _http-check-jsonp-jsonpath:
+
+* ``jsonpJsonPath(expression)``
+
+Same as :ref:`jsonPath <http-check-jsonpath>` but for `JSONP <http://en.wikipedia.org/wiki/JSONP>`_.
+
+.. _http-check-jsonp-jsonpath-type:
+
+* ``jsonpJsonPathOfType[T](expression)``
+
+
+Same as :ref:`jsonPathOfType <http-check-jsonpath-type>` but for JSONP.
 
 .. _http-check-css:
 
@@ -164,8 +234,12 @@ Those are then discarded if not needed.
 
 .. note:: checksums are computed against the stream of chunks, so the whole body is not stored in memory.
 
+.. _http-check-extracting:
+
 Extracting
 ==========
+
+.. _http-check-find:
 
 * ``find``: return the first occurrence
 
@@ -173,7 +247,11 @@ Extracting
 
 .. note:: Ranks start at 0.
 
+.. _http-check-find-all:
+
 * ``findAll``: return a List of all the occurrences
+
+.. _http-check-count:
 
 * ``count``: return the number of occurrences
 
@@ -181,6 +259,8 @@ find(occurrence), findAll and count are only available on check types that might
 For example, status only has find.
 
 .. note:: In case of no extracting step is defined, a ``find`` is added implicitly.
+
+.. _http-check-transforming:
 
 Transforming
 ============
@@ -195,8 +275,12 @@ Transforming is an **optional** step for transforming the result of the extracti
 
 	transform(string => string + "foo")
 
+.. _http-check-verifying:
+
 Verifying
 =========
+
+.. _http-check-is:
 
 * ``is(expected)``
 
@@ -205,6 +289,8 @@ Checks that the value is equal to the expected one.
 *expected* is a function that returns a value of the same type of the previous step (extraction or transformation).
 In case of a String, it can also be a static String or a String with an EL expression.
 
+.. _http-check-not:
+
 * ``not(expected)``
 
 Checks that the value is different from the expected one.
@@ -212,13 +298,19 @@ Checks that the value is different from the expected one.
 *expected* is a function that returns a value of the same type of the previous step (extraction or transformation).
 In case of a String, it can also be a static String or a String with an EL expression.
 
+.. _http-check-exists:
+
 * ``exists``
 
 Checks that the value exists and is not empty in case of multiple results.
 
+.. _http-check-not-exists:
+
 * ``notExists``
 
 Checks that the value doesn't exist and or is empty in case of multiple results.
+
+.. _http-check-in:
 
 * ``in(sequence)``
 
@@ -234,7 +326,7 @@ Always true, used for capture an optional value.
 
 .. note:: In case of no verifying step is defined, a `exists`` is added implicitly.
 
-.. _http-check-saveas:
+.. _http-check-saving:
 
 Saving
 ======

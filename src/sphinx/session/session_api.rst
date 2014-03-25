@@ -40,7 +40,7 @@ The first step is to inject state into the virtual users.
 There's 3 ways of doing that:
 
     * using :ref:`Feeders <feeder>`
-    * extracting data from responses and saving them, e.g. with :ref:`HTTP Check's saveAs <http-check-saveas>`
+    * extracting data from responses and saving them, e.g. with :ref:`HTTP Check's saveAs <http-check-saving>`
     * manually with the Session API
 
 Fetching Data

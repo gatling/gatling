@@ -130,7 +130,7 @@ On can set a different Host than the url one::
   virtualHost(virtualHost: Expression[String])
 
 Local address
-------------
+-------------
 
 .. _http-protocol-local-address:
 
