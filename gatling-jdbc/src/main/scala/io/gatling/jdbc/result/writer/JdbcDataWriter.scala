@@ -15,7 +15,7 @@
  */
 package io.gatling.jdbc.result.writer
 
-import java.sql.{ Connection, Date => SQLDate, DriverManager, PreparedStatement, ResultSet }
+import java.sql.{ Connection, Date => SQLDate, DriverManager, PreparedStatement, ResultSet, Statement }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
@@ -88,7 +88,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
       system.registerOnTermination(requestInsert.close())
 
       //Filling in run information
-      withStatement(conn.prepareStatement(insertRunRecord)) { runInsert =>
+      withStatement(conn.prepareStatement(insertRunRecord, Statement.RETURN_GENERATED_KEYS)) { runInsert =>
         runInsert.setDate(1, new SQLDate(run.runDate.toDate.getTime))
         runInsert.setString(2, run.simulationId)
         runInsert.setString(3, run.runDescription)
