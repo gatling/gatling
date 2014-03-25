@@ -40,7 +40,7 @@ object CookieJar {
 
   // rfc6265#section-5.2.3
   // Let cookie-domain be the attribute-value without the leading %x2E (".") character.
-  def cookieDomain(cookieDomain: String, requestDomain: String) = Option(cookieDomain) match {
+  def cookieDomain(cookieDomain: Option[String], requestDomain: String) = cookieDomain match {
     case Some(dom) =>
       val domain = (if (dom.charAt(0) == '.') dom.substring(1) else dom).toLowerCase
       (domain, false)
@@ -49,7 +49,7 @@ object CookieJar {
   }
 
   // rfc6265#section-5.2.4
-  def cookiePath(rawCookiePath: String, requestPath: String) = {
+  def cookiePath(rawCookiePath: Option[String], requestPath: String) = {
 
       // rfc6265#section-5.1.4
       def defaultCookiePath() = requestPath match {
@@ -57,9 +57,9 @@ object CookieJar {
         case _ => "/"
       }
 
-    Option(rawCookiePath) match {
+    rawCookiePath match {
       case Some(path) if path.charAt(0) == '/' => path
-      case _ => defaultCookiePath()
+      case _                                   => defaultCookiePath()
     }
   }
 
@@ -102,9 +102,9 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
     val newStore = cookies.foldLeft(store) {
       (updatedStore, cookie) =>
 
-        val (keyDomain, hostOnly) = CookieJar.cookieDomain(cookie.getDomain, requestDomain)
+        val (keyDomain, hostOnly) = CookieJar.cookieDomain(Option(cookie.getDomain), requestDomain)
 
-        val keyPath = CookieJar.cookiePath(cookie.getPath, requestPath)
+        val keyPath = CookieJar.cookiePath(Option(cookie.getPath), requestPath)
 
         if (CookieJar.hasExpired(cookie)) {
           updatedStore - CookieKey(cookie.getName.toLowerCase, keyDomain, keyPath)
