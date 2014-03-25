@@ -59,10 +59,7 @@ object CookieJar {
 
     Option(rawCookiePath) match {
       case Some(path) if path.charAt(0) == '/' => path
-      case _ =>
-        val d = defaultCookiePath()
-        System.err.println(s"requestPath=$requestPath defaultCookiePath=$d")
-        d
+      case _ => defaultCookiePath()
     }
   }
 
