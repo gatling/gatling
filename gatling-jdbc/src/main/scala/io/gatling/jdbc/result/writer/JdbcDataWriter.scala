@@ -96,6 +96,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
         val keys: ResultSet = runInsert.getGeneratedKeys
         //Getting the runId to be dumped later on other tables.
         while (keys.next) { runId = keys.getInt(1) }
+        conn.commit()
       }
     }
   }
