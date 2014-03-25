@@ -72,18 +72,17 @@ Same than above, but *pattern* is used to apply a regex on the header value.
 
 .. note:: ``Location`` header value is automatically decoded when performing a check on it
 
-.. _http-check-header-regex-of-type:
+By default, it can extract 0 or 1 capture group, so the extract type is ``String``\ s.
 
-* ``headerRegexOfType[T](headerName, pattern)``
+One can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step::
 
-Same as above, but supports more than one capture group.
+  headerRegex(headerName, pattern).ofType[T]
 
 Gatling provides built-in support for extracting String tuples from ``Tuple2[String]`` to ``Tuple8[String]``.
 
 The example below will capture two capture groups::
 
-  headerRegexOfType[(String, String)]("header", "foo(.*)bar(.*)baz")
-
+  headerRegex("FOO", "foo(.*)bar(.*)baz").ofType[(String, String)]
 
 .. _http-check-response-body:
 
@@ -120,7 +119,7 @@ Defines a Java regular expression to be applied on any text response body.
 
 *expression* can be a simple String, a String containing an expression, or an Expression[String].
 
-It can contain 0 or 1 capture group.
+It can contain multiple capture group.
 
 ::
 
@@ -131,17 +130,17 @@ It can contain 0 or 1 capture group.
 .. note:: In Scala, you can use escaped strings with this notation: ``"""my "non-escaped" string"""``.
           This simplifies the writing and reading of regular expressions.
 
-.. _http-check-regex-type:
+By default, it can extract 0 or 1 capture group, so the extract type is ``String``\ s.
 
-* ``regexOfType[T](headerName, pattern)``
+One can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step::
 
-Same as above, but supports more than one capture group.
+  regex(expression).ofType[T]
 
 Gatling provides built-in support for extracting String tuples from ``Tuple2[String]`` to ``Tuple8[String]``.
 
 The example below will capture two capture groups::
 
-  regexOfType[(String, String)]("header", "foo(.*)bar(.*)baz")
+  regex("foo(.*)bar(.*)baz").ofType[(String, String)]
 
 * ``xpath(expression, namespaces)``
 
@@ -177,11 +176,11 @@ Based on `Goessner's JsonPath <http://goessner.net/articles/JsonPath>`_.
           This might be a problem when it's an array and one want to target its elements.
           As a workaround, Gatling names it ``_``.
 
-.. _http-check-jsonpath-type:
+By default, it extracts ``String``\ s, so JSON values of different types get serialized.
 
-* ``jsonPathOfType[T](expression)``
+One can define an different type with the ``ofType[T]`` extra step::
 
-Same as above, but can extract other types than Strings.
+  jsonPath(expression).ofType[T]
 
 Gatling provides built-in support for the following types:
 
@@ -194,23 +193,15 @@ Gatling provides built-in support for the following types:
   * Map (JSON object)
   * Any
 
-
 The example below shows how to extract Ints::
 
-  jsonPathOfType[Int]("$..foo")
+  jsonPath("$..foo").ofType[Int]
 
 .. _http-check-jsonp-jsonpath:
 
 * ``jsonpJsonPath(expression)``
 
 Same as :ref:`jsonPath <http-check-jsonpath>` but for `JSONP <http://en.wikipedia.org/wiki/JSONP>`_.
-
-.. _http-check-jsonp-jsonpath-type:
-
-* ``jsonpJsonPathOfType[T](expression)``
-
-
-Same as :ref:`jsonPathOfType <http-check-jsonpath-type>` but for JSONP.
 
 .. _http-check-css:
 
