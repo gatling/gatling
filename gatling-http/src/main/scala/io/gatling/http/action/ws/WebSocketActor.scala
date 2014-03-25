@@ -30,7 +30,7 @@ import io.gatling.http.ahc.{ HttpEngine, WebSocketTx }
 
 class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
 
-  def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None) {
+  private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None) {
     writeRequestData(
       session,
       requestName,
@@ -86,16 +86,10 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
 
     case OnError(t) =>
       context.become(pendingErrorMessageState(s"Websocket '$wsName' gave an error: '${t.getMessage}'"))
-
-    case unhandled =>
-      logger.error("Websocket can't deal with $unhandled while in Open state")
   }
 
   def closingState: Receive = {
     case OnClose => context.stop(self)
-
-    case unhandled =>
-      logger.error("Websocket can't deal with $unhandled while in Close state")
   }
 
   def disconnectedState(pendingSendMessages: Queue[WebSocketMessage], tx: WebSocketTx): Receive = {
@@ -105,9 +99,6 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
       HttpEngine.instance.startWebSocketTransaction(tx.copy(reconnectCount = tx.reconnectCount + 1), self)
 
       context.become(reconnectingState(pendingSendMessages += message))
-
-    case unhandled =>
-      logger.error("Websocket can't deal with $unhandled while in Disconnect state")
   }
 
   def reconnectingState(pendingSendMessages: Queue[WebSocketMessage]): Receive = {
@@ -129,9 +120,6 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
       pendingSendMessages.foreach { self ! _ }
 
       context.become(pendingErrorMessageState(error))
-
-    case unhandled =>
-      logger.error("Websocket can't deal with $unhandled while in Reconnecting state")
   }
 
   def pendingErrorMessageState(error: String): Receive = {
@@ -152,9 +140,6 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
 
       case Close(requestName, next, session) =>
         flushPendingError(requestName, next, session)
-
-      case unhandled =>
-        logger.error("Websocket can't deal with $unhandled while in PendingErrorMessage state")
     }
   }
 
@@ -171,8 +156,4 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
       logRequest(session, requestName, KO, started, ended, Some(message))
       next ! session.markAsFailed
       context.stop(self)
-
-    case unhandled =>
-      logger.error("Websocket can't deal with $unhandled while in Initial state")
-  }
 }
