@@ -34,7 +34,7 @@ class HarReaderSpec extends Specification {
 
     val configWithResourcesFiltering = fakeConfig(Map(FETCH_HTML_RESOURCES -> true))
 
-    // By default, we assume that we doHeren't want to filter out the HTML resources
+    // By default, we assume that we don't want to filter out the HTML resources
     implicit val config = fakeConfig(Map(FETCH_HTML_RESOURCES -> false))
 
     "work with empty JSON" in {
