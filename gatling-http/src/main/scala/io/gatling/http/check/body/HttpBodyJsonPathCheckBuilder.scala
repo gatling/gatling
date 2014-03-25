@@ -25,6 +25,12 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.{ ByteArrayResponseBodyUsage, InputStreamResponseBodyUsage, Response, ResponseBodyUsageStrategy, StringResponseBodyUsage }
 
+trait HttpBodyJsonPathOfType {
+  self: HttpBodyJsonPathCheckBuilder[String] =>
+
+  def ofType[X](implicit jsonFilter: JsonFilter[X]) = new HttpBodyJsonPathCheckBuilder[X](path)
+}
+
 object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
   val charsParsingThreshold = 1000000
@@ -79,10 +85,15 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
     case _                                    => jacksonResponseBodyUsageStrategy
   }
 
-  def jsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
-    new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.bodyCheckFactory(responseBodyUsageStrategy), preparer) {
-      def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
-      def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))
-      def countExtractor = path.map(new CountJsonPathExtractor(_))
-    }
+  def jsonPath(path: Expression[String]) = new HttpBodyJsonPathCheckBuilder[String](path) with HttpBodyJsonPathOfType
+}
+
+class HttpBodyJsonPathCheckBuilder[X](private[body] val path: Expression[String])(implicit jsonFilter: JsonFilter[X])
+    extends HttpMultipleCheckBuilder[Any, X](
+      HttpCheckBuilders.bodyCheckFactory(HttpBodyJsonPathCheckBuilder.responseBodyUsageStrategy),
+      HttpBodyJsonPathCheckBuilder.preparer) {
+
+  def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
+  def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))
+  def countExtractor = path.map(new CountJsonPathExtractor(_))
 }

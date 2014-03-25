@@ -22,7 +22,7 @@ import scala.collection.concurrent
 
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.validation.{ noneSuccess, SuccessWrapper, Validation }
+import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import jsr166e.ConcurrentHashMapV8
 
 object RegexExtractor {

@@ -192,7 +192,7 @@ and (select count(*) from usr_account where usr_id=id) >=2""")
     // Second request outside iteration
     .exec(http("Ajout au panier").get("/").check(regex("""<input id="text1" type="text" value="(.*)" />""").saveAs("input")))
     .exec(http("Ajout au panier").get("/").check(regex(session => """<input id="text1" type="text" value="smth" />""").count.lessThan(10).saveAs("input")))
-    .exec(http("Ajout au panier").get("/").check(regexOfType[(String, String)](session => """<input id="(.*)" type="text" value="(.*)" />""").saveAs("input")))
+    .exec(http("Ajout au panier").get("/").check(regex(session => """<input id="(.*)" type="text" value="(.*)" />""").ofType[(String, String)] saveAs ("input")))
     .pause(pause1)
     .rendezVous(100)
     .exec(flushSessionCookies)

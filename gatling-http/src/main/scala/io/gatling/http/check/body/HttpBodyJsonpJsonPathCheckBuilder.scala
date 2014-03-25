@@ -25,6 +25,12 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
 
+trait HttpBodyJsonpJsonPathOfType {
+  self: HttpBodyJsonpJsonPathCheckBuilder[String] =>
+
+  def ofType[X](implicit jsonFilter: JsonFilter[X]) = new HttpBodyJsonpJsonPathCheckBuilder[X](path)
+}
+
 object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
 
   val jsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\)$""".r
@@ -55,10 +61,12 @@ object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
       }
   }
 
-  def jsonpJsonPath[X](path: Expression[String])(implicit groupExtractor: JsonFilter[X]) =
-    new HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.stringBodyCheckFactory, jsonpPreparer) {
-      def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
-      def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))
-      def countExtractor = path.map(new CountJsonPathExtractor(_))
-    }
+  def jsonpJsonPath(path: Expression[String]) = new HttpBodyJsonpJsonPathCheckBuilder[String](path) with HttpBodyJsonpJsonPathOfType
+}
+
+class HttpBodyJsonpJsonPathCheckBuilder[X](private[body] val path: Expression[String])(implicit groupExtractor: JsonFilter[X])
+    extends HttpMultipleCheckBuilder[Any, X](HttpCheckBuilders.stringBodyCheckFactory, HttpBodyJsonpJsonPathCheckBuilder.jsonpPreparer) {
+  def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
+  def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))
+  def countExtractor = path.map(new CountJsonPathExtractor(_))
 }

@@ -20,19 +20,31 @@ import io.gatling.core.session.{ Expression, RichExpression, Session }
 import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
 import io.gatling.http.response.Response
 
+trait HttpHeaderRegexOfType {
+  self: HttpHeaderRegexCheckBuilder[String] =>
+
+  def ofType[X](implicit groupExtractor: GroupExtractor[X]) = new HttpHeaderRegexCheckBuilder[X](headerName, pattern)
+}
+
 object HttpHeaderRegexCheckBuilder {
 
-  def headerRegex[X](headerName: Expression[String], pattern: Expression[String])(implicit groupExtractor: GroupExtractor[X]) = {
+  def headerRegex(headerName: Expression[String], pattern: Expression[String]) =
+    new HttpHeaderRegexCheckBuilder[String](headerName, pattern) with HttpHeaderRegexOfType
+}
 
-    val headerAndPattern = (session: Session) => for {
-      headerName <- headerName(session)
-      pattern <- pattern(session)
-    } yield (headerName, pattern)
+class HttpHeaderRegexCheckBuilder[X](private[header] val headerName: Expression[String], val pattern: Expression[String])(implicit groupExtractor: GroupExtractor[X])
+    extends HttpMultipleCheckBuilder[Response, String](
+      HttpCheckBuilders.headerCheckFactory,
+      HttpCheckBuilders.passThroughResponsePreparer) {
 
-    new HttpMultipleCheckBuilder[Response, String](HttpCheckBuilders.headerCheckFactory, HttpCheckBuilders.passThroughResponsePreparer) {
-      def findExtractor(occurrence: Int) = headerAndPattern.map(new SingleHttpHeaderRegexExtractor[String](_, occurrence))
-      def findAllExtractor = headerAndPattern.map(new MultipleHttpHeaderRegexExtractor[String](_))
-      def countExtractor = headerAndPattern.map(new CountHttpHeaderRegexExtractor(_))
-    }
-  }
+  val headerAndPattern = (session: Session) => for {
+    headerName <- headerName(session)
+    pattern <- pattern(session)
+  } yield (headerName, pattern)
+
+  def findExtractor(occurrence: Int) = headerAndPattern.map(new SingleHttpHeaderRegexExtractor[String](_, occurrence))
+
+  def findAllExtractor = headerAndPattern.map(new MultipleHttpHeaderRegexExtractor[String](_))
+
+  def countExtractor = headerAndPattern.map(new CountHttpHeaderRegexExtractor(_))
 }
