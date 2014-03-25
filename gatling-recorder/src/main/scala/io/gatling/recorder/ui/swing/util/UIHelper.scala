@@ -47,11 +47,14 @@ object UIHelper {
 
   implicit class RichFileChooser(val fileChooser: FileChooser) extends AnyVal {
 
-    def selection = {
-      if (fileChooser.showSaveDialog(null) != FileChooser.Result.Approve)
+    def openSelection(): Option[String] = selection(fileChooser.showOpenDialog(null))
+    def saveSelection(): Option[String] = selection(fileChooser.showSaveDialog(null))
+
+    private def selection(result: FileChooser.Result.Value) =
+      if (result != FileChooser.Result.Approve)
         None
       else
         Some(fileChooser.selectedFile.getPath)
-    }
   }
+
 }

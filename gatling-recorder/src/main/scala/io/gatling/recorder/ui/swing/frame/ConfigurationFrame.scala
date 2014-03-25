@@ -63,7 +63,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
   /* Har Panel components */
   private val harPath = new TextField(66)
   private val harFileChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly }
-  private val harFileBrowserButton = Button("Browse")(harFileChooser.selection.foreach(harPath.text = _))
+  private val harFileBrowserButton = Button("Browse")(harFileChooser.openSelection.foreach(harPath.text = _))
 
   /* Simulation panel components */
   private val simulationPackage = new TextField(30)
@@ -76,7 +76,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
   private val outputEncoding = new ComboBox[String](CharsetHelper.orderedLabelList)
   private val outputFolderPath = new TextField(66)
   private val outputFolderChooser = new FileChooser { fileSelectionMode = SelectionMode.DirectoriesOnly }
-  private val outputFolderBrowserButton = Button("Browse")(outputFolderChooser.selection.foreach(outputFolderPath.text = _))
+  private val outputFolderBrowserButton = Button("Browse")(outputFolderChooser.saveSelection.foreach(outputFolderPath.text = _))
 
   /* Filters panel components */
   private val whiteListTable = new FilterTable("Whitelist")
