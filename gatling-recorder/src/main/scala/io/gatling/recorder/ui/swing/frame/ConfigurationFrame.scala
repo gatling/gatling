@@ -18,7 +18,6 @@ package io.gatling.recorder.ui.swing.frame
 import java.awt.Font
 
 import scala.collection.JavaConversions.seqAsJavaList
-import scala.language.reflectiveCalls._
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.FileChooser.SelectionMode
@@ -35,7 +34,7 @@ import io.gatling.recorder.enumeration.FilterStrategy
 import io.gatling.recorder.ui.RecorderFrontend
 import io.gatling.recorder.ui.swing.Commons.{ iconList, logoSmall }
 import io.gatling.recorder.ui.swing.component.FilterTable
-import io.gatling.recorder.ui.swing.frame.ValidationHelper.{ Validator, isNonEmpty, isValidPort, keyReleased, updateValidationStatus }
+import io.gatling.recorder.ui.swing.frame.ValidationHelper.{ Validator, isNonEmpty, isValidPort, isValidPackageName, isValidSimpleClassName, keyReleased, updateValidationStatus }
 import io.gatling.recorder.ui.swing.util.CharsetHelper
 import io.gatling.recorder.ui.swing.util.UIHelper.{ CenterAlignedFlowPanel, LeftAlignedFlowPanel, RichFileChooser, RightAlignedFlowPanel, titledBorder }
 
@@ -297,7 +296,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
   /* Reactions II: fields validation */
   listenTo(localProxyHttpPort.keys, localProxyHttpsPort.keys)
   listenTo(outgoingProxyHost.keys, outgoingProxyHttpPort.keys, outgoingProxyHttpsPort.keys)
-  listenTo(outputFolderPath.keys, simulationClassName.keys)
+  listenTo(outputFolderPath.keys, simulationPackage.keys, simulationClassName.keys)
 
   private def registerValidators() {
     ValidationHelper.registerValidator(localProxyHttpPort, Validator(isValidPort))
@@ -306,7 +305,8 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
     ValidationHelper.registerValidator(outgoingProxyHttpPort, Validator(isValidPort))
     ValidationHelper.registerValidator(outgoingProxyHttpsPort, Validator(isValidPort))
     ValidationHelper.registerValidator(outputFolderPath, Validator(isNonEmpty))
-    ValidationHelper.registerValidator(simulationClassName, Validator(isNonEmpty))
+    ValidationHelper.registerValidator(simulationPackage, Validator(isValidPackageName))
+    ValidationHelper.registerValidator(simulationClassName, Validator(isValidSimpleClassName))
   }
 
   private def enableConfig(c: Component) {

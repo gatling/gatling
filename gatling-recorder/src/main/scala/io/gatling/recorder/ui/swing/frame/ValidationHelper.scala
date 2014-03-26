@@ -43,6 +43,17 @@ object ValidationHelper {
   def isValidPort(s: String) = Try(s.toInt).toOption.exists(portRange.contains)
   def isNonEmpty(s: String) = s.trimToOption.isDefined
 
+  private val validPackageNameRegex = """^[a-z_\$][\w\$]*(?:\.[a-z_\$][\w\$]*)*$"""
+  def isValidPackageName(s: String) =
+    s.isEmpty ||
+      s.matches(validPackageNameRegex)
+
+  def isValidSimpleClassName(s: String) =
+    isNonEmpty(s) &&
+      !s.contains('_') &&
+      Character.isJavaIdentifierStart(s.charAt(0)) &&
+      !s.substring(1, s.length).exists(!Character.isJavaIdentifierPart(_))
+
   /* Default callbacks */
   def setStandardBorder(c: Component) { c.border = standardBorder }
   def setErrorBorder(c: Component) { c.border = errorBorder }
