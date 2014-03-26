@@ -45,12 +45,16 @@ Expression
 
 Most Gatling DSL methods actually takes ``Expression[T]`` parameters, which is a type alias for ``Session => Validation[T]``.
 
-How is it that one can also pass Strings then?
+How is it that one can also pass Strings and other values then?
 
-The reason is that there is an implicit conversion that automagically parses those Strings when the Simulation is instanciated and turn them into Expressions.
+The reason is that there are implicit conversions:
+
+ * when passing a String, it gets automagically parsed turn them into Expressions thanks to Gatling EL compiler.
+ * when passing a value of another type, it gets automagically wrapped into an Expression that will always return this static value.
 
 .. warning::
-    This implicit conversion is only triggered when trying to pass a String to a method that expects an Expression instead.
+    Implicit conversions are only triggered when expected type and passed parameter type don't match, for example trying to pass a String to a method that expects an Expression instead.
+    Those implicit conversions are triggered compile time.
 
 .. note::
     For more information about ``Validation``, please check out :ref:`reference page <validation>`.
