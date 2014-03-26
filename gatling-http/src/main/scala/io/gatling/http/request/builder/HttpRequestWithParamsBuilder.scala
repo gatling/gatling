@@ -15,14 +15,14 @@
  */
 package io.gatling.http.request.builder
 
-import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.core.session.el.EL
+import io.gatling.core.session.{ Expression, ExpressionWrapper, RichExpression }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.{ BodyPart, RawFileBodies }
+import com.ning.http.client.Request
 
 object HttpRequestWithParamsBuilder {
-  val multipartFormDataValueExpression = HeaderValues.MULTIPART_FORM_DATA.el[String]
+  val multipartFormDataValueExpression = HeaderValues.MULTIPART_FORM_DATA.expression
 }
 
 /**
@@ -60,5 +60,5 @@ class HttpRequestWithParamsBuilder(
     bodyPart(BodyPart.fileBodyPart(name, file).fileName(fileName)).asMultipartForm
   }
 
-  def ahcRequest(protocol: HttpProtocol) = new HttpRequestWithParamsExpressionBuilder(commonAttributes, httpAttributes, params, protocol).build
+  def request(protocol: HttpProtocol): Expression[Request] = new HttpRequestWithParamsExpressionBuilder(commonAttributes, httpAttributes, params, protocol).build
 }
