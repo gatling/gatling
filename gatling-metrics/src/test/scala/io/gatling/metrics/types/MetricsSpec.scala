@@ -25,13 +25,13 @@ class MetricsSpec extends Specification {
   "getQuantile" should {
     "work when there is no measure" in {
       val metrics = new Metrics(100)
-      metrics.getQuantile(91) must beEqualTo(0L)
+      metrics.getQuantile(91) must beCloseTo(0.0 +/- 0.01)
     }
 
     "work when there is one measure" in {
       val metrics = new Metrics(100)
       metrics.update(53)
-      metrics.getQuantile(91) must beEqualTo(53L)
+      metrics.getQuantile(91) must beCloseTo(53.0 +/- 0.01)
     }
 
     "work with a small number of measures" in {
@@ -39,7 +39,7 @@ class MetricsSpec extends Specification {
       for (i <- 1 to 100)
         metrics.update(i)
 
-      metrics.getQuantile(91) must beEqualTo(100L)
+      metrics.getQuantile(91) must beCloseTo(91.0 +/- 0.1)
     }
 
     "work with a large number of measures" in {
@@ -47,7 +47,7 @@ class MetricsSpec extends Specification {
       for (i <- 1 to 10000)
         metrics.update(i)
 
-      metrics.getQuantile(91) must beEqualTo(9200L)
+      metrics.getQuantile(91) must beCloseTo(9100.0 +/- 0.1)
     }
 
     "work with a low percentiles" in {
@@ -55,16 +55,16 @@ class MetricsSpec extends Specification {
       for (i <- 1 to 10000)
         metrics.update(i)
 
-      metrics.getQuantile(0) must beEqualTo(100L)
-      metrics.getQuantile(1) must beEqualTo(200L)
+      metrics.getQuantile(0) must beCloseTo(1.0 +/- 0.1) and (
+        metrics.getQuantile(1) must beCloseTo(100.0 +/- 1))
     }
 
     "work with a large percentiles" in {
       val metrics = new Metrics(100)
       for (i <- 1 to 10000)
         metrics.update(i)
-      metrics.getQuantile(99) must beEqualTo(10000L)
-      metrics.getQuantile(100) must beEqualTo(10000L)
+      metrics.getQuantile(99) must beCloseTo(9900.0 +/- 0.1) and (
+        metrics.getQuantile(100) must beCloseTo(10000.0 +/- 0.1))
     }
 
     "work after a reset" in {
@@ -74,7 +74,7 @@ class MetricsSpec extends Specification {
       metrics.reset
       for (i <- 1 to 100)
         metrics.update(i)
-      metrics.getQuantile(100) must beEqualTo(100L)
+      metrics.getQuantile(100) must beCloseTo(100.0 +/- 0.1)
     }
   }
 }

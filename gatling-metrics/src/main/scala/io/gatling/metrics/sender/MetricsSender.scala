@@ -23,7 +23,13 @@ object MetricsSender {
     case "udp" => new UdpSender
   }
 }
+
 abstract class MetricsSender {
+
+  def sendToGraphite(metricPath: String, value: Double, epoch: Long) {
+    val bytes = f"$metricPath $value%f $epoch\n".getBytes(configuration.core.charset)
+    sendToGraphite(bytes)
+  }
 
   def sendToGraphite(metricPath: String, value: Long, epoch: Long) {
     val bytes = s"$metricPath $value $epoch\n".getBytes(configuration.core.charset)

@@ -15,13 +15,13 @@
  */
 package io.gatling.metrics.types
 
-import scala.annotation.tailrec
-
 import scala.collection.mutable
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.writer.RequestMessage
+import com.tdunning.math.stats.ArrayDigest
+import com.tdunning.math.stats.TDigest
 
 class RequestMetrics {
 
@@ -49,49 +49,31 @@ class RequestMetrics {
   }
 }
 
-class Metrics(bucketWidth: Int = configuration.data.graphite.bucketWidth) {
+class Metrics(compression: Int = configuration.data.graphite.quantileCompression) {
 
   var count = 0L
   var max = 0L
   var min = Long.MaxValue
-  private val buckets = mutable.HashMap.empty[Long, Long].withDefaultValue(0L)
+  var digest = TDigest.createArrayDigest(compression)
 
   def update(value: Long) {
     count += 1
     max = max.max(value)
     min = min.min(value)
-
-    val bucket = value / bucketWidth
-    val newCount = buckets(bucket) + 1L
-    buckets += (bucket -> newCount)
+    digest.add(value)
   }
 
   def reset() {
     count = 0L
     max = 0L
     min = Long.MaxValue
-    buckets.clear()
+    digest = TDigest.createArrayDigest(compression)
   }
 
-  def getQuantile(quantile: Int): Long = {
-    if (buckets.isEmpty)
-      0L
-    else {
-      val limit = (count * (quantile.toDouble / bucketWidth)).toLong
+  def getQuantile(quantile: Int): Double =
+    if (count > 0)
+      digest.quantile(quantile / 100.0d)
+    else
+      0.0d
 
-        @tailrec
-        def getQuantileRec(buckets: List[(Long, Long)], count: Long): Long = buckets match {
-          case (bucketTime, bucketCount) :: tail =>
-            val newCount = count + bucketCount
-            if (newCount >= limit)
-              max.min((bucketTime * bucketWidth) + bucketWidth)
-            else
-              getQuantileRec(tail, newCount)
-
-          case Nil => max
-        }
-
-      getQuantileRec(buckets.toList.sorted, 0L)
-    }
-  }
 }

@@ -96,6 +96,7 @@ class GraphiteDataWriter extends DataWriter {
         def sanitizeStringList(list: List[String]) = sanitizeStringListMemo.getOrElseUpdate(list, list.map(sanitizeString))
 
         def sendToGraphite(metricPath: MetricPath, value: Long) = metricsSender.sendToGraphite(metricPath.toString, value, epoch)
+        def sendFloatToGraphite(metricPath: MetricPath, value: Double) = metricsSender.sendToGraphite(metricPath.toString, value, epoch)
 
         def sendUserMetrics(scenarioName: String, userMetric: UserMetric) {
           val rootPath = MetricPath(List("users", sanitizeString(scenarioName)))
@@ -110,8 +111,8 @@ class GraphiteDataWriter extends DataWriter {
           if (metrics.count > 0L) {
             sendToGraphite(metricPath + "max", metrics.max)
             sendToGraphite(metricPath + "min", metrics.min)
-            sendToGraphite(metricPath + percentiles1Name, metrics.getQuantile(percentiles1))
-            sendToGraphite(metricPath + percentiles2Name, metrics.getQuantile(percentiles2))
+            sendFloatToGraphite(metricPath + percentiles1Name, metrics.getQuantile(percentiles1))
+            sendFloatToGraphite(metricPath + percentiles2Name, metrics.getQuantile(percentiles2))
           }
         }
 
