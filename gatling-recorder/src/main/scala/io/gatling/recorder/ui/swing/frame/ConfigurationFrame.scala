@@ -34,7 +34,7 @@ import io.gatling.recorder.enumeration.FilterStrategy
 import io.gatling.recorder.ui.RecorderFrontend
 import io.gatling.recorder.ui.swing.Commons.{ iconList, logoSmall }
 import io.gatling.recorder.ui.swing.component.FilterTable
-import io.gatling.recorder.ui.swing.frame.ValidationHelper.{ Validator, isNonEmpty, isValidPort, isValidPackageName, isValidSimpleClassName, keyReleased, updateValidationStatus }
+import io.gatling.recorder.ui.swing.frame.ValidationHelper.{ Validator, isNonEmpty, isValidPort, isValidPackageName, isValidScalaId, keyReleased, updateValidationStatus }
 import io.gatling.recorder.ui.swing.util.CharsetHelper
 import io.gatling.recorder.ui.swing.util.UIHelper.{ CenterAlignedFlowPanel, LeftAlignedFlowPanel, RichFileChooser, RightAlignedFlowPanel, titledBorder }
 
@@ -306,7 +306,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
     ValidationHelper.registerValidator(outgoingProxyHttpsPort, Validator(isValidPort))
     ValidationHelper.registerValidator(outputFolderPath, Validator(isNonEmpty))
     ValidationHelper.registerValidator(simulationPackage, Validator(isValidPackageName))
-    ValidationHelper.registerValidator(simulationClassName, Validator(isValidSimpleClassName))
+    ValidationHelper.registerValidator(simulationClassName, Validator(isValidScalaId))
   }
 
   private def enableConfig(c: Component) {

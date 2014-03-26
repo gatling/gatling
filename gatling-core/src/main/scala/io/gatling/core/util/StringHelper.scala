@@ -120,6 +120,19 @@ object StringHelper {
         string
     }
 
+    private def scalaId = "(\\p{Lu}|[$_])((\\p{Lu}|[$_]|\\p{Ll}|\\p{Lo}|\\p{Lt}|\\p{Nl}|[\\d])*" +
+      "([_](((?=[\u0020-\u007F]|\\p{Sm}|\\p{So})(?![\\[\\]\\.[\\p{Ll}\\p{Nl}\\p{Lt}\\p{Lo}\\p{Lu}'`\\d\"]]))(.)" +
+      "(((?=[\u0020-\u007F]|\\p{Sm}|\\p{So})(?![\\[\\]\\.[\\p{Ll}\\p{Nl}\\p{Lt}\\p{Lo}\\p{Lu}'`\\d\"]]))(.))*))?)" +
+      "|\\p{Ll}((\\p{Lu}|[$_]|\\p{Ll}|\\p{Lo}|\\p{Lt}|\\p{Nl}|[\\d])*" +
+      "([_](((?=[\u0020-\u007F]|\\p{Sm}|\\p{So})(?![\\[\\]\\.[\\p{Ll}\\p{Nl}\\p{Lt}\\p{Lo}\\p{Lu}'`\\d\"]]))(.)" +
+      "(((?=[\u0020-\u007F]|\\p{Sm}|\\p{So})(?![\\[\\]\\.[\\p{Ll}\\p{Nl}\\p{Lt}\\p{Lo}\\p{Lu}'`\\d\"]]))(.))*))?)|" +
+      "((?=[\u0020-\u007F]|\\p{Sm}|\\p{So})" +
+      "(?![\\[\\]\\.[\\p{Ll}\\p{Nl}\\p{Lt}\\p{Lo}\\p{Lu}'`\\d\"]]))(.)" +
+      "((((?=[\u0020-\u007F]|\\p{Sm}|\\p{So})(?![\\[\\]\\.[\\p{Ll}\\p{Nl}\\p{Lt}\\p{Lo}\\p{Lu}'`\\d\"]]))" +
+      "(.))*)|([`][^`]+[`])"
+
+    def isValidScalaId = string.matches(scalaId)
+
     def unsafeChars(): Array[Char] = stringCharsExtractor(string)
 
     def ensureTrimmedCharsArray: String = RichString.ensureTrimmedCharsArrayF(string)
