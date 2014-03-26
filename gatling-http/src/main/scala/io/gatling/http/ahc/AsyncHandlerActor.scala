@@ -15,9 +15,7 @@
  */
 package io.gatling.http.ahc
 
-import scala.collection.JavaConversions._
-
-import com.ning.http.client.{ FluentStringsMap, RequestBuilder }
+import com.ning.http.client.RequestBuilder
 import akka.actor.{ ActorRef, Props }
 import akka.actor.ActorDSL.actor
 import akka.routing.RoundRobinRouter
@@ -61,6 +59,13 @@ object AsyncHandlerActor extends AkkaDefaults {
 
   def updateCache(tx: HttpTx, response: Response): Session => Session = CacheHandling.cache(tx.protocol, _, tx.request, response)
   val fail: Session => Session = _.markAsFailed
+
+  val propagatedOnRedirectHeaders = Vector(
+    HeaderNames.ACCEPT,
+    HeaderNames.ACCEPT_ENCODING,
+    HeaderNames.ACCEPT_LANGUAGE,
+    HeaderNames.REFERER,
+    HeaderNames.USER_AGENT)
 }
 
 class AsyncHandlerActor extends BaseActor with DataWriterClient {
@@ -228,16 +233,17 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
                   .setConnectionPoolKeyStrategy(originalRequest.getConnectionPoolKeyStrategy)
                   .setInetAddress(originalRequest.getInetAddress)
                   .setLocalInetAddress(originalRequest.getLocalAddress)
-                  .setHeaders(originalRequest.getHeaders)
                   .setVirtualHost(originalRequest.getVirtualHost)
                   .setProxyServer(originalRequest.getProxyServer)
+
+                for (headerName <- AsyncHandlerActor.propagatedOnRedirectHeaders) {
+                  Option(originalRequest.getHeaders.getFirstValue(headerName)).foreach(requestBuilder.addHeader(headerName, _))
+                }
 
                 for (cookie <- CookieHandling.getStoredCookies(newTx.session, redirectURI))
                   requestBuilder.addCookie(cookie)
 
                 val newRequest = requestBuilder.build
-                newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
-                newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
 
                 val redirectTx = newTx.copy(request = newRequest, redirectCount = tx.redirectCount + 1)
                 HttpRequestAction.startHttpTransaction(redirectTx)
