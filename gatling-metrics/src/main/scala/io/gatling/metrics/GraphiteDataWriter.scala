@@ -29,8 +29,8 @@ import io.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetric }
 class GraphiteDataWriter extends DataWriter {
 
   private val graphiteSender = actor(context)(new GraphiteSender)
-  private val rootPathPrefix = configuration.data.graphite.rootPathPrefix.split('.').toList
-  private var metricRootPath: List[String] = Nil
+  private val graphiteRootPath = configuration.data.graphite.rootPathPrefix
+  private var metricRootPath = ""
   private val allRequests = new RequestMetrics
   private val perRequest = mutable.Map.empty[List[String], RequestMetrics]
   private var allUsers: UserMetric = _
@@ -42,7 +42,7 @@ class GraphiteDataWriter extends DataWriter {
 
   def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
 
-    metricRootPath = rootPathPrefix :+ run.simulationId
+    metricRootPath = graphiteRootPath + "." + run.simulationId + "."
     allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
     scenarios.foreach(scenario => usersPerScenario += scenario.name -> new UserMetric(scenario.nbUsers))
     scheduler.schedule(0 millisecond, 1000 milliseconds, self, Send)
@@ -139,15 +139,10 @@ class GraphiteDataWriter extends DataWriter {
     }
   }
 
-  private object MetricPath {
-
-    def apply(elements: List[String]) = new MetricPath(metricRootPath ::: elements)
-  }
-
-  private class MetricPath(path: List[String]) {
+  private case class MetricPath(path: List[String]) {
 
     def +(element: String) = new MetricPath(path :+ element)
 
-    override def toString = path.mkString(".")
+    override def toString = path.mkString(metricRootPath, ".", "")
   }
 }
