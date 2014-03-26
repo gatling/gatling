@@ -26,7 +26,11 @@ import io.gatling.jdbc.util.SQLHelper.withStatement
 object JdbcDataWriter {
 
   implicit class ExecuteAndClearBatch(val statement: PreparedStatement) extends AnyVal {
-    def executeAndClearBatch() { statement.executeBatch; statement.clearBatch(); statement.getConnection.commit() }
+    def executeAndClearBatch() {
+      statement.executeBatch()
+      statement.clearBatch()
+      statement.getConnection.commit()
+    }
   }
 }
 
