@@ -48,11 +48,7 @@ object ValidationHelper {
     s.isEmpty ||
       s.matches(validPackageNameRegex)
 
-  def isValidSimpleClassName(s: String) =
-    isNonEmpty(s) &&
-      !s.contains('_') &&
-      Character.isJavaIdentifierStart(s.charAt(0)) &&
-      !s.substring(1, s.length).exists(!Character.isJavaIdentifierPart(_))
+  def isValidScalaId(s: String) = s.isValidScalaId
 
   /* Default callbacks */
   def setStandardBorder(c: Component) { c.border = standardBorder }
