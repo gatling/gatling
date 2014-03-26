@@ -43,7 +43,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
    * The OutputStreamWriter used to write to db
    */
   private val bufferSize: Int = configuration.data.jdbc.bufferSize
-  private var conn: Connection = _ // TODO investigate if need 1 connection is enough
+  private var conn: Connection = _ // TODO investigate if 1 connection is enough
   private var runId: Int = _
   private var scenarioInsert: PreparedStatement = _
   private var groupInsert: PreparedStatement = _
