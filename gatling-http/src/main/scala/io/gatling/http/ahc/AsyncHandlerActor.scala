@@ -15,6 +15,8 @@
  */
 package io.gatling.http.ahc
 
+import scala.collection.JavaConversions._
+
 import com.ning.http.client.{ FluentStringsMap, RequestBuilder }
 import akka.actor.{ ActorRef, Props }
 import akka.actor.ActorDSL.actor
@@ -24,6 +26,7 @@ import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.Session
+import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
@@ -33,13 +36,12 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.{ HttpCheck, HttpCheckOrder }
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched, ResourceFetcher }
+import io.gatling.http.referer.RefererHandling
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }
 import io.gatling.http.util.HttpStringBuilder
-import io.gatling.core.result.writer.DataWriterClient
-import io.gatling.http.referer.RefererHandling
 
 object AsyncHandlerActor extends AkkaDefaults {
 
@@ -218,16 +220,31 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
                 val redirectURI = resolveFromURI(tx.request.getURI, location)
 
-                val requestBuilder = new RequestBuilder(tx.request)
-                  .setMethod("GET")
+                val originalRequest = tx.request
+
+                val requestBuilder = new RequestBuilder("GET", originalRequest.isUseRawUrl)
+                  .setURI(redirectURI)
                   .setBodyEncoding(configuration.core.encoding)
                   .setQueryParameters(null.asInstanceOf[FluentStringsMap])
                   .setParameters(null.asInstanceOf[FluentStringsMap])
-                  .setURI(redirectURI)
                   .setConnectionPoolKeyStrategy(tx.request.getConnectionPoolKeyStrategy)
+                  .setInetAddress(originalRequest.getInetAddress)
+                  .setLocalInetAddress(originalRequest.getLocalAddress)
+                  .setHeaders(originalRequest.getHeaders)
+                  .setVirtualHost(originalRequest.getVirtualHost)
+                  .setProxyServer(originalRequest.getProxyServer)
+                  .setRangeOffset(originalRequest.getRangeOffset)
+
+                Option(originalRequest.getByteData).foreach(requestBuilder.setBody)
+                Option(originalRequest.getStringData).foreach(requestBuilder.setBody)
+                Option(originalRequest.getStreamData).foreach(requestBuilder.setBody)
+                Option(originalRequest.getEntityWriter).foreach(requestBuilder.setBody)
+                Option(originalRequest.getBodyGenerator).foreach(requestBuilder.setBody)
+                Option(originalRequest.getFile).foreach(requestBuilder.setBody)
+                Option(originalRequest.getParts).map(_.foreach(requestBuilder.addBodyPart))
 
                 for (cookie <- CookieHandling.getStoredCookies(newTx.session, redirectURI))
-                  requestBuilder.addOrReplaceCookie(cookie)
+                  requestBuilder.addCookie(cookie)
 
                 val newRequest = requestBuilder.build
                 newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
