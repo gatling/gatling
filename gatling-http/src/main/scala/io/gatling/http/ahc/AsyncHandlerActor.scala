@@ -237,7 +237,6 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
                 Option(originalRequest.getByteData).foreach(requestBuilder.setBody)
                 Option(originalRequest.getStringData).foreach(requestBuilder.setBody)
-                Option(originalRequest.getStreamData).foreach(requestBuilder.setBody)
                 Option(originalRequest.getEntityWriter).foreach(requestBuilder.setBody)
                 Option(originalRequest.getBodyGenerator).foreach(requestBuilder.setBody)
                 Option(originalRequest.getFile).foreach(requestBuilder.setBody)
