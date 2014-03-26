@@ -225,7 +225,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
                 val requestBuilder = new RequestBuilder("GET", originalRequest.isUseRawUrl)
                   .setURI(redirectURI)
                   .setBodyEncoding(configuration.core.encoding)
-                  .setQueryParameters(null.asInstanceOf[FluentStringsMap])
+                  .setQueryParameters(originalRequest.getQueryParams)
                   .setParameters(null.asInstanceOf[FluentStringsMap])
                   .setConnectionPoolKeyStrategy(tx.request.getConnectionPoolKeyStrategy)
                   .setInetAddress(originalRequest.getInetAddress)
