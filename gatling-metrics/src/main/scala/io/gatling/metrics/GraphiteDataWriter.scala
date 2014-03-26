@@ -18,135 +18,150 @@ package io.gatling.metrics
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
+import akka.actor.{ ActorRef, actorRef2Scala }
 import akka.actor.ActorDSL.actor
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, UserMessage, ShortScenarioDescription }
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.GatlingConfiguration.{ configuration => gatlingConfiguration }
+import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, ShortScenarioDescription, UserMessage }
 import io.gatling.core.util.TimeHelper.nowSeconds
 import io.gatling.metrics.sender.MetricsSender
-import io.gatling.metrics.types.{ Metrics, RequestMetrics, UserMetric }
+import io.gatling.metrics.types.{ MetricByStatus, Metrics, RequestMetricsBuffer, UsersBreakdown, UsersBreakdownBuffer }
+
+object GraphiteDataWriter {
+  val allRequestsKey = List("allRequests")
+  val allUsersKey = "allUsers"
+}
 
 class GraphiteDataWriter extends DataWriter {
 
-  private val graphiteSender = actor(context)(new GraphiteSender)
-  private val rootPathPrefix = configuration.data.graphite.rootPathPrefix.split('.').toList
-  private var metricRootPath: List[String] = Nil
-  private val allRequests = new RequestMetrics
-  private val perRequest = mutable.Map.empty[List[String], RequestMetrics]
-  private var allUsers: UserMetric = _
-  private val usersPerScenario = mutable.Map.empty[String, UserMetric]
-  private val percentiles1 = configuration.charting.indicators.percentile1
-  private val percentiles1Name = "percentiles" + percentiles1
-  private val percentiles2 = configuration.charting.indicators.percentile2
-  private val percentiles2Name = "percentiles" + percentiles2
+  import GraphiteDataWriter.{ allRequestsKey, allUsersKey }
 
-  def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
+  implicit val configuration = gatlingConfiguration
 
-    metricRootPath = rootPathPrefix :+ run.simulationId
-    allUsers = new UserMetric(scenarios.map(_.nbUsers).sum)
-    scenarios.foreach(scenario => usersPerScenario += scenario.name -> new UserMetric(scenario.nbUsers))
-    scheduler.schedule(0 millisecond, 1000 milliseconds, self, Send)
+  private var graphiteSender: ActorRef = _
+
+  private val requestsByPath = mutable.Map.empty[List[String], RequestMetricsBuffer]
+  private val usersByScenario = mutable.Map.empty[String, UsersBreakdownBuffer]
+
+  def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+
+    val metricRootPath = configuration.data.graphite.rootPathPrefix + "." + run.simulationId + "."
+
+    graphiteSender = actor(context)(new GraphiteSender(metricRootPath))
+
+    usersByScenario.update(allUsersKey, new UsersBreakdownBuffer(scenarios.map(_.nbUsers).sum))
+    scenarios.foreach(scenario => usersByScenario += scenario.name -> new UsersBreakdownBuffer(scenario.nbUsers))
+    scheduler.schedule(0 millisecond, 1 second, self, Send)
   }
 
-  def onUserMessage(userMessage: UserMessage) {
-    usersPerScenario(userMessage.scenarioName).update(userMessage)
-    allUsers.update(userMessage)
+  def onUserMessage(userMessage: UserMessage): Unit = {
+    usersByScenario(userMessage.scenarioName).add(userMessage)
+    usersByScenario(allUsersKey).add(userMessage)
   }
 
-  def onGroupMessage(group: GroupMessage) {}
+  def onGroupMessage(group: GroupMessage): Unit = {}
 
-  def onRequestMessage(request: RequestMessage) {
+  def onRequestMessage(request: RequestMessage): Unit = {
     if (!configuration.data.graphite.light) {
-      val path = request.name :: request.groupStack.map(_.name)
-      val metric = perRequest.getOrElseUpdate(path.reverse, new RequestMetrics)
-      metric.update(request)
+      val path = (request.name :: request.groupStack.map(_.name)).reverse
+      requestsByPath.getOrElseUpdate(path, new RequestMetricsBuffer).add(request.status, request.responseTime)
     }
-    allRequests.update(request)
+    requestsByPath.getOrElseUpdate(allRequestsKey, new RequestMetricsBuffer).add(request.status, request.responseTime)
   }
 
-  def onTerminateDataWriter() {
+  def onTerminateDataWriter(): Unit = {
     graphiteSender ! Flush
   }
 
   override def receive = uninitialized
 
   override def initialized: Receive = super.initialized.orElse {
-    case m => graphiteSender forward m
-  }
+    case Send => {
+      val requestMetrics = requestsByPath.mapValues(_.metricsByStatus).toMap
+      val currentUserBreakdowns = usersByScenario.mapValues(UsersBreakdown(_)).toMap
 
-  private class GraphiteSender extends BaseActor {
+      // Reset all metrics 
+      requestsByPath.foreach { case (_, buff) => buff.clear }
 
-    private val sanitizeStringMemo = mutable.Map.empty[String, String]
-    private val sanitizeStringListMemo = mutable.Map.empty[List[String], List[String]]
-    private var metricsSender: MetricsSender = _
-
-    override def preStart() {
-      metricsSender = MetricsSender.newMetricsSender
-    }
-
-    def receive = {
-      case Send  => sendMetricsToGraphite(nowSeconds)
-      case Flush => metricsSender.flush()
-    }
-
-    private def sendMetricsToGraphite(epoch: Long) {
-
-        def sanitizeString(s: String) = sanitizeStringMemo.getOrElseUpdate(s, s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
-
-        def sanitizeStringList(list: List[String]) = sanitizeStringListMemo.getOrElseUpdate(list, list.map(sanitizeString))
-
-        def sendToGraphite(metricPath: MetricPath, value: Long) = metricsSender.sendToGraphite(metricPath.toString, value, epoch)
-
-        def sendUserMetrics(scenarioName: String, userMetric: UserMetric) {
-          val rootPath = MetricPath(List("users", sanitizeString(scenarioName)))
-          sendToGraphite(rootPath + "active", userMetric.active)
-          sendToGraphite(rootPath + "waiting", userMetric.waiting)
-          sendToGraphite(rootPath + "done", userMetric.done)
-        }
-
-        def sendMetrics(metricPath: MetricPath, metrics: Metrics) {
-          sendToGraphite(metricPath + "count", metrics.count)
-
-          if (metrics.count > 0L) {
-            sendToGraphite(metricPath + "max", metrics.max)
-            sendToGraphite(metricPath + "min", metrics.min)
-            sendToGraphite(metricPath + percentiles1Name, metrics.getQuantile(percentiles1))
-            sendToGraphite(metricPath + percentiles2Name, metrics.getQuantile(percentiles2))
-          }
-        }
-
-        def sendRequestMetrics(path: List[String], requestMetrics: RequestMetrics) {
-          val metricPath = MetricPath(sanitizeStringList(path))
-
-          val (okMetrics, koMetrics, allMetrics) = requestMetrics.metrics
-
-          sendMetrics(metricPath + "ok", okMetrics)
-          sendMetrics(metricPath + "ko", koMetrics)
-          sendMetrics(metricPath + "all", allMetrics)
-
-          requestMetrics.reset()
-        }
-
-      sendUserMetrics("allUsers", allUsers)
-      for ((scenarioName, userMetric) <- usersPerScenario) sendUserMetrics(scenarioName, userMetric)
-
-      sendRequestMetrics(List("allRequests"), allRequests)
-      if (!configuration.data.graphite.light)
-        for ((path, requestMetric) <- perRequest) sendRequestMetrics(path, requestMetric)
-
-      metricsSender.flush()
+      graphiteSender.forward(SendMetrics(requestMetrics, currentUserBreakdowns))
     }
   }
+}
 
-  private object MetricPath {
+case object Flush
+case object Send
+case class SendMetrics(requestMetrics: Map[List[String], MetricByStatus], usersBreakdowns: Map[String, UsersBreakdown])
 
-    def apply(elements: List[String]) = new MetricPath(metricRootPath ::: elements)
+private class GraphiteSender(metricRootPath: String)(implicit configuration: GatlingConfiguration) extends BaseActor {
+
+  import GraphiteDataWriter.{ allRequestsKey, allUsersKey }
+
+  private val percentiles1Name = "percentiles" + configuration.charting.indicators.percentile1
+  private val percentiles2Name = "percentiles" + configuration.charting.indicators.percentile2
+
+  private val sanitizeStringMemo = mutable.Map.empty[String, String]
+  private val sanitizeStringListMemo = mutable.Map.empty[List[String], List[String]]
+  private var metricsSender: MetricsSender = _
+
+  override def preStart() {
+    metricsSender = MetricsSender.newMetricsSender
   }
 
-  private class MetricPath(path: List[String]) {
+  def receive = {
+    case SendMetrics(requestsMetrics, usersBreakdowns) => sendMetricsToGraphite(nowSeconds, requestsMetrics, usersBreakdowns)
+    case Flush                                         => metricsSender.flush()
+  }
+
+  private def sendMetricsToGraphite(epoch: Long, requestsMetrics: Map[List[String], MetricByStatus], usersBreakdowns: Map[String, UsersBreakdown]): Unit = {
+
+      def sanitizeString(s: String) = sanitizeStringMemo.getOrElseUpdate(s, s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
+
+      def sanitizeStringList(list: List[String]) = sanitizeStringListMemo.getOrElseUpdate(list, list.map(sanitizeString))
+
+      def sendToGraphite(metricPath: MetricPath, value: Long) = metricsSender.sendToGraphite(metricPath.toString, value, epoch)
+      def sendFloatToGraphite(metricPath: MetricPath, value: Double) = metricsSender.sendToGraphite(metricPath.toString, value, epoch)
+
+      def sendUserMetrics(scenarioName: String, userMetric: UsersBreakdown): Unit = {
+        val rootPath = MetricPath(List("users", sanitizeString(scenarioName)))
+        sendToGraphite(rootPath + "active", userMetric.active)
+        sendToGraphite(rootPath + "waiting", userMetric.waiting)
+        sendToGraphite(rootPath + "done", userMetric.done)
+      }
+
+      def sendMetrics(metricPath: MetricPath, metrics: Option[Metrics]): Unit =
+        metrics match {
+          case None => sendToGraphite(metricPath + "count", 0)
+          case Some(m) =>
+            sendToGraphite(metricPath + "count", m.count)
+            sendFloatToGraphite(metricPath + "max", m.max)
+            sendFloatToGraphite(metricPath + "min", m.min)
+            sendFloatToGraphite(metricPath + percentiles1Name, m.percentile1)
+            sendFloatToGraphite(metricPath + percentiles2Name, m.percentile2)
+        }
+
+      def sendRequestMetrics(path: List[String], metricByStatus: MetricByStatus): Unit = {
+        val metricPath = MetricPath(sanitizeStringList(path))
+        sendMetrics(metricPath + "ok", metricByStatus.ok)
+        sendMetrics(metricPath + "ko", metricByStatus.ko)
+        sendMetrics(metricPath + "all", metricByStatus.all)
+      }
+
+    for ((scenarioName, usersBreakdown) <- usersBreakdowns) sendUserMetrics(scenarioName, usersBreakdown)
+
+    if (configuration.data.graphite.light)
+      sendRequestMetrics(allRequestsKey, requestsMetrics(allRequestsKey))
+    else
+      for ((path, requestMetric) <- requestsMetrics) sendRequestMetrics(path, requestMetric)
+
+    metricsSender.flush()
+  }
+
+  private case class MetricPath(path: List[String]) {
 
     def +(element: String) = new MetricPath(path :+ element)
 
-    override def toString = path.mkString(".")
+    override def toString = path.mkString(metricRootPath, ".", "")
   }
 }
+

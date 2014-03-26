@@ -18,12 +18,19 @@ package io.gatling.metrics.sender
 import io.gatling.core.config.GatlingConfiguration.configuration
 
 object MetricsSender {
-  def newMetricsSender: MetricsSender = configuration.data.graphite.protocol match {
+  def newMetricsSender: MetricsSender = configuration.data.graphite.protocol.toLowerCase match {
     case "tcp" => new TcpSender
     case "udp" => new UdpSender
+    case p @ _ => throw new RuntimeException(s"The protocol '$p' specified in the configuration is not supported")
   }
 }
+
 abstract class MetricsSender {
+
+  def sendToGraphite(metricPath: String, value: Double, epoch: Long) {
+    val bytes = f"$metricPath $value%f $epoch\n".getBytes(configuration.core.charset)
+    sendToGraphite(bytes)
+  }
 
   def sendToGraphite(metricPath: String, value: Long, epoch: Long) {
     val bytes = s"$metricPath $value $epoch\n".getBytes(configuration.core.charset)

@@ -18,7 +18,7 @@ package io.gatling.metrics.types
 import io.gatling.core.result.message.{ End, Start }
 import io.gatling.core.result.writer.UserMessage
 
-class UserMetric(val nbUsers: Int) {
+class UsersBreakdownBuffer(val nbUsers: Int) {
 
   private var _active = 0
   private var activeBuffer = 0
@@ -26,7 +26,7 @@ class UserMetric(val nbUsers: Int) {
   private var _done = 0
   private var doneBuffer = 0
 
-  def update(userMessage: UserMessage) {
+  def add(userMessage: UserMessage) {
     userMessage.event match {
       case Start =>
         _active += 1
@@ -51,4 +51,10 @@ class UserMetric(val nbUsers: Int) {
     doneBuffer = 0
     _done
   }
+
+}
+
+case class UsersBreakdown(nbUsers: Int, active: Int, waiting: Int, done: Int)
+object UsersBreakdown {
+  def apply(buf: UsersBreakdownBuffer): UsersBreakdown = UsersBreakdown(buf.nbUsers, buf.active, buf.waiting, buf.done)
 }

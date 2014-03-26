@@ -42,6 +42,13 @@ object GatlingConfiguration extends StrictLogging {
     }
   }
 
+  def fakeConfig(props: Map[String, _ <: Any] = Map.empty) = {
+    val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, "gatling-defaults.conf")
+    val propertiesConfig = ConfigFactory.parseMap(props)
+    val config = ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(defaultsConfig)
+    mapToGatlingConfig(config)
+  }
+
   def setUp(props: mutable.Map[String, _ <: Any] = mutable.Map.empty) {
 
       def warnAboutRemovedProperties(config: Config) {
@@ -86,7 +93,11 @@ object GatlingConfiguration extends StrictLogging {
 
     warnAboutRemovedProperties(config)
 
-    configuration = GatlingConfiguration(
+    configuration = mapToGatlingConfig(config)
+  }
+
+  private def mapToGatlingConfig(config: Config) =
+    GatlingConfiguration(
       core = CoreConfiguration(
         outputDirectoryBaseName = config.getString(CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME).trimToOption,
         runDescription = config.getString(CONF_CORE_RUN_DESCRIPTION).trimToOption,
@@ -207,7 +218,7 @@ object GatlingConfiguration extends StrictLogging {
             insertScenarioRecord = config.getString(CONF_DATA_JDBC_INSERT_SCENARIO_RECORD).trimToOption,
             insertGroupRecord = config.getString(CONF_DATA_JDBC_INSERT_GROUP_RECORD).trimToOption))),
       config)
-  }
+
 }
 
 case class CoreConfiguration(
