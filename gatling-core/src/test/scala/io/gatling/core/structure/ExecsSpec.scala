@@ -10,8 +10,6 @@ import io.gatling.core.test.ActorSupport
 
 @RunWith(classOf[JUnitRunner])
 class ExecsSpec extends Specification {
-  sequential
-  isolated
 
   "Execs" should {
     "wrap Scenarios in chains, using exec" in ActorSupport { testKit =>

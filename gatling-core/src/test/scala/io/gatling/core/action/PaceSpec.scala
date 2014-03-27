@@ -30,8 +30,6 @@ import io.gatling.core.test.ActorSupport
 
 @RunWith(classOf[JUnitRunner])
 class PaceSpec extends Specification {
-  sequential
-  isolated
 
   "pace" should {
     "run actions with a minimum wait time" in ActorSupport { testKit =>
