@@ -1,12 +1,17 @@
 package io.gatling.core.structure
 
-import io.gatling.core.action.ActorSupport
 import org.specs2.mutable.Specification
 import io.gatling.core.Predef._
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.Session
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
+import io.gatling.core.test.ActorSupport
 
+@RunWith(classOf[JUnitRunner])
 class ExecsSpec extends Specification {
+  isolated
+
   "Execs" should {
     "wrap Scenarios in chains, using exec" in new ActorSupport {
       val testScenario = scenario("Test Scenario").exec { session =>

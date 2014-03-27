@@ -13,22 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.action
+package io.gatling.core.test
 
 import org.specs2.specification.Scope
 
-import akka.testkit.{ ImplicitSender, TestKit }
+import akka.testkit.TestKitBase
 import io.gatling.core.akka.GatlingActorSystem
+import org.specs2.mutable.After
 
 object ActorSupport {
-  def gatlingActorSystem = GatlingActorSystem.synchronized {
+  def gatlingActorSystem = {
     GatlingActorSystem.instanceOpt match {
       case None =>
         GatlingActorSystem.start()
         GatlingActorSystem.instance
-      case Some(system) => system
+      case _ =>
+        ??? // No supported - if ActorSystem wasn't shut down cleanly, we have a problem
     }
   }
 }
 
-class ActorSupport extends TestKit(ActorSupport.gatlingActorSystem) with ImplicitSender with Scope
+class ActorSupport extends { val system = ActorSupport.gatlingActorSystem } with TestKitBase with After with Scope {
+  implicit def self = testActor // Copied from ImplicitSender - doesn't work with TestKitBase
+
+  override def after: Any = {
+    GatlingActorSystem.shutdown()
+    GatlingActorSystem.instanceOpt = None
+  }
+}
