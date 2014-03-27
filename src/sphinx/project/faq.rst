@@ -180,3 +180,11 @@ Typically, you have to move your chains out of your Simulation class, for exampl
     ...
   }
 
+
+.. _dandling-connections:
+
+* **I have dandling connections that don't get closed after timeout**
+
+This issue has been reported once, and preferring IPv4 fixed it::
+
+  -Djava.net.preferIPv4Stack=true
