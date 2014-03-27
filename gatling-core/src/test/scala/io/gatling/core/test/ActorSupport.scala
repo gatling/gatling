@@ -23,7 +23,7 @@ import com.typesafe.scalalogging.slf4j.Logging
 import org.specs2.execute.AsResult
 
 object ActorSupport extends Fixture[TestKit with ImplicitSender] with Logging {
-  def apply[R: AsResult](f: TestKit with ImplicitSender => R) = GatlingActorSystem.synchronized {
+  def apply[R: AsResult](f: TestKit with ImplicitSender => R) = synchronized {
     try {
       AsResult(f(new TestKit(
         GatlingActorSystem.instanceOpt match {
