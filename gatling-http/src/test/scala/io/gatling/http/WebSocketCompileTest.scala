@@ -40,7 +40,7 @@ class WebSocketCompileTest extends Simulation {
     .exec(websocket("Connect WS").open("/room/chat?username=${id}"))
     .pause(1)
     .repeat(1, "i") {
-      exec(websocket("Say Hello WS").sendTextMessage( """{"text": "Hello, I'm ${id} and this is message ${i}!"}"""))
+      exec(websocket("Say Hello WS").sendTextMessage("""{"text": "Hello, I'm ${id} and this is message ${i}!"}"""))
         .pause(1)
     }.exec(websocket("Close WS").close())
 

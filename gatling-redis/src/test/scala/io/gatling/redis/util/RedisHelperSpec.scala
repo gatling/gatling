@@ -19,17 +19,15 @@ import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.Specification
 
-import io.gatling.redis.util.RedisHelper.generateRedisProtocol
+import io.gatling.redis.util.RedisHelper.{ Crlf, generateRedisProtocol }
 
 @RunWith(classOf[JUnitRunner])
 class RedisHelperSpec extends Specification {
 
-  private val crlf = "\r\n"
-
   "generateRedisProtocol" should {
 
     "generate a correct protocol" in {
-      val correctProtocol = List("*3", "$3", "SET", "$5", "mykey", "$7", "myvalue").mkString("", crlf, crlf)
+      val correctProtocol = List("*3", "$3", "SET", "$5", "mykey", "$7", "myvalue").mkString("", Crlf, Crlf)
 
       generateRedisProtocol("SET", "mykey", "myvalue") must be equalTo correctProtocol
     }

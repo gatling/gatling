@@ -15,9 +15,10 @@
  */
 package io.gatling.redis
 
+import io.gatling.core.feeder.Feeder
 import io.gatling.redis.feeder.RedisFeeder
 import com.redis.RedisClientPool
 
 object Predef {
-  def redisFeeder(clients: RedisClientPool, key: String) = RedisFeeder(clients, key)
+  def redisFeeder(clients: RedisClientPool, key: String): Feeder[String] = RedisFeeder(clients, key)
 }
