@@ -15,29 +15,29 @@
  */
 package io.gatling.core.test
 
-import org.specs2.specification.Scope
+import org.specs2.specification.Fixture
 
-import akka.testkit.TestKitBase
+import akka.testkit.{ TestKit, ImplicitSender }
 import io.gatling.core.akka.GatlingActorSystem
-import org.specs2.mutable.After
+import com.typesafe.scalalogging.slf4j.Logging
+import org.specs2.execute.AsResult
 
-object ActorSupport {
-  def gatlingActorSystem = {
-    GatlingActorSystem.instanceOpt match {
-      case None =>
-        GatlingActorSystem.start()
-        GatlingActorSystem.instance
-      case _ =>
-        ??? // No supported - if ActorSystem wasn't shut down cleanly, we have a problem
+object ActorSupport extends Fixture[TestKit with ImplicitSender] with Logging {
+  def apply[R: AsResult](f: TestKit with ImplicitSender => R) = GatlingActorSystem.synchronized {
+    try {
+      AsResult(f(new TestKit(
+        GatlingActorSystem.instanceOpt match {
+          case None =>
+            logger.info("Starting GatlingActorSystem")
+            GatlingActorSystem.start()
+            GatlingActorSystem.instance
+          case _ =>
+            throw new RuntimeException("GatlingActorSystem already started!")
+        }) with ImplicitSender))
+    } finally {
+      logger.info("Shutting down GatlingActorSystem")
+      GatlingActorSystem.instance.shutdown() // Call to instance is defensive - ensure that double-shutdown doesn't pass silently
+      GatlingActorSystem.instanceOpt = None
     }
-  }
-}
-
-class ActorSupport extends { val system = ActorSupport.gatlingActorSystem } with TestKitBase with After with Scope {
-  implicit def self = testActor // Copied from ImplicitSender - doesn't work with TestKitBase
-
-  override def after: Any = {
-    GatlingActorSystem.shutdown()
-    GatlingActorSystem.instanceOpt = None
   }
 }
