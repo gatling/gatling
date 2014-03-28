@@ -18,9 +18,10 @@ package io.gatling.metrics.sender
 import io.gatling.core.config.GatlingConfiguration.configuration
 
 object MetricsSender {
-  def newMetricsSender: MetricsSender = configuration.data.graphite.protocol match {
+  def newMetricsSender: MetricsSender = configuration.data.graphite.protocol.toLowerCase match {
     case "tcp" => new TcpSender
     case "udp" => new UdpSender
+    case p @ _ => throw new RuntimeException(s"The protocol '$p' specified in the configuration is not supported")
   }
 }
 
