@@ -31,7 +31,9 @@ import xsbti.compile.CompileOrder
 
 object ZincCompiler extends StrictLogging {
 
-  def main(args: Array[String]) {
+  private val foldersToCache = List("bin", "conf", "user-files")
+
+  def main(args: Array[String]): Unit = {
 
     val gatlingHome = args(0)
     val sourceDirectory = Directory(args(1))
@@ -39,9 +41,19 @@ object ZincCompiler extends StrictLogging {
     val classesDirectory = args(3)
     val encoding = args(4)
 
+    val compilerOptions = Seq(
+      "-encoding",
+      encoding,
+      "-target:jvm-1.6",
+      "-deprecation",
+      "-feature",
+      "-unchecked",
+      "-language:implicitConversions",
+      "-language:postfixOps")
+
     val classpathURLs = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader].getURLs
 
-      def simulationInputs = {
+      def simulationInputs: Inputs = {
         val classpath = classpathURLs.map(url => new JFile(url.toURI))
 
         val sources = sourceDirectory
@@ -49,15 +61,16 @@ object ZincCompiler extends StrictLogging {
           .collect { case file if file.hasExtension("scala") => file.jfile }
           .toSeq
 
-          def analysisCacheMapEntry(directoryName: String) = (gatlingHome / directoryName).jfile -> (binDirectory / "cache" / directoryName).jfile
+          def analysisCacheMapEntry(directoryName: String) =
+            (gatlingHome / directoryName).jfile -> (binDirectory / "cache" / directoryName).jfile
 
         Inputs.inputs(classpath = classpath,
           sources = sources,
           classesDirectory = classesDirectory.jfile,
-          scalacOptions = Seq("-encoding", encoding, "-target:jvm-1.6", "-deprecation", "-feature", "-unchecked", "-language:implicitConversions", "-language:postfixOps"),
+          scalacOptions = compilerOptions,
           javacOptions = Nil,
           analysisCache = Some((binDirectory / "zincCache").jfile),
-          analysisCacheMap = Map(analysisCacheMapEntry("bin"), analysisCacheMapEntry("conf"), analysisCacheMapEntry("user-files")), // avoids having GATLING_HOME polluted with a "cache" folder
+          analysisCacheMap = foldersToCache.map(analysisCacheMapEntry).toMap, // avoids having GATLING_HOME polluted with a "cache" folder
           forceClean = false,
           javaOnly = false,
           compileOrder = CompileOrder.JavaThenScala,
@@ -67,7 +80,7 @@ object ZincCompiler extends StrictLogging {
           mirrorAnalysis = false)
       }
 
-      def setupZincCompiler(): Setup = {
+      def setupZincCompiler: Setup = {
           def jarMatching(regex: String): JFile = {
             val compiledRegex = regex.r
             val jarUrl = classpathURLs
@@ -89,17 +102,17 @@ object ZincCompiler extends StrictLogging {
           sbtInterface = sbtInterfaceSrc,
           compilerInterfaceSrc = compilerInterfaceSrc,
           javaHomeDir = None,
-          false)
+          forkJava = false)
       }
 
     // Setup the compiler
     val setup = setupZincCompiler
     val zincLogger = new Logger {
-      def error(arg: F0[String]) { logger.error(arg.apply) }
-      def warn(arg: F0[String]) { logger.warn(arg.apply) }
-      def info(arg: F0[String]) { logger.info(arg.apply) }
-      def debug(arg: F0[String]) { logger.debug(arg.apply) }
-      def trace(arg: F0[Throwable]) { logger.trace("", arg.apply) }
+      def error(arg: F0[String]): Unit = logger.error(arg.apply)
+      def warn(arg: F0[String]): Unit = logger.warn(arg.apply)
+      def info(arg: F0[String]): Unit = logger.info(arg.apply)
+      def debug(arg: F0[String]): Unit = logger.debug(arg.apply)
+      def trace(arg: F0[Throwable]): Unit = logger.trace("", arg.apply)
     }
 
     val zincCompiler = Compiler.create(setup, zincLogger)
