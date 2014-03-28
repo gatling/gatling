@@ -72,7 +72,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
       }
 
     val template = new GlobalPageTemplate(
-      componentLibrary.getNumberOfRequestsChartComponent,
+      componentLibrary.getNumberOfRequestsChartComponent(dataReader.requestNames.size),
       componentLibrary.getRequestDetailsIndicatorChartComponent,
       new StatisticsTableComponent,
       new ErrorTableComponent(dataReader.errors(None, None)),
