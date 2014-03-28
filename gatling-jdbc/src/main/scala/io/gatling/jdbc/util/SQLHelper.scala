@@ -19,14 +19,14 @@ import java.sql.{ Connection, Statement }
 
 object SQLHelper {
 
-  def withConnection[T, C <: Connection](closeable: C)(block: C => T) = {
+  def withConnection[T, C <: Connection](closeable: C)(block: C => T): T = {
     try
       block(closeable)
     finally
       closeable.close()
   }
 
-  def withStatement[T, S <: Statement](statement: S)(block: S => T) = {
+  def withStatement[T, S <: Statement](statement: S)(block: S => T): T = {
     try
       block(statement)
     finally

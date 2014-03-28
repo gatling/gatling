@@ -27,7 +27,7 @@ object JdbcDataWriter {
 
   implicit class ExecuteAndClearBatch(val statement: PreparedStatement) extends AnyVal {
     def executeAndClearBatch() {
-      statement.executeBatch()
+      statement.executeBatch
       statement.clearBatch()
       statement.getConnection.commit()
     }
@@ -57,8 +57,13 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
   private var groupCounter: Int = 0
   private var requestCounter: Int = 0
 
-  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
-    conn = DriverManager.getConnection(configuration.data.jdbc.db.url, configuration.data.jdbc.db.username, configuration.data.jdbc.db.password)
+  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+
+    conn = DriverManager.getConnection(
+      configuration.data.jdbc.db.url,
+      configuration.data.jdbc.db.username,
+      configuration.data.jdbc.db.password)
+
     system.registerOnTermination(conn.close())
 
     conn.setAutoCommit(false)
@@ -86,8 +91,10 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     } {
       scenarioInsert = conn.prepareStatement(insertScenarioRecord)
       system.registerOnTermination(scenarioInsert.close())
+
       groupInsert = conn.prepareStatement(insertGroupRecord)
       system.registerOnTermination(groupInsert.close())
+
       requestInsert = conn.prepareStatement(insertRequestRecord)
       system.registerOnTermination(requestInsert.close())
 
@@ -105,7 +112,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     }
   }
 
-  override def onUserMessage(userMessage: UserMessage) {
+  override def onUserMessage(userMessage: UserMessage): Unit = {
 
     import userMessage._
     scenarioInsert.setInt(1, runId)
@@ -124,7 +131,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     }
   }
 
-  override def onGroupMessage(group: GroupMessage) {
+  override def onGroupMessage(group: GroupMessage): Unit = {
 
     import group._
     groupInsert.setInt(1, runId)
@@ -143,7 +150,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     }
   }
 
-  override def onRequestMessage(request: RequestMessage) {
+  override def onRequestMessage(request: RequestMessage): Unit = {
 
     import request._
     requestInsert.setInt(1, runId)
@@ -167,7 +174,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     }
   }
 
-  override def onTerminateDataWriter() {
+  override def onTerminateDataWriter(): Unit = {
     logger.info("Received flush order")
     //Flush all the batch jdbc execution
     scenarioInsert.executeAndClearBatch()
