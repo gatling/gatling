@@ -107,4 +107,7 @@ object ConfigurationConstants {
   val CONF_DATA_JDBC_INSERT_REQUEST_RECORD = "gatling.data.jdbc.insert.insertRequestRecord"
   val CONF_DATA_JDBC_INSERT_SCENARIO_RECORD = "gatling.data.jdbc.insert.insertScenarioRecord"
   val CONF_DATA_JDBC_INSERT_GROUP_RECORD = "gatling.data.jdbc.insert.insertGroupRecord"
+
+  val CONF_DATA_TCP_HOST = "gatling.data.tcp.host"
+  val CONF_DATA_TCP_PORT = "gatling.data.tcp.port"
 }
