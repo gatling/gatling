@@ -64,7 +64,6 @@ object CacheHandling extends StrictLogging {
 
       def removeQuote(s: String) =
         if (!s.isEmpty) {
-          var changed = false
           var start = 0
           var end = s.length
 
@@ -74,10 +73,7 @@ object CacheHandling extends StrictLogging {
           if (s.charAt(s.length() - 1) == '"')
             end -= 1
 
-          if (changed)
-            s.substring(start, end)
-          else
-            s
+          s.substring(start, end)
         } else
           s
 

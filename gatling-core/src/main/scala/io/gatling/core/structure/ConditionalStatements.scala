@@ -65,7 +65,7 @@ trait ConditionalStatements[B] extends Execs[B] {
       for {
         expected <- expected(session)
         actual <- actual(session)
-      } yield (expected == actual)
+      } yield expected == actual
 
     doIf(condition, thenNext, Some(elseNext))
   }

@@ -26,50 +26,49 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
  *
  * @constructor constructs a GatlingAsyncHandler
  * @param tx the data about the request to be sent and processed
- * @param responseBuilder the builder for the response
  */
 class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with StrictLogging {
 
   val responseBuilder = tx.responseBuilderFactory(tx.request)
   private var done = false
 
-  def onRequestSent {
-    if (!done) responseBuilder.updateFirstByteSent
+  override def onRequestSent() {
+    if (!done) responseBuilder.updateFirstByteSent()
   }
 
-  def onRetry {
-    if (!done) responseBuilder.reset
+  override def onRetry() {
+    if (!done) responseBuilder.reset()
     else logger.error("onRetry is not supposed to be called once done")
   }
 
-  def onHeaderWriteCompleted = {
-    if (!done) responseBuilder.updateLastByteSent
+  override def onHeaderWriteCompleted() = {
+    if (!done) responseBuilder.updateLastByteSent()
     CONTINUE
   }
 
-  def onContentWriteCompleted = {
-    if (!done) responseBuilder.updateLastByteSent
+  override def onContentWriteCompleted = {
+    if (!done) responseBuilder.updateLastByteSent()
     CONTINUE
   }
 
-  def onContentWriteProgress(amount: Long, current: Long, total: Long) = CONTINUE
+  override def onContentWriteProgress(amount: Long, current: Long, total: Long) = CONTINUE
 
-  def onStatusReceived(status: HttpResponseStatus) = {
+  override def onStatusReceived(status: HttpResponseStatus) = {
     if (!done) responseBuilder.accumulate(status)
     CONTINUE
   }
 
-  def onHeadersReceived(headers: HttpResponseHeaders) = {
+  override def onHeadersReceived(headers: HttpResponseHeaders) = {
     if (!done) responseBuilder.accumulate(headers)
     CONTINUE
   }
 
-  def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
+  override def onBodyPartReceived(bodyPart: HttpResponseBodyPart) = {
     if (!done) responseBuilder.accumulate(bodyPart)
     CONTINUE
   }
 
-  def onCompleted {
+  override def onCompleted {
     if (!done) {
       done = true
       try {
@@ -81,10 +80,10 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
     }
   }
 
-  def onThrowable(throwable: Throwable) {
+  override def onThrowable(throwable: Throwable) {
     if (!done) {
       done = true
-      responseBuilder.updateLastByteReceived
+      responseBuilder.updateLastByteReceived()
       sendOnThrowable(throwable)
     }
   }

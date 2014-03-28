@@ -37,7 +37,7 @@ class LeakReporterDataWriter extends DataWriter {
   }
 
   override def initialized: Receive = super.initialized.orElse {
-    case Display => display
+    case Display => display()
   }
 
   override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {

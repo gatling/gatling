@@ -19,9 +19,7 @@ import akka.actor.ActorRef
 import io.gatling.core.config.Protocols
 
 /**
- * This class defines most of the scenario related DSL
- *
- * @param actionBuilders the builders that represent the chain of actions of a scenario/chain
+ * This trait defines most of the scenario related DSL
  */
 trait StructureBuilder[B <: StructureBuilder[B]] extends Execs[B] with Pauses[B] with Feeds[B] with Loops[B] with ConditionalStatements[B] with Errors[B] with Groups[B] {
 

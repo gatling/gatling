@@ -27,7 +27,7 @@ import io.gatling.core.feeder.FeederSupport
 import io.gatling.core.pause.PauseSupport
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
 import io.gatling.core.session.el.EL
-import io.gatling.core.structure.{ ChainBuilder, ScenarioBuilder, StructureSupport }
+import io.gatling.core.structure.{ ScenarioBuilder, StructureSupport }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object Predef extends StructureSupport with PauseSupport with CheckSupport with FeederSupport with InjectionSupport with ThrottlingSupport with AssertionSupport {

@@ -87,7 +87,7 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bod
     lastByteReceived = 0L
     status = None
     headers = ResponseBuilder.emptyHeaders
-    chunks.clear
+    chunks.clear()
     digests = initDigests()
   }
 
@@ -109,12 +109,12 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bod
   def accumulate(headers: HttpResponseHeaders) {
     this.headers = headers.getHeaders
     storeHtmlOrCss = fetchHtmlResources && (isHtml(headers.getHeaders) || isCss(headers.getHeaders))
-    updateLastByteReceived
+    updateLastByteReceived()
   }
 
   def accumulate(bodyPart: HttpResponseBodyPart) {
 
-    updateLastByteReceived
+    updateLastByteReceived()
 
     val channelBuffer = bodyPart.asInstanceOf[ResponseBodyPart].getChannelBuffer
 

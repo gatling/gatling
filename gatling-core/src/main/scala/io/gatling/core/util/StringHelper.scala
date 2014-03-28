@@ -50,14 +50,13 @@ object StringHelper {
 
   val stringCharsExtractor: String => Array[Char] = stringImplementation match {
 
-    case DirectCharsBasedStringImplementation => {
+    case DirectCharsBasedStringImplementation =>
       val unsafe = UnsafeHelper.unsafe.get
       val stringValueFieldOffset = UnsafeHelper.stringValueFieldOffset.get
 
       string => unsafe.getObject(string, stringValueFieldOffset).asInstanceOf[Array[Char]]
-    }
 
-    case OffsetBasedStringImplementation => {
+      case OffsetBasedStringImplementation =>
       val unsafe = UnsafeHelper.unsafe.get
       val stringValueFieldOffset = UnsafeHelper.stringValueFieldOffset.get
       val stringOffsetFieldOffset = UnsafeHelper.stringOffsetFieldOffset.get
@@ -74,9 +73,8 @@ object StringHelper {
         else
           string.toCharArray
       }
-    }
 
-    case UnknowStringImplementation =>
+      case UnknowStringImplementation =>
       _.toCharArray
   }
 
@@ -98,8 +96,8 @@ object StringHelper {
     def escapeJsDoubleQuoteString = string.replace("\"", "\\\"")
 
     def trimToOption = string.trim match {
-      case ""     => None
-      case string => Some(string)
+      case "" => None
+      case s  => Some(s)
     }
 
     def truncate(maxLength: Int) = if (string.length <= maxLength) string else string.substring(0, maxLength) + "..."

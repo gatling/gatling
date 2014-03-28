@@ -16,7 +16,7 @@
  */
 package io.gatling.http.action.ws
 
-import scala.collection.mutable.Queue
+import scala.collection.mutable
 
 import com.ning.http.client.websocket.WebSocket
 
@@ -69,7 +69,7 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
 
     case Close(requestName, next, session) =>
       val started = nowMillis
-      webSocket.close
+      webSocket.close()
       logRequest(session, requestName, OK, started, nowMillis)
       next ! session.remove(wsName)
       context.become(closingState)
@@ -77,7 +77,7 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
     case OnUnexpectedClose | OnClose =>
       if (tx.protocol.wsPart.reconnect)
         if (tx.protocol.wsPart.maxReconnects.map(_ > tx.reconnectCount).getOrElse(true))
-          context.become(disconnectedState(Queue.empty[WebSocketMessage], tx))
+          context.become(disconnectedState(mutable.Queue.empty[WebSocketMessage], tx))
         else
           context.become(pendingErrorMessageState(s"Websocket '$wsName' was unexpectedly closed and max reconnect reached"))
 
@@ -92,7 +92,7 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
     case OnClose => context.stop(self)
   }
 
-  def disconnectedState(pendingSendMessages: Queue[WebSocketMessage], tx: WebSocketTx): Receive = {
+  def disconnectedState(pendingSendMessages: mutable.Queue[WebSocketMessage], tx: WebSocketTx): Receive = {
 
     case message: WebSocketMessage =>
       // reconnect on first client message tentative
@@ -101,7 +101,7 @@ class WebSocketActor(wsName: String) extends BaseActor with DataWriterClient {
       context.become(reconnectingState(pendingSendMessages += message))
   }
 
-  def reconnectingState(pendingSendMessages: Queue[WebSocketMessage]): Receive = {
+  def reconnectingState(pendingSendMessages: mutable.Queue[WebSocketMessage]): Receive = {
 
     case message: WebSocketMessage =>
       pendingSendMessages += message

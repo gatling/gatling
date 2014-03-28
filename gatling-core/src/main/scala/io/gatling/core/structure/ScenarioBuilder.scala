@@ -68,12 +68,12 @@ case class PopulatedScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionP
   }
 
   /**
-   * @param Protocols
+   * @param globalProtocols the protocols
    * @return the scenario
    */
   private[core] def build(globalProtocols: Protocols): Scenario = {
 
-    val protocols = (defaultProtocols ++ globalProtocols ++ populationProtocols)
+    val protocols = defaultProtocols ++ globalProtocols ++ populationProtocols
     val newProtocols = protocols.getProtocol[ThrottlingProtocol] match {
       case Some(_) =>
         logger.info("Throttle is enabled, disabling pauses")
@@ -81,7 +81,7 @@ case class PopulatedScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionP
       case None => protocols
     }
 
-    newProtocols.warmUp
+    newProtocols.warmUp()
 
     val entryPoint = scenarioBuilder.build(UserEnd.instance, newProtocols)
     new Scenario(scenarioBuilder.name, entryPoint, injectionProfile)
