@@ -20,7 +20,7 @@ import java.util.UUID
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.action.builder.{ SessionHookBuilder, WhileBuilder }
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
 import io.gatling.core.structure.ChainBuilder.chainOf
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.SuccessWrapper
@@ -50,10 +50,12 @@ trait Loops[B] extends Execs[B] {
     asLongAs(continueCondition, counterName, exitASAP = false)(chainOf(new SessionHookBuilder(exposeCurrentValue)).exec(chain))
   }
 
-  def during(duration: Duration, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B = {
+  def during(duration: Duration, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
+    during(duration.expression, counterName, exitASAP)(chain)
 
-    val durationMillis = duration.toMillis
-    val continueCondition = (session: Session) => (nowMillis - session.loopTimestampValue(counterName) <= durationMillis).success
+  def during(duration: Expression[Duration], counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B = {
+
+    val continueCondition = (session: Session) => duration(session).map(d => nowMillis - session.loopTimestampValue(counterName) <= d.toMillis)
 
     asLongAs(continueCondition, counterName, exitASAP)(chain)
   }
