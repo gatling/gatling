@@ -33,7 +33,7 @@ Creating instances
 
 First, import the ``validation`` package::
 
-    import io.gatling.core.validation._
+  import io.gatling.core.validation._
 
 Then, you can either directly create new instance of the case classes::
 
@@ -50,21 +50,21 @@ Manipulating
 
 ``Validation`` can be used with pattern matching::
 
-    def display(v: Validation[String] = v match {
-        case Success(string) => println("success: " + string)
-        case Failure(error)  => println("failure: " + error)
-    }
+  def display(v: Validation[String] = v match {
+      case Success(string) => println("success: " + string)
+      case Failure(error)  => println("failure: " + error)
+  }
 
-    val foo = Success("foo")
-    display(foo) // will print success: foo
+  val foo = Success("foo")
+  display(foo) // will print success: foo
 
-    val bar = Failure("myErrorMessage")
-    display(bar) // will print failure: myErrorMessage
+  val bar = Failure("myErrorMessage")
+  display(bar) // will print failure: myErrorMessage
 
 ``Validation`` has the standard Scala "monadic" methods such as:
 
-    * ``map``:expects a function that takes the value if it's a success and return a value.
-    * ``flatMap``: expects a function that takes the value if it's a success and return a new ``Validation``
+  * ``map``:expects a function that takes the value if it's a success and return a value.
+  * ``flatMap``: expects a function that takes the value if it's a success and return a new ``Validation``
 
 Basically, ``map`` is used to **chain with an operation that can't fail**, hence return a raw value::
 
@@ -84,7 +84,7 @@ Basically, ``map`` is used to **chain with an operation that can't fail**, hence
 In both case, the chained function is not called if the original ``Validation`` was a ``Failure``::
 
 	val foo: Validation[Int] = Failure("error")
-    val bar = baz.map(value => value + 2)
+  val bar = baz.map(value => value + 2)
 	println(qix) // will print Failure("error")
 
 You can also use Scala *"for comprehension"* syntactic sugar.
@@ -93,10 +93,10 @@ For the impatient, just consider it's like a super loop that can iterate other m
 
 Here's what the above example would look like with *"for comprehension"*::
 
-    val foo: Validation[Int] = ???
-    val bar: Validation[Int] = ???
+  val foo: Validation[Int] = ???
+  val bar: Validation[Int] = ???
 
-    val baz: Validation[String] = for {
-      fooValue <- foo
-      barValue <- bar
-    } yield fooValue + barValue
+  val baz: Validation[String] = for {
+    fooValue <- foo
+    barValue <- bar
+  } yield fooValue + barValue

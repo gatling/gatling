@@ -51,7 +51,7 @@ You can create those into dedicated files, or directly into the same file as the
 
 We can now rewrite our scenario using these reusable business processes::
 
-   val scn = scenario("Scenario Name").exec(Search.search, Browse.browse, Edit.edit)
+  val scn = scenario("Scenario Name").exec(Search.search, Browse.browse, Edit.edit)
 
 Step 02: Configure virtual users
 ================================
@@ -180,7 +180,7 @@ Explanations:
   2. As we force the counter name we can use it in Gatling EL and access the nth page.
 
 .. note::
-    For more details regarding loops, please check out :ref:`Loops reference page <scenario-loops>`.
+  For more details regarding loops, please check out :ref:`Loops reference page <scenario-loops>`.
 
 Step 05: Check and failure management
 =====================================
@@ -219,9 +219,9 @@ Explanations:
   2. If all tentatives failed, the user exit the whole scenario due to ``exitHereIfFailed``.
 
 .. note::
-    For more details regarding conditional blocks, please check out :ref:`Conditional Statements reference page <scenario-conditions>`.
+  For more details regarding conditional blocks, please check out :ref:`Conditional Statements reference page <scenario-conditions>`.
 
 That's all Folks!
 
 .. note::
-    The files for this tutorial can be found in the distribution in the ``user-files/simulations`` directory, and on Github `here <https://github.com/excilys/gatling/tree/master/gatling-bundle/src/universal/user-files/simulations>`__.
+  The files for this tutorial can be found in the distribution in the ``user-files/simulations`` directory, and on Github `here <https://github.com/excilys/gatling/tree/master/gatling-bundle/src/universal/user-files/simulations>`__.

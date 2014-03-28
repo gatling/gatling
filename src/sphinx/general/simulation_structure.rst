@@ -51,12 +51,12 @@ The first one is used to describe an action, usually a request sent to the teste
 HTTP requests are defined as follows in a scenario::
 
   http("request_10") // Here's an example of a POST request
-			.post("/computers")
-			.headers(headers_10)
-			.param("name", "Beautiful Computer")
-			.param("introduced", "2012-05-30")
-			.param("discontinued", "")
-			.param("company", "37"))
+    .post("/computers")
+    .headers(headers_10)
+    .param("name", "Beautiful Computer")
+    .param("introduced", "2012-05-30")
+    .param("discontinued", "")
+    .param("company", "37"))
 
 The above example produces a POST HTTP request that creates a new computer model::
 

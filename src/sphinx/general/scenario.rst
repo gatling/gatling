@@ -31,7 +31,7 @@ Any action that will be executed will be called with exec.
 For example, one using Gatling HTTP module would write the following line::
 
   scenario("My Scenario")
-      .exec( http("Get Homepage").get("http://github.com/excilys/gatling") )
+    .exec( http("Get Homepage").get("http://github.com/excilys/gatling") )
 
 .. _scenario-exec-session-expression:
 
@@ -66,7 +66,7 @@ It exposes the content of a Map into attributes, e.g.::
 
   .exec(flattenMapIntoAttributes("${theMap}"))
 
-   // makes so that the Session contains 2 new attributes "foo" and "baz".
+  // makes so that the Session contains 2 new attributes "foo" and "baz".
 
 Pause
 -----
@@ -302,7 +302,7 @@ Similar to ``doSwitch``, but with a fallback if no switch is selected.
   .doSwitchOrElse("${myKey}"){
     key1 -> chain1,
     key1-> chain2
-  }{
+  } {
     fallbackChain
   }
 
@@ -380,7 +380,7 @@ Errors management
 ::
 
   .tryMax(times, counterName) {
-      myChain
+    myChain
   }
 
 *myChain* is expected to succeed as a whole.
@@ -398,7 +398,7 @@ If an error happens (a technical exception such as a time out, or a failed check
 ::
 
   .exitBlockOnFail {
-      myChain
+    myChain
   }
 
 Quite similar to tryMax, but without looping on failure.

@@ -29,13 +29,13 @@ You can then build your requests just like you're used to::
 	  .pause(80 milliseconds)
 	  .exec(
 	    jsfPost("request_2", "/showcase-labs/ui/pprUpdate.jsf")
-	        .param("javax.faces.partial.ajax", "true")
-	        .param("javax.faces.source", "form:btn")
-	        .param("javax.faces.partial.execute", "@all")
-	        .param("javax.faces.partial.render", "form:display")
-	        .param("form:btn", "form:btn")
-	        .param("form", "form")
-	        .param("form:name", "foo"))
+        .param("javax.faces.partial.ajax", "true")
+	      .param("javax.faces.source", "form:btn")
+	      .param("javax.faces.partial.execute", "@all")
+	      .param("javax.faces.partial.render", "form:display")
+	      .param("form:btn", "form:btn")
+	      .param("form", "form")
+	      .param("form:name", "foo"))
 
 .. note:: The sample above is taken from the `Primefaces demo <http://www.primefaces.org/showcase-labs>`_
 

@@ -28,9 +28,9 @@ Basically, it's a ``Map[String, Any]``: a map with key Strings.
 In Gatling, entries in this map are called **Session attributes**.
 
 .. note::
-    Remember that a Gatling scenario is a workflow where every step is backed by an Akka Actor?
+  Remember that a Gatling scenario is a workflow where every step is backed by an Akka Actor?
 
-    ``Session``\ s are the actual messages that are passed along a scenario workflow.
+  ``Session``\ s are the actual messages that are passed along a scenario workflow.
 
 Injecting Data
 --------------
@@ -39,9 +39,9 @@ The first step is to inject state into the virtual users.
 
 There's 3 ways of doing that:
 
-    * using :ref:`Feeders <feeder>`
-    * extracting data from responses and saving them, e.g. with :ref:`HTTP Check's saveAs <http-check-saving>`
-    * manually with the Session API
+  * using :ref:`Feeders <feeder>`
+  * extracting data from responses and saving them, e.g. with :ref:`HTTP Check's saveAs <http-check-saving>`
+  * manually with the Session API
 
 Fetching Data
 -------------
@@ -50,8 +50,8 @@ Once you have injected data into your virtual users, you'll naturally want retri
 
 There's 2 ways of doing that:
 
-    * using Gatling's :ref:`Expression Language <el>`
-    * manually with the Session API
+  * using Gatling's :ref:`Expression Language <el>`
+  * manually with the Session API
 
 .. _session-api:
 
@@ -68,23 +68,23 @@ Session has the following methods:
 * ``setAll(newAttributes: Iterable[(String, Any)]): Session``: same as above but takes an Iterable instead of a varags
 
 .. warning::
-    ``Session`` instances are immutable!
+  ``Session`` instances are immutable!
 
-    Why is that so? Because Sessions are messages that are dealt with in a multi-threaded concurrent way,
-    so immutability is the best way to deal with state without relying on synchronization and blocking.
+  Why is that so? Because Sessions are messages that are dealt with in a multi-threaded concurrent way,
+  so immutability is the best way to deal with state without relying on synchronization and blocking.
 
-    A very common pitfall is to forget that ``set`` and ``setAll`` actually return new instances.
+  A very common pitfall is to forget that ``set`` and ``setAll`` actually return new instances.
 
 ::
 
-    val session: Session = ???
+  val session: Session = ???
 
-    // wrong usage
-    session.set("foo", "FOO") // wrong: the result of this set call is just discarded
-    session.set("bar", "BAR")
+  // wrong usage
+  session.set("foo", "FOO") // wrong: the result of this set call is just discarded
+  session.set("bar", "BAR")
 
-    // proper usage
-    session.set("foo", "FOO").set("bar", "BAR")
+  // proper usage
+  session.set("foo", "FOO").set("bar", "BAR")
 
 Getting Attributes
 ------------------
@@ -100,7 +100,7 @@ Then::
 
 
 .. warning::
-    ``session("foo")`` doesn't return the value, but a wrapper.
+  ``session("foo")`` doesn't return the value, but a wrapper.
 
 You can then access methods to retrieve the actual value in several ways:
 
@@ -112,21 +112,21 @@ You can then access methods to retrieve the actual value in several ways:
 
 ``session("foo").asOption[String]``:
 
-    * returns an ``Option[String]``
-    * which is ``None`` if the "foo" attribute is undefined,
-    * which is ``Some(value)`` otherwise and *value* is indeed a String
-    * throws a ``ClassCastException`` otherwise
+  * returns an ``Option[String]``
+  * which is ``None`` if the "foo" attribute is undefined,
+  * which is ``Some(value)`` otherwise and *value* is indeed a String
+  * throws a ``ClassCastException`` otherwise
 
 ``session("foo").validate[String]``:
 
-    * returns an ``Validation[String]``
-    * which is ``Failure(errorMessage)`` if the *"foo"* attribute is undefined
-    * which is ``Failure(errorMessage)`` if the value is not a String
-    * which is ``Success(value)`` otherwise
+  * returns an ``Validation[String]``
+  * which is ``Failure(errorMessage)`` if the *"foo"* attribute is undefined
+  * which is ``Failure(errorMessage)`` if the value is not a String
+  * which is ``Success(value)`` otherwise
 
 .. note::
 
-    Using ``as`` will probably easier for most users.
-    It will work fine, but the downside is that they might generate lots of expensive exceptions once things starts going wrong under load.
+  Using ``as`` will probably easier for most users.
+  It will work fine, but the downside is that they might generate lots of expensive exceptions once things starts going wrong under load.
 
-    We advise considering ``validate`` once accustomed to functional logic as it deals with unexpected results in a more efficient manner.
+  We advise considering ``validate`` once accustomed to functional logic as it deals with unexpected results in a more efficient manner.

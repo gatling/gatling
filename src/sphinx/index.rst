@@ -20,16 +20,16 @@ User's guide
 ============
 
 .. toctree::
-   :maxdepth: 1
+  :maxdepth: 1
 
-   quickstart
-   advanced_tutorial
-   general/index
-   session/index
-   http/index
-   jms
-   graphite/index
-   extensions/index
-   cookbook/index
-   developing_gatling/index
-   project/index
+  quickstart
+  advanced_tutorial
+  general/index
+  session/index
+  http/index
+  jms
+  graphite/index
+  extensions/index
+  cookbook/index
+  developing_gatling/index
+  project/index

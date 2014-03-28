@@ -30,7 +30,7 @@ If the Feeder can't produce enough records, Gatling will complain about it and y
 RecordArrayFeederBuilder
 ========================
 
-A ``Array[Map[String, T]]`` can be implicitly turned into a Feeder.
+An ``Array[Map[String, T]]`` can be implicitly turned into a Feeder.
 Moreover, this implicit conversion also provides some additional methods for defining the way the Array is iterated over::
 
   .queue    // default behavior: use an Iterator on the underlying array
