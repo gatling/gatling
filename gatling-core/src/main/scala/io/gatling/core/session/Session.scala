@@ -52,7 +52,13 @@ case class SessionAttribute(session: Session, key: String) {
  * @constructor creates a new session
  * @param scenarioName the name of the current scenario
  * @param userId the id of the current user
- * @param data the map that stores all values needed
+ * @param attributes the map that stores all values needed
+ * @param startDate when the user was started
+ * @param drift the cumulated time that was spent in Gatling on computation and that wasn't compensated for
+ * @param groupStack the group stack
+ * @param statusStack the status stack
+ * @param interruptStack the interrupt stack, caused by exitASAP conditions on loops
+ * @param counterStack the counters stack, used by loops
  */
 case class Session(
     scenarioName: String,
@@ -64,8 +70,6 @@ case class Session(
     statusStack: List[Status] = List(OK),
     interruptStack: List[PartialFunction[Session, Unit]] = Nil,
     counterStack: List[String] = Nil) extends StrictLogging {
-
-  import SessionPrivateAttributes._
 
   def apply(name: String) = SessionAttribute(this, name)
   def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)
