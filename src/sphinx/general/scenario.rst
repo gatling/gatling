@@ -33,6 +33,41 @@ For example, one using Gatling HTTP module would write the following line::
   scenario("My Scenario")
       .exec( http("Get Homepage").get("http://github.com/excilys/gatling") )
 
+.. _scenario-exec-session-expression:
+
+``exec`` can also be passed an :ref:`Expression <expression>` function.
+
+This can be used for manually debugging or editing the :ref:`Session <expression>`, e.g.::
+
+  exec { session =>
+    // displays the content of the session in the console (debugging only)
+    println(session)
+
+    // return the original session
+    session
+  }
+
+  exec { session =>
+    // return a new session instance with a new "foo" attribute whose value is "bar"
+    session.set("foo", "bar")
+  }
+
+.. note::
+  For those who wonder how the plumbing works and how one can return a ``Session`` instead of of ``Validation[Session]`` in the above examples,
+  that's thanks to an implicit conversion.
+
+.. _scenario-exec-function-flatten:
+
+``flattenMapIntoAttribute`` is a built-in Session Expression like mentioned above.
+
+It exposes the content of a Map into attributes, e.g.::
+
+  // assuming the Session contains an attribute named "theMap" whose content is Map("foo" -> "bar", "baz" -> "qix")
+
+  .exec(flattenMapIntoAttributes("${theMap}"))
+
+   // makes so that the Session contains 2 new attributes "foo" and "baz".
+
 Pause
 -----
 
