@@ -110,41 +110,39 @@ It is possible to load millions of keys in a few seconds in Redis and Gatling wi
 
 For example: a simple Scala function to generate a file with 1 million different urls ready to be loaded in a Redis list named *URLS*::
 
-    import com.excilys.ebi.gatling.core.feeder.redis.util._
+  import com.excilys.ebi.gatling.core.feeder.redis.util._
 
-    def generateOneMillionUrls() = {
-        val writer = new PrintWriter(new File("/tmp/loadtest.txt"))
-        try {
-            for (i <- 0 to 1000000) {
-                val url = "test?id=" + i
-                writer.write(generateRedisProtocol("LPUSH", "URLS", url)) // note the list name "URLS" here
-            }
-        } finally {
-            writer.close
-        }
+  def generateOneMillionUrls() = {
+    val writer = new PrintWriter(new File("/tmp/loadtest.txt"))
+    try {
+      for (i <- 0 to 1000000) {
+        val url = "test?id=" + i
+        // note the list name "URLS" here
+        writer.write(generateRedisProtocol("LPUSH", "URLS", url))
+      }
+    } finally {
+       writer.close
     }
-
+  }
 
 The urls can then be loaded in Redis using the following command::
 
   `cat /tmp/loadtest.txt | redis-cli --pipe`
 
 
-.. _feeder-nonshared:
+.. _feeder-non-shared:
 
-Non shared data
+Non Shared Data
 ===============
 
 Sometimes, Gatling users still want all virtual users to play all the records in a file, and Feeder doesn't match this behavior.
 
-Still, it's quite easy to build, e.g.::
+Still, it's quite easy to build, thanks to :ref:`flattenMapIntoAttributes <scenario-exec-function-flatten>`  e.g.::
 
-    val array = csv ("foo.csv").array
+    val array = csv("foo.csv").array
 
-    repeat(array.length, "i") {
-        exec{ session =>
-            for(i <- session("i").validate[Int])
-                yield session.setAll(array(i))
-        }. // rest of the chain
+    foreach(array, "record") {
+        exec(flattenMapIntoAttributes("${record}"))
+        ...
     }
 
