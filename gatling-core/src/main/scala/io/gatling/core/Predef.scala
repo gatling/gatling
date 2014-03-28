@@ -48,4 +48,7 @@ object Predef extends StructureSupport with PauseSupport with CheckSupport with 
   def BlackList(patterns: String*) = io.gatling.core.filter.BlackList(patterns.toList)
 
   implicit def string2path(string: String) = Path.string2path(string)
+
+  def flattenMapIntoAttributes(map: Expression[Map[String, Any]]): Expression[Session] =
+    session => map(session).map(resolvedMap => session.setAll(resolvedMap))
 }
