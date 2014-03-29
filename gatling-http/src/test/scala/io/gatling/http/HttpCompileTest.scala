@@ -25,6 +25,7 @@ class HttpCompileTest extends Simulation {
   val pause1 = 1
   val pause2 = 2
   val pause3 = 3
+  val pause4 = Integer.getInteger("testProperty")
 
   val baseUrl = "http://localhost:3000"
 
@@ -187,6 +188,7 @@ class HttpCompileTest extends Simulation {
     .pause(pause1)
     .rendezVous(100)
     .exec(flushSessionCookies)
+    .pause(pause4)
     .exec(addCookie(Cookie("foo", "bar").withDomain("/")))
     .doSwitch("${foo}")(
       "a" -> exec(http("a").get("/")),
