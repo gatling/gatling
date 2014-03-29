@@ -13,17 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check
+package io.gatling.http.action.ws
 
-import io.gatling.core.check.{ CheckFactory, ExtractorCheckBuilder, Preparer, ValidatorCheckBuilder }
-import io.gatling.core.check.extractor.Extractor
-import io.gatling.core.session.Expression
-import io.gatling.http.response.Response
+import io.gatling.core.session._
+import akka.actor.ActorRef
+import io.gatling.http.action.RequestAction
 
-class HttpSingleCheckBuilder[P, X](
-    checkFactory: CheckFactory[HttpCheck, Response],
-    preparer: Preparer[Response, P],
-    extractor: Expression[Extractor[P, X]]) extends ExtractorCheckBuilder[HttpCheck, Response, P, X] {
+class WsCancelCheckAction(val requestName: Expression[String], wsName: String, val next: ActorRef) extends RequestAction {
 
-  def find: ValidatorCheckBuilder[HttpCheck, Response, P, X] = ValidatorCheckBuilder(checkFactory, preparer, extractor)
+  def sendRequest(requestName: String, session: Session) =
+    for {
+      wsActor <- session(wsName).validate[ActorRef]
+    } yield wsActor ! CancelCheck(requestName, next, session)
 }

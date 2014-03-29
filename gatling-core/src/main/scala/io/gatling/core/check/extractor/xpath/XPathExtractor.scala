@@ -15,19 +15,19 @@
  */
 package io.gatling.core.check.extractor.xpath
 
-import java.io.{Reader, InputStream}
+import java.io.{ Reader, InputStream }
 
 import scala.collection.JavaConversions._
 import scala.collection.concurrent
 
 import org.xml.sax.InputSource
 
-import io.gatling.core.check.extractor.{CriterionExtractor, LiftedSeqOption}
+import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.validation.{SuccessWrapper, Validation}
+import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import javax.xml.transform.sax.SAXSource
 import jsr166e.ConcurrentHashMapV8
-import net.sf.saxon.s9api.{Processor, XPathCompiler, XPathExecutable, XdmNode, XdmValue}
+import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathExecutable, XdmNode, XdmValue }
 
 object XPathExtractor {
 

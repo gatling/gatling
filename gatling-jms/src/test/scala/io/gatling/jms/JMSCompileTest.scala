@@ -92,8 +92,8 @@ class JMSCompileTest extends Simulation {
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2 minutes)))
     .protocols(jmsConfig)
 
-  def checkBodyTextCorrect =  simpleCheck {
+  def checkBodyTextCorrect = simpleCheck {
     case tm: TextMessage => tm.getText == "HELLO FROM GATLING JMS DSL"
-    case _ => false
+    case _               => false
   }
 }

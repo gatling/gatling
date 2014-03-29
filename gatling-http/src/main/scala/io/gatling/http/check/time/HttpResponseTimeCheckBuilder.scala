@@ -15,10 +15,11 @@
  */
 package io.gatling.http.check.time
 
+import io.gatling.core.check.DefaultFindCheckBuilder
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.ExpressionWrapper
 import io.gatling.core.validation.SuccessWrapper
-import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
+import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
 import io.gatling.http.response.Response
 
 object HttpResponseTimeCheckBuilder {
@@ -33,7 +34,7 @@ object HttpResponseTimeCheckBuilder {
     def apply(prepared: Response) = Some(prepared.latencyInMillis).success
   })
 
-  def apply(extractor: Extractor[Response, Long]) = new HttpSingleCheckBuilder[Response, Long](
+  def apply(extractor: Extractor[Response, Long]) = new DefaultFindCheckBuilder[HttpCheck, Response, Response, Long](
     HttpCheckBuilders.timeCheckFactory,
     HttpCheckBuilders.passThroughResponsePreparer,
     extractor.expression)

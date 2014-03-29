@@ -165,7 +165,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     if (tx.resourceFetching) {
       val resourceMessage =
         if (isCss(response.headers))
-          CssResourceFetched(response.request.getOriginalURI, status, sessionUpdates, response.statusCode, ResourceFetcher.lastModifiedOrEtag(response, tx.protocol), response.body.string())
+          CssResourceFetched(response.request.getOriginalURI, status, sessionUpdates, response.statusCode, ResourceFetcher.lastModifiedOrEtag(response, tx.protocol), response.body.string)
 
         else
           RegularResourceFetched(response.request.getOriginalURI, status, sessionUpdates)

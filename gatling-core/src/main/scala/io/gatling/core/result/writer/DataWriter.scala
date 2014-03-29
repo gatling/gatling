@@ -35,7 +35,7 @@ object DataWriter extends AkkaDefaults {
 
   private var _instances: Option[Seq[ActorRef]] = None
 
-  def instances() = _instances match {
+  def instances = _instances match {
     case Some(dw) => dw
     case _        => throw new UnsupportedOperationException("DataWriters haven't been initialized")
   }
@@ -105,7 +105,7 @@ abstract class DataWriter extends BaseActor {
     case requestMessage: RequestMessage => onRequestMessage(requestMessage)
 
     case Terminate => try {
-      onTerminateDataWriter
+      onTerminateDataWriter()
     } finally {
       context.become(flushed)
       sender ! true

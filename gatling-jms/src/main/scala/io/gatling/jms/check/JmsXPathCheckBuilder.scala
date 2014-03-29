@@ -46,11 +46,9 @@ object JmsXPathCheckBuilder extends StrictLogging {
   val checkBuilder: CheckFactory[JmsCheck, Message] = (wrapped: Check[Message]) => wrapped
 
   def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
-    new JmsMultipleCheckBuilder[Option[XdmNode], String](checkBuilder, preparer) {
+    new DefaultMultipleFindCheckBuilder[JmsCheck, Message, Option[XdmNode], String](checkBuilder, preparer) {
       def findExtractor(occurrence: Int) = expression.map(new SingleXPathExtractor(_, namespaces, occurrence))
-
       def findAllExtractor = expression.map(new MultipleXPathExtractor(_, namespaces))
-
       def countExtractor = expression.map(new CountXPathExtractor(_, namespaces))
     }
 }

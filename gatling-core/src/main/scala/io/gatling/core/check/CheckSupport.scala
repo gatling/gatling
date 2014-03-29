@@ -20,7 +20,7 @@ trait CheckSupport {
   implicit def checkBuilder2Check[C <: Check[R], R, P, X](checkBuilder: CheckBuilder[C, R, P, X]) = checkBuilder.build
   implicit def validatorCheckBuilder2CheckBuilder[C <: Check[R], R, P, X](validatorCheckBuilder: ValidatorCheckBuilder[C, R, P, X]) = validatorCheckBuilder.exists
   implicit def validatorCheckBuilder2Check[C <: Check[R], R, P, X](validatorCheckBuilder: ValidatorCheckBuilder[C, R, P, X]) = validatorCheckBuilder.exists.build
-  implicit def extractorCheckBuilder2ValidatorCheckBuilder[C <: Check[R], R, P, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, X]) = extractorCheckBuilder.find
-  implicit def extractorCheckBuilder2CheckBuilder[C <: Check[R], R, P, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, X]) = extractorCheckBuilder.find.exists
-  implicit def extractorCheckBuilder2Check[C <: Check[R], R, P, X](extractorCheckBuilder: ExtractorCheckBuilder[C, R, P, X]) = extractorCheckBuilder.find.exists.build
+  implicit def findCheckBuilder2ValidatorCheckBuilder[C <: Check[R], R, P, X](findCheckBuilder: FindCheckBuilder[C, R, P, X]) = findCheckBuilder.find
+  implicit def findCheckBuilder2CheckBuilder[C <: Check[R], R, P, X](findCheckBuilder: FindCheckBuilder[C, R, P, X]) = findCheckBuilder.find.exists
+  implicit def findCheckBuilder2Check[C <: Check[R], R, P, X](findCheckBuilder: FindCheckBuilder[C, R, P, X]) = findCheckBuilder.find.exists.build
 }

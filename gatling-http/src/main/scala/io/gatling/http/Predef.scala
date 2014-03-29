@@ -24,9 +24,12 @@ import io.gatling.http.config.HttpProtocolBuilder
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.feeder.SitemapFeederSupport
 import io.gatling.http.request.BodyProcessors
-import io.gatling.http.request.builder.{ Http, WebSocket }
+import io.gatling.http.request.builder.Http
+import io.gatling.http.check.ws.WsCheckSupport
+import io.gatling.http.request.builder.ws.Ws
 
-object Predef extends HttpCheckSupport with SitemapFeederSupport {
+object Predef extends HttpCheckSupport with WsCheckSupport with SitemapFeederSupport {
+
   type Request = com.ning.http.client.Request
   type Response = io.gatling.http.response.Response
 
@@ -40,7 +43,7 @@ object Predef extends HttpCheckSupport with SitemapFeederSupport {
   def flushCookieJar = CookieHandling.flushCookieJar
   def flushHttpCache = CacheHandling.flushCache
 
-  def websocket(requestName: Expression[String]) = new WebSocket(requestName)
+  def ws(requestName: Expression[String]) = new Ws(requestName)
 
   val HttpHeaderNames = HeaderNames
   val HttpHeaderValues = HeaderValues

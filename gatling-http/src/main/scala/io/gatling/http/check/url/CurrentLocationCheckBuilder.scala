@@ -15,10 +15,11 @@
  */
 package io.gatling.http.check.url
 
+import io.gatling.core.check.DefaultFindCheckBuilder
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.ExpressionWrapper
 import io.gatling.core.validation.SuccessWrapper
-import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
+import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
 import io.gatling.http.response.Response
 
 object CurrentLocationCheckBuilder {
@@ -28,7 +29,7 @@ object CurrentLocationCheckBuilder {
     def apply(prepared: Response) = Some(prepared.request.getUrl).success
   }
 
-  val currentLocation = new HttpSingleCheckBuilder[Response, String](
+  val currentLocation = new DefaultFindCheckBuilder[HttpCheck, Response, Response, String](
     HttpCheckBuilders.urlCheckFactory,
     HttpCheckBuilders.passThroughResponsePreparer,
     currentLocationExtractor.expression)

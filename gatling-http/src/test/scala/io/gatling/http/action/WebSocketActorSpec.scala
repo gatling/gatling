@@ -38,7 +38,7 @@ import io.gatling.core.Predef.{ Session, stringToExpression }
 import io.gatling.core.akka.GatlingActorSystem
 import io.gatling.core.config.{ GatlingConfiguration, Protocols }
 import io.gatling.core.result.message.{ KO, OK }
-import io.gatling.http.Predef.websocket
+import io.gatling.http.Predef.ws
 import io.gatling.http.config.HttpProtocol
 
 @RunWith(classOf[JUnitRunner])

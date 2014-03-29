@@ -17,12 +17,12 @@ package io.gatling.http.check.body
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.check.Preparer
+import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
 import io.gatling.core.check.extractor.jsonpath.{ BoonParser, CountJsonPathExtractor, JacksonParser, JsonFilter, MultipleJsonPathExtractor, SingleJsonPathExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.core.util.StringHelper.{ DirectCharsBasedStringImplementation, stringImplementation }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
-import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
+import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
 import io.gatling.http.response.{ ByteArrayResponseBodyUsage, InputStreamResponseBodyUsage, Response, ResponseBodyUsageStrategy, StringResponseBodyUsage }
 
 trait HttpBodyJsonPathOfType {
@@ -35,7 +35,7 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
   val charsParsingThreshold = 1000000
 
-  def handleParseException(block: Response => Any) = (response: Response) =>
+  def handleParseException[R](block: R => Any) = (response: R) =>
     try {
       block(response).success
     } catch {
@@ -50,17 +50,17 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
     case DirectCharsBasedStringImplementation =>
       handleParseException { response =>
         if (response.bodyLength <= charsParsingThreshold)
-          BoonParser.parse(response.body.string())
+          BoonParser.parse(response.body.string)
         else
-          BoonParser.parse(response.body.stream(), response.charset)
+          BoonParser.parse(response.body.stream, response.charset)
       }
 
     case _ =>
       handleParseException { response =>
         if (response.bodyLength <= charsParsingThreshold)
-          JacksonParser.parse(response.body.bytes(), response.charset)
+          JacksonParser.parse(response.body.bytes, response.charset)
         else
-          JacksonParser.parse(response.body.stream(), response.charset)
+          JacksonParser.parse(response.body.stream, response.charset)
       }
   }
 
@@ -89,7 +89,7 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 }
 
 class HttpBodyJsonPathCheckBuilder[X](private[body] val path: Expression[String])(implicit jsonFilter: JsonFilter[X])
-    extends HttpMultipleCheckBuilder[Any, X](
+    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Any, X](
       HttpCheckBuilders.bodyCheckFactory(HttpBodyJsonPathCheckBuilder.responseBodyUsageStrategy),
       HttpBodyJsonPathCheckBuilder.preparer) {
 

@@ -18,15 +18,15 @@ package io.gatling.jms.check
 import javax.jms.Message
 import scala.collection.mutable
 import io.gatling.core.validation.Validation
-import io.gatling.core.check.Check
+import io.gatling.core.check.CheckResult
 import io.gatling.jms._
 import io.gatling.core.session.Session
 import io.gatling.core.validation.Failure
 
 case class JmsSimpleCheck(func: Message => Boolean) extends JmsCheck {
-  override def check(response: Message, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[(Session) => Session] = {
+  override def check(response: Message, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] = {
     func(response) match {
-      case true => Check.noopUpdateSuccess
+      case true => CheckResult.NoopCheckResultSuccess
       case _    => Failure("Jms check failed")
     }
   }

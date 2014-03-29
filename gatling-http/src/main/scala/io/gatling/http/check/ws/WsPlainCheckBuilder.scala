@@ -13,27 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.status
+package io.gatling.http.check.ws
 
-import io.gatling.core.check.DefaultFindCheckBuilder
+import io.gatling.core.check.{ CheckFactory, DefaultFindCheckBuilder }
 import io.gatling.core.check.extractor.Extractor
+import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session.ExpressionWrapper
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
-import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
-import io.gatling.http.response.Response
 
-object HttpStatusCheckBuilder {
+object WebSocketPlainCheckBuilder {
 
-  val statusExtractor = new Extractor[Response, Int] {
-    val name = "status"
-    def apply(prepared: Response) = prepared.statusCode match {
-      case code @ Some(_) => code.success
-      case None           => "Response wasn't received".failure
-    }
+  val extractor = new Extractor[String, String] {
+    val name = "wsMessage"
+    def apply(prepared: String) = Some(prepared).success
   }.expression
 
-  val status = new DefaultFindCheckBuilder[HttpCheck, Response, Response, Int](
-    HttpCheckBuilders.statusCheckFactory,
-    HttpCheckBuilders.passThroughResponsePreparer,
-    statusExtractor)
+  def message(checkFactory: CheckFactory[WsCheck, String]) =
+    new WebSocketPlainCheckBuilder(checkFactory)
 }
+
+class WebSocketPlainCheckBuilder(checkFactory: CheckFactory[WsCheck, String])
+  extends DefaultFindCheckBuilder[WsCheck, String, String, String](
+    checkFactory,
+    WsCheckBuilders.passThroughMessagePreparer,
+    WebSocketPlainCheckBuilder.extractor)

@@ -15,11 +15,11 @@
  */
 package io.gatling.http.check.checksum
 
-import io.gatling.core.check.Check
+import io.gatling.core.check.{ DefaultFindCheckBuilder, Check }
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.ExpressionWrapper
 import io.gatling.core.validation.SuccessWrapper
-import io.gatling.http.check.{ HttpCheckBuilders, HttpSingleCheckBuilder }
+import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
 import io.gatling.http.response.Response
 
 object HttpChecksumCheckBuilder {
@@ -32,7 +32,7 @@ object HttpChecksumCheckBuilder {
       def apply(prepared: Response) = prepared.checksum(algorythm).success
     }.expression
 
-    new HttpSingleCheckBuilder[Response, String](
+    new DefaultFindCheckBuilder[HttpCheck, Response, Response, String](
       checksumCheckFactory,
       HttpCheckBuilders.passThroughResponsePreparer,
       extractor)

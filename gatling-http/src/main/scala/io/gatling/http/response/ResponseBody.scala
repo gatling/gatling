@@ -85,9 +85,9 @@ object ResponseBody {
 }
 
 sealed trait ResponseBody {
-  def string(): String
-  def bytes(): Array[Byte]
-  def stream(): InputStream
+  def string: String
+  def bytes: Array[Byte]
+  def stream: InputStream
 }
 
 object StringResponseBody {
@@ -101,7 +101,7 @@ object StringResponseBody {
 case class StringResponseBody(string: String, charset: Charset) extends ResponseBody {
 
   lazy val bytes = string.getBytes(charset)
-  def stream() = new ByteArrayInputStream(bytes)
+  def stream = new ByteArrayInputStream(bytes)
 }
 
 object ByteArrayResponseBody {
@@ -114,7 +114,7 @@ object ByteArrayResponseBody {
 
 case class ByteArrayResponseBody(bytes: Array[Byte], charset: Charset) extends ResponseBody {
 
-  def stream() = new UnsyncByteArrayInputStream(bytes)
+  def stream = new UnsyncByteArrayInputStream(bytes)
   lazy val string = new String(bytes, charset)
 }
 
@@ -122,7 +122,7 @@ case class InputStreamResponseBody(chunks: Seq[ChannelBuffer], charset: Charset)
 
   var bytesLoaded = false
 
-  def stream() = (chunks.size: @switch) match {
+  def stream = (chunks.size: @switch) match {
 
     case 0 => new UnsyncByteArrayInputStream(ResponseBody.emptyBytes)
 

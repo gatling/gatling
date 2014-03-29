@@ -13,24 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check
+package io.gatling.http.check.ws
 
-import scala.collection.mutable
-
+import scala.concurrent.duration.FiniteDuration
 import io.gatling.core.check.{ CheckResult, Check }
 import io.gatling.core.session.Session
+import scala.collection.mutable
 import io.gatling.core.validation.Validation
-import io.gatling.http.check.HttpCheckOrder.HttpCheckOrder
-import io.gatling.http.response.{ Response, ResponseBodyUsageStrategy }
 
-/**
- * This class serves as model for the HTTP-specific checks
- *
- * @param wrapped the underlying check
- * @param order the check priority
- */
-case class HttpCheck(wrapped: Check[Response], order: HttpCheckOrder, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy])
-    extends Check[Response] with Ordered[HttpCheck] {
-  override def check(response: Response, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] = wrapped.check(response, session)
-  def compare(that: HttpCheck) = order.compare(that.order)
+sealed trait Expectation
+case class UntilCount(count: Int) extends Expectation
+case class ExpectedCount(count: Int) extends Expectation
+case class ExpectedRange(range: Range) extends Expectation
+
+case class WsCheck(wrapped: Check[String], blocking: Boolean, timeout: FiniteDuration, expectation: Expectation) extends Check[String] {
+  override def check(message: String, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] = wrapped.check(message, session)
 }

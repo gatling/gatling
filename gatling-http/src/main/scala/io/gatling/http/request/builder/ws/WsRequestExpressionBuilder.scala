@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.request.builder
+package io.gatling.http.request.builder.ws
 
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.config.HttpProtocol
+import io.gatling.http.request.builder.{ RequestExpressionBuilder, CommonAttributes }
 import io.gatling.http.util.HttpHelper
 
-class WebSocketRequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol)
+class WsRequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol)
     extends RequestExpressionBuilder(commonAttributes, protocol) {
 
   def makeAbsolute(url: String): Validation[String] =

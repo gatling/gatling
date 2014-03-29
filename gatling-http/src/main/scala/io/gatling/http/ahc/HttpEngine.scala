@@ -32,12 +32,14 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ Controller, ThrottledRequest }
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.http.action.ws.{ OnFailedOpen, WebSocketListener }
+import io.gatling.http.action.ws.{ OnFailedOpen, WsListener }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.{ ExtraInfoExtractor, HttpRequest }
 import io.gatling.http.response.ResponseBuilderFactory
 import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
+import io.gatling.http.check.ws.WsCheck
+import io.gatling.core.check.CheckResult
 
 case class HttpTx(session: Session,
                   request: Request,
@@ -55,12 +57,22 @@ case class HttpTx(session: Session,
                   resourceFetching: Boolean = false,
                   redirectCount: Int = 0)
 
-case class WebSocketTx(session: Session,
-                       request: Request,
-                       requestName: String,
-                       protocol: HttpProtocol,
-                       next: ActorRef,
-                       reconnectCount: Int = 0)
+case class WsTx(session: Session,
+                request: Request,
+                requestName: String,
+                protocol: HttpProtocol,
+                next: ActorRef,
+                start: Long,
+                reconnectCount: Int = 0,
+                check: Option[WsCheck] = None,
+                pendingCheckSuccesses: List[CheckResult] = Nil,
+                updates: List[Session => Session] = Nil) {
+
+  def applyUpdates(session: Session) = {
+    val newSession = session.update(updates)
+    copy(session = newSession, updates = Nil)
+  }
+}
 
 object HttpEngine extends AkkaDefaults with StrictLogging {
 
@@ -208,22 +220,21 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
       client.executeRequest(newTx.request, new AsyncHandler(newTx))
   }
 
-  def startWebSocketTransaction(tx: WebSocketTx, wsActor: ActorRef) {
+  def startWebSocketTransaction(tx: WsTx, wsActor: ActorRef) {
     val (newTx, client) = {
       val (newSession, client) = httpClient(tx.session, tx.protocol)
       (tx.copy(session = newSession), client)
     }
 
-    val now = nowMillis
     try {
-      val listener = new WebSocketListener(newTx, wsActor, now)
+      val listener = new WsListener(newTx, wsActor)
 
       val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
-      client.executeRequest(newTx.request, handler)
+      client.executeRequest(tx.request, handler)
 
     } catch {
       case e: Exception =>
-        wsActor ! OnFailedOpen(newTx, e.getMessage, now, nowMillis)
+        wsActor ! OnFailedOpen(newTx, e.getMessage, nowMillis)
     }
   }
 }

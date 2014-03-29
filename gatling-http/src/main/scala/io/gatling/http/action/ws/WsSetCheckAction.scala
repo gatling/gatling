@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * 		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,14 @@
 package io.gatling.http.action.ws
 
 import akka.actor.ActorRef
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session._
+import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.action.RequestAction
-import io.gatling.http.config.HttpProtocol
 
-class SendWebSocketTextMessageAction(val requestName: Expression[String], wsName: String, message: Expression[String], val next: ActorRef, protocol: HttpProtocol) extends RequestAction {
+class WsSetCheckAction(val requestName: Expression[String], check: WsCheck, wsName: String, val next: ActorRef) extends RequestAction {
 
   def sendRequest(requestName: String, session: Session) =
     for {
       wsActor <- session(wsName).validate[ActorRef]
-      resolvedMessage <- message(session)
-    } yield wsActor ! SendTextMessage(requestName, resolvedMessage, next, session)
+    } yield wsActor ! SetCheck(requestName, check, next, session)
 }

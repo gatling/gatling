@@ -20,7 +20,7 @@ import scala.collection.mutable
 
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ Success, SuccessWrapper, Validation }
+import io.gatling.core.validation.{ Failure, Success, SuccessWrapper, Validation }
 
 object Check {
 
@@ -35,10 +35,10 @@ object Check {
       def checkRec(checks: List[Check[R]], updates: Validation[Session => Session]): Validation[Session => Session] = checks match {
         case Nil => updates
         case head :: tail => head.check(response, session) match {
-          case Success(update) =>
-            val newUpdates = updates.map(_ andThen update)
+          case Success(checkResult) =>
+            val newUpdates = updates.map(_ andThen checkResult.update)
             checkRec(tail, newUpdates)
-          case failure => failure
+          case failure: Failure => failure
         }
       }
 
@@ -48,7 +48,7 @@ object Check {
 
 trait Check[R] {
 
-  def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[Session => Session]
+  def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult]
 }
 
 case class CheckBase[R, P, X](
@@ -57,17 +57,11 @@ case class CheckBase[R, P, X](
     validatorExpression: Expression[Validator[X]],
     saveAs: Option[String]) extends Check[R] {
 
-  def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[Session => Session] = {
+  def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] = {
 
-      def update(extractedValue: Option[Any]) =
-        (for {
-          key <- saveAs
-          value <- extractedValue
-        } yield (session: Session) => session.set(key, value)).getOrElse(Check.noopUpdate)
-
-    val memoizedPrepared: Validation[P] = cache
-      .getOrElseUpdate(preparer, preparer(response))
-      .asInstanceOf[Validation[P]]
+      def memoizedPrepared: Validation[P] = cache
+        .getOrElseUpdate(preparer, preparer(response))
+        .asInstanceOf[Validation[P]]
 
     for {
       extractor <- extractorExpression(session).mapError(message => s"Check extractor resolution crashed: $message")
@@ -76,6 +70,22 @@ case class CheckBase[R, P, X](
       actual <- extractor(prepared).mapError(message => s"${extractor.name}.${validator.name} failed, could not extract: $message")
       matched <- validator(actual).mapError(message => s"${extractor.name}.${validator.name}, $message")
 
-    } yield update(matched)
+    } yield CheckResult(matched, saveAs)
   }
+}
+
+object CheckResult {
+
+  val NoopCheckResultSuccess = CheckResult(None, None).success
+}
+
+case class CheckResult(extractedValue: Option[Any], saveAs: Option[String]) {
+
+  def hasUpdate = saveAs.isDefined && extractedValue.isDefined
+
+  def update(session: Session): Session =
+    (for {
+      v <- extractedValue
+      s <- saveAs
+    } yield session.set(s, v)).getOrElse(session)
 }

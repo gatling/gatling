@@ -45,6 +45,10 @@ case class SessionAttribute(session: Session, key: String) {
   }
 }
 
+object Session {
+  val MarkAsFailedUpdate: Session => Session = _.markAsFailed
+}
+
 /**
  * Session class representing the session passing through a scenario for a given user
  *
@@ -213,4 +217,8 @@ case class Session(
         logger.error(s"removeCounter called but attribute for counterName $counterName is missing, please report.")
         this
     }
+
+  def update(updates: Iterable[Session => Session]): Session = updates.foldLeft(this) {
+    (session, update) => update(session)
+  }
 }

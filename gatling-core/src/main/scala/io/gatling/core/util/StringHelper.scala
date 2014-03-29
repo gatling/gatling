@@ -118,7 +118,7 @@ object StringHelper {
         string
     }
 
-    def unsafeChars(): Array[Char] = stringCharsExtractor(string)
+    def unsafeChars: Array[Char] = stringCharsExtractor(string)
 
     def ensureTrimmedCharsArray: String = RichString.ensureTrimmedCharsArrayF(string)
   }

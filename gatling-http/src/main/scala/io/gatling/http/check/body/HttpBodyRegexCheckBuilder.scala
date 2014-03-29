@@ -15,9 +15,11 @@
  */
 package io.gatling.http.check.body
 
+import io.gatling.core.check.DefaultMultipleFindCheckBuilder
 import io.gatling.core.check.extractor.regex.{ CountRegexExtractor, GroupExtractor, MultipleRegexExtractor, SingleRegexExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.http.check.{ HttpCheckBuilders, HttpMultipleCheckBuilder }
+import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
+import io.gatling.http.response.Response
 
 trait HttpBodyRegexOfType { self: HttpBodyRegexCheckBuilder[String] =>
 
@@ -30,7 +32,7 @@ object HttpBodyRegexCheckBuilder {
 }
 
 class HttpBodyRegexCheckBuilder[X](private[body] val expression: Expression[String])(implicit groupExtractor: GroupExtractor[X])
-    extends HttpMultipleCheckBuilder[CharSequence, X](
+    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, CharSequence, X](
       HttpCheckBuilders.stringBodyCheckFactory,
       HttpCheckBuilders.responseBodyStringPreparer) {
 

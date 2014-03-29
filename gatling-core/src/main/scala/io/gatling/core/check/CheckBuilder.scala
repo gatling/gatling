@@ -21,18 +21,45 @@ import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.{ Expression, ExpressionWrapper, RichExpression }
 import io.gatling.core.validation.{ FailureWrapper, Validation }
 
-trait ExtractorCheckBuilder[C <: Check[R], R, P, X] {
+trait FindCheckBuilder[C <: Check[R], R, P, X] {
 
   def find: ValidatorCheckBuilder[C, R, P, X]
 }
 
-trait MultipleExtractorCheckBuilder[C <: Check[R], R, P, T, X] extends ExtractorCheckBuilder[C, R, P, X] {
+class DefaultFindCheckBuilder[C <: Check[R], R, P, X](checkFactory: CheckFactory[C, R],
+                                                      preparer: Preparer[R, P],
+                                                      extractor: Expression[Extractor[P, X]])
+    extends FindCheckBuilder[C, R, P, X] {
+
+  def find: ValidatorCheckBuilder[C, R, P, X] = ValidatorCheckBuilder(checkFactory, preparer, extractor)
+}
+
+trait MultipleFindCheckBuilder[C <: Check[R], R, P, X] extends FindCheckBuilder[C, R, P, X] {
 
   def find(occurrence: Int): ValidatorCheckBuilder[C, R, P, X]
 
-  def findAll: ValidatorCheckBuilder[C, R, P, X]
+  def findAll: ValidatorCheckBuilder[C, R, P, Seq[X]]
 
-  def count: ValidatorCheckBuilder[C, R, P, X]
+  def count: ValidatorCheckBuilder[C, R, P, Int]
+}
+
+abstract class DefaultMultipleFindCheckBuilder[C <: Check[R], R, P, X](checkFactory: CheckFactory[C, R],
+                                                                       preparer: Preparer[R, P])
+    extends MultipleFindCheckBuilder[C, R, P, X] {
+
+  def findExtractor(occurrence: Int): Expression[Extractor[P, X]]
+
+  def findAllExtractor: Expression[Extractor[P, Seq[X]]]
+
+  def countExtractor: Expression[Extractor[P, Int]]
+
+  def find = find(0)
+
+  def find(occurrence: Int): ValidatorCheckBuilder[C, R, P, X] = ValidatorCheckBuilder(checkFactory, preparer, findExtractor(occurrence))
+
+  def findAll: ValidatorCheckBuilder[C, R, P, Seq[X]] = ValidatorCheckBuilder(checkFactory, preparer, findAllExtractor)
+
+  def count: ValidatorCheckBuilder[C, R, P, Int] = ValidatorCheckBuilder(checkFactory, preparer, countExtractor)
 }
 
 case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
