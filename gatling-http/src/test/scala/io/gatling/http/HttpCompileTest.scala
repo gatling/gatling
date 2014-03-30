@@ -27,6 +27,10 @@ class HttpCompileTest extends Simulation {
   val pause3 = 3
   val pause4 = Integer.getInteger("testProperty")
 
+  val pause5 = pause4 milliseconds
+  val pause6 = pause4 seconds
+  val pause7 = pause4 nanoseconds
+
   val baseUrl = "http://localhost:3000"
 
   val httpProtocol = http

@@ -40,8 +40,6 @@ object Predef extends StructureSupport with PauseSupport with CheckSupport with 
   implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
   implicit def value2Success[T](value: T): Validation[T] = value.success
   implicit def value2Expression[T](value: T): Expression[T] = value.expression
-  implicit def intToFiniteDuration(i: Int): FiniteDuration = i seconds
-  implicit def integerToFiniteDuration(i: Integer): FiniteDuration = intToFiniteDuration(i.toInt)
 
   def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
 
@@ -52,4 +50,45 @@ object Predef extends StructureSupport with PauseSupport with CheckSupport with 
 
   def flattenMapIntoAttributes(map: Expression[Map[String, Any]]): Expression[Session] =
     session => map(session).map(resolvedMap => session.setAll(resolvedMap))
+
+  /**********************************/
+  /** Duration implicit conversions */
+  /**********************************/
+
+  implicit def intToFiniteDuration(i: Int): FiniteDuration = i.seconds
+  implicit def integerToFiniteDuration(i: Integer): FiniteDuration = intToFiniteDuration(i.toInt)
+
+  /**
+   * Offers the same implicits conversions as [[DurationInt]] for Java's Integer.
+   * @param i the Java's integer that will converted to [[FiniteDuration]]
+   */
+  implicit class DurationInteger(val i: Integer) extends AnyVal {
+
+    def nanoseconds = i.toInt.nanoseconds
+    def nanos = i.toInt.nanos
+    def nanosecond = i.toInt.nanosecond
+    def nano = i.toInt.nano
+
+    def microseconds = i.toInt.microseconds
+    def micros = i.toInt.micros
+    def microsecond = i.toInt.microsecond
+    def micro = i.toInt.micro
+
+    def milliseconds = i.toInt.milliseconds
+    def millis = i.toInt.millis
+    def millisecond = i.toInt.millisecond
+    def milli = i.toInt.milli
+
+    def seconds = i.toInt.seconds
+    def second = i.toInt.second
+
+    def minutes = i.toInt.minutes
+    def minute = i.toInt.minute
+
+    def hours = i.toInt.hours
+    def hour = i.toInt.hour
+
+    def days = i.toInt.days
+    def day = i.toInt.day
+  }
 }
