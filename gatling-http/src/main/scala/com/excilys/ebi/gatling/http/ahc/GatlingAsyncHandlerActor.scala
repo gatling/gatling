@@ -47,6 +47,13 @@ object GatlingAsyncHandlerActor {
 	val REDIRECT_STATUS_CODES = 301 to 303
 	val NOT_MODIFIED_PHASES = HttpPhase.phases.filter(p => p != HttpPhase.CompletePageReceived && p != HttpPhase.BodyPartReceived)
 
+	val propagatedOnRedirectHeaders = Vector(
+		HeaderNames.ACCEPT,
+		HeaderNames.ACCEPT_ENCODING,
+		HeaderNames.ACCEPT_LANGUAGE,
+		HeaderNames.REFERER,
+		HeaderNames.USER_AGENT)
+
 	def newAsyncHandlerActorFactory(
 		checks: List[HttpCheck[_]],
 		next: ActorRef,
@@ -175,20 +182,25 @@ class GatlingAsyncHandlerActor(
 
 			val redirectURI = AsyncHttpProviderUtils.getRedirectUri(request.getURI, response.getHeader(HeaderNames.LOCATION))
 
-			val requestBuilder = new RequestBuilder(request)
-				.setMethod("GET")
+			val originalRequest = request
+
+			val requestBuilder = new RequestBuilder("GET", originalRequest.isUseRawUrl)
+				.setURI(redirectURI)
 				.setBodyEncoding(configuration.core.encoding)
-				.setQueryParameters(null.asInstanceOf[FluentStringsMap])
-				.setParameters(null.asInstanceOf[FluentStringsMap])
-				.setUrl(redirectURI.toString)
-				.setConnectionPoolKeyStrategy(request.getConnectionPoolKeyStrategy)
+				.setConnectionPoolKeyStrategy(originalRequest.getConnectionPoolKeyStrategy)
+				.setInetAddress(originalRequest.getInetAddress)
+				.setLocalInetAddress(originalRequest.getLocalAddress)
+				.setVirtualHost(originalRequest.getVirtualHost)
+				.setProxyServer(originalRequest.getProxyServer)
+
+			for (headerName <- GatlingAsyncHandlerActor.propagatedOnRedirectHeaders) {
+				Option(originalRequest.getHeaders.getFirstValue(headerName)).foreach(requestBuilder.addHeader(headerName, _))
+			}
 
 			for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectURI))
-				requestBuilder.addOrReplaceCookie(cookie)
+				requestBuilder.addCookie(cookie)
 
 			val newRequest = requestBuilder.build
-			newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
-			newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
 
 			val newRequestName = requestName match {
 				case GatlingAsyncHandlerActor.REDIRECTED_REQUEST_NAME_PATTERN(requestBaseName, redirectCount) => requestBaseName + " Redirect " + (redirectCount.toInt + 1)
