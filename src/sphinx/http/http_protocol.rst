@@ -138,7 +138,6 @@ One can bind teh sockets from a specific local address instead of the default on
 
   localAddress(localAddress: InetAddress)
 
-
 Request building parameters
 ===========================
 
@@ -301,4 +300,4 @@ You can set the HTTP proxy, on optional HTTPS proxy and optional credentials for
 
 You can also disabled the use of proxy for a given list of host with ``noProxyFor(hosts: String*)``::
 
-    val httpConf = http.proxy(Proxy("myProxyHost", 8080)).noProxyFor("www.github.com", "www.akka.io")
+  val httpConf = http.proxy(Proxy("myProxyHost", 8080)).noProxyFor("www.github.com", "www.akka.io")

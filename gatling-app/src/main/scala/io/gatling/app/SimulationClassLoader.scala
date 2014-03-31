@@ -38,19 +38,22 @@ object SimulationClassLoader {
     new SimulationClassLoader(classLoader, classesDir)
   }
 
-  def fromClasspathBinariesDirectory(binariesDirectory: Directory) = new SimulationClassLoader(getClass.getClassLoader, binariesDirectory)
+  def fromClasspathBinariesDirectory(binariesDirectory: Directory): SimulationClassLoader =
+    new SimulationClassLoader(getClass.getClassLoader, binariesDirectory)
 }
 
 class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Directory) {
 
   def simulationClasses(requestedClassName: Option[String]): List[Class[Simulation]] = {
 
-      def isSimulationClass(clazz: Class[_]): Boolean = classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
+      def isSimulationClass(clazz: Class[_]): Boolean =
+        classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
 
-      def pathToClassName(path: Path, root: Path): String = (path.parent / path.stripExtension)
-        .toString()
-        .stripPrefix(root + File.separator)
-        .replace(File.separator, ".")
+      def pathToClassName(path: Path, root: Path): String =
+        (path.parent / path.stripExtension)
+          .toString()
+          .stripPrefix(root + File.separator)
+          .replace(File.separator, ".")
 
     requestedClassName.map { requestedClassName =>
       val clazz = classLoader.loadClass(requestedClassName)

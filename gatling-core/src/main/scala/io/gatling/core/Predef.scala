@@ -15,7 +15,7 @@
  */
 package io.gatling.core
 
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.reflect.ClassTag
 import scala.reflect.io.Path
 
@@ -27,7 +27,7 @@ import io.gatling.core.feeder.FeederSupport
 import io.gatling.core.pause.PauseSupport
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
 import io.gatling.core.session.el.EL
-import io.gatling.core.structure.{ ChainBuilder, ScenarioBuilder, StructureSupport }
+import io.gatling.core.structure.{ ScenarioBuilder, StructureSupport }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object Predef extends StructureSupport with PauseSupport with CheckSupport with FeederSupport with InjectionSupport with ThrottlingSupport with AssertionSupport {
@@ -40,7 +40,6 @@ object Predef extends StructureSupport with PauseSupport with CheckSupport with 
   implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
   implicit def value2Success[T](value: T): Validation[T] = value.success
   implicit def value2Expression[T](value: T): Expression[T] = value.expression
-  implicit def intToFiniteDuration(i: Int) = i seconds
 
   def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
 
@@ -48,4 +47,48 @@ object Predef extends StructureSupport with PauseSupport with CheckSupport with 
   def BlackList(patterns: String*) = io.gatling.core.filter.BlackList(patterns.toList)
 
   implicit def string2path(string: String) = Path.string2path(string)
+
+  def flattenMapIntoAttributes(map: Expression[Map[String, Any]]): Expression[Session] =
+    session => map(session).map(resolvedMap => session.setAll(resolvedMap))
+
+  /**********************************/
+  /** Duration implicit conversions */
+  /**********************************/
+
+  implicit def intToFiniteDuration(i: Int): FiniteDuration = i.seconds
+  implicit def integerToFiniteDuration(i: Integer): FiniteDuration = intToFiniteDuration(i.toInt)
+
+  /**
+   * Offers the same implicits conversions as [[DurationInt]] for Java's Integer.
+   * @param i the Java's integer that will converted to [[FiniteDuration]]
+   */
+  implicit class DurationInteger(val i: Integer) extends AnyVal {
+
+    def nanoseconds = i.toInt.nanoseconds
+    def nanos = i.toInt.nanos
+    def nanosecond = i.toInt.nanosecond
+    def nano = i.toInt.nano
+
+    def microseconds = i.toInt.microseconds
+    def micros = i.toInt.micros
+    def microsecond = i.toInt.microsecond
+    def micro = i.toInt.micro
+
+    def milliseconds = i.toInt.milliseconds
+    def millis = i.toInt.millis
+    def millisecond = i.toInt.millisecond
+    def milli = i.toInt.milli
+
+    def seconds = i.toInt.seconds
+    def second = i.toInt.second
+
+    def minutes = i.toInt.minutes
+    def minute = i.toInt.minute
+
+    def hours = i.toInt.hours
+    def hour = i.toInt.hour
+
+    def days = i.toInt.days
+    def day = i.toInt.day
+  }
 }

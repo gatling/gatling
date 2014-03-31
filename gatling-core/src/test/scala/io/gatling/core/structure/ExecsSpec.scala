@@ -1,14 +1,19 @@
 package io.gatling.core.structure
 
-import io.gatling.core.action.ActorSupport
 import org.specs2.mutable.Specification
 import io.gatling.core.Predef._
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.Session
+import org.junit.runner.RunWith
+import org.specs2.runner.JUnitRunner
+import io.gatling.core.test.ActorSupport
 
+@RunWith(classOf[JUnitRunner])
 class ExecsSpec extends Specification {
+
   "Execs" should {
-    "wrap Scenarios in chains, using exec" in new ActorSupport {
+    "wrap Scenarios in chains, using exec" in ActorSupport { testKit =>
+      import testKit._
       val testScenario = scenario("Test Scenario").exec { session =>
         self ! "Message 2"
         session
@@ -38,6 +43,7 @@ class ExecsSpec extends Specification {
       expectMsg("Message 3")
       expectMsg(session)
       expectNoMsg
+      success
     }
   }
 }

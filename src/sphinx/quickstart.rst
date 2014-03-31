@@ -20,9 +20,9 @@ Installing
 Just unzip the downloaded bundle to a folder of your choice.
 
 .. warning::
-    We just ask you **don't use a path containing spaces**, there might be some issues.
+  We just ask you **don't use a path containing spaces**, there might be some issues.
 
-    For Windows users, we also recommend that you do not place Gatling in *Programs* folder as there might be permission issues.
+  For Windows users, we also recommend that you do not place Gatling in *Programs* folder as there might be permission issues.
 
 In order to run Gatling, you need to have installed a JDK. We recommend you the last version. 
 
@@ -33,10 +33,10 @@ A Word on Encoding
 
 Gatling's **default encoding is UTF-8**. If you want to use a different one, you have to:
 
-    * select the proper encoding while using the Recorder
-    * configure the proper encoding in the ``gatling.conf`` file.
-      It will be used for compiling your simulations and building your requests.
-    * make sure your text editor encoding is properly configured to match.
+  * select the proper encoding while using the Recorder
+  * configure the proper encoding in the ``gatling.conf`` file.
+    It will be used for compiling your simulations and building your requests.
+  * make sure your text editor encoding is properly configured to match.
 
 A Word on Scala
 ---------------
@@ -47,7 +47,7 @@ In most situations, this DSL will cover most of your needs and you'll be able to
 If you are interested in knowing more about Scala, we then recommend you have a look at `Scala School <http://twitter.github.io/scala_school>`_.
 
 .. note::
-    Feel also free to join our `Google Group`_ and ask for help.
+  Feel also free to join our `Google Group`_ and ask for help.
 
 Test Case
 =========
@@ -118,7 +118,7 @@ All you have to do now is to browse the application:
   #. Enter 'Edit' tag.
   #. Click on *Add new computer*.
   #. Fill the form.
-  #. Click on *Create this computer*.    
+  #. Click on *Create this computer*.
 
 Try to act as a user, don't jump from one page to another without taking the time to read.
 This will make your scenario closer to real users' behavior.
@@ -168,8 +168,8 @@ What does it mean?
 4. The common configuration to all HTTP requests.
 
 .. note::
-    ``val`` is the keyword for defining a non-re-assignable value.
-    Types are not defined and are inferred by the Scala compiler.
+  ``val`` is the keyword for defining a non-re-assignable value.
+  Types are not defined and are inferred by the Scala compiler.
 
 5. The baseURL that will be prepended to all relative urls.
 6. Common HTTP headers that will be sent with all the requests.
@@ -179,14 +179,14 @@ What does it mean?
 10. Some pause/think time.
 
 .. note::
-    Duration unit defaults to ``seconds``, e.g. ``pause(5)`` is equivalent to ``pause(5 seconds)``.
+  Duration unit defaults to ``seconds``, e.g. ``pause(5)`` is equivalent to ``pause(5 seconds)``.
 
 11. Where one set ups the scenarios that will be launched in this Simulation.
 12. Declaring to inject into scenario named *scn* one single user.
 13. Attaching the HTTP configuration declared above.
 
 .. note::
-    For more details regarding Simulation structure, please check out :ref:`Simulation reference page <simulation-structure>`.
+  For more details regarding Simulation structure, please check out :ref:`Simulation reference page <simulation-structure>`.
 
 Running Gatling
 ---------------
@@ -205,12 +205,11 @@ You should see a menu with the simulation examples::
 When the simulation is done, the console will display a link to the HTML reports.
 
 .. note::
-    If Gatling doesn't work as expected, see our :ref:`FAQ <faq>` or ask on our `Google Group`_.
+  If Gatling doesn't work as expected, see our :ref:`FAQ <faq>` or ask on our `Google Group`_.
 
 Going Further
 -------------
 
 When you're ready to go further, please check out the :ref:`Advanced Tutorial <advanced_tutorial>`.
-
 
 .. _Google Group: https://groups.google.com/forum/#!forum/gatling

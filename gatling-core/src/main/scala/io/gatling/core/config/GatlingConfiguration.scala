@@ -25,11 +25,12 @@ import com.typesafe.config.{ Config, ConfigFactory }
 
 import io.gatling.core.ConfigurationConstants._
 import io.gatling.core.util.StringHelper.RichString
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 /**
  * Configuration loader of Gatling
  */
-object GatlingConfiguration {
+object GatlingConfiguration extends StrictLogging {
 
   // FIXME
   var configuration: GatlingConfiguration = _
@@ -49,6 +50,39 @@ object GatlingConfiguration {
   }
 
   def setUp(props: mutable.Map[String, _ <: Any] = mutable.Map.empty) {
+
+      def warnAboutRemovedProperties(config: Config) {
+
+          def warnAboutRemovedProperty(path: String) {
+            if (config.hasPath(path))
+              logger.warn(s"Beware, property $path is still defined but it was removed")
+          }
+
+        Vector("gatling.core.extract.xpath.saxParserFactory",
+          "gatling.core.extract.xpath.domParserFactory",
+          "gatling.core.extract.xpath.expandEntityReferences",
+          "gatling.core.extract.xpath.namespaceAware",
+          "gatling.core.extract.css.engine",
+          "gatling.core.timeOut.actor",
+          "gatling.http.baseUrls",
+          "gatling.http.proxy.host",
+          "gatling.http.proxy.port",
+          "gatling.http.proxy.securedPort",
+          "gatling.http.proxy.username",
+          "gatling.http.proxy.password",
+          "gatling.http.followRedirect",
+          "gatling.http.autoReferer",
+          "gatling.http.cache",
+          "gatling.http.discardResponseChunks",
+          "gatling.http.shareConnections",
+          "gatling.http.basicAuth.username",
+          "gatling.http.basicAuth.password",
+          "gatling.http.ahc.provider",
+          "gatling.http.ahc.requestCompressionLevel",
+          "gatling.http.ahc.userAgent",
+          "gatling.http.ahc.rfc6265CookieEncoding").foreach(warnAboutRemovedProperty)
+      }
+
     val classLoader = getClass.getClassLoader
 
     val defaultsConfig = ConfigFactory.parseResources(classLoader, "gatling-defaults.conf")
@@ -56,6 +90,8 @@ object GatlingConfiguration {
     val propertiesConfig = ConfigFactory.parseMap(props)
 
     val config = ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig)
+
+    warnAboutRemovedProperties(config)
 
     configuration = mapToGatlingConfig(config)
   }
@@ -149,7 +185,7 @@ object GatlingConfiguration {
           case "leak"     => "io.gatling.core.result.writer.LeakReporterDataWriter"
           case clazz      => clazz
         },
-        dataReaderClass = (config.getString(CONF_DATA_READER_CLASS_NAME)).trim match {
+        dataReaderClass = config.getString(CONF_DATA_READER_CLASS_NAME).trim match {
           case "file" => "io.gatling.charts.result.reader.FileDataReader"
           case clazz  => clazz
         },

@@ -49,11 +49,13 @@ Edit ``/etc/security/limits.conf`` and append the following two lines:
 
 Save the file. Restart so that the limits take effect. You can now verify with ``ulimit -a`` that the limits are correctly set.
 
+On Debian, if the above limits are ignored, you may want to add ``session required pam_limits.so`` in ``/etc/pam.d/common-session``. 
+For remote users, you may want to add the same line in ``/etc/pam.d/sshd``.
 
 Mac OS/X
 ^^^^^^^^
 
-On Mac you need to run the following commands in order to "unbuckle the belts":
+On Mac you need to run the following commands in order to *unbuckle the belts*:
 
 ::
 

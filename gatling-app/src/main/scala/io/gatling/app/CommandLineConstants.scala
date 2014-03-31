@@ -17,28 +17,34 @@ package io.gatling.app
 
 object CommandLineConstants {
 
-  val HELP = "help"
-  val HELP_SHORT = "h"
-  val NO_REPORTS = "no-reports"
-  val NO_REPORTS_SHORT = "nr"
-  val REPORTS_ONLY = "reports-only"
-  val REPORTS_ONLY_SHORT = "ro"
-  val DATA_FOLDER = "data-folder"
-  val DATA_FOLDER_SHORT = "df"
-  val RESULTS_FOLDER = "results-folder"
-  val RESULTS_FOLDER_SHORT = "rf"
-  val REQUEST_BODIES_FOLDER = "request-bodies-folder"
-  val REQUEST_BODIES_FOLDER_SHORT = "bf"
-  val SIMULATIONS_FOLDER = "simulations-folder"
-  val SIMULATIONS_FOLDER_SHORT = "sf"
-  val SIMULATIONS_BINARIES_FOLDER = "simulations-binaries-folder"
-  val SIMULATIONS_BINARIES_FOLDER_SHORT = "sbf"
-  val SIMULATION = "simulation"
-  val SIMULATION_SHORT = "s"
-  val OUTPUT_DIRECTORY_BASE_NAME = "output-name"
-  val OUTPUT_DIRECTORY_BASE_NAME_SHORT = "on"
-  val SIMULATION_DESCRIPTION = "simulation-description"
-  val SIMULATION_DESCRIPTION_SHORT = "sd"
-  val MUTE = "mute"
-  val MUTE_SHORT = "m"
+  object full {
+    val Help = "help"
+    val NoReports = "no-reports"
+    val ReportsOnly = "reports-only"
+    val DataFolder = "data-folder"
+    val ResultsFolder = "results-folder"
+    val RequestBodiesFolder = "request-bodies-folder"
+    val SimulationsFolder = "simulations-folder"
+    val SimulationsBinariesFolder = "simulations-binaries-folder"
+    val Simulation = "simulation"
+    val OutputDirectoryBaseName = "output-name"
+    val SimulationDescription = "simulation-description"
+    val Mute = "mute"
+  }
+
+  object short {
+    val Help = "h"
+    val NoReports = "nr"
+    val ReportsOnly = "ro"
+    val DataFolder = "df"
+    val ResultsFolder = "rf"
+    val RequestBodiesFolder = "bf"
+    val SimulationsFolder = "sf"
+    val SimulationsBinariesFolder = "sbf"
+    val Simulation = "s"
+    val OutputDirectoryBaseName = "on"
+    val SimulationDescription = "sd"
+    val Mute = "m"
+  }
+
 }

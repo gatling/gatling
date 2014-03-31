@@ -48,8 +48,8 @@ object AddCookieBuilder {
   def defaultDomain(httpProtocol: HttpProtocol) = {
     val baseUrlHost = httpProtocol.baseURL.map(url => URI.create(url).getHost)
     (session: Session) => baseUrlHost match {
-      case Some(baseUrlHost) => baseUrlHost.success
-      case _                 => noBaseUrlFailure
+      case Some(host) => host.success
+      case _          => noBaseUrlFailure
     }
   }
 

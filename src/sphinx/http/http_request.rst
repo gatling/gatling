@@ -112,15 +112,15 @@ If you want to add multiple query parameters at once, there are two suitable met
 
 * ``queryParamsSeq(seq: Expression[Seq[(String, Any)]])``::
 
-    http("Getting issues")
-      .get("https://github.com/excilys/gatling/issues")
-      .queryParamsSeq(Seq(("milestone", "1"), ("state", "open")))
+  http("Getting issues")
+    .get("https://github.com/excilys/gatling/issues")
+    .queryParamsSeq(Seq(("milestone", "1"), ("state", "open")))
 
 * ``queryParamsMap(map: Expression[Map[String, Any]])``::
 
-    http("Getting issues")
-      .get("https://github.com/excilys/gatling/issues")
-      .queryParamsMap(Map("milestone" -> "1", "state" -> "open"))
+  http("Getting issues")
+    .get("https://github.com/excilys/gatling/issues")
+    .queryParamsMap(Map("milestone" -> "1", "state" -> "open"))
 
 .. note:: As all method parameters are ``Expression[T]``, i.e. 'key' parameter is an ``Expression[String]`` and so on, if you have more specific needs you can also provide an arbitrary ``Expression[T]``, i.e. a ``Session => Validation[T]`` function.
           This function will be evaluated against the user session every time this one pass through it.
@@ -139,7 +139,7 @@ Gatling HTTP allows you to specify any header you want to with the ``header(name
 Here are some examples::
 
   // Defining a map of headers before the scenario allows you to reuse these in several requests
-    val sentHeaders = Map("Content-Type" -> "application/javascript", "Accept" -> "text/html")
+  val sentHeaders = Map("Content-Type" -> "application/javascript", "Accept" -> "text/html")
 
 	scenario(...)
 	  ...
@@ -191,8 +191,8 @@ You can tell Gatling to use a proxy to send the HTTP requests.
 You can set the HTTP proxy, on optional HTTPS proxy and optional credentials for the proxy::
 
 	http("Getting issues")
-      .get("https://github.com/excilys/gatling/issues")
-      .proxy(Proxy("myProxyHost", 8080).httpsPort(8143).credentials("myUsername","myPassword"))
+    .get("https://github.com/excilys/gatling/issues")
+    .proxy(Proxy("myProxyHost", 8080).httpsPort(8143).credentials("myUsername","myPassword"))
 
 .. note:: Proxy can also be defined on the ``HttpProtocol``.
 
@@ -207,8 +207,8 @@ You can tell Gatling to override the default computed virtual host with the meth
 
   // GET https://mobile.github.com/excilys/gatling instead of GET https://www.github.com/excilys/gatling
   http("Getting issues")
-      .get("https://www.github.com/excilys/gatling/issues")
-      .virtualHost("mobile")
+    .get("https://www.github.com/excilys/gatling/issues")
+    .virtualHost("mobile")
 
 .. note:: Virtual Host can also be defined on the ``HttpProtocol``.
 
@@ -220,8 +220,8 @@ HTTP Checks
 You can add checks on a request::
 
   http("Getting issues")
-      .get("https://www.github.com/excilys/gatling/issues")
-      .check(...)
+    .get("https://www.github.com/excilys/gatling/issues")
+    .check(...)
 
 See :ref:`dedicated page <http-check>`.
 
@@ -230,8 +230,8 @@ See :ref:`dedicated page <http-check>`.
 For a given request, you can also disable common checks that were defined on the ``HttpProtocol`` with ``ignoreDefaultChecks``::
 
   http("Getting issues")
-      .get("https://www.github.com/excilys/gatling/issues")
-      .ignoreDefaultChecks
+    .get("https://www.github.com/excilys/gatling/issues")
+    .ignoreDefaultChecks
 
 FollowRedirect
 --------------
@@ -241,8 +241,8 @@ FollowRedirect
 For a given request, you can use ``disableFollowRedirect``, just like it can be done globally on the ``HttpProtocol``::
 
   http("Getting issues")
-      .get("https://www.github.com/excilys/gatling/issues")
-      .disableFollowRedirect
+    .get("https://www.github.com/excilys/gatling/issues")
+    .disableFollowRedirect
 
 Logging
 -------
@@ -257,8 +257,8 @@ One could want to issue a request, but not log it, e.g.::
 One can then make the request ``silent``::
 
   http("Getting issues")
-      .get("https://www.github.com/excilys/gatling/issues")
-      .silent
+    .get("https://www.github.com/excilys/gatling/issues")
+    .silent
 
 Regular HTTP request
 ====================
@@ -298,8 +298,8 @@ Once bootstrapped, BodyPart have the following methods for setting additional op
 
 Eg::
 
-    http("String body").post("my.post.uri")
-      .body(StringBody("""{ "myContent": "myValue" }""")).asJSON
+  http("String body").post("my.post.uri")
+    .body(StringBody("""{ "myContent": "myValue" }""")).asJSON
 
 ::
 
@@ -353,11 +353,10 @@ Or at the request level you can use the ``resources(res: AbstractHttpRequestBuil
 For example::
 
   http("Getting issues")
-      .get("https://www.github.com/excilys/gatling/issues")
-      .resources(
-          http("api.js").get("https://collector-cdn.github.com/assets/api.js"),
-          http("ga.js").get("https://ssl.google-analytics.com/ga.js"))
-
+    .get("https://www.github.com/excilys/gatling/issues")
+    .resources(
+      http("api.js").get("https://collector-cdn.github.com/assets/api.js"),
+      http("ga.js").get("https://ssl.google-analytics.com/ga.js"))
 
 POST HTTP request
 =================
@@ -381,13 +380,13 @@ As for ``queryParam`` you have two methods to add multiple parameters at once:
 
 * paramsSeq(seq: Expression[Seq[(String, Any)]])::
 
-    http("My Form Data").post("my.form-action.uri")
-      .paramsSeq(Seq(("myKey", "myValue"), ("anotherKey", "anotherValue")))
+  http("My Form Data").post("my.form-action.uri")
+    .paramsSeq(Seq(("myKey", "myValue"), ("anotherKey", "anotherValue")))
 
 * paramsMap(map: Expression[Map[String, Any]])::
 
-    http("My Form Data").post("my.form-action.uri")
-      .paramsMap(Map("myKey" -> "myValue", "anotherKey" -> "anotherValue"))
+  http("My Form Data").post("my.form-action.uri")
+    .paramsMap(Map("myKey" -> "myValue", "anotherKey" -> "anotherValue"))
 
 If you'd like to pass multiple values for your parameter, but all at once, you can use ``multivaluedParam(key: Expression[String], values: Expression[Seq[Any]])``::
 

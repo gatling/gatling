@@ -21,17 +21,13 @@ import scala.collection.JavaConversions._
 import scala.collection.concurrent
 import scala.collection.mutable
 
-import com.ning.http.client.Request
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import io.gatling.core.action.GroupEnd
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.filter.Filters
 import io.gatling.core.result.message.{ KO, OK, Status }
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session.Session
 import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.Validation
-import io.gatling.core.validation.{ Success, SuccessWrapper }
 import io.gatling.http.HeaderNames
 import io.gatling.http.action.{ HttpRequestAction, HttpRequestActionBuilder }
 import io.gatling.http.ahc.HttpTx
@@ -60,16 +56,16 @@ object ResourceFetcher extends StrictLogging {
   def pageResources(htmlDocumentURI: URI, filters: Option[Filters], responseChars: Array[Char]): List[EmbeddedResource] = {
     val htmlInferredResources = HtmlParser.getEmbeddedResources(htmlDocumentURI, responseChars)
     filters match {
-      case Some(filters) => filters.filter(htmlInferredResources)
-      case none          => htmlInferredResources
+      case Some(f) => f.filter(htmlInferredResources)
+      case none    => htmlInferredResources
     }
   }
 
   def cssResources(cssURI: URI, filters: Option[Filters], content: String): List[EmbeddedResource] = {
     val cssInferredResources = cssContentCache.getOrElseUpdate(cssURI, CssParser.extractResources(cssURI, content))
     filters match {
-      case Some(filters) => filters.filter(cssInferredResources)
-      case none          => cssInferredResources
+      case Some(f) => f.filter(cssInferredResources)
+      case none    => cssInferredResources
     }
   }
 
@@ -94,9 +90,9 @@ object ResourceFetcher extends StrictLogging {
           case Some(newLastModifiedOrEtag) =>
             val cacheKey = (protocol, htmlDocumentURI)
             inferredResourcesCache.get(cacheKey) match {
-              case Some(InferredPageResources(`newLastModifiedOrEtag`, inferredResources)) =>
+              case Some(InferredPageResources(`newLastModifiedOrEtag`, res)) =>
                 //cache entry didn't expire, use it
-                inferredResources
+                res
               case _ =>
                 // cache entry missing or expired, update it
                 val inferredResources = pageResourcesRequests()
@@ -214,9 +210,9 @@ class ResourceFetcher(tx: HttpTx, initialResources: Iterable[NamedRequest]) exte
     nonCachedRequests
       .groupBy(_.ahcRequest.getURI.getHost)
       .foreach {
-        case (host, requests) =>
+        case (host, reqs) =>
           val availableTokens = availableTokensByHost(host)
-          val (immediateRequests, bufferedRequests) = requests.splitAt(availableTokens)
+          val (immediateRequests, bufferedRequests) = reqs.splitAt(availableTokens)
           sendRequests(host, immediateRequests)
           bufferRequests(host, bufferedRequests)
       }
@@ -266,8 +262,8 @@ class ResourceFetcher(tx: HttpTx, initialResources: Iterable[NamedRequest]) exte
       done(globalStatus)
     else {
       val requests = bufferedRequestsByHost.get(uri.getHost) match {
-        case Some(requests) => requests
-        case _              => Nil
+        case Some(reqs) => reqs
+        case _          => Nil
       }
       releaseToken(uri.getHost, requests)
     }

@@ -129,7 +129,6 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
 
       val secureURI = isSecure(requestURI)
 
-        // TODO HTTP only
         def isCookieMatching(key: CookieKey, storedCookie: StoredCookie) =
           CookieJar.domainsMatch(key.domain, requestDomain, storedCookie.hostOnly) &&
             CookieJar.pathsMatch(key.path, requestPath) &&

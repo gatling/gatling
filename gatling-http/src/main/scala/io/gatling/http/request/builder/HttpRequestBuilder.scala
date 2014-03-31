@@ -85,7 +85,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
   def resources(res: AbstractHttpRequestBuilder[_]*): B = newInstance(httpAttributes.copy(explicitResources = res))
 
-  def ahcRequest(protocol: HttpProtocol): Expression[Request]
+  def request(protocol: HttpProtocol): Expression[Request]
 
   /**
    * This method builds the request that will be sent
@@ -114,9 +114,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
     val resolvedExtraInfoExtractor = httpAttributes.extraInfoExtractor.orElse(protocol.responsePart.extraInfoExtractor)
 
+    val resolvedRequestExpression = request(protocol)
+
     HttpRequest(
       commonAttributes.requestName,
-      ahcRequest(protocol),
+      resolvedRequestExpression,
       resolvedChecks,
       resolvedResponseTransformer,
       resolvedExtraInfoExtractor,
@@ -133,5 +135,5 @@ class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes: Htt
 
   private[http] def newInstance(commonAttributes: CommonAttributes) = new HttpRequestBuilder(commonAttributes, httpAttributes)
   private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestBuilder(commonAttributes, httpAttributes)
-  def ahcRequest(protocol: HttpProtocol) = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, protocol).build
+  def request(protocol: HttpProtocol): Expression[Request] = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, protocol).build
 }

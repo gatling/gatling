@@ -107,15 +107,15 @@ However, just like scheduling, that's something very easy to achieve outside Gat
 
 Those are currently:
 
-    1. first byte sent timestamp
-    2. last byte sent timestamp
-    3. first byte received timestamp
-    4. last byte received timestamp
+  1. first byte sent timestamp
+  2. last byte sent timestamp
+  3. first byte received timestamp
+  4. last byte received timestamp
 
 A timestamp is of course the number of milliseconds since epoch.
 
-    * response time (in ms) = 4 - 1
-    * latency (in ms) = 3 - 2
+  * response time (in ms) = 4 - 1
+  * latency (in ms) = 3 - 2
 
 Beware that the format of this file is an implementation details of the ``FileDataWriter``/``FileDataReader`` combo, so it might be subject to changes.
 
@@ -126,8 +126,8 @@ Beware that the format of this file is an implementation details of the ``FileDa
 See `this page <http://aws.amazon.com/articles/1636185810492479>`_.
 
 .. note::
-    DNS Resolution
-    If clients do not re-resolve the DNS at least once per minute, then the new resources Elastic Load Balancing adds to DNS will not be used by clients. This can mean that clients continue to overwhelm a small portion of the allocated Elastic Load Balancing resources, while overall Elastic Load Balancing is not being heavily utilized. This is not a problem that can occur in real-world scenarios, but it is a likely problem for load testing tools that do not offer the control needed to ensure that clients are re-resolving DNS frequently.
+  DNS Resolution
+  If clients do not re-resolve the DNS at least once per minute, then the new resources Elastic Load Balancing adds to DNS will not be used by clients. This can mean that clients continue to overwhelm a small portion of the allocated Elastic Load Balancing resources, while overall Elastic Load Balancing is not being heavily utilized. This is not a problem that can occur in real-world scenarios, but it is a likely problem for load testing tools that do not offer the control needed to ensure that clients are re-resolving DNS frequently.
 
 Basically, Gatling/JVM's DNS cache has to tuned. A solution is to add ``-Dsun.net.inetaddr.ttl=0`` to the command line.
 
@@ -180,3 +180,10 @@ Typically, you have to move your chains out of your Simulation class, for exampl
     ...
   }
 
+.. _dandling-connections:
+
+* **I have dandling connections that don't get closed after timeout**
+
+This issue has been reported once, and preferring IPv4 fixed it::
+
+  -Djava.net.preferIPv4Stack=true

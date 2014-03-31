@@ -32,6 +32,7 @@ abstract class DataReader(runUuid: String) {
   def runStart: Long
   def runEnd: Long
   def statsPaths: List[StatsPath]
+  def requestNames: List[String]
   def scenarioNames: List[String]
   def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[IntVsTimePlot]
   def numberOfRequestsPerSecond(status: Option[Status] = None, requestName: Option[String] = None, group: Option[Group] = None): Seq[IntVsTimePlot]

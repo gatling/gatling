@@ -15,7 +15,7 @@
  */
 package io.gatling.http.ahc
 
-import com.ning.http.client.{ FluentStringsMap, RequestBuilder }
+import com.ning.http.client.RequestBuilder
 import akka.actor.{ ActorRef, Props }
 import akka.actor.ActorDSL.actor
 import akka.routing.RoundRobinRouter
@@ -24,6 +24,7 @@ import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.Session
+import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
@@ -33,13 +34,12 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.{ HttpCheck, HttpCheckOrder }
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched, ResourceFetcher }
+import io.gatling.http.referer.RefererHandling
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }
 import io.gatling.http.util.HttpStringBuilder
-import io.gatling.core.result.writer.DataWriterClient
-import io.gatling.http.referer.RefererHandling
 
 object AsyncHandlerActor extends AkkaDefaults {
 
@@ -59,6 +59,13 @@ object AsyncHandlerActor extends AkkaDefaults {
 
   def updateCache(tx: HttpTx, response: Response): Session => Session = CacheHandling.cache(tx.protocol, _, tx.request, response)
   val fail: Session => Session = _.markAsFailed
+
+  val propagatedOnRedirectHeaders = Vector(
+    HeaderNames.ACCEPT,
+    HeaderNames.ACCEPT_ENCODING,
+    HeaderNames.ACCEPT_LANGUAGE,
+    HeaderNames.REFERER,
+    HeaderNames.USER_AGENT)
 }
 
 class AsyncHandlerActor extends BaseActor with DataWriterClient {
@@ -110,7 +117,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         }
 
       if (status == KO) {
-        logger.warn(s"Request '$fullRequestName' failed: ${errorMessage.getOrElse("")}")
+        logger.info(s"Request '$fullRequestName' failed: ${errorMessage.getOrElse("")}")
         if (!logger.underlying.isTraceEnabled) logger.debug(dump)
       }
       logger.trace(dump)
@@ -122,7 +129,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         }
       } catch {
         case e: Exception =>
-          logger.warn("Encountered error while extracting extra request info", e)
+          logger.info("Encountered error while extracting extra request info", e)
           Nil
       }
 
@@ -218,20 +225,25 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
                 val redirectURI = resolveFromURI(tx.request.getURI, location)
 
-                val requestBuilder = new RequestBuilder(tx.request)
-                  .setMethod("GET")
-                  .setBodyEncoding(configuration.core.encoding)
-                  .setQueryParameters(null.asInstanceOf[FluentStringsMap])
-                  .setParameters(null.asInstanceOf[FluentStringsMap])
+                val originalRequest = tx.request
+
+                val requestBuilder = new RequestBuilder("GET", originalRequest.isUseRawUrl)
                   .setURI(redirectURI)
-                  .setConnectionPoolKeyStrategy(tx.request.getConnectionPoolKeyStrategy)
+                  .setBodyEncoding(configuration.core.encoding)
+                  .setConnectionPoolKeyStrategy(originalRequest.getConnectionPoolKeyStrategy)
+                  .setInetAddress(originalRequest.getInetAddress)
+                  .setLocalInetAddress(originalRequest.getLocalAddress)
+                  .setVirtualHost(originalRequest.getVirtualHost)
+                  .setProxyServer(originalRequest.getProxyServer)
+
+                for (headerName <- AsyncHandlerActor.propagatedOnRedirectHeaders) {
+                  Option(originalRequest.getHeaders.getFirstValue(headerName)).foreach(requestBuilder.addHeader(headerName, _))
+                }
 
                 for (cookie <- CookieHandling.getStoredCookies(newTx.session, redirectURI))
-                  requestBuilder.addOrReplaceCookie(cookie)
+                  requestBuilder.addCookie(cookie)
 
                 val newRequest = requestBuilder.build
-                newRequest.getHeaders.remove(HeaderNames.CONTENT_LENGTH)
-                newRequest.getHeaders.remove(HeaderNames.CONTENT_TYPE)
 
                 val redirectTx = newTx.copy(request = newRequest, redirectCount = tx.redirectCount + 1)
                 HttpRequestAction.startHttpTransaction(redirectTx)

@@ -26,7 +26,11 @@ import io.gatling.jdbc.util.SQLHelper.withStatement
 object JdbcDataWriter {
 
   implicit class ExecuteAndClearBatch(val statement: PreparedStatement) extends AnyVal {
-    def executeAndClearBatch() { statement.executeBatch; statement.clearBatch(); statement.getConnection.commit() }
+    def executeAndClearBatch() {
+      statement.executeBatch
+      statement.clearBatch()
+      statement.getConnection.commit()
+    }
   }
 }
 
@@ -43,7 +47,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
    * The OutputStreamWriter used to write to db
    */
   private val bufferSize: Int = configuration.data.jdbc.bufferSize
-  private var conn: Connection = _ // TODO investigate if need 1 connection is enough
+  private var conn: Connection = _ // TODO investigate if 1 connection is enough
   private var runId: Int = _
   private var scenarioInsert: PreparedStatement = _
   private var groupInsert: PreparedStatement = _
@@ -53,8 +57,13 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
   private var groupCounter: Int = 0
   private var requestCounter: Int = 0
 
-  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
-    conn = DriverManager.getConnection(configuration.data.jdbc.db.url, configuration.data.jdbc.db.username, configuration.data.jdbc.db.password)
+  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+
+    conn = DriverManager.getConnection(
+      configuration.data.jdbc.db.url,
+      configuration.data.jdbc.db.username,
+      configuration.data.jdbc.db.password)
+
     system.registerOnTermination(conn.close())
 
     conn.setAutoCommit(false)
@@ -82,8 +91,10 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     } {
       scenarioInsert = conn.prepareStatement(insertScenarioRecord)
       system.registerOnTermination(scenarioInsert.close())
+
       groupInsert = conn.prepareStatement(insertGroupRecord)
       system.registerOnTermination(groupInsert.close())
+
       requestInsert = conn.prepareStatement(insertRequestRecord)
       system.registerOnTermination(requestInsert.close())
 
@@ -96,11 +107,12 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
         val keys: ResultSet = runInsert.getGeneratedKeys
         //Getting the runId to be dumped later on other tables.
         while (keys.next) { runId = keys.getInt(1) }
+        conn.commit()
       }
     }
   }
 
-  override def onUserMessage(userMessage: UserMessage) {
+  override def onUserMessage(userMessage: UserMessage): Unit = {
 
     import userMessage._
     scenarioInsert.setInt(1, runId)
@@ -119,7 +131,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     }
   }
 
-  override def onGroupMessage(group: GroupMessage) {
+  override def onGroupMessage(group: GroupMessage): Unit = {
 
     import group._
     groupInsert.setInt(1, runId)
@@ -138,7 +150,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     }
   }
 
-  override def onRequestMessage(request: RequestMessage) {
+  override def onRequestMessage(request: RequestMessage): Unit = {
 
     import request._
     requestInsert.setInt(1, runId)
@@ -162,7 +174,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     }
   }
 
-  override def onTerminateDataWriter() {
+  override def onTerminateDataWriter(): Unit = {
     logger.info("Received flush order")
     //Flush all the batch jdbc execution
     scenarioInsert.executeAndClearBatch()

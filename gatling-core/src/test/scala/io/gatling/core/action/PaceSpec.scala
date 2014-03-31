@@ -26,12 +26,14 @@ import org.specs2.runner.JUnitRunner
 import io.gatling.core.Predef.{ pace, value2Expression }
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.Session
+import io.gatling.core.test.ActorSupport
 
 @RunWith(classOf[JUnitRunner])
 class PaceSpec extends Specification {
 
   "pace" should {
-    "run actions with a minimum wait time" in new ActorSupport {
+    "run actions with a minimum wait time" in ActorSupport { testKit =>
+      import testKit._
       val instance = pace(Duration(3, SECONDS), "paceCounter").build(self, Protocols())
 
       // Send session, expect response near-instantly
@@ -47,7 +49,8 @@ class PaceSpec extends Specification {
       session2("paceCounter").as[Long] must_== session1("paceCounter").as[Long] + 3000L
     }
 
-    "run actions immediately if the minimum time has expired" in new ActorSupport {
+    "run actions immediately if the minimum time has expired" in ActorSupport { testKit =>
+      import testKit._
       val instance = pace(Duration(3, SECONDS), "paceCounter").build(self, Protocols())
 
       // Send session, expect response near-instantly

@@ -26,6 +26,10 @@ abstract class BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToS
     context.setReceiveTimeout(simulationTimeOut)
   }
 
+  override def preRestart(reason: Throwable, message: Option[Any]) {
+    logger.error(s"Actor $this crashed on message $message", reason)
+  }
+
   override def unhandled(message: Any) {
     message match {
       case Terminated(dead) => super.unhandled(message)

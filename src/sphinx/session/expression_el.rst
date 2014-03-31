@@ -19,7 +19,7 @@ Gatling EL uses a ``${attributeName}`` syntax, where *attributeName* is the name
 
 For example::
 
-    request("page").get("/foo?${bar}")
+  request("page").get("/foo?${bar}")
 
 Moreover, Gatling EL provide the builtin functions::
 
@@ -29,14 +29,14 @@ Moreover, Gatling EL provide the builtin functions::
 	"${foo(bar)}"   // returns the barth element of foo if bar is an Int and foo is a Seq
 
 .. warning::
-    This Expression Language only works on the final value that is passed to the DSL method when the Simulation is instanciated.
+  This Expression Language only works on the final value that is passed to the DSL method when the Simulation is instanciated.
 
-    For example, ``queryParam("latitude", "${latitude}".toInt + 24)`` won't work,
-    the program will blow on ``"${latitude}".toInt`` as this String can't be parsed into an Int.
+  For example, ``queryParam("latitude", "${latitude}".toInt + 24)`` won't work,
+  the program will blow on ``"${latitude}".toInt`` as this String can't be parsed into an Int.
 
-    The solution here would be to pass a function:
+  The solution here would be to pass a function:
 
-    ``session => session("latitude").validate[Int].map(i => i + 24)``.
+  ``session => session("latitude").validate[Int].map(i => i + 24)``.
 
 .. _expression:
 
@@ -45,12 +45,16 @@ Expression
 
 Most Gatling DSL methods actually takes ``Expression[T]`` parameters, which is a type alias for ``Session => Validation[T]``.
 
-How is it that one can also pass Strings then?
+How is it that one can also pass Strings and other values then?
 
-The reason is that there is an implicit conversion that automagically parses those Strings when the Simulation is instanciated and turn them into Expressions.
+The reason is that there are implicit conversions:
+
+ * when passing a String, it gets automagically parsed turn them into Expressions thanks to Gatling EL compiler.
+ * when passing a value of another type, it gets automagically wrapped into an Expression that will always return this static value.
 
 .. warning::
-    This implicit conversion is only triggered when trying to pass a String to a method that expects an Expression instead.
+  Implicit conversions are only triggered when expected type and passed parameter type don't match, for example trying to pass a String to a method that expects an Expression instead.
+  Those implicit conversions are triggered compile time.
 
 .. note::
-    For more information about ``Validation``, please check out :ref:`reference page <validation>`.
+  For more information about ``Validation``, please check out :ref:`reference page <validation>`.

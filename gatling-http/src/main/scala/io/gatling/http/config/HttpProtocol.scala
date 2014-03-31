@@ -26,8 +26,7 @@ import io.gatling.core.akka.GatlingActorSystem
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Protocol
 import io.gatling.core.filter.Filters
-import io.gatling.core.session.Expression
-import io.gatling.core.session.el.EL
+import io.gatling.core.session.{ Expression, ExpressionWrapper }
 import io.gatling.core.util.RoundRobin
 import io.gatling.http.HeaderNames.{ ACCEPT, ACCEPT_ENCODING, ACCEPT_LANGUAGE, CONNECTION, USER_AGENT }
 import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine }
@@ -140,7 +139,7 @@ case class HttpProtocol(
     }
 
     if (HttpProtocol.warmUpUrls.isEmpty) {
-      val expression = "foo".el[String]
+      val expression = "foo".expression
 
       new Http(expression)
         .get(expression)

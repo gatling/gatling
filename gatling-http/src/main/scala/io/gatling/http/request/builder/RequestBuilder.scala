@@ -20,7 +20,7 @@ import java.net.{ InetAddress, URI }
 import com.ning.http.client.{ ProxyServer, Realm }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.session.Expression
+import io.gatling.core.session.{ Expression, ExpressionWrapper }
 import io.gatling.core.session.el.EL
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.ahc.ProxyConverter
@@ -42,8 +42,8 @@ case class CommonAttributes(
 
 object RequestBuilder {
 
-  val jsonHeaderValueExpression = HeaderValues.APPLICATION_JSON.el[String]
-  val xmlHeaderValueExpression = HeaderValues.APPLICATION_XML.el[String]
+  val jsonHeaderValueExpression = HeaderValues.APPLICATION_JSON.expression
+  val xmlHeaderValueExpression = HeaderValues.APPLICATION_XML.expression
 }
 
 abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: CommonAttributes) extends StrictLogging {

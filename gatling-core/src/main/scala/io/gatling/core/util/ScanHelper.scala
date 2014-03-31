@@ -67,7 +67,7 @@ object ScanHelper {
         Path(pathString.split(pkgString).last.split(SEPARATOR))
       }
 
-    getPackageResources(pkg, true).foreach { resource =>
+    getPackageResources(pkg, deep = true).foreach { resource =>
       val target = targetDirectoryPath / getPathStringAfterPackage(resource.path, pkg)
       resource.copyTo(target)
     }
@@ -83,7 +83,7 @@ case class FileResource(file: File) extends Resource {
   def path = file.path
   def copyTo(target: Path) {
     target.parent.createDirectory()
-    file.copyTo(target, true)
+    file.copyTo(target, preserveFileDate = true)
   }
 }
 
@@ -93,7 +93,7 @@ case class FileishResource(fileish: Fileish) extends Resource {
     target.parent.createDirectory()
 
     withCloseable(fileish.input()) { input =>
-      withCloseable(target.toFile.outputStream(false)) { output =>
+      withCloseable(target.toFile.outputStream(append = false)) { output =>
         IOUtils.copy(input, output)
       }
     }

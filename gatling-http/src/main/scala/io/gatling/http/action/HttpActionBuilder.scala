@@ -16,7 +16,6 @@
  */
 package io.gatling.http.action
 
-import akka.actor.ActorRef
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.Protocols
 import io.gatling.http.config.HttpProtocol

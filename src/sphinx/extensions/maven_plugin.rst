@@ -16,19 +16,19 @@ Depending on your maven architecture, you might have to:
 * add the Excilys repository into your project's pom.xml if you're fine with downloading your dependencies from the internet. In this case, here's the required configuration::
 
 	<repositories>
-	    <repository>
-	        <id>excilys</id>
-	        <name>Excilys Repository</name>
-	        <url>http://repository.excilys.com/content/groups/public</url>
-	    </repository>
+    <repository>
+      <id>excilys</id>
+      <name>Excilys Repository</name>
+      <url>http://repository.excilys.com/content/groups/public</url>
+    </repository>
 	</repositories>
 
 	<pluginRepositories>
-	    <pluginRepository>
-	        <id>excilys</id>
-	        <name>Excilys Repository</name>
-	        <url>http://repository.excilys.com/content/groups/public</url>
-	    </pluginRepository>
+    <pluginRepository>
+      <id>excilys</id>
+      <name>Excilys Repository</name>
+       <url>http://repository.excilys.com/content/groups/public</url>
+    </pluginRepository>
 	</pluginRepositories>
 
 * add a proxy on Excilys repository into your enterprise maven repository (Nexus, Artifactory, Archiva...)
@@ -40,18 +40,18 @@ Set up the gatling-maven-plugin
 ::
 
 	<dependencies>
-	    <dependency>
-	        <groupId>com.excilys.ebi.gatling.highcharts</groupId>
-	        <artifactId>gatling-charts-highcharts</artifactId>
-	        <version>X.Y.Z</version>
-	        <scope>test</scope>
-	    </dependency>
+    <dependency>
+      <groupId>com.excilys.ebi.gatling.highcharts</groupId>
+      <artifactId>gatling-charts-highcharts</artifactId>
+      <version>X.Y.Z</version>
+      <scope>test</scope>
+    </dependency>
 	<dependencies>
 
 	<plugin>
-	    <groupId>com.excilys.ebi.gatling</groupId>
-	    <artifactId>gatling-maven-plugin</artifactId>
-	    <version>X.Y.Z</version>
+    <groupId>com.excilys.ebi.gatling</groupId>
+    <artifactId>gatling-maven-plugin</artifactId>
+    <version>X.Y.Z</version>
 	</plugin>
 
 .. note:: As the Highcharts based reports library is developed as a separate project, you are required to provide it as a dependency.
@@ -66,22 +66,22 @@ The example below shows the default values.
 ::
 
 	<configuration>
-	    <configDir>src/test/resources</configDir>
-	    <dataFolder>src/test/resources/data</dataFolder>
-	    <resultsFolder>target/gatling/results</resultsFolder>
-	    <requestBodiesFolder>src/test/resources/request-bodies</requestBodiesFolder>
-	    <simulationsFolder>src/test/scala</simulationsFolder>
-	    <includes>
-	        <include>**/*.scala</include>
-	    </includes>
-	    <excludes>
-	        <exclude>advanced/*.scala</exclude>
-	    </excludes>
+    <configDir>src/test/resources</configDir>
+    <dataFolder>src/test/resources/data</dataFolder>
+    <resultsFolder>target/gatling/results</resultsFolder>
+    <requestBodiesFolder>src/test/resources/request-bodies</requestBodiesFolder>
+    <simulationsFolder>src/test/scala</simulationsFolder>
+    <includes>
+        <include>**/*.scala</include>
+    </includes>
+    <excludes>
+        <exclude>advanced/*.scala</exclude>
+    </excludes>
 	<!--    <noReports>false</noReports> -->
 	<!-- 	<reportsOnly>false</reportsOnly> -->
 	<!-- 	<simulationClass>foo.Bar</simulationClass> -->
 	<!-- 	<jvmArgs> -->
-	<!-- 	    <jvmArg>-DmyExtraParam=foo</jvmArg> -->
+	<!--     <jvmArg>-DmyExtraParam=foo</jvmArg> -->
 	<!-- 	</jvmArgs> -->
 	<!--    <fork>true</fork> -->
 	<!--    <propagateSystemProperties>true</propagateSystemProperties> -->

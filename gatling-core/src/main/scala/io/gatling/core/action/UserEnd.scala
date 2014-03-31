@@ -33,7 +33,7 @@ object UserEnd extends AkkaDefaults {
     system.registerOnTermination(_instance = None)
   }
 
-  def instance() = _instance match {
+  def instance = _instance match {
     case Some(a) => a
     case None    => throw new UnsupportedOperationException("UserEnd hasn't been initialized")
   }
