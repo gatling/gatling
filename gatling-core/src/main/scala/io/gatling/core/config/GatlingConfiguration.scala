@@ -174,7 +174,7 @@ object GatlingConfiguration extends StrictLogging {
           case "leak"     => "io.gatling.core.result.writer.LeakReporterDataWriter"
           case clazz      => clazz
         },
-        dataReaderClass = (config.getString(CONF_DATA_READER_CLASS_NAME)).trim match {
+        dataReaderClass = config.getString(CONF_DATA_READER_CLASS_NAME).trim match {
           case "file" => "io.gatling.charts.result.reader.FileDataReader"
           case clazz  => clazz
         },
