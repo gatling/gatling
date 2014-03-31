@@ -64,6 +64,7 @@ object GatlingConfiguration extends StrictLogging {
           "gatling.core.extract.xpath.namespaceAware",
           "gatling.core.extract.css.engine",
           "gatling.core.timeOut.actor",
+          "gatling.data.graphite.bucketWidth",
           "gatling.http.baseUrls",
           "gatling.http.proxy.host",
           "gatling.http.proxy.port",
