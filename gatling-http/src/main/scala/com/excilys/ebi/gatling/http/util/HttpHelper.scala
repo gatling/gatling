@@ -15,7 +15,7 @@
  */
 package com.excilys.ebi.gatling.http.util
 
-import java.net.URLDecoder
+import java.net.{ URLDecoder, URI }
 
 import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet, seqAsJavaList }
 import scala.io.Codec.UTF8
@@ -26,6 +26,11 @@ import com.excilys.ebi.gatling.http.request.builder.HttpParam
 import com.ning.http.client.FluentStringsMap
 
 object HttpHelper {
+
+	val httpScheme = "http"
+	val httpsScheme = "https"
+	val wsScheme = "ws"
+	val wssScheme = "wss"
 
 	def parseFormBody(body: String): List[(String, String)] = {
 		def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)
@@ -57,4 +62,6 @@ object HttpHelper {
 			value <- entry.getValue
 		} buff.append(key).append(": ").append(value).append(END_OF_LINE)
 	}
+
+	def isSecure(uri: URI) = uri.getScheme == httpsScheme || uri.getScheme == wssScheme
 }

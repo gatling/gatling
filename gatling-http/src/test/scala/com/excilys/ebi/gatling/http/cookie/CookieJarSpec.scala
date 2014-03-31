@@ -25,6 +25,7 @@ import org.specs2.runner.JUnitRunner
 
 import com.ning.http.client.cookie.CookieDecoder.decode
 
+@RunWith(classOf[JUnitRunner])
 class CookieJarSpec extends Specification {
 
 	"storeCookies" should {
@@ -38,6 +39,13 @@ class CookieJarSpec extends Specification {
 			val cookieStore = CookieJar(new URI("http://www.foo.com"), List(cookie))
 
 			cookieStore.get(new URI("http://www.bar.com")) must beEmpty
+		}
+
+		"return the cookie when it was set on the same path" in {
+			val cookie = decode("ALPHA; path=/bar/")
+			val cookieStore = CookieJar(new URI("http://www.foo.com"), List(cookie))
+
+			cookieStore.get(new URI("http://www.foo.com/bar/")).length must beEqualTo(1)
 		}
 
 		"return the cookie when it was set on a parent path" in {
@@ -85,7 +93,7 @@ class CookieJarSpec extends Specification {
 			storedCookies.head.getValue must beEqualTo("VALUE2")
 		}
 
-		"not replace cookie when they don't have the same name" in {
+		"not replace cookies when they don't have the same name" in {
 			val cookie = decode("BETA=VALUE1; Domain=www.foo.com; path=/bar")
 			val uri = new URI("http://www.foo.com/bar/baz")
 			val cookieStore = CookieJar(uri, List(cookie))
@@ -190,7 +198,7 @@ class CookieJarSpec extends Specification {
 			cookieStore.get(new URI("http://www.foo.com/bar?query2")).length must beEqualTo(1)
 		}
 
-		"should serve the cookie on a subdomain when the domains match" in {
+		"should serve the cookies on a subdomain when the domains match" in {
 			val cookie = decode("cookie1=VALUE1; Path=/; Domain=foo.org;")
 			val cookieStore = CookieJar(new URI("https://x.foo.org/"), List(cookie))
 
@@ -204,22 +212,54 @@ class CookieJarSpec extends Specification {
 			val cookie3 = decode("cookie1=VALUE3; Path=/")
 			val cookieStore = CookieJar(new URI("https://foo.org/"), List(cookie1, cookie2, cookie3))
 
-			val cookie = cookieStore.get(new URI("https://foo.org/"))
-			cookie.length must beEqualTo(1)
-			cookie.head.getValue must beEqualTo("VALUE3")
+			val cookies = cookieStore.get(new URI("https://foo.org/"))
+			cookies.length must beEqualTo(1)
+			cookies.head.getValue must beEqualTo("VALUE3")
 		}
 
-		"should serve cookie based on the host and independently of the port" in {
+		"should serve cookies based on the host and independently of the port" in {
 			// rfc6265#section-1 Cookies for a given host are shared  across all the ports on that host
 			val cookie1 = decode("cookie1=VALUE1; Path=/")
 			val cookieStore = CookieJar(new URI("http://foo.org/moodle/"), List(cookie1))
 
 			val cookie2 = decode("cookie1=VALUE2; Path=/")
 			val cookieStore2 = cookieStore.add(new URI("https://foo.org:443/moodle/login"), List(cookie2))
-			
-			val cookie = cookieStore2.get(new URI("http://foo.org/moodle/login"))
-			cookie.length must beEqualTo(1)
-			cookie.head.getValue must beEqualTo("VALUE2")
+
+			val cookies = cookieStore2.get(new URI("http://foo.org/moodle/login"))
+			cookies.length must beEqualTo(1)
+			cookies.head.getValue must beEqualTo("VALUE2")
+		}
+
+		"properly deal with same name cookies" in {
+			val cookie0 = decode("cookie=VALUE0; path=/")
+			val cookieStore0 = CookieJar(new URI("http://www.foo.com"), List(cookie0))
+
+			val cookie1 = decode("cookie=VALUE1; path=/foo/bar/")
+			val cookieStore1 = cookieStore0.add(new URI("http://www.foo.com/foo/bar"), List(cookie1))
+
+			val cookie2 = decode("cookie=VALUE2; path=/foo/baz/")
+			val cookieStore2 = cookieStore1.add(new URI("http://www.foo.com/foo/baz"), List(cookie2))
+
+			val barCookies = cookieStore2.get(new URI("http://www.foo.com/foo/bar/"))
+			barCookies.length must beEqualTo(2)
+			barCookies(0).getRawValue must beEqualTo("VALUE1")
+			barCookies(1).getRawValue must beEqualTo("VALUE0")
+
+			val bazCookies = cookieStore2.get(new URI("http://www.foo.com/foo/baz/"))
+			bazCookies.length must beEqualTo(2)
+			bazCookies(0).getRawValue must beEqualTo("VALUE2")
+			bazCookies(1).getRawValue must beEqualTo("VALUE0")
+		}
+
+		"properly deal with trailing slashes in paths" in {
+
+			val cookie = decode("JSESSIONID=211D17F016132BCBD31D9ABB31D90960; Path=/app/consumer/; HttpOnly")
+			val uri = new URI("https://vagrant.moolb.com/app/consumer/j_spring_cas_security_check?ticket=ST-5-Q7gzqPpvG3N3Bb02bm3q-llinder-vagrantmgr.moolb.com")
+			val cookieStore = CookieJar(uri, List(cookie))
+
+			val cookies = cookieStore.get(new URI("https://vagrant.moolb.com/app/consumer/"))
+			cookies.length must beEqualTo(1)
+			cookies(0).getRawValue must beEqualTo("211D17F016132BCBD31D9ABB31D90960")
 		}
 	}
 }
