@@ -117,7 +117,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         }
 
       if (status == KO) {
-        logger.warn(s"Request '$fullRequestName' failed: ${errorMessage.getOrElse("")}")
+        logger.info(s"Request '$fullRequestName' failed: ${errorMessage.getOrElse("")}")
         if (!logger.underlying.isTraceEnabled) logger.debug(dump)
       }
       logger.trace(dump)
@@ -129,7 +129,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         }
       } catch {
         case e: Exception =>
-          logger.warn("Encountered error while extracting extra request info", e)
+          logger.info("Encountered error while extracting extra request info", e)
           Nil
       }
 
