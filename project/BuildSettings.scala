@@ -12,11 +12,11 @@ import Resolvers._
 object BuildSettings {
 
 	lazy val basicSettings = Seq(
-		homepage              := Some(new URL("http://gatling.io")),
+		homepage              := Some(url("http://gatling.io")),
 		organization          := "io.gatling",
-		organizationHomepage  := Some(new URL("http://gatling.io")),
+		organizationHomepage  := Some(url("http://gatling.io")),
 		startYear             := Some(2011),
-		licenses              := Seq("Apache 2" -> new URL("http://www.apache.org/licenses/LICENSE-2.0.html")),
+		licenses              := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
 		scalaVersion          := "2.10.4",
 		resolvers             := Seq(sonatypeSnapshots, Resolver.mavenLocal),
 		scalacOptions         := Seq(
@@ -41,7 +41,7 @@ object BuildSettings {
 	) ++ Publish.settings ++ Release.settings
 
 	lazy val gatlingModuleSettings =
-		basicSettings ++ formattingSettings ++ graphSettings
+		basicSettings ++ formattingSettings ++ graphSettings ++ scaladocSettings
 
 	lazy val noCodeToPublish = Seq(
 		publishArtifact in Compile := false
@@ -50,6 +50,10 @@ object BuildSettings {
 	/****************************/
 	/** Documentation settings **/
 	/****************************/
+
+	lazy val scaladocSettings = Seq(
+		autoAPIMappings := true
+	)
 
 	lazy val docSettings = unidocSettings ++ site.settings ++ site.sphinxSupport() ++ Seq(
 		site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "latest/api")

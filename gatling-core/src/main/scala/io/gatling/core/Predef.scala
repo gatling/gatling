@@ -59,8 +59,8 @@ object Predef extends StructureSupport with PauseSupport with CheckSupport with 
   implicit def integerToFiniteDuration(i: Integer): FiniteDuration = intToFiniteDuration(i.toInt)
 
   /**
-   * Offers the same implicits conversions as [[DurationInt]] for Java's Integer.
-   * @param i the Java's integer that will converted to [[FiniteDuration]]
+   * Offers the same implicits conversions as [[scala.concurrent.duration.DurationInt]] for Java's Integer.
+   * @param i the Java's integer that will converted to [[scala.concurrent.duration.FiniteDuration]]
    */
   implicit class DurationInteger(val i: Integer) extends AnyVal {
 
