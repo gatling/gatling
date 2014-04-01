@@ -139,13 +139,7 @@
 		<zinc.version>0.2.5</zinc.version>
 		<opencsv.version>2.3</opencsv.version>
 		<maven2.version>2.2.1</maven2.version>
-		<maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
-		<maven-source-plugin.version>2.2</maven-source-plugin.version>
-		<maven-assembly-plugin.version>2.2.2</maven-assembly-plugin.version>
-		<maven-jar-plugin.version>2.4</maven-jar-plugin.version>
 		<scala-maven-plugin.version>3.1.6</scala-maven-plugin.version>
-		<maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
-		<maven-release-plugin.version>2.3.2</maven-release-plugin.version>
 		<maven-license-plugin.version>1.10.b1</maven-license-plugin.version>
 		<maven-plugin-plugin.version>2.9</maven-plugin-plugin.version>
 		<build-helper-maven-plugin.version>1.7</build-helper-maven-plugin.version>
@@ -406,11 +400,9 @@
 			<plugins>
 				<plugin>
 					<artifactId>maven-compiler-plugin</artifactId>
-					<version>${maven-compiler-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-source-plugin</artifactId>
-					<version>${maven-source-plugin.version}</version>
 					<executions>
 						<execution>
 							<id>attach-sources</id>
@@ -419,14 +411,6 @@
 							</goals>
 						</execution>
 					</executions>
-				</plugin>
-				<plugin>
-					<artifactId>maven-assembly-plugin</artifactId>
-					<version>${maven-assembly-plugin.version}</version>
-				</plugin>
-				<plugin>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>${maven-jar-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>org.fusesource.scalate</groupId>
@@ -449,7 +433,6 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-surefire-plugin</artifactId>
-					<version>${maven-surefire-plugin.version}</version>
 					<configuration>
 						<useFile>false</useFile>
 						<includes>
@@ -459,7 +442,6 @@
 				</plugin>
 				<plugin>
 					<artifactId>maven-release-plugin</artifactId>
-					<version>${maven-release-plugin.version}</version>
 					<configuration>
 						<autoVersionSubmodules>true</autoVersionSubmodules>
 						<tagNameFormat>@{project.version}</tagNameFormat>
@@ -517,10 +499,6 @@
 					<groupId>org.codehaus.mojo</groupId>
 					<artifactId>build-helper-maven-plugin</artifactId>
 					<version>${build-helper-maven-plugin.version}</version>
-				</plugin>
-				<plugin>
-					<artifactId>maven-plugin-plugin</artifactId>
-					<version>${maven-plugin-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<artifactId>maven-enforcer-plugin</artifactId>
