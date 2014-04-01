@@ -82,7 +82,7 @@ class GraphiteDataWriter extends DataWriter {
       val currentUserBreakdowns = usersByScenario.mapValues(UsersBreakdown(_)).toMap
 
       // Reset all metrics 
-      requestsByPath.clear()
+      requestsByPath.foreach { case (_, buff) => buff.clear }
 
       graphiteSender.forward(SendMetrics(requestMetrics, currentUserBreakdowns))
     }

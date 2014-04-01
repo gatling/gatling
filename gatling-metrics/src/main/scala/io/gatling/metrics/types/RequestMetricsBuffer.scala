@@ -15,23 +15,21 @@
  */
 package io.gatling.metrics.types
 
+import scala.annotation.tailrec
 import scala.collection.mutable
+
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.{ KO, OK }
-import io.gatling.core.result.writer.RequestMessage
-import com.tdunning.math.stats.ArrayDigest
-import com.tdunning.math.stats.TDigest
-import io.gatling.core.result.message.Status
+import io.gatling.core.result.message.{ KO, OK, Status }
 
 class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
 
-  private val compression = configuration.data.graphite.quantileCompression
-  private val percentile1 = configuration.charting.indicators.percentile1 / 100.0d
-  private val percentile2 = configuration.charting.indicators.percentile2 / 100.0d
+  private val bucketsWidth = configuration.data.graphite.bucketWidth
+  private val percentile1 = configuration.charting.indicators.percentile1 
+  private val percentile2 = configuration.charting.indicators.percentile2 
 
-  private val okDigest = TDigest.createArrayDigest(compression)
-  private val koDigest = TDigest.createArrayDigest(compression)
-  private val allDigest = TDigest.createArrayDigest(compression)
+  private val okDigest = new MetricsBuffer(bucketsWidth)
+  private val koDigest = new MetricsBuffer(bucketsWidth)
+  private val allDigest = new MetricsBuffer(bucketsWidth)
 
   def add(status: Status, time: Long): Unit = {
     val responseTime = time.max(0L)
@@ -43,16 +41,71 @@ class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
     }
   }
 
-  private def metricsOfDigest(digest: TDigest) = if (digest.size() > 0) Some(Metrics(digest, percentile1, percentile2)) else None
+  def clear(): Unit = {
+    okDigest.clear
+    koDigest.clear
+    allDigest.clear
+  }
+
+  private def metricsOfDigest(digest: MetricsBuffer) = if (digest.size() > 0) Some(Metrics(digest, percentile1, percentile2)) else None
 
   def metricsByStatus = MetricByStatus(metricsOfDigest(okDigest), metricsOfDigest(koDigest), metricsOfDigest(allDigest))
 }
 
+class MetricsBuffer(bucketWidth: Int) {
+
+  var count = 0
+  var max = 0L
+  var min = Long.MaxValue
+  private val buckets = mutable.HashMap.empty[Long, Long].withDefaultValue(0L)
+
+  def add(value: Long) {
+    count += 1
+    max = max.max(value)
+    min = min.min(value)
+
+    val bucket = value / bucketWidth
+    val newCount = buckets(bucket) + 1L
+    buckets += (bucket -> newCount)
+  }
+
+  def clear(): Unit = {
+    count = 0
+    max = 0L
+    min = Long.MaxValue
+    buckets.clear
+  }
+
+  def size() = count
+
+  def quantile(quantile: Double): Long = {
+    if (buckets.isEmpty)
+      0L
+    else {
+      val limit = (count * (quantile / bucketWidth)).toLong
+
+        @tailrec
+        def getQuantileRec(buckets: List[(Long, Long)], count: Long): Long = buckets match {
+          case (bucketTime, bucketCount) :: tail =>
+            val newCount = count + bucketCount
+            if (newCount >= limit)
+              max.min((bucketTime * bucketWidth) + bucketWidth)
+            else
+              getQuantileRec(tail, newCount)
+
+          case Nil => max
+        }
+
+      getQuantileRec(buckets.toList.sorted, 0L)
+    }
+  }
+}
+
 case class MetricByStatus(ok: Option[Metrics], ko: Option[Metrics], all: Option[Metrics])
-case class Metrics(count: Int, min: Double, max: Double, percentile1: Double, percentile2: Double)
+case class Metrics(count: Long, min: Double, max: Double, percentile1: Double, percentile2: Double)
 
 object Metrics {
-  def apply(digest: TDigest, percentile1: Double, percentile2: Double): Metrics =
-    Metrics(digest.size, digest.quantile(0.0d), digest.quantile(1.0d), digest.quantile(percentile1), digest.quantile(percentile2))
+  def apply(digest: MetricsBuffer, percentile1: Double, percentile2: Double): Metrics =
+    Metrics(digest.size(), digest.min, digest.max, digest.quantile(percentile1), digest.quantile(percentile2))
 }
 

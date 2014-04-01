@@ -18,6 +18,7 @@ package io.gatling.metrics.types
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
+
 import io.gatling.core.config.GatlingConfiguration.fakeConfig
 import io.gatling.core.result.message.{ OK, KO }
 import io.gatling.core.ConfigurationConstants._
@@ -26,7 +27,7 @@ import io.gatling.core.ConfigurationConstants._
 class RequestMetricsBufferSpec extends Specification {
 
   implicit val defaultConfig = fakeConfig(Map(CONF_CHARTING_INDICATORS_PERCENTILE1 -> 95, CONF_CHARTING_INDICATORS_PERCENTILE2 -> 99,
-    CONF_DATA_GRAPHITE_QUANTILE_COMPRESSION -> 100))
+    CONF_DATA_GRAPHITE_BUCKET_WIDTH -> 100))
 
   def allValues(m: Metrics) = Seq(m.max, m.min, m.percentile1, m.percentile2)
 
@@ -56,7 +57,7 @@ class RequestMetricsBufferSpec extends Specification {
     "work when there are multiple measures" in {
       val buff = new RequestMetricsBuffer
       buff.add(KO, 10)
-      for (t <- 1 to 100) buff.add(OK, t)
+      for (t <- 100 to 200) buff.add(OK, t)
 
       val metricsByStatus = buff.metricsByStatus
       val okMetrics = metricsByStatus.ok.get
@@ -64,10 +65,22 @@ class RequestMetricsBufferSpec extends Specification {
       val allMetrics = metricsByStatus.all.get
 
       (koMetrics.count must beEqualTo(1)) and ((_: Double) must beCloseTo(10.0 +/- 0.01)).forall(allValues(koMetrics)) and
-        (allMetrics.count must beEqualTo(101l)) and
-        (okMetrics.count must beEqualTo(100l)) and 
-        (okMetrics.min must beCloseTo(1.0 +/- 0.01)) and (okMetrics.max must beCloseTo(100.0 +/- 0.01)) and
-        (okMetrics.percentile1 must beCloseTo(95.0 +/- 0.1)) and (okMetrics.percentile2 must beCloseTo(99.0 +/- 0.01))
+        (allMetrics.count must beEqualTo(102l)) and
+        (okMetrics.count must beEqualTo(101l)) and
+        (okMetrics.min must beCloseTo(100.0 +/- 0.01)) and (okMetrics.max must beCloseTo(200.0 +/- 0.01)) and
+        (okMetrics.percentile1 must beCloseTo(195.0 +/- 5)) and (okMetrics.percentile2 must beCloseTo(199.0 +/- 1))
+    }
+
+    "work when there are a large number of measures" in {
+      val buff = new RequestMetricsBuffer
+      for (t <- 1 to 10000) buff.add(OK, t)
+
+      val metricsByStatus = buff.metricsByStatus
+      val okMetrics = metricsByStatus.ok.get
+
+      (okMetrics.count must beEqualTo(10000)) and
+        (okMetrics.min must beCloseTo(1.0 +/- 0.01)) and (okMetrics.max must beCloseTo(10000.0 +/- 0.01)) and
+        (okMetrics.percentile1 must beCloseTo(9500.0 +/- 100)) and (okMetrics.percentile2 must beCloseTo(9900.0 +/- 100))
     }
 
   }
