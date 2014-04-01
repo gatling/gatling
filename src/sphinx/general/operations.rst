@@ -63,4 +63,4 @@ On Mac you need to run the following commands in order to *unbuckle the belts*:
 	$ sudo sysctl -w kern.maxfiles=200000
 	$ sudo sysctl -w net.inet.ip.portrange.first=1024
 
-You could also have to increase your ephemeral port range or tune your TCP time out so that they expire faster. Here's also a good entry point: https://github.com/0xdata/h2o/wiki/EC2-hosts-configuration-and-tuning
+You could also have to increase your ephemeral port range or tune your TCP time out so that they expire faster.
