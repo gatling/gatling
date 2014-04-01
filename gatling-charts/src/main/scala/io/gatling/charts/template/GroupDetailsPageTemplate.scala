@@ -18,20 +18,5 @@ package io.gatling.charts.template
 import io.gatling.charts.component.Component
 import io.gatling.core.result.Group
 
-class GroupDetailsPageTemplate(
-  group: Group,
-  statsTextComponent: Component,
-  indicChartComponent: Component,
-  errorTableComponent: Component,
-  cumulatedResponseTimeChartComponent: Component,
-  cumulatedResponseTimeDistributionChartComponent: Component,
-  durationChartComponent: Component,
-  durationDistributionChartComponent: Component)
-    extends PageTemplate(group.name, true, None, Some(group),
-      statsTextComponent,
-      indicChartComponent,
-      errorTableComponent,
-      cumulatedResponseTimeChartComponent,
-      cumulatedResponseTimeDistributionChartComponent,
-      durationChartComponent,
-      durationDistributionChartComponent)
+class GroupDetailsPageTemplate(group: Group, components: Component*)
+  extends PageTemplate(group.name, true, None, Some(group), components: _*)

@@ -19,8 +19,8 @@ import io.gatling.charts.component.{ Component, ComponentLibrary, ErrorTableComp
 import io.gatling.charts.config.ChartsFiles.requestFile
 import io.gatling.charts.result.reader.RequestPath
 import io.gatling.charts.template.RequestDetailsPageTemplate
-import io.gatling.charts.util.Colors.{ BLUE, RED, TRANSLUCID_BLUE, TRANSLUCID_RED, color2String }
-import io.gatling.core.result.{ Group, IntRangeVsTimePlot, IntVsTimePlot, RequestStatsPath, Series }
+import io.gatling.charts.util.Colors._
+import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
 import io.gatling.core.result.message.Status
@@ -29,6 +29,15 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 
   def generate() {
       def generateDetailPage(path: String, requestName: String, group: Option[Group]) {
+
+          def responseTimeDistributionChartComponent: Component = {
+            val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, Some(requestName), group)
+            val okDistributionSeries = new Series[IntVsTimePlot]("Success", okDistribution, List(BLUE))
+            val koDistributionSeries = new Series[IntVsTimePlot]("Failure", koDistribution, List(RED))
+
+            componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
+          }
+
           def responseTimeChartComponent: Component = {
             val responseTimesSuccessData = dataReader.responseTimeGroupByExecutionStartDate(OK, requestName, group)
             val responseTimesFailuresData = dataReader.responseTimeGroupByExecutionStartDate(KO, requestName, group)
@@ -38,12 +47,30 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
             componentLibrary.getRequestDetailsResponseTimeChartComponent(dataReader.runStart, responseTimesSuccessSeries, responseTimesFailuresSeries)
           }
 
-          def responseTimeDistributionChartComponent: Component = {
-            val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, Some(requestName), group)
-            val okDistributionSeries = new Series[IntVsTimePlot]("Success", okDistribution, List(BLUE))
-            val koDistributionSeries = new Series[IntVsTimePlot]("Failure", koDistribution, List(RED))
+          def requestsChartComponent: Component = {
+            val all = dataReader.numberOfRequestsPerSecond(None, Some(requestName), group).sortBy(_.time)
+            val oks = dataReader.numberOfRequestsPerSecond(Some(OK), Some(requestName), group).sortBy(_.time)
+            val kos = dataReader.numberOfRequestsPerSecond(Some(KO), Some(requestName), group).sortBy(_.time)
 
-            componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
+            val allSeries = new Series[IntVsTimePlot]("All requests", all, List(BLUE))
+            val kosSeries = new Series[IntVsTimePlot]("Failed requests", kos, List(RED))
+            val oksSeries = new Series[IntVsTimePlot]("Succeeded requests", oks, List(GREEN))
+            val pieRequestsSeries = new Series[PieSlice]("Distribution", PieSlice("Success", count(oks)) :: PieSlice("Failures", count(kos)) :: Nil, List(GREEN, RED))
+
+            componentLibrary.getRequestsChartComponent(dataReader.runStart, allSeries, kosSeries, oksSeries, pieRequestsSeries)
+          }
+
+          def responsesChartComponent: Component = {
+            val all = dataReader.numberOfResponsesPerSecond(None, Some(requestName), group).sortBy(_.time)
+            val oks = dataReader.numberOfResponsesPerSecond(Some(OK), Some(requestName), group).sortBy(_.time)
+            val kos = dataReader.numberOfResponsesPerSecond(Some(KO), Some(requestName), group).sortBy(_.time)
+
+            val allSeries = new Series[IntVsTimePlot]("All responses", all, List(BLUE))
+            val kosSeries = new Series[IntVsTimePlot]("Failed responses", kos, List(RED))
+            val oksSeries = new Series[IntVsTimePlot]("Succeeded responses", oks, List(GREEN))
+            val pieRequestsSeries = new Series[PieSlice]("Distribution", PieSlice("Success", count(oks)) :: PieSlice("Failures", count(kos)) :: Nil, List(GREEN, RED))
+
+            componentLibrary.getResponsesChartComponent(dataReader.runStart, allSeries, kosSeries, oksSeries, pieRequestsSeries)
           }
 
           def latencyChartComponent: Component = {
@@ -78,9 +105,11 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
             new StatisticsTextComponent,
             componentLibrary.getRequestDetailsIndicatorChartComponent,
             new ErrorTableComponent(dataReader.errors(Some(requestName), group)),
-            responseTimeChartComponent,
             responseTimeDistributionChartComponent,
+            responseTimeChartComponent,
             latencyChartComponent,
+            requestsChartComponent,
+            responsesChartComponent,
             responseTimeScatterChartComponent,
             latencyScatterChartComponent)
 

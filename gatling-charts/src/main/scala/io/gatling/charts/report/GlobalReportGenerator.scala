@@ -83,6 +83,4 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 
     new TemplateWriter(globalFile(runOn)).writeToFile(template.getOutput)
   }
-
-  private def count(records: Seq[IntVsTimePlot]): Int = records.iterator.map(_.value).sum
 }

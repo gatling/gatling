@@ -17,7 +17,10 @@ package io.gatling.charts.report
 
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.core.result.reader.DataReader
+import io.gatling.core.result.IntVsTimePlot
 
 abstract class ReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
   def generate()
+
+  def count(records: Seq[IntVsTimePlot]): Int = records.iterator.map(_.value).sum
 }

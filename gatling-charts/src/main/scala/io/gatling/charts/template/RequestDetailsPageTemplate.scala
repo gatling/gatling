@@ -18,21 +18,5 @@ package io.gatling.charts.template
 import io.gatling.charts.component.Component
 import io.gatling.core.result.Group
 
-class RequestDetailsPageTemplate(title: String, requestName: String, group: Option[Group],
-                                 statsTextComponent: Component,
-                                 indicChartComponent: Component,
-                                 errorTableComponent: Component,
-                                 rtChartComponent: Component,
-                                 percentilesChartComponent: Component,
-                                 latencyChartComponent: Component,
-                                 responseTimeScatterChartComponent: Component,
-                                 latencyScatterChartComponent: Component)
-    extends PageTemplate(title, true, Some(requestName), group,
-      statsTextComponent,
-      indicChartComponent,
-      errorTableComponent,
-      rtChartComponent,
-      percentilesChartComponent,
-      latencyChartComponent,
-      responseTimeScatterChartComponent,
-      latencyScatterChartComponent)
+class RequestDetailsPageTemplate(title: String, requestName: String, group: Option[Group], components: Component*)
+  extends PageTemplate(title, true, Some(requestName), group, components: _*)
