@@ -76,11 +76,11 @@ object HttpProtocol {
   GatlingActorSystem.instanceOpt.foreach(_.registerOnTermination(warmUpUrls.clear()))
 
   def nextBaseUrlF(urls: List[String]): () => Option[String] = {
-    val roundRobinUrls = RoundRobin(urls.toArray)
+    val roundRobinUrls = RoundRobin(urls.map(Some(_)).toArray)
     urls match {
       case Nil => () => None
       case url :: Nil => () => Some(url)
-      case _ => () => Some(roundRobinUrls.next())
+      case _ => () => roundRobinUrls.next()
     }
   }
 }
