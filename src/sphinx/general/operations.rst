@@ -47,10 +47,22 @@ Edit ``/etc/security/limits.conf`` and append the following two lines:
 	*       soft    nofile  65535
 	*       hard    nofile  65535
 
-Save the file. Restart so that the limits take effect. You can now verify with ``ulimit -a`` that the limits are correctly set.
+Save the file. Start a new session so that the limits take effect. You can now verify with ``ulimit -a`` that the limits are correctly set.
 
 On Debian, if the above limits are ignored, you may want to add ``session required pam_limits.so`` in ``/etc/pam.d/common-session``. 
 For remote users, you may want to add the same line in ``/etc/pam.d/sshd``.
+
+Also, you may need to do the following tunings:
+
+::
+	# more ports for testing
+	sudo sysctl -w net.ipv4.ip_local_port_range="1025 65535"	
+
+	# increase the maximum number of possible open file descriptors:
+	echo 300000 | sudo tee /proc/sys/fs/nr_open
+	echo 300000 | sudo tee /proc/sys/fs/file-max
+
+
 
 Mac OS/X
 ^^^^^^^^
@@ -59,8 +71,8 @@ On Mac you need to run the following commands in order to *unbuckle the belts*:
 
 ::
 
-	$ sudo sysctl -w kern.maxfilesperproc=200000
-	$ sudo sysctl -w kern.maxfiles=200000
+	$ sudo sysctl -w kern.maxfilesperproc=300000
+	$ sudo sysctl -w kern.maxfiles=300000
 	$ sudo sysctl -w net.inet.ip.portrange.first=1024
 
 You could also have to increase your ephemeral port range or tune your TCP time out so that they expire faster.
