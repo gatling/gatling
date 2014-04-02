@@ -136,7 +136,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
 
       catch {
         case e: Exception =>
-          logger.info("Failed to build request", e)
+          logger.warn("Failed to build request", e)
           s"Failed to build request: ${e.getMessage}".failure
       }
     }

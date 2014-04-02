@@ -51,7 +51,7 @@ object HttpRequest extends StrictLogging {
     namedRequest match {
       case Success(request) => request :: acc
       case Failure(message) =>
-        logger.info(s"Couldn't fetch resource: $message")
+        logger.warn(s"Couldn't fetch resource: $message")
         acc
     }
   }.reverse
