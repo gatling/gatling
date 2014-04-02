@@ -52,12 +52,12 @@ object BuildSettings {
 	/****************************/
 
 	lazy val scaladocSettings = Seq(
-		autoAPIMappings := true
+		apiMappings += scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/")
 	)
 
 	lazy val docSettings = unidocSettings ++ site.settings ++ site.sphinxSupport() ++ Seq(
 		site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "latest/api")
-	)
+	) ++ scaladocSettings
 
 	/**************************************/
 	/** gatling-charts specific settings **/
