@@ -110,13 +110,17 @@ If you'd like to pass multiple values for your parameter, but all at once, you c
 
 If you want to add multiple query parameters at once, there are two suitable methods:
 
-* ``queryParamsSeq(seq: Expression[Seq[(String, Any)]])``::
+* ``queryParamsSeq(seq: Expression[Seq[(String, Any)]])``
+
+::
 
   http("Getting issues")
     .get("https://github.com/excilys/gatling/issues")
     .queryParamsSeq(Seq(("milestone", "1"), ("state", "open")))
 
-* ``queryParamsMap(map: Expression[Map[String, Any]])``::
+* ``queryParamsMap(map: Expression[Map[String, Any]])``
+
+::
 
   http("Getting issues")
     .get("https://github.com/excilys/gatling/issues")
@@ -249,12 +253,12 @@ Logging
 
 .. _http-request-silent:
 
-One could want to issue a request, but not log it, e.g.::
+One could want to issue a request, but not log it, e.g.:
 
-  * because this request is not related to the load test, but used for initializing the system
-  * because this load induced is relevant, but not the metrics, for example, with static resources
+* because this request is not related to the load test, but used for initializing the system
+* because this load induced is relevant, but not the metrics, for example, with static resources
 
-One can then make the request ``silent``::
+One can then make the request *silent*: ::
 
   http("Getting issues")
     .get("https://www.github.com/excilys/gatling/issues")
@@ -287,12 +291,12 @@ You can add a body to an HTTP request with two dedicated methods:
   * ``FileBodyPart(name: Expression[String], file: Expression[File])``
 
 Once bootstrapped, BodyPart have the following methods for setting additional optional information:
-
-  * ``contentType(contentType: String)``
-  * ``charset(charset: String)`` if not set, will use the default one (from ``gatling.conf`` file)
-  * ``fileName(fileName: Expression[String])``
-  * ``contentId(contentId: Expression[String])``
-  * ``transferEncoding(transferEncoding: Expression[String])``
+	
+* ``contentType(contentType: String)``
+* ``charset(charset: String)`` if not set, will use the default one (from ``gatling.conf`` file)
+* ``fileName(fileName: Expression[String])``
+* ``contentId(contentId: Expression[String])``
+* ``transferEncoding(transferEncoding: Expression[String])``
 
 .. note:: When you pass a path, Gatling searches first for an absolute path in the classpath and then in the ``request-bodies`` directory.
 
@@ -378,12 +382,16 @@ To add such parameters to a POST request, you must use the method ``param(key: E
 
 As for ``queryParam`` you have two methods to add multiple parameters at once:
 
-* paramsSeq(seq: Expression[Seq[(String, Any)]])::
+* ``paramsSeq(seq: Expression[Seq[(String, Any)]])``
 
-  http("My Form Data").post("my.form-action.uri")
+::
+
+  http("My Form Data").post("my.form-action.uri")``
     .paramsSeq(Seq(("myKey", "myValue"), ("anotherKey", "anotherValue")))
 
-* paramsMap(map: Expression[Map[String, Any]])::
+* ``paramsMap(map: Expression[Map[String, Any]])``
+
+::
 
   http("My Form Data").post("my.form-action.uri")
     .paramsMap(Map("myKey" -> "myValue", "anotherKey" -> "anotherValue"))
@@ -403,15 +411,11 @@ Multipart encoded requests
 
 This applies only for POST requests. When you find forms asking for text values and a file to upload (usually an email attachment), your browser will send a multipart encoded request.
 
-To define such a request, you have to add the parameters as stated above, and the file to be uploaded at the same time with the following method::
+To define such a request, you have to add the parameters as stated above, and the file to be uploaded at the same time with the following method: ``formUpload(name: Expression[String], filePath: Expression[String])``, *name* and *filePath* can be *String*, *EL* or *Expression[String]*.
 
-	formUpload(name: Expression[String], filePath: Expression[String])
+The uploaded file must be located in *user-files/request-bodies*. The *Content-Type* header will be set to *multipart/form-data* and the file added in addition to the parameters.
 
-``name`` and ``filePath`` can be String, EL or Expression[String].
-
-The uploaded file must be located in ``user-files/request-bodies``. The Content-Type header will be set to "multipart/form-data" and the file added in addition to the parameters.
-
-One can call ``formUpload`` multiple times in order to upload multiple files.
+One can call ``formUpload()`` multiple times in order to upload multiple files.
 ::
 
 	http("My Multipart Request").post("my.form-action.uri")
