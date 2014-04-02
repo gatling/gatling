@@ -183,6 +183,7 @@ object GatlingConfiguration extends StrictLogging {
           case "graphite" => "io.gatling.metrics.GraphiteDataWriter"
           case "jdbc"     => "io.gatling.jdbc.result.writer.JdbcDataWriter"
           case "leak"     => "io.gatling.core.result.writer.LeakReporterDataWriter"
+          case "tcp"      => "io.gatling.tcp.result.writer.TCPDataWriter"
           case clazz      => clazz
         },
         dataReaderClass = config.getString(CONF_DATA_READER_CLASS_NAME).trim match {
@@ -216,7 +217,10 @@ object GatlingConfiguration extends StrictLogging {
             insertRunRecord = config.getString(CONF_DATA_JDBC_INSERT_RUN_RECORD).trimToOption,
             insertRequestRecord = config.getString(CONF_DATA_JDBC_INSERT_REQUEST_RECORD).trimToOption,
             insertScenarioRecord = config.getString(CONF_DATA_JDBC_INSERT_SCENARIO_RECORD).trimToOption,
-            insertGroupRecord = config.getString(CONF_DATA_JDBC_INSERT_GROUP_RECORD).trimToOption))),
+            insertGroupRecord = config.getString(CONF_DATA_JDBC_INSERT_GROUP_RECORD).trimToOption)),
+        tcp = TCPDataWriterConfiguration(
+          host = config.getString(CONF_DATA_TCP_HOST),
+          port = config.getInt(CONF_DATA_TCP_PORT))),
       config)
 
 }
@@ -329,7 +333,8 @@ case class DataConfiguration(
   file: FileDataWriterConfiguration,
   jdbc: JDBCDataWriterConfiguration,
   console: ConsoleDataWriterConfiguration,
-  graphite: GraphiteDataWriterConfiguration)
+  graphite: GraphiteDataWriterConfiguration,
+  tcp: TCPDataWriterConfiguration)
 
 case class FileDataWriterConfiguration(
   bufferSize: Int)
@@ -368,6 +373,10 @@ case class GraphiteDataWriterConfiguration(
   rootPathPrefix: String,
   bucketWidth: Int,
   bufferSize: Int)
+
+case class TCPDataWriterConfiguration(
+  host: String,
+  port: Int)
 
 case class GatlingConfiguration(
   core: CoreConfiguration,
