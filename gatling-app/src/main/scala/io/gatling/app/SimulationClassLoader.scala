@@ -32,10 +32,15 @@ object SimulationClassLoader {
     val classesDir = ZincCompilerLauncher(sourceDirectory)
 
     // Pass the compiled classes to a ClassLoader
-    val byteCodeDir = PlainFile.fromPath(classesDir)
-    val classLoader = new AbstractFileClassLoader(byteCodeDir, getClass.getClassLoader)
+    Option(PlainFile.fromPath(classesDir)) match {
+      case Some(byteCodeDir) =>
+        val classLoader = new AbstractFileClassLoader(byteCodeDir, getClass.getClassLoader)
 
-    new SimulationClassLoader(classLoader, classesDir)
+        new SimulationClassLoader(classLoader, classesDir)
+
+      case None =>
+        throw new UnsupportedOperationException(s"Zinc compiled into ${classesDir.jfile.getAbsolutePath} but this is not a directory")
+    }
   }
 
   def fromClasspathBinariesDirectory(binariesDirectory: Directory): SimulationClassLoader =
