@@ -28,9 +28,9 @@ object BodyPart {
 
   def rawFileBodyPart(name: Expression[String], filePath: Expression[String]) = fileBodyPart(name, RawFileBodies.asFile(filePath))
   def elFileBodyPart(name: Expression[String], filePath: Expression[String]) = stringBodyPart(name, ELFileBodies.asString(filePath))
-  def stringBodyPart(name: Expression[String], string: Expression[String]) = BodyPart(name, stringBodyPartBuilder(string))
-  def byteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte]]) = BodyPart(name, byteArrayBodyPartBuilder(bytes))
-  def fileBodyPart(name: Expression[String], file: Expression[File]) = BodyPart(name, fileBodyPartBuilder(file))
+  def stringBodyPart(name: Expression[String], string: Expression[String]) = BodyPart(name, stringBodyPartBuilder(string), BodyPartAttributes(charset = Some(configuration.core.encoding)))
+  def byteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte]]) = BodyPart(name, byteArrayBodyPartBuilder(bytes), BodyPartAttributes())
+  def fileBodyPart(name: Expression[String], file: Expression[File]) = BodyPart(name, fileBodyPartBuilder(file), BodyPartAttributes())
 
   private def stringBodyPartBuilder(string: Expression[String])(name: String, fileName: Option[String]): Expression[PartBase] =
     fileName match {
@@ -54,7 +54,7 @@ object BodyPart {
 
 case class BodyPartAttributes(
   contentType: Option[String] = None,
-  charset: String = configuration.core.encoding,
+  charset: Option[String] = None,
   fileName: Option[Expression[String]] = None,
   transferEncoding: Option[Expression[String]] = None,
   contentId: Option[Expression[String]] = None)
@@ -62,11 +62,11 @@ case class BodyPartAttributes(
 case class BodyPart(
     name: Expression[String],
     partBuilder: (String, Option[String]) => Expression[PartBase], // name, fileName
-    attributes: BodyPartAttributes = BodyPartAttributes() //	
+    attributes: BodyPartAttributes //
     ) {
 
   def contentType(contentType: String) = copy(attributes = attributes.copy(contentType = Some(contentType)))
-  def charset(charset: String) = copy(attributes = attributes.copy(charset = charset))
+  def charset(charset: String) = copy(attributes = attributes.copy(charset = Some(charset)))
   def fileName(fileName: Expression[String]) = copy(attributes = attributes.copy(fileName = Some(fileName)))
   def contentId(contentId: Expression[String]) = copy(attributes = attributes.copy(contentId = Some(contentId)))
   def transferEncoding(transferEncoding: Expression[String]) = copy(attributes = attributes.copy(transferEncoding = Some(transferEncoding)))
@@ -79,7 +79,7 @@ case class BodyPart(
       contentId <- resolveOptionalExpression(attributes.contentId, session)
       part <- partBuilder(name, fileName)(session)
     } yield {
-      part.setCharSet(attributes.charset)
+      attributes.charset.foreach(part.setCharSet)
       contentId.foreach(part.setContentId)
       attributes.contentType.foreach(part.setContentType)
       transferEncoding.foreach(part.setTransferEncoding)
