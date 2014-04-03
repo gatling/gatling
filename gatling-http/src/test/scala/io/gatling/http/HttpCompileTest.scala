@@ -92,6 +92,12 @@ class HttpCompileTest extends Simulation {
         .exec(http("Catégorie Poney").get("/").multivaluedQueryParam("omg", "${foo}"))
         .exec(http("Catégorie Poney").get("/").multivaluedQueryParam("omg", List("foo")))
     }
+    .exec(http("Catégorie Poney").get("/")
+      .resources(
+        http("Catégorie Poney").post("/").multivaluedParam("foo", "${bar}"),
+        http("Catégorie Poney").get("/").queryParam("omg", "foo"),
+        http("Catégorie Poney").get("/").queryParam("omg", "${foo}"),
+        http("Catégorie Poney").get("/").queryParam("omg", session => "foo")))
     .uniformRandomSwitch(exec(http("Catégorie Poney").get("/")), exec(http("Catégorie Licorne").get("/")))
     .randomSwitch(
       40d -> exec(http("Catégorie Poney").get("/")),
