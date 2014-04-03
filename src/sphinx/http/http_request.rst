@@ -272,31 +272,13 @@ Regular HTTP request
 Request Body
 ------------
 
-You can add a body to an HTTP request with two dedicated methods:
-
-* ``body(body)`` where body can be:
+You can add a full body to an HTTP request with the dedicated method ``body(body)``, where body can be:
 
   * ``RawFileBody(path: Expression[String])`` where path is the location of a file that will be uploaded as is
   * ``ELFileBody(path: Expression[String])`` where path is the location of a file whose content will be parsed and resolved with Gatling EL engine
   * ``StringBody(string: Expression[String])``
   * ``ByteArrayBody(bytes: Expression[Array[Byte]])``
   * ``InputStreamBody(stream: Expression[InputStream])``
-
-* ``bodyPart(bodyPart)`` for multipart request, where bodyPart can be:
-
-  * ``RawFileBodyPart(name: Expression[String], filePath: Expression[String])`` where path is the location of a file that will be uploaded as is
-  * ``ELFileBodyPart(name: Expression[String], filePath: Expression[String])`` where path is the location of a file whose content will be parsed and resolved with Gatling EL engine
-  * ``StringBodyPart(name: Expression[String], string: Expression[String])``
-  * ``ByteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte])``
-  * ``FileBodyPart(name: Expression[String], file: Expression[File])``
-
-Once bootstrapped, BodyPart have the following methods for setting additional optional information:
-	
-* ``contentType(contentType: String)``
-* ``charset(charset: String)`` if not set, will use the default one (from ``gatling.conf`` file)
-* ``fileName(fileName: Expression[String])``
-* ``contentId(contentId: Expression[String])``
-* ``transferEncoding(transferEncoding: Expression[String])``
 
 .. note:: When you pass a path, Gatling searches first for an absolute path in the classpath and then in the ``request-bodies`` directory.
 
@@ -334,6 +316,26 @@ For example::
 	}
 
 .. note:: For simple use cases, prefer EL strings or based files, for more complex ones where programming capability is required, prefer String interpolation.
+
+.. _http-request-body-parts:
+
+Multipart Request
+-----------------
+
+You can add a multipart body to an HTTP request and add parts with the dedicated method ``bodyPart(bodyPart)``, where bodyPart can be:
+
+  * ``RawFileBodyPart(name: Expression[String], path: Expression[String])`` where path is the location of a file that will be uploaded as is
+  * ``ELFileBodyPart(name: Expression[String], path: Expression[String])`` where path is the location of a file whose content will be parsed and resolved with Gatling EL engine
+  * ``StringBodyPart(name: Expression[String], string: Expression[String])``
+  * ``ByteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte])``
+
+Once bootstrapped, BodyPart have the following methods for setting additional optional information:
+	
+* ``contentType(contentType: String)``
+* ``charset(charset: String)`` if not set, will use the default one (from ``gatling.conf`` file)
+* ``fileName(fileName: Expression[String])``
+* ``contentId(contentId: Expression[String])``
+* ``transferEncoding(transferEncoding: Expression[String])``
 
 .. _http-processors:
 
@@ -404,10 +406,10 @@ If you'd like to pass multiple values for your parameter, but all at once, you c
 
 The method ``param`` can also take directly an `HttpParam` instance, if you want to build it by hand.
 
-.. _http-multipart-request:
+.. _http-multipart-form:
 
-Multipart encoded requests
---------------------------
+Multipart Form
+--------------
 
 This applies only for POST requests. When you find forms asking for text values and a file to upload (usually an email attachment), your browser will send a multipart encoded request.
 
