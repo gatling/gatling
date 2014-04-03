@@ -41,34 +41,37 @@ trait Pauses[B] extends Execs[B] {
     durationValue(_).map(i => Duration(i, unit))
   }
 
-  private def durationExpression(min: Duration, max: Duration): Expression[Duration] = {
-    val minMillis = min.toMillis
-    val maxMillis = max.toMillis
+  private def durationExpression(min: Duration, max: Duration): Expression[Duration] =
+    if (min == max)
+      min.expression
 
-    (session: Session) => (ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis).success
-  }
+    else {
+      val minMillis = min.toMillis
+      val maxMillis = max.toMillis
+      (session: Session) => (ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis).success
+    }
 
   private def durationExpression(min: String, max: String, unit: TimeUnit): Expression[Duration] = {
-    val minExpression = min.el[Int]
-    val maxExpression = max.el[Int]
+    val minExpression = min.el[Int].map(Duration(_, unit))
+    val maxExpression = max.el[Int].map(Duration(_, unit))
 
-    (session: Session) => for {
-      min <- minExpression(session)
-      max <- maxExpression(session)
-      minMillis = Duration(min, unit).toMillis
-      maxMillis = Duration(max, unit).toMillis
-    } yield ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis
+    durationExpression(minExpression, maxExpression)
   }
 
-  private def durationExpression(min: Expression[Duration], max: Expression[Duration]): Expression[Duration] = {
+  private def durationExpression(min: Expression[Duration], max: Expression[Duration]): Expression[Duration] =
     (session: Session) =>
       for {
         min <- min(session)
         max <- max(session)
-        minMillis = min.toMillis
-        maxMillis = max.toMillis
-      } yield ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis
-  }
+      } yield {
+        if (min == max)
+          min
+        else {
+          val minMillis = min.toMillis
+          val maxMillis = max.toMillis
+          ThreadLocalRandom.current.nextLong(minMillis, maxMillis) millis
+        }
+      }
 
   def pause(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = pause(durationExpression(duration, unit))
 
