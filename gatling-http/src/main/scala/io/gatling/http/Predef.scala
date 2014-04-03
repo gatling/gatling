@@ -60,9 +60,8 @@ object Predef extends HttpCheckSupport {
   def ByteArrayBody = io.gatling.http.request.ByteArrayBody
   def InputStreamBody = io.gatling.http.request.InputStreamBody
 
-  def StringBodyPart = io.gatling.http.request.BodyPart.stringBodyPart _
-  def ByteArrayBodyPart = io.gatling.http.request.BodyPart.byteArrayBodyPart _
-  def FileBodyPart = io.gatling.http.request.BodyPart.fileBodyPart _
-  def RawFileBodyPart = io.gatling.http.request.BodyPart.rawFileBodyPart _
   def ELFileBodyPart = io.gatling.http.request.BodyPart.elFileBodyPart _
+  def StringBodyPart = io.gatling.http.request.BodyPart.stringBodyPart _
+  def RawFileBodyPart = io.gatling.http.request.BodyPart.rawFileBodyPart _
+  def ByteArrayBodyPart = io.gatling.http.request.BodyPart.byteArrayBodyPart _
 }
