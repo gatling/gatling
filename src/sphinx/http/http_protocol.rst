@@ -9,7 +9,7 @@ HTTP is the main protocol Gatling targets, so that's where we place most of our 
 Gatling HTTP allows you to load test web applications, web services or websites.
 It supports HTTP and HTTPS with almost every existing features of common browsers such as caching, cookies, redirect, etc.
 
-However, Gatling **is not a browser**: it won't run javascript, won't apply css styles and trigger css background-images download, won't react to UI events, etc.
+However, Gatling **is not a browser**: it won't run javascript, won't apply CSS styles and trigger CSS background-images download, won't react to UI events, etc.
 Gatling works on the HTTP protocol level.
 
 Bootstrapping
@@ -88,16 +88,16 @@ Max connection per host
 In order to mimic real web browser, you can configure the max concurrent connections per host **per virtual user**  with ``maxConnectionsPerHost(max: Int)``.
 Gatling ships a bunch of built-ins for well-known browser:
 
-* maxConnectionsPerHostLikeFirefoxOld
-* maxConnectionsPerHostLikeFirefox
-* maxConnectionsPerHostLikeOperaOld
-* maxConnectionsPerHostLikeOpera
-* maxConnectionsPerHostLikeSafariOld
-* maxConnectionsPerHostLikeSafari
-* maxConnectionsPerHostLikeIE7
-* maxConnectionsPerHostLikeIE8
-* maxConnectionsPerHostLikeIE10
-* maxConnectionsPerHostLikeChrome
+* ``maxConnectionsPerHostLikeFirefoxOld``
+* ``maxConnectionsPerHostLikeFirefox``
+* ``maxConnectionsPerHostLikeOperaOld``
+* ``maxConnectionsPerHostLikeOpera``
+* ``maxConnectionsPerHostLikeSafariOld``
+* ``maxConnectionsPerHostLikeSafari``
+* ``maxConnectionsPerHostLikeIE7``
+* ``maxConnectionsPerHostLikeIE8``
+* ``maxConnectionsPerHostLikeIE10``
+* ``maxConnectionsPerHostLikeChrome``
 
 ::
 
@@ -115,10 +115,10 @@ In Gatling 1, connections are shared amongst users until 1.5 version.
 This behavior does not match real browsers, and doesn't support SSL session tracking.
 
 In Gatling 2, the default behavior is that every user has his own connection pool.
-This can be tuned with the ``shareConnections`` configuration param.
+This can be tuned with the ``.shareConnections`` configuration param.
 
 If you need more isolation of your user, for instance if you need a dedicated key store per user,
-Gatling lets you have an instance of the http client per user with ``disableClientSharing``.
+Gatling lets you have an instance of the http client per user with ``.disableClientSharing``.
 
 Virtual Host
 ------------
@@ -173,13 +173,13 @@ HTTP Headers
 Gatling lets you set some generic headers at the http protocol definition level with ``baseHeaders(headers: Map[String, String])``.
 You have also the following built-ins for the more commons headers:
 
-* acceptHeader(value: Expression[String]): set ``Accept`` header.
-* acceptCharsetHeader(value: Expression[String]): set ``Accept-Charset`` header.
-* acceptEncodingHeader(value: Expression[String]): set ``Accept-Encoding`` header.
-* acceptLanguageHeader(value: Expression[String]): set ``Accept-Language`` header.
-* authorizationHeader(value: Expression[String]): set ``Authorization`` header.
-* doNotTrackHeader(value: Expression[String]): set ``DNT`` header.
-* userAgentHeader(value: Expression[String]): set ``User-Agent`` header.
+* ``acceptHeader(value: Expression[String])``: set *Accept* header.
+* ``acceptCharsetHeader(value: Expression[String])``: set *Accept-Charset* header.
+* ``acceptEncodingHeader(value: Expression[String])``: set *Accept-Encoding* header.
+* ``acceptLanguageHeader(value: Expression[String])``: set *Accept-Language* header.
+* ``authorizationHeader(value: Expression[String])``: set *Authorization* header.
+* ``doNotTrackHeader(value: Expression[String])``: set *DNT* header.
+* ``userAgentHeader(value: Expression[String])``: set *User-Agent* header.
 
 .. _http-protocol-auth:
 
@@ -188,9 +188,9 @@ Authentication
 
 You can set the authentication methods at protocol level with these methods:
 
-* basicAuth(username: Expression[String], password: Expression[String])
-* digestAuth(username: Expression[String], password: Expression[String])
-* authRealm(realm: Expression[Realm])
+* ``basicAuth(username: Expression[String], password: Expression[String])``
+* ``digestAuth(username: Expression[String], password: Expression[String])``
+* ``authRealm(realm: Expression[Realm])``
 
 .. note:: For more details see the dedicated section :ref:`here <http-request-authentication>`.
 
@@ -202,7 +202,7 @@ Response handling parameters
 Follow redirects
 ----------------
 
-By default Gatling automatically follow redirects in case of 301 or 302 response status code, you can disable this behaviour with ``disableFollowRedirect``.
+By default Gatling automatically follow redirects in case of 301 or 302 response status code, you can disable this behaviour with ``.disableFollowRedirect``.
 
 To avoid infinite redirection loops, you can specify a number max of redirects with:  ``maxRedirects(max: Int)``
 
