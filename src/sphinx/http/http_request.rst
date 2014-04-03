@@ -332,8 +332,9 @@ You can add a multipart body to an HTTP request and add parts with the dedicated
 Once bootstrapped, BodyPart have the following methods for setting additional optional information:
 	
 * ``contentType(contentType: String)``
-* ``charset(charset: String)`` if not set, will use the default one (from ``gatling.conf`` file)
-* ``fileName(fileName: Expression[String])``
+* ``charset(charset: String)``, part of of *Content-Type* header. If not set, defaults to the one from ``gatling.conf`` file.
+* ``fileName(fileName: Expression[String])``, part of the *Content-Disposition* header.
+* ``dispositionType(contentId: String)``, part of the *Content-Disposition* header. If not set, defaults to *form-data*.
 * ``contentId(contentId: Expression[String])``
 * ``transferEncoding(transferEncoding: Expression[String])``
 

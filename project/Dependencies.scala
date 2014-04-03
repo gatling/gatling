@@ -10,7 +10,7 @@ object Dependencies {
 	private def scalaReflect(version: String)  = "org.scala-lang"             % "scala-reflect"      % version
 	private def scalaSwing(version: String)    = "org.scala-lang"             % "scala-swing"        % version
 	private val jsr166e                        = "io.gatling"                 % "jsr166e"            % "1.0"
-	private val ahc                            = "com.ning"                   % "async-http-client"  % "1.8.4"
+	private val ahc                            = "com.ning"                   % "async-http-client"  % "1.8.5"
 	private val netty                          = "io.netty"                   % "netty"              % "3.9.0.Final"
 	private val akkaActor                      = "com.typesafe.akka"         %% "akka-actor"         % "2.2.4"
 	private val config                         = "com.typesafe"               % "config"             % "1.2.0"
