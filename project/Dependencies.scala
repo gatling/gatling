@@ -15,7 +15,7 @@ object Dependencies {
 	private val akkaActor                      = "com.typesafe.akka"         %% "akka-actor"         % "2.2.4"
 	private val config                         = "com.typesafe"               % "config"             % "1.2.0"
 	private val saxon                          = "net.sf.saxon"               % "Saxon-HE"           % "9.5.1-5"    classifier "compressed"
-	private val slf4jApi                       = "org.slf4j"                  % "slf4j-api"          % "1.7.6"
+	private val slf4jApi                       = "org.slf4j"                  % "slf4j-api"          % "1.7.7"
 	private val fastring                       = "com.dongxiguo"             %% "fastring"           % "0.2.2"
 	private val jodaTime                       = "joda-time"                  % "joda-time"          % "2.3"
 	private val jodaConvert                    = "org.joda"                   % "joda-convert"       % "1.5"
@@ -32,7 +32,7 @@ object Dependencies {
 	private val zinc                           = "com.typesafe.zinc"          % "zinc"               % "0.3.2-M1"
 	private val openCsv                        = "net.sf.opencsv"             % "opencsv"            % "2.3"
 	private val jmsApi                         = "javax.jms"                  % "jms-api"            % "1.1-rev-1"
-	private val logbackClassic                 = "ch.qos.logback"             % "logback-classic"    % "1.0.13"
+	private val logbackClassic                 = "ch.qos.logback"             % "logback-classic"    % "1.1.2"
 
 	/***********************/
 	/** Test dependencies **/
