@@ -15,11 +15,11 @@
  */
 package io.gatling.jdbc
 
-import io.gatling.core.feeder.Feeder
+import io.gatling.core.feeder.Record
 import io.gatling.jdbc.feeder.JdbcFeederSource
 
 object Predef {
 
-  def jdbcFeeder(url: String, username: String, password: String, sql: String): Feeder[Any] =
+  def jdbcFeeder(url: String, username: String, password: String, sql: String): Array[Record[Any]] =
     JdbcFeederSource(url, username, password, sql)
 }
