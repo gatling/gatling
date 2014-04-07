@@ -19,17 +19,19 @@ This method has to perform the following operations:
 * retrieve the response
 * perform checks on the response (optional)
 * save elements from the checks into the session for further usage (optional)
-* log the outcome::
+* log the outcome with the ``DataWriterClient`` trait::
 
-	DataWriter.logRequest(session.scenarioName,
-	                      session.userId,
-	                      "Request " + requestName,
-	                      requestStartDate: Long,
-	                      responseEndDate: Long,
-	                      endOfRequestSendingDate: Long,
-	                      endOfRequestSendingDate: Long,
-	                      requestResult: RequestStatus,
-	                      requestMessage: String)
+	dataWriterClient.writeRequestData(
+	                     session: Session,
+	                     requestName: String,
+	                     requestStartDate: Long,
+	                     requestEndDate: Long,
+	                     responseStartDate: Long,
+	                     responseEndDate: Long,
+	                     status: Status,
+	                     message: Option[String] = None,
+	                     extraInfo: List[Any] = Nil)
+	
 
 * calling the next action in the chain::
 
