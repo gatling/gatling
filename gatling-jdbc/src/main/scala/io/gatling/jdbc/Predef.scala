@@ -15,11 +15,11 @@
  */
 package io.gatling.jdbc
 
-import io.gatling.core.feeder.RecordArrayFeederBuilder
+import io.gatling.core.feeder.RecordSeqFeederBuilder
 import io.gatling.jdbc.feeder.JdbcFeederSource
 
 object Predef {
 
-  def jdbcFeeder(url: String, username: String, password: String, sql: String): RecordArrayFeederBuilder[Any] =
-    RecordArrayFeederBuilder(JdbcFeederSource(url, username, password, sql).toArray)
+  def jdbcFeeder(url: String, username: String, password: String, sql: String): RecordSeqFeederBuilder[Any] =
+    RecordSeqFeederBuilder(JdbcFeederSource(url, username, password, sql))
 }

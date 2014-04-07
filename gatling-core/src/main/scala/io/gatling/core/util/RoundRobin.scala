@@ -17,7 +17,7 @@ package io.gatling.core.util
 
 object RoundRobin {
 
-  def apply[T](values: Array[T]) = values.length match {
+  def apply[T](values: IndexedSeq[T]) = values.length match {
     case 0 => Iterator.empty
     case 1 =>
       new Iterator[T] {

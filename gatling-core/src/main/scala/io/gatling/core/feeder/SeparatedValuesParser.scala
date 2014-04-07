@@ -24,14 +24,14 @@ import io.gatling.core.util.IOHelper.withSource
 
 object SeparatedValuesParser {
 
-  def parse(resource: Resource, separator: Char, doubleQuote: Char): Array[Record[String]] = {
+  def parse(resource: Resource, separator: Char, doubleQuote: Char): IndexedSeq[Record[String]] = {
 
     val parser = new CSVParser(separator, doubleQuote)
 
     withSource(Source.fromInputStream(resource.inputStream)(configuration.core.codec)) { source =>
       val rawLines = source.getLines.map(parser.parseLine)
       val headers = rawLines.next
-      rawLines.map(headers.zip(_).toMap).toArray
+      rawLines.map(headers.zip(_).toMap).toVector
     }
   }
 }
