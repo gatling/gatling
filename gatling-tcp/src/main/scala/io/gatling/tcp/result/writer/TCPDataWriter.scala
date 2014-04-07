@@ -67,6 +67,7 @@ class TCPDataWriter extends DataWriter with StrictLogging {
   }
 
   private class TCPMessageSender(listener: ActorRef) extends BaseActor {
+    final val MESSAGE_DELIMITER = "\n"
     val buffer = new ListBuffer[Any]
     IO(Tcp) ! Connect(new InetSocketAddress(configuration.data.tcp.host, configuration.data.tcp.port))
 
@@ -85,7 +86,7 @@ class TCPDataWriter extends DataWriter with StrictLogging {
         logger.info("Sending previous received messages: " + buffer.size)
         buffer.foreach(msg => {
           val msgString: String = JsonHelper.toJson(Map[String, Any]("message_type" -> msg.getClass.getSimpleName, "message" -> msg))
-          connection ! Write(ByteString(msgString))
+          connection ! Write(ByteString(msgString + MESSAGE_DELIMITER))
         })
         buffer.clear
         logger.info("Sent")
@@ -93,7 +94,7 @@ class TCPDataWriter extends DataWriter with StrictLogging {
           case msg @ (_: UserMessage | _: GroupMessage | _: RequestMessage) =>
             val msgString: String = JsonHelper.toJson(Map[String, Any]("message_type" -> msg.getClass.getSimpleName, "message" -> msg))
             logger.trace(s"Sending message: $msgString")
-            connection ! Write(ByteString(msgString))
+            connection ! Write(ByteString(msgString + MESSAGE_DELIMITER))
           case data: ByteString =>
             connection ! Write(data)
           case CommandFailed(w: Write) =>
