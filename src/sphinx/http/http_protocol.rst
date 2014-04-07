@@ -211,7 +211,7 @@ To avoid infinite redirection loops, you can specify a number max of redirects w
 Response chunks discarding
 --------------------------
 
-Beware that, as an optimization, Gatling doesn't pile up response chunks unless a check is defined on the response body.
+Beware that, as an optimization, Gatling doesn't pile up response chunks unless a check is defined on the response body or that debug logging is enabled.
 However some people might want always keep the response chunks, thus you can disable the default behaviour with ``disableResponseChunksDiscarding``.
 
 .. _http-protocol-extractor:
