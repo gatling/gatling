@@ -25,6 +25,7 @@ import org.jboss.netty.buffer.ChannelBuffer
 
 import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
 import com.ning.http.client.providers.netty.ResponseBodyPart
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.bytes2Hex
@@ -35,11 +36,13 @@ import io.gatling.http.check.checksum.ChecksumCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml }
 
-object ResponseBuilder {
+object ResponseBuilder extends StrictLogging {
 
   val emptyBytes = Array.empty[Byte]
 
   val emptyHeaders = new FluentCaseInsensitiveStringsMap
+
+  val isDebugEnabled = logger.underlying.isDebugEnabled
 
   def newResponseBuilderFactory(checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer], protocol: HttpProtocol): ResponseBuilderFactory = {
 
@@ -49,7 +52,7 @@ object ResponseBuilder {
 
     val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy).toSet
 
-    val storeBodyParts = !protocol.responsePart.discardResponseChunks || !responseBodyUsageStrategies.isEmpty
+    val storeBodyParts = isDebugEnabled || !protocol.responsePart.discardResponseChunks || !responseBodyUsageStrategies.isEmpty
 
     request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, protocol.responsePart.fetchHtmlResources)
   }
