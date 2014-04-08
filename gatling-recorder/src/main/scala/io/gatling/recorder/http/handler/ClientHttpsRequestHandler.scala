@@ -52,6 +52,31 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
 
       def handlePropagatableRequest() {
 
+          def handleConnect(address: InetSocketAddress) {
+            proxy.clientBootstrap
+              .connect(address)
+              .addListener { connectFuture: ChannelFuture =>
+                val serverChannel = connectFuture.getChannel
+                serverChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, true))
+                _serverChannel = Some(serverChannel)
+                serverChannel.write(buildConnectRequest)
+              }
+          }
+
+          def handleDirect(address: InetSocketAddress) {
+            proxy.secureClientBootstrap
+              .connect(address)
+              .addListener { connectFuture: ChannelFuture =>
+                connectFuture.getChannel.getPipeline.get(BootstrapFactory.SSL_HANDLER_NAME).asInstanceOf[SslHandler].handshake
+                  .addListener { handshakeFuture: ChannelFuture =>
+                    val serverChannel = handshakeFuture.getChannel
+                    serverChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, false))
+                    _serverChannel = Some(serverChannel)
+                    serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request))
+                  }
+              }
+          }
+
         // set full uri so that it's correctly recorded FIXME ugly
         request.setUri(targetHostURI.resolve(request.getUri).toString)
 
@@ -62,31 +87,10 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
 
           case _ =>
             _serverChannel = None
-            (proxy.outgoingHost, proxy.outgoingPort) match {
-              case (Some(proxyHost), Some(proxyPort)) =>
-                // proxy: have to CONNECT over HTTP, before performing request over HTTPS
-                proxy.clientBootstrap
-                  .connect(new InetSocketAddress(proxyHost, proxyPort))
-                  .addListener { connectFuture: ChannelFuture =>
-                    val serverChannel = connectFuture.getChannel
-                    serverChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, true))
-                    _serverChannel = Some(serverChannel)
-                    serverChannel.write(buildConnectRequest)
-                  }
 
-              case _ =>
-                // direct connection
-                proxy.secureClientBootstrap
-                  .connect(new InetSocketAddress(targetHostURI.getHost, targetHostURI.getPort))
-                  .addListener { connectFuture: ChannelFuture =>
-                    connectFuture.getChannel.getPipeline.get(BootstrapFactory.SSL_HANDLER_NAME).asInstanceOf[SslHandler].handshake
-                      .addListener { handshakeFuture: ChannelFuture =>
-                        val serverChannel = handshakeFuture.getChannel
-                        serverChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, false))
-                        _serverChannel = Some(serverChannel)
-                        serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request))
-                      }
-                  }
+            proxy.outgoingProxy match {
+              case Some((proxyHost, proxyPort)) => handleConnect(new InetSocketAddress(proxyHost, proxyPort))
+              case _                            => handleDirect(computeInetSocketAddress(targetHostURI))
             }
         }
       }

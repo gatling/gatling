@@ -25,8 +25,12 @@ case class HttpProxy(config: RecorderConfiguration, controller: RecorderControll
 
   private def port = config.proxy.port
   private def sslPort = config.proxy.sslPort
-  def outgoingHost = config.proxy.outgoing.host
-  def outgoingPort = config.proxy.outgoing.port
+  def outgoingProxy =
+    for {
+      host <- config.proxy.outgoing.host
+      port <- config.proxy.outgoing.port
+    } yield (host, port)
+
   def outgoingUsername = config.proxy.outgoing.username
   def outgoingPassword = config.proxy.outgoing.password
 

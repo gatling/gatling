@@ -29,7 +29,10 @@ class ClientHttpRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(pr
 
   private def writeRequest(request: HttpRequest, serverChannel: Channel) {
     serverChannel.getPipeline.get(classOf[ServerHttpResponseHandler]).request = request
-    val relativeRequest = proxy.outgoingHost.map(_ => request).getOrElse(ClientRequestHandler.buildRequestWithRelativeURI(request))
+    val relativeRequest = proxy.outgoingProxy match {
+      case None => ClientRequestHandler.buildRequestWithRelativeURI(request)
+      case _    => request
+    }
     serverChannel.write(relativeRequest)
   }
 
@@ -41,19 +44,22 @@ class ClientHttpRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(pr
       case _ =>
         _serverChannel = None
 
-        val (host, port) = (for {
-          proxyHost <- proxy.outgoingHost
-          proxyPort <- proxy.outgoingPort
-        } yield (proxyHost, proxyPort))
-          .getOrElse {
-            // the URI sometimes contains invalid characters, so we truncate as we only need the host and port
-            val (schemeHostPort, _) = URIHelper.splitURI(request.getUri)
-            val uri = new URI(schemeHostPort)
-            (uri.getHost, if (uri.getPort == -1) 80 else uri.getPort)
-          }
+        val inetSocketAddress = proxy.outgoingProxy match {
+          case Some((host, port)) => new InetSocketAddress(host, port)
+          case _ =>
+            try {
+              // the URI sometimes contains invalid characters, so we truncate as we only need the host and port
+              val (schemeHostPort, _) = URIHelper.splitURI(request.getUri)
+              val uri = new URI(schemeHostPort)
+              computeInetSocketAddress(uri)
+            } catch {
+              case e: Exception =>
+                throw new RuntimeException(s"Could not build address requestURI='${request.getUri}', normalizedURI='${URIHelper.splitURI(request.getUri)._1}'", e)
+            }
+        }
 
         proxy.clientBootstrap
-          .connect(new InetSocketAddress(host, port))
+          .connect(inetSocketAddress)
           .addListener { future: ChannelFuture =>
             if (future.isSuccess) {
               val serverChannel = future.getChannel

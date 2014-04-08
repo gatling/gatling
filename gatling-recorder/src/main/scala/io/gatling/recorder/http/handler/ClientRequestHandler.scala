@@ -26,6 +26,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.http.HeaderNames
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.util.URIHelper
+import java.net.{ URI, InetSocketAddress }
 
 object ClientRequestHandler {
   def buildRequestWithRelativeURI(request: HttpRequest) = {
@@ -47,15 +48,19 @@ abstract class ClientRequestHandler(proxy: HttpProxy) extends SimpleChannelHandl
 
     event.getMessage match {
       case request: HttpRequest =>
-        proxy.outgoingHost.map { _ =>
-          for {
-            username <- proxy.outgoingUsername
-            password <- proxy.outgoingPassword
-          } {
-            val proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
-            request.headers.set(HeaderNames.PROXY_AUTHORIZATION, proxyAuth)
-          }
-        }.getOrElse(request.headers.remove("Proxy-Connection")) // remove Proxy-Connection header if it's not significant
+
+        proxy.outgoingProxy match {
+          case None =>
+            // remove Proxy-Connection header if it's not significant
+            request.headers.remove("Proxy-Connection")
+
+          case _ =>
+            for {
+              username <- proxy.outgoingUsername
+              password <- proxy.outgoingPassword
+              proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
+            } request.headers.set(HeaderNames.PROXY_AUTHORIZATION, proxyAuth)
+        }
 
         propagateRequest(ctx, request)
 
@@ -71,5 +76,18 @@ abstract class ClientRequestHandler(proxy: HttpProxy) extends SimpleChannelHandl
     logger.error("Exception caught", e.getCause)
     ctx.getChannel.close
     _serverChannel.map(_.close)
+  }
+
+  def computeInetSocketAddress(uri: URI): InetSocketAddress = {
+
+    val host = Option(uri.getHost).getOrElse(uri.getAuthority)
+    val port = uri.getPort match {
+      case -1 => uri.getScheme match {
+        case "https" | "wss" => 443
+        case _               => 80
+      }
+      case p => p
+    }
+    new InetSocketAddress(host, port)
   }
 }
