@@ -130,9 +130,7 @@ private class GraphiteSender(graphiteRootPathKey: String)(implicit configuration
                                     requestsMetrics: Map[GraphitePath, MetricByStatus],
                                     usersBreakdowns: Map[GraphitePath, UsersBreakdown]): Unit = {
 
-      def sendToGraphite(metricPath: GraphitePath, value: Long): Unit =
-        metricsSender.sendToGraphite(metricPath.pathKeyWithPrefix(graphiteRootPathKey), value, epoch)
-      def sendFloatToGraphite(metricPath: GraphitePath, value: Double): Unit =
+      def sendToGraphite[T: Numeric](metricPath: GraphitePath, value: T): Unit =
         metricsSender.sendToGraphite(metricPath.pathKeyWithPrefix(graphiteRootPathKey), value, epoch)
 
       def sendUserMetrics(userMetricPath: GraphitePath, userMetric: UsersBreakdown): Unit = {
@@ -146,10 +144,10 @@ private class GraphiteSender(graphiteRootPathKey: String)(implicit configuration
           case None => sendToGraphite(metricPath / "count", 0)
           case Some(m) =>
             sendToGraphite(metricPath / "count", m.count)
-            sendFloatToGraphite(metricPath / "max", m.max)
-            sendFloatToGraphite(metricPath / "min", m.min)
-            sendFloatToGraphite(metricPath / percentiles1Name, m.percentile1)
-            sendFloatToGraphite(metricPath / percentiles2Name, m.percentile2)
+            sendToGraphite(metricPath / "max", m.max)
+            sendToGraphite(metricPath / "min", m.min)
+            sendToGraphite(metricPath / percentiles1Name, m.percentile1)
+            sendToGraphite(metricPath / percentiles2Name, m.percentile2)
         }
 
       def sendRequestMetrics(metricPath: GraphitePath, metricByStatus: MetricByStatus): Unit = {

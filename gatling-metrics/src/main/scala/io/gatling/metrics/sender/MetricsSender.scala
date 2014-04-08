@@ -18,6 +18,7 @@ package io.gatling.metrics.sender
 import io.gatling.core.config.GatlingConfiguration.configuration
 
 object MetricsSender {
+
   def newMetricsSender: MetricsSender = configuration.data.graphite.protocol.toLowerCase match {
     case "tcp" => new TcpSender
     case "udp" => new UdpSender
@@ -26,14 +27,15 @@ object MetricsSender {
 }
 
 abstract class MetricsSender {
+  import io.gatling.core.util.StandardCharsets
 
-  def sendToGraphite(metricPath: String, value: Double, epoch: Long) {
-    val bytes = f"$metricPath $value%f $epoch\n".getBytes(configuration.core.charset)
-    sendToGraphite(bytes)
-  }
-
-  def sendToGraphite(metricPath: String, value: Long, epoch: Long) {
-    val bytes = s"$metricPath $value $epoch\n".getBytes(configuration.core.charset)
+  def sendToGraphite[T: Numeric](metricPath: String, value: T, epoch: Long): Unit = {
+    val msg = value match {
+      case x: Float  => f"$metricPath $x%f $epoch\n"
+      case x: Double => f"$metricPath $x%f $epoch\n"
+      case _         => s"$metricPath $value $epoch\n"
+    }
+    val bytes = msg.getBytes(StandardCharsets.UTF_8)
     sendToGraphite(bytes)
   }
 
