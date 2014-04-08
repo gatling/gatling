@@ -98,9 +98,13 @@ object CssParser extends StrictLogging {
     val trimmedEnd = trimRight(end)
 
     if (!broken) {
-      Some(string.substring(trimmedStart, trimmedEnd).ensureTrimmedCharsArray)
+      if (string.charAt(trimmedStart) == '#')
+        // anchors are not real urls
+        None
+      else
+        Some(string.substring(trimmedStart, trimmedEnd).ensureTrimmedCharsArray)
     } else {
-      logger.info(s"css url broken between positions ${string.substring(trimmedStart, trimmedEnd)}")
+      logger.info(s"css url $string broken")
       None
     }
   }

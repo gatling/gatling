@@ -69,7 +69,7 @@ object HttpHelper extends StrictLogging {
       Some(resolveFromURI(rootURI, relative))
     } catch {
       case e: Exception =>
-        logger.error("Failed to resolve URI", e)
+        logger.info(s"Failed to resolve URI rootURI='$rootURI', relative='$relative'", e)
         None
     }
 
