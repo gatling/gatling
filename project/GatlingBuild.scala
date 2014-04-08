@@ -64,7 +64,6 @@ object GatlingBuild extends Build {
 		.settings(libraryDependencies ++= jmsDependencies)
 
 	lazy val bundle = gatlingModule("gatling-bundle")
-		.dependsOn(app, core, charts, http, jdbc, redis, recorder, jms)
 		.settings(bundleSettings: _*)
 		.settings(noCodeToPublish: _*)
 }
