@@ -41,6 +41,10 @@ object GatlingBuild extends Build {
 		.dependsOn(core)
 		.settings(libraryDependencies ++= httpDependencies)
 
+	lazy val jms = gatlingModule("gatling-jms")
+		.dependsOn(core)
+		.settings(libraryDependencies ++= jmsDependencies)
+
 	lazy val charts = gatlingModule("gatling-charts")
 		.dependsOn(core)
 		.settings(libraryDependencies ++= chartsDependencies)
@@ -52,16 +56,12 @@ object GatlingBuild extends Build {
 		.settings(libraryDependencies ++= metricsDependencies)
 
 	lazy val app = gatlingModule("gatling-app")
-		.dependsOn(core, http, jdbc, redis, metrics, charts)
+		.dependsOn(core, http, jms, jdbc, redis, metrics, charts)
 		.settings(libraryDependencies ++= appDependencies)
 
 	lazy val recorder = gatlingModule("gatling-recorder")
 		.dependsOn(core, http)
 		.settings(libraryDependencies ++= recorderDependencies(scalaVersion.value))
-
-	lazy val jms = gatlingModule("gatling-jms")
-		.dependsOn(core)
-		.settings(libraryDependencies ++= jmsDependencies)
 
 	lazy val bundle = gatlingModule("gatling-bundle")
 		.settings(bundleSettings: _*)
