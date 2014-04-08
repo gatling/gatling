@@ -31,7 +31,12 @@ import io.gatling.core.validation.Validation
 object ELFileBodies {
 
   val cache: concurrent.Map[String, Validation[Expression[String]]] = new ConcurrentHashMapV8[String, Validation[Expression[String]]]
-  def cached(path: String) = if (configuration.http.cacheELFileBodies) cache.getOrElseUpdate(path, compileFile(path)) else compileFile(path)
+  private val cacheELFileBodies = configuration.http.cacheELFileBodies
+  def cached(path: String) =
+    if (cacheELFileBodies)
+      cache.getOrElseUpdate(path, compileFile(path))
+    else
+      compileFile(path)
 
   def compileFile(path: String): Validation[Expression[String]] =
     Resource.requestBody(path)

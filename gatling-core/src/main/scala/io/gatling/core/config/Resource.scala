@@ -28,23 +28,39 @@ import io.gatling.core.util.FileHelper.RichURL
 
 object Resource {
 
-  private def load(filePath: Path, fileSystemFolder: Path): Validation[Resource] = {
-    val classPathResource = Option(getClass.getClassLoader.getResource(filePath.toString().replace('\\', '/'))).map { url =>
-      url.getProtocol match {
-        case "file" => FileResource(File(url.jfile()))
-        case "jar"  => ArchiveResource(url, filePath.extension)
-        case _      => throw new UnsupportedOperationException
+  object ClasspathResource {
+    def unapply(location: Location): Option[Validation[Resource]] =
+      Option(getClass.getClassLoader.getResource(location.path.toString().replace('\\', '/'))).map { url =>
+        url.getProtocol match {
+          case "file" => FileResource(File(url.jfile())).success
+          case "jar"  => ArchiveResource(url, location.path.extension).success
+          case _      => s"$url is neither a file nor a jar".failure
+        }
       }
-    }
-
-    classPathResource.orElse((fileSystemFolder / filePath).ifFile(path => FileResource(path.toFile))) match {
-      case Some(resource) => resource.success
-      case _              => s"file $filePath doesn't exist".failure
-    }
   }
 
-  def feeder(fileName: String): Validation[Resource] = load(fileName, GatlingFiles.dataDirectory)
-  def requestBody(fileName: String): Validation[Resource] = load(fileName, GatlingFiles.requestBodiesDirectory)
+  object FileInFolderResource {
+    def unapply(location: Location): Option[Validation[Resource]] =
+      (location.directory / location.path).ifFile(f => FileResource(f.toFile).success)
+  }
+
+  object AbsoluteFileResource {
+    def unapply(location: Location): Option[Validation[Resource]] =
+      location.path.ifFile(f => FileResource(f.toFile).success)
+  }
+
+  private def load(directory: Path, path: Path): Validation[Resource] =
+    new Location(directory, path) match {
+      case ClasspathResource(res)    => res
+      case FileInFolderResource(res) => res
+      case AbsoluteFileResource(res) => res
+      case _                         => s"file $path doesn't exist".failure
+    }
+
+  private class Location(val directory: Path, val path: Path)
+
+  def feeder(fileName: String): Validation[Resource] = load(GatlingFiles.dataDirectory, fileName)
+  def requestBody(fileName: String): Validation[Resource] = load(GatlingFiles.requestBodiesDirectory, fileName)
 }
 
 sealed trait Resource {
