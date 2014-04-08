@@ -28,35 +28,51 @@ import io.gatling.core.util.TimeHelper.nowSeconds
 import io.gatling.metrics.sender.MetricsSender
 import io.gatling.metrics.types.{ MetricByStatus, Metrics, RequestMetricsBuffer, UsersBreakdown, UsersBreakdownBuffer }
 
+object GraphitePath {
+  private val sanitizeStringMemo = mutable.Map.empty[String, String]
+  def sanitizeString(s: String) = sanitizeStringMemo.getOrElseUpdate(s, s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
+
+  def graphitePath(root: String) = new GraphitePath(List(sanitizeString(root)))
+  def graphitePath(path: List[String]) = new GraphitePath(path.map(sanitizeString))
+}
+
+case class GraphitePath private (val path: List[String]) {
+  import GraphitePath.sanitizeString
+  def /(subPath: String) = new GraphitePath(sanitizeString(subPath) :: path)
+  def pathKey = path.reverse.mkString(".")
+  def pathKeyWithPrefix(prefix: String) = path.reverse.mkString(prefix, ".", "")
+}
+
 object GraphiteDataWriter {
-  val allRequestsKey = List("allRequests")
-  val allUsersKey = "allUsers"
+  import GraphitePath._
+  val allRequestsKey = graphitePath("allRequests")
+  val usersRootKey = graphitePath("users")
+  val allUsersKey = usersRootKey / "allUsers"
 }
 
 class GraphiteDataWriter extends DataWriter {
-
-  import GraphiteDataWriter.{ allRequestsKey, allUsersKey }
+  import GraphiteDataWriter._
+  import GraphitePath._
 
   implicit val configuration = gatlingConfiguration
 
   private var graphiteSender: ActorRef = _
 
-  private val requestsByPath = mutable.Map.empty[List[String], RequestMetricsBuffer]
-  private val usersByScenario = mutable.Map.empty[String, UsersBreakdownBuffer]
+  private val requestsByPath = mutable.Map.empty[GraphitePath, RequestMetricsBuffer]
+  private val usersByScenario = mutable.Map.empty[GraphitePath, UsersBreakdownBuffer]
 
   def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
-
-    val metricRootPath = configuration.data.graphite.rootPathPrefix + "." + run.simulationId + "."
-
+    val metricRootPath = configuration.data.graphite.rootPathPrefix + "." + sanitizeString(run.simulationId) + "."
     graphiteSender = actor(context)(new GraphiteSender(metricRootPath))
 
     usersByScenario.update(allUsersKey, new UsersBreakdownBuffer(scenarios.map(_.nbUsers).sum))
-    scenarios.foreach(scenario => usersByScenario += scenario.name -> new UsersBreakdownBuffer(scenario.nbUsers))
+    scenarios.foreach(scenario => usersByScenario += (usersRootKey / scenario.name) -> new UsersBreakdownBuffer(scenario.nbUsers))
+
     scheduler.schedule(0 millisecond, 1 second, self, Send)
   }
 
   def onUserMessage(userMessage: UserMessage): Unit = {
-    usersByScenario(userMessage.scenarioName).add(userMessage)
+    usersByScenario(usersRootKey / userMessage.scenarioName).add(userMessage)
     usersByScenario(allUsersKey).add(userMessage)
   }
 
@@ -64,7 +80,7 @@ class GraphiteDataWriter extends DataWriter {
 
   def onRequestMessage(request: RequestMessage): Unit = {
     if (!configuration.data.graphite.light) {
-      val path = (request.name :: request.groupStack.map(_.name)).reverse
+      val path = graphitePath((request.name :: request.groupStack.map(_.name)).reverse)
       requestsByPath.getOrElseUpdate(path, new RequestMetricsBuffer).add(request.status, request.responseTime)
     }
     requestsByPath.getOrElseUpdate(allRequestsKey, new RequestMetricsBuffer).add(request.status, request.responseTime)
@@ -84,24 +100,21 @@ class GraphiteDataWriter extends DataWriter {
       // Reset all metrics 
       requestsByPath.foreach { case (_, buff) => buff.clear }
 
-      graphiteSender.forward(SendMetrics(requestMetrics, currentUserBreakdowns))
+      graphiteSender ! SendMetrics(requestMetrics, currentUserBreakdowns)
     }
   }
 }
 
 case object Flush
 case object Send
-case class SendMetrics(requestMetrics: Map[List[String], MetricByStatus], usersBreakdowns: Map[String, UsersBreakdown])
+case class SendMetrics(requestMetrics: Map[GraphitePath, MetricByStatus], usersBreakdowns: Map[GraphitePath, UsersBreakdown])
 
-private class GraphiteSender(metricRootPath: String)(implicit configuration: GatlingConfiguration) extends BaseActor {
-
-  import GraphiteDataWriter.{ allRequestsKey, allUsersKey }
+private class GraphiteSender(graphiteRootPathKey: String)(implicit configuration: GatlingConfiguration) extends BaseActor {
+  import GraphiteDataWriter._
 
   private val percentiles1Name = "percentiles" + configuration.charting.indicators.percentile1
   private val percentiles2Name = "percentiles" + configuration.charting.indicators.percentile2
 
-  private val sanitizeStringMemo = mutable.Map.empty[String, String]
-  private val sanitizeStringListMemo = mutable.Map.empty[List[String], List[String]]
   private var metricsSender: MetricsSender = _
 
   override def preStart() {
@@ -113,41 +126,37 @@ private class GraphiteSender(metricRootPath: String)(implicit configuration: Gat
     case Flush                                         => metricsSender.flush()
   }
 
-  private def sendMetricsToGraphite(epoch: Long, requestsMetrics: Map[List[String], MetricByStatus], usersBreakdowns: Map[String, UsersBreakdown]): Unit = {
+  private def sendMetricsToGraphite(epoch: Long,
+                                    requestsMetrics: Map[GraphitePath, MetricByStatus],
+                                    usersBreakdowns: Map[GraphitePath, UsersBreakdown]): Unit = {
 
-      def sanitizeString(s: String) = sanitizeStringMemo.getOrElseUpdate(s, s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
+      def sendToGraphite[T: Numeric](metricPath: GraphitePath, value: T): Unit =
+        metricsSender.sendToGraphite(metricPath.pathKeyWithPrefix(graphiteRootPathKey), value, epoch)
 
-      def sanitizeStringList(list: List[String]) = sanitizeStringListMemo.getOrElseUpdate(list, list.map(sanitizeString))
-
-      def sendToGraphite(metricPath: MetricPath, value: Long) = metricsSender.sendToGraphite(metricPath.toString, value, epoch)
-      def sendFloatToGraphite(metricPath: MetricPath, value: Double) = metricsSender.sendToGraphite(metricPath.toString, value, epoch)
-
-      def sendUserMetrics(scenarioName: String, userMetric: UsersBreakdown): Unit = {
-        val rootPath = MetricPath(List("users", sanitizeString(scenarioName)))
-        sendToGraphite(rootPath + "active", userMetric.active)
-        sendToGraphite(rootPath + "waiting", userMetric.waiting)
-        sendToGraphite(rootPath + "done", userMetric.done)
+      def sendUserMetrics(userMetricPath: GraphitePath, userMetric: UsersBreakdown): Unit = {
+        sendToGraphite(userMetricPath / "active", userMetric.active)
+        sendToGraphite(userMetricPath / "waiting", userMetric.waiting)
+        sendToGraphite(userMetricPath / "done", userMetric.done)
       }
 
-      def sendMetrics(metricPath: MetricPath, metrics: Option[Metrics]): Unit =
+      def sendMetrics(metricPath: GraphitePath, metrics: Option[Metrics]): Unit =
         metrics match {
-          case None => sendToGraphite(metricPath + "count", 0)
+          case None => sendToGraphite(metricPath / "count", 0)
           case Some(m) =>
-            sendToGraphite(metricPath + "count", m.count)
-            sendFloatToGraphite(metricPath + "max", m.max)
-            sendFloatToGraphite(metricPath + "min", m.min)
-            sendFloatToGraphite(metricPath + percentiles1Name, m.percentile1)
-            sendFloatToGraphite(metricPath + percentiles2Name, m.percentile2)
+            sendToGraphite(metricPath / "count", m.count)
+            sendToGraphite(metricPath / "max", m.max)
+            sendToGraphite(metricPath / "min", m.min)
+            sendToGraphite(metricPath / percentiles1Name, m.percentile1)
+            sendToGraphite(metricPath / percentiles2Name, m.percentile2)
         }
 
-      def sendRequestMetrics(path: List[String], metricByStatus: MetricByStatus): Unit = {
-        val metricPath = MetricPath(sanitizeStringList(path))
-        sendMetrics(metricPath + "ok", metricByStatus.ok)
-        sendMetrics(metricPath + "ko", metricByStatus.ko)
-        sendMetrics(metricPath + "all", metricByStatus.all)
+      def sendRequestMetrics(metricPath: GraphitePath, metricByStatus: MetricByStatus): Unit = {
+        sendMetrics(metricPath / "ok", metricByStatus.ok)
+        sendMetrics(metricPath / "ko", metricByStatus.ko)
+        sendMetrics(metricPath / "all", metricByStatus.all)
       }
 
-    for ((scenarioName, usersBreakdown) <- usersBreakdowns) sendUserMetrics(scenarioName, usersBreakdown)
+    for ((metricPath, usersBreakdown) <- usersBreakdowns) sendUserMetrics(metricPath, usersBreakdown)
 
     if (configuration.data.graphite.light)
       sendRequestMetrics(allRequestsKey, requestsMetrics(allRequestsKey))
@@ -157,11 +166,5 @@ private class GraphiteSender(metricRootPath: String)(implicit configuration: Gat
     metricsSender.flush()
   }
 
-  private case class MetricPath(path: List[String]) {
-
-    def +(element: String) = new MetricPath(path :+ element)
-
-    override def toString = path.mkString(metricRootPath, ".", "")
-  }
 }
 
