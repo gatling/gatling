@@ -41,7 +41,9 @@ If you must access your web application through a proxy, you can set it up in th
 Filters
 -------
 
-TODO
+Allow you to filter out some requests you don't want to record. For example, if you don't want to record any CSS files, you can add in the blacklist section the following Java regex ``.*\\.css``.
+
+The order of evaluation between the whitelist and the blacklist entries can be determined with the *strategy* setting. You can either evaluate the whitelist or the blacklist first.
 
 Embedded resources fetching
 ---------------------------
@@ -95,16 +97,16 @@ Command-line options
 
 For those who prefer the command line, command line options can be passed to the gatling-recorder:
 
-* ``-lp``: Local port (alias = ``--local-port``)
-* ``-lps``: Local SSL port (alias = ``--local-port-ssl``)
-* ``-ph``: Outgoing proxy host (alias = ``--proxy-host``)
-* ``-pp``: Outgoing proxy port (alias = ``--proxy-port``)
-* ``-pps``: Outgoing proxy SSL port (alias = ``--proxy-port-ssl``)
-* ``-of``: Output folder for results (alias = ``--output-folder``)
-* ``-rbf``: Folder for requests bodies (alias = ``--request-bodies-folder``)
-* ``-cn``: Name of the generated class (alias = ``--class-name``)
-* ``-pkg``: Package of the generated class (alias = ``--package``)
-* ``-enc``: Encoding used in the Recorder (alias = ``--encoding``)
-* ``-fr``: Enable *Follow Redirects* (alias = ``--follow-redirect``)
+* **-lp**: Local port (alias = **--local-port**)
+* **-lps**: Local SSL port (alias = **--local-port-ssl**)
+* **-ph**: Outgoing proxy host (alias = **--proxy-host**)
+* **-pp**: Outgoing proxy port (alias = **--proxy-port**)
+* **-pps**: Outgoing proxy SSL port (alias = **--proxy-port-ssl**)
+* **-of**: Output folder for results (alias = **--output-folder**)
+* **-rbf**: Folder for requests bodies (alias = **--request-bodies-folder**)
+* **-cn**: Name of the generated class (alias = **--class-name**)
+* **-pkg**: Package of the generated class (alias = **--package**)
+* **-enc**: Encoding used in the Recorder (alias = **--encoding**)
+* **-fr**: Enable *Follow Redirects* (alias = **--follow-redirect**)
 
 .. note:: Command-line options override saved preferences.
