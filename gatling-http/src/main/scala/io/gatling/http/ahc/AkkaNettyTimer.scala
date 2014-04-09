@@ -15,6 +15,7 @@
  */
 package io.gatling.http.ahc
 
+import java.util.{ Set => JSet, Collections => JCollections }
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.concurrent.duration._
@@ -59,5 +60,5 @@ class AkkaNettyTimer extends Timer with AkkaDefaults {
     timeout
   }
 
-  def stop: java.util.Set[Timeout] = throw new UnsupportedOperationException("stop is not supported")
+  def stop: JSet[Timeout] = JCollections.emptySet[Timeout]
 }
