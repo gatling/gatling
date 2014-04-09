@@ -19,22 +19,22 @@ import java.util.concurrent.atomic.AtomicReference
 
 import scala.concurrent.duration._
 
-import org.jboss.netty.util.{Timeout, TimerTask, Timer}
-import akka.actor.ActorSystem
+import org.jboss.netty.util.{ Timeout, TimerTask, Timer }
+import io.gatling.core.akka.AkkaDefaults
 
-class AkkaNettyTimer(system: ActorSystem) extends Timer {
+class AkkaNettyTimer extends Timer with AkkaDefaults {
 
   def newTimeout(task: TimerTask, delay: Long, unit: TimeUnit): Timeout = {
 
     val timeoutRef = new AtomicReference[Timeout]
 
-    def timeoutRefValue: Timeout = {
-      var value: Timeout = null
-      do {
-        value = timeoutRef.get
-      } while (value == null)
-      value
-    }
+      def timeoutRefValue: Timeout = {
+        var value: Timeout = null
+        do {
+          value = timeoutRef.get
+        } while (value == null)
+        value
+      }
 
     val cancellable = system.scheduler.scheduleOnce(unit.toNanos(delay) nanoseconds) {
       task.run(timeoutRefValue)

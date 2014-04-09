@@ -90,7 +90,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     }
   })
 
-  val nettyTimer = new AkkaNettyTimer(system)
+  val nettyTimer = new AkkaNettyTimer
 
   // set up Netty LoggerFactory for slf4j instead of default JDK
   InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
