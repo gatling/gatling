@@ -20,7 +20,7 @@ import java.util.{ List => JList, Map => JMap }
 import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet, collectionAsScalaIterable }
 
 import com.ning.http.client.Request
-import com.ning.http.multipart.Part
+import com.ning.http.multipart._
 
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.http.response.Response
@@ -68,7 +68,32 @@ package object util {
       if (request.getParts != null && !request.getParts.isEmpty) {
         buff.append("parts=").append(eol)
         request.getParts.foreach {
-          case part: Part => buff.append(s"FilePart: name=${part.getName} contentType=${part.getContentType} charSet=${part.getCharSet} transferEncoding=${part.getTransferEncoding} contentId=${part.getContentId}$eol")
+          case part: StringPart =>
+            buff
+              .append(s"StringPart:")
+              .append(s" name=${part.getName}")
+              .append(s" contentType=${part.getContentType}")
+              .append(s" dispositionType=${part.getDispositionType}")
+              .append(s" charset=${part.getCharSet}")
+              .append(s" transferEncoding=${part.getTransferEncoding}")
+              .append(s" contentId=${part.getContentId}$eol")
+
+          case part: FilePart =>
+            buff.append(s"FilePart:")
+              .append(s" name=${part.getName}")
+              .append(s" contentType=${part.getContentType}")
+              .append(s" dispositionType=${part.getDispositionType}")
+              .append(s" charset=${part.getCharSet}")
+              .append(s" transferEncoding=${part.getTransferEncoding}")
+              .append(s" contentId=${part.getContentId}")
+              .append(s" filename=${part.getSource.getFileName}")
+
+            part.getSource match {
+              case source: FilePartSource => buff.append(s" source=File(${source.getFile.getAbsolutePath})")
+              case _                      => buff.append(s" source=byte[]")
+            }
+
+            buff.append(s"$eol")
         }
       }
 
