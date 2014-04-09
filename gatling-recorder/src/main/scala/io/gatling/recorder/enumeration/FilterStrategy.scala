@@ -17,5 +17,7 @@ package io.gatling.recorder.enumeration
 
 object FilterStrategy extends Enumeration {
   type FilterStrategy = Value
-  val WHITELIST_FIRST, BLACKLIST_FIRST, DISABLED = Value
+  val WHITELIST_FIRST = Value("Whitelist First")
+  val BLACKLIST_FIRST = Value("Blacklist First")
+  val DISABLED = Value("Disabled")
 }
