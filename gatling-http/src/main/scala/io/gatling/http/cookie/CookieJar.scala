@@ -118,8 +118,7 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
     CookieJar(newStore)
   }
 
-  def get(requestURI: URI): List[Cookie] = {
-
+  def get(requestURI: URI): List[Cookie] =
     if (store.isEmpty) {
       Nil
     } else {
@@ -151,5 +150,4 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
 
       }.map(_._2.cookie)
     }
-  }
 }
