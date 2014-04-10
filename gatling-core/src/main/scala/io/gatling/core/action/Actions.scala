@@ -70,7 +70,7 @@ object Interruptable {
   def interruptOrElse(continue: PartialFunction[Any, Unit]): PartialFunction[Any, Unit] = {
 
     val maybeInterrupt: PartialFunction[Any, Unit] = {
-      case session: Session if (!session.interruptStack.isEmpty) => (session.interruptStack.reduceLeft(_ orElse _) orElse continue)(session)
+      case session: Session if !session.interruptStack.isEmpty => (session.interruptStack.reduceLeft(_ orElse _) orElse continue)(session)
     }
 
     maybeInterrupt orElse continue
