@@ -60,7 +60,7 @@ trait Chainable extends Action {
         logger.error(s"Action $this crashed on session $message, forwarding to the next one", reason)
         next ! session.markAsFailed
       case _ =>
-        logger.error(s"Action $this crashed on unknow message $message, dropping", reason)
+        logger.error(s"Action $this crashed on unknown message $message, dropping", reason)
     }
   }
 }
