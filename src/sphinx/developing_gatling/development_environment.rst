@@ -70,7 +70,8 @@ As a developer, you'll want to run Gatling from Eclipse, sparing the long proces
 .. image:: img/eclipse_archetype.png
 	:alt: Eclipse project
 
-## Going further
+Going further
+=============
 
 Another set of tools can be appreciated if you want to test things and, for example, package Gatling as an archive.
 
