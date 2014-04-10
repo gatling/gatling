@@ -17,20 +17,22 @@ package io.gatling.core.action.builder
 
 import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor
-import io.gatling.core.action.While
+import io.gatling.core.action.Loop
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ChainBuilder
 
 /**
- * @constructor create a new WhileAction
+ * @constructor create a new Loop
  * @param condition the function that determine the condition
  * @param loopNext chain that will be executed if condition evaluates to true
+ * @param counterName the name of the loop counter
+ * @param exitASAP if the loop is to be exited as soon as the condition no longer holds
  */
-class WhileBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean) extends ActionBuilder {
+class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean) extends ActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols) = {
-    val whileActor = actor(new While(condition, counterName, exitASAP, next))
+    val whileActor = actor(new Loop(condition, counterName, exitASAP, next))
     val loopNextActor = loopNext.build(whileActor, protocols)
     whileActor ! loopNextActor
     whileActor

@@ -19,7 +19,7 @@ import java.util.UUID
 
 import scala.concurrent.duration.Duration
 
-import io.gatling.core.action.builder.{ SessionHookBuilder, WhileBuilder }
+import io.gatling.core.action.builder.{ SessionHookBuilder, LoopBuilder }
 import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
 import io.gatling.core.structure.ChainBuilder.chainOf
 import io.gatling.core.util.TimeHelper.nowMillis
@@ -66,5 +66,5 @@ trait Loops[B] extends Execs[B] {
     asLongAs(Loops.trueExpression, counterName, exitASAP)(chain)
 
   def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
-    exec(new WhileBuilder(condition, chain, counterName, exitASAP))
+    exec(new LoopBuilder(condition, chain, counterName, exitASAP))
 }

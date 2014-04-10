@@ -23,18 +23,18 @@ import io.gatling.core.validation.{ Failure, Success }
 /**
  * Action in charge of controlling a while loop execution.
  *
- * @constructor creates a While loop in the scenario
+ * @constructor creates a Loop in the scenario
  * @param continueCondition the condition that decides when to exit the loop
  * @param counterName the name of the counter for this loop
  * @param next the chain executed if testFunction evaluates to false
  */
-class While(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, next: ActorRef) extends Actor {
+class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, next: ActorRef) extends Actor {
 
   var innerWhile: ActorRef = _
 
   val uninitialized: Receive = {
     case loopNext: ActorRef =>
-      innerWhile = actor(new InnerWhile(continueCondition, loopNext, counterName, exitASAP, next))
+      innerWhile = actor(new InnerLoop(continueCondition, loopNext, counterName, exitASAP, next))
       context.become(initialized)
   }
 
@@ -43,7 +43,7 @@ class While(continueCondition: Expression[Boolean], counterName: String, exitASA
   override def receive = uninitialized
 }
 
-class InnerWhile(continueCondition: Expression[Boolean], loopNext: ActorRef, counterName: String, exitASAP: Boolean, val next: ActorRef) extends Chainable {
+class InnerLoop(continueCondition: Expression[Boolean], loopNext: ActorRef, counterName: String, exitASAP: Boolean, val next: ActorRef) extends Chainable {
 
   val whileInterrupt: PartialFunction[Session, Unit] = {
 
