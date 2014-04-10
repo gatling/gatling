@@ -32,8 +32,8 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 
           def responseTimeDistributionChartComponent: Component = {
             val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, Some(requestName), group)
-            val okDistributionSeries = new Series[IntVsTimePlot]("Success", okDistribution, List(BLUE))
-            val koDistributionSeries = new Series[IntVsTimePlot]("Failure", koDistribution, List(RED))
+            val okDistributionSeries = new Series("Success", okDistribution, List(BLUE))
+            val koDistributionSeries = new Series("Failure", koDistribution, List(RED))
 
             componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
           }

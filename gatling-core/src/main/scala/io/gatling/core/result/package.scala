@@ -19,7 +19,10 @@ package result {
 
   case class Series[X](name: String, data: Seq[X], colors: List[String])
   case class IntVsTimePlot(time: Int, value: Int)
+  case class PercentVsTimePlot(time: Int, value: Double) {
+    def roundedUpValue: Double = (value * 100).toInt / 100.0
+  }
   case class IntRangeVsTimePlot(time: Int, lower: Int, higher: Int)
-  case class PieSlice(name: String, value: Int)
+  case class PieSlice(name: String, value: Double)
   case class ErrorStats(message: String, count: Int, percentage: Int)
 }

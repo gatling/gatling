@@ -19,7 +19,7 @@ import io.gatling.charts.component.{ Component, ComponentLibrary, ErrorTableComp
 import io.gatling.charts.config.ChartsFiles.requestFile
 import io.gatling.charts.template.GroupDetailsPageTemplate
 import io.gatling.charts.util.Colors.{ BLUE, RED }
-import io.gatling.core.result.{ Group, GroupStatsPath, IntRangeVsTimePlot, IntVsTimePlot, Series }
+import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
 
@@ -38,8 +38,8 @@ class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, compone
 
           def cumulatedResponseTimeDistributionChartComponent: Component = {
             val (distributionSuccess, distributionFailure) = dataReader.groupCumulatedResponseTimeDistribution(100, group)
-            val distributionSeriesSuccess = new Series[IntVsTimePlot]("Group cumulated response time (success)", distributionSuccess, List(BLUE))
-            val distributionSeriesFailure = new Series[IntVsTimePlot]("Group cumulated response time (failure)", distributionFailure, List(RED))
+            val distributionSeriesSuccess = new Series("Group cumulated response time (success)", distributionSuccess, List(BLUE))
+            val distributionSeriesFailure = new Series("Group cumulated response time (failure)", distributionFailure, List(RED))
 
             componentLibrary.getGroupDetailsDurationDistributionChartComponent("Group Cumulated Response Time Distribution", "cumulatedResponseTimeDistributionContainer", distributionSeriesSuccess, distributionSeriesFailure)
           }
@@ -55,8 +55,8 @@ class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, compone
 
           def durationDistributionChartComponent: Component = {
             val (distributionSuccess, distributionFailure) = dataReader.groupDurationDistribution(100, group)
-            val distributionSeriesSuccess = new Series[IntVsTimePlot]("Group duration (success)", distributionSuccess, List(BLUE))
-            val distributionSeriesFailure = new Series[IntVsTimePlot]("Group duration (failure)", distributionFailure, List(RED))
+            val distributionSeriesSuccess = new Series("Group duration (success)", distributionSuccess, List(BLUE))
+            val distributionSeriesFailure = new Series("Group duration (failure)", distributionFailure, List(RED))
 
             componentLibrary.getGroupDetailsDurationDistributionChartComponent("Group Duration Distribution", "durationDistributionContainer", distributionSeriesSuccess, distributionSeriesFailure)
           }

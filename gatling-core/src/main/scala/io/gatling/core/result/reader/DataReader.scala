@@ -16,7 +16,7 @@
 package io.gatling.core.result.reader
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.{ ErrorStats, Group, IntRangeVsTimePlot, IntVsTimePlot, StatsPath }
+import io.gatling.core.result._
 import io.gatling.core.result.message.Status
 import io.gatling.core.result.writer.RunMessage
 
@@ -37,7 +37,7 @@ abstract class DataReader(runUuid: String) {
   def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[IntVsTimePlot]
   def numberOfRequestsPerSecond(status: Option[Status] = None, requestName: Option[String] = None, group: Option[Group] = None): Seq[IntVsTimePlot]
   def numberOfResponsesPerSecond(status: Option[Status] = None, requestName: Option[String] = None, group: Option[Group] = None): Seq[IntVsTimePlot]
-  def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None, group: Option[Group] = None): (Seq[IntVsTimePlot], Seq[IntVsTimePlot])
+  def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None, group: Option[Group] = None): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
   def requestGeneralStats(requestName: Option[String] = None, group: Option[Group] = None, status: Option[Status] = None): GeneralStats
   def numberOfRequestInResponseTimeRange(requestName: Option[String] = None, group: Option[Group] = None): Seq[(String, Int)]
   def responseTimeGroupByExecutionStartDate(status: Status, requestName: String, group: Option[Group] = None): Seq[IntRangeVsTimePlot]
@@ -49,8 +49,8 @@ abstract class DataReader(runUuid: String) {
 
   def groupCumulatedResponseTimeGeneralStats(group: Group, status: Option[Status]): GeneralStats
   def groupDurationGeneralStats(group: Group, status: Option[Status]): GeneralStats
-  def groupCumulatedResponseTimeDistribution(slotsNumber: Int, group: Group): (Seq[IntVsTimePlot], Seq[IntVsTimePlot])
-  def groupDurationDistribution(slotsNumber: Int, group: Group): (Seq[IntVsTimePlot], Seq[IntVsTimePlot])
+  def groupCumulatedResponseTimeDistribution(slotsNumber: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
+  def groupDurationDistribution(slotsNumber: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
   def groupCumulatedResponseTimeGroupByExecutionStartDate(status: Status, group: Group): Seq[IntRangeVsTimePlot]
   def groupDurationGroupByExecutionStartDate(status: Status, group: Group): Seq[IntRangeVsTimePlot]
 }

@@ -26,10 +26,10 @@ import io.gatling.charts.result.reader.buffers.{ CountBuffer, GeneralStatsBuffer
 import io.gatling.charts.result.reader.stats.StatsHelper
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
-import io.gatling.core.result.{ ErrorStats, Group, GroupStatsPath, IntRangeVsTimePlot, IntVsTimePlot, RequestStatsPath, StatsPath }
+import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
-import io.gatling.core.result.writer.{ GroupMessageType, RequestMessageType, RunMessage, RunMessageType, UserMessageType }
+import io.gatling.core.result.writer.{ GroupMessageType, RequestMessageType, RunMessageType, UserMessageType, RunMessage }
 import io.gatling.core.util.DateHelper.parseTimestampString
 
 object FileDataReader {
@@ -163,7 +163,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
   def numberOfResponsesPerSecond(status: Option[Status], requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] =
     countBuffer2IntVsTimePlots(resultsHolder.getResponsesPerSecBuffer(requestName, group, status))
 
-  private def distribution(slotsNumber: Int, allBuffer: GeneralStatsBuffer, okBuffers: GeneralStatsBuffer, koBuffer: GeneralStatsBuffer): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) = {
+  private def distribution(slotsNumber: Int, allBuffer: GeneralStatsBuffer, okBuffers: GeneralStatsBuffer, koBuffer: GeneralStatsBuffer): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) = {
 
     // get main and max for request/all status
     val size = allBuffer.stats.count
@@ -172,12 +172,12 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     val min = allBuffer.stats.min
     val max = allBuffer.stats.max
 
-      def percent(s: Int) = math.round(s * 100.0 / size).toInt
+      def percent(s: Int) = s * 100.0 / size
 
     val maxPlots = 100
     if (max - min <= maxPlots) {
         // use exact values
-        def plotsToPercents(plots: Seq[IntVsTimePlot]) = plots.map(plot => plot.copy(value = percent(plot.value))).sortBy(_.time)
+        def plotsToPercents(plots: Seq[IntVsTimePlot]) = plots.map(plot => PercentVsTimePlot(plot.time, percent(plot.value))).sortBy(_.time)
       (plotsToPercents(ok), plotsToPercents(ko))
 
     } else {
@@ -188,7 +188,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
       val bucketFunction = StatsHelper.bucket(_: Int, min, max, step, halfStep)
 
-        def process(buffer: Seq[IntVsTimePlot]): Seq[IntVsTimePlot] = {
+        def process(buffer: Seq[IntVsTimePlot]): Seq[PercentVsTimePlot] = {
 
           val bucketsWithValues = buffer
             .map(record => (bucketFunction(record.time), record))
@@ -204,28 +204,32 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
             }
             .toMap
 
-          buckets.map {
-            bucket => IntVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0))
+          val foo = buckets.map {
+            bucket => PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))
           }
+
+          println(s"foo=$foo")
+
+          foo
         }
 
       (process(ok), process(ko))
     }
   }
 
-  def responseTimeDistribution(slotsNumber: Int, requestName: Option[String], group: Option[Group]): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) =
+  def responseTimeDistribution(slotsNumber: Int, requestName: Option[String], group: Option[Group]): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
     distribution(slotsNumber,
       resultsHolder.getRequestGeneralStatsBuffers(requestName, group, None),
       resultsHolder.getRequestGeneralStatsBuffers(requestName, group, Some(OK)),
       resultsHolder.getRequestGeneralStatsBuffers(requestName, group, Some(KO)))
 
-  def groupCumulatedResponseTimeDistribution(slotsNumber: Int, group: Group): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) =
+  def groupCumulatedResponseTimeDistribution(slotsNumber: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
     distribution(slotsNumber,
       resultsHolder.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, None),
       resultsHolder.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, Some(OK)),
       resultsHolder.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, Some(KO)))
 
-  def groupDurationDistribution(slotsNumber: Int, group: Group): (Seq[IntVsTimePlot], Seq[IntVsTimePlot]) =
+  def groupDurationDistribution(slotsNumber: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
     distribution(slotsNumber,
       resultsHolder.getGroupDurationGeneralStatsBuffers(group, None),
       resultsHolder.getGroupDurationGeneralStatsBuffers(group, Some(OK)),

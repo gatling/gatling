@@ -19,7 +19,7 @@ import io.gatling.charts.component.{ Component, ComponentLibrary, ErrorTableComp
 import io.gatling.charts.config.ChartsFiles.globalFile
 import io.gatling.charts.template.GlobalPageTemplate
 import io.gatling.charts.util.Colors._
-import io.gatling.core.result.{ IntVsTimePlot, PieSlice, Series }
+import io.gatling.core.result.{ PercentVsTimePlot, IntVsTimePlot, PieSlice, Series }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
 
@@ -65,8 +65,8 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
 
       def responseTimeDistributionChartComponent: Component = {
         val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100)
-        val okDistributionSeries = new Series[IntVsTimePlot]("Success", okDistribution, List(BLUE))
-        val koDistributionSeries = new Series[IntVsTimePlot]("Failure", koDistribution, List(RED))
+        val okDistributionSeries = new Series("Success", okDistribution, List(BLUE))
+        val koDistributionSeries = new Series("Failure", koDistribution, List(RED))
 
         componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
       }
