@@ -83,7 +83,7 @@ object ScenarioExporter extends StrictLogging {
         @tailrec
         def generateHeaders(elements: Seq[RequestElement], headers: Map[Int, List[(String, String)]]): Map[Int, List[(String, String)]] = elements match {
           case Seq() => headers
-          case element +: others => {
+          case element +: others =>
             val acceptedHeaders = element.headers.toList
               .filterNot {
                 case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).exists(_ == headerValue)
@@ -109,7 +109,6 @@ object ScenarioExporter extends StrictLogging {
             }
 
             generateHeaders(others, newHeaders)
-          }
         }
 
       SortedMap(generateHeaders(requestElements, Map.empty).toSeq: _*)
