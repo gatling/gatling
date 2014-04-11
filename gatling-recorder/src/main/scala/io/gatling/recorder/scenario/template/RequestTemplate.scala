@@ -32,7 +32,7 @@ object RequestTemplate {
         if (builtInHttpMethods.contains(request.method)) {
           fast"${request.method.toLowerCase}($renderUrl)"
         } else {
-          fast"""httpRequestWithBody("$request.method", Left($renderUrl))"""
+          fast"""httpRequest("$request.method", Left($renderUrl))"""
         }
 
       def renderUrl = protectWithTripleQuotes(request.printedUrl)
