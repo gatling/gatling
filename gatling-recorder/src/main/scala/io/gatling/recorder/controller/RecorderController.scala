@@ -76,7 +76,7 @@ class RecorderController extends StrictLogging {
             } catch {
               case e: Exception =>
                 logger.error("Error while processing HAR file", e)
-                frontEnd.handleHarExportFailure
+                frontEnd.handleHarExportFailure(e.getMessage)
             }
           case Proxy =>
             proxy = new HttpProxy(config, this)

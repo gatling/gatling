@@ -45,7 +45,7 @@ sealed abstract class RecorderFrontend(controller: RecorderController) {
 
   def handleHarExportSuccess()
 
-  def handleHarExportFailure()
+  def handleHarExportFailure(message: String)
 
   def handleFilterValidationFailures(failures: Seq[String])
 
@@ -112,10 +112,10 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
       messageType = Dialog.Message.Info)
   }
 
-  def handleHarExportFailure() {
+  def handleHarExportFailure(message: String) {
     Dialog.showMessage(
       title = "Error",
-      message = """	|Export to HAR File unsuccessful.
+      message = s"""	|Export to HAR File unsuccessful: $message.
 							|See logs for more information""".stripMargin,
       messageType = Dialog.Message.Error)
   }
