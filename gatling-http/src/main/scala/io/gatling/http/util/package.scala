@@ -70,30 +70,30 @@ package object util {
         request.getParts.foreach {
           case part: StringPart =>
             buff
-              .append(s"StringPart:")
-              .append(s" name=${part.getName}")
-              .append(s" contentType=${part.getContentType}")
-              .append(s" dispositionType=${part.getDispositionType}")
-              .append(s" charset=${part.getCharSet}")
-              .append(s" transferEncoding=${part.getTransferEncoding}")
-              .append(s" contentId=${part.getContentId}$eol")
+              .append("StringPart:")
+              .append(" name=").append(part.getName)
+              .append(" contentType=").append(part.getContentType)
+              .append(" dispositionType=").append(part.getDispositionType)
+              .append(" charset=").append(part.getCharSet)
+              .append(" transferEncoding=").append(part.getTransferEncoding)
+              .append(" contentId=").append(part.getContentId).append(eol)
 
           case part: FilePart =>
-            buff.append(s"FilePart:")
-              .append(s" name=${part.getName}")
-              .append(s" contentType=${part.getContentType}")
-              .append(s" dispositionType=${part.getDispositionType}")
-              .append(s" charset=${part.getCharSet}")
-              .append(s" transferEncoding=${part.getTransferEncoding}")
-              .append(s" contentId=${part.getContentId}")
-              .append(s" filename=${part.getSource.getFileName}")
+            buff.append("FilePart:")
+              .append(" name=").append(part.getName)
+              .append(" contentType=").append(part.getContentType)
+              .append(" dispositionType=").append(part.getDispositionType)
+              .append(" charset=").append(part.getCharSet)
+              .append(" transferEncoding=").append(part.getTransferEncoding)
+              .append(" contentId=").append(part.getContentId)
+              .append(" filename=").append(part.getSource.getFileName)
 
             part.getSource match {
-              case source: FilePartSource => buff.append(s" source=File(${source.getFile.getAbsolutePath})")
-              case _                      => buff.append(s" source=byte[]")
+              case source: FilePartSource => buff.append(" source=File(").append(source.getFile.getAbsolutePath).append(")")
+              case _                      => buff.append(" source=byte[]")
             }
 
-            buff.append(s"$eol")
+            buff.append("eol")
         }
       }
 
