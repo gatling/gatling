@@ -25,7 +25,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ DataWritersInitialized, DataWritersTerminated }
 import io.gatling.core.result.message.Status
 import io.gatling.core.scenario.Scenario
-import io.gatling.core.session.{ GroupStackEntry, Session }
+import io.gatling.core.session.{ GroupBlock, Session }
 
 case class InitDataWriter(totalNumberOfUsers: Int)
 
@@ -133,7 +133,7 @@ trait DataWriterClient {
     DataWriter.dispatch(RequestMessage(
       session.scenarioName,
       session.userId,
-      session.groupStack,
+      session.groupHierarchy,
       requestName,
       requestStartDate,
       requestEndDate,
@@ -144,7 +144,7 @@ trait DataWriterClient {
       extraInfo))
   }
 
-  def writeGroupData(session: Session, groupStack: List[GroupStackEntry], entryDate: Long, exitDate: Long, status: Status) {
-    DataWriter.dispatch(GroupMessage(session.scenarioName, session.userId, groupStack, entryDate, exitDate, status))
+  def writeGroupData(session: Session, group: GroupBlock, exitDate: Long) {
+    DataWriter.dispatch(GroupMessage(session.scenarioName, session.userId, group, group.groupHierarchy, group.startDate, exitDate, group.status))
   }
 }

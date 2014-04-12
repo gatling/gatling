@@ -17,8 +17,8 @@ package io.gatling.core.action
 
 import akka.actor.ActorRef
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.session.Session
 import io.gatling.core.validation.Validation
+import io.gatling.core.session.Session
 
 /**
  * Top level abstraction in charge of executing concrete actions along a scenario, for example sending an HTTP request.
@@ -63,29 +63,6 @@ trait Chainable extends Action {
         logger.error(s"Action $this crashed on unknown message $message, dropping", reason)
     }
   }
-}
-
-object Interruptable {
-
-  def interruptOrElse(continue: PartialFunction[Any, Unit]): PartialFunction[Any, Unit] = {
-
-    val maybeInterrupt: PartialFunction[Any, Unit] = {
-      case session: Session if !session.interruptStack.isEmpty => (session.interruptStack.reduceLeft(_ orElse _) orElse continue)(session)
-    }
-
-    maybeInterrupt orElse continue
-  }
-}
-
-/**
- * An Action that can be interrupted/bypassed when some conditions are met.
- * For example: actions within a loop.
- */
-trait Interruptable extends Chainable {
-
-  val interrupt = Interruptable.interruptOrElse(super.receive)
-
-  abstract override def receive = interrupt
 }
 
 /**
