@@ -27,6 +27,8 @@ package io.gatling.jms
 case class JmsAttributes(
   requestName: String,
   queueName: String,
+  replyQueueName: Option[String],
+  messageMatcher: JmsMessageMatcher,
   message: JmsMessage,
   messageProperties: Map[String, Any] = Map.empty,
   checks: List[JmsCheck] = Nil)
