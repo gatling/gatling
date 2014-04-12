@@ -27,17 +27,26 @@ case class JmsRequestBuilderBase(requestName: String) {
 
 case class JmsRequestBuilderQueue(requestName: String, factory: JmsAttributes => ActionBuilder) {
 
-  def queue(queueName: String) = JmsRequestBuilderMessage(requestName, queueName, factory)
+  def queue(queueName: String) = JmsRequestBuilderMessage(requestName, queueName, None, JmsDefaultMessageMatcher, factory)
 }
 
-case class JmsRequestBuilderMessage(requestName: String, queueName: String, factory: JmsAttributes => ActionBuilder) {
+case class JmsRequestBuilderMessage(requestName: String, queueName: String, replyQueueName: Option[String], msgMatcher: JmsMessageMatcher,
+                                    factory: JmsAttributes => ActionBuilder) {
+  /**
+   * Add a reply queue, if not specified dynamic queue is used
+   */
+  def replyQueue(queue: String) = this.copy(replyQueueName = Some(queue))
 
+  /**
+   * Enable custom message matching logic, if not defined JmsDefaultMessageMatcher is used
+   */
+  def messageMatcher(matcher: JmsMessageMatcher) = this.copy(msgMatcher = matcher)
   def textMessage(text: Expression[String]) = message(TextJmsMessage(text))
   def bytesMessage(bytes: Expression[Array[Byte]]) = message(BytesJmsMessage(bytes))
   def mapMessage(map: Map[String, Any]): JmsRequestBuilder = mapMessage(map.expression)
   def mapMessage(map: Expression[Map[String, Any]]): JmsRequestBuilder = message(MapJmsMessage(map))
   def objectMessage(o: Expression[JSerializable]) = message(ObjectJmsMessage(o))
-  private def message(mess: JmsMessage) = JmsRequestBuilder(JmsAttributes(requestName, queueName, mess), factory)
+  private def message(mess: JmsMessage) = JmsRequestBuilder(JmsAttributes(requestName, queueName, replyQueueName, msgMatcher, mess), factory)
 }
 
 case class JmsRequestBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {

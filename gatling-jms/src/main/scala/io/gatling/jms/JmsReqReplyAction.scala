@@ -40,10 +40,13 @@ class JmsReqReplyAction(val next: ActorRef, attributes: JmsAttributes, protocol:
   val client = new SimpleJmsClient(
     protocol.connectionFactoryName,
     attributes.queueName,
+    attributes.replyQueueName,
     protocol.url,
     protocol.credentials,
     protocol.contextFactory,
     protocol.deliveryMode)
+
+  val messageMatcher = attributes.messageMatcher
 
   class ListenerThread(val continue: AtomicBoolean = new AtomicBoolean(true)) extends Thread(new Runnable {
     def run() = {
@@ -51,12 +54,13 @@ class JmsReqReplyAction(val next: ActorRef, attributes: JmsAttributes, protocol:
       while (continue.get) {
         val m = replyConsumer.receive
         m match {
-          case msg: Message => tracker ! MessageReceived(msg.getJMSCorrelationID, nowMillis, msg)
+          case msg: Message => tracker ! MessageReceived(messageMatcher.response(msg), nowMillis, msg)
           case _ =>
             logger.error(JmsReqReplyAction.blockingReceiveReturnedNull.getMessage)
             throw JmsReqReplyAction.blockingReceiveReturnedNull
         }
       }
+      replyConsumer.close()
     }
   })
 
@@ -65,8 +69,9 @@ class JmsReqReplyAction(val next: ActorRef, attributes: JmsAttributes, protocol:
   listenerThreads.foreach(_.start)
 
   override def postStop() {
-    client.close()
     listenerThreads.foreach(_.continue.set(false))
+    listenerThreads.foreach(_.join())
+    client.close
   }
 
   /**
@@ -80,16 +85,16 @@ class JmsReqReplyAction(val next: ActorRef, attributes: JmsAttributes, protocol:
     // send the message
     val start = nowMillis
 
-    val msgid = attributes.message match {
+    val msg = attributes.message match {
       case BytesJmsMessage(bytes) => bytes(session).map(bytes => client.sendBytesMessage(bytes, attributes.messageProperties))
       case MapJmsMessage(map)     => map(session).map(map => client.sendMapMessage(map, attributes.messageProperties))
       case ObjectJmsMessage(o)    => o(session).map(o => client.sendObjectMessage(o, attributes.messageProperties))
       case TextJmsMessage(txt)    => txt(session).map(txt => client.sendTextMessage(txt, attributes.messageProperties))
     }
 
-    msgid.map { msgid =>
+    msg.map { msg =>
       // notify the tracker that a message was sent
-      tracker ! MessageSent(msgid, start, nowMillis, attributes.checks, session, next, attributes.requestName)
+      tracker ! MessageSent(messageMatcher.request(msg), start, nowMillis, attributes.checks, session, next, attributes.requestName)
     }
   }
 }
