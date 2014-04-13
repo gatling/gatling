@@ -39,7 +39,7 @@ abstract class MetricsSender {
     sendToGraphite(bytes)
   }
 
-  def sendToGraphite(bytes: Array[Byte])
+  def sendToGraphite(bytes: Array[Byte]): Unit
 
-  def flush()
+  def flush(): Unit
 }
