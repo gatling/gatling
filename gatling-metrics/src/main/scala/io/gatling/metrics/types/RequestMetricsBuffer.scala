@@ -42,14 +42,16 @@ class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
   }
 
   def clear(): Unit = {
-    okDigest.clear
-    koDigest.clear
-    allDigest.clear
+    okDigest.clear()
+    koDigest.clear()
+    allDigest.clear()
   }
 
-  private def metricsOfDigest(digest: MetricsBuffer) = if (digest.size() > 0) Some(Metrics(digest, percentile1, percentile2)) else None
+  private def metricsOfDigest(digest: MetricsBuffer): Option[Metrics] =
+    if (digest.size > 0) Some(Metrics(digest, percentile1, percentile2)) else None
 
-  def metricsByStatus = MetricByStatus(metricsOfDigest(okDigest), metricsOfDigest(koDigest), metricsOfDigest(allDigest))
+  def metricsByStatus =
+    MetricByStatus(metricsOfDigest(okDigest), metricsOfDigest(koDigest), metricsOfDigest(allDigest))
 }
 
 class MetricsBuffer(bucketWidth: Int) {
@@ -59,7 +61,7 @@ class MetricsBuffer(bucketWidth: Int) {
   var min = Long.MaxValue
   private val buckets = mutable.HashMap.empty[Long, Long].withDefaultValue(0L)
 
-  def add(value: Long) {
+  def add(value: Long): Unit = {
     count += 1
     max = max.max(value)
     min = min.min(value)
@@ -73,10 +75,10 @@ class MetricsBuffer(bucketWidth: Int) {
     count = 0
     max = 0L
     min = Long.MaxValue
-    buckets.clear
+    buckets.clear()
   }
 
-  def size() = count
+  def size = count
 
   def quantile(quantile: Double): Long = {
     if (buckets.isEmpty)
@@ -106,6 +108,6 @@ case class Metrics(count: Long, min: Double, max: Double, percentile1: Double, p
 
 object Metrics {
   def apply(digest: MetricsBuffer, percentile1: Double, percentile2: Double): Metrics =
-    Metrics(digest.size(), digest.min, digest.max, digest.quantile(percentile1), digest.quantile(percentile2))
+    Metrics(digest.size, digest.min, digest.max, digest.quantile(percentile1), digest.quantile(percentile2))
 }
 

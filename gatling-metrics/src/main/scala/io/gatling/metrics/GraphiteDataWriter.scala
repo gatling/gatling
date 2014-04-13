@@ -18,7 +18,7 @@ package io.gatling.metrics
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
-import akka.actor.{ ActorRef, actorRef2Scala }
+import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.config.GatlingConfiguration
@@ -26,22 +26,7 @@ import io.gatling.core.config.GatlingConfiguration.{ configuration => gatlingCon
 import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, ShortScenarioDescription, UserMessage }
 import io.gatling.core.util.TimeHelper.nowSeconds
 import io.gatling.metrics.sender.MetricsSender
-import io.gatling.metrics.types.{ MetricByStatus, Metrics, RequestMetricsBuffer, UsersBreakdown, UsersBreakdownBuffer }
-
-object GraphitePath {
-  private val sanitizeStringMemo = mutable.Map.empty[String, String]
-  def sanitizeString(s: String) = sanitizeStringMemo.getOrElseUpdate(s, s.replace(' ', '_').replace('.', '-').replace('\\', '-'))
-
-  def graphitePath(root: String) = new GraphitePath(List(sanitizeString(root)))
-  def graphitePath(path: List[String]) = new GraphitePath(path.map(sanitizeString))
-}
-
-case class GraphitePath private (val path: List[String]) {
-  import GraphitePath.sanitizeString
-  def /(subPath: String) = new GraphitePath(sanitizeString(subPath) :: path)
-  def pathKey = path.reverse.mkString(".")
-  def pathKeyWithPrefix(prefix: String) = path.reverse.mkString(prefix, ".", "")
-}
+import io.gatling.metrics.types._
 
 object GraphiteDataWriter {
   import GraphitePath._
@@ -86,28 +71,21 @@ class GraphiteDataWriter extends DataWriter {
     requestsByPath.getOrElseUpdate(allRequestsKey, new RequestMetricsBuffer).add(request.status, request.responseTime)
   }
 
-  def onTerminateDataWriter(): Unit = {
-    graphiteSender ! Flush
-  }
+  def onTerminateDataWriter(): Unit = graphiteSender ! Flush
 
-  override def receive = uninitialized
+  override def receive: Receive = uninitialized
 
   override def initialized: Receive = super.initialized.orElse {
-    case Send => {
+    case Send =>
       val requestMetrics = requestsByPath.mapValues(_.metricsByStatus).toMap
       val currentUserBreakdowns = usersByScenario.mapValues(UsersBreakdown(_)).toMap
 
-      // Reset all metrics 
-      requestsByPath.foreach { case (_, buff) => buff.clear }
+      // Reset all metrics
+      requestsByPath.foreach { case (_, buff) => buff.clear() }
 
       graphiteSender ! SendMetrics(requestMetrics, currentUserBreakdowns)
-    }
   }
 }
-
-case object Flush
-case object Send
-case class SendMetrics(requestMetrics: Map[GraphitePath, MetricByStatus], usersBreakdowns: Map[GraphitePath, UsersBreakdown])
 
 private class GraphiteSender(graphiteRootPathKey: String)(implicit configuration: GatlingConfiguration) extends BaseActor {
   import GraphiteDataWriter._
@@ -117,11 +95,11 @@ private class GraphiteSender(graphiteRootPathKey: String)(implicit configuration
 
   private var metricsSender: MetricsSender = _
 
-  override def preStart() {
+  override def preStart(): Unit = {
     metricsSender = MetricsSender.newMetricsSender
   }
 
-  def receive = {
+  def receive: Receive = {
     case SendMetrics(requestsMetrics, usersBreakdowns) => sendMetricsToGraphite(nowSeconds, requestsMetrics, usersBreakdowns)
     case Flush                                         => metricsSender.flush()
   }

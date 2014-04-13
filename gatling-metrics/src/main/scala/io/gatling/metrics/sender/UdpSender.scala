@@ -27,10 +27,8 @@ class UdpSender extends MetricsSender with AkkaDefaults {
   private val socket: DatagramSocket = DatagramChannel.open.socket
   system.registerOnTermination(socket.close())
 
-  def sendToGraphite(bytes: Array[Byte]) {
-    val packet = new DatagramPacket(bytes, bytes.length, address)
-    socket.send(packet)
-  }
+  def sendToGraphite(bytes: Array[Byte]): Unit =
+    socket.send(new DatagramPacket(bytes, bytes.length, address))
 
-  def flush() {}
+  def flush(): Unit = {}
 }

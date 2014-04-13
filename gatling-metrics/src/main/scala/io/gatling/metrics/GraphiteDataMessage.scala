@@ -13,23 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.metrics.sender
+package io.gatling.metrics
 
-import java.net.Socket
+import io.gatling.metrics.types.{ MetricByStatus, UsersBreakdown }
 
-import io.gatling.core.akka.AkkaDefaults
-import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.UnsyncBufferedOutputStream
+sealed trait GraphiteDataMessage
 
-class TcpSender extends MetricsSender with AkkaDefaults {
+case object Flush extends GraphiteDataMessage
 
-  val os = {
-    val sos = new Socket(configuration.data.graphite.host, configuration.data.graphite.port).getOutputStream
-    system.registerOnTermination(sos.close())
-    new UnsyncBufferedOutputStream(sos, configuration.data.graphite.bufferSize)
-  }
+case object Send extends GraphiteDataMessage
 
-  def sendToGraphite(bytes: Array[Byte]): Unit = os.write(bytes)
+case class SendMetrics(
+  requestMetrics: Map[GraphitePath, MetricByStatus],
+  usersBreakdowns: Map[GraphitePath, UsersBreakdown])
+    extends GraphiteDataMessage
 
-  def flush(): Unit = os.flush()
-}

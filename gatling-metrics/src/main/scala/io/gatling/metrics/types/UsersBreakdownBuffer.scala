@@ -26,27 +26,25 @@ class UsersBreakdownBuffer(val nbUsers: Int) {
   private var _done = 0
   private var doneBuffer = 0
 
-  def add(userMessage: UserMessage) {
-    userMessage.event match {
-      case Start =>
-        _active += 1
-        _waiting -= 1
+  def add(userMessage: UserMessage): Unit = userMessage.event match {
+    case Start =>
+      _active += 1
+      _waiting -= 1
 
-      case End =>
-        activeBuffer += 1
-        doneBuffer += 1
-    }
+    case End =>
+      activeBuffer += 1
+      doneBuffer += 1
   }
 
-  def active = {
+  def active: Int = {
     _active -= activeBuffer
     activeBuffer = 0
     _active
   }
 
-  def waiting = _waiting
+  def waiting: Int = _waiting
 
-  def done = {
+  def done: Int = {
     _done += doneBuffer
     doneBuffer = 0
     _done
@@ -56,5 +54,6 @@ class UsersBreakdownBuffer(val nbUsers: Int) {
 
 case class UsersBreakdown(nbUsers: Int, active: Int, waiting: Int, done: Int)
 object UsersBreakdown {
-  def apply(buf: UsersBreakdownBuffer): UsersBreakdown = UsersBreakdown(buf.nbUsers, buf.active, buf.waiting, buf.done)
+  def apply(buf: UsersBreakdownBuffer): UsersBreakdown =
+    UsersBreakdown(buf.nbUsers, buf.active, buf.waiting, buf.done)
 }
