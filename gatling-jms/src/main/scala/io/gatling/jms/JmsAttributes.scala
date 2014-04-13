@@ -15,6 +15,8 @@
  */
 package io.gatling.jms
 
+import io.gatling.core.session.Expression
+
 /**
  * JmsAttributes carries around the JMS settings.
  * <p>
@@ -30,5 +32,5 @@ case class JmsAttributes(
   replyQueueName: Option[String],
   messageMatcher: JmsMessageMatcher,
   message: JmsMessage,
-  messageProperties: Map[String, Any] = Map.empty,
+  messageProperties: Map[Expression[String], Expression[Any]] = Map.empty,
   checks: List[JmsCheck] = Nil)
