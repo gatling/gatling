@@ -20,7 +20,7 @@ import java.util.{ Hashtable => JHashtable }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.Credentials
-import javax.jms.{ ConnectionFactory, Message, Session }
+import javax.jms.{ ConnectionFactory, Message, MessageConsumer, Queue, Session }
 import javax.naming.{ Context, InitialContext }
 
 /**
@@ -28,38 +28,41 @@ import javax.naming.{ Context, InitialContext }
  * @author jasonk@bluedevel.com
  */
 class SimpleJmsClient(
-    connectionFactoryName: String,
-    queueName: String,
-    replyQueueName: Option[String],
-    url: String,
-    credentials: Option[Credentials],
-    contextFactory: String,
-    deliveryMode: Int) extends StrictLogging {
+  connectionFactoryName: String,
+  queueName: String,
+  replyQueueName: Option[String],
+  url: String,
+  credentials: Option[Credentials],
+  contextFactory: String,
+  deliveryMode: Int)
+    extends StrictLogging {
 
   // create InitialContext
   val properties = new JHashtable[String, String]
   properties.put(Context.INITIAL_CONTEXT_FACTORY, contextFactory)
   properties.put(Context.PROVIDER_URL, url)
+
   credentials.foreach { credentials =>
     properties.put(Context.SECURITY_PRINCIPAL, credentials.username)
     properties.put(Context.SECURITY_CREDENTIALS, credentials.password)
   }
 
   val ctx = new InitialContext(properties)
-  logger.info("Got InitialContext " + ctx)
+  logger.info(s"Got InitialContext $ctx")
 
   // create QueueConnectionFactory
   val qcf = ctx.lookup(connectionFactoryName).asInstanceOf[ConnectionFactory]
-  logger.info("Got ConnectionFactory " + qcf)
+  logger.info(s"Got ConnectionFactory $qcf")
 
   // create QueueConnection
   val conn = qcf.createConnection
   conn.start()
+
   val session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)
-  logger.info("Got Connection " + conn)
+  logger.info(s"Got Connection $conn")
 
   // reply queue and target destination/producer
-  val replyQ = replyQueueName.map(session.createQueue(_))
+  val replyQ = replyQueueName.map(session.createQueue)
   val replyTMPQ = session.createTemporaryQueue
   val destination = session.createQueue(queueName)
   val producer = session.createProducer(destination)
@@ -67,16 +70,17 @@ class SimpleJmsClient(
   // delivery mode based on input from caller
   producer.setDeliveryMode(deliveryMode)
 
-  private def replyQueue = replyQ.getOrElse(replyTMPQ)
+  private def replyQueue: Queue = replyQ.getOrElse(replyTMPQ)
   /**
    * Gets a new consumer for the reply queue
    */
-  def createReplyConsumer = conn.createSession(false, Session.AUTO_ACKNOWLEDGE).createConsumer(replyQueue)
+  def createReplyConsumer: MessageConsumer =
+    conn.createSession(false, Session.AUTO_ACKNOWLEDGE).createConsumer(replyQueue)
 
   /**
    * Writes a property map to the message properties
    */
-  private def writePropsToMessage(props: Map[String, Any], message: Message) =
+  private def writePropsToMessage(props: Map[String, Any], message: Message): Unit =
     props.foreach { case (key, value) => message.setObjectProperty(key, value) }
 
   /**
@@ -127,7 +131,6 @@ class SimpleJmsClient(
    * Note that exceptions are allowed to bubble up to the caller
    */
   def sendMessage(message: Message): Message = {
-
     message.setJMSReplyTo(replyQueue)
     producer.send(message)
 
@@ -135,7 +138,7 @@ class SimpleJmsClient(
     message
   }
 
-  def close() {
+  def close(): Unit = {
     replyTMPQ.delete()
     producer.close()
     session.close()

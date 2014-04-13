@@ -25,12 +25,16 @@ case class JmsRequestBuilderBase(requestName: String) {
   def reqreply = JmsRequestBuilderQueue(requestName, JmsReqReplyActionBuilder)
 }
 
-case class JmsRequestBuilderQueue(requestName: String, factory: JmsAttributes => ActionBuilder) {
+case class JmsRequestBuilderQueue(requestName: String,
+                                  factory: JmsAttributes => ActionBuilder) {
 
   def queue(queueName: String) = JmsRequestBuilderMessage(requestName, queueName, None, JmsDefaultMessageMatcher, factory)
 }
 
-case class JmsRequestBuilderMessage(requestName: String, queueName: String, replyQueueName: Option[String], msgMatcher: JmsMessageMatcher,
+case class JmsRequestBuilderMessage(requestName: String,
+                                    queueName: String,
+                                    replyQueueName: Option[String],
+                                    msgMatcher: JmsMessageMatcher,
                                     factory: JmsAttributes => ActionBuilder) {
   /**
    * Add a reply queue, if not specified dynamic queue is used
@@ -46,7 +50,9 @@ case class JmsRequestBuilderMessage(requestName: String, queueName: String, repl
   def mapMessage(map: Map[String, Any]): JmsRequestBuilder = mapMessage(map.expression)
   def mapMessage(map: Expression[Map[String, Any]]): JmsRequestBuilder = message(MapJmsMessage(map))
   def objectMessage(o: Expression[JSerializable]) = message(ObjectJmsMessage(o))
-  private def message(mess: JmsMessage) = JmsRequestBuilder(JmsAttributes(requestName, queueName, replyQueueName, msgMatcher, mess), factory)
+
+  private def message(mess: JmsMessage) =
+    JmsRequestBuilder(JmsAttributes(requestName, queueName, replyQueueName, msgMatcher, mess), factory)
 }
 
 case class JmsRequestBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {
@@ -54,12 +60,14 @@ case class JmsRequestBuilder(attributes: JmsAttributes, factory: JmsAttributes =
   /**
    * Add JMS message properties (aka headers) to the outbound message
    */
-  def property(key: Expression[String], value: Expression[Any]) = new JmsRequestBuilder(attributes.copy(messageProperties = attributes.messageProperties + (key -> value)), factory)
+  def property(key: Expression[String], value: Expression[Any]) =
+    new JmsRequestBuilder(attributes.copy(messageProperties = attributes.messageProperties + (key -> value)), factory)
 
   /**
    * Add a check that will be perfomed on each received JMS response message before giving Gatling on OK/KO response
    */
-  def check(checks: JmsCheck*) = new JmsRequestBuilder(attributes.copy(checks = attributes.checks ::: checks.toList), factory)
+  def check(checks: JmsCheck*) =
+    new JmsRequestBuilder(attributes.copy(checks = attributes.checks ::: checks.toList), factory)
 
   def build(): ActionBuilder = factory(attributes)
 }

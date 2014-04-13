@@ -17,18 +17,26 @@ package io.gatling.jms
 
 import scala.collection.mutable
 import akka.actor.ActorRef
+
 import io.gatling.core.Predef.Session
 import io.gatling.core.result.message.{ KO, OK }
-import javax.jms.Message
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.writer.DataWriterClient
+
+import javax.jms.Message
 
 /**
  * Advise actor a message was sent to JMS provider
  * @author jasonk@bluedevel.com
  */
-case class MessageSent(correlationId: String, startSend: Long, endSend: Long,
-                       checks: List[JmsCheck], session: Session, next: ActorRef, title: String)
+case class MessageSent(
+  correlationId: String,
+  startSend: Long,
+  endSend: Long,
+  checks: List[JmsCheck],
+  session: Session,
+  next: ActorRef,
+  title: String)
 
 /**
  * Advise actor a response message was received from JMS provider
@@ -44,8 +52,8 @@ case class MessageReceived(correlationId: String, received: Long, message: Messa
 class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
 
   // messages to be tracked through this HashMap - note it is a mutable hashmap
-  val sentMessages = new mutable.HashMap[String, (Long, Long, List[JmsCheck], Session, ActorRef, String)]()
-  val receivedMessages = new mutable.HashMap[String, (Long, Message)]()
+  val sentMessages = mutable.HashMap.empty[String, (Long, Long, List[JmsCheck], Session, ActorRef, String)]
+  val receivedMessages = mutable.HashMap.empty[String, (Long, Message)]
 
   // Actor receive loop
   def receive = {
@@ -82,8 +90,14 @@ class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
   /**
    * Processes a matched message
    */
-  def processMessage(session: Session, startSend: Long, received: Long, endSend: Long,
-                     checks: List[JmsCheck], message: Message, next: ActorRef, title: String) {
+  def processMessage(session: Session,
+                     startSend: Long,
+                     received: Long,
+                     endSend: Long,
+                     checks: List[JmsCheck],
+                     message: Message,
+                     next: ActorRef,
+                     title: String): Unit = {
 
     // run all of the checks
     val checksPassed = checks.forall((check: JmsCheck) => check(message))

@@ -34,17 +34,27 @@ case object JmsProtocolBuilderBase {
 
 case class JmsProtocolBuilderUrlStep(connectionFactoryName: String) {
 
-  def url(theUrl: String) = JmsProtocolBuilderContextFactoryStep(connectionFactoryName, theUrl)
+  def url(theUrl: String) =
+    JmsProtocolBuilderContextFactoryStep(connectionFactoryName, theUrl)
 }
 
-case class JmsProtocolBuilderContextFactoryStep(connectionFactoryName: String, url: String, credentials: Option[Credentials] = None) {
+case class JmsProtocolBuilderContextFactoryStep(
+    connectionFactoryName: String,
+    url: String,
+    credentials: Option[Credentials] = None) {
 
-  def credentials(user: String, password: String) = copy(credentials = Some(Credentials(user, password)))
+  def credentials(user: String, password: String) =
+    copy(credentials = Some(Credentials(user, password)))
 
-  def contextFactory(cf: String) = JmsProtocolBuilderListenerCountStep(connectionFactoryName, url, credentials, cf)
+  def contextFactory(cf: String) =
+    JmsProtocolBuilderListenerCountStep(connectionFactoryName, url, credentials, cf)
 }
 
-case class JmsProtocolBuilderListenerCountStep(connectionFactoryName: String, url: String, credentials: Option[Credentials], contextFactory: String) {
+case class JmsProtocolBuilderListenerCountStep(
+    connectionFactoryName: String,
+    url: String,
+    credentials: Option[Credentials],
+    contextFactory: String) {
 
   def listenerCount(count: Int) = {
     require(count > 0, "JMS response listener count must be at least 1")
@@ -52,10 +62,16 @@ case class JmsProtocolBuilderListenerCountStep(connectionFactoryName: String, ur
   }
 }
 
-case class JmsProtocolBuilder(connectionFactoryName: String, url: String, credentials: Option[Credentials], contextFactory: String, listenerCount: Int, deliveryMode: Int = DeliveryMode.NON_PERSISTENT) {
+case class JmsProtocolBuilder(
+    connectionFactoryName: String,
+    url: String,
+    credentials: Option[Credentials],
+    contextFactory: String,
+    listenerCount: Int,
+    deliveryMode: Int = DeliveryMode.NON_PERSISTENT) {
 
-  def usePersistentDeliveryMode() = copy(deliveryMode = DeliveryMode.PERSISTENT)
-  def useNonPersistentDeliveryMode() = copy(deliveryMode = DeliveryMode.NON_PERSISTENT)
+  def usePersistentDeliveryMode = copy(deliveryMode = DeliveryMode.PERSISTENT)
+  def useNonPersistentDeliveryMode = copy(deliveryMode = DeliveryMode.NON_PERSISTENT)
 
   def build = new JmsProtocol(
     contextFactory = contextFactory,

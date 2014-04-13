@@ -26,7 +26,6 @@ import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session.Session
 
 object JmsReqReplyAction {
-
   val blockingReceiveReturnedNull = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
 }
 
@@ -37,7 +36,13 @@ object JmsReqReplyAction {
  * This implementation then forwards it on to a tracking actor.
  * @author jasonk@bluedevel.com
  */
-class JmsReqReplyAction(val next: ActorRef, attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef) extends Interruptable with Failable {
+class JmsReqReplyAction(
+  val next: ActorRef,
+  attributes: JmsAttributes,
+  protocol: JmsProtocol,
+  tracker: ActorRef)
+    extends Interruptable
+    with Failable {
 
   // Create a client to refer to
   val client = new SimpleJmsClient(
@@ -52,7 +57,7 @@ class JmsReqReplyAction(val next: ActorRef, attributes: JmsAttributes, protocol:
   val messageMatcher = attributes.messageMatcher
 
   class ListenerThread(val continue: AtomicBoolean = new AtomicBoolean(true)) extends Thread(new Runnable {
-    def run() = {
+    def run(): Unit = {
       val replyConsumer = client.createReplyConsumer
       while (continue.get) {
         val m = replyConsumer.receive
@@ -71,7 +76,7 @@ class JmsReqReplyAction(val next: ActorRef, attributes: JmsAttributes, protocol:
 
   listenerThreads.foreach(_.start)
 
-  override def postStop() {
+  override def postStop(): Unit = {
     listenerThreads.foreach(_.continue.set(false))
     listenerThreads.foreach(_.join())
     client.close()
@@ -83,7 +88,7 @@ class JmsReqReplyAction(val next: ActorRef, attributes: JmsAttributes, protocol:
    * Note this does not catch any exceptions (even JMSException) as generally these indicate a
    * configuration failure that is unlikely to be addressed by retrying with another message
    */
-  def executeOrFail(session: Session) = {
+  def executeOrFail(session: Session): Validation[Unit] = {
 
     // send the message
     val start = nowMillis
@@ -103,14 +108,15 @@ class JmsReqReplyAction(val next: ActorRef, attributes: JmsAttributes, protocol:
     }
   }
 
-  def resolveProperties(properties: Map[Expression[String], Expression[Any]], session: Session): Validation[Map[String, Any]] = {
+  def resolveProperties(properties: Map[Expression[String], Expression[Any]],
+                        session: Session): Validation[Map[String, Any]] = {
     properties.foldLeft(Map.empty[String, Any].success) {
       case (resolvedProperties, (key, value)) =>
         val newProperty: Validation[(String, Any)] =
           for {
             key <- key(session)
             value <- value(session)
-          } yield (key -> value)
+          } yield key -> value
 
         for {
           newProperty <- newProperty
