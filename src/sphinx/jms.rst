@@ -47,6 +47,15 @@ Queue
 
 Define the target queue with ``queue("queueName")``.
 
+Optionally define reply queue with ``replyQueue("responseQueue")`` if not defined dynamic queue will be used
+
+Message Matching
+----------------
+
+Request/Reply messages are matched using JMS pattern (request JMSMessageID should be return in response as JMSCorrelationID).
+
+If different logic is required, it can be specified using ``messageMatcher(JmsMessageMatcher)``
+
 Message
 -------
 
@@ -58,7 +67,7 @@ Message
 Properties
 ----------
 
-One can send additional properties with ``property(Expression[String], Expression[String])``.
+One can send additional properties with ``property(Expression[String], Expression[Any])``.
 
 JMS Check API
 =============

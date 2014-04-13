@@ -21,6 +21,11 @@ import io.gatling.core.Predef._
 import io.gatling.jms.Predef._
 import javax.jms._
 
+object IdentificationMatcher extends JmsMessageMatcher {
+  override def response(msg: Message): String = request(msg)
+  override def request(msg: Message): String = msg.getStringProperty("identification")
+}
+
 class JMSCompileTest extends Simulation {
 
   val jmsConfig = jms
@@ -52,6 +57,13 @@ class JMSCompileTest extends Simulation {
       .queue("jmstestq")
       .objectMessage("hello!")
       .property("test_header", "test_value")
+      .check(checkBodyTextCorrect))
+    exec(jms("req reply - custom").reqreply
+      .queue("requestQueue")
+      .replyQueue("responseQueue")
+      .messageMatcher(IdentificationMatcher)
+      .textMessage("hello from gatling jms dsl")
+      .property("identification", "${ID}")
       .check(checkBodyTextCorrect))
   }
 
