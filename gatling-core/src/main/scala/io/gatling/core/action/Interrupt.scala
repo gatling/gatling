@@ -26,6 +26,16 @@ import io.gatling.core.util.TimeHelper.nowMillis
 
 object Interrupt {
 
+  /**
+   * Recursively loop on a block List until a stop point and build the Interruption to execute.
+   *
+   * @param blocks the blocks to scan
+   * @param until the exit point of the loop
+   * @param actor the next actor to chain when resolving the Interruption
+   * @param session the session so far
+   * @param groupsToClose the groups so far to close when resolving the Interruption
+   * @return the Interruption to process
+   */
   @tailrec
   def exitBlocks(blocks: List[Block], until: Block, actor: ActorRef, session: Session, groupsToClose: List[GroupBlock]): Interruption = blocks match {
 
@@ -45,8 +55,20 @@ object Interrupt {
     }
   }
 
+  /**
+   * An extractor to determine if this session is supposed to trigger an Interruption based on ExitASAP loops
+   * (a loop that doesn't wait for iteration end before testing exit condition).
+   */
   object InterruptOnExitASAPLoop {
 
+    /**
+     * Scan the block stack for ExitASAP loops.
+     * Scan is performed from left to right (right is deeper) = reversed.
+     *
+     * @param session the session
+     * @param leftToRightBlocks the blocks sorted from left to right
+     * @return the potential Interruption to process
+     */
     @tailrec
     private def interruptOnExitASAPLoop(session: Session, leftToRightBlocks: List[Block]): Option[Interruption] = leftToRightBlocks match {
       case Nil => None
@@ -67,8 +89,19 @@ object Interrupt {
     }
   }
 
+  /**
+   * An extractor to determine if this session is supposed to trigger an Interruption based on TryMax blocks.
+   */
   object InterruptOnTryMax {
 
+    /**
+     * Scan the block stack for ExitASAP loops.
+     * Scan is performed from right to left (right is deeper) = normal.
+     *
+     * @param session the session
+     * @param stack the blocks sorted from right to left
+     * @return the potential Interruption to process
+     */
     @tailrec
     def interruptOnTryMax(session: Session, stack: List[Block]): Option[Interruption] = stack match {
       case Nil => None
@@ -90,6 +123,12 @@ object Interrupt {
   }
 }
 
+/**
+ * Describes an interruption to be performed.
+ * @param nextActor the actor to send next, instead of following the regular workflow.
+ * @param nextSession the new Session to be sent to nextActor
+ * @param groupsToClose the groups to be closed as we bypass the regular GroupEnd from the regular flow
+ */
 case class Interruption(nextActor: ActorRef, nextSession: Session, groupsToClose: List[GroupBlock])
 
 object Interruptable extends DataWriterClient {
@@ -101,6 +140,11 @@ object Interruptable extends DataWriterClient {
     nextActor ! nextSession
   }
 
+  /**
+   * Check for ExitASAP loops and TryMax blocks that might interrupt the regular flow.
+   * This logic is not directly in Interruptable trait as Interruptable behavior can me mixed in dynamically.
+   * For example, loops and trymax blocks become interruptable once they've become initialized with the loop content.
+   */
   val interrupt: Receive = {
     case Interrupt.InterruptOnExitASAPLoop(interruption) => doInterrupt(interruption)
     case Interrupt.InterruptOnTryMax(interruption)       => doInterrupt(interruption)
@@ -108,8 +152,7 @@ object Interruptable extends DataWriterClient {
 }
 
 /**
- * An Action that can be interrupted/bypassed when some conditions are met.
- * For example: actions within a loop.
+ * An Action that can trigger an interrupt and bypass regular workflow.
  */
 trait Interruptable extends Chainable {
 
