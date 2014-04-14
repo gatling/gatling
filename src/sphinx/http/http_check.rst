@@ -119,7 +119,7 @@ Defines a Java regular expression to be applied on any text response body.
 
 *expression* can be a simple String, a String containing an expression, or an Expression[String].
 
-It can contain multiple capture group.
+It can contain multiple capture groups.
 
 ::
 
@@ -326,7 +326,7 @@ Saving
 
 Saving is an optional step for storing the result of the previous step (extraction or transformation) into the virtual user Session, so that it can be reused later.
 
-*key* is a String
+*key* is a String.
 
 Putting it all together
 =======================

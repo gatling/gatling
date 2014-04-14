@@ -59,7 +59,7 @@ Step 02: Configure virtual users
 So, this is great, we can load test our server with... one user!
 Let's increase the number of users.
 
-Let define two populations of users:
+Let's define two populations of users:
   * *regular* users: they can search and browse computer models.
   * *admin* users: they can also edit computer models.
 
@@ -148,7 +148,7 @@ Step 04: Looping
 ================
 
 In the *browse* process we have a lot of repetition when iterating through the pages.
-We have four time the same request with a different query param value. Can we try to DRY this?
+We have four times the same request with a different query param value. Can we try to DRY this?
 
 First we will extract the repeated ``exec`` block in a function.
 Indeed, ``Simulation``\ s are plain Scala classes so we can use all the power of the language if needed::
@@ -163,7 +163,7 @@ Indeed, ``Simulation``\ s are plain Scala classes so we can use all the power of
   }
 
 We can now call this function and pass the desired page number.
-But we have still repetition, it's time to introduce a new builtin structure::
+But we still have repetition, it's time to introduce a new builtin structure::
 
   object Browse {
 

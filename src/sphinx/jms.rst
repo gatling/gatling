@@ -47,14 +47,14 @@ Queue
 
 Define the target queue with ``queue("queueName")``.
 
-Optionally define reply queue with ``replyQueue("responseQueue")`` if not defined dynamic queue will be used
+Optionally define reply queue with ``replyQueue("responseQueue")`` if not defined dynamic queue will be used.
 
 Message Matching
 ----------------
 
 Request/Reply messages are matched using JMS pattern (request JMSMessageID should be return in response as JMSCorrelationID).
 
-If different logic is required, it can be specified using ``messageMatcher(JmsMessageMatcher)``
+If different logic is required, it can be specified using ``messageMatcher(JmsMessageMatcher)``.
 
 Message
 -------
@@ -76,7 +76,7 @@ JMS Check API
 
 JMS checks are very basic for now.
 
-There's just ``javax.jms.Message => Boolean`` functions
+There's just ``javax.jms.Message => Boolean`` functions.
 
 Example
 =======
@@ -119,3 +119,4 @@ Short example, assuming FFMQ on localhost, using a reqreply query, to the queue 
       }
     }
   }
+
