@@ -1,0 +1,74 @@
+/**
+ * Copyright 2011-2014 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.gatling.http.feeder
+
+import io.gatling.core.feeder.Record
+import java.io.InputStream
+import collection.mutable.ArrayBuffer
+import scala.xml.Node
+
+/**
+ * Parser for files in [[http://www.sitemaps.org/protocol.html sitemap]] format.
+ *
+ * @author Ivan Mushketyk
+ */
+object SitemapParser {
+
+  val LOCATION_TAG = "loc"
+
+  /**
+   * Parse file in sitemap format. Returns a Record for each location described
+   * in a sitemap file
+   *
+   * @param inputStream stream for the file to parse
+   * @return a record for each url described in a sitemap file
+   */
+  def parse(inputStream: InputStream): Iterable[Record[String]] = {
+    val records = ArrayBuffer[Record[String]]()
+
+    val urlsetElem = scala.xml.XML.load(inputStream)
+    (urlsetElem \ "url").foreach(url => {
+      val record = collection.mutable.Map[String, String]()
+      url.child.foreach(node => {
+        if (node.isInstanceOf[xml.Elem]) {
+          val nodeName = name(node)
+          val textValue = text(node)
+          record(nodeName) = textValue
+        }
+      })
+
+      if (!record.contains(LOCATION_TAG)) {
+        throw new SitemapFormatException("No 'loc' child in 'url' element")
+      }
+
+      records.+=(record.toMap)
+    })
+
+    records
+  }
+
+  private def name(node: Node): String = {
+    val sb = new StringBuilder
+    node.nameToString(sb)
+    sb.toString
+  }
+
+  private def text(node: Node): String = {
+    node.child.head.toString
+  }
+}
+
+class SitemapFormatException(msg: String) extends Exception
