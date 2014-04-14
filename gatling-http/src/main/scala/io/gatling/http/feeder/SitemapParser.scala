@@ -19,6 +19,8 @@ import io.gatling.core.feeder.Record
 import java.io.InputStream
 import collection.mutable.ArrayBuffer
 import scala.xml.Node
+import io.gatling.core.config.Resource
+import io.gatling.core.util.IOHelper._
 
 /**
  * Parser for files in [[http://www.sitemaps.org/protocol.html sitemap]] format.
@@ -31,17 +33,31 @@ object SitemapParser {
 
   /**
    * Parse file in sitemap format. Returns a Record for each location described
-   * in a sitemap file
+   * in a sitemap file.
+   *
+   * @param resource resource to parse
+   * @return a record for each url described in a sitemap file
+   */
+  def parse(resource: Resource): IndexedSeq[Record[String]] = {
+    withCloseable(resource.inputStream) { stream: InputStream =>
+      parse(stream)
+    }
+  }
+
+  /**
+   * Parse a file in sitemap format. Returns a Record for each location described
+   * in a sitemap file.
    *
    * @param inputStream stream for the file to parse
    * @return a record for each url described in a sitemap file
    */
-  def parse(inputStream: InputStream): Iterable[Record[String]] = {
+  def parse(inputStream: InputStream): IndexedSeq[Record[String]] = {
     val records = ArrayBuffer[Record[String]]()
 
     val urlsetElem = scala.xml.XML.load(inputStream)
     (urlsetElem \ "url").foreach(url => {
       val record = collection.mutable.Map[String, String]()
+
       url.child.foreach(node => {
         if (node.isInstanceOf[xml.Elem]) {
           val nodeName = name(node)
@@ -50,7 +66,7 @@ object SitemapParser {
         }
       })
 
-      if (!record.contains(LOCATION_TAG)) {
+      if (!record.contains(LOCATION_TAG) || record(LOCATION_TAG).isEmpty) {
         throw new SitemapFormatException("No 'loc' child in 'url' element")
       }
 
@@ -67,7 +83,10 @@ object SitemapParser {
   }
 
   private def text(node: Node): String = {
-    node.child.head.toString
+    if (!node.child.isEmpty)
+      node.child.head.toString
+    else
+      ""
   }
 }
 
