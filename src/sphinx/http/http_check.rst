@@ -119,7 +119,7 @@ Defines a Java regular expression to be applied on any text response body.
 
 *expression* can be a simple String, a String containing an expression, or an Expression[String].
 
-It can contain multiple capture group.
+It can contain multiple capture groups.
 
 ::
 
@@ -172,9 +172,6 @@ Based on `Goessner's JsonPath <http://goessner.net/articles/JsonPath>`_.
 
 	jsonPath("$..foo.bar[2].baz")
 
-.. note:: In JSON, the root element has no name.
-          This might be a problem when it's an array and one want to target its elements.
-          As a workaround, Gatling names it ``_``.
 
 By default, it extracts ``String``\ s, so JSON values of different types get serialized.
 
@@ -326,7 +323,7 @@ Saving
 
 Saving is an optional step for storing the result of the previous step (extraction or transformation) into the virtual user Session, so that it can be reused later.
 
-*key* is a String
+*key* is a String.
 
 Putting it all together
 =======================

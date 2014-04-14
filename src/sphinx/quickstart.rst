@@ -20,11 +20,11 @@ Installing
 Just unzip the downloaded bundle to a folder of your choice.
 
 .. warning::
-  We just ask you **don't use a path containing spaces**, there might be some issues.
+  We just ask you to **not use a path containing spaces**, there might be some issues.
 
-  For Windows users, we also recommend that you do not place Gatling in *Programs* folder as there might be permission issues.
+  For Windows users, we also recommend that you do not place Gatling in the *Programs* folder as there might be permission issues.
 
-In order to run Gatling, you need to have installed a JDK. We recommend you the last version. 
+In order to run Gatling, you need to have a JDK installed. We recommend to use the last version.
 
 For all details regarding the installation and the tuning of the operating system (OS), please refer to the :ref:`operations <operations>` section.
 
@@ -57,7 +57,7 @@ This page will guide you through most of Gatling HTTP features. You'll learn abo
 Application under Test
 ----------------------
 
-In this tutorial, we will use an application named *Computer-Database* deployed at the URL: `<http://computer-database.heroku.com>`__
+In this tutorial, we will use an application named *Computer-Database* deployed at the URL: `<http://computer-database.heroku.com>`__.
 
 This application is a simple CRUD application for managing computer models, it is one of the samples of `Play! <http://www.playframework.com/>`_.
 You can also run it on your local machine: download Play!'s bundle and check out `the samples <https://github.com/playframework/playframework/tree/master/samples/scala/computer-database>`__.
