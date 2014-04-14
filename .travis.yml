@@ -8,11 +8,11 @@ env:
     - secure: "j4K47vix/LdZmcjeI5XE/Z09WSw0Az5C8OKVHZTZA4ZvY4AE7quX2AfMPzpcZ6t9IBH2U8Mz+XvNQYftoQrKzru7hRQd7y+hEddxzfE0IWzYvPNE8EdijODoeKkO96H1LuOPCDbQ4Md0Ett0o+WSWhjzmtdfTslx98JHdt2nFT4="
     - secure: "ucCjxVaGakcoFquE3vHeP3Bh8XXqjAZVyOUo68lQ8qrOUoTUz+QRas/+QwVlFbbd8pCxemOd0m2iG06V32A19PPOmSkDfPSTH4CRa45nS1KJ4Uz1Uoe+YALzkifsBJzY2ZS/G78YmEP7BPfeVu3/ayVBPgTSbFtCrctJApg+E5s="
 
-# Publish to Sonatype if building master and trigger builds
+# If building master, Publish to Sonatype and trigger builds
 after_success:
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && sbt publish"
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && ./trigger_build.py excilys/gatling-highcharts"
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && ./trigger_build.py excilys/gatling-vtd"
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && ./trigger_build.py excilys/gatling-maven-plugin"
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && ./trigger_build.py excilys/gatling-highcharts-maven-archetype"
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && ./trigger_build.py gatling/gatling-sbt"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]] && sbt publish"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]] && ./trigger_build.py excilys/gatling-highcharts"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]] && ./trigger_build.py excilys/gatling-vtd"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]] && ./trigger_build.py excilys/gatling-maven-plugin"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]] && ./trigger_build.py excilys/gatling-highcharts-maven-archetype"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]] && ./trigger_build.py gatling/gatling-sbt"
