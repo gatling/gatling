@@ -338,6 +338,9 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
       """.*\.gif""",
       """.*\.jpeg""",
       """.*\.jpg""",
+      """.*\.ico""",
+      """.*\.woff""",
+      """.*\.(t|o)tf""",
       """.*\.png""").foreach(blackListTable.addRow)
   }
 
