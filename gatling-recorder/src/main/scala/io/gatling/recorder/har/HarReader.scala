@@ -22,6 +22,7 @@ import scala.util.Try
 
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.core.util.StringHelper.RichString
+import io.gatling.core.util.StandardCharsets.UTF_8
 import io.gatling.http.HeaderNames.CONTENT_TYPE
 import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration
@@ -66,7 +67,7 @@ object HarReader {
     val body = entry.request.postData.map { postData =>
       postData.text.trimToOption match {
         // HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
-        case Some(string) => RequestBodyBytes(string.getBytes("UTF-8"))
+        case Some(string) => RequestBodyBytes(string.getBytes(UTF_8))
         case None         => buildContent(postData.params)
       }
     }
