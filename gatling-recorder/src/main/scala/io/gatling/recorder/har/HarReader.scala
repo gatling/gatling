@@ -26,7 +26,7 @@ import io.gatling.core.util.StandardCharsets.UTF_8
 import io.gatling.http.HeaderNames.CONTENT_TYPE
 import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams, RequestElement, ScenarioDefinition }
+import io.gatling.recorder.scenario._
 import io.gatling.recorder.util.Json
 import org.jboss.netty.handler.codec.http.HttpMethod
 
@@ -56,7 +56,7 @@ object HarReader {
   }
 
   private def createRequestWithArrivalTime(entry: Entry): (Long, RequestElement) = {
-      def buildContent(postParams: Seq[PostParam]) =
+      def buildContent(postParams: Seq[PostParam]): RequestBody =
         RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
 
     val uri = entry.request.url
@@ -64,12 +64,12 @@ object HarReader {
     val headers = buildHeaders(entry)
 
     // NetExport doesn't copy post params to text field
-    val body = entry.request.postData.map { postData =>
-      postData.text.trimToOption match {
+    val body = entry.request.postData.flatMap { postData =>
+      if (!postData.params.isEmpty)
+        Some(buildContent(postData.params))
+      else
         // HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
-        case Some(string) => RequestBodyBytes(string.getBytes(UTF_8))
-        case None         => buildContent(postData.params)
-      }
+        postData.text.trimToOption.map(text => RequestBodyBytes(text.getBytes(UTF_8)))
     }
 
     val embeddedResources = entry.response.content match {
