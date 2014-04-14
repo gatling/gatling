@@ -70,7 +70,7 @@ object ScenarioDefinition extends StrictLogging {
   def apply(requests: Seq[(Long, RequestElement)], tags: Seq[(Long, TagElement)])(implicit config: RecorderConfiguration): ScenarioDefinition = {
     val sortedRequests = requests.sortBy(_._1)
 
-    val requests1 = if (config.http.followRedirect) filterRedirection(requests) else requests
+    val requests1 = if (config.http.followRedirect) filterRedirection(sortedRequests) else sortedRequests
     val requests2 = if (config.http.fetchHtmlResources) filterFetchedResources(requests1) else requests1
 
     if (config.http.followRedirect) logger.debug(s"Cleaning redirections: ${requests.size}->${requests1.size} requests")
