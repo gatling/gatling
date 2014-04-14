@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *      http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,11 +15,13 @@
  */
 package io.gatling.http.feeder
 
-import io.gatling.core.feeder.Record
 import java.io.InputStream
-import collection.mutable.ArrayBuffer
+
+import scala.collection.mutable
 import scala.xml.Node
+
 import io.gatling.core.config.Resource
+import io.gatling.core.feeder.Record
 import io.gatling.core.util.IOHelper._
 
 /**
@@ -52,25 +54,22 @@ object SitemapParser {
    * @return a record for each url described in a sitemap file
    */
   def parse(inputStream: InputStream): IndexedSeq[Record[String]] = {
-    val records = ArrayBuffer[Record[String]]()
+    val records = mutable.ArrayBuffer[Record[String]]()
 
     val urlsetElem = scala.xml.XML.load(inputStream)
     (urlsetElem \ "url").foreach(url => {
-      val record = collection.mutable.Map[String, String]()
 
-      url.child.foreach(node => {
-        if (node.isInstanceOf[xml.Elem]) {
+      val record = url.child.collect {
+        case node: xml.Elem =>
           val nodeName = name(node)
           val textValue = text(node)
-          record(nodeName) = textValue
-        }
-      })
+          nodeName -> textValue
+      }.toMap
 
-      if (!record.contains(LOCATION_TAG) || record(LOCATION_TAG).isEmpty) {
+      if (!record.contains(LOCATION_TAG) || record(LOCATION_TAG).isEmpty)
         throw new SitemapFormatException("No 'loc' child in 'url' element")
-      }
 
-      records.+=(record.toMap)
+      records += record
     })
 
     records
