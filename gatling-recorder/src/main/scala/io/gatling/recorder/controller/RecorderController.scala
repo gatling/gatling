@@ -55,7 +55,7 @@ class RecorderController extends StrictLogging {
   // Collection of tuples, (arrivalTime, tag)
   private val currentTags = new mutable.ArrayBuffer[(Long, TagElement)] with mutable.SynchronizedBuffer[(Long, TagElement)]
 
-  frontEnd.init
+  frontEnd.init()
 
   def startRecording() {
     val selectedMode = frontEnd.selectedMode
@@ -72,7 +72,7 @@ class RecorderController extends StrictLogging {
             try {
 
               ScenarioExporter.saveScenario(HarReader(harFilePath))
-              frontEnd.handleHarExportSuccess
+              frontEnd.handleHarExportSuccess()
             } catch {
               case e: Exception =>
                 logger.error("Error while processing HAR file", e)
@@ -80,14 +80,14 @@ class RecorderController extends StrictLogging {
             }
           case Proxy =>
             proxy = new HttpProxy(config, this)
-            frontEnd.recordingStarted
+            frontEnd.recordingStarted()
         }
       }
     }
   }
 
   def stopRecording(save: Boolean) {
-    frontEnd.recordingStopped
+    frontEnd.recordingStopped()
     try {
       if (currentRequests.isEmpty)
         logger.info("Nothing was recorded, skipping scenario generation")
@@ -97,11 +97,11 @@ class RecorderController extends StrictLogging {
         ScenarioExporter.saveScenario(scenario)
       }
 
-      proxy.shutdown
+      proxy.shutdown()
 
     } finally {
-      clearRecorderState
-      frontEnd.init
+      clearRecorderState()
+      frontEnd.init()
     }
   }
 
@@ -149,8 +149,8 @@ class RecorderController extends StrictLogging {
   }
 
   def clearRecorderState() {
-    currentRequests.clear
-    currentTags.clear
+    currentRequests.clear()
+    currentTags.clear()
   }
 
 }
