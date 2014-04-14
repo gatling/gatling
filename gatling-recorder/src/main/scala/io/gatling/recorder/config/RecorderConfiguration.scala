@@ -17,14 +17,13 @@ package io.gatling.recorder.config
 
 import java.io.{ File => JFile }
 
-import scala.Array.canBuildFrom
 import scala.collection.JavaConversions._
 import scala.concurrent.duration.{ Duration, DurationInt }
 import scala.reflect.io.Path.jfile2path
 import scala.tools.nsc.io.File
 import scala.util.Properties.userHome
 
-import com.typesafe.config.{ Config, ConfigFactory, ConfigRenderOptions }
+import com.typesafe.config.{ ConfigFactory, Config, ConfigRenderOptions }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }

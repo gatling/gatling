@@ -87,6 +87,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
   private val addBlackListFilter = Button("+")(blackListTable.addRow)
   private val removeBlackListFilter = Button("-")(blackListTable.removeSelectedRow)
   private val clearBlackListFilters = Button("Clear")(blackListTable.removeAllElements)
+  private val ruleOutStaticResources = Button("No static resources")(blackListStaticResources)
 
   private val filterStrategies = new ComboBox[FilterStrategy.Value](FilterStrategy.values.toSeq)
 
@@ -231,6 +232,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
             contents += addBlackListFilter
             contents += removeBlackListFilter
             contents += clearBlackListFilters
+            contents += ruleOutStaticResources
           }
         }
 
@@ -327,6 +329,16 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
     outgoingProxyPassword.text = null
     publish(keyReleased(outgoingProxyHttpPort))
     publish(keyReleased(outgoingProxyHttpsPort))
+  }
+
+  private def blackListStaticResources(): Unit = {
+    List(
+      """.*\.js""",
+      """.*\.css""",
+      """.*\.gif""",
+      """.*\.jpeg""",
+      """.*\.jpg""",
+      """.*\.png""").foreach(blackListTable.addRow)
   }
 
   reactions += {
