@@ -10,9 +10,9 @@ env:
 
 # If building master, Publish to Sonatype and trigger builds
 after_success:
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]] && sbt publish"
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]] && ./trigger_build.py excilys/gatling-highcharts"
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]] && ./trigger_build.py excilys/gatling-vtd"
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]] && ./trigger_build.py excilys/gatling-maven-plugin"
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]] && ./trigger_build.py excilys/gatling-highcharts-maven-archetype"
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == "false" ]] && ./trigger_build.py gatling/gatling-sbt"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == \"false\" ]] && sbt publish"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py excilys/gatling-highcharts"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py excilys/gatling-vtd"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py excilys/gatling-maven-plugin"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py excilys/gatling-highcharts-maven-archetype"
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && [[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-sbt"
