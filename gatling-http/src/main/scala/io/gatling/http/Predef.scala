@@ -22,10 +22,11 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.config.HttpProtocolBuilder
 import io.gatling.http.cookie.CookieHandling
+import io.gatling.http.feeder.SitemapFeederSupport
 import io.gatling.http.request.BodyProcessors
 import io.gatling.http.request.builder.{ Http, WebSocket }
 
-object Predef extends HttpCheckSupport {
+object Predef extends HttpCheckSupport with SitemapFeederSupport {
   type Request = com.ning.http.client.Request
   type Response = io.gatling.http.response.Response
 
