@@ -172,9 +172,6 @@ Based on `Goessner's JsonPath <http://goessner.net/articles/JsonPath>`_.
 
 	jsonPath("$..foo.bar[2].baz")
 
-.. note:: In JSON, the root element has no name.
-          This might be a problem when it's an array and one want to target its elements.
-          As a workaround, Gatling names it ``_``.
 
 By default, it extracts ``String``\ s, so JSON values of different types get serialized.
 
