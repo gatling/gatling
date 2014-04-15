@@ -15,7 +15,7 @@
  */
 package io.gatling.redis.feeder
 
-import com.redis.RedisClientPool
+import com.redis.{ RedisClient, RedisClientPool }
 
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.feeder.Feeder
@@ -25,17 +25,22 @@ import io.gatling.core.feeder.Feeder
  */
 object RedisFeeder extends AkkaDefaults {
 
-  def apply(clientPool: RedisClientPool, key: String): Feeder[String] = {
+  type RedisCommand = (RedisClient, String) => Option[String]
+
+  def LPOP(redisClient: RedisClient, key: String) = redisClient.lpop(key)
+
+  def SPOP(redisClient: RedisClient, key: String) = redisClient.spop(key)
+
+  def apply(clientPool: RedisClientPool, key: String, redisCommand: RedisCommand = LPOP): Feeder[String] = {
     system.registerOnTermination(clientPool.close)
 
-    RedisFeederIterator.createIterator(clientPool, key)
+    createIterator(clientPool, key, redisCommand)
   }
-}
 
-private[redis] object RedisFeederIterator {
-  private[redis] def createIterator(clientPool: RedisClientPool, key: String) = {
+  private[redis] def createIterator(clientPool: RedisClientPool, key: String, redisCommand: RedisCommand = LPOP) = {
       def next = clientPool.withClient { client =>
-        client.lpop(key).map(value => Map(key -> value))
+        val value = redisCommand(client, key)
+        value.map(value => Map(key -> value))
       }
 
     Iterator.continually(next).takeWhile(_.isDefined).map(_.get)
