@@ -26,9 +26,14 @@ import io.gatling.core.feeder.Feeder
 object RedisFeeder extends AkkaDefaults {
 
   def apply(clientPool: RedisClientPool, key: String): Feeder[String] = {
-
     system.registerOnTermination(clientPool.close)
 
+    RedisFeederIterator.createIterator(clientPool, key)
+  }
+}
+
+private[redis] object RedisFeederIterator {
+  private[redis] def createIterator(clientPool: RedisClientPool, key: String) = {
       def next = clientPool.withClient { client =>
         client.lpop(key).map(value => Map(key -> value))
       }
