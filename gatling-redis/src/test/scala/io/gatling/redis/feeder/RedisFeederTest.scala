@@ -16,7 +16,6 @@
 package io.gatling.redis.feeder
 
 import org.junit.runner.RunWith
-import org.specs2.specification.{ AfterExample, BeforeExample }
 import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.Specification
 import org.specs2.mock.mockito.CalledMatchers
@@ -28,6 +27,7 @@ import org.mockito.invocation._
 
 import com.redis._
 import io.gatling.core.feeder.Record
+import io.gatling.core.config.GatlingConfiguration
 
 /**
  * @author Ivan Mushketyk
@@ -35,13 +35,20 @@ import io.gatling.core.feeder.Record
 @RunWith(classOf[JUnitRunner])
 class RedisFeederTest extends Specification with CalledMatchers {
 
-  // Generate list of maps Map(<redis-key> -> <expected-valu>)
+  val KEY = "key"
+
+  step {
+    GatlingConfiguration.setUp()
+  }
+
+  // Generate list of maps Map(<redis-key> -> <expected-value>)
   def valsLst(key: String, s: String*): List[Record[String]] = {
     s.map(str => Map(key -> str)).toList
   }
 
   "redis feeder" should {
     "use lpop as default command" in {
+
       val clientPool = mock(classOf[RedisClientPool])
       val client = mock(classOf[RedisClient])
 
@@ -54,11 +61,32 @@ class RedisFeederTest extends Specification with CalledMatchers {
         }
       })
 
-      val key = "key"
-      when(client.lpop(key)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
+      when(client.lpop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
-      val feeder = RedisFeederIterator.createIterator(clientPool, key)
-      feeder.toList should be equalTo valsLst(key, "v1", "v2", "v3")
+      val feeder = RedisFeeder.createIterator(clientPool, KEY)
+      val actual = feeder.toList
+      actual should be equalTo valsLst(KEY, "v1", "v2", "v3")
+    }
+
+    "use spop command" in {
+
+      val clientPool = mock(classOf[RedisClientPool])
+      val client = mock(classOf[RedisClient])
+
+      when(clientPool.withClient(any())).thenAnswer(new Answer[AnyRef]() {
+        def answer(invocation: InvocationOnMock) = {
+          val arguments = invocation.getArguments
+          val func = arguments(0).asInstanceOf[Function[RedisClient, AnyRef]]
+          func(client)
+        }
+      })
+
+      when(client.spop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
+
+      val feeder = RedisFeeder.createIterator(clientPool, KEY, RedisFeeder.SPOP)
+      val actual = feeder.toList
+      actual should be equalTo valsLst(KEY, "v1", "v2", "v3")
     }
   }
+
 }
