@@ -204,13 +204,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
             }
             .toMap
 
-          val foo = buckets.map {
+          buckets.map {
             bucket => PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))
           }
-
-          println(s"foo=$foo")
-
-          foo
         }
 
       (process(ok), process(ko))
