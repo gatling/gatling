@@ -95,15 +95,28 @@ Redis feeder
 
 This feature was originally contributed by Krishnen Chedambarum.
 
-Gatling can read from a Redis list::
+Gatling can read data from Redis using one of the following Redis commands.
+
+* LPOP - remove and return the first element of the list
+* SPOP - remove and return a random element from the set
+* SRANDMEMBER - return a random element from the set
+
+By default RedisFeeder uses LPOP command::
 
   import com.redis._
   import serialization._
-
+  import io.gatling.redis.feeder.RedisFeeder
+  
   val redisPool = new RedisClientPool("localhost", 6379)
-
+  
   // use a list, so there's one single value per record, which is here named "foo"
-  val feeder = redisFeeder(redisPool, "foo")
+  val feeder = RedisFeeder(redisPool, "foo")
+
+An optional third parameter is used to specify desired Redis command::
+
+  // read data using SPOP command from a set named "foo"
+  val feeder = RedisFeeder(clientPool, "foo", RedisFeeder.SPOP)
+
 
 Note that since v2.1.14, Redis supports mass insertion of data from a `file <http://redis.io/topics/mass-insert>`_.
 It is possible to load millions of keys in a few seconds in Redis and Gatling will read them off memory directly.
