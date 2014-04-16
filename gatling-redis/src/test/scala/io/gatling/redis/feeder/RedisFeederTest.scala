@@ -28,6 +28,7 @@ import org.mockito.invocation._
 import com.redis._
 import io.gatling.core.feeder.Record
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.akka.GatlingActorSystem
 
 /**
  * @author Ivan Mushketyk
@@ -39,6 +40,10 @@ class RedisFeederTest extends Specification with CalledMatchers {
 
   step {
     GatlingConfiguration.setUp()
+  }
+
+  step {
+    GatlingActorSystem.start()
   }
 
   // Generate list of maps Map(<redis-key> -> <expected-value>)
@@ -63,7 +68,7 @@ class RedisFeederTest extends Specification with CalledMatchers {
 
       when(client.lpop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
-      val feeder = RedisFeeder.createIterator(clientPool, KEY)
+      val feeder = RedisFeeder(clientPool, KEY)
       val actual = feeder.toList
       actual should be equalTo valsLst(KEY, "v1", "v2", "v3")
     }
@@ -83,7 +88,7 @@ class RedisFeederTest extends Specification with CalledMatchers {
 
       when(client.spop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
-      val feeder = RedisFeeder.createIterator(clientPool, KEY, RedisFeeder.SPOP)
+      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SPOP)
       val actual = feeder.toList
       actual should be equalTo valsLst(KEY, "v1", "v2", "v3")
     }
@@ -103,7 +108,7 @@ class RedisFeederTest extends Specification with CalledMatchers {
 
       when(client.srandmember(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"))
 
-      val feeder = RedisFeeder.createIterator(clientPool, KEY, RedisFeeder.SRANDMEMBER)
+      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SRANDMEMBER)
       feeder.next() should be equalTo Map(KEY -> "v1")
       feeder.next() should be equalTo Map(KEY -> "v2")
       feeder.next() should be equalTo Map(KEY -> "v3")
