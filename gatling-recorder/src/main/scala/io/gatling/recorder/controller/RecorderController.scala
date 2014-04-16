@@ -28,11 +28,11 @@ import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 import com.ning.http.util.Base64
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
+import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.recorder.{ Har, Proxy }
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
-import io.gatling.recorder.har.HarReader
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.scenario.{ RequestElement, ScenarioDefinition, ScenarioExporter, TagElement }
 import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
@@ -70,8 +70,8 @@ class RecorderController extends StrictLogging {
         selectedMode match {
           case Har =>
             ScenarioExporter.exportScenario(harFilePath) match {
-              case Left(errMsg) => frontEnd.handleHarExportFailure(errMsg)
-              case Right(_)     => frontEnd.handleHarExportSuccess()
+              case Failure(errMsg) => frontEnd.handleHarExportFailure(errMsg)
+              case Success(_)      => frontEnd.handleHarExportSuccess()
             }
           case Proxy =>
             proxy = new HttpProxy(config, this)
