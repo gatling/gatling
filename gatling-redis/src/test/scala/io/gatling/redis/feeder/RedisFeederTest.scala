@@ -87,6 +87,27 @@ class RedisFeederTest extends Specification with CalledMatchers {
       val actual = feeder.toList
       actual should be equalTo valsLst(KEY, "v1", "v2", "v3")
     }
+
+    "use srandmember command" in {
+
+      val clientPool = mock(classOf[RedisClientPool])
+      val client = mock(classOf[RedisClient])
+
+      when(clientPool.withClient(any())).thenAnswer(new Answer[AnyRef]() {
+        def answer(invocation: InvocationOnMock) = {
+          val arguments = invocation.getArguments
+          val func = arguments(0).asInstanceOf[Function[RedisClient, AnyRef]]
+          func(client)
+        }
+      })
+
+      when(client.srandmember(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"))
+
+      val feeder = RedisFeeder.createIterator(clientPool, KEY, RedisFeeder.SRANDMEMBER)
+      feeder.next() should be equalTo Map(KEY -> "v1")
+      feeder.next() should be equalTo Map(KEY -> "v2")
+      feeder.next() should be equalTo Map(KEY -> "v3")
+    }
   }
 
 }
