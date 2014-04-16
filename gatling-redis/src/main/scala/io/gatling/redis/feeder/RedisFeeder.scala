@@ -43,10 +43,6 @@ object RedisFeeder extends AkkaDefaults {
   def apply(clientPool: RedisClientPool, key: String, redisCommand: RedisCommand = LPOP): Feeder[String] = {
     system.registerOnTermination(clientPool.close)
 
-    createIterator(clientPool, key, redisCommand)
-  }
-
-  private[redis] def createIterator(clientPool: RedisClientPool, key: String, redisCommand: RedisCommand = LPOP) = {
       def next = clientPool.withClient { client =>
         val value = redisCommand(client, key)
         value.map(value => Map(key -> value))
