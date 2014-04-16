@@ -83,22 +83,22 @@ There are several ways of using it:
 
 * Fixed pause duration:
 
-  * pause(duration: Duration)
-  * pause(duration: String, unit: TimeUnit = TimeUnit.SECONDS)
-  * pause(duration: Expression[Duration])
+  * ``pause(duration: Duration)``
+  * ``pause(duration: String, unit: TimeUnit = TimeUnit.SECONDS)``
+  * ``pause(duration: Expression[Duration])``
 
 * Uniform random pause duration:
 
-  * pause(min: Duration, max: Duration)
-  * pause(min: String, max: String, unit: TimeUnit)
-  * pause(min: Expression[Duration], max: Expression[Duration])
+  * ``pause(min: Duration, max: Duration)``
+  * ``pause(min: String, max: String, unit: TimeUnit)``
+  * ``pause(min: Expression[Duration], max: Expression[Duration])``
 
 .. _scenario-pace:
 
 ``pace``
 ^^^^^^^^
 
-If you want to control how frequently an action is executed, to target "iterations per hour" type volumes.
+If you want to control how frequently an action is executed, to target *iterations per hour* type volumes.
 Gatling support a dedicated type of pause: ``pace``, which adjusts its wait time depending on how long the chained action took.
 E.g.::
 
@@ -113,15 +113,15 @@ There are several ways of using it:
 
 * Fixed pause duration:
 
-  * pace(duration: Duration)
-  * pace(duration: String, unit: TimeUnit = TimeUnit.SECONDS)
-  * pace(duration: Expression[Duration])
+  * ``pace(duration: Duration)``
+  * ``pace(duration: String, unit: TimeUnit = TimeUnit.SECONDS)``
+  * ``pace(duration: Expression[Duration])``
 
 * Uniform random pause duration:
 
-  * pace(min: Duration, max: Duration)
-  * pace(min: String, max: String, unit: TimeUnit)
-  * pace(min: Expression[Duration], max: Expression[Duration])
+  * ``pace(min: Duration, max: Duration)``
+  * ``pace(min: String, max: String, unit: TimeUnit)``
+  * ``pace(min: Expression[Duration], max: Expression[Duration])``
 
 .. _scenario-rendez-vous:
 
