@@ -71,7 +71,7 @@ class RecorderController extends StrictLogging {
           case Har =>
             ScenarioExporter.exportScenario(harFilePath) match {
               case Failure(errMsg) => frontEnd.handleHarExportFailure(errMsg)
-              case Success(_)      => frontEnd.handleHarExportSuccess()
+              case _               => frontEnd.handleHarExportSuccess()
             }
           case Proxy =>
             proxy = new HttpProxy(config, this)
