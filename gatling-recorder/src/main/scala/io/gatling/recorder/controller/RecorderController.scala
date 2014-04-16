@@ -69,14 +69,9 @@ class RecorderController extends StrictLogging {
       if (proceed) {
         selectedMode match {
           case Har =>
-            try {
-
-              ScenarioExporter.saveScenario(HarReader(harFilePath))
-              frontEnd.handleHarExportSuccess()
-            } catch {
-              case e: Exception =>
-                logger.error("Error while processing HAR file", e)
-                frontEnd.handleHarExportFailure(e.getMessage)
+            ScenarioExporter.exportScenario(harFilePath) match {
+              case Left(errMsg) => frontEnd.handleHarExportFailure(errMsg)
+              case Right(_)     => frontEnd.handleHarExportSuccess()
             }
           case Proxy =>
             proxy = new HttpProxy(config, this)

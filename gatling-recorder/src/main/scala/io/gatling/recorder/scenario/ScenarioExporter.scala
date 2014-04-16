@@ -16,18 +16,17 @@
 package io.gatling.recorder.scenario
 
 import java.io.{ FileOutputStream, IOException }
-
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
 import scala.reflect.io.Path.string2path
 import scala.tools.nsc.io.{ Directory, File }
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
-
 import io.gatling.core.util.IOHelper.withCloseable
 import io.gatling.http.HeaderNames
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario.template.SimulationTemplate
+import io.gatling.recorder.har.HarReader
+import scala.util.Try
 
 object ScenarioExporter extends StrictLogging {
 
@@ -43,7 +42,21 @@ object ScenarioExporter extends StrictLogging {
     getOutputFolder / getSimulationFileName
   }
 
-  def saveScenario(scenarioElements: ScenarioDefinition)(implicit config: RecorderConfiguration) {
+  def exportScenario(harFilePath: String)(implicit config: RecorderConfiguration): Either[String, Unit] =
+    try {
+      val har = HarReader(harFilePath)
+      if (har.elements.isEmpty) {
+        Left("the selected file doesn't contain any valid HTTP requests")
+      } else {
+        Right(ScenarioExporter.saveScenario(har))
+      }
+    } catch {
+      case e: Exception =>
+        logger.error("Error while processing HAR file", e)
+        Right(e.getMessage)
+    }
+
+   def saveScenario(scenarioElements: ScenarioDefinition)(implicit config: RecorderConfiguration) {
     require(!scenarioElements.isEmpty)
 
     val output = renderScenarioAndDumpBodies(scenarioElements)
