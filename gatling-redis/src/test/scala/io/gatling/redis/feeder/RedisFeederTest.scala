@@ -18,6 +18,7 @@ package io.gatling.redis.feeder
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.Specification
+import org.specs2.mutable.Before
 import org.specs2.mock.mockito.CalledMatchers
 
 import org.mockito.Mockito._
@@ -29,6 +30,7 @@ import com.redis._
 import io.gatling.core.feeder.Record
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.akka.GatlingActorSystem
+import org.specs2.specification.BeforeExample
 
 /**
  * @author Ivan Mushketyk
@@ -51,11 +53,13 @@ class RedisFeederTest extends Specification with CalledMatchers {
     s.map(str => Map(key -> str)).toList
   }
 
-  "redis feeder" should {
-    "use lpop as default command" in {
+  trait MockContext extends Before {
+    var clientPool: RedisClientPool = _
+    var client: RedisClient = _
 
-      val clientPool = mock(classOf[RedisClientPool])
-      val client = mock(classOf[RedisClient])
+    def before() {
+      clientPool = mock(classOf[RedisClientPool])
+      client = mock(classOf[RedisClient])
 
       // Call user specified function on withClient() call
       when(clientPool.withClient(any())).thenAnswer(new Answer[AnyRef]() {
@@ -65,6 +69,11 @@ class RedisFeederTest extends Specification with CalledMatchers {
           func(client)
         }
       })
+    }
+  }
+
+  "redis feeder" should {
+    "use lpop as default command" in new MockContext {
 
       when(client.lpop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
@@ -73,18 +82,7 @@ class RedisFeederTest extends Specification with CalledMatchers {
       actual should be equalTo valsLst(KEY, "v1", "v2", "v3")
     }
 
-    "use spop command" in {
-
-      val clientPool = mock(classOf[RedisClientPool])
-      val client = mock(classOf[RedisClient])
-
-      when(clientPool.withClient(any())).thenAnswer(new Answer[AnyRef]() {
-        def answer(invocation: InvocationOnMock) = {
-          val arguments = invocation.getArguments
-          val func = arguments(0).asInstanceOf[Function[RedisClient, AnyRef]]
-          func(client)
-        }
-      })
+    "use spop command" in new MockContext {
 
       when(client.spop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
@@ -93,18 +91,7 @@ class RedisFeederTest extends Specification with CalledMatchers {
       actual should be equalTo valsLst(KEY, "v1", "v2", "v3")
     }
 
-    "use srandmember command" in {
-
-      val clientPool = mock(classOf[RedisClientPool])
-      val client = mock(classOf[RedisClient])
-
-      when(clientPool.withClient(any())).thenAnswer(new Answer[AnyRef]() {
-        def answer(invocation: InvocationOnMock) = {
-          val arguments = invocation.getArguments
-          val func = arguments(0).asInstanceOf[Function[RedisClient, AnyRef]]
-          func(client)
-        }
-      })
+    "use srandmember command" in new MockContext {
 
       when(client.srandmember(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"))
 
@@ -114,5 +101,4 @@ class RedisFeederTest extends Specification with CalledMatchers {
       feeder.next() should be equalTo Map(KEY -> "v3")
     }
   }
-
 }
