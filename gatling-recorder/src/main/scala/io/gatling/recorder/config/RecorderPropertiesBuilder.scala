@@ -35,6 +35,8 @@ class RecorderPropertiesBuilder {
 
   def fetchHtmlResources(status: Boolean) { props += FETCH_HTML_RESOURCES -> status }
 
+  def saveConfig(status: Boolean) { props += SAVE_CONFIG -> status }
+
   def localPort(port: Int) { props += LOCAL_PORT -> port }
 
   def localSslPort(port: Int) { props += LOCAL_SSL_PORT -> port }
