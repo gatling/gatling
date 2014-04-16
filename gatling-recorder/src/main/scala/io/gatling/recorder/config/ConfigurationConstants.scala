@@ -42,4 +42,6 @@ object ConfigurationConstants {
   val SIMULATION_PACKAGE = "recorder.core.package"
   val SIMULATION_CLASS_NAME = "recorder.core.className"
   val THRESHOLD_FOR_PAUSE_CREATION = "recorder.core.thresholdForPauseCreation"
+  val SAVE_CONFIG = "recorder.core.saveConfig"
+
 }
