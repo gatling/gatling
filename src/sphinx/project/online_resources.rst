@@ -34,6 +34,7 @@ Public talks
 Articles
 ========
 
+* Magnus Larsson / Callista - `A first look at Gatling, a DSL based load test tool <http://blog.callistaenterprise.se/2014/04/16/a-first-look-at-gatling-a-dsl-based-load-test-tool/>`_
 * Leonard Fingerman - `Performance testing – is it worth waiting for ? <http://testinmind.com/2014/03/08/performance-testing-is-it-worth-waiting-for>`_
 * Osaxis - `Gatling, nouvelle solution libre pour les tests de montée en charge (in French) <http://www.osaxis.fr/blog/gatling-nouvelle-solution-libre-pour-les-tests-de-montee-en-charge/>`_
 * Martin Braun - `Web application load testing - and why you should consider Gatling <http://blog.braun.io/2013/12/web-application-load-testing-and-why.html>`_
