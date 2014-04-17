@@ -16,6 +16,7 @@
 package io.gatling.recorder.ui.swing.frame
 
 import java.awt.Font
+import javax.swing.filechooser.FileNameExtensionFilter
 
 import scala.collection.JavaConversions.seqAsJavaList
 import scala.swing._
@@ -61,7 +62,8 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
   /* Har Panel components */
   private val harPath = new TextField(66)
-  private val harFileChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly }
+  private val harFileFilter = new FileNameExtensionFilter("HTTP Archive (.har)", "har")
+  private val harFileChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly; fileFilter = harFileFilter }
   private val harFileBrowserButton = Button("Browse")(harFileChooser.openSelection.foreach(harPath.text = _))
 
   /* Simulation panel components */
