@@ -9,30 +9,7 @@ Thanks to this plugin, Gatling can be launched when building your project, for e
 Set up the repositories
 =======================
 
-Gatling depends on libraries that are either hosted on maven central, or on Excilys Nexus.
-
-Depending on your maven architecture, you might have to:
-
-* add the Excilys repository into your project's pom.xml if you're fine with downloading your dependencies from the internet. In this case, here's the required configuration::
-
-	<repositories>
-    <repository>
-      <id>excilys</id>
-      <name>Excilys Repository</name>
-      <url>http://repository.excilys.com/content/groups/public</url>
-    </repository>
-	</repositories>
-
-	<pluginRepositories>
-    <pluginRepository>
-      <id>excilys</id>
-      <name>Excilys Repository</name>
-       <url>http://repository.excilys.com/content/groups/public</url>
-    </pluginRepository>
-	</pluginRepositories>
-
-* add a proxy on Excilys repository into your enterprise maven repository (Nexus, Artifactory, Archiva...)
-* manually download and install the dependencies into your enterprise repository if you can't/don't want to add a proxy
+Gatling depends on libraries that are hosted on Maven Central.
 
 Set up the gatling-maven-plugin
 ===============================
@@ -41,7 +18,7 @@ Set up the gatling-maven-plugin
 
 	<dependencies>
     <dependency>
-      <groupId>com.excilys.ebi.gatling.highcharts</groupId>
+      <groupId>io.gatling</groupId>
       <artifactId>gatling-charts-highcharts</artifactId>
       <version>X.Y.Z</version>
       <scope>test</scope>
@@ -49,7 +26,7 @@ Set up the gatling-maven-plugin
 	<dependencies>
 
 	<plugin>
-    <groupId>com.excilys.ebi.gatling</groupId>
+    <groupId>io.gatling</groupId>
     <artifactId>gatling-maven-plugin</artifactId>
     <version>X.Y.Z</version>
 	</plugin>
@@ -88,7 +65,7 @@ The example below shows the default values.
 	<!-- 	<failOnError>true</failOnError> -->
 	</configuration>
 
-See `source code <https://github.com/excilys/gatling/blob/1.5.X/gatling-maven-plugin/src/main/java/com/excilys/ebi/gatling/mojo/GatlingMojo.java>`_ for more documentation. 
+See `source code <https://github.com/excilys/gatling-maven-plugin/blob/master/src/main/java/io/gatling/mojo/GatlingMojo.java>`_ for more documentation. 
 
 Override the logback.xml file
 =============================
