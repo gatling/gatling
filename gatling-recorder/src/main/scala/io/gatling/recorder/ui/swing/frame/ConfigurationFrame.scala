@@ -298,9 +298,14 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
   }
 
   /* Reactions II: fields validation */
-  listenTo(localProxyHttpPort.keys, localProxyHttpsPort.keys)
-  listenTo(outgoingProxyHost.keys, outgoingProxyHttpPort.keys, outgoingProxyHttpsPort.keys)
-  listenTo(outputFolderPath.keys, simulationPackage.keys, simulationClassName.keys)
+  listenTo(localProxyHttpPort.keys,
+    localProxyHttpsPort.keys,
+    outgoingProxyHost.keys,
+    outgoingProxyHttpPort.keys,
+    outgoingProxyHttpsPort.keys,
+    outputFolderPath.keys,
+    simulationPackage.keys,
+    simulationClassName.keys)
 
   private def registerValidators() {
     ValidationHelper.registerValidator(localProxyHttpPort, Validator(isValidPort))
