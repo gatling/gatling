@@ -12,13 +12,13 @@ Hopefully, we can mutualize these operations.
 
 Define factory methods for building JSF requests that would automatically perform those operations::
 
-	import com.excilys.ebi.gatling.core.session.EvaluatableString
+	import io.gatling.core.session.Expression
 
 	val jsfViewStateCheck = regex("""="javax.faces.ViewState" value="([^"]*)"""")
 	  .saveAs("viewState")
-	def jsfGet(name: String, url: EvaluatableString) = http(name).get(url)
+	def jsfGet(name: String, url: Expression[String]) = http(name).get(url)
 	  .check(jsfViewStateCheck)
-	def jsfPost(name: String, url: EvaluatableString) = http(name).post(url)
+	def jsfPost(name: String, url: Expression[String]) = http(name).post(url)
 	  .param("javax.faces.ViewState", "${viewState}")
 	  .check(jsfViewStateCheck)
 
@@ -48,17 +48,17 @@ Trinidad's ``_afPfm`` query parameter can be handled in a similar fashion::
 	val jsfViewStateCheck = regex("""="javax.faces.ViewState" value="([^"]*)"""")
 	  .saveAs("viewState")
 
-	def jsfGet(name: String, url: EvaluatableString) = http(name).get(url)
+	def jsfGet(name: String, url: Expression[String]) = http(name).get(url)
 	  .check(jsfViewStateCheck)
-	def jsfPost(name: String, url: EvaluatableString) = http(name).post(url)
+	def jsfPost(name: String, url: Expression[String]) = http(name).post(url)
 	  .param("javax.faces.ViewState", "${viewState}")
 	  .check(jsfViewStateCheck).check(jsfPageFlowCheck)
 
-	def trinidadPost(name: String, url: EvaluatableString) = http(name).post(url)
+	def trinidadPost(name: String, url: Expression[String]) = http(name).post(url)
 	  .param("javax.faces.ViewState", "${viewState}")
 	  .queryParam("_afPfm", "${afPfm}")
 	  .check(jsfViewStateCheck)
 	  .check(jsfPageFlowCheck)
-	def trinidadDownload(name: String, url: EvaluatableString) = http(name).post(url)
+	def trinidadDownload(name: String, url: Expression[String]) = http(name).post(url)
 	  .param("javax.faces.ViewState", "${viewState}")
 	  .queryParam("_afPfm", "${afPfm}")
