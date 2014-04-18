@@ -29,6 +29,8 @@ import io.gatling.core.session.Session
 import com.ning.http.client.Request
 import java.net.URI
 import org.specs2.execute.AsResult
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.akka.GatlingActorSystem
 
 /**
  * @author Ivan Mushketyk
@@ -37,6 +39,14 @@ import org.specs2.execute.AsResult
 class HttpRequestActionTest extends Specification with CalledMatchers {
 
   var httpEngine: Option[HttpEngine] = _
+
+  step {
+    GatlingConfiguration.setUp()
+  }
+
+  step {
+    GatlingActorSystem.start()
+  }
 
   step {
     httpEngine = HttpEngine._instance
