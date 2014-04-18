@@ -104,6 +104,12 @@ class HarReaderSpec extends Specification {
       (scn.elements must have size (3)) and
         (requests must beEqualTo(List("http://localhost:9000/room", "http://localhost:9000/room?username=robert")))
     }
+
+    "deal correctly with HTTP CONNECT requests" in {
+      val scn = HarReader(resourceAsStream("har/charles_https.har"))
+
+      scn.elements must beEmpty
+    }
   }
 
   // Deactivate Specs2 implicit to be able to use the ones provided in scala.concurrent.duration
