@@ -5,7 +5,7 @@ Events
 Upcoming
 ========
 
-*No upcoming events*
+* *May 11th, 2014* `JavaCro 2014 <http://javacro.org/sessions/#gatling>`_ with Andrija Kranjec
 
 Passed
 ======
