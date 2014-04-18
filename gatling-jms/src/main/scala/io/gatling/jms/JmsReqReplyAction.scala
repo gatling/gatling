@@ -59,28 +59,39 @@ class JmsReqReplyAction(
   class ListenerThread(val continue: AtomicBoolean = new AtomicBoolean(true)) extends Thread(new Runnable {
     def run(): Unit = {
       val replyConsumer = client.createReplyConsumer
-      while (continue.get) {
-        val m = replyConsumer.receive
-        m match {
-          case msg: Message =>
-            tracker ! MessageReceived(messageMatcher.response(msg), nowMillis, msg)
-            logMessage(s"Message received ${msg.getJMSMessageID}", msg)
-          case _ =>
-            logger.error(JmsReqReplyAction.blockingReceiveReturnedNull.getMessage)
-            throw JmsReqReplyAction.blockingReceiveReturnedNull
+      try {
+        while (continue.get) {
+          val m = replyConsumer.receive
+          m match {
+            case msg: Message =>
+              tracker ! MessageReceived(messageMatcher.response(msg), nowMillis, msg)
+              logMessage(s"Message received ${msg.getJMSMessageID}", msg)
+            case _ =>
+              logger.error(JmsReqReplyAction.blockingReceiveReturnedNull.getMessage)
+              throw JmsReqReplyAction.blockingReceiveReturnedNull
+          }
         }
+      } catch {
+        // when we close, receive can throw exception
+        case e: Exception => logger.error(e.getMessage)
+      } finally {
+        replyConsumer.close()
       }
-      replyConsumer.close()
     }
-  })
+  }) {
+    def close() = {
+      continue.set(false)
+      interrupt()
+      join()
+    }
+  }
 
   val listenerThreads = (1 to protocol.listenerCount).map(_ => new ListenerThread)
 
   listenerThreads.foreach(_.start)
 
   override def postStop(): Unit = {
-    listenerThreads.foreach(_.continue.set(false))
-    listenerThreads.foreach(_.join())
+    listenerThreads.foreach(_.close())
     client.close()
   }
 
