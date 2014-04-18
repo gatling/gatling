@@ -62,7 +62,9 @@ class JmsReqReplyAction(
       while (continue.get) {
         val m = replyConsumer.receive
         m match {
-          case msg: Message => tracker ! MessageReceived(messageMatcher.response(msg), nowMillis, msg)
+          case msg: Message =>
+            tracker ! MessageReceived(messageMatcher.response(msg), nowMillis, msg)
+            logMessage(s"Message received ${msg.getJMSMessageID}", msg)
           case _ =>
             logger.error(JmsReqReplyAction.blockingReceiveReturnedNull.getMessage)
             throw JmsReqReplyAction.blockingReceiveReturnedNull
@@ -105,6 +107,7 @@ class JmsReqReplyAction(
     msg.map { msg =>
       // notify the tracker that a message was sent
       tracker ! MessageSent(messageMatcher.request(msg), start, nowMillis, attributes.checks, session, next, attributes.requestName)
+      logMessage(s"Message sent ${msg.getJMSMessageID}", msg)
     }
   }
 
@@ -123,5 +126,10 @@ class JmsReqReplyAction(
           resolvedProperties <- resolvedProperties
         } yield resolvedProperties + newProperty
     }
+  }
+
+  def logMessage(text: String, msg: Message) {
+    logger.debug(text)
+    logger.trace(msg.toString)
   }
 }
