@@ -27,40 +27,51 @@ import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder
 
+private[action] trait HttpRequestActionExecutor {
+  def startHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext)
+}
+
 object HttpRequestAction extends StrictLogging {
 
-  def startHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext) {
+  private[action] var instance = new HttpRequestActionExecutor {
+    def startHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext) {
 
-      def startHttpTransaction(tx: HttpTx) {
-        logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-        HttpEngine.instance.startHttpTransaction(tx)
-      }
-
-      def skipCached(tx: HttpTx) {
-        logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-        tx.next ! tx.session
-      }
-
-    val uri = tx.request.getURI
-    CacheHandling.getExpire(tx.protocol, tx.session, uri) match {
-
-      case None                               => startHttpTransaction(tx)
-
-      case Some(expire) if nowMillis > expire => startHttpTransaction(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
-
-      case _ if tx.protocol.responsePart.fetchHtmlResources =>
-        val explicitResources = HttpRequest.buildNamedRequests(tx.explicitResources, tx.session)
-
-        ResourceFetcher.fromCache(tx.request.getURI, tx, explicitResources) match {
-          case Some(resourceFetcher) =>
-            logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-            actor(resourceFetcher())
-
-          case None => skipCached(tx)
+        def startHttpTransaction(tx: HttpTx) {
+          logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+          HttpEngine.instance.startHttpTransaction(tx)
         }
 
-      case _ => skipCached(tx)
+        def skipCached(tx: HttpTx) {
+          logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+          tx.next ! tx.session
+        }
+
+      val uri = tx.request.getURI
+      CacheHandling.getExpire(tx.protocol, tx.session, uri) match {
+
+        case None                               => startHttpTransaction(tx)
+
+        case Some(expire) if nowMillis > expire => startHttpTransaction(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
+
+        case _ if tx.protocol.responsePart.fetchHtmlResources =>
+          val explicitResources = HttpRequest.buildNamedRequests(tx.explicitResources, tx.session)
+
+          ResourceFetcher.fromCache(tx.request.getURI, tx, explicitResources) match {
+            case Some(resourceFetcher) =>
+              logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+              actor(resourceFetcher())
+
+            case None => skipCached(tx)
+          }
+
+        case _ => skipCached(tx)
+      }
     }
+
+  }
+
+  def startHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext) {
+    instance.startHttpTransaction(tx)
   }
 }
 
