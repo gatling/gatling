@@ -26,6 +26,7 @@ object ProtocolDefinition {
     HeaderNames.ACCEPT_LANGUAGE -> "acceptLanguageHeader",
     HeaderNames.AUTHORIZATION -> "authorizationHeader",
     HeaderNames.CONNECTION -> "connection",
+    HeaderNames.CONTENT_TYPE -> "contentTypeHeader",
     HeaderNames.DO_NOT_TRACK -> "doNotTrackHeader",
     HeaderNames.USER_AGENT -> "userAgentHeader")
 }

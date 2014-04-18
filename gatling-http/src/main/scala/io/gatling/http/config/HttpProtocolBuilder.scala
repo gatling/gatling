@@ -82,6 +82,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
   def acceptLanguageHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (ACCEPT_LANGUAGE -> value)))
   def authorizationHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (AUTHORIZATION -> value)))
   def connection(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (CONNECTION -> value)))
+  def contentTypeHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (CONTENT_TYPE -> value)))
   def doNotTrackHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (DO_NOT_TRACK -> value)))
   def userAgentHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (USER_AGENT -> value)))
   def basicAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
