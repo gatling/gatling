@@ -42,12 +42,15 @@ Request Type
 
 Currently, only ``reqreply`` request type is supported.
 
-Queue
------
+Destination
+-----------
 
-Define the target queue with ``queue("queueName")``.
+Define the target destination with ``queue("queueName")`` or alternatively with ``destination(JmsDestination)``
 
-Optionally define reply queue with ``replyQueue("responseQueue")`` if not defined dynamic queue will be used.
+Optionally define reply destination with ``replyQueue("responseQueue")`` or ``replyDestination(JmsDestination)`` if not defined dynamic queue will be used.
+
+Additionally for reply destination JMS selector can be defined with ``selector("selector")``
+
 
 Message Matching
 ----------------
