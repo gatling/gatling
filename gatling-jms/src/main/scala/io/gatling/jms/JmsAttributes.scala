@@ -28,8 +28,9 @@ import io.gatling.core.session.Expression
  */
 case class JmsAttributes(
   requestName: String,
-  queueName: String,
-  replyQueueName: Option[String],
+  destination: JmsDestination,
+  replyDestination: JmsDestination,
+  selector: Option[String],
   messageMatcher: JmsMessageMatcher,
   message: JmsMessage,
   messageProperties: Map[Expression[String], Expression[Any]] = Map.empty,
