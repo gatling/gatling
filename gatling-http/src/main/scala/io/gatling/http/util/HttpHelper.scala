@@ -75,6 +75,7 @@ object HttpHelper extends StrictLogging {
 
   val redirectStatusCodes = Vector(301, 302, 303, 307, 308)
   def isRedirect(statusCode: Int) = redirectStatusCodes.contains(statusCode)
+  def isPermanentRedirect(statusCode: Int) = statusCode == 301
   def isNotModified(statusCode: Int) = statusCode == 304
 
   def isSecure(uri: URI) = uri.getScheme == httpsScheme || uri.getScheme == wssScheme

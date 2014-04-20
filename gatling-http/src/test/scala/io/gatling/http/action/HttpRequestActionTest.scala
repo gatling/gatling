@@ -42,7 +42,7 @@ class HttpRequestActionTest extends Specification with CalledMatchers {
   sequential
 
   var httpEngine: Option[HttpEngine] = _
-
+  val httpRequestExecutor = new HttpRequestActionExecutorImpl
   step {
     GatlingConfiguration.setUp()
   }
@@ -55,18 +55,6 @@ class HttpRequestActionTest extends Specification with CalledMatchers {
     httpEngine = HttpEngine._instance
   }
 
-  trait HttpActionExecutorMockContext extends Around {
-    var httpRequestActionExectuor = HttpRequestAction.instance
-    var executorMock = mock(classOf[HttpRequestActionExecutor])
-
-    def around[T: AsResult](t: => T) = {
-      HttpRequestAction.instance = executorMock
-      val result = AsResult(t)
-      HttpRequestAction.instance = httpRequestActionExectuor
-      result
-    }
-  }
-
   trait HttpEngineMockContext extends Before {
 
     var httpEngineMock: HttpEngine = _
@@ -74,7 +62,6 @@ class HttpRequestActionTest extends Specification with CalledMatchers {
     def before() {
       httpEngineMock = mock(classOf[HttpEngine])
       HttpEngine._instance = Some(httpEngineMock)
-      HttpRequestAction.instance.cleanRedirectCache()
     }
 
     def httpTxTo(uri: String, redirectCount: Int = 0): HttpTx = {
@@ -110,7 +97,7 @@ class HttpRequestActionTest extends Specification with CalledMatchers {
 
     def addRedirect(from: String, to: String) {
       val tx = httpTxTo(to)
-      HttpRequestAction.httpTransactionRedirect(new URI(from), tx)(null)
+      httpRequestExecutor.httpTransactionRedirect(new URI(from), tx)(null)
       reset(httpEngineMock)
     }
   }
@@ -131,29 +118,22 @@ class HttpRequestActionTest extends Specification with CalledMatchers {
 
   "http request action" should {
 
-    "call request executor instance" in new HttpActionExecutorMockContext {
-      val tx = stubHttpTx
-      HttpRequestAction.startHttpTransaction(tx)(null)
-
-      verify(executorMock).startHttpTransaction(tx)(null)
-    }
-
     "call HttpEngine on request" in new HttpEngineMockContext {
       val tx = httpTxTo("http://example.com")
-      HttpRequestAction.startHttpTransaction(tx)(null)
+      httpRequestExecutor.startHttpTransaction(tx)(null)
       verify(httpEngineMock).startHttpTransaction(tx)
     }
 
     "call HttpEngine on redirect" in new HttpEngineMockContext {
       val tx = httpTxTo("http://gatling-tool.org")
-      HttpRequestAction.httpTransactionRedirect(new URI("http://example.com"), tx)(null)
+      httpRequestExecutor.httpTransactionRedirect(new URI("http://example.com"), tx)(null)
       verify(httpEngineMock).startHttpTransaction(tx)
     }
 
     "memomize redirect" in new HttpEngineMockContext {
       addRedirect("http://example.com/", "http://gatling-tool.org/")
 
-      HttpRequestAction.startHttpTransaction(httpTxTo("http://example.com/"))(null)
+      httpRequestExecutor.startHttpTransaction(httpTxTo("http://example.com/"))(null)
       verify(httpEngineMock).startHttpTransaction(
         Matchers.argThat(new HttpTxMatcher(new URI("http://gatling-tool.org/"), 1)))
     }
@@ -163,7 +143,7 @@ class HttpRequestActionTest extends Specification with CalledMatchers {
       addRedirect("http://gatling-tool.org/", "http://gatling2-tool.org/")
       addRedirect("http://gatling2-tool.org/", "http://gatling3-tool.org/")
 
-      HttpRequestAction.startHttpTransaction(httpTxTo("http://example.com/"))(null)
+      httpRequestExecutor.startHttpTransaction(httpTxTo("http://example.com/"))(null)
       verify(httpEngineMock).startHttpTransaction(
         Matchers.argThat(new HttpTxMatcher(new URI("http://gatling3-tool.org/"), 3)))
     }
@@ -174,7 +154,7 @@ class HttpRequestActionTest extends Specification with CalledMatchers {
       addRedirect("http://gatling2-tool.org/", "http://gatling3-tool.org/")
 
       // redirectCount is already 1
-      HttpRequestAction.startHttpTransaction(httpTxTo("http://example.com/", 1))(null)
+      httpRequestExecutor.startHttpTransaction(httpTxTo("http://example.com/", 1))(null)
 
       // redirectCount should be increased
       verify(httpEngineMock).startHttpTransaction(

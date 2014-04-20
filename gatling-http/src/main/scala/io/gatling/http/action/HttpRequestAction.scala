@@ -31,106 +31,102 @@ import java.util.concurrent.ConcurrentHashMap
 import collection.convert.WrapAsScala.mapAsScalaConcurrentMap
 import com.ning.http.client.{ RequestBuilder, Request }
 
-private[action] trait HttpRequestActionExecutor {
+private[http] trait HttpRequestActionExecutor {
   def startHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext)
 
   def httpTransactionRedirect(originalURI: URI, tx: HttpTx)(implicit ctx: ActorContext)
+}
 
-  private[action] def cleanRedirectCache()
+private[http] class HttpRequestActionExecutorImpl extends HttpRequestActionExecutor with StrictLogging {
+  private val redirectMap = mapAsScalaConcurrentMap(new ConcurrentHashMap[URI, URI]())
+
+  def startHttpTransaction(origTx: HttpTx)(implicit ctx: ActorContext) {
+
+      def startHttpTransaction(tx: HttpTx) {
+        logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+        HttpEngine.instance.startHttpTransaction(tx)
+      }
+
+      def skipCached(tx: HttpTx) {
+        logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+        tx.next ! tx.session
+      }
+
+    val uri = origTx.request.getURI
+
+    val tx = permanentRedirect(uri) match {
+      case Some(Pair(targetUri, redirectCount)) => {
+        redirectTransaction(origTx, targetUri, redirectCount)
+      }
+
+      case None => origTx
+    }
+
+    CacheHandling.getExpire(tx.protocol, tx.session, uri) match {
+
+      case None                               => startHttpTransaction(tx)
+
+      case Some(expire) if nowMillis > expire => startHttpTransaction(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
+
+      case _ if tx.protocol.responsePart.fetchHtmlResources =>
+        val explicitResources = HttpRequest.buildNamedRequests(tx.explicitResources, tx.session)
+
+        ResourceFetcher.fromCache(tx.request.getURI, tx, explicitResources) match {
+          case Some(resourceFetcher) =>
+            logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+            actor(resourceFetcher())
+
+          case None => skipCached(tx)
+        }
+
+      case _ => skipCached(tx)
+    }
+  }
+
+  private def permanentRedirect(uri: URI): Option[Pair[URI, Int]] = {
+      def permanentRedirect1(from: URI, redirectCount: Int): Option[Pair[URI, Int]] = {
+        redirectMap.get(from) match {
+          case Some(toUri) => {
+            permanentRedirect1(toUri, redirectCount + 1)
+          }
+
+          case None => {
+            redirectCount match {
+              case 0 => None
+              case _ => Some(Pair(from, redirectCount))
+            }
+          }
+        }
+      }
+
+    permanentRedirect1(uri, 0)
+  }
+
+  private def redirectTransaction(origTx: HttpTx, uri: URI, additionalRedirects: Int): HttpTx = {
+    val newRequest = redirectRequest(origTx.request, uri)
+    origTx.copy(request = newRequest, redirectCount = origTx.redirectCount + additionalRedirects)
+  }
+
+  private def redirectRequest(request: Request, toUri: URI): Request = {
+    val requestBuilder = new RequestBuilder(request)
+    requestBuilder.setURI(toUri)
+
+    requestBuilder.build()
+  }
+
+  def httpTransactionRedirect(originalURI: URI, tx: HttpTx)(implicit ctx: ActorContext) {
+    memoizeRedirect(originalURI, tx.request.getURI)
+    startHttpTransaction(tx)
+  }
+
+  private def memoizeRedirect(from: URI, to: URI) {
+    redirectMap += from -> to
+  }
 }
 
 object HttpRequestAction extends StrictLogging {
 
-  private[action] var instance = new HttpRequestActionExecutor {
-    private val redirectMap = mapAsScalaConcurrentMap(new ConcurrentHashMap[URI, URI]())
-
-    def startHttpTransaction(origTx: HttpTx)(implicit ctx: ActorContext) {
-
-        def startHttpTransaction(tx: HttpTx) {
-          logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-          HttpEngine.instance.startHttpTransaction(tx)
-        }
-
-        def skipCached(tx: HttpTx) {
-          logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-          tx.next ! tx.session
-        }
-
-      val uri = origTx.request.getURI
-
-      val tx = permanentRedirect(uri) match {
-        case Some(Pair(targetUri, redirectCount)) => {
-          redirectTransaction(origTx, targetUri, redirectCount)
-        }
-
-        case None => origTx
-      }
-
-      CacheHandling.getExpire(tx.protocol, tx.session, uri) match {
-
-        case None                               => startHttpTransaction(tx)
-
-        case Some(expire) if nowMillis > expire => startHttpTransaction(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
-
-        case _ if tx.protocol.responsePart.fetchHtmlResources =>
-          val explicitResources = HttpRequest.buildNamedRequests(tx.explicitResources, tx.session)
-
-          ResourceFetcher.fromCache(tx.request.getURI, tx, explicitResources) match {
-            case Some(resourceFetcher) =>
-              logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-              actor(resourceFetcher())
-
-            case None => skipCached(tx)
-          }
-
-        case _ => skipCached(tx)
-      }
-    }
-
-    private def permanentRedirect(uri: URI): Option[Pair[URI, Int]] = {
-        def permanentRedirect1(from: URI, redirectCount: Int): Option[Pair[URI, Int]] = {
-          redirectMap.get(from) match {
-            case Some(toUri) => {
-              permanentRedirect1(toUri, redirectCount + 1)
-            }
-
-            case None => {
-              redirectCount match {
-                case 0 => None
-                case _ => Some(Pair(from, redirectCount))
-              }
-            }
-          }
-        }
-
-      permanentRedirect1(uri, 0)
-    }
-
-    private def redirectTransaction(origTx: HttpTx, uri: URI, additionalRedirects: Int): HttpTx = {
-      val newRequest = redirectRequest(origTx.request, uri)
-      origTx.copy(request = newRequest, redirectCount = origTx.redirectCount + additionalRedirects)
-    }
-
-    private def redirectRequest(request: Request, toUri: URI): Request = {
-      val requestBuilder = new RequestBuilder(request)
-      requestBuilder.setURI(toUri)
-
-      requestBuilder.build()
-    }
-
-    def httpTransactionRedirect(originalURI: URI, tx: HttpTx)(implicit ctx: ActorContext) {
-      memoizeRedirect(originalURI, tx.request.getURI)
-      startHttpTransaction(tx)
-    }
-
-    private def memoizeRedirect(from: URI, to: URI) {
-      redirectMap += from -> to
-    }
-
-    override private[action] def cleanRedirectCache() {
-      redirectMap.clear()
-    }
-  }
+  private[http] var instance: HttpRequestActionExecutor = new HttpRequestActionExecutorImpl
 
   def startHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext) {
     instance.startHttpTransaction(tx)
