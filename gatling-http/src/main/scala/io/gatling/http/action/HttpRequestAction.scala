@@ -22,7 +22,7 @@ import akka.actor.ActorDSL.actor
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
-import io.gatling.http.cache.CacheHandling
+import io.gatling.http.cache.{ PermanentRedirect, CacheHandling }
 import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder
@@ -30,17 +30,19 @@ import com.ning.http.client.Request
 
 object HttpRequestAction extends StrictLogging {
 
-  def startHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext) {
+  def startHttpTransaction(origTx: HttpTx, httpEngine: HttpEngine = HttpEngine.instance)(implicit ctx: ActorContext) {
 
       def startHttpTransaction(tx: HttpTx) {
         logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-        HttpEngine.instance.startHttpTransaction(tx)
+        httpEngine.startHttpTransaction(tx)
       }
 
       def skipCached(tx: HttpTx) {
         logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
         tx.next ! tx.session
       }
+
+    val tx = PermanentRedirect.getRedirect(origTx)
 
     val uri = tx.request.getURI
     CacheHandling.getExpire(tx.protocol, tx.session, uri) match {

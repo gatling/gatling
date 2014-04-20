@@ -31,7 +31,11 @@ import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.Response
 
 object CacheHandling extends StrictLogging {
-
+  val httpRedirectMemoizationStoreAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cache.redirects"
+  def getRedirectMemoizationStore(session: Session): Map[URI, URI] = session(httpRedirectMemoizationStoreAttributeName).asOption[Map[URI, URI]] match {
+    case Some(store) => store
+    case _           => Map.empty
+  }
   val httpExpireStoreAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cache.expireStore"
   def getExpireStore(session: Session): Map[URI, Long] = session(httpExpireStoreAttributeName).asOption[Map[URI, Long]] match {
     case Some(store) => store

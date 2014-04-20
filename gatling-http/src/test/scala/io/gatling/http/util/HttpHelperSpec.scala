@@ -35,5 +35,13 @@ class HttpHelperSpec extends Specification {
     "support empty value param" in {
       HttpHelper.parseFormBody("foo=&baz=qux") must beEqualTo(List("foo" -> "", "baz" -> "qux"))
     }
+
+    "recognize 301 status code as permanent redirect" in {
+      HttpHelper.isPermanentRedirect(301) must beTrue
+    }
+
+    "non 301 status code should be recognized as permanent redirect" in {
+      HttpHelper.isPermanentRedirect(303) must beFalse
+    }
   }
 }

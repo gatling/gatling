@@ -15,7 +15,7 @@
  */
 package io.gatling.http.ahc
 
-import com.ning.http.client.RequestBuilder
+import com.ning.http.client.{ Request, RequestBuilder }
 import akka.actor.{ ActorRef, Props }
 import akka.actor.ActorDSL.actor
 import akka.routing.RoundRobinRouter
@@ -30,7 +30,7 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.http.HeaderNames
 import io.gatling.http.action.HttpRequestAction
-import io.gatling.http.cache.CacheHandling
+import io.gatling.http.cache.{ PermanentRedirect, CacheHandling }
 import io.gatling.http.check.{ HttpCheck, HttpCheckOrder }
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched, ResourceFetcher }
@@ -40,6 +40,7 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }
 import io.gatling.http.util.HttpStringBuilder
+import java.net.URI
 
 object AsyncHandlerActor extends AkkaDefaults {
 
@@ -245,13 +246,28 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
                 val newRequest = requestBuilder.build
 
-                val redirectTx = newTx.copy(request = newRequest, redirectCount = tx.redirectCount + 1)
+                val updatedSession = cacheRedirect(tx, originalRequest, redirectURI)
+
+                val redirectTx = newTx.copy(session = updatedSession, request = newRequest, redirectCount = tx.redirectCount + 1)
                 HttpRequestAction.startHttpTransaction(redirectTx)
 
               case None =>
                 ko(tx, sessionUpdates, response, "Redirect status, yet no Location header")
 
             }
+        }
+      }
+
+      def cacheRedirect(tx: HttpTx, originalRequest: Request, redirectURI: URI): Session = {
+        response.statusCode match {
+          case Some(code) => {
+            if (HttpHelper.isPermanentRedirect(code))
+              PermanentRedirect.addRedirect(tx.session, originalRequest.getURI, redirectURI)
+            else
+              tx.session
+          }
+
+          case None => tx.session
         }
       }
 
@@ -289,4 +305,5 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         ko(tx, identity, response, "How come OnComplete was sent with no status?!")
     }
   }
+
 }

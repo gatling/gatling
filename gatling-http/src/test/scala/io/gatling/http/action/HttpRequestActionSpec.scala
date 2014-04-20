@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ * 		http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,21 +15,22 @@
  */
 package io.gatling.http.action
 
-import io.gatling.http.action.HttpRequestAction
 import io.gatling.http.request.HttpRequest
+import io.gatling.http.config.{ HttpProtocolBuilder, HttpProtocol }
+import io.gatling.core.session.Session
+import io.gatling.http.ahc.{ HttpEngine, HttpTx }
+import io.gatling.http.cache.PermanentRedirect
+import io.gatling.http.MockUtils
+
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.{ Before, Specification }
 import org.specs2.mock.Mockito
-import io.gatling.core.session.Session
-import io.gatling.http.config.{ HttpProtocolBuilder, HttpProtocolRequestPart, HttpProtocol }
-import com.ning.http.client.Request
-import io.gatling.http.ahc.{ HttpEngine, HttpTx }
-import java.net.URI
-import org.mockito.ArgumentMatcher
-import akka.actor.ActorContext
-import org.specs2.matcher.{ MatchResult, Expectable }
 import org.specs2.mock.mockito.ArgumentCapture
+
+import com.ning.http.client.Request
+
+import java.net.URI
 
 /**
  * @author Ivan Mushketyk
@@ -41,33 +42,8 @@ class HttpRequestActionSpec extends Specification with Mockito {
     val httpEngineMock = mock[HttpEngine]
     var session = Session("mockSession", "mockUserName")
 
-    def txTo(uri: String, session: Session, redirectCount: Int = 0) = {
-      val protocol = mock[HttpProtocol]
-      val request = mock[Request]
-      val requestPart = mock[HttpProtocolRequestPart]
-
-      val tx = HttpTx(session,
-        request,
-        "mockHttpTx",
-        List(),
-        null,
-        protocol,
-        null,
-        true,
-        Some(10),
-        false,
-        false,
-        Seq(),
-        None,
-        false,
-        redirectCount)
-
-      protocol.requestPart returns requestPart
-      requestPart.cache returns false
-
-      request.getURI returns (new URI(uri))
-
-      tx
+    def addRedirect(from: String, to: String) {
+      session = PermanentRedirect.addRedirect(session, new URI(from), new URI(to))
     }
 
     def before() {}
@@ -116,5 +92,25 @@ class HttpRequestActionSpec extends Specification with Mockito {
 
       HttpRequestAction.isSilent(ahcRequest, request) should beTrue
     }
+
+    "send same transaction with no redirect" in new Context {
+      val tx = MockUtils.txTo("http://example.com/", session)
+      HttpRequestAction.startHttpTransaction(tx, httpEngineMock)(null)
+      there was one(httpEngineMock).startHttpTransaction(tx)
+    }
+
+    "update transaction in case of a redirect" in new Context {
+      addRedirect("http://example.com/", "http://gatling-tool.org/")
+      val tx = MockUtils.txTo("http://example.com/", session)
+      HttpRequestAction.startHttpTransaction(tx, httpEngineMock)(null)
+
+      val argumentCapture = new ArgumentCapture[HttpTx]
+      there was one(httpEngineMock).startHttpTransaction(argumentCapture)
+      val actualTx = argumentCapture.value
+
+      actualTx.request.getURI should be equalTo new URI("http://gatling-tool.org/")
+      actualTx.redirectCount should be equalTo 1
+    }
   }
 }
+
