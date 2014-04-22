@@ -64,7 +64,7 @@ case class WebSocketTx(session: Session,
 
 object HttpEngine extends AkkaDefaults with StrictLogging {
 
-  private var _instance: Option[HttpEngine] = None
+  private[http] var _instance: Option[HttpEngine] = None
 
   def start() {
     if (!_instance.isDefined) {

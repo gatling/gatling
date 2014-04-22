@@ -26,10 +26,21 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder
+import java.net.URI
+import java.util.concurrent.ConcurrentHashMap
+import collection.convert.WrapAsScala.mapAsScalaConcurrentMap
+import com.ning.http.client.{ RequestBuilder, Request }
 
-object HttpRequestAction extends StrictLogging {
+private[http] trait HttpRequestActionExecutor {
+  def startHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext)
 
-  def startHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext) {
+  def httpTransactionRedirect(originalURI: URI, tx: HttpTx)(implicit ctx: ActorContext)
+}
+
+private[http] class HttpRequestActionExecutorImpl extends HttpRequestActionExecutor with StrictLogging {
+  private val redirectMap = mapAsScalaConcurrentMap(new ConcurrentHashMap[URI, URI]())
+
+  def startHttpTransaction(origTx: HttpTx)(implicit ctx: ActorContext) {
 
       def startHttpTransaction(tx: HttpTx) {
         logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
@@ -41,7 +52,16 @@ object HttpRequestAction extends StrictLogging {
         tx.next ! tx.session
       }
 
-    val uri = tx.request.getURI
+    val uri = origTx.request.getURI
+
+    val tx = permanentRedirect(uri) match {
+      case Some(Pair(targetUri, redirectCount)) => {
+        redirectTransaction(origTx, targetUri, redirectCount)
+      }
+
+      case None => origTx
+    }
+
     CacheHandling.getExpire(tx.protocol, tx.session, uri) match {
 
       case None                               => startHttpTransaction(tx)
@@ -61,6 +81,59 @@ object HttpRequestAction extends StrictLogging {
 
       case _ => skipCached(tx)
     }
+  }
+
+  private def permanentRedirect(uri: URI): Option[Pair[URI, Int]] = {
+      def permanentRedirect1(from: URI, redirectCount: Int): Option[Pair[URI, Int]] = {
+        redirectMap.get(from) match {
+          case Some(toUri) => {
+            permanentRedirect1(toUri, redirectCount + 1)
+          }
+
+          case None => {
+            redirectCount match {
+              case 0 => None
+              case _ => Some(Pair(from, redirectCount))
+            }
+          }
+        }
+      }
+
+    permanentRedirect1(uri, 0)
+  }
+
+  private def redirectTransaction(origTx: HttpTx, uri: URI, additionalRedirects: Int): HttpTx = {
+    val newRequest = redirectRequest(origTx.request, uri)
+    origTx.copy(request = newRequest, redirectCount = origTx.redirectCount + additionalRedirects)
+  }
+
+  private def redirectRequest(request: Request, toUri: URI): Request = {
+    val requestBuilder = new RequestBuilder(request)
+    requestBuilder.setURI(toUri)
+
+    requestBuilder.build()
+  }
+
+  def httpTransactionRedirect(originalURI: URI, tx: HttpTx)(implicit ctx: ActorContext) {
+    memoizeRedirect(originalURI, tx.request.getURI)
+    startHttpTransaction(tx)
+  }
+
+  private def memoizeRedirect(from: URI, to: URI) {
+    redirectMap += from -> to
+  }
+}
+
+object HttpRequestAction extends StrictLogging {
+
+  private[http] var instance: HttpRequestActionExecutor = new HttpRequestActionExecutorImpl
+
+  def startHttpTransaction(tx: HttpTx)(implicit ctx: ActorContext) {
+    instance.startHttpTransaction(tx)
+  }
+
+  def httpTransactionRedirect(originalURI: URI, tx: HttpTx)(implicit ctx: ActorContext) {
+    instance.httpTransactionRedirect(originalURI, tx)
   }
 }
 

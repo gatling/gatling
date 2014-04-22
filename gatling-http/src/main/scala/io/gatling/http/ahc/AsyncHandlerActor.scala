@@ -246,7 +246,12 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
                 val newRequest = requestBuilder.build
 
                 val redirectTx = newTx.copy(request = newRequest, redirectCount = tx.redirectCount + 1)
-                HttpRequestAction.startHttpTransaction(redirectTx)
+
+                if (HttpHelper.isPermanentRedirect(response.statusCode.get)) {
+                  HttpRequestAction.httpTransactionRedirect(tx.request.getURI, redirectTx)
+                } else {
+                  HttpRequestAction.startHttpTransaction(redirectTx)
+                }
 
               case None =>
                 ko(tx, sessionUpdates, response, "Redirect status, yet no Location header")
