@@ -123,7 +123,7 @@ It is possible to load millions of keys in a few seconds in Redis and Gatling wi
 
 For example: a simple Scala function to generate a file with 1 million different urls ready to be loaded in a Redis list named *URLS*::
 
-  import com.excilys.ebi.gatling.core.feeder.redis.util._
+  import io.gatling.core.feeder.redis.util._
 
   def generateOneMillionUrls() = {
     val writer = new PrintWriter(new File("/tmp/loadtest.txt"))
