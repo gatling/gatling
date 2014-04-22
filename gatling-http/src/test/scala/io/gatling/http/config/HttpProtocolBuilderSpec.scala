@@ -67,5 +67,15 @@ class HttpProtocolBuilderSpec extends Specification {
 
       Seq(config.baseURL.get, config.baseURL.get, config.baseURL.get) must be equalTo (Seq(url1, url2, url1))
     }
+
+    "set a silent URI regex" in {
+      val builder = HttpProtocolBuilder.default
+        .silentURI(".*")
+
+      val config: HttpProtocol = builder.build
+
+      val actualPattern: String = config.requestPart.silentURI.get.toString()
+      actualPattern.equals(".*") should beTrue
+    }
   }
 }

@@ -34,6 +34,7 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.request.builder.Http
 import io.gatling.http.response.ResponseTransformer
+import scala.util.matching.Regex
 
 /**
  * HttpProtocol class companion
@@ -52,7 +53,8 @@ object HttpProtocol {
       baseHeaders = Map.empty,
       realm = None,
       autoReferer = true,
-      cache = true),
+      cache = true,
+      silentURI = None),
     responsePart = HttpProtocolResponsePart(
       followRedirect = true,
       maxRedirects = None,
@@ -169,7 +171,8 @@ case class HttpProtocolRequestPart(
   baseHeaders: Map[String, Expression[String]],
   realm: Option[Expression[Realm]],
   autoReferer: Boolean,
-  cache: Boolean)
+  cache: Boolean,
+  silentURI: Option[Regex])
 
 case class HttpProtocolResponsePart(
   followRedirect: Boolean,
