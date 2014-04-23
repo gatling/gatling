@@ -25,6 +25,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.{ RichString, eol }
+import scala.collection.mutable
 
 object ConsoleSummary {
 
@@ -35,7 +36,7 @@ object ConsoleSummary {
 
   def writeSubTitle(title: String) = ("---- " + title + " ").rightPad(outputLength, "-")
 
-  def apply(runDuration: Long, usersCounters: Map[String, UserCounters], globalRequestCounters: RequestCounters, requestsCounters: Map[String, RequestCounters], time: DateTime = DateTime.now) = {
+  def apply(runDuration: Long, usersCounters: Map[String, UserCounters], globalRequestCounters: RequestCounters, requestsCounters: Map[String, RequestCounters], errorsCounters: Map[String, Int], time: DateTime = DateTime.now) = {
 
       def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 
@@ -60,6 +61,15 @@ object ConsoleSummary {
         fast"> ${actionName.rightPad(outputLength - 24)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
       }
 
+      def writeErrors(): Fastring = {
+          def writeError(msg: String, count: Int): Fastring = {
+            val percent = count * 100 / globalRequestCounters.failedCount
+            fast"> ${msg.truncate(outputLength - 27)} (count=${count.toString.rightPad(5)} (${percent.toString.leftPad(3)} %))"
+          }
+
+        errorsCounters.toVector.sortBy(_._2).reverse.map(err => writeError(err._1, err._2)).mkFastring(eol)
+      }
+
     val text = fast"""
 $newBlock
 ${ConsoleSummary.dateTimeFormat.print(time)} ${(runDuration + "s elapsed").leftPad(outputLength - iso8601Format.length - 9)}
@@ -71,6 +81,8 @@ ${
         requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(eol)
       else ""
     }
+${writeSubTitle("Errors")}
+${writeErrors()}
 $newBlock
 """.toString
 
