@@ -31,10 +31,15 @@ object HarMapping {
   private def parseMillisFromIso8601DateTime(time: String): Long =
     convertInstance.convertFromString(classOf[DateTime], time).getMillis
 
-  private def buildLog(log: Json) = {
-    val entries = log.entries
+  private def buildLog(log: Json): Log = {
+    val entries = log.entries.iterator
       // Filter out all non-HTTP protocols (eg: ws://)	
-      .collect { case e if e.request.url.toString.toLowerCase.startsWith("http") => buildEntry(e) }
+      .filter(_.request.url.toString.toLowerCase.startsWith("http"))
+      // Filter out all HTTP request with status=0, http://www.w3.org/TR/XMLHttpRequest/#the-status-attribute
+      .filter(_.response.status.toInt != 0)
+      .map(buildEntry)
+      .toVector
+
     Log(entries)
   }
 
@@ -42,7 +47,7 @@ object HarMapping {
     Entry(parseMillisFromIso8601DateTime(entry.startedDateTime),
       buildRequest(entry.request), buildResponse(entry.response))
 
-  private def buildRequest(request: Json) = {
+  private def buildRequest(request: Json): Request = {
     val postData = request.postData.toOption
     Request(request.method, request.url, request.headers.map(buildHeader), postData.map(buildPostData))
   }
