@@ -70,7 +70,7 @@ class HttpCompileTest extends Simulation {
     }
     .repeat(2, "counterName") {
       feed(testData.circular)
-        .exec(http("Catégorie Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
+        .exec(http("Catégorie Poney").get("/").queryParam("omg", "${omg}").queryParam("socool", "${socool}").basicAuth("", "").check(xpath("//input[@id='text1']/@value").findAll.saveAs("aaaa_value"), jsonPath("//foo/bar[2]/baz")))
     }
     .during(10 seconds) {
       feed(testData)
