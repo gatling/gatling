@@ -137,7 +137,7 @@ private class GraphiteSender(graphiteRootPathKey: String)(implicit configuration
     for ((metricPath, usersBreakdown) <- usersBreakdowns) sendUserMetrics(metricPath, usersBreakdown)
 
     if (configuration.data.graphite.light)
-      sendRequestMetrics(allRequestsKey, requestsMetrics(allRequestsKey))
+      requestsMetrics.get(allRequestsKey).foreach(allRequestsMetric => sendRequestMetrics(allRequestsKey, allRequestsMetric))
     else
       for ((path, requestMetric) <- requestsMetrics) sendRequestMetrics(path, requestMetric)
 
