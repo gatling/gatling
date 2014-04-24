@@ -99,7 +99,7 @@ class HarReaderSpec extends Specification {
 
     "deal correctly with file having a websockets record" in {
       val scn = HarReader(resourceAsStream("har/play-chat.har"))(configWithResourcesFiltering)
-      val requests = scn.elements.collect { case r @ RequestElement(_, _, _, _, _, _) => r.uri }
+      val requests = scn.elements.collect { case r: RequestElement => r.uri }
 
       (scn.elements must have size (3)) and
         (requests must beEqualTo(List("http://localhost:9000/room", "http://localhost:9000/room?username=robert")))
@@ -109,6 +109,14 @@ class HarReaderSpec extends Specification {
       val scn = HarReader(resourceAsStream("har/charles_https.har"))
 
       scn.elements must beEmpty
+    }
+
+    "deal correctly with HTTP requests having a status=0" in {
+      val scn = HarReader(resourceAsStream("har/null_status.har"))
+      val requests = scn.elements.collect { case r: RequestElement => r }
+      val statuses = requests.map(_.statusCode)
+
+      requests must have size (3) and (statuses must not contain (0))
     }
   }
 
