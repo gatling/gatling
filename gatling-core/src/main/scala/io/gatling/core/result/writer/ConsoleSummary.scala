@@ -25,14 +25,18 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.{ RichString, eol }
-import scala.collection.mutable
+import scala.collection.mutable.LinkedList
+import java.text.DecimalFormat
 
 object ConsoleSummary {
 
   val iso8601Format = "yyyy-MM-dd HH:mm:ss"
   val dateTimeFormat = DateTimeFormat.forPattern(iso8601Format)
   val outputLength = 80
+  val errorCountLen = 14
+  val errorMsgLen = outputLength - errorCountLen
   val newBlock = "=" * outputLength
+  val errorPercentFormat = new DecimalFormat("#.##")
 
   def writeSubTitle(title: String) = ("---- " + title + " ").rightPad(outputLength, "-")
 
@@ -61,10 +65,26 @@ object ConsoleSummary {
         fast"> ${actionName.rightPad(outputLength - 24)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
       }
 
+      def writeErrorsHeader(): Fastring = {
+        fast"${"msg".toString.rightPad(errorMsgLen)}${"count".toString.rightPad(errorCountLen)}"
+      }
+
       def writeErrors(): Fastring = {
+
           def writeError(msg: String, count: Int): Fastring = {
-            val percent = count * 100 / globalRequestCounters.failedCount
-            fast"> ${msg.truncate(outputLength - 27)} (count=${count.toString.rightPad(5)} (${percent.toString.leftPad(3)} %))"
+            val percent = errorPercentFormat.format(count.toDouble * 100 / globalRequestCounters.failedCount)
+
+            var currLen = errorMsgLen - 3;
+            val firstLineLen = Math.min(msg.length, currLen)
+            var lines = LinkedList(fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.rightPad(5)} ${percent.rightPad(6)} %")
+
+            while (currLen < msg.length) {
+              val lineEnd = Math.min(currLen + errorMsgLen, msg.length)
+              lines = lines :+ fast"${msg.substring(currLen, lineEnd)}"
+              currLen = currLen + errorMsgLen
+            }
+
+            lines.mkFastring(eol)
           }
 
         errorsCounters.toVector.sortBy(_._2).reverse.map(err => writeError(err._1, err._2)).mkFastring(eol)
@@ -82,6 +102,7 @@ ${
       else ""
     }
 ${writeSubTitle("Errors")}
+${writeErrorsHeader()}
 ${writeErrors()}
 $newBlock
 """.toString
