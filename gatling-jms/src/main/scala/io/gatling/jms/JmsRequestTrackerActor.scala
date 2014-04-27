@@ -24,6 +24,8 @@ import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.writer.DataWriterClient
 
 import javax.jms.Message
+import io.gatling.core.check.Check
+import io.gatling.core.validation.Success
 
 /**
  * Advise actor a message was sent to JMS provider
@@ -100,8 +102,10 @@ class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
                      title: String): Unit = {
 
     // run all of the checks
-    val checksPassed = checks.forall((check: JmsCheck) => check(message))
-    val status = if (checksPassed) OK else KO
+    val status = Check.check(message, session, checks) match {
+      case Success(_) => OK
+      case _          => KO
+    }
 
     // advise the Gatling API that it is complete and move to next
     writeRequestData(session, title, startSend, received, endSend, received, status)

@@ -79,7 +79,9 @@ JMS Check API
 
 JMS checks are very basic for now.
 
-There's just ``javax.jms.Message => Boolean`` functions.
+There is ``simpleCheck`` that accepts just ``javax.jms.Message => Boolean`` functions.
+
+Additionally you can define your custom check that implements ``Check[javax.jms.Message]``
 
 Example
 =======
@@ -107,7 +109,7 @@ Short example, assuming FFMQ on localhost, using a reqreply query, to the queue 
       .queue("jmstestq")
       .textMessage("hello from gatling jms dsl")
       .property("test_header", "test_value")
-      .check(checkBodyTextCorrect)
+      .check(simpleCheck(checkBodyTextCorrect))
       )
     }
 

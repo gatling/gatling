@@ -16,11 +16,12 @@
 package io.gatling
 
 import javax.jms.Message
+import io.gatling.core.check.Check
 
 package object jms {
 
   /**
    * Type for jms checks
    */
-  type JmsCheck = Message => Boolean
+  type JmsCheck = Check[Message]
 }
