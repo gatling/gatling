@@ -137,8 +137,8 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     groupInsert.setInt(1, runId)
     groupInsert.setString(2, scenarioName)
     groupInsert.setString(3, userId)
-    groupInsert.setLong(4, entryDate)
-    groupInsert.setLong(5, exitDate)
+    groupInsert.setLong(4, startDate)
+    groupInsert.setLong(5, endDate)
     groupInsert.setString(6, status.toString)
     groupInsert.addBatch()
 

@@ -17,22 +17,21 @@ package io.gatling.core.action
 
 import akka.actor.ActorRef
 import io.gatling.core.result.writer.DataWriterClient
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
-object GroupEnd extends DataWriterClient {
-
-  def endGroup(session: Session, next: ActorRef) {
-    val stack = session.groupStack
-    writeGroupData(session, stack, stack.head.startDate, nowMillis, session.statusStack.head)
-
-    next ! session.exitGroup
-  }
-}
-
-class GroupEnd(val next: ActorRef) extends Chainable {
+class GroupEnd(val next: ActorRef) extends Chainable with DataWriterClient with StrictLogging {
 
   def execute(session: Session) {
-    GroupEnd.endGroup(session, next)
+    session.blockStack match {
+
+      case (group: GroupBlock) :: tail =>
+        writeGroupData(session, group, nowMillis)
+        next ! session.exitGroup
+
+      case _ =>
+        logger.error(s"GroupEnd called but head of stack ${session.blockStack} isn't a GroupBlock, please report.")
+    }
   }
 }

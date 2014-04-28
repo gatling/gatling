@@ -94,7 +94,7 @@ class ConsoleDataWriter extends DataWriter {
 
     import request._
 
-    val requestPath = (name :: groupStack.map(_.name)).reverse.mkString(" / ")
+    val requestPath = (groupHierarchy ::: List(name)).mkString(" / ")
     val requestCounters = requestsCounters.getOrElseUpdate(requestPath, new RequestCounters)
 
     status match {

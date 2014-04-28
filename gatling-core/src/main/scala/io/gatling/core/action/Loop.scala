@@ -17,8 +17,7 @@ package io.gatling.core.action
 
 import akka.actor.{ Actor, ActorRef }
 import akka.actor.ActorDSL.actor
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ Failure, Success }
+import io.gatling.core.session.{ LoopBlock, Expression, Session }
 
 /**
  * Action in charge of controlling a while loop execution.
@@ -32,32 +31,18 @@ class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP
 
   var innerLoop: ActorRef = _
 
+  val initialized: Receive = Interruptable.interrupt orElse { case m => innerLoop forward m }
+
   val uninitialized: Receive = {
     case loopNext: ActorRef =>
       innerLoop = actor(new InnerLoop(continueCondition, loopNext, counterName, exitASAP, next))
       context.become(initialized)
   }
 
-  val initialized: Receive = Interruptable.interruptOrElse({ case m => innerLoop forward m })
-
   override def receive = uninitialized
 }
 
 class InnerLoop(continueCondition: Expression[Boolean], loopNext: ActorRef, counterName: String, exitASAP: Boolean, val next: ActorRef) extends Chainable {
-
-  val loopInterrupt: PartialFunction[Session, Unit] = {
-
-      def continue(session: Session) = continueCondition(session) match {
-        case Success(c)       => c
-        case Failure(message) => logger.error(s"Could not evaluate condition: $message, exiting loop"); false
-      }
-
-    {
-      case session if !continue(session) =>
-        val nextSession = (if (exitASAP) session.exitInterruptable else session).exitLoop
-        next ! nextSession
-    }
-  }
 
   /**
    * Evaluates the condition and if true executes the first action of loopNext
@@ -67,9 +52,18 @@ class InnerLoop(continueCondition: Expression[Boolean], loopNext: ActorRef, coun
    */
   def execute(session: Session) {
 
-    val initializedSession = if (!session.contains(counterName) && exitASAP) session.enterInterruptable(loopInterrupt) else session
-    val incrementedSession = initializedSession.incrementLoop(counterName)
+    if (!session.contains(counterName))
+      loopNext ! session.enterLoop(counterName, continueCondition, self, exitASAP)
 
-    loopInterrupt.applyOrElse(incrementedSession, (s: Session) => loopNext ! s)
+    else {
+      val incrementedSession = session.incrementCounter(counterName)
+
+      if (LoopBlock.continue(continueCondition, incrementedSession))
+        // TODO maybe find a way not to reevaluate in case
+        loopNext ! incrementedSession
+
+      else
+        next ! session.exitLoop
+    }
   }
 }

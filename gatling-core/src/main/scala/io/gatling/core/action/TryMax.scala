@@ -15,18 +15,17 @@
  */
 package io.gatling.core.action
 
-import scala.annotation.tailrec
-
 import akka.actor.{ Actor, ActorRef }
 import akka.actor.ActorDSL.actor
-import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.writer.DataWriterClient
-import io.gatling.core.session.{ GroupStackEntry, Session }
-import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.session.Session
+import io.gatling.core.validation.{ Failure, Success }
 
 class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
 
   var innerTryMax: ActorRef = _
+
+  val initialized: Receive = Interruptable.interrupt orElse { case m => innerTryMax forward m }
 
   val uninitialized: Receive = {
     case loopNext: ActorRef =>
@@ -34,39 +33,16 @@ class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
       context.become(initialized)
   }
 
-  val initialized: Receive = Interruptable.interruptOrElse({ case m => innerTryMax forward m })
-
   override def receive = uninitialized
 }
 
 class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next: ActorRef) extends Chainable with DataWriterClient {
 
-  def interrupt(stackOnEntry: List[GroupStackEntry]): PartialFunction[Session, Unit] = {
-    case session if session.statusStack.head == KO =>
-
-      val sessionWithGroupsExited = if (session.groupStack.size > stackOnEntry.size) {
-
-        val now = nowMillis
-
-          @tailrec
-          def failGroupsInsideTryMax(session: Session): Session = {
-            session.groupStack match {
-              case Nil | `stackOnEntry` => session
-              case head :: _ =>
-                // the session contains more groups than when entering, fail head and recurse
-                writeGroupData(session, session.groupStack, head.startDate, now, KO)
-                failGroupsInsideTryMax(session.exitGroup)
-            }
-          }
-
-        failGroupsInsideTryMax(session)
-
-      } else session
-
-      if (sessionWithGroupsExited.loopCounterValue(counterName) >= times)
-        next ! sessionWithGroupsExited.exitTryMax.exitLoop
-      else
-        self ! sessionWithGroupsExited
+  private def continue(session: Session): Boolean = session(counterName).validate[Int].map(_ < times) match {
+    case Success(eval) => eval
+    case Failure(message) =>
+      logger.error(s"Condition evaluation for tryMax $counterName crashed with message '$message', exiting tryMax")
+      false
   }
 
   /**
@@ -77,15 +53,17 @@ class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next:
    */
   def execute(session: Session) {
 
-    val initializedSession = if (!session.contains(counterName)) session.enterTryMax(interrupt(session.groupStack)) else session
-    val incrementedSession = initializedSession.incrementLoop(counterName)
+    if (!session.contains(counterName))
+      loopNext ! session.enterTryMax(counterName, self)
 
-    val counterValue = incrementedSession.loopCounterValue(counterName)
-    val status = incrementedSession.statusStack.head
+    else {
+      val incrementedSession = session.incrementCounter(counterName)
 
-    if ((status == OK && counterValue > 0) || (status == KO && counterValue >= times))
-      next ! incrementedSession.exitTryMax.exitLoop // succeed or exit on exceed
-    else
-      loopNext ! incrementedSession.markAsSucceeded // loop
+      if (continue(incrementedSession))
+        // reset status
+        loopNext ! incrementedSession.markAsSucceeded
+      else
+        next ! session.exitTryMax
+    }
   }
 }

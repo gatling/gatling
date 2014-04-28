@@ -25,6 +25,7 @@ import io.gatling.core.session.el.ELMessages
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.TypeHelper.TypeCaster
 import io.gatling.core.validation.{ FailureWrapper, Validation }
+import akka.actor.ActorRef
 
 /**
  * Private Gatling Session attributes
@@ -55,10 +56,8 @@ case class SessionAttribute(session: Session, key: String) {
  * @param attributes the map that stores all values needed
  * @param startDate when the user was started
  * @param drift the cumulated time that was spent in Gatling on computation and that wasn't compensated for
- * @param groupStack the group stack
- * @param statusStack the status stack
- * @param interruptStack the interrupt stack, caused by exitASAP conditions on loops
- * @param counterStack the counters stack, used by loops
+ * @param baseStatus the status when not in a TryMax blocks hierarchy
+ * @param blockStack the block stack
  */
 case class Session(
     scenarioName: String,
@@ -66,10 +65,8 @@ case class Session(
     attributes: Map[String, Any] = Map.empty,
     startDate: Long = nowMillis,
     drift: Long = 0L,
-    groupStack: List[GroupStackEntry] = Nil,
-    statusStack: List[Status] = List(OK),
-    interruptStack: List[PartialFunction[Session, Unit]] = Nil,
-    counterStack: List[String] = Nil) extends StrictLogging {
+    baseStatus: Status = OK,
+    blockStack: List[Block] = Nil) extends StrictLogging {
 
   def apply(name: String) = SessionAttribute(this, name)
   def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)
@@ -82,51 +79,138 @@ case class Session(
   def setDrift(drift: Long) = copy(drift = drift)
   def increaseDrift(time: Long) = copy(drift = time + drift)
 
-  def enterGroup(groupName: String) = copy(groupStack = GroupStackEntry(groupName, nowMillis, 0L, 0, 0) :: groupStack, statusStack = OK :: statusStack)
-  def exitGroup = statusStack match {
-    case KO :: _ :: tail => copy(statusStack = KO :: tail, groupStack = groupStack.tail) // propagate failure to upper block
-    case _ :: tail       => copy(statusStack = tail, groupStack = groupStack.tail)
+  private def timestampName(counterName: String) = "timestamp." + counterName
+
+  def loopCounterValue(counterName: String) = attributes(counterName).asInstanceOf[Int]
+
+  def loopTimestampValue(counterName: String) = attributes(timestampName(counterName)).asInstanceOf[Long]
+
+  def enterGroup(groupName: String) = {
+    val groupHierarchy = blockStack.reverseIterator.collect { case GroupBlock(name, _, _, _, _, _) => name }.toList
+    copy(blockStack = GroupBlock(groupName, groupHierarchy) :: blockStack)
   }
-  def logGroupRequest(responseTime: Long, status: Status) = groupStack match {
+
+  def exitGroup = blockStack match {
+    case head :: tail if head.isInstanceOf[GroupBlock] => copy(blockStack = tail)
+    case _ =>
+      logger.error(s"exitGroup called but stack head $blockStack isn't a GroupBlock, please report.")
+      this
+  }
+
+  def logGroupRequest(responseTime: Long, status: Status) = blockStack match {
     case Nil => this
     case _ =>
       val (ok, ko) = if (status == OK) (1, 0) else (0, 1)
-      copy(groupStack = groupStack.map { entry => entry.copy(cumulatedResponseTime = entry.cumulatedResponseTime + responseTime, oks = entry.oks + ok, kos = entry.kos + ko) })
+      copy(blockStack = blockStack.map {
+        case g: GroupBlock => g.copy(cumulatedResponseTime = g.cumulatedResponseTime + responseTime, oks = g.oks + ok, kos = g.kos + ko)
+        case b             => b
+      })
   }
 
-  def enterTryMax(interrupt: PartialFunction[Session, Unit]): Session = enterInterruptable(interrupt).copy(statusStack = OK :: statusStack)
-  def exitTryMax: Session = statusStack match {
-    case KO :: _ :: tail => copy(statusStack = KO :: tail, interruptStack = interruptStack.tail) // propagate failure to upper block
-    case _ :: tail       => copy(statusStack = tail, interruptStack = interruptStack.tail)
+  def groupHierarchy: List[String] = blockStack.collectFirst { case g: GroupBlock => g.groupHierarchy }.getOrElse(Nil)
+
+  def enterTryMax(counterName: String, loopActor: ActorRef) =
+    copy(blockStack = TryMaxBlock(counterName, loopActor) :: blockStack).initCounter(counterName)
+
+  def exitTryMax: Session = blockStack match {
+    case TryMaxBlock(counterName, _, status) :: tail =>
+      val newStack =
+        if (status == KO) {
+          // propagate failure to closest TryMax
+          var first = true
+          tail.map {
+            case tryMax: TryMaxBlock if first =>
+              first = false
+              tryMax.copy(status = KO)
+            case b => b
+          }
+        } else
+          tail
+
+      copy(blockStack = newStack).removeCounter(counterName)
+
+    case _ =>
+      logger.error(s"exitTryMax called but stack head $blockStack isn't a TryMaxBlock, please report.")
+      this
   }
 
-  def isFailed = statusStack.contains(KO)
-  def status: Status = if (statusStack.contains(KO)) KO else OK
-  def markAsSucceeded = statusStack match {
-    case KO :: tail => copy(statusStack = OK :: tail)
-    case _          => this
-  }
-  def markAsFailed: Session = statusStack match {
-    case OK :: tail => copy(statusStack = KO :: tail)
-    case _          => this
+  def isFailed = baseStatus == KO || blockStack.exists {
+    case TryMaxBlock(_, _, KO) => true
+    case _                     => false
   }
 
-  def enterInterruptable(interrupt: PartialFunction[Session, Unit]) = copy(interruptStack = interrupt :: interruptStack)
-  def exitInterruptable = copy(interruptStack = interruptStack.tail)
+  def status: Status = if (isFailed) KO else OK
 
-  private def timestampName(counterName: String) = "timestamp." + counterName
+  def markAsSucceeded: Session = {
+    var first = true
+    val newStack = blockStack.map {
+      case tryMax: TryMaxBlock if first =>
+        first = false
+        tryMax.copy(status = OK)
+      case b => b
+    }
 
-  def incrementLoop(counterName: String) = counterStack match {
-    case head :: _ if head == counterName =>
-      val counterValue = attributes(counterName).asInstanceOf[Int] + 1
-      copy(attributes = attributes + (counterName -> counterValue))
-    case _ => copy(attributes = attributes + (counterName -> 0) + (timestampName(counterName) -> nowMillis), counterStack = counterName :: counterStack)
+    if (first) {
+      if (baseStatus == OK)
+        this
+      else
+        copy(baseStatus = OK)
+    } else
+      copy(blockStack = newStack)
   }
-  def exitLoop = counterStack match {
-    case counterName :: tail => copy(attributes = attributes - counterName - timestampName(counterName), counterStack = tail)
-    case _                   => this
+
+  def markAsFailed: Session = {
+    var first = true
+    val newStack = blockStack.map {
+      case tryMax: TryMaxBlock if first =>
+        first = false
+        tryMax.copy(status = KO)
+      case b => b
+    }
+
+    if (first) {
+      if (baseStatus == KO)
+        this
+      else
+        copy(baseStatus = KO)
+    } else
+      copy(blockStack = newStack)
   }
 
-  def loopCounterValue(counterName: String) = attributes(counterName).asInstanceOf[Int]
-  def loopTimestampValue(counterName: String) = attributes(timestampName(counterName)).asInstanceOf[Long]
+  def enterLoop(counterName: String, condition: Expression[Boolean], loopActor: ActorRef, exitASAP: Boolean): Session = {
+
+    val newBlock =
+      if (exitASAP)
+        ExitASAPLoopBlock(counterName, condition, loopActor)
+      else
+        ExitOnCompleteLoopBlock(counterName)
+
+    copy(blockStack = newBlock :: blockStack).initCounter(counterName)
+  }
+
+  def exitLoop: Session = blockStack match {
+    case LoopBlock(counterName) :: tail => copy(blockStack = tail).removeCounter(counterName)
+    case _ =>
+      logger.error(s"exitLoop called but stack head $blockStack isn't a Loop Block, please report.")
+      this
+  }
+
+  def initCounter(counterName: String): Session =
+    copy(attributes = attributes + (counterName -> 0) + (timestampName(counterName) -> nowMillis))
+
+  def incrementCounter(counterName: String): Session =
+    attributes.get(counterName) match {
+      case Some(counterValue: Int) => copy(attributes = attributes + (counterName -> (counterValue + 1)))
+      case _ =>
+        logger.error(s"incrementCounter called but attribute for counterName $counterName is missing, please report.")
+        this
+    }
+
+  def removeCounter(counterName: String): Session =
+    attributes.get(counterName) match {
+      case Some(counterValue: Int) => copy(attributes = attributes - counterName - timestampName(counterName))
+      case _ =>
+        logger.error(s"removeCounter called but attribute for counterName $counterName is missing, please report.")
+        this
+    }
 }

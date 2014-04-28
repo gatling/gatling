@@ -51,28 +51,22 @@ class LeakReporterDataWriter extends DataWriter {
 
     lastTouch = currentTimeMillis
 
-    import userMessage._
-
-    event match {
-      case Start => events += userId -> userMessage
-      case End   => events -= userId
+    userMessage.event match {
+      case Start => events += userMessage.userId -> userMessage
+      case End   => events -= userMessage.userId
     }
   }
 
-  override def onGroupMessage(group: GroupMessage) {
+  override def onGroupMessage(groupMessage: GroupMessage) {
 
     lastTouch = currentTimeMillis
-
-    import group._
-    events += userId -> group
+    events += groupMessage.userId -> groupMessage
   }
 
-  override def onRequestMessage(request: RequestMessage) {
+  override def onRequestMessage(requestMessage: RequestMessage) {
 
     lastTouch = currentTimeMillis
-
-    import request._
-    events += userId -> request
+    events += requestMessage.userId -> requestMessage
   }
 
   override def onTerminateDataWriter() {}

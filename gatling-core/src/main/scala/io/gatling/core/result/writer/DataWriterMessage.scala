@@ -18,8 +18,8 @@ package io.gatling.core.result.writer
 import org.joda.time.DateTime
 
 import io.gatling.core.result.message.{ MessageEvent, Status }
-import io.gatling.core.session.GroupStackEntry
 import io.gatling.core.util.DateHelper.RichDateTime
+import io.gatling.core.session.GroupBlock
 
 sealed trait DataWriterMessage
 
@@ -32,7 +32,7 @@ case object Terminate extends DataWriterMessage
 case class RequestMessage(
     scenario: String,
     userId: String,
-    groupStack: List[GroupStackEntry],
+    groupHierarchy: List[String],
     name: String,
     requestStartDate: Long,
     requestEndDate: Long,
@@ -55,7 +55,7 @@ case class UserMessage(scenarioName: String, userId: String, event: MessageEvent
   val recordType = UserMessageType
 }
 
-case class GroupMessage(scenarioName: String, userId: String, groupStack: List[GroupStackEntry], entryDate: Long, exitDate: Long, status: Status) extends DataWriterMessage {
+case class GroupMessage(scenarioName: String, userId: String, group: GroupBlock, groupHierarchy: List[String], startDate: Long, endDate: Long, status: Status) extends DataWriterMessage {
   val recordType = GroupMessageType
 }
 

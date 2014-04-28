@@ -22,7 +22,6 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.Group
-import io.gatling.core.session.GroupStackEntry
 import io.gatling.core.util.StringHelper.eol
 import io.gatling.core.util.UnsyncBufferedOutputStream
 
@@ -69,7 +68,7 @@ object FileDataWriter {
         case Some(r) => r
         case None    => emptyField
       }
-      val serializedGroups = GroupMessageSerializer.serializeGroups(groupStack)
+      val serializedGroups = GroupMessageSerializer.serializeGroups(groupHierarchy)
       val serializedExtraInfo = extraInfo.map(info => fast"\t${sanitize(info.toString)}").mkFastring
 
       fast"$scenario\t$userId\t${RequestMessageType.name}\t$serializedGroups\t$name\t$requestStartDate\t$requestEndDate\t$responseStartDate\t$responseEndDate\t$status\t$nonEmptyMessage$serializedExtraInfo$eol"
@@ -87,15 +86,14 @@ object FileDataWriter {
   // fastring macro won't work inside a value class in 2.10
   object GroupMessageSerializer {
 
-    def serializeGroups(groupStack: List[GroupStackEntry]) = groupStack.reverse.map(_.name).mkFastring(",")
+    def serializeGroups(groupHierarchy: List[String]) = groupHierarchy.mkFastring(",")
 
     def deserializeGroups(string: String) = Group(string.split(",").toList)
 
     def serialize(groupMessage: GroupMessage) = {
       import groupMessage._
-      val serializedGroups = serializeGroups(groupStack)
-      val group = groupStack.head
-      fast"$scenarioName\t$userId\t${GroupMessageType.name}\t$serializedGroups\t$entryDate\t$exitDate\t${group.cumulatedResponseTime}\t${group.oks}\t${group.kos}\t$status$eol"
+      val serializedGroups = serializeGroups(groupHierarchy)
+      fast"$scenarioName\t$userId\t${GroupMessageType.name}\t$serializedGroups\t$startDate\t$endDate\t${group.cumulatedResponseTime}\t${group.oks}\t${group.kos}\t$status$eol"
     }
   }
 
