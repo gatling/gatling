@@ -23,7 +23,7 @@ import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.FileChooser.SelectionMode
 import scala.swing.ListView.Renderer
-import scala.swing.event.{ KeyReleased, SelectionChanged }
+import scala.swing.event.{ ButtonClicked, KeyReleased, SelectionChanged }
 import scala.util.Try
 
 import io.gatling.core.util.StringHelper.RichString
@@ -272,8 +272,8 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
   /**           EVENTS HANDLING           **/
   /*****************************************/
 
-  /* Reactions I: handling filters table edition and switching between Proxy and HAR mode */
-  listenTo(filterStrategies.selection, modeSelector.selection)
+  /* Reactions I: handling filters, save checkbox, table edition and switching between Proxy and HAR mode */
+  listenTo(filterStrategies.selection, modeSelector.selection, savePreferences)
   // Backticks are needed to match the components, see section 8.1.5 of Scala spec.
   reactions += {
     case SelectionChanged(`modeSelector`) =>
@@ -288,6 +288,12 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
     case SelectionChanged(`filterStrategies`) =>
       val isNotDisabledStrategy = filterStrategies.selection.item != FilterStrategy.DISABLED
       toggleFiltersEdition(isNotDisabledStrategy)
+    case ButtonClicked(`savePreferences`) if (!savePreferences.selected) => {
+      val props = new RecorderPropertiesBuilder
+      props.saveConfig(savePreferences.selected)
+      RecorderConfiguration.reload(props.build)
+      RecorderConfiguration.saveConfig
+    }
   }
 
   private def toggleFiltersEdition(enabled: Boolean) {
@@ -397,6 +403,8 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
     configuration.filters.whiteList.patterns.foreach(whiteListTable.addRow)
     outputFolderPath.text = configuration.core.outputFolder
     outputEncoding.selection.item = CharsetHelper.charsetNameToLabel(configuration.core.encoding)
+    savePreferences.selected = configuration.core.saveConfig
+
   }
 
   /**
@@ -455,6 +463,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
       props.automaticReferer(automaticReferers.selected)
       props.simulationOutputFolder(outputFolderPath.text.trim)
       props.encoding(CharsetHelper.labelToCharsetName(outputEncoding.selection.item))
+      props.saveConfig(savePreferences.selected)
 
       RecorderConfiguration.reload(props.build)
 

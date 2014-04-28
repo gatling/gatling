@@ -29,7 +29,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.util.IOHelper.withCloseable
-import io.gatling.core.util.StringHelper.{ RichString, eol }
+import io.gatling.core.util.StringHelper.{ RichString }
 import io.gatling.recorder.config.ConfigurationConstants._
 import io.gatling.recorder.enumeration.FilterStrategy
 import io.gatling.recorder.enumeration.FilterStrategy.FilterStrategy
@@ -133,7 +133,8 @@ object RecorderConfiguration extends StrictLogging {
         requestBodiesFolder = getRequestBodiesFolder,
         pkg = config.getString(SIMULATION_PACKAGE),
         className = config.getString(SIMULATION_CLASS_NAME),
-        thresholdForPauseCreation = config.getInt(THRESHOLD_FOR_PAUSE_CREATION) milliseconds),
+        thresholdForPauseCreation = config.getInt(THRESHOLD_FOR_PAUSE_CREATION) milliseconds,
+        saveConfig = config.getBoolean(SAVE_CONFIG)),
       config)
   }
 }
@@ -173,7 +174,8 @@ case class CoreConfiguration(
   requestBodiesFolder: String,
   pkg: String,
   className: String,
-  thresholdForPauseCreation: Duration)
+  thresholdForPauseCreation: Duration,
+  saveConfig: Boolean)
 
 case class RecorderConfiguration(
   filters: FiltersConfiguration,
