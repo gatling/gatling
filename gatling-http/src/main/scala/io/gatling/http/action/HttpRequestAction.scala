@@ -65,15 +65,18 @@ object HttpRequestAction extends StrictLogging {
   }
 
   def isSilent(ahcRequest: Request, httpRequest: HttpRequest): Boolean = {
-    val requestConfig = httpRequest.protocol.requestPart
-    val uri = ahcRequest.getURI.toString
     if (httpRequest.silent)
       true
-    else
+    else {
+      val requestConfig = httpRequest.protocol.requestPart
       requestConfig.silentURI match {
-        case Some(r) => r.pattern.matcher(uri).matches
-        case None    => false
+        case Some(r) => {
+          val uri = ahcRequest.getURI.toString
+          r.pattern.matcher(uri).matches
+        }
+        case None => false
       }
+    }
   }
 }
 
