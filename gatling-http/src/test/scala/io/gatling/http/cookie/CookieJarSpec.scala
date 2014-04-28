@@ -32,6 +32,12 @@ class CookieJarSpec extends Specification {
       new CookieJar(Map.empty).get(new URI("http://docs.foo.com")) must beEmpty
     }
 
+    "support adding cookie with empty path" in {
+      val cookie = decode("ALPHA; path=")
+      val uri = new URI("http://www.foo.com")
+      new CookieJar(Map.empty).add(uri, List(cookie)).get(uri) must not beEmpty
+    }
+
     "not return cookie when it was set on another domain" in {
       val cookie = decode("ALPHA; Domain=www.foo.com")
       val cookieStore = CookieJar(new URI("http://www.foo.com"), List(cookie))
