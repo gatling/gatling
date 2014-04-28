@@ -40,7 +40,7 @@ object BodyPart {
 
   private def byteArrayBodyPartBuilder(bytes: Expression[Array[Byte]])(name: String, fileName: Option[String]): Expression[PartBase] =
     bytes.map { resolvedBytes =>
-      val source = new ByteArrayPartSource(fileName.getOrElse(null), resolvedBytes)
+      val source = new ByteArrayPartSource(fileName.orNull, resolvedBytes)
       new FilePart(name, source)
     }
 
@@ -48,7 +48,7 @@ object BodyPart {
     session => for {
       resolvedFile <- file(session)
       validatedFile <- resolvedFile.validateExistingReadable
-      source = new FilePartSource(fileName.getOrElse(null), validatedFile)
+      source = new FilePartSource(fileName.orNull, validatedFile)
     } yield new FilePart(name, source)
 }
 

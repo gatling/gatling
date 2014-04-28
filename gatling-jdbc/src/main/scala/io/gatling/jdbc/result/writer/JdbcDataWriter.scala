@@ -162,7 +162,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     requestInsert.setLong(7, responseStartDate)
     requestInsert.setLong(8, responseEndDate)
     requestInsert.setString(9, status.toString)
-    requestInsert.setString(10, message.getOrElse(null))
+    requestInsert.setString(10, message.orNull)
     requestInsert.setLong(11, responseTime)
     requestInsert.addBatch()
 
