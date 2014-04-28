@@ -26,6 +26,7 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder
+import com.ning.http.client.Request
 
 object HttpRequestAction extends StrictLogging {
 
@@ -62,6 +63,21 @@ object HttpRequestAction extends StrictLogging {
       case _ => skipCached(tx)
     }
   }
+
+  def isSilent(ahcRequest: Request, httpRequest: HttpRequest): Boolean = {
+    if (httpRequest.silent)
+      true
+    else {
+      val requestConfig = httpRequest.protocol.requestPart
+      requestConfig.silentURI match {
+        case Some(r) => {
+          val uri = ahcRequest.getURI.toString
+          r.pattern.matcher(uri).matches
+        }
+        case None => false
+      }
+    }
+  }
 }
 
 /**
@@ -81,6 +97,6 @@ class HttpRequestAction(httpRequest: HttpRequest, val next: ActorRef) extends Re
   def sendRequest(requestName: String, session: Session) =
     for {
       ahcRequest <- ahcRequest(session)
-      tx = HttpTx(session, ahcRequest, requestName, checks, responseBuilderFactory, protocol, next, followRedirect, maxRedirects, throttled, silent, explicitResources, extraInfoExtractor)
+      tx = HttpTx(session, ahcRequest, requestName, checks, responseBuilderFactory, protocol, next, followRedirect, maxRedirects, throttled, HttpRequestAction.isSilent(ahcRequest, httpRequest), explicitResources, extraInfoExtractor)
     } yield HttpRequestAction.startHttpTransaction(tx)
 }
