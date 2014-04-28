@@ -16,6 +16,7 @@
 package io.gatling.jms
 
 import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.jms.check.{ JmsCheckSupport, JmsSimpleCheck }
 
 /**
  * Imports to be used to simplify the DSL
@@ -23,7 +24,7 @@ import io.gatling.core.action.builder.ActionBuilder
  * Scenario scripts will import this and generally start interacting with the DSL from the functions exposed here
  * @author jasonk@bluedevel.com
  */
-object Predef {
+object Predef extends JmsCheckSupport {
 
   val jms = JmsProtocolBuilderBase
 

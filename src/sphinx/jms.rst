@@ -81,6 +81,8 @@ JMS checks are very basic for now.
 
 There is ``simpleCheck`` that accepts just ``javax.jms.Message => Boolean`` functions.
 
+There is also ``xpath`` check for ``javax.jms.TextMessage`` that carries XML content.
+
 Additionally you can define your custom check that implements ``Check[javax.jms.Message]``
 
 Example
