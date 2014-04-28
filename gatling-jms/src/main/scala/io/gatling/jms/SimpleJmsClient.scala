@@ -20,8 +20,9 @@ import java.util.{ Hashtable => JHashtable }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.Credentials
-import javax.jms.{ ConnectionFactory, Message, MessageConsumer, Queue, Session }
+import javax.jms._
 import javax.naming.{ Context, InitialContext }
+import io.gatling.core.config.Credentials
 
 /**
  * Trivial JMS client, allows sending messages and use of a MessageListener
@@ -29,8 +30,8 @@ import javax.naming.{ Context, InitialContext }
  */
 class SimpleJmsClient(
   connectionFactoryName: String,
-  queueName: String,
-  replyQueueName: Option[String],
+  destination: JmsDestination,
+  replyDestination: JmsDestination,
   url: String,
   credentials: Option[Credentials],
   contextFactory: String,
@@ -62,20 +63,26 @@ class SimpleJmsClient(
   logger.info(s"Got Connection $conn")
 
   // reply queue and target destination/producer
-  val replyQ = replyQueueName.map(session.createQueue)
-  val replyTMPQ = session.createTemporaryQueue
-  val destination = session.createQueue(queueName)
-  val producer = session.createProducer(destination)
+  val replyJmsDestination = createDestination(replyDestination)
+  val producer = session.createProducer(createDestination(destination))
 
   // delivery mode based on input from caller
   producer.setDeliveryMode(deliveryMode)
 
-  private def replyQueue: Queue = replyQ.getOrElse(replyTMPQ)
+  private def createDestination(destination: JmsDestination): Destination = {
+    destination match {
+      case JmsQueue(name)    => session.createQueue(name)
+      case JmsTopic(name)    => session.createTopic(name)
+      case JmsTemporaryQueue => session.createTemporaryQueue()
+      case JmsTemporaryTopic => session.createTemporaryTopic()
+    }
+  }
+
   /**
    * Gets a new consumer for the reply queue
    */
-  def createReplyConsumer: MessageConsumer =
-    conn.createSession(false, Session.AUTO_ACKNOWLEDGE).createConsumer(replyQueue)
+  def createReplyConsumer(selector: String): MessageConsumer =
+    conn.createSession(false, Session.AUTO_ACKNOWLEDGE).createConsumer(replyJmsDestination, selector)
 
   /**
    * Writes a property map to the message properties
@@ -131,7 +138,7 @@ class SimpleJmsClient(
    * Note that exceptions are allowed to bubble up to the caller
    */
   def sendMessage(message: Message): Message = {
-    message.setJMSReplyTo(replyQueue)
+    message.setJMSReplyTo(replyJmsDestination)
     producer.send(message)
 
     // return the message
@@ -139,7 +146,6 @@ class SimpleJmsClient(
   }
 
   def close(): Unit = {
-    replyTMPQ.delete()
     producer.close()
     session.close()
     conn.stop()

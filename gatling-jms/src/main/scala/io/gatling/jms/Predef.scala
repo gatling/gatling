@@ -43,4 +43,9 @@ object Predef {
   implicit def jmsProtocolBuilder2jmsProtocol(builder: JmsProtocolBuilder): JmsProtocol = builder.build
 
   implicit def jmsRequestBuilder2ActionBuilder(builder: JmsRequestBuilder): ActionBuilder = builder.build()
+
+  def simpleCheck = JmsSimpleCheck
+
+  def topic(name: String) = JmsTopic(name)
+  def queue(name: String) = JmsQueue(name)
 }

@@ -42,12 +42,15 @@ Request Type
 
 Currently, only ``reqreply`` request type is supported.
 
-Queue
------
+Destination
+-----------
 
-Define the target queue with ``queue("queueName")``.
+Define the target destination with ``queue("queueName")`` or alternatively with ``destination(JmsDestination)``
 
-Optionally define reply queue with ``replyQueue("responseQueue")`` if not defined dynamic queue will be used.
+Optionally define reply destination with ``replyQueue("responseQueue")`` or ``replyDestination(JmsDestination)`` if not defined dynamic queue will be used.
+
+Additionally for reply destination JMS selector can be defined with ``selector("selector")``
+
 
 Message Matching
 ----------------
@@ -76,7 +79,9 @@ JMS Check API
 
 JMS checks are very basic for now.
 
-There's just ``javax.jms.Message => Boolean`` functions.
+There is ``simpleCheck`` that accepts just ``javax.jms.Message => Boolean`` functions.
+
+Additionally you can define your custom check that implements ``Check[javax.jms.Message]``
 
 Example
 =======
@@ -104,7 +109,7 @@ Short example, assuming FFMQ on localhost, using a reqreply query, to the queue 
       .queue("jmstestq")
       .textMessage("hello from gatling jms dsl")
       .property("test_header", "test_value")
-      .check(checkBodyTextCorrect)
+      .check(simpleCheck(checkBodyTextCorrect))
       )
     }
 

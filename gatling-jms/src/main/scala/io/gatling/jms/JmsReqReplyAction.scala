@@ -47,8 +47,8 @@ class JmsReqReplyAction(
   // Create a client to refer to
   val client = new SimpleJmsClient(
     protocol.connectionFactoryName,
-    attributes.queueName,
-    attributes.replyQueueName,
+    attributes.destination,
+    attributes.replyDestination,
     protocol.url,
     protocol.credentials,
     protocol.contextFactory,
@@ -58,7 +58,7 @@ class JmsReqReplyAction(
 
   class ListenerThread(val continue: AtomicBoolean = new AtomicBoolean(true)) extends Thread(new Runnable {
     def run(): Unit = {
-      val replyConsumer = client.createReplyConsumer
+      val replyConsumer = client.createReplyConsumer(attributes.selector.orNull)
       try {
         while (continue.get) {
           val m = replyConsumer.receive

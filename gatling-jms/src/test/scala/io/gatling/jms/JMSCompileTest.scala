@@ -67,14 +67,28 @@ class JMSCompileTest extends Simulation {
       .check(checkBodyTextCorrect))
   }
 
+  val scnExtra = scenario("JMS DSL using destinations").repeat(1) {
+    exec(jms("req reply testing").reqreply
+      .destination(topic("jmstesttopic"))
+      .textMessage("hello from gatling jms dsl")
+      .check(checkBodyTextCorrect))
+    exec(jms("req reply testing").reqreply
+      .destination(queue("jmstestq"))
+      .replyDestination(queue("jmstestq"))
+      .textMessage("hello from gatling jms dsl")
+      .check(checkBodyTextCorrect))
+    exec(jms("req reply testing").reqreply
+      .destination(topic("requestTopic"))
+      .replyDestination(topic("replyTopic")).selector("env='myenv'")
+      .textMessage("hello from gatling jms dsl")
+      .check(checkBodyTextCorrect))
+  }
+
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2 minutes)))
     .protocols(jmsConfig)
 
-  def checkBodyTextCorrect(m: Message) = {
-    // this assumes that the service just does an "uppercase" transform on the text
-    m match {
-      case tm: TextMessage => tm.getText == "HELLO FROM GATLING JMS DSL"
-      case _               => false
-    }
+  def checkBodyTextCorrect =  simpleCheck {
+    case tm: TextMessage => tm.getText == "HELLO FROM GATLING JMS DSL"
+    case _ => false
   }
 }
