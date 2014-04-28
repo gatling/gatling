@@ -58,8 +58,8 @@ object CookieJar {
       }
 
     rawCookiePath match {
-      case Some(path) if path.charAt(0) == '/' => path
-      case _                                   => defaultCookiePath()
+      case Some(path) if !path.isEmpty && path.charAt(0) == '/' => path
+      case _ => defaultCookiePath()
     }
   }
 
