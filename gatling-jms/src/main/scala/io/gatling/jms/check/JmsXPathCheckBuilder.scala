@@ -25,14 +25,14 @@ import net.sf.saxon.s9api.XdmNode
 import javax.jms.{ TextMessage, Message }
 import scala.Some
 import io.gatling.jms.JmsCheck
-import java.io.ByteArrayInputStream
+import java.io.StringReader
 
 object JmsXPathCheckBuilder extends StrictLogging {
 
   val preparer: Preparer[Message, Option[XdmNode]] = (response: Message) =>
     try {
       val root = response match {
-        case tm: TextMessage => Some(XPathExtractor.parse(new ByteArrayInputStream(tm.getText.getBytes("UTF-8"))))
+        case tm: TextMessage => Some(XPathExtractor.parse(new StringReader(tm.getText)))
         case _               => None
       }
       root.success
