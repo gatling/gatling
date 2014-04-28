@@ -54,7 +54,7 @@ object SSLHelper {
 
     def setSSLContext(trustManagers: Option[Array[TrustManager]], keyManagers: Option[Array[KeyManager]]): AsyncHttpClientConfig.Builder = {
       val sslContext = SSLContext.getInstance("TLS")
-      sslContext.init(keyManagers.getOrElse(null), trustManagers.getOrElse(null), new SecureRandom)
+      sslContext.init(keyManagers.orNull, trustManagers.orNull, new SecureRandom)
       ahcConfigBuilder.setSSLContext(sslContext)
     }
   }
