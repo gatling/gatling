@@ -26,7 +26,6 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.{ RichString, eol }
 import scala.collection.mutable.LinkedList
-import java.text.DecimalFormat
 
 object ConsoleSummary {
 
@@ -36,7 +35,6 @@ object ConsoleSummary {
   val errorCountLen = 14
   val errorMsgLen = outputLength - errorCountLen
   val newBlock = "=" * outputLength
-  val errorPercentFormat = new DecimalFormat("#.##")
 
   def writeSubTitle(title: String) = ("---- " + title + " ").rightPad(outputLength, "-")
 
@@ -71,11 +69,12 @@ object ConsoleSummary {
 
       def writeErrors(): Fastring = {
           def writeError(msg: String, count: Int): Fastring = {
-            val percent = errorPercentFormat.format(count.toDouble * 100 / globalRequestCounters.failedCount)
+            val percent = count.toDouble * 100 / globalRequestCounters.failedCount
+            val percentStr = f"$percent%3.2f"
 
             var currLen = errorMsgLen - 3;
             val firstLineLen = Math.min(msg.length, currLen)
-            var lines = LinkedList(fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.rightPad(5)} ${percent.rightPad(6)} %")
+            var lines = LinkedList(fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.rightPad(5)} ${percentStr.leftPad(6)} %")
 
             if (currLen < msg.length) {
               val restLine = msg.substring(currLen);
