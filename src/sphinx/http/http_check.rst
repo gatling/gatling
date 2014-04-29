@@ -109,7 +109,13 @@ Returns the latency of this request in milliseconds = the time between finishing
 
 * ``bodyString``
 
-Return the full response body.
+Return the full response body String.
+
+.. _http-check-body-bytes:
+
+* ``bodyBytes``
+
+Return the full response body byte array.
 
 .. _http-check-regex:
 
