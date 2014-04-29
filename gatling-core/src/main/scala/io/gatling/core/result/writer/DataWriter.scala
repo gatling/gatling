@@ -145,6 +145,6 @@ trait DataWriterClient {
   }
 
   def writeGroupData(session: Session, group: GroupBlock, exitDate: Long) {
-    DataWriter.dispatch(GroupMessage(session.scenarioName, session.userId, group, group.groupHierarchy, group.startDate, exitDate, group.status))
+    DataWriter.dispatch(GroupMessage(session.scenarioName, session.userId, group, group.hierarchy, group.startDate, exitDate, group.status))
   }
 }

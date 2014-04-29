@@ -90,8 +90,11 @@ case class Session(
   def loopTimestampValue(counterName: String) = attributes(timestampName(counterName)).asInstanceOf[Long]
 
   def enterGroup(groupName: String) = {
-    val groupHierarchy = blockStack.reverseIterator.collect { case GroupBlock(name, _, _, _, _, _) => name }.toList
-    copy(blockStack = GroupBlock(groupName, groupHierarchy) :: blockStack)
+    val groupHierarchy = blockStack.collectFirst { case g: GroupBlock => g.hierarchy } match {
+      case None    => List(groupName)
+      case Some(l) => l ::: List(groupName)
+    }
+    copy(blockStack = GroupBlock(groupHierarchy) :: blockStack)
   }
 
   def exitGroup = blockStack match {
@@ -111,7 +114,7 @@ case class Session(
       })
   }
 
-  def groupHierarchy: List[String] = blockStack.collectFirst { case g: GroupBlock => g.groupHierarchy }.getOrElse(Nil)
+  def groupHierarchy: List[String] = blockStack.collectFirst { case g: GroupBlock => g.hierarchy }.getOrElse(Nil)
 
   def enterTryMax(counterName: String, loopActor: ActorRef) =
     copy(blockStack = TryMaxBlock(counterName, loopActor) :: blockStack).initCounter(counterName)

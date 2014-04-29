@@ -49,6 +49,6 @@ case class ExitASAPLoopBlock(counterName: String, condition: Expression[Boolean]
 
 case class TryMaxBlock(counterName: String, tryMaxActor: ActorRef, status: Status = OK) extends CounterBlock
 
-case class GroupBlock(name: String, groupHierarchy: List[String], startDate: Long = nowMillis, cumulatedResponseTime: Long = 0L, oks: Int = 0, kos: Int = 0) extends Block {
+case class GroupBlock(hierarchy: List[String], startDate: Long = nowMillis, cumulatedResponseTime: Long = 0L, oks: Int = 0, kos: Int = 0) extends Block {
   def status: Status = if (kos > 0) KO else OK
 }
