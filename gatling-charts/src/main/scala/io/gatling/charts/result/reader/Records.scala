@@ -44,7 +44,7 @@ object RecordParser {
     val executionEndBucket = bucketFunction(executionEnd)
     val responseTime = executionEnd - executionStart
     val latency = responseStart - requestEnd
-    RequestRecord(group, request, reduceAccuracy(executionStart), reduceAccuracy(executionEnd), status, executionStartBucket, executionEndBucket, reduceAccuracy(responseTime), reduceAccuracy(latency), errorMessage)
+    RequestRecord(group, request, reduceAccuracy(executionStart), reduceAccuracy(executionEnd), status, executionStartBucket, executionEndBucket, responseTime, latency, errorMessage)
   }
 
   def parseUserRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): UserRecord = {
@@ -68,7 +68,7 @@ object RecordParser {
     val status = Status.valueOf(strings(9))
     val duration = exitDate - entryDate
     val executionDateBucket = bucketFunction(entryDate)
-    GroupRecord(group, reduceAccuracy(entryDate), reduceAccuracy(duration), reduceAccuracy(cumulatedResponseTime), oks, kos, status, executionDateBucket)
+    GroupRecord(group, reduceAccuracy(entryDate), duration, cumulatedResponseTime, oks, kos, status, executionDateBucket)
   }
 }
 

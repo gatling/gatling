@@ -33,6 +33,7 @@ object Dependencies {
 	private val openCsv                        = "net.sf.opencsv"             % "opencsv"            % "2.3"
 	private val jmsApi                         = "javax.jms"                  % "jms-api"            % "1.1-rev-1"
 	private val logbackClassic                 = "ch.qos.logback"             % "logback-classic"    % "1.1.2"
+  private val tdigest                        = "com.tdunning"               % "t-digest"           % "2.0.2"
 
 	/***********************/
 	/** Test dependencies **/
@@ -60,7 +61,7 @@ object Dependencies {
 
 	val jmsDependencies = jmsApi +: testDeps
 
-	val chartsDependencies = testDeps
+	val chartsDependencies = tdigest +: testDeps
 
 	val metricsDependencies = testDeps
 
