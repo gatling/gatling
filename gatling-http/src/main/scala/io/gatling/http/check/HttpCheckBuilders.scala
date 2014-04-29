@@ -37,4 +37,5 @@ object HttpCheckBuilders {
 
   val passThroughResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
   val responseBodyStringPreparer: Preparer[Response, String] = (response: Response) => response.body.string.success
+  val responseBodyBytesPreparer: Preparer[Response, Array[Byte]] = (response: Response) => response.body.bytes.success
 }

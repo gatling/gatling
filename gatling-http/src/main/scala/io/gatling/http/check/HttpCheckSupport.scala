@@ -16,7 +16,7 @@
 package io.gatling.http.check
 
 import io.gatling.core.session.Expression
-import io.gatling.http.check.body.{ HttpBodyCssCheckBuilder, HttpBodyJsonPathCheckBuilder, HttpBodyJsonpJsonPathCheckBuilder, HttpBodyRegexCheckBuilder, HttpBodyStringCheckBuilder, HttpBodyXPathCheckBuilder }
+import io.gatling.http.check.body._
 import io.gatling.http.check.checksum.HttpChecksumCheckBuilder
 import io.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
 import io.gatling.http.check.status.HttpStatusCheckBuilder
@@ -36,6 +36,7 @@ trait HttpCheckSupport {
   val jsonpJsonPath = HttpBodyJsonpJsonPathCheckBuilder.jsonpJsonPath _
 
   val bodyString = HttpBodyStringCheckBuilder.bodyString
+  val bodyBytes = HttpBodyBytesCheckBuilder.bodyBytes
 
   val header = HttpHeaderCheckBuilder.header _
 
