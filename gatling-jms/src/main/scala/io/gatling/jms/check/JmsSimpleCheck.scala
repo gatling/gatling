@@ -17,11 +17,10 @@ package io.gatling.jms.check
 
 import javax.jms.Message
 import scala.collection.mutable
-import io.gatling.core.validation.Validation
 import io.gatling.core.check.CheckResult
-import io.gatling.jms._
 import io.gatling.core.session.Session
-import io.gatling.core.validation.Failure
+import io.gatling.core.validation.{ Failure, Validation }
+import io.gatling.jms._
 
 case class JmsSimpleCheck(func: Message => Boolean) extends JmsCheck {
   override def check(response: Message, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] = {

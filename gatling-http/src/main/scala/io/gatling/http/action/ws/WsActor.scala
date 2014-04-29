@@ -17,17 +17,17 @@ package io.gatling.http.action.ws
 
 import com.ning.http.client.websocket.WebSocket
 
+import scala.collection.mutable
 import akka.actor.ActorRef
 import io.gatling.core.akka.BaseActor
+import io.gatling.core.check.CheckResult
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.validation.Success
 import io.gatling.http.ahc.{ HttpEngine, WsTx }
 import io.gatling.http.check.ws.{ ExpectedRange, UntilCount, ExpectedCount, WsCheck }
-import io.gatling.core.validation.Success
-import io.gatling.core.check.CheckResult
-import scala.collection.mutable
 
 class WsActor(wsName: String) extends BaseActor with DataWriterClient {
 
