@@ -261,7 +261,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       def cacheRedirect(tx: HttpTx, originalRequest: Request, redirectURI: URI): Session = {
         response.statusCode match {
           case Some(code) if HttpHelper.isPermanentRedirect(code) => PermanentRedirect.addRedirect(tx.session, originalRequest.getURI, redirectURI)
-          case _                                                  => tx.session
+          case _ => tx.session
         }
       }
 

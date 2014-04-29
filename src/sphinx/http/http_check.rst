@@ -254,22 +254,22 @@ For example, status only has find.
 
 .. note:: In case of no extracting step is defined, a ``find`` is added implicitly.
 
-.. _http-check-map:
+.. _http-check-transform:
 
-Mapping
-=======
+Transforming
+============
 
-Mapping is an **optional** step for transforming the result of the extraction before trying to match or save it.
+Transforming is an **optional** step for transforming the result of the extraction before trying to match or save it.
 
-``map(function)`` takes a ``X => X2`` function, meaning that it can only transform the result when it exists.
+``transform(function)`` takes a ``X => X2`` function, meaning that it can only transform the result when it exists.
 
-``fullMap(function)`` takes a ``Option[X] => Validation[Option[X2]]`` function, meaning that it gives full control over the extracted result, even providing a default value.
+``fullTransform(function)`` takes a ``Option[X] => Validation[Option[X2]]`` function, meaning that it gives full control over the extracted result, even providing a default value.
 
 ::
 
-	map(string => string + "foo")
+	transform(string => string + "foo")
 
-	fullMap(extract => Some(extract.getOrElse("default")).success)
+	fullTransform(extract => Some(extract.getOrElse("default")).success)
 
 .. _http-check-verifying:
 
