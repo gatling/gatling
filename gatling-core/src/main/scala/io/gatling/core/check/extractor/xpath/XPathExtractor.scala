@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,19 +15,19 @@
  */
 package io.gatling.core.check.extractor.xpath
 
-import java.io.InputStream
+import java.io.{Reader, InputStream}
 
 import scala.collection.JavaConversions._
 import scala.collection.concurrent
 
 import org.xml.sax.InputSource
 
-import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
+import io.gatling.core.check.extractor.{CriterionExtractor, LiftedSeqOption}
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.core.validation.{SuccessWrapper, Validation}
 import javax.xml.transform.sax.SAXSource
 import jsr166e.ConcurrentHashMapV8
-import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathExecutable, XdmNode, XdmValue }
+import net.sf.saxon.s9api.{Processor, XPathCompiler, XPathExecutable, XdmNode, XdmValue}
 
 object XPathExtractor {
 
@@ -44,12 +44,15 @@ object XPathExtractor {
     xPathCompiler
   }
 
-  def parse(is: InputStream) = {
-    val inputSource = new InputSource(is)
+  private def parse(inputSource: InputSource) = {
     inputSource.setEncoding(configuration.core.encoding)
     val source = new SAXSource(inputSource)
     documentBuilder.build(source)
   }
+
+  def parse(is: InputStream): XdmNode = parse(new InputSource(is))
+
+  def parse(reader: Reader): XdmNode = parse(new InputSource(reader))
 
   val xpathExecutableCache: concurrent.Map[String, XPathExecutable] = new ConcurrentHashMapV8[String, XPathExecutable]
 
@@ -73,7 +76,9 @@ object XPathExtractor {
   }
 }
 
-abstract class XPathExtractor[X] extends CriterionExtractor[Option[XdmNode], String, X] { val criterionName = "xpath" }
+abstract class XPathExtractor[X] extends CriterionExtractor[Option[XdmNode], String, X] {
+  val criterionName = "xpath"
+}
 
 class SingleXPathExtractor(val criterion: String, namespaces: List[(String, String)], occurrence: Int) extends XPathExtractor[String] {
 

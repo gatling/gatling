@@ -82,6 +82,11 @@ class JMSCompileTest extends Simulation {
       .replyDestination(topic("replyTopic")).selector("env='myenv'")
       .textMessage("hello from gatling jms dsl")
       .check(checkBodyTextCorrect))
+    exec(jms("req reply testing").reqreply
+      .destination(topic("requestTopic"))
+      .replyDestination(topic("replyTopic")).selector("env='myenv'")
+      .textMessage("<test>name</test>")
+      .check(xpath("//TEST").saveAs("name")))
   }
 
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2 minutes)))
