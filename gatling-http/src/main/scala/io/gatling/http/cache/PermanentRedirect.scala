@@ -15,18 +15,18 @@
  */
 package io.gatling.http.cache
 
-import io.gatling.core.session.Session
 import java.net.URI
+import scala.annotation.tailrec
+import io.gatling.core.session.Session
 import io.gatling.http.ahc.HttpTx
 import com.ning.http.client.{ Request, RequestBuilder }
-import scala.annotation.tailrec
 
 /**
  * @author Ivan Mushketyk
  */
 object PermanentRedirect {
   def addRedirect(session: Session, from: URI, to: URI): Session = {
-    var redirectStorage = CacheHandling.getRedirectMemoizationStore(session)
+    val redirectStorage = CacheHandling.getRedirectMemoizationStore(session)
     session.set(CacheHandling.httpRedirectMemoizationStoreAttributeName, redirectStorage + (from -> to))
   }
 
@@ -34,16 +34,14 @@ object PermanentRedirect {
       @tailrec def permanentRedirect1(from: URI, redirectCount: Int): Option[(URI, Int)] = {
         val redirectMap = CacheHandling.getRedirectMemoizationStore(session)
         redirectMap.get(from) match {
-          case Some(toUri) => {
+          case Some(toUri) =>
             permanentRedirect1(toUri, redirectCount + 1)
-          }
 
-          case None => {
+          case None =>
             redirectCount match {
               case 0 => None
               case _ => Some(Pair(from, redirectCount))
             }
-          }
         }
       }
 
@@ -58,17 +56,13 @@ object PermanentRedirect {
   private def redirectRequest(request: Request, toUri: URI): Request = {
     val requestBuilder = new RequestBuilder(request)
     requestBuilder.setURI(toUri)
-
     requestBuilder.build()
   }
 
   def getRedirect(origTx: HttpTx): HttpTx = {
     permanentRedirect(origTx.session, origTx.request.getURI) match {
-      case Some(Pair(targetUri, redirectCount)) => {
-        redirectTransaction(origTx, targetUri, redirectCount)
-      }
-
-      case None => origTx
+      case Some(Pair(targetUri, redirectCount)) => redirectTransaction(origTx, targetUri, redirectCount)
+      case None                                 => origTx
     }
   }
 }

@@ -15,6 +15,7 @@
  */
 package io.gatling.http.ahc
 
+import java.net.URI
 import com.ning.http.client.{ Request, RequestBuilder }
 import akka.actor.{ ActorRef, Props }
 import akka.actor.ActorDSL.actor
@@ -40,7 +41,6 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }
 import io.gatling.http.util.HttpStringBuilder
-import java.net.URI
 
 object AsyncHandlerActor extends AkkaDefaults {
 
@@ -260,14 +260,8 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
       def cacheRedirect(tx: HttpTx, originalRequest: Request, redirectURI: URI): Session = {
         response.statusCode match {
-          case Some(code) => {
-            if (HttpHelper.isPermanentRedirect(code))
-              PermanentRedirect.addRedirect(tx.session, originalRequest.getURI, redirectURI)
-            else
-              tx.session
-          }
-
-          case None => tx.session
+          case Some(code) if HttpHelper.isPermanentRedirect(code) => PermanentRedirect.addRedirect(tx.session, originalRequest.getURI, redirectURI)
+          case _                                                  => tx.session
         }
       }
 
