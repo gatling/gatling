@@ -70,7 +70,6 @@ object ConsoleSummary {
       }
 
       def writeErrors(): Fastring = {
-
           def writeError(msg: String, count: Int): Fastring = {
             val percent = errorPercentFormat.format(count.toDouble * 100 / globalRequestCounters.failedCount)
 
@@ -78,10 +77,9 @@ object ConsoleSummary {
             val firstLineLen = Math.min(msg.length, currLen)
             var lines = LinkedList(fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.rightPad(5)} ${percent.rightPad(6)} %")
 
-            while (currLen < msg.length) {
-              val lineEnd = Math.min(currLen + errorMsgLen, msg.length)
-              lines = lines :+ fast"${msg.substring(currLen, lineEnd)}"
-              currLen = currLen + errorMsgLen
+            if (currLen < msg.length) {
+              val restLine = msg.substring(currLen);
+              lines = lines :+ fast"${restLine.truncate(errorMsgLen - 4)}"
             }
 
             lines.mkFastring(eol)
