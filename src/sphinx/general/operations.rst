@@ -40,7 +40,7 @@ However, this only changes the limit for the current shell session. Changing the
 Linux
 ^^^^^
 
-Edit ``/etc/security/limits.conf`` and append the following two lines:
+To permanently set the soft and hard values *for all users of the system* to allow for up to 65536 open files ; edit ``/etc/security/limits.conf`` and append the following two lines:
 
 ::
 
@@ -49,18 +49,26 @@ Edit ``/etc/security/limits.conf`` and append the following two lines:
 
 Save the file. Start a new session so that the limits take effect. You can now verify with ``ulimit -a`` that the limits are correctly set.
 
-On Debian, if the above limits are ignored, you may want to add ``session required pam_limits.so`` in ``/etc/pam.d/common-session``. 
-For remote users, you may want to add the same line in ``/etc/pam.d/sshd``.
+For Debian & Ubuntu, you should enable PAM user limits. To do so, add ``session required pam_limits.so`` in:
 
-Also, you may need to do the following tunings:
+* ``/etc/pam.d/common-session``
+* ``/etc/pam.d/common-session-noninteractive`` if the file exists
+* ``/etc/pam.d/sshd`` if you access the machine via SSH
+
+Also, if accessing the machine via SSH, be sure to have ``UseLogin yes`` in ``/etc/ssh/sshd_config``
+
+
+For more tunings, you may want to do the following:
 
 ::
+
 	# more ports for testing
 	sudo sysctl -w net.ipv4.ip_local_port_range="1025 65535"	
 
 	# increase the maximum number of possible open file descriptors:
 	echo 300000 | sudo tee /proc/sys/fs/nr_open
 	echo 300000 | sudo tee /proc/sys/fs/file-max
+
 
 
 
