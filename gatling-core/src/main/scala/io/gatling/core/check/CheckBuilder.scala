@@ -67,18 +67,37 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
     preparer: Preparer[R, P],
     extractor: Expression[Extractor[P, X]]) extends StrictLogging {
 
-  def transform[X2](transformation: Option[X] => Validation[Option[X2]]): ValidatorCheckBuilder[C, R, P, X2] = copy(extractor = extractor.map { extractor =>
-    new Extractor[P, X2] {
-      def name = extractor.name + " transformed"
-      def apply(prepared: P): Validation[Option[X2]] = extractor(prepared).flatMap { extracted =>
-        try {
-          transformation(extracted)
-        } catch {
-          case e: Exception => s"transform crashed: ${e.getMessage}".failure
-        }
+  def map[X2](transformation: X => X2): ValidatorCheckBuilder[C, R, P, X2] =
+    copy(extractor = extractor.map { extractor =>
+      new Extractor[P, X2] {
+        def name = extractor.name + " mapped"
+
+        def apply(prepared: P): Validation[Option[X2]] =
+          try {
+            extractor(prepared).map { extracted =>
+              extracted.map(transformation)
+            }
+          } catch {
+            case e: Exception => s"map crashed: ${e.getMessage}".failure
+          }
       }
-    }
   })
+
+  def fullMap[X2](transformation: Option[X] => Validation[Option[X2]]): ValidatorCheckBuilder[C, R, P, X2] =
+    copy(extractor = extractor.map { extractor =>
+        new Extractor[P, X2] {
+          def name = extractor.name + " fullMapped"
+
+          def apply(prepared: P): Validation[Option[X2]] =
+            try {
+              extractor(prepared).flatMap { extracted =>
+                  transformation(extracted)
+              }
+            } catch {
+              case e: Exception => s"fullMap crashed: ${e.getMessage}".failure
+            }
+        }
+    })
 
   def validate(validator: Expression[Validator[X]]) = new CheckBuilder(this, validator) with SaveAs[C, R, P, X]
 
