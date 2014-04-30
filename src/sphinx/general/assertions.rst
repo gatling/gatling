@@ -32,38 +32,25 @@ Scope
 
 An assertion can test a statistic calculated from all requests or only a part.
 
-* ``global``
+``global``: use statistics calculated from all requests.
 
-Use statistics calculated from all requests.
-
-* ``details(path)``
-
-Use statistics calculated from a group or a request. The path is defined like a Unix filesystem path. For example, to perform an assertions on the request ``Index`` in the group ``Search``, use::
+``details(path)``: use statistics calculated from a group or a request. The path is defined like a Unix filesystem path.
+For example, to perform an assertions on the request ``Index`` in the group ``Search``, use::
 
 	details("Search" / "Index")
 
 Statistics
 ==========
 
-* ``responseTime``
+``responseTime``: target the reponse time in milliseconds.
 
-Target the reponse time in milliseconds.
+``allRequests``: target the number of requests.
 
-* ``allRequests``
+``failedRequests``: target the number of failed requests.
 
-Target the number of requests.
+``successfulRequests``: target the number of successful requests.
 
-* ``failedRequests``
-
-Target the number of failed requests.
-
-* ``successfulRequests``
-
-Target the number of successful requests.
-
-* ``requestsPerSec``
-
-Target the rate of requests per second.
+``requestsPerSec``: target the rate of requests per second.
 
 Selecting the metric
 ====================
@@ -71,69 +58,41 @@ Selecting the metric
 Applicable to response time
 ---------------------------
 
-* ``min``
+``min``: perform the assertion on the minimum of the statistic.
 
-Perform the assertion on the minimum of the statistic.
+``max``: perform the assertion on the maximum of the statistic.
 
-* ``max``
+``mean``: perform the assertion on the mean of the statistic.
 
-Perform the assertion on the maximum of the statistic.
+``stdDev``: perform the assertion on the standard deviation of the statistic.
 
-* ``mean``
+``percentile1``: perform the assertion on the first percentile of the statistic.
 
-Perform the assertion on the mean of the statistic.
-
-* ``stdDev``
-
-Perform the assertion on the standard deviation of the statistic.
-
-* ``percentile1``
-
-Perform the assertion on the first percentile of the statistic.
-
-* ``percentile2``
-
-Perform the assertion on the second percentile of the statistic.
+``percentile2``: perform the assertion on the second percentile of the statistic.
 
 Applicable to number of requests (all, failed or successful)
 ------------------------------------------------------------
 
-* ``percent``
+``percent``: use the value as a percentage between 0 and 100.
 
-Use the value as a percentage between 0 and 100.
-
-* ``count``
-
-Perform the assertion directly on the count of requests.
+``count``: perform the assertion directly on the count of requests.
 
 Condition
 =========
 
 Conditions can be chained to apply several conditions on the same statistic.
 
-* ``lessThan(threshold)``
+``lessThan(threshold)``: check that the value of the statistic is less than the threshold.
 
-Check that the value of the statistic is less than the threshold.
+``greaterThan(threshold)``: check that the value of the statistic is greater than the threshold.
 
-* ``greaterThan(threshold)``
+``between(thresholdMin, thresholdMax)``: check that the value of the statistic is between two thresholds.
 
-Check that the value of the statistic is greater than the threshold.
+``is(value)``: check that the value of the statistic is equal to the given value.
 
-* ``between(thresholdMin, thresholdMax)``
+``in(sequence)``: check that the value of statistic is in a sequence.
 
-Check that the value of the statistic is between two thresholds.
-
-* ``is(value)``
-
-Check that the value of the statistic is equal to the given value.
-
-* ``in(sequence)``
-
-Check that the value of statistic is in a sequence.
-
-* ``assert(condition, message)``
-
-Create a custom condition on the value of the statistic.
+``assert(condition, message)``: create a custom condition on the value of the statistic.
 
 The first argument is a function that take an Int (the value of the statistics) and return a Boolean which is the result of the assertion.
 
@@ -154,22 +113,16 @@ To help you understand how to use assertions, here is a list of examples :
 
 ::
 
-	setUp(...).assertions(global.responseTime.max.lessThan(100))
+  // Assert that the max response time of all requests is less than 100 ms
+  setUp(...).assertions(global.responseTime.max.lessThan(100))
 
-Assert that the max response time of all requests is less than 100 ms.
+  // Assert that the percentage of failed requests named "Index" in the group "Search"
+  // is exactly 0 %
+  setUp(...).assertions(details("Search" / "Index").failedRequests.percent.is(0))
 
-::
+  // Assert that the rate of requests per seconds for the group "Search"
+  // is between 100 and 1000
+  setUp(...).assertions(details("Search").requestsPerSec.greaterThan(100).lessThan(1000))
 
-	setUp(...).assertions(details("Search" / "Index").failedRequests.percent.is(0))
-
-Assert that the percentage of failed requests for the request named ``Index`` in the group ``Search`` is exacly 0 %.
-
-::
-
-	setUp(...).assertions(details("Search").requestsPerSec.greaterThan(100).lessThan(1000))
-
-Assert that the rate of requests per seconds for the group ``Search`` is between 100 and 1000. This is the same as :
-
-::
-
-	setUp(...).assertions(details("Search").requestsPerSec.between(100, 1000))
+  // Same as above but using between
+  setUp(...).assertions(details("Search").requestsPerSec.between(100, 1000))
