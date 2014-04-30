@@ -22,10 +22,22 @@ For further information, you should have a look at `Logback Documentation <http:
 gatling.conf
 ------------
 
-Each value is described in the `default configuration file`_.
+Gatling configuration is based on the great `Typesafe Config library <https://github.com/typesafehub/config>`_.
 
-If you don't specify an option in the configuration file, it will fall back to a default value.
-These values are also defined in the `default configuration file`_.
+Gatling configuration files, such as the `default configuration file`_ uses the `HOCON format <https://github.com/typesafehub/config/blob/master/HOCON.md>`_.
+
+Gatling uses a fallback strategy, where:
+
+**System properties > gatling.conf > gatling-defaults.conf**
+
+``gatling.conf`` is placed in ``conf`` directory. It serves as an easy-to-edit base: all properties are commented and all values are equals to the default ones.
+
+``gatling-defaults.conf`` is shipped in gatling-core jar and is not supposed to be edited.
+
+If you want to override default values, you have two possibilities:
+
+* change the value in ``gatling.conf`` (don't forget to uncomment the line and remove the #).
+* set a System property (the name of the property must match `HOCON Path <https://github.com/typesafehub/config/blob/master/HOCON.md#paths-as-keys>`_)
 
 .. _gatling-cli-options:
 
@@ -57,4 +69,4 @@ If you want to set additional JAVA_OPTS to Gatling, you can do so by defining th
 
 	~$ JAVA_OPTS="myAdditionalOption" bin/gatling.sh
 
-.. _default configuration file: https://github.com/excilys/gatling/tree/master/gatling-bundle/src/universal/conf
+.. _default configuration file: https://github.com/excilys/gatling/tree/master/gatling-bundle/src/universal/conf/gatling.conf
