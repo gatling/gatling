@@ -174,6 +174,11 @@ top:30px;
 .documentation  h3 {
 	font-size: 1.2em;
 }
+.documentation  h4 {
+  text-decoration: underline;
+  padding-bottom: 5px;
+}
+
 .documentation  a.headerlink {
     color: transparent;
     padding: 0 4px 0 4px;
