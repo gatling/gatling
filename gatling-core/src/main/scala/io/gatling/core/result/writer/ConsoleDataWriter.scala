@@ -46,12 +46,13 @@ class ConsoleDataWriter extends DataWriter {
   private val usersCounters = mutable.Map.empty[String, UserCounters]
   private var globalRequestCounters = new RequestCounters
   private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
+  private val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
 
   def display() {
     val now = currentTimeMillis
     val runDuration = (now - startUpTime) / 1000
 
-    val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters)
+    val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters)
     complete = summary.complete
     println(summary.text)
   }
@@ -104,6 +105,8 @@ class ConsoleDataWriter extends DataWriter {
       case KO =>
         globalRequestCounters.failedCount += 1
         requestCounters.failedCount += 1
+        val errorMessage = message.getOrElse("<no-message>")
+        errorsCounters(errorMessage) = errorsCounters.getOrElse(errorMessage, 0) + 1
     }
   }
 
