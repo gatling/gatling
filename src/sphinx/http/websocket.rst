@@ -178,3 +178,35 @@ Websocket support introduces new parameters on HttpProtocol:
 ``wsBaseURLs(urls: String*)``: similar to standard ``baseURLs`` for HTTP, serves as roundrobin roots that will be prepended to all relative websocket urls
 ``wsReconnect``: automatically reconnect a websocket that would have been closed by someone else than the client.
 ``wsMaxReconnects(max: Int)``: set a limit on the number of times a websocket will be automatically reconnected
+
+Example
+=======
+
+Here's an example that runs against Play's chatroom sample::
+
+  val httpConf = http
+    .baseURL("http://localhost:9000")
+    .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+    .doNotTrackHeader("1")
+    .acceptLanguageHeader("en-US,en;q=0.5")
+    .acceptEncodingHeader("gzip, deflate")
+    .userAgentHeader("Gatling2")
+    .wsBaseURL("ws://localhost:9000")
+
+  val scn = scenario("WebSocket")
+    .exec(http("Home").get("/"))
+    .pause(1)
+    .exec(session => session.set("id", "Steph" + session.userId))
+    .exec(http("Login").get("/room?username=${id}"))
+    .pause(1)
+    .exec(ws("Connect WS").open("/room/chat?username=${id}"))
+    .pause(1)
+    .repeat(2, "i") {
+      exec(ws("Say Hello WS")
+        .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
+        .check(wsAwait.within(30).until(1).regex(".*I'm still alive.*"))
+      )
+      .pause(1)
+    }
+    .exec(ws("Close WS").close)
+
