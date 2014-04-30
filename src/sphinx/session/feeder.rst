@@ -27,15 +27,15 @@ If the Feeder can't produce enough records, Gatling will complain about it and y
 
 .. _feeder-builder:
 
-RecordArrayFeederBuilder
-========================
+RecordSeqFeederBuilder
+======================
 
-An ``Array[Map[String, T]]`` can be implicitly turned into a Feeder.
-Moreover, this implicit conversion also provides some additional methods for defining the way the Array is iterated over::
+An ``Array[Map[String, T]]`` or a ``IndexedSeq[Map[String, T]]`` can be implicitly turned into a Feeder.
+Moreover, this implicit conversion also provides some additional methods for defining the way the Seq is iterated over::
 
-  .queue    // default behavior: use an Iterator on the underlying array
-  .random   // randomly pick an enry in the array
-  .circular // go back to the top of the array once the end is reached
+  .queue    // default behavior: use an Iterator on the underlying sequence
+  .random   // randomly pick an entry in the sequence
+  .circular // go back to the top of the sequence once the end is reached
 
 For example::
 
@@ -51,7 +51,7 @@ File parser feeders
 
 Gatling provides several builtins for reading character-separated values files.
 
-Files are expected to be placed in the `data` directory in Gatling distribution. This location can be overridden, see Configuration chapter.
+Files are expected to be placed in the ``data`` directory in Gatling distribution. This location can be overridden, see Configuration chapter.
 
 Our parser respects `RFC4180 <https://www.ietf.org/rfc/rfc4180.txt>`_, so don't expect behaviors that don't honor this specification.
 
@@ -65,7 +65,7 @@ Besides escaping features described in the RFC, one can use a ``\`` character an
   val ssvFeeder = csv("foo.ssv") // use a semicolon separator
   val customSeparatorFeeder = separatedValues("foo.txt", "#") // use your own separator
 
-Those built-ins returns ``RecordArrayFeederBuilder`` instances, meaning that the whole file is loaded in memory and parsed, so the resulting feeders doesn't read on disk during the simulation run.
+Those built-ins returns ``RecordSeqFeederBuilder`` instances, meaning that the whole file is loaded in memory and parsed, so the resulting feeders doesn't read on disk during the simulation run.
 
 .. _feeder-jdbc:
 
@@ -77,7 +77,7 @@ Gatling also provide a builtin that reads from a JDBC connection.
 
   jdbcFeeder(databaseURL: String, username: String, password: String, sql: String)
 
-Just like File parser built-ins, this return a `RecordArrayFeederBuilder` instance.
+Just like File parser built-ins, this return a ``RecordSeqFeederBuilder`` instance.
 
     * The databaseURL must be a JDBC URL (e.g. jdbc:postgresql:gatling),
     * the username and password are the credentials to access the database,
