@@ -11,7 +11,7 @@ object Dependencies {
   private def scalaSwing(version: String)    = "org.scala-lang"             % "scala-swing"        % version
   private val jsr166e                        = "io.gatling"                 % "jsr166e"            % "1.0"
   private val ahc                            = "com.ning"                   % "async-http-client"  % "1.8.8"
-  private val netty                          = "io.netty"                   % "netty"              % "3.9.0.Final"
+  private val netty                          = "io.netty"                   % "netty"              % "3.9.1.Final"
   private val akkaActor                      = "com.typesafe.akka"         %% "akka-actor"         % "2.2.4"
   private val config                         = "com.typesafe"               % "config"             % "1.2.0"
   private val saxon                          = "net.sf.saxon"               % "Saxon-HE"           % "9.5.1-5"    classifier "compressed"
