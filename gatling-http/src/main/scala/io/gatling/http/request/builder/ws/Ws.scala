@@ -46,7 +46,7 @@ class Ws(requestName: Expression[String], wsName: String = Ws.defaultWebSocketNa
    *
    * @param bytes The message
    */
-  def sendBinary(bytes: Expression[Array[Byte]]) = new WsSendActionBuilder(requestName, wsName, bytes.map(BinaryMessage))
+  def sendBytes(bytes: Expression[Array[Byte]]) = new WsSendActionBuilder(requestName, wsName, bytes.map(BinaryMessage))
 
   /**
    * Sends a text message on the given websocket.
