@@ -42,7 +42,7 @@ HTTP status
 Targets the HTTP response status code.
 
 .. note:: A status check is automatically added to a request when you don't specify one.
-          It checks that the HTTP response has a 2XX status code.
+          It checks that the HTTP response has a 2XX or 304 status code.
 
 .. _http-check-current-location:
 
