@@ -264,7 +264,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
   }
 
   def closingState(tx: WsTx): Receive = {
-    case OnClose =>
+    case m: OnClose =>
       import tx._
       logRequest(session, requestName, OK, start, nowMillis)
       next ! session.remove(wsName)
