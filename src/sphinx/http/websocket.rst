@@ -55,8 +55,8 @@ For example::
 
 .. _http-ws-send:
 
-Sending a message
------------------
+Send a Message
+--------------
 
 One can send 2 forms of messages: binary and text:
 
@@ -68,7 +68,7 @@ For example::
   .exec(ws("Message")
     .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}"""))
 
-Getting Server Messages
+Server Messages: Checks
 =======================
 
 Dealing with incoming messages from the server is done with checks, passed with the usual ``check()`` method.
@@ -77,8 +77,8 @@ Gatling currently only support one check at a time per websocket.
 
 .. _http-ws-check-set:
 
-Setting a Check
----------------
+Set a Check
+-----------
 
 Checks can be set in 2 ways.
 
@@ -95,8 +95,8 @@ If a check was already registered on the websocket at this time, it's considered
 
 .. _http-ws-check-cancel:
 
-Cancelling a Check
-------------------
+Cancel a Check
+--------------
 
 One can decide to cancel a pending check::
 
@@ -104,8 +104,8 @@ One can decide to cancel a pending check::
 
 .. _http-ws-check-build:
 
-Building a Check
-----------------
+Build a Check
+-------------
 
 Now, to the matter at heart, how to build a websocket check.
 
@@ -152,8 +152,8 @@ Here are an example::
          .check(wsListen.within(30 seconds).until(1).regex("hello (.*)").saveAs("name"))
 
 
-Reconciliating
---------------
+Reconciliate
+------------
 
 One complex thing is that, when using non blocking checks that save data, state is stored in a different flow than the main one.
 
