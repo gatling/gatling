@@ -37,13 +37,13 @@ First, import the ``validation`` package::
 
 Then, you can either directly create new instance of the case classes::
 
-	val foo: Validation[String] = Success("foo")
-	val bar: Validation[String] = Failure("errorMessage")
+  val foo: Validation[String] = Success("foo")
+  val bar: Validation[String] = Failure("errorMessage")
 
 or use the helpers::
 
-	val foo: Validation[String] = "foo".success
-	val bar: Validation[String] = "errorMessage".failure
+  val foo: Validation[String] = "foo".success
+  val bar: Validation[String] = "errorMessage".failure
 
 Manipulating
 ------------
@@ -51,8 +51,8 @@ Manipulating
 ``Validation`` can be used with pattern matching::
 
   def display(v: Validation[String] = v match {
-      case Success(string) => println("success: " + string)
-      case Failure(error)  => println("failure: " + error)
+    case Success(string) => println("success: " + string)
+    case Failure(error)  => println("failure: " + error)
   }
 
   val foo = Success("foo")
@@ -68,24 +68,24 @@ Manipulating
 
 Basically, ``map`` is used to **chain with an operation that can't fail**, hence return a raw value::
 
-	val foo = Success(1)
-	val bar = foo.map(value => value + 2)
-	println(bar) // will print Success(3)
+  val foo = Success(1)
+  val bar = foo.map(value => value + 2)
+  println(bar) // will print Success(3)
 
 ``flatMap`` is used to **chain with an operation that can fail**, hence return a ``Validation``::
 
-	val foo = Success("foo")
-	val bar = foo.flatMap(value => Success("bar"))
-	println(bar)) // will print Success("bar")
+  val foo = Success("foo")
+  val bar = foo.flatMap(value => Success("bar"))
+  println(bar)) // will print Success("bar")
 
-	val baz = foo.flatMap(value => Failure("error")
-	println(baz)) // will print Failure("error")
+  val baz = foo.flatMap(value => Failure("error")
+  println(baz)) // will print Failure("error")
 
 In both case, the chained function is not called if the original ``Validation`` was a ``Failure``::
 
-	val foo: Validation[Int] = Failure("error")
+  val foo: Validation[Int] = Failure("error")
   val bar = baz.map(value => value + 2)
-	println(qix) // will print Failure("error")
+  println(qix) // will print Failure("error")
 
 You can also use Scala *"for comprehension"* syntactic sugar.
 
