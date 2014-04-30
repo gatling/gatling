@@ -118,7 +118,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
     new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(rootContainer).getOutput)
     new TemplateWriter(jsonStatsFile(runOn)).writeToFile(new StatsJsonTemplate(rootContainer.stats, true).getOutput)
-    println(ConsoleTemplate(rootContainer.stats))
+    println(ConsoleTemplate(dataReader, rootContainer.stats))
   }
 }
 

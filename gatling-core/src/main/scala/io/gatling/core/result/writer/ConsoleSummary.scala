@@ -25,15 +25,12 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.{ RichString, eol }
-import scala.collection.mutable.LinkedList
 
 object ConsoleSummary {
 
   val iso8601Format = "yyyy-MM-dd HH:mm:ss"
   val dateTimeFormat = DateTimeFormat.forPattern(iso8601Format)
   val outputLength = 80
-  val errorCountLen = 14
-  val errorMsgLen = outputLength - errorCountLen
   val newBlock = "=" * outputLength
 
   def writeSubTitle(title: String) = ("---- " + title + " ").rightPad(outputLength, "-")
@@ -63,28 +60,12 @@ object ConsoleSummary {
         fast"> ${actionName.rightPad(outputLength - 24)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
       }
 
-      def writeErrorsHeader(): Fastring = {
-        fast"${"msg".toString.rightPad(errorMsgLen)}${"count".toString.rightPad(errorCountLen)}"
-      }
-
       def writeErrors(): Fastring = {
-          def writeError(msg: String, count: Int): Fastring = {
-            val percent = count.toDouble * 100 / globalRequestCounters.failedCount
-            val percentStr = f"$percent%3.2f"
-
-            var currLen = errorMsgLen - 3;
-            val firstLineLen = Math.min(msg.length, currLen)
-            var lines = LinkedList(fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.rightPad(5)} ${percentStr.leftPad(6)} %")
-
-            if (currLen < msg.length) {
-              val restLine = msg.substring(currLen);
-              lines = lines :+ fast"${restLine.truncate(errorMsgLen - 4)}"
-            }
-
-            lines.mkFastring(eol)
+          def percent(count: Int) = {
+            count.toDouble * 100 / globalRequestCounters.failedCount
           }
 
-        errorsCounters.toVector.sortBy(_._2).reverse.map(err => writeError(err._1, err._2)).mkFastring(eol)
+        errorsCounters.toVector.sortBy(_._2).reverse.map(err => ConsoleErrorsWriter.writeError(err._1, err._2, percent(err._2))).mkFastring(eol)
       }
 
     val text = fast"""
@@ -99,7 +80,7 @@ ${
       else ""
     }
 ${writeSubTitle("Errors")}
-${writeErrorsHeader()}
+${ConsoleErrorsWriter.writeHeader()}
 ${writeErrors()}
 $newBlock
 """.toString

@@ -21,6 +21,9 @@ import io.gatling.charts.component.{ GroupedCount, RequestStatistics, Statistics
 import io.gatling.charts.component.Statistics.printable
 import io.gatling.core.result.writer.ConsoleSummary.{ newBlock, outputLength, writeSubTitle }
 import io.gatling.core.util.StringHelper.{ eol, RichString }
+import io.gatling.core.result.writer.ConsoleErrorsWriter
+import io.gatling.core.result.reader.DataReader
+import io.gatling.core.result.ErrorStats
 
 object ConsoleTemplate {
 
@@ -33,7 +36,24 @@ object ConsoleTemplate {
     fast"> ${name.rightPad(outputLength - 32)} ${count.toString.leftPad(7)} (${percentage.toString.leftPad(3)}%)"
   }
 
-  def apply(requestStatistics: RequestStatistics): String = {
+  def writeErrors(dataReader: DataReader): Fastring = {
+      def writeError(error: ErrorStats): Fastring = {
+        ConsoleErrorsWriter.writeError(error.message, error.count, error.percentage)
+      }
+
+    val header = ConsoleErrorsWriter.writeHeader()
+
+    val errors = dataReader.errors(None, None)
+
+    if (!errors.isEmpty) {
+      val errorsStr = errors.map(writeError(_))
+      (header +: errorsStr).mkFastring(eol)
+    } else {
+      fast""
+    }
+  }
+
+  def apply(dataReader: DataReader, requestStatistics: RequestStatistics): String = {
     import requestStatistics._
     fast"""
 $newBlock
@@ -48,6 +68,9 @@ ${writeRequestCounters(percentiles2)}
 ${writeRequestCounters(meanNumberOfRequestsPerSecondStatistics)}
 ${writeSubTitle("Response Time Distribution")}
 ${groupedCounts.map(writeGroupedCounters).mkFastring(eol)}
+${writeSubTitle("Errors")}
+${writeErrors(dataReader)}
+
 $newBlock
 """.toString
   }
