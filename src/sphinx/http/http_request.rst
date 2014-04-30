@@ -341,7 +341,7 @@ Once bootstrapped, BodyPart have the following methods for setting additional op
 .. _http-processors:
 
 Response and request processors
-_______________________________
+-------------------------------
 
 Some people might want to process manually response or request body, Gatling request provide two hooks for that need:
 
@@ -351,7 +351,7 @@ Some people might want to process manually response or request body, Gatling req
 * ``processRequestBody(processor: Body => Body)``: takes a ``Response => Response`` function and let one process the response before it's being sent to the checks pipeline.
 
 Resources fetching
-^^^^^^^^^^^^^^^^^^
+------------------
 
 Gatling allow to fetch resources in parallel in order to emulate the behaviour of a real web browser.
 To do that you can use ``fetchHtmlResources`` methods at the protocol definition level.
