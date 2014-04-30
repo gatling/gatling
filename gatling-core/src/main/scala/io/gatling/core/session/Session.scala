@@ -80,8 +80,8 @@ case class Session(
   def removeAll(keys: String*) = copy(attributes = attributes -- keys)
   def contains(attributeKey: String) = attributes.contains(attributeKey)
 
-  def setDrift(drift: Long) = copy(drift = drift)
-  def increaseDrift(time: Long) = copy(drift = time + drift)
+  private[gatling] def setDrift(drift: Long) = copy(drift = drift)
+  private[gatling] def increaseDrift(time: Long) = copy(drift = time + drift)
 
   private def timestampName(counterName: String) = "timestamp." + counterName
 
@@ -89,7 +89,7 @@ case class Session(
 
   def loopTimestampValue(counterName: String) = attributes(timestampName(counterName)).asInstanceOf[Long]
 
-  def enterGroup(groupName: String) = {
+  private[gatling] def enterGroup(groupName: String) = {
     val groupHierarchy = blockStack.collectFirst { case g: GroupBlock => g.hierarchy } match {
       case None    => List(groupName)
       case Some(l) => l ::: List(groupName)
@@ -97,14 +97,14 @@ case class Session(
     copy(blockStack = GroupBlock(groupHierarchy) :: blockStack)
   }
 
-  def exitGroup = blockStack match {
+  private[gatling] def exitGroup = blockStack match {
     case head :: tail if head.isInstanceOf[GroupBlock] => copy(blockStack = tail)
     case _ =>
       logger.error(s"exitGroup called but stack head $blockStack isn't a GroupBlock, please report.")
       this
   }
 
-  def logGroupRequest(responseTime: Long, status: Status) = blockStack match {
+  private[gatling] def logGroupRequest(responseTime: Long, status: Status) = blockStack match {
     case Nil => this
     case _ =>
       val (ok, ko) = if (status == OK) (1, 0) else (0, 1)
@@ -116,10 +116,10 @@ case class Session(
 
   def groupHierarchy: List[String] = blockStack.collectFirst { case g: GroupBlock => g.hierarchy }.getOrElse(Nil)
 
-  def enterTryMax(counterName: String, loopActor: ActorRef) =
+  private[gatling] def enterTryMax(counterName: String, loopActor: ActorRef) =
     copy(blockStack = TryMaxBlock(counterName, loopActor) :: blockStack).initCounter(counterName)
 
-  def exitTryMax: Session = blockStack match {
+  private[gatling] def exitTryMax: Session = blockStack match {
     case TryMaxBlock(counterName, _, status) :: tail =>
       val newStack =
         if (status == KO) {
@@ -184,7 +184,7 @@ case class Session(
       copy(blockStack = newStack)
   }
 
-  def enterLoop(counterName: String, condition: Expression[Boolean], loopActor: ActorRef, exitASAP: Boolean): Session = {
+  private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], loopActor: ActorRef, exitASAP: Boolean): Session = {
 
     val newBlock =
       if (exitASAP)
@@ -195,17 +195,17 @@ case class Session(
     copy(blockStack = newBlock :: blockStack).initCounter(counterName)
   }
 
-  def exitLoop: Session = blockStack match {
+  private[gatling] def exitLoop: Session = blockStack match {
     case LoopBlock(counterName) :: tail => copy(blockStack = tail).removeCounter(counterName)
     case _ =>
       logger.error(s"exitLoop called but stack head $blockStack isn't a Loop Block, please report.")
       this
   }
 
-  def initCounter(counterName: String): Session =
+  private[gatling] def initCounter(counterName: String): Session =
     copy(attributes = attributes + (counterName -> 0) + (timestampName(counterName) -> nowMillis))
 
-  def incrementCounter(counterName: String): Session =
+  private[gatling] def incrementCounter(counterName: String): Session =
     attributes.get(counterName) match {
       case Some(counterValue: Int) => copy(attributes = attributes + (counterName -> (counterValue + 1)))
       case _ =>
@@ -213,7 +213,7 @@ case class Session(
         this
     }
 
-  def removeCounter(counterName: String): Session =
+  private[gatling] def removeCounter(counterName: String): Session =
     attributes.get(counterName) match {
       case Some(counterValue: Int) => copy(attributes = attributes - counterName - timestampName(counterName))
       case _ =>
