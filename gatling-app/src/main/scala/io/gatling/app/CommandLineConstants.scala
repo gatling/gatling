@@ -15,36 +15,20 @@
  */
 package io.gatling.app
 
+case class CommandLineConstant(full: String, short: String)
+
 object CommandLineConstants {
 
-  object full {
-    val Help = "help"
-    val NoReports = "no-reports"
-    val ReportsOnly = "reports-only"
-    val DataFolder = "data-folder"
-    val ResultsFolder = "results-folder"
-    val RequestBodiesFolder = "request-bodies-folder"
-    val SimulationsFolder = "simulations-folder"
-    val SimulationsBinariesFolder = "simulations-binaries-folder"
-    val Simulation = "simulation"
-    val OutputDirectoryBaseName = "output-name"
-    val SimulationDescription = "simulation-description"
-    val Mute = "mute"
-  }
-
-  object short {
-    val Help = "h"
-    val NoReports = "nr"
-    val ReportsOnly = "ro"
-    val DataFolder = "df"
-    val ResultsFolder = "rf"
-    val RequestBodiesFolder = "bf"
-    val SimulationsFolder = "sf"
-    val SimulationsBinariesFolder = "sbf"
-    val Simulation = "s"
-    val OutputDirectoryBaseName = "on"
-    val SimulationDescription = "sd"
-    val Mute = "m"
-  }
-
+  val Help = CommandLineConstant("help", "h")
+  val NoReports = CommandLineConstant("no-reports", "nr")
+  val ReportsOnly = CommandLineConstant("reports-only", "ro")
+  val DataFolder = CommandLineConstant("data-folder", "df")
+  val ResultsFolder = CommandLineConstant("results-folder", "rf")
+  val RequestBodiesFolder = CommandLineConstant("request-bodies-folder", "bf")
+  val SimulationsFolder = CommandLineConstant("simulations-folder", "sf")
+  val SimulationsBinariesFolder = CommandLineConstant("simulations-binaries-folder", "sbf")
+  val Simulation = CommandLineConstant("simulation", "s")
+  val OutputDirectoryBaseName = CommandLineConstant("output-name", "on")
+  val SimulationDescription = CommandLineConstant("simulation-description", "sd")
+  val Mute = CommandLineConstant("mute", "m")
 }
