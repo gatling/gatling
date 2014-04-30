@@ -59,18 +59,18 @@ object Gatling {
     val props = new GatlingPropertiesBuilder
 
     val cliOptsParser = new OptionParser[Unit]("gatling") {
-      help(Help.full).abbr(Help.short).text("Show help (this message) and exit")
-      opt[Unit](NoReports.full).abbr(NoReports.short).foreach(_ => props.noReports()).text("Runs simulation but does not generate reports")
-      opt[Unit](Mute.full).abbr(Mute.short).foreach(_ => props.mute()).text("Runs in mute mode: don't asks for run description nor simulation ID, use defaults").hidden()
-      opt[String](ReportsOnly.full).abbr(ReportsOnly.short).foreach(props.reportsOnly).valueName("<directoryName>").text("Generates the reports for the simulation in <directoryName>")
-      opt[String](DataFolder.full).abbr(DataFolder.short).foreach(props.dataDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where feeders are stored")
-      opt[String](ResultsFolder.full).abbr(ResultsFolder.short).foreach(props.resultsDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where results are stored")
-      opt[String](RequestBodiesFolder.full).abbr(RequestBodiesFolder.short).foreach(props.requestBodiesDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where request bodies are stored")
-      opt[String](SimulationsFolder.full).abbr(SimulationsFolder.short).foreach(props.sourcesDirectory).valueName("<directoryPath>").text("Uses <directoryPath> to discover simulations that could be run")
-      opt[String](SimulationsBinariesFolder.full).abbr(SimulationsBinariesFolder.short).foreach(props.binariesDirectory).valueName("<directoryPath>").text("Uses <directoryPath> to discover already compiled simulations")
-      opt[String](Simulation.full).abbr(Simulation.short).foreach(props.simulationClass).valueName("<className>").text("Runs <className> simulation")
-      opt[String](OutputDirectoryBaseName.full).abbr(OutputDirectoryBaseName.short).foreach(props.outputDirectoryBaseName).valueName("<name>").text("Use <name> for the base name of the output directory")
-      opt[String](SimulationDescription.full).abbr(SimulationDescription.short).foreach(props.runDescription).valueName("<description>").text("A short <description> of the run to include in the report")
+      help(Help.full).abbr(Help.abbr).text("Show help (this message) and exit")
+      opt[Unit](NoReports.full).abbr(NoReports.abbr).foreach(_ => props.noReports()).text("Runs simulation but does not generate reports")
+      opt[Unit](Mute.full).abbr(Mute.abbr).foreach(_ => props.mute()).text("Runs in mute mode: don't asks for run description nor simulation ID, use defaults").hidden()
+      opt[String](ReportsOnly.full).abbr(ReportsOnly.abbr).foreach(props.reportsOnly).valueName("<directoryName>").text("Generates the reports for the simulation in <directoryName>")
+      opt[String](DataFolder.full).abbr(DataFolder.abbr).foreach(props.dataDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where feeders are stored")
+      opt[String](ResultsFolder.full).abbr(ResultsFolder.abbr).foreach(props.resultsDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where results are stored")
+      opt[String](RequestBodiesFolder.full).abbr(RequestBodiesFolder.abbr).foreach(props.requestBodiesDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where request bodies are stored")
+      opt[String](SimulationsFolder.full).abbr(SimulationsFolder.abbr).foreach(props.sourcesDirectory).valueName("<directoryPath>").text("Uses <directoryPath> to discover simulations that could be run")
+      opt[String](SimulationsBinariesFolder.full).abbr(SimulationsBinariesFolder.abbr).foreach(props.binariesDirectory).valueName("<directoryPath>").text("Uses <directoryPath> to discover already compiled simulations")
+      opt[String](Simulation.full).abbr(Simulation.abbr).foreach(props.simulationClass).valueName("<className>").text("Runs <className> simulation")
+      opt[String](OutputDirectoryBaseName.full).abbr(OutputDirectoryBaseName.abbr).foreach(props.outputDirectoryBaseName).valueName("<name>").text("Use <name> for the base name of the output directory")
+      opt[String](SimulationDescription.full).abbr(SimulationDescription.abbr).foreach(props.runDescription).valueName("<description>").text("A short <description> of the run to include in the report")
     }
 
     // if arguments are incorrect, usage message is displayed

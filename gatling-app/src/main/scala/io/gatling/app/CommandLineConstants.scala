@@ -15,7 +15,7 @@
  */
 package io.gatling.app
 
-case class CommandLineConstant(full: String, short: String)
+case class CommandLineConstant(full: String, abbr: String)
 
 object CommandLineConstants {
 
