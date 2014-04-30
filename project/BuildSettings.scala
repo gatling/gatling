@@ -11,22 +11,22 @@ import Resolvers._
 
 object BuildSettings {
 
-	lazy val basicSettings = Seq(
-		homepage              := Some(url("http://gatling.io")),
-		organization          := "io.gatling",
-		organizationHomepage  := Some(url("http://gatling.io")),
-		startYear             := Some(2011),
-		licenses              := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-		scalaVersion          := "2.10.4",
-		resolvers             := Seq(sonatypeSnapshots, Resolver.mavenLocal),
-		scalacOptions         := Seq(
-			"-encoding", "UTF-8",
-			"-target:jvm-1.6",
-			"-deprecation",
-			"-feature",
-			"-unchecked",
-			"-language:implicitConversions",
-			"-language:postfixOps"/*,
+  lazy val basicSettings = Seq(
+    homepage              := Some(url("http://gatling.io")),
+    organization          := "io.gatling",
+    organizationHomepage  := Some(url("http://gatling.io")),
+    startYear             := Some(2011),
+    licenses              := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
+    scalaVersion          := "2.10.4",
+    resolvers             := Seq(sonatypeSnapshots, Resolver.mavenLocal),
+    scalacOptions         := Seq(
+      "-encoding", "UTF-8",
+      "-target:jvm-1.6",
+      "-deprecation",
+      "-feature",
+      "-unchecked",
+      "-language:implicitConversions",
+      "-language:postfixOps"/*,
             "-language:existentials",
             "-language:experimental.macros",
             "-language:higherKinds",
@@ -37,59 +37,59 @@ object BuildSettings {
             "-Ywarn-dead-code", // N.B. doesn't work well with the ??? hole
             "-Ywarn-numeric-widen",
             "-Ywarn-value-discard"*/
-		)
-	) ++ Publish.settings ++ Release.settings
+    )
+  ) ++ Publish.settings ++ Release.settings
 
-	lazy val gatlingModuleSettings =
-		basicSettings ++ formattingSettings ++ graphSettings ++ scaladocSettings
+  lazy val gatlingModuleSettings =
+    basicSettings ++ formattingSettings ++ graphSettings ++ scaladocSettings
 
-	lazy val noCodeToPublish = Seq(
-		publishArtifact in Compile := false
-	)
+  lazy val noCodeToPublish = Seq(
+    publishArtifact in Compile := false
+  )
 
-	/****************************/
-	/** Documentation settings **/
-	/****************************/
+  /****************************/
+  /** Documentation settings **/
+  /****************************/
 
-	lazy val scaladocSettings = Seq(
-		apiMappings += scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/")
-	)
+  lazy val scaladocSettings = Seq(
+    apiMappings += scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/")
+  )
 
-	lazy val docSettings = unidocSettings ++ site.settings ++ site.sphinxSupport() ++ Seq(
-		site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "latest/api")
-	) ++ scaladocSettings
+  lazy val docSettings = unidocSettings ++ site.settings ++ site.sphinxSupport() ++ Seq(
+    site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "latest/api")
+  ) ++ scaladocSettings
 
-	/**************************************/
-	/** gatling-charts specific settings **/
-	/**************************************/
+  /**************************************/
+  /** gatling-charts specific settings **/
+  /**************************************/
 
-	lazy val chartTestsSettings = Seq(
-		fork := true,
-		javaOptions in Test := Seq("-DGATLING_HOME=gatling-charts") // Allows FileDataReaderSpec to run
-	)
+  lazy val chartTestsSettings = Seq(
+    fork := true,
+    javaOptions in Test := Seq("-DGATLING_HOME=gatling-charts") // Allows FileDataReaderSpec to run
+  )
 
-	lazy val excludeDummyComponentLibrary =  Seq(
-		mappings in (Compile, packageBin) := {
-			val compiledClassesMappings = (mappings in (Compile, packageBin)).value 
-			compiledClassesMappings.filter { case (file, path) => !path.contains("io/gatling/charts/component/impl") }
-		}
-	)
+  lazy val excludeDummyComponentLibrary =  Seq(
+    mappings in (Compile, packageBin) := {
+      val compiledClassesMappings = (mappings in (Compile, packageBin)).value 
+      compiledClassesMappings.filter { case (file, path) => !path.contains("io/gatling/charts/component/impl") }
+    }
+  )
 
-	/*************************/
-	/** Formatting settings **/
-	/*************************/
+  /*************************/
+  /** Formatting settings **/
+  /*************************/
 
-	lazy val formattingSettings = SbtScalariform.scalariformSettings ++ Seq(
-		ScalariformKeys.preferences := formattingPreferences
-	)
+  lazy val formattingSettings = SbtScalariform.scalariformSettings ++ Seq(
+    ScalariformKeys.preferences := formattingPreferences
+  )
 
-	import scalariform.formatter.preferences._
+  import scalariform.formatter.preferences._
 
-	def formattingPreferences = 
-		FormattingPreferences()
-			.setPreference(DoubleIndentClassDeclaration, true)
-			.setPreference(AlignParameters, true)
-			.setPreference(AlignSingleLineCaseStatements, true)
-			.setPreference(IndentLocalDefs, true)
+  def formattingPreferences = 
+    FormattingPreferences()
+      .setPreference(DoubleIndentClassDeclaration, true)
+      .setPreference(AlignParameters, true)
+      .setPreference(AlignSingleLineCaseStatements, true)
+      .setPreference(IndentLocalDefs, true)
 
 }
