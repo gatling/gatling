@@ -125,7 +125,7 @@ class FileDataReaderSpec extends Specification {
       props.put(CONF_CORE_DIRECTORY_RESULTS, "src/test/resources")
       GatlingConfiguration.setUp(props)
       val highPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats")
-      highPercentilesFileDataReader.requestGeneralStats().percentile1 must beEqualTo(9000L)
+      highPercentilesFileDataReader.requestGeneralStats().percentile1 must beEqualTo(8860L)
       highPercentilesFileDataReader.requestGeneralStats().percentile2 must beEqualTo(9000L)
     }
 

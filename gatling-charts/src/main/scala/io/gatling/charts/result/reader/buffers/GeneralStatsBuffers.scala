@@ -65,36 +65,30 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
 }
 
 class GeneralStatsBuffer(duration: Long) extends CountBuffer {
-  private var min = Int.MaxValue
-  private var max = Int.MinValue
-  private var count = 0
   private var sum = 0L
   private var squareSum = 0L
 
   override def update(time: Int) {
     super.update(time)
-
-    if (time < min) min = time
-    if (time > max) max = time
-    count += 1
     sum += time
     // risk of overflowing Long.MAX_VALUE?
     squareSum += StatsHelper.square(time)
   }
 
-  lazy val stats: GeneralStats =
-    if (count == 0) {
+  lazy val stats: GeneralStats = {
+    val valuesCount = digest.size()
+    if (valuesCount == 0) {
       GeneralStats.NO_PLOT
 
     } else {
-      val meanResponseTime = math.round(sum / count.toDouble).toInt
-      val meanRequestsPerSec = count / (duration / FileDataReader.secMillisecRatio)
-      val stdDev = math.round(StatsHelper.stdDev(squareSum / count.toDouble, meanResponseTime)).toInt
+      val meanResponseTime = math.round(sum / valuesCount)
+      val meanRequestsPerSec = valuesCount / (duration / FileDataReader.secMillisecRatio)
+      val stdDev = math.round(StatsHelper.stdDev(squareSum / valuesCount.toDouble, meanResponseTime)).toInt
 
-      val sortedTimes = map.values.toSeq.sortBy(_.time)
-
-      val percentiles = PercentilesHelper.processPercentiles(sortedTimes, count, Seq(configuration.charting.indicators.percentile1 / 100.0, configuration.charting.indicators.percentile2 / 100.0))
-
-      GeneralStats(min, max, count, meanResponseTime, stdDev, percentiles(0), percentiles(1), meanRequestsPerSec)
+      val percentiles = (digest.quantile(configuration.charting.indicators.percentile1 / 100.0), digest.quantile(configuration.charting.indicators.percentile2 / 100.0))
+      val min = digest.quantile(0)
+      val max = digest.quantile(1)
+      GeneralStats(min.toInt, max.toInt, valuesCount, meanResponseTime, stdDev, percentiles._1.toInt, percentiles._2.toInt, meanRequestsPerSec)
     }
+  }
 }
