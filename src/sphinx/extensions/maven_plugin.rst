@@ -16,20 +16,20 @@ Set up the gatling-maven-plugin
 
 ::
 
-	<dependencies>
+  <dependencies>
     <dependency>
       <groupId>io.gatling</groupId>
       <artifactId>gatling-charts-highcharts</artifactId>
       <version>X.Y.Z</version>
       <scope>test</scope>
     </dependency>
-	<dependencies>
+  <dependencies>
 
-	<plugin>
+  <plugin>
     <groupId>io.gatling</groupId>
     <artifactId>gatling-maven-plugin</artifactId>
     <version>X.Y.Z</version>
-	</plugin>
+  </plugin>
 
 .. note:: As the Highcharts based reports library is developed as a separate project, you are required to provide it as a dependency.
 
@@ -42,7 +42,7 @@ The example below shows the default values.
 
 ::
 
-	<configuration>
+  <configuration>
     <configDir>src/test/resources</configDir>
     <dataFolder>src/test/resources/data</dataFolder>
     <resultsFolder>target/gatling/results</resultsFolder>
@@ -54,16 +54,16 @@ The example below shows the default values.
     <excludes>
         <exclude>advanced/*.scala</exclude>
     </excludes>
-	<!--    <noReports>false</noReports> -->
-	<!-- 	<reportsOnly>false</reportsOnly> -->
-	<!-- 	<simulationClass>foo.Bar</simulationClass> -->
-	<!-- 	<jvmArgs> -->
-	<!--     <jvmArg>-DmyExtraParam=foo</jvmArg> -->
-	<!-- 	</jvmArgs> -->
-	<!--    <fork>true</fork> -->
-	<!--    <propagateSystemProperties>true</propagateSystemProperties> -->
-	<!-- 	<failOnError>true</failOnError> -->
-	</configuration>
+  <!--    <noReports>false</noReports> -->
+  <!--   <reportsOnly>false</reportsOnly> -->
+  <!--   <simulationClass>foo.Bar</simulationClass> -->
+  <!--   <jvmArgs> -->
+  <!--     <jvmArg>-DmyExtraParam=foo</jvmArg> -->
+  <!--   </jvmArgs> -->
+  <!--    <fork>true</fork> -->
+  <!--    <propagateSystemProperties>true</propagateSystemProperties> -->
+  <!--   <failOnError>true</failOnError> -->
+  </configuration>
 
 See `source code <https://github.com/excilys/gatling-maven-plugin/blob/master/src/main/java/io/gatling/mojo/GatlingMojo.java>`_ for more documentation. 
 
