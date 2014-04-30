@@ -74,7 +74,7 @@ object ZincCompiler extends StrictLogging {
           forceClean = false,
           javaOnly = false,
           compileOrder = CompileOrder.JavaThenScala,
-          incOptions = IncOptions(),
+          incOptions = IncOptions(nameHashing = true),
           outputRelations = None,
           outputProducts = None,
           mirrorAnalysis = false)
