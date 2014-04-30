@@ -96,7 +96,7 @@ HAR files can be obtained using the Chrome Developer Tools or with Firebug and t
 With Chrome Developer Tools, go to *Network* tab, and make sure you've selected the *Preserve log* checkbox, otherwise the log is reset when you change page.
 Select the requests you want to export, then right click and select *Copy All as HAR* and save what's in your clipboard into a file.
 
-Please don't use `Charles Proxy<http://www.charlesproxy.com>`_ for this.
+Please don't use `Charles Proxy <http://www.charlesproxy.com>`_ for this.
 Charles is an amazing tool and has an HAR export feature, but it's a proxy, so when you use it, you change the HTTP behavior, and the HAR would contain requests that should be here, such as CONNECTs.
 
 To import a HAR file, select the *HAR converter* mode in the top right dropdown in the Recorder.
