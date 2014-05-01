@@ -45,8 +45,6 @@ object Predef extends JmsCheckSupport {
 
   implicit def jmsRequestBuilder2ActionBuilder(builder: JmsRequestBuilder): ActionBuilder = builder.build()
 
-  def simpleCheck = JmsSimpleCheck
-
   def topic(name: String) = JmsTopic(name)
   def queue(name: String) = JmsQueue(name)
 }

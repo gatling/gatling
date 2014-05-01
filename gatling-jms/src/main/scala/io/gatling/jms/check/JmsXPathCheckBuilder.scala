@@ -31,11 +31,10 @@ object JmsXPathCheckBuilder extends StrictLogging {
 
   val preparer: Preparer[Message, Option[XdmNode]] = (response: Message) =>
     try {
-      val root = response match {
-        case tm: TextMessage => Some(XPathExtractor.parse(new StringReader(tm.getText)))
-        case _               => None
+      response match {
+        case tm: TextMessage => Some(XPathExtractor.parse(new StringReader(tm.getText))).success
+        case _               => "Unsupported message type".failure
       }
-      root.success
     } catch {
       case e: Exception =>
         val message = s"Could not parse response into a DOM Document: ${e.getMessage}"
