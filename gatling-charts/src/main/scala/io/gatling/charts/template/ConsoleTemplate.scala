@@ -70,7 +70,6 @@ ${writeSubTitle("Response Time Distribution")}
 ${groupedCounts.map(writeGroupedCounters).mkFastring(eol)}
 ${writeSubTitle("Errors")}
 ${writeErrors(dataReader)}
-
 $newBlock
 """.toString
   }
