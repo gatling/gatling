@@ -33,7 +33,7 @@ object ConsoleSummary {
   val outputLength = 80
   val newBlock = "=" * outputLength
 
-  def writeSubTitle(title: String) = ("---- " + title + " ").rightPad(outputLength, "-")
+  def writeSubTitle(title: String) = fast"${("---- " + title + " ").rightPad(outputLength, "-")}"
 
   def apply(runDuration: Long, usersCounters: Map[String, UserCounters], globalRequestCounters: RequestCounters, requestsCounters: Map[String, RequestCounters], errorsCounters: Map[String, Int], time: DateTime = DateTime.now) = {
 
@@ -65,7 +65,15 @@ object ConsoleSummary {
             count.toDouble * 100 / globalRequestCounters.failedCount
           }
 
-        errorsCounters.toVector.sortBy(_._2).reverse.map(err => ConsoleErrorsWriter.writeError(err._1, err._2, percent(err._2))).mkFastring(eol)
+        if (!errorsCounters.isEmpty) {
+          fast"""
+${writeSubTitle("Errors")}
+${ConsoleErrorsWriter.writeHeader()}
+${errorsCounters.toVector.sortBy(_._2).reverse.map(err => ConsoleErrorsWriter.writeError(err._1, err._2, percent(err._2))).mkFastring(eol)}
+"""
+        } else {
+          fast""
+        }
       }
 
     val text = fast"""
@@ -77,12 +85,9 @@ ${writeRequestsCounter("Global", globalRequestCounters)}
 ${
       if (!configuration.data.console.light)
         requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(eol)
-      else ""
-    }
-${writeSubTitle("Errors")}
-${ConsoleErrorsWriter.writeHeader()}
-${writeErrors()}
-$newBlock
+      else fast""
+}
+${writeErrors()}$newBlock
 """.toString
 
     val complete = {
