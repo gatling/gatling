@@ -29,7 +29,7 @@ object ConsoleErrorsWriter {
   val errorMsgLen = ConsoleSummary.outputLength - errorCountLen
 
   def writeHeader() = {
-    fast"${"msg".toString.rightPad(errorMsgLen)}${"count".toString.rightPad(errorCountLen)}"
+    fast"${"msg".rightPad(errorMsgLen)}count"
   }
 
   def writeError(msg: String, count: Int, percent: Double): Fastring = {
@@ -40,7 +40,7 @@ object ConsoleErrorsWriter {
     var lines = LinkedList(fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.rightPad(5)} ${percentStr.leftPad(6)} %")
 
     if (currLen < msg.length) {
-      val restLine = msg.substring(currLen);
+      val restLine = msg.substring(currLen)
       lines = lines :+ fast"${restLine.truncate(errorMsgLen - 4)}"
     }
 
