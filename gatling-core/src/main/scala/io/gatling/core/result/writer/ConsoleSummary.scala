@@ -86,7 +86,7 @@ ${
       if (!configuration.data.console.light)
         requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(eol)
       else fast""
-}
+    }
 ${writeErrors()}$newBlock
 """.toString
 
