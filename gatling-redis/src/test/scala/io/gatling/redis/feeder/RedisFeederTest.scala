@@ -66,7 +66,7 @@ class RedisFeederTest extends Specification with CalledMatchers {
   }
 
   "redis feeder" should {
-    "use lpop as default command" in ActorSupport.of{
+    "use lpop as default command" in ActorSupport.of {
       new MockContext {
 
         when(client.lpop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
@@ -77,7 +77,7 @@ class RedisFeederTest extends Specification with CalledMatchers {
       }
     }
 
-    "use spop command" in ActorSupport.of{
+    "use spop command" in ActorSupport.of {
       new MockContext {
 
         when(client.spop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
@@ -88,7 +88,7 @@ class RedisFeederTest extends Specification with CalledMatchers {
       }
     }
 
-    "use srandmember command" in ActorSupport.of{
+    "use srandmember command" in ActorSupport.of {
       new MockContext {
 
         when(client.srandmember(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"))
