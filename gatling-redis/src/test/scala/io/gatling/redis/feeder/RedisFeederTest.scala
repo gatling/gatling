@@ -31,6 +31,7 @@ import io.gatling.core.feeder.Record
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.akka.GatlingActorSystem
 import org.specs2.specification.BeforeExample
+import io.gatling.core.test.ActorSupport
 
 /**
  * @author Ivan Mushketyk
@@ -39,14 +40,6 @@ import org.specs2.specification.BeforeExample
 class RedisFeederTest extends Specification with CalledMatchers {
 
   val KEY = "key"
-
-  step {
-    GatlingConfiguration.setUp()
-  }
-
-  step {
-    GatlingActorSystem.start()
-  }
 
   // Generate list of maps Map(<redis-key> -> <expected-value>)
   def valsLst(key: String, s: String*): List[Record[String]] = {
@@ -73,32 +66,38 @@ class RedisFeederTest extends Specification with CalledMatchers {
   }
 
   "redis feeder" should {
-    "use lpop as default command" in new MockContext {
+    "use lpop as default command" in ActorSupport.of{
+      new MockContext {
 
-      when(client.lpop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
+        when(client.lpop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
-      val feeder = RedisFeeder(clientPool, KEY)
-      val actual = feeder.toList
-      actual should be equalTo valsLst(KEY, "v1", "v2", "v3")
+        val feeder = RedisFeeder(clientPool, KEY)
+        val actual = feeder.toList
+        actual should be equalTo valsLst(KEY, "v1", "v2", "v3")
+      }
     }
 
-    "use spop command" in new MockContext {
+    "use spop command" in ActorSupport.of{
+      new MockContext {
 
-      when(client.spop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
+        when(client.spop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
-      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SPOP)
-      val actual = feeder.toList
-      actual should be equalTo valsLst(KEY, "v1", "v2", "v3")
+        val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SPOP)
+        val actual = feeder.toList
+        actual should be equalTo valsLst(KEY, "v1", "v2", "v3")
+      }
     }
 
-    "use srandmember command" in new MockContext {
+    "use srandmember command" in ActorSupport.of{
+      new MockContext {
 
-      when(client.srandmember(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"))
+        when(client.srandmember(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"))
 
-      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SRANDMEMBER)
-      feeder.next() should be equalTo Map(KEY -> "v1")
-      feeder.next() should be equalTo Map(KEY -> "v2")
-      feeder.next() should be equalTo Map(KEY -> "v3")
+        val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SRANDMEMBER)
+        feeder.next() should be equalTo Map(KEY -> "v1")
+        feeder.next() should be equalTo Map(KEY -> "v2")
+        feeder.next() should be equalTo Map(KEY -> "v3")
+      }
     }
   }
 }
