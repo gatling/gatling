@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import io.gatling.core.validation.Validation
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session.Session
+import io.gatling.jms.client.SimpleJmsClient
 
 object JmsReqReplyAction {
   val blockingReceiveReturnedNull = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
