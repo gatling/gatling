@@ -20,11 +20,15 @@ import org.specs2.specification.Fixture
 import akka.testkit.{ TestKit, ImplicitSender }
 import io.gatling.core.akka.GatlingActorSystem
 import com.typesafe.scalalogging.slf4j.Logging
-import org.specs2.execute.AsResult
+import org.specs2.execute._
+import io.gatling.core.config.GatlingConfiguration
 
 object ActorSupport extends Fixture[TestKit with ImplicitSender] with Logging {
-  def apply[R: AsResult](f: TestKit with ImplicitSender => R) = synchronized {
+  def apply[R: AsResult](f: TestKit with ImplicitSender => R): Result = synchronized {
+    var oldGatlingConfiguration: GatlingConfiguration = null
     try {
+      oldGatlingConfiguration = GatlingConfiguration.configuration
+      GatlingConfiguration.setUp()
       AsResult(f(new TestKit(
         GatlingActorSystem.instanceOpt match {
           case None =>
@@ -35,9 +39,12 @@ object ActorSupport extends Fixture[TestKit with ImplicitSender] with Logging {
             throw new RuntimeException("GatlingActorSystem already started!")
         }) with ImplicitSender))
     } finally {
+      GatlingConfiguration.configuration = oldGatlingConfiguration
       logger.info("Shutting down GatlingActorSystem")
       GatlingActorSystem.instance.shutdown() // Call to instance is defensive - ensure that double-shutdown doesn't pass silently
       GatlingActorSystem.instanceOpt = None
     }
   }
+
+  def of[R: AsResult](f: => R): Result = apply(_ => f)
 }
