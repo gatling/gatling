@@ -108,7 +108,7 @@ class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
     }
 
     // advise the Gatling API that it is complete and move to next
-    writeRequestData(updatedSession, title, startSend, received, endSend, received, status)
+    writeRequestData(updatedSession, title, startSend, endSend, endSend, received, status)
     next ! updatedSession
   }
 }

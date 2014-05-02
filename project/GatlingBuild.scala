@@ -42,7 +42,7 @@ object GatlingBuild extends Build {
     .settings(libraryDependencies ++= httpDependencies)
 
   lazy val jms = gatlingModule("gatling-jms")
-    .dependsOn(core)
+    .dependsOn(core % "test->test;compile->compile")
     .settings(libraryDependencies ++= jmsDependencies)
 
   lazy val charts = gatlingModule("gatling-charts")
