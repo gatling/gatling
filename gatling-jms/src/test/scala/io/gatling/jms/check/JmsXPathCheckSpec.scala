@@ -1,11 +1,11 @@
 package io.gatling.jms.check
 
 import org.specs2.mutable.Specification
-import io.gatling.core.validation.{Failure, Success}
+import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.core.session.Session
 import io.gatling.jms.Predef._
 import io.gatling.core.Predef._
-import io.gatling.jms.{MockMessage, JmsCheck}
+import io.gatling.jms.{ MockMessage, JmsCheck }
 import scala.collection.mutable
 import io.gatling.core.config.GatlingConfiguration
 

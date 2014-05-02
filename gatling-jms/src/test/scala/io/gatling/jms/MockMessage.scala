@@ -1,7 +1,7 @@
 package io.gatling.jms
 
 import org.specs2.mock.Mockito
-import javax.jms.{Message, TextMessage}
+import javax.jms.{ Message, TextMessage }
 
 trait MockMessage extends Mockito {
 

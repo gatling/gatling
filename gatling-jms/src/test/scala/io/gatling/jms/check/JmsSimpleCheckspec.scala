@@ -4,7 +4,7 @@ import org.specs2.mutable.Specification
 import io.gatling.jms.Predef._
 import javax.jms._
 import io.gatling.core.session.Session
-import io.gatling.core.validation.{Success, Failure}
+import io.gatling.core.validation.{ Success, Failure }
 import io.gatling.jms.MockMessage
 import scala.collection.mutable
 
@@ -17,7 +17,7 @@ class JmsSimpleCheckSpec extends Specification with MockMessage {
     val check = simpleCheck {
       case tm: TextMessage if tm.getText() == "OK" => true
       case tm: TextMessage if tm.getText() == "KO" => false
-      case _ => false
+      case _                                       => false
     }
 
     "return success if condition is true" in {
