@@ -10,7 +10,7 @@ The Action
 An Action is the actual component in charge of "doing something", like sending a request (or looping, routing, etc).
 It must:
 
-* extend the ``com.excilys.ebi.gatling.core.action.Action`` trait
+* extend the ``io.gatling.core.action.Action`` trait
 * implement the ``def execute(session: Session)`` method.
 
 This method has to perform the following operations:
@@ -61,4 +61,4 @@ This method is called at engine startup when attaching the builder in the scenar
 builds the Action and starts it. It take a ProtocolConfigurationRegistry parameter that is basically a Map of protocol specific option (such as outgoing proxy for HTTP).
 For starting and returning an Actor from an Action instance, use the following::
 
-	com.excilys.ebi.gatling.core.action.system.actorOf(Props(myActionInstance))
+	io.gatling.core.action.system.actorOf(Props(myActionInstance))

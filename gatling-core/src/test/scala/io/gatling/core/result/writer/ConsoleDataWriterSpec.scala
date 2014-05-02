@@ -31,7 +31,11 @@ class ConsoleDataWriterSpec extends Specification {
 
   val time = new DateTime().withDate(2012, 8, 24).withTime(13, 37, 0, 0)
 
-  def progressBar(summary: ConsoleSummary) = summary.toString.split("\r?\n")(4)
+  def lines(summary: ConsoleSummary) = summary.text.toString.split("\r?\n")
+
+  def progressBar(summary: ConsoleSummary) = lines(summary)(4)
+
+  def requestsInfo(summary: ConsoleSummary) = lines(summary).splitAt(6)._2.mkString(sys.props("line.separator"))
 
   "console summary progress bar" should {
 
@@ -74,6 +78,40 @@ class ConsoleDataWriterSpec extends Specification {
       val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, Map.empty, time)
       summary.complete must beFalse
       progressBar(summary) must beEqualTo("[###################################################################-------] 90%")
+    }
+  }
+
+  "console summary" should {
+    "display requests without errors" in {
+      val requestCounters = Map("request1" -> new RequestCounters(20, 0))
+
+      val summary = ConsoleSummary(10000, Map("request1" -> new UserCounters(11)), new RequestCounters(20, 0), requestCounters, Map.empty, time)
+
+      val actual = requestsInfo(summary)
+      actual must beEqualTo(
+        """---- Requests ------------------------------------------------------------------
+          |> Global                                                   (OK=20     KO=0     )
+          |> request1                                                 (OK=20     KO=0     )
+          |================================================================================""".stripMargin)
+    }
+
+    "display requests without errors" in {
+      val requestCounters = Map("request1" -> new RequestCounters(0, 20))
+
+      val errorsCounters = Map("error" -> 20)
+
+      val summary = ConsoleSummary(10000, Map("request1" -> new UserCounters(11)), new RequestCounters(0, 20), requestCounters, errorsCounters, time)
+
+      val actual = requestsInfo(summary)
+      actual must be equalTo(
+        f"""---- Requests ------------------------------------------------------------------
+          |> Global                                                   (OK=0      KO=20    )
+          |> request1                                                 (OK=0      KO=20    )
+          |
+          |---- Errors --------------------------------------------------------------------
+          |msg                                                               count
+          |> error                                                           20    ${100.0}%3.2f %%
+          |================================================================================""".stripMargin)
     }
   }
 }
