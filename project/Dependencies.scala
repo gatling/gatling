@@ -43,7 +43,7 @@ object Dependencies {
   private val specs2                         = "org.specs2"                %% "specs2"             % "2.3.10"      % "test"
   private val akkaTestKit                    = "com.typesafe.akka"         %% "akka-testkit"       % "2.2.4"       % "test"
   private val mockitoCore                    = "org.mockito"                % "mockito-core"       % "1.9.5"       % "test"
-  private val activemqCore                   = "org.apache.activemq"        % "activemq-core"      % "5.7.0"       % "test"
+  private val activemqCore                   = "org.apache.activemq"        % "activemq-core"      % "5.7.0"       % "test" exclude("org.springframework", "spring-context") 
 
 
   private val testDeps = Seq(junit, specs2, akkaTestKit, mockitoCore)
