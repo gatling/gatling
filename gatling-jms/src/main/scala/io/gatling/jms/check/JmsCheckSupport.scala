@@ -19,5 +19,7 @@ import io.gatling.core.session.Expression
 
 trait JmsCheckSupport {
 
+  def simpleCheck = JmsSimpleCheck
+
   def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = JmsXPathCheckBuilder.xpath(expression, namespaces)
 }
