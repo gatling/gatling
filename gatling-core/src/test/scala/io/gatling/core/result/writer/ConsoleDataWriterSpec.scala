@@ -103,7 +103,7 @@ class ConsoleDataWriterSpec extends Specification {
       val summary = ConsoleSummary(10000, Map("request1" -> new UserCounters(11)), new RequestCounters(0, 20), requestCounters, errorsCounters, time)
 
       val actual = requestsInfo(summary)
-      actual must be equalTo(
+      actual must be equalTo (
         f"""---- Requests ------------------------------------------------------------------
           |> Global                                                   (OK=0      KO=20    )
           |> request1                                                 (OK=0      KO=20    )
