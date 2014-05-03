@@ -50,7 +50,7 @@ object RecorderConfiguration extends StrictLogging {
 
   GatlingConfiguration.setUp()
 
-  private[this] def getClassLoader() = Thread.currentThread.getContextClassLoader
+  private[this] def getClassLoader = Thread.currentThread.getContextClassLoader
   private[this] def getDefaultConfig(classLoader: ClassLoader) = ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
 
   def fakeConfig(props: Map[String, _]): RecorderConfiguration = {
@@ -59,7 +59,7 @@ object RecorderConfiguration extends StrictLogging {
   }
 
   def initialSetup(props: Map[String, _], recorderConfigFile: Option[File] = None) {
-    val classLoader = getClassLoader()
+    val classLoader = getClassLoader
     val defaultConfig = getDefaultConfig(classLoader)
     configFile = recorderConfigFile.map(_.jfile).orElse(Option(classLoader.getResource("recorder.conf")).map(url => new JFile(url.getFile)))
 
