@@ -17,7 +17,6 @@ package io.gatling.core.result.writer
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.util.StringHelper._
-import scala.collection.mutable.LinkedList
 
 /**
  * Object for writing errors statistics to the console.
@@ -33,9 +32,9 @@ object ConsoleErrorsWriter {
   def writeError(msg: String, count: Int, percent: Double): Fastring = {
     val percentStr = f"$percent%3.2f"
 
-    var currLen = errorMsgLen - 3;
+    val currLen = errorMsgLen - 3;
     val firstLineLen = Math.min(msg.length, currLen)
-    var lines = LinkedList(fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.rightPad(5)} ${percentStr.leftPad(7)}%")
+    var lines = List(fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.rightPad(5)} ${percentStr.leftPad(7)}%")
 
     if (currLen < msg.length) {
       val restLine = msg.substring(currLen)
