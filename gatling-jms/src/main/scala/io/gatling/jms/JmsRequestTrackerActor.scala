@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -105,11 +105,11 @@ class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
       case Success(updateSession) =>
         val updatedSession = updateSession(session)
         writeRequestData(updatedSession, title, startSend, endSend, endSend, received, OK)
-        next ! updatedSession
+        next ! updatedSession.logGroupRequest(received - endSend, OK)
 
       case Failure(m) =>
         val updatedSession = session.markAsFailed
         writeRequestData(updatedSession, title, startSend, endSend, endSend, received, KO, Some(m))
-        next ! updatedSession
+        next ! updatedSession.logGroupRequest(received - endSend, KO)
     }
 }
