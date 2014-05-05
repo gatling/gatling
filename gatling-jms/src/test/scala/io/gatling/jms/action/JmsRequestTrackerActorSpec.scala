@@ -58,9 +58,9 @@ class JmsRequestTrackerActorSpec extends Specification with MockMessage with NoT
         tracker ! MessageSent("1", 15, 20, List(failedCheck), session, testActor, "failure")
         tracker ! MessageReceived("1", 30, textMessage("test"))
 
-        expectMsg(session)
+        expectMsg(session.markAsFailed)
         tracker.underlyingActor.dataWriterMsg must contain(
-          RequestMessage("mockSession", "mockUserName", List(), "failure", 15, 20, 20, 30, KO, None, List()))
+          RequestMessage("mockSession", "mockUserName", List(), "failure", 15, 20, 20, 30, KO, Some("Jms check failed"), List()))
     }
 
     "pass updated session to next actor if modified by checks" in ActorSupport {
