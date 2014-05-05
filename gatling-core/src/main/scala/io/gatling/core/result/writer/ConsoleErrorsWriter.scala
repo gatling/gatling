@@ -21,8 +21,6 @@ import scala.collection.mutable.LinkedList
 
 /**
  * Object for writing errors statistics to the console.
- *
- * @author Ivan Mushketyk
  */
 object ConsoleErrorsWriter {
   val errorCountLen = 14
@@ -37,7 +35,7 @@ object ConsoleErrorsWriter {
 
     var currLen = errorMsgLen - 3;
     val firstLineLen = Math.min(msg.length, currLen)
-    var lines = LinkedList(fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.rightPad(5)} ${percentStr.leftPad(6)} %")
+    var lines = LinkedList(fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.rightPad(5)} ${percentStr.leftPad(7)}%")
 
     if (currLen < msg.length) {
       val restLine = msg.substring(currLen)
