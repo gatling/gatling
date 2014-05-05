@@ -103,13 +103,13 @@ class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
     // run all of the checks, advise the Gatling API that it is complete and move to next
     Check.check(message, session, checks) match {
       case Success(updateSession) =>
-        val updatedSession = updateSession(session)
+        val updatedSession = updateSession(session).logGroupRequest(received - endSend, OK)
         writeRequestData(updatedSession, title, startSend, endSend, endSend, received, OK)
-        next ! updatedSession.logGroupRequest(received - endSend, OK)
+        next ! updatedSession
 
       case Failure(m) =>
-        val updatedSession = session.markAsFailed
+        val updatedSession = session.markAsFailed.logGroupRequest(received - endSend, KO)
         writeRequestData(updatedSession, title, startSend, endSend, endSend, received, KO, Some(m))
-        next ! updatedSession.logGroupRequest(received - endSend, KO)
+        next ! updatedSession
     }
 }
