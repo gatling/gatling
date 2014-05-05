@@ -104,7 +104,7 @@ class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
     // run all of the checks
     val (status, updatedSession) = Check.check(message, session, checks) match {
       case Success(updateSession) => (OK, updateSession(session))
-      case _                      => (KO, session)
+      case _                      => (KO, session.markAsFailed)
     }
 
     // advise the Gatling API that it is complete and move to next
