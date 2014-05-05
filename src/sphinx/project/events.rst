@@ -4,7 +4,7 @@ Events
 
 Upcoming
 ========
-
+* *June 11th, 2014* `Geneva-Scala-Enthusiasts <http://www.meetup.com/Geneva-Scala-Enthusiasts/events/180095262/>`_ with Nicolas Rémond
 * *May 8th, 2014* `BRUG <http://brug.be/gatherings/brug-may-2014>`_ with Stéphan Mestach
 * *May 11th, 2014* `JavaCro 2014 <http://javacro.org/sessions/#gatling>`_ with Andrija Kranjec
 
