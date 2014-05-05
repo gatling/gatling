@@ -77,5 +77,25 @@ class JmsRequestTrackerActorSpec extends Specification with MockMessage with NoT
         tracker.underlyingActor.dataWriterMsg must contain(
           RequestMessage("mockSession", "mockUserName", List(), "updated", 15, 20, 20, 30, OK, None, List()))
     }
+
+    "pass information to session about response time in case group are used" in ActorSupport {
+      testKit =>
+        import testKit._
+
+        val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
+
+        val groupSession = session.enterGroup("group")
+        tracker ! MessageSent("1", 15, 20, List(), groupSession, testActor, "logGroupResponse")
+        tracker ! MessageReceived("1", 30, textMessage("group"))
+
+        val newSession = groupSession.logGroupRequest(10,OK)
+        expectMsg(newSession)
+
+        val failedCheck = JmsSimpleCheck(_ => false)
+        tracker ! MessageSent("2", 25, 30, List(failedCheck), newSession, testActor, "logGroupResponse")
+        tracker ! MessageReceived("2", 50, textMessage("group"))
+        expectMsg(newSession.logGroupRequest(20,KO).markAsFailed)
+        success
+    }
   }
 }
