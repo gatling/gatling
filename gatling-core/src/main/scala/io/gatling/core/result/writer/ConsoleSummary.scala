@@ -35,7 +35,12 @@ object ConsoleSummary {
 
   def writeSubTitle(title: String) = fast"${("---- " + title + " ").rightPad(outputLength, "-")}"
 
-  def apply(runDuration: Long, usersCounters: Map[String, UserCounters], globalRequestCounters: RequestCounters, requestsCounters: Map[String, RequestCounters], errorsCounters: Map[String, Int], time: DateTime = DateTime.now) = {
+  def apply(runDuration: Long,
+            usersCounters: Map[String, UserCounters],
+            globalRequestCounters: RequestCounters,
+            requestsCounters: Map[String, RequestCounters],
+            errorsCounters: Map[String, Int],
+            time: DateTime = DateTime.now) = {
 
       def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 
@@ -66,8 +71,7 @@ object ConsoleSummary {
           }
 
         if (!errorsCounters.isEmpty) {
-          fast"""
-${writeSubTitle("Errors")}
+          fast"""${writeSubTitle("Errors")}
 ${ConsoleErrorsWriter.writeHeader()}
 ${errorsCounters.toVector.sortBy(_._2).reverse.map(err => ConsoleErrorsWriter.writeError(err._1, err._2, percent(err._2))).mkFastring(eol)}
 """
