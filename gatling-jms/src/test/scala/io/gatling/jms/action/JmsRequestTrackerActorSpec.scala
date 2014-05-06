@@ -12,7 +12,6 @@ import akka.testkit.TestActorRef
 import io.gatling.jms.MessageReceived
 import io.gatling.core.result.writer.RequestMessage
 import io.gatling.jms.check.JmsSimpleCheck
-import scala.Some
 import io.gatling.jms.MessageSent
 
 class JmsRequestTrackerActorWithMockWriter extends JmsRequestTrackerActor with MockDataWriterClient

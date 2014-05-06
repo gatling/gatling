@@ -26,9 +26,7 @@ import io.gatling.core.result.writer.DataWriterClient
 import javax.jms.Message
 import io.gatling.core.check.Check
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.Success
-import io.gatling.core.validation.Failure
-import scala.Some
+import io.gatling.core.validation.{ Success, Failure }
 
 /**
  * Advise actor a message was sent to JMS provider
