@@ -19,13 +19,16 @@ import scala.collection.mutable
 import akka.actor.ActorRef
 
 import io.gatling.core.Predef.Session
-import io.gatling.core.result.message.{ KO, OK }
+import io.gatling.core.result.message.{ Status, KO, OK }
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.writer.DataWriterClient
 
 import javax.jms.Message
 import io.gatling.core.check.Check
-import io.gatling.core.validation.{ Failure, Success }
+import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.validation.Success
+import io.gatling.core.validation.Failure
+import scala.Some
 
 /**
  * Advise actor a message was sent to JMS provider
@@ -99,17 +102,16 @@ class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
                      checks: List[JmsCheck],
                      message: Message,
                      next: ActorRef,
-                     title: String): Unit =
+                     title: String): Unit = {
+      def executeNext(updatedSession: Session, status: Status, message: Option[String] = None) = {
+        writeRequestData(updatedSession, title, startSend, endSend, endSend, received, status, message)
+        next ! updatedSession.logGroupRequest(received - startSend, status).increaseDrift(nowMillis - received)
+      }
     // run all of the checks, advise the Gatling API that it is complete and move to next
     Check.check(message, session, checks) match {
-      case Success(updateSession) =>
-        val updatedSession = updateSession(session).logGroupRequest(received - endSend, OK)
-        writeRequestData(updatedSession, title, startSend, endSend, endSend, received, OK)
-        next ! updatedSession
-
-      case Failure(m) =>
-        val updatedSession = session.markAsFailed.logGroupRequest(received - endSend, KO)
-        writeRequestData(updatedSession, title, startSend, endSend, endSend, received, KO, Some(m))
-        next ! updatedSession
+      case Success(updateSession) => executeNext(updateSession(session), OK)
+      case Failure(m)             => executeNext(session.markAsFailed, KO, Some(m))
     }
+  }
+
 }
