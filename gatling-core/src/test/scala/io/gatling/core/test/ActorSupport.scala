@@ -19,16 +19,19 @@ import org.specs2.specification.Fixture
 
 import akka.testkit.{ TestKit, ImplicitSender }
 import io.gatling.core.akka.GatlingActorSystem
+import io.gatling.core.config.GatlingConfiguration
 import com.typesafe.scalalogging.slf4j.Logging
 import org.specs2.execute._
-import io.gatling.core.config.GatlingConfiguration
 
 object ActorSupport extends Fixture[TestKit with ImplicitSender] with Logging {
-  def apply[R: AsResult](f: TestKit with ImplicitSender => R): Result = synchronized {
+  val consoleOnlyConfig = Map("gatling.data.writers" -> "console")
+  def apply[R: AsResult](f: TestKit with ImplicitSender => R): Result = apply(consoleOnlyConfig)(f)
+
+  def apply[R: AsResult](config: Map[String, _])(f: TestKit with ImplicitSender => R): Result = synchronized {
     var oldGatlingConfiguration: GatlingConfiguration = null
     try {
       oldGatlingConfiguration = GatlingConfiguration.configuration
-      GatlingConfiguration.setUp()
+      GatlingConfiguration.configuration = GatlingConfiguration.fakeConfig(config)
       AsResult(f(new TestKit(
         GatlingActorSystem.instanceOpt match {
           case None =>
@@ -42,6 +45,7 @@ object ActorSupport extends Fixture[TestKit with ImplicitSender] with Logging {
       GatlingConfiguration.configuration = oldGatlingConfiguration
       logger.info("Shutting down GatlingActorSystem")
       GatlingActorSystem.instance.shutdown() // Call to instance is defensive - ensure that double-shutdown doesn't pass silently
+      GatlingActorSystem.instance.awaitTermination()
       GatlingActorSystem.instanceOpt = None
     }
   }

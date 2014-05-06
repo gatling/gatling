@@ -82,8 +82,16 @@ object HttpEngine extends AkkaDefaults with StrictLogging {
     if (!_instance.isDefined) {
       val client = new HttpEngine
       _instance = Some(client)
-      system.registerOnTermination(_instance = None)
+      system.registerOnTermination(stop)
     }
+  }
+
+  def stop() {
+    _instance.map { engine =>
+      engine.applicationThreadPool.shutdown()
+      engine.nioThreadPool.shutdown()
+    }
+    _instance = None
   }
 
   def instance: HttpEngine = _instance match {
@@ -102,6 +110,8 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     }
   })
 
+  val nioThreadPool = Executors.newCachedThreadPool
+
   val nettyTimer = new AkkaNettyTimer
 
   // set up Netty LoggerFactory for slf4j instead of default JDK
@@ -116,8 +126,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
   val nettyConfig = {
     val numWorkers = configuration.http.ahc.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
-    val threadPool = Executors.newCachedThreadPool
-    val socketChannelFactory = new NioClientSocketChannelFactory(new NioClientBossPool(threadPool, 1, nettyTimer, null), new NioWorkerPool(threadPool, numWorkers))
+    val socketChannelFactory = new NioClientSocketChannelFactory(new NioClientBossPool(nioThreadPool, 1, nettyTimer, null), new NioWorkerPool(nioThreadPool, numWorkers))
     system.registerOnTermination(socketChannelFactory.releaseExternalResources())
     val nettyConfig = new NettyAsyncHttpProviderConfig
     nettyConfig.addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
