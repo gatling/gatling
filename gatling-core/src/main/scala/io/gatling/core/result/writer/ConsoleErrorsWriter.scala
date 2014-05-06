@@ -34,13 +34,13 @@ object ConsoleErrorsWriter {
 
     val currLen = errorMsgLen - 3;
     val firstLineLen = Math.min(msg.length, currLen)
-    var lines = List(fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.rightPad(5)} ${percentStr.leftPad(7)}%")
+    val firstLine = fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.rightPad(5)} ${percentStr.leftPad(7)}%"
 
     if (currLen < msg.length) {
-      val restLine = msg.substring(currLen)
-      lines = lines :+ fast"${restLine.truncate(errorMsgLen - 4)}"
+      val secondLine = msg.substring(currLen)
+      fast"$firstLine$eol${secondLine.truncate(errorMsgLen - 4)}"
+    } else {
+      firstLine
     }
-
-    lines.mkFastring(eol)
   }
 }
