@@ -8,15 +8,20 @@ import org.specs2.time.NoTimeConversions
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.Predef._
 import io.gatling.jms.Predef._
+import akka.testkit.TestActorRef
 import io.gatling.jms.MessageReceived
 import io.gatling.core.result.writer.RequestMessage
 import io.gatling.jms.check.JmsSimpleCheck
 import io.gatling.jms.MessageSent
-import akka.testkit.TestActorRef
 
 class JmsRequestTrackerActorWithMockWriter extends JmsRequestTrackerActor with MockDataWriterClient
 
 class JmsRequestTrackerActorSpec extends Specification with MockMessage with NoTimeConversions {
+
+  def ignoreDrift(actual: Session) = {
+    actual.drift must be_>(0L)
+    actual.setDrift(0)
+  }
 
   "JmsRequestTrackerActor" should {
     val session = Session("mockSession", "mockUserName")
@@ -29,7 +34,9 @@ class JmsRequestTrackerActorSpec extends Specification with MockMessage with NoT
         tracker ! MessageSent("1", 15, 20, List(), session, testActor, "success")
         tracker ! MessageReceived("1", 30, textMessage("test"))
 
-        expectMsg(session)
+        val nextSession = expectMsgType[Session]
+
+        ignoreDrift(nextSession) must_== session
         tracker.underlyingActor.dataWriterMsg must contain(
           RequestMessage("mockSession", "mockUserName", List(), "success", 15, 20, 20, 30, OK, None, List()))
     }
@@ -43,7 +50,9 @@ class JmsRequestTrackerActorSpec extends Specification with MockMessage with NoT
         tracker ! MessageReceived("1", 30, textMessage("test"))
         tracker ! MessageSent("1", 15, 20, List(), session, testActor, "outofsync")
 
-        expectMsg(session)
+        val nextSession = expectMsgType[Session]
+
+        ignoreDrift(nextSession) must_== session
         tracker.underlyingActor.dataWriterMsg must contain(
           RequestMessage("mockSession", "mockUserName", List(), "outofsync", 15, 20, 20, 30, OK, None, List()))
     }
@@ -58,7 +67,9 @@ class JmsRequestTrackerActorSpec extends Specification with MockMessage with NoT
         tracker ! MessageSent("1", 15, 20, List(failedCheck), session, testActor, "failure")
         tracker ! MessageReceived("1", 30, textMessage("test"))
 
-        expectMsg(session.markAsFailed)
+        val nextSession = expectMsgType[Session]
+
+        ignoreDrift(nextSession) must_== session.markAsFailed
         tracker.underlyingActor.dataWriterMsg must contain(
           RequestMessage("mockSession", "mockUserName", List(), "failure", 15, 20, 20, 30, KO, Some("Jms check failed"), List()))
     }
@@ -73,7 +84,9 @@ class JmsRequestTrackerActorSpec extends Specification with MockMessage with NoT
         tracker ! MessageSent("1", 15, 20, List(check), session, testActor, "updated")
         tracker ! MessageReceived("1", 30, textMessage("<id>5</id>"))
 
-        expectMsg(session.set("id", "5"))
+        val nextSession = expectMsgType[Session]
+
+        ignoreDrift(nextSession) must_== session.set("id", "5")
         tracker.underlyingActor.dataWriterMsg must contain(
           RequestMessage("mockSession", "mockUserName", List(), "updated", 15, 20, 20, 30, OK, None, List()))
     }
@@ -88,14 +101,17 @@ class JmsRequestTrackerActorSpec extends Specification with MockMessage with NoT
         tracker ! MessageSent("1", 15, 20, List(), groupSession, testActor, "logGroupResponse")
         tracker ! MessageReceived("1", 30, textMessage("group"))
 
-        val newSession = groupSession.logGroupRequest(10,OK)
-        expectMsg(newSession)
+        val newSession = groupSession.logGroupRequest(15, OK)
+        val nextSession1 = expectMsgType[Session]
 
         val failedCheck = JmsSimpleCheck(_ => false)
         tracker ! MessageSent("2", 25, 30, List(failedCheck), newSession, testActor, "logGroupResponse")
         tracker ! MessageReceived("2", 50, textMessage("group"))
-        expectMsg(newSession.logGroupRequest(20,KO).markAsFailed)
-        success
+
+        val nextSession2 = expectMsgType[Session]
+
+        ignoreDrift(nextSession1) must_== newSession
+        ignoreDrift(nextSession2) must_== newSession.logGroupRequest(25, KO).markAsFailed
     }
   }
 }
