@@ -38,7 +38,7 @@ object GatlingBuild extends Build {
     .settings(libraryDependencies ++= redisDependencies)
 
   lazy val http = gatlingModule("gatling-http")
-    .dependsOn(core)
+    .dependsOn(core % "compile->compile;test->test")
     .settings(libraryDependencies ++= httpDependencies)
 
   lazy val jms = gatlingModule("gatling-jms")
