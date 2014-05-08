@@ -26,9 +26,9 @@ import javax.net.ssl.{ KeyManager, KeyManagerFactory, SSLContext, TrustManager, 
 object SSLHelper {
 
   private def storeStream(filePath: String): InputStream = {
-    val keystoreFile = new File(filePath)
-    if (keystoreFile.exists)
-      new FileInputStream(keystoreFile)
+    val storeFile = new File(filePath)
+    if (storeFile.exists)
+      new FileInputStream(storeFile)
     else {
       val classLoader = SSLHelper.getClass.getClassLoader
       val stream = classLoader.getResourceAsStream(filePath)
