@@ -25,7 +25,7 @@ import javax.net.ssl.{ KeyManager, KeyManagerFactory, SSLContext, TrustManager, 
 
 object SSLHelper {
 
-  private def fileStoreStream(filePath: String): InputStream = {
+  private def storeStream(filePath: String): InputStream = {
     val keystoreFile = new File(filePath)
     if (keystoreFile.exists)
       new FileInputStream(keystoreFile)
@@ -42,7 +42,7 @@ object SSLHelper {
 
   def newTrustManagers(storeType: Option[String], file: String, password: String, algorithm: Option[String]): Array[TrustManager] = {
 
-    withCloseable(fileStoreStream(file)) { is =>
+    withCloseable(storeStream(file)) { is =>
       val trustStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
       trustStore.load(is, password.toCharArray)
       val algo = algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
@@ -54,7 +54,7 @@ object SSLHelper {
 
   def newKeyManagers(storeType: Option[String], file: String, password: String, algorithm: Option[String]): Array[KeyManager] = {
 
-    withCloseable(fileStoreStream(file)) { is =>
+    withCloseable(storeStream(file)) { is =>
       val keyStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
       val passwordCharArray = password.toCharArray
       keyStore.load(is, passwordCharArray)
