@@ -15,7 +15,7 @@
  */
 package io.gatling.http.util
 
-import java.io.{ File, FileInputStream }
+import java.io.{ FileNotFoundException, InputStream, File, FileInputStream }
 import java.security.{ KeyStore, SecureRandom }
 
 import com.ning.http.client.AsyncHttpClientConfig
@@ -25,9 +25,24 @@ import javax.net.ssl.{ KeyManager, KeyManagerFactory, SSLContext, TrustManager, 
 
 object SSLHelper {
 
+  private def storeStream(filePath: String): InputStream = {
+    val keystoreFile = new File(filePath)
+    if (keystoreFile.exists)
+      new FileInputStream(keystoreFile)
+    else {
+      val classLoader = SSLHelper.getClass.getClassLoader
+      val stream = classLoader.getResourceAsStream(filePath)
+      if (stream == null) {
+        throw new FileNotFoundException(filePath)
+      }
+
+      stream
+    }
+  }
+
   def newTrustManagers(storeType: Option[String], file: String, password: String, algorithm: Option[String]): Array[TrustManager] = {
 
-    withCloseable(new FileInputStream(new File(file))) { is =>
+    withCloseable(storeStream(file)) { is =>
       val trustStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
       trustStore.load(is, password.toCharArray)
       val algo = algorithm.getOrElse(KeyManagerFactory.getDefaultAlgorithm)
@@ -39,7 +54,7 @@ object SSLHelper {
 
   def newKeyManagers(storeType: Option[String], file: String, password: String, algorithm: Option[String]): Array[KeyManager] = {
 
-    withCloseable(new FileInputStream(new File(file))) { is =>
+    withCloseable(storeStream(file)) { is =>
       val keyStore = KeyStore.getInstance(storeType.getOrElse(KeyStore.getDefaultType))
       val passwordCharArray = password.toCharArray
       keyStore.load(is, passwordCharArray)
