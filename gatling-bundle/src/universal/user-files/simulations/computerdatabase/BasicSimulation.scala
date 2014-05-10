@@ -7,7 +7,7 @@ import scala.concurrent.duration._
 class BasicSimulation extends Simulation {
 
   val httpConf = http
-    .baseURL("http://computer-database.heroku.com/") // Here is the root for all relative URLs
+    .baseURL("http://computer-database.herokuapp.com") // Here is the root for all relative URLs
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8") // Here are the common headers
     .doNotTrackHeader("1")
     .acceptLanguageHeader("en-US,en;q=0.5")
