@@ -26,7 +26,10 @@ Gatling is developed in Scala and built upon :
 
 ## Release
 
-See [changelog](https://github.com/excilys/gatling/wiki/Changelog)
+See [changelog](https://github.com/excilys/gatling/wiki/Changelog).
+
+For people wanting to use the lastest evolutions, the SNAPSHOT versions are available from the Sonatype OSS [repository](https://oss.sonatype.org/content/repositories/snapshots/io/gatling/highcharts/gatling-charts-highcharts/).
+
 
 ## Questions, help?
 
