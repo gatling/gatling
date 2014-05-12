@@ -191,7 +191,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
         def process(buffer: Seq[IntVsTimePlot]): Seq[PercentVsTimePlot] = {
 
-          val bucketsWithValues = buffer
+          val bucketsWithValues: Map[Int, Double] = buffer
             .map(record => (bucketFunction(record.time), record))
             .groupBy(_._1)
             .map {
