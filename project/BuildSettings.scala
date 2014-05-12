@@ -18,7 +18,7 @@ object BuildSettings {
     startYear             := Some(2011),
     licenses              := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion          := "2.10.4",
-    resolvers             := Seq(sonatypeSnapshots, Resolver.mavenLocal),
+    resolvers             := Seq(Resolver.mavenLocal, sonatypeSnapshots),
     scalacOptions         := Seq(
       "-encoding", "UTF-8",
       "-target:jvm-1.6",
