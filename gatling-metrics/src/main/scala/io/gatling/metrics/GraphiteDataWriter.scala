@@ -65,7 +65,7 @@ class GraphiteDataWriter extends DataWriter {
 
   def onRequestMessage(request: RequestMessage): Unit = {
     if (!configuration.data.graphite.light) {
-      val path = graphitePath(request.groupHierarchy ::: List(request.name))
+      val path = graphitePath(request.groupHierarchy :+ request.name)
       requestsByPath.getOrElseUpdate(path, new RequestMetricsBuffer).add(request.status, request.responseTime)
     }
     requestsByPath.getOrElseUpdate(allRequestsKey, new RequestMetricsBuffer).add(request.status, request.responseTime)

@@ -52,8 +52,13 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
     val pageStats =
       if (isDetails) {
         val groupHierarchy = group.map(_.hierarchy).getOrElse(Nil)
-        val req = requestName.map(List(_)).getOrElse(Nil)
-        s"""var pageStats = stats.contents['${(groupHierarchy ::: req).map(_.toFileName).mkString("'].contents['")}'].stats;"""
+
+        val groupAndRequestHierarchy = requestName match {
+          case Some(req) => groupHierarchy :+ req
+          case _ => groupHierarchy
+        }
+
+        s"""var pageStats = stats.contents['${groupAndRequestHierarchy.map(_.toFileName).mkString("'].contents['")}'].stats;"""
       } else {
         "var pageStats = stats.stats;"
       }

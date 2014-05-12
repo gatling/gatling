@@ -36,7 +36,7 @@ trait AssertionSupport {
             val path: List[String] = statsPath match {
               case RequestStatsPath(request, group) =>
                 group match {
-                  case Some(g) => g.hierarchy ::: List(request)
+                  case Some(g) => g.hierarchy :+ request
                   case _       => List(request)
                 }
               case GroupStatsPath(group) => group.hierarchy
