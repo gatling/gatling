@@ -42,39 +42,38 @@ object ConsoleSummary {
             errorsCounters: Map[String, Int],
             time: DateTime = DateTime.now) = {
 
-      def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
+    def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 
-        import userCounters._
+      import userCounters._
 
-        val width = outputLength - 6 // []3d%
+      val width = outputLength - 6 // []3d%
 
-        val donePercent = floor(100 * doneCount.toDouble / totalCount).toInt
-        val done = floor(width * doneCount.toDouble / totalCount).toInt
-        val running = ceil(width * runningCount.toDouble / totalCount).toInt
-        val waiting = width - done - running
+      val donePercent = floor(100 * doneCount.toDouble / totalCount).toInt
+      val done = floor(width * doneCount.toDouble / totalCount).toInt
+      val running = ceil(width * runningCount.toDouble / totalCount).toInt
+      val waiting = width - done - running
 
-        fast"""${writeSubTitle(scenarioName)}
+      fast"""${writeSubTitle(scenarioName)}
 [${"#" * done}${"-" * running}${" " * waiting}]${donePercent.toString.leftPad(3)}%
           waiting: ${waitingCount.toString.rightPad(6)} / running: ${runningCount.toString.rightPad(6)} / done:${doneCount.toString.rightPad(6)}"""
-      }
+    }
 
-      def writeRequestsCounter(actionName: String, requestCounters: RequestCounters): Fastring = {
+    def writeRequestsCounter(actionName: String, requestCounters: RequestCounters): Fastring = {
 
-        import requestCounters._
+      import requestCounters._
 
-        fast"> ${actionName.rightPad(outputLength - 24)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
-      }
+      fast"> ${actionName.rightPad(outputLength - 24)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
+    }
 
-      def writeErrors(): Fastring = {
-
-        if (!errorsCounters.isEmpty) {
-          fast"""${writeSubTitle("Errors")}
-${errorsCounters.toVector.sortBy(_._2).reverse.map(err => ConsoleErrorsWriter.writeError(err._1, err._2, globalRequestCounters.failedCount)).mkFastring(eol)}
+    def writeErrors(): Fastring =
+      if (!errorsCounters.isEmpty) {
+        fast"""${writeSubTitle("Errors")}
+${errorsCounters.toVector.sortBy(-_._2).map(err => ConsoleErrorsWriter.writeError(err._1, err._2, globalRequestCounters.failedCount)).mkFastring(eol) }
 """
-        } else {
-          fast""
-        }
+      } else {
+        fast""
       }
+    
 
     val text = fast"""
 $newBlock
