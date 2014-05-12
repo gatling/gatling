@@ -30,7 +30,7 @@ object ConsoleErrorsWriter {
 
     val currLen = errorMsgLen - 4;
     val firstLineLen = currLen.min(msg.length)
-    val firstLine = fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.leftPad(6)} (${percent.leftPad(5)}%)"
+    val firstLine = fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.filled(6)} (${percent.leftPad(5)}%)"
 
     if (currLen < msg.length) {
       val secondLine = msg.substring(currLen)
