@@ -41,16 +41,7 @@ object ConsoleTemplate {
         ConsoleErrorsWriter.writeError(error.message, error.count, error.percentage)
       }
 
-    val header = ConsoleErrorsWriter.writeHeader()
-
-    val errors = dataReader.errors(None, None)
-
-    if (!errors.isEmpty) {
-      val errorsStr = errors.map(writeError(_))
-      (header +: errorsStr).mkFastring(eol)
-    } else {
-      fast""
-    }
+    dataReader.errors(None, None).map(writeError).mkFastring(eol)
   }
 
   def apply(dataReader: DataReader, requestStatistics: RequestStatistics): String = {

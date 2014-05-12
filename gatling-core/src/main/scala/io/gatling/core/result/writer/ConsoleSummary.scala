@@ -66,14 +66,10 @@ object ConsoleSummary {
       }
 
       def writeErrors(): Fastring = {
-          def percent(count: Int) = {
-            count.toDouble * 100 / globalRequestCounters.failedCount
-          }
 
         if (!errorsCounters.isEmpty) {
           fast"""${writeSubTitle("Errors")}
-${ConsoleErrorsWriter.writeHeader()}
-${errorsCounters.toVector.sortBy(_._2).reverse.map(err => ConsoleErrorsWriter.writeError(err._1, err._2, percent(err._2))).mkFastring(eol)}
+${errorsCounters.toVector.sortBy(_._2).reverse.map(err => ConsoleErrorsWriter.writeError(err._1, err._2, globalRequestCounters.failedCount)).mkFastring(eol)}
 """
         } else {
           fast""

@@ -25,16 +25,12 @@ object ConsoleErrorsWriter {
   val errorCountLen = 14
   val errorMsgLen = ConsoleSummary.outputLength - errorCountLen
 
-  def writeHeader() = {
-    fast"${"msg".rightPad(errorMsgLen)}count"
-  }
+  def writeError(msg: String, count: Int, totalCount: Int): Fastring = {
+    val percent = if (count == totalCount) "100.0" else f"${count.toDouble * 100 / totalCount}%3.2f"
 
-  def writeError(msg: String, count: Int, percent: Double): Fastring = {
-    val percentStr = f"$percent%3.2f"
-
-    val currLen = errorMsgLen - 3;
-    val firstLineLen = Math.min(msg.length, currLen)
-    val firstLine = fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.rightPad(5)} ${percentStr.leftPad(7)}%"
+    val currLen = errorMsgLen - 4;
+    val firstLineLen = currLen.min(msg.length)
+    val firstLine = fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.toString.leftPad(6)} (${percent.leftPad(5)}%)"
 
     if (currLen < msg.length) {
       val secondLine = msg.substring(currLen)
