@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.report
 
-import scala.annotation.tailrec
+import scala.collection.breakOut
 
 import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Statistics }
 import io.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, jsonStatsFile }
@@ -86,7 +86,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
     val statsPaths = dataReader.statsPaths
 
-    val groupStatsPaths = statsPaths.collect { case path: GroupStatsPath => path.group.hierarchy.reverse -> path }.toMap
+    val groupStatsPaths: Map[List[String], GroupStatsPath] = statsPaths.collect { case path: GroupStatsPath => path.group.hierarchy.reverse -> path }(breakOut)
     val seenGroups = collection.mutable.HashSet.empty[List[String]]
 
       def addGroupsRec(hierarchy: List[String]) {

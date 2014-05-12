@@ -55,7 +55,7 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
 
         val groupAndRequestHierarchy = requestName match {
           case Some(req) => groupHierarchy :+ req
-          case _ => groupHierarchy
+          case _         => groupHierarchy
         }
 
         s"""var pageStats = stats.contents['${groupAndRequestHierarchy.map(_.toFileName).mkString("'].contents['")}'].stats;"""

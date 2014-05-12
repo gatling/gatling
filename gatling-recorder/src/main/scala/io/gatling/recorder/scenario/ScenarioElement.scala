@@ -18,6 +18,7 @@ package io.gatling.recorder.scenario
 import java.net.URI
 import java.nio.charset.Charset
 
+import scala.collection.breakOut
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.concurrent.duration.FiniteDuration
 import scala.io.Codec.UTF8
@@ -53,7 +54,7 @@ object RequestElement {
     } else None
 
   def apply(request: HttpRequest, response: HttpResponse): RequestElement = {
-    val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }.toMap
+    val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }(breakOut)
     val requestContentType = requestHeaders.get(CONTENT_TYPE)
     val responseContentType = Option(response.headers().get(CONTENT_TYPE))
 

@@ -18,6 +18,7 @@ package io.gatling.http.fetch
 import java.net.URI
 
 import scala.collection.JavaConversions._
+import scala.collection.breakOut
 import scala.collection.concurrent
 import scala.collection.mutable
 
@@ -131,8 +132,11 @@ object ResourceFetcher extends StrictLogging {
 
   private def resourceFetcher(tx: HttpTx, inferredResources: List[NamedRequest], explicitResources: List[NamedRequest]) = {
 
-    val uniqueResources = inferredResources.map(res => res.ahcRequest.getURI -> res).toMap ++
-      explicitResources.map(res => res.ahcRequest.getURI -> res).toMap
+    val uniqueResources: Map[URI, NamedRequest] = {
+      val inf: Map[URI, NamedRequest] = inferredResources.map(res => res.ahcRequest.getURI -> res)(breakOut)
+      val exp: Map[URI, NamedRequest] = explicitResources.map(res => res.ahcRequest.getURI -> res)(breakOut)
+      inf ++ exp
+    }
 
     if (uniqueResources.isEmpty)
       None

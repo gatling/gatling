@@ -15,6 +15,7 @@
  */
 package io.gatling.core.feeder
 
+import scala.collection.breakOut
 import scala.io.Source
 
 import au.com.bytecode.opencsv.CSVParser
@@ -33,6 +34,6 @@ object SeparatedValuesParser {
     val parser = new CSVParser(separator, doubleQuote)
     val rawLines = source.getLines.map(parser.parseLine)
     val headers = rawLines.next
-    rawLines.map(headers.zip(_).toMap)
+    rawLines.map(headers.zip(_)(breakOut))
   }
 }

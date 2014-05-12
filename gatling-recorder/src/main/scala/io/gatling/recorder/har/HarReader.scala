@@ -18,6 +18,7 @@ package io.gatling.recorder.har
 import java.io.{ FileInputStream, InputStream }
 import java.net.{ URI, URL }
 
+import scala.collection.breakOut
 import scala.util.Try
 
 import io.gatling.core.util.IOHelper.withCloseable
@@ -82,7 +83,7 @@ object HarReader {
 
   private def buildHeaders(entry: Entry): Map[String, String] = {
     // Chrome adds extra headers, eg: ":host". We should have them in the Gatling scenario.
-    val headers = entry.request.headers.filter(!_.name.startsWith(":")).map(h => (h.name, h.value)).toMap
+    val headers: Map[String, String] = entry.request.headers.filter(!_.name.startsWith(":")).map(h => (h.name, h.value))(breakOut)
 
     // NetExport doesn't add Content-Type to headers when POSTing, but both Chrome Dev Tools and NetExport set mimeType
     entry.request.postData.map(postData => headers.updated(CONTENT_TYPE, postData.mimeType)).getOrElse(headers)

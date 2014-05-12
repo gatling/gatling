@@ -17,6 +17,7 @@ package io.gatling.charts.result.reader
 
 import java.io.{ FileInputStream, InputStream }
 
+import scala.collection.breakOut
 import scala.collection.mutable
 import scala.io.Source
 
@@ -201,8 +202,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
                 }
 
                 (responseTimeBucket, percent(bucketSize))
-            }
-            .toMap
+            }(breakOut)
 
           buckets.map {
             bucket => PercentVsTimePlot(bucket, bucketsWithValues.getOrElse(bucket, 0.0))

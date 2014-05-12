@@ -18,6 +18,7 @@ package io.gatling.jdbc.feeder
 import java.sql.DriverManager
 import java.sql.ResultSet.{ CONCUR_READ_ONLY, TYPE_FORWARD_ONLY }
 import scala.annotation.tailrec
+import scala.collection.breakOut
 
 import io.gatling.core.feeder.Record
 import io.gatling.jdbc.util.SQLHelper.withConnection
@@ -34,7 +35,7 @@ object JdbcFeederSource {
       val columnNames = for (i <- 1 to columnCount) yield metadata.getColumnName(i)
 
         def computeRecord: Record[Any] =
-          (for (i <- 1 to columnCount) yield columnNames(i - 1) -> resultSet.getObject(i)).toMap
+          (for (i <- 1 to columnCount) yield columnNames(i - 1) -> resultSet.getObject(i))(breakOut)
 
         @tailrec
         def loadRec(records: Vector[Record[Any]]): Vector[Record[Any]] =

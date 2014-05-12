@@ -17,6 +17,7 @@ package io.gatling.http.feeder
 
 import java.io.InputStream
 
+import scala.collection.breakOut
 import scala.collection.mutable
 import scala.xml.Node
 
@@ -59,12 +60,12 @@ object SitemapParser {
     val urlsetElem = scala.xml.XML.load(inputStream)
     (urlsetElem \ "url").foreach(url => {
 
-      val record = url.child.collect {
+      val record: Map[String, String] = url.child.collect {
         case node: xml.Elem =>
           val nodeName = name(node)
           val textValue = text(node)
           nodeName -> textValue
-      }.toMap
+      }(breakOut)
 
       if (!record.contains(LOCATION_TAG) || record(LOCATION_TAG).isEmpty)
         throw new SitemapFormatException("No 'loc' child in 'url' element")

@@ -15,6 +15,7 @@
  */
 package io.gatling.core.action.builder
 
+import scala.collection.breakOut
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.action.Switch
@@ -28,11 +29,11 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
   def build(next: ActorRef, protocols: Protocols) = {
 
-    val possibleActions = possibilities.map {
+    val possibleActions: Map[Any, ActorRef] = possibilities.map {
       case (percentage, possibility) =>
         val possibilityAction = possibility.build(next, protocols)
         (percentage, possibilityAction)
-    }.toMap
+    }(breakOut)
 
     val elseNextActor = elseNext.map(_.build(next, protocols)).getOrElse(next)
 
