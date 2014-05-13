@@ -20,42 +20,44 @@ import java.util.concurrent.atomic.AtomicReference
 
 import scala.concurrent.duration._
 
-import org.jboss.netty.util.{ Timeout, TimerTask, Timer }
+import akka.actor.Cancellable
 import io.gatling.core.akka.AkkaDefaults
+import org.jboss.netty.util.{ Timeout, TimerTask, Timer }
 
 class AkkaNettyTimer extends Timer with AkkaDefaults {
 
   def newTimeout(task: TimerTask, delay: Long, unit: TimeUnit): Timeout = {
 
-    val timeoutRef = new AtomicReference[Timeout]
+    val cancellableRef = new AtomicReference[Cancellable]
 
-      def timeoutRefValue: Timeout = {
-        var value: Timeout = null
+      def cancellableRefValue: Cancellable = {
+        var value: Cancellable = null
         do {
-          value = timeoutRef.get
+          value = cancellableRef.get
         } while (value == null)
         value
       }
 
-    val cancellable = system.scheduler.scheduleOnce(unit.toNanos(delay) nanoseconds) {
-      task.run(timeoutRefValue)
-    }
-
     val timeout = new Timeout {
-      def getTimer: Timer = throw new UnsupportedOperationException("getTimer is not supported")
+
+      def getTimer: Timer = AkkaNettyTimer.this
 
       def getTask: TimerTask = task
 
       def isExpired: Boolean = throw new UnsupportedOperationException("isExpired is not supported")
 
-      def isCancelled: Boolean = cancellable.isCancelled
+      def isCancelled: Boolean = cancellableRefValue.isCancelled
 
       def cancel() {
-        cancellable.cancel()
+        cancellableRefValue.cancel()
       }
     }
 
-    timeoutRef.set(timeout)
+    val cancellable = system.scheduler.scheduleOnce(unit.toNanos(delay) nanoseconds) {
+      task.run(timeout)
+    }
+
+    cancellableRef.set(cancellable)
 
     timeout
   }
