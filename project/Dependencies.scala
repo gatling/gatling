@@ -22,7 +22,7 @@ object Dependencies {
   private val scopt                          = "com.github.scopt"          %% "scopt"              % "3.2.0"
   private val scalalogging                   = "com.typesafe"              %% "scalalogging-slf4j" % "1.1.0"
   private val jackson                        = "com.fasterxml.jackson.core" % "jackson-databind"   % "2.4.0-rc3"
-  private val boon                           = "io.fastjson"                % "boon"               % "0.14"
+  private val boon                           = "io.fastjson"                % "boon"               % "0.17"
   private val jsonpath                       = "io.gatling"                %% "jsonpath"           % "0.4.1"
   private val commonsMath                    = "org.apache.commons"         % "commons-math3"      % "3.2"
   private val joddLagarto                    = "org.jodd"                   % "jodd-lagarto"       % "3.5"
