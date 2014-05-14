@@ -52,18 +52,16 @@ class InnerLoop(continueCondition: Expression[Boolean], loopNext: ActorRef, coun
    */
   def execute(session: Session) {
 
-    if (!session.contains(counterName))
-      loopNext ! session.enterLoop(counterName, continueCondition, self, exitASAP)
-
-    else {
-      val incrementedSession = session.incrementCounter(counterName)
-
-      if (LoopBlock.continue(continueCondition, incrementedSession))
-        // TODO maybe find a way not to reevaluate in case
-        loopNext ! incrementedSession
-
+    val incrementedSession =
+      if (!session.contains(counterName))
+        session.enterLoop(counterName, continueCondition, self, exitASAP)
       else
-        next ! session.exitLoop
-    }
+        session.incrementCounter(counterName)
+
+    if (LoopBlock.continue(continueCondition, incrementedSession))
+      // TODO maybe find a way not to reevaluate in case of exitASAP
+      loopNext ! incrementedSession
+    else
+      next ! incrementedSession.exitLoop
   }
 }
