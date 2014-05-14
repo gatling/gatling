@@ -76,7 +76,7 @@ class GeneralStatsBuffer(duration: Long) extends CountBuffer {
   }
 
   lazy val stats: GeneralStats = {
-    val valuesCount = digest.size()
+    val valuesCount = digest.size.toInt
     if (valuesCount == 0) {
       GeneralStats.NO_PLOT
 
@@ -85,10 +85,11 @@ class GeneralStatsBuffer(duration: Long) extends CountBuffer {
       val meanRequestsPerSec = valuesCount / (duration / FileDataReader.secMillisecRatio)
       val stdDev = math.round(StatsHelper.stdDev(squareSum / valuesCount.toDouble, meanResponseTime)).toInt
 
-      val percentiles = (digest.quantile(configuration.charting.indicators.percentile1 / 100.0), digest.quantile(configuration.charting.indicators.percentile2 / 100.0))
-      val min = digest.quantile(0)
-      val max = digest.quantile(1)
-      GeneralStats(min.toInt, max.toInt, valuesCount, meanResponseTime, stdDev, percentiles._1.toInt, percentiles._2.toInt, meanRequestsPerSec)
+      val percentile1 = (digest.quantile(configuration.charting.indicators.percentile1 / 100.0)).toInt
+      val percentile2 = (digest.quantile(configuration.charting.indicators.percentile2 / 100.0)).toInt
+      val min = digest.quantile(0).toInt
+      val max = digest.quantile(1).toInt
+      GeneralStats(min.toInt, max.toInt, valuesCount, meanResponseTime, stdDev, percentile1, percentile2, meanRequestsPerSec)
     }
   }
 }
