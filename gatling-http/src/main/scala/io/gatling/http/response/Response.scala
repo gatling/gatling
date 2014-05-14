@@ -74,7 +74,7 @@ case class HttpResponse(
   val statusCode = status.map(_.getStatusCode)
 
   def reponseTimeInMillis = lastByteReceived - firstByteSent
-  def latencyInMillis = firstByteReceived - firstByteReceived
+  def latencyInMillis = firstByteReceived - lastByteSent
 
   val isRedirect = status match {
     case Some(s) => HttpHelper.isRedirect(s.getStatusCode)
