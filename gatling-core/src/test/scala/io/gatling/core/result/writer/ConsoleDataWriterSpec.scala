@@ -103,28 +103,28 @@ class ConsoleDataWriterSpec extends Specification {
         requestCounters, errorsCounters1, time)
 
       requestsInfo(summary1) must be equalTo (
-        """---- Requests ------------------------------------------------------------------
+        s"""---- Requests ------------------------------------------------------------------
           |> Global                                                   (OK=0      KO=20    )
           |> request1                                                 (OK=0      KO=20    )
           |---- Errors --------------------------------------------------------------------
-          |> error1                                                             19 (95.00%)
-          |> error2                                                              1 ( 5.00%)
+          |> error1                                                             19 (${ConsoleErrorsWriter.formatPercent(95.0)}%)
+          |> error2                                                              1 ( ${ConsoleErrorsWriter.formatPercent(5.0)}%)
           |================================================================================""".stripMargin)
     }
-    
+
     "display requests with high number of errors" in {
       val requestCounters = Map("request1" -> new RequestCounters(0, 123456))
-      val loremIpsum =  "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+      val loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
       val errorsCounters = Map(loremIpsum -> 123456)
       val summary = ConsoleSummary(10000, Map("request1" -> new UserCounters(11)), new RequestCounters(0, 123456),
         requestCounters, errorsCounters, time)
 
       requestsInfo(summary) must be equalTo (
-        """---- Requests ------------------------------------------------------------------
+        s"""---- Requests ------------------------------------------------------------------
           |> Global                                                   (OK=0      KO=123456)
           |> request1                                                 (OK=0      KO=123456)
           |---- Errors --------------------------------------------------------------------
-          |> Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed  123456 (100.0%)
+          |> Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed  123456 (${ConsoleErrorsWriter.formatPercent(100.0)}%)
           |do eiusmod tempor incididunt ut labore et dolore magna aliqua....
           |================================================================================""".stripMargin)
     }
