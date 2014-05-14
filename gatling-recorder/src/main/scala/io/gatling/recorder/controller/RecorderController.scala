@@ -92,9 +92,8 @@ class RecorderController extends StrictLogging {
         ScenarioExporter.saveScenario(scenario)
       }
 
-      proxy.shutdown()
-
     } finally {
+      proxy.shutdown()
       clearRecorderState()
       frontEnd.init()
     }
