@@ -1,0 +1,15 @@
+body {
+	background-color:#DCDBD4;
+	color:#555;
+}
+.table{
+	background-color:white;
+	border-radius: 10px
+}
+.table p {
+	color:#222;
+}
+h1,h2 { color:#E37400;}
+h2 > small {
+	color: #555;
+}

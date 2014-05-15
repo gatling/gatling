@@ -26,7 +26,15 @@ For legal reasons, Gatling is divided into two projects. The first one is Gatlin
 
 |  
 
-4. Since Gatling is Scala-based, you'll also need **SBT** (Scala Build Tool) to build it. The simplest way to install it if you're on Unix is to run ``sudo apt-get install sbt``. You can refer to the official `installation guide <http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html>`_ for other systems.
+4. Since Gatling is Scala-based, you'll also need **SBT** (Scala Build Tool) to build it. You can refer to the official `installation guide <http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html>`_. The simplest way to install it if you're on Unix is to run :
+
+::
+
+  wget http://apt.typesafe.com/repo-deb-build-0002.deb
+  sudo dpkg -i repo-deb-build-0002.deb
+  sudo apt-get update
+  sudo apt-get install sbt
+
 5. Now go into the *gatling* folder with a command prompt and start SBT's interactive mode with ``sbt``. Then just run the ``publishLocal`` command to publish the project's artifacts to the local Ivy repository. Type ``exit`` to return to your command prompt.
 6. Go to your *gatling-highcharts* folder and with SBT's interactive mode run ``;update;clean;publishLocal``. This will resolve highcharts' dependencies, clean the target directories and give us what we need. For more informations on SBT's commands, feel free to check the `command line reference <http://www.scala-sbt.org/release/docs/Detailed-Topics/Command-Line-Reference>`_. 
 7. Finally, you can use your explorer to go to your ``gatling-highcharts/target/`` which should look like this :
