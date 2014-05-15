@@ -15,30 +15,20 @@
  */
 package io.gatling.recorder
 
+case class CommandLineConstant(full: String, abbr: String)
+
 object CommandLineConstants {
 
-  val HELP = "help"
-  val HELP_SHORT = "h"
-  val LOCAL_PORT = "local-port"
-  val LOCAL_PORT_SHORT = "lp"
-  val LOCAL_PORT_SSL = "local-port-ssl"
-  val LOCAL_PORT_SSL_SHORT = "lps"
-  val PROXY_HOST = "proxy-host"
-  val PROXY_HOST_SHORT = "ph"
-  val PROXY_PORT = "proxy_port"
-  val PROXY_PORT_SHORT = "pp"
-  val PROXY_PORT_SSL = "proxy-port-ssl"
-  val PROXY_PORT_SSL_SHORT = "pps"
-  val OUTPUT_FOLDER = "output-folder"
-  val OUTPUT_FOLDER_SHORT = "of"
-  val REQUEST_BODIES_FOLDER = "request-bodies-folder"
-  val REQUEST_BODIES_FOLDER_SHORT = "rbf"
-  val CLASS_NAME = "class-name"
-  val CLASS_NAME_SHORT = "cn"
-  val PACKAGE = "package"
-  val PACKAGE_SHORT = "pkg"
-  val ENCODING = "encoding"
-  val ENCODING_SHORT = "enc"
-  val FOLLOW_REDIRECT = "follow-redirect"
-  val FOLLOW_REDIRECT_SHORT = "fr"
+  val Help = CommandLineConstant("help", "h")
+  val LocalPort = CommandLineConstant("local-port", "lp")
+  val LocalPortSsl = CommandLineConstant("local-port-ssl", "lps")
+  val ProxyHost = CommandLineConstant("proxy-host", "ph")
+  val ProxyPort = CommandLineConstant("proxy_port", "pp")
+  val ProxyPortSsl = CommandLineConstant("proxy-port-ssl", "pps")
+  val OutputFolder = CommandLineConstant("output-folder", "of")
+  val RequestBodiesFolder = CommandLineConstant("request-bodies-folder", "rbf")
+  val ClassName = CommandLineConstant("class-name", "cn")
+  val Package = CommandLineConstant("package", "pkg")
+  val Encoding = CommandLineConstant("encoding", "enc")
+  val FollowRedirect = CommandLineConstant("follow-redirect", "fr")
 }
