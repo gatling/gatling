@@ -17,12 +17,9 @@ package io.gatling.core.util
 
 import java.io.{ File => JFile }
 import java.net.{ URISyntaxException, URL }
-import java.security.MessageDigest
 
 import scala.util.Try
 
-import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.StringHelper.{ RichString, bytes2Hex }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 /**
@@ -33,28 +30,6 @@ object FileHelper {
   val commaSeparator = ","
   val semicolonSeparator = ";"
   val tabulationSeparator = "\t"
-
-  implicit class FileRichString(val string: String) extends AnyVal {
-
-    /**
-     * Transform a string to a simpler one that can be used safely as file name
-     *
-     * @return a simplified string
-     */
-    def toFileName = {
-
-      val trimmed = string.trim match {
-        case "" => "missing_name"
-        case s  => s
-      }
-
-      val md = MessageDigest.getInstance("md5")
-      md.update(trimmed.getBytes(configuration.core.charset))
-      trimmed.clean + "-" + bytes2Hex(md.digest)
-    }
-
-    def toRequestFileName = s"req_${string.toFileName}.html"
-  }
 
   implicit class RichURL(val url: URL) extends AnyVal {
 

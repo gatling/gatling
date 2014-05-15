@@ -17,12 +17,11 @@ package io.gatling.charts.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
+import io.gatling.core.util.StringHelper.RichString
+import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.report.{ GroupContainer, RequestContainer }
 import io.gatling.charts.report.Container.{ GROUP, REQUEST }
-import io.gatling.core.util.FileHelper.FileRichString
-import io.gatling.core.util.HtmlHelper.HtmlRichString
-import io.gatling.core.util.StringHelper.RichString
 
 class StatsJsTemplate(stats: GroupContainer) {
 

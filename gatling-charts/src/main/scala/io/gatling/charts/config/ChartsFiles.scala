@@ -19,7 +19,7 @@ import scala.tools.nsc.io.Path
 import scala.tools.nsc.io.Path.string2path
 
 import io.gatling.core.config.GatlingFiles.{ GATLING_JS, resultDirectory }
-import io.gatling.core.util.FileHelper.FileRichString
+import io.gatling.charts.FileNamingConventions
 
 object ChartsFiles {
   val JQUERY_FILE = "jquery.min.js"
