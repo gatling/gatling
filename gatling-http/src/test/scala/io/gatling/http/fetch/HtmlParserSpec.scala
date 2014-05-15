@@ -24,10 +24,10 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import io.gatling.core.util.IOHelper.withCloseable
+import io.gatling.core.util.IO
 
 @RunWith(classOf[JUnitRunner])
-class HtmlParserSpec extends Specification {
+class HtmlParserSpec extends Specification with IO {
 
   "parsing Akka.io page" should {
 

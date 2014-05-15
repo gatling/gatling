@@ -25,10 +25,10 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
 import io.gatling.core.session.Expression
 import io.gatling.core.session.el.EL
-import io.gatling.core.util.IOHelper.withCloseable
+import io.gatling.core.util.IO
 import io.gatling.core.validation.Validation
 
-object ELFileBodies {
+object ELFileBodies extends IO {
 
   val cache: concurrent.Map[String, Validation[Expression[String]]] = new ConcurrentHashMapV8[String, Validation[Expression[String]]]
   private val cacheELFileBodies = configuration.http.cacheELFileBodies

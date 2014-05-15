@@ -24,7 +24,7 @@ import scala.tools.nsc.io.Path.string2path
 import org.apache.commons.io.FileUtils.copyInputStreamToFile
 
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
-import io.gatling.core.util.FileHelper.RichURL
+import io.gatling.core.util.IO._
 
 object Resource {
 

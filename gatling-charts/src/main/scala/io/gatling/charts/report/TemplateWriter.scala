@@ -20,9 +20,9 @@ import scala.tools.nsc.io.{ File, Path }
 import com.dongxiguo.fastring.Fastring
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.IOHelper.withCloseable
+import io.gatling.core.util.IO
 
-class TemplateWriter(path: Path) {
+class TemplateWriter(path: Path) extends IO {
 
   def writeToFile(output: Fastring) {
     withCloseable(File(path)(configuration.core.codec).writer()) { output.appendTo }

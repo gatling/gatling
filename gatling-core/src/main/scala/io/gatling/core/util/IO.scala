@@ -15,12 +15,35 @@
  */
 package io.gatling.core.util
 
-import java.io.Closeable
-
+import java.io.{ Closeable, File => JFile }
+import java.net.{ URISyntaxException, URL }
 import scala.io.Source
+import scala.util.Try
 
-object IOHelper {
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
+object IO {
+
+  implicit class RichURL(val url: URL) extends AnyVal {
+
+    def jfile: JFile = Try(new JFile(url.toURI))
+      .recover { case e: URISyntaxException => new JFile(url.getPath) }
+      .get
+  }
+
+  implicit class RichFile(val file: JFile) extends AnyVal {
+
+    def validateExistingReadable: Validation[JFile] =
+      if (!file.exists)
+        s"File $file doesn't exist".failure
+      else if (!file.canRead)
+        s"File $file can't be read".failure
+      else
+        file.success
+  }
+}
+
+trait IO {
   def withCloseable[T, C <: Closeable](closeable: C)(block: C => T) = {
     try
       block(closeable)

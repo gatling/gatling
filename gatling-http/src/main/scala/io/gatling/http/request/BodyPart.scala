@@ -21,7 +21,7 @@ import com.ning.http.multipart.{ ByteArrayPartSource, FilePart, FilePartSource, 
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, RichExpression, Session, resolveOptionalExpression }
-import io.gatling.core.util.FileHelper.RichFile
+import io.gatling.core.util.IO._
 import io.gatling.core.validation.Validation
 
 object BodyPart {

@@ -23,8 +23,7 @@ import scala.tools.nsc.io.{ File, Fileish, Jar, Path }
 
 import org.apache.commons.io.IOUtils
 
-import io.gatling.core.util.FileHelper.RichURL
-import io.gatling.core.util.IOHelper.withCloseable
+import io.gatling.core.util.IO._
 
 object ScanHelper {
 
@@ -87,7 +86,7 @@ case class FileResource(file: File) extends Resource {
   }
 }
 
-case class FileishResource(fileish: Fileish) extends Resource {
+case class FileishResource(fileish: Fileish) extends Resource with IO {
   def path = fileish.path
   def copyTo(target: Path) {
     target.parent.createDirectory()

@@ -28,13 +28,13 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
-import io.gatling.core.util.IOHelper.withCloseable
-import io.gatling.core.util.StringHelper.{ RichString }
+import io.gatling.core.util.IO
+import io.gatling.core.util.StringHelper.RichString
 import io.gatling.recorder.config.ConfigurationConstants._
 import io.gatling.recorder.enumeration.FilterStrategy
 import io.gatling.recorder.enumeration.FilterStrategy.FilterStrategy
 
-object RecorderConfiguration extends StrictLogging {
+object RecorderConfiguration extends IO with StrictLogging {
 
   implicit class IntOption(val value: Int) extends AnyVal {
     def toOption = if (value != 0) Some(value) else None
