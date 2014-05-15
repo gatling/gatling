@@ -18,7 +18,7 @@ package io.gatling.core.feeder
 import scala.reflect.io.File
 
 import io.gatling.core.config.Resource
-import io.gatling.core.util.FileHelper.{ commaSeparator, semicolonSeparator, tabulationSeparator }
+import SeparatedValuesParser.{ CommaSeparator, SemicolonSeparator, TabulationSeparator }
 import io.gatling.core.validation.{ Failure, Success, Validation }
 
 trait FeederSupport {
@@ -30,11 +30,11 @@ trait FeederSupport {
   implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
 
   def csv(file: File): RecordSeqFeederBuilder[String] = csv(file.path)
-  def csv(fileName: String): RecordSeqFeederBuilder[String] = separatedValues(fileName, commaSeparator.charAt(0))
+  def csv(fileName: String): RecordSeqFeederBuilder[String] = separatedValues(fileName, CommaSeparator)
   def ssv(file: File): RecordSeqFeederBuilder[String] = ssv(file.path)
-  def ssv(fileName: String): RecordSeqFeederBuilder[String] = separatedValues(fileName, semicolonSeparator.charAt(0))
+  def ssv(fileName: String): RecordSeqFeederBuilder[String] = separatedValues(fileName, SemicolonSeparator)
   def tsv(file: File): RecordSeqFeederBuilder[String] = tsv(file.path)
-  def tsv(fileName: String): RecordSeqFeederBuilder[String] = separatedValues(fileName, tabulationSeparator.charAt(0))
+  def tsv(fileName: String): RecordSeqFeederBuilder[String] = separatedValues(fileName, TabulationSeparator)
 
   def separatedValues(fileName: String, separator: Char, quoteChar: Char = '"'): RecordSeqFeederBuilder[String] = separatedValues(Resource.feeder(fileName), separator, quoteChar)
 

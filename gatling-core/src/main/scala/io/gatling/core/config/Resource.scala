@@ -32,7 +32,7 @@ object Resource {
     def unapply(location: Location): Option[Validation[Resource]] =
       Option(getClass.getClassLoader.getResource(location.path.toString().replace('\\', '/'))).map { url =>
         url.getProtocol match {
-          case "file" => FileResource(File(url.jfile())).success
+          case "file" => FileResource(File(url.jfile)).success
           case "jar"  => ArchiveResource(url, location.path.extension).success
           case _      => s"$url is neither a file nor a jar".failure
         }

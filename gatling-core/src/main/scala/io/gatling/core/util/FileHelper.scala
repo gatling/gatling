@@ -27,13 +27,9 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
  */
 object FileHelper {
 
-  val commaSeparator = ","
-  val semicolonSeparator = ";"
-  val tabulationSeparator = "\t"
-
   implicit class RichURL(val url: URL) extends AnyVal {
 
-    def jfile(): JFile = Try(new JFile(url.toURI))
+    def jfile: JFile = Try(new JFile(url.toURI))
       .recover { case e: URISyntaxException => new JFile(url.getPath) }
       .get
   }

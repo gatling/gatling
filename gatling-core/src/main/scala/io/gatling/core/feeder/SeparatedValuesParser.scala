@@ -25,6 +25,10 @@ import io.gatling.core.util.IOHelper.withSource
 
 object SeparatedValuesParser {
 
+  val CommaSeparator = ','
+  val SemicolonSeparator = ';'
+  val TabulationSeparator = '\t'
+
   def parse(resource: Resource, separator: Char, doubleQuote: Char): IndexedSeq[Record[String]] =
     withSource(Source.fromInputStream(resource.inputStream)(configuration.core.codec)) { source =>
       stream(source, separator, doubleQuote).toVector
