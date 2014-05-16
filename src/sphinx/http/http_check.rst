@@ -314,7 +314,7 @@ Checks that the value belongs to a given sequence.
 
 .. _http-check-whatever:
 
-* ``dontValidte``
+* ``dontValidate``
 
 Always true, used for capture an optional value.
 

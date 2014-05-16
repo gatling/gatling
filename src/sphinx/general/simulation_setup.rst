@@ -34,7 +34,7 @@ E.g.::
 
 The building blocks for profile injection the way you want are:
 
-1. ``nothingFor(duration)``: Injects any user for a given duration.
+1. ``nothingFor(duration)``: Pause for a given duration.
 2. ``atOnceUsers(nbUsers)``: Injects a given number of user at once.
 3. ``rampUsers(nbUsers) over(duration)``: Injects a given number of users with a linear ramp over a given duration.
 4. ``constantUsersPerSec(rate) during(duration)``: Injects users at a constant rate, defined in users per second, during a given duration.
@@ -65,7 +65,7 @@ The pauses can be configure on ``Simulation`` with a bunch of methods:
 Throttling
 ==========
 
-If you want reason in term of request per second and not in term of users, Gatling support throttling with the ``throttle`` method, e.g.::
+If you want to reason in terms of request per second and not in terms of users, Gatling support throttling with the ``throttle`` method, e.g.::
 
   setUp(...).throttle(reachRps(100) in (10 seconds), holdFor(1 minute), jumpToRps(50), holdFor(2 hours))
 
