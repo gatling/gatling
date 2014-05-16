@@ -17,6 +17,7 @@ package io.gatling.core.result.writer
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.util.StringHelper._
+import io.gatling.core.result.ErrorStats
 
 /**
  * Object for writing errors statistics to the console.
@@ -28,8 +29,9 @@ object ConsoleErrorsWriter {
   def formatPercent(percent: Double): String = f"$percent%3.2f"
   val OneHundredPercent: String = formatPercent(100)
 
-  def writeError(msg: String, count: Int, totalCount: Int): Fastring = {
-    val percent = if (count == totalCount) OneHundredPercent else formatPercent(count.toDouble * 100 / totalCount)
+  def writeError(errors: ErrorStats): Fastring = {
+    val ErrorStats(msg, count, _) = errors
+    val percent = formatPercent(errors.percentage)
 
     val currLen = errorMsgLen - 4
     val firstLineLen = currLen.min(msg.length)

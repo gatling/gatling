@@ -302,6 +302,6 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
   def errors(requestName: Option[String], group: Option[Group]): Seq[ErrorStats] = {
     val buff = resultsHolder.getErrorsBuffers(requestName, group)
     val total = buff.foldLeft(0)(_ + _._2)
-    buff.toSeq.map { case (name, count) => ErrorStats(name, count, count * 100 / total) }.sortWith(_.count > _.count)
+    buff.toSeq.map { case (name, count) => ErrorStats(name, count, total) }.sortWith(_.count > _.count)
   }
 }

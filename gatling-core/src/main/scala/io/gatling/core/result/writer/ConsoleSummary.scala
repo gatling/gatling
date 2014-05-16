@@ -25,6 +25,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.{ RichString, eol }
+import io.gatling.core.result.ErrorStats
 
 object ConsoleSummary {
 
@@ -68,7 +69,7 @@ object ConsoleSummary {
       def writeErrors(): Fastring =
         if (!errorsCounters.isEmpty) {
           fast"""${writeSubTitle("Errors")}
-${errorsCounters.toVector.sortBy(-_._2).map(err => ConsoleErrorsWriter.writeError(err._1, err._2, globalRequestCounters.failedCount)).mkFastring(eol)}
+${errorsCounters.toVector.sortBy(-_._2).map(err => ConsoleErrorsWriter.writeError(ErrorStats(err._1, err._2, globalRequestCounters.failedCount))).mkFastring(eol)}
 """
         } else {
           fast""
