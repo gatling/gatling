@@ -23,7 +23,6 @@ import io.gatling.core.result.writer.ConsoleSummary.{ newBlock, outputLength, wr
 import io.gatling.core.util.StringHelper.{ eol, RichString }
 import io.gatling.core.result.writer.ConsoleErrorsWriter
 import io.gatling.core.result.reader.DataReader
-import io.gatling.core.result.ErrorStats
 
 object ConsoleTemplate {
 
@@ -37,11 +36,7 @@ object ConsoleTemplate {
   }
 
   def writeErrors(dataReader: DataReader): Fastring = {
-      def writeError(error: ErrorStats): Fastring = {
-        ConsoleErrorsWriter.writeError(error.message, error.count, error.percentage)
-      }
-
-    dataReader.errors(None, None).map(writeError).mkFastring(eol)
+    dataReader.errors(None, None).map(ConsoleErrorsWriter.writeError).mkFastring(eol)
   }
 
   def apply(dataReader: DataReader, requestStatistics: RequestStatistics): String = {
