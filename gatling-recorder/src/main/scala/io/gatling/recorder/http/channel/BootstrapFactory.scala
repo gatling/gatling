@@ -20,12 +20,11 @@ import org.jboss.netty.channel.{ ChannelPipeline, ChannelPipelineFactory, Channe
 import org.jboss.netty.channel.socket.nio.{ NioClientSocketChannelFactory, NioServerSocketChannelFactory }
 import org.jboss.netty.handler.codec.http.{ HttpChunkAggregator, HttpClientCodec, HttpContentCompressor, HttpContentDecompressor, HttpRequestDecoder, HttpResponseEncoder }
 import org.jboss.netty.handler.ssl.SslHandler
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
-
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.handler.{ ClientHttpRequestHandler, ClientHttpsRequestHandler }
 import io.gatling.recorder.http.ssl.SSLEngineFactory
+import io.gatling.recorder.http.handler.ClientPortUnifiedRequestHandler
 
 object BootstrapFactory extends StrictLogging {
 
@@ -67,7 +66,7 @@ object BootstrapFactory extends StrictLogging {
         pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
         pipeline.addLast("encoder", new HttpResponseEncoder)
         pipeline.addLast("deflater", new HttpContentCompressor)
-        pipeline.addLast(GATLING_HANDLER_NAME, if (ssl) new ClientHttpsRequestHandler(proxy) else new ClientHttpRequestHandler(proxy))
+        pipeline.addLast(GATLING_HANDLER_NAME, new ClientPortUnifiedRequestHandler(proxy))
         pipeline
       }
     })
