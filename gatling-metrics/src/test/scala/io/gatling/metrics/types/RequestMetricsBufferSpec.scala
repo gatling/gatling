@@ -26,8 +26,11 @@ import io.gatling.core.ConfigurationConstants._
 @RunWith(classOf[JUnitRunner])
 class RequestMetricsBufferSpec extends Specification {
 
-  implicit val defaultConfig = fakeConfig(Map(CONF_CHARTING_INDICATORS_PERCENTILE1 -> 95, CONF_CHARTING_INDICATORS_PERCENTILE2 -> 99,
-    CONF_DATA_GRAPHITE_BUCKET_WIDTH -> 100))
+  implicit val defaultConfig = fakeConfig(Map(
+    CONF_CHARTING_INDICATORS_PERCENTILE1 -> 95,
+    CONF_CHARTING_INDICATORS_PERCENTILE2 -> 99,
+    CONF_HTTP_AHC_REQUEST_TIMEOUT_IN_MS ->60000,
+    CONF_DATA_GRAPHITE_MAX_MEASURED_VALUE -> 60000))
 
   def allValues(m: Metrics) = Seq(m.max, m.min, m.percentile1, m.percentile2)
 
@@ -68,7 +71,7 @@ class RequestMetricsBufferSpec extends Specification {
         (allMetrics.count must beEqualTo(102l)) and
         (okMetrics.count must beEqualTo(101l)) and
         (okMetrics.min must beCloseTo(100.0 +/- 0.01)) and (okMetrics.max must beCloseTo(200.0 +/- 0.01)) and
-        (okMetrics.percentile1 must beCloseTo(195.0 +/- 5)) and (okMetrics.percentile2 must beCloseTo(199.0 +/- 1))
+        (okMetrics.percentile1 must beCloseTo(195.0 +/- 1)) and (okMetrics.percentile2 must beCloseTo(199.0 +/- 1))
     }
 
     "work when there are a large number of measures" in {
@@ -80,7 +83,7 @@ class RequestMetricsBufferSpec extends Specification {
 
       (okMetrics.count must beEqualTo(10000)) and
         (okMetrics.min must beCloseTo(1.0 +/- 0.01)) and (okMetrics.max must beCloseTo(10000.0 +/- 0.01)) and
-        (okMetrics.percentile1 must beCloseTo(9500.0 +/- 100)) and (okMetrics.percentile2 must beCloseTo(9900.0 +/- 100))
+        (okMetrics.percentile1 must beCloseTo(9500.0 +/- 10)) and (okMetrics.percentile2 must beCloseTo(9900.0 +/- 10))
     }
 
   }
