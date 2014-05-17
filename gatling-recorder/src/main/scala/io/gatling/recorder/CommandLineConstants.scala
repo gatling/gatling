@@ -23,7 +23,7 @@ object CommandLineConstants {
   val LocalPort = CommandLineConstant("local-port", "lp")
   val LocalPortSsl = CommandLineConstant("local-port-ssl", "lps")
   val ProxyHost = CommandLineConstant("proxy-host", "ph")
-  val ProxyPort = CommandLineConstant("proxy_port", "pp")
+  val ProxyPort = CommandLineConstant("proxy-port", "pp")
   val ProxyPortSsl = CommandLineConstant("proxy-port-ssl", "pps")
   val OutputFolder = CommandLineConstant("output-folder", "of")
   val RequestBodiesFolder = CommandLineConstant("request-bodies-folder", "rbf")
