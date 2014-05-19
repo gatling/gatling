@@ -1,40 +1,62 @@
 package io.gatling.recorder.http.handler
 
-import java.net.{ InetSocketAddress, URI }
-import org.jboss.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext }
-import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpRequest, HttpResponseStatus, HttpVersion }
+import java.net.URI
+
+import org.jboss.netty.channel.SimpleChannelHandler
+import org.jboss.netty.channel.ChannelPipeline
+import org.jboss.netty.channel.ChannelHandlerContext
+import org.jboss.netty.channel.MessageEvent
+import org.jboss.netty.handler.codec.http.HttpRequest
+import org.jboss.netty.channel.Channels
+
+import com.typesafe.scalalogging.slf4j.StrictLogging
+
+import io.gatling.recorder.http.channel.BootstrapFactory
 import io.gatling.recorder.http.HttpProxy
-import io.gatling.core.result.message.MessageEvent
-import org.jboss.netty.channel.ExceptionEvent
-import org.jboss.netty.handler.ssl.SslHandler
-import org.jboss.netty.buffer.EmptyChannelBuffer
-import org.jboss.netty.handler.codec.http.HttpMethod
 
-class ClientPortUnifiedRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(proxy) {
 
-  val sslHandler = new ClientHttpsRequestHandler(proxy)
-  val nonSslHandler = new ClientHttpRequestHandler(proxy)
 
-  def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest) {
+class ClientPortUnifiedRequestHandler(proxy: HttpProxy, pipeline: ChannelPipeline) extends SimpleChannelHandler with StrictLogging {
 
-    request.getMethod match {
-      case HttpMethod.CONNECT => sslHandler.propagateRequest(requestContext, request)
-      case _ => {
-        val uri = new URI(request.getUri())
-        uri.getPort match {
-          case -1 => uri.getScheme match {
-            case "https" | "wss" => sslHandler.propagateRequest(requestContext, request)
-            case "http"          => nonSslHandler.propagateRequest(requestContext, request)
-            case _               => sslHandler.propagateRequest(requestContext, request)    // ssl requests come through with the pathinfo only here
+  var done = false
+
+  override def messageReceived(requestContext: ChannelHandlerContext, event: MessageEvent) {
+
+    try {
+      if (!done) {
+
+        event.getMessage match {
+          case request: HttpRequest => {
+
+            val uri = new URI(request.getUri())
+            uri.getScheme() match {
+
+              case "http" => setProtocolHandler(false, pipeline)
+              
+              case https => {
+                request.getMethod().toString() match {
+                  
+                  case "CONNECT" => setProtocolHandler(true, pipeline)
+                  case unknown => logger.warn("Received unknown scheme (http|https): $unknown in " + request)
+                }
+              }
+            }
           }
-          case 80  => nonSslHandler.propagateRequest(requestContext, request)
-          case 443 => sslHandler.propagateRequest(requestContext, request)
-          
-          case _ => nonSslHandler.propagateRequest(requestContext, request)
+          case unknown => logger.warn("Received unknown message: $unknown , in event : " + event)
         }
-
       }
 
+    } finally {
+      Channels.fireMessageReceived(requestContext, event.getMessage())
+      done = true
     }
+  }
+
+  def setProtocolHandler(ssl: Boolean, pipeline: ChannelPipeline) {
+
+    if (ssl)
+      BootstrapFactory.setGatlingProtocolHandler(pipeline, new ClientHttpsRequestHandler(proxy))
+    else
+      BootstrapFactory.setGatlingProtocolHandler(pipeline, new ClientHttpRequestHandler(proxy))
   }
 }
