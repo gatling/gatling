@@ -29,7 +29,7 @@ class RequestMetricsBufferSpec extends Specification {
   implicit val defaultConfig = fakeConfig(Map(
     CONF_CHARTING_INDICATORS_PERCENTILE1 -> 95,
     CONF_CHARTING_INDICATORS_PERCENTILE2 -> 99,
-    CONF_HTTP_AHC_REQUEST_TIMEOUT_IN_MS ->60000,
+    CONF_HTTP_AHC_REQUEST_TIMEOUT_IN_MS -> 60000,
     CONF_DATA_GRAPHITE_MAX_MEASURED_VALUE -> 60000))
 
   def allValues(m: Metrics) = Seq(m.max, m.min, m.percentile1, m.percentile2)
