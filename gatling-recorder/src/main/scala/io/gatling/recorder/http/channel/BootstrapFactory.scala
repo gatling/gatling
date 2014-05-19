@@ -25,11 +25,13 @@ import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.handler.{ ClientHttpRequestHandler, ClientHttpsRequestHandler }
 import io.gatling.recorder.http.ssl.SSLEngineFactory
 import io.gatling.recorder.http.handler.ClientPortUnifiedRequestHandler
+import io.gatling.recorder.http.handler.ClientRequestHandler
 
 object BootstrapFactory extends StrictLogging {
 
   val SSL_HANDLER_NAME = "ssl"
   val GATLING_HANDLER_NAME = "gatling"
+  val CONDITIONAL_HANDLER_NAME = "conditional"
 
   private val CHUNK_MAX_SIZE = 100 * 1024 * 1024 // 100Mo
 
@@ -63,10 +65,10 @@ object BootstrapFactory extends StrictLogging {
         logger.debug("Open new server channel")
         val pipeline = Channels.pipeline
         pipeline.addLast("decoder", new HttpRequestDecoder)
+        pipeline.addLast(CONDITIONAL_HANDLER_NAME, new ClientPortUnifiedRequestHandler(proxy, pipeline))
         pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
         pipeline.addLast("encoder", new HttpResponseEncoder)
         pipeline.addLast("deflater", new HttpContentCompressor)
-        pipeline.addLast(GATLING_HANDLER_NAME, new ClientPortUnifiedRequestHandler(proxy))
         pipeline
       }
     })
@@ -82,4 +84,12 @@ object BootstrapFactory extends StrictLogging {
     pipeline.addFirst("codec", new HttpClientCodec)
     pipeline.addFirst(SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newClientSSLEngine))
   }
+  
+  
+  def setGatlingProtocolHandler(pipeline: ChannelPipeline, handler : ClientRequestHandler) {
+    
+    pipeline.addLast( GATLING_HANDLER_NAME, handler) 
+    pipeline.remove(CONDITIONAL_HANDLER_NAME)
+  }
+    
 }
