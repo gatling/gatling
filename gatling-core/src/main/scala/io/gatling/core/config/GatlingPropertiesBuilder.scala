@@ -17,35 +17,47 @@ package io.gatling.core.config
 
 import scala.collection.mutable
 
-import io.gatling.core.ConfigurationConstants._
+import io.gatling.core.ConfigKeys._
 
 class GatlingPropertiesBuilder {
 
   private val props = mutable.Map.empty[String, Any]
 
-  def mute() { props += CONF_CORE_MUTE -> true }
+  def mute(): Unit =
+    props += core.Mute -> true
 
-  def noReports() { props += CONF_CHARTING_NO_REPORTS -> true }
+  def noReports(): Unit =
+    props += charting.NoReports -> true
 
-  def reportsOnly(v: String) { props += CONF_CORE_DIRECTORY_REPORTS_ONLY -> v }
+  def reportsOnly(v: String): Unit =
+    props += core.directory.ReportsOnly -> v
 
-  def dataDirectory(v: String) { props += CONF_CORE_DIRECTORY_DATA -> v }
+  def dataDirectory(v: String): Unit =
+    props += core.directory.Data -> v
 
-  def resultsDirectory(v: String) { props += CONF_CORE_DIRECTORY_RESULTS -> v }
+  def resultsDirectory(v: String): Unit =
+    props += core.directory.Results -> v
 
-  def requestBodiesDirectory(v: String) { props += CONF_CORE_DIRECTORY_REQUEST_BODIES -> v }
+  def requestBodiesDirectory(v: String): Unit =
+    props += core.directory.RequestBodies -> v
 
-  def sourcesDirectory(v: String) { props += CONF_CORE_DIRECTORY_SIMULATIONS -> v }
+  def sourcesDirectory(v: String): Unit =
+    props += core.directory.Simulations -> v
 
-  def binariesDirectory(v: String) { props += CONF_CORE_DIRECTORY_BINARIES -> v }
+  def binariesDirectory(v: String): Unit =
+    props += core.directory.Binaries -> v
 
-  def simulationClass(v: String) { props += CONF_CORE_SIMULATION_CLASS -> v }
+  def simulationClass(v: String): Unit =
+    props += core.SimulationClass -> v
 
-  def outputDirectoryBaseName(v: String) { props += CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME -> v }
+  def outputDirectoryBaseName(v: String): Unit =
+    props += core.OutputDirectoryBaseName -> v
 
-  def runDescription(v: String) { props += CONF_CORE_RUN_DESCRIPTION -> v }
+  def runDescription(v: String): Unit =
+    props += core.RunDescription -> v
 
-  def disableCompiler() { props += CONF_CORE_DISABLE_COMPILER -> true }
+  def disableCompiler(): Unit =
+    props += core.DisableCompiler -> true
 
   def build = props
 }

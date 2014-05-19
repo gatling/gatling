@@ -52,7 +52,7 @@ class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
     allDigest.reset
   }
 
-  def metricsByStatus(): MetricByStatus =
+  def metricsByStatus: MetricByStatus =
     MetricByStatus(metricsOfDigest(okDigest.getHistogramData), metricsOfDigest(koDigest.getHistogramData), metricsOfDigest(allDigest.getHistogramData))
 
   private def metricsOfDigest(digest: HistogramData): Option[Metrics] = {
