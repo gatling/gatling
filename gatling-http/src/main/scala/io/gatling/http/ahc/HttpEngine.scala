@@ -26,7 +26,7 @@ import com.ning.http.client.websocket.WebSocketUpgradeHandler
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import akka.actor.ActorRef
-import io.gatling.core.ConfigurationConstants._
+import io.gatling.core.ConfigKeys
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ Controller, ThrottledRequest }
@@ -82,7 +82,7 @@ object HttpEngine extends AkkaDefaults with StrictLogging {
     if (!_instance.isDefined) {
       val client = new HttpEngine
       _instance = Some(client)
-      system.registerOnTermination(stop)
+      system.registerOnTermination(stop())
     }
   }
 
@@ -175,17 +175,17 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     val ahcConfig = session.flatMap { session =>
 
       val trustManagers = for {
-        file <- session(CONF_HTTP_SSL_TRUST_STORE_FILE).asOption[String]
-        password <- session(CONF_HTTP_SSL_TRUST_STORE_PASSWORD).asOption[String]
-        storeType = session(CONF_HTTP_SSL_TRUST_STORE_TYPE).asOption[String]
-        algorithm = session(CONF_HTTP_SSL_TRUST_STORE_ALGORITHM).asOption[String]
+        file <- session(ConfigKeys.http.ssl.trustStore.File).asOption[String]
+        password <- session(ConfigKeys.http.ssl.trustStore.Password).asOption[String]
+        storeType = session(ConfigKeys.http.ssl.trustStore.Type).asOption[String]
+        algorithm = session(ConfigKeys.http.ssl.trustStore.Algorithm).asOption[String]
       } yield newTrustManagers(storeType, file, password, algorithm)
 
       val keyManagers = for {
-        file <- session(CONF_HTTP_SSL_KEY_STORE_FILE).asOption[String]
-        password <- session(CONF_HTTP_SSL_KEY_STORE_PASSWORD).asOption[String]
-        storeType = session(CONF_HTTP_SSL_KEY_STORE_TYPE).asOption[String]
-        algorithm = session(CONF_HTTP_SSL_KEY_STORE_ALGORITHM).asOption[String]
+        file <- session(ConfigKeys.http.ssl.keyStore.File).asOption[String]
+        password <- session(ConfigKeys.http.ssl.keyStore.Password).asOption[String]
+        storeType = session(ConfigKeys.http.ssl.keyStore.Type).asOption[String]
+        algorithm = session(ConfigKeys.http.ssl.keyStore.Algorithm).asOption[String]
       } yield newKeyManagers(storeType, file, password, algorithm)
 
       trustManagers.orElse(keyManagers).map { _ =>

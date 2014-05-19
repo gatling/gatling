@@ -23,7 +23,7 @@ import scala.io.Codec
 
 import com.typesafe.config.{ Config, ConfigFactory }
 
-import io.gatling.core.ConfigurationConstants._
+import io.gatling.core.ConfigKeys._
 import io.gatling.core.util.StringHelper.RichString
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
@@ -99,50 +99,50 @@ object GatlingConfiguration extends StrictLogging {
   private def mapToGatlingConfig(config: Config) =
     GatlingConfiguration(
       core = CoreConfiguration(
-        outputDirectoryBaseName = config.getString(CONF_CORE_OUTPUT_DIRECTORY_BASE_NAME).trimToOption,
-        runDescription = config.getString(CONF_CORE_RUN_DESCRIPTION).trimToOption,
-        encoding = config.getString(CONF_CORE_ENCODING),
-        simulationClass = config.getString(CONF_CORE_SIMULATION_CLASS).trimToOption,
-        disableCompiler = config.getBoolean(CONF_CORE_DISABLE_COMPILER),
-        muteMode = config.getBoolean(CONF_CORE_MUTE),
+        outputDirectoryBaseName = config.getString(core.OutputDirectoryBaseName).trimToOption,
+        runDescription = config.getString(core.RunDescription).trimToOption,
+        encoding = config.getString(core.Encoding),
+        simulationClass = config.getString(core.SimulationClass).trimToOption,
+        disableCompiler = config.getBoolean(core.DisableCompiler),
+        muteMode = config.getBoolean(core.Mute),
         extract = ExtractConfiguration(
           regex = RegexConfiguration(
-            cache = config.getBoolean(CONF_CORE_EXTRACT_REGEXP_CACHE)),
+            cache = config.getBoolean(core.extract.regex.Cache)),
           xpath = XPathConfiguration(
-            cache = config.getBoolean(CONF_CORE_EXTRACT_XPATH_CACHE)),
+            cache = config.getBoolean(core.extract.xpath.Cache)),
           jsonPath = JsonPathConfiguration(
-            cache = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_CACHE),
+            cache = config.getBoolean(core.extract.jsonPath.Cache),
             jackson = JacksonConfiguration(
-              allowComments = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_JACKSON_ALLOW_COMMENTS),
-              allowUnquotedFieldNames = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_JACKSON_ALLOW_UNQUOTED_FIELD_NAMES),
-              allowSingleQuotes = config.getBoolean(CONF_CORE_EXTRACT_JSONPATH_JACKSON_ALLOW_SINGLE_QUOTES))),
+              allowComments = config.getBoolean(core.extract.jsonPath.jackson.AllowComments),
+              allowUnquotedFieldNames = config.getBoolean(core.extract.jsonPath.jackson.AllowUnquotedFieldNames),
+              allowSingleQuotes = config.getBoolean(core.extract.jsonPath.jackson.AllowSingleQuotes))),
           css = CssConfiguration(
-            cache = config.getBoolean(CONF_CORE_EXTRACT_CSS_CACHE))),
+            cache = config.getBoolean(core.extract.css.Cache))),
         timeOut = TimeOutConfiguration(
-          simulation = config.getInt(CONF_CORE_TIMEOUT_SIMULATION)),
+          simulation = config.getInt(core.timeOut.Simulation)),
         directory = DirectoryConfiguration(
-          data = config.getString(CONF_CORE_DIRECTORY_DATA),
-          requestBodies = config.getString(CONF_CORE_DIRECTORY_REQUEST_BODIES),
-          sources = config.getString(CONF_CORE_DIRECTORY_SIMULATIONS),
-          binaries = config.getString(CONF_CORE_DIRECTORY_BINARIES).trimToOption,
-          reportsOnly = config.getString(CONF_CORE_DIRECTORY_REPORTS_ONLY).trimToOption,
-          results = config.getString(CONF_CORE_DIRECTORY_RESULTS)),
+          data = config.getString(core.directory.Data),
+          requestBodies = config.getString(core.directory.RequestBodies),
+          sources = config.getString(core.directory.Simulations),
+          binaries = config.getString(core.directory.Binaries).trimToOption,
+          reportsOnly = config.getString(core.directory.ReportsOnly).trimToOption,
+          results = config.getString(core.directory.Results)),
         zinc = ZincConfiguration(
-          jvmArgs = config.getString(CONF_CORE_ZINC_JVM_ARGS).split(" "))),
+          jvmArgs = config.getString(core.zinc.JvmArgs).split(" "))),
       charting = ChartingConfiguration(
-        noReports = config.getBoolean(CONF_CHARTING_NO_REPORTS),
-        statsTsvSeparator = config.getString(CONF_CHARTING_STATS_TSV_SEPARATOR),
-        maxPlotsPerSeries = config.getInt(CONF_CHARTING_MAX_PLOTS_PER_SERIES),
-        accuracy = config.getInt(CONF_CHARTING_ACCURACY),
+        noReports = config.getBoolean(charting.NoReports),
+        statsTsvSeparator = config.getString(charting.StatsTsvSeparator),
+        maxPlotsPerSeries = config.getInt(charting.MaxPlotPerSeries),
+        accuracy = config.getInt(charting.Accuracy),
         indicators = IndicatorsConfiguration(
-          lowerBound = config.getInt(CONF_CHARTING_INDICATORS_LOWER_BOUND),
-          higherBound = config.getInt(CONF_CHARTING_INDICATORS_HIGHER_BOUND),
-          percentile1 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE1),
-          percentile2 = config.getInt(CONF_CHARTING_INDICATORS_PERCENTILE2))),
+          lowerBound = config.getInt(charting.indicators.LowerBound),
+          higherBound = config.getInt(charting.indicators.HigherBound),
+          percentile1 = config.getInt(charting.indicators.Percentile1),
+          percentile2 = config.getInt(charting.indicators.Percentile2))),
       http = HttpConfiguration(
-        cacheELFileBodies = config.getBoolean(CONF_HTTP_CACHE_EL_FILE_BODIES),
-        cacheRawFileBodies = config.getBoolean(CONF_HTTP_CACHE_RAW_FILE_BODIES),
-        warmUpUrl = config.getString(CONF_HTTP_WARM_UP_URL).trimToOption,
+        cacheELFileBodies = config.getBoolean(http.CacheELFileBodies),
+        cacheRawFileBodies = config.getBoolean(http.CacheRawFileBodies),
+        warmUpUrl = config.getString(http.WarmUpUrl).trimToOption,
         ssl = {
             def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
 
@@ -154,30 +154,30 @@ object GatlingConfiguration extends StrictLogging {
               storeFile.map(StoreConfiguration(storeType, _, storePassword, storeAlgorithm))
             }
 
-          val trustStore = storeConfig(CONF_HTTP_SSL_TRUST_STORE_TYPE, CONF_HTTP_SSL_TRUST_STORE_FILE, CONF_HTTP_SSL_TRUST_STORE_PASSWORD, CONF_HTTP_SSL_TRUST_STORE_ALGORITHM)
-          val keyStore = storeConfig(CONF_HTTP_SSL_KEY_STORE_TYPE, CONF_HTTP_SSL_KEY_STORE_FILE, CONF_HTTP_SSL_KEY_STORE_PASSWORD, CONF_HTTP_SSL_KEY_STORE_ALGORITHM)
+          val trustStore = storeConfig(http.ssl.trustStore.Type, http.ssl.trustStore.File, http.ssl.trustStore.Password, http.ssl.trustStore.Algorithm)
+          val keyStore = storeConfig(http.ssl.keyStore.Type, http.ssl.keyStore.File, http.ssl.keyStore.Password, http.ssl.keyStore.Algorithm)
 
           SslConfiguration(trustStore, keyStore)
         },
         ahc = AHCConfiguration(
-          allowPoolingConnection = config.getBoolean(CONF_HTTP_AHC_ALLOW_POOLING_CONNECTION),
-          allowSslConnectionPool = config.getBoolean(CONF_HTTP_AHC_ALLOW_SSL_CONNECTION_POOL),
-          compressionEnabled = config.getBoolean(CONF_HTTP_AHC_COMPRESSION_ENABLED),
-          connectionTimeOut = config.getInt(CONF_HTTP_AHC_CONNECTION_TIMEOUT),
-          idleConnectionInPoolTimeOutInMs = config.getInt(CONF_HTTP_AHC_IDLE_CONNECTION_IN_POOL_TIMEOUT_IN_MS),
-          idleConnectionTimeOutInMs = config.getInt(CONF_HTTP_AHC_IDLE_CONNECTION_TIMEOUT_IN_MS),
-          maxConnectionLifeTimeInMs = config.getInt(CONF_HTTP_AHC_MAX_CONNECTION_LIFETIME_IN_MS),
-          ioThreadMultiplier = config.getInt(CONF_HTTP_AHC_IO_THREAD_MULTIPLIER),
-          maximumConnectionsPerHost = config.getInt(CONF_HTTP_AHC_MAXIMUM_CONNECTIONS_PER_HOST),
-          maximumConnectionsTotal = config.getInt(CONF_HTTP_AHC_MAXIMUM_CONNECTIONS_TOTAL),
-          maxRetry = config.getInt(CONF_HTTP_AHC_MAX_RETRY),
-          requestTimeOutInMs = config.getInt(CONF_HTTP_AHC_REQUEST_TIMEOUT_IN_MS),
-          useProxyProperties = config.getBoolean(CONF_HTTP_AHC_USE_PROXY_PROPERTIES),
-          useRawUrl = config.getBoolean(CONF_HTTP_AHC_USE_RAW_URL),
-          webSocketIdleTimeoutInMs = config.getInt(CONF_HTTP_AHC_WEBSOCKET_IDLE_TIMEOUT_IN_MS),
-          useRelativeURIsWithSSLProxies = config.getBoolean(CONF_HTTP_AHC_USE_RELATIVE_URIS_WITH_SSL_PROXIES))),
+          allowPoolingConnection = config.getBoolean(http.ahc.AllowPoolingConnection),
+          allowSslConnectionPool = config.getBoolean(http.ahc.AllowSslConnectionPool),
+          compressionEnabled = config.getBoolean(http.ahc.CompressionEnabled),
+          connectionTimeOut = config.getInt(http.ahc.ConnectionTimeOut),
+          idleConnectionInPoolTimeOutInMs = config.getInt(http.ahc.IdleConnectionInPoolTimeoutInMs),
+          idleConnectionTimeOutInMs = config.getInt(http.ahc.IdleConnectionTimeoutInMs),
+          maxConnectionLifeTimeInMs = config.getInt(http.ahc.MaxConnectionLifeTimeInMs),
+          ioThreadMultiplier = config.getInt(http.ahc.IoThreadMultiplier),
+          maximumConnectionsPerHost = config.getInt(http.ahc.MaximumConnectionsPerHost),
+          maximumConnectionsTotal = config.getInt(http.ahc.MaximumConnectionsTotal),
+          maxRetry = config.getInt(http.ahc.MaxRetry),
+          requestTimeOutInMs = config.getInt(http.ahc.RequestTimeoutInMs),
+          useProxyProperties = config.getBoolean(http.ahc.UseProxyProperties),
+          useRawUrl = config.getBoolean(http.ahc.UseRawUrl),
+          webSocketIdleTimeoutInMs = config.getInt(http.ahc.WebSocketIdleTimeoutInMs),
+          useRelativeURIsWithSSLProxies = config.getBoolean(http.ahc.UseRelativeURIsWithSSLProxies))),
       data = DataConfiguration(
-        dataWriterClasses = config.getString(CONF_DATA_WRITER_CLASS_NAMES).toStringList.map {
+        dataWriterClasses = config.getString(data.Writers).toStringList.map {
           case "console"  => "io.gatling.core.result.writer.ConsoleDataWriter"
           case "file"     => "io.gatling.core.result.writer.FileDataWriter"
           case "graphite" => "io.gatling.metrics.GraphiteDataWriter"
@@ -185,38 +185,38 @@ object GatlingConfiguration extends StrictLogging {
           case "leak"     => "io.gatling.core.result.writer.LeakReporterDataWriter"
           case clazz      => clazz
         },
-        dataReaderClass = config.getString(CONF_DATA_READER_CLASS_NAME).trim match {
+        dataReaderClass = config.getString(data.Reader).trim match {
           case "file" => "io.gatling.charts.result.reader.FileDataReader"
           case clazz  => clazz
         },
         console = ConsoleDataWriterConfiguration(
-          light = config.getBoolean(CONF_DATA_CONSOLE_LIGHT)),
+          light = config.getBoolean(data.console.Light)),
         file = FileDataWriterConfiguration(
-          bufferSize = config.getInt(CONF_DATA_FILE_BUFFER_SIZE)),
+          bufferSize = config.getInt(data.file.BufferSize)),
         graphite = GraphiteDataWriterConfiguration(
-          light = config.getBoolean(CONF_DATA_GRAPHITE_LIGHT),
-          host = config.getString(CONF_DATA_GRAPHITE_HOST),
-          port = config.getInt(CONF_DATA_GRAPHITE_PORT),
-          protocol = config.getString(CONF_DATA_GRAPHITE_PROTOCOL),
-          rootPathPrefix = config.getString(CONF_DATA_GRAPHITE_ROOT_PATH_PREFIX),
-          maxMeasuredValue = config.getInt(CONF_DATA_GRAPHITE_MAX_MEASURED_VALUE),
-          bufferSize = config.getInt(CONF_DATA_GRAPHITE_BUFFER_SIZE)),
+          light = config.getBoolean(data.graphite.Light),
+          host = config.getString(data.graphite.Host),
+          port = config.getInt(data.graphite.Port),
+          protocol = config.getString(data.graphite.Protocol),
+          rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
+          maxMeasuredValue = config.getInt(data.graphite.MaxMeasuredValue),
+          bufferSize = config.getInt(data.graphite.BufferSize)),
         jdbc = JDBCDataWriterConfiguration(
           db = DBConfiguration(
-            url = config.getString(CONF_DATA_JDBC_DB_URL),
-            username = config.getString(CONF_DATA_JDBC_DB_USERNAME),
-            password = config.getString(CONF_DATA_JDBC_DB_PASSWORD)),
-          bufferSize = config.getInt(CONF_DATA_JDBC_BUFFER_SIZE),
+            url = config.getString(data.jdbc.Url),
+            username = config.getString(data.jdbc.Username),
+            password = config.getString(data.jdbc.Password)),
+          bufferSize = config.getInt(data.jdbc.BufferSize),
           createStatements = CreateStatements(
-            createRunRecordTable = config.getString(CONF_DATA_JDBC_CREATE_RUN_RECORD_TABLE).trimToOption,
-            createRequestRecordTable = config.getString(CONF_DATA_JDBC_CREATE_REQUEST_RECORD_TABLE).trimToOption,
-            createScenarioRecordTable = config.getString(CONF_DATA_JDBC_CREATE_SCENARIO_RECORD_TABLE).trimToOption,
-            createGroupRecordTable = config.getString(CONF_DATA_JDBC_CREATE_GROUP_RECORD_TABLE).trimToOption),
+            createRunRecordTable = config.getString(data.jdbc.create.CreateRunRecordTable).trimToOption,
+            createRequestRecordTable = config.getString(data.jdbc.create.CreateRequestRecordTable).trimToOption,
+            createScenarioRecordTable = config.getString(data.jdbc.create.CreateScenarioRecordTable).trimToOption,
+            createGroupRecordTable = config.getString(data.jdbc.create.CreateGroupRecordTable).trimToOption),
           insertStatements = InsertStatements(
-            insertRunRecord = config.getString(CONF_DATA_JDBC_INSERT_RUN_RECORD).trimToOption,
-            insertRequestRecord = config.getString(CONF_DATA_JDBC_INSERT_REQUEST_RECORD).trimToOption,
-            insertScenarioRecord = config.getString(CONF_DATA_JDBC_INSERT_SCENARIO_RECORD).trimToOption,
-            insertGroupRecord = config.getString(CONF_DATA_JDBC_INSERT_GROUP_RECORD).trimToOption))),
+            insertRunRecord = config.getString(data.jdbc.insert.InsertRunRecord).trimToOption,
+            insertRequestRecord = config.getString(data.jdbc.insert.InsertRequestRecord).trimToOption,
+            insertScenarioRecord = config.getString(data.jdbc.insert.InsertScenarioRecord).trimToOption,
+            insertGroupRecord = config.getString(data.jdbc.insert.InsertGroupRecord).trimToOption))),
       config)
 
 }
