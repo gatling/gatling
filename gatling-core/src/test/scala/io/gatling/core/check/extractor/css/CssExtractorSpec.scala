@@ -23,13 +23,13 @@ import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationSpecification
-import io.gatling.core.util.IOHelper.withCloseable
+import io.gatling.core.util.IO
 
 /**
  * @see <a href="http://www.w3.org/TR/selectors/#selectors"/> for more details about the CSS selectors syntax
  */
 @RunWith(classOf[JUnitRunner])
-class CssExtractorSpec extends ValidationSpecification {
+class CssExtractorSpec extends ValidationSpecification with IO {
 
   GatlingConfiguration.setUp()
 

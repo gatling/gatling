@@ -24,5 +24,7 @@ package result {
   }
   case class IntRangeVsTimePlot(time: Int, lower: Int, higher: Int)
   case class PieSlice(name: String, value: Double)
-  case class ErrorStats(message: String, count: Int, percentage: Int)
+  case class ErrorStats(message: String, count: Int, totalCount: Int) {
+    def percentage = count * 100.0 / totalCount
+  }
 }

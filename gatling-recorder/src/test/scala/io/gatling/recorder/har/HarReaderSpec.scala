@@ -21,7 +21,7 @@ import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import io.gatling.recorder.config.ConfigurationConstants.FETCH_HTML_RESOURCES
+import io.gatling.recorder.config.ConfigKeys.http.FetchHtmlResources
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 import io.gatling.recorder.scenario.{ PauseElement, RequestElement }
 
@@ -32,10 +32,10 @@ class HarReaderSpec extends Specification {
 
   "HarReader" should {
 
-    val configWithResourcesFiltering = fakeConfig(Map(FETCH_HTML_RESOURCES -> true))
+    val configWithResourcesFiltering = fakeConfig(Map(FetchHtmlResources -> true))
 
     // By default, we assume that we don't want to filter out the HTML resources
-    implicit val config = fakeConfig(Map(FETCH_HTML_RESOURCES -> false))
+    implicit val config = fakeConfig(Map(FetchHtmlResources -> false))
 
     "work with empty JSON" in {
       HarReader(resourceAsStream("har/empty.har")) must beEmpty

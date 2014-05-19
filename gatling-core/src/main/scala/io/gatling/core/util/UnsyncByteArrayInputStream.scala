@@ -36,21 +36,23 @@ class UnsyncByteArrayInputStream(array: Array[Byte]) extends InputStream {
     mark = position
   }
 
-  override def available(): Int = length - position
+  override def available: Int = length - position
 
   override def skip(n: Long): Long = {
-    if (n <= available) {
+    val av = available
+    if (n <= av) {
       position += n.toInt
       n
     } else {
-      val n = available()
+      val n = av
       position = length
       n.toLong
     }
   }
 
   override def read(): Int = {
-    if (length == position) -1
+    if (length == position)
+      -1
     else {
       val oldPosition = position
       position += 1
@@ -62,7 +64,7 @@ class UnsyncByteArrayInputStream(array: Array[Byte]) extends InputStream {
     if (this.length == position) {
       if (length == 0) 0 else -1
     } else {
-      val n = math.min(length, available())
+      val n = math.min(length, available)
       System.arraycopy(array, offset + position, b, offset, n)
       position += n
       n

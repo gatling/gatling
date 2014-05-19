@@ -21,9 +21,9 @@ import org.apache.commons.io.IOUtils
 
 import com.jcraft.jzlib.GZIPOutputStream
 
-import io.gatling.core.util.IOHelper.withCloseable
+import io.gatling.core.util.IO
 
-object GZIPHelper {
+object GZIPHelper extends IO {
 
   def gzip(string: String): Array[Byte] = gzip(string.getBytes)
 

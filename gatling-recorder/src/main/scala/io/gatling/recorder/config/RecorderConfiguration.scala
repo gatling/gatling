@@ -28,13 +28,12 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
-import io.gatling.core.util.IOHelper.withCloseable
-import io.gatling.core.util.StringHelper.{ RichString }
-import io.gatling.recorder.config.ConfigurationConstants._
+import io.gatling.core.util.IO
+import io.gatling.core.util.StringHelper.RichString
 import io.gatling.recorder.enumeration.FilterStrategy
 import io.gatling.recorder.enumeration.FilterStrategy.FilterStrategy
 
-object RecorderConfiguration extends StrictLogging {
+object RecorderConfiguration extends IO with StrictLogging {
 
   implicit class IntOption(val value: Int) extends AnyVal {
     def toOption = if (value != 0) Some(value) else None
@@ -86,16 +85,16 @@ object RecorderConfiguration extends StrictLogging {
   def reload(props: Map[String, _]) {
     val frameConfig = ConfigFactory.parseMap(props)
     configuration = buildConfig(frameConfig.withFallback(configuration.config))
-    logger.debug(s"reconfigured $configuration")
   }
 
   def saveConfig() {
     // Remove request bodies folder configuration (transient), keep only Gatling-related properties
-    val configToSave = configuration.config.withoutPath(REQUEST_BODIES_FOLDER).root.withOnlyKey(CONFIG_ROOT)
+    val configToSave = configuration.config.withoutPath(ConfigKeys.core.RequestBodiesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
     configFile.foreach(file => withCloseable(File(file).bufferedWriter)(_.write(configToSave.render(renderOptions))))
   }
 
   private def buildConfig(config: Config): RecorderConfiguration = {
+    import ConfigKeys._
 
       def getOutputFolder(folder: String) = {
         folder.trimToOption match {
@@ -106,35 +105,37 @@ object RecorderConfiguration extends StrictLogging {
       }
 
       def getRequestBodiesFolder =
-        if (config.hasPath(REQUEST_BODIES_FOLDER)) config.getString(REQUEST_BODIES_FOLDER)
-        else GatlingFiles.requestBodiesDirectory.toString
+        if (config.hasPath(core.RequestBodiesFolder))
+          config.getString(core.RequestBodiesFolder)
+        else
+          GatlingFiles.requestBodiesDirectory.toString
 
     RecorderConfiguration(
-      filters = FiltersConfiguration(
-        filterStrategy = FilterStrategy.withName(config.getString(FILTER_STRATEGY)),
-        whiteList = WhiteList(config.getStringList(WHITELIST_PATTERNS).toList),
-        blackList = BlackList(config.getStringList(BLACKLIST_PATTERNS).toList)),
-      http = HttpConfiguration(
-        automaticReferer = config.getBoolean(AUTOMATIC_REFERER),
-        followRedirect = config.getBoolean(FOLLOW_REDIRECT),
-        fetchHtmlResources = config.getBoolean(FETCH_HTML_RESOURCES)),
-      proxy = ProxyConfiguration(
-        port = config.getInt(LOCAL_PORT),
-        sslPort = config.getInt(LOCAL_SSL_PORT),
-        outgoing = OutgoingProxyConfiguration(
-          host = config.getString(PROXY_HOST).trimToOption,
-          username = config.getString(PROXY_USERNAME).trimToOption,
-          password = config.getString(PROXY_PASSWORD).trimToOption,
-          port = config.getInt(PROXY_PORT).toOption,
-          sslPort = config.getInt(PROXY_SSL_PORT).toOption)),
       core = CoreConfiguration(
-        encoding = config.getString(ENCODING),
-        outputFolder = getOutputFolder(config.getString(SIMULATION_OUTPUT_FOLDER)),
+        encoding = config.getString(core.Encoding),
+        outputFolder = getOutputFolder(config.getString(core.SimulationOutputFolder)),
         requestBodiesFolder = getRequestBodiesFolder,
-        pkg = config.getString(SIMULATION_PACKAGE),
-        className = config.getString(SIMULATION_CLASS_NAME),
-        thresholdForPauseCreation = config.getInt(THRESHOLD_FOR_PAUSE_CREATION) milliseconds,
-        saveConfig = config.getBoolean(SAVE_CONFIG)),
+        pkg = config.getString(core.Package),
+        className = config.getString(core.ClassName),
+        thresholdForPauseCreation = config.getInt(core.ThresholdForPauseCreation) milliseconds,
+        saveConfig = config.getBoolean(core.SaveConfig)),
+      filters = FiltersConfiguration(
+        filterStrategy = FilterStrategy.withName(config.getString(filters.FilterStrategy)),
+        whiteList = WhiteList(config.getStringList(filters.WhitelistPatterns).toList),
+        blackList = BlackList(config.getStringList(filters.BlacklistPatterns).toList)),
+      http = HttpConfiguration(
+        automaticReferer = config.getBoolean(http.AutomaticReferer),
+        followRedirect = config.getBoolean(http.FollowRedirect),
+        fetchHtmlResources = config.getBoolean(http.FetchHtmlResources)),
+      proxy = ProxyConfiguration(
+        port = config.getInt(proxy.Port),
+        sslPort = config.getInt(proxy.SslPort),
+        outgoing = OutgoingProxyConfiguration(
+          host = config.getString(proxy.outgoing.Host).trimToOption,
+          username = config.getString(proxy.outgoing.Username).trimToOption,
+          password = config.getString(proxy.outgoing.Password).trimToOption,
+          port = config.getInt(proxy.outgoing.Port).toOption,
+          sslPort = config.getInt(proxy.outgoing.SslPort).toOption)),
       config)
   }
 }
@@ -150,6 +151,15 @@ case class FiltersConfiguration(
     case FilterStrategy.WHITELIST_FIRST => Some(Filters(whiteList, blackList))
   }
 }
+
+case class CoreConfiguration(
+  encoding: String,
+  outputFolder: String,
+  requestBodiesFolder: String,
+  pkg: String,
+  className: String,
+  thresholdForPauseCreation: Duration,
+  saveConfig: Boolean)
 
 case class HttpConfiguration(
   automaticReferer: Boolean,
@@ -168,18 +178,9 @@ case class ProxyConfiguration(
   sslPort: Int,
   outgoing: OutgoingProxyConfiguration)
 
-case class CoreConfiguration(
-  encoding: String,
-  outputFolder: String,
-  requestBodiesFolder: String,
-  pkg: String,
-  className: String,
-  thresholdForPauseCreation: Duration,
-  saveConfig: Boolean)
-
 case class RecorderConfiguration(
+  core: CoreConfiguration,
   filters: FiltersConfiguration,
   http: HttpConfiguration,
   proxy: ProxyConfiguration,
-  core: CoreConfiguration,
   config: Config)

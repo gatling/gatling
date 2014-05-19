@@ -20,10 +20,10 @@ import java.security.{ KeyStore, SecureRandom }
 
 import com.ning.http.client.AsyncHttpClientConfig
 
-import io.gatling.core.util.IOHelper.withCloseable
+import io.gatling.core.util.IO
 import javax.net.ssl.{ KeyManager, KeyManagerFactory, SSLContext, TrustManager, TrustManagerFactory }
 
-object SSLHelper {
+object SSLHelper extends IO {
 
   private def storeStream(filePath: String): InputStream = {
     val storeFile = new File(filePath)

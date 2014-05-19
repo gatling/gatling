@@ -23,7 +23,7 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.http.fetch.{ CssResource, RegularResource }
-import io.gatling.recorder.config.ConfigurationConstants.{ FETCH_HTML_RESOURCES, FOLLOW_REDIRECT }
+import io.gatling.recorder.config.ConfigKeys.http.{ FetchHtmlResources, FollowRedirect }
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 
 @RunWith(classOf[JUnitRunner])
@@ -31,7 +31,7 @@ class ScenarioSpec extends Specification {
 
   "Scenario" should {
 
-    implicit val config = fakeConfig(Map(FOLLOW_REDIRECT -> true, FETCH_HTML_RESOURCES -> true))
+    implicit val config = fakeConfig(Map(FollowRedirect -> true, FetchHtmlResources -> true))
 
     "remove HTTP redirection " in {
       val r1 = RequestElement("http://gatling.io/", "GET", Map.empty, None, 200, List.empty)

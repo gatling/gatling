@@ -136,7 +136,7 @@ Local address
 
 .. _http-protocol-local-address:
 
-One can bind teh sockets from a specific local address instead of the default one::
+One can bind the sockets from a specific local address instead of the default one::
 
   localAddress(localAddress: InetAddress)
 

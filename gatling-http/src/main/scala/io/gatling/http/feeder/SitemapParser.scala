@@ -23,14 +23,14 @@ import scala.xml.Node
 
 import io.gatling.core.config.Resource
 import io.gatling.core.feeder.Record
-import io.gatling.core.util.IOHelper._
+import io.gatling.core.util.IO
 
 /**
  * Parser for files in [[http://www.sitemaps.org/protocol.html sitemap]] format.
  *
  * @author Ivan Mushketyk
  */
-object SitemapParser {
+object SitemapParser extends IO {
 
   val LOCATION_TAG = "loc"
 

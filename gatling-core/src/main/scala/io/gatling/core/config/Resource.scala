@@ -24,7 +24,7 @@ import scala.tools.nsc.io.Path.string2path
 import org.apache.commons.io.FileUtils.copyInputStreamToFile
 
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
-import io.gatling.core.util.FileHelper.RichURL
+import io.gatling.core.util.IO._
 
 object Resource {
 
@@ -32,7 +32,7 @@ object Resource {
     def unapply(location: Location): Option[Validation[Resource]] =
       Option(getClass.getClassLoader.getResource(location.path.toString().replace('\\', '/'))).map { url =>
         url.getProtocol match {
-          case "file" => FileResource(File(url.jfile())).success
+          case "file" => FileResource(File(url.jfile)).success
           case "jar"  => ArchiveResource(url, location.path.extension).success
           case _      => s"$url is neither a file nor a jar".failure
         }

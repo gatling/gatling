@@ -20,7 +20,7 @@ import java.security.{ KeyStore, Security }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.util.IOHelper.withCloseable
+import io.gatling.core.util.IO
 import javax.net.ssl.{ KeyManagerFactory, SSLContext }
 
 /**
@@ -54,7 +54,7 @@ import javax.net.ssl.{ KeyManagerFactory, SSLContext }
  *
  * @version Rev: 2080 , Date: 2010-01-26 18:04:19 +0900 (Tue, 26 Jan 2010)
  */
-object SecureChatSslContextFactory extends StrictLogging {
+object SecureChatSslContextFactory extends IO with StrictLogging {
 
   val PROTOCOL = "TLS"
   val PROPERTY_KEYSTORE_PATH = "gatling.recorder.keystore.path"

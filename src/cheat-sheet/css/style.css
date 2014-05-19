@@ -1,0 +1,124 @@
+h1, p { margin-left:10px; }
+h2 {
+	margin:5px;
+	font-size: 1em;
+	padding:0;
+	line-height:14px;
+}
+h2 > small {font-size: 85%; }
+
+#content {
+	width:1220px;
+	margin:0 auto;
+	overflow: auto;
+	position: relative;
+	padding-bottom: 100px;
+}
+
+#switchtheme{
+	list-style: none;
+	padding:0;
+	margin:0;
+	position: absolute;
+	top: 10px;
+	right: 0;
+}
+#switchtheme li {
+	float: left;
+	margin: 0 10px;
+}
+
+h3.popover-title { font-weight: bold; }
+.popover { width: 300px; }
+
+.table{
+	padding:3px 5px;
+	overflow: auto;
+	float:left;
+	margin:5px;
+	width: 190px;
+}
+
+.table p {
+	display: block;
+	float: left;
+	width: 190px;
+	text-align: center;
+	margin: 2px 0;
+	font-weight: bold;
+	padding:5px 0;
+	font-size: 1.3em;
+}
+
+p.tooLong{ font-size: 1.2em; }
+p.reallyLong{ font-size:1em; }
+p.reallyTooLong{ font-size:0.7em; }
+
+.table > .table { margin:0; }
+
+.table.struct {width:1005px; clear:both;margin-left:102px; }
+.table.simu-config { width:600px; height:auto; margin-left: 300px;}
+.table.feeders { width:33%; height:auto;float:left; clear:both; margin-left: 190px;}
+.table.scenario-config { width:33%; height:auto; float:right; margin-right: 193px;}
+.table.action {	width:800px;clear: left;margin-left:205px; clear: both;}
+.table.checks-http { width:1200px; clear:left; }
+.table.http-config { width: 1200px; clear:left; }
+.table.assertions { width: 1200px; clear: left; }
+.table.websocket { width:33%; height:auto; float:left; margin-left: 179px; }
+.table.websocket-checks { width:16%; height:auto; }
+.table.websocket-config { width:16%; height:auto; float:right; margin-right: 198px; }
+.table.jms { width:33%; height:auto; float:left; margin-left: 179px; }
+.table.jms-checks { width:16%; height:auto; }
+.table.jms-config { width:16%; height:auto; float:right; margin-right: 198px; }
+
+.scenario > p { background-color: rgba(80,255,0,0.8); }
+.struct-base > p { background-color: rgba(80,255,0,0.7); }
+.conditions > p { background-color: rgba(80,255,0,0.6); }
+.loops > p { background-color: rgba(80,255,0,0.5); }
+.failure-handling > p { background-color: rgba(80,255,0,0.4); }
+
+.feeder-types > p { background-color: rgba(200,0,255,0.8); }
+.feeder-strategies > p { background-color: rgba(200,0,255,0.7); }
+
+.config > p { background-color: rgba(255,0,0,0.9); }
+.scen-opts > p { background-color: rgba(255,0,0,0.8); }
+
+.throttling > p { background-color: rgba(160, 110, 89, 0.9); }
+.time > p { background-color: rgba(160, 110, 89, 0.9); }
+.assert > p { background-color: rgba(160, 110, 89, 0.9); }
+
+.http > p { background-color: rgba(255,0,70,0.8); }
+.http-verb > p { background-color: rgba(255,0,70,0.7); }
+.http-opts > p { background-color: rgba(255,0,70,0.6); }
+.http-body > p { background-color: rgba(255,0,70,0.5); }
+
+.ws > p { background-color: rgba(59,90,94,0.8); }
+.ws-common > p { background-color: rgba(59,90,94,0.8); }
+.ws-checks > p { background-color: rgba(59,90,94,0.6); }
+.ws-config > p { background-color: rgba(59,90,94,0.4); }
+
+.javams-start > p { background-color: rgba(205,207,209,0.8); }
+.javams-common > p { background-color: rgba(205,207,209,0.8); }
+.javams-checks > p { background-color: rgba(205,207,209,0.6); }
+.javams-config > p { background-color: rgba(205,207,209,0.4); }
+
+.check > p { background-color: rgba(0,160,255,0.8); }
+.http-checks > p { background-color: rgba(0,160,255,0.7); }
+.check-extractors > p { background-color: rgba(0,160,255,0.6); }
+.check-transformer > p { background-color: rgba(0,160,255,0.5); }
+.check-verifiers > p { background-color: rgba(0,160,255,0.4); }
+.check-saver > p { background-color: rgba(0,160,255,0.3); }
+
+.httpconfig > p { background-color: rgba(0,255,170,0.8); }
+.urls > p { background-color: rgba(0,255,170,0.7); }
+.proxy > p { background-color: rgba(0,255,170,0.6); }
+.headers > p { background-color: rgba(0,255,170,0.5); }
+.options > p { background-color: rgba(0,255,170,0.4); }
+.plumbing > p { background-color: rgba(0,255,170,0.3); }
+
+.assertion > p { background-color: rgba(255,187,51,0.9); }
+.scopes > p { background-color: rgba(255,187,51,0.8); }
+.statistics > p { background-color: rgba(255,187,51,0.7); }
+.response-time-selectors > p {background-color: rgba(255,187,51,0.6); }
+.count-selectors > p {background-color: rgba(255,187,51,0.5); }
+.assertions-conditions > p {background-color: rgba(255,187,51,0.4); }

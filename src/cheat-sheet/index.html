@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Gatling's DSL elements</title>
+	<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link class="theme" rel="stylesheet" type="text/css" href="css/light.css">
+	<script src="js/jquery.min.js" type="text/javascript"></script>
+	<script src="js/bootstrap.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-10826408-12']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</head>
+<body>
+	<div id="content">
+		<h1>Gatling's Cheat sheet</h1>
+		<p>Hover over a DSL element to know how to use it and what it does</p>
+		<ul id="switchtheme">
+			<p>Theme</p>
+			<li><a href="#" rel="css/dark.css" class="btn btn-info">Dark</a></li>
+			<li><a href="#" rel="css/light.css" class="btn btn-info">Light</a></li>
+		</ul>
+		<div class="table struct">
+			<h2>Scenario definition <small>Describe your users behaviour</small></h2>
+			<div class="table scenario">
+				<p data-title="scenario" data-content="Declares a new scenario<dl><dt>(name)</dt><dd><i>name</i> is the scenario name in the reports</dd></dl>">scenario</p>
+			</div>
+			<div class="table struct-base">
+				<p data-title="exec" data-content="Execution Step<dl><dt>(action)</dt><dd>The <i>action</i> that will be executed at this step.</dd><dt>(chain...)</dt><dd>Inserts the <i>chain(s)</i> at this point of the scenario</dd><dt>(Session => Session)</dt><dd>Perform an operation upon the session at this step</dd></dl>">exec</p>
+				<p data-title="group" data-content="Group related requests together<dl><dt>(groupName){chain}</dt><dd>Actions from <i>chain</i> are part of the group named <i>groupName</i> </dd></dl>">group</p>
+				<p data-title="pause" data-content="Declares a fixed or random pause in the scenario<dl><dt>(dur unit)</dt><dd>The pause will last <i>duration</i></dd><dt>(duration, timeunit)</dt><dd>Declares a pause <i>duration</i> with a specific <i>timeunit</i></dd><dt>(dur unit, dur unit)</dt><dd>Declares a pause duration randomly selected between the two durations</dd><dt>(duration, duration, timeunit)</dt><dd>Declares a pause randomly selected between the two durations with a specific time <i>timeunit</i></dd></dl>">pause</p>
+                <p data-title="pace" data-content="Pause which adjusts its wait time depending on how long the chained action took<dl><dt>(dur unit)</dt><dd>The pause will last <i>duration</i></dd><dt>(duration, timeunit)</dt><dd>Declares a pause <i>duration</i> with a specific <i>timeunit</i></dd><dt>(dur unit, dur unit)</dt><dd>Declares a pause duration randomly selected between the two durations</dd><dt>(duration, duration, timeunit)</dt><dd>Declares a pause randomly selected between the two durations with a specific time <i>timeunit</i></dd></dl>">pace</p>
+                <p data-title="rendezVous" data-content="Pauses users until all other users have reached the rendezVous point<dl><dt>(userNumber)</dt><dd>Number of users to wait for</dd></dl>">rendezVous</p>
+            </div>
+			<div class="table conditions">
+				<p data-title="doIf" data-content="Executes a chain when a condition is satisfied<dl><dt>(actual, expected){chain}</dt><dd>If the <i>actual</i> value is equal to <i>expected</i>, then, <i>chain</i> is executed.</dd><dt>(Session => Boolean){chain}</dt><dd>If the result of the function <i>Session => Boolean</i> is true, then <i>chain</i> is executed.</dd></dl>">doIf</p>
+				<p data-title="doIfEqualsOrElse" data-content="Executes a chain when a condition is satisfied, another if not<dl><dt>(Session => Boolean){chain}{otherChain}</dt><dd>If the result of the function <i>Session => Boolean</i> is true, then <i>chain</i> is executed, else <i>otherChain</i> is executed.</dd></dl>">doIfOrElse</p>
+                <p data-title="doSwitch" data-content="Executes a chain based on a key<dl><dt>(key){switch}</dt><dd>Switch is selected through the matching of a key with the evaluation of the passed expression. If no switch is selected, switch is bypassed.</dd></dl>">doSwitch</p>
+                <p data-title="doSwitchOrElse" data-content="Executes a chain based on a key or a fallback chain<dl><dt>(key){switch}{chain}</dt><dd>Switch is selected through the matching of a key with the evaluation of the passed expression. If no switch is selected, <i>chain</i> is executed</dd></dl>">doSwitchOrElse</p>
+                <p data-title="randomSwitch" data-content="Current user will continue in one the specified weighted chains. Can be used to simulate simple Markov chains<dl><dt>(Map[%,Chain])</dt><dd>The <i>Map</i> contains the distribution of the randomSwitch. Each chain is weighted with a percentage. Make sure the sum of weights does not exceed 100.</dd></dl>">randomSwitch</p>
+                <p data-title="randomSwitchOrElse" data-content="Current user will continue in one the specified weighted chains. Can be used to simulate simple Markov chains. Fallback available if no switch is selected<dl><dt>(Map[%,Chain]){chain}</dt><dd>The <i>Map</i> contains the distribution of the randomSwitch. Each chain is weighted with a percentage. Make sure the sum of weights does not exceed 100. If no switch is selected then <i>chain</i> is executed.</dd></dl>">randomSwitchOrElse</p>
+                <p class="reallyLong" data-title="uniformRandomSwitch" data-content="Current user will continue in one of the uniform distributed chains. Can be used to simulate simple Markov chains<dl><dt>(chains...)</dt><dd>The list of <i>chains</i>.</dd></dl>">uniformRandomSwitch</p>
+                <p data-title="roundRobinSwitch" data-content="A round-robin strategy is used to determine the chain to be executed.<dl><dt>(chains...)</dt><dd>The list of <i>chains</i>.</dd></dl>">roundRobinSwitch</p>
+			</div>
+			<div class="table loops left">
+                <p data-title="forever" data-content="Repeats a part of the scenario<dl><dt>(counterName){chain}</dt><dd>The <i>chain</i> is repeated forever. Forcing the counter name with <i>counterName</i> is optional</dd></dl>">forever</p>
+				<p data-title="repeat" data-content="Repeats a part of the scenario<dl><dt>(times){chain}</dt><dd>The <i>chain</i> is repeated the specified number of <i>times</i></dd><dt>(times, counterName){chain}</dt><dd>The <i>chain</i> is repeated the specified number of <i>times</i> with a forced counter name</dd></dl>">repeat</p>
+				<p data-title="during" data-content="Repeats a part of the scenario<dl><dt>(dur unit){chain}</dt><dd>The <i>chain</i> is repeated for at least <i>dur unit</i></dd><dt>(dur unit, counterName){chain}</dt><dd>Same as above with forced counter name</dd></dl>">during</p>
+				<p data-title="asLongAs" data-content="Repeats a part of the scenario<dl><dt>(condition){chain}</dt><dd>The <i>chain</i> is repeated as long as the condition is satisfied</dd><dt>(condition, counterName){chain}</dt><dd>Same as above with forced counter name</dd></dl>">asLongAs</p>
+				<p data-title="foreach" data-content="Repeats a part of the scenario<dl><dt>(sequenceName, elementName){chain}</dt><dd>The <i>chain</i> is repeated for every element in the sequence stored in the session under the <i>sequenceName</i> key and the current element is stored in the Session under the <i>elementName</i> key</dd><dt>(sequenceName, elementName, counterName)</dt><dd>Same as above with forced counter name</dd></dl>">foreach</p>
+			</div>
+			<div class="table failure-handling left">
+				<p data-title="tryMax" data-content="Retries a chain until it succeeds<dl><dt>(times){chain}</dt><dd><i>chain</i> will be repeated until either all checks in it are OK; or the chain has been repeated <i>times</i> times.</dd></dl>">tryMax</p>
+				<p data-title="exitBlockOnFail" data-content="Stops block execution if a check fails<dl><dt>{chain}</dt><dd>If a check in <i>chain</i> fails, its execution is stopped and the scenario continues.</dd></dl>">exitBlockOnFail</p>
+				<p data-title="exitHereIfFailed" data-content="If there were an error during execution, the scenario should stop at this point.">exitHereIfFailed</p>
+			</div>
+		</div>
+        <div class="table simu-config">
+            <h2>Simulation configuration <small>Tune your simulation</small></h2>
+            <div class="table throttling">
+                <p data-title="throttle" data-content="Allows to reason in terms of request per second and not in terms of users. Can also be defined at the scenario level. Throttle can take one to many building blocks described below.<dl><dt>(reachRps(target) in (dur unit))</dt><dd>Target a throughput with a ramp over a given <i>duration</i></dd></dl><dl><dt>(jumpToRps(target))</dt><dd>Jump immediately to a given targeted throughput</dd></dl><dl><dt>(holdFor(duration))</dt><dd>Hold the current throughput for a given duration</dd><br/>Eg: setUp(...).throttle(reachRps(100) in (10 seconds), holdFor(10 minute))</dl>">throttle</p>
+            </div>
+            <div class="table time">
+                <p data-title="pauses" data-content="Allows to configure pauses. Can also be defined at the scenario level<dl><dt>(disablePauses)</dt><dd>Disable the pauses for the simulation</dd><dt>(constantPauses)</dt><dd>Default value. Durations are precisely those filled in the <i>pause(duration)</i> elements.</dd><dt>(exponentialPauses)</dt><dd>Pause durations are on average those filled in the <i>pause(duration)</i> elements and follow an exponential distribution.</dd><dt>(customPauses(pauseDur))</dt><dd>Pauses durations are computed by the provided <i>pauseDur</i>. In this case the filled duration is bypassed</dd><dt>(uniformPauses(plusOrMinus))</dt><dd>Pause durations are on average those filled in the <i>pause(duration)</i> elements and follow an uniform distribution.</dd></dl>">pauses</p>
+                <p data-title="maxDuration" data-content="Allows to configure the maximum duration of your simulation</dd></dl>">maxDuration</p>
+            </div>
+            <div class="table assert">
+                <p data-title="assertions" data-content="Verifies that global statistics like response time or number of failed requests matches expectations for a whole simulation<dl><dt>(assertions)</dt><dd>One to many assertions</dd></dl>">assertions</p>
+            </div>
+        </div>
+		<div class="table feeders">
+			<h2>Feeder definition <small>Inject data in your scenario</small></h2>
+			<div class="table feeder-types">
+				<p data-title="csv" data-content="Declares a feeder from a CSV or SSV file<dl><dt>(fileName)</dt><dd><i>fileName</i> is the name of the file under the <i>data</i> folder containing the comma separated values to be injected</dd></dl>">csv</p>
+				<p data-title="tsv" data-content="Declares a feeder from a TSV file<dl><dt>(fileName)</dt><dd><i>fileName</i> is the name of the file under the <i>data</i> folder containing the tabulation separated values to be injected</dd></dl>">tsv</p>
+				<p data-title="jdbcFeeder" data-content="Declares a feeder from database records<dl><dt>(dbURL,user,pass,sql)</dt><dd>The feeder will load its values thanks to the <i>sql</i> request made on the database located at the JDBC URL <i>dbURL</i> as <i>user</i>/<i>pass</i>.<br>Note that you need to include the right JDBC4 driver in the classpath (lib folder if using the bundle)</dd></dl>">jdbcFeeder</p>
+				<p data-title="redisFeeder" data-content="<dl><dt>(pool, key)</dt><dd>This feeder loads its values from a Redis <i>pool</i> and stores them under <i>key</i> in the session.</dd></dl>">redisFeeder</p>
+			</div>
+			<div class="table feeder-strategies">
+				<p data-title="queue" data-content="This is the default strategy (you don't have to specify it). It takes the values in the feeder as in a queue. If the queue is not long enough, you'll get an error at execution.">queue</p>
+				<p data-title="random" data-content="This strategy chooses values randomly in the feeder. Values can be chosen several times.">random</p>
+				<p data-title="circular" data-content="This strategy takes the values of the feeder in their order, and when it reaches the last, it returns to the first one.">circular</p>
+			</div>
+		</div>
+		<div class="table scenario-config">
+			<h2>Scenario configuration <small>Tune your scenario</small></h2>
+			<div class="table scen-opts left">
+				<p data-title="nothingFor" data-content="Pauses for a specific duration<dl><dt>(dur unit)</dt><dd>Pause for a given <i>duration</i></dd></dl>">nothingFor</p>
+				<p data-title="atOnceUsers" data-content="Injects a specific number of users at the same time<dl><dt>(nbUsers)</dt><dd>Injects <i>nbUsers</i></dt></dl>">atOnceUsers</p>
+                <p data-title="rampUsers" data-content="Injects a given number of users with a linear ramp over a given duration<dl><dt>(nbUsers) over(dur unit)</dt><dd>Injects <i>nbUsers</i> over a <i>duration</i>. Eg : rampUsers(10) over(5 seconds)</dt></dl>">rampUsers</p>
+			</div>
+            <div class="table scen-opts right">
+                <p data-title="constantUsersPerSec" data-content="Injects users at a constant rate, defined in users per second, during a given duration<dl><dt>(nbUsers) during(dur unit)</dt><dd>Injects <i>nbUsers</i> each second for <i>duration</i>. Eg : rampUsers(10) over(5 seconds)</dt></dl>">constantUsersPerSec</p>
+                <p data-title="rampUsersPerSec" data-content="Injects a random number of users per second over a given duration<dl><dt>(rate1) to (rate2) during(dur unit)</dt><dd>Injects users from starting <i>rate1</i> to target <i>rate2</i>, defined in users per second, during a given <i>duration</i>. Eg : rampUsersPerSec(10) to(20) during(10 minutes)</dt></dl>">rampUsersPerSec</p>
+                <p data-title="splitUsers" data-content="Repeats an injection until reaching desired number of users<dl><dt>(nbUsers) into(injectionStep) separatedBy(dur unit)</dt><dd>Repeats the defined <i>injection step</i> separated by a pause of the given <i>duration</i> until reaching <i>nbUsers</i></dt><dt>(nbUsers) into(injectionStep1) separatedBy(injectionStep2)</dt><dd>Repeats the first defined injection step <i>injectionStep1</i> separated by the execution of the second injection step <i>injectionStep2</i> until reaching <i>nbUsers</i></dt></dl>">splitUsers</p>
+                <p data-title="heavisideUsers" data-content="Injects a given number of users following a smooth approximation stretched to a duration<dl><dt>(nbUsers) over(dur unit)</dt><dd>Injects a given number of users following a smooth approximation of the Heaviside step function stretched to a given <i>duration</i></dd></dl>">heavisideUsers</p>
+            </div>
+		</div>
+		<div class="table action">
+			<h2>HTTP Action <small>Define the HTTP requests sent in your scenario</small></h2>
+			<div class="table http">
+				<p data-title="http" data-content="Declares an HTTP request<dl><dt>(name)</dt><dd><i>name</i> is the request name in the reports</dd></dl>">http</p>
+			</div>
+			<div class="table http-verb">
+				<p data-title="get" data-content="Sets the HTTP method to GET<dl><dt>(url)</dt><dd>Sets the <i>url</i> of the HTTP request</dd></dl>">get</p>
+				<p data-title="post" data-content="Sets the HTTP method to POST<dl><dt>(url)</dt><dd>Sets the <i>url</i> of the HTTP request</dd></dl>">post</p>
+				<p data-title="put" data-content="Sets the HTTP method to PUT<dl><dt>(url)</dt><dd>Sets the <i>url</i> of the HTTP request</dd></dl>">put</p>
+				<p data-title="delete" data-content="Sets the HTTP method to DELETE<dl><dt>(url)</dt><dd>Sets the <i>url</i> of the HTTP request</dd></dl>">delete</p>
+				<p data-title="head" data-content="Sets the HTTP method to HEAD<dl><dt>(url)</dt><dd>Sets the <i>url</i> of the HTTP request</dd></dl>">head</p>
+                <p data-title="patch" data-content="Sets the HTTP method to PATCH<dl><dt>(url)</dt><dd>Sets the <i>url</i> of the HTTP request</dd></dl>">patch</p>
+                <p data-title="options" data-content="Sets the HTTP method to OPTIONS<dl><dt>(url)</dt><dd>Sets the <i>url</i> of the HTTP request</dd></dl>">options</p>
+                <p data-title="httpRequest" data-content="Support for cusbut not logtom methods<dl><dt>(method, url)</dt><dd>Executes <i>method</i> on <i>url</i></dd></dl>">httpRequest</p>
+                <p class="reallyLong" data-title="httpRequestWithParams" data-content="Support for custom methods extending POST<dl><dt>(method, url)</dt><dd>Executes <i>method</i> on <i>url</i></dd></dl>">httpRequestWithParams</p>
+			</div>
+			<div class="table http-opts">
+				<p data-title="queryParam" data-content="Adds a query parameter to the URL<dl><dt>(key, value)</dt><dd>http://example.tld?key=value</dd></dl>">queryParam</p>
+                <p class="reallyLong" data-title="multivaluedQueryParam" data-content="Adds a query parameter to the URL with multiple values<dl><dt>(key, value...)</dt><dd>http://example.tld?key=value1&key=value2&key=value3...</dd></dl>">multivaluedQueryParam</p>
+                <p data-title="queryParamsSeq" data-content="Adds multiple query parameters to the URL<dl><dt>((key, value)...)</dt><dd>http://example.tld?key1=value1&key2=value2&key3=value3...</dd></dl>">queryParamsSeq</p>
+                <p data-title="queryParamsMap" data-content="Adds multiple query parameters to the URL<dl><dt>(Map[key -> value])</dt><dd>http://example.tld?key1=value1&key2=value2&key3=value3...</dd></dl>">queryParamsMap</p>
+                <p data-title="header" data-content="Adds a header to the request.<dl><dt>(key, value)</dt><dd>Adds <i>key: value</i> as header</dd></dl>">header</p>
+				<p data-title="headers" data-content="Adds several headers to the request.<dl><dt>(Map[key, value])</dt><dd>Adds every tuple <i>key: value</i> of the map as header</dd></dl>">headers</p>
+				<p data-title="basicAuth" data-content="Sets the credentials for BASIC authentication<dl><dt>(user, password)</dt><dd>Will authenticate as <i>user</i> with <i>password</i></dd></dl>">basicAuth</p>
+                <p data-title="digestAuth" data-content="Sets the credentials for DIGEST authentication<dl><dt>(user, password)</dt><dd>Will authenticate as <i>user</i> with <i>password</i></dd></dl>">digestAuth</p>
+                <p data-title="authRealm" data-content="Generic method to add authentication<dl><dt>(Realm)</dt><dd>Takes a <i>Realm</i> instance</dd></dl>">authRealm</p>
+                <p data-title="resources" data-content="Allows to fetch resources in parallel in order to emulate the behaviour of a real web browser<dl><dt>(request...)</dt><dd>Multiple requests to get resources</dd></dl>">resources</p>
+            </div>
+			<div class="table http-body left">
+				<p data-title="body" data-content="Adds a body from a resource to the request<dl><dt>(RawFileBody(path))</dt><dd>Uploads a file as is from the <i>path</i></dd><dt>(ELFileBody(path))</dt><dd>Parses, resolves and then uploads a file containing Gatling EL from the <i>path</i></dd><dt>(StringBody(string))</dt><dd>Sets a string</dd><dt>(ByteArrayBody(bytes))</dt><dd>Sets the body from a bytes array</dd><dt>(InputStreamBody(stream))</dt><dd>Sets the body from an input stream</dd></dl>">body</p>
+                <p data-title="bodyPart" data-content="Add a multi-part body from a resource to the request<dl><dt>(RawFileBodyPart(path))</dt><dd>Uploads a file as is from the <i>path</i></dd><dt>(ELFileBodyPart(path))</dt><dd>Parses, resolves and then uploads a file containing Gatling EL from the <i>path</i></dd><dt>(StringBodyPart(string))</dt><dd>Sets a string</dd><dt>(ByteArrayBodyPart(bytes))</dt><dd>Sets the body from a bytes array</dd></dl>">bodyPart</p>
+                <p data-title="param" data-content="Adds a parameter to the request body<dl><dt>(key, value)</dt><dd>Where <i>key</i> is the name and <i>value</i> is a string</dd><dt>(HttpParam)</dt><dd>Where HttpParam is an instance of HttpParam</dd></dl>">param</p>
+                <p data-title="multivaluedParam" data-content="Adds a query parameter to the request body with multiple values<dl><dt>(key, value...)</dt><dd>Where <i>key</i> is the name of one parameter and <i>value</i> can be a list</dd></dl>">multivaluedParam</p>
+                <p data-title="paramsSeq" data-content="Adds multiple query parameters to the request body<dl><dt>((key, value)...)</dt><dd>Where you can have multiple tuples of <i>key</i> and <i>value</i></dd></dl>">paramsSeq</p>
+                <p data-title="paramsMap" data-content="Adds multiple query parameters to the request body<dl><dt>(Map[key -> value])</dt><dd>Where you can have a map of multiple <i>key</i> and <i>value</i></dd></dl>">paramsMap</p>
+                <p data-title="transformResponse" data-content="Allows to process the response before it is sent to the checks pipeline.<dl><dt>(ResponseTransformer)</dt><dd>Takes a <i>ReponseTransformer</i>, which is a Response => Reponse function</i></dd></dl>">transformResponse</p>
+                <p data-title="processRequestBody" data-content="Allows to process the request body before it is sent to the wire<dl><dt>(processor)</dt><dd>Takes a <i>processor</i> which is a Body => Body function</dd></dl>">processRequestBody</p>
+                <p data-title="formUpload" data-content="Provides a multi-part encoded request when you need to upload a file corresponding to a form text value. Eg: Email attachment<dl><dt>(key, filePath)</dt><dd>Where <i>key</i> is the name of the field and <i>filePath</i> a path to a file located in /request-bodies</dd></dl>">formUpload</p>
+			</div>
+		</div>
+		<div class="table checks-http">
+			<h2>HTTP Checks <small>Verifying server responses</small></h2>
+			<div class="table check">
+				<p data-title="check" data-content="Declare every check that should apply on the action<dl><dt>(check...)</dt><dd>Every check you need to make on the response from the server</dd></dl>">check</p>
+			</div>
+			<div class="table http-checks">
+				<p data-title="status" data-content="Check will be applied to the status of the HTTP response">status</p>
+				<p data-title="currentLocation" data-content="Check will be applied to the current url of the response">currentLocation</p>
+				<p data-title="header" data-content="Check will be applied to selected headers of the HTTP response<dl><dt>(headerName)</dt><dd>The check will be applied on the header corresponding to <i>headerName</i></dd><dt>(Session => String)</dt><dd>Same as above, except that the header name is given by the <i>Session => String</i> function.</dd></dl>">header</p>
+				<p data-title="headerRegex" data-content="Check will be applied to selected headers of the HTTP response<dl><dt>(headerName, pattern)</dt><dd>The check will be applied on the headers <i>headerName</i> whose value match the provided <i>pattern</i>.</dd><dt>(Session => String)</dt><dd>Same as above, except that the header name is given by the <i>Session => String</i> function.</dd></dl>">headerRegex</p>
+				<p data-title="responseTimeInMillis" data-content="Check will be applied to the response time of the server" class="tooLong">responseTimeInMillis</p>
+				<p data-title="latencyInMillis" data-content="Check will be applied to the latency of the request/response round trip">latencyInMillis</p>
+                <p data-title="bodyString" data-content="Return the full response body String.">bodyString</p>
+                <p data-title="bodyBytes" data-content="Return the full response body byte array.">bodyBytes</p>
+				<p data-title="regex" data-content="Check will be applied to an extract of the HTTP response's body<dl><dt>(expression)</dt><dd>Extraction will use a regular expression defined by <i>expression</i>.</dd></dl>">regex</p>
+				<p data-title="xpath" data-content="Check will be applied to an extract of the HTTP response's body<dl><dt>(expression)</dt><dd>Extraction will use an XPath expression defined by <i>expression</i></dd><dt>(expression, namespaces)</dt><dd>If you want to use namespaces in your XPATH expression, you should specify them. The <i>namespaces</i> are specified thanks to a List[(prefix,uri)]:<br>List(('c','http://core'), ('f','http://format')).</dd><dt>(Session => String)</dt><dd>The expression can be expressed as a <i>Session => String</i> function (with namespaces also)</dd></dl>">xpath</p>
+				<p data-title="jsonPath" data-content="Check will be applied to an extract of the HTTP response's body<dl><dt>(expression)</dt><dd>jsonPath is similar to XPATH, but for JSON encoded data.</dd></dl>">jsonPath</p>
+                <p data-title="jsonpJsonPath" data-content="Check will be applied to an extract of the HTTP response's body<dl><dt>(expression)</dt><dd>jsonpJsonPath is similar to jsonPath, but for JSONP</dd></dl>">jsonpJsonPath</p>
+                <p data-title="css" data-content="Check will be applied to an extract of the HTTP response's body<dl><dt>(expression)</dt><dd>Uses the <i>css</i> selector to extract the value to be checked.</dd><dt>(expression, attr)</dt><dd>Same as above, except that the extracted value is the <i>attr</i> of the selected node.</dd></dl>">css</p>
+				<p data-title="md5" data-content="Check will be applied on the md5 checksum of the HTTP response">md5</p>
+				<p data-title="sha1" data-content="Check will be applied on the sha1 checksum of the HTTP response">sha1</p>
+			</div>
+			<div class="table check-extractors">
+				<p data-title="find" data-content="Specifies that only one value matching the check definition must be extracted<dl><dt>&oslash;</dt><dd>If used as <i>find</i> check will be applied on the first value found. Note that this is the default behaviour, you don't have to specify it.</dd><dt>(occurrence)</dt><dd>Gets the <i>occurrence</i>-th value that matches the check definition.</dd></dl>">find</p>
+				<p data-title="findAll" data-content="Specifies that every value matching the check definition should be extracted for verification. The resulting type is a list of extracted values.">findAll</p>
+				<p data-title="count" data-content="The check will be applied on the size of the list returned by findall">count</p>
+			</div>
+			<div class="table check-transformer">
+				<p data-title="transform" data-content="Used to transform data before verification<dl><dt>(A => B)</dt><dd>This function is optional. It can be useful sometimes to apply a transformation on the extracted values before validating them. In this function, type <i>A</i> is the type of the find operation (either <i>String</i>, <i>List[String]</i> or <i>Int</i>). Type B is whatever you want it to be (could be a case class for example)</dd></dl>">transform</p>
+                <p data-title="fullTransform" data-content="Used to transform data before verification<dl><dt>(Option[A] => Validation[Option[B]])</dt><dd>Gives full control over the extracted result, even providing a default value</dd></dl>">fullTransform</p>
+
+            </div>
+			<div class="table check-verifiers left">
+				<p data-title="is" data-content="Checks for equality<dl><dt>(expected)</dt><dd>if the captured (or transformed) value is equal to <i>expected</i> the check will succeed; it will fail otherwise</dd></dl>">is</p>
+				<p data-title="not" data-content="Checks for inequality<dl><dt>(expected)</dt><dd>If the captured (or transformed) value is different than <i>expected</i> the check will succeed; it will fail otherwise</dd></dl>">not</p>
+				<p data-title="exists" data-content="Checks that there's at least one value corresponding to the check definition .This is the default verification (it does not need to be specified)">exists</p>
+				<p data-title="notExists" data-content="Checks that there are no values corresponding to the check definition">notExists</p>
+				<p data-title="in" data-content="Checks for belonging to a sequence<dl><dt>(sequence)</dt><dd>If the captured (or transformed) value is included in the <i>sequence</i> the check will succeed; it will fail otherwise</dd></dl>">in</p>
+				<p data-title="dontValidate" data-content="Always returns true. Used to capture optional values into the session">dontValidate</p>
+			</div>
+			<div class="table check-saver left">
+				<p data-title="saveAs" data-content="If the check succeeds, it captures the extracted value(s) into the session<dl><dt>(key)</dt><dd>The value(s) will be stored in the session under key <i>key</i></dd></dl>">saveAs</p>
+			</div>
+		</div>
+		<div class="table http-config">
+			<h2>HTTP Configuration <small>Factorise your scenario's code and tune the behaviour of Gatling's HTTP client</small></h2>
+			<div class="table httpconfig">
+				<p data-title="httpconfig" data-content="Used to start the definition of an HTTP configuration">httpconfig</p>
+			</div>
+			<div class="table urls">
+				<p data-title="baseURL" data-content="Sets the base URL of all relative URLs of the scenario on which the configuration is applied<dl><dt>(url)</dt><dd>The <i>url</i> that will be appended to all relative URLs (ie: not starting with http)</dd></dl>">baseURL</p>
+				<p data-title="baseURLs" data-content="Same as <i>baseURL</i> with client-based load balancing.<dl><dt>(url...)</dt><dd>Each <i>url</i> will be used randomly to implement client load-balancing.</dd></dl>">baseURLs</p>
+                <p data-title="virtualHost" data-content="Overrides the default computed virtual host<dl><dt>(name)</dt><dd>Eg: GET https://mobile.github.com/excilys/gatling instead of GET https://www.github.com/excilys/gatling</dd></dl>">virtualHost</p>
+            </div>
+			<div class="table proxy">
+				<p data-title="proxy" data-content="Declares a proxy for all HTTP requetes of the scenario on which the configuration is applied<dl><dt>(Proxy)</dt><dd>The requests will pass throught the proxy located within the <i>Proxy</i> object</dd></dl>">proxy</p>
+                <p data-title="noProxyFor" data-content="Disables the proxy for a certain list of hosts<dl><dt>(hosts)</dt><dd>The <i>hosts</i> ignoring the proxy</dd></dl>">noProxyFor</p>
+                <p data-title="httpsPort" data-content="Uses this if Gatling should use the proxy for HTTPS also<dl><dt>(port)</dt><dd>The HTTPS <i>port</i> of the proxy</dd></dl>">httpsPort</p>
+				<p data-title="credentials" data-content="If your proxy requires BASIC authentication you can set the credentials with this method<dl><dt>(username,password)</dt><dd>The requests will be sent as the user <i>username/password</i></dd></dl>">credentials</p>
+			</div>
+			<div class="table headers">
+				<p data-title="acceptHeader" data-content="Sets the Accept header for all requests<dl><dt>(value)</dt><dd>The <i>value</i> of the header.</dd></dl>">acceptHeader</p>
+				<p data-title="acceptCharsetHeader" data-content="Sets the Accept-Charset header for all requests<dl><dt>(value)</dt><dd>The <i>value</i> of the header</dd></dl>" class="tooLong">acceptCharsetHeader</p>
+				<p data-title="acceptEncodingHeader" data-content="Sets the Accept-Encoding header for all requests<dl><dt>(value)</dt><dd>The <i>value</i> of the header</dd></dl>" class="reallyLong">acceptEncodingHeader</p>
+				<p data-title="acceptLanguageHeader" data-content="Sets the Accept-Language header for all requests<dl><dt>(value)</dt><dd>The <i>value</i> of the header</dd></dl>" class="reallyLong">acceptLanguageHeader</p>
+                <p data-title="authorizationHeader" data-content="Sets the Authorization header for all requests<dl><dt>(value)</dt><dd>The <i>value</i> of the header</dd></dl>">authorizationHeader</p>
+                <p data-title="doNotTrackHeader" data-content="Sets the DNT header for all requests<dl><dt>(value)</dt><dd>The <i>value</i> of the header.</dd></dl>">doNotTrackHeader</p>
+                <p data-title="userAgentHeader" data-content="Sets the Accept-Language header for all requests<dl><dt>(value)</dt><dd>The <i>value</i> of the header</dd></dl>">userAgentHeader</p>
+			</div>
+			<div class="table options left">
+				<p data-title="disableFollowRedirect" data-content="Forces the HTTP engine not to follow the redirects. You can also disable it globally on the HttpProtocol" class="reallyLong">disableFollowRedirect</p>
+                <p data-title="maxRedirects" data-content="Avoids infinite redirection loops by specifying a number max of redirects<dl><dt>(max)</dt><dd>Where <i>max</i> is the number of max redirects</dd></dl>">maxRedirects</p>
+				<p data-title="disableAutomaticReferer" data-content="Forces Gatling not to set the referer of the requests" class="reallyLong">disableAutomaticReferer</p>
+				<p data-title="disableWarmUp" data-content="Disables the warm up request">disableWarmUp</p>
+				<p data-title="warmUp" data-content="Sets the URL used by Gatling to warm up the HTTP engine<dl><dt>(url)</dt><dd>A valid and accessible <i>url</i></dd></dl>">warmUp</p>
+                <p data-title="ignoreDefaultChecks" data-content="Ignores checks for a given request. You can also disable common checks that were defined on the HttpProtocol">ignoreDefaultChecks</p>
+                <p data-title="silent" data-content="Allows to issue the request without logging it">silent</p>
+                <p data-title="fetchHtmlResources" data-content="Allows to fetch resources in parallel in order to emulate the behaviour of a real web browser<dl><dt>(WhiteList)</dt><dd>Fetch all resources matching a pattern in the white list</dd><dt>(WhiteList, BlackList)</dt><dd>Fetch all resources matching a pattern in the white list excepting those in the black list</dd><dt>(Filters)</dt><dd>More generic version taking any kind of filters</dd></dl>">fetchHtmlResources</p>
+                <p class="reallyLong" data-title="maxConnectionsPerHost" data-content="Sets the maximum concurrent connections per host per virtual user. Predefined parameters are available through methods such as maxConnectionsPerHostLikeFirefox...<dl><dt>(max)</dt><dd>Where <i>max</i> is the number of maximum connections</dd></dl>">maxConnectionsPerHost</p>
+                <p data-title="shareConnections" data-content="Allows to share connections among users">shareConnections</p>
+                <p data-title="disableClientSharing" data-content="Enables one http client per user">disableClientSharing</p>
+                <p data-title="localAddress" data-content="Binds the sockets from a specific local address instead of the default one<dl><dt>(InetAddress)</dt><dd>Instance of InetAddress representing the address</dd></dl>">disableClientSharing</p>
+                <p data-title="disableCaching" data-content="Disables caching features for some http headers and ETag">disableCaching</p>
+            </div>
+			<div class="table plumbing left">
+				<p data-title="requestInfoExtractor" data-content="Dumps additional request data into simulation.log during the simulation<dl><dt>(Request => List[String])</dt><dd>The function is used by Gatling to add several columns containing request info to the simulation log file.</dd></dl>" class="tooLong">requestInfoExtractor</p>
+				<p data-title="responseInfoExtractor" data-content="Dumps additional response data into simulation.log during the simulation<dl><dt>(Response => List[String])</dt><dd>The function is used by Gatling to add several columns containing response info to the simulation log file.</dd></dl>" class="tooLong" class="reallyLong">responseInfoExtractor</p>
+				<p data-title="disableResponseChunksDiscarding" data-content="If you want the body of the response to be kept when using <i>responseInfoExtractor</i>, you'll have to disable response chunk discard (which is a performance optimization)" class="reallyTooLong">disableResponseChunksDiscarding</p>
+			</div>
+		</div>
+		<div class="table assertions">
+			<h2>Assertions <small>Check that your results match your expectations</small></h2>
+			<div class="table assertion">
+				<p data-title="assertThat" data-content="Declare the assertions on your simulation <dl><dt>(assertion...)</dt><dd>Every assertion your simulation results will be checked against </dd></dl>">assertThat</p>
+			</div>
+			<div class="table scopes">
+				<p data-title="global" data-content="Use statistics calculated from all requests">global</p>
+				<p data-title="details" data-content="Use statistics calculated from a group or a request <dl><dt>(path)</dt><dd>The request or group path</dd></dl>">details</p>
+			</div>
+			<div class="table statistics">
+				<p data-title="responseTime" data-content="Target the response time in milliseconds">responseTime</p>
+				<p data-title="allRequests" data-content="Target the number of requests">allRequests</p>
+				<p data-title="failedRequests" data-content="Target the number of failed requests">failedRequests</p>
+				<p data-title="successfulRequests" data-content="Target the number of successful requests">successfulRequests</p>
+				<p data-title="requestsPerSec" data-content="Target the rate of requests per second">requestsPerSec</p>
+			</div>
+			<!-- <dl><dt></dt><dd></dd></dl> -->
+			<div class="table response-time-selectors">
+				<p data-title="min" data-content="Perform the assertion on the minimum of the stat">min</p>
+				<p data-title="max" data-content="Perform the assertion on the maximum of the stat">max</p>
+				<p data-title="mean" data-content="Perform the assertion on the mean of the stat">mean</p>
+				<p data-title="stdDev" data-content="Perform the assertion on the standard deviation of the stat">stdDev</p>
+				<p data-title="percentiles1" data-content="Perform the assertion on the first percentile of the stat">percentiles1</p>
+				<p data-title="percentiles2" data-content="Perform the assertion on the second percentile of the stat">percentiles2</p>
+			</div>
+			<div class="table count-selectors left">
+				<p data-title="percent" data-content="Use the value as a percentage between 0 and 100">percent</p>
+				<p data-title="count" data-content="Perform the assertion on the count of requests">count</p>
+			</div>
+			<div class="table assertions-conditions left">
+				<p data-title="lessThan" data-content="Check that the value of the statistic is less than the threshold<dl><dt>(threshold)</dt><dd>the statistic's higher bound</dd></dl>">lessThan</p>
+				<p data-title="greaterThan" data-content="Check that the value of the statistic is greater than the threshold<dl><dt>(threshold)</dt><dd>the statistic's lower bound</dd></dl>">greaterThan</p>
+				<p data-title="between" data-content="Check that the value of the statistic is between two thresholds<dl><dt>(thresholdMin,thresholdMax)</dt><dd>the statistic's bounds</dd></dl>">between</p>
+				<p data-title="is" data-content="Check that the value of the statistic is equal to the given value<dl><dt>(value)</dt><dd>the <i>value</i> the statistic must be equal to</dd></dl>">is</p>
+				<p data-title="in" data-content="Check that the value of statistic is in a sequence<dl><dt>(sequence)</dt><dd>the <i>sequence</i> the statistic has to be in</dd></dl>">in</p>
+				<p data-title="assert" data-content="Create a custom condition on the value of the statistic<dl><dt>(condition,message)</dt><dd>the <i>condition</i> your statistic must fulfill,described by <i>message</i></dd></dl>">assert</p>
+			</div>
+		</div>
+        <div class="table websocket">
+            <h2>Websockets <small>Define the Websocket requests sent in your scenario</small></h2>
+            <div class="table ws">
+                <p data-title="ws" data-content="Declares an websocket request<dl><dt>(requestName)</dt><dd>Name of the request</dd></dl>">ws</p>
+            </div>
+            <div class="table ws-common">
+                <p data-title="wsName" data-content="Allows to deal with several websockets per virtual user<dl><dt>(requestName)</dt><dd>Gives the requests a name and pass this name on each ws operation</dd></dl>">wsName</p>
+                <p data-title="open" data-content="Opens a websocket<dl><dt>(url)</dt><dd>Enables communication to the given <i>url</i></dd></dl>">open</p>
+                <p data-title="close" data-content="Closes a websocket">close</p>
+                <p data-title="sendText" data-content="Sends a message<dl><dt>(stringMessage)</dt><dd>Send <i>stringMessage</i> as a string</dd><dt>(bytesMessage)</dt><dd>Send <i>bytesMessage</i> as a bytes array</dd></dl>">sendText</p>
+            </div>
+        </div>
+        <div class="table websocket-checks">
+            <h2>Websockets Checks <small>Verifying server reponses</small></h2>
+            <div class="table ws-checks">
+                <p data-title="cancelCheck" data-content="Cancels a pending check">cancelCheck</p>
+                <p data-title="wsListen" data-content="Creates a non blocking check">wsListen</p>
+                <p data-title="wsAwait" data-content="Creates a blocking check">wsAwait</p>
+                <p data-title="within" data-content="Sets a timeout<dl><dt>(timeout)</dt><dd>Where <i>timeout</i> is a FiniteDuration instance</dd></dl>">within</p>
+                <p data-title="until" data-content="Checks will succeed as soon as Gatling has received the expected count of matching messages<dl><dt>(count)</dt><dd>Where <i>count</i> is the number of matching messages</dd></dl>">until</p>
+                <p data-title="expect" data-content="Waits until the timeout, then the check will succeed if it has received the expected count of matching messages<dl><dt>(count)</dt><dd>Where <i>count</i> is the number of matching messages</dd><dt>(range)</dt><dd>Where <i>range</i> is an instance of Range</dd></dl>">expect</p>
+                <p data-title="regex" data-content="Check will be applied to an extract of the frame payload<dl><dt>(expression)</dt><dd>Extraction will use a regular expression defined by <i>expression</i>.</dd></dl>">regex</p>
+                <p data-title="jsonPath" data-content="Check will be applied to an extract of the frame payload<dl><dt>(expression)</dt><dd>jsonPath is similar to XPATH, but for JSON encoded data.</dd></dl>">jsonPath</p>
+                <p data-title="jsonpJsonPath" data-content="Check will be applied to an extract of the frame payload<dl><dt>(expression)</dt><dd>jsonpJsonPath is similar to jsonPath, but for JSONP</dd></dl>">jsonpJsonPath</p>
+                <p data-title="reconciliate" data-content="Reconciliates main flow and websocket's flow">reconciliate</p>
+            </div>
+        </div>
+        <div class="table websocket-config">
+            <h2>Websockets Configuration <small>Factorise your websockets code and tune the behaviour of Gatling's websocket client</small></h2>
+            <div class="table ws-config">
+                <p data-title="wsBaseURL" data-content="Serves as root that will be prepended to all relative websocket urls<dl><dt>(url)</dt><dd>Where <i>url</i> is the root url</dd></dl>">wsBaseURL</p>
+                <p data-title="wsBaseURLs" data-content="Serves as roundrobin roots that will be prepended to all relative websocket urls<dl><dt>(url...)</dt><dd>Where <i>url</i> are the root urls</dd></dl>">wsBaseURLs</p>
+                <p data-title="wsReconnect" data-content="Automatically reconnect a websocket that would have been closed by someone else than the client">wsReconnect</p>
+                <p data-title="wsMaxReconnects" data-content="Sets a limit on the number of times a websocket will be automatically reconnected<dl><dt>(count)</dt><dd>Where <i>count</i> is the number of maximum reconnections url</dd></dl>">wsMaxReconnects</p>
+            </div>
+        </div>
+        <div class="table jms">
+            <h2>JMS <small>Define the Websocket requests sent in your scenario</small></h2>
+            <div class="table javams-start">
+                <p data-title="jms" data-content="Declares an JMS request<dl><dt>(requestName)</dt><dd>Name of the request</dd></dl>">jms</p>
+            </div>
+            <div class="table javams-common">
+                <p data-title="reqreply" data-content="Sets the messaging implementation to request/reply">reqreply</p>
+                <p data-title="queue" data-content="Defines a target destination<dl><dt>(name)</dt><dd>Where <i>name</i> is the name of the queue</dd></dl>">queue</p>
+                <p data-title="destination" data-content="Defines a target destination<dl><dt>(destination)</dt><dd>Where <i>destination</i> is an instance of JmsDestination</dd></dl>">destination</p>
+                <p data-title="replyQueue" data-content="Defines a reply destination<dl><dt>(name)</dt><dd>Where <i>name</i> is the name of the queue</dd></dl>">replyQueue</p>
+                <p data-title="replyDestination" data-content="Defines a reply destination<dl><dt>(destination)</dt><dd>Where <i>destination</i> is an instance of JmsDestination</dd></dl>">replyDestinationc</p>
+                <p data-title="selector" data-content="Defines a JMS message selector<dl><dt>(selector)</dt><dd>Where <i>selector</i> is the name of the selector</dd></dl>">selector</p>
+                <p data-title="messageMatcher" data-content="Overrides the default request/reply message matching<dl><dt>(messageMatcher)</dt><dd>>Where <i>messageMatcher</i> is an instance of JmsMessageMatcher</dt><dd>Send <i>bytesMessage</i> as a bytes array</dd></dl>">sendText</p>
+                <p data-title="textMessage" data-content="Sends a text message<dl><dt>(textMessage)</dt><dd>Where <i>textMessage</i> is a string</dd></dl>">textMessage</p>
+                <p data-title="bytesMessage" data-content="Sends a byte message<dl><dt>(bytesMessage)</dt><dd>Where <i>bytesMessage</i> is a byte array</dd></dl>">bytesMessage</p>
+                <p data-title="mapMessage" data-content="Sends a map message<dl><dt>(mapMessage)</dt><dd>Where <i>mapMessage</i> is a map</dd></dl>">mapMessage</p>
+                <p data-title="objectMessage" data-content="Sends an object message<dl><dt>(objectMessage)</dt><dd>Where <i>objectMessage</i> is an object implementing JSerializable</dd></dl>">objectMessage</p>
+                <p data-title="property" data-content="Sends additional properties<dl><dt>(property)</dt><dd>Where <i>name</i> is the name of the queue</dd></dl>">property</p>
+
+            </div>
+        </div>
+        <div class="table jms-checks">
+            <h2>JMS Checks <small>Verifying server reponses</small></h2>
+            <div class="table javams-checks">
+                <p data-title="cancelCheck" data-content="Cancels a pending check">cancelCheck</p>
+                <p data-title="wsListen" data-content="Creates a non blocking check">wsListen</p>
+                <p data-title="wsAwait" data-content="Creates a blocking check">wsAwait</p>
+                <p data-title="within" data-content="Sets a timeout<dl><dt>(timeout)</dt><dd>Where <i>timeout</i> is a FiniteDuration instance</dd></dl>">within</p>
+                <p data-title="until" data-content="Checks will succeed as soon as Gatling has received the expected count of matching messages<dl><dt>(count)</dt><dd>Where <i>count</i> is the number of matching messages</dd></dl>">until</p>
+                <p data-title="expect" data-content="Waits until the timeout, then the check will succeed if it has received the expected count of matching messages<dl><dt>(count)</dt><dd>Where <i>count</i> is the number of matching messages</dd><dt>(range)</dt><dd>Where <i>range</i> is an instance of Range</dd></dl>">expect</p>
+                <p data-title="regex" data-content="Check will be applied to an extract of the frame payload<dl><dt>(expression)</dt><dd>Extraction will use a regular expression defined by <i>expression</i>.</dd></dl>">regex</p>
+                <p data-title="jsonPath" data-content="Check will be applied to an extract of the frame payload<dl><dt>(expression)</dt><dd>jsonPath is similar to XPATH, but for JSON encoded data.</dd></dl>">jsonPath</p>
+                <p data-title="jsonpJsonPath" data-content="Check will be applied to an extract of the frame payload<dl><dt>(expression)</dt><dd>jsonpJsonPath is similar to jsonPath, but for JSONP</dd></dl>">jsonpJsonPath</p>
+                <p data-title="reconciliate" data-content="Reconciliates main flow and websocket's flow">reconciliate</p>
+            </div>
+        </div>
+        <div class="table jms-config">
+            <h2>JMS Configuration <small>Factorise your websockets code and tune the behaviour of Gatling's websocket client</small></h2>
+            <div class="table javams-config">
+                <p data-title="simpleCheck" data-content="Allows to check a message<dl><dt>(function)</dt><dd>Where <i>function</i> takes a Message and returns a Boolean</dd></dl>">simpleCheck</p>
+                <p data-title="xpath" data-content="Allows to check a TextMessage with XPath<dl><dt>(expression)</dt><dd>Where <i>expression</i> is an XPath expression</dd></dl>">xpath</p>
+            </div>
+        </div>
+	</div>
+	<script type="text/javascript">
+	
+	$('.table.left p').popover({trigger:'hover', placement:'left'});
+	$('.table p').popover({trigger:'hover', placement:'right'});
+
+	$(document).ready(function(){
+		$('#switchtheme li a').click(function(){
+			$('link.theme').attr('href', $(this).attr('rel'));
+			return false;
+		})
+	});
+	</script>
+</body>
+</html>

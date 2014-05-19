@@ -15,13 +15,13 @@
  */
 package io.gatling.core.result.writer
 
-import io.gatling.core.util.FileHelper.tabulationSeparator
+import io.gatling.core.result.writer.FileDataWriter.Separator
 
 sealed abstract class MessageType {
   def name: String
   def recordLength: Int
   def unapply(string: String) = {
-    val array = string.split(tabulationSeparator)
+    val array = string.split(Separator)
     if (array.length >= recordLength && array(2) == name) Some(array) else None
   }
 }

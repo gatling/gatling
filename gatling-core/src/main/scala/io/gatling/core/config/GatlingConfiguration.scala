@@ -199,7 +199,7 @@ object GatlingConfiguration extends StrictLogging {
           port = config.getInt(CONF_DATA_GRAPHITE_PORT),
           protocol = config.getString(CONF_DATA_GRAPHITE_PROTOCOL),
           rootPathPrefix = config.getString(CONF_DATA_GRAPHITE_ROOT_PATH_PREFIX),
-          bucketWidth = config.getInt(CONF_DATA_GRAPHITE_BUCKET_WIDTH),
+          maxMeasuredValue = config.getInt(CONF_DATA_GRAPHITE_MAX_MEASURED_VALUE),
           bufferSize = config.getInt(CONF_DATA_GRAPHITE_BUFFER_SIZE)),
         jdbc = JDBCDataWriterConfiguration(
           db = DBConfiguration(
@@ -366,7 +366,7 @@ case class GraphiteDataWriterConfiguration(
   port: Int,
   protocol: String,
   rootPathPrefix: String,
-  bucketWidth: Int,
+  maxMeasuredValue: Int,
   bufferSize: Int)
 
 case class GatlingConfiguration(

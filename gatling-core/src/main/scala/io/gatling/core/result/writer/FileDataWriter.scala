@@ -27,6 +27,8 @@ import io.gatling.core.util.UnsyncBufferedOutputStream
 
 object FileDataWriter {
 
+  val Separator = '\t'
+
   val emptyField = " "
 
   val sanitizerPattern = """[\n\r\t]""".r
@@ -44,7 +46,7 @@ object FileDataWriter {
     def getBytes = {
       import runMessage._
       val description = if (runDescription.isEmpty) FileDataWriter.emptyField else runDescription
-      val string = s"$simulationClassName\t$simulationId\t${RunMessageType.name}\t$timestamp\t$description$eol"
+      val string = s"$simulationClassName$Separator$simulationId$Separator${RunMessageType.name}$Separator$timestamp$Separator$description$eol"
       string.getBytes(configuration.core.charset)
     }
   }
@@ -53,7 +55,7 @@ object FileDataWriter {
 
     def getBytes = {
       import userMessage._
-      val string = s"$scenarioName\t$userId\t${UserMessageType.name}\t${event.name}\t$startDate\t$endDate$eol"
+      val string = s"$scenarioName$Separator$userId$Separator${UserMessageType.name}$Separator${event.name}$Separator$startDate$Separator$endDate$eol"
       string.getBytes(configuration.core.charset)
     }
   }
@@ -69,9 +71,9 @@ object FileDataWriter {
         case None    => emptyField
       }
       val serializedGroups = GroupMessageSerializer.serializeGroups(groupHierarchy)
-      val serializedExtraInfo = extraInfo.map(info => fast"\t${sanitize(info.toString)}").mkFastring
+      val serializedExtraInfo = extraInfo.map(info => fast"$Separator${sanitize(info.toString)}").mkFastring
 
-      fast"$scenario\t$userId\t${RequestMessageType.name}\t$serializedGroups\t$name\t$requestStartDate\t$requestEndDate\t$responseStartDate\t$responseEndDate\t$status\t$nonEmptyMessage$serializedExtraInfo$eol"
+      fast"$scenario$Separator$userId$Separator${RequestMessageType.name}$Separator$serializedGroups$Separator$name$Separator$requestStartDate$Separator$requestEndDate$Separator$responseStartDate$Separator$responseEndDate$Separator$status$Separator$nonEmptyMessage$serializedExtraInfo$eol"
     }
   }
 
@@ -93,7 +95,7 @@ object FileDataWriter {
     def serialize(groupMessage: GroupMessage) = {
       import groupMessage._
       val serializedGroups = serializeGroups(groupHierarchy)
-      fast"$scenarioName\t$userId\t${GroupMessageType.name}\t$serializedGroups\t$startDate\t$endDate\t${group.cumulatedResponseTime}\t${group.oks}\t${group.kos}\t$status$eol"
+      fast"$scenarioName$Separator$userId$Separator${GroupMessageType.name}$Separator$serializedGroups$Separator$startDate$Separator$endDate$Separator${group.cumulatedResponseTime}$Separator${group.oks}$Separator${group.kos}$Separator$status$eol"
     }
   }
 

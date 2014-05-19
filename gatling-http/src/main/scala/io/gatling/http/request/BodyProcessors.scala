@@ -19,11 +19,10 @@ import java.io.{ BufferedInputStream, FileInputStream }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Session
-import io.gatling.core.util.IOHelper.withCloseable
-import io.gatling.core.util.UnsyncByteArrayInputStream
+import io.gatling.core.util.{ IO, UnsyncByteArrayInputStream }
 import io.gatling.http.util.GZIPHelper
 
-object BodyProcessors {
+object BodyProcessors extends IO {
 
   val gzip = (body: Body) => {
 

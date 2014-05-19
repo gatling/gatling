@@ -21,9 +21,13 @@ import scala.io.Source
 import au.com.bytecode.opencsv.CSVParser
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
-import io.gatling.core.util.IOHelper.withSource
+import io.gatling.core.util.IO
 
-object SeparatedValuesParser {
+object SeparatedValuesParser extends IO {
+
+  val CommaSeparator = ','
+  val SemicolonSeparator = ';'
+  val TabulationSeparator = '\t'
 
   def parse(resource: Resource, separator: Char, doubleQuote: Char): IndexedSeq[Record[String]] =
     withSource(Source.fromInputStream(resource.inputStream)(configuration.core.codec)) { source =>

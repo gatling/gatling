@@ -23,7 +23,7 @@ import scala.collection.concurrent
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
 import io.gatling.core.session.Expression
-import io.gatling.core.util.FileHelper.RichFile
+import io.gatling.core.util.IO._
 import io.gatling.core.validation.Validation
 import jsr166e.ConcurrentHashMapV8
 
@@ -41,6 +41,6 @@ object RawFileBodies {
     for {
       path <- filePath(session)
       file <- cached(path)
-      validatedFile <- file.validateExistingReadable()
+      validatedFile <- file.validateExistingReadable
     } yield validatedFile
 }

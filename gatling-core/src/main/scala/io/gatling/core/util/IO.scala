@@ -15,62 +15,46 @@
  */
 package io.gatling.core.util
 
-import java.io.{ File => JFile }
+import java.io.{ Closeable, File => JFile }
 import java.net.{ URISyntaxException, URL }
-import java.security.MessageDigest
-
+import scala.io.Source
 import scala.util.Try
 
-import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.StringHelper.{ RichString, bytes2Hex }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
-/**
- * This object groups all utilities for files
- */
-object FileHelper {
-
-  val commaSeparator = ","
-  val semicolonSeparator = ";"
-  val tabulationSeparator = "\t"
-
-  implicit class FileRichString(val string: String) extends AnyVal {
-
-    /**
-     * Transform a string to a simpler one that can be used safely as file name
-     *
-     * @return a simplified string
-     */
-    def toFileName = {
-
-      val trimmed = string.trim match {
-        case "" => "missing_name"
-        case s  => s
-      }
-
-      val md = MessageDigest.getInstance("md5")
-      md.update(trimmed.getBytes(configuration.core.charset))
-      trimmed.clean + "-" + bytes2Hex(md.digest)
-    }
-
-    def toRequestFileName = s"req_${string.toFileName}.html"
-  }
+object IO {
 
   implicit class RichURL(val url: URL) extends AnyVal {
 
-    def jfile(): JFile = Try(new JFile(url.toURI))
+    def jfile: JFile = Try(new JFile(url.toURI))
       .recover { case e: URISyntaxException => new JFile(url.getPath) }
       .get
   }
 
   implicit class RichFile(val file: JFile) extends AnyVal {
 
-    def validateExistingReadable(): Validation[JFile] =
+    def validateExistingReadable: Validation[JFile] =
       if (!file.exists)
         s"File $file doesn't exist".failure
       else if (!file.canRead)
         s"File $file can't be read".failure
       else
         file.success
+  }
+}
+
+trait IO {
+  def withCloseable[T, C <: Closeable](closeable: C)(block: C => T) = {
+    try
+      block(closeable)
+    finally
+      closeable.close()
+  }
+
+  def withSource[T, C <: Source](closeable: C)(block: C => T) = {
+    try
+      block(closeable)
+    finally
+      closeable.close()
   }
 }
