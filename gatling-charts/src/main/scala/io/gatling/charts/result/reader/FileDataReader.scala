@@ -153,9 +153,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     .compute(buckets)
 
   private def countBuffer2IntVsTimePlots(buffer: CountBuffer): Seq[IntVsTimePlot] = buffer
-    .map
-    .values.toSeq
+    .distribution
     .map(plot => plot.copy(value = (plot.value / step * FileDataReader.secMillisecRatio).toInt))
+    .toSeq
     .sortBy(_.time)
 
   def numberOfRequestsPerSecond(status: Option[Status], requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] =
@@ -168,8 +168,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
     // get main and max for request/all status
     val size = allBuffer.stats.count
-    val ok = okBuffers.map.values.toSeq
-    val ko = koBuffer.map.values.toSeq
+    val ok = okBuffers.distribution
+    val ko = koBuffer.distribution
     val min = allBuffer.stats.min
     val max = allBuffer.stats.max
 
@@ -178,7 +178,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     val maxPlots = 100
     if (max - min <= maxPlots) {
         // use exact values
-        def plotsToPercents(plots: Seq[IntVsTimePlot]) = plots.map(plot => PercentVsTimePlot(plot.time, percent(plot.value))).sortBy(_.time)
+        def plotsToPercents(plots: Iterable[IntVsTimePlot]) = plots.map(plot => PercentVsTimePlot(plot.time, percent(plot.value))).toSeq.sortBy(_.time)
       (plotsToPercents(ok), plotsToPercents(ko))
 
     } else {
@@ -189,7 +189,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
       val bucketFunction = StatsHelper.bucket(_: Int, min, max, step, halfStep)
 
-        def process(buffer: Seq[IntVsTimePlot]): Seq[PercentVsTimePlot] = {
+        def process(buffer: Iterable[IntVsTimePlot]): Seq[PercentVsTimePlot] = {
 
           val bucketsWithValues: Map[Int, Double] = buffer
             .map(record => (bucketFunction(record.time), record))
@@ -269,14 +269,14 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
   private def timeAgainstGlobalNumberOfRequestsPerSec(rangeBuffer: RangeBuffer, status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
 
-    val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None, None).map
+    val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None, None).counts
 
     rangeBuffer
       .map
       .toSeq
       .map {
         case (bucket, responseTimes) =>
-          val count = globalCountsByBucket(bucket).value
+          val count = globalCountsByBucket(bucket)
           IntVsTimePlot(math.round(count / step * 1000).toInt, responseTimes.higher)
       }.sortBy(_.time)
   }

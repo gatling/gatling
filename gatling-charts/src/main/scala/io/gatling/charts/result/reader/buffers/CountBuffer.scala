@@ -18,15 +18,17 @@ package io.gatling.charts.result.reader.buffers
 import scala.collection.mutable
 
 import io.gatling.core.result.IntVsTimePlot
-import com.tdunning.math.stats.TDigest
 
 class CountBuffer {
-  val map = mutable.Map.empty[Int, IntVsTimePlot]
-  val digest = TDigest.createArrayDigest(100)
+  val counts = mutable.Map.empty[Int, Int]
 
-  def update(value: Int) {
-    val current = map.getOrElse(value, IntVsTimePlot(value, 0))
-    map.put(value, current.copy(value = current.value + 1))
-    digest.add(value)
+  def update(time: Int) {
+    val newCount = counts.get(time) match {
+      case Some(count) => count + 1
+      case None        => 1
+    }
+    counts.put(time, newCount)
   }
+
+  def distribution: Iterable[IntVsTimePlot] = counts.map { case (time, count) => IntVsTimePlot(time, count) }
 }

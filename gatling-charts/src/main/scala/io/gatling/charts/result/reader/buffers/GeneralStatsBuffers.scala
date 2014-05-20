@@ -23,6 +23,7 @@ import io.gatling.core.result.Group
 import io.gatling.core.result.message.Status
 import io.gatling.core.result.reader.GeneralStats
 import io.gatling.charts.result.reader.GroupRecord
+import com.tdunning.math.stats.AVLTreeDigest
 
 abstract class GeneralStatsBuffers(durationInSec: Long) {
 
@@ -67,9 +68,11 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
 class GeneralStatsBuffer(duration: Long) extends CountBuffer {
   private var sum = 0L
   private var squareSum = 0L
+  val digest = new AVLTreeDigest(50.0)
 
   override def update(time: Int) {
     super.update(time)
+    digest.add(time)
     sum += time
     // risk of overflowing Long.MAX_VALUE?
     squareSum += StatsHelper.square(time)
