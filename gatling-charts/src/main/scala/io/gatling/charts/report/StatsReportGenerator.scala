@@ -21,9 +21,11 @@ import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStat
 import io.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, jsonStatsFile }
 import io.gatling.charts.result.reader.RequestPath
 import io.gatling.charts.template.{ ConsoleTemplate, StatsJsTemplate, StatsJsonTemplate }
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.{ Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
+import io.gatling.core.util.NumberHelper.formatNumberWithSuffix
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
 
@@ -35,14 +37,14 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
         val ok = dataReader.requestGeneralStats(requestName, group, Some(OK))
         val ko = dataReader.requestGeneralStats(requestName, group, Some(KO))
 
-        val numberOfRequestsStatistics = Statistics("numberOfRequests", total.count, ok.count, ko.count)
-        val minResponseTimeStatistics = Statistics("minResponseTime", total.min, ok.min, ko.min)
-        val maxResponseTimeStatistics = Statistics("maxResponseTime", total.max, ok.max, ko.max)
-        val meanResponseTimeStatistics = Statistics("meanResponseTime", total.mean, ok.mean, ko.mean)
-        val stdDeviationStatistics = Statistics("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev)
-        val percentiles1 = Statistics("percentiles1", total.percentile1, ok.percentile1, ko.percentile1)
-        val percentiles2 = Statistics("percentiles2", total.percentile2, ok.percentile2, ko.percentile2)
-        val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
+        val numberOfRequestsStatistics = Statistics("request count", total.count, ok.count, ko.count)
+        val minResponseTimeStatistics = Statistics("min response time", total.min, ok.min, ko.min)
+        val maxResponseTimeStatistics = Statistics("max response time", total.max, ok.max, ko.max)
+        val meanResponseTimeStatistics = Statistics("mean response time", total.mean, ok.mean, ko.mean)
+        val stdDeviationStatistics = Statistics("std deviation", total.stdDev, ok.stdDev, ko.stdDev)
+        val percentiles1 = Statistics(s"response time ${formatNumberWithSuffix(configuration.charting.indicators.percentile1)} percentile", total.percentile1, ok.percentile1, ko.percentile1)
+        val percentiles2 = Statistics(s"response time ${formatNumberWithSuffix(configuration.charting.indicators.percentile2)} percentile", total.percentile2, ok.percentile2, ko.percentile2)
+        val meanNumberOfRequestsPerSecondStatistics = Statistics("mean requests/sec", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
         val groupedCounts = dataReader
           .numberOfRequestInResponseTimeRange(requestName, group).map {
