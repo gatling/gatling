@@ -156,11 +156,11 @@ Here are some examples::
 	      .header("Content-Type", "application/json")
 
 
-.. note:: Headers keys are defined as constants usable in the scenario, for example: ``CONTENT_TYPE``.
-          You can find a list of the predefined constants `here <http://gatling-tool.org/api/gatling-http/#com.excilys.ebi.gatling.http.Predef$>`_.
+.. note:: Headers keys are defined as constants usable in the scenario, for example: ``HttpHeaderNames.CONTENT_TYPE``.
+          You can find a list of the predefined constants `here <https://github.com/excilys/gatling/blob/master/gatling-http/src/main/scala/io/gatling/http/Headers.scala>`_.
 
 .. note:: There are two handful methods to help you deal with JSON requests and XML requests: ``asJSON`` and ``asXML``.
-          They are equivalent to ``header(CONTENT_TYPE, APPLICATION_JSON).header(ACCEPT, APPLICATION_JSON)`` and ``header(CONTENT_TYPE, APPLICATION_XML).header(ACCEPT, APPLICATION_XML)`` respectively.
+          They are equivalent to ``header(HttpHeaderNames.CONTENT_TYPE, APPLICATION_JSON).header(HttpHeaderNames.ACCEPT, HttpHeaderValues.APPLICATION_JSON)`` and ``header(HttpHeaderNames.CONTENT_TYPE, HttpHeaderValues.APPLICATION_XML).header(HttpHeaderNames.ACCEPT, HttpHeaderValues.APPLICATION_XML)`` respectively.
 
 .. note:: Headers can also be defined on the ``HttpProtocol``.
 
