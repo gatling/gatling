@@ -17,7 +17,7 @@ package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 import io.gatling.charts.result.reader.{ RequestRecord, FileDataReader }
-import io.gatling.charts.result.reader.stats.{ PercentilesHelper, StatsHelper }
+import io.gatling.charts.result.reader.stats.StatsHelper
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.Group
 import io.gatling.core.result.message.Status
@@ -85,8 +85,8 @@ class GeneralStatsBuffer(duration: Long) extends CountBuffer {
       val meanRequestsPerSec = valuesCount / (duration / FileDataReader.secMillisecRatio)
       val stdDev = math.round(StatsHelper.stdDev(squareSum / valuesCount.toDouble, meanResponseTime)).toInt
 
-      val percentile1 = (digest.quantile(configuration.charting.indicators.percentile1 / 100.0)).toInt
-      val percentile2 = (digest.quantile(configuration.charting.indicators.percentile2 / 100.0)).toInt
+      val percentile1 = digest.quantile(configuration.charting.indicators.percentile1 / 100.0).toInt
+      val percentile2 = digest.quantile(configuration.charting.indicators.percentile2 / 100.0).toInt
       val min = digest.quantile(0).toInt
       val max = digest.quantile(1).toInt
       GeneralStats(min.toInt, max.toInt, valuesCount, meanResponseTime, stdDev, percentile1, percentile2, meanRequestsPerSec)
