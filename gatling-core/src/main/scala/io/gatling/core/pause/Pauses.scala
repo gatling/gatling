@@ -15,7 +15,6 @@
  */
 package io.gatling.core.pause
 
-import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
@@ -33,19 +32,16 @@ object Disabled extends PauseType {
 }
 
 object Constant extends PauseType {
-  def generator(duration: Expression[Duration]) = duration(_).map(_.toMillis)
+  def generator(duration: Expression[Duration]) = duration.map(_.toMillis)
 }
 
 object Exponential extends PauseType {
 
   val generator = new ThreadLocal[ExponentialGenerator] {
-    override def initialValue() = {
-      val rng = new UnsafeMersenneTwisterRNG()
-      new ExponentialGenerator(1.0, rng)
-    }
+    override def initialValue = new ExponentialGenerator(1.0, new UnsafeMersenneTwisterRNG)
   }
 
-  def generator(duration: Expression[Duration]) = duration(_).map(duration => math.round(generator.get.nextValue * duration.toMillis))
+  def generator(duration: Expression[Duration]) = duration.map(duration => math.round(generator.get.nextValue * duration.toMillis))
 }
 
 case class Custom(custom: Expression[Long]) extends PauseType {
@@ -53,18 +49,17 @@ case class Custom(custom: Expression[Long]) extends PauseType {
 }
 
 case class UniformPercentage(plusOrMinus: Double) extends PauseType {
-  def generator(duration: Expression[Duration]) =
-    duration(_).map { duration =>
-      val mean = duration.toMillis
-      val halfWidth = math.round(mean * plusOrMinus / 100.0)
-      val least = mean - halfWidth
-      val bound = mean + halfWidth + 1
-      ThreadLocalRandom.current.nextLong(least, bound)
-    }
+  def generator(duration: Expression[Duration]) = duration.map { duration =>
+    val mean = duration.toMillis
+    val halfWidth = math.round(mean * plusOrMinus / 100.0)
+    val least = mean - halfWidth
+    val bound = mean + halfWidth + 1
+    ThreadLocalRandom.current.nextLong(least, bound)
+  }
 }
 
 case class UniformDuration(plusOrMinus: Duration) extends PauseType {
-  def generator(duration: Expression[Duration]) = duration(_).map { duration =>
+  def generator(duration: Expression[Duration]) = duration.map { duration =>
     val mean = duration.toMillis
     val halfWidth = plusOrMinus.toMillis
     val least = math.max(mean - halfWidth, 0L)
