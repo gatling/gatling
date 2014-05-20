@@ -27,7 +27,7 @@ import io.gatling.core.util.StandardCharsets.UTF_8
 import io.gatling.http.HeaderNames.CONTENT_TYPE
 import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.scenario._
+import io.gatling.recorder.model._
 import io.gatling.recorder.util.Json
 import org.jboss.netty.handler.codec.http.HttpMethod
 
@@ -36,28 +36,31 @@ import org.jboss.netty.handler.codec.http.HttpMethod
  */
 object HarReader extends IO {
 
-  def apply(path: String)(implicit config: RecorderConfiguration): ScenarioDefinition =
+  def apply(path: String)(implicit config: RecorderConfiguration): SimulationModel = // ScenarioDefinition
     withCloseable(new FileInputStream(path))(apply(_))
 
-  def apply(jsonStream: InputStream)(implicit config: RecorderConfiguration): ScenarioDefinition =
+  def apply(jsonStream: InputStream)(implicit config: RecorderConfiguration): SimulationModel =
     apply(Json.parseJson(jsonStream))
 
-  private def apply(json: Json)(implicit config: RecorderConfiguration): ScenarioDefinition = {
+  private def apply(json: Json)(implicit config: RecorderConfiguration): SimulationModel = {
     val HttpArchive(Log(entries)) = HarMapping.jsonToHttpArchive(json)
 
-    val elements = entries.iterator
+    implicit val model = new SimulationModel()
+
+    val lastTime = entries.iterator
       .filter(e => e.request.method != HttpMethod.CONNECT.getName)
       .filter(e => isValidURL(e.request.url))
       // TODO NICO : can't we move this in Scenario as well ?
       .filter(e => config.filters.filters.map(_.accept(e.request.url)).getOrElse(true))
-      .map(createRequestWithArrivalTime)
-      .toVector
+      .map { createRequestWithArrivalTime }.toSeq.max
 
-    ScenarioDefinition(elements, Nil)
+    model newNavigation (lastTime + 1000, "placeholder_navigation") // TODO - if any pages in the HAR file - work out the navigations....
+    model.postProcess
+    model
   }
 
-  private def createRequestWithArrivalTime(entry: Entry): (Long, RequestElement) = {
-      def buildContent(postParams: Seq[PostParam]): RequestBody =
+  private def createRequestWithArrivalTime(entry: Entry)(implicit model: SimulationModel): Long = { //(Long, RequestModel)
+      def buildContent(postParams: Seq[PostParam]): RequestBodyModel =
         RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
 
     val uri = entry.request.url
@@ -78,7 +81,12 @@ object HarReader extends IO {
       case _                                => Nil
     }
 
-    (entry.arrivalTime, RequestElement(uri, method, headers, body, entry.response.status, embeddedResources))
+    val requestModel = RequestModel(uri, method, headers, body, entry.response.status, embeddedResources, /*responseContentType : Option[String]*/ null)
+    //notify the model
+    model += (entry.arrivalTime, requestModel)
+
+    entry.arrivalTime
+
   }
 
   private def buildHeaders(entry: Entry): Map[String, String] = {

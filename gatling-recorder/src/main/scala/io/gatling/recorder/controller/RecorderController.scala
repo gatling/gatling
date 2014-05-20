@@ -16,15 +16,14 @@
 package io.gatling.recorder.controller
 
 import java.net.URI
+import java.net.URL
 
 import scala.collection.mutable
 import scala.concurrent.duration.DurationLong
 import scala.reflect.io.Path.string2path
 import scala.tools.nsc.io.File
-
 import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
-
 import com.ning.http.util.Base64
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
@@ -34,8 +33,11 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.scenario.{ RequestElement, ScenarioDefinition, ScenarioExporter, TagElement }
+import io.gatling.recorder.model.SimulationModel
 import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
+import io.gatling.recorder.model.RequestModel
+import io.gatling.recorder.export.Exporter
+import io.gatling.recorder.export.HarExporter
 
 object RecorderController {
   def apply(props: Map[String, Any], recorderConfigFile: Option[File] = None) {
@@ -46,50 +48,63 @@ object RecorderController {
 
 class RecorderController extends StrictLogging {
 
+  import scala.collection.mutable.{ Map, SynchronizedMap, HashMap }
+
   private val frontEnd = RecorderFrontend.newFrontend(this)
-
   @volatile private var proxy: HttpProxy = _
-
-  // Collection of tuples, (arrivalTime, request)
-  private val currentRequests = new mutable.ArrayBuffer[(Long, RequestElement)] with mutable.SynchronizedBuffer[(Long, RequestElement)]
-  // Collection of tuples, (arrivalTime, tag)
-  private val currentTags = new mutable.ArrayBuffer[(Long, TagElement)] with mutable.SynchronizedBuffer[(Long, TagElement)]
+  var simulationModel: SimulationModel = null
+  var exporter: Exporter = null
+  // state tracking across request arrival/completion events
+  val arrivalsMap = MapMaker.makeMap
+  var previousCompletionTime: Long = 0
 
   frontEnd.init()
 
+  // TODO - har does not "record" so refactor this
   def startRecording() {
     val selectedMode = frontEnd.selectedMode
-    val harFilePath = frontEnd.harFilePath
-    if (selectedMode == Har && !File(harFilePath).exists) {
-      frontEnd.handleMissingHarFile(harFilePath)
+    if (selectedMode == Har && !File(frontEnd.harFilePath).exists) {
+      frontEnd.handleMissingHarFile(frontEnd.harFilePath)
     } else {
       implicit val config = configuration
-      val simulationFile = File(ScenarioExporter.simulationFilePath)
-      val proceed = if (simulationFile.exists) frontEnd.askSimulationOverwrite else true
+      simulationModel = new SimulationModel()
+      val proceed = if (Exporter.simulationExists) frontEnd.askSimulationOverwrite else true
       if (proceed) {
         selectedMode match {
-          case Har =>
-            ScenarioExporter.exportScenario(harFilePath) match {
+          case Har => {
+            implicit val model = simulationModel
+            exporter = new HarExporter(frontEnd.harFilePath)
+            exporter.export match {
               case Failure(errMsg) => frontEnd.handleHarExportFailure(errMsg)
               case _               => frontEnd.handleHarExportSuccess()
             }
+            // har done here.
+          }
           case Proxy =>
             proxy = new HttpProxy(config, this)
+            implicit val model = simulationModel
+            exporter = new Exporter()
             frontEnd.recordingStarted()
         }
       }
     }
   }
 
+  // only applies to proxy
   def stopRecording(save: Boolean) {
-    frontEnd.recordingStopped()
+
     try {
-      if (currentRequests.isEmpty)
-        logger.info("Nothing was recorded, skipping scenario generation")
+      frontEnd.recordingStopped()
+      if (simulationModel.isEmpty)
+        logger.info("Nothing was recorded, skipping simulation generation")
       else {
         implicit val config = configuration
-        val scenario = ScenarioDefinition(currentRequests.toVector, currentTags.toVector)
-        ScenarioExporter.saveScenario(scenario)
+
+        simulationModel.postProcess
+        exporter.export match {
+          case Failure(errMsg) => // TODO // frontEnd.handleExportFailure(errMsg)
+          case _               => // TODO // frontEnd.handleExportSuccess()
+        }
       }
 
     } finally {
@@ -100,51 +115,66 @@ class RecorderController extends StrictLogging {
   }
 
   def receiveRequest(request: HttpRequest) {
-    // TODO NICO - that's not the appropriate place to synchronize !
-    synchronized {
-      // If Outgoing Proxy set, we record the credentials to use them when sending the request
-      Option(request.headers.get(PROXY_AUTHORIZATION)).foreach {
-        header =>
-          // Split on " " and take 2nd group (Basic credentialsInBase64==)
-          val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
-          val props = new RecorderPropertiesBuilder
-          props.proxyUsername(credentials(0))
-          props.proxyPassword(credentials(1))
-          RecorderConfiguration.reload(props.build)
-      }
-    }
+
+    val arrivalTime = System.currentTimeMillis
+    arrivalsMap += request -> arrivalTime
+    simulationModel.setProxyAuth(extractProxyAuth(request))
   }
 
   def receiveResponse(request: HttpRequest, response: HttpResponse) {
     if (configuration.filters.filters.map(_.accept(request.getUri)).getOrElse(true)) {
-      val arrivalTime = System.currentTimeMillis
 
-      val requestEl = RequestElement(request, response)
-      currentRequests += arrivalTime -> requestEl
+      // ideally we want to order the requests on their arrival time, not completion time
+      val arrivalTime = arrivalsMap(request) // System.currentTimeMillis
+      val requestEl = RequestModel(request, response)
 
-      // Notify the frontend
-      val previousArrivalTime = currentRequests.lastOption.map(_._1)
-      previousArrivalTime.foreach { t =>
-        val delta = (arrivalTime - t).milliseconds
-        if (delta > configuration.core.thresholdForPauseCreation)
-          frontEnd.receiveEventInfo(PauseInfo(delta))
-      }
+      //notify the model
+      simulationModel += (arrivalTime, requestEl)
+
+      // Notify the frontend - Request and pause
+      val delta = (arrivalTime - previousCompletionTime).milliseconds
+      if (previousCompletionTime > 0 && delta > configuration.core.thresholdForPauseCreation)
+        frontEnd.receiveEventInfo(PauseInfo(delta))
       frontEnd.receiveEventInfo(RequestInfo(request, response))
     }
+
+    previousCompletionTime = System.currentTimeMillis
   }
 
+  // A tag is the boundary between Navigations in the model
   def addTag(text: String) {
-    currentTags += System.currentTimeMillis -> TagElement(text)
+
+    simulationModel newNavigation (System.currentTimeMillis, text)
     frontEnd.receiveEventInfo(TagInfo(text))
   }
 
+  //TODO - document what this is
   def secureConnection(securedHostURI: URI) {
     frontEnd.receiveEventInfo(SSLInfo(securedHostURI.toString))
   }
 
   def clearRecorderState() {
-    currentRequests.clear()
-    currentTags.clear()
+    simulationModel.clear
+  }
+
+  object MapMaker {
+    def makeMap: Map[HttpRequest, Long] = {
+      new HashMap[HttpRequest, Long] with SynchronizedMap[HttpRequest, Long] {
+        override def default(key: HttpRequest) =
+          -1
+      }
+    }
+  }
+
+  private def extractProxyAuth(request: HttpRequest): Option[(String, String)] = {
+
+    Option(request.headers.get(PROXY_AUTHORIZATION)).map {
+      header =>
+        // Split on " " and take 2nd group (Basic credentialsInBase64==)
+        val credentials = new String(Base64.decode(header.split(" ")(1))).split(":")
+
+        (credentials(0), credentials(1)) // usename password
+    }
   }
 
 }

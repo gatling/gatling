@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.scenario
+package io.gatling.recorder.model
 
 import java.net.URI
 import java.nio.charset.Charset
 
-import scala.collection.breakOut
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.concurrent.duration.FiniteDuration
 import scala.io.Codec.UTF8
@@ -33,16 +32,16 @@ import io.gatling.http.fetch.{ EmbeddedResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.util.URIHelper
 
-sealed trait ScenarioElement
+sealed trait ExecModel
 
-case class PauseElement(duration: FiniteDuration) extends ScenarioElement
-case class TagElement(text: String) extends ScenarioElement
+case class PauseModel(duration: FiniteDuration) extends ExecModel
+case class TagModel(text: String) extends ExecModel
 
-sealed trait RequestBody
-case class RequestBodyParams(params: List[(String, String)]) extends RequestBody
-case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
+sealed trait RequestBodyModel
+case class RequestBodyParams(params: List[(String, String)]) extends RequestBodyModel
+case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBodyModel
 
-object RequestElement {
+object RequestModel {
 
   val htmlContentType = """(?i)text/html\s*(;\s+charset=(.+))?""".r
 
@@ -53,8 +52,8 @@ object RequestElement {
       Some(bufferBytes)
     } else None
 
-  def apply(request: HttpRequest, response: HttpResponse): RequestElement = {
-    val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }(breakOut)
+  def apply(request: HttpRequest, response: HttpResponse): RequestModel = {
+    val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }.toMap
     val requestContentType = requestHeaders.get(CONTENT_TYPE)
     val responseContentType = Option(response.headers().get(CONTENT_TYPE))
 
@@ -78,12 +77,15 @@ object RequestElement {
       else
         RequestBodyBytes(content))
 
-    RequestElement(new String(request.getUri), request.getMethod.toString, requestHeaders, requestBody, response.getStatus.getCode, resources)
+    RequestModel(new String(request.getUri), request.getMethod.toString, requestHeaders,
+      requestBody, response.getStatus.getCode, resources,
+      responseContentType)
   }
 }
 
-case class RequestElement(uri: String, method: String, headers: Map[String, String], body: Option[RequestBody],
-                          statusCode: Int, embeddedResources: List[EmbeddedResource]) extends ScenarioElement {
+case class RequestModel(uri: String, method: String, headers: Map[String, String], body: Option[RequestBodyModel],
+                        statusCode: Int, embeddedResources: List[EmbeddedResource], responseContentType: Option[String])
+    extends ExecModel {
 
   val (baseUrl, pathQuery) = {
     val (rawBaseUrl, pathQuery) = URIHelper.splitURI(uri)
@@ -98,16 +100,48 @@ case class RequestElement(uri: String, method: String, headers: Map[String, Stri
   var printedUrl = uri
 
   // TODO NICO mutable external fields are a very bad idea
-  var filteredHeadersId: Option[Int] = None
+  //var filteredHeadersId: Option[Int] = None
+  var header_identifier: Option[String] = None
 
   var id: Int = 0
+
+  var IDindex = ""
+
+  val domain = if (baseUrl.startsWith("https://"))
+    baseUrl.stripPrefix("https://")
+  else
+    baseUrl.stripPrefix("http://")
+
+  import java.security.MessageDigest
+
+  def md5(s: String) = {
+    val b = MessageDigest.getInstance("MD5").digest(s.getBytes)
+    b.map("%02X".format(_)).mkString
+  }
+
+  // the variable name in scripts
+  var identifier = identifierRaw
+
+  def identifierRaw = uri.split("/").lastOption match {
+    case Some(s) => { val r = s.split("[?]")(0).replaceAll("\\W", "_"); if (r.equals("")) { "Request_name_FixMe" } else r }
+    case _       => "_unresolved_"
+  }
+
+  def identifierHash = uri.split("/").lastOption match {
+    case Some(s) => { val r = s.split("[?]")(0).replaceAll("\\W", "_") + "_" + md5(uri); if (r.equals("")) { "Request_name_FixMe" } else r } //IDindex
+    case _       => "_unresolved_" + "_" + md5(uri) //IDindex
+  }
+
+  // TODO cleanup
+  // val requestKey = ( domain , responseContentType ) 
+  //  val headersKey = () // TODO
 
   def setId(id: Int) = {
     this.id = id
     this
   }
 
-  def makeRelativeTo(baseUrl: String): RequestElement = {
+  def makeRelativeTo(baseUrl: String): RequestModel = {
     if (baseUrl == this.baseUrl)
       printedUrl = pathQuery
     this
@@ -124,4 +158,16 @@ case class RequestElement(uri: String, method: String, headers: Map[String, Stri
 
     headers.get(AUTHORIZATION).filter(_.startsWith("Basic ")).flatMap(parseCredentials)
   }
+
+  // ceeaspb - TODO - use scala case class features
+  override def equals(that: Any) = that match {
+    case other: RequestModel => other.identifier.equals(identifier)
+    case _                   => false
+  }
+
+  // ceeaspb - TODO - use scala case class features
+  override def hashCode() = {
+    identifier.hashCode()
+  }
 }
+

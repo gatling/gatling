@@ -1,4 +1,19 @@
-package io.gatling.recorder.scenario
+/**
+ * Copyright 2011-2014 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * 		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package io.gatling.recorder.model
 
 import scala.concurrent.duration.{ Duration, DurationLong }
 
@@ -8,18 +23,18 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.http.util.HttpHelper
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.scenario.RequestElement.htmlContentType
+import io.gatling.recorder.model.RequestModel.htmlContentType
 import io.gatling.recorder.util.collection.RichSeq
 
-case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
+case class ScenarioModel(elements: Seq[ExecModel]) {
   def isEmpty = elements.isEmpty
 }
 
-object ScenarioDefinition extends StrictLogging {
+object ScenarioModel extends StrictLogging {
 
-  private def isRedirection(t: (Long, RequestElement)) = HttpHelper.isRedirect(t._2.statusCode)
+  private def isRedirection(t: (Long, RequestModel)) = HttpHelper.isRedirect(t._2.statusCode)
 
-  private def filterRedirection(requests: Seq[(Long, RequestElement)]): List[(Long, RequestElement)] = {
+  private def filterRedirection(requests: Seq[(Long, RequestModel)]): List[(Long, RequestModel)] = {
     val groupedRequests = requests.groupAsLongAs(isRedirection)
 
     // Remove the redirection and keep the last status code
@@ -32,9 +47,9 @@ object ScenarioDefinition extends StrictLogging {
     }.flatten
   }
 
-  private def hasEmbeddedResources(t: (Long, RequestElement)) = !t._2.embeddedResources.isEmpty
+  private def hasEmbeddedResources(t: (Long, RequestModel)) = !t._2.embeddedResources.isEmpty
 
-  private def filterFetchedResources(requests: Seq[(Long, RequestElement)]): Seq[(Long, RequestElement)] = {
+  private def filterFetchedResources(requests: Seq[(Long, RequestModel)]): Seq[(Long, RequestModel)] = {
     val groupedRequests = requests.splitWhen(hasEmbeddedResources)
 
     groupedRequests.map {
@@ -48,8 +63,8 @@ object ScenarioDefinition extends StrictLogging {
     }.flatten
   }
 
-  private def mergeWithPauses(sortedRequests: Seq[(Long, RequestElement)], tags: Seq[(Long, TagElement)],
-                              thresholdForPauseCreation: Duration): Seq[ScenarioElement] = {
+  private def mergeWithPauses(sortedRequests: Seq[(Long, RequestModel)], tags: Seq[(Long, TagModel)],
+                              thresholdForPauseCreation: Duration): Seq[ExecModel] = {
     // Compute the pause elements
     val arrivalTimes = sortedRequests.map(_._1)
     val initTime = arrivalTimes.headOption.getOrElse(0l)
@@ -57,7 +72,7 @@ object ScenarioDefinition extends StrictLogging {
     val liftedRequestsWithPause = sortedRequests.zip(timeBetweenEls).map {
       case ((arrivalTime, request), lag) =>
         if (lag > thresholdForPauseCreation)
-          (arrivalTime, Vector(new PauseElement(lag), request))
+          (arrivalTime, Vector(new PauseModel(lag), request))
         else
           (arrivalTime, Vector(request))
     }
@@ -67,7 +82,9 @@ object ScenarioDefinition extends StrictLogging {
     (liftedTags ++ liftedRequestsWithPause).sortBy(_._1).map(_._2).flatten
   }
 
-  def apply(requests: Seq[(Long, RequestElement)], tags: Seq[(Long, TagElement)])(implicit config: RecorderConfiguration): ScenarioDefinition = {
+  def apply(requests: Seq[(Long, RequestModel)],
+            tags: Seq[(Long, TagModel)])(implicit config: RecorderConfiguration): ScenarioModel = {
+
     val sortedRequests = requests.sortBy(_._1)
 
     val requests1 = if (config.http.followRedirect) filterRedirection(sortedRequests) else sortedRequests
