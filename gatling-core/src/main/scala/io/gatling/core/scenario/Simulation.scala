@@ -99,9 +99,6 @@ abstract class Simulation {
     def customPauses(custom: Expression[Long]) = pauses(Custom(custom))
     def uniformPauses(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
     def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
-    def pauses(pauseType: PauseType) = {
-      _globalProtocols = _globalProtocols + PauseProtocol(pauseType)
-      this
-    }
+    def pauses(pauseType: PauseType) = protocols(PauseProtocol(pauseType))
   }
 }

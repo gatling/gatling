@@ -19,7 +19,7 @@ import scala.collection.mutable
 import scala.concurrent.duration.Duration
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
-import org.apache.commons.math3.distribution.ExponentialDistribution
+import org.uncommons.maths.random.{ UnsafeMersenneTwisterRNG, ExponentialGenerator }
 
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
 
@@ -38,10 +38,14 @@ object Constant extends PauseType {
 
 object Exponential extends PauseType {
 
-  val distributionCache = mutable.Map.empty[Long, ExponentialDistribution]
-  def cachedDistribution(millis: Long) = distributionCache.getOrElseUpdate(millis, new ExponentialDistribution(millis.toDouble))
+  val generator = new ThreadLocal[ExponentialGenerator] {
+    override def initialValue() = {
+      val rng = new UnsafeMersenneTwisterRNG()
+      new ExponentialGenerator(1.0, rng)
+    }
+  }
 
-  def generator(duration: Expression[Duration]) = duration(_).map(duration => math.round(cachedDistribution(duration.toMillis).sample))
+  def generator(duration: Expression[Duration]) = duration(_).map(duration => math.round(generator.get.nextValue * duration.toMillis))
 }
 
 case class Custom(custom: Expression[Long]) extends PauseType {

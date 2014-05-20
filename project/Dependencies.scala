@@ -26,7 +26,7 @@ object Dependencies {
   private val jackson                        = "com.fasterxml.jackson.core" % "jackson-databind"   % "2.4.0-rc3"
   private val boon                           = "io.fastjson"                % "boon"               % "0.17"
   private val jsonpath                       = "io.gatling"                %% "jsonpath"           % "0.4.1"
-  private val commonsMath                    = "org.apache.commons"         % "commons-math3"      % "3.2"
+  private val uncommonsMaths                 = "org.uncommons.maths"        % "uncommons-maths"    % "1.2.1"
   private val joddLagarto                    = "org.jodd"                   % "jodd-lagarto"       % "3.5"
   private val jzlib                          = "com.jcraft"                 % "jzlib"              % "1.1.3"
   private val commonsIo                      = "commons-io"                 % "commons-io"         % "2.4"
@@ -58,7 +58,7 @@ object Dependencies {
 
   def coreDependencies(scalaVersion: String) = Seq(
     scalaCompiler(scalaVersion), jsr166e, akkaActor, saxon, jodaTime, jodaConvert, slf4jApi, scalalogging,
-    scalaReflect(scalaVersion), jsonpath, jackson, boon, commonsMath, joddLagarto, commonsIo, config, fastring,
+    scalaReflect(scalaVersion), jsonpath, jackson, boon, uncommonsMaths, joddLagarto, commonsIo, config, fastring,
     openCsv, logbackClassic) ++ testDeps
 
   val redisDependencies = redisClient +: testDeps
