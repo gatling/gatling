@@ -36,7 +36,9 @@ object GatlingRecorder {
     opt[String](ClassName.full).abbr(ClassName.abbr).foreach(props.simulationClassName).text("Sets the name of the generated class")
     opt[String](Package.full).abbr(Package.abbr).foreach(props.simulationPackage).text("Sets the package of the generated class")
     opt[String](Encoding.full).abbr(Encoding.abbr).foreach(props.encoding).text("Sets the encoding used in the recorder")
-    opt[Boolean](FollowRedirect.full).abbr(FollowRedirect.abbr).foreach(props.followRedirect).text("Sets the follow redirect option to true")
+    opt[Boolean](FollowRedirect.full).abbr(FollowRedirect.abbr).foreach(props.followRedirect).text("""Sets the "Follow Redirects" option to true""")
+    opt[Boolean](AutomaticReferer.full).abbr(AutomaticReferer.abbr).foreach(props.automaticReferer).text("""Sets the "Automatic Referers" option to true""")
+    opt[Boolean](FetchHtmlResources.full).abbr(FetchHtmlResources.abbr).foreach(props.fetchHtmlResources).text("""Sets the "Fetch html resources" option to true""")
   }
 
   def main(args: Array[String]) {
