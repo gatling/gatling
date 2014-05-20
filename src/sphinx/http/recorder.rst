@@ -118,5 +118,7 @@ For those who prefer the command line, command line options can be passed to the
 * **-pkg**: Package of the generated class (alias = **--package**)
 * **-enc**: Encoding used in the Recorder (alias = **--encoding**)
 * **-fr**: Enable *Follow Redirects* (alias = **--follow-redirect**)
+* **-ar**: Enable *Automatic Referers* (alias = **--automatic-referer**)
+* **-fhr**: Enable *Fetch html resources* (alias = **--fetch-html-resources**)
 
 .. note:: Command-line options override saved preferences.

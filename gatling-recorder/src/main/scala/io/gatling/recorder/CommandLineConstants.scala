@@ -31,4 +31,6 @@ object CommandLineConstants {
   val Package = CommandLineConstant("package", "pkg")
   val Encoding = CommandLineConstant("encoding", "enc")
   val FollowRedirect = CommandLineConstant("follow-redirect", "fr")
+  val AutomaticReferer = CommandLineConstant("automatic-referer", "ar")
+  val FetchHtmlResources = CommandLineConstant("fetch-html-resources", "fhr")
 }
