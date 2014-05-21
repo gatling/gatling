@@ -39,7 +39,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
           }
 
           def responseTimeChartComponent: Component = {
-            val responseTimesPercentilesSuccessData = dataReader.responseTimePercentilesOverTime(OK, requestName, group)
+            val responseTimesPercentilesSuccessData = dataReader.responseTimePercentilesOverTime(OK, Some(requestName), group)
 
             val responseTimesSuccessSeries = new Series[PercentilesVsTimePlot]("Response Time Percentiles over Time (success)", responseTimesPercentilesSuccessData, ReportGenerator.PercentilesColors)
 
@@ -74,7 +74,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
 
           def latencyChartComponent: Component = {
 
-            val latencyPercentilesSuccessData = dataReader.latencyPercentilesOverTime(OK, requestName, group)
+            val latencyPercentilesSuccessData = dataReader.latencyPercentilesOverTime(OK, Some(requestName), group)
 
             val latencySuccessSeries = new Series[PercentilesVsTimePlot]("Latency Percentiles over Time (success)", latencyPercentilesSuccessData, ReportGenerator.PercentilesColors)
 

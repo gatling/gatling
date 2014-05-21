@@ -19,7 +19,7 @@ import io.gatling.charts.component.{ Component, ComponentLibrary, ErrorTableComp
 import io.gatling.charts.config.ChartsFiles.globalFile
 import io.gatling.charts.template.GlobalPageTemplate
 import io.gatling.charts.util.Colors._
-import io.gatling.core.result.{ PercentVsTimePlot, IntVsTimePlot, PieSlice, Series }
+import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
 
@@ -71,6 +71,14 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
         componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
       }
 
+      def responseTimeChartComponent: Component = {
+        val responseTimesPercentilesSuccessData = dataReader.responseTimePercentilesOverTime(OK, None, None)
+
+        val responseTimesSuccessSeries = new Series[PercentilesVsTimePlot]("Response Time Percentiles over Time (success)", responseTimesPercentilesSuccessData, ReportGenerator.PercentilesColors)
+
+        componentLibrary.getRequestDetailsResponseTimeChartComponent(dataReader.runStart, responseTimesSuccessSeries)
+      }
+
     val template = new GlobalPageTemplate(
       componentLibrary.getNumberOfRequestsChartComponent(dataReader.requestNames.size),
       componentLibrary.getRequestDetailsIndicatorChartComponent,
@@ -78,6 +86,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
       new ErrorTableComponent(dataReader.errors(None, None)),
       activeSessionsChartComponent,
       responseTimeDistributionChartComponent,
+      responseTimeChartComponent,
       requestsChartComponent,
       responsesChartComponent)
 

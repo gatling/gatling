@@ -24,19 +24,24 @@ trait RequestPercentilesBuffers {
 
   val requestPercentilesBuffers = mutable.Map.empty[BufferKey, (PercentilesBuffers, PercentilesBuffers)]
 
-  private def percentilesBufferPair(requestName: String, group: Option[Group], status: Status): (PercentilesBuffers, PercentilesBuffers) =
-    requestPercentilesBuffers.getOrElseUpdate(BufferKey(Some(requestName), group, Some(status)), (new PercentilesBuffers, new PercentilesBuffers))
+  private def percentilesBufferPair(requestName: Option[String], group: Option[Group], status: Status): (PercentilesBuffers, PercentilesBuffers) =
+    requestPercentilesBuffers.getOrElseUpdate(BufferKey(requestName, group, Some(status)), (new PercentilesBuffers, new PercentilesBuffers))
 
-  def getResponseTimePercentilesBuffers(requestName: String, group: Option[Group], status: Status): PercentilesBuffers =
+  def getResponseTimePercentilesBuffers(requestName: Option[String], group: Option[Group], status: Status): PercentilesBuffers =
     percentilesBufferPair(requestName, group, status)._1
 
-  def getLatencyPercentilesBuffers(requestName: String, group: Option[Group], status: Status): PercentilesBuffers =
+  def getLatencyPercentilesBuffers(requestName: Option[String], group: Option[Group], status: Status): PercentilesBuffers =
     percentilesBufferPair(requestName, group, status)._2
+
+  private def updateRequestPercentilesBuffers(requestName: Option[String], group: Option[Group], status: Status, requestStartBucket: Int, responseTime: Int, latency: Int): Unit = {
+    val (responseTimeHistogramBuffers, latencyHistogramBuffers) = percentilesBufferPair(requestName, group, status)
+    responseTimeHistogramBuffers.update(requestStartBucket, responseTime)
+    latencyHistogramBuffers.update(requestStartBucket, latency)
+  }
 
   def updateRequestPercentilesBuffers(record: RequestRecord): Unit = {
     import record._
-    val (responseTimeHistogramBuffers, latencyHistogramBuffers) = percentilesBufferPair(name, group, status)
-    responseTimeHistogramBuffers.update(requestStartBucket, responseTime)
-    latencyHistogramBuffers.update(requestStartBucket, responseTime)
+    updateRequestPercentilesBuffers(Some(name), group, status, requestStartBucket, responseTime, latency)
+    updateRequestPercentilesBuffers(None, None, status, requestStartBucket, responseTime, latency)
   }
 }

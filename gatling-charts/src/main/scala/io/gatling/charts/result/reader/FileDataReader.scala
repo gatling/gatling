@@ -255,10 +255,10 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
       ("failed", counts.ko))
   }
 
-  def responseTimePercentilesOverTime(status: Status, requestName: String, group: Option[Group]): Seq[PercentilesVsTimePlot] =
+  def responseTimePercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Seq[PercentilesVsTimePlot] =
     resultsHolder.getResponseTimePercentilesBuffers(requestName, group, status).percentiles
 
-  def latencyPercentilesOverTime(status: Status, requestName: String, group: Option[Group]): Seq[PercentilesVsTimePlot] =
+  def latencyPercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Seq[PercentilesVsTimePlot] =
     resultsHolder.getLatencyPercentilesBuffers(requestName, group, status).percentiles
 
   private def timeAgainstGlobalNumberOfRequestsPerSec(buffer: PercentilesBuffers, status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
@@ -277,12 +277,12 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
   }
 
   def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
-    val percentilesBuffer = resultsHolder.getResponseTimePercentilesBuffers(requestName, group, status)
+    val percentilesBuffer = resultsHolder.getResponseTimePercentilesBuffers(Some(requestName), group, status)
     timeAgainstGlobalNumberOfRequestsPerSec(percentilesBuffer, status, requestName, group)
   }
 
   def latencyAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
-    val percentilesBuffer = resultsHolder.getLatencyPercentilesBuffers(requestName, group, status)
+    val percentilesBuffer = resultsHolder.getLatencyPercentilesBuffers(Some(requestName), group, status)
     timeAgainstGlobalNumberOfRequestsPerSec(percentilesBuffer, status, requestName, group)
   }
 
