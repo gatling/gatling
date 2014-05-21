@@ -29,7 +29,7 @@
  */
 package io.gatling.http.request
 
-import com.ning.http.client.Request
+import com.ning.http.client.{ SignatureCalculator, Request }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.session.{ Expression, Session }
@@ -68,4 +68,5 @@ case class HttpRequest(
   silent: Boolean,
   followRedirect: Boolean,
   protocol: HttpProtocol,
-  explicitResources: Seq[HttpRequest])
+  explicitResources: Seq[HttpRequest],
+  signatureCalculator: Option[SignatureCalculator] = None)

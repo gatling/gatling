@@ -15,7 +15,7 @@
  */
 package io.gatling.http.request.builder
 
-import com.ning.http.client.Request
+import com.ning.http.client.{ SignatureCalculator, Request }
 
 import io.gatling.core.session.Expression
 import io.gatling.http.action.HttpRequestActionBuilder
@@ -34,7 +34,8 @@ case class HttpAttributes(
   explicitResources: Seq[AbstractHttpRequestBuilder[_]] = Nil,
   body: Option[Body] = None,
   bodyParts: List[BodyPart] = Nil,
-  extraInfoExtractor: Option[ExtraInfoExtractor] = None)
+  extraInfoExtractor: Option[ExtraInfoExtractor] = None,
+  signatureCalculator: Option[SignatureCalculator] = None)
 
 object AbstractHttpRequestBuilder {
 
@@ -87,6 +88,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
   def request(protocol: HttpProtocol): Expression[Request]
 
+  def signatureCalculator(signatureCalculator: SignatureCalculator): B = newInstance(httpAttributes.copy(signatureCalculator = Some(signatureCalculator)))
+
   /**
    * This method builds the request that will be sent
    *
@@ -127,7 +130,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
       httpAttributes.silent,
       resolvedFollowRedirect,
       protocol,
-      resolvedResources)
+      resolvedResources,
+      httpAttributes.signatureCalculator)
   }
 }
 
