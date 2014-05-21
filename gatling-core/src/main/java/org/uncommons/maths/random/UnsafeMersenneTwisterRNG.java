@@ -29,7 +29,7 @@ import org.uncommons.maths.binary.BinaryUtils;
  *
  * @author Makoto Matsumoto and Takuji Nishimura (original C version)
  * @author Daniel Dyer (Java port)
- * @author Stéphane Landelle (fork that removes ReentrantLock based thread safety)
+ * @author Stephane Landelle (fork that removes ReentrantLock based thread safety)
  */
 public class UnsafeMersenneTwisterRNG extends Random implements RepeatableRNG
 {
