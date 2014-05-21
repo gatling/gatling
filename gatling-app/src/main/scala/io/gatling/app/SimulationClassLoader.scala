@@ -23,6 +23,7 @@ import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.PlainFile
 
 import io.gatling.core.scenario.Simulation
+import scala.util.{ Try, Success }
 
 object SimulationClassLoader {
 
@@ -49,22 +50,28 @@ object SimulationClassLoader {
 
 class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Directory) {
 
+  private def isSimulationClass(clazz: Class[_]): Boolean =
+    classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
+
+  private def pathToClassName(path: Path, root: Path): String =
+    (path.parent / path.stripExtension)
+      .toString()
+      .stripPrefix(root + File.separator)
+      .replace(File.separator, ".")
+
   def simulationClasses(requestedClassName: Option[String]): List[Class[Simulation]] = {
 
-      def isSimulationClass(clazz: Class[_]): Boolean =
-        classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
-
-      def pathToClassName(path: Path, root: Path): String =
-        (path.parent / path.stripExtension)
-          .toString()
-          .stripPrefix(root + File.separator)
-          .replace(File.separator, ".")
-
     requestedClassName.map { requestedClassName =>
-      val clazz = classLoader.loadClass(requestedClassName)
-      assert(isSimulationClass(clazz), s"Requested class name $requestedClassName does not extend Simulation")
-      List(clazz.asInstanceOf[Class[Simulation]])
-
+      Try(classLoader.loadClass(requestedClassName)) match {
+        case Success(clazz) if isSimulationClass(clazz) =>
+          List(clazz.asInstanceOf[Class[Simulation]])
+        case Success(clazz) =>
+          Console.err.println(s"The request class('$requestedClassName') does not extend 'Simulation'.")
+          Nil
+        case _ =>
+          Console.err.println(s"The request class('$requestedClassName') can not be found in the classpath.")
+          Nil
+      }
     }.getOrElse {
       binaryDir
         .deepFiles
