@@ -40,8 +40,8 @@ abstract class DataReader(runUuid: String) {
   def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None, group: Option[Group] = None): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
   def requestGeneralStats(requestName: Option[String] = None, group: Option[Group] = None, status: Option[Status] = None): GeneralStats
   def numberOfRequestInResponseTimeRange(requestName: Option[String] = None, group: Option[Group] = None): Seq[(String, Int)]
-  def responseTimeGroupByExecutionStartDate(status: Status, requestName: String, group: Option[Group] = None): Seq[IntRangeVsTimePlot]
-  def latencyGroupByExecutionStartDate(status: Status, requestName: String, group: Option[Group] = None): Seq[IntRangeVsTimePlot]
+  def responseTimePercentilesOverTime(status: Status, requestName: String, group: Option[Group]): Seq[PercentilesVsTimePlot]
+  def latencyPercentilesOverTime(status: Status, requestName: String, group: Option[Group]): Seq[PercentilesVsTimePlot]
   def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group] = None): Seq[IntVsTimePlot]
   def latencyAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group] = None): Seq[IntVsTimePlot]
 
@@ -51,6 +51,6 @@ abstract class DataReader(runUuid: String) {
   def groupDurationGeneralStats(group: Group, status: Option[Status]): GeneralStats
   def groupCumulatedResponseTimeDistribution(slotsNumber: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
   def groupDurationDistribution(slotsNumber: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
-  def groupCumulatedResponseTimeGroupByExecutionStartDate(status: Status, group: Group): Seq[IntRangeVsTimePlot]
-  def groupDurationGroupByExecutionStartDate(status: Status, group: Group): Seq[IntRangeVsTimePlot]
+  def groupCumulatedResponseTimePercentilesOverTime(status: Status, group: Group): Seq[PercentilesVsTimePlot]
+  def groupDurationPercentilesOverTime(status: Status, group: Group): Seq[PercentilesVsTimePlot]
 }

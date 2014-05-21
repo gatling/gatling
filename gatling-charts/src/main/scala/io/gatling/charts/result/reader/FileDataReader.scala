@@ -23,7 +23,7 @@ import scala.io.Source
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.charts.result.reader.buffers.{ CountBuffer, GeneralStatsBuffer, RangeBuffer }
+import io.gatling.charts.result.reader.buffers.{ PercentilesBuffers, CountBuffer, GeneralStatsBuffer }
 import io.gatling.charts.result.reader.stats.StatsHelper
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
@@ -255,49 +255,42 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
       ("failed", counts.ko))
   }
 
-  private def rangeBuffer2IntRangeVsTimePlots(buffer: RangeBuffer): Seq[IntRangeVsTimePlot] = buffer
-    .map
-    .values
-    .toSeq
-    .sortBy(_.time)
+  def responseTimePercentilesOverTime(status: Status, requestName: String, group: Option[Group]): Seq[PercentilesVsTimePlot] =
+    resultsHolder.getResponseTimePercentilesBuffers(requestName, group, status).percentiles
 
-  def responseTimeGroupByExecutionStartDate(status: Status, requestName: String, group: Option[Group]): Seq[IntRangeVsTimePlot] =
-    rangeBuffer2IntRangeVsTimePlots(resultsHolder.getResponseTimePerSecBuffers(requestName, group, Some(status)))
+  def latencyPercentilesOverTime(status: Status, requestName: String, group: Option[Group]): Seq[PercentilesVsTimePlot] =
+    resultsHolder.getLatencyPercentilesBuffers(requestName, group, status).percentiles
 
-  def latencyGroupByExecutionStartDate(status: Status, requestName: String, group: Option[Group]): Seq[IntRangeVsTimePlot] =
-    rangeBuffer2IntRangeVsTimePlots(resultsHolder.getLatencyPerSecBuffers(requestName, group, Some(status)))
-
-  private def timeAgainstGlobalNumberOfRequestsPerSec(rangeBuffer: RangeBuffer, status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
+  private def timeAgainstGlobalNumberOfRequestsPerSec(buffer: PercentilesBuffers, status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
 
     val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None, None).counts
 
-    rangeBuffer
-      .map
-      .toSeq
+    buffer
+      .digests
       .map {
-        case (bucket, responseTimes) =>
-          val count = globalCountsByBucket(bucket)
-          IntVsTimePlot(math.round(count / step * 1000).toInt, responseTimes.higher)
-      }.sortBy(_.time)
+        case (time, percentiles) =>
+          val count = globalCountsByBucket(time)
+          IntVsTimePlot(math.round(count / step * 1000).toInt, percentiles.quantile(0.95).toInt)
+      }
+      .toSeq
+      .sortBy(_.time)
   }
 
   def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
-
-    val rangeBuffer = resultsHolder.getResponseTimePerSecBuffers(requestName, group, Some(status))
-    timeAgainstGlobalNumberOfRequestsPerSec(rangeBuffer, status, requestName, group)
+    val percentilesBuffer = resultsHolder.getResponseTimePercentilesBuffers(requestName, group, status)
+    timeAgainstGlobalNumberOfRequestsPerSec(percentilesBuffer, status, requestName, group)
   }
 
   def latencyAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
-
-    val rangeBuffer = resultsHolder.getLatencyPerSecBuffers(requestName, group, Some(status))
-    timeAgainstGlobalNumberOfRequestsPerSec(rangeBuffer, status, requestName, group)
+    val percentilesBuffer = resultsHolder.getLatencyPercentilesBuffers(requestName, group, status)
+    timeAgainstGlobalNumberOfRequestsPerSec(percentilesBuffer, status, requestName, group)
   }
 
-  def groupCumulatedResponseTimeGroupByExecutionStartDate(status: Status, group: Group): Seq[IntRangeVsTimePlot] =
-    rangeBuffer2IntRangeVsTimePlots(resultsHolder.getGroupCumulatedResponseTimePerSecBuffers(group, Some(status)))
+  def groupCumulatedResponseTimePercentilesOverTime(status: Status, group: Group): Seq[PercentilesVsTimePlot] =
+    resultsHolder.getGroupCumulatedResponseTimePercentilesBuffers(group, status).percentiles
 
-  def groupDurationGroupByExecutionStartDate(status: Status, group: Group): Seq[IntRangeVsTimePlot] =
-    rangeBuffer2IntRangeVsTimePlots(resultsHolder.getGroupDurationPerSecBuffers(group, Some(status)))
+  def groupDurationPercentilesOverTime(status: Status, group: Group): Seq[PercentilesVsTimePlot] =
+    resultsHolder.getGroupDurationPercentilesBuffers(group, status).percentiles
 
   def errors(requestName: Option[String], group: Option[Group]): Seq[ErrorStats] = {
     val buff = resultsHolder.getErrorsBuffers(requestName, group)

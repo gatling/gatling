@@ -16,8 +16,14 @@
 package io.gatling.charts.report
 
 import io.gatling.charts.component.ComponentLibrary
+import io.gatling.charts.util.Colors._
 import io.gatling.core.result.reader.DataReader
 import io.gatling.core.result.IntVsTimePlot
+
+object ReportGenerator {
+
+  val PercentilesColors: List[String] = List(RED, LIGHT_RED, DARK_ORANGE, ORANGE, YELLOW, LIME, LIGHT_LIME, GREEN, LIGHT_BLUE, BLUE)
+}
 
 abstract class ReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
   def generate()

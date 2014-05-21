@@ -39,12 +39,11 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
           }
 
           def responseTimeChartComponent: Component = {
-            val responseTimesSuccessData = dataReader.responseTimeGroupByExecutionStartDate(OK, requestName, group)
-            val responseTimesFailuresData = dataReader.responseTimeGroupByExecutionStartDate(KO, requestName, group)
-            val responseTimesSuccessSeries = new Series[IntRangeVsTimePlot]("Response Time (success)", responseTimesSuccessData, List(BLUE))
-            val responseTimesFailuresSeries = new Series[IntRangeVsTimePlot]("Response Time (failure)", responseTimesFailuresData, List(RED))
+            val responseTimesPercentilesSuccessData = dataReader.responseTimePercentilesOverTime(OK, requestName, group)
 
-            componentLibrary.getRequestDetailsResponseTimeChartComponent(dataReader.runStart, responseTimesSuccessSeries, responseTimesFailuresSeries)
+            val responseTimesSuccessSeries = new Series[PercentilesVsTimePlot]("Response Time Percentiles over Time (success)", responseTimesPercentilesSuccessData, ReportGenerator.PercentilesColors)
+
+            componentLibrary.getRequestDetailsResponseTimeChartComponent(dataReader.runStart, responseTimesSuccessSeries)
           }
 
           def requestsChartComponent: Component = {
@@ -74,13 +73,12 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
           }
 
           def latencyChartComponent: Component = {
-            val latencySuccessData = dataReader.latencyGroupByExecutionStartDate(OK, requestName, group)
-            val latencyFailuresData = dataReader.latencyGroupByExecutionStartDate(KO, requestName, group)
 
-            val latencySuccessSeries = new Series[IntRangeVsTimePlot]("Latency (success)", latencySuccessData, List(BLUE))
-            val latencyFailuresSeries = new Series[IntRangeVsTimePlot]("Latency (failure)", latencyFailuresData, List(RED))
+            val latencyPercentilesSuccessData = dataReader.latencyPercentilesOverTime(OK, requestName, group)
 
-            componentLibrary.getRequestDetailsLatencyChartComponent(dataReader.runStart, latencySuccessSeries, latencyFailuresSeries)
+            val latencySuccessSeries = new Series[PercentilesVsTimePlot]("Latency Percentiles over Time (success)", latencyPercentilesSuccessData, ReportGenerator.PercentilesColors)
+
+            componentLibrary.getRequestDetailsLatencyChartComponent(dataReader.runStart, latencySuccessSeries)
           }
 
           def scatterChartComponent(datasource: (Status, String, Option[Group]) => Seq[IntVsTimePlot],
