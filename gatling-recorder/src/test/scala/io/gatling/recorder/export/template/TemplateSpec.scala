@@ -16,63 +16,53 @@ class TemplateSpec extends Specification {
   
   "Export Templates" should {
     
-    "render simulation correctly" in {
+    "render simulation correctly with basic model" in {
 
       val rendered = SimulationTemplate.render(ModelFixtures.basicModel)
 
-      println(rendered)
-      rendered.equals(resourceAsString("template/simulation.txt"))
-
+      rendered(0)._2.equals(resourceAsString("simulation.txt"))
     }
     
     
-    "render scenario correctly" in {
+    "render scenario correctly with basic model" in {
 
       val rendered = ScenarioTemplate.render(ModelFixtures.basicModel)
-      val expected = ""
 
-      println(rendered)
-      rendered.equals(expected)
+      rendered(0)._2.equals(resourceAsString("scenarios.txt"))
 
     }
 
-    "render navigations correctly" in {
+    "render navigations correctly with basic model" in {
 
       val rendered = NavigationTemplate.render(ModelFixtures.basicModel)
-      val expected = ""
 
-      println(rendered)
-      rendered.equals(expected)
+      rendered(0)._2.equals(resourceAsString("navigations.txt"))
+      
 
     }
 
-    "render requests correctly" in {
+    "render requests correctly with basic model" in {
 
       val rendered = RequestTemplate.render(ModelFixtures.basicModel)
-      val expected = ""
 
-      println(rendered)
-      rendered.equals(expected)
-
+      rendered(0)._2.equals(resourceAsString("requests.txt"))
+      
     }
 
-    "render protocol correctly" in {
+    "render protocol correctly with basic model" in {
 
       val rendered = ProtocolTemplate.render(ModelFixtures.basicModel)
       val expected = ""
 
-      println(rendered)
-      rendered.equals(expected)
+      rendered(0)._2.equals(resourceAsString("protocol.txt"))
 
     }
 
-    "render request body correctly" in {
+    "render request body correctly with basic model" in {
 
       val rendered = RequestBodyTemplate.render(ModelFixtures.basicModel)
-      val expected = ""
 
-      println("request body " + rendered + " : " + new String(rendered(0)._2))
-      rendered.equals(expected)
+      new String(rendered(0)._2).equals(resourceAsString("request_body_main3.txt"))
 
     }
     

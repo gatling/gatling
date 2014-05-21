@@ -1,0 +1,21 @@
+//Package TODO
+import scala.concurrent.duration._
+
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import io.gatling.jdbc.Predef._
+
+class TestSimulation extends Simulation {
+
+	setUp(
+    
+    // the recorder can only record 1 scenario currently
+    Scenarios.TestSimulation_scenario.inject(atOnceUsers(1))
+    
+    ).protocols(HTTPProtocol.default)
+    
+    // TODO assertions
+    
+    // TODO - ensure the browser cache disabled if enabled in gatling
+
+    }

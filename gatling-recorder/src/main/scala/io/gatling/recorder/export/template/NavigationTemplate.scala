@@ -18,38 +18,50 @@ package io.gatling.recorder.export.template
 import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.model.SimulationModel
+import io.gatling.recorder.model.RequestModel
+import io.gatling.recorder.model.PauseModel
 
 object NavigationTemplate {
 
   def render(model: SimulationModel): Seq[(String, String)] = {
 
-      def renderNavigations = {
+    def renderNavigations = {
 
-        val navigations = model.getNavigations.map {
-          navigation =>
-            {
+      val navigations = model.getNavigations.map {
+        navigation =>
+          {
 
-              val int_name = navigation._2.name
+            val int_name = navigation._2.name
 
-              val requests = navigation._2.requestList.map {
+            val requests = navigation._2.requestList.map {
 
-                request =>
-                  {
-                    val req_name = request._2.identifier
-                    fast"Requests._$req_name,\n" //TODO trim final comma
-                  }.mkFastring("")
-
-              }.mkFastring("")
-
-              fast"""\n\n\tval $int_name = exec(   $requests  )"""
+              requestTuple =>
+                {
+                  requestTuple._2 match {
+                    case request: RequestModel => {
+                      val req_name = request.identifier
+                      fast"Requests._$req_name,\n" //TODO trim final comma
+                    }
+                    case pause:PauseModel => {
+                      
+                      val duration = pause.duration
+                      fast"exec(pause($duration)),\n" //TODO trim final comma
+                    }
+                    case ignore => {fast""}
+                  }
+                }.mkFastring("")
 
             }.mkFastring("")
 
-        }.mkFastring("")
+            fast"""\n\n\tval $int_name = exec(   $requests  )"""
 
-        fast"""$navigations"""
+          }.mkFastring("")
 
-      }
+      }.mkFastring("")
+
+      fast"""$navigations"""
+
+    }
 
     val output = fast"""// package TODO
     

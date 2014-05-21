@@ -57,10 +57,10 @@ import scala.collection.immutable.HashSet
  */
 class NavigationModel {
 
-  val requestList = new mutable.ArrayBuffer[(Long, RequestModel)] with mutable.SynchronizedBuffer[(Long, RequestModel)]
+  val requestList = new mutable.ArrayBuffer[(Long, ExecModel)] with mutable.SynchronizedBuffer[(Long, ExecModel)]
   var name: String = "_undefined_"
 
-  def +=(a: (Long, RequestModel)) = {
+  def +=(a: (Long, ExecModel)) = {
     requestList += a
   }
 

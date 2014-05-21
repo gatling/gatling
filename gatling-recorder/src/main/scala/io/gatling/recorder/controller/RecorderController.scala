@@ -56,6 +56,7 @@ class RecorderController extends StrictLogging {
   var exporter: Exporter = null
   // state tracking across request arrival/completion events
   val arrivalsMap = MapMaker.makeMap
+  // used for calculating pauses
   var previousCompletionTime: Long = 0
 
   frontEnd.init()
@@ -114,28 +115,36 @@ class RecorderController extends StrictLogging {
     }
   }
 
+  // proxy receives a request
   def receiveRequest(request: HttpRequest) {
 
     val arrivalTime = System.currentTimeMillis
+    // we'll hoik the arrival time out once the request is completed...
     arrivalsMap += request -> arrivalTime
     simulationModel.setProxyAuth(extractProxyAuth(request))
   }
 
+  // proxy receives a response
   def receiveResponse(request: HttpRequest, response: HttpResponse) {
-    if (configuration.filters.filters.map(_.accept(request.getUri)).getOrElse(true)) {
+    
+    val notFiltered = configuration.filters.filters.map(_.accept(request.getUri)).getOrElse(true)
+    if (notFiltered) {
 
-      // ideally we want to order the requests on their arrival time, not completion time
+      // we want to order the requests on their arrival time, not completion time
       val arrivalTime = arrivalsMap(request) // System.currentTimeMillis
       val requestEl = RequestModel(request, response)
 
-      //notify the model
+      //notify the model + FE of new Request
       simulationModel += (arrivalTime, requestEl)
-
-      // Notify the frontend - Request and pause
-      val delta = (arrivalTime - previousCompletionTime).milliseconds
-      if (previousCompletionTime > 0 && delta > configuration.core.thresholdForPauseCreation)
-        frontEnd.receiveEventInfo(PauseInfo(delta))
       frontEnd.receiveEventInfo(RequestInfo(request, response))
+
+      // Notify the model + FE of new Pause
+      val delta = (arrivalTime - previousCompletionTime).milliseconds
+      val thereWasAPause = previousCompletionTime > 0 && delta > configuration.core.thresholdForPauseCreation
+      if (thereWasAPause) {
+        frontEnd.receiveEventInfo(PauseInfo(delta))
+        simulationModel addPause(delta)
+      }
     }
 
     previousCompletionTime = System.currentTimeMillis
@@ -155,6 +164,8 @@ class RecorderController extends StrictLogging {
 
   def clearRecorderState() {
     simulationModel.clear
+    // don't produce a long pause at the top once re-recording...
+    previousCompletionTime = 0
   }
 
   object MapMaker {

@@ -29,6 +29,7 @@ import scala.collection.mutable.{
 import scala.collection.immutable.TreeMap
 import scala.collection.immutable.HashSet
 import java.util.concurrent.atomic.AtomicReference
+import scala.concurrent.duration.FiniteDuration
 
 case class SimulationModel(implicit config: RecorderConfiguration) {
 
@@ -73,6 +74,7 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
   def clear = {
     navigations.clear
+    requiresNewNavigation=false
   }
 
   def newNavigation(timestamp: Long, navigationName: String) = {
@@ -90,6 +92,11 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
     uniquifyRequestIdentifier(a._2)
     requests += a._2
     requiresNewNavigation=true
+  }
+  
+  def addPause(delta : FiniteDuration) = {
+    
+    currentNavigation += (System.currentTimeMillis,new PauseModel(delta))
   }
 
   def setProxyAuth(credentials: Option[(String, String)]) = {

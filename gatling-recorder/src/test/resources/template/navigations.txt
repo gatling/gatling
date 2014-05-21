@@ -1,0 +1,30 @@
+// package TODO
+    
+import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import io.gatling.jdbc.Predef._
+
+object Navigations {
+
+  // navigation - sequence of requests
+    
+    
+
+	val first_navigation = exec(   Requests._main_css,
+Requests._main2_css,
+Requests._main3,
+Requests._Request_name_FixMe,
+Requests._main2_css_C7A79401D709EC3B3DEF2395C2FEAE71,
+Requests._2h42g3hj_versioned_main3_css,
+  )
+
+	val second_navigation = exec(   Requests._main2_css_C7A79401D709EC3B3DEF2395C2FEAE71,
+Requests._main2_css_C7A79401D709EC3B3DEF2395C2FEAE71,
+exec(pause(50 milliseconds)),
+Requests._2h42g3hj_versioned_main3_css,
+  )
+
+	val 3rd_navigation = exec(   Requests._2h42g3hj_versioned_main3_css,
+  )
+}
+
