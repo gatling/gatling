@@ -40,13 +40,23 @@ class InjectionStepSpec extends Specification {
     "schedule with a correct interval" in {
       val interval0 = scheduling(1) - scheduling(0)
       val interval1 = scheduling(2) - scheduling(1)
-      scheduling.length must beEqualTo(ramp.users) and (interval0 must beEqualTo(interval1)) and (interval0 must beEqualTo(250 milliseconds))
+      scheduling.length must beEqualTo(ramp.users) and (interval0 must beEqualTo(interval1)) and (interval0 must beEqualTo(200 milliseconds))
     }
 
     "the first and the last users should be correctly scheduled" in {
       val first = scheduling.head
       val last = scheduling.last
-      first must beEqualTo(0 second) and (last must beEqualTo(1 second)) and (scheduling must beSorted)
+      first must beEqualTo(0 second) and (last must be_<(1 second)) and (scheduling must beSorted)
+    }
+  }
+
+  "ConstantRateInjection" should {
+    val injec = ConstantRateInjection(1.0, 5 seconds)
+    val injec2 = ConstantRateInjection(0.4978, 100 seconds)
+
+    "return the correct number of users" in {
+      injec.users must beEqualTo(5) and
+        (injec2.users must beEqualTo(49))
     }
   }
 
@@ -124,20 +134,29 @@ class InjectionStepSpec extends Specification {
         case (i1, i2) => i2 - i1
       }.toSet
 
-      constantRampScheduling must beSorted and (steps.size must beEqualTo(1))
+      constantRampScheduling must beSorted and
+        (steps.size must beEqualTo(1)) and
+        (constantRampScheduling.last must be_<(10 seconds))
     }
   }
 
   "SplitInjection" should {
 
     "provide an appropriate injection scheduling and ignore extra users" in {
-      val scheduling = SplitInjection(10, RampInjection(3, 2 seconds), NothingForInjection(5 seconds)).chain(Iterator.empty).toList
-      scheduling must beEqualTo(List(0 second, 1 second, 2 seconds, 7 seconds, 8 seconds, 9 seconds, 14 seconds, 15 seconds, 16 seconds))
+      val scheduling = SplitInjection(6, RampInjection(2, 2 seconds), NothingForInjection(5 seconds)).chain(Iterator.empty).toList
+      scheduling must beEqualTo(List(
+        0 second, 1 second, // 1st ramp
+        7 seconds, 8 seconds, // 2nd ramp after a pause
+        14 seconds, 15 seconds)) // 3rd ramp after a pause
     }
 
-    "should schedule the first and last user thru the 'into' injection step" in {
-      val scheduling = SplitInjection(5, RampInjection(3, 2 seconds), AtOnceInjection(1)).chain(AtOnceInjection(1).chain(Iterator.empty)).toList
-      scheduling must beEqualTo(List(0 second, 1 second, 2 seconds, 2 seconds))
+    "should schedule the first and last user through the 'into' injection step" in {
+      val scheduling = SplitInjection(5, RampInjection(2, 2 seconds), AtOnceInjection(1)).chain(AtOnceInjection(1).chain(Iterator.empty)).toList
+      scheduling must beEqualTo(List(
+        0 second, 1 second, // 1st ramp
+        2 seconds, // at once in between
+        2 seconds, 3 seconds, // 2nd ramp until reaching 5 users
+        4 seconds)) // at once from the chained injection
     }
   }
 
@@ -148,17 +167,15 @@ class InjectionStepSpec extends Specification {
       scheduling.length must beEqualTo(100)
     }
 
-    "be of an appropriate duration" in {
-      scheduling.last must beEqualTo(5 seconds)
-    }
-
     "provide correct values" in {
-      scheduling(1) must beEqualTo(292 milliseconds) and (scheduling must beSorted)
+      scheduling(1) must beEqualTo(291 milliseconds) and
+        (scheduling must beSorted) and
+        (scheduling.last must be_<(5 seconds))
     }
 
     "have most of the scheduling values close to half of the duration" in {
       val l = scheduling.filter((t) => (t > (1.5 seconds)) && (t < (3.5 seconds))).length
-      l must beEqualTo(66)
+      l must beEqualTo(67) // two thirds
     }
   }
 

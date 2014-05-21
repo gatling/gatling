@@ -17,7 +17,7 @@ package io.gatling.core.util
 
 import java.lang.System.{ currentTimeMillis, nanoTime }
 
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration._
 
 object TimeHelper {
 
@@ -31,4 +31,10 @@ object TimeHelper {
   def computeTimeMillisFromNanos(nanos: Long) = (nanos - nanoTimeReference) / 1000000 + currentTimeMillisReference
   def nowMillis = computeTimeMillisFromNanos(nanoTime)
   def nowSeconds = computeTimeMillisFromNanos(nanoTime) / 1000
+
+  def toMillisPrecision(t: FiniteDuration): FiniteDuration =
+    t.unit match {
+      case MICROSECONDS | NANOSECONDS => t.toMillis.milliseconds
+      case _                          => t
+    }
 }

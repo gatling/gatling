@@ -39,7 +39,7 @@ case class RampInjection(users: Int, duration: FiniteDuration) extends Injection
   require(users > 0, "The number of users must be a strictly positive value")
 
   override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
-    val interval = duration / (users - 1).max(1)
+    val interval = duration / users.max(1)
     Iterator.iterate(0 milliseconds)(_ + interval).take(users) ++ iterator.map(_ + duration)
   }
 }
@@ -75,9 +75,9 @@ case class AtOnceInjection(users: Int) extends InjectionStep {
  * The injection scheduling follows this equation
  * u = r1*t + (r2-r1)/(2*duration)*t²
  *
- * @param r1 : initial injection rate in users/seconds
- * @param r2 : final injection rate in users/seconds
- * @param duration : injection duration
+ * @param r1 Initial injection rate in users/seconds
+ * @param r2 Final injection rate in users/seconds
+ * @param duration Injection duration
  */
 case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) extends InjectionStep {
   require(r1 > 0 && r2 > 0, "injection rates must be strictly positive values")
@@ -106,20 +106,24 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
 }
 
 /**
- *  Inject users thru separated steps until reaching the total amount of users
+ *  Inject users through separated steps until reaching the closest possible amount of total users.
+ *
+ *  @param possibleUsers The maximum possible of total users.
+ *  @param step The step that will be repeated.
+ *  @param separator Will be injected in between the regular injection steps.
  */
 case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: InjectionStep) extends InjectionStep {
   private val stepUsers = step.users
+  private lazy val separatorUsers = separator.users
 
   val users = {
     if (possibleUsers > stepUsers)
-      possibleUsers - (possibleUsers - stepUsers) % (stepUsers + separator.users)
+      possibleUsers - (possibleUsers - stepUsers) % (stepUsers + separatorUsers)
     else 0
   }
 
   override def chain(iterator: Iterator[FiniteDuration]) = {
     if (possibleUsers > stepUsers) {
-      val separatorUsers = separator.users
       val n = (possibleUsers - stepUsers) / (stepUsers + separatorUsers)
       val lastScheduling = step.chain(iterator)
       (1 to n).foldRight(lastScheduling)((_, iterator) => step.chain(separator.chain(iterator)))
@@ -144,7 +148,7 @@ case class HeavisideInjection(users: Int, duration: FiniteDuration) extends Inje
 
   override def chain(iterator: Iterator[FiniteDuration]) = {
       def heavisideInv(u: Int) = {
-        val x = u.toDouble / (users + 1)
+        val x = u.toDouble / (users + 2)
         erfinv(2 * x - 1)
       }
 

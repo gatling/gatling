@@ -16,13 +16,14 @@
 package io.gatling.core.scenario
 
 import akka.actor.ActorRef
+
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.controller.Controller
 import io.gatling.core.controller.inject.InjectionProfile
 import io.gatling.core.result.message.Start
 import io.gatling.core.result.writer.UserMessage
 import io.gatling.core.session.Session
-import io.gatling.core.util.TimeHelper.zeroMs
+import io.gatling.core.util.TimeHelper._
 
 case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: InjectionProfile) extends AkkaDefaults {
 
@@ -39,7 +40,8 @@ case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: Inject
         if (startingTime == zeroMs)
           startUser(index)
         else
-          scheduler.scheduleOnce(startingTime) {
+          // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
+          scheduler.scheduleOnce(toMillisPrecision(startingTime)) {
             startUser(index)
           }
     }
