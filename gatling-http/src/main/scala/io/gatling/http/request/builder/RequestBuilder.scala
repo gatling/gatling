@@ -17,7 +17,7 @@ package io.gatling.http.request.builder
 
 import java.net.{ InetAddress, URI }
 
-import com.ning.http.client.{ ProxyServer, Realm }
+import com.ning.http.client._
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
@@ -38,7 +38,8 @@ case class CommonAttributes(
   virtualHost: Option[Expression[String]] = None,
   address: Option[InetAddress] = None,
   proxy: Option[ProxyServer] = None,
-  secureProxy: Option[ProxyServer] = None)
+  secureProxy: Option[ProxyServer] = None,
+  signatureCalculator: Option[SignatureCalculator] = None)
 
 object RequestBuilder {
 
@@ -101,4 +102,9 @@ abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: Comm
   def useRawUrl: B = newInstance(commonAttributes.copy(useRawUrl = Some(true)))
 
   def proxy(httpProxy: Proxy): B = newInstance(commonAttributes.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
+
+  def signatureCalculator(calculator: SignatureCalculator): B = newInstance(commonAttributes.copy(signatureCalculator = Some(calculator)))
+  def signatureCalculator(calculator: (String, Request, RequestBuilderBase[_]) => Unit): B = signatureCalculator(new SignatureCalculator {
+    def calculateAndAddSignature(url: String, request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(url, request, requestBuilder)
+  })
 }
