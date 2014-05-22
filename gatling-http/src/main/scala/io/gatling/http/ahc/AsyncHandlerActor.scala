@@ -16,6 +16,8 @@
 package io.gatling.http.ahc
 
 import java.net.URI
+import java.lang.{ StringBuilder => JStringBuilder }
+
 import com.ning.http.client.{ Request, RequestBuilder }
 import akka.actor.{ ActorRef, Props }
 import akka.actor.ActorDSL.actor
@@ -104,7 +106,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       else tx.requestName
 
         def dump = {
-          val buff = new StringBuilder
+          val buff = new JStringBuilder
           buff.append(eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(eol)
           buff.append("Request:").append(eol).append(s"$fullRequestName: $status ${errorMessage.getOrElse("")}").append(eol)
           buff.append("=========================").append(eol)

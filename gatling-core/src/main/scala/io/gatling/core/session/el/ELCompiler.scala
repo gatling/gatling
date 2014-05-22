@@ -15,6 +15,8 @@
  */
 package io.gatling.core.session.el
 
+import java.lang.{ StringBuilder => JStringBuilder }
+
 import scala.collection.breakOut
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
@@ -116,7 +118,7 @@ object ELCompiler {
       case List(dynamicPart) => dynamicPart(_).flatMap(_.asValidation[T])
 
       case _ =>
-        (session: Session) => parts.foldLeft(new StringBuilder().success) { (sb, part) =>
+        (session: Session) => parts.foldLeft(new JStringBuilder(string.length + 5).success) { (sb, part) =>
           part match {
             case StaticPart(string) => sb.map(_.append(string))
             case _ =>

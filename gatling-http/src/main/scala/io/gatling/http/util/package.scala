@@ -15,6 +15,7 @@
  */
 package io.gatling.http
 
+import java.lang.{ StringBuilder => JStringBuilder }
 import java.util.{ List => JList, Map => JMap }
 
 import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet, collectionAsScalaIterable }
@@ -27,9 +28,9 @@ import io.gatling.http.response.Response
 
 package object util {
 
-  implicit class HttpStringBuilder(val buff: StringBuilder) extends AnyVal {
+  implicit class HttpStringBuilder(val buff: JStringBuilder) extends AnyVal {
 
-    def appendAHCStringsMap(map: JMap[String, JList[String]]): StringBuilder = {
+    def appendAHCStringsMap(map: JMap[String, JList[String]]): JStringBuilder = {
 
       for {
         entry <- map.entrySet
@@ -38,7 +39,7 @@ package object util {
       buff
     }
 
-    def appendAHCRequest(request: Request): StringBuilder = {
+    def appendAHCRequest(request: Request): JStringBuilder = {
 
       buff.append(request.getMethod).append(" ").append(if (request.isUseRawUrl) request.getRawUrl else request.getUrl).append(eol)
 

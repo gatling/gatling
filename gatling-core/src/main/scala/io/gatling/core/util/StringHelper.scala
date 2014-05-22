@@ -15,6 +15,7 @@
  */
 package io.gatling.core.util
 
+import java.lang.{ Long => JLong, StringBuilder => JStringBuilder }
 import java.text.Normalizer
 
 import com.dongxiguo.fastring.Fastring.Implicits._
@@ -41,11 +42,11 @@ object StringHelper {
 
   val emptyFastring = fast""
 
-  def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new StringBuilder) { (buff, b) =>
+  def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new JStringBuilder(bytes.length)) { (buff, b) =>
     val shifted = b & 0xff
     if (shifted < 0x10)
       buff.append("0")
-    buff.append(java.lang.Long.toString(shifted.toLong, 16))
+    buff.append(JLong.toString(shifted.toLong, 16))
   }.toString
 
   val stringCharsExtractor: String => Array[Char] = stringImplementation match {
