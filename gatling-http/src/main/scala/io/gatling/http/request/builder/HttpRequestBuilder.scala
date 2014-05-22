@@ -116,6 +116,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
     val resolvedRequestExpression = request(protocol)
 
+    val resolvedSignatureCalculator = commonAttributes.signatureCalculator.orElse(protocol.requestPart.signatureCalculator)
+
     HttpRequest(
       commonAttributes.requestName,
       resolvedRequestExpression,
@@ -128,7 +130,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
       resolvedFollowRedirect,
       protocol,
       resolvedResources,
-      commonAttributes.signatureCalculator)
+      resolvedSignatureCalculator)
   }
 }
 

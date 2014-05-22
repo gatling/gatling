@@ -19,7 +19,7 @@ import java.net.InetAddress
 
 import scala.collection.mutable
 
-import com.ning.http.client.{ ProxyServer, Realm, RequestBuilder }
+import com.ning.http.client.{SignatureCalculator, ProxyServer, Realm, RequestBuilder}
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.akka.GatlingActorSystem
@@ -54,7 +54,8 @@ object HttpProtocol {
       realm = None,
       autoReferer = true,
       cache = true,
-      silentURI = None),
+      silentURI = None,
+      signatureCalculator = None),
     responsePart = HttpProtocolResponsePart(
       followRedirect = true,
       maxRedirects = None,
@@ -172,7 +173,8 @@ case class HttpProtocolRequestPart(
   realm: Option[Expression[Realm]],
   autoReferer: Boolean,
   cache: Boolean,
-  silentURI: Option[Regex])
+  silentURI: Option[Regex],
+  signatureCalculator: Option[SignatureCalculator])
 
 case class HttpProtocolResponsePart(
   followRedirect: Boolean,
