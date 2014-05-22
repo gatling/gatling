@@ -17,7 +17,7 @@ package io.gatling.http.config
 
 import java.net.InetAddress
 
-import com.ning.http.client.{RequestBuilderBase, Request, SignatureCalculator, Realm}
+import com.ning.http.client.{ RequestBuilderBase, Request, SignatureCalculator, Realm }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
@@ -89,8 +89,8 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
   def digestAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
   def authRealm(realm: Expression[Realm]) = newRequestPart(protocol.requestPart.copy(realm = Some(realm)))
   def silentURI(regex: String) = newRequestPart(protocol.requestPart.copy(silentURI = Some(regex.r)))
-  def signatureCalculator(calculator: SignatureCalculator) = newRequestPart(protocol.requestPart.copy(signatureCalculator = Some(calculator)))
-  def signatureCalculator(calculator: (String, Request, RequestBuilderBase[_]) => Unit) = signatureCalculator(new SignatureCalculator {
+  def signatureCalculator(calculator: SignatureCalculator): HttpProtocolBuilder = newRequestPart(protocol.requestPart.copy(signatureCalculator = Some(calculator)))
+  def signatureCalculator(calculator: (String, Request, RequestBuilderBase[_]) => Unit): HttpProtocolBuilder = signatureCalculator(new SignatureCalculator {
     def calculateAndAddSignature(url: String, request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(url, request, requestBuilder)
   })
 

@@ -19,7 +19,7 @@ import java.net.InetAddress
 
 import scala.collection.mutable
 
-import com.ning.http.client.{SignatureCalculator, ProxyServer, Realm, RequestBuilder}
+import com.ning.http.client.{ SignatureCalculator, ProxyServer, Realm, RequestBuilder }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.akka.GatlingActorSystem
