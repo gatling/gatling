@@ -160,8 +160,8 @@ object ModelFixtures {
   val r1c = RequestModel("http://gatling.io/wrong/?fdsf=fdsf", "GET", reqHeaders ++ reqHeadersUnique, None, 200, List.empty, Option(""))
 
   val r2 = RequestModel("http://gatling.io/main2.css", "GET", Map.empty, None, 200, List.empty, Option(""))
-  val r2redirect302 = RequestModel("http://gatling.io/main2.css", "GET", Map.empty, None, 302, List.empty, Option(""))
-  val r2redirect301 = RequestModel("http://gatling.io/main2.css", "GET", Map.empty, None, 302, List.empty, Option(""))
+  val r2redirect302 = RequestModel("http://gatling.io/main2-302.css", "GET", Map.empty, None, 302, List.empty, Option(""))
+  val r2redirect301 = RequestModel("http://gatling.io/main2-301.css", "GET", Map.empty, None, 302, List.empty, Option(""))
 
   val r3 = RequestModel("http://gatling.io/2h42g3hj.versioned.main3.css", "GET", Map.empty, None, 200, List.empty, Option(""))
 
@@ -213,6 +213,7 @@ object ModelFixtures {
     sim += (time + 2 -> r1c)
     sim += (time + 3 -> r2)
     sim += (time + 4 -> r2redirect302)
+    sim += (time + 3 -> r2)
     sim.newNavigation(time + 100, "first navigation")
     
     sim.postProcess

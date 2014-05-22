@@ -40,7 +40,7 @@ object HarReader extends IO {
   def apply(jsonStream: InputStream)(implicit config: RecorderConfiguration): SimulationModel =
     apply(Json.parseJson(jsonStream))
 
-  private def apply(json: Json)(implicit config: RecorderConfiguration): SimulationModel = {
+  def apply(json: Json)(implicit config: RecorderConfiguration): SimulationModel = {
     val HttpArchive(Log(entries)) = HarMapping.jsonToHttpArchive(json)
 
     implicit val model = new SimulationModel()
