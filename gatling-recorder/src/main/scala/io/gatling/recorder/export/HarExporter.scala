@@ -20,7 +20,7 @@ import io.gatling.recorder.har.HarReader
 import io.gatling.core.validation._
 import io.gatling.recorder.model.SimulationModel
 
-class HarExporter(harFilePath: String)(implicit model: SimulationModel, config: RecorderConfiguration) extends Exporter {
+class HarExporter(harFilePath: String)(implicit config: RecorderConfiguration) extends Exporter {
 
   def exportHar(implicit config: RecorderConfiguration): Validation[Unit] =
     try {
@@ -28,7 +28,7 @@ class HarExporter(harFilePath: String)(implicit model: SimulationModel, config: 
       if (model.isEmpty) {
         "the selected file doesn't contain any valid HTTP requests".failure
       } else {
-        export
+        export(model)
       }
     } catch {
       case e: Exception =>

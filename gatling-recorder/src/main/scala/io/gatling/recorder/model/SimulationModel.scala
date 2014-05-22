@@ -36,17 +36,35 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
   private val navigations = new mutable.ArrayBuffer[(Long, NavigationModel)] with mutable.SynchronizedBuffer[(Long, NavigationModel)]
   private var currentNavigation = new NavigationModel
   private var requests: Set[RequestModel] = HashSet()
-  private var protocol: ProtocolModel = null // instantiate once the capture complete
-  val name: String = config.core.className
+  private var protocol: ProtocolModel = _ // instantiate once the capture complete
   private val requestIDMap = makeMapIdentifier
   private var requiresNewNavigation = false
+  private var postProcessed = false
 
-  val proxyCredentials: AtomicReference[String] = new AtomicReference[String]
+  private val proxyCredentials1: AtomicReference[String] = new AtomicReference[String]
+  private val name1: String = config.core.className
 
-  def getNavigations = { navigations }
-  def getRequests = { requests }
-  def getProtocol = { protocol }
-  def isEmpty = navigations.isEmpty
+  // require that the model is post processed before being able to get anthing out
+  
+  def getNavigations = { 
+    require(postProcessed)
+    navigations }
+  def getRequests = { 
+    require(postProcessed)
+    requests }
+  def getProtocol = { 
+    require(postProcessed)
+    protocol }
+  def proxyCredentials ={
+    require(postProcessed)
+    proxyCredentials1
+  }
+  def name = {
+    require(postProcessed)
+    name1
+  }
+  
+  def isEmpty = requests.isEmpty
 
   /**
    * if there is already a request with the same identifier
@@ -86,6 +104,7 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
     requiresNewNavigation=false
   }
 
+  // adds a request
   def +=(a: (Long, RequestModel)) = {
 
     currentNavigation += a
@@ -102,8 +121,8 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
   def setProxyAuth(credentials: Option[(String, String)]) = {
 
     credentials match {
-      case Some(s) => { proxyCredentials.set(s._1 + "|" + s._2) }
-      case None    => null
+      case Some(s) => { proxyCredentials1.set(s._1 + "|" + s._2) }
+      case None    => None
     }
   }
 
@@ -112,10 +131,13 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
    * before some parts can be rendered.
    *
    * mostly needs to iterate over the whole simulation.
-   * TODO - could likely be done incrementally with some more work. risk is that we forget to call postProcess....
+   * TODO - could likely be done incrementally with some more work.
    */
   def postProcess() = {
 
+    if(requests.size > 0){
+    postProcessed = true
+    
     // insert navigation if the user doesn't
     if(requiresNewNavigation)
       newNavigation(System.currentTimeMillis(), "default_navigation")
@@ -127,9 +149,7 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
     // TODO fetch HTML resources
 
-    // TODO calculate pauses
+    }
     
-    
-
   }
 }

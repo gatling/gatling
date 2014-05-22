@@ -1,37 +1,54 @@
-// package TODO
-    
+
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.jdbc.Predef._
 
 object Requests {
 
-  // individual requests
-    
-    
+	val _2h42g3hj_versioned_main3_css = exec(
+		http("2h42g3hj_versioned_main3_css")
+		.get("""http://gatling.io/2h42g3hj.versioned.main3.css""")
 
-	val _2h42g3hj_versioned_main3_css = exec(  exec(http("2h42g3hj_versioned_main3_css").get("""http://gatling.io/2h42g3hj.versioned.main3.css""")
-			.check(status.is(200)))  )
+		.check(status.is(200))
+		)
 
-	val _Request_name_FixMe = exec(  exec(http("Request_name_FixMe").get("""http://gatling.io/wrong/?fdsf=fdsf""")
-			.headers(Protocol.headers_Request_name_FixMe)
-			.check(status.is(200)))  )
+	val _Request_name_FixMe = exec(
+		http("Request_name_FixMe")
+		.get("""http://gatling.io/wrong/?fdsf=fdsf""")
+		.headers(Protocol.headers_Request_name_FixMe)
 
-	val _main2_css = exec(  exec(http("main2_css").post("""http://gatling.io/main2.css?a=b""")
-			.headers(Protocol.headers_main3)
-			.param("""a""", """b""")
-			.param("""c""", """d""")
-			.check(status.is(200)))  )
+		.check(status.is(200))
+		)
 
-	val _main2_css_C7A79401D709EC3B3DEF2395C2FEAE71 = exec(  exec(http("main2_css_C7A79401D709EC3B3DEF2395C2FEAE71").get("""http://gatling.io/main2.css""")
-			.check(status.is(200)))  )
+	val _main2_css_BAC331BE1CC068700BE013BBE1676969 = exec(
+		http("main2_css_BAC331BE1CC068700BE013BBE1676969")
+		.post("""http://gatling.io/main2.css?a=b""")
+		.headers(Protocol.headers_main2_css_BAC331BE1CC068700BE013BBE1676969)
+		.param("""a""", """b""")
+		.param("""c""", """d""")
 
-	val _main3 = exec(  exec(http("main3").post("""http://gatling.io/wrong/main3""")
-			.headers(Protocol.headers_main3)
-			.body(RawFileBody("TestSimulation_request_main3.txt"))
-			.check(status.is(200)))  )
+		.check(status.is(200))
+		)
 
-	val _main_css = exec(  exec(http("main_css").get("""http://gatling.io/main.css""")
-			.check(status.is(200)))  )
+	val _main2_css_C7A79401D709EC3B3DEF2395C2FEAE71 = exec(
+		http("main2_css_C7A79401D709EC3B3DEF2395C2FEAE71")
+		.get("""http://gatling.io/main2.css""")
+
+		.check(status.is(200))
+		)
+
+	val _main3 = exec(
+		http("main3")
+		.post("""http://gatling.io/wrong/main3""")
+		.headers(Protocol.headers_main3)
+		.body(RawFileBody("TestSimulation_request_main3.txt"))
+
+		.check(status.is(200))
+		)
+
+	val _main_css = exec(
+		http("main_css")
+		.get("""http://gatling.io/main.css""")
+
+		.check(status.is(200))
+		)
 }
-

@@ -35,25 +35,25 @@ object NavigationTemplate {
 
             val requests = navigation._2.requestList.map {
 
-              requestTuple =>
+              case requestTuple =>
                 {
                   requestTuple._2 match {
                     case request: RequestModel => {
                       val req_name = request.identifier
-                      fast"Requests._$req_name,\n" //TODO trim final comma
+                      fast"\t\tRequests._$req_name" //TODO trim final comma
                     }
                     case pause:PauseModel => {
                       
                       val duration = pause.duration
-                      fast"exec(pause($duration)),\n" //TODO trim final comma
+                      fast"\t\texec(pause($duration))" //TODO trim final comma
                     }
-                    case ignore => {fast""}
+                    case ignore => {  """""" }
                   }
-                }.mkFastring("")
+                }
 
-            }.mkFastring("")
+            }.mkFastring(",\n")
 
-            fast"""\n\n\tval $int_name = exec(   $requests  )"""
+            fast"""\n\n\tval $int_name = exec(\n$requests\t)"""
 
           }.mkFastring("")
 
@@ -63,19 +63,13 @@ object NavigationTemplate {
 
     }
 
-    val output = fast"""// package TODO
-    
+    val output = fast"""
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.jdbc.Predef._
 
-object Navigations {
+object Navigations {$renderNavigations
 
-  // navigation - sequence of requests
-    
-    $renderNavigations
-}
-""".toString()
+}""".toString()
 
     List((s"${model.name}_navigations", output))
   }

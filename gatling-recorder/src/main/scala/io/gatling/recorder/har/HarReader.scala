@@ -17,10 +17,8 @@ package io.gatling.recorder.har
 
 import java.io.{ FileInputStream, InputStream }
 import java.net.{ URI, URL }
-
 import scala.collection.breakOut
 import scala.util.Try
-
 import io.gatling.core.util.IO
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.core.util.StandardCharsets.UTF_8
@@ -35,8 +33,8 @@ import org.jboss.netty.handler.codec.http.HttpMethod
  * Implementation according to http://www.softwareishard.com/blog/har-12-spec/
  */
 object HarReader extends IO {
-
-  def apply(path: String)(implicit config: RecorderConfiguration): SimulationModel = // ScenarioDefinition
+  
+  def apply(path: String)(implicit config: RecorderConfiguration): SimulationModel = 
     withCloseable(new FileInputStream(path))(apply(_))
 
   def apply(jsonStream: InputStream)(implicit config: RecorderConfiguration): SimulationModel =
@@ -47,14 +45,24 @@ object HarReader extends IO {
 
     implicit val model = new SimulationModel()
 
-    val lastTime = entries.iterator
-      .filter(e => e.request.method != HttpMethod.CONNECT.getName)
-      .filter(e => isValidURL(e.request.url))
+    val times = entries.iterator
+      .filter(e => 
+        e.request.method != HttpMethod.CONNECT.getName
+      )
+      .filter(e => 
+        isValidURL(e.request.url)
+      )
       // TODO NICO : can't we move this in Scenario as well ?
-      .filter(e => config.filters.filters.map(_.accept(e.request.url)).getOrElse(true))
-      .map { createRequestWithArrivalTime }.toSeq.max
+      .filter(e => {
+        val r = config.filters.filters.map(_.accept(e.request.url)).getOrElse(true)
+        r 
+        }
+        )
+      .map { createRequestWithArrivalTime }
+     
+    if(times.hasNext)
+      times.max // force evaluate
 
-    model newNavigation (lastTime + 1000, "placeholder_navigation") // TODO - if any pages in the HAR file - work out the navigations....
     model.postProcess
     model
   }
@@ -81,7 +89,7 @@ object HarReader extends IO {
       case _                                => Nil
     }
 
-    val requestModel = RequestModel(uri, method, headers, body, entry.response.status, embeddedResources, /*responseContentType : Option[String]*/ null)
+    val requestModel = RequestModel(uri, method, headers, body, entry.response.status, embeddedResources, /*responseContentType : Option[String]*/ None)
     //notify the model
     model += (entry.arrivalTime, requestModel)
 

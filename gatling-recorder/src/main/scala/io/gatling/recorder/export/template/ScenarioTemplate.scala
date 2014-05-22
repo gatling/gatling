@@ -27,32 +27,39 @@ object ScenarioTemplate {
 
         val navigations = model.getNavigations.map {
 
-          navigation =>
-            {
-              val nav_name = navigation._2.name
-              fast"""Navigations.$nav_name,\n\t\t"""
-            }.mkFastring("")
+          case navigation => fast"""\t\tNavigations.navigation._2.name"""
 
-        }.mkFastring("")
+        }.mkFastring(",\n")
 
-        fast"""\n\tval ${model.name}_scenario = scenario("${model.name} scenario").exec(   $navigations  )"""
+        fast"""${navigations}"""
 
       }.mkFastring("")
 
-    val output = fast"""// package TODO
-    
+    val output = 
+fast"""
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.jdbc.Predef._
 
 object Scenarios {
 
-    // scenario - sequence of steps
-    
-    $renderScenarios
-}
-""".toString()
+	val ${model.name}_scenario = 
+
+		scenario("${model.name} scenario")
+		.exec(
+$renderScenarios
+		)
+}""".toString()
 
     List((s"${model.name}_scenarios", output))
   }
 }
+
+
+
+
+
+
+
+
+
+

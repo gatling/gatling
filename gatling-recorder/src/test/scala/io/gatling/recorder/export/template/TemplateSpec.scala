@@ -29,7 +29,6 @@ class TemplateSpec extends Specification {
       val rendered = ScenarioTemplate.render(ModelFixtures.basicModel)
 
       rendered(0)._2.equals(resourceAsString("scenarios.txt"))
-
     }
 
     "render navigations correctly with basic model" in {
@@ -37,8 +36,6 @@ class TemplateSpec extends Specification {
       val rendered = NavigationTemplate.render(ModelFixtures.basicModel)
 
       rendered(0)._2.equals(resourceAsString("navigations.txt"))
-      
-
     }
 
     "render requests correctly with basic model" in {
@@ -46,16 +43,13 @@ class TemplateSpec extends Specification {
       val rendered = RequestTemplate.render(ModelFixtures.basicModel)
 
       rendered(0)._2.equals(resourceAsString("requests.txt"))
-      
     }
 
     "render protocol correctly with basic model" in {
 
       val rendered = ProtocolTemplate.render(ModelFixtures.basicModel)
-      val expected = ""
 
       rendered(0)._2.equals(resourceAsString("protocol.txt"))
-
     }
 
     "render request body correctly with basic model" in {
@@ -63,8 +57,43 @@ class TemplateSpec extends Specification {
       val rendered = RequestBodyTemplate.render(ModelFixtures.basicModel)
 
       new String(rendered(0)._2).equals(resourceAsString("request_body_main3.txt"))
-
     }
     
+    
+//    "render simulation correctly with basic model no outgoing proxy" in {
+//
+//      ModelFixtures.config = ModelFixtures.config_no_proxy
+//      
+//      val rendered = SimulationTemplate.render(ModelFixtures.basicModel)
+//
+//      rendered(0)._2.equals(resourceAsString("simulation_no_outgoing_proxy.txt"))
+//    }
+//    
+//    "render navigations correctly with basic model and filters" in {
+//
+//      ModelFixtures.config = ModelFixtures.config_no_proxy_filter
+//      
+//      val rendered = NavigationTemplate.render(ModelFixtures.basicModel)
+//
+//      rendered(0)._2.equals(resourceAsString("navigations_filters.txt"))
+//    }
+//
+//    "render requests correctly with basic model and filters" in {
+//
+//      ModelFixtures.config = ModelFixtures.config_no_proxy_filter
+//      
+//      val rendered = RequestTemplate.render(ModelFixtures.basicModel)
+//
+//      rendered(0)._2.equals(resourceAsString("requests_filters.txt"))
+//    }
+//
+//    "render protocol correctly with basic model and filters" in {
+//
+//      ModelFixtures.config = ModelFixtures.config_no_proxy_filter
+//      
+//      val rendered = ProtocolTemplate.render(ModelFixtures.basicModel)
+//
+//      rendered(0)._2.equals(resourceAsString("protocol_filters.txt"))
+//    }
 }
 }

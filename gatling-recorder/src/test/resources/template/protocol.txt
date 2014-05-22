@@ -1,28 +1,27 @@
 
-// package TODO
-    
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.jdbc.Predef._
 
 object Protocol {
-
+    
+	val httpProtocol = http
 
 		.baseURL("http://gatling.io")
-        
 		.proxy(Proxy("www.a.com", 8888).httpsPort(8888))
-        
-        		.fetchHtmlResources()
-        
+
+		.fetchHtmlResources()
 		.disableAutoReferer
-        		.Connection("""keep-alive""")		.Accept("""*/*""")		.Accept-Language("""en-us""")		.Accept-Encoding("""gzip, deflate""")		.User-Agent("""Mozilla/5.0 """)
-        
+		.Connection("""keep-alive""")
+		.Accept("""*/*""")
+		.Accept-Language("""en-us""")
+		.Accept-Encoding("""gzip, deflate""")
+		.User-Agent("""Mozilla/5.0 """)
 
-
-        	val headers_Request_name_FixMe = Map("""AAAAAAA""" -> """ZZZZZZZZ""")
+	val headers_Request_name_FixMe = Map(
+				"""AAAAAAA""" -> """ZZZZZZZZ""",
+				"""AAAAAAA2""" -> """ZZZZZZZZ2"""
+		)
 
 	val headers_main3 = Map("""Content-Type""" -> """application/x-www-form-urlencoded""")
-        
 
-  }
-
+}

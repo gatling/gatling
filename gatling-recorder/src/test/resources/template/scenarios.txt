@@ -1,17 +1,16 @@
-// package TODO
-    
+
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.jdbc.Predef._
 
 object Scenarios {
 
-    // scenario - sequence of steps
-    
-    
-	val TestSimulation_scenario = scenario("TestSimulation scenario").exec(   Navigations.first_navigation,
-		Navigations.second_navigation,
-		Navigations.3rd_navigation,
-		  )
-}
+	val TestSimulation_scenario = 
 
+		scenario("TestSimulation scenario")
+		.exec(
+		Navigations.navigation._2.name,
+		Navigations.navigation._2.name,
+		Navigations.navigation._2.name,
+		Navigations.navigation._2.name
+		)
+}

@@ -51,10 +51,9 @@ object Exporter {
 
 }
 
-class Exporter(implicit model: SimulationModel, config: RecorderConfiguration) extends StrictLogging with IO {
+class Exporter(implicit config: RecorderConfiguration) extends StrictLogging with IO {
 
-  // the abstract method to implement .....
-  //def  export(implicit config: RecorderConfiguration): Validation[Unit]
+  var model:SimulationModel = _
 
   /**
    * replacement for saveScenario
@@ -71,10 +70,10 @@ class Exporter(implicit model: SimulationModel, config: RecorderConfiguration) e
    *
    * https://github.com/calabash/calabash-ios/wiki/04-Touch-recording-and-playback
    */
-  //alexb
-  def export: Validation[Unit] = {
+  def export(model: SimulationModel): Validation[Unit] = {
 
     try {
+      this.model = model
       require(!model.isEmpty)
 
       // simulation
@@ -97,7 +96,7 @@ class Exporter(implicit model: SimulationModel, config: RecorderConfiguration) e
 
     } catch {
       case e: Exception =>
-        logger.error("Error while processing HAR file", e)
+        logger.error("Error while exporting", e)
         e.getMessage.failure
     }
   }
@@ -127,7 +126,7 @@ class Exporter(implicit model: SimulationModel, config: RecorderConfiguration) e
 
     render(model).foreach(e => {
       val (fName, output) = e
-      save(s"${config.core.className}_" + fName, output)
+      save(fName, output)
     })
   }
 

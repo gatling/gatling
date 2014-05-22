@@ -52,8 +52,7 @@ class RecorderController extends StrictLogging {
 
   private val frontEnd = RecorderFrontend.newFrontend(this)
   @volatile private var proxy: HttpProxy = _
-  var simulationModel: SimulationModel = null
-  var exporter: Exporter = null
+  implicit var model: SimulationModel = _
   // state tracking across request arrival/completion events
   val arrivalsMap = MapMaker.makeMap
   // used for calculating pauses
@@ -68,23 +67,20 @@ class RecorderController extends StrictLogging {
       frontEnd.handleMissingHarFile(frontEnd.harFilePath)
     } else {
       implicit val config = configuration
-      simulationModel = new SimulationModel()
+      model = new SimulationModel()
       val proceed = if (Exporter.simulationExists) frontEnd.askSimulationOverwrite else true
       if (proceed) {
         selectedMode match {
           case Har => {
-            implicit val model = simulationModel
-            exporter = new HarExporter(frontEnd.harFilePath)
-            exporter.export match {
+            val exporter = new HarExporter(frontEnd.harFilePath)
+            exporter.exportHar match {
               case Failure(errMsg) => frontEnd.handleHarExportFailure(errMsg)
-              case _               => frontEnd.handleHarExportSuccess()
+              case _ => frontEnd.handleHarExportSuccess()
             }
             // har done here.
           }
           case Proxy =>
             proxy = new HttpProxy(config, this)
-            implicit val model = simulationModel
-            exporter = new Exporter()
             frontEnd.recordingStarted()
         }
       }
@@ -96,15 +92,16 @@ class RecorderController extends StrictLogging {
 
     try {
       frontEnd.recordingStopped()
-      if (simulationModel.isEmpty)
+      if (model.isEmpty)
         logger.info("Nothing was recorded, skipping simulation generation")
       else {
         implicit val config = configuration
 
-        simulationModel.postProcess
-        exporter.export match {
+        val exporter = new Exporter()
+        model.postProcess
+        exporter.export(model) match {
           case Failure(errMsg) => // TODO // frontEnd.handleExportFailure(errMsg)
-          case _               => // TODO // frontEnd.handleExportSuccess()
+          case _ => // TODO // frontEnd.handleExportSuccess()
         }
       }
 
@@ -121,12 +118,12 @@ class RecorderController extends StrictLogging {
     val arrivalTime = System.currentTimeMillis
     // we'll hoik the arrival time out once the request is completed...
     arrivalsMap += request -> arrivalTime
-    simulationModel.setProxyAuth(extractProxyAuth(request))
+    model.setProxyAuth(extractProxyAuth(request))
   }
 
   // proxy receives a response
   def receiveResponse(request: HttpRequest, response: HttpResponse) {
-    
+
     val notFiltered = configuration.filters.filters.map(_.accept(request.getUri)).getOrElse(true)
     if (notFiltered) {
 
@@ -135,7 +132,7 @@ class RecorderController extends StrictLogging {
       val requestEl = RequestModel(request, response)
 
       //notify the model + FE of new Request
-      simulationModel += (arrivalTime, requestEl)
+      model += (arrivalTime, requestEl)
       frontEnd.receiveEventInfo(RequestInfo(request, response))
 
       // Notify the model + FE of new Pause
@@ -143,7 +140,7 @@ class RecorderController extends StrictLogging {
       val thereWasAPause = previousCompletionTime > 0 && delta > configuration.core.thresholdForPauseCreation
       if (thereWasAPause) {
         frontEnd.receiveEventInfo(PauseInfo(delta))
-        simulationModel addPause(delta)
+        model addPause (delta)
       }
     }
 
@@ -153,7 +150,7 @@ class RecorderController extends StrictLogging {
   // A tag is the boundary between Navigations in the model
   def addTag(text: String) {
 
-    simulationModel newNavigation (System.currentTimeMillis, text)
+    model newNavigation (System.currentTimeMillis, text)
     frontEnd.receiveEventInfo(TagInfo(text))
   }
 
@@ -163,7 +160,7 @@ class RecorderController extends StrictLogging {
   }
 
   def clearRecorderState() {
-    simulationModel.clear
+    model.clear
     // don't produce a long pause at the top once re-recording...
     previousCompletionTime = 0
   }

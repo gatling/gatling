@@ -23,26 +23,21 @@ object SimulationTemplate {
 
   def render(model: SimulationModel): Seq[(String, String)] = {
 
-    val output = fast"""//Package TODO
+    val output = 
+fast"""
 import scala.concurrent.duration._
-
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.jdbc.Predef._
 
 class ${model.name} extends Simulation {
 
-	setUp(
+    setUp(
     
     // the recorder can only record 1 scenario currently
     Scenarios.${model.name}_scenario.inject(atOnceUsers(1))
     
-    ).protocols(HTTPProtocol.default)
+    ).protocols(Protocol.default)
     
-    // TODO assertions
-    
-    // TODO - ensure the browser cache disabled if enabled in gatling
-
     }""".toString()
 
     List((s"${model.name}_simulation", output))

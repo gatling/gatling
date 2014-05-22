@@ -29,8 +29,6 @@ object RequestTemplate {
 
     val builtInHttpMethods = List("GET", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS", "POST")
 
-      //def headersBlockName(id: Int) = fast"headers_$id"
-
       def renderRequest(request: RequestModel) = {
 
           def renderMethod =
@@ -44,33 +42,28 @@ object RequestTemplate {
 
           def renderHeaders = request.header_identifier //filteredHeadersId
             .map { id =>
-              s"""
-			.headers(Protocol.headers_${id})"""
+              s"""\n\t\t.headers(Protocol.headers_${id})"""
             }.getOrElse("")
 
           def renderBodyOrParams = request.body.map {
-            case RequestBodyBytes(_) => fast"""
-			.body(RawFileBody("${model.name}_request_${request.identifier}.txt"))"""
+            case RequestBodyBytes(_) => fast"""\n\t\t.body(RawFileBody("${model.name}_request_${request.identifier}.txt"))"""
             case RequestBodyParams(params) => params.map {
-              case (key, value) => fast"""
-			.param(${protectWithTripleQuotes(key)}, ${protectWithTripleQuotes(value)})"""
+              case (key, value) => fast"""\n\t\t.param(${protectWithTripleQuotes(key)}, ${protectWithTripleQuotes(value)})"""
             }.mkFastring
           }.getOrElse(emptyFastring)
 
           def renderCredentials = request.basicAuthCredentials.map {
-            case (username, password) => s"""
-			.basicAuth(${protectWithTripleQuotes(username)},${protectWithTripleQuotes(password)})"""
+            case (username, password) => s"""\n\t\t.basicAuth(${protectWithTripleQuotes(username)},${protectWithTripleQuotes(password)})"""
           }.getOrElse("")
 
           def renderStatusCheck =
-            fast"""
-			.check(status.is(${request.statusCode}))"""
+            fast"""\n\n\t\t.check(status.is(${request.statusCode}))"""
 
-        fast"""exec(http("${request.identifier}").$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderStatusCheck)""".toString
+        fast"""\n\t\thttp("${request.identifier}")\n\t\t.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderStatusCheck""".toString
       }
 
       def renderRequests = {
-        var s = null
+        
           def n = model.getRequests.toList.sortWith(_.identifier < _.identifier).map {
 
             request =>
@@ -78,7 +71,7 @@ object RequestTemplate {
                 val req: RequestModel = request
                 val name = "_" + req.identifier
 
-                fast"""\n\n\tval $name = exec(  ${renderRequest(req)}  )"""
+                fast"""\n\n\tval $name = exec(${renderRequest(req)}\n\t\t)"""
 
               }
           }.mkFastring
@@ -86,19 +79,12 @@ object RequestTemplate {
         fast"""$n"""
       }
 
-    val output = fast"""// package TODO
-    
+    val output = fast"""
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
-import io.gatling.jdbc.Predef._
 
-object Requests {
-
-  // individual requests
-    
-    $renderRequests
-}
-""".toString()
+object Requests {$renderRequests
+}""".toString()
 
     List((s"${model.name}_requests", output))
   }
