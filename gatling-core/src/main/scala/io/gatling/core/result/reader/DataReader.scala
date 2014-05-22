@@ -37,7 +37,7 @@ abstract class DataReader(runUuid: String) {
   def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[IntVsTimePlot]
   def numberOfRequestsPerSecond(status: Option[Status] = None, requestName: Option[String] = None, group: Option[Group] = None): Seq[IntVsTimePlot]
   def numberOfResponsesPerSecond(status: Option[Status] = None, requestName: Option[String] = None, group: Option[Group] = None): Seq[IntVsTimePlot]
-  def responseTimeDistribution(slotsNumber: Int, requestName: Option[String] = None, group: Option[Group] = None): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
+  def responseTimeDistribution(maxPlots: Int, requestName: Option[String] = None, group: Option[Group] = None): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
   def requestGeneralStats(requestName: Option[String] = None, group: Option[Group] = None, status: Option[Status] = None): GeneralStats
   def numberOfRequestInResponseTimeRange(requestName: Option[String] = None, group: Option[Group] = None): Seq[(String, Int)]
   def responseTimePercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Seq[PercentilesVsTimePlot]
@@ -49,8 +49,8 @@ abstract class DataReader(runUuid: String) {
 
   def groupCumulatedResponseTimeGeneralStats(group: Group, status: Option[Status]): GeneralStats
   def groupDurationGeneralStats(group: Group, status: Option[Status]): GeneralStats
-  def groupCumulatedResponseTimeDistribution(slotsNumber: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
-  def groupDurationDistribution(slotsNumber: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
+  def groupCumulatedResponseTimeDistribution(maxPlots: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
+  def groupDurationDistribution(maxPlots: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
   def groupCumulatedResponseTimePercentilesOverTime(status: Status, group: Group): Seq[PercentilesVsTimePlot]
   def groupDurationPercentilesOverTime(status: Status, group: Group): Seq[PercentilesVsTimePlot]
 }

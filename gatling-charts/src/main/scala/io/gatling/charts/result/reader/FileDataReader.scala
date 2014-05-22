@@ -164,7 +164,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
   def numberOfResponsesPerSecond(status: Option[Status], requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] =
     countBuffer2IntVsTimePlots(resultsHolder.getResponsesPerSecBuffer(requestName, group, status))
 
-  private def distribution(slotsNumber: Int, allBuffer: GeneralStatsBuffer, okBuffers: GeneralStatsBuffer, koBuffer: GeneralStatsBuffer): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) = {
+  private def distribution(maxPlots: Int, allBuffer: GeneralStatsBuffer, okBuffers: GeneralStatsBuffer, koBuffer: GeneralStatsBuffer): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) = {
 
     // get main and max for request/all status
     val size = allBuffer.stats.count
@@ -175,7 +175,6 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
       def percent(s: Int) = s * 100.0 / size
 
-    val maxPlots = 100
     if (max - min <= maxPlots) {
         // use exact values
         def plotsToPercents(plots: Iterable[IntVsTimePlot]) = plots.map(plot => PercentVsTimePlot(plot.time, percent(plot.value))).toSeq.sortBy(_.time)
@@ -213,20 +212,20 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     }
   }
 
-  def responseTimeDistribution(slotsNumber: Int, requestName: Option[String], group: Option[Group]): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
-    distribution(slotsNumber,
+  def responseTimeDistribution(maxPlots: Int, requestName: Option[String], group: Option[Group]): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
+    distribution(maxPlots,
       resultsHolder.getRequestGeneralStatsBuffers(requestName, group, None),
       resultsHolder.getRequestGeneralStatsBuffers(requestName, group, Some(OK)),
       resultsHolder.getRequestGeneralStatsBuffers(requestName, group, Some(KO)))
 
-  def groupCumulatedResponseTimeDistribution(slotsNumber: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
-    distribution(slotsNumber,
+  def groupCumulatedResponseTimeDistribution(maxPlots: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
+    distribution(maxPlots,
       resultsHolder.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, None),
       resultsHolder.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, Some(OK)),
       resultsHolder.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, Some(KO)))
 
-  def groupDurationDistribution(slotsNumber: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
-    distribution(slotsNumber,
+  def groupDurationDistribution(maxPlots: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
+    distribution(maxPlots,
       resultsHolder.getGroupDurationGeneralStatsBuffers(group, None),
       resultsHolder.getGroupDurationGeneralStatsBuffers(group, Some(OK)),
       resultsHolder.getGroupDurationGeneralStatsBuffers(group, Some(KO)))
