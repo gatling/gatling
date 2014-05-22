@@ -104,6 +104,15 @@ case class Session(
       this
   }
 
+  private[gatling] def logGroupAsyncRequests(asyncFetchTime: Long, okCount: Int, koCount: Int) = blockStack match {
+    case Nil => this
+    case _ =>
+      copy(blockStack = blockStack.map {
+        case g: GroupBlock => g.copy(cumulatedResponseTime = g.cumulatedResponseTime + asyncFetchTime, oks = g.oks + okCount, kos = g.kos + koCount)
+        case b             => b
+      })
+  }
+
   private[gatling] def logGroupRequest(responseTime: Long, status: Status) = blockStack match {
     case Nil => this
     case _ =>
