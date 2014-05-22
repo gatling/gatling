@@ -66,6 +66,7 @@ object NavigationTemplate {
     val output = fast"""
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
+import scala.concurrent.duration._
 
 object Navigations {$renderNavigations
 
