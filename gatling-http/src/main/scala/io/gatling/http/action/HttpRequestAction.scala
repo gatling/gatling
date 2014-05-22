@@ -26,7 +26,7 @@ import io.gatling.http.cache.{ PermanentRedirect, CacheHandling }
 import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder
-import com.ning.http.client.Request
+import com.ning.http.client.{ RequestBuilder, SignatureCalculator, Request }
 
 object HttpRequestAction extends StrictLogging {
 
@@ -96,9 +96,16 @@ class HttpRequestAction(httpRequest: HttpRequest, val next: ActorRef) extends Re
   val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(checks, responseTransformer, protocol)
   val requestName = httpRequest.requestName
 
+  def sign(request: Request, signatureCalculator: Option[SignatureCalculator]): Request = {
+    signatureCalculator match {
+      case Some(calculator) => new RequestBuilder(request).setSignatureCalculator(calculator).build()
+      case None             => request
+    }
+  }
+
   def sendRequest(requestName: String, session: Session) =
     for {
       ahcRequest <- ahcRequest(session)
-      tx = HttpTx(session, ahcRequest, requestName, checks, responseBuilderFactory, protocol, next, followRedirect, maxRedirects, throttled, HttpRequestAction.isSilent(ahcRequest, httpRequest), explicitResources, extraInfoExtractor)
+      tx = HttpTx(session, sign(ahcRequest, signatureCalculator), requestName, checks, responseBuilderFactory, protocol, next, followRedirect, maxRedirects, throttled, HttpRequestAction.isSilent(ahcRequest, httpRequest), explicitResources, extraInfoExtractor)
     } yield HttpRequestAction.startHttpTransaction(tx)
 }

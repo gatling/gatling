@@ -15,7 +15,7 @@
  */
 package io.gatling.http.request.builder
 
-import com.ning.http.client.Request
+import com.ning.http.client.{ RequestBuilderBase, SignatureCalculator, Request }
 
 import io.gatling.core.session.Expression
 import io.gatling.http.action.HttpRequestActionBuilder
@@ -34,7 +34,8 @@ case class HttpAttributes(
   explicitResources: Seq[AbstractHttpRequestBuilder[_]] = Nil,
   body: Option[Body] = None,
   bodyParts: List[BodyPart] = Nil,
-  extraInfoExtractor: Option[ExtraInfoExtractor] = None)
+  extraInfoExtractor: Option[ExtraInfoExtractor] = None,
+  signatureCalculator: Option[SignatureCalculator] = None)
 
 object AbstractHttpRequestBuilder {
 
@@ -87,6 +88,20 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
   def request(protocol: HttpProtocol): Expression[Request]
 
+  def signatureCalculator(signatureCalculator: SignatureCalculator): B = addSignatureCalculator(signatureCalculator)
+
+  private def addSignatureCalculator(signatureCalculator: SignatureCalculator): B = newInstance(httpAttributes.copy(signatureCalculator = Some(signatureCalculator)))
+
+  def signatureCalculator(signatureCalculator: (String, Request, RequestBuilderBase[_]) => Unit): B =
+    addSignatureCalculator(createSignatureCalculator(signatureCalculator))
+
+  private def createSignatureCalculator(signatureCalculator: (String, Request, RequestBuilderBase[_]) => Unit): SignatureCalculator =
+    new SignatureCalculator {
+      def calculateAndAddSignature(url: String, request: Request, requestBuilder: RequestBuilderBase[_]): Unit = {
+        signatureCalculator(url, request, requestBuilder)
+      }
+    }
+
   /**
    * This method builds the request that will be sent
    *
@@ -127,7 +142,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
       httpAttributes.silent,
       resolvedFollowRedirect,
       protocol,
-      resolvedResources)
+      resolvedResources,
+      httpAttributes.signatureCalculator)
   }
 }
 
