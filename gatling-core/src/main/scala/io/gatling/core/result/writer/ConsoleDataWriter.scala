@@ -32,8 +32,8 @@ class UserCounters(val totalCount: Int) {
   def runningCount = _runningCount
   def doneCount = _doneCount
 
-  def userStart() { _runningCount += 1 }
-  def userDone() { _runningCount -= 1; _doneCount += 1 }
+  def userStart(): Unit = { _runningCount += 1 }
+  def userDone(): Unit = { _runningCount -= 1; _doneCount += 1 }
   def waitingCount = totalCount - _runningCount - _doneCount
 }
 
@@ -48,7 +48,7 @@ class ConsoleDataWriter extends DataWriter {
   private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
   private val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
 
-  def display() {
+  def display(): Unit = {
     val now = currentTimeMillis
     val runDuration = (now - startUpTime) / 1000
 
@@ -61,7 +61,7 @@ class ConsoleDataWriter extends DataWriter {
     case Display => display
   }
 
-  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
+  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
 
     startUpTime = currentTimeMillis
 
@@ -70,7 +70,7 @@ class ConsoleDataWriter extends DataWriter {
     scheduler.schedule(0 seconds, 5 seconds, self, Display)
   }
 
-  override def onUserMessage(userMessage: UserMessage) {
+  override def onUserMessage(userMessage: UserMessage): Unit = {
 
     import userMessage._
 
@@ -89,9 +89,9 @@ class ConsoleDataWriter extends DataWriter {
     }
   }
 
-  override def onGroupMessage(group: GroupMessage) {}
+  override def onGroupMessage(group: GroupMessage): Unit = {}
 
-  override def onRequestMessage(request: RequestMessage) {
+  override def onRequestMessage(request: RequestMessage): Unit = {
 
     import request._
 
@@ -110,7 +110,7 @@ class ConsoleDataWriter extends DataWriter {
     }
   }
 
-  override def onTerminateDataWriter() {
+  override def onTerminateDataWriter(): Unit = {
     if (!complete) display
   }
 }
