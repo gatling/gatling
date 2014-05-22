@@ -30,13 +30,20 @@ object ConsoleTemplate {
     import statistics._
     fast"> ${name.rightPad(outputLength - 32)} ${printable(total).leftPad(7)} (OK=${printable(success).rightPad(6)} KO=${printable(failure).rightPad(6)})"
   }
+
   def writeGroupedCounters(groupedCount: GroupedCount): Fastring = {
     import groupedCount._
     fast"> ${name.rightPad(outputLength - 32)} ${count.toString.leftPad(7)} (${percentage.toString.leftPad(3)}%)"
   }
 
-  def writeErrors(dataReader: DataReader): Fastring = {
-    dataReader.errors(None, None).map(ConsoleErrorsWriter.writeError).mkFastring(eol)
+  def writeErrorsAndEndBlock(dataReader: DataReader): Fastring = {
+    val errors = dataReader.errors(None, None)
+    if (errors.isEmpty)
+      fast"$newBlock"
+    else
+      fast"""${writeSubTitle("Errors")}
+${errors.map(ConsoleErrorsWriter.writeError).mkFastring(eol)}
+$newBlock"""
   }
 
   def apply(dataReader: DataReader, requestStatistics: RequestStatistics): String = {
@@ -54,9 +61,7 @@ ${writeRequestCounters(percentiles2)}
 ${writeRequestCounters(meanNumberOfRequestsPerSecondStatistics)}
 ${writeSubTitle("Response Time Distribution")}
 ${groupedCounts.map(writeGroupedCounters).mkFastring(eol)}
-${writeSubTitle("Errors")}
-${writeErrors(dataReader)}
-$newBlock
+${writeErrorsAndEndBlock(dataReader)}
 """.toString
   }
 }
