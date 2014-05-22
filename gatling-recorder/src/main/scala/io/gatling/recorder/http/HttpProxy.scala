@@ -24,7 +24,6 @@ import io.gatling.recorder.config.RecorderConfiguration
 case class HttpProxy(config: RecorderConfiguration, controller: RecorderController) {
 
   private def port = config.proxy.port
-  private def sslPort = config.proxy.sslPort
   def outgoingProxy =
     for {
       host <- config.proxy.outgoing.host
@@ -37,16 +36,13 @@ case class HttpProxy(config: RecorderConfiguration, controller: RecorderControll
   val clientBootstrap = newClientBootstrap(ssl = false)
   val secureClientBootstrap = newClientBootstrap(ssl = true)
   private val group = new DefaultChannelGroup("Gatling_Recorder")
-  private val serverBootstrap = newServerBootstrap(this, ssl = false)
-  private val secureServerBootstrap = newServerBootstrap(this, ssl = true)
+  private val serverBootstrap = newServerBootstrap(this) // covers both http and https
 
   group.add(serverBootstrap.bind(new InetSocketAddress(port)))
-  group.add(secureServerBootstrap.bind(new InetSocketAddress(sslPort)))
 
   def shutdown() {
     group.close.awaitUninterruptibly
     serverBootstrap.shutdown()
-    secureClientBootstrap.shutdown()
     clientBootstrap.shutdown()
     secureClientBootstrap.shutdown()
   }

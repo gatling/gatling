@@ -22,10 +22,8 @@ import org.jboss.netty.handler.codec.http.{ HttpChunkAggregator, HttpClientCodec
 import org.jboss.netty.handler.ssl.SslHandler
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.http.handler.{ ClientHttpRequestHandler, ClientHttpsRequestHandler }
+import io.gatling.recorder.http.handler.{ ClientHttpRequestHandler, ClientHttpsRequestHandler, ClientPortUnifiedRequestHandler, ClientRequestHandler }
 import io.gatling.recorder.http.ssl.SSLEngineFactory
-import io.gatling.recorder.http.handler.ClientPortUnifiedRequestHandler
-import io.gatling.recorder.http.handler.ClientRequestHandler
 
 object BootstrapFactory extends StrictLogging {
 
@@ -56,7 +54,7 @@ object BootstrapFactory extends StrictLogging {
     bootstrap
   }
 
-  def newServerBootstrap(proxy: HttpProxy, ssl: Boolean): ServerBootstrap = {
+  def newServerBootstrap(proxy: HttpProxy): ServerBootstrap = {
 
     val bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory)
 
@@ -87,7 +85,6 @@ object BootstrapFactory extends StrictLogging {
   
   
   def setGatlingProtocolHandler(pipeline: ChannelPipeline, handler : ClientRequestHandler) {
-    
     pipeline.addLast( GATLING_HANDLER_NAME, handler) 
     pipeline.remove(CONDITIONAL_HANDLER_NAME)
   }
