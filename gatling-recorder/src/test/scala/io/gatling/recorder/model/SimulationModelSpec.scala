@@ -14,7 +14,8 @@ class SimulationModelSpec extends Specification {
     "remove HTTP redirection with redirectingModel" in pending {
 
       val model = ModelFixtures.redirectingModel
-      ! model.getRequests.contains(RequestModel("http://gatling.io/main2-302.css", "GET", Map.empty, None, 302, List.empty, Option("")))
+      val a_redirecting_request = RequestModel("http://gatling.io/main2-302.css", "GET", Map.empty, None, 302, List.empty, Option(""))
+      ! model.getRequests.contains(a_redirecting_request)
 
     }
 
