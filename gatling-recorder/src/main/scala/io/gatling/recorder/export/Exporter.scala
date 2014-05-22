@@ -53,7 +53,7 @@ object Exporter {
 
 class Exporter(implicit config: RecorderConfiguration) extends StrictLogging with IO {
 
-  var model:SimulationModel = _
+  var model: SimulationModel = _
 
   /**
    * replacement for saveScenario

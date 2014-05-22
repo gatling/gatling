@@ -35,8 +35,8 @@ object ScenarioTemplate {
 
       }.mkFastring("")
 
-    val output = 
-fast"""
+    val output =
+      fast"""
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 
@@ -53,13 +53,4 @@ $renderScenarios
     List((s"${model.name}_scenarios", output))
   }
 }
-
-
-
-
-
-
-
-
-
 

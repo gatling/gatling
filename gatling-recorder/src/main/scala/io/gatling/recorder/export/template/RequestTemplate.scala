@@ -63,7 +63,7 @@ object RequestTemplate {
       }
 
       def renderRequests = {
-        
+
           def n = model.getRequests.toList.sortWith(_.identifier < _.identifier).map {
 
             request =>

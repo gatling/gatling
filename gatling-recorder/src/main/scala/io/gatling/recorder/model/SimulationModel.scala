@@ -45,17 +45,20 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
   private val name1: String = config.core.className
 
   // require that the model is post processed before being able to get anthing out
-  
-  def getNavigations = { 
+
+  def getNavigations = {
     require(postProcessed)
-    navigations }
-  def getRequests = { 
+    navigations
+  }
+  def getRequests = {
     require(postProcessed)
-    requests }
-  def getProtocol = { 
+    requests
+  }
+  def getProtocol = {
     require(postProcessed)
-    protocol }
-  def proxyCredentials ={
+    protocol
+  }
+  def proxyCredentials = {
     require(postProcessed)
     proxyCredentials1
   }
@@ -63,7 +66,7 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
     require(postProcessed)
     name1
   }
-  
+
   def isEmpty = requests.isEmpty
 
   /**
@@ -96,7 +99,7 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
     navigations += timestamp -> currentNavigation
     currentNavigation = new NavigationModel
-    requiresNewNavigation=false
+    requiresNewNavigation = false
   }
 
   // adds a request
@@ -105,12 +108,12 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
     currentNavigation += a
     uniquifyRequestIdentifier(a._2)
     requests += a._2
-    requiresNewNavigation=true
+    requiresNewNavigation = true
   }
-  
-  def addPause(delta : FiniteDuration) = {
-    
-    currentNavigation += (System.currentTimeMillis,new PauseModel(delta))
+
+  def addPause(delta: FiniteDuration) = {
+
+    currentNavigation += (System.currentTimeMillis, new PauseModel(delta))
   }
 
   def setProxyAuth(credentials: Option[(String, String)]) = {
@@ -130,21 +133,21 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
    */
   def postProcess() = {
 
-    if(requests.size > 0){
-    postProcessed = true
-    
-    // insert navigation if the user doesn't
-    if(requiresNewNavigation)
-      newNavigation(System.currentTimeMillis(), "default_navigation")
-    
-    // TODO remove redirects
+    if (requests.size > 0) {
+      postProcessed = true
 
-    // do protocol & headers
-    protocol = ProtocolModel(this)
+      // insert navigation if the user doesn't
+      if (requiresNewNavigation)
+        newNavigation(System.currentTimeMillis(), "default_navigation")
 
-    // TODO fetch HTML resources
+      // TODO remove redirects
+
+      // do protocol & headers
+      protocol = ProtocolModel(this)
+
+      // TODO fetch HTML resources
 
     }
-    
+
   }
 }

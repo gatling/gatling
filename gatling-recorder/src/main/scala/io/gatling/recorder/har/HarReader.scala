@@ -33,8 +33,8 @@ import org.jboss.netty.handler.codec.http.HttpMethod
  * Implementation according to http://www.softwareishard.com/blog/har-12-spec/
  */
 object HarReader extends IO {
-  
-  def apply(path: String)(implicit config: RecorderConfiguration): SimulationModel = 
+
+  def apply(path: String)(implicit config: RecorderConfiguration): SimulationModel =
     withCloseable(new FileInputStream(path))(apply(_))
 
   def apply(jsonStream: InputStream)(implicit config: RecorderConfiguration): SimulationModel =
@@ -46,21 +46,18 @@ object HarReader extends IO {
     implicit val model = new SimulationModel()
 
     val times = entries.iterator
-      .filter(e => 
-        e.request.method != HttpMethod.CONNECT.getName
-      )
-      .filter(e => 
-        isValidURL(e.request.url)
-      )
+      .filter(e =>
+        e.request.method != HttpMethod.CONNECT.getName)
+      .filter(e =>
+        isValidURL(e.request.url))
       // TODO NICO : can't we move this in Scenario as well ?
       .filter(e => {
         val r = config.filters.filters.map(_.accept(e.request.url)).getOrElse(true)
-        r 
-        }
-        )
+        r
+      })
       .map { createRequestWithArrivalTime }
-     
-    if(times.hasNext)
+
+    if (times.hasNext)
       times.max // force evaluate
 
     model.postProcess

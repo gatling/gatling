@@ -23,14 +23,14 @@ import scala.concurrent.duration.{ DurationLong, FiniteDuration }
 sealed trait EventInfo
 
 case class PauseInfo(duration: FiniteDuration) extends EventInfo {
-  
+
   /* if we set to 1 second then 
    * we get precision of 1ms from 1-999ms,
   * but then >1second we only get precision of 1 second
   * loss of precision if most pauses are between say 1 and 10 seconds
   */
   val PRECISION_THRESHOLD = 10.second
-  
+
   val toPrint = if (duration > PRECISION_THRESHOLD) s"${duration.toSeconds}s" else s"${duration.length}ms"
   override def toString = s"PAUSE $toPrint"
 }
