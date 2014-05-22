@@ -131,10 +131,6 @@ class RecorderController extends StrictLogging {
       val arrivalTime = arrivalsMap(request) // System.currentTimeMillis
       val requestEl = RequestModel(request, response)
 
-      //notify the model + FE of new Request
-      model += (arrivalTime, requestEl)
-      frontEnd.receiveEventInfo(RequestInfo(request, response))
-
       // Notify the model + FE of new Pause
       val delta = (arrivalTime - previousCompletionTime).milliseconds
       val thereWasAPause = previousCompletionTime > 0 && delta > configuration.core.thresholdForPauseCreation
@@ -142,6 +138,10 @@ class RecorderController extends StrictLogging {
         frontEnd.receiveEventInfo(PauseInfo(delta))
         model addPause (delta)
       }
+
+      //notify the model + FE of new Request
+      model += (arrivalTime, requestEl)
+      frontEnd.receiveEventInfo(RequestInfo(request, response))
     }
 
     previousCompletionTime = System.currentTimeMillis
