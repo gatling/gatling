@@ -6,7 +6,7 @@ object Navigations {
 
 	val first_navigation = exec(
 		Requests._main_css,
-		Requests._main2_css_BAC331BE1CC068700BE013BBE1676969,
+		Requests._main2_css,
 		Requests._main3,
 		Requests._Request_name_FixMe,
 		Requests._main2_css_C7A79401D709EC3B3DEF2395C2FEAE71,

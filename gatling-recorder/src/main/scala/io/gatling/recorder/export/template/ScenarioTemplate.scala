@@ -27,7 +27,7 @@ object ScenarioTemplate {
 
         val navigations = model.getNavigations.map {
 
-          case navigation => fast"""\t\tNavigations.navigation._2.name"""
+          case navigation => fast"""\t\tNavigations.${navigation._2.name}"""
 
         }.mkFastring(",\n")
 

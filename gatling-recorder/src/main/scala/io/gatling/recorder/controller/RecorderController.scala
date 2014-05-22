@@ -160,7 +160,9 @@ class RecorderController extends StrictLogging {
   }
 
   def clearRecorderState() {
-    model.clear
+    implicit val config = configuration
+    model = new SimulationModel()
+    arrivalsMap.clear
     // don't produce a long pause at the top once re-recording...
     previousCompletionTime = 0
   }

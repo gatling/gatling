@@ -8,9 +8,9 @@ object Scenarios {
 
 		scenario("TestSimulation scenario")
 		.exec(
-		Navigations.navigation._2.name,
-		Navigations.navigation._2.name,
-		Navigations.navigation._2.name,
-		Navigations.navigation._2.name
+		Navigations.first_navigation,
+		Navigations.second_navigation,
+		Navigations.3rd_navigation,
+		Navigations.default_navigation
 		)
 }

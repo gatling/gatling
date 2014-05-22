@@ -90,11 +90,6 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
     }
   }
 
-  def clear = {
-    navigations.clear
-    requiresNewNavigation=false
-  }
-
   def newNavigation(timestamp: Long, navigationName: String) = {
 
     currentNavigation.name = navigationName.replaceAll("\\W", "_")

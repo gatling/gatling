@@ -19,10 +19,10 @@ object Requests {
 		.check(status.is(200))
 		)
 
-	val _main2_css_BAC331BE1CC068700BE013BBE1676969 = exec(
-		http("main2_css_BAC331BE1CC068700BE013BBE1676969")
+	val _main2_css = exec(
+		http("main2_css")
 		.post("""http://gatling.io/main2.css?a=b""")
-		.headers(Protocol.headers_main2_css_BAC331BE1CC068700BE013BBE1676969)
+		.headers(Protocol.headers_main2_css)
 		.param("""a""", """b""")
 		.param("""c""", """d""")
 
