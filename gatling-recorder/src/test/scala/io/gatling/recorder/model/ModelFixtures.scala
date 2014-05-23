@@ -232,7 +232,7 @@ object ModelFixtures {
     sim
   }
 
-  val redirectingModel: SimulationModel = {
+  def redirectingModel: SimulationModel = {
 
     val sim = SimulationModel()
     val time = System.currentTimeMillis()

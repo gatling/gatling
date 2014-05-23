@@ -47,7 +47,7 @@ class SimulationModelSpec extends Specification {
       val model = ModelFixtures.redirectingModel
       val a_redirecting_request = RequestModel("http://gatling.io/main2-302.css", "GET", Map.empty, None, 302, List.empty, Option(""))
 
-      !model.getRequests.contains(a_redirecting_request)
+      model.getRequests.contains(a_redirecting_request)
     }
 
   }

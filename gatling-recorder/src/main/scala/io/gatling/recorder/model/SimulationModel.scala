@@ -123,7 +123,8 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
     // ignore redirect if following
     val isARedirect = (a._2.statusCode == 302 || a._2.statusCode == 301)
-    if (config.http.followRedirect && !isARedirect) {
+    if ( (config.http.followRedirect && !isARedirect) ||
+    	 !config.http.followRedirect) {
       currentNavigation += a
       uniquifyRequestIdentifier(a._2)
       requests += a._2
