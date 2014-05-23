@@ -25,6 +25,15 @@ class SimulationModelSpec extends Specification {
 
   "Simulation Model" should {
 
+    "not allow out of order requests" in {
+      
+      ModelFixtures.outOfOrderRequestModel must throwA[IllegalArgumentException]
+    }
+    
+    "not allow out of order navigations" in {
+      ModelFixtures.outOfOrderNavModel  must throwA[IllegalArgumentException]
+    }
+    
     // TODO - requires more work.
     "remove HTTP redirection with redirectingModel" in pending {
 
@@ -33,6 +42,7 @@ class SimulationModelSpec extends Specification {
       ! model.getRequests.contains(a_redirecting_request)
 
     }
+    
 
   }
 }

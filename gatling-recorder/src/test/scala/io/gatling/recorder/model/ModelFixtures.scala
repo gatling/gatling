@@ -254,4 +254,66 @@ object ModelFixtures {
 
     sim
   }
+  
+  def outOfOrderRequestModel: SimulationModel = {
+
+    val sim = SimulationModel()
+
+    val time = System.currentTimeMillis()
+
+    sim += (time -> r1)
+    sim += (time + 1 -> r1a)
+    sim += (time + 2 -> r1b)
+    sim += (time + 1 -> r1c)
+    sim += (time + 4 -> r2)
+    sim += (time + 5 -> r3)
+    sim.newNavigation(time + 100, "first navigation")
+    
+    sim addPause (Duration.create(50, "milliseconds"))  // this pause should be placed in the previous navigation
+    sim += (time + 200 -> r2)
+    sim += (time + 201 -> r2)
+    sim addPause (Duration.create(50, "milliseconds"))
+    sim += (time + 303 -> r3)
+    sim.newNavigation(time + 304, "second navigation")
+
+    sim += (time + 306 -> r3)
+    sim.newNavigation(time + 400, "3rd navigation")
+
+    sim += (time + 407 -> r3)
+    
+    sim.postProcess
+
+    sim
+  }
+  
+  def outOfOrderNavModel: SimulationModel = {
+
+    val sim = SimulationModel()
+
+    val time = System.currentTimeMillis()
+
+    sim += (time -> r1)
+    sim += (time + 1 -> r1a)
+    sim += (time + 2 -> r1b)
+    sim += (time + 3 -> r1c)
+    sim += (time + 4 -> r2)
+    sim += (time + 5 -> r3)
+    sim.newNavigation(time + 4, "first navigation")
+    
+    sim addPause (Duration.create(50, "milliseconds"))  // this pause should be placed in the previous navigation
+    sim += (time + 200 -> r2)
+    sim += (time + 201 -> r2)
+    sim addPause (Duration.create(50, "milliseconds"))
+    sim += (time + 303 -> r3)
+    sim.newNavigation(time + 304, "second navigation")
+
+    sim += (time + 306 -> r3)
+    sim.newNavigation(time + 400, "3rd navigation")
+
+    sim += (time + 407 -> r3)
+    
+    sim.postProcess
+
+    sim
+  }
 }

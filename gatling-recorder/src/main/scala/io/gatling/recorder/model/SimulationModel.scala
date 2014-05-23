@@ -102,9 +102,8 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
   def newNavigation(timestamp: Long, navigationName: String) = {
 
-    require(currentNavigation.requestList.size>0, "Cannot add Navigation - no requests "+navigationName)
-    require(lastNavigationTimestamp ==0 || 
-    		(lastNavigationTimestamp >0 && lastNavigationTimestamp<timestamp && timestamp>lastRequestTimestamp), 
+    require(currentNavigation.requestList.size>0, "Cannot add Navigation - no requests in this navigation yet"+navigationName)
+    require((lastNavigationTimestamp<timestamp && timestamp>lastRequestTimestamp), 
         "Cannot add navigations out of order :"+navigationName) 
     
     currentNavigation.name = navigationName.replaceAll("\\W", "_")
