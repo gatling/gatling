@@ -18,10 +18,7 @@ package io.gatling.recorder.export.template
 import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.util.StringHelper.emptyFastring
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.model.SimulationModel
-import io.gatling.recorder.model.RequestModel
-import io.gatling.recorder.model.RequestBodyBytes
-import io.gatling.recorder.model.RequestBodyParams
+import io.gatling.recorder.model.{SimulationModel, RequestModel, RequestBodyBytes, RequestBodyParams}
 
 object RequestTemplate {
 
@@ -29,55 +26,55 @@ object RequestTemplate {
 
     val builtInHttpMethods = List("GET", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS", "POST")
 
-      def renderRequest(request: RequestModel) = {
+    def renderRequest(request: RequestModel) = {
 
-          def renderMethod =
-            if (builtInHttpMethods.contains(request.method)) {
-              fast"${request.method.toLowerCase}($renderUrl)"
-            } else {
-              fast"""httpRequest("$request.method", Left($renderUrl))"""
-            }
+      def renderMethod =
+        if (builtInHttpMethods.contains(request.method)) {
+          fast"${request.method.toLowerCase}($renderUrl)"
+        } else {
+          fast"""httpRequest("$request.method", Left($renderUrl))"""
+        }
 
-          def renderUrl = protectWithTripleQuotes(request.printedUrl)
+      def renderUrl = protectWithTripleQuotes(request.printedUrl)
 
-          def renderHeaders = request.header_identifier //filteredHeadersId
-            .map { id =>
-              s"""\n\t\t.headers(Protocol.headers_${id})"""
-            }.getOrElse("")
+      def renderHeaders = request.header_identifier //filteredHeadersId
+        .map { id =>
+          s"""\n\t\t.headers(Protocol.headers_${id})"""
+        }.getOrElse("")
 
-          def renderBodyOrParams = request.body.map {
-            case RequestBodyBytes(_) => fast"""\n\t\t.body(RawFileBody("${model.name}_request_${request.identifier}.txt"))"""
-            case RequestBodyParams(params) => params.map {
-              case (key, value) => fast"""\n\t\t.param(${protectWithTripleQuotes(key)}, ${protectWithTripleQuotes(value)})"""
-            }.mkFastring
-          }.getOrElse(emptyFastring)
+      def renderBodyOrParams = request.body.map {
+        case RequestBodyBytes(_) => fast"""\n\t\t.body(RawFileBody("${model.name}_request_${request.identifier}.txt"))"""
+        case RequestBodyParams(params) => params.map {
+          case (key, value) => fast"""\n\t\t.param(${protectWithTripleQuotes(key)}, ${protectWithTripleQuotes(value)})"""
+        }.mkFastring
+      }.getOrElse(emptyFastring)
 
-          def renderCredentials = request.basicAuthCredentials.map {
-            case (username, password) => s"""\n\t\t.basicAuth(${protectWithTripleQuotes(username)},${protectWithTripleQuotes(password)})"""
-          }.getOrElse("")
+      def renderCredentials = request.basicAuthCredentials.map {
+        case (username, password) => s"""\n\t\t.basicAuth(${protectWithTripleQuotes(username)},${protectWithTripleQuotes(password)})"""
+      }.getOrElse("")
 
-          def renderStatusCheck =
-            fast"""\n\n\t\t.check(status.is(${request.statusCode}))"""
+      def renderStatusCheck =
+        fast"""\n\n\t\t.check(status.is(${request.statusCode}))"""
 
-        fast"""\n\t\thttp("${request.identifier}")\n\t\t.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderStatusCheck""".toString
-      }
+      fast"""\n\t\thttp("${request.identifier}")\n\t\t.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderStatusCheck""".toString
+    }
 
-      def renderRequests = {
+    def renderRequests = {
 
-          def n = model.getRequests.toList.sortWith(_.identifier < _.identifier).map {
+      def n = model.getRequests.toList.sortWith(_.identifier < _.identifier).map {
 
-            request =>
-              {
-                val req: RequestModel = request
-                val name = "_" + req.identifier
+        request =>
+          {
+            val req: RequestModel = request
+            val name = "_" + req.identifier
 
-                fast"""\n\n\tval $name = exec(${renderRequest(req)}\n\t\t)"""
+            fast"""\n\n\tval $name = exec(${renderRequest(req)}\n\t\t)"""
 
-              }
-          }.mkFastring
+          }
+      }.mkFastring
 
-        fast"""$n"""
-      }
+      fast"""$n"""
+    }
 
     val output = fast"""
 import io.gatling.core.Predef._

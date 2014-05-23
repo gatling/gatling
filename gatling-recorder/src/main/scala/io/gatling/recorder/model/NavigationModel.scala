@@ -16,18 +16,14 @@
 package io.gatling.recorder.model
 
 import scala.concurrent.duration.{ Duration, DurationLong }
+import scala.collection.mutable
+import scala.collection.mutable.{ Map, SynchronizedMap, HashMap }
+import scala.collection.immutable.{ TreeMap, HashSet }
 import com.typesafe.scalalogging.slf4j.StrictLogging
+
 import io.gatling.http.util.HttpHelper
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.util.collection.RichSeq
-import scala.collection.mutable
-import scala.collection.mutable.{
-  Map,
-  SynchronizedMap,
-  HashMap
-}
-import scala.collection.immutable.TreeMap
-import scala.collection.immutable.HashSet
 
 /**
  * <pre>

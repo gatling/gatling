@@ -150,8 +150,8 @@ class HarReaderSpec extends Specification {
       val el0 = elts.head.asInstanceOf[RequestModel]
       val el1 = elts(1).asInstanceOf[RequestModel]
 
-     // (el0.headers must beEmpty) and  // TODO - check what this was for
-        (el1.headers must not beEmpty) and
+      // (el0.headers must beEmpty) and  // TODO - check what this was for
+      (el1.headers must not beEmpty) and
         (el1.headers must haveKeys("User-Agent", "Host", "Accept-Encoding", "Accept-Language"))
     }
 

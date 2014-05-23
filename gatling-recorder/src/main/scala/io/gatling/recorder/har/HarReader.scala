@@ -19,6 +19,8 @@ import java.io.{ FileInputStream, InputStream }
 import java.net.{ URI, URL }
 import scala.collection.breakOut
 import scala.util.Try
+import org.jboss.netty.handler.codec.http.HttpMethod
+
 import io.gatling.core.util.IO
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.core.util.StandardCharsets.UTF_8
@@ -27,7 +29,6 @@ import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.model._
 import io.gatling.recorder.util.Json
-import org.jboss.netty.handler.codec.http.HttpMethod
 
 /**
  * Implementation according to http://www.softwareishard.com/blog/har-12-spec/
@@ -65,9 +66,9 @@ object HarReader extends IO {
   }
 
   private def createRequestWithArrivalTime(entry: Entry)(implicit model: SimulationModel): Long = {
-    
-      def buildContent(postParams: Seq[PostParam]): RequestBodyModel =
-        RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
+
+    def buildContent(postParams: Seq[PostParam]): RequestBodyModel =
+      RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
 
     val uri = entry.request.url
     val method = entry.request.method
@@ -84,7 +85,7 @@ object HarReader extends IO {
 
     val embeddedResources = entry.response.content match {
       case Content("text/html", Some(text)) => HtmlParser.getEmbeddedResources(new URI(uri), text.toCharArray)
-      case _                                => Nil
+      case _ => Nil
     }
 
     val requestModel = RequestModel(uri, method, headers, body, entry.response.status, embeddedResources, /*responseContentType : Option[String]*/ None)

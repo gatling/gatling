@@ -29,15 +29,12 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.recorder.{ Har, Proxy }
-import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.config.{ RecorderConfiguration, RecorderPropertiesBuilder }
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.model.SimulationModel
+import io.gatling.recorder.model.{ SimulationModel, RequestModel }
 import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
-import io.gatling.recorder.model.RequestModel
-import io.gatling.recorder.export.Exporter
-import io.gatling.recorder.export.HarExporter
+import io.gatling.recorder.export.{ Exporter, HarExporter }
 
 object RecorderController {
   def apply(props: Map[String, Any], recorderConfigFile: Option[File] = None) {
@@ -75,9 +72,9 @@ class RecorderController extends StrictLogging {
             val exporter = new HarExporter(frontEnd.harFilePath)
             exporter.exportHar match {
               case Failure(errMsg) => frontEnd.handleHarExportFailure(errMsg)
-              case _               => frontEnd.handleHarExportSuccess()
+              case _ => frontEnd.handleHarExportSuccess()
             }
-            // har done here.
+            // har finished here.
           }
           case Proxy =>
             proxy = new HttpProxy(config, this)
@@ -101,7 +98,7 @@ class RecorderController extends StrictLogging {
         model.postProcess
         exporter.export(model) match {
           case Failure(errMsg) => // TODO // frontEnd.handleExportFailure(errMsg)
-          case _               => // TODO // frontEnd.handleExportSuccess()
+          case _ => // TODO // frontEnd.handleExportSuccess()
         }
       }
 

@@ -16,9 +16,7 @@
 package io.gatling.recorder.model
 
 import scala.concurrent.duration.{ Duration, DurationLong }
-
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.http.util.HttpHelper
@@ -64,7 +62,7 @@ object ScenarioModel extends StrictLogging {
   }
 
   private def mergeWithPauses(sortedRequests: Seq[(Long, RequestModel)], tags: Seq[(Long, TagModel)],
-                              thresholdForPauseCreation: Duration): Seq[ExecModel] = {
+    thresholdForPauseCreation: Duration): Seq[ExecModel] = {
     // Compute the pause elements
     val arrivalTimes = sortedRequests.map(_._1)
     val initTime = arrivalTimes.headOption.getOrElse(0l)
@@ -83,7 +81,7 @@ object ScenarioModel extends StrictLogging {
   }
 
   def apply(requests: Seq[(Long, RequestModel)],
-            tags: Seq[(Long, TagModel)])(implicit config: RecorderConfiguration): ScenarioModel = {
+    tags: Seq[(Long, TagModel)])(implicit config: RecorderConfiguration): ScenarioModel = {
 
     val sortedRequests = requests.sortBy(_._1)
 

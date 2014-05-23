@@ -17,19 +17,14 @@ package io.gatling.recorder.model
 
 import scala.concurrent.duration.{ Duration, DurationLong }
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import scala.collection.mutable
+import scala.collection.mutable.{ Map, SynchronizedMap, HashMap }
+import scala.collection.immutable.{ TreeMap, HashSet }
+import java.util.concurrent.atomic.AtomicReference
+import scala.concurrent.duration.FiniteDuration
 import io.gatling.http.util.HttpHelper
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.util.collection.RichSeq
-import scala.collection.mutable
-import scala.collection.mutable.{
-  Map,
-  SynchronizedMap,
-  HashMap
-}
-import scala.collection.immutable.TreeMap
-import scala.collection.immutable.HashSet
-import java.util.concurrent.atomic.AtomicReference
-import scala.concurrent.duration.FiniteDuration
 
 case class SimulationModel(implicit config: RecorderConfiguration) {
 
@@ -39,19 +34,18 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
   private val proxyCredentials1: AtomicReference[String] = new AtomicReference[String]
   private val name1: String = config.core.className
-  
+
   // for pre conditions
   private var requiresNewNavigation = false
   private var postProcessed = false
-  private var lastRequestTimestamp : Long = 0 // check the requests are in order
-  private var lastNavigationTimestamp : Long = 0
-  
+  private var lastRequestTimestamp: Long = 0 // check the requests are in order
+  private var lastNavigationTimestamp: Long = 0
+
   // for state tracking
-  private var lastNavigation:NavigationModel = _
+  private var lastNavigation: NavigationModel = _
   private var currentNavigation = new NavigationModel
   private val requestIDMap = makeMapIdentifier
 
-  
   // require that the model is post processed before being able to get anthing out
   // TODO can change the require to a lazy execution of postProcess so it is transparent to the caller
   def getNavigations = {
@@ -103,35 +97,34 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
   def newNavigation(timestamp: Long, navigationName: String) = {
 
-    require(currentNavigation.requestList.size>0, "Cannot add Navigation - no requests in this navigation yet"+navigationName)
-    require((lastNavigationTimestamp<timestamp && timestamp>lastRequestTimestamp), 
-        "Cannot add navigations out of order :"+navigationName) 
-    
+    require(currentNavigation.requestList.size > 0, "Cannot add Navigation - no requests in this navigation yet" + navigationName)
+    require((lastNavigationTimestamp < timestamp && timestamp > lastRequestTimestamp),
+      "Cannot add navigations out of order :" + navigationName)
+
     currentNavigation.name = navigationName.replaceAll("\\W", "_")
     navigations += timestamp -> currentNavigation
 
     lastNavigation = currentNavigation
     requiresNewNavigation = false
     lastNavigationTimestamp = timestamp
-    
+
     currentNavigation = new NavigationModel
   }
 
   // adds a request
-      // TODO remove redirects
   def +=(a: (Long, RequestModel)) = {
 
-    require(lastRequestTimestamp == 0 || (lastRequestTimestamp >0 && lastRequestTimestamp<=a._1), 
-        "Cannot add requests out of order : ( last : "+lastRequestTimestamp+", new : "+a._1+") "+a)  
-    
-    // ignore redirect
+    require(lastRequestTimestamp == 0 || (lastRequestTimestamp > 0 && lastRequestTimestamp <= a._1),
+      "Cannot add requests out of order : ( last : " + lastRequestTimestamp + ", new : " + a._1 + ") " + a)
+
+    // ignore redirect if following
     val isARedirect = (a._2.statusCode == 302 || a._2.statusCode == 301)
-    if(config.http.followRedirect &&  ! isARedirect){
+    if (config.http.followRedirect && !isARedirect) {
       currentNavigation += a
-    uniquifyRequestIdentifier(a._2)
-    requests += a._2
-    requiresNewNavigation = true
-    lastRequestTimestamp = a._1
+      uniquifyRequestIdentifier(a._2)
+      requests += a._2
+      requiresNewNavigation = true
+      lastRequestTimestamp = a._1
     }
   }
 
@@ -139,10 +132,10 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
     // any pause between navigations is attributed to the previous navigation
     // as this is likely where the user spent their time
-    if(currentNavigation.requestList.size == 0) {
-    	lastNavigation += (System.currentTimeMillis, new PauseModel(delta))
+    if (currentNavigation.requestList.size == 0) {
+      lastNavigation += (System.currentTimeMillis, new PauseModel(delta))
     } else {
-    	currentNavigation += (System.currentTimeMillis, new PauseModel(delta))
+      currentNavigation += (System.currentTimeMillis, new PauseModel(delta))
     }
   }
 
@@ -150,7 +143,7 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
     credentials match {
       case Some(s) => { proxyCredentials1.set(s._1 + "|" + s._2) }
-      case None    => None
+      case None => None
     }
   }
 
@@ -168,7 +161,7 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
       // insert navigation if the user doesn't
       if (requiresNewNavigation)
-        newNavigation(lastRequestTimestamp+1, "default_navigation") //System.currentTimeMillis()
+        newNavigation(lastRequestTimestamp + 1, "default_navigation") //System.currentTimeMillis()
 
       // do protocol & headers
       protocol = ProtocolModel(this)

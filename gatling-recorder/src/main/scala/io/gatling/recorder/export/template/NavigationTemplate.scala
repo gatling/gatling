@@ -25,43 +25,39 @@ object NavigationTemplate {
 
   def render(model: SimulationModel): Seq[(String, String)] = {
 
-      def renderNavigations = {
+    def renderNavigations = {
 
-        val navigations = model.getNavigations.map {
-          navigation =>
-            {
+      val navigations = model.getNavigations.map {
+        navigation =>
+          {
+            val int_name = navigation._2.name
 
-              val int_name = navigation._2.name
+            val requests = navigation._2.requestList.map {
 
-              val requests = navigation._2.requestList.map {
-
-                case requestTuple =>
-                  {
-                    requestTuple._2 match {
-                      case request: RequestModel => {
-                        val req_name = request.identifier
-                        fast"\t\tRequests._$req_name"
-                      }
-                      case pause: PauseModel => {
-
-                        val duration = pause.duration
-                        fast"\t\texec(pause($duration))"
-                      }
-                      case ignore => { """""" }
+              case requestTuple =>
+                {
+                  requestTuple._2 match {
+                    case request: RequestModel => {
+                      val req_name = request.identifier
+                      fast"\t\tRequests._$req_name"
                     }
+                    case pause: PauseModel => {
+
+                      val duration = pause.duration
+                      fast"\t\texec(pause($duration))"
+                    }
+                    case ignore => { """""" }
                   }
+                }
+            }.mkFastring(",\n")
 
-              }.mkFastring(",\n")
+            fast"""\n\n\tval $int_name = exec(\n$requests\t)"""
 
-              fast"""\n\n\tval $int_name = exec(\n$requests\t)"""
+          }.mkFastring("")
+      }.mkFastring("")
 
-            }.mkFastring("")
-
-        }.mkFastring("")
-
-        fast"""$navigations"""
-
-      }
+      fast"""$navigations"""
+    }
 
     val output = fast"""
 import io.gatling.core.Predef._

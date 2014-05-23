@@ -28,26 +28,26 @@ class SimulationModelSpec extends Specification {
     "not allow out of order requests" in {
       ModelFixtures.outOfOrderRequestModel must throwA[IllegalArgumentException]
     }
-    
+
     "not allow out of order navigations" in {
-      ModelFixtures.outOfOrderNavModel  must throwA[IllegalArgumentException]
+      ModelFixtures.outOfOrderNavModel must throwA[IllegalArgumentException]
     }
-    
+
     "remove HTTP redirection with redirectingModel" in {
 
       val model = ModelFixtures.redirectingModel
       val a_redirecting_request = RequestModel("http://gatling.io/main2-302.css", "GET", Map.empty, None, 302, List.empty, Option(""))
-      ! model.getRequests.contains(a_redirecting_request)
+      !model.getRequests.contains(a_redirecting_request)
 
     }
-    
+
     "keep HTTP redirection when not following redirects with redirectingModel" in {
 
       ModelFixtures.config = ModelFixtures.config_no_follow_redirects
       val model = ModelFixtures.redirectingModel
       val a_redirecting_request = RequestModel("http://gatling.io/main2-302.css", "GET", Map.empty, None, 302, List.empty, Option(""))
-      
-      ! model.getRequests.contains(a_redirecting_request)
+
+      !model.getRequests.contains(a_redirecting_request)
     }
 
   }
