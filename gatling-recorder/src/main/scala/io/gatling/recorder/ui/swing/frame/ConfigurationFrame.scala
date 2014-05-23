@@ -53,7 +53,6 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
   /* Network panel components */
   private val localProxyHttpPort = new TextField(4)
-  private val localProxyHttpsPort = new TextField(4)
   private val outgoingProxyHost = new TextField(12)
   private val outgoingProxyHttpPort = new TextField(4) { enabled = false }
   private val outgoingProxyHttpsPort = new TextField(4) { enabled = false }
@@ -130,10 +129,8 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
         val localProxy = new LeftAlignedFlowPanel {
           contents += new Label("Listening port*: ")
           contents += new Label("    localhost")
-          contents += new Label("HTTP")
+          contents += new Label("HTTP/HTTPS")
           contents += localProxyHttpPort
-          contents += new Label("HTTPS")
-          contents += localProxyHttpsPort
 
         }
         val outgoingProxy = new LeftAlignedFlowPanel {
@@ -305,7 +302,6 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
   /* Reactions II: fields validation */
   listenTo(localProxyHttpPort.keys,
-    localProxyHttpsPort.keys,
     outgoingProxyHost.keys,
     outgoingProxyHttpPort.keys,
     outgoingProxyHttpsPort.keys,
@@ -315,7 +311,6 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
   private def registerValidators() {
     ValidationHelper.registerValidator(localProxyHttpPort, Validator(isValidPort))
-    ValidationHelper.registerValidator(localProxyHttpsPort, Validator(isValidPort))
     ValidationHelper.registerValidator(outgoingProxyHost, Validator(isNonEmpty, enableConfig, disableConfig, true))
     ValidationHelper.registerValidator(outgoingProxyHttpPort, Validator(isValidPort))
     ValidationHelper.registerValidator(outgoingProxyHttpsPort, Validator(isValidPort))
@@ -380,7 +375,6 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
    */
   private def populateItemsFromConfiguration() {
     localProxyHttpPort.text = configuration.proxy.port.toString
-    localProxyHttpsPort.text = configuration.proxy.sslPort.toString
 
     configuration.proxy.outgoing.host.map { proxyHost =>
       outgoingProxyHost.text = proxyHost
@@ -431,7 +425,6 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
       // Local proxy
       props.localPort(Try(localProxyHttpPort.text.toInt).getOrElse(0))
-      props.localSslPort(Try(localProxyHttpsPort.text.toInt).getOrElse(0))
 
       // Outgoing proxy
       outgoingProxyHost.text.trimToOption match {
