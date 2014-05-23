@@ -53,6 +53,7 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
   
   // require that the model is post processed before being able to get anthing out
+  // TODO can change the require to a lazy execution of postProcess so it is transparent to the caller
   def getNavigations = {
     require(postProcessed)
     navigations
@@ -123,11 +124,15 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
     require(lastRequestTimestamp == 0 || (lastRequestTimestamp >0 && lastRequestTimestamp<=a._1), 
         "Cannot add requests out of order : ( last : "+lastRequestTimestamp+", new : "+a._1+") "+a)  
     
-    currentNavigation += a
+    // ignore redirect
+    val isARedirect = (a._2.statusCode == 302 || a._2.statusCode == 301)
+    if(config.http.followRedirect &&  ! isARedirect){
+      currentNavigation += a
     uniquifyRequestIdentifier(a._2)
     requests += a._2
     requiresNewNavigation = true
     lastRequestTimestamp = a._1
+    }
   }
 
   def addPause(delta: FiniteDuration) = {
@@ -165,10 +170,8 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
       if (requiresNewNavigation)
         newNavigation(lastRequestTimestamp+1, "default_navigation") //System.currentTimeMillis()
 
-
       // do protocol & headers
       protocol = ProtocolModel(this)
-
     }
 
   }

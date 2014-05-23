@@ -147,6 +147,35 @@ object ModelFixtures {
     
   ))
   
+  val config_no_follow_redirects = fakeConfig(Map(
+
+    ConfigKeys.core.ClassName -> "TestSimulation",
+    ConfigKeys.core.Encoding -> "UTF-8",
+    ConfigKeys.core.Package -> "com.mypackage",
+    ConfigKeys.core.RequestBodiesFolder -> "",
+    ConfigKeys.core.SaveConfig -> "true",
+    ConfigKeys.core.SimulationOutputFolder -> "/dir/a",
+    ConfigKeys.core.ThresholdForPauseCreation -> 50,
+
+    ConfigKeys.http.FollowRedirect -> false,
+    ConfigKeys.http.FetchHtmlResources -> false,
+    ConfigKeys.http.AutomaticReferer -> false,
+
+    ConfigKeys.proxy.outgoing.Host -> "", 
+    ConfigKeys.proxy.outgoing.Username -> "",
+    ConfigKeys.proxy.outgoing.Password -> "",
+    ConfigKeys.proxy.outgoing.Port -> 0,
+    ConfigKeys.proxy.outgoing.SslPort -> 0,
+    
+    ConfigKeys.proxy.Port -> 8000,
+    ConfigKeys.proxy.SslPort -> 8001,
+
+    ConfigKeys.filters.FilterStrategy -> "Disabled",
+    ConfigKeys.filters.BlacklistPatterns -> new ArrayList { "a"; "a" },
+    ConfigKeys.filters.WhitelistPatterns -> new ArrayList { "a"; "a" }
+    
+  ))
+  
   // from harreaderspec
     //val config_With_ResourcesFiltering = fakeConfig(Map(ConfigKeys.http.FetchHtmlResources -> true))
     // By default, we assume that we don't want to filter out the HTML resources
