@@ -15,8 +15,6 @@
  */
 package io.gatling.metrics.types
 
-import scala.annotation.tailrec
-import scala.collection.mutable
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ KO, OK, Status }
 import org.HdrHistogram.Histogram

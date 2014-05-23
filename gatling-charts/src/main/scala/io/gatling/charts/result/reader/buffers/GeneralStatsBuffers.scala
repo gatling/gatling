@@ -17,15 +17,18 @@ package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 import io.gatling.charts.result.reader.{ RequestRecord, FileDataReader }
-import io.gatling.charts.result.reader.stats.StatsHelper
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.Group
 import io.gatling.core.result.message.Status
 import io.gatling.core.result.reader.GeneralStats
 import io.gatling.charts.result.reader.GroupRecord
 import com.tdunning.math.stats.AVLTreeDigest
+import org.HdrHistogram.Histogram
 
-abstract class GeneralStatsBuffers(durationInSec: Long) {
+abstract class GeneralStatsBuffers(durationInSec: Long,
+                                   requestResponseTimeRange: (Int, Int),
+                                   groupDurationRange: (Int, Int),
+                                   groupCumulatedResponseTimeRange: (Int, Int)) {
 
   val requestGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
   val groupDurationGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
@@ -33,13 +36,13 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
   val requestCounts = mutable.Map.empty[BufferKey, (Int, Int)]
 
   def getRequestGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[Status]): GeneralStatsBuffer =
-    requestGeneralStatsBuffers.getOrElseUpdate(BufferKey(request, group, status), new GeneralStatsBuffer(durationInSec))
+    requestGeneralStatsBuffers.getOrElseUpdate(BufferKey(request, group, status), new GeneralStatsBuffer(durationInSec, requestResponseTimeRange))
 
   def getGroupDurationGeneralStatsBuffers(group: Group, status: Option[Status]): GeneralStatsBuffer =
-    groupDurationGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec))
+    groupDurationGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec, groupDurationRange))
 
   def getGroupCumulatedResponseTimeGeneralStatsBuffers(group: Group, status: Option[Status]): GeneralStatsBuffer =
-    groupCumulatedResponseTimeGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec))
+    groupCumulatedResponseTimeGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec, groupCumulatedResponseTimeRange))
 
   def getGroupRequestCounts(group: Group): (Int, Int) =
     requestCounts.getOrElseUpdate(BufferKey(None, Some(group), None), (0, 0))
@@ -65,17 +68,14 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
   }
 }
 
-class GeneralStatsBuffer(duration: Long) extends CountBuffer {
-  private var sum = 0L
-  private var squareSum = 0L
-  val digest = new AVLTreeDigest(50.0)
+class GeneralStatsBuffer(duration: Long, range: (Int, Int)) extends CountBuffer {
+  val digest = new AVLTreeDigest(100.0)
+  val histogram = new Histogram(range._1, range._2, 3)
 
   override def update(time: Int) {
     super.update(time)
     digest.add(time)
-    sum += time
-    // risk of overflowing Long.MAX_VALUE?
-    squareSum += StatsHelper.square(time)
+    histogram.recordValue(time)
   }
 
   lazy val stats: GeneralStats = {
@@ -84,15 +84,17 @@ class GeneralStatsBuffer(duration: Long) extends CountBuffer {
       GeneralStats.NO_PLOT
 
     } else {
-      val meanResponseTime = math.round(sum / valuesCount)
+      val histogramData = histogram.getHistogramData
+
+      val mean = histogramData.getMean.toInt
+      val stdDev = histogramData.getStdDeviation.toInt
       val meanRequestsPerSec = valuesCount / (duration / FileDataReader.secMillisecRatio)
-      val stdDev = math.round(StatsHelper.stdDev(squareSum / valuesCount.toDouble, meanResponseTime)).toInt
 
       val percentile1 = digest.quantile(configuration.charting.indicators.percentile1 / 100.0).toInt
       val percentile2 = digest.quantile(configuration.charting.indicators.percentile2 / 100.0).toInt
       val min = digest.quantile(0).toInt
       val max = digest.quantile(1).toInt
-      GeneralStats(min.toInt, max.toInt, valuesCount, meanResponseTime, stdDev, percentile1, percentile2, meanRequestsPerSec)
+      GeneralStats(min.toInt, max.toInt, valuesCount, mean, stdDev, percentile1, percentile2, meanRequestsPerSec)
     }
   }
 }

@@ -91,15 +91,19 @@ class FileDataReaderSpec extends Specification {
     val singleFileDataReader = new FileDataReader("run_single_node_with_known_stats")
 
     "return expected minResponseTime for correct request data" in {
-      singleFileDataReader.requestGeneralStats().min must beEqualTo(2000L)
+      singleFileDataReader.requestGeneralStats().min must beEqualTo(2000)
     }
 
     "return expected maxResponseTime for correct request data" in {
-      singleFileDataReader.requestGeneralStats().max must beEqualTo(9000L)
+      singleFileDataReader.requestGeneralStats().max must beEqualTo(9000)
     }
 
     "return expected responseTimeStandardDeviation for correct request data" in {
-      singleFileDataReader.requestGeneralStats().stdDev must beEqualTo(2000L)
+      val computedValue = singleFileDataReader.requestGeneralStats().stdDev
+      val expectedValue = 2138
+      val error = (computedValue.toDouble - expectedValue) / expectedValue
+
+      error must be_<=(0.06)
     }
 
     "return expected responseTimePercentile for the (0, 0.7) percentiles" in {
@@ -110,8 +114,8 @@ class FileDataReaderSpec extends Specification {
       props.put(core.directory.Results, "src/test/resources")
       GatlingConfiguration.setUp(props)
       val lowPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats")
-      lowPercentilesFileDataReader.requestGeneralStats().percentile1 must beEqualTo(2000L)
-      lowPercentilesFileDataReader.requestGeneralStats().percentile2 must beEqualTo(5000L)
+      lowPercentilesFileDataReader.requestGeneralStats().percentile1 must beEqualTo(2000)
+      lowPercentilesFileDataReader.requestGeneralStats().percentile2 must beEqualTo(5000)
     }
 
     "return expected result for the (99.99, 100) percentiles" in {
@@ -122,8 +126,8 @@ class FileDataReaderSpec extends Specification {
       props.put(core.directory.Results, "src/test/resources")
       GatlingConfiguration.setUp(props)
       val highPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats")
-      highPercentilesFileDataReader.requestGeneralStats().percentile1 must beEqualTo(8860L)
-      highPercentilesFileDataReader.requestGeneralStats().percentile2 must beEqualTo(9000L)
+      highPercentilesFileDataReader.requestGeneralStats().percentile1 must beEqualTo(8860)
+      highPercentilesFileDataReader.requestGeneralStats().percentile2 must beEqualTo(9000)
     }
 
     "indicate that all the request have their response time in between 0 and 100000" in {
@@ -134,7 +138,7 @@ class FileDataReaderSpec extends Specification {
       props.put(core.directory.Results, "src/test/resources")
       GatlingConfiguration.setUp(props)
       val fileDataReader = new FileDataReader("run_single_node_with_known_stats")
-      fileDataReader.numberOfRequestInResponseTimeRange().map(_._2) must beEqualTo(List(0L, 8L, 0L, 0L))
+      fileDataReader.numberOfRequestInResponseTimeRange().map(_._2) must beEqualTo(List(0, 8, 0, 0))
     }
 
     "indicate that 1 request had a response time below 2500ms" in {
@@ -145,7 +149,7 @@ class FileDataReaderSpec extends Specification {
       props.put(core.directory.Results, "src/test/resources")
       GatlingConfiguration.setUp(props)
       val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
-      nRequestInResponseTimeRange(0) must beEqualTo(1L)
+      nRequestInResponseTimeRange(0) must beEqualTo(1)
     }
 
     "indicate that 5 request had a response time in between 2500ms and 5000ms" in {
@@ -156,7 +160,7 @@ class FileDataReaderSpec extends Specification {
       props.put(core.directory.Results, "src/test/resources")
       GatlingConfiguration.setUp(props)
       val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
-      nRequestInResponseTimeRange(1) must beEqualTo(5L)
+      nRequestInResponseTimeRange(1) must beEqualTo(5)
     }
 
     "indicate that 2 request had a response time above 5000ms" in {
@@ -167,7 +171,7 @@ class FileDataReaderSpec extends Specification {
       props.put(core.directory.Results, "src/test/resources")
       GatlingConfiguration.setUp(props)
       val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
-      nRequestInResponseTimeRange(2) must beEqualTo(2L)
+      nRequestInResponseTimeRange(2) must beEqualTo(2)
     }
   }
 }

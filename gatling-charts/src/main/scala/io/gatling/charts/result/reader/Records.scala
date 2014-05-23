@@ -34,16 +34,22 @@ object RecordParser {
       if (groupString.isEmpty) None else Some(parseGroup(groupString))
     }
     val request = strings(4)
-    val executionStart = (strings(5).toLong - runStart).toInt
-    val requestEnd = (strings(6).toLong - runStart).toInt
-    val responseStart = (strings(7).toLong - runStart).toInt
+
+    val firstByteSentTimestamp = strings(5).toLong
+    val lastByteSentTimestamp = strings(6).toLong
+    val firstByteReceivedTimestamp = strings(7).toLong
+    val lastByteReceivedTimestamp = strings(8).toLong
+
+    val executionStart = (firstByteSentTimestamp - runStart).toInt
     val executionEnd = (strings(8).toLong - runStart).toInt
     val status = Status.valueOf(strings(9))
     val errorMessage = if (status == KO) Some(strings(10)) else None
     val executionStartBucket = bucketFunction(executionStart)
     val executionEndBucket = bucketFunction(executionEnd)
-    val responseTime = executionEnd - executionStart
-    val latency = responseStart - requestEnd
+
+    val responseTime = (lastByteReceivedTimestamp - firstByteSentTimestamp).toInt
+    val latency = (firstByteReceivedTimestamp - lastByteSentTimestamp).toInt
+
     RequestRecord(group, request, reduceAccuracy(executionStart), reduceAccuracy(executionEnd), status, executionStartBucket, executionEndBucket, responseTime, latency, errorMessage)
   }
 
@@ -52,21 +58,22 @@ object RecordParser {
     val scenario = strings(0)
     val userId = strings(1)
     val event = MessageEvent(strings(3))
-    val startDate = reduceAccuracy((strings(4).toLong - runStart).toInt)
-    val endDate = reduceAccuracy((strings(5).toLong - runStart).toInt)
+    val startDate = (strings(4).toLong - runStart).toInt
+    val endDate = (strings(5).toLong - runStart).toInt
     UserRecord(scenario, userId, startDate, event, bucketFunction(startDate), bucketFunction(endDate))
   }
 
   def parseGroupRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): GroupRecord = {
 
     val group = parseGroup(strings(3))
-    val entryDate = (strings(4).toLong - runStart).toInt
-    val exitDate = (strings(5).toLong - runStart).toInt
+    val entryTimestamp = strings(4).toLong
+    val exitTimestamp = strings(5).toLong
+    val entryDate = (entryTimestamp - runStart).toInt
     val cumulatedResponseTime = strings(6).toInt
     val oks = strings(7).toInt
     val kos = strings(8).toInt
     val status = Status.valueOf(strings(9))
-    val duration = exitDate - entryDate
+    val duration = (exitTimestamp - entryTimestamp).toInt
     val executionDateBucket = bucketFunction(entryDate)
     GroupRecord(group, reduceAccuracy(entryDate), duration, cumulatedResponseTime, oks, kos, status, executionDateBucket)
   }
