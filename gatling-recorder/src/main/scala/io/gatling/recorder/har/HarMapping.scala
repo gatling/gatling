@@ -55,7 +55,7 @@ object HarMapping {
   private val protectedValue = """"(.*)\"""".r
   private def unprotected(string: String) = string match {
     case protectedValue(unprotected) => unprotected
-    case _                           => string
+    case _ => string
   }
 
   private def buildResponse(response: Json) = {
