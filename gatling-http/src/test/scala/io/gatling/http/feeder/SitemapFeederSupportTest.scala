@@ -19,7 +19,6 @@ import org.specs2.mutable.Specification
 import scala.reflect.io.File
 import io.gatling.core.config.FileResource
 import io.gatling.core.validation.{ Success, Failure }
-import io.gatling.core.config.Resource
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 

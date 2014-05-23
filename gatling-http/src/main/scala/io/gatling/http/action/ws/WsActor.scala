@@ -51,7 +51,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
       context.stop(self)
   }
 
-  private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None) {
+  private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
     writeRequestData(
       session,
       requestName,
@@ -65,7 +65,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
 
   def openState(webSocket: WebSocket, tx: WsTx): Receive = {
 
-      def handleClose(status: Int, reason: String, time: Long) {
+      def handleClose(status: Int, reason: String, time: Long): Unit = {
         if (tx.protocol.wsPart.reconnect)
           if (tx.protocol.wsPart.maxReconnects.exists(_ <= tx.reconnectCount))
             handleCrash(s"Websocket '$wsName' was unexpectedly closed with status $status and message $reason and max reconnect was reached", time)
@@ -76,7 +76,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
           handleCrash(s"Websocket '$wsName' was unexpectedly closed with status $status and message $reason", time)
       }
 
-      def handleCrash(message: String, time: Long) {
+      def handleCrash(message: String, time: Long): Unit = {
 
         tx.check.foreach { check =>
           logRequest(tx.session, tx.requestName, KO, tx.start, time, Some(message))
@@ -144,7 +144,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
         }
       }
 
-      def setCheck(requestName: String, check: WsCheck, next: ActorRef, session: Session) {
+      def setCheck(requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
 
         // schedule timeout
         scheduler.scheduleOnce(check.timeout) {
@@ -160,7 +160,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
           next ! newTx.session
       }
 
-      def reconciliate(next: ActorRef, session: Session) {
+      def reconciliate(next: ActorRef, session: Session): Unit = {
         val newTx = tx.applyUpdates(session)
         context.become(openState(webSocket, newTx))
         next ! newTx.session

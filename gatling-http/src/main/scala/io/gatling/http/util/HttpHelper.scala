@@ -30,11 +30,12 @@ import io.gatling.http.{ HeaderNames, HeaderValues }
 
 object HttpHelper extends StrictLogging {
 
-  val httpScheme = "http"
-  val httpsScheme = "https"
-  val wsScheme = "ws"
-  val wssScheme = "wss"
+  val HttpScheme = "http"
+  val HttpsScheme = "https"
+  val WsScheme = "ws"
+  val WssScheme = "wss"
   val OkCodes = Vector(200, 304, 201, 202, 203, 204, 205, 206, 207, 208, 209)
+  val RedirectStatusCodes = Vector(301, 302, 303, 307, 308)
 
   def parseFormBody(body: String): List[(String, String)] = {
       def utf8Decode(s: String) = URLDecoder.decode(s, UTF8.name)
@@ -60,9 +61,9 @@ object HttpHelper extends StrictLogging {
   def buildBasicAuthRealm(username: String, password: String) = buildRealm(username, password, AuthScheme.BASIC, preemptive = true)
   def buildRealm(username: String, password: String, authScheme: AuthScheme, preemptive: Boolean): Realm = new Realm.RealmBuilder().setPrincipal(username).setPassword(password).setUsePreemptiveAuth(preemptive).setScheme(authScheme).build
 
-  def isCss(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).exists(_.contains(HeaderValues.TEXT_CSS))
-  def isHtml(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.CONTENT_TYPE)).exists(ct => ct.contains(HeaderValues.TEXT_HTML) || ct.contains(HeaderValues.APPLICATION_XHTML))
-  def isAjax(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.X_REQUESTED_WITH)).exists(ct => ct.contains(HeaderValues.XML_HTTP_REQUEST))
+  def isCss(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.ContentType)).exists(_.contains(HeaderValues.TextCss))
+  def isHtml(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.ContentType)).exists(ct => ct.contains(HeaderValues.TextHhtml) || ct.contains(HeaderValues.ApplicationXhtml))
+  def isAjax(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.XRequestedWith)).exists(ct => ct.contains(HeaderValues.XmlHttpRequest))
   def resolveFromURI(rootURI: URI, relative: String) = AsyncHttpProviderUtils.getRedirectUri(rootURI, relative)
   def resolveFromURISilently(rootURI: URI, relative: String): Option[URI] =
     try {
@@ -73,14 +74,13 @@ object HttpHelper extends StrictLogging {
         None
     }
 
-  val redirectStatusCodes = Vector(301, 302, 303, 307, 308)
-  def isRedirect(statusCode: Int) = redirectStatusCodes.contains(statusCode)
+  def isRedirect(statusCode: Int) = RedirectStatusCodes.contains(statusCode)
   def isPermanentRedirect(statusCode: Int): Boolean = statusCode == 301
   def isNotModified(statusCode: Int) = statusCode == 304
 
-  def isSecure(uri: URI) = uri.getScheme == httpsScheme || uri.getScheme == wssScheme
+  def isSecure(uri: URI) = uri.getScheme == HttpsScheme || uri.getScheme == WssScheme
 
-  def isAbsoluteHttpUrl(url: String) = url.startsWith(httpScheme)
-  def isAbsoluteWsUrl(url: String) = url.startsWith(wsScheme)
+  def isAbsoluteHttpUrl(url: String) = url.startsWith(HttpScheme)
+  def isAbsoluteWsUrl(url: String) = url.startsWith(WsScheme)
 }
 

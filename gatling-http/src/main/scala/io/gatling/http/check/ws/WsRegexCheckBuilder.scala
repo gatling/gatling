@@ -18,24 +18,25 @@ package io.gatling.http.check.ws
 import io.gatling.core.check._
 import io.gatling.core.session._
 import io.gatling.core.check.extractor.regex._
+import io.gatling.http.check.ws.WsCheckBuilders._
 
-trait WebSocketRegexOfType {
-  self: WebSocketRegexCheckBuilder[String] =>
+trait WsRegexOfType {
+  self: WsRegexCheckBuilder[String] =>
 
-  def ofType[X](implicit groupExtractor: GroupExtractor[X]) = new WebSocketRegexCheckBuilder[X](expression, checkFactory)
+  def ofType[X](implicit groupExtractor: GroupExtractor[X]) = new WsRegexCheckBuilder[X](expression, checkFactory)
 }
 
-object WebSocketRegexCheckBuilder {
+object WsRegexCheckBuilder {
 
   def regex(expression: Expression[String], checkFactory: CheckFactory[WsCheck, String]) =
-    new WebSocketRegexCheckBuilder[String](expression, checkFactory) with WebSocketRegexOfType
+    new WsRegexCheckBuilder[String](expression, checkFactory) with WsRegexOfType
 }
 
-class WebSocketRegexCheckBuilder[X](private[ws] val expression: Expression[String],
-                                    private[ws] val checkFactory: CheckFactory[WsCheck, String])(implicit groupExtractor: GroupExtractor[X])
+class WsRegexCheckBuilder[X](private[ws] val expression: Expression[String],
+                             private[ws] val checkFactory: CheckFactory[WsCheck, String])(implicit groupExtractor: GroupExtractor[X])
     extends DefaultMultipleFindCheckBuilder[WsCheck, String, CharSequence, X](
       checkFactory,
-      WsCheckBuilders.passThroughMessagePreparer) {
+      PassThroughMessagePreparer) {
 
   def findExtractor(occurrence: Int) = expression.map(new SingleRegexExtractor(_, occurrence))
 

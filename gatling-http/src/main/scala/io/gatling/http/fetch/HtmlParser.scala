@@ -47,21 +47,19 @@ object HtmlParser extends StrictLogging {
 
     val visitor = new EmptyTagVisitor {
 
-      def addResource(tag: Tag, attributeName: String, factory: String => RawResource) {
+      def addResource(tag: Tag, attributeName: String, factory: String => RawResource): Unit = {
         val url = tag.getAttributeValue(attributeName, false)
         if (url != null)
           rawResources += factory(url)
       }
 
-      override def script(tag: Tag, body: CharSequence) {
+      override def script(tag: Tag, body: CharSequence): Unit =
         addResource(tag, "src", RegularRawResource)
-      }
 
-      override def style(tag: Tag, body: CharSequence) {
-        rawResources ++= CssParser.extractUrls(body, CssParser.styleImportsUrls).map(CssRawResource)
-      }
+      override def style(tag: Tag, body: CharSequence): Unit =
+        rawResources ++= CssParser.extractUrls(body, CssParser.StyleImportsUrls).map(CssRawResource)
 
-      override def tag(tag: Tag) {
+      override def tag(tag: Tag): Unit = {
 
           def suffixedCodeBase() = Option(tag.getAttributeValue("codebase", false)).map { cb =>
             if (cb.charAt(cb.size) != '/')
@@ -121,7 +119,7 @@ object HtmlParser extends StrictLogging {
 
           case _ =>
             Option(tag.getAttributeValue("style", false)).foreach { style =>
-              val styleUrls = CssParser.extractUrls(style, CssParser.inlineStyleImageUrls).map(RegularRawResource)
+              val styleUrls = CssParser.extractUrls(style, CssParser.InlineStyleImageUrls).map(RegularRawResource)
               rawResources ++= styleUrls
             }
         }

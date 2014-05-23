@@ -32,7 +32,7 @@ import io.gatling.core.util.IO
  */
 object SitemapParser extends IO {
 
-  val LOCATION_TAG = "loc"
+  val LocationTag = "loc"
 
   /**
    * Parse file in sitemap format. Returns a Record for each location described
@@ -67,7 +67,7 @@ object SitemapParser extends IO {
           nodeName -> textValue
       }(breakOut)
 
-      if (!record.contains(LOCATION_TAG) || record(LOCATION_TAG).isEmpty)
+      if (!record.contains(LocationTag) || record(LocationTag).isEmpty)
         throw new SitemapFormatException("No 'loc' child in 'url' element")
 
       records += record

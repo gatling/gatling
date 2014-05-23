@@ -17,25 +17,26 @@ package io.gatling.http.check.time
 
 import io.gatling.core.check.DefaultFindCheckBuilder
 import io.gatling.core.check.extractor.Extractor
-import io.gatling.core.session.ExpressionWrapper
+import io.gatling.core.session.{ Expression, ExpressionWrapper }
 import io.gatling.core.validation.SuccessWrapper
-import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
 object HttpResponseTimeCheckBuilder {
 
-  val responseTimeInMillis = apply(new Extractor[Response, Long] {
+  val ResponseTimeInMillis = apply(new Extractor[Response, Long] {
     val name = "responseTime"
     def apply(prepared: Response) = Some(prepared.reponseTimeInMillis).success
-  })
+  }.expression)
 
-  val latencyInMillis = apply(new Extractor[Response, Long] {
+  val LatencyInMillis = apply(new Extractor[Response, Long] {
     val name = "latency"
     def apply(prepared: Response) = Some(prepared.latencyInMillis).success
-  })
+  }.expression)
 
-  def apply(extractor: Extractor[Response, Long]) = new DefaultFindCheckBuilder[HttpCheck, Response, Response, Long](
-    HttpCheckBuilders.timeCheckFactory,
-    HttpCheckBuilders.passThroughResponsePreparer,
-    extractor.expression)
+  def apply(extractor: Expression[Extractor[Response, Long]]) = new DefaultFindCheckBuilder[HttpCheck, Response, Response, Long](
+    TimeCheckFactory,
+    PassThroughResponsePreparer,
+    extractor)
 }

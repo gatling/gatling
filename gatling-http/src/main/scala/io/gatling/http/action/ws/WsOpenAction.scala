@@ -33,9 +33,9 @@ class WsOpenAction(
     val next: ActorRef,
     protocol: HttpProtocol) extends Interruptable {
 
-  def execute(session: Session) {
+  def execute(session: Session): Unit = {
 
-      def open(tx: WsTx) {
+      def open(tx: WsTx): Unit = {
         logger.info(s"Opening websocket '$wsName': Scenario '${session.scenarioName}', UserId #${session.userId}")
 
         val wsActor = actor(context)(new WsActor(wsName))

@@ -42,26 +42,27 @@ case class CookieDSL(name: Expression[String], value: Expression[String],
 
 object AddCookieBuilder {
 
-  val noBaseUrlFailure = "Neither cookie domain nor baseURL".failure
-  val rootSuccess = "/".success
+  val NoBaseUrlFailure = "Neither cookie domain nor baseURL".failure
+  val RootSuccess = "/".success
+  val DefaultPath: Expression[String] = _ => RootSuccess
 
   def defaultDomain(httpProtocol: HttpProtocol) = {
     val baseUrlHost = httpProtocol.baseURL.map(url => URI.create(url).getHost)
     (session: Session) => baseUrlHost match {
       case Some(host) => host.success
-      case _          => noBaseUrlFailure
+      case _          => NoBaseUrlFailure
     }
   }
-
-  val defaultPath: Expression[String] = _ => rootSuccess
 }
 
 class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], expires: Long, maxAge: Int) extends HttpActionBuilder {
 
-  def build(next: ActorRef, protocols: Protocols) = {
+  import AddCookieBuilder._
 
-    val resolvedDomain = domain.getOrElse(AddCookieBuilder.defaultDomain(httpProtocol(protocols)))
-    val resolvedPath = path.getOrElse(AddCookieBuilder.defaultPath)
+  def build(next: ActorRef, protocols: Protocols): ActorRef = {
+
+    val resolvedDomain = domain.getOrElse(defaultDomain(httpProtocol(protocols)))
+    val resolvedPath = path.getOrElse(DefaultPath)
 
     val expression: Expression[Session] = session => for {
       name <- name(session)

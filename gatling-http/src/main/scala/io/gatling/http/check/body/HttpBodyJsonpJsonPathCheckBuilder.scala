@@ -22,7 +22,8 @@ import io.gatling.core.check.extractor.jsonpath.{ BoonParser, CountJsonPathExtra
 import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.core.util.StringHelper.{ DirectCharsBasedStringImplementation, stringImplementation }
 import io.gatling.core.validation.{ Validation, FailureWrapper, SuccessWrapper }
-import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
 trait HttpBodyJsonpJsonPathOfType {
@@ -33,17 +34,17 @@ trait HttpBodyJsonpJsonPathOfType {
 
 object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
 
-  val jsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\)$""".r
+  val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\)$""".r
 
-  val jsonParser = stringImplementation match {
+  val JsonParser = stringImplementation match {
     case DirectCharsBasedStringImplementation => BoonParser
     case _                                    => JacksonParser
   }
 
   def parseJsonpString(string: String): Validation[Any] = string match {
-    case jsonpRegex(jsonp) =>
+    case JsonpRegex(jsonp) =>
       try {
-        jsonParser.parse(jsonp).success
+        JsonParser.parse(jsonp).success
       } catch {
         case e: Exception =>
           val message = s"Could not parse JSONP string into a JSON object: ${e.getMessage}"
@@ -56,14 +57,14 @@ object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
       message.failure
   }
 
-  val jsonpPreparer: Preparer[Response, Any] = response => parseJsonpString(response.body.string)
+  val JsonpPreparer: Preparer[Response, Any] = response => parseJsonpString(response.body.string)
 
   def jsonpJsonPath(path: Expression[String]) = new HttpBodyJsonpJsonPathCheckBuilder[String](path) with HttpBodyJsonpJsonPathOfType
 }
 
 class HttpBodyJsonpJsonPathCheckBuilder[X](private[body] val path: Expression[String])(implicit groupExtractor: JsonFilter[X])
-    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Any, X](HttpCheckBuilders.stringBodyCheckFactory,
-      HttpBodyJsonpJsonPathCheckBuilder.jsonpPreparer) {
+    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Any, X](StringBodyCheckFactory,
+      HttpBodyJsonpJsonPathCheckBuilder.JsonpPreparer) {
 
   def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
   def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))

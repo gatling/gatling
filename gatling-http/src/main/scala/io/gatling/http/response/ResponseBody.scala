@@ -47,7 +47,7 @@ object InputStreamResponseBodyUsageStrategy extends ResponseBodyUsageStrategy {
 
 object ResponseBody {
 
-  val emptyBytes = new Array[Byte](0)
+  val EmptyBytes = new Array[Byte](0)
 
   private def getBytes(buffer: ChannelBuffer, start: Int, length: Int): Array[Byte] = {
     val array = new Array[Byte](length)
@@ -57,7 +57,7 @@ object ResponseBody {
 
   def chunks2Bytes(chunks: Seq[ChannelBuffer]): Array[Byte] = (chunks.size: @switch) match {
 
-    case 0 => emptyBytes
+    case 0 => EmptyBytes
 
     case 1 =>
       val headChunk = chunks.head
@@ -124,7 +124,7 @@ case class InputStreamResponseBody(chunks: Seq[ChannelBuffer], charset: Charset)
 
   def stream = (chunks.size: @switch) match {
 
-    case 0 => new UnsyncByteArrayInputStream(ResponseBody.emptyBytes)
+    case 0 => new UnsyncByteArrayInputStream(ResponseBody.EmptyBytes)
 
     case 1 =>
       new ChannelBufferInputStream(chunks.head.duplicate)

@@ -71,8 +71,8 @@ object ScenarioExporter extends IO with StrictLogging {
 
   private def renderScenarioAndDumpBodies(scenario: ScenarioDefinition)(implicit config: RecorderConfiguration): String = {
     // Aggregate headers
-    val filteredHeaders = Set(HeaderNames.COOKIE, HeaderNames.CONTENT_LENGTH, HeaderNames.HOST) ++
-      (if (config.http.automaticReferer) Set(HeaderNames.REFERER) else Set.empty)
+    val filteredHeaders = Set(HeaderNames.Cookie, HeaderNames.ContentLength, HeaderNames.Host) ++
+      (if (config.http.automaticReferer) Set(HeaderNames.Referer) else Set.empty)
 
     val scenarioElements = scenario.elements
     val baseUrl = getBaseUrl(scenarioElements)

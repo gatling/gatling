@@ -22,17 +22,17 @@ import io.gatling.http.config.Proxy
 
 package object ahc {
 
-  val noCredentials = (null, null)
+  val NoCredentials = (null, null)
 
   implicit class ProxyConverter(val proxy: Proxy) extends AnyVal {
 
-    def proxyServer = {
-      val (username, password) = proxy.credentials.map(c => (c.username, c.password)).getOrElse(noCredentials)
+    def proxyServer: ProxyServer = {
+      val (username, password) = proxy.credentials.map(c => (c.username, c.password)).getOrElse(NoCredentials)
       new ProxyServer(proxy.host, proxy.port, username, password)
     }
 
-    def secureProxyServer = proxy.securePort.map { securePort =>
-      val (username, password) = proxy.credentials.map(c => (c.username, c.password)).getOrElse(noCredentials)
+    def secureProxyServer: Option[ProxyServer] = proxy.securePort.map { securePort =>
+      val (username, password) = proxy.credentials.map(c => (c.username, c.password)).getOrElse(NoCredentials)
       new ProxyServer(Protocol.HTTPS, proxy.host, securePort, username, password)
     }
   }

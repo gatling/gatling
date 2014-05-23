@@ -18,7 +18,8 @@ package io.gatling.http.check.body
 import io.gatling.core.check.DefaultMultipleFindCheckBuilder
 import io.gatling.core.check.extractor.regex.{ CountRegexExtractor, GroupExtractor, MultipleRegexExtractor, SingleRegexExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
 trait HttpBodyRegexOfType { self: HttpBodyRegexCheckBuilder[String] =>
@@ -33,8 +34,8 @@ object HttpBodyRegexCheckBuilder {
 
 class HttpBodyRegexCheckBuilder[X](private[body] val expression: Expression[String])(implicit groupExtractor: GroupExtractor[X])
     extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, CharSequence, X](
-      HttpCheckBuilders.stringBodyCheckFactory,
-      HttpCheckBuilders.responseBodyStringPreparer) {
+      StringBodyCheckFactory,
+      ResponseBodyStringPreparer) {
 
   def findExtractor(occurrence: Int) = expression.map(new SingleRegexExtractor(_, occurrence))
   def findAllExtractor = expression.map(new MultipleRegexExtractor(_))

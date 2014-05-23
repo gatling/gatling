@@ -33,7 +33,7 @@ trait HttpBodyJsonPathOfType {
 
 object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
-  val charsParsingThreshold = 1000000
+  val CharsParsingThreshold = 1000000
 
   def handleParseException[R](block: R => Any) = (response: R) =>
     try {
@@ -45,11 +45,11 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
         message.failure
     }
 
-  val preparer: Preparer[Response, Any] = stringImplementation match {
+  val Preparer: Preparer[Response, Any] = stringImplementation match {
 
     case DirectCharsBasedStringImplementation =>
       handleParseException { response =>
-        if (response.bodyLength <= charsParsingThreshold)
+        if (response.bodyLength <= CharsParsingThreshold)
           BoonParser.parse(response.body.string)
         else
           BoonParser.parse(response.body.stream, response.charset)
@@ -57,32 +57,32 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
     case _ =>
       handleParseException { response =>
-        if (response.bodyLength <= charsParsingThreshold)
+        if (response.bodyLength <= CharsParsingThreshold)
           JacksonParser.parse(response.body.bytes, response.charset)
         else
           JacksonParser.parse(response.body.stream, response.charset)
       }
   }
 
-  val boonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
+  val BoonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
     def bodyUsage(bodyLength: Int) =
-      if (bodyLength <= charsParsingThreshold)
+      if (bodyLength <= CharsParsingThreshold)
         StringResponseBodyUsage
       else
         InputStreamResponseBodyUsage
   }
 
-  val jacksonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
+  val JacksonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
     def bodyUsage(bodyLength: Int) =
-      if (bodyLength <= charsParsingThreshold)
+      if (bodyLength <= CharsParsingThreshold)
         ByteArrayResponseBodyUsage
       else
         InputStreamResponseBodyUsage
   }
 
-  val responseBodyUsageStrategy = stringImplementation match {
-    case DirectCharsBasedStringImplementation => boonResponseBodyUsageStrategy
-    case _                                    => jacksonResponseBodyUsageStrategy
+  val ResponseBodyUsageStrategy = stringImplementation match {
+    case DirectCharsBasedStringImplementation => BoonResponseBodyUsageStrategy
+    case _                                    => JacksonResponseBodyUsageStrategy
   }
 
   def jsonPath(path: Expression[String]) = new HttpBodyJsonPathCheckBuilder[String](path) with HttpBodyJsonPathOfType
@@ -90,8 +90,8 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
 class HttpBodyJsonPathCheckBuilder[X](private[body] val path: Expression[String])(implicit jsonFilter: JsonFilter[X])
     extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Any, X](
-      HttpCheckBuilders.bodyCheckFactory(HttpBodyJsonPathCheckBuilder.responseBodyUsageStrategy),
-      HttpBodyJsonPathCheckBuilder.preparer) {
+      HttpCheckBuilders.bodyCheckFactory(HttpBodyJsonPathCheckBuilder.ResponseBodyUsageStrategy),
+      HttpBodyJsonPathCheckBuilder.Preparer) {
 
   def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
   def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))

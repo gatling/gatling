@@ -35,7 +35,7 @@ class HttpProtocolBuilderSpec extends Specification {
 
       val expectedExtractor = (requestName: String, status: Status, session: Session, request: Request, response: Response) => Nil
 
-      val builder = HttpProtocolBuilder.default
+      val builder = HttpProtocolBuilder.DefaultHttpProtocolBuilder
         .disableWarmUp
         .extraInfoExtractor(expectedExtractor)
       val config: HttpProtocol = builder.build
@@ -46,7 +46,7 @@ class HttpProtocolBuilderSpec extends Specification {
     "be able to support a base URL" in {
       val url = "http://url"
 
-      val builder = HttpProtocolBuilder.default
+      val builder = HttpProtocolBuilder.DefaultHttpProtocolBuilder
         .baseURL(url)
         .disableWarmUp
 
@@ -59,7 +59,7 @@ class HttpProtocolBuilderSpec extends Specification {
       val url1 = "http://url1"
       val url2 = "http://url2"
 
-      val builder = HttpProtocolBuilder.default
+      val builder = HttpProtocolBuilder.DefaultHttpProtocolBuilder
         .baseURLs(url1, url2)
         .disableWarmUp
 
@@ -69,7 +69,7 @@ class HttpProtocolBuilderSpec extends Specification {
     }
 
     "set a silent URI regex" in {
-      val builder = HttpProtocolBuilder.default
+      val builder = HttpProtocolBuilder.DefaultHttpProtocolBuilder
         .silentURI(".*")
 
       val config: HttpProtocol = builder.build

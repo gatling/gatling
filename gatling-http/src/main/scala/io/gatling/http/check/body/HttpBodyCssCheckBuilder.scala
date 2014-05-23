@@ -22,13 +22,14 @@ import io.gatling.core.check.extractor.css.{ CountCssExtractor, CssExtractor, Mu
 import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
-import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 import jodd.lagarto.dom.NodeSelector
 
 object HttpBodyCssCheckBuilder extends StrictLogging {
 
-  val preparer: Preparer[Response, NodeSelector] = (response: Response) =>
+  val CssPreparer: Preparer[Response, NodeSelector] = (response: Response) =>
     try {
       CssExtractor.parse(response.body.string.unsafeChars).success
 
@@ -40,7 +41,7 @@ object HttpBodyCssCheckBuilder extends StrictLogging {
     }
 
   def css(expression: Expression[String], nodeAttribute: Option[String]) =
-    new DefaultMultipleFindCheckBuilder[HttpCheck, Response, NodeSelector, String](HttpCheckBuilders.stringBodyCheckFactory, preparer) {
+    new DefaultMultipleFindCheckBuilder[HttpCheck, Response, NodeSelector, String](StringBodyCheckFactory, CssPreparer) {
       def findExtractor(occurrence: Int) = expression.map(new SingleCssExtractor(_, nodeAttribute, occurrence))
       def findAllExtractor = expression.map(new MultipleCssExtractor(_, nodeAttribute))
       def countExtractor = expression.map(new CountCssExtractor(_, nodeAttribute))

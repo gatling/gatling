@@ -35,7 +35,7 @@ class HttpRequestBuilderSpec extends Specification with Mockito {
       val sigCalc = mock[SignatureCalculator]
       builder = builder.signatureCalculator(sigCalc)
 
-      val httpRequest = builder.build(HttpProtocol.default, false)
+      val httpRequest = builder.build(HttpProtocol.DefaultHttpProtocol, false)
       httpRequest.signatureCalculator.get must_== sigCalc
     }
 
@@ -44,7 +44,7 @@ class HttpRequestBuilderSpec extends Specification with Mockito {
       val sigCalcFunc = mock[Function3[String, Request, RequestBuilderBase[_], Unit]]
       builder = builder.signatureCalculator(sigCalcFunc)
 
-      val httpRequest = builder.build(HttpProtocol.default, false)
+      val httpRequest = builder.build(HttpProtocol.DefaultHttpProtocol, false)
       val sigCalc = httpRequest.signatureCalculator.get
 
       val mockUrl = "mockUrl"

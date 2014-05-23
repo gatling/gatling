@@ -22,7 +22,7 @@ import io.gatling.http.request.{ BodyPart, RawFileBodies }
 import com.ning.http.client.Request
 
 object HttpRequestWithParamsBuilder {
-  val multipartFormDataValueExpression = HeaderValues.MULTIPART_FORM_DATA.expression
+  val MultipartFormDataValueExpression = HeaderValues.MultipartFormData.expression
 }
 
 /**
@@ -44,7 +44,7 @@ class HttpRequestWithParamsBuilder(
   /**
    * Adds Content-Type header to the request set with "multipart/form-data" value
    */
-  def asMultipartForm: HttpRequestWithParamsBuilder = header(HeaderNames.CONTENT_TYPE, HttpRequestWithParamsBuilder.multipartFormDataValueExpression)
+  def asMultipartForm: HttpRequestWithParamsBuilder = header(HeaderNames.ContentType, HttpRequestWithParamsBuilder.MultipartFormDataValueExpression)
 
   def param(key: Expression[String], value: Expression[Any]): HttpRequestWithParamsBuilder = param(SimpleParam(key, value))
   def multivaluedParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestWithParamsBuilder = param(MultivaluedParam(key, values))

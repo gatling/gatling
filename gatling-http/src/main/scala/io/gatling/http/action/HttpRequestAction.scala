@@ -21,6 +21,7 @@ import akka.actor.{ ActorRef, ActorContext }
 import akka.actor.ActorDSL.actor
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.validation.Validation
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
 import io.gatling.http.cache.{ PermanentRedirect, CacheHandling }
 import io.gatling.http.fetch.ResourceFetcher
@@ -30,14 +31,14 @@ import com.ning.http.client.{ RequestBuilder, SignatureCalculator, Request }
 
 object HttpRequestAction extends StrictLogging {
 
-  def startHttpTransaction(origTx: HttpTx, httpEngine: HttpEngine = HttpEngine.instance)(implicit ctx: ActorContext) {
+  def startHttpTransaction(origTx: HttpTx, httpEngine: HttpEngine = HttpEngine.instance)(implicit ctx: ActorContext): Unit = {
 
-      def startHttpTransaction(tx: HttpTx) {
+      def startHttpTransaction(tx: HttpTx): Unit = {
         logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
         httpEngine.startHttpTransaction(tx)
       }
 
-      def skipCached(tx: HttpTx) {
+      def skipCached(tx: HttpTx): Unit = {
         logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
         tx.next ! tx.session
       }
@@ -72,10 +73,9 @@ object HttpRequestAction extends StrictLogging {
     else {
       val requestConfig = httpRequest.protocol.requestPart
       requestConfig.silentURI match {
-        case Some(r) => {
+        case Some(r) =>
           val uri = ahcRequest.getURI.toString
           r.pattern.matcher(uri).matches
-        }
         case None => false
       }
     }
@@ -103,7 +103,7 @@ class HttpRequestAction(httpRequest: HttpRequest, val next: ActorRef) extends Re
     }
   }
 
-  def sendRequest(requestName: String, session: Session) =
+  def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
       ahcRequest <- ahcRequest(session)
       tx = HttpTx(session, sign(ahcRequest, signatureCalculator), requestName, checks, responseBuilderFactory, protocol, next, followRedirect, maxRedirects, throttled, HttpRequestAction.isSilent(ahcRequest, httpRequest), explicitResources, extraInfoExtractor)

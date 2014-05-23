@@ -63,8 +63,7 @@ case class BodyPartAttributes(
 case class BodyPart(
     name: Expression[String],
     partBuilder: (String, Option[String]) => Expression[PartBase], // name, fileName
-    attributes: BodyPartAttributes //
-    ) {
+    attributes: BodyPartAttributes) {
 
   def contentType(contentType: String) = copy(attributes = attributes.copy(contentType = Some(contentType)))
   def charset(charset: String) = copy(attributes = attributes.copy(charset = Some(charset)))

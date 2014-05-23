@@ -89,13 +89,13 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
     }
 
     val additionalRefererHeader =
-      if (headers.contains(HeaderNames.REFERER))
+      if (headers.contains(HeaderNames.Referer))
         None
       else
         RefererHandling.getStoredReferer(session)
 
     additionalRefererHeader match {
-      case Some(referer) => requestBuilderWithHeaders.map(_.addHeader(HeaderNames.REFERER, referer))
+      case Some(referer) => requestBuilderWithHeaders.map(_.addHeader(HeaderNames.Referer, referer))
       case _             => requestBuilderWithHeaders
     }
   }

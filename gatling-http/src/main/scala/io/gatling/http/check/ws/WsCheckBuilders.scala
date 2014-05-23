@@ -24,5 +24,5 @@ object WsCheckBuilders {
   def checkFactory(await: Boolean, timeout: FiniteDuration, expectation: Expectation): CheckFactory[WsCheck, String] =
     wrapped => new WsCheck(wrapped, await, timeout, expectation)
 
-  val passThroughMessagePreparer: Preparer[String, String] = (r: String) => r.success
+  val PassThroughMessagePreparer: Preparer[String, String] = (r: String) => r.success
 }

@@ -21,13 +21,14 @@ import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
 import io.gatling.core.check.extractor.xpath.{ CountXPathExtractor, MultipleXPathExtractor, SingleXPathExtractor, XPathExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
-import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 import net.sf.saxon.s9api.XdmNode
 
 object HttpBodyXPathCheckBuilder extends StrictLogging {
 
-  val preparer: Preparer[Response, Option[XdmNode]] = (response: Response) =>
+  val XPathPreparer: Preparer[Response, Option[XdmNode]] = (response: Response) =>
     try {
       val root = if (response.hasResponseBody) Some(XPathExtractor.parse(response.body.stream)) else None
       root.success
@@ -40,7 +41,7 @@ object HttpBodyXPathCheckBuilder extends StrictLogging {
     }
 
   def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
-    new DefaultMultipleFindCheckBuilder[HttpCheck, Response, Option[XdmNode], String](HttpCheckBuilders.streamBodyCheckFactory, preparer) {
+    new DefaultMultipleFindCheckBuilder[HttpCheck, Response, Option[XdmNode], String](StreamBodyCheckFactory, XPathPreparer) {
       def findExtractor(occurrence: Int) = expression.map(new SingleXPathExtractor(_, namespaces, occurrence))
       def findAllExtractor = expression.map(new MultipleXPathExtractor(_, namespaces))
       def countExtractor = expression.map(new CountXPathExtractor(_, namespaces))

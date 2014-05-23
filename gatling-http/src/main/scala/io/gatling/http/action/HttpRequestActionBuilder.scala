@@ -20,7 +20,7 @@ import akka.actor.ActorRef
 import io.gatling.core.config.Protocols
 import io.gatling.core.controller.throttle.ThrottlingProtocol
 import io.gatling.core.session.ExpressionWrapper
-import io.gatling.http.check.status.HttpStatusCheckBuilder.status
+import io.gatling.http.check.status.HttpStatusCheckBuilder.Status
 import io.gatling.http.request.builder.AbstractHttpRequestBuilder
 import io.gatling.http.util.HttpHelper.OkCodes
 
@@ -30,7 +30,7 @@ object HttpRequestActionBuilder {
    * This is the default HTTP check used to verify that the response status is 2XX
    */
   val OkCodesExpression = OkCodes.expression
-  val DefaultHttpCheck = status.find.in(OkCodesExpression).build
+  val DefaultHttpCheck = Status.find.in(OkCodesExpression).build
 }
 
 /**

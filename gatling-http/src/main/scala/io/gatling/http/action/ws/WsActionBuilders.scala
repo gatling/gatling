@@ -26,7 +26,7 @@ import io.gatling.http.request.builder.ws.WsOpenRequestBuilder
 
 class WsOpenActionBuilder(requestName: Expression[String], wsName: String, requestBuilder: WsOpenRequestBuilder) extends HttpActionBuilder {
 
-  def build(next: ActorRef, protocols: Protocols) = {
+  def build(next: ActorRef, protocols: Protocols): ActorRef = {
     val request = requestBuilder.build(httpProtocol(protocols))
     val protocol = httpProtocol(protocols)
     actor(new WsOpenAction(requestName, wsName, request, next, protocol))
@@ -37,25 +37,25 @@ class WsSendActionBuilder(requestName: Expression[String], wsName: String, messa
 
   def check(check: WsCheck) = new WsSendActionBuilder(requestName, wsName, message, Some(check))
 
-  def build(next: ActorRef, protocols: Protocols) = actor(new WsSendAction(requestName, wsName, message, check, next))
+  def build(next: ActorRef, protocols: Protocols): ActorRef = actor(new WsSendAction(requestName, wsName, message, check, next))
 }
 
 class WsSetCheckActionBuilder(requestName: Expression[String], check: WsCheck, wsName: String) extends HttpActionBuilder {
 
-  def build(next: ActorRef, protocols: Protocols) = actor(new WsSetCheckAction(requestName, check, wsName, next))
+  def build(next: ActorRef, protocols: Protocols): ActorRef = actor(new WsSetCheckAction(requestName, check, wsName, next))
 }
 
 class WsCancelCheckActionBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
 
-  def build(next: ActorRef, protocols: Protocols) = actor(new WsCancelCheckAction(requestName, wsName, next))
+  def build(next: ActorRef, protocols: Protocols): ActorRef = actor(new WsCancelCheckAction(requestName, wsName, next))
 }
 
 class WsReconciliateActionBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
 
-  def build(next: ActorRef, protocols: Protocols) = actor(new WsReconciliateAction(requestName, wsName, next))
+  def build(next: ActorRef, protocols: Protocols): ActorRef = actor(new WsReconciliateAction(requestName, wsName, next))
 }
 
 class WsCloseActionBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
 
-  def build(next: ActorRef, protocols: Protocols) = actor(new WsCloseAction(requestName, wsName, next))
+  def build(next: ActorRef, protocols: Protocols): ActorRef = actor(new WsCloseAction(requestName, wsName, next))
 }

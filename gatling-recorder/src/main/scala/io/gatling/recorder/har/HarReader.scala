@@ -24,7 +24,7 @@ import scala.util.Try
 import io.gatling.core.util.IO
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.core.util.StandardCharsets.UTF_8
-import io.gatling.http.HeaderNames.CONTENT_TYPE
+import io.gatling.http.HeaderNames._
 import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario._
@@ -86,7 +86,7 @@ object HarReader extends IO {
     val headers: Map[String, String] = entry.request.headers.filter(!_.name.startsWith(":")).map(h => (h.name, h.value))(breakOut)
 
     // NetExport doesn't add Content-Type to headers when POSTing, but both Chrome Dev Tools and NetExport set mimeType
-    entry.request.postData.map(postData => headers.updated(CONTENT_TYPE, postData.mimeType)).getOrElse(headers)
+    entry.request.postData.map(postData => headers.updated(ContentType, postData.mimeType)).getOrElse(headers)
   }
 
   private def isValidURL(url: String): Boolean = Try(new URL(url)).isSuccess

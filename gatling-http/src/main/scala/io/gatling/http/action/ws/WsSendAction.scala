@@ -19,10 +19,11 @@ import akka.actor.ActorRef
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.action.RequestAction
 import io.gatling.http.check.ws.WsCheck
+import io.gatling.core.validation.Validation
 
 class WsSendAction(val requestName: Expression[String], wsName: String, message: Expression[WsMessage], check: Option[WsCheck], val next: ActorRef) extends RequestAction {
 
-  def sendRequest(requestName: String, session: Session) =
+  def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
       wsActor <- session(wsName).validate[ActorRef]
       resolvedMessage <- message(session)

@@ -28,7 +28,7 @@ import io.gatling.core.config.Protocol
 import io.gatling.core.filter.Filters
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
 import io.gatling.core.util.RoundRobin
-import io.gatling.http.HeaderNames.{ ACCEPT, ACCEPT_ENCODING, ACCEPT_LANGUAGE, CONNECTION, USER_AGENT }
+import io.gatling.http.HeaderNames._
 import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
@@ -40,7 +40,8 @@ import scala.util.matching.Regex
  * HttpProtocol class companion
  */
 object HttpProtocol {
-  val default = HttpProtocol(
+
+  val DefaultHttpProtocol = HttpProtocol(
     baseURLs = Nil,
     warmUpUrl = configuration.http.warmUpUrl,
     enginePart = HttpProtocolEnginePart(
@@ -74,9 +75,9 @@ object HttpProtocol {
       secureProxy = None,
       proxyExceptions = Nil))
 
-  val warmUpUrls = mutable.Set.empty[String]
+  val WarmUpUrls = mutable.Set.empty[String]
 
-  GatlingActorSystem.instanceOpt.foreach(_.registerOnTermination(warmUpUrls.clear()))
+  GatlingActorSystem.instanceOpt.foreach(_.registerOnTermination(WarmUpUrls.clear()))
 
   def nextBaseUrlF(urls: List[String]): () => Option[String] =
     urls match {
@@ -108,10 +109,12 @@ case class HttpProtocol(
     wsPart: HttpProtocolWsPart,
     proxyPart: HttpProtocolProxyPart) extends Protocol with StrictLogging {
 
-  private val baseURLF = HttpProtocol.nextBaseUrlF(baseURLs)
-  def baseURL(): Option[String] = baseURLF()
+  import HttpProtocol._
 
-  override def warmUp() {
+  private val baseURLF = nextBaseUrlF(baseURLs)
+  def baseURL: Option[String] = baseURLF()
+
+  override def warmUp(): Unit = {
 
     logger.info("Start warm up")
 
@@ -119,14 +122,14 @@ case class HttpProtocol(
     AsyncHandlerActor.start()
 
     warmUpUrl.map { url =>
-      if (!HttpProtocol.warmUpUrls.contains(url)) {
-        HttpProtocol.warmUpUrls += url
+      if (!WarmUpUrls.contains(url)) {
+        WarmUpUrls += url
         val requestBuilder = new RequestBuilder().setUrl(url)
-          .setHeader(ACCEPT, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-          .setHeader(ACCEPT_LANGUAGE, "en-US,en;q=0.5")
-          .setHeader(ACCEPT_ENCODING, "gzip")
-          .setHeader(CONNECTION, "keep-alive")
-          .setHeader(USER_AGENT, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
+          .setHeader(Accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+          .setHeader(AcceptLanguage, "en-US,en;q=0.5")
+          .setHeader(AcceptEncoding, "gzip")
+          .setHeader(Connection, "keep-alive")
+          .setHeader(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
 
         if (url.startsWith("http://"))
           proxyPart.proxy.foreach(requestBuilder.setProxyServer)
@@ -134,27 +137,27 @@ case class HttpProtocol(
           proxyPart.secureProxy.foreach(requestBuilder.setProxyServer)
 
         try {
-          HttpEngine.instance.defaultAHC.executeRequest(requestBuilder.build).get
+          HttpEngine.instance.DefaultAHC.executeRequest(requestBuilder.build).get
         } catch {
           case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
         }
       }
     }
 
-    if (HttpProtocol.warmUpUrls.isEmpty) {
+    if (WarmUpUrls.isEmpty) {
       val expression = "foo".expression
 
       new Http(expression)
         .get(expression)
         .header("bar", expression)
         .queryParam(expression, expression)
-        .build(HttpProtocol.default, throttled = false)
+        .build(DefaultHttpProtocol, throttled = false)
 
       new Http(expression)
         .post(expression)
         .header("bar", expression)
         .param(expression, expression)
-        .build(HttpProtocol.default, throttled = false)
+        .build(DefaultHttpProtocol, throttled = false)
     }
 
     logger.info("Warm up done")
@@ -191,8 +194,10 @@ case class HttpProtocolWsPart(
     reconnect: Boolean,
     maxReconnects: Option[Int]) {
 
-  private val wsBaseURLF = HttpProtocol.nextBaseUrlF(wsBaseURLs)
-  def wsBaseURL(): Option[String] = wsBaseURLF()
+  import HttpProtocol._
+
+  private val wsBaseURLF = nextBaseUrlF(wsBaseURLs)
+  def wsBaseURL: Option[String] = wsBaseURLF()
 }
 
 case class HttpProtocolProxyPart(

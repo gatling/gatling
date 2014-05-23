@@ -38,11 +38,9 @@ import io.gatling.http.util.HttpHelper.{ isCss, isHtml }
 
 object ResponseBuilder extends StrictLogging {
 
-  val emptyBytes = Array.empty[Byte]
+  val EmptyHeaders = new FluentCaseInsensitiveStringsMap
 
-  val emptyHeaders = new FluentCaseInsensitiveStringsMap
-
-  val isDebugEnabled = logger.underlying.isDebugEnabled
+  private val IsDebugEnabled = logger.underlying.isDebugEnabled
 
   def newResponseBuilderFactory(checks: List[HttpCheck], responseTransformer: Option[ResponseTransformer], protocol: HttpProtocol): ResponseBuilderFactory = {
 
@@ -52,7 +50,7 @@ object ResponseBuilder extends StrictLogging {
 
     val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy).toSet
 
-    val storeBodyParts = isDebugEnabled || !protocol.responsePart.discardResponseChunks || !responseBodyUsageStrategies.isEmpty
+    val storeBodyParts = IsDebugEnabled || !protocol.responsePart.discardResponseChunks || !responseBodyUsageStrategies.isEmpty
 
     request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, protocol.responsePart.fetchHtmlResources)
   }
@@ -67,7 +65,7 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bod
   var firstByteReceived = 0L
   var lastByteReceived = 0L
   private var status: Option[HttpResponseStatus] = None
-  private var headers: FluentCaseInsensitiveStringsMap = ResponseBuilder.emptyHeaders
+  private var headers: FluentCaseInsensitiveStringsMap = ResponseBuilder.EmptyHeaders
   private val chunks = new ArrayBuffer[ChannelBuffer]
   private var digests: Map[String, MessageDigest] = initDigests()
 
@@ -79,43 +77,37 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bod
     else
       Map.empty[String, MessageDigest]
 
-  def updateFirstByteSent() {
-    firstByteSent = nowMillis
-  }
+  def updateFirstByteSent(): Unit = firstByteSent = nowMillis
 
-  def reset() {
+  def reset(): Unit = {
     firstByteSent = nowMillis
     lastByteSent = 0L
     firstByteReceived = 0L
     lastByteReceived = 0L
     status = None
-    headers = ResponseBuilder.emptyHeaders
+    headers = ResponseBuilder.EmptyHeaders
     chunks.clear()
     digests = initDigests()
   }
 
-  def updateLastByteSent() {
-    lastByteSent = nowMillis
-  }
+  def updateLastByteSent(): Unit = lastByteSent = nowMillis
 
-  def updateLastByteReceived() {
-    lastByteReceived = nowMillis
-  }
+  def updateLastByteReceived(): Unit = lastByteReceived = nowMillis
 
-  def accumulate(status: HttpResponseStatus) {
+  def accumulate(status: HttpResponseStatus): Unit = {
     this.status = Some(status)
     val now = nowMillis
     firstByteReceived = now
     lastByteReceived = now
   }
 
-  def accumulate(headers: HttpResponseHeaders) {
+  def accumulate(headers: HttpResponseHeaders): Unit = {
     this.headers = headers.getHeaders
     storeHtmlOrCss = fetchHtmlResources && (isHtml(headers.getHeaders) || isCss(headers.getHeaders))
     updateLastByteReceived()
   }
 
-  def accumulate(bodyPart: HttpResponseBodyPart) {
+  def accumulate(bodyPart: HttpResponseBodyPart): Unit = {
 
     updateLastByteReceived()
 
@@ -148,7 +140,7 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bod
 
     val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
 
-    val charset = Option(headers.getFirstValue(HeaderNames.CONTENT_ENCODING)).map(Charset.forName).getOrElse(configuration.core.charset)
+    val charset = Option(headers.getFirstValue(HeaderNames.ContentEncoding)).map(Charset.forName).getOrElse(configuration.core.charset)
 
     val body: ResponseBody =
       if (bodyUsages.contains(ByteArrayResponseBodyUsage))

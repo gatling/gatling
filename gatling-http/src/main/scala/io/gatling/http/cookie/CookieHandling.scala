@@ -24,39 +24,39 @@ import io.gatling.core.session.Expression
 
 object CookieHandling {
 
-  val cookieJarAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.cookies"
+  val CookieJarAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cookies"
 
-  def cookieJar(session: Session): Option[CookieJar] = session(cookieJarAttributeName).asOption[CookieJar]
+  def cookieJar(session: Session): Option[CookieJar] = session(CookieJarAttributeName).asOption[CookieJar]
 
   def getStoredCookies(session: Session, url: String): List[Cookie] = getStoredCookies(session, URI.create(url))
 
   def getStoredCookies(session: Session, uri: URI): List[Cookie] =
-    session(cookieJarAttributeName).asOption[CookieJar] match {
+    session(CookieJarAttributeName).asOption[CookieJar] match {
       case Some(cookieJar) => cookieJar.get(uri)
       case _               => Nil
     }
 
   private def getCookieJar(session: Session) =
-    session(cookieJarAttributeName).asOption[CookieJar] match {
+    session(CookieJarAttributeName).asOption[CookieJar] match {
       case Some(cookieJar) => cookieJar
       case _               => CookieJar(Map.empty)
     }
 
   def storeCookies(session: Session, uri: URI, cookies: List[Cookie]): Session = {
     val cookieJar = getCookieJar(session)
-    session.set(cookieJarAttributeName, cookieJar.add(uri, cookies))
+    session.set(CookieJarAttributeName, cookieJar.add(uri, cookies))
   }
 
   def storeCookie(session: Session, domain: String, path: String, cookie: Cookie): Session = {
     val cookieJar = getCookieJar(session)
-    session.set(cookieJarAttributeName, cookieJar.add(domain, path, List(cookie)))
+    session.set(CookieJarAttributeName, cookieJar.add(domain, path, List(cookie)))
   }
 
-  val flushSessionCookies: Expression[Session] = session => {
+  val FlushSessionCookies: Expression[Session] = session => {
     val cookieJar = getCookieJar(session)
     val storeWithOnlyPersistentCookies = cookieJar.store.filter { case (_, storeCookie) => storeCookie.persistent }
-    session.set(cookieJarAttributeName, CookieJar(storeWithOnlyPersistentCookies)).success
+    session.set(CookieJarAttributeName, CookieJar(storeWithOnlyPersistentCookies)).success
   }
 
-  val flushCookieJar: Expression[Session] = _.remove(cookieJarAttributeName).success
+  val FlushCookieJar: Expression[Session] = _.remove(CookieJarAttributeName).success
 }

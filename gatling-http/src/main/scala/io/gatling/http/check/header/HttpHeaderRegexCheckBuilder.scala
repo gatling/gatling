@@ -18,7 +18,8 @@ package io.gatling.http.check.header
 import io.gatling.core.check.DefaultMultipleFindCheckBuilder
 import io.gatling.core.check.extractor.regex.GroupExtractor
 import io.gatling.core.session.{ Expression, RichExpression, Session }
-import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
 trait HttpHeaderRegexOfType {
@@ -35,8 +36,8 @@ object HttpHeaderRegexCheckBuilder {
 
 class HttpHeaderRegexCheckBuilder[X](private[header] val headerName: Expression[String], val pattern: Expression[String])(implicit groupExtractor: GroupExtractor[X])
     extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Response, String](
-      HttpCheckBuilders.headerCheckFactory,
-      HttpCheckBuilders.passThroughResponsePreparer) {
+      HeaderCheckFactory,
+      PassThroughResponsePreparer) {
 
   val headerAndPattern = (session: Session) => for {
     headerName <- headerName(session)

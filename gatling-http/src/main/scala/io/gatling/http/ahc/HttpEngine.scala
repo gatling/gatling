@@ -78,7 +78,7 @@ object HttpEngine extends AkkaDefaults with StrictLogging {
 
   private var _instance: Option[HttpEngine] = None
 
-  def start() {
+  def start(): Unit = {
     if (!_instance.isDefined) {
       val client = new HttpEngine
       _instance = Some(client)
@@ -86,7 +86,7 @@ object HttpEngine extends AkkaDefaults with StrictLogging {
     }
   }
 
-  def stop() {
+  def stop(): Unit = {
     _instance.map { engine =>
       engine.applicationThreadPool.shutdown()
       engine.nioThreadPool.shutdown()
@@ -200,23 +200,23 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     client
   }
 
-  lazy val defaultAHC = newAHC(None)
+  lazy val DefaultAHC = newAHC(None)
 
-  val ahcAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.ahc"
+  val AhcAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.ahc"
 
   def httpClient(session: Session, protocol: HttpProtocol): (Session, AsyncHttpClient) = {
     if (protocol.enginePart.shareClient)
-      (session, defaultAHC)
+      (session, DefaultAHC)
     else
-      session(ahcAttributeName).asOption[AsyncHttpClient] match {
+      session(AhcAttributeName).asOption[AsyncHttpClient] match {
         case Some(client) => (session, client)
         case _ =>
           val httpClient = newAHC(session)
-          (session.set(ahcAttributeName, httpClient), httpClient)
+          (session.set(AhcAttributeName, httpClient), httpClient)
       }
   }
 
-  def startHttpTransaction(tx: HttpTx) {
+  def startHttpTransaction(tx: HttpTx): Unit = {
 
     val (newTx, client) = {
       val (newSession, client) = httpClient(tx.session, tx.protocol)
@@ -229,7 +229,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
       client.executeRequest(newTx.request, new AsyncHandler(newTx))
   }
 
-  def startWebSocketTransaction(tx: WsTx, wsActor: ActorRef) {
+  def startWebSocketTransaction(tx: WsTx, wsActor: ActorRef): Unit = {
     val (newTx, client) = {
       val (newSession, client) = httpClient(tx.session, tx.protocol)
       (tx.copy(session = newSession), client)

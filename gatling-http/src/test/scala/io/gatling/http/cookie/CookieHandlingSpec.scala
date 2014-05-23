@@ -17,8 +17,6 @@ package io.gatling.http.cookie
 
 import java.net.URI
 
-import scala.collection.JavaConversions.asScalaSet
-
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
@@ -33,7 +31,7 @@ class CookieHandlingSpec extends Specification {
   val originalCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
   val originalDomain = "docs.foo.com"
   val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
-  val originalSession = Session("scenarioName", "1", Map(CookieHandling.cookieJarAttributeName -> originalCookieJar))
+  val originalSession = Session("scenarioName", "1", Map(CookieHandling.CookieJarAttributeName -> originalCookieJar))
 
   val emptySession = Session("scenarioName", "2")
 

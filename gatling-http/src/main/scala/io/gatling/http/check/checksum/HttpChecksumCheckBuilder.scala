@@ -19,7 +19,8 @@ import io.gatling.core.check.{ DefaultFindCheckBuilder, Check }
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.ExpressionWrapper
 import io.gatling.core.validation.SuccessWrapper
-import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 
 object HttpChecksumCheckBuilder {
@@ -34,10 +35,10 @@ object HttpChecksumCheckBuilder {
 
     new DefaultFindCheckBuilder[HttpCheck, Response, Response, String](
       checksumCheckFactory,
-      HttpCheckBuilders.passThroughResponsePreparer,
+      PassThroughResponsePreparer,
       extractor)
   }
 
-  val md5 = checksum("MD5")
-  val sha1 = checksum("SHA1")
+  val Md5 = checksum("MD5")
+  val Sha1 = checksum("SHA1")
 }

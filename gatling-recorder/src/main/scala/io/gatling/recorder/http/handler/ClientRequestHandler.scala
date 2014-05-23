@@ -59,7 +59,7 @@ abstract class ClientRequestHandler(proxy: HttpProxy) extends SimpleChannelHandl
               username <- proxy.outgoingUsername
               password <- proxy.outgoingPassword
               proxyAuth = "Basic " + Base64.encode((username + ":" + password).getBytes)
-            } request.headers.set(HeaderNames.PROXY_AUTHORIZATION, proxyAuth)
+            } request.headers.set(HeaderNames.ProxyAuthorization, proxyAuth)
         }
 
         propagateRequest(ctx, request)

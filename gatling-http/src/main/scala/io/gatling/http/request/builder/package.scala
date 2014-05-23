@@ -29,7 +29,7 @@ package object builder {
 
     def resolveParams(session: Session): Validation[Map[String, Seq[String]]] = {
 
-      val resolvedParams = params.foldLeft(HttpParam.emptyParamListSuccess) { (resolvedParams, param) =>
+      val resolvedParams = params.foldLeft(HttpParam.EmptyParamListSuccess) { (resolvedParams, param) =>
         {
 
           val newParams: Validation[List[(String, String)]] = param match {

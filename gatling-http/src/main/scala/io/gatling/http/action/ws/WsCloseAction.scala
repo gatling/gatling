@@ -17,11 +17,12 @@ package io.gatling.http.action.ws
 
 import akka.actor.ActorRef
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.validation.Validation
 import io.gatling.http.action.RequestAction
 
 class WsCloseAction(val requestName: Expression[String], wsName: String, val next: ActorRef) extends RequestAction {
 
-  def sendRequest(requestName: String, session: Session) =
+  def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
       wsActor <- session(wsName).validate[ActorRef]
     } yield wsActor ! Close(requestName, next, session)

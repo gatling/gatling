@@ -19,20 +19,21 @@ import io.gatling.core.check.{ CheckFactory, DefaultFindCheckBuilder }
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session.ExpressionWrapper
+import io.gatling.http.check.ws.WsCheckBuilders._
 
-object WebSocketPlainCheckBuilder {
+object WsPlainCheckBuilder {
 
-  val extractor = new Extractor[String, String] {
+  val WsPlainExtractor = new Extractor[String, String] {
     val name = "wsMessage"
     def apply(prepared: String) = Some(prepared).success
   }.expression
 
   def message(checkFactory: CheckFactory[WsCheck, String]) =
-    new WebSocketPlainCheckBuilder(checkFactory)
+    new WsPlainCheckBuilder(checkFactory)
 }
 
-class WebSocketPlainCheckBuilder(checkFactory: CheckFactory[WsCheck, String])
+class WsPlainCheckBuilder(checkFactory: CheckFactory[WsCheck, String])
   extends DefaultFindCheckBuilder[WsCheck, String, String, String](
     checkFactory,
-    WsCheckBuilders.passThroughMessagePreparer,
-    WebSocketPlainCheckBuilder.extractor)
+    PassThroughMessagePreparer,
+    WsPlainCheckBuilder.WsPlainExtractor)

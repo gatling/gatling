@@ -48,12 +48,11 @@ object AsyncHandlerActor extends AkkaDefaults {
 
   private var _instance: Option[ActorRef] = None
 
-  def start() {
+  def start(): Unit =
     if (!_instance.isDefined) {
       _instance = Some(system.actorOf(Props[AsyncHandlerActor].withRouter(RoundRobinRouter(nrOfInstances = 3 * Runtime.getRuntime.availableProcessors))))
       system.registerOnTermination(_instance = None)
     }
-  }
 
   def instance() = _instance match {
     case Some(a) => a
@@ -64,17 +63,16 @@ object AsyncHandlerActor extends AkkaDefaults {
   val fail: Session => Session = _.markAsFailed
 
   val propagatedOnRedirectHeaders = Vector(
-    HeaderNames.ACCEPT,
-    HeaderNames.ACCEPT_ENCODING,
-    HeaderNames.ACCEPT_LANGUAGE,
-    HeaderNames.REFERER,
-    HeaderNames.USER_AGENT)
+    HeaderNames.Accept,
+    HeaderNames.AcceptEncoding,
+    HeaderNames.AcceptLanguage,
+    HeaderNames.Referer,
+    HeaderNames.UserAgent)
 }
 
 class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
-  override def preRestart(reason: Throwable, message: Option[Any]) {
-
+  override def preRestart(reason: Throwable, message: Option[Any]): Unit =
     message match {
       case Some(OnCompleted(tx, _)) =>
         logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
@@ -87,7 +85,6 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       case _ =>
         logger.error(s"AsyncHandlerActor crashed on unknown message $message, dropping")
     }
-  }
 
   def receive = {
     case OnCompleted(tx, response)               => processResponse(tx, response)
@@ -98,7 +95,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     tx: HttpTx,
     status: Status,
     response: Response,
-    errorMessage: Option[String] = None) {
+    errorMessage: Option[String] = None): Unit = {
 
     if (!tx.silent) {
       val fullRequestName = if (tx.redirectCount > 0)
@@ -116,7 +113,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           buff.append("=========================").append(eol)
           buff.append("HTTP response:").append(eol).appendResponse(response).append(eol)
           buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
-          buff.toString()
+          buff.toString
         }
 
       if (status == KO) {
@@ -159,7 +156,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
    */
   private def executeNext(tx: HttpTx, sessionUpdates: Session => Session, status: Status, response: Response) {
 
-      def regularExecuteNext() {
+      def regularExecuteNext(): Unit = {
         val updatedSession = sessionUpdates(tx.session)
         tx.next ! updatedSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
       }
@@ -200,27 +197,24 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     executeNext(newTx, sessionUpdates, status, response)
   }
 
-  private def ok(tx: HttpTx, sessionUpdates: Session => Session, response: Response) {
+  private def ok(tx: HttpTx, sessionUpdates: Session => Session, response: Response): Unit =
     logAndExecuteNext(tx, sessionUpdates, OK, response, None)
-  }
 
-  private def ko(tx: HttpTx, sessionUpdates: Session => Session, response: Response, message: String) {
+  private def ko(tx: HttpTx, sessionUpdates: Session => Session, response: Response, message: String): Unit =
     logAndExecuteNext(tx, sessionUpdates andThen AsyncHandlerActor.fail, KO, response, Some(message))
-  }
 
   /**
    * This method processes the response if needed for each checks given by the user
    */
-  private def processResponse(tx: HttpTx, response: Response) {
+  private def processResponse(tx: HttpTx, response: Response): Unit = {
 
-      def redirect(sessionUpdates: Session => Session) {
-
+      def redirect(sessionUpdates: Session => Session): Unit =
         tx.maxRedirects match {
           case Some(maxRedirects) if maxRedirects == tx.redirectCount =>
             ko(tx, sessionUpdates, response, s"Too many redirects, max is $maxRedirects")
 
           case _ =>
-            response.header(HeaderNames.LOCATION) match {
+            response.header(HeaderNames.Location) match {
               case Some(location) =>
                 val newTx = tx.copy(session = sessionUpdates(tx.session))
 
@@ -258,7 +252,6 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
             }
         }
-      }
 
       def cacheRedirect(tx: HttpTx, originalRequest: Request, redirectURI: URI): Session = {
         response.statusCode match {
@@ -267,7 +260,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         }
       }
 
-      def checkAndProceed(sessionUpdates: Session => Session, checks: List[HttpCheck]) {
+      def checkAndProceed(sessionUpdates: Session => Session, checks: List[HttpCheck]): Unit = {
 
         val updateWithCacheUpdate = sessionUpdates andThen AsyncHandlerActor.updateCache(tx, response)
 
@@ -301,5 +294,4 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         ko(tx, identity, response, "How come OnComplete was sent with no status?!")
     }
   }
-
 }

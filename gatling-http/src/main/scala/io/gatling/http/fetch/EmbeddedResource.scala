@@ -28,7 +28,7 @@ case class NamedRequest(name: String, ahcRequest: Request)
 
 object EmbeddedResource {
 
-  val mockSession = Session("foo", "bar")
+  val MockSession = Session("foo", "bar")
 }
 
 sealed abstract class EmbeddedResource {
@@ -41,7 +41,7 @@ sealed abstract class EmbeddedResource {
     val httpRequest = new Http(urlExpression).get(uri).build(protocol, throttled)
 
     // for now, no better way to build a request than reusing HttpRequestBaseBuilder and passing a mock session
-    httpRequest.ahcRequest(EmbeddedResource.mockSession) match {
+    httpRequest.ahcRequest(EmbeddedResource.MockSession) match {
       case Success(ahcRequest) =>
         val requestName = {
           val start = url.lastIndexOf('/') + 1

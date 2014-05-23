@@ -18,19 +18,20 @@ package io.gatling.http.check.body
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.ExpressionWrapper
 import io.gatling.core.validation.SuccessWrapper
-import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
+import io.gatling.http.check.HttpCheck
+import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.core.check.DefaultFindCheckBuilder
 import io.gatling.http.response.Response
 
 object HttpBodyBytesCheckBuilder {
 
-  val extractor = new Extractor[Array[Byte], Array[Byte]] {
+  val BodyBytesExtractor = new Extractor[Array[Byte], Array[Byte]] {
     val name = "bodyBytes"
     def apply(prepared: Array[Byte]) = Some(prepared).success
   }.expression
 
-  val bodyBytes = new DefaultFindCheckBuilder[HttpCheck, Response, Array[Byte], Array[Byte]](
-    HttpCheckBuilders.bytesBodyCheckFactory,
-    HttpCheckBuilders.responseBodyBytesPreparer,
-    extractor)
+  val BodyBytes = new DefaultFindCheckBuilder[HttpCheck, Response, Array[Byte], Array[Byte]](
+    BytesBodyCheckFactory,
+    ResponseBodyBytesPreparer,
+    BodyBytesExtractor)
 }

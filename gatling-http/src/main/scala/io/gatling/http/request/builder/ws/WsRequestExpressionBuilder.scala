@@ -27,7 +27,7 @@ class WsRequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: H
     if (HttpHelper.isAbsoluteWsUrl(url))
       url.success
     else
-      protocol.wsPart.wsBaseURL() match {
+      protocol.wsPart.wsBaseURL match {
         case Some(baseURL) => (baseURL + url).success
         case _             => s"No protocol.baseURL defined but provided url is relative : $url".failure
       }

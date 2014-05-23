@@ -32,7 +32,7 @@ import akka.actor.ActorRef
  */
 object SessionPrivateAttributes {
 
-  val privateAttributePrefix = "gatling."
+  val PrivateAttributePrefix = "gatling."
 }
 
 case class SessionAttribute(session: Session, key: String) {

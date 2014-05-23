@@ -27,20 +27,20 @@ class WsListener(tx: WsTx, wsActor: ActorRef)
 
   private var state: WsListenerState = Opening
 
-  def onOpen(webSocket: WebSocket) {
+  def onOpen(webSocket: WebSocket): Unit = {
     state = Open
     wsActor ! OnOpen(tx, webSocket, nowMillis)
   }
 
-  def onMessage(message: String) {
+  def onMessage(message: String): Unit = {
     wsActor ! OnMessage(message, nowMillis)
   }
 
-  def onFragment(fragment: String, last: Boolean) {}
+  def onFragment(fragment: String, last: Boolean): Unit = {}
 
-  def onClose(webSocket: WebSocket) {}
+  def onClose(webSocket: WebSocket): Unit = {}
 
-  def onClose(webSocket: WebSocket, statusCode: Int, reason: String) {
+  def onClose(webSocket: WebSocket, statusCode: Int, reason: String): Unit = {
     state match {
       case Open =>
         state = Closed
@@ -50,7 +50,7 @@ class WsListener(tx: WsTx, wsActor: ActorRef)
     }
   }
 
-  def onError(t: Throwable) {
+  def onError(t: Throwable): Unit = {
     state match {
       case Opening =>
         wsActor ! OnFailedOpen(tx, t.getMessage, nowMillis)

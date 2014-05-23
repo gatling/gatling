@@ -36,7 +36,7 @@ trait Action extends BaseActor {
    * @param session the session of the virtual user
    * @return Nothing
    */
-  def execute(session: Session)
+  def execute(session: Session): Unit
 }
 
 /**

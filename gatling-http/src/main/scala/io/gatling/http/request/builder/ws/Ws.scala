@@ -22,14 +22,14 @@ import io.gatling.http.request.builder.CommonAttributes
 
 object Ws {
 
-  val defaultWebSocketName = SessionPrivateAttributes.privateAttributePrefix + "http.webSocket"
+  val DefaultWebSocketName = SessionPrivateAttributes.PrivateAttributePrefix + "http.webSocket"
 }
 
 /**
  * @param requestName The name of this request
  * @param wsName The name of the session attribute used to store the websocket
  */
-class Ws(requestName: Expression[String], wsName: String = Ws.defaultWebSocketName) {
+class Ws(requestName: Expression[String], wsName: String = Ws.DefaultWebSocketName) {
 
   def wsName(wsName: String) = new Ws(requestName, wsName)
 

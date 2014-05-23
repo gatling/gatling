@@ -29,8 +29,8 @@ import io.gatling.http.util.HttpHelper
 // FIXME Would it be more efficient to work with Array[Char] instead of String?
 object CssParser extends StrictLogging {
 
-  val inlineStyleImageUrls = """url\((.*)\)""".r
-  val styleImportsUrls = """@import.* url\((.*)\)""".r
+  val InlineStyleImageUrls = """url\((.*)\)""".r
+  val StyleImportsUrls = """@import.* url\((.*)\)""".r
 
   def extractUrls(string: CharSequence, regex: Regex): Iterator[String] = {
     regex.findAllIn(string).matchData.map { m =>
@@ -39,10 +39,10 @@ object CssParser extends StrictLogging {
     }.flatten
   }
 
-  val singleQuoteEscapeChar = Some('\'')
-  val doubleQuoteEscapeChar = Some('"')
-  val atImportChars = "@import".toCharArray
-  val urlStartChars = "url(".toCharArray
+  val SingleQuoteEscapeChar = Some('\'')
+  val DoubleQuoteEscapeChar = Some('"')
+  val AtImportChars = "@import".toCharArray
+  val UrlStartChars = "url(".toCharArray
 
   def extractUrl(string: String, start: Int, end: Int): Option[String] = {
 
@@ -55,7 +55,7 @@ object CssParser extends StrictLogging {
         case '\'' =>
           protectChar match {
             case None =>
-              protectChar = singleQuoteEscapeChar
+              protectChar = SingleQuoteEscapeChar
               trimLeft(cur + 1)
             case _ =>
               broken = true
@@ -65,7 +65,7 @@ object CssParser extends StrictLogging {
         case '"' =>
           protectChar match {
             case None =>
-              protectChar = doubleQuoteEscapeChar
+              protectChar = DoubleQuoteEscapeChar
               trimLeft(cur + 1)
             case _ =>
               broken = true
@@ -78,14 +78,14 @@ object CssParser extends StrictLogging {
       def trimRight(cur: Int): Int = (string.charAt(cur - 1): @switch) match {
         case ' ' | '\r' | '\n' => trimRight(cur - 1)
         case '\'' => protectChar match {
-          case `singleQuoteEscapeChar` =>
+          case `SingleQuoteEscapeChar` =>
             trimRight(cur - 1)
           case _ =>
             broken = true
             cur
         }
         case '"' => protectChar match {
-          case `doubleQuoteEscapeChar` =>
+          case `DoubleQuoteEscapeChar` =>
             trimRight(cur - 1)
           case _ =>
             broken = true
@@ -149,12 +149,12 @@ object CssParser extends StrictLogging {
             withinComment = false
           }
 
-        case '@' if !withinComment && charsMatch(i, atImportChars) =>
+        case '@' if !withinComment && charsMatch(i, AtImportChars) =>
           withinImport = true
           i = i + "@import".length
 
-        case 'u' if !withinComment && withinImport && charsMatch(i, urlStartChars) =>
-          i = i + urlStartChars.length
+        case 'u' if !withinComment && withinImport && charsMatch(i, UrlStartChars) =>
+          i = i + UrlStartChars.length
           urlStart = i
           withinUrl = true
 

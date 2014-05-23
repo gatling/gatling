@@ -28,8 +28,8 @@ case class StoredCookie(cookie: Cookie, hostOnly: Boolean, persistent: Boolean, 
 
 object CookieJar {
 
-  val unspecifiedMaxAge = -1
-  val unspecifiedExpires = -1L
+  val UnspecifiedMaxAge = -1
+  val UnspecifiedExpires = -1L
 
   def requestDomain(requestURI: URI) = requestURI.getHost.toLowerCase
 
@@ -66,7 +66,7 @@ object CookieJar {
   def hasExpired(c: Cookie): Boolean = {
     val maxAge = c.getMaxAge
     val expires = c.getExpires
-    (maxAge != CookieJar.unspecifiedMaxAge && maxAge <= 0) || (expires != CookieJar.unspecifiedExpires && expires <= nowMillis)
+    (maxAge != CookieJar.UnspecifiedMaxAge && maxAge <= 0) || (expires != CookieJar.UnspecifiedExpires && expires <= nowMillis)
   }
 
   // rfc6265#section-5.1.3
@@ -85,16 +85,18 @@ object CookieJar {
 
 case class CookieJar(store: Map[CookieKey, StoredCookie]) {
 
+  import CookieJar._
+
   /**
    * @param requestURI       the uri used to deduce defaults for  optional domains and paths
    * @param cookies    the cookies to store
    */
   def add(requestURI: URI, cookies: List[Cookie]): CookieJar = {
 
-    val requestDomain = CookieJar.requestDomain(requestURI)
-    val requestPath = CookieJar.requestPath(requestURI)
+    val thisRequestDomain = requestDomain(requestURI)
+    val thisRequestPath = requestPath(requestURI)
 
-    add(requestDomain, requestPath, cookies)
+    add(thisRequestDomain, thisRequestPath, cookies)
   }
 
   def add(requestDomain: String, requestPath: String, cookies: List[Cookie]): CookieJar = {
@@ -102,15 +104,15 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
     val newStore = cookies.foldLeft(store) {
       (updatedStore, cookie) =>
 
-        val (keyDomain, hostOnly) = CookieJar.cookieDomain(Option(cookie.getDomain), requestDomain)
+        val (keyDomain, hostOnly) = cookieDomain(Option(cookie.getDomain), requestDomain)
 
-        val keyPath = CookieJar.cookiePath(Option(cookie.getPath), requestPath)
+        val keyPath = cookiePath(Option(cookie.getPath), requestPath)
 
-        if (CookieJar.hasExpired(cookie)) {
+        if (hasExpired(cookie)) {
           updatedStore - CookieKey(cookie.getName.toLowerCase, keyDomain, keyPath)
 
         } else {
-          val persistent = cookie.getExpires != CookieJar.unspecifiedExpires || cookie.getMaxAge != CookieJar.unspecifiedMaxAge
+          val persistent = cookie.getExpires != UnspecifiedExpires || cookie.getMaxAge != UnspecifiedMaxAge
           updatedStore + (CookieKey(cookie.getName.toLowerCase, keyDomain, keyPath) -> StoredCookie(cookie, hostOnly, persistent, nowMillis))
         }
     }
@@ -122,15 +124,15 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
     if (store.isEmpty) {
       Nil
     } else {
-      val requestDomain = CookieJar.requestDomain(requestURI)
+      val thisRequestDomain = requestDomain(requestURI)
 
-      val requestPath = CookieJar.requestPath(requestURI)
+      val thisRequestPath = requestPath(requestURI)
 
       val secureURI = isSecure(requestURI)
 
         def isCookieMatching(key: CookieKey, storedCookie: StoredCookie) =
-          CookieJar.domainsMatch(key.domain, requestDomain, storedCookie.hostOnly) &&
-            CookieJar.pathsMatch(key.path, requestPath) &&
+          domainsMatch(key.domain, thisRequestDomain, storedCookie.hostOnly) &&
+            pathsMatch(key.path, thisRequestPath) &&
             (!storedCookie.cookie.isSecure || secureURI)
 
       val matchingCookies = store.filter {

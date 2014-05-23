@@ -53,7 +53,7 @@ class HttpRequestActionSpec extends Specification with Mockito {
     "silent requests should remain silent" in {
       val request = mock[HttpRequest]
       val ahcRequest = mock[Request]
-      request.protocol returns HttpProtocol.default
+      request.protocol returns HttpProtocol.DefaultHttpProtocol
       request.silent returns true
       ahcRequest.getURI returns new URI("http://example.com/")
 
@@ -64,7 +64,7 @@ class HttpRequestActionSpec extends Specification with Mockito {
       val request = mock[HttpRequest]
       val ahcRequest = mock[Request]
       request.silent returns true
-      request.protocol returns HttpProtocol.default
+      request.protocol returns HttpProtocol.DefaultHttpProtocol
       ahcRequest.getURI returns new URI("http://example.com/")
 
       HttpRequestAction.isSilent(ahcRequest, request) should beTrue
@@ -75,7 +75,7 @@ class HttpRequestActionSpec extends Specification with Mockito {
       val ahcRequest = mock[Request]
 
       request.silent returns false
-      request.protocol returns HttpProtocol.default
+      request.protocol returns HttpProtocol.DefaultHttpProtocol
       ahcRequest.getURI returns new URI("http://example.com/")
 
       HttpRequestAction.isSilent(ahcRequest, request) should beFalse
@@ -87,7 +87,7 @@ class HttpRequestActionSpec extends Specification with Mockito {
       request.silent returns false
       ahcRequest.getURI returns new URI("http://example.com/test.js")
 
-      val protocol = new HttpProtocolBuilder(HttpProtocol.default).silentURI(".*js")
+      val protocol = new HttpProtocolBuilder(HttpProtocol.DefaultHttpProtocol).silentURI(".*js")
       request.protocol returns protocol
 
       HttpRequestAction.isSilent(ahcRequest, request) should beTrue

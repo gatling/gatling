@@ -48,9 +48,7 @@ class AkkaNettyTimer extends Timer with AkkaDefaults {
 
       def isCancelled: Boolean = cancellableRefValue.isCancelled
 
-      def cancel() {
-        cancellableRefValue.cancel()
-      }
+      def cancel(): Unit = cancellableRefValue.cancel()
     }
 
     val cancellable = system.scheduler.scheduleOnce(unit.toNanos(delay) nanoseconds) {

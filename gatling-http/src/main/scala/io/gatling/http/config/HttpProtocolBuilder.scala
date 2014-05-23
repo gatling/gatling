@@ -35,7 +35,7 @@ import io.gatling.http.util.HttpHelper
  */
 object HttpProtocolBuilder {
 
-  val default = new HttpProtocolBuilder(HttpProtocol.default)
+  val DefaultHttpProtocolBuilder = new HttpProtocolBuilder(HttpProtocol.DefaultHttpProtocol)
 
   implicit def toHttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
 }
@@ -76,15 +76,15 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
   def disableAutoReferer = newRequestPart(protocol.requestPart.copy(autoReferer = false))
   def disableCaching = newRequestPart(protocol.requestPart.copy(cache = false))
   def baseHeaders(headers: Map[String, String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders ++ headers.mapValues(_.el[String])))
-  def acceptHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (ACCEPT -> value)))
-  def acceptCharsetHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (ACCEPT_CHARSET -> value)))
-  def acceptEncodingHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (ACCEPT_ENCODING -> value)))
-  def acceptLanguageHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (ACCEPT_LANGUAGE -> value)))
-  def authorizationHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (AUTHORIZATION -> value)))
-  def connection(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (CONNECTION -> value)))
-  def contentTypeHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (CONTENT_TYPE -> value)))
-  def doNotTrackHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (DO_NOT_TRACK -> value)))
-  def userAgentHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (USER_AGENT -> value)))
+  def acceptHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (Accept -> value)))
+  def acceptCharsetHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (AcceptCharset -> value)))
+  def acceptEncodingHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (AcceptEncoding -> value)))
+  def acceptLanguageHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (AcceptLanguage -> value)))
+  def authorizationHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (Authorization -> value)))
+  def connection(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (Connection -> value)))
+  def contentTypeHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (ContentType -> value)))
+  def doNotTrackHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (DNT -> value)))
+  def userAgentHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (UserAgent -> value)))
   def basicAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
   def digestAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
   def authRealm(realm: Expression[Realm]) = newRequestPart(protocol.requestPart.copy(realm = Some(realm)))

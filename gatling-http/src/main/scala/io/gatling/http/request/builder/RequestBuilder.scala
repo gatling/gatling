@@ -43,8 +43,8 @@ case class CommonAttributes(
 
 object RequestBuilder {
 
-  val jsonHeaderValueExpression = HeaderValues.APPLICATION_JSON.expression
-  val xmlHeaderValueExpression = HeaderValues.APPLICATION_XML.expression
+  val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expression
+  val XmlHeaderValueExpression = HeaderValues.ApplicationXml.expression
 }
 
 abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: CommonAttributes) extends StrictLogging {
@@ -75,12 +75,12 @@ abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: Comm
   /**
    * Adds Accept and Content-Type headers to the request set with "application/json" values
    */
-  def asJSON: B = header(HeaderNames.ACCEPT, RequestBuilder.jsonHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, RequestBuilder.jsonHeaderValueExpression)
+  def asJSON: B = header(HeaderNames.Accept, RequestBuilder.JsonHeaderValueExpression).header(HeaderNames.ContentType, RequestBuilder.JsonHeaderValueExpression)
 
   /**
    * Adds Accept and Content-Type headers to the request set with "application/xml" values
    */
-  def asXML: B = header(HeaderNames.ACCEPT, RequestBuilder.xmlHeaderValueExpression).header(HeaderNames.CONTENT_TYPE, RequestBuilder.xmlHeaderValueExpression)
+  def asXML: B = header(HeaderNames.Accept, RequestBuilder.XmlHeaderValueExpression).header(HeaderNames.ContentType, RequestBuilder.XmlHeaderValueExpression)
 
   /**
    * Adds BASIC authentication to the request

@@ -61,12 +61,12 @@ trait WsCheckDSL {
 
   class Step4(await: Boolean, timeout: FiniteDuration, expectation: Expectation) {
 
-    def regex(expression: Expression[String]) = WebSocketRegexCheckBuilder.regex(expression, WsCheckBuilders.checkFactory(await, timeout, expectation))
+    def regex(expression: Expression[String]) = WsRegexCheckBuilder.regex(expression, WsCheckBuilders.checkFactory(await, timeout, expectation))
 
-    def jsonPath(path: Expression[String]) = WebSocketJsonPathCheckBuilder.jsonPath(path, WsCheckBuilders.checkFactory(await, timeout, expectation))
+    def jsonPath(path: Expression[String]) = WsJsonPathCheckBuilder.jsonPath(path, WsCheckBuilders.checkFactory(await, timeout, expectation))
 
-    def jsonpJsonPath(path: Expression[String]) = WebSocketJsonpJsonPathCheckBuilder.jsonpJsonPath(path, WsCheckBuilders.checkFactory(await, timeout, expectation))
+    def jsonpJsonPath(path: Expression[String]) = WsJsonpJsonPathCheckBuilder.jsonpJsonPath(path, WsCheckBuilders.checkFactory(await, timeout, expectation))
 
-    val message = WebSocketPlainCheckBuilder.message(WsCheckBuilders.checkFactory(await, timeout, expectation))
+    val message = WsPlainCheckBuilder.message(WsCheckBuilders.checkFactory(await, timeout, expectation))
   }
 }

@@ -33,14 +33,14 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
     if (HttpHelper.isAbsoluteHttpUrl(url))
       url.success
     else
-      protocol.baseURL() match {
+      protocol.baseURL match {
         case Some(baseURL) => (baseURL + url).success
         case _             => s"No protocol.baseURL defined but provided url is relative : $url".failure
       }
 
   def configureCaches(session: Session, uri: URI)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
-    CacheHandling.getLastModified(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IF_MODIFIED_SINCE, _))
-    CacheHandling.getEtag(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IF_NONE_MATCH, _))
+    CacheHandling.getLastModified(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IfModifiedSince, _))
+    CacheHandling.getEtag(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IfNoneMatch, _))
     requestBuilder.success
   }
 
@@ -55,8 +55,8 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
         httpAttributes.bodyParts match {
           case Nil => requestBuilder.success
           case bodyParts =>
-            if (!commonAttributes.headers.contains(HeaderNames.CONTENT_TYPE))
-              requestBuilder.addHeader(HeaderNames.CONTENT_TYPE, HeaderValues.MULTIPART_FORM_DATA)
+            if (!commonAttributes.headers.contains(HeaderNames.ContentType))
+              requestBuilder.addHeader(HeaderNames.ContentType, HeaderValues.MultipartFormData)
 
             bodyParts.foldLeft(requestBuilder.success) { (requestBuilder, part) =>
               for {

@@ -35,9 +35,8 @@ class PermanentRedirectSpec extends Specification with Mockito {
   class Context extends Before {
     var session = Session("mockSession", "mockUserName")
 
-    def addRedirect(from: String, to: String) {
+    def addRedirect(from: String, to: String): Unit =
       session = PermanentRedirect.addRedirect(session, new URI(from), new URI(to))
-    }
 
     def before() {}
   }

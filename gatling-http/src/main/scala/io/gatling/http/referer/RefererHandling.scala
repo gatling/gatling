@@ -24,13 +24,13 @@ import io.gatling.http.response.Response
 
 object RefererHandling {
 
-  val refererAttributeName = SessionPrivateAttributes.privateAttributePrefix + "http.referer"
+  val RefererAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.referer"
 
-  def getStoredReferer(session: Session): Option[String] = session(refererAttributeName).asOption[String]
+  def getStoredReferer(session: Session): Option[String] = session(RefererAttributeName).asOption[String]
 
   def storeReferer(request: Request, response: Response, session: Session, protocol: HttpProtocol): Session =
     if (protocol.requestPart.autoReferer && !isAjax(request.getHeaders) && isHtml(response.headers))
-      session.set(refererAttributeName, request.getUrl)
+      session.set(RefererAttributeName, request.getUrl)
     else
       session
 }

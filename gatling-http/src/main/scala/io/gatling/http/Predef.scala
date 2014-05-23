@@ -33,23 +33,23 @@ object Predef extends HttpCheckSupport with WsCheckSupport with SitemapFeederSup
   type Request = com.ning.http.client.Request
   type Response = io.gatling.http.response.Response
 
-  def http = HttpProtocolBuilder.default
+  def http = HttpProtocolBuilder.DefaultHttpProtocolBuilder
 
   val Proxy = io.gatling.http.config.HttpProxyBuilder.apply _
 
   def http(requestName: Expression[String]) = new Http(requestName)
   def addCookie(cookie: CookieDSL) = new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.expires.getOrElse(-1L), cookie.maxAge.getOrElse(-1))
-  def flushSessionCookies = CookieHandling.flushSessionCookies
-  def flushCookieJar = CookieHandling.flushCookieJar
-  def flushHttpCache = CacheHandling.flushCache
+  def flushSessionCookies = CookieHandling.FlushSessionCookies
+  def flushCookieJar = CookieHandling.FlushCookieJar
+  def flushHttpCache = CacheHandling.FlushCache
 
   def ws(requestName: Expression[String]) = new Ws(requestName)
 
   val HttpHeaderNames = HeaderNames
   val HttpHeaderValues = HeaderValues
 
-  val gzipBody = BodyProcessors.gzip
-  val streamBody = BodyProcessors.stream
+  val gzipBody = BodyProcessors.Gzip
+  val streamBody = BodyProcessors.Stream
 
   def dumpSessionOnFailure(status: Status, session: Session, request: Request, response: Response): List[String] = status match {
     case KO => List(session.toString)

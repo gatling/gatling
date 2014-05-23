@@ -33,7 +33,7 @@ class SSLHelperSpec extends Specification {
   val classLoader = this.getClass.getClassLoader
 
   def fileFromResource(classPathResource: String): String = {
-    new File(classLoader.getResource(classPathResource).getFile()).getAbsolutePath
+    new File(classLoader.getResource(classPathResource).getFile).getAbsolutePath
   }
 
   "SSLHelperSpec" should {

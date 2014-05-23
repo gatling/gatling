@@ -27,7 +27,7 @@ import com.ning.http.client.{ Request, RequestBuilder }
 object PermanentRedirect {
   def addRedirect(session: Session, from: URI, to: URI): Session = {
     val redirectStorage = CacheHandling.getRedirectMemoizationStore(session)
-    session.set(CacheHandling.httpRedirectMemoizationStoreAttributeName, redirectStorage + (from -> to))
+    session.set(CacheHandling.HttpRedirectMemoizationStoreAttributeName, redirectStorage + (from -> to))
   }
 
   private def permanentRedirect(session: Session, uri: URI): Option[(URI, Int)] = {

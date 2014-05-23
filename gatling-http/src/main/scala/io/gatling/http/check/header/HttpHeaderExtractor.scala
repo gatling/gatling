@@ -26,7 +26,7 @@ import io.gatling.http.response.Response
 object HttpHeaderExtractor {
 
   def decode(headerName: String, headerValue: String) =
-    if (headerName == HeaderNames.LOCATION)
+    if (headerName == HeaderNames.Location)
       URLDecoder.decode(headerValue, configuration.core.encoding)
     else
       headerValue

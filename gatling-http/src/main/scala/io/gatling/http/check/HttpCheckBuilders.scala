@@ -25,17 +25,17 @@ object HttpCheckBuilders {
   private def httpCheckFactory(order: HttpCheckOrder, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]): CheckFactory[HttpCheck, Response] =
     (wrapped: Check[Response]) => HttpCheck(wrapped, order, responseBodyUsageStrategy)
 
-  val statusCheckFactory = httpCheckFactory(Status, None)
-  val urlCheckFactory = httpCheckFactory(Url, None)
-  val checksumCheckFactory = httpCheckFactory(Checksum, None)
-  val headerCheckFactory = httpCheckFactory(Header, None)
+  val StatusCheckFactory = httpCheckFactory(Status, None)
+  val UrlCheckFactory = httpCheckFactory(Url, None)
+  val ChecksumCheckFactory = httpCheckFactory(Checksum, None)
+  val HeaderCheckFactory = httpCheckFactory(Header, None)
   def bodyCheckFactory(responseBodyUsageStrategy: ResponseBodyUsageStrategy) = httpCheckFactory(Body, Some(responseBodyUsageStrategy))
-  val stringBodyCheckFactory = bodyCheckFactory(StringResponseBodyUsageStrategy)
-  val streamBodyCheckFactory = bodyCheckFactory(InputStreamResponseBodyUsageStrategy)
-  val bytesBodyCheckFactory = bodyCheckFactory(ByteArrayResponseBodyUsageStrategy)
-  val timeCheckFactory = httpCheckFactory(Body, None)
+  val StringBodyCheckFactory = bodyCheckFactory(StringResponseBodyUsageStrategy)
+  val StreamBodyCheckFactory = bodyCheckFactory(InputStreamResponseBodyUsageStrategy)
+  val BytesBodyCheckFactory = bodyCheckFactory(ByteArrayResponseBodyUsageStrategy)
+  val TimeCheckFactory = httpCheckFactory(Body, None)
 
-  val passThroughResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
-  val responseBodyStringPreparer: Preparer[Response, String] = (response: Response) => response.body.string.success
-  val responseBodyBytesPreparer: Preparer[Response, Array[Byte]] = (response: Response) => response.body.bytes.success
+  val PassThroughResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
+  val ResponseBodyStringPreparer: Preparer[Response, String] = (response: Response) => response.body.string.success
+  val ResponseBodyBytesPreparer: Preparer[Response, Array[Byte]] = (response: Response) => response.body.bytes.success
 }

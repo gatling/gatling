@@ -20,15 +20,15 @@ import io.gatling.http.HeaderNames
 object ProtocolDefinition {
 
   val baseHeaders = Map(
-    HeaderNames.ACCEPT -> "acceptHeader",
-    HeaderNames.ACCEPT_CHARSET -> "acceptCharsetHeader",
-    HeaderNames.ACCEPT_ENCODING -> "acceptEncodingHeader",
-    HeaderNames.ACCEPT_LANGUAGE -> "acceptLanguageHeader",
-    HeaderNames.AUTHORIZATION -> "authorizationHeader",
-    HeaderNames.CONNECTION -> "connection",
-    HeaderNames.CONTENT_TYPE -> "contentTypeHeader",
-    HeaderNames.DO_NOT_TRACK -> "doNotTrackHeader",
-    HeaderNames.USER_AGENT -> "userAgentHeader")
+    HeaderNames.Accept -> "acceptHeader",
+    HeaderNames.AcceptCharset -> "acceptCharsetHeader",
+    HeaderNames.AcceptEncoding -> "acceptEncodingHeader",
+    HeaderNames.AcceptLanguage -> "acceptLanguageHeader",
+    HeaderNames.Authorization -> "authorizationHeader",
+    HeaderNames.Connection -> "connection",
+    HeaderNames.ContentType -> "contentTypeHeader",
+    HeaderNames.DNT -> "doNotTrackHeader",
+    HeaderNames.UserAgent -> "userAgentHeader")
 }
 
 case class ProtocolDefinition(baseUrl: String, headers: Map[String, String])

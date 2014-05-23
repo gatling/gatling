@@ -21,28 +21,28 @@ import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.http.check.body.HttpBodyJsonPathCheckBuilder.handleParseException
 import io.gatling.core.session.Expression
 
-trait WebSocketJsonPathOfType {
-  self: WebSocketJsonPathCheckBuilder[String] =>
+trait WsJsonPathOfType {
+  self: WsJsonPathCheckBuilder[String] =>
 
-  def ofType[X](implicit jsonFilter: JsonFilter[X]) = new WebSocketJsonPathCheckBuilder[X](path, checkFactory)
+  def ofType[X](implicit jsonFilter: JsonFilter[X]) = new WsJsonPathCheckBuilder[X](path, checkFactory)
 }
 
-object WebSocketJsonPathCheckBuilder {
+object WsJsonPathCheckBuilder {
 
-  val preparer: Preparer[String, Any] = stringImplementation match {
+  val WsJsonPathPreparer: Preparer[String, Any] = stringImplementation match {
     case DirectCharsBasedStringImplementation => handleParseException(BoonParser.parse)
     case _                                    => handleParseException(JacksonParser.parse)
   }
 
   def jsonPath(path: Expression[String], checkFactory: CheckFactory[WsCheck, String]) =
-    new WebSocketJsonPathCheckBuilder[String](path, checkFactory) with WebSocketJsonPathOfType
+    new WsJsonPathCheckBuilder[String](path, checkFactory) with WsJsonPathOfType
 }
 
-class WebSocketJsonPathCheckBuilder[X](private[ws] val path: Expression[String],
-                                       private[ws] val checkFactory: CheckFactory[WsCheck, String])(implicit jsonFilter: JsonFilter[X])
+class WsJsonPathCheckBuilder[X](private[ws] val path: Expression[String],
+                                private[ws] val checkFactory: CheckFactory[WsCheck, String])(implicit jsonFilter: JsonFilter[X])
     extends DefaultMultipleFindCheckBuilder[WsCheck, String, Any, X](
       checkFactory,
-      WebSocketJsonPathCheckBuilder.preparer) {
+      WsJsonPathCheckBuilder.WsJsonPathPreparer) {
 
   def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
 

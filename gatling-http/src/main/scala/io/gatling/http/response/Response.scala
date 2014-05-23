@@ -94,7 +94,7 @@ case class HttpResponse(
       val buffer = new ArrayBuffer[Cookie]
 
       headers.entrySet.foreach { entry =>
-        if (entry.getKey.equalsIgnoreCase(HeaderNames.SET_COOKIE))
+        if (entry.getKey.equalsIgnoreCase(HeaderNames.SetCookie))
           entry.getValue.foreach { string =>
             buffer += CookieDecoder.decode(string)
           }

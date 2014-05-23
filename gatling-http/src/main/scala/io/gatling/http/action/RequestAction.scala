@@ -27,7 +27,7 @@ abstract class RequestAction extends Interruptable with Failable with DataWriter
   def requestName: Expression[String]
   def sendRequest(requestName: String, session: Session): Validation[Unit]
 
-  def executeOrFail(session: Session) =
+  def executeOrFail(session: Session): Validation[Unit] =
     requestName(session).flatMap { resolvedRequestName =>
 
       val outcome = sendRequest(resolvedRequestName, session)

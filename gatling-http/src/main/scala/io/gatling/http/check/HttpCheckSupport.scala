@@ -35,20 +35,20 @@ trait HttpCheckSupport {
   val jsonPath = HttpBodyJsonPathCheckBuilder.jsonPath _
   val jsonpJsonPath = HttpBodyJsonpJsonPathCheckBuilder.jsonpJsonPath _
 
-  val bodyString = HttpBodyStringCheckBuilder.bodyString
-  val bodyBytes = HttpBodyBytesCheckBuilder.bodyBytes
+  val bodyString = HttpBodyStringCheckBuilder.BodyString
+  val bodyBytes = HttpBodyBytesCheckBuilder.BodyBytes
 
   val header = HttpHeaderCheckBuilder.header _
 
   val headerRegex = HttpHeaderRegexCheckBuilder.headerRegex _
 
-  val status = HttpStatusCheckBuilder.status
+  val status = HttpStatusCheckBuilder.Status
 
-  val currentLocation = CurrentLocationCheckBuilder.currentLocation
+  val currentLocation = CurrentLocationCheckBuilder.CurrentLocation
 
-  val md5 = HttpChecksumCheckBuilder.md5
-  val sha1 = HttpChecksumCheckBuilder.sha1
+  val md5 = HttpChecksumCheckBuilder.Md5
+  val sha1 = HttpChecksumCheckBuilder.Sha1
 
-  val responseTimeInMillis = HttpResponseTimeCheckBuilder.responseTimeInMillis
-  val latencyInMillis = HttpResponseTimeCheckBuilder.latencyInMillis
+  val responseTimeInMillis = HttpResponseTimeCheckBuilder.ResponseTimeInMillis
+  val latencyInMillis = HttpResponseTimeCheckBuilder.LatencyInMillis
 }
