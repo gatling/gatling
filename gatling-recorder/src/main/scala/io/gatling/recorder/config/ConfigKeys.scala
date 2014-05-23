@@ -40,7 +40,6 @@ object ConfigKeys {
   }
   object proxy {
     val Port = "recorder.proxy.port"
-    val SslPort = "recorder.proxy.sslPort"
 
     object outgoing {
       val Host = "recorder.proxy.outgoing.host"

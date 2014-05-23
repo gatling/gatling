@@ -129,7 +129,6 @@ object RecorderConfiguration extends IO with StrictLogging {
         fetchHtmlResources = config.getBoolean(http.FetchHtmlResources)),
       proxy = ProxyConfiguration(
         port = config.getInt(proxy.Port),
-        sslPort = config.getInt(proxy.SslPort),
         outgoing = OutgoingProxyConfiguration(
           host = config.getString(proxy.outgoing.Host).trimToOption,
           username = config.getString(proxy.outgoing.Username).trimToOption,
@@ -175,7 +174,6 @@ case class OutgoingProxyConfiguration(
 
 case class ProxyConfiguration(
   port: Int,
-  sslPort: Int,
   outgoing: OutgoingProxyConfiguration)
 
 case class RecorderConfiguration(

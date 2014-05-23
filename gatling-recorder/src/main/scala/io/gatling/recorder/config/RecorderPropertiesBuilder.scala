@@ -65,9 +65,6 @@ class RecorderPropertiesBuilder {
   def localPort(port: Int): Unit =
     props += proxy.Port -> port
 
-  def localSslPort(port: Int): Unit =
-    props += proxy.SslPort -> port
-
   def proxyHost(host: String): Unit =
     props += proxy.outgoing.Host -> host
 
