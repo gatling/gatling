@@ -41,7 +41,7 @@ object ProtocolModel {
 
     val proxyCredentials = model.proxyCredentials.get match {
       case a: String => Some(a)
-      case _ => None
+      case _         => None
     }
 
     val scenarioElements1 = model.getRequests.toSeq
@@ -49,81 +49,81 @@ object ProtocolModel {
     val filteredHeaders = Set(HeaderNames.COOKIE, HeaderNames.CONTENT_LENGTH, HeaderNames.HOST) ++
       (if (config.http.automaticReferer) Set(HeaderNames.REFERER) else Set.empty)
 
-    def getBaseUrl(scenarioElements: Seq[RequestModel]): String = {
-      val urlsOccurrences = scenarioElements.collect {
-        case reqElm: RequestModel => reqElm.baseUrl
-      }.groupBy(identity).mapValues(_.size).toSeq
+      def getBaseUrl(scenarioElements: Seq[RequestModel]): String = {
+        val urlsOccurrences = scenarioElements.collect {
+          case reqElm: RequestModel => reqElm.baseUrl
+        }.groupBy(identity).mapValues(_.size).toSeq
 
-      urlsOccurrences.maxBy(_._2)._1
-    }
-
-    def getBaseHeaders(scenarioElements: Seq[RequestModel]): Map[String, String] = {
-      def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] =
-        getMostFrequentHeaderValue(scenarioElements, headerName)
-          .map(headerValue => appendTo + (headerName -> headerValue))
-          .getOrElse(appendTo)
-
-      @tailrec
-      def resolveBaseHeaders(headers: Map[String, String], headerNames: List[String]): Map[String, String] = headerNames match {
-        case Nil => headers
-        case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
+        urlsOccurrences.maxBy(_._2)._1
       }
 
-      resolveBaseHeaders(Map.empty, baseHeadersMethodMap.keySet.toList)
-    }
+      def getBaseHeaders(scenarioElements: Seq[RequestModel]): Map[String, String] = {
+          def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] =
+            getMostFrequentHeaderValue(scenarioElements, headerName)
+              .map(headerValue => appendTo + (headerName -> headerValue))
+              .getOrElse(appendTo)
 
-    def getMostFrequentHeaderValue(scenarioElements: Seq[RequestModel], headerName: String): Option[String] = {
-      val headers = scenarioElements.flatMap {
-        case reqElm: RequestModel => reqElm.headers.collect { case (name, value) if name == headerName => value }
-        case _ => Nil
+          @tailrec
+          def resolveBaseHeaders(headers: Map[String, String], headerNames: List[String]): Map[String, String] = headerNames match {
+            case Nil                  => headers
+            case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
+          }
+
+        resolveBaseHeaders(Map.empty, baseHeadersMethodMap.keySet.toList)
       }
 
-      if (headers.isEmpty) None
-      else {
-        val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
-        val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
-        Some(mostFrequentValue)
+      def getMostFrequentHeaderValue(scenarioElements: Seq[RequestModel], headerName: String): Option[String] = {
+        val headers = scenarioElements.flatMap {
+          case reqElm: RequestModel => reqElm.headers.collect { case (name, value) if name == headerName => value }
+          case _                    => Nil
+        }
+
+        if (headers.isEmpty) None
+        else {
+          val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
+          val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
+          Some(mostFrequentValue)
+        }
       }
-    }
 
     val baseHeaders = getBaseHeaders(model.getRequests.toSeq)
 
-    def headers: Map[String, Seq[(String, String)]] = {
+      def headers: Map[String, Seq[(String, String)]] = {
 
-      // Map[String, List[(String, String)]] ==> map where key==request_idenfier, value is a list of common headers
-      @tailrec
-      def generateHeaders(elements: Seq[RequestModel], headers: Map[String, List[(String, String)]]): Map[String, List[(String, String)]] = elements match {
-        case Seq() => headers
-        case element +: others =>
-          val acceptedHeaders = element.headers.toList
-            .filterNot {
-              case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).exists(_ == headerValue)
-            }
-            .sortBy(_._1)
+          // Map[String, List[(String, String)]] ==> map where key==request_idenfier, value is a list of common headers
+          @tailrec
+          def generateHeaders(elements: Seq[RequestModel], headers: Map[String, List[(String, String)]]): Map[String, List[(String, String)]] = elements match {
+            case Seq() => headers
+            case element +: others =>
+              val acceptedHeaders = element.headers.toList
+                .filterNot {
+                  case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).exists(_ == headerValue)
+                }
+                .sortBy(_._1)
 
-          val newHeaders = if (acceptedHeaders.isEmpty) {
-            element.header_identifier = None
-            headers
-
-          } else {
-            val headersSeq = headers.toSeq
-            headersSeq.indexWhere {
-              case (id, existingHeaders) => existingHeaders == acceptedHeaders
-            } match {
-              case -1 =>
-                element.header_identifier = Some(element.identifier) //.id
-                headers + (element.identifier -> acceptedHeaders)
-              case index =>
-                element.header_identifier = Some(headersSeq(index)._1)
+              val newHeaders = if (acceptedHeaders.isEmpty) {
+                element.header_identifier = None
                 headers
-            }
+
+              } else {
+                val headersSeq = headers.toSeq
+                headersSeq.indexWhere {
+                  case (id, existingHeaders) => existingHeaders == acceptedHeaders
+                } match {
+                  case -1 =>
+                    element.header_identifier = Some(element.identifier) //.id
+                    headers + (element.identifier -> acceptedHeaders)
+                  case index =>
+                    element.header_identifier = Some(headersSeq(index)._1)
+                    headers
+                }
+              }
+
+              generateHeaders(others, newHeaders)
           }
 
-          generateHeaders(others, newHeaders)
+        SortedMap(generateHeaders(model.getRequests.toSeq, Map.empty).toSeq: _*)
       }
-
-      SortedMap(generateHeaders(model.getRequests.toSeq, Map.empty).toSeq: _*)
-    }
 
     val headers1 = headers
 

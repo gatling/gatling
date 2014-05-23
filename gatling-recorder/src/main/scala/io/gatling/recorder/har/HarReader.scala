@@ -67,8 +67,8 @@ object HarReader extends IO {
 
   private def createRequestWithArrivalTime(entry: Entry)(implicit model: SimulationModel): Long = {
 
-    def buildContent(postParams: Seq[PostParam]): RequestBodyModel =
-      RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
+      def buildContent(postParams: Seq[PostParam]): RequestBodyModel =
+        RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
 
     val uri = entry.request.url
     val method = entry.request.method
@@ -85,7 +85,7 @@ object HarReader extends IO {
 
     val embeddedResources = entry.response.content match {
       case Content("text/html", Some(text)) => HtmlParser.getEmbeddedResources(new URI(uri), text.toCharArray)
-      case _ => Nil
+      case _                                => Nil
     }
 
     val requestModel = RequestModel(uri, method, headers, body, entry.response.status, embeddedResources, /*responseContentType : Option[String]*/ None)

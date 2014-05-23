@@ -72,7 +72,7 @@ class RecorderController extends StrictLogging {
             val exporter = new HarExporter(frontEnd.harFilePath)
             exporter.exportHar match {
               case Failure(errMsg) => frontEnd.handleHarExportFailure(errMsg)
-              case _ => frontEnd.handleHarExportSuccess()
+              case _               => frontEnd.handleHarExportSuccess()
             }
             // har finished here.
           }
@@ -98,7 +98,7 @@ class RecorderController extends StrictLogging {
         model.postProcess
         exporter.export(model) match {
           case Failure(errMsg) => // TODO // frontEnd.handleExportFailure(errMsg)
-          case _ => // TODO // frontEnd.handleExportSuccess()
+          case _               => // TODO // frontEnd.handleExportSuccess()
         }
       }
 

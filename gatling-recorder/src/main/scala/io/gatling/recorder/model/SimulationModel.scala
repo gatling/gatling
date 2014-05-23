@@ -123,8 +123,9 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
     // ignore redirect if following
     val isARedirect = (a._2.statusCode == 302 || a._2.statusCode == 301)
-    if ( (config.http.followRedirect && !isARedirect) ||
-    	 !config.http.followRedirect) {
+    val follow = config.http.followRedirect
+    if ((config.http.followRedirect && !isARedirect) ||
+      !config.http.followRedirect) {
       currentNavigation += a
       uniquifyRequestIdentifier(a._2)
       requests += a._2
@@ -148,7 +149,7 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
     credentials match {
       case Some(s) => { proxyCredentials1.set(s._1 + "|" + s._2) }
-      case None => None
+      case None    => None
     }
   }
 

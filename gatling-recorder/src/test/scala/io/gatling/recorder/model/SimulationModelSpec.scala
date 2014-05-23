@@ -23,18 +23,23 @@ import io.gatling.recorder.export.template._
 @RunWith(classOf[JUnitRunner])
 class SimulationModelSpec extends Specification {
 
+  sequential
+
   "Simulation Model" should {
 
     "not allow out of order requests" in {
+      ModelFixtures.config = ModelFixtures.config_basic
       ModelFixtures.outOfOrderRequestModel must throwA[IllegalArgumentException]
     }
 
     "not allow out of order navigations" in {
+      ModelFixtures.config = ModelFixtures.config_basic
       ModelFixtures.outOfOrderNavModel must throwA[IllegalArgumentException]
     }
 
     "remove HTTP redirection with redirectingModel" in {
 
+      ModelFixtures.config = ModelFixtures.config_basic
       val model = ModelFixtures.redirectingModel
       val a_redirecting_request = RequestModel("http://gatling.io/main2-302.css", "GET", Map.empty, None, 302, List.empty, Option(""))
       !model.getRequests.contains(a_redirecting_request)

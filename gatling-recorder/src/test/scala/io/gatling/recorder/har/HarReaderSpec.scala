@@ -32,11 +32,11 @@ class HarReaderSpec extends Specification {
 
   "HarReader" should {
 
-    def kernel_org_har = resourceAsStream("www.kernel.org.har")
-    def null_status_har = resourceAsStream("null_status.har")
-    def play_chat_har = resourceAsStream("play-chat.har")
-    def empty_har = resourceAsStream("empty.har")
-    def charles_https_har = resourceAsStream("charles_https.har")
+      def kernel_org_har = resourceAsStream("har/www.kernel.org.har")
+      def null_status_har = resourceAsStream("har/null_status.har")
+      def play_chat_har = resourceAsStream("har/play-chat.har")
+      def empty_har = resourceAsStream("har/empty.har")
+      def charles_https_har = resourceAsStream("har/charles_https.har")
 
     "be able to read in various har files" in {
 

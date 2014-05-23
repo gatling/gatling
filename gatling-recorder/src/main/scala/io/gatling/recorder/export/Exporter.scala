@@ -38,11 +38,11 @@ object Exporter {
   }
 
   def getFilePath(fileName: String)(implicit config: RecorderConfiguration) = {
-    def getSimulationFileName: String = fileName + ".scala"
-    def getOutputFolder = {
-      val path = config.core.outputFolder + File.separator + config.core.pkg.replace(".", File.separator)
-      getFolder(path)
-    }
+      def getSimulationFileName: String = fileName + ".scala"
+      def getOutputFolder = {
+        val path = config.core.outputFolder + File.separator + config.core.pkg.replace(".", File.separator)
+        getFolder(path)
+      }
 
     getOutputFolder / getSimulationFileName
   }
@@ -107,22 +107,22 @@ class Exporter(implicit config: RecorderConfiguration) extends StrictLogging wit
    */
   def renderAndSave(render: SimulationModel => Seq[(String, Any)]) {
 
-    def save(fName: String, output: Any): Unit = {
+      def save(fName: String, output: Any): Unit = {
 
-      val filePath = Exporter.getFilePath(fName)
+        val filePath = Exporter.getFilePath(fName)
 
-      withCloseable(new FileOutputStream(File(filePath).jfile)) {
-        output match {
-          case string: String => {
-            _.write(string.getBytes(config.core.encoding))
-          }
-          case bytes: Byte => {
-            _.write(bytes)
+        withCloseable(new FileOutputStream(File(filePath).jfile)) {
+          output match {
+            case string: String => {
+              _.write(string.getBytes(config.core.encoding))
+            }
+            case bytes: Byte => {
+              _.write(bytes)
+            }
           }
         }
-      }
 
-    }
+      }
 
     render(model).foreach(e => {
       val (fName, output) = e

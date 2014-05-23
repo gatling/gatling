@@ -28,23 +28,23 @@ object RequestBodyTemplate {
 
   def render(model: SimulationModel): Seq[(String, Array[Byte])] = {
 
-    // get bodies to render
-    def output = model.getRequests.toList.sortWith(_.identifier < _.identifier).map {
+      // get bodies to render
+      def output = model.getRequests.toList.sortWith(_.identifier < _.identifier).map {
 
-      request =>
-        {
-          val req: RequestModel = request
-          val name = "_" + req.identifier
+        request =>
+          {
+            val req: RequestModel = request
+            val name = "_" + req.identifier
 
-          val body = req.body.map {
-            case RequestBodyBytes(bytes) => { bytes }
-            case RequestBodyParams(_) => {}
+            val body = req.body.map {
+              case RequestBodyBytes(bytes) => { bytes }
+              case RequestBodyParams(_)    => {}
+            }
+
+            val fileName = s"${model.name}_REQ_BODY_${request.identifier}.txt"
+            (fileName, body)
           }
-
-          val fileName = s"${model.name}_REQ_BODY_${request.identifier}.txt"
-          (fileName, body)
-        }
-    }.collect { case (a: String, Some(x: Array[Byte])) => (a, x) }
+      }.collect { case (a: String, Some(x: Array[Byte])) => (a, x) }
 
     output
   }

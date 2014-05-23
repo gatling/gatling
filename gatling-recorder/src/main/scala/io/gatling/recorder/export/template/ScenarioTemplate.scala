@@ -23,17 +23,17 @@ object ScenarioTemplate {
 
   def render(model: SimulationModel): Seq[(String, String)] = {
 
-    def renderScenarios = {
+      def renderScenarios = {
 
-      val navigations = model.getNavigations.map {
+        val navigations = model.getNavigations.map {
 
-        case navigation => fast"""\t\tNavigations.${navigation._2.name}"""
+          case navigation => fast"""\t\tNavigations.${navigation._2.name}"""
 
-      }.mkFastring(",\n")
+        }.mkFastring(",\n")
 
-      fast"""${navigations}"""
+        fast"""${navigations}"""
 
-    }.mkFastring("")
+      }.mkFastring("")
 
     val output =
       fast"""package ${model.packageName}

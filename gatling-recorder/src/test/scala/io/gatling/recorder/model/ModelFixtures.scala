@@ -19,7 +19,7 @@ import scala.concurrent.duration.Duration
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 import io.gatling.recorder.config.ConfigKeys
 import io.gatling.recorder.enumeration.FilterStrategy
-import io.gatling.core.filter.{BlackList, WhiteList}
+import io.gatling.core.filter.{ BlackList, WhiteList }
 
 object ModelFixtures {
 

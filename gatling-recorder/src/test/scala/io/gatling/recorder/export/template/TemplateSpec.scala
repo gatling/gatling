@@ -23,10 +23,7 @@ import io.gatling.recorder.model.ModelFixtures
 @RunWith(classOf[JUnitRunner])
 class TemplateSpec extends Specification {
 
-  def resourceAsString(p: String) = {
-    val is = getClass.getClassLoader.getResourceAsStream(p)
-    scala.io.Source.fromInputStream(is).getLines().mkString("\n")
-  }
+  sequential
 
   "Export Templates" should {
 
@@ -34,42 +31,42 @@ class TemplateSpec extends Specification {
 
       val rendered = SimulationTemplate.render(ModelFixtures.basicModel)
 
-      rendered(0)._2.equals(resourceAsString("simulation.txt"))
+      rendered(0)._2.equals(resourceAsString("template/simulation.txt"))
     }
 
     "render scenario correctly with basic model" in {
 
       val rendered = ScenarioTemplate.render(ModelFixtures.basicModel)
 
-      rendered(0)._2.equals(resourceAsString("scenarios.txt"))
+      rendered(0)._2.equals(resourceAsString("template/scenarios.txt"))
     }
 
     "render navigations correctly with basic model" in {
 
       val rendered = NavigationTemplate.render(ModelFixtures.basicModel)
 
-      rendered(0)._2.equals(resourceAsString("navigations.txt"))
+      rendered(0)._2.equals(resourceAsString("template/navigations.txt"))
     }
 
     "render requests correctly with basic model" in {
 
       val rendered = RequestTemplate.render(ModelFixtures.basicModel)
 
-      rendered(0)._2.equals(resourceAsString("requests.txt"))
+      rendered(0)._2.equals(resourceAsString("template/requests.txt"))
     }
 
     "render protocol correctly with basic model" in {
 
       val rendered = ProtocolTemplate.render(ModelFixtures.basicModel)
 
-      rendered(0)._2.equals(resourceAsString("protocol.txt"))
+      rendered(0)._2.equals(resourceAsString("template/protocol.txt"))
     }
 
     "render request body correctly with basic model" in {
 
       val rendered = RequestBodyTemplate.render(ModelFixtures.basicModel)
 
-      new String(rendered(0)._2).equals(resourceAsString("request_body_main3.txt"))
+      new String(rendered(0)._2).equals(resourceAsString("template/request_body_main3.txt"))
     }
 
     // TODO - further tests needed
@@ -79,7 +76,7 @@ class TemplateSpec extends Specification {
     //      
     //      val rendered = SimulationTemplate.render(ModelFixtures.basicModel)
     //
-    //      rendered(0)._2.equals(resourceAsString("simulation_no_outgoing_proxy.txt"))
+    //      rendered(0)._2.equals(resourceAsString("template/simulation_no_outgoing_proxy.txt"))
     //    }
     //    
     //    "render navigations correctly with basic model and filters" in {
@@ -88,7 +85,7 @@ class TemplateSpec extends Specification {
     //      
     //      val rendered = NavigationTemplate.render(ModelFixtures.basicModel)
     //
-    //      rendered(0)._2.equals(resourceAsString("navigations_filters.txt"))
+    //      rendered(0)._2.equals(resourceAsString("template/navigations_filters.txt"))
     //    }
     //
     //    "render requests correctly with basic model and filters" in {
@@ -97,7 +94,7 @@ class TemplateSpec extends Specification {
     //      
     //      val rendered = RequestTemplate.render(ModelFixtures.basicModel)
     //
-    //      rendered(0)._2.equals(resourceAsString("requests_filters.txt"))
+    //      rendered(0)._2.equals(resourceAsString("template/requests_filters.txt"))
     //    }
     //
     //    "render protocol correctly with basic model and filters" in {
@@ -106,7 +103,12 @@ class TemplateSpec extends Specification {
     //      
     //      val rendered = ProtocolTemplate.render(ModelFixtures.basicModel)
     //
-    //      rendered(0)._2.equals(resourceAsString("protocol_filters.txt"))
+    //      rendered(0)._2.equals(resourceAsString("template/protocol_filters.txt"))
     //    }
+  }
+
+  def resourceAsString(p: String) = {
+    val is = getClass.getClassLoader.getResourceAsStream(p)
+    scala.io.Source.fromInputStream(is).getLines().mkString("\n")
   }
 }

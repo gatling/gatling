@@ -80,8 +80,8 @@ object RequestModel {
 }
 
 case class RequestModel(uri: String, method: String, headers: Map[String, String], body: Option[RequestBodyModel],
-  statusCode: Int, embeddedResources: List[EmbeddedResource], responseContentType: Option[String])
-  extends ExecModel {
+                        statusCode: Int, embeddedResources: List[EmbeddedResource], responseContentType: Option[String])
+    extends ExecModel {
 
   val (baseUrl, pathQuery) = {
     val (rawBaseUrl, pathQuery) = URIHelper.splitURI(uri)
@@ -119,12 +119,12 @@ case class RequestModel(uri: String, method: String, headers: Map[String, String
 
   def identifierRaw = uri.split("/").lastOption match {
     case Some(s) => { val r = s.split("[?]")(0).replaceAll("\\W", "_"); if (r.equals("")) { "Request_name_FixMe" } else r }
-    case _ => "_unresolved_"
+    case _       => "_unresolved_"
   }
 
   def identifierHash = uri.split("/").lastOption match {
     case Some(s) => { val r = s.split("[?]")(0).replaceAll("\\W", "_") + "_" + md5(uri); if (r.equals("")) { "Request_name_FixMe" } else r } //IDindex
-    case _ => "_unresolved_" + "_" + md5(uri) //IDindex
+    case _       => "_unresolved_" + "_" + md5(uri) //IDindex
   }
 
   def setId(id: Int) = {
@@ -139,13 +139,13 @@ case class RequestModel(uri: String, method: String, headers: Map[String, String
   }
 
   val basicAuthCredentials: Option[(String, String)] = {
-    def parseCredentials(header: String) =
-      new String(Base64.decode(header.split(" ")(1))).split(":") match {
-        case Array(username, password) =>
-          val credentials = (username, password)
-          Some(credentials)
-        case _ => None
-      }
+      def parseCredentials(header: String) =
+        new String(Base64.decode(header.split(" ")(1))).split(":") match {
+          case Array(username, password) =>
+            val credentials = (username, password)
+            Some(credentials)
+          case _ => None
+        }
 
     headers.get(AUTHORIZATION).filter(_.startsWith("Basic ")).flatMap(parseCredentials)
   }
@@ -153,7 +153,7 @@ case class RequestModel(uri: String, method: String, headers: Map[String, String
   // ceeaspb - TODO - use scala case class features
   override def equals(that: Any) = that match {
     case other: RequestModel => other.identifier.equals(identifier)
-    case _ => false
+    case _                   => false
   }
 
   // ceeaspb - TODO - use scala case class features
