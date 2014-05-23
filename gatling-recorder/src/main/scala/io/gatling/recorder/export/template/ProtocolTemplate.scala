@@ -35,7 +35,8 @@ object ProtocolTemplate {
     val protocol = renderProtocol(model.getProtocol)
     val headers = renderHeaders(model)
 
-    val output = fast"""
+    val output = fast"""package ${model.packageName}
+
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 

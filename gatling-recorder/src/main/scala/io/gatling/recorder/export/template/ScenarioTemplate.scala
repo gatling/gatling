@@ -36,7 +36,8 @@ object ScenarioTemplate {
     }.mkFastring("")
 
     val output =
-      fast"""
+      fast"""package ${model.packageName}
+
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 

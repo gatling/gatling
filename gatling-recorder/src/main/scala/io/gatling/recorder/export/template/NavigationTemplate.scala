@@ -59,7 +59,8 @@ object NavigationTemplate {
       fast"""$navigations"""
     }
 
-    val output = fast"""
+    val output = fast"""package ${model.packageName}
+
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import scala.concurrent.duration._

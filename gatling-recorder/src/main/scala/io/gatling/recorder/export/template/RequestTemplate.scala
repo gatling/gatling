@@ -76,7 +76,8 @@ object RequestTemplate {
       fast"""$n"""
     }
 
-    val output = fast"""
+    val output = fast"""package ${model.packageName}
+
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 

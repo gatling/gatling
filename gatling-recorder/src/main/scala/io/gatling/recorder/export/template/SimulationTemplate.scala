@@ -24,7 +24,8 @@ object SimulationTemplate {
   def render(model: SimulationModel): Seq[(String, String)] = {
 
     val output =
-      fast"""
+      fast"""package ${model.packageName}
+
 import scala.concurrent.duration._
 import io.gatling.core.Predef._
 import io.gatling.http.Predef._

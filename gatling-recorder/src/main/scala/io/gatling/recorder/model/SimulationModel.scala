@@ -68,6 +68,10 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
     require(postProcessed)
     name1
   }
+  def packageName = {
+    require(postProcessed)
+    config.core.pkg
+  }
 
   def isEmpty = requests.isEmpty
 
