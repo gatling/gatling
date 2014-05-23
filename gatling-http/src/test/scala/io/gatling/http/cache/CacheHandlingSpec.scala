@@ -51,32 +51,32 @@ class CacheHandlingSpec extends Specification with Mockito {
       }
 
     "correctly support Pragma header" in {
-      getResponseExpire(List(HeaderNames.PRAGMA -> HeaderValues.NO_CACHE)) must beNone
+      getResponseExpire(List(HeaderNames.Pragma -> HeaderValues.NoCache)) must beNone
     }
 
     "correctly support Cache-Control header" in {
-      getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "max-age=1")) must beSome
-      getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "private, max-age=3600, must-revalidate")) must beSome
-      getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "public, no-cache")) must beNone
-      getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "public, max-age=-1")) must beNone
-      getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "public, max-age=0")) must beNone
-      getResponseExpire(List(HeaderNames.CACHE_CONTROL -> "no-store")) must beNone
+      getResponseExpire(List(HeaderNames.CacheControl -> "max-age=1")) must beSome
+      getResponseExpire(List(HeaderNames.CacheControl -> "private, max-age=3600, must-revalidate")) must beSome
+      getResponseExpire(List(HeaderNames.CacheControl -> "public, no-cache")) must beNone
+      getResponseExpire(List(HeaderNames.CacheControl -> "public, max-age=-1")) must beNone
+      getResponseExpire(List(HeaderNames.CacheControl -> "public, max-age=0")) must beNone
+      getResponseExpire(List(HeaderNames.CacheControl -> HeaderValues.NoStore)) must beNone
     }
 
     "correctly support Expires header" in {
-      getResponseExpire(List(HeaderNames.EXPIRES -> "Wed, 16 Oct 2033 21:56:44 GMT")) must beSome
+      getResponseExpire(List(HeaderNames.Expires -> "Wed, 16 Oct 2033 21:56:44 GMT")) must beSome
     }
 
     "Cache-Control has priority over Expires" in {
-      getResponseExpire(List(HeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CACHE_CONTROL -> "no-store")) must beNone
-      getResponseExpire(List(HeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CACHE_CONTROL -> "max-age=-1")) must beNone
-      getResponseExpire(List(HeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CACHE_CONTROL -> "max-age=0")) must beNone
-      getResponseExpire(List(HeaderNames.EXPIRES -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CACHE_CONTROL -> "max-age=567")) must beSome
+      getResponseExpire(List(HeaderNames.Expires -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CacheControl -> HeaderValues.NoStore)) must beNone
+      getResponseExpire(List(HeaderNames.Expires -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CacheControl -> "max-age=-1")) must beNone
+      getResponseExpire(List(HeaderNames.Expires -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CacheControl -> "max-age=0")) must beNone
+      getResponseExpire(List(HeaderNames.Expires -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CacheControl -> "max-age=567")) must beSome
     }
 
     "Pragma has priority over Cache-Control" in {
-      getResponseExpire(List(HeaderNames.PRAGMA -> "no-cache", HeaderNames.CACHE_CONTROL -> "max-age=3600")) must beNone
-      getResponseExpire(List(HeaderNames.PRAGMA -> "no-cache", HeaderNames.EXPIRES -> "3600")) must beNone
+      getResponseExpire(List(HeaderNames.Pragma -> HeaderValues.NoCache, HeaderNames.CacheControl -> "max-age=3600")) must beNone
+      getResponseExpire(List(HeaderNames.Pragma -> HeaderValues.NoCache, HeaderNames.Expires -> "3600")) must beNone
     }
   }
 
