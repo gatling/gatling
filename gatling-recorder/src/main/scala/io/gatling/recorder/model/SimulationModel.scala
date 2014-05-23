@@ -34,18 +34,25 @@ import scala.concurrent.duration.FiniteDuration
 case class SimulationModel(implicit config: RecorderConfiguration) {
 
   private val navigations = new mutable.ArrayBuffer[(Long, NavigationModel)] with mutable.SynchronizedBuffer[(Long, NavigationModel)]
-  private var currentNavigation = new NavigationModel
   private var requests: Set[RequestModel] = HashSet()
   private var protocol: ProtocolModel = _ // instantiate once the capture complete
-  private val requestIDMap = makeMapIdentifier
-  private var requiresNewNavigation = false
-  private var postProcessed = false
 
   private val proxyCredentials1: AtomicReference[String] = new AtomicReference[String]
   private val name1: String = config.core.className
+  
+  // for pre conditions
+  private var requiresNewNavigation = false
+  private var postProcessed = false
+  private var lastRequestTimestamp : Long = 0 // check the requests are in order
+  private var lastNavigationTimestamp : Long = 0
+  
+  // for state tracking
+  private var lastNavigation:NavigationModel = _
+  private var currentNavigation = new NavigationModel
+  private val requestIDMap = makeMapIdentifier
 
+  
   // require that the model is post processed before being able to get anthing out
-
   def getNavigations = {
     require(postProcessed)
     navigations
@@ -95,25 +102,44 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
   def newNavigation(timestamp: Long, navigationName: String) = {
 
+    require(currentNavigation.requestList.size>0, "Cannot add Navigation - no requests "+navigationName)
+    require(lastNavigationTimestamp ==0 || 
+    		(lastNavigationTimestamp >0 && lastNavigationTimestamp<timestamp && timestamp>lastRequestTimestamp), 
+        "Cannot add navigations out of order :"+navigationName) 
+    
     currentNavigation.name = navigationName.replaceAll("\\W", "_")
-
     navigations += timestamp -> currentNavigation
-    currentNavigation = new NavigationModel
+
+    lastNavigation = currentNavigation
     requiresNewNavigation = false
+    lastNavigationTimestamp = timestamp
+    
+    currentNavigation = new NavigationModel
   }
 
   // adds a request
+      // TODO remove redirects
   def +=(a: (Long, RequestModel)) = {
 
+    require(lastRequestTimestamp == 0 || (lastRequestTimestamp >0 && lastRequestTimestamp<=a._1), 
+        "Cannot add requests out of order : ( last : "+lastRequestTimestamp+", new : "+a._1+") "+a)  
+    
     currentNavigation += a
     uniquifyRequestIdentifier(a._2)
     requests += a._2
     requiresNewNavigation = true
+    lastRequestTimestamp = a._1
   }
 
   def addPause(delta: FiniteDuration) = {
 
-    currentNavigation += (System.currentTimeMillis, new PauseModel(delta))
+    // any pause between navigations is attributed to the previous navigation
+    // as this is likely where the user spent their time
+    if(currentNavigation.requestList.size == 0) {
+    	lastNavigation += (System.currentTimeMillis, new PauseModel(delta))
+    } else {
+    	currentNavigation += (System.currentTimeMillis, new PauseModel(delta))
+    }
   }
 
   def setProxyAuth(credentials: Option[(String, String)]) = {
@@ -138,14 +164,11 @@ case class SimulationModel(implicit config: RecorderConfiguration) {
 
       // insert navigation if the user doesn't
       if (requiresNewNavigation)
-        newNavigation(System.currentTimeMillis(), "default_navigation")
+        newNavigation(lastRequestTimestamp+1, "default_navigation") //System.currentTimeMillis()
 
-      // TODO remove redirects
 
       // do protocol & headers
       protocol = ProtocolModel(this)
-
-      // TODO fetch HTML resources
 
     }
 

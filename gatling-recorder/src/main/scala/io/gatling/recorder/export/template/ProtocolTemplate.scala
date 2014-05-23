@@ -77,7 +77,7 @@ object Protocol {
 
       def renderFollowRedirect = if (!protocol.http_followRedirect) fast"$T.disableFollowRedirect" else emptyFastring
 
-      // TODO - needs testing
+      // TODO - needs integrating and testing
       def renderFetchHtmlResources = if (protocol.http_fetchHtmlResources) {
         val filtersConfig = protocol.domain_filters
 

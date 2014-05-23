@@ -26,7 +26,7 @@ object ModelFixtures {
 
   import java.util.ArrayList
 
-     
+      
      val config_basic = fakeConfig(Map(
 
     ConfigKeys.core.ClassName -> "TestSimulation",
@@ -196,21 +196,22 @@ object ModelFixtures {
     sim += (time -> r1)
     sim += (time + 1 -> r1a)
     sim += (time + 2 -> r1b)
-    sim += (time + 2 -> r1c)
-    sim += (time + 3 -> r2)
-    sim += (time + 4 -> r3)
+    sim += (time + 3 -> r1c)
+    sim += (time + 4 -> r2)
+    sim += (time + 5 -> r3)
     sim.newNavigation(time + 100, "first navigation")
-
+    
+    sim addPause (Duration.create(50, "milliseconds"))  // this pause should be placed in the previous navigation
     sim += (time + 200 -> r2)
     sim += (time + 201 -> r2)
     sim addPause (Duration.create(50, "milliseconds"))
     sim += (time + 303 -> r3)
-    sim.newNavigation(time + 300, "second navigation")
+    sim.newNavigation(time + 304, "second navigation")
 
     sim += (time + 306 -> r3)
     sim.newNavigation(time + 400, "3rd navigation")
 
-    sim += (time + 307 -> r3)
+    sim += (time + 407 -> r3)
     
     sim.postProcess
 
@@ -225,10 +226,10 @@ object ModelFixtures {
     sim += (time -> r2redirect302)
     sim += (time + 1 -> r1a)
     sim += (time + 2 -> r2redirect301)
-    sim += (time + 2 -> r1c)
-    sim += (time + 3 -> r2)
-    sim += (time + 4 -> r2redirect302)
-    sim += (time + 3 -> r2)
+    sim += (time + 3 -> r1c)
+    sim += (time + 4 -> r2)
+    sim += (time + 5 -> r2redirect302)
+    sim += (time + 6 -> r2)
     sim.newNavigation(time + 100, "first navigation")
     
     sim.postProcess
@@ -245,8 +246,8 @@ object ModelFixtures {
     sim += (time -> r99error400)
     sim += (time + 1 -> r99error401)
     sim += (time + 2 -> r99error402)
-    sim += (time + 2 -> r99error500)
-    sim += (time + 3 -> r99error503)
+    sim += (time + 3 -> r99error500)
+    sim += (time + 4 -> r99error503)
     sim.newNavigation(time + 100, "first navigation")
     
     sim.postProcess

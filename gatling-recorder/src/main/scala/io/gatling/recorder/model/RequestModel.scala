@@ -99,8 +99,7 @@ case class RequestModel(uri: String, method: String, headers: Map[String, String
   }
   var printedUrl = uri
 
-  // TODO NICO mutable external fields are a very bad idea
-  //var filteredHeadersId: Option[Int] = None
+  // TODO - provide accessor methods and make private
   var header_identifier: Option[String] = None
 
   var id: Int = 0
@@ -131,10 +130,6 @@ case class RequestModel(uri: String, method: String, headers: Map[String, String
     case Some(s) => { val r = s.split("[?]")(0).replaceAll("\\W", "_") + "_" + md5(uri); if (r.equals("")) { "Request_name_FixMe" } else r } //IDindex
     case _       => "_unresolved_" + "_" + md5(uri) //IDindex
   }
-
-  // TODO cleanup
-  // val requestKey = ( domain , responseContentType ) 
-  //  val headersKey = () // TODO
 
   def setId(id: Int) = {
     this.id = id

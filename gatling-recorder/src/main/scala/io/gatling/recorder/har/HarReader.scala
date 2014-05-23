@@ -58,13 +58,14 @@ object HarReader extends IO {
       .map { createRequestWithArrivalTime }
 
     if (times.hasNext)
-      times.max // force evaluate
+      times.max // force evaluate - TODO there is likely a "right" way of doing this
 
     model.postProcess
     model
   }
 
-  private def createRequestWithArrivalTime(entry: Entry)(implicit model: SimulationModel): Long = { //(Long, RequestModel)
+  private def createRequestWithArrivalTime(entry: Entry)(implicit model: SimulationModel): Long = {
+    
       def buildContent(postParams: Seq[PostParam]): RequestBodyModel =
         RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
 
@@ -96,9 +97,11 @@ object HarReader extends IO {
 
   private def buildHeaders(entry: Entry): Map[String, String] = {
     // Chrome adds extra headers, eg: ":host". We should have them in the Gatling scenario.
+    // TODO - get a HAR file that shows this into the fixtures
     val headers: Map[String, String] = entry.request.headers.filter(!_.name.startsWith(":")).map(h => (h.name, h.value))(breakOut)
 
     // NetExport doesn't add Content-Type to headers when POSTing, but both Chrome Dev Tools and NetExport set mimeType
+    // TODO - get a HAR file that shows this into the fixtures
     entry.request.postData.map(postData => headers.updated(CONTENT_TYPE, postData.mimeType)).getOrElse(headers)
   }
 

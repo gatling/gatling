@@ -90,12 +90,11 @@ class HarReaderSpec extends Specification {
       headerNames must containPattern("accept-encoding")
     }
 
+    //TODO
     "have the embedded HTML resources filtered out" in pending {
 
       ModelFixtures.config = ModelFixtures.config_FetchHtmlResources_false
 
-      // TODO - need to find a har file that only has page entries in it ...  
-      // kernel_org_har has the resources already as entries
       val model = HarReader(kernel_org_har)
       val elts = model.getRequests
 
@@ -132,6 +131,7 @@ class HarReaderSpec extends Specification {
         (requests must beEqualTo(List("http://localhost:9000/room", "http://localhost:9000/room?username=robert")))
     }
 
+    ///TODO
     "have the approriate first requests" in pending {
       val scn = HarReader(play_chat_har)(ModelFixtures.config_FetchHtmlResources_false)
       val elts = scn.getRequests.toSeq
@@ -155,6 +155,7 @@ class HarReaderSpec extends Specification {
         (el1.headers must haveKeys("User-Agent", "Host", "Accept-Encoding", "Accept-Language"))
     }
 
+    //TODO
     "return the correct number of Pause elements" in pending {
       val scn = HarReader(play_chat_har)(ModelFixtures.config_FetchHtmlResources_false)
       val elts = scn.getRequests.toSeq
@@ -163,6 +164,7 @@ class HarReaderSpec extends Specification {
       false
     }
 
+    //TODO
     "return an appropriate pause duration" in pending {
 
       val scn = HarReader(play_chat_har)(ModelFixtures.config_FetchHtmlResources_false)

@@ -74,7 +74,7 @@ class TemplateSpec extends Specification {
       new String(rendered(0)._2).equals(resourceAsString("request_body_main3.txt"))
     }
     
-    
+// TODO - further tests needed
 //    "render simulation correctly with basic model no outgoing proxy" in {
 //
 //      ModelFixtures.config = ModelFixtures.config_no_proxy
