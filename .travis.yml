@@ -6,7 +6,7 @@ env:
   global:
     - secure: "fLxDvisz+Rnqx4JZaKVdSdCobv6nBfPDGDWa7WS39wI6Heg+x9X9vPAJeX5QzE6DU2GNI/UcG3G4ihmM3hNamj77ZjTyP7JjuAtLItDWC7+m5yMlx/9GbHzwSUzgxZqDx+uZS4OENN1hCAfl5minCsPguVe+vsXB7gIuwd71pAI="
     - secure: "j4K47vix/LdZmcjeI5XE/Z09WSw0Az5C8OKVHZTZA4ZvY4AE7quX2AfMPzpcZ6t9IBH2U8Mz+XvNQYftoQrKzru7hRQd7y+hEddxzfE0IWzYvPNE8EdijODoeKkO96H1LuOPCDbQ4Md0Ett0o+WSWhjzmtdfTslx98JHdt2nFT4="
-    - secure: "ucCjxVaGakcoFquE3vHeP3Bh8XXqjAZVyOUo68lQ8qrOUoTUz+QRas/+QwVlFbbd8pCxemOd0m2iG06V32A19PPOmSkDfPSTH4CRa45nS1KJ4Uz1Uoe+YALzkifsBJzY2ZS/G78YmEP7BPfeVu3/ayVBPgTSbFtCrctJApg+E5s="
+    - secure: "xTp8BeM8vRg3nZbBs2wkXM3z/gS5fl+N0QHRzZURIceXoRxoGoKfCldWH++Yf367/XDNbrBbRXb5CTJEXmUmHxtPveXhnaJlSCseNDOQzG/jO5/b5Np1ymu8VHNIpfb/Dt8VoQZfOIepy6St1tLmrNr2mxTQJtOYFoISduQO1d4="
 
 # If building master, Publish to Sonatype and trigger builds
 after_success:
