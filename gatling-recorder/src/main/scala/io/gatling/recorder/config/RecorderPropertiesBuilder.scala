@@ -62,6 +62,9 @@ class RecorderPropertiesBuilder {
   def fetchHtmlResources(status: Boolean): Unit =
     props += http.FetchHtmlResources -> status
 
+  def removeConditionalCache(status: Boolean): Unit =
+    props += http.RemoveConditionalCache -> status
+
   def localPort(port: Int): Unit =
     props += proxy.Port -> port
 
