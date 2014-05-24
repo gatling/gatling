@@ -32,6 +32,7 @@ import com.ning.http.util.Base64
 import io.gatling.http.fetch.{ EmbeddedResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.util.URIHelper
+import io.gatling.recorder.config.RecorderConfiguration
 
 sealed trait ScenarioElement
 
@@ -52,6 +53,9 @@ object RequestElement {
       message.getContent.getBytes(message.getContent.readerIndex, bufferBytes)
       Some(bufferBytes)
     } else None
+
+  val CONDITIONAL_CACHE_HEADERS = Set("If-Match", "If-Modified-Since", "If-None-Match", "If-Range", "If-Unmodified-Since")
+
 
   def apply(request: HttpRequest, response: HttpResponse): RequestElement = {
     val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }(breakOut)
@@ -78,7 +82,13 @@ object RequestElement {
       else
         RequestBodyBytes(content))
 
-    RequestElement(new String(request.getUri), request.getMethod.toString, requestHeaders, requestBody, response.getStatus.getCode, resources)
+    val filteredRequestHeaders =
+      if (RecorderConfiguration.configuration.http.removeConditionalCache)
+        requestHeaders.filter(header => !CONDITIONAL_CACHE_HEADERS.contains(header._1))
+      else
+        requestHeaders
+
+    RequestElement(new String(request.getUri), request.getMethod.toString, filteredRequestHeaders, requestBody, response.getStatus.getCode, resources)
   }
 }
 

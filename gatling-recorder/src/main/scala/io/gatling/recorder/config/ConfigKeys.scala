@@ -37,6 +37,7 @@ object ConfigKeys {
     val AutomaticReferer = "recorder.http.automaticReferer"
     val FollowRedirect = "recorder.http.followRedirect"
     val FetchHtmlResources = "recorder.http.fetchHtmlResources"
+    val RemoveConditionalCache = "recorder.http.removeConditionalCache"
   }
   object proxy {
     val Port = "recorder.proxy.port"

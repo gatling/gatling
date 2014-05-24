@@ -68,6 +68,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
   private val simulationClassName = new TextField(30)
   private val followRedirects = new CheckBox("Follow Redirects?")
   private val fetchHtmlResources = new CheckBox("Fetch html resources?")
+  private val removeConditionalCache = new CheckBox("Remove conditional cache headers?")
   private val automaticReferers = new CheckBox("Automatic Referers?")
 
   /* Output panel components */
@@ -186,6 +187,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
           layout(fetchHtmlResources) = East
         }) = West
         layout(automaticReferers) = East
+        layout(removeConditionalCache) = South
       }
       val outputConfig = new BorderPanel {
         border = titledBorder("Output")
@@ -393,6 +395,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
     filterStrategies.selection.item = configuration.filters.filterStrategy
     followRedirects.selected = configuration.http.followRedirect
     fetchHtmlResources.selected = configuration.http.fetchHtmlResources
+    removeConditionalCache.selected = configuration.http.removeConditionalCache
     automaticReferers.selected = configuration.http.automaticReferer
     configuration.filters.blackList.patterns.foreach(blackListTable.addRow)
     configuration.filters.whiteList.patterns.foreach(whiteListTable.addRow)
@@ -454,6 +457,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
       props.simulationClassName(simulationClassName.text.trim)
       props.followRedirect(followRedirects.selected)
       props.fetchHtmlResources(fetchHtmlResources.selected)
+      props.removeConditionalCache(removeConditionalCache.selected)
       props.automaticReferer(automaticReferers.selected)
       props.simulationOutputFolder(outputFolderPath.text.trim)
       props.encoding(CharsetHelper.labelToCharsetName(outputEncoding.selection.item))
