@@ -15,11 +15,18 @@
  */
 package io.gatling.http.check
 
-/**
- * Enumeration used to prioritize HttpChecks
- */
-object HttpCheckOrder extends Enumeration {
-  type HttpCheckOrder = Value
-  val Status, Url, Time, Checksum, Header, Body = Value
+sealed trait HttpCheckOrder
+
+object HttpCheckOrder {
+
+  case object Status extends HttpCheckOrder
+  case object Url extends HttpCheckOrder
+  case object Time extends HttpCheckOrder
+  case object Checksum extends HttpCheckOrder
+  case object Header extends HttpCheckOrder
+  case object Body extends HttpCheckOrder
+
   val orders = List(Status, Url, Time, Checksum, Header, Body)
+
+  val httpCheckOrdering = Ordering.fromLessThan[HttpCheckOrder](orders.indexOf(_) < orders.indexOf(_))
 }

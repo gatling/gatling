@@ -30,8 +30,6 @@ import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.util.IO
 import io.gatling.core.util.StringHelper.RichString
-import io.gatling.recorder.enumeration.FilterStrategy
-import io.gatling.recorder.enumeration.FilterStrategy.FilterStrategy
 
 object RecorderConfiguration extends IO with StrictLogging {
 
@@ -120,7 +118,7 @@ object RecorderConfiguration extends IO with StrictLogging {
         thresholdForPauseCreation = config.getInt(core.ThresholdForPauseCreation) milliseconds,
         saveConfig = config.getBoolean(core.SaveConfig)),
       filters = FiltersConfiguration(
-        filterStrategy = FilterStrategy.withName(config.getString(filters.FilterStrategy)),
+        filterStrategy = FilterStrategy.fromString(config.getString(filters.FilterStrategy)),
         whiteList = WhiteList(config.getStringList(filters.WhitelistPatterns).toList),
         blackList = BlackList(config.getStringList(filters.BlacklistPatterns).toList)),
       http = HttpConfiguration(
@@ -145,9 +143,9 @@ case class FiltersConfiguration(
     blackList: BlackList) {
 
   def filters: Option[Filters] = filterStrategy match {
-    case FilterStrategy.DISABLED        => None
-    case FilterStrategy.BLACKLIST_FIRST => Some(Filters(blackList, whiteList))
-    case FilterStrategy.WHITELIST_FIRST => Some(Filters(whiteList, blackList))
+    case FilterStrategy.Disabled       => None
+    case FilterStrategy.BlacklistFirst => Some(Filters(blackList, whiteList))
+    case FilterStrategy.WhitelistFirst => Some(Filters(whiteList, blackList))
   }
 }
 

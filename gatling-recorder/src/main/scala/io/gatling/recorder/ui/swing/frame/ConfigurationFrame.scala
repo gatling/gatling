@@ -28,10 +28,8 @@ import scala.util.Try
 
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.recorder.{ Har, Proxy, RecorderMode }
-import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration, RecorderPropertiesBuilder }
 import io.gatling.recorder.config.RecorderConfiguration.configuration
-import io.gatling.recorder.config.RecorderPropertiesBuilder
-import io.gatling.recorder.enumeration.FilterStrategy
 import io.gatling.recorder.ui.RecorderFrontend
 import io.gatling.recorder.ui.swing.Commons.{ iconList, logoSmall }
 import io.gatling.recorder.ui.swing.component.FilterTable
@@ -90,7 +88,10 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
   private val clearBlackListFilters = Button("Clear")(blackListTable.removeAllElements)
   private val ruleOutStaticResources = Button("No static resources")(blackListStaticResources)
 
-  private val filterStrategies = new ComboBox[FilterStrategy.Value](FilterStrategy.values.toSeq)
+  private val filterStrategies = new ComboBox[FilterStrategy](FilterStrategy.AllStrategies) {
+    selection.index = 0
+    renderer = Renderer(_.name)
+  }
 
   /* Bottom panel components */
   private val savePreferences = new CheckBox("Save preferences") { horizontalTextPosition = Alignment.Left }
@@ -283,7 +284,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
           root.center.har.visible = true
       }
     case SelectionChanged(`filterStrategies`) =>
-      val isNotDisabledStrategy = filterStrategies.selection.item != FilterStrategy.DISABLED
+      val isNotDisabledStrategy = filterStrategies.selection.item != FilterStrategy.Disabled
       toggleFiltersEdition(isNotDisabledStrategy)
     case ButtonClicked(`savePreferences`) if (!savePreferences.selected) => {
       val props = new RecorderPropertiesBuilder
@@ -411,7 +412,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
     blackListTable.cleanUp
 
     val filterValidationFailures =
-      if (filterStrategies.selection.item == FilterStrategy.DISABLED)
+      if (filterStrategies.selection.item == FilterStrategy.Disabled)
         Nil
       else
         whiteListTable.validate ::: blackListTable.validate
