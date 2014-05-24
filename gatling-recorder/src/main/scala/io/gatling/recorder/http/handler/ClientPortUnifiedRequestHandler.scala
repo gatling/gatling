@@ -17,7 +17,7 @@ package io.gatling.recorder.http.handler
 
 import java.net.URI
 import org.jboss.netty.channel.{ Channels, SimpleChannelHandler, ChannelPipeline, ChannelHandlerContext, MessageEvent }
-import org.jboss.netty.handler.codec.http.HttpRequest
+import org.jboss.netty.handler.codec.http.{HttpMethod, HttpRequest}
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory
@@ -29,8 +29,8 @@ class ClientPortUnifiedRequestHandler(proxy: HttpProxy, pipeline: ChannelPipelin
       event.getMessage match {
         case request: HttpRequest =>
           request.getMethod.toString match {
-            case "CONNECT" => BootstrapFactory.setGatlingProtocolHandler(pipeline, new ClientHttpsRequestHandler(proxy))
-            case _         => BootstrapFactory.setGatlingProtocolHandler(pipeline, new ClientHttpRequestHandler(proxy))
+            case HttpMethod.CONNECT.getName => BootstrapFactory.setGatlingProtocolHandler(pipeline, new ClientHttpsRequestHandler(proxy))
+            case _                          => BootstrapFactory.setGatlingProtocolHandler(pipeline, new ClientHttpRequestHandler(proxy))
           }
 
         case unknown => logger.warn("Received unknown message: $unknown , in event : " + event)
