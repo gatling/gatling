@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.util
 
-sealed trait Color { def code: String }
+trait Color { def code: String }
 
 object Colors {
 
