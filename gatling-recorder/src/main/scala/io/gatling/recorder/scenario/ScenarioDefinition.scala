@@ -2,13 +2,10 @@ package io.gatling.recorder.scenario
 
 import scala.concurrent.duration.{ Duration, DurationLong }
 
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.http.util.HttpHelper
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.scenario.RequestElement.htmlContentType
 import io.gatling.recorder.util.collection.RichSeq
 
 case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
@@ -24,10 +21,10 @@ object ScenarioDefinition extends StrictLogging {
 
     // Remove the redirection and keep the last status code
     groupedRequests.map {
-      case (firstArrivalTime, firstReq) :: redirectedReqs if !redirectedReqs.isEmpty => {
-        val (lastArrivalTime, lastReq) = redirectedReqs.last
+      case (firstArrivalTime, firstReq) :: redirectedReqs if !redirectedReqs.isEmpty =>
+        val (_, lastReq) = redirectedReqs.last
         (firstArrivalTime, firstReq.copy(statusCode = lastReq.statusCode, embeddedResources = lastReq.embeddedResources)) :: Nil
-      }
+
       case reqs => reqs
     }.flatten
   }
@@ -38,12 +35,12 @@ object ScenarioDefinition extends StrictLogging {
     val groupedRequests = requests.splitWhen(hasEmbeddedResources)
 
     groupedRequests.map {
-      case (time, request) :: t if !request.embeddedResources.isEmpty => {
+      case (time, request) :: t if !request.embeddedResources.isEmpty =>
         val resourceUrls = request.embeddedResources.map(_.url).toSet
 
         // TODO NRE : are we sure they are both absolute URLs?
-        (time, request) :: t.filter { case (t, r) => !resourceUrls.contains(r.uri) }
-      }
+        (time, request) :: t.filter { case (_, r) => !resourceUrls.contains(r.uri) }
+
       case l => l
     }.flatten
   }

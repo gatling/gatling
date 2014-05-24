@@ -124,7 +124,8 @@ object RecorderConfiguration extends IO with StrictLogging {
       http = HttpConfiguration(
         automaticReferer = config.getBoolean(http.AutomaticReferer),
         followRedirect = config.getBoolean(http.FollowRedirect),
-        fetchHtmlResources = config.getBoolean(http.FetchHtmlResources)),
+        fetchHtmlResources = config.getBoolean(http.FetchHtmlResources),
+        removeConditionalCache = config.getBoolean(http.RemoveConditionalCache)),
       proxy = ProxyConfiguration(
         port = config.getInt(proxy.Port),
         outgoing = OutgoingProxyConfiguration(
@@ -161,7 +162,8 @@ case class CoreConfiguration(
 case class HttpConfiguration(
   automaticReferer: Boolean,
   followRedirect: Boolean,
-  fetchHtmlResources: Boolean)
+  fetchHtmlResources: Boolean,
+  removeConditionalCache: Boolean)
 
 case class OutgoingProxyConfiguration(
   host: Option[String],

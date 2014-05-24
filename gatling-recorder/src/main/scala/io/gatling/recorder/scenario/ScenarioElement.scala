@@ -24,7 +24,7 @@ import scala.concurrent.duration.FiniteDuration
 import scala.io.Codec.UTF8
 
 import org.jboss.netty.handler.codec.http.{ HttpMessage, HttpRequest, HttpResponse }
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names.{ AUTHORIZATION, CONTENT_TYPE }
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
 import org.jboss.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_X_WWW_FORM_URLENCODED
 
 import com.ning.http.util.Base64
@@ -32,6 +32,7 @@ import com.ning.http.util.Base64
 import io.gatling.http.fetch.{ EmbeddedResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.util.URIHelper
+import io.gatling.recorder.config.RecorderConfiguration
 
 sealed trait ScenarioElement
 
@@ -44,7 +45,7 @@ case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
 
 object RequestElement {
 
-  val htmlContentType = """(?i)text/html\s*(;\s+charset=(.+))?""".r
+  val HtmlContentType = """(?i)text/html\s*(;\s+charset=(.+))?""".r
 
   private def extractContent(message: HttpMessage) =
     if (message.getContent.readableBytes > 0) {
@@ -53,13 +54,15 @@ object RequestElement {
       Some(bufferBytes)
     } else None
 
+  val ConditionCacheHeaders = Set(IF_MATCH, IF_MODIFIED_SINCE, IF_NONE_MATCH, IF_RANGE, IF_UNMODIFIED_SINCE)
+
   def apply(request: HttpRequest, response: HttpResponse): RequestElement = {
     val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }(breakOut)
     val requestContentType = requestHeaders.get(CONTENT_TYPE)
     val responseContentType = Option(response.headers().get(CONTENT_TYPE))
 
     val resources = responseContentType.collect {
-      case htmlContentType(_, headerCharset) =>
+      case HtmlContentType(_, headerCharset) =>
         val charsetName = Option(headerCharset).filter(Charset.isSupported).getOrElse(UTF8.name)
         val charset = Charset.forName(charsetName)
         extractContent(response).map(bytes => {
@@ -78,7 +81,13 @@ object RequestElement {
       else
         RequestBodyBytes(content))
 
-    RequestElement(new String(request.getUri), request.getMethod.toString, requestHeaders, requestBody, response.getStatus.getCode, resources)
+    val filteredRequestHeaders =
+      if (RecorderConfiguration.configuration.http.removeConditionalCache)
+        requestHeaders.filterKeys(name => !ConditionCacheHeaders.contains(name))
+      else
+        requestHeaders
+
+    RequestElement(new String(request.getUri), request.getMethod.toString, filteredRequestHeaders, requestBody, response.getStatus.getCode, resources)
   }
 }
 
