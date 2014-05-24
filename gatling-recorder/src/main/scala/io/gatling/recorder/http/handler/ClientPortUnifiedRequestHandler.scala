@@ -32,13 +32,10 @@ class ClientPortUnifiedRequestHandler(proxy: HttpProxy, pipeline: ChannelPipelin
           val uri = new URI(request.getUri)
           uri.getScheme match {
 
-            case "http" => BootstrapFactory.setGatlingProtocolHandler(pipeline, new ClientHttpsRequestHandler(proxy))
+            case "https" => BootstrapFactory.setGatlingProtocolHandler(pipeline, new ClientHttpsRequestHandler(proxy))
 
-            case _ =>
-              request.getMethod.toString match {
-                case "CONNECT" => BootstrapFactory.setGatlingProtocolHandler(pipeline, new ClientHttpRequestHandler(proxy))
-                case unknown   => logger.warn("Received unknown scheme (http|https): $unknown in " + request)
-              }
+            case _       => BootstrapFactory.setGatlingProtocolHandler(pipeline, new ClientHttpRequestHandler(proxy))
+
           }
 
         case unknown => logger.warn("Received unknown message: $unknown , in event : " + event)
