@@ -37,8 +37,8 @@ class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, compone
 
           def cumulatedResponseTimeDistributionChartComponent: Component = {
             val (distributionSuccess, distributionFailure) = dataReader.groupCumulatedResponseTimeDistribution(100, group)
-            val distributionSeriesSuccess = new Series("Group cumulated response time (success)", distributionSuccess, List(BLUE))
-            val distributionSeriesFailure = new Series("Group cumulated response time (failure)", distributionFailure, List(RED))
+            val distributionSeriesSuccess = new Series("Group cumulated response time (success)", distributionSuccess, List(Blue))
+            val distributionSeriesFailure = new Series("Group cumulated response time (failure)", distributionFailure, List(Red))
 
             componentLibrary.getGroupDetailsDurationDistributionChartComponent("Group Cumulated Response Time Distribution", "cumulatedResponseTimeDistributionContainer", distributionSeriesSuccess, distributionSeriesFailure)
           }
@@ -52,8 +52,8 @@ class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, compone
 
           def durationDistributionChartComponent: Component = {
             val (distributionSuccess, distributionFailure) = dataReader.groupDurationDistribution(100, group)
-            val distributionSeriesSuccess = new Series("Group duration (success)", distributionSuccess, List(BLUE))
-            val distributionSeriesFailure = new Series("Group duration (failure)", distributionFailure, List(RED))
+            val distributionSeriesSuccess = new Series("Group duration (success)", distributionSuccess, List(Blue))
+            val distributionSeriesFailure = new Series("Group duration (failure)", distributionFailure, List(Red))
 
             componentLibrary.getGroupDetailsDurationDistributionChartComponent("Group Duration Distribution", "durationDistributionContainer", distributionSeriesSuccess, distributionSeriesFailure)
           }

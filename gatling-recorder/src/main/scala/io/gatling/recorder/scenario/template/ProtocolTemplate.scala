@@ -15,10 +15,9 @@
  */
 package io.gatling.recorder.scenario.template
 
-import io.gatling.recorder.enumeration.FilterStrategy._
 import io.gatling.core.util.StringHelper.emptyFastring
 import io.gatling.core.util.StringHelper.eol
-import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration }
 import io.gatling.recorder.scenario.ProtocolDefinition.baseHeaders
 import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.recorder.scenario.ProtocolDefinition
@@ -59,9 +58,9 @@ object ProtocolTemplate {
           def whiteListPatterns = fast"white = WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
 
         val patterns = filtersConfig.filterStrategy match {
-          case WHITELIST_FIRST => fast"$whiteListPatterns, $backListPatterns"
-          case BLACKLIST_FIRST => fast"$backListPatterns, $whiteListPatterns"
-          case DISABLED        => emptyFastring
+          case FilterStrategy.WhitelistFirst => fast"$whiteListPatterns, $backListPatterns"
+          case FilterStrategy.BlacklistFirst => fast"$backListPatterns, $whiteListPatterns"
+          case FilterStrategy.Disabled       => emptyFastring
         }
 
         fast"$eol$indent.fetchHtmlResources($patterns)"

@@ -22,7 +22,7 @@ import io.gatling.core.result.IntVsTimePlot
 
 object ReportGenerator {
 
-  val PercentilesColors: List[String] = List(RED, LIGHT_RED, DARK_ORANGE, ORANGE, YELLOW, LIME, LIGHT_LIME, GREEN, LIGHT_BLUE, BLUE)
+  val PercentilesColors: List[String] = List(Red, LightRed, DarkOrange, Orange, Yellow, Lime, LightLime, Green, LightBlue, Blue)
 }
 
 abstract class ReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {

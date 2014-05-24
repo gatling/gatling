@@ -15,29 +15,31 @@
  */
 package io.gatling.charts.util
 
-object Colors extends Enumeration {
-  type Colors = Value
-  val BLUE = Value("#4572A7")
-  val GREEN = Value("#A0B228")
-  val YELLOW = Value("#FFDD00")
-  val ORANGE = Value("#FF9D00")
-  val RED = Value("#FF0000")
-  val CYAN = Value("#00D5FF")
-  val LIME = Value("#00FF00")
-  val PURPLE = Value("#9D00FF")
-  val PINK = Value("#FF00E1")
-  val BLACK = Value("#000000")
-  val LIGHT_GREY = Value("#CFC9C6")
-  val LIGHT_BLUE = Value("#AECAEB")
-  val LIGHT_ORANGE = Value("#FFD085")
-  val LIGHT_RED = Value("#FF9C9C")
-  val LIGHT_LIME = Value("#9EFF9E")
-  val LIGHT_PURPLE = Value("#CF82FF")
-  val LIGHT_PINK = Value("#FF82F0")
-  val TRANSLUCID_RED = Value("rgba(255, 0, 0, .2)")
-  val TRANSLUCID_BLUE = Value("rgba(69, 114, 167, .2)")
-  val DARK_GREY = Value("#92918C")
-  val DARK_ORANGE = Value("#E37400")
+sealed trait Color { def code: String }
 
-  implicit def color2String(color: Colors) = color.toString
+object Colors {
+
+  implicit def color2String(c: Color) = c.code
+
+  case object Blue extends Color { val code = "#4572A7" }
+  case object Green extends Color { val code = "#A0B228" }
+  case object Yellow extends Color { val code = "#FFDD00" }
+  case object Orange extends Color { val code = "#FF9D00" }
+  case object Red extends Color { val code = "#FF0000" }
+  case object Cyan extends Color { val code = "#00D5FF" }
+  case object Lime extends Color { val code = "#00FF00" }
+  case object Purple extends Color { val code = "#9D00FF" }
+  case object Pink extends Color { val code = "#FF00E1" }
+  case object Black extends Color { val code = "#000000" }
+  case object LightGrey extends Color { val code = "#CFC9C6" }
+  case object LightBlue extends Color { val code = "#AECAEB" }
+  case object LightOrange extends Color { val code = "#FFD085" }
+  case object LightRed extends Color { val code = "#FF9C9C" }
+  case object LightLime extends Color { val code = "#9EFF9E" }
+  case object LightPurple extends Color { val code = "#CF82FF" }
+  case object LightPink extends Color { val code = "#FF82F0" }
+  case object TranslucidRed extends Color { val code = "rgba(255, 0, 0, .2)" }
+  case object TranslucidBlue extends Color { val code = "rgba(69, 114, 167, .2)" }
+  case object DarkGrey extends Color { val code = "#92918C" }
+  case object DarkOrange extends Color { val code = "#E37400" }
 }
