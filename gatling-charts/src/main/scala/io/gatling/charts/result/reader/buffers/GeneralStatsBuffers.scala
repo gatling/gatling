@@ -84,10 +84,8 @@ class GeneralStatsBuffer(duration: Long, range: (Int, Int)) extends CountBuffer 
       GeneralStats.NO_PLOT
 
     } else {
-      val histogramData = histogram.getHistogramData
-
-      val mean = histogramData.getMean.toInt
-      val stdDev = histogramData.getStdDeviation.toInt
+      val mean = histogram.getMean.toInt
+      val stdDev = histogram.getStdDeviation.toInt
       val meanRequestsPerSec = valuesCount / (duration / FileDataReader.secMillisecRatio)
 
       val percentile1 = digest.quantile(configuration.charting.indicators.percentile1 / 100.0).toInt

@@ -36,7 +36,7 @@ object Dependencies {
   private val jmsApi                         = "javax.jms"                  % "jms-api"            % "1.1-rev-1"
   private val logbackClassic                 = "ch.qos.logback"             % "logback-classic"    % "1.1.2"
   private val tdigest                        = "com.tdunning"               % "t-digest"           % "3.0"
-  private val hdrHistogram                   = "org.hdrhistogram"           % "HdrHistogram"       % "1.1.5"
+  private val hdrHistogram                   = "org.hdrhistogram"           % "HdrHistogram"       % "1.2.1"
 
   /***********************/
   /** Test dependencies **/

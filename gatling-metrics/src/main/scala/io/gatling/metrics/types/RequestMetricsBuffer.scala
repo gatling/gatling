@@ -18,7 +18,6 @@ package io.gatling.metrics.types
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ KO, OK, Status }
 import org.HdrHistogram.Histogram
-import org.HdrHistogram.HistogramData
 
 class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
 
@@ -45,15 +44,15 @@ class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
   }
 
   def clear(): Unit = {
-    okDigest.reset
-    koDigest.reset
-    allDigest.reset
+    okDigest.reset()
+    koDigest.reset()
+    allDigest.reset()
   }
 
   def metricsByStatus: MetricByStatus =
-    MetricByStatus(metricsOfDigest(okDigest.getHistogramData), metricsOfDigest(koDigest.getHistogramData), metricsOfDigest(allDigest.getHistogramData))
+    MetricByStatus(metricsOfDigest(okDigest), metricsOfDigest(koDigest), metricsOfDigest(allDigest))
 
-  private def metricsOfDigest(digest: HistogramData): Option[Metrics] = {
+  private def metricsOfDigest(digest: Histogram): Option[Metrics] = {
     val count = digest.getTotalCount
     if (count > 0)
       Some(Metrics(count, digest.getMinValue, digest.getMaxValue, digest.getValueAtPercentile(percentile1), digest.getValueAtPercentile(percentile2)))
