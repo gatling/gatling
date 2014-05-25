@@ -70,7 +70,9 @@ abstract class GeneralStatsBuffers(durationInSec: Long,
 
 class GeneralStatsBuffer(duration: Long, range: (Int, Int)) extends CountBuffer {
   val digest = new AVLTreeDigest(100.0)
-  val histogram = new Histogram(range._1, range._2, 3)
+
+  // Prevent exception from histogram, which must have lower bound of 1. Some stats seem to come in with lower bound 0.
+  val histogram = new Histogram(Math.max(range._1, 1), range._2, 3)
 
   override def update(time: Int) {
     super.update(time)
