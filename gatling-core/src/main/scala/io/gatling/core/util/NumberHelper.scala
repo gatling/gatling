@@ -38,10 +38,10 @@ object NumberHelper {
     def toRank: String = {
 
       val suffix = i % 10 match {
+        case _ if (11 to 13) contains i % 100 => "th"
         case 1                                => "st"
         case 2                                => "nd"
         case 3                                => "rd"
-        case _ if (11 to 13) contains i % 100 => "th"
         case _                                => "th"
       }
 
