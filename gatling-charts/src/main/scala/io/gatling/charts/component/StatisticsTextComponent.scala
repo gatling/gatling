@@ -20,7 +20,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.reader.DataReader.NO_PLOT_MAGIC_VALUE
-import io.gatling.core.util.NumberHelper.formatNumberWithSuffix
+import io.gatling.core.util.NumberHelper._
 import io.gatling.core.util.StringHelper.emptyFastring
 
 object Statistics {
@@ -28,12 +28,7 @@ object Statistics {
     value match {
       case NO_PLOT_MAGIC_VALUE  => "-"
       case (_: Int) | (_: Long) => value.toString
-      case _ =>
-        implicitly[Numeric[T]].toDouble(value) match {
-          case d if d >= 1000.0d => d.round.toString
-          case d if d >= 100.0d  => f"$d%.1f"
-          case d                 => f"$d%.2f"
-        }
+      case _                    => implicitly[Numeric[T]].toDouble(value).toPrintableString
     }
 }
 
@@ -129,13 +124,13 @@ class StatisticsTextComponent extends Component {
                                                 <td id="standardDeviationKO" class="ko"></td>
                                             </tr>
                                             <tr>
-                                                <td class="title">${formatNumberWithSuffix(configuration.charting.indicators.percentile1)} percentile</td>
+                                                <td class="title">${configuration.charting.indicators.percentile1.toRank} percentile</td>
                                                 <td id="percentiles1" class="total"></td>
                                                 <td id="percentiles1OK" class="ok"></td>
                                                 <td id="percentiles1KO" class="ko"></td>
                                             </tr>
                                             <tr>
-                                                <td class="title">${formatNumberWithSuffix(configuration.charting.indicators.percentile2)} percentile</td>
+                                                <td class="title">${configuration.charting.indicators.percentile2.toRank} percentile</td>
                                                 <td id="percentiles2" class="total"></td>
                                                 <td id="percentiles2OK" class="ok"></td>
                                                 <td id="percentiles2KO" class="ko"></td>

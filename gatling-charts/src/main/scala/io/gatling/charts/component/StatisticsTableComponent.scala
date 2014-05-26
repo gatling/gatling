@@ -20,7 +20,7 @@ import com.dongxiguo.fastring.Fastring.Implicits.{ FastringContext, MkFastring }
 import io.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME
 import io.gatling.charts.report.Container.{ GROUP, REQUEST }
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.NumberHelper.formatNumberWithSuffix
+import io.gatling.core.util.NumberHelper._
 import io.gatling.core.util.StringHelper.eol
 
 class StatisticsTableComponent extends Component {
@@ -31,8 +31,8 @@ class StatisticsTableComponent extends Component {
 
   val html = {
 
-    val pct1 = formatNumberWithSuffix(configuration.charting.indicators.percentile1) + " pct"
-    val pct2 = formatNumberWithSuffix(configuration.charting.indicators.percentile2) + " pct"
+    val pct1 = configuration.charting.indicators.percentile1.toRank + " pct"
+    val pct2 = configuration.charting.indicators.percentile2.toRank + " pct"
     val responseTimeFields = Vector("Min", "Max", "Mean", "Std Dev", pct1, pct2, "Req/s")
 
     fast"""

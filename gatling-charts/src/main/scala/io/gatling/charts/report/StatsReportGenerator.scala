@@ -25,7 +25,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.{ Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
-import io.gatling.core.util.NumberHelper.formatNumberWithSuffix
+import io.gatling.core.util.NumberHelper._
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
 
@@ -42,18 +42,18 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
         val maxResponseTimeStatistics = Statistics("max response time", total.max, ok.max, ko.max)
         val meanResponseTimeStatistics = Statistics("mean response time", total.mean, ok.mean, ko.mean)
         val stdDeviationStatistics = Statistics("std deviation", total.stdDev, ok.stdDev, ko.stdDev)
-        val percentiles1 = Statistics(s"response time ${formatNumberWithSuffix(configuration.charting.indicators.percentile1)} percentile", total.percentile1, ok.percentile1, ko.percentile1)
-        val percentiles2 = Statistics(s"response time ${formatNumberWithSuffix(configuration.charting.indicators.percentile2)} percentile", total.percentile2, ok.percentile2, ko.percentile2)
+        val percentiles1 = Statistics(s"response time ${configuration.charting.indicators.percentile1.toRank} percentile", total.percentile1, ok.percentile1, ko.percentile1)
+        val percentiles2 = Statistics(s"response time ${configuration.charting.indicators.percentile2.toRank} percentile", total.percentile2, ok.percentile2, ko.percentile2)
         val meanNumberOfRequestsPerSecondStatistics = Statistics("mean requests/sec", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
         val groupedCounts = dataReader
           .numberOfRequestInResponseTimeRange(requestName, group).map {
-            case (name, count) => GroupedCount(name, count, math.round(count * 100.0f / total.count))
+            case (rangeName, count) => GroupedCount(rangeName, count, math.round(count * 100.0f / total.count))
           }
 
         val path = requestName match {
-          case Some(name) => RequestPath.path(name, group)
-          case None       => group.map(RequestPath.path).getOrElse("")
+          case Some(n) => RequestPath.path(n, group)
+          case None    => group.map(RequestPath.path).getOrElse("")
         }
 
         RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
@@ -76,7 +76,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
 
         val groupedCounts = dataReader
           .numberOfRequestInResponseTimeRange(None, Some(group)).map {
-            case (name, count) => GroupedCount(name, count, count * 100 / total.count)
+            case (rangeName, count) => GroupedCount(rangeName, count, count * 100 / total.count)
           }
 
         val path = RequestPath.path(group)

@@ -20,6 +20,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.result.ErrorStats
 import io.gatling.core.util.StringHelper.emptyFastring
 import io.gatling.core.util.HtmlHelper.HtmlRichString
+import io.gatling.core.util.NumberHelper._
 
 class ErrorTableComponent(errors: Seq[ErrorStats]) extends Component {
 
@@ -49,7 +50,7 @@ class ErrorTableComponent(errors: Seq[ErrorStats]) extends Component {
 		    <tr>
 		    	<td class="error-col-1 total">${error.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
 		    	<td class="value error-col-2 total">${error.count}</td>
-		    	<td class="value error-col-3 total">${error.percentage} %</td>
+		    	<td class="value error-col-3 total">${error.percentage.toPrintableString} %</td>
 		    </tr>"""
       }.mkFastring
     }

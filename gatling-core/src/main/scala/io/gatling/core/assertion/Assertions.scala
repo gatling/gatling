@@ -15,13 +15,10 @@
  */
 package io.gatling.core.assertion
 
-import scala.tools.nsc.io.Path
-
-import io.gatling.core.result.{ Group, StatsPath, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.NumberHelper
+import io.gatling.core.util.NumberHelper._
 
 class Selector(stats: (DataReader, Option[Status]) => GeneralStats, name: String) {
   def responseTime = new ResponseTime(reader => stats(reader, None), name)
@@ -36,8 +33,8 @@ class Selector(stats: (DataReader, Option[Status]) => GeneralStats, name: String
 }
 
 object ResponseTime {
-  val percentile1 = NumberHelper.formatNumberWithSuffix(configuration.charting.indicators.percentile1)
-  val percentile2 = NumberHelper.formatNumberWithSuffix(configuration.charting.indicators.percentile2)
+  val percentile1 = configuration.charting.indicators.percentile1.toRank
+  val percentile2 = configuration.charting.indicators.percentile2.toRank
 }
 
 class ResponseTime(responseTime: DataReader => GeneralStats, name: String) {
