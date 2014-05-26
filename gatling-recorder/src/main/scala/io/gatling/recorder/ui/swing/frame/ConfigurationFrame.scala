@@ -31,7 +31,7 @@ import io.gatling.recorder.{ Har, Proxy, RecorderMode }
 import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration, RecorderPropertiesBuilder }
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.ui.RecorderFrontend
-import io.gatling.recorder.ui.swing.Commons.{ iconList, logoSmall }
+import io.gatling.recorder.ui.swing.Commons.{ IconList, LogoSmall }
 import io.gatling.recorder.ui.swing.component.FilterTable
 import io.gatling.recorder.ui.swing.frame.ValidationHelper.{ Validator, isNonEmpty, isValidPort, isValidPackageName, isValidSimpleClassName, keyReleased, updateValidationStatus }
 import io.gatling.recorder.ui.swing.util.CharsetHelper
@@ -61,7 +61,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
   private val harPath = new TextField(66)
   private val harFileFilter = new FileNameExtensionFilter("HTTP Archive (.har)", "har")
   private val harFileChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly; fileFilter = harFileFilter }
-  private val harFileBrowserButton = Button("Browse")(harFileChooser.openSelection.foreach(harPath.text = _))
+  private val harFileBrowserButton = Button("Browse")(harFileChooser.openSelection().foreach(harPath.text = _))
 
   /* Simulation panel components */
   private val simulationPackage = new TextField(30)
@@ -75,19 +75,19 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
   private val outputEncoding = new ComboBox[String](CharsetHelper.orderedLabelList)
   private val outputFolderPath = new TextField(66)
   private val outputFolderChooser = new FileChooser { fileSelectionMode = SelectionMode.DirectoriesOnly }
-  private val outputFolderBrowserButton = Button("Browse")(outputFolderChooser.saveSelection.foreach(outputFolderPath.text = _))
+  private val outputFolderBrowserButton = Button("Browse")(outputFolderChooser.saveSelection().foreach(outputFolderPath.text = _))
 
   /* Filters panel components */
   private val whiteListTable = new FilterTable("Whitelist")
-  private val addWhiteListFilter = Button("+")(whiteListTable.addRow)
-  private val removeWhiteListFilter = Button("-")(whiteListTable.removeSelectedRow)
-  private val clearWhiteListFilters = Button("Clear")(whiteListTable.removeAllElements)
+  private val addWhiteListFilter = Button("+")(whiteListTable.addRow())
+  private val removeWhiteListFilter = Button("-")(whiteListTable.removeSelectedRow())
+  private val clearWhiteListFilters = Button("Clear")(whiteListTable.removeAllElements())
 
   private val blackListTable = new FilterTable("Blacklist")
-  private val addBlackListFilter = Button("+")(blackListTable.addRow)
-  private val removeBlackListFilter = Button("-")(blackListTable.removeSelectedRow)
-  private val clearBlackListFilters = Button("Clear")(blackListTable.removeAllElements)
-  private val ruleOutStaticResources = Button("No static resources")(blackListStaticResources)
+  private val addBlackListFilter = Button("+")(blackListTable.addRow())
+  private val removeBlackListFilter = Button("-")(blackListTable.removeSelectedRow())
+  private val clearBlackListFilters = Button("Clear")(blackListTable.removeAllElements())
+  private val ruleOutStaticResources = Button("No static resources")(blackListStaticResources())
 
   private val filterStrategies = new ComboBox[FilterStrategy](FilterStrategy.AllStrategies) {
     selection.index = 0
@@ -96,10 +96,10 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
   /* Bottom panel components */
   private val savePreferences = new CheckBox("Save preferences") { horizontalTextPosition = Alignment.Left }
-  private val start = Button("Start !")(reloadConfigurationAndStart)
+  private val start = Button("Start !")(reloadConfigurationAndStart())
 
-  registerValidators
-  populateItemsFromConfiguration
+  registerValidators()
+  populateItemsFromConfiguration()
 
   /**********************************/
   /**           UI SETUP           **/
@@ -108,13 +108,13 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
   /* Frame setup */
   title = "Gatling Recorder - Configuration"
   resizable = true
-  peer.setIconImages(iconList)
+  peer.setIconImages(IconList)
 
   /* Layout setup */
   val root = new BorderPanel {
     /* Top panel: Gatling logo & Recorder mode */
     val top = new BorderPanel {
-      val logo = new CenterAlignedFlowPanel { contents += new Label { icon = logoSmall } }
+      val logo = new CenterAlignedFlowPanel { contents += new Label { icon = LogoSmall } }
       val modeSelection = new GridBagPanel {
         border = titledBorder("Recorder mode")
         layout(modeSelector) = new Constraints
@@ -288,15 +288,14 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
     case SelectionChanged(`filterStrategies`) =>
       val isNotDisabledStrategy = filterStrategies.selection.item != FilterStrategy.Disabled
       toggleFiltersEdition(isNotDisabledStrategy)
-    case ButtonClicked(`savePreferences`) if (!savePreferences.selected) => {
+    case ButtonClicked(`savePreferences`) if !savePreferences.selected =>
       val props = new RecorderPropertiesBuilder
       props.saveConfig(savePreferences.selected)
       RecorderConfiguration.reload(props.build)
-      RecorderConfiguration.saveConfig
-    }
+      RecorderConfiguration.saveConfig()
   }
 
-  private def toggleFiltersEdition(enabled: Boolean) {
+  private def toggleFiltersEdition(enabled: Boolean): Unit = {
     whiteListTable.setEnabled(enabled)
     whiteListTable.setFocusable(enabled)
     blackListTable.setEnabled(enabled)
@@ -312,9 +311,9 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
     simulationPackage.keys,
     simulationClassName.keys)
 
-  private def registerValidators() {
+  private def registerValidators(): Unit = {
     ValidationHelper.registerValidator(localProxyHttpPort, Validator(isValidPort))
-    ValidationHelper.registerValidator(outgoingProxyHost, Validator(isNonEmpty, enableConfig, disableConfig, true))
+    ValidationHelper.registerValidator(outgoingProxyHost, Validator(isNonEmpty, enableConfig, disableConfig, alwaysValid = true))
     ValidationHelper.registerValidator(outgoingProxyHttpPort, Validator(isValidPort))
     ValidationHelper.registerValidator(outgoingProxyHttpsPort, Validator(isValidPort))
     ValidationHelper.registerValidator(outputFolderPath, Validator(isNonEmpty))
@@ -322,14 +321,14 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
     ValidationHelper.registerValidator(simulationClassName, Validator(isValidSimpleClassName))
   }
 
-  private def enableConfig(c: Component) {
+  private def enableConfig(c: Component): Unit = {
     outgoingProxyHttpPort.enabled = true
     outgoingProxyHttpsPort.enabled = true
     outgoingProxyUsername.enabled = true
     outgoingProxyPassword.enabled = true
   }
 
-  private def disableConfig(c: Component) {
+  private def disableConfig(c: Component): Unit = {
     outgoingProxyHttpPort.enabled = false
     outgoingProxyHttpsPort.enabled = false
     outgoingProxyUsername.enabled = false
@@ -365,9 +364,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
 
   def harFilePath = harPath.text
 
-  def updateHarFilePath(path: Option[String]) {
-    path.foreach(harPath.text = _)
-  }
+  def updateHarFilePath(path: Option[String]): Unit = path.foreach(harPath.text = _)
 
   /****************************************/
   /**           CONFIGURATION            **/
@@ -376,7 +373,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
   /**
    * Configure fields, checkboxes, filters... based on the current Recorder configuration
    */
-  private def populateItemsFromConfiguration() {
+  private def populateItemsFromConfiguration(): Unit = {
     localProxyHttpPort.text = configuration.proxy.port.toString
 
     configuration.proxy.outgoing.host.map { proxyHost =>
@@ -411,8 +408,8 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
    */
   private def reloadConfigurationAndStart() {
     // clean up filters
-    whiteListTable.cleanUp
-    blackListTable.cleanUp
+    whiteListTable.cleanUp()
+    blackListTable.cleanUp()
 
     val filterValidationFailures =
       if (filterStrategies.selection.item == FilterStrategy.Disabled)
@@ -466,10 +463,10 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
       RecorderConfiguration.reload(props.build)
 
       if (savePreferences.selected) {
-        RecorderConfiguration.saveConfig
+        RecorderConfiguration.saveConfig()
       }
 
-      frontend.startRecording
+      frontend.startRecording()
     }
   }
 }

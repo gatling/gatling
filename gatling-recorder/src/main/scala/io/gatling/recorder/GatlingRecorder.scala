@@ -40,7 +40,7 @@ object GatlingRecorder {
     opt[Boolean](FetchHtmlResources.full).abbr(FetchHtmlResources.abbr).foreach(props.fetchHtmlResources).text("""Sets the "Fetch html resources" option to true""")
   }
 
-  def main(args: Array[String]) {
+  def main(args: Array[String]): Unit = {
     if (cliOptsParser.parse(args))
       RecorderController(props.build)
   }

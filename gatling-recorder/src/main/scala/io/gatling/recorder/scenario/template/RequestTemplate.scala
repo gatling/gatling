@@ -22,14 +22,14 @@ import io.gatling.recorder.scenario.RequestElement
 
 object RequestTemplate {
 
-  val builtInHttpMethods = List("GET", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS", "POST")
+  val BuiltInHttpMethods = List("GET", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS", "POST")
 
   def headersBlockName(id: Int) = fast"headers_$id"
 
   def render(simulationClass: String, request: RequestElement) = {
 
       def renderMethod =
-        if (builtInHttpMethods.contains(request.method)) {
+        if (BuiltInHttpMethods.contains(request.method)) {
           fast"${request.method.toLowerCase}($renderUrl)"
         } else {
           fast"""httpRequest("$request.method", Left($renderUrl))"""

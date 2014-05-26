@@ -28,6 +28,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
+import io.gatling.core.util.ConfigHelper.configChain
 import io.gatling.core.util.IO
 import io.gatling.core.util.StringHelper.RichString
 
@@ -37,9 +38,9 @@ object RecorderConfiguration extends IO with StrictLogging {
     def toOption = if (value != 0) Some(value) else None
   }
 
-  val remove4Spaces = """\s{4}""".r
+  val Remove4SpacesRegex = """\s{4}""".r
 
-  val renderOptions = ConfigRenderOptions.concise.setFormatted(true).setJson(false)
+  val RenderOptions = ConfigRenderOptions.concise.setFormatted(true).setJson(false)
 
   var configFile: Option[JFile] = None
 
@@ -48,14 +49,15 @@ object RecorderConfiguration extends IO with StrictLogging {
   GatlingConfiguration.setUp()
 
   private[this] def getClassLoader = Thread.currentThread.getContextClassLoader
-  private[this] def getDefaultConfig(classLoader: ClassLoader) = ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
+  private[this] def getDefaultConfig(classLoader: ClassLoader) =
+    ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
 
   def fakeConfig(props: Map[String, _]): RecorderConfiguration = {
     val defaultConfig = getDefaultConfig(getClassLoader)
-    buildConfig(ConfigFactory.parseMap(props).withFallback(defaultConfig))
+    buildConfig(configChain(ConfigFactory.parseMap(props), defaultConfig))
   }
 
-  def initialSetup(props: Map[String, _], recorderConfigFile: Option[File] = None) {
+  def initialSetup(props: Map[String, _], recorderConfigFile: Option[File] = None): Unit = {
     val classLoader = getClassLoader
     val defaultConfig = getDefaultConfig(classLoader)
     configFile = recorderConfigFile.map(_.jfile).orElse(Option(classLoader.getResource("recorder.conf")).map(url => new JFile(url.getFile)))
@@ -69,26 +71,25 @@ object RecorderConfiguration extends IO with StrictLogging {
     val propertiesConfig = ConfigFactory.parseMap(props)
 
     try {
-      configuration = buildConfig(ConfigFactory.systemProperties
-        .withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultConfig))
+      configuration = buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, customConfig, defaultConfig))
       logger.debug(s"configured $configuration")
     } catch {
       case e: Exception =>
         logger.warn(s"Loading configuration crashed: ${e.getMessage}. Probable cause is a format change, resetting.")
         configFile.foreach(_.delete)
-        configuration = buildConfig(ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(defaultConfig))
+        configuration = buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, defaultConfig))
     }
   }
 
-  def reload(props: Map[String, _]) {
+  def reload(props: Map[String, _]): Unit = {
     val frameConfig = ConfigFactory.parseMap(props)
-    configuration = buildConfig(frameConfig.withFallback(configuration.config))
+    configuration = buildConfig(configChain(frameConfig, configuration.config))
   }
 
-  def saveConfig() {
+  def saveConfig(): Unit = {
     // Remove request bodies folder configuration (transient), keep only Gatling-related properties
     val configToSave = configuration.config.withoutPath(ConfigKeys.core.RequestBodiesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
-    configFile.foreach(file => withCloseable(File(file).bufferedWriter)(_.write(configToSave.render(renderOptions))))
+    configFile.foreach(file => withCloseable(File(file).bufferedWriter())(_.write(configToSave.render(RenderOptions))))
   }
 
   private def buildConfig(config: Config): RecorderConfiguration = {

@@ -31,7 +31,7 @@ object UIHelper {
 
   implicit class RichListView[T](val listView: ListView[T]) extends AnyVal {
 
-    def add(elem: T) {
+    def add(elem: T): Unit = {
       listView.listData = listView.listData :+ elem
       listView.ensureIndexIsVisible(listView.listData.size - 1)
     }
@@ -40,7 +40,7 @@ object UIHelper {
 
   implicit class RichTextComponent[T <: TextComponent](val textComponent: T) extends AnyVal {
 
-    def clear() {
+    def clear(): Unit = {
       textComponent.text = ""
     }
   }

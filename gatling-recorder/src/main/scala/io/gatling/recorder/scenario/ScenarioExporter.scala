@@ -33,7 +33,7 @@ import io.gatling.recorder.scenario.template.SimulationTemplate
 
 object ScenarioExporter extends IO with StrictLogging {
 
-  private val EVENTS_GROUPING = 100
+  private val EventsGrouping = 100
 
   def simulationFilePath(implicit config: RecorderConfiguration) = {
       def getSimulationFileName: String = s"${config.core.className}.scala"
@@ -59,7 +59,7 @@ object ScenarioExporter extends IO with StrictLogging {
         e.getMessage.failure
     }
 
-  def saveScenario(scenarioElements: ScenarioDefinition)(implicit config: RecorderConfiguration) {
+  def saveScenario(scenarioElements: ScenarioDefinition)(implicit config: RecorderConfiguration): Unit = {
     require(!scenarioElements.isEmpty)
 
     val output = renderScenarioAndDumpBodies(scenarioElements)
@@ -173,12 +173,12 @@ object ScenarioExporter extends IO with StrictLogging {
   }
 
   private def getChains(scenarioElements: Seq[ScenarioElement]): Either[Seq[ScenarioElement], List[Seq[ScenarioElement]]] =
-    if (scenarioElements.size > ScenarioExporter.EVENTS_GROUPING)
-      Right(scenarioElements.grouped(ScenarioExporter.EVENTS_GROUPING).toList)
+    if (scenarioElements.size > ScenarioExporter.EventsGrouping)
+      Right(scenarioElements.grouped(ScenarioExporter.EventsGrouping).toList)
     else
       Left(scenarioElements)
 
-  private def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String)(implicit config: RecorderConfiguration) {
+  private def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String)(implicit config: RecorderConfiguration): Unit = {
     val fileName = s"${simulationClass}_request_$idEvent.txt"
     withCloseable(File(getFolder(config.core.requestBodiesFolder) / fileName).outputStream()) { fw =>
       try {

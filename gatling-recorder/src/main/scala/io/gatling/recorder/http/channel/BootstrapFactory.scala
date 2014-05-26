@@ -27,11 +27,11 @@ import io.gatling.recorder.http.ssl.SSLEngineFactory
 
 object BootstrapFactory extends StrictLogging {
 
-  val SSL_HANDLER_NAME = "ssl"
-  val GATLING_HANDLER_NAME = "gatling"
-  val CONDITIONAL_HANDLER_NAME = "conditional"
+  val SslHandlerName = "ssl"
+  val GatlingHandlerName = "gatling"
+  val ConditionalHandlerName = "conditional"
 
-  private val CHUNK_MAX_SIZE = 100 * 1024 * 1024 // 100Mo
+  private val ChunkMaxSize = 100 * 1024 * 1024 // 100Mo
 
   def newClientBootstrap(ssl: Boolean): ClientBootstrap = {
     val bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory)
@@ -40,10 +40,10 @@ object BootstrapFactory extends StrictLogging {
         logger.debug("Open new client channel")
         val pipeline = Channels.pipeline
         if (ssl)
-          pipeline.addLast(SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newClientSSLEngine))
+          pipeline.addLast(SslHandlerName, new SslHandler(SSLEngineFactory.newClientSSLEngine))
         pipeline.addLast("codec", new HttpClientCodec)
         pipeline.addLast("inflater", new HttpContentDecompressor)
-        pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
+        pipeline.addLast("aggregator", new HttpChunkAggregator(ChunkMaxSize))
         pipeline
       }
     })
@@ -63,10 +63,10 @@ object BootstrapFactory extends StrictLogging {
         logger.debug("Open new server channel")
         val pipeline = Channels.pipeline
         pipeline.addLast("decoder", new HttpRequestDecoder)
-        pipeline.addLast("aggregator", new HttpChunkAggregator(CHUNK_MAX_SIZE))
+        pipeline.addLast("aggregator", new HttpChunkAggregator(ChunkMaxSize))
         pipeline.addLast("encoder", new HttpResponseEncoder)
         pipeline.addLast("deflater", new HttpContentCompressor)
-        pipeline.addLast(CONDITIONAL_HANDLER_NAME, new ClientPortUnifiedRequestHandler(proxy, pipeline))
+        pipeline.addLast(ConditionalHandlerName, new ClientPortUnifiedRequestHandler(proxy, pipeline))
         pipeline
       }
     })
@@ -77,14 +77,14 @@ object BootstrapFactory extends StrictLogging {
     bootstrap
   }
 
-  def upgradeProtocol(pipeline: ChannelPipeline) {
+  def upgradeProtocol(pipeline: ChannelPipeline): Unit = {
     pipeline.remove("codec")
     pipeline.addFirst("codec", new HttpClientCodec)
-    pipeline.addFirst(SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newClientSSLEngine))
+    pipeline.addFirst(SslHandlerName, new SslHandler(SSLEngineFactory.newClientSSLEngine))
   }
 
-  def setGatlingProtocolHandler(pipeline: ChannelPipeline, handler: ClientRequestHandler) {
-    pipeline.addLast(GATLING_HANDLER_NAME, handler)
-    pipeline.remove(CONDITIONAL_HANDLER_NAME)
+  def setGatlingProtocolHandler(pipeline: ChannelPipeline, handler: ClientRequestHandler): Unit = {
+    pipeline.addLast(GatlingHandlerName, handler)
+    pipeline.remove(ConditionalHandlerName)
   }
 }

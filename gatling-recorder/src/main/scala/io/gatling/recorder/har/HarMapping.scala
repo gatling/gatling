@@ -15,8 +15,6 @@
  */
 package io.gatling.recorder.har
 
-import scala.util.Try
-
 import org.joda.convert.StringConvert.{ INSTANCE => convertInstance }
 import org.joda.time.DateTime
 
@@ -24,6 +22,8 @@ import io.gatling.recorder.util.Json
 import io.gatling.recorder.util.Json.{ JsonToInt, JsonToString }
 
 object HarMapping {
+
+  private val ProtectedValue = """"(.*)\"""".r
 
   def jsonToHttpArchive(json: Json): HttpArchive =
     HttpArchive(buildLog(json.log))
@@ -33,7 +33,7 @@ object HarMapping {
 
   private def buildLog(log: Json): Log = {
     val entries = log.entries.iterator
-      // Filter out all non-HTTP protocols (eg: ws://)	
+      // Filter out all non-HTTP protocols (eg: ws://)
       .filter(_.request.url.toString.toLowerCase.startsWith("http"))
       // Filter out all HTTP request with status=0, http://www.w3.org/TR/XMLHttpRequest/#the-status-attribute
       .filter(_.response.status.toInt != 0)
@@ -51,10 +51,8 @@ object HarMapping {
     val postData = request.postData.toOption
     Request(request.method, request.url, request.headers.map(buildHeader), postData.map(buildPostData))
   }
-
-  private val protectedValue = """"(.*)\"""".r
   private def unprotected(string: String) = string match {
-    case protectedValue(unprotected) => unprotected
+    case ProtectedValue(unprotected) => unprotected
     case _                           => string
   }
 

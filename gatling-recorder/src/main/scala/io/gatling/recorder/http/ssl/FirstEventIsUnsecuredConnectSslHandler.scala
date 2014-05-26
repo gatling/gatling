@@ -26,14 +26,14 @@ class FirstEventIsUnsecuredConnectSslHandler(sslEngine: SSLEngine) extends SslHa
 
   private val sslEnabled = new AtomicBoolean(false)
 
-  override def handleUpstream(context: ChannelHandlerContext, evt: ChannelEvent) {
+  override def handleUpstream(context: ChannelHandlerContext, evt: ChannelEvent): Unit = {
     if (sslEnabled.get)
       super.handleUpstream(context, evt)
     else
       context.sendUpstream(evt)
   }
 
-  override def handleDownstream(context: ChannelHandlerContext, evt: ChannelEvent) {
+  override def handleDownstream(context: ChannelHandlerContext, evt: ChannelEvent): Unit = {
     if (sslEnabled.get)
       super.handleDownstream(context, evt)
     else {

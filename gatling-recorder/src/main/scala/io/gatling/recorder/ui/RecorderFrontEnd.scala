@@ -41,35 +41,35 @@ sealed abstract class RecorderFrontend(controller: RecorderController) {
 
   def harFilePath: String
 
-  def handleMissingHarFile(path: String)
+  def handleMissingHarFile(path: String): Unit
 
-  def handleHarExportSuccess()
+  def handleHarExportSuccess(): Unit
 
-  def handleHarExportFailure(message: String)
+  def handleHarExportFailure(message: String): Unit
 
-  def handleFilterValidationFailures(failures: Seq[String])
+  def handleFilterValidationFailures(failures: Seq[String]): Unit
 
   def askSimulationOverwrite: Boolean
 
-  def init()
+  def init(): Unit
 
-  def recordingStarted()
+  def recordingStarted(): Unit
 
-  def recordingStopped()
+  def recordingStopped(): Unit
 
-  def receiveEventInfo(eventInfo: EventInfo)
+  def receiveEventInfo(eventInfo: EventInfo): Unit
 
   /******************************/
   /**  Frontend => Controller  **/
   /******************************/
 
-  def addTag(tag: String) { controller.addTag(tag) }
+  def addTag(tag: String): Unit = controller.addTag(tag)
 
-  def startRecording() { controller.startRecording() }
+  def startRecording(): Unit = controller.startRecording()
 
-  def stopRecording(save: Boolean) { controller.stopRecording(save) }
+  def stopRecording(save: Boolean): Unit = controller.stopRecording(save)
 
-  def clearRecorderState() { controller.clearRecorderState() }
+  def clearRecorderState(): Unit = controller.clearRecorderState()
 }
 
 private class SwingFrontend(controller: RecorderController) extends RecorderFrontend(controller) {
@@ -81,7 +81,7 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
 
   def harFilePath = configurationFrame.harFilePath
 
-  def handleMissingHarFile(harFilePath: String) {
+  def handleMissingHarFile(harFilePath: String): Unit = {
     if (harFilePath.isEmpty) {
       Dialog.showMessage(
         title = "Error",
@@ -105,14 +105,14 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
     }
   }
 
-  def handleHarExportSuccess() {
+  def handleHarExportSuccess(): Unit = {
     Dialog.showMessage(
       title = "Conversion complete",
       message = "Successfully converted HAR file to a Gatling simulation",
       messageType = Dialog.Message.Info)
   }
 
-  def handleHarExportFailure(message: String) {
+  def handleHarExportFailure(message: String): Unit = {
     Dialog.showMessage(
       title = "Error",
       message = s"""	|Export to HAR File unsuccessful: $message.
@@ -120,7 +120,7 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
       messageType = Dialog.Message.Error)
   }
 
-  def handleFilterValidationFailures(failures: Seq[String]) {
+  def handleFilterValidationFailures(failures: Seq[String]): Unit = {
     Dialog.showMessage(
       title = "Error",
       message = failures.mkString("\n"),
@@ -135,23 +135,19 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
       messageType = Dialog.Message.Warning) == Dialog.Result.Ok
   }
 
-  def init() {
+  def init(): Unit = {
     configurationFrame.visible = true
     runningFrame.visible = false
   }
 
-  def recordingStarted() {
+  def recordingStarted(): Unit = {
     runningFrame.visible = true
     configurationFrame.visible = false
   }
 
-  def recordingStopped() {
-    runningFrame.clearState()
-  }
+  def recordingStopped(): Unit = runningFrame.clearState()
 
-  def receiveEventInfo(eventInfo: EventInfo) {
-    onEDT(runningFrame.receiveEventInfo(eventInfo))
-  }
+  def receiveEventInfo(eventInfo: EventInfo): Unit = onEDT(runningFrame.receiveEventInfo(eventInfo))
 
   private def lookupFiles(path: String) = {
     val parent = path.parent

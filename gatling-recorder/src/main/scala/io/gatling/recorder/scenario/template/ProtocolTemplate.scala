@@ -24,7 +24,7 @@ import io.gatling.recorder.scenario.ProtocolDefinition
 
 object ProtocolTemplate {
 
-  val indent = "\t" * 2
+  val Indent = "\t" * 2
 
   def render(protocol: ProtocolDefinition)(implicit config: RecorderConfiguration) = {
 
@@ -36,19 +36,19 @@ object ProtocolTemplate {
             val credentials = for {
               proxyUsername <- config.proxy.outgoing.username
               proxyPassword <- config.proxy.outgoing.password
-            } yield s"""$eol$indent.credentials(${protectWithTripleQuotes(proxyUsername)},${protectWithTripleQuotes(proxyPassword)})"""
+            } yield s"""$eol$Indent.credentials(${protectWithTripleQuotes(proxyUsername)},${protectWithTripleQuotes(proxyPassword)})"""
             credentials.getOrElse("")
           }
 
         val protocol = for {
           proxyHost <- config.proxy.outgoing.host
           proxyPort <- config.proxy.outgoing.port
-        } yield fast"""$eol$indent.proxy(Proxy("$proxyHost", $proxyPort)$renderSslPort$renderCredentials)"""
+        } yield fast"""$eol$Indent.proxy(Proxy("$proxyHost", $proxyPort)$renderSslPort$renderCredentials)"""
 
         protocol.getOrElse(fast"")
       }
 
-      def renderFollowRedirect = if (!config.http.followRedirect) fast"$eol$indent.disableFollowRedirect" else fast""
+      def renderFollowRedirect = if (!config.http.followRedirect) fast"$eol$Indent.disableFollowRedirect" else fast""
 
       def renderFetchHtmlResources = if (config.http.fetchHtmlResources) {
         val filtersConfig = config.filters
@@ -63,13 +63,13 @@ object ProtocolTemplate {
           case FilterStrategy.Disabled       => emptyFastring
         }
 
-        fast"$eol$indent.fetchHtmlResources($patterns)"
+        fast"$eol$Indent.fetchHtmlResources($patterns)"
       } else fast""
 
-      def renderAutomaticReferer = if (!config.http.automaticReferer) fast"$eol$indent.disableAutoReferer" else fast""
+      def renderAutomaticReferer = if (!config.http.automaticReferer) fast"$eol$Indent.disableAutoReferer" else fast""
 
       def renderHeaders = {
-          def renderHeader(methodName: String, headerValue: String) = fast"""$eol$indent.$methodName(\"\"\"$headerValue\"\"\")"""
+          def renderHeader(methodName: String, headerValue: String) = fast"""$eol$Indent.$methodName(\"\"\"$headerValue\"\"\")"""
         protocol.headers.toList.sorted.flatMap { case (headerName, headerValue) => baseHeaders.get(headerName).map(renderHeader(_, headerValue)) }.mkFastring
       }
 

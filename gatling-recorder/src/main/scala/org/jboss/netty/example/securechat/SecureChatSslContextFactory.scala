@@ -56,16 +56,16 @@ import javax.net.ssl.{ KeyManagerFactory, SSLContext }
  */
 object SecureChatSslContextFactory extends IO with StrictLogging {
 
-  val PROTOCOL = "TLS"
-  val PROPERTY_KEYSTORE_PATH = "gatling.recorder.keystore.path"
-  val PROPERTY_KEYSTORE_PASSPHRASE = "gatling.recorder.keystore.passphrase"
+  val Protocol = "TLS"
+  val PropertyKeystorePath = "gatling.recorder.keystore.path"
+  val PropertyKeystorePassphrase = "gatling.recorder.keystore.passphrase"
 
   val serverContext: SSLContext = {
 
     val algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
     val ks = KeyStore.getInstance("JKS")
 
-    val keystoreStream = sys.props.get(PROPERTY_KEYSTORE_PATH)
+    val keystoreStream = sys.props.get(PropertyKeystorePath)
       .map { keystorePath =>
         logger.info(s"Loading user-specified keystore: '$keystorePath'")
         new FileInputStream(keystorePath)
@@ -74,7 +74,7 @@ object SecureChatSslContextFactory extends IO with StrictLogging {
         ClassLoader.getSystemResourceAsStream("gatling.jks")
       }
 
-    val keystorePassphrase = System.getProperty(PROPERTY_KEYSTORE_PASSPHRASE, "gatling")
+    val keystorePassphrase = System.getProperty(PropertyKeystorePassphrase, "gatling")
 
     withCloseable(keystoreStream) { in =>
       val passphraseChars = keystorePassphrase.toCharArray
@@ -85,7 +85,7 @@ object SecureChatSslContextFactory extends IO with StrictLogging {
       kmf.init(ks, passphraseChars)
 
       // Initialize the SSLContext to work with our key managers.
-      val serverContext = SSLContext.getInstance(PROTOCOL)
+      val serverContext = SSLContext.getInstance(Protocol)
       serverContext.init(kmf.getKeyManagers, null, null)
 
       serverContext
@@ -93,7 +93,7 @@ object SecureChatSslContextFactory extends IO with StrictLogging {
   }
 
   val clientContext: SSLContext = {
-    val clientContext = SSLContext.getInstance(PROTOCOL)
+    val clientContext = SSLContext.getInstance(Protocol)
     clientContext.init(null, SecureChatTrustManagerFactory.trustManagers, null)
     clientContext
   }

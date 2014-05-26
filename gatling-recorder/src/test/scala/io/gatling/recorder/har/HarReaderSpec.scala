@@ -87,7 +87,7 @@ class HarReaderSpec extends Specification {
     "have requests with valid headers" in {
       // Extra headers can be added by Chrome
       val headerNames = elts.iterator.collect { case RequestElement(_, _, headers, _, _, _) => headers.keys }.flatten.toSet
-      headerNames must not containPattern (":.*")
+      headerNames must not containPattern ":.*"
     }
 
     "have the embedded HTML resources filtered out" in {
@@ -101,7 +101,7 @@ class HarReaderSpec extends Specification {
       val scn = HarReader(resourceAsStream("har/play-chat.har"))(configWithResourcesFiltering)
       val requests = scn.elements.collect { case r: RequestElement => r.uri }
 
-      (scn.elements must have size (3)) and
+      (scn.elements must have size 3) and
         (requests must beEqualTo(List("http://localhost:9000/room", "http://localhost:9000/room?username=robert")))
     }
 
@@ -116,7 +116,7 @@ class HarReaderSpec extends Specification {
       val requests = scn.elements.collect { case r: RequestElement => r }
       val statuses = requests.map(_.statusCode)
 
-      requests must have size (3) and (statuses must not contain (0))
+      requests must have size 3 and (statuses must not contain 0)
     }
   }
 

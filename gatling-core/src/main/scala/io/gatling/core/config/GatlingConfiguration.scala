@@ -24,6 +24,7 @@ import scala.io.Codec
 import com.typesafe.config.{ Config, ConfigFactory }
 
 import io.gatling.core.ConfigKeys._
+import io.gatling.core.util.ConfigHelper.configChain
 import io.gatling.core.util.StringHelper.RichString
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
@@ -45,7 +46,7 @@ object GatlingConfiguration extends StrictLogging {
   def fakeConfig(props: Map[String, _ <: Any] = Map.empty) = {
     val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, "gatling-defaults.conf")
     val propertiesConfig = ConfigFactory.parseMap(props)
-    val config = ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(defaultsConfig)
+    val config = configChain(ConfigFactory.systemProperties, propertiesConfig, defaultsConfig)
     mapToGatlingConfig(config)
   }
 
@@ -89,7 +90,7 @@ object GatlingConfiguration extends StrictLogging {
     val customConfig = ConfigFactory.parseResources(classLoader, "gatling.conf")
     val propertiesConfig = ConfigFactory.parseMap(props)
 
-    val config = ConfigFactory.systemProperties.withFallback(propertiesConfig).withFallback(customConfig).withFallback(defaultsConfig)
+    val config = configChain(ConfigFactory.systemProperties, propertiesConfig, customConfig, defaultsConfig)
 
     warnAboutRemovedProperties(config)
 

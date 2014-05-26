@@ -28,11 +28,11 @@ class RichSeqSpec extends Specification {
     "group elements as long as the predicate applies" in {
       val reqs = Vector(200, 200, 304, 304, 200, 304, 200, 200).zipWithIndex.map(_.swap)
       val expectedReqs = List(
-        ((0, 200) :: Nil),
-        ((1, 200) :: Nil),
-        ((2, 304) :: (3, 304) :: (4, 200) :: Nil),
-        ((5, 304) :: (6, 200) :: Nil),
-        ((7, 200) :: Nil))
+        List(0 -> 200),
+        List(1 -> 200),
+        List(2 -> 304, 3 -> 304, 4 -> 200),
+        List(5 -> 304, 6 -> 200),
+        List(7 -> 200))
 
       val groupedReqs = reqs.groupAsLongAs((t: (Int, Int)) => t._2 == 304)
 

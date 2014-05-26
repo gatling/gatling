@@ -28,7 +28,7 @@ import io.gatling.http.util.HttpHelper.OkCodes
 // FIXME ugly
 class ServerHttpResponseHandler(controller: RecorderController, clientChannel: Channel, @volatile var request: HttpRequest = null, var expectConnect: Boolean = false) extends SimpleChannelHandler with StrictLogging {
 
-  override def messageReceived(context: ChannelHandlerContext, event: MessageEvent) {
+  override def messageReceived(context: ChannelHandlerContext, event: MessageEvent): Unit = {
 
       def isKeepAlive(headers: HttpHeaders) = Option(headers.get(HttpHeaders.Names.CONNECTION)).map(HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase).getOrElse(false)
 

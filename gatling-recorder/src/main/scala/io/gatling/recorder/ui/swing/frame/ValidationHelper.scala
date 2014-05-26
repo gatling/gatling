@@ -55,13 +55,13 @@ object ValidationHelper {
       !s.substring(1, s.length).exists(!Character.isJavaIdentifierPart(_))
 
   /* Default callbacks */
-  def setStandardBorder(c: Component) { c.border = standardBorder }
-  def setErrorBorder(c: Component) { c.border = errorBorder }
+  def setStandardBorder(c: Component): Unit = { c.border = standardBorder }
+  def setErrorBorder(c: Component): Unit = { c.border = errorBorder }
 
   private val validators = mutable.Map.empty[TextField, Validator]
   private val status = mutable.Map.empty[TextField, Boolean]
 
-  def registerValidator(textField: TextField, validator: Validator) {
+  def registerValidator(textField: TextField, validator: Validator): Unit = {
     validators += (textField -> validator)
   }
 

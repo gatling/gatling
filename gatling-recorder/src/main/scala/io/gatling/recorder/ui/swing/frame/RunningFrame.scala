@@ -26,7 +26,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.recorder.ui._
 import io.gatling.recorder.ui.swing.component.TextAreaPanel
-import io.gatling.recorder.ui.swing.Commons.iconList
+import io.gatling.recorder.ui.swing.Commons.IconList
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
 class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogging {
@@ -37,10 +37,10 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 
   /* Top panel components */
   private val tagField = new TextField(15)
-  private val tagButton = Button("Add")(addTag)
-  private val clearButton = Button("Clear") { clearState; frontend.clearRecorderState }
-  private val cancelButton = Button("Cancel")(frontend.stopRecording(false))
-  private val stopButton = Button("Stop & Save")(frontend.stopRecording(true))
+  private val tagButton = Button("Add")(addTag())
+  private val clearButton = Button("Clear") { clearState(); frontend.clearRecorderState() }
+  private val cancelButton = Button("Cancel")(frontend.stopRecording(save = false))
+  private val stopButton = Button("Stop & Save")(frontend.stopRecording(save = true))
 
   /* Center panel components */
   private val initialSize = (472, 150)
@@ -61,7 +61,7 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
 
   /* Frame setup */
   title = "Gatling Recorder - Running..."
-  peer.setIconImages(iconList)
+  peer.setIconImages(IconList)
 
   /* Layout setup */
   val root = new BorderPanel {
@@ -137,7 +137,7 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
       val selectedIndex = events.peer.getSelectedIndex
       events.listData(selectedIndex) match {
         case requestInfo: RequestInfo => showRequest(requestInfo)
-        case _                        => infoPanels.foreach(_.textArea.clear)
+        case _                        => infoPanels.foreach(_.textArea.clear())
       }
     case _ => // Do nothing
   }
@@ -145,7 +145,7 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
   /**
    * Add a new tag to the list of scenario elements
    */
-  private def addTag() {
+  private def addTag(): Unit = {
     if (!tagField.text.isEmpty) {
       frontend.addTag(tagField.text)
       tagField.clear()
@@ -156,22 +156,22 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
    * Display request going through the Recorder
    * @param requestInfo The outgoing request info
    */
-  private def showRequest(requestInfo: RequestInfo) {
+  private def showRequest(requestInfo: RequestInfo): Unit = {
     requestHeaders.textArea.text = requestInfo.request.toString
     responseHeaders.textArea.text = requestInfo.response.toString
     requestBodies.textArea.text = requestInfo.requestBody
     responseBodies.textArea.text = requestInfo.responseBody
     infoPanels.foreach(_.preferredSize = newSize)
-    infoPanels.foreach(_.revalidate)
+    infoPanels.foreach(_.revalidate())
   }
 
   /**
    * Clear all the panels showing info about scenarios elements
    * or requests of their content
    */
-  def clearState() {
+  def clearState(): Unit = {
     events.listData = Seq.empty
-    infoPanels.foreach(_.textArea.clear)
+    infoPanels.foreach(_.textArea.clear())
     tagField.clear()
   }
 
@@ -180,7 +180,7 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
    * and display them accordingly
    * @param eventInfo the event sent by the controller
    */
-  def receiveEventInfo(eventInfo: EventInfo) {
+  def receiveEventInfo(eventInfo: EventInfo): Unit = {
     eventInfo match {
       case pauseInfo: PauseInfo => events.add(pauseInfo)
       case requestInfo: RequestInfo => events.add(requestInfo)

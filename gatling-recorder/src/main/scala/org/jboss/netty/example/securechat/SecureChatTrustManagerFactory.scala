@@ -25,11 +25,11 @@ object SecureChatTrustManagerFactory {
   val trustManagers = Array[TrustManager](new X509TrustManager {
     def getAcceptedIssuers = Array.empty[X509Certificate]
 
-    def checkClientTrusted(chain: Array[X509Certificate], authType: String) {
+    def checkClientTrusted(chain: Array[X509Certificate], authType: String): Unit = {
       // Always trust
     }
 
-    def checkServerTrusted(chain: Array[X509Certificate], authType: String) {
+    def checkServerTrusted(chain: Array[X509Certificate], authType: String): Unit = {
       // Always trust
     }
   })
@@ -49,11 +49,11 @@ class SecureChatTrustManagerFactory extends TrustManagerFactorySpi {
 
   def engineGetTrustManagers = SecureChatTrustManagerFactory.trustManagers
 
-  def engineInit(keystore: KeyStore) {
+  def engineInit(keystore: KeyStore): Unit = {
     // Unused
   }
 
-  def engineInit(managerFactoryParameters: ManagerFactoryParameters) {
+  def engineInit(managerFactoryParameters: ManagerFactoryParameters): Unit = {
     // Unused
   }
 }

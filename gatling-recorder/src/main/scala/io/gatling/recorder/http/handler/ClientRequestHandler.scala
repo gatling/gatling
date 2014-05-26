@@ -44,7 +44,7 @@ abstract class ClientRequestHandler(proxy: HttpProxy) extends SimpleChannelHandl
 
   var _serverChannel: Option[Channel] = None
 
-  override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent) {
+  override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent): Unit = {
 
     event.getMessage match {
       case request: HttpRequest =>
@@ -70,9 +70,9 @@ abstract class ClientRequestHandler(proxy: HttpProxy) extends SimpleChannelHandl
     }
   }
 
-  def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest)
+  def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest): Unit
 
-  override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent) {
+  override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
     logger.error("Exception caught", e.getCause)
     ctx.getChannel.close
     _serverChannel.map(_.close)

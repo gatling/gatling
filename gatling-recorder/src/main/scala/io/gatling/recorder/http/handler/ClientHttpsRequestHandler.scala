@@ -36,12 +36,12 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
 
   var targetHostURI: URI = _
 
-  def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest) {
+  def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest): Unit = {
 
-      def handleConnect() {
+      def handleConnect(): Unit = {
         targetHostURI = new URI("https://" + request.getUri)
         requestContext.getChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
-        requestContext.getPipeline.addFirst(BootstrapFactory.SSL_HANDLER_NAME, new SslHandler(SSLEngineFactory.newServerSSLEngine))
+        requestContext.getPipeline.addFirst(BootstrapFactory.SslHandlerName, new SslHandler(SSLEngineFactory.newServerSSLEngine))
       }
 
       def buildConnectRequest = {
@@ -50,27 +50,27 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
         connect
       }
 
-      def handlePropagatableRequest() {
+      def handlePropagatableRequest(): Unit = {
 
           def handleConnect(address: InetSocketAddress) {
             proxy.clientBootstrap
               .connect(address)
               .addListener { connectFuture: ChannelFuture =>
                 val serverChannel = connectFuture.getChannel
-                serverChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, true))
+                serverChannel.getPipeline.addLast(BootstrapFactory.GatlingHandlerName, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, true))
                 _serverChannel = Some(serverChannel)
                 serverChannel.write(buildConnectRequest)
               }
           }
 
-          def handleDirect(address: InetSocketAddress) {
+          def handleDirect(address: InetSocketAddress): Unit = {
             proxy.secureClientBootstrap
               .connect(address)
               .addListener { connectFuture: ChannelFuture =>
-                connectFuture.getChannel.getPipeline.get(BootstrapFactory.SSL_HANDLER_NAME).asInstanceOf[SslHandler].handshake
+                connectFuture.getChannel.getPipeline.get(BootstrapFactory.SslHandlerName).asInstanceOf[SslHandler].handshake
                   .addListener { handshakeFuture: ChannelFuture =>
                     val serverChannel = handshakeFuture.getChannel
-                    serverChannel.getPipeline.addLast(BootstrapFactory.GATLING_HANDLER_NAME, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, false))
+                    serverChannel.getPipeline.addLast(BootstrapFactory.GatlingHandlerName, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, false))
                     _serverChannel = Some(serverChannel)
                     serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request))
                   }
@@ -102,9 +102,9 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
     }
   }
 
-  override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent) {
+  override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
 
-      def handleSslException(e: Exception) {
+      def handleSslException(e: Exception): Unit = {
         logger.error(s"${e.getClass.getSimpleName} ${e.getMessage}, did you accept the certificate for $targetHostURI?")
         proxy.controller.secureConnection(targetHostURI)
         ctx.getChannel.close

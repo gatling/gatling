@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.http.handler
+package io.gatling.core.util
 
-import org.jboss.netty.channel.ChannelFutureListener
-import org.jboss.netty.channel.ChannelFuture
+import com.typesafe.config.Config
 
-object ChannelFutures {
+object ConfigHelper {
 
-  implicit def function2ChannelFutureListener(thunk: ChannelFuture => Any) = new ChannelFutureListener {
-    def operationComplete(future: ChannelFuture): Unit = thunk(future)
-  }
+  /**
+   * Creates a configuration with a series of fallback configurations
+   * in which config keys will be looked up.
+   * @param config the root configuration
+   * @param fallbacks the list of fallback configurations, ordered by their precedence in
+   *                  the fallback chain.
+   * @return the configuration with its fallback configs configured
+   */
+  def configChain(config: Config, fallbacks: Config*) =
+    fallbacks.foldLeft(config)(_ withFallback _)
 }

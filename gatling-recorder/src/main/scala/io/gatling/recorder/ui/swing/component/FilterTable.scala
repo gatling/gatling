@@ -44,7 +44,7 @@ class FilterTable(headerTitle: String) extends ScrollPane {
   preferredSize = new Dimension(200, 300)
   initPopupMenu()
 
-  def cleanUp() {
+  def cleanUp(): Unit = {
     stopCellEditing()
     var toRemove: List[Int] = Nil
     for (i <- 0 until table.rowCount if table(i, 0).toString.isEmpty)
@@ -61,16 +61,16 @@ class FilterTable(headerTitle: String) extends ScrollPane {
         case (str, fail: Failure[_]) => s"$str is not a valid regular expression: ${fail.exception.getMessage}"
       }
 
-  def removeRows(toRemove: Seq[Int]) {
+  def removeRows(toRemove: Seq[Int]): Unit = {
     toRemove.sorted.reverse.foreach(model.removeRow)
   }
 
-  def stopCellEditing() {
+  def stopCellEditing(): Unit = {
     if (table.peer.isEditing && table.peer.getSelectedRow != -1)
       table.peer.getCellEditor.stopCellEditing
   }
 
-  def removeDuplicates() {
+  def removeDuplicates(): Unit = {
     val toRemove = for {
       i <- 0 until table.rowCount
       j <- i until table.rowCount
@@ -80,23 +80,23 @@ class FilterTable(headerTitle: String) extends ScrollPane {
     toRemove.toSet.toList.sortWith(_ >= _).foreach(model.removeRow)
   }
 
-  def setEnabled(enabled: Boolean) {
+  def setEnabled(enabled: Boolean): Unit = {
     table.enabled = enabled
     table.background = if (enabled) Color.white else Color.lightGray
   }
 
-  def addRow() {
+  def addRow(): Unit = {
     stopCellEditing()
     model.addRow(Array[Object](""))
   }
 
-  def addRow(pattern: String) { model.addRow(Array[Object](pattern)) }
+  def addRow(pattern: String): Unit = model.addRow(Array[Object](pattern))
 
-  def removeSelectedRow() { removeRows(table.selection.rows.toSeq) }
+  def removeSelectedRow(): Unit = removeRows(table.selection.rows.toSeq)
 
-  def removeAllElements() { removeRows(0 until model.getRowCount) }
+  def removeAllElements(): Unit = removeRows(0 until model.getRowCount)
 
-  def setFocusable(focusable: Boolean) { table.focusable = focusable }
+  def setFocusable(focusable: Boolean): Unit = { table.focusable = focusable }
 
   def getRowCount = model.getRowCount
 
@@ -104,7 +104,7 @@ class FilterTable(headerTitle: String) extends ScrollPane {
 
   def getRegexs = (for (i <- 0 until getRowCount) yield getRegex(i)).toList
 
-  private def initPopupMenu() {
+  private def initPopupMenu(): Unit = {
     val popup = new JPopupMenu
     val menuItem = new JMenuItem("Delete")
     menuItem.addActionListener(new ActionListener {

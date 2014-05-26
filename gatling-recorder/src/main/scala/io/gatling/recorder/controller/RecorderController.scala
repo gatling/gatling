@@ -38,7 +38,7 @@ import io.gatling.recorder.scenario.{ RequestElement, ScenarioDefinition, Scenar
 import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
 
 object RecorderController {
-  def apply(props: Map[String, Any], recorderConfigFile: Option[File] = None) {
+  def apply(props: Map[String, Any], recorderConfigFile: Option[File] = None): Unit = {
     RecorderConfiguration.initialSetup(props, recorderConfigFile)
     new RecorderController
   }
@@ -50,14 +50,16 @@ class RecorderController extends StrictLogging {
 
   @volatile private var proxy: HttpProxy = _
 
+  private class SynchronizedArrayBuffer[T] extends mutable.ArrayBuffer[T] with mutable.SynchronizedBuffer[T]
+
   // Collection of tuples, (arrivalTime, request)
-  private val currentRequests = new mutable.ArrayBuffer[(Long, RequestElement)] with mutable.SynchronizedBuffer[(Long, RequestElement)]
+  private val currentRequests = new SynchronizedArrayBuffer[(Long, RequestElement)]
   // Collection of tuples, (arrivalTime, tag)
-  private val currentTags = new mutable.ArrayBuffer[(Long, TagElement)] with mutable.SynchronizedBuffer[(Long, TagElement)]
+  private val currentTags = new SynchronizedArrayBuffer[(Long, TagElement)]
 
   frontEnd.init()
 
-  def startRecording() {
+  def startRecording(): Unit = {
     val selectedMode = frontEnd.selectedMode
     val harFilePath = frontEnd.harFilePath
     if (selectedMode == Har && !File(harFilePath).exists) {
@@ -71,7 +73,7 @@ class RecorderController extends StrictLogging {
           case Har =>
             ScenarioExporter.exportScenario(harFilePath) match {
               case Failure(errMsg) => frontEnd.handleHarExportFailure(errMsg)
-              case _               => frontEnd.handleHarExportSuccess()
+              case Success(_)      => frontEnd.handleHarExportSuccess()
             }
           case Proxy =>
             proxy = new HttpProxy(config, this)
@@ -81,7 +83,7 @@ class RecorderController extends StrictLogging {
     }
   }
 
-  def stopRecording(save: Boolean) {
+  def stopRecording(save: Boolean): Unit = {
     frontEnd.recordingStopped()
     try {
       if (currentRequests.isEmpty)
@@ -99,7 +101,7 @@ class RecorderController extends StrictLogging {
     }
   }
 
-  def receiveRequest(request: HttpRequest) {
+  def receiveRequest(request: HttpRequest): Unit = {
     // TODO NICO - that's not the appropriate place to synchronize !
     synchronized {
       // If Outgoing Proxy set, we record the credentials to use them when sending the request
@@ -115,7 +117,7 @@ class RecorderController extends StrictLogging {
     }
   }
 
-  def receiveResponse(request: HttpRequest, response: HttpResponse) {
+  def receiveResponse(request: HttpRequest, response: HttpResponse): Unit = {
     if (configuration.filters.filters.map(_.accept(request.getUri)).getOrElse(true)) {
       val arrivalTime = System.currentTimeMillis
 
@@ -133,16 +135,16 @@ class RecorderController extends StrictLogging {
     }
   }
 
-  def addTag(text: String) {
+  def addTag(text: String): Unit = {
     currentTags += System.currentTimeMillis -> TagElement(text)
     frontEnd.receiveEventInfo(TagInfo(text))
   }
 
-  def secureConnection(securedHostURI: URI) {
+  def secureConnection(securedHostURI: URI): Unit = {
     frontEnd.receiveEventInfo(SSLInfo(securedHostURI.toString))
   }
 
-  def clearRecorderState() {
+  def clearRecorderState(): Unit = {
     currentRequests.clear()
     currentTags.clear()
   }
