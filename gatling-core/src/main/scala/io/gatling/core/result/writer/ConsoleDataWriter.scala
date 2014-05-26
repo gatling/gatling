@@ -44,7 +44,7 @@ class ConsoleDataWriter extends DataWriter {
   private var startUpTime = 0L
   private var complete = false
   private val usersCounters = mutable.Map.empty[String, UserCounters]
-  private var globalRequestCounters = new RequestCounters
+  private val globalRequestCounters = new RequestCounters
   private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
   private val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
 
