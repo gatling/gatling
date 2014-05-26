@@ -106,6 +106,21 @@ class HttpRequestAction(httpRequest: HttpRequest, val next: ActorRef) extends Re
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
       ahcRequest <- ahcRequest(session)
-      tx = HttpTx(session, sign(ahcRequest, signatureCalculator), requestName, checks, responseBuilderFactory, protocol, next, followRedirect, maxRedirects, throttled, HttpRequestAction.isSilent(ahcRequest, httpRequest), explicitResources, extraInfoExtractor)
+
+      tx = HttpTx(
+        session,
+        sign(ahcRequest, signatureCalculator),
+        requestName,
+        checks,
+        responseBuilderFactory,
+        protocol,
+        next,
+        followRedirect,
+        maxRedirects,
+        throttled,
+        HttpRequestAction.isSilent(ahcRequest, httpRequest),
+        explicitResources,
+        extraInfoExtractor)
+
     } yield HttpRequestAction.startHttpTransaction(tx)
 }
