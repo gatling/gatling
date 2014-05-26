@@ -49,8 +49,7 @@ class ConsoleDataWriter extends DataWriter {
   private val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
 
   def display(): Unit = {
-    val now = currentTimeMillis
-    val runDuration = (now - startUpTime) / 1000
+    val runDuration = (currentTimeMillis - startUpTime) / 1000
 
     val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters)
     complete = summary.complete
@@ -110,7 +109,5 @@ class ConsoleDataWriter extends DataWriter {
     }
   }
 
-  override def onTerminateDataWriter(): Unit = {
-    if (!complete) display
-  }
+  override def onTerminateDataWriter(): Unit = if (!complete) display
 }
