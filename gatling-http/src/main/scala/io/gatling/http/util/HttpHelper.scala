@@ -64,7 +64,13 @@ object HttpHelper extends StrictLogging {
   def isCss(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.ContentType)).exists(_.contains(HeaderValues.TextCss))
   def isHtml(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.ContentType)).exists(ct => ct.contains(HeaderValues.TextHhtml) || ct.contains(HeaderValues.ApplicationXhtml))
   def isAjax(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.XRequestedWith)).exists(ct => ct.contains(HeaderValues.XmlHttpRequest))
-  def resolveFromURI(rootURI: URI, relative: String) = AsyncHttpProviderUtils.getRedirectUri(rootURI, relative)
+
+  def resolveFromURI(rootURI: URI, relative: String): URI =
+    if (relative.startsWith("//"))
+      new URI(rootURI.getScheme + ":" + relative)
+    else
+      AsyncHttpProviderUtils.getRedirectUri(rootURI, relative)
+
   def resolveFromURISilently(rootURI: URI, relative: String): Option[URI] =
     try {
       Some(resolveFromURI(rootURI, relative))
