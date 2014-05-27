@@ -19,8 +19,10 @@ import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.NumberHelper._
+import io.gatling.core.validation.{Failure, Success, Validation}
 
-class Selector(stats: (DataReader, Option[Status]) => GeneralStats, name: String) {
+class Selector(stats: (DataReader, Option[Status]) => Validation[GeneralStats], name: String) {
+
   def responseTime = new ResponseTime(reader => stats(reader, None), name)
 
   def allRequests = new Requests(stats, None, name)
@@ -29,7 +31,7 @@ class Selector(stats: (DataReader, Option[Status]) => GeneralStats, name: String
 
   def successfulRequests = new Requests(stats, Some(OK), name)
 
-  def requestsPerSec = Metric(reader => stats(reader, None).meanRequestsPerSec, s"$name: requests per second")
+  def requestsPerSec = Metric(reader => stats(reader, None).map(_.meanRequestsPerSec), s"$name: requests per second")
 }
 
 object ResponseTime {
@@ -37,34 +39,45 @@ object ResponseTime {
   val percentile2 = configuration.charting.indicators.percentile2.toRank
 }
 
-class ResponseTime(responseTime: DataReader => GeneralStats, name: String) {
-  def min = Metric(reader => responseTime(reader).min, s"$name: min response time")
+class ResponseTime(responseTime: DataReader => Validation[GeneralStats], name: String) {
+  def min = Metric(reader => responseTime(reader).map(_.min), s"$name: min response time")
 
-  def max = Metric(reader => responseTime(reader).max, s"$name: max response time")
+  def max = Metric(reader => responseTime(reader).map(_.max), s"$name: max response time")
 
-  def mean = Metric(reader => responseTime(reader).mean, s"$name: mean response time")
+  def mean = Metric(reader => responseTime(reader).map(_.mean), s"$name: mean response time")
 
-  def stdDev = Metric(reader => responseTime(reader).stdDev, s"$name: standard deviation response time")
+  def stdDev = Metric(reader => responseTime(reader).map(_.stdDev), s"$name: standard deviation response time")
 
-  def percentile1 = Metric(reader => responseTime(reader).percentile1, s"$name: ${ResponseTime.percentile1} percentile response time")
+  def percentile1 = Metric(reader => responseTime(reader).map(_.percentile1), s"$name: ${ResponseTime.percentile1} percentile response time")
 
-  def percentile2 = Metric(reader => responseTime(reader).percentile2, s"$name: ${ResponseTime.percentile2} percentile response time")
+  def percentile2 = Metric(reader => responseTime(reader).map(_.percentile2), s"$name: ${ResponseTime.percentile2} percentile response time")
 }
 
-class Requests(requests: (DataReader, Option[Status]) => GeneralStats, status: Option[Status], name: String) {
+class Requests(requests: (DataReader, Option[Status]) => Validation[GeneralStats], status: Option[Status], name: String) {
 
   private def message(message: String) = status match {
-    case Some(status) => s"$name $message $status"
-    case None         => s"$name $message"
+    case Some(s) => s"$name $message $s"
+    case None => s"$name $message"
   }
 
-  def percent = Metric(reader => math.round((requests(reader, status).count.toFloat / requests(reader, None).count) * 100), message("percentage of requests"))
+  def percent = {
+    val value = (reader: DataReader) => for {
+      statusStats <- requests(reader, status)
+      allStats <- requests(reader, None)
+    } yield math.round(statusStats.count.toFloat / allStats.count) / 100
 
-  def count = Metric(reader => requests(reader, status).count, message("number of requests"))
+    Metric(value, message("percentage of requests"))
+  }
+
+  def count = Metric(reader => requests(reader, status).map(_.count), message("number of requests"))
 }
 
-case class Metric[T: Numeric](value: DataReader => T, name: String, assertions: List[Assertion] = List()) {
-  def assert(assertion: (T) => Boolean, message: (String, Boolean) => String) = copy(assertions = assertions :+ new Assertion(reader => assertion(value(reader)), result => message(name, result)))
+case class Metric[T: Numeric](value: DataReader => Validation[T], name: String, assertions: List[Assertion] = List()) {
+
+  def assert(assertion: (T) => Boolean, message: (String, Boolean) => String) = {
+    val newAssertion = new Assertion(reader => value(reader).map(assertion), result => message(name, result))
+    copy(assertions = assertions :+ newAssertion)
+  }
 
   def lessThan(threshold: T) = assert(implicitly[Numeric[T]].lt(_, threshold), (name, result) => s"$name is less than $threshold: $result")
 
@@ -78,14 +91,21 @@ case class Metric[T: Numeric](value: DataReader => T, name: String, assertions: 
 }
 
 object Assertion {
-  def assertThat(assertions: Seq[Assertion], dataReader: DataReader) =
-    assertions.foldLeft(true)((result, assertion) => assertion(dataReader) && result)
+  def assertThat(assertions: Seq[Assertion], dataReader: DataReader): Boolean =
+    !assertions
+      .map { assertion =>
+      assertion(dataReader) match {
+        case Success(result) =>
+          println(assertion.message(result))
+          result
+
+        case Failure(m) =>
+          println(m)
+          false
+      }
+    }.contains(false)
 }
 
-class Assertion(assertion: (DataReader) => Boolean, message: (Boolean) => String) {
-  def apply(reader: DataReader) = {
-    val result = assertion(reader)
-    println(message(result))
-    result
-  }
+case class Assertion(assertion: (DataReader) => Validation[Boolean], message: Boolean => String) {
+  def apply(reader: DataReader): Validation[Boolean] = assertion(reader)
 }

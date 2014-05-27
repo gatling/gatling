@@ -17,19 +17,21 @@ package io.gatling.core.assertion
 
 import scala.reflect.io.Path
 
-import io.gatling.core.result.{ GroupStatsPath, RequestStatsPath, StatsPath }
+import io.gatling.core.result.{ GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.Status
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
+import io.gatling.core.validation._
 
 trait AssertionSupport {
 
-  val global = new Selector((reader, status) => reader.requestGeneralStats(None, None, status), "Global")
+  val global = new Selector((reader, status) => reader.requestGeneralStats(None, None, status).success, "Global")
 
-  def details(selector: Path) = {
+  def details(selector: Path): Selector = {
 
-      def findMatchingStatsPath(reader: DataReader, selector: Path): Option[StatsPath] =
+      def generalStats(selector: Path): (DataReader, Option[Status]) => Validation[GeneralStats] = (reader, status) =>
         if (selector.segments.isEmpty)
-          None
+          reader.requestGeneralStats(None, None, status).success
+
         else {
           val selectedPath: List[String] = selector.segments
           val foundPath = reader.statsPaths.find { statsPath =>
@@ -43,17 +45,14 @@ trait AssertionSupport {
             }
             path == selectedPath
           }
-          assert(foundPath.isDefined, s"Could not find stats matching selector $selector")
-          foundPath
+
+          foundPath match {
+            case None                                   => s"Could not find stats matching selector $selector".failure
+            case Some(RequestStatsPath(request, group)) => reader.requestGeneralStats(Some(request), group, status).success
+            case Some(GroupStatsPath(group))            => reader.requestGeneralStats(None, Some(group), status).success
+          }
         }
 
-      def generalStats(reader: DataReader, status: Option[Status]): GeneralStats = findMatchingStatsPath(reader, selector) match {
-
-        case Some(RequestStatsPath(request, group)) => reader.requestGeneralStats(Some(request), group, status)
-        case Some(GroupStatsPath(group))            => reader.requestGeneralStats(None, Some(group), status)
-        case None                                   => reader.requestGeneralStats(None, None, status)
-      }
-
-    new Selector(generalStats, selector.segments.mkString(" / "))
+    new Selector(generalStats(selector), selector.segments.mkString(" / "))
   }
 }
