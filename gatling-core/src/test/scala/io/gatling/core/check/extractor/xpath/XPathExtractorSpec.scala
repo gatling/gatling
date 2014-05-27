@@ -20,10 +20,10 @@ import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationSpecification
-import io.gatling.core.util.IO
+import io.gatling.core.util.IO._
 
 @RunWith(classOf[JUnitRunner])
-class XPathExtractorSpec extends ValidationSpecification with IO {
+class XPathExtractorSpec extends ValidationSpecification {
 
   GatlingConfiguration.setUp()
 

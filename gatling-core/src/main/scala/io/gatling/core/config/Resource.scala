@@ -15,13 +15,11 @@
  */
 package io.gatling.core.config
 
-import java.io.{ File => JFile, InputStream }
+import java.io.{ File => JFile, FileOutputStream, InputStream }
 import java.net.URL
 
 import scala.reflect.io.{ File, Path }
 import scala.tools.nsc.io.Path.string2path
-
-import org.apache.commons.io.FileUtils.copyInputStreamToFile
 
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.core.util.IO._
@@ -79,7 +77,12 @@ case class ArchiveResource(url: URL, extension: String) extends Resource {
 
   def jfile = {
     val tempFile = File.makeTemp("gatling", "." + extension).jfile
-    copyInputStreamToFile(inputStream, tempFile)
+
+    withCloseable(inputStream) { is =>
+      withCloseable(new FileOutputStream(tempFile, false)) { os =>
+        is.copyTo(os)
+      }
+    }
     tempFile
   }
 }

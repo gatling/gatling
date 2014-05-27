@@ -17,7 +17,7 @@ package io.gatling.core.util
 
 import java.io.InputStream
 
-class UnsyncByteArrayInputStream(array: Array[Byte]) extends InputStream {
+final class UnsyncByteArrayInputStream(array: Array[Byte]) extends InputStream {
 
   var offset: Int = _
   var length: Int = array.length

@@ -21,9 +21,9 @@ import scala.io.Source
 import au.com.bytecode.opencsv.CSVParser
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
-import io.gatling.core.util.IO
+import io.gatling.core.util.IO._
 
-object SeparatedValuesParser extends IO {
+object SeparatedValuesParser {
 
   val CommaSeparator = ','
   val SemicolonSeparator = ';'

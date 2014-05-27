@@ -17,13 +17,11 @@ package io.gatling.http.util
 
 import java.io.{ ByteArrayOutputStream, InputStream }
 
-import org.apache.commons.io.IOUtils
-
 import com.jcraft.jzlib.GZIPOutputStream
 
-import io.gatling.core.util.IO
+import io.gatling.core.util.IO._
 
-object GZIPHelper extends IO {
+object GZIPHelper {
 
   def gzip(string: String): Array[Byte] = gzip(string.getBytes)
 
@@ -37,12 +35,14 @@ object GZIPHelper extends IO {
     bytesOut.toByteArray
   }
 
-  def gzip(in: InputStream): Array[Byte] = {
+  val GzipDefaultBufferSize = 512
 
-    val bytesOut = new ByteArrayOutputStream(512)
+  def gzip(in: InputStream, bufferSize: Int = GzipDefaultBufferSize): Array[Byte] = {
+
+    val bytesOut = new ByteArrayOutputStream(bufferSize)
 
     withCloseable(new GZIPOutputStream(bytesOut)) {
-      IOUtils.copy(in, _)
+      in.copyTo(_, bufferSize)
     }
 
     bytesOut.toByteArray

@@ -21,7 +21,7 @@ import java.net.{ URI, URL }
 import scala.collection.breakOut
 import scala.util.Try
 
-import io.gatling.core.util.IO
+import io.gatling.core.util.IO._
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.core.util.StandardCharsets.UTF_8
 import io.gatling.http.HeaderNames._
@@ -34,7 +34,7 @@ import org.jboss.netty.handler.codec.http.HttpMethod
 /**
  * Implementation according to http://www.softwareishard.com/blog/har-12-spec/
  */
-object HarReader extends IO {
+object HarReader {
 
   def apply(path: String)(implicit config: RecorderConfiguration): ScenarioDefinition =
     withCloseable(new FileInputStream(path))(apply(_))

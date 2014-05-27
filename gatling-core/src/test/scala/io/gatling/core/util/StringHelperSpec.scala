@@ -15,20 +15,19 @@
  */
 package io.gatling.core.util
 
-import java.io.File
 import java.security.MessageDigest
 
-import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
+import io.gatling.core.util.IO._
 import io.gatling.core.util.StringHelper.RichString
 
 @RunWith(classOf[JUnitRunner])
 class StringHelperSpec extends Specification {
 
-  val fileBytes = IOUtils.toByteArray(getClass.getResource("/emoticon.png"))
+  val fileBytes = getClass.getResource("/emoticon.png").toByteArray()
 
   "bytes2Hex" should {
 

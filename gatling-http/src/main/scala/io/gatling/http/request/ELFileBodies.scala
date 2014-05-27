@@ -18,17 +18,16 @@ package io.gatling.http.request
 import scala.collection.JavaConversions.mapAsScalaConcurrentMap
 import scala.collection.concurrent
 
-import org.apache.commons.io.IOUtils
 import jsr166e.ConcurrentHashMapV8
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
 import io.gatling.core.session.Expression
 import io.gatling.core.session.el.EL
-import io.gatling.core.util.IO
+import io.gatling.core.util.IO._
 import io.gatling.core.validation.Validation
 
-object ELFileBodies extends IO {
+object ELFileBodies {
 
   val Cache: concurrent.Map[String, Validation[Expression[String]]] = new ConcurrentHashMapV8[String, Validation[Expression[String]]]
   private val CacheELFileBodies = configuration.http.cacheELFileBodies
@@ -40,8 +39,9 @@ object ELFileBodies extends IO {
 
   def compileFile(path: String): Validation[Expression[String]] =
     Resource.requestBody(path)
-      .map(resource => withCloseable(resource.inputStream)(IOUtils.toString(_, configuration.core.charset)))
-      .map(_.el[String])
+      .map(resource => withCloseable(resource.inputStream) {
+        _.toString(configuration.core.charset)
+      }).map(_.el[String])
 
   def asString(filePath: Expression[String]): Expression[String] = session =>
     for {

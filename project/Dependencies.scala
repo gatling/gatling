@@ -29,7 +29,6 @@ object Dependencies {
   private val uncommonsMaths                 = "io.gatling.uncommons.maths" % "uncommons-maths"    % "1.2.3"
   private val joddLagarto                    = "org.jodd"                   % "jodd-lagarto"       % "3.5"
   private val jzlib                          = "com.jcraft"                 % "jzlib"              % "1.1.3"
-  private val commonsIo                      = "commons-io"                 % "commons-io"         % "2.4"
   private val redisClient                    =  "net.debasishg"             %% "redisclient"       % "2.12"
   private val zinc                           = "com.typesafe.zinc"          % "zinc"               % "0.3.2"
   private val openCsv                        = "net.sf.opencsv"             % "opencsv"            % "2.3"
@@ -58,7 +57,7 @@ object Dependencies {
 
   def coreDependencies(scalaVersion: String) = Seq(
     scalaCompiler(scalaVersion), jsr166e, akkaActor, saxon, jodaTime, jodaConvert, slf4jApi, scalalogging,
-    scalaReflect(scalaVersion), jsonpath, jackson, boon, uncommonsMaths, joddLagarto, commonsIo, config, fastring,
+    scalaReflect(scalaVersion), jsonpath, jackson, boon, uncommonsMaths, joddLagarto, config, fastring,
     openCsv, logbackClassic) ++ testDeps
 
   val redisDependencies = redisClient +: testDeps

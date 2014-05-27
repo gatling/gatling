@@ -19,18 +19,19 @@ import java.io.{ BufferedInputStream, FileInputStream }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Session
-import io.gatling.core.util.{ IO, UnsyncByteArrayInputStream }
+import io.gatling.core.util.UnsyncByteArrayInputStream
+import io.gatling.core.util.IO._
 import io.gatling.http.util.GZIPHelper
 
-object BodyProcessors extends IO {
+object BodyProcessors {
 
   val Gzip = (body: Body) => {
 
     val gzippedBytes = body match {
       case StringBody(string) => (session: Session) => string(session).map(GZIPHelper.gzip)
       case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(GZIPHelper.gzip)
-      case RawFileBody(file) => (session: Session) => file(session).map { f => withCloseable(new FileInputStream(f))(GZIPHelper.gzip) }
-      case InputStreamBody(inputStream) => (session: Session) => inputStream(session).map { withCloseable(_)(GZIPHelper.gzip) }
+      case RawFileBody(file) => (session: Session) => file(session).map { f => withCloseable(new FileInputStream(f))(GZIPHelper.gzip(_)) }
+      case InputStreamBody(inputStream) => (session: Session) => inputStream(session).map { withCloseable(_)(GZIPHelper.gzip(_)) }
       case _ => throw new UnsupportedOperationException(s"requestCompressor doesn't support $body")
     }
 

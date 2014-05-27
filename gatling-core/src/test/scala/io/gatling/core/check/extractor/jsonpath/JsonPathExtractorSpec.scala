@@ -17,21 +17,20 @@ package io.gatling.core.check.extractor.jsonpath
 
 import java.nio.charset.StandardCharsets
 
-import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationSpecification
-import io.gatling.core.util.IO
+import io.gatling.core.util.IO._
 
 @RunWith(classOf[JUnitRunner])
-class JsonPathExtractorSpec extends ValidationSpecification with IO {
+class JsonPathExtractorSpec extends ValidationSpecification {
 
   GatlingConfiguration.setUp()
 
   def prepared(file: String): Object = withCloseable(getClass.getResourceAsStream(file)) { is =>
-    val string = IOUtils.toString(is, StandardCharsets.UTF_8)
+    val string = is.toString(StandardCharsets.UTF_8)
     BoonParser.parse(string)
   }
 

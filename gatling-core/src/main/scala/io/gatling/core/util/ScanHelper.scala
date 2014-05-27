@@ -21,8 +21,6 @@ import java.net.JarURLConnection
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 import scala.tools.nsc.io.{ File, Fileish, Jar, Path }
 
-import org.apache.commons.io.IOUtils
-
 import io.gatling.core.util.IO._
 
 object ScanHelper {
@@ -86,14 +84,14 @@ case class FileResource(file: File) extends Resource {
   }
 }
 
-case class FileishResource(fileish: Fileish) extends Resource with IO {
+case class FileishResource(fileish: Fileish) extends Resource {
   def path = fileish.path
   def copyTo(target: Path) {
     target.parent.createDirectory()
 
     withCloseable(fileish.input()) { input =>
       withCloseable(target.toFile.outputStream(append = false)) { output =>
-        IOUtils.copy(input, output)
+        input.copyTo(output)
       }
     }
   }

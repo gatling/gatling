@@ -24,14 +24,14 @@ import scala.tools.nsc.io.{ Directory, File }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.util.IO
+import io.gatling.core.util.IO._
 import io.gatling.core.validation._
 import io.gatling.http.HeaderNames
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.har.HarReader
 import io.gatling.recorder.scenario.template.SimulationTemplate
 
-object ScenarioExporter extends IO with StrictLogging {
+object ScenarioExporter extends StrictLogging {
 
   private val EventsGrouping = 100
 

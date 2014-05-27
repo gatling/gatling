@@ -17,13 +17,12 @@ package io.gatling.http.request
 
 import java.io.{ File => JFile, InputStream }
 
-import org.apache.commons.io.FileUtils
-
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.generators.InputStreamBodyGenerator
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.util.IO._
 import io.gatling.core.validation.Validation
 
 object ELFileBody {
@@ -54,12 +53,12 @@ object RawFileBody {
 class RawFileBody(val file: Expression[JFile]) extends Body {
 
   def asString: StringBody = {
-    val string = (session: Session) => file(session).map(FileUtils.readFileToString(_, configuration.core.charset))
+    val string = file.map(f => f.toString(configuration.core.charset))
     StringBody(string)
   }
 
   def asBytes: ByteArrayBody = {
-    val bytes = (session: Session) => file(session).map(FileUtils.readFileToByteArray)
+    val bytes = file.map(f => f.toByteArray())
     ByteArrayBody(bytes)
   }
 

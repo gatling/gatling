@@ -19,20 +19,19 @@ import java.net.URI
 
 import scala.io.Codec.UTF8
 
-import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
-import io.gatling.core.util.IO
+import io.gatling.core.util.IO._
 
 @RunWith(classOf[JUnitRunner])
-class HtmlParserSpec extends Specification with IO {
+class HtmlParserSpec extends Specification {
 
   "parsing Akka.io page" should {
 
     val htmlContent = withCloseable(getClass.getClassLoader.getResourceAsStream("akka.io.html")) {
-      IOUtils.toCharArray(_, UTF8.charSet)
+      _.toCharArray(UTF8.charSet)
     }
 
       implicit def string2URI(string: String) = URI.create(string)

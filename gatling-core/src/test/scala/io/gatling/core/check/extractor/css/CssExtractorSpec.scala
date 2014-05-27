@@ -17,24 +17,23 @@ package io.gatling.core.check.extractor.css
 
 import java.nio.charset.StandardCharsets
 
-import org.apache.commons.io.IOUtils
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationSpecification
-import io.gatling.core.util.IO
+import io.gatling.core.util.IO._
 
 /**
  * @see <a href="http://www.w3.org/TR/selectors/#selectors"/> for more details about the CSS selectors syntax
  */
 @RunWith(classOf[JUnitRunner])
-class CssExtractorSpec extends ValidationSpecification with IO {
+class CssExtractorSpec extends ValidationSpecification {
 
   GatlingConfiguration.setUp()
 
   def prepared(file: String) = withCloseable(getClass.getResourceAsStream(file)) { is =>
-    val string = IOUtils.toString(is, StandardCharsets.UTF_8)
+    val string = is.toString(StandardCharsets.UTF_8)
     CssExtractor.parse(string)
   }
 

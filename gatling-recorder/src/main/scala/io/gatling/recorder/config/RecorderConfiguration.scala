@@ -29,10 +29,10 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.util.ConfigHelper.configChain
-import io.gatling.core.util.IO
+import io.gatling.core.util.IO._
 import io.gatling.core.util.StringHelper.RichString
 
-object RecorderConfiguration extends IO with StrictLogging {
+object RecorderConfiguration extends StrictLogging {
 
   implicit class IntOption(val value: Int) extends AnyVal {
     def toOption = if (value != 0) Some(value) else None
