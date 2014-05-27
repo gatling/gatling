@@ -26,8 +26,7 @@ object RequestTemplate {
 
   def headersBlockName(id: Int) = fast"headers_$id"
 
-  def renderRequest(simulationClass: String, request: RequestElement): Fastring = {
-
+  def renderRequest(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris): Fastring = {
       def renderMethod: Fastring =
         if (BuiltInHttpMethods.contains(request.method)) {
           fast"${request.method.toLowerCase}($renderUrl)"
@@ -35,7 +34,12 @@ object RequestTemplate {
           fast"""httpRequest("$request.method", Left($renderUrl))"""
         }
 
-      def renderUrl: Fastring = protectWithTripleQuotes(request.printedUrl)
+      def usesBaseUrl: Boolean =
+        request.printedUrl != request.uri
+
+      def renderUrl =
+        if (usesBaseUrl) protectWithTripleQuotes(request.printedUrl)
+        else extractedUri.renderUri(request.uri)
 
       def renderHeaders: String = request.filteredHeadersId
         .map { id =>
@@ -68,7 +72,7 @@ object RequestTemplate {
         if (!request.nonEmbeddedResources.isEmpty)
           fast"""
 			.resources(${
-            request.nonEmbeddedResources.zipWithIndex.map { case (resource, i) => renderRequest(simulationClass, resource) }.mkString(
+            request.nonEmbeddedResources.zipWithIndex.map { case (resource, i) => renderRequest(simulationClass, resource, extractedUri) }.mkString(
               """,
             """.stripMargin)
           })"""
@@ -79,6 +83,6 @@ object RequestTemplate {
 			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderResources$renderStatusCheck"""
   }
 
-  def render(simulationClass: String, request: RequestElement): String =
-    fast"exec(${renderRequest(simulationClass, request)})".toString
+  def render(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris): String =
+    fast"exec(${renderRequest(simulationClass, request, extractedUri)})".toString
 }

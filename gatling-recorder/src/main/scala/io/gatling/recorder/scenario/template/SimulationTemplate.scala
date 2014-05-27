@@ -16,6 +16,7 @@
 package io.gatling.recorder.scenario.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
+
 import io.gatling.recorder.scenario.{ ProtocolDefinition, ScenarioElement, TagElement }
 import io.gatling.recorder.scenario.PauseElement
 import io.gatling.recorder.scenario.RequestElement
@@ -50,15 +51,15 @@ $mapContent)"""
           .mkFastring("\n\n")
       }
 
-      def renderScenarioElement(se: ScenarioElement) = se match {
+      def renderScenarioElement(se: ScenarioElement, extractedUris: ExtractedUris) = se match {
         case TagElement(text)        => fast"// $text"
         case PauseElement(duration)  => PauseTemplate.render(duration)
-        case request: RequestElement => RequestTemplate.render(simulationClassName, request)
+        case request: RequestElement => RequestTemplate.render(simulationClassName, request, extractedUris)
       }
 
       def renderProtocol(p: ProtocolDefinition) = ProtocolTemplate.render(p)
 
-      def renderScenario = {
+      def renderScenario(extractedUris: ExtractedUris) = {
         scenarioElements match {
           case Left(elements) =>
             val scenarioElements = elements.map { element =>
@@ -66,7 +67,7 @@ $mapContent)"""
                 case TagElement(_) => ""
                 case _             => "."
               }
-              fast"$prefix${renderScenarioElement(element)}"
+              fast"$prefix${renderScenarioElement(element, extractedUris)}"
             }.mkFastring("\n\t\t")
 
             fast"""val scn = scenario("$scenarioName")
@@ -81,7 +82,7 @@ $mapContent)"""
                     case TagElement(_) => ""
                     case _             => if (firstNonTagElement) { firstNonTagElement = false; "" } else "."
                   }
-                  fast"$prefix${renderScenarioElement(element)}"
+                  fast"$prefix${renderScenarioElement(element, extractedUris)}"
                 }.mkFastring("\n\t\t")
                 fast"val chain_$i = $chainContent"
             }.mkFastring("\n\n")
@@ -96,6 +97,14 @@ $mapContent)"""
 
       }
 
+      def flatScenarioElements(scenarioElements: Either[Seq[ScenarioElement], Seq[Seq[ScenarioElement]]]): Seq[ScenarioElement] =
+        scenarioElements match {
+          case Left(scenarioElements)  => scenarioElements
+          case Right(scenarioElements) => scenarioElements.flatten
+        }
+
+    val extractedUris = new ExtractedUris(flatScenarioElements(scenarioElements))
+
     fast"""$renderPackage
 import scala.concurrent.duration._
 
@@ -109,7 +118,9 @@ class $simulationClassName extends Simulation {
 
 $renderHeaders
 
-	$renderScenario
+${ValuesTemplate.render(extractedUris.vals)}
+
+	${renderScenario(extractedUris)}
 
 	setUp(scn.inject(atOnceUsers(1))).protocols(httpProtocol)
 }""".toString()
