@@ -14,58 +14,58 @@ case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
 
 object ScenarioDefinition extends StrictLogging {
 
-  private def isRedirection(t: (Long, RequestElement)) = HttpHelper.isRedirect(t._2.statusCode)
+  private def isRedirection(t: TimedScenarioElement[RequestElement]) = HttpHelper.isRedirect(t.element.statusCode)
 
-  private def filterRedirection(requests: Seq[(Long, RequestElement)]): List[(Long, RequestElement)] = {
+  private def filterRedirection(requests: Seq[TimedScenarioElement[RequestElement]]): List[TimedScenarioElement[RequestElement]] = {
     val groupedRequests = requests.groupAsLongAs(isRedirection)
 
     // Remove the redirection and keep the last status code
     groupedRequests.map {
-      case (firstArrivalTime, firstReq) :: redirectedReqs if !redirectedReqs.isEmpty =>
-        val (_, lastReq) = redirectedReqs.last
-        (firstArrivalTime, firstReq.copy(statusCode = lastReq.statusCode, embeddedResources = lastReq.embeddedResources)) :: Nil
+      case TimedScenarioElement(firstArrivalTime, firstReq) :: redirectedReqs if !redirectedReqs.isEmpty =>
+        val TimedScenarioElement(_, lastReq) = redirectedReqs.last
+        TimedScenarioElement(firstArrivalTime, firstReq.copy(statusCode = lastReq.statusCode, embeddedResources = lastReq.embeddedResources)) :: Nil
 
       case reqs => reqs
     }.flatten
   }
 
-  private def hasEmbeddedResources(t: (Long, RequestElement)) = !t._2.embeddedResources.isEmpty
+  private def hasEmbeddedResources(t: TimedScenarioElement[RequestElement]) = !t.element.embeddedResources.isEmpty
 
-  private def filterFetchedResources(requests: Seq[(Long, RequestElement)]): Seq[(Long, RequestElement)] = {
+  private def filterFetchedResources(requests: Seq[TimedScenarioElement[RequestElement]]): Seq[TimedScenarioElement[RequestElement]] = {
     val groupedRequests = requests.splitWhen(hasEmbeddedResources)
 
     groupedRequests.map {
-      case (time, request) :: t if !request.embeddedResources.isEmpty =>
+      case TimedScenarioElement(time, request) :: t if !request.embeddedResources.isEmpty =>
         val resourceUrls = request.embeddedResources.map(_.url).toSet
 
         // TODO NRE : are we sure they are both absolute URLs?
-        (time, request) :: t.filter { case (_, r) => !resourceUrls.contains(r.uri) }
+        TimedScenarioElement(time, request) :: t.filter { case TimedScenarioElement(_, r) => !resourceUrls.contains(r.uri) }
 
       case l => l
     }.flatten
   }
 
-  private def mergeWithPauses(sortedRequests: Seq[(Long, RequestElement)], tags: Seq[(Long, TagElement)],
+  private def mergeWithPauses(sortedRequests: Seq[TimedScenarioElement[RequestElement]], tags: Seq[TimedScenarioElement[TagElement]],
                               thresholdForPauseCreation: Duration): Seq[ScenarioElement] = {
     // Compute the pause elements
-    val arrivalTimes = sortedRequests.map(_._1)
+    val arrivalTimes = sortedRequests.map(_.timestamp)
     val initTime = arrivalTimes.headOption.getOrElse(0l)
     val timeBetweenEls = arrivalTimes.zip(initTime +: arrivalTimes).map { case (t2, t1) => (t2 - t1).milliseconds }
-    val liftedRequestsWithPause = sortedRequests.zip(timeBetweenEls).map {
-      case ((arrivalTime, request), lag) =>
+    val liftedRequestsWithPause: Seq[(Long, Seq[ScenarioElement])] = sortedRequests.zip(timeBetweenEls).map {
+      case (TimedScenarioElement(arrivalTime, request), lag) =>
         if (lag > thresholdForPauseCreation)
           (arrivalTime, Vector(new PauseElement(lag), request))
         else
           (arrivalTime, Vector(request))
     }
 
-    val liftedTags = tags.map { case (time, tag) => (time, Vector(tag)) }
+    val liftedTags = tags.map { case TimedScenarioElement(time, tag) => (time, Vector(tag)) }
 
     (liftedTags ++ liftedRequestsWithPause).sortBy(_._1).map(_._2).flatten
   }
 
-  def apply(requests: Seq[(Long, RequestElement)], tags: Seq[(Long, TagElement)])(implicit config: RecorderConfiguration): ScenarioDefinition = {
-    val sortedRequests = requests.sortBy(_._1)
+  def apply(requests: Seq[TimedScenarioElement[RequestElement]], tags: Seq[TimedScenarioElement[TagElement]])(implicit config: RecorderConfiguration): ScenarioDefinition = {
+    val sortedRequests = requests.sortBy(_.timestamp)
 
     val requests1 = if (config.http.followRedirect) filterRedirection(sortedRequests) else sortedRequests
     val requests2 = if (config.http.fetchHtmlResources) filterFetchedResources(requests1) else requests1
@@ -76,6 +76,4 @@ object ScenarioDefinition extends StrictLogging {
     val allElements = mergeWithPauses(requests2, tags, config.core.thresholdForPauseCreation)
     apply(allElements)
   }
-
 }
-

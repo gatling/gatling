@@ -53,9 +53,9 @@ class RecorderController extends StrictLogging {
   private class SynchronizedArrayBuffer[T] extends mutable.ArrayBuffer[T] with mutable.SynchronizedBuffer[T]
 
   // Collection of tuples, (arrivalTime, request)
-  private val currentRequests = new SynchronizedArrayBuffer[(Long, RequestElement)]
+  private val currentRequests = new SynchronizedArrayBuffer[TimedScenarioElement[RequestElement]]
   // Collection of tuples, (arrivalTime, tag)
-  private val currentTags = new SynchronizedArrayBuffer[(Long, TagElement)]
+  private val currentTags = new SynchronizedArrayBuffer[TimedScenarioElement[TagElement]]
 
   frontEnd.init()
 
@@ -122,10 +122,10 @@ class RecorderController extends StrictLogging {
       val arrivalTime = System.currentTimeMillis
 
       val requestEl = RequestElement(request, response)
-      currentRequests += arrivalTime -> requestEl
+      currentRequests += TimedScenarioElement(arrivalTime, requestEl)
 
       // Notify the frontend
-      val previousArrivalTime = currentRequests.lastOption.map(_._1)
+      val previousArrivalTime = currentRequests.lastOption.map(_.timestamp)
       previousArrivalTime.foreach { t =>
         val delta = (arrivalTime - t).milliseconds
         if (delta > configuration.core.thresholdForPauseCreation)
@@ -136,7 +136,7 @@ class RecorderController extends StrictLogging {
   }
 
   def addTag(text: String): Unit = {
-    currentTags += System.currentTimeMillis -> TagElement(text)
+    currentTags += TimedScenarioElement(System.currentTimeMillis, TagElement(text))
     frontEnd.receiveEventInfo(TagInfo(text))
   }
 
@@ -148,5 +148,4 @@ class RecorderController extends StrictLogging {
     currentRequests.clear()
     currentTags.clear()
   }
-
 }

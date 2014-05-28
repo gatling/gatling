@@ -34,6 +34,8 @@ import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.util.URIHelper
 import io.gatling.recorder.config.RecorderConfiguration
 
+case class TimedScenarioElement[T <: ScenarioElement](timestamp: Long, element: T)
+
 sealed trait ScenarioElement
 
 case class PauseElement(duration: FiniteDuration) extends ScenarioElement

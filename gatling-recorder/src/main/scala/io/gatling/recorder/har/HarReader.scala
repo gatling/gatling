@@ -56,7 +56,7 @@ object HarReader {
     ScenarioDefinition(elements, Nil)
   }
 
-  private def createRequestWithArrivalTime(entry: Entry): (Long, RequestElement) = {
+  private def createRequestWithArrivalTime(entry: Entry): TimedScenarioElement[RequestElement] = {
       def buildContent(postParams: Seq[PostParam]): RequestBody =
         RequestBodyParams(postParams.map(postParam => (postParam.name, postParam.value)).toList)
 
@@ -78,7 +78,7 @@ object HarReader {
       case _                                => Nil
     }
 
-    (entry.arrivalTime, RequestElement(uri, method, headers, body, entry.response.status, embeddedResources))
+    TimedScenarioElement(entry.arrivalTime, RequestElement(uri, method, headers, body, entry.response.status, embeddedResources))
   }
 
   private def buildHeaders(entry: Entry): Map[String, String] = {
