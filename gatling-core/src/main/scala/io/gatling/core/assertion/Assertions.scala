@@ -19,7 +19,7 @@ import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.NumberHelper._
-import io.gatling.core.validation.{Failure, Success, Validation}
+import io.gatling.core.validation.{ Failure, Success, Validation }
 
 class Selector(stats: (DataReader, Option[Status]) => Validation[GeneralStats], name: String) {
 
@@ -57,7 +57,7 @@ class Requests(requests: (DataReader, Option[Status]) => Validation[GeneralStats
 
   private def message(message: String) = status match {
     case Some(s) => s"$name $message $s"
-    case None => s"$name $message"
+    case None    => s"$name $message"
   }
 
   def percent = {
@@ -94,16 +94,16 @@ object Assertion {
   def assertThat(assertions: Seq[Assertion], dataReader: DataReader): Boolean =
     !assertions
       .map { assertion =>
-      assertion(dataReader) match {
-        case Success(result) =>
-          println(assertion.message(result))
-          result
+        assertion(dataReader) match {
+          case Success(result) =>
+            println(assertion.message(result))
+            result
 
-        case Failure(m) =>
-          println(m)
-          false
-      }
-    }.contains(false)
+          case Failure(m) =>
+            println(m)
+            false
+        }
+      }.contains(false)
 }
 
 case class Assertion(assertion: (DataReader) => Validation[Boolean], message: Boolean => String) {
