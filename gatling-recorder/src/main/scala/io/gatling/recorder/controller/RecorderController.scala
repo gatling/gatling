@@ -36,6 +36,7 @@ import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.scenario.{ RequestElement, ScenarioDefinition, ScenarioExporter, TimedScenarioElement, TagElement }
 import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
+import io.gatling.recorder.http.handler.TimedHttpRequest
 
 object RecorderController {
   def apply(props: Map[String, Any], recorderConfigFile: Option[File] = None): Unit = {
@@ -101,7 +102,7 @@ class RecorderController extends StrictLogging {
     }
   }
 
-  def receiveRequest(request: HttpRequest): Unit = {
+  def receiveRequest(request: HttpRequest): Unit =
     // TODO NICO - that's not the appropriate place to synchronize !
     synchronized {
       // If Outgoing Proxy set, we record the credentials to use them when sending the request
@@ -115,28 +116,28 @@ class RecorderController extends StrictLogging {
           RecorderConfiguration.reload(props.build)
       }
     }
-  }
 
-  def receiveResponse(request: HttpRequest, response: HttpResponse): Unit = {
-    if (configuration.filters.filters.map(_.accept(request.getUri)).getOrElse(true)) {
+  def receiveResponse(request: TimedHttpRequest, response: HttpResponse): Unit = {
+    if (configuration.filters.filters.map(_.accept(request.httpRequest.getUri)).getOrElse(true)) {
       val arrivalTime = System.currentTimeMillis
 
-      val requestEl = RequestElement(request, response)
-      currentRequests += TimedScenarioElement(arrivalTime, requestEl)
+      val requestEl = RequestElement(request.httpRequest, response)
+      currentRequests += TimedScenarioElement(request.sendTime, arrivalTime, requestEl)
 
       // Notify the frontend
-      val previousArrivalTime = currentRequests.lastOption.map(_.timestamp)
-      previousArrivalTime.foreach { t =>
+      val previousSendTime = currentRequests.lastOption.map(_.sendTime)
+      previousSendTime.foreach { t =>
         val delta = (arrivalTime - t).milliseconds
         if (delta > configuration.core.thresholdForPauseCreation)
           frontEnd.receiveEventInfo(PauseInfo(delta))
       }
-      frontEnd.receiveEventInfo(RequestInfo(request, response))
+      frontEnd.receiveEventInfo(RequestInfo(request.httpRequest, response))
     }
   }
 
   def addTag(text: String): Unit = {
-    currentTags += TimedScenarioElement(System.currentTimeMillis, TagElement(text))
+    val now = System.currentTimeMillis
+    currentTags += TimedScenarioElement(now, now, TagElement(text))
     frontEnd.receiveEventInfo(TagInfo(text))
   }
 

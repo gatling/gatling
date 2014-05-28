@@ -75,8 +75,9 @@ object ScenarioExporter extends StrictLogging {
       (if (config.http.automaticReferer) Set(HeaderNames.Referer) else Set.empty)
 
     val scenarioElements = scenario.elements
-    val baseUrl = getBaseUrl(scenarioElements)
-    val baseHeaders = getBaseHeaders(scenarioElements)
+    val requestElements = scenarioElements.collect { case req: RequestElement => req :: req.nonEmbeddedResources }.flatten
+    val baseUrl = getBaseUrl(requestElements)
+    val baseHeaders = getBaseHeaders(requestElements)
     val protocolConfigElement = new ProtocolDefinition(baseUrl, baseHeaders)
 
     // extract the request elements and set all the necessary
@@ -85,8 +86,8 @@ object ScenarioExporter extends StrictLogging {
       case el                    => el
     }
 
-    val requestElements: Seq[RequestElement] = elements.collect { case reqEl: RequestElement => reqEl }
-      .zipWithIndex.map { case (reqEl, index) => reqEl.setId(index) }
+    // FIXME mutability!!!
+    requestElements.zipWithIndex.map { case (reqEl, index) => reqEl.setId(index) }
 
     // dump request body if needed
     requestElements.foreach(el => el.body.foreach {
@@ -135,9 +136,23 @@ object ScenarioExporter extends StrictLogging {
     SimulationTemplate.render(config.core.pkg, config.core.className, protocolConfigElement, headers, config.core.className, newScenarioElements)
   }
 
-  private def getBaseHeaders(scenarioElements: Seq[ScenarioElement]): Map[String, String] = {
+  private def getBaseHeaders(requestElements: Seq[RequestElement]): Map[String, String] = {
+
+      def getMostFrequentHeaderValue(headerName: String): Option[String] = {
+        val headers = requestElements.flatMap {
+          _.headers.collect { case (name, value) if name == headerName => value }
+        }
+
+        if (headers.isEmpty) None
+        else {
+          val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
+          val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
+          Some(mostFrequentValue)
+        }
+      }
+
       def addHeader(appendTo: Map[String, String], headerName: String): Map[String, String] =
-        getMostFrequentHeaderValue(scenarioElements, headerName)
+        getMostFrequentHeaderValue(headerName)
           .map(headerValue => appendTo + (headerName -> headerValue))
           .getOrElse(appendTo)
 
@@ -150,26 +165,10 @@ object ScenarioExporter extends StrictLogging {
     resolveBaseHeaders(Map.empty, ProtocolDefinition.baseHeaders.keySet.toList)
   }
 
-  private def getBaseUrl(scenarioElements: Seq[ScenarioElement]): String = {
-    val urlsOccurrences = scenarioElements.collect {
-      case reqElm: RequestElement => reqElm.baseUrl
-    }.groupBy(identity).mapValues(_.size).toSeq
+  private def getBaseUrl(requestElements: Seq[RequestElement]): String = {
+    val urlsOccurrences = requestElements.map(_.baseUrl).groupBy(identity).mapValues(_.size).toSeq
 
     urlsOccurrences.maxBy(_._2)._1
-  }
-
-  private def getMostFrequentHeaderValue(scenarioElements: Seq[ScenarioElement], headerName: String): Option[String] = {
-    val headers = scenarioElements.flatMap {
-      case reqElm: RequestElement => reqElm.headers.collect { case (name, value) if name == headerName => value }
-      case _                      => Nil
-    }
-
-    if (headers.isEmpty) None
-    else {
-      val headersValuesOccurrences = headers.groupBy(identity).mapValues(_.size).toSeq
-      val mostFrequentValue = headersValuesOccurrences.maxBy(_._2)._1
-      Some(mostFrequentValue)
-    }
   }
 
   private def getChains(scenarioElements: Seq[ScenarioElement]): Either[Seq[ScenarioElement], List[Seq[ScenarioElement]]] =

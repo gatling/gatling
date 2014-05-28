@@ -26,24 +26,24 @@ object RequestTemplate {
 
   def headersBlockName(id: Int) = fast"headers_$id"
 
-  def render(simulationClass: String, request: RequestElement) = {
+  def renderRequest(simulationClass: String, request: RequestElement): Fastring = {
 
-      def renderMethod =
+      def renderMethod: Fastring =
         if (BuiltInHttpMethods.contains(request.method)) {
           fast"${request.method.toLowerCase}($renderUrl)"
         } else {
           fast"""httpRequest("$request.method", Left($renderUrl))"""
         }
 
-      def renderUrl = protectWithTripleQuotes(request.printedUrl)
+      def renderUrl: Fastring = protectWithTripleQuotes(request.printedUrl)
 
-      def renderHeaders = request.filteredHeadersId
+      def renderHeaders: String = request.filteredHeadersId
         .map { id =>
           s"""
 			.headers(${headersBlockName(id)})"""
         }.getOrElse("")
 
-      def renderBodyOrParams = request.body.map {
+      def renderBodyOrParams: Fastring = request.body.map {
         case RequestBodyBytes(_) => fast"""
 			.body(RawFileBody("${simulationClass}_request_${request.id}.txt"))"""
         case RequestBodyParams(params) => params.map {
@@ -52,18 +52,33 @@ object RequestTemplate {
         }.mkFastring
       }.getOrElse(emptyFastring)
 
-      def renderCredentials = request.basicAuthCredentials.map {
+      def renderCredentials: String = request.basicAuthCredentials.map {
         case (username, password) => s"""
 			.basicAuth(${protectWithTripleQuotes(username)},${protectWithTripleQuotes(password)})"""
       }.getOrElse("")
 
-      def renderStatusCheck =
-        if (request.statusCode > 210 || request.statusCode < 200) {
+      def renderStatusCheck: Fastring =
+        if (request.statusCode > 210 || request.statusCode < 200)
           fast"""
 			.check(status.is(${request.statusCode}))"""
-        } else ""
+        else
+          fast""
 
-    fast"""exec(http("request_${request.id}")
-			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderStatusCheck)""".toString
+      def renderResources: Fastring =
+        if (!request.nonEmbeddedResources.isEmpty)
+          fast"""
+			.resources(${
+            request.nonEmbeddedResources.zipWithIndex.map { case (resource, i) => renderRequest(simulationClass, resource) }.mkString(
+              """,
+            """.stripMargin)
+          })"""
+        else
+          fast""
+
+    fast"""http("request_${request.id}")
+			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderResources$renderStatusCheck"""
   }
+
+  def render(simulationClass: String, request: RequestElement): String =
+    fast"exec(${renderRequest(simulationClass, request)})".toString
 }

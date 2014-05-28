@@ -78,7 +78,7 @@ object HarReader {
       case _                                => Nil
     }
 
-    TimedScenarioElement(entry.arrivalTime, RequestElement(uri, method, headers, body, entry.response.status, embeddedResources))
+    TimedScenarioElement(entry.sendTime, entry.sendTime, RequestElement(uri, method, headers, body, entry.response.status, embeddedResources))
   }
 
   private def buildHeaders(entry: Entry): Map[String, String] = {

@@ -57,7 +57,7 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
               .connect(address)
               .addListener { connectFuture: ChannelFuture =>
                 val serverChannel = connectFuture.getChannel
-                serverChannel.getPipeline.addLast(BootstrapFactory.GatlingHandlerName, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, true))
+                serverChannel.getPipeline.addLast(BootstrapFactory.GatlingHandlerName, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, TimedHttpRequest(request), true))
                 _serverChannel = Some(serverChannel)
                 serverChannel.write(buildConnectRequest)
               }
@@ -70,7 +70,7 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
                 connectFuture.getChannel.getPipeline.get(BootstrapFactory.SslHandlerName).asInstanceOf[SslHandler].handshake
                   .addListener { handshakeFuture: ChannelFuture =>
                     val serverChannel = handshakeFuture.getChannel
-                    serverChannel.getPipeline.addLast(BootstrapFactory.GatlingHandlerName, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, false))
+                    serverChannel.getPipeline.addLast(BootstrapFactory.GatlingHandlerName, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, TimedHttpRequest(request), false))
                     _serverChannel = Some(serverChannel)
                     serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request))
                   }
@@ -82,7 +82,7 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
 
         _serverChannel match {
           case Some(serverChannel) if serverChannel.isConnected && serverChannel.isOpen =>
-            serverChannel.getPipeline.get(classOf[ServerHttpResponseHandler]).request = request
+            serverChannel.getPipeline.get(classOf[ServerHttpResponseHandler]).request = TimedHttpRequest(request)
             serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request))
 
           case _ =>

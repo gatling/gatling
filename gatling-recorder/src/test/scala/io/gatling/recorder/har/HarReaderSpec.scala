@@ -59,7 +59,7 @@ class HarReaderSpec extends Specification {
 
     "return the appropriate request elements" in {
       val (googleFontUris, uris) = elts
-        .collect { case RequestElement(uri, _, _, _, _, _) => uri }
+        .collect { case req: RequestElement => req.uri }
         .partition(_.contains("google"))
 
       (uris must contain(startingWith("https://www.kernel.org")).forall) and
@@ -86,7 +86,7 @@ class HarReaderSpec extends Specification {
 
     "have requests with valid headers" in {
       // Extra headers can be added by Chrome
-      val headerNames = elts.iterator.collect { case RequestElement(_, _, headers, _, _, _) => headers.keys }.flatten.toSet
+      val headerNames = elts.iterator.collect { case req: RequestElement => req.headers.keys }.flatten.toSet
       headerNames must not containPattern ":.*"
     }
 
@@ -99,7 +99,7 @@ class HarReaderSpec extends Specification {
 
     "deal correctly with file having a websockets record" in {
       val scn = HarReader(resourceAsStream("har/play-chat.har"))(configWithResourcesFiltering)
-      val requests = scn.elements.collect { case r: RequestElement => r.uri }
+      val requests = scn.elements.collect { case req: RequestElement => req.uri }
 
       (scn.elements must have size 3) and
         (requests must beEqualTo(List("http://localhost:9000/room", "http://localhost:9000/room?username=robert")))
@@ -113,7 +113,7 @@ class HarReaderSpec extends Specification {
 
     "deal correctly with HTTP requests having a status=0" in {
       val scn = HarReader(resourceAsStream("har/null_status.har"))
-      val requests = scn.elements.collect { case r: RequestElement => r }
+      val requests = scn.elements.collect { case req: RequestElement => req }
       val statuses = requests.map(_.statusCode)
 
       requests must have size 3 and (statuses must not contain 0)

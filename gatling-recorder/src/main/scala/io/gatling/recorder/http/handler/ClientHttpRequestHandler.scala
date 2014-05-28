@@ -28,7 +28,7 @@ import io.gatling.recorder.util.URIHelper
 class ClientHttpRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(proxy) {
 
   private def writeRequest(request: HttpRequest, serverChannel: Channel): Unit = {
-    serverChannel.getPipeline.get(classOf[ServerHttpResponseHandler]).request = request
+    serverChannel.getPipeline.get(classOf[ServerHttpResponseHandler]).request = TimedHttpRequest(request)
     val relativeRequest = proxy.outgoingProxy match {
       case None => ClientRequestHandler.buildRequestWithRelativeURI(request)
       case _    => request
@@ -63,7 +63,7 @@ class ClientHttpRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(pr
           .addListener { future: ChannelFuture =>
             if (future.isSuccess) {
               val serverChannel = future.getChannel
-              serverChannel.getPipeline.addLast(BootstrapFactory.GatlingHandlerName, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, request, false))
+              serverChannel.getPipeline.addLast(BootstrapFactory.GatlingHandlerName, new ServerHttpResponseHandler(proxy.controller, requestContext.getChannel, TimedHttpRequest(request), false))
               _serverChannel = Some(serverChannel)
               writeRequest(request, serverChannel)
             } else {

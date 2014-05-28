@@ -20,13 +20,16 @@ import org.jboss.netty.handler.codec.http.{ HttpHeaders, HttpRequest, HttpRespon
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
+import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory
 import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureListener
 import io.gatling.http.util.HttpHelper.OkCodes
 
+case class TimedHttpRequest(httpRequest: HttpRequest, sendTime: Long = nowMillis)
+
 // FIXME ugly
-class ServerHttpResponseHandler(controller: RecorderController, clientChannel: Channel, @volatile var request: HttpRequest = null, var expectConnect: Boolean = false) extends SimpleChannelHandler with StrictLogging {
+class ServerHttpResponseHandler(controller: RecorderController, clientChannel: Channel, @volatile var request: TimedHttpRequest = null, var expectConnect: Boolean = false) extends SimpleChannelHandler with StrictLogging {
 
   override def messageReceived(context: ChannelHandlerContext, event: MessageEvent): Unit = {
 
@@ -42,10 +45,10 @@ class ServerHttpResponseHandler(controller: RecorderController, clientChannel: C
         if (expectConnect) {
           expectConnect = false
           BootstrapFactory.upgradeProtocol(context.getChannel.getPipeline)
-          serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request))
+          serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request.httpRequest))
 
         } else {
-          val keepAlive = isKeepAlive(request.headers) && isKeepAlive(response.headers)
+          val keepAlive = isKeepAlive(request.httpRequest.headers) && isKeepAlive(response.headers)
 
           controller.receiveResponse(request, response)
 
