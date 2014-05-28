@@ -61,7 +61,7 @@ object RequestElement {
     val requestContentType = requestHeaders.get(CONTENT_TYPE)
     val responseContentType = Option(response.headers().get(CONTENT_TYPE))
 
-    val resources = responseContentType.collect {
+    val embeddedResources = responseContentType.collect {
       case HtmlContentType(_, headerCharset) =>
         val charsetName = Option(headerCharset).filter(Charset.isSupported).getOrElse(UTF8.name)
         val charset = Charset.forName(charsetName)
@@ -87,7 +87,7 @@ object RequestElement {
       else
         requestHeaders
 
-    RequestElement(new String(request.getUri), request.getMethod.toString, filteredRequestHeaders, requestBody, response.getStatus.getCode, resources)
+    RequestElement(new String(request.getUri), request.getMethod.toString, filteredRequestHeaders, requestBody, response.getStatus.getCode, embeddedResources)
   }
 }
 
