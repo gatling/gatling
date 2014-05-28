@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.config
 
-import java.io.{ File => JFile }
+import java.io.{File => JFile, FileNotFoundException}
 
 import scala.collection.JavaConversions._
 import scala.concurrent.duration.{ Duration, DurationInt }
@@ -89,7 +89,19 @@ object RecorderConfiguration extends StrictLogging {
   def saveConfig(): Unit = {
     // Remove request bodies folder configuration (transient), keep only Gatling-related properties
     val configToSave = configuration.config.withoutPath(ConfigKeys.core.RequestBodiesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
-    configFile.foreach(file => withCloseable(File(file).bufferedWriter())(_.write(configToSave.render(RenderOptions))))
+    configFile.foreach(file => withCloseable(createAndOpen(file).bufferedWriter())(_.write(configToSave.render(RenderOptions))))
+  }
+
+  private[config] def createAndOpen(jfile: JFile): File = {
+    if (!jfile.exists) {
+      val parent = jfile.getParentFile
+      if (parent == null || parent.exists)
+        jfile.createNewFile
+      else
+        throw new FileNotFoundException(s"Directory '${parent.toString}' for recorder configuration does not exist")
+    }
+
+    File(jfile)
   }
 
   private def buildConfig(config: Config): RecorderConfiguration = {
