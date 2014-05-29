@@ -19,6 +19,7 @@ object BuildSettings {
     licenses              := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion          := "2.10.4",
     resolvers             := Seq(Resolver.mavenLocal, sonatypeSnapshots),
+    javacOptions          := Seq("-Xlint:-options","-source", "1.6", "-target", "1.6"),
     scalacOptions         := Seq(
       "-encoding", "UTF-8",
       "-target:jvm-1.6",
@@ -26,17 +27,7 @@ object BuildSettings {
       "-feature",
       "-unchecked",
       "-language:implicitConversions",
-      "-language:postfixOps"/*,
-            "-language:existentials",
-            "-language:experimental.macros",
-            "-language:higherKinds",
-            "-Xfatal-warnings",
-            "-Xlint",
-            "-Yno-adapted-args",
-            "-Ywarn-all",
-            "-Ywarn-dead-code", // N.B. doesn't work well with the ??? hole
-            "-Ywarn-numeric-widen",
-            "-Ywarn-value-discard"*/
+      "-language:postfixOps"
     )
   ) ++ Publish.settings ++ Release.settings
 
