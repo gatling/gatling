@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.config
 
-import java.io.{File => JFile, FileNotFoundException}
+import java.io.{ File => JFile, FileNotFoundException }
 
 import scala.collection.JavaConversions._
 import scala.concurrent.duration.{ Duration, DurationInt }

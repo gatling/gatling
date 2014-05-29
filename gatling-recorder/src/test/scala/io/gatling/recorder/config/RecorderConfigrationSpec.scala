@@ -15,16 +15,15 @@
  */
 package io.gatling.recorder.config
 
-import java.io.{FileNotFoundException, File}
+import java.io.{ FileNotFoundException, File }
 
 import org.junit.runner.RunWith
 
-import org.specs2.mutable.{BeforeAfter, Specification}
+import org.specs2.mutable.{ BeforeAfter, Specification }
 import org.specs2.runner.JUnitRunner
 
-
 @RunWith(classOf[JUnitRunner])
-class RecorderConfigrationSpec extends Specification  {
+class RecorderConfigrationSpec extends Specification {
   sequential
 
   val NON_EXISTING_DIR = "nonExistingDir"
