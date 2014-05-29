@@ -49,10 +49,15 @@ function menuItem(item, level, parent, group) {
         var displayName = item.name;
     }
 
-    if (parent)
-        var style = ' class="child-of-menu-' + parent + '"';
-    else
-        var style = '';
+    if (parent) {
+    	  if (level == 0)
+			      var childOfRoot = 'child-of-ROOT ';
+		    else
+			      var childOfRoot = '';
+
+        var style = ' class="' + childOfRoot + 'child-of-menu-' + parent + '"';
+    } else
+      var style = '';
 
     if (group)
         var expandButton = '<span id="menu-' + item.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button">&nbsp;</span>';
