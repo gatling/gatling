@@ -161,6 +161,9 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         tx.next ! updatedSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
       }
 
+    def fetchPageResources(tx: HttpTx, response: Response): Boolean =
+      tx.protocol.responsePart.fetchHtmlResources && response.isReceived && isHtml(response.headers)
+
     // FIXME rewrite with extractors
     if (tx.resourceFetching) {
       val resourceMessage =
@@ -172,7 +175,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
       tx.next ! resourceMessage
 
-    } else if (tx.protocol.responsePart.fetchHtmlResources && response.isReceived && isHtml(response.headers)) {
+    } else {
 
       val explicitResources =
         if (!tx.explicitResources.isEmpty)
@@ -180,13 +183,18 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         else
           Nil
 
-      ResourceFetcher.fromPage(response, tx, explicitResources) match {
+      val pageResources =
+        if (fetchPageResources(tx, response))
+          ResourceFetcher.resourcesFromPage(response, tx)
+        else
+          Nil
+
+      ResourceFetcher.resourceFetcher(tx, pageResources, explicitResources) match {
         case Some(resourceFetcher) => actor(context)(resourceFetcher())
         case None                  => regularExecuteNext()
       }
 
-    } else
-      regularExecuteNext()
+    }
   }
 
   private def logAndExecuteNext(tx: HttpTx, sessionUpdates: Session => Session, status: Status, response: Response, message: Option[String]) {
