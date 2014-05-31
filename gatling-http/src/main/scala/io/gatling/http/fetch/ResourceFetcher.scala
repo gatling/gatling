@@ -76,7 +76,7 @@ object ResourceFetcher extends StrictLogging {
     else
       None
 
-  def fromPage(response: Response, tx: HttpTx, explicitResources: List[NamedRequest]): Option[() => ResourceFetcher] = {
+  def resourcesFromPage(response: Response, tx: HttpTx): List[NamedRequest] = {
 
     val htmlDocumentURI = response.request.getURI
     val protocol = tx.protocol
@@ -120,8 +120,11 @@ object ResourceFetcher extends StrictLogging {
       case _ => Nil
     }
 
-    resourceFetcher(tx, inferredResources, explicitResources)
+    inferredResources
   }
+
+  def fetchResources(tx: HttpTx, explicitResources: List[NamedRequest]): Option[() => ResourceFetcher] =
+    resourceFetcher(tx, Nil, explicitResources)
 
   def fromCache(htmlDocumentURI: URI, tx: HttpTx, explicitResources: List[NamedRequest]): Option[() => ResourceFetcher] = {
     val cacheKey = (tx.protocol, htmlDocumentURI)
@@ -130,7 +133,7 @@ object ResourceFetcher extends StrictLogging {
     resourceFetcher(tx, inferredResources, explicitResources)
   }
 
-  private def resourceFetcher(tx: HttpTx, inferredResources: List[NamedRequest], explicitResources: List[NamedRequest]) = {
+  def resourceFetcher(tx: HttpTx, inferredResources: List[NamedRequest], explicitResources: List[NamedRequest]) = {
 
     val uniqueResources: Map[URI, NamedRequest] = {
       val inf: Map[URI, NamedRequest] = inferredResources.map(res => res.ahcRequest.getURI -> res)(breakOut)
