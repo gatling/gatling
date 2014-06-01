@@ -36,6 +36,7 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.{ Response, ResponseBuilder }
 import jsr166e.ConcurrentHashMapV8
+import com.ning.http.client.Request
 
 sealed trait ResourceFetched {
   def uri: URI
@@ -54,8 +55,8 @@ object ResourceFetcher extends StrictLogging {
 
   val ResourceChecks = List(HttpRequestActionBuilder.DefaultHttpCheck)
 
-  def pageResources(htmlDocumentURI: URI, filters: Option[Filters], responseChars: Array[Char]): List[EmbeddedResource] = {
-    val htmlInferredResources = HtmlParser.getEmbeddedResources(htmlDocumentURI, responseChars)
+  def pageResources(htmlDocumentURI: URI, filters: Option[Filters], responseChars: Array[Char], request: Request): List[EmbeddedResource] = {
+    val htmlInferredResources = HtmlParser.getEmbeddedResources(htmlDocumentURI, responseChars, Some(request))
     filters match {
       case Some(f) => f.filter(htmlInferredResources)
       case none    => htmlInferredResources
@@ -82,7 +83,7 @@ object ResourceFetcher extends StrictLogging {
     val protocol = tx.protocol
 
       def pageResourcesRequests(): List[NamedRequest] =
-        pageResources(htmlDocumentURI, protocol.responsePart.htmlResourcesFetchingFilters, response.body.string.unsafeChars)
+        pageResources(htmlDocumentURI, protocol.responsePart.htmlResourcesFetchingFilters, response.body.string.unsafeChars, tx.request)
           .flatMap(_.toRequest(protocol, tx.throttled))
 
     val inferredResources: List[NamedRequest] = response.statusCode match {

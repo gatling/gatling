@@ -23,6 +23,8 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.http.util.HttpHelper
 import jodd.lagarto.{ EmptyTagVisitor, LagartoParser, Tag }
+import com.ning.http.client.Request
+import java.util
 
 sealed abstract class RawResource {
   def rawUrl: String
@@ -36,14 +38,43 @@ case class RegularRawResource(rawUrl: String) extends RawResource {
   def toEmbeddedResource(rootURI: URI): Option[EmbeddedResource] = uri(rootURI).map(RegularResource)
 }
 
-case class Browser(name: String, version: Double)
+case class Agent(name: String, version: Double)
 
 object HtmlParser extends StrictLogging {
 
-  def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char], browserVersion: Option[Browser] = None): List[EmbeddedResource] = {
+  private val USER_AGENT = "User-Agent"
+
+  private val MSIE_AGENT_REGEX = new scala.util.matching.Regex("MSIE ([0-9]+.[0-9]+)")
+
+  def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char], request: Option[Request] = None): List[EmbeddedResource] = {
+    getEmbeddedResourcesFromPage(documentURI, htmlContent, getAgent(request))
+  }
+
+  def getAgent(request: Option[Request]): Option[Agent] = {
+    request match {
+      case Some(request) => {
+        if (request.getHeaders.containsKey(USER_AGENT)) {
+          val agentStr = request.getHeaders.getFirstValue(USER_AGENT)
+          parseAgentStr(agentStr)
+        } else
+          None
+      }
+
+      case _ => None
+    }
+  }
+
+  def parseAgentStr(agentStr: String): Option[Agent] = {
+    MSIE_AGENT_REGEX.findFirstMatchIn(agentStr) match {
+      case Some(res) => Some(Agent(ConditionalComment.IE, res.group(1).toDouble))
+      case None      => None
+    }
+  }
+
+  private[fetch] def getEmbeddedResourcesFromPage(documentURI: URI, htmlContent: Array[Char], agent: Option[Agent]): List[EmbeddedResource] = {
 
     var collectionEnabled = List(true)
-    val conditionalComment = new ConditionalComment(browserVersion)
+    val conditionalComment = new ConditionalComment(agent)
     val rawResources = mutable.ArrayBuffer.empty[RawResource]
     var baseURI: Option[URI] = None
 

@@ -26,11 +26,11 @@ object ConditionalComment {
 
 class CCParseException(msg: String) extends Exception(msg)
 
-class ConditionalComment(browser: Option[Browser]) extends JavaTokenParsers with StrictLogging {
+class ConditionalComment(browser: Option[Agent]) extends JavaTokenParsers with StrictLogging {
 
   def evaluate(condition: CharSequence): Boolean = {
     browser match {
-      case Some(Browser(browserName, clientVersion)) => browserName match {
+      case Some(Agent(browserName, clientVersion)) => browserName match {
         case ConditionalComment.IE =>
           if (clientVersion >= ConditionalComment.LAST_CC_VERSION) false
           else {

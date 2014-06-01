@@ -24,7 +24,7 @@ class ConditionalCommentSpec extends Specification {
 
   trait Browser extends Before {
     def ie(version: Double): ConditionalComment = {
-      new ConditionalComment(Some(Browser(ConditionalComment.IE, version)))
+      new ConditionalComment(Some(Agent(ConditionalComment.IE, version)))
     }
 
     def before() {}
@@ -32,7 +32,7 @@ class ConditionalCommentSpec extends Specification {
 
   "conditional comment" should {
     "return false if browser is not IE" in {
-      val cc = new ConditionalComment(Some(Browser("Firefox", 5)))
+      val cc = new ConditionalComment(Some(Agent("Firefox", 5)))
       cc.evaluate("if true") should beFalse
     }
 

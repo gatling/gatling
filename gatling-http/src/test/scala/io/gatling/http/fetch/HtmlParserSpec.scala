@@ -51,7 +51,7 @@ class HtmlParserSpec extends Specification {
       implicit def string2URI(string: String) = URI.create(string)
 
     "extract all urls from akka.io page" in {
-      HtmlParser.getEmbeddedResources(new URI("http://akka.io"), htmlContent) must beEqualTo(List(
+      HtmlParser.getEmbeddedResources(new URI("http://akka.io"), htmlContent, None) must beEqualTo(List(
         RegularResource("http://akka.io/resources/favicon.ico"),
         CssResource("http://akka.io/resources/stylesheets/style.css"),
         CssResource("http://fonts.googleapis.com/css?family=Exo:300,400,600,700"),
@@ -98,7 +98,7 @@ class HtmlParserSpec extends Specification {
           <![endif]-->
         """)
 
-      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 9))) must beEqualTo(
+      HtmlParser.getEmbeddedResourcesFromPage(new URI("http://example.com/"), html, Some(Agent(ConditionalComment.IE, 9))) must beEqualTo(
         List(CssResource("http://example.com/style.css")))
     }
 
@@ -110,7 +110,7 @@ class HtmlParserSpec extends Specification {
           <![endif]-->
         """)
 
-      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 9))) must beEqualTo(
+      HtmlParser.getEmbeddedResourcesFromPage(new URI("http://example.com/"), html, Some(Agent(ConditionalComment.IE, 9))) must beEqualTo(
         Nil)
     }
 
@@ -125,7 +125,7 @@ class HtmlParserSpec extends Specification {
           <![endif]-->
         """)
 
-      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 7))) must beEqualTo(
+      HtmlParser.getEmbeddedResourcesFromPage(new URI("http://example.com/"), html, Some(Agent(ConditionalComment.IE, 7))) must beEqualTo(
         List(CssResource("http://example.com/style7.css")))
     }
 
@@ -145,10 +145,10 @@ class HtmlParserSpec extends Specification {
           <![endif]-->
         """)
 
-      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 9))) must beEqualTo(
+      HtmlParser.getEmbeddedResourcesFromPage(new URI("http://example.com/"), html, Some(Agent(ConditionalComment.IE, 9))) must beEqualTo(
         List(CssResource("http://example.com/style9.css")))
 
-      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 8))) must beEqualTo(
+      HtmlParser.getEmbeddedResourcesFromPage(new URI("http://example.com/"), html, Some(Agent(ConditionalComment.IE, 8))) must beEqualTo(
         List(
           CssResource("http://example.com/style8.css"),
           CssResource("http://example.com/style9.css")))
@@ -164,11 +164,26 @@ class HtmlParserSpec extends Specification {
           <![endif]-->
         """)
 
-      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 5.5))) must beEqualTo(
+      HtmlParser.getEmbeddedResourcesFromPage(new URI("http://example.com/"), html, Some(Agent(ConditionalComment.IE, 5.5))) must beEqualTo(
         List(CssResource("http://example.com/style55.css")))
 
-      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 6))) must beEqualTo(
+      HtmlParser.getEmbeddedResourcesFromPage(new URI("http://example.com/"), html, Some(Agent(ConditionalComment.IE, 6))) must beEqualTo(
         Nil)
+    }
+
+    "extract IE 9.0 version" in {
+      val agent = HtmlParser.parseAgentStr("Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US))")
+      agent should be equalTo (Some(Agent(ConditionalComment.IE, 9.0)))
+    }
+
+    "extract IE 8.0 version" in {
+      val agent = HtmlParser.parseAgentStr("Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; GTB7.4; InfoPath.2; SV1; .NET CLR 3.3.69573; WOW64; en-US)")
+      agent should be equalTo (Some(Agent(ConditionalComment.IE, 8.0)))
+    }
+
+    "don't parse Firefox version" in {
+      val agent = HtmlParser.parseAgentStr("Mozilla/5.0 (X11; OpenBSD amd64; rv:28.0) Gecko/20100101 Firefox/28.0")
+      agent should beNone
     }
   }
 }
