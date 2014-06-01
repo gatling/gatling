@@ -74,8 +74,8 @@ To change the warm up url, just add ``.warmUp("newUrl")``.
 
 ::
 
-    // override warm up URL to www.google.com
-    val httpConf = http.warmUp("www.google.com")
+    // override warm up URL to http://www.google.com
+    val httpConf = http.warmUp("http://www.google.com")
     // disable warm up
     val httpConfNoWarmUp = http.disableWarmUp
 
