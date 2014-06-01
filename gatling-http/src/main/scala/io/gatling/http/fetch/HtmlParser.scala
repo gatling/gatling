@@ -53,6 +53,10 @@ object HtmlParser extends StrictLogging {
           rawResources += factory(url)
       }
 
+      override def condComment(expression: CharSequence, isStringTag: Boolean, isHidden: Boolean, comment: CharSequence) = {
+
+      }
+
       override def script(tag: Tag, body: CharSequence): Unit =
         addResource(tag, "src", RegularRawResource)
 
