@@ -23,6 +23,8 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.http.util.HttpHelper
 import jodd.lagarto.{ EmptyTagVisitor, LagartoParser, Tag }
+import com.ning.http.client.Request
+import java.util
 
 sealed abstract class RawResource {
   def rawUrl: String
@@ -36,10 +38,43 @@ case class RegularRawResource(rawUrl: String) extends RawResource {
   def toEmbeddedResource(rootURI: URI): Option[EmbeddedResource] = uri(rootURI).map(RegularResource)
 }
 
+case class Agent(name: String, version: Double)
+
 object HtmlParser extends StrictLogging {
 
-  def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char]): List[EmbeddedResource] = {
+  private val USER_AGENT = "User-Agent"
 
+  private val MSIE_AGENT_REGEX = new scala.util.matching.Regex("MSIE ([0-9]+.[0-9]+)")
+
+  def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char], request: Option[Request] = None): List[EmbeddedResource] = {
+    getEmbeddedResourcesFromPage(documentURI, htmlContent, getAgent(request))
+  }
+
+  def getAgent(request: Option[Request]): Option[Agent] = {
+    request match {
+      case Some(request) => {
+        if (request.getHeaders.containsKey(USER_AGENT)) {
+          val agentStr = request.getHeaders.getFirstValue(USER_AGENT)
+          parseAgentStr(agentStr)
+        } else
+          None
+      }
+
+      case _ => None
+    }
+  }
+
+  def parseAgentStr(agentStr: String): Option[Agent] = {
+    MSIE_AGENT_REGEX.findFirstMatchIn(agentStr) match {
+      case Some(res) => Some(Agent(ConditionalComment.IE, res.group(1).toDouble))
+      case None      => None
+    }
+  }
+
+  private[fetch] def getEmbeddedResourcesFromPage(documentURI: URI, htmlContent: Array[Char], agent: Option[Agent]): List[EmbeddedResource] = {
+
+    var collectionEnabled = List(true)
+    val conditionalComment = new ConditionalComment(agent)
     val rawResources = mutable.ArrayBuffer.empty[RawResource]
     var baseURI: Option[URI] = None
 
@@ -53,14 +88,29 @@ object HtmlParser extends StrictLogging {
           rawResources += factory(url)
       }
 
+      override def condComment(expression: CharSequence, isStringTag: Boolean, isHidden: Boolean, comment: CharSequence) = {
+        expression.toString match {
+          case "endif" =>
+            collectionEnabled = collectionEnabled.tail
+
+          case _ =>
+            collectionEnabled = conditionalComment.evaluate(expression) :: collectionEnabled
+        }
+      }
+
       override def script(tag: Tag, body: CharSequence): Unit =
-        addResource(tag, "src", RegularRawResource)
+        if (collectionEnabled.head)
+          addResource(tag, "src", RegularRawResource)
 
       override def style(tag: Tag, body: CharSequence): Unit =
-        rawResources ++= CssParser.extractUrls(body, CssParser.StyleImportsUrls).map(CssRawResource)
+        if (collectionEnabled.head)
+          rawResources ++= CssParser.extractUrls(body, CssParser.StyleImportsUrls).map(CssRawResource)
 
-      override def tag(tag: Tag): Unit = {
+      override def tag(tag: Tag): Unit =
+        if (collectionEnabled.head)
+          processTag(tag)
 
+      def processTag(tag: Tag) {
           def suffixedCodeBase() = Option(tag.getAttributeValue("codebase", false)).map { cb =>
             if (cb.charAt(cb.size) != '/')
               cb + '/'

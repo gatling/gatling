@@ -161,8 +161,8 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         tx.next ! updatedSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
       }
 
-    def fetchPageResources(tx: HttpTx, response: Response): Boolean =
-      tx.protocol.responsePart.fetchHtmlResources && response.isReceived && isHtml(response.headers)
+      def fetchPageResources(tx: HttpTx, response: Response): Boolean =
+        tx.protocol.responsePart.fetchHtmlResources && response.isReceived && isHtml(response.headers)
 
     // FIXME rewrite with extractors
     if (tx.resourceFetching) {
