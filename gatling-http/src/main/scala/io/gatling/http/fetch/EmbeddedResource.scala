@@ -21,12 +21,16 @@ import com.ning.http.client.Request
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ Success, SuccessWrapper }
+import io.gatling.http.action.HttpRequestActionBuilder
+import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.Http
 
-case class NamedRequest(name: String, ahcRequest: Request)
+case class NamedRequest(name: String, ahcRequest: Request, checks: List[HttpCheck])
 
 object EmbeddedResource {
+
+  val DefaultResourceChecks = List(HttpRequestActionBuilder.DefaultHttpCheck)
 
   val MockSession = Session("foo", "bar")
 }
@@ -51,7 +55,7 @@ sealed abstract class EmbeddedResource {
             "/"
         }
 
-        Some(NamedRequest(requestName, ahcRequest))
+        Some(NamedRequest(requestName, ahcRequest, EmbeddedResource.DefaultResourceChecks))
 
       case _ => None
     }
