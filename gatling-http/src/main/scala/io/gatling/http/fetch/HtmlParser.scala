@@ -36,10 +36,14 @@ case class RegularRawResource(rawUrl: String) extends RawResource {
   def toEmbeddedResource(rootURI: URI): Option[EmbeddedResource] = uri(rootURI).map(RegularResource)
 }
 
+case class Browser(name: String, version: Double)
+
 object HtmlParser extends StrictLogging {
 
-  def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char]): List[EmbeddedResource] = {
+  def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char], browserVersion: Option[Browser] = None): List[EmbeddedResource] = {
 
+    var collectionEnabled = List(true)
+    val conditionalComment = new ConditionalComment(browserVersion)
     val rawResources = mutable.ArrayBuffer.empty[RawResource]
     var baseURI: Option[URI] = None
 
@@ -54,17 +58,28 @@ object HtmlParser extends StrictLogging {
       }
 
       override def condComment(expression: CharSequence, isStringTag: Boolean, isHidden: Boolean, comment: CharSequence) = {
+        expression.toString match {
+          case "endif" =>
+            collectionEnabled = collectionEnabled.tail
 
+          case _ =>
+            collectionEnabled = conditionalComment.evaluate(expression) :: collectionEnabled
+        }
       }
 
       override def script(tag: Tag, body: CharSequence): Unit =
-        addResource(tag, "src", RegularRawResource)
+        if (collectionEnabled.head)
+          addResource(tag, "src", RegularRawResource)
 
       override def style(tag: Tag, body: CharSequence): Unit =
-        rawResources ++= CssParser.extractUrls(body, CssParser.StyleImportsUrls).map(CssRawResource)
+        if (collectionEnabled.head)
+          rawResources ++= CssParser.extractUrls(body, CssParser.StyleImportsUrls).map(CssRawResource)
 
-      override def tag(tag: Tag): Unit = {
+      override def tag(tag: Tag): Unit =
+        if (collectionEnabled.head)
+          processTag(tag)
 
+      def processTag(tag: Tag) {
           def suffixedCodeBase() = Option(tag.getAttributeValue("codebase", false)).map { cb =>
             if (cb.charAt(cb.size) != '/')
               cb + '/'

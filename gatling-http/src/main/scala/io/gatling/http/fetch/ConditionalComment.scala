@@ -26,22 +26,22 @@ object ConditionalComment {
 
 class CCParseException(msg: String) extends Exception(msg)
 
-class ConditionalComment(browser: String, clientVersion: Double) extends JavaTokenParsers with StrictLogging {
+class ConditionalComment(browser: Option[Browser]) extends JavaTokenParsers with StrictLogging {
 
   def evaluate(condition: CharSequence): Boolean = {
     browser match {
-      case ConditionalComment.IE => {
-        if (clientVersion >= ConditionalComment.LAST_CC_VERSION) false
-        else {
-          parseAll(comment, condition) match {
-            case Success(res, _) => res
-            case Failure(msg, input) => {
-              throw new CCParseException(msg)
+      case Some(Browser(browserName, clientVersion)) => browserName match {
+        case ConditionalComment.IE =>
+          if (clientVersion >= ConditionalComment.LAST_CC_VERSION) false
+          else {
+            parseAll(comment, condition) match {
+              case Success(res, _)     => res
+              case Failure(msg, input) => throw new CCParseException(msg)
             }
           }
-        }
-      }
 
+        case _ => false
+      }
       // Only IE supports conditional comments
       case _ => false
     }
@@ -82,8 +82,8 @@ class ConditionalComment(browser: String, clientVersion: Double) extends JavaTok
   def operatorExpression: Parser[Boolean] = (operator ?) ~ "IE" ~ number ^^ {
     case op ~ _ ~ num => {
       val (version, numVal) = num match {
-        case Left(n)  => (clientVersion, n.toDouble)
-        case Right(n) => (clientVersion.floor, n.toDouble)
+        case Left(n)  => (browser.get.version, n.toDouble)
+        case Right(n) => (browser.get.version.floor, n.toDouble)
       }
 
       op match {

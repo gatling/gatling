@@ -20,23 +20,37 @@ import java.net.URI
 import scala.io.Codec.UTF8
 
 import org.junit.runner.RunWith
+
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
+import com.dongxiguo.fastring.Fastring.Implicits._
+
 import io.gatling.core.util.IO._
+import io.gatling.http.fetch.HtmlParser._
 
 @RunWith(classOf[JUnitRunner])
 class HtmlParserSpec extends Specification {
 
-  "parsing Akka.io page" should {
+  "html parser" should {
 
     val htmlContent = withCloseable(getClass.getClassLoader.getResourceAsStream("akka.io.html")) {
       _.toCharArray(UTF8.charSet)
     }
 
+      def mockHtml(body: String): Array[Char] = {
+        fast"""<!DOCTYPE html>
+      <html>
+        <body>
+          ${body}
+        </body>
+      </html>
+      """.toString.toCharArray
+      }
+
       implicit def string2URI(string: String) = URI.create(string)
 
-    "extract all urls" in {
+    "extract all urls from akka.io page" in {
       HtmlParser.getEmbeddedResources(new URI("http://akka.io"), htmlContent) must beEqualTo(List(
         RegularResource("http://akka.io/resources/favicon.ico"),
         CssResource("http://akka.io/resources/stylesheets/style.css"),
@@ -74,6 +88,87 @@ class HtmlParserSpec extends Specification {
         RegularResource("http://akka.io/resources/javascript/jquery.localscroll-1.2.7-min.js"),
         RegularResource("http://akka.io/resources/javascript/jquery.serialScroll-1.2.2-min.js"),
         RegularResource("http://akka.io/resources/javascript/sliderbox.js")))
+    }
+
+    "extract IE css" in {
+      val html = mockHtml(
+        """
+          <!--[if IE 9]>
+            <link rel="stylesheet" type="text/css" href="style.css">
+          <![endif]-->
+        """)
+
+      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 9))) must beEqualTo(
+        List(CssResource("http://example.com/style.css")))
+    }
+
+    "not extract IE css" in {
+      val html = mockHtml(
+        """
+          <!--[if IE 6]>
+            <link rel="stylesheet" type="text/css" href="style.css">
+          <![endif]-->
+        """)
+
+      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 9))) must beEqualTo(
+        Nil)
+    }
+
+    "extract style for IE 7" in {
+      val html = mockHtml(
+        """
+          <!--[if IE 6]>
+            <link rel="stylesheet" type="text/css" href="style6.css">
+          <![endif]-->
+          <!--[if IE 7]>
+            <link rel="stylesheet" type="text/css" href="style7.css">
+          <![endif]-->
+        """)
+
+      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 7))) must beEqualTo(
+        List(CssResource("http://example.com/style7.css")))
+    }
+
+    "parse nexted conditional comments" in {
+      val html = mockHtml(
+        """
+          <!--[if gt IE 6]>
+            <!--[if lte IE 8]>
+              <!--[if lte IE 7]>
+                <link rel="stylesheet" type="text/css" href="style7.css">
+              <![endif]-->
+
+              <link rel="stylesheet" type="text/css" href="style8.css">
+            <![endif]-->
+
+            <link rel="stylesheet" type="text/css" href="style9.css">
+          <![endif]-->
+        """)
+
+      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 9))) must beEqualTo(
+        List(CssResource("http://example.com/style9.css")))
+
+      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 8))) must beEqualTo(
+        List(
+          CssResource("http://example.com/style8.css"),
+          CssResource("http://example.com/style9.css")))
+    }
+
+    "parse nested conditional comments with alternative syntax" in {
+      val html = mockHtml(
+        """
+          <!--[if gt IE 5]>
+          <![if lt IE 6]>
+            <link rel="stylesheet" type="text/css" href="style55.css">
+          <![endif]
+          <![endif]-->
+        """)
+
+      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 5.5))) must beEqualTo(
+        List(CssResource("http://example.com/style55.css")))
+
+      HtmlParser.getEmbeddedResources(new URI("http://example.com/"), html, Some(Browser(ConditionalComment.IE, 6))) must beEqualTo(
+        Nil)
     }
   }
 }
