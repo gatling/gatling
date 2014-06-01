@@ -19,7 +19,7 @@ import java.net.InetAddress
 
 import scala.collection.mutable
 
-import com.ning.http.client.{ SignatureCalculator, ProxyServer, Realm, RequestBuilder }
+import com.ning.http.client._
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.akka.GatlingActorSystem
@@ -130,6 +130,7 @@ case class HttpProtocol(
           .setHeader(AcceptEncoding, "gzip")
           .setHeader(Connection, "keep-alive")
           .setHeader(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
+          .setPerRequestConfig(new PerRequestConfig(null, 2000))
 
         if (url.startsWith("http://"))
           proxyPart.proxy.foreach(requestBuilder.setProxyServer)
