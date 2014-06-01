@@ -96,12 +96,11 @@ class HttpRequestAction(httpRequest: HttpRequest, val next: ActorRef) extends Re
   val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(checks, responseTransformer, protocol)
   val requestName = httpRequest.requestName
 
-  def sign(request: Request, signatureCalculator: Option[SignatureCalculator]): Request = {
+  def sign(request: Request, signatureCalculator: Option[SignatureCalculator]): Request =
     signatureCalculator match {
       case Some(calculator) => new RequestBuilder(request).setSignatureCalculator(calculator).build()
       case None             => request
     }
-  }
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
