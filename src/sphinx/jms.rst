@@ -28,7 +28,8 @@ Use the ``jms`` object in order to create a JMS protocol.
 * ``contextFactory``: mandatory
 * ``credentials``: optional
 * ``listenerCount``: the number of ReplyConsumers. mandatory (> 0)
-* ``useNonPersistentDeliveryMode``/``usePersistentDeliveryMode``: optional, default to non persistent
+* ``useNonPersistentDeliveryMode`` / ``usePersistentDeliveryMode``: optional, default to non persistent
+* ``matchByMessageID`` / ``matchByCorrelationID`` / ``messageMatcher``: specify how request and response messages should be matched, default to matchByMessageID. Use matchByCorrelationID for ActiveMQ.
 
 JMS Request API
 ===============

@@ -30,13 +30,12 @@ case class JmsRequestBuilderQueue(requestName: String,
 
   def queue(name: String) = destination(JmsQueue(name))
 
-  def destination(destination: JmsDestination) = JmsRequestBuilderMessage(requestName, destination, JmsTemporaryQueue, JmsDefaultMessageMatcher, None, factory)
+  def destination(destination: JmsDestination) = JmsRequestBuilderMessage(requestName, destination, JmsTemporaryQueue, None, factory)
 }
 
 case class JmsRequestBuilderMessage(requestName: String,
                                     destination: JmsDestination,
                                     replyDest: JmsDestination,
-                                    messageMatcher: JmsMessageMatcher,
                                     messageSelector: Option[String],
                                     factory: JmsAttributes => ActionBuilder) {
   /**
@@ -49,10 +48,7 @@ case class JmsRequestBuilderMessage(requestName: String,
    * defines selector for reply destination that is used for responses
    */
   def selector(selector: String) = this.copy(messageSelector = Some(selector))
-  /**
-   * Enable custom message matching logic, if not defined JmsDefaultMessageMatcher is used
-   */
-  def messageMatcher(matcher: JmsMessageMatcher) = this.copy(messageMatcher = matcher)
+
   def textMessage(text: Expression[String]) = message(TextJmsMessage(text))
   def bytesMessage(bytes: Expression[Array[Byte]]) = message(BytesJmsMessage(bytes))
   def mapMessage(map: Map[String, Any]): JmsRequestBuilder = mapMessage(map.expression)
@@ -60,7 +56,7 @@ case class JmsRequestBuilderMessage(requestName: String,
   def objectMessage(o: Expression[JSerializable]) = message(ObjectJmsMessage(o))
 
   private def message(mess: JmsMessage) =
-    JmsRequestBuilder(JmsAttributes(requestName, destination, replyDest, messageSelector, messageMatcher, mess), factory)
+    JmsRequestBuilder(JmsAttributes(requestName, destination, replyDest, messageSelector, mess), factory)
 }
 
 case class JmsRequestBuilder(attributes: JmsAttributes, factory: JmsAttributes => ActionBuilder) {

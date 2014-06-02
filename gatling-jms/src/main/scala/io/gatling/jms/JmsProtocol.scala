@@ -27,5 +27,6 @@ case class JmsProtocol(
   url: String,
   credentials: Option[Credentials],
   listenerCount: Int,
-  deliveryMode: Int)
+  deliveryMode: Int,
+  messageMatcher: JmsMessageMatcher)
     extends Protocol
