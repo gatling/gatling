@@ -64,8 +64,8 @@ object HttpProtocol {
       responseTransformer = None,
       checks = Nil,
       extraInfoExtractor = None,
-      fetchHtmlResources = false,
-      htmlResourcesFetchingFilters = None),
+      inferHtmlResources = false,
+      htmlResourcesInferringFilters = None),
     wsPart = HttpProtocolWsPart(
       wsBaseURLs = Nil,
       reconnect = false,
@@ -187,8 +187,8 @@ case class HttpProtocolResponsePart(
   responseTransformer: Option[ResponseTransformer],
   checks: List[HttpCheck],
   extraInfoExtractor: Option[ExtraInfoExtractor],
-  fetchHtmlResources: Boolean,
-  htmlResourcesFetchingFilters: Option[Filters])
+  inferHtmlResources: Boolean,
+  htmlResourcesInferringFilters: Option[Filters])
 
 case class HttpProtocolWsPart(
     wsBaseURLs: List[String],

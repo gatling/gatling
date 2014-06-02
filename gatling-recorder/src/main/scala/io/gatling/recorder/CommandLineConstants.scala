@@ -31,5 +31,5 @@ object CommandLineConstants {
   val Encoding = CommandLineConstant("encoding", "enc")
   val FollowRedirect = CommandLineConstant("follow-redirect", "fr")
   val AutomaticReferer = CommandLineConstant("automatic-referer", "ar")
-  val FetchHtmlResources = CommandLineConstant("fetch-html-resources", "fhr")
+  val InferHtmlResources = CommandLineConstant("infer-html-resources", "ihr")
 }

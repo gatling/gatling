@@ -59,8 +59,8 @@ class RecorderPropertiesBuilder {
   def followRedirect(status: Boolean): Unit =
     props += http.FollowRedirect -> status
 
-  def fetchHtmlResources(status: Boolean): Unit =
-    props += http.FetchHtmlResources -> status
+  def inferHtmlResources(status: Boolean): Unit =
+    props += http.InferHtmlResources -> status
 
   def removeConditionalCache(status: Boolean): Unit =
     props += http.RemoveConditionalCache -> status

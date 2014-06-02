@@ -87,7 +87,7 @@ class HttpIntegrationSpec extends Specification {
               .check(
                 css("h1").is("Resource Test"),
                 regex("<title>Resource Test</title>"))),
-        protocols = Protocols(WireMockSupport.httpProtocol.fetchHtmlResources(BlackList(".*/bad_resource.png"))))
+        protocols = Protocols(WireMockSupport.httpProtocol.inferHtmlResources(BlackList(".*/bad_resource.png"))))
 
       session.isFailed should_== false
       verify(getRequestedFor(urlEqualTo("/resourceTest/index.html")))
