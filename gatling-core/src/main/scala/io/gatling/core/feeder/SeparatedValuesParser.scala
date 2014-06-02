@@ -36,8 +36,14 @@ object SeparatedValuesParser {
 
   def stream(source: Source, separator: Char, doubleQuote: Char): Iterator[Record[String]] = {
     val parser = new CSVParser(separator, doubleQuote)
-    val rawLines = source.getLines.map(parser.parseLine)
-    val headers = rawLines.next
+    val rawLines = source.getLines().map(parser.parseLine)
+    val headers =
+      try
+        rawLines.next()
+      catch {
+        case e: NoSuchElementException =>
+          throw new IllegalArgumentException("SeparatedValuesParser expects files to contain a first headers line")
+      }
     rawLines.map(headers.zip(_)(breakOut))
   }
 }
