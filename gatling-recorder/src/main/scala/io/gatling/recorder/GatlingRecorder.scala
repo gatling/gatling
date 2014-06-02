@@ -24,20 +24,20 @@ object GatlingRecorder {
 
   private val props = new RecorderPropertiesBuilder
 
-  private val cliOptsParser = new OptionParser[Unit]("gatling-recorder") {
-    help(Help.full).abbr(Help.abbr).text("Show help (this message) and exit")
-    opt[Int](LocalPort.full).abbr(LocalPort.abbr).valueName("<port>").foreach(props.localPort).text("Local port used by Gatling Proxy for HTTP")
-    opt[String](ProxyHost.full).abbr(ProxyHost.abbr).valueName("<host>").foreach(props.proxyHost).text("Outgoing proxy host")
-    opt[Int](ProxyPort.full).abbr(ProxyPort.abbr).valueName("<port>").foreach(props.proxyPort).text("Outgoing proxy port for HTTP")
-    opt[Int](ProxyPortSsl.full).abbr(ProxyPortSsl.abbr).valueName("<port>").foreach(props.proxySslPort).text("Outgoing proxy port for HTTPS")
-    opt[String](OutputFolder.full).abbr(OutputFolder.abbr).valueName("<folderName>").foreach(props.simulationOutputFolder).text("Uses <folderName> as the folder where generated simulations will be stored")
-    opt[String](RequestBodiesFolder.full).abbr(RequestBodiesFolder.abbr).valueName("<folderName>").foreach(props.requestBodiesFolder).text("Uses <folderName> as the folder where request bodies are stored")
-    opt[String](ClassName.full).abbr(ClassName.abbr).foreach(props.simulationClassName).text("Sets the name of the generated class")
-    opt[String](Package.full).abbr(Package.abbr).foreach(props.simulationPackage).text("Sets the package of the generated class")
-    opt[String](Encoding.full).abbr(Encoding.abbr).foreach(props.encoding).text("Sets the encoding used in the recorder")
-    opt[Boolean](FollowRedirect.full).abbr(FollowRedirect.abbr).foreach(props.followRedirect).text("""Sets the "Follow Redirects" option to true""")
-    opt[Boolean](AutomaticReferer.full).abbr(AutomaticReferer.abbr).foreach(props.automaticReferer).text("""Sets the "Automatic Referers" option to true""")
-    opt[Boolean](InferHtmlResources.full).abbr(InferHtmlResources.abbr).foreach(props.inferHtmlResources).text("""Sets the "Fetch html resources" option to true""")
+  private val cliOptsParser = new OptionParser[Unit]("gatling-recorder") with CommandLineConstantsSupport[Unit] {
+    help(Help).text("Show help (this message) and exit")
+    opt[Int](LocalPort).valueName("<port>").foreach(props.localPort).text("Local port used by Gatling Proxy for HTTP")
+    opt[String](ProxyHost).valueName("<host>").foreach(props.proxyHost).text("Outgoing proxy host")
+    opt[Int](ProxyPort).valueName("<port>").foreach(props.proxyPort).text("Outgoing proxy port for HTTP")
+    opt[Int](ProxyPortSsl).valueName("<port>").foreach(props.proxySslPort).text("Outgoing proxy port for HTTPS")
+    opt[String](OutputFolder).valueName("<folderName>").foreach(props.simulationOutputFolder).text("Uses <folderName> as the folder where generated simulations will be stored")
+    opt[String](RequestBodiesFolder).valueName("<folderName>").foreach(props.requestBodiesFolder).text("Uses <folderName> as the folder where request bodies are stored")
+    opt[String](ClassName).foreach(props.simulationClassName).text("Sets the name of the generated class")
+    opt[String](Package).foreach(props.simulationPackage).text("Sets the package of the generated class")
+    opt[String](Encoding).foreach(props.encoding).text("Sets the encoding used in the recorder")
+    opt[Boolean](FollowRedirect).foreach(props.followRedirect).text("""Sets the "Follow Redirects" option to true""")
+    opt[Boolean](AutomaticReferer).foreach(props.automaticReferer).text("""Sets the "Automatic Referers" option to true""")
+    opt[Boolean](InferHtmlResources).foreach(props.inferHtmlResources).text("""Sets the "Fetch html resources" option to true""")
   }
 
   def main(args: Array[String]): Unit = {
