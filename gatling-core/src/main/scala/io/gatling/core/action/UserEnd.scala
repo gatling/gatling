@@ -28,7 +28,7 @@ object UserEnd extends AkkaDefaults {
 
   var _instance: Option[ActorRef] = None
 
-  def start() {
+  def start(): Unit = {
     _instance = Some(actor(new UserEnd))
     system.registerOnTermination(_instance = None)
   }
@@ -41,7 +41,6 @@ object UserEnd extends AkkaDefaults {
 
 class UserEnd extends Action {
 
-  def execute(session: Session) {
+  def execute(session: Session): Unit =
     Controller ! UserMessage(session.scenarioName, session.userId, End, session.startDate, nowMillis)
-  }
 }

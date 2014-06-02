@@ -45,7 +45,7 @@ object Controller extends AkkaDefaults with StrictLogging {
   def start() {
     _instance = Some(actor(new Controller))
     system.registerOnTermination(_instance = None)
-    UserEnd.start
+    UserEnd.start()
   }
 
   def !(message: Any) {
@@ -74,11 +74,11 @@ class Controller extends BaseActor {
 
   val uninitialized: Receive = {
 
-    case Run(simulation, simulationId, description, timings) =>
+    case Run(simulation, simulationId, description, runTimings) =>
       // important, initialize time reference
       val timeRef = nanoTimeReference
       launcher = sender
-      this.timings = timings
+      timings = runTimings
       scenarios = simulation.scenarios
 
       if (scenarios.isEmpty)
@@ -98,7 +98,7 @@ class Controller extends BaseActor {
       }
   }
 
-  val waitingForDataWriterToInit: Receive = {
+  def waitingForDataWriterToInit: Receive = {
 
     case DataWritersInitialized(result) => result match {
       case f: SFailure[_] => launcher ! f
@@ -135,11 +135,11 @@ class Controller extends BaseActor {
   }
 
   val throttling: Receive = {
-    case OneSecondTick                           => throttler.flushBuffer
+    case OneSecondTick                           => throttler.flushBuffer()
     case ThrottledRequest(scenarioName, request) => throttler.send(scenarioName, request)
   }
 
-  val initialized: Receive = {
+  def initialized: Receive = {
 
       def dispatchUserEndToDataWriter(userMessage: UserMessage) {
         logger.info(s"End user #${userMessage.userId}")
