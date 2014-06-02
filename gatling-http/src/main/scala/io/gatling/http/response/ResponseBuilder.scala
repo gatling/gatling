@@ -52,11 +52,11 @@ object ResponseBuilder extends StrictLogging {
 
     val storeBodyParts = IsDebugEnabled || !protocol.responsePart.discardResponseChunks || !responseBodyUsageStrategies.isEmpty
 
-    request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, protocol.responsePart.fetchHtmlResources)
+    request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, protocol.responsePart.inferHtmlResources)
   }
 }
 
-class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bodyUsageStrategies: Set[ResponseBodyUsageStrategy], responseProcessor: Option[ResponseTransformer], storeBodyParts: Boolean, fetchHtmlResources: Boolean) {
+class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bodyUsageStrategies: Set[ResponseBodyUsageStrategy], responseProcessor: Option[ResponseTransformer], storeBodyParts: Boolean, inferHtmlResources: Boolean) {
 
   val computeChecksums = !checksumChecks.isEmpty
   var storeHtmlOrCss = false
@@ -103,7 +103,7 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bod
 
   def accumulate(headers: HttpResponseHeaders): Unit = {
     this.headers = headers.getHeaders
-    storeHtmlOrCss = fetchHtmlResources && (isHtml(headers.getHeaders) || isCss(headers.getHeaders))
+    storeHtmlOrCss = inferHtmlResources && (isHtml(headers.getHeaders) || isCss(headers.getHeaders))
     updateLastByteReceived()
   }
 

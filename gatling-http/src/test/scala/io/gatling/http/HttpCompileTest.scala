@@ -47,7 +47,7 @@ class HttpCompileTest extends Simulation {
     .disableCaching
     .disableWarmUp
     .warmUp("http://gatling.io")
-    .fetchHtmlResources(white = WhiteList(".*\\.html"))
+    .inferHtmlResources(white = WhiteList(".*\\.html"))
 
   val httpConfToVerifyUserProvidedInfoExtractors = http
     .extraInfoExtractor((requestName, requestStatus, session, request, response) => Nil)

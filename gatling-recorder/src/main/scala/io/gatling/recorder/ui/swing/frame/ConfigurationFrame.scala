@@ -67,7 +67,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
   private val simulationPackage = new TextField(30)
   private val simulationClassName = new TextField(30)
   private val followRedirects = new CheckBox("Follow Redirects?")
-  private val fetchHtmlResources = new CheckBox("Fetch html resources?")
+  private val inferHtmlResources = new CheckBox("Infer html resources?")
   private val removeConditionalCache = new CheckBox("Remove conditional cache headers?")
   private val automaticReferers = new CheckBox("Automatic Referers?")
 
@@ -184,7 +184,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
         layout(config) = North
         layout(new BorderPanel {
           layout(followRedirects) = West
-          layout(fetchHtmlResources) = East
+          layout(inferHtmlResources) = East
         }) = West
         layout(automaticReferers) = East
         layout(removeConditionalCache) = South
@@ -391,7 +391,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
     simulationClassName.text = configuration.core.className
     filterStrategies.selection.item = configuration.filters.filterStrategy
     followRedirects.selected = configuration.http.followRedirect
-    fetchHtmlResources.selected = configuration.http.fetchHtmlResources
+    inferHtmlResources.selected = configuration.http.inferHtmlResources
     removeConditionalCache.selected = configuration.http.removeConditionalCache
     automaticReferers.selected = configuration.http.automaticReferer
     configuration.filters.blackList.patterns.foreach(blackListTable.addRow)
@@ -453,7 +453,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
       props.simulationPackage(simulationPackage.text)
       props.simulationClassName(simulationClassName.text.trim)
       props.followRedirect(followRedirects.selected)
-      props.fetchHtmlResources(fetchHtmlResources.selected)
+      props.inferHtmlResources(inferHtmlResources.selected)
       props.removeConditionalCache(removeConditionalCache.selected)
       props.automaticReferer(automaticReferers.selected)
       props.simulationOutputFolder(outputFolderPath.text.trim)

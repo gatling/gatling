@@ -50,7 +50,7 @@ object ProtocolTemplate {
 
       def renderFollowRedirect = if (!config.http.followRedirect) fast"$eol$Indent.disableFollowRedirect" else fast""
 
-      def renderFetchHtmlResources = if (config.http.fetchHtmlResources) {
+      def renderInferHtmlResources = if (config.http.inferHtmlResources) {
         val filtersConfig = config.filters
 
           def quotedStringList(xs: Seq[String]): String = xs.map(p => "\"\"\"" + p + "\"\"\"").mkString(", ")
@@ -63,7 +63,7 @@ object ProtocolTemplate {
           case FilterStrategy.Disabled       => emptyFastring
         }
 
-        fast"$eol$Indent.fetchHtmlResources($patterns)"
+        fast"$eol$Indent.inferHtmlResources($patterns)"
       } else fast""
 
       def renderAutomaticReferer = if (!config.http.automaticReferer) fast"$eol$Indent.disableAutoReferer" else fast""
@@ -74,6 +74,6 @@ object ProtocolTemplate {
       }
 
     fast"""
-		.baseURL("${protocol.baseUrl}")$renderProxy$renderFollowRedirect$renderFetchHtmlResources$renderAutomaticReferer$renderHeaders""".toString
+		.baseURL("${protocol.baseUrl}")$renderProxy$renderFollowRedirect$renderInferHtmlResources$renderAutomaticReferer$renderHeaders""".toString
   }
 }

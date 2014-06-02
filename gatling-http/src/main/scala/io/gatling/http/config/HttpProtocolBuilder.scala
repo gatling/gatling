@@ -102,11 +102,11 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
   def extraInfoExtractor(f: ExtraInfoExtractor) = newResponsePart(protocol.responsePart.copy(extraInfoExtractor = Some(f)))
   def transformResponse(responseTransformer: ResponseTransformer) = newResponsePart(protocol.responsePart.copy(responseTransformer = Some(responseTransformer)))
   def check(checks: HttpCheck*) = newResponsePart(protocol.responsePart.copy(checks = protocol.responsePart.checks ::: checks.toList))
-  def fetchHtmlResources(): HttpProtocolBuilder = fetchHtmlResources(None)
-  def fetchHtmlResources(white: WhiteList): HttpProtocolBuilder = fetchHtmlResources(Some(Filters(white, BlackList())))
-  def fetchHtmlResources(white: WhiteList, black: BlackList): HttpProtocolBuilder = fetchHtmlResources(Some(Filters(white, black)))
-  def fetchHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil)): HttpProtocolBuilder = fetchHtmlResources(Some(Filters(black, white)))
-  private def fetchHtmlResources(filters: Option[Filters]) = newResponsePart(protocol.responsePart.copy(fetchHtmlResources = true, htmlResourcesFetchingFilters = filters))
+  def inferHtmlResources(): HttpProtocolBuilder = inferHtmlResources(None)
+  def inferHtmlResources(white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(white, BlackList())))
+  def inferHtmlResources(white: WhiteList, black: BlackList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(white, black)))
+  def inferHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil)): HttpProtocolBuilder = inferHtmlResources(Some(Filters(black, white)))
+  private def inferHtmlResources(filters: Option[Filters]) = newResponsePart(protocol.responsePart.copy(inferHtmlResources = true, htmlResourcesInferringFilters = filters))
 
   // wsPart
   private def newWsPart(wsPart: HttpProtocolWsPart) = copy(protocol = copy(protocol.copy(wsPart = wsPart)))

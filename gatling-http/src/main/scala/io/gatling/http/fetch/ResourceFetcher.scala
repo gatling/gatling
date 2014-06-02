@@ -30,7 +30,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
-import io.gatling.http.action.{ HttpRequestAction, HttpRequestActionBuilder }
+import io.gatling.http.action.HttpRequestAction
 import io.gatling.http.ahc.HttpTx
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.config.HttpProtocol
@@ -79,8 +79,8 @@ object ResourceFetcher extends StrictLogging {
     val htmlDocumentURI = response.request.getURI
     val protocol = tx.protocol
 
-      def pageResourcesRequests(): List[NamedRequest] =
-        pageResources(htmlDocumentURI, protocol.responsePart.htmlResourcesFetchingFilters, response.body.string.unsafeChars)
+      def inferredResourcesRequests(): List[NamedRequest] =
+        pageResources(htmlDocumentURI, protocol.responsePart.htmlResourcesInferringFilters, response.body.string.unsafeChars)
           .flatMap(_.toRequest(protocol, tx.throttled))
 
     val inferredResources: List[NamedRequest] = response.statusCode match {
@@ -94,7 +94,7 @@ object ResourceFetcher extends StrictLogging {
                 res
               case _ =>
                 // cache entry missing or expired, update it
-                val inferredResources = pageResourcesRequests()
+                val inferredResources = inferredResourcesRequests()
                 // FIXME add throttle to cache key?
                 InferredResourcesCache.put((protocol, htmlDocumentURI), InferredPageResources(newLastModifiedOrEtag, inferredResources))
                 inferredResources
@@ -102,7 +102,7 @@ object ResourceFetcher extends StrictLogging {
 
           case None =>
             // don't cache
-            pageResourcesRequests()
+            inferredResourcesRequests()
         }
 
       case Some(304) =>
@@ -295,14 +295,14 @@ class ResourceFetcher(tx: HttpTx, initialResources: Iterable[NamedRequest]) exte
                 case _ =>
                   // cache entry missing or expired, update it
                   ResourceFetcher.CssContentCache.remove(protocol -> uri)
-                  val inferredResources = ResourceFetcher.cssResources(uri, protocol.responsePart.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
+                  val inferredResources = ResourceFetcher.cssResources(uri, protocol.responsePart.htmlResourcesInferringFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
                   ResourceFetcher.InferredResourcesCache.put((protocol, uri), InferredPageResources(newLastModifiedOrEtag, inferredResources))
                   inferredResources
               }
 
             case None =>
               // don't cache
-              ResourceFetcher.cssResources(uri, protocol.responsePart.htmlResourcesFetchingFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
+              ResourceFetcher.cssResources(uri, protocol.responsePart.htmlResourcesInferringFilters, content).flatMap(_.toRequest(protocol, tx.throttled))
           }
 
         case Some(304) =>

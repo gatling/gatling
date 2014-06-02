@@ -31,7 +31,7 @@ object ScenarioDefinition extends StrictLogging {
     }.flatten
   }
 
-  private def filterFetchedResources(requests: Seq[TimedScenarioElement[RequestElement]]): Seq[TimedScenarioElement[RequestElement]] = {
+  private def filterInferredResources(requests: Seq[TimedScenarioElement[RequestElement]]): Seq[TimedScenarioElement[RequestElement]] = {
 
     val groupChainedRequests: List[List[TimedScenarioElement[RequestElement]]] = {
       var globalAcc = List.empty[List[TimedScenarioElement[RequestElement]]]
@@ -101,10 +101,10 @@ object ScenarioDefinition extends StrictLogging {
     val sortedRequests = requests.sortBy(_.arrivalTime)
 
     val requests1 = if (config.http.followRedirect) filterRedirection(sortedRequests) else sortedRequests
-    val requests2 = if (config.http.fetchHtmlResources) filterFetchedResources(requests1) else requests1
+    val requests2 = if (config.http.inferHtmlResources) filterInferredResources(requests1) else requests1
 
     if (config.http.followRedirect) logger.debug(s"Cleaning redirections: ${requests.size}->${requests1.size} requests")
-    if (config.http.fetchHtmlResources) logger.debug(s"Cleaning automatically fetched HTML resources: ${requests1.size}->${requests2.size} requests")
+    if (config.http.inferHtmlResources) logger.debug(s"Cleaning automatically fetched HTML resources: ${requests1.size}->${requests2.size} requests")
 
     val allElements = mergeWithPauses(requests2, tags, config.core.thresholdForPauseCreation)
     apply(allElements)
