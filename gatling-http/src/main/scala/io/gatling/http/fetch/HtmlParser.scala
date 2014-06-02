@@ -44,6 +44,7 @@ object HtmlParser extends StrictLogging {
     var baseURI: Option[URI] = None
 
     val lagartoParser = new LagartoParser(htmlContent)
+    lagartoParser.setEnableConditionalComments(false)
 
     val visitor = new EmptyTagVisitor {
 
