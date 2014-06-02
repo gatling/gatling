@@ -4,8 +4,6 @@ import io.gatling.jms.{ JmsTopic, JmsQueue, MockMessage }
 import javax.jms._
 import org.specs2.specification.After
 
-//import org.specs2.mutable.After
-
 class SimpleJmsClientSpec extends BrokerBasedSpecification with MockMessage {
 
   case class JmsClient(name: String) extends After {
