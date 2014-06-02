@@ -15,9 +15,17 @@
  */
 package io.gatling.recorder
 
+import scopt.{ OptionDef, Read, OptionParser }
+
 case class CommandLineConstant(full: String, abbr: String)
 
 object CommandLineConstants {
+
+  trait CommandLineConstantsSupport[C] { self: OptionParser[C] =>
+
+    def help(constant: CommandLineConstant): OptionDef[Unit, C] = help(constant.full).abbr(constant.abbr)
+    def opt[A: Read](constant: CommandLineConstant): OptionDef[A, C] = opt[A](constant.full).abbr(constant.abbr)
+  }
 
   val Help = CommandLineConstant("help", "h")
   val LocalPort = CommandLineConstant("local-port", "lp")
