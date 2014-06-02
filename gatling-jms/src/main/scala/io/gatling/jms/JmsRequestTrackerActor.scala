@@ -33,7 +33,7 @@ import io.gatling.core.validation.{ Success, Failure }
  * @author jasonk@bluedevel.com
  */
 case class MessageSent(
-  correlationId: String,
+  requestId: String,
   startSend: Long,
   endSend: Long,
   checks: List[JmsCheck],
@@ -45,7 +45,7 @@ case class MessageSent(
  * Advise actor a response message was received from JMS provider
  * @author jasonk@bluedevel.com
  */
-case class MessageReceived(correlationId: String, received: Long, message: Message)
+case class MessageReceived(responseId: String, received: Long, message: Message)
 
 /**
  * Bookkeeping actor to correlate request and response JMS messages

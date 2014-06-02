@@ -31,7 +31,6 @@ case class JmsAttributes(
   destination: JmsDestination,
   replyDestination: JmsDestination,
   selector: Option[String],
-  messageMatcher: JmsMessageMatcher,
   message: JmsMessage,
   messageProperties: Map[Expression[String], Expression[Any]] = Map.empty,
   checks: List[JmsCheck] = Nil)

@@ -36,7 +36,8 @@ class SimpleJmsClient(
   url: String,
   credentials: Option[Credentials],
   contextFactory: String,
-  deliveryMode: Int)
+  deliveryMode: Int,
+  messageMatcher: JmsMessageMatcher)
     extends StrictLogging {
 
   // create InitialContext
@@ -140,6 +141,7 @@ class SimpleJmsClient(
    */
   def sendMessage(message: Message): Message = {
     message.setJMSReplyTo(replyJmsDestination)
+    messageMatcher.prepareRequest(message)
     producer.send(message)
 
     // return the message

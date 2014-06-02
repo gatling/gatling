@@ -53,9 +53,10 @@ class JmsReqReplyAction(
     protocol.url,
     protocol.credentials,
     protocol.contextFactory,
-    protocol.deliveryMode)
+    protocol.deliveryMode,
+    protocol.messageMatcher)
 
-  val messageMatcher = attributes.messageMatcher
+  val messageMatcher = protocol.messageMatcher
 
   class ListenerThread(val continue: AtomicBoolean = new AtomicBoolean(true)) extends Thread(new Runnable {
     def run(): Unit = {
@@ -65,7 +66,7 @@ class JmsReqReplyAction(
           val m = replyConsumer.receive
           m match {
             case msg: Message =>
-              tracker ! MessageReceived(messageMatcher.response(msg), nowMillis, msg)
+              tracker ! MessageReceived(messageMatcher.responseID(msg), nowMillis, msg)
               logMessage(s"Message received ${msg.getJMSMessageID}", msg)
             case _ =>
               logger.error(JmsReqReplyAction.blockingReceiveReturnedNull.getMessage)
@@ -118,7 +119,7 @@ class JmsReqReplyAction(
 
     msg.map { msg =>
       // notify the tracker that a message was sent
-      tracker ! MessageSent(messageMatcher.request(msg), start, nowMillis, attributes.checks, session, next, attributes.requestName)
+      tracker ! MessageSent(messageMatcher.requestID(msg), start, nowMillis, attributes.checks, session, next, attributes.requestName)
       logMessage(s"Message sent ${msg.getJMSMessageID}", msg)
     }
   }

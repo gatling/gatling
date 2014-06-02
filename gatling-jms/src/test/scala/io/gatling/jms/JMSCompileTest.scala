@@ -22,8 +22,9 @@ import io.gatling.jms.Predef._
 import javax.jms._
 
 object IdentificationMatcher extends JmsMessageMatcher {
-  override def response(msg: Message): String = request(msg)
-  override def request(msg: Message): String = msg.getStringProperty("identification")
+  override def prepareRequest(msg: Message): Unit = {}
+  override def responseID(msg: Message): String = requestID(msg)
+  override def requestID(msg: Message): String = msg.getStringProperty("identification")
 }
 
 class JMSCompileTest extends Simulation {
@@ -35,6 +36,7 @@ class JMSCompileTest extends Simulation {
     .contextFactory("FFMQConstants.JNDI_CONTEXT_FACTORY")
     .listenerCount(1)
     .usePersistentDeliveryMode
+    .messageMatcher(IdentificationMatcher)
 
   val scn = scenario("JMS DSL test").repeat(1) {
     exec(jms("req reply testing").reqreply
@@ -43,28 +45,27 @@ class JMSCompileTest extends Simulation {
       .textMessage("hello from gatling jms dsl")
       .property("test_header", "test_value")
       .check(checkBodyTextCorrect))
-    exec(jms("req reply testing").reqreply
-      .queue("jmstestq")
-      .bytesMessage(new Array[Byte](1))
-      .property("test_header", "test_value")
-      .check(checkBodyTextCorrect))
-    exec(jms("req reply testing").reqreply
-      .queue("jmstestq")
-      .mapMessage(Map("foo" -> "bar"))
-      .property("test_header", "test_value")
-      .check(checkBodyTextCorrect))
-    exec(jms("req reply testing").reqreply
-      .queue("jmstestq")
-      .objectMessage("hello!")
-      .property("test_header", "test_value")
-      .check(checkBodyTextCorrect))
-    exec(jms("req reply - custom").reqreply
-      .queue("requestQueue")
-      .replyQueue("responseQueue")
-      .messageMatcher(IdentificationMatcher)
-      .textMessage("hello from gatling jms dsl")
-      .property("identification", "${ID}")
-      .check(checkBodyTextCorrect))
+      .exec(jms("req reply testing").reqreply
+        .queue("jmstestq")
+        .bytesMessage(new Array[Byte](1))
+        .property("test_header", "test_value")
+        .check(checkBodyTextCorrect))
+      .exec(jms("req reply testing").reqreply
+        .queue("jmstestq")
+        .mapMessage(Map("foo" -> "bar"))
+        .property("test_header", "test_value")
+        .check(checkBodyTextCorrect))
+      .exec(jms("req reply testing").reqreply
+        .queue("jmstestq")
+        .objectMessage("hello!")
+        .property("test_header", "test_value")
+        .check(checkBodyTextCorrect))
+      .exec(jms("req reply - custom").reqreply
+        .queue("requestQueue")
+        .replyQueue("responseQueue")
+        .textMessage("hello from gatling jms dsl")
+        .property("identification", "${ID}")
+        .check(checkBodyTextCorrect))
   }
 
   val scnExtra = scenario("JMS DSL using destinations").repeat(1) {
@@ -72,21 +73,21 @@ class JMSCompileTest extends Simulation {
       .destination(topic("jmstesttopic"))
       .textMessage("hello from gatling jms dsl")
       .check(checkBodyTextCorrect))
-    exec(jms("req reply testing").reqreply
-      .destination(queue("jmstestq"))
-      .replyDestination(queue("jmstestq"))
-      .textMessage("hello from gatling jms dsl")
-      .check(checkBodyTextCorrect))
-    exec(jms("req reply testing").reqreply
-      .destination(topic("requestTopic"))
-      .replyDestination(topic("replyTopic")).selector("env='myenv'")
-      .textMessage("hello from gatling jms dsl")
-      .check(checkBodyTextCorrect))
-    exec(jms("req reply testing").reqreply
-      .destination(topic("requestTopic"))
-      .replyDestination(topic("replyTopic")).selector("env='myenv'")
-      .textMessage("<test>name</test>")
-      .check(xpath("//TEST").saveAs("name")))
+      .exec(jms("req reply testing").reqreply
+        .destination(queue("jmstestq"))
+        .replyDestination(queue("jmstestq"))
+        .textMessage("hello from gatling jms dsl")
+        .check(checkBodyTextCorrect))
+      .exec(jms("req reply testing").reqreply
+        .destination(topic("requestTopic"))
+        .replyDestination(topic("replyTopic")).selector("env='myenv'")
+        .textMessage("hello from gatling jms dsl")
+        .check(checkBodyTextCorrect))
+      .exec(jms("req reply testing").reqreply
+        .destination(topic("requestTopic"))
+        .replyDestination(topic("replyTopic")).selector("env='myenv'")
+        .textMessage("<test>name</test>")
+        .check(xpath("//TEST").saveAs("name")))
   }
 
   setUp(scn.inject(rampUsersPerSec(10) to 1000 during (2 minutes)))
