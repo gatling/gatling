@@ -350,12 +350,12 @@ Some people might want to process manually response or request body, Gatling req
 
 .. _http-resources:
 
-Resources fetching
-------------------
+Resources
+---------
 
 Gatling allow to fetch resources in parallel in order to emulate the behaviour of a real web browser.
-To do that you can use ``fetchHtmlResources`` methods at the protocol definition level.
-Or at the request level you can use the ``resources(res: AbstractHttpRequestBuilder[_]*)``.
+
+At the request level you can use the ``resources(res: AbstractHttpRequestBuilder[_]*)`` method.
 
 For example::
 

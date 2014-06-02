@@ -255,26 +255,27 @@ They will be apply on all the requests, however you can disable them for given r
 
 .. note:: For more details see the dedicated section :ref:`here <http-check>`.
 
-.. _http-protocol-fetch:
+.. _http-protocol-infer:
 
-Resource fetching
+Resource inferring
 -----------------
 
 Gatling allow to fetch resources in parallel in order to emulate the behaviour of a real web browser.
-At the request level you can use the ``resources(res: AbstractHttpRequestBuilder[_]*)`` to fetch specific resources.
 
-Or you can use ``fetchHtmlResources`` methods at the protocol definition level.
-Thus Gatling will automatically parse HTML to find embedded resources in the dom and load them asynchronously.
+At protocol level, you can use ``inferHtmlResources`` methods, so Gatling will automatically parse HTML to find embedded resources and load them asynchronously.
+
 The supported resources are:
 <script>, <base>, <link>, <bgsound>, <frame>, <iframe>, <img>, <input>, <body>, <applet>, <embed>, <object>,  import directives in HTML and @import CSS rule.
 
-You can also specify black/whith list or custom filters to have a more fine grain control on resource fetching.
-``WhiteList`` and ``BlackList`` take a sequence of pattern, eg ``Seq("www.google.com/.*", "www.github.com/.*")``, to include and exclude respectively.
+Other resources are not supported: css images, javascript triggered resources, conditional comments, etc.
 
-* ``fetchHtmlResources(white: WhiteList)``: fetch all resources matching a pattern in the white list.
-* ``fetchHtmlResources(white: WhiteList, black: BlackList)``: fetch all resources matching a pattern in the white list excepting those in the black list.
-* ``fetchHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil))``: fetch all resources excepting those matching a pattern in the black list and not in the white list.
-* ``fetchHtmlResources(filters: Option[Filters])``
+You can also specify black/whith list or custom filters to have a more fine grain control on resource fetching.
+``WhiteList`` and ``BlackList`` take a sequence of pattern, eg ``Seq("http://www.google.com/.*", "http://www.github.com/.*")``, to include and exclude respectively.
+
+* ``inferHtmlResources(white: WhiteList)``: fetch all resources matching a pattern in the white list.
+* ``inferHtmlResources(white: WhiteList, black: BlackList)``: fetch all resources matching a pattern in the white list excepting those in the black list.
+* ``inferHtmlResources(black: BlackList, white: WhiteList = WhiteList(Nil))``: fetch all resources excepting those matching a pattern in the black list and not in the white list.
+* ``inferHtmlResources(filters: Option[Filters])``
 
 .. _http-protocol-proxy:
 
