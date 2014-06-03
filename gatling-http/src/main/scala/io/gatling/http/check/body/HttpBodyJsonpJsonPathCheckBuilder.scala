@@ -20,7 +20,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
 import io.gatling.core.check.extractor.jsonpath.{ BoonParser, CountJsonPathExtractor, JacksonParser, JsonFilter, MultipleJsonPathExtractor, SingleJsonPathExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.core.util.StringHelper.{ DirectCharsBasedStringImplementation, stringImplementation }
+import io.gatling.core.util.StringHelper.{ DirectCharsBasedStringImplementation, StringImplementation }
 import io.gatling.core.validation.{ Validation, FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
@@ -36,7 +36,7 @@ object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
 
   val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\)$""".r
 
-  val JsonParser = stringImplementation match {
+  val JsonParser = StringImplementation match {
     case DirectCharsBasedStringImplementation => BoonParser
     case _                                    => JacksonParser
   }
