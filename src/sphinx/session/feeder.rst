@@ -53,7 +53,7 @@ Gatling provides several builtins for reading character-separated values files.
 
 Files are expected to be placed in the ``data`` directory in Gatling distribution. This location can be overridden, see Configuration chapter.
 
-Our parser respects `RFC4180 <https://www.ietf.org/rfc/rfc4180.txt>`_, so don't expect behaviors that don't honor this specification.
+By default, our parser respects `RFC4180 <https://www.ietf.org/rfc/rfc4180.txt>`_, so don't expect behaviors that don't honor this specification.
 
 For example, a very classic pitfall is trailing spaces in header names: they don't get trimmed.
 
@@ -62,10 +62,22 @@ Besides escaping features described in the RFC, one can use a ``\`` character an
 
   val csvFeeder = csv("foo.csv") // use a comma separator
   val tsvFeeder = tsv("foo.tsv") // use a tabulation separator
-  val ssvFeeder = csv("foo.ssv") // use a semicolon separator
+  val ssvFeeder = ssv("foo.ssv") // use a semicolon separator
   val customSeparatorFeeder = separatedValues("foo.txt", "#") // use your own separator
 
 Those built-ins returns ``RecordSeqFeederBuilder`` instances, meaning that the whole file is loaded in memory and parsed, so the resulting feeders doesn't read on disk during the simulation run.
+
+.. _feeder-fileparser-json:
+
+Some users might be interested in storing JSON bodies inside a Feeder file.
+
+The problem here is that RFC4180 escaping is very cumbersome with JSON strings as they contains tons of double quotes and commas.
+A solution can be to turn the parsing into a raw split::
+
+  val tsvFeeder = tsv("foo.tsv", rawSplit = true)
+  val ssvFeeder = ssv("foo.ssv", rawSplit = true)
+
+Of course, don't use csv for JSON with rawSplit as the JSON commas will be interpreted as separators!
 
 .. _feeder-jdbc:
 

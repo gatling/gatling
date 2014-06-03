@@ -29,17 +29,24 @@ trait FeederSupport {
   implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): RecordSeqFeederBuilder[T] = RecordSeqFeederBuilder(data)
   implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
 
-  def csv(file: File): RecordSeqFeederBuilder[String] = csv(file.path)
-  def csv(fileName: String): RecordSeqFeederBuilder[String] = separatedValues(fileName, CommaSeparator)
-  def ssv(file: File): RecordSeqFeederBuilder[String] = ssv(file.path)
-  def ssv(fileName: String): RecordSeqFeederBuilder[String] = separatedValues(fileName, SemicolonSeparator)
-  def tsv(file: File): RecordSeqFeederBuilder[String] = tsv(file.path)
-  def tsv(fileName: String): RecordSeqFeederBuilder[String] = separatedValues(fileName, TabulationSeparator)
+  def csv(file: File, rawSplit: Boolean): RecordSeqFeederBuilder[String] = csv(file.path, rawSplit)
 
-  def separatedValues(fileName: String, separator: Char, quoteChar: Char = '"'): RecordSeqFeederBuilder[String] = separatedValues(Resource.feeder(fileName), separator, quoteChar)
+  def csv(fileName: String, rawSplit: Boolean = false): RecordSeqFeederBuilder[String] = separatedValues(fileName, CommaSeparator, rawSplit = rawSplit)
 
-  def separatedValues(resource: Validation[Resource], separator: Char, quoteChar: Char): RecordSeqFeederBuilder[String] = resource match {
-    case Success(res)     => RecordSeqFeederBuilder(SeparatedValuesParser.parse(res, separator, quoteChar))
-    case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file; $message")
-  }
+  def ssv(file: File, rawSplit: Boolean): RecordSeqFeederBuilder[String] = ssv(file.path, rawSplit)
+
+  def ssv(fileName: String, rawSplit: Boolean = false): RecordSeqFeederBuilder[String] = separatedValues(fileName, SemicolonSeparator, rawSplit = rawSplit)
+
+  def tsv(file: File, rawSplit: Boolean): RecordSeqFeederBuilder[String] = tsv(file.path, rawSplit)
+
+  def tsv(fileName: String, rawSplit: Boolean = false): RecordSeqFeederBuilder[String] = separatedValues(fileName, TabulationSeparator, rawSplit = rawSplit)
+
+  def separatedValues(fileName: String, separator: Char, quoteChar: Char = '"', rawSplit: Boolean = false): RecordSeqFeederBuilder[String] =
+    separatedValues(Resource.feeder(fileName), separator, quoteChar, rawSplit)
+
+  def separatedValues(resource: Validation[Resource], separator: Char, quoteChar: Char, rawSplit: Boolean): RecordSeqFeederBuilder[String] =
+    resource match {
+      case Success(res)     => RecordSeqFeederBuilder(SeparatedValuesParser.parse(res, separator, quoteChar, rawSplit))
+      case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file; $message")
+    }
 }

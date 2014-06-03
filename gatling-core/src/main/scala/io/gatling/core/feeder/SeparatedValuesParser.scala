@@ -29,14 +29,22 @@ object SeparatedValuesParser {
   val SemicolonSeparator = ';'
   val TabulationSeparator = '\t'
 
-  def parse(resource: Resource, separator: Char, doubleQuote: Char): IndexedSeq[Record[String]] =
+  def parse(resource: Resource, separator: Char, doubleQuote: Char, rawSplit: Boolean): IndexedSeq[Record[String]] =
     withSource(Source.fromInputStream(resource.inputStream)(configuration.core.codec)) { source =>
-      stream(source, separator, doubleQuote).toVector
+      stream(source, separator, doubleQuote, rawSplit).toVector
     }
 
-  def stream(source: Source, separator: Char, doubleQuote: Char): Iterator[Record[String]] = {
-    val parser = new CSVParser(separator, doubleQuote)
-    val rawLines = source.getLines().map(parser.parseLine)
+  def stream(source: Source, separator: Char, doubleQuote: Char, rawSplit: Boolean): Iterator[Record[String]] = {
+    val parseLine: String => Array[String] =
+      if (rawSplit) {
+        val separatorString = separator.toString
+        _.split(separatorString)
+      } else {
+        val csvParser = new CSVParser(separator, doubleQuote)
+        csvParser.parseLine _
+      }
+
+    val rawLines = source.getLines().map(parseLine)
     val headers =
       try
         rawLines.next()
