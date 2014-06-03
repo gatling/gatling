@@ -17,7 +17,9 @@ package io.gatling.core.util
 
 import java.lang.{ Long => JLong, StringBuilder => JStringBuilder }
 import java.text.Normalizer
+import scala.util.Try
 
+import io.gatling.core.util.UnsafeHelper._
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 /**
@@ -28,15 +30,15 @@ object StringHelper {
   sealed trait StringImplementation
   case object DirectCharsBasedStringImplementation extends StringImplementation
   case object OffsetBasedStringImplementation extends StringImplementation
-  case object UnknowStringImplementation extends StringImplementation
 
-  val stringImplementation: StringImplementation = UnsafeHelper.unsafe match {
-    case None => UnknowStringImplementation
-    case _ => UnsafeHelper.stringOffsetFieldOffset match {
+  val StringValueFieldOffset: Long = TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
+  val StringOffsetFieldOffset: Option[Long] = Try(TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("offset"))).toOption
+  val StringCountFieldOffset: Option[Long] = Try(TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("count"))).toOption
+  val StringImplementation: StringImplementation =
+    StringOffsetFieldOffset match {
       case None => DirectCharsBasedStringImplementation
       case _    => OffsetBasedStringImplementation
     }
-  }
 
   val eol = System.getProperty("line.separator")
 
@@ -49,24 +51,17 @@ object StringHelper {
     buff.append(JLong.toString(shifted.toLong, 16))
   }.toString
 
-  val stringCharsExtractor: String => Array[Char] = stringImplementation match {
+  val StringCharsExtractor: String => Array[Char] = StringImplementation match {
 
     case DirectCharsBasedStringImplementation =>
-      val unsafe = UnsafeHelper.unsafe.get
-      val stringValueFieldOffset = UnsafeHelper.stringValueFieldOffset.get
 
-      string => unsafe.getObject(string, stringValueFieldOffset).asInstanceOf[Array[Char]]
+      string => TheUnsafe.getObject(string, StringValueFieldOffset).asInstanceOf[Array[Char]]
 
       case OffsetBasedStringImplementation =>
-      val unsafe = UnsafeHelper.unsafe.get
-      val stringValueFieldOffset = UnsafeHelper.stringValueFieldOffset.get
-      val stringOffsetFieldOffset = UnsafeHelper.stringOffsetFieldOffset.get
-      val stringCountFieldOffset = UnsafeHelper.stringCountFieldOffset.get
-
       string => {
-        val value = unsafe.getObject(string, stringValueFieldOffset).asInstanceOf[Array[Char]]
-        val offset = unsafe.getInt(string, stringOffsetFieldOffset)
-        val count = unsafe.getInt(string, stringCountFieldOffset)
+        val value = TheUnsafe.getObject(string, StringValueFieldOffset).asInstanceOf[Array[Char]]
+        val offset = TheUnsafe.getInt(string, StringOffsetFieldOffset.get)
+        val count = TheUnsafe.getInt(string, StringCountFieldOffset.get)
 
         if (offset == 0 && count == value.length)
           // no need to copy
@@ -74,16 +69,13 @@ object StringHelper {
         else
           string.toCharArray
       }
-
-      case UnknowStringImplementation =>
-      _.toCharArray
   }
 
   object RichString {
 
-    val ensureTrimmedCharsArrayF: String => String = stringImplementation match {
+    val EnsureTrimmedCharsArrayF: String => String = StringImplementation match {
       case DirectCharsBasedStringImplementation => identity[String]
-      case _                                    => string => new String(string)
+      case _                                    => new String(_)
     }
   }
 
@@ -119,8 +111,8 @@ object StringHelper {
         string
     }
 
-    def unsafeChars: Array[Char] = stringCharsExtractor(string)
+    def unsafeChars: Array[Char] = StringCharsExtractor(string)
 
-    def ensureTrimmedCharsArray: String = RichString.ensureTrimmedCharsArrayF(string)
+    def ensureTrimmedCharsArray: String = RichString.EnsureTrimmedCharsArrayF(string)
   }
 }
