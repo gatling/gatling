@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.scenario
+package io.gatling.recorder.scenario.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
+import io.gatling.core.util.StringHelper.eol
 
-package object template {
-
-  private val TripleQuotes = '"'.toString * 3
-  def protectWithTripleQuotes(string: String): Fastring = fast"$TripleQuotes$string$TripleQuotes"
-  def protectWithTripleQuotes(string: Fastring): Fastring = fast"$TripleQuotes$string$TripleQuotes"
+object ValuesTemplate {
+  def render(values: Seq[Value]): Fastring =
+    values.sortBy(_.name).map(value => fast"    val ${value.name} = ${protectWithTripleQuotes(value.value)}")
+      .mkFastring(eol)
 }
