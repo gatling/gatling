@@ -15,12 +15,11 @@
  */
 package io.gatling.recorder.scenario.template
 
-import io.gatling.core.util.StringHelper.emptyFastring
-import io.gatling.core.util.StringHelper.eol
+import io.gatling.core.util.StringHelper.{ EmptyFastring, Eol }
 import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration }
+import io.gatling.recorder.scenario.ProtocolDefinition
 import io.gatling.recorder.scenario.ProtocolDefinition.baseHeaders
 import com.dongxiguo.fastring.Fastring.Implicits._
-import io.gatling.recorder.scenario.ProtocolDefinition
 
 object ProtocolTemplate {
 
@@ -30,25 +29,28 @@ object ProtocolTemplate {
 
       def renderProxy = {
 
-          def renderSslPort = config.proxy.outgoing.sslPort.map(proxySslPort => s".httpsPort($proxySslPort)").getOrElse("")
+          def renderSslPort = config.proxy.outgoing.sslPort match {
+            case Some(proxySslPort) => s".httpsPort($proxySslPort)"
+            case _                  => ""
+          }
 
           def renderCredentials = {
             val credentials = for {
               proxyUsername <- config.proxy.outgoing.username
               proxyPassword <- config.proxy.outgoing.password
-            } yield s"""$eol$Indent.credentials(${protectWithTripleQuotes(proxyUsername)},${protectWithTripleQuotes(proxyPassword)})"""
+            } yield s"""$Eol$Indent.credentials(${protectWithTripleQuotes(proxyUsername)},${protectWithTripleQuotes(proxyPassword)})"""
             credentials.getOrElse("")
           }
 
         val protocol = for {
           proxyHost <- config.proxy.outgoing.host
           proxyPort <- config.proxy.outgoing.port
-        } yield fast"""$eol$Indent.proxy(Proxy("$proxyHost", $proxyPort)$renderSslPort$renderCredentials)"""
+        } yield fast"""$Eol$Indent.proxy(Proxy("$proxyHost", $proxyPort)$renderSslPort$renderCredentials)"""
 
-        protocol.getOrElse(fast"")
+        protocol.getOrElse(EmptyFastring)
       }
 
-      def renderFollowRedirect = if (!config.http.followRedirect) fast"$eol$Indent.disableFollowRedirect" else fast""
+      def renderFollowRedirect = if (!config.http.followRedirect) fast"$Eol$Indent.disableFollowRedirect" else fast""
 
       def renderInferHtmlResources = if (config.http.inferHtmlResources) {
         val filtersConfig = config.filters
@@ -60,16 +62,16 @@ object ProtocolTemplate {
         val patterns = filtersConfig.filterStrategy match {
           case FilterStrategy.WhitelistFirst => fast"$whiteListPatterns, $backListPatterns"
           case FilterStrategy.BlacklistFirst => fast"$backListPatterns, $whiteListPatterns"
-          case FilterStrategy.Disabled       => emptyFastring
+          case FilterStrategy.Disabled       => EmptyFastring
         }
 
-        fast"$eol$Indent.inferHtmlResources($patterns)"
+        fast"$Eol$Indent.inferHtmlResources($patterns)"
       } else fast""
 
-      def renderAutomaticReferer = if (!config.http.automaticReferer) fast"$eol$Indent.disableAutoReferer" else fast""
+      def renderAutomaticReferer = if (!config.http.automaticReferer) fast"$Eol$Indent.disableAutoReferer" else fast""
 
       def renderHeaders = {
-          def renderHeader(methodName: String, headerValue: String) = fast"""$eol$Indent.$methodName(\"\"\"$headerValue\"\"\")"""
+          def renderHeader(methodName: String, headerValue: String) = fast"""$Eol$Indent.$methodName(\"\"\"$headerValue\"\"\")"""
         protocol.headers.toList.sorted.flatMap { case (headerName, headerValue) => baseHeaders.get(headerName).map(renderHeader(_, headerValue)) }.mkFastring
       }
 

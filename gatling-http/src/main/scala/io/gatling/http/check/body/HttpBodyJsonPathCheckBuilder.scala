@@ -20,7 +20,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
 import io.gatling.core.check.extractor.jsonpath.{ BoonParser, CountJsonPathExtractor, JacksonParser, JsonFilter, MultipleJsonPathExtractor, SingleJsonPathExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.core.util.StringHelper.{ DirectCharsBasedStringImplementation, StringImplementation }
+import io.gatling.core.util.StringHelper.{ DirectCharsBasedStringImplementation, TheStringImplementation }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
 import io.gatling.http.response.{ ByteArrayResponseBodyUsage, InputStreamResponseBodyUsage, Response, ResponseBodyUsageStrategy, StringResponseBodyUsage }
@@ -45,7 +45,7 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
         message.failure
     }
 
-  val Preparer: Preparer[Response, Any] = StringImplementation match {
+  val Preparer: Preparer[Response, Any] = TheStringImplementation match {
 
     case DirectCharsBasedStringImplementation =>
       handleParseException { response =>
@@ -80,7 +80,7 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
         InputStreamResponseBodyUsage
   }
 
-  val ResponseBodyUsageStrategy = StringImplementation match {
+  val ResponseBodyUsageStrategy = TheStringImplementation match {
     case DirectCharsBasedStringImplementation => BoonResponseBodyUsageStrategy
     case _                                    => JacksonResponseBodyUsageStrategy
   }

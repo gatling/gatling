@@ -28,7 +28,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.Session
 import io.gatling.core.result.writer.DataWriterClient
-import io.gatling.core.util.StringHelper.eol
+import io.gatling.core.util.StringHelper.Eol
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.http.HeaderNames
@@ -104,14 +104,14 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
         def dump = {
           val buff = new JStringBuilder
-          buff.append(eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(eol)
-          buff.append("Request:").append(eol).append(s"$fullRequestName: $status ${errorMessage.getOrElse("")}").append(eol)
-          buff.append("=========================").append(eol)
-          buff.append("Session:").append(eol).append(tx.session).append(eol)
-          buff.append("=========================").append(eol)
-          buff.append("HTTP request:").append(eol).appendAHCRequest(tx.request)
-          buff.append("=========================").append(eol)
-          buff.append("HTTP response:").append(eol).appendResponse(response).append(eol)
+          buff.append(Eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(Eol)
+          buff.append("Request:").append(Eol).append(s"$fullRequestName: $status ${errorMessage.getOrElse("")}").append(Eol)
+          buff.append("=========================").append(Eol)
+          buff.append("Session:").append(Eol).append(tx.session).append(Eol)
+          buff.append("=========================").append(Eol)
+          buff.append("HTTP request:").append(Eol).appendAHCRequest(tx.request)
+          buff.append("=========================").append(Eol)
+          buff.append("HTTP response:").append(Eol).appendResponse(response).append(Eol)
           buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
           buff.toString
         }

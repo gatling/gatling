@@ -39,7 +39,7 @@ object ConsoleErrorsWriter {
 
     if (currLen < msg.length) {
       val secondLine = msg.substring(currLen)
-      fast"$firstLine$eol${secondLine.truncate(errorMsgLen - 4)}"
+      fast"$firstLine$Eol${secondLine.truncate(errorMsgLen - 4)}"
     } else {
       firstLine
     }

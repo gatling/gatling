@@ -16,7 +16,7 @@
 package io.gatling.http.check.ws
 
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, CheckFactory, Preparer }
-import io.gatling.core.util.StringHelper.{ StringImplementation, DirectCharsBasedStringImplementation }
+import io.gatling.core.util.StringHelper.{ TheStringImplementation, DirectCharsBasedStringImplementation }
 import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.http.check.body.HttpBodyJsonPathCheckBuilder.handleParseException
 import io.gatling.core.session.Expression
@@ -29,7 +29,7 @@ trait WsJsonPathOfType {
 
 object WsJsonPathCheckBuilder {
 
-  val WsJsonPathPreparer: Preparer[String, Any] = StringImplementation match {
+  val WsJsonPathPreparer: Preparer[String, Any] = TheStringImplementation match {
     case DirectCharsBasedStringImplementation => handleParseException(BoonParser.parse)
     case _                                    => handleParseException(JacksonParser.parse)
   }

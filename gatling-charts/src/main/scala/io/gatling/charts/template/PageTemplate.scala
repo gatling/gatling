@@ -21,7 +21,7 @@ import io.gatling.core.result.Group
 import io.gatling.core.result.writer.RunMessage
 import io.gatling.core.util.DateHelper.RichDateTime
 import io.gatling.core.util.HtmlHelper.HtmlRichString
-import io.gatling.core.util.StringHelper.{ RichString, eol }
+import io.gatling.core.util.StringHelper.{ RichString, Eol }
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles.{ ALL_SESSIONS_FILE, BOOTSTRAP_FILE, GATLING_JS_FILE, JQUERY_FILE, MENU_FILE, STATS_JS_FILE }
@@ -109,7 +109,7 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
 <div class="foot">
     <a href="http://gatling-tool.org" title="Gatling Home Page"><img alt="Gatling" src="style/logo-gatling.jpg"/></a>
 </div>
-${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"></script>""").mkFastring(eol)}
+${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"></script>""").mkFastring(Eol)}
 <script type="text/javascript">
     $pageStats
     $$(document).ready(function() {

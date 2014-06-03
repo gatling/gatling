@@ -15,12 +15,12 @@
  */
 package io.gatling.recorder.scenario.template
 
-import io.gatling.recorder.scenario.{ RequestElement, ScenarioElement }
-import com.typesafe.scalalogging.slf4j.StrictLogging
 import java.net.URL
-import scala.collection.mutable.HashMap
+
+import io.gatling.core.util.StringHelper._
+import io.gatling.recorder.scenario.{ RequestElement, ScenarioElement }
 import com.dongxiguo.fastring.Fastring.Implicits._
-import io.gatling.core.util.StringHelper
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 case class Value(name: String, value: String)
 
@@ -115,18 +115,18 @@ class ExtractedUris(scenarioElements: Seq[ScenarioElement]) extends StrictLoggin
   private def value(str: Fastring) = fast"${protectWithTripleQuotes(str)}"
 
   private def query(url: URL): Fastring =
-    if (url.getQuery == null) fast""
+    if (url.getQuery == null) EmptyFastring
     else fast"?${url.getQuery}"
 
   private def protocol(url: URL): Fastring =
     fast"${url.getProtocol}://"
 
   private def user(url: URL): Fastring =
-    if (url.getUserInfo == null) fast""
+    if (url.getUserInfo == null) EmptyFastring
     else fast"${url.getUserInfo}@"
 
   private def port(url: URL): Fastring =
-    if (url.getPort < 0) fast""
+    if (url.getPort < 0) EmptyFastring
     else fast":${url.getPort}"
 
   def vals: List[Value] = values
@@ -135,7 +135,7 @@ class ExtractedUris(scenarioElements: Seq[ScenarioElement]) extends StrictLoggin
     if (renders.contains(uri)) {
       renders(uri)
     } else {
-      fast"${uri}"
+      fast"$uri"
     }
   }
 }

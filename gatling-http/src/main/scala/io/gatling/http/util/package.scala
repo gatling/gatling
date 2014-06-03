@@ -23,7 +23,7 @@ import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet, collectionA
 import com.ning.http.client.Request
 import com.ning.http.multipart._
 
-import io.gatling.core.util.StringHelper.eol
+import io.gatling.core.util.StringHelper.Eol
 import io.gatling.http.response.Response
 
 package object util {
@@ -34,40 +34,40 @@ package object util {
 
       for {
         entry <- map.entrySet
-      } buff.append(entry.getKey).append(": ").append(entry.getValue).append(eol)
+      } buff.append(entry.getKey).append(": ").append(entry.getValue).append(Eol)
 
       buff
     }
 
     def appendAHCRequest(request: Request): JStringBuilder = {
 
-      buff.append(request.getMethod).append(" ").append(if (request.isUseRawUrl) request.getRawUrl else request.getUrl).append(eol)
+      buff.append(request.getMethod).append(" ").append(if (request.isUseRawUrl) request.getRawUrl else request.getUrl).append(Eol)
 
       if (request.getHeaders != null && !request.getHeaders.isEmpty) {
-        buff.append("headers=").append(eol)
+        buff.append("headers=").append(Eol)
         buff.appendAHCStringsMap(request.getHeaders)
       }
 
       if (request.getCookies != null && !request.getCookies.isEmpty) {
-        buff.append("cookies=").append(eol)
+        buff.append("cookies=").append(Eol)
         for (cookie <- request.getCookies) {
-          buff.append(cookie).append(eol)
+          buff.append(cookie).append(Eol)
         }
       }
 
       if (request.getParams != null && !request.getParams.isEmpty) {
-        buff.append("params=").append(eol)
+        buff.append("params=").append(Eol)
         buff.appendAHCStringsMap(request.getParams)
       }
 
-      if (request.getStringData != null) buff.append("stringData=").append(request.getStringData).append(eol)
+      if (request.getStringData != null) buff.append("stringData=").append(request.getStringData).append(Eol)
 
-      if (request.getByteData != null) buff.append("byteData.length=").append(request.getByteData.length).append(eol)
+      if (request.getByteData != null) buff.append("byteData.length=").append(request.getByteData.length).append(Eol)
 
-      if (request.getFile != null) buff.append("file=").append(request.getFile.getAbsolutePath).append(eol)
+      if (request.getFile != null) buff.append("file=").append(request.getFile.getAbsolutePath).append(Eol)
 
       if (request.getParts != null && !request.getParts.isEmpty) {
-        buff.append("parts=").append(eol)
+        buff.append("parts=").append(Eol)
         request.getParts.foreach {
           case part: StringPart =>
             buff
@@ -77,7 +77,7 @@ package object util {
               .append(" dispositionType=").append(part.getDispositionType)
               .append(" charset=").append(part.getCharSet)
               .append(" transferEncoding=").append(part.getTransferEncoding)
-              .append(" contentId=").append(part.getContentId).append(eol)
+              .append(" contentId=").append(part.getContentId).append(Eol)
 
           case part: FilePart =>
             buff.append("FilePart:")
@@ -94,7 +94,7 @@ package object util {
               case _                      => buff.append(" source=byte[]")
             }
 
-            buff.append("eol")
+            buff.append("Eol")
         }
       }
 
@@ -104,15 +104,15 @@ package object util {
     def appendResponse(response: Response) = {
 
       response.status.foreach { status =>
-        buff.append("status=").append(eol).append(status.getStatusCode).append(" ").append(status.getStatusText).append(eol)
+        buff.append("status=").append(Eol).append(status.getStatusCode).append(" ").append(status.getStatusText).append(Eol)
 
         if (!response.headers.isEmpty) {
-          buff.append("headers= ").append(eol)
-          buff.appendAHCStringsMap(response.headers).append(eol)
+          buff.append("headers= ").append(Eol)
+          buff.appendAHCStringsMap(response.headers).append(Eol)
         }
 
         if (response.hasResponseBody)
-          buff.append("body=").append(eol).append(response.body.string)
+          buff.append("body=").append(Eol).append(response.body.string)
       }
 
       buff

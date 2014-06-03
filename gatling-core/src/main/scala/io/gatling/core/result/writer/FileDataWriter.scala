@@ -22,7 +22,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.Group
-import io.gatling.core.util.StringHelper.eol
+import io.gatling.core.util.StringHelper.Eol
 import io.gatling.core.util.UnsyncBufferedOutputStream
 
 object FileDataWriter {
@@ -46,7 +46,7 @@ object FileDataWriter {
     def getBytes = {
       import runMessage._
       val description = if (runDescription.isEmpty) FileDataWriter.emptyField else runDescription
-      val string = s"$simulationClassName$Separator$simulationId$Separator${RunMessageType.name}$Separator$timestamp$Separator$description$eol"
+      val string = s"$simulationClassName$Separator$simulationId$Separator${RunMessageType.name}$Separator$timestamp$Separator$description$Eol"
       string.getBytes(configuration.core.charset)
     }
   }
@@ -55,7 +55,7 @@ object FileDataWriter {
 
     def getBytes = {
       import userMessage._
-      val string = s"$scenarioName$Separator$userId$Separator${UserMessageType.name}$Separator${event.name}$Separator$startDate$Separator$endDate$eol"
+      val string = s"$scenarioName$Separator$userId$Separator${UserMessageType.name}$Separator${event.name}$Separator$startDate$Separator$endDate$Eol"
       string.getBytes(configuration.core.charset)
     }
   }
@@ -73,7 +73,7 @@ object FileDataWriter {
       val serializedGroups = GroupMessageSerializer.serializeGroups(groupHierarchy)
       val serializedExtraInfo = extraInfo.map(info => fast"$Separator${sanitize(info.toString)}").mkFastring
 
-      fast"$scenario$Separator$userId$Separator${RequestMessageType.name}$Separator$serializedGroups$Separator$name$Separator$requestStartDate$Separator$requestEndDate$Separator$responseStartDate$Separator$responseEndDate$Separator$status$Separator$nonEmptyMessage$serializedExtraInfo$eol"
+      fast"$scenario$Separator$userId$Separator${RequestMessageType.name}$Separator$serializedGroups$Separator$name$Separator$requestStartDate$Separator$requestEndDate$Separator$responseStartDate$Separator$responseEndDate$Separator$status$Separator$nonEmptyMessage$serializedExtraInfo$Eol"
     }
   }
 
@@ -95,7 +95,7 @@ object FileDataWriter {
     def serialize(groupMessage: GroupMessage) = {
       import groupMessage._
       val serializedGroups = serializeGroups(groupHierarchy)
-      fast"$scenarioName$Separator$userId$Separator${GroupMessageType.name}$Separator$serializedGroups$Separator$startDate$Separator$endDate$Separator${group.cumulatedResponseTime}$Separator${group.oks}$Separator${group.kos}$Separator$status$eol"
+      fast"$scenarioName$Separator$userId$Separator${GroupMessageType.name}$Separator$serializedGroups$Separator$startDate$Separator$endDate$Separator${group.cumulatedResponseTime}$Separator${group.oks}$Separator${group.kos}$Separator$status$Eol"
     }
   }
 

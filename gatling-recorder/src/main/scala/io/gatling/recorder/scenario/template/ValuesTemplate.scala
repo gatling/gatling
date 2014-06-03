@@ -16,10 +16,10 @@
 package io.gatling.recorder.scenario.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
-import io.gatling.core.util.StringHelper.eol
+import io.gatling.core.util.StringHelper.Eol
 
 object ValuesTemplate {
   def render(values: Seq[Value]): Fastring =
     values.sortBy(_.name).map(value => fast"    val ${value.name} = ${protectWithTripleQuotes(value.value)}")
-      .mkFastring(eol)
+      .mkFastring(Eol)
 }

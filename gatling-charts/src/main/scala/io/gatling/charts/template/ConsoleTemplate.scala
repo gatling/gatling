@@ -17,12 +17,14 @@ package io.gatling.charts.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-import io.gatling.charts.component.{ GroupedCount, RequestStatistics, Statistics }
+import io.gatling.charts.component.Statistics
 import io.gatling.charts.component.Statistics.printable
 import io.gatling.core.result.writer.ConsoleSummary.{ newBlock, outputLength, writeSubTitle }
-import io.gatling.core.util.StringHelper.{ eol, RichString }
+import io.gatling.core.util.StringHelper._
 import io.gatling.core.result.writer.ConsoleErrorsWriter
 import io.gatling.core.result.reader.DataReader
+import io.gatling.charts.component.GroupedCount
+import io.gatling.charts.component.RequestStatistics
 
 object ConsoleTemplate {
 
@@ -42,7 +44,7 @@ object ConsoleTemplate {
       fast"$newBlock"
     else
       fast"""${writeSubTitle("Errors")}
-${errors.map(ConsoleErrorsWriter.writeError).mkFastring(eol)}
+${errors.map(ConsoleErrorsWriter.writeError).mkFastring(Eol)}
 $newBlock"""
   }
 
@@ -60,7 +62,7 @@ ${writeRequestCounters(percentiles1)}
 ${writeRequestCounters(percentiles2)}
 ${writeRequestCounters(meanNumberOfRequestsPerSecondStatistics)}
 ${writeSubTitle("Response Time Distribution")}
-${groupedCounts.map(writeGroupedCounters).mkFastring(eol)}
+${groupedCounts.map(writeGroupedCounters).mkFastring(Eol)}
 ${writeErrorsAndEndBlock(dataReader)}
 """.toString
   }

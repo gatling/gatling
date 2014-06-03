@@ -21,7 +21,7 @@ import io.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.reader.DataReader.NO_PLOT_MAGIC_VALUE
 import io.gatling.core.util.NumberHelper._
-import io.gatling.core.util.StringHelper.emptyFastring
+import io.gatling.core.util.StringHelper.EmptyFastring
 
 object Statistics {
   def printable[T: Numeric](value: T) =
@@ -148,7 +148,7 @@ class StatisticsTextComponent extends Component {
                         </div>
 """
 
-  val js = emptyFastring
+  val js = EmptyFastring
 
   val jsFiles: Seq[String] = Seq.empty
 }

@@ -24,7 +24,7 @@ import org.joda.time.format.DateTimeFormat
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.StringHelper.{ RichString, eol }
+import io.gatling.core.util.StringHelper._
 import io.gatling.core.result.ErrorStats
 
 object ConsoleSummary {
@@ -69,7 +69,7 @@ object ConsoleSummary {
       def writeErrors(): Fastring =
         if (!errorsCounters.isEmpty) {
           fast"""${writeSubTitle("Errors")}
-${errorsCounters.toVector.sortBy(-_._2).map(err => ConsoleErrorsWriter.writeError(ErrorStats(err._1, err._2, globalRequestCounters.failedCount))).mkFastring(eol)}
+${errorsCounters.toVector.sortBy(-_._2).map(err => ConsoleErrorsWriter.writeError(ErrorStats(err._1, err._2, globalRequestCounters.failedCount))).mkFastring(Eol)}
 """
         } else {
           fast""
@@ -78,13 +78,14 @@ ${errorsCounters.toVector.sortBy(-_._2).map(err => ConsoleErrorsWriter.writeErro
     val text = fast"""
 $newBlock
 ${ConsoleSummary.dateTimeFormat.print(time)} ${(runDuration + "s elapsed").leftPad(outputLength - iso8601Format.length - 9)}
-${usersCounters.map { case (scenarioName, usersStats) => writeUsersCounters(scenarioName, usersStats) }.mkFastring(eol)}
+${usersCounters.map { case (scenarioName, usersStats) => writeUsersCounters(scenarioName, usersStats) }.mkFastring(Eol)}
 ${writeSubTitle("Requests")}
 ${writeRequestsCounter("Global", globalRequestCounters)}
 ${
       if (!configuration.data.console.light)
-        requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(eol)
-      else fast""
+        requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(Eol)
+      else
+        EmptyFastring
     }
 ${writeErrors()}$newBlock
 """.toString

@@ -34,15 +34,15 @@ object StringHelper {
   val StringValueFieldOffset: Long = TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
   val StringOffsetFieldOffset: Option[Long] = Try(TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("offset"))).toOption
   val StringCountFieldOffset: Option[Long] = Try(TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("count"))).toOption
-  val StringImplementation: StringImplementation =
+  val TheStringImplementation: StringImplementation =
     StringOffsetFieldOffset match {
       case None => DirectCharsBasedStringImplementation
       case _    => OffsetBasedStringImplementation
     }
 
-  val eol = System.getProperty("line.separator")
+  val Eol = System.getProperty("line.separator")
 
-  val emptyFastring = fast""
+  val EmptyFastring = fast""
 
   def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new JStringBuilder(bytes.length)) { (buff, b) =>
     val shifted = b & 0xff
@@ -51,7 +51,7 @@ object StringHelper {
     buff.append(JLong.toString(shifted.toLong, 16))
   }.toString
 
-  val StringCharsExtractor: String => Array[Char] = StringImplementation match {
+  val StringCharsExtractor: String => Array[Char] = TheStringImplementation match {
 
     case DirectCharsBasedStringImplementation =>
 
@@ -73,7 +73,7 @@ object StringHelper {
 
   object RichString {
 
-    val EnsureTrimmedCharsArrayF: String => String = StringImplementation match {
+    val EnsureTrimmedCharsArrayF: String => String = TheStringImplementation match {
       case DirectCharsBasedStringImplementation => identity[String]
       case _                                    => new String(_)
     }

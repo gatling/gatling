@@ -18,7 +18,7 @@ package io.gatling.charts.component
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.result.ErrorStats
-import io.gatling.core.util.StringHelper.emptyFastring
+import io.gatling.core.util.StringHelper.EmptyFastring
 import io.gatling.core.util.HtmlHelper.HtmlRichString
 import io.gatling.core.util.NumberHelper._
 
@@ -29,7 +29,7 @@ class ErrorTableComponent(errors: Seq[ErrorStats]) extends Component {
     """
 
   def html = if (errors.isEmpty)
-    emptyFastring
+    EmptyFastring
   else
     fast"""<div class="statistics extensible-geant collapsed">
     <div class="title">

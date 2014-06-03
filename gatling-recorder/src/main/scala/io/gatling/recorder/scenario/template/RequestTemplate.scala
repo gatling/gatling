@@ -16,7 +16,7 @@
 package io.gatling.recorder.scenario.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
-import io.gatling.core.util.StringHelper.emptyFastring
+import io.gatling.core.util.StringHelper.EmptyFastring
 import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams }
 import io.gatling.recorder.scenario.RequestElement
 
@@ -54,7 +54,7 @@ object RequestTemplate {
           case (key, value) => fast"""
 			.param(${protectWithTripleQuotes(key)}, ${protectWithTripleQuotes(value)})"""
         }.mkFastring
-      }.getOrElse(emptyFastring)
+      }.getOrElse(EmptyFastring)
 
       def renderCredentials: String = request.basicAuthCredentials.map {
         case (username, password) => s"""
@@ -66,7 +66,7 @@ object RequestTemplate {
           fast"""
 			.check(status.is(${request.statusCode}))"""
         else
-          fast""
+          EmptyFastring
 
       def renderResources: Fastring =
         if (!request.nonEmbeddedResources.isEmpty)
@@ -77,7 +77,7 @@ object RequestTemplate {
             """.stripMargin)
           })"""
         else
-          fast""
+          EmptyFastring
 
     fast"""http("request_${request.id}")
 			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderResources$renderStatusCheck"""
