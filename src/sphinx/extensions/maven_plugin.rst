@@ -55,7 +55,7 @@ The example below shows the default values.
         <exclude>advanced/*.scala</exclude>
     </excludes>
   <!--    <noReports>false</noReports> -->
-  <!--   <reportsOnly>false</reportsOnly> -->
+  <!--   <reportsOnly>directoryName</reportsOnly> -->
   <!--   <simulationClass>foo.Bar</simulationClass> -->
   <!--   <jvmArgs> -->
   <!--     <jvmArg>-DmyExtraParam=foo</jvmArg> -->
