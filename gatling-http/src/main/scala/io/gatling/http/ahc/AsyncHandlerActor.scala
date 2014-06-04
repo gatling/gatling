@@ -277,11 +277,12 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
       def checkAndProceed(sessionUpdates: Session => Session, checks: List[HttpCheck]): Unit = {
 
-        val updateWithCacheUpdate = sessionUpdates andThen CacheHandling.cache(tx.protocol, tx.request, response)
+        val cacheUpdate = CacheHandling.cache(tx.protocol, tx.request, response)
+        val newUpdates = sessionUpdates andThen cacheUpdate
 
         Check.check(response, tx.session, checks) match {
-          case Success(saveCheckExtracts) => ok(tx, updateWithCacheUpdate andThen saveCheckExtracts, response)
-          case Failure(errorMessage)      => ko(tx, updateWithCacheUpdate, response, errorMessage)
+          case Success(saveCheckExtracts) => ok(tx, newUpdates andThen saveCheckExtracts, response)
+          case Failure(errorMessage)      => ko(tx, newUpdates, response, errorMessage)
         }
       }
 
