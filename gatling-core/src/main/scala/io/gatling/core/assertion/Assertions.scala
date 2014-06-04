@@ -64,7 +64,7 @@ class Requests(requests: (DataReader, Option[Status]) => Validation[GeneralStats
     val value = (reader: DataReader) => for {
       statusStats <- requests(reader, status)
       allStats <- requests(reader, None)
-    } yield math.round(statusStats.count.toFloat / allStats.count) / 100
+    } yield math.round(statusStats.count.toFloat / allStats.count * 100)
 
     Metric(value, message("percentage of requests"))
   }
@@ -75,7 +75,9 @@ class Requests(requests: (DataReader, Option[Status]) => Validation[GeneralStats
 case class Metric[T: Numeric](value: DataReader => Validation[T], name: String, assertions: List[Assertion] = List()) {
 
   def assert(assertion: (T) => Boolean, message: (String, Boolean) => String) = {
-    val newAssertion = new Assertion(reader => value(reader).map(assertion), result => message(name, result))
+    val newAssertion = new Assertion(
+      reader => value(reader).map(assertion),
+      result => message(name, result))
     copy(assertions = assertions :+ newAssertion)
   }
 
@@ -85,25 +87,24 @@ case class Metric[T: Numeric](value: DataReader => Validation[T], name: String, 
 
   def between(min: T, max: T) = assert(v => implicitly[Numeric[T]].gteq(v, min) && implicitly[Numeric[T]].lteq(v, max), (name, result) => s"$name between $min and $max: $result")
 
-  def is(v: T) = assert(_ == v, (name, result) => s"$name is equal to $v: $result")
+  def is(v: T): Metric[T] = assert(_ == v, (name, result) => s"$name is equal to $v: $result")
 
   def in(set: Set[T]) = assert(set.contains, (name, result) => s"$name is in $set")
 }
 
 object Assertion {
   def assertThat(assertions: Seq[Assertion], dataReader: DataReader): Boolean =
-    !assertions
-      .map { assertion =>
-        assertion(dataReader) match {
-          case Success(result) =>
-            println(assertion.message(result))
-            result
+    !assertions.map { assertion =>
+      assertion(dataReader) match {
+        case Success(result) =>
+          println(assertion.message(result))
+          result
 
-          case Failure(m) =>
-            println(m)
-            false
-        }
-      }.contains(false)
+        case Failure(m) =>
+          println(m)
+          false
+      }
+    }.contains(false)
 }
 
 case class Assertion(assertion: (DataReader) => Validation[Boolean], message: Boolean => String) {
