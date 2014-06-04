@@ -27,31 +27,32 @@ class StatsJsTemplate(stats: GroupContainer) {
 
   def getOutput: Fastring = {
 
-      def renderStatsRequest(request: RequestStatistics) = {
+      def renderStatsRequest(request: RequestStatistics): Fastring = {
         val jsonStats = new StatsJsonTemplate(request, false).getOutput
 
         fast"""name: "${request.name.escapeJsDoubleQuoteString}",
 path: "${request.path.escapeJsDoubleQuoteString}",
 pathFormatted: "${request.path.toFileName}",
-stats: ${jsonStats}"""
+stats: $jsonStats"""
       }
 
-      def renderStatsGroup(group: GroupContainer): Fastring = fast"""type: "$GROUP",
+      def renderStatsGroup(group: GroupContainer): Fastring =
+        fast"""type: "$GROUP",
 ${renderStatsRequest(group.stats)},
 contents: {
 ${
-        (group.contents.values.map {
-          _ match {
-            case subGroup: GroupContainer => fast""""${subGroup.name.toFileName}": {
+          group.contents.values.map {
+            _ match {
+              case subGroup: GroupContainer => fast""""${subGroup.name.toFileName}": {
         ${renderStatsGroup(subGroup)}
     }"""
-            case request: RequestContainer => fast""""${request.name.toFileName}": {
-        type: "${REQUEST}",
+              case request: RequestContainer => fast""""${request.name.toFileName}": {
+        type: "$REQUEST",
         ${renderStatsRequest(request.stats)}
     }"""
-          }
-        }).mkFastring(",")
-      }
+            }
+          }.mkFastring(",")
+        }
 }
 """
 
