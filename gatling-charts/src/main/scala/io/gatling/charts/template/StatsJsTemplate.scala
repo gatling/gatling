@@ -37,6 +37,7 @@ stats: ${jsonStats}"""
       }
 
       def renderStatsGroup(group: GroupContainer): Fastring = fast"""type: "$GROUP",
+${renderStatsRequest(group.stats)},
 contents: {
 ${
         (group.contents.values.map {
@@ -51,8 +52,7 @@ ${
           }
         }).mkFastring(",")
       }
-},
-${renderStatsRequest(group.stats)}
+}
 """
 
     fast"""var stats = {
