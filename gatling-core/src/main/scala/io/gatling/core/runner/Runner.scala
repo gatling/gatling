@@ -27,8 +27,7 @@ import io.gatling.core.scenario.Simulation
 
 class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
 
-  def run: (String, Simulation) = {
-
+  def run: (String, Simulation) =
     try {
       val simulationClass = selection.simulationClass
       println(s"Simulation ${simulationClass.getName} started...")
@@ -55,5 +54,4 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
     } finally {
       GatlingActorSystem.shutdown()
     }
-  }
 }
