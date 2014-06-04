@@ -119,45 +119,52 @@ object CacheHandling extends StrictLogging {
       // even if the Expires header is more restrictive. (http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.9.3)
       maxAgeAsExpiresValue.orElse(expiresValue).filter(_ > 0)
     }
-
   }
 
-  def cache(httpProtocol: HttpProtocol, session: Session, request: Request, response: Response): Session = {
+  def cache(httpProtocol: HttpProtocol, request: Request, response: Response): Session => Session =
+    if (httpProtocol.requestPart.cache) {
 
-    val uri = request.getURI
+      val uri = request.getURI
 
-    val updateExpire = (session: Session) => getResponseExpires(httpProtocol, response) match {
-      case Some(expires) =>
-        logger.debug(s"Setting Expires $expires for uri $uri")
-        val expireStore = getExpireStore(session)
-        session.set(HttpExpireStoreAttributeName, expireStore + (uri -> expires))
+      val updateExpire: Session => Session =
+        getResponseExpires(httpProtocol, response) match {
+          case Some(expires) =>
+            session => {
+              logger.debug(s"Setting Expires $expires for uri $uri")
+              val expireStore = getExpireStore(session)
+              session.set(HttpExpireStoreAttributeName, expireStore + (uri -> expires))
+            }
 
-      case None => session
-    }
+            case None => Session.Identity
+        }
 
-    val updateLastModified = (session: Session) => response.header(HeaderNames.LastModified) match {
-      case Some(lastModified) =>
-        logger.debug(s"Setting LastModified $lastModified for uri $uri")
-        val lastModifiedStore = getLastModifiedStore(session)
-        session.set(HttpLastModifiedStoreAttributeName, lastModifiedStore + (uri -> lastModified))
+      val updateLastModified: Session => Session =
+        response.header(HeaderNames.LastModified) match {
+          case Some(lastModified) =>
+            session => {
+              logger.debug(s"Setting LastModified $lastModified for uri $uri")
+              val lastModifiedStore = getLastModifiedStore(session)
+              session.set(HttpLastModifiedStoreAttributeName, lastModifiedStore + (uri -> lastModified))
+            }
 
-      case None => session
-    }
+            case None => Session.Identity
+        }
 
-    val updateEtag = (session: Session) => response.header(HeaderNames.ETag) match {
-      case Some(etag) =>
-        logger.debug(s"Setting Etag $etag for uri $uri")
-        val etagStore = getEtagStore(session)
-        session.set(HttpEtagStoreAttributeName, etagStore + (uri -> etag))
+      val updateEtag: Session => Session =
+        response.header(HeaderNames.ETag) match {
+          case Some(etag) =>
+            session => {
+              logger.debug(s"Setting Etag $etag for uri $uri")
+              val etagStore = getEtagStore(session)
+              session.set(HttpEtagStoreAttributeName, etagStore + (uri -> etag))
+            }
 
-      case None => session
-    }
+            case None => Session.Identity
+        }
 
-    if (httpProtocol.requestPart.cache)
-      (updateExpire andThen updateEtag andThen updateLastModified)(session)
-    else
-      session
-  }
+      updateExpire andThen updateEtag andThen updateLastModified
+    } else
+      Session.Identity
 
   val FlushCache: Expression[Session] = _.removeAll(HttpExpireStoreAttributeName, HttpLastModifiedStoreAttributeName, HttpEtagStoreAttributeName).success
 }

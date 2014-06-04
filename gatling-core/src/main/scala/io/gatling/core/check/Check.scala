@@ -24,8 +24,7 @@ import io.gatling.core.validation.{ Failure, Success, SuccessWrapper, Validation
 
 object Check {
 
-  val noopUpdate = identity[Session] _
-  val noopUpdateSuccess = noopUpdate.success
+  val noopUpdateSuccess = Session.Identity.success
 
   def check[R](response: R, session: Session, checks: List[Check[R]]): Validation[Session => Session] = {
 

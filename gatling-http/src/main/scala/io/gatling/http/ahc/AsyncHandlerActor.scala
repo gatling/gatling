@@ -59,7 +59,6 @@ object AsyncHandlerActor extends AkkaDefaults {
     case _       => throw new UnsupportedOperationException("AsyncHandlerActor pool hasn't been started")
   }
 
-  def updateCache(tx: HttpTx, response: Response): Session => Session = CacheHandling.cache(tx.protocol, _, tx.request, response)
   val fail: Session => Session = _.markAsFailed
 
   val propagatedOnRedirectHeaders = Vector(
@@ -164,7 +163,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       def inferPageResources(tx: HttpTx, response: Response): Boolean =
         tx.protocol.responsePart.inferHtmlResources && response.isReceived && isHtml(response.headers)
 
-    // FIXME rewrite with extractors
+    // TODO rewrite with extractors
     if (tx.resourceFetching) {
       val resourceMessage =
         if (isCss(response.headers))
@@ -213,6 +212,29 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
    */
   private def processResponse(tx: HttpTx, response: Response): Unit = {
 
+      def redirectRequest(redirectURI: URI, sessionWithUpdatesCookies: Session): Request = {
+        val originalRequest = tx.request
+
+        val requestBuilder = new RequestBuilder("GET", originalRequest.isUseRawUrl)
+          .setURI(redirectURI)
+          .setBodyEncoding(configuration.core.encoding)
+          .setConnectionPoolKeyStrategy(originalRequest.getConnectionPoolKeyStrategy)
+          .setInetAddress(originalRequest.getInetAddress)
+          .setLocalInetAddress(originalRequest.getLocalAddress)
+          .setVirtualHost(originalRequest.getVirtualHost)
+          .setProxyServer(originalRequest.getProxyServer)
+
+        for {
+          headerName <- AsyncHandlerActor.propagatedOnRedirectHeaders
+          headerValue <- Option(originalRequest.getHeaders.getFirstValue(headerName))
+        } requestBuilder.addHeader(headerName, headerValue)
+
+        for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatesCookies, redirectURI))
+          requestBuilder.addCookie(cookie)
+
+        requestBuilder.build
+      }
+
       def redirect(sessionUpdates: Session => Session): Unit =
         tx.maxRedirects match {
           case Some(maxRedirects) if maxRedirects == tx.redirectCount =>
@@ -221,35 +243,18 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           case _ =>
             response.header(HeaderNames.Location) match {
               case Some(location) =>
-                val newTx = tx.copy(session = sessionUpdates(tx.session))
-
-                logRequest(newTx, OK, response)
-
                 val redirectURI = resolveFromURI(tx.request.getURI, location)
 
-                val originalRequest = tx.request
+                val cacheRedirectUpdate = cacheRedirect(tx.request, redirectURI)
+                val newUpdates = sessionUpdates andThen cacheRedirectUpdate
 
-                val requestBuilder = new RequestBuilder("GET", originalRequest.isUseRawUrl)
-                  .setURI(redirectURI)
-                  .setBodyEncoding(configuration.core.encoding)
-                  .setConnectionPoolKeyStrategy(originalRequest.getConnectionPoolKeyStrategy)
-                  .setInetAddress(originalRequest.getInetAddress)
-                  .setLocalInetAddress(originalRequest.getLocalAddress)
-                  .setVirtualHost(originalRequest.getVirtualHost)
-                  .setProxyServer(originalRequest.getProxyServer)
+                val newSession = newUpdates(tx.session)
+                val newRequest = redirectRequest(redirectURI, newSession)
 
-                for (headerName <- AsyncHandlerActor.propagatedOnRedirectHeaders) {
-                  Option(originalRequest.getHeaders.getFirstValue(headerName)).foreach(requestBuilder.addHeader(headerName, _))
-                }
+                val redirectTx = tx.copy(session = newSession, request = newRequest, redirectCount = tx.redirectCount + 1)
 
-                for (cookie <- CookieHandling.getStoredCookies(newTx.session, redirectURI))
-                  requestBuilder.addCookie(cookie)
-
-                val newRequest = requestBuilder.build
-
-                val updatedSession = cacheRedirect(newTx, originalRequest, redirectURI)
-
-                val redirectTx = newTx.copy(session = updatedSession, request = newRequest, redirectCount = tx.redirectCount + 1)
+                // FIXME What about a redirect when fetching resources???
+                logRequest(redirectTx, OK, response)
                 HttpRequestAction.startHttpTransaction(redirectTx)
 
               case None =>
@@ -258,16 +263,17 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
             }
         }
 
-      def cacheRedirect(tx: HttpTx, originalRequest: Request, redirectURI: URI): Session = {
+      def cacheRedirect(originalRequest: Request, redirectURI: URI): Session => Session =
         response.statusCode match {
-          case Some(code) if HttpHelper.isPermanentRedirect(code) => PermanentRedirect.addRedirect(tx.session, originalRequest.getURI, redirectURI)
-          case _ => tx.session
+          case Some(code) if HttpHelper.isPermanentRedirect(code) =>
+            val originalURI = originalRequest.getURI
+            PermanentRedirect.addRedirect(_, originalURI, redirectURI)
+          case _ => Session.Identity
         }
-      }
 
       def checkAndProceed(sessionUpdates: Session => Session, checks: List[HttpCheck]): Unit = {
 
-        val updateWithCacheUpdate = sessionUpdates andThen AsyncHandlerActor.updateCache(tx, response)
+        val updateWithCacheUpdate = sessionUpdates andThen CacheHandling.cache(tx.protocol, tx.request, response)
 
         Check.check(response, tx.session, checks) match {
           case Success(saveCheckExtracts) => ok(tx, updateWithCacheUpdate andThen saveCheckExtracts, response)
@@ -278,7 +284,9 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     response.status match {
 
       case Some(status) =>
-        val updateWithUpdatedCookies: Session => Session = CookieHandling.storeCookies(_, tx.request.getURI, response.cookies)
+        val uri = tx.request.getURI
+        val cookies = response.cookies
+        val updateWithUpdatedCookies: Session => Session = CookieHandling.storeCookies(_, uri, cookies)
 
         if (HttpHelper.isRedirect(status.getStatusCode) && tx.followRedirect)
           redirect(updateWithUpdatedCookies)
@@ -290,7 +298,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
             else
               tx.checks
 
-          val updateWithReferer: Session => Session = RefererHandling.storeReferer(tx.request, response, _, tx.protocol)
+          val updateWithReferer = RefererHandling.storeReferer(tx.request, response, tx.protocol)
 
           checkAndProceed(updateWithUpdatedCookies andThen updateWithReferer, checks)
         }

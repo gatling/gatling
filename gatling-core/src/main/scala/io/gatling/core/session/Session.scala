@@ -47,6 +47,7 @@ case class SessionAttribute(session: Session, key: String) {
 
 object Session {
   val MarkAsFailedUpdate: Session => Session = _.markAsFailed
+  val Identity: Session => Session = identity[Session]
 }
 
 /**
