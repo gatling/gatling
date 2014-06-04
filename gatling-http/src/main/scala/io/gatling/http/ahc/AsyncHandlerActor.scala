@@ -281,7 +281,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
         Check.check(response, tx.session, checks) match {
           case Success(checkSaveUpdate) => ok(tx, newUpdate andThen checkSaveUpdate, response)
-          case Failure(errorMessage)      => ko(tx, newUpdate, response, errorMessage)
+          case Failure(errorMessage)    => ko(tx, newUpdate, response, errorMessage)
         }
       }
 
