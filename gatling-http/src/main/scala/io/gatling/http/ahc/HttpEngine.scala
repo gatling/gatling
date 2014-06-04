@@ -55,7 +55,8 @@ case class HttpTx(session: Session,
                   explicitResources: Seq[HttpRequest],
                   extraInfoExtractor: Option[ExtraInfoExtractor],
                   resourceFetching: Boolean = false,
-                  redirectCount: Int = 0)
+                  redirectCount: Int = 0,
+                  update: Session => Session = Session.Identity)
 
 case class WsTx(session: Session,
                 request: Request,

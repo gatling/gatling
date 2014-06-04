@@ -149,15 +149,15 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
    * This method is used to send a message to the data writer actor and then execute the next action
    *
    * @param tx the HTTP transaction
-   * @param sessionUpdates the updates to be applied on the Session
+   * @param update the update to be applied on the Session
    * @param status the status of the request
    * @param response the response
    */
-  private def executeNext(tx: HttpTx, sessionUpdates: Session => Session, status: Status, response: Response) {
+  private def executeNext(tx: HttpTx, update: Session => Session, status: Status, response: Response) {
 
       def regularExecuteNext(): Unit = {
-        val updatedSession = sessionUpdates(tx.session)
-        tx.next ! updatedSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
+        val newSession = update(tx.session)
+        tx.next ! newSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
       }
 
       def inferPageResources(tx: HttpTx, response: Response): Boolean =
@@ -167,16 +167,16 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     if (tx.resourceFetching) {
       val resourceMessage =
         if (isCss(response.headers))
-          CssResourceFetched(response.request.getOriginalURI, status, sessionUpdates, response.statusCode, ResourceFetcher.lastModifiedOrEtag(response, tx.protocol), response.body.string)
+          CssResourceFetched(response.request.getOriginalURI, status, update, response.statusCode, ResourceFetcher.lastModifiedOrEtag(response, tx.protocol), response.body.string)
         else
-          RegularResourceFetched(response.request.getOriginalURI, status, sessionUpdates)
+          RegularResourceFetched(response.request.getOriginalURI, status, update)
 
       tx.next ! resourceMessage
 
     } else {
       val explicitResources =
         if (!tx.explicitResources.isEmpty)
-          HttpRequest.buildNamedRequests(tx.explicitResources, sessionUpdates(tx.session))
+          HttpRequest.buildNamedRequests(tx.explicitResources, update(tx.session))
         else
           Nil
 
@@ -193,26 +193,26 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     }
   }
 
-  private def logAndExecuteNext(tx: HttpTx, sessionUpdates: Session => Session, status: Status, response: Response, message: Option[String]) {
+  private def logAndExecuteNext(tx: HttpTx, update: Session => Session, status: Status, response: Response, message: Option[String]) {
 
-    val newTx = tx.copy(session = sessionUpdates(tx.session))
+    val newTx = tx.copy(session = update(tx.session))
 
     logRequest(newTx, status, response, message)
-    executeNext(newTx, sessionUpdates, status, response)
+    executeNext(newTx, update, status, response)
   }
 
-  private def ok(tx: HttpTx, sessionUpdates: Session => Session, response: Response): Unit =
-    logAndExecuteNext(tx, sessionUpdates, OK, response, None)
+  private def ok(tx: HttpTx, update: Session => Session, response: Response): Unit =
+    logAndExecuteNext(tx, update, OK, response, None)
 
-  private def ko(tx: HttpTx, sessionUpdates: Session => Session, response: Response, message: String): Unit =
-    logAndExecuteNext(tx, sessionUpdates andThen AsyncHandlerActor.fail, KO, response, Some(message))
+  private def ko(tx: HttpTx, update: Session => Session, response: Response, message: String): Unit =
+    logAndExecuteNext(tx, update andThen AsyncHandlerActor.fail, KO, response, Some(message))
 
   /**
    * This method processes the response if needed for each checks given by the user
    */
   private def processResponse(tx: HttpTx, response: Response): Unit = {
 
-      def redirectRequest(redirectURI: URI, sessionWithUpdatesCookies: Session): Request = {
+      def redirectRequest(redirectURI: URI, sessionWithUpdatedCookies: Session): Request = {
         val originalRequest = tx.request
 
         val requestBuilder = new RequestBuilder("GET", originalRequest.isUseRawUrl)
@@ -229,16 +229,16 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           headerValue <- Option(originalRequest.getHeaders.getFirstValue(headerName))
         } requestBuilder.addHeader(headerName, headerValue)
 
-        for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatesCookies, redirectURI))
+        for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectURI))
           requestBuilder.addCookie(cookie)
 
         requestBuilder.build
       }
 
-      def redirect(sessionUpdates: Session => Session): Unit =
+      def redirect(update: Session => Session): Unit =
         tx.maxRedirects match {
           case Some(maxRedirects) if maxRedirects == tx.redirectCount =>
-            ko(tx, sessionUpdates, response, s"Too many redirects, max is $maxRedirects")
+            ko(tx, update, response, s"Too many redirects, max is $maxRedirects")
 
           case _ =>
             response.header(HeaderNames.Location) match {
@@ -250,19 +250,18 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
                   val responseTime = response.reponseTimeInMillis
                   _.logGroupRequest(responseTime, OK)
                 }
-                val newUpdates = sessionUpdates andThen cacheRedirectUpdate andThen logGroupRequestUpdate
+                val newUpdate = update andThen cacheRedirectUpdate andThen logGroupRequestUpdate
 
-                val newSession = newUpdates(tx.session)
+                val newSession = newUpdate(tx.session)
                 val newRequest = redirectRequest(redirectURI, newSession)
 
-                val redirectTx = tx.copy(session = newSession, request = newRequest, redirectCount = tx.redirectCount + 1)
+                val redirectTx = tx.copy(session = newSession, request = newRequest, redirectCount = tx.redirectCount + 1, update = newUpdate)
 
-                // FIXME What about a redirect when fetching resources???
                 logRequest(redirectTx, OK, response)
                 HttpRequestAction.startHttpTransaction(redirectTx)
 
               case None =>
-                ko(tx, sessionUpdates, response, "Redirect status, yet no Location header")
+                ko(tx, update, response, "Redirect status, yet no Location header")
 
             }
         }
@@ -275,14 +274,14 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           case _ => Session.Identity
         }
 
-      def checkAndProceed(sessionUpdates: Session => Session, checks: List[HttpCheck]): Unit = {
+      def checkAndProceed(sessionUpdate: Session => Session, checks: List[HttpCheck]): Unit = {
 
         val cacheUpdate = CacheHandling.cache(tx.protocol, tx.request, response)
-        val newUpdates = sessionUpdates andThen cacheUpdate
+        val newUpdate = sessionUpdate andThen cacheUpdate
 
         Check.check(response, tx.session, checks) match {
-          case Success(saveCheckExtracts) => ok(tx, newUpdates andThen saveCheckExtracts, response)
-          case Failure(errorMessage)      => ko(tx, newUpdates, response, errorMessage)
+          case Success(checkSaveUpdate) => ok(tx, newUpdate andThen checkSaveUpdate, response)
+          case Failure(errorMessage)      => ko(tx, newUpdate, response, errorMessage)
         }
       }
 
@@ -291,10 +290,11 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       case Some(status) =>
         val uri = tx.request.getURI
         val cookies = response.cookies
-        val updateWithUpdatedCookies: Session => Session = CookieHandling.storeCookies(_, uri, cookies)
+        val storeCookiesUpdate: Session => Session = CookieHandling.storeCookies(_, uri, cookies)
+        val newUpdate = tx.update andThen storeCookiesUpdate
 
         if (HttpHelper.isRedirect(status.getStatusCode) && tx.followRedirect)
-          redirect(updateWithUpdatedCookies)
+          redirect(newUpdate)
 
         else {
           val checks =
@@ -303,9 +303,9 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
             else
               tx.checks
 
-          val updateWithReferer = RefererHandling.storeReferer(tx.request, response, tx.protocol)
+          val storeRefererUpdate = RefererHandling.storeReferer(tx.request, response, tx.protocol)
 
-          checkAndProceed(updateWithUpdatedCookies andThen updateWithReferer, checks)
+          checkAndProceed(newUpdate andThen storeRefererUpdate, checks)
         }
 
       case None =>
