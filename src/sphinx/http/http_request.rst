@@ -164,6 +164,33 @@ Here are some examples::
 
 .. note:: Headers can also be defined on the ``HttpProtocol``.
 
+.. _http-request-signature:
+
+Signature Calculator
+--------------------
+
+One might want to generate some `HMAC <http://en.wikipedia.org/wiki/Hash-based_message_authentication_code>`_ header based on other request information: url, headers and/or body.
+This can only happen after Gatling has resolved the request, e.g. computed the body based on a template.
+
+Gatling exposes the AsyncHttpClient ``SignatureCalculator`` API::
+
+  public interface SignatureCalculator {
+    void calculateAndAddSignature(String url,
+                                  Request request,
+                                  RequestBuilderBase<?> requestBuilder);
+  }
+
+``request`` is the immutable object that's been computed so far, ``requestBuilder`` is the mutable object that will be used to generate the final request.
+
+So, basically, one have to read the proper information from the ``url`` and ``request`` parameters, compute the new information out of them, such as a HMAC header, and set it on the ``requestBuilder``.
+
+There's 2 ways to set a SignatureCalculator on a request::
+
+  .signatureCalculator(calculator: SignatureCalculator)
+
+  // use this signature is you want to directly pass a function instead of a SignatureCalculator
+  .signatureCalculator(calculator: (String, Request, RequestBuilderBase[_]) => Unit)
+
 .. _http-request-authentication:
 
 Authentication
