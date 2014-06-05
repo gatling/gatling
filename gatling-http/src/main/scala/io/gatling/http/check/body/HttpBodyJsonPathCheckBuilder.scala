@@ -57,7 +57,7 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
 
     case _ =>
       handleParseException { response =>
-          JacksonParser.parse(response.body.stream, response.charset)
+        JacksonParser.parse(response.body.stream, response.charset)
       }
   }
 
