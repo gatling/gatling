@@ -251,13 +251,13 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
                   _.logGroupRequest(responseTime, OK)
                 }
                 val newUpdate = update andThen cacheRedirectUpdate andThen logGroupRequestUpdate
-
                 val newSession = newUpdate(tx.session)
+
+                val loggedTx = tx.copy(session = newSession, redirectCount = tx.redirectCount + 1, update = newUpdate)
+                logRequest(loggedTx, OK, response)
+
                 val newRequest = redirectRequest(redirectURI, newSession)
-
-                val redirectTx = tx.copy(session = newSession, request = newRequest, redirectCount = tx.redirectCount + 1, update = newUpdate)
-
-                logRequest(redirectTx, OK, response)
+                val redirectTx = loggedTx.copy(request = newRequest)
                 HttpRequestAction.startHttpTransaction(redirectTx)
 
               case None =>
