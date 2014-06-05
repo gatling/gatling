@@ -52,14 +52,11 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
         if (response.bodyLength <= CharsParsingThreshold)
           BoonParser.parse(response.body.string)
         else
-          BoonParser.parse(response.body.stream, response.charset)
+          JacksonParser.parse(response.body.stream, response.charset)
       }
 
     case _ =>
       handleParseException { response =>
-        if (response.bodyLength <= CharsParsingThreshold)
-          JacksonParser.parse(response.body.bytes, response.charset)
-        else
           JacksonParser.parse(response.body.stream, response.charset)
       }
   }
