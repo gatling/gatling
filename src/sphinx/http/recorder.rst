@@ -101,6 +101,53 @@ Charles is an amazing tool and has an HAR export feature, but it's a proxy, so w
 
 To import a HAR file, select the *HAR converter* mode in the top right dropdown in the Recorder.
 
+Certificates
+============
+
+Recording browsers http traffic over ssl is possible ususally as the browser allows the user the option to accept a self signed certificate.
+Devices other than browsers may not provide that option, making it impossible to record SSL traffic.
+
+A set of certificates can be generated to allow devices to trust the recorder proxy.
+
+As creating fake certificates in this way could be misused the lifetime of the certificates can be set to 1 day to ensure that they cannot be misused at a later date.
+
+Steps:
+
+* Generate a Certificate Authority certficate
+* Generate a server certificate signed by the CA certificate for the proxy. The certificate is generated against the site domain name(s) being recorded
+* Import the server certificate and Chain (CA cert) into a java keystore
+* Import the CA certificate into the Device/Client
+* configure the recorder to use the custom keystore
+
+Generating the custom certificates
+----------------------------------
+
+- Certificate Authority
+
+OpenSSL commands::
+
+  openssl genrsa -out rootCA.key 2048
+  openssl req -x509 -new -nodes -key rootCA.key -days 1 -out rootCA.pem
+  openssl x509 -outform der -in rootCA.pem -out gatlingCA.crt
+
+- Proxy SSL certificate
+
+OpenSSL commands::
+
+  openssl genrsa -out device.key 2048
+  openssl req -new -key device.key -out device.csr
+  openssl x509 -req -in device.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out device.crt -days 1
+  openssl pkcs12 -export -in device.crt -inkey device.key -out server.p12 -name gatling -CAfile rootCA.pem -caname gatling -chain
+  keytool -importkeystore -deststorepass gatling -destkeypass gatling -destkeystore gatling-custom.jks  -srckeystore server.p12 -srcstoretype PKCS12 -srcstorepass gatling -alias gatling
+
+Configuring / Set up
+--------------------
+
+Install the CA certficate into the client device - gatlingCA.crt
+
+Configure the recorder to use the custom java keystore - gatling-custom.jks
+
+
 
 Command-line options
 ====================
@@ -122,3 +169,12 @@ For those who prefer the command line, command line options can be passed to the
 * **-fhr**: Enable *Fetch html resources* (alias = **--fetch-html-resources**)
 
 .. note:: Command-line options override saved preferences.
+
+System properties
+=================
+
+There are 2 system properties to control the use of a custom certificate keystore for the proxy:
+
+* gatling.recorder.keystore.path
+* gatling.recorder.keystore.passphrase
+
