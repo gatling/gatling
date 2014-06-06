@@ -29,23 +29,23 @@ object FileDataWriter {
 
   val Separator = '\t'
 
-  val emptyField = " "
+  object SanitizableString {
+    val SanitizerPattern = """[\n\r\t]""".r
+  }
 
-  val sanitizerPattern = """[\n\r\t]""".r
+  implicit class SanitizableString(val string: String) {
 
-  /**
-   * Converts whitespace characters that would break the simulation log format into spaces.
-   */
-  def sanitize(s: String): String = Option(s) match {
-    case Some(s) => sanitizerPattern.replaceAllIn(s, " ")
-    case _       => ""
+    /**
+     * Converts whitespace characters that would break the simulation log format into spaces.
+     */
+    def sanitize = SanitizableString.SanitizerPattern.replaceAllIn(string, " ")
   }
 
   implicit class RunMessageSerializer(val runMessage: RunMessage) extends AnyVal {
 
     def getBytes = {
       import runMessage._
-      val description = if (runDescription.isEmpty) FileDataWriter.emptyField else runDescription
+      val description = if (runDescription.isEmpty) " " else runDescription
       val string = s"$simulationClassName$Separator$simulationId$Separator${RunMessageType.name}$Separator$timestamp$Separator$description$Eol"
       string.getBytes(configuration.core.charset)
     }
@@ -67,11 +67,11 @@ object FileDataWriter {
       import requestMessage._
 
       val nonEmptyMessage = message match {
-        case Some(r) => r
-        case None    => emptyField
+        case Some(m) => m.sanitize
+        case None    => " "
       }
       val serializedGroups = GroupMessageSerializer.serializeGroups(groupHierarchy)
-      val serializedExtraInfo = extraInfo.map(info => fast"$Separator${sanitize(info.toString)}").mkFastring
+      val serializedExtraInfo = extraInfo.map(info => fast"$Separator${info.toString.sanitize}").mkFastring
 
       fast"$scenario$Separator$userId$Separator${RequestMessageType.name}$Separator$serializedGroups$Separator$name$Separator$requestStartDate$Separator$requestEndDate$Separator$responseStartDate$Separator$responseEndDate$Separator$status$Separator$nonEmptyMessage$serializedExtraInfo$Eol"
     }

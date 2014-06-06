@@ -72,7 +72,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
     logger.info("First pass")
 
-    var lineCount = 0
+    var count = 0
 
     var runStart = Long.MaxValue
     var runEnd = Long.MinValue
@@ -89,8 +89,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     val runMessages = mutable.ListBuffer.empty[RunMessage]
 
     records.foreach { line =>
-      lineCount += 1
-      if (lineCount % FileDataReader.logStep == 0) logger.info(s"First pass, read $lineCount lines")
+      count += 1
+      if (count % FileDataReader.logStep == 0) logger.info(s"First pass, read $count lines")
 
       line match {
         case RunMessageType(array) =>
@@ -125,10 +125,13 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
           val cumulatedResponseTime = array(6).toLong
           minGroupCumulatedResponseTime = math.min(minGroupCumulatedResponseTime, cumulatedResponseTime)
           maxGroupCumulatedResponseTime = math.max(maxGroupCumulatedResponseTime, cumulatedResponseTime)
+
+        case _ =>
+          logger.debug(s"Record broken on line $count: $line")
       }
     }
 
-    logger.info(s"First pass done: read $lineCount lines")
+    logger.info(s"First pass done: read $count lines")
 
     FirstPassData(
       runStart,
