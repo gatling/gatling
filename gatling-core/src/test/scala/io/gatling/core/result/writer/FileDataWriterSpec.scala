@@ -48,9 +48,9 @@ class FileDataWriterSpec extends Specification {
     }
 
     "sanitize extra info so that simulation log format is preserved" in {
-      FileDataWriter.sanitize("\nnewlines \n are\nnot \n\n allowed\n") must beEqualTo(" newlines   are not    allowed ")
-      FileDataWriter.sanitize("\rcarriage returns \r are\rnot \r\r allowed\r") must beEqualTo(" carriage returns   are not    allowed ")
-      FileDataWriter.sanitize("\ttabs \t are\tnot \t\t allowed\t") must beEqualTo(" tabs   are not    allowed ")
+      "\nnewlines \n are\nnot \n\n allowed\n".sanitize must beEqualTo(" newlines   are not    allowed ")
+      "\rcarriage returns \r are\rnot \r\r allowed\r".sanitize must beEqualTo(" carriage returns   are not    allowed ")
+      "\ttabs \t are\tnot \t\t allowed\t".sanitize must beEqualTo(" tabs   are not    allowed ")
     }
   }
 }
