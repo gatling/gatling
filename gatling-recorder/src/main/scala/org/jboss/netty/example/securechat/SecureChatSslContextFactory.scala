@@ -71,7 +71,7 @@ object SecureChatSslContextFactory extends StrictLogging {
         new FileInputStream(keystorePath)
       }.getOrElse {
         logger.info("Loading default keystore gatling.jks")
-        ClassLoader.getSystemResourceAsStream("gatling.jks")
+        getClass.getResourceAsStream("gatling.jks")
       }
 
     val keystorePassphrase = System.getProperty(PropertyKeystorePassphrase, "gatling")
