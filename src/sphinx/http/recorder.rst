@@ -104,8 +104,8 @@ To import a HAR file, select the *HAR converter* mode in the top right dropdown 
 Certificates
 ============
 
-Recording browsers http traffic over ssl is possible ususally as the browser allows the user the option to accept a self signed certificate.
-Devices other than browsers may not provide that option, making it impossible to record SSL traffic.
+Recording browsers' http traffic over ssl is possible ususally as the browser allows the user the option to accept a self signed certificate.
+Devices other than browsers may not provide that option, making it impossible to record SSL traffic on those devices.
 
 A set of certificates can be generated to allow devices to trust the recorder proxy.
 
@@ -131,6 +131,8 @@ OpenSSL commands::
   openssl x509 -outform der -in rootCA.pem -out gatlingCA.crt
 
 - Proxy SSL certificate
+
+.. note:: the 'common name' (which is deprecated but still works) and/or 'Subject Alternative Name' should match the domain name(s) that you are testing through the proxy.
 
 OpenSSL commands::
 
