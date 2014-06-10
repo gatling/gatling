@@ -2,8 +2,9 @@ import sbt._
 import sbt.Keys._
 
 import BuildSettings._
-import Dependencies._
 import Bundle._
+import Dependencies._
+import Generate._
 
 object GatlingBuild extends Build {
 
@@ -29,6 +30,7 @@ object GatlingBuild extends Build {
 
   lazy val core = gatlingModule("gatling-core")
     .settings(libraryDependencies ++= coreDependencies(scalaVersion.value))
+    .settings(generateConfigFileSettings(bundle): _*)
 
   lazy val jdbc = gatlingModule("gatling-jdbc")
     .dependsOn(core)
@@ -62,6 +64,7 @@ object GatlingBuild extends Build {
   lazy val recorder = gatlingModule("gatling-recorder")
     .dependsOn(core, http)
     .settings(libraryDependencies ++= recorderDependencies(scalaVersion.value))
+    .settings(generateConfigFileSettings(bundle): _*)
 
   lazy val bundle = gatlingModule("gatling-bundle")
     .settings(bundleSettings: _*)
