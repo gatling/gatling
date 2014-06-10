@@ -29,12 +29,12 @@ import io.gatling.core.result.ErrorStats
 
 object ConsoleSummary {
 
-  val iso8601Format = "yyyy-MM-dd HH:mm:ss"
-  val dateTimeFormat = DateTimeFormat.forPattern(iso8601Format)
-  val outputLength = 80
-  val newBlock = "=" * outputLength
+  val Iso8601Format = "yyyy-MM-dd HH:mm:ss"
+  val Iso8601DateTimeFormat = DateTimeFormat.forPattern(Iso8601Format)
+  val OutputLength = 80
+  val NewBlock = "=" * OutputLength
 
-  def writeSubTitle(title: String) = fast"${("---- " + title + " ").rightPad(outputLength, "-")}"
+  def writeSubTitle(title: String) = fast"${("---- " + title + " ").rightPad(OutputLength, "-")}"
 
   def apply(runDuration: Long,
             usersCounters: Map[String, UserCounters],
@@ -47,7 +47,7 @@ object ConsoleSummary {
 
         import userCounters._
 
-        val width = outputLength - 6 // []3d%
+        val width = OutputLength - 6 // []3d%
 
         val donePercent = floor(100 * doneCount.toDouble / totalCount).toInt
         val done = floor(width * doneCount.toDouble / totalCount).toInt
@@ -63,7 +63,7 @@ object ConsoleSummary {
 
         import requestCounters._
 
-        fast"> ${actionName.rightPad(outputLength - 24)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
+        fast"> ${actionName.rightPad(OutputLength - 24)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
       }
 
       def writeErrors(): Fastring =
@@ -76,8 +76,8 @@ ${errorsCounters.toVector.sortBy(-_._2).map(err => ConsoleErrorsWriter.writeErro
         }
 
     val text = fast"""
-$newBlock
-${ConsoleSummary.dateTimeFormat.print(time)} ${(runDuration + "s elapsed").leftPad(outputLength - iso8601Format.length - 9)}
+$NewBlock
+${ConsoleSummary.Iso8601DateTimeFormat.print(time)} ${(runDuration + "s elapsed").leftPad(OutputLength - Iso8601Format.length - 9)}
 ${usersCounters.map { case (scenarioName, usersStats) => writeUsersCounters(scenarioName, usersStats) }.mkFastring(Eol)}
 ${writeSubTitle("Requests")}
 ${writeRequestsCounter("Global", globalRequestCounters)}
@@ -87,7 +87,7 @@ ${
       else
         EmptyFastring
     }
-${writeErrors()}$newBlock
+${writeErrors()}$NewBlock
 """.toString
 
     val complete = {

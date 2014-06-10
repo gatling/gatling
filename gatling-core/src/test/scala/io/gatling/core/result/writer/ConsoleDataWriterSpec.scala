@@ -102,8 +102,8 @@ class ConsoleDataWriterSpec extends Specification {
       val summary1 = ConsoleSummary(10000, Map("request1" -> new UserCounters(11)), new RequestCounters(0, 20),
         requestCounters, errorsCounters1, time)
 
-      val output =requestsInfo(summary1) 
-      
+      val output = requestsInfo(summary1)
+
       output must be equalTo (
         s"""---- Requests ------------------------------------------------------------------
           |> Global                                                   (OK=0      KO=20    )
@@ -112,7 +112,7 @@ class ConsoleDataWriterSpec extends Specification {
           |> error1                                                             19 (${ConsoleErrorsWriter.formatPercent(95.0)}%)
           |> error2                                                              1 ( ${ConsoleErrorsWriter.formatPercent(5.0)}%)
           |================================================================================""".stripMargin) and (
-      output.lines.map(_.length).toSet must contain(be_<=(80)).foreach)
+          output.lines.map(_.length).toSet must contain(be_<=(80)).foreach)
     }
 
     "display requests with high number of errors" in {
@@ -122,7 +122,7 @@ class ConsoleDataWriterSpec extends Specification {
       val summary = ConsoleSummary(10000, Map("request1" -> new UserCounters(11)), new RequestCounters(0, 123456),
         requestCounters, errorsCounters, time)
 
-      val output = requestsInfo(summary) 
+      val output = requestsInfo(summary)
 
       output must be equalTo (
         s"""---- Requests ------------------------------------------------------------------
@@ -132,8 +132,8 @@ class ConsoleDataWriterSpec extends Specification {
           |> Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed  123456 (${ConsoleErrorsWriter.OneHundredPercent}%)
           |do eiusmod tempor incididunt ut labore et dolore magna aliqua....
           |================================================================================""".stripMargin) and (
-      output.lines.map(_.length).toSet must contain(be_<=(80)).foreach)
-      
+          output.lines.map(_.length).toSet must contain(be_<=(80)).foreach)
+
     }
   }
 }

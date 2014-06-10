@@ -23,23 +23,23 @@ import io.gatling.core.result.ErrorStats
  * Object for writing errors statistics to the console.
  */
 object ConsoleErrorsWriter {
-  val errorCountLen = 14
-  val errorMsgLen = ConsoleSummary.outputLength - errorCountLen
+  val ErrorCountLen = 14
+  val ErrorMsgLen = ConsoleSummary.OutputLength - ErrorCountLen
+  val TextLen = ErrorMsgLen - 4
 
   def formatPercent(percent: Double): String = f"$percent%3.2f"
-  val OneHundredPercent: String = formatPercent(100).dropRight(1)
 
+  val OneHundredPercent: String = formatPercent(100).dropRight(1)
   def writeError(errors: ErrorStats): Fastring = {
     val ErrorStats(msg, count, _) = errors
+
     val percent = if (errors.count == errors.totalCount) OneHundredPercent else formatPercent(errors.percentage)
+    val firstLineLen = TextLen.min(msg.length)
+    val firstLine = fast"> ${msg.substring(0, firstLineLen).rightPad(TextLen)} ${count.filled(6)} (${percent.leftPad(5)}%)"
 
-    val currLen = errorMsgLen - 4
-    val firstLineLen = currLen.min(msg.length)
-    val firstLine = fast"> ${msg.substring(0, firstLineLen).rightPad(currLen)} ${count.filled(6)} (${percent.leftPad(5)}%)"
-
-    if (currLen < msg.length) {
-      val secondLine = msg.substring(currLen)
-      fast"$firstLine$Eol${secondLine.truncate(errorMsgLen - 4)}"
+    if (msg.length > TextLen) {
+      val secondLine = msg.substring(TextLen)
+      fast"$firstLine$Eol${secondLine.truncate(TextLen)}"
     } else {
       firstLine
     }

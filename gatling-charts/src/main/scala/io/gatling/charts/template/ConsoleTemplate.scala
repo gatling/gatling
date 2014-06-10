@@ -19,7 +19,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.charts.component.Statistics
 import io.gatling.charts.component.Statistics.printable
-import io.gatling.core.result.writer.ConsoleSummary.{ newBlock, outputLength, writeSubTitle }
+import io.gatling.core.result.writer.ConsoleSummary._
 import io.gatling.core.util.StringHelper._
 import io.gatling.core.result.writer.ConsoleErrorsWriter
 import io.gatling.core.result.reader.DataReader
@@ -30,28 +30,28 @@ object ConsoleTemplate {
 
   def writeRequestCounters[T: Numeric](statistics: Statistics[T]): Fastring = {
     import statistics._
-    fast"> ${name.rightPad(outputLength - 32)} ${printable(total).leftPad(7)} (OK=${printable(success).rightPad(6)} KO=${printable(failure).rightPad(6)})"
+    fast"> ${name.rightPad(OutputLength - 32)} ${printable(total).leftPad(7)} (OK=${printable(success).rightPad(6)} KO=${printable(failure).rightPad(6)})"
   }
 
   def writeGroupedCounters(groupedCount: GroupedCount): Fastring = {
     import groupedCount._
-    fast"> ${name.rightPad(outputLength - 32)} ${count.toString.leftPad(7)} (${percentage.toString.leftPad(3)}%)"
+    fast"> ${name.rightPad(OutputLength - 32)} ${count.toString.leftPad(7)} (${percentage.toString.leftPad(3)}%)"
   }
 
   def writeErrorsAndEndBlock(dataReader: DataReader): Fastring = {
     val errors = dataReader.errors(None, None)
     if (errors.isEmpty)
-      fast"$newBlock"
+      fast"$NewBlock"
     else
       fast"""${writeSubTitle("Errors")}
 ${errors.map(ConsoleErrorsWriter.writeError).mkFastring(Eol)}
-$newBlock"""
+$NewBlock"""
   }
 
   def apply(dataReader: DataReader, requestStatistics: RequestStatistics): String = {
     import requestStatistics._
     fast"""
-$newBlock
+$NewBlock
 ${writeSubTitle("Global Information")}
 ${writeRequestCounters(numberOfRequestsStatistics)}
 ${writeRequestCounters(minResponseTimeStatistics)}
