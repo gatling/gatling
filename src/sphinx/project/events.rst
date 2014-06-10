@@ -5,12 +5,12 @@ Events
 Upcoming
 ========
 * *June 11th, 2014* `Geneva-Scala-Enthusiasts <http://www.meetup.com/Geneva-Scala-Enthusiasts/events/180095262/>`_ with Nicolas Rémond
-* *May 8th, 2014* `BRUG <http://brug.be/gatherings/brug-may-2014>`_ with Stéphan Mestach
-* *May 11th, 2014* `JavaCro 2014 <http://javacro.org/sessions/#gatling>`_ with Andrija Kranjec
 
 Passed
 ======
 
+* *May 11th, 2014* `JavaCro 2014 <http://javacro.org/sessions/#gatling>`_ with Andrija Kranjec
+* *May 8th, 2014* `BRUG <http://brug.be/gatherings/brug-may-2014>`_ with Stéphan Mestach
 * *March 19th, 2014* `MontpellierJUG <http://www.jug-montpellier.org>`_ with Stéphane Landelle
 * *February 2nd, 2014* `Brussels FOSDEM <https://fosdem.org/2014/schedule/event/performance_testing_puppet_with_gatling>`__ with Brian Cain
 * *December 12th, 2013* `Paris PerfUG <http://blog.octo.com/perfug-gatling-par-stephane-landelle>`__ with Stéphane Landelle
