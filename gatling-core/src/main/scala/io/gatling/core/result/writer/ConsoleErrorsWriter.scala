@@ -31,7 +31,7 @@ object ConsoleErrorsWriter {
 
   def writeError(errors: ErrorStats): Fastring = {
     val ErrorStats(msg, count, _) = errors
-    val percent = if(errors.count == errors.totalCount) OneHundredPercent else formatPercent(errors.percentage)
+    val percent = if (errors.count == errors.totalCount) OneHundredPercent else formatPercent(errors.percentage)
 
     val currLen = errorMsgLen - 4
     val firstLineLen = currLen.min(msg.length)
