@@ -27,11 +27,11 @@ object ConsoleErrorsWriter {
   val errorMsgLen = ConsoleSummary.outputLength - errorCountLen
 
   def formatPercent(percent: Double): String = f"$percent%3.2f"
-  val OneHundredPercent: String = formatPercent(100)
+  val OneHundredPercent: String = formatPercent(100).dropRight(1)
 
   def writeError(errors: ErrorStats): Fastring = {
     val ErrorStats(msg, count, _) = errors
-    val percent = formatPercent(errors.percentage)
+    val percent = if(errors.count == errors.totalCount) OneHundredPercent else formatPercent(errors.percentage)
 
     val currLen = errorMsgLen - 4
     val firstLineLen = currLen.min(msg.length)

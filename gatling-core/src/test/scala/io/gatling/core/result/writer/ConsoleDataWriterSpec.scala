@@ -102,14 +102,17 @@ class ConsoleDataWriterSpec extends Specification {
       val summary1 = ConsoleSummary(10000, Map("request1" -> new UserCounters(11)), new RequestCounters(0, 20),
         requestCounters, errorsCounters1, time)
 
-      requestsInfo(summary1) must be equalTo (
+      val output =requestsInfo(summary1) 
+      
+      output must be equalTo (
         s"""---- Requests ------------------------------------------------------------------
           |> Global                                                   (OK=0      KO=20    )
           |> request1                                                 (OK=0      KO=20    )
           |---- Errors --------------------------------------------------------------------
           |> error1                                                             19 (${ConsoleErrorsWriter.formatPercent(95.0)}%)
           |> error2                                                              1 ( ${ConsoleErrorsWriter.formatPercent(5.0)}%)
-          |================================================================================""".stripMargin)
+          |================================================================================""".stripMargin) and (
+      output.lines.map(_.length).toSet must contain(be_<=(80)).foreach)
     }
 
     "display requests with high number of errors" in {
@@ -119,14 +122,18 @@ class ConsoleDataWriterSpec extends Specification {
       val summary = ConsoleSummary(10000, Map("request1" -> new UserCounters(11)), new RequestCounters(0, 123456),
         requestCounters, errorsCounters, time)
 
-      requestsInfo(summary) must be equalTo (
+      val output = requestsInfo(summary) 
+
+      output must be equalTo (
         s"""---- Requests ------------------------------------------------------------------
           |> Global                                                   (OK=0      KO=123456)
           |> request1                                                 (OK=0      KO=123456)
           |---- Errors --------------------------------------------------------------------
-          |> Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed  123456 (${ConsoleErrorsWriter.formatPercent(100.0)}%)
+          |> Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed  123456 (${ConsoleErrorsWriter.OneHundredPercent}%)
           |do eiusmod tempor incididunt ut labore et dolore magna aliqua....
-          |================================================================================""".stripMargin)
+          |================================================================================""".stripMargin) and (
+      output.lines.map(_.length).toSet must contain(be_<=(80)).foreach)
+      
     }
   }
 }
