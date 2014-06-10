@@ -285,7 +285,7 @@ Switch is selected through the matching of a key with the evaluation of the pass
 If no switch is selected, switch is bypassed.
 ::
 
-  .doSwitch("${myKey}") ( // beware: use parentheses, not brackets!
+  .doSwitch("${myKey}") ( // beware: use parentheses, not curly braces!
     key1 -> chain1,
     key1-> chain2
   )
@@ -298,7 +298,7 @@ doSwitchOrElse
 Similar to ``doSwitch``, but with a fallback if no switch is selected.
 ::
 
-  .doSwitchOrElse("${myKey}") ( // beware: use parentheses, not brackets!
+  .doSwitchOrElse("${myKey}") ( // beware: use parentheses, not curly braces!
     key1 -> chain1,
     key1-> chain2
   ) (
@@ -314,7 +314,7 @@ randomSwitch
 Simple means cyclic graphs are not currently supported.
 ::
 
-  .randomSwitch( // beware: use parentheses, not brackets!
+  .randomSwitch( // beware: use parentheses, not curly braces!
       percentage1 -> chain1,
       percentage2 -> chain2
   )
@@ -333,7 +333,7 @@ randomSwitchOrElse
 Similar to ``randomSwitch``, but with a fallback if no switch is selected (ie: random number exceeds percentages sum).
 ::
 
-  .randomSwitchOrElse( // beware: use parentheses, not brackets!
+  .randomSwitchOrElse( // beware: use parentheses, not curly braces!
       percentage1 -> chain1,
       percentage2 -> chain2
   ) {
@@ -348,7 +348,7 @@ uniformRandomSwitch
 Similar to ``randomSwitch``, but with an uniform distribution amongst chains.
 ::
 
-  .uniformRandomSwitch( // beware: use parentheses, not brackets!
+  .uniformRandomSwitch( // beware: use parentheses, not curly braces!
     chain1,
     chain2
   )
@@ -361,7 +361,7 @@ roundRobinSwitch
 Similar to ``randomSwitch``, but dispatch uses a round-robin strategy.
 ::
 
-  .roundRobinSwitch( // beware: use parentheses, not brackets!
+  .roundRobinSwitch( // beware: use parentheses, not curly braces!
     chain1,
     chain2
   )
