@@ -126,6 +126,15 @@ class ELSpec extends ValidationSpecification {
     }
   }
 
+  "'random' function in Expression" should {
+    "return one of elements" in {
+      val elements = List("BAR1", "BAR2")
+      val session = Session("scenario", "1", Map("bar" -> elements))
+      val expression = "${bar.random}".el[String]
+      expression(session) must succeedWith("BAR1") or succeedWith("BAR2")
+    }
+  }
+
   "Malformed Expression" should {
 
     "be handled correctly when an attribute name is missing" in {
