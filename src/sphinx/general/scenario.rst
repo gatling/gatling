@@ -285,10 +285,10 @@ Switch is selected through the matching of a key with the evaluation of the pass
 If no switch is selected, switch is bypassed.
 ::
 
-  .doSwitch("${myKey}"){
+  .doSwitch("${myKey}") ( // beware: use parentheses, not brackets!
     key1 -> chain1,
     key1-> chain2
-  }
+  )
 
 .. _scenario-doswitchorelse:
 
@@ -298,12 +298,12 @@ doSwitchOrElse
 Similar to ``doSwitch``, but with a fallback if no switch is selected.
 ::
 
-  .doSwitchOrElse("${myKey}"){
+  .doSwitchOrElse("${myKey}") ( // beware: use parentheses, not brackets!
     key1 -> chain1,
     key1-> chain2
-  } {
+  ) (
     fallbackChain
-  }
+  )
 
 .. _scenario-randomswitch:
 
