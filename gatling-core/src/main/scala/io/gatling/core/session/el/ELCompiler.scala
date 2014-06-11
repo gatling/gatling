@@ -24,13 +24,14 @@ import scala.reflect.ClassTag
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.NumberHelper.IntString
 import io.gatling.core.util.TypeHelper.TypeCaster
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, Success, Failure }
 
 import scala.util.parsing.combinator.RegexParsers
 
 object ELMessages {
   def undefinedSeqIndexMessage(name: String, index: Int) = s"Seq named '$name' is undefined for index $index"
   def undefinedSessionAttributeMessage(name: String) = s"No attribute named '$name' is defined"
+  def undefinedMapKeyMessage(map: String, key: String) = s"Map named '$map' does not contain key '$key'"
 }
 
 trait Part[+T] {
@@ -71,6 +72,36 @@ case class SeqElementPart(name: String, index: String) extends Part[Any] {
       case IntString(i) => seqElementPart(i)
       case _            => session(index).validate[Int].flatMap(seqElementPart)
     }
+  }
+}
+
+case class MapKeyPart(mapName: String, keyNames: List[String]) extends Part[Any] {
+
+  def apply(session: Session): Validation[Any] = {
+
+      def getValue(validation: Validation[Map[Any, Any]], key: String): Validation[Any] = {
+        validation.flatMap(_.get(key) match {
+          case Some(value) => value.success
+          case None        => ELMessages.undefinedMapKeyMessage(mapName, key).failure
+        })
+      }
+
+      def getMapKey(value: Validation[Any], names: List[String]): Validation[Any] = {
+        value match {
+          case Success(value) => {
+            val mapValidation = value.asValidation[Map[Any, Any]]
+            val mapValue = getValue(mapValidation, names.head)
+            names match {
+              case x :: Nil => mapValue
+              case x :: xs  => getMapKey(mapValue, xs)
+            }
+          }
+
+          case _ => value
+        }
+      }
+
+    getMapKey(session(mapName).validate[Map[Any, Any]], keyNames)
   }
 }
 
@@ -128,7 +159,7 @@ class ELCompiler(string: String) extends RegexParsers {
     case staticStr => StaticPart(staticStr)
   }
 
-  def elExpr: Parser[Part[Any]] = "${" ~> (sizeValue | randomValue | seqElement | elValue | emptyExpression) <~ "}"
+  def elExpr: Parser[Part[Any]] = "${" ~> (sizeValue | randomValue | mapAccess | seqElement | elValue | emptyExpression) <~ "}"
 
   def elValue: Parser[Part[Any]] = name ^^ {
     case name => AttributePart(name)
@@ -145,6 +176,12 @@ class ELCompiler(string: String) extends RegexParsers {
   def seqElement: Parser[Part[Any]] = name ~ "(" ~ name ~ ")" ^^ {
     case seqName ~ _ ~ posStr ~ _ => SeqElementPart(seqName, posStr)
   }
+
+  def mapAccess: Parser[Part[Any]] = name ~ keyNames ^^ {
+    case mapName ~ keyNames => MapKeyPart(mapName, keyNames)
+  }
+
+  def keyNames: Parser[List[String]] = ("." ~> name) +
 
   def emptyExpression: Parser[Part[Any]] = "" ^^ {
     throw new ELMissingAttributeName(string)

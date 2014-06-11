@@ -142,6 +142,35 @@ class ELSpec extends ValidationSpecification {
     }
   }
 
+  "access map in Expression" should {
+    "return value by key" in {
+      val map = Map("key1" -> "val1", "key2" -> "val2")
+      val session = Session("scenario", "1", Map("map" -> map))
+      val expression = "${map.key1}".el[String]
+      expression(session) must succeedWith("val1")
+    }
+
+    "handle missing map correctly" in {
+      val session = Session("scenario", "1")
+      val expression = "${map.key1}".el[String]
+      expression(session) must failWith(ELMessages.undefinedSessionAttributeMessage("map"))
+    }
+
+    "handle nested map access" in {
+      val map = Map("key" -> Map("subKey" -> "val"))
+      val session = Session("scenario", "1", Map("map" -> map))
+      val expression = "${map.key.subKey}".el[String]
+      expression(session) must succeedWith("val")
+    }
+
+    "handle missing value correctly" in {
+      val map = Map("key" -> "val")
+      val session = Session("scenario", "1", Map("map" -> map))
+      val expression = "${map.nonexisting}".el[String]
+      expression(session) must failWith(ELMessages.undefinedMapKeyMessage("map", "nonexisting"))
+    }
+  }
+
   "Malformed Expression" should {
 
     "be handled correctly when an attribute name is missing" in {
