@@ -24,6 +24,7 @@ import io.gatling.core.test.ValidationSpecification
 
 @RunWith(classOf[JUnitRunner])
 class ELSpec extends ValidationSpecification {
+  sequential
 
   "One monovalued Expression" should {
 
@@ -74,6 +75,12 @@ class ELSpec extends ValidationSpecification {
   }
 
   "'index' function in Expression" should {
+    "return n-th element of a list in monovalued expression" in {
+      val session = Session("scenario", "1", Map("bar" -> List("BAR1", "BAR2")))
+      val expression = "${bar(0)}".el[String]
+      expression(session) must succeedWith("BAR1")
+    }
+
     "return expected result when used with resolved index" in {
       val session = Session("scenario", "1", Map("bar" -> List("BAR1", "BAR2"), "baz" -> 1))
       val expression = "{foo${bar(baz)}}".el[String]
@@ -142,7 +149,7 @@ class ELSpec extends ValidationSpecification {
     }
 
     "be handled correctly when there is a nested attribute definition" in {
-      "${foo${bar}}".el[String] must throwA[ELNestedAttributeDefinition]
+      "${foo${bar}}".el[String] must throwA[ELParserException]
     }
   }
 }

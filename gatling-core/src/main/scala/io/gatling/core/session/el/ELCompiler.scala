@@ -26,6 +26,8 @@ import io.gatling.core.util.NumberHelper.IntString
 import io.gatling.core.util.TypeHelper.TypeCaster
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
+import scala.util.parsing.combinator.RegexParsers
+
 object ELMessages {
   def undefinedSeqIndexMessage(name: String, index: Int) = s"Seq named '$name' is undefined for index $index"
   def undefinedSessionAttributeMessage(name: String) = s"No attribute named '$name' is defined"
@@ -72,46 +74,18 @@ case class SeqElementPart(name: String, index: String) extends Part[Any] {
   }
 }
 
-sealed abstract class ELParserException(message: String) extends Exception(message)
+sealed class ELParserException(message: String) extends Exception(message)
 class ELMissingAttributeName(el: String) extends ELParserException(s"An attribute name is missing in this expression : $el")
-class ELNestedAttributeDefinition(el: String) extends ELParserException(s"There is a nested attribute definition in this expression : $el")
 
 object ELCompiler {
-  val elPattern = """\$\{(.*?)\}""".r
-  val elSeqSizePattern = """(.+?)\.size""".r
-  val elSeqRandomPattern = """(.+?)\.random""".r
-  val elSeqElementPattern = """(.+?)\((.+)\)""".r
 
   def compile[T: ClassTag](string: String): Expression[T] = {
-
-    val parts: List[Part[Any]] = {
-
-      val staticParts: List[StaticPart] = elPattern.split(string).map(StaticPart)(breakOut)
-
-      val dynamicParts: List[Part[Any]] = elPattern
-        .findAllIn(string)
-        .matchData
-        .map {
-          _.group(1) match {
-            case elSeqElementPattern(key, occurrence) => SeqElementPart(key, occurrence)
-            case elSeqSizePattern(key)                => SeqSizePart(key)
-            case elSeqRandomPattern(key)              => SeqRandomPart(key)
-            case key if key contains "${"             => throw new ELNestedAttributeDefinition(string)
-            case key if key.isEmpty                   => throw new ELMissingAttributeName(string)
-            case key                                  => AttributePart(key)
-          }
-        }
-        .toList
-
-      val indexedStaticParts = staticParts.zipWithIndex.collect { case (part, index) if !part.string.isEmpty => (part, index * 2) }
-      val indexedDynamicParts = dynamicParts.zipWithIndex.map { case (part, index) => (part, index * 2 + 1) }
-
-      (indexedStaticParts ::: indexedDynamicParts).sortBy(_._2).map(_._1)
-    }
+    val elCompiler = new ELCompiler(string)
+    val parts = elCompiler.parseEl(string)
 
     parts match {
-      case List(StaticPart(string)) => {
-        val stringV = string.asValidation[T]
+      case List(StaticPart(staticStr)) => {
+        val stringV = staticStr.asValidation[T]
         _ => stringV
       }
 
@@ -130,4 +104,51 @@ object ELCompiler {
         }.flatMap(_.toString.asValidation[T])
     }
   }
+}
+
+class ELCompiler(string: String) extends RegexParsers {
+
+  override def skipWhitespace = false
+
+  def parseEl(string: String): List[Part[Any]] = {
+    parseAll(expr, string) match {
+      case Success(part, _)    => part
+      case Failure(msg, input) => throw new ELParserException(s"Failed to parser ${string} with error ${msg}")
+    }
+  }
+
+  def expr: Parser[List[Part[Any]]] = (multivaluedExpr | elExpr) ^^ {
+    case validation: List[Part[Any]] => validation
+    case part: Part[Any]             => List(part)
+  }
+
+  def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart) *
+
+  def staticPart: Parser[StaticPart] = "[^$]+".r ^^ {
+    case staticStr => StaticPart(staticStr)
+  }
+
+  def elExpr: Parser[Part[Any]] = "${" ~> (sizeValue | randomValue | seqElement | elValue | emptyExpression) <~ "}"
+
+  def elValue: Parser[Part[Any]] = name ^^ {
+    case name => AttributePart(name)
+  }
+
+  def sizeValue: Parser[Part[Any]] = name <~ ".size" ^^ {
+    case seqName => SeqSizePart(seqName)
+  }
+
+  def randomValue: Parser[Part[Any]] = name <~ ".random" ^^ {
+    case seqName => SeqRandomPart(seqName)
+  }
+
+  def seqElement: Parser[Part[Any]] = name ~ "(" ~ name ~ ")" ^^ {
+    case seqName ~ _ ~ posStr ~ _ => SeqElementPart(seqName, posStr)
+  }
+
+  def emptyExpression: Parser[Part[Any]] = "" ^^ {
+    throw new ELMissingAttributeName(string)
+  }
+
+  def name: Parser[String] = "[^.${}()]+".r
 }
