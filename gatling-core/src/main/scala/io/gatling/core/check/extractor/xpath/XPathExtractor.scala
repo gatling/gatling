@@ -31,13 +31,13 @@ import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathExecutable, XdmNode, 
 
 object XPathExtractor {
 
-  val processor = new Processor(false)
-  val documentBuilder = processor.newDocumentBuilder
+  val Processor = new Processor(false)
+  val DocumentBuilder = Processor.newDocumentBuilder
 
-  val compilerCache: concurrent.Map[List[(String, String)], XPathCompiler] = new ConcurrentHashMapV8[List[(String, String)], XPathCompiler]
+  val CompilerCache: concurrent.Map[List[(String, String)], XPathCompiler] = new ConcurrentHashMapV8[List[(String, String)], XPathCompiler]
 
   def compiler(namespaces: List[(String, String)]) = {
-    val xPathCompiler = processor.newXPathCompiler
+    val xPathCompiler = Processor.newXPathCompiler
     for {
       (prefix, uri) <- namespaces
     } xPathCompiler.declareNamespace(prefix, uri)
@@ -47,7 +47,7 @@ object XPathExtractor {
   private def parse(inputSource: InputSource) = {
     inputSource.setEncoding(configuration.core.encoding)
     val source = new SAXSource(inputSource)
-    documentBuilder.build(source)
+    DocumentBuilder.build(source)
   }
 
   def parse(is: InputStream): XdmNode = parse(new InputSource(is))
@@ -60,7 +60,7 @@ object XPathExtractor {
 
   def cached(expression: String, namespaces: List[(String, String)]): XPathExecutable =
     if (configuration.core.extract.xpath.cache) {
-      val xPathCompiler = compilerCache.getOrElseUpdate(namespaces, compiler(namespaces))
+      val xPathCompiler = CompilerCache.getOrElseUpdate(namespaces, compiler(namespaces))
       xpathExecutableCache.getOrElseUpdate(expression, xpath(expression, xPathCompiler))
     } else
       xpath(expression, compiler(namespaces))

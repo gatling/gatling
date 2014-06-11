@@ -24,7 +24,7 @@ import scala.collection.{ breakOut, mutable }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.http.util.HttpHelper
-import jodd.lagarto.{EmptyTagVisitor, Tag}
+import jodd.lagarto.{ EmptyTagVisitor, Tag }
 
 sealed abstract class RawResource {
   def rawUrl: String
@@ -63,15 +63,15 @@ object HtmlParser extends StrictLogging {
 
       override def tag(tag: Tag): Unit = {
 
-        def codeBase() = Option(tag.getAttributeValue("codebase", false))
+          def codeBase() = Option(tag.getAttributeValue("codebase", false))
 
-        def prependCodeBase(url: String, codeBase: String) =
-          if (url.startsWith("http"))
-            url
-          else if (codeBase.charAt(codeBase.size) != '/')
-            codeBase + '/' + url
-          else
-            codeBase + url
+          def prependCodeBase(url: String, codeBase: String) =
+            if (url.startsWith("http"))
+              url
+            else if (codeBase.charAt(codeBase.size) != '/')
+              codeBase + '/' + url
+            else
+              codeBase + url
 
         tag.getName.toLowerCase match {
           case "base" =>
@@ -87,12 +87,12 @@ object HtmlParser extends StrictLogging {
           case "link" =>
             tag.getAttributeValue("rel", false) match {
               case "stylesheet" => addResource(tag, "href", CssRawResource)
-              case "icon" => addResource(tag, "href", RegularRawResource)
-              case _ =>
+              case "icon"       => addResource(tag, "href", RegularRawResource)
+              case _            =>
             }
 
           case "bgsound" | "img" | "embed" | "input" => addResource(tag, "src", RegularRawResource)
-          case "body" => addResource(tag, "background", RegularRawResource)
+          case "body"                                => addResource(tag, "background", RegularRawResource)
 
           case "applet" =>
             val code = tag.getAttributeValue("code", false)
@@ -101,7 +101,7 @@ object HtmlParser extends StrictLogging {
             val appletResources = archives.getOrElse(List(code)).iterator
             val appletResourcesUrls = codeBase() match {
               case Some(cb) => appletResources.map(prependCodeBase(cb, _))
-              case None => appletResources
+              case None     => appletResources
             }
             rawResources ++= appletResourcesUrls.map(RegularRawResource)
 
@@ -109,7 +109,7 @@ object HtmlParser extends StrictLogging {
             val data = tag.getAttributeValue("data", false)
             val objectResourceUrl = codeBase() match {
               case Some(cb) => prependCodeBase(cb, data)
-              case _ => data
+              case _        => data
             }
             rawResources += RegularRawResource(objectResourceUrl)
 

@@ -35,9 +35,11 @@ object CssExtractor {
 
   val DomBuilder = Jodd.newLagartoDomBuilder
 
-  val cache: concurrent.Map[String, JList[JList[CssSelector]]] = new ConcurrentHashMapV8[String, JList[JList[CssSelector]]]
+  val Cache: concurrent.Map[String, JList[JList[CssSelector]]] = new ConcurrentHashMapV8[String, JList[JList[CssSelector]]]
 
-  def cached(query: String) = if (configuration.core.extract.css.cache) cache.getOrElseUpdate(query, CSSelly.parse(query)) else CSSelly.parse(query)
+  def cached(query: String) =
+    if (configuration.core.extract.css.cache) Cache.getOrElseUpdate(query, CSSelly.parse(query))
+    else CSSelly.parse(query)
 
   def parse(chars: Array[Char]) = new NodeSelector(DomBuilder.parse(chars))
   def parse(string: String) = new NodeSelector(DomBuilder.parse(string))

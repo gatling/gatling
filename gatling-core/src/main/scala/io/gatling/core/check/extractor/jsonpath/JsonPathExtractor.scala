@@ -26,10 +26,10 @@ import jsr166e.ConcurrentHashMapV8
 
 object JsonPathExtractor {
 
-  val cache: concurrent.Map[String, Validation[JsonPath]] = new ConcurrentHashMapV8[String, Validation[JsonPath]]
+  val Cache: concurrent.Map[String, Validation[JsonPath]] = new ConcurrentHashMapV8[String, Validation[JsonPath]]
 
   def cached(expression: String): Validation[JsonPath] =
-    if (configuration.core.extract.jsonPath.cache) cache.getOrElseUpdate(expression, compile(expression))
+    if (configuration.core.extract.jsonPath.cache) Cache.getOrElseUpdate(expression, compile(expression))
     else compile(expression)
 
   def compile(expression: String): Validation[JsonPath] = JsonPath.compile(expression) match {

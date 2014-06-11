@@ -24,7 +24,6 @@ object Jodd {
 
   LoggerFactory.setLoggerFactory(new Slf4jLoggerFactory)
 
-
   def newLagartoDomBuilder: LagartoDOMBuilder = {
     val domBuilder = new LagartoDOMBuilder
     domBuilder.setParsingErrorLogLevelName("INFO")
