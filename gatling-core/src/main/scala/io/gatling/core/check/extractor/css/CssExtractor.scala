@@ -24,7 +24,7 @@ import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import jodd.csselly.{ CSSelly, CssSelector }
-import jodd.lagarto.dom.{ LagartoDOMBuilder, NodeSelector }
+import jodd.lagarto.dom.NodeSelector
 import jodd.log.LoggerFactory
 import jodd.log.impl.Slf4jLoggerFactory
 import jsr166e.ConcurrentHashMapV8
@@ -33,15 +33,14 @@ object CssExtractor {
 
   LoggerFactory.setLoggerFactory(new Slf4jLoggerFactory)
 
-  val domBuilder = new LagartoDOMBuilder
-  domBuilder.setParsingErrorLogLevelName("INFO")
+  val DomBuilder = Jodd.newLagartoDomBuilder
 
   val cache: concurrent.Map[String, JList[JList[CssSelector]]] = new ConcurrentHashMapV8[String, JList[JList[CssSelector]]]
 
   def cached(query: String) = if (configuration.core.extract.css.cache) cache.getOrElseUpdate(query, CSSelly.parse(query)) else CSSelly.parse(query)
 
-  def parse(chars: Array[Char]) = new NodeSelector(domBuilder.parse(chars))
-  def parse(string: String) = new NodeSelector(domBuilder.parse(string))
+  def parse(chars: Array[Char]) = new NodeSelector(DomBuilder.parse(chars))
+  def parse(string: String) = new NodeSelector(DomBuilder.parse(string))
 
   def extractAll(selector: NodeSelector, query: String, nodeAttribute: Option[String]): Seq[String] = {
 

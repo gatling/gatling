@@ -17,12 +17,14 @@ package io.gatling.http.fetch
 
 import java.net.{ URI, URISyntaxException }
 
+import io.gatling.core.check.extractor.css.Jodd
+
 import scala.collection.{ breakOut, mutable }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.http.util.HttpHelper
-import jodd.lagarto.{ EmptyTagVisitor, LagartoParser, Tag }
+import jodd.lagarto.{EmptyTagVisitor, Tag}
 
 sealed abstract class RawResource {
   def rawUrl: String
@@ -38,13 +40,12 @@ case class RegularRawResource(rawUrl: String) extends RawResource {
 
 object HtmlParser extends StrictLogging {
 
-  def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char]): List[EmbeddedResource] = {
+  case class HtmlResources(rawResources: Seq[RawResource], baseURI: Option[URI])
 
-    val rawResources = mutable.ArrayBuffer.empty[RawResource]
+  def parseHtml(htmlContent: Array[Char]): HtmlResources = {
+
     var baseURI: Option[URI] = None
-
-    val lagartoParser = new LagartoParser(htmlContent)
-    lagartoParser.setEnableConditionalComments(false)
+    val rawResources = mutable.ArrayBuffer.empty[RawResource]
 
     val visitor = new EmptyTagVisitor {
 
@@ -62,18 +63,15 @@ object HtmlParser extends StrictLogging {
 
       override def tag(tag: Tag): Unit = {
 
-          def suffixedCodeBase() = Option(tag.getAttributeValue("codebase", false)).map { cb =>
-            if (cb.charAt(cb.size) != '/')
-              cb + '/'
-            else
-              cb
-          }
+        def codeBase() = Option(tag.getAttributeValue("codebase", false))
 
-          def prependCodeBase(url: String, codeBase: String) =
-            if (url.charAt(0) != 'h')
-              codeBase + url
-            else
-              url
+        def prependCodeBase(url: String, codeBase: String) =
+          if (url.startsWith("http"))
+            url
+          else if (codeBase.charAt(codeBase.size) != '/')
+            codeBase + '/' + url
+          else
+            codeBase + url
 
         tag.getName.toLowerCase match {
           case "base" =>
@@ -89,32 +87,29 @@ object HtmlParser extends StrictLogging {
           case "link" =>
             tag.getAttributeValue("rel", false) match {
               case "stylesheet" => addResource(tag, "href", CssRawResource)
-              case "icon"       => addResource(tag, "href", RegularRawResource)
-              case _            =>
+              case "icon" => addResource(tag, "href", RegularRawResource)
+              case _ =>
             }
 
-          case "bgsound" => addResource(tag, "src", RegularRawResource)
-          case "img"     => addResource(tag, "src", RegularRawResource)
-          case "embed"   => addResource(tag, "src", RegularRawResource)
-          case "input"   => addResource(tag, "src", RegularRawResource) // only if type=image?
-          case "body"    => addResource(tag, "background", RegularRawResource)
+          case "bgsound" | "img" | "embed" | "input" => addResource(tag, "src", RegularRawResource)
+          case "body" => addResource(tag, "background", RegularRawResource)
 
           case "applet" =>
             val code = tag.getAttributeValue("code", false)
             val archives = Option(tag.getAttributeValue("archive", false)).map(_.split(",").map(_.trim)(breakOut))
 
             val appletResources = archives.getOrElse(List(code)).iterator
-            val appletResourcesUrls = suffixedCodeBase() match {
+            val appletResourcesUrls = codeBase() match {
               case Some(cb) => appletResources.map(prependCodeBase(cb, _))
-              case None     => appletResources
+              case None => appletResources
             }
             rawResources ++= appletResourcesUrls.map(RegularRawResource)
 
           case "object" =>
             val data = tag.getAttributeValue("data", false)
-            val objectResourceUrl = suffixedCodeBase() match {
+            val objectResourceUrl = codeBase() match {
               case Some(cb) => prependCodeBase(cb, data)
-              case _        => data
+              case _ => data
             }
             rawResources += RegularRawResource(objectResourceUrl)
 
@@ -127,11 +122,17 @@ object HtmlParser extends StrictLogging {
       }
     }
 
-    lagartoParser.parse(visitor)
+    Jodd.newLagartoParser(htmlContent).parse(visitor)
+    HtmlResources(rawResources, baseURI)
+  }
 
-    val rootURI = baseURI.getOrElse(documentURI)
+  def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char]): List[EmbeddedResource] = {
 
-    rawResources
+    val htmlResources = parseHtml(htmlContent)
+
+    val rootURI = htmlResources.baseURI.getOrElse(documentURI)
+
+    htmlResources.rawResources
       .distinct
       .iterator
       .filterNot(res => res.rawUrl.isEmpty || res.rawUrl.charAt(0) == '#' || res.rawUrl.startsWith("data:"))
