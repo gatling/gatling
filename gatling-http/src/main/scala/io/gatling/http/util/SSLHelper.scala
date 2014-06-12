@@ -29,15 +29,8 @@ object SSLHelper {
     val storeFile = new File(filePath)
     if (storeFile.exists)
       new FileInputStream(storeFile)
-    else {
-      val classLoader = SSLHelper.getClass.getClassLoader
-      val stream = classLoader.getResourceAsStream(filePath)
-      if (stream == null) {
-        throw new FileNotFoundException(filePath)
-      }
-
-      stream
-    }
+    else
+      Option(getClass.getClassLoader.getResourceAsStream(filePath)).getOrElse(throw new FileNotFoundException(filePath))
   }
 
   def newTrustManagers(storeType: Option[String], file: String, password: String, algorithm: Option[String]): Array[TrustManager] = {
