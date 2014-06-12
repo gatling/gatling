@@ -33,6 +33,10 @@ object ELMessages {
   def undefinedSessionAttributeMessage(name: String) = s"No attribute named '$name' is defined"
   def undefinedMapKeyMessage(map: String, key: String) = s"Map named '$map' does not contain key '$key'"
   def incorrectTypeMessage(typeName: String) = s"Unexpected type '$typeName'"
+  def sizeNotSupportedMessage(value: Any, name: String) = s"${value} named '${name}' does not support .size function"
+  def accessByKeyNotSupportedMessage(value: Any, name: String) = s"${value} named '${name}' does not support access by key"
+  def randomNotSupportedMessage(value: Any, name: String) = s"${value} named '${name}' does not support .random function"
+  def indexAccessNotSupportedMessage(value: Any, name: String) = s"${value} named '${name}' does not support index access"
 }
 
 trait Part[+T] {
@@ -47,22 +51,29 @@ case class AttributePart(name: String) extends Part[Any] {
   def apply(session: Session): Validation[Any] = session(name).validate[Any]
 }
 
-case class SeqSizePart(seqPart: Part[Any]) extends Part[Int] {
+case class SizePart(seqPart: Part[Any], name: String) extends Part[Int] {
   def apply(session: Session): Validation[Int] = {
     seqPart(session) match {
-      case Success(s: Seq[_]) => s.size.success
-      case f: Failure         => f
+      case Success(t: Traversable[_])                    => t.size.success
+      case Success(jcollection: java.util.Collection[_]) => jcollection.size.success
+      case Success(jmap: java.util.Map[_, _])            => jmap.size.success
+      case Success(arr: Array[_])                        => arr.length.success
+      case Success(other)                                => ELMessages.sizeNotSupportedMessage(other, name).failure
+      case f: Failure                                    => f
     }
   }
 }
 
-case class SeqRandomPart(seq: Part[Any]) extends Part[Any] {
+case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
   def apply(session: Session): Validation[Any] = {
-      def randomItem(seq: Seq[_]) = seq(ThreadLocalRandom.current.nextInt(seq.size))
+      def random(size: Int) = ThreadLocalRandom.current.nextInt(size)
 
     seq(session) match {
-      case Success(s: Seq[_]) => randomItem(s).success
-      case f: Failure         => f
+      case Success(s: Seq[_])                => s(random(s.size)).success
+      case Success(jlist: java.util.List[_]) => jlist.get(random(jlist.size)).success
+      case Success(arr: Array[_])            => arr(random(arr.length)).success
+      case Success(other)                    => ELMessages.randomNotSupportedMessage(other, name).failure
+      case f: Failure                        => f
     }
   }
 }
@@ -71,14 +82,23 @@ case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extend
   def apply(session: Session): Validation[Any] = {
 
       def seqElementPart(index: Int): Validation[Any] = seq(session) match {
-        case Success(s: Seq[_]) => {
+        case Success(s: Seq[_]) =>
           s.lift(index) match {
             case Some(e) => e.success
             case None    => ELMessages.undefinedSeqIndexMessage(seqName, index).failure
           }
-        }
 
-        case f: Failure => f
+        case Success(arr: Array[_]) =>
+          if (index < arr.length) arr(index).success
+          else ELMessages.undefinedSeqIndexMessage(seqName, index).failure
+
+        case Success(jlist: java.util.List[_]) =>
+          if (index < jlist.size()) jlist.get(index).success
+          else ELMessages.undefinedSeqIndexMessage(seqName, index).failure
+
+        case Success(other) => ELMessages.indexAccessNotSupportedMessage(other, seqName).failure
+
+        case f: Failure     => f
       }
 
     index match {
@@ -96,7 +116,14 @@ case class MapKeyPart(map: Part[Any], mapName: String, key: String) extends Part
         case Some(value) => value.success
         case None        => ELMessages.undefinedMapKeyMessage(mapName, key).failure
       }
-      case f: Failure => f
+
+      case Success(jmap: java.util.Map[Any, Any]) =>
+        if (jmap.containsKey(key)) jmap.get(key).success
+        else ELMessages.undefinedMapKeyMessage(mapName, key).failure
+
+      case Success(other) => ELMessages.accessByKeyNotSupportedMessage(other, mapName).failure
+
+      case f: Failure     => f
     }
   }
 }
@@ -174,8 +201,8 @@ class ELCompiler(string: String) extends RegexParsers {
         (token match {
           case AccessIndex(pos, tokenName) => SeqElementPart(partName._1, partName._2, pos)
           case AccessKey(key, tokenName)   => MapKeyPart(partName._1, partName._2, key)
-          case AccessRandom()              => SeqRandomPart(partName._1)
-          case AccessSize()                => SeqSizePart(partName._1)
+          case AccessRandom()              => RandomPart(partName._1, partName._2)
+          case AccessSize()                => SizePart(partName._1, partName._2)
         }) -> (partName._2 + token.token))
       part._1
     }
