@@ -7,6 +7,6 @@ HTTP
 	http_protocol
 	http_request
 	http_check
-	http_misc
+	http_helpers
 	recorder
 	websocket

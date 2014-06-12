@@ -1,12 +1,12 @@
 :tocdepth: 2
 
-.. _http-misc:
+.. _http-helpers:
 
-#################
-HTTP Misc Helpers
-#################
+############
+HTTP Helpers
+############
 
-.. _http-misc-cookie:
+.. _http-helpers-cookie:
 
 Dealing with Cookies
 ====================
@@ -15,7 +15,7 @@ Cookie support is enabled by default and then Gatling handles Cookies transparen
 
 However, some use cases require a more fine grain control.
 
-.. _http-misc-cookie-add:
+.. _http-helpers-cookie-add:
 
 Adding a Cookie
 ---------------
@@ -32,7 +32,7 @@ Cookie can also take more optional parameters::
     .withExpires(expires: Long)
     .withMaxAge(maxAge: Int)
 
-.. _http-misc-cookie-flush-session:
+.. _http-helpers-cookie-flush-session:
 
 Flushing Session Cookies
 ------------------------
@@ -41,7 +41,7 @@ One might want to simulate closing a browser, so Session cookies are dropped but
 
   .exec(flushSessionCookies)
 
-.. _http-misc-cookie-flush-all:
+.. _http-helpers-cookie-flush-all:
 
 Flushing All Cookies
 --------------------
@@ -50,12 +50,12 @@ One might want to flush the whole CookieJar::
 
   .exec(flushCookieJar)
 
-.. _http-misc-cache:
+.. _http-helpers-cache:
 
 Dealing with Caching
 ====================
 
-.. _http-misc-cache-flush:
+.. _http-helpers-cache-flush:
 
 Flushing the Cache
 ------------------
