@@ -171,6 +171,57 @@ class ELSpec extends ValidationSpecification {
     }
   }
 
+  "multiple level access" should {
+    "return an element of a sub-list" in {
+      val lst = List(List(1, 2), List(3, 4))
+      val session = Session("scenario", "1", Map("lst" -> lst))
+      val expression = "${lst(0)(0)}".el[Int]
+      expression(session) must succeedWith(1)
+    }
+
+    "return key of a map in a list" in {
+      val lst = List(Map("key" -> "val"))
+      val session = Session("scenario", "1", Map("lst" -> lst))
+      val expression = "${lst(0).key}".el[String]
+      expression(session) must succeedWith("val")
+    }
+
+    "return an element of a list from a map" in {
+      val map = Map("lst" -> List(1, 2))
+      val session = Session("scenario", "1", Map("map" -> map))
+      val expression = "${map.lst(0)}".el[Int]
+      expression(session) must succeedWith(1)
+    }
+
+    "return a value from a sub-map" in {
+      val map = Map("subMap" -> Map("key" -> "val"))
+      val session = Session("scenario", "1", Map("map" -> map))
+      val expression = "${map.subMap.key}".el[String]
+      expression(session) must succeedWith("val")
+    }
+
+    "return a value from a sub-map" in {
+      val map = Map("subMap" -> Map("key" -> "val"))
+      val session = Session("scenario", "1", Map("map" -> map))
+      val expression = "${map.subMap.key}".el[String]
+      expression(session) must succeedWith("val")
+    }
+
+    "return a value from a random list" in {
+      val lst = List(List(1, 2), List(3, 4))
+      val session = Session("scenario", "1", Map("lst" -> lst))
+      val expression = "${lst.random(0)}".el[Int]
+      expression(session) must succeedWith(1) or succeedWith(3)
+    }
+
+    "return size of a sub-list" in {
+      val lst = List(List(1, 2), List(3, 4, 5))
+      val session = Session("scenario", "1", Map("lst" -> lst))
+      val expression = "${lst(1).size}".el[Int]
+      expression(session) must succeedWith(3)
+    }
+  }
+
   "Malformed Expression" should {
 
     "be handled correctly when an attribute name is missing" in {
