@@ -29,7 +29,6 @@ object ChartsFiles {
   val AllSessionsFile = "all_sessions.js"
   val StatsJsFile = "stats.js"
   val StatsJSONFile = "global_stats.json"
-  val StatsTSVFile = "stats.tsv"
   val GlobalPageName = "Global Information"
 
   def menuFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / MenuFile
@@ -43,6 +42,4 @@ object ChartsFiles {
   def jsStatsFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsFile
 
   def jsonStatsFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJSONFile
-
-  def tsvStatsFile(runOn: String): Path = resultDirectory(runOn) / StatsTSVFile
 }
