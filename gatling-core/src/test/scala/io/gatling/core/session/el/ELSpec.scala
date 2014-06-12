@@ -57,7 +57,7 @@ class ELSpec extends ValidationSpecification {
     "handle gracefully when an attribute is missing" in {
       val session = Session("scenario", "1", Map("foo" -> "FOO"))
       val expression = "foo${bar}".el[String]
-      expression(session) must failWith(ELMessages.undefinedSessionAttributeMessage("bar"))
+      expression(session) must failWith(ELMessages.undefinedSessionAttribute("bar"))
     }
   }
 
@@ -107,7 +107,7 @@ class ELSpec extends ValidationSpecification {
     "handle gracefully when index in an Array is out of range" in {
       val session = Session("scenario", "1", Map("arr" -> Array(1, 2)))
       val expression = "${arr(2)}".el[Int]
-      expression(session) must failWith(ELMessages.undefinedSeqIndexMessage("arr", 2))
+      expression(session) must failWith(ELMessages.undefinedSeqIndex("arr", 2))
     }
 
     "handle gracefully when index in an JList is out of range" in {
@@ -116,37 +116,37 @@ class ELSpec extends ValidationSpecification {
       lst.add(2)
       val session = Session("scenario", "1", Map("lst" -> lst))
       val expression = "${lst(2)}".el[Int]
-      expression(session) must failWith(ELMessages.undefinedSeqIndexMessage("lst", 2))
+      expression(session) must failWith(ELMessages.undefinedSeqIndex("lst", 2))
     }
 
     "handle gracefully when used with static index and missing attribute" in {
       val session = Session("scenario", "1", Map.empty)
       val expression = "foo${bar(1)}".el[String]
-      expression(session) must failWith(ELMessages.undefinedSessionAttributeMessage("bar"))
+      expression(session) must failWith(ELMessages.undefinedSessionAttribute("bar"))
     }
 
     "handle gracefully when used with static index and empty attribute" in {
       val session = Session("scenario", "1", Map("bar" -> Nil))
       val expression = "foo${bar(1)}".el[String]
-      expression(session) must failWith(ELMessages.undefinedSeqIndexMessage("bar", 1))
+      expression(session) must failWith(ELMessages.undefinedSeqIndex("bar", 1))
     }
 
     "handle gracefully when used with static index and missing index" in {
       val session = Session("scenario", "1", Map("bar" -> List("BAR1")))
       val expression = "foo${bar(1)}".el[String]
-      expression(session) must failWith(ELMessages.undefinedSeqIndexMessage("bar", 1))
+      expression(session) must failWith(ELMessages.undefinedSeqIndex("bar", 1))
     }
 
     "handle gracefully when used with missing resolved index attribute" in {
       val session = Session("scenario", "1", Map("bar" -> List("BAR1", "BAR2")))
       val expression = "{foo${bar(baz)}}".el[String]
-      expression(session) must failWith(ELMessages.undefinedSessionAttributeMessage("baz"))
+      expression(session) must failWith(ELMessages.undefinedSessionAttribute("baz"))
     }
 
     "handle gracefully value of unsupported type" in {
       val session = Session("scenario", "1", Map("i" -> 1))
       val expression = "${i(0)}".el[Int]
-      expression(session) must failWith(ELMessages.indexAccessNotSupportedMessage(1, "i"))
+      expression(session) must failWith(ELMessages.indexAccessNotSupported(1, "i"))
     }
   }
 
@@ -167,7 +167,7 @@ class ELSpec extends ValidationSpecification {
     "return 0 size for missing attribute" in {
       val session = Session("scenario", "1")
       val expression = "${bar.size}".el[Int]
-      expression(session) must failWith(ELMessages.undefinedSessionAttributeMessage("bar"))
+      expression(session) must failWith(ELMessages.undefinedSessionAttribute("bar"))
     }
 
     "return correct size for a non empty Array" in {
@@ -212,7 +212,7 @@ class ELSpec extends ValidationSpecification {
     "handle gracefully unsupported type" in {
       val session = Session("scenario", "1", Map("i" -> 10))
       val expression = "${i.size}".el[Int]
-      expression(session) must failWith(ELMessages.sizeNotSupportedMessage(10, "i"))
+      expression(session) must failWith(ELMessages.sizeNotSupported(10, "i"))
     }
   }
 
@@ -242,7 +242,7 @@ class ELSpec extends ValidationSpecification {
     "handle unsupported type" in {
       val session = Session("scenario", "1", Map("i" -> 10))
       val expression = "${i.random}".el[Int]
-      expression(session) must failWith(el.ELMessages.randomNotSupportedMessage(10, "i"))
+      expression(session) must failWith(el.ELMessages.randomNotSupported(10, "i"))
     }
   }
 
@@ -266,7 +266,7 @@ class ELSpec extends ValidationSpecification {
     "handle missing map correctly" in {
       val session = Session("scenario", "1")
       val expression = "${map.key1}".el[String]
-      expression(session) must failWith(ELMessages.undefinedSessionAttributeMessage("map"))
+      expression(session) must failWith(ELMessages.undefinedSessionAttribute("map"))
     }
 
     "handle nested map access" in {
@@ -280,7 +280,7 @@ class ELSpec extends ValidationSpecification {
       val map = Map("key" -> "val")
       val session = Session("scenario", "1", Map("map" -> map))
       val expression = "${map.nonexisting}".el[String]
-      expression(session) must failWith(ELMessages.undefinedMapKeyMessage("map", "nonexisting"))
+      expression(session) must failWith(ELMessages.undefinedMapKey("map", "nonexisting"))
     }
 
     "handle missing value in JMap correctly" in {
@@ -288,13 +288,13 @@ class ELSpec extends ValidationSpecification {
       map.put("key1", 1)
       val session = Session("scenario", "1", Map("map" -> map))
       val expression = "${map.nonexisting}".el[Int]
-      expression(session) must failWith(ELMessages.undefinedMapKeyMessage("map", "nonexisting"))
+      expression(session) must failWith(ELMessages.undefinedMapKey("map", "nonexisting"))
     }
 
     "handle wrong type correctly" in {
       val session = Session("scenario", "1", Map("i" -> 1))
       val expression = "${i.key}".el[Int]
-      expression(session) must failWith(ELMessages.accessByKeyNotSupportedMessage(1, "i"))
+      expression(session) must failWith(ELMessages.accessByKeyNotSupported(1, "i"))
     }
   }
 
@@ -353,6 +353,13 @@ class ELSpec extends ValidationSpecification {
       val session = Session("scenario", "1", Map("lst" -> lst))
       val expression = "${lst(1).size}".el[Int]
       expression(session) must succeedWith(3)
+    }
+
+    "name of a value is correct" in {
+      val lst = List(Map("key" -> "value"))
+      val session = Session("scenario", "1", Map("lst" -> lst))
+      val expression = "${lst(0).key.nonexisting}".el[Int]
+      expression(session) must failWith(ELMessages.accessByKeyNotSupported("value", "lst(0).key"))
     }
   }
 
