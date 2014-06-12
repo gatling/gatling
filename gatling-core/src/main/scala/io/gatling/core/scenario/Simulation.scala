@@ -36,8 +36,8 @@ abstract class Simulation {
   private[core] var _afterSteps: List[() => Unit] = Nil
 
   def scenarios: List[Scenario] = {
-    require(!_scenarios.isEmpty, "No scenario set up")
-    _scenarios.foreach(scn => require(!scn.scenarioBuilder.actionBuilders.isEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
+    require(_scenarios.nonEmpty, "No scenario set up")
+    _scenarios.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
     _scenarios.map(_.build(_globalProtocols))
   }
 
@@ -57,7 +57,7 @@ abstract class Simulation {
   def setUp(scenarios: PopulatedScenarioBuilder*): SetUp = setUp(scenarios.toList)
 
   def setUp(scenarios: List[PopulatedScenarioBuilder]): SetUp = {
-    if (!_scenarios.isEmpty)
+    if (_scenarios.nonEmpty)
       throw new UnsupportedOperationException("setUp can only be called once")
     _scenarios = scenarios
     new SetUp

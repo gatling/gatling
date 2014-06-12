@@ -85,7 +85,7 @@ class GeneralStatsBuffer(duration: Long, range: (Int, Int)) extends CountBuffer 
   lazy val stats: GeneralStats = {
     val valuesCount = digest.size.toInt
     if (valuesCount == 0) {
-      GeneralStats.NO_PLOT
+      GeneralStats.NoPlot
 
     } else {
       val mean = histogram.getMean.toInt

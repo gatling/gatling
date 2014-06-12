@@ -37,11 +37,11 @@ object Constant extends PauseType {
 
 object Exponential extends PauseType {
 
-  val generator = new ThreadLocal[ExponentialGenerator] {
+  val Generator = new ThreadLocal[ExponentialGenerator] {
     override def initialValue = new ExponentialGenerator(1.0, new UnsafeMersenneTwisterRNG)
   }
 
-  def generator(duration: Expression[Duration]) = duration.map(duration => math.round(generator.get.nextValue * duration.toMillis))
+  def generator(duration: Expression[Duration]) = duration.map(duration => math.round(Generator.get.nextValue * duration.toMillis))
 }
 
 case class Custom(custom: Expression[Long]) extends PauseType {

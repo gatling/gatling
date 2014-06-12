@@ -83,7 +83,7 @@ object SitemapParser {
   }
 
   private def text(node: Node): String = {
-    if (!node.child.isEmpty)
+    if (node.child.nonEmpty)
       node.child.head.toString
     else
       ""

@@ -417,7 +417,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
       else
         whiteListTable.validate ::: blackListTable.validate
 
-    if (!filterValidationFailures.isEmpty) {
+    if (filterValidationFailures.nonEmpty) {
       frontend.handleFilterValidationFailures(filterValidationFailures)
 
     } else {

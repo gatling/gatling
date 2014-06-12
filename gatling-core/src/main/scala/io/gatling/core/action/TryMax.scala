@@ -25,7 +25,7 @@ class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
 
   var innerTryMax: ActorRef = _
 
-  val initialized: Receive = Interruptable.interrupt orElse { case m => innerTryMax forward m }
+  val initialized: Receive = Interruptable.TheInterrupt orElse { case m => innerTryMax forward m }
 
   val uninitialized: Receive = {
     case loopNext: ActorRef =>

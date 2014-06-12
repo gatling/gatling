@@ -18,31 +18,31 @@ package io.gatling.charts.config
 import scala.tools.nsc.io.Path
 import scala.tools.nsc.io.Path.string2path
 
-import io.gatling.core.config.GatlingFiles.{ GATLING_JS, resultDirectory }
+import io.gatling.core.config.GatlingFiles._
 import io.gatling.charts.FileNamingConventions
 
 object ChartsFiles {
-  val JQUERY_FILE = "jquery.min.js"
-  val BOOTSTRAP_FILE = "bootstrap.min.js"
-  val GATLING_JS_FILE = "gatling.js"
-  val MENU_FILE = "menu.js"
-  val ALL_SESSIONS_FILE = "all_sessions.js"
-  val STATS_JS_FILE = "stats.js"
-  val STATS_JSON_FILE = "global_stats.json"
-  val STATS_TSV_FILE = "stats.tsv"
-  val GLOBAL_PAGE_NAME = "Global Information"
+  val JQueryFile = "jquery.min.js"
+  val BootstrapFile = "bootstrap.min.js"
+  val GatlingJsFile = "gatling.js"
+  val MenuFile = "menu.js"
+  val AllSessionsFile = "all_sessions.js"
+  val StatsJsFile = "stats.js"
+  val StatsJSONFile = "global_stats.json"
+  val StatsTSVFile = "stats.tsv"
+  val GlobalPageName = "Global Information"
 
-  def menuFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / MENU_FILE
+  def menuFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / MenuFile
 
-  def allSessionsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / ALL_SESSIONS_FILE
+  def allSessionsFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / AllSessionsFile
 
   def globalFile(runOn: String): Path = resultDirectory(runOn) / "index.html"
 
   def requestFile(runOn: String, requestName: String): Path = resultDirectory(runOn) / requestName.toRequestFileName
 
-  def jsStatsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / STATS_JS_FILE
+  def jsStatsFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsFile
 
-  def jsonStatsFile(runOn: String): Path = resultDirectory(runOn) / GATLING_JS / STATS_JSON_FILE
+  def jsonStatsFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJSONFile
 
-  def tsvStatsFile(runOn: String): Path = resultDirectory(runOn) / STATS_TSV_FILE
+  def tsvStatsFile(runOn: String): Path = resultDirectory(runOn) / StatsTSVFile
 }

@@ -69,7 +69,7 @@ object RequestTemplate {
           EmptyFastring
 
       def renderResources: Fastring =
-        if (!request.nonEmbeddedResources.isEmpty)
+        if (request.nonEmbeddedResources.nonEmpty)
           fast"""
 			.resources(${
             request.nonEmbeddedResources.zipWithIndex.map { case (resource, i) => renderRequest(simulationClass, resource, extractedUri) }.mkString(

@@ -37,7 +37,7 @@ case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: Inject
 
     injectionProfile.allUsers.zipWithIndex.foreach {
       case (startingTime, index) =>
-        if (startingTime == zeroMs)
+        if (startingTime == ZeroMs)
           startUser(index)
         else
           // Reduce the starting time to the millisecond precision to avoid flooding the scheduler

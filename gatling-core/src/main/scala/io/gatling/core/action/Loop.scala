@@ -31,7 +31,7 @@ class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP
 
   var innerLoop: ActorRef = _
 
-  val initialized: Receive = Interruptable.interrupt orElse { case m => innerLoop forward m }
+  val initialized: Receive = Interruptable.TheInterrupt orElse { case m => innerLoop forward m }
 
   val uninitialized: Receive = {
     case loopNext: ActorRef =>

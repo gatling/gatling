@@ -145,7 +145,7 @@ object Interruptable extends DataWriterClient {
    * This logic is not directly in Interruptable trait as Interruptable behavior can me mixed in dynamically.
    * For example, loops and trymax blocks become interruptable once they've become initialized with the loop content.
    */
-  val interrupt: Receive = {
+  val TheInterrupt: Receive = {
     case Interrupt.InterruptOnExitASAPLoop(interruption) => doInterrupt(interruption)
     case Interrupt.InterruptOnTryMax(interruption)       => doInterrupt(interruption)
   }
@@ -156,7 +156,7 @@ object Interruptable extends DataWriterClient {
  */
 trait Interruptable extends Chainable {
 
-  val interrupt = Interruptable.interrupt orElse super.receive
+  val interrupt = Interruptable.TheInterrupt orElse super.receive
 
   abstract override def receive = interrupt
 }

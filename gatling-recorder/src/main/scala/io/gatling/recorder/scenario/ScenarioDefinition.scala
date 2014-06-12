@@ -23,7 +23,7 @@ object ScenarioDefinition extends StrictLogging {
 
     // Remove the redirection and keep the last status code
     groupedRequests.map {
-      case TimedScenarioElement(firstSendTime, _, firstReq) :: redirectedReqs if !redirectedReqs.isEmpty =>
+      case TimedScenarioElement(firstSendTime, _, firstReq) :: redirectedReqs if redirectedReqs.nonEmpty =>
         val TimedScenarioElement(_, lastArrivalTime, lastReq) = redirectedReqs.last
         List(TimedScenarioElement(firstSendTime, lastArrivalTime, firstReq.copy(statusCode = lastReq.statusCode, embeddedResources = lastReq.embeddedResources)))
 
@@ -41,7 +41,7 @@ object ScenarioDefinition extends StrictLogging {
         if (request.sendTime - previousArrivalTime < ConsecutiveResourcesMaxIntervalInMillis) {
           currentAcc = currentAcc ::: List(request)
         } else {
-          if (!currentAcc.isEmpty)
+          if (currentAcc.nonEmpty)
             globalAcc = globalAcc ::: List(currentAcc)
           currentAcc = List(request)
         }

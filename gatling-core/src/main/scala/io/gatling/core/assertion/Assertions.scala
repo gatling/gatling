@@ -35,8 +35,8 @@ class Selector(stats: (DataReader, Option[Status]) => Validation[GeneralStats], 
 }
 
 object ResponseTime {
-  val percentile1 = configuration.charting.indicators.percentile1.toRank
-  val percentile2 = configuration.charting.indicators.percentile2.toRank
+  val Percentile1 = configuration.charting.indicators.percentile1.toRank
+  val Percentile2 = configuration.charting.indicators.percentile2.toRank
 }
 
 class ResponseTime(responseTime: DataReader => Validation[GeneralStats], name: String) {
@@ -48,9 +48,9 @@ class ResponseTime(responseTime: DataReader => Validation[GeneralStats], name: S
 
   def stdDev = Metric(reader => responseTime(reader).map(_.stdDev), s"$name: standard deviation response time")
 
-  def percentile1 = Metric(reader => responseTime(reader).map(_.percentile1), s"$name: ${ResponseTime.percentile1} percentile response time")
+  def percentile1 = Metric(reader => responseTime(reader).map(_.percentile1), s"$name: ${ResponseTime.Percentile1} percentile response time")
 
-  def percentile2 = Metric(reader => responseTime(reader).map(_.percentile2), s"$name: ${ResponseTime.percentile2} percentile response time")
+  def percentile2 = Metric(reader => responseTime(reader).map(_.percentile2), s"$name: ${ResponseTime.Percentile2} percentile response time")
 }
 
 class Requests(requests: (DataReader, Option[Status]) => Validation[GeneralStats], status: Option[Status], name: String) {

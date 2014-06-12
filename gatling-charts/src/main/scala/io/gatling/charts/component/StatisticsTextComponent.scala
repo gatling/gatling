@@ -17,16 +17,16 @@ package io.gatling.charts.component
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-import io.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME
+import io.gatling.charts.config.ChartsFiles.GlobalPageName
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.reader.DataReader.NO_PLOT_MAGIC_VALUE
+import io.gatling.core.result.reader.DataReader.NoPlotMagicValue
 import io.gatling.core.util.NumberHelper._
 import io.gatling.core.util.StringHelper.EmptyFastring
 
 object Statistics {
   def printable[T: Numeric](value: T) =
     value match {
-      case NO_PLOT_MAGIC_VALUE  => "-"
+      case NoPlotMagicValue     => "-"
       case (_: Int) | (_: Long) => value.toString
       case _                    => implicitly[Numeric[T]].toDouble(value).toPrintableString
     }
@@ -51,7 +51,7 @@ case class RequestStatistics(name: String,
                              meanNumberOfRequestsPerSecondStatistics: Statistics[Double]) {
 
   def mkFastring = {
-    val outputName = List(if (name == GLOBAL_PAGE_NAME) name else path)
+    val outputName = List(if (name == GlobalPageName) name else path)
     List(
       outputName,
       numberOfRequestsStatistics.all,

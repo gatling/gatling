@@ -30,8 +30,8 @@ trait WsJsonPathOfType {
 object WsJsonPathCheckBuilder {
 
   val WsJsonPathPreparer: Preparer[String, Any] = TheStringImplementation match {
-    case DirectCharsBasedStringImplementation => handleParseException(BoonParser.parse)
-    case _                                    => handleParseException(JacksonParser.parse)
+    case DirectCharsBasedStringImplementation => handleParseException(Boon.parse)
+    case _                                    => handleParseException(Jackson.parse)
   }
 
   def jsonPath(path: Expression[String], checkFactory: CheckFactory[WsCheck, String]) =

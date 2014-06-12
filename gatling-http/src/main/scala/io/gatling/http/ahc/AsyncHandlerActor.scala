@@ -175,7 +175,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
     } else {
       val explicitResources =
-        if (!tx.explicitResources.isEmpty)
+        if (tx.explicitResources.nonEmpty)
           HttpRequest.buildNamedRequests(tx.explicitResources, update(tx.session))
         else
           Nil

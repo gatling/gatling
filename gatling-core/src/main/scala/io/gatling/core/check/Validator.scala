@@ -15,10 +15,10 @@
  */
 package io.gatling.core.check
 
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, noneSuccess }
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, NoneSuccess }
 
 object Validator {
-  val foundNothingFailure = "found nothing".failure
+  val FoundNothingFailure = "found nothing".failure
 }
 
 trait Validator[A] {
@@ -45,7 +45,7 @@ class IsMatcher[E](val expected: E) extends Matcher[E, E] {
         actual.success
       else
         s"found $actualValue".failure
-    case None => Validator.foundNothingFailure
+    case None => Validator.FoundNothingFailure
   }
 }
 
@@ -59,7 +59,7 @@ class NotMatcher[E](val expected: E) extends Matcher[E, E] {
         actual.success
       else
         s"unexpectedly found $actualValue".failure
-    case None => noneSuccess
+    case None => NoneSuccess
   }
 }
 
@@ -73,7 +73,7 @@ class InMatcher[E](val expected: Seq[E]) extends Matcher[E, Seq[E]] {
         actual.success
       else
         s"found $actualValue".failure
-    case None => Validator.foundNothingFailure
+    case None => Validator.FoundNothingFailure
   }
 }
 
@@ -96,7 +96,7 @@ class ExistsValidator[A] extends Validator[A] {
   val name = "exists"
   def apply(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) => actual.success
-    case None              => Validator.foundNothingFailure
+    case None              => Validator.FoundNothingFailure
   }
 }
 
@@ -104,7 +104,7 @@ class NotExistsValidator[A] extends Validator[A] {
   val name = "notExists"
   def apply(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) => s"unexpectedly found $actualValue".failure
-    case None              => noneSuccess
+    case None              => NoneSuccess
   }
 }
 

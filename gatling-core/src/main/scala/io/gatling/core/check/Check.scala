@@ -24,7 +24,7 @@ import io.gatling.core.validation.{ Failure, Success, SuccessWrapper, Validation
 
 object Check {
 
-  val noopUpdateSuccess = Session.Identity.success
+  val NoopUpdateSuccess = Session.Identity.success
 
   def check[R](response: R, session: Session, checks: List[Check[R]]): Validation[Session => Session] = {
 
@@ -41,7 +41,7 @@ object Check {
         }
       }
 
-    checkRec(checks, noopUpdateSuccess)
+    checkRec(checks, NoopUpdateSuccess)
   }
 }
 

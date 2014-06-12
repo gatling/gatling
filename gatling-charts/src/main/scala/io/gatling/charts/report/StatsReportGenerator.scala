@@ -18,7 +18,7 @@ package io.gatling.charts.report
 import scala.collection.breakOut
 
 import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Statistics }
-import io.gatling.charts.config.ChartsFiles.{ GLOBAL_PAGE_NAME, jsStatsFile, jsonStatsFile }
+import io.gatling.charts.config.ChartsFiles._
 import io.gatling.charts.result.reader.RequestPath
 import io.gatling.charts.template.{ ConsoleTemplate, StatsJsTemplate, StatsJsonTemplate }
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -84,7 +84,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
         RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
       }
 
-    val rootContainer = GroupContainer.root(computeRequestStats(GLOBAL_PAGE_NAME, None, None))
+    val rootContainer = GroupContainer.root(computeRequestStats(GlobalPageName, None, None))
 
     val statsPaths = dataReader.statsPaths
 
@@ -97,7 +97,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
           seenGroups += hierarchy
 
           hierarchy match {
-            case head :: tail if !tail.isEmpty => addGroupsRec(tail)
+            case head :: tail if tail.nonEmpty => addGroupsRec(tail)
             case _                             =>
           }
 

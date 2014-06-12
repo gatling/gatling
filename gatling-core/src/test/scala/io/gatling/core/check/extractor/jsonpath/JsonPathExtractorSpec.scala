@@ -31,7 +31,7 @@ class JsonPathExtractorSpec extends ValidationSpecification {
 
   def prepared(file: String): Object = withCloseable(getClass.getResourceAsStream(file)) { is =>
     val string = is.toString(StandardCharsets.UTF_8)
-    BoonParser.parse(string)
+    Boon.parse(string)
   }
 
   "count" should {
@@ -106,7 +106,7 @@ class JsonPathExtractorSpec extends ValidationSpecification {
   "email":"bobby.tables@example.com"
 }"""
 
-      new SingleJsonPathExtractor[String]("$.email", 0).apply(BoonParser.parse(string)) must succeedWith(Some("bobby.tables@example.com"))
+      new SingleJsonPathExtractor[String]("$.email", 0).apply(Boon.parse(string)) must succeedWith(Some("bobby.tables@example.com"))
     }
   }
 

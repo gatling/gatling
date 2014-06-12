@@ -26,7 +26,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.{ StandardCharsets, UnsyncByteArrayInputStream }
 
-object JacksonParser extends JsonParser {
+object Jackson extends JsonParser {
 
   val JsonSupportedEncodings = Vector(StandardCharsets.UTF_8, StandardCharsets.UTF_16, StandardCharsets.UTF_32)
 

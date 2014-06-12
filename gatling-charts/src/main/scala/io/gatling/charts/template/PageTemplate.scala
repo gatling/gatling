@@ -24,7 +24,7 @@ import io.gatling.core.util.HtmlHelper.HtmlRichString
 import io.gatling.core.util.StringHelper.{ RichString, Eol }
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.Component
-import io.gatling.charts.config.ChartsFiles.{ ALL_SESSIONS_FILE, BOOTSTRAP_FILE, GATLING_JS_FILE, JQUERY_FILE, MENU_FILE, STATS_JS_FILE }
+import io.gatling.charts.config.ChartsFiles._
 
 object PageTemplate {
 
@@ -41,7 +41,7 @@ object PageTemplate {
 
 abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Option[String], group: Option[Group], components: Component*) {
 
-  def jsFiles: Seq[String] = (Seq(JQUERY_FILE, BOOTSTRAP_FILE, GATLING_JS_FILE, MENU_FILE, ALL_SESSIONS_FILE, STATS_JS_FILE) ++ components.flatMap(_.jsFiles)).distinct
+  def jsFiles: Seq[String] = (Seq(JQueryFile, BootstrapFile, GatlingJsFile, MenuFile, AllSessionsFile, StatsJsFile) ++ components.flatMap(_.jsFiles)).distinct
 
   def getOutput: Fastring = {
     val runMessage = PageTemplate.runMessage

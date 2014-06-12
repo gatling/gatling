@@ -21,7 +21,7 @@ import io.gatling.core.result.message.Status
 import io.gatling.core.result.writer.RunMessage
 
 object DataReader {
-  val NO_PLOT_MAGIC_VALUE = -1
+  val NoPlotMagicValue = -1
 
   def newInstance(runOn: String) = Class.forName(configuration.data.dataReaderClass).asInstanceOf[Class[DataReader]].getConstructor(classOf[String]).newInstance(runOn)
 }

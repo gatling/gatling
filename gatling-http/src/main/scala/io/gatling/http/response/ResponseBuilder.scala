@@ -50,7 +50,7 @@ object ResponseBuilder extends StrictLogging {
 
     val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy).toSet
 
-    val storeBodyParts = IsDebugEnabled || !protocol.responsePart.discardResponseChunks || !responseBodyUsageStrategies.isEmpty
+    val storeBodyParts = IsDebugEnabled || !protocol.responsePart.discardResponseChunks || responseBodyUsageStrategies.nonEmpty
 
     request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, protocol.responsePart.inferHtmlResources)
   }
@@ -58,7 +58,7 @@ object ResponseBuilder extends StrictLogging {
 
 class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bodyUsageStrategies: Set[ResponseBodyUsageStrategy], responseProcessor: Option[ResponseTransformer], storeBodyParts: Boolean, inferHtmlResources: Boolean) {
 
-  val computeChecksums = !checksumChecks.isEmpty
+  val computeChecksums = checksumChecks.nonEmpty
   var storeHtmlOrCss = false
   var firstByteSent = nowMillis
   var lastByteSent = 0L

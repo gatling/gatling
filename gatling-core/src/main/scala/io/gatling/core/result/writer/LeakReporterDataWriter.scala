@@ -30,7 +30,7 @@ class LeakReporterDataWriter extends DataWriter {
   def display() {
     val timeSinceLastTouch = (currentTimeMillis - lastTouch) / 1000
 
-    if (timeSinceLastTouch > 30 && !events.isEmpty) {
+    if (timeSinceLastTouch > 30 && events.nonEmpty) {
       System.err.println("Gatling had no activity during last 30s. It could be a virtual user leak, here's their last events:")
       events.values.foreach(System.err.println)
     }

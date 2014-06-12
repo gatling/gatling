@@ -21,14 +21,14 @@ import scala.concurrent.duration._
 
 object TimeHelper {
 
-  val zeroMs = 0 millisecond
+  val ZeroMs = 0 millisecond
 
-  val currentTimeMillisReference = currentTimeMillis
-  val nanoTimeReference = nanoTime
+  val CurrentTimeMillisReference = currentTimeMillis
+  val NanoTimeReference = nanoTime
 
-  def secondsSinceReference = (nanoTime - nanoTimeReference) / 1000000000
+  def secondsSinceReference = (nanoTime - NanoTimeReference) / 1000000000
 
-  def computeTimeMillisFromNanos(nanos: Long) = (nanos - nanoTimeReference) / 1000000 + currentTimeMillisReference
+  def computeTimeMillisFromNanos(nanos: Long) = (nanos - NanoTimeReference) / 1000000 + CurrentTimeMillisReference
   def nowMillis = computeTimeMillisFromNanos(nanoTime)
   def nowSeconds = computeTimeMillisFromNanos(nanoTime) / 1000
 

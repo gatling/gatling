@@ -30,7 +30,5 @@ object GatlingActorSystem {
     case None    => throw new UnsupportedOperationException("Gatling Actor system hasn't been started")
   }
 
-  def shutdown() {
-    instanceOpt.foreach(_.shutdown())
-  }
+  def shutdown(): Unit = instanceOpt.foreach(_.shutdown())
 }

@@ -25,12 +25,11 @@ final class UnsyncStringWriter(initialSize: Int = 16) extends Writer {
   override def write(c: Int): Unit = buf.append(c.asInstanceOf[Char])
 
   def write(cbuf: Array[Char], off: Int, len: Int): Unit =
-    if ((off < 0) || (off > cbuf.length) || (len < 0) || ((off + len) > cbuf.length) || ((off + len) < 0)) {
+    if ((off < 0) || (off > cbuf.length) || (len < 0) || ((off + len) > cbuf.length) || ((off + len) < 0))
       throw new IndexOutOfBoundsException
 
-    } else if (len > 0) {
+    else if (len > 0)
       buf.append(cbuf, off, len)
-    }
 
   override def write(str: String): Unit = buf.append(str)
 

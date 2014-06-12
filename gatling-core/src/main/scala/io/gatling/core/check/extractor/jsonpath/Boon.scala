@@ -20,7 +20,7 @@ import java.nio.charset.Charset
 
 import org.boon.json.implementation.{ JsonFastParser, JsonParserUsingCharacterSource }
 
-object BoonParser extends JsonParser {
+object Boon extends JsonParser {
 
   def parse(bytes: Array[Byte], charset: Charset) = {
     val parser = new JsonFastParser(false, false, true, false)

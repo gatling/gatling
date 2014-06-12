@@ -235,7 +235,7 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
     lazy val dataReader = DataReader.newInstance(outputDirectoryName)
 
     val result = simulation match {
-      case Some(s) if !s.assertions.isEmpty => applyAssertions(s, dataReader)
+      case Some(s) if s.assertions.nonEmpty => applyAssertions(s, dataReader)
       case _                                => GatlingStatusCodes.Success
     }
 

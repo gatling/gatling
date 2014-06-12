@@ -23,8 +23,7 @@ case class Filters(first: Filter, second: Filter) {
   def accept(url: String) = first.accept(url) && second.accept(url)
 }
 
-sealed abstract class Filter extends StrictLogging {
-  def patterns: Seq[String]
+sealed abstract class Filter(patterns: Seq[String]) extends StrictLogging {
   val regexes = patterns.flatMap { p =>
     Try(p.r) match {
       case Success(regex) => Some(regex)
@@ -36,10 +35,10 @@ sealed abstract class Filter extends StrictLogging {
   def accept(url: String): Boolean
 }
 
-case class WhiteList(patterns: Seq[String] = Nil) extends Filter {
+case class WhiteList(patterns: Seq[String] = Nil) extends Filter(patterns) {
   def accept(url: String): Boolean = regexes.isEmpty || regexes.exists(_.pattern.matcher(url).matches)
 }
 
-case class BlackList(patterns: Seq[String] = Nil) extends Filter {
+case class BlackList(patterns: Seq[String] = Nil) extends Filter(patterns) {
   def accept(url: String): Boolean = regexes.forall(!_.pattern.matcher(url).matches)
 }

@@ -66,7 +66,7 @@ object HarReader {
 
     // NetExport doesn't copy post params to text field
     val body = entry.request.postData.flatMap { postData =>
-      if (!postData.params.isEmpty)
+      if (postData.params.nonEmpty)
         Some(buildContent(postData.params))
       else
         // HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden

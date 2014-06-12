@@ -18,6 +18,7 @@ package io.gatling.core.controller
 import java.util.UUID.randomUUID
 
 import scala.collection.mutable
+import scala.concurrent.Future
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.util.{ Failure => SFailure, Success => SSuccess }
 
@@ -34,7 +35,7 @@ import io.gatling.core.controller.throttle.{ Throttler, ThrottlingProtocol }
 import io.gatling.core.result.message.{ End, Start }
 import io.gatling.core.result.writer.{ DataWriter, RunMessage, UserMessage }
 import io.gatling.core.scenario.Scenario
-import io.gatling.core.util.TimeHelper.{ nanoTimeReference, nowMillis }
+import io.gatling.core.util.TimeHelper.{ NanoTimeReference, nowMillis }
 
 case class Timings(maxDuration: Option[FiniteDuration], globalThrottling: Option[ThrottlingProtocol], perScenarioThrottlings: Map[String, ThrottlingProtocol])
 
@@ -42,20 +43,19 @@ object Controller extends AkkaDefaults with StrictLogging {
 
   private var _instance: Option[ActorRef] = None
 
-  def start() {
+  def start(): Unit = {
     _instance = Some(actor(new Controller))
     system.registerOnTermination(_instance = None)
     UserEnd.start()
   }
 
-  def !(message: Any) {
+  def !(message: Any): Unit =
     _instance match {
       case Some(c) => c ! message
       case None    => logger.error("Controller hasn't been started")
     }
-  }
 
-  def ?(message: Any)(implicit timeout: Timeout) = _instance match {
+  def ?(message: Any)(implicit timeout: Timeout): Future[Any] = _instance match {
     case Some(c) => c.ask(message)(timeout)
     case None    => throw new UnsupportedOperationException("Controller has not been started")
   }
@@ -76,7 +76,7 @@ class Controller extends BaseActor {
 
     case Run(simulation, simulationId, description, runTimings) =>
       // important, initialize time reference
-      val timeRef = nanoTimeReference
+      val timeRef = NanoTimeReference
       launcher = sender
       timings = runTimings
       scenarios = simulation.scenarios
@@ -120,7 +120,7 @@ class Controller extends BaseActor {
           }
         }
 
-        val newState = if (timings.globalThrottling.isDefined || !timings.perScenarioThrottlings.isEmpty) {
+        val newState = if (timings.globalThrottling.isDefined || timings.perScenarioThrottlings.nonEmpty) {
           logger.debug("Setting up throttling")
           throttler = new Throttler(timings.globalThrottling, timings.perScenarioThrottlings)
           scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)

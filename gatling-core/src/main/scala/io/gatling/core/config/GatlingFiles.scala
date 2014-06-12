@@ -23,16 +23,16 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 
 object GatlingFiles {
 
-  val GATLING_HOME = envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", "."))
-  val GATLING_ASSETS_PACKAGE = "assets"
-  val GATLING_JS = "js"
-  val GATLING_STYLE = "style"
-  val GATLING_ASSETS_JS_PACKAGE = GATLING_ASSETS_PACKAGE / GATLING_JS
-  val GATLING_ASSETS_STYLE_PACKAGE = GATLING_ASSETS_PACKAGE / GATLING_STYLE
+  val GatlingHome = envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", "."))
+  val GatlingAssetsPackage = "assets"
+  val GatlingJsFolder = "js"
+  val GatlingStyleFolder = "style"
+  val GatlingAssetsJsPackage = GatlingAssetsPackage / GatlingJsFolder
+  val GatlingAssetsStylePackage = GatlingAssetsPackage / GatlingStyleFolder
 
   private def resolvePath(path: String): Path = {
     val rawPath = Path(path)
-    if (rawPath.isAbsolute || rawPath.exists) path else GATLING_HOME / path
+    if (rawPath.isAbsolute || rawPath.exists) path else GatlingHome / path
   }
 
   def dataDirectory: Path = resolvePath(configuration.core.directory.data)
@@ -41,8 +41,8 @@ object GatlingFiles {
   def reportsOnlyDirectory: Option[String] = configuration.core.directory.reportsOnly
   def binariesDirectory: Option[Directory] = configuration.core.directory.binaries.map(_.toDirectory)
   def resultDirectory(runUuid: String): Path = resolvePath(configuration.core.directory.results) / runUuid
-  def jsDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_JS
-  def styleDirectory(runUuid: String): Path = resultDirectory(runUuid) / GATLING_STYLE
+  def jsDirectory(runUuid: String): Path = resultDirectory(runUuid) / GatlingJsFolder
+  def styleDirectory(runUuid: String): Path = resultDirectory(runUuid) / GatlingStyleFolder
 
   def simulationLogDirectory(runUuid: String, create: Boolean = true): Directory = {
     val dir = resultDirectory(runUuid)

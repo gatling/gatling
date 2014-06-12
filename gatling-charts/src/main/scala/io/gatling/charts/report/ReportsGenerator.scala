@@ -20,7 +20,7 @@ import scala.tools.nsc.io.Path
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
 import io.gatling.charts.template.{ MenuTemplate, PageTemplate }
-import io.gatling.core.config.GatlingFiles.{ GATLING_ASSETS_JS_PACKAGE, GATLING_ASSETS_STYLE_PACKAGE, jsDirectory, styleDirectory }
+import io.gatling.core.config.GatlingFiles._
 import io.gatling.core.result.RequestStatsPath
 import io.gatling.core.result.reader.DataReader
 import io.gatling.core.util.ScanHelper.deepCopyPackageContent
@@ -34,8 +34,8 @@ object ReportsGenerator {
       def generateStats() { new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance).generate() }
 
       def copyAssets() {
-        deepCopyPackageContent(GATLING_ASSETS_STYLE_PACKAGE, styleDirectory(outputDirectoryName))
-        deepCopyPackageContent(GATLING_ASSETS_JS_PACKAGE, jsDirectory(outputDirectoryName))
+        deepCopyPackageContent(GatlingAssetsStylePackage, styleDirectory(outputDirectoryName))
+        deepCopyPackageContent(GatlingAssetsJsPackage, jsDirectory(outputDirectoryName))
       }
 
     if (!dataReader.statsPaths.collectFirst { case r @ RequestStatsPath(_, _) => r }.isDefined) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")

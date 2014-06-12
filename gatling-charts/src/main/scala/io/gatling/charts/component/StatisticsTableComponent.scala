@@ -17,7 +17,7 @@ package io.gatling.charts.component
 
 import com.dongxiguo.fastring.Fastring.Implicits.{ FastringContext, MkFastring }
 
-import io.gatling.charts.config.ChartsFiles.GLOBAL_PAGE_NAME
+import io.gatling.charts.config.ChartsFiles.GlobalPageName
 import io.gatling.charts.report.Container.{ GROUP, REQUEST }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.NumberHelper._
@@ -25,9 +25,9 @@ import io.gatling.core.util.StringHelper._
 
 class StatisticsTableComponent extends Component {
 
-  private val MAX_REQUEST_NAME_SIZE = 20
-  private val NUMBER_OF_CHARS_BEFORE_DOTS = 8
-  private val NUMBER_OF_CHARS_AFTER_DOTS = 8
+  private val MaxRequestNameSize = 20
+  private val NumberOfCharsBeforeDots = 8
+  private val NumberOfCharsAfterDots = 8
 
   val html = {
 
@@ -74,14 +74,14 @@ class StatisticsTableComponent extends Component {
   val js = fast"""
 
   function shortenNameAndDisplayFullOnHover(name){
-   if (name.length < $MAX_REQUEST_NAME_SIZE)
+   if (name.length < $MaxRequestNameSize)
        return name;
    else
-     return "<span class='tooltipContent'>"+name+"</span>" + name.substr(0,$NUMBER_OF_CHARS_BEFORE_DOTS)+"..."+name.substr(name.length-$NUMBER_OF_CHARS_AFTER_DOTS,name.length);
+     return "<span class='tooltipContent'>"+name+"</span>" + name.substr(0,$NumberOfCharsBeforeDots)+"..."+name.substr(name.length-$NumberOfCharsAfterDots,name.length);
   }
 
 function generateHtmlRow(request, level, index, parent, group) {
-    if (request.name == '$GLOBAL_PAGE_NAME')
+    if (request.name == '$GlobalPageName')
         var url = 'index.html';
     else
         var url ='req_' + request.pathFormatted + '.html';

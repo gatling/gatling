@@ -50,7 +50,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     .toList
 
   logger.info(s"Collected $inputFiles from $runUuid")
-  require(!inputFiles.isEmpty, "simulation directory doesn't contain any log file.")
+  require(inputFiles.nonEmpty, "simulation directory doesn't contain any log file.")
 
   private def doWithInputFiles[T](f: Iterator[String] => T): T = {
 

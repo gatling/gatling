@@ -21,14 +21,14 @@ import scala.tools.nsc.io.Path.string2path
 import scala.util.Properties.{ javaClassPath, jdkHome, isWin }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.config.GatlingFiles.{ binariesDirectory, GATLING_HOME }
+import io.gatling.core.config.GatlingFiles.{ binariesDirectory, GatlingHome }
 import io.gatling.core.util.StringHelper.RichString
 
 object ZincCompilerLauncher {
 
   def apply(sourceDirectory: Directory): Directory = {
 
-    val binDirectory = binariesDirectory.getOrElse(GATLING_HOME / "target")
+    val binDirectory = binariesDirectory.getOrElse(GatlingHome / "target")
     val javaHome = jdkHome.trimToOption.getOrElse(throw new IllegalStateException("Couldn't locate java, try setting JAVA_HOME environment variable."))
     val javaExe = javaHome / "bin" / (if (isWin) "java.exe" else "java")
     val classesDirectory = Directory(binDirectory / "classes")
@@ -37,7 +37,7 @@ object ZincCompilerLauncher {
     val classPath = Seq("-cp", javaClassPath)
     val jvmArgs = configuration.core.zinc.jvmArgs.toSeq
     val clazz = Seq("io.gatling.app.ZincCompiler")
-    val args = Seq(GATLING_HOME, sourceDirectory, binDirectory, classesDirectory, configuration.core.encoding).map(_.toString)
+    val args = Seq(GatlingHome, sourceDirectory, binDirectory, classesDirectory, configuration.core.encoding).map(_.toString)
 
     val process = Process(javaExe.toString(), Seq(classPath, jvmArgs, clazz, args).flatten)
 

@@ -18,7 +18,7 @@ package io.gatling.http.check.body
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
-import io.gatling.core.check.extractor.jsonpath.{ BoonParser, CountJsonPathExtractor, JacksonParser, JsonFilter, MultipleJsonPathExtractor, SingleJsonPathExtractor }
+import io.gatling.core.check.extractor.jsonpath.{ Boon, CountJsonPathExtractor, Jackson, JsonFilter, MultipleJsonPathExtractor, SingleJsonPathExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.core.util.StringHelper.{ DirectCharsBasedStringImplementation, TheStringImplementation }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
@@ -50,14 +50,14 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
     case DirectCharsBasedStringImplementation =>
       handleParseException { response =>
         if (response.bodyLength <= CharsParsingThreshold)
-          BoonParser.parse(response.body.string)
+          Boon.parse(response.body.string)
         else
-          JacksonParser.parse(response.body.stream, response.charset)
+          Jackson.parse(response.body.stream, response.charset)
       }
 
     case _ =>
       handleParseException { response =>
-        JacksonParser.parse(response.body.stream, response.charset)
+        Jackson.parse(response.body.stream, response.charset)
       }
   }
 

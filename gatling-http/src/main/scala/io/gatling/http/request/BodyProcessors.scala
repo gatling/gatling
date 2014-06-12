@@ -42,8 +42,8 @@ object BodyProcessors {
 
     val stream = body match {
       case StringBody(string) => (session: Session) => string(session).map(s => new UnsyncByteArrayInputStream(s.getBytes(configuration.core.encoding)))
-      case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(b => new UnsyncByteArrayInputStream(b))
-      case RawFileBody(file) => (session: Session) => file(session).map(f => new FileInputStream(f))
+      case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(new UnsyncByteArrayInputStream(_))
+      case RawFileBody(file) => (session: Session) => file(session).map(new FileInputStream(_))
       case InputStreamBody(inputStream) => inputStream
       case _ => throw new UnsupportedOperationException(s"streamBody doesn't support $body")
     }

@@ -67,7 +67,7 @@ object ConsoleSummary {
       }
 
       def writeErrors(): Fastring =
-        if (!errorsCounters.isEmpty) {
+        if (errorsCounters.nonEmpty) {
           fast"""${writeSubTitle("Errors")}
 ${errorsCounters.toVector.sortBy(-_._2).map(err => ConsoleErrorsWriter.writeError(ErrorStats(err._1, err._2, globalRequestCounters.failedCount))).mkFastring(Eol)}
 """

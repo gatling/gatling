@@ -27,7 +27,7 @@ object GroupBuilder {
     def build(next: ActorRef, protocols: Protocols) = actor(new GroupStart(groupName, next))
   }
 
-  val end = new ActionBuilder {
+  val End = new ActionBuilder {
     def build(next: ActorRef, protocols: Protocols) = actor(new GroupEnd(next))
   }
 }
