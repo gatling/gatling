@@ -26,7 +26,7 @@ trait ValidationSpecification extends Specification {
   def succeedWith[A](a: => A) = validationWith[A](Success(a))
 
   /** failure matcher for a Validation with a specific value */
-  def failWith[A](e: String) = validationWith[A](Failure(e))
+  def failWith[A](f: Failure) = validationWith[A](f)
 
   private def validationWith[A](f: => Validation[A]): Matcher[Validation[A]] = (v: Validation[A]) => {
     val expected = f
