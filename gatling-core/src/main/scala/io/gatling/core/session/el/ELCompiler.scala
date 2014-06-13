@@ -111,12 +111,12 @@ case class MapKeyPart(map: Part[Any], mapName: String, key: String) extends Part
 
   def apply(session: Session): Validation[Any] = map(session).flatMap {
     _ match {
-      case m: Map[Any, Any] => m.get(key) match {
+      case m: Map[_, _] => m.asInstanceOf[Map[Any, _]].get(key) match {
         case Some(value) => value.success
         case None        => ELMessages.undefinedMapKey(mapName, key)
       }
 
-      case map: JMap[Any, Any] =>
+      case map: JMap[_, _] =>
         if (map.containsKey(key)) map.get(key).success
         else ELMessages.undefinedMapKey(mapName, key)
 
