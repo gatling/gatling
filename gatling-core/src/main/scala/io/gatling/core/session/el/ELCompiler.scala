@@ -16,6 +16,7 @@
 package io.gatling.core.session.el
 
 import java.lang.{ StringBuilder => JStringBuilder }
+import java.util.{ Collection => JCollection, List => JList, Map => JMap }
 
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
@@ -23,7 +24,7 @@ import scala.reflect.ClassTag
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.NumberHelper.IntString
 import io.gatling.core.util.TypeHelper.TypeCaster
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation, Success, Failure }
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 import scala.util.parsing.combinator.RegexParsers
 
@@ -51,13 +52,14 @@ case class AttributePart(name: String) extends Part[Any] {
 
 case class SizePart(seqPart: Part[Any], name: String) extends Part[Int] {
   def apply(session: Session): Validation[Int] =
-    seqPart(session) match {
-      case Success(t: Traversable[_])                   => t.size.success
-      case Success(collection: java.util.Collection[_]) => collection.size.success
-      case Success(map: java.util.Map[_, _])            => map.size.success
-      case Success(arr: Array[_])                       => arr.length.success
-      case Success(other)                               => ELMessages.sizeNotSupported(other, name)
-      case f: Failure                                   => f
+    seqPart(session).flatMap {
+      _ match {
+        case t: Traversable[_]          => t.size.success
+        case collection: JCollection[_] => collection.size.success
+        case map: JMap[_, _]            => map.size.success
+        case arr: Array[_]              => arr.length.success
+        case other                      => ELMessages.sizeNotSupported(other, name)
+      }
     }
 }
 
@@ -65,12 +67,13 @@ case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
   def apply(session: Session): Validation[Any] = {
       def random(size: Int) = ThreadLocalRandom.current.nextInt(size)
 
-    seq(session) match {
-      case Success(s: Seq[_])               => s(random(s.size)).success
-      case Success(list: java.util.List[_]) => list.get(random(list.size)).success
-      case Success(arr: Array[_])           => arr(random(arr.length)).success
-      case Success(other)                   => ELMessages.randomNotSupported(other, name)
-      case f: Failure                       => f
+    seq(session).flatMap {
+      _ match {
+        case seq: Seq[_]    => seq(random(seq.size)).success
+        case list: JList[_] => list.get(random(list.size)).success
+        case arr: Array[_]  => arr(random(arr.length)).success
+        case other          => ELMessages.randomNotSupported(other, name)
+      }
     }
   }
 }
@@ -78,24 +81,23 @@ case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
 case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extends Part[Any] {
   def apply(session: Session): Validation[Any] = {
 
-      def seqElementPart(index: Int): Validation[Any] = seq(session) match {
-        case Success(s: Seq[_]) =>
-          s.lift(index) match {
-            case Some(e) => e.success
-            case None    => ELMessages.undefinedSeqIndex(seqName, index)
-          }
+      def seqElementPart(index: Int): Validation[Any] = seq(session).flatMap {
+        _ match {
 
-        case Success(arr: Array[_]) =>
-          if (index < arr.length) arr(index).success
-          else ELMessages.undefinedSeqIndex(seqName, index)
+          case seq: Seq[_] =>
+            if (seq.isDefinedAt(index)) seq(index).success
+            else ELMessages.undefinedSeqIndex(seqName, index)
 
-        case Success(list: java.util.List[_]) =>
-          if (index < list.size) list.get(index).success
-          else ELMessages.undefinedSeqIndex(seqName, index)
+          case arr: Array[_] =>
+            if (index < arr.length) arr(index).success
+            else ELMessages.undefinedSeqIndex(seqName, index)
 
-        case Success(other) => ELMessages.indexAccessNotSupported(other, seqName)
+          case list: JList[_] =>
+            if (index < list.size) list.get(index).success
+            else ELMessages.undefinedSeqIndex(seqName, index)
 
-        case f: Failure     => f
+          case other => ELMessages.indexAccessNotSupported(other, seqName)
+        }
       }
 
     index match {
@@ -107,20 +109,18 @@ case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extend
 
 case class MapKeyPart(map: Part[Any], mapName: String, key: String) extends Part[Any] {
 
-  def apply(session: Session): Validation[Any] = {
-    map(session) match {
-      case Success(m: Map[Any, Any]) => m.get(key) match {
+  def apply(session: Session): Validation[Any] = map(session).flatMap {
+    _ match {
+      case m: Map[Any, Any] => m.get(key) match {
         case Some(value) => value.success
         case None        => ELMessages.undefinedMapKey(mapName, key)
       }
 
-      case Success(map: java.util.Map[Any, Any]) =>
+      case map: JMap[Any, Any] =>
         if (map.containsKey(key)) map.get(key).success
         else ELMessages.undefinedMapKey(mapName, key)
 
-      case Success(other) => ELMessages.accessByKeyNotSupported(other, mapName)
-
-      case f: Failure     => f
+      case other => ELMessages.accessByKeyNotSupported(other, mapName)
     }
   }
 }
