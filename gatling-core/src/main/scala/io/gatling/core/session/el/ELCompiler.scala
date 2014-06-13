@@ -176,7 +176,7 @@ class ELCompiler extends RegexParsers {
     try {
       parseAll(expr, string) match {
         case Success(parts, _)   => parts
-        case Failure(msg, input) => throw new ELParserException(string, msg)
+        case ns: NoSuccess => throw new ELParserException(string, ns.msg)
       }
     } catch {
       case e: Exception => throw new ELParserException(string, e.getMessage)
