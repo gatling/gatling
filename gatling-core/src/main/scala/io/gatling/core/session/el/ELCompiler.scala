@@ -125,8 +125,8 @@ case class MapKeyPart(map: Part[Any], mapName: String, key: String) extends Part
   }
 }
 
-sealed class ELParserException(message: String) extends Exception(message)
-class ELMissingAttributeName(el: String) extends ELParserException(s"An attribute name is missing in expression: $el")
+class ELParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
+object ELMissingAttributeName extends Exception("${} is not valid and must contain an attribute name")
 
 object ELCompiler {
 
@@ -172,20 +172,17 @@ class ELCompiler extends RegexParsers {
 
   override def skipWhitespace = false
 
-  var parsedString: String = _
-
-  def parseEl(string: String): List[Part[Any]] = {
-    parsedString = string
-    parseAll(expr, string) match {
-      case Success(parts, _)   => parts
-      case Failure(msg, input) => throw new ELParserException(s"Failed to parser $string with error $msg")
+  def parseEl(string: String): List[Part[Any]] =
+    try {
+      parseAll(expr, string) match {
+        case Success(parts, _)   => parts
+        case Failure(msg, input) => throw new ELParserException(string, msg)
+      }
+    } catch {
+      case e: Exception => throw new ELParserException(string, e.getMessage)
     }
-  }
 
-  val expr: Parser[List[Part[Any]]] = (multivaluedExpr | elExpr) ^^ {
-    case validation: List[Part[Any]] => validation
-    case part: Part[Any]             => List(part)
-  }
+  val expr: Parser[List[Part[Any]]] = multivaluedExpr | (elExpr ^^ { case part: Part[Any] => List(part) })
 
   def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart) *
 
@@ -225,5 +222,5 @@ class ELCompiler extends RegexParsers {
 
   def keyAccess: Parser[AccessToken] = "." ~> NamePattern ^^ { case keyName => AccessKey(keyName, "." + keyName) }
 
-  def emptyExpression: Parser[Part[Any]] = "" ^^ { throw new ELMissingAttributeName(parsedString) }
+  def emptyExpression: Parser[Part[Any]] = "" ^^ { throw ELMissingAttributeName }
 }
