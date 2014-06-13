@@ -15,14 +15,13 @@
  */
 package io.gatling.core.session.el
 
+import java.util.{ ArrayList => JArrayList, HashMap => JHashMap, LinkedList => JLinkedList }
+
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.session.{ el, Session }
-import io.gatling.core.session.el._
 import io.gatling.core.test.ValidationSpecification
-import scala.collection.convert.Wrappers.JListWrapper
-import java.util
 
 @RunWith(classOf[JUnitRunner])
 class ELSpec extends ValidationSpecification {
@@ -96,7 +95,7 @@ class ELSpec extends ValidationSpecification {
     }
 
     "return n-th element of JList" in {
-      val lst = new util.LinkedList[Int]
+      val lst = new JLinkedList[Int]
       lst.add(1)
       lst.add(2)
       val session = Session("scenario", "1", Map("lst" -> lst))
@@ -111,7 +110,7 @@ class ELSpec extends ValidationSpecification {
     }
 
     "handle gracefully when index in an JList is out of range" in {
-      val lst = new util.LinkedList[Int]
+      val lst = new JLinkedList[Int]
       lst.add(1)
       lst.add(2)
       val session = Session("scenario", "1", Map("lst" -> lst))
@@ -201,7 +200,7 @@ class ELSpec extends ValidationSpecification {
     }
 
     "return correct size for a non empty JMap" in {
-      val map = new java.util.HashMap[Int, Int]
+      val map = new JHashMap[Int, Int]
       map.put(1, 1)
       map.put(2, 2)
       val session = Session("scenario", "1", Map("map" -> map))
@@ -225,7 +224,7 @@ class ELSpec extends ValidationSpecification {
     }
 
     "return one of elements of JList" in {
-      val list = new util.ArrayList[Int]
+      val list = new JArrayList[Int]
       list.add(1)
       list.add(2)
       val session = Session("scenario", "1", Map("lst" -> list))
@@ -255,7 +254,7 @@ class ELSpec extends ValidationSpecification {
     }
 
     "return value by key from JMap" in {
-      val map = new java.util.HashMap[String, Int]
+      val map = new JHashMap[String, Int]
       map.put("key1", 1)
       map.put("key2", 2)
       val session = Session("scenario", "1", Map("map" -> map))
@@ -284,7 +283,7 @@ class ELSpec extends ValidationSpecification {
     }
 
     "handle missing value in JMap correctly" in {
-      val map = new java.util.HashMap[String, Int]
+      val map = new JHashMap[String, Int]
       map.put("key1", 1)
       val session = Session("scenario", "1", Map("map" -> map))
       val expression = "${map.nonexisting}".el[Int]
@@ -366,7 +365,7 @@ class ELSpec extends ValidationSpecification {
   "Malformed Expression" should {
 
     "be handled correctly when an attribute name is missing" in {
-      "foo${}bar".el[String] must throwA[ELMissingAttributeName]
+      "foo${}bar".el[String] must throwA[ELParserException]
     }
 
     "be handled correctly when there is a nested attribute definition" in {

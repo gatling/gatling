@@ -196,9 +196,8 @@ class ELCompiler extends RegexParsers {
   def sessionObject: Parser[Part[Any]] = objectName ~ ((valueAccess) *) ^^ {
     case objectPart ~ accessTokens =>
 
-      val partName = accessTokens.foldLeft(objectPart.asInstanceOf[Part[Any]] -> objectPart.name)((partName, token) => {
-        val subPart = partName._1
-        val subPartName = partName._2
+      val (part, _) = accessTokens.foldLeft(objectPart.asInstanceOf[Part[Any]] -> objectPart.name)((partName, token) => {
+        val (subPart, subPartName) = partName
 
         val part = token match {
           case AccessIndex(pos, tokenName) => SeqElementPart(subPart, subPartName, pos)
@@ -207,11 +206,11 @@ class ELCompiler extends RegexParsers {
           case AccessSize                  => SizePart(subPart, subPartName)
         }
 
-        val newPartName = partName._2 + token.token
+        val newPartName = subPartName + token.token
         part -> newPartName
       })
 
-      partName._1
+      part
   }
 
   def objectName: Parser[AttributePart] = NamePattern ^^ { case name => AttributePart(name) }
