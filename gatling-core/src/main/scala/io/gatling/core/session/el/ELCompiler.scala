@@ -53,13 +53,11 @@ case class AttributePart(name: String) extends Part[Any] {
 case class SizePart(seqPart: Part[Any], name: String) extends Part[Int] {
   def apply(session: Session): Validation[Int] =
     seqPart(session).flatMap {
-      _ match {
-        case t: Traversable[_]          => t.size.success
-        case collection: JCollection[_] => collection.size.success
-        case map: JMap[_, _]            => map.size.success
-        case arr: Array[_]              => arr.length.success
-        case other                      => ELMessages.sizeNotSupported(other, name)
-      }
+      case t: Traversable[_]          => t.size.success
+      case collection: JCollection[_] => collection.size.success
+      case map: JMap[_, _]            => map.size.success
+      case arr: Array[_]              => arr.length.success
+      case other                      => ELMessages.sizeNotSupported(other, name)
     }
 }
 
@@ -68,12 +66,10 @@ case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
       def random(size: Int) = ThreadLocalRandom.current.nextInt(size)
 
     seq(session).flatMap {
-      _ match {
-        case seq: Seq[_]    => seq(random(seq.size)).success
-        case list: JList[_] => list.get(random(list.size)).success
-        case arr: Array[_]  => arr(random(arr.length)).success
-        case other          => ELMessages.randomNotSupported(other, name)
-      }
+      case seq: Seq[_]    => seq(random(seq.size)).success
+      case list: JList[_] => list.get(random(list.size)).success
+      case arr: Array[_]  => arr(random(arr.length)).success
+      case other          => ELMessages.randomNotSupported(other, name)
     }
   }
 }
@@ -82,22 +78,19 @@ case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extend
   def apply(session: Session): Validation[Any] = {
 
       def seqElementPart(index: Int): Validation[Any] = seq(session).flatMap {
-        _ match {
+        case seq: Seq[_] =>
+          if (seq.isDefinedAt(index)) seq(index).success
+          else ELMessages.undefinedSeqIndex(seqName, index)
 
-          case seq: Seq[_] =>
-            if (seq.isDefinedAt(index)) seq(index).success
-            else ELMessages.undefinedSeqIndex(seqName, index)
+        case arr: Array[_] =>
+          if (index < arr.length) arr(index).success
+          else ELMessages.undefinedSeqIndex(seqName, index)
 
-          case arr: Array[_] =>
-            if (index < arr.length) arr(index).success
-            else ELMessages.undefinedSeqIndex(seqName, index)
+        case list: JList[_] =>
+          if (index < list.size) list.get(index).success
+          else ELMessages.undefinedSeqIndex(seqName, index)
 
-          case list: JList[_] =>
-            if (index < list.size) list.get(index).success
-            else ELMessages.undefinedSeqIndex(seqName, index)
-
-          case other => ELMessages.indexAccessNotSupported(other, seqName)
-        }
+        case other => ELMessages.indexAccessNotSupported(other, seqName)
       }
 
     index match {
@@ -110,18 +103,16 @@ case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extend
 case class MapKeyPart(map: Part[Any], mapName: String, key: String) extends Part[Any] {
 
   def apply(session: Session): Validation[Any] = map(session).flatMap {
-    _ match {
-      case m: Map[_, _] => m.asInstanceOf[Map[Any, _]].get(key) match {
-        case Some(value) => value.success
-        case None        => ELMessages.undefinedMapKey(mapName, key)
-      }
-
-      case map: JMap[_, _] =>
-        if (map.containsKey(key)) map.get(key).success
-        else ELMessages.undefinedMapKey(mapName, key)
-
-      case other => ELMessages.accessByKeyNotSupported(other, mapName)
+    case m: Map[_, _] => m.asInstanceOf[Map[Any, _]].get(key) match {
+      case Some(value) => value.success
+      case None        => ELMessages.undefinedMapKey(mapName, key)
     }
+
+    case map: JMap[_, _] =>
+      if (map.containsKey(key)) map.get(key).success
+      else ELMessages.undefinedMapKey(mapName, key)
+
+    case other => ELMessages.accessByKeyNotSupported(other, mapName)
   }
 }
 
@@ -132,7 +123,9 @@ object ELCompiler {
   val StaticPartPattern = "[^$]+".r
   val NamePattern = "[^.${}()]+".r
 
-  val ElCompiler = new ThreadLocal[ELCompiler] { override def initialValue = new ELCompiler }
+  val ElCompiler = new ThreadLocal[ELCompiler] {
+    override def initialValue = new ELCompiler
+  }
 
   def compile[T: ClassTag](string: String): Expression[T] = {
     val parts = ElCompiler.get.parseEl(string)
@@ -147,7 +140,7 @@ object ELCompiler {
       case _ =>
         (session: Session) => parts.foldLeft(new JStringBuilder(string.length + 5).success) { (sb, part) =>
           part match {
-            case StaticPart(string) => sb.map(_.append(string))
+            case StaticPart(s) => sb.map(_.append(s))
             case _ =>
               for {
                 sb <- sb
@@ -185,7 +178,7 @@ class ELCompiler extends RegexParsers {
 
   def elExpr: Parser[Part[Any]] = "${" ~> sessionObject <~ "}"
 
-  def sessionObject: Parser[Part[Any]] = objectName ~ ((valueAccess) *) ^^ {
+  def sessionObject: Parser[Part[Any]] = objectName ~ (valueAccess *) ^^ {
     case objectPart ~ accessTokens =>
 
       val (part, _) = accessTokens.foldLeft(objectPart.asInstanceOf[Part[Any]] -> objectPart.name)((partName, token) => {
