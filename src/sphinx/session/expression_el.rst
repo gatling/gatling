@@ -23,10 +23,15 @@ For example::
 
 Moreover, Gatling EL provide the builtin functions::
 
-	"${foo.size}"   // returns the size of foo if foo is a Seq
-	"${foo.random}" // returns a random element of foo if foo is a Seq
-	"${foo(5)}"     // returns the 5th element of foo if foo is a Seq
-	"${foo(bar)}"   // returns the barth element of foo if bar is an Int and foo is a Seq
+	"${foo.size}"   // returns the size of `foo` if `foo` is a Scala or Java collection
+	"${foo.random}" // returns a random element of `foo` if `foo` is an indexable collection
+	"${foo(5)}"     // returns the 5th element of `foo` if `foo` is an indexable collection
+	"${foo(bar)}"   // returns the bar-th element of `foo` if `bar` is an Int and `foo` is an indexable collection
+	"${foo.bar}"    // returns the value associated with key `bar` if `foo` is a map
+
+You can also combine different Galing EL builtin fucions. For example if `foo` is a List of Lists `${foo(0)(0)}` will return first element of the first list in `foo`. `${foo.list.random}` will return random element from an indexable collection associated with key `list` in a map `foo`.
+ 
+Gatling EL support the following indexable collections: java.util.List, Seq and Array. It also supports both Scala and Java maps. Function `.size` supports any Scala or Java collection
 
 .. warning::
   This Expression Language only works on the final value that is passed to the DSL method when the Simulation is instanciated.
