@@ -50,7 +50,7 @@ case class AttributePart(name: String) extends Part[Any] {
 }
 
 case class SizePart(seqPart: Part[Any], name: String) extends Part[Int] {
-  def apply(session: Session): Validation[Int] = {
+  def apply(session: Session): Validation[Int] =
     seqPart(session) match {
       case Success(t: Traversable[_])                   => t.size.success
       case Success(collection: java.util.Collection[_]) => collection.size.success
@@ -59,7 +59,6 @@ case class SizePart(seqPart: Part[Any], name: String) extends Part[Int] {
       case Success(other)                               => ELMessages.sizeNotSupported(other, name)
       case f: Failure                                   => f
     }
-  }
 }
 
 case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
@@ -131,12 +130,13 @@ class ELMissingAttributeName(el: String) extends ELParserException(s"An attribut
 
 object ELCompiler {
 
-  val elCompiler = new ThreadLocal[ELCompiler] {
-    override def initialValue = new ELCompiler
-  }
+  val StaticPartPattern = "[^$]+".r
+  val NamePattern = "[^.${}()]+".r
+
+  val ElCompiler = new ThreadLocal[ELCompiler] { override def initialValue = new ELCompiler }
 
   def compile[T: ClassTag](string: String): Expression[T] = {
-    val parts = elCompiler.get.parseEl(string)
+    val parts = ElCompiler.get.parseEl(string)
 
     parts match {
       case List(StaticPart(staticStr)) =>
@@ -158,24 +158,17 @@ object ELCompiler {
         }.flatMap(_.toString.asValidation[T])
     }
   }
-
-  val staticPartPattern = "[^$]+".r
-  val namePattern = "[^.${}()]+".r
 }
 
 class ELCompiler extends RegexParsers {
 
-  sealed trait AccessToken {
-    def token: String
-  }
+  import ELCompiler._
+
+  sealed trait AccessToken { def token: String }
   case class AccessIndex(pos: String, token: String) extends AccessToken
   case class AccessKey(key: String, token: String) extends AccessToken
-  case object AccessRandom extends AccessToken {
-    val token = ".random"
-  }
-  case object AccessSize extends AccessToken {
-    val token = ".size"
-  }
+  case object AccessRandom extends AccessToken { val token = ".random" }
+  case object AccessSize extends AccessToken { val token = ".size" }
 
   override def skipWhitespace = false
 
@@ -196,9 +189,7 @@ class ELCompiler extends RegexParsers {
 
   def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart) *
 
-  def staticPart: Parser[StaticPart] = ELCompiler.staticPartPattern ^^ {
-    case staticStr => StaticPart(staticStr)
-  }
+  def staticPart: Parser[StaticPart] = StaticPartPattern ^^ { case staticStr => StaticPart(staticStr) }
 
   def elExpr: Parser[Part[Any]] = "${" ~> (sessionObject | emptyExpression) <~ "}"
 
@@ -223,31 +214,17 @@ class ELCompiler extends RegexParsers {
       partName._1
   }
 
-  def objectName: Parser[AttributePart] = name ^^ {
-    case name => AttributePart(name)
-  }
+  def objectName: Parser[AttributePart] = NamePattern ^^ { case name => AttributePart(name) }
 
   def valueAccess: Parser[AccessToken] = indexAccess | randomAccess | sizeAccess | keyAccess
 
-  def randomAccess: Parser[AccessToken] = ".random" ^^ {
-    case _ => AccessRandom
-  }
+  def randomAccess: Parser[AccessToken] = ".random" ^^ { case _ => AccessRandom }
 
-  def sizeAccess: Parser[AccessToken] = ".size" ^^ {
-    case _ => AccessSize
-  }
+  def sizeAccess: Parser[AccessToken] = ".size" ^^ { case _ => AccessSize }
 
-  def indexAccess: Parser[AccessToken] = "(" ~> name <~ ")" ^^ {
-    case posStr => AccessIndex(posStr, s"($posStr)")
-  }
+  def indexAccess: Parser[AccessToken] = "(" ~> NamePattern <~ ")" ^^ { case posStr => AccessIndex(posStr, s"($posStr)") }
 
-  def keyAccess: Parser[AccessToken] = "." ~> name ^^ {
-    case keyName => AccessKey(keyName, "." + keyName)
-  }
+  def keyAccess: Parser[AccessToken] = "." ~> NamePattern ^^ { case keyName => AccessKey(keyName, "." + keyName) }
 
-  def emptyExpression: Parser[Part[Any]] = "" ^^ {
-    throw new ELMissingAttributeName(parsedString)
-  }
-
-  def name: Parser[String] = ELCompiler.namePattern
+  def emptyExpression: Parser[Part[Any]] = "" ^^ { throw new ELMissingAttributeName(parsedString) }
 }
