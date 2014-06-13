@@ -158,6 +158,9 @@ object ELCompiler {
         }.flatMap(_.toString.asValidation[T])
     }
   }
+
+  val staticPartPattern = "[^$]+".r
+  val namePattern = "[^.${}()]+".r
 }
 
 class ELCompiler extends RegexParsers {
@@ -193,7 +196,7 @@ class ELCompiler extends RegexParsers {
 
   def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart) *
 
-  def staticPart: Parser[StaticPart] = staticPartPattern ^^ {
+  def staticPart: Parser[StaticPart] = ELCompiler.staticPartPattern ^^ {
     case staticStr => StaticPart(staticStr)
   }
 
@@ -246,8 +249,5 @@ class ELCompiler extends RegexParsers {
     throw new ELMissingAttributeName(parsedString)
   }
 
-  def name: Parser[String] = namePattern
-
-  val staticPartPattern = "[^$]+".r
-  val namePattern = "[^.${}()]+".r
+  def name: Parser[String] = ELCompiler.namePattern
 }
