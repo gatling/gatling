@@ -126,7 +126,6 @@ case class MapKeyPart(map: Part[Any], mapName: String, key: String) extends Part
 }
 
 class ELParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
-object ELMissingAttributeName extends Exception("${} is not valid and must contain an attribute name")
 
 object ELCompiler {
 
@@ -173,13 +172,9 @@ class ELCompiler extends RegexParsers {
   override def skipWhitespace = false
 
   def parseEl(string: String): List[Part[Any]] =
-    try {
-      parseAll(expr, string) match {
-        case Success(parts, _)   => parts
-        case ns: NoSuccess => throw new ELParserException(string, ns.msg)
-      }
-    } catch {
-      case e: Exception => throw new ELParserException(string, e.getMessage)
+    parseAll(expr, string) match {
+      case Success(parts, _) => parts
+      case ns: NoSuccess     => throw new ELParserException(string, ns.msg)
     }
 
   val expr: Parser[List[Part[Any]]] = multivaluedExpr | (elExpr ^^ { case part: Part[Any] => List(part) })
@@ -188,7 +183,7 @@ class ELCompiler extends RegexParsers {
 
   def staticPart: Parser[StaticPart] = StaticPartPattern ^^ { case staticStr => StaticPart(staticStr) }
 
-  def elExpr: Parser[Part[Any]] = "${" ~> (sessionObject | emptyExpression) <~ "}"
+  def elExpr: Parser[Part[Any]] = "${" ~> sessionObject <~ "}"
 
   def sessionObject: Parser[Part[Any]] = objectName ~ ((valueAccess) *) ^^ {
     case objectPart ~ accessTokens =>
@@ -221,6 +216,4 @@ class ELCompiler extends RegexParsers {
   def indexAccess: Parser[AccessToken] = "(" ~> NamePattern <~ ")" ^^ { case posStr => AccessIndex(posStr, s"($posStr)") }
 
   def keyAccess: Parser[AccessToken] = "." ~> NamePattern ^^ { case keyName => AccessKey(keyName, "." + keyName) }
-
-  def emptyExpression: Parser[Part[Any]] = "" ^^ { throw ELMissingAttributeName }
 }
