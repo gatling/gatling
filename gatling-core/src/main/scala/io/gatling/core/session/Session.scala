@@ -41,7 +41,7 @@ case class SessionAttribute(session: Session, key: String) {
   def asOption[T: NotNothing]: Option[T] = session.attributes.get(key).map(_.asInstanceOf[T])
   def validate[T](implicit ct: ClassTag[T], nn: NotNothing[T]): Validation[T] = session.attributes.get(key) match {
     case Some(value) => value.asValidation[T]
-    case None        => ELMessages.undefinedSessionAttributeMessage(key)
+    case None        => ELMessages.undefinedSessionAttribute(key)
   }
 }
 
