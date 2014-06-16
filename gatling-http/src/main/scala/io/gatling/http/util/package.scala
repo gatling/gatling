@@ -30,14 +30,10 @@ package object util {
 
   implicit class HttpStringBuilder(val buff: JStringBuilder) extends AnyVal {
 
-    def appendAHCStringsMap(map: JMap[String, JList[String]]): JStringBuilder = {
-
-      for {
-        entry <- map.entrySet
-      } buff.append(entry.getKey).append(": ").append(entry.getValue).append(Eol)
-
-      buff
-    }
+    def appendAHCStringsMap(map: JMap[String, JList[String]]): JStringBuilder =
+      map.entrySet.foldLeft(buff) { (buf, entry) =>
+        buff.append(entry.getKey).append(": ").append(entry.getValue).append(Eol)
+      }
 
     def appendAHCRequest(request: Request): JStringBuilder = {
 
