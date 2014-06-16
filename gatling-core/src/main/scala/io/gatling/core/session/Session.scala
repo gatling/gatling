@@ -24,7 +24,7 @@ import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.el.ELMessages
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.TypeHelper.TypeCaster
-import io.gatling.core.validation.{ FailureWrapper, Validation }
+import io.gatling.core.validation.Validation
 import akka.actor.ActorRef
 
 /**
@@ -41,7 +41,7 @@ case class SessionAttribute(session: Session, key: String) {
   def asOption[T: NotNothing]: Option[T] = session.attributes.get(key).map(_.asInstanceOf[T])
   def validate[T](implicit ct: ClassTag[T], nn: NotNothing[T]): Validation[T] = session.attributes.get(key) match {
     case Some(value) => value.asValidation[T]
-    case None        => ELMessages.undefinedSessionAttribute(key)
+    case None        => ELMessages.undefinedSessionAttributeMessage(key)
   }
 }
 
