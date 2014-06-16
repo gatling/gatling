@@ -120,7 +120,7 @@ class ELParserException(string: String, msg: String) extends Exception(s"Failed 
 
 object ELCompiler {
 
-  val StaticPartPattern = "[^$]+".r
+  val StaticPartPattern = """.+?(?!$\{)""".r
   val NamePattern = "[^.${}()]+".r
 
   val ElCompiler = new ThreadLocal[ELCompiler] {

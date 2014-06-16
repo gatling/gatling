@@ -58,6 +58,18 @@ class ELSpec extends ValidationSpecification {
       val expression = "foo${bar}".el[String]
       expression(session) must failWith(ELMessages.undefinedSessionAttribute("bar"))
     }
+
+    "properly handle raw JSON" in {
+      val session = Session("scenario", "1", Map("foo" -> "FOO"))
+      val expression = "$.foo.bar".el[String]
+      expression(session) must succeedWith("$.foo.bar")
+    }
+
+    "properly handle JSON template" in {
+      val session = Session("scenario", "1", Map("foo" -> "FOO"))
+      val expression = "$.${foo}.bar".el[String]
+      expression(session) must succeedWith("$.FOO.bar")
+    }
   }
 
   "Multivalued Expression" should {
@@ -365,11 +377,15 @@ class ELSpec extends ValidationSpecification {
   "Malformed Expression" should {
 
     "be handled correctly when an attribute name is missing" in {
-      "foo${}bar".el[String] must throwA[ELParserException]
+      val session = Session("scenario", "1", Map("foo" -> "FOO", "bar" -> "BAR"))
+      val expression = "foo${}bar".el[String]
+      expression(session) must succeedWith("foo${}bar")
     }
 
     "be handled correctly when there is a nested attribute definition" in {
-      "${foo${bar}}".el[String] must throwA[ELParserException]
+      val session = Session("scenario", "1", Map("foo" -> "FOO", "bar" -> "BAR"))
+      val expression = "${foo${bar}}".el[String]
+      expression(session) must succeedWith("${fooBAR}")
     }
   }
 }
