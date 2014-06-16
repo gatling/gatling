@@ -20,7 +20,7 @@ import com.ning.http.client.Request
 import io.gatling.core.session.Expression
 import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.check.HttpCheckOrder.Status
+import io.gatling.http.check.HttpCheckTarget.Status
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.{ Body, BodyPart, ExtraInfoExtractor, HttpRequest }
 import io.gatling.http.response.ResponseTransformer
@@ -101,10 +101,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
       else
         protocol.responsePart.checks ::: httpAttributes.checks
 
-    val resolvedChecks = (checks.find(_.order == Status) match {
-      case None => HttpRequestActionBuilder.DefaultHttpCheck :: checks
+    val resolvedChecks = (checks.find(_.target == Status) match {
+      case None => checks ::: List(HttpRequestActionBuilder.DefaultHttpCheck)
       case _    => checks
-    }).sorted
+    })
 
     val resolvedFollowRedirect = protocol.responsePart.followRedirect && httpAttributes.followRedirect
 

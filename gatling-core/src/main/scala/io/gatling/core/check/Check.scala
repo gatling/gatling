@@ -24,24 +24,38 @@ import io.gatling.core.validation.{ Failure, Success, SuccessWrapper, Validation
 
 object Check {
 
-  val NoopUpdateSuccess = Session.Identity.success
-
-  def check[R](response: R, session: Session, checks: List[Check[R]]): Validation[Session => Session] = {
+  def check[R](response: R, session: Session, checks: List[Check[R]]): (Session => Session, Option[String]) = {
 
     implicit val cache = mutable.Map.empty[Any, Any]
 
       @tailrec
-      def checkRec(checks: List[Check[R]], updates: Validation[Session => Session]): Validation[Session => Session] = checks match {
-        case Nil => updates
-        case head :: tail => head.check(response, session) match {
-          case Success(checkResult) =>
-            val newUpdates = updates.map(_ andThen checkResult.update)
-            checkRec(tail, newUpdates)
-          case failure: Failure => failure
-        }
-      }
+      def checkRec(session: Session, checks: List[Check[R]], update: Session => Session, error: Option[String]): (Session => Session, Option[String]) =
+        checks match {
 
-    checkRec(checks, NoopUpdateSuccess)
+          case Nil => (update, error)
+
+          case head :: tail => head.check(response, session) match {
+            case Success(checkResult) =>
+              checkResult.update match {
+                case Some(checkUpdate) =>
+                  checkRec(
+                    session = checkUpdate(session),
+                    tail,
+                    update = update andThen checkUpdate,
+                    error)
+                case _ =>
+                  checkRec(session, tail, update, error)
+              }
+
+            case Failure(e) =>
+              error match {
+                case None => checkRec(session, tail, update andThen Session.MarkAsFailedUpdate, Some(e))
+                case _    => checkRec(session, tail, update, error)
+              }
+          }
+        }
+
+    checkRec(session, checks, Session.Identity, None)
   }
 }
 
@@ -82,9 +96,9 @@ case class CheckResult(extractedValue: Option[Any], saveAs: Option[String]) {
 
   def hasUpdate = saveAs.isDefined && extractedValue.isDefined
 
-  def update(session: Session): Session =
-    (for {
-      v <- extractedValue
+  def update: Option[(Session => Session)] =
+    for {
       s <- saveAs
-    } yield session.set(s, v)).getOrElse(session)
+      v <- extractedValue
+    } yield (session: Session) => session.set(s, v)
 }

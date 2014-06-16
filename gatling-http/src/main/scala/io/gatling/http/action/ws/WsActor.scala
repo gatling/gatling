@@ -91,20 +91,20 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
             // expected count met, let's stop the check
             logRequest(tx.session, tx.requestName, OK, tx.start, nowMillis, None)
 
-            val captures = results.filter(_.hasUpdate)
+            val checkResults = results.filter(_.hasUpdate)
 
-            val newUpdates = captures match {
+            val newUpdates = checkResults match {
               case Nil =>
                 // nothing to save, no update
                 tx.updates
 
               case List(checkResult) =>
                 // one single value to save
-                checkResult.update _ :: tx.updates
+                checkResult.update.getOrElse(Session.Identity) :: tx.updates
 
               case _ =>
                 // multiple values, let's pile them up
-                val mergedCaptures = captures
+                val mergedCaptures = checkResults
                   .collect { case CheckResult(Some(value), Some(saveAs)) => saveAs -> value }
                   .groupBy(_._1)
                   .mapValues(_.flatMap(_._2 match {

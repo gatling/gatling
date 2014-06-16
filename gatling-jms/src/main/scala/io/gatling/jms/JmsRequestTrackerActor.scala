@@ -26,7 +26,6 @@ import io.gatling.core.result.writer.DataWriterClient
 import javax.jms.Message
 import io.gatling.core.check.Check
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.{ Success, Failure }
 
 /**
  * Advise actor a message was sent to JMS provider
@@ -105,11 +104,13 @@ class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
         writeRequestData(updatedSession, title, startSend, endSend, endSend, received, status, message)
         next ! updatedSession.logGroupRequest(received - startSend, status).increaseDrift(nowMillis - received)
       }
-    // run all of the checks, advise the Gatling API that it is complete and move to next
-    Check.check(message, session, checks) match {
-      case Success(updateSession) => executeNext(updateSession(session), OK)
-      case Failure(m)             => executeNext(session.markAsFailed, KO, Some(m))
+
+    // run all the checks, advise the Gatling API that it is complete and move to next
+    val (checkSaveUpdate, error) = Check.check(message, session, checks)
+    val newSession = checkSaveUpdate(session)
+    error match {
+      case None    => executeNext(newSession, OK)
+      case Some(m) => executeNext(newSession.markAsFailed, KO, Some(m))
     }
   }
-
 }

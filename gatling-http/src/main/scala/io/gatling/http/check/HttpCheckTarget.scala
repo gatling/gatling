@@ -15,18 +15,14 @@
  */
 package io.gatling.http.check
 
-sealed trait HttpCheckOrder
+sealed trait HttpCheckTarget
 
-object HttpCheckOrder {
+object HttpCheckTarget {
 
-  case object Status extends HttpCheckOrder
-  case object Url extends HttpCheckOrder
-  case object Time extends HttpCheckOrder
-  case object Checksum extends HttpCheckOrder
-  case object Header extends HttpCheckOrder
-  case object Body extends HttpCheckOrder
-
-  val orders = List(Status, Url, Time, Checksum, Header, Body)
-
-  val httpCheckOrdering = Ordering.fromLessThan[HttpCheckOrder](orders.indexOf(_) < orders.indexOf(_))
+  case object Status extends HttpCheckTarget
+  case object Url extends HttpCheckTarget
+  case object Time extends HttpCheckTarget
+  case object Checksum extends HttpCheckTarget
+  case object Header extends HttpCheckTarget
+  case object Body extends HttpCheckTarget
 }
