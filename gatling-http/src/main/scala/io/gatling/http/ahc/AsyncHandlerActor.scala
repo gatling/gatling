@@ -30,11 +30,10 @@ import io.gatling.core.session.Session
 import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.util.StringHelper.Eol
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.http.HeaderNames
 import io.gatling.http.action.HttpRequestAction
 import io.gatling.http.cache.{ PermanentRedirect, CacheHandling }
-import io.gatling.http.check.{ HttpCheck, HttpCheckOrder }
+import io.gatling.http.check.{ HttpCheck, HttpCheckTarget }
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.referer.RefererHandling
@@ -58,8 +57,6 @@ object AsyncHandlerActor extends AkkaDefaults {
     case Some(a) => a
     case _       => throw new UnsupportedOperationException("AsyncHandlerActor pool hasn't been started")
   }
-
-  val fail: Session => Session = _.markAsFailed
 
   val propagatedOnRedirectHeaders = Vector(
     HeaderNames.Accept,
@@ -201,11 +198,8 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     executeNext(newTx, update, status, response)
   }
 
-  private def ok(tx: HttpTx, update: Session => Session, response: Response): Unit =
-    logAndExecuteNext(tx, update, OK, response, None)
-
   private def ko(tx: HttpTx, update: Session => Session, response: Response, message: String): Unit =
-    logAndExecuteNext(tx, update andThen AsyncHandlerActor.fail, KO, response, Some(message))
+    logAndExecuteNext(tx, update andThen Session.MarkAsFailedUpdate, KO, response, Some(message))
 
   /**
    * This method processes the response if needed for each checks given by the user
@@ -277,11 +271,13 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       def checkAndProceed(sessionUpdate: Session => Session, checks: List[HttpCheck]): Unit = {
 
         val cacheUpdate = CacheHandling.cache(tx.protocol, tx.request, response)
-        val newUpdate = sessionUpdate andThen cacheUpdate
 
-        Check.check(response, tx.session, checks) match {
-          case Success(checkSaveUpdate) => ok(tx, newUpdate andThen checkSaveUpdate, response)
-          case Failure(errorMessage)    => ko(tx, newUpdate, response, errorMessage)
+        val (checkSaveUpdate, checkError) = Check.check(response, tx.session, checks)
+        val newUpdate = sessionUpdate andThen cacheUpdate andThen checkSaveUpdate
+
+        checkError match {
+          case None => logAndExecuteNext(tx, newUpdate, OK, response, None)
+          case _    => logAndExecuteNext(tx, newUpdate, KO, response, checkError)
         }
       }
 
@@ -299,7 +295,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         else {
           val checks =
             if (HttpHelper.isNotModified(status.getStatusCode))
-              tx.checks.filter(c => c.order != HttpCheckOrder.Body && c.order != HttpCheckOrder.Checksum)
+              tx.checks.filter(c => c.target != HttpCheckTarget.Body && c.target != HttpCheckTarget.Checksum)
             else
               tx.checks
 

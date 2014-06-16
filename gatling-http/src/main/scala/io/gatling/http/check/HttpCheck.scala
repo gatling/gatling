@@ -20,17 +20,17 @@ import scala.collection.mutable
 import io.gatling.core.check.{ CheckResult, Check }
 import io.gatling.core.session.Session
 import io.gatling.core.validation.Validation
-import io.gatling.http.check.HttpCheckOrder.httpCheckOrdering
 import io.gatling.http.response.{ Response, ResponseBodyUsageStrategy }
 
 /**
  * This class serves as model for the HTTP-specific checks
  *
  * @param wrapped the underlying check
- * @param order the check priority
+ * @param target the part of the response this check targets
+ * @param responseBodyUsageStrategy how this check uses the response body
  */
-case class HttpCheck(wrapped: Check[Response], order: HttpCheckOrder, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy])
-    extends Check[Response] with Ordered[HttpCheck] {
-  override def check(response: Response, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] = wrapped.check(response, session)
-  def compare(that: HttpCheck) = httpCheckOrdering.compare(order, that.order)
+case class HttpCheck(wrapped: Check[Response], target: HttpCheckTarget, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy])
+    extends Check[Response] {
+  override def check(response: Response, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] =
+    wrapped.check(response, session)
 }
