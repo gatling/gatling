@@ -389,15 +389,27 @@ class ELSpec extends ValidationSpecification {
   "Malformed Expression" should {
 
     "be handled correctly when an attribute name is missing" in {
-      val session = Session("scenario", "1", Map("foo" -> "FOO", "bar" -> "BAR"))
-      val expression = "foo${}bar".el[String]
-      expression(session) must succeedWith("foo${}bar")
+      "foo${}bar".el[String] must throwA[ELParserException]
+    }
+
+    "be handled correctly when there is a nested attribute definition with string before nested attribute" in {
+      "${foo${bar}}".el[String] must throwA[ELParserException]
+    }
+
+    "be handled correctly when there is a nested attribute definition with string after nested attribute" in {
+      "${${bar}foo}".el[String] must throwA[ELParserException]
+    }
+
+    "be handled correctly when there is a nested attribute definition with string before and after nested attribute" in {
+      "${foo${bar}foo}".el[String] must throwA[ELParserException]
     }
 
     "be handled correctly when there is a nested attribute definition" in {
-      val session = Session("scenario", "1", Map("foo" -> "FOO", "bar" -> "BAR"))
-      val expression = "${foo${bar}}".el[String]
-      expression(session) must succeedWith("${fooBAR}")
+      "${${bar}}".el[String] must throwA[ELParserException]
+    }
+
+    "be handled correctly when there are several nested attributes" in {
+      "${${bar}${bar}}".el[String] must throwA[ELParserException]
     }
   }
 }

@@ -165,9 +165,13 @@ class ELCompiler extends RegexParsers {
   override def skipWhitespace = false
 
   def parseEl(string: String): List[Part[Any]] =
-    parseAll(expr, string) match {
-      case Success(parts, _) => parts
-      case ns: NoSuccess     => throw new ELParserException(string, ns.msg)
+    try {
+      parseAll(expr, string) match {
+        case Success(parts, _) => parts
+        case ns: NoSuccess     => throw new ELParserException(string, ns.msg)
+      }
+    } catch {
+      case e: Exception => throw new ELParserException(string, e.getMessage)
     }
 
   val expr: Parser[List[Part[Any]]] = multivaluedExpr | (elExpr ^^ { case part: Part[Any] => List(part) })
@@ -178,7 +182,7 @@ class ELCompiler extends RegexParsers {
 
   def elExpr: Parser[Part[Any]] = "${" ~> sessionObject <~ "}"
 
-  def sessionObject: Parser[Part[Any]] = objectName ~ (valueAccess *) ^^ {
+  def sessionObject: Parser[Part[Any]] = (objectName ~ (valueAccess *) ^^ {
     case objectPart ~ accessTokens =>
 
       val (part, _) = accessTokens.foldLeft(objectPart.asInstanceOf[Part[Any]] -> objectPart.name)((partName, token) => {
@@ -196,11 +200,12 @@ class ELCompiler extends RegexParsers {
       })
 
       part
-  }
+  }) | emptyAttribute
 
   def objectName: Parser[AttributePart] = NamePattern ^^ { case name => AttributePart(name) }
 
-  def valueAccess: Parser[AccessToken] = indexAccess | randomAccess | sizeAccess | keyAccess
+  def valueAccess: Parser[AccessToken] = indexAccess | randomAccess | sizeAccess | keyAccess |
+    (elExpr ^^ { case _ => throw new Exception("nested attribute definition is not allowed") })
 
   def randomAccess: Parser[AccessToken] = ".random" ^^ { case _ => AccessRandom }
 
@@ -209,4 +214,6 @@ class ELCompiler extends RegexParsers {
   def indexAccess: Parser[AccessToken] = "(" ~> NamePattern <~ ")" ^^ { case posStr => AccessIndex(posStr, s"($posStr)") }
 
   def keyAccess: Parser[AccessToken] = "." ~> NamePattern ^^ { case keyName => AccessKey(keyName, "." + keyName) }
+
+  def emptyAttribute: Parser[Part[Any]] = "" ^^ { case _ => throw new Exception("attribute name is missing") }
 }
