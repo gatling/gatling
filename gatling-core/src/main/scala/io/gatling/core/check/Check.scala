@@ -29,7 +29,7 @@ object Check {
     implicit val cache = mutable.Map.empty[Any, Any]
 
       @tailrec
-      def checkRec(session: Session, checks: List[Check[R]], update: Session => Session, error: Option[String]): (Session => Session, Option[String]) =
+      def checkRec(checks: List[Check[R]], update: Session => Session, error: Option[String]): (Session => Session, Option[String]) =
         checks match {
 
           case Nil => (update, error)
@@ -39,23 +39,22 @@ object Check {
               checkResult.update match {
                 case Some(checkUpdate) =>
                   checkRec(
-                    session = checkUpdate(session),
                     tail,
                     update = update andThen checkUpdate,
                     error)
                 case _ =>
-                  checkRec(session, tail, update, error)
+                  checkRec(tail, update, error)
               }
 
             case Failure(e) =>
               error match {
-                case None => checkRec(session, tail, update andThen Session.MarkAsFailedUpdate, Some(e))
-                case _    => checkRec(session, tail, update, error)
+                case None => checkRec(tail, update andThen Session.MarkAsFailedUpdate, Some(e))
+                case _    => checkRec(tail, update, error)
               }
           }
         }
 
-    checkRec(session, checks, Session.Identity, None)
+    checkRec(checks, Session.Identity, None)
   }
 }
 
