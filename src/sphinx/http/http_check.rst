@@ -263,13 +263,13 @@ Transforming is an **optional** step for transforming the result of the extracti
 
 ``transform(function)`` takes a ``X => X2`` function, meaning that it can only transform the result when it exists.
 
-``fullTransform(function)`` takes a ``Option[X] => Validation[Option[X2]]`` function, meaning that it gives full control over the extracted result, even providing a default value.
+``transformOption(function)`` takes a ``Option[X] => Validation[Option[X2]]`` function, meaning that it gives full control over the extracted result, even providing a default value.
 
 ::
 
 	transform(string => string + "foo")
 
-	fullTransform(extract => Some(extract.getOrElse("default")).success)
+	transformOption(extract => extract.orElse(Some("default"))).success)
 
 .. _http-check-verifying:
 

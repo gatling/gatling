@@ -83,10 +83,10 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
       }
     })
 
-  def fullTransform[X2](transformation: Option[X] => Validation[Option[X2]]): ValidatorCheckBuilder[C, R, P, X2] =
+  def transformOption[X2](transformation: Option[X] => Validation[Option[X2]]): ValidatorCheckBuilder[C, R, P, X2] =
     copy(extractor = extractor.map { extractor =>
       new Extractor[P, X2] {
-        def name = extractor.name + " fullTransform"
+        def name = extractor.name + " transformOption"
 
         def apply(prepared: P): Validation[Option[X2]] =
           try {
@@ -94,7 +94,7 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
               transformation(extracted)
             }
           } catch {
-            case e: Exception => s"fullTransform crashed: ${e.getMessage}".failure
+            case e: Exception => s"transformOption crashed: ${e.getMessage}".failure
           }
       }
     })
