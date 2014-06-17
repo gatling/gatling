@@ -81,7 +81,7 @@ object HttpHelper extends StrictLogging {
     }
 
   def isRedirect(statusCode: Int) = RedirectStatusCodes.contains(statusCode)
-  def isPermanentRedirect(statusCode: Int): Boolean = statusCode == 301
+  def isPermanentRedirect(statusCode: Int): Boolean = statusCode == 301 || statusCode == 308
   def isNotModified(statusCode: Int) = statusCode == 304
 
   def isSecure(uri: URI) = uri.getScheme == HttpsScheme || uri.getScheme == WssScheme
