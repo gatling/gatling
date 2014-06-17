@@ -54,9 +54,11 @@ class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
 
   private def metricsOfHistogram(histogram: Histogram): Option[Metrics] = {
     val count = histogram.getTotalCount
-    if (count > 0)
-      Some(Metrics(count, histogram.getMinValue, histogram.getMaxValue, histogram.getValueAtPercentile(percentile1), histogram.getValueAtPercentile(percentile2)))
-    else
+    if (count > 0) {
+      val percentile1Value = histogram.highestEquivalentValue(histogram.getValueAtPercentile(percentile1))
+      val percentile2Value = histogram.highestEquivalentValue(histogram.getValueAtPercentile(percentile2))
+      Some(Metrics(count, histogram.getMinValue, histogram.getMaxValue, percentile1Value, percentile2Value))
+    } else
       None
   }
 }
