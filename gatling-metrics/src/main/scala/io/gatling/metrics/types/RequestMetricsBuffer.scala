@@ -21,7 +21,7 @@ import org.HdrHistogram.Histogram
 
 class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
 
-  // Let's take the max of the possible timeouts and add a 1s buffer 
+  // Let's take the max of the possible timeouts and add a 1s buffer
   private val maxValue = configuration.data.graphite.maxMeasuredValue.max(
     configuration.http.ahc.requestTimeOutInMs) + 1000
 
@@ -29,33 +29,33 @@ class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
   private val percentile1 = configuration.charting.indicators.percentile1
   private val percentile2 = configuration.charting.indicators.percentile2
 
-  private val okDigest = new Histogram(maxValue, precision)
-  private val koDigest = new Histogram(maxValue, precision)
-  private val allDigest = new Histogram(maxValue, precision)
+  private val okHistogram = new Histogram(maxValue, precision)
+  private val koHistogram = new Histogram(maxValue, precision)
+  private val allHistogram = new Histogram(maxValue, precision)
 
   def add(status: Status, time: Long): Unit = {
     val responseTime = time.max(0L)
 
-    allDigest.recordValue(responseTime)
+    allHistogram.recordValue(responseTime)
     status match {
-      case OK => okDigest.recordValue(responseTime)
-      case KO => koDigest.recordValue(responseTime)
+      case OK => okHistogram.recordValue(responseTime)
+      case KO => koHistogram.recordValue(responseTime)
     }
   }
 
   def clear(): Unit = {
-    okDigest.reset()
-    koDigest.reset()
-    allDigest.reset()
+    okHistogram.reset()
+    koHistogram.reset()
+    allHistogram.reset()
   }
 
   def metricsByStatus: MetricByStatus =
-    MetricByStatus(metricsOfDigest(okDigest), metricsOfDigest(koDigest), metricsOfDigest(allDigest))
+    MetricByStatus(metricsOfHistogram(okHistogram), metricsOfHistogram(koHistogram), metricsOfHistogram(allHistogram))
 
-  private def metricsOfDigest(digest: Histogram): Option[Metrics] = {
-    val count = digest.getTotalCount
+  private def metricsOfHistogram(histogram: Histogram): Option[Metrics] = {
+    val count = histogram.getTotalCount
     if (count > 0)
-      Some(Metrics(count, digest.getMinValue, digest.getMaxValue, digest.getValueAtPercentile(percentile1), digest.getValueAtPercentile(percentile2)))
+      Some(Metrics(count, histogram.getMinValue, histogram.getMaxValue, histogram.getValueAtPercentile(percentile1), histogram.getValueAtPercentile(percentile2)))
     else
       None
   }
