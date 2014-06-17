@@ -53,7 +53,7 @@ object ResourceFetcher extends StrictLogging {
   val InferredResourcesCache: concurrent.Map[(HttpProtocol, URI), InferredPageResources] = new ConcurrentHashMapV8[(HttpProtocol, URI), InferredPageResources]
 
   def pageResources(htmlDocumentURI: URI, filters: Option[Filters], responseChars: Array[Char]): List[EmbeddedResource] = {
-    val htmlInferredResources = HtmlParser.getEmbeddedResources(htmlDocumentURI, responseChars)
+    val htmlInferredResources = new HtmlParser().getEmbeddedResources(htmlDocumentURI, responseChars)
     filters match {
       case Some(f) => f.filter(htmlInferredResources)
       case none    => htmlInferredResources

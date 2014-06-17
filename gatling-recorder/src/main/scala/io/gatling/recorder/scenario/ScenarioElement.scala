@@ -69,7 +69,7 @@ object RequestElement {
         val charset = Charset.forName(charsetName)
         extractContent(response).map(bytes => {
           val htmlBuff = new String(bytes, charset).toCharArray
-          HtmlParser.getEmbeddedResources(new URI(request.getUri), htmlBuff)
+          new HtmlParser().getEmbeddedResources(new URI(request.getUri), htmlBuff)
         })
     }.flatten.getOrElse(Nil)
 

@@ -37,7 +37,7 @@ class HtmlParserSpec extends Specification {
       implicit def string2URI(string: String) = URI.create(string)
 
     "extract all urls" in {
-      HtmlParser.getEmbeddedResources(new URI("http://akka.io"), htmlContent) must beEqualTo(List(
+      new HtmlParser().getEmbeddedResources(new URI("http://akka.io"), htmlContent) must beEqualTo(List(
         RegularResource("http://akka.io/resources/favicon.ico"),
         CssResource("http://akka.io/resources/stylesheets/style.css"),
         CssResource("http://fonts.googleapis.com/css?family=Exo:300,400,600,700"),
