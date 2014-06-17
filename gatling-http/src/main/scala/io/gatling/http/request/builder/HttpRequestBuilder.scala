@@ -22,7 +22,7 @@ import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckTarget.Status
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request.{ Body, BodyPart, ExtraInfoExtractor, HttpRequest }
+import io.gatling.http.request._
 import io.gatling.http.response.ResponseTransformer
 
 case class HttpAttributes(
@@ -31,7 +31,7 @@ case class HttpAttributes(
   silent: Boolean = false,
   followRedirect: Boolean = true,
   responseTransformer: Option[ResponseTransformer] = None,
-  explicitResources: Seq[AbstractHttpRequestBuilder[_]] = Nil,
+  explicitResources: List[AbstractHttpRequestBuilder[_]] = Nil,
   body: Option[Body] = None,
   bodyParts: List[BodyPart] = Nil,
   extraInfoExtractor: Option[ExtraInfoExtractor] = None)
@@ -83,7 +83,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
   def bodyPart(bodyPart: BodyPart): B = newInstance(httpAttributes.copy(bodyParts = bodyPart :: httpAttributes.bodyParts))
 
-  def resources(res: AbstractHttpRequestBuilder[_]*): B = newInstance(httpAttributes.copy(explicitResources = res))
+  def resources(res: AbstractHttpRequestBuilder[_]*): B = newInstance(httpAttributes.copy(explicitResources = res.toList))
 
   def request(protocol: HttpProtocol): Expression[Request]
 
@@ -93,7 +93,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
    * @param protocol the protocol of the current scenario
    * @param throttled if throttling is enabled
    */
-  def build(protocol: HttpProtocol, throttled: Boolean): HttpRequest = {
+  def build(protocol: HttpProtocol, throttled: Boolean): HttpRequestDef = {
 
     val checks =
       if (httpAttributes.ignoreDefaultChecks)
@@ -101,10 +101,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
       else
         protocol.responsePart.checks ::: httpAttributes.checks
 
-    val resolvedChecks = (checks.find(_.target == Status) match {
+    val resolvedChecks = checks.find(_.target == Status) match {
       case None => checks ::: List(HttpRequestActionBuilder.DefaultHttpCheck)
       case _    => checks
-    })
+    }
 
     val resolvedFollowRedirect = protocol.responsePart.followRedirect && httpAttributes.followRedirect
 
@@ -118,19 +118,20 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
     val resolvedSignatureCalculator = commonAttributes.signatureCalculator.orElse(protocol.requestPart.signatureCalculator)
 
-    HttpRequest(
+    HttpRequestDef(
       commonAttributes.requestName,
       resolvedRequestExpression,
-      resolvedChecks,
-      resolvedResponseTransformer,
-      resolvedExtraInfoExtractor,
-      protocol.responsePart.maxRedirects,
-      throttled,
-      httpAttributes.silent,
-      resolvedFollowRedirect,
-      protocol,
-      resolvedResources,
-      resolvedSignatureCalculator)
+      resolvedSignatureCalculator,
+      HttpRequestConfig(
+        checks = resolvedChecks,
+        responseTransformer = resolvedResponseTransformer,
+        extraInfoExtractor = resolvedExtraInfoExtractor,
+        maxRedirects = protocol.responsePart.maxRedirects,
+        throttled = throttled,
+        silent = httpAttributes.silent,
+        followRedirect = resolvedFollowRedirect,
+        protocol = protocol,
+        explicitResources = resolvedResources))
   }
 }
 

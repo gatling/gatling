@@ -49,8 +49,10 @@ object PermanentRedirect {
   }
 
   private def redirectTransaction(origTx: HttpTx, uri: URI, additionalRedirects: Int): HttpTx = {
-    val newRequest = redirectRequest(origTx.request, uri)
-    origTx.copy(request = newRequest, redirectCount = origTx.redirectCount + additionalRedirects)
+    val newAhcRequest = redirectRequest(origTx.request.ahcRequest, uri)
+    val newRequest = origTx.request.copy(ahcRequest = newAhcRequest)
+    val newRedirectCount = origTx.redirectCount + additionalRedirects
+    origTx.copy(request = newRequest, redirectCount = newRedirectCount)
   }
 
   private def redirectRequest(request: Request, toUri: URI): Request = {
@@ -59,10 +61,9 @@ object PermanentRedirect {
     requestBuilder.build()
   }
 
-  def getRedirect(origTx: HttpTx): HttpTx = {
-    permanentRedirect(origTx.session, origTx.request.getURI) match {
+  def getRedirect(origTx: HttpTx): HttpTx =
+    permanentRedirect(origTx.session, origTx.request.ahcRequest.getURI) match {
       case Some(Pair(targetUri, redirectCount)) => redirectTransaction(origTx, targetUri, redirectCount)
       case None                                 => origTx
     }
-  }
 }

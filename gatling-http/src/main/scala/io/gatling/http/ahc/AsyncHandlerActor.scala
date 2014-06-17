@@ -37,7 +37,6 @@ import io.gatling.http.check.{ HttpCheck, HttpCheckTarget }
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.referer.RefererHandling
-import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }
@@ -93,10 +92,10 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     response: Response,
     errorMessage: Option[String] = None): Unit = {
 
-    if (!tx.silent) {
+    if (!tx.request.config.silent) {
       val fullRequestName = if (tx.redirectCount > 0)
-        s"${tx.requestName} Redirect ${tx.redirectCount}"
-      else tx.requestName
+        s"${tx.request.requestName} Redirect ${tx.redirectCount}"
+      else tx.request.requestName
 
         def dump = {
           val buff = new JStringBuilder
@@ -105,7 +104,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           buff.append("=========================").append(Eol)
           buff.append("Session:").append(Eol).append(tx.session).append(Eol)
           buff.append("=========================").append(Eol)
-          buff.append("HTTP request:").append(Eol).appendAHCRequest(tx.request)
+          buff.append("HTTP request:").append(Eol).appendAHCRequest(tx.request.ahcRequest)
           buff.append("=========================").append(Eol)
           buff.append("HTTP response:").append(Eol).appendResponse(response).append(Eol)
           buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
@@ -119,8 +118,8 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       logger.trace(dump)
 
       val extraInfo: List[Any] = try {
-        tx.protocol.responsePart.extraInfoExtractor match {
-          case Some(extractor) => extractor(tx.requestName, status, tx.session, tx.request, response)
+        tx.request.config.protocol.responsePart.extraInfoExtractor match {
+          case Some(extractor) => extractor(tx.request.requestName, status, tx.session, tx.request.ahcRequest, response)
           case _               => Nil
         }
       } catch {
@@ -158,13 +157,12 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       }
 
       def inferPageResources(tx: HttpTx, response: Response): Boolean =
-        tx.protocol.responsePart.inferHtmlResources && response.isReceived && isHtml(response.headers)
+        tx.request.config.protocol.responsePart.inferHtmlResources && response.isReceived && isHtml(response.headers)
 
-    // TODO rewrite with extractors
-    if (tx.resourceFetching) {
+    if (tx.secondary) {
       val resourceMessage =
         if (isCss(response.headers))
-          CssResourceFetched(response.request.getOriginalURI, status, update, response.statusCode, ResourceFetcher.lastModifiedOrEtag(response, tx.protocol), response.body.string)
+          CssResourceFetched(response.request.getOriginalURI, status, update, response.statusCode, ResourceFetcher.lastModifiedOrEtag(response, tx.request.config.protocol), response.body.string)
         else
           RegularResourceFetched(response.request.getOriginalURI, status, update)
 
@@ -172,8 +170,8 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
     } else {
       val explicitResources =
-        if (tx.explicitResources.nonEmpty)
-          HttpRequest.buildNamedRequests(tx.explicitResources, update(tx.session))
+        if (tx.request.config.explicitResources.nonEmpty)
+          ResourceFetcher.buildExplicitResources(tx.request.config.explicitResources, update(tx.session))
         else
           Nil
 
@@ -207,7 +205,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
   private def processResponse(tx: HttpTx, response: Response): Unit = {
 
       def redirectRequest(redirectURI: URI, sessionWithUpdatedCookies: Session): Request = {
-        val originalRequest = tx.request
+        val originalRequest = tx.request.ahcRequest
 
         val requestBuilder = new RequestBuilder("GET", originalRequest.isUseRawUrl)
           .setURI(redirectURI)
@@ -230,16 +228,16 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       }
 
       def redirect(update: Session => Session): Unit =
-        tx.maxRedirects match {
+        tx.request.config.maxRedirects match {
           case Some(maxRedirects) if maxRedirects == tx.redirectCount =>
             ko(tx, update, response, s"Too many redirects, max is $maxRedirects")
 
           case _ =>
             response.header(HeaderNames.Location) match {
               case Some(location) =>
-                val redirectURI = resolveFromURI(tx.request.getURI, location)
+                val redirectURI = resolveFromURI(tx.request.ahcRequest.getURI, location)
 
-                val cacheRedirectUpdate = cacheRedirect(tx.request, redirectURI)
+                val cacheRedirectUpdate = cacheRedirect(tx.request.ahcRequest, redirectURI)
                 val logGroupRequestUpdate: Session => Session = {
                   val responseTime = response.reponseTimeInMillis
                   _.logGroupRequest(responseTime, OK)
@@ -251,7 +249,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
                 logRequest(loggedTx, OK, response)
 
                 val newRequest = redirectRequest(redirectURI, newSession)
-                val redirectTx = loggedTx.copy(request = newRequest)
+                val redirectTx = loggedTx.copy(request = loggedTx.request.copy(ahcRequest = newRequest))
                 HttpRequestAction.startHttpTransaction(redirectTx)
 
               case None =>
@@ -270,7 +268,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
       def checkAndProceed(sessionUpdate: Session => Session, checks: List[HttpCheck]): Unit = {
 
-        val cacheUpdate = CacheHandling.cache(tx.protocol, tx.request, response)
+        val cacheUpdate = CacheHandling.cache(tx.request.config.protocol, tx.request.ahcRequest, response)
 
         val (checkSaveUpdate, checkError) = Check.check(response, tx.session, checks)
         val newUpdate = sessionUpdate andThen cacheUpdate andThen checkSaveUpdate
@@ -284,22 +282,22 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     response.status match {
 
       case Some(status) =>
-        val uri = tx.request.getURI
+        val uri = tx.request.ahcRequest.getURI
         val cookies = response.cookies
         val storeCookiesUpdate: Session => Session = CookieHandling.storeCookies(_, uri, cookies)
         val newUpdate = tx.update andThen storeCookiesUpdate
 
-        if (HttpHelper.isRedirect(status.getStatusCode) && tx.followRedirect)
+        if (HttpHelper.isRedirect(status.getStatusCode) && tx.request.config.followRedirect)
           redirect(newUpdate)
 
         else {
           val checks =
             if (HttpHelper.isNotModified(status.getStatusCode))
-              tx.checks.filter(c => c.target != HttpCheckTarget.Body && c.target != HttpCheckTarget.Checksum)
+              tx.request.config.checks.filter(c => c.target != HttpCheckTarget.Body && c.target != HttpCheckTarget.Checksum)
             else
-              tx.checks
+              tx.request.config.checks
 
-          val storeRefererUpdate = RefererHandling.storeReferer(tx.request, response, tx.protocol)
+          val storeRefererUpdate = RefererHandling.storeReferer(tx.request.ahcRequest, response, tx.request.config.protocol)
 
           checkAndProceed(newUpdate andThen storeRefererUpdate, checks)
         }

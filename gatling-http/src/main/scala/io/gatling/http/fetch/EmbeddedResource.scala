@@ -17,16 +17,12 @@ package io.gatling.http.fetch
 
 import java.net.URI
 
-import com.ning.http.client.Request
-
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ Success, SuccessWrapper }
+import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.action.HttpRequestActionBuilder
-import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.Http
-
-case class NamedRequest(name: String, ahcRequest: Request, checks: List[HttpCheck])
+import io.gatling.http.request.HttpRequest
 
 object EmbeddedResource {
 
@@ -40,29 +36,28 @@ sealed abstract class EmbeddedResource {
   def uri: URI
   val url = uri.toString
 
-  def toRequest(protocol: HttpProtocol, throttled: Boolean): Option[NamedRequest] = {
-    val urlExpression: Expression[String] = _ => url.success
-    val httpRequest = new Http(urlExpression).get(uri).build(protocol, throttled)
+  def toRequest(protocol: HttpProtocol, throttled: Boolean): Validation[HttpRequest] = {
+
+    val requestNameExpression: Expression[String] = {
+
+      val requestName = {
+        val start = url.lastIndexOf('/') + 1
+        if (start < url.length)
+          url.substring(start, url.length)
+        else
+          "/"
+      }
+
+      _ => requestName.success
+    }
+
+    val httpRequestDef = new Http(requestNameExpression).get(uri).build(protocol, throttled)
 
     // for now, no better way to build a request than reusing HttpRequestBaseBuilder and passing a mock session
-    httpRequest.ahcRequest(EmbeddedResource.MockSession) match {
-      case Success(ahcRequest) =>
-        val requestName = {
-          val start = url.lastIndexOf('/') + 1
-          if (start < url.length)
-            url.substring(start, url.length)
-          else
-            "/"
-        }
-
-        Some(NamedRequest(requestName, ahcRequest, EmbeddedResource.DefaultResourceChecks))
-
-      case _ => None
-    }
+    httpRequestDef.build(EmbeddedResource.MockSession)
   }
 }
 
 case class CssResource(uri: URI) extends EmbeddedResource
 
 case class RegularResource(uri: URI) extends EmbeddedResource
-

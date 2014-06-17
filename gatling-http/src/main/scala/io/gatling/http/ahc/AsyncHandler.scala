@@ -30,7 +30,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
  */
 class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with StrictLogging {
 
-  val responseBuilder = tx.responseBuilderFactory(tx.request)
+  val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
   private var done = false
 
   override def onRequestSent(): Unit = {
@@ -97,9 +97,9 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
     }
 
     if (logger.underlying.isDebugEnabled)
-      logger.debug(s"Request '${tx.requestName}' failed for user ${tx.session.userId}", throwable)
+      logger.debug(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
     else
-      logger.info(s"Request '${tx.requestName}' failed for user ${tx.session.userId}: $errorMessage")
+      logger.info(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}: $errorMessage")
 
     AsyncHandlerActor.instance ! OnThrowable(tx, responseBuilder.build, errorMessage)
   }

@@ -15,6 +15,7 @@
  */
 package io.gatling.http
 
+import io.gatling.http.request.{ HttpRequestConfig, HttpRequest }
 import org.specs2.mock.Mockito
 
 import io.gatling.core.session.Session
@@ -36,25 +37,27 @@ object MockUtils extends Mockito {
     val requestPart = mock[HttpProtocolRequestPart]
 
     val tx = HttpTx(session,
-      request,
-      "mockHttpTx",
-      List(),
-      null,
-      protocol,
-      null,
-      true,
-      Some(10),
-      false,
-      false,
-      Seq(),
-      None,
-      false,
-      redirectCount)
+      request = HttpRequest(
+        requestName = "mockHttpTx",
+        ahcRequest = request,
+        config = HttpRequestConfig(
+          checks = Nil,
+          responseTransformer = None,
+          extraInfoExtractor = None,
+          maxRedirects = Some(10),
+          throttled = false,
+          silent = false,
+          followRedirect = true,
+          protocol = protocol,
+          explicitResources = Nil)),
+      responseBuilderFactory = null,
+      next = null,
+      redirectCount = redirectCount)
 
     protocol.requestPart returns requestPart
     requestPart.cache returns false
 
-    request.getURI returns (new URI(uri))
+    request.getURI returns new URI(uri)
 
     tx
   }

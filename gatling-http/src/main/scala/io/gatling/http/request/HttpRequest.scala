@@ -29,38 +29,15 @@
  */
 package io.gatling.http.request
 
-import com.ning.http.client.{ SignatureCalculator, Request }
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.ning.http.client.{ RequestBuilder, SignatureCalculator, Request }
 
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ Failure, Success }
+import io.gatling.core.validation.Validation
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.fetch.NamedRequest
 import io.gatling.http.response.ResponseTransformer
 
-object HttpRequest extends StrictLogging {
-
-  def buildNamedRequests(resources: Seq[HttpRequest], session: Session): List[NamedRequest] =
-    resources.foldLeft(List.empty[NamedRequest]) { (acc, res) =>
-
-      val namedRequest = for {
-        name <- res.requestName(session)
-        request <- res.ahcRequest(session)
-      } yield NamedRequest(name, request, res.checks)
-
-      namedRequest match {
-        case Success(request) => request :: acc
-        case Failure(message) =>
-          logger.warn(s"Couldn't fetch resource: $message")
-          acc
-      }
-    }.reverse
-}
-
-case class HttpRequest(
-  requestName: Expression[String],
-  ahcRequest: Expression[Request],
+case class HttpRequestConfig(
   checks: List[HttpCheck],
   responseTransformer: Option[ResponseTransformer],
   extraInfoExtractor: Option[ExtraInfoExtractor],
@@ -69,5 +46,56 @@ case class HttpRequest(
   silent: Boolean,
   followRedirect: Boolean,
   protocol: HttpProtocol,
-  explicitResources: Seq[HttpRequest],
-  signatureCalculator: Option[SignatureCalculator] = None)
+  explicitResources: List[HttpRequestDef])
+
+object HttpRequestDef {
+
+  def isSilent(config: HttpRequestConfig, ahcRequest: Request): Boolean = {
+
+      def requestMadeSilentByProtocol: Boolean = config.protocol.requestPart.silentURI match {
+        case Some(r) =>
+          val uri = ahcRequest.getURI.toString
+          r.pattern.matcher(uri).matches
+        case None => false
+      }
+
+    config.silent || requestMadeSilentByProtocol
+  }
+}
+
+case class HttpRequestDef(
+    requestName: Expression[String],
+    ahcRequest: Expression[Request],
+    signatureCalculator: Option[SignatureCalculator],
+    config: HttpRequestConfig) {
+
+  def build(session: Session): Validation[HttpRequest] =
+    for {
+      rn <- requestName(session)
+      httpRequest <- build(rn, session)
+    } yield httpRequest
+
+  def build(requestName: String, session: Session): Validation[HttpRequest] = {
+
+      def sign(request: Request, signatureCalculator: Option[SignatureCalculator]): Request =
+        signatureCalculator match {
+          case Some(calculator) => new RequestBuilder(request).setSignatureCalculator(calculator).build()
+          case None             => request
+        }
+
+    for {
+      ahcRequest <- ahcRequest(session)
+      newAhcRequest = sign(ahcRequest, signatureCalculator)
+      newSilent = HttpRequestDef.isSilent(config, newAhcRequest)
+
+    } yield HttpRequest(
+      requestName,
+      newAhcRequest,
+      config.copy(silent = newSilent))
+  }
+}
+
+case class HttpRequest(
+  requestName: String,
+  ahcRequest: Request,
+  config: HttpRequestConfig)

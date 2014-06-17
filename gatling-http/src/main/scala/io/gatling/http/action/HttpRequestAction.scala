@@ -19,65 +19,48 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import akka.actor.{ ActorRef, ActorContext }
 import akka.actor.ActorDSL.actor
+import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.Validation
+import io.gatling.core.validation._
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
 import io.gatling.http.cache.{ PermanentRedirect, CacheHandling }
 import io.gatling.http.fetch.ResourceFetcher
-import io.gatling.http.request.HttpRequest
-import io.gatling.http.response.ResponseBuilder
-import com.ning.http.client.{ RequestBuilder, SignatureCalculator, Request }
+import io.gatling.http.request.HttpRequestDef
+import io.gatling.http.response._
 
-object HttpRequestAction extends StrictLogging {
+object HttpRequestAction extends DataWriterClient with StrictLogging {
 
   def startHttpTransaction(origTx: HttpTx, httpEngine: HttpEngine = HttpEngine.instance)(implicit ctx: ActorContext): Unit = {
 
       def startHttpTransaction(tx: HttpTx): Unit = {
-        logger.info(s"Sending request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+        logger.info(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
         httpEngine.startHttpTransaction(tx)
       }
 
-      def skipCached(tx: HttpTx): Unit = {
-        logger.info(s"Skipping cached request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-        tx.next ! tx.session
-      }
-
     val tx = PermanentRedirect.getRedirect(origTx)
+    val uri = tx.request.ahcRequest.getURI
+    val protocol = tx.request.config.protocol
 
-    val uri = tx.request.getURI
-    CacheHandling.getExpire(tx.protocol, tx.session, uri) match {
+    CacheHandling.getExpire(protocol, tx.session, uri) match {
 
-      case None                               => startHttpTransaction(tx)
+      case None =>
+        startHttpTransaction(tx)
 
-      case Some(expire) if nowMillis > expire => startHttpTransaction(tx.copy(session = CacheHandling.clearExpire(tx.session, uri)))
+      case Some(expire) if nowMillis > expire =>
+        val newTx = tx.copy(session = CacheHandling.clearExpire(tx.session, uri))
+        startHttpTransaction(newTx)
 
-      case _ if tx.protocol.responsePart.inferHtmlResources =>
-        val explicitResources = HttpRequest.buildNamedRequests(tx.explicitResources, tx.session)
-
-        ResourceFetcher.fromCache(tx.request.getURI, tx, explicitResources) match {
+      case _ =>
+        ResourceFetcher.fromCache(uri, tx) match {
           case Some(resourceFetcher) =>
-            logger.info(s"Fetching resources of cached page request=${tx.requestName} uri=${tx.request.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+            logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
             actor(resourceFetcher())
 
-          case None => skipCached(tx)
+          case None =>
+            logger.info(s"Skipping cached request=${tx.request.requestName} uri=${tx.request.ahcRequest.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+            tx.next ! tx.session
         }
-
-      case _ => skipCached(tx)
-    }
-  }
-
-  def isSilent(ahcRequest: Request, httpRequest: HttpRequest): Boolean = {
-    if (httpRequest.silent)
-      true
-    else {
-      val requestConfig = httpRequest.protocol.requestPart
-      requestConfig.silentURI match {
-        case Some(r) =>
-          val uri = ahcRequest.getURI.toString
-          r.pattern.matcher(uri).matches
-        case None => false
-      }
     }
   }
 }
@@ -86,40 +69,25 @@ object HttpRequestAction extends StrictLogging {
  * This is an action that sends HTTP requests
  *
  * @constructor constructs an HttpRequestAction
- * @param httpRequest the request
+ * @param httpRequestDef the request definition
  * @param next the next action that will be executed after the request
  */
-class HttpRequestAction(httpRequest: HttpRequest, val next: ActorRef) extends RequestAction {
+class HttpRequestAction(httpRequestDef: HttpRequestDef, val next: ActorRef) extends RequestAction {
 
-  import httpRequest._
+  import httpRequestDef._
 
-  val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(checks, responseTransformer, protocol)
-  val requestName = httpRequest.requestName
-
-  def sign(request: Request, signatureCalculator: Option[SignatureCalculator]): Request =
-    signatureCalculator match {
-      case Some(calculator) => new RequestBuilder(request).setSignatureCalculator(calculator).build()
-      case None             => request
-    }
+  val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(config.checks, config.responseTransformer, config.protocol)
+  val requestName = httpRequestDef.requestName
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    for {
-      ahcRequest <- ahcRequest(session)
+    httpRequestDef.build(requestName, session).map { httpRequest =>
 
-      tx = HttpTx(
+      val tx = HttpTx(
         session,
-        sign(ahcRequest, signatureCalculator),
-        requestName,
-        checks,
+        httpRequest,
         responseBuilderFactory,
-        protocol,
-        next,
-        followRedirect,
-        maxRedirects,
-        throttled,
-        HttpRequestAction.isSilent(ahcRequest, httpRequest),
-        explicitResources,
-        extraInfoExtractor)
+        next: ActorRef)
 
-    } yield HttpRequestAction.startHttpTransaction(tx)
+      HttpRequestAction.startHttpTransaction(tx)
+    }
 }

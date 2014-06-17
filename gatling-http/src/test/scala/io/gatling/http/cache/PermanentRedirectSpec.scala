@@ -58,7 +58,7 @@ class PermanentRedirectSpec extends Specification with Mockito {
       val origTx = MockUtils.txTo("http://example.com/", session)
       val tx = PermanentRedirect.getRedirect(origTx)
 
-      tx.request.getURI should be equalTo new URI("http://gatling-tool.org/")
+      tx.request.ahcRequest.getURI should be equalTo new URI("http://gatling-tool.org/")
       tx.redirectCount should be equalTo 1
 
     }
@@ -71,7 +71,7 @@ class PermanentRedirectSpec extends Specification with Mockito {
       val origTx = MockUtils.txTo("http://example.com/", session)
       val tx = PermanentRedirect.getRedirect(origTx)
 
-      tx.request.getURI should be equalTo new URI("http://gatling-tool3.org/")
+      tx.request.ahcRequest.getURI should be equalTo new URI("http://gatling-tool3.org/")
       tx.redirectCount should be equalTo 3
 
     }
@@ -85,10 +85,9 @@ class PermanentRedirectSpec extends Specification with Mockito {
       val origTx = MockUtils.txTo("http://example.com/", session, 2)
       val tx = PermanentRedirect.getRedirect(origTx)
 
-      tx.request.getURI should be equalTo new URI("http://gatling-tool3.org/")
+      tx.request.ahcRequest.getURI should be equalTo new URI("http://gatling-tool3.org/")
       // After 3 more redirects it is now equal to 5
       tx.redirectCount should be equalTo 5
-
     }
   }
 }

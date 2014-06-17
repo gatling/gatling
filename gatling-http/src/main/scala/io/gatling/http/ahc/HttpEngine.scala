@@ -33,28 +33,18 @@ import io.gatling.core.controller.{ Controller, ThrottledRequest }
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.action.ws.{ OnFailedOpen, WsListener }
-import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request.{ ExtraInfoExtractor, HttpRequest }
+import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilderFactory
 import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
 import io.gatling.http.check.ws.WsCheck
 import io.gatling.core.check.CheckResult
 
 case class HttpTx(session: Session,
-                  request: Request,
-                  requestName: String,
-                  checks: List[HttpCheck],
+                  request: HttpRequest,
                   responseBuilderFactory: ResponseBuilderFactory,
-                  protocol: HttpProtocol,
                   next: ActorRef,
-                  followRedirect: Boolean,
-                  maxRedirects: Option[Int],
-                  throttled: Boolean,
-                  silent: Boolean,
-                  explicitResources: Seq[HttpRequest],
-                  extraInfoExtractor: Option[ExtraInfoExtractor],
-                  resourceFetching: Boolean = false,
+                  secondary: Boolean = false,
                   redirectCount: Int = 0,
                   update: Session => Session = Session.Identity)
 
@@ -219,15 +209,19 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
   def startHttpTransaction(tx: HttpTx): Unit = {
 
+    val requestConfig = tx.request.config
+
     val (newTx, client) = {
-      val (newSession, client) = httpClient(tx.session, tx.protocol)
+      val (newSession, client) = httpClient(tx.session, requestConfig.protocol)
       (tx.copy(session = newSession), client)
     }
 
-    if (tx.throttled)
-      Controller ! ThrottledRequest(tx.session.scenarioName, () => client.executeRequest(newTx.request, new AsyncHandler(newTx)))
+    val ahcRequest = newTx.request.ahcRequest
+
+    if (requestConfig.throttled)
+      Controller ! ThrottledRequest(tx.session.scenarioName, () => client.executeRequest(ahcRequest, new AsyncHandler(newTx)))
     else
-      client.executeRequest(newTx.request, new AsyncHandler(newTx))
+      client.executeRequest(ahcRequest, new AsyncHandler(newTx))
   }
 
   def startWebSocketTransaction(tx: WsTx, wsActor: ActorRef): Unit = {

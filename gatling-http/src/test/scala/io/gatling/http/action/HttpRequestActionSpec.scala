@@ -15,9 +15,9 @@
  */
 package io.gatling.http.action
 
-import io.gatling.http.request.HttpRequest
-import io.gatling.http.config.{ HttpProtocolBuilder, HttpProtocol }
-import io.gatling.core.session.Session
+import java.net.URI
+
+import io.gatling.core.session._
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
 import io.gatling.http.cache.PermanentRedirect
 import io.gatling.http.MockUtils
@@ -27,10 +27,6 @@ import org.specs2.runner.JUnitRunner
 import org.specs2.mutable.{ Before, Specification }
 import org.specs2.mock.Mockito
 import org.specs2.mock.mockito.ArgumentCapture
-
-import com.ning.http.client.Request
-
-import java.net.URI
 
 /**
  * @author Ivan Mushketyk
@@ -49,50 +45,7 @@ class HttpRequestActionSpec extends Specification with Mockito {
     def before() {}
   }
 
-  "http request action" should {
-    "silent requests should remain silent" in {
-      val request = mock[HttpRequest]
-      val ahcRequest = mock[Request]
-      request.protocol returns HttpProtocol.DefaultHttpProtocol
-      request.silent returns true
-      ahcRequest.getURI returns new URI("http://example.com/")
-
-      HttpRequestAction.isSilent(ahcRequest, request) should beTrue
-    }
-
-    "silent requests should remain silent" in {
-      val request = mock[HttpRequest]
-      val ahcRequest = mock[Request]
-      request.silent returns true
-      request.protocol returns HttpProtocol.DefaultHttpProtocol
-      ahcRequest.getURI returns new URI("http://example.com/")
-
-      HttpRequestAction.isSilent(ahcRequest, request) should beTrue
-    }
-
-    "non-silent requests with default protocol should remain non-silent" in {
-      val request = mock[HttpRequest]
-      val ahcRequest = mock[Request]
-
-      request.silent returns false
-      request.protocol returns HttpProtocol.DefaultHttpProtocol
-      ahcRequest.getURI returns new URI("http://example.com/")
-
-      HttpRequestAction.isSilent(ahcRequest, request) should beFalse
-    }
-
-    "non-silent requests with default protocol should remain non-silent" in {
-      val request = mock[HttpRequest]
-      val ahcRequest = mock[Request]
-      request.silent returns false
-      ahcRequest.getURI returns new URI("http://example.com/test.js")
-
-      val protocol = new HttpProtocolBuilder(HttpProtocol.DefaultHttpProtocol).silentURI(".*js")
-      request.protocol returns protocol
-
-      HttpRequestAction.isSilent(ahcRequest, request) should beTrue
-    }
-
+  "HttpRequestAction" should {
     "send same transaction with no redirect" in new Context {
       val tx = MockUtils.txTo("http://example.com/", session)
       HttpRequestAction.startHttpTransaction(tx, httpEngineMock)(null)
@@ -108,7 +61,7 @@ class HttpRequestActionSpec extends Specification with Mockito {
       there was one(httpEngineMock).startHttpTransaction(argumentCapture)
       val actualTx = argumentCapture.value
 
-      actualTx.request.getURI should be equalTo new URI("http://gatling-tool.org/")
+      actualTx.request.ahcRequest.getURI should be equalTo new URI("http://gatling-tool.org/")
       actualTx.redirectCount should be equalTo 1
     }
   }
