@@ -74,7 +74,7 @@ object HarReader {
     }
 
     val embeddedResources = entry.response.content match {
-      case Content("text/html", Some(text)) => HtmlParser.getEmbeddedResources(new URI(uri), text.toCharArray)
+      case Content("text/html", Some(text)) => new HtmlParser().getEmbeddedResources(new URI(uri), text.toCharArray)
       case _                                => Nil
     }
 

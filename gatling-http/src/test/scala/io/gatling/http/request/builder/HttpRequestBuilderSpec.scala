@@ -15,17 +15,22 @@
  */
 package io.gatling.http.request.builder
 
-import org.specs2.mutable.Specification
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
-import org.specs2.mock.Mockito
-import com.ning.http.client.{ Request, RequestBuilderBase, SignatureCalculator }
 import java.net.URI
+
+import com.ning.http.client.{ Request, RequestBuilderBase, SignatureCalculator }
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.validation.Success
 import io.gatling.http.config.HttpProtocol
+import org.junit.runner.RunWith
+import org.specs2.mock.Mockito
+import org.specs2.mutable.Specification
+import org.specs2.runner.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
 class HttpRequestBuilderSpec extends Specification with Mockito {
+
+  // Default config
+  GatlingConfiguration.setUp()
 
   def mockComonAttributes() = CommonAttributes(_ => Success("attributes"), "method", Right(new URI("http://gatling-tool.org")))
 

@@ -24,7 +24,7 @@ import scala.collection.{ breakOut, mutable }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.http.util.HttpHelper
-import jodd.lagarto.{ EmptyTagVisitor, Tag }
+import jodd.lagarto.{ TagUtil, TagType, EmptyTagVisitor, Tag }
 
 sealed abstract class RawResource {
   def rawUrl: String
@@ -38,9 +38,38 @@ case class RegularRawResource(rawUrl: String) extends RawResource {
   def toEmbeddedResource(rootURI: URI): Option[EmbeddedResource] = uri(rootURI).map(RegularResource)
 }
 
-object HtmlParser extends StrictLogging {
+case class HtmlResources(rawResources: Seq[RawResource], baseURI: Option[URI])
 
-  case class HtmlResources(rawResources: Seq[RawResource], baseURI: Option[URI])
+object HtmlParser {
+  val AppletTagName = "applet".toCharArray
+  val BaseTagName = "base".toCharArray
+  val BgsoundTagName = "bgsound".toCharArray
+  val BodyTagName = "body".toCharArray
+  val EmbedTagName = "embed".toCharArray
+  val ImgTagName = "img".toCharArray
+  val InputTagName = "input".toCharArray
+  val LinkTagName = "link".toCharArray
+  val ObjectTagName = "object".toCharArray
+  val StyleTagName = "style".toCharArray
+
+  val ArchiveAttribute = "archive".toCharArray
+  val BackgroungAttribute = "background".toCharArray
+  val CodeAttribute = "code".toCharArray
+  val CodeBaseAttribute = "codebase".toCharArray
+  val DataAttribute = "data".toCharArray
+  val HrefAttribute = "href".toCharArray
+  val IconAttributeName = "icon".toCharArray
+  val RelAttribute = "rel".toCharArray
+  val SrcAttribute = "src".toCharArray
+  val StyleAttribute = StyleTagName
+  val StylesheetAttributeName = "stylesheet".toCharArray
+}
+
+class HtmlParser extends StrictLogging {
+
+  import HtmlParser._
+
+  var inStyle = false
 
   def parseHtml(htmlContent: Array[Char]): HtmlResources = {
 
@@ -49,75 +78,100 @@ object HtmlParser extends StrictLogging {
 
     val visitor = new EmptyTagVisitor {
 
-      def addResource(tag: Tag, attributeName: String, factory: String => RawResource): Unit = {
-        val url = tag.getAttributeValue(attributeName, false)
-        if (url != null)
-          rawResources += factory(url)
-      }
+      def addResource(tag: Tag, attributeName: Array[Char], factory: String => RawResource): Unit =
+        Option(tag.getAttributeValue(attributeName)).foreach { url =>
+          rawResources += factory(url.toString)
+        }
 
       override def script(tag: Tag, body: CharSequence): Unit =
-        addResource(tag, "src", RegularRawResource)
+        addResource(tag, SrcAttribute, RegularRawResource)
 
-      override def style(tag: Tag, body: CharSequence): Unit =
-        rawResources ++= CssParser.extractUrls(body, CssParser.StyleImportsUrls).map(CssRawResource)
+      override def text(text: CharSequence): Unit = if (inStyle) {
+        rawResources ++= CssParser.extractUrls(text, CssParser.StyleImportsUrls).map(CssRawResource)
+      }
 
       override def tag(tag: Tag): Unit = {
 
-          def codeBase() = Option(tag.getAttributeValue("codebase", false))
+          def codeBase() = Option(tag.getAttributeValue(CodeBaseAttribute))
 
-          def prependCodeBase(url: String, codeBase: String) =
+          def prependCodeBase(codeBase: CharSequence, url: String) =
             if (url.startsWith("http"))
               url
-            else if (codeBase.charAt(codeBase.size) != '/')
-              codeBase + '/' + url
+            else if (codeBase.charAt(codeBase.length()) != '/')
+              codeBase + "/" + url
             else
               codeBase + url
 
-        tag.getName.toLowerCase match {
-          case "base" =>
-            val baseHref = Option(tag.getAttributeValue("href", false))
-            baseURI = try {
-              baseHref.map(new URI(_))
-            } catch {
-              case e: URISyntaxException =>
-                logger.debug(s"Malformed baseHref ${baseHref.get}")
-                None
+        tag.getType match {
+
+          case TagType.START | TagType.SELF_CLOSING =>
+
+            if (tag.isRawTag && tag.nameEquals(StyleTagName)) {
+              inStyle = true
+
+            } else if (tag.nameEquals(BaseTagName)) {
+              val baseHref = Option(tag.getAttributeValue(HrefAttribute))
+              baseURI = baseHref.flatMap { bh =>
+                try {
+                  baseHref.map(bh => new URI(bh.toString))
+                } catch {
+                  case e: URISyntaxException =>
+                    logger.debug(s"Malformed baseHref ${baseHref.get}")
+                    None
+                }
+              }
+
+            } else if (tag.nameEquals(LinkTagName)) {
+              val rel = tag.getAttributeValue(RelAttribute)
+
+              if (TagUtil.equalsToLowercase(rel, StylesheetAttributeName)) {
+                addResource(tag, HrefAttribute, CssRawResource)
+              } else if (TagUtil.equalsToLowercase(rel, IconAttributeName)) {
+                addResource(tag, HrefAttribute, RegularRawResource)
+              }
+
+            } else if (tag.nameEquals(ImgTagName) ||
+              tag.nameEquals(BgsoundTagName) ||
+              tag.nameEquals(EmbedTagName) ||
+              tag.nameEquals(InputTagName)) {
+
+              addResource(tag, SrcAttribute, RegularRawResource)
+
+            } else if (tag.nameEquals(BodyTagName)) {
+              addResource(tag, BackgroungAttribute, RegularRawResource)
+
+            } else if (tag.nameEquals(AppletTagName)) {
+              val code = tag.getAttributeValue(CodeAttribute).toString
+              val archives = Option(tag.getAttributeValue(ArchiveAttribute).toString).map(_.split(",").map(_.trim)(breakOut))
+
+              val appletResources = archives.getOrElse(List(code)).iterator
+              val appletResourcesUrls = codeBase() match {
+                case Some(cb) => appletResources.map(prependCodeBase(cb, _))
+                case _        => appletResources
+              }
+              rawResources ++= appletResourcesUrls.map(RegularRawResource)
+
+            } else if (tag.nameEquals(ObjectTagName)) {
+              val data = tag.getAttributeValue(DataAttribute).toString
+              val objectResourceUrl = codeBase() match {
+                case Some(cb) => prependCodeBase(cb, data)
+                case _        => data
+              }
+              rawResources += RegularRawResource(objectResourceUrl)
+
+            } else {
+              Option(tag.getAttributeValue(StyleAttribute)).foreach { style =>
+                val styleUrls = CssParser.extractUrls(style, CssParser.InlineStyleImageUrls).map(RegularRawResource)
+                rawResources ++= styleUrls
+              }
             }
 
-          case "link" =>
-            tag.getAttributeValue("rel", false) match {
-              case "stylesheet" => addResource(tag, "href", CssRawResource)
-              case "icon"       => addResource(tag, "href", RegularRawResource)
-              case _            =>
+          case TagType.END =>
+            if (inStyle && tag.nameEquals(StyleTagName)) {
+              inStyle = false
             }
-
-          case "bgsound" | "img" | "embed" | "input" => addResource(tag, "src", RegularRawResource)
-          case "body"                                => addResource(tag, "background", RegularRawResource)
-
-          case "applet" =>
-            val code = tag.getAttributeValue("code", false)
-            val archives = Option(tag.getAttributeValue("archive", false)).map(_.split(",").map(_.trim)(breakOut))
-
-            val appletResources = archives.getOrElse(List(code)).iterator
-            val appletResourcesUrls = codeBase() match {
-              case Some(cb) => appletResources.map(prependCodeBase(cb, _))
-              case None     => appletResources
-            }
-            rawResources ++= appletResourcesUrls.map(RegularRawResource)
-
-          case "object" =>
-            val data = tag.getAttributeValue("data", false)
-            val objectResourceUrl = codeBase() match {
-              case Some(cb) => prependCodeBase(cb, data)
-              case _        => data
-            }
-            rawResources += RegularRawResource(objectResourceUrl)
 
           case _ =>
-            Option(tag.getAttributeValue("style", false)).foreach { style =>
-              val styleUrls = CssParser.extractUrls(style, CssParser.InlineStyleImageUrls).map(RegularRawResource)
-              rawResources ++= styleUrls
-            }
         }
       }
     }

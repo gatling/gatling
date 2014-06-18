@@ -16,7 +16,7 @@
 package io.gatling.core.check.extractor.css
 
 import jodd.lagarto.LagartoParser
-import jodd.lagarto.dom.LagartoDOMBuilder
+import jodd.lagarto.dom.{ LagartoDomBuilderConfig, LagartoDOMBuilder }
 import jodd.log.LoggerFactory
 import jodd.log.impl.Slf4jLoggerFactory
 
@@ -24,15 +24,20 @@ object Jodd {
 
   LoggerFactory.setLoggerFactory(new Slf4jLoggerFactory)
 
+  val JoddConfig = new LagartoDomBuilderConfig()
+    .setParsingErrorLogLevelName("INFO")
+    .setEnableConditionalComments(false)
+    .setCaseSensitive(false)
+
   def newLagartoDomBuilder: LagartoDOMBuilder = {
     val domBuilder = new LagartoDOMBuilder
-    domBuilder.setParsingErrorLogLevelName("INFO")
+    domBuilder.setConfig(JoddConfig)
     domBuilder
   }
 
   def newLagartoParser(chars: Array[Char]): LagartoParser = {
-    val lagartoParser = new LagartoParser(chars)
-    lagartoParser.setEnableConditionalComments(false)
+    val lagartoParser = new LagartoParser(chars, false)
+    lagartoParser.setConfig(JoddConfig)
     lagartoParser
   }
 }

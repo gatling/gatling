@@ -27,7 +27,7 @@ object Dependencies {
   private val boon                           = "io.fastjson"                % "boon"               % "0.21"
   private val jsonpath                       = "io.gatling"                %% "jsonpath"           % "0.4.1"
   private val uncommonsMaths                 = "io.gatling.uncommons.maths" % "uncommons-maths"    % "1.2.3"      classifier "jdk6"
-  private val joddLagarto                    = "org.jodd"                   % "jodd-lagarto"       % "3.5"
+  private val joddLagarto                    = "org.jodd"                   % "jodd-lagarto"       % "3.6.0-BETA1"
   private val jzlib                          = "com.jcraft"                 % "jzlib"              % "1.1.3"
   private val redisClient                    =  "net.debasishg"             %% "redisclient"       % "2.12"
   private val zinc                           = "com.typesafe.zinc"          % "zinc"               % "0.3.5"
