@@ -119,8 +119,13 @@ This behavior does not match real browsers, and doesn't support SSL session trac
 In Gatling 2, the default behavior is that every user has his own connection pool.
 This can be tuned with the ``.shareConnections`` configuration param.
 
+.. _http-protocol-client-sharing:
+
+HTTP Client sharing
+-------------------
+
 If you need more isolation of your user, for instance if you need a dedicated key store per user,
-Gatling lets you have an instance of the http client per user with ``.disableClientSharing``.
+Gatling lets you have an instance of the HTTP client per user with ``.disableClientSharing``.
 
 Virtual Host
 ------------

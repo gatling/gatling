@@ -38,4 +38,7 @@ Per Virtual User Stores
 -----------------------
 
 Sometimes, one might want to have virtual users with different keystores and truststores.
+
+As keystore and truststore are define at the HTTP engine instance level, one first has to use :ref:`disableClientSharing <http-protocol-client-sharing>`_.
+
 Then, simply pass the same properties as session attributes (manually or with a feeder).
