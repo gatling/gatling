@@ -44,10 +44,10 @@ For example::
                      Map("foo" -> "foo3", "bar" -> "bar3")).random
 
 
-.. _feeder-fileparser:
+.. _feeder-csv:
 
-File parser feeders
-===================
+CSV feeders
+===========
 
 Gatling provides several builtins for reading character-separated values files.
 
@@ -67,7 +67,7 @@ Besides escaping features described in the RFC, one can use a ``\`` character an
 
 Those built-ins returns ``RecordSeqFeederBuilder`` instances, meaning that the whole file is loaded in memory and parsed, so the resulting feeders doesn't read on disk during the simulation run.
 
-.. _feeder-fileparser-json:
+.. _feeder-csv-json:
 
 Some users might be interested in storing JSON bodies inside a Feeder file.
 
@@ -78,6 +78,37 @@ A solution can be to turn the parsing into a raw split::
   val ssvFeeder = ssv("foo.ssv", rawSplit = true)
 
 Of course, don't use csv for JSON with rawSplit as the JSON commas will be interpreted as separators!
+
+.. _feeder-json:
+
+JSON feeders
+============
+
+Some might want to use data in JSON format instead of CSV::
+
+  val jsonFileFeeder = jsonFile("foo.json")
+  val jsonUrlFeeder = jsonUrl("http://me.com/foo.json")
+
+For example, the following JSON::
+
+  [
+    {
+      "id":19434,
+      "foo":1
+    },
+    {
+      "id":19435,
+      "foo":2
+    }
+  ]
+
+will be turned into::
+
+  record1: Map("id" -> 19434, "foo" -> 1)
+  record2: Map("id" -> 19435, "foo" -> 2)
+
+
+Note that the root element has of course to be an array.
 
 .. _feeder-jdbc:
 
