@@ -4,7 +4,9 @@ import java.io.File
 
 import akka.actor.{ Actor, ActorRef, Props }
 import akka.io.IO
+import akka.pattern.ask
 import akka.testkit.{ ImplicitSender, TestKit }
+import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.Logging
 import io.gatling.core.akka.GatlingActorSystem
 import io.gatling.core.config.Protocols
@@ -21,6 +23,7 @@ import org.specs2.specification.Fixture
 import spray.can.Http
 import spray.http._
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 
 object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Logging {
@@ -58,8 +61,9 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
   def serverMock(f: PartialFunction[Any, HttpResponse])(implicit testKit: TestKit with ImplicitSender) = {
     serverActor = GatlingActorSystem.instance.actorOf(Props(new HttpActor(f)), "mockServer")
 
-    IO(Http)(GatlingActorSystem.instance) ! Http.Bind(serverActor, interface = "localhost", port = mockHttpPort)
-    Thread.sleep(2000)
+    implicit val timeout = Timeout(4 seconds)
+    val future = IO(Http)(GatlingActorSystem.instance) ? Http.Bind(serverActor, interface = "localhost", port = mockHttpPort)
+    Await.result(future, Duration.Inf)
   }
 
   def apply[R: AsResult](config: Map[String, _])(f: TestKit with ImplicitSender => R): Result = {
@@ -81,8 +85,7 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
          * with GatlingActorSystem, so they will be shutdown with the ActorSystem
          */
         if (serverActor != null) {
-          IO(Http)(GatlingActorSystem.instance) ! Http.Unbind(1 second)
-          Thread.sleep(2000)
+          IO(Http)(GatlingActorSystem.instance) ! Http.Unbind(4 second)
         }
 
         serverActor = null
