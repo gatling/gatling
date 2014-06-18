@@ -95,9 +95,8 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
 
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10 seconds, protocols: Protocols = Protocols(httpProtocol))(implicit testKit: TestKit with ImplicitSender) = {
     import testKit._
-    val buildMethod = classOf[ScenarioBuilder].getMethod("build", classOf[ActorRef], classOf[Protocols])
-    buildMethod.setAccessible(true)
-    val actor = buildMethod.invoke(sb, testKit.self, protocols).asInstanceOf[ActorRef]
+
+    val actor = sb.build(testKit.self, protocols)
     actor ! Session("TestSession", "testUser")
     expectMsgClass(timeout, classOf[Session])
   }
