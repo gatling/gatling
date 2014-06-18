@@ -1,0 +1,41 @@
+:tocdepth: 2
+
+.. _http-ssl:
+
+###
+SSL
+###
+
+.. _http-ssl-stores:
+
+Configuring KeyStore and TrustStore
+===================================
+
+For now, default Gatling TrustStore is very permissive and doesn't validate certificates,
+meaning that it works out of the box with self-signed certificates.
+
+.. _http-ssl-stores-shared:
+
+Shared Stores
+-------------
+
+One can provide custom keystores and truststores.
+Configuration can be passed with the standard config mechanism, either in ``gatling.conf`` or with System properties::
+
+  "gatling.http.ssl.trustStore.type"      (optional)
+  "gatling.http.ssl.trustStore.file"      (required, can be an absolute path, or a classpath location)
+  "gatling.http.ssl.trustStore.password"  (optional)
+  "gatling.http.ssl.trustStore.algorithm" (optional)
+
+  "gatling.http.ssl.keyStore.type"        (optional)
+  "gatling.http.ssl.keyStore.file"        (required, can be an absolute path, or a classpath location)
+  "gatling.http.ssl.keyStore.password"    (optional)
+  "gatling.http.ssl.keyStore.algorithm"   (optional)
+
+.. _http-ssl-stores-per-user:
+
+Per Virtual User Stores
+-----------------------
+
+Sometimes, one might want to have virtual users with different keystores and truststores.
+Then, simply pass the same properties as session attributes (manually or with a feeder).
