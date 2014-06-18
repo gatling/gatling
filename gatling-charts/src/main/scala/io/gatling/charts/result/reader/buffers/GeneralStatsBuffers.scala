@@ -71,10 +71,26 @@ abstract class GeneralStatsBuffers(durationInSec: Long,
 class GeneralStatsBuffer(duration: Long, range: (Int, Int)) extends CountBuffer {
   val digest = new AVLTreeDigest(100.0)
 
-  // Prevent exception from histogram, which must have lower bound of 1. Some stats seem to come in with lower bound 0.
-  val lowerTrackableValue = math.max(range._1, 1)
-  val higherTrackableValue = math.max(lowerTrackableValue * 2, range._2)
-  val histogram = new Histogram(lowerTrackableValue, higherTrackableValue, 3)
+  val histogram = {
+      def exponentOfNextPowerOf2GreaterThan(i: Int): Int = 32 - Integer.numberOfLeadingZeros(i - 1)
+
+    // Prevent exception from histogram, which must have lower bound of 1. Some stats seem to come in with lower bound 0.
+    val lowestTrackableValue = {
+      val l = if (range._1 == 0) 1
+      else math.pow(2, exponentOfNextPowerOf2GreaterThan(range._1) - 1).toInt - 1
+
+      math.max(l, 1)
+    }
+
+    val highestTrackableValue = {
+      val h = if (range._2 == 0) 1
+      else math.pow(2, exponentOfNextPowerOf2GreaterThan(range._2)).toInt + 1
+
+      math.max(lowestTrackableValue * 2, h)
+    }
+
+    new Histogram(lowestTrackableValue, highestTrackableValue, 3)
+  }
 
   override def update(time: Int) {
     super.update(time)
@@ -96,6 +112,7 @@ class GeneralStatsBuffer(duration: Long, range: (Int, Int)) extends CountBuffer 
       val percentile2 = digest.quantile(configuration.charting.indicators.percentile2 / 100.0).toInt
       val min = digest.quantile(0).toInt
       val max = digest.quantile(1).toInt
+
       GeneralStats(min.toInt, max.toInt, valuesCount, mean, stdDev, percentile1, percentile2, meanRequestsPerSec)
     }
   }
