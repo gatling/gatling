@@ -18,7 +18,7 @@ object Dependencies {
   private val config                         = "com.typesafe"               % "config"             % "1.2.1"
   private val saxon                          = "net.sf.saxon"               % "Saxon-HE"           % "9.5.1-5"    classifier "compressed"
   private val slf4jApi                       = "org.slf4j"                  % "slf4j-api"          % "1.7.7"
-  private val fastring                       = "com.dongxiguo"             %% "fastring"           % "0.2.2"
+  private val fastring                       = "com.dongxiguo"             %% "fastring"           % "0.2.4"
   private val jodaTime                       = "joda-time"                  % "joda-time"          % "2.3"
   private val jodaConvert                    = "org.joda"                   % "joda-convert"       % "1.5"
   private val scopt                          = "com.github.scopt"          %% "scopt"              % "3.2.0"
