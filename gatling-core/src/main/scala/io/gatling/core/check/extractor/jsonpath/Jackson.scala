@@ -18,8 +18,6 @@ package io.gatling.core.check.extractor.jsonpath
 import java.io.{ InputStream, InputStreamReader }
 import java.nio.charset.Charset
 
-import scala.Vector
-
 import com.fasterxml.jackson.core.JsonParser.Feature
 import com.fasterxml.jackson.databind.ObjectMapper
 
