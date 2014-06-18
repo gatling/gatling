@@ -40,4 +40,15 @@ class FeederSupportSpec extends Specification with FeederSupport {
       data must beEqualTo(Array(Map("foo" -> "hello", "bar" -> "world")))
     }
   }
+
+  "jsonFile" should {
+
+    "handle proper JSON file" in {
+
+      val data = jsonFile("test2.json").build.toArray
+
+      data.size must beEqualTo(2)
+      data(0)("id") must beEqualTo(19434)
+    }
+  }
 }

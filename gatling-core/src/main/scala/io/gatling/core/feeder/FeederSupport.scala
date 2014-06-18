@@ -30,23 +30,28 @@ trait FeederSupport {
   implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
 
   def csv(file: File, rawSplit: Boolean): RecordSeqFeederBuilder[String] = csv(file.path, rawSplit)
-
   def csv(fileName: String, rawSplit: Boolean = false): RecordSeqFeederBuilder[String] = separatedValues(fileName, CommaSeparator, rawSplit = rawSplit)
 
   def ssv(file: File, rawSplit: Boolean): RecordSeqFeederBuilder[String] = ssv(file.path, rawSplit)
-
   def ssv(fileName: String, rawSplit: Boolean = false): RecordSeqFeederBuilder[String] = separatedValues(fileName, SemicolonSeparator, rawSplit = rawSplit)
 
   def tsv(file: File, rawSplit: Boolean): RecordSeqFeederBuilder[String] = tsv(file.path, rawSplit)
-
   def tsv(fileName: String, rawSplit: Boolean = false): RecordSeqFeederBuilder[String] = separatedValues(fileName, TabulationSeparator, rawSplit = rawSplit)
 
   def separatedValues(fileName: String, separator: Char, quoteChar: Char = '"', rawSplit: Boolean = false): RecordSeqFeederBuilder[String] =
     separatedValues(Resource.feeder(fileName), separator, quoteChar, rawSplit)
 
   def separatedValues(resource: Validation[Resource], separator: Char, quoteChar: Char, rawSplit: Boolean): RecordSeqFeederBuilder[String] =
+    feederBuilder(resource)(SeparatedValuesParser.parse(_, separator, quoteChar, rawSplit))
+
+  def jsonFile(file: File): RecordSeqFeederBuilder[Any] = jsonFile(file.path)
+  def jsonFile(fileName: String): RecordSeqFeederBuilder[Any] = jsonFile(Resource.feeder(fileName))
+  def jsonFile(resource: Validation[Resource]): RecordSeqFeederBuilder[Any] =
+    feederBuilder(resource)(JsonFeederFileParser.parse)
+
+  def feederBuilder[T](resource: Validation[Resource])(recordParser: Resource => IndexedSeq[Record[T]]): RecordSeqFeederBuilder[T] =
     resource match {
-      case Success(res)     => RecordSeqFeederBuilder(SeparatedValuesParser.parse(res, separator, quoteChar, rawSplit))
+      case Success(res)     => RecordSeqFeederBuilder(recordParser(res))
       case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file; $message")
     }
 }

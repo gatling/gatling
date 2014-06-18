@@ -16,6 +16,7 @@
 package io.gatling.http.check.ws
 
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, CheckFactory, Preparer }
+import io.gatling.core.json.{ Jackson, Boon }
 import io.gatling.core.util.StringHelper.{ TheStringImplementation, DirectCharsBasedStringImplementation }
 import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.http.check.body.HttpBodyJsonPathCheckBuilder.handleParseException

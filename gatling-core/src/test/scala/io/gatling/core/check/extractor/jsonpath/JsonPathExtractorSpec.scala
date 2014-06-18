@@ -17,6 +17,7 @@ package io.gatling.core.check.extractor.jsonpath
 
 import java.nio.charset.StandardCharsets
 
+import io.gatling.core.json.Boon
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 

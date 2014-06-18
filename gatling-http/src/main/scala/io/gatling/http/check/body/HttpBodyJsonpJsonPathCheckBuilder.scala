@@ -18,7 +18,8 @@ package io.gatling.http.check.body
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
-import io.gatling.core.check.extractor.jsonpath.{ Boon, CountJsonPathExtractor, Jackson, JsonFilter, MultipleJsonPathExtractor, SingleJsonPathExtractor }
+import io.gatling.core.check.extractor.jsonpath.{ CountJsonPathExtractor, JsonFilter, MultipleJsonPathExtractor, SingleJsonPathExtractor }
+import io.gatling.core.json.{ Jackson, Boon }
 import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.core.util.StringHelper.{ DirectCharsBasedStringImplementation, TheStringImplementation }
 import io.gatling.core.validation.{ Validation, FailureWrapper, SuccessWrapper }

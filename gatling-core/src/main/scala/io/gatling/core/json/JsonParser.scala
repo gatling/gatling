@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.check.extractor.jsonpath
+package io.gatling.core.json
 
 import java.io.InputStream
 import java.nio.charset.Charset
