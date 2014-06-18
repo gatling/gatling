@@ -16,6 +16,7 @@
 package io.gatling.core.feeder
 
 import java.io.InputStream
+import java.net.URL
 import java.util.{ Collection => JCollection, Map => JMap }
 
 import io.gatling.core.json.Jackson
@@ -30,6 +31,11 @@ object JsonFeederFileParser {
 
   def parse(resource: Resource): IndexedSeq[Record[Any]] =
     withCloseable(resource.inputStream) { is =>
+      stream(is).toVector
+    }
+
+  def url(url: String): IndexedSeq[Record[Any]] =
+    withCloseable(new URL(url).openStream) { is =>
       stream(is).toVector
     }
 

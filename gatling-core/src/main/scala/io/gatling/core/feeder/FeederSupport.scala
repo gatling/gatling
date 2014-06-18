@@ -54,4 +54,6 @@ trait FeederSupport {
       case Success(res)     => RecordSeqFeederBuilder(recordParser(res))
       case Failure(message) => throw new IllegalArgumentException(s"Could not locate feeder file; $message")
     }
+
+  def jsonUrl(url: String) = RecordSeqFeederBuilder(JsonFeederFileParser.url(url))
 }
