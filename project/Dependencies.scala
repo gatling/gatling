@@ -46,9 +46,9 @@ object Dependencies {
   private val akkaTestKit                    = "com.typesafe.akka"         %% "akka-testkit"       % akkaVersion   % "test"
   private val mockitoCore                    = "org.mockito"                % "mockito-core"       % "1.9.5"       % "test"
   private val activemqCore                   = "org.apache.activemq"        % "activemq-broker"    % "5.10.0"      % "test"     exclude("org.springframework", "spring-context")
-  private val wireMock                       = "com.github.tomakehurst"     % "wiremock"           % "1.46"        % "test" classifier "standalone"
+  private val sprayCan                       = "io.spray"                   % "spray-can"          % "1.2.1"       % "test"
 
-  private val testDeps = Seq(junit, specs2, akkaTestKit, mockitoCore, wireMock)
+  private val testDeps = Seq(junit, specs2, akkaTestKit, mockitoCore, sprayCan)
   private val jmsTestDeps = Seq(activemqCore)
 
   /****************************/

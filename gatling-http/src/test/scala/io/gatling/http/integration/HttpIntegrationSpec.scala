@@ -1,85 +1,75 @@
 package io.gatling.http.integration
 
 import io.gatling.core.Predef._
-import io.gatling.http.Predef._
-import com.github.tomakehurst.wiremock.client.WireMock
-import com.github.tomakehurst.wiremock.client.WireMock._
-import org.specs2.mutable.Specification
-import WireMockSupport.wireMockPort
 import io.gatling.core.config.Protocols
+import io.gatling.http.Predef._
+import org.junit.runner.RunWith
+import org.specs2.mutable.Specification
+import org.specs2.runner.JUnitRunner
+import spray.http.HttpHeaders.{ Location, `Set-Cookie` }
+import spray.http.HttpMethods._
+import spray.http.MediaTypes._
+import spray.http._
 
+@RunWith(classOf[JUnitRunner])
 class HttpIntegrationSpec extends Specification {
   sequential
 
   "Gatling" should {
-    "send cookies returned in redirects in subsequent requests" in WireMockSupport { implicit testKit =>
-      stubFor(get(urlEqualTo("/page1"))
-        .willReturn(
-          aResponse()
-            .withStatus(301)
-            .withHeader("Location", "/page2")
-            .withHeader("Set-Cookie", "TestCookie1=Test1")))
+    "send cookies returned in redirects in subsequent requests" in MockServerSupport { implicit testKit =>
+      import MockServerSupport._
+      import Checks._
 
-      stubFor(get(urlEqualTo("/page2"))
-        .willReturn(
-          aResponse()
-            .withStatus(200)
-            .withHeader("Set-Cookie", "TestCookie2=Test2")
-            .withBody("Hello World")))
+      serverMock({
+        case HttpRequest(GET, Uri.Path("/page1"), _, _, _) =>
+          HttpResponse(status = 301, headers = List(Location("/page2"), `Set-Cookie`(HttpCookie("TestCookie1", "Test1"))))
 
-      stubFor(get(urlEqualTo("/page3"))
-        .willReturn(
-          aResponse()
-            .withStatus(200)
-            .withBody("Hello Again")))
+        case HttpRequest(GET, Uri.Path("/page2"), _, _, _) =>
+          HttpResponse(entity = "Hello World", headers = List(`Set-Cookie`(HttpCookie("TestCookie2", "Test2"))))
 
-      val session = WireMockSupport.runScenario(
+        case HttpRequest(GET, Uri.Path("/page3"), _, _, _) =>
+          HttpResponse(entity = "Hello Again")
+      })
+
+      val session = runScenario(
         scenario("Cookie Redirect")
           .exec(
             http("/page1")
               .get("/page1")
               .check(
                 regex("Hello World"),
-                currentLocation.is(s"http://localhost:$wireMockPort/page2")))
+                currentLocation.is(s"http://localhost:$mockHttpPort/page2")))
           .exec(
             http("/page3")
               .get("/page3")
               .check(regex("Hello Again"))))
 
-      session.isFailed should_== (false)
+      session.isFailed should beFalse
 
-      verify(getRequestedFor(urlEqualTo("/page1")))
-      verify(getRequestedFor(urlEqualTo("/page2"))
-        .withHeader("Cookie", WireMock.containing("TestCookie1=Test1")))
-      verify(getRequestedFor(urlEqualTo("/page3"))
-        .withHeader("Cookie", WireMock.containing("TestCookie1=Test1"))
-        .withHeader("Cookie", WireMock.containing("TestCookie2=Test2")))
+      verifyRequestTo("/page1")
+      verifyRequestTo("/page2", 1, hasCookie("TestCookie1", "Test1"))
+      verifyRequestTo("/page3", 1, hasCookie("TestCookie1", "Test1"), hasCookie("TestCookie2", "Test2"))
       success
     }
 
-    "retrieve linked resources, when resource downloading is enabled" in WireMockSupport { implicit testKit =>
-      stubFor(get(urlEqualTo("/resourceTest/index.html"))
-        .willReturn(
-          aResponse()
-            .withHeader("Content-Type", "text/html; charset=utf-8")
-            .withBodyFile("/resourceTest/index.html")))
+    "retrieve linked resources, when resource downloading is enabled" in MockServerSupport { implicit testKit =>
+      import MockServerSupport._
 
-      stubFor(get(urlEqualTo("/resourceTest/stylesheet.css"))
-        .willReturn(
-          aResponse()
-            .withBodyFile("/resourceTest/stylesheet.css")))
+      serverMock({
+        case HttpRequest(GET, Uri.Path("/resourceTest/index.html"), _, _, _) =>
+          HttpResponse(entity = file("resourceTest/index.html", `text/html`))
 
-      stubFor(get(urlEqualTo("/resourceTest/img.png"))
-        .willReturn(
-          aResponse()
-            .withBodyFile("/resourceTest/img.png")))
+        case HttpRequest(GET, Uri.Path("/resourceTest/stylesheet.css"), _, _, _) =>
+          HttpResponse(entity = file("resourceTest/stylesheet.css"))
 
-      stubFor(get(urlEqualTo("/resourceTest/script.js"))
-        .willReturn(
-          aResponse()
-            .withBodyFile("/resourceTest/script.js")))
+        case HttpRequest(GET, Uri.Path("/resourceTest/img.png"), _, _, _) =>
+          HttpResponse(entity = file("resourceTest/img.png"))
 
-      val session = WireMockSupport.runScenario(
+        case HttpRequest(GET, Uri.Path("/resourceTest/script.js"), _, _, _) =>
+          HttpResponse(entity = file("resourceTest/script.js"))
+      })
+
+      val session = runScenario(
         scenario("Resource downloads")
           .exec(
             http("/resourceTest/index.html")
@@ -87,14 +77,16 @@ class HttpIntegrationSpec extends Specification {
               .check(
                 css("h1").is("Resource Test"),
                 regex("<title>Resource Test</title>"))),
-        protocols = Protocols(WireMockSupport.httpProtocol.inferHtmlResources(BlackList(".*/bad_resource.png"))))
+        protocols = Protocols(MockServerSupport.httpProtocol.inferHtmlResources(BlackList(".*/bad_resource.png"))))
 
-      session.isFailed should_== false
-      verify(getRequestedFor(urlEqualTo("/resourceTest/index.html")))
-      verify(getRequestedFor(urlEqualTo("/resourceTest/stylesheet.css")))
-      verify(getRequestedFor(urlEqualTo("/resourceTest/script.js")))
-      verify(getRequestedFor(urlEqualTo("/resourceTest/img.png")))
-      verify(0, getRequestedFor(urlEqualTo("/bad_resource.png")))
+      session.isFailed should beFalse
+
+      verifyRequestTo("/resourceTest/index.html")
+      verifyRequestTo("/resourceTest/stylesheet.css")
+      verifyRequestTo("/resourceTest/script.js")
+      verifyRequestTo("/resourceTest/img.png")
+      verifyRequestTo("/bad_resource.png", 0)
+
       success
     }
   }
