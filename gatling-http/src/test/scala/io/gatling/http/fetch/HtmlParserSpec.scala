@@ -40,7 +40,7 @@ class HtmlParserSpec extends Specification {
         fast"""<!DOCTYPE html>
       <html>
         <body>
-          ${body}
+          $body
         </body>
       </html>
       """.toString.toCharArray
@@ -191,24 +191,6 @@ class HtmlParserSpec extends Specification {
 
       new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent("Firefox", 29.0f))) must beEqualTo(
         Nil)
-    }
-  }
-
-  "HtmlParser.getIeVersion" should {
-    "return None user agent for None" in {
-      HtmlParser.getIeVersion(None) must beNone
-    }
-
-    "return None for IE 10" in {
-      HtmlParser.getIeVersion(Some(UserAgent(UserAgent.IE, 10))) must beNone
-    }
-
-    "return false for IE 11" in {
-      HtmlParser.getIeVersion(Some(UserAgent(UserAgent.IE, 11))) must beNone
-    }
-
-    "return true for IE 9" in {
-      HtmlParser.getIeVersion(Some(UserAgent(UserAgent.IE, 9))) must beEqualTo(Some(9))
     }
   }
 }
