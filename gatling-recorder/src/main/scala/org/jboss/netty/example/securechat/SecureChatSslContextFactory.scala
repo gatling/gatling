@@ -15,7 +15,7 @@
  */
 package org.jboss.netty.example.securechat
 
-import java.io.{InputStream, FileInputStream}
+import java.io.{ InputStream, FileInputStream }
 import java.security.{ KeyStore, Security }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
@@ -67,18 +67,18 @@ object SecureChatSslContextFactory extends StrictLogging {
     val algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
     val ks = KeyStore.getInstance("JKS")
 
-    def userSpecificKeyStore: Option[InputStream] = sys.props.get(PropertyKeystorePath)
-      .map { keystorePath =>
-      logger.info(s"Loading user-specified keystore: '$keystorePath'")
-      new FileInputStream(keystorePath)
-    }
+      def userSpecificKeyStore: Option[InputStream] = sys.props.get(PropertyKeystorePath)
+        .map { keystorePath =>
+          logger.info(s"Loading user-specified keystore: '$keystorePath'")
+          new FileInputStream(keystorePath)
+        }
 
-    def defaultKeyStore: InputStream = {
-      logger.info(s"Loading default keystore: '$DefaultKeyStore'")
-      Option(ClassLoader.getSystemResourceAsStream(DefaultKeyStore))
-        .orElse(Option(getClass.getResourceAsStream(DefaultKeyStore)))
-      .getOrElse(throw new IllegalStateException(s"Couldn't load $DefaultKeyStore neither from System ClassLoader nor from current one"))
-    }
+      def defaultKeyStore: InputStream = {
+        logger.info(s"Loading default keystore: '$DefaultKeyStore'")
+        Option(ClassLoader.getSystemResourceAsStream(DefaultKeyStore))
+          .orElse(Option(getClass.getResourceAsStream(DefaultKeyStore)))
+          .getOrElse(throw new IllegalStateException(s"Couldn't load $DefaultKeyStore neither from System ClassLoader nor from current one"))
+      }
 
     val keystoreStream = userSpecificKeyStore.getOrElse(defaultKeyStore)
 
