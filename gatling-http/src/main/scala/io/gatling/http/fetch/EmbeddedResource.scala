@@ -19,14 +19,15 @@ import java.net.URI
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
-import io.gatling.http.action.HttpRequestActionBuilder
+import io.gatling.http.HeaderNames
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.Http
+import io.gatling.http.request.builder.RequestBuilder._
 import io.gatling.http.request.HttpRequest
 
 object EmbeddedResource {
 
-  val DefaultResourceChecks = List(HttpRequestActionBuilder.DefaultHttpCheck)
+  val DefaultResourceChecks = List(DefaultHttpCheck)
 
   val MockSession = Session("foo", "bar")
 }
@@ -34,6 +35,7 @@ object EmbeddedResource {
 sealed abstract class EmbeddedResource {
 
   def uri: URI
+  def acceptHeader: Expression[String]
   val url = uri.toString
 
   def toRequest(protocol: HttpProtocol, throttled: Boolean): Validation[HttpRequest] = {
@@ -51,13 +53,13 @@ sealed abstract class EmbeddedResource {
       _ => requestName.success
     }
 
-    val httpRequestDef = new Http(requestNameExpression).get(uri).build(protocol, throttled)
+    val httpRequestDef = new Http(requestNameExpression).get(uri).header(HeaderNames.Accept, acceptHeader) build (protocol, throttled)
 
     // for now, no better way to build a request than reusing HttpRequestBaseBuilder and passing a mock session
     httpRequestDef.build(EmbeddedResource.MockSession)
   }
 }
 
-case class CssResource(uri: URI) extends EmbeddedResource
+case class CssResource(uri: URI) extends EmbeddedResource { val acceptHeader = CssHeaderHeaderValueExpression }
 
-case class RegularResource(uri: URI) extends EmbeddedResource
+case class RegularResource(uri: URI) extends EmbeddedResource { val acceptHeader = AllHeaderHeaderValueExpression }

@@ -22,6 +22,8 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
 import io.gatling.core.session.el.EL
+import io.gatling.http.check.status.HttpStatusCheckBuilder._
+import io.gatling.http.util.HttpHelper._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.config.Proxy
@@ -43,8 +45,17 @@ case class CommonAttributes(
 
 object RequestBuilder {
 
+  /**
+   * This is the default HTTP check used to verify that the response status is 2XX
+   */
+  val OkCodesExpression = OkCodes.expression
+
+  val DefaultHttpCheck = Status.find.in(OkCodesExpression).build
+
   val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expression
   val XmlHeaderValueExpression = HeaderValues.ApplicationXml.expression
+  val AllHeaderHeaderValueExpression = "*/*".expression
+  val CssHeaderHeaderValueExpression = "text/css,*/*;q=0.1".expression
 }
 
 abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: CommonAttributes) extends StrictLogging {

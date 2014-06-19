@@ -102,7 +102,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
         protocol.responsePart.checks ::: httpAttributes.checks
 
     val resolvedChecks = checks.find(_.target == Status) match {
-      case None => checks ::: List(HttpRequestActionBuilder.DefaultHttpCheck)
+      case None => checks ::: List(RequestBuilder.DefaultHttpCheck)
       case _    => checks
     }
 
