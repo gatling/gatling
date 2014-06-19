@@ -64,18 +64,6 @@ object HtmlParser {
   val SrcAttribute = "src".toCharArray
   val StyleAttribute = StyleTagName
   val StylesheetAttributeName = "stylesheet".toCharArray
-
-  val IE_VERSION_WITHOUT_CC = 10
-
-  def getIeVersion(userAgent: Option[UserAgent]): Option[Float] = {
-    userAgent match {
-      case Some(agent) =>
-        if (agent.version < IE_VERSION_WITHOUT_CC) Some(agent.version)
-        else None
-
-      case None => None
-    }
-  }
 }
 
 class HtmlParser extends StrictLogging {
@@ -91,7 +79,7 @@ class HtmlParser extends StrictLogging {
     val conditionalCommentsMatcher = new HtmlCCommentExpressionMatcher()
     val matchMethod = conditionalCommentsMatcher.getClass.getDeclaredMethod("match", java.lang.Float.TYPE, classOf[String])
     matchMethod.setAccessible(true)
-    val ieVersion = getIeVersion(userAgent)
+    val ieVersion = userAgent.map(_.version)
 
     val visitor = new EmptyTagVisitor {
       var inHiddenCommentStack = List(false)
@@ -123,7 +111,8 @@ class HtmlParser extends StrictLogging {
               val commentValue = matchMethod.invoke(conditionalCommentsMatcher, version: java.lang.Float, expression.toString).asInstanceOf[Boolean]
               inHiddenCommentStack = (!commentValue) :: inHiddenCommentStack
             }
-          case None => inHiddenCommentStack = true :: inHiddenCommentStack
+          case None =>
+            throw new IllegalStateException("condComment call while it should be disabled")
         }
       }
 
@@ -139,7 +128,7 @@ class HtmlParser extends StrictLogging {
             else
               codeBase + url
 
-          def processTag {
+          def processTag: Unit =
             tag.getType match {
 
               case TagType.START | TagType.SELF_CLOSING =>
@@ -211,7 +200,6 @@ class HtmlParser extends StrictLogging {
 
               case _ =>
             }
-          }
 
         if (!isInHiddenComment) {
           processTag

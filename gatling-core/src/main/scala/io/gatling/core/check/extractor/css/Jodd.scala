@@ -24,6 +24,8 @@ object Jodd {
 
   LoggerFactory.setLoggerFactory(new Slf4jLoggerFactory)
 
+  val IeVersionDroppingCc = 10.0
+
   private def joddConfigBase =
     new LagartoDomBuilderConfig()
       .setParsingErrorLogLevelName("INFO")
@@ -34,7 +36,7 @@ object Jodd {
 
   def getJoddConfig(ieVersion: Option[Float]): LagartoDomBuilderConfig =
     ieVersion match {
-      case Some(version) =>
+      case Some(version) if version < IeVersionDroppingCc =>
         joddConfigBase
           .setEnableConditionalComments(true)
           .setCondCommentIEVersion(version)
