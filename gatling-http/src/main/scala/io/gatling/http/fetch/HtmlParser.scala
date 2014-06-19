@@ -90,19 +90,16 @@ class HtmlParser extends StrictLogging {
         }
 
       override def script(tag: Tag, body: CharSequence): Unit =
-        if (!isInHiddenComment) {
+        if (!isInHiddenComment)
           addResource(tag, SrcAttribute, RegularRawResource)
-        }
 
-      override def text(text: CharSequence): Unit = if (inStyle) {
-        if (!isInHiddenComment) {
+      override def text(text: CharSequence): Unit =
+        if (inStyle && !isInHiddenComment)
           rawResources ++= CssParser.extractUrls(text, CssParser.StyleImportsUrls).map(CssRawResource)
-        }
-      }
 
       private def isInHiddenComment = inHiddenCommentStack.head
 
-      override def condComment(expression: CharSequence, isStartingTag: Boolean, isHidden: Boolean, isHiddenEndTag: Boolean) {
+      override def condComment(expression: CharSequence, isStartingTag: Boolean, isHidden: Boolean, isHiddenEndTag: Boolean): Unit =
         ieVersion match {
           case Some(version) =>
             if (!isStartingTag) {
@@ -114,7 +111,6 @@ class HtmlParser extends StrictLogging {
           case None =>
             throw new IllegalStateException("condComment call while it should be disabled")
         }
-      }
 
       override def tag(tag: Tag): Unit = {
 
@@ -151,11 +147,10 @@ class HtmlParser extends StrictLogging {
                 } else if (tag.nameEquals(LinkTagName)) {
                   val rel = tag.getAttributeValue(RelAttribute)
 
-                  if (TagUtil.equalsToLowercase(rel, StylesheetAttributeName)) {
+                  if (TagUtil.equalsToLowercase(rel, StylesheetAttributeName))
                     addResource(tag, HrefAttribute, CssRawResource)
-                  } else if (TagUtil.equalsToLowercase(rel, IconAttributeName)) {
+                  else if (TagUtil.equalsToLowercase(rel, IconAttributeName))
                     addResource(tag, HrefAttribute, RegularRawResource)
-                  }
 
                 } else if (tag.nameEquals(ImgTagName) ||
                   tag.nameEquals(BgsoundTagName) ||
@@ -194,16 +189,14 @@ class HtmlParser extends StrictLogging {
                 }
 
               case TagType.END =>
-                if (inStyle && tag.nameEquals(StyleTagName)) {
+                if (inStyle && tag.nameEquals(StyleTagName))
                   inStyle = false
-                }
 
               case _ =>
             }
 
-        if (!isInHiddenComment) {
+        if (!isInHiddenComment)
           processTag
-        }
       }
     }
 
