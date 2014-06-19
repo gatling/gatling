@@ -89,5 +89,33 @@ class HttpIntegrationSpec extends Specification {
 
       success
     }
+
+    "fetch resources in conditional comments" in MockServerSupport { implicit testKit =>
+      import MockServerSupport._
+
+      serverMock({
+        case HttpRequest(GET, Uri.Path("/resourceTest/indexIE.html"), _, _, _) =>
+          HttpResponse(entity = file("resourceTest/indexIE.html", `text/html`))
+
+        case HttpRequest(GET, Uri.Path("/resourceTest/stylesheet.css"), _, _, _) =>
+          HttpResponse(entity = file("resourceTest/stylesheet.css"))
+      })
+
+      val session = runScenario(
+        scenario("Resource downloads")
+          .exec(
+            http("/resourceTest/indexIE.html")
+              .get("/resourceTest/indexIE.html")
+              .header("User-Agent",
+                "Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US))")),
+        protocols = Protocols(MockServerSupport.httpProtocol.inferHtmlResources()))
+
+      session.isFailed should beFalse
+
+      verifyRequestTo("/resourceTest/indexIE.html")
+      verifyRequestTo("/resourceTest/stylesheet.css")
+
+      success
+    }
   }
 }
