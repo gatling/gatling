@@ -44,7 +44,7 @@ case class HttpTx(session: Session,
                   request: HttpRequest,
                   responseBuilderFactory: ResponseBuilderFactory,
                   next: ActorRef,
-                  secondary: Boolean = false,
+                  primary: Boolean = true,
                   redirectCount: Int = 0,
                   update: Session => Session = Session.Identity)
 

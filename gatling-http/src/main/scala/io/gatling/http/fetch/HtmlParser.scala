@@ -223,7 +223,7 @@ class HtmlParser extends StrictLogging {
     HtmlResources(rawResources, baseURI)
   }
 
-  def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char], userAgent: Option[UserAgent] = None): List[EmbeddedResource] = {
+  def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char], userAgent: Option[UserAgent]): List[EmbeddedResource] = {
 
     val htmlResources = parseHtml(htmlContent, userAgent)
 

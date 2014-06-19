@@ -52,7 +52,7 @@ object HttpRequestAction extends DataWriterClient with StrictLogging {
         startHttpTransaction(newTx)
 
       case _ =>
-        ResourceFetcher.fromCache(uri, tx) match {
+        ResourceFetcher.resourceFetcherForCachedPage(uri, tx) match {
           case Some(resourceFetcher) =>
             logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
             actor(resourceFetcher())

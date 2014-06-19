@@ -18,14 +18,15 @@ package io.gatling.recorder.scenario
 import java.net.URI
 import java.nio.charset.Charset
 
+import io.gatling.http.HeaderNames._
+import io.gatling.http.HeaderValues._
+
 import scala.collection.breakOut
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.concurrent.duration.FiniteDuration
 import scala.io.Codec.UTF8
 
 import org.jboss.netty.handler.codec.http.{ HttpMessage, HttpRequest, HttpResponse }
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names._
-import org.jboss.netty.handler.codec.http.HttpHeaders.Values.APPLICATION_X_WWW_FORM_URLENCODED
 
 import com.ning.http.util.Base64
 
@@ -56,12 +57,13 @@ object RequestElement {
       Some(bufferBytes)
     } else None
 
-  val ConditionCacheHeaders = Set(IF_MATCH, IF_MODIFIED_SINCE, IF_NONE_MATCH, IF_RANGE, IF_UNMODIFIED_SINCE)
+  val ConditionCacheHeaders = Set(IfMatch, IfModifiedSince, IfNoneMatch, IfRange, IfUnmodifiedSince)
 
   def apply(request: HttpRequest, response: HttpResponse): RequestElement = {
     val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }(breakOut)
-    val requestContentType = requestHeaders.get(CONTENT_TYPE)
-    val responseContentType = Option(response.headers().get(CONTENT_TYPE))
+    val requestContentType = requestHeaders.get(ContentType)
+    val requestUserAgent = requestHeaders.get(UserAgent)
+    val responseContentType = Option(response.headers().get(ContentType))
 
     val embeddedResources = responseContentType.collect {
       case HtmlContentType(_, headerCharset) =>
@@ -69,11 +71,12 @@ object RequestElement {
         val charset = Charset.forName(charsetName)
         extractContent(response).map(bytes => {
           val htmlBuff = new String(bytes, charset).toCharArray
-          new HtmlParser().getEmbeddedResources(new URI(request.getUri), htmlBuff)
+          val userAgent = requestHeaders.get(UserAgent).flatMap(io.gatling.http.fetch.UserAgent.parseFromHeader)
+          new HtmlParser().getEmbeddedResources(new URI(request.getUri), htmlBuff, userAgent)
         })
     }.flatten.getOrElse(Nil)
 
-    val containsFormParams = requestContentType.exists(_.contains(APPLICATION_X_WWW_FORM_URLENCODED))
+    val containsFormParams = requestContentType.exists(_.contains(ApplicationFormUrlEncoded))
 
     val requestBody = extractContent(request).map(content =>
       if (containsFormParams)
@@ -138,6 +141,6 @@ case class RequestElement(uri: String,
           case _ => None
         }
 
-    headers.get(AUTHORIZATION).filter(_.startsWith("Basic ")).flatMap(parseCredentials)
+    headers.get(Authorization).filter(_.startsWith("Basic ")).flatMap(parseCredentials)
   }
 }

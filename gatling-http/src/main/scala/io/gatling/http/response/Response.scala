@@ -18,6 +18,8 @@ package io.gatling.http.response
 import java.net.URI
 import java.nio.charset.Charset
 
+import io.gatling.http.config.HttpProtocol
+
 import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet }
 import scala.collection.mutable.ArrayBuffer
 
@@ -27,7 +29,7 @@ import com.ning.http.client.cookie.{ Cookie, CookieDecoder }
 import io.gatling.http.HeaderNames
 import io.gatling.http.util.HttpHelper
 
-trait Response {
+abstract class Response {
 
   def request: AHCRequest
   def isReceived: Boolean
@@ -55,6 +57,10 @@ trait Response {
   def lastByteReceived: Long
   def reponseTimeInMillis: Long
   def latencyInMillis: Long
+
+  def lastModifiedOrEtag(protocol: HttpProtocol): Option[String] =
+    if (protocol.requestPart.cache) header(HeaderNames.LastModified).orElse(header(HeaderNames.ETag))
+    else None
 }
 
 case class HttpResponse(

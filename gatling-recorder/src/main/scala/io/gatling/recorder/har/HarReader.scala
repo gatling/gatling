@@ -62,7 +62,7 @@ object HarReader {
 
     val uri = entry.request.url
     val method = entry.request.method
-    val headers = buildHeaders(entry)
+    val requestHeaders = buildRequestHeaders(entry)
 
     // NetExport doesn't copy post params to text field
     val body = entry.request.postData.flatMap { postData =>
@@ -74,14 +74,16 @@ object HarReader {
     }
 
     val embeddedResources = entry.response.content match {
-      case Content("text/html", Some(text)) => new HtmlParser().getEmbeddedResources(new URI(uri), text.toCharArray)
-      case _                                => Nil
+      case Content("text/html", Some(text)) =>
+        val userAgent = requestHeaders.get(UserAgent).flatMap(io.gatling.http.fetch.UserAgent.parseFromHeader)
+        new HtmlParser().getEmbeddedResources(new URI(uri), text.toCharArray, userAgent)
+      case _ => Nil
     }
 
-    TimedScenarioElement(entry.sendTime, entry.sendTime, RequestElement(uri, method, headers, body, entry.response.status, embeddedResources))
+    TimedScenarioElement(entry.sendTime, entry.sendTime, RequestElement(uri, method, requestHeaders, body, entry.response.status, embeddedResources))
   }
 
-  private def buildHeaders(entry: Entry): Map[String, String] = {
+  private def buildRequestHeaders(entry: Entry): Map[String, String] = {
     // Chrome adds extra headers, eg: ":host". We should have them in the Gatling scenario.
     val headers: Map[String, String] = entry.request.headers.filter(!_.name.startsWith(":")).map(h => (h.name, h.value))(breakOut)
 

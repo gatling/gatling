@@ -39,7 +39,7 @@ import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched, Resou
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
-import io.gatling.http.util.HttpHelper.{ isCss, isHtml, resolveFromURI }
+import io.gatling.http.util.HttpHelper.{ isCss, resolveFromURI }
 import io.gatling.http.util.HttpStringBuilder
 
 object AsyncHandlerActor extends AkkaDefaults {
@@ -151,40 +151,26 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
    */
   private def executeNext(tx: HttpTx, update: Session => Session, status: Status, response: Response) {
 
-      def regularExecuteNext(): Unit = {
-        val newSession = update(tx.session)
-        tx.next ! newSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
+    val protocol = tx.request.config.protocol
+
+    if (tx.primary) {
+      val newSession = update(tx.session)
+
+      ResourceFetcher.resourceFetcherForFetchedPage(tx.request.ahcRequest, response, tx, newSession) match {
+        case Some(resourceFetcher) =>
+          actor(context)(resourceFetcher())
+
+        case None =>
+          tx.next ! newSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
       }
-
-      def inferPageResources(tx: HttpTx, response: Response): Boolean =
-        tx.request.config.protocol.responsePart.inferHtmlResources && response.isReceived && isHtml(response.headers)
-
-    if (tx.secondary) {
-      val resourceMessage =
-        if (isCss(response.headers))
-          CssResourceFetched(response.request.getOriginalURI, status, update, response.statusCode, ResourceFetcher.lastModifiedOrEtag(response, tx.request.config.protocol), response.body.string)
-        else
-          RegularResourceFetched(response.request.getOriginalURI, status, update)
-
-      tx.next ! resourceMessage
 
     } else {
-      val explicitResources =
-        if (tx.request.config.explicitResources.nonEmpty)
-          ResourceFetcher.buildExplicitResources(tx.request.config.explicitResources, update(tx.session))
-        else
-          Nil
+      val uri = response.request.getOriginalURI
 
-      val inferredResources =
-        if (inferPageResources(tx, response))
-          ResourceFetcher.resourcesFromPage(response, tx)
-        else
-          Nil
-
-      ResourceFetcher.resourceFetcher(tx, inferredResources, explicitResources) match {
-        case Some(resourceFetcher) => actor(context)(resourceFetcher())
-        case None                  => regularExecuteNext()
-      }
+      if (isCss(response.headers))
+        tx.next ! CssResourceFetched(uri, status, update, response.statusCode, response.lastModifiedOrEtag(protocol), response.body.string)
+      else
+        tx.next ! RegularResourceFetched(uri, status, update)
     }
   }
 
