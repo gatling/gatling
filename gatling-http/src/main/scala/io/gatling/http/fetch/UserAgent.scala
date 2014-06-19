@@ -21,7 +21,7 @@ object UserAgent {
   val IE = "MSIE"
 
   private val USER_AGENT = "User-Agent"
-  private val MSIE_AGENT_REGEX = new scala.util.matching.Regex("MSIE ([0-9]+.[0-9]+)")
+  private val MSIE_AGENT_REGEX = "MSIE ([0-9]+.[0-9]+)".r
 
   def getAgent(request: Request): Option[UserAgent] = {
 
