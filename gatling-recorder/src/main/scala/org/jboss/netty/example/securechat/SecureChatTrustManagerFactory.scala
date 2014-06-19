@@ -22,18 +22,13 @@ import javax.net.ssl.{ ManagerFactoryParameters, TrustManager, TrustManagerFacto
 
 object SecureChatTrustManagerFactory {
 
-  val trustManagers = Array[TrustManager](new X509TrustManager {
+  val LooseTrustManagers = Array[TrustManager](new X509TrustManager {
     def getAcceptedIssuers = Array.empty[X509Certificate]
 
-    def checkClientTrusted(chain: Array[X509Certificate], authType: String): Unit = {
-      // Always trust
-    }
+    def checkClientTrusted(chain: Array[X509Certificate], authType: String): Unit = { /* Always trust */ }
 
-    def checkServerTrusted(chain: Array[X509Certificate], authType: String): Unit = {
-      // Always trust
-    }
+    def checkServerTrusted(chain: Array[X509Certificate], authType: String): Unit = { /* Always trust */ }
   })
-
 }
 
 /**
@@ -42,18 +37,13 @@ object SecureChatTrustManagerFactory {
  *
  * @author <a href="http://www.jboss.org/netty/">The Netty Project</a>
  * @author <a href="http://gleamynode.net/">Trustin Lee</a>
- *
  * @version Rev: 2080 , Date: 2010-01-26 18:04:19 +0900 (Tue, 26 Jan 2010)
  */
 class SecureChatTrustManagerFactory extends TrustManagerFactorySpi {
 
-  def engineGetTrustManagers = SecureChatTrustManagerFactory.trustManagers
+  def engineGetTrustManagers = SecureChatTrustManagerFactory.LooseTrustManagers
 
-  def engineInit(keystore: KeyStore): Unit = {
-    // Unused
-  }
+  def engineInit(keystore: KeyStore): Unit = { /* Unused */ }
 
-  def engineInit(managerFactoryParameters: ManagerFactoryParameters): Unit = {
-    // Unused
-  }
+  def engineInit(managerFactoryParameters: ManagerFactoryParameters): Unit = { /* Unused */ }
 }

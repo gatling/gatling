@@ -15,7 +15,7 @@
  */
 package org.jboss.netty.example.securechat
 
-import java.io.FileInputStream
+import java.io.{InputStream, FileInputStream}
 import java.security.{ KeyStore, Security }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
@@ -59,23 +59,30 @@ object SecureChatSslContextFactory extends StrictLogging {
   val Protocol = "TLS"
   val PropertyKeystorePath = "gatling.recorder.keystore.path"
   val PropertyKeystorePassphrase = "gatling.recorder.keystore.passphrase"
+  val DefaultKeyStore = "gatling.jks"
+  val DefaultKeyStorePassphrase = "gatling"
 
-  val serverContext: SSLContext = {
+  val ServerContext: SSLContext = {
 
     val algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
     val ks = KeyStore.getInstance("JKS")
 
-    val keystoreStream = sys.props.get(PropertyKeystorePath)
+    def userSpecificKeyStore: Option[InputStream] = sys.props.get(PropertyKeystorePath)
       .map { keystorePath =>
-        logger.info(s"Loading user-specified keystore: '$keystorePath'")
-        new FileInputStream(keystorePath)
-      }.getOrElse {
-        logger.info("Loading default keystore gatling.jks")
-        Option(ClassLoader.getSystemResourceAsStream("gatling.jks"))
-          .getOrElse(getClass.getResourceAsStream("gatling.jks"))
-      }
+      logger.info(s"Loading user-specified keystore: '$keystorePath'")
+      new FileInputStream(keystorePath)
+    }
 
-    val keystorePassphrase = System.getProperty(PropertyKeystorePassphrase, "gatling")
+    def defaultKeyStore: InputStream = {
+      logger.info(s"Loading default keystore: '$DefaultKeyStore'")
+      Option(ClassLoader.getSystemResourceAsStream(DefaultKeyStore))
+        .orElse(Option(getClass.getResourceAsStream(DefaultKeyStore)))
+      .getOrElse(throw new IllegalStateException(s"Couldn't load $DefaultKeyStore neither from System ClassLoader nor from current one"))
+    }
+
+    val keystoreStream = userSpecificKeyStore.getOrElse(defaultKeyStore)
+
+    val keystorePassphrase = System.getProperty(PropertyKeystorePassphrase, DefaultKeyStorePassphrase)
 
     withCloseable(keystoreStream) { in =>
       val passphraseChars = keystorePassphrase.toCharArray
@@ -93,9 +100,9 @@ object SecureChatSslContextFactory extends StrictLogging {
     }
   }
 
-  val clientContext: SSLContext = {
+  val ClientContext: SSLContext = {
     val clientContext = SSLContext.getInstance(Protocol)
-    clientContext.init(null, SecureChatTrustManagerFactory.trustManagers, null)
+    clientContext.init(null, SecureChatTrustManagerFactory.LooseTrustManagers, null)
     clientContext
   }
 }
