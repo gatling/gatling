@@ -25,6 +25,8 @@ import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.util.IO._
 
+import com.dongxiguo.fastring.Fastring.Implicits._
+
 @RunWith(classOf[JUnitRunner])
 class HtmlParserSpec extends Specification {
 
@@ -34,10 +36,20 @@ class HtmlParserSpec extends Specification {
       _.toCharArray(UTF8.charSet)
     }
 
+      def mockHtml(body: String): Array[Char] = {
+        fast"""<!DOCTYPE html>
+      <html>
+        <body>
+          ${body}
+        </body>
+      </html>
+      """.toString.toCharArray
+      }
+
       implicit def string2URI(string: String) = URI.create(string)
 
     "extract all urls" in {
-      new HtmlParser().getEmbeddedResources(new URI("http://akka.io"), htmlContent) must beEqualTo(List(
+      new HtmlParser().getEmbeddedResources(new URI("http://akka.io"), htmlContent, None) must beEqualTo(List(
         RegularResource("http://akka.io/resources/favicon.ico"),
         CssResource("http://akka.io/resources/stylesheets/style.css"),
         CssResource("http://fonts.googleapis.com/css?family=Exo:300,400,600,700"),
@@ -74,6 +86,129 @@ class HtmlParserSpec extends Specification {
         RegularResource("http://akka.io/resources/javascript/jquery.localscroll-1.2.7-min.js"),
         RegularResource("http://akka.io/resources/javascript/jquery.serialScroll-1.2.2-min.js"),
         RegularResource("http://akka.io/resources/javascript/sliderbox.js")))
+    }
+
+    "extract IE css" in {
+      val html = mockHtml(
+        """
+          <!--[if IE 9]>
+            <link rel="stylesheet" type="text/css" href="style.css">
+          <![endif]-->
+        """)
+
+      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 9))) must beEqualTo(
+        List(CssResource("http://example.com/style.css")))
+    }
+
+    "not extract IE css" in {
+      val html = mockHtml(
+        """
+        <!--[if IE 6]>
+          <link rel="stylesheet" type="text/css" href="style.css">
+        <![endif]-->
+      """)
+
+      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 9))) must beEqualTo(
+        Nil)
+    }
+
+    "extract style for IE 7" in {
+      val html = mockHtml(
+        """
+        <!--[if IE 6]>
+          <link rel="stylesheet" type="text/css" href="style6.css">
+        <![endif]-->
+        <!--[if IE 7]>
+          <link rel="stylesheet" type="text/css" href="style7.css">
+        <![endif]-->
+      """)
+
+      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 7))) must beEqualTo(
+        List(CssResource("http://example.com/style7.css")))
+    }
+
+    "parse nexted conditional comments" in {
+      val html = mockHtml(
+        """
+        <!--[if gt IE 6]>
+          <!--[if lte IE 8]>
+            <!--[if lte IE 7]>
+              <link rel="stylesheet" type="text/css" href="style7.css">
+            <![endif]-->
+
+            <link rel="stylesheet" type="text/css" href="style8.css">
+          <![endif]-->
+
+          <link rel="stylesheet" type="text/css" href="style9.css">
+        <![endif]-->
+      """)
+
+      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 9))) must beEqualTo(
+        List(CssResource("http://example.com/style9.css")))
+
+      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 8))) must beEqualTo(
+        List(
+          CssResource("http://example.com/style8.css"),
+          CssResource("http://example.com/style9.css")))
+    }
+
+    "parse nested conditional comments with alternative syntax" in {
+      val html = mockHtml(
+        """
+        <!--[if gt IE 5]>
+        <![if lt IE 6]>
+          <link rel="stylesheet" type="text/css" href="style55.css">
+        <![endif]
+        <![endif]-->
+      """)
+
+      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 5.5f))) must beEqualTo(
+        List(CssResource("http://example.com/style55.css")))
+
+      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 6))) must beEqualTo(
+        Nil)
+    }
+
+    "ignore nested conditional comments for None UserAgent" in {
+      val html = mockHtml(
+        """
+        <!--[if gt IE 5]>
+          <link rel="stylesheet" type="text/css" href="style.css">
+        <![endif]-->
+        """)
+
+      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, None) must beEqualTo(
+        Nil)
+    }
+
+    "ignore nested conditional comments for user agents other than MSIE" in {
+      val html = mockHtml(
+        """
+        <!--[if gt IE 5]>
+          <link rel="stylesheet" type="text/css" href="style.css">
+        <![endif]-->
+        """)
+
+      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent("Firefox", 29.0f))) must beEqualTo(
+        Nil)
+    }
+  }
+
+  "HtmlParser.getIeVersion" should {
+    "return None user agent for None" in {
+      HtmlParser.getIeVersion(None) must beNone
+    }
+
+    "return None for IE 10" in {
+      HtmlParser.getIeVersion(Some(UserAgent(UserAgent.IE, 10))) must beNone
+    }
+
+    "return false for IE 11" in {
+      HtmlParser.getIeVersion(Some(UserAgent(UserAgent.IE, 11))) must beNone
+    }
+
+    "return true for IE 9" in {
+      HtmlParser.getIeVersion(Some(UserAgent(UserAgent.IE, 9))) must beEqualTo(Some(9))
     }
   }
 }

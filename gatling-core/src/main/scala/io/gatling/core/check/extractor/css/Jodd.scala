@@ -29,15 +29,23 @@ object Jodd {
     .setEnableConditionalComments(false)
     .setCaseSensitive(false)
 
+  def getJoddConfig(ieVersion: Option[Float]): LagartoDomBuilderConfig = {
+    ieVersion match {
+      case Some(version) => JoddConfig.setEnableConditionalComments(true).setCondCommentIEVersion(version)
+
+      case None          => JoddConfig
+    }
+  }
+
   def newLagartoDomBuilder: LagartoDOMBuilder = {
     val domBuilder = new LagartoDOMBuilder
     domBuilder.setConfig(JoddConfig)
     domBuilder
   }
 
-  def newLagartoParser(chars: Array[Char]): LagartoParser = {
+  def newLagartoParser(chars: Array[Char], ieVersion: Option[Float]): LagartoParser = {
     val lagartoParser = new LagartoParser(chars, false)
-    lagartoParser.setConfig(JoddConfig)
+    lagartoParser.setConfig(getJoddConfig(ieVersion))
     lagartoParser
   }
 }

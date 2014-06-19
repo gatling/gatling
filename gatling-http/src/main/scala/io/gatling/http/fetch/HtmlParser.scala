@@ -18,6 +18,7 @@ package io.gatling.http.fetch
 import java.net.{ URI, URISyntaxException }
 
 import io.gatling.core.check.extractor.css.Jodd
+import jodd.lagarto.dom.HtmlCCommentExpressionMatcher
 
 import scala.collection.{ breakOut, mutable }
 
@@ -63,6 +64,18 @@ object HtmlParser {
   val SrcAttribute = "src".toCharArray
   val StyleAttribute = StyleTagName
   val StylesheetAttributeName = "stylesheet".toCharArray
+
+  val IE_VERSION_WITHOUT_CC = 10
+
+  def getIeVersion(userAgent: Option[UserAgent]): Option[Float] = {
+    userAgent match {
+      case Some(agent) =>
+        if (agent.version < IE_VERSION_WITHOUT_CC) Some(agent.version)
+        else None
+
+      case None => None
+    }
+  }
 }
 
 class HtmlParser extends StrictLogging {
@@ -71,12 +84,17 @@ class HtmlParser extends StrictLogging {
 
   var inStyle = false
 
-  def parseHtml(htmlContent: Array[Char]): HtmlResources = {
+  def parseHtml(htmlContent: Array[Char], userAgent: Option[UserAgent]): HtmlResources = {
 
     var baseURI: Option[URI] = None
     val rawResources = mutable.ArrayBuffer.empty[RawResource]
+    val conditionalCommentsMatcher = new HtmlCCommentExpressionMatcher()
+    val matchMethod = conditionalCommentsMatcher.getClass.getDeclaredMethod("match", java.lang.Float.TYPE, classOf[String])
+    matchMethod.setAccessible(true)
+    val ieVersion = getIeVersion(userAgent)
 
     val visitor = new EmptyTagVisitor {
+      var inHiddenCommentStack = List(false)
 
       def addResource(tag: Tag, attributeName: Array[Char], factory: String => RawResource): Unit =
         Option(tag.getAttributeValue(attributeName)).foreach { url =>
@@ -84,10 +102,29 @@ class HtmlParser extends StrictLogging {
         }
 
       override def script(tag: Tag, body: CharSequence): Unit =
-        addResource(tag, SrcAttribute, RegularRawResource)
+        if (!isInHiddenComment) {
+          addResource(tag, SrcAttribute, RegularRawResource)
+        }
 
       override def text(text: CharSequence): Unit = if (inStyle) {
-        rawResources ++= CssParser.extractUrls(text, CssParser.StyleImportsUrls).map(CssRawResource)
+        if (!isInHiddenComment) {
+          rawResources ++= CssParser.extractUrls(text, CssParser.StyleImportsUrls).map(CssRawResource)
+        }
+      }
+
+      private def isInHiddenComment = inHiddenCommentStack.head
+
+      override def condComment(expression: CharSequence, isStartingTag: Boolean, isHidden: Boolean, isHiddenEndTag: Boolean) {
+        ieVersion match {
+          case Some(version) =>
+            if (!isStartingTag) {
+              inHiddenCommentStack = inHiddenCommentStack.tail
+            } else {
+              val commentValue = matchMethod.invoke(conditionalCommentsMatcher, version: java.lang.Float, expression.toString).asInstanceOf[Boolean]
+              inHiddenCommentStack = (!commentValue) :: inHiddenCommentStack
+            }
+          case None => inHiddenCommentStack = true :: inHiddenCommentStack
+        }
       }
 
       override def tag(tag: Tag): Unit = {
@@ -102,87 +139,93 @@ class HtmlParser extends StrictLogging {
             else
               codeBase + url
 
-        tag.getType match {
+          def processTag {
+            tag.getType match {
 
-          case TagType.START | TagType.SELF_CLOSING =>
+              case TagType.START | TagType.SELF_CLOSING =>
 
-            if (tag.isRawTag && tag.nameEquals(StyleTagName)) {
-              inStyle = true
+                if (tag.isRawTag && tag.nameEquals(StyleTagName)) {
+                  inStyle = true
 
-            } else if (tag.nameEquals(BaseTagName)) {
-              val baseHref = Option(tag.getAttributeValue(HrefAttribute))
-              baseURI = baseHref.flatMap { bh =>
-                try {
-                  baseHref.map(bh => new URI(bh.toString))
-                } catch {
-                  case e: URISyntaxException =>
-                    logger.debug(s"Malformed baseHref ${baseHref.get}")
-                    None
+                } else if (tag.nameEquals(BaseTagName)) {
+                  val baseHref = Option(tag.getAttributeValue(HrefAttribute))
+                  baseURI = baseHref.flatMap { bh =>
+                    try {
+                      baseHref.map(bh => new URI(bh.toString))
+                    } catch {
+                      case e: URISyntaxException =>
+                        logger.debug(s"Malformed baseHref ${baseHref.get}")
+                        None
+                    }
+                  }
+
+                } else if (tag.nameEquals(LinkTagName)) {
+                  val rel = tag.getAttributeValue(RelAttribute)
+
+                  if (TagUtil.equalsToLowercase(rel, StylesheetAttributeName)) {
+                    addResource(tag, HrefAttribute, CssRawResource)
+                  } else if (TagUtil.equalsToLowercase(rel, IconAttributeName)) {
+                    addResource(tag, HrefAttribute, RegularRawResource)
+                  }
+
+                } else if (tag.nameEquals(ImgTagName) ||
+                  tag.nameEquals(BgsoundTagName) ||
+                  tag.nameEquals(EmbedTagName) ||
+                  tag.nameEquals(InputTagName)) {
+
+                  addResource(tag, SrcAttribute, RegularRawResource)
+
+                } else if (tag.nameEquals(BodyTagName)) {
+                  addResource(tag, BackgroungAttribute, RegularRawResource)
+
+                } else if (tag.nameEquals(AppletTagName)) {
+                  val code = tag.getAttributeValue(CodeAttribute).toString
+                  val archives = Option(tag.getAttributeValue(ArchiveAttribute).toString).map(_.split(",").map(_.trim)(breakOut))
+
+                  val appletResources = archives.getOrElse(List(code)).iterator
+                  val appletResourcesUrls = codeBase() match {
+                    case Some(cb) => appletResources.map(prependCodeBase(cb, _))
+                    case _        => appletResources
+                  }
+                  rawResources ++= appletResourcesUrls.map(RegularRawResource)
+
+                } else if (tag.nameEquals(ObjectTagName)) {
+                  val data = tag.getAttributeValue(DataAttribute).toString
+                  val objectResourceUrl = codeBase() match {
+                    case Some(cb) => prependCodeBase(cb, data)
+                    case _        => data
+                  }
+                  rawResources += RegularRawResource(objectResourceUrl)
+
+                } else {
+                  Option(tag.getAttributeValue(StyleAttribute)).foreach { style =>
+                    val styleUrls = CssParser.extractUrls(style, CssParser.InlineStyleImageUrls).map(RegularRawResource)
+                    rawResources ++= styleUrls
+                  }
                 }
-              }
 
-            } else if (tag.nameEquals(LinkTagName)) {
-              val rel = tag.getAttributeValue(RelAttribute)
+              case TagType.END =>
+                if (inStyle && tag.nameEquals(StyleTagName)) {
+                  inStyle = false
+                }
 
-              if (TagUtil.equalsToLowercase(rel, StylesheetAttributeName)) {
-                addResource(tag, HrefAttribute, CssRawResource)
-              } else if (TagUtil.equalsToLowercase(rel, IconAttributeName)) {
-                addResource(tag, HrefAttribute, RegularRawResource)
-              }
-
-            } else if (tag.nameEquals(ImgTagName) ||
-              tag.nameEquals(BgsoundTagName) ||
-              tag.nameEquals(EmbedTagName) ||
-              tag.nameEquals(InputTagName)) {
-
-              addResource(tag, SrcAttribute, RegularRawResource)
-
-            } else if (tag.nameEquals(BodyTagName)) {
-              addResource(tag, BackgroungAttribute, RegularRawResource)
-
-            } else if (tag.nameEquals(AppletTagName)) {
-              val code = tag.getAttributeValue(CodeAttribute).toString
-              val archives = Option(tag.getAttributeValue(ArchiveAttribute).toString).map(_.split(",").map(_.trim)(breakOut))
-
-              val appletResources = archives.getOrElse(List(code)).iterator
-              val appletResourcesUrls = codeBase() match {
-                case Some(cb) => appletResources.map(prependCodeBase(cb, _))
-                case _        => appletResources
-              }
-              rawResources ++= appletResourcesUrls.map(RegularRawResource)
-
-            } else if (tag.nameEquals(ObjectTagName)) {
-              val data = tag.getAttributeValue(DataAttribute).toString
-              val objectResourceUrl = codeBase() match {
-                case Some(cb) => prependCodeBase(cb, data)
-                case _        => data
-              }
-              rawResources += RegularRawResource(objectResourceUrl)
-
-            } else {
-              Option(tag.getAttributeValue(StyleAttribute)).foreach { style =>
-                val styleUrls = CssParser.extractUrls(style, CssParser.InlineStyleImageUrls).map(RegularRawResource)
-                rawResources ++= styleUrls
-              }
+              case _ =>
             }
+          }
 
-          case TagType.END =>
-            if (inStyle && tag.nameEquals(StyleTagName)) {
-              inStyle = false
-            }
-
-          case _ =>
+        if (!isInHiddenComment) {
+          processTag
         }
       }
     }
 
-    Jodd.newLagartoParser(htmlContent).parse(visitor)
+    Jodd.newLagartoParser(htmlContent, ieVersion).parse(visitor)
     HtmlResources(rawResources, baseURI)
   }
 
-  def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char]): List[EmbeddedResource] = {
+  def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char], userAgent: Option[UserAgent] = None): List[EmbeddedResource] = {
 
-    val htmlResources = parseHtml(htmlContent)
+    val htmlResources = parseHtml(htmlContent, userAgent)
 
     val rootURI = htmlResources.baseURI.getOrElse(documentURI)
 

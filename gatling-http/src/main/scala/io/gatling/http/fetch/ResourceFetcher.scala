@@ -17,6 +17,7 @@ package io.gatling.http.fetch
 
 import java.net.URI
 
+import com.ning.http.client.Request
 import io.gatling.http.request._
 
 import scala.collection.JavaConversions._
@@ -55,8 +56,8 @@ object ResourceFetcher extends StrictLogging {
   val CssContentCache: concurrent.Map[URI, List[EmbeddedResource]] = new ConcurrentHashMapV8[URI, List[EmbeddedResource]]
   val InferredResourcesCache: concurrent.Map[(HttpProtocol, URI), InferredPageResources] = new ConcurrentHashMapV8[(HttpProtocol, URI), InferredPageResources]
 
-  def pageResources(htmlDocumentURI: URI, filters: Option[Filters], responseChars: Array[Char]): List[EmbeddedResource] = {
-    val htmlInferredResources = new HtmlParser().getEmbeddedResources(htmlDocumentURI, responseChars)
+  def pageResources(htmlDocumentURI: URI, filters: Option[Filters], responseChars: Array[Char], request: Request): List[EmbeddedResource] = {
+    val htmlInferredResources = new HtmlParser().getEmbeddedResources(htmlDocumentURI, responseChars, UserAgent.getAgent(request))
     filters match {
       case Some(f) => f.filter(htmlInferredResources)
       case none    => htmlInferredResources
@@ -94,7 +95,7 @@ object ResourceFetcher extends StrictLogging {
     val protocol = tx.request.config.protocol
 
       def inferredResourcesRequests(): List[HttpRequest] = {
-        val res = pageResources(htmlDocumentURI, protocol.responsePart.htmlResourcesInferringFilters, response.body.string.unsafeChars)
+        val res = pageResources(htmlDocumentURI, protocol.responsePart.htmlResourcesInferringFilters, response.body.string.unsafeChars, tx.request.ahcRequest)
         resourcesToRequests(res, protocol, tx.request.config.throttled)
       }
 
