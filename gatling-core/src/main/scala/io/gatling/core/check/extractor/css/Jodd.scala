@@ -41,7 +41,7 @@ object Jodd {
           .setEnableConditionalComments(true)
           .setCondCommentIEVersion(version)
 
-      case None => JoddConfig
+      case _ => JoddConfig
     }
 
   def newLagartoDomBuilder: LagartoDOMBuilder = {
