@@ -17,27 +17,27 @@ package io.gatling.http.fetch
 
 import com.ning.http.client.Request
 
-object UserAgent {
-  val IE = "MSIE"
+import io.gatling.http.HeaderNames
 
-  private val USER_AGENT = "User-Agent"
-  private val MSIE_AGENT_REGEX = "MSIE ([0-9]+.[0-9]+)".r
+object UserAgent {
+
+  val IE = "MSIE"
+  private val MsIeUserAgentRegex = "MSIE ([0-9]+.[0-9]+)".r
 
   def getAgent(request: Request): Option[UserAgent] = {
 
-    if (request.getHeaders.containsKey(USER_AGENT)) {
-      val agentStr = request.getHeaders.getFirstValue(USER_AGENT)
+    if (request.getHeaders.containsKey(HeaderNames.UserAgent)) {
+      val agentStr = request.getHeaders.getFirstValue(HeaderNames.UserAgent)
       parseFromHeader(agentStr)
     } else
       None
   }
 
-  def parseFromHeader(userAgent: String): Option[UserAgent] = {
-    MSIE_AGENT_REGEX.findFirstMatchIn(userAgent) match {
+  def parseFromHeader(userAgent: String): Option[UserAgent] =
+    MsIeUserAgentRegex.findFirstMatchIn(userAgent) match {
       case Some(res) => Some(UserAgent(UserAgent.IE, res.group(1).toFloat))
       case None      => None
     }
-  }
 }
 
 case class UserAgent(name: String, version: Float)
