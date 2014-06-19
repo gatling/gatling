@@ -24,18 +24,23 @@ object Jodd {
 
   LoggerFactory.setLoggerFactory(new Slf4jLoggerFactory)
 
-  val JoddConfig = new LagartoDomBuilderConfig()
-    .setParsingErrorLogLevelName("INFO")
+  private def joddConfigBase =
+    new LagartoDomBuilderConfig()
+      .setParsingErrorLogLevelName("INFO")
+      .setCaseSensitive(false)
+
+  val JoddConfig = joddConfigBase
     .setEnableConditionalComments(false)
-    .setCaseSensitive(false)
 
-  def getJoddConfig(ieVersion: Option[Float]): LagartoDomBuilderConfig = {
+  def getJoddConfig(ieVersion: Option[Float]): LagartoDomBuilderConfig =
     ieVersion match {
-      case Some(version) => JoddConfig.setEnableConditionalComments(true).setCondCommentIEVersion(version)
+      case Some(version) =>
+        joddConfigBase
+          .setEnableConditionalComments(true)
+          .setCondCommentIEVersion(version)
 
-      case None          => JoddConfig
+      case None => JoddConfig
     }
-  }
 
   def newLagartoDomBuilder: LagartoDOMBuilder = {
     val domBuilder = new LagartoDOMBuilder
