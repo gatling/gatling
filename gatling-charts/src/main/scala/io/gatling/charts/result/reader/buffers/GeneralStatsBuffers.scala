@@ -92,10 +92,13 @@ class GeneralStatsBuffer(duration: Long, range: (Int, Int)) extends CountBuffer 
     new Histogram(lowestTrackableValue, highestTrackableValue, 3)
   }
 
+  var sum = 0L
+
   override def update(time: Int) {
     super.update(time)
     digest.add(time)
     histogram.recordValue(time)
+    sum += time
   }
 
   lazy val stats: GeneralStats = {
@@ -104,7 +107,7 @@ class GeneralStatsBuffer(duration: Long, range: (Int, Int)) extends CountBuffer 
       GeneralStats.NoPlot
 
     } else {
-      val mean = histogram.getMean.toInt
+      val mean = (sum / histogram.getTotalCount).toInt
       val stdDev = histogram.getStdDeviation.toInt
       val meanRequestsPerSec = valuesCount / (duration / FileDataReader.secMillisecRatio)
 
