@@ -27,8 +27,8 @@ import io.gatling.core.result.message.Status
 
 class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
-  def generate() {
-      def generateDetailPage(path: String, requestName: String, group: Option[Group]) {
+  def generate(): Unit = {
+      def generateDetailPage(path: String, requestName: String, group: Option[Group]): Unit = {
 
           def responseTimeDistributionChartComponent: Component = {
             val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100, Some(requestName), group)

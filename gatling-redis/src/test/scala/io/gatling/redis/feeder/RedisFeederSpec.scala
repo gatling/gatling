@@ -50,7 +50,7 @@ class RedisFeederSpec extends Specification with CalledMatchers {
     var clientPool: RedisClientPool = _
     var client: RedisClient = _
 
-    def before() {
+    def before(): Unit = {
       clientPool = mock(classOf[RedisClientPool])
       client = mock(classOf[RedisClient])
 

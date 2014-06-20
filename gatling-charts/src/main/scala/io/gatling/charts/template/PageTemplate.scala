@@ -32,7 +32,7 @@ object PageTemplate {
   private var runStart: Long = _
   private var runEnd: Long = _
 
-  def setRunInfo(runMessage: RunMessage, runStart: Long, runEnd: Long) {
+  def setRunInfo(runMessage: RunMessage, runStart: Long, runEnd: Long): Unit = {
     this.runMessage = runMessage
     this.runStart = runStart
     this.runEnd = runEnd

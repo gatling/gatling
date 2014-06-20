@@ -164,7 +164,7 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
         }
       }
 
-      def generateReports(outputDirectoryName: String, dataReader: => DataReader) {
+      def generateReports(outputDirectoryName: String, dataReader: => DataReader): Unit = {
         println("Generating reports...")
         val start = currentTimeMillis
         val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader)

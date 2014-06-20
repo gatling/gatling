@@ -27,21 +27,21 @@ trait ErrorsBuffers {
   def getErrorsBuffers(requestName: Option[String], group: Option[Group]) =
     errorsBuffers.getOrElseUpdate(BufferKey(requestName, group, None), mutable.Map.empty[String, Int])
 
-  def updateErrorBuffers(record: RequestRecord) {
+  def updateErrorBuffers(record: RequestRecord): Unit = {
 
-      def updateGlobalError(errorMessage: String) {
+      def updateGlobalError(errorMessage: String): Unit = {
         val buffer = getErrorsBuffers(None, None)
         buffer += errorMessage -> (buffer.getOrElseUpdate(errorMessage, 0) + 1)
       }
 
-      def updateGroupError(errorMessage: String) {
+      def updateGroupError(errorMessage: String): Unit = {
         record.group.foreach { group =>
           val buffer = getErrorsBuffers(None, Some(group))
           buffer += errorMessage -> (buffer.getOrElseUpdate(errorMessage, 0) + 1)
         }
       }
 
-      def updateRequestError(errorMessage: String) {
+      def updateRequestError(errorMessage: String): Unit = {
         val buffer = getErrorsBuffers(Some(record.name), record.group)
         buffer += errorMessage -> (buffer.getOrElseUpdate(errorMessage, 0) + 1)
       }

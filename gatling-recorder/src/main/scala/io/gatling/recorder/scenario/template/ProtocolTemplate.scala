@@ -52,21 +52,22 @@ object ProtocolTemplate {
 
       def renderFollowRedirect = if (!config.http.followRedirect) fast"$Eol$Indent.disableFollowRedirect" else fast""
 
-      def renderInferHtmlResources = if (config.http.inferHtmlResources) {
-        val filtersConfig = config.filters
+      def renderInferHtmlResources =
+        if (config.http.inferHtmlResources) {
+          val filtersConfig = config.filters
 
-          def quotedStringList(xs: Seq[String]): String = xs.map(p => "\"\"\"" + p + "\"\"\"").mkString(", ")
-          def backListPatterns = fast"black = BlackList(${quotedStringList(filtersConfig.blackList.patterns)})"
-          def whiteListPatterns = fast"white = WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
+            def quotedStringList(xs: Seq[String]): String = xs.map(p => "\"\"\"" + p + "\"\"\"").mkString(", ")
+            def backListPatterns = fast"black = BlackList(${quotedStringList(filtersConfig.blackList.patterns)})"
+            def whiteListPatterns = fast"white = WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
 
-        val patterns = filtersConfig.filterStrategy match {
-          case FilterStrategy.WhitelistFirst => fast"$whiteListPatterns, $backListPatterns"
-          case FilterStrategy.BlacklistFirst => fast"$backListPatterns, $whiteListPatterns"
-          case FilterStrategy.Disabled       => EmptyFastring
-        }
+          val patterns = filtersConfig.filterStrategy match {
+            case FilterStrategy.WhitelistFirst => fast"$whiteListPatterns, $backListPatterns"
+            case FilterStrategy.BlacklistFirst => fast"$backListPatterns, $whiteListPatterns"
+            case FilterStrategy.Disabled       => EmptyFastring
+          }
 
-        fast"$Eol$Indent.inferHtmlResources($patterns)"
-      } else fast""
+          fast"$Eol$Indent.inferHtmlResources($patterns)"
+        } else fast""
 
       def renderAutomaticReferer = if (!config.http.automaticReferer) fast"$Eol$Indent.disableAutoReferer" else fast""
 

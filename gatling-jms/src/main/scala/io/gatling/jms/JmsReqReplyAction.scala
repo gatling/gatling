@@ -141,7 +141,7 @@ class JmsReqReplyAction(
     }
   }
 
-  def logMessage(text: String, msg: Message) {
+  def logMessage(text: String, msg: Message): Unit = {
     logger.debug(text)
     logger.trace(msg.toString)
   }

@@ -52,7 +52,7 @@ trait Chainable extends Action {
   /**
    * Makes sure that in case of an actor crash, the Session is not lost but passed to the next Action.
    */
-  override def preRestart(reason: Throwable, message: Option[Any]) {
+  override def preRestart(reason: Throwable, message: Option[Any]): Unit =
     message.foreach {
       case session: Session =>
         logger.error(s"Action $this crashed on session $message, forwarding to the next one", reason)
@@ -60,7 +60,6 @@ trait Chainable extends Action {
       case _ =>
         logger.error(s"Action $this crashed on unknown message $message, dropping", reason)
     }
-  }
 }
 
 /**
@@ -68,12 +67,11 @@ trait Chainable extends Action {
  */
 trait Failable { self: Chainable =>
 
-  def execute(session: Session) {
+  def execute(session: Session): Unit =
     executeOrFail(session).onFailure { message =>
       logger.error(message)
       next ! session.markAsFailed
     }
-  }
 
   def executeOrFail(session: Session): Validation[_]
 }

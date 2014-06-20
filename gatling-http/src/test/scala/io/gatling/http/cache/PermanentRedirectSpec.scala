@@ -38,7 +38,7 @@ class PermanentRedirectSpec extends Specification with Mockito {
     def addRedirect(from: String, to: String): Unit =
       session = PermanentRedirect.addRedirect(session, new URI(from), new URI(to))
 
-    def before() {}
+    def before(): Unit = {}
   }
   "redirect memoization" should {
     "return transaction with no redirect cache" in new Context {

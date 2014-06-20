@@ -51,11 +51,9 @@ class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next:
    *
    * @param session the session of the virtual user
    */
-  def execute(session: Session) {
-
+  def execute(session: Session): Unit =
     if (!session.contains(counterName))
       loopNext ! session.enterTryMax(counterName, self)
-
     else {
       val incrementedSession = session.incrementCounter(counterName)
 
@@ -65,5 +63,4 @@ class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next:
       else
         next ! session.exitTryMax
     }
-  }
 }

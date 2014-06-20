@@ -28,7 +28,6 @@ object Protocols {
 class Protocols(val protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) {
 
   /**
-   * @param protocolType
    * @return a registered Protocol according to its type
    */
   def getProtocol[T <: Protocol: ClassTag]: Option[T] = protocols.get(implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]).map(_.asInstanceOf[T])
@@ -38,7 +37,6 @@ class Protocols(val protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) 
 
   def ++(other: Protocols) = new Protocols(protocols ++ other.protocols)
 
-  def warmUp() {
+  def warmUp(): Unit =
     protocols.foreach { case (_, protocol) => protocol.warmUp() }
-  }
 }

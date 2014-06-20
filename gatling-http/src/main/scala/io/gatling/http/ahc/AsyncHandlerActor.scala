@@ -149,7 +149,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
    * @param status the status of the request
    * @param response the response
    */
-  private def executeNext(tx: HttpTx, update: Session => Session, status: Status, response: Response) {
+  private def executeNext(tx: HttpTx, update: Session => Session, status: Status, response: Response): Unit = {
 
     val protocol = tx.request.config.protocol
 
@@ -174,7 +174,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     }
   }
 
-  private def logAndExecuteNext(tx: HttpTx, update: Session => Session, status: Status, response: Response, message: Option[String]) {
+  private def logAndExecuteNext(tx: HttpTx, update: Session => Session, status: Status, response: Response, message: Option[String]): Unit = {
 
     val newTx = tx.copy(session = update(tx.session))
 

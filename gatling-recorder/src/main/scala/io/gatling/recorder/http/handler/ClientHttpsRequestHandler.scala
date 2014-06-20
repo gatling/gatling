@@ -52,7 +52,7 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
 
       def handlePropagatableRequest(): Unit = {
 
-          def handleConnect(address: InetSocketAddress) {
+          def handleConnect(address: InetSocketAddress): Unit =
             proxy.clientBootstrap
               .connect(address)
               .addListener { connectFuture: ChannelFuture =>
@@ -61,7 +61,6 @@ class ClientHttpsRequestHandler(proxy: HttpProxy) extends ClientRequestHandler(p
                 _serverChannel = Some(serverChannel)
                 serverChannel.write(buildConnectRequest)
               }
-          }
 
           def handleDirect(address: InetSocketAddress): Unit = {
             proxy.secureClientBootstrap

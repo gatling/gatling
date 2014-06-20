@@ -26,26 +26,19 @@ trait NamesBuffers {
 
     val map = mutable.Map.empty[A, Long]
 
-    def update(name: A, time: Long) {
+    def update(name: A, time: Long): Unit =
       map += (name -> (time min map.getOrElse(name, Long.MaxValue)))
-    }
   }
 
   val groupAndRequestsNameBuffer = new NameBuffer[StatsPath]
   val scenarioNameBuffer = new NameBuffer[String]
 
-  def addScenarioName(record: UserRecord) {
-    import record._
-    scenarioNameBuffer.update(scenario, startDate)
-  }
+  def addScenarioName(record: UserRecord): Unit =
+    scenarioNameBuffer.update(record.scenario, record.startDate)
 
-  def addRequestName(record: RequestRecord) {
-    import record._
-    groupAndRequestsNameBuffer.update(RequestStatsPath(name, group), requestStart)
-  }
+  def addRequestName(record: RequestRecord): Unit =
+    groupAndRequestsNameBuffer.update(RequestStatsPath(record.name, record.group), record.requestStart)
 
-  def addGroupName(record: GroupRecord) {
-    import record._
-    groupAndRequestsNameBuffer.update(GroupStatsPath(group), startDate)
-  }
+  def addGroupName(record: GroupRecord): Unit =
+    groupAndRequestsNameBuffer.update(GroupStatsPath(record.group), record.startDate)
 }

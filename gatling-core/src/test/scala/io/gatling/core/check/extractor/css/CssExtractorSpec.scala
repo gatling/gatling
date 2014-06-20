@@ -17,6 +17,7 @@ package io.gatling.core.check.extractor.css
 
 import java.nio.charset.StandardCharsets
 
+import jodd.lagarto.dom.NodeSelector
 import org.junit.runner.RunWith
 import org.specs2.runner.JUnitRunner
 
@@ -32,7 +33,7 @@ class CssExtractorSpec extends ValidationSpecification {
 
   GatlingConfiguration.setUp()
 
-  def prepared(file: String) = withCloseable(getClass.getResourceAsStream(file)) { is =>
+  def prepared(file: String): NodeSelector = withCloseable(getClass.getResourceAsStream(file)) { is =>
     val string = is.toString(StandardCharsets.UTF_8)
     CssExtractor.parse(string)
   }

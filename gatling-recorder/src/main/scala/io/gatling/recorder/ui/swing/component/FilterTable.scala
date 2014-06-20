@@ -108,9 +108,7 @@ class FilterTable(headerTitle: String) extends ScrollPane {
     val popup = new JPopupMenu
     val menuItem = new JMenuItem("Delete")
     menuItem.addActionListener(new ActionListener {
-      def actionPerformed(e: ActionEvent) {
-        removeSelectedRow()
-      }
+      def actionPerformed(e: ActionEvent): Unit = removeSelectedRow()
     })
 
     popup.add(menuItem)
@@ -121,9 +119,8 @@ class FilterTable(headerTitle: String) extends ScrollPane {
       case e: MouseButtonEvent => maybeShowPopup(e)
     }
 
-      def maybeShowPopup(e: MouseEvent) {
+      def maybeShowPopup(e: MouseEvent): Unit =
         if (e.peer.isPopupTrigger)
           popup.show(e.peer.getComponent, e.peer.getX, e.peer.getY)
-      }
   }
 }

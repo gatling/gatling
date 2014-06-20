@@ -26,8 +26,8 @@ import io.gatling.charts.result.reader.RequestPath
 
 class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
-  def generate() {
-      def generateDetailPage(path: String, group: Group) {
+  def generate(): Unit = {
+      def generateDetailPage(path: String, group: Group): Unit = {
           def cumulatedResponseTimeChartComponent: Component = {
             val dataSuccess = dataReader.groupCumulatedResponseTimePercentilesOverTime(OK, group)
             val seriesSuccess = new Series[PercentilesVsTimePlot]("Group Cumulated Response Time Percentiles over Time (success)", dataSuccess, ReportGenerator.PercentilesColors)

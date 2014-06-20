@@ -26,15 +26,11 @@ final class UnsyncByteArrayInputStream(array: Array[Byte]) extends InputStream {
 
   override def markSupported = true
 
-  override def reset() {
-    position = mark
-  }
+  override def reset(): Unit = position = mark
 
-  override def close() {}
+  override def close(): Unit = {}
 
-  override def mark(dummy: Int) {
-    mark = position
-  }
+  override def mark(dummy: Int): Unit = mark = position
 
   override def available: Int = length - position
 

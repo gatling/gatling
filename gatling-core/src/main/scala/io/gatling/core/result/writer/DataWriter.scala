@@ -40,11 +40,9 @@ object DataWriter extends AkkaDefaults {
     case _        => throw new UnsupportedOperationException("DataWriters haven't been initialized")
   }
 
-  def dispatch(message: Any) {
-    instances.foreach(_ ! message)
-  }
+  def dispatch(message: Any): Unit = instances.foreach(_ ! message)
 
-  def init(runMessage: RunMessage, scenarios: Seq[Scenario], replyTo: ActorRef) {
+  def init(runMessage: RunMessage, scenarios: Seq[Scenario], replyTo: ActorRef): Unit = {
 
     _instances = {
       val dw = configuration.data.dataWriterClasses.map { className =>
@@ -62,7 +60,7 @@ object DataWriter extends AkkaDefaults {
     Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersInitialized(_))
   }
 
-  def terminate(replyTo: ActorRef) {
+  def terminate(replyTo: ActorRef): Unit = {
     val responses = instances.map(_ ? Terminate)
     Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersTerminated(_))
   }
@@ -76,15 +74,15 @@ object DataWriter extends AkkaDefaults {
  */
 abstract class DataWriter extends BaseActor {
 
-  def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription])
+  def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit
 
-  def onUserMessage(userMessage: UserMessage)
+  def onUserMessage(userMessage: UserMessage): Unit
 
-  def onGroupMessage(group: GroupMessage)
+  def onGroupMessage(group: GroupMessage): Unit
 
-  def onRequestMessage(request: RequestMessage)
+  def onRequestMessage(request: RequestMessage): Unit
 
-  def onTerminateDataWriter()
+  def onTerminateDataWriter(): Unit
 
   def uninitialized: Receive = {
     case Init(runMessage, scenarios) =>
@@ -129,7 +127,7 @@ trait DataWriterClient {
                        responseEndDate: Long,
                        status: Status,
                        message: Option[String] = None,
-                       extraInfo: List[Any] = Nil) {
+                       extraInfo: List[Any] = Nil): Unit =
     DataWriter.dispatch(RequestMessage(
       session.scenarioName,
       session.userId,
@@ -142,9 +140,7 @@ trait DataWriterClient {
       status,
       message,
       extraInfo))
-  }
 
-  def writeGroupData(session: Session, group: GroupBlock, exitDate: Long) {
+  def writeGroupData(session: Session, group: GroupBlock, exitDate: Long): Unit =
     DataWriter.dispatch(GroupMessage(session.scenarioName, session.userId, group, group.hierarchy, group.startDate, exitDate, group.status))
-  }
 }

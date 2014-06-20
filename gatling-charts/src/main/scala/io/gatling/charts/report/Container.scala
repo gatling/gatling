@@ -49,12 +49,12 @@ case class GroupContainer(name: String,
     getGroupRec(this, path)
   }
 
-  def addGroup(group: Group, stats: RequestStatistics) {
+  def addGroup(group: Group, stats: RequestStatistics): Unit = {
     val parentGroup = group.hierarchy.dropRight(1)
     findGroup(parentGroup).contents += (group.name -> GroupContainer(group.name, stats))
   }
 
-  def addRequest(group: Option[Group], requestName: String, stats: RequestStatistics) {
+  def addRequest(group: Option[Group], requestName: String, stats: RequestStatistics): Unit = {
     val parentGroup = group.map(_.hierarchy).getOrElse(Nil)
     findGroup(parentGroup).contents += (requestName -> RequestContainer(requestName, stats))
   }

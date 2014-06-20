@@ -27,7 +27,7 @@ class LeakReporterDataWriter extends DataWriter {
   private var lastTouch = 0L
   private val events = mutable.Map.empty[String, DataWriterMessage]
 
-  def display() {
+  def display(): Unit = {
     val timeSinceLastTouch = (currentTimeMillis - lastTouch) / 1000
 
     if (timeSinceLastTouch > 30 && events.nonEmpty) {
@@ -40,34 +40,28 @@ class LeakReporterDataWriter extends DataWriter {
     case Display => display()
   }
 
-  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
-
+  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
     lastTouch = currentTimeMillis
-
     scheduler.schedule(0 seconds, 30 seconds, self, Display)
   }
 
-  override def onUserMessage(userMessage: UserMessage) {
-
+  override def onUserMessage(userMessage: UserMessage): Unit = {
     lastTouch = currentTimeMillis
-
     userMessage.event match {
       case Start => events += userMessage.userId -> userMessage
       case End   => events -= userMessage.userId
     }
   }
 
-  override def onGroupMessage(groupMessage: GroupMessage) {
-
+  override def onGroupMessage(groupMessage: GroupMessage): Unit = {
     lastTouch = currentTimeMillis
     events += groupMessage.userId -> groupMessage
   }
 
-  override def onRequestMessage(requestMessage: RequestMessage) {
-
+  override def onRequestMessage(requestMessage: RequestMessage): Unit = {
     lastTouch = currentTimeMillis
     events += requestMessage.userId -> requestMessage
   }
 
-  override def onTerminateDataWriter() {}
+  override def onTerminateDataWriter(): Unit = {}
 }

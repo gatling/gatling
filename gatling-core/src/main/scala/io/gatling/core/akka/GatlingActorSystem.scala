@@ -21,9 +21,7 @@ object GatlingActorSystem {
 
   var instanceOpt: Option[ActorSystem] = None
 
-  def start() {
-    instanceOpt = Some(ActorSystem("GatlingSystem"))
-  }
+  def start(): Unit = instanceOpt = Some(ActorSystem("GatlingSystem"))
 
   def instance = instanceOpt match {
     case Some(a) => a

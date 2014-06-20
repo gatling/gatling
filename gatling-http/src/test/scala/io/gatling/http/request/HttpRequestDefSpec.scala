@@ -42,11 +42,10 @@ class HttpRequestDefSpec extends Specification with Mockito {
     val httpEngineMock = mock[HttpEngine]
     var session = Session("mockSession", "mockUserName")
 
-    def addRedirect(from: String, to: String) {
+    def addRedirect(from: String, to: String): Unit =
       session = PermanentRedirect.addRedirect(session, new URI(from), new URI(to))
-    }
 
-    def before() {}
+    def before(): Unit = {}
   }
 
   "HttpRequestDef" should {

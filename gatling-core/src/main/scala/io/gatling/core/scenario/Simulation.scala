@@ -50,9 +50,8 @@ abstract class Simulation {
     Timings(_maxDuration, _globalThrottling, perScenarioThrottlings)
   }
 
-  def before(step: => Unit) {
+  def before(step: => Unit): Unit =
     _beforeSteps = _beforeSteps ::: List(() => step)
-  }
 
   def setUp(scenarios: PopulatedScenarioBuilder*): SetUp = setUp(scenarios.toList)
 
@@ -63,9 +62,8 @@ abstract class Simulation {
     new SetUp
   }
 
-  def after(step: => Unit) {
+  def after(step: => Unit): Unit =
     _afterSteps = _afterSteps ::: List(() => step)
-  }
 
   class SetUp {
 

@@ -31,19 +31,15 @@ class RecorderConfigrationSpec extends Specification {
   val FILE_NAME = "file"
 
   class Context extends BeforeAfter {
-    def removeAll() {
+    def removeAll(): Unit = {
       new File(EXISTING_DIR, FILE_NAME).delete()
       new File(EXISTING_DIR).delete()
       new File(FILE_NAME).delete()
     }
 
-    def before() {
-      removeAll()
-    }
+    def before(): Unit = removeAll()
 
-    def after() {
-      removeAll()
-    }
+    def after(): Unit = removeAll()
   }
 
   "recorder configuration" should {

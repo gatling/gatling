@@ -28,7 +28,7 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
     case message: FeedMessage => feed(message.session, message.number, message.next)
   }
 
-  def feed(session: Session, number: Expression[Int], next: ActorRef) {
+  def feed(session: Session, number: Expression[Int], next: ActorRef): Unit = {
 
       def translateRecord(record: Record[T], suffix: Int): Record[T] = record.map { case (key, value) => (key + suffix) -> value }
 

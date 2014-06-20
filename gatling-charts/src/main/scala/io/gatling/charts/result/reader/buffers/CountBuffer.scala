@@ -22,7 +22,7 @@ import io.gatling.core.result.IntVsTimePlot
 class CountBuffer {
   val counts = mutable.Map.empty[Int, Int]
 
-  def update(time: Int) {
+  def update(time: Int): Unit = {
     val newCount = counts.get(time) match {
       case Some(count) => count + 1
       case None        => 1

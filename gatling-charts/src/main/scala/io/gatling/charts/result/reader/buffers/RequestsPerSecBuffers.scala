@@ -28,7 +28,7 @@ trait RequestsPerSecBuffers {
   def getRequestsPerSecBuffer(requestName: Option[String], group: Option[Group], status: Option[Status]): CountBuffer =
     requestsPerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, status), new CountBuffer)
 
-  def updateRequestsPerSecBuffers(record: RequestRecord) {
+  def updateRequestsPerSecBuffers(record: RequestRecord): Unit = {
     getRequestsPerSecBuffer(Some(record.name), record.group, None).update(record.requestStartBucket)
     getRequestsPerSecBuffer(Some(record.name), record.group, Some(record.status)).update(record.requestStartBucket)
 

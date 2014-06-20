@@ -28,16 +28,14 @@ trait ResponseTimeRangeBuffers {
   def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group]): ResponseTimeRangeBuffer =
     responseTimeRangeBuffers.getOrElseUpdate(BufferKey(requestName, group, None), new ResponseTimeRangeBuffer)
 
-  def updateResponseTimeRangeBuffer(record: RequestRecord) {
+  def updateResponseTimeRangeBuffer(record: RequestRecord): Unit = {
     import record._
     getResponseTimeRangeBuffers(Some(name), group).update(responseTime, status)
     getResponseTimeRangeBuffers(None, None).update(responseTime, status)
   }
 
-  def updateGroupResponseTimeRangeBuffer(record: GroupRecord) {
-    import record._
-    getResponseTimeRangeBuffers(None, Some(group)).update(duration, status)
-  }
+  def updateGroupResponseTimeRangeBuffer(record: GroupRecord): Unit =
+    getResponseTimeRangeBuffers(None, Some(record.group)).update(record.duration, record.status)
 
   class ResponseTimeRangeBuffer {
 

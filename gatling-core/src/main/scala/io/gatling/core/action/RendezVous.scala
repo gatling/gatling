@@ -31,7 +31,7 @@ class RendezVous(users: Int, val next: ActorRef) extends Chainable {
     case session: Session => next ! Session
   }
 
-  def execute(session: Session) {
+  def execute(session: Session): Unit = {
     buffer += session
     if (buffer.length == users) {
       context.become(passThrough)

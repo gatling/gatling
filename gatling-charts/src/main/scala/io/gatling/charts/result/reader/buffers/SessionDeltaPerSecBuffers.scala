@@ -35,12 +35,12 @@ class SessionDeltaBuffer {
 
   val map = mutable.HashMap.empty[Int, SessionDeltas].withDefaultValue(SessionDeltas.empty)
 
-  def addStart(bucket: Int) {
+  def addStart(bucket: Int): Unit = {
     val deltas = map(bucket)
     map += (bucket -> deltas.addStart)
   }
 
-  def addEnd(bucket: Int) {
+  def addEnd(bucket: Int): Unit = {
     val delta = map(bucket)
     map += (bucket -> delta.addEnd)
   }
@@ -65,7 +65,7 @@ trait SessionDeltaPerSecBuffers {
 
   def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer)
 
-  def addSessionBuffers(record: UserRecord) {
+  def addSessionBuffers(record: UserRecord): Unit = {
     record.event match {
       case Start =>
         getSessionDeltaPerSecBuffers(None).addStart(record.startDateBucket)
@@ -79,10 +79,9 @@ trait SessionDeltaPerSecBuffers {
     }
   }
 
-  def endOrphanUserRecords(endDateBucket: Int) {
+  def endOrphanUserRecords(endDateBucket: Int): Unit =
     orphanStartRecords.values.foreach { start =>
       getSessionDeltaPerSecBuffers(None).addEnd(endDateBucket)
       getSessionDeltaPerSecBuffers(Some(start.scenario)).addEnd(endDateBucket)
     }
-  }
 }

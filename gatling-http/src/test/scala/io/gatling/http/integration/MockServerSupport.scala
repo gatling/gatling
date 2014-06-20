@@ -104,11 +104,9 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
     expectMsgClass(timeout, classOf[Session])
   }
 
-  def verifyRequestTo(path: String) {
-    verifyRequestTo(path, 1)
-  }
+  def verifyRequestTo(path: String): Unit = verifyRequestTo(path, 1)
 
-  def verifyRequestTo(path: String, count: Int, checks: (HttpRequest => Unit)*) {
+  def verifyRequestTo(path: String, count: Int, checks: (HttpRequest => Unit)*): Unit = {
     val filteredRequests = requests.filter(_.uri.path.toString == path)
     val actualCount = filteredRequests.size
     if (actualCount != count) {
@@ -119,7 +117,7 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
       filteredRequests.foreach(check))
   }
 
-  def file(name: String, contentType: ContentType = ContentTypes.`application/octet-stream`) = {
+  def file(name: String, contentType: ContentType = ContentTypes.`application/octet-stream`): HttpEntity = {
     val resource = getClass.getClassLoader.getResource(name)
     val file = new File(resource.getFile)
     HttpEntity(contentType, HttpData(file))

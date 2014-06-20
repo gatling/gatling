@@ -27,8 +27,8 @@ case class ThrottlingProtocol(limit: Long => Int) extends Protocol
 
 class ThisSecondThrottler(val limit: Int, var count: Int = 0) {
 
-  def increment() { count += 1 }
-  def limitReached = count >= limit
+  def increment(): Unit = count += 1
+  def limitReached: Boolean = count >= limit
 }
 
 class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map[String, ThrottlingProtocol]) extends AkkaDefaults {

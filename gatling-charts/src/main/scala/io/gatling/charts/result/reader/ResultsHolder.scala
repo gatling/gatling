@@ -36,19 +36,19 @@ class ResultsHolder(minTime: Long,
     with RequestPercentilesBuffers
     with GroupPercentilesBuffers {
 
-  def addUserRecord(record: UserRecord) {
+  def addUserRecord(record: UserRecord): Unit = {
     addSessionBuffers(record)
     addScenarioName(record)
   }
 
-  def addGroupRecord(record: GroupRecord) {
+  def addGroupRecord(record: GroupRecord): Unit = {
     addGroupName(record)
     updateGroupGeneralStatsBuffers(record)
     updateGroupPercentilesBuffers(record)
     updateGroupResponseTimeRangeBuffer(record)
   }
 
-  def addRequestRecord(record: RequestRecord) {
+  def addRequestRecord(record: RequestRecord): Unit = {
     updateRequestsPerSecBuffers(record)
     updateResponsesPerSecBuffers(record)
     addRequestName(record)

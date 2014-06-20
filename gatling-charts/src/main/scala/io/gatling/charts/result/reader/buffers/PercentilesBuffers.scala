@@ -23,7 +23,7 @@ class PercentilesBuffers {
 
   val digests = mutable.Map.empty[Int, TDigest]
 
-  def update(bucket: Int, value: Int) {
+  def update(bucket: Int, value: Int): Unit = {
     val digest = digests.getOrElseUpdate(bucket, new AVLTreeDigest(100.0))
     digest.add(value)
   }

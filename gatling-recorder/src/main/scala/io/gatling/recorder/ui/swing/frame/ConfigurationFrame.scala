@@ -406,7 +406,7 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
    * Reload configuration from the content of the configuration frame
    * and start recording
    */
-  private def reloadConfigurationAndStart() {
+  private def reloadConfigurationAndStart(): Unit = {
     // clean up filters
     whiteListTable.cleanUp()
     blackListTable.cleanUp()

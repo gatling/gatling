@@ -47,7 +47,7 @@ abstract class GeneralStatsBuffers(durationInSec: Long,
   def getGroupRequestCounts(group: Group): (Int, Int) =
     requestCounts.getOrElseUpdate(BufferKey(None, Some(group), None), (0, 0))
 
-  def updateRequestGeneralStatsBuffers(record: RequestRecord) {
+  def updateRequestGeneralStatsBuffers(record: RequestRecord): Unit = {
     import record._
     getRequestGeneralStatsBuffers(Some(name), group, None).update(responseTime)
     getRequestGeneralStatsBuffers(Some(name), group, Some(status)).update(responseTime)
@@ -56,7 +56,7 @@ abstract class GeneralStatsBuffers(durationInSec: Long,
     getRequestGeneralStatsBuffers(None, None, Some(status)).update(responseTime)
   }
 
-  def updateGroupGeneralStatsBuffers(record: GroupRecord) {
+  def updateGroupGeneralStatsBuffers(record: GroupRecord): Unit = {
     import record._
     getGroupCumulatedResponseTimeGeneralStatsBuffers(group, None).update(cumulatedResponseTime)
     getGroupCumulatedResponseTimeGeneralStatsBuffers(group, Some(status)).update(cumulatedResponseTime)

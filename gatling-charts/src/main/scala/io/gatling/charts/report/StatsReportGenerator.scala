@@ -29,7 +29,7 @@ import io.gatling.core.util.NumberHelper._
 
 class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
 
-  def generate() {
+  def generate(): Unit = {
 
       def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
 
@@ -91,7 +91,7 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
     val groupStatsPaths: Map[List[String], GroupStatsPath] = statsPaths.collect { case path: GroupStatsPath => path.group.hierarchy.reverse -> path }(breakOut)
     val seenGroups = collection.mutable.HashSet.empty[List[String]]
 
-      def addGroupsRec(hierarchy: List[String]) {
+      def addGroupsRec(hierarchy: List[String]): Unit = {
 
         if (!seenGroups.contains(hierarchy)) {
           seenGroups += hierarchy

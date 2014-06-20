@@ -141,12 +141,12 @@ class Controller extends BaseActor {
 
   def initialized: Receive = {
 
-      def dispatchUserEndToDataWriter(userMessage: UserMessage) {
+      def dispatchUserEndToDataWriter(userMessage: UserMessage): Unit = {
         logger.info(s"End user #${userMessage.userId}")
         DataWriter.dispatch(userMessage)
       }
 
-      def becomeTerminating(exception: Option[Exception]) {
+      def becomeTerminating(exception: Option[Exception]): Unit = {
         DataWriter.terminate(self)
         context.become(waitingForDataWriterToTerminate(exception))
       }

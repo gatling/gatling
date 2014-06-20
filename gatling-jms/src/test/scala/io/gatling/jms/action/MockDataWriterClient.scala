@@ -47,9 +47,8 @@ trait MockDataWriterClient extends DataWriterClient with StrictLogging {
       extraInfo))
   }
 
-  override def writeGroupData(session: Session, group: GroupBlock, exitDate: Long) {
+  override def writeGroupData(session: Session, group: GroupBlock, exitDate: Long): Unit =
     handle(GroupMessage(session.scenarioName, session.userId, group, group.hierarchy, group.startDate, exitDate, group.status))
-  }
 
   private def handle(msg: DataWriterMessage) = {
     dataWriterMsg = msg :: dataWriterMsg

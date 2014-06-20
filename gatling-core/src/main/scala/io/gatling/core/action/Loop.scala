@@ -50,7 +50,7 @@ class InnerLoop(continueCondition: Expression[Boolean], loopNext: ActorRef, coun
    *
    * @param session the session of the virtual user
    */
-  def execute(session: Session) {
+  def execute(session: Session): Unit = {
 
     val incrementedSession =
       if (!session.contains(counterName))

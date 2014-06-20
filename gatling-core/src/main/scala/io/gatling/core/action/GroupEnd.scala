@@ -23,7 +23,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 class GroupEnd(val next: ActorRef) extends Chainable with DataWriterClient with StrictLogging {
 
-  def execute(session: Session) {
+  def execute(session: Session): Unit =
     session.blockStack match {
 
       case (group: GroupBlock) :: tail =>
@@ -33,5 +33,4 @@ class GroupEnd(val next: ActorRef) extends Chainable with DataWriterClient with 
       case _ =>
         logger.error(s"GroupEnd called but head of stack ${session.blockStack} isn't a GroupBlock, please report.")
     }
-  }
 }

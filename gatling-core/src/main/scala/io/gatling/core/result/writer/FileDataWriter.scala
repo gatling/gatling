@@ -119,7 +119,7 @@ class FileDataWriter extends DataWriter {
 
   private var os: UnsyncBufferedOutputStream = _
 
-  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]) {
+  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
     val simulationLog = simulationLogDirectory(run.runId) / "simulation.log"
     val fos = new FileOutputStream(simulationLog.toString)
     system.registerOnTermination(fos.close)
@@ -127,11 +127,11 @@ class FileDataWriter extends DataWriter {
     os.write(run.getBytes)
   }
 
-  override def onUserMessage(userMessage: UserMessage) { os.write(userMessage.getBytes) }
+  override def onUserMessage(userMessage: UserMessage): Unit = os.write(userMessage.getBytes)
 
-  override def onGroupMessage(group: GroupMessage) { os.write(group.getBytes) }
+  override def onGroupMessage(group: GroupMessage): Unit = os.write(group.getBytes)
 
-  override def onRequestMessage(request: RequestMessage) { os.write(request.getBytes) }
+  override def onRequestMessage(request: RequestMessage): Unit = os.write(request.getBytes)
 
-  override def onTerminateDataWriter() { os.flush }
+  override def onTerminateDataWriter(): Unit = os.flush
 }
