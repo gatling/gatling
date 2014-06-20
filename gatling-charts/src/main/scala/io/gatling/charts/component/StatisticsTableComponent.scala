@@ -18,7 +18,7 @@ package io.gatling.charts.component
 import com.dongxiguo.fastring.Fastring.Implicits.{ FastringContext, MkFastring }
 
 import io.gatling.charts.config.ChartsFiles.GlobalPageName
-import io.gatling.charts.report.Container.{ GROUP, REQUEST }
+import io.gatling.charts.report.Container.{ Group, Request }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.NumberHelper._
 import io.gatling.core.util.StringHelper._
@@ -125,12 +125,12 @@ function generateHtmlRowsForGroup(group, level, index, parent) {
     }
 
     $$.each(group.contents, function(contentName, content) {
-        if (content.type == '$GROUP') {
+        if (content.type == '$Group') {
             var result = generateHtmlRowsForGroup(content, level + 1, index, parent);
             buffer += result.html;
             index = result.index;
         }
-        else if (content.type == '$REQUEST') {
+        else if (content.type == '$Request') {
             buffer += generateHtmlRow(content, level, index, parent);
             index++;
         }

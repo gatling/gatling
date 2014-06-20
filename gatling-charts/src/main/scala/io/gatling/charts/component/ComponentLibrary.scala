@@ -25,7 +25,7 @@ import io.gatling.core.result._
 
 object ComponentLibrary extends StrictLogging {
 
-  val instance: ComponentLibrary = {
+  val Instance: ComponentLibrary = {
 
     val STATIC_LIBRARY_BINDER_PATH = "com/excilys/ebi/gatling/charts/component/impl/ComponentLibraryImpl.class"
 

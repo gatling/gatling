@@ -23,9 +23,9 @@ import io.gatling.core.result.writer.FileDataWriter.GroupMessageSerializer
 
 object RecordParser {
 
-  val groupCache = mutable.Map.empty[String, Group]
+  val GroupCache = mutable.Map.empty[String, Group]
 
-  def parseGroup(string: String) = groupCache.getOrElseUpdate(string, GroupMessageSerializer.deserializeGroups(string))
+  def parseGroup(string: String) = GroupCache.getOrElseUpdate(string, GroupMessageSerializer.deserializeGroups(string))
 
   def parseRequestRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): RequestRecord = {
 

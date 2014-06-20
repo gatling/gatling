@@ -22,8 +22,8 @@ import io.gatling.charts.component.RequestStatistics
 import io.gatling.core.result.Group
 
 object Container {
-  val GROUP = "GROUP"
-  val REQUEST = "REQUEST"
+  val Group = "GROUP"
+  val Request = "REQUEST"
 }
 
 trait Container

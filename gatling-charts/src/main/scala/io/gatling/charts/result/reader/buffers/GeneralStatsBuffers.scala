@@ -90,7 +90,7 @@ class GeneralStatsBuffer(duration: Long, maxValue: Int) extends CountBuffer {
     } else {
       val mean = (sum / histogram.getTotalCount).toInt
       val stdDev = histogram.getStdDeviation.toInt
-      val meanRequestsPerSec = valuesCount / (duration / FileDataReader.secMillisecRatio)
+      val meanRequestsPerSec = valuesCount / (duration / FileDataReader.SecMillisecRatio)
 
       val percentile1 = digest.quantile(configuration.charting.indicators.percentile1 / 100.0).toInt
       val percentile2 = digest.quantile(configuration.charting.indicators.percentile2 / 100.0).toInt

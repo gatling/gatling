@@ -21,7 +21,7 @@ import io.gatling.core.util.StringHelper.RichString
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.report.{ GroupContainer, RequestContainer }
-import io.gatling.charts.report.Container.{ GROUP, REQUEST }
+import io.gatling.charts.report.Container.{ Group, Request }
 
 class StatsJsTemplate(stats: GroupContainer) {
 
@@ -37,20 +37,18 @@ stats: $jsonStats"""
       }
 
       def renderStatsGroup(group: GroupContainer): Fastring =
-        fast"""type: "$GROUP",
+        fast"""type: "$Group",
 ${renderStatsRequest(group.stats)},
 contents: {
 ${
           group.contents.values.map {
-            _ match {
-              case subGroup: GroupContainer => fast""""${subGroup.name.toFileName}": {
+            case subGroup: GroupContainer => fast""""${subGroup.name.toFileName}": {
         ${renderStatsGroup(subGroup)}
     }"""
-              case request: RequestContainer => fast""""${request.name.toFileName}": {
-        type: "$REQUEST",
+            case request: RequestContainer => fast""""${request.name.toFileName}": {
+        type: "$Request",
         ${renderStatsRequest(request.stats)}
     }"""
-            }
           }.mkFastring(",")
         }
 }

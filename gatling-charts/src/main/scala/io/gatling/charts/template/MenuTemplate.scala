@@ -17,7 +17,7 @@ package io.gatling.charts.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-import io.gatling.charts.report.Container.{ GROUP, REQUEST }
+import io.gatling.charts.report.Container.{ Group, Request }
 
 class MenuTemplate {
   def getOutput: Fastring = fast"""	
@@ -74,9 +74,9 @@ function menuItemsForGroup(group, level, parent) {
         items += menuItem(group, level - 1, parent, true);
 
     $$.each(group.contents, function (contentName, content) {
-        if (content.type == '$GROUP')
+        if (content.type == '$Group')
             items += menuItemsForGroup(content, level + 1, group.pathFormatted);
-        else if (content.type == '$REQUEST')
+        else if (content.type == '$Request')
             items += menuItem(content, level, group.pathFormatted);
     });
 

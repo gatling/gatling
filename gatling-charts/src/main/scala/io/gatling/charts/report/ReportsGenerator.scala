@@ -31,7 +31,7 @@ object ReportsGenerator {
 
       def generateMenu(): Unit = new TemplateWriter(menuFile(outputDirectoryName)).writeToFile(new MenuTemplate().getOutput)
 
-      def generateStats(): Unit = new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance).generate()
+      def generateStats(): Unit = new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.Instance).generate()
 
       def copyAssets(): Unit = {
         deepCopyPackageContent(GatlingAssetsStylePackage, styleDirectory(outputDirectoryName))
@@ -41,10 +41,10 @@ object ReportsGenerator {
     if (!dataReader.statsPaths.collectFirst { case r @ RequestStatsPath(_, _) => r }.isDefined) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
 
     val reportGenerators =
-      List(new AllSessionsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
-        new GlobalReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
-        new RequestDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance),
-        new GroupDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.instance))
+      List(new AllSessionsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.Instance),
+        new GlobalReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.Instance),
+        new RequestDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.Instance),
+        new GroupDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.Instance))
 
     copyAssets()
     generateMenu()

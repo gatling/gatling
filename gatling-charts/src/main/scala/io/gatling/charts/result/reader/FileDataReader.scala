@@ -35,18 +35,20 @@ import io.gatling.core.util.DateHelper.parseTimestampString
 
 object FileDataReader {
 
-  val logStep = 100000
-  val secMillisecRatio = 1000.0
-  val noPlotMagicValue = -1L
-  val simulationFilesNamePattern = """.*\.log"""
+  val LogStep = 100000
+  val SecMillisecRatio = 1000.0
+  val NoPlotMagicValue = -1L
+  val SimulationFilesNamePattern = """.*\.log"""
 }
 
 class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLogging {
 
+  import FileDataReader._
+
   println("Parsing log file(s)...")
 
   val inputFiles = simulationLogDirectory(runUuid, create = false).files
-    .collect { case file if file.name.matches(FileDataReader.simulationFilesNamePattern) => file.jfile }
+    .collect { case file if file.name.matches(SimulationFilesNamePattern) => file.jfile }
     .toList
 
   logger.info(s"Collected $inputFiles from $runUuid")
@@ -54,7 +56,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
   private def doWithInputFiles[T](f: Iterator[String] => T): T = {
 
-      def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_)(configuration.core.codec).getLines).reduce((first, second) => first ++ second)
+      def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_)(configuration.core.codec).getLines()).reduce((first, second) => first ++ second)
 
     val streams = inputFiles.map(new FileInputStream(_))
     try f(multipleFileIterator(streams))
@@ -85,7 +87,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
     records.foreach { line =>
       count += 1
-      if (count % FileDataReader.logStep == 0) logger.info(s"First pass, read $count lines")
+      if (count % LogStep == 0) logger.info(s"First pass, read $count lines")
 
       line match {
         case RunMessageType(array) =>
@@ -142,7 +144,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     groupDurationMaxValue,
     groupCumulatedResponseTimeMaxValue) = doWithInputFiles(firstPass)
 
-  val step = StatsHelper.step(math.floor(runStart / FileDataReader.secMillisecRatio).toInt, math.ceil(runEnd / FileDataReader.secMillisecRatio).toInt, configuration.charting.maxPlotsPerSeries) * FileDataReader.secMillisecRatio
+  val step = StatsHelper.step(math.floor(runStart / SecMillisecRatio).toInt, math.ceil(runEnd / SecMillisecRatio).toInt, configuration.charting.maxPlotsPerSeries) * SecMillisecRatio
   val bucketFunction = StatsHelper.bucket(_: Int, 0, (runEnd - runStart).toInt, step, step / 2)
   val buckets = StatsHelper.bucketsList(0, (runEnd - runStart).toInt, step)
 
@@ -157,7 +159,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     records
       .foreach { line =>
         count += 1
-        if (count % FileDataReader.logStep == 0) logger.info(s"Second pass, read $count lines")
+        if (count % LogStep == 0) logger.info(s"Second pass, read $count lines")
 
         line match {
           case RequestMessageType(array) => resultsHolder.addRequestRecord(RecordParser.parseRequestRecord(array, bucketFunction, runStart))
@@ -199,7 +201,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
   private def countBuffer2IntVsTimePlots(buffer: CountBuffer): Seq[IntVsTimePlot] = buffer
     .distribution
-    .map(plot => plot.copy(value = (plot.value / step * FileDataReader.secMillisecRatio).toInt))
+    .map(plot => plot.copy(value = (plot.value / step * SecMillisecRatio).toInt))
     .toSeq
     .sortBy(_.time)
 

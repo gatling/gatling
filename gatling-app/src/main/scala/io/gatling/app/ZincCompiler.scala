@@ -31,7 +31,7 @@ import xsbti.compile.CompileOrder
 
 object ZincCompiler extends StrictLogging {
 
-  private val foldersToCache = List("bin", "conf", "user-files")
+  private val FoldersToCache = List("bin", "conf", "user-files")
 
   def main(args: Array[String]): Unit = {
 
@@ -70,7 +70,7 @@ object ZincCompiler extends StrictLogging {
           scalacOptions = compilerOptions,
           javacOptions = Nil,
           analysisCache = Some((binDirectory / "zincCache").jfile),
-          analysisCacheMap = foldersToCache.map(analysisCacheMapEntry).toMap, // avoids having GATLING_HOME polluted with a "cache" folder
+          analysisCacheMap = FoldersToCache.map(analysisCacheMapEntry).toMap, // avoids having GATLING_HOME polluted with a "cache" folder
           forceClean = false,
           javaOnly = false,
           compileOrder = CompileOrder.JavaThenScala,

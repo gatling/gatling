@@ -22,7 +22,7 @@ import io.gatling.core.result.IntVsTimePlot
 import io.gatling.core.result.message.{ End, Start }
 
 object SessionDeltas {
-  val empty = SessionDeltas(0, 0)
+  val Empty = SessionDeltas(0, 0)
 }
 
 case class SessionDeltas(starts: Int, ends: Int) {
@@ -33,7 +33,7 @@ case class SessionDeltas(starts: Int, ends: Int) {
 
 class SessionDeltaBuffer {
 
-  val map = mutable.HashMap.empty[Int, SessionDeltas].withDefaultValue(SessionDeltas.empty)
+  val map = mutable.HashMap.empty[Int, SessionDeltas].withDefaultValue(SessionDeltas.Empty)
 
   def addStart(bucket: Int): Unit = {
     val deltas = map(bucket)
