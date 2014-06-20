@@ -32,8 +32,9 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
       val simulationClass = selection.simulationClass
       println(s"Simulation ${simulationClass.getName} started...")
 
-      val simulation = simulationClass.newInstance
+      // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
       GatlingActorSystem.start()
+      val simulation = simulationClass.newInstance
       Controller.start()
 
       simulation._beforeSteps.foreach(_.apply)
