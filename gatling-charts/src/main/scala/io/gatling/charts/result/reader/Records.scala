@@ -15,23 +15,38 @@
  */
 package io.gatling.charts.result.reader
 
+import io.gatling.core.result.writer.{ RawUserRecord, RawGroupRecord, RawRequestRecord }
+
 import scala.collection.mutable
 
 import io.gatling.core.result.Group
 import io.gatling.core.result.message.{ KO, MessageEvent, Status }
 import io.gatling.core.result.writer.FileDataWriter.GroupMessageSerializer
 
-object RecordParser {
+class UserRecordParser(bucketFunction: Int => Int, runStart: Long) {
 
-  val GroupCache = mutable.Map.empty[String, Group]
+  def unapply(array: Array[String]) = RawUserRecord.unapply(array).map(parseUserRecord)
 
-  def parseGroup(string: String) = GroupCache.getOrElseUpdate(string, GroupMessageSerializer.deserializeGroups(string))
+  private def parseUserRecord(strings: Array[String]): UserRecord = {
 
-  def parseRequestRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): RequestRecord = {
+    val scenario = strings(0)
+    val userId = strings(1)
+    val event = MessageEvent(strings(3))
+    val startDate = (strings(4).toLong - runStart).toInt
+    val endDate = (strings(5).toLong - runStart).toInt
+    UserRecord(scenario, userId, startDate, event, bucketFunction(startDate), bucketFunction(endDate))
+  }
+}
+
+class RequestRecordParser(bucketFunction: Int => Int, runStart: Long) {
+
+  def unapply(array: Array[String]) = RawRequestRecord.unapply(array).map(parseRequestRecord)
+
+  private def parseRequestRecord(strings: Array[String]): RequestRecord = {
 
     val group = {
       val groupString = strings(3)
-      if (groupString.isEmpty) None else Some(parseGroup(groupString))
+      if (groupString.isEmpty) None else Some(GroupRecordParser.parseGroup(groupString))
     }
     val request = strings(4)
 
@@ -52,20 +67,22 @@ object RecordParser {
 
     RequestRecord(group, request, reduceAccuracy(executionStart), reduceAccuracy(executionEnd), status, executionStartBucket, executionEndBucket, responseTime, latency, errorMessage)
   }
+}
 
-  def parseUserRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): UserRecord = {
+object GroupRecordParser {
 
-    val scenario = strings(0)
-    val userId = strings(1)
-    val event = MessageEvent(strings(3))
-    val startDate = (strings(4).toLong - runStart).toInt
-    val endDate = (strings(5).toLong - runStart).toInt
-    UserRecord(scenario, userId, startDate, event, bucketFunction(startDate), bucketFunction(endDate))
-  }
+  val GroupCache = mutable.Map.empty[String, Group]
 
-  def parseGroupRecord(strings: Array[String], bucketFunction: Int => Int, runStart: Long): GroupRecord = {
+  def parseGroup(string: String) = GroupCache.getOrElseUpdate(string, GroupMessageSerializer.deserializeGroups(string))
+}
 
-    val group = parseGroup(strings(3))
+class GroupRecordParser(bucketFunction: Int => Int, runStart: Long) {
+
+  def unapply(array: Array[String]) = RawGroupRecord.unapply(array).map(parseGroupRecord)
+
+  private def parseGroupRecord(strings: Array[String]): GroupRecord = {
+
+    val group = GroupRecordParser.parseGroup(strings(3))
     val entryTimestamp = strings(4).toLong
     val exitTimestamp = strings(5).toLong
     val entryDate = (entryTimestamp - runStart).toInt
@@ -80,5 +97,5 @@ object RecordParser {
 }
 
 case class RequestRecord(group: Option[Group], name: String, requestStart: Int, responseEnd: Int, status: Status, requestStartBucket: Int, responseEndBucket: Int, responseTime: Int, latency: Int, errorMessage: Option[String])
-case class UserRecord(scenario: String, userId: String, startDate: Int, event: MessageEvent, startDateBucket: Int, endDateBucket: Int)
 case class GroupRecord(group: Group, startDate: Int, duration: Int, cumulatedResponseTime: Int, oks: Int, kos: Int, status: Status, startDateBucket: Int)
+case class UserRecord(scenario: String, userId: String, startDate: Int, event: MessageEvent, startDateBucket: Int, endDateBucket: Int)

@@ -30,7 +30,7 @@ import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
-import io.gatling.core.result.writer.{ GroupMessageType, RequestMessageType, RunMessageType, UserMessageType, RunMessage }
+import io.gatling.core.result.writer._
 import io.gatling.core.util.DateHelper.parseTimestampString
 
 object FileDataReader {
@@ -89,11 +89,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
       count += 1
       if (count % LogStep == 0) logger.info(s"First pass, read $count lines")
 
-      line match {
-        case RunMessageType(array) =>
-          runMessages += RunMessage(array(0), array(1), parseTimestampString(array(3)), array(4).trim)
+      line.split(FileDataWriter.Separator) match {
 
-        case RequestMessageType(array) =>
+        case RawRequestRecord(array) =>
           val firstByteSent = array(5).toLong
           val lastByteReceived = array(8).toLong
 
@@ -103,11 +101,11 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
           val responseTime = (lastByteReceived - firstByteSent).toInt
           maxRequestResponseTime = math.max(maxRequestResponseTime, responseTime)
 
-        case UserMessageType(array) =>
+        case RawUserRecord(array) =>
           runStart = math.min(runStart, array(4).toLong)
           runEnd = math.max(runEnd, array(5).toLong)
 
-        case GroupMessageType(array) =>
+        case RawGroupRecord(array) =>
           val groupEntry = array(4).toLong
           val groupExit = array(5).toLong
 
@@ -119,6 +117,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
           val cumulatedResponseTime = array(6).toInt
           maxGroupCumulatedResponseTime = math.max(maxGroupCumulatedResponseTime, cumulatedResponseTime)
+
+        case RawRunRecord(array) =>
+          runMessages += RunMessage(array(0), array(1), parseTimestampString(array(3)), array(4).trim)
 
         case _ =>
           logger.debug(s"Record broken on line $count: $line")
@@ -156,16 +157,20 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
     var count = 0
 
+    val requestRecordParser = new RequestRecordParser(bucketFunction, runStart)
+    val groupRecordParser = new GroupRecordParser(bucketFunction, runStart)
+    val userRecordParser = new UserRecordParser(bucketFunction, runStart)
+
     records
       .foreach { line =>
         count += 1
         if (count % LogStep == 0) logger.info(s"Second pass, read $count lines")
 
-        line match {
-          case RequestMessageType(array) => resultsHolder.addRequestRecord(RecordParser.parseRequestRecord(array, bucketFunction, runStart))
-          case GroupMessageType(array)   => resultsHolder.addGroupRecord(RecordParser.parseGroupRecord(array, bucketFunction, runStart))
-          case UserMessageType(array)    => resultsHolder.addUserRecord(RecordParser.parseUserRecord(array, bucketFunction, runStart))
-          case _                         =>
+        line.split(FileDataWriter.Separator) match {
+          case requestRecordParser(record) => resultsHolder.addRequestRecord(record)
+          case groupRecordParser(record)   => resultsHolder.addGroupRecord(record)
+          case userRecordParser(record)    => resultsHolder.addUserRecord(record)
+          case _                           =>
         }
       }
 
