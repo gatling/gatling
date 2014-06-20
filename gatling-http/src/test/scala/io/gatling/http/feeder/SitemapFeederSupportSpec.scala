@@ -26,7 +26,7 @@ import org.specs2.runner.JUnitRunner
  * @author Ivan Mushketyk
  */
 @RunWith(classOf[JUnitRunner])
-class SitemapFeederSupportTest extends Specification with SitemapFeederSupport {
+class SitemapFeederSupportSpec extends Specification with SitemapFeederSupport {
 
   def getFile(filePath: String) = File(getClass.getClassLoader.getResource("sitemap.xml").getFile)
 

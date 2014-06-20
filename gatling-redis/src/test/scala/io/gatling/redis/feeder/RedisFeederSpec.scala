@@ -37,7 +37,7 @@ import io.gatling.core.test.ActorSupport
  * @author Ivan Mushketyk
  */
 @RunWith(classOf[JUnitRunner])
-class RedisFeederTest extends Specification with CalledMatchers {
+class RedisFeederSpec extends Specification with CalledMatchers {
 
   val KEY = "key"
 

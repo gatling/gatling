@@ -35,7 +35,7 @@ import java.io.IOException
  * @author Ivan Mushketyk
  */
 @RunWith(classOf[JUnitRunner])
-class SitemapParserTest extends Specification with CalledMatchers {
+class SitemapParserSpec extends Specification with CalledMatchers {
 
   def getFile(filePath: String) = File(getClass.getClassLoader.getResource("sitemap.xml").getFile)
 
