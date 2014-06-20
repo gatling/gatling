@@ -26,9 +26,9 @@ import com.tdunning.math.stats.AVLTreeDigest
 import org.HdrHistogram.Histogram
 
 abstract class GeneralStatsBuffers(durationInSec: Long,
-                                   requestResponseTimeRange: (Int, Int),
-                                   groupDurationRange: (Int, Int),
-                                   groupCumulatedResponseTimeRange: (Int, Int)) {
+                                   requestResponseMaxValue: Int,
+                                   groupDurationMaxValue: Int,
+                                   groupCumulatedResponseTimeMaxValue: Int) {
 
   val requestGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
   val groupDurationGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
@@ -36,13 +36,13 @@ abstract class GeneralStatsBuffers(durationInSec: Long,
   val requestCounts = mutable.Map.empty[BufferKey, (Int, Int)]
 
   def getRequestGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[Status]): GeneralStatsBuffer =
-    requestGeneralStatsBuffers.getOrElseUpdate(BufferKey(request, group, status), new GeneralStatsBuffer(durationInSec, requestResponseTimeRange))
+    requestGeneralStatsBuffers.getOrElseUpdate(BufferKey(request, group, status), new GeneralStatsBuffer(durationInSec, requestResponseMaxValue))
 
   def getGroupDurationGeneralStatsBuffers(group: Group, status: Option[Status]): GeneralStatsBuffer =
-    groupDurationGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec, groupDurationRange))
+    groupDurationGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec, groupDurationMaxValue))
 
   def getGroupCumulatedResponseTimeGeneralStatsBuffers(group: Group, status: Option[Status]): GeneralStatsBuffer =
-    groupCumulatedResponseTimeGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec, groupCumulatedResponseTimeRange))
+    groupCumulatedResponseTimeGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec, groupCumulatedResponseTimeMaxValue))
 
   def getGroupRequestCounts(group: Group): (Int, Int) =
     requestCounts.getOrElseUpdate(BufferKey(None, Some(group), None), (0, 0))
@@ -68,29 +68,10 @@ abstract class GeneralStatsBuffers(durationInSec: Long,
   }
 }
 
-class GeneralStatsBuffer(duration: Long, range: (Int, Int)) extends CountBuffer {
+class GeneralStatsBuffer(duration: Long, maxValue: Int) extends CountBuffer {
   val digest = new AVLTreeDigest(100.0)
 
-  val histogram = {
-      def exponentOfNextPowerOf2GreaterThan(i: Int): Int = 32 - Integer.numberOfLeadingZeros(i - 1)
-
-    // Prevent exception from histogram, which must have lower bound of 1. Some stats seem to come in with lower bound 0.
-    val lowestTrackableValue = {
-      val l = if (range._1 == 0) 1
-      else math.pow(2, exponentOfNextPowerOf2GreaterThan(range._1) - 1).toInt - 1
-
-      math.max(l, 1)
-    }
-
-    val highestTrackableValue = {
-      val h = if (range._2 == 0) 1
-      else math.pow(2, exponentOfNextPowerOf2GreaterThan(range._2)).toInt + 1
-
-      math.max(lowestTrackableValue * 2, h)
-    }
-
-    new Histogram(lowestTrackableValue, highestTrackableValue, 3)
-  }
+  val histogram = new Histogram(maxValue, 3)
 
   var sum = 0L
 

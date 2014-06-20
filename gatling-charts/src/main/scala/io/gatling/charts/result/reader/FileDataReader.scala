@@ -64,9 +64,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
   case class FirstPassData(runStart: Long,
                            runEnd: Long,
                            runMessage: RunMessage,
-                           requestResponseTimeRange: (Int, Int),
-                           groupDurationRange: (Int, Int),
-                           groupCumulatedResponseTimeRange: (Int, Int))
+                           requestResponseTimeMaxValue: Int,
+                           groupDurationMaxValue: Int,
+                           groupCumulatedResponseTimeMaxValue: Int)
 
   private def firstPass(records: Iterator[String]): FirstPassData = {
 
@@ -77,14 +77,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     var runStart = Long.MaxValue
     var runEnd = Long.MinValue
 
-    var minRequestResponseTime = Long.MaxValue
-    var maxRequestResponseTime = Long.MinValue
-
-    var minGroupDuration = Long.MaxValue
-    var maxGroupDuration = Long.MinValue
-
-    var minGroupCumulatedResponseTime = Long.MaxValue
-    var maxGroupCumulatedResponseTime = Long.MinValue
+    var maxRequestResponseTime = 0
+    var maxGroupDuration = 0
+    var maxGroupCumulatedResponseTime = 0
 
     val runMessages = mutable.ListBuffer.empty[RunMessage]
 
@@ -103,8 +98,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
           runStart = math.min(runStart, firstByteSent)
           runEnd = math.max(runEnd, lastByteReceived)
 
-          val responseTime = lastByteReceived - firstByteSent
-          minRequestResponseTime = math.min(minRequestResponseTime, responseTime)
+          val responseTime = (lastByteReceived - firstByteSent).toInt
           maxRequestResponseTime = math.max(maxRequestResponseTime, responseTime)
 
         case UserMessageType(array) =>
@@ -119,11 +113,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
           runEnd = math.max(runEnd, groupExit)
 
           val duration = (groupExit - groupEntry).toInt
-          minGroupDuration = math.min(minGroupDuration, duration)
           maxGroupDuration = math.max(maxGroupDuration, duration)
 
-          val cumulatedResponseTime = array(6).toLong
-          minGroupCumulatedResponseTime = math.min(minGroupCumulatedResponseTime, cumulatedResponseTime)
+          val cumulatedResponseTime = array(6).toInt
           maxGroupCumulatedResponseTime = math.max(maxGroupCumulatedResponseTime, cumulatedResponseTime)
 
         case _ =>
@@ -137,18 +129,18 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
       runStart,
       runEnd,
       runMessages.head,
-      (minRequestResponseTime.toInt, maxRequestResponseTime.toInt),
-      (minGroupDuration.toInt, maxGroupDuration.toInt),
-      (minGroupCumulatedResponseTime.toInt, maxGroupCumulatedResponseTime.toInt))
+      maxRequestResponseTime,
+      maxGroupDuration,
+      maxGroupCumulatedResponseTime)
   }
 
   val FirstPassData(
     runStart,
     runEnd,
     runMessage,
-    requestResponseTimeRange,
-    groupDurationRange,
-    groupCumulatedResponseTimeRange) = doWithInputFiles(firstPass)
+    requestResponseTimeMaxValue,
+    groupDurationMaxValue,
+    groupCumulatedResponseTimeMaxValue) = doWithInputFiles(firstPass)
 
   val step = StatsHelper.step(math.floor(runStart / FileDataReader.secMillisecRatio).toInt, math.ceil(runEnd / FileDataReader.secMillisecRatio).toInt, configuration.charting.maxPlotsPerSeries) * FileDataReader.secMillisecRatio
   val bucketFunction = StatsHelper.bucket(_: Int, 0, (runEnd - runStart).toInt, step, step / 2)
@@ -158,7 +150,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
     logger.info("Second pass")
 
-    val resultsHolder = new ResultsHolder(runStart, runEnd, requestResponseTimeRange, groupDurationRange, groupCumulatedResponseTimeRange)
+    val resultsHolder = new ResultsHolder(runStart, runEnd, requestResponseTimeMaxValue, groupDurationMaxValue, groupCumulatedResponseTimeMaxValue)
 
     var count = 0
 
