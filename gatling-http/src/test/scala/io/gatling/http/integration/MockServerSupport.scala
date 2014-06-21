@@ -3,7 +3,7 @@ package io.gatling.http.integration
 import java.io.File
 
 import akka.actor.{ Actor, ActorRef, Props }
-import akka.io.IO
+import akka.io.{ Tcp, IO }
 import akka.pattern.ask
 import akka.testkit.{ ImplicitSender, TestKit }
 import akka.util.Timeout
@@ -37,9 +37,33 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
 
   class HttpActor(process: PartialFunction[HttpRequest, HttpResponse]) extends Actor {
 
+    var bindSender: ActorRef = _
+    var httpListener: ActorRef = _
+    var unbindSender: ActorRef = _
+
     override def receive: Receive = {
+
+      case bind: Http.Bind => {
+        bindSender = sender
+        IO(Http)(GatlingActorSystem.instance) ! bind
+      }
+
+      case bound: Http.Bound => {
+        httpListener = sender
+        bindSender ! bound
+      }
+
       // when a new connection comes in we register ourselves as the connection handler
       case _: Http.Connected => sender ! Http.Register(self)
+
+      case unbind: Http.Unbind => {
+        unbindSender = sender
+        httpListener ! unbind
+      }
+
+      case Http.Unbound => {
+        unbindSender ! Http.Unbound
+      }
 
       case r: HttpRequest if process.isDefinedAt(r) => {
         record(r)
@@ -51,6 +75,7 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
         logger.warn(s"Unhandled request: $r")
         sender ! HttpResponse(404)
       }
+
     }
 
     def record(request: HttpRequest) = {
@@ -59,10 +84,9 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
   }
 
   def serverMock(f: PartialFunction[Any, HttpResponse])(implicit testKit: TestKit with ImplicitSender) = {
-    serverActor = GatlingActorSystem.instance.actorOf(Props(new HttpActor(f)), "mockServer")
-
-    implicit val timeout = Timeout(4 seconds)
-    val future = IO(Http)(GatlingActorSystem.instance) ? Http.Bind(serverActor, interface = "localhost", port = mockHttpPort)
+    serverActor = GatlingActorSystem.instance.actorOf(Props(new HttpActor(f)), "mockServerActor")
+    implicit val timout = Timeout(4 seconds)
+    val future = serverActor ? Http.Bind(serverActor, interface = "localhost", port = mockHttpPort)
     Await.result(future, Duration.Inf)
   }
 
@@ -85,7 +109,9 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
          * with GatlingActorSystem, so they will be shutdown with the ActorSystem
          */
         if (serverActor != null) {
-          IO(Http)(GatlingActorSystem.instance) ! Http.Unbind(4 second)
+          implicit val timeout = Timeout(8 seconds)
+          val future = serverActor ? Http.Unbind(4 second)
+          Await.result(future, Duration.Inf)
         }
 
         serverActor = null
