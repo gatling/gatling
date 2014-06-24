@@ -22,7 +22,7 @@ import org.jboss.netty.handler.codec.http.{ HttpChunkAggregator, HttpClientCodec
 import org.jboss.netty.handler.ssl.SslHandler
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.http.handler.{ ClientPortUnifiedRequestHandler, ClientRequestHandler }
+import io.gatling.recorder.http.handler.{ ServerPortUnifiedRequestHandler, ServerRequestHandler }
 import io.gatling.recorder.http.ssl.SSLEngineFactory
 
 object BootstrapFactory extends StrictLogging {
@@ -66,7 +66,7 @@ object BootstrapFactory extends StrictLogging {
         pipeline.addLast("aggregator", new HttpChunkAggregator(ChunkMaxSize))
         pipeline.addLast("encoder", new HttpResponseEncoder)
         pipeline.addLast("deflater", new HttpContentCompressor)
-        pipeline.addLast(ConditionalHandlerName, new ClientPortUnifiedRequestHandler(proxy, pipeline))
+        pipeline.addLast(ConditionalHandlerName, new ServerPortUnifiedRequestHandler(proxy, pipeline))
         pipeline
       }
     })
@@ -83,7 +83,7 @@ object BootstrapFactory extends StrictLogging {
     pipeline.addFirst(SslHandlerName, new SslHandler(SSLEngineFactory.newClientSSLEngine))
   }
 
-  def setGatlingProtocolHandler(pipeline: ChannelPipeline, handler: ClientRequestHandler): Unit = {
+  def setGatlingProtocolHandler(pipeline: ChannelPipeline, handler: ServerRequestHandler): Unit = {
     pipeline.addLast(GatlingHandlerName, handler)
     pipeline.remove(ConditionalHandlerName)
   }

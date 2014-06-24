@@ -28,7 +28,7 @@ import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.util.URIHelper
 import java.net.{ URI, InetSocketAddress }
 
-object ClientRequestHandler {
+object ServerRequestHandler {
   def buildRequestWithRelativeURI(request: HttpRequest) = {
 
     val (_, pathQuery) = URIHelper.splitURI(request.getUri)
@@ -40,9 +40,9 @@ object ClientRequestHandler {
   }
 }
 
-abstract class ClientRequestHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
+abstract class ServerRequestHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
 
-  var _serverChannel: Option[Channel] = None
+  var _clientChannel: Option[Channel] = None
 
   override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent): Unit = {
 
@@ -62,7 +62,7 @@ abstract class ClientRequestHandler(proxy: HttpProxy) extends SimpleChannelHandl
             } request.headers.set(HeaderNames.ProxyAuthorization, proxyAuth)
         }
 
-        propagateRequest(ctx, request)
+        propagateRequest(ctx.getChannel, request)
 
         proxy.controller.receiveRequest(request)
 
@@ -70,12 +70,12 @@ abstract class ClientRequestHandler(proxy: HttpProxy) extends SimpleChannelHandl
     }
   }
 
-  def propagateRequest(requestContext: ChannelHandlerContext, request: HttpRequest): Unit
+  def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit
 
   override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
     logger.error("Exception caught", e.getCause)
     ctx.getChannel.close
-    _serverChannel.map(_.close)
+    _clientChannel.map(_.close)
   }
 
   def computeInetSocketAddress(uri: URI): InetSocketAddress = {

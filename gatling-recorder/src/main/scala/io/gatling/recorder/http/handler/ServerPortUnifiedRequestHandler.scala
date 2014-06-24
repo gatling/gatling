@@ -21,16 +21,16 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory
 
-class ClientPortUnifiedRequestHandler(proxy: HttpProxy, pipeline: ChannelPipeline) extends SimpleChannelHandler with StrictLogging {
+class ServerPortUnifiedRequestHandler(proxy: HttpProxy, pipeline: ChannelPipeline) extends SimpleChannelHandler with StrictLogging {
 
   override def messageReceived(requestContext: ChannelHandlerContext, event: MessageEvent): Unit =
     try {
       event.getMessage match {
         case request: HttpRequest =>
           if (request.getMethod.toString == HttpMethod.CONNECT.getName)
-            BootstrapFactory.setGatlingProtocolHandler(pipeline, new ClientHttpsRequestHandler(proxy))
+            BootstrapFactory.setGatlingProtocolHandler(pipeline, new ServerHttpsRequestHandler(proxy))
           else
-            BootstrapFactory.setGatlingProtocolHandler(pipeline, new ClientHttpRequestHandler(proxy))
+            BootstrapFactory.setGatlingProtocolHandler(pipeline, new ServerHttpRequestHandler(proxy))
 
         case unknown => logger.warn("Received unknown message: $unknown , in event : " + event)
       }

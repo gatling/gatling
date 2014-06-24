@@ -29,15 +29,15 @@ import io.gatling.http.util.HttpHelper.OkCodes
 case class TimedHttpRequest(httpRequest: HttpRequest, sendTime: Long = nowMillis)
 
 // FIXME ugly
-class ServerHttpResponseHandler(controller: RecorderController, clientChannel: Channel, @volatile var request: TimedHttpRequest = null, var expectConnect: Boolean = false) extends SimpleChannelHandler with StrictLogging {
+class ClientHttpResponseHandler(controller: RecorderController, serverChannel: Channel, @volatile var request: TimedHttpRequest = null, var expectConnect: Boolean = false) extends SimpleChannelHandler with StrictLogging {
 
   override def messageReceived(context: ChannelHandlerContext, event: MessageEvent): Unit = {
 
-      def isKeepAlive(headers: HttpHeaders) = Option(headers.get(HttpHeaders.Names.CONNECTION)).map(HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase).getOrElse(false)
+      def isKeepAlive(headers: HttpHeaders) = Option(headers.get(HttpHeaders.Names.CONNECTION)).exists(HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase)
 
     context.sendUpstream(event)
 
-    val serverChannel = context.getChannel
+    val clientChannel = context.getChannel
 
     event.getMessage match {
       case response: HttpResponse =>
@@ -45,7 +45,7 @@ class ServerHttpResponseHandler(controller: RecorderController, clientChannel: C
         if (expectConnect) {
           expectConnect = false
           BootstrapFactory.upgradeProtocol(context.getChannel.getPipeline)
-          serverChannel.write(ClientRequestHandler.buildRequestWithRelativeURI(request.httpRequest))
+          clientChannel.write(ServerRequestHandler.buildRequestWithRelativeURI(request.httpRequest))
 
         } else {
           val keepAlive = isKeepAlive(request.httpRequest.headers) && isKeepAlive(response.headers)
@@ -55,14 +55,14 @@ class ServerHttpResponseHandler(controller: RecorderController, clientChannel: C
           // FIXME ugly
           request = null
 
-          clientChannel.write(response).addListener { future: ChannelFuture =>
+          serverChannel.write(response).addListener { future: ChannelFuture =>
 
             if (keepAlive && OkCodes.contains(response.getStatus.getCode)) {
               logger.debug("Both request and response are willing to keep the connection alive, reusing channels")
             } else {
               logger.debug("Request and/or response is not willing to keep the connection alive, closing both channels")
-              clientChannel.close
               serverChannel.close
+              clientChannel.close
             }
           }
         }
