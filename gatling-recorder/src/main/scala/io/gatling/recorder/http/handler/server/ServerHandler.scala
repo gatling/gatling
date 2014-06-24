@@ -13,34 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.http.handler
+package io.gatling.recorder.http.handler.server
 
-import scala.collection.JavaConversions.asScalaBuffer
-
-import org.jboss.netty.channel.{ Channel, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler }
-import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
+import java.net.{ InetSocketAddress, URI }
 
 import com.ning.http.util.Base64
 import com.typesafe.scalalogging.slf4j.StrictLogging
-
 import io.gatling.http.HeaderNames
+import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.util.URIHelper
-import java.net.{ URI, InetSocketAddress }
+import io.gatling.recorder.http.channel.BootstrapFactory._
+import io.gatling.recorder.http.handler.client.{ TimedHttpRequest, ClientHandler }
+import org.jboss.netty.channel.{ Channel, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler }
+import org.jboss.netty.handler.codec.http.HttpRequest
 
-object ServerRequestHandler {
-  def buildRequestWithRelativeURI(request: HttpRequest) = {
-
-    val (_, pathQuery) = URIHelper.splitURI(request.getUri)
-    val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, pathQuery)
-    newRequest.setChunked(request.isChunked)
-    newRequest.setContent(request.getContent)
-    for (header <- request.headers.entries) newRequest.headers.add(header.getKey, header.getValue)
-    newRequest
-  }
-}
-
-abstract class ServerRequestHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
+abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
 
   var _clientChannel: Option[Channel] = None
 
@@ -89,5 +76,15 @@ abstract class ServerRequestHandler(proxy: HttpProxy) extends SimpleChannelHandl
       case p => p
     }
     new InetSocketAddress(host, port)
+  }
+
+  def writeRequestToClient(clientChannel: Channel, clientRequest: HttpRequest, loggedRequest: HttpRequest): Unit = {
+    clientChannel.getPipeline.getContext(GatlingHandlerName).setAttachment(TimedHttpRequest(loggedRequest))
+    clientChannel.write(clientRequest)
+  }
+
+  def setupClientChannel(clientChannel: Channel, controller: RecorderController, serverChannel: Channel, performConnect: Boolean): Unit = {
+    clientChannel.getPipeline.addLast(GatlingHandlerName, new ClientHandler(controller, serverChannel, performConnect))
+    _clientChannel = Some(clientChannel)
   }
 }

@@ -15,14 +15,14 @@
  */
 package io.gatling.recorder.http.channel
 
+import io.gatling.recorder.http.handler.server.PortUnificationServerHandler
 import org.jboss.netty.bootstrap.{ ClientBootstrap, ServerBootstrap }
 import org.jboss.netty.channel.{ ChannelPipeline, ChannelPipelineFactory, Channels }
 import org.jboss.netty.channel.socket.nio.{ NioClientSocketChannelFactory, NioServerSocketChannelFactory }
-import org.jboss.netty.handler.codec.http.{ HttpChunkAggregator, HttpClientCodec, HttpContentCompressor, HttpContentDecompressor, HttpRequestDecoder, HttpResponseEncoder }
+import org.jboss.netty.handler.codec.http._
 import org.jboss.netty.handler.ssl.SslHandler
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.http.handler.{ ServerPortUnifiedRequestHandler, ServerRequestHandler }
 import io.gatling.recorder.http.ssl.SSLEngineFactory
 
 object BootstrapFactory extends StrictLogging {
@@ -66,7 +66,7 @@ object BootstrapFactory extends StrictLogging {
         pipeline.addLast("aggregator", new HttpChunkAggregator(ChunkMaxSize))
         pipeline.addLast("encoder", new HttpResponseEncoder)
         pipeline.addLast("deflater", new HttpContentCompressor)
-        pipeline.addLast(ConditionalHandlerName, new ServerPortUnifiedRequestHandler(proxy, pipeline))
+        pipeline.addLast(ConditionalHandlerName, new PortUnificationServerHandler(proxy, pipeline))
         pipeline
       }
     })
@@ -75,16 +75,5 @@ object BootstrapFactory extends StrictLogging {
     bootstrap.setOption("child.keepAlive", true)
 
     bootstrap
-  }
-
-  def upgradeProtocol(pipeline: ChannelPipeline): Unit = {
-    pipeline.remove("codec")
-    pipeline.addFirst("codec", new HttpClientCodec)
-    pipeline.addFirst(SslHandlerName, new SslHandler(SSLEngineFactory.newClientSSLEngine))
-  }
-
-  def setGatlingProtocolHandler(pipeline: ChannelPipeline, handler: ServerRequestHandler): Unit = {
-    pipeline.addLast(GatlingHandlerName, handler)
-    pipeline.remove(ConditionalHandlerName)
   }
 }

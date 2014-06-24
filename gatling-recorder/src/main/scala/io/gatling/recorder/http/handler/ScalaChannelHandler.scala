@@ -15,12 +15,26 @@
  */
 package io.gatling.recorder.http.handler
 
+import scala.collection.JavaConversions.asScalaBuffer
+
+import io.gatling.recorder.util.URIHelper
 import org.jboss.netty.channel.ChannelFutureListener
 import org.jboss.netty.channel.ChannelFuture
+import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
 
-object ChannelFutures {
+trait ScalaChannelHandler {
 
   implicit def function2ChannelFutureListener(thunk: ChannelFuture => Any) = new ChannelFutureListener {
     def operationComplete(future: ChannelFuture): Unit = thunk(future)
+  }
+
+  def buildRequestWithRelativeURI(request: HttpRequest) = {
+
+    val (_, pathQuery) = URIHelper.splitURI(request.getUri)
+    val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, pathQuery)
+    newRequest.setChunked(request.isChunked)
+    newRequest.setContent(request.getContent)
+    for (header <- request.headers.entries) newRequest.headers.add(header.getKey, header.getValue)
+    newRequest
   }
 }

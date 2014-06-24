@@ -13,34 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.http.handler
+package io.gatling.recorder.http.handler.server
 
 import java.net.{ InetSocketAddress, URI }
 
+import io.gatling.recorder.http.HttpProxy
+import io.gatling.recorder.http.handler.ScalaChannelHandler
+import io.gatling.recorder.util.URIHelper
 import org.jboss.netty.channel.{ Channel, ChannelFuture }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpRequest, HttpResponseStatus, HttpVersion }
 
-import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.http.channel.BootstrapFactory
-import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureListener
-import io.gatling.recorder.util.URIHelper
+class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with ScalaChannelHandler {
 
-class ServerHttpRequestHandler(proxy: HttpProxy) extends ServerRequestHandler(proxy) {
-
-  private def writeRequest(request: HttpRequest, clientChannel: Channel): Unit = {
-    clientChannel.getPipeline.get(classOf[ClientHttpResponseHandler]).request = TimedHttpRequest(request)
-    val relativeRequest = proxy.outgoingProxy match {
-      case None => ServerRequestHandler.buildRequestWithRelativeURI(request)
-      case _    => request
-    }
-    clientChannel.write(relativeRequest)
+  private def writeRequest(clientChannel: Channel, request: HttpRequest): Unit = {
+    val relativeRequest = if (proxy.outgoingProxy.isDefined) buildRequestWithRelativeURI(request) else request
+    writeRequestToClient(clientChannel, relativeRequest, request)
   }
 
-  def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit = {
-
+  def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit =
     _clientChannel match {
       case Some(clientChannel) if clientChannel.isConnected && clientChannel.isOpen =>
-        writeRequest(request, clientChannel)
+        writeRequest(clientChannel, request)
       case _ =>
         _clientChannel = None
 
@@ -63,18 +56,15 @@ class ServerHttpRequestHandler(proxy: HttpProxy) extends ServerRequestHandler(pr
           .addListener { future: ChannelFuture =>
             if (future.isSuccess) {
               val clientChannel = future.getChannel
-              clientChannel.getPipeline.addLast(BootstrapFactory.GatlingHandlerName, new ClientHttpResponseHandler(proxy.controller, serverChannel, TimedHttpRequest(request), false))
-              _clientChannel = Some(clientChannel)
-              writeRequest(request, clientChannel)
+              setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = false)
+              writeRequest(clientChannel, request)
             } else {
               val t = future.getCause
               logger.error(t.getMessage, t)
               // FIXME could be 404 or 500 depending on exception
               val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND)
-
               serverChannel.write(response)
             }
           }
     }
-  }
 }

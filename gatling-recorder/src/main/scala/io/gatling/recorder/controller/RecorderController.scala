@@ -17,6 +17,8 @@ package io.gatling.recorder.controller
 
 import java.net.URI
 
+import io.gatling.recorder.http.handler.client.TimedHttpRequest
+
 import scala.collection.mutable
 import scala.concurrent.duration.DurationLong
 import scala.reflect.io.Path.string2path
@@ -36,7 +38,6 @@ import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.scenario.{ RequestElement, ScenarioDefinition, ScenarioExporter, TimedScenarioElement, TagElement }
 import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
-import io.gatling.recorder.http.handler.TimedHttpRequest
 
 object RecorderController {
   def apply(props: Map[String, Any], recorderConfigFile: Option[File] = None): Unit = {

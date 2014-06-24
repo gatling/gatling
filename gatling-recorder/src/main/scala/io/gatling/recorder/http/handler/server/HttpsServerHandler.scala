@@ -13,26 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.http.handler
+package io.gatling.recorder.http.handler.server
 
 import java.io.IOException
 import java.net.{ InetSocketAddress, URI }
+import javax.net.ssl.SSLException
 
-import scala.collection.JavaConversions.asScalaBuffer
-
+import com.typesafe.scalalogging.slf4j.StrictLogging
+import io.gatling.recorder.http.HttpProxy
+import io.gatling.recorder.http.channel.BootstrapFactory._
+import io.gatling.recorder.http.handler.ScalaChannelHandler
+import io.gatling.recorder.http.ssl.SSLEngineFactory
 import org.jboss.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext, ExceptionEvent }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
 import org.jboss.netty.handler.ssl.SslHandler
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import scala.collection.JavaConversions.asScalaBuffer
 
-import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.http.channel.BootstrapFactory
-import io.gatling.recorder.http.handler.ChannelFutures.function2ChannelFutureListener
-import io.gatling.recorder.http.ssl.SSLEngineFactory
-import javax.net.ssl.SSLException
-
-class ServerHttpsRequestHandler(proxy: HttpProxy) extends ServerRequestHandler(proxy) with StrictLogging {
+class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with ScalaChannelHandler with StrictLogging {
 
   var targetHostURI: URI = _
 
@@ -41,7 +39,7 @@ class ServerHttpsRequestHandler(proxy: HttpProxy) extends ServerRequestHandler(p
       def handleConnect(): Unit = {
         targetHostURI = new URI("https://" + request.getUri)
         serverChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
-        serverChannel.getPipeline.addFirst(BootstrapFactory.SslHandlerName, new SslHandler(SSLEngineFactory.newServerSSLEngine))
+        serverChannel.getPipeline.addFirst(SslHandlerName, new SslHandler(SSLEngineFactory.newServerSSLEngine))
       }
 
       def buildConnectRequest = {
@@ -52,45 +50,40 @@ class ServerHttpsRequestHandler(proxy: HttpProxy) extends ServerRequestHandler(p
 
       def handlePropagatableRequest(): Unit = {
 
-          def handleConnect(address: InetSocketAddress): Unit =
+          def onceConnected(clientChannel: Channel, clientRequest: HttpRequest, performConnect: Boolean): Unit = {
+            setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect)
+            writeRequestToClient(clientChannel, clientRequest, request)
+          }
+
+          def newChannelConnect(address: InetSocketAddress): Unit =
             proxy.clientBootstrap
               .connect(address)
               .addListener { connectFuture: ChannelFuture =>
-                val clientChannel = connectFuture.getChannel
-                clientChannel.getPipeline.addLast(BootstrapFactory.GatlingHandlerName, new ClientHttpResponseHandler(proxy.controller, serverChannel, TimedHttpRequest(request), true))
-                _clientChannel = Some(clientChannel)
-                clientChannel.write(buildConnectRequest)
+                onceConnected(connectFuture.getChannel, buildConnectRequest, performConnect = true)
               }
 
-          def handleDirect(address: InetSocketAddress): Unit = {
+          def newChannelDirect(address: InetSocketAddress): Unit =
             proxy.secureClientBootstrap
               .connect(address)
               .addListener { connectFuture: ChannelFuture =>
-                connectFuture.getChannel.getPipeline.get(BootstrapFactory.SslHandlerName).asInstanceOf[SslHandler].handshake
+                connectFuture.getChannel.getPipeline.get(SslHandlerName).asInstanceOf[SslHandler].handshake
                   .addListener { handshakeFuture: ChannelFuture =>
-                    val clientChannel = handshakeFuture.getChannel
-                    clientChannel.getPipeline.addLast(BootstrapFactory.GatlingHandlerName, new ClientHttpResponseHandler(proxy.controller, serverChannel, TimedHttpRequest(request), false))
-                    _clientChannel = Some(clientChannel)
-                    clientChannel.write(ServerRequestHandler.buildRequestWithRelativeURI(request))
+                    onceConnected(handshakeFuture.getChannel, buildRequestWithRelativeURI(request), performConnect = false)
                   }
               }
-          }
 
         // set full uri so that it's correctly recorded FIXME ugly
         request.setUri(targetHostURI.resolve(request.getUri).toString)
 
         _clientChannel match {
           case Some(clientChannel) if clientChannel.isConnected && clientChannel.isOpen =>
-            // FIXME ugly: mutate
-            clientChannel.getPipeline.get(classOf[ClientHttpResponseHandler]).request = TimedHttpRequest(request)
-            clientChannel.write(ServerRequestHandler.buildRequestWithRelativeURI(request))
+            writeRequestToClient(clientChannel, buildRequestWithRelativeURI(request), request)
 
           case _ =>
             _clientChannel = None
-
             proxy.outgoingProxy match {
-              case Some((proxyHost, proxyPort)) => handleConnect(new InetSocketAddress(proxyHost, proxyPort))
-              case _                            => handleDirect(computeInetSocketAddress(targetHostURI))
+              case Some((proxyHost, proxyPort)) => newChannelConnect(new InetSocketAddress(proxyHost, proxyPort))
+              case _                            => newChannelDirect(computeInetSocketAddress(targetHostURI))
             }
         }
       }
