@@ -70,7 +70,8 @@ abstract class GeneralStatsBuffers(durationInSec: Long,
 
 class GeneralStatsBuffer(duration: Long, maxValue: Int) extends CountBuffer {
   val digest = new AVLTreeDigest(100.0)
-  val histogram = new Histogram(maxValue, 3)
+  val highestTrackableValue = math.max(2, maxValue)
+  val histogram = new Histogram(highestTrackableValue, 3)
   var sum = 0L
 
   override def update(time: Int): Unit = {
