@@ -31,7 +31,7 @@ abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with
 
   var _clientChannel: Option[Channel] = None
 
-  override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent): Unit = {
+  override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent): Unit =
 
     event.getMessage match {
       case request: HttpRequest =>
@@ -55,14 +55,13 @@ abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with
 
       case unknown => logger.warn(s"Received unknown message: $unknown")
     }
-  }
 
   def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit
 
   override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
     logger.error("Exception caught", e.getCause)
-    ctx.getChannel.close
-    _clientChannel.map(_.close)
+    ctx.getChannel.close()
+    _clientChannel.map(_.close())
   }
 
   def computeInetSocketAddress(uri: URI): InetSocketAddress = {

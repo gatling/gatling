@@ -26,8 +26,8 @@ import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpRequest, Ht
 class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with ScalaChannelHandler {
 
   private def writeRequest(clientChannel: Channel, request: HttpRequest): Unit = {
-    val relativeRequest = if (proxy.outgoingProxy.isDefined) buildRequestWithRelativeURI(request) else request
-    writeRequestToClient(clientChannel, relativeRequest, request)
+    val clientRequest = proxy.outgoingProxy.map(_ => buildRequestWithRelativeURI(request)).getOrElse(request)
+    writeRequestToClient(clientChannel, clientRequest, request)
   }
 
   def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit =
@@ -41,7 +41,7 @@ class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Scal
           case Some((host, port)) => new InetSocketAddress(host, port)
           case _ =>
             try {
-              // the URI sometimes contains invalid characters, so we truncate as we only need the host and port
+              // the URI might contain invalid characters, so we truncate as we only need the host and port
               val (schemeHostPort, _) = URIHelper.splitURI(request.getUri)
               val uri = new URI(schemeHostPort)
               computeInetSocketAddress(uri)

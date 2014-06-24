@@ -23,12 +23,9 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.ScalaChannelHandler
-import io.gatling.recorder.http.ssl.SSLEngineFactory
 import org.jboss.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext, ExceptionEvent }
-import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
+import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
 import org.jboss.netty.handler.ssl.SslHandler
-
-import scala.collection.JavaConversions.asScalaBuffer
 
 class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with ScalaChannelHandler with StrictLogging {
 
@@ -37,56 +34,55 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
   def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit = {
 
       def handleConnect(): Unit = {
-        targetHostURI = new URI("https://" + request.getUri)
-        serverChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
-        serverChannel.getPipeline.addFirst(SslHandlerName, new SslHandler(SSLEngineFactory.newServerSSLEngine))
-      }
 
-      def buildConnectRequest: HttpRequest = {
-        val connect = new DefaultHttpRequest(request.getProtocolVersion, HttpMethod.CONNECT, s"${targetHostURI.getHost}:${targetHostURI.getPort}")
-        for (header <- request.headers.entries) connect.headers.add(header.getKey, header.getValue)
-        connect
-      }
-
-      def handlePropagatableRequest(): Unit = {
-
-          def onceConnected(clientChannel: Channel, clientRequest: HttpRequest, performConnect: Boolean): Unit = {
-            setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect)
-            writeRequestToClient(clientChannel, clientRequest, request)
-          }
-
-          def newChannelConnect(address: InetSocketAddress): Unit =
+          def connectClientChannelThroughProxy(proxyAddress: InetSocketAddress): Unit =
             proxy.clientBootstrap
-              .connect(address)
+              .connect(proxyAddress)
               .addListener { connectFuture: ChannelFuture =>
-                onceConnected(connectFuture.getChannel, buildConnectRequest, performConnect = true)
+                val clientChannel = connectFuture.getChannel
+                setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = true)
+                clientChannel.write(request)
               }
 
-          def newChannelDirect(address: InetSocketAddress): Unit =
+          def connectClientChannelDirect(address: InetSocketAddress): Unit =
             proxy.secureClientBootstrap
               .connect(address)
               .addListener { connectFuture: ChannelFuture =>
-                connectFuture.getChannel.getPipeline.get(SslHandlerName).asInstanceOf[SslHandler].handshake
-                  .addListener { handshakeFuture: ChannelFuture =>
-                    onceConnected(handshakeFuture.getChannel, buildRequestWithRelativeURI(request), performConnect = false)
-                  }
+
+                connectFuture.getChannel.getPipeline.get(SslHandlerName) match {
+                  case sslHandler: SslHandler =>
+                    sslHandler.handshake
+                      .addListener { handshakeFuture: ChannelFuture =>
+                        val clientChannel = handshakeFuture.getChannel
+                        // TODO build certificate for peer
+                        setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = false)
+                        serverChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter)
+                        serverChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+                      }
+
+                  case _ => throw new IllegalStateException("SslHandler missing from secureClientBootstrap")
+                }
               }
 
-        // set full uri so that it's correctly recorded FIXME ugly
-        request.setUri(targetHostURI.resolve(request.getUri).toString)
+        targetHostURI = new URI("https://" + request.getUri)
 
+        proxy.outgoingProxy match {
+          case Some((proxyHost, proxyPort)) => connectClientChannelThroughProxy(new InetSocketAddress(proxyHost, proxyPort))
+          case _                            => connectClientChannelDirect(computeInetSocketAddress(targetHostURI))
+        }
+      }
+
+      def handlePropagatableRequest(): Unit =
         _clientChannel match {
           case Some(clientChannel) if clientChannel.isConnected && clientChannel.isOpen =>
-            writeRequestToClient(clientChannel, buildRequestWithRelativeURI(request), request)
+            // set full uri so that it's correctly recorded
+            val loggedRequest = buildRequestWithAbsoluteURI(request, targetHostURI)
+            writeRequestToClient(clientChannel, request, loggedRequest)
 
           case _ =>
             _clientChannel = None
-            proxy.outgoingProxy match {
-              case Some((proxyHost, proxyPort)) => newChannelConnect(new InetSocketAddress(proxyHost, proxyPort))
-              case _                            => newChannelDirect(computeInetSocketAddress(targetHostURI))
-            }
+            throw new IllegalStateException("Server channel is open but client channel is closed?!")
         }
-      }
 
     logger.info(s"Received ${request.getMethod} on ${request.getUri}")
     request.getMethod match {
@@ -100,8 +96,8 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
       def handleSslException(e: Exception): Unit = {
         logger.error(s"${e.getClass.getSimpleName} ${e.getMessage}, did you accept the certificate for $targetHostURI?")
         proxy.controller.secureConnection(targetHostURI)
-        ctx.getChannel.close
-        _clientChannel.map(_.close)
+        ctx.getChannel.close()
+        _clientChannel.map(_.close())
       }
 
     e.getCause match {

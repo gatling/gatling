@@ -15,6 +15,8 @@
  */
 package io.gatling.recorder.http.handler.client
 
+import io.gatling.recorder.http.handler.server.SslHandlerSetter
+
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.util.HttpHelper.OkCodes
@@ -23,7 +25,7 @@ import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.ScalaChannelHandler
 import io.gatling.recorder.http.ssl.SSLEngineFactory
 import org.jboss.netty.channel._
-import org.jboss.netty.handler.codec.http.{ HttpClientCodec, HttpHeaders, HttpRequest, HttpResponse }
+import org.jboss.netty.handler.codec.http._
 import org.jboss.netty.handler.ssl.SslHandler
 
 case class TimedHttpRequest(httpRequest: HttpRequest, sendTime: Long = nowMillis)
@@ -33,47 +35,67 @@ class ClientHandler(controller: RecorderController, serverChannel: Channel, var 
 
   override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent): Unit = {
 
-      def isKeepAlive(headers: HttpHeaders) = Option(headers.get(HttpHeaders.Names.CONNECTION)).exists(HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase)
+      def handleConnect(response: HttpResponse): Unit = {
 
-      def upgradeClientChannel(pipeline: ChannelPipeline): Unit = {
-        pipeline.remove("codec")
-        pipeline.addFirst("codec", new HttpClientCodec)
-        pipeline.addFirst(SslHandlerName, new SslHandler(SSLEngineFactory.newClientSSLEngine))
+          def upgradeClientPipeline(clientPipeline: ChannelPipeline, clientSslHandler: SslHandler): Unit = {
+            // the HttpClientCodec has to be regenerated, don't ask me why...
+            clientPipeline.replace(CodecHandlerName, CodecHandlerName, new HttpClientCodec)
+            clientPipeline.addFirst(SslHandlerName, clientSslHandler)
+          }
+
+        if (response.getStatus == HttpResponseStatus.OK) {
+          performConnect = false
+          val clientSslHandler = new SslHandler(SSLEngineFactory.newClientSSLEngine)
+          upgradeClientPipeline(ctx.getChannel.getPipeline, clientSslHandler)
+
+          clientSslHandler.handshake.addListener { handshakeFuture: ChannelFuture =>
+            // TODO here, we could generate a certificate for this given peer, even based on Session principal if it could be authenticated
+            serverChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter)
+            serverChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+          }
+        } else
+          throw new UnsupportedOperationException(s"Outgoing proxy refused to connect: ${response.getStatus}")
       }
 
-    ctx.sendUpstream(event)
+      def handleRequest(response: HttpResponse): Unit = {
 
-    val clientChannel = ctx.getChannel
+          def isKeepAlive(headers: HttpHeaders) = Option(headers.get(HttpHeaders.Names.CONNECTION)).exists(HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase)
+
+        ctx.getAttachment match {
+          case request: TimedHttpRequest =>
+            val keepAlive = isKeepAlive(request.httpRequest.headers) && isKeepAlive(response.headers)
+
+            controller.receiveResponse(request, response)
+
+            ctx.setAttachment(null)
+
+            serverChannel.write(response).addListener { future: ChannelFuture =>
+
+              if (keepAlive && OkCodes.contains(response.getStatus.getCode)) {
+                logger.debug("Both request and response are willing to keep the connection alive, reusing channels")
+              } else {
+                logger.debug("Request and/or response is not willing to keep the connection alive, closing both channels")
+                serverChannel.close()
+                ctx.getChannel.close()
+              }
+            }
+
+          case _ => throw new IllegalStateException("Couldn't find request attachment")
+        }
+      }
 
     event.getMessage match {
       case response: HttpResponse =>
+        if (performConnect)
+          handleConnect(response)
+        else
+          handleRequest(response)
 
-        val request = ctx.getAttachment.asInstanceOf[TimedHttpRequest]
-
-        if (performConnect) {
-          performConnect = false
-          upgradeClientChannel(ctx.getChannel.getPipeline)
-          clientChannel.write(buildRequestWithRelativeURI(request.httpRequest))
-
-        } else {
-          val keepAlive = isKeepAlive(request.httpRequest.headers) && isKeepAlive(response.headers)
-
-          controller.receiveResponse(request, response)
-
-          ctx.setAttachment(null)
-
-          serverChannel.write(response).addListener { future: ChannelFuture =>
-
-            if (keepAlive && OkCodes.contains(response.getStatus.getCode)) {
-              logger.debug("Both request and response are willing to keep the connection alive, reusing channels")
-            } else {
-              logger.debug("Request and/or response is not willing to keep the connection alive, closing both channels")
-              serverChannel.close
-              clientChannel.close
-            }
-          }
-        }
       case unknown => logger.warn(s"Received unknown message: $unknown")
     }
+  }
+
+  override def channelClosed(ctx: ChannelHandlerContext, e: ChannelStateEvent): Unit = {
+    serverChannel.close()
   }
 }

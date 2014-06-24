@@ -17,7 +17,7 @@ package io.gatling.recorder.http.channel
 
 import io.gatling.recorder.http.handler.server.PortUnificationServerHandler
 import org.jboss.netty.bootstrap.{ ClientBootstrap, ServerBootstrap }
-import org.jboss.netty.channel.{ ChannelPipeline, ChannelPipelineFactory, Channels }
+import org.jboss.netty.channel.{ SimpleChannelHandler, ChannelPipeline, ChannelPipelineFactory, Channels }
 import org.jboss.netty.channel.socket.nio.{ NioClientSocketChannelFactory, NioServerSocketChannelFactory }
 import org.jboss.netty.handler.codec.http._
 import org.jboss.netty.handler.ssl.SslHandler
@@ -27,6 +27,7 @@ import io.gatling.recorder.http.ssl.SSLEngineFactory
 
 object BootstrapFactory extends StrictLogging {
 
+  val CodecHandlerName = "codec"
   val SslHandlerName = "ssl"
   val GatlingHandlerName = "gatling"
   val ConditionalHandlerName = "conditional"
@@ -41,7 +42,7 @@ object BootstrapFactory extends StrictLogging {
         val pipeline = Channels.pipeline
         if (ssl)
           pipeline.addLast(SslHandlerName, new SslHandler(SSLEngineFactory.newClientSSLEngine))
-        pipeline.addLast("codec", new HttpClientCodec)
+        pipeline.addLast(CodecHandlerName, new HttpClientCodec)
         pipeline.addLast("inflater", new HttpContentDecompressor)
         pipeline.addLast("aggregator", new HttpChunkAggregator(ChunkMaxSize))
         pipeline
@@ -62,9 +63,7 @@ object BootstrapFactory extends StrictLogging {
       def getPipeline: ChannelPipeline = {
         logger.debug("Open new server channel")
         val pipeline = Channels.pipeline
-        pipeline.addLast("decoder", new HttpRequestDecoder)
-        pipeline.addLast("aggregator", new HttpChunkAggregator(ChunkMaxSize))
-        pipeline.addLast("encoder", new HttpResponseEncoder)
+        pipeline.addLast(CodecHandlerName, new HttpServerCodec)
         pipeline.addLast("deflater", new HttpContentCompressor)
         pipeline.addLast(ConditionalHandlerName, new PortUnificationServerHandler(proxy, pipeline))
         pipeline
