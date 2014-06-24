@@ -42,7 +42,7 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
         serverChannel.getPipeline.addFirst(SslHandlerName, new SslHandler(SSLEngineFactory.newServerSSLEngine))
       }
 
-      def buildConnectRequest = {
+      def buildConnectRequest: HttpRequest = {
         val connect = new DefaultHttpRequest(request.getProtocolVersion, HttpMethod.CONNECT, s"${targetHostURI.getHost}:${targetHostURI.getPort}")
         for (header <- request.headers.entries) connect.headers.add(header.getKey, header.getValue)
         connect
