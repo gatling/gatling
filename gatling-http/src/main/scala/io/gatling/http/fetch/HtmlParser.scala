@@ -77,8 +77,6 @@ class HtmlParser extends StrictLogging {
     var baseURI: Option[URI] = None
     val rawResources = mutable.ArrayBuffer.empty[RawResource]
     val conditionalCommentsMatcher = new HtmlCCommentExpressionMatcher()
-    val matchMethod = conditionalCommentsMatcher.getClass.getDeclaredMethod("match", java.lang.Float.TYPE, classOf[String])
-    matchMethod.setAccessible(true)
     val ieVersion = userAgent.map(_.version)
 
     val visitor = new EmptyTagVisitor {
@@ -105,7 +103,7 @@ class HtmlParser extends StrictLogging {
             if (!isStartingTag) {
               inHiddenCommentStack = inHiddenCommentStack.tail
             } else {
-              val commentValue = matchMethod.invoke(conditionalCommentsMatcher, version: java.lang.Float, expression.toString).asInstanceOf[Boolean]
+              val commentValue = conditionalCommentsMatcher.`match`(version, expression.toString)
               inHiddenCommentStack = (!commentValue) :: inHiddenCommentStack
             }
           case None =>
