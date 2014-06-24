@@ -18,7 +18,7 @@ package io.gatling.recorder.http.handler.server
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
-import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelPipeline, Channels, MessageEvent, SimpleChannelHandler }
+import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelPipeline, MessageEvent, SimpleChannelHandler }
 import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest }
 
 class PortUnificationServerHandler(proxy: HttpProxy, pipeline: ChannelPipeline) extends SimpleChannelHandler with StrictLogging {
@@ -39,6 +39,5 @@ class PortUnificationServerHandler(proxy: HttpProxy, pipeline: ChannelPipeline) 
       }
 
     finally
-      // FIXME why not super.messageReceived?
-      Channels.fireMessageReceived(requestContext, event.getMessage)
+      super.messageReceived(requestContext, event)
 }
