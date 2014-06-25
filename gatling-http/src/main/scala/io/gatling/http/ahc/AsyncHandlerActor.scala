@@ -118,7 +118,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       logger.trace(dump)
 
       val extraInfo: List[Any] = try {
-        tx.request.config.protocol.responsePart.extraInfoExtractor match {
+        tx.request.config.extraInfoExtractor match {
           case Some(extractor) => extractor(tx.request.requestName, status, tx.session, tx.request.ahcRequest, response)
           case _               => Nil
         }
