@@ -8,6 +8,7 @@ object Dependencies {
 
   private val akkaVersion                    = "2.2.4"
 
+  private def scalaLibrary(version: String)  = "org.scala-lang"             % "scala-library"          % version
   private def scalaCompiler(version: String) = "org.scala-lang"             % "scala-compiler"         % version
   private def scalaReflect(version: String)  = "org.scala-lang"             % "scala-reflect"          % version
   private def scalaSwing(version: String)    = "org.scala-lang"             % "scala-swing"            % version
@@ -55,10 +56,15 @@ object Dependencies {
   /** Dependencies by module **/
   /****************************/
 
-  def coreDependencies(scalaVersion: String) = Seq(
-    scalaCompiler(scalaVersion), jsr166e, akkaActor, saxon, jodaTime, jodaConvert, slf4jApi, scalalogging,
-    scalaReflect(scalaVersion), jsonpath, jackson, boon, uncommonsMaths, joddLagarto, config, fastring,
-    openCsv, logbackClassic) ++ testDeps
+  def coreDependencies(scalaVersion: String) = {
+    def scalaLibs(version: String) = Seq(scalaLibrary _, scalaCompiler _, scalaReflect _).map(_(version))
+    val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
+    val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
+    val dateLibs = Seq(jodaTime, jodaConvert)
+
+    Seq(jsr166e, akkaActor, uncommonsMaths, config, fastring, openCsv) ++
+    scalaLibs(scalaVersion) ++ loggingLibs ++ checksLibs ++ dateLibs ++ testDeps
+  }
 
   val redisDependencies = redisClient +: testDeps
 

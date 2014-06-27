@@ -18,6 +18,7 @@ object BuildSettings {
     startYear             := Some(2011),
     licenses              := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion          := "2.10.4",
+    autoScalaLibrary      := false,
     resolvers             := Seq(Resolver.mavenLocal, sonatypeSnapshots),
     javacOptions          := Seq("-Xlint:-options","-source", "1.6", "-target", "1.6"),
     scalacOptions         := Seq(
@@ -43,7 +44,7 @@ object BuildSettings {
   /****************************/
 
   lazy val scaladocSettings = Seq(
-    apiMappings += scalaInstance.value.libraryJar -> url(s"http://www.scala-lang.org/api/${scalaVersion.value}/")
+    autoAPIMappings := true
   )
 
   lazy val docSettings = unidocSettings ++ site.settings ++ site.sphinxSupport() ++ Seq(
