@@ -21,6 +21,7 @@ object GatlingBuild extends Build {
     .settings(basicSettings: _*)
     .settings(noCodeToPublish: _*)
     .settings(docSettings: _*)
+    .settings(excludeFromUnidoc(app, recorder): _*)
 
   /*************/
   /** Modules **/
