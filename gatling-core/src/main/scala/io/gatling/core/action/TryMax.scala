@@ -38,12 +38,12 @@ class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
 
 class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next: ActorRef) extends Chainable with DataWriterClient {
 
-  private def continue(session: Session): Boolean = session(counterName).validate[Int].map(_ < times) match {
-    case Success(eval) => eval
+  private def continue(session: Session): Boolean = session.isFailed && (session(counterName).validate[Int] match {
+    case Success(i) => i < times
     case Failure(message) =>
       logger.error(s"Condition evaluation for tryMax $counterName crashed with message '$message', exiting tryMax")
       false
-  }
+  })
 
   /**
    * Evaluates the condition and if true executes the first action of loopNext
