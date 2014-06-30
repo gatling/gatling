@@ -15,13 +15,12 @@
  */
 package com.excilys.ebi.gatling.http.config
 
+import com.excilys.ebi.gatling.core.config.GatlingConfiguration
+import com.ning.http.client.{Request, Response}
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import org.specs2.runner.JUnitRunner
-
-import com.excilys.ebi.gatling.core.config.GatlingConfiguration
-import com.ning.http.client.{Request, Response}
+import java.net.InetAddress
 
 @RunWith(classOf[JUnitRunner])
 class HttpProtocolConfigurationBuilderSpec extends Specification {
@@ -77,5 +76,16 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 
 			Seq(config.baseURL.get, config.baseURL.get, config.baseURL.get) must be equalTo (Seq(url1, url2, url1))
 		}
+
+    "support specifying an address to bind to" in {
+      val localhost = InetAddress.getByName("127.0.0.1")
+
+      val builder = HttpProtocolConfigurationBuilder.default
+        .localAddress(localhost)
+        .disableWarmUp
+      val config: HttpProtocolConfiguration = builder.build
+
+      config.localAddress.get should beEqualTo(localhost)
+    }
 	}
 }

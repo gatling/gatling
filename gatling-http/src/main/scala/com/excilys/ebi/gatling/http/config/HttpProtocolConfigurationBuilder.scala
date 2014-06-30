@@ -24,13 +24,14 @@ import com.excilys.ebi.gatling.http.response.ExtendedResponse
 import com.ning.http.client.{ ProxyServer, Request, RequestBuilder }
 
 import grizzled.slf4j.Logging
+import java.net.InetAddress
 
 /**
  * HttpProtocolConfigurationBuilder class companion
  */
 object HttpProtocolConfigurationBuilder {
 
-	private[gatling] val default = new HttpProtocolConfigurationBuilder(Attributes(None, None, None, true, true, true, true, true, false, Map.empty, configuration.http.warmUpUrl, None, None, None))
+	private[gatling] val default = new HttpProtocolConfigurationBuilder(Attributes(None, None, None, true, true, true, true, true, false, Map.empty, configuration.http.warmUpUrl, None, None, None, None))
 
 	val warmUpUrls = mutable.Set.empty[String]
 }
@@ -47,6 +48,7 @@ private case class Attributes(baseUrls: Option[List[String]],
 	baseHeaders: Map[String, String],
 	warmUpUrl: Option[String],
 	virtualHost: Option[String],
+  localAddress: Option[InetAddress],
 	extraRequestInfoExtractor: Option[Request => List[String]],
 	extraResponseInfoExtractor: Option[ExtendedResponse => List[String]])
 
@@ -111,6 +113,8 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = new HttpProtocolConfigurationBuilder(attributes.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
 
+  def localAddress(localAddress: InetAddress) = new HttpProtocolConfigurationBuilder(attributes.copy(localAddress = Some(localAddress)))
+
 	private[http] def build = {
 
 		require(!(!attributes.shareClient && attributes.shareConnections), "Invalid configuration: can't stop sharing the HTTP client while still sharing connections!")
@@ -131,6 +135,6 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 			}
 		}
 
-		HttpProtocolConfiguration(attributes.baseUrls, attributes.proxy, attributes.securedProxy, attributes.followRedirectEnabled, attributes.automaticRefererEnabled, attributes.cachingEnabled, attributes.responseChunksDiscardingEnabled, attributes.shareClient, attributes.shareConnections, attributes.baseHeaders, attributes.virtualHost, attributes.extraRequestInfoExtractor, attributes.extraResponseInfoExtractor)
+		HttpProtocolConfiguration(attributes.baseUrls, attributes.proxy, attributes.securedProxy, attributes.followRedirectEnabled, attributes.automaticRefererEnabled, attributes.cachingEnabled, attributes.responseChunksDiscardingEnabled, attributes.shareClient, attributes.shareConnections, attributes.baseHeaders, attributes.virtualHost, attributes.localAddress ,attributes.extraRequestInfoExtractor, attributes.extraResponseInfoExtractor)
 	}
 }

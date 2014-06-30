@@ -20,7 +20,7 @@ import com.excilys.ebi.gatling.core.session.EvaluatableString
 object PostHttpRequestBuilder {
 
 	def apply(requestName: EvaluatableString, url: EvaluatableString) =
-		new PostHttpRequestBuilder(HttpAttributes(requestName, "POST", url, Nil, Map.empty, None, None, Nil, None), HttpParamsAttributes(Nil, Nil))
+		new PostHttpRequestBuilder(HttpAttributes(requestName, "POST", url, Nil, Map.empty, None, None, None, Nil, None), HttpParamsAttributes(Nil, Nil))
 }
 
 /**
