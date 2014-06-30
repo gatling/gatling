@@ -48,7 +48,7 @@ private case class Attributes(baseUrls: Option[List[String]],
 	baseHeaders: Map[String, String],
 	warmUpUrl: Option[String],
 	virtualHost: Option[String],
-  localAddress: Option[InetAddress],
+	localAddress: Option[InetAddress],
 	extraRequestInfoExtractor: Option[Request => List[String]],
 	extraResponseInfoExtractor: Option[ExtendedResponse => List[String]])
 
@@ -113,7 +113,7 @@ class HttpProtocolConfigurationBuilder(attributes: Attributes) extends Logging {
 
 	private[http] def addProxies(httpProxy: ProxyServer, httpsProxy: Option[ProxyServer]) = new HttpProtocolConfigurationBuilder(attributes.copy(proxy = Some(httpProxy), securedProxy = httpsProxy))
 
-  def localAddress(localAddress: InetAddress) = new HttpProtocolConfigurationBuilder(attributes.copy(localAddress = Some(localAddress)))
+	def localAddress(localAddress: InetAddress) = new HttpProtocolConfigurationBuilder(attributes.copy(localAddress = Some(localAddress)))
 
 	private[http] def build = {
 

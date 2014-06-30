@@ -51,7 +51,7 @@ case class HttpAttributes(
 	headers: Map[String, EvaluatableString],
 	realm: Option[Session => Realm],
 	virtualHost: Option[String],
-  address: Option[InetAddress] = None,
+	address: Option[InetAddress] = None,
 	checks: List[HttpCheck[_]],
 	body: Option[HttpRequestBody])
 
@@ -168,10 +168,10 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 	 */
 	def virtualHost(virtualHost: String): B = newInstance(httpAttributes.copy(virtualHost = Some(virtualHost)))
 
-  /**
-   * @param address a local address to bind to.
-   */
-  def address(address: InetAddress): B = newInstance(httpAttributes.copy(address = Some(address)))
+	/**
+	 * @param address a local address to bind to.
+	 */
+	def address(address: InetAddress): B = newInstance(httpAttributes.copy(address = Some(address)))
 
 	/**
 	 * This method actually fills the request builder to avoid race conditions
@@ -188,8 +188,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 		configureHeaders(requestBuilder, httpAttributes.headers, session, protocolConfiguration)
 		configureRealm(requestBuilder, httpAttributes.realm, session)
 		configureVirtualHost(requestBuilder, protocolConfiguration)
-    configureLocalAddress(requestBuilder, protocolConfiguration)
-    configureAddress(requestBuilder, protocolConfiguration)
+		configureLocalAddress(requestBuilder, protocolConfiguration)
+		configureAddress(requestBuilder, protocolConfiguration)
 		configureBody(requestBuilder, httpAttributes.body, session)
 
 		requestBuilder
@@ -220,17 +220,17 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](ht
 		virtualHost.map(requestBuilder.setVirtualHost)
 	}
 
-  private def configureLocalAddress(requestBuilder: RequestBuilder, protocolConfiguration: HttpProtocolConfiguration) = {
-    val localAddress = protocolConfiguration.localAddress
-    localAddress.foreach(requestBuilder.setLocalInetAddress)
-  }
+	private def configureLocalAddress(requestBuilder: RequestBuilder, protocolConfiguration: HttpProtocolConfiguration) = {
+		val localAddress = protocolConfiguration.localAddress
+		localAddress.foreach(requestBuilder.setLocalInetAddress)
+	}
 
-  private def configureAddress(requestBuilder: RequestBuilder, protocolConfiguration: HttpProtocolConfiguration) = {
-    val address = httpAttributes.address
-    address.map(requestBuilder.setInetAddress)
-  }
+	private def configureAddress(requestBuilder: RequestBuilder, protocolConfiguration: HttpProtocolConfiguration) = {
+		val address = httpAttributes.address
+		address.map(requestBuilder.setInetAddress)
+	}
 
-  /**
+	/**
 	 * This method adds the url and cookies to the request builder. It does so by applying the url to the current session
 	 *
 	 * @param requestBuilder the request builder to which the url should be added

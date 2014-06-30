@@ -77,15 +77,15 @@ class HttpProtocolConfigurationBuilderSpec extends Specification {
 			Seq(config.baseURL.get, config.baseURL.get, config.baseURL.get) must be equalTo (Seq(url1, url2, url1))
 		}
 
-    "support specifying an address to bind to" in {
-      val localhost = InetAddress.getByName("127.0.0.1")
+		"support specifying an address to bind to" in {
+			val localhost = InetAddress.getByName("127.0.0.1")
 
-      val builder = HttpProtocolConfigurationBuilder.default
-        .localAddress(localhost)
-        .disableWarmUp
-      val config: HttpProtocolConfiguration = builder.build
+			val builder = HttpProtocolConfigurationBuilder.default
+				.localAddress(localhost)
+				.disableWarmUp
+			val config: HttpProtocolConfiguration = builder.build
 
-      config.localAddress.get should beEqualTo(localhost)
-    }
+			config.localAddress.get should beEqualTo(localhost)
+		}
 	}
 }

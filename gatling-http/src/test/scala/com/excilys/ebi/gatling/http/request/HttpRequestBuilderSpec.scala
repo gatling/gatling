@@ -27,21 +27,21 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class HttpRequestBuilderSpec extends Specification {
 
-  val session = new Session("scenario", 1)
-  val protocolBuilder = HttpProtocolConfigurationBuilder.default
-    .disableWarmUp
-    .baseURL("http://localhost/")
-  val config: HttpProtocolConfiguration = protocolBuilder.build
+	val session = new Session("scenario", 1)
+	val protocolBuilder = HttpProtocolConfigurationBuilder.default
+		.disableWarmUp
+		.baseURL("http://localhost/")
+	val config: HttpProtocolConfiguration = protocolBuilder.build
 
-  "http request builder" should {
-    "support specifying an address to connect to" in {
-      val localhost = InetAddress.getByName("127.0.0.1")
+	"http request builder" should {
+		"support specifying an address to connect to" in {
+			val localhost = InetAddress.getByName("127.0.0.1")
 
-      val builder = GetHttpRequestBuilder(NOOP_EVALUATABLE_STRING, NOOP_EVALUATABLE_STRING)
-        .address(localhost)
-      val request = builder.build(session, config)
+			val builder = GetHttpRequestBuilder(NOOP_EVALUATABLE_STRING, NOOP_EVALUATABLE_STRING)
+				.address(localhost)
+			val request = builder.build(session, config)
 
-      request.getInetAddress should beEqualTo(localhost)
-    }
-  }
+			request.getInetAddress should beEqualTo(localhost)
+		}
+	}
 }
