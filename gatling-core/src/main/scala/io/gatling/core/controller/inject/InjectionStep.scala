@@ -15,10 +15,12 @@
  */
 package io.gatling.core.controller.inject
 
-import scala.concurrent.duration.{ DurationLong, FiniteDuration }
+import scala.concurrent.duration.{ DurationLong, DurationDouble, FiniteDuration }
 import scala.math.{ abs, sqrt }
+import scala.util.Random
 
 import io.gatling.core.util.Erf.erfinv
+
 
 trait InjectionStep {
   /**
@@ -50,6 +52,7 @@ case class RampInjection(users: Int, duration: FiniteDuration) extends Injection
 case class ConstantRateInjection(rate: Double, duration: FiniteDuration) extends InjectionStep {
   val users = (duration.toSeconds * rate).toInt
   val ramp = RampInjection(users, duration)
+  def randomize = PoissonInjection(duration, rate, rate)
   override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = ramp.chain(iterator)
 }
 
@@ -83,6 +86,8 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
   require(r1 > 0 && r2 > 0, "injection rates must be strictly positive values")
 
   override val users = ((r1 + (r2 - r1) / 2) * duration.toSeconds).toInt
+
+  def randomize = PoissonInjection(duration, r1, r2)
 
   override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
     if ((r2 - r1).abs < 0.0001)
@@ -157,5 +162,37 @@ case class HeavisideInjection(users: Int, duration: FiniteDuration) extends Inje
     val k = duration.toMillis / d
 
     Iterator.range(1, users + 1).map(heavisideInv).map(t => (k * (t + t0)).toLong.milliseconds)
+  }
+}
+
+/**
+ * Inject users following a Poisson random process, with a ramped injection rate.
+ *
+ * A Poisson process models users arriving at a page randomly. You can specify the rate
+ * that users arrive at, and this rate can ramp-up.
+ *
+ * Note that because InjectionStep requires users to be constant, and this injector
+ * has an element of randomness, the total run-time varies instead.
+ *
+ * @param expectedTime the length of time this injector should run for
+ * @param startRate initial injection rate for users
+ * @param endRate final injection rate for users
+ */
+case class PoissonInjection(expectedTime: FiniteDuration, startRate: Double, endRate: Double, seed: Long = System.nanoTime) extends InjectionStep {
+  val users = ((startRate + endRate) / 2 * expectedTime.toSeconds).toInt
+  val rand = new Random(seed)
+
+  override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
+    var currentTimeOffset = 0.seconds
+
+    (0 until users).iterator.map { u =>
+      try currentTimeOffset
+      finally {
+        // Rate calculation based on pencil-and-paper calculation
+        val currentRate = math.sqrt(startRate * startRate + 2 * (endRate - startRate) * (u + 0.5) / expectedTime.toSeconds)
+        val uniformVar = rand.nextDouble
+        currentTimeOffset += (-math.log(uniformVar) / currentRate).seconds // gaps between users follow an exponential distribution
+      }
+    } ++ iterator.map(_ + currentTimeOffset)
   }
 }

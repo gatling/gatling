@@ -186,6 +186,26 @@ class InjectionStepSpec extends Specification {
     }
   }
 
+  "Poisson injection" should {
+    "inject constant users at approximately the right rate" in {
+      // Inject 1000 users per second for 60 seconds
+      val scheduling = PoissonInjection(60 seconds, 1000.0, 1000.0, seed = 0L) // Seed with 0, to ensure tests are deterministic
+        .chain(Iterator(0.seconds)).toVector // Chain to an injector with a zero timer
+      scheduling must have size (60001) // 60000 for the users injected by PoissonInjection, plus the 0 second one
+      scheduling.last.toMillis must beCloseTo(60000L, 5000L)
+      scheduling(30000).toMillis must beCloseTo(30000L, 5000L) // Half-way through we should have injected half of the users
+    }
+
+    "inject ramped users at approximately the right rate" in {
+      // ramp from 0 to 1000 users per second over 60 seconds
+      val scheduling = PoissonInjection(60.seconds, 0.0, 1000.0, seed = 0L) // Seed with 0, to ensure tests are deterministic
+        .chain(Iterator(0.seconds)).toVector // Chain to an injector with a zero timer
+      scheduling must have size (30001) // 30000 for the users injected by PoissonInjection, plus the 0 second one
+      scheduling.last.toMillis must beCloseTo(60000L, 5000L)
+      scheduling(7500).toMillis must beCloseTo(30000L, 5000L) // Half-way through ramp-up we should have run a quarter of users
+    }
+  }
+
   // Deactivate Specs2 implicit to be able to use the ones provided in scala.concurrent.duration
   override def intToRichLong(v: Int) = super.intToRichLong(v)
 }
