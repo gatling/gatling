@@ -15,8 +15,11 @@
  */
 package io.gatling.core.controller.inject
 
-import scala.concurrent.duration.{ DurationLong, FiniteDuration }
+import java.util.concurrent.TimeUnit
+
+import scala.concurrent.duration.{ DurationLong, DurationDouble, FiniteDuration }
 import scala.math.{ abs, sqrt }
+import scala.util.Random
 
 import io.gatling.core.util.Erf.erfinv
 
@@ -50,6 +53,7 @@ case class RampInjection(users: Int, duration: FiniteDuration) extends Injection
 case class ConstantRateInjection(rate: Double, duration: FiniteDuration) extends InjectionStep {
   val users = (duration.toSeconds * rate).toInt
   val ramp = RampInjection(users, duration)
+  def randomize = PoissonInjection(duration, rate, rate)
   override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = ramp.chain(iterator)
 }
 
@@ -83,6 +87,8 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
   require(r1 > 0 && r2 > 0, "injection rates must be strictly positive values")
 
   override val users = ((r1 + (r2 - r1) / 2) * duration.toSeconds).toInt
+
+  def randomize = PoissonInjection(duration, r1, r2)
 
   override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
     if ((r2 - r1).abs < 0.0001)
@@ -157,5 +163,49 @@ case class HeavisideInjection(users: Int, duration: FiniteDuration) extends Inje
     val k = duration.toMillis / d
 
     Iterator.range(1, users + 1).map(heavisideInv).map(t => (k * (t + t0)).toLong.milliseconds)
+  }
+}
+
+/**
+ * Inject users following a Poisson random process, with a ramped injection rate.
+ *
+ * A Poisson process models users arriving at a page randomly. You can specify the rate
+ * that users arrive at, and this rate can ramp-up.
+ *
+ * Note that since this injector has an element of randomness, the total number of users
+ * may vary from run to run, depending on the seed.
+ *
+ * @param duration the length of time this injector should run for
+ * @param startRate initial injection rate for users
+ * @param endRate final injection rate for users
+ * @param seed a seed for the randomization. If the same seed is re-used, the same timings will be obtained
+ */
+case class PoissonInjection(duration: FiniteDuration, startRate: Double, endRate: Double, seed: Long = System.nanoTime) extends InjectionStep {
+  private val durationSecs = duration.toUnit(TimeUnit.SECONDS)
+  val users = chain(Iterator.empty).size
+
+  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
+    val rand = new Random(seed)
+
+    // Uses Lewis and Shedler's thinning algorithm: http://www.dtic.mil/dtic/tr/fulltext/u2/a059904.pdf
+    val maxLambda = startRate max endRate
+      def shouldKeep(d: Double) = {
+        val actualLambda = startRate + (endRate - startRate) * d / durationSecs
+        rand.nextDouble() < actualLambda / maxLambda
+      }
+
+    val rawIntervals = Iterator.continually {
+      val u = rand.nextDouble()
+      -math.log(u) / maxLambda
+    }
+
+    rawIntervals
+      .scanLeft(0.0)(_ + _) // Rolling sum
+      .drop(1) // Throw away first value of 0.0. It is not random, but a quirk of using scanLeft
+      .takeWhile(_ < durationSecs)
+      .flatMap { d =>
+        if (shouldKeep(d)) Iterator(d.seconds)
+        else Iterator.empty
+      } ++ chained.map(_ + duration)
   }
 }
