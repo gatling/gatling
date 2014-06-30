@@ -19,7 +19,7 @@ import com.excilys.ebi.gatling.core.session.EvaluatableString
 
 object PutHttpRequestBuilder {
 
-	def apply(requestName: EvaluatableString, url: EvaluatableString) = new PutHttpRequestBuilder(HttpAttributes(requestName, "PUT", url, Nil, Map.empty, None, None, Nil, None))
+	def apply(requestName: EvaluatableString, url: EvaluatableString) = new PutHttpRequestBuilder(HttpAttributes(requestName, "PUT", url, Nil, Map.empty, None, None, None, Nil, None))
 }
 
 /**

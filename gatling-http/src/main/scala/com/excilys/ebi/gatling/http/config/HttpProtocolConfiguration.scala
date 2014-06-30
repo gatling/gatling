@@ -19,6 +19,7 @@ import com.excilys.ebi.gatling.core.config.ProtocolConfiguration
 import com.excilys.ebi.gatling.core.util.RoundRobin
 import com.excilys.ebi.gatling.http.response.ExtendedResponse
 import com.ning.http.client.{ ProxyServer, Request }
+import java.net.InetAddress
 
 /**
  * HttpProtocolConfiguration class companion
@@ -47,6 +48,7 @@ case class HttpProtocolConfiguration(
 	shareConnections: Boolean,
 	baseHeaders: Map[String, String],
 	virtualHost: Option[String],
+	localAddress: Option[InetAddress],
 	extraRequestInfoExtractor: Option[(Request => List[String])],
 	extraResponseInfoExtractor: Option[(ExtendedResponse => List[String])]) extends ProtocolConfiguration {
 
