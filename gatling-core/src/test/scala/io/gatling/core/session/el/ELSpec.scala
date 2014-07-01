@@ -177,25 +177,25 @@ class ELSpec extends ValidationSpecification {
 
     "return correct size for non empty seq" in {
       val session = Session("scenario", "1", Map("bar" -> List("BAR1", "BAR2")))
-      val expression = "${bar.size}".el[Int]
+      val expression = "${bar.size()}".el[Int]
       expression(session) must succeedWith(2)
     }
 
     "return correct size for empty seq" in {
       val session = Session("scenario", "1", Map("bar" -> List()))
-      val expression = "${bar.size}".el[Int]
+      val expression = "${bar.size()}".el[Int]
       expression(session) must succeedWith(0)
     }
 
     "return 0 size for missing attribute" in {
       val session = Session("scenario", "1")
-      val expression = "${bar.size}".el[Int]
+      val expression = "${bar.size()}".el[Int]
       expression(session) must failWith(ELMessages.undefinedSessionAttribute("bar"))
     }
 
     "return correct size for a non empty Array" in {
       val session = Session("scenario", "1", Map("arr" -> Array(1, 2)))
-      val expression = "${arr.size}".el[Int]
+      val expression = "${arr.size()}".el[Int]
       expression(session) must succeedWith(2)
     }
 
@@ -204,13 +204,13 @@ class ELSpec extends ValidationSpecification {
       lst.add(1)
       lst.add(2)
       val session = Session("scenario", "1", Map("lst" -> lst))
-      val expression = "${lst.size}".el[Int]
+      val expression = "${lst.size()}".el[Int]
       expression(session) must succeedWith(2)
     }
 
     "return correct size for a non empty map" in {
       val session = Session("scenario", "1", Map("map" -> Map("key1" -> "val1", "key2" -> "val2")))
-      val expression = "${map.size}".el[Int]
+      val expression = "${map.size()}".el[Int]
       expression(session) must succeedWith(2)
     }
 
@@ -219,7 +219,7 @@ class ELSpec extends ValidationSpecification {
       set.add(1)
       set.add(2)
       val session = Session("scenario", "1", Map("set" -> set))
-      val expression = "${set.size}".el[Int]
+      val expression = "${set.size()}".el[Int]
       expression(session) must succeedWith(2)
     }
 
@@ -228,13 +228,13 @@ class ELSpec extends ValidationSpecification {
       map.put(1, 1)
       map.put(2, 2)
       val session = Session("scenario", "1", Map("map" -> map))
-      val expression = "${map.size}".el[Int]
+      val expression = "${map.size()}".el[Int]
       expression(session) must succeedWith(2)
     }
 
     "handle gracefully unsupported type" in {
       val session = Session("scenario", "1", Map("i" -> 10))
-      val expression = "${i.size}".el[Int]
+      val expression = "${i.size()}".el[Int]
       expression(session) must failWith(ELMessages.sizeNotSupported(10, "i"))
     }
   }
@@ -243,7 +243,7 @@ class ELSpec extends ValidationSpecification {
     "return one of elements of List" in {
       val elements = List("BAR1", "BAR2")
       val session = Session("scenario", "1", Map("bar" -> elements))
-      val expression = "${bar.random}".el[String]
+      val expression = "${bar.random()}".el[String]
       expression(session) must succeedWith("BAR1") or succeedWith("BAR2")
     }
 
@@ -252,19 +252,19 @@ class ELSpec extends ValidationSpecification {
       list.add(1)
       list.add(2)
       val session = Session("scenario", "1", Map("lst" -> list))
-      val expression = "${lst.random}".el[Int]
+      val expression = "${lst.random()}".el[Int]
       expression(session) must succeedWith(1) or succeedWith(2)
     }
 
     "return one of elements of Array" in {
       val session = Session("scenario", "1", Map("arr" -> Array(1, 2)))
-      val expression = "${arr.random}".el[Int]
+      val expression = "${arr.random()}".el[Int]
       expression(session) must succeedWith(1) or succeedWith(2)
     }
 
     "handle unsupported type" in {
       val session = Session("scenario", "1", Map("i" -> 10))
-      val expression = "${i.random}".el[Int]
+      val expression = "${i.random()}".el[Int]
       expression(session) must failWith(el.ELMessages.randomNotSupported(10, "i"))
     }
   }
@@ -360,21 +360,21 @@ class ELSpec extends ValidationSpecification {
     "return a value from a random list" in {
       val lst = List(List(1, 2), List(3, 4))
       val session = Session("scenario", "1", Map("lst" -> lst))
-      val expression = "${lst.random(0)}".el[Int]
+      val expression = "${lst.random()(0)}".el[Int]
       expression(session) must succeedWith(1) or succeedWith(3)
     }
 
     "return size of a sub-list" in {
       val lst = List(List(1, 2), List(3, 4, 5))
       val session = Session("scenario", "1", Map("lst" -> lst))
-      val expression = "${lst(1).size}".el[Int]
+      val expression = "${lst(1).size()}".el[Int]
       expression(session) must succeedWith(3)
     }
 
     "return size of a sub-list" in {
       val lst = List(List(1, 2), List(3, 4, 5))
       val session = Session("scenario", "1", Map("lst" -> lst))
-      val expression = "${lst(1).size}".el[Int]
+      val expression = "${lst(1).size()}".el[Int]
       expression(session) must succeedWith(3)
     }
 

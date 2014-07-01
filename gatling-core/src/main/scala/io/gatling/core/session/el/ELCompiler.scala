@@ -207,9 +207,9 @@ class ELCompiler extends RegexParsers {
   def valueAccess: Parser[AccessToken] = indexAccess | randomAccess | sizeAccess | keyAccess |
     (elExpr ^^ { case _ => throw new Exception("nested attribute definition is not allowed") })
 
-  def randomAccess: Parser[AccessToken] = ".random" ^^ { case _ => AccessRandom }
+  def randomAccess: Parser[AccessToken] = ".random()" ^^ { case _ => AccessRandom }
 
-  def sizeAccess: Parser[AccessToken] = ".size" ^^ { case _ => AccessSize }
+  def sizeAccess: Parser[AccessToken] = ".size()" ^^ { case _ => AccessSize }
 
   def indexAccess: Parser[AccessToken] = "(" ~> NamePattern <~ ")" ^^ { case posStr => AccessIndex(posStr, s"($posStr)") }
 
