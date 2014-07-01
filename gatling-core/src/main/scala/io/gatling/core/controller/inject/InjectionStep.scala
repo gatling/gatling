@@ -21,7 +21,6 @@ import scala.util.Random
 
 import io.gatling.core.util.Erf.erfinv
 
-
 trait InjectionStep {
   /**
    * Iterator of time deltas in between any injected user and the beginning of the simulation
@@ -180,19 +179,18 @@ case class HeavisideInjection(users: Int, duration: FiniteDuration) extends Inje
  */
 case class PoissonInjection(expectedTime: FiniteDuration, startRate: Double, endRate: Double, seed: Long = System.nanoTime) extends InjectionStep {
   val users = ((startRate + endRate) / 2 * expectedTime.toSeconds).toInt
-  val rand = new Random(seed)
 
-  override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
-    var currentTimeOffset = 0.seconds
-
-    (0 until users).iterator.map { u =>
-      try currentTimeOffset
-      finally {
-        // Rate calculation based on pencil-and-paper calculation
-        val currentRate = math.sqrt(startRate * startRate + 2 * (endRate - startRate) * (u + 0.5) / expectedTime.toSeconds)
-        val uniformVar = rand.nextDouble
-        currentTimeOffset += (-math.log(uniformVar) / currentRate).seconds // gaps between users follow an exponential distribution
-      }
-    } ++ iterator.map(_ + currentTimeOffset)
+  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
+    val rand = new Random(seed)
+    val baseIterator = (0 until users).iterator.scanLeft(0.seconds) { (t, u) =>
+      val currentRate = math.sqrt(startRate * startRate + 2 * (endRate - startRate) * (u + 0.5) / expectedTime.toSeconds)
+      val uniformVar = rand.nextDouble()
+      t + (-math.log(uniformVar) / currentRate).seconds // gaps between users follow an exponential distribution
+    }
+    baseIterator.zipWithIndex.flatMap {
+      // baseIterator contains `users + 1` timings, the last of which is the offset for the chained iterator
+      case (offset, `users`) => chained map { _ + offset }
+      case (d, _)            => Iterator(d)
+    }
   }
 }
