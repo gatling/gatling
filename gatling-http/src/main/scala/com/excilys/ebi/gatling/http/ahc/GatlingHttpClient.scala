@@ -72,7 +72,7 @@ object GatlingHttpClient extends Logging {
 			system.registerOnTermination(socketChannelFactory.releaseExternalResources)
 			val nettyConfig = new NettyAsyncHttpProviderConfig
 			nettyConfig.addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
-			nettyConfig.setHashedWheelTimer(hashedWheelTimer)
+			nettyConfig.setNettyTimer(hashedWheelTimer)
 			nettyConfig
 		}
 	}
