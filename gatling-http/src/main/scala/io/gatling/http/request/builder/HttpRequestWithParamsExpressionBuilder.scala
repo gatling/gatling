@@ -37,8 +37,7 @@ class HttpRequestWithParamsExpressionBuilder(commonAttributes: CommonAttributes,
       def configureAsStringParts: Validation[AHCRequestBuilder] =
         params.resolveParams(session).map { params =>
           for {
-            (key, values) <- params
-            value <- values
+            (key, value) <- params
           } requestBuilder.addBodyPart(new StringPart(key, value))
 
           requestBuilder

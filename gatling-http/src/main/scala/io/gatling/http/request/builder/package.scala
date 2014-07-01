@@ -15,64 +15,96 @@
  */
 package io.gatling.http.request
 
-import scala.collection.JavaConversions.seqAsJavaList
+import scala.annotation.tailrec
 import scala.collection.breakOut
+import scala.collection.JavaConversions.seqAsJavaList
 
 import com.ning.http.client.FluentStringsMap
 
 import io.gatling.core.session.Session
-import io.gatling.core.validation.Validation
+import io.gatling.core.validation._
 
 package object builder {
 
   implicit class HttpParams(val params: List[HttpParam]) extends AnyVal {
 
-    def resolveParams(session: Session): Validation[Map[String, Seq[String]]] = {
+    def resolveParams(session: Session): Validation[List[(String, String)]] =
 
-      val resolvedParams = params.foldLeft(HttpParam.EmptyParamListSuccess) { (resolvedParams, param) =>
-        {
+      params.foldLeft(HttpParam.EmptyParamListSuccess) { (resolvedParams, param) =>
+        val newParams: Validation[List[(String, String)]] = param match {
+          case SimpleParam(key, value) =>
+            for {
+              key <- key(session)
+              value <- value(session)
+            } yield List(key -> value.toString)
 
-          val newParams: Validation[List[(String, String)]] = param match {
-            case SimpleParam(key, value) =>
-              for {
-                key <- key(session)
-                value <- value(session)
-              } yield List(key -> value.toString)
+          case MultivaluedParam(key, values) =>
+            for {
+              key <- key(session)
+              values <- values(session)
+            } yield values.map(key -> _.toString)(breakOut)
 
-            case MultivaluedParam(key, values) =>
-              for {
-                key <- key(session)
-                values <- values(session)
-              } yield values.map(key -> _.toString)(breakOut)
+          case ParamSeq(seq) =>
+            for {
+              seq <- seq(session)
+            } yield seq.map { case (key, value) => key -> value.toString }(breakOut)
 
-            case ParamSeq(seq) =>
-              for {
-                seq <- seq(session)
-              } yield seq.map { case (key, value) => key -> value.toString }(breakOut)
+          case ParamMap(map) =>
+            for {
+              map <- map(session)
+            } yield map.map { case (key, value) => key -> value.toString }(breakOut)
+        }
 
-            case ParamMap(map) =>
-              for {
-                map <- map(session)
-              } yield map.map { case (key, value) => key -> value.toString }(breakOut)
+        for {
+          newParams <- newParams
+          resolvedParams <- resolvedParams
+        } yield newParams ::: resolvedParams
+      }
+
+    def resolveFluentStringsMap(session: Session): Validation[FluentStringsMap] = {
+
+        def update(fsm: FluentStringsMap, param: HttpParam): Validation[FluentStringsMap] = param match {
+          case SimpleParam(key, value) =>
+            for {
+              key <- key(session)
+              value <- value(session)
+            } yield fsm.add(key, value.toString)
+
+          case MultivaluedParam(key, values) =>
+            for {
+              key <- key(session)
+              values <- values(session)
+            } yield fsm.add(key, values.map(_.toString))
+
+          case ParamSeq(seq) =>
+            for {
+              seq <- seq(session)
+            } yield {
+              seq.foreach { case (key, value) => fsm.add(key, value.toString) }
+              fsm
+            }
+
+          case ParamMap(map) =>
+            for {
+              map <- map(session)
+            } yield {
+              map.foreach { case (key, value) => fsm.add(key, value.toString) }
+              fsm
+            }
+        }
+
+        @tailrec
+        def resolveFluentStringsMapRec(fsm: FluentStringsMap, currentParams: List[HttpParam]): Validation[FluentStringsMap] =
+          currentParams match {
+            case Nil => fsm.success
+            case head :: tail =>
+              update(fsm, head) match {
+                case Success(newFsm) => resolveFluentStringsMapRec(newFsm, tail)
+                case f               => f
+              }
           }
 
-          for {
-            newParams <- newParams
-            resolvedParams <- resolvedParams
-          } yield newParams ::: resolvedParams
-        }
-      }
-
-      // group by name
-      resolvedParams.map(_.groupBy(_._1).mapValues(_.map(_._2)))
+      resolveFluentStringsMapRec(new FluentStringsMap, params)
     }
-
-    def resolveFluentStringsMap(session: Session): Validation[FluentStringsMap] =
-      resolveParams(session).map { params =>
-
-        params.foldLeft(new FluentStringsMap) {
-          case (fsm, (key, values)) => fsm.add(key, values)
-        }
-      }
   }
 }
