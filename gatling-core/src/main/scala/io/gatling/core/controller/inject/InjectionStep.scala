@@ -53,7 +53,7 @@ case class RampInjection(users: Int, duration: FiniteDuration) extends Injection
 case class ConstantRateInjection(rate: Double, duration: FiniteDuration) extends InjectionStep {
   val users = (duration.toSeconds * rate).toInt
   val ramp = RampInjection(users, duration)
-  def randomize = PoissonInjection(duration, rate, rate)
+  def randomized = PoissonInjection(duration, rate, rate)
   override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = ramp.chain(iterator)
 }
 
@@ -88,7 +88,7 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
 
   override val users = ((r1 + (r2 - r1) / 2) * duration.toSeconds).toInt
 
-  def randomize = PoissonInjection(duration, r1, r2)
+  def randomized = PoissonInjection(duration, r1, r2)
 
   override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
     if ((r2 - r1).abs < 0.0001)
