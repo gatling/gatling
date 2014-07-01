@@ -29,9 +29,8 @@
 
 	<scm>
 		<connection>scm:git:git@github.com:excilys/gatling.git</connection>
-		<developerConnection>scm:git:git@github.com:excilys/gatling.git</developerConnection>
 		<url>https://github.com/excilys/gatling</url>
-		<tag>HEAD</tag>
+		<developerConnection>scm:git:git@github.com:excilys/gatling.git</developerConnection>
 	</scm>
 
 	<distributionManagement>
