@@ -44,7 +44,7 @@ package object util {
         buff.appendAHCStringsMap(request.getHeaders)
       }
 
-      if (request.getCookies != null && !request.getCookies.isEmpty) {
+      if (!request.getCookies.isEmpty) {
         buff.append("cookies=").append(Eol)
         for (cookie <- request.getCookies) {
           buff.append(cookie).append(Eol)
