@@ -26,7 +26,7 @@ object Dependencies {
   private val scalalogging                   = "com.typesafe"              %% "scalalogging-slf4j"     % "1.1.0"
   private val jackson                        = "com.fasterxml.jackson.core" % "jackson-databind"       % "2.4.1.1"
   private val boon                           = "io.fastjson"                % "boon"                   % "0.21"
-  private val jsonpath                       = "io.gatling"                %% "jsonpath"               % "0.4.1"
+  private val jsonpath                       = "io.gatling"                %% "jsonpath"               % "0.5.0"
   private val uncommonsMaths                 = "io.gatling.uncommons.maths" % "uncommons-maths"        % "1.2.3"        classifier "jdk6"
   private val joddLagarto                    = "org.jodd"                   % "jodd-lagarto"           % "3.6.0-BETA2"
   private val jzlib                          = "com.jcraft"                 % "jzlib"                  % "1.1.3"
