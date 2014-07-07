@@ -122,8 +122,9 @@ case class MapKeyPart(map: Part[Any], mapName: String, key: String) extends Part
 
 case class TupleAccessPart(tuple: Part[Any], tupleName: String, index: Int) extends Part[Any] {
   def apply(session: Session): Validation[Any] = tuple(session).flatMap {
-    case product: Product => if (index > 0 && product.productArity >= index) product.productElement(index - 1).success
-    else ELMessages.outOfRangeAccess(tupleName, product, index)
+    case product: Product =>
+      if (index > 0 && product.productArity >= index) product.productElement(index - 1).success
+      else ELMessages.outOfRangeAccess(tupleName, product, index)
 
     case other => ELMessages.tupleAccessNotSupported(tupleName, other)
   }
