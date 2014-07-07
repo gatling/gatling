@@ -386,6 +386,99 @@ class ELSpec extends ValidationSpecification {
     }
   }
 
+  "tuples access" should {
+    "return size of Tuple2" in {
+      val session = Session("scenario", "1", Map("tuple" -> Tuple2(1, 1)))
+      val expression = "${tuple.size()}".el[Int]
+      expression(session) must succeedWith(2)
+    }
+
+    "return size of Tuple3" in {
+      val session = Session("scenario", "1", Map("tuple" -> Tuple3(1, 1, 1)))
+      val expression = "${tuple.size()}".el[Int]
+      expression(session) must succeedWith(3)
+    }
+
+    "return first element of a Tuple" in {
+      val session = Session("scenario", "1", Map("tuple" -> Tuple3(1, 2, 3)))
+      val expression = "${tuple._1}".el[Int]
+      expression(session) must succeedWith(1)
+    }
+
+    "return last element of a Tuple" in {
+      val session = Session("scenario", "1", Map("tuple" -> Tuple3(1, 2, 3)))
+      val expression = "${tuple._3}".el[Int]
+      expression(session) must succeedWith(3)
+    }
+
+    "return a random element of a Tuple" in {
+      val session = Session("scenario", "1", Map("tuple" -> Tuple3(1, 2, 3)))
+      val expression = "${tuple.random()}".el[Int]
+      expression(session) must succeedWith(1) or succeedWith(2) or succeedWith(3)
+    }
+
+    "return element with zero index in a Tuple" in {
+      val tuple = Tuple3(1, 2, 3)
+      val session = Session("scenario", "1", Map("tuple" -> tuple))
+      val expression = "${tuple._0}".el[Int]
+      expression(session) must failWith(ELMessages.outOfRangeAccess("tuple", tuple, 0))
+    }
+
+    "return element of range" in {
+      val tuple = Tuple3(1, 2, 3)
+      val session = Session("scenario", "1", Map("tuple" -> tuple))
+      val expression = "${tuple._4}".el[Int]
+      expression(session) must failWith(ELMessages.outOfRangeAccess("tuple", tuple, 4))
+    }
+
+    "handle correctly if object do not support tuple access" in {
+      val int = 5
+      val session = Session("scenario", "1", Map("i" -> int))
+      val expression = "${i._3}".el[Int]
+      expression(session) must failWith(ELMessages.tupleAccessNotSupported("i", int))
+    }
+  }
+
+  "pairs access" should {
+    "return size of a Pair" in {
+      val session = Session("scenario", "1", Map("pair" -> (1 -> 2)))
+      val expression = "${pair.size()}".el[Int]
+      expression(session) must succeedWith(2)
+    }
+
+    "return first element of a pair" in {
+      val session = Session("scenario", "1", Map("pair" -> (1 -> 2)))
+      val expression = "${pair._1}".el[Int]
+      expression(session) must succeedWith(1)
+    }
+
+    "return second element of a pair" in {
+      val session = Session("scenario", "1", Map("pair" -> (1 -> 2)))
+      val expression = "${pair._2}".el[Int]
+      expression(session) must succeedWith(2)
+    }
+
+    "return random element of a pair" in {
+      val session = Session("scenario", "1", Map("pair" -> (1 -> 2)))
+      val expression = "${pair.random()}".el[Int]
+      expression(session) must succeedWith(1) or succeedWith(2)
+    }
+
+    "return zero element of a pair" in {
+      val pair = (1 -> 2)
+      val session = Session("scenario", "1", Map("pair" -> pair))
+      val expression = "${pair._0}".el[Int]
+      expression(session) must failWith(ELMessages.outOfRangeAccess("pair", pair, 0))
+    }
+
+    "return out of range element of a pair" in {
+      val pair = (1 -> 2)
+      val session = Session("scenario", "1", Map("pair" -> pair))
+      val expression = "${pair._3}".el[Int]
+      expression(session) must failWith(ELMessages.outOfRangeAccess("pair", pair, 3))
+    }
+  }
+
   "Malformed Expression" should {
 
     "be handled correctly when an attribute name is missing" in {
