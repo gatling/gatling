@@ -439,6 +439,46 @@ class ELSpec extends ValidationSpecification {
     }
   }
 
+  "pairs access" should {
+    "return size of a Pair" in {
+      val session = Session("scenario", "1", Map("pair" -> (1 -> 2)))
+      val expression = "${pair.size()}".el[Int]
+      expression(session) must succeedWith(2)
+    }
+
+    "return first element of a pair" in {
+      val session = Session("scenario", "1", Map("pair" -> (1 -> 2)))
+      val expression = "${pair._1}".el[Int]
+      expression(session) must succeedWith(1)
+    }
+
+    "return second element of a pair" in {
+      val session = Session("scenario", "1", Map("pair" -> (1 -> 2)))
+      val expression = "${pair._2}".el[Int]
+      expression(session) must succeedWith(2)
+    }
+
+    "return random element of a pair" in {
+      val session = Session("scenario", "1", Map("pair" -> (1 -> 2)))
+      val expression = "${pair.random()}".el[Int]
+      expression(session) must succeedWith(1) or succeedWith(2)
+    }
+
+    "return zero element of a pair" in {
+      val pair = (1 -> 2)
+      val session = Session("scenario", "1", Map("pair" -> pair))
+      val expression = "${pair._0}".el[Int]
+      expression(session) must failWith(ELMessages.outOfRangeAccess("pair", pair, 0))
+    }
+
+    "return out of range element of a pair" in {
+      val pair = (1 -> 2)
+      val session = Session("scenario", "1", Map("pair" -> pair))
+      val expression = "${pair._3}".el[Int]
+      expression(session) must failWith(ELMessages.outOfRangeAccess("pair", pair, 3))
+    }
+  }
+
   "Malformed Expression" should {
 
     "be handled correctly when an attribute name is missing" in {
