@@ -56,7 +56,7 @@ object ResourceFetcher extends StrictLogging {
 
   // FIXME should CssContentCache use the same key?
   case class InferredResourcesCacheKey(protocol: HttpProtocol, uri: URI)
-  val CssContentCache: concurrent.Map[URI, List[EmbeddedResource]] = new ConcurrentHashMapV8[URI, List[EmbeddedResource]]
+  val CssContentCache: concurrent.Map[String, List[EmbeddedResource]] = new ConcurrentHashMapV8[String, List[EmbeddedResource]]
   val InferredResourcesCache: concurrent.Map[InferredResourcesCacheKey, InferredPageResources] = new ConcurrentHashMapV8[InferredResourcesCacheKey, InferredPageResources]
 
   private def applyResourceFilters(resources: List[EmbeddedResource], filters: Option[Filters]): List[EmbeddedResource] =
@@ -251,7 +251,7 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
     pendingResourcesCount += resources.size
 
     val (cached, nonCached) = resources.partition { resource =>
-      val uri = resource.ahcRequest.getURI
+      val uri = resource.ahcRequest.getURI.toString
       CacheHandling.getExpire(protocol, session, uri) match {
         case None => false
         case Some(expire) if nowMillis > expire =>
@@ -283,6 +283,8 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
 
   private def resourceFetched(uri: URI, status: Status): Unit = {
 
+    val uriString = uri.toString
+
       def releaseToken(host: String): Unit = {
 
           @tailrec
@@ -295,14 +297,14 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
               case request :: tail =>
                 bufferedResourcesByHost += host -> tail
                 val uri = request.ahcRequest.getURI
-                CacheHandling.getExpire(protocol, session, uri) match {
+                CacheHandling.getExpire(protocol, session, uriString) match {
                   case None =>
                     // recycle token, fetch a buffered resource
                     fetchResource(request)
 
                   case Some(expire) if nowMillis > expire =>
                     // expire reached
-                    session = CacheHandling.clearExpire(session, uri)
+                    session = CacheHandling.clearExpire(session, uriString)
                     fetchResource(request)
 
                   case _ =>
@@ -335,8 +337,10 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
 
   private def cssFetched(uri: URI, status: Status, statusCode: Option[Int], lastModifiedOrEtag: Option[String], content: String): Unit = {
 
+    val uriString = uri.toString
+
       def parseCssResources(): List[HttpRequest] = {
-        val inferred = CssContentCache.getOrElseUpdate(uri, CssParser.extractResources(uri, content))
+        val inferred = CssContentCache.getOrElseUpdate(uriString, CssParser.extractResources(uri, content))
         val filtered = applyResourceFilters(inferred, filters)
         resourcesToRequests(filtered, protocol, throttled)
       }
