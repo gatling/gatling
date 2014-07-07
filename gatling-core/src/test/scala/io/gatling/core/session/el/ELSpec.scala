@@ -386,6 +386,59 @@ class ELSpec extends ValidationSpecification {
     }
   }
 
+  "tuples access" should {
+    "return size of Tuple2" in {
+      val session = Session("scenario", "1", Map("tuple" -> Tuple2(1, 1)))
+      val expression = "${tuple.size()}".el[Int]
+      expression(session) must succeedWith(2)
+    }
+
+    "return size of Tuple3" in {
+      val session = Session("scenario", "1", Map("tuple" -> Tuple3(1, 1, 1)))
+      val expression = "${tuple.size()}".el[Int]
+      expression(session) must succeedWith(3)
+    }
+
+    "return first element of a Tuple" in {
+      val session = Session("scenario", "1", Map("tuple" -> Tuple3(1, 2, 3)))
+      val expression = "${tuple._1}".el[Int]
+      expression(session) must succeedWith(1)
+    }
+
+    "return last element of a Tuple" in {
+      val session = Session("scenario", "1", Map("tuple" -> Tuple3(1, 2, 3)))
+      val expression = "${tuple._3}".el[Int]
+      expression(session) must succeedWith(3)
+    }
+
+    "return a random element of a Tuple" in {
+      val session = Session("scenario", "1", Map("tuple" -> Tuple3(1, 2, 3)))
+      val expression = "${tuple.random()}".el[Int]
+      expression(session) must succeedWith(1) or succeedWith(2) or succeedWith(3)
+    }
+
+    "return element with zero index in a Tuple" in {
+      val tuple = Tuple3(1, 2, 3)
+      val session = Session("scenario", "1", Map("tuple" -> tuple))
+      val expression = "${tuple._0}".el[Int]
+      expression(session) must failWith(ELMessages.outOfRangeAccess("tuple", tuple, 0))
+    }
+
+    "return element of range" in {
+      val tuple = Tuple3(1, 2, 3)
+      val session = Session("scenario", "1", Map("tuple" -> tuple))
+      val expression = "${tuple._4}".el[Int]
+      expression(session) must failWith(ELMessages.outOfRangeAccess("tuple", tuple, 4))
+    }
+
+    "handle correctly if object do not support tuple access" in {
+      val int = 5
+      val session = Session("scenario", "1", Map("i" -> int))
+      val expression = "${i._3}".el[Int]
+      expression(session) must failWith(ELMessages.tupleAccessNotSupported("i", int))
+    }
+  }
+
   "Malformed Expression" should {
 
     "be handled correctly when an attribute name is missing" in {

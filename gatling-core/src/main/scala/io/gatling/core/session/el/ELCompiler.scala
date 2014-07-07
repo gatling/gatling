@@ -36,6 +36,8 @@ object ELMessages {
   def accessByKeyNotSupported(value: Any, name: String) = s"$value named '$name' does not support access by key".failure
   def randomNotSupported(value: Any, name: String) = s"$value named '$name' does not support .random function".failure
   def indexAccessNotSupported(value: Any, name: String) = s"$value named '$name' does not support index access".failure
+  def outOfRangeAccess(name: String, value: Any, index: Int) = s"Product $value named $name has no element with index $index".failure
+  def tupleAccessNotSupported(name: String, value: Any) = s"Product $value named $name do not support tuple access".failure
 }
 
 trait Part[+T] {
@@ -57,6 +59,7 @@ case class SizePart(seqPart: Part[Any], name: String) extends Part[Int] {
       case collection: JCollection[_] => collection.size.success
       case map: JMap[_, _]            => map.size.success
       case arr: Array[_]              => arr.length.success
+      case product: Product           => product.productArity.success
       case other                      => ELMessages.sizeNotSupported(other, name)
     }
 }
@@ -66,10 +69,11 @@ case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
       def random(size: Int) = ThreadLocalRandom.current.nextInt(size)
 
     seq(session).flatMap {
-      case seq: Seq[_]    => seq(random(seq.size)).success
-      case list: JList[_] => list.get(random(list.size)).success
-      case arr: Array[_]  => arr(random(arr.length)).success
-      case other          => ELMessages.randomNotSupported(other, name)
+      case seq: Seq[_]      => seq(random(seq.size)).success
+      case list: JList[_]   => list.get(random(list.size)).success
+      case arr: Array[_]    => arr(random(arr.length)).success
+      case product: Product => product.productElement(random(product.productArity)).success
+      case other            => ELMessages.randomNotSupported(other, name)
     }
   }
 }
@@ -113,6 +117,15 @@ case class MapKeyPart(map: Part[Any], mapName: String, key: String) extends Part
       else ELMessages.undefinedMapKey(mapName, key)
 
     case other => ELMessages.accessByKeyNotSupported(other, mapName)
+  }
+}
+
+case class TupleAccessPart(tuple: Part[Any], tupleName: String, index: Int) extends Part[Any] {
+  def apply(session: Session): Validation[Any] = tuple(session).flatMap {
+    case product: Product => if (index > 0 && product.productArity >= index) product.productElement(index - 1).success
+    else ELMessages.outOfRangeAccess(tupleName, product, index)
+
+    case other => ELMessages.tupleAccessNotSupported(tupleName, other)
   }
 }
 
@@ -161,6 +174,7 @@ class ELCompiler extends RegexParsers {
   case class AccessKey(key: String, token: String) extends AccessToken
   case object AccessRandom extends AccessToken { val token = ".random" }
   case object AccessSize extends AccessToken { val token = ".size" }
+  case class AccessTuple(index: String, token: String) extends AccessToken
 
   override def skipWhitespace = false
 
@@ -189,10 +203,11 @@ class ELCompiler extends RegexParsers {
         val (subPart, subPartName) = partName
 
         val part = token match {
-          case AccessIndex(pos, tokenName) => SeqElementPart(subPart, subPartName, pos)
-          case AccessKey(key, tokenName)   => MapKeyPart(subPart, subPartName, key)
-          case AccessRandom                => RandomPart(subPart, subPartName)
-          case AccessSize                  => SizePart(subPart, subPartName)
+          case AccessIndex(pos, tokenName)   => SeqElementPart(subPart, subPartName, pos)
+          case AccessKey(key, tokenName)     => MapKeyPart(subPart, subPartName, key)
+          case AccessRandom                  => RandomPart(subPart, subPartName)
+          case AccessSize                    => SizePart(subPart, subPartName)
+          case AccessTuple(index, tokenName) => TupleAccessPart(subPart, subPartName, index.toInt)
         }
 
         val newPartName = subPartName + token.token
@@ -204,7 +219,7 @@ class ELCompiler extends RegexParsers {
 
   def objectName: Parser[AttributePart] = NamePattern ^^ { case name => AttributePart(name) }
 
-  def valueAccess: Parser[AccessToken] = indexAccess | randomAccess | sizeAccess | keyAccess |
+  def valueAccess: Parser[AccessToken] = tupleAccess | indexAccess | randomAccess | sizeAccess | keyAccess |
     (elExpr ^^ { case _ => throw new Exception("nested attribute definition is not allowed") })
 
   def randomAccess: Parser[AccessToken] = ".random()" ^^ { case _ => AccessRandom }
@@ -214,6 +229,8 @@ class ELCompiler extends RegexParsers {
   def indexAccess: Parser[AccessToken] = "(" ~> NamePattern <~ ")" ^^ { case posStr => AccessIndex(posStr, s"($posStr)") }
 
   def keyAccess: Parser[AccessToken] = "." ~> NamePattern ^^ { case keyName => AccessKey(keyName, "." + keyName) }
+
+  def tupleAccess: Parser[AccessTuple] = "._" ~> "[0-9]+".r ^^ { case indexPart => AccessTuple(indexPart, "._" + indexPart) }
 
   def emptyAttribute: Parser[Part[Any]] = "" ^^ { case _ => throw new Exception("attribute name is missing") }
 }
