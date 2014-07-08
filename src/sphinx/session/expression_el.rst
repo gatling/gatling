@@ -54,8 +54,8 @@ How is it that one can also pass Strings and other values then?
 
 The reason is that there are implicit conversions:
 
- * when passing a String, it gets automagically parsed turn them into Expressions thanks to Gatling EL compiler.
- * when passing a value of another type, it gets automagically wrapped into an Expression that will always return this static value.
+* when passing a String, it gets automagically parsed turn them into Expressions thanks to Gatling EL compiler.
+* when passing a value of another type, it gets automagically wrapped into an Expression that will always return this static value.
 
 .. warning::
   Implicit conversions are only triggered when expected type and passed parameter type don't match, for example trying to pass a String to a method that expects an Expression instead.
