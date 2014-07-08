@@ -263,7 +263,7 @@ They will be apply on all the requests, however you can disable them for given r
 .. _http-protocol-infer:
 
 Resource inferring
------------------
+------------------
 
 Gatling allow to fetch resources in parallel in order to emulate the behaviour of a real web browser.
 
