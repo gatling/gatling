@@ -15,6 +15,7 @@
  */
 package io.gatling.http.cache
 
+import io.gatling.core.config.GatlingConfiguration
 import org.junit.runner.RunWith
 
 import org.specs2.mock.Mockito
@@ -38,7 +39,9 @@ class PermanentRedirectSpec extends Specification with Mockito {
     def addRedirect(from: String, to: String): Unit =
       session = PermanentRedirect.addRedirect(session, new URI(from), new URI(to))
 
-    def before(): Unit = {}
+    def before(): Unit = {
+      GatlingConfiguration.setUp()
+    }
   }
   "redirect memoization" should {
     "return transaction with no redirect cache" in new Context {
