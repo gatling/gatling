@@ -15,10 +15,7 @@
  */
 package io.gatling.http.request
 
-import scala.collection.JavaConversions.mapAsScalaConcurrentMap
-import scala.collection.concurrent
-
-import jsr166e.ConcurrentHashMapV8
+import io.gatling.core.util.CacheHelper
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
@@ -29,10 +26,10 @@ import io.gatling.core.validation.Validation
 
 object ELFileBodies {
 
-  val Cache: concurrent.Map[String, Validation[Expression[String]]] = new ConcurrentHashMapV8[String, Validation[Expression[String]]]
-  private val CacheELFileBodies = configuration.http.cacheELFileBodies
+  lazy val Cache = CacheHelper.newCache[String, Validation[Expression[String]]](configuration.http.elFileBodiesCacheMaxCapacity)
+
   def cached(path: String) =
-    if (CacheELFileBodies)
+    if (configuration.http.elFileBodiesCacheMaxCapacity > 0)
       Cache.getOrElseUpdate(path, compileFile(path))
     else
       compileFile(path)

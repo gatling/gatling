@@ -17,22 +17,20 @@ package io.gatling.http.request
 
 import java.io.File
 
-import scala.collection.JavaConversions.mapAsScalaConcurrentMap
-import scala.collection.concurrent
+import io.gatling.core.util.CacheHelper
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
 import io.gatling.core.session.Expression
 import io.gatling.core.util.IO._
 import io.gatling.core.validation.Validation
-import jsr166e.ConcurrentHashMapV8
 
 object RawFileBodies {
 
-  val Cache: concurrent.Map[String, Validation[File]] = new ConcurrentHashMapV8[String, Validation[File]]
-  private val CacheRawFileBodies = configuration.http.cacheRawFileBodies
+  lazy val Cache = CacheHelper.newCache[String, Validation[File]](configuration.http.rawFileBodiesCacheMaxCapacity)
+
   def cached(path: String) =
-    if (CacheRawFileBodies)
+    if (configuration.http.rawFileBodiesCacheMaxCapacity > 0)
       Cache.getOrElseUpdate(path, Resource.requestBody(path).map(_.jfile))
     else
       Resource.requestBody(path).map(_.jfile)

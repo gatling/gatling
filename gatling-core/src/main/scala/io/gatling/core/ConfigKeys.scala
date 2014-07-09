@@ -27,13 +27,13 @@ object ConfigKeys {
 
     object extract {
       object regex {
-        val Cache = "gatling.core.extract.regex.cache"
+        val CacheMaxCapacity = "gatling.core.extract.regex.cacheMaxCapacity"
       }
       object xpath {
-        val Cache = "gatling.core.extract.xpath.cache"
+        val CacheMaxCapacity = "gatling.core.extract.xpath.cacheMaxCapacity"
       }
       object jsonPath {
-        val Cache = "gatling.core.extract.jsonPath.cache"
+        val CacheMaxCapacity = "gatling.core.extract.jsonPath.cacheMaxCapacity"
 
         object jackson {
           val AllowComments = "gatling.core.extract.jsonPath.jackson.allowComments"
@@ -42,7 +42,7 @@ object ConfigKeys {
         }
       }
       object css {
-        val Cache = "gatling.core.extract.css.cache"
+        val CacheMaxCapacity = "gatling.core.extract.css.cacheMaxCapacity"
       }
     }
     object timeOut {
@@ -76,8 +76,14 @@ object ConfigKeys {
   }
 
   object http {
-    val CacheELFileBodies = "gatling.http.cacheELFileBodies"
-    val CacheRawFileBodies = "gatling.http.cacheRawFileBodies"
+    val ELFileBodiesCacheMaxCapacity = "gatling.http.elFileBodiesCacheMaxCapacity"
+    val RawFileBodiesCacheMaxCapacity = "gatling.http.rawFileBodiesCacheMaxCapacity"
+    val FetchedCssCacheMaxCapacity = "gatling.http.fetchedCssCacheMaxCapacity"
+    val FetchedHtmlCacheMaxCapacity = "gatling.http.fetchedHtmlCacheMaxCapacity"
+    val RedirectPerUserCacheMaxCapacity = "gatling.http.redirectPerUserCacheMaxCapacity"
+    val ExpirePerUserCacheMaxCapacity = "gatling.http.expirePerUserCacheMaxCapacity"
+    val LastModifiedPerUserCacheMaxCapacity = "gatling.http.lastModifiedPerUserCacheMaxCapacity"
+    val EtagPerUserCacheMaxCapacity = "gatling.http.etagPerUserCacheMaxCapacity"
     val WarmUpUrl = "gatling.http.warmUpUrl"
 
     object ssl {

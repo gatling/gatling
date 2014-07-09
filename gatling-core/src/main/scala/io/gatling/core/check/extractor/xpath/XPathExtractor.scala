@@ -17,8 +17,9 @@ package io.gatling.core.check.extractor.xpath
 
 import java.io.{ Reader, InputStream }
 
+import io.gatling.core.util.CacheHelper
+
 import scala.collection.JavaConversions._
-import scala.collection.concurrent
 
 import org.xml.sax.InputSource
 
@@ -26,7 +27,6 @@ import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import javax.xml.transform.sax.SAXSource
-import jsr166e.ConcurrentHashMapV8
 import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathExecutable, XdmNode, XdmValue }
 
 object XPathExtractor {
@@ -34,7 +34,8 @@ object XPathExtractor {
   val Processor = new Processor(false)
   val DocumentBuilder = Processor.newDocumentBuilder
 
-  val CompilerCache: concurrent.Map[List[(String, String)], XPathCompiler] = new ConcurrentHashMapV8[List[(String, String)], XPathCompiler]
+  lazy val CompilerCache = CacheHelper.newCache[List[(String, String)], XPathCompiler](configuration.core.extract.xpath.cacheMaxCapacity)
+  lazy val XPathExecutableCache = CacheHelper.newCache[String, XPathExecutable](configuration.core.extract.xpath.cacheMaxCapacity)
 
   def compiler(namespaces: List[(String, String)]) = {
     val xPathCompiler = Processor.newXPathCompiler
@@ -54,15 +55,12 @@ object XPathExtractor {
 
   def parse(reader: Reader): XdmNode = parse(new InputSource(reader))
 
-  val xpathExecutableCache: concurrent.Map[String, XPathExecutable] = new ConcurrentHashMapV8[String, XPathExecutable]
-
   def xpath(expression: String, xPathCompiler: XPathCompiler): XPathExecutable = xPathCompiler.compile(expression)
 
   def cached(expression: String, namespaces: List[(String, String)]): XPathExecutable =
-    if (configuration.core.extract.xpath.cache) {
-      val xPathCompiler = CompilerCache.getOrElseUpdate(namespaces, compiler(namespaces))
-      xpathExecutableCache.getOrElseUpdate(expression, xpath(expression, xPathCompiler))
-    } else
+    if (configuration.core.extract.xpath.cacheMaxCapacity > 0)
+      XPathExecutableCache.getOrElseUpdate(expression, xpath(expression, CompilerCache.getOrElseUpdate(namespaces, compiler(namespaces))))
+    else
       xpath(expression, compiler(namespaces))
 
   def evaluate(criterion: String, namespaces: List[(String, String)], xdmNode: XdmNode): XdmValue = {

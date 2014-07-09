@@ -108,17 +108,17 @@ object GatlingConfiguration extends StrictLogging {
         muteMode = config.getBoolean(core.Mute),
         extract = ExtractConfiguration(
           regex = RegexConfiguration(
-            cache = config.getBoolean(core.extract.regex.Cache)),
+            cacheMaxCapacity = config.getLong(core.extract.regex.CacheMaxCapacity)),
           xpath = XPathConfiguration(
-            cache = config.getBoolean(core.extract.xpath.Cache)),
+            cacheMaxCapacity = config.getLong(core.extract.xpath.CacheMaxCapacity)),
           jsonPath = JsonPathConfiguration(
-            cache = config.getBoolean(core.extract.jsonPath.Cache),
+            cacheMaxCapacity = config.getLong(core.extract.jsonPath.CacheMaxCapacity),
             jackson = JacksonConfiguration(
               allowComments = config.getBoolean(core.extract.jsonPath.jackson.AllowComments),
               allowUnquotedFieldNames = config.getBoolean(core.extract.jsonPath.jackson.AllowUnquotedFieldNames),
               allowSingleQuotes = config.getBoolean(core.extract.jsonPath.jackson.AllowSingleQuotes))),
           css = CssConfiguration(
-            cache = config.getBoolean(core.extract.css.Cache))),
+            cacheMaxCapacity = config.getLong(core.extract.css.CacheMaxCapacity))),
         timeOut = TimeOutConfiguration(
           simulation = config.getInt(core.timeOut.Simulation)),
         directory = DirectoryConfiguration(
@@ -141,8 +141,14 @@ object GatlingConfiguration extends StrictLogging {
           percentile1 = config.getInt(charting.indicators.Percentile1),
           percentile2 = config.getInt(charting.indicators.Percentile2))),
       http = HttpConfiguration(
-        cacheELFileBodies = config.getBoolean(http.CacheELFileBodies),
-        cacheRawFileBodies = config.getBoolean(http.CacheRawFileBodies),
+        elFileBodiesCacheMaxCapacity = config.getLong(http.ELFileBodiesCacheMaxCapacity),
+        rawFileBodiesCacheMaxCapacity = config.getLong(http.RawFileBodiesCacheMaxCapacity),
+        fetchedCssCacheMaxCapacity = config.getLong(http.FetchedCssCacheMaxCapacity),
+        fetchedHtmlCacheMaxCapacity = config.getLong(http.FetchedHtmlCacheMaxCapacity),
+        redirectPerUserCacheMaxCapacity = config.getLong(http.RedirectPerUserCacheMaxCapacity),
+        expirePerUserCacheMaxCapacity = config.getLong(http.ExpirePerUserCacheMaxCapacity),
+        lastModifiedPerUserCacheMaxCapacity = config.getLong(http.LastModifiedPerUserCacheMaxCapacity),
+        etagPerUserCacheMaxCapacity = config.getLong(http.EtagPerUserCacheMaxCapacity),
         warmUpUrl = config.getString(http.WarmUpUrl).trimToOption,
         ssl = {
             def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
@@ -248,13 +254,13 @@ case class ExtractConfiguration(
   css: CssConfiguration)
 
 case class RegexConfiguration(
-  cache: Boolean)
+  cacheMaxCapacity: Long)
 
 case class XPathConfiguration(
-  cache: Boolean)
+  cacheMaxCapacity: Long)
 
 case class JsonPathConfiguration(
-  cache: Boolean,
+  cacheMaxCapacity: Long,
   jackson: JacksonConfiguration)
 
 case class JacksonConfiguration(
@@ -263,7 +269,7 @@ case class JacksonConfiguration(
   allowSingleQuotes: Boolean)
 
 case class CssConfiguration(
-  cache: Boolean)
+  cacheMaxCapacity: Long)
 
 case class DirectoryConfiguration(
   data: String,
@@ -290,8 +296,14 @@ case class IndicatorsConfiguration(
   percentile2: Int)
 
 case class HttpConfiguration(
-  cacheELFileBodies: Boolean,
-  cacheRawFileBodies: Boolean,
+  elFileBodiesCacheMaxCapacity: Long,
+  rawFileBodiesCacheMaxCapacity: Long,
+  fetchedCssCacheMaxCapacity: Long,
+  fetchedHtmlCacheMaxCapacity: Long,
+  redirectPerUserCacheMaxCapacity: Long,
+  expirePerUserCacheMaxCapacity: Long,
+  lastModifiedPerUserCacheMaxCapacity: Long,
+  etagPerUserCacheMaxCapacity: Long,
   warmUpUrl: Option[String],
   ssl: SslConfiguration,
   ahc: AHCConfiguration)

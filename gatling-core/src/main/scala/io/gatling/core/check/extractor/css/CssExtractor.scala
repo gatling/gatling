@@ -17,8 +17,9 @@ package io.gatling.core.check.extractor.css
 
 import java.util.{ List => JList }
 
-import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaConcurrentMap }
-import scala.collection.concurrent
+import io.gatling.core.util.CacheHelper
+
+import scala.collection.JavaConversions.asScalaBuffer
 
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -27,7 +28,6 @@ import jodd.csselly.{ CSSelly, CssSelector }
 import jodd.lagarto.dom.NodeSelector
 import jodd.log.LoggerFactory
 import jodd.log.impl.Slf4jLoggerFactory
-import jsr166e.ConcurrentHashMapV8
 
 object CssExtractor {
 
@@ -35,10 +35,10 @@ object CssExtractor {
 
   val DomBuilder = Jodd.newLagartoDomBuilder
 
-  val Cache: concurrent.Map[String, JList[JList[CssSelector]]] = new ConcurrentHashMapV8[String, JList[JList[CssSelector]]]
+  lazy val Cache = CacheHelper.newCache[String, JList[JList[CssSelector]]](configuration.core.extract.css.cacheMaxCapacity)
 
   def cached(query: String) =
-    if (configuration.core.extract.css.cache) Cache.getOrElseUpdate(query, CSSelly.parse(query))
+    if (configuration.core.extract.css.cacheMaxCapacity > 0) Cache.getOrElseUpdate(query, CSSelly.parse(query))
     else CSSelly.parse(query)
 
   def parse(chars: Array[Char]) = new NodeSelector(DomBuilder.parse(chars))

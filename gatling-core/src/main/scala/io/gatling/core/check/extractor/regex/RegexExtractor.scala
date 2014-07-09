@@ -17,20 +17,18 @@ package io.gatling.core.check.extractor.regex
 
 import java.util.regex.Pattern
 
-import scala.collection.JavaConversions.mapAsScalaConcurrentMap
-import scala.collection.concurrent
+import io.gatling.core.util.CacheHelper
 
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
-import jsr166e.ConcurrentHashMapV8
 
 object RegexExtractor {
 
-  val Cache: concurrent.Map[String, Pattern] = new ConcurrentHashMapV8[String, Pattern]
+  lazy val Cache = CacheHelper.newCache[String, Pattern](configuration.core.extract.regex.cacheMaxCapacity)
 
   def cached(pattern: String) =
-    if (configuration.core.extract.regex.cache) Cache.getOrElseUpdate(pattern, Pattern.compile(pattern))
+    if (configuration.core.extract.regex.cacheMaxCapacity > 0) Cache.getOrElseUpdate(pattern, Pattern.compile(pattern))
     else Pattern.compile(pattern)
 
   def extractAll[X: GroupExtractor](chars: CharSequence, pattern: String): Seq[X] = {

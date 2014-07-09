@@ -15,21 +15,19 @@
  */
 package io.gatling.core.check.extractor.jsonpath
 
-import scala.collection.JavaConversions.mapAsScalaConcurrentMap
-import scala.collection.concurrent
+import io.gatling.core.util.CacheHelper
 
 import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.jsonpath.JsonPath
-import jsr166e.ConcurrentHashMapV8
 
 object JsonPathExtractor {
 
-  val Cache: concurrent.Map[String, Validation[JsonPath]] = new ConcurrentHashMapV8[String, Validation[JsonPath]]
+  lazy val Cache = CacheHelper.newCache[String, Validation[JsonPath]](configuration.core.extract.jsonPath.cacheMaxCapacity)
 
   def cached(expression: String): Validation[JsonPath] =
-    if (configuration.core.extract.jsonPath.cache) Cache.getOrElseUpdate(expression, compile(expression))
+    if (configuration.core.extract.jsonPath.cacheMaxCapacity > 0) Cache.getOrElseUpdate(expression, compile(expression))
     else compile(expression)
 
   def compile(expression: String): Validation[JsonPath] = JsonPath.compile(expression) match {

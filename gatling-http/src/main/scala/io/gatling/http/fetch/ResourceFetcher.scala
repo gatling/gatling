@@ -18,17 +18,18 @@ package io.gatling.http.fetch
 import java.net.URI
 
 import com.ning.http.client.Request
+import io.gatling.core.util.CacheHelper
 import io.gatling.http.request._
 import io.gatling.http.util.HttpHelper._
 
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 import scala.collection.breakOut
-import scala.collection.concurrent
 import scala.collection.mutable
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.akka.BaseActor
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.filter.Filters
 import io.gatling.core.result.message.{ OK, Status }
 import io.gatling.core.session._
@@ -40,7 +41,6 @@ import io.gatling.http.ahc.HttpTx
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response._
-import jsr166e.ConcurrentHashMapV8
 
 sealed trait ResourceFetched {
   def uri: URI
@@ -56,8 +56,8 @@ object ResourceFetcher extends StrictLogging {
 
   // FIXME should CssContentCache use the same key?
   case class InferredResourcesCacheKey(protocol: HttpProtocol, uri: URI)
-  val CssContentCache: concurrent.Map[String, List[EmbeddedResource]] = new ConcurrentHashMapV8[String, List[EmbeddedResource]]
-  val InferredResourcesCache: concurrent.Map[InferredResourcesCacheKey, InferredPageResources] = new ConcurrentHashMapV8[InferredResourcesCacheKey, InferredPageResources]
+  val CssContentCache = CacheHelper.newCache[String, List[EmbeddedResource]](configuration.http.fetchedCssCacheMaxCapacity)
+  val InferredResourcesCache = CacheHelper.newCache[InferredResourcesCacheKey, InferredPageResources](configuration.http.fetchedHtmlCacheMaxCapacity)
 
   private def applyResourceFilters(resources: List[EmbeddedResource], filters: Option[Filters]): List[EmbeddedResource] =
     filters match {
