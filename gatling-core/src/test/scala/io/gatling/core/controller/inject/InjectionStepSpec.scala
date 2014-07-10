@@ -186,6 +186,32 @@ class InjectionStepSpec extends Specification {
     }
   }
 
+  "Poisson injection" should {
+    "inject constant users at approximately the right rate" in {
+      // Inject 1000 users per second for 60 seconds
+      val inject = PoissonInjection(60 seconds, 1000.0, 1000.0, seed = 0L) // Seed with 0, to ensure tests are deterministic
+      val scheduling = inject.chain(Iterator(0.seconds)).toVector // Chain to an injector with a zero timer
+      scheduling.size must beEqualTo(inject.users + 1)
+      scheduling.size must beCloseTo(60001, 200) // 60000 for the users injected by PoissonInjection, plus the 0 second one
+      scheduling.last must beEqualTo(60 seconds)
+      scheduling(scheduling.size - 2).toMillis must beCloseTo(60000L, 5L)
+      scheduling.head.toMillis must beCloseTo(0L, 5L)
+      scheduling(30000).toMillis must beCloseTo(30000L, 1000L) // Half-way through we should have injected half of the users
+    }
+
+    "inject ramped users at approximately the right rate" in {
+      // ramp from 0 to 1000 users per second over 60 seconds
+      val inject = PoissonInjection(60.seconds, 0.0, 1000.0, seed = 0L) // Seed with 0, to ensure tests are deterministic
+      val scheduling = inject.chain(Iterator(0.seconds)).toVector // Chain to an injector with a zero timer
+      scheduling.size must beEqualTo(inject.users + 1)
+      scheduling.size must beCloseTo(30001, 500) // 30000 for the users injected by PoissonInjection, plus the 0 second one
+      scheduling.last must beEqualTo(60 seconds)
+      scheduling(scheduling.size - 2).toMillis must beCloseTo(60000L, 5L)
+      scheduling.head.toMillis must beCloseTo(0L, 200L)
+      scheduling(7500).toMillis must beCloseTo(30000L, 1000L) // Half-way through ramp-up we should have run a quarter of users
+    }
+  }
+
   // Deactivate Specs2 implicit to be able to use the ones provided in scala.concurrent.duration
   override def intToRichLong(v: Int) = super.intToRichLong(v)
 }
