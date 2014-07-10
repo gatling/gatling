@@ -48,8 +48,8 @@ class HttpRequestWithParamsBuilder(
 
   def formParam(key: Expression[String], value: Expression[Any]): HttpRequestWithParamsBuilder = formParam(SimpleParam(key, value))
   def multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestWithParamsBuilder = formParam(MultivaluedParam(key, values))
-  def formParamsSeq(seq: Expression[Seq[(String, Any)]]): HttpRequestWithParamsBuilder = formParam(ParamSeq(seq))
-  def formParamsMap(map: Expression[Map[String, Any]]): HttpRequestWithParamsBuilder = formParam(ParamMap(map))
+  def formParamSeq(seq: Expression[Seq[(String, Any)]]): HttpRequestWithParamsBuilder = formParam(ParamSeq(seq))
+  def formParamMap(map: Expression[Map[String, Any]]): HttpRequestWithParamsBuilder = formParam(ParamMap(map))
   private def formParam(formParam: HttpParam): HttpRequestWithParamsBuilder = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, formParam :: formParams)
 
   def formUpload(name: Expression[String], filePath: Expression[String]) = {

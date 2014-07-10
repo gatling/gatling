@@ -110,21 +110,21 @@ If you'd like to pass multiple values for your parameter, but all at once, you c
 
 If you want to add multiple query parameters at once, there are two suitable methods:
 
-* ``queryParamsSeq(seq: Expression[Seq[(String, Any)]])``
+* ``queryParamSeq(seq: Expression[Seq[(String, Any)]])``
 
 ::
 
   http("Getting issues")
     .get("https://github.com/excilys/gatling/issues")
-    .queryParamsSeq(Seq(("milestone", "1"), ("state", "open")))
+    .queryParamSeq(Seq(("milestone", "1"), ("state", "open")))
 
-* ``queryParamsMap(map: Expression[Map[String, Any]])``
+* ``queryParamMap(map: Expression[Map[String, Any]])``
 
 ::
 
   http("Getting issues")
     .get("https://github.com/excilys/gatling/issues")
-    .queryParamsMap(Map("milestone" -> "1", "state" -> "open"))
+    .queryParamMap(Map("milestone" -> "1", "state" -> "open"))
 
 .. note:: As all method parameters are ``Expression[T]``, i.e. 'key' parameter is an ``Expression[String]`` and so on, if you have more specific needs you can also provide an arbitrary ``Expression[T]``, i.e. a ``Session => Validation[T]`` function.
           This function will be evaluated against the user session every time this one pass through it.
@@ -402,36 +402,36 @@ POST Parameters
 POST requests can have parameters defined in their body.
 This is typically used for form submission, where all the values are stored as POST parameters in the body of the request.
 
-To add such parameters to a POST request, you must use the method ``param(key: Expression[String], value: Expression[Any])`` which is actually the same as ``queryParam`` in **terms of usage** (it has the same signatures).
+To add such parameters to a POST request, you must use the method ``formParam(key: Expression[String], value: Expression[Any])`` which is actually the same as ``queryParam`` in **terms of usage** (it has the same signatures).
 
 ::
 
 	http("My Form Data").post("my.form-action.uri")
-	  .param("myKey", "myValue")
+	  .formParam("myKey", "myValue")
 
 As for ``queryParam`` you have two methods to add multiple parameters at once:
 
-* ``paramsSeq(seq: Expression[Seq[(String, Any)]])``
+* ``paramSeq(seq: Expression[Seq[(String, Any)]])``
 
 ::
 
   http("My Form Data").post("my.form-action.uri")``
-    .paramsSeq(Seq(("myKey", "myValue"), ("anotherKey", "anotherValue")))
+    .formParamSeq(Seq(("myKey", "myValue"), ("anotherKey", "anotherValue")))
 
-* ``paramsMap(map: Expression[Map[String, Any]])``
+* ``paramMap(map: Expression[Map[String, Any]])``
 
 ::
 
   http("My Form Data").post("my.form-action.uri")
-    .paramsMap(Map("myKey" -> "myValue", "anotherKey" -> "anotherValue"))
+    .formParamMap(Map("myKey" -> "myValue", "anotherKey" -> "anotherValue"))
 
 If you'd like to pass multiple values for your parameter, but all at once, you can use ``multivaluedParam(key: Expression[String], values: Expression[Seq[Any]])``::
 
-	multiValuedParam("omg", "${foo}")) // where foo is the name of a Seq Session attribute
-	multiValuedParam("omg", List("foo", "bar")))
-	multiValuedParam("omg", session => List("foo", "bar")))
+	multiValuedFormParam("omg", "${foo}")) // where foo is the name of a Seq Session attribute
+	multiValuedFormParam("omg", List("foo", "bar")))
+	multiValuedFormParam("omg", session => List("foo", "bar")))
 
-The method ``param`` can also take directly an `HttpParam` instance, if you want to build it by hand.
+The method ``formParam`` can also take directly an `HttpParam` instance, if you want to build it by hand.
 
 .. _http-multipart-form:
 
@@ -448,7 +448,7 @@ One can call ``formUpload()`` multiple times in order to upload multiple files.
 ::
 
 	http("My Multipart Request").post("my.form-action.uri")
-	  .param("myKey", "myValue")
+	  .formParam("myKey", "myValue")
 	  .formUpload("myKey2", "myAttachment.txt")
 
 .. note:: The MIME Type of the uploaded file defaults to ``application/octet-stream`` and the character set defaults to the one configured in ``gatling.conf`` (``UTF-8`` by default).
