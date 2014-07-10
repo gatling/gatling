@@ -15,7 +15,8 @@
  */
 package io.gatling.http.cache
 
-import java.net.URI
+import com.ning.http.client.uri.UriComponents
+
 import scala.annotation.tailrec
 import io.gatling.core.session.Session
 import io.gatling.http.ahc.HttpTx
@@ -25,15 +26,15 @@ import com.ning.http.client.{ Request, RequestBuilder }
  * @author Ivan Mushketyk
  */
 object PermanentRedirect {
-  def addRedirect(session: Session, from: URI, to: URI): Session = {
+  def addRedirect(session: Session, from: UriComponents, to: UriComponents): Session = {
     val redirectStorage = CacheHandling.getRedirectMemoizationStore(session)
-    session.set(CacheHandling.HttpRedirectMemoizationStoreAttributeName, redirectStorage + (from.toString -> to))
+    session.set(CacheHandling.HttpRedirectMemoizationStoreAttributeName, redirectStorage + (from -> to))
   }
 
-  private def permanentRedirect(session: Session, uri: URI): Option[(URI, Int)] = {
-      @tailrec def permanentRedirect1(from: URI, redirectCount: Int): Option[(URI, Int)] = {
+  private def permanentRedirect(session: Session, uri: UriComponents): Option[(UriComponents, Int)] = {
+      @tailrec def permanentRedirect1(from: UriComponents, redirectCount: Int): Option[(UriComponents, Int)] = {
         val redirectMap = CacheHandling.getRedirectMemoizationStore(session)
-        redirectMap.get(from.toString) match {
+        redirectMap.get(from) match {
           case Some(toUri) =>
             permanentRedirect1(toUri, redirectCount + 1)
 
@@ -48,14 +49,14 @@ object PermanentRedirect {
     permanentRedirect1(uri, 0)
   }
 
-  private def redirectTransaction(origTx: HttpTx, uri: URI, additionalRedirects: Int): HttpTx = {
+  private def redirectTransaction(origTx: HttpTx, uri: UriComponents, additionalRedirects: Int): HttpTx = {
     val newAhcRequest = redirectRequest(origTx.request.ahcRequest, uri)
     val newRequest = origTx.request.copy(ahcRequest = newAhcRequest)
     val newRedirectCount = origTx.redirectCount + additionalRedirects
     origTx.copy(request = newRequest, redirectCount = newRedirectCount)
   }
 
-  private def redirectRequest(request: Request, toUri: URI): Request = {
+  private def redirectRequest(request: Request, toUri: UriComponents): Request = {
     val requestBuilder = new RequestBuilder(request)
     requestBuilder.setURI(toUri)
     requestBuilder.build()

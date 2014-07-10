@@ -15,8 +15,7 @@
  */
 package io.gatling.http.request.builder
 
-import java.net.URI
-
+import com.ning.http.client.uri.UriComponents
 import com.ning.http.client.{ Request, RequestBuilderBase, SignatureCalculator }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.validation.Success
@@ -32,7 +31,7 @@ class HttpRequestBuilderSpec extends Specification with Mockito {
   // Default config
   GatlingConfiguration.setUp()
 
-  def mockComonAttributes() = CommonAttributes(_ => Success("attributes"), "method", Right(new URI("http://gatling-tool.org")))
+  def mockComonAttributes() = CommonAttributes(_ => Success("attributes"), "method", Right(UriComponents.create("http://gatling-tool.org")))
 
   "request builder" should {
     "set signature calculator object" in {
@@ -46,18 +45,17 @@ class HttpRequestBuilderSpec extends Specification with Mockito {
 
     "set signature calculator function" in {
       var builder = new HttpRequestBuilder(mockComonAttributes(), HttpAttributes())
-      val sigCalcFunc = mock[Function3[String, Request, RequestBuilderBase[_], Unit]]
+      val sigCalcFunc = mock[Function2[Request, RequestBuilderBase[_], Unit]]
       builder = builder.signatureCalculator(sigCalcFunc)
 
       val httpRequest = builder.build(HttpProtocol.DefaultHttpProtocol, false)
       val sigCalc = httpRequest.signatureCalculator.get
 
-      val mockUrl = "mockUrl"
       val mockRequest = mock[Request]
       val mockRequestBuilder = mock[RequestBuilderBase[_]]
 
-      sigCalc.calculateAndAddSignature(mockUrl, mockRequest, mockRequestBuilder)
-      there was one(sigCalcFunc).apply(mockUrl, mockRequest, mockRequestBuilder)
+      sigCalc.calculateAndAddSignature(mockRequest, mockRequestBuilder)
+      there was one(sigCalcFunc).apply(mockRequest, mockRequestBuilder)
     }
   }
 }

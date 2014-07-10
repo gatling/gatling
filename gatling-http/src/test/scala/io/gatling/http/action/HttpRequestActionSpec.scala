@@ -15,8 +15,7 @@
  */
 package io.gatling.http.action
 
-import java.net.URI
-
+import com.ning.http.client.uri.UriComponents
 import io.gatling.core.session._
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
 import io.gatling.http.cache.PermanentRedirect
@@ -39,7 +38,7 @@ class HttpRequestActionSpec extends Specification with Mockito {
     var session = Session("mockSession", "mockUserName")
 
     def addRedirect(from: String, to: String): Unit =
-      session = PermanentRedirect.addRedirect(session, new URI(from), new URI(to))
+      session = PermanentRedirect.addRedirect(session, UriComponents.create(from), UriComponents.create(to))
 
     def before(): Unit = {}
   }
@@ -60,7 +59,7 @@ class HttpRequestActionSpec extends Specification with Mockito {
       there was one(httpEngineMock).startHttpTransaction(argumentCapture)
       val actualTx = argumentCapture.value
 
-      actualTx.request.ahcRequest.getURI should be equalTo new URI("http://gatling-tool.org/")
+      actualTx.request.ahcRequest.getURI should be equalTo UriComponents.create("http://gatling-tool.org/")
       actualTx.redirectCount should be equalTo 1
     }
   }

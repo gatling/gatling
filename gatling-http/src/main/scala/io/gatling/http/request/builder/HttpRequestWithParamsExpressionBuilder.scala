@@ -30,8 +30,8 @@ class HttpRequestWithParamsExpressionBuilder(commonAttributes: CommonAttributes,
       def configureAsParams: Validation[AHCRequestBuilder] = params match {
         case Nil => requestBuilder.success
         case _ =>
-          // As a side effect, requestBuilder.setParameters() resets the body data, so, it should not be called with empty parameters 
-          params.resolveFluentStringsMap(session).map(requestBuilder.setParameters)
+          // As a side effect, requestBuilder.setFormParams() resets the body data, so, it should not be called with empty parameters
+          params.resolveParamJList(session).map(requestBuilder.setFormParams)
       }
 
       def configureAsStringParts: Validation[AHCRequestBuilder] =

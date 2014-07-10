@@ -15,6 +15,7 @@
  */
 package io.gatling.http.cache
 
+import com.ning.http.client.uri.UriComponents
 import io.gatling.core.config.GatlingConfiguration
 import org.junit.runner.RunWith
 
@@ -24,8 +25,6 @@ import org.specs2.mutable.{ Before, Specification }
 
 import io.gatling.core.session.Session
 import io.gatling.http.MockUtils
-
-import java.net.URI
 
 /**
  * @author Ivan Mushketyk
@@ -37,7 +36,7 @@ class PermanentRedirectSpec extends Specification with Mockito {
     var session = Session("mockSession", "mockUserName")
 
     def addRedirect(from: String, to: String): Unit =
-      session = PermanentRedirect.addRedirect(session, new URI(from), new URI(to))
+      session = PermanentRedirect.addRedirect(session, UriComponents.create(from), UriComponents.create(to))
 
     def before(): Unit = {
       GatlingConfiguration.setUp()
@@ -61,7 +60,7 @@ class PermanentRedirectSpec extends Specification with Mockito {
       val origTx = MockUtils.txTo("http://example.com/", session)
       val tx = PermanentRedirect.getRedirect(origTx)
 
-      tx.request.ahcRequest.getURI should be equalTo new URI("http://gatling-tool.org/")
+      tx.request.ahcRequest.getURI should be equalTo UriComponents.create("http://gatling-tool.org/")
       tx.redirectCount should be equalTo 1
 
     }
@@ -74,7 +73,7 @@ class PermanentRedirectSpec extends Specification with Mockito {
       val origTx = MockUtils.txTo("http://example.com/", session)
       val tx = PermanentRedirect.getRedirect(origTx)
 
-      tx.request.ahcRequest.getURI should be equalTo new URI("http://gatling-tool3.org/")
+      tx.request.ahcRequest.getURI should be equalTo UriComponents.create("http://gatling-tool3.org/")
       tx.redirectCount should be equalTo 3
 
     }
@@ -88,7 +87,7 @@ class PermanentRedirectSpec extends Specification with Mockito {
       val origTx = MockUtils.txTo("http://example.com/", session, 2)
       val tx = PermanentRedirect.getRedirect(origTx)
 
-      tx.request.ahcRequest.getURI should be equalTo new URI("http://gatling-tool3.org/")
+      tx.request.ahcRequest.getURI should be equalTo UriComponents.create("http://gatling-tool3.org/")
       // After 3 more redirects it is now equal to 5
       tx.redirectCount should be equalTo 5
     }

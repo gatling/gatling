@@ -175,8 +175,7 @@ This can only happen after Gatling has resolved the request, e.g. computed the b
 Gatling exposes the AsyncHttpClient ``SignatureCalculator`` API::
 
   public interface SignatureCalculator {
-    void calculateAndAddSignature(String url,
-                                  Request request,
+    void calculateAndAddSignature(Request request,
                                   RequestBuilderBase<?> requestBuilder);
   }
 
@@ -189,7 +188,7 @@ There's 2 ways to set a SignatureCalculator on a request::
   .signatureCalculator(calculator: SignatureCalculator)
 
   // use this signature is you want to directly pass a function instead of a SignatureCalculator
-  .signatureCalculator(calculator: (String, Request, RequestBuilderBase[_]) => Unit)
+  .signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit)
 
 .. _http-request-authentication:
 

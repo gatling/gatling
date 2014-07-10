@@ -15,12 +15,11 @@
  */
 package io.gatling.http.ahc
 
-import java.net.URI
-
+import com.ning.http.client.uri.UriComponents
 import io.gatling.core.session.Session
 import com.ning.http.client.{ ConnectionPoolKeyStrategy => AHCConnectionPoolKeyStrategy, DefaultConnectionPoolStrategy }
 
 class ConnectionPoolKeyStrategy(session: Session) extends AHCConnectionPoolKeyStrategy {
 
-  def getKey(uri: URI): String = session.userId + DefaultConnectionPoolStrategy.INSTANCE.getKey(uri)
+  def getKey(uri: UriComponents): String = session.userId + DefaultConnectionPoolStrategy.INSTANCE.getKey(uri)
 }

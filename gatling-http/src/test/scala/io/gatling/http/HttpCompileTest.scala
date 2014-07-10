@@ -83,9 +83,9 @@ class HttpCompileTest extends Simulation {
     }
     .group("C'est ici qu'on trouve des Poneys") {
       exec(http("Catégorie Poney").post("/")
-        .param("baz", "${qix}")
-        .multivaluedParam("foo", Seq("bar")))
-        .exec(http("Catégorie Poney").post("/").multivaluedParam("foo", "${bar}"))
+        .formParam("baz", "${qix}")
+        .multivaluedFormParam("foo", Seq("bar")))
+        .exec(http("Catégorie Poney").post("/").multivaluedFormParam("foo", "${bar}"))
         .exec(http("Catégorie Poney").get("/").queryParam("omg", "foo"))
         .exec(http("Catégorie Poney").get("/").queryParam("omg", "${foo}"))
         .exec(http("Catégorie Poney").get("/").queryParam("omg", session => "foo"))
@@ -95,7 +95,7 @@ class HttpCompileTest extends Simulation {
     }
     .exec(http("Catégorie Poney").get("/")
       .resources(
-        http("Catégorie Poney").post("/").multivaluedParam("foo", "${bar}"),
+        http("Catégorie Poney").post("/").multivaluedFormParam("foo", "${bar}"),
         http("Catégorie Poney").get("/").queryParam("omg", "foo"),
         http("Catégorie Poney").get("/").queryParam("omg", "${foo}"),
         http("Catégorie Poney").get("/").queryParam("omg", session => "foo")))

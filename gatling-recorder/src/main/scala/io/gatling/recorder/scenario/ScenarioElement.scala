@@ -15,9 +15,9 @@
  */
 package io.gatling.recorder.scenario
 
-import java.net.URI
 import java.nio.charset.Charset
 
+import com.ning.http.client.uri.UriComponents
 import io.gatling.http.HeaderNames._
 import io.gatling.http.HeaderValues._
 
@@ -72,7 +72,7 @@ object RequestElement {
         extractContent(response).map(bytes => {
           val htmlBuff = new String(bytes, charset).toCharArray
           val userAgent = requestHeaders.get(UserAgent).flatMap(io.gatling.http.fetch.UserAgent.parseFromHeader)
-          new HtmlParser().getEmbeddedResources(new URI(request.getUri), htmlBuff, userAgent)
+          new HtmlParser().getEmbeddedResources(UriComponents.create(request.getUri), htmlBuff, userAgent)
         })
     }.flatten.getOrElse(Nil)
 

@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.scenario
 
-import java.net.URI
+import com.ning.http.client.uri.UriComponents
 
 import scala.concurrent.duration.DurationInt
 
@@ -52,11 +52,11 @@ class ScenarioSpec extends Specification {
 
     "filter out embedded resources of HTML documents" in {
       val r1 = RequestElement("http://gatling.io", "GET", Map.empty, None, 200,
-        List(CssResource(new URI("http://gatling.io/main.css")), RegularResource(new URI("http://gatling.io/img.jpg"))))
+        List(CssResource(UriComponents.create("http://gatling.io/main.css")), RegularResource(UriComponents.create("http://gatling.io/img.jpg"))))
       val r2 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
       val r3 = RequestElement("http://gatling.io/details.html", "GET", Map(CONTENT_TYPE -> "text/html;charset=UTF-8"), None, 200, List.empty)
       val r4 = RequestElement("http://gatling.io/img.jpg", "GET", Map.empty, None, 200, List.empty)
-      val r5 = RequestElement("http://gatling.io", "GET", Map.empty, None, 200, List(CssResource(new URI("http://gatling.io/main.css"))))
+      val r5 = RequestElement("http://gatling.io", "GET", Map.empty, None, 200, List(CssResource(UriComponents.create("http://gatling.io/main.css"))))
       val r6 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
 
       val scn = ScenarioDefinition(

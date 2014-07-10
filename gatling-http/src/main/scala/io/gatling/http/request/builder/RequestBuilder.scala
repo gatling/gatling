@@ -15,9 +15,10 @@
  */
 package io.gatling.http.request.builder
 
-import java.net.{ InetAddress, URI }
+import java.net.InetAddress
 
 import com.ning.http.client._
+import com.ning.http.client.uri.UriComponents
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
@@ -32,8 +33,8 @@ import io.gatling.http.util.HttpHelper
 case class CommonAttributes(
   requestName: Expression[String],
   method: String,
-  urlOrURI: Either[Expression[String], URI],
-  useRawUrl: Option[Boolean] = None,
+  urlOrURI: Either[Expression[String], UriComponents],
+  disableUrlEncoding: Option[Boolean] = None,
   queryParams: List[HttpParam] = Nil,
   headers: Map[String, Expression[String]] = Map.empty,
   realm: Option[Expression[Realm]] = None,
@@ -110,12 +111,12 @@ abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: Comm
 
   def address(address: InetAddress): B = newInstance(commonAttributes.copy(address = Some(address)))
 
-  def useRawUrl: B = newInstance(commonAttributes.copy(useRawUrl = Some(true)))
+  def disableUrlEncoding: B = newInstance(commonAttributes.copy(disableUrlEncoding = Some(true)))
 
   def proxy(httpProxy: Proxy): B = newInstance(commonAttributes.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
 
   def signatureCalculator(calculator: SignatureCalculator): B = newInstance(commonAttributes.copy(signatureCalculator = Some(calculator)))
-  def signatureCalculator(calculator: (String, Request, RequestBuilderBase[_]) => Unit): B = signatureCalculator(new SignatureCalculator {
-    def calculateAndAddSignature(url: String, request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(url, request, requestBuilder)
+  def signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit): B = signatureCalculator(new SignatureCalculator {
+    def calculateAndAddSignature(request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(request, requestBuilder)
   })
 }

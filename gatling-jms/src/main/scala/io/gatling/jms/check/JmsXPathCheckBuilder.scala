@@ -15,17 +15,16 @@
  */
 package io.gatling.jms.check
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import java.io.StringReader
+import javax.jms.{ TextMessage, Message }
 
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.xpath.{ CountXPathExtractor, MultipleXPathExtractor, SingleXPathExtractor, XPathExtractor }
 import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
-import net.sf.saxon.s9api.XdmNode
-import javax.jms.{ TextMessage, Message }
-import scala.Some
 import io.gatling.jms.JmsCheck
-import java.io.StringReader
+import net.sf.saxon.s9api.XdmNode
 
 object JmsXPathCheckBuilder extends StrictLogging {
 

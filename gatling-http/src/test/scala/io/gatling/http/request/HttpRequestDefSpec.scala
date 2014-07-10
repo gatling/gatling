@@ -15,6 +15,7 @@
  */
 package io.gatling.http.request
 
+import com.ning.http.client.uri.UriComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.config.{ HttpProtocolBuilder, HttpProtocol }
 import io.gatling.core.session._
@@ -27,8 +28,6 @@ import org.specs2.mutable.{ Before, Specification }
 import org.specs2.mock.Mockito
 
 import com.ning.http.client.Request
-
-import java.net.URI
 
 /**
  * @author Ivan Mushketyk
@@ -43,7 +42,7 @@ class HttpRequestDefSpec extends Specification with Mockito {
     var session = Session("mockSession", "mockUserName")
 
     def addRedirect(from: String, to: String): Unit =
-      session = PermanentRedirect.addRedirect(session, new URI(from), new URI(to))
+      session = PermanentRedirect.addRedirect(session, UriComponents.create(from), UriComponents.create(to))
 
     def before(): Unit = {}
   }
@@ -63,7 +62,7 @@ class HttpRequestDefSpec extends Specification with Mockito {
         explicitResources = Nil)
 
       val ahcRequest = mock[Request]
-      ahcRequest.getURI returns new URI("http://example.com/")
+      ahcRequest.getURI returns UriComponents.create("http://example.com/")
 
       val httpRequestDef = HttpRequestDef("foo".expression, ahcRequest.expression, None, config)
       val httpRequest = httpRequestDef.build(session)
@@ -84,7 +83,7 @@ class HttpRequestDefSpec extends Specification with Mockito {
         explicitResources = Nil)
 
       val ahcRequest = mock[Request]
-      ahcRequest.getURI returns new URI("http://example.com/")
+      ahcRequest.getURI returns UriComponents.create("http://example.com/")
 
       val httpRequestDef = HttpRequestDef("foo".expression, ahcRequest.expression, None, config)
       val httpRequest = httpRequestDef.build(session)
@@ -94,7 +93,7 @@ class HttpRequestDefSpec extends Specification with Mockito {
 
     "build non-silent HttpRequest when passed a non-silent protocol" in new Context {
       val ahcRequest = mock[Request]
-      ahcRequest.getURI returns new URI("http://example.com/test.js")
+      ahcRequest.getURI returns UriComponents.create("http://example.com/test.js")
 
       val protocol = new HttpProtocolBuilder(HttpProtocol.DefaultHttpProtocol).silentURI(".*js")
       val config = HttpRequestConfig(

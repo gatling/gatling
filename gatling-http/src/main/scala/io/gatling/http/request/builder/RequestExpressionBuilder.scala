@@ -15,7 +15,7 @@
  */
 package io.gatling.http.request.builder
 
-import java.net.URI
+import com.ning.http.client.uri.UriComponents
 import com.ning.http.client.{ Request, RequestBuilder => AHCRequestBuilder }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -32,11 +32,11 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
 
   def makeAbsolute(url: String): Validation[String]
 
-  def buildURI(session: Session): Validation[URI] = {
+  def buildURI(session: Session): Validation[UriComponents] = {
 
-      def createURI(url: String): Validation[URI] =
+      def createURI(url: String): Validation[UriComponents] =
         try
-          URI.create(url).success
+          UriComponents.create(url).success
         catch {
           case e: Exception => s"url $url can't be parsed into a URI: ${e.getMessage}".failure
         }
@@ -47,7 +47,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
     }
   }
 
-  def configureProxy(uri: URI)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+  def configureProxy(uri: UriComponents)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
     if (!protocol.proxyPart.proxyExceptions.contains(uri.getHost)) {
       if (HttpHelper.isSecure(uri))
         commonAttributes.secureProxy.orElse(protocol.proxyPart.secureProxy).foreach(requestBuilder.setProxyServer)
@@ -57,15 +57,15 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
     requestBuilder.success
   }
 
-  def configureCookies(session: Session, uri: URI)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+  def configureCookies(session: Session, uri: UriComponents)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
     CookieHandling.getStoredCookies(session, uri).foreach(requestBuilder.addCookie)
     requestBuilder.success
   }
 
-  def configureQuery(session: Session, uri: URI)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+  def configureQuery(session: Session, uri: UriComponents)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
 
     if (commonAttributes.queryParams.nonEmpty)
-      commonAttributes.queryParams.resolveFluentStringsMap(session).map(requestBuilder.setQueryParameters(_).setURI(uri))
+      commonAttributes.queryParams.resolveParamJList(session).map(requestBuilder.setQueryParams(_).setURI(uri))
     else
       requestBuilder.setURI(uri).success
   }
@@ -106,7 +106,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
       case None        => requestBuilder.success
     }
 
-  protected def configureRequestBuilder(session: Session, uri: URI, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
+  protected def configureRequestBuilder(session: Session, uri: UriComponents, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
     configureProxy(uri)(requestBuilder)
       .flatMap(configureCookies(session, uri))
       .flatMap(configureQuery(session, uri))
@@ -116,8 +116,8 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
 
   def build: Expression[Request] =
     (session: Session) => {
-      val useRawUrl = commonAttributes.useRawUrl.getOrElse(configuration.http.ahc.useRawUrl)
-      val requestBuilder = new AHCRequestBuilder(commonAttributes.method, useRawUrl)
+      val disableUrlEscaping = commonAttributes.disableUrlEncoding.getOrElse(protocol.requestPart.disableUrlEscaping)
+      val requestBuilder = new AHCRequestBuilder(commonAttributes.method, disableUrlEscaping)
 
       requestBuilder.setBodyEncoding(configuration.core.encoding)
 

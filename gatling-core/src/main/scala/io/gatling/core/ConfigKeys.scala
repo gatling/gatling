@@ -115,9 +115,9 @@ object ConfigKeys {
       val MaxRetry = "gatling.http.ahc.maxRetry"
       val RequestTimeoutInMs = "gatling.http.ahc.requestTimeoutInMs"
       val UseProxyProperties = "gatling.http.ahc.useProxyProperties"
-      val UseRawUrl = "gatling.http.ahc.useRawUrl"
       val WebSocketIdleTimeoutInMs = "gatling.http.ahc.webSocketIdleTimeoutInMs"
       val UseRelativeURIsWithSSLProxies = "gatling.http.ahc.useRelativeURIsWithSSLProxies"
+      val AcceptAnyCertificate = "gatling.http.ahc.acceptAnyCertificate"
     }
   }
 

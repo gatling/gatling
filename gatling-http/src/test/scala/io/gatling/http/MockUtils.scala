@@ -15,14 +15,13 @@
  */
 package io.gatling.http
 
+import com.ning.http.client.uri.UriComponents
 import io.gatling.http.request.{ HttpRequestConfig, HttpRequest }
 import org.specs2.mock.Mockito
 
 import io.gatling.core.session.Session
 import io.gatling.http.config.{ HttpProtocolRequestPart, HttpProtocol }
 import io.gatling.http.ahc.HttpTx
-
-import java.net.URI
 
 import com.ning.http.client.Request
 
@@ -57,7 +56,7 @@ object MockUtils extends Mockito {
     protocol.requestPart returns requestPart
     requestPart.cache returns false
 
-    request.getURI returns new URI(uri)
+    request.getURI returns UriComponents.create(uri)
 
     tx
   }

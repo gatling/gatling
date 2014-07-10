@@ -17,12 +17,13 @@ package io.gatling.http.request
 
 import scala.annotation.tailrec
 import scala.collection.breakOut
-import scala.collection.JavaConversions.seqAsJavaList
 
-import com.ning.http.client.FluentStringsMap
+import com.ning.http.client.Param
 
 import io.gatling.core.session.Session
 import io.gatling.core.validation._
+
+import java.util.{ List => JList, ArrayList => JArrayList }
 
 package object builder {
 
@@ -61,50 +62,56 @@ package object builder {
         } yield newParams ::: resolvedParams
       }
 
-    def resolveFluentStringsMap(session: Session): Validation[FluentStringsMap] = {
+    def resolveParamJList(session: Session): Validation[JList[Param]] = {
 
-        def update(fsm: FluentStringsMap, param: HttpParam): Validation[FluentStringsMap] = param match {
+        def update(ahcParams: JList[Param], param: HttpParam): Validation[JList[Param]] = param match {
           case SimpleParam(key, value) =>
             for {
               key <- key(session)
               value <- value(session)
-            } yield fsm.add(key, value.toString)
+            } yield {
+              ahcParams.add(new Param(key, value.toString))
+              ahcParams
+            }
 
           case MultivaluedParam(key, values) =>
             for {
               key <- key(session)
               values <- values(session)
-            } yield fsm.add(key, values.map(_.toString))
+            } yield {
+              values.foreach(value => ahcParams.add(new Param(key, value.toString)))
+              ahcParams
+            }
 
           case ParamSeq(seq) =>
             for {
               seq <- seq(session)
             } yield {
-              seq.foreach { case (key, value) => fsm.add(key, value.toString) }
-              fsm
+              seq.foreach { case (key, value) => ahcParams.add(new Param(key, value.toString)) }
+              ahcParams
             }
 
           case ParamMap(map) =>
             for {
               map <- map(session)
             } yield {
-              map.foreach { case (key, value) => fsm.add(key, value.toString) }
-              fsm
+              map.foreach { case (key, value) => ahcParams.add(new Param(key, value.toString)) }
+              ahcParams
             }
         }
 
         @tailrec
-        def resolveFluentStringsMapRec(fsm: FluentStringsMap, currentParams: List[HttpParam]): Validation[FluentStringsMap] =
+        def resolveParamJList(ahcParams: JList[Param], currentParams: List[HttpParam]): Validation[JList[Param]] =
           currentParams match {
-            case Nil => fsm.success
+            case Nil => ahcParams.success
             case head :: tail =>
-              update(fsm, head) match {
-                case Success(newFsm) => resolveFluentStringsMapRec(newFsm, tail)
+              update(ahcParams, head) match {
+                case Success(newFsm) => resolveParamJList(newFsm, tail)
                 case f               => f
               }
           }
 
-      resolveFluentStringsMapRec(new FluentStringsMap, params)
+      resolveParamJList(new JArrayList[Param](params.size), params)
     }
   }
 }

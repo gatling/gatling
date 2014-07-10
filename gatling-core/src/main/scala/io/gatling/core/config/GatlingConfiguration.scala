@@ -81,7 +81,8 @@ object GatlingConfiguration extends StrictLogging {
           "gatling.http.ahc.provider",
           "gatling.http.ahc.requestCompressionLevel",
           "gatling.http.ahc.userAgent",
-          "gatling.http.ahc.rfc6265CookieEncoding").foreach(warnAboutRemovedProperty)
+          "gatling.http.ahc.rfc6265CookieEncoding",
+          "gatling.http.ahc.useRawUrl").foreach(warnAboutRemovedProperty)
       }
 
     val classLoader = getClass.getClassLoader
@@ -180,9 +181,9 @@ object GatlingConfiguration extends StrictLogging {
           maxRetry = config.getInt(http.ahc.MaxRetry),
           requestTimeOutInMs = config.getInt(http.ahc.RequestTimeoutInMs),
           useProxyProperties = config.getBoolean(http.ahc.UseProxyProperties),
-          useRawUrl = config.getBoolean(http.ahc.UseRawUrl),
           webSocketIdleTimeoutInMs = config.getInt(http.ahc.WebSocketIdleTimeoutInMs),
-          useRelativeURIsWithSSLProxies = config.getBoolean(http.ahc.UseRelativeURIsWithSSLProxies))),
+          useRelativeURIsWithSSLProxies = config.getBoolean(http.ahc.UseRelativeURIsWithSSLProxies),
+          acceptAnyCertificate = config.getBoolean(http.ahc.AcceptAnyCertificate))),
       data = DataConfiguration(
         dataWriterClasses = config.getString(data.Writers).toStringList.map {
           case "console"  => "io.gatling.core.result.writer.ConsoleDataWriter"
@@ -322,9 +323,9 @@ case class AHCConfiguration(
   maxRetry: Int,
   requestTimeOutInMs: Int,
   useProxyProperties: Boolean,
-  useRawUrl: Boolean,
   webSocketIdleTimeoutInMs: Int,
-  useRelativeURIsWithSSLProxies: Boolean)
+  useRelativeURIsWithSSLProxies: Boolean,
+  acceptAnyCertificate: Boolean)
 
 case class SslConfiguration(
   trustStore: Option[StoreConfiguration],

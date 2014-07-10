@@ -15,14 +15,15 @@
  */
 package io.gatling.http.util
 
-import java.net.{ URI, URLDecoder }
+import java.net.URLDecoder
+
+import com.ning.http.client.uri.UriComponents
 
 import scala.collection.breakOut
 import scala.io.Codec.UTF8
 
 import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, Realm }
 import com.ning.http.client.Realm.AuthScheme
-import com.ning.http.util.AsyncHttpProviderUtils
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.session.{ Expression, Session }
@@ -65,13 +66,13 @@ object HttpHelper extends StrictLogging {
   def isHtml(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.ContentType)).exists(ct => ct.contains(HeaderValues.TextHhtml) || ct.contains(HeaderValues.ApplicationXhtml))
   def isAjax(headers: FluentCaseInsensitiveStringsMap) = Option(headers.getFirstValue(HeaderNames.XRequestedWith)).exists(ct => ct.contains(HeaderValues.XmlHttpRequest))
 
-  def resolveFromURI(rootURI: URI, relative: String): URI =
+  def resolveFromURI(rootURI: UriComponents, relative: String): UriComponents =
     if (relative.startsWith("//"))
-      new URI(rootURI.getScheme + ":" + relative)
+      UriComponents.create(rootURI.getScheme + ":" + relative)
     else
-      AsyncHttpProviderUtils.getRedirectUri(rootURI, relative)
+      UriComponents.create(rootURI, relative)
 
-  def resolveFromURISilently(rootURI: URI, relative: String): Option[URI] =
+  def resolveFromURISilently(rootURI: UriComponents, relative: String): Option[UriComponents] =
     try {
       Some(resolveFromURI(rootURI, relative))
     } catch {
@@ -84,9 +85,8 @@ object HttpHelper extends StrictLogging {
   def isPermanentRedirect(statusCode: Int): Boolean = statusCode == 301 || statusCode == 308
   def isNotModified(statusCode: Int) = statusCode == 304
 
-  def isSecure(uri: URI) = uri.getScheme == HttpsScheme || uri.getScheme == WssScheme
+  def isSecure(uri: UriComponents) = uri.getScheme == HttpsScheme || uri.getScheme == WssScheme
 
   def isAbsoluteHttpUrl(url: String) = url.startsWith(HttpScheme)
   def isAbsoluteWsUrl(url: String) = url.startsWith(WsScheme)
 }
-

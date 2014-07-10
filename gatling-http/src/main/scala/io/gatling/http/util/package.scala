@@ -20,7 +20,7 @@ import java.util.{ List => JList, Map => JMap }
 
 import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet, collectionAsScalaIterable }
 
-import com.ning.http.client.Request
+import com.ning.http.client.{ Param, Request }
 import com.ning.http.multipart._
 
 import io.gatling.core.util.StringHelper.Eol
@@ -35,9 +35,14 @@ package object util {
         buff.append(entry.getKey).append(": ").append(entry.getValue).append(Eol)
       }
 
+    def appendParamJList(list: JList[Param]): JStringBuilder =
+      list.foldLeft(buff) { (buf, param) =>
+        buff.append(param.getName).append(": ").append(param.getValue).append(Eol)
+      }
+
     def appendAHCRequest(request: Request): JStringBuilder = {
 
-      buff.append(request.getMethod).append(" ").append(if (request.isUseRawUrl) request.getRawUrl else request.getUrl).append(Eol)
+      buff.append(request.getMethod).append(" ").append(request.getURI.toUrl).append(Eol)
 
       if (request.getHeaders != null && !request.getHeaders.isEmpty) {
         buff.append("headers=").append(Eol)
@@ -51,9 +56,9 @@ package object util {
         }
       }
 
-      if (request.getParams != null && !request.getParams.isEmpty) {
+      if (request.getFormParams != null && !request.getFormParams.isEmpty) {
         buff.append("params=").append(Eol)
-        buff.appendAHCStringsMap(request.getParams)
+        buff.appendParamJList(request.getFormParams)
       }
 
       if (request.getStringData != null) buff.append("stringData=").append(request.getStringData).append(Eol)

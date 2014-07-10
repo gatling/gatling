@@ -15,8 +15,7 @@
  */
 package io.gatling.http.fetch
 
-import java.net.{ URI, URISyntaxException }
-
+import com.ning.http.client.uri.UriComponents
 import io.gatling.core.check.extractor.css.Jodd
 import jodd.lagarto.dom.HtmlCCommentExpressionMatcher
 
@@ -29,17 +28,17 @@ import jodd.lagarto.{ TagUtil, TagType, EmptyTagVisitor, Tag }
 
 sealed abstract class RawResource {
   def rawUrl: String
-  def uri(rootURI: URI): Option[URI] = HttpHelper.resolveFromURISilently(rootURI, rawUrl)
-  def toEmbeddedResource(rootURI: URI): Option[EmbeddedResource]
+  def uri(rootURI: UriComponents): Option[UriComponents] = HttpHelper.resolveFromURISilently(rootURI, rawUrl)
+  def toEmbeddedResource(rootURI: UriComponents): Option[EmbeddedResource]
 }
 case class CssRawResource(rawUrl: String) extends RawResource {
-  def toEmbeddedResource(rootURI: URI): Option[EmbeddedResource] = uri(rootURI).map(CssResource)
+  def toEmbeddedResource(rootURI: UriComponents): Option[EmbeddedResource] = uri(rootURI).map(CssResource)
 }
 case class RegularRawResource(rawUrl: String) extends RawResource {
-  def toEmbeddedResource(rootURI: URI): Option[EmbeddedResource] = uri(rootURI).map(RegularResource)
+  def toEmbeddedResource(rootURI: UriComponents): Option[EmbeddedResource] = uri(rootURI).map(RegularResource)
 }
 
-case class HtmlResources(rawResources: Seq[RawResource], baseURI: Option[URI])
+case class HtmlResources(rawResources: Seq[RawResource], baseURI: Option[UriComponents])
 
 object HtmlParser {
   val AppletTagName = "applet".toCharArray
@@ -74,7 +73,7 @@ class HtmlParser extends StrictLogging {
 
   def parseHtml(htmlContent: Array[Char], userAgent: Option[UserAgent]): HtmlResources = {
 
-    var baseURI: Option[URI] = None
+    var baseURI: Option[UriComponents] = None
     val rawResources = mutable.ArrayBuffer.empty[RawResource]
     val conditionalCommentsMatcher = new HtmlCCommentExpressionMatcher()
     val ieVersion = userAgent.map(_.version)
@@ -132,15 +131,7 @@ class HtmlParser extends StrictLogging {
 
                 } else if (tag.nameEquals(BaseTagName)) {
                   val baseHref = Option(tag.getAttributeValue(HrefAttribute))
-                  baseURI = baseHref.flatMap { bh =>
-                    try {
-                      baseHref.map(bh => new URI(bh.toString))
-                    } catch {
-                      case e: URISyntaxException =>
-                        logger.debug(s"Malformed baseHref ${baseHref.get}")
-                        None
-                    }
-                  }
+                  baseURI = baseHref.map(bh => UriComponents.create(bh.toString))
 
                 } else if (tag.nameEquals(LinkTagName)) {
                   val rel = tag.getAttributeValue(RelAttribute)
@@ -202,7 +193,7 @@ class HtmlParser extends StrictLogging {
     HtmlResources(rawResources, baseURI)
   }
 
-  def getEmbeddedResources(documentURI: URI, htmlContent: Array[Char], userAgent: Option[UserAgent]): List[EmbeddedResource] = {
+  def getEmbeddedResources(documentURI: UriComponents, htmlContent: Array[Char], userAgent: Option[UserAgent]): List[EmbeddedResource] = {
 
     val htmlResources = parseHtml(htmlContent, userAgent)
 

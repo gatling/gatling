@@ -15,7 +15,7 @@
  */
 package io.gatling.http.fetch
 
-import java.net.URI
+import com.ning.http.client.uri.UriComponents
 
 import scala.annotation.{ switch, tailrec }
 import scala.collection.TraversableOnce.flattenTraversableOnce
@@ -109,7 +109,7 @@ object CssParser extends StrictLogging {
     }
   }
 
-  def extractResources(cssURI: URI, cssContent: String): List[EmbeddedResource] = {
+  def extractResources(cssURI: UriComponents, cssContent: String): List[EmbeddedResource] = {
 
     val resources = collection.mutable.ArrayBuffer.empty[EmbeddedResource]
 

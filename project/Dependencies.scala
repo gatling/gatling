@@ -12,7 +12,7 @@ object Dependencies {
   private def scalaCompiler(version: String) = "org.scala-lang"                         % "scala-compiler"              % version
   private def scalaReflect(version: String)  = "org.scala-lang"                         % "scala-reflect"               % version
   private def scalaSwing(version: String)    = "org.scala-lang"                         % "scala-swing"                 % version
-  private val ahc                            = "com.ning"                               % "async-http-client"           % "1.8.12"
+  private val ahc                            = "com.ning"                               % "async-http-client"           % "1.9.0-BETA1"
   private val netty                          = "io.netty"                               % "netty"                       % "3.9.2.Final"
   private val akkaActor                      = "com.typesafe.akka"                     %% "akka-actor"                  % akkaVersion
   private val config                         = "com.typesafe"                           % "config"                      % "1.2.1"
@@ -70,7 +70,7 @@ object Dependencies {
 
   val httpDependencies = Seq(ahc, netty, jzlib) ++ testDeps
 
-  val jmsDependencies = Seq(jmsApi) ++ testDeps ++ jmsTestDeps
+  val jmsDependencies = Seq(jmsApi, lru) ++ testDeps ++ jmsTestDeps
 
   val chartsDependencies = Seq(tdigest, hdrHistogram) ++ testDeps
 

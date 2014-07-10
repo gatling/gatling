@@ -55,6 +55,7 @@ object HttpProtocol {
       realm = None,
       autoReferer = true,
       cache = true,
+      disableUrlEscaping = false,
       silentURI = None,
       signatureCalculator = None),
     responsePart = HttpProtocolResponsePart(
@@ -130,7 +131,7 @@ case class HttpProtocol(
           .setHeader(AcceptEncoding, "gzip")
           .setHeader(Connection, "keep-alive")
           .setHeader(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
-          .setPerRequestConfig(new PerRequestConfig(null, 2000))
+          .setRequestTimeoutInMs(2000)
 
         if (url.startsWith("http://"))
           proxyPart.proxy.foreach(requestBuilder.setProxyServer)
@@ -157,7 +158,7 @@ case class HttpProtocol(
       new Http(expression)
         .post(expression)
         .header("bar", expression)
-        .param(expression, expression)
+        .formParam(expression, expression)
         .build(DefaultHttpProtocol, throttled = false)
     }
 
@@ -177,6 +178,7 @@ case class HttpProtocolRequestPart(
   realm: Option[Expression[Realm]],
   autoReferer: Boolean,
   cache: Boolean,
+  disableUrlEscaping: Boolean,
   silentURI: Option[Regex],
   signatureCalculator: Option[SignatureCalculator])
 

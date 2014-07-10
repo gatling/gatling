@@ -16,7 +16,9 @@
 package io.gatling.recorder.har
 
 import java.io.{ FileInputStream, InputStream }
-import java.net.{ URI, URL }
+import java.net.URL
+
+import com.ning.http.client.uri.UriComponents
 
 import scala.collection.breakOut
 import scala.util.Try
@@ -76,7 +78,7 @@ object HarReader {
     val embeddedResources = entry.response.content match {
       case Content("text/html", Some(text)) =>
         val userAgent = requestHeaders.get(UserAgent).flatMap(io.gatling.http.fetch.UserAgent.parseFromHeader)
-        new HtmlParser().getEmbeddedResources(new URI(uri), text.toCharArray, userAgent)
+        new HtmlParser().getEmbeddedResources(UriComponents.create(uri), text.toCharArray, userAgent)
       case _ => Nil
     }
 

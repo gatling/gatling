@@ -15,8 +15,7 @@
  */
 package io.gatling.http.fetch
 
-import java.net.URI
-
+import com.ning.http.client.uri.UriComponents
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
@@ -24,7 +23,7 @@ import org.specs2.runner.JUnitRunner
 @RunWith(classOf[JUnitRunner])
 class CssParserSpec extends Specification {
 
-  val rootURI = new URI("http://akka.io/")
+  val rootURI = UriComponents.create("http://akka.io/")
 
   "parsing CSS" should {
 

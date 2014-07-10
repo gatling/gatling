@@ -15,9 +15,9 @@
  */
 package io.gatling.http.ahc
 
-import java.net.URI
 import java.lang.{ StringBuilder => JStringBuilder }
 
+import com.ning.http.client.uri.UriComponents
 import com.ning.http.client.{ Request, RequestBuilder }
 import akka.actor.{ ActorRef, Props }
 import akka.actor.ActorDSL.actor
@@ -165,7 +165,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       }
 
     } else {
-      val uri = response.request.getOriginalURI
+      val uri = response.request.getURI
 
       if (isCss(response.headers))
         tx.next ! CssResourceFetched(uri, status, update, response.statusCode, response.lastModifiedOrEtag(protocol), response.body.string)
@@ -190,10 +190,10 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
    */
   private def processResponse(tx: HttpTx, response: Response): Unit = {
 
-      def redirectRequest(redirectURI: URI, sessionWithUpdatedCookies: Session): Request = {
+      def redirectRequest(redirectURI: UriComponents, sessionWithUpdatedCookies: Session): Request = {
         val originalRequest = tx.request.ahcRequest
 
-        val requestBuilder = new RequestBuilder("GET", originalRequest.isUseRawUrl)
+        val requestBuilder = new RequestBuilder("GET")
           .setURI(redirectURI)
           .setBodyEncoding(configuration.core.encoding)
           .setConnectionPoolKeyStrategy(originalRequest.getConnectionPoolKeyStrategy)
@@ -244,7 +244,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
             }
         }
 
-      def cacheRedirect(originalRequest: Request, redirectURI: URI): Session => Session =
+      def cacheRedirect(originalRequest: Request, redirectURI: UriComponents): Session => Session =
         response.statusCode match {
           case Some(code) if HttpHelper.isPermanentRedirect(code) =>
             val originalURI = originalRequest.getURI

@@ -140,13 +140,13 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
       .setRequestTimeoutInMs(configuration.http.ahc.requestTimeOutInMs)
       .setUseProxyProperties(configuration.http.ahc.useProxyProperties)
       .setUserAgent("Gatling/2.0")
-      .setUseRawUrl(configuration.http.ahc.useRawUrl)
       .setExecutorService(applicationThreadPool)
       .setAsyncHttpClientProviderConfig(nettyConfig)
       .setConnectionsPool(connectionsPool)
       .setWebSocketIdleTimeoutInMs(configuration.http.ahc.webSocketIdleTimeoutInMs)
       .setUseRelativeURIsWithSSLProxies(configuration.http.ahc.useRelativeURIsWithSSLProxies)
       .setTimeConverter(JodaTimeConverter)
+      .setAcceptAnyCertificate(configuration.http.ahc.acceptAnyCertificate)
 
     val trustManagers = configuration.http.ssl.trustStore
       .map(config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm))

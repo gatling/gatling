@@ -15,7 +15,7 @@
  */
 package io.gatling.http.fetch
 
-import java.net.URI
+import com.ning.http.client.uri.UriComponents
 
 import scala.io.Codec.UTF8
 
@@ -46,10 +46,10 @@ class HtmlParserSpec extends Specification {
       """.toString.toCharArray
       }
 
-      implicit def string2URI(string: String) = URI.create(string)
+      implicit def string2URI(string: String) = UriComponents.create(string)
 
     "extract all urls" in {
-      new HtmlParser().getEmbeddedResources(new URI("http://akka.io"), htmlContent, None) must beEqualTo(List(
+      new HtmlParser().getEmbeddedResources(UriComponents.create("http://akka.io"), htmlContent, None) must beEqualTo(List(
         RegularResource("http://akka.io/resources/favicon.ico"),
         CssResource("http://akka.io/resources/stylesheets/style.css"),
         CssResource("http://fonts.googleapis.com/css?family=Exo:300,400,600,700"),
@@ -96,7 +96,7 @@ class HtmlParserSpec extends Specification {
           <![endif]-->
         """)
 
-      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 9))) must beEqualTo(
+      new HtmlParser().getEmbeddedResources(UriComponents.create("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 9))) must beEqualTo(
         List(CssResource("http://example.com/style.css")))
     }
 
@@ -108,7 +108,7 @@ class HtmlParserSpec extends Specification {
         <![endif]-->
       """)
 
-      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 9))) must beEqualTo(
+      new HtmlParser().getEmbeddedResources(UriComponents.create("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 9))) must beEqualTo(
         Nil)
     }
 
@@ -123,7 +123,7 @@ class HtmlParserSpec extends Specification {
         <![endif]-->
       """)
 
-      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 7))) must beEqualTo(
+      new HtmlParser().getEmbeddedResources(UriComponents.create("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 7))) must beEqualTo(
         List(CssResource("http://example.com/style7.css")))
     }
 
@@ -143,10 +143,10 @@ class HtmlParserSpec extends Specification {
         <![endif]-->
       """)
 
-      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 9))) must beEqualTo(
+      new HtmlParser().getEmbeddedResources(UriComponents.create("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 9))) must beEqualTo(
         List(CssResource("http://example.com/style9.css")))
 
-      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 8))) must beEqualTo(
+      new HtmlParser().getEmbeddedResources(UriComponents.create("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 8))) must beEqualTo(
         List(
           CssResource("http://example.com/style8.css"),
           CssResource("http://example.com/style9.css")))
@@ -162,10 +162,10 @@ class HtmlParserSpec extends Specification {
         <![endif]-->
       """)
 
-      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 5.5f))) must beEqualTo(
+      new HtmlParser().getEmbeddedResources(UriComponents.create("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 5.5f))) must beEqualTo(
         List(CssResource("http://example.com/style55.css")))
 
-      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 6))) must beEqualTo(
+      new HtmlParser().getEmbeddedResources(UriComponents.create("http://example.com/"), html, Some(UserAgent(UserAgent.IE, 6))) must beEqualTo(
         Nil)
     }
 
@@ -177,7 +177,7 @@ class HtmlParserSpec extends Specification {
         <![endif]-->
         """)
 
-      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, None) must beEqualTo(
+      new HtmlParser().getEmbeddedResources(UriComponents.create("http://example.com/"), html, None) must beEqualTo(
         Nil)
     }
 
@@ -189,7 +189,7 @@ class HtmlParserSpec extends Specification {
         <![endif]-->
         """)
 
-      new HtmlParser().getEmbeddedResources(new URI("http://example.com/"), html, Some(UserAgent("Firefox", 29.0f))) must beEqualTo(
+      new HtmlParser().getEmbeddedResources(UriComponents.create("http://example.com/"), html, Some(UserAgent("Firefox", 29.0f))) must beEqualTo(
         Nil)
     }
   }

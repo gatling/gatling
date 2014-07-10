@@ -30,27 +30,27 @@ object HttpRequestWithParamsBuilder {
  *
  * @param commonAttributes the CommonAttributes
  * @param httpAttributes the HttpAttributes
- * @param params the parameters that should be added to the request
+ * @param formParams the form parameters that should be added to the request
  */
 class HttpRequestWithParamsBuilder(
   commonAttributes: CommonAttributes,
   httpAttributes: HttpAttributes,
-  params: List[HttpParam])
+  formParams: List[HttpParam])
     extends AbstractHttpRequestBuilder[HttpRequestWithParamsBuilder](commonAttributes, httpAttributes) {
 
-  private[http] def newInstance(commonAttributes: CommonAttributes) = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, params)
-  private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, params)
+  private[http] def newInstance(commonAttributes: CommonAttributes) = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, formParams)
+  private[http] def newInstance(httpAttributes: HttpAttributes) = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, formParams)
 
   /**
    * Adds Content-Type header to the request set with "multipart/form-data" value
    */
   def asMultipartForm: HttpRequestWithParamsBuilder = header(HeaderNames.ContentType, HttpRequestWithParamsBuilder.MultipartFormDataValueExpression)
 
-  def param(key: Expression[String], value: Expression[Any]): HttpRequestWithParamsBuilder = param(SimpleParam(key, value))
-  def multivaluedParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestWithParamsBuilder = param(MultivaluedParam(key, values))
-  def paramsSeq(seq: Expression[Seq[(String, Any)]]): HttpRequestWithParamsBuilder = param(ParamSeq(seq))
-  def paramsMap(map: Expression[Map[String, Any]]): HttpRequestWithParamsBuilder = param(ParamMap(map))
-  private def param(param: HttpParam): HttpRequestWithParamsBuilder = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, param :: params)
+  def formParam(key: Expression[String], value: Expression[Any]): HttpRequestWithParamsBuilder = formParam(SimpleParam(key, value))
+  def multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestWithParamsBuilder = formParam(MultivaluedParam(key, values))
+  def formParamsSeq(seq: Expression[Seq[(String, Any)]]): HttpRequestWithParamsBuilder = formParam(ParamSeq(seq))
+  def formParamsMap(map: Expression[Map[String, Any]]): HttpRequestWithParamsBuilder = formParam(ParamMap(map))
+  private def formParam(formParam: HttpParam): HttpRequestWithParamsBuilder = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, formParam :: formParams)
 
   def formUpload(name: Expression[String], filePath: Expression[String]) = {
 
@@ -60,5 +60,5 @@ class HttpRequestWithParamsBuilder(
     bodyPart(BodyPart.fileBodyPart(name, file).fileName(fileName)).asMultipartForm
   }
 
-  def request(protocol: HttpProtocol): Expression[Request] = new HttpRequestWithParamsExpressionBuilder(commonAttributes, httpAttributes, params, protocol).build
+  def request(protocol: HttpProtocol): Expression[Request] = new HttpRequestWithParamsExpressionBuilder(commonAttributes, httpAttributes, formParams, protocol).build
 }

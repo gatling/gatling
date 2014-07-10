@@ -15,8 +15,7 @@
  */
 package io.gatling.http.fetch
 
-import java.net.URI
-
+import com.ning.http.client.uri.UriComponents
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.HeaderNames
@@ -34,7 +33,7 @@ object EmbeddedResource {
 
 sealed abstract class EmbeddedResource {
 
-  def uri: URI
+  def uri: UriComponents
   def acceptHeader: Expression[String]
   val url = uri.toString
 
@@ -60,6 +59,6 @@ sealed abstract class EmbeddedResource {
   }
 }
 
-case class CssResource(uri: URI) extends EmbeddedResource { val acceptHeader = CssHeaderHeaderValueExpression }
+case class CssResource(uri: UriComponents) extends EmbeddedResource { val acceptHeader = CssHeaderHeaderValueExpression }
 
-case class RegularResource(uri: URI) extends EmbeddedResource { val acceptHeader = AllHeaderHeaderValueExpression }
+case class RegularResource(uri: UriComponents) extends EmbeddedResource { val acceptHeader = AllHeaderHeaderValueExpression }

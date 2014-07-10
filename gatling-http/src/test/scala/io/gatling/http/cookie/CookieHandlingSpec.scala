@@ -15,8 +15,7 @@
  */
 package io.gatling.http.cookie
 
-import java.net.URI
-
+import com.ning.http.client.uri.UriComponents
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
@@ -49,7 +48,7 @@ class CookieHandlingSpec extends Specification {
   "storeCookies" should {
     "be able to store a cookie in an empty session" in {
       val newCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-      CookieHandling.storeCookies(emptySession, new URI("https://docs.foo.com/accounts"), List(newCookie))
+      CookieHandling.storeCookies(emptySession, UriComponents.create("https://docs.foo.com/accounts"), List(newCookie))
 
       CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") must beEmpty
     }

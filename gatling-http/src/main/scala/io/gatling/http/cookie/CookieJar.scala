@@ -15,9 +15,8 @@
  */
 package io.gatling.http.cookie
 
-import java.net.URI
-
 import com.ning.http.client.cookie.Cookie
+import com.ning.http.client.uri.UriComponents
 
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.util.HttpHelper.isSecure
@@ -31,9 +30,9 @@ object CookieJar {
   val UnspecifiedMaxAge = -1
   val UnspecifiedExpires = -1L
 
-  def requestDomain(requestURI: URI) = requestURI.getHost.toLowerCase
+  def requestDomain(requestURI: UriComponents) = requestURI.getHost.toLowerCase
 
-  def requestPath(requestURI: URI) = requestURI.getPath match {
+  def requestPath(requestURI: UriComponents) = requestURI.getPath match {
     case "" => "/"
     case p  => p
   }
@@ -80,7 +79,7 @@ object CookieJar {
     cookiePath == requestPath ||
       (requestPath.startsWith(cookiePath) && (cookiePath.last == '/' || requestPath.charAt(cookiePath.length) == '/'))
 
-  def apply(uri: URI, cookies: List[Cookie]): CookieJar = CookieJar(Map.empty).add(uri, cookies)
+  def apply(uri: UriComponents, cookies: List[Cookie]): CookieJar = CookieJar(Map.empty).add(uri, cookies)
 }
 
 case class CookieJar(store: Map[CookieKey, StoredCookie]) {
@@ -91,7 +90,7 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
    * @param requestURI       the uri used to deduce defaults for  optional domains and paths
    * @param cookies    the cookies to store
    */
-  def add(requestURI: URI, cookies: List[Cookie]): CookieJar = {
+  def add(requestURI: UriComponents, cookies: List[Cookie]): CookieJar = {
 
     val thisRequestDomain = requestDomain(requestURI)
     val thisRequestPath = requestPath(requestURI)
@@ -120,7 +119,7 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
     CookieJar(newStore)
   }
 
-  def get(requestURI: URI): List[Cookie] =
+  def get(requestURI: UriComponents): List[Cookie] =
     if (store.isEmpty) {
       Nil
     } else {

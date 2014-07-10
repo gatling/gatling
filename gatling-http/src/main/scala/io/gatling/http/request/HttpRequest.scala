@@ -54,7 +54,7 @@ object HttpRequestDef {
 
       def requestMadeSilentByProtocol: Boolean = config.protocol.requestPart.silentURI match {
         case Some(r) =>
-          val uri = ahcRequest.getURI.toString
+          val uri = ahcRequest.getURI.toUrl
           r.pattern.matcher(uri).matches
         case None => false
       }

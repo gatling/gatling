@@ -40,16 +40,15 @@ object HttpRequestAction extends DataWriterClient with StrictLogging {
 
     val tx = PermanentRedirect.getRedirect(origTx)
     val uri = tx.request.ahcRequest.getURI
-    val uriString = uri.toString
     val protocol = tx.request.config.protocol
 
-    CacheHandling.getExpire(protocol, tx.session, uriString) match {
+    CacheHandling.getExpire(protocol, tx.session, uri) match {
 
       case None =>
         startHttpTransaction(tx)
 
       case Some(expire) if nowMillis > expire =>
-        val newTx = tx.copy(session = CacheHandling.clearExpire(tx.session, uriString))
+        val newTx = tx.copy(session = CacheHandling.clearExpire(tx.session, uri))
         startHttpTransaction(newTx)
 
       case _ =>
@@ -59,7 +58,7 @@ object HttpRequestAction extends DataWriterClient with StrictLogging {
             actor(resourceFetcher())
 
           case None =>
-            logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uriString: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+            logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
             tx.next ! tx.session
         }
     }

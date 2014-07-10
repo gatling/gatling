@@ -15,8 +15,7 @@
  */
 package io.gatling.http.request.builder
 
-import java.net.URI
-
+import com.ning.http.client.uri.UriComponents
 import com.ning.http.client.{ RequestBuilder => AHCRequestBuilder }
 
 import io.gatling.core.session.Session
@@ -38,10 +37,9 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
         case _             => s"No protocol.baseURL defined but provided url is relative : $url".failure
       }
 
-  def configureCaches(session: Session, uri: URI)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
-    val uriString = uri.toString
-    CacheHandling.getLastModified(protocol, session, uriString).foreach(requestBuilder.setHeader(HeaderNames.IfModifiedSince, _))
-    CacheHandling.getEtag(protocol, session, uriString).foreach(requestBuilder.setHeader(HeaderNames.IfNoneMatch, _))
+  def configureCaches(session: Session, uri: UriComponents)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+    CacheHandling.getLastModified(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IfModifiedSince, _))
+    CacheHandling.getEtag(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IfNoneMatch, _))
     requestBuilder.success
   }
 
@@ -69,7 +67,7 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
     }
   }
 
-  override protected def configureRequestBuilder(session: Session, uri: URI, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
+  override protected def configureRequestBuilder(session: Session, uri: UriComponents, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
     super.configureRequestBuilder(session, uri, requestBuilder)
       .flatMap(configureCaches(session, uri))
       .flatMap(configureParts(session))
