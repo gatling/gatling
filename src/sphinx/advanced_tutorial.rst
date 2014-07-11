@@ -102,11 +102,13 @@ There are several types of Feeders, the most simple being the CSV Feeder: this i
 
 First let's create a file named *search.csv* and place it in ``user-files/data`` folder.
 
-This file contains the following lines::
+This file contains the following lines:
 
-	searchCriterion,searchComputerName
-	Macbook,MacBook Pro
-	eee,ASUS Eee PC 1005PE
+.. code-block:: text
+
+  searchCriterion,searchComputerName
+  Macbook,MacBook Pro
+  eee,ASUS Eee PC 1005PE
 
 Let's then declare a feeder and use it to feed our users::
 
