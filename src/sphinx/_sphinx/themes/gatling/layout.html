@@ -1,142 +1,138 @@
 {#
-    gatling/layout.html
-    ~~~~~~~~~~~~~~~~~
+gatling/layout.html
+~~~~~~~~~~~~~~~~~~~
 #}
+
 {%- block doctype -%}
 {%- endblock %}
 
 {% extends "basic/layout.html" %}
 
-{% set script_files = script_files + ['_static/js/bootstrap.min.js'] %}
-{% set script_files = script_files + ['_static/js/prettify.js'] %}
-{% set script_files = script_files + ['_static/js/highlightCode.js'] %}
+{% set css_files = css_files + ['http://fonts.googleapis.com/css?family=Maven+Pro:400,500,700'] %}
+{% set css_files = css_files + ['http://fonts.googleapis.com/css?family=Inconsolata:400,700'] %}
 
+{% set css_files = css_files + ['/vendor/css/bootstrap.min.css'] %}
+{% set css_files = css_files + ['/vendor/css/bootstrap-theme.min.css'] %}
 
-{% set css_files = css_files + ['_static/css/mobile.css'] %}
-{% set css_files = css_files + ['_static/css/bootstrap/bootstrap.min.css'] %}
-{% set css_files = css_files + ['_static/css/bootstrap/bootstrap-theme.min.css'] %}
-{% set css_files = css_files + ['_static/css/prettify.css'] %}
-{% set css_files = css_files + ['_static/css/style.css'] %}
+{% set css_files = css_files + ['/assets/css/style.css'] %}
+
+{% set script_files = script_files + ['/vendor/javascripts/modernizr.min.js'] %}
+{% set script_files = script_files + ['/vendor/javascripts/bootstrap.min.js'] %}
 
 {# do not display relbars #}
 {% block relbar1 %}{% endblock %}
 {% block relbar2 %}{% endblock %}
 
 {% block extrahead %}
-    <!--Google Analytics-->
-    <script>
-        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+<!--[if IE]>
+<script src="/vendor/javascripts/html5shiv.min.js"></script>
+<![endif]-->
 
-            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+<!--[if IE 6]>
+<script src="/vendor/javascripts/PIE_IE678.min.js"></script>
+<![endif]-->
+<!--[if IE 7]>
+<script src="/vendor/javascripts/PIE_IE678.min.js"></script>
+<![endif]-->
+<!--[if IE 9]>
+<script src="/vendor/javascripts/PIE_IE9.min.js"></script>
+<![endif]-->
 
-                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+<script type="text/javascript">
+  // @formatter:off
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  ga('create', 'UA-10826408-15', 'gatling.io');
+  ga('send', 'pageview');
+  // @formatter:on
+</script>
 
+<script type='text/javascript'>
+  $(document).ready(function () {
+    $('#affix').affix({
+      offset: {
+        top: 48
+      }
+    });
 
-
-        ga('create', 'UA-10826408-15', 'gatling.io');
-
-        ga('send', 'pageview');
-    </script>
-	<script type='text/javascript'>
-        $(document).ready(function() {
-            $('#sidebar').affix({
-				  offset: {
-					top: 110
-				  }
-			});
-        });
-        </script>
+    $('body').scrollspy({
+      target: '#affix'
+    })
+  });
+</script>
 {% endblock %}
+
 {% block content %}
+{%- block gatlingheader %}
+<header id="header">
+  <div class="container">
+    <form action="{{ pathto('search') }}" class="col-xs-10 col-sm-6 col-md-4" method="get" role="form">
+      <div class="form-group">
+        <div class="input-group">
+          <input type="text" class="form-control" name="q" placeholder="Search through the documentation"/>
 
-  {%- block gatlingheader %}
-	<header id="header">
-		<ul id="header-zone">
-			<li class="first">Follow us !</li>
-			<li><a href="https://github.com/excilys/gatling"><img src="{{ pathto('_static/img/icon-github-off.png', 1) }}" class="off" alt="GITHUB"/><img src="{{ pathto('_static/img/icon-github.png', 1) }}" class="on" alt="GITHUB"/>
+          <div class="input-group-addon">
+            <button type="submit"><i class="glyphicon glyphicon-search"></i></button>
+          </div>
+        </div>
+      </div>
+      <input type="hidden" name="check_keywords" value="yes"/>
+      <input type="hidden" name="area" value="default"/>
+    </form>
+    <nav class="hidden-xs hidden-sm">
+      <ol>
+        <li><a href="/">HOME</a></li>
+        <li><a href="#">DOWNLOAD</a></li>
+        <li><a href="/docs/2.0.0-SNAPSHOT">DOCUMENTATION</a></li>
+        <li><a href="#">CHEATSHEET</a></li>
+        <li><a class="icon icon-github" href="https://github.com/excilys/gatling"></a></li>
+        <li><a class="icon icon-twitter" href="https://twitter.com/GatlingTool"></a></li>
+        <li><a class="icon icon-googlegroup" href="https://groups.google.com/forum/#!forum/gatling"></a></li>
+      </ol>
+    </nav>
+  </div>
+</header>
+{%- endblock %}
 
-				<p>Github</p></a></li>
-			<li><a href="https://twitter.com/GatlingTool"><img src="{{ pathto('_static/img/icon-twitter-off.png', 1) }}" class="off" alt="TWITTER"/><img src="{{ pathto('_static/img/icon-twitter.png', 1) }}" class="on" alt="TWITTER"/>
+<section id="doc">
+  <div class="container">
+    <section class="row">
+      {%- if pagename != "search" %}
+      <div class="col-md-9">
+        {%- else %}
+        <div class="col-md-12">
+          {%- endif %}
+          {% block body %}{% endblock %}
+        </div>
+        {%- if pagename != "search" %}
+        <div class="col-md-3">
+          <aside id="affix" class="visible-md visible-lg">
+            {%- block sidebartoc %}
+            {% include "localtoc.html" %}
+            {%- endblock %}
+          </aside>
+        </div>
+        {%- endif %}
+    </section>
+  </div>
+</section>
 
-				<p>Twitter</p></a></li>
-			<li><a href="https://groups.google.com/forum/#!forum/gatling"><img src="{{ pathto('_static/img/icon-google-groups-off.png', 1) }}" class="off" alt="GOOGLE GROUPS"/><img src="{{ pathto('_static/img/icon-google-groups.png', 1) }}" class="on"
-																											alt="GOOGLE GROUPS"/>
-
-				<p>Google Groups</p></a></li>
-		</ul>
-		<section class="content">
-
-			<a href="index.html" class="logo"></a>
-
-			<nav>
-				<ol>
-					<li class="first"><a href="index.html"><img src="{{ pathto('_static/img/nav-home.png', 1) }}" alt="Home"/></a></li>
-					<li><a href="#">INTRODUCTION</a></li>
-					<li><a href="#">DOCUMENTATION</a></li>
-					<li><a href="#">TESTIMONIES</a></li>
-					<li><a href="#">FAQ</a></li>
-					<li><a href="#">DOWNLOAD</a></li>
-				</ol>
-			</nav>
-
-		</section>
-	</header>
-  {%- endblock %}
-  <section id="page">
-	<div class="container">
-		<div class="row">
-	
-			 <!-- sidebar -->
-			 <div class="col-md-3">
-				 <div id="sidebar" >
-					{%- block sidebartoc %}
-						<h3><a href="{{ pathto(master_doc) }}">{{ _('Table Of Contents') }}</a></h3>
-						{{ toc }}
-					{%- endblock %}
-                     {% block relations %}
-                        {% include "relations.html" %}
-                     {% endblock %}
-                     <hr/>
-					{% block navbarsearch %}
-            			{% include "navbarsearchbox.html" %}
-          			{% endblock %}
-				</div>
-			</div>
-			
-			<!-- main area -->
-			<div class="col-md-9">
-				<section class="content documentation">
-					 <div class="document">
-					  {%- block document %}
-						  <div class="documentwrapper">
-						  {%- if render_sidebar %}
-							<div class="bodywrapper">
-						  {%- endif %}
-							  <div class="body">
-								{% block body %} {% endblock %}
-							  </div>
-						  {%- if render_sidebar %}
-							</div>
-						  {%- endif %}
-						  </div>
-					  {%- endblock %}
-					</div>
-				</section>
-			{%- block gatlingfooter %}
-			  <footer id="footer">
-				<section class="content">
-					<span class="floatl"><a href="index.html" class="logo"></a></span>
-					<span class="floatl" style="margin:5px 0 0 5px">is an open-source load testing framework based on Scala, Akka and Netty</span>
-				</section>
-			  </footer>
-			  {%- endblock %}
-			</div>
-			
-		  </div>
-		</div>
+<footer id="footer">
+  <header class="row-fluid">
+    <div class="content-wrapper text-center">
+      Gatling is an open-source load testing framework based on
+      <strong>Scala</strong>, <strong>Akka</strong> and <strong>Netty</strong>
+    </div>
+  </header>
+  <section class="row-fluid">
+    <div class="content-wrapper"></div>
   </section>
-  {% block footer %}{% endblock %}
-  
+</footer>
+
+{% block footer %}
+{% endblock %}
+
 {% endblock %}
