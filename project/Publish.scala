@@ -36,8 +36,6 @@ object Publish {
   private val developers = Seq(
     GatlingDeveloper("slandelle@excilys.com", "Stephane Landelle", true),
     GatlingDeveloper("rsertelon@excilys.com", "Romain Sertelon", true),
-    GatlingDeveloper("ybenkhaled@excilys.com", "Yassine Ben Khaled", true),
-    GatlingDeveloper("hcordier@excilys.com", "Hugo Cordier", true),
     GatlingDeveloper("nremond@gmail.com", "Nicolas Rémond", false),
     GatlingDeveloper("skuenzli@gmail.com", "Stephen Kuenzli", false),
     GatlingDeveloper("pdalpra@excilys.com", "Pierre Dal-Pra", true),
@@ -45,7 +43,8 @@ object Publish {
     GatlingDeveloper("blemale@excilys.com", "Bastien Lemale", true),
     GatlingDeveloper("aduffy@gilt.com", "Andrew Duffy", false),
     GatlingDeveloper("jasonk@bluedevel.com", "Jason Koch", false),
-    GatlingDeveloper("ivan.mushketik@gmail.com", "Ivan Mushketyk", false)
+    GatlingDeveloper("ivan.mushketik@gmail.com", "Ivan Mushketyk", false),
+    GatlingDeveloper("gcorre@excilys.com", "Guillaume Corré", true)
   )
 
   private def developersXml(devs: Seq[GatlingDeveloper]) = {
