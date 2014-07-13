@@ -67,32 +67,50 @@ gatling/layout.html
 
 {% block content %}
 {%- block gatlingheader %}
-<header id="header">
+<header id="header" class="navbar navbar-static-top" role="banner">
   <div class="container">
-    <form action="{{ pathto('search') }}" class="col-xs-10 col-sm-6 col-md-4" method="get" role="form">
-      <div class="form-group">
-        <div class="input-group">
-          <input type="text" class="form-control" name="q" placeholder="Search through the documentation"/>
+    <div class="navbar" role="navigation">
+      <form action="{{ pathto('search') }}" class="col-xs-12 col-sm-6 col-md-4" method="get" role="form">
+        <div class="form-group">
+          <div class="input-group">
+            <input type="text" class="form-control" name="q" placeholder="Search through the documentation"/>
 
-          <div class="input-group-addon">
-            <button type="submit"><i class="glyphicon glyphicon-search"></i></button>
+            <div class="input-group-addon">
+              <button type="submit"><i class="glyphicon glyphicon-search"></i></button>
+            </div>
           </div>
         </div>
+        <input type="hidden" name="check_keywords" value="yes"/>
+        <input type="hidden" name="area" value="default"/>
+      </form>
+
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
       </div>
-      <input type="hidden" name="check_keywords" value="yes"/>
-      <input type="hidden" name="area" value="default"/>
-    </form>
-    <nav class="hidden-xs hidden-sm">
-      <ol>
-        <li><a href="/">HOME</a></li>
-        <li><a href="#">DOWNLOAD</a></li>
-        <li><a href="/docs/2.0.0-SNAPSHOT">DOCUMENTATION</a></li>
-        <li><a href="#">CHEATSHEET</a></li>
-        <li><a class="icon icon-github" href="https://github.com/excilys/gatling"></a></li>
-        <li><a class="icon icon-twitter" href="https://twitter.com/GatlingTool"></a></li>
-        <li><a class="icon icon-googlegroup" href="https://groups.google.com/forum/#!forum/gatling"></a></li>
-      </ol>
-    </nav>
+
+      <nav id="navbar-collapse" class="collapse navbar-collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a href="/">HOME</a></li>
+          <li><a href="#">DOWNLOAD</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">DOCUMENTATION <span class="caret"></span></a>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="/docs/2.0.0-SNAPSHOT">2.0.0-SNAPSHOT</a></li>
+            </ul>
+          </li>
+          <li><a href="cheat-sheet">CHEATSHEET</a></li>
+          <li><a class="icon icon-github" href="https://github.com/excilys/gatling"></a></li>
+          <li><a class="icon icon-twitter" href="https://twitter.com/GatlingTool"></a></li>
+          <li><a class="icon icon-googlegroup" href="https://groups.google.com/forum/#!forum/gatling"></a></li>
+        </ul>
+      </nav>
+      <!-- /.navbar-collapse -->
+    </div>
+    <!-- /.container -->
   </div>
 </header>
 {%- endblock %}
