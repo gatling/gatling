@@ -47,10 +47,10 @@ class BasicSimulation extends Simulation {
     .exec(http("request_10") // Here's an example of a POST request
       .post("/computers")
       .headers(headers_10)
-      .param("""name""", """Beautiful Computer""") // Note the triple double quotes: used in Scala for protecting a whole chain of characters (no need for backslash)
-      .param("""introduced""", """2012-05-30""")
-      .param("""discontinued""", """""")
-      .param("""company""", """37"""))
+      .formParam("""name""", """Beautiful Computer""") // Note the triple double quotes: used in Scala for protecting a whole chain of characters (no need for backslash)
+      .formParam("""introduced""", """2012-05-30""")
+      .formParam("""discontinued""", """""")
+      .formParam("""company""", """37"""))
 
   setUp(scn.inject(atOnceUsers(1)).protocols(httpConf))
 }

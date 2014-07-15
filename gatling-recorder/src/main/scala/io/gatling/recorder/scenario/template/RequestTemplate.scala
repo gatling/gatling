@@ -52,7 +52,7 @@ object RequestTemplate {
 			.body(RawFileBody("${simulationClass}_request_${request.id}.txt"))"""
         case RequestBodyParams(params) => params.map {
           case (key, value) => fast"""
-			.param(${protectWithTripleQuotes(key)}, ${protectWithTripleQuotes(value)})"""
+			.formParam(${protectWithTripleQuotes(key)}, ${protectWithTripleQuotes(value)})"""
         }.mkFastring
       }.getOrElse(EmptyFastring)
 

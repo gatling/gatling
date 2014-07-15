@@ -48,10 +48,10 @@ class AdvancedSimulationStep02 extends Simulation {
       .exec(http("Post")
         .post("/computers")
         .headers(headers_10)
-        .param("""name""", """Beautiful Computer""")
-        .param("""introduced""", """2012-05-30""")
-        .param("""discontinued""", """""")
-        .param("""company""", """37"""))
+        .formParam("""name""", """Beautiful Computer""")
+        .formParam("""introduced""", """2012-05-30""")
+        .formParam("""discontinued""", """""")
+        .formParam("""company""", """37"""))
   }
 
   val httpConf = http
