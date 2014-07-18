@@ -34,6 +34,7 @@ object ConfigKeys {
       }
       object jsonPath {
         val CacheMaxCapacity = "gatling.core.extract.jsonPath.cacheMaxCapacity"
+        val PreferJackson = "gatling.core.extract.jsonPath.preferJackson"
 
         object jackson {
           val AllowComments = "gatling.core.extract.jsonPath.jackson.allowComments"
