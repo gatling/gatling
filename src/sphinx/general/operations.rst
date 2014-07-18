@@ -20,6 +20,16 @@ Yet, we recommend that you use the latest JDK:
   * Gatling is tested against modern JDKs
   * Gatling has several optimizations that targets JDK7, e.g. based on new ``String`` implementation introduced in 7u6.
 
+IPv4 vs IPv6
+============
+
+IPv6 (enabled by default on Java) was found to sometimes cause some performance issues, so launch scripts disable it and use the following options::
+
+  -Djava.net.preferIPv4Stack=true
+  -Djava.net.preferIPv6Addresses=false
+
+If you really need to prefer IPv6, please edit the launch scripts.
+
 OS tuning
 =========
 
