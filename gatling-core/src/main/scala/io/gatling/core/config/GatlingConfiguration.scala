@@ -189,7 +189,10 @@ object GatlingConfiguration extends StrictLogging {
           useProxyProperties = config.getBoolean(http.ahc.UseProxyProperties),
           webSocketTimeout = config.getInt(http.ahc.WebSocketTimeout),
           useRelativeURIsWithSSLProxies = config.getBoolean(http.ahc.UseRelativeURIsWithSSLProxies),
-          acceptAnyCertificate = config.getBoolean(http.ahc.AcceptAnyCertificate))),
+          acceptAnyCertificate = config.getBoolean(http.ahc.AcceptAnyCertificate),
+          httpClientCodecMaxInitialLineLength = config.getInt(http.ahc.HttpClientCodecMaxInitialLineLength),
+          httpClientCodecMaxHeaderSize = config.getInt(http.ahc.HttpClientCodecMaxHeaderSize),
+          httpClientCodecMaxChunkSize = config.getInt(http.ahc.HttpClientCodecMaxChunkSize))),
       data = DataConfiguration(
         dataWriterClasses = config.getString(data.Writers).toStringList.map {
           case "console"  => "io.gatling.core.result.writer.ConsoleDataWriter"
@@ -332,7 +335,10 @@ case class AHCConfiguration(
   useProxyProperties: Boolean,
   webSocketTimeout: Int,
   useRelativeURIsWithSSLProxies: Boolean,
-  acceptAnyCertificate: Boolean)
+  acceptAnyCertificate: Boolean,
+  httpClientCodecMaxInitialLineLength: Int,
+  httpClientCodecMaxHeaderSize: Int,
+  httpClientCodecMaxChunkSize: Int)
 
 case class SslConfiguration(
   trustStore: Option[StoreConfiguration],

@@ -123,6 +123,9 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     nettyConfig.setSocketChannelFactory(socketChannelFactory)
     nettyConfig.setNettyTimer(nettyTimer)
     nettyConfig.setChannelPool(channelPool)
+    nettyConfig.setHttpClientCodecMaxInitialLineLength(4096)
+    nettyConfig.setHttpClientCodecMaxHeaderSize(8192)
+    nettyConfig.setHttpClientCodecMaxChunkSize(8192)
     nettyConfig
   }
 
