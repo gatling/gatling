@@ -87,7 +87,8 @@ object GatlingConfiguration extends StrictLogging {
           "gatling.http.ahc.idleConnectionInPoolTimeoutInMs",
           "gatling.http.ahc.maximumConnectionsPerHost",
           "gatling.http.ahc.maximumConnectionsTotal",
-          "gatling.http.ahc.requestTimeoutInMs").foreach(warnAboutRemovedProperty)
+          "gatling.http.ahc.requestTimeoutInMs",
+          "gatling.http.ahc.maxConnectionLifeTimeInMs").foreach(warnAboutRemovedProperty)
       }
 
     val classLoader = getClass.getClassLoader
@@ -180,7 +181,7 @@ object GatlingConfiguration extends StrictLogging {
           connectionTimeout = config.getInt(http.ahc.ConnectionTimeout),
           pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout),
           readTimeout = config.getInt(http.ahc.ReadTimeout),
-          maxConnectionLifeTimeInMs = config.getInt(http.ahc.MaxConnectionLifeTimeInMs),
+          connectionTTL = config.getInt(http.ahc.ConnectionTTL),
           ioThreadMultiplier = config.getInt(http.ahc.IoThreadMultiplier),
           maxConnectionsPerHost = config.getInt(http.ahc.MaxConnectionsPerHost),
           maxConnections = config.getInt(http.ahc.MaxConnections),
@@ -326,7 +327,7 @@ case class AHCConfiguration(
   connectionTimeout: Int,
   pooledConnectionIdleTimeout: Int,
   readTimeout: Int,
-  maxConnectionLifeTimeInMs: Int,
+  connectionTTL: Int,
   ioThreadMultiplier: Int,
   maxConnectionsPerHost: Int,
   maxConnections: Int,

@@ -111,7 +111,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
   val channelPool = new DefaultChannelPool(0, // FIXME mistake in AHC
     configuration.http.ahc.pooledConnectionIdleTimeout,
-    configuration.http.ahc.maxConnectionLifeTimeInMs,
+    configuration.http.ahc.connectionTTL,
     configuration.http.ahc.allowPoolingSslConnections,
     nettyTimer)
 
@@ -137,6 +137,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
       .setConnectionTimeout(configuration.http.ahc.connectionTimeout)
       .setPooledConnectionIdleTimeout(configuration.http.ahc.pooledConnectionIdleTimeout)
       .setReadTimeout(configuration.http.ahc.readTimeout)
+      .setConnectionTTL(configuration.http.ahc.connectionTTL)
       .setIOThreadMultiplier(configuration.http.ahc.ioThreadMultiplier)
       .setMaxConnectionsPerHost(configuration.http.ahc.maxConnectionsPerHost)
       .setMaxConnections(configuration.http.ahc.maxConnections)

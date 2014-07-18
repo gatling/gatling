@@ -88,6 +88,5 @@ class RequestMetricsBufferSpec extends Specification {
         (okMetrics.min must beCloseTo(1.0 +/- 0.01)) and (okMetrics.max must beCloseTo(10000.0 +/- 0.01)) and
         (okMetrics.percentile1 must beCloseTo(9500.0 +/- 10)) and (okMetrics.percentile2 must beCloseTo(9900.0 +/- 10))
     }
-
   }
 }

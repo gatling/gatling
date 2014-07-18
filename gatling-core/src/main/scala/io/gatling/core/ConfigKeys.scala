@@ -109,7 +109,7 @@ object ConfigKeys {
       val ConnectionTimeout = "gatling.http.ahc.connectionTimeout"
       val PooledConnectionIdleTimeout = "gatling.http.ahc.pooledConnectionIdleTimeout"
       val ReadTimeout = "gatling.http.ahc.readTimeout"
-      val MaxConnectionLifeTimeInMs = "gatling.http.ahc.maxConnectionLifeTimeInMs"
+      val ConnectionTTL = "gatling.http.ahc.connectionTTL"
       val IoThreadMultiplier = "gatling.http.ahc.ioThreadMultiplier"
       val MaxConnectionsPerHost = "gatling.http.ahc.maxConnectionsPerHost"
       val MaxConnections = "gatling.http.ahc.maxConnections"
