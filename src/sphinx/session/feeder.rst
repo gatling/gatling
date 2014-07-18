@@ -133,6 +133,51 @@ Only JDBC4 drivers are supported, so that they automatically registers to the Dr
 
 .. _feeder-redis:
 
+Sitemap feeder
+============
+
+Gatling suppports a feader that reads data from a `Sitemap <http://www.sitemaps.org/protocol.html>`_ file.
+::
+  val feeder = sitemap(FileResource("/path/to/sitemap/file"))
+
+The following Sitemap file:
+::
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+      <loc>http://www.example.com/</loc>
+      <lastmod>2005-01-01</lastmod>
+      <changefreq>monthly</changefreq>
+      <priority>0.8</priority>
+    </url>
+
+    <url>
+      <loc>http://www.example.com/catalog?item=12&amp;desc=vacation_hawaii</loc>
+      <changefreq>weekly</changefreq>
+    </url>
+
+    <url>
+      <loc>http://www.example.com/catalog?item=73&amp;desc=vacation_new_zealand</loc>
+      <lastmod>2004-12-23</lastmod>
+      <changefreq>weekly</changefreq>
+    </url>
+  </urlset>
+
+will be turned into::
+
+  record1: Map("loc" -> "http://www.example.com/",
+          "lastmod" -> "2005-01-01",
+          "changefreq" -> "monthly",
+          "priority" -> "0.8")
+          
+  record2: Map("loc" -> "http://www.example.com/catalog?item=12&amp;desc=vacation_hawaii",
+          "changefreq" -> "weekly")
+
+  record3: Map("loc" -> "http://www.example.com/catalog?item=73&amp;desc=vacation_new_zealand",
+          "lastmod" -> "2004-12-23",
+          "changefreq" -> "weekly")
+
 Redis feeder
 ============
 
