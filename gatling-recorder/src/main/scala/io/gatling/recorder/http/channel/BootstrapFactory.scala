@@ -15,15 +15,16 @@
  */
 package io.gatling.recorder.http.channel
 
+import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.handler.server.PortUnificationServerHandler
+import io.gatling.recorder.http.ssl.SSLEngineFactory
 import org.jboss.netty.bootstrap.{ ClientBootstrap, ServerBootstrap }
-import org.jboss.netty.channel.{ SimpleChannelHandler, ChannelPipeline, ChannelPipelineFactory, Channels }
+import org.jboss.netty.channel.{ ChannelPipeline, ChannelPipelineFactory, Channels }
 import org.jboss.netty.channel.socket.nio.{ NioClientSocketChannelFactory, NioServerSocketChannelFactory }
 import org.jboss.netty.handler.codec.http._
 import org.jboss.netty.handler.ssl.SslHandler
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.http.ssl.SSLEngineFactory
 
 object BootstrapFactory extends StrictLogging {
 
@@ -32,9 +33,10 @@ object BootstrapFactory extends StrictLogging {
   val GatlingHandlerName = "gatling"
   val ConditionalHandlerName = "conditional"
 
-  private val ChunkMaxSize = 100 * 1024 * 1024 // 100Mo
+  def newClientBootstrap(ssl: Boolean, config: RecorderConfiguration): ClientBootstrap = {
 
-  def newClientBootstrap(ssl: Boolean): ClientBootstrap = {
+    import config.netty._
+
     val bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory)
     bootstrap.setPipelineFactory(new ChannelPipelineFactory {
       def getPipeline: ChannelPipeline = {
@@ -42,9 +44,9 @@ object BootstrapFactory extends StrictLogging {
         val pipeline = Channels.pipeline
         if (ssl)
           pipeline.addLast(SslHandlerName, new SslHandler(SSLEngineFactory.newClientSSLEngine))
-        pipeline.addLast(CodecHandlerName, new HttpClientCodec)
+        pipeline.addLast(CodecHandlerName, new HttpClientCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
         pipeline.addLast("inflater", new HttpContentDecompressor)
-        pipeline.addLast("aggregator", new HttpChunkAggregator(ChunkMaxSize))
+        pipeline.addLast("aggregator", new HttpChunkAggregator(maxContentLength))
         pipeline
       }
     })
@@ -55,7 +57,9 @@ object BootstrapFactory extends StrictLogging {
     bootstrap
   }
 
-  def newServerBootstrap(proxy: HttpProxy): ServerBootstrap = {
+  def newServerBootstrap(proxy: HttpProxy, config: RecorderConfiguration): ServerBootstrap = {
+
+    import config.netty._
 
     val bootstrap = new ServerBootstrap(new NioServerSocketChannelFactory)
 
@@ -63,7 +67,7 @@ object BootstrapFactory extends StrictLogging {
       def getPipeline: ChannelPipeline = {
         logger.debug("Open new server channel")
         val pipeline = Channels.pipeline
-        pipeline.addLast(CodecHandlerName, new HttpServerCodec)
+        pipeline.addLast(CodecHandlerName, new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
         pipeline.addLast("deflater", new HttpContentCompressor)
         pipeline.addLast(ConditionalHandlerName, new PortUnificationServerHandler(proxy, pipeline))
         pipeline

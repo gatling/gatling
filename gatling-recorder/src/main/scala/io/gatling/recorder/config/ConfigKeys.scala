@@ -50,5 +50,10 @@ object ConfigKeys {
       val SslPort = "recorder.proxy.outgoing.sslPort"
     }
   }
-
+  object netty {
+    val MaxInitialLineLength = "recorder.netty.maxInitialLineLength"
+    val MaxHeaderSize = "recorder.netty.maxHeaderSize"
+    val MaxChunkSize = "recorder.netty.maxChunkSize"
+    val MaxContentLength = "recorder.netty.maxContentLength"
+  }
 }

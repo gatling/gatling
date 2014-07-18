@@ -33,10 +33,10 @@ case class HttpProxy(config: RecorderConfiguration, controller: RecorderControll
   def outgoingUsername = config.proxy.outgoing.username
   def outgoingPassword = config.proxy.outgoing.password
 
-  val clientBootstrap = newClientBootstrap(ssl = false)
-  val secureClientBootstrap = newClientBootstrap(ssl = true)
+  val clientBootstrap = newClientBootstrap(ssl = false, config)
+  val secureClientBootstrap = newClientBootstrap(ssl = true, config)
   private val group = new DefaultChannelGroup("Gatling_Recorder")
-  private val serverBootstrap = newServerBootstrap(this) // covers both http and https
+  private val serverBootstrap = newServerBootstrap(this, config) // covers both http and https
 
   group.add(serverBootstrap.bind(new InetSocketAddress(port)))
 

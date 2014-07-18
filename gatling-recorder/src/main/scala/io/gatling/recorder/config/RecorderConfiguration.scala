@@ -147,6 +147,11 @@ object RecorderConfiguration extends StrictLogging {
           password = config.getString(proxy.outgoing.Password).trimToOption,
           port = config.getInt(proxy.outgoing.Port).toOption,
           sslPort = config.getInt(proxy.outgoing.SslPort).toOption)),
+      netty = NettyConfiguration(
+        maxInitialLineLength = config.getInt(netty.MaxInitialLineLength),
+        maxHeaderSize = config.getInt(netty.MaxHeaderSize),
+        maxChunkSize = config.getInt(netty.MaxChunkSize),
+        maxContentLength = config.getInt(netty.MaxContentLength)),
       config)
   }
 }
@@ -189,9 +194,16 @@ case class ProxyConfiguration(
   port: Int,
   outgoing: OutgoingProxyConfiguration)
 
+case class NettyConfiguration(
+  maxInitialLineLength: Int,
+  maxHeaderSize: Int,
+  maxChunkSize: Int,
+  maxContentLength: Int)
+
 case class RecorderConfiguration(
   core: CoreConfiguration,
   filters: FiltersConfiguration,
   http: HttpConfiguration,
   proxy: ProxyConfiguration,
+  netty: NettyConfiguration,
   config: Config)
