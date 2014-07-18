@@ -15,6 +15,7 @@
  */
 package io.gatling.metrics.types
 
+import io.gatling.core.config.GatlingConfiguration
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
@@ -25,6 +26,8 @@ import io.gatling.core.ConfigKeys._
 
 @RunWith(classOf[JUnitRunner])
 class RequestMetricsBufferSpec extends Specification {
+
+  GatlingConfiguration.setUp()
 
   implicit val defaultConfig = fakeConfig(Map(
     charting.indicators.Percentile1 -> 95,
