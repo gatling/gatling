@@ -18,6 +18,7 @@ package io.gatling.core.check.extractor.xpath
 import java.io.{ Reader, InputStream }
 
 import io.gatling.core.util.CacheHelper
+import io.gatling.core.util.StandardCharsets._
 
 import scala.collection.JavaConversions._
 
@@ -29,7 +30,9 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import javax.xml.transform.sax.SAXSource
 import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathExecutable, XdmNode, XdmValue }
 
-object XPathExtractor {
+object SaxonXPathExtractor {
+
+  val Enabled = Seq(UTF_8, UTF_16, ASCII, US_ASCII, ISO_8859_1).contains(configuration.core.charset)
 
   val Processor = new Processor(false)
   val DocumentBuilder = Processor.newDocumentBuilder
@@ -72,41 +75,41 @@ object XPathExtractor {
       xPathSelector.getUnderlyingXPathContext.setContextItem(null)
     }
   }
-}
 
-abstract class XPathExtractor[X] extends CriterionExtractor[Option[XdmNode], String, X] {
-  val criterionName = "xpath"
-}
-
-class SingleXPathExtractor(val criterion: String, namespaces: List[(String, String)], occurrence: Int) extends XPathExtractor[String] {
-
-  def extract(prepared: Option[XdmNode]): Validation[Option[String]] = {
-    val result = for {
-      text <- prepared
-      // XdmValue is an Iterable, so toSeq is a Stream
-      result <- XPathExtractor.evaluate(criterion, namespaces, text).toSeq.lift(occurrence)
-    } yield result.getStringValue
-
-    result.success
+  abstract class SaxonXPathExtractor[X] extends CriterionExtractor[Option[XdmNode], String, X] {
+    val criterionName = "xpath"
   }
-}
 
-class MultipleXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends XPathExtractor[Seq[String]] {
+  class SingleXPathExtractor(val criterion: String, namespaces: List[(String, String)], occurrence: Int) extends SaxonXPathExtractor[String] {
 
-  def extract(prepared: Option[XdmNode]): Validation[Option[Seq[String]]] = {
-    val result = for {
-      node <- prepared
-      items <- XPathExtractor.evaluate(criterion, namespaces, node).iterator.map(_.getStringValue).toVector.liftSeqOption
-    } yield items
+    def extract(prepared: Option[XdmNode]): Validation[Option[String]] = {
+      val result = for {
+        text <- prepared
+        // XdmValue is an Iterable, so toSeq is a Stream
+        result <- SaxonXPathExtractor.evaluate(criterion, namespaces, text).toSeq.lift(occurrence)
+      } yield result.getStringValue
 
-    result.success
+      result.success
+    }
   }
-}
 
-class CountXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends XPathExtractor[Int] {
+  class MultipleXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends SaxonXPathExtractor[Seq[String]] {
 
-  def extract(prepared: Option[XdmNode]): Validation[Option[Int]] = {
-    val count = prepared.map(XPathExtractor.evaluate(criterion, namespaces, _).size).getOrElse(0)
-    Some(count).success
+    def extract(prepared: Option[XdmNode]): Validation[Option[Seq[String]]] = {
+      val result = for {
+        node <- prepared
+        items <- SaxonXPathExtractor.evaluate(criterion, namespaces, node).iterator.map(_.getStringValue).toVector.liftSeqOption
+      } yield items
+
+      result.success
+    }
+  }
+
+  class CountXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends SaxonXPathExtractor[Int] {
+
+    def extract(prepared: Option[XdmNode]): Validation[Option[Int]] = {
+      val count = prepared.map(SaxonXPathExtractor.evaluate(criterion, namespaces, _).size).getOrElse(0)
+      Some(count).success
+    }
   }
 }

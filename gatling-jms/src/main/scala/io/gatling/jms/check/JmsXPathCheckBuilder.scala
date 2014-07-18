@@ -20,18 +20,19 @@ import javax.jms.{ TextMessage, Message }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.check._
-import io.gatling.core.check.extractor.xpath.{ CountXPathExtractor, MultipleXPathExtractor, SingleXPathExtractor, XPathExtractor }
+import io.gatling.core.check.extractor.xpath._
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
+import io.gatling.core.validation.{ Validation, FailureWrapper, SuccessWrapper }
 import io.gatling.jms.JmsCheck
 import net.sf.saxon.s9api.XdmNode
+import org.w3c.dom.Document
 
 object JmsXPathCheckBuilder extends StrictLogging {
 
-  val preparer: Preparer[Message, Option[XdmNode]] = (response: Message) =>
+  def preparer[T](f: StringReader => T)(message: Message): Validation[Option[T]] =
     try {
-      response match {
-        case tm: TextMessage => Some(XPathExtractor.parse(new StringReader(tm.getText))).success
+      message match {
+        case tm: TextMessage => Some(f(new StringReader(tm.getText))).success
         case _               => "Unsupported message type".failure
       }
     } catch {
@@ -41,12 +42,23 @@ object JmsXPathCheckBuilder extends StrictLogging {
         message.failure
     }
 
-  val checkBuilder: CheckFactory[JmsCheck, Message] = (wrapped: Check[Message]) => wrapped
+  val SaxonXPathPreparer: Preparer[Message, Option[XdmNode]] = preparer(SaxonXPathExtractor.parse)
+
+  val JDKXPathPreparer: Preparer[Message, Option[Document]] = preparer(JDKXPathExtractor.parse)
+
+  val CheckBuilder: CheckFactory[JmsCheck, Message] = (wrapped: Check[Message]) => wrapped
 
   def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
-    new DefaultMultipleFindCheckBuilder[JmsCheck, Message, Option[XdmNode], String](checkBuilder, preparer) {
-      def findExtractor(occurrence: Int) = expression.map(new SingleXPathExtractor(_, namespaces, occurrence))
-      def findAllExtractor = expression.map(new MultipleXPathExtractor(_, namespaces))
-      def countExtractor = expression.map(new CountXPathExtractor(_, namespaces))
-    }
+    if (SaxonXPathExtractor.Enabled)
+      new DefaultMultipleFindCheckBuilder[JmsCheck, Message, Option[XdmNode], String](CheckBuilder, SaxonXPathPreparer) {
+        def findExtractor(occurrence: Int) = expression.map(new SaxonXPathExtractor.SingleXPathExtractor(_, namespaces, occurrence))
+        def findAllExtractor = expression.map(new SaxonXPathExtractor.MultipleXPathExtractor(_, namespaces))
+        def countExtractor = expression.map(new SaxonXPathExtractor.CountXPathExtractor(_, namespaces))
+      }
+    else
+      new DefaultMultipleFindCheckBuilder[JmsCheck, Message, Option[Document], String](CheckBuilder, JDKXPathPreparer) {
+        def findExtractor(occurrence: Int) = expression.map(new JDKXPathExtractor.SingleXPathExtractor(_, namespaces, occurrence))
+        def findAllExtractor = expression.map(new JDKXPathExtractor.MultipleXPathExtractor(_, namespaces))
+        def countExtractor = expression.map(new JDKXPathExtractor.CountXPathExtractor(_, namespaces))
+      }
 }
