@@ -131,7 +131,7 @@ case class HttpProtocol(
           .setHeader(AcceptEncoding, "gzip")
           .setHeader(Connection, "keep-alive")
           .setHeader(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
-          .setRequestTimeoutInMs(2000)
+          .setRequestTimeout(2000)
 
         if (url.startsWith("http://"))
           proxyPart.proxy.foreach(requestBuilder.setProxyServer)

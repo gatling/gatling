@@ -29,7 +29,7 @@ class RequestMetricsBufferSpec extends Specification {
   implicit val defaultConfig = fakeConfig(Map(
     charting.indicators.Percentile1 -> 95,
     charting.indicators.Percentile2 -> 99,
-    http.ahc.RequestTimeoutInMs -> 60000,
+    http.ahc.RequestTimeout -> 60000,
     data.graphite.MaxMeasuredValue -> 60000))
 
   def allValues(m: Metrics) = Seq(m.max, m.min, m.percentile1, m.percentile2)

@@ -23,7 +23,7 @@ class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
 
   // Let's take the max of the possible timeouts and add a 1s buffer
   private val maxValue = configuration.data.graphite.maxMeasuredValue.max(
-    configuration.http.ahc.requestTimeOutInMs) + 1000
+    configuration.http.ahc.requestTimeOut) + 1000
 
   private val precision = 3
   private val percentile1 = configuration.charting.indicators.percentile1

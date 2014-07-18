@@ -54,10 +54,9 @@ object GatlingConfiguration extends StrictLogging {
 
       def warnAboutRemovedProperties(config: Config) {
 
-          def warnAboutRemovedProperty(path: String) {
+          def warnAboutRemovedProperty(path: String): Unit =
             if (config.hasPath(path))
               logger.warn(s"Beware, property $path is still defined but it was removed")
-          }
 
         Vector("gatling.core.extract.xpath.saxParserFactory",
           "gatling.core.extract.xpath.domParserFactory",
@@ -82,7 +81,13 @@ object GatlingConfiguration extends StrictLogging {
           "gatling.http.ahc.requestCompressionLevel",
           "gatling.http.ahc.userAgent",
           "gatling.http.ahc.rfc6265CookieEncoding",
-          "gatling.http.ahc.useRawUrl").foreach(warnAboutRemovedProperty)
+          "gatling.http.ahc.useRawUrl",
+          "gatling.http.ahc.allowPoolingConnection",
+          "gatling.http.ahc.allowSslConnectionPool",
+          "gatling.http.ahc.idleConnectionInPoolTimeoutInMs",
+          "gatling.http.ahc.maximumConnectionsPerHost",
+          "gatling.http.ahc.maximumConnectionsTotal",
+          "gatling.http.ahc.requestTimeoutInMs").foreach(warnAboutRemovedProperty)
       }
 
     val classLoader = getClass.getClassLoader
@@ -169,20 +174,20 @@ object GatlingConfiguration extends StrictLogging {
           SslConfiguration(trustStore, keyStore)
         },
         ahc = AHCConfiguration(
-          allowPoolingConnection = config.getBoolean(http.ahc.AllowPoolingConnection),
-          allowSslConnectionPool = config.getBoolean(http.ahc.AllowSslConnectionPool),
+          allowPoolingConnections = config.getBoolean(http.ahc.AllowPoolingConnections),
+          allowPoolingSslConnections = config.getBoolean(http.ahc.AllowPoolingSslConnections),
           compressionEnabled = config.getBoolean(http.ahc.CompressionEnabled),
-          connectionTimeOut = config.getInt(http.ahc.ConnectionTimeOut),
-          idleConnectionInPoolTimeOutInMs = config.getInt(http.ahc.IdleConnectionInPoolTimeoutInMs),
-          idleConnectionTimeOutInMs = config.getInt(http.ahc.IdleConnectionTimeoutInMs),
+          connectionTimeout = config.getInt(http.ahc.ConnectionTimeout),
+          pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout),
+          readTimeout = config.getInt(http.ahc.ReadTimeout),
           maxConnectionLifeTimeInMs = config.getInt(http.ahc.MaxConnectionLifeTimeInMs),
           ioThreadMultiplier = config.getInt(http.ahc.IoThreadMultiplier),
-          maximumConnectionsPerHost = config.getInt(http.ahc.MaximumConnectionsPerHost),
-          maximumConnectionsTotal = config.getInt(http.ahc.MaximumConnectionsTotal),
+          maxConnectionsPerHost = config.getInt(http.ahc.MaxConnectionsPerHost),
+          maxConnections = config.getInt(http.ahc.MaxConnections),
           maxRetry = config.getInt(http.ahc.MaxRetry),
-          requestTimeOutInMs = config.getInt(http.ahc.RequestTimeoutInMs),
+          requestTimeOut = config.getInt(http.ahc.RequestTimeout),
           useProxyProperties = config.getBoolean(http.ahc.UseProxyProperties),
-          webSocketIdleTimeoutInMs = config.getInt(http.ahc.WebSocketIdleTimeoutInMs),
+          webSocketTimeout = config.getInt(http.ahc.WebSocketTimeout),
           useRelativeURIsWithSSLProxies = config.getBoolean(http.ahc.UseRelativeURIsWithSSLProxies),
           acceptAnyCertificate = config.getBoolean(http.ahc.AcceptAnyCertificate))),
       data = DataConfiguration(
@@ -312,20 +317,20 @@ case class HttpConfiguration(
   ahc: AHCConfiguration)
 
 case class AHCConfiguration(
-  allowPoolingConnection: Boolean,
-  allowSslConnectionPool: Boolean,
+  allowPoolingConnections: Boolean,
+  allowPoolingSslConnections: Boolean,
   compressionEnabled: Boolean,
-  connectionTimeOut: Int,
-  idleConnectionInPoolTimeOutInMs: Int,
-  idleConnectionTimeOutInMs: Int,
+  connectionTimeout: Int,
+  pooledConnectionIdleTimeout: Int,
+  readTimeout: Int,
   maxConnectionLifeTimeInMs: Int,
   ioThreadMultiplier: Int,
-  maximumConnectionsPerHost: Int,
-  maximumConnectionsTotal: Int,
+  maxConnectionsPerHost: Int,
+  maxConnections: Int,
   maxRetry: Int,
-  requestTimeOutInMs: Int,
+  requestTimeOut: Int,
   useProxyProperties: Boolean,
-  webSocketIdleTimeoutInMs: Int,
+  webSocketTimeout: Int,
   useRelativeURIsWithSSLProxies: Boolean,
   acceptAnyCertificate: Boolean)
 

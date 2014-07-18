@@ -21,7 +21,8 @@ import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, Ni
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
 
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
-import com.ning.http.client.providers.netty.{ NettyAsyncHttpProviderConfig, NettyConnectionsPool }
+import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
+import com.ning.http.client.providers.netty.pool.DefaultChannelPool
 import com.ning.http.client.websocket.WebSocketUpgradeHandler
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
@@ -108,11 +109,10 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
   // set up Netty LoggerFactory for slf4j instead of default JDK
   InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
 
-  val connectionsPool = new NettyConnectionsPool(configuration.http.ahc.maximumConnectionsTotal,
-    configuration.http.ahc.maximumConnectionsPerHost,
-    configuration.http.ahc.idleConnectionInPoolTimeOutInMs,
+  val channelPool = new DefaultChannelPool(0, // FIXME mistake in AHC
+    configuration.http.ahc.pooledConnectionIdleTimeout,
     configuration.http.ahc.maxConnectionLifeTimeInMs,
-    configuration.http.ahc.allowSslConnectionPool,
+    configuration.http.ahc.allowPoolingSslConnections,
     nettyTimer)
 
   val nettyConfig = {
@@ -120,30 +120,30 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     val socketChannelFactory = new NioClientSocketChannelFactory(new NioClientBossPool(nioThreadPool, 1, nettyTimer, null), new NioWorkerPool(nioThreadPool, numWorkers))
     system.registerOnTermination(socketChannelFactory.releaseExternalResources())
     val nettyConfig = new NettyAsyncHttpProviderConfig
-    nettyConfig.addProperty(NettyAsyncHttpProviderConfig.SOCKET_CHANNEL_FACTORY, socketChannelFactory)
+    nettyConfig.setSocketChannelFactory(socketChannelFactory)
     nettyConfig.setNettyTimer(nettyTimer)
+    nettyConfig.setChannelPool(channelPool)
     nettyConfig
   }
 
   val defaultAhcConfig = {
     val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
-      .setAllowPoolingConnection(configuration.http.ahc.allowPoolingConnection)
-      .setAllowSslConnectionPool(configuration.http.ahc.allowSslConnectionPool)
+      .setAllowPoolingConnections(configuration.http.ahc.allowPoolingConnections)
+      .setAllowPoolingSslConnections(configuration.http.ahc.allowPoolingSslConnections)
       .setCompressionEnabled(configuration.http.ahc.compressionEnabled)
-      .setConnectionTimeoutInMs(configuration.http.ahc.connectionTimeOut)
-      .setIdleConnectionInPoolTimeoutInMs(configuration.http.ahc.idleConnectionInPoolTimeOutInMs)
-      .setIdleConnectionTimeoutInMs(configuration.http.ahc.idleConnectionTimeOutInMs)
+      .setConnectionTimeout(configuration.http.ahc.connectionTimeout)
+      .setPooledConnectionIdleTimeout(configuration.http.ahc.pooledConnectionIdleTimeout)
+      .setReadTimeout(configuration.http.ahc.readTimeout)
       .setIOThreadMultiplier(configuration.http.ahc.ioThreadMultiplier)
-      .setMaximumConnectionsPerHost(configuration.http.ahc.maximumConnectionsPerHost)
-      .setMaximumConnectionsTotal(configuration.http.ahc.maximumConnectionsTotal)
+      .setMaxConnectionsPerHost(configuration.http.ahc.maxConnectionsPerHost)
+      .setMaxConnections(configuration.http.ahc.maxConnections)
       .setMaxRequestRetry(configuration.http.ahc.maxRetry)
-      .setRequestTimeoutInMs(configuration.http.ahc.requestTimeOutInMs)
+      .setRequestTimeout(configuration.http.ahc.requestTimeOut)
       .setUseProxyProperties(configuration.http.ahc.useProxyProperties)
       .setUserAgent("Gatling/2.0")
       .setExecutorService(applicationThreadPool)
       .setAsyncHttpClientProviderConfig(nettyConfig)
-      .setConnectionsPool(connectionsPool)
-      .setWebSocketIdleTimeoutInMs(configuration.http.ahc.webSocketIdleTimeoutInMs)
+      .setWebSocketTimeout(configuration.http.ahc.webSocketTimeout)
       .setUseRelativeURIsWithSSLProxies(configuration.http.ahc.useRelativeURIsWithSSLProxies)
       .setTimeConverter(JodaTimeConverter)
       .setAcceptAnyCertificate(configuration.http.ahc.acceptAnyCertificate)
