@@ -26,7 +26,7 @@ For legal reasons, Gatling is divided into two projects. The first one is Gatlin
 
 |  
 
-4. Since Gatling is Scala-based, you'll also need **SBT** (Scala Build Tool) to build it. You can refer to the official `installation guide <http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html>`_. The simplest way to install it if you're on Unix is to run :
+4. Since Gatling is Scala-based, you'll also need **SBT** (Scala Build Tool) to build it. You can refer to the official `installation guide <http://www.scala-sbt.org/release/docs/Getting-Started/Setup.html>`__. The simplest way to install it if you're on Unix is to run :
 
 ::
 
@@ -57,7 +57,7 @@ IDE integration
 Eclipse/Scala IDE
 -----------------
 
-To import Gatling's sources in Eclipse, you'll need the *sbteclipse* plugin for SBT. Everything you need to know about its installation is in the `documentation <https://github.com/typesafehub/sbteclipse/wiki>`_. Typical installation is this :
+To import Gatling's sources in Eclipse, you'll need the *sbteclipse* plugin for SBT. Everything you need to know about its installation is in the `documentation <https://github.com/typesafehub/sbteclipse/wiki>`__. Typical installation is this :
 
 1. Make sure you have Scala IDE installed (in Eclipse :``Help -> Eclipse Marketplace -> Scala IDE``).
 2. Go to your ``~/.sbt/0.x/plugins`` folder

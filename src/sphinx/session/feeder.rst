@@ -134,14 +134,15 @@ Only JDBC4 drivers are supported, so that they automatically registers to the Dr
 .. _feeder-redis:
 
 Sitemap feeder
-============
+==============
 
 Gatling suppports a feader that reads data from a `Sitemap <http://www.sitemaps.org/protocol.html>`_ file.
+
 ::
+
   val feeder = sitemap(FileResource("/path/to/sitemap/file"))
 
-The following Sitemap file:
-::
+The following Sitemap file::
 
   <?xml version="1.0" encoding="UTF-8"?>
   <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
