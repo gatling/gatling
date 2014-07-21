@@ -37,16 +37,13 @@ object ActorSupport extends Fixture[TestKit with ImplicitSender] with Logging {
           case None =>
             logger.info("Starting GatlingActorSystem")
             GatlingActorSystem.start()
-            GatlingActorSystem.instance
           case _ =>
             throw new RuntimeException("GatlingActorSystem already started!")
         }) with ImplicitSender))
     } finally {
       GatlingConfiguration.configuration = oldGatlingConfiguration
       logger.info("Shutting down GatlingActorSystem")
-      GatlingActorSystem.instance.shutdown() // Call to instance is defensive - ensure that double-shutdown doesn't pass silently
-      GatlingActorSystem.instance.awaitTermination()
-      GatlingActorSystem.instanceOpt = None
+      GatlingActorSystem.shutdown()
     }
   }
 

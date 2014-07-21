@@ -21,12 +21,26 @@ object GatlingActorSystem {
 
   var instanceOpt: Option[ActorSystem] = None
 
-  def start(): Unit = instanceOpt = Some(ActorSystem("GatlingSystem"))
+  def start(): ActorSystem = synchronized {
+    instanceOpt match {
+      case None =>
+        val system = ActorSystem("GatlingSystem")
+        instanceOpt = Some(system)
+        system
+
+      case _ => throw new UnsupportedOperationException("Gatling Actor system is already started")
+    }
+  }
 
   def instance = instanceOpt match {
     case Some(a) => a
     case None    => throw new UnsupportedOperationException("Gatling Actor system hasn't been started")
   }
 
-  def shutdown(): Unit = instanceOpt.foreach(_.shutdown())
+  def shutdown(): Unit = synchronized {
+    val system = instance
+    system.shutdown()
+    system.awaitTermination()
+    instanceOpt = None
+  }
 }
