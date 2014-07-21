@@ -35,8 +35,9 @@ object ValidationHelper {
 
   def keyReleased(c: Component) = KeyReleased(c, null, 0, null)(null)
 
-  private val standardBorder = new TextField().border
-  private val errorBorder = MatteBorder(2, 2, 2, 2, Color.red)
+  // Those are lazy vals to avoid unneccessary component creation when they're not needed (e.g. tests)
+  private lazy val standardBorder = new TextField().border
+  private lazy val errorBorder = MatteBorder(2, 2, 2, 2, Color.red)
 
   /* Default validators */
   private val portRange = 0 to 65536
