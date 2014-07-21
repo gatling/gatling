@@ -22,7 +22,7 @@ import scala.annotation.switch
 
 import org.jboss.netty.buffer.{ ChannelBuffer, ChannelBufferInputStream, ChannelBuffers }
 
-import io.gatling.core.util.UnsyncByteArrayInputStream
+import io.gatling.core.util.{ StandardCharsets, UnsyncByteArrayInputStream }
 
 sealed trait ResponseBodyUsage
 case object StringResponseBodyUsage extends ResponseBodyUsage
@@ -145,4 +145,11 @@ case class InputStreamResponseBody(chunks: Seq[ChannelBuffer], charset: Charset)
     else
       ResponseBody.chunks2String(chunks, charset)
   }
+}
+
+case object NoResponseBody extends ResponseBody {
+  val charset = StandardCharsets.UTF_8
+  val bytes = Array.empty[Byte]
+  def stream = new UnsyncByteArrayInputStream(bytes)
+  val string = ""
 }

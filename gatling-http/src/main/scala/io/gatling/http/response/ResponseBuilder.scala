@@ -34,7 +34,7 @@ import io.gatling.http.HeaderNames
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.checksum.ChecksumCheck
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.util.HttpHelper.{ isCss, isHtml }
+import io.gatling.http.util.HttpHelper.{ isCss, isHtml, isTxt }
 
 object ResponseBuilder extends StrictLogging {
 
@@ -143,14 +143,20 @@ class ResponseBuilder(request: Request, checksumChecks: List[ChecksumCheck], bod
     val charset = Option(headers.getFirstValue(HeaderNames.ContentEncoding)).map(Charset.forName).getOrElse(configuration.core.charset)
 
     val body: ResponseBody =
-      if (bodyUsages.contains(ByteArrayResponseBodyUsage))
+      if (chunks.isEmpty)
+        NoResponseBody
+
+      else if (bodyUsages.contains(ByteArrayResponseBodyUsage))
         ByteArrayResponseBody(chunks, charset)
 
       else if (bodyUsages.contains(InputStreamResponseBodyUsage) || bodyUsages.isEmpty)
         InputStreamResponseBody(chunks, charset)
 
-      else
+      else if (isTxt(headers))
         StringResponseBody(chunks, charset)
+
+      else
+        ByteArrayResponseBody(chunks, charset)
 
     val rawResponse = HttpResponse(request, status, headers, body, checksums, bodyLength, charset, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
 
