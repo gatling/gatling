@@ -16,6 +16,7 @@
 package io.gatling.http.action
 
 import com.ning.http.client.uri.UriComponents
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
 import io.gatling.http.cache.PermanentRedirect
@@ -32,6 +33,8 @@ import org.specs2.mock.mockito.ArgumentCapture
  */
 @RunWith(classOf[JUnitRunner])
 class HttpRequestActionSpec extends Specification with Mockito {
+
+  GatlingConfiguration.setUp()
 
   trait Context extends Before {
     val httpEngineMock = mock[HttpEngine]
