@@ -64,7 +64,7 @@ object HttpHelper extends StrictLogging {
 
   private def headerExists(headers: FluentCaseInsensitiveStringsMap, headerName: String, f: String => Boolean): Boolean = Option(headers.getFirstValue(headerName)).exists(f)
   def isCss(headers: FluentCaseInsensitiveStringsMap): Boolean = headerExists(headers, HeaderNames.ContentType, _.contains(HeaderValues.TextCss))
-  def isHtml(headers: FluentCaseInsensitiveStringsMap): Boolean = headerExists(headers, HeaderNames.ContentType, ct => ct.contains(HeaderValues.TextHhtml) || ct.contains(HeaderValues.ApplicationXhtml))
+  def isHtml(headers: FluentCaseInsensitiveStringsMap): Boolean = headerExists(headers, HeaderNames.ContentType, ct => ct.contains(HeaderValues.TextHtml) || ct.contains(HeaderValues.ApplicationXhtml))
   def isAjax(headers: FluentCaseInsensitiveStringsMap): Boolean = headerExists(headers, HeaderNames.XRequestedWith, _.contains(HeaderValues.XmlHttpRequest))
   def isTxt(headers: FluentCaseInsensitiveStringsMap): Boolean = headerExists(headers, HeaderNames.ContentType, ct => ct.contains("text") || ct.contains("json") || ct.contains("javascript") || ct.contains("xml"))
 
