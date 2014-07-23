@@ -22,7 +22,7 @@ import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
 
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
-import com.ning.http.client.providers.netty.pool.DefaultChannelPool
+import com.ning.http.client.providers.netty.channel.pool.DefaultChannelPool
 import com.ning.http.client.websocket.WebSocketUpgradeHandler
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
@@ -109,8 +109,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
   // set up Netty LoggerFactory for slf4j instead of default JDK
   InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
 
-  val channelPool = new DefaultChannelPool(0, // FIXME mistake in AHC
-    configuration.http.ahc.pooledConnectionIdleTimeout,
+  val channelPool = new DefaultChannelPool(configuration.http.ahc.pooledConnectionIdleTimeout,
     configuration.http.ahc.connectionTTL,
     configuration.http.ahc.allowPoolingSslConnections,
     nettyTimer)

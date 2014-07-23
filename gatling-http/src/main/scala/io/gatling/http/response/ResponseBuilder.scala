@@ -24,7 +24,7 @@ import scala.math.max
 import org.jboss.netty.buffer.ChannelBuffer
 
 import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
-import com.ning.http.client.providers.netty.ResponseBodyPart
+import com.ning.http.client.providers.netty.response.ResponseBodyPart
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.GatlingConfiguration.configuration

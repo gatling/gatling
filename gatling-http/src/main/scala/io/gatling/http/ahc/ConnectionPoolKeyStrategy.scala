@@ -17,9 +17,9 @@ package io.gatling.http.ahc
 
 import com.ning.http.client.uri.UriComponents
 import io.gatling.core.session.Session
-import com.ning.http.client.{ ConnectionPoolKeyStrategy => AHCConnectionPoolKeyStrategy, DefaultConnectionPoolStrategy }
+import com.ning.http.client.{ ConnectionPoolKeyStrategy => AHCConnectionPoolKeyStrategy, ProxyServer, DefaultConnectionPoolStrategy }
 
 class ConnectionPoolKeyStrategy(session: Session) extends AHCConnectionPoolKeyStrategy {
 
-  def getKey(uri: UriComponents): String = DefaultConnectionPoolStrategy.INSTANCE.getKey(uri) + session.userId
+  def getKey(uri: UriComponents, proxyServer: ProxyServer): String = DefaultConnectionPoolStrategy.INSTANCE.getKey(uri, proxyServer) + session.userId
 }

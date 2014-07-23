@@ -21,7 +21,7 @@ import java.util.{ List => JList, Map => JMap }
 import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet, collectionAsScalaIterable }
 
 import com.ning.http.client.{ Param, Request }
-import com.ning.http.multipart._
+import com.ning.http.client.multipart._
 
 import io.gatling.core.util.StringHelper.Eol
 import io.gatling.http.response.Response
@@ -78,7 +78,8 @@ package object util {
               .append(" dispositionType=").append(part.getDispositionType)
               .append(" charset=").append(part.getCharSet)
               .append(" transferEncoding=").append(part.getTransferEncoding)
-              .append(" contentId=").append(part.getContentId).append(Eol)
+              .append(" contentId=").append(part.getContentId)
+              .append(Eol)
 
           case part: FilePart =>
             buff.append("FilePart:")
@@ -88,14 +89,20 @@ package object util {
               .append(" charset=").append(part.getCharSet)
               .append(" transferEncoding=").append(part.getTransferEncoding)
               .append(" contentId=").append(part.getContentId)
-              .append(" filename=").append(part.getSource.getFileName)
+              .append(" filename=").append(part.getFileName)
+              .append(" file=").append(part.getFile.getAbsolutePath)
+              .append(Eol)
 
-            part.getSource match {
-              case source: FilePartSource => buff.append(" source=File(").append(source.getFile.getAbsolutePath).append(")")
-              case _                      => buff.append(" source=byte[]")
-            }
-
-            buff.append("Eol")
+          case part: ByteArrayPart =>
+            buff.append("ByteArrayPart:")
+              .append(" name=").append(part.getName)
+              .append(" contentType=").append(part.getContentType)
+              .append(" dispositionType=").append(part.getDispositionType)
+              .append(" charset=").append(part.getCharSet)
+              .append(" transferEncoding=").append(part.getTransferEncoding)
+              .append(" contentId=").append(part.getContentId)
+              .append(" filename=").append(part.getFileName)
+              .append(Eol)
         }
       }
 
