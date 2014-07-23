@@ -27,7 +27,7 @@ import io.gatling.http.HeaderNames._
 import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
-import io.gatling.http.response.ResponseTransformer
+import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
 /**
@@ -101,7 +101,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
   def maxRedirects(max: Int) = newResponsePart(protocol.responsePart.copy(maxRedirects = Some(max)))
   def disableResponseChunksDiscarding = newResponsePart(protocol.responsePart.copy(discardResponseChunks = false))
   def extraInfoExtractor(f: ExtraInfoExtractor) = newResponsePart(protocol.responsePart.copy(extraInfoExtractor = Some(f)))
-  def transformResponse(responseTransformer: ResponseTransformer) = newResponsePart(protocol.responsePart.copy(responseTransformer = Some(responseTransformer)))
+  def transformResponse(responseTransformer: PartialFunction[Response, Response]) = newResponsePart(protocol.responsePart.copy(responseTransformer = Some(responseTransformer)))
   def check(checks: HttpCheck*) = newResponsePart(protocol.responsePart.copy(checks = protocol.responsePart.checks ::: checks.toList))
   def inferHtmlResources(): HttpProtocolBuilder = inferHtmlResources(None)
   def inferHtmlResources(white: WhiteList): HttpProtocolBuilder = inferHtmlResources(Some(Filters(white, BlackList())))

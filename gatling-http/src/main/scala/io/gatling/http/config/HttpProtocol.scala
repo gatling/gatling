@@ -33,7 +33,7 @@ import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.request.builder.Http
-import io.gatling.http.response.ResponseTransformer
+import io.gatling.http.response.Response
 import scala.util.matching.Regex
 
 /**
@@ -186,7 +186,7 @@ case class HttpProtocolResponsePart(
   followRedirect: Boolean,
   maxRedirects: Option[Int],
   discardResponseChunks: Boolean,
-  responseTransformer: Option[ResponseTransformer],
+  responseTransformer: Option[PartialFunction[Response, Response]],
   checks: List[HttpCheck],
   extraInfoExtractor: Option[ExtraInfoExtractor],
   inferHtmlResources: Boolean,

@@ -370,7 +370,7 @@ Response and request processors
 
 Some people might want to process manually response or request body, Gatling request provide two hooks for that need:
 
-* ``transformResponse(responseTransformer: ResponseTransformer)``: takes a ``Response => Response`` function and let one process the response before it's being sent to the checks pipeline.
+* ``transformResponse(responseTransformer: PartialFunction[Response, Response])``: takes a ``Response => Response`` function and let one process the response before it's being sent to the checks pipeline.
 * ``processRequestBody(processor: Body => Body)``: takes a ``Body => Body`` function and let one process the request body before it's being sent to the wire. Gatling ships two built-ins: ``gzipRequestBody`` and ``streamRequestBody``.
 
 .. _http-resources:

@@ -35,11 +35,11 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Validation
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.response.ResponseTransformer
+import io.gatling.http.response.Response
 
 case class HttpRequestConfig(
   checks: List[HttpCheck],
-  responseTransformer: Option[ResponseTransformer],
+  responseTransformer: Option[PartialFunction[Response, Response]],
   extraInfoExtractor: Option[ExtraInfoExtractor],
   maxRedirects: Option[Int],
   throttled: Boolean,

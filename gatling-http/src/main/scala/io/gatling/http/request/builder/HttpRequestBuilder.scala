@@ -23,14 +23,14 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckTarget.Status
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request._
-import io.gatling.http.response.ResponseTransformer
+import io.gatling.http.response.Response
 
 case class HttpAttributes(
   checks: List[HttpCheck] = Nil,
   ignoreDefaultChecks: Boolean = false,
   silent: Boolean = false,
   followRedirect: Boolean = true,
-  responseTransformer: Option[ResponseTransformer] = None,
+  responseTransformer: Option[PartialFunction[Response, Response]] = None,
   explicitResources: List[AbstractHttpRequestBuilder[_]] = Nil,
   body: Option[Body] = None,
   bodyParts: List[BodyPart] = Nil,
@@ -75,7 +75,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
   /**
    * @param responseTransformer transforms the response before it's handled to the checks pipeline
    */
-  def transformResponse(responseTransformer: ResponseTransformer): B = newInstance(httpAttributes.copy(responseTransformer = Some(responseTransformer)))
+  def transformResponse(responseTransformer: PartialFunction[Response, Response]): B = newInstance(httpAttributes.copy(responseTransformer = Some(responseTransformer)))
 
   def body(bd: Body): B = newInstance(httpAttributes.copy(body = Some(bd)))
 
