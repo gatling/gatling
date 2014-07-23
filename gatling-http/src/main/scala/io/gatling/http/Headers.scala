@@ -107,7 +107,7 @@ object HeaderValues {
   val MultipartFormData = "multipart/form-data"
   val TextCss = "text/css"
   val TextCsv = "text/csv"
-  val TextHhtml = "text/html"
+  val TextHtml = "text/html"
   val TextJavascript = "text/javascript"
   val TextPlain = "text/plain"
   val TextXml = "text/xml"
