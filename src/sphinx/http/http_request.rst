@@ -394,9 +394,8 @@ The example below shows how to decode some Base64 encoded response body::
 
   // ignore when response isn't received (e.g. when connection refused)
   .transformResponse { case response if response.isReceived =>
-    val decodedBytes = Base64.decode(response.body.string)
     new ReponseWrapper(response) {
-      override val body = ByteArrayResponseBody(decodedBytes, UTF_8)
+      override val body = ByteArrayResponseBody(Base64.decode(response.body.string), UTF_8)
     }
   }
 
