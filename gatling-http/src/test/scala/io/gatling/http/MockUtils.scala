@@ -47,6 +47,7 @@ object MockUtils extends Mockito {
           throttled = false,
           silent = false,
           followRedirect = true,
+          discardResponseChunks = true,
           protocol = protocol,
           explicitResources = Nil)),
       responseBuilderFactory = null,

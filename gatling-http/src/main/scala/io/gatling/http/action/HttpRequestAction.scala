@@ -76,7 +76,11 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, val next: ActorRef) exte
 
   import httpRequestDef._
 
-  val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(config.checks, config.responseTransformer, config.protocol)
+  val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
+    config.checks,
+    config.responseTransformer,
+    config.discardResponseChunks,
+    config.protocol.responsePart.inferHtmlResources)
   val requestName = httpRequestDef.requestName
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =

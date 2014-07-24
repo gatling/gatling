@@ -33,7 +33,6 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.checksum.ChecksumCheck
-import io.gatling.http.config.HttpProtocol
 import io.gatling.http.util.HttpHelper.{ isCss, isHtml, isTxt }
 
 object ResponseBuilder extends StrictLogging {
@@ -42,7 +41,10 @@ object ResponseBuilder extends StrictLogging {
 
   private val IsDebugEnabled = logger.underlying.isDebugEnabled
 
-  def newResponseBuilderFactory(checks: List[HttpCheck], responseTransformer: Option[PartialFunction[Response, Response]], protocol: HttpProtocol): Request => ResponseBuilder = {
+  def newResponseBuilderFactory(checks: List[HttpCheck],
+                                responseTransformer: Option[PartialFunction[Response, Response]],
+                                discardResponseChunks: Boolean,
+                                inferHtmlResources: Boolean): Request => ResponseBuilder = {
 
     val checksumChecks = checks.collect {
       case checksumCheck: ChecksumCheck => checksumCheck
@@ -50,9 +52,9 @@ object ResponseBuilder extends StrictLogging {
 
     val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy).toSet
 
-    val storeBodyParts = IsDebugEnabled || !protocol.responsePart.discardResponseChunks || responseBodyUsageStrategies.nonEmpty || responseTransformer.isDefined
+    val storeBodyParts = IsDebugEnabled || !discardResponseChunks || responseBodyUsageStrategies.nonEmpty || responseTransformer.isDefined
 
-    request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, protocol.responsePart.inferHtmlResources)
+    request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, inferHtmlResources)
   }
 }
 

@@ -30,6 +30,7 @@ case class HttpAttributes(
   ignoreDefaultChecks: Boolean = false,
   silent: Boolean = false,
   followRedirect: Boolean = true,
+  discardResponseChunks: Boolean = true,
   responseTransformer: Option[PartialFunction[Response, Response]] = None,
   explicitResources: List[AbstractHttpRequestBuilder[_]] = Nil,
   body: Option[Body] = None,
@@ -85,6 +86,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
   def resources(res: AbstractHttpRequestBuilder[_]*): B = newInstance(httpAttributes.copy(explicitResources = res.toList))
 
+  def disableResponseChunksDiscarding = newInstance(httpAttributes.copy(discardResponseChunks = false))
+
   def request(protocol: HttpProtocol): Expression[Request]
 
   /**
@@ -118,6 +121,8 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
     val resolvedSignatureCalculator = commonAttributes.signatureCalculator.orElse(protocol.requestPart.signatureCalculator)
 
+    val resolvedDiscardResponseChunks = httpAttributes.discardResponseChunks && protocol.responsePart.discardResponseChunks
+
     HttpRequestDef(
       commonAttributes.requestName,
       resolvedRequestExpression,
@@ -130,6 +135,7 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
         throttled = throttled,
         silent = httpAttributes.silent,
         followRedirect = resolvedFollowRedirect,
+        discardResponseChunks = resolvedDiscardResponseChunks,
         protocol = protocol,
         explicitResources = resolvedResources))
   }

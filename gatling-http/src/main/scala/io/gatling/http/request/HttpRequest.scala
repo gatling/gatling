@@ -45,6 +45,7 @@ case class HttpRequestConfig(
   throttled: Boolean,
   silent: Boolean,
   followRedirect: Boolean,
+  discardResponseChunks: Boolean,
   protocol: HttpProtocol,
   explicitResources: List[HttpRequestDef])
 

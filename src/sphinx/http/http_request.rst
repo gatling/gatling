@@ -417,6 +417,13 @@ For example::
       http("api.js").get("https://collector-cdn.github.com/assets/api.js"),
       http("ga.js").get("https://ssl.google-analytics.com/ga.js"))
 
+.. _http-chunksdiscard:
+
+Response chunks discarding
+--------------------------
+
+``disableResponseChunksDiscarding`` works just like the :ref:``protocol level parameter <http-protocol-chunksdiscard>``, except that it targets this request only.
+
 POST HTTP request
 =================
 

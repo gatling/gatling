@@ -40,6 +40,17 @@ class HttpRequestDefSpec extends Specification with Mockito {
   trait Context extends Before {
     val httpEngineMock = mock[HttpEngine]
     var session = Session("mockSession", "mockUserName")
+    val configBase = HttpRequestConfig(
+      checks = Nil,
+      responseTransformer = None,
+      extraInfoExtractor = None,
+      maxRedirects = None,
+      throttled = false,
+      silent = false,
+      followRedirect = false,
+      discardResponseChunks = true,
+      protocol = HttpProtocol.DefaultHttpProtocol,
+      explicitResources = Nil)
 
     def addRedirect(from: String, to: String): Unit =
       session = PermanentRedirect.addRedirect(session, UriComponents.create(from), UriComponents.create(to))
@@ -50,16 +61,7 @@ class HttpRequestDefSpec extends Specification with Mockito {
   "HttpRequestDef" should {
 
     "build silent HttpRequest when being silent" in new Context {
-      val config = HttpRequestConfig(
-        checks = Nil,
-        responseTransformer = None,
-        extraInfoExtractor = None,
-        maxRedirects = None,
-        throttled = false,
-        silent = true, // here
-        followRedirect = false,
-        protocol = HttpProtocol.DefaultHttpProtocol,
-        explicitResources = Nil)
+      val config = configBase.copy(silent = true)
 
       val ahcRequest = mock[Request]
       ahcRequest.getURI returns UriComponents.create("http://example.com/")
@@ -71,16 +73,7 @@ class HttpRequestDefSpec extends Specification with Mockito {
     }
 
     "build non-silent HttpRequest when being non-silent" in new Context {
-      val config = HttpRequestConfig(
-        checks = Nil,
-        responseTransformer = None,
-        extraInfoExtractor = None,
-        maxRedirects = None,
-        throttled = false,
-        silent = false, // here
-        followRedirect = false,
-        protocol = HttpProtocol.DefaultHttpProtocol,
-        explicitResources = Nil)
+      val config = configBase.copy(silent = false)
 
       val ahcRequest = mock[Request]
       ahcRequest.getURI returns UriComponents.create("http://example.com/")
@@ -96,16 +89,7 @@ class HttpRequestDefSpec extends Specification with Mockito {
       ahcRequest.getURI returns UriComponents.create("http://example.com/test.js")
 
       val protocol = new HttpProtocolBuilder(HttpProtocol.DefaultHttpProtocol).silentURI(".*js")
-      val config = HttpRequestConfig(
-        checks = Nil,
-        responseTransformer = None,
-        extraInfoExtractor = None,
-        maxRedirects = None,
-        throttled = false,
-        silent = false, // here
-        followRedirect = false,
-        protocol = protocol, // here
-        explicitResources = Nil)
+      val config = configBase.copy(silent = false, protocol = protocol)
 
       val httpRequestDef = HttpRequestDef("foo".expression, ahcRequest.expression, None, config)
       val httpRequest = httpRequestDef.build(session)
