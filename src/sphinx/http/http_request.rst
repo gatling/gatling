@@ -363,15 +363,42 @@ Once bootstrapped, BodyPart have the following methods for setting additional op
 * ``dispositionType(contentId: String)``, part of the *Content-Disposition* header. If not set, defaults to *form-data*.
 * ``contentId(contentId: Expression[String])``
 
-.. _http-processors:
+.. _http-request-processor:
 
-Response and request processors
--------------------------------
+Request processor
+-----------------
 
-Some people might want to process manually response or request body, Gatling request provide two hooks for that need:
+One might want to process the request body before it's being sent to the wire.
 
-* ``transformResponse(responseTransformer: PartialFunction[Response, Response])``: takes a ``Response => Response`` function and let one process the response before it's being sent to the checks pipeline.
-* ``processRequestBody(processor: Body => Body)``: takes a ``Body => Body`` function and let one process the request body before it's being sent to the wire. Gatling ships two built-ins: ``gzipRequestBody`` and ``streamRequestBody``.
+``processRequestBody(processor: Body => Body)``: takes a ``Body => Body``
+
+Gatling ships two built-ins:
+
+* ``gzipBody``: compress the request body with GZIP
+* ``streamBody``: turn the body into a stream
+
+.. _http-response-processor:
+
+Response processors
+-------------------
+
+Similarly, one might want to process the response before it's passed to the checks pipeline.
+
+``transformResponse(responseTransformer: PartialFunction[Response, Response])``: takes a ``Response => Response``
+
+The example below shows how to decode some Base64 encoded response body::
+
+  import com.ning.http.util.Base64
+  import io.gatling.http.response._
+  import java.nio.charset.StandardCharsets.UTF_8
+
+  // ignore when response isn't received (e.g. when connection refused)
+  .transformResponse { case response if response.isReceived =>
+    val decodedBytes = Base64.decode(response.body.string)
+    new ReponseWrapper(response) {
+      override val body = ByteArrayResponseBody(decodedBytes, UTF_8)
+    }
+  }
 
 .. _http-resources:
 
