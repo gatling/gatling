@@ -11,10 +11,10 @@ The Assertions API is used to verify that global statistics like response time o
 
 Assertions are registered for a simulation using the method ``assertions`` on the ``setUp``. For example::
 
-	setUp(...).assertions(
-		global.responseTime.max.lessThan(50),
-		global.successfulRequests.percent.greaterThan(95)
-	)
+  setUp(...).assertions(
+    global.responseTime.max.lessThan(50),
+    global.successfulRequests.percent.greaterThan(95)
+  )
 
 This method takes as many assertions as you like.
 
@@ -32,25 +32,25 @@ Scope
 
 An assertion can test a statistic calculated from all requests or only a part.
 
-``global``: use statistics calculated from all requests.
+* ``global``: use statistics calculated from all requests.
 
-``details(path)``: use statistics calculated from a group or a request. The path is defined like a Unix filesystem path.
+* ``details(path)``: use statistics calculated from a group or a request. The path is defined like a Unix filesystem path.
 For example, to perform an assertions on the request ``Index`` in the group ``Search``, use::
 
-	details("Search" / "Index")
+  details("Search" / "Index")
 
 Statistics
 ==========
 
-``responseTime``: target the reponse time in milliseconds.
+* ``responseTime``: target the reponse time in milliseconds.
 
-``allRequests``: target the number of requests.
+* ``allRequests``: target the number of requests.
 
-``failedRequests``: target the number of failed requests.
+* ``failedRequests``: target the number of failed requests.
 
-``successfulRequests``: target the number of successful requests.
+* ``successfulRequests``: target the number of successful requests.
 
-``requestsPerSec``: target the rate of requests per second.
+* ``requestsPerSec``: target the rate of requests per second.
 
 Selecting the metric
 ====================
@@ -58,53 +58,53 @@ Selecting the metric
 Applicable to response time
 ---------------------------
 
-``min``: perform the assertion on the minimum of the statistic.
+* ``min``: perform the assertion on the minimum of the metric.
 
-``max``: perform the assertion on the maximum of the statistic.
+* ``max``: perform the assertion on the maximum of the metric.
 
-``mean``: perform the assertion on the mean of the statistic.
+* ``mean``: perform the assertion on the mean of the metric.
 
-``stdDev``: perform the assertion on the standard deviation of the statistic.
+* ``stdDev``: perform the assertion on the standard deviation of the metric.
 
-``percentile1``: perform the assertion on the first percentile of the statistic.
+* ``percentile1``: perform the assertion on the first percentile of the metric.
 
-``percentile2``: perform the assertion on the second percentile of the statistic.
+* ``percentile2``: perform the assertion on the second percentile of the metric.
 
 Applicable to number of requests (all, failed or successful)
 ------------------------------------------------------------
 
-``percent``: use the value as a percentage between 0 and 100.
+* ``percent``: use the value as a percentage between 0 and 100.
 
-``count``: perform the assertion directly on the count of requests.
+* ``count``: perform the assertion directly on the count of requests.
 
 Condition
 =========
 
-Conditions can be chained to apply several conditions on the same statistic.
+Conditions can be chained to apply several conditions on the same metric.
 
-``lessThan(threshold)``: check that the value of the statistic is less than the threshold.
+* ``lessThan(threshold)``: check that the value of the metric is less than the threshold.
 
-``greaterThan(threshold)``: check that the value of the statistic is greater than the threshold.
+* ``greaterThan(threshold)``: check that the value of the metric is greater than the threshold.
 
-``between(thresholdMin, thresholdMax)``: check that the value of the statistic is between two thresholds.
+* ``between(thresholdMin, thresholdMax)``: check that the value of the metric is between two thresholds.
 
-``is(value)``: check that the value of the statistic is equal to the given value.
+* ``is(value)``: check that the value of the metric is equal to the given value.
 
-``in(sequence)``: check that the value of statistic is in a sequence.
+* ``in(sequence)``: check that the value of metric is in a sequence.
 
-``assert(condition, message)``: create a custom condition on the value of the statistic.
+* ``assert(condition, message)``: create a custom condition on the value of the metric.
 
-The first argument is a function that take an Int (the value of the statistics) and return a Boolean which is the result of the assertion.
+  The first argument is a function that take an Int (the value of the metric) and return a Boolean which is the result of the assertion.
 
-The second argument is a function that take a String (the name of the statistic) and a Boolean (result of the assertion) and return a message that describes the assertion as a String.
+  The second argument is a function that take a String (the name of the metric) and a Boolean (result of the assertion) and return a message that describes the assertion as a String.
 
-For example::
+  For example::
 
-	assert(
-		value => value % 2 == 0,
-		(name, result) => name + " is even : " + result)
+    assert(
+      value => value % 2 == 0,
+      (name, result) => name + " is even : " + result)
 
-This will assert that the value is even.
+  This will assert that the value is even.
 
 Putting it all together
 =======================

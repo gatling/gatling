@@ -5,11 +5,11 @@ Concepts
 Virtual User
 ============
 
-Some load testing tools, such as `ab <http://httpd.apache.org/docs/2.2/programs/ab.html>`_  or `wrk <https://github.com/wg/wrk>`_ are very efficent on url bashing, but can't deal with logic between requests.
+Some load testing tools, such as `ab <http://httpd.apache.org/docs/2.2/programs/ab.html>`__  or `wrk <https://github.com/wg/wrk>`__ are very efficient on url bashing, but can't deal with logic between requests.
 
 Advanced load testing tools such as Gatling can deal with virtual users, each one having its own data and maybe taking a distinct browsing path.
 
-Some other tools implement those *virtual users* as threads. Gatling implements them as messages, so it scales much better and can deal easily with thousands of concurrent users. 
+Some other tools implement those *virtual users* as threads. Gatling implements them as messages, which scales much better and can deal easily with thousands of concurrent users.
 
 Scenario
 ========
@@ -40,11 +40,11 @@ This allows fast writing of scenarios and easy maintenance of existing scenarios
 
 Here is a simple example of a scenario::
 
-	scenario("Standard User")
-		.exec(http("Access Github").get("https://github.com"))
-		.pause(2, 3)
-		.exec(http("Search for 'gatling'").get("https://github.com/search?q=gatling"))
-		.pause(2))
+  scenario("Standard User")
+    .exec(http("Access Github").get("https://github.com"))
+    .pause(2, 3)
+    .exec(http("Search for 'gatling'").get("https://github.com/search?q=gatling"))
+    .pause(2))
 
 As we can easily guess, this scenario:
 
@@ -70,15 +70,15 @@ A simulation is a description of the load test. It describes how possibly severa
 
 Here is an example of simulation definition::
 
-	val stdUser = scenario("Standard User")...
-	val admUser = scenario("Admin User")...
-	val advUser = scenario("Advanced User")...
+  val stdUser = scenario("Standard User")...
+  val admUser = scenario("Admin User")...
+  val advUser = scenario("Advanced User")...
 
-	setUp(
-	  stdUser.inject(atOnceUsers(2000)),
-	  admUser.inject(nothingFor(60 seconds), rampUsers(5) over (400 seconds)),
-	  advUser.inject(rampUsers(500) over (200 seconds))
-	)
+  setUp(
+    stdUser.inject(atOnceUsers(2000)),
+    admUser.inject(nothingFor(60 seconds), rampUsers(5) over (400 seconds)),
+    advUser.inject(rampUsers(500) over (200 seconds))
+  )
 
 For more information, check the :ref:`Simulation Setup reference section <simulation-setup>`.
 
@@ -98,7 +98,7 @@ When the tested application offers the possibility to authenticate, tests should
 
 Gatling doesn't provide the tools to generate this test data.
 
-*Feeders* are a convenient API for testers to inject data coming from an external source into the virtual users.
+*Feeders* are a convenient API for testers to inject data coming from an external source into the virtual users' sessions.
 
 For more information, check the :ref:`Feeders reference section <feeder>`.
 

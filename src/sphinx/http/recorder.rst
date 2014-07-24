@@ -154,21 +154,35 @@ Configure the recorder to use the custom java keystore - gatling-custom.jks
 Command-line options
 ====================
 
-For those who prefer the command line, command line options can be passed to the gatling-recorder:
+For those who prefer the command line, command line options can be passed to the Recorder:
 
-* **-lp**: Local port (alias = **--local-port**)
-* **-lps**: Local SSL port (alias = **--local-port-ssl**)
-* **-ph**: Outgoing proxy host (alias = **--proxy-host**)
-* **-pp**: Outgoing proxy port (alias = **--proxy-port**)
-* **-pps**: Outgoing proxy SSL port (alias = **--proxy-port-ssl**)
-* **-of**: Output folder for results (alias = **--output-folder**)
-* **-rbf**: Folder for requests bodies (alias = **--request-bodies-folder**)
-* **-cn**: Name of the generated class (alias = **--class-name**)
-* **-pkg**: Package of the generated class (alias = **--package**)
-* **-enc**: Encoding used in the Recorder (alias = **--encoding**)
-* **-fr**: Enable *Follow Redirects* (alias = **--follow-redirect**)
-* **-ar**: Enable *Automatic Referers* (alias = **--automatic-referer**)
-* **-fhr**: Enable *Fetch html resources* (alias = **--fetch-html-resources**)
++--------------------+-------------------------------------+--------------------------------+
+| Option (short)     | Option (long)                       | Description                    |
++====================+=====================================+================================+
+| -lp <port>         | --local-port <port>                 | Local port                     |
++--------------------+-------------------------------------+--------------------------------+
+| -ph <port>         | --proxy-host <port>                 | Outgoing proxy host            |
++--------------------+-------------------------------------+--------------------------------+
+| -pp <port>         | --proxy-port <port>                 | Outgoing proxy port            |
++--------------------+-------------------------------------+--------------------------------+
+| -pps <port>        | --proxy-port-ssl <port>             | Outgoing proxy SSL port        |
++--------------------+-------------------------------------+--------------------------------+
+| -of <path>         | --output-folder <path>              | Output folder for results      |
++--------------------+-------------------------------------+--------------------------------+
+| -rbf <path>        | --request-bodies-folder <path>      | Folder for requests bodies     |
++--------------------+-------------------------------------+--------------------------------+
+| -cn <className>    | --class-name <className>            | Name of the generated class    |
++--------------------+-------------------------------------+--------------------------------+
+| -pkg <packageName> | --package <packageName>             | Package of the generated class |
++--------------------+-------------------------------------+--------------------------------+
+| -enc <encoding>    | --encoding <encoding>               | Encoding used in the Recorder  |
++--------------------+-------------------------------------+--------------------------------+
+| -fr <true|false>   | --follow-redirect <true|false>      | Enable *Follow Redirects*      |
++--------------------+-------------------------------------+--------------------------------+
+| -ar <true|false>   | --automatic-referer <true|false>    | Enable *Automatic Referers*    |
++--------------------+-------------------------------------+--------------------------------+
+| -fhr <true|false>  | --fetch-html-resources <true|false> | Enable *Fetch html resources*  |
++--------------------+-------------------------------------+--------------------------------+
 
 .. note:: Command-line options override saved preferences.
 
@@ -177,6 +191,6 @@ System properties
 
 There are 2 system properties to control the use of a custom certificate keystore for the proxy:
 
-* gatling.recorder.keystore.path
-* gatling.recorder.keystore.passphrase
+* ``gatling.recorder.keystore.path``
+* ``gatling.recorder.keystore.passphrase``
 

@@ -26,7 +26,7 @@ object GatlingRecorder {
 
   private val cliOptsParser = new OptionParser[Unit]("gatling-recorder") with CommandLineConstantsSupport[Unit] {
     help(Help).text("Show help (this message) and exit")
-    opt[Int](LocalPort).valueName("<port>").foreach(props.localPort).text("Local port used by Gatling Proxy for HTTP")
+    opt[Int](LocalPort).valueName("<port>").foreach(props.localPort).text("Local port used by Gatling Proxy for HTTP/HTTPS")
     opt[String](ProxyHost).valueName("<host>").foreach(props.proxyHost).text("Outgoing proxy host")
     opt[Int](ProxyPort).valueName("<port>").foreach(props.proxyPort).text("Outgoing proxy port for HTTP")
     opt[Int](ProxyPortSsl).valueName("<port>").foreach(props.proxySslPort).text("Outgoing proxy port for HTTPS")

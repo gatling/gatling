@@ -19,7 +19,7 @@ meaning that it works out of the box with self-signed certificates.
 Shared Stores
 -------------
 
-One can provide custom keystores and truststores.
+One can provide custom KeyStores and TrustStores.
 Configuration can be passed with the standard config mechanism, either in ``gatling.conf`` or with System properties::
 
   "gatling.http.ssl.trustStore.type"      (optional)
@@ -37,8 +37,8 @@ Configuration can be passed with the standard config mechanism, either in ``gatl
 Per Virtual User Stores
 -----------------------
 
-Sometimes, one might want to have virtual users with different keystores and truststores.
+Sometimes, one might want to have virtual users with different KeyStores and TrustStores.
 
-As keystore and truststore are define at the HTTP engine instance level, one first has to use :ref:`disableClientSharing <http-protocol-client-sharing>`.
+As KeyStores and TrustStores are define at the HTTP engine instance level, one first has to use :ref:`disableClientSharing <http-protocol-client-sharing>`.
 
 Then, simply pass the same properties as session attributes (manually or with a feeder).

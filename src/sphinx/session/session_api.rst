@@ -30,7 +30,7 @@ In Gatling, entries in this map are called **Session attributes**.
 .. note::
   Remember that a Gatling scenario is a workflow where every step is backed by an Akka Actor?
 
-  ``Session``\ s are the actual messages that are passed along a scenario workflow.
+  A ``Session`` is actually the message that are passed along a scenario workflow.
 
 Injecting Data
 --------------
@@ -39,9 +39,9 @@ The first step is to inject state into the virtual users.
 
 There's 3 ways of doing that:
 
-  * using :ref:`Feeders <feeder>`
-  * extracting data from responses and saving them, e.g. with :ref:`HTTP Check's saveAs <http-check-saving>`
-  * manually with the Session API
+* using :ref:`Feeders <feeder>`
+* extracting data from responses and saving them, e.g. with :ref:`HTTP Check's saveAs <http-check-saving>`
+* manually with the Session API
 
 Fetching Data
 -------------
@@ -50,8 +50,8 @@ Once you have injected data into your virtual users, you'll naturally want retri
 
 There's 2 ways of doing that:
 
-  * using Gatling's :ref:`Expression Language <el>`
-  * manually with the Session API
+* using Gatling's :ref:`Expression Language <el>`
+* manually with the Session API
 
 .. _session-api:
 
@@ -92,11 +92,11 @@ Getting Attributes
 Let's say a Session instance variable named session contains a String attribute named "foo".
 ::
 
-	val session: Session = ???
+  val session: Session = ???
 
 Then::
 
-	val attribute: SessionAttribute = session("foo")
+  val attribute: SessionAttribute = session("foo")
 
 
 .. warning::
@@ -106,23 +106,23 @@ You can then access methods to retrieve the actual value in several ways:
 
 ``session("foo").as[String]``:
 
-	* returns a ``String``,
-	* throws a ``NoSuchElementException`` if the "foo" attribute is undefined,
-	* throws a ``ClassCastException`` if the value is not a String
+* returns a ``String``,
+* throws a ``NoSuchElementException`` if the "foo" attribute is undefined,
+* throws a ``ClassCastException`` if the value is not a String
 
 ``session("foo").asOption[String]``:
 
-  * returns an ``Option[String]``
-  * which is ``None`` if the "foo" attribute is undefined,
-  * which is ``Some(value)`` otherwise and *value* is indeed a String
-  * throws a ``ClassCastException`` otherwise
+* returns an ``Option[String]``
+* which is ``None`` if the "foo" attribute is undefined,
+* which is ``Some(value)`` otherwise and *value* is indeed a String
+* throws a ``ClassCastException`` otherwise
 
 ``session("foo").validate[String]``:
 
-  * returns an ``Validation[String]``
-  * which is ``Failure(errorMessage)`` if the *"foo"* attribute is undefined
-  * which is ``Failure(errorMessage)`` if the value is not a String
-  * which is ``Success(value)`` otherwise
+* returns an ``Validation[String]``
+* which is ``Failure(errorMessage)`` if the *"foo"* attribute is undefined
+* which is ``Failure(errorMessage)`` if the value is not a String
+* which is ``Success(value)`` otherwise
 
 .. note::
 

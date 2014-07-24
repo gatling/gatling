@@ -8,6 +8,9 @@ Scenario
 
 Reference of the different components available to write scenarios with Gatling.
 
+Bootstrapping
+=============
+
 ``scenario`` is the way to bootstrap a new scenario.
 
 ::
@@ -62,7 +65,8 @@ This can be used for manually debugging or editing the :ref:`Session <expression
 
 It exposes the content of a Map into attributes, e.g.::
 
-  // assuming the Session contains an attribute named "theMap" whose content is Map("foo" -> "bar", "baz" -> "qix")
+  // assuming the Session contains an attribute named "theMap" whose content is :
+  // Map("foo" -> "bar", "baz" -> "qix")
 
   .exec(flattenMapIntoAttributes("${theMap}"))
 
@@ -73,8 +77,8 @@ Pause
 
 .. _scenario-pause:
 
-pause
-^^^^^
+``pause``
+^^^^^^^^^
 
 When a user sees a page he/she often reads what is shown and then chooses to click on another link.
 To reproduce this behavior, the pause method is used.
@@ -95,8 +99,8 @@ There are several ways of using it:
 
 .. _scenario-pace:
 
-pace
-^^^^
+``pace``
+^^^^^^^^
 
 If you want to control how frequently an action is executed, to target *iterations per hour* type volumes.
 Gatling support a dedicated type of pause: ``pace``, which adjusts its wait time depending on how long the chained action took.
@@ -125,10 +129,10 @@ There are several ways of using it:
 
 .. _scenario-rendez-vous:
 
-rendezVous
-^^^^^^^^^^
+``rendezVous``
+^^^^^^^^^^^^^^
 
-In some cases, you may want to run some requests, then pause users until all other users have reached a *rendezvous point*.
+In some cases, you may want to run some requests, then pause users until all other users have reached a *rendez-vous point*.
 For this purpose Gatling has the ``rendezVous(users: Int)`` method which takes the number of users to wait.
 
 .. _scenario-loops:
@@ -138,8 +142,8 @@ Loop statements
 
 .. _scenario-repeat:
 
-repeat
-^^^^^^
+``repeat``
+^^^^^^^^^^
 
 ::
 
@@ -152,18 +156,18 @@ repeat
 *counterName* is optional and can be used to force the name of the loop counter.
 Current value can be retrieved on the Session as an attribute with a *counterName* name.
 
-.. warning:: Don't forget that the counter starts at 0!
-
 ::
 
   .repeat(20) {myChain}     // will loop on myChain 20 times
   .repeat("${myKey}") {}    // will loop on myChain as many times as the Int value of the Session attribute myKey
   .repeat(session => /* something that returns an Int*/) {}
 
+.. warning:: Don't forget that the counter starts at 0!
+
 .. _scenario-foreach:
 
-foreach
-^^^^^^^
+``foreach``
+^^^^^^^^^^^
 
 ::
 
@@ -179,8 +183,8 @@ foreach
 
 .. _scenario-during:
 
-during
-^^^^^^
+``during``
+^^^^^^^^^^
 
 ::
 
@@ -194,8 +198,8 @@ during
 
 .. _scenario-forever:
 
-forever
-^^^^^^^
+``forever``
+^^^^^^^^^^^
 
 ::
 
@@ -207,8 +211,9 @@ forever
 
 .. _scenario-aslongas:
 
-asLongAs
-^^^^^^^^
+``asLongAs``
+^^^^^^^^^^^^
+
 ::
 
   .asLongAs(condition, counterName) {
@@ -226,11 +231,11 @@ Conditional statements
 
 .. _scenario-doif:
 
-doIf
-^^^^
+``doIf``
+^^^^^^^^
 
 Gatling's DSL has conditional execution support.
-If you want to execute a specific chain of actions only when some condition is satisfied, you can do so using the doIf method.
+If you want to execute a specific chain of actions only when some condition is satisfied, you can do so using the ``doIf`` method.
 It will check if a value in the session equals the one you specified::
 
   .doIf("${myKey}", "myValue") {
@@ -247,8 +252,8 @@ If you want to test other conditions than equality, you'll have to use an ``Expr
 
 .. _scenario-doiforelse:
 
-doIfOrElse
-^^^^^^^^^^
+``doIfOrElse``
+^^^^^^^^^^^^^^
 
 Similar to ``doIf``, but with a fallback if the condition evaluates to false.
 ::
@@ -263,8 +268,8 @@ Similar to ``doIf``, but with a fallback if the condition evaluates to false.
 
 .. _scenario-doifequalsorelse:
 
-doIfEqualsOrElse
-^^^^^^^^^^^^^^^^
+``doIfEqualsOrElse``
+^^^^^^^^^^^^^^^^^^^^
 
 Similar to ``doIfOrElse`` but test the equality of an expected and an actual value.
 ::
@@ -277,8 +282,8 @@ Similar to ``doIfOrElse`` but test the equality of an expected and an actual val
 
 .. _scenario-doswitch:
 
-doSwitch
-^^^^^^^^
+``doSwitch``
+^^^^^^^^^^^^
 
 Add a switch in the chain. Every possible subchain is defined with a key.
 Switch is selected through the matching of a key with the evaluation of the passed expression.
@@ -292,8 +297,8 @@ If no switch is selected, switch is bypassed.
 
 .. _scenario-doswitchorelse:
 
-doSwitchOrElse
-^^^^^^^^^^^^^^
+``doSwitchOrElse``
+^^^^^^^^^^^^^^^^^^
 
 Similar to ``doSwitch``, but with a fallback if no switch is selected.
 ::
@@ -307,8 +312,8 @@ Similar to ``doSwitch``, but with a fallback if no switch is selected.
 
 .. _scenario-randomswitch:
 
-randomSwitch
-^^^^^^^^^^^^
+``randomSwitch``
+^^^^^^^^^^^^^^^^
 
 ``randomSwitch`` can be used to emulate simple Markov chains.
 Simple means cyclic graphs are not currently supported.
@@ -327,8 +332,8 @@ Once users are done with the switch, they simply continue with the rest of the s
 
 .. _scenario-randomswitchorelse:
 
-randomSwitchOrElse
-^^^^^^^^^^^^^^^^^^
+``randomSwitchOrElse``
+^^^^^^^^^^^^^^^^^^^^^^
 
 Similar to ``randomSwitch``, but with a fallback if no switch is selected (ie: random number exceeds percentages sum).
 ::
@@ -342,8 +347,8 @@ Similar to ``randomSwitch``, but with a fallback if no switch is selected (ie: r
 
 .. _scenario-uniformrandomswitch:
 
-uniformRandomSwitch
-^^^^^^^^^^^^^^^^^^^
+``uniformRandomSwitch``
+^^^^^^^^^^^^^^^^^^^^^^^
 
 Similar to ``randomSwitch``, but with an uniform distribution amongst chains.
 ::
@@ -355,8 +360,8 @@ Similar to ``randomSwitch``, but with an uniform distribution amongst chains.
 
 .. _scenario-roundrobinswitch:
 
-roundRobinSwitch
-^^^^^^^^^^^^^^^^
+``roundRobinSwitch``
+^^^^^^^^^^^^^^^^^^^^
 
 Similar to ``randomSwitch``, but dispatch uses a round-robin strategy.
 ::
@@ -373,8 +378,8 @@ Errors management
 
 .. _scenario-trymax:
 
-tryMax
-^^^^^^
+``tryMax``
+^^^^^^^^^^
 
 ::
 
@@ -391,8 +396,8 @@ If an error happens (a technical exception such as a time out, or a failed check
 
 .. _scenario-exitblockonfail:
 
-exitBlockOnFail
-^^^^^^^^^^^^^^^
+``exitBlockOnFail``
+^^^^^^^^^^^^^^^^^^^
 
 ::
 
@@ -404,8 +409,8 @@ Quite similar to tryMax, but without looping on failure.
 
 .. _scenario-exithereiffailed:
 
-exitHereIfFailed
-^^^^^^^^^^^^^^^^
+``exitHereIfFailed``
+^^^^^^^^^^^^^^^^^^^^
 
 ::
   .exitHereIfFailed
@@ -424,7 +429,7 @@ Groups definition
   }
 
 Create group of requests to model process or requests in a same page.
-Groups can be imbricated into another.
+Groups can be nested.
 
 When using groups, statistics calculated for each request are aggregated in the parent group.
 Aggregated statistics are displayed on the report like request statistics.

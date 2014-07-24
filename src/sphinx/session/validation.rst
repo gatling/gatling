@@ -10,7 +10,7 @@ Concept
 =======
 
 ``Validation`` is an abstraction for describing something that can either be a valid result, or an error message.
-Scalaz has a great implementation, but Gatling has its own, both less powerful yet much more simple.
+Scalaz has a great implementation, but Gatling has its own, less powerful but much more simple.
 
 The benefit of using this abstraction is that it's composable, so one can chain operations that consume and produce validations without having to determine on every operation if it's actually dealing with a succeeding operation or not.
 
@@ -63,8 +63,8 @@ Manipulating
 
 ``Validation`` has the standard Scala "monadic" methods such as:
 
-  * ``map``:expects a function that takes the value if it's a success and return a value.
-  * ``flatMap``: expects a function that takes the value if it's a success and return a new ``Validation``
+* ``map``:expects a function that takes the value if it's a success and return a value.
+* ``flatMap``: expects a function that takes the value if it's a success and return a new ``Validation``
 
 Basically, ``map`` is used to **chain with an operation that can't fail**, hence return a raw value::
 
@@ -91,7 +91,7 @@ You can also use Scala *"for comprehension"* syntactic sugar.
 
 For the impatient, just consider it's like a super loop that can iterate other multiple objects of the same kind (like embedded loops) and can iterate over other things that collections, such as ``Validation``\ s or ``Option``\ s.
 
-Here's what the above example would look like with *"for comprehension"*::
+Here's what the above example would look like using a *"for comprehension"*::
 
   val foo: Validation[Int] = ???
   val bar: Validation[Int] = ???

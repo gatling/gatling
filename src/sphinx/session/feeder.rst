@@ -20,7 +20,7 @@ The structure DSL provides a ``feed`` method.
 
 This defines a workflow step where **every virtual user** feed on the same Feeder.
 
-Every time a virtual user reaches this step, it will pop a record out of the Feeder, and the Session will be injected the record content, result in a new Session instance.
+Every time a virtual user reaches this step, it will pop a record out of the Feeder, which will be injected into the user's Session, resulting in a new Session instance.
 
 
 If the Feeder can't produce enough records, Gatling will complain about it and your simulation will stop.
@@ -51,7 +51,7 @@ CSV feeders
 
 Gatling provides several builtins for reading character-separated values files.
 
-Files are expected to be placed in the ``data`` directory in Gatling distribution. This location can be overridden, see Configuration chapter.
+Files are expected to be placed in the ``data`` directory in Gatling distribution. This location can be overridden, see :ref:`configuration`.
 
 By default, our parser respects `RFC4180 <https://www.ietf.org/rfc/rfc4180.txt>`_, so don't expect behaviors that don't honor this specification.
 
@@ -77,7 +77,7 @@ A solution can be to turn the parsing into a raw split::
   val tsvFeeder = tsv("foo.tsv", rawSplit = true)
   val ssvFeeder = ssv("foo.ssv", rawSplit = true)
 
-Of course, don't use csv for JSON with rawSplit as the JSON commas will be interpreted as separators!
+Of course, don't use ``csv`` for JSON with rawSplit as the JSON commas will be interpreted as separators !
 
 .. _feeder-json:
 
@@ -122,9 +122,9 @@ Gatling also provide a builtin that reads from a JDBC connection.
 
 Just like File parser built-ins, this return a ``RecordSeqFeederBuilder`` instance.
 
-    * The databaseURL must be a JDBC URL (e.g. jdbc:postgresql:gatling),
-    * the username and password are the credentials to access the database,
-    * sql is the request that will get the values needed.
+* The databaseURL must be a JDBC URL (e.g. ``jdbc:postgresql:gatling``),
+* the username and password are the credentials to access the database,
+* sql is the query that will get the values needed.
 
 Only JDBC4 drivers are supported, so that they automatically registers to the DriverManager.
 
@@ -167,17 +167,20 @@ The following Sitemap file::
 
 will be turned into::
 
-  record1: Map("loc" -> "http://www.example.com/",
-          "lastmod" -> "2005-01-01",
-          "changefreq" -> "monthly",
-          "priority" -> "0.8")
+  record1: Map(
+             "loc" -> "http://www.example.com/",
+             "lastmod" -> "2005-01-01",
+             "changefreq" -> "monthly",
+             "priority" -> "0.8")
           
-  record2: Map("loc" -> "http://www.example.com/catalog?item=12&amp;desc=vacation_hawaii",
-          "changefreq" -> "weekly")
+  record2: Map(
+             "loc" -> "http://www.example.com/catalog?item=12&amp;desc=vacation_hawaii",
+             "changefreq" -> "weekly")
 
-  record3: Map("loc" -> "http://www.example.com/catalog?item=73&amp;desc=vacation_new_zealand",
-          "lastmod" -> "2004-12-23",
-          "changefreq" -> "weekly")
+  record3: Map(
+             "loc" -> "http://www.example.com/catalog?item=73&amp;desc=vacation_new_zealand",
+             "lastmod" -> "2004-12-23",
+             "changefreq" -> "weekly")
 
 Redis feeder
 ============

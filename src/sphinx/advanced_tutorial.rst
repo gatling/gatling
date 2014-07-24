@@ -4,7 +4,8 @@
 Advanced Tutorial
 #################
 
-In this section, we assume that you have already gone through the :ref:`quickstart<quickstart>` section and that you  have a basic simulation to work with. We will apply to it a suite of refactoring to introduce more advanced concepts and DSL constructs.
+In this section, we assume that you have already gone through the :ref:`quickstart` section and that you  have a basic simulation to work with.
+We will apply to it a series of refactorings to introduce more advanced concepts and DSL constructs.
 
 Step 01: Isolate processes
 ==========================
@@ -27,7 +28,7 @@ You can create those into dedicated files, or directly into the same file as the
 
   object Search {
 
-    val search = exec(http("Home") // let's give proper names, they are displayed in the reports, and used as keys
+    val search = exec(http("Home") // let's give proper names, as they are displayed in the reports
         .get("/"))
       .pause(7)
       .exec(http("Search")
@@ -94,7 +95,7 @@ Step 03: Use dynamic data with Feeders and Checks
 We have set our simulation to run a bunch of users, but they all search for the same model.
 Wouldn't it be nice if every user could search a different model name?
 
-We need dynamic data so that all users don't play the same and we end up with a behavior completely different from the live system (caching, JIT...).
+We need dynamic data so that all users don't play strictly the same scenario and we end up with a behavior completely different from the live system (caching, JIT...).
 This is where Feeders will be useful.
 
 Feeders are data sources containing all the values you want to use in your scenarios.
@@ -139,7 +140,7 @@ Explanations:
   4. We use session data using Gatling's EL to parameterize the search.
   5. We use a regex with an EL, to capture a part of the HTML response, here an hyperlink, and save it in the user session with the name *computerURL*.
      Note how Scala triple quotes are handy: you don't have to escape double quotes inside the regex with backslashes.
-  6. We use the previously save hyperlink to get a specific page.
+  6. We use the previously saved hyperlink to get a specific page.
 
 .. note::
     For more details regarding *Feeders*, please check out :ref:`Feeder reference page <feeder>`.

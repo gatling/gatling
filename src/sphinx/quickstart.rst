@@ -24,27 +24,27 @@ Just unzip the downloaded bundle to a folder of your choice.
 
   For Windows users, we also recommend that you do not place Gatling in the *Programs* folder as there might be permission issues.
 
-In order to run Gatling, you need to have a JDK installed. We recommend to use the last version.
+In order to run Gatling, you need to have a JDK installed. We recommend that you use the latest version.
 
-For all details regarding the installation and the tuning of the operating system (OS), please refer to the :ref:`operations <operations>` section.
+For all details regarding the installation and the tuning of the operating system (OS), please refer to the :ref:`operations` section.
 
 A Word on Encoding
 ------------------
 
 Gatling's **default encoding is UTF-8**. If you want to use a different one, you have to:
 
-  * select the proper encoding while using the Recorder
-  * configure the proper encoding in the ``gatling.conf`` file.
+* select the proper encoding while using the Recorder
+* configure the proper encoding in the ``gatling.conf`` file.
     It will be used for compiling your simulations and building your requests.
-  * make sure your text editor encoding is properly configured to match.
+* make sure your text editor encoding is properly configured to match.
 
 A Word on Scala
 ---------------
 
 Gatling simulation scripts are written in `Scala <http://www.scala-lang.org/>`_, **but don't panic!** You can use all the basic functions of Gatling without knowing much about Scala.
-In most situations, this DSL will cover most of your needs and you'll be able to build your scenarios.
+In most situations, the DSL will cover most of your needs and you'll be able to build your scenarios.
 
-If you are interested in knowing more about Scala, we then recommend you have a look at `Scala School <http://twitter.github.io/scala_school>`_.
+If you are interested in knowing more about Scala, we then recommend that you have a look at `Twitter's Scala School <http://twitter.github.io/scala_school>`_.
 
 .. note::
   Feel also free to join our `Google Group`_ and ask for help.
@@ -59,8 +59,9 @@ Application under Test
 
 In this tutorial, we will use an application named *Computer-Database* deployed at the URL: `<http://computer-database.heroku.com>`__.
 
-This application is a simple CRUD application for managing computer models, it is one of the samples of `Play! <http://www.playframework.com/>`_.
-You can also run it on your local machine: download Play!'s bundle and check out `the samples <https://github.com/playframework/playframework/tree/master/samples/scala/computer-database>`__.
+This application is a simple CRUD application for managing computer models, and was one of `Play! <http://www.playframework.com/>`_ samples.
+
+You can also run it on your local machine: download Play! 2.2.x's bundle and check out `the samples <https://github.com/playframework/playframework/tree/2.2.x/samples/scala/computer-database>`__.
 
 Scenario
 --------
@@ -123,9 +124,9 @@ All you have to do now is to browse the application:
 Try to act as a user, don't jump from one page to another without taking the time to read.
 This will make your scenario closer to real users' behavior.
 
-When you have finished playing the scenario, click on Stop in the Recorder interface
+When you have finished playing the scenario, click on ``Stop`` in the Recorder interface
 
-The Simulation will be generated in the folder *user-files/simulations/computerdatabase* of your Gatling installation under the name *BasicSimulation.scala*.
+The Simulation will be generated in the folder ``user-files/simulations/computerdatabase`` of your Gatling installation under the name ``BasicSimulation.scala``.
 
 Gatling scenario explained
 --------------------------
@@ -147,7 +148,7 @@ Here is the produced output:
       .doNotTrackHeader("1")
       .acceptLanguageHeader("en-US,en;q=0.5")
       .acceptEncodingHeader("gzip, deflate")
-      .userAgentHeader("Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:27.0) Gecko/20100101 Firefox/27.0")
+      .userAgentHeader("Mozilla/5.0 (Windows NT 5.1; rv:31.0) Gecko/20100101 Firefox/31.0")
 
     val scn = scenario("BasicSimulation") // 7
       .exec(http("request_1")  // 8

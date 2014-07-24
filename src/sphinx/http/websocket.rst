@@ -60,8 +60,8 @@ Send a Message
 
 One can send 2 forms of messages: binary and text:
 
-``sendText(text: Expression[String])``
-``sendBytes(bytes: Expression[Array[Byte]])``
+* ``sendText(text: Expression[String])``
+* ``sendBytes(bytes: Expression[Array[Byte]])``
 
 For example::
 
