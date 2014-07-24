@@ -362,6 +362,7 @@ Once bootstrapped, BodyPart have the following methods for setting additional op
 * ``fileName(fileName: Expression[String])``, part of the *Content-Disposition* header.
 * ``dispositionType(contentId: String)``, part of the *Content-Disposition* header. If not set, defaults to *form-data*.
 * ``contentId(contentId: Expression[String])``
+* ``transferEncoding(transferEncoding: String)``
 
 .. _http-request-processor:
 
