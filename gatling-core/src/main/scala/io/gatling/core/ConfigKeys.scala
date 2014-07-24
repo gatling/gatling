@@ -64,7 +64,6 @@ object ConfigKeys {
 
   object charting {
     val NoReports = "gatling.charting.noReports"
-    val StatsTsvSeparator = "gatling.charting.statsTsvSeparator"
     val MaxPlotPerSeries = "gatling.charting.maxPlotPerSeries"
     val Accuracy = "gatling.charting.accuracy"
 

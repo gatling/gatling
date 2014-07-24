@@ -64,6 +64,7 @@ object GatlingConfiguration extends StrictLogging {
           "gatling.core.extract.xpath.namespaceAware",
           "gatling.core.extract.css.engine",
           "gatling.core.timeOut.actor",
+          "gatling.charting.statsTsvSeparator",
           "gatling.http.baseUrls",
           "gatling.http.proxy.host",
           "gatling.http.proxy.port",
@@ -140,7 +141,6 @@ object GatlingConfiguration extends StrictLogging {
           jvmArgs = config.getString(core.zinc.JvmArgs).split(" "))),
       charting = ChartingConfiguration(
         noReports = config.getBoolean(charting.NoReports),
-        statsTsvSeparator = config.getString(charting.StatsTsvSeparator),
         maxPlotsPerSeries = config.getInt(charting.MaxPlotPerSeries),
         accuracy = config.getInt(charting.Accuracy),
         indicators = IndicatorsConfiguration(
@@ -296,7 +296,6 @@ case class ZincConfiguration(
 
 case class ChartingConfiguration(
   noReports: Boolean,
-  statsTsvSeparator: String,
   maxPlotsPerSeries: Int,
   accuracy: Int,
   indicators: IndicatorsConfiguration)

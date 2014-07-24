@@ -48,23 +48,7 @@ case class RequestStatistics(name: String,
                              percentiles1: Statistics[Int],
                              percentiles2: Statistics[Int],
                              groupedCounts: Seq[GroupedCount],
-                             meanNumberOfRequestsPerSecondStatistics: Statistics[Double]) {
-
-  def mkFastring = {
-    val outputName = List(if (name == GlobalPageName) name else path)
-    List(
-      outputName,
-      numberOfRequestsStatistics.all,
-      minResponseTimeStatistics.all,
-      maxResponseTimeStatistics.all,
-      meanStatistics.all,
-      stdDeviationStatistics.all,
-      percentiles1.all,
-      percentiles2.all,
-      groupedCounts.flatMap(groupedCount => List(groupedCount.name, groupedCount.count, groupedCount.percentage)),
-      meanNumberOfRequestsPerSecondStatistics.all).flatten.mkFastring(configuration.charting.statsTsvSeparator)
-  }
-}
+                             meanNumberOfRequestsPerSecondStatistics: Statistics[Double])
 
 class StatisticsTextComponent extends Component {
 
