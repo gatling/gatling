@@ -107,15 +107,15 @@ However, just like scheduling, that's something very easy to achieve outside Gat
 
 Those are currently:
 
-  1. first byte sent timestamp
-  2. last byte sent timestamp
-  3. first byte received timestamp
-  4. last byte received timestamp
+#. first byte sent timestamp
+#. last byte sent timestamp
+#. first byte received timestamp
+#. last byte received timestamp
 
 A timestamp is of course the number of milliseconds since epoch.
 
-  * response time (in ms) = 4 - 1
-  * latency (in ms) = 3 - 2
+* response time (in ms) = 4 - 1
+* latency (in ms) = 3 - 2
 
 Beware that the format of this file is an implementation details of the ``FileDataWriter``/``FileDataReader`` combo, so it might be subject to changes.
 
@@ -139,19 +139,10 @@ This seems to be a Hostpot JDK7 bug and affects all Java programs, for example: 
 
 OpenJDK 7 and Hostpot JDK8 seem to be fine.
 
-.. _faq-download:
-
-* **I don't have permissions to download binaries on Google Drive**
-
-The files are definitively public.
-
-There's 99,99% chances that you're logged with a Google enterprise account and Google permissions get messed up.
-
-Just log off and you'll be able to download just fine.
 
 https://github.com/excilys/gatling/wiki/FAQ#method-too-large
 
-I have a **HUGE** simulation and I get a "Method too large" compile error.
+* **I have a HUGE simulation and I get a "Method too large" compile error**
 
 In Java and Scala, there's a method size limit. Here, the method is your Simulation constructor.
 

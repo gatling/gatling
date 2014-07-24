@@ -11,7 +11,7 @@ HTTP is the main protocol Gatling targets, so that's where we place most of our 
 Gatling HTTP allows you to load test web applications, web services or websites.
 It supports HTTP and HTTPS with almost every existing features of common browsers such as caching, cookies, redirect, etc.
 
-However, Gatling **is not a browser**: it won't run javascript, won't apply CSS styles and trigger CSS background-images download, won't react to UI events, etc.
+However, Gatling **is not a browser**: it won't run Javascript, won't apply CSS styles and trigger CSS background-images download, won't react to UI events, etc.
 Gatling works on the HTTP protocol level.
 
 Bootstrapping
@@ -22,9 +22,9 @@ Use the ``http`` object in order to create an HTTP protocol.
 As every protocol in Gatling, the HTTP protocol can be configured for a scenario.
 This is done thanks to the following statements::
 
-	val httpConf = http.baseURL("http://my.website.tld")
-	...
-	setUp(scn.protocols(httpConf))
+  val httpConf = http.baseURL("http://my.website.tld")
+  ...
+  setUp(scn.protocols(httpConf))
 
 Core parameters
 ===============
@@ -37,19 +37,19 @@ Base URL
 As you may have seen in the previous example, you can set a base URL.
 This base URL will be prepended to all urls that does not start with ``http``, eg::
 
-	val httpConf = http.baseURL("http://my.website.tld")
+  val httpConf = http.baseURL("http://my.website.tld")
 
-	val scn = scenario("My Scenario")
-	  .exec(
-	    http("My Request")
-	    .get("/my_path") // Will actually make a request on "http://my.website.tld/my_path"
-	  )
-	  .exec(
-	    http("My Other Request")
-	    .get("http://other.website.tld") // Will make a request on "http://other.website.tld"
-	  ...
+  val scn = scenario("My Scenario")
+    .exec(
+      http("My Request")
+      .get("/my_path") // Will actually make a request on "http://my.website.tld/my_path"
+    )
+    .exec(
+      http("My Other Request")
+      .get("http://other.website.tld") // Will make a request on "http://other.website.tld"
+    ...
 
-	setUp(scn.protocolConfig(httpConf)...)
+  setUp(scn.protocolConfig(httpConf)...)
 
 Load testing several servers with client based load balancing
 -------------------------------------------------------------
@@ -88,7 +88,7 @@ Max connection per host
 -----------------------
 
 In order to mimic real web browser, you can configure the max concurrent connections per host **per virtual user**  with ``maxConnectionsPerHost(max: Int)``.
-Gatling ships a bunch of built-ins for well-known browser:
+Gatling ships a bunch of built-ins for well-known browsers:
 
 * ``maxConnectionsPerHostLikeFirefoxOld``
 * ``maxConnectionsPerHostLikeFirefox``
@@ -132,7 +132,7 @@ Virtual Host
 
 .. _http-protocol-virtual-host:
 
-On can set a different Host than the url one::
+One can set a different Host than the url one::
 
   virtualHost(virtualHost: Expression[String])
 
@@ -163,7 +163,7 @@ To disable this feature, just add ``.disableAutomaticReferer`` to an HTTP Protoc
 Caching
 -------
 
-Gatling supports this caching feature:
+Gatling caches responses using :
 
 * Expires header
 * Cache-Control header
@@ -189,13 +189,13 @@ HTTP Headers
 Gatling lets you set some generic headers at the http protocol definition level with ``baseHeaders(headers: Map[String, String])``.
 You have also the following built-ins for the more commons headers:
 
-* ``acceptHeader(value: Expression[String])``: set *Accept* header.
-* ``acceptCharsetHeader(value: Expression[String])``: set *Accept-Charset* header.
-* ``acceptEncodingHeader(value: Expression[String])``: set *Accept-Encoding* header.
-* ``acceptLanguageHeader(value: Expression[String])``: set *Accept-Language* header.
-* ``authorizationHeader(value: Expression[String])``: set *Authorization* header.
-* ``doNotTrackHeader(value: Expression[String])``: set *DNT* header.
-* ``userAgentHeader(value: Expression[String])``: set *User-Agent* header.
+* ``acceptHeader(value: Expression[String])``: set ``Accept`` header.
+* ``acceptCharsetHeader(value: Expression[String])``: set ``Accept-Charset`` header.
+* ``acceptEncodingHeader(value: Expression[String])``: set ``Accept-Encoding`` header.
+* ``acceptLanguageHeader(value: Expression[String])``: set ``Accept-Language`` header.
+* ``authorizationHeader(value: Expression[String])``: set ``Authorization`` header.
+* ``doNotTrackHeader(value: Expression[String])``: set ``DNT`` header.
+* ``userAgentHeader(value: Expression[String])``: set ``User-Agent`` header.
 
 .. _http-protocol-auth:
 
@@ -227,7 +227,7 @@ To avoid infinite redirection loops, you can specify a number max of redirects w
 Response chunks discarding
 --------------------------
 
-Beware that, as an optimization, Gatling doesn't pile up response chunks unless a check is defined on the response body or that debug logging is enabled.
+Beware that, as an optimization, Gatling doesn't keep response chunks unless a check is defined on the response body or that debug logging is enabled.
 However some people might want always keep the response chunks, thus you can disable the default behaviour with ``disableResponseChunksDiscarding``.
 
 .. _http-protocol-extractor:
@@ -257,7 +257,7 @@ Response and request processors
 
 Some people might want to process manually response, Gatling protocol provide a hook for that need: ``transformResponse(responseTransformer: ResponseTransformer)``
 
-.. note:: For more details see the dedicated section :ref:`here <http-processors>`.
+.. note:: For more details see the dedicated section :ref:`here <http-response-processor>`.
 
 .. _http-protocol-check:
 
@@ -265,7 +265,7 @@ Checks
 ------
 
 You can define checks at the http protocol definition level with: ``check(checks: HttpCheck*)``.
-They will be apply on all the requests, however you can disable them for given request thanks to thanks to the ``ignoreDefaultChecks`` method.
+They will be apply on all the requests, however you can disable them for given request thanks to the ``ignoreDefaultChecks`` method.
 
 .. note:: For more details see the dedicated section :ref:`here <http-check>`.
 
@@ -279,11 +279,24 @@ Gatling allow to fetch resources in parallel in order to emulate the behaviour o
 At protocol level, you can use ``inferHtmlResources`` methods, so Gatling will automatically parse HTML to find embedded resources and load them asynchronously.
 
 The supported resources are:
-<script>, <base>, <link>, <bgsound>, <frame>, <iframe>, <img>, <input>, <body>, <applet>, <embed>, <object>,  import directives in HTML and @import CSS rule.
+
+* ``<script>``
+* ``<base>``
+* ``<link>``
+* ``<bgsound>``
+* ``<frame>``
+* ``<iframe>``
+* ``<img>``
+* ``<input>``
+* ``<body>``
+* ``<applet>``
+* ``<embed>``
+* ``<object>``
+* import directives in HTML and @import CSS rule.
 
 Other resources are not supported: css images, javascript triggered resources, conditional comments, etc.
 
-You can also specify black/whith list or custom filters to have a more fine grain control on resource fetching.
+You can also specify black/white list or custom filters to have a more fine grain control on resource fetching.
 ``WhiteList`` and ``BlackList`` take a sequence of pattern, eg ``Seq("http://www.google.com/.*", "http://www.github.com/.*")``, to include and exclude respectively.
 
 * ``inferHtmlResources(white: WhiteList)``: fetch all resources matching a pattern in the white list.
@@ -297,13 +310,13 @@ Proxy parameters
 ----------------
 
 You can tell Gatling to use a proxy to send the HTTP requests.
-You can set the HTTP proxy, on optional HTTPS proxy and optional credentials for the proxy::
+You can set the HTTP proxy, optionally a HTTPS proxy and credentials for the proxy::
 
-	val httpConf = http.proxy(Proxy("myProxyHost", 8080)
-	                   .httpsPort(8143)
-	                   .credentials("myUsername","myPassword"))
+  val httpConf = http.proxy(Proxy("myProxyHost", 8080)
+                     .httpsPort(8143)
+                     .credentials("myUsername","myPassword"))
 
-You can also disabled the use of proxy for a given list of host with ``noProxyFor(hosts: String*)``::
+You can also disable the use of proxy for a given list of host with ``noProxyFor(hosts: String*)``::
 
   val httpConf = http.proxy(Proxy("myProxyHost", 8080))
                      .noProxyFor("www.github.com", "www.akka.io")

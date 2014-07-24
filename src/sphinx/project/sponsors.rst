@@ -6,7 +6,7 @@ eBusiness Information
 =====================
 
 .. image:: img/ebi_logo.png
-	:alt: eBusiness Information
+    :alt: eBusiness Information
 
 Gatling is an open source project supported by `eBusiness Information <http://www.ebusinessinformation.fr>`_, an `Excilys Group <http://www.excilys.com>`_ company.
 
@@ -14,7 +14,7 @@ Yourkit
 =======
 
 .. image:: img/yourkit_logo.png
-	:alt: Yourkit
+    :alt: Yourkit
 
 YourKit is kindly supporting open source projects with its full-featured Java Profiler.
 YourKit, LLC is the creator of innovative and intelligent tools for profiling Java and .NET applications. Take a look at YourKit's leading software products:
@@ -25,8 +25,8 @@ Yourkit has been and is still a great help for checking and fixing memory and co
 Highsoft AS
 ===========
 
-.. image :: img/highsoft_logo.png
-	:alt: Highsoft AS
+.. image:: img/highsoft_logo.png
+    :alt: Highsoft AS
 
 `Highsoft AS <http://www.highsoft.com>`_ is the company behind `Highcharts <http://www.highcharts.com/products/highcharts>`_ and `Highstock <http://www.highcharts.com/products/highstock>`_, two astonishing JavaScript charting libraries.
 

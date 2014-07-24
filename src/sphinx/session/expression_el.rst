@@ -21,14 +21,14 @@ For example::
 
   request("page").get("/foo?${bar}")
 
-Moreover, Gatling EL provide the builtin functions::
+Moreover, Gatling EL provide the following built-in functions::
 
-	"${foo.size()}"   // returns the size of `foo` if `foo` is a Scala or Java collection
-	"${foo.random()}" // returns a random element of `foo` if `foo` is an indexable collection
-	"${foo(5)}"       // returns the 5th element of `foo` if `foo` is an indexable collection
-	"${foo(bar)}"     // returns the bar-th element of `foo` if `bar` is an Int and `foo` is an indexable collection
-	"${foo.bar}"      // returns the value associated with key `bar` if `foo` is a map
-	"${foo._2}"       // returns second element of Tuple or Pair object
+  "${foo.size()}"   // returns the size of `foo` if `foo` is a Scala or Java collection
+  "${foo.random()}" // returns a random element of `foo` if `foo` is an indexable collection
+  "${foo(5)}"       // returns the 5th element of `foo` if `foo` is an indexable collection
+  "${foo(n)}"       // returns the n-th element of `foo` if `n` is an Int and `foo` is an indexable collection
+  "${foo.bar}"      // returns the value associated with key `bar` if `foo` is a map
+  "${foo._2}"       // returns second element of Tuple or Pair object
 
 You can also combine different Galing EL builtin functions. For example if ``foo`` is a List of Lists ``${foo(0)(0)}`` will return first element of the first list in ``foo``. ``${foo.list.random()}`` will return random element from an indexable collection associated with key ``list`` in a map ``foo``.
  
@@ -60,7 +60,7 @@ The reason is that there are implicit conversions:
 
 .. warning::
   Implicit conversions are only triggered when expected type and passed parameter type don't match, for example trying to pass a String to a method that expects an Expression instead.
-  Those implicit conversions are triggered compile time.
+  Those implicit conversions are triggered at compile time.
 
 .. note::
-  For more information about ``Validation``, please check out :ref:`reference page <validation>`.
+  For more information about ``Validation``, please check out the :ref:`Validation reference <validation>`.

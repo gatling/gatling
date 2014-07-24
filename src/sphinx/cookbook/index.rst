@@ -2,8 +2,8 @@ Cookbook
 ========
 
 .. toctree::
-	:maxdepth: 1
+  :maxdepth: 1
 
-	scaling_out
-	passing_parameters
-	handling_jsf
+  scaling_out
+  passing_parameters
+  handling_jsf
