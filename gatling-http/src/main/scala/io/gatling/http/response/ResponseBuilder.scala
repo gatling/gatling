@@ -50,7 +50,7 @@ object ResponseBuilder extends StrictLogging {
 
     val responseBodyUsageStrategies = checks.flatMap(_.responseBodyUsageStrategy).toSet
 
-    val storeBodyParts = IsDebugEnabled || !protocol.responsePart.discardResponseChunks || responseBodyUsageStrategies.nonEmpty
+    val storeBodyParts = IsDebugEnabled || !protocol.responsePart.discardResponseChunks || responseBodyUsageStrategies.nonEmpty || responseTransformer.isDefined
 
     request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, protocol.responsePart.inferHtmlResources)
   }
