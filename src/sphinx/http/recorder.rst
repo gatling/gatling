@@ -4,9 +4,10 @@
 Recorder
 ########
 
-The Gatling Recorder helps you to quickly generate scenarios. It acts as a HTTP proxy between the browser and the HTTP server. While you navigate through the application, it records all HTTP exchange and when done, generates the scenario simulating what you just did.
+The Gatling Recorder helps you to quickly generate scenarios, by either acting as a HTTP proxy between the browser and the HTTP server or converting HAR (Http ARchive) files.
+Either way, the Recorder generates a simple simulation that mimics your recorded navigation.
 
-Launch it from the bundle with the following script ``$GATLING_HOME/bin/recorder.sh``.
+If you're using the bundle, you can launch it with the following script ``$GATLING_HOME/bin/recorder.sh``.
 You will get a window that looks like this one:
 
 .. image:: img/recorder.png
@@ -14,10 +15,11 @@ You will get a window that looks like this one:
 Configuration
 =============
 
-Local proxy ports
------------------
+Local proxy port
+----------------
 
-In the Recorder, you have to define two ports: one for listening to HTTP traffic and one for HTTPS traffic. Then, you have to configure your browser to use the definied ports.
+In the Recorder, you have to define at least one port : the local proxy port. This is the port your browser must connect to so that the Recorder is able to capture your navigation.
+Then, you have to configure your browser to use the defined ports.
 
 Here is how to do with Firefox, open the browser settings:
 
@@ -27,16 +29,12 @@ Then, update the connection settings:
 
 .. image:: img/recorder-browser_advanced_settings.png
 
-.. note:: HTTPS port isn't mandatory if you don't plan to use an HTTPS connection.
-
-
 Outgoing proxy
 --------------
 
-If you must access your web application through a proxy, you can set it up in this section. As the configuration of local ports, two different ports can be defined for the outgoing proxy (HTTP & HTTPS).
+If you must access your web application through a proxy, you can set it up in this section. Two different ports can be defined for the outgoing proxy (HTTP & HTTPS).
 
-.. note:: If HTTP and HTTPS are on the same port for the outgoing proxy, you need to explicitly specify both.
-
+.. note:: Even if HTTP and HTTPS are on the same port for the outgoing proxy, you need to explicitly specify both.
 
 Filters
 -------
@@ -50,7 +48,7 @@ Embedded resources fetching
 
 If you check the option 'Fetch html resources?' option, the Recorder will fetch the embedded HTML resources as follow:
 
-* Add ``fetchHtmlResources`` with the proper white/black lists on the HTTP protocol definition.
+* Add ``inferHtmlResources`` with the proper white/black lists on the HTTP protocol definition.
 * Parse HTML response body to retrieve embedded HTML resources.
 * Filter requests corresponding to embedded HTML resources from resulting ``Scenario``.
 
@@ -96,7 +94,7 @@ HAR files can be obtained using the Chrome Developer Tools or with Firebug and t
 With Chrome Developer Tools, go to *Network* tab, and make sure you've selected the *Preserve log* checkbox, otherwise the log is reset when you change page.
 Select the requests you want to export, then right click and select *Copy All as HAR* and save what's in your clipboard into a file.
 
-Please don't use `Charles Proxy <http://www.charlesproxy.com>`_ for this.
+Please don't use `Charles Proxy <http://www.charlesproxy.com>`__ for this.
 Charles is an amazing tool and has an HAR export feature, but it's a proxy, so when you use it, you change the HTTP behavior, and the HAR would contain requests that should be here, such as CONNECTs.
 
 To import a HAR file, select the *HAR converter* mode in the top right dropdown in the Recorder.
@@ -156,33 +154,33 @@ Command-line options
 
 For those who prefer the command line, command line options can be passed to the Recorder:
 
-+--------------------+-------------------------------------+--------------------------------+
-| Option (short)     | Option (long)                       | Description                    |
-+====================+=====================================+================================+
-| -lp <port>         | --local-port <port>                 | Local port                     |
-+--------------------+-------------------------------------+--------------------------------+
-| -ph <port>         | --proxy-host <port>                 | Outgoing proxy host            |
-+--------------------+-------------------------------------+--------------------------------+
-| -pp <port>         | --proxy-port <port>                 | Outgoing proxy port            |
-+--------------------+-------------------------------------+--------------------------------+
-| -pps <port>        | --proxy-port-ssl <port>             | Outgoing proxy SSL port        |
-+--------------------+-------------------------------------+--------------------------------+
-| -of <path>         | --output-folder <path>              | Output folder for results      |
-+--------------------+-------------------------------------+--------------------------------+
-| -rbf <path>        | --request-bodies-folder <path>      | Folder for requests bodies     |
-+--------------------+-------------------------------------+--------------------------------+
-| -cn <className>    | --class-name <className>            | Name of the generated class    |
-+--------------------+-------------------------------------+--------------------------------+
-| -pkg <packageName> | --package <packageName>             | Package of the generated class |
-+--------------------+-------------------------------------+--------------------------------+
-| -enc <encoding>    | --encoding <encoding>               | Encoding used in the Recorder  |
-+--------------------+-------------------------------------+--------------------------------+
-| -fr <true|false>   | --follow-redirect <true|false>      | Enable *Follow Redirects*      |
-+--------------------+-------------------------------------+--------------------------------+
-| -ar <true|false>   | --automatic-referer <true|false>    | Enable *Automatic Referers*    |
-+--------------------+-------------------------------------+--------------------------------+
-| -fhr <true|false>  | --fetch-html-resources <true|false> | Enable *Fetch html resources*  |
-+--------------------+-------------------------------------+--------------------------------+
++--------------------+-------------------------------------+-----------------------------------------+
+| Option (short)     | Option (long)                       | Description                             |
++====================+=====================================+=========================================+
+| -lp <port>         | --local-port <port>                 | Local Proxy HTTP/HTTPS port             |
++--------------------+-------------------------------------+-----------------------------------------+
+| -ph <port>         | --proxy-host <port>                 | Outgoing proxy host                     |
++--------------------+-------------------------------------+-----------------------------------------+
+| -pp <port>         | --proxy-port <port>                 | Outgoing proxy port                     |
++--------------------+-------------------------------------+-----------------------------------------+
+| -pps <port>        | --proxy-port-ssl <port>             | Outgoing proxy SSL port                 |
++--------------------+-------------------------------------+-----------------------------------------+
+| -of <path>         | --output-folder <path>              | Output folder for generated simulations |
++--------------------+-------------------------------------+-----------------------------------------+
+| -rbf <path>        | --request-bodies-folder <path>      | Folder for requests bodies              |
++--------------------+-------------------------------------+-----------------------------------------+
+| -cn <className>    | --class-name <className>            | Name of the generated simulation        |
++--------------------+-------------------------------------+-----------------------------------------+
+| -pkg <packageName> | --package <packageName>             | Package of the generated simulation     |
++--------------------+-------------------------------------+-----------------------------------------+
+| -enc <encoding>    | --encoding <encoding>               | Encoding used in the Recorder           |
++--------------------+-------------------------------------+-----------------------------------------+
+| -fr <true|false>   | --follow-redirect <true|false>      | Enable *Follow Redirects*               |
++--------------------+-------------------------------------+-----------------------------------------+
+| -ar <true|false>   | --automatic-referer <true|false>    | Enable *Automatic Referers*             |
++--------------------+-------------------------------------+-----------------------------------------+
+| -fhr <true|false>  | --fetch-html-resources <true|false> | Enable *Fetch html resources*           |
++--------------------+-------------------------------------+-----------------------------------------+
 
 .. note:: Command-line options override saved preferences.
 
