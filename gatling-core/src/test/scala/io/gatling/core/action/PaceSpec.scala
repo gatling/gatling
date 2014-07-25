@@ -24,7 +24,7 @@ import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 
 import io.gatling.core.Predef.{ pace, value2Expression }
-import io.gatling.core.config.{ GatlingConfiguration, Protocols }
+import io.gatling.core.config.Protocols
 import io.gatling.core.session.Session
 import io.gatling.core.test.ActorSupport
 
@@ -32,8 +32,6 @@ import io.gatling.core.test.ActorSupport
 class PaceSpec extends Specification {
 
   sequential
-
-  GatlingConfiguration.setUp()
 
   "pace" should {
     "run actions with a minimum wait time" in ActorSupport { testKit =>
