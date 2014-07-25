@@ -15,11 +15,10 @@
  */
 package io.gatling.core.result.writer
 
-import org.joda.time.DateTime
-
 import io.gatling.core.result.message.{ MessageEvent, Status }
 import io.gatling.core.util.DateHelper.RichDateTime
 import io.gatling.core.session.GroupBlock
+import org.threeten.bp.LocalDateTime
 
 sealed trait DataWriterMessage
 
@@ -44,8 +43,8 @@ case class RequestMessage(
   def responseTime = responseEndDate - requestStartDate
 }
 
-case class RunMessage(simulationClassName: String, simulationId: String, runDate: DateTime, runDescription: String) extends DataWriterMessage {
-  val timestamp = runDate.toTimestamp
+case class RunMessage(simulationClassName: String, simulationId: String, runDate: LocalDateTime, runDescription: String) extends DataWriterMessage {
+  val timestamp: String = runDate.toTimestamp
   val runId = simulationId + "-" + timestamp
 }
 

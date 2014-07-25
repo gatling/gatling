@@ -3,7 +3,7 @@ package io.gatling.http.integration
 import java.io.File
 
 import akka.actor.{ Actor, ActorRef, Props }
-import akka.io.{ Tcp, IO }
+import akka.io.IO
 import akka.pattern.ask
 import akka.testkit.{ ImplicitSender, TestKit }
 import akka.util.Timeout
@@ -17,9 +17,9 @@ import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.core.test.ActorSupport
 import io.gatling.http.Predef._
 import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine }
-import org.joda.time.DateTime
 import org.specs2.execute.{ AsResult, Result }
 import org.specs2.specification.Fixture
+import org.threeten.bp.LocalDateTime
 import spray.can.Http
 import spray.http._
 
@@ -99,7 +99,7 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
         AsyncHandlerActor.start()
 
         //Initialise DataWriter with fake data.
-        DataWriter.init(RunMessage("FakeSimulation", "fakesimulation1", DateTime.now, "A fake run"), Nil, self)
+        DataWriter.init(RunMessage("FakeSimulation", "fakesimulation1", LocalDateTime.now, "A fake run"), Nil, self)
         expectMsgClass(classOf[DataWritersInitialized])
 
         f(testKit)

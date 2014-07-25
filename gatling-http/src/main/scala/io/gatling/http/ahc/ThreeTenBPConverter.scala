@@ -15,20 +15,21 @@
  */
 package io.gatling.http.ahc
 
-import org.joda.time.{ DateTime, DateTimeZone }
-
 import com.ning.http.client.date.{ RFC2616Date, TimeConverter }
+import org.threeten.bp.{ ZonedDateTime, ZoneId }
 
-object JodaTimeConverter extends TimeConverter {
+object ThreeTenBPConverter extends TimeConverter {
+
+  val GMT = ZoneId.of("GMT")
 
   def toTime(date: RFC2616Date): Long =
-    new DateTime(
-      date.year(),
-      date.month(),
-      date.dayOfMonth(),
-      date.hour(),
-      date.minute(),
-      date.second(),
-      DateTimeZone.UTC //
-      ).toDate.getTime
+    ZonedDateTime.of( //
+      date.year(), //
+      date.month(), //
+      date.dayOfMonth(), //
+      date.hour(), //
+      date.minute(), //
+      date.second(), //
+      0, //
+      GMT).toEpochSecond()
 }

@@ -15,9 +15,10 @@
  */
 package io.gatling.core.result.writer
 
+import org.threeten.bp.LocalDateTime
+
 import scala.collection.mutable.Map
 
-import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
@@ -29,7 +30,7 @@ class ConsoleDataWriterSpec extends Specification {
 
   GatlingConfiguration.setUp()
 
-  val time = new DateTime().withDate(2012, 8, 24).withTime(13, 37, 0, 0)
+  val time = LocalDateTime.of(2012, 8, 24, 13, 37, 0)
 
   def lines(summary: ConsoleSummary) = summary.text.toString.split("\r?\n")
 

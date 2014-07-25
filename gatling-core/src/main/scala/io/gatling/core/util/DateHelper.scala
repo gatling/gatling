@@ -15,24 +15,26 @@
  */
 package io.gatling.core.util
 
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
+import org.threeten.bp.{ ZoneId, LocalDateTime }
+import org.threeten.bp.format.DateTimeFormatter
 
 /**
  * This object groups all utilities for dates
  */
 object DateHelper {
 
-  val humanDateFormat = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+  val humanDateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
 
-  val timestampFormat = DateTimeFormat.forPattern("yyyyMMddHHmmss")
+  val timestampFormat = DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
 
-  def parseTimestampString(string: String) = DateTime.parse(string, timestampFormat)
+  def parseTimestampString(string: String): LocalDateTime = LocalDateTime.parse(string, timestampFormat)
 
-  implicit class RichDateTime(val dateTime: DateTime) extends AnyVal {
+  implicit class RichDateTime(val dateTime: LocalDateTime) extends AnyVal {
 
-    def toTimestamp = timestampFormat.print(dateTime)
+    def toTimestamp = dateTime.format(timestampFormat)
 
-    def toHumanDate = humanDateFormat.print(dateTime)
+    def toHumanDate = dateTime.format(humanDateFormat)
+
+    def toEpochMilli = dateTime.atZone(ZoneId.systemDefault()).toInstant.toEpochMilli
   }
 }

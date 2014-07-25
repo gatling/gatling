@@ -15,11 +15,11 @@
  */
 package io.gatling.core.result.writer
 
+import org.threeten.bp.LocalDateTime
+import org.threeten.bp.format.DateTimeFormatter
+
 import scala.collection.mutable.Map
 import scala.math.{ ceil, floor }
-
-import org.joda.time.DateTime
-import org.joda.time.format.DateTimeFormat
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
@@ -30,7 +30,7 @@ import io.gatling.core.result.ErrorStats
 object ConsoleSummary {
 
   val Iso8601Format = "yyyy-MM-dd HH:mm:ss"
-  val Iso8601DateTimeFormat = DateTimeFormat.forPattern(Iso8601Format)
+  val Iso8601DateTimeFormat = DateTimeFormatter.ofPattern(Iso8601Format)
   val OutputLength = 80
   val NewBlock = "=" * OutputLength
 
@@ -41,7 +41,7 @@ object ConsoleSummary {
             globalRequestCounters: RequestCounters,
             requestsCounters: Map[String, RequestCounters],
             errorsCounters: Map[String, Int],
-            time: DateTime = DateTime.now) = {
+            time: LocalDateTime = LocalDateTime.now) = {
 
       def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 
@@ -77,7 +77,7 @@ ${errorsCounters.toVector.sortBy(-_._2).map(err => ConsoleErrorsWriter.writeErro
 
     val text = fast"""
 $NewBlock
-${ConsoleSummary.Iso8601DateTimeFormat.print(time)} ${(runDuration + "s elapsed").leftPad(OutputLength - Iso8601Format.length - 9)}
+${time.format(ConsoleSummary.Iso8601DateTimeFormat)} ${(runDuration + "s elapsed").leftPad(OutputLength - Iso8601Format.length - 9)}
 ${usersCounters.map { case (scenarioName, usersStats) => writeUsersCounters(scenarioName, usersStats) }.mkFastring(Eol)}
 ${writeSubTitle("Requests")}
 ${writeRequestsCounter("Global", globalRequestCounters)}

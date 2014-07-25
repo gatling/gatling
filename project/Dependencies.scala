@@ -19,14 +19,13 @@ object Dependencies {
   private val saxon                          = "net.sf.saxon"                           % "Saxon-HE"                    % "9.5.1-6"      classifier "compressed"
   private val slf4jApi                       = "org.slf4j"                              % "slf4j-api"                   % "1.7.7"
   private val fastring                       = "com.dongxiguo"                         %% "fastring"                    % "0.2.4"
-  private val jodaTime                       = "joda-time"                              % "joda-time"                   % "2.3"
-  private val jodaConvert                    = "org.joda"                               % "joda-convert"                % "1.5"
+  private val threetenbp                     = "org.threeten"                           % "threetenbp"                  % "1.0"
   private val scopt                          = "com.github.scopt"                      %% "scopt"                       % "3.2.0"
   private val scalalogging                   = "com.typesafe"                          %% "scalalogging-slf4j"          % "1.1.0"
   private val jackson                        = "com.fasterxml.jackson.core"             % "jackson-databind"            % "2.4.1.3"
   private val boon                           = "io.fastjson"                            % "boon"                        % "0.23"
   private val jsonpath                       = "io.gatling"                            %% "jsonpath"                    % "0.5.0"
-  private val uncommonsMaths                 = "io.gatling.uncommons.maths"             % "uncommons-maths"             % "1.2.3"        classifier "jdk6"
+  private val uncommonsMaths                 = "io.gatling.uncommons.maths"             % "uncommons-maths"             % "1.2.3"
   private val joddLagarto                    = "org.jodd"                               % "jodd-lagarto"                % "3.6.0-BETA2"
   private val jzlib                          = "com.jcraft"                             % "jzlib"                       % "1.1.3"
   private val redisClient                    = "net.debasishg"                         %% "redisclient"                 % "2.13"
@@ -59,10 +58,9 @@ object Dependencies {
     def scalaLibs(version: String) = Seq(scalaLibrary _, scalaCompiler _, scalaReflect _).map(_(version))
     val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
-    val dateLibs = Seq(jodaTime, jodaConvert)
 
-    Seq(akkaActor, uncommonsMaths, config, fastring, openCsv, lru) ++
-    scalaLibs(scalaVersion) ++ loggingLibs ++ checksLibs ++ dateLibs ++ testDeps
+    Seq(akkaActor, uncommonsMaths, config, fastring, openCsv, lru, threetenbp) ++
+    scalaLibs(scalaVersion) ++ loggingLibs ++ checksLibs ++ testDeps
   }
 
   val redisDependencies = redisClient +: testDeps

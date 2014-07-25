@@ -17,12 +17,12 @@ package io.gatling.core.controller
 
 import java.util.UUID.randomUUID
 
+import org.threeten.bp.LocalDateTime
+
 import scala.collection.mutable
 import scala.concurrent.Future
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.util.{ Failure => SFailure, Success => SSuccess }
-
-import org.joda.time.DateTime.now
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
@@ -91,7 +91,7 @@ class Controller extends BaseActor {
         totalNumberOfUsers = scenarios.map(_.injectionProfile.users).sum
         logger.info(s"Total number of users : $totalNumberOfUsers")
 
-        val runMessage = RunMessage(simulation.getClass.getName, simulationId, now, description)
+        val runMessage = RunMessage(simulation.getClass.getName, simulationId, LocalDateTime.now, description)
         runId = runMessage.runId
         DataWriter.init(runMessage, scenarios, self)
         context.become(waitingForDataWriterToInit)

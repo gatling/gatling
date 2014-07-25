@@ -30,7 +30,7 @@ import io.gatling.core.util.NumberHelper.extractLongValue
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.{ HeaderNames, HeaderValues }
-import io.gatling.http.ahc.JodaTimeConverter
+import io.gatling.http.ahc.ThreeTenBPConverter
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.Response
 
@@ -105,7 +105,7 @@ object CacheHandling extends StrictLogging {
     // FIXME use offset instead of 2 substrings
     val trimmedTimeString = removeQuote(timestring.trim)
 
-    Option(new RFC2616DateParser(trimmedTimeString).parse).map(JodaTimeConverter.toTime)
+    Option(new RFC2616DateParser(trimmedTimeString).parse).map(ThreeTenBPConverter.toTime)
   }
 
   def extractMaxAgeValue(s: String): Option[Long] = {
