@@ -24,26 +24,24 @@ import com.typesafe.scalalogging.slf4j.Logging
 import org.specs2.execute._
 
 object ActorSupport extends Fixture[TestKit with ImplicitSender] with Logging {
+
   val consoleOnlyConfig = Map("gatling.data.writers" -> "console")
+
   def apply[R: AsResult](f: TestKit with ImplicitSender => R): Result = apply(consoleOnlyConfig)(f)
 
   def apply[R: AsResult](config: Map[String, _])(f: TestKit with ImplicitSender => R): Result = synchronized {
-    var oldGatlingConfiguration: GatlingConfiguration = null
-    try {
-      oldGatlingConfiguration = GatlingConfiguration.configuration
-      //GatlingConfiguration.configuration = GatlingConfiguration.fakeConfig(config)
-      AsResult(f(new TestKit(
-        GatlingActorSystem.instanceOpt match {
-          case None =>
-            logger.info("Starting GatlingActorSystem")
-            GatlingActorSystem.start()
-          case _ =>
-            throw new RuntimeException("GatlingActorSystem already started!")
-        }) with ImplicitSender))
-    } finally {
-      //GatlingConfiguration.configuration = oldGatlingConfiguration
-      logger.info("Shutting down GatlingActorSystem")
-      GatlingActorSystem.shutdown()
+    AsResult {
+      var oldGatlingConfiguration: GatlingConfiguration = null
+      try {
+        oldGatlingConfiguration = GatlingConfiguration.configuration
+        GatlingConfiguration.set(GatlingConfiguration.fakeConfig(config))
+        f(new TestKit(GatlingActorSystem.start()) with ImplicitSender)
+
+      } finally {
+        GatlingConfiguration.set(oldGatlingConfiguration)
+        logger.info("Shutting down GatlingActorSystem")
+        GatlingActorSystem.shutdown()
+      }
     }
   }
 

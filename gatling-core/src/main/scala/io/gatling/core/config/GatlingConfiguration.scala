@@ -44,6 +44,8 @@ object GatlingConfiguration extends StrictLogging {
     }
   }
 
+  private[gatling] def set(config: GatlingConfiguration): Unit = thisConfiguration = config
+
   def fakeConfig(props: Map[String, _ <: Any] = Map.empty) = {
     val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, "gatling-defaults.conf")
     val propertiesConfig = ConfigFactory.parseMap(props)
