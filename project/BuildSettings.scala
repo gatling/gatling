@@ -20,10 +20,10 @@ object BuildSettings {
     scalaVersion          := "2.10.4",
     autoScalaLibrary      := false,
     resolvers             := Seq(Resolver.mavenLocal, sonatypeSnapshots),
-    javacOptions          := Seq("-Xlint:-options","-source", "1.6", "-target", "1.6"),
+    javacOptions          := Seq("-Xlint:-options","-source", "1.7", "-target", "1.7"),
     scalacOptions         := Seq(
       "-encoding", "UTF-8",
-      "-target:jvm-1.6",
+      "-target:jvm-1.7",
       "-deprecation",
       "-feature",
       "-unchecked",
