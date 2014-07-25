@@ -31,5 +31,5 @@ object ThreeTenBPConverter extends TimeConverter {
       date.minute(), //
       date.second(), //
       0, //
-      GMT).toEpochSecond()
+      GMT).toInstant.toEpochMilli
 }
