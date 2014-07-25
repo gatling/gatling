@@ -29,7 +29,7 @@ object Dependencies {
   private val uncommonsMaths                 = "io.gatling.uncommons.maths"             % "uncommons-maths"             % "1.2.3"        classifier "jdk6"
   private val joddLagarto                    = "org.jodd"                               % "jodd-lagarto"                % "3.6.0-BETA2"
   private val jzlib                          = "com.jcraft"                             % "jzlib"                       % "1.1.3"
-  private val redisClient                    = "net.debasishg"                         %% "redisclient"                 % "2.12"
+  private val redisClient                    = "net.debasishg"                         %% "redisclient"                 % "2.13"
   private val zinc                           = "com.typesafe.zinc"                      % "zinc"                        % "0.3.5"
   private val openCsv                        = "net.sf.opencsv"                         % "opencsv"                     % "2.3"
   private val jmsApi                         = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"       % "1.1.1"
