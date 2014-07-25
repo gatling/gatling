@@ -31,7 +31,7 @@ object ActorSupport extends Fixture[TestKit with ImplicitSender] with Logging {
     var oldGatlingConfiguration: GatlingConfiguration = null
     try {
       oldGatlingConfiguration = GatlingConfiguration.configuration
-      GatlingConfiguration.configuration = GatlingConfiguration.fakeConfig(config)
+      //GatlingConfiguration.configuration = GatlingConfiguration.fakeConfig(config)
       AsResult(f(new TestKit(
         GatlingActorSystem.instanceOpt match {
           case None =>
@@ -41,7 +41,7 @@ object ActorSupport extends Fixture[TestKit with ImplicitSender] with Logging {
             throw new RuntimeException("GatlingActorSystem already started!")
         }) with ImplicitSender))
     } finally {
-      GatlingConfiguration.configuration = oldGatlingConfiguration
+      //GatlingConfiguration.configuration = oldGatlingConfiguration
       logger.info("Shutting down GatlingActorSystem")
       GatlingActorSystem.shutdown()
     }

@@ -34,7 +34,8 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 object GatlingConfiguration extends StrictLogging {
 
   // FIXME
-  var configuration: GatlingConfiguration = _
+  private var thisConfiguration: GatlingConfiguration = _
+  def configuration = thisConfiguration
 
   implicit class ConfigStringSeq(val string: String) extends AnyVal {
     def toStringList: List[String] = string.trim match {
@@ -102,7 +103,7 @@ object GatlingConfiguration extends StrictLogging {
 
     warnAboutRemovedProperties(config)
 
-    configuration = mapToGatlingConfig(config)
+    thisConfiguration = mapToGatlingConfig(config)
   }
 
   private def mapToGatlingConfig(config: Config) =
