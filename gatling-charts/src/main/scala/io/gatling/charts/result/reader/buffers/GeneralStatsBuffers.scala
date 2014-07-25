@@ -66,14 +66,12 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
 
 class GeneralStatsBuffer(duration: Long) extends CountBuffer {
   val digest = new AVLTreeDigest(100.0)
-  var count = 0
   var sumOfSquares = 0L
   var sum = 0L
 
   override def update(time: Int): Unit = {
     super.update(time)
     digest.add(time)
-    count += 1
     sumOfSquares += time * time
     sum += time
   }
@@ -84,6 +82,7 @@ class GeneralStatsBuffer(duration: Long) extends CountBuffer {
       GeneralStats.NoPlot
 
     } else {
+      val count = digest.size
       val mean = (sum / count).toInt
       val stdDev = math.sqrt((sumOfSquares - (sum * sum) / count) / count).toInt
       val meanRequestsPerSec = valuesCount / (duration / FileDataReader.SecMillisecRatio)
