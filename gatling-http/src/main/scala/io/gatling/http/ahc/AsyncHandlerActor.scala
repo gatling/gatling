@@ -21,7 +21,7 @@ import com.ning.http.client.uri.UriComponents
 import com.ning.http.client.{ Request, RequestBuilder }
 import akka.actor.{ ActorRef, Props }
 import akka.actor.ActorDSL.actor
-import akka.routing.RoundRobinRouter
+import akka.routing.RoundRobinPool
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -48,7 +48,7 @@ object AsyncHandlerActor extends AkkaDefaults {
 
   def start(): Unit =
     if (!_instance.isDefined) {
-      _instance = Some(system.actorOf(Props[AsyncHandlerActor].withRouter(RoundRobinRouter(nrOfInstances = 3 * Runtime.getRuntime.availableProcessors))))
+      _instance = Some(system.actorOf(RoundRobinPool(3 * Runtime.getRuntime.availableProcessors).props(Props[AsyncHandlerActor])))
       system.registerOnTermination(_instance = None)
     }
 
