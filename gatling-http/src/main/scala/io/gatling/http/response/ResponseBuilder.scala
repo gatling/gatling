@@ -24,7 +24,7 @@ import scala.math.max
 import org.jboss.netty.buffer.ChannelBuffer
 
 import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
-import com.ning.http.client.providers.netty.response.ResponseBodyPart
+import com.ning.http.client.providers.netty.response.NettyResponseBodyPart
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -118,12 +118,13 @@ class ResponseBuilder(request: Request,
 
     updateLastByteReceived()
 
-    val channelBuffer = bodyPart.asInstanceOf[ResponseBodyPart].getChannelBuffer
+    val channelBuffer = bodyPart.asInstanceOf[NettyResponseBodyPart].getChannelBuffer
 
     if (storeBodyParts || storeHtmlOrCss)
       chunks += channelBuffer
 
     if (computeChecksums)
+      // FIXME use bodyPart.getBodyByteBuffer in 1.9.0-BETA6
       digests.values.foreach(_.update(channelBuffer.toByteBuffer))
   }
 
