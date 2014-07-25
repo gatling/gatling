@@ -15,11 +15,10 @@
  */
 package io.gatling.recorder.har
 
-import org.threeten.bp.LocalDateTime
+import org.threeten.bp.ZonedDateTime
 
 import scala.util.Try
 
-import io.gatling.core.util.DateHelper._
 import io.gatling.recorder.util.Json
 import io.gatling.recorder.util.Json.{ JsonToInt, JsonToString }
 
@@ -29,7 +28,7 @@ object HarMapping {
 
   def jsonToHttpArchive(json: Json): HttpArchive = HttpArchive(buildLog(json.log))
 
-  private def parseMillisFromIso8601DateTime(time: String): Long = LocalDateTime.parse(time).toEpochMilli
+  private def parseMillisFromIso8601DateTime(time: String): Long = ZonedDateTime.parse(time).toInstant.toEpochMilli
 
   private def buildLog(log: Json): Log = {
     val entries = log.entries.iterator
