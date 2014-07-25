@@ -35,7 +35,6 @@ object Dependencies {
   private val jmsApi                         = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"       % "1.1.1"
   private val logbackClassic                 = "ch.qos.logback"                         % "logback-classic"             % "1.1.2"
   private val tdigest                        = "com.tdunning"                           % "t-digest"                    % "3.0"
-  private val hdrHistogram                   = "org.hdrhistogram"                       % "HdrHistogram"                % "1.2.1"
   private val lru                            = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru" % "1.4"
 
   /***********************/
