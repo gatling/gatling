@@ -15,14 +15,11 @@
  */
 package io.gatling.charts.template
 
-import scala.collection.mutable.Map
-import org.joda.time.DateTime
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.charts.component.Statistics
-import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.component.GroupedCount
 
 @RunWith(classOf[JUnitRunner])
@@ -42,6 +39,5 @@ class ConsoleTemplateSpec extends Specification {
       val out = ConsoleTemplate.writeGroupedCounters(GroupedCount("t < 42 ms", 90, 42))
       out.mkString must beEqualTo("> t < 42 ms                                             90 ( 42%)")
     }
-
   }
 }

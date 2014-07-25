@@ -17,6 +17,8 @@ package io.gatling.app
 
 import java.lang.System.currentTimeMillis
 
+import io.gatling.core.util.StringHelper
+
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.util.Try
@@ -82,6 +84,8 @@ object Gatling {
 class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging {
 
   def start: Int = {
+
+    StringHelper.checkSupportedJavaVersion()
 
       def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) =
         configuration.core.outputDirectoryBaseName.getOrElse(clazz.getSimpleName.clean)

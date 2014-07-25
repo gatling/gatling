@@ -27,18 +27,24 @@ import com.dongxiguo.fastring.Fastring.Implicits._
  */
 object StringHelper {
 
+  val UnsupportedJavaVersion = new UnsupportedOperationException("Gatling requires Java >= 7u6")
+  UnsupportedJavaVersion.setStackTrace(new Array[StackTraceElement](0))
+
   sealed trait StringImplementation
   case object DirectCharsBasedStringImplementation extends StringImplementation
   case object OffsetBasedStringImplementation extends StringImplementation
 
   val StringValueFieldOffset: Long = TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
-  val StringOffsetFieldOffset: Option[Long] = Try(TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("offset"))).toOption
-  val StringCountFieldOffset: Option[Long] = Try(TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("count"))).toOption
   val TheStringImplementation: StringImplementation =
-    StringOffsetFieldOffset match {
+    Try(TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("offset"))).toOption match {
       case None => DirectCharsBasedStringImplementation
       case _    => OffsetBasedStringImplementation
     }
+
+  def checkSupportedJavaVersion(): Unit = TheStringImplementation match {
+    case OffsetBasedStringImplementation => throw UnsupportedJavaVersion
+    case _                               =>
+  }
 
   val Eol = System.getProperty("line.separator")
 
@@ -50,34 +56,6 @@ object StringHelper {
       buff.append("0")
     buff.append(JLong.toString(shifted.toLong, 16))
   }.toString
-
-  val StringCharsExtractor: String => Array[Char] = TheStringImplementation match {
-
-    case DirectCharsBasedStringImplementation =>
-
-      string => TheUnsafe.getObject(string, StringValueFieldOffset).asInstanceOf[Array[Char]]
-
-      case OffsetBasedStringImplementation =>
-      string => {
-        val value = TheUnsafe.getObject(string, StringValueFieldOffset).asInstanceOf[Array[Char]]
-        val offset = TheUnsafe.getInt(string, StringOffsetFieldOffset.get)
-        val count = TheUnsafe.getInt(string, StringCountFieldOffset.get)
-
-        if (offset == 0 && count == value.length)
-          // no need to copy
-          value
-        else
-          string.toCharArray
-      }
-  }
-
-  object RichString {
-
-    val EnsureTrimmedCharsArrayF: String => String = TheStringImplementation match {
-      case DirectCharsBasedStringImplementation => identity[String]
-      case _                                    => new String(_)
-    }
-  }
 
   implicit class RichString(val string: String) extends AnyVal {
 
@@ -111,8 +89,6 @@ object StringHelper {
         string
     }
 
-    def unsafeChars: Array[Char] = StringCharsExtractor(string)
-
-    def ensureTrimmedCharsArray: String = RichString.EnsureTrimmedCharsArrayF(string)
+    def unsafeChars: Array[Char] = TheUnsafe.getObject(string, StringValueFieldOffset).asInstanceOf[Array[Char]]
   }
 }

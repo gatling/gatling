@@ -21,8 +21,6 @@ import scala.annotation.{ implicitNotFound, tailrec }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.util.StringHelper.RichString
-
 trait LowPriorityGroupExtractorImplicits extends StrictLogging {
 
   implicit val stringGroupExtractor = new GroupExtractor[String] {
@@ -37,7 +35,7 @@ trait LowPriorityGroupExtractorImplicits extends StrictLogging {
                 extractFirstNonNullGroupRec(i + 1, max)
               else
                 "" // shouldn't happen, as the regex matched, we should have at least one non null group
-            case value => value.ensureTrimmedCharsArray
+            case value => value
           }
         }
 
@@ -50,10 +48,7 @@ trait LowPriorityGroupExtractorImplicits extends StrictLogging {
 
   def safeGetGroupValue(matcher: Matcher, i: Int): String =
     if (matcher.groupCount >= i)
-      matcher.group(i) match {
-        case null  => ""
-        case value => value.ensureTrimmedCharsArray
-      }
+      Option(matcher.group(i)).getOrElse("")
     else {
       logger.error(s"Regex group $i doesn't exist")
       ""
