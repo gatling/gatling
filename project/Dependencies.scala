@@ -16,7 +16,7 @@ object Dependencies {
   private val netty                          = "io.netty"                               % "netty"                       % "3.9.2.Final"
   private val akkaActor                      = "com.typesafe.akka"                     %% "akka-actor"                  % akkaVersion
   private val config                         = "com.typesafe"                           % "config"                      % "1.2.1"
-  private val saxon                          = "net.sf.saxon"                           % "Saxon-HE"                    % "9.5.1-5"      classifier "compressed"
+  private val saxon                          = "net.sf.saxon"                           % "Saxon-HE"                    % "9.5.1-6"      classifier "compressed"
   private val slf4jApi                       = "org.slf4j"                              % "slf4j-api"                   % "1.7.7"
   private val fastring                       = "com.dongxiguo"                         %% "fastring"                    % "0.2.4"
   private val jodaTime                       = "joda-time"                              % "joda-time"                   % "2.3"
