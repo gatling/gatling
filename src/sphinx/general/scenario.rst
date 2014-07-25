@@ -188,13 +188,32 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
 
 ::
 
-  .during(duration, counterName) {
+  .during(duration, counterName, exitASAP) {
     myChain
   }
 
 *duration* can be an Int for a duration in seconds, or a duration expressed like 500 milliseconds.
 
 *counterName* is optional.
+
+*exitASAP* is optional and defaults to true. If true, the condition will be evaluated for each element inside the loop, possibly causing to exit before reaching the end of the iteration.
+
+.. _scenario-aslongas:
+
+``asLongAs``
+^^^^^^^^^^^^
+
+::
+
+  .asLongAs(condition, counterName, exitASAP) {
+    myChain
+  }
+
+*condition* is session function that returns a boolean.
+
+*counterName* is optional.
+
+*exitASAP* is optional and defaults to true. If true, the condition will be evaluated for each element inside the loop, possibly causing to exit before reaching the end of the iteration.
 
 .. _scenario-forever:
 
@@ -206,21 +225,6 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
   .forever(counterName) {
     myChain
   }
-
-*counterName* is optional.
-
-.. _scenario-aslongas:
-
-``asLongAs``
-^^^^^^^^^^^^
-
-::
-
-  .asLongAs(condition, counterName) {
-    myChain
-  }
-
-*condition* is session function that returns a boolean.
 
 *counterName* is optional.
 
