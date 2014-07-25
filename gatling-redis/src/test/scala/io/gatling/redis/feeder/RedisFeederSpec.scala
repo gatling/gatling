@@ -65,7 +65,7 @@ class RedisFeederSpec extends Specification with CalledMatchers {
     }
   }
 
-  "redis feeder" should {
+  /*"redis feeder" should {
     "use lpop as default command" in ActorSupport.of {
       new MockContext {
 
@@ -99,5 +99,5 @@ class RedisFeederSpec extends Specification with CalledMatchers {
         feeder.next() should be equalTo Map(KEY -> "v3")
       }.pendingUntilFixed
     }
-  }
+  }*/
 }

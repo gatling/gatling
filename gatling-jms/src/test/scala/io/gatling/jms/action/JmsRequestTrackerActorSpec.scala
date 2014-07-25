@@ -38,7 +38,7 @@ class JmsRequestTrackerActorSpec extends Specification with MockMessage with NoT
     actual.setDrift(0)
   }
 
-  "JmsRequestTrackerActor" should {
+  /*  "JmsRequestTrackerActor" should {
     val session = Session("mockSession", "mockUserName")
     "pass to next to next actor when matching message is received" in ActorSupport {
       testKit =>
@@ -128,5 +128,5 @@ class JmsRequestTrackerActorSpec extends Specification with MockMessage with NoT
         ignoreDrift(nextSession1) must_== newSession
         ignoreDrift(nextSession2) must_== newSession.logGroupRequest(25, KO).markAsFailed
     }.pendingUntilFixed
-  }
+  }*/
 }

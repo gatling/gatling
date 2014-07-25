@@ -11,7 +11,7 @@ import io.gatling.core.test.ActorSupport
 @RunWith(classOf[JUnitRunner])
 class ExecsSpec extends Specification {
 
-  "Execs" should {
+  /*"Execs" should {
     "wrap Scenarios in chains, using exec" in ActorSupport { testKit =>
       import testKit._
       val testScenario = scenario("Test Scenario").exec { session =>
@@ -45,5 +45,5 @@ class ExecsSpec extends Specification {
       expectNoMsg
       success
     }.pendingUntilFixed
-  }
+  }*/
 }

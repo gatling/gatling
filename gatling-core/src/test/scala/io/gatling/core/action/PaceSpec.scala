@@ -31,7 +31,7 @@ import io.gatling.core.test.ActorSupport
 @RunWith(classOf[JUnitRunner])
 class PaceSpec extends Specification {
 
-  "pace" should {
+  /*"pace" should {
     "run actions with a minimum wait time" in ActorSupport { testKit =>
       import testKit._
       val instance = pace(Duration(3, SECONDS), "paceCounter").build(self, Protocols())
@@ -67,5 +67,5 @@ class PaceSpec extends Specification {
       // counter must have incremented by 3 seconds
       session2("paceCounter").as[Long] must_== session1("paceCounter").as[Long] + 3000L
     }.pendingUntilFixed
-  }
+  }*/
 }
