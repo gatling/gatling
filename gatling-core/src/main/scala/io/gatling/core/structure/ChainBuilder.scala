@@ -18,7 +18,6 @@ package io.gatling.core.structure
 import io.gatling.core.action.builder.ActionBuilder
 
 object ChainBuilder {
-  val empty = new ChainBuilder(Nil)
 
   def chainOf(actionBuilder: ActionBuilder*) = new ChainBuilder(actionBuilder.toList)
 }
