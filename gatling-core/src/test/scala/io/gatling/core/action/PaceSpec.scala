@@ -47,7 +47,7 @@ class PaceSpec extends Specification {
 
       // counter must have incremented by 3 seconds
       session2("paceCounter").as[Long] must_== session1("paceCounter").as[Long] + 3000L
-    }
+    }.pendingUntilFixed
 
     "run actions immediately if the minimum time has expired" in ActorSupport { testKit =>
       import testKit._
@@ -66,6 +66,6 @@ class PaceSpec extends Specification {
 
       // counter must have incremented by 3 seconds
       session2("paceCounter").as[Long] must_== session1("paceCounter").as[Long] + 3000L
-    }
+    }.pendingUntilFixed
   }
 }
