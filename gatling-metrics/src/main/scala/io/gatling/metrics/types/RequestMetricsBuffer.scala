@@ -17,47 +17,43 @@ package io.gatling.metrics.types
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ KO, OK, Status }
-import org.HdrHistogram.Histogram
+import com.tdunning.math.stats.{ AVLTreeDigest, TDigest }
 
 class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
 
-  // Let's take the max of the possible timeouts and add a 1s buffer
-  private val maxValue = configuration.data.graphite.maxMeasuredValue.max(
-    configuration.http.ahc.requestTimeOut) + 1000
+  private val percentile1 = configuration.charting.indicators.percentile1 / 100.0
+  private val percentile2 = configuration.charting.indicators.percentile2 / 100.0
 
-  private val precision = 3
-  private val percentile1 = configuration.charting.indicators.percentile1
-  private val percentile2 = configuration.charting.indicators.percentile2
-
-  private val okHistogram = new Histogram(maxValue, precision)
-  private val koHistogram = new Histogram(maxValue, precision)
-  private val allHistogram = new Histogram(maxValue, precision)
+  private var okDigest: TDigest = _
+  private var koDigest: TDigest = _
+  private var allDigest: TDigest = _
+  clear()
 
   def add(status: Status, time: Long): Unit = {
     val responseTime = time.max(0L)
 
-    allHistogram.recordValue(responseTime)
+    allDigest.add(responseTime)
     status match {
-      case OK => okHistogram.recordValue(responseTime)
-      case KO => koHistogram.recordValue(responseTime)
+      case OK => okDigest.add(responseTime)
+      case KO => koDigest.add(responseTime)
     }
   }
 
   def clear(): Unit = {
-    okHistogram.reset()
-    koHistogram.reset()
-    allHistogram.reset()
+    okDigest = new AVLTreeDigest(100.0)
+    koDigest = new AVLTreeDigest(100.0)
+    allDigest = new AVLTreeDigest(100.0)
   }
 
   def metricsByStatus: MetricByStatus =
-    MetricByStatus(metricsOfHistogram(okHistogram), metricsOfHistogram(koHistogram), metricsOfHistogram(allHistogram))
+    MetricByStatus(metricsOfDigest(okDigest), metricsOfDigest(koDigest), metricsOfDigest(allDigest))
 
-  private def metricsOfHistogram(histogram: Histogram): Option[Metrics] = {
-    val count = histogram.getTotalCount
+  private def metricsOfDigest(digest: TDigest): Option[Metrics] = {
+    val count = digest.size
     if (count > 0) {
-      val percentile1Value = histogram.highestEquivalentValue(histogram.getValueAtPercentile(percentile1))
-      val percentile2Value = histogram.highestEquivalentValue(histogram.getValueAtPercentile(percentile2))
-      Some(Metrics(count, histogram.getMinValue, histogram.getMaxValue, percentile1Value, percentile2Value))
+      val percentile1Value = digest.quantile(percentile1).toInt
+      val percentile2Value = digest.quantile(percentile2).toInt
+      Some(Metrics(count, digest.quantile(0).toInt, digest.quantile(1).toInt, percentile1Value, percentile2Value))
     } else
       None
   }

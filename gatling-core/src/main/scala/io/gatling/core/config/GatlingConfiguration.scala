@@ -217,7 +217,6 @@ object GatlingConfiguration extends StrictLogging {
           port = config.getInt(data.graphite.Port),
           protocol = config.getString(data.graphite.Protocol),
           rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
-          maxMeasuredValue = config.getInt(data.graphite.MaxMeasuredValue),
           bufferSize = config.getInt(data.graphite.BufferSize)),
         jdbc = JDBCDataWriterConfiguration(
           db = DBConfiguration(
@@ -393,7 +392,6 @@ case class GraphiteDataWriterConfiguration(
   port: Int,
   protocol: String,
   rootPathPrefix: String,
-  maxMeasuredValue: Int,
   bufferSize: Int)
 
 case class GatlingConfiguration(
