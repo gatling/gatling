@@ -44,7 +44,7 @@ object ZincCompiler extends StrictLogging {
     val compilerOptions = Seq(
       "-encoding",
       encoding,
-      "-target:jvm-1.6",
+      "-target:jvm-1.7",
       "-deprecation",
       "-feature",
       "-unchecked",
