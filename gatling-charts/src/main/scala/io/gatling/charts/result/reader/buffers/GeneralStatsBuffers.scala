@@ -23,12 +23,8 @@ import io.gatling.core.result.message.Status
 import io.gatling.core.result.reader.GeneralStats
 import io.gatling.charts.result.reader.GroupRecord
 import com.tdunning.math.stats.AVLTreeDigest
-import org.HdrHistogram.Histogram
 
-abstract class GeneralStatsBuffers(durationInSec: Long,
-                                   requestResponseMaxValue: Int,
-                                   groupDurationMaxValue: Int,
-                                   groupCumulatedResponseTimeMaxValue: Int) {
+abstract class GeneralStatsBuffers(durationInSec: Long) {
 
   val requestGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
   val groupDurationGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
@@ -36,13 +32,13 @@ abstract class GeneralStatsBuffers(durationInSec: Long,
   val requestCounts = mutable.Map.empty[BufferKey, (Int, Int)]
 
   def getRequestGeneralStatsBuffers(request: Option[String], group: Option[Group], status: Option[Status]): GeneralStatsBuffer =
-    requestGeneralStatsBuffers.getOrElseUpdate(BufferKey(request, group, status), new GeneralStatsBuffer(durationInSec, requestResponseMaxValue))
+    requestGeneralStatsBuffers.getOrElseUpdate(BufferKey(request, group, status), new GeneralStatsBuffer(durationInSec))
 
   def getGroupDurationGeneralStatsBuffers(group: Group, status: Option[Status]): GeneralStatsBuffer =
-    groupDurationGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec, groupDurationMaxValue))
+    groupDurationGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec))
 
   def getGroupCumulatedResponseTimeGeneralStatsBuffers(group: Group, status: Option[Status]): GeneralStatsBuffer =
-    groupCumulatedResponseTimeGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec, groupCumulatedResponseTimeMaxValue))
+    groupCumulatedResponseTimeGeneralStatsBuffers.getOrElseUpdate(BufferKey(None, Some(group), status), new GeneralStatsBuffer(durationInSec))
 
   def getGroupRequestCounts(group: Group): (Int, Int) =
     requestCounts.getOrElseUpdate(BufferKey(None, Some(group), None), (0, 0))
@@ -68,16 +64,17 @@ abstract class GeneralStatsBuffers(durationInSec: Long,
   }
 }
 
-class GeneralStatsBuffer(duration: Long, maxValue: Int) extends CountBuffer {
+class GeneralStatsBuffer(duration: Long) extends CountBuffer {
   val digest = new AVLTreeDigest(100.0)
-  val highestTrackableValue = math.max(2, maxValue)
-  val histogram = new Histogram(highestTrackableValue, 3)
+  var count = 0
+  var sumOfSquares = 0L
   var sum = 0L
 
   override def update(time: Int): Unit = {
     super.update(time)
     digest.add(time)
-    histogram.recordValue(time)
+    count += 1
+    sumOfSquares += time * time
     sum += time
   }
 
@@ -87,8 +84,8 @@ class GeneralStatsBuffer(duration: Long, maxValue: Int) extends CountBuffer {
       GeneralStats.NoPlot
 
     } else {
-      val mean = (sum / histogram.getTotalCount).toInt
-      val stdDev = histogram.getStdDeviation.toInt
+      val mean = (sum / count).toInt
+      val stdDev = math.sqrt((sumOfSquares - (sum * sum) / count) / count).toInt
       val meanRequestsPerSec = valuesCount / (duration / FileDataReader.SecMillisecRatio)
 
       val percentile1 = digest.quantile(configuration.charting.indicators.percentile1 / 100.0).toInt

@@ -17,16 +17,8 @@ package io.gatling.charts.result.reader
 
 import io.gatling.charts.result.reader.buffers._
 
-class ResultsHolder(minTime: Long,
-                    maxTime: Long,
-                    requestResponseTimeMaxValue: Int,
-                    groupDurationMaxValue: Int,
-                    groupCumulatedResponseTimeMaxValue: Int)
-    extends GeneralStatsBuffers(
-      maxTime - minTime,
-      requestResponseTimeMaxValue,
-      groupDurationMaxValue,
-      groupCumulatedResponseTimeMaxValue)
+class ResultsHolder(minTime: Long, maxTime: Long)
+    extends GeneralStatsBuffers(maxTime - minTime)
     with NamesBuffers
     with RequestsPerSecBuffers
     with ResponseTimeRangeBuffers

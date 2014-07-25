@@ -72,7 +72,7 @@ object Dependencies {
 
   val jmsDependencies = Seq(jmsApi, lru) ++ testDeps ++ jmsTestDeps
 
-  val chartsDependencies = Seq(tdigest, hdrHistogram) ++ testDeps
+  val chartsDependencies = Seq(tdigest) ++ testDeps
 
   val metricsDependencies = hdrHistogram +: testDeps 
 

@@ -63,12 +63,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     finally streams.foreach(_.close)
   }
 
-  case class FirstPassData(runStart: Long,
-                           runEnd: Long,
-                           runMessage: RunMessage,
-                           requestResponseTimeMaxValue: Int,
-                           groupDurationMaxValue: Int,
-                           groupCumulatedResponseTimeMaxValue: Int)
+  case class FirstPassData(runStart: Long, runEnd: Long, runMessage: RunMessage)
 
   private def firstPass(records: Iterator[String]): FirstPassData = {
 
@@ -78,10 +73,6 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
     var runStart = Long.MaxValue
     var runEnd = Long.MinValue
-
-    var maxRequestResponseTime = 0
-    var maxGroupDuration = 0
-    var maxGroupCumulatedResponseTime = 0
 
     val runMessages = mutable.ListBuffer.empty[RunMessage]
 
@@ -98,9 +89,6 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
           runStart = math.min(runStart, firstByteSent)
           runEnd = math.max(runEnd, lastByteReceived)
 
-          val responseTime = (lastByteReceived - firstByteSent).toInt
-          maxRequestResponseTime = math.max(maxRequestResponseTime, responseTime)
-
         case RawUserRecord(array) =>
           runStart = math.min(runStart, array(4).toLong)
           runEnd = math.max(runEnd, array(5).toLong)
@@ -112,12 +100,6 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
           runStart = math.min(runStart, groupEntry)
           runEnd = math.max(runEnd, groupExit)
 
-          val duration = (groupExit - groupEntry).toInt
-          maxGroupDuration = math.max(maxGroupDuration, duration)
-
-          val cumulatedResponseTime = array(6).toInt
-          maxGroupCumulatedResponseTime = math.max(maxGroupCumulatedResponseTime, cumulatedResponseTime)
-
         case RawRunRecord(array) =>
           runMessages += RunMessage(array(0), array(1), parseTimestampString(array(3)), array(4).trim)
 
@@ -128,22 +110,10 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
     logger.info(s"First pass done: read $count lines")
 
-    FirstPassData(
-      runStart,
-      runEnd,
-      runMessages.head,
-      maxRequestResponseTime,
-      maxGroupDuration,
-      maxGroupCumulatedResponseTime)
+    FirstPassData(runStart, runEnd, runMessages.head)
   }
 
-  val FirstPassData(
-    runStart,
-    runEnd,
-    runMessage,
-    requestResponseTimeMaxValue,
-    groupDurationMaxValue,
-    groupCumulatedResponseTimeMaxValue) = doWithInputFiles(firstPass)
+  val FirstPassData(runStart, runEnd, runMessage) = doWithInputFiles(firstPass)
 
   val step = StatsHelper.step(math.floor(runStart / SecMillisecRatio).toInt, math.ceil(runEnd / SecMillisecRatio).toInt, configuration.charting.maxPlotsPerSeries) * SecMillisecRatio
   val bucketFunction = StatsHelper.bucket(_: Int, 0, (runEnd - runStart).toInt, step, step / 2)
@@ -153,7 +123,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
     logger.info("Second pass")
 
-    val resultsHolder = new ResultsHolder(runStart, runEnd, requestResponseTimeMaxValue, groupDurationMaxValue, groupCumulatedResponseTimeMaxValue)
+    val resultsHolder = new ResultsHolder(runStart, runEnd)
 
     var count = 0
 
