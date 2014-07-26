@@ -1,4 +1,5 @@
 language: scala
+sbt_args: -Xmx2048M
 before_script: ./make_credentials.sh
 script: sbt test
 
