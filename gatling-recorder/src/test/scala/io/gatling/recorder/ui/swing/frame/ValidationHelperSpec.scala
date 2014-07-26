@@ -16,60 +16,54 @@
 package io.gatling.recorder.ui.swing.frame
 
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 import ValidationHelper._
 
 @RunWith(classOf[JUnitRunner])
-class ValidationHelperSpec extends Specification {
+class ValidationHelperSpec extends FlatSpec with Matchers {
 
-  "isValidPackageName" should {
-
-    "accept lower case" in {
-      isValidPackageName("foo.bar") should beTrue
-    }
-
-    "reject upper case" in {
-      isValidPackageName("foo.Bar") should beFalse
-    }
-
-    "accept digits" in {
-      isValidPackageName("foo2.bar") should beTrue
-    }
-
-    "reject digits when first directory char" in {
-      isValidPackageName("foo.2bar") should beFalse
-    }
-
-    "accept underscore" in {
-      isValidPackageName("fo_o.bar") should beTrue
-    }
-
-    "reject whitespaces" in {
-      isValidPackageName("foo .bar") should beFalse
-    }
+  "isValidPackageName" should "accept lower case" in {
+    isValidPackageName("foo.bar") shouldBe true
   }
 
-  "isValidSimpleClassName" should {
+  it should "reject upper case" in {
+    isValidPackageName("foo.Bar") shouldBe false
+  }
 
-    "accept lower case and upper case" in {
-      isValidSimpleClassName("FooBar") should beTrue
-    }
+  it should "accept digits" in {
+    isValidPackageName("foo2.bar") shouldBe true
+  }
 
-    "reject digit first char" in {
-      isValidSimpleClassName("1FooBar") should beFalse
-    }
+  it should "reject digits when first directory char" in {
+    isValidPackageName("foo.2bar") shouldBe false
+  }
 
-    "accept digit char in other positions" in {
-      isValidSimpleClassName("Foo1Bar") should beTrue
-    }
+  it should "accept underscore" in {
+    isValidPackageName("fo_o.bar") shouldBe true
+  }
 
-    "reject whitespaces" in {
-      isValidSimpleClassName("Foo Bar") should beFalse
-    }
+  it should "reject whitespaces" in {
+    isValidPackageName("foo .bar") shouldBe false
+  }
 
-    "reject underscore" in {
-      isValidSimpleClassName("Foo_Bar") should beFalse
-    }
+  "isValidSimpleClassName" should "accept lower case and upper case" in {
+    isValidSimpleClassName("FooBar") shouldBe true
+  }
+
+  it should "reject digit first char" in {
+    isValidSimpleClassName("1FooBar") shouldBe false
+  }
+
+  it should "accept digit char in other positions" in {
+    isValidSimpleClassName("Foo1Bar") shouldBe true
+  }
+
+  it should "reject whitespaces" in {
+    isValidSimpleClassName("Foo Bar") shouldBe false
+  }
+
+  it should "reject underscore" in {
+    isValidSimpleClassName("Foo_Bar") shouldBe false
   }
 }

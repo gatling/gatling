@@ -16,19 +16,17 @@
 package io.gatling.core.result.writer
 
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.result.message.OK
 
 @RunWith(classOf[JUnitRunner])
-class RequestMessageSpec extends Specification {
+class RequestMessageSpec extends FlatSpec with Matchers {
 
-  "constructor" should {
-    "have sensible defaults for optional parameters" in {
-      val record: RequestMessage = RequestMessage("scenarioName", "1", Nil, "requestName", 0L, 0L, 0L, 0L, OK, Some("requestMessage"), Nil)
+  "constructor" should "have sensible defaults for optional parameters" in {
+    val record: RequestMessage = RequestMessage("scenarioName", "1", Nil, "requestName", 0L, 0L, 0L, 0L, OK, Some("requestMessage"), Nil)
 
-      record.extraInfo should beEmpty
-    }
+    record.extraInfo shouldBe empty
   }
 }

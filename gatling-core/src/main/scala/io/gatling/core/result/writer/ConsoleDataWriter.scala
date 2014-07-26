@@ -57,7 +57,7 @@ class ConsoleDataWriter extends DataWriter {
   }
 
   override def initialized: Receive = super.initialized.orElse {
-    case Display => display
+    case Display => display()
   }
 
   override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
@@ -76,14 +76,14 @@ class ConsoleDataWriter extends DataWriter {
     event match {
       case Start =>
         usersCounters.get(scenarioName) match {
-          case Some(name) => name.userStart
-          case _          => logger.error(s"Internal error, scenario '${scenarioName}' has not been correctly initialized")
+          case Some(name) => name.userStart()
+          case _          => logger.error(s"Internal error, scenario '$scenarioName' has not been correctly initialized")
         }
 
       case End =>
         usersCounters.get(scenarioName) match {
-          case Some(name) => name.userDone
-          case _          => logger.error(s"Internal error, scenario '${scenarioName}' has not been correctly initialized")
+          case Some(name) => name.userDone()
+          case _          => logger.error(s"Internal error, scenario '$scenarioName' has not been correctly initialized")
         }
     }
   }
@@ -109,5 +109,5 @@ class ConsoleDataWriter extends DataWriter {
     }
   }
 
-  override def onTerminateDataWriter(): Unit = if (!complete) display
+  override def onTerminateDataWriter(): Unit = if (!complete) display()
 }

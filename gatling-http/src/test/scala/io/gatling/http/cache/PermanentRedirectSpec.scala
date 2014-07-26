@@ -15,81 +15,74 @@
  */
 package io.gatling.http.cache
 
-import com.ning.http.client.uri.UriComponents
-import io.gatling.core.config.GatlingConfiguration
 import org.junit.runner.RunWith
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
-import org.specs2.mock.Mockito
-import org.specs2.runner.JUnitRunner
-import org.specs2.mutable.{ Before, Specification }
+import com.ning.http.client.uri.UriComponents
 
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.http.MockUtils
 
-/**
- * @author Ivan Mushketyk
- */
 @RunWith(classOf[JUnitRunner])
-class PermanentRedirectSpec extends Specification with Mockito {
+class PermanentRedirectSpec extends FlatSpec with Matchers {
 
-  class Context extends Before {
+  GatlingConfiguration.setUp()
+
+  class Context {
     var session = Session("mockSession", "mockUserName")
 
     def addRedirect(from: String, to: String): Unit =
       session = PermanentRedirect.addRedirect(session, UriComponents.create(from), UriComponents.create(to))
-
-    def before(): Unit = {
-      GatlingConfiguration.setUp()
-    }
   }
-  "redirect memoization" should {
-    "return transaction with no redirect cache" in new Context {
-      val tx = MockUtils.txTo("http://example.com/", session)
-      val actualTx = PermanentRedirect.getRedirect(tx)
 
-      actualTx should be equalTo tx
-    }
+  "redirect memoization" should "return transaction with no redirect cache" in new Context {
+    val tx = MockUtils.txTo("http://example.com/", session)
+    val actualTx = PermanentRedirect.getRedirect(tx)
 
-    "redirect memoization should be empty" in new Context {
-      CacheHandling.getRedirectMemoizationStore(session) should be empty
-    }
+    actualTx shouldBe tx
+  }
 
-    "return updated transaction with single redirect" in new Context {
-      addRedirect("http://example.com/", "http://gatling-tool.org/")
+  it should "be empty" in new Context {
+    CacheHandling.getRedirectMemoizationStore(session) shouldBe empty
+  }
 
-      val origTx = MockUtils.txTo("http://example.com/", session)
-      val tx = PermanentRedirect.getRedirect(origTx)
+  it should "return updated transaction with single redirect" in new Context {
+    addRedirect("http://example.com/", "http://gatling-tool.org/")
 
-      tx.request.ahcRequest.getURI should be equalTo UriComponents.create("http://gatling-tool.org/")
-      tx.redirectCount should be equalTo 1
+    val origTx = MockUtils.txTo("http://example.com/", session)
+    val tx = PermanentRedirect.getRedirect(origTx)
 
-    }
+    tx.request.ahcRequest.getURI shouldBe UriComponents.create("http://gatling-tool.org/")
+    tx.redirectCount shouldBe 1
 
-    "return updated transaction with several redirects" in new Context {
-      addRedirect("http://example.com/", "http://gatling-tool.org/")
-      addRedirect("http://gatling-tool.org/", "http://gatling-tool2.org/")
-      addRedirect("http://gatling-tool2.org/", "http://gatling-tool3.org/")
+  }
 
-      val origTx = MockUtils.txTo("http://example.com/", session)
-      val tx = PermanentRedirect.getRedirect(origTx)
+  it should "return updated transaction with several redirects" in new Context {
+    addRedirect("http://example.com/", "http://gatling-tool.org/")
+    addRedirect("http://gatling-tool.org/", "http://gatling-tool2.org/")
+    addRedirect("http://gatling-tool2.org/", "http://gatling-tool3.org/")
 
-      tx.request.ahcRequest.getURI should be equalTo UriComponents.create("http://gatling-tool3.org/")
-      tx.redirectCount should be equalTo 3
+    val origTx = MockUtils.txTo("http://example.com/", session)
+    val tx = PermanentRedirect.getRedirect(origTx)
 
-    }
+    tx.request.ahcRequest.getURI shouldBe UriComponents.create("http://gatling-tool3.org/")
+    tx.redirectCount shouldBe 3
 
-    "return updated transaction with several redirects" in new Context {
-      addRedirect("http://example.com/", "http://gatling-tool.org/")
-      addRedirect("http://gatling-tool.org/", "http://gatling-tool2.org/")
-      addRedirect("http://gatling-tool2.org/", "http://gatling-tool3.org/")
+  }
 
-      // Redirect count is already 2
-      val origTx = MockUtils.txTo("http://example.com/", session, 2)
-      val tx = PermanentRedirect.getRedirect(origTx)
+  it should "return updated transaction with several redirects, with redirectCount preset" in new Context {
+    addRedirect("http://example.com/", "http://gatling-tool.org/")
+    addRedirect("http://gatling-tool.org/", "http://gatling-tool2.org/")
+    addRedirect("http://gatling-tool2.org/", "http://gatling-tool3.org/")
 
-      tx.request.ahcRequest.getURI should be equalTo UriComponents.create("http://gatling-tool3.org/")
-      // After 3 more redirects it is now equal to 5
-      tx.redirectCount should be equalTo 5
-    }
+    // Redirect count is already 2
+    val origTx = MockUtils.txTo("http://example.com/", session, 2)
+    val tx = PermanentRedirect.getRedirect(origTx)
+
+    tx.request.ahcRequest.getURI shouldBe UriComponents.create("http://gatling-tool3.org/")
+    // After 3 more redirects it is now equal to 5
+    tx.redirectCount shouldBe 5
   }
 }

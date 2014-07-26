@@ -16,28 +16,26 @@
 package io.gatling.recorder.scenario.template
 
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
-import org.specs2.mutable.Specification
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 @RunWith(classOf[JUnitRunner])
-class ValuesTemplateSpec extends Specification {
+class ValuesTemplateSpec extends FlatSpec with Matchers {
 
   def str(s: Fastring) = s.toString.replaceAll("""\r?\n""", "\n")
 
-  "values template" should {
-    "generate empty string if no variables" in {
-      val res = ValuesTemplate.render(Seq())
-      res.toString() must beEqualTo("")
-    }
+  "values template" should "generate empty string if no variables" in {
+    val res = ValuesTemplate.render(Seq())
+    res.toString() shouldBe empty
+  }
 
-    "list variables" in {
-      val res = str(ValuesTemplate.render(Seq(new Value("n1", "v1"), new Value("n2", "v2"))))
-      val expected = str(fast"""    val n1 = ${protectWithTripleQuotes("v1")}
+  it should "list variables" in {
+    val res = str(ValuesTemplate.render(Seq(new Value("n1", "v1"), new Value("n2", "v2"))))
+    val expected = str(fast"""    val n1 = ${protectWithTripleQuotes("v1")}
     val n2 = ${protectWithTripleQuotes("v2")}""")
 
-      res must beEqualTo(expected)
-    }
+    res shouldBe expected
   }
 }

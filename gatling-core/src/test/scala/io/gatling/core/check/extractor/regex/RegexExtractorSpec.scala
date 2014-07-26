@@ -16,31 +16,24 @@
 package io.gatling.core.check.extractor.regex
 
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.test.ValidationSpecification
+import io.gatling.core.test.ValidationValues
 
 @RunWith(classOf[JUnitRunner])
-class RegexExtractorSpec extends ValidationSpecification {
+class RegexExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
   GatlingConfiguration.setUp()
 
-  "count" should {
-
-    "return Some(0) when no results" in {
-      val stringRegexExtractor = new CountRegexExtractor("""foo""")
-      stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""") must succeedWith(Some(0))
-    }
+  "count" should "return Some(0) when no results" in {
+    val stringRegexExtractor = new CountRegexExtractor("""foo""")
+    stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""").succeeded shouldBe Some(0)
   }
 
-  "extractMultiple" should {
-
-    "return expected result with anywhere expression" in {
-
-      val stringRegexExtractor = new MultipleRegexExtractor[String](""""SearchDefinitionID\\":(\d*)""")
-
-      stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""") must succeedWith(Some(List("116", "108")))
-    }
+  "extractMultiple" should "return expected result with anywhere expression" in {
+    val stringRegexExtractor = new MultipleRegexExtractor[String](""""SearchDefinitionID\\":(\d*)""")
+    stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""").succeeded shouldBe Some(List("116", "108"))
   }
 }

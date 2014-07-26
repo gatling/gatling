@@ -15,36 +15,39 @@
  */
 package io.gatling.jms.check
 
-import org.specs2.mutable.Specification
-import io.gatling.jms.Predef._
 import javax.jms._
-import io.gatling.core.session.Session
-import io.gatling.core.validation.{ Success, Failure }
-import io.gatling.jms.MockMessage
+
 import scala.collection.mutable
 
-class JmsSimpleCheckSpec extends Specification with MockMessage {
+import org.junit.runner.RunWith
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
+
+import io.gatling.core.session.Session
+import io.gatling.core.validation._
+import io.gatling.jms.MockMessage
+import io.gatling.jms.Predef._
+
+@RunWith(classOf[JUnitRunner])
+class JmsSimpleCheckSpec extends FlatSpec with Matchers with MockMessage {
 
   implicit def cache = mutable.Map.empty[Any, Any]
 
-  "simple check" should {
-    val session = Session("mockSession", "mockUserName")
-    val check = simpleCheck {
-      case tm: TextMessage if tm.getText() == "OK" => true
-      case tm: TextMessage if tm.getText() == "KO" => false
-      case _                                       => false
-    }
+  val session = Session("mockSession", "mockUserName")
+  val check = simpleCheck {
+    case tm: TextMessage => tm.getText == "OK"
+    case _               => false
+  }
 
-    "return success if condition is true" in {
-      check.check(textMessage("OK"), session) must beAnInstanceOf[Success[_]]
-    }
+  "simple check" should "return success if condition is true" in {
+    check.check(textMessage("OK"), session) shouldBe a[Success[_]]
+  }
 
-    "return failure if condition is false" in {
-      check.check(textMessage("KO"), session) must beAnInstanceOf[Failure]
-    }
+  it should "return failure if condition is false" in {
+    check.check(textMessage("KO"), session) shouldBe a[Failure]
+  }
 
-    "return failure if message is not TextMessage" in {
-      check.check(message, session) must beAnInstanceOf[Failure]
-    }
+  it should "return failure if message is not TextMessage" in {
+    check.check(message, session) shouldBe a[Failure]
   }
 }

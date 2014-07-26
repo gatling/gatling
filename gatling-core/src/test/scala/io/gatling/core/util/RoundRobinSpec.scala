@@ -16,31 +16,28 @@
 package io.gatling.core.util
 
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class RoundRobinSpec extends Specification {
+class RoundRobinSpec extends FlatSpec with Matchers {
 
-  "round robin" should {
+  "round robin" should "work fine with non empty Iterable" in {
 
-    "work fine with non empty Iterable" in {
+    val rr = RoundRobin(Array(1, 2, 3))
 
-      val rr = RoundRobin(Array(1, 2, 3))
+    rr.next shouldBe 1
+    rr.next shouldBe 2
+    rr.next shouldBe 3
+    rr.next shouldBe 1
+    rr.next shouldBe 2
+    rr.next shouldBe 3
+  }
 
-      rr.next should beEqualTo(1)
-      rr.next should beEqualTo(2)
-      rr.next should beEqualTo(3)
-      rr.next should beEqualTo(1)
-      rr.next should beEqualTo(2)
-      rr.next should beEqualTo(3)
-    }
+  it should "throw NoSuchElementException with iterating on an empty Iterable" in {
 
-    "throw NoSuchElementException with iterating on an empty Iterable" in {
+    val rr = RoundRobin(Array.empty[Int])
 
-      val rr = RoundRobin(Array.empty[Int])
-
-      rr.next should throwA[NoSuchElementException]
-    }
+    a[NoSuchElementException] should be thrownBy rr.next
   }
 }

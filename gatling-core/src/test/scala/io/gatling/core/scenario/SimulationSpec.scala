@@ -16,22 +16,21 @@
 package io.gatling.core.scenario
 
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
-import org.specs2.mutable.Specification
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.pause.{ Exponential, PauseProtocol }
 
 @RunWith(classOf[JUnitRunner])
-class SimulationSpec extends Specification {
-  "setUp" should {
-    "set exponential pause protocol" in {
-      val simulation = new Simulation {
-        setUp().exponentialPauses
-      }
+class SimulationSpec extends FlatSpec with Matchers {
 
-      val protocol = simulation._globalProtocols.getProtocol[PauseProtocol]
-      protocol.isEmpty must beFalse
-      protocol.get.pauseType.isInstanceOf[Exponential.type] must beTrue
+  "setUp" should "set exponential pause protocol" in {
+    val simulation = new Simulation {
+      setUp().exponentialPauses
     }
+
+    val protocol = simulation._globalProtocols.getProtocol[PauseProtocol]
+    protocol.isEmpty shouldBe false
+    protocol.get.pauseType.isInstanceOf[Exponential.type] shouldBe true
   }
 }

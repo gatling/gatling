@@ -15,10 +15,11 @@
  */
 package io.gatling.jms.action
 
-import io.gatling.core.result.writer.{ DataWriterMessage, GroupMessage, RequestMessage, DataWriterClient }
+import com.typesafe.scalalogging.slf4j.StrictLogging
+
+import io.gatling.core.result.writer._
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.result.message.Status
-import com.typesafe.scalalogging.slf4j.StrictLogging
 
 trait MockDataWriterClient extends DataWriterClient with StrictLogging {
 

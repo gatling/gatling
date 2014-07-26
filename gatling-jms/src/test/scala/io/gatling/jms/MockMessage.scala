@@ -15,14 +15,17 @@
  */
 package io.gatling.jms
 
-import org.specs2.mock.Mockito
 import javax.jms.{ Message, TextMessage }
 
-trait MockMessage extends Mockito {
+import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
+
+trait MockMessage extends MockitoSugar {
 
   def textMessage(text: String) = {
     val msg = mock[TextMessage]
-    msg.getText returns text
+    when(msg.getText) thenReturn text
+    msg
   }
 
   def message = mock[Message]

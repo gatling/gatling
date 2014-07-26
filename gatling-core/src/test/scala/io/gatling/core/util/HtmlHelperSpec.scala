@@ -16,18 +16,15 @@
 package io.gatling.core.util
 
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.util.HtmlHelper.HtmlRichString
 
 @RunWith(classOf[JUnitRunner])
-class HtmlHelperSpec extends Specification {
+class HtmlHelperSpec extends FlatSpec with Matchers {
 
-  "htmlEscape" should {
-
-    "escape with entity chars" in {
-      "fooYéfoo".htmlEscape must beEqualTo("fooY&eacute;foo")
-    }
+  "htmlEscape" should "escape with entity chars" in {
+    "fooYéfoo".htmlEscape shouldBe "fooY&eacute;foo"
   }
 }

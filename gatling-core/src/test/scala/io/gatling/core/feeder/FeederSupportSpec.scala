@@ -16,39 +16,33 @@
 package io.gatling.core.feeder
 
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
 
 @RunWith(classOf[JUnitRunner])
-class FeederSupportSpec extends Specification with FeederSupport {
+class FeederSupportSpec extends FlatSpec with Matchers with FeederSupport {
 
   GatlingConfiguration.setUp()
 
-  "tsv" should {
+  "tsv" should "handle file without escape char" in {
+    val data = tsv("sample1.tsv").build.toArray
 
-    "handle file without escape char" in {
-      val data = tsv("sample1.tsv").build.toArray
-
-      data must beEqualTo(Array(Map("foo" -> "hello", "bar" -> "world")))
-    }
-
-    "handle file with escape char" in {
-      val data = tsv("sample2.tsv").build.toArray
-
-      data must beEqualTo(Array(Map("foo" -> "hello", "bar" -> "world")))
-    }
+    data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
   }
 
-  "jsonFile" should {
+  it should "handle file with escape char" in {
+    val data = tsv("sample2.tsv").build.toArray
 
-    "handle proper JSON file" in {
+    data shouldBe Array(Map("foo" -> "hello", "bar" -> "world"))
+  }
 
-      val data = jsonFile("test2.json").build.toArray
+  "jsonFile" should "handle proper JSON file" in {
 
-      data.size must beEqualTo(2)
-      data(0)("id") must beEqualTo(19434)
-    }
+    val data = jsonFile("test2.json").build.toArray
+
+    data.size shouldBe 2
+    data(0)("id") shouldBe 19434
   }
 }

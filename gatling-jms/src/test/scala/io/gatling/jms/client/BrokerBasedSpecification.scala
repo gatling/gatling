@@ -15,16 +15,18 @@
  */
 package io.gatling.jms.client
 
-import org.specs2.mutable.Specification
-import org.specs2.specification.{ Step, Fragments }
+import org.scalatest.{ BeforeAndAfterAll, FlatSpecLike, Matchers }
 import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
-import io.gatling.jms.{ MessageIDMessageMatcher, JmsDestination }
+
 import org.apache.activemq.jndi.ActiveMQInitialContextFactory
 
-trait BrokerBasedSpecification extends Specification {
+import io.gatling.jms.{ MessageIDMessageMatcher, JmsDestination }
 
-  /** the map method allows to "post-process" the fragments after their creation */
-  override def map(fs: => Fragments) = Step(startBroker()) ^ fs ^ Step(stopBroker())
+trait BrokerBasedSpecification extends FlatSpecLike with Matchers with BeforeAndAfterAll {
+
+  override def beforeAll() = startBroker()
+
+  override def afterAll() = stopBroker()
 
   lazy val broker: BrokerService = BrokerFactory.createBroker("broker://()/gatling?persistent=false&useJmx=false")
 

@@ -15,93 +15,85 @@
  */
 package io.gatling.http.feeder
 
-import reflect.io.File
+import scala.reflect.io.File
+
+import java.io.{ InputStream, IOException }
+
+import org.junit.runner.RunWith
+import org.mockito.Mockito._
+import org.mockito.Matchers._
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.feeder.Record
 import io.gatling.core.config._
 
-import org.junit.runner.RunWith
-
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
-
-import org.mockito.Mockito._
-import org.mockito.Matchers._
-import org.specs2.mock.mockito.CalledMatchers
-import java.io.InputStream
-import java.io.IOException
-
-/**
- * @author Ivan Mushketyk
- */
 @RunWith(classOf[JUnitRunner])
-class SitemapParserSpec extends Specification with CalledMatchers {
+class SitemapParserSpec extends FlatSpec with Matchers with MockitoSugar {
 
   def getFile(filePath: String) = File(getClass.getClassLoader.getResource("sitemap.xml").getFile)
 
   def getIs(filePath: String) = getClass.getClassLoader.getResourceAsStream(filePath)
 
-  "sitemap parser" should {
-    "parse valid sitemap input stream" in {
-      val records = SitemapParser.parse(getIs("sitemap.xml")).toArray
+  "sitemap parser" should "parse valid sitemap input stream" in {
+    val records = SitemapParser.parse(getIs("sitemap.xml")).toArray
 
-      verifySitemapRecords(records)
-    }
+    verifySitemapRecords(records)
+  }
 
-    "parse valid sitemap file" in {
-      val resource = FileResource(getFile("sitemap.xml"))
-      val records = SitemapParser.parse(resource).toArray
+  it should "parse valid sitemap file" in {
+    val resource = FileResource(getFile("sitemap.xml"))
+    val records = SitemapParser.parse(resource).toArray
 
-      verifySitemapRecords(records)
-    }
+    verifySitemapRecords(records)
+  }
 
-    "input stream is closed on error" in {
-      val fileIs = mock(classOf[InputStream])
-      val resource = org.mockito.Mockito.mock(classOf[Resource])
-      when(resource.inputStream).thenReturn(fileIs)
-      when(fileIs.read()).thenThrow(classOf[IOException])
-      when(fileIs.read(any(classOf[Array[Byte]]))).thenThrow(classOf[IOException])
-      when(fileIs.read(any(classOf[Array[Byte]]), anyInt, anyInt)).thenThrow(classOf[IOException])
+  it should "input stream is closed on error" in {
+    val fileIs = mock[InputStream]
+    val resource = org.mockito.Mockito.mock(classOf[Resource])
+    when(resource.inputStream).thenReturn(fileIs)
+    when(fileIs.read()) thenThrow new IOException
+    when(fileIs.read(any(classOf[Array[Byte]]))) thenThrow new IOException
+    when(fileIs.read(any(classOf[Array[Byte]]), anyInt, anyInt)) thenThrow new IOException
 
-      SitemapParser.parse(resource).toArray must throwA[IOException]
-    }
+    a[IOException] shouldBe thrownBy(SitemapParser.parse(resource).toArray)
+  }
 
-    "throw exception when loc is missing" in {
-      SitemapParser.parse(getIs("sitemap_loc_missing.xml")) must throwA[SitemapFormatException]
-    }
+  it should "throw exception when loc node is missing" in {
+    a[SitemapFormatException] shouldBe thrownBy(SitemapParser.parse(getIs("sitemap_loc_missing.xml")))
+  }
 
-    "throw exception when loc is missing" in {
-      SitemapParser.parse(getIs("sitemap_no_value.xml")) must throwA[SitemapFormatException]
-    }
+  it should "throw exception when loc node has no value" in {
+    a[SitemapFormatException] shouldBe thrownBy(SitemapParser.parse(getIs("sitemap_no_value.xml")))
+  }
 
-      def verifySitemapRecords(records: Array[Record[String]]) = {
-        records.size should be equalTo 5
+  def verifySitemapRecords(records: Array[Record[String]]) = {
+    records should have size 5
 
-        records(0) should be equalTo Map(
-          "loc" -> "http://www.example.com/",
-          "lastmod" -> "2005-01-01",
-          "changefreq" -> "monthly",
-          "priority" -> "0.8")
+    records(0) shouldBe Map(
+      "loc" -> "http://www.example.com/",
+      "lastmod" -> "2005-01-01",
+      "changefreq" -> "monthly",
+      "priority" -> "0.8")
 
-        records(1) should be equalTo Map(
-          "loc" -> "http://www.example.com/catalog?item=12&amp;desc=vacation_hawaii",
-          "changefreq" -> "weekly")
+    records(1) shouldBe Map(
+      "loc" -> "http://www.example.com/catalog?item=12&amp;desc=vacation_hawaii",
+      "changefreq" -> "weekly")
 
-        records(2) should be equalTo Map(
-          "loc" -> "http://www.example.com/catalog?item=73&amp;desc=vacation_new_zealand",
-          "lastmod" -> "2004-12-23",
-          "changefreq" -> "weekly")
+    records(2) shouldBe Map(
+      "loc" -> "http://www.example.com/catalog?item=73&amp;desc=vacation_new_zealand",
+      "lastmod" -> "2004-12-23",
+      "changefreq" -> "weekly")
 
-        records(3) should be equalTo Map(
-          "loc" -> "http://www.example.com/catalog?item=74&amp;desc=vacation_newfoundland",
-          "lastmod" -> "2004-12-23T18:00:15+00:00",
-          "priority" -> "0.3")
+    records(3) shouldBe Map(
+      "loc" -> "http://www.example.com/catalog?item=74&amp;desc=vacation_newfoundland",
+      "lastmod" -> "2004-12-23T18:00:15+00:00",
+      "priority" -> "0.3")
 
-        records(4) should be equalTo Map(
-          "loc" -> "http://www.example.com/catalog?item=83&amp;desc=vacation_usa",
-          "lastmod" -> "2004-11-23")
-      }
-
+    records(4) shouldBe Map(
+      "loc" -> "http://www.example.com/catalog?item=83&amp;desc=vacation_usa",
+      "lastmod" -> "2004-11-23")
   }
 
 }

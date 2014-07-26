@@ -15,22 +15,22 @@
  */
 package io.gatling.core.result.writer
 
+import scala.collection.mutable
+
 import org.threeten.bp.LocalDateTime
 
-import scala.collection.mutable.Map
-
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
 
 @RunWith(classOf[JUnitRunner])
-class ConsoleDataWriterSpec extends Specification {
+class ConsoleDataWriterSpec extends FlatSpec with Matchers {
 
   GatlingConfiguration.setUp()
 
-  val time = LocalDateTime.of(2012, 8, 24, 13, 37, 0)
+  val time = LocalDateTime.of(2012, 8, 24, 13, 37)
 
   def lines(summary: ConsoleSummary) = summary.text.toString.split("\r?\n")
 
@@ -38,103 +38,94 @@ class ConsoleDataWriterSpec extends Specification {
 
   def requestsInfo(summary: ConsoleSummary) = lines(summary).splitAt(6)._2.mkString(sys.props("line.separator"))
 
-  "console summary progress bar" should {
+  "console summary progress bar" should "handle it correctly when all the users are waiting" in {
 
-    "handle it correctly when all the users are waiting" in {
+    val counters = new UserCounters(11)
 
-      val counters = new UserCounters(11)
-
-      val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, Map.empty, time)
-      summary.complete must beFalse
-      progressBar(summary) must beEqualTo("[                                                                          ]  0%")
-    }
-
-    "handle it correctly when all the users are running" in {
-
-      val counters = new UserCounters(11)
-      for (i <- 1 to 11) counters.userStart
-
-      val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, Map.empty, time)
-      summary.complete must beFalse
-      progressBar(summary) must beEqualTo("[--------------------------------------------------------------------------]  0%")
-    }
-
-    "handle it correctly when all the users are done" in {
-
-      val counters = new UserCounters(11)
-      for (i <- 1 to 11) counters.userStart
-      for (i <- 1 to 11) counters.userDone
-
-      val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, Map.empty, time)
-      summary.complete must beTrue
-      progressBar(summary) must beEqualTo("[##########################################################################]100%")
-    }
-
-    "handle it correctly when there are running and done users" in {
-
-      val counters = new UserCounters(11)
-      for (i <- 1 to 11) counters.userStart
-      for (i <- 1 to 10) counters.userDone
-
-      val summary = ConsoleSummary(10000, Map("request1" -> counters), new RequestCounters, Map.empty, Map.empty, time)
-      summary.complete must beFalse
-      progressBar(summary) must beEqualTo("[###################################################################-------] 90%")
-    }
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, time)
+    summary.complete shouldBe false
+    progressBar(summary) shouldBe "[                                                                          ]  0%"
   }
 
-  "console summary" should {
-    "display requests without errors" in {
-      val requestCounters = Map("request1" -> new RequestCounters(20, 0))
+  it should "handle it correctly when all the users are running" in {
 
-      val summary = ConsoleSummary(10000, Map("request1" -> new UserCounters(11)), new RequestCounters(20, 0), requestCounters, Map.empty, time)
+    val counters = new UserCounters(11)
+    for (i <- 1 to 11) counters.userStart()
 
-      val actual = requestsInfo(summary)
-      actual must beEqualTo(
-        """---- Requests ------------------------------------------------------------------
-          |> Global                                                   (OK=20     KO=0     )
-          |> request1                                                 (OK=20     KO=0     )
-          |================================================================================""".stripMargin)
-    }
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, time)
+    summary.complete shouldBe false
+    progressBar(summary) shouldBe "[--------------------------------------------------------------------------]  0%"
+  }
 
-    "display requests with multiple errors" in {
-      val requestCounters = Map("request1" -> new RequestCounters(0, 20))
+  it should "handle it correctly when all the users are done" in {
 
-      val errorsCounters1 = Map("error1" -> 19, "error2" -> 1)
-      val summary1 = ConsoleSummary(10000, Map("request1" -> new UserCounters(11)), new RequestCounters(0, 20),
-        requestCounters, errorsCounters1, time)
+    val counters = new UserCounters(11)
+    for (i <- 1 to 11) counters.userStart()
+    for (i <- 1 to 11) counters.userDone()
 
-      val output = requestsInfo(summary1)
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, time)
+    summary.complete shouldBe true
+    progressBar(summary) shouldBe "[##########################################################################]100%"
+  }
 
-      output must be equalTo (
-        s"""---- Requests ------------------------------------------------------------------
+  it should "handle it correctly when there are running and done users" in {
+
+    val counters = new UserCounters(11)
+    for (i <- 1 to 11) counters.userStart()
+    for (i <- 1 to 10) counters.userDone()
+
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, time)
+    summary.complete shouldBe false
+    progressBar(summary) shouldBe "[###################################################################-------] 90%"
+  }
+
+  "console summary" should "display requests without errors" in {
+    val requestCounters = mutable.Map("request1" -> new RequestCounters(20, 0))
+
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> new UserCounters(11)), new RequestCounters(20, 0), requestCounters, mutable.Map.empty, time)
+
+    val actual = requestsInfo(summary)
+    actual shouldBe """---- Requests ------------------------------------------------------------------
+                      |> Global                                                   (OK=20     KO=0     )
+                      |> request1                                                 (OK=20     KO=0     )
+                      |================================================================================""".stripMargin
+  }
+
+  it should "display requests with multiple errors" in {
+    val requestCounters = mutable.Map("request1" -> new RequestCounters(0, 20))
+
+    val errorsCounters1 = mutable.Map("error1" -> 19, "error2" -> 1)
+    val summary1 = ConsoleSummary(10000, mutable.Map("request1" -> new UserCounters(11)), new RequestCounters(0, 20),
+      requestCounters, errorsCounters1, time)
+
+    val output = requestsInfo(summary1)
+
+    output shouldBe s"""---- Requests ------------------------------------------------------------------
           |> Global                                                   (OK=0      KO=20    )
           |> request1                                                 (OK=0      KO=20    )
           |---- Errors --------------------------------------------------------------------
           |> error1                                                             19 (${ConsoleErrorsWriter.formatPercent(95.0)}%)
           |> error2                                                              1 ( ${ConsoleErrorsWriter.formatPercent(5.0)}%)
-          |================================================================================""".stripMargin) and (
-          output.lines.map(_.length).toSet must contain(be_<=(80)).foreach)
-    }
+          |================================================================================""".stripMargin
+    all(output.lines.map(_.length).toSet) shouldBe <=(80)
+  }
 
-    "display requests with high number of errors" in {
-      val requestCounters = Map("request1" -> new RequestCounters(0, 123456))
-      val loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
-      val errorsCounters = Map(loremIpsum -> 123456)
-      val summary = ConsoleSummary(10000, Map("request1" -> new UserCounters(11)), new RequestCounters(0, 123456),
-        requestCounters, errorsCounters, time)
+  it should "display requests with high number of errors" in {
+    val requestCounters = mutable.Map("request1" -> new RequestCounters(0, 123456))
+    val loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    val errorsCounters = mutable.Map(loremIpsum -> 123456)
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> new UserCounters(11)), new RequestCounters(0, 123456),
+      requestCounters, errorsCounters, time)
 
-      val output = requestsInfo(summary)
+    val output = requestsInfo(summary)
 
-      output must be equalTo (
-        s"""---- Requests ------------------------------------------------------------------
+    output shouldBe s"""---- Requests ------------------------------------------------------------------
           |> Global                                                   (OK=0      KO=123456)
           |> request1                                                 (OK=0      KO=123456)
           |---- Errors --------------------------------------------------------------------
           |> Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed  123456 (${ConsoleErrorsWriter.OneHundredPercent}%)
           |do eiusmod tempor incididunt ut labore et dolore magna aliqua....
-          |================================================================================""".stripMargin) and (
-          output.lines.map(_.length).toSet must contain(be_<=(80)).foreach)
-
-    }
+          |================================================================================""".stripMargin
+    all(output.lines.map(_.length).toSet) shouldBe <=(80)
   }
 }
