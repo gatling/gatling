@@ -60,19 +60,19 @@ Bundled dependencies
 Test dependencies
 =================
 
-+----------+-------------------------------+
-| Library  | License                       |
-+==========+===============================+
-| Junit    | `Eclipse Public License 1.0`_ |
-+----------+-------------------------------+
-| Specs2   | `MIT License`_                |
-+----------+-------------------------------+
-| Mockito  | `MIT License`_                |
-+----------+-------------------------------+
-| ActiveMQ | `Apache License v2.0`_        |
-+----------+-------------------------------+
-| Spray    | `Apache License v2.0`_        |
-+----------+-------------------------------+
++-----------+-------------------------------+
+| Library   | License                       |
++===========+===============================+
+| Junit     | `Eclipse Public License 1.0`_ |
++-----------+-------------------------------+
+| ScalaTest | `Apache License v2.0`_        |
++-----------+-------------------------------+
+| Mockito   | `MIT License`_                |
++-----------+-------------------------------+
+| ActiveMQ  | `Apache License v2.0`_        |
++-----------+-------------------------------+
+| Spray     | `Apache License v2.0`_        |
++-----------+-------------------------------+
 
 .. _Scala License (BSD-style): http://www.scala-lang.org/license.html
 .. _Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0.txt>
