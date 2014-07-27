@@ -15,12 +15,10 @@
  */
 package io.gatling.recorder.ui.swing.frame
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
+
 import ValidationHelper._
 
-@RunWith(classOf[JUnitRunner])
 class ValidationHelperSpec extends FlatSpec with Matchers {
 
   "isValidPackageName" should "accept lower case" in {

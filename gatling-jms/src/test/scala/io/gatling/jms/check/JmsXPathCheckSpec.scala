@@ -17,8 +17,6 @@ package io.gatling.jms.check
 
 import scala.collection.mutable
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{ FlatSpec, Matchers }
 
 import io.gatling.core.config.GatlingConfiguration
@@ -29,7 +27,6 @@ import io.gatling.core.Predef._
 import io.gatling.jms.Predef._
 import io.gatling.jms.{ MockMessage, JmsCheck }
 
-@RunWith(classOf[JUnitRunner])
 class JmsXPathCheckSpec extends FlatSpec with Matchers with ValidationValues with MockMessage {
 
   GatlingConfiguration.setUp()

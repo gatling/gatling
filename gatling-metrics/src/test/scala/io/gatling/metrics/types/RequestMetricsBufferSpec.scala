@@ -16,15 +16,12 @@
 package io.gatling.metrics.types
 
 import io.gatling.core.config.GatlingConfiguration
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration.fakeConfig
 import io.gatling.core.result.message.{ OK, KO }
 import io.gatling.core.ConfigKeys._
 
-@RunWith(classOf[JUnitRunner])
 class RequestMetricsBufferSpec extends FlatSpec with Matchers {
 
   GatlingConfiguration.setUp()

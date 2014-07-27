@@ -19,16 +19,13 @@ import javax.jms._
 
 import scala.collection.mutable
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.session.Session
 import io.gatling.core.validation._
 import io.gatling.jms.MockMessage
 import io.gatling.jms.Predef._
 
-@RunWith(classOf[JUnitRunner])
 class JmsSimpleCheckSpec extends FlatSpec with Matchers with MockMessage {
 
   implicit def cache = mutable.Map.empty[Any, Any]

@@ -15,10 +15,8 @@
  */
 package io.gatling.http.cache
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.junit.JUnitRunner
 
 import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, HttpResponseStatus, RequestBuilder }
 
@@ -28,7 +26,6 @@ import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.{ HttpResponse, ResponseBody }
 
-@RunWith(classOf[JUnitRunner])
 class CacheHandlingSpec extends FlatSpec with Matchers with MockitoSugar {
 
   // Default config

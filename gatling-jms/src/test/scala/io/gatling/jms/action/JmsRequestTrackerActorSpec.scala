@@ -17,9 +17,7 @@ package io.gatling.jms.action
 
 import akka.testkit.TestActorRef
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.Predef._
 import io.gatling.core.result.message.{ KO, OK }
@@ -32,7 +30,6 @@ import io.gatling.jms.check.JmsSimpleCheck
 
 class JmsRequestTrackerActorWithMockWriter extends JmsRequestTrackerActor with MockDataWriterClient
 
-@RunWith(classOf[JUnitRunner])
 class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage {
 
   def ignoreDrift(actual: Session) = {

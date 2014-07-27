@@ -15,20 +15,17 @@
  */
 package io.gatling.redis.feeder
 
-import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
 import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.junit.JUnitRunner
 
 import com.redis._
 import io.gatling.core.feeder.Record
 import io.gatling.core.test.ActorSupport
 
-@RunWith(classOf[JUnitRunner])
 class RedisFeederSpec extends FlatSpec with Matchers with MockitoSugar {
 
   val KEY = "key"

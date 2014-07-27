@@ -15,9 +15,7 @@
  */
 package io.gatling.http.cache
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import com.ning.http.client.uri.UriComponents
 
@@ -25,7 +23,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.http.MockUtils
 
-@RunWith(classOf[JUnitRunner])
 class PermanentRedirectSpec extends FlatSpec with Matchers {
 
   GatlingConfiguration.setUp()

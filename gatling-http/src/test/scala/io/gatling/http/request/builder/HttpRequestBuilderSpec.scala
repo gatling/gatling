@@ -15,11 +15,9 @@
  */
 package io.gatling.http.request.builder
 
-import org.junit.runner.RunWith
 import org.mockito.Mockito._
 import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.junit.JUnitRunner
 
 import com.ning.http.client.uri.UriComponents
 import com.ning.http.client.{ Request, RequestBuilderBase, SignatureCalculator }
@@ -28,7 +26,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.validation.Success
 import io.gatling.http.config.HttpProtocol
 
-@RunWith(classOf[JUnitRunner])
 class HttpRequestBuilderSpec extends FlatSpec with Matchers with MockitoSugar {
 
   // Default config

@@ -15,14 +15,12 @@
  */
 package io.gatling.charts.template
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
+
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.charts.component.Statistics
 import io.gatling.charts.component.GroupedCount
 
-@RunWith(classOf[JUnitRunner])
 class ConsoleTemplateSpec extends FlatSpec with Matchers {
 
   GatlingConfiguration.setUp()

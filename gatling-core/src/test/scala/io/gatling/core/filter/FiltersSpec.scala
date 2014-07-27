@@ -1,10 +1,7 @@
 package io.gatling.core.filter
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Inspectors, Matchers }
-import org.scalatest.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
 class FiltersSpec extends FlatSpec with Matchers with Inspectors {
 
   val hosts = List(

@@ -17,16 +17,13 @@ package io.gatling.recorder.har
 
 import scala.concurrent.duration.DurationInt
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.util.IO.withCloseable
 import io.gatling.recorder.config.ConfigKeys.http.InferHtmlResources
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 import io.gatling.recorder.scenario.{ PauseElement, RequestElement }
 
-@RunWith(classOf[JUnitRunner])
 class HarReaderSpec extends FlatSpec with Matchers {
 
   def resourceAsStream(p: String) = getClass.getClassLoader.getResourceAsStream(p)

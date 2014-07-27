@@ -19,16 +19,13 @@ import java.util.concurrent.TimeUnit.SECONDS
 
 import scala.concurrent.duration.Duration
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.Predef.{ pace, value2Expression }
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.Session
 import io.gatling.core.test.ActorSupport
 
-@RunWith(classOf[JUnitRunner])
 class PaceSpec extends FlatSpec with Matchers {
 
   "pace" should "run actions with a minimum wait time" in ActorSupport { testKit =>

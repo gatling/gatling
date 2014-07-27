@@ -15,15 +15,12 @@
  */
 package io.gatling.core.check.extractor.xpath
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationValues
 import io.gatling.core.util.IO._
 
-@RunWith(classOf[JUnitRunner])
 class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
   GatlingConfiguration.setUp()

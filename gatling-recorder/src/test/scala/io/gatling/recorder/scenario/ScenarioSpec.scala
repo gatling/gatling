@@ -17,9 +17,7 @@ package io.gatling.recorder.scenario
 
 import scala.concurrent.duration._
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import com.ning.http.client.uri.UriComponents
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
@@ -28,7 +26,6 @@ import io.gatling.http.fetch.{ CssResource, RegularResource }
 import io.gatling.recorder.config.ConfigKeys.http.{ InferHtmlResources, FollowRedirect }
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 
-@RunWith(classOf[JUnitRunner])
 class ScenarioSpec extends FlatSpec with Matchers {
 
   implicit val config = fakeConfig(Map(FollowRedirect -> true, InferHtmlResources -> true))

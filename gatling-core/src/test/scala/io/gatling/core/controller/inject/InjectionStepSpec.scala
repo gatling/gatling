@@ -17,11 +17,8 @@ package io.gatling.core.controller.inject
 
 import scala.concurrent.duration._
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
 class InjectionStepSpec extends FlatSpec with Matchers {
 
   val ramp = RampInjection(5, 1 second)

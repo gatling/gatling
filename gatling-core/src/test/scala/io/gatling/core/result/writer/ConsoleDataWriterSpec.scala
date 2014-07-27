@@ -19,13 +19,10 @@ import scala.collection.mutable
 
 import org.threeten.bp.LocalDateTime
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
 
-@RunWith(classOf[JUnitRunner])
 class ConsoleDataWriterSpec extends FlatSpec with Matchers {
 
   GatlingConfiguration.setUp()

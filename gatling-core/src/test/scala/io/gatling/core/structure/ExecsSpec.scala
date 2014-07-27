@@ -15,16 +15,13 @@
  */
 package io.gatling.core.structure
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.test.ActorSupport
 import io.gatling.core.Predef._
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.Session
 
-@RunWith(classOf[JUnitRunner])
 class ExecsSpec extends FlatSpec with Matchers {
 
   "Execs" should "wrap Scenarios in chains, using exec" in ActorSupport { testKit =>

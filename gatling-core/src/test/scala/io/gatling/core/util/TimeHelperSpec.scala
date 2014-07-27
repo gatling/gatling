@@ -17,13 +17,10 @@ package io.gatling.core.util
 
 import scala.concurrent.duration._
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.{ FlatSpec, Matchers }
 
 import TimeHelper._
 
-@RunWith(classOf[JUnitRunner])
 class TimeHelperSpec extends FlatSpec with Matchers {
 
   "TimeHelper" should "toMillisPrecision should work correctly" in {

@@ -15,14 +15,11 @@
  */
 package io.gatling.core.check.extractor.regex
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationValues
 
-@RunWith(classOf[JUnitRunner])
 class RegexExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
   GatlingConfiguration.setUp()

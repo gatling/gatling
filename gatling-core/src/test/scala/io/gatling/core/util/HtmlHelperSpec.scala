@@ -15,13 +15,10 @@
  */
 package io.gatling.core.util
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.util.HtmlHelper.HtmlRichString
 
-@RunWith(classOf[JUnitRunner])
 class HtmlHelperSpec extends FlatSpec with Matchers {
 
   "htmlEscape" should "escape with entity chars" in {

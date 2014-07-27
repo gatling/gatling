@@ -15,11 +15,8 @@
  */
 package io.gatling.core.util
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
 class NumberHelperSpec extends FlatSpec with Matchers {
 
   import NumberHelper._

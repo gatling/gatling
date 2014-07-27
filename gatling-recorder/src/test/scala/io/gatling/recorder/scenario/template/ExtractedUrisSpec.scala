@@ -15,13 +15,10 @@
  */
 package io.gatling.recorder.scenario.template
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.recorder.scenario.RequestElement
 
-@RunWith(classOf[JUnitRunner])
 class ExtractedUrisSpec extends FlatSpec with Matchers {
 
   val GATLING_URL1 = "http://gatling-tool.org/path1/file1"

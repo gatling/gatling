@@ -15,15 +15,12 @@
  */
 package io.gatling.core.result.writer
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.OK
 import io.gatling.core.util.StringHelper._
 
-@RunWith(classOf[JUnitRunner])
 class FileDataWriterSpec extends FlatSpec with Matchers {
 
   GatlingConfiguration.setUp()

@@ -15,14 +15,11 @@
  */
 package io.gatling.http.cookie
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import com.ning.http.client.cookie.CookieDecoder.decode
 import com.ning.http.client.uri.UriComponents
 
-@RunWith(classOf[JUnitRunner])
 class CookieJarSpec extends FlatSpec with Matchers {
 
   "storeCookies" should "return nothing when it's empty" in {

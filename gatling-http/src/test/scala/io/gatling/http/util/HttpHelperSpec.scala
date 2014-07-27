@@ -15,11 +15,8 @@
  */
 package io.gatling.http.util
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
 class HttpHelperSpec extends FlatSpec with Matchers {
 
   "parseFormBody" should "support unique param" in {

@@ -15,13 +15,10 @@
  */
 package io.gatling.core.scenario
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.pause.{ Exponential, PauseProtocol }
 
-@RunWith(classOf[JUnitRunner])
 class SimulationSpec extends FlatSpec with Matchers {
 
   "setUp" should "set exponential pause protocol" in {
