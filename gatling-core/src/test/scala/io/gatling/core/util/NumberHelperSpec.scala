@@ -16,54 +16,51 @@
 package io.gatling.core.util
 
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class NumberHelperSpec extends Specification {
+class NumberHelperSpec extends FlatSpec with Matchers {
 
   import NumberHelper._
 
-  "formatNumberWithSuffix" should {
+  "formatNumberWithSuffix" should "return '1st' for 1" in {
+    1.toRank shouldBe "1st"
+  }
 
-    "return '1st' for 1" in {
-      1.toRank must beEqualTo("1st")
-    }
+  it should "return '2nd' for 2" in {
+    2.toRank shouldBe "2nd"
+  }
 
-    "return '2nd' for 2" in {
-      2.toRank must beEqualTo("2nd")
-    }
+  it should "return '3rd' for 3" in {
+    3.toRank shouldBe "3rd"
+  }
 
-    "return '3rd' for 3" in {
-      3.toRank must beEqualTo("3rd")
-    }
+  it should "return '4th' for 4" in {
+    4.toRank shouldBe "4th"
+  }
 
-    "return '4th' for 4" in {
-      4.toRank must beEqualTo("4th")
-    }
+  it should "return '11th' for 11" in {
+    11.toRank shouldBe "11th"
+  }
 
-    "return '11th' for 11" in {
-      11.toRank must beEqualTo("11th")
-    }
+  it should "return '12th' for 12" in {
+    12.toRank shouldBe "12th"
+  }
 
-    "return '12th' for 12" in {
-      12.toRank must beEqualTo("12th")
-    }
+  it should "return '13th' for 13" in {
+    13.toRank shouldBe "13th"
+  }
 
-    "return '13th' for 13" in {
-      13.toRank must beEqualTo("13th")
-    }
+  it should "return '21st' for 21" in {
+    21.toRank shouldBe "21st"
+  }
 
-    "return '21st' for 21" in {
-      21.toRank must beEqualTo("21st")
-    }
+  it should "return '12341st' for 12341" in {
+    12341.toRank shouldBe "12341st"
+  }
 
-    "return '12341st' for 12341" in {
-      12341.toRank must beEqualTo("12341st")
-    }
-
-    "return '12311th' for 12311" in {
-      12311.toRank must beEqualTo("12311th")
-    }
+  it should "return '12311th' for 12311" in {
+    12311.toRank shouldBe "12311th"
   }
 }

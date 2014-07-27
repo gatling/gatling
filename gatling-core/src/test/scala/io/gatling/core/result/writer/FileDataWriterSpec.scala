@@ -16,41 +16,38 @@
 package io.gatling.core.result.writer
 
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.OK
 import io.gatling.core.util.StringHelper._
 
 @RunWith(classOf[JUnitRunner])
-class FileDataWriterSpec extends Specification {
+class FileDataWriterSpec extends FlatSpec with Matchers {
 
   GatlingConfiguration.setUp()
 
   import FileDataWriter._
 
-  "file data writer" should {
+  def logMessage(record: RequestMessage): String = new String(record.getBytes)
 
-      def logMessage(record: RequestMessage): String = new String(record.getBytes)
+  "file data writer" should "log a standard request record" in {
+    val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), Nil)
 
-    "log a standard request record" in {
-      val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), Nil)
+    logMessage(record) shouldBe "scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage" + Eol
+  }
 
-      logMessage(record) must beEqualTo("scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage" + Eol)
-    }
+  it should "append extra info to request records" in {
+    val extraInfo: List[String] = List("some", "extra info", "for the log")
+    val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), extraInfo)
 
-    "append extra info to request records" in {
-      val extraInfo: List[String] = List("some", "extra info", "for the log")
-      val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), extraInfo)
+    logMessage(record) shouldBe "scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + Eol
+  }
 
-      logMessage(record) must beEqualTo("scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + Eol)
-    }
-
-    "sanitize extra info so that simulation log format is preserved" in {
-      "\nnewlines \n are\nnot \n\n allowed\n".sanitize must beEqualTo(" newlines   are not    allowed ")
-      "\rcarriage returns \r are\rnot \r\r allowed\r".sanitize must beEqualTo(" carriage returns   are not    allowed ")
-      "\ttabs \t are\tnot \t\t allowed\t".sanitize must beEqualTo(" tabs   are not    allowed ")
-    }
+  it should "sanitize extra info so that simulation log format is preserved" in {
+    "\nnewlines \n are\nnot \n\n allowed\n".sanitize shouldBe " newlines   are not    allowed "
+    "\rcarriage returns \r are\rnot \r\r allowed\r".sanitize shouldBe " carriage returns   are not    allowed "
+    "\ttabs \t are\tnot \t\t allowed\t".sanitize shouldBe " tabs   are not    allowed "
   }
 }

@@ -1,11 +1,11 @@
 package io.gatling.core.filter
 
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Inspectors, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class FiltersSpec extends Specification {
+class FiltersSpec extends FlatSpec with Matchers with Inspectors {
 
   val hosts = List(
     "http://excilys.com",
@@ -28,52 +28,56 @@ class FiltersSpec extends Specification {
   val blackList = BlackList(List("http://.*/assets/.*"))
   val emptyBlackList = BlackList()
 
-  "Filters" should {
+  def isRequestAccepted(filters: Filters, partition: (List[String], List[String])): Unit = {
+    val (expectedAccepted, expectedRejected) = partition
 
-      def isRequestAccepted(filters: Filters, partition: (List[String], List[String])) = {
-        val (expectedAccepted, expectedRejected) = partition
-
-        (filters.accept(_: String) must beTrue).foreach(expectedAccepted) and (
-          (filters.accept(_: String) must beFalse).foreach(expectedRejected))
-      }
-
-    "filter whitelist correctly when blacklist is empty" in {
-      isRequestAccepted(Filters(whiteList, emptyBlackList), urls.partition(_.contains("excilys")))
+    forAll(expectedAccepted) {
+      filters.accept(_) shouldBe true
     }
-
-    "filter whitelist then blacklist when both are specified on whitefirst mode" in {
-      isRequestAccepted(Filters(whiteList, blackList), urls.partition { url =>
-        url.contains("excilys") && !url.contains("assets")
-      })
+    forAll(expectedRejected) {
+      filters.accept(_) shouldBe false
     }
+  }
 
-    "filter blacklist correctly when whitelist is empty" in {
-      isRequestAccepted(Filters(blackList, emptyWhiteList), urls.partition { url =>
-        !url.contains("assets")
-      })
-    }
+  "Filters" should "filter whitelist correctly when blacklist is empty" in {
+    isRequestAccepted(Filters(whiteList, emptyBlackList), urls.partition(_.contains("excilys")))
+  }
 
-    "filter blacklist then whitelist when both are specified on blackfirst mode" in {
-      isRequestAccepted(Filters(blackList, whiteList), urls.partition { url =>
-        !url.contains("assets") && url.contains("excilys")
-      })
-    }
+  it should "filter whitelist then blacklist when both are specified on whitefirst mode" in {
+    isRequestAccepted(Filters(whiteList, blackList), urls.partition { url =>
+      url.contains("excilys") && !url.contains("assets")
+    })
+  }
 
-    "filter correctly when there are multiple patterns" in {
-      val patterns = List(".*foo.*", ".*bar.*")
-      val url = "http://gatling.io/foo.html"
+  it should "filter blacklist correctly when whitelist is empty" in {
+    isRequestAccepted(Filters(blackList, emptyWhiteList), urls.partition { url =>
+      !url.contains("assets")
+    })
+  }
 
-      BlackList(patterns).accept(url) must beFalse and (WhiteList(patterns).accept(url) must beTrue)
-    }
+  it should "filter blacklist then whitelist when both are specified on blackfirst mode" in {
+    isRequestAccepted(Filters(blackList, whiteList), urls.partition { url =>
+      !url.contains("assets") && url.contains("excilys")
+    })
+  }
 
-    "filter correctly when there are no patterns" in {
-      val url = "http://gatling.io/foo.html"
-      BlackList(Nil).accept(url) must beTrue and (WhiteList(Nil).accept(url) must beTrue)
-    }
+  it should "filter correctly when there are multiple patterns" in {
+    val patterns = List(".*foo.*", ".*bar.*")
+    val url = "http://gatling.io/foo.html"
 
-    "be able to deal with incorrect patterns" in {
-      val w = WhiteList(List("http://foo\\.com.*", "},{"))
-      (w.regexes must not beEmpty) and (w.accept("http://foo.com/bar.html") must beTrue)
-    }
+    BlackList(patterns).accept(url) shouldBe false
+    WhiteList(patterns).accept(url) shouldBe true
+  }
+
+  it should "filter correctly when there are no patterns" in {
+    val url = "http://gatling.io/foo.html"
+    BlackList(Nil).accept(url) shouldBe true
+    WhiteList(Nil).accept(url) shouldBe true
+  }
+
+  it should "be able to deal with incorrect patterns" in {
+    val w = WhiteList(List("http://foo\\.com.*", "},{"))
+    w.regexes should not be empty
+    w.accept("http://foo.com/bar.html") shouldBe true
   }
 }

@@ -15,56 +15,51 @@
  */
 package io.gatling.http.action
 
+import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
+import org.mockito.Mockito._
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.junit.JUnitRunner
+
 import com.ning.http.client.uri.UriComponents
+
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
 import io.gatling.http.cache.PermanentRedirect
 import io.gatling.http.MockUtils
 
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
-import org.specs2.mutable.{ Before, Specification }
-import org.specs2.mock.Mockito
-import org.specs2.mock.mockito.ArgumentCapture
-
-/**
- * @author Ivan Mushketyk
- */
 @RunWith(classOf[JUnitRunner])
-class HttpRequestActionSpec extends Specification with Mockito {
+class HttpRequestActionSpec extends FlatSpec with Matchers with MockitoSugar {
 
   GatlingConfiguration.setUp()
 
-  trait Context extends Before {
+  trait Context {
     val httpEngineMock = mock[HttpEngine]
     var session = Session("mockSession", "mockUserName")
 
     def addRedirect(from: String, to: String): Unit =
       session = PermanentRedirect.addRedirect(session, UriComponents.create(from), UriComponents.create(to))
-
-    def before(): Unit = {}
   }
 
-  "HttpRequestAction" should {
-    "send same transaction with no redirect" in new Context {
-      val tx = MockUtils.txTo("http://example.com/", session)
-      HttpRequestAction.startHttpTransaction(tx, httpEngineMock)(null)
-      there was one(httpEngineMock).startHttpTransaction(tx)
-    }
+  "HttpRequestAction" should "send same transaction with no redirect" in new Context {
+    val tx = MockUtils.txTo("http://example.com/", session)
+    HttpRequestAction.startHttpTransaction(tx, httpEngineMock)(null)
+    verify(httpEngineMock, times(1)).startHttpTransaction(tx)
+  }
 
-    "update transaction in case of a redirect" in new Context {
-      addRedirect("http://example.com/", "http://gatling-tool.org/")
-      val tx = MockUtils.txTo("http://example.com/", session)
-      HttpRequestAction.startHttpTransaction(tx, httpEngineMock)(null)
+  it should "update transaction in case of a redirect" in new Context {
+    addRedirect("http://example.com/", "http://gatling-tool.org/")
+    val tx = MockUtils.txTo("http://example.com/", session)
+    HttpRequestAction.startHttpTransaction(tx, httpEngineMock)(null)
 
-      val argumentCapture = new ArgumentCapture[HttpTx]
-      there was one(httpEngineMock).startHttpTransaction(argumentCapture)
-      val actualTx = argumentCapture.value
+    val argumentCapture = ArgumentCaptor.forClass(classOf[HttpTx])
+    verify(httpEngineMock, times(1)).startHttpTransaction(argumentCapture.capture())
+    val actualTx = argumentCapture.getValue
 
-      actualTx.request.ahcRequest.getURI should be equalTo UriComponents.create("http://gatling-tool.org/")
-      actualTx.redirectCount should be equalTo 1
-    }
+    actualTx.request.ahcRequest.getURI shouldBe UriComponents.create("http://gatling-tool.org/")
+    actualTx.redirectCount shouldBe 1
   }
 }
 

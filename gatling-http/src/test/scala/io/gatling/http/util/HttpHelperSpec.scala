@@ -16,32 +16,29 @@
 package io.gatling.http.util
 
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class HttpHelperSpec extends Specification {
+class HttpHelperSpec extends FlatSpec with Matchers {
 
-  "parseFormBody" should {
+  "parseFormBody" should "support unique param" in {
+    HttpHelper.parseFormBody("foo=bar") shouldBe List("foo" -> "bar")
+  }
 
-    "support unique param" in {
-      HttpHelper.parseFormBody("foo=bar") must beEqualTo(List("foo" -> "bar"))
-    }
+  it should "support multiple params" in {
+    HttpHelper.parseFormBody("foo=bar&baz=qux") shouldBe List("foo" -> "bar", "baz" -> "qux")
+  }
 
-    "support multiple params" in {
-      HttpHelper.parseFormBody("foo=bar&baz=qux") must beEqualTo(List("foo" -> "bar", "baz" -> "qux"))
-    }
+  it should "support empty value param" in {
+    HttpHelper.parseFormBody("foo=&baz=qux") shouldBe List("foo" -> "", "baz" -> "qux")
+  }
 
-    "support empty value param" in {
-      HttpHelper.parseFormBody("foo=&baz=qux") must beEqualTo(List("foo" -> "", "baz" -> "qux"))
-    }
+  it should "recognize 301 status code as permanent redirect" in {
+    HttpHelper.isPermanentRedirect(301) shouldBe true
+  }
 
-    "recognize 301 status code as permanent redirect" in {
-      HttpHelper.isPermanentRedirect(301) must beTrue
-    }
-
-    "non 301 status code should be recognized as permanent redirect" in {
-      HttpHelper.isPermanentRedirect(303) must beFalse
-    }
+  it should "non 301 status code should be recognized as permanent redirect" in {
+    HttpHelper.isPermanentRedirect(303) shouldBe false
   }
 }

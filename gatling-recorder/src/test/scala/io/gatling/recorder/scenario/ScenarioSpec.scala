@@ -15,59 +15,57 @@
  */
 package io.gatling.recorder.scenario
 
-import com.ning.http.client.uri.UriComponents
+import scala.concurrent.duration._
 
-import scala.concurrent.duration.DurationInt
-
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
+
+import com.ning.http.client.uri.UriComponents
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
 
 import io.gatling.http.fetch.{ CssResource, RegularResource }
 import io.gatling.recorder.config.ConfigKeys.http.{ InferHtmlResources, FollowRedirect }
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 
 @RunWith(classOf[JUnitRunner])
-class ScenarioSpec extends Specification {
+class ScenarioSpec extends FlatSpec with Matchers {
 
-  "Scenario" should {
+  implicit val config = fakeConfig(Map(FollowRedirect -> true, InferHtmlResources -> true))
 
-    implicit val config = fakeConfig(Map(FollowRedirect -> true, InferHtmlResources -> true))
+  "Scenario" should "remove HTTP redirection " in {
 
-    "remove HTTP redirection " in {
-      val r1 = RequestElement("http://gatling.io/", "GET", Map.empty, None, 200, List.empty)
-      val r2 = RequestElement("http://gatling.io/rn1.html", "GET", Map.empty, None, 302, List.empty)
-      val r3 = RequestElement("http://gatling.io/release-note-1.html", "GET", Map.empty, None, 200, List.empty)
-      val r4 = RequestElement("http://gatling.io/details.html", "GET", Map.empty, None, 200, List.empty)
+    val r1 = RequestElement("http://gatling.io/", "GET", Map.empty, None, 200, List.empty)
+    val r2 = RequestElement("http://gatling.io/rn1.html", "GET", Map.empty, None, 302, List.empty)
+    val r3 = RequestElement("http://gatling.io/release-note-1.html", "GET", Map.empty, None, 200, List.empty)
+    val r4 = RequestElement("http://gatling.io/details.html", "GET", Map.empty, None, 200, List.empty)
 
-      val scn = ScenarioDefinition(
-        List(TimedScenarioElement(1000, 1500, r1),
-          TimedScenarioElement(3000, 3500, r2),
-          TimedScenarioElement(5000, 5500, r3),
-          TimedScenarioElement(7000, 7500, r4)),
-        List.empty)
-      scn.elements should beEqualTo(List(r1, PauseElement(DurationInt(1500) milliseconds), r2.copy(statusCode = 200), PauseElement(DurationInt(1500) milliseconds), r4))
-    }
+    val scn = ScenarioDefinition(
+      List(TimedScenarioElement(1000, 1500, r1),
+        TimedScenarioElement(3000, 3500, r2),
+        TimedScenarioElement(5000, 5500, r3),
+        TimedScenarioElement(7000, 7500, r4)),
+      List.empty)
+    scn.elements shouldBe List(r1, PauseElement(DurationInt(1500) milliseconds), r2.copy(statusCode = 200), PauseElement(DurationInt(1500) milliseconds), r4)
+  }
 
-    "filter out embedded resources of HTML documents" in {
-      val r1 = RequestElement("http://gatling.io", "GET", Map.empty, None, 200,
-        List(CssResource(UriComponents.create("http://gatling.io/main.css")), RegularResource(UriComponents.create("http://gatling.io/img.jpg"))))
-      val r2 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
-      val r3 = RequestElement("http://gatling.io/details.html", "GET", Map(CONTENT_TYPE -> "text/html;charset=UTF-8"), None, 200, List.empty)
-      val r4 = RequestElement("http://gatling.io/img.jpg", "GET", Map.empty, None, 200, List.empty)
-      val r5 = RequestElement("http://gatling.io", "GET", Map.empty, None, 200, List(CssResource(UriComponents.create("http://gatling.io/main.css"))))
-      val r6 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
+  it should "filter out embedded resources of HTML documents" in {
+    val r1 = RequestElement("http://gatling.io", "GET", Map.empty, None, 200,
+      List(CssResource(UriComponents.create("http://gatling.io/main.css")), RegularResource(UriComponents.create("http://gatling.io/img.jpg"))))
+    val r2 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
+    val r3 = RequestElement("http://gatling.io/details.html", "GET", Map(CONTENT_TYPE -> "text/html;charset=UTF-8"), None, 200, List.empty)
+    val r4 = RequestElement("http://gatling.io/img.jpg", "GET", Map.empty, None, 200, List.empty)
+    val r5 = RequestElement("http://gatling.io", "GET", Map.empty, None, 200, List(CssResource(UriComponents.create("http://gatling.io/main.css"))))
+    val r6 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
 
-      val scn = ScenarioDefinition(
-        List(TimedScenarioElement(1000, 1500, r1),
-          TimedScenarioElement(2000, 2001, r2),
-          TimedScenarioElement(2000, 2002, r3),
-          TimedScenarioElement(2000, 2003, r4),
-          TimedScenarioElement(5000, 5001, r5),
-          TimedScenarioElement(5005, 5010, r6)),
-        List.empty)
-      scn.elements should beEqualTo(List(r1.copy(nonEmbeddedResources = List(r3)), PauseElement(DurationInt(2997) milliseconds), r5))
-    }
+    val scn = ScenarioDefinition(
+      List(TimedScenarioElement(1000, 1500, r1),
+        TimedScenarioElement(2000, 2001, r2),
+        TimedScenarioElement(2000, 2002, r3),
+        TimedScenarioElement(2000, 2003, r4),
+        TimedScenarioElement(5000, 5001, r5),
+        TimedScenarioElement(5005, 5010, r6)),
+      List.empty)
+    scn.elements shouldBe List(r1.copy(nonEmbeddedResources = List(r3)), PauseElement(DurationInt(2997) milliseconds), r5)
   }
 }

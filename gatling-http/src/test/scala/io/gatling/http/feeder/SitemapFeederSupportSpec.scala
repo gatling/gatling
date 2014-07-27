@@ -15,33 +15,29 @@
  */
 package io.gatling.http.feeder
 
-import org.specs2.mutable.Specification
 import scala.reflect.io.File
+
+import org.junit.runner.RunWith
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
+
 import io.gatling.core.config.FileResource
 import io.gatling.core.validation.{ Success, Failure }
-import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
 
-/**
- * @author Ivan Mushketyk
- */
 @RunWith(classOf[JUnitRunner])
-class SitemapFeederSupportSpec extends Specification with SitemapFeederSupport {
+class SitemapFeederSupportSpec extends FlatSpec with Matchers with SitemapFeederSupport {
 
   def getFile(filePath: String) = File(getClass.getClassLoader.getResource("sitemap.xml").getFile)
 
-  "create sitemap feeder" should {
-    "get file resource" in {
-      val success = Success(FileResource(getFile("sitemap.xml")))
-      val feederBuilder = sitemap(success)
+  "create sitemap feeder" should "get file resource" in {
+    val success = Success(FileResource(getFile("sitemap.xml")))
+    val feederBuilder = sitemap(success)
 
-      feederBuilder.records.size should be equalTo 5
-    }
-
-    "get non existing resource" in {
-      val failure = Failure("error")
-      sitemap(failure) must throwA[IllegalArgumentException]
-    }
+    feederBuilder.records should have size 5
   }
 
+  it should "get non existing resource" in {
+    val failure = Failure("error")
+    a[IllegalArgumentException] shouldBe thrownBy(sitemap(failure))
+  }
 }

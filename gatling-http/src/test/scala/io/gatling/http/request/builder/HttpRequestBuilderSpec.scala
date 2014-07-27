@@ -15,47 +15,48 @@
  */
 package io.gatling.http.request.builder
 
+import org.junit.runner.RunWith
+import org.mockito.Mockito._
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.junit.JUnitRunner
+
 import com.ning.http.client.uri.UriComponents
 import com.ning.http.client.{ Request, RequestBuilderBase, SignatureCalculator }
+
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.validation.Success
 import io.gatling.http.config.HttpProtocol
-import org.junit.runner.RunWith
-import org.specs2.mock.Mockito
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class HttpRequestBuilderSpec extends Specification with Mockito {
+class HttpRequestBuilderSpec extends FlatSpec with Matchers with MockitoSugar {
 
   // Default config
   GatlingConfiguration.setUp()
 
   def mockComonAttributes() = CommonAttributes(_ => Success("attributes"), "method", Right(UriComponents.create("http://gatling-tool.org")))
 
-  "request builder" should {
-    "set signature calculator object" in {
-      var builder = new HttpRequestBuilder(mockComonAttributes(), HttpAttributes())
-      val sigCalc = mock[SignatureCalculator]
-      builder = builder.signatureCalculator(sigCalc)
+  "request builder" should "set signature calculator object" in {
+    var builder = new HttpRequestBuilder(mockComonAttributes(), HttpAttributes())
+    val sigCalc = mock[SignatureCalculator]
+    builder = builder.signatureCalculator(sigCalc)
 
-      val httpRequest = builder.build(HttpProtocol.DefaultHttpProtocol, false)
-      httpRequest.signatureCalculator.get must_== sigCalc
-    }
+    val httpRequest = builder.build(HttpProtocol.DefaultHttpProtocol, throttled = false)
+    httpRequest.signatureCalculator.get shouldBe sigCalc
+  }
 
-    "set signature calculator function" in {
-      var builder = new HttpRequestBuilder(mockComonAttributes(), HttpAttributes())
-      val sigCalcFunc = mock[Function2[Request, RequestBuilderBase[_], Unit]]
-      builder = builder.signatureCalculator(sigCalcFunc)
+  it should "set signature calculator function" in {
+    var builder = new HttpRequestBuilder(mockComonAttributes(), HttpAttributes())
+    val sigCalcFunc = mock[(Request, RequestBuilderBase[_]) => Unit]
+    builder = builder.signatureCalculator(sigCalcFunc)
 
-      val httpRequest = builder.build(HttpProtocol.DefaultHttpProtocol, false)
-      val sigCalc = httpRequest.signatureCalculator.get
+    val httpRequest = builder.build(HttpProtocol.DefaultHttpProtocol, throttled = false)
+    val sigCalc = httpRequest.signatureCalculator.get
 
-      val mockRequest = mock[Request]
-      val mockRequestBuilder = mock[RequestBuilderBase[_]]
+    val mockRequest = mock[Request]
+    val mockRequestBuilder = mock[RequestBuilderBase[_]]
 
-      sigCalc.calculateAndAddSignature(mockRequest, mockRequestBuilder)
-      there was one(sigCalcFunc).apply(mockRequest, mockRequestBuilder)
-    }
+    sigCalc.calculateAndAddSignature(mockRequest, mockRequestBuilder)
+    verify(sigCalcFunc, times(1)).apply(mockRequest, mockRequestBuilder)
   }
 }

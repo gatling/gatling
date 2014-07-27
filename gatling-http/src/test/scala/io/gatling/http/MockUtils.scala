@@ -15,20 +15,18 @@
  */
 package io.gatling.http
 
-import com.ning.http.client.uri.UriComponents
-import io.gatling.http.request.{ HttpRequestConfig, HttpRequest }
-import org.specs2.mock.Mockito
-
-import io.gatling.core.session.Session
-import io.gatling.http.config.{ HttpProtocolRequestPart, HttpProtocol }
-import io.gatling.http.ahc.HttpTx
+import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
 
 import com.ning.http.client.Request
+import com.ning.http.client.uri.UriComponents
 
-/**
- * @author Ivan Mushketyk
- */
-object MockUtils extends Mockito {
+import io.gatling.core.session.Session
+import io.gatling.http.ahc.HttpTx
+import io.gatling.http.config.{ HttpProtocolRequestPart, HttpProtocol }
+import io.gatling.http.request.{ HttpRequestConfig, HttpRequest }
+
+object MockUtils extends MockitoSugar {
 
   def txTo(uri: String, session: Session, redirectCount: Int = 0) = {
     val protocol = mock[HttpProtocol]
@@ -54,10 +52,10 @@ object MockUtils extends Mockito {
       next = null,
       redirectCount = redirectCount)
 
-    protocol.requestPart returns requestPart
-    requestPart.cache returns false
+    when(protocol.requestPart) thenReturn requestPart
+    when(requestPart.cache) thenReturn false
 
-    request.getURI returns UriComponents.create(uri)
+    when(request.getURI) thenReturn UriComponents.create(uri)
 
     tx
   }

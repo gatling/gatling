@@ -18,27 +18,23 @@ package io.gatling.core.util
 import scala.concurrent.duration._
 
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
-import org.specs2.mutable.Specification
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
 
 import TimeHelper._
 
 @RunWith(classOf[JUnitRunner])
-class TimeHelperSpec extends Specification {
-  "TimeHelper" should {
-    "toMillisPrecision should work correctly" in {
-      val t1 = 100.nanoseconds
-      toMillisPrecision(t1).toNanos should beEqualTo(0)
+class TimeHelperSpec extends FlatSpec with Matchers {
 
-      val t2 = 1234.microseconds
-      toMillisPrecision(t2).toMicros should beEqualTo(1000)
+  "TimeHelper" should "toMillisPrecision should work correctly" in {
+    val t1 = 100.nanoseconds
+    toMillisPrecision(t1).toNanos shouldBe 0
 
-      val t3 = 1.minute
-      toMillisPrecision(t3).toMicros should beEqualTo(1 * 60 * 1000 * 1000)
-    }
+    val t2 = 1234.microseconds
+    toMillisPrecision(t2).toMicros shouldBe 1000
+
+    val t3 = 1.minute
+    toMillisPrecision(t3).toMicros shouldBe (1 * 60 * 1000 * 1000)
   }
-
-  // Deactivate Specs2 implicit to be able to use the ones provided in scala.concurrent.duration
-  override def intToRichLong(v: Int) = super.intToRichLong(v)
 }
 

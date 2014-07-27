@@ -15,118 +15,114 @@
  */
 package io.gatling.jms.action
 
-import org.specs2.mutable.Specification
-import io.gatling.jms._
-import io.gatling.core.test.ActorSupport
-import io.gatling.core.session.Session
-import org.specs2.time.NoTimeConversions
-import io.gatling.core.result.message.{ KO, OK }
-import io.gatling.core.Predef._
-import io.gatling.jms.Predef._
 import akka.testkit.TestActorRef
-import io.gatling.jms.MessageReceived
+
+import org.junit.runner.RunWith
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
+
+import io.gatling.core.Predef._
+import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.writer.RequestMessage
+import io.gatling.core.session.Session
+import io.gatling.core.test.ActorSupport
+import io.gatling.jms._
+import io.gatling.jms.Predef._
 import io.gatling.jms.check.JmsSimpleCheck
-import io.gatling.jms.MessageSent
 
 class JmsRequestTrackerActorWithMockWriter extends JmsRequestTrackerActor with MockDataWriterClient
 
-class JmsRequestTrackerActorSpec extends Specification with MockMessage with NoTimeConversions {
+@RunWith(classOf[JUnitRunner])
+class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage {
 
   def ignoreDrift(actual: Session) = {
-    actual.drift must be_>(0L)
+    actual.drift shouldBe >(0L)
     actual.setDrift(0)
   }
 
-  "JmsRequestTrackerActor" should {
-    val session = Session("mockSession", "mockUserName")
-    "pass to next to next actor when matching message is received" in ActorSupport {
-      testKit =>
-        import testKit._
+  val session = Session("mockSession", "mockUserName")
 
-        val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
+  "JmsRequestTrackerActor" should "pass to next to next actor when matching message is received" in ActorSupport { testKit =>
+    import testKit._
 
-        tracker ! MessageSent("1", 15, 20, List(), session, testActor, "success")
-        tracker ! MessageReceived("1", 30, textMessage("test"))
+    val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
 
-        val nextSession = expectMsgType[Session]
+    tracker ! MessageSent("1", 15, 20, List(), session, testActor, "success")
+    tracker ! MessageReceived("1", 30, textMessage("test"))
 
-        ignoreDrift(nextSession) must_== session
-        tracker.underlyingActor.dataWriterMsg must contain(
-          RequestMessage("mockSession", "mockUserName", List(), "success", 15, 20, 20, 30, OK, None, List()))
-    }
+    val nextSession = expectMsgType[Session]
 
-    "pass to next to next actor even if messages are out of sync" in ActorSupport {
-      testKit =>
-        import testKit._
+    ignoreDrift(nextSession) shouldBe session
+    val expected = RequestMessage("mockSession", "mockUserName", List(), "success", 15, 20, 20, 30, OK, None, List())
+    tracker.underlyingActor.dataWriterMsg should contain(expected)
+  }
 
-        val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
+  it should "pass to next to next actor even if messages are out of sync" in ActorSupport { testKit =>
+    import testKit._
 
-        tracker ! MessageReceived("1", 30, textMessage("test"))
-        tracker ! MessageSent("1", 15, 20, List(), session, testActor, "outofsync")
+    val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
 
-        val nextSession = expectMsgType[Session]
+    tracker ! MessageReceived("1", 30, textMessage("test"))
+    tracker ! MessageSent("1", 15, 20, List(), session, testActor, "outofsync")
 
-        ignoreDrift(nextSession) must_== session
-        tracker.underlyingActor.dataWriterMsg must contain(
-          RequestMessage("mockSession", "mockUserName", List(), "outofsync", 15, 20, 20, 30, OK, None, List()))
-    }
+    val nextSession = expectMsgType[Session]
 
-    "pass KO to next actor when check fails" in ActorSupport {
-      testKit =>
-        import testKit._
+    ignoreDrift(nextSession) shouldBe session
+    val expected = RequestMessage("mockSession", "mockUserName", List(), "outofsync", 15, 20, 20, 30, OK, None, List())
+    tracker.underlyingActor.dataWriterMsg should contain(expected)
+  }
 
-        val failedCheck = JmsSimpleCheck(_ => false)
-        val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
+  it should "pass KO to next actor when check fails" in ActorSupport { testKit =>
+    import testKit._
 
-        tracker ! MessageSent("1", 15, 20, List(failedCheck), session, testActor, "failure")
-        tracker ! MessageReceived("1", 30, textMessage("test"))
+    val failedCheck = JmsSimpleCheck(_ => false)
+    val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
 
-        val nextSession = expectMsgType[Session]
+    tracker ! MessageSent("1", 15, 20, List(failedCheck), session, testActor, "failure")
+    tracker ! MessageReceived("1", 30, textMessage("test"))
 
-        ignoreDrift(nextSession) must_== session.markAsFailed
-        tracker.underlyingActor.dataWriterMsg must contain(
-          RequestMessage("mockSession", "mockUserName", List(), "failure", 15, 20, 20, 30, KO, Some("Jms check failed"), List()))
-    }
+    val nextSession = expectMsgType[Session]
 
-    "pass updated session to next actor if modified by checks" in ActorSupport {
-      testKit =>
-        import testKit._
+    ignoreDrift(nextSession) shouldBe session.markAsFailed
+    val expected = RequestMessage("mockSession", "mockUserName", List(), "failure", 15, 20, 20, 30, KO, Some("Jms check failed"), List())
+    tracker.underlyingActor.dataWriterMsg should contain(expected)
+  }
 
-        val check: JmsCheck = xpath("/id").saveAs("id")
-        val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
+  it should "pass updated session to next actor if modified by checks" in ActorSupport { testKit =>
+    import testKit._
 
-        tracker ! MessageSent("1", 15, 20, List(check), session, testActor, "updated")
-        tracker ! MessageReceived("1", 30, textMessage("<id>5</id>"))
+    val check: JmsCheck = xpath("/id").saveAs("id")
+    val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
 
-        val nextSession = expectMsgType[Session]
+    tracker ! MessageSent("1", 15, 20, List(check), session, testActor, "updated")
+    tracker ! MessageReceived("1", 30, textMessage("<id>5</id>"))
 
-        ignoreDrift(nextSession) must_== session.set("id", "5")
-        tracker.underlyingActor.dataWriterMsg must contain(
-          RequestMessage("mockSession", "mockUserName", List(), "updated", 15, 20, 20, 30, OK, None, List()))
-    }
+    val nextSession = expectMsgType[Session]
 
-    "pass information to session about response time in case group are used" in ActorSupport {
-      testKit =>
-        import testKit._
+    ignoreDrift(nextSession) shouldBe session.set("id", "5")
+    val expected = RequestMessage("mockSession", "mockUserName", List(), "updated", 15, 20, 20, 30, OK, None, List())
+    tracker.underlyingActor.dataWriterMsg should contain(expected)
+  }
 
-        val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
+  it should "pass information to session about response time in case group are used" in ActorSupport { testKit =>
+    import testKit._
 
-        val groupSession = session.enterGroup("group")
-        tracker ! MessageSent("1", 15, 20, List(), groupSession, testActor, "logGroupResponse")
-        tracker ! MessageReceived("1", 30, textMessage("group"))
+    val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
 
-        val newSession = groupSession.logGroupRequest(15, OK)
-        val nextSession1 = expectMsgType[Session]
+    val groupSession = session.enterGroup("group")
+    tracker ! MessageSent("1", 15, 20, List(), groupSession, testActor, "logGroupResponse")
+    tracker ! MessageReceived("1", 30, textMessage("group"))
 
-        val failedCheck = JmsSimpleCheck(_ => false)
-        tracker ! MessageSent("2", 25, 30, List(failedCheck), newSession, testActor, "logGroupResponse")
-        tracker ! MessageReceived("2", 50, textMessage("group"))
+    val newSession = groupSession.logGroupRequest(15, OK)
+    val nextSession1 = expectMsgType[Session]
 
-        val nextSession2 = expectMsgType[Session]
+    val failedCheck = JmsSimpleCheck(_ => false)
+    tracker ! MessageSent("2", 25, 30, List(failedCheck), newSession, testActor, "logGroupResponse")
+    tracker ! MessageReceived("2", 50, textMessage("group"))
 
-        ignoreDrift(nextSession1) must_== newSession
-        ignoreDrift(nextSession2) must_== newSession.logGroupRequest(25, KO).markAsFailed
-    }
+    val nextSession2 = expectMsgType[Session]
+
+    ignoreDrift(nextSession1) shouldBe newSession
+    ignoreDrift(nextSession2) shouldBe newSession.logGroupRequest(25, KO).markAsFailed
   }
 }

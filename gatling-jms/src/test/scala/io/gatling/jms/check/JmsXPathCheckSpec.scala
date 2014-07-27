@@ -15,37 +15,39 @@
  */
 package io.gatling.jms.check
 
-import org.specs2.mutable.Specification
-import io.gatling.core.validation.{ Failure, Success }
-import io.gatling.core.session.Session
-import io.gatling.jms.Predef._
-import io.gatling.core.Predef._
-import io.gatling.jms.{ MockMessage, JmsCheck }
 import scala.collection.mutable
-import io.gatling.core.config.GatlingConfiguration
 
-class JmsXPathCheckSpec extends Specification with MockMessage {
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.validation._
+import io.gatling.core.session.Session
+import io.gatling.core.test.ValidationValues
+import io.gatling.core.Predef._
+import io.gatling.jms.Predef._
+import io.gatling.jms.{ MockMessage, JmsCheck }
+
+@RunWith(classOf[JUnitRunner])
+class JmsXPathCheckSpec extends FlatSpec with Matchers with ValidationValues with MockMessage {
 
   GatlingConfiguration.setUp()
 
   implicit def cache = mutable.Map.empty[Any, Any]
 
-  "xpath check" should {
-    val session = Session("mockSession", "mockUserName")
-    val check: JmsCheck = xpath("/ok").find
+  val session = Session("mockSession", "mockUserName")
+  val check: JmsCheck = xpath("/ok").find
 
-    "return success if condition is true" in {
-      check.check(textMessage("<ok></ok>"), session) must beAnInstanceOf[Success[_]]
-    }
+  "xpath check" should "return success if condition is true" in {
+    check.check(textMessage("<ok></ok>"), session) shouldBe a[Success[_]]
+  }
 
-    "return failure if condition is false" in {
-      check.check(textMessage("<ko></ko>"), session) must beAnInstanceOf[Failure]
-    }
+  it should "return failure if condition is false" in {
+    check.check(textMessage("<ko></ko>"), session) shouldBe a[Failure]
+  }
 
-    "return failure if message is not TextMessage" in {
-      check.check(message, session) must beLike {
-        case Failure(m) if m contains "Unsupported message type" => ok
-      }
-    }
+  it should "return failure if message is not TextMessage" in {
+    check.check(message, session).failed.message should include("Unsupported message type")
   }
 }

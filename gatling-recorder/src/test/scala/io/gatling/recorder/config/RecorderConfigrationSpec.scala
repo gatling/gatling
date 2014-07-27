@@ -18,46 +18,39 @@ package io.gatling.recorder.config
 import java.io.{ FileNotFoundException, File }
 
 import org.junit.runner.RunWith
-
-import org.specs2.mutable.{ BeforeAfter, Specification }
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ BeforeAndAfter, FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class RecorderConfigrationSpec extends Specification {
-  sequential
+class RecorderConfigrationSpec extends FlatSpec with Matchers with BeforeAndAfter {
 
   val NON_EXISTING_DIR = "nonExistingDir"
   val EXISTING_DIR = "existingDir"
   val FILE_NAME = "file"
 
-  class Context extends BeforeAfter {
-    def removeAll(): Unit = {
-      new File(EXISTING_DIR, FILE_NAME).delete()
-      new File(EXISTING_DIR).delete()
-      new File(FILE_NAME).delete()
-    }
-
-    def before(): Unit = removeAll()
-
-    def after(): Unit = removeAll()
+  def removeAll(): Unit = {
+    new File(EXISTING_DIR, FILE_NAME).delete()
+    new File(EXISTING_DIR).delete()
+    new File(FILE_NAME).delete()
   }
 
-  "recorder configuration" should {
-    "create file if directory exists" in new Context {
-      val resFile = RecorderConfiguration.createAndOpen(new File(FILE_NAME))
-      resFile.exists must beTrue
-    }
+  before(removeAll())
+  after(removeAll())
 
-    "create if parent directory exists" in new Context {
-      new File(EXISTING_DIR).mkdir()
-      val testFile = new File(EXISTING_DIR, FILE_NAME)
-      val resFile = RecorderConfiguration.createAndOpen(testFile)
-      resFile.exists must beTrue
-    }
+  "Recorder Configuration" should "create file if directory exists" in {
+    val resFile = RecorderConfiguration.createAndOpen(new File(FILE_NAME))
+    resFile.exists shouldBe true
+  }
 
-    "throw exception if parent directory is missing" in new Context {
-      val testFile = new File(NON_EXISTING_DIR, FILE_NAME)
-      RecorderConfiguration.createAndOpen(testFile) must throwA[FileNotFoundException]
-    }
+  it should "create if parent directory exists" in {
+    new File(EXISTING_DIR).mkdir()
+    val testFile = new File(EXISTING_DIR, FILE_NAME)
+    val resFile = RecorderConfiguration.createAndOpen(testFile)
+    resFile.exists shouldBe true
+  }
+
+  it should "throw exception if parent directory is missing" in {
+    val testFile = new File(NON_EXISTING_DIR, FILE_NAME)
+    a[FileNotFoundException] should be thrownBy RecorderConfiguration.createAndOpen(testFile)
   }
 }

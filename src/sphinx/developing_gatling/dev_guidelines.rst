@@ -19,15 +19,14 @@ running ``sbt compile`` will format the code automatically.
 Testing
 =======
 
-All Gatling tests use `Specs2 <http://etorreborre.github.io/specs2/>`__.
+All Gatling tests use `ScalaTest <http://www.scalatest.org>`__.
 
 A few helpers are provided for testing actors or some of Gatling's APIs:
 
-``ValidationSpecification``
----------------------------
+``ValidationValues``
+--------------------
 
-When tests involves Gatling's ``Validation`` API, ``ValidationSpecification`` provides custom Specs2 `matchers <http://etorreborre.github.io/specs2/guide/org.specs2.guide.Matchers.html>`__
-that allows to match on the ``Validation``'s result.
+When tests involves Gatling's ``Validation`` API, ``ValidationValues`` provides helpers that allows to match on the ``Validation``'s result.
 
 Example: `ELSpec <https://github.com/excilys/gatling/blob/master/gatling-core/src/test/scala/io/gatling/core/session/el/ELSpec.scala>`__
 

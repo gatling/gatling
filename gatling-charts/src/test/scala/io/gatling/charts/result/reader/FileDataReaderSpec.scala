@@ -18,25 +18,20 @@ package io.gatling.charts.result.reader
 import scala.collection.mutable
 
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.ConfigKeys._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
 
 @RunWith(classOf[JUnitRunner])
-class FileDataReaderSpec extends Specification {
+class FileDataReaderSpec extends FlatSpec with Matchers {
 
-  // Tests must be executed sequentially to avoid configuration conflicts
-  sequential
+  val props = new GatlingPropertiesBuilder
+  props.sourcesDirectory("src/test/resources")
+  props.resultsDirectory("src/test/resources")
 
-  val init = {
-    val props = new GatlingPropertiesBuilder
-    props.sourcesDirectory("src/test/resources")
-    props.resultsDirectory("src/test/resources")
-
-    GatlingConfiguration.setUp(props.build)
-  }
+  GatlingConfiguration.setUp(props.build)
 
   // FIXME re-enable with fresh and SIMPLE samples
   //	"When reading a single log file, FileDataReader" should {
@@ -87,91 +82,88 @@ class FileDataReaderSpec extends Specification {
   //		}
   //	}
 
-  "When reading a single log file with known statistics, FileDataReder" should {
-    val singleFileDataReader = new FileDataReader("run_single_node_with_known_stats")
+  val singleFileDataReader = new FileDataReader("run_single_node_with_known_stats")
+  "When reading a single log file with known statistics, FileDataReder" should "return expected minResponseTime for correct request data" in {
+    singleFileDataReader.requestGeneralStats().min shouldBe 2000
+  }
 
-    "return expected minResponseTime for correct request data" in {
-      singleFileDataReader.requestGeneralStats().min must beEqualTo(2000)
-    }
+  it should "return expected maxResponseTime for correct request data" in {
+    singleFileDataReader.requestGeneralStats().max shouldBe 9000
+  }
 
-    "return expected maxResponseTime for correct request data" in {
-      singleFileDataReader.requestGeneralStats().max must beEqualTo(9000)
-    }
+  it should "return expected responseTimeStandardDeviation for correct request data" in {
+    val computedValue = singleFileDataReader.requestGeneralStats().stdDev
+    val expectedValue = 2138
+    val error = (computedValue.toDouble - expectedValue) / expectedValue
 
-    "return expected responseTimeStandardDeviation for correct request data" in {
-      val computedValue = singleFileDataReader.requestGeneralStats().stdDev
-      val expectedValue = 2138
-      val error = (computedValue.toDouble - expectedValue) / expectedValue
+    error shouldBe <=(0.06)
+  }
 
-      error must be_<=(0.06)
-    }
+  it should "return expected responseTimePercentile for the (0, 0.7) percentiles" in {
+    val props = mutable.Map.empty[String, Any]
+    props.put(charting.indicators.Percentile1, 0)
+    props.put(charting.indicators.Percentile2, 70)
+    props.put(core.directory.Simulations, "src/test/resources")
+    props.put(core.directory.Results, "src/test/resources")
+    GatlingConfiguration.setUp(props)
+    val lowPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats")
+    lowPercentilesFileDataReader.requestGeneralStats().percentile1 shouldBe 2000
+    lowPercentilesFileDataReader.requestGeneralStats().percentile2 shouldBe 5000
+  }
 
-    "return expected responseTimePercentile for the (0, 0.7) percentiles" in {
-      val props = mutable.Map.empty[String, Any]
-      props.put(charting.indicators.Percentile1, 0)
-      props.put(charting.indicators.Percentile2, 70)
-      props.put(core.directory.Simulations, "src/test/resources")
-      props.put(core.directory.Results, "src/test/resources")
-      GatlingConfiguration.setUp(props)
-      val lowPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats")
-      lowPercentilesFileDataReader.requestGeneralStats().percentile1 must beEqualTo(2000)
-      lowPercentilesFileDataReader.requestGeneralStats().percentile2 must beEqualTo(5000)
-    }
+  it should "return expected result for the (99.99, 100) percentiles" in {
+    val props = mutable.Map.empty[String, Any]
+    props.put(charting.indicators.Percentile1, 99)
+    props.put(charting.indicators.Percentile2, 100)
+    props.put(core.directory.Simulations, "src/test/resources")
+    props.put(core.directory.Results, "src/test/resources")
+    GatlingConfiguration.setUp(props)
+    val highPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats")
+    highPercentilesFileDataReader.requestGeneralStats().percentile1 shouldBe 8860
+    highPercentilesFileDataReader.requestGeneralStats().percentile2 shouldBe 9000
+  }
 
-    "return expected result for the (99.99, 100) percentiles" in {
-      val props = mutable.Map.empty[String, Any]
-      props.put(charting.indicators.Percentile1, 99)
-      props.put(charting.indicators.Percentile2, 100)
-      props.put(core.directory.Simulations, "src/test/resources")
-      props.put(core.directory.Results, "src/test/resources")
-      GatlingConfiguration.setUp(props)
-      val highPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats")
-      highPercentilesFileDataReader.requestGeneralStats().percentile1 must beEqualTo(8860)
-      highPercentilesFileDataReader.requestGeneralStats().percentile2 must beEqualTo(9000)
-    }
+  it should "indicate that all the request have their response time in between 0 and 100000" in {
+    val props = mutable.Map.empty[String, Any]
+    props.put(charting.indicators.LowerBound, 0)
+    props.put(charting.indicators.HigherBound, 100000)
+    props.put(core.directory.Simulations, "src/test/resources")
+    props.put(core.directory.Results, "src/test/resources")
+    GatlingConfiguration.setUp(props)
+    val fileDataReader = new FileDataReader("run_single_node_with_known_stats")
+    fileDataReader.numberOfRequestInResponseTimeRange().map(_._2) shouldBe List(0, 8, 0, 0)
+  }
 
-    "indicate that all the request have their response time in between 0 and 100000" in {
-      val props = mutable.Map.empty[String, Any]
-      props.put(charting.indicators.LowerBound, 0)
-      props.put(charting.indicators.HigherBound, 100000)
-      props.put(core.directory.Simulations, "src/test/resources")
-      props.put(core.directory.Results, "src/test/resources")
-      GatlingConfiguration.setUp(props)
-      val fileDataReader = new FileDataReader("run_single_node_with_known_stats")
-      fileDataReader.numberOfRequestInResponseTimeRange().map(_._2) must beEqualTo(List(0, 8, 0, 0))
-    }
+  it should "indicate that 1 request had a response time below 2500ms" in {
+    val props = mutable.Map.empty[String, Any]
+    props.put(charting.indicators.LowerBound, 2500)
+    props.put(charting.indicators.HigherBound, 5000)
+    props.put(core.directory.Simulations, "src/test/resources")
+    props.put(core.directory.Results, "src/test/resources")
+    GatlingConfiguration.setUp(props)
+    val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
+    nRequestInResponseTimeRange(0) shouldBe 1
+  }
 
-    "indicate that 1 request had a response time below 2500ms" in {
-      val props = mutable.Map.empty[String, Any]
-      props.put(charting.indicators.LowerBound, 2500)
-      props.put(charting.indicators.HigherBound, 5000)
-      props.put(core.directory.Simulations, "src/test/resources")
-      props.put(core.directory.Results, "src/test/resources")
-      GatlingConfiguration.setUp(props)
-      val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
-      nRequestInResponseTimeRange(0) must beEqualTo(1)
-    }
+  it should "indicate that 5 request had a response time in between 2500ms and 5000ms" in {
+    val props = mutable.Map.empty[String, Any]
+    props.put(charting.indicators.LowerBound, 2500)
+    props.put(charting.indicators.HigherBound, 5000)
+    props.put(core.directory.Simulations, "src/test/resources")
+    props.put(core.directory.Results, "src/test/resources")
+    GatlingConfiguration.setUp(props)
+    val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
+    nRequestInResponseTimeRange(1) shouldBe 5
+  }
 
-    "indicate that 5 request had a response time in between 2500ms and 5000ms" in {
-      val props = mutable.Map.empty[String, Any]
-      props.put(charting.indicators.LowerBound, 2500)
-      props.put(charting.indicators.HigherBound, 5000)
-      props.put(core.directory.Simulations, "src/test/resources")
-      props.put(core.directory.Results, "src/test/resources")
-      GatlingConfiguration.setUp(props)
-      val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
-      nRequestInResponseTimeRange(1) must beEqualTo(5)
-    }
-
-    "indicate that 2 request had a response time above 5000ms" in {
-      val props = mutable.Map.empty[String, Any]
-      props.put(charting.indicators.LowerBound, 2500)
-      props.put(charting.indicators.HigherBound, 5000)
-      props.put(core.directory.Simulations, "src/test/resources")
-      props.put(core.directory.Results, "src/test/resources")
-      GatlingConfiguration.setUp(props)
-      val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
-      nRequestInResponseTimeRange(2) must beEqualTo(2)
-    }
+  it should "indicate that 2 request had a response time above 5000ms" in {
+    val props = mutable.Map.empty[String, Any]
+    props.put(charting.indicators.LowerBound, 2500)
+    props.put(charting.indicators.HigherBound, 5000)
+    props.put(core.directory.Simulations, "src/test/resources")
+    props.put(core.directory.Results, "src/test/resources")
+    GatlingConfiguration.setUp(props)
+    val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
+    nRequestInResponseTimeRange(2) shouldBe 2
   }
 }

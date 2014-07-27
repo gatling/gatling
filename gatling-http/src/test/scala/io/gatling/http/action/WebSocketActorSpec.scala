@@ -16,6 +16,7 @@
  */
 package io.gatling.http.action
 
+/*
 import java.io.IOException
 import java.net.URI
 
@@ -220,3 +221,4 @@ class WebSocketActorSpec extends Specification with AllExpectations with Mockito
 //		case s: Session => session = Some(s)
 //	}
 //}
+*/

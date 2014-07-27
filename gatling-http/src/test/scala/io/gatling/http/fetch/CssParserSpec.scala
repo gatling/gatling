@@ -15,40 +15,38 @@
  */
 package io.gatling.http.fetch
 
-import com.ning.http.client.uri.UriComponents
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
+
+import com.ning.http.client.uri.UriComponents
 
 @RunWith(classOf[JUnitRunner])
-class CssParserSpec extends Specification {
+class CssParserSpec extends FlatSpec with Matchers {
 
   val rootURI = UriComponents.create("http://akka.io/")
 
-  "parsing CSS" should {
+  def rulesUri(css: String) = CssParser.extractResources(rootURI, css).map(_.url)
 
-      def rulesUri(css: String) = CssParser.extractResources(rootURI, css).map(_.url)
+  "parsing CSS" should "handle an empty CSS" in {
+    rulesUri("") shouldBe empty
+  }
 
-    "handle an empty CSS" in {
-      rulesUri("") must beEqualTo(Nil)
-    }
+  it should "fetch imports" in {
+    val css = """
+        @import url("import1.css");
+        body{background-image: url('backgrounds/blizzard.png');}
+        @import url("import2.css");"""
 
-    "fetch imports" in {
-      val css = """
-				@import url("import1.css");
-				body{background-image: url('backgrounds/blizzard.png');}
-				@import url("import2.css");
-				"""
-      rulesUri(css) must beEqualTo(Seq("http://akka.io/import1.css", "http://akka.io/import2.css"))
-    }
+    rulesUri(css) shouldBe Seq("http://akka.io/import1.css", "http://akka.io/import2.css")
+  }
 
-    "ignore commented imports with a simple CSS" in {
-      val css = """
-				/*@import url("import1.css");*/
-				body{background-image: url('backgrounds/blizzard.png');}
-				@import url("import2.css");
-				"""
-      rulesUri(css) must beEqualTo(Seq("http://akka.io/import2.css"))
-    }
+  it should "ignore commented imports with a simple CSS" in {
+    val css = """
+        /*@import url("import1.css");*/
+        body{background-image: url('backgrounds/blizzard.png');}
+        @import url("import2.css");"""
+
+    rulesUri(css) shouldBe Seq("http://akka.io/import2.css")
   }
 }

@@ -17,15 +17,15 @@ package io.gatling.metrics.types
 
 import io.gatling.core.config.GatlingConfiguration
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration.fakeConfig
 import io.gatling.core.result.message.{ OK, KO }
 import io.gatling.core.ConfigKeys._
 
 @RunWith(classOf[JUnitRunner])
-class RequestMetricsBufferSpec extends Specification {
+class RequestMetricsBufferSpec extends FlatSpec with Matchers {
 
   GatlingConfiguration.setUp()
 
@@ -36,56 +36,61 @@ class RequestMetricsBufferSpec extends Specification {
 
   def allValues(m: Metrics) = Seq(m.max, m.min, m.percentile1, m.percentile2)
 
-  "RequestMetricsBuffer" should {
-    "work when there is no measure" in {
-      val buff = new RequestMetricsBuffer
-      val metricsByStatus = buff.metricsByStatus
+  "RequestMetricsBuffer" should "work when there is no measure" in {
+    val buff = new RequestMetricsBuffer
+    val metricsByStatus = buff.metricsByStatus
 
-      (metricsByStatus.ok must beNone) and
-        (metricsByStatus.ko must beNone) and
-        (metricsByStatus.all must beNone)
-    }
+    metricsByStatus.ok shouldBe None
+    metricsByStatus.ko shouldBe None
+    metricsByStatus.all shouldBe None
 
-    "work when there is one OK mesure" in {
-      val buff = new RequestMetricsBuffer
-      buff.add(OK, 20)
-
-      val metricsByStatus = buff.metricsByStatus
-      val okMetrics = metricsByStatus.ok.get
-
-      (metricsByStatus.ko must beNone) and
-        (metricsByStatus.all.map(_.count) must beSome(1l)) and
-        (okMetrics.count must beEqualTo(1l)) and
-        ((_: Double) must beCloseTo(20.0 +/- 0.01)).forall(allValues(okMetrics))
-    }
-
-    "work when there are multiple measures" in {
-      val buff = new RequestMetricsBuffer
-      buff.add(KO, 10)
-      for (t <- 100 to 200) buff.add(OK, t)
-
-      val metricsByStatus = buff.metricsByStatus
-      val okMetrics = metricsByStatus.ok.get
-      val koMetrics = metricsByStatus.ko.get
-      val allMetrics = metricsByStatus.all.get
-
-      (koMetrics.count must beEqualTo(1)) and ((_: Double) must beCloseTo(10.0 +/- 0.01)).forall(allValues(koMetrics)) and
-        (allMetrics.count must beEqualTo(102l)) and
-        (okMetrics.count must beEqualTo(101l)) and
-        (okMetrics.min must beCloseTo(100.0 +/- 0.01)) and (okMetrics.max must beCloseTo(200.0 +/- 0.01)) and
-        (okMetrics.percentile1 must beCloseTo(195.0 +/- 1)) and (okMetrics.percentile2 must beCloseTo(199.0 +/- 1))
-    }
-
-    "work when there are a large number of measures" in {
-      val buff = new RequestMetricsBuffer
-      for (t <- 1 to 10000) buff.add(OK, t)
-
-      val metricsByStatus = buff.metricsByStatus
-      val okMetrics = metricsByStatus.ok.get
-
-      (okMetrics.count must beEqualTo(10000)) and
-        (okMetrics.min must beCloseTo(1.0 +/- 0.01)) and (okMetrics.max must beCloseTo(10000.0 +/- 0.01)) and
-        (okMetrics.percentile1 must beCloseTo(9500.0 +/- 10)) and (okMetrics.percentile2 must beCloseTo(9900.0 +/- 10))
-    }
   }
+
+  it should "work when there is one OK mesure" in {
+    val buff = new RequestMetricsBuffer
+    buff.add(OK, 20)
+
+    val metricsByStatus = buff.metricsByStatus
+    val okMetrics = metricsByStatus.ok.get
+
+    metricsByStatus.ko shouldBe None
+    metricsByStatus.all.map(_.count) shouldBe Some(1l)
+    okMetrics.count shouldBe 1L
+    all(allValues(okMetrics)) shouldBe 20.0 +- 0.01
+  }
+
+  it should "work when there are multiple measures" in {
+    val buff = new RequestMetricsBuffer
+    buff.add(KO, 10)
+    for (t <- 100 to 200) buff.add(OK, t)
+
+    val metricsByStatus = buff.metricsByStatus
+    val okMetrics = metricsByStatus.ok.get
+    val koMetrics = metricsByStatus.ko.get
+    val allMetrics = metricsByStatus.all.get
+
+    koMetrics.count shouldBe 1
+    all(allValues(koMetrics)) shouldBe 10.0 +- 0.01
+    allMetrics.count shouldBe 102L
+    okMetrics.count shouldBe 101L
+    okMetrics.min shouldBe 100.0 +- 0.01
+    okMetrics.max shouldBe 200.0 +- 0.01
+    okMetrics.percentile1 shouldBe 195.0 +- 1
+    okMetrics.percentile2 shouldBe 199.0 +- 1
+  }
+
+  it should "work when there are a large number of measures" in {
+    val buff = new RequestMetricsBuffer
+    for (t <- 1 to 10000) buff.add(OK, t)
+
+    val metricsByStatus = buff.metricsByStatus
+    val okMetrics = metricsByStatus.ok.get
+
+    okMetrics.count shouldBe 10000
+    okMetrics.min shouldBe 1.0 +- 0.01
+    okMetrics.max shouldBe 10000.0 +- 0.01
+    okMetrics.percentile1 shouldBe 9500.0 +- 10
+    okMetrics.percentile2 shouldBe 9900.0 +- 10
+  }
+
 }

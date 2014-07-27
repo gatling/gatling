@@ -2,12 +2,19 @@ package io.gatling.http.integration
 
 import java.io.File
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 import akka.actor.{ Actor, ActorRef, Props }
 import akka.io.IO
 import akka.pattern.ask
 import akka.testkit.{ ImplicitSender, TestKit }
 import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.Logging
+import org.threeten.bp.LocalDateTime
+import spray.can.Http
+import spray.http._
+
 import io.gatling.core.akka.GatlingActorSystem
 import io.gatling.core.config.Protocols
 import io.gatling.core.controller.DataWritersInitialized
@@ -17,16 +24,8 @@ import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.core.test.ActorSupport
 import io.gatling.http.Predef._
 import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine }
-import org.specs2.execute.{ AsResult, Result }
-import org.specs2.specification.Fixture
-import org.threeten.bp.LocalDateTime
-import spray.can.Http
-import spray.http._
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
-object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Logging {
+object MockServerSupport extends Logging {
 
   val mockHttpPort = Option(Integer.getInteger("gatling.mockHttp.port")).map(_.intValue).getOrElse(8702)
   def httpProtocol = http.baseURL(s"http://localhost:$mockHttpPort")
@@ -43,39 +42,32 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
 
     override def receive: Receive = {
 
-      case bind: Http.Bind => {
-        bindSender = sender
+      case bind: Http.Bind =>
+        bindSender = sender()
         IO(Http)(GatlingActorSystem.instance) ! bind
-      }
 
-      case bound: Http.Bound => {
-        httpListener = sender
+      case bound: Http.Bound =>
+        httpListener = sender()
         bindSender ! bound
-      }
 
       // when a new connection comes in we register ourselves as the connection handler
       case _: Http.Connected => sender ! Http.Register(self)
 
-      case unbind: Http.Unbind => {
-        unbindSender = sender
+      case unbind: Http.Unbind =>
+        unbindSender = sender()
         httpListener ! unbind
-      }
 
-      case Http.Unbound => {
+      case Http.Unbound =>
         unbindSender ! Http.Unbound
-      }
 
-      case r: HttpRequest if process.isDefinedAt(r) => {
+      case r: HttpRequest if process.isDefinedAt(r) =>
         record(r)
         sender ! process(r)
-      }
 
-      case r: HttpRequest => {
+      case r: HttpRequest =>
         record(r)
         logger.warn(s"Unhandled request: $r")
         sender ! HttpResponse(404)
-      }
-
     }
 
     def record(request: HttpRequest) = {
@@ -90,7 +82,7 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
     Await.result(future, Duration.Inf)
   }
 
-  def apply[R: AsResult](config: Map[String, _])(f: TestKit with ImplicitSender => R): Result = {
+  def apply(config: Map[String, _])(f: TestKit with ImplicitSender => Any): Unit = {
     ActorSupport(config) { implicit testKit =>
       import testKit._
 
@@ -120,9 +112,9 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
     }
   }
 
-  def apply[R: AsResult](f: TestKit with ImplicitSender => R): Result = apply(ActorSupport.consoleOnlyConfig)(f)
+  def apply(f: TestKit with ImplicitSender => Any): Unit = apply(ActorSupport.consoleOnlyConfig)(f)
 
-  def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10 seconds, protocols: Protocols = Protocols(httpProtocol))(implicit testKit: TestKit with ImplicitSender) = {
+  def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(httpProtocol))(implicit testKit: TestKit with ImplicitSender) = {
     import testKit._
 
     val actor = sb.build(testKit.self, protocols)
@@ -152,7 +144,7 @@ object MockServerSupport extends Fixture[TestKit with ImplicitSender] with Loggi
 }
 
 object Checks {
-  def hasCookie(cookie: String, value: String)(request: HttpRequest) = {
+  def checkCookie(cookie: String, value: String)(request: HttpRequest) = {
     val cookies = request.cookies.filter(_.name == cookie)
 
     if (cookies.isEmpty) {

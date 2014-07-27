@@ -16,20 +16,17 @@
 package io.gatling.redis.util
 
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
-import org.specs2.mutable.Specification
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 import io.gatling.redis.util.RedisHelper.{ Crlf, generateRedisProtocol }
 
 @RunWith(classOf[JUnitRunner])
-class RedisHelperSpec extends Specification {
+class RedisHelperSpec extends FlatSpec with Matchers {
 
-  "generateRedisProtocol" should {
+  "generateRedisProtocol" should "generate a correct protocol" in {
+    val correctProtocol = List("*3", "$3", "SET", "$5", "mykey", "$7", "myvalue").mkString("", Crlf, Crlf)
 
-    "generate a correct protocol" in {
-      val correctProtocol = List("*3", "$3", "SET", "$5", "mykey", "$7", "myvalue").mkString("", Crlf, Crlf)
-
-      generateRedisProtocol("SET", "mykey", "myvalue") must be equalTo correctProtocol
-    }
+    generateRedisProtocol("SET", "mykey", "myvalue") shouldBe correctProtocol
   }
 }

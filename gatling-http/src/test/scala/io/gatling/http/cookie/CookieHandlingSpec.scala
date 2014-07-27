@@ -15,17 +15,17 @@
  */
 package io.gatling.http.cookie
 
-import com.ning.http.client.uri.UriComponents
 import org.junit.runner.RunWith
-import org.specs2.mutable.Specification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 import com.ning.http.client.cookie.CookieDecoder.decode
+import com.ning.http.client.uri.UriComponents
 
 import io.gatling.core.session.Session
 
 @RunWith(classOf[JUnitRunner])
-class CookieHandlingSpec extends Specification {
+class CookieHandlingSpec extends FlatSpec with Matchers {
 
   val originalCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
   val originalDomain = "docs.foo.com"
@@ -34,23 +34,18 @@ class CookieHandlingSpec extends Specification {
 
   val emptySession = Session("scenarioName", "2")
 
-  "getStoredCookies" should {
-
-    "be able to get a cookie from session" in {
-      CookieHandling.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.getValue) must beEqualTo(List("VALUE1"))
-    }
-
-    "be called with an empty session" in {
-      CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") must beEmpty
-    }
+  "getStoredCookies" should "be able to get a cookie from session" in {
+    CookieHandling.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.getValue) shouldBe List("VALUE1")
   }
 
-  "storeCookies" should {
-    "be able to store a cookie in an empty session" in {
-      val newCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-      CookieHandling.storeCookies(emptySession, UriComponents.create("https://docs.foo.com/accounts"), List(newCookie))
+  it should "be called with an empty session" in {
+    CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") shouldBe empty
+  }
 
-      CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") must beEmpty
-    }
+  "storeCookies" should "be able to store a cookie in an empty session" in {
+    val newCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
+    CookieHandling.storeCookies(emptySession, UriComponents.create("https://docs.foo.com/accounts"), List(newCookie))
+
+    CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") shouldBe empty
   }
 }

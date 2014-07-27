@@ -16,25 +16,22 @@
 package io.gatling.core.util
 
 import org.junit.runner.RunWith
-import io.gatling.core.test.ValidationSpecification
-import org.specs2.runner.JUnitRunner
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.junit.JUnitRunner
 
 @RunWith(classOf[JUnitRunner])
-class UnsyncByteArrayInputStreamSpec extends ValidationSpecification {
+class UnsyncByteArrayInputStreamSpec extends FlatSpec with Matchers {
 
-  "BytesInputStream" should {
-
-    val bytes = "test string".getBytes("utf-8")
-
-    "signal eof when all bytes are read" in {
-      val byteStream = new UnsyncByteArrayInputStream(bytes)
-      byteStream.read(bytes, 0, bytes.length)
-      byteStream.read(bytes, 0, 1) should beEqualTo(-1)
-    }
-
-    "not allow to read more than available bytes" in {
-      val byteStream = new UnsyncByteArrayInputStream(bytes)
-      byteStream.read(bytes, 0, bytes.length + 1) should beEqualTo(bytes.length)
-    }
+  val bytes = "test string".getBytes("utf-8")
+  "BytesInputStream" should "signal eof when all bytes are read" in {
+    val byteStream = new UnsyncByteArrayInputStream(bytes)
+    byteStream.read(bytes, 0, bytes.length)
+    byteStream.read(bytes, 0, 1) shouldBe -1
   }
+
+  it should "not allow to read more than available bytes" in {
+    val byteStream = new UnsyncByteArrayInputStream(bytes)
+    byteStream.read(bytes, 0, bytes.length + 1) shouldBe bytes.length
+  }
+
 }

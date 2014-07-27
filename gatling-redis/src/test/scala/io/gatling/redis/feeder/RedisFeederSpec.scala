@@ -16,28 +16,20 @@
 package io.gatling.redis.feeder
 
 import org.junit.runner.RunWith
-import org.specs2.runner.JUnitRunner
-import org.specs2.mutable.Specification
-import org.specs2.mutable.Before
-import org.specs2.mock.mockito.CalledMatchers
-
 import org.mockito.Mockito._
 import org.mockito.Matchers._
-import org.mockito.stubbing._
-import org.mockito.invocation._
+import org.mockito.invocation.InvocationOnMock
+import org.mockito.stubbing.Answer
+import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.junit.JUnitRunner
 
 import com.redis._
 import io.gatling.core.feeder.Record
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.akka.GatlingActorSystem
-import org.specs2.specification.BeforeExample
 import io.gatling.core.test.ActorSupport
 
-/**
- * @author Ivan Mushketyk
- */
 @RunWith(classOf[JUnitRunner])
-class RedisFeederSpec extends Specification with CalledMatchers {
+class RedisFeederSpec extends FlatSpec with Matchers with MockitoSugar {
 
   val KEY = "key"
 
@@ -46,58 +38,51 @@ class RedisFeederSpec extends Specification with CalledMatchers {
     s.map(str => Map(key -> str)).toList
   }
 
-  trait MockContext extends Before {
-    var clientPool: RedisClientPool = _
-    var client: RedisClient = _
+  trait MockContext {
+    var clientPool: RedisClientPool = mock[RedisClientPool]
+    var client: RedisClient = mock[RedisClient]
 
-    def before(): Unit = {
-      clientPool = mock(classOf[RedisClientPool])
-      client = mock(classOf[RedisClient])
+    // Call user specified function on withClient() call
+    when(clientPool.withClient(any())).thenAnswer(new Answer[AnyRef]() {
+      def answer(invocation: InvocationOnMock) = {
+        val arguments = invocation.getArguments
+        val func = arguments(0).asInstanceOf[Function[RedisClient, AnyRef]]
+        func(client)
+      }
+    })
+  }
 
-      // Call user specified function on withClient() call
-      when(clientPool.withClient(any())).thenAnswer(new Answer[AnyRef]() {
-        def answer(invocation: InvocationOnMock) = {
-          val arguments = invocation.getArguments
-          val func = arguments(0).asInstanceOf[Function[RedisClient, AnyRef]]
-          func(client)
-        }
-      })
+  "redis feeder" should "use lpop as default command" in ActorSupport { testKit =>
+    new MockContext {
+      when(client.lpop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
+
+      val feeder = RedisFeeder(clientPool, KEY)
+      val actual = feeder.toList
+
+      actual shouldBe valsLst(KEY, "v1", "v2", "v3")
     }
   }
 
-  "redis feeder" should {
-    "use lpop as default command" in ActorSupport.of {
-      new MockContext {
+  it should "use spop command" in ActorSupport { testKit =>
+    new MockContext {
+      when(client.spop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
-        when(client.lpop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
+      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SPOP)
+      val actual = feeder.toList
 
-        val feeder = RedisFeeder(clientPool, KEY)
-        val actual = feeder.toList
-        actual should be equalTo valsLst(KEY, "v1", "v2", "v3")
-      }
+      actual shouldBe valsLst(KEY, "v1", "v2", "v3")
     }
+  }
 
-    "use spop command" in ActorSupport.of {
-      new MockContext {
+  it should "use srandmember command" in ActorSupport { testKit =>
+    new MockContext {
+      when(client.srandmember(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"))
 
-        when(client.spop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
+      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SRANDMEMBER)
 
-        val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SPOP)
-        val actual = feeder.toList
-        actual should be equalTo valsLst(KEY, "v1", "v2", "v3")
-      }
-    }
-
-    "use srandmember command" in ActorSupport.of {
-      new MockContext {
-
-        when(client.srandmember(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"))
-
-        val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SRANDMEMBER)
-        feeder.next() should be equalTo Map(KEY -> "v1")
-        feeder.next() should be equalTo Map(KEY -> "v2")
-        feeder.next() should be equalTo Map(KEY -> "v3")
-      }
+      feeder.next() shouldBe Map(KEY -> "v1")
+      feeder.next() shouldBe Map(KEY -> "v2")
+      feeder.next() shouldBe Map(KEY -> "v3")
     }
   }
 }
