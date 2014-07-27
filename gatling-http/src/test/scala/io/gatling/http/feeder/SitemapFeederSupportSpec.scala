@@ -17,14 +17,11 @@ package io.gatling.http.feeder
 
 import scala.reflect.io.File
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.config.FileResource
 import io.gatling.core.validation.{ Success, Failure }
 
-@RunWith(classOf[JUnitRunner])
 class SitemapFeederSupportSpec extends FlatSpec with Matchers with SitemapFeederSupport {
 
   def getFile(filePath: String) = File(getClass.getClassLoader.getResource("sitemap.xml").getFile)

@@ -17,16 +17,13 @@ package io.gatling.http.fetch
 
 import scala.io.Codec.UTF8
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 import com.ning.http.client.uri.UriComponents
 
 import io.gatling.core.util.IO._
 
-@RunWith(classOf[JUnitRunner])
 class HtmlParserSpec extends FlatSpec with Matchers {
 
   val resource = getClass.getClassLoader.getResourceAsStream("akka.io.html")

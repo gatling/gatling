@@ -15,11 +15,8 @@
  */
 package io.gatling.http.fetch
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
 class UserAgentSpec extends FlatSpec with Matchers {
 
   "UserAgent.parseFromHeader" should "extract IE 9.0 version" in {

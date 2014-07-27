@@ -15,13 +15,10 @@
  */
 package io.gatling.redis.util
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.redis.util.RedisHelper.{ Crlf, generateRedisProtocol }
 
-@RunWith(classOf[JUnitRunner])
 class RedisHelperSpec extends FlatSpec with Matchers {
 
   "generateRedisProtocol" should "generate a correct protocol" in {

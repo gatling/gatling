@@ -15,12 +15,10 @@
  */
 package io.gatling.http.action
 
-import org.junit.runner.RunWith
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
 import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.junit.JUnitRunner
 
 import com.ning.http.client.uri.UriComponents
 
@@ -30,7 +28,6 @@ import io.gatling.http.ahc.{ HttpEngine, HttpTx }
 import io.gatling.http.cache.PermanentRedirect
 import io.gatling.http.MockUtils
 
-@RunWith(classOf[JUnitRunner])
 class HttpRequestActionSpec extends FlatSpec with Matchers with MockitoSugar {
 
   GatlingConfiguration.setUp()

@@ -15,13 +15,10 @@
  */
 package io.gatling.recorder.util
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.recorder.util.collection._
 
-@RunWith(classOf[JUnitRunner])
 class RichSeqSpec extends FlatSpec with Matchers {
 
   "groupAsLongAs()" should "group elements as long as the predicate applies" in {

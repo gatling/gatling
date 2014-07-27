@@ -15,13 +15,10 @@
  */
 package io.gatling.http.fetch
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import com.ning.http.client.uri.UriComponents
 
-@RunWith(classOf[JUnitRunner])
 class CssParserSpec extends FlatSpec with Matchers {
 
   val rootURI = UriComponents.create("http://akka.io/")

@@ -15,11 +15,8 @@
  */
 package io.gatling.core.config
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers, OptionValues }
-import org.scalatest.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
 class ProtocolSpec extends FlatSpec with Matchers with OptionValues {
 
   case class FooProtocol(foo: String) extends Protocol

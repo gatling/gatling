@@ -17,19 +17,13 @@ package io.gatling.core.check.extractor.css
 
 import java.nio.charset.StandardCharsets
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import jodd.lagarto.dom.NodeSelector
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationValues
 import io.gatling.core.util.IO._
 
-/**
- * @see <a href="http://www.w3.org/TR/selectors/#selectors"/> for more details about the CSS selectors syntax
- */
-@RunWith(classOf[JUnitRunner])
 class CssExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
   GatlingConfiguration.setUp()

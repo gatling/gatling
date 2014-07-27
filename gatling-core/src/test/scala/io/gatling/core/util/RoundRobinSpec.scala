@@ -15,11 +15,8 @@
  */
 package io.gatling.core.util
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
-@RunWith(classOf[JUnitRunner])
 class RoundRobinSpec extends FlatSpec with Matchers {
 
   "round robin" should "work fine with non empty Iterable" in {

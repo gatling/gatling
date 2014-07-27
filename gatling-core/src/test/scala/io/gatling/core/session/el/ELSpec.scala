@@ -17,14 +17,11 @@ package io.gatling.core.session.el
 
 import java.util.{ ArrayList => JArrayList, HashMap => JHashMap, LinkedList => JLinkedList }
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.session.{ el, Session }
 import io.gatling.core.test.ValidationValues
 
-@RunWith(classOf[JUnitRunner])
 class ELSpec extends FlatSpec with Matchers with ValidationValues {
 
   "One monovalued Expression" should "return expected result when the variable is the whole string" in {

@@ -1,8 +1,6 @@
 package io.gatling.http.integration
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import spray.http.HttpHeaders.{ Location, `Set-Cookie` }
 import spray.http.HttpMethods._
@@ -13,7 +11,6 @@ import io.gatling.core.Predef._
 import io.gatling.core.config.Protocols
 import io.gatling.http.Predef._
 
-@RunWith(classOf[JUnitRunner])
 class HttpIntegrationSpec extends FlatSpec with Matchers {
 
   "Gatling" should "send cookies returned in redirects in subsequent requests" in MockServerSupport { implicit testKit =>

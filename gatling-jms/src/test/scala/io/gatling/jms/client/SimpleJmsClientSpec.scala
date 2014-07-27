@@ -17,12 +17,8 @@ package io.gatling.jms.client
 
 import javax.jms._
 
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
-
 import io.gatling.jms.{ JmsTopic, JmsQueue, MockMessage }
 
-@RunWith(classOf[JUnitRunner])
 class SimpleJmsClientSpec extends BrokerBasedSpecification with MockMessage {
 
   // FIXME : find a way to properly call client.close() inside JmsClient

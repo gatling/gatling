@@ -15,9 +15,7 @@
  */
 package io.gatling.http.config
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import com.ning.http.client.Request
 
@@ -26,7 +24,6 @@ import io.gatling.core.result.message.Status
 import io.gatling.core.session.Session
 import io.gatling.http.response.Response
 
-@RunWith(classOf[JUnitRunner])
 class HttpProtocolBuilderSpec extends FlatSpec with Matchers {
 
   GatlingConfiguration.setUp()

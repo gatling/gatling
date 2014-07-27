@@ -15,13 +15,10 @@
  */
 package io.gatling.core.feeder
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.config.GatlingConfiguration
 
-@RunWith(classOf[JUnitRunner])
 class FeederSupportSpec extends FlatSpec with Matchers with FeederSupport {
 
   GatlingConfiguration.setUp()

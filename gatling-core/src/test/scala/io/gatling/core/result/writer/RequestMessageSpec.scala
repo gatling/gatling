@@ -15,13 +15,10 @@
  */
 package io.gatling.core.result.writer
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.result.message.OK
 
-@RunWith(classOf[JUnitRunner])
 class RequestMessageSpec extends FlatSpec with Matchers {
 
   "constructor" should "have sensible defaults for optional parameters" in {

@@ -17,14 +17,11 @@ package io.gatling.charts.result.reader
 
 import scala.collection.mutable
 
-import org.junit.runner.RunWith
 import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.junit.JUnitRunner
 
 import io.gatling.core.ConfigKeys._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
 
-@RunWith(classOf[JUnitRunner])
 class FileDataReaderSpec extends FlatSpec with Matchers {
 
   val props = new GatlingPropertiesBuilder
