@@ -226,7 +226,7 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
                 case Some(clazz) =>
                   Selection(clazz, defaultOutputDirectoryBaseName(clazz), "")
                 case None =>
-                  throw new UnsupportedOperationException("Mute mode is currently uses by Gatling SBT plugin only.")
+                  throw new UnsupportedOperationException("Mute mode is currently used by Gatling SBT plugin only.")
               }
             else
               interactiveSelect(simulations)
