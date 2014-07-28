@@ -97,26 +97,30 @@ class HarReaderSpec extends FlatSpec with Matchers {
   }
 
   it should "deal correctly with file having a websockets record" in {
-    val scn = HarReader(resourceAsStream("har/play-chat.har"))(configWithResourcesFiltering)
-    val requests = scn.elements.collect { case req: RequestElement => req.uri }
+    withCloseable(resourceAsStream("har/play-chat.har")) { is =>
+      val scn = HarReader(is)(configWithResourcesFiltering)
+      val requests = scn.elements.collect { case req: RequestElement => req.uri}
 
-    scn.elements should have size 3
-    requests shouldBe List("http://localhost:9000/room", "http://localhost:9000/room?username=robert")
+      scn.elements should have size 3
+      requests shouldBe List("http://localhost:9000/room", "http://localhost:9000/room?username=robert")
+    }
   }
 
   it should "deal correctly with HTTP CONNECT requests" in {
-    val scn = HarReader(resourceAsStream("har/charles_https.har"))
-
-    scn.elements shouldBe empty
+    withCloseable(resourceAsStream("har/charles_https.har")) { is =>
+      val scn = HarReader(is)
+      scn.elements shouldBe empty
+    }
   }
 
   it should "deal correctly with HTTP requests having a status=0" in {
-    val scn = HarReader(resourceAsStream("har/null_status.har"))
-    val requests = scn.elements.collect { case req: RequestElement => req }
-    val statuses = requests.map(_.statusCode)
+    withCloseable(resourceAsStream("har/null_status.har")) { is =>
+      val scn = HarReader(is)
+      val requests = scn.elements.collect { case req: RequestElement => req}
+      val statuses = requests.map(_.statusCode)
 
-    requests should have size 3
-    statuses should not contain 0
+      requests should have size 3
+      statuses should not contain 0
+    }
   }
-
 }

@@ -26,9 +26,7 @@ import io.gatling.core.util.IO._
 
 class HtmlParserSpec extends FlatSpec with Matchers {
 
-  val resource = getClass.getClassLoader.getResourceAsStream("akka.io.html")
-
-  val htmlContent = withCloseable(resource)(_.toCharArray(UTF8.charSet))
+  val htmlContent = withCloseable(getClass.getClassLoader.getResourceAsStream("akka.io.html"))(_.toCharArray(UTF8.charSet))
 
   def mockHtml(body: String): Array[Char] = {
     fast"""<!DOCTYPE html>

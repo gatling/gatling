@@ -26,6 +26,7 @@ import org.scalatest.mock.MockitoSugar
 
 import io.gatling.core.feeder.Record
 import io.gatling.core.config._
+import io.gatling.core.util.IO._
 
 class SitemapParserSpec extends FlatSpec with Matchers with MockitoSugar {
 
@@ -34,9 +35,10 @@ class SitemapParserSpec extends FlatSpec with Matchers with MockitoSugar {
   def getIs(filePath: String) = getClass.getClassLoader.getResourceAsStream(filePath)
 
   "sitemap parser" should "parse valid sitemap input stream" in {
-    val records = SitemapParser.parse(getIs("sitemap.xml")).toArray
-
-    verifySitemapRecords(records)
+    withCloseable(getIs("sitemap.xml")) { is =>
+      val records = SitemapParser.parse(is).toArray
+      verifySitemapRecords(records)
+    }
   }
 
   it should "parse valid sitemap file" in {
