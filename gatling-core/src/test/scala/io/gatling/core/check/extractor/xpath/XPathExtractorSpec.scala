@@ -42,6 +42,16 @@ class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
     new JDKXPathExtractor.CountXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe Some(expected)
   }
 
+  def testSingle(expression: String, namespaces: List[(String, String)], rank: Int, file: String, expected: Option[String]): Unit = {
+    new SaxonXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(xmdNode(file)).succeeded shouldBe expected
+    new JDKXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
+  }
+
+  def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
+    new SaxonXPathExtractor.MultipleXPathExtractor(expression, namespaces)(xmdNode(file)).succeeded shouldBe expected
+    new JDKXPathExtractor.MultipleXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe expected
+  }
+
   "count" should "return expected result with anywhere expression" in {
     testCount("//author", "/test.xml", 4)
   }
@@ -52,11 +62,6 @@ class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
   it should "return Some(0) when no results" in {
     testCount("/foo", "/test.xml", 0)
-  }
-
-  def testSingle(expression: String, namespaces: List[(String, String)], rank: Int, file: String, expected: Option[String]): Unit = {
-    new SaxonXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
   }
 
   "extractSingle" should "return expected result with anywhere expression and rank 0" in {
@@ -89,11 +94,6 @@ class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
   it should "support default namespace" in {
     testSingle("//pre:name", List("pre" -> "http://schemas.test.com/entityserver/runtime/1.0"), 0, "/test2.xml", Some("HR"))
-  }
-
-  def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
-    new SaxonXPathExtractor.MultipleXPathExtractor(expression, namespaces)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.MultipleXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe expected
   }
 
   "extractMultiple" should "return expected result with anywhere expression" in {
