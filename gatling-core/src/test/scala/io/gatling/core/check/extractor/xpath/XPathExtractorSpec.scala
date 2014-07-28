@@ -37,151 +37,74 @@ class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
       Some(JDKXPathExtractor.parse(is))
     }
 
-  "count" should "return expected result with anywhere expression" in {
-    val expression = "//author"
-    val file = "/test.xml"
-    val expected = 4
-
+  def testCount(expression: String, file: String, expected: Int): Unit = {
     new SaxonXPathExtractor.CountXPathExtractor(expression, namespaces)(xmdNode(file)).succeeded shouldBe Some(expected)
     new JDKXPathExtractor.CountXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe Some(expected)
   }
 
+  "count" should "return expected result with anywhere expression" in {
+    testCount("//author", "/test.xml", 4)
+  }
+
   it should "return expected result with array expression" in {
-
-    val expression = "/test/store/book[3]/author"
-    val file = "/test.xml"
-    val expected = 1
-
-    new SaxonXPathExtractor.CountXPathExtractor(expression, namespaces)(xmdNode(file)).succeeded shouldBe Some(expected)
-    new JDKXPathExtractor.CountXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe Some(expected)
+    testCount("/test/store/book[3]/author", "/test.xml", 1)
   }
 
   it should "return Some(0) when no results" in {
+    testCount("/foo", "/test.xml", 0)
+  }
 
-    val expression = "/foo"
-    val file = "/test.xml"
-    val expected = 0
-
-    new SaxonXPathExtractor.CountXPathExtractor(expression, namespaces)(xmdNode(file)).succeeded shouldBe Some(expected)
-    new JDKXPathExtractor.CountXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe Some(expected)
+  def testSingle(expression: String, namespaces: List[(String, String)], rank: Int, file: String, expected: Option[String]): Unit = {
+    new SaxonXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(xmdNode(file)).succeeded shouldBe expected
+    new JDKXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
   }
 
   "extractSingle" should "return expected result with anywhere expression and rank 0" in {
-
-    val expression = "//author"
-    val rank = 0
-    val file = "/test.xml"
-    val expected = Some("Nigel Rees")
-
-    new SaxonXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
+    testSingle("//author", namespaces, 0, "/test.xml", Some("Nigel Rees"))
   }
 
   it should "support name()" in {
-
-    val expression = "//*[name()='author']"
-    val rank = 0
-    val file = "/test.xml"
-    val expected = Some("Nigel Rees")
-
-    new SaxonXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
+    testSingle("//*[name()='author']", namespaces, 0, "/test.xml", Some("Nigel Rees"))
   }
 
   it should "return expected result with anywhere expression and rank 1" in {
-
-    val expression = "//author"
-    val rank = 1
-    val file = "/test.xml"
-    val expected = Some("Evelyn Waugh")
-
-    new SaxonXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
+    testSingle("//author", namespaces, 1, "/test.xml", Some("Evelyn Waugh"))
   }
 
   it should "return expected result with array expression" in {
-
-    val expression = "/test/store/book[3]/author"
-    val rank = 0
-    val file = "/test.xml"
-    val expected = Some("Herman Melville")
-
-    new SaxonXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
+    testSingle("/test/store/book[3]/author", namespaces, 0, "/test.xml", Some("Herman Melville"))
   }
 
   it should "return expected None with array expression" in {
-
-    val expression = "/test/store/book[3]/author"
-    val rank = 1
-    val file = "/test.xml"
-    val expected = None
-
-    new SaxonXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
+    testSingle("/test/store/book[3]/author", namespaces, 1, "/test.xml", None)
   }
 
   it should "return expected result with attribute expression" in {
-
-    val expression = "/test/store/book[@att = 'foo']/title"
-    val rank = 0
-    val file = "/test.xml"
-    val expected = Some("Sayings of the Century")
-
-    new SaxonXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
+    testSingle("/test/store/book[@att = 'foo']/title", namespaces, 0, "/test.xml", Some("Sayings of the Century"))
   }
 
   it should "return expected result with last function expression" in {
-
-    val expression = "//book[last()]/title"
-    val rank = 0
-    val file = "/test.xml"
-    val expected = Some("The Lord of the Rings")
-
-    new SaxonXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
+    testSingle("//book[last()]/title", namespaces, 0, "/test.xml", Some("The Lord of the Rings"))
   }
 
   it should "support default namespace" in {
+    testSingle("//pre:name", List("pre" -> "http://schemas.test.com/entityserver/runtime/1.0"), 0, "/test2.xml", Some("HR"))
+  }
 
-    val expression = "//pre:name"
-    val rank = 0
-    val file = "/test2.xml"
-    val expected = Some("HR")
-    val namespaces = List("pre" -> "http://schemas.test.com/entityserver/runtime/1.0")
-
-    new SaxonXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
+  def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
+    new SaxonXPathExtractor.MultipleXPathExtractor(expression, namespaces)(xmdNode(file)).succeeded shouldBe expected
+    new JDKXPathExtractor.MultipleXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe expected
   }
 
   "extractMultiple" should "return expected result with anywhere expression" in {
-
-    val expression = "//author"
-    val file = "/test.xml"
-    val expected = Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien"))
-
-    new SaxonXPathExtractor.MultipleXPathExtractor(expression, namespaces)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.MultipleXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe expected
+    testMultiple("//author", namespaces, "/test.xml", Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
   }
 
   it should "return expected result with array expression" in {
-
-    val expression = "/test/store/book[3]/author"
-    val file = "/test.xml"
-    val expected = Some(List("Herman Melville"))
-
-    new SaxonXPathExtractor.MultipleXPathExtractor(expression, namespaces)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.MultipleXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe expected
+    testMultiple("/test/store/book[3]/author", namespaces, "/test.xml", Some(List("Herman Melville")))
   }
 
   it should "return expected result with anywhere namespaced element" in {
-
-    val expression = "//foo:bar"
-    val file = "/test.xml"
-    val expected = Some(List("fooBar"))
-
-    new SaxonXPathExtractor.MultipleXPathExtractor(expression, namespaces)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.MultipleXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe expected
+    testMultiple("//foo:bar", namespaces, "/test.xml", Some(List("fooBar")))
   }
 }
