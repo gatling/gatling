@@ -37,8 +37,6 @@ highcharts.js
 highstock.js
 theme.js
 
-results/
-
 #Generated config files
 gatling.conf
 recorder.conf
