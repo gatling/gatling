@@ -32,9 +32,8 @@ class WsListener(tx: WsTx, wsActor: ActorRef)
     wsActor ! OnOpen(tx, webSocket, nowMillis)
   }
 
-  def onMessage(message: String): Unit = {
+  def onMessage(message: String): Unit =
     wsActor ! OnMessage(message, nowMillis)
-  }
 
   def onFragment(fragment: String, last: Boolean): Unit = {}
 

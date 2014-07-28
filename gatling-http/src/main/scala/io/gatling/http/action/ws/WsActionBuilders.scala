@@ -24,12 +24,14 @@ import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.request.builder.ws.WsOpenRequestBuilder
 
-class WsOpenActionBuilder(requestName: Expression[String], wsName: String, requestBuilder: WsOpenRequestBuilder) extends HttpActionBuilder {
+class WsOpenActionBuilder(requestName: Expression[String], wsName: String, requestBuilder: WsOpenRequestBuilder, check: Option[WsCheck] = None) extends HttpActionBuilder {
+
+  def check(check: WsCheck) = new WsOpenActionBuilder(requestName, wsName, requestBuilder, Some(check))
 
   def build(next: ActorRef, protocols: Protocols): ActorRef = {
     val request = requestBuilder.build(httpProtocol(protocols))
     val protocol = httpProtocol(protocols)
-    actor(new WsOpenAction(requestName, wsName, request, next, protocol))
+    actor(new WsOpenAction(requestName, wsName, request, check, next, protocol))
   }
 }
 

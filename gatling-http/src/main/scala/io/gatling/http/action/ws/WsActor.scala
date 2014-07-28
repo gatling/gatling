@@ -33,14 +33,52 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
 
   def receive = initialState
 
+  def failPendingCheck(tx: WsTx, message: String): WsTx = {
+    tx.check match {
+      case Some(c) =>
+        logRequest(tx.session, tx.requestName, KO, tx.start, nowMillis, Some(message))
+        tx.copy(updates = Session.MarkAsFailedUpdate :: tx.updates, pendingCheckSuccesses = Nil, check = None)
+
+      case _ => tx
+    }
+  }
+
+  def setCheck(tx: WsTx, webSocket: WebSocket, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
+
+    logger.debug(s"setCheck blocking=${check.blocking} timeout=${check.timeout}")
+
+    // schedule timeout
+    scheduler.scheduleOnce(check.timeout) {
+      self ! CheckTimeout(check)
+    }
+
+    val newTx = failPendingCheck(tx, "Check didn't succeed by the time a new one was set up")
+      .applyUpdates(session)
+      .copy(requestName = requestName, start = nowMillis, check = Some(check), pendingCheckSuccesses = Nil, next = next)
+    context.become(openState(webSocket, newTx))
+
+    if (!check.blocking)
+      next ! newTx.session
+  }
+
   val initialState: Receive = {
 
     case OnOpen(tx, webSocket, end) =>
       import tx._
-      logRequest(session, requestName, OK, start, end)
-      next ! session.set(wsName, self)
+      logger.info(s"Websocket '$wsName' open")
+      val newSession = session.set(wsName, self)
+      val newTx = tx.copy(session = newSession)
 
-      context.become(openState(webSocket, tx))
+      check match {
+        case None =>
+          logRequest(session, requestName, OK, start, end)
+          context.become(openState(webSocket, newTx))
+          next ! newSession
+
+        case Some(c) =>
+          // hack, reset check so that there's no pending one
+          setCheck(newTx.copy(check = None), webSocket, requestName, c, next, newSession)
+      }
 
     case OnFailedOpen(tx, message, end) =>
       import tx._
@@ -134,32 +172,6 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
         }
       }
 
-      def failPendingCheck(message: String): WsTx = {
-        tx.check match {
-          case Some(c) =>
-            logRequest(tx.session, tx.requestName, KO, tx.start, nowMillis, Some(message))
-            tx.copy(updates = Session.MarkAsFailedUpdate :: tx.updates, pendingCheckSuccesses = Nil)
-
-          case _ => tx
-        }
-      }
-
-      def setCheck(requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
-
-        // schedule timeout
-        scheduler.scheduleOnce(check.timeout) {
-          self ! CheckTimeout(check)
-        }
-
-        val newTx = failPendingCheck("Check didn't succeed by the time a new one was set up")
-          .applyUpdates(session)
-          .copy(requestName = requestName, start = nowMillis, check = Some(check), pendingCheckSuccesses = Nil, next = next)
-        context.become(openState(webSocket, newTx))
-
-        if (!check.blocking)
-          next ! newTx.session
-      }
-
       def reconciliate(next: ActorRef, session: Session): Unit = {
         val newTx = tx.applyUpdates(session)
         context.become(openState(webSocket, newTx))
@@ -174,7 +186,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
         check match {
           case Some(c) =>
             // do this immediately instead of self sending a Listen message so that other messages don't get a chance to be handled before
-            setCheck(requestName + " Check", c, next, session)
+            setCheck(tx, webSocket, requestName + " Check", c, next, session)
           case _ => reconciliate(next, session)
         }
 
@@ -186,7 +198,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
         logRequest(session, requestName, OK, now, now)
 
       case SetCheck(requestName, check, next, session) =>
-        setCheck(requestName, check, next, session)
+        setCheck(tx, webSocket, requestName, check, next, session)
 
       case CancelCheck(requestName, next, session) =>
 
@@ -205,7 +217,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
               case ExpectedCount(count) if count == tx.pendingCheckSuccesses.size        => succeedPendingCheck(tx.pendingCheckSuccesses)
               case ExpectedRange(range) if range.contains(tx.pendingCheckSuccesses.size) => succeedPendingCheck(tx.pendingCheckSuccesses)
               case _ =>
-                val newTx = failPendingCheck("Check failed: Timeout")
+                val newTx = failPendingCheck(tx, "Check failed: Timeout")
                 context.become(openState(webSocket, newTx))
 
                 if (check.blocking)
@@ -248,7 +260,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
 
         webSocket.close()
 
-        val newTx = failPendingCheck("Check didn't succeed by the time the websocket was asked to closed")
+        val newTx = failPendingCheck(tx, "Check didn't succeed by the time the websocket was asked to closed")
           .applyUpdates(session)
           .copy(requestName = requestName, start = nowMillis, next = next)
 

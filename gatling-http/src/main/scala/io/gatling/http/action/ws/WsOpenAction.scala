@@ -24,12 +24,14 @@ import io.gatling.core.action.Interruptable
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.{ HttpEngine, WsTx }
+import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.config.HttpProtocol
 
 class WsOpenAction(
     requestName: Expression[String],
     wsName: String,
     request: Expression[Request],
+    check: Option[WsCheck],
     val next: ActorRef,
     protocol: HttpProtocol) extends Interruptable {
 
@@ -46,6 +48,6 @@ class WsOpenAction(
     for {
       requestName <- requestName(session)
       request <- request(session)
-    } yield open(WsTx(session, request, requestName, protocol, next, nowMillis))
+    } yield open(WsTx(session, request, requestName, protocol, next, nowMillis, check = check))
   }
 }
