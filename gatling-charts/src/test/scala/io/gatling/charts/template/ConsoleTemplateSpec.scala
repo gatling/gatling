@@ -23,7 +23,7 @@ import io.gatling.charts.component.GroupedCount
 
 class ConsoleTemplateSpec extends FlatSpec with Matchers {
 
-  GatlingConfiguration.setUp()
+  GatlingConfiguration.setUpForTest()
 
   "console template" should "format the request counters properly" in {
     val numberOfRequestsStatistics = Statistics("numberOfRequestsStatistics", 20l, 19l, 1l)

@@ -29,7 +29,7 @@ import io.gatling.jms.{ MockMessage, JmsCheck }
 
 class JmsXPathCheckSpec extends FlatSpec with Matchers with ValidationValues with MockMessage {
 
-  GatlingConfiguration.setUp()
+  GatlingConfiguration.setUpForTest()
 
   implicit def cache = mutable.Map.empty[Any, Any]
 

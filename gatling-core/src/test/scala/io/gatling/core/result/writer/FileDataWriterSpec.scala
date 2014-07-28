@@ -23,7 +23,7 @@ import io.gatling.core.util.StringHelper._
 
 class FileDataWriterSpec extends FlatSpec with Matchers {
 
-  GatlingConfiguration.setUp()
+  GatlingConfiguration.setUpForTest()
 
   import FileDataWriter._
 

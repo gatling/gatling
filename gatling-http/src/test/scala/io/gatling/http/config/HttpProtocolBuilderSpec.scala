@@ -26,7 +26,7 @@ import io.gatling.http.response.Response
 
 class HttpProtocolBuilderSpec extends FlatSpec with Matchers {
 
-  GatlingConfiguration.setUp()
+  GatlingConfiguration.setUpForTest()
 
   "http protocol configuration builder" should "support an optional extra info extractor" in {
 

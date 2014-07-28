@@ -25,7 +25,7 @@ import io.gatling.http.MockUtils
 
 class PermanentRedirectSpec extends FlatSpec with Matchers {
 
-  GatlingConfiguration.setUp()
+  GatlingConfiguration.setUpForTest()
 
   class Context {
     var session = Session("mockSession", "mockUserName")

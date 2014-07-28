@@ -82,8 +82,8 @@ object MockServerSupport extends Logging {
     Await.result(future, Duration.Inf)
   }
 
-  def apply(config: Map[String, _])(f: TestKit with ImplicitSender => Any): Unit = {
-    ActorSupport(config) { implicit testKit =>
+  def apply(f: TestKit with ImplicitSender => Any): Unit = {
+    ActorSupport { implicit testKit =>
       import testKit._
 
       try {
@@ -111,8 +111,6 @@ object MockServerSupport extends Logging {
       }
     }
   }
-
-  def apply(f: TestKit with ImplicitSender => Any): Unit = apply(ActorSupport.consoleOnlyConfig)(f)
 
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(httpProtocol))(implicit testKit: TestKit with ImplicitSender) = {
     import testKit._

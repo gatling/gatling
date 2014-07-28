@@ -30,7 +30,7 @@ import io.gatling.http.cache.PermanentRedirect
 
 class HttpRequestDefSpec extends FlatSpec with Matchers with MockitoSugar {
 
-  GatlingConfiguration.setUp()
+  GatlingConfiguration.setUpForTest()
 
   trait Context {
     val httpEngineMock = mock[HttpEngine]

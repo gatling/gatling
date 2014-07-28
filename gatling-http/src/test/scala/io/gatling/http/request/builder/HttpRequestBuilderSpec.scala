@@ -29,7 +29,7 @@ import io.gatling.http.config.HttpProtocol
 class HttpRequestBuilderSpec extends FlatSpec with Matchers with MockitoSugar {
 
   // Default config
-  GatlingConfiguration.setUp()
+  GatlingConfiguration.setUpForTest()
 
   def mockComonAttributes() = CommonAttributes(_ => Success("attributes"), "method", Right(UriComponents.create("http://gatling-tool.org")))
 

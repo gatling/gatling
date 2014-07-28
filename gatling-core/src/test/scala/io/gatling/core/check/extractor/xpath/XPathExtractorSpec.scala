@@ -23,7 +23,7 @@ import io.gatling.core.util.IO._
 
 class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
-  GatlingConfiguration.setUp()
+  GatlingConfiguration.setUpForTest()
 
   val namespaces = List("foo" -> "http://foo/foo")
 

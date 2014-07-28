@@ -46,11 +46,12 @@ object GatlingConfiguration extends StrictLogging {
 
   private[gatling] def set(config: GatlingConfiguration): Unit = thisConfiguration = config
 
-  def fakeConfig(props: Map[String, _ <: Any] = Map.empty) = {
+  private[gatling] def setUpForTest(props: mutable.Map[String, _ <: Any] = mutable.Map.empty) = {
     val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, "gatling-defaults.conf")
-    val propertiesConfig = ConfigFactory.parseMap(props)
+    val propertiesConfig = ConfigFactory.parseMap(props + (data.Writers -> "")) // Disable DataWriters by default
     val config = configChain(ConfigFactory.systemProperties, propertiesConfig, defaultsConfig)
-    mapToGatlingConfig(config)
+    thisConfiguration = mapToGatlingConfig(config)
+    thisConfiguration
   }
 
   def setUp(props: mutable.Map[String, _ <: Any] = mutable.Map.empty) {

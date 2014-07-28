@@ -25,7 +25,7 @@ import io.gatling.core.config.GatlingConfiguration
 
 class ConsoleDataWriterSpec extends FlatSpec with Matchers {
 
-  GatlingConfiguration.setUp()
+  GatlingConfiguration.setUpForTest()
 
   val time = LocalDateTime.of(2012, 8, 24, 13, 37)
 

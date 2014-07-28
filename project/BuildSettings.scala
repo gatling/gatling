@@ -33,9 +33,7 @@ object BuildSettings {
   ) ++ Publish.settings ++ Release.settings
 
   lazy val gatlingModuleSettings =
-    basicSettings ++ formattingSettings ++ graphSettings ++ scaladocSettings ++ Seq(
-      parallelExecution in Test := false
-    )
+    basicSettings ++ formattingSettings ++ graphSettings ++ scaladocSettings
 
   lazy val noCodeToPublish = Seq(
     publishArtifact in Compile := false

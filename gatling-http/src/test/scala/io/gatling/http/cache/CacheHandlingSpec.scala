@@ -29,7 +29,7 @@ import io.gatling.http.response.{ HttpResponse, ResponseBody }
 class CacheHandlingSpec extends FlatSpec with Matchers with MockitoSugar {
 
   // Default config
-  GatlingConfiguration.setUp()
+  GatlingConfiguration.setUpForTest()
 
   val defaultHttp = HttpProtocol.DefaultHttpProtocol
   val http = defaultHttp.copy(requestPart = defaultHttp.requestPart.copy(cache = true))

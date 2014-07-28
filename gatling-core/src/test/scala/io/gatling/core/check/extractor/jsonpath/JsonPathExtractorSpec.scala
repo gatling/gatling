@@ -26,7 +26,7 @@ import io.gatling.core.util.IO._
 
 class JsonPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
-  GatlingConfiguration.setUp()
+  GatlingConfiguration.setUpForTest()
 
   def parseBoon(file: String): Object = withCloseable(getClass.getResourceAsStream(file)) { is =>
     val string = is.toString(StandardCharsets.UTF_8)

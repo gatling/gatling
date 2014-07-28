@@ -15,18 +15,17 @@
  */
 package io.gatling.metrics.types
 
-import io.gatling.core.config.GatlingConfiguration
+import scala.collection.mutable
+
 import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.config.GatlingConfiguration.fakeConfig
+import io.gatling.core.config.GatlingConfiguration.setUpForTest
 import io.gatling.core.result.message.{ OK, KO }
 import io.gatling.core.ConfigKeys._
 
 class RequestMetricsBufferSpec extends FlatSpec with Matchers {
 
-  GatlingConfiguration.setUp()
-
-  implicit val defaultConfig = fakeConfig(Map(
+  implicit val defaultConfig = setUpForTest(mutable.Map(
     charting.indicators.Percentile1 -> 95,
     charting.indicators.Percentile2 -> 99,
     http.ahc.RequestTimeout -> 60000))
