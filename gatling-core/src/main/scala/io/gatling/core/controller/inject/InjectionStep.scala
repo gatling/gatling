@@ -41,9 +41,9 @@ trait InjectionStep {
 case class RampInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
   require(users > 0, "The number of users must be a strictly positive value")
 
-  override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
+  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
     val interval = duration / users.max(1)
-    Iterator.iterate(0 milliseconds)(_ + interval).take(users) ++ iterator.map(_ + duration)
+    Iterator.iterate(0 milliseconds)(_ + interval).take(users) ++ chained.map(_ + duration)
   }
 }
 
@@ -54,15 +54,15 @@ case class ConstantRateInjection(rate: Double, duration: FiniteDuration) extends
   val users = (duration.toSeconds * rate).toInt
   val ramp = RampInjection(users, duration)
   def randomized = PoissonInjection(duration, rate, rate)
-  override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = ramp.chain(iterator)
+  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = ramp.chain(chained)
 }
 
 /**
  * Don't injection any user for a given duration
  */
 case class NothingForInjection(duration: FiniteDuration) extends InjectionStep {
-  override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = iterator.map(_ + duration)
   override val users = 0
+  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = chained.map(_ + duration)
 }
 
 /**
@@ -71,8 +71,8 @@ case class NothingForInjection(duration: FiniteDuration) extends InjectionStep {
 case class AtOnceInjection(users: Int) extends InjectionStep {
   require(users > 0, "The number of users must be a strictly positive value")
 
-  override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
-    Iterator.continually(0 milliseconds).take(users) ++ iterator
+  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
+    Iterator.continually(0 milliseconds).take(users) ++ chained
 }
 
 /**
@@ -90,9 +90,9 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
 
   def randomized = PoissonInjection(duration, r1, r2)
 
-  override def chain(iterator: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
+  override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
     if ((r2 - r1).abs < 0.0001)
-      ConstantRateInjection(r1, duration).chain(iterator)
+      ConstantRateInjection(r1, duration).chain(chained)
     else {
       val a = (r2 - r1) / (2 * duration.toSeconds)
       val b = r1
@@ -106,7 +106,7 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
           (t * 1000).toLong.milliseconds
         }
 
-      Iterator.range(0, users).map(userScheduling) ++ iterator.map(_ + duration)
+      Iterator.range(0, users).map(userScheduling) ++ chained.map(_ + duration)
     }
   }
 }
@@ -128,13 +128,13 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
     else 0
   }
 
-  override def chain(iterator: Iterator[FiniteDuration]) = {
+  override def chain(chained: Iterator[FiniteDuration]) = {
     if (possibleUsers > stepUsers) {
       val n = (possibleUsers - stepUsers) / (stepUsers + separatorUsers)
-      val lastScheduling = step.chain(iterator)
+      val lastScheduling = step.chain(chained)
       (1 to n).foldRight(lastScheduling)((_, iterator) => step.chain(separator.chain(iterator)))
     } else
-      iterator
+      chained
   }
 }
 
@@ -152,7 +152,7 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
 case class HeavisideInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
   import io.gatling.core.util.Erf.erfinv
 
-  override def chain(iterator: Iterator[FiniteDuration]) = {
+  override def chain(chained: Iterator[FiniteDuration]) = {
       def heavisideInv(u: Int) = {
         val x = u.toDouble / (users + 2)
         erfinv(2 * x - 1)
@@ -162,7 +162,7 @@ case class HeavisideInjection(users: Int, duration: FiniteDuration) extends Inje
     val d = t0 * 2
     val k = duration.toMillis / d
 
-    Iterator.range(1, users + 1).map(heavisideInv).map(t => (k * (t + t0)).toLong.milliseconds)
+    Iterator.range(1, users + 1).map(heavisideInv).map(t => (k * (t + t0)).toLong.milliseconds) ++ chained.map(_ + duration)
   }
 }
 
