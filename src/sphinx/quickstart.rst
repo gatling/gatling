@@ -24,7 +24,8 @@ Just unzip the downloaded bundle to a folder of your choice.
 
   For Windows users, we also recommend that you do not place Gatling in the *Programs* folder as there might be permission issues.
 
-In order to run Gatling, you need to have a JDK installed. We recommend that you use the latest version.
+In order to run Gatling, you need to have a JDK installed.
+Gatling requires **at least JDK7u6**, yet we recommend that you use an up-to-date version.
 
 For all details regarding the installation and the tuning of the operating system (OS), please refer to the :ref:`operations` section.
 

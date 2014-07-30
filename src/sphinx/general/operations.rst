@@ -7,18 +7,15 @@ Operations
 Java version
 ============
 
-Gatling is mostly tested against JDK7 packages provided by Oracle. Gatling 2 is compiled with JDK7, yet into JDK6 bytecode.
+Gatling is mostly tested against JDK7 packages provided by Oracle.
+Gatling 2 requires **at least JDK7u6**.
 
-The launch scripts set up JVM options that are only available since Java 6u21, 64 bits version.
-If you use an older version of Java, please consider upgrading, or edit the scripts and remove the unsupported options.
-Versions of Java older than Java 6 are not supported.
+If some launch scripts options are not available on your JVM, e.g. because you run a 32 bit version, please edit the scripts and remove the unsupported options.
 
-Yet, we recommend that you use the latest JDK:
+Yet, we recommend that you use an up-to-date JDK:
 
-* NIO is based on native code, so it depends on JVM implementation and bugs are frequently fixed.
-  For example, NIO was broken on Oracle JDK7 until 7u10.
+* NIO bugs are frequently fixed. For example, NIO was broken on Oracle JDK7 until 7u10.
 * Gatling is tested against modern JDKs
-* Gatling has several optimizations that targets JDK7, e.g. based on new ``String`` implementation introduced in 7u6.
 
 IPv4 vs IPv6
 ============
