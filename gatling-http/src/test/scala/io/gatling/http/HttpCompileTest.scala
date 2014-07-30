@@ -49,8 +49,10 @@ class HttpCompileTest extends Simulation {
     .warmUp("http://gatling.io")
     .inferHtmlResources(white = WhiteList(".*\\.html"))
 
+  val httpConfToVerifyDumpSessionOnFailureBuiltIn = http.extraInfoExtractor(dumpSessionOnFailure)
+
   val httpConfToVerifyUserProvidedInfoExtractors = http
-    .extraInfoExtractor((requestName, requestStatus, session, request, response) => Nil)
+    .extraInfoExtractor(extraInfo => List(extraInfo.requestName, extraInfo.response.body.string))
 
   val usersInformation = tsv("user_information.tsv")
 
