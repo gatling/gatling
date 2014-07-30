@@ -16,6 +16,7 @@
 package io.gatling.http.request
 
 import java.io.File
+import java.nio.charset.Charset
 
 import com.ning.http.client.multipart.{ ByteArrayPart, FilePart, Part, PartBase, StringPart }
 
@@ -28,22 +29,22 @@ object BodyPart {
 
   def rawFileBodyPart(name: Expression[String], filePath: Expression[String]) = fileBodyPart(name, RawFileBodies.asFile(filePath))
   def elFileBodyPart(name: Expression[String], filePath: Expression[String]) = stringBodyPart(name, ELFileBodies.asString(filePath))
-  def stringBodyPart(name: Expression[String], string: Expression[String]) = BodyPart(name, stringBodyPartBuilder(string), BodyPartAttributes(charset = Some(configuration.core.encoding)))
+  def stringBodyPart(name: Expression[String], string: Expression[String]) = BodyPart(name, stringBodyPartBuilder(string), BodyPartAttributes(charset = Some(configuration.core.charset)))
   def byteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte]]) = BodyPart(name, byteArrayBodyPartBuilder(bytes), BodyPartAttributes())
   def fileBodyPart(name: Expression[String], file: Expression[File]) = BodyPart(name, fileBodyPartBuilder(file), BodyPartAttributes())
 
-  private def stringBodyPartBuilder(string: Expression[String])(name: String, contentType: Option[String], charset: Option[String], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
+  private def stringBodyPartBuilder(string: Expression[String])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
     fileName match {
-      case None => string.map(resolvedString => new StringPart(name, resolvedString, configuration.core.encoding))
+      case None => string.map(resolvedString => new StringPart(name, resolvedString, configuration.core.charset))
       case _    => byteArrayBodyPartBuilder(string.map(_.getBytes(configuration.core.charset)))(name, contentType, charset, fileName, contentId, transferEncoding)
     }
 
-  private def byteArrayBodyPartBuilder(bytes: Expression[Array[Byte]])(name: String, contentType: Option[String], charset: Option[String], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
+  private def byteArrayBodyPartBuilder(bytes: Expression[Array[Byte]])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
     bytes.map { resolvedBytes =>
       new ByteArrayPart(name, resolvedBytes, contentType.orNull, charset.orNull, fileName.orNull, contentId.orNull, transferEncoding.orNull)
     }
 
-  private def fileBodyPartBuilder(file: Expression[File])(name: String, contentType: Option[String], charset: Option[String], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
+  private def fileBodyPartBuilder(file: Expression[File])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
     session => for {
       resolvedFile <- file(session)
       validatedFile <- resolvedFile.validateExistingReadable
@@ -52,7 +53,7 @@ object BodyPart {
 
 case class BodyPartAttributes(
   contentType: Option[String] = None,
-  charset: Option[String] = None,
+  charset: Option[Charset] = None,
   dispositionType: Option[String] = None,
   fileName: Option[Expression[String]] = None,
   contentId: Option[Expression[String]] = None,
@@ -60,11 +61,11 @@ case class BodyPartAttributes(
 
 case class BodyPart(
     name: Expression[String],
-    partBuilder: (String, Option[String], Option[String], Option[String], Option[String], Option[String]) => Expression[PartBase], // name, fileName
+    partBuilder: (String, Option[String], Option[Charset], Option[String], Option[String], Option[String]) => Expression[PartBase], // name, fileName
     attributes: BodyPartAttributes) {
 
   def contentType(contentType: String) = copy(attributes = attributes.copy(contentType = Some(contentType)))
-  def charset(charset: String) = copy(attributes = attributes.copy(charset = Some(charset)))
+  def charset(charset: String) = copy(attributes = attributes.copy(charset = Some(Charset.forName(charset))))
   def dispositionType(dispositionType: String) = copy(attributes = attributes.copy(dispositionType = Some(dispositionType)))
   def fileName(fileName: Expression[String]) = copy(attributes = attributes.copy(fileName = Some(fileName)))
   def contentId(contentId: Expression[String]) = copy(attributes = attributes.copy(contentId = Some(contentId)))

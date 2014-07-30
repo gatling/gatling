@@ -39,7 +39,7 @@ class HttpRequestWithParamsExpressionBuilder(commonAttributes: CommonAttributes,
         params.resolveParams(session).map { params =>
           for {
             (key, value) <- params
-          } requestBuilder.addBodyPart(new StringPart(key, value, configuration.core.encoding))
+          } requestBuilder.addBodyPart(new StringPart(key, value, configuration.core.charset))
 
           requestBuilder
         }

@@ -116,7 +116,7 @@ object ConfigKeys {
       val RequestTimeout = "gatling.http.ahc.requestTimeout"
       val UseProxyProperties = "gatling.http.ahc.useProxyProperties"
       val WebSocketTimeout = "gatling.http.ahc.webSocketTimeout"
-      val UseRelativeURIsWithSSLProxies = "gatling.http.ahc.useRelativeURIsWithSSLProxies"
+      val UseRelativeURIsWithConnectProxies = "gatling.http.ahc.useRelativeURIsWithConnectProxies"
       val AcceptAnyCertificate = "gatling.http.ahc.acceptAnyCertificate"
       val HttpClientCodecMaxInitialLineLength = "gatling.http.ahc.httpClientCodecMaxInitialLineLength"
       val HttpClientCodecMaxHeaderSize = "gatling.http.ahc.httpClientCodecMaxHeaderSize"

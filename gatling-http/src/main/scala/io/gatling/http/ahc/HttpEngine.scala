@@ -15,15 +15,19 @@
  */
 package io.gatling.http.ahc
 
+import java.util.{ ArrayList => JArrayList }
 import java.util.concurrent.{ Executors, ThreadFactory }
 
+import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig.NettyWebSocketFactory
+import com.ning.http.client.providers.netty.ws.NettyWebSocket
+import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
 
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
 import com.ning.http.client.providers.netty.channel.pool.DefaultChannelPool
-import com.ning.http.client.websocket.WebSocketUpgradeHandler
+import com.ning.http.client.websocket.{WebSocketListener, WebSocketUpgradeHandler}
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import akka.actor.ActorRef
@@ -125,6 +129,9 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     nettyConfig.setHttpClientCodecMaxInitialLineLength(configuration.http.ahc.httpClientCodecMaxInitialLineLength)
     nettyConfig.setHttpClientCodecMaxHeaderSize(configuration.http.ahc.httpClientCodecMaxHeaderSize)
     nettyConfig.setHttpClientCodecMaxChunkSize(configuration.http.ahc.httpClientCodecMaxChunkSize)
+    nettyConfig.setNettyWebSocketFactory(new NettyWebSocketFactory {
+      override def newNettyWebSocket(channel: Channel): NettyWebSocket = new NettyWebSocket(channel, new JArrayList[WebSocketListener](1))
+    })
     nettyConfig
   }
 
@@ -147,7 +154,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
       .setExecutorService(applicationThreadPool)
       .setAsyncHttpClientProviderConfig(nettyConfig)
       .setWebSocketTimeout(configuration.http.ahc.webSocketTimeout)
-      .setUseRelativeURIsWithSSLProxies(configuration.http.ahc.useRelativeURIsWithSSLProxies)
+      .setUseRelativeURIsWithConnectProxies(configuration.http.ahc.useRelativeURIsWithConnectProxies)
       .setTimeConverter(ThreeTenBPConverter)
       .setAcceptAnyCertificate(configuration.http.ahc.acceptAnyCertificate)
 
