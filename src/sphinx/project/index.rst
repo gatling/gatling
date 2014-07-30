@@ -4,7 +4,7 @@ Project Information
 .. toctree::
     :maxdepth: 1
 
-    migration_guide
+    migration_guides
     faq
     issue_tracking
     ci

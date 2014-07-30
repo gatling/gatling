@@ -1,0 +1,306 @@
+.. _1.5-to-2.0:
+
+###############################################
+Migrating from Gatling 1.5.x to Gatling 2.0-RC1
+###############################################
+
+Global changes
+==============
+
+Gatling requires at least JDK7u6
+--------------------------------
+
+As targeting newer JDKs provides bug fixes, speed improvements and opens opportunities for optimizations,
+Gatling now requires at least a JDK7u6 (released almost two years ago already).
+
+
+Scala 2.10
+----------
+
+Gatling is built with Scala 2.10.
+If you're using `Scala IDE <http://scala-ide.org/index.html>`__, make sure you're using a version compatible with Scala 2.10.
+
+Gatling is now published on Maven Central
+-----------------------------------------
+
+Gatling releases are now published on Maven Central, and snapshots are deployed on each successful build by Travis CI to Sonatype's snapshot repository.
+If you were using Gatling with its Maven plugin, you no longer need to add Excilys' repository in your ``pom.xml``.
+
+
+Package and GroupId changes
+---------------------------
+
+Gatling's artifacts groupId and package are now `io.gatling`.
+You'll have to :
+
+* Update your build scripts to the change the groupId of Gatling's dependencies from `com.excilys.ebi.gatling` to `io.gatling`
+* Update your simulations to replace the `com.excilys.ebi.gatling` part in the imports by `io.gatling`
+
+Simulation
+==========
+
+Necessary imports
+-----------------
+
+* ``akka.util.duration`` classes have been ported to the ``scala.concurrent.duration`` package. Simply replace ``import akka.util.duration._`` by ``import scala.concurrent.duration._``.
+* ``import bootstrap._`` and ``import assertions._`` are now unecessary and have to be removed.
+* ``import com.excilys.ebi.gatling.http.Headers.Names._`` is now unneccesary, headers names are now directly available from `HeaderNames`.
+* ``import com.excilys.ebi.gatling.http.Headers.Values._`` is now unneccesary, headers values are now directly available from `HeaderValues`.
+
+
+Protocols setup
+---------------
+
+Protocols are no longer configured by scenario and are now configured by simulation, using the ``protocols`` method.
+
+A 1.4.x-1.5.x ``setUp`` like this one::
+
+  setUp(scn.(...).protocolConfig(httpConfig))
+
+would now be with Gatling 2.0::
+
+  setUp(scn.(...)).protocols(httpConfig)
+
+Assertions setup
+----------------
+
+The ``assertThat`` method has been removed, assertions are now configured using ``assertions`` in the same fashion as protocols are, e.g. ::
+
+  setup(scn.(...).protocolConfig(httpConfig))
+
+  assertThat(global.responseTime.max.lessThan(1000))
+
+becomes::
+
+  setup(scn.(...))
+    .protocols(httpConfig)
+    .assertions(global.responseTime.max.lessThan(1000)
+
+New Injection DSL
+-----------------
+
+The ``users``, ``ramp`` and ``delay`` methods to configure the *injection profile* for your scenario have been removed in favor of a full-blown dedicated DSL.
+
+Injection *steps* are now configured using the ``inject`` method available on your configured scenarion
+
+Migrating ``users``
+^^^^^^^^^^^^^^^^^^^
+
+::
+
+  // With Gatling 1.5.X
+  setUp(scn.users(10)...)
+
+  // With Gatling 2.0
+  setUp(scn.inject(atOnceUsers(10))...
+
+Migrating ``ramp``
+^^^^^^^^^^^^^^^^^^
+
+::
+
+  // With Gatling 1.5.X
+  setUp(scn.users(10).ramp(30)...)
+
+  // With Gatling 2.0
+  setUp(scn.inject(rampUsers(10) over (30 seconds))...
+
+Migrating ``delay``
+^^^^^^^^^^^^^^^^^^^
+
+::
+
+  // With Gatling 1.5.X
+  setUp(scn.users(10).delay(5)...)
+
+  // With Gatling 2.0
+  setUp(scn.inject(nothingFor(5 seconds), atOnceUsers(10))...
+
+For more information on the new Injection DSL, please consult :ref:`Injection reference documentation <simulation-inject>`.
+
+Core
+====
+
+Checks
+------
+
+``whatever`` has been renamed to ``dontValidate``
+
+Structure Elements
+------------------
+
+``foreach`` the first parameter is now an ``Expression`` (e.g. could be Gatling EL string), not the name of the attribute to loop over.
+
+For example, if you have a list stored in the user's session with under the name ``list``::
+
+  .foreach("list", "elem") {
+    ...
+  }
+
+becomes::
+
+  .foreach("${list}", "elem") {
+    ...
+  }
+
+Session
+-------
+
+Session has been under major refactoring:
+
+* ``session.get("foobar")`` becomes ``session("foobar")``
+* ``session.getTypedAttribute[T]("foobar")`` becomes ``session("foobar").as[T]``
+* ``session.getAttributeAsOption[T]("foobar")`` becomes ``session("foobar").asOption[T]``
+* ``session.setAttribute("foobar", 1234)`` becomes ``session.set("foobar", 1234)``
+* ``session.setAttributes(Map("foo" -> 1, "bar" -> 2)`` becomes ``session.setAll("foo" -> 1, "bar" -> 2)``
+* ``session.removeAttribute("foobar")`` becomes ``session.remove("foobar")``
+* ``session.isAttributeDefined("foobar")`` becomes ``session.contains("foobar")``
+
+HTTP
+====
+
+Protocol
+--------
+
+HTTP protocol boostrapper has been renamed from ``httpProtocol`` to ``http``.
+
+Query parameters
+----------------
+
+Removed
+^^^^^^^
+
+Versions of ``queryParam`` and `multiValuedQueryParam` that took no other parameters than the key (resolving the value from the session, using the key's name to find the attribute with the same name) have been removed.
+
+Modified
+^^^^^^^^
+
+``multiValuedQueryParam`` can now resolve the values directly from the session, using Gatling's EL.
+
+Form parameters (for POST requests)
+-----------------------------------
+
+Renamed
+^^^^^^^
+Methods for adding form parameters to the request have been renamed:
+
+* ``param`` => ``formParam``
+* ``multiValuedParam`` => ``multiValuedFormParam``
+
+Removed
+^^^^^^^
+Versions of ``queryParam`` and `multiValuedQueryParam` that took no other parameters than the key (resolving the value from the session, using the key's name to find the attribute with the same name) have been removed.
+
+Modified
+^^^^^^^^
+
+``multiValuedFormParam`` can now resolve the values directly from the session, using Gatling's EL.
+
+Request bodies
+--------------
+
+* Scalate templates support has been dropped. ELFileBody (see below) is the best suited to replace your existing Scalate templates.
+* The API for setting request bodies on request has changed.
+  Instead of having several methods like ``body``, ``fileBody`` and ``byteArrayBody``, there is a now a single method, ``body(...)`` in which you set the type of body to send.
+
+Migrating ``.body(body)``
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``.body(body)`` has been replaced by ``.body(StringBody(body))``.
+
+::
+
+  http("my post request")
+    .post("http://www.example.org")
+    .body("Look Ma, I'm a request body !")
+
+becomes::
+
+  http("my post request")
+    .post("http://www.example.org")
+    .body(StringBody("Look Ma, I'm a request body !"))
+
+Migrating ``.fileBody(filePath)``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``.fileBody(filePath)`` has been replaced by ``.body(RawFileBody(filePath))``.
+
+::
+
+  http("my post request")
+    .post("http://www.example.org")
+    .fileBody("my_upload.xslx")
+
+becomes::
+
+  http("my post request")
+    .post("http://www.example.org")
+    .body(FileBody("my_upload.xslx"))
+
+Migrating ``.fileBody(filePath, values)``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``.fileBody(filePath, values)`` has been replaced by ``.body(ELFileBody(filePath))``.
+``values`` are now directly resolved from the virtual user's session's content.
+
+::
+
+  http("my post request")
+    .post("http://www.example.org")
+    .fileBody("my_template.txt", Map("userName" -> "user123")
+
+becomes::
+
+  http("my post request")
+    .post("http://www.example.org")
+    .body(ELFileBody("my template.txt"))
+
+If ``my template.txt`` contains::
+
+  Hi, my name is ${userName}
+
+and the virtual user's session has an attribute ``userName`` set to ``user123``
+
+Then the effectively sent request body would be::
+
+  Hi, my name is user123
+
+Migrating ``.byteArrayBody(byteArray)``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+``.byteArrayBody(byteArray)`` has been replaced by ``.body(ByteArrayBody(bytes))``.
+
+::
+
+  http("my post request")
+    .post("http://www.example.org")
+    .byteArrayBody(Array(1, 2, 3, 4))
+
+becomes::
+
+  http("my post request")
+    .post("http://www.example.org")
+    .body(ByteArrayBody(Array(1, 2, 3, 4)))
+
+For more information, see the :ref:`Request bodies reference section <http-request-body>`.
+
+Misc
+----
+
+* ``ExtendedResponse`` has been renamed into ``Response``
+* ``requestInfoExtractor`` and ``responseInfoExtractor`` have been merged into a single ``extraInfoExtractor``, which takes a ``ExtraInfo => List[Any]`` function.
+
+More for information on ``extraInfoExtractor``, please refer to its :ref:`documentation <http-protocol-extractor>`.
+
+Logs
+====
+
+``simulation.log`` has been redesigned.
+
+If you wrote your own specific ``simulation.log`` parser, you'll need to migrate it to the new structure.
+
+Recorder
+========
+
+Until now, when setting up the Recorder, it was needed to setup different ports for the Recorder's *local proxy*, one for HTTP, another HTTPS.
+This is not needed anymore, as the Recorder handles itself the switch to an HTTPS connection if necessary, and only a single port needs to be specified.

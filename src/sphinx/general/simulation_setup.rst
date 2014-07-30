@@ -36,16 +36,16 @@ E.g.::
 
 The building blocks for profile injection the way you want are:
 
-1. ``nothingFor(duration)``: Pause for a given duration.
-2. ``atOnceUsers(nbUsers)``: Injects a given number of user at once.
-3. ``rampUsers(nbUsers) over(duration)``: Injects a given number of users with a linear ramp over a given duration.
-4. ``constantUsersPerSec(rate) during(duration)``: Injects users at a constant rate, defined in users per second, during a given duration. Users will be injected at regular intervals.
-5. ``constantUsersPerSec(rate) during(duration) randomized``: Injects users at a constant rate, defined in users per second, during a given duration. Users will be injected at randomized intervals.
-6. ``rampUsersPerSec(rate1) to (rate2) during(duration)``: Injects users from starting rate to target rate, defined in users per second, during a given duration. Users will be injected at regular intervals.
-7. ``rampUsersPerSec(rate1) to(rate2) during(duration) randomized``: Injects users from starting rate to target rate, defined in users per second, during a given duration. Users will be injected at randomized intervals.
-8. ``splitUsers(nbUsers) into(injectionStep) separatedBy(duration)``: Repeatedly execute the defined injection step separated by a pause of the given duration until reaching *nbUsers*, the total number of users to inject.
-9. ``splitUsers(nbUsers) into(injectionStep1) separatedBy(injectionStep2)``: Repeatedly execute the first defined injection step (*injectionStep1*) separated by the execution of the second injection step (*injectionStep2*) until reaching *nbUsers*, the total number of users to inject.
-10. ``heavisideUsers(nbUsers) over(duration)``: Injects a given number of users following a smooth approximation of the `heaviside step function <http://en.wikipedia.org/wiki/Heaviside_step_function>`__ stretched to a given duration.
+#. ``nothingFor(duration)``: Pause for a given duration.
+#. ``atOnceUsers(nbUsers)``: Injects a given number of user at once.
+#. ``rampUsers(nbUsers) over(duration)``: Injects a given number of users with a linear ramp over a given duration.
+#. ``constantUsersPerSec(rate) during(duration)``: Injects users at a constant rate, defined in users per second, during a given duration. Users will be injected at regular intervals.
+#. ``constantUsersPerSec(rate) during(duration) randomized``: Injects users at a constant rate, defined in users per second, during a given duration. Users will be injected at randomized intervals.
+#. ``rampUsersPerSec(rate1) to (rate2) during(duration)``: Injects users from starting rate to target rate, defined in users per second, during a given duration. Users will be injected at regular intervals.
+#. ``rampUsersPerSec(rate1) to(rate2) during(duration) randomized``: Injects users from starting rate to target rate, defined in users per second, during a given duration. Users will be injected at randomized intervals.
+#. ``heavisideUsers(nbUsers) over(duration)``: Injects a given number of users following a smooth approximation of the `heaviside step function <http://en.wikipedia.org/wiki/Heaviside_step_function>`__ stretched to a given duration.
+#. ``splitUsers(nbUsers) into(injectionStep) separatedBy(duration)``: Repeatedly execute the defined injection step separated by a pause of the given duration until reaching *nbUsers*, the total number of users to inject.
+#. ``splitUsers(nbUsers) into(injectionStep1) separatedBy(injectionStep2)``: Repeatedly execute the first defined injection step (*injectionStep1*) separated by the execution of the second injection step (*injectionStep2*) until reaching *nbUsers*, the total number of users to inject.
 
 .. _simulation-setup-pause:
 
