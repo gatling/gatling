@@ -229,7 +229,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
           // ignore outdated timeout
         }
 
-      case OnMessage(message, time) =>
+      case OnTextMessage(message, time) =>
         logger.debug(s"Received message on websocket '$wsName':$message")
 
         implicit val cache = mutable.Map.empty[Any, Any]

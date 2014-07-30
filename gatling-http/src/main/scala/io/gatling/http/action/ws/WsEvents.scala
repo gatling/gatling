@@ -26,7 +26,8 @@ import io.gatling.core.session.Session
 sealed trait WsEvent
 case class OnOpen(tx: WsTx, webSocket: WebSocket, time: Long) extends WsEvent
 case class OnFailedOpen(tx: WsTx, message: String, time: Long) extends WsEvent
-case class OnMessage(message: String, time: Long) extends WsEvent
+case class OnTextMessage(message: String, time: Long) extends WsEvent
+case class OnByteMessage(message: Array[Byte], time: Long) extends WsEvent
 case class OnClose(status: Int, reason: String, time: Long) extends WsEvent
 case class CheckTimeout(check: WsCheck) extends WsEvent
 

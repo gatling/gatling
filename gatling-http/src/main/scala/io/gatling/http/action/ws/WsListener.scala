@@ -15,7 +15,7 @@
  */
 package io.gatling.http.action.ws
 
-import com.ning.http.client.websocket.{ WebSocket, WebSocketCloseCodeReasonListener, WebSocketTextListener }
+import com.ning.http.client.websocket.{ WebSocketByteListener, WebSocket, WebSocketCloseCodeReasonListener, WebSocketTextListener }
 
 import akka.actor.ActorRef
 import io.gatling.core.util.TimeHelper.nowMillis
@@ -23,31 +23,20 @@ import io.gatling.http.ahc.WsTx
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 class WsListener(tx: WsTx, wsActor: ActorRef)
-    extends WebSocketTextListener with WebSocketCloseCodeReasonListener with StrictLogging {
+    extends WebSocketTextListener
+    //with WebSocketByteListener
+    with WebSocketCloseCodeReasonListener
+    with StrictLogging {
 
   private var state: WsListenerState = Opening
 
+  // WebSocketListener
   def onOpen(webSocket: WebSocket): Unit = {
     state = Open
     wsActor ! OnOpen(tx, webSocket, nowMillis)
   }
 
-  def onMessage(message: String): Unit =
-    wsActor ! OnMessage(message, nowMillis)
-
-  def onFragment(fragment: String, last: Boolean): Unit = {}
-
   def onClose(webSocket: WebSocket): Unit = {}
-
-  def onClose(webSocket: WebSocket, statusCode: Int, reason: String): Unit = {
-    state match {
-      case Open =>
-        state = Closed
-        wsActor ! OnClose(statusCode, reason, nowMillis)
-
-      case _ => // discard
-    }
-  }
 
   def onError(t: Throwable): Unit = {
     state match {
@@ -60,6 +49,24 @@ class WsListener(tx: WsTx, wsActor: ActorRef)
       case Closed => // discard
     }
   }
+
+  // WebSocketCloseCodeReasonListener
+  def onClose(webSocket: WebSocket, statusCode: Int, reason: String): Unit = {
+    state match {
+      case Open =>
+        state = Closed
+        wsActor ! OnClose(statusCode, reason, nowMillis)
+
+      case _ => // discard
+    }
+  }
+
+  // WebSocketTextListener
+  def onMessage(message: String): Unit =
+    wsActor ! OnTextMessage(message, nowMillis)
+
+  def onMessage(message: Array[Byte]): Unit =
+    wsActor ! OnByteMessage(message, nowMillis)
 }
 
 private sealed trait WsListenerState
