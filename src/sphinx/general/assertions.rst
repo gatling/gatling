@@ -35,7 +35,7 @@ An assertion can test a statistic calculated from all requests or only a part.
 * ``global``: use statistics calculated from all requests.
 
 * ``details(path)``: use statistics calculated from a group or a request. The path is defined like a Unix filesystem path.
-For example, to perform an assertions on the request ``Index`` in the group ``Search``, use::
+For example, to perform an assertion on the request ``Index`` in the group ``Search``, use::
 
   details("Search" / "Index")
 
@@ -94,9 +94,9 @@ Conditions can be chained to apply several conditions on the same metric.
 
 * ``assert(condition, message)``: create a custom condition on the value of the metric.
 
-  The first argument is a function that take an Int (the value of the metric) and return a Boolean which is the result of the assertion.
+  The first argument is a function that takes an Int (the value of the metric) and returns a Boolean which is the result of the assertion.
 
-  The second argument is a function that take a String (the name of the metric) and a Boolean (result of the assertion) and return a message that describes the assertion as a String.
+  The second argument is a function that takes a String (the name of the metric) and a Boolean (result of the assertion) and returns a message that describes the assertion as a String.
 
   For example::
 

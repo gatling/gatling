@@ -79,7 +79,7 @@ The standard way to run the plugin is to start the ``execute``::
 
   mvn gatling:execute
 
-Then, one might want to run the plugin several times in a build (e.g. in order to run several Simulations sequentially).
+Then, you may want to run the plugin several times in a build (e.g. in order to run several Simulations sequentially).
 
 A solution is then to use maven `executions <http://maven.apache.org/guides/mini/guide-configuring-plugins.html#Using_the_executions_Tag>`_.
 

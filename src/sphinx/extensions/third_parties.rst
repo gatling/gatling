@@ -2,7 +2,7 @@
 Third Parties
 #############
 
-Here's a list of "non official" third parties integrations:
+Here's a list of "unofficial" third party integrations:
 
 * `Gatling Play2 plugin <https://github.com/andypetrella/gatling-play2-plugin>`_ and `sample <https://github.com/andypetrella/neo4j-play2.0-plugin-test>`_ by Andy Petrella
 * `SBT template project <https://github.com/krishnenc>`_ by Krishnen Chedambarum

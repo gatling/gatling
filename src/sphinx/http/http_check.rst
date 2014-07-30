@@ -66,11 +66,11 @@ Targets the HTTP response header of the given name.
 
 * ``headerRegex(headerName, pattern)``
 
-Same than above, but *pattern* is used to apply a regex on the header value.
+Same as above, but *pattern* is used to apply a regex on the header value.
 
 .. note:: The header names are available as constants in the DSL, accessible from the ``HttpHeaderNames`` object, e.g. ``HttpHeaderNames.ContentType``.
 
-.. note:: ``Location`` header value is automatically decoded when performing a check on it
+.. note:: ``Location`` header value is automatically decoded when performing a check on it.
 
 By default, it can extract 0 or 1 capture group, so the extract type is ``String``.
 
@@ -138,7 +138,7 @@ It can contain multiple capture groups.
 
 By default, it can extract 0 or 1 capture group, so the extract type is ``String``.
 
-One can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step::
+You can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step::
 
   regex(expression).ofType[T]
 
@@ -181,7 +181,7 @@ Based on `Goessner's JsonPath <http://goessner.net/articles/JsonPath>`_.
 
 By default, it extracts ``String``\ s, so JSON values of different types get serialized.
 
-One can define an different type with the ``ofType[T]`` extra step::
+You can define an different type with the ``ofType[T]`` extra step::
 
   jsonPath(expression).ofType[T]
 
@@ -223,8 +223,8 @@ Otherwise check is performed against the node text content.
 * ``md5`` and ``sha1``
 
 Returns a checksum of the response body.
-Checksums are computed efficiently against body parts as soon as there's received.
-Those are then discarded if not needed.
+Checksums are computed efficiently against body parts as soon as they are received.
+They are then discarded if not needed.
 
 .. note:: checksums are computed against the stream of chunks, so the whole body is not stored in memory.
 
@@ -263,7 +263,7 @@ Returns the number of occurrences.
 ``find(occurrence)``, ``findAll`` and ``count`` are only available on check types that might produce multiple results.
 For example, ``status`` only has ``find``.
 
-.. note:: In case of no extracting step is defined, a ``find`` is added implicitly.
+.. note:: In the case where no extracting step is defined, a ``find`` is added implicitly.
 
 .. _http-check-transform:
 
@@ -335,7 +335,7 @@ Always true, used for capture an optional value.
 
 *expected* is a function that returns a sequence of values of the same type of the previous step (extraction or transformation).
 
-.. note:: In case of no verifying step is defined, a ``exists`` is added implicitly.
+.. note:: In the case where no verifying step is defined, a ``exists`` is added implicitly.
 
 .. _http-check-saving:
 

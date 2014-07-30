@@ -6,13 +6,13 @@
 HTTP Protocol
 #############
 
-HTTP is the main protocol Gatling targets, so that's where we place most of our efforts.
+HTTP is the main protocol Gatling targets, so that's where we place most of our effort.
 
 Gatling HTTP allows you to load test web applications, web services or websites.
-It supports HTTP and HTTPS with almost every existing features of common browsers such as caching, cookies, redirect, etc.
+It supports HTTP and HTTPS with almost every existing feature of common browsers such as caching, cookies, redirect, etc.
 
 However, Gatling **is not a browser**: it won't run Javascript, won't apply CSS styles and trigger CSS background-images download, won't react to UI events, etc.
-Gatling works on the HTTP protocol level.
+Gatling works at the HTTP protocol level.
 
 Bootstrapping
 =============
@@ -110,7 +110,7 @@ Gatling ships a bunch of built-ins for well-known browsers:
 
 .. _http-protocol-connection-sharing:
 
-Connections sharing
+Connection sharing
 -------------------
 
 In Gatling 1, connections are shared amongst users until 1.5 version.
@@ -141,7 +141,7 @@ Local address
 
 .. _http-protocol-local-address:
 
-One can bind the sockets from a specific local address instead of the default one::
+You can bind the sockets from a specific local address instead of the default one::
 
   localAddress(localAddress: InetAddress)
 
@@ -228,7 +228,7 @@ Response chunks discarding
 --------------------------
 
 Beware that, as an optimization, Gatling doesn't keep response chunks unless a check is defined on the response body or that debug logging is enabled.
-However some people might want always keep the response chunks, thus you can disable the default behaviour with ``disableResponseChunksDiscarding``.
+However some people might want to always keep the response chunks, thus you can disable the default behaviour with ``disableResponseChunksDiscarding``.
 
 .. _http-protocol-extractor:
 
@@ -262,7 +262,7 @@ Gatling provides a built-in ``ExtraInfoExtractor``, ``dumpSessionOnFailure``, wh
 Response and request processors
 -------------------------------
 
-Some people might want to process manually response, Gatling protocol provide a hook for that need: ``transformResponse(responseTransformer: ResponseTransformer)``
+Some people might want to process manually the response. Gatling protocol provides a hook for that need: ``transformResponse(responseTransformer: ResponseTransformer)``
 
 .. note:: For more details see the dedicated section :ref:`here <http-response-processor>`.
 
@@ -281,9 +281,9 @@ They will be apply on all the requests, however you can disable them for given r
 Resource inferring
 ------------------
 
-Gatling allow to fetch resources in parallel in order to emulate the behaviour of a real web browser.
+Gatling can fetch resources in parallel in order to emulate the behaviour of a real web browser.
 
-At protocol level, you can use ``inferHtmlResources`` methods, so Gatling will automatically parse HTML to find embedded resources and load them asynchronously.
+At the protocol level, you can use ``inferHtmlResources`` methods, so Gatling will automatically parse HTML to find embedded resources and load them asynchronously.
 
 The supported resources are:
 

@@ -19,9 +19,9 @@ HTTP protocol configuration
 The first element is the configuration of the HTTP protocol.
 In this example, this configuration is very basic and just defines:
 
-* the ``baseURL``, that will be prepended to all the relative paths in the scenario definition.
+* the ``baseURL``, which will be prepended to all the relative paths in the scenario definition.
   Here, the base URL is http://computer-database.heroku.com.
-* common headers, that will be added on each request.
+* common headers, which will be added on each request.
 
 
 The HTTP Configuration is stored as a Scala value so that we can set it later in the simulation definition.
@@ -91,5 +91,5 @@ The last part of the file contains the simulation definition, this is where you 
 
 which correspond to:
 
-#. We inject one single into the ``scn`` scenario
+#. We inject one single user into the ``scn`` scenario
 #. We configure ``httpConf`` on the ``setUp`` so that we pass the base URL and the common headers.

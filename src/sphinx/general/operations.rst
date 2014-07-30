@@ -9,11 +9,12 @@ Java version
 
 Gatling is mostly tested against JDK7 packages provided by Oracle. Gatling 2 is compiled with JDK7, yet into JDK6 bytecode.
 
-The launch scripts set up JVM options that are only available since Java 6u21, 64 bits version.
+The launch scripts set up JVM options that are only available since Java 6u21, 64 bit version.
 If you use an older version of Java, please consider upgrading, or edit the scripts and remove the unsupported options.
 Versions of Java older than Java 6 are not supported.
+Java 8 is not supported as Scala for one does not support Java 8 yet.
 
-Yet, we recommend that you use the latest JDK:
+However, we recommend that you use the latest Java 7 JDK:
 
 * NIO is based on native code, so it depends on JVM implementation and bugs are frequently fixed.
   For example, NIO was broken on Oracle JDK7 until 7u10.
@@ -23,7 +24,7 @@ Yet, we recommend that you use the latest JDK:
 IPv4 vs IPv6
 ============
 
-IPv6 (enabled by default on Java) was found to sometimes cause some performance issues, so launch scripts disable it and use the following options::
+IPv6 (enabled by default on Java) was found to sometimes cause some performance issues, so the launch scripts disable it with the following options::
 
   -Djava.net.preferIPv4Stack=true
   -Djava.net.preferIPv6Addresses=false
@@ -68,7 +69,7 @@ For Debian & Ubuntu, you should enable PAM user limits. To do so, add ``session 
 Also, if accessing the machine via SSH, be sure to have ``UseLogin yes`` in ``/etc/ssh/sshd_config``
 
 
-For more tunings, you may want to do the following:
+For more tuning, you may want to do the following:
 
 ::
 
@@ -93,4 +94,4 @@ On Mac you need to run the following commands in order to *unbuckle the belts*:
   $ sudo sysctl -w kern.maxfiles=300000
   $ sudo sysctl -w net.inet.ip.portrange.first=1024
 
-You could also have to increase your ephemeral port range or tune your TCP time out so that they expire faster.
+You may also increase your ephemeral port range or tune your TCP timeout so that they expire faster.

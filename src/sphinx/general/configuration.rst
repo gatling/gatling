@@ -32,9 +32,9 @@ Gatling uses a fallback strategy, where:
 
 **System properties > gatling.conf > gatling-defaults.conf**
 
-``gatling.conf`` is placed in ``conf`` directory. It serves as an easy-to-edit base: all properties are commented and all values are equals to the default ones.
+``gatling.conf`` is placed in the ``conf`` directory. It serves as an easy-to-edit base: all properties are commented and all values are the defaults.
 
-``gatling-defaults.conf`` is shipped in gatling-core jar and is not supposed to be edited.
+``gatling-defaults.conf`` is shipped in the gatling-core jar and should not be edited.
 
 If you want to override default values, you have two possibilities:
 
@@ -82,7 +82,7 @@ $JAVA_OPTS
 Default JAVA_OPTS are set in Gatling's launch scripts.
 If you want to override them, you'll have to edit these files and replace whatever value you'd like to change in JAVA_OPTS.
 
-If you want to set additional JAVA_OPTS to Gatling, you can do so by defining the JAVA_OPTS before the gatling command::
+If you want to set additional JAVA_OPTS for Gatling, you can do so by defining the JAVA_OPTS before the gatling command::
 
   ~$ JAVA_OPTS="myAdditionalOption" bin/gatling.sh
 

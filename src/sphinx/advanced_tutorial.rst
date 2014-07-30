@@ -22,7 +22,7 @@ In our scenario we have three separated processes:
 
 We are going to extract those chains and store them into *objects*.
 Objects are native Scala singletons.
-You can create those into dedicated files, or directly into the same file as the Simulation.
+You can create those in dedicated files, or directly in the same file as the Simulation.
 
 ::
 
@@ -64,7 +64,7 @@ Let's define two populations of users:
   * *regular* users: they can search and browse computer models.
   * *admin* users: they can also edit computer models.
 
-Translating into scenario this gives::
+Translating into a scenario this gives::
 
   val users = scenario("Users").exec(Search.search, Browse.browse)
   val admins = scenario("Admins").exec(Search.search, Browse.browse, Edit.edit)
@@ -190,7 +190,7 @@ Step 05: Check and failure management
 
 Until now we used ``check`` to extract some data from the html response and store it in session.
 But ``check`` is also handy to check some properties of the http response.
-By default Gatling check if the http response status is *20x* or *304*.
+By default Gatling checks if the http response status is *20x* or *304*.
 
 To demonstrate failure management we will introduce a ``check`` on a condition that fails randomly::
 
@@ -218,8 +218,8 @@ To handle this random failure we use the ``tryMax`` and ``exitHereIfFailed`` con
 
 Explanations:
   1. ``tryMax`` tries a given block up to n times.
-     Here we try at max twice.
-  2. If all tentatives failed, the user exit the whole scenario due to ``exitHereIfFailed``.
+     Here we try a maximum of two times.
+  2. If all tries failed, the user exits the whole scenario due to ``exitHereIfFailed``.
 
 .. note::
   For more details regarding conditional blocks, please check out :ref:`Conditional Statements reference page <scenario-conditions>`.

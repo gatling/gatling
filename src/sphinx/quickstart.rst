@@ -4,8 +4,8 @@
 Quickstart
 ##########
 
-Preliminary
-===========
+Introduction
+============
 
 In this section we will use Gatling to load test a simple cloud hosted web server and will introduce you to the basic elements of the DSL.
 
@@ -20,11 +20,11 @@ Installing
 Just unzip the downloaded bundle to a folder of your choice.
 
 .. warning::
-  We just ask you to **not use a path containing spaces**, there might be some issues.
+  We ask you to **not use a path containing spaces**, as this can cause issues.
 
-  For Windows users, we also recommend that you do not place Gatling in the *Programs* folder as there might be permission issues.
+  For Windows users, we also recommend that you do not place Gatling in the *Programs* folder as there may be permission issues.
 
-In order to run Gatling, you need to have a JDK installed. We recommend that you use the latest version.
+In order to run Gatling, you need to have a JDK installed. We recommend that you use the latest version of JDK7.
 
 For all details regarding the installation and the tuning of the operating system (OS), please refer to the :ref:`operations` section.
 
@@ -69,9 +69,9 @@ Scenario
 To test the performance of this application, we will create scenarios representative of what really happens when users navigate it.
 
 Here is what we think a real user would do with the application:
-  #. A user arrives on the application.
+  #. A user arrives at the application.
   #. The user searches for 'macbook'.
-  #. The user opens one of the related model.
+  #. The user opens one of the related models.
   #. The user goes back to home page.
   #. The user iterates through pages.
   #. The user creates a new model.
@@ -121,10 +121,10 @@ All you have to do now is to browse the application:
   #. Fill the form.
   #. Click on *Create this computer*.
 
-Try to act as a user, don't jump from one page to another without taking the time to read.
+Try to act as a real user would, don't immediately jump from one page to another without taking the time to read.
 This will make your scenario closer to real users' behavior.
 
-When you have finished playing the scenario, click on ``Stop`` in the Recorder interface
+When you have finished playing the scenario, click on ``Stop`` in the Recorder interface.
 
 The Simulation will be generated in the folder ``user-files/simulations/computerdatabase`` of your Gatling installation under the name ``BasicSimulation.scala``.
 
