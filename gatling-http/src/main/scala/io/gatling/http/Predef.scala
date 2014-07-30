@@ -15,15 +15,15 @@
  */
 package io.gatling.http
 
-import io.gatling.core.result.message.{ KO, Status }
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.result.message.KO
+import io.gatling.core.session.Expression
 import io.gatling.http.action.{ AddCookieBuilder, CookieDSL }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.config.HttpProtocolBuilder
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.feeder.SitemapFeederSupport
-import io.gatling.http.request.BodyProcessors
+import io.gatling.http.request.{ ExtraInfo, BodyProcessors }
 import io.gatling.http.request.builder.Http
 import io.gatling.http.check.ws.WsCheckSupport
 import io.gatling.http.request.builder.ws.Ws
@@ -51,8 +51,8 @@ object Predef extends HttpCheckSupport with WsCheckSupport with SitemapFeederSup
   val gzipBody = BodyProcessors.Gzip
   val streamBody = BodyProcessors.Stream
 
-  def dumpSessionOnFailure(status: Status, session: Session, request: Request, response: Response): List[String] = status match {
-    case KO => List(session.toString)
+  val dumpSessionOnFailure: ExtraInfo => List[Any] = extraInfo => extraInfo.status match {
+    case KO => List(extraInfo.session)
     case _  => Nil
   }
 

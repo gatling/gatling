@@ -17,12 +17,8 @@ package io.gatling.http.config
 
 import org.scalatest.{ FlatSpec, Matchers }
 
-import com.ning.http.client.Request
-
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.Status
-import io.gatling.core.session.Session
-import io.gatling.http.response.Response
+import io.gatling.http.request.ExtraInfo
 
 class HttpProtocolBuilderSpec extends FlatSpec with Matchers {
 
@@ -30,7 +26,7 @@ class HttpProtocolBuilderSpec extends FlatSpec with Matchers {
 
   "http protocol configuration builder" should "support an optional extra info extractor" in {
 
-    val expectedExtractor = (requestName: String, status: Status, session: Session, request: Request, response: Response) => Nil
+    val expectedExtractor = (extraInfo: ExtraInfo) => Nil
 
     val builder = HttpProtocolBuilder.DefaultHttpProtocolBuilder
       .disableWarmUp
