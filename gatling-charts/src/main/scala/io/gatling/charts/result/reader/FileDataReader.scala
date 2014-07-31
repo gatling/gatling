@@ -31,7 +31,6 @@ import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 import io.gatling.core.result.writer._
-import io.gatling.core.util.DateHelper.parseTimestampString
 
 object FileDataReader {
 
@@ -101,7 +100,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
           runEnd = math.max(runEnd, groupExit)
 
         case RawRunRecord(array) =>
-          runMessages += RunMessage(array(0), array(1), parseTimestampString(array(3)), array(4).trim)
+          runMessages += RunMessage(array(0), array(1), array(3).toLong, array(4).trim)
 
         case _ =>
           logger.debug(s"Record broken on line $count: $line")

@@ -11,7 +11,6 @@ import akka.pattern.ask
 import akka.testkit.{ ImplicitSender, TestKit }
 import akka.util.Timeout
 import com.typesafe.scalalogging.slf4j.Logging
-import org.threeten.bp.LocalDateTime
 import spray.can.Http
 import spray.http._
 
@@ -22,6 +21,7 @@ import io.gatling.core.result.writer.{ DataWriter, RunMessage }
 import io.gatling.core.session.Session
 import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.core.test.ActorSupport
+import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.Predef._
 import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine }
 
@@ -91,7 +91,7 @@ object MockServerSupport extends Logging {
         AsyncHandlerActor.start()
 
         //Initialise DataWriter with fake data.
-        DataWriter.init(RunMessage("FakeSimulation", "fakesimulation1", LocalDateTime.now, "A fake run"), Nil, self)
+        DataWriter.init(RunMessage("FakeSimulation", "fakesimulation1", nowMillis, "A fake run"), Nil, self)
         expectMsgClass(classOf[DataWritersInitialized])
 
         f(testKit)

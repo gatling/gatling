@@ -16,9 +16,7 @@
 package io.gatling.core.result.writer
 
 import io.gatling.core.result.message.{ MessageEvent, Status }
-import io.gatling.core.util.DateHelper.RichDateTime
 import io.gatling.core.session.GroupBlock
-import org.threeten.bp.LocalDateTime
 
 sealed trait DataWriterMessage
 
@@ -43,9 +41,8 @@ case class RequestMessage(
   def responseTime = responseEndDate - requestStartDate
 }
 
-case class RunMessage(simulationClassName: String, simulationId: String, runDate: LocalDateTime, runDescription: String) extends DataWriterMessage {
-  val timestamp: String = runDate.toTimestamp
-  val runId = simulationId + "-" + timestamp
+case class RunMessage(simulationClassName: String, simulationId: String, start: Long, runDescription: String) extends DataWriterMessage {
+  val runId = simulationId + "-" + start
 }
 
 case class UserMessage(scenarioName: String, userId: String, event: MessageEvent, startDate: Long, endDate: Long) extends DataWriterMessage

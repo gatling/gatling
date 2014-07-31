@@ -101,7 +101,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
 
       //Filling in run information
       withStatement(conn.prepareStatement(insertRunRecord, Statement.RETURN_GENERATED_KEYS)) { runInsert =>
-        runInsert.setDate(1, new SQLDate(run.runDate.toEpochMilli))
+        runInsert.setDate(1, new SQLDate(run.start))
         runInsert.setString(2, run.simulationId)
         runInsert.setString(3, run.runDescription)
         runInsert.executeUpdate

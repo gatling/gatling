@@ -25,17 +25,20 @@ import io.gatling.core.util.StringHelper.{ RichString, Eol }
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles._
+import org.threeten.bp.{ LocalDateTime, Instant }
 
 object PageTemplate {
 
   private var runMessage: RunMessage = _
   private var runStart: Long = _
   private var runEnd: Long = _
+  private var runStartHumanDate: String = _
 
-  def setRunInfo(runMessage: RunMessage, runStart: Long, runEnd: Long): Unit = {
+  def setRunInfo(runMessage: RunMessage, runEnd: Long): Unit = {
     this.runMessage = runMessage
-    this.runStart = runStart
+    this.runStart = runMessage.start
     this.runEnd = runEnd
+    this.runStartHumanDate = LocalDateTime.from(Instant.ofEpochMilli(runStart)).toHumanDate
   }
 }
 
@@ -48,6 +51,7 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
     val runStart = PageTemplate.runStart
     val runEnd = PageTemplate.runEnd
     val duration = (runEnd - runStart) / 1000
+    val runStartHumanDate = PageTemplate.runStartHumanDate
 
     val pageStats =
       if (isDetails) {
@@ -89,8 +93,8 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
                     <div class="sous-menu">
                         <div class="item ${if (!isDetails) "ouvert" else ""}"><a href="index.html">GLOBAL</a></div>
                         <div class="item ${if (isDetails) "ouvert" else ""}"><a id="details_link" href="#">DETAILS</a></div>
-                        <p class="sim_desc" title="${runMessage.runDate.toHumanDate}, duration : $duration seconds" data-content="${runMessage.runDescription.htmlEscape}">
-                            <b>${runMessage.runDate.toHumanDate}, duration : $duration seconds</b> ${runMessage.runDescription.truncate(70).htmlEscape}</b>
+                        <p class="sim_desc" title="$runStartHumanDate, duration : $duration seconds" data-content="${runMessage.runDescription.htmlEscape}">
+                            <b>$runStartHumanDate, duration : $duration seconds</b> ${runMessage.runDescription.truncate(70).htmlEscape}</b>
                         </p>
                     </div>
                     <div class="content-in">

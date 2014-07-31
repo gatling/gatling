@@ -48,7 +48,7 @@ object ReportsGenerator {
 
     copyAssets()
     generateMenu()
-    PageTemplate.setRunInfo(dataReader.runMessage, dataReader.runStart, dataReader.runEnd)
+    PageTemplate.setRunInfo(dataReader.runMessage, dataReader.runEnd)
     reportGenerators.foreach(_.generate)
     generateStats()
 

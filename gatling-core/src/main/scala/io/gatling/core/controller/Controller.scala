@@ -17,8 +17,6 @@ package io.gatling.core.controller
 
 import java.util.UUID.randomUUID
 
-import org.threeten.bp.LocalDateTime
-
 import scala.collection.mutable
 import scala.concurrent.Future
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
@@ -91,7 +89,7 @@ class Controller extends BaseActor {
         totalNumberOfUsers = scenarios.map(_.injectionProfile.users).sum
         logger.info(s"Total number of users : $totalNumberOfUsers")
 
-        val runMessage = RunMessage(simulation.getClass.getName, simulationId, LocalDateTime.now, description)
+        val runMessage = RunMessage(simulation.getClass.getName, simulationId, nowMillis, description)
         runId = runMessage.runId
         DataWriter.init(runMessage, scenarios, self)
         context.become(waitingForDataWriterToInit)
