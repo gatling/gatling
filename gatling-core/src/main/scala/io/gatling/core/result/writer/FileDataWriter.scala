@@ -46,7 +46,7 @@ object FileDataWriter {
     def getBytes = {
       import runMessage._
       val description = if (runDescription.isEmpty) " " else runDescription
-      val string = s"$simulationClassName$Separator$simulationId$Separator${RunRecordHeader.value}$Separator$start$Separator$description$Eol"
+      val string = s"$simulationClassName$Separator$simulationId$Separator${RunRecordHeader.value}$Separator$start$Separator$description${Separator}2.0$Eol"
       string.getBytes(configuration.core.charset)
     }
   }
