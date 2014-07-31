@@ -43,7 +43,7 @@ Active sessions over time
     :alt: ActiveSessions
     :scale: 70
 
-This chart displays the active users along the simulation : total and per scenario.
+This chart displays the active users during the simulation : total and per scenario.
 
 Response time distribution
 ==========================
@@ -80,7 +80,7 @@ Response Time over time
     :alt: ResponseTimeOverTime
     :scale: 70
 
-The response time is the duration between the beginning of the request emission and the end of the response reception.
+The response time is the duration between the beginning of the request send and the end of the response receive.
 This chart shows the response time distribution over time for the given request.
 
 Latency over time
@@ -90,11 +90,11 @@ Latency over time
     :alt: LatencyOverTime
     :scale: 70
 
-The latency is the duration between the end of the request emission and the beginning of the response reception.
+The latency is the duration between the end of the request send and the beginning of the response receive.
 This chart shows the latency distribution over time for the given request.
 
-Response Time over load
-=======================
+Response Time against load
+==========================
 
 .. image:: img/reports/charts-response-time-over-load.png
     :alt: ResponseTimeOverLoad
@@ -102,8 +102,8 @@ Response Time over load
 
 This chart shows how the response time for the given request is distributed, depending on the total load of the application at the same time.
 
-Latency over load
-=================
+Latency against load
+====================
 
 .. image:: img/reports/charts-latency-over-load.png
     :alt: LatencyOverLoad

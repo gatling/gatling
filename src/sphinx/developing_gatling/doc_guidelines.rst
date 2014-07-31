@@ -44,7 +44,7 @@ Mac OS X
 * Install Python (`pip` is included) using `Homebrew <http://brew.sh/>`__ : ``brew install python``
 * Install both Sphinx and PIL (`Python Imaging Library <http://www.pythonware.com/products/pil/>`__) using `pip`: ``pip install sphinx PIL``
 
-For other plateforms, please refer to `Sphinx installation guide <http://sphinx-doc.org/install.html>`__.
+For other platforms, please refer to `Sphinx installation guide <http://sphinx-doc.org/install.html>`__.
 
 Running Sphinx
 --------------

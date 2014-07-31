@@ -6,7 +6,7 @@
 Scenario
 ########
 
-Reference of the different components available to write scenarios with Gatling.
+This is the reference of the different components available to write scenarios with Gatling.
 
 Bootstrapping
 =============
@@ -27,11 +27,11 @@ Structure elements
 Exec
 ----
 
-``exec`` method is used to execute an action.
+The ``exec`` method is used to execute an action.
 Actions are usually requests (HTTP, LDAP, POP, IMAP, etc) that will be sent during the simulation.
-Any action that will be executed will be called with exec.
+Any action that will be executed will be called with ``exec``.
 
-For example, one using Gatling HTTP module would write the following line::
+For example, when using the Gatling HTTP module you would write the following line::
 
   scenario("My Scenario")
     .exec( http("Get Homepage").get("http://github.com/excilys/gatling") )
@@ -56,12 +56,12 @@ This can be used for manually debugging or editing the :ref:`Session <expression
   }
 
 .. note::
-  For those who wonder how the plumbing works and how one can return a ``Session`` instead of of ``Validation[Session]`` in the above examples,
+  For those who wonder how the plumbing works and how you can return a ``Session`` instead of of ``Validation[Session]`` in the above examples,
   that's thanks to an implicit conversion.
 
 .. _scenario-exec-function-flatten:
 
-``flattenMapIntoAttribute`` is a built-in Session Expression like mentioned above.
+``flattenMapIntoAttribute`` is a built-in Session Expression as mentioned above.
 
 It exposes the content of a Map into attributes, e.g.::
 
@@ -70,7 +70,7 @@ It exposes the content of a Map into attributes, e.g.::
 
   .exec(flattenMapIntoAttributes("${theMap}"))
 
-  // makes so that the Session contains 2 new attributes "foo" and "baz".
+  // the Session contains 2 new attributes "foo" and "baz".
 
 Pause
 -----
@@ -209,7 +209,7 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
     myChain
   }
 
-*condition* is session function that returns a boolean.
+*condition* is a session function that returns a boolean.
 
 *counterName* is optional.
 
@@ -248,7 +248,7 @@ It will check if a value in the session equals the one you specified::
 
 As you can see, the executed actions if the condition is false are optional.
 
-If you want to test other conditions than equality, you'll have to use an ``Expression[Boolean]`` to write it::
+If you want to test conditions other than equality, you'll have to use an ``Expression[Boolean]`` to write it::
 
   .doIf(session => session.getTypedAttribute[String]("myKey").startsWith("admin")) {
     exec( http("if true") ... ) // executed if the session value stored in "myKey" starts with "admin"
@@ -275,7 +275,7 @@ Similar to ``doIf``, but with a fallback if the condition evaluates to false.
 ``doIfEqualsOrElse``
 ^^^^^^^^^^^^^^^^^^^^
 
-Similar to ``doIfOrElse`` but test the equality of an expected and an actual value.
+Similar to ``doIfOrElse`` but tests the equality of an expected and an actual value.
 ::
 
   .doIfOrElse(session => session.getTypedAttribute[String]("myKey"), "expectedValue") {
@@ -291,7 +291,7 @@ Similar to ``doIfOrElse`` but test the equality of an expected and an actual val
 
 Add a switch in the chain. Every possible subchain is defined with a key.
 Switch is selected through the matching of a key with the evaluation of the passed expression.
-If no switch is selected, switch is bypassed.
+If no switch is selected, the switch is bypassed.
 ::
 
   .doSwitch("${myKey}") ( // beware: use parentheses, not curly braces!
@@ -329,7 +329,7 @@ Simple means cyclic graphs are not currently supported.
   )
 
 Percentages sum can't exceed 100%.
-If sum is inferior to 100%, users that won't fall into one of the chains will simply exit the switch and continue.
+If sum is less than 100%, users that won't fall into one of the chains will simply exit the switch and continue.
 Once users are done with the switch, they simply continue with the rest of the scenario.
 
 .. note:: Percentages should be format as following: 50% -> 50, 33.3% -> 33.3 and so on.
@@ -377,8 +377,8 @@ Similar to ``randomSwitch``, but dispatch uses a round-robin strategy.
 
 .. _scenario-errors:
 
-Errors management
------------------
+Error management
+----------------
 
 .. _scenario-trymax:
 
@@ -392,7 +392,7 @@ Errors management
   }
 
 *myChain* is expected to succeed as a whole.
-If an error happens (a technical exception such as a time out, or a failed check), the user will bypass the rest of the chain and start over from the beginning.
+If an error happens (a technical exception such as a timeout, or a failed check), the user will bypass the rest of the chain and start over from the beginning.
 
 *times* is the maximum number of attempts.
 

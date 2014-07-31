@@ -18,8 +18,8 @@ Configuration
 Local proxy port
 ----------------
 
-In the Recorder, you have to define at least one port : the local proxy port. This is the port your browser must connect to so that the Recorder is able to capture your navigation.
-Then, you have to configure your browser to use the defined ports.
+In the Recorder, you have to define one port (for both HTTP and HTTPS): the local proxy port. This is the port your browser must connect to so that the Recorder is able to capture your navigation.
+Then, you have to configure your browser to use the defined port.
 
 Here is how to do with Firefox, open the browser settings:
 
