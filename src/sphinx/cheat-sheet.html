@@ -33,22 +33,17 @@
   <script src="/vendor/javascripts/bootstrap.min.js"></script>
   <script src="/vendor/javascripts/highlight.min.js"></script>
 
-  <script type="text/javascript">
-      // @formatter:off
-      $(document).ready(function() {
-          var hostname = document.location.hostname;
-          if(hostname === '' || hostname === 'localhost') {
-              (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-                  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-                      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-              })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    <script type="text/javascript">
+        // @formatter:off
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-              ga('create', 'UA-53375088-1', 'gatling.io');
-              ga('send', 'pageview');
-          }
-      });
-      // @formatter:on
-  </script>
+        ga('create', 'UA-53375088-1', 'gatling.io');
+        ga('send', 'pageview');
+        // @formatter:on
+    </script>
 </head>
 <body class="cheat-sheet">
 
@@ -66,9 +61,8 @@
       <nav id="navbar-collapse" class="collapse navbar-collapse">
         <ul class="nav navbar-nav navbar-right">
           <li><a href="/">HOME</a></li>
-          <li><a href="#">DOWNLOAD</a></li>
-          <li><a href="/docs/2.0.0-RC1">DOCUMENTATION</a></li>
-          <li><a href="/docs/2.0.0-RC1/cheat-sheet">CHEATSHEET</a></li>
+          <li><a href="/download">DOWNLOAD</a></li>
+          <li><a href="/docs">DOCUMENTATION</a></li>
           <li><a class="icon icon-github" href="https://github.com/gatling/gatling"></a></li>
           <li><a class="icon icon-twitter" href="https://twitter.com/GatlingTool"></a></li>
           <li><a class="icon icon-googlegroup" href="https://groups.google.com/forum/#!forum/gatling"></a></li>
