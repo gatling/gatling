@@ -111,7 +111,7 @@ Gatling ships a bunch of built-ins for well-known browsers:
 .. _http-protocol-connection-sharing:
 
 Connection sharing
--------------------
+------------------
 
 In Gatling 1, connections are shared amongst users until 1.5 version.
 This behavior does not match real browsers, and doesn't support SSL session tracking.

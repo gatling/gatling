@@ -378,7 +378,7 @@ Similar to ``randomSwitch``, but dispatch uses a round-robin strategy.
 .. _scenario-errors:
 
 Error management
------------------
+----------------
 
 .. _scenario-trymax:
 

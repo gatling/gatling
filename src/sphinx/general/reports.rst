@@ -94,7 +94,7 @@ The latency is the duration between the end of the request send and the beginnin
 This chart shows the latency distribution over time for the given request.
 
 Response Time against load
-=======================
+==========================
 
 .. image:: img/reports/charts-response-time-over-load.png
     :alt: ResponseTimeOverLoad
@@ -103,7 +103,7 @@ Response Time against load
 This chart shows how the response time for the given request is distributed, depending on the total load of the application at the same time.
 
 Latency against load
-=================
+====================
 
 .. image:: img/reports/charts-latency-over-load.png
     :alt: LatencyOverLoad

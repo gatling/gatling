@@ -5,7 +5,7 @@ Building Gatling
 .. note:: We use `Travis CI <https://travis-ci.org/excilys/gatling>`_ for continuous integration. You can find the latest snapshot on `Sonatype <https://oss.sonatype.org/content/repositories/snapshots/io/gatling/highcharts/gatling-charts-highcharts/2.0.0-SNAPSHOT/>`_
 
 Introduction
-===========
+============
 
 As stated in the :ref:`Licenses section <license>`, Gatling is divided into two subprojects :
 
@@ -18,14 +18,14 @@ Getting the source
 ==================
 
 
-Gatling uses `Git <http://git-scm.com/>`__ which is hosted on `Github <http://github.com/>`_.
+Gatling is hosted on `Github <http://github.com/gatling/>`_.
 
 You'll need to `install Git <http://git-scm.com/downloads>`__ on your machine first.
 
-You can then clone Gatling from ``git@github.com:excilys/gatling.git``, and Gatling Highcharts from ``git@github.com:excilys/gatling-highcharts.git``::
+You can then clone Gatling from ``http://github.com/gatling/gatling``, and Gatling Highcharts from ``http://github.com/gatling/gatling-highcharts``::
 
-  git clone git@github.com:excilys/gatling.git
-  git clone git@github.com:excilys/gatling.git
+  git clone http://github.com/gatling/gatling
+  git clone http://github.com/gatling/gatling-highcharts
 
 
 Building with SBT
