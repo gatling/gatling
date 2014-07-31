@@ -117,6 +117,21 @@ gatling/layout.html
         {%- else %}
         <div class="col-md-12">
           {%- endif %}
+          <ul class="breadcrumb">
+            {%- block rootrellink %}
+            <li><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a>{{ reldelim1 }}</li>
+            {%- endblock %}
+            {%- for parent in parents %}
+            <li><a href="{{ parent.link|e }}"
+              {% if loop.last %}{{ accesskey("U") }}{% endif %}>
+              {{ parent.title }}
+              </a>{{ reldelim1 }}
+            </li>
+            {%- endfor %}
+            <li><a href="">
+              {{ title | e}}
+            </a></li>
+          </ul>
           {% block body %}{% endblock %}
         </div>
         {%- if pagename != "search" %}
