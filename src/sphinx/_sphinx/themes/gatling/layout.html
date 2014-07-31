@@ -119,13 +119,13 @@ gatling/layout.html
           {%- endif %}
           <ul class="breadcrumb">
             {%- block rootrellink %}
-            <li><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a>{{ reldelim1 }}</li>
+            <li><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a></li>
             {%- endblock %}
             {%- for parent in parents %}
             <li><a href="{{ parent.link|e }}"
               {% if loop.last %}{{ accesskey("U") }}{% endif %}>
               {{ parent.title }}
-              </a>{{ reldelim1 }}
+              </a>
             </li>
             {%- endfor %}
             <li><a href="">
