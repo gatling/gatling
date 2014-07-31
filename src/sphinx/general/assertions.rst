@@ -35,6 +35,7 @@ An assertion can test a statistic calculated from all requests or only a part.
 * ``global``: use statistics calculated from all requests.
 
 * ``details(path)``: use statistics calculated from a group or a request. The path is defined like a Unix filesystem path.
+
 For example, to perform an assertions on the request ``Index`` in the group ``Search``, use::
 
   details("Search" / "Index")
