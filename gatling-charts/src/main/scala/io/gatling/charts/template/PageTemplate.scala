@@ -25,7 +25,7 @@ import io.gatling.core.util.StringHelper.{ RichString, Eol }
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles._
-import org.threeten.bp.{ LocalDateTime, Instant }
+import org.threeten.bp._
 
 object PageTemplate {
 
@@ -38,7 +38,7 @@ object PageTemplate {
     this.runMessage = runMessage
     this.runStart = runMessage.start
     this.runEnd = runEnd
-    this.runStartHumanDate = LocalDateTime.from(Instant.ofEpochMilli(runStart)).toHumanDate
+    this.runStartHumanDate = ZonedDateTime.from(Instant.ofEpochMilli(runStart).atZone(ZoneId.systemDefault)).toLocalDateTime.toHumanDate
   }
 }
 
