@@ -1,4 +1,4 @@
-MySimulation	run1	RUN	20120607202804	interesting test run
+MySimulation	run1	RUN	20120607202804	interesting test run	2.0
 testScenario	1	USER	START	1000	0
 testScenario	1	REQUEST		Test Request	1000	3500	5000	3000	OK	Request executed successfully
 testScenario	1	REQUEST		Test Request	1000	3500	5000	10000	OK	Request executed successfully
