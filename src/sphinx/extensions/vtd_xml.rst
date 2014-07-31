@@ -11,4 +11,4 @@ VTD-XML check plugin is available for download `here <http://goo.gl/6KdrK>`__.
 
 The VTD-XML binaries can be downloaded `here <http://vtd-xml.sourceforge.net>`__.
 
-The source is hosted `on Github <https://github.com/excilys/gatling-vtd/>`__ and published under GPLv2.
+The source is hosted `on Github <https://github.com/gatling/gatling-vtd/>`__ and published under GPLv2.

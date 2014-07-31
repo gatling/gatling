@@ -6,7 +6,7 @@ Developer Guidelines
 
 .. note::
 
-  First read `Gatling contribution guidelines <https://github.com/excilys/gatling/blob/master/CONTRIBUTING.md>`_
+  First read `Gatling contribution guidelines <https://github.com/gatling/gatling/blob/master/CONTRIBUTING.md>`_
 
 Code Style
 ==========
@@ -28,7 +28,7 @@ A few helpers are provided for testing actors or some of Gatling's APIs:
 
 When tests involves Gatling's ``Validation`` API, ``ValidationValues`` provides helpers that allows to match on the ``Validation``'s result.
 
-Example: `ELSpec <https://github.com/excilys/gatling/blob/master/gatling-core/src/test/scala/io/gatling/core/session/el/ELSpec.scala>`__
+Example: `ELSpec <https://github.com/gatling/gatling/blob/master/gatling-core/src/test/scala/io/gatling/core/session/el/ELSpec.scala>`__
 
 ``ActorSupport``
 ----------------
@@ -39,7 +39,7 @@ Example: `ELSpec <https://github.com/excilys/gatling/blob/master/gatling-core/sr
 ``ActorSupport`` relies on Akka's TestKit (documentation `here <http://doc.akka.io/docs/akka/2.2.4/scala/testing.html>`__) and allows you
 to provide a specific Gatling configuration if needed.
 
-Example: `PaceSpec <https://github.com/excilys/gatling/blob/master/gatling-core/src/test/scala/io/gatling/core/action/PaceSpec.scala>`__
+Example: `PaceSpec <https://github.com/gatling/gatling/blob/master/gatling-core/src/test/scala/io/gatling/core/action/PaceSpec.scala>`__
 
 ``MockServerSupport``
 ---------------------
@@ -48,4 +48,4 @@ Example: `PaceSpec <https://github.com/excilys/gatling/blob/master/gatling-core/
 
 ``MockServerSupport`` also exposes methods to assert that requests were indeed made to the server.
 
-Example: `HttpIntegrationSpec <https://github.com/excilys/gatling/blob/master/gatling-http/src/test/scala/io/gatling/http/integration/HttpIntegrationSpec.scala>`__
+Example: `HttpIntegrationSpec <https://github.com/gatling/gatling/blob/master/gatling-http/src/test/scala/io/gatling/http/integration/HttpIntegrationSpec.scala>`__

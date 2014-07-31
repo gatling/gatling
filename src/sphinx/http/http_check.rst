@@ -164,7 +164,7 @@ Defines an XPath 1.0 expression to be applied on an XML response body.
   xpath("//foo:input[@id='text1']/@value", List("foo" -> "http://foo.com"))
 
 .. note:: You can also use ``vtdXpath(xpathExpression: Expression[String])``, this check uses VTD as the XPath engine,
-          it is available as a `separate module <https://github.com/excilys/gatling-vtd>`_.
+          it is available as a `separate module <https://github.com/gatling/gatling-vtd>`_.
 
 .. _http-check-jsonpath:
 

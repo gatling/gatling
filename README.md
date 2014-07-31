@@ -26,25 +26,25 @@ Gatling is developed in Scala and built upon :
 
 ## Release
 
-See [changelog](https://github.com/excilys/gatling/wiki/Changelog).
+See [changelog](https://github.com/gatling/gatling/wiki/Changelog).
 
 For people wanting to use the lastest evolutions, the SNAPSHOT versions are available from the Sonatype OSS [repository](https://oss.sonatype.org/content/repositories/snapshots/io/gatling/highcharts/gatling-charts-highcharts/).
 
 
 ## Questions, help?
 
-Read the documentation on the [Wiki](https://github.com/excilys/gatling/wiki).
+Read the documentation on the [Wiki](https://github.com/gatling/gatling/wiki).
 
 Join the [Gatling User Group](https://groups.google.com/group/gatling).
 
-Got a real problem? Raise an [issue](https://github.com/excilys/gatling/issues?sort=created&direction=desc&state=open).
+Got a real problem? Raise an [issue](https://github.com/gatling/gatling/issues?sort=created&direction=desc&state=open).
 
 ## Sponsors
 
-[![eBusiness Information](https://github.com/excilys/gatling/wiki/img/ebi_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
-[![Yourkit](https://github.com/excilys/gatling/wiki/img/yourkit_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
-[![Highsoft AS](https://github.com/excilys/gatling/wiki/img/highsoft_logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
-[![Cloudbees](https://github.com/excilys/gatling/wiki/img/devcloud-logo.png)](https://github.com/excilys/gatling/wiki/Sponsors)
+[![eBusiness Information](https://github.com/gatling/gatling/wiki/img/ebi_logo.png)](https://github.com/gatling/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
+[![Yourkit](https://github.com/gatling/gatling/wiki/img/yourkit_logo.png)](https://github.com/gatling/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
+[![Highsoft AS](https://github.com/gatling/gatling/wiki/img/highsoft_logo.png)](https://github.com/gatling/gatling/wiki/Sponsors)&nbsp;&nbsp;&nbsp;&nbsp;
+[![Cloudbees](https://github.com/gatling/gatling/wiki/img/devcloud-logo.png)](https://github.com/gatling/gatling/wiki/Sponsors)
 
 YourKit is kindly supporting open source projects with its full-featured Java Profiler.
 YourKit, LLC is the creator of innovative and intelligent tools for profiling

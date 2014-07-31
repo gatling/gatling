@@ -11,8 +11,8 @@ import sys, os
 extensions = ['sphinx.ext.todo', 'sphinx.ext.extlinks']
 todo_include_todos = True
 extlinks = {
-  "issue" : ("https://github.com/excilys/gatling/issues/%s", "#"),
-  "version" : ("https://github.com/excilys/gatling/issues?milestone=%s&state=closed", None)
+  "issue" : ("https://github.com/gatling/gatling/issues/%s", "#"),
+  "version" : ("https://github.com/gatling/gatling/issues?milestone=%s&state=closed", None)
 }
 
 ################

@@ -34,7 +34,7 @@ Any action that will be executed will be called with ``exec``.
 For example, when using the Gatling HTTP module you would write the following line::
 
   scenario("My Scenario")
-    .exec( http("Get Homepage").get("http://github.com/excilys/gatling") )
+    .exec( http("Get Homepage").get("http://github.com/gatling/gatling") )
 
 .. _scenario-exec-session-expression:
 

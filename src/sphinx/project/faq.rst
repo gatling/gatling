@@ -16,7 +16,7 @@ If you can't find a solution here, consider joining our `Google Group <https://g
 Highcharts and Highstock are javascript libraries whose license is not open-source friendly.
 We pay license fees so that we can package and distribute them and let people use them **for free**, but this module can't be open sourced.
 
-We really want to keep as much code as possible under Apache 2, so we move the reports generation library implementation into a separate project `<https://github.com/excilys/gatling-highcharts>`_.
+We really want to keep as much code as possible under Apache 2, so we move the reports generation library implementation into a separate project `<https://github.com/gatling/gatling-highcharts>`_.
 
 If anyone can come with an Apache 2 licensed solution that's as sexy and plug-and-play as Highcharts and Highstock, we'd gladly make it the default implementation and integrate it into the main project!
 
@@ -40,7 +40,7 @@ This parameter can be increased with the ``-Xss`` JVM parameter.
 Another solution is of course to split into smaller chains.
 
 Since 2M3, Gatling forks a new process for running so compiler, so that one can tune JVM differently for compiler and running.
-The compiler JVM can be tuned with a parameter named ``gatling.core.zinc`` in `gatling.conf <https://github.com/excilys/gatling/blob/2.0.0-M3a/gatling-core/src/main/resources/gatling-defaults.conf#L44>`_.
+The compiler JVM can be tuned with a parameter named ``gatling.core.zinc`` in `gatling.conf <https://github.com/gatling/gatling/blob/2.0.0-M3a/gatling-core/src/main/resources/gatling-defaults.conf#L44>`_.
 
 .. _faq-warmup:
 
@@ -140,7 +140,7 @@ This seems to be a Hostpot JDK7 bug and affects all Java programs, for example: 
 OpenJDK 7 and Hostpot JDK8 seem to be fine.
 
 
-https://github.com/excilys/gatling/wiki/FAQ#method-too-large
+.. _faq-method_too_large:
 
 * **I have a HUGE simulation and I get a "Method too large" compile error**
 

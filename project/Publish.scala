@@ -24,9 +24,9 @@ object Publish {
 
   private val scm = {
     <scm>
-      <connection>scm:git:git@github.com:excilys/gatling.git</connection>
-      <developerConnection>scm:git:git@github.com:excilys/gatling.git</developerConnection>
-      <url>https://github.com/excilys/gatling</url>
+      <connection>scm:git:git@github.com:gatling/gatling.git</connection>
+      <developerConnection>scm:git:git@github.com:gatling/gatling.git</developerConnection>
+      <url>https://github.com/gatling/gatling</url>
       <tag>HEAD</tag>
     </scm>
   }

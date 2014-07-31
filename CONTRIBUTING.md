@@ -10,7 +10,7 @@ Search [Gatling's Google Group](https://groups.google.com/forum/#!forum/gatling)
 ## Preliminaries 
 
 * Whenever possible, use the latest Gatling version.
-* Search [Issues](https://github.com/excilys/gatling/issues) beforehand, your bug may have been already reported by another user.
+* Search [Issues](https://github.com/gatling/gatling/issues) beforehand, your bug may have been already reported by another user.
 * Open one issue for each problem.
 
 

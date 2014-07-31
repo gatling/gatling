@@ -2,7 +2,7 @@
 Issue tracking
 ##############
 
-We use `Github's Bug Tracker <https://github.com/excilys/gatling/issues>`_.
+We use `Github's Bug Tracker <https://github.com/gatling/gatling/issues>`_.
 
 .. warning::
   A bug tracker is intended for reporting bugs and asking for features.

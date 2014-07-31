@@ -65,7 +65,7 @@ The example below shows the default values.
   <!--   <failOnError>true</failOnError> -->
   </configuration>
 
-See `source code <https://github.com/excilys/gatling-maven-plugin/blob/master/src/main/java/io/gatling/mojo/GatlingMojo.java>`_ for more documentation. 
+See `source code <https://github.com/gatling/gatling-maven-plugin/blob/master/src/main/java/io/gatling/mojo/GatlingMojo.java>`_ for more documentation.
 
 Override the logback.xml file
 =============================
@@ -109,4 +109,4 @@ In the above example, as the execution is attached to the test phase, ``simulati
 Sample
 ======
 
-See sample project `here <https://github.com/excilys/gatling-maven-plugin-demo>`_.
+See sample project `here <https://github.com/gatling/gatling-maven-plugin-demo>`_.

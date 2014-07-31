@@ -54,7 +54,7 @@ This is how an HTTP request is declared::
   http(requestName).method(url)
 
   // concrete examples
-  http("Retrieve home page").get("https://github.com/excilys/gatling")
+  http("Retrieve home page").get("https://github.com/gatling/gatling")
   http("Login").post("https://github.com/session")
   http("Nginx cache purge").httpRequest("PURGE", "http://myNginx.com")
 
@@ -65,7 +65,7 @@ Query Parameters
 
 Frameworks and developers often pass additional information in the query, which is the part of the url after the ``?``. A query is composed of *key=value* pairs, separated by ``&``. Those are named *query parameters*.
 
-For example, ``https://github.com/excilys/gatling/issues?milestone=1&state=open`` contains 2 query parameters:
+For example, ``https://github.com/gatling/gatling/issues?milestone=1&state=open`` contains 2 query parameters:
 
 * ``milestone=1`` : the key is *milestone* and its value is *1*
 * ``state=open`` : the key is *state* and its value is *open*
@@ -78,19 +78,19 @@ In order to set the query parameters of an HTTP request, you can:
 * either pass the full query in the url, e.g.::
 
     http("Getting issues")
-      .get("https://github.com/excilys/gatling/issues?milestone=1&state=open")
+      .get("https://github.com/gatling/gatling/issues?milestone=1&state=open")
 
 * or pass query parameters one by one to the method named ``queryParam(key: Expression[String], value: Expression[Any])``, e.g.::
 
     http("Getting issues")
-      .get("https://github.com/excilys/gatling/issues")
+      .get("https://github.com/gatling/gatling/issues")
       .queryParam("milestone", "1")
       .queryParam("state", "open")
 
 Of course, you can use :ref:`Gatling Expression Language (EL) <el>` to make those values dynamic based on data in the virtual user's session::
 
   http("Value from session example")
-    .get("https://github.com/excilys/gatling")
+    .get("https://github.com/gatling/gatling")
     // Global use case
     .queryParam("myKey", "${sessionKey}")
     // If the query parameter key and the session are the same
@@ -98,8 +98,8 @@ Of course, you can use :ref:`Gatling Expression Language (EL) <el>` to make thos
 
 If you'd like to specify a query parameter without value, you have to use ``queryParam("key", "")``::
 
-  // GET https://github.com/excilys/gatling?myKey
-  http("Empty value example").get("https://github.com/excilys/gatling").queryParam("myKey", "")
+  // GET https://github.com/gatling/gatling?myKey
+  http("Empty value example").get("https://github.com/gatling/gatling").queryParam("myKey", "")
 
 If you'd like to pass multiple values for your parameter, but all at once, you can use ``multivaluedQueryParam(key: Expression[String], values: Expression[Seq[Any]])``::
 
@@ -114,7 +114,7 @@ If you want to add multiple query parameters at once, there are two suitable met
 ::
 
   http("Getting issues")
-    .get("https://github.com/excilys/gatling/issues")
+    .get("https://github.com/gatling/gatling/issues")
     .queryParamSeq(Seq(("milestone", "1"), ("state", "open")))
 
 * ``queryParamMap(map: Expression[Map[String, Any]])``
@@ -122,7 +122,7 @@ If you want to add multiple query parameters at once, there are two suitable met
 ::
 
   http("Getting issues")
-    .get("https://github.com/excilys/gatling/issues")
+    .get("https://github.com/gatling/gatling/issues")
     .queryParamMap(Map("milestone" -> "1", "state" -> "open"))
 
 .. note:: As all method parameters are ``Expression[T]``, i.e. 'key' parameter is an ``Expression[String]`` and so on, if you have more specific needs you can also provide an arbitrary ``Expression[T]``, i.e. a ``Session => Validation[T]`` function.
@@ -155,7 +155,7 @@ Here are some examples::
 
 
 .. note:: Headers keys are defined as constants usable in the scenario, for example: ``HttpHeaderNames.ContentType``.
-          You can find a list of the predefined constants `here <https://github.com/excilys/gatling/blob/master/gatling-http/src/main/scala/io/gatling/http/Headers.scala>`_.
+          You can find a list of the predefined constants `here <https://github.com/gatling/gatling/blob/master/gatling-http/src/main/scala/io/gatling/http/Headers.scala>`_.
 
 .. note::
   There are two handful methods to help you set the required headers for JSON and XML requests:
@@ -231,7 +231,7 @@ You can tell Gatling to use a proxy to send the HTTP requests.
 You can set the HTTP proxy, on optional HTTPS proxy and optional credentials for the proxy::
 
   http("Getting issues")
-    .get("https://github.com/excilys/gatling/issues")
+    .get("https://github.com/gatling/gatling/issues")
     .proxy(Proxy("myProxyHost", 8080).httpsPort(8143).credentials("myUsername","myPassword"))
 
 .. note:: Proxy can also be defined on the ``HttpProtocol``.
@@ -245,9 +245,9 @@ Virtual Host
 
 You can tell Gatling to override the default computed virtual host with the method ``virtualHost(virtualHost: Expression[String])``::
 
-  // GET https://mobile.github.com/excilys/gatling instead of GET https://www.github.com/excilys/gatling
+  // GET https://mobile.github.com/gatling/gatling instead of GET https://www.github.com/gatling/gatling
   http("Getting issues")
-    .get("https://www.github.com/excilys/gatling/issues")
+    .get("https://www.github.com/gatling/gatling/issues")
     .virtualHost("mobile")
 
 .. note:: Virtual Host can also be defined on the ``HttpProtocol``.
@@ -260,7 +260,7 @@ HTTP Checks
 You can add checks on a request::
 
   http("Getting issues")
-    .get("https://www.github.com/excilys/gatling/issues")
+    .get("https://www.github.com/gatling/gatling/issues")
     .check(...)
 
 For more information, see the :ref:`HTTP Checks reference section <http-check>`.
@@ -270,7 +270,7 @@ For more information, see the :ref:`HTTP Checks reference section <http-check>`.
 For a given request, you can also disable common checks that were defined on the ``HttpProtocol`` with ``ignoreDefaultChecks``::
 
   http("Getting issues")
-    .get("https://www.github.com/excilys/gatling/issues")
+    .get("https://www.github.com/gatling/gatling/issues")
     .ignoreDefaultChecks
 
 FollowRedirect
@@ -281,7 +281,7 @@ FollowRedirect
 For a given request, you can use ``disableFollowRedirect``, just like it can be done globally on the ``HttpProtocol``::
 
   http("Getting issues")
-    .get("https://www.github.com/excilys/gatling/issues")
+    .get("https://www.github.com/gatling/gatling/issues")
     .disableFollowRedirect
 
 Logging
@@ -297,7 +297,7 @@ You may want to issue a request, but not log it, e.g.:
 You can then make the request *silent*: ::
 
   http("Getting issues")
-    .get("https://www.github.com/excilys/gatling/issues")
+    .get("https://www.github.com/gatling/gatling/issues")
     .silent
 
 Regular HTTP request
@@ -424,7 +424,7 @@ At the request level you can use the ``resources(res: AbstractHttpRequestBuilder
 For example::
 
   http("Getting issues")
-    .get("https://www.github.com/excilys/gatling/issues")
+    .get("https://www.github.com/gatling/gatling/issues")
     .resources(
       http("api.js").get("https://collector-cdn.github.com/assets/api.js"),
       http("ga.js").get("https://ssl.google-analytics.com/ga.js")
