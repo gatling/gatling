@@ -16,6 +16,11 @@ Having *scenarios* that are code and being resource efficient are the two requir
 
 Gatling's architecture is asynchronous as long as the underlying protocol, such as HTTP, can be implemented in a non blocking way. This kind of architecture let us implement virtual users as messages instead of dedicated threads, making them very cheap. Thus, running thousands of concurrent virtual users is not an issue.
 
+Migrating from a previous version of Gatling
+============================================
+
+* If you're migrating from Gatling 1.5.X to Gatling-2.0-RC1, please consult the :ref:`dedicated migration guide <1.5-to-2.0-RC1>`.
+
 User's guide
 ============
 
