@@ -8,7 +8,7 @@ Basic JSF
 JSF requires a parameter named ``javax.faces.ViewState`` to be captured on every page and be passed in every POST request.
 
 Adding a check for capturing the value and a param on very request would be very cumbersome.
-Hopefully, we can mutualize these operations.
+Hopefully, we can standardize these operations.
 
 Define factory methods for building JSF requests that would automatically perform those operations::
 

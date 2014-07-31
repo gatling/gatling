@@ -6,7 +6,7 @@ Simulation setup
 
 This is where you define the load you want to inject to your server.
 
-You can configure assertions and protocols with this two methods:
+You can configure assertions and protocols with these two methods:
 
 * ``assertions``: set assertions on the simulation, see the dedicated section :ref:`here <assertions>`
 * ``protocols``: set protocols definitions, see the dedicated section :ref:`here <http-protocol>`.
@@ -37,7 +37,7 @@ E.g.::
 The building blocks for profile injection the way you want are:
 
 #. ``nothingFor(duration)``: Pause for a given duration.
-#. ``atOnceUsers(nbUsers)``: Injects a given number of user at once.
+#. ``atOnceUsers(nbUsers)``: Injects a given number of users at once.
 #. ``rampUsers(nbUsers) over(duration)``: Injects a given number of users with a linear ramp over a given duration.
 #. ``constantUsersPerSec(rate) during(duration)``: Injects users at a constant rate, defined in users per second, during a given duration. Users will be injected at regular intervals.
 #. ``constantUsersPerSec(rate) during(duration) randomized``: Injects users at a constant rate, defined in users per second, during a given duration. Users will be injected at randomized intervals.
@@ -78,7 +78,7 @@ If you want to reason in terms of request per second and not in terms of users, 
     holdFor(2 hours)
   )
 
-Thus simulation will reach 100 req/s with a ramp of 10 seconds, then hold this throughput for 1 minute, jump to 50 req/s and finally hold this throughput for 2 hours.
+This simulation will reach 100 req/s with a ramp of 10 seconds, then hold this throughput for 1 minute, jump to 50 req/s and finally hold this throughput for 2 hours.
 
 The building block for the throttling are:
 
@@ -88,8 +88,8 @@ The building block for the throttling are:
 
 .. note::
 
-  * Define throttling don't prevent you to inject users on the scenario level.
-    Throttling try to ensure a targeted throughput on the simulation level with the given scenarios and their injection profiles.
+  * Defining throttling doesn't prevent you from injecting users at the scenario level.
+    Throttling tries to ensure a targeted throughput on the simulation level with the given scenarios and their injection profiles.
   * Throttling can also be configured at scenario level.
 
 .. _simulation-setup-maxduration:
@@ -97,6 +97,6 @@ The building block for the throttling are:
 Maximum duration
 ================
 
-Finally you can configure the maximum duration of your simulation with the methods ``maxDuration``.
+Finally, you can configure the maximum duration of your simulation with the method ``maxDuration``.
 It is useful if you need to bound the duration of your simulation when you can't predict it.
 

@@ -4,7 +4,7 @@
 HTTP Request
 ############
 
-HTTP support is a dedicated DSL, whose entry point is the ``http(requestName: Expression[String])`` method.
+HTTP support has a dedicated DSL, whose entry point is the ``http(requestName: Expression[String])`` method.
 
 This request name is important because it will act as a key when computing stats for the reports.
 If the same name appears in multiple places in a Simulation, Gatling will consider those requests are of the same type and their statistics will be aggregated.
@@ -43,7 +43,7 @@ Gatling provides built-ins for the most common methods. Those are simply the met
 
 .. note:: These methods are the ones used in REST webservices and RESTful applications; thus, such services can be tested with Gatling.
 
-Gatling also support custom methods (e.g. you can use the method *PURGE* to purge Nginx cache):
+Gatling also supports custom methods (e.g. you can use the method *PURGE* to purge Nginx cache):
 
 * ``httpRequest(method: String, url: Expression[String])``
 * ``httpRequestWithParams(method: String, url: Expression[String])`` for extending ``post``
@@ -179,7 +179,7 @@ Here are some examples::
 Signature Calculator
 --------------------
 
-One might want to generate some `HMAC <http://en.wikipedia.org/wiki/Hash-based_message_authentication_code>`_ header based on other request information: url, headers and/or body.
+You might want to generate some `HMAC <http://en.wikipedia.org/wiki/Hash-based_message_authentication_code>`_ header based on other request information: url, headers and/or body.
 This can only happen after Gatling has resolved the request, e.g. computed the body based on a template.
 
 Gatling exposes AsyncHttpClient's ``SignatureCalculator`` API::
@@ -191,7 +191,7 @@ Gatling exposes AsyncHttpClient's ``SignatureCalculator`` API::
 
 ``request`` is the immutable object that's been computed so far, ``requestBuilder`` is the mutable object that will be used to generate the final request.
 
-So, basically, one have to read the proper information from the ``url`` and ``request`` parameters, compute the new information out of them, such as a HMAC header, and set it on the ``requestBuilder``.
+So, basically, you have to read the proper information from the ``url`` and ``request`` parameters, compute the new information out of them, such as a HMAC header, and set it on the ``requestBuilder``.
 
 There's 2 ways to set a SignatureCalculator on a request::
 
@@ -216,7 +216,7 @@ To add authentication headers to a request, use the method ``basicAuth(username:
 
   http("My DIGEST secured request").get("http://my.secured.uri").digestAuth("myUser", "myPassword")
 
-Gatling provide also a more generic method to add authentication: ``authRealm(realm: Expression[Realm])``.
+Gatling provides also a more generic method to add authentication: ``authRealm(realm: Expression[Realm])``.
 Then the user is in charge of building a complete ``Realm`` instance suiting its needs.
 The two previous methods are in fact just shortcut for building a ``Realm`` instance.
 
@@ -289,12 +289,12 @@ Logging
 
 .. _http-request-silent:
 
-One could want to issue a request, but not log it, e.g.:
+You may want to issue a request, but not log it, e.g.:
 
 * because this request is not related to the load test, but used for initializing the system
 * because this load induced is relevant, but not the metrics, for example, with static resources
 
-One can then make the request *silent*: ::
+You can then make the request *silent*: ::
 
   http("Getting issues")
     .get("https://www.github.com/excilys/gatling/issues")
@@ -381,7 +381,7 @@ Once bootstrapped, BodyPart have the following methods for setting additional op
 Request processor
 -----------------
 
-One might want to process the request body before it's being sent to the wire.
+You might want to process the request body before it's being sent to the wire.
 
 ``processRequestBody(processor: Body => Body)``: takes a ``Body => Body``
 
@@ -504,6 +504,6 @@ One can call ``formUpload()`` multiple times in order to upload multiple files.
 .. note:: The MIME Type of the uploaded file defaults to ``application/octet-stream`` and the character set defaults to the one configured in ``gatling.conf`` (``UTF-8`` by default).
           Don't forget to override them when needed.
 
-.. note:: There are is a handful method to help you deal with multipart form requests: ``asMultipartForm``.
+.. note:: There is a helpful method to help you deal with multipart form requests: ``asMultipartForm``.
           It is equivalent to ``header(HttpHeaderNames.ContentType, HttpHeaderValues.MultipartFormData)``.
           If you use ``formUpload`` the header is automatically set for you.

@@ -4,7 +4,7 @@ Building Gatling
 
 .. note:: We use `Travis CI <https://travis-ci.org/excilys/gatling>`_ for continuous integration. You can find the latest snapshot on `Sonatype <https://oss.sonatype.org/content/repositories/snapshots/io/gatling/highcharts/gatling-charts-highcharts/2.0.0-SNAPSHOT/>`_
 
-Preliminary
+Introduction
 ===========
 
 As stated in the :ref:`Licenses section <license>`, Gatling is divided into two subprojects :
@@ -12,13 +12,13 @@ As stated in the :ref:`Licenses section <license>`, Gatling is divided into two 
 * Gatling, the core engine
 * Gatling Highcharts, the charting engine
 
-In order to fully build Gatling, youl'll need to build, in order, Gatling then Gatling Highcharts.
+In order to fully build Gatling, you'll need to build, in the following order, Gatling then Gatling Highcharts.
 
 Getting the source
 ==================
 
 
-Gatling uses `Git <http://git-scm.com/>`__ is are hosted on `Github <http://github.com/>`_.
+Gatling uses `Git <http://git-scm.com/>`__ which is hosted on `Github <http://github.com/>`_.
 
 You'll need to `install Git <http://git-scm.com/downloads>`__ on your machine first.
 
@@ -36,7 +36,7 @@ Gatling uses `SBT <http://www.scala-sbt.org>`__ as its build tool.
 You'll need `to install it <http://www.scala-sbt.org/0.13/tutorial/Setup.html>`_ first, or you can use the `sbt script <https://raw.githubusercontent.com/paulp/sbt-extras/master/sbt>`__
 from Paul Philips' ``sbt-extras`` for an easier setup.
 
-After SBT has been installed and you're in either one of the project's directory, you can then :
+After SBT has been installed and you're in either one of the project's directories, you can then :
 
 * compile the project : ``sbt compile``
 * run the tests : ``sbt test``
