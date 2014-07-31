@@ -24,7 +24,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 class WsListener(tx: WsTx, wsActor: ActorRef)
     extends WebSocketTextListener
-    //with WebSocketByteListener
+    with WebSocketByteListener
     with WebSocketCloseCodeReasonListener
     with StrictLogging {
 
@@ -38,17 +38,16 @@ class WsListener(tx: WsTx, wsActor: ActorRef)
 
   def onClose(webSocket: WebSocket): Unit = {}
 
-  def onError(t: Throwable): Unit = {
+  def onError(t: Throwable): Unit =
     state match {
       case Opening =>
         wsActor ! OnFailedOpen(tx, t.getMessage, nowMillis)
 
       case Open =>
-        logger.error(s"Websocket gave an unexpected error '${t.getMessage}', please report to Gatling project", t)
+        logger.error(s"WebSocket unexpected error '${t.getMessage}', please report to Gatling project", t)
 
       case Closed => // discard
     }
-  }
 
   // WebSocketCloseCodeReasonListener
   def onClose(webSocket: WebSocket, statusCode: Int, reason: String): Unit = {
@@ -65,6 +64,7 @@ class WsListener(tx: WsTx, wsActor: ActorRef)
   def onMessage(message: String): Unit =
     wsActor ! OnTextMessage(message, nowMillis)
 
+  // WebSocketByteListener
   def onMessage(message: Array[Byte]): Unit =
     wsActor ! OnByteMessage(message, nowMillis)
 }
