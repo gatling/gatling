@@ -20,6 +20,7 @@ Migrating from a previous version of Gatling
 ============================================
 
 * If you're migrating from Gatling 1.5.X to Gatling-2.0-RC1, please consult the :ref:`dedicated migration guide <1.5-to-2.0-RC1>`.
+* If you're migrating from Gatling 2.0.0-M3a to Gatling-2.0-RC1, please consult the :ref:`dedicated migration guide <2.0-M3a-to-2.0-RC1>`.
 
 User's guide
 ============

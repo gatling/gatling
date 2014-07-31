@@ -1,0 +1,22 @@
+.. _2.0-M3a-to-2.0-RC1:
+
+#################################################
+Migrating from Gatling 2.0-M3a to Gatling 2.0-RC1
+#################################################
+
+Global changes
+==============
+
+Gatling requires at least JDK7u6
+--------------------------------
+
+As targeting newer JDKs provides bug fixes, speed improvements and opens opportunities for optimizations,
+Gatling now requires at least a JDK7u6 (released almost two years ago already).
+
+Gatling is now available on Maven Central
+-----------------------------------------
+
+Gatling releases are now available on Maven Central, and snapshots are deployed on each successful build by Travis CI to Sonatype's snapshots repository.
+If you were using Gatling with its Maven plugin, you no longer need to add the Excilys repository in your ``pom.xml``.
+
+TODO : Moar stuff here
