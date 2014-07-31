@@ -20,11 +20,11 @@ Scala 2.10
 Gatling is built with Scala 2.10.
 If you're using `Scala IDE <http://scala-ide.org/index.html>`__, make sure you're using a version compatible with Scala 2.10.
 
-Gatling is now published on Maven Central
+Gatling is now available on Maven Central
 -----------------------------------------
 
-Gatling releases are now published on Maven Central, and snapshots are deployed on each successful build by Travis CI to Sonatype's snapshot repository.
-If you were using Gatling with its Maven plugin, you no longer need to add Excilys' repository in your ``pom.xml``.
+Gatling releases are now available on Maven Central, and snapshots are deployed on each successful build by Travis CI to Sonatype's snapshots repository.
+If you were using Gatling with its Maven plugin, you no longer need to add the Excilys repository in your ``pom.xml``.
 
 
 Package and GroupId changes
@@ -33,7 +33,7 @@ Package and GroupId changes
 Gatling's artifacts groupId and package are now `io.gatling`.
 You'll have to :
 
-* Update your build scripts to the change the groupId of Gatling's dependencies from `com.excilys.ebi.gatling` to `io.gatling`
+* Update your build scripts to change the groupId of Gatling's dependencies from `com.excilys.ebi.gatling` to `io.gatling`
 * Update your simulations to replace the `com.excilys.ebi.gatling` part in the imports by `io.gatling`
 
 Simulation
@@ -81,7 +81,7 @@ New Injection DSL
 
 The ``users``, ``ramp`` and ``delay`` methods to configure the *injection profile* for your scenario have been removed in favor of a full-blown dedicated DSL.
 
-Injection *steps* are now configured using the ``inject`` method available on your configured scenarion
+Injection *steps* are now configured using the ``inject`` method available on your configured scenario.
 
 Migrating ``users``
 ^^^^^^^^^^^^^^^^^^^
@@ -116,7 +116,7 @@ Migrating ``delay``
   // With Gatling 2.0
   setUp(scn.inject(nothingFor(5 seconds), atOnceUsers(10))...
 
-For more information on the new Injection DSL, please consult :ref:`Injection reference documentation <simulation-inject>`.
+For more information on the new Injection DSL, please consult the :ref:`Injection DSL reference documentation <simulation-inject>`.
 
 Core
 ====
@@ -124,14 +124,14 @@ Core
 Checks
 ------
 
-``whatever`` has been renamed to ``dontValidate``
+``whatever`` has been renamed to ``dontValidate``.
 
 Structure Elements
 ------------------
 
-``foreach`` the first parameter is now an ``Expression`` (e.g. could be Gatling EL string), not the name of the attribute to loop over.
+The first parameter of ``foreach`` is now an ``Expression`` (e.g. a Gatling EL string), not the name of the attribute to loop over.
 
-For example, if you have a list stored in the user's session with under the name ``list``::
+For example, if you have a ``list`` attribute in the user's session holding a list of values::
 
   .foreach("list", "elem") {
     ...
@@ -162,7 +162,7 @@ HTTP
 Protocol
 --------
 
-HTTP protocol boostrapper has been renamed from ``httpProtocol`` to ``http``.
+HTTP protocol boostrapper, ``httpProtocol``, has been renamed to ``http``.
 
 Query parameters
 ----------------
@@ -259,7 +259,7 @@ If ``my template.txt`` contains::
 
   Hi, my name is ${userName}
 
-and the virtual user's session has an attribute ``userName`` set to ``user123``
+and the virtual user's session has an attribute ``userName`` set to ``user123``,
 
 Then the effectively sent request body would be::
 
@@ -287,10 +287,10 @@ For more information, see the :ref:`Request bodies reference section <http-reque
 Misc
 ----
 
-* ``ExtendedResponse`` has been renamed into ``Response``
+* ``ExtendedResponse`` has been renamed into ``Response``.
 * ``requestInfoExtractor`` and ``responseInfoExtractor`` have been merged into a single ``extraInfoExtractor``, which takes a ``ExtraInfo => List[Any]`` function.
 
-More for information on ``extraInfoExtractor``, please refer to its :ref:`documentation <http-protocol-extractor>`.
+For more information on ``extraInfoExtractor``, please refer to its :ref:`documentation <http-protocol-extractor>`.
 
 Logs
 ====
@@ -302,5 +302,5 @@ If you wrote your own specific ``simulation.log`` parser, you'll need to migrate
 Recorder
 ========
 
-Until now, when setting up the Recorder, it was needed to setup different ports for the Recorder's *local proxy*, one for HTTP, another HTTPS.
+Until now, when setting up the Recorder, you had to setup two ports for the Recorder's *local proxy*: one for HTTP, one for HTTPS.
 This is not needed anymore, as the Recorder handles itself the switch to an HTTPS connection if necessary, and only a single port needs to be specified.
