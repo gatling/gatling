@@ -2,16 +2,18 @@
 <hr>
 <ul class="nav">
   {%- if prev %}
+  <h5>Previous topic</h5>
   <li>
     <a href="{{ prev.link|e }}" title="{{ _('Previous Chapter: ') + prev.title|striptags }}">
-      {{ "&laquo;"|safe }} {{ prev.title|striptags|truncate(length=24, killwords=True) }}
+      {{ prev.title|striptags|truncate(length=24, killwords=True) }}
     </a>
   </li>
   {%- endif %}
   {%- if next %}
+  <h5>Next topic</h5>
   <li>
     <a href="{{ next.link|e }}" title="{{ _('Next Chapter: ') + next.title|striptags }}">
-      {{ next.title|striptags|truncate(length=24, killwords=True) }} {{ "&raquo;"|safe }}
+      {{ next.title|striptags|truncate(length=24, killwords=True) }}
     </a>
   </li>
   {%- endif %}
