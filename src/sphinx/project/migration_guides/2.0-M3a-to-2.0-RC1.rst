@@ -19,4 +19,63 @@ Gatling is now available on Maven Central
 Gatling releases are now available on Maven Central, and snapshots are deployed on each successful build by Travis CI to Sonatype's snapshots repository.
 If you were using Gatling with its Maven plugin, you no longer need to add the Excilys repository in your ``pom.xml``.
 
-TODO : Moar stuff here
+Simulation
+==========
+
+Necessary imports
+-----------------
+
+* ``import bootstrap._`` and ``import assertions._`` are now unecessary and have to be removed.
+* ``import io.gatling.http.Headers.Names._`` is now unneccesary, headers names are now directly available from `HeaderNames`.
+* ``import io.gatling.http.Headers.Values._`` is now unneccesary, headers values are now directly available from `HeaderValues`.
+
+Injection DSL
+-------------
+
+* ``ramp(10 users)`` becomes ``rampUsers(10)``
+* ``heaviside(10 users)`` becomes ``heavideUsers(10)``
+* ``atOnce(10 users)`` becomes ``atOnceUsers(10)``
+* ``constantRate(10 usersPerSec)`` becomes ``constantUsersPerSec(10)``
+* ``rampRate(10 usersPerSec)`` becomes ``rampUsersPerSec(10)``
+* ``split(10 users)`` becomes ``splitUsers(10)``
+
+Core
+====
+
+Checks
+------
+
+``whatever`` has been renamed to ``dontValidate``.
+
+HTTP
+====
+
+Form parameters (for POST requests)
+-----------------------------------
+
+Renamed
+^^^^^^^
+Methods for adding form parameters to the request have been renamed:
+
+* ``param`` => ``formParam``
+* ``multiValuedParam`` => ``multiValuedFormParam``
+
+Misc
+----
+
+* ``requestInfoExtractor`` and ``responseInfoExtractor`` have been merged into a single ``extraInfoExtractor``, which takes a ``ExtraInfo => List[Any]`` function.
+
+For more information on ``extraInfoExtractor``, please refer to its :ref:`documentation <http-protocol-extractor>`.
+
+Logs
+====
+
+``simulation.log`` has been redesigned.
+
+If you wrote your own specific ``simulation.log`` parser, you'll need to migrate it to the new structure.
+
+Recorder
+========
+
+Until now, when setting up the Recorder, you had to setup two ports for the Recorder's *local proxy*: one for HTTP, one for HTTPS.
+This is not needed anymore, as the Recorder handles itself the switch to an HTTPS connection if necessary, and only a single port needs to be specified.
