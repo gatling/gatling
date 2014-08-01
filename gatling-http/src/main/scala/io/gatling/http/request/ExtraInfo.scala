@@ -13,9 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http
+package io.gatling.http.request
 
-package object request {
+import com.ning.http.client.Request
+import io.gatling.core.result.message.Status
+import io.gatling.core.session.Session
+import io.gatling.http.response.Response
 
-  type ExtraInfoExtractor = ExtraInfo => List[Any]
-}
+case class ExtraInfo(
+  requestName: String,
+  status: Status,
+  session: Session,
+  request: Request,
+  response: Response)
