@@ -1,8 +1,8 @@
-.. _2.0-M3a-to-2.0-RC1:
+.. _2.0.0-M3a-to-2.0-RC1:
 
-#################################################
-Migrating from Gatling 2.0-M3a to Gatling 2.0-RC1
-#################################################
+#####################################
+Migrating from 2.0.0-M3a to 2.0.0-RC1
+#####################################
 
 Global changes
 ==============
@@ -47,6 +47,7 @@ Checks
 
 * ``whatever`` has been renamed to ``dontValidate``.
 * ``transform`` now no longer takes and returns an ``Option[T]`` and takes and returns *plain* types, but ``transformOption`` provides the same functionnality as ``transform`` did.
+
 HTTP
 ====
 
