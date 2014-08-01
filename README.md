@@ -33,7 +33,7 @@ For people wanting to use the lastest evolutions, the SNAPSHOT versions are avai
 
 ## Questions, help?
 
-Read the documentation on the [Wiki](https://github.com/gatling/gatling/wiki).
+Read the [documentation](http://gatling.io/docs/).
 
 Join the [Gatling User Group](https://groups.google.com/group/gatling).
 
