@@ -1,6 +1,5 @@
 /**
  * Copyright 2011-2014 eBusiness Information, Groupe Excilys (www.excilys.com)
- * Copyright 2012 Gilt Groupe, Inc. (www.gilt.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
