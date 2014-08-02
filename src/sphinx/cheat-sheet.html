@@ -1781,8 +1781,8 @@
         <h3>Start</h3>
 
         <div class="function">
-          <label class="function-syntax" for="jms">jms</label>
-          <input type="checkbox" id="jms" name="jms">
+          <label class="function-syntax" for="jms-request">jms</label>
+          <input type="checkbox" id="jms-request" name="jms-request">
 
           <div class="function-details">
             Declares an JMS request
@@ -1872,19 +1872,6 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="messageMatcher">sendText</label>
-          <input type="checkbox" id="messageMatcher" name="messageMatcher">
-
-          <div class="function-details">
-            Overrides the default request/reply message matching
-            <dl>
-              <dt>(messageMatcher: JmsMessageMatcher)</dt>
-              <dd>Send <i>bytesMessage</i> as a bytes array</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
           <label class="function-syntax" for="textMessage">textMessage</label>
           <input type="checkbox" id="textMessage" name="textMessage">
 
@@ -1951,154 +1938,16 @@
       </div>
     </div>
 
-    <!-- JMS checks -->
+    <!-- JMS Checks -->
 
     <div class="row-fluid">
       <h2>
-        JMS Checks
-        <small>Verifying server reponses</small>
+          JMS Checks
+          <small>Verifying server reponses</small>
       </h2>
 
-      <!-- Checks (1/2) -->
-
-      <div class="javams-checks group part-of col-lg-4 col-md-6 col-xs-12">
+      <div class="javams-checks group col-lg-4 col-md-6 col-xs-12">
         <h3>Checks</h3>
-
-        <div class="function">
-          <label class="function-syntax" for="cancelCheck2">cancelCheck</label>
-          <input type="checkbox" id="cancelCheck2" name="cancelCheck">
-
-          <div class="function-details">
-            Cancels a pending check
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="wsListen2">wsListen</label>
-          <input type="checkbox" id="wsListen2" name="wsListen">
-
-          <div class="function-details">
-            Creates a non blocking check
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="wsAwait2">wsAwait</label>
-          <input type="checkbox" id="wsAwait2" name="wsAwait">
-
-          <div class="function-details">
-            Creates a blocking check
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="within2">within</label>
-          <input type="checkbox" id="within2" name="within">
-
-          <div class="function-details">
-            Sets a timeout
-            <dl>
-              <dt>(timeout)</dt>
-              <dd>Where <i>timeout</i> is a FiniteDuration instance</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="until2">until</label>
-          <input type="checkbox" id="until2" name="until">
-
-          <div class="function-details">
-            Checks will succeed as soon as Gatling has received the expected count of matching messages
-            <dl>
-              <dt>(count)</dt>
-              <dd>Where <i>count</i> is the number of matching messages</dd>
-            </dl>
-          </div>
-        </div>
-      </div>
-
-      <!-- Checks (2/2) -->
-
-      <div class="javams-checks group part-of col-lg-4 col-md-6 col-xs-12">
-        <h3 class="visible-lg visible-md">&nbsp;</h3>
-
-        <div class="function">
-          <label class="function-syntax" for="expect2">expect</label>
-          <input type="checkbox" id="expect2" name="expect">
-
-          <div class="function-details">
-            Waits until the timeout, then the check will succeed if it has received the expected count of matching
-            messages
-            <dl>
-              <dt>(count)</dt>
-              <dd>Where <i>count</i> is the number of matching messages</dd>
-              <dt>(range)</dt>
-              <dd>Where <i>range</i> is an instance of Range</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="regex2">regex</label>
-          <input type="checkbox" id="regex2" name="regex">
-
-          <div class="function-details">
-            Check will be applied to an extract of the frame payload
-            <dl>
-              <dt>(expression)</dt>
-              <dd>Extraction will use a regular expression defined by <i>expression</i>.</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="jsonPath2">jsonPath</label>
-          <input type="checkbox" id="jsonPath2" name="jsonPath">
-
-          <div class="function-details">
-            Check will be applied to an extract of the frame payload
-            <dl>
-              <dt>(expression)</dt>
-              <dd>jsonPath is similar to XPATH, but for JSON encoded data.</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="jsonpJsonPath2">jsonpJsonPath</label>
-          <input type="checkbox" id="jsonpJsonPath2" name="jsonpJsonPath">
-
-          <div class="function-details">
-            Check will be applied to an extract of the frame payload
-            <dl>
-              <dt>(expression)</dt>
-              <dd>jsonpJsonPath is similar to jsonPath, but for JSONP</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="reconciliate2">reconciliate</label>
-          <input type="checkbox" id="reconciliate2" name="reconciliate">
-
-          <div class="function-details">
-            Reconciliates main flow and JMS's flow
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- JMS configuration -->
-
-    <div class="row-fluid">
-      <h2>
-        JMS Configuration
-        <small>Factorise your JMS code and tune the behaviour of Gatling's JMS client</small>
-      </h2>
-
-      <div class="javams-config group col-lg-4 col-md-6 col-xs-12">
-        <h3>Configuration</h3>
 
         <div class="function">
           <label class="function-syntax" for="simpleCheck">simpleCheck</label>
@@ -2123,6 +1972,130 @@
               <dt>(expression)</dt>
               <dd>Where <i>expression</i> is an XPath expression</dd>
             </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- JMS Configuration -->
+
+    <div class="row-fluid">
+      <h2>
+        JMS Configuration
+        <small>Configure how Gatling connects to your JMS queues</small>
+      </h2>
+
+      <div class="javams-config group col-lg-4 col-md-6 col-xs-12">
+        <h3>Configuration</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="jms-config">jms</label>
+          <input type="checkbox" id="jms-config" name="jms-config">
+
+          <div class="function-details">
+            Entry point of your JMS configuration
+          </div>
+        </div>
+      </div>
+
+      <div class="javams-connect group col-lg-4 col-md-6 col-xs-12">
+        <h3>Connecting</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="connectionFactoryName">connectionFactoryName</label>
+          <input type="checkbox" id="connectionFactoryName" name="connectionFactoryName">
+
+          <div class="function-details">
+            <p>Mandatory.</p>
+            Set the name of the ConnectionFactory to use
+            <dl>
+              <dt>(name)</dt>
+              <dd>where <em>name</em> is a string</dd>
+            </dl>
+          </div>
+        </div>
+        <div class="function">
+          <label class="function-syntax" for="url">url</label>
+          <input type="checkbox" id="url" name="url">
+
+          <div class="function-details">
+            <p>Mandatory.</p>
+            Set the URL of the queue to connect to.
+            <dl>
+              <dt>(url)</dt>
+              <dd>where <em>url</em> is a string</dd>
+            </dl>
+          </div>
+        </div>
+        <div class="function">
+          <label class="function-syntax" for="contextFactory">contextFactory</label>
+          <input type="checkbox" id="contextFactory" name="jms-contextFactory">
+
+          <div class="function-details">
+            Set the name of the JNDI ContextFactory to use.
+            <dl>
+              <dt>(contextFactory)</dt>
+              <dd>where <em>contextFactory</em> is a string</dd>
+            </dl>
+          </div>
+        </div>
+        <div class="function">
+          <label class="function-syntax" for="jms-credentials">credentials</label>
+          <input type="checkbox" id="jms-credentials" name="jms-credentials">
+
+          <div class="function-details">
+          </div>
+        </div>
+        <div class="function">
+          <label class="function-syntax" for="listenerCount">listenerCount</label>
+          <input type="checkbox" id="listenerCount" name="listenerCount">
+
+          <div class="function-details">
+          </div>
+        </div>
+      </div>
+
+      <div class="javams-delivery group col-lg-4 col-md-6 col-xs-12">
+        <h3>Delivery modes</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="useNonPersistentDeliveryMode">useNonPersistentDeliveryMode</label>
+          <input type="checkbox" id="useNonPersistentDeliveryMode" name="useNonPersistentDeliveryMode">
+
+          <div class="function-details">
+          </div>
+        </div>
+        <div class="function">
+          <label class="function-syntax" for="usePersistentDeliveryMode">usePersistentDeliveryMode</label>
+          <input type="checkbox" id="usePersistentDeliveryMode" name="usePersistentDeliveryMode">
+
+          <div class="function-details">
+          </div>
+        </div>
+      </div>
+
+      <div class="javams-match group col-lg-4 col-md-6 col-xs-12">
+        <h3>Message matching</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="matchByMessageID">matchByMessageID</label>
+          <input type="checkbox" id="matchByMessageID" name="matchByMessageID">
+
+          <div class="function-details">
+          </div>
+        </div>
+        <div class="function">
+          <label class="function-syntax" for="matchByCorrelationID">matchByCorrelationID</label>
+          <input type="checkbox" id="matchByCorrelationID" name="matchByCorrelationID">
+
+          <div class="function-details">
+          </div>
+        </div>
+        <div class="function">
+          <label class="function-syntax" for="messageMatcher">messageMatcher</label>
+          <input type="checkbox" id="messageMatcher" name="messageMatcher">
+
+          <div class="function-details">
           </div>
         </div>
       </div>
