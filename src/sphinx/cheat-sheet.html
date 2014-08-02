@@ -2032,6 +2032,7 @@
           <input type="checkbox" id="contextFactory" name="jms-contextFactory">
 
           <div class="function-details">
+            <p>Mandatory.</p>
             Set the name of the JNDI ContextFactory to use.
             <dl>
               <dt>(contextFactory)</dt>
@@ -2044,6 +2045,12 @@
           <input type="checkbox" id="jms-credentials" name="jms-credentials">
 
           <div class="function-details">
+            <p>Optional.</p>
+            Set the credentials to use to connect to your queues
+            <dl>
+              <dt>(username, password)</dt>
+              <dd>the username and password to use as credentials</dd>
+            </dl>
           </div>
         </div>
         <div class="function">
@@ -2063,6 +2070,7 @@
           <input type="checkbox" id="useNonPersistentDeliveryMode" name="useNonPersistentDeliveryMode">
 
           <div class="function-details">
+            Use JMS' non-persistent delivery mode (active by default)
           </div>
         </div>
         <div class="function">
@@ -2070,6 +2078,7 @@
           <input type="checkbox" id="usePersistentDeliveryMode" name="usePersistentDeliveryMode">
 
           <div class="function-details">
+            Use JMS' persistent delivery mode
           </div>
         </div>
       </div>
