@@ -43,17 +43,11 @@ The example below shows the default values.
 ::
 
   <configuration>
-    <configDir>src/test/resources</configDir>
+    <configFolder>src/test/resources</configFolder>
     <dataFolder>src/test/resources/data</dataFolder>
     <resultsFolder>target/gatling/results</resultsFolder>
     <requestBodiesFolder>src/test/resources/request-bodies</requestBodiesFolder>
     <simulationsFolder>src/test/scala</simulationsFolder>
-    <includes>
-        <include>**/*.scala</include>
-    </includes>
-    <excludes>
-        <exclude>advanced/*.scala</exclude>
-    </excludes>
   <!--    <noReports>false</noReports> -->
   <!--   <reportsOnly>directoryName</reportsOnly> -->
   <!--   <simulationClass>foo.Bar</simulationClass> -->
