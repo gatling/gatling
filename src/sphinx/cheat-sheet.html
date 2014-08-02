@@ -1197,30 +1197,24 @@
         <h3>Plumbing</h3>
 
         <div class="function">
-          <label class="function-syntax" for="requestInfoExtractor">requestInfoExtractor</label>
-          <input type="checkbox" id="requestInfoExtractor" name="requestInfoExtractor">
+          <label class="function-syntax" for="extraInfoExtractor">extraInfoExtractor</label>
+          <input type="checkbox" id="extraInfoExtractor" name="extraInfoExtractor">
 
           <div class="function-details">
-            Dumps additional request data into simulation.log during the simulation
+            Dumps additional data into simulation.log during the simulation
             <dl>
-              <dt>(Request => List[String])</dt>
-              <dd>The function is used by Gatling to add several columns containing request info to the simulation log
+              <dt>(ExtraInfo => List[Any])</dt>
+              <dd>The function is used by Gatling to add several columns containing extra info to the simulation log
                 file.
               </dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="responseInfoExtractor">responseInfoExtractor</label>
-          <input type="checkbox" id="responseInfoExtractor" name="responseInfoExtractor">
-
-          <div class="function-details">
-            Dumps additional response data into simulation.log during the simulation
-            <dl>
-              <dt>(Response => List[String])</dt>
-              <dd>The function is used by Gatling to add several columns containing response info to the simulation log
-                file.
+              <dd>ExtraInfo provides :
+                  <ul>
+                      <li><em>requestName</em>: The request's name</li>
+                      <li><em>status</em>: The request's status (<strong>OK</strong> or <strong>KO</strong>)</li>
+                      <li><em>session</em>: The user's session</li>
+                      <li><em>request</em>: The sent request</li>
+                      <li><em>response</em>: The received response</li>
+                  </ul>
               </dd>
             </dl>
           </div>
@@ -1231,7 +1225,7 @@
           <input type="checkbox" id="disableResponseChunksDiscarding" name="disableResponseChunksDiscarding">
 
           <div class="function-details">
-            If you want the body of the response to be kept when using <i>responseInfoExtractor</i>, you'll have to
+            If you want the body of the response to be kept when using <i>extraInfoExtractor</i>, you'll have to
             disable response chunk discard (which is a performance optimization)
           </div>
         </div>
