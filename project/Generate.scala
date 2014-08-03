@@ -8,7 +8,11 @@ object Generate {
   def generateConfigFileSettings(destProject: Project) = Seq(
     resourceGenerators in Compile += Def.task {
       generateCommentedConfigFile(destProject.base, (resourceDirectory in Compile).value)
-    }.taskValue
+    }.taskValue,
+    mappings in (Compile, packageBin) := {
+      val compiledClassesMappings = (mappings in (Compile, packageBin)).value
+      compiledClassesMappings.filterNot { case (file, path) => path.endsWith(".conf") && !path.endsWith("-defaults.conf") }
+    }
   )
 
   private def generateCommentedConfigFile(projectPath: File, resourceDirectory: File): Seq[File] = {
