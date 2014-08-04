@@ -522,6 +522,11 @@
 
           <div class="function-details">
             Allows to configure the maximum duration of your simulation
+
+            <dl>
+              <dt>(maxDuration)</dt>
+              <dd>The maximum duration of the simulation</dd>
+            </dl>
           </div>
         </div>
       </div>
@@ -546,7 +551,7 @@
           <input type="checkbox" id="csv" name="csv">
 
           <div class="function-details">
-            Declares a feeder from a CSV or SSV file
+            Declares a feeder from a CSV file
             <dl>
               <dt>(fileName)</dt>
               <dd><i>fileName</i> is the name of the file under the <i>data</i> folder containing the comma separated
@@ -591,11 +596,10 @@
           <input type="checkbox" id="jsonFile" name="jsonFile">
 
           <div class="function-details">
-            Declares a feeder from a SSV file
+            Declares a feeder from a JSON file
             <dl>
               <dt>(fileName)</dt>
-              <dd><i>fileName</i> is the name of the file under the <i>data</i> folder containing the semi-colon
-                separated values to be injected
+              <dd><i>fileName</i> is the name of the file under the <i>data</i> folder containing JSON file to be injected
               </dd>
             </dl>
           </div>
@@ -1015,7 +1019,7 @@
           <input type="checkbox" id="userAgentHeader" name="userAgentHeader">
 
           <div class="function-details">
-            Sets the Accept-Language header for all requests
+            Sets the User-Agent header for all requests
             <dl>
               <dt>(value)</dt>
               <dd>The <i>value</i> of the header</dd>
