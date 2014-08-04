@@ -2091,6 +2091,7 @@
           <input type="checkbox" id="matchByMessageID" name="matchByMessageID">
 
           <div class="function-details">
+            Match request and response using JMS's MessageID
           </div>
         </div>
         <div class="function">
@@ -2098,6 +2099,7 @@
           <input type="checkbox" id="matchByCorrelationID" name="matchByCorrelationID">
 
           <div class="function-details">
+            Match request and response using JMS's CorrelationID
           </div>
         </div>
         <div class="function">
@@ -2105,6 +2107,11 @@
           <input type="checkbox" id="messageMatcher" name="messageMatcher">
 
           <div class="function-details">
+            Match request and response using a custom strategy
+            <dl>
+              <dt>(messageMatcher)</dt>
+              <dd>an implementation of <em>JmsMessageMatcher</em>, specifying how the <em>requestID</em> and <em>responseID</em> are retrieved from the JMS <em>Message</em></dd>
+            </dl>
           </div>
         </div>
       </div>
