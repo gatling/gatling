@@ -599,7 +599,8 @@
             Declares a feeder from a JSON file
             <dl>
               <dt>(fileName)</dt>
-              <dd><i>fileName</i> is the name of the file under the <i>data</i> folder containing JSON file to be injected
+              <dd><i>fileName</i> is the name of the file under the <i>data</i> folder containing JSON file to be
+                injected
               </dd>
             </dl>
           </div>
@@ -750,7 +751,8 @@
             Injects users at a constant rate, defined in users per second, during a given duration
             <dl>
               <dt>(nbUsers) during(dur unit)</dt>
-              <dd>Injects <i>nbUsers</i> each second for <i>duration</i>. Eg : constantUsersPerSec(10) during(5 seconds)</dd>
+              <dd>Injects <i>nbUsers</i> each second for <i>duration</i>. Eg : constantUsersPerSec(10) during(5 seconds)
+              </dd>
             </dl>
           </div>
         </div>
@@ -803,6 +805,823 @@
       </div>
     </div>
 
+    <!-- HTTP action -->
+
+    <div class="row-fluid">
+      <h2>
+        HTTP Action
+        <small>Define the HTTP requests sent in your scenario</small>
+      </h2>
+
+      <!-- Base -->
+
+      <div class="http group col-lg-4 col-md-6 col-xs-12">
+        <h3>HTTP</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="http1">http</label>
+          <input type="checkbox" id="http1" name="http">
+
+          <div class="function-details">
+            Declares an HTTP request
+            <dl>
+              <dt>(name)</dt>
+              <dd><i>name</i> is the request name in the reports</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <!-- HTTP verb -->
+
+      <div class="http-verb group col-lg-4 col-md-6 col-xs-12">
+        <h3>HTTP verb</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="get">get</label>
+          <input type="checkbox" id="get" name="get">
+
+          <div class="function-details">
+            Sets the HTTP method to GET
+            <dl>
+              <dt>(url)</dt>
+              <dd>Sets the <i>url</i> of the HTTP request</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="post">post</label>
+          <input type="checkbox" id="post" name="post">
+
+          <div class="function-details">
+            Sets the HTTP method to POST
+            <dl>
+              <dt>(url)</dt>
+              <dd>Sets the <i>url</i> of the HTTP request</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="put">put</label>
+          <input type="checkbox" id="put" name="put">
+
+          <div class="function-details">
+            Sets the HTTP method to PUT
+            <dl>
+              <dt>(url)</dt>
+              <dd>Sets the <i>url</i> of the HTTP request</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="delete">delete</label>
+          <input type="checkbox" id="delete" name="delete">
+
+          <div class="function-details">
+            Sets the HTTP method to DELETE
+            <dl>
+              <dt>(url)</dt>
+              <dd>Sets the <i>url</i> of the HTTP request</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="head">head</label>
+          <input type="checkbox" id="head" name="head">
+
+          <div class="function-details">
+            Sets the HTTP method to HEAD
+            <dl>
+              <dt>(url)</dt>
+              <dd>Sets the <i>url</i> of the HTTP request</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="patch">patch</label>
+          <input type="checkbox" id="patch" name="patch">
+
+          <div class="function-details">
+            Sets the HTTP method to PATCH
+            <dl>
+              <dt>(url)</dt>
+              <dd>Sets the <i>url</i> of the HTTP request</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="options">options</label>
+          <input type="checkbox" id="options" name="options">
+
+          <div class="function-details">
+            Sets the HTTP method to OPTIONS
+            <dl>
+              <dt>(url)</dt>
+              <dd>Sets the <i>url</i> of the HTTP request</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="httpRequest">httpRequest</label>
+          <input type="checkbox" id="httpRequest" name="httpRequest">
+
+          <div class="function-details">
+            Support for cusbut not logtom methods
+            <dl>
+              <dt>(method, url)</dt>
+              <dd>Executes <i>method</i> on <i>url</i></dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="httpRequestWithParams">httpRequestWithParams</label>
+          <input type="checkbox" id="httpRequestWithParams" name="httpRequestWithParams">
+
+          <div class="function-details">
+            Support for custom methods extending POST
+            <dl>
+              <dt>(method, url)</dt>
+              <dd>Executes <i>method</i> on <i>url</i></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <!-- HTTP options -->
+
+      <div class="http-opts group pull-right col-lg-4 col-md-6 col-xs-12">
+        <h3>HTTP options</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="queryParam">queryParam</label>
+          <input type="checkbox" id="queryParam" name="queryParam">
+
+          <div class="function-details">
+            Adds a query parameter to the URL
+            <dl>
+              <dt>(key, value)</dt>
+              <dd>http://example.tld?key=value</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="multivaluedQueryParam">multivaluedQueryParam</label>
+          <input type="checkbox" id="multivaluedQueryParam" name="multivaluedQueryParam">
+
+          <div class="function-details">
+            Adds a query parameter to the URL with multiple values
+            <dl>
+              <dt>(key, value...)</dt>
+              <dd>http://example.tld?key=value1&key=value2&key=value3...</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="queryParamsSeq">queryParamsSeq</label>
+          <input type="checkbox" id="queryParamsSeq" name="queryParamsSeq">
+
+          <div class="function-details">
+            Adds multiple query parameters to the URL
+            <dl>
+              <dt>((key, value)...)</dt>
+              <dd>http://example.tld?key1=value1&key2=value2&key3=value3...</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="queryParamsMap">queryParamsMap</label>
+          <input type="checkbox" id="queryParamsMap" name="queryParamsMap">
+
+          <div class="function-details">
+            Adds multiple query parameters to the URL
+            <dl>
+              <dt>(Map[key -> value])</dt>
+              <dd>http://example.tld?key1=value1&key2=value2&key3=value3...</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="header1">header</label>
+          <input type="checkbox" id="header1" name="header">
+
+          <div class="function-details">
+            Adds a header to the request.
+            <dl>
+              <dt>(key, value)</dt>
+              <dd>Adds <i>key: value</i> as header</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="headers">headers</label>
+          <input type="checkbox" id="headers" name="headers">
+
+          <div class="function-details">
+            Adds several headers to the request.
+            <dl>
+              <dt>(Map[key, value])</dt>
+              <dd>Adds every tuple <i>key: value</i> of the map as header</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="basicAuth">basicAuth</label>
+          <input type="checkbox" id="basicAuth" name="basicAuth">
+
+          <div class="function-details">
+            Sets the credentials for BASIC authentication
+            <dl>
+              <dt>(user, password)</dt>
+              <dd>Will authenticate as <i>user</i> with <i>password</i></dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="digestAuth">digestAuth</label>
+          <input type="checkbox" id="digestAuth" name="digestAuth">
+
+          <div class="function-details">
+            Sets the credentials for DIGEST authentication
+            <dl>
+              <dt>(user, password)</dt>
+              <dd>Will authenticate as <i>user</i> with <i>password</i></dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="authRealm">authRealm</label>
+          <input type="checkbox" id="authRealm" name="authRealm">
+
+          <div class="function-details">
+            Generic method to add authentication
+            <dl>
+              <dt>(Realm)</dt>
+              <dd>Takes a <i>Realm</i> instance</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="resources">resources</label>
+          <input type="checkbox" id="resources" name="resources">
+
+          <div class="function-details">
+            Allows to fetch resources in parallel in order to emulate the behaviour of a real web browser
+            <dl>
+              <dt>(request...)</dt>
+              <dd>Multiple requests to get resources</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <!-- HTTP body -->
+
+      <div class="http-body group pull-right col-lg-4 col-md-6 col-xs-12">
+        <h3>HTTP body</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="body">body</label>
+          <input type="checkbox" id="body" name="body">
+
+          <div class="function-details">
+            Adds a body from a resource to the request
+            <dl>
+              <dt>(RawFileBody(path))</dt>
+              <dd>Uploads a file as is from the <i>path</i></dd>
+              <dt>(ELFileBody(path))</dt>
+              <dd>Parses, resolves and then uploads a file containing Gatling EL from the <i>path</i></dd>
+              <dt>(StringBody(string))</dt>
+              <dd>Sets a string</dd>
+              <dt>(ByteArrayBody(bytes))</dt>
+              <dd>Sets the body from a bytes array</dd>
+              <dt>(InputStreamBody(stream))</dt>
+              <dd>Sets the body from an input stream</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="bodyPart">bodyPart</label>
+          <input type="checkbox" id="bodyPart" name="bodyPart">
+
+          <div class="function-details">
+            Add a multi-part body from a resource to the request
+            <dl>
+              <dt>(RawFileBodyPart(path))</dt>
+              <dd>Uploads a file as is from the <i>path</i></dd>
+              <dt>(ELFileBodyPart(path))</dt>
+              <dd>Parses, resolves and then uploads a file containing Gatling EL from the <i>path</i></dd>
+              <dt>(StringBodyPart(string))</dt>
+              <dd>Sets a string</dd>
+              <dt>(ByteArrayBodyPart(bytes))</dt>
+              <dd>Sets the body from a bytes array</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="param">param</label>
+          <input type="checkbox" id="param" name="param">
+
+          <div class="function-details">
+            Adds a parameter to the request body
+            <dl>
+              <dt>(key, value)</dt>
+              <dd>Where <i>key</i> is the name and <i>value</i> is a string</dd>
+              <dt>(HttpParam)</dt>
+              <dd>Where HttpParam is an instance of HttpParam</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="multivaluedParam">multivaluedParam</label>
+          <input type="checkbox" id="multivaluedParam" name="multivaluedParam">
+
+          <div class="function-details">
+            Adds a query parameter to the request body with multiple values
+            <dl>
+              <dt>(key, value...)</dt>
+              <dd>Where <i>key</i> is the name of one parameter and <i>value</i> can be a list</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="paramsSeq">paramsSeq</label>
+          <input type="checkbox" id="paramsSeq" name="paramsSeq">
+
+          <div class="function-details">
+            Adds multiple query parameters to the request body
+            <dl>
+              <dt>((key, value)...)</dt>
+              <dd>Where you can have multiple tuples of <i>key</i> and <i>value</i></dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="paramsMap">paramsMap</label>
+          <input type="checkbox" id="paramsMap" name="paramsMap">
+
+          <div class="function-details">
+            Adds multiple query parameters to the request body
+            <dl>
+              <dt>(Map[key -> value])</dt>
+              <dd>Where you can have a map of multiple <i>key</i> and <i>value</i></dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="transformResponse">transformResponse</label>
+          <input type="checkbox" id="transformResponse" name="transformResponse">
+
+          <div class="function-details">
+            Allows to process the response before it is sent to the checks pipeline.
+            <dl>
+              <dt>(ResponseTransformer)</dt>
+              <dd>Takes a <i>ReponseTransformer</i>, which is a Response => Reponse function</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="processRequestBody">processRequestBody</label>
+          <input type="checkbox" id="processRequestBody" name="processRequestBody">
+
+          <div class="function-details">
+            Allows to process the request body before it is sent to the wire
+            <dl>
+              <dt>(processor)</dt>
+              <dd>Takes a <i>processor</i> which is a Body => Body function</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="formUpload">formUpload</label>
+          <input type="checkbox" id="formUpload" name="formUpload">
+
+          <div class="function-details">
+            Provides a multi-part encoded request when you need to upload a file corresponding to a form text value. Eg:
+            Email attachment
+            <dl>
+              <dt>(key, filePath)</dt>
+              <dd>Where <i>key</i> is the name of the field and <i>filePath</i> a path to a file located in
+                /request-bodies
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HTTP checks -->
+
+    <div class="row-fluid">
+      <h2>
+        HTTP Checks
+        <small>Verifying server responses</small>
+      </h2>
+
+      <!-- Check -->
+
+      <div class="check group col-lg-4 col-md-6 col-xs-12">
+        <h3>Check</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="check">check</label>
+          <input type="checkbox" id="check" name="check">
+
+          <div class="function-details">
+            Declare every check that should apply on the action
+            <dl>
+              <dt>(check...)</dt>
+              <dd>Every check you need to make on the response from the server</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <!-- HTTP checks -->
+
+      <div class="http-checks group pull-right col-lg-4 col-md-6 col-xs-12">
+        <h3>Http checks</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="status">status</label>
+          <input type="checkbox" id="status" name="status">
+
+          <div class="function-details">
+            Check will be applied to the status of the HTTP response
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="currentLocation">currentLocation</label>
+          <input type="checkbox" id="currentLocation" name="currentLocation">
+
+          <div class="function-details">
+            Check will be applied to the current url of the response
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="header2">header</label>
+          <input type="checkbox" id="header2" name="header">
+
+          <div class="function-details">
+            Check will be applied to selected headers of the HTTP response
+            <dl>
+              <dt>(headerName)</dt>
+              <dd>The check will be applied on the header corresponding to <i>headerName</i></dd>
+              <dt>(Session => String)</dt>
+              <dd>Same as above, except that the header name is given by the <i>Session => String</i> function.</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="headerRegex">headerRegex</label>
+          <input type="checkbox" id="headerRegex" name="headerRegex">
+
+          <div class="function-details">
+            Check will be applied to selected headers of the HTTP response
+            <dl>
+              <dt>(headerName, pattern)</dt>
+              <dd>The check will be applied on the headers <i>headerName</i> whose value match the provided
+                <i>pattern</i>.
+              </dd>
+              <dt>(Session => String)</dt>
+              <dd>Same as above, except that the header name is given by the <i>Session => String</i> function.</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="responseTimeInMillis">responseTimeInMillis</label>
+          <input type="checkbox" id="responseTimeInMillis" name="responseTimeInMillis">
+
+          <div class="function-details">
+            Check will be applied to the response time of the server
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="latencyInMillis">latencyInMillis</label>
+          <input type="checkbox" id="latencyInMillis" name="latencyInMillis">
+
+          <div class="function-details">
+            Check will be applied to the latency of the request/response round trip
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="bodyString">bodyString</label>
+          <input type="checkbox" id="bodyString" name="bodyString">
+
+          <div class="function-details">
+            Return the full response body String.
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="bodyBytes">bodyBytes</label>
+          <input type="checkbox" id="bodyBytes" name="bodyBytes">
+
+          <div class="function-details">
+            Return the full response body byte array.
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="regex1">regex</label>
+          <input type="checkbox" id="regex1" name="regex">
+
+          <div class="function-details">
+            Check will be applied to an extract of the HTTP response's body
+            <dl>
+              <dt>(expression)</dt>
+              <dd>Extraction will use a regular expression defined by <i>expression</i>.</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="xpath1">xpath</label>
+          <input type="checkbox" id="xpath1" name="xpath">
+
+          <div class="function-details">
+            Check will be applied to an extract of the HTTP response's body
+            <dl>
+              <dt>(expression)</dt>
+              <dd>Extraction will use an XPath expression defined by <i>expression</i></dd>
+              <dt>(expression, namespaces)</dt>
+              <dd>If you want to use namespaces in your XPATH expression, you should specify them. The <i>namespaces</i>
+                are specified thanks to a List[(prefix,uri)]:<br>List(('c','http://core'), ('f','http://format')).
+              </dd>
+              <dt>(Session => String)</dt>
+              <dd>The expression can be expressed as a <i>Session => String</i> function (with namespaces also)</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="jsonPath1">jsonPath</label>
+          <input type="checkbox" id="jsonPath1" name="jsonPath">
+
+          <div class="function-details">
+            Check will be applied to an extract of the HTTP response's body
+            <dl>
+              <dt>(expression)</dt>
+              <dd>jsonPath is similar to XPATH, but for JSON encoded data.</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="jsonpJsonPath1">jsonpJsonPath</label>
+          <input type="checkbox" id="jsonpJsonPath1" name="jsonpJsonPath">
+
+          <div class="function-details">
+            Check will be applied to an extract of the HTTP response's body
+            <dl>
+              <dt>(expression)</dt>
+              <dd>jsonpJsonPath is similar to jsonPath, but for JSONP</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="css">css</label>
+          <input type="checkbox" id="css" name="css">
+
+          <div class="function-details">
+            Check will be applied to an extract of the HTTP response's body
+            <dl>
+              <dt>(expression)</dt>
+              <dd>Uses the <i>css</i> selector to extract the value to be checked.</dd>
+              <dt>(expression, attr)</dt>
+              <dd>Same as above, except that the extracted value is the <i>attr</i> of the selected node.</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="md5">md5</label>
+          <input type="checkbox" id="md5" name="md5">
+
+          <div class="function-details">
+            Check will be applied on the md5 checksum of the HTTP response
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="sha1">sha1</label>
+          <input type="checkbox" id="sha1" name="sha1">
+
+          <div class="function-details">
+            Check will be applied on the sha1 checksum of the HTTP response
+          </div>
+        </div>
+      </div>
+
+      <!-- Check extractors -->
+
+      <div class="check-extractors group col-lg-4 col-md-6 col-xs-12">
+        <h3>Check extractors</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="find">find</label>
+          <input type="checkbox" id="find" name="find">
+
+          <div class="function-details">
+            Specifies that only one value matching the check definition must be extracted
+            <dl>
+              <dt>&oslash;</dt>
+              <dd>If used as <i>find</i> check will be applied on the first value found. Note that this is the default
+                behaviour, you don't have to specify it.
+              </dd>
+              <dt>(occurrence)</dt>
+              <dd>Gets the <i>occurrence</i>-th value that matches the check definition.</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="findAll">findAll</label>
+          <input type="checkbox" id="findAll" name="findAll">
+
+          <div class="function-details">
+            Specifies that every value matching the check definition should be extracted for verification. The resulting
+            type is a list of extracted values.
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="count1">count</label>
+          <input type="checkbox" id="count1" name="count">
+
+          <div class="function-details">
+            The check will be applied on the size of the list returned by findall
+          </div>
+        </div>
+      </div>
+
+      <!-- Check transformer -->
+
+      <div class="check-transformer group col-lg-4 col-md-6 col-xs-12">
+        <h3>Check transformer</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="transform">transform</label>
+          <input type="checkbox" id="transform" name="transform">
+
+          <div class="function-details">
+            Used to transform data before verification
+            <dl>
+              <dt>(A => B)</dt>
+              <dd>This function is optional. It can be useful sometimes to apply a transformation on the extracted
+                values before validating them. In this function, type <i>A</i> is the type of the find operation (either
+                <i>String</i>, <i>List[String]</i> or <i>Int</i>). Type B is whatever you want it to be (could be a case
+                class for example)
+              </dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="transformOption">transformOption</label>
+          <input type="checkbox" id="transformOption" name="transformOption">
+
+          <div class="function-details">
+            Used to transform data before verification
+            <dl>
+              <dt>(Option[A] => Validation[Option[B]])</dt>
+              <dd>Gives full control over the extracted result, even providing a default value</dd>
+            </dl>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Check verifiers -->
+
+      <div class="check-verifiers group col-lg-4 col-md-6 col-xs-12">
+        <h3>Check verifiers</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="is1">is</label>
+          <input type="checkbox" id="is1" name="is">
+
+          <div class="function-details">
+            Checks for equality
+            <dl>
+              <dt>(expected)</dt>
+              <dd>if the captured (or transformed) value is equal to <i>expected</i> the check will succeed; it will
+                fail otherwise
+              </dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="not">not</label>
+          <input type="checkbox" id="not" name="not">
+
+          <div class="function-details">
+            Checks for inequality
+            <dl>
+              <dt>(expected)</dt>
+              <dd>If the captured (or transformed) value is different than <i>expected</i> the check will succeed; it
+                will fail otherwise
+              </dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="exists">exists</label>
+          <input type="checkbox" id="exists" name="exists">
+
+          <div class="function-details">
+            Checks that there's at least one value corresponding to the check definition .This is the default
+            verification (it does not need to be specified)
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="notExists">notExists</label>
+          <input type="checkbox" id="notExists" name="notExists">
+
+          <div class="function-details">
+            Checks that there are no values corresponding to the check definition
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="in1">in</label>
+          <input type="checkbox" id="in1" name="in">
+
+          <div class="function-details">
+            Checks for belonging to a sequence
+            <dl>
+              <dt>(sequence)</dt>
+              <dd>If the captured (or transformed) value is included in the <i>sequence</i> the check will succeed; it
+                will fail otherwise
+              </dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="dontValidate">dontValidate</label>
+          <input type="checkbox" id="dontValidate" name="dontValidate">
+
+          <div class="function-details">
+            Always returns true. Used to capture optional values into the session
+          </div>
+        </div>
+      </div>
+
+      <!-- Check saver -->
+
+      <div class="check-saver group col-lg-4 col-md-6 col-xs-12">
+        <h3>Check saver</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="saveAs">saveAs</label>
+          <input type="checkbox" id="saveAs" name="saveAs">
+
+          <div class="function-details">
+            If the check succeeds, it captures the extracted value(s) into the session
+            <dl>
+              <dt>(key)</dt>
+              <dd>The value(s) will be stored in the session under key <i>key</i></dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- HTTP Configuration -->
 
     <div class="row-fluid">
@@ -817,8 +1636,8 @@
         <h3>Configuration</h3>
 
         <div class="function">
-          <label class="function-syntax" for="http">http</label>
-          <input type="checkbox" id="http" name="http">
+          <label class="function-syntax" for="http2">http</label>
+          <input type="checkbox" id="http2" name="http">
 
           <div class="function-details">
             Entry point of your HTTP configuration
@@ -1030,7 +1849,7 @@
 
       <!-- Options -->
 
-      <div class="options group col-lg-4 col-md-6 col-xs-12">
+      <div class="options group pull-right col-lg-4 col-md-6 col-xs-12">
         <h3>Options</h3>
 
         <div class="function">
@@ -1193,13 +2012,13 @@
                 file.
               </dd>
               <dd>ExtraInfo provides :
-                  <ul>
-                      <li><em>requestName</em>: The request's name</li>
-                      <li><em>status</em>: The request's status (<strong>OK</strong> or <strong>KO</strong>)</li>
-                      <li><em>session</em>: The user's session</li>
-                      <li><em>request</em>: The sent request</li>
-                      <li><em>response</em>: The received response</li>
-                  </ul>
+                <ul>
+                  <li><em>requestName</em>: The request's name</li>
+                  <li><em>status</em>: The request's status (<strong>OK</strong> or <strong>KO</strong>)</li>
+                  <li><em>session</em>: The user's session</li>
+                  <li><em>request</em>: The sent request</li>
+                  <li><em>response</em>: The received response</li>
+                </ul>
               </dd>
             </dl>
           </div>
@@ -1396,8 +2215,8 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="count">count</label>
-          <input type="checkbox" id="count" name="count">
+          <label class="function-syntax" for="count2">count</label>
+          <input type="checkbox" id="count2" name="count">
 
           <div class="function-details">
             Perform the assertion on the count of requests
@@ -1450,8 +2269,8 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="is">is</label>
-          <input type="checkbox" id="is" name="is">
+          <label class="function-syntax" for="is2">is</label>
+          <input type="checkbox" id="is2" name="is">
 
           <div class="function-details">
             Check that the value of the statistic is equal to the given value
@@ -1463,8 +2282,8 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="in">in</label>
-          <input type="checkbox" id="in" name="in">
+          <label class="function-syntax" for="in2">in</label>
+          <input type="checkbox" id="in2" name="in">
 
           <div class="function-details">
             Check that the value of statistic is in a sequence
@@ -1584,8 +2403,8 @@
         <h3>Checks</h3>
 
         <div class="function">
-          <label class="function-syntax" for="cancelCheck1">cancelCheck</label>
-          <input type="checkbox" id="cancelCheck1" name="cancelCheck">
+          <label class="function-syntax" for="cancelCheck">cancelCheck</label>
+          <input type="checkbox" id="cancelCheck" name="cancelCheck">
 
           <div class="function-details">
             Cancels a pending check
@@ -1593,8 +2412,8 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="wsListen1">wsListen</label>
-          <input type="checkbox" id="wsListen1" name="wsListen">
+          <label class="function-syntax" for="wsListen">wsListen</label>
+          <input type="checkbox" id="wsListen" name="wsListen">
 
           <div class="function-details">
             Creates a non blocking check
@@ -1602,8 +2421,8 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="wsAwait1">wsAwait</label>
-          <input type="checkbox" id="wsAwait1" name="wsAwait">
+          <label class="function-syntax" for="wsAwait">wsAwait</label>
+          <input type="checkbox" id="wsAwait" name="wsAwait">
 
           <div class="function-details">
             Creates a blocking check
@@ -1611,8 +2430,8 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="within1">within</label>
-          <input type="checkbox" id="within1" name="within">
+          <label class="function-syntax" for="within">within</label>
+          <input type="checkbox" id="within" name="within">
 
           <div class="function-details">
             Sets a timeout
@@ -1624,8 +2443,8 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="until1">until</label>
-          <input type="checkbox" id="until1" name="until">
+          <label class="function-syntax" for="until">until</label>
+          <input type="checkbox" id="until" name="until">
 
           <div class="function-details">
             Checks will succeed as soon as Gatling has received the expected count of matching messages
@@ -1643,8 +2462,8 @@
         <h3 class="visible-lg visible-md">&nbsp;</h3>
 
         <div class="function">
-          <label class="function-syntax" for="expect1">expect</label>
-          <input type="checkbox" id="expect1" name="expect">
+          <label class="function-syntax" for="expect">expect</label>
+          <input type="checkbox" id="expect" name="expect">
 
           <div class="function-details">
             Waits until the timeout, then the check will succeed if it has received the expected count of matching
@@ -1659,8 +2478,8 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="regex1">regex</label>
-          <input type="checkbox" id="regex1" name="regex">
+          <label class="function-syntax" for="regex2">regex</label>
+          <input type="checkbox" id="regex2" name="regex">
 
           <div class="function-details">
             Check will be applied to an extract of the frame payload
@@ -1672,8 +2491,8 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="jsonPath1">jsonPath</label>
-          <input type="checkbox" id="jsonPath1" name="jsonPath">
+          <label class="function-syntax" for="jsonPath2">jsonPath</label>
+          <input type="checkbox" id="jsonPath2" name="jsonPath">
 
           <div class="function-details">
             Check will be applied to an extract of the frame payload
@@ -1685,8 +2504,8 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="jsonpJsonPath1">jsonpJsonPath</label>
-          <input type="checkbox" id="jsonpJsonPath1" name="jsonpJsonPath">
+          <label class="function-syntax" for="jsonpJsonPath2">jsonpJsonPath</label>
+          <input type="checkbox" id="jsonpJsonPath2" name="jsonpJsonPath">
 
           <div class="function-details">
             Check will be applied to an extract of the frame payload
@@ -1698,8 +2517,8 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="reconciliate1">reconciliate</label>
-          <input type="checkbox" id="reconciliate1" name="reconciliate">
+          <label class="function-syntax" for="reconciliate">reconciliate</label>
+          <input type="checkbox" id="reconciliate" name="reconciliate">
 
           <div class="function-details">
             Reconciliates main flow and websocket's flow
@@ -1798,7 +2617,9 @@
         </div>
       </div>
 
-      <div class="javams-common group col-lg-4 col-md-6 col-xs-12">
+      <!-- Commons (1/2) -->
+
+      <div class="javams-common group part-of col-lg-4 col-md-6 col-xs-12">
         <h3>Commons</h3>
 
         <div class="function">
@@ -1946,8 +2767,8 @@
 
     <div class="row-fluid">
       <h2>
-          JMS Checks
-          <small>Verifying server reponses</small>
+        JMS Checks
+        <small>Verifying server reponses</small>
       </h2>
 
       <div class="javams-checks group col-lg-4 col-md-6 col-xs-12">
@@ -1967,8 +2788,8 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="xpath">xpath</label>
-          <input type="checkbox" id="xpath" name="xpath">
+          <label class="function-syntax" for="xpath2">xpath</label>
+          <input type="checkbox" id="xpath2" name="xpath">
 
           <div class="function-details">
             Allows to check a TextMessage with XPath
@@ -2120,7 +2941,8 @@
             Match request and response using a custom strategy
             <dl>
               <dt>(messageMatcher)</dt>
-              <dd>an implementation of <em>JmsMessageMatcher</em>, specifying how the <em>requestID</em> and <em>responseID</em> are retrieved from the JMS <em>Message</em></dd>
+              <dd>an implementation of <em>JmsMessageMatcher</em>, specifying how the <em>requestID</em> and <em>responseID</em>
+                are retrieved from the JMS <em>Message</em></dd>
             </dl>
           </div>
         </div>
