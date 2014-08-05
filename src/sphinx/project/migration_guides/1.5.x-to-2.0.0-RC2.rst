@@ -1,7 +1,7 @@
-.. _1.5.x-to-2.0.0-RC1:
+.. _1.5.x-to-2.0.0-RC2:
 
 #################################
-Migrating from 1.5.x to 2.0.0-RC1
+Migrating from 1.5.x to 2.0.0-RC2
 #################################
 
 Global changes
@@ -304,3 +304,11 @@ Recorder
 
 Until now, when setting up the Recorder, you had to setup two ports for the Recorder's *local proxy*: one for HTTP, one for HTTPS.
 This is not needed anymore, as the Recorder handles itself the switch to an HTTPS connection if necessary, and only a single port needs to be specified.
+
+Maven Plugin
+============
+
+The ``<includes>...</includes>`` and ``<excludes>...</excludes>`` configuration options have been removed.
+Should you want to select a specific simulation to run, you can use the ``<simulationClass>...</simulationClass>`` config option to do so.
+
+For more information, see the :ref:`Maven plugin documentation <maven-plugin>`.
