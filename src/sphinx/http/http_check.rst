@@ -188,6 +188,7 @@ You can define an different type with the ``ofType[T]`` extra step::
 Gatling provides built-in support for the following types:
 
 * String
+* Boolean
 * Int
 * Long
 * Double
