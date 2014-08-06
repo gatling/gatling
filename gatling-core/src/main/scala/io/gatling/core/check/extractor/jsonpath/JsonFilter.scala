@@ -30,19 +30,19 @@ trait LowPriorityJsonFilterImplicits {
   }
 
   implicit val integerJsonFilter = new JsonFilter[Int] {
-    val filter: PartialFunction[Any, Int] = { case e: Number => e.intValue() }
+    val filter: PartialFunction[Any, Int] = { case e: Number => e.intValue }
   }
 
   implicit val jLongJsonFilter = new JsonFilter[Long] {
-    val filter: PartialFunction[Any, Long] = { case e: Number => e.longValue() }
+    val filter: PartialFunction[Any, Long] = { case e: Number => e.longValue }
   }
 
   implicit val jDoubleJsonFilter = new JsonFilter[Double] {
-    val filter: PartialFunction[Any, Double] = { case e: Number => e.doubleValue() }
+    val filter: PartialFunction[Any, Double] = { case e: Number => e.doubleValue }
   }
 
   implicit val jFloatJsonFilter = new JsonFilter[Float] {
-    val filter: PartialFunction[Any, Float] = { case e: Number => e.floatValue() }
+    val filter: PartialFunction[Any, Float] = { case e: Number => e.floatValue }
   }
 
   implicit val jListJsonFilter = new JsonFilter[Seq[Any]] {
