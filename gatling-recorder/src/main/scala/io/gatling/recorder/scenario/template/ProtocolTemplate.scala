@@ -57,12 +57,12 @@ object ProtocolTemplate {
           val filtersConfig = config.filters
 
             def quotedStringList(xs: Seq[String]): String = xs.map(p => "\"\"\"" + p + "\"\"\"").mkString(", ")
-            def backListPatterns = fast"black = BlackList(${quotedStringList(filtersConfig.blackList.patterns)})"
-            def whiteListPatterns = fast"white = WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
+            def blackListPatterns = fast"BlackList(${quotedStringList(filtersConfig.blackList.patterns)})"
+            def whiteListPatterns = fast"WhiteList(${quotedStringList(filtersConfig.whiteList.patterns)})"
 
           val patterns = filtersConfig.filterStrategy match {
-            case FilterStrategy.WhitelistFirst => fast"$whiteListPatterns, $backListPatterns"
-            case FilterStrategy.BlacklistFirst => fast"$backListPatterns, $whiteListPatterns"
+            case FilterStrategy.WhitelistFirst => fast"$whiteListPatterns, $blackListPatterns"
+            case FilterStrategy.BlacklistFirst => fast"$blackListPatterns, $whiteListPatterns"
             case FilterStrategy.Disabled       => EmptyFastring
           }
 
