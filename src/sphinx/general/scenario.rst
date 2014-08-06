@@ -34,7 +34,7 @@ Any action that will be executed will be called with ``exec``.
 For example, when using the Gatling HTTP module you would write the following line::
 
   scenario("My Scenario")
-    .exec( http("Get Homepage").get("http://github.com/gatling/gatling") )
+    .exec(http("Get Homepage").get("http://github.com/gatling/gatling"))
 
 .. _scenario-exec-session-expression:
 
@@ -151,7 +151,7 @@ Loop statements
     myChain
   }
 
-*times* can be an Int, an EL pointing to an Int Session attribute, or an ``Expresion[Int]``.
+*times* can be an Int, an EL string pointing to an Int Session attribute, or an ``Expression[Int]``.
 
 *counterName* is optional and can be used to force the name of the loop counter.
 Current value can be retrieved on the Session as an attribute with a *counterName* name.
@@ -175,7 +175,7 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
     myChain
   }
 
-*sequenceName* is the name of a sequence attribute in the ``Session``.
+*sequenceName* can be a sequence, an EL string pointing to a ``Seq[Any]`` Session attribute, or an ``Expression[Seq[Any]]``
 
 *elementName* is a the name of the Session attribute that will hold the current element.
 
@@ -250,7 +250,7 @@ As you can see, the executed actions if the condition is false are optional.
 
 If you want to test conditions other than equality, you'll have to use an ``Expression[Boolean]`` to write it::
 
-  .doIf(session => session.getTypedAttribute[String]("myKey").startsWith("admin")) {
+  .doIf(session => session("myKey").as[String].startsWith("admin")) {
     exec( http("if true") ... ) // executed if the session value stored in "myKey" starts with "admin"
   }
 
@@ -262,7 +262,7 @@ If you want to test conditions other than equality, you'll have to use an ``Expr
 Similar to ``doIf``, but with a fallback if the condition evaluates to false.
 ::
 
-  .doIfOrElse(session => session.getTypedAttribute[String]("myKey").startsWith("admin")) {
+  .doIfOrElse(session => session("myKey").as[String].startsWith("admin")) {
      exec( http("if true") ... ) // executed if the session value stored in "myKey" starts with "admin"
   } {
      exec( http("if false") ... ) // executed if the session value stored in "myKey" does not start with "admin"
@@ -278,7 +278,7 @@ Similar to ``doIf``, but with a fallback if the condition evaluates to false.
 Similar to ``doIfOrElse`` but tests the equality of an expected and an actual value.
 ::
 
-  .doIfOrElse(session => session.getTypedAttribute[String]("myKey"), "expectedValue") {
+  .doIfOrElse(session => session("myKey").as[String], "expectedValue") {
      exec( http("if true") ... ) // executed if the session value stored in "myKey" equals to "expectedValue"
   } {
      exec( http("if false") ... ) // executed if the session value stored in "myKey" not equals to "expectedValue"
