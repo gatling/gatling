@@ -47,7 +47,7 @@ object SeparatedValuesParser {
     val rawLines = source.getLines().map(parseLine)
     val headers =
       try
-        rawLines.next()
+        rawLines.next().map(_.trim)
       catch {
         case e: NoSuchElementException =>
           throw new IllegalArgumentException("SeparatedValuesParser expects files to contain a first headers line")
