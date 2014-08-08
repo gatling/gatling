@@ -130,7 +130,8 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     nettyConfig.setHttpClientCodecMaxHeaderSize(configuration.http.ahc.httpClientCodecMaxHeaderSize)
     nettyConfig.setHttpClientCodecMaxChunkSize(configuration.http.ahc.httpClientCodecMaxChunkSize)
     nettyConfig.setNettyWebSocketFactory(new NettyWebSocketFactory {
-      override def newNettyWebSocket(channel: Channel): NettyWebSocket = new NettyWebSocket(channel, new JArrayList[WebSocketListener](1))
+      override def newNettyWebSocket(channel: Channel, nettyConfig: NettyAsyncHttpProviderConfig): NettyWebSocket =
+        new NettyWebSocket(channel, nettyConfig, new JArrayList[WebSocketListener](1))
     })
     nettyConfig
   }
