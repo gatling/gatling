@@ -12,11 +12,11 @@ object Dependencies {
   private def scalaCompiler(version: String) = "org.scala-lang"                         % "scala-compiler"              % version
   private def scalaReflect(version: String)  = "org.scala-lang"                         % "scala-reflect"               % version
   private def scalaSwing(version: String)    = "org.scala-lang"                         % "scala-swing"                 % version
-  private val ahc                            = "com.ning"                               % "async-http-client"           % "1.9.0-BETA6"
+  private val ahc                            = "io.gatling"                             % "async-http-client"           % "1.9.0-BETA6-gatling-1"
   private val netty                          = "io.netty"                               % "netty"                       % "3.9.2.Final"
   private val akkaActor                      = "com.typesafe.akka"                     %% "akka-actor"                  % akkaVersion
   private val config                         = "com.typesafe"                           % "config"                      % "1.2.1"
-  private val saxon                          = "net.sf.saxon"                           % "Saxon-HE"                    % "9.5.1-6"      classifier "compressed"
+  private val saxon                          = "net.sf.saxon"                           % "Saxon-HE"                    % "9.5.1-6"               classifier "compressed"
   private val slf4jApi                       = "org.slf4j"                              % "slf4j-api"                   % "1.7.7"
   private val fastring                       = "com.dongxiguo"                         %% "fastring"                    % "0.2.4"
   private val threetenbp                     = "org.threeten"                           % "threetenbp"                  % "1.0"
@@ -40,13 +40,14 @@ object Dependencies {
   /** Test dependencies **/
   /***********************/
 
-  private val scalaTest                      = "org.scalatest"                         %% "scalatest"                   % "2.2.0"         % "test"
-  private val akkaTestKit                    = "com.typesafe.akka"                     %% "akka-testkit"                % akkaVersion     % "test"
-  private val mockitoCore                    = "org.mockito"                            % "mockito-core"                % "1.9.5"         % "test"
-  private val activemqCore                   = "org.apache.activemq"                    % "activemq-broker"             % "5.8.0"         % "test"
-  private val sprayCan                       = "io.spray"                               % "spray-can"                   % "1.3.1"         % "test"
+  private val scalaTest                      = "org.scalatest"                         %% "scalatest"                   % "2.2.0"                 % "test"
+  private val akkaTestKit                    = "com.typesafe.akka"                     %% "akka-testkit"                % akkaVersion             % "test"
+  private val mockitoCore                    = "org.mockito"                            % "mockito-core"                % "1.9.5"                 % "test"
+  private val activemqCore                   = "org.apache.activemq"                    % "activemq-broker"             % "5.8.0"                 % "test"
+  private val sprayCan                       = "io.spray"                               % "spray-can"                   % "1.3.1"                 % "test"
 
-  private val testDeps = Seq(scalaTest, akkaTestKit, mockitoCore, sprayCan)
+  private val testDeps = Seq(scalaTest, akkaTestKit, mockitoCore)
+  private val httpTestDeps = Seq(sprayCan)
   private val jmsTestDeps = Seq(activemqCore)
 
   /****************************/
@@ -64,7 +65,7 @@ object Dependencies {
 
   val redisDependencies = redisClient +: testDeps
 
-  val httpDependencies = Seq(ahc, netty, jzlib) ++ testDeps
+  val httpDependencies = Seq(ahc, netty, jzlib) ++ testDeps ++ httpTestDeps
 
   val jmsDependencies = Seq(jmsApi, lru) ++ testDeps ++ jmsTestDeps
 
