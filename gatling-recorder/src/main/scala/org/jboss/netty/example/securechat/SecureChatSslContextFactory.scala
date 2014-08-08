@@ -59,7 +59,7 @@ object SecureChatSslContextFactory extends StrictLogging {
   val Protocol = "TLS"
   val PropertyKeystorePath = "gatling.recorder.keystore.path"
   val PropertyKeystorePassphrase = "gatling.recorder.keystore.passphrase"
-  val DefaultKeyStore = "gatling.jks"
+  val DefaultKeyStore = "/gatling.jks"
   val DefaultKeyStorePassphrase = "gatling"
 
   val ServerContext: SSLContext = {
