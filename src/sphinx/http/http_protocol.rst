@@ -49,7 +49,7 @@ This base URL will be prepended to all urls that does not start with ``http``, e
       .get("http://other.website.tld") // Will make a request on "http://other.website.tld"
     ...
 
-  setUp(scn.protocolConfig(httpConf)...)
+  setUp(scn.protocols(httpConf)...)
 
 Load testing several servers with client based load balancing
 -------------------------------------------------------------
