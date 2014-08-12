@@ -49,7 +49,7 @@ object RequestTemplate {
 
       def renderBodyOrParams: Fastring = request.body.map {
         case RequestBodyBytes(_) => fast"""
-			.body(RawFileBody("${simulationClass}_request_${request.id}.txt"))"""
+			.body(RawFileBody("${simulationClass}_request_${request.id.filled(4, '0')}.txt"))"""
         case RequestBodyParams(params) => params.map {
           case (key, value) => fast"""
 			.formParam(${protectWithTripleQuotes(key)}, ${protectWithTripleQuotes(value)})"""
