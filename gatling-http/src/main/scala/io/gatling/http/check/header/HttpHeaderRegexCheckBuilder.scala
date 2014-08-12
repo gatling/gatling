@@ -44,9 +44,9 @@ class HttpHeaderRegexCheckBuilder[X](private[header] val headerName: Expression[
     pattern <- pattern(session)
   } yield (headerName, pattern)
 
-  def findExtractor(occurrence: Int) = headerAndPattern.map(new SingleHttpHeaderRegexExtractor[X](_, occurrence))
+  def findExtractor(occurrence: Int) = headerAndPattern.map(new SingleHttpHeaderRegexExtractor(_, occurrence))
 
-  def findAllExtractor = headerAndPattern.map(new MultipleHttpHeaderRegexExtractor[X](_))
+  def findAllExtractor = headerAndPattern.map(new MultipleHttpHeaderRegexExtractor(_))
 
   def countExtractor = headerAndPattern.map(new CountHttpHeaderRegexExtractor(_))
 }
