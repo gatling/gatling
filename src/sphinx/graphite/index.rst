@@ -114,7 +114,7 @@ Examples
 
 All the following charts have been done with this line mode : ``Graph Options\Line Mode\Connected Line``
 
-Graphing the ``.max`` is usally a good start to monitor a given request.
+Graphing the ``.max`` is usually a good start to monitor a given request.
 
 .. image:: img/max.png
   :alt: MaxEvolution

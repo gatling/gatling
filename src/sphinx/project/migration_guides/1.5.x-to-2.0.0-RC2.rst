@@ -43,9 +43,9 @@ Necessary imports
 -----------------
 
 * ``akka.util.duration`` classes have been ported to the ``scala.concurrent.duration`` package. Simply replace ``import akka.util.duration._`` by ``import scala.concurrent.duration._``.
-* ``import bootstrap._`` and ``import assertions._`` are now unecessary and have to be removed.
-* ``import com.excilys.ebi.gatling.http.Headers.Names._`` is now unneccesary, headers names are now directly available from `HeaderNames`.
-* ``import com.excilys.ebi.gatling.http.Headers.Values._`` is now unneccesary, headers values are now directly available from `HeaderValues`.
+* ``import bootstrap._`` and ``import assertions._`` are now unnecessary and have to be removed.
+* ``import com.excilys.ebi.gatling.http.Headers.Names._`` is now unnecessary, headers names are now directly available from `HeaderNames`.
+* ``import com.excilys.ebi.gatling.http.Headers.Values._`` is now unnecessary, headers values are now directly available from `HeaderValues`.
 
 
 Protocols setup

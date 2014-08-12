@@ -18,4 +18,4 @@ Gatling doesn't have a cluster mode yet, but you can achieve similar results man
 * generate the reports with Gatling with the ``-ro name-of-the-simulation-folder`` (reports only), Gatling will pick all the files that match ``.*\.log``
 
 .. note::
-    If you want to use assertions on the consolidated results, you have to deploy the simulation on the consoldating node and force it through the ``-s`` option
+    If you want to use assertions on the consolidated results, you have to deploy the simulation on the consolidating node and force it through the ``-s`` option
