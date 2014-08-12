@@ -35,7 +35,7 @@ Base URL
 --------
 
 As you may have seen in the previous example, you can set a base URL.
-This base URL will be prepended to all urls that does not start with ``http``, eg::
+This base URL will be prepended to all urls that does not start with ``http``, e.g.::
 
   val httpConf = http.baseURL("http://my.website.tld")
 

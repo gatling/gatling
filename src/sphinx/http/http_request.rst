@@ -41,7 +41,7 @@ Gatling provides built-ins for the most common methods. Those are simply the met
 * ``patch(url: Expression[String])``
 * ``options(url: Expression[String])``
 
-.. note:: These methods are the ones used in REST webservices and RESTful applications; thus, such services can be tested with Gatling.
+.. note:: These methods are the ones used in REST web services and RESTful applications; thus, such services can be tested with Gatling.
 
 Gatling also supports custom methods (e.g. you can use the method *PURGE* to purge Nginx cache):
 

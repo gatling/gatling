@@ -30,12 +30,12 @@ Moreover, Gatling EL provide the following built-in functions::
   "${foo.bar}"      // returns the value associated with key `bar` if `foo` is a map
   "${foo._2}"       // returns second element of Tuple or Pair object
 
-You can also combine different Galing EL builtin functions. For example if ``foo`` is a List of Lists ``${foo(0)(0)}`` will return first element of the first list in ``foo``. ``${foo.list.random()}`` will return random element from an indexable collection associated with key ``list`` in a map ``foo``.
+You can also combine different Gatling EL builtin functions. For example if ``foo`` is a List of Lists ``${foo(0)(0)}`` will return first element of the first list in ``foo``. ``${foo.list.random()}`` will return random element from an indexable collection associated with key ``list`` in a map ``foo``.
  
 Gatling EL supports the following indexable collections: java.util.List, Seq and Array. It also supports both Scala and Java maps. Function ``.size`` supports any Scala or Java collection.
 
 .. warning::
-  This Expression Language only works on the final value that is passed to the DSL method when the Simulation is instanciated.
+  This Expression Language only works on the final value that is passed to the DSL method when the Simulation is instantiated.
 
   For example, ``queryParam("latitude", "${latitude}".toInt + 24)`` won't work,
   the program will blow on ``"${latitude}".toInt`` as this String can't be parsed into an Int.

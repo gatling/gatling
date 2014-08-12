@@ -11,7 +11,7 @@ Global menu points to consolidated statistics.
 
 Details menu points to per-request-type statistics.
 
-.. note:: Reports can be generated from the simulation.log file even if the scenario was interrupted (Ctrl+C ou process killed), use the ``-ro`` option.
+.. note:: Reports can be generated from the simulation.log file even if the scenario was interrupted (Ctrl+C or process killed), use the ``-ro`` option.
           See :ref:`Configuration page <gatling-cli-options>`.
 
 Indicators

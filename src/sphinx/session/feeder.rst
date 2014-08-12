@@ -136,7 +136,7 @@ Only JDBC4 drivers are supported, so that they automatically registers to the Dr
 Sitemap feeder
 ==============
 
-Gatling suppports a feader that reads data from a `Sitemap <http://www.sitemaps.org/protocol.html>`_ file.
+Gatling supports a feeder that reads data from a `Sitemap <http://www.sitemaps.org/protocol.html>`_ file.
 
 ::
 
