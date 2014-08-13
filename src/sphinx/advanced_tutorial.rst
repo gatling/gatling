@@ -62,7 +62,7 @@ Let's increase the number of users.
 
 Let's define two populations of users:
   * *regular* users: they can search and browse computer models.
-  * *admin* users: they can search, browser and also edit computer models.
+  * *admin* users: they can search, browse and also edit computer models.
 
 Translating into a scenario this gives::
 
