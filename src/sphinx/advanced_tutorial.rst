@@ -133,7 +133,7 @@ Let's then declare a feeder and use it to feed our users with the above data::
 
 Explanations:
   1. First we create a feeder from a csv file with the following columns: *searchCriterion*, *searchComputerName*.
-  2. As the default feeder strategy is *queue*, we will use the *random* stragegy for this test to avoid feeder starvation.
+  2. As the default feeder strategy is *queue*, we will use the *random* strategy for this test to avoid feeder starvation.
   3. Every time a user reaches the feed step, it picks a random record from the feeder.
      This user has two new session attributes named *searchCriterion*, *searchComputerName*.
   4. We use session data through Gatling's EL to parameterize the search.
