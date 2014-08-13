@@ -53,7 +53,7 @@ Gatling provides several builtins for reading character-separated values files.
 
 Files are expected to be placed in the ``data`` directory in Gatling distribution. This location can be overridden, see :ref:`configuration`.
 
-By default, our parser respects `RFC4180 <https://www.ietf.org/rfc/rfc4180.txt>`_, so don't expect behaviors that don't honour this specification.
+By default, our parser respects `RFC4180 <https://www.ietf.org/rfc/rfc4180.txt>`_, so don't expect behaviors that don't honor this specification.
 
 For example, a very classic pitfall is trailing spaces in header names: they don't get trimmed.
 
