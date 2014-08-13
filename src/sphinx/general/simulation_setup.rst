@@ -55,12 +55,12 @@ Global Pause configuration
 The pauses can be configure on ``Simulation`` with a bunch of methods:
 
 * ``disablePauses``: disable the pauses for the simulation
-* ``constantPauses``: the pause durations are precisely those filled in the ``pause(duration)`` element.
-* ``exponentialPauses``: the pause durations are on average those filled in the ``pause(duration)`` element and follow an exponential distribution.
+* ``constantPauses``: the duration of each pause is precisely that specified in the ``pause(duration)`` element.
+* ``exponentialPauses``: the duration of each pause is on average that specified in the ``pause(duration)`` element and follow an exponential distribution.
 * ``customPauses(custom: Expression[Long])``: the pause duration is computed by the provided ``Expression[Long]``.
   In this case the filled duration is bypassed.
 * ``uniformPauses(plusOrMinus: Double)`` and ``uniformPauses(plusOrMinus: Duration)``:
-  the pause durations are on average those filled in the ``pause(duration)`` element and follow an uniform distribution.
+  the duration of each pause is on average that specified in the ``pause(duration)`` element and follow a uniform distribution.
 
 .. note:: Pause definition can also be configured at scenario level.
 

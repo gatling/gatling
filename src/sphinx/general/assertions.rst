@@ -43,7 +43,7 @@ For example, to perform an assertion on the request ``Index`` in the group ``Sea
 Statistics
 ==========
 
-* ``responseTime``: target the reponse time in milliseconds.
+* ``responseTime``: target the response time in milliseconds.
 
 * ``allRequests``: target the number of requests.
 

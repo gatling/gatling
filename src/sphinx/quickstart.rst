@@ -43,9 +43,9 @@ A Word on Scala
 ---------------
 
 Gatling simulation scripts are written in `Scala <http://www.scala-lang.org/>`_, **but don't panic!** You can use all the basic functions of Gatling without knowing much about Scala.
-In most situations, the DSL will cover most of your needs and you'll be able to build your scenarios.
+In most situations the DSL will cover most of your needs and you'll be able to build your scenarios.
 
-If you are interested in knowing more about Scala, we then recommend that you have a look at `Twitter's Scala School <http://twitter.github.io/scala_school>`_.
+If you are interested in knowing more about Scala, then we recommend that you have a look at `Twitter's Scala School <http://twitter.github.io/scala_school>`_.
 
 .. note::
   Feel also free to join our `Google Group`_ and ask for help.
@@ -60,7 +60,7 @@ Application under Test
 
 In this tutorial, we will use an application named *Computer-Database* deployed at the URL: `<http://computer-database.heroku.com>`__.
 
-This application is a simple CRUD application for managing computer models, and was one of `Play! <http://www.playframework.com/>`_ samples.
+This application is a simple CRUD application for managing computer models, and was one of the `Play! <http://www.playframework.com/>`_ samples.
 
 You can also run it on your local machine: download Play! 2.2.x's bundle and check out `the samples <https://github.com/playframework/playframework/tree/2.2.x/samples/scala/computer-database>`__.
 
@@ -89,7 +89,7 @@ This tool is launched with a script located in the *bin* directory::
 
   ~$ $GATLING_HOME/bin/recorder.sh/bat
 
-Once launched, you get the following GUI, which lets use configure how requests and response will be recorded.
+Once launched, the following GUI lets you configure how requests and responses will be recorded.
 
 Set it up with the following options:
   * *computerdatabase* package
@@ -109,7 +109,7 @@ After configuring the recorder, all you have to do is to start it and configure 
 Recording the scenario
 ----------------------
 
-All you have to do now is to browse the application:  
+Now simply browse the application:
   #. Enter 'Search' tag.
   #. Go to the website: http://computer-database.heroku.com
   #. Search for models with 'macbook' in their name.
@@ -170,7 +170,7 @@ What does it mean?
 4. The common configuration to all HTTP requests.
 
 .. note::
-  ``val`` is the keyword for defining a non-re-assignable value.
+  ``val`` is the keyword for defining a constant value.
   Types are not defined and are inferred by the Scala compiler.
 
 5. The baseURL that will be prepended to all relative urls.
@@ -181,9 +181,9 @@ What does it mean?
 10. Some pause/think time.
 
 .. note::
-  Duration unit defaults to ``seconds``, e.g. ``pause(5)`` is equivalent to ``pause(5 seconds)``.
+  Duration units default to ``seconds``, e.g. ``pause(5)`` is equivalent to ``pause(5 seconds)``.
 
-11. Where one set ups the scenarios that will be launched in this Simulation.
+11. Where one sets up the scenarios that will be launched in this Simulation.
 12. Declaring to inject into scenario named *scn* one single user.
 13. Attaching the HTTP configuration declared above.
 

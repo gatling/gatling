@@ -102,7 +102,7 @@ To import a HAR file, select the *HAR converter* mode in the top right dropdown 
 Certificates
 ============
 
-Recording browsers' http traffic over ssl is possible ususally as the browser allows the user the option to accept a self signed certificate.
+Recording browsers' http traffic over ssl is possible usually as the browser allows the user the option to accept a self signed certificate.
 Devices other than browsers may not provide that option, making it impossible to record SSL traffic on those devices.
 
 A set of certificates can be generated to allow devices to trust the recorder proxy.
@@ -111,7 +111,7 @@ As creating fake certificates in this way could be misused the lifetime of the c
 
 Steps:
 
-* Generate a Certificate Authority certficate
+* Generate a Certificate Authority certificate
 * Generate a server certificate signed by the CA certificate for the proxy. The certificate is generated against the site domain name(s) being recorded
 * Import the server certificate and Chain (CA cert) into a java keystore
 * Import the CA certificate into the Device/Client
@@ -143,7 +143,7 @@ OpenSSL commands::
 Configuring / Set up
 --------------------
 
-Install the CA certficate into the client device - gatlingCA.crt
+Install the CA certificate into the client device - gatlingCA.crt
 
 Configure the recorder to use the custom java keystore - gatling-custom.jks
 

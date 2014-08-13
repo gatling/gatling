@@ -31,7 +31,7 @@ OS tuning
 =========
 
 Gatling can consume a very large number of open file handles during normal operation.
-Typically, OSes limit this, so you will have to tweak a few options so you can massively open new sockets and reach heavy load.
+Typically, operating systems limit this number, so you may have to tweak a few options in your chosen OS so that you can open *many* new sockets and achieve heavy load.
 
 Changing the limit
 ------------------
@@ -56,14 +56,13 @@ To permanently set the soft and hard values *for all users of the system* to all
 
 Save the file. Start a new session so that the limits take effect. You can now verify with ``ulimit -a`` that the limits are correctly set.
 
-For Debian & Ubuntu, you should enable PAM user limits. To do so, add ``session required pam_limits.so`` in:
+For Debian and Ubuntu, you should enable PAM user limits. To do so, add ``session required pam_limits.so`` in:
 
 * ``/etc/pam.d/common-session``
 * ``/etc/pam.d/common-session-noninteractive`` if the file exists
 * ``/etc/pam.d/sshd`` if you access the machine via SSH
 
 Also, if accessing the machine via SSH, be sure to have ``UseLogin yes`` in ``/etc/ssh/sshd_config``
-
 
 For more tuning, you may want to do the following:
 
@@ -75,9 +74,6 @@ For more tuning, you may want to do the following:
   # increase the maximum number of possible open file descriptors:
   echo 300000 | sudo tee /proc/sys/fs/nr_open
   echo 300000 | sudo tee /proc/sys/fs/file-max
-
-
-
 
 Mac OS/X
 ^^^^^^^^

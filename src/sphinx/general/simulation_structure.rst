@@ -82,7 +82,7 @@ The above example produces a POST HTTP request that creates a new computer model
 Simulation definitions
 ======================
 
-The last part of the file contains the simulation definition, this is where you define the load you want to inject to your server, eg::
+The last part of the file contains the simulation definition, this is where you define the load you want to inject to your server, e.g.::
 
   setUp(
     scn.inject(atOnceUsers(1)) // (1)
