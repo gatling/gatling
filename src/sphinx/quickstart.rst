@@ -60,7 +60,7 @@ Application under Test
 
 In this tutorial, we will use an application named *Computer-Database* deployed at the URL: `<http://computer-database.heroku.com>`__.
 
-This application is a simple CRUD application for managing computer models, and was one of the `Play! <http://www.playframework.com/>`_ samples.
+This application is a simple CRUD application for managing computer models, and was a sample for the `Play Framework <http://www.playframework.com/>`_.
 
 You can also run it on your local machine: download Play! 2.2.x's bundle and check out `the samples <https://github.com/playframework/playframework/tree/2.2.x/samples/scala/computer-database>`__.
 
