@@ -67,7 +67,7 @@ class ResponseBuilder(request: Request,
 
   val computeChecksums = checksumChecks.nonEmpty
   var storeHtmlOrCss = false
-  var firstByteSent = nowMillis
+  var beforeRequest = nowMillis
   var lastByteSent = 0L
   var firstByteReceived = 0L
   var lastByteReceived = 0L
@@ -84,10 +84,10 @@ class ResponseBuilder(request: Request,
     else
       Map.empty[String, MessageDigest]
 
-  def updateFirstByteSent(): Unit = firstByteSent = nowMillis
+  def updateFirstByteSent(): Unit = {} // firstByteSent = nowMillis
 
   def reset(): Unit = {
-    firstByteSent = nowMillis
+    beforeRequest = nowMillis
     lastByteSent = 0L
     firstByteReceived = 0L
     lastByteReceived = 0L
@@ -130,10 +130,6 @@ class ResponseBuilder(request: Request,
 
   def build: Response = {
 
-    // time measurement is imprecise due to multi-core nature
-    // moreover, ProgressListener might be called AFTER ChannelHandler methods 
-    // ensure request doesn't end before starting
-    lastByteSent = max(lastByteSent, firstByteSent)
     // ensure response doesn't start before request ends
     firstByteReceived = max(firstByteReceived, lastByteSent)
     // ensure response doesn't end before starting
@@ -166,7 +162,7 @@ class ResponseBuilder(request: Request,
       else
         ByteArrayResponseBody(chunks, charset)
 
-    val rawResponse = HttpResponse(request, status, headers, body, checksums, bodyLength, charset, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
+    val rawResponse = HttpResponse(request, status, headers, body, checksums, bodyLength, charset, beforeRequest, lastByteSent, firstByteReceived, lastByteReceived)
 
     responseProcessor match {
       case Some(processor) => processor.applyOrElse(rawResponse, identity[Response])

@@ -90,7 +90,7 @@ Latency over time
     :alt: LatencyOverTime
     :scale: 70
 
-The latency is the duration between the end of the request send and the beginning of the response receive.
+The latency is the duration between the start of the request send and the beginning of the response receive.
 This chart shows the latency distribution over time for the given request.
 
 Response Time against load
