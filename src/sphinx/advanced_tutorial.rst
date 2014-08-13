@@ -133,10 +133,10 @@ Let's then declare a feeder and use it to feed our users with the above data::
 
 Explanations:
   1. First we create a feeder from a csv file with the following columns: *searchCriterion*, *searchComputerName*.
-  2. The default feeder strategy is queue, for this test, we use random in order to avoid feeder starvation.
-  3. Every time a user reaches the feed step, it pops a record from the feeder.
+  2. As the default feeder strategy is *queue*, we will use the *random* stragegy for this test to avoid feeder starvation.
+  3. Every time a user reaches the feed step, it picks a random record from the feeder.
      This user has two new session attributes named *searchCriterion*, *searchComputerName*.
-  4. We use session data utilising Gatling's EL to parameterize the search.
+  4. We use session data through Gatling's EL to parameterize the search.
   5. We use a regex with an EL to capture a part of the HTML response, here a hyperlink, and save it in the user session with the name *computerURL*.
      Note how Scala triple quotes are handy: you don't have to escape double quotes inside the regex with backslashes.
   6. We use the previously saved hyperlink to get a specific page.
