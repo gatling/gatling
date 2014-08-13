@@ -289,7 +289,7 @@ Similar to ``doIfOrElse`` but tests the equality of an expected and an actual va
 ``doSwitch``
 ^^^^^^^^^^^^
 
-Add a switch in the chain. Every possible subchain is defined with a key.
+Add a switch in the chain. Every possible sub-chain is defined with a key.
 Switch is selected through the matching of a key with the evaluation of the passed expression.
 If no switch is selected, the switch is bypassed.
 ::
@@ -339,7 +339,7 @@ Once users are done with the switch, they simply continue with the rest of the s
 ``randomSwitchOrElse``
 ^^^^^^^^^^^^^^^^^^^^^^
 
-Similar to ``randomSwitch``, but with a fallback if no switch is selected (ie: random number exceeds percentages sum).
+Similar to ``randomSwitch``, but with a fallback if no switch is selected (i.e.: random number exceeds percentages sum).
 ::
 
   .randomSwitchOrElse( // beware: use parentheses, not curly braces!
@@ -438,7 +438,7 @@ Groups can be nested.
 When using groups, statistics calculated for each request are aggregated in the parent group.
 Aggregated statistics are displayed on the report like request statistics.
 
-Computed cumulated times currently include pauses.
+Computed cumulative times currently include pauses.
 
 .. _scenario-protocols:
 

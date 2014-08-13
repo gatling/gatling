@@ -58,7 +58,7 @@ Either disable this feature, or change the target url. See documentation :ref:`h
 * **The compiler complains my Simulation class is too big**
 
 Scala classes have the same limitations as Java ones.
-For example, the amount of code inside a method can't exceed 64ko.
+For example, the amount of code inside a method can't exceed 64Kb.
 
 If you are in this case (for example, you recorded a big maven installation), you should consider refactoring things a little bit.
 
