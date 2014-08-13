@@ -105,7 +105,7 @@ For more information, check the :ref:`Feeders reference section <feeder>`.
 Checks
 ======
 
-Each time a request is sent to the server, a response is sent, by the server, back to Gatling.
+Each time a request is sent to the server, a response is normally sent, by the server, back to Gatling.
 
 Gatling is able to analyze this response with *Checks*.
 
