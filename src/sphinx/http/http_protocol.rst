@@ -218,7 +218,7 @@ Response handling parameters
 Follow redirects
 ----------------
 
-By default Gatling automatically follow redirects in case of 301 or 302 response status code, you can disable this behaviour with ``.disableFollowRedirect``.
+By default Gatling automatically follow redirects in case of 301 or 302 response status code, you can disable this behavior with ``.disableFollowRedirect``.
 
 To avoid infinite redirection loops, you can specify a number max of redirects with:  ``maxRedirects(max: Int)``
 
@@ -228,7 +228,7 @@ Response chunks discarding
 --------------------------
 
 Beware that, as an optimization, Gatling doesn't keep response chunks unless a check is defined on the response body or that debug logging is enabled.
-However some people might want to always keep the response chunks, thus you can disable the default behaviour with ``disableResponseChunksDiscarding``.
+However some people might want to always keep the response chunks, thus you can disable the default behavior with ``disableResponseChunksDiscarding``.
 
 .. _http-protocol-extractor:
 
@@ -281,7 +281,7 @@ They will be apply on all the requests, however you can disable them for given r
 Resource inferring
 ------------------
 
-Gatling can fetch resources in parallel in order to emulate the behaviour of a real web browser.
+Gatling can fetch resources in parallel in order to emulate the behavior of a real web browser.
 
 At the protocol level, you can use ``inferHtmlResources`` methods, so Gatling will automatically parse HTML to find embedded resources and load them asynchronously.
 

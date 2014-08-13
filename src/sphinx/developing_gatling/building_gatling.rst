@@ -7,7 +7,7 @@ Building Gatling
 Introduction
 ============
 
-As stated in the :ref:`Licenses section <license>`, Gatling is divided into two subprojects :
+As stated in the :ref:`Licenses section <license>`, Gatling is divided into two sub-projects :
 
 * Gatling, the core engine
 * Gatling Highcharts, the charting engine

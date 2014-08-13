@@ -135,9 +135,9 @@ Basically, Gatling/JVM's DNS cache has to tuned. A solution is to add ``-Dsun.ne
 
 * **I get some "bad_record_mac" Exceptions over SSL**
 
-This seems to be a Hostpot JDK7 bug and affects all Java programs, for example: https://github.com/rubygems/rubygems.org/issues/615.
+This seems to be a Hotspot JDK7 bug and affects all Java programs, for example: https://github.com/rubygems/rubygems.org/issues/615.
 
-OpenJDK 7 and Hostpot JDK8 seem to be fine.
+OpenJDK 7 and Hotspot JDK8 seem to be fine.
 
 
 .. _faq-method_too_large:

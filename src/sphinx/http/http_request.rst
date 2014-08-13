@@ -367,7 +367,7 @@ You can add a multipart body to an HTTP request and add parts with the dedicated
 * ``StringBodyPart(name: Expression[String], string: Expression[String])``
 * ``ByteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte])``
 
-Once bootstrapped, BodyPart have the following methods for setting additional optional information:
+Once bootstrapped, BodyPart has the following methods for setting additional optional information:
 
 * ``contentType(contentType: String)``
 * ``charset(charset: String)``, part of of ``Content-Type`` header. If not set, defaults to the one from ``gatling.conf`` file.
@@ -417,7 +417,7 @@ The example below shows how to decode some Base64 encoded response body::
 Resources
 ---------
 
-Gatling allow to fetch resources in parallel in order to emulate the behaviour of a real web browser.
+Gatling allow to fetch resources in parallel in order to emulate the behavior of a real web browser.
 
 At the request level you can use the ``resources(res: AbstractHttpRequestBuilder[_]*)`` method.
 

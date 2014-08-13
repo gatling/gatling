@@ -10,7 +10,7 @@ Global changes
 Gatling requires at least JDK7u6
 --------------------------------
 
-As targeting newer JDKs provides bug fixes, speed improvements and opens opportunities for optimizations,
+As targeting newer JDKs provides bug fixes, speed improvements and opens opportunities for optimization,
 Gatling now requires at least a JDK7u6 (released almost two years ago already).
 
 
@@ -162,7 +162,7 @@ HTTP
 Protocol
 --------
 
-HTTP protocol boostrapper, ``httpProtocol``, has been renamed to ``http``.
+HTTP protocol bootstrapper, ``httpProtocol``, has been renamed to ``http``.
 
 Query parameters
 ----------------
