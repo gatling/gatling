@@ -417,6 +417,7 @@ Quite similar to tryMax, but without looping on failure.
 ^^^^^^^^^^^^^^^^^^^^
 
 ::
+
   .exitHereIfFailed
 
 Make the user exit the scenario from this point if it previously had an error.
