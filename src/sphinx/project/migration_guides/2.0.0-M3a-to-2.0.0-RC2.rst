@@ -10,7 +10,7 @@ Global changes
 Gatling requires at least JDK7u6
 --------------------------------
 
-As targeting newer JDKs provides bug fixes, speed improvements and opens opportunities for optimizations,
+As targeting newer JDKs provides bug fixes, speed improvements and opens opportunities for optimization,
 Gatling now requires at least a JDK7u6 (released almost two years ago already).
 
 Gatling is now available on Maven Central
@@ -46,7 +46,7 @@ Checks
 ------
 
 * ``whatever`` has been renamed to ``dontValidate``.
-* ``transform`` now no longer takes and returns an ``Option[T]`` and takes and returns *plain* types, but ``transformOption`` provides the same functionnality as ``transform`` did.
+* ``transform`` now no longer takes and returns an ``Option[T]`` and takes and returns *plain* types, but ``transformOption`` provides the same functionality as ``transform`` did.
 
 HTTP
 ====

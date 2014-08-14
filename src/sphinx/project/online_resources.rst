@@ -41,7 +41,7 @@ Articles
 * Martin Braun - `Web application load testing - and why you should consider Gatling <http://blog.braun.io/2013/12/web-application-load-testing-and-why.html>`_
 * Shanker Balan - `Log Replay, Simulation And Stress Testing With Gatling <http://shankerbalan.net/blog/log-replay-simulation-and-stress-testing-with-gatling/>`_
 * Clément Lardeur - `Getting Started with Gatling - alternative to JMeter <http://clardeur.blogspot.fr/2013/07/getting-started-gatling-alternative-jmeter.html>`_
-* Liu Ran - `New Generation Server Testing-tool (in chinese) <http://www.infoq.com/cn/articles/new-generation-server-testing-tool-gatling>`_
+* Liu Ran - `New Generation Server Testing-tool (in Chinese) <http://www.infoq.com/cn/articles/new-generation-server-testing-tool-gatling>`_
 * Brian Cain - `Puppet, Gatling and Jenkins Together <http://puppetlabs.com/blog/puppet-gatling-and-jenkins-together>`_
 * Jason Koch - `Gatling JMS API now ready for wider testing <http://fasterjava.blogspot.com.au/2013/07/gatling-jms-api-now-ready-for-wider.html>`_
 * Clément Lardeur - `Gatling, ou comment écrouler un serveur – alternative à JMeter (in french)  <http://blog.xebia.fr/2013/07/11/gatling-ou-comment-ecrouler-un-serveur-alternative-a-jmeter>`_
