@@ -25,7 +25,7 @@ import io.gatling.core.session.Expression
 trait WsJsonPathOfType {
   self: WsJsonPathCheckBuilder[String] =>
 
-  def ofType[X](implicit jsonFilter: JsonFilter[X]) = new WsJsonPathCheckBuilder[X](path, checkFactory)
+  def ofType[X: JsonFilter] = new WsJsonPathCheckBuilder[X](path, checkFactory)
 }
 
 object WsJsonPathCheckBuilder {
@@ -39,8 +39,8 @@ object WsJsonPathCheckBuilder {
     new WsJsonPathCheckBuilder[String](path, checkFactory) with WsJsonPathOfType
 }
 
-class WsJsonPathCheckBuilder[X](private[ws] val path: Expression[String],
-                                private[ws] val checkFactory: CheckFactory[WsCheck, String])(implicit jsonFilter: JsonFilter[X])
+class WsJsonPathCheckBuilder[X: JsonFilter](private[ws] val path: Expression[String],
+                                            private[ws] val checkFactory: CheckFactory[WsCheck, String])
     extends DefaultMultipleFindCheckBuilder[WsCheck, String, Any, X](
       checkFactory,
       WsJsonPathCheckBuilder.WsJsonPathPreparer) {

@@ -30,7 +30,7 @@ import io.gatling.http.response.{ ByteArrayResponseBodyUsage, InputStreamRespons
 trait HttpBodyJsonPathOfType {
   self: HttpBodyJsonPathCheckBuilder[String] =>
 
-  def ofType[X](implicit jsonFilter: JsonFilter[X]) = new HttpBodyJsonPathCheckBuilder[X](path)
+  def ofType[X: JsonFilter] = new HttpBodyJsonPathCheckBuilder[X](path)
 }
 
 object HttpBodyJsonPathCheckBuilder extends StrictLogging {
@@ -87,7 +87,7 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
   def jsonPath(path: Expression[String]) = new HttpBodyJsonPathCheckBuilder[String](path) with HttpBodyJsonPathOfType
 }
 
-class HttpBodyJsonPathCheckBuilder[X](private[body] val path: Expression[String])(implicit jsonFilter: JsonFilter[X])
+class HttpBodyJsonPathCheckBuilder[X: JsonFilter](private[body] val path: Expression[String])
     extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Any, X](
       HttpCheckBuilders.bodyCheckFactory(HttpBodyJsonPathCheckBuilder.ResponseBodyUsageStrategy),
       HttpBodyJsonPathCheckBuilder.Preparer) {

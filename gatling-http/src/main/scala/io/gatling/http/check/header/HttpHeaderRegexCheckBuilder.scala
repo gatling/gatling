@@ -25,7 +25,7 @@ import io.gatling.http.response.Response
 trait HttpHeaderRegexOfType {
   self: HttpHeaderRegexCheckBuilder[String] =>
 
-  def ofType[X](implicit groupExtractor: GroupExtractor[X]) = new HttpHeaderRegexCheckBuilder[X](headerName, pattern)
+  def ofType[X: GroupExtractor] = new HttpHeaderRegexCheckBuilder[X](headerName, pattern)
 }
 
 object HttpHeaderRegexCheckBuilder {
@@ -34,7 +34,7 @@ object HttpHeaderRegexCheckBuilder {
     new HttpHeaderRegexCheckBuilder[String](headerName, pattern) with HttpHeaderRegexOfType
 }
 
-class HttpHeaderRegexCheckBuilder[X](private[header] val headerName: Expression[String], val pattern: Expression[String])(implicit groupExtractor: GroupExtractor[X])
+class HttpHeaderRegexCheckBuilder[X: GroupExtractor](private[header] val headerName: Expression[String], val pattern: Expression[String])
     extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Response, X](
       HeaderCheckFactory,
       PassThroughResponsePreparer) {

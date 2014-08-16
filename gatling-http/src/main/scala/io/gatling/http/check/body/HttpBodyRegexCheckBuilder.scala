@@ -24,7 +24,7 @@ import io.gatling.http.response.Response
 
 trait HttpBodyRegexOfType { self: HttpBodyRegexCheckBuilder[String] =>
 
-  def ofType[X](implicit groupExtractor: GroupExtractor[X]) = new HttpBodyRegexCheckBuilder[X](expression)
+  def ofType[X: GroupExtractor] = new HttpBodyRegexCheckBuilder[X](expression)
 }
 
 object HttpBodyRegexCheckBuilder {
@@ -32,7 +32,7 @@ object HttpBodyRegexCheckBuilder {
   def regex(expression: Expression[String]) = new HttpBodyRegexCheckBuilder[String](expression) with HttpBodyRegexOfType
 }
 
-class HttpBodyRegexCheckBuilder[X](private[body] val expression: Expression[String])(implicit groupExtractor: GroupExtractor[X])
+class HttpBodyRegexCheckBuilder[X: GroupExtractor](private[body] val expression: Expression[String])
     extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, CharSequence, X](
       StringBodyCheckFactory,
       ResponseBodyStringPreparer) {

@@ -25,7 +25,7 @@ import io.gatling.http.check.body.HttpBodyJsonpJsonPathCheckBuilder
 trait WsJsonpJsonPathOfType {
   self: WsJsonpJsonPathCheckBuilder[String] =>
 
-  def ofType[X](implicit jsonFilter: JsonFilter[X]) = new WsJsonpJsonPathCheckBuilder[X](path, checkFactory)
+  def ofType[X: JsonFilter] = new WsJsonpJsonPathCheckBuilder[X](path, checkFactory)
 }
 
 object WsJsonpJsonPathCheckBuilder extends StrictLogging {
@@ -36,8 +36,8 @@ object WsJsonpJsonPathCheckBuilder extends StrictLogging {
     new WsJsonpJsonPathCheckBuilder[String](path, checkFactory) with WsJsonpJsonPathOfType
 }
 
-class WsJsonpJsonPathCheckBuilder[X](private[ws] val path: Expression[String],
-                                     private[ws] val checkFactory: CheckFactory[WsCheck, String])(implicit groupExtractor: JsonFilter[X])
+class WsJsonpJsonPathCheckBuilder[X: JsonFilter](private[ws] val path: Expression[String],
+                                                 private[ws] val checkFactory: CheckFactory[WsCheck, String])
     extends DefaultMultipleFindCheckBuilder[WsCheck, String, Any, X](checkFactory,
       WsJsonpJsonPathCheckBuilder.WsJsonpPreparer) {
 
