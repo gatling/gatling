@@ -44,7 +44,7 @@ object ComponentLibrary extends StrictLogging {
 }
 
 trait ComponentLibrary {
-  def getAllSessionsJs(runStart: Long, series: Series[IntVsTimePlot]): Fastring
+  def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): Fastring
   def getActiveSessionsChartComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
   def getRequestsChartComponent(runStart: Long, allRequests: Series[IntVsTimePlot], failedRequests: Series[IntVsTimePlot], succeededRequests: Series[IntVsTimePlot], pieSeries: Series[PieSlice]): Component
   def getResponsesChartComponent(runStart: Long, allResponses: Series[IntVsTimePlot], failedResponses: Series[IntVsTimePlot], succeededResponses: Series[IntVsTimePlot], pieSeries: Series[PieSlice]): Component

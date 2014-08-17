@@ -24,9 +24,9 @@ import io.gatling.core.result.reader.DataReader
 class AllSessionsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
   def generate(): Unit = {
-    val series = new Series[IntVsTimePlot]("All Sessions", dataReader.numberOfActiveSessionsPerSecond(), List(Orange))
+    val series = new Series[IntVsTimePlot]("All Users", dataReader.numberOfActiveSessionsPerSecond(), List(Orange))
 
-    val javascript = componentLibrary.getAllSessionsJs(dataReader.runStart, series)
+    val javascript = componentLibrary.getAllUsersJs(dataReader.runStart, series)
 
     new TemplateWriter(allSessionsFile(runOn)).writeToFile(javascript)
   }

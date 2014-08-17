@@ -30,7 +30,7 @@ import io.gatling.core.result.IntVsTimePlot
  */
 class ComponentLibraryImpl extends ComponentLibrary {
 
-  def getAllSessionsJs(runStart: Long, series: Series[IntVsTimePlot]): Fastring = throw new UnsupportedOperationException
+  def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): Fastring = throw new UnsupportedOperationException
   def getActiveSessionsChartComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component = throw new UnsupportedOperationException
   def getRequestsChartComponent(runStart: Long, allRequests: Series[IntVsTimePlot], failedRequests: Series[IntVsTimePlot], succeededRequests: Series[IntVsTimePlot], pieSeries: Series[PieSlice]): Component = throw new UnsupportedOperationException
   def getResponsesChartComponent(runStart: Long, allResponses: Series[IntVsTimePlot], failedResponses: Series[IntVsTimePlot], succeededResponses: Series[IntVsTimePlot], pieSeries: Series[PieSlice]): Component = throw new UnsupportedOperationException
