@@ -72,7 +72,7 @@ class GeneralStatsBuffer(duration: Long) extends CountBuffer {
   override def update(time: Int): Unit = {
     super.update(time)
     digest.add(time)
-    sumOfSquares += time * time
+    sumOfSquares += time.toLong * time.toLong
     sum += time
   }
 
