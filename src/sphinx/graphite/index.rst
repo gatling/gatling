@@ -59,16 +59,17 @@ In ``$GATLING_HOME/conf/gatling.conf``, be sure to :
   data {
     writers = "console, file, graphite"
     reader = file
+
+    graphite {
+      host = "192.168.56.101"
+      port = 2003
+      #light = false              # only send the all* stats
+      #protocol = "tcp"           # Choose between 'tcp' or 'udp'
+      #rootPathPrefix = "gatling"
+      #bucketWidth = 100
+      #bufferSize = 8192
+    }
   }
-  graphite {
-          host = "192.168.56.101"
-          port = 2003
-          #light = false              # only send the all* stats
-          #protocol = "tcp"           # Choose between 'tcp' or 'udp'
-          #rootPathPrefix = "gatling"
-          #bucketWidth = 100
-          #bufferSize = 8192
-        }
 
 Metrics
 =======
