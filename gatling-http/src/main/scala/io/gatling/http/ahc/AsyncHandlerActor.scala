@@ -62,6 +62,7 @@ object AsyncHandlerActor extends AkkaDefaults {
     HeaderNames.Accept,
     HeaderNames.AcceptEncoding,
     HeaderNames.AcceptLanguage,
+    HeaderNames.Authorization,
     HeaderNames.Referer,
     HeaderNames.UserAgent)
 }
