@@ -21,13 +21,12 @@ import scala.swing.BorderPanel.Position._
 import scala.swing.ListView.IntervalMode.Single
 import scala.swing.Swing.pair2Dimension
 import scala.swing.event.ListSelectionChanged
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
-
 import io.gatling.recorder.ui._
 import io.gatling.recorder.ui.swing.component.TextAreaPanel
 import io.gatling.recorder.ui.swing.Commons.IconList
 import io.gatling.recorder.ui.swing.util.UIHelper._
+import java.awt.Color
 
 class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogging {
 
@@ -53,7 +52,7 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
   private val infoPanels = List(requestHeaders, requestBodies, responseHeaders, responseBodies)
 
   /* Bottom panel components */
-  private val hostsRequiringCertificates = new ListView[String]
+  private val hostsRequiringCertificates = new ListView[String]{foreground = Color.red}
 
   /**********************************/
   /**           UI SETUP           **/
@@ -173,6 +172,7 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
     events.listData = Seq.empty
     infoPanels.foreach(_.textArea.clear())
     tagField.clear()
+    hostsRequiringCertificates.listData = Seq.empty
   }
 
   /**
