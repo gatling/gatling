@@ -36,6 +36,9 @@ object UIHelper {
       listView.ensureIndexIsVisible(listView.listData.size - 1)
     }
 
+    def clear(): Unit = {
+      listView.listData = Seq.empty
+    }
   }
 
   implicit class RichTextComponent[T <: TextComponent](val textComponent: T) extends AnyVal {
