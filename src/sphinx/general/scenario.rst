@@ -436,10 +436,14 @@ Groups definition
 Create group of requests to model process or requests in a same page.
 Groups can be nested.
 
-When using groups, statistics calculated for each request are aggregated in the parent group.
-Aggregated statistics are displayed on the report like request statistics.
+.. _group-timings:
 
-Computed cumulative times currently include pauses.
+.. note::
+
+  Groups capture 2 timings described as follows:
+
+  * The response time for a group is the cumulated response time of each individual request in the group.
+  * The cumulated time for a group is the elapsed time from the start of the group's first request to the end of the group's last request, including  pauses. Groups' cumulated time are only reported in the "Cumulated response time" chart.
 
 .. _scenario-protocols:
 
