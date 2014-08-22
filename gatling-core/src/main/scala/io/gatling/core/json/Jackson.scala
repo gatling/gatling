@@ -49,4 +49,6 @@ object Jackson extends JsonParser {
       val reader = new InputStreamReader(stream, charset)
       TheObjectMapper.readValue(reader, classOf[Object])
     }
+
+  def toJsonString(obj: Any) = TheObjectMapper.writeValueAsString(obj)
 }

@@ -19,10 +19,16 @@ import scala.annotation.implicitNotFound
 import scala.collection.JavaConversions.{ asScalaBuffer, mapAsScalaMap }
 import scala.collection.breakOut
 
+import io.gatling.core.json.Jackson
+import io.gatling.core.util.TypeHelper.isAnyValOrString
+
 trait LowPriorityJsonFilterImplicits {
 
   implicit val stringJsonFilter = new JsonFilter[String] {
-    val filter: PartialFunction[Any, String] = { case e: Any => e.toString }
+    val filter: PartialFunction[Any, String] = {
+      case e: Any if isAnyValOrString(e) => e.toString
+      case e: Any                        => Jackson.toJsonString(e)
+    }
   }
 
   implicit val jBooleanJsonFilter = new JsonFilter[Boolean] {

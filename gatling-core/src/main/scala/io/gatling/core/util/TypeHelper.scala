@@ -16,10 +16,14 @@
 package io.gatling.core.util
 
 import scala.reflect.ClassTag
+import scala.reflect.runtime.universe.{ typeOf, TypeTag }
 
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object TypeHelper {
+
+  def isAnyValOrString[T: TypeTag](obj: T): Boolean =
+    implicitly[TypeTag[T]].tpe <:< typeOf[AnyVal] || obj.isInstanceOf[String]
 
   val NullValueFailure = s"Value is null".failure
 
