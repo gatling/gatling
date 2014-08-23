@@ -33,11 +33,22 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with StrictLogging {
 
   val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
+  private val init = new AtomicBoolean
   private val done = new AtomicBoolean
 
-  override def onRequestSent(): Unit = {
-    if (!done.get) responseBuilder.updateFirstByteSent()
-  }
+  private def start(): Unit =
+    if (init.compareAndSet(false, true))
+      responseBuilder.updateFirstByteSent()
+
+  override def onOpenConnection(): Unit = start()
+
+  override def onConnectionOpen(): Unit = {}
+
+  override def onPoolConnection(): Unit = {}
+
+  override def onConnectionPooled(): Unit = {}
+
+  override def onSendRequest(): Unit = start()
 
   override def onRetry(): Unit = {
     if (!done.get) responseBuilder.reset()
