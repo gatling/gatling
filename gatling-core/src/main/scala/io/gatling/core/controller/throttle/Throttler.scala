@@ -65,8 +65,8 @@ class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map
 
     val sending = !thisTickGlobalThrottler.exists(_.limitReached) && !scenarioThrottler.exists(_.limitReached)
     if (sending) {
-      thisTickGlobalThrottler.foreach(_.increment)
-      scenarioThrottler.foreach(_.increment)
+      thisTickGlobalThrottler.foreach(_.increment())
+      scenarioThrottler.foreach(_.increment())
       val delay = (requestPeriod * thisTickRequestCount).toInt - shiftInMillis
       thisTickRequestCount += 1
 

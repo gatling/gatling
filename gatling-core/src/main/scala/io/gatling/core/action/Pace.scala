@@ -45,12 +45,12 @@ class Pace(intervalExpr: Expression[Duration], counter: String, val next: ActorR
       val startTime = startTimeOpt.getOrElse(nowMillis)
       val nextStartTime = startTime + interval.toMillis
       val waitTime = startTime - nowMillis
-        def doNext = next ! session.set(counter, nextStartTime)
+        def doNext() = next ! session.set(counter, nextStartTime)
       if (waitTime > 0) {
-        scheduler.scheduleOnce(waitTime milliseconds)(doNext)
+        scheduler.scheduleOnce(waitTime milliseconds)(doNext())
       } else {
         if (startTimeOpt.isDefined) logger.info(s"Previous run overran by ${-waitTime}ms. Running immediately")
-        doNext
+        doNext()
       }
     }
   }

@@ -56,7 +56,7 @@ final class UnsyncStringWriter(initialSize: Int = 16) extends Writer {
 
   def getBuffer: JStringBuilder = buf
 
-  def flush: Unit = {}
+  def flush(): Unit = {}
 
-  def close: Unit = {}
+  def close(): Unit = {}
 }

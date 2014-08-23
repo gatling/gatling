@@ -21,8 +21,6 @@ import scala.concurrent.duration.{ DurationLong, DurationDouble, FiniteDuration 
 import scala.math.{ abs, sqrt }
 import scala.util.Random
 
-import io.gatling.core.util.Erf.erfinv
-
 trait InjectionStep {
   /**
    * Iterator of time deltas in between any injected user and the beginning of the simulation

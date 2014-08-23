@@ -56,7 +56,7 @@ final class UnsyncCharArrayWriter(bufferSize: Int = 32) extends Writer {
 
   def writeTo(out: Writer): Unit = out.write(buf, 0, count)
 
-  final def printableCharSequence(csq: CharSequence) = if (csq == null) "null" else csq
+  def printableCharSequence(csq: CharSequence) = if (csq == null) "null" else csq
 
   override def append(csq: CharSequence): UnsyncCharArrayWriter = {
     val s = printableCharSequence(csq).toString
@@ -75,7 +75,7 @@ final class UnsyncCharArrayWriter(bufferSize: Int = 32) extends Writer {
     this
   }
 
-  def reset: Unit = count = 0
+  def reset(): Unit = count = 0
 
   def toCharArray: Array[Char] = Arrays.copyOf(buf, count)
 
@@ -83,7 +83,7 @@ final class UnsyncCharArrayWriter(bufferSize: Int = 32) extends Writer {
 
   override def toString: String = new String(buf, 0, count)
 
-  def flush: Unit = {}
+  def flush(): Unit = {}
 
-  def close: Unit = {}
+  def close(): Unit = {}
 }

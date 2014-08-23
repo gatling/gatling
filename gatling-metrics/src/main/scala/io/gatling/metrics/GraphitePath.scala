@@ -25,7 +25,7 @@ object GraphitePath {
   def graphitePath(path: List[String]) = new GraphitePath(path.map(sanitizeString))
 }
 
-case class GraphitePath private (val path: List[String]) {
+case class GraphitePath private (path: List[String]) {
   import GraphitePath.sanitizeString
   def /(subPath: String) = new GraphitePath(sanitizeString(subPath) :: path)
   def pathKey = path.reverse.mkString(".")

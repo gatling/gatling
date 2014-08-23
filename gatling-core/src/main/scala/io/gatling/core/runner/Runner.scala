@@ -37,7 +37,7 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
       val simulation = simulationClass.newInstance
       Controller.start()
 
-      simulation._beforeSteps.foreach(_.apply)
+      simulation._beforeSteps.foreach(_.apply())
 
       implicit val timeOut = Timeout(simulationTimeOut)
       val runResult = Controller ? Run(simulation, selection.simulationId, selection.description, simulation.timings)
@@ -45,7 +45,7 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
       Await.result(runResult, simulationTimeOut) match {
         case SSuccess(runId: String) =>
           println("Simulation finished")
-          simulation._afterSteps.foreach(_.apply)
+          simulation._afterSteps.foreach(_.apply())
           (runId, simulation)
 
         case SFailure(t) => throw t

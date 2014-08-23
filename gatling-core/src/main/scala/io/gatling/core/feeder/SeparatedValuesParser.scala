@@ -41,7 +41,7 @@ object SeparatedValuesParser {
         _.split(separatorString)
       } else {
         val csvParser = new CSVParser(separator, doubleQuote)
-        csvParser.parseLine _
+        csvParser.parseLine
       }
 
     val rawLines = source.getLines().map(parseLine)

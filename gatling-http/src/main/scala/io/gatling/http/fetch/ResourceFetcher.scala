@@ -22,7 +22,6 @@ import io.gatling.http.request._
 import io.gatling.http.util.HttpHelper._
 
 import scala.annotation.tailrec
-import scala.collection.JavaConversions._
 import scala.collection.breakOut
 import scala.collection.mutable
 

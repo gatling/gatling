@@ -75,7 +75,7 @@ class Controller extends BaseActor {
     case Run(simulation, simulationId, description, runTimings) =>
       // important, initialize time reference
       val timeRef = NanoTimeReference
-      launcher = sender
+      launcher = sender()
       timings = runTimings
       scenarios = simulation.scenarios
 

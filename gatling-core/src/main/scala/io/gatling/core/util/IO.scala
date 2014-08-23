@@ -16,7 +16,7 @@
 package io.gatling.core.util
 
 import java.io.{ File => JFile, _ }
-import java.net.{ URLConnection, URISyntaxException, URL }
+import java.net.{ URISyntaxException, URL }
 import scala.io.Source
 import scala.util.Try
 

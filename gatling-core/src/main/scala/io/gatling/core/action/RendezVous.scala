@@ -15,7 +15,7 @@
  */
 package io.gatling.core.action
 
-import scala.collection.mutable.Queue
+import scala.collection.mutable
 
 import akka.actor.ActorRef
 import io.gatling.core.session.Session
@@ -25,7 +25,7 @@ import io.gatling.core.session.Session
  */
 class RendezVous(users: Int, val next: ActorRef) extends Chainable {
 
-  val buffer = Queue.empty[Session]
+  val buffer = mutable.Queue.empty[Session]
 
   val passThrough: Receive = {
     case session: Session => next ! Session

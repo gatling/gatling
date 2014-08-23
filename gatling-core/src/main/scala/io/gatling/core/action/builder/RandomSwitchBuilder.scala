@@ -22,7 +22,6 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
-import io.gatling.core.session.Expression
 import io.gatling.core.action.Switch
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression

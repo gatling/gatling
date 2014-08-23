@@ -37,7 +37,7 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
     val elseNextActor = elseNext.map(_.build(next, protocols)).getOrElse(next)
 
-    val nextAction = (session: Session) => value(session).map { v => possibleActions.get(v).getOrElse(elseNextActor) }
+    val nextAction = (session: Session) => value(session).map { v => possibleActions.getOrElse(v, elseNextActor) }
 
     actor(new Switch(nextAction, next))
   }

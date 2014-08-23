@@ -121,7 +121,7 @@ class HtmlParser extends StrictLogging {
             else
               codeBase + url
 
-          def processTag: Unit =
+          def processTag(): Unit =
             tag.getType match {
 
               case TagType.START | TagType.SELF_CLOSING =>
@@ -185,7 +185,7 @@ class HtmlParser extends StrictLogging {
             }
 
         if (!isInHiddenComment)
-          processTag
+          processTag()
       }
     }
 

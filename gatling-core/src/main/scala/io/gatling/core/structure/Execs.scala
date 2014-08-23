@@ -16,7 +16,6 @@
 package io.gatling.core.structure
 
 import io.gatling.core.action.builder.{ ActionBuilder, SessionHookBuilder }
-import io.gatling.core.config.Protocols
 import io.gatling.core.session.{ Expression, Session }
 
 trait Execs[B] {

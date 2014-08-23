@@ -16,7 +16,7 @@
 package io.gatling.jms
 
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.jms.check.{ JmsCheckSupport, JmsSimpleCheck }
+import io.gatling.jms.check.JmsCheckSupport
 
 /**
  * Imports to be used to simplify the DSL

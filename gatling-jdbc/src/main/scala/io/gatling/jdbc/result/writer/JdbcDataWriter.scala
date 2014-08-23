@@ -21,7 +21,6 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, UserMessage, ShortScenarioDescription }
-import io.gatling.core.util.DateHelper._
 import io.gatling.jdbc.util.SQLHelper.withStatement
 
 object JdbcDataWriter {
