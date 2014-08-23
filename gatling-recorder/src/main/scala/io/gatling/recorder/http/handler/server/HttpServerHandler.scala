@@ -25,6 +25,11 @@ import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpRequest, Ht
 
 class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with ScalaChannelHandler {
 
+  private def buildRequestWithRelativeURI(request: HttpRequest): HttpRequest = {
+    val (_, pathQuery) = URIHelper.splitURI(request.getUri)
+    copyRequestWithNewUri(request, pathQuery)
+  }
+
   private def writeRequest(clientChannel: Channel, request: HttpRequest): Unit = {
     val clientRequest = proxy.outgoingProxy match {
       case None => buildRequestWithRelativeURI(request)

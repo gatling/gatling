@@ -19,7 +19,6 @@ import java.net.URI
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import io.gatling.recorder.util.URIHelper
 import org.jboss.netty.channel.ChannelFutureListener
 import org.jboss.netty.channel.ChannelFuture
 import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
@@ -30,17 +29,12 @@ trait ScalaChannelHandler {
     def operationComplete(future: ChannelFuture): Unit = thunk(future)
   }
 
-  private def copyRequestWithNewUri(request: HttpRequest, uri: String): HttpRequest = {
+  def copyRequestWithNewUri(request: HttpRequest, uri: String): HttpRequest = {
     val newRequest = new DefaultHttpRequest(request.getProtocolVersion, request.getMethod, uri)
     newRequest.setChunked(request.isChunked)
     newRequest.setContent(request.getContent)
     for (header <- request.headers.entries) newRequest.headers.add(header.getKey, header.getValue)
     newRequest
-  }
-
-  def buildRequestWithRelativeURI(request: HttpRequest): HttpRequest = {
-    val (_, pathQuery) = URIHelper.splitURI(request.getUri)
-    copyRequestWithNewUri(request, pathQuery)
   }
 
   def buildRequestWithAbsoluteURI(request: HttpRequest, targetHostURI: URI): HttpRequest = {

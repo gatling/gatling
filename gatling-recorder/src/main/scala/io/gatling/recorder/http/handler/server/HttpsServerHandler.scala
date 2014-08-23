@@ -77,6 +77,7 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
           case Some(clientChannel) if clientChannel.isConnected && clientChannel.isOpen =>
             // set full uri so that it's correctly recorded
             val loggedRequest = buildRequestWithAbsoluteURI(request, targetHostURI)
+            println(s"request=$request")
             writeRequestToClient(clientChannel, request, loggedRequest)
 
           case _ =>
