@@ -58,7 +58,7 @@ This page will guide you through most of Gatling HTTP features. You'll learn abo
 Application under Test
 ----------------------
 
-In this tutorial, we will use an application named *Computer-Database* deployed at the URL: `<http://computer-database.heroku.com>`__.
+In this tutorial, we will use an application named *Computer-Database* deployed at the URL: `<http://computer-database.herokuapp.com>`__.
 
 This application is a simple CRUD application for managing computer models, and was a sample for the `Play Framework <http://www.playframework.com/>`_.
 
@@ -111,7 +111,7 @@ Recording the scenario
 
 Now simply browse the application:
   #. Enter 'Search' tag.
-  #. Go to the website: http://computer-database.heroku.com
+  #. Go to the website: http://computer-database.herokuapp.com
   #. Search for models with 'macbook' in their name.
   #. Select 'Macbook pro'.
   #. Enter 'Browse' tag.
@@ -144,7 +144,7 @@ Here is the produced output:
   class BasicSimulation extends Simulation { // 3
 
     val httpConf = http // 4
-      .baseURL("http://computer-database.heroku.com") // 5
+      .baseURL("http://computer-database.herokuapp.com") // 5
       .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8") // 6
       .doNotTrackHeader("1")
       .acceptLanguageHeader("en-US,en;q=0.5")

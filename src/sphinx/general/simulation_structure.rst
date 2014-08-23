@@ -20,7 +20,7 @@ The first element is the configuration of the HTTP protocol.
 In this example, this configuration is very basic and just defines:
 
 * the ``baseURL``, which will be prepended to all the relative paths in the scenario definition.
-  Here, the base URL is http://computer-database.heroku.com.
+  Here, the base URL is http://computer-database.herokuapp.com.
 * common headers, which will be added on each request.
 
 
@@ -64,7 +64,7 @@ HTTP requests are defined as follows in a scenario::
 The above example produces a POST HTTP request that creates a new computer model::
 
   HTTP request:
-  POST http://computer-database.heroku.com//computers
+  POST http://computer-database.herokuapp.com/computers
   headers=
     Accept: [text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8]
     Content-Type: [application/x-www-form-urlencoded]
@@ -72,7 +72,7 @@ The above example produces a POST HTTP request that creates a new computer model
     Accept-Language: [en-US,en;q=0.5]
     Accept-Encoding: [gzip, deflate]
     User-Agent: [Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0]
-    Referer: [http://computer-database.heroku.com/computers/new]
+    Referer: [http://computer-database.herokuapp.com/computers/new]
   params=
     company: [37]
     discontinued: []
