@@ -58,11 +58,10 @@ object AsyncHandlerActor extends AkkaDefaults {
     case _       => throw new UnsupportedOperationException("AsyncHandlerActor pool hasn't been started")
   }
 
-  val propagatedOnRedirectHeaders = Vector(
+  val PropagatedOnRedirectHeaders = Vector(
     HeaderNames.Accept,
     HeaderNames.AcceptEncoding,
     HeaderNames.AcceptLanguage,
-    HeaderNames.Authorization,
     HeaderNames.Referer,
     HeaderNames.UserAgent)
 }
@@ -203,9 +202,10 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           .setLocalInetAddress(originalRequest.getLocalAddress)
           .setVirtualHost(originalRequest.getVirtualHost)
           .setProxyServer(originalRequest.getProxyServer)
+          .setRealm(originalRequest.getRealm)
 
         for {
-          headerName <- AsyncHandlerActor.propagatedOnRedirectHeaders
+          headerName <- AsyncHandlerActor.PropagatedOnRedirectHeaders
           headerValue <- Option(originalRequest.getHeaders.getFirstValue(headerName))
         } requestBuilder.addHeader(headerName, headerValue)
 
