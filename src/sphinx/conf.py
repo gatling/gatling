@@ -11,8 +11,8 @@ import sys, os
 extensions = ['sphinx.ext.todo', 'sphinx.ext.extlinks']
 todo_include_todos = True
 extlinks = {
-  "issue" : ("https://github.com/gatling/gatling/issues/%s", "#"),
-  "version" : ("https://github.com/gatling/gatling/issues?milestone=%s&state=closed", None)
+  'issue' : ('https://github.com/gatling/gatling/issues/%s', '#'),
+  'version' : ('https://github.com/gatling/gatling/issues?milestone=%s&state=closed', None)
 }
 
 ################
@@ -41,7 +41,8 @@ nitpicky = True
 html_theme = 'gatling'
 html_theme_path = ['_sphinx/themes']
 html_extra_path = ['cheat-sheet.html']
-html_title = "Gatling documentation"
+html_theme_options = { 'github' : 'https://github.com/gatling/gatling/edit/master/src/sphinx/' }
+html_title = 'Gatling documentation'
 html_domain_indices = False
 html_use_index = False
 html_show_sourcelink = False
