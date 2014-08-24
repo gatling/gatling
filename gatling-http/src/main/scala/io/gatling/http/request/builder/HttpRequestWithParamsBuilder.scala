@@ -23,6 +23,7 @@ import com.ning.http.client.Request
 
 object HttpRequestWithParamsBuilder {
   val MultipartFormDataValueExpression = HeaderValues.MultipartFormData.expression
+  val ApplicationFormUrlEncodedValueExpression = HeaderValues.ApplicationFormUrlEncoded.expression
 }
 
 /**
@@ -50,7 +51,9 @@ class HttpRequestWithParamsBuilder(
   def multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestWithParamsBuilder = formParam(MultivaluedParam(key, values))
   def formParamSeq(seq: Expression[Seq[(String, Any)]]): HttpRequestWithParamsBuilder = formParam(ParamSeq(seq))
   def formParamMap(map: Expression[Map[String, Any]]): HttpRequestWithParamsBuilder = formParam(ParamMap(map))
-  private def formParam(formParam: HttpParam): HttpRequestWithParamsBuilder = new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, formParam :: formParams)
+  private def formParam(formParam: HttpParam): HttpRequestWithParamsBuilder =
+    new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, formParam :: formParams)
+      .header(HeaderNames.ContentType, HttpRequestWithParamsBuilder.ApplicationFormUrlEncodedValueExpression)
 
   def formUpload(name: Expression[String], filePath: Expression[String]) = {
 

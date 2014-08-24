@@ -26,7 +26,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.util.IO._
 import io.gatling.core.validation._
-import io.gatling.http.HeaderNames
+import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.har.HarReader
 import io.gatling.recorder.scenario.template.SimulationTemplate
@@ -103,7 +103,11 @@ object ScenarioExporter extends StrictLogging {
           case element +: others =>
             val acceptedHeaders = element.headers.toList
               .filterNot {
-                case (headerName, headerValue) => filteredHeaders.contains(headerName) || baseHeaders.get(headerName).exists(_ == headerValue)
+                case (headerName, headerValue) =>
+                  val isFiltered = filteredHeaders contains headerName
+                  val isAlreadyInBaseHeaders = baseHeaders.get(headerName).exists(_ == headerValue)
+                  val isPostWithFormParams = element.method == "POST" && headerValue == HeaderValues.ApplicationFormUrlEncoded
+                  isFiltered || isAlreadyInBaseHeaders || isPostWithFormParams
               }
               .sortBy(_._1)
 
