@@ -155,14 +155,13 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     val protocol = tx.request.config.protocol
 
     if (tx.primary) {
-      val newSession = update(tx.session)
 
-      ResourceFetcher.resourceFetcherForFetchedPage(tx.request.ahcRequest, response, tx, newSession) match {
+      ResourceFetcher.resourceFetcherForFetchedPage(tx.request.ahcRequest, response, tx, tx.session) match {
         case Some(resourceFetcher) =>
           actor(context)(resourceFetcher())
 
         case None =>
-          tx.next ! newSession.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
+          tx.next ! tx.session.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
       }
 
     } else {
