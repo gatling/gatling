@@ -39,7 +39,7 @@ object ResponseBuilder extends StrictLogging {
 
   val EmptyHeaders = new FluentCaseInsensitiveStringsMap
 
-  val Identity = identity[Response]
+  val Identity: Response => Response = identity[Response]
 
   private val IsDebugEnabled = logger.underlying.isDebugEnabled
 
