@@ -50,7 +50,7 @@ object Controller extends AkkaDefaults with StrictLogging {
   def !(message: Any): Unit =
     _instance match {
       case Some(c) => c ! message
-      case None    => logger.error("Controller hasn't been started")
+      case None    => logger.debug("Controller hasn't been started")
     }
 
   def ?(message: Any)(implicit timeout: Timeout): Future[Any] = _instance match {

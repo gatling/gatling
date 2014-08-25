@@ -37,39 +37,42 @@ case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: Inject
         entryPoint ! session
       }
 
-    val batchSize = 10000
+    val start = nowMillis
+    val batchWindow = 10 seconds
 
-    val batches = injectionProfile.allUsers.zipWithIndex.grouped(batchSize)
+    val batches = injectionProfile.allUsers.zipWithIndex
 
-      def batchSchedule(batchOffset: FiniteDuration): Unit = batches.synchronized {
+      def batchSchedule(): Unit = batches.synchronized {
 
         if (batches.hasNext) {
 
-          var delay = ZeroMs
+          val batchTimeOffset = (nowMillis - start).millis
+          val nextBatchTimeOffset = batchTimeOffset + batchWindow
 
-          val batch = batches.next()
-          batch.foreach {
-            case (startingTime, index) =>
-              // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
-              delay = toMillisPrecision(startingTime) - batchOffset
+          batches
+            .takeWhile { case (startingTime, _) => startingTime < nextBatchTimeOffset }
+            .foreach {
+              case (startingTime, index) =>
 
-              if (delay == ZeroMs)
-                startUser(index)
+                // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
+                val delay = toMillisPrecision(startingTime) - batchTimeOffset
 
-              else
-                scheduler.scheduleOnce(delay) {
+                if (delay <= ZeroMs)
                   startUser(index)
-                }
-          }
 
-          // batch was full, schedule next one
-          if (batch.size == batchSize)
-            scheduler.scheduleOnce(delay) {
-              batchSchedule(delay)
+                else
+                  scheduler.scheduleOnce(delay) {
+                    startUser(index)
+                  }
+            }
+
+          if (batches.hasNext)
+            scheduler.scheduleOnce(batchWindow) {
+              batchSchedule()
             }
         }
       }
 
-    batchSchedule(ZeroMs)
+    batchSchedule()
   }
 }
