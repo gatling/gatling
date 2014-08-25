@@ -163,19 +163,19 @@ object ResourceFetcher extends StrictLogging {
     resourceFetcher(tx, inferredResources, explicitResources)
   }
 
-  def resourceFetcherForFetchedPage(request: Request, response: Response, tx: HttpTx, session: Session): Option[() => ResourceFetcher] = {
+  def resourceFetcherForFetchedPage(request: Request, response: Response, tx: HttpTx): Option[() => ResourceFetcher] = {
 
     val protocol = tx.request.config.protocol
 
     val explicitResources =
       if (tx.request.config.explicitResources.nonEmpty)
-        ResourceFetcher.buildExplicitResources(tx.request.config.explicitResources, session)
+        ResourceFetcher.buildExplicitResources(tx.request.config.explicitResources, tx.session)
       else
         Nil
 
     val inferredResources =
       if (protocol.responsePart.inferHtmlResources && response.isReceived && isHtml(response.headers))
-        ResourceFetcher.inferPageResources(request, response, session, tx.request.config)
+        ResourceFetcher.inferPageResources(request, response, tx.session, tx.request.config)
       else
         Nil
 
@@ -227,9 +227,9 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
     // FIXME check if it's a css this way or use the Content-Type?
     val resourceFetched =
       if (CssContentCache.contains(uri))
-        CssResourceFetched(uri, OK, identity, None, None, "")
+        CssResourceFetched(uri, OK, Session.Identity, None, None, "")
       else
-        RegularResourceFetched(uri, OK, identity)
+        RegularResourceFetched(uri, OK, Session.Identity)
 
     // mock like we've received the resource
     receive(resourceFetched)

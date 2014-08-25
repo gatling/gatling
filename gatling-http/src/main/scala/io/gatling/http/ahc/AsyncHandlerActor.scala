@@ -84,7 +84,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
   def receive = {
     case OnCompleted(tx, response)               => processResponse(tx, response)
-    case OnThrowable(tx, response, errorMessage) => ko(tx, identity, response, errorMessage)
+    case OnThrowable(tx, response, errorMessage) => ko(tx, Session.Identity, response, errorMessage)
   }
 
   private def logRequest(
@@ -154,17 +154,16 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
     val protocol = tx.request.config.protocol
 
-    if (tx.primary) {
-
-      ResourceFetcher.resourceFetcherForFetchedPage(tx.request.ahcRequest, response, tx, tx.session) match {
+    if (tx.primary)
+      ResourceFetcher.resourceFetcherForFetchedPage(tx.request.ahcRequest, response, tx) match {
         case Some(resourceFetcher) =>
           actor(context)(resourceFetcher())
 
         case None =>
-          tx.next ! tx.session.increaseDrift(nowMillis - response.lastByteReceived).logGroupRequest(response.reponseTimeInMillis, status)
+          tx.next ! tx.session.increaseDrift(nowMillis - response.lastByteReceived)
       }
 
-    } else {
+    else {
       val uri = response.request.getURI
 
       if (isCss(response.headers))
@@ -225,10 +224,15 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
                 val redirectURI = resolveFromURI(tx.request.ahcRequest.getURI, location)
 
                 val cacheRedirectUpdate = cacheRedirect(tx.request.ahcRequest, redirectURI)
-                val logGroupRequestUpdate: Session => Session = {
-                  val responseTime = response.reponseTimeInMillis
-                  _.logGroupRequest(responseTime, OK)
-                }
+
+                // don't override group stats when redirecting a resource
+                val logGroupRequestUpdate: Session => Session =
+                  if (tx.primary) {
+                    val responseTime = response.reponseTimeInMillis
+                    _.logGroupRequest(responseTime, OK)
+                  } else
+                    Session.Identity
+
                 val newUpdate = update andThen cacheRedirectUpdate andThen logGroupRequestUpdate
                 val newSession = newUpdate(tx.session)
 
@@ -258,12 +262,21 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         val cacheUpdate = CacheHandling.cache(tx.request.config.protocol, tx.request.ahcRequest, response)
 
         val (checkSaveUpdate, checkError) = Check.check(response, tx.session, checks)
-        val newUpdate = sessionUpdate andThen cacheUpdate andThen checkSaveUpdate
 
-        checkError match {
-          case None => logAndExecuteNext(tx, newUpdate, OK, response, None)
-          case _    => logAndExecuteNext(tx, newUpdate, KO, response, checkError)
+        val status = checkError match {
+          case None => OK
+          case _    => KO
         }
+
+        val logGroupRequestUpdate: Session => Session =
+          if (tx.primary)
+            _.logGroupRequest(response.reponseTimeInMillis, status)
+          else
+            Session.Identity
+
+        val newUpdate = sessionUpdate andThen cacheUpdate andThen checkSaveUpdate andThen logGroupRequestUpdate
+
+        logAndExecuteNext(tx, newUpdate, status, response, None)
       }
 
     response.status match {
@@ -290,7 +303,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         }
 
       case None =>
-        ko(tx, identity, response, "How come OnComplete was sent with no status?!")
+        ko(tx, Session.Identity, response, "How come OnComplete was sent with no status?!")
     }
   }
 }
