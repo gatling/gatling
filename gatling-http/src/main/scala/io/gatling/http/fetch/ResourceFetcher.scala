@@ -63,9 +63,9 @@ object ResourceFetcher extends StrictLogging {
       case none    => resources
     }
 
-  private def resourcesToRequests(resources: List[EmbeddedResource], protocol: HttpProtocol, throttled: Boolean): List[HttpRequest] =
+  private def resourcesToRequests(resources: List[EmbeddedResource], session: Session, protocol: HttpProtocol, throttled: Boolean): List[HttpRequest] =
     resources.flatMap {
-      _.toRequest(protocol, throttled) match {
+      _.toRequest(session, protocol, throttled) match {
         case Success(httpRequest) => Some(httpRequest)
         case Failure(m) =>
           // shouldn't happen, only static values
@@ -74,7 +74,7 @@ object ResourceFetcher extends StrictLogging {
       }
     }
 
-  private def inferPageResources(request: Request, response: Response, config: HttpRequestConfig): List[HttpRequest] = {
+  private def inferPageResources(request: Request, response: Response, session: Session, config: HttpRequestConfig): List[HttpRequest] = {
 
     val htmlDocumentURI = response.request.getURI
     val protocol = config.protocol
@@ -82,7 +82,7 @@ object ResourceFetcher extends StrictLogging {
       def inferredResourcesRequests(): List[HttpRequest] = {
         val inferred = new HtmlParser().getEmbeddedResources(htmlDocumentURI, response.body.string.unsafeChars, UserAgent.getAgent(request))
         val filtered = applyResourceFilters(inferred, protocol.responsePart.htmlResourcesInferringFilters)
-        resourcesToRequests(filtered, protocol, config.throttled)
+        resourcesToRequests(filtered, session, protocol, config.throttled)
       }
 
     response.statusCode match {
@@ -175,7 +175,7 @@ object ResourceFetcher extends StrictLogging {
 
     val inferredResources =
       if (protocol.responsePart.inferHtmlResources && response.isReceived && isHtml(response.headers))
-        ResourceFetcher.inferPageResources(request, response, tx.request.config)
+        ResourceFetcher.inferPageResources(request, response, session, tx.request.config)
       else
         Nil
 
@@ -336,7 +336,7 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
       def parseCssResources(): List[HttpRequest] = {
         val inferred = CssContentCache.getOrElseUpdate(uri, CssParser.extractResources(uri, content))
         val filtered = applyResourceFilters(inferred, filters)
-        resourcesToRequests(filtered, protocol, throttled)
+        resourcesToRequests(filtered, session, protocol, throttled)
       }
 
     if (status == OK) {

@@ -27,8 +27,6 @@ import io.gatling.http.request.HttpRequest
 object EmbeddedResource {
 
   val DefaultResourceChecks = List(DefaultHttpCheck)
-
-  val MockSession = Session("foo", "bar")
 }
 
 sealed abstract class EmbeddedResource {
@@ -37,7 +35,7 @@ sealed abstract class EmbeddedResource {
   def acceptHeader: Expression[String]
   val url = uri.toString
 
-  def toRequest(protocol: HttpProtocol, throttled: Boolean): Validation[HttpRequest] = {
+  def toRequest(session: Session, protocol: HttpProtocol, throttled: Boolean): Validation[HttpRequest] = {
 
     val requestNameExpression: Expression[String] = {
 
@@ -54,8 +52,7 @@ sealed abstract class EmbeddedResource {
 
     val httpRequestDef = new Http(requestNameExpression).get(uri).header(HeaderNames.Accept, acceptHeader) build (protocol, throttled)
 
-    // for now, no better way to build a request than reusing HttpRequestBaseBuilder and passing a mock session
-    httpRequestDef.build(EmbeddedResource.MockSession)
+    httpRequestDef.build(session)
   }
 }
 
