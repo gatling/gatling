@@ -12,7 +12,7 @@ object Dependencies {
   private def scalaCompiler(version: String) = "org.scala-lang"                         % "scala-compiler"              % version
   private def scalaReflect(version: String)  = "org.scala-lang"                         % "scala-reflect"               % version
   private def scalaSwing(version: String)    = "org.scala-lang"                         % "scala-swing"                 % version
-  private val ahc                            = "com.ning"                               % "async-http-client"           % "1.9.0-BETA7"
+  private val ahc                            = "com.ning"                               % "async-http-client"           % "1.9.0-BETA8"
   private val netty                          = "io.netty"                               % "netty"                       % "3.9.3.Final"
   private val akkaActor                      = "com.typesafe.akka"                     %% "akka-actor"                  % akkaVersion
   private val config                         = "com.typesafe"                           % "config"                      % "1.2.1"

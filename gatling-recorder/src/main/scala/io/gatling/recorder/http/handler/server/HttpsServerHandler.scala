@@ -16,9 +16,10 @@
 package io.gatling.recorder.http.handler.server
 
 import java.io.IOException
-import java.net.{ InetSocketAddress, URI }
+import java.net.InetSocketAddress
 import javax.net.ssl.SSLException
 
+import com.ning.http.client.uri.UriComponents
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
@@ -29,7 +30,7 @@ import org.jboss.netty.handler.ssl.SslHandler
 
 class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with ScalaChannelHandler with StrictLogging {
 
-  var targetHostURI: URI = _
+  var targetHostURI: UriComponents = _
 
   def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit = {
 
@@ -64,7 +65,7 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
                 }
               }
 
-        targetHostURI = new URI("https://" + request.getUri)
+        targetHostURI = UriComponents.create("https://" + request.getUri)
 
         proxy.outgoingProxy match {
           case Some((proxyHost, proxyPort)) => connectClientChannelThroughProxy(new InetSocketAddress(proxyHost, proxyPort))
@@ -76,7 +77,8 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
         _clientChannel match {
           case Some(clientChannel) if clientChannel.isConnected && clientChannel.isOpen =>
             // set full uri so that it's correctly recorded
-            val loggedRequest = buildRequestWithAbsoluteURI(request, targetHostURI)
+            val absoluteUri = UriComponents.create(targetHostURI, request.getUri).toString
+            val loggedRequest = copyRequestWithNewUri(request, absoluteUri)
             println(s"request=$request")
             writeRequestToClient(clientChannel, request, loggedRequest)
 

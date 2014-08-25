@@ -15,8 +15,9 @@
  */
 package io.gatling.recorder.http.handler.server
 
-import java.net.{ InetSocketAddress, URI }
+import java.net.InetSocketAddress
 
+import com.ning.http.client.uri.UriComponents
 import com.ning.http.util.Base64
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.http.HeaderNames
@@ -64,9 +65,9 @@ abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with
     _clientChannel.map(_.close())
   }
 
-  def computeInetSocketAddress(uri: URI): InetSocketAddress = {
+  def computeInetSocketAddress(uri: UriComponents): InetSocketAddress = {
 
-    val host = Option(uri.getHost).getOrElse(uri.getAuthority)
+    val host = uri.getHost
     val port = uri.getPort match {
       case -1 => uri.getScheme match {
         case "https" | "wss" => 443

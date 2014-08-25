@@ -15,19 +15,19 @@
  */
 package io.gatling.recorder.http.handler.server
 
-import java.net.{ InetSocketAddress, URI }
+import java.net.InetSocketAddress
 
+import com.ning.http.client.uri.UriComponents
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.handler.ScalaChannelHandler
-import io.gatling.recorder.util.URIHelper
 import org.jboss.netty.channel.{ Channel, ChannelFuture }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpRequest, HttpResponseStatus, HttpVersion }
 
 class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with ScalaChannelHandler {
 
   private def buildRequestWithRelativeURI(request: HttpRequest): HttpRequest = {
-    val (_, pathQuery) = URIHelper.splitURI(request.getUri)
-    copyRequestWithNewUri(request, pathQuery)
+    val relative = UriComponents.create(request.getUri).toRelativeUrl
+    copyRequestWithNewUri(request, relative)
   }
 
   private def writeRequest(clientChannel: Channel, request: HttpRequest): Unit = {
@@ -50,13 +50,10 @@ class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Scal
           case Some((host, port)) => new InetSocketAddress(host, port)
           case _ =>
             try {
-              // the URI might contain invalid characters, so we truncate as we only need the host and port
-              val (schemeHostPort, _) = URIHelper.splitURI(request.getUri)
-              val uri = new URI(schemeHostPort)
-              computeInetSocketAddress(uri)
+              computeInetSocketAddress(UriComponents.create(request.getUri))
             } catch {
               case e: Exception =>
-                throw new RuntimeException(s"Could not build address requestURI='${request.getUri}', normalizedURI='${URIHelper.splitURI(request.getUri)._1}'", e)
+                throw new RuntimeException(s"Could not build address requestURI='${request.getUri}'", e)
             }
         }
 

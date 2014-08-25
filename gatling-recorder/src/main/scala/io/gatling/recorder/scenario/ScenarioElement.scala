@@ -32,7 +32,6 @@ import com.ning.http.util.Base64
 
 import io.gatling.http.fetch.{ EmbeddedResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
-import io.gatling.recorder.util.URIHelper
 import io.gatling.recorder.config.RecorderConfiguration
 
 case class TimedScenarioElement[+T <: ScenarioElement](sendTime: Long, arrivalTime: Long, element: T)
@@ -105,14 +104,17 @@ case class RequestElement(uri: String,
                           nonEmbeddedResources: List[RequestElement] = Nil) extends ScenarioElement {
 
   val (baseUrl, pathQuery) = {
-    val (rawBaseUrl, pathQuery) = URIHelper.splitURI(uri)
+    val uriComponents = UriComponents.create(uri)
 
-    val baseUrl = if (rawBaseUrl.startsWith("https://"))
-      rawBaseUrl.stripSuffix(":443")
-    else
-      rawBaseUrl.stripSuffix(":80")
+    val base = new StringBuilder().append(uriComponents.getScheme).append("://").append(uriComponents.getHost)
+    val port = uriComponents.getScheme match {
+      case "http" if uriComponents.getPort != 80  => ":" + uriComponents.getPort
+      case "http" if uriComponents.getPort != 443 => ":" + uriComponents.getPort
+      case _                                      => ""
+    }
+    base.append(port)
 
-    (baseUrl, pathQuery)
+    (base.toString, uriComponents.toRelativeUrl)
   }
   var printedUrl = uri
 

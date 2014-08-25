@@ -15,8 +15,6 @@
  */
 package io.gatling.recorder.http.handler
 
-import java.net.URI
-
 import scala.collection.JavaConversions.asScalaBuffer
 
 import org.jboss.netty.channel.ChannelFutureListener
@@ -35,10 +33,5 @@ trait ScalaChannelHandler {
     newRequest.setContent(request.getContent)
     for (header <- request.headers.entries) newRequest.headers.add(header.getKey, header.getValue)
     newRequest
-  }
-
-  def buildRequestWithAbsoluteURI(request: HttpRequest, targetHostURI: URI): HttpRequest = {
-    val absoluteUri = targetHostURI.resolve(request.getUri).toString
-    copyRequestWithNewUri(request, absoluteUri)
   }
 }
