@@ -25,6 +25,8 @@ import io.gatling.core.result.writer.UserMessage
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper._
 
+import scala.concurrent.duration._
+
 case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: InjectionProfile) extends AkkaDefaults {
 
   def run(userIdRoot: String, offset: Int): Unit = {
@@ -35,15 +37,39 @@ case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: Inject
         entryPoint ! session
       }
 
-    injectionProfile.allUsers.zipWithIndex.foreach {
-      case (startingTime, index) =>
-        if (startingTime == ZeroMs)
-          startUser(index)
-        else
-          // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
-          scheduler.scheduleOnce(toMillisPrecision(startingTime)) {
-            startUser(index)
+    val batchSize = 10000
+
+    val batches = injectionProfile.allUsers.zipWithIndex.grouped(batchSize)
+
+      def batchSchedule(batchOffset: FiniteDuration): Unit = batches.synchronized {
+
+        if (batches.hasNext) {
+
+          var delay = ZeroMs
+
+          val batch = batches.next()
+          batch.foreach {
+            case (startingTime, index) =>
+              // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
+              delay = toMillisPrecision(startingTime) - batchOffset
+
+              if (delay == ZeroMs)
+                startUser(index)
+
+              else
+                scheduler.scheduleOnce(delay) {
+                  startUser(index)
+                }
           }
-    }
+
+          // batch was full, schedule next one
+          if (batch.size == batchSize)
+            scheduler.scheduleOnce(delay) {
+              batchSchedule(delay)
+            }
+        }
+      }
+
+    batchSchedule(ZeroMs)
   }
 }
