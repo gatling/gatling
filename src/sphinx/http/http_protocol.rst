@@ -172,6 +172,8 @@ Gatling caches responses using :
 
 To disable this feature, just add ``.disableCaching`` to an HTTP Protocol Configuration definition.
 
+.. _http-protocol-urlencoding:
+
 UrlEncoding
 -----------
 
