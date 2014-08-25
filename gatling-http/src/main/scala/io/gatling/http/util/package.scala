@@ -106,6 +106,10 @@ package object util {
         }
       }
 
+      if (request.getProxyServer != null) buff.append("proxy=").append(request.getProxyServer).append(Eol)
+
+      if (request.getRealm != null) buff.append("realm=").append(request.getRealm).append(Eol)
+
       buff
     }
 
