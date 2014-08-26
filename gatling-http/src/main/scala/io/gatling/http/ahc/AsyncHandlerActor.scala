@@ -276,7 +276,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
         val newUpdate = sessionUpdate andThen cacheUpdate andThen checkSaveUpdate andThen logGroupRequestUpdate
 
-        logAndExecuteNext(tx, newUpdate, status, response, None)
+        logAndExecuteNext(tx, newUpdate, status, response, checkError)
       }
 
     response.status match {
