@@ -49,23 +49,27 @@ case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: Inject
           val batchTimeOffset = (nowMillis - start).millis
           val nextBatchTimeOffset = batchTimeOffset + batchWindow
 
-          batches
-            .takeWhile { case (startingTime, _) => startingTime < nextBatchTimeOffset }
-            .foreach {
-              case (startingTime, index) =>
+          var continue = true
 
-                // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
-                val delay = toMillisPrecision(startingTime) - batchTimeOffset
+          while (batches.hasNext && continue) {
 
-                if (delay <= ZeroMs)
-                  startUser(index)
+            val (startingTime, index) = batches.next
 
-                else
-                  scheduler.scheduleOnce(delay) {
-                    startUser(index)
-                  }
-            }
+            val delay = startingTime - batchTimeOffset
 
+            continue = startingTime < nextBatchTimeOffset
+
+            if (continue && delay <= ZeroMs)
+              startUser(index)
+
+            else
+              // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
+              scheduler.scheduleOnce(toMillisPrecision(delay)) {
+                startUser(index)
+              }
+          }
+
+          // schedule next batch
           if (batches.hasNext)
             scheduler.scheduleOnce(batchWindow) {
               batchSchedule()
