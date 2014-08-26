@@ -79,7 +79,6 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
             // set full uri so that it's correctly recorded
             val absoluteUri = UriComponents.create(targetHostURI, request.getUri).toString
             val loggedRequest = copyRequestWithNewUri(request, absoluteUri)
-            println(s"request=$request")
             writeRequestToClient(clientChannel, request, loggedRequest)
 
           case _ =>
