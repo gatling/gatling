@@ -43,7 +43,7 @@ For example, to perform an assertion on the request ``Index`` in the group ``Sea
 
 .. note::
 
-  When ``path`` is a group, assetions are made against the group's response time, not its cumulated times.
+  When ``path`` is a group, assertions are made against the group's response time, not its cumulated times.
   For more information on the distinction between groups response time and cumulate time, see :ref:`the Groups documentation <group-timings>`.
 
 Statistics
