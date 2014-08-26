@@ -288,7 +288,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
 
   def disconnectedState(status: Int, reason: String, tx: WsTx): Receive = {
 
-    case action: WsAction =>
+    case action: WsUserAction =>
       // reconnect on first client message tentative
       val newTx = tx.copy(reconnectCount = tx.reconnectCount + 1)
       HttpEngine.instance.startWebSocketTransaction(newTx, self)
@@ -299,7 +299,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
       logger.info(s"Discarding unknown message $unexpected while in disconnected state")
   }
 
-  def reconnectingState(status: Int, reason: String, pendingAction: WsAction): Receive = {
+  def reconnectingState(status: Int, reason: String, pendingAction: WsUserAction): Receive = {
 
     case OnOpen(tx, webSocket, _) =>
       context.become(openState(webSocket, tx))
@@ -315,7 +315,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
 
   def crashedState(tx: WsTx, error: String): Receive = {
 
-    case action: WsAction =>
+    case action: WsUserAction =>
       import action._
       val now = nowMillis
       logRequest(session, requestName, KO, now, now, Some(error))

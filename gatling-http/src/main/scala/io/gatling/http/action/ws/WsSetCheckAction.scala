@@ -21,10 +21,10 @@ import io.gatling.http.check.ws.WsCheck
 import io.gatling.core.validation.Validation
 import io.gatling.http.action.RequestAction
 
-class WsSetCheckAction(val requestName: Expression[String], check: WsCheck, wsName: String, val next: ActorRef) extends RequestAction {
+class WsSetCheckAction(val requestName: Expression[String], check: WsCheck, wsName: String, val next: ActorRef) extends RequestAction with WsAction {
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {
-      wsActor <- session(wsName).validate[ActorRef]
+      wsActor <- fetchWebSocket(wsName, session)
     } yield wsActor ! SetCheck(requestName, check, next, session)
 }

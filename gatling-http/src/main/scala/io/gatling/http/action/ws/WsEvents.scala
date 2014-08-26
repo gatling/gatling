@@ -30,16 +30,16 @@ case class OnByteMessage(message: Array[Byte], time: Long) extends WsEvent
 case class OnClose(status: Int, reason: String, time: Long) extends WsEvent
 case class CheckTimeout(check: WsCheck) extends WsEvent
 
-sealed trait WsAction extends WsEvent {
+sealed trait WsUserAction extends WsEvent {
   def requestName: String
   def next: ActorRef
   def session: Session
 }
-case class Send(requestName: String, message: WsMessage, check: Option[WsCheck], next: ActorRef, session: Session) extends WsAction
-case class SetCheck(requestName: String, check: WsCheck, next: ActorRef, session: Session) extends WsAction
-case class CancelCheck(requestName: String, next: ActorRef, session: Session) extends WsAction
-case class Close(requestName: String, next: ActorRef, session: Session) extends WsAction
-case class Reconciliate(requestName: String, next: ActorRef, session: Session) extends WsAction
+case class Send(requestName: String, message: WsMessage, check: Option[WsCheck], next: ActorRef, session: Session) extends WsUserAction
+case class SetCheck(requestName: String, check: WsCheck, next: ActorRef, session: Session) extends WsUserAction
+case class CancelCheck(requestName: String, next: ActorRef, session: Session) extends WsUserAction
+case class Close(requestName: String, next: ActorRef, session: Session) extends WsUserAction
+case class Reconciliate(requestName: String, next: ActorRef, session: Session) extends WsUserAction
 
 sealed trait WsMessage
 case class BinaryMessage(message: Array[Byte]) extends WsMessage

@@ -16,14 +16,9 @@
 package io.gatling.http.action.ws
 
 import akka.actor.ActorRef
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.Validation
-import io.gatling.http.action.RequestAction
+import io.gatling.core.session.Session
 
-class WsCloseAction(val requestName: Expression[String], wsName: String, val next: ActorRef) extends RequestAction with WsAction {
+trait WsAction {
 
-  def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    for {
-      wsActor <- fetchWebSocket(wsName, session)
-    } yield wsActor ! Close(requestName, next, session)
+  def fetchWebSocket(wsName: String, session: Session) = session(wsName).validate[ActorRef].mapError(m => s"Couldn't fetch open websocket: $m")
 }
