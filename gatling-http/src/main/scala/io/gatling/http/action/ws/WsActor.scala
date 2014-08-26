@@ -65,7 +65,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
 
     case OnOpen(tx, webSocket, end) =>
       import tx._
-      logger.info(s"Websocket '$wsName' open")
+      logger.debug(s"Websocket '$wsName' open")
       val newSession = session.set(wsName, self)
       val newTx = tx.copy(session = newSession)
 
@@ -82,7 +82,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
 
     case OnFailedOpen(tx, message, end) =>
       import tx._
-      logger.info(s"Websocket '$wsName' failed to open: $message")
+      logger.debug(s"Websocket '$wsName' failed to open: $message")
       logRequest(session, requestName, KO, start, end, Some(message))
       next ! session.markAsFailed
 
@@ -180,6 +180,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
 
     {
       case Send(requestName, message, check, next, session) =>
+        logger.debug(s"Sending message check on WebSocket '$wsName': $message")
 
         val now = nowMillis
 
@@ -198,9 +199,11 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
         logRequest(session, requestName, OK, now, now)
 
       case SetCheck(requestName, check, next, session) =>
+        logger.debug(s"Setting check on WebSocket '$wsName'")
         setCheck(tx, webSocket, requestName, check, next, session)
 
       case CancelCheck(requestName, next, session) =>
+        logger.debug(s"Cancelling check on WebSocket '$wsName'")
 
         val newTx = tx
           .applyUpdates(session)
@@ -210,6 +213,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
         next ! newTx.session
 
       case CheckTimeout(check) =>
+        logger.debug(s"Check on WebSocket '$wsName' timed out")
 
         tx.check match {
           case Some(`check`) =>
@@ -230,7 +234,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
         }
 
       case OnTextMessage(message, time) =>
-        logger.debug(s"Received message on websocket '$wsName':$message")
+        logger.debug(s"Received text message on websocket '$wsName':$message")
 
         implicit val cache = mutable.Map.empty[Any, Any]
 
@@ -253,10 +257,15 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
           }
         }
 
+      case OnByteMessage(message, time) =>
+        logger.debug(s"Received byte message on websocket '$wsName':$message. Beware, byte message checks are currently not supported")
+
       case Reconciliate(requestName, next, session) =>
+        logger.debug(s"Reconciliating websocket '$wsName'")
         reconciliate(next, session)
 
       case Close(requestName, next, session) =>
+        logger.debug(s"Closing websocket '$wsName'")
 
         webSocket.close()
 
@@ -267,6 +276,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
         context.become(closingState(newTx))
 
       case OnClose(status, reason, time) =>
+        logger.debug(s"Websocket '$wsName' closed by the server")
         // this close order wasn't triggered by the client, otherwise, we would have received a Close first and state would be closing or stopped
         handleClose(status, reason, time)
 
