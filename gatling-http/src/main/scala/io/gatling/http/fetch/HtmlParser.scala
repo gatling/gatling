@@ -38,7 +38,7 @@ case class RegularRawResource(rawUrl: String) extends RawResource {
   def toEmbeddedResource(rootURI: UriComponents): Option[EmbeddedResource] = uri(rootURI).map(RegularResource)
 }
 
-case class HtmlResources(rawResources: Seq[RawResource], baseURI: Option[UriComponents])
+case class HtmlResources(rawResources: Seq[RawResource], base: Option[String])
 
 object HtmlParser {
   val AppletTagName = "applet".toCharArray
@@ -73,7 +73,7 @@ class HtmlParser extends StrictLogging {
 
   def parseHtml(htmlContent: Array[Char], userAgent: Option[UserAgent]): HtmlResources = {
 
-    var baseURI: Option[UriComponents] = None
+    var base: Option[String] = None
     val rawResources = mutable.ArrayBuffer.empty[RawResource]
     val conditionalCommentsMatcher = new HtmlCCommentExpressionMatcher()
     val ieVersion = userAgent.map(_.version)
@@ -130,8 +130,7 @@ class HtmlParser extends StrictLogging {
                   inStyle = true
 
                 } else if (tag.nameEquals(BaseTagName)) {
-                  val baseHref = Option(tag.getAttributeValue(HrefAttribute))
-                  baseURI = baseHref.map(bh => UriComponents.create(bh.toString))
+                  base = Option(tag.getAttributeValue(HrefAttribute)).map(_.toString)
 
                 } else if (tag.nameEquals(LinkTagName)) {
                   val rel = tag.getAttributeValue(RelAttribute)
@@ -190,14 +189,14 @@ class HtmlParser extends StrictLogging {
     }
 
     Jodd.newLagartoParser(htmlContent, ieVersion).parse(visitor)
-    HtmlResources(rawResources, baseURI)
+    HtmlResources(rawResources, base)
   }
 
   def getEmbeddedResources(documentURI: UriComponents, htmlContent: Array[Char], userAgent: Option[UserAgent]): List[EmbeddedResource] = {
 
     val htmlResources = parseHtml(htmlContent, userAgent)
 
-    val rootURI = htmlResources.baseURI.getOrElse(documentURI)
+    val rootURI = htmlResources.base.map(UriComponents.create(documentURI, _)).getOrElse(documentURI)
 
     htmlResources.rawResources
       .distinct
