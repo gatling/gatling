@@ -16,7 +16,7 @@
 package io.gatling.http.ahc
 
 import java.util.{ ArrayList => JArrayList }
-import java.util.concurrent.{TimeUnit, Executors, ThreadFactory}
+import java.util.concurrent.{ TimeUnit, Executors, ThreadFactory }
 
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig.NettyWebSocketFactory
 import com.ning.http.client.providers.netty.ws.NettyWebSocket
