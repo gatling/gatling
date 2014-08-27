@@ -40,7 +40,7 @@ object Dependencies {
   /** Test dependencies **/
   /***********************/
 
-  private val scalaTest                      = "org.scalatest"                         %% "scalatest"                   % "2.2.0"                 % "test"
+  private val scalaTest                      = "org.scalatest"                         %% "scalatest"                   % "2.2.2"                 % "test"
   private val akkaTestKit                    = "com.typesafe.akka"                     %% "akka-testkit"                % akkaVersion             % "test"
   private val mockitoCore                    = "org.mockito"                            % "mockito-core"                % "1.9.5"                 % "test"
   private val activemqCore                   = "org.apache.activemq"                    % "activemq-broker"             % "5.8.0"                 % "test"
