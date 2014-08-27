@@ -1,6 +1,8 @@
 import sbt._
 import sbt.Keys._
 
+import aether.Aether.aetherPublishSettings
+
 import Resolvers._
 
 object Publish {
@@ -9,7 +11,7 @@ object Publish {
   /** Publishing settings **/
   /*************************/
 
-  lazy val settings = Seq(
+  lazy val settings = aetherPublishSettings ++ Seq(
     crossPaths           := false,
     pomExtra             := scm ++ developersXml(developers),
     publishMavenStyle    := true,
