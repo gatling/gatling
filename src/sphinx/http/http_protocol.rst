@@ -183,6 +183,16 @@ Gatling will encode them for you, there might be some corner cases where already
 If you know that your urls are already properly encoded, you can disable this feature with ``.disableUrlEncoding``.
 Note that this feature can also be disabled per request.
 
+Logging
+-------
+
+.. _http-protocol-silent:
+
+:ref:`Request's silent option <http-request-silent>` let you disable logging for a given request.
+You can also use ``silentURI`` on the HTTP protocol and pass a regular expression that would disable logging for ALL matching requests::
+
+  .silentURI("https://myCDN/.*")
+
 .. _http-protocol-headers:
 
 HTTP Headers
