@@ -36,6 +36,7 @@ class RendezVous(users: Int, val next: ActorRef) extends Chainable {
     if (buffer.length == users) {
       context.become(passThrough)
       buffer.foreach(next ! _)
+      buffer.clear()
     }
   }
 }
