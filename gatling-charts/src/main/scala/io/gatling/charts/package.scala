@@ -37,7 +37,7 @@ package object charts {
 
       val md = MessageDigest.getInstance("md5")
       md.update(trimmed.getBytes(configuration.core.charset))
-      trimmed.clean + "-" + bytes2Hex(md.digest)
+      trimmed.clean.take(15) + "-" + bytes2Hex(md.digest).take(5)
     }
 
     def toRequestFileName = s"req_$toFileName.html"
