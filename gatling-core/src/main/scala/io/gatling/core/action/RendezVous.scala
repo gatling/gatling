@@ -28,7 +28,7 @@ class RendezVous(users: Int, val next: ActorRef) extends Chainable {
   val buffer = mutable.Queue.empty[Session]
 
   val passThrough: Receive = {
-    case session: Session => next ! Session
+    case session: Session => next ! session
   }
 
   def execute(session: Session): Unit = {
