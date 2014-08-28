@@ -276,7 +276,7 @@ For a given request, you can also disable common checks that were defined on the
 FollowRedirect
 --------------
 
-.. _http-request-disable-follow-rredirect:
+.. _http-request-disable-follow-redirect:
 
 For a given request, you can use ``disableFollowRedirect``, just like it can be done globally on the ``HttpProtocol``::
 
@@ -299,6 +299,8 @@ You can then make the request *silent*: ::
   http("Getting issues")
     .get("https://www.github.com/gatling/gatling/issues")
     .silent
+
+This will cause the request to not be logged and to not trigger status update, such as :ref:`tryMax <scenario-trymax>` and :ref:`exitHereIfFailed <scenario-exithereiffailed>`.
 
 Regular HTTP request
 ====================
