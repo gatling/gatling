@@ -328,9 +328,12 @@ Checks that the value doesn't exist and or is empty in case of multiple results.
 
 Checks that the value belongs to a given sequence.
 
-.. _http-check-whatever:
+.. _http-check-optional:
 
-* ``dontValidate``
+* ``optional``
+
+.. warning::
+  ``optional`` used to be named ``dontValidate``. The old name still works but will be removed in Gatling 2.1.
 
 Always true, used for capture an optional value.
 
