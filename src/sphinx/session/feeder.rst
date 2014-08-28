@@ -9,7 +9,7 @@ Feeder is a type alias for ``Iterator[Map[String, T]]``, meaning that the compon
 It's very simple to build a custom one. For example, here's how one could build a random email generator::
 
   val random = new util.Random
-  val feeder = Iterator.continually(Map("email" -> random.nextString(20) + "@foo.com"))
+  val feeder = Iterator.continually(Map("email" -> (random.nextString(20) + "@foo.com")))
 
 
 The structure DSL provides a ``feed`` method.
