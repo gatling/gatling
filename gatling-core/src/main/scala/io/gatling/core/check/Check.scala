@@ -24,7 +24,7 @@ import io.gatling.core.validation.{ Failure, Success, SuccessWrapper, Validation
 
 object Check {
 
-  def check[R](response: R, session: Session, checks: List[Check[R]]): (Session => Session, Option[String]) = {
+  def check[R](response: R, session: Session, checks: List[Check[R]], silent: Boolean): (Session => Session, Option[String]) = {
 
     implicit val cache = mutable.Map.empty[Any, Any]
 
@@ -49,8 +49,10 @@ object Check {
 
             case Failure(e) =>
               error match {
-                case None => checkRec(session, tail, update andThen Session.MarkAsFailedUpdate, Some(e))
-                case _    => checkRec(session, tail, update, error)
+                case None =>
+                  val newUpdate = if (silent) update else update andThen Session.MarkAsFailedUpdate
+                  checkRec(session, tail, newUpdate, Some(e))
+                case _ => checkRec(session, tail, update, error)
               }
           }
         }

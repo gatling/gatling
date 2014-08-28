@@ -261,7 +261,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
         val cacheUpdate = CacheHandling.cache(tx.request.config.protocol, tx.request.ahcRequest, response)
 
-        val (checkSaveUpdate, checkError) = Check.check(response, tx.session, checks)
+        val (checkSaveUpdate, checkError) = Check.check(response, tx.session, checks, tx.request.config.silent)
 
         val status = checkError match {
           case None => OK
