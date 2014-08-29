@@ -122,7 +122,7 @@ gatling/layout.html
             <li><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a></li>
             {%- endblock %}
             {%- for parent in parents %}
-            <li><a href="{{ parent.link|e }}">
+            <li><a href="{{ parent.link|e }}"
               {% if loop.last %}{{ accesskey("U") }}{% endif %}>
               {{ parent.title }}
               </a>
