@@ -41,14 +41,14 @@ class HttpRequestActionSpec extends FlatSpec with Matchers with MockitoSugar {
   }
 
   "HttpRequestAction" should "send same transaction with no redirect" in new Context {
-    val tx = MockUtils.txTo("http://example.com/", session)
+    val tx = MockUtils.txTo("http://example.com/", session, cache = true)
     HttpRequestAction.startHttpTransaction(tx, httpEngineMock)(null)
     verify(httpEngineMock, times(1)).startHttpTransaction(tx)
   }
 
   it should "update transaction in case of a redirect" in new Context {
     addRedirect("http://example.com/", "http://gatling-tool.org/")
-    val tx = MockUtils.txTo("http://example.com/", session)
+    val tx = MockUtils.txTo("http://example.com/", session, cache = true)
     HttpRequestAction.startHttpTransaction(tx, httpEngineMock)(null)
 
     val argumentCapture = ArgumentCaptor.forClass(classOf[HttpTx])
