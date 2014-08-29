@@ -28,12 +28,12 @@ import io.gatling.http.request.{ HttpRequestConfig, HttpRequest }
 
 object MockUtils extends MockitoSugar {
 
-  def txTo(uri: String, session: Session, redirectCount: Int = 0) = {
+  def txTo(uri: String, session: Session, redirectCount: Int = 0, cache: Boolean = false) = {
     val protocol = mock[HttpProtocol]
     val request = mock[Request]
     val requestPart = mock[HttpProtocolRequestPart]
 
-    when(requestPart.cache) thenReturn false
+    when(requestPart.cache) thenReturn cache
     when(requestPart.silentURI) thenReturn None
     when(requestPart.silentResources) thenReturn false
     when(request.getURI) thenReturn UriComponents.create(uri)

@@ -35,7 +35,7 @@ class PermanentRedirectSpec extends FlatSpec with Matchers {
   }
 
   "redirect memoization" should "return transaction with no redirect cache" in new Context {
-    val tx = MockUtils.txTo("http://example.com/", session)
+    val tx = MockUtils.txTo("http://example.com/", session, cache = true)
     val actualTx = PermanentRedirect.applyPermanentRedirect(tx)
 
     actualTx shouldBe tx
@@ -48,7 +48,7 @@ class PermanentRedirectSpec extends FlatSpec with Matchers {
   it should "return updated transaction with single redirect" in new Context {
     addRedirect("http://example.com/", "http://gatling-tool.org/")
 
-    val origTx = MockUtils.txTo("http://example.com/", session)
+    val origTx = MockUtils.txTo("http://example.com/", session, cache = true)
     val tx = PermanentRedirect.applyPermanentRedirect(origTx)
 
     tx.request.ahcRequest.getURI shouldBe UriComponents.create("http://gatling-tool.org/")
@@ -61,7 +61,7 @@ class PermanentRedirectSpec extends FlatSpec with Matchers {
     addRedirect("http://gatling-tool.org/", "http://gatling-tool2.org/")
     addRedirect("http://gatling-tool2.org/", "http://gatling-tool3.org/")
 
-    val origTx = MockUtils.txTo("http://example.com/", session)
+    val origTx = MockUtils.txTo("http://example.com/", session, cache = true)
     val tx = PermanentRedirect.applyPermanentRedirect(origTx)
 
     tx.request.ahcRequest.getURI shouldBe UriComponents.create("http://gatling-tool3.org/")
@@ -75,7 +75,7 @@ class PermanentRedirectSpec extends FlatSpec with Matchers {
     addRedirect("http://gatling-tool2.org/", "http://gatling-tool3.org/")
 
     // Redirect count is already 2
-    val origTx = MockUtils.txTo("http://example.com/", session, 2)
+    val origTx = MockUtils.txTo("http://example.com/", session, 2, cache = true)
     val tx = PermanentRedirect.applyPermanentRedirect(origTx)
 
     tx.request.ahcRequest.getURI shouldBe UriComponents.create("http://gatling-tool3.org/")
