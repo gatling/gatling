@@ -12,4 +12,5 @@ General
     simulation_setup
     scenario
     assertions
+    timings
     reports

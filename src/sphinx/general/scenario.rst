@@ -436,15 +436,6 @@ Groups definition
 Create group of requests to model process or requests in a same page.
 Groups can be nested.
 
-.. _group-timings:
-
-.. note::
-
-  Groups capture 2 timings described as follows:
-
-  * The response time for a group is the cumulated response time of each individual request in the group.
-  * The cumulated time for a group is the elapsed time from the start of the group's first request to the end of the group's last request, including  pauses. Groups' cumulated time are only reported in the "Cumulated response time" chart.
-
 .. _scenario-protocols:
 
 Protocol definition
