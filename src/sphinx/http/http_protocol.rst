@@ -183,15 +183,37 @@ Gatling will encode them for you, there might be some corner cases where already
 If you know that your urls are already properly encoded, you can disable this feature with ``.disableUrlEncoding``.
 Note that this feature can also be disabled per request.
 
-Logging
--------
+.. _http-protocol-silencing:
 
-.. _http-protocol-silent:
+Silencing
+---------
 
-:ref:`Request's silent option <http-request-silent>` let you disable logging for a given request.
-You can also use ``silentURI`` on the HTTP protocol and pass a regular expression that would disable logging for ALL matching requests::
+Request stats are logged and then used to produce reports.
+Sometimes, some requests may be important for you for generating load, but you don't actually want to report them.
+Typically, reporting all static resources might generate a lot of noise, and yet failed static resources are usually non blocking from a user experience perspective.
+
+Gatling provides several means to turn requests silent.
+Silent requests won't be reported and won't influence error triggers such as :ref:`tryMax <scenario-trymax>` and :ref:`exitHereIfFailed <scenario-exithereiffailed>`.
+Yet, response times will be accounted for in ``group`` times.
+
+Some parameters are available here at protocol level, some others are available at request level.
+
+Rules are:
+
+* explicitly turning a given request :ref:`silent <http-request-silent>` or :ref:`notSilent <http-request-notsilent>` has precedence over everything else
+* otherwise, a request is silent if it matches protocol's ``silentURI`` filter
+* otherwise, a request is silent if it's a resource (not a top level request) and protocol's ``silentResources`` flag has been turned on
+* otherwise, a request is not silent
+
+.. _http-protocol-silentURI:
+
+``silentURI`` lets you pass a regular expression that would disable logging for ALL matching requests::
 
   .silentURI("https://myCDN/.*")
+
+.. _http-protocol-silentResources:
+
+``silentResources`` silences all resource requests, except the ones that were explicitly turned ``notSilent``.
 
 .. _http-protocol-headers:
 

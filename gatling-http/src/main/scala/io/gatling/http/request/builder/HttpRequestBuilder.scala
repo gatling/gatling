@@ -28,7 +28,7 @@ import io.gatling.http.response.Response
 case class HttpAttributes(
   checks: List[HttpCheck] = Nil,
   ignoreDefaultChecks: Boolean = false,
-  silent: Boolean = false,
+  silent: Option[Boolean] = None,
   followRedirect: Boolean = true,
   discardResponseChunks: Boolean = true,
   responseTransformer: Option[PartialFunction[Response, Response]] = None,
@@ -67,7 +67,9 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
    */
   def ignoreDefaultChecks: B = newInstance(httpAttributes.copy(ignoreDefaultChecks = true))
 
-  def silent: B = newInstance(httpAttributes.copy(silent = true))
+  def silent: B = newInstance(httpAttributes.copy(silent = Some(true)))
+
+  def notSilent: B = newInstance(httpAttributes.copy(silent = Some(false)))
 
   def disableFollowRedirect: B = newInstance(httpAttributes.copy(followRedirect = false))
 

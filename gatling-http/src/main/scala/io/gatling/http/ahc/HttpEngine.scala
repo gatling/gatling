@@ -52,7 +52,18 @@ case class HttpTx(session: Session,
                   next: ActorRef,
                   primary: Boolean = true,
                   redirectCount: Int = 0,
-                  update: Session => Session = Session.Identity)
+                  update: Session => Session = Session.Identity) {
+
+  val silent: Boolean = {
+
+      def silentBecauseProtocolSilentResources = !primary && request.config.protocol.requestPart.silentResources
+
+      def silentBecauseProtocolSilentURI: Option[Boolean] = request.config.protocol.requestPart.silentURI
+        .map(_.matcher(request.ahcRequest.getURI.toUrl).matches)
+
+    request.config.silent.orElse(silentBecauseProtocolSilentURI).getOrElse(silentBecauseProtocolSilentResources)
+  }
+}
 
 case class WsTx(session: Session,
                 request: Request,

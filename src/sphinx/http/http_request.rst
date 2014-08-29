@@ -284,15 +284,14 @@ For a given request, you can use ``disableFollowRedirect``, just like it can be 
     .get("https://www.github.com/gatling/gatling/issues")
     .disableFollowRedirect
 
-Logging
--------
+.. _http-request-silencing:
+
+Silencing
+---------
+
+See :ref:`silencing protocol section <http-protocol-silencing>` for more details.
 
 .. _http-request-silent:
-
-You may want to issue a request, but not log it, e.g.:
-
-* because this request is not related to the load test, but used for initializing the system
-* because this load induced is relevant, but not the metrics, for example, with static resources
 
 You can then make the request *silent*: ::
 
@@ -300,7 +299,15 @@ You can then make the request *silent*: ::
     .get("https://www.github.com/gatling/gatling/issues")
     .silent
 
-This will cause the request to not be logged and to not trigger status update, such as :ref:`tryMax <scenario-trymax>` and :ref:`exitHereIfFailed <scenario-exithereiffailed>`.
+.. _http-request-notsilent:
+
+You might also want to do the exact opposite, typically on a given resource while resources have been globally turned silent at protocol level::
+
+  .resources(
+    http("Gatling Logo")
+    .get("http://gatling.io/assets/images/img1.png")
+    .notSilent
+  )
 
 Regular HTTP request
 ====================

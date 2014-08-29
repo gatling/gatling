@@ -16,6 +16,7 @@
 package io.gatling.http.config
 
 import java.net.InetAddress
+import java.util.regex.Pattern
 
 import scala.collection.mutable
 
@@ -56,6 +57,7 @@ object HttpProtocol {
       autoReferer = true,
       cache = true,
       disableUrlEscaping = false,
+      silentResources = false,
       silentURI = None,
       signatureCalculator = None),
     responsePart = HttpProtocolResponsePart(
@@ -179,7 +181,8 @@ case class HttpProtocolRequestPart(
   autoReferer: Boolean,
   cache: Boolean,
   disableUrlEscaping: Boolean,
-  silentURI: Option[Regex],
+  silentURI: Option[Pattern],
+  silentResources: Boolean,
   signatureCalculator: Option[SignatureCalculator])
 
 case class HttpProtocolResponsePart(

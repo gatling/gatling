@@ -33,7 +33,13 @@ object MockUtils extends MockitoSugar {
     val request = mock[Request]
     val requestPart = mock[HttpProtocolRequestPart]
 
-    val tx = HttpTx(session,
+    when(requestPart.cache) thenReturn false
+    when(requestPart.silentURI) thenReturn None
+    when(requestPart.silentResources) thenReturn false
+    when(request.getURI) thenReturn UriComponents.create(uri)
+    when(protocol.requestPart) thenReturn requestPart
+
+    HttpTx(session,
       request = HttpRequest(
         requestName = "mockHttpTx",
         ahcRequest = request,
@@ -43,7 +49,7 @@ object MockUtils extends MockitoSugar {
           extraInfoExtractor = None,
           maxRedirects = Some(10),
           throttled = false,
-          silent = false,
+          silent = None,
           followRedirect = true,
           discardResponseChunks = true,
           protocol = protocol,
@@ -51,12 +57,5 @@ object MockUtils extends MockitoSugar {
       responseBuilderFactory = null,
       next = null,
       redirectCount = redirectCount)
-
-    when(protocol.requestPart) thenReturn requestPart
-    when(requestPart.cache) thenReturn false
-
-    when(request.getURI) thenReturn UriComponents.create(uri)
-
-    tx
   }
 }

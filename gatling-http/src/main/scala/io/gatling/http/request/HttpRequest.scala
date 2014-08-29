@@ -43,26 +43,11 @@ case class HttpRequestConfig(
   extraInfoExtractor: Option[ExtraInfoExtractor],
   maxRedirects: Option[Int],
   throttled: Boolean,
-  silent: Boolean,
+  silent: Option[Boolean],
   followRedirect: Boolean,
   discardResponseChunks: Boolean,
   protocol: HttpProtocol,
   explicitResources: List[HttpRequestDef])
-
-object HttpRequestDef {
-
-  def isSilent(config: HttpRequestConfig, ahcRequest: Request): Boolean = {
-
-      def requestMadeSilentByProtocol: Boolean = config.protocol.requestPart.silentURI match {
-        case Some(r) =>
-          val uri = ahcRequest.getURI.toUrl
-          r.pattern.matcher(uri).matches
-        case None => false
-      }
-
-    config.silent || requestMadeSilentByProtocol
-  }
-}
 
 case class HttpRequestDef(
     requestName: Expression[String],
@@ -85,18 +70,11 @@ case class HttpRequestDef(
         }
 
     for {
-      ahcRequest <- ahcRequest(session)
-      newAhcRequest = sign(ahcRequest, signatureCalculator)
-      newSilent = HttpRequestDef.isSilent(config, newAhcRequest)
+      rawAhcRequest <- ahcRequest(session)
+      signedAhcRequest = sign(rawAhcRequest, signatureCalculator)
 
-    } yield HttpRequest(
-      requestName,
-      newAhcRequest,
-      config.copy(silent = newSilent))
+    } yield HttpRequest(requestName, signedAhcRequest, config)
   }
 }
 
-case class HttpRequest(
-  requestName: String,
-  ahcRequest: Request,
-  config: HttpRequestConfig)
+case class HttpRequest(requestName: String, ahcRequest: Request, config: HttpRequestConfig)
