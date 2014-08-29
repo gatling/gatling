@@ -1089,6 +1089,26 @@
             </dl>
           </div>
         </div>
+
+        <div class="function">
+          <label class="function-syntax" for="silent">silent</label>
+          <input type="checkbox" id="silent" name="silent">
+
+          <div class="function-details">
+            Forces the request to be silent
+            A silent request is issued but not logged nor reported
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="notSilent">notSilent</label>
+          <input type="checkbox" id="notSilent" name="notSilent">
+
+          <div class="function-details">
+            Forces the request to NOT be silent, whatever's defined at protocol level.
+            A silent request is issued but not logged nor reported
+          </div>
+        </div>
       </div>
 
       <!-- HTTP body -->
@@ -1915,15 +1935,6 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="silent">silent</label>
-          <input type="checkbox" id="silent" name="silent">
-
-          <div class="function-details">
-            Allows to issue the request without logging it
-          </div>
-        </div>
-
-        <div class="function">
           <label class="function-syntax" for="fetchHtmlResources">fetchHtmlResources</label>
           <input type="checkbox" id="fetchHtmlResources" name="fetchHtmlResources">
 
@@ -1993,6 +2004,30 @@
             Disables caching features for some http headers and ETag
           </div>
         </div>
+
+        <div class="function">
+          <label class="function-syntax" for="silentURI">silentURI</label>
+          <input type="checkbox" id="silentURI" name="silentURI">
+
+          <div class="function-details">
+            Silence requests that match the pattern
+            A silent request is issued but not logged nor reported
+            <dl>
+              <dt>(String)</dt>
+            <dd>A regular expression pattern to match request urls</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+        <label class="function-syntax" for="silentResources">silentResources</label>
+        <input type="checkbox" id="silentResources" name="silentResources">
+
+        <div class="function-details">
+          Silence resource requests
+          A silent request is issued but not logged nor reported
+        </div>
+      </div>
       </div>
 
       <!-- Plumbing -->
