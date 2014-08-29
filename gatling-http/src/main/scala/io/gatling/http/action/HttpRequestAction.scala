@@ -38,7 +38,7 @@ object HttpRequestAction extends DataWriterClient with StrictLogging {
         httpEngine.startHttpTransaction(tx)
       }
 
-    val tx = PermanentRedirect.getRedirect(origTx)
+    val tx = PermanentRedirect.applyPermanentRedirect(origTx)
     val uri = tx.request.ahcRequest.getURI
     val protocol = tx.request.config.protocol
 

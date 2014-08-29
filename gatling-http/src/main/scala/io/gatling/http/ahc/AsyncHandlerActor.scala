@@ -223,7 +223,11 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
               case Some(location) =>
                 val redirectURI = resolveFromURI(tx.request.ahcRequest.getURI, location)
 
-                val cacheRedirectUpdate = cacheRedirect(tx.request.ahcRequest, redirectURI)
+                val cacheRedirectUpdate =
+                  if (tx.request.config.protocol.requestPart.cache)
+                    cacheRedirect(tx.request.ahcRequest, redirectURI)
+                  else
+                    Session.Identity
 
                 // don't override group stats when redirecting a resource
                 val logGroupRequestUpdate: Session => Session =

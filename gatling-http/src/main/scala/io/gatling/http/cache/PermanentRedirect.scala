@@ -49,22 +49,26 @@ object PermanentRedirect {
     permanentRedirect1(uri, 0)
   }
 
-  private def redirectTransaction(origTx: HttpTx, uri: UriComponents, additionalRedirects: Int): HttpTx = {
-    val newAhcRequest = redirectRequest(origTx.request.ahcRequest, uri)
-    val newRequest = origTx.request.copy(ahcRequest = newAhcRequest)
-    val newRedirectCount = origTx.redirectCount + additionalRedirects
-    origTx.copy(request = newRequest, redirectCount = newRedirectCount)
-  }
-
   private def redirectRequest(request: Request, toUri: UriComponents): Request = {
     val requestBuilder = new RequestBuilder(request)
     requestBuilder.setURI(toUri)
     requestBuilder.build()
   }
 
-  def getRedirect(origTx: HttpTx): HttpTx =
-    permanentRedirect(origTx.session, origTx.request.ahcRequest.getURI) match {
-      case Some(Pair(targetUri, redirectCount)) => redirectTransaction(origTx, targetUri, redirectCount)
-      case None                                 => origTx
-    }
+  def applyPermanentRedirect(origTx: HttpTx): HttpTx =
+    if (origTx.request.config.protocol.requestPart.cache)
+      permanentRedirect(origTx.session, origTx.request.ahcRequest.getURI) match {
+        case Some(Pair(targetUri, redirectCount)) =>
+
+          val newAhcRequest = redirectRequest(origTx.request.ahcRequest, targetUri)
+
+          origTx.copy(request = origTx.request.copy(
+            ahcRequest = newAhcRequest),
+            redirectCount = origTx.redirectCount + redirectCount)
+
+        //redirectTransaction(origTx, targetUri, redirectCount)
+        case None => origTx
+      }
+    else
+      origTx
 }
