@@ -15,15 +15,15 @@
  */
 package io.gatling.charts.report
 
-import scala.tools.nsc.io.{ File, Path }
+import java.net.URI
 
 import com.dongxiguo.fastring.Fastring
 
-import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.IO._
+import io.gatling.core.util.UriHelper.RichUri
 
-class TemplateWriter(path: Path) {
+class TemplateWriter(path: URI) {
 
   def writeToFile(output: Fastring): Unit =
-    withCloseable(File(path)(configuration.core.codec).writer()) { output.appendTo }
+    withCloseable(path.writer()) { output.appendTo }
 }

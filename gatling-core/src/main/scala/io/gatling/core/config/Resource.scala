@@ -15,23 +15,25 @@
  */
 package io.gatling.core.config
 
-import java.io.{ File => JFile, FileOutputStream, InputStream }
-import java.net.URL
-
-import scala.reflect.io.{ File, Path }
-import scala.tools.nsc.io.Path.string2path
+import java.io.{ FileInputStream, File, FileOutputStream, InputStream }
+import java.net.{ URI, URL }
 
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.core.util.IO._
+import io.gatling.core.util.UriHelper._
 
 object Resource {
 
   object ClasspathResource {
+    private def extension(s: String) = {
+      val lastIndex = s.lastIndexOf('.')
+      if (lastIndex != -1) "" else s.substring(lastIndex + 1)
+    }
     def unapply(location: Location): Option[Validation[Resource]] =
-      Option(getClass.getClassLoader.getResource(location.path.toString().replace('\\', '/'))).map { url =>
+      Option(getClass.getClassLoader.getResource(location.path.replace('\\', '/'))).map { url =>
         url.getProtocol match {
-          case "file" => FileResource(File(url.jfile)).success
-          case "jar"  => ArchiveResource(url, location.path.extension).success
+          case "file" => FileResource(url.jfile).success
+          case "jar"  => ArchiveResource(url, extension(location.path)).success
           case _      => s"$url is neither a file nor a jar".failure
         }
       }
@@ -39,15 +41,15 @@ object Resource {
 
   object FileInFolderResource {
     def unapply(location: Location): Option[Validation[Resource]] =
-      (location.directory / location.path).ifFile(f => FileResource(f.toFile).success)
+      (location.directory / location.path).ifFile(f => FileResource(f).success)
   }
 
   object AbsoluteFileResource {
     def unapply(location: Location): Option[Validation[Resource]] =
-      location.path.ifFile(f => FileResource(f.toFile).success)
+      pathToUri(location.path).ifFile(f => FileResource(f).success)
   }
 
-  private def load(directory: Path, path: Path): Validation[Resource] =
+  private def load(directory: URI, path: String): Validation[Resource] =
     new Location(directory, path) match {
       case ClasspathResource(res)    => res
       case FileInFolderResource(res) => res
@@ -55,7 +57,7 @@ object Resource {
       case _                         => s"file $path doesn't exist".failure
     }
 
-  private class Location(val directory: Path, val path: Path)
+  private class Location(val directory: URI, val path: String)
 
   def feeder(fileName: String): Validation[Resource] = load(GatlingFiles.dataDirectory, fileName)
   def requestBody(fileName: String): Validation[Resource] = load(GatlingFiles.requestBodiesDirectory, fileName)
@@ -63,20 +65,19 @@ object Resource {
 
 sealed trait Resource {
   def inputStream: InputStream
-  def jfile: JFile
+  def file: File
 }
 
 case class FileResource(file: File) extends Resource {
-  def inputStream = file.inputStream()
-  def jfile = file.jfile
+  def inputStream = new FileInputStream(file)
 }
 
 case class ArchiveResource(url: URL, extension: String) extends Resource {
 
   def inputStream = url.openStream
 
-  def jfile = {
-    val tempFile = File.makeTemp("gatling", "." + extension).jfile
+  def file = {
+    val tempFile = File.createTempFile("gatling", "." + extension)
 
     withCloseable(inputStream) { is =>
       withCloseable(new FileOutputStream(tempFile, false)) { os =>

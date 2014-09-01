@@ -35,6 +35,7 @@ import io.gatling.core.result.reader.DataReader
 import io.gatling.core.runner.{ Runner, Selection }
 import io.gatling.core.scenario.Simulation
 import io.gatling.core.util.StringHelper.RichString
+import io.gatling.core.util.UriHelper.RichUri
 import scopt.OptionParser
 
 /**
@@ -173,7 +174,7 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
         val start = currentTimeMillis
         val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader)
         println(s"Reports generated in ${(currentTimeMillis - start) / 1000}s.")
-        println(s"Please open the following file: $indexFile")
+        println(s"Please open the following file: ${indexFile.toFile}")
       }
 
     val simulations = simulationClass match {

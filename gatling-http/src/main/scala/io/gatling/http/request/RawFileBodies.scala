@@ -31,9 +31,9 @@ object RawFileBodies {
 
   def cached(path: String) =
     if (configuration.http.rawFileBodiesCacheMaxCapacity > 0)
-      Cache.getOrElseUpdate(path, Resource.requestBody(path).map(_.jfile))
+      Cache.getOrElseUpdate(path, Resource.requestBody(path).map(_.file))
     else
-      Resource.requestBody(path).map(_.jfile)
+      Resource.requestBody(path).map(_.file)
 
   def asFile(filePath: Expression[String]): Expression[File] = session =>
     for {

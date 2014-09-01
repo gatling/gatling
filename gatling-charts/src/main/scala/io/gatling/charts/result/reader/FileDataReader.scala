@@ -31,6 +31,7 @@ import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 import io.gatling.core.result.writer._
+import io.gatling.core.util.UriHelper.RichUri
 
 object FileDataReader {
 
@@ -46,8 +47,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
   println("Parsing log file(s)...")
 
-  val inputFiles = simulationLogDirectory(runUuid, create = false).files
-    .collect { case file if file.name.matches(SimulationFilesNamePattern) => file.jfile }
+  val inputFiles = simulationLogDirectory(runUuid, create = false).toFile.listFiles()
+    .collect { case file if file.getName.matches(SimulationFilesNamePattern) => file }
     .toList
 
   logger.info(s"Collected $inputFiles from $runUuid")

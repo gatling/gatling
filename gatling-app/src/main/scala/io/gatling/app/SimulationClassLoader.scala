@@ -16,39 +16,41 @@
 package io.gatling.app
 
 import java.lang.reflect.Modifier
+import java.net.URI
 
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
-import scala.tools.nsc.io.{ Directory, File, Path }
+import scala.tools.nsc.io.{ File, Path }
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.PlainFile
+import scala.util.{ Try, Success }
 
 import io.gatling.core.scenario.Simulation
-import scala.util.{ Try, Success }
+import io.gatling.core.util.UriHelper.RichUri
 
 object SimulationClassLoader {
 
-  def fromSourcesDirectory(sourceDirectory: Directory): SimulationClassLoader = {
+  def fromSourcesDirectory(sourceDirectory: URI): SimulationClassLoader = {
 
     // Compile the classes
     val classesDir = ZincCompilerLauncher(sourceDirectory)
 
     // Pass the compiled classes to a ClassLoader
-    Option(PlainFile.fromPath(classesDir)) match {
+    Option(PlainFile.fromPath(classesDir.toPath)) match {
       case Some(byteCodeDir) =>
         val classLoader = new AbstractFileClassLoader(byteCodeDir, getClass.getClassLoader)
 
         new SimulationClassLoader(classLoader, classesDir)
 
       case None =>
-        throw new UnsupportedOperationException(s"Zinc compiled into ${classesDir.jfile.getAbsolutePath} but this is not a directory")
+        throw new UnsupportedOperationException(s"""Zinc compiled into $classesDir but this is not a directory""")
     }
   }
 
-  def fromClasspathBinariesDirectory(binariesDirectory: Directory): SimulationClassLoader =
+  def fromClasspathBinariesDirectory(binariesDirectory: URI): SimulationClassLoader =
     new SimulationClassLoader(getClass.getClassLoader, binariesDirectory)
 }
 
-class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Directory) {
+class SimulationClassLoader(classLoader: ClassLoader, binaryDir: URI) {
 
   private def isSimulationClass(clazz: Class[_]): Boolean =
     classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
@@ -74,8 +76,9 @@ class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Directory) {
       }
     }.getOrElse {
       binaryDir
+        .toPath.toDirectory
         .deepFiles
-        .collect { case file if file.hasExtension("class") => classLoader.loadClass(pathToClassName(file, binaryDir)) }
+        .collect { case file if file.hasExtension("class") => classLoader.loadClass(pathToClassName(file, binaryDir.toPath)) }
         .collect { case clazz if isSimulationClass(clazz) => clazz.asInstanceOf[Class[Simulation]] }
         .toList
     }

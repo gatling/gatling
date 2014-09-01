@@ -31,6 +31,7 @@ import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.util.ConfigHelper.configChain
 import io.gatling.core.util.IO._
 import io.gatling.core.util.StringHelper.RichString
+import io.gatling.core.util.UriHelper.RichUri
 
 object RecorderConfiguration extends StrictLogging {
 
@@ -110,7 +111,7 @@ object RecorderConfiguration extends StrictLogging {
       def getOutputFolder(folder: String) = {
         folder.trimToOption match {
           case Some(f)                               => f
-          case _ if sys.env.contains("GATLING_HOME") => GatlingFiles.sourcesDirectory.toString
+          case _ if sys.env.contains("GATLING_HOME") => GatlingFiles.sourcesDirectory.toFile.toString
           case _                                     => userHome
         }
       }
@@ -119,7 +120,7 @@ object RecorderConfiguration extends StrictLogging {
         if (config.hasPath(core.RequestBodiesFolder))
           config.getString(core.RequestBodiesFolder)
         else
-          GatlingFiles.requestBodiesDirectory.toString
+          GatlingFiles.requestBodiesDirectory.toFile.toString
 
     RecorderConfiguration(
       core = CoreConfiguration(

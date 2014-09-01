@@ -15,31 +15,32 @@
  */
 package io.gatling.app
 
+import java.net.URI
+
 import scala.sys.process.Process
-import scala.tools.nsc.io.Directory
-import scala.tools.nsc.io.Path.string2path
 import scala.util.Properties.{ javaClassPath, jdkHome, isWin }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.{ binariesDirectory, GatlingHome }
 import io.gatling.core.util.StringHelper.RichString
+import io.gatling.core.util.UriHelper._
 
 object ZincCompilerLauncher {
 
-  def apply(sourceDirectory: Directory): Directory = {
+  def apply(sourceDirectory: URI): URI = {
 
     val binDirectory = binariesDirectory.getOrElse(GatlingHome / "target")
     val javaHome = jdkHome.trimToOption.getOrElse(throw new IllegalStateException("Couldn't locate java, try setting JAVA_HOME environment variable."))
-    val javaExe = javaHome / "bin" / (if (isWin) "java.exe" else "java")
-    val classesDirectory = Directory(binDirectory / "classes")
-    classesDirectory.createDirectory()
+    val javaExe = pathToUri(javaHome) / "bin" / (if (isWin) "java.exe" else "java")
+    val classesDirectory = binDirectory / "classes"
+    classesDirectory.toFile.mkdirs()
 
     val classPath = Seq("-cp", javaClassPath)
     val jvmArgs = configuration.core.zinc.jvmArgs.toSeq
     val clazz = Seq("io.gatling.app.ZincCompiler")
-    val args = Seq(GatlingHome, sourceDirectory, binDirectory, classesDirectory, configuration.core.encoding).map(_.toString)
+    val args = Seq(GatlingHome, sourceDirectory.toFile, binDirectory.toFile, classesDirectory.toFile, configuration.core.encoding).map(_.toString)
 
-    val process = Process(javaExe.toString(), Seq(classPath, jvmArgs, clazz, args).flatten)
+    val process = Process(javaExe.toFile.getAbsolutePath, Seq(classPath, jvmArgs, clazz, args).flatten)
 
     if (process.! != 0) {
       println("Compilation failed")

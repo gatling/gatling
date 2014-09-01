@@ -17,10 +17,10 @@
 
 OLDDIR=`pwd`
 BIN_DIR=`dirname $0`
-cd ${BIN_DIR}/.. && DEFAULT_GATLING_HOME=`pwd` && cd ${OLDDIR}
+cd "${BIN_DIR}/.." && DEFAULT_GATLING_HOME=`pwd` && cd "${OLDDIR}"
 
-GATLING_HOME=${GATLING_HOME:=${DEFAULT_GATLING_HOME}}
-GATLING_CONF=${GATLING_CONF:=$GATLING_HOME/conf}
+GATLING_HOME="${GATLING_HOME:=${DEFAULT_GATLING_HOME}}"
+GATLING_CONF="${GATLING_CONF:=$GATLING_HOME/conf}"
 
 export GATLING_HOME GATLING_CONF
 
@@ -30,4 +30,4 @@ JAVA_OPTS="-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M
 
 CLASSPATH="$GATLING_HOME/lib/*:$GATLING_CONF:$GATLING_HOME/user-files:${JAVA_CLASSPATH}"
 
-java $JAVA_OPTS -cp $CLASSPATH io.gatling.app.Gatling "$@"
+java $JAVA_OPTS -cp "$CLASSPATH" io.gatling.app.Gatling "$@"
