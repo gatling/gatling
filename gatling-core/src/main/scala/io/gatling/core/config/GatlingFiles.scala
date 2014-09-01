@@ -44,7 +44,8 @@ object GatlingFiles {
   def sourcesDirectory: URI = resolvePath(configuration.core.directory.sources)
   def reportsOnlyDirectory: Option[String] = configuration.core.directory.reportsOnly
   def binariesDirectory: Option[URI] = configuration.core.directory.binaries.map(new File(_).toURI)
-  def resultDirectory(runUuid: String): URI = resolvePath(configuration.core.directory.results) / runUuid
+  // FIXME : UriHelper (or other solutions) should be less strict about what non-existing folders in URIs
+  def resultDirectory(runUuid: String): URI = resolvePath(configuration.core.directory.results + "/" + runUuid)
   def jsDirectory(runUuid: String): URI = resultDirectory(runUuid) / GatlingJsFolder
   def styleDirectory(runUuid: String): URI = resultDirectory(runUuid) / GatlingStyleFolder
 
