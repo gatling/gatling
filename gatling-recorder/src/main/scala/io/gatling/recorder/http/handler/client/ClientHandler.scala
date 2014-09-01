@@ -19,7 +19,6 @@ import io.gatling.recorder.http.handler.server.SslHandlerSetter
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.http.util.HttpHelper.OkCodes
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.ScalaChannelHandler
@@ -57,32 +56,19 @@ class ClientHandler(controller: RecorderController, serverChannel: Channel, var 
           throw new UnsupportedOperationException(s"Outgoing proxy refused to connect: ${response.getStatus}")
       }
 
-      def handleRequest(response: HttpResponse): Unit = {
-
-          def isKeepAlive(headers: HttpHeaders) = Option(headers.get(HttpHeaders.Names.CONNECTION)).exists(HttpHeaders.Values.KEEP_ALIVE.equalsIgnoreCase)
-
+      def handleRequest(response: HttpResponse): Unit =
         ctx.getAttachment match {
           case request: TimedHttpRequest =>
-            val keepAlive = isKeepAlive(request.httpRequest.headers) && isKeepAlive(response.headers)
-
             controller.receiveResponse(request, response)
 
             ctx.setAttachment(null)
 
-            serverChannel.write(response).addListener { future: ChannelFuture =>
+            logger.debug(s"About to write request to server with channel ${serverChannel.getId} ${serverChannel.isOpen}")
 
-              if (keepAlive && OkCodes.contains(response.getStatus.getCode)) {
-                logger.debug("Both request and response are willing to keep the connection alive, reusing channels")
-              } else {
-                logger.debug("Request and/or response is not willing to keep the connection alive, closing both channels")
-                serverChannel.close()
-                ctx.getChannel.close()
-              }
-            }
+            serverChannel.write(response)
 
           case _ => throw new IllegalStateException("Couldn't find request attachment")
         }
-      }
 
     event.getMessage match {
       case response: HttpResponse =>
@@ -93,9 +79,5 @@ class ClientHandler(controller: RecorderController, serverChannel: Channel, var 
 
       case unknown => logger.warn(s"Received unknown message: $unknown")
     }
-  }
-
-  override def channelClosed(ctx: ChannelHandlerContext, e: ChannelStateEvent): Unit = {
-    serverChannel.close()
   }
 }

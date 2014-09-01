@@ -33,7 +33,7 @@ class PortUnificationServerHandler(proxy: HttpProxy, pipeline: ChannelPipeline) 
             else
               new HttpServerHandler(proxy)
           pipeline.addLast(GatlingHandlerName, serverHandler)
-          pipeline.remove(ConditionalHandlerName)
+          pipeline.remove(PortUnificationServerHandler)
 
         case unknown => logger.warn("Received unknown message: $unknown , in event : " + event)
       }

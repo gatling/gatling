@@ -25,7 +25,7 @@ import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.client.{ TimedHttpRequest, ClientHandler }
-import org.jboss.netty.channel.{ Channel, ChannelHandlerContext, ExceptionEvent, MessageEvent, SimpleChannelHandler }
+import org.jboss.netty.channel._
 import org.jboss.netty.handler.codec.http.HttpRequest
 
 abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
@@ -60,9 +60,14 @@ abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with
   def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit
 
   override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
-    logger.error("Exception caught", e.getCause)
-    ctx.getChannel.close()
-    _clientChannel.map(_.close())
+    logger.error(s"Exception caught on channel ${ctx.getChannel.getId}", e.getCause)
+
+    if (ctx.getChannel.isReadable)
+      ctx.getChannel.close()
+    _clientChannel.foreach { clientChannel =>
+      if (clientChannel.isReadable)
+        clientChannel.close()
+    }
   }
 
   def computeInetSocketAddress(uri: UriComponents): InetSocketAddress = {
@@ -80,11 +85,22 @@ abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with
 
   def writeRequestToClient(clientChannel: Channel, clientRequest: HttpRequest, loggedRequest: HttpRequest): Unit = {
     clientChannel.getPipeline.getContext(GatlingHandlerName).setAttachment(TimedHttpRequest(loggedRequest))
+    logger.debug(s"About to write client request with channel ${clientChannel.getId} ${clientChannel.isOpen}")
     clientChannel.write(clientRequest)
   }
 
   def setupClientChannel(clientChannel: Channel, controller: RecorderController, serverChannel: Channel, performConnect: Boolean): Unit = {
     clientChannel.getPipeline.addLast(GatlingHandlerName, new ClientHandler(controller, serverChannel, performConnect))
     _clientChannel = Some(clientChannel)
+  }
+
+  override def channelDisconnected(ctx: ChannelHandlerContext, event: ChannelStateEvent): Unit = {
+    super.channelDisconnected(ctx, event)
+    _clientChannel.foreach { clientChannel =>
+      logger.debug(s"server channel ${ctx.getChannel.getId} was closed, closing pear client channel ${clientChannel.getId}")
+      if (clientChannel.isReadable)
+        clientChannel.close()
+      _clientChannel = None
+    }
   }
 }

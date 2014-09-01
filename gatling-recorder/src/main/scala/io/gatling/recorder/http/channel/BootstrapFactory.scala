@@ -31,7 +31,7 @@ object BootstrapFactory extends StrictLogging {
   val CodecHandlerName = "codec"
   val SslHandlerName = "ssl"
   val GatlingHandlerName = "gatling"
-  val ConditionalHandlerName = "conditional"
+  val PortUnificationServerHandler = "port-unification"
 
   def newClientBootstrap(ssl: Boolean, config: RecorderConfiguration): ClientBootstrap = {
 
@@ -69,7 +69,7 @@ object BootstrapFactory extends StrictLogging {
         val pipeline = Channels.pipeline
         pipeline.addLast(CodecHandlerName, new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
         pipeline.addLast("deflater", new HttpContentCompressor)
-        pipeline.addLast(ConditionalHandlerName, new PortUnificationServerHandler(proxy, pipeline))
+        pipeline.addLast(PortUnificationServerHandler, new PortUnificationServerHandler(proxy, pipeline))
         pipeline
       }
     })

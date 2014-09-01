@@ -98,8 +98,12 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
       def handleSslException(e: Exception): Unit = {
         logger.error(s"${e.getClass.getSimpleName} ${e.getMessage}, did you accept the certificate for $targetHostURI?")
         proxy.controller.secureConnection(targetHostURI)
-        ctx.getChannel.close()
-        _clientChannel.map(_.close())
+        if (ctx.getChannel.isReadable)
+          ctx.getChannel.close()
+        _clientChannel.foreach { clientChannel =>
+          if (clientChannel.isReadable)
+            clientChannel.close()
+        }
       }
 
     e.getCause match {
