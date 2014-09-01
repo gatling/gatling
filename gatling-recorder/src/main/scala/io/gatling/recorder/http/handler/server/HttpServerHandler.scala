@@ -39,38 +39,54 @@ class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Scal
     writeRequestToClient(clientChannel, clientRequest, request)
   }
 
+  private def writeRequestWithNewChannel(serverChannel: Channel, request: HttpRequest): Unit = {
+    _clientChannel = None
+
+    val inetSocketAddress = proxy.outgoingProxy match {
+      case Some((host, port)) => new InetSocketAddress(host, port)
+      case _ =>
+        try {
+          computeInetSocketAddress(UriComponents.create(request.getUri))
+        } catch {
+          case e: Exception =>
+            throw new RuntimeException(s"Could not build address requestURI='${request.getUri}'", e)
+        }
+    }
+
+    proxy.clientBootstrap
+      .connect(inetSocketAddress)
+      .addListener { future: ChannelFuture =>
+        if (future.isSuccess) {
+          val clientChannel = future.getChannel
+          setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = false)
+          writeRequest(clientChannel, request)
+        } else {
+          val t = future.getCause
+          logger.error(t.getMessage, t)
+          // FIXME could be 404 or 500 depending on exception
+          val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND)
+          serverChannel.write(response)
+        }
+      }
+  }
+
   def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit =
     _clientChannel match {
       case Some(clientChannel) if clientChannel.isConnected && clientChannel.isOpen =>
-        writeRequest(clientChannel, request)
+
+        val remoteAddress = clientChannel.getRemoteAddress.asInstanceOf[InetSocketAddress]
+        val requestUri = UriComponents.create(request.getUri)
+
+        if (remoteAddress.getHostString != requestUri.getHost || remoteAddress.getPort != defaultPort(requestUri)) {
+          // not connected to the proper remote
+          logger.debug("Client counterpart is not connected to the proper remote, closing it")
+          clientChannel.close()
+          writeRequestWithNewChannel(serverChannel, request)
+
+        } else
+          writeRequest(clientChannel, request)
+
       case _ =>
-        _clientChannel = None
-
-        val inetSocketAddress = proxy.outgoingProxy match {
-          case Some((host, port)) => new InetSocketAddress(host, port)
-          case _ =>
-            try {
-              computeInetSocketAddress(UriComponents.create(request.getUri))
-            } catch {
-              case e: Exception =>
-                throw new RuntimeException(s"Could not build address requestURI='${request.getUri}'", e)
-            }
-        }
-
-        proxy.clientBootstrap
-          .connect(inetSocketAddress)
-          .addListener { future: ChannelFuture =>
-            if (future.isSuccess) {
-              val clientChannel = future.getChannel
-              setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = false)
-              writeRequest(clientChannel, request)
-            } else {
-              val t = future.getCause
-              logger.error(t.getMessage, t)
-              // FIXME could be 404 or 500 depending on exception
-              val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND)
-              serverChannel.write(response)
-            }
-          }
+        writeRequestWithNewChannel(serverChannel, request)
     }
 }

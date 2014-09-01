@@ -70,18 +70,17 @@ abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with
     }
   }
 
-  def computeInetSocketAddress(uri: UriComponents): InetSocketAddress = {
-
-    val host = uri.getHost
-    val port = uri.getPort match {
+  def defaultPort(uri: UriComponents): Int =
+    uri.getPort match {
       case -1 => uri.getScheme match {
         case "https" | "wss" => 443
         case _               => 80
       }
       case p => p
     }
-    new InetSocketAddress(host, port)
-  }
+
+  def computeInetSocketAddress(uri: UriComponents): InetSocketAddress =
+    new InetSocketAddress(uri.getHost, defaultPort(uri))
 
   def writeRequestToClient(clientChannel: Channel, clientRequest: HttpRequest, loggedRequest: HttpRequest): Unit = {
     clientChannel.getPipeline.getContext(GatlingHandlerName).setAttachment(TimedHttpRequest(loggedRequest))
