@@ -15,9 +15,7 @@
  */
 package io.gatling.http.feeder
 
-import scala.reflect.io.File
-
-import java.io.{ InputStream, IOException }
+import java.io.{ File, InputStream, IOException }
 
 import org.mockito.Mockito._
 import org.mockito.Matchers._
@@ -30,7 +28,7 @@ import io.gatling.core.util.IO._
 
 class SitemapParserSpec extends FlatSpec with Matchers with MockitoSugar {
 
-  def getFile(filePath: String) = File(getClass.getClassLoader.getResource("sitemap.xml").getFile)
+  def getFile(filePath: String) = new File(getClass.getClassLoader.getResource("sitemap.xml").getFile)
 
   def getIs(filePath: String) = getClass.getClassLoader.getResourceAsStream(filePath)
 
