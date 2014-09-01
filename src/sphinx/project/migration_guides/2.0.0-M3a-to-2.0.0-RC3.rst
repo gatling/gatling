@@ -1,7 +1,7 @@
-.. _2.0.0-M3a-to-2.0-RC2:
+.. _2.0.0-M3a-to-2.0-RC3:
 
 #####################################
-Migrating from 2.0.0-M3a to 2.0.0-RC2
+Migrating from 2.0.0-M3a to 2.0.0-RC3
 #####################################
 
 Global changes
@@ -45,7 +45,7 @@ Core
 Checks
 ------
 
-* ``whatever`` has been renamed to ``dontValidate``.
+* ``whatever`` has been renamed to ``optional``.
 * ``transform`` now no longer takes and returns an ``Option[T]`` and takes and returns *plain* types, but ``transformOption`` provides the same functionality as ``transform`` did.
 
 HTTP

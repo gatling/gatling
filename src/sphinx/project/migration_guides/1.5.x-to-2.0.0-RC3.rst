@@ -1,7 +1,7 @@
-.. _1.5.x-to-2.0.0-RC2:
+.. _1.5.x-to-2.0.0-RC3:
 
 #################################
-Migrating from 1.5.x to 2.0.0-RC2
+Migrating from 1.5.x to 2.0.0-RC3
 #################################
 
 Global changes
@@ -124,7 +124,7 @@ Core
 Checks
 ------
 
-``whatever`` has been renamed to ``dontValidate``.
+``whatever`` has been renamed to ``optional``.
 
 Structure Elements
 ------------------
