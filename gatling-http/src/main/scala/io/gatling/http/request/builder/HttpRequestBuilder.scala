@@ -121,14 +121,14 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
 
     val resolvedRequestExpression = request(protocol)
 
-    val resolvedSignatureCalculator = commonAttributes.signatureCalculator.orElse(protocol.requestPart.signatureCalculator)
+    val resolvedSignatureCalculatorExpression = commonAttributes.signatureCalculator.orElse(protocol.requestPart.signatureCalculator)
 
     val resolvedDiscardResponseChunks = httpAttributes.discardResponseChunks && protocol.responsePart.discardResponseChunks
 
     HttpRequestDef(
       commonAttributes.requestName,
       resolvedRequestExpression,
-      resolvedSignatureCalculator,
+      resolvedSignatureCalculatorExpression,
       HttpRequestConfig(
         checks = resolvedChecks,
         responseTransformer = resolvedResponseTransformer,

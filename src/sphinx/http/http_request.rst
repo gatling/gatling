@@ -193,12 +193,16 @@ Gatling exposes AsyncHttpClient's ``SignatureCalculator`` API::
 
 So, basically, you have to read the proper information from the ``url`` and ``request`` parameters, compute the new information out of them, such as a HMAC header, and set it on the ``requestBuilder``.
 
-There's 2 ways to set a SignatureCalculator on a request::
+There's 3 ways to set a SignatureCalculator on a request::
 
   .signatureCalculator(calculator: SignatureCalculator)
 
-  // use this signature is you want to directly pass a function instead of a SignatureCalculator
+  // use this signature if you want to directly pass a function instead of a SignatureCalculator
   .signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit)
+
+  // use this signature if you need information from the session to compute the signature (e.g. user specific authentication keys)
+  // does not work with an anonymous function as in the second signature
+  .signatureCalculator(calculator: Expression[SignatureCalculator])
 
 .. _http-request-authentication:
 

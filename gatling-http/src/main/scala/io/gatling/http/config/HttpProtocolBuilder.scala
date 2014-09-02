@@ -21,8 +21,9 @@ import com.ning.http.client.{ RequestBuilderBase, Request, SignatureCalculator, 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
-import io.gatling.core.session.Expression
+import io.gatling.core.session._
 import io.gatling.core.session.el.EL
+import io.gatling.core.validation._
 import io.gatling.http.HeaderNames._
 import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.check.HttpCheck
@@ -91,7 +92,8 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
   def silentResources = newRequestPart(protocol.requestPart.copy(silentResources = true))
   def silentURI(regex: String) = newRequestPart(protocol.requestPart.copy(silentURI = Some(regex.r.pattern)))
   def disableUrlEscaping = newRequestPart(protocol.requestPart.copy(disableUrlEscaping = true))
-  def signatureCalculator(calculator: SignatureCalculator): HttpProtocolBuilder = newRequestPart(protocol.requestPart.copy(signatureCalculator = Some(calculator)))
+  def signatureCalculator(calculator: Expression[SignatureCalculator]): HttpProtocolBuilder = newRequestPart(protocol.requestPart.copy(signatureCalculator = Some(calculator)))
+  def signatureCalculator(calculator: SignatureCalculator): HttpProtocolBuilder = signatureCalculator(calculator.expression)
   def signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit): HttpProtocolBuilder = signatureCalculator(new SignatureCalculator {
     def calculateAndAddSignature(request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(request, requestBuilder)
   })
