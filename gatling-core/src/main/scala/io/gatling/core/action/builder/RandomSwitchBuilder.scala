@@ -32,7 +32,7 @@ class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext:
 
   val sum = possibilities.map(_._1).sum
   require(sum <= 100.0, "Can't build a random switch with percentage sum > 100")
-  if (sum < 100.0 && elseNext.isDefined)
+  if (sum == 100.0 && elseNext.isDefined)
     logger.warn("Random switch has a 100% sum, yet a else is defined?!")
 
   def build(next: ActorRef, protocols: Protocols) = {
