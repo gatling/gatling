@@ -39,8 +39,8 @@ The response time of a group is the cumulated response times of each individual 
 
 .. note::
 
-  When dealing with embedded ressources (inferred or explicitly set), the behaviour is slightly different : as resources are fetched asynchronously,
-  the cumulated response time for embedded ressources starts from the beginning of the first resource request to the end of the last resource request.
+  When dealing with embedded resources (inferred or explicitly set), the behaviour is slightly different : as resources are fetched asynchronously,
+  the cumulated response time for embedded resources starts from the beginning of the first resource request to the end of the last resource request.
 
 Cumulated Time
 --------------
