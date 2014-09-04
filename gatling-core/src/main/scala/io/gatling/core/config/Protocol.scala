@@ -15,10 +15,14 @@
  */
 package io.gatling.core.config
 
+import io.gatling.core.session.Session
+
 /**
  * This trait is a model to all protocol specific configuration
  */
 trait Protocol {
 
   def warmUp(): Unit = {}
+
+  def userEnd(session: Session): Unit = {}
 }

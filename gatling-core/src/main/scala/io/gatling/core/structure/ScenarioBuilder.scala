@@ -84,6 +84,6 @@ case class PopulatedScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionP
     newProtocols.warmUp()
 
     val entryPoint = scenarioBuilder.build(UserEnd.instance, newProtocols)
-    new Scenario(scenarioBuilder.name, entryPoint, injectionProfile)
+    new Scenario(scenarioBuilder.name, entryPoint, injectionProfile, newProtocols)
   }
 }

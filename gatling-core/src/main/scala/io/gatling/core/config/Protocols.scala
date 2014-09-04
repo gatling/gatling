@@ -15,6 +15,8 @@
  */
 package io.gatling.core.config
 
+import io.gatling.core.session.Session
+
 import scala.reflect.ClassTag
 
 object Protocols {
@@ -38,5 +40,8 @@ class Protocols(val protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) 
   def ++(other: Protocols) = new Protocols(protocols ++ other.protocols)
 
   def warmUp(): Unit =
-    protocols.foreach { case (_, protocol) => protocol.warmUp() }
+    protocols.values.foreach(_.warmUp())
+
+  val userEnd: Session => Unit =
+    session => protocols.values.foreach(_.userEnd(session))
 }

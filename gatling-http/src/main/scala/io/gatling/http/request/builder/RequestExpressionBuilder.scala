@@ -22,7 +22,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.HeaderNames
-import io.gatling.http.ahc.ConnectionPoolPartitioning
+import io.gatling.http.ahc.ChannelPoolPartitioning
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.referer.RefererHandling
@@ -122,7 +122,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
       requestBuilder.setBodyEncoding(configuration.core.encoding)
 
       if (!protocol.enginePart.shareConnections)
-        requestBuilder.setConnectionPoolKeyStrategy(new ConnectionPoolPartitioning(session))
+        requestBuilder.setConnectionPoolKeyStrategy(new ChannelPoolPartitioning(session))
 
       protocol.enginePart.localAddress.foreach(requestBuilder.setLocalInetAddress)
 

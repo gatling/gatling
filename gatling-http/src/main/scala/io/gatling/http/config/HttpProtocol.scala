@@ -21,21 +21,22 @@ import java.util.regex.Pattern
 import scala.collection.mutable
 
 import com.ning.http.client._
+import com.ning.http.client.providers.netty.NettyAsyncHttpProvider
+import com.ning.http.client.providers.netty.channel.pool.ChannelPoolPartitionSelector
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.akka.GatlingActorSystem
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Protocol
 import io.gatling.core.filter.Filters
-import io.gatling.core.session.{ Expression, ExpressionWrapper }
+import io.gatling.core.session.{ Session, Expression, ExpressionWrapper }
 import io.gatling.core.util.RoundRobin
 import io.gatling.http.HeaderNames._
-import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine }
+import io.gatling.http.ahc.{ ChannelPoolPartitioning, AsyncHandlerActor, HttpEngine }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.request.builder.Http
 import io.gatling.http.response.Response
-import scala.util.matching.Regex
 
 /**
  * HttpProtocol class companion
@@ -165,6 +166,16 @@ case class HttpProtocol(
     }
 
     logger.info("Warm up done")
+  }
+
+  override def userEnd(session: Session): Unit = {
+    val (_, ahc) = HttpEngine.instance.httpClient(session, this)
+    ahc.getProvider.asInstanceOf[NettyAsyncHttpProvider].flushChannelPoolPartitions(new ChannelPoolPartitionSelector() {
+
+      val userBase = ChannelPoolPartitioning.partitionIdUserBase(session)
+
+      override def select(partitionId: String): Boolean = partitionId.startsWith(userBase)
+    })
   }
 }
 

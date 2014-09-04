@@ -18,6 +18,7 @@ package io.gatling.core.scenario
 import akka.actor.ActorRef
 
 import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.config.Protocols
 import io.gatling.core.controller.Controller
 import io.gatling.core.controller.inject.InjectionProfile
 import io.gatling.core.result.message.Start
@@ -27,12 +28,14 @@ import io.gatling.core.util.TimeHelper._
 
 import scala.concurrent.duration._
 
-case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: InjectionProfile) extends AkkaDefaults {
+case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: InjectionProfile, protocols: Protocols) extends AkkaDefaults {
 
   def run(userIdRoot: String, offset: Int): Unit = {
 
       def startUser(i: Int): Unit = {
-        val session = Session(name, userIdRoot + (i + offset))
+        val session = Session(scenarioName = name,
+          userId = userIdRoot + (i + offset),
+          userEnd = protocols.userEnd)
         Controller ! UserMessage(session.scenarioName, session.userId, Start, session.startDate, 0L)
         entryPoint ! session
       }

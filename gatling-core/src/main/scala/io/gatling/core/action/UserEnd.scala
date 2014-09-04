@@ -41,6 +41,8 @@ object UserEnd extends AkkaDefaults {
 
 class UserEnd extends Action {
 
-  def execute(session: Session): Unit =
+  def execute(session: Session): Unit = {
+    session.terminate()
     Controller ! UserMessage(session.scenarioName, session.userId, End, session.startDate, nowMillis)
+  }
 }
