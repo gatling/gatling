@@ -243,9 +243,9 @@ Sometimes, Gatling users still want all virtual users to play all the records in
 
 Still, it's quite easy to build, thanks to :ref:`flattenMapIntoAttributes <scenario-exec-function-flatten>`  e.g.::
 
-  val array = csv("foo.csv").array
+  val records = csv("foo.csv").records
 
-  foreach(array, "record") {
+  foreach(records, "record") {
     exec(flattenMapIntoAttributes("${record}"))
     ...
   }
