@@ -19,7 +19,7 @@ import scala.concurrent.duration._
 
 import org.scalatest.{ FlatSpec, Matchers }
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
 
 import io.gatling.http.fetch.{ CssResource, RegularResource }
@@ -48,11 +48,11 @@ class ScenarioSpec extends FlatSpec with Matchers {
 
   it should "filter out embedded resources of HTML documents" in {
     val r1 = RequestElement("http://gatling.io", "GET", Map.empty, None, 200,
-      List(CssResource(UriComponents.create("http://gatling.io/main.css")), RegularResource(UriComponents.create("http://gatling.io/img.jpg"))))
+      List(CssResource(Uri.create("http://gatling.io/main.css")), RegularResource(Uri.create("http://gatling.io/img.jpg"))))
     val r2 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
     val r3 = RequestElement("http://gatling.io/details.html", "GET", Map(CONTENT_TYPE -> "text/html;charset=UTF-8"), None, 200, List.empty)
     val r4 = RequestElement("http://gatling.io/img.jpg", "GET", Map.empty, None, 200, List.empty)
-    val r5 = RequestElement("http://gatling.io", "GET", Map.empty, None, 200, List(CssResource(UriComponents.create("http://gatling.io/main.css"))))
+    val r5 = RequestElement("http://gatling.io", "GET", Map.empty, None, 200, List(CssResource(Uri.create("http://gatling.io/main.css"))))
     val r6 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, 200, List.empty)
 
     val scn = ScenarioDefinition(

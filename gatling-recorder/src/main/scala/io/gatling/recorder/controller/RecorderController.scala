@@ -15,9 +15,7 @@
  */
 package io.gatling.recorder.controller
 
-import java.net.URI
-
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import io.gatling.recorder.http.handler.client.TimedHttpRequest
 
 import scala.collection.mutable
@@ -143,7 +141,7 @@ class RecorderController extends StrictLogging {
     frontEnd.receiveEventInfo(TagInfo(text))
   }
 
-  def secureConnection(securedHostURI: UriComponents): Unit = {
+  def secureConnection(securedHostURI: Uri): Unit = {
     frontEnd.receiveEventInfo(SSLInfo(securedHostURI.toUrl))
   }
 

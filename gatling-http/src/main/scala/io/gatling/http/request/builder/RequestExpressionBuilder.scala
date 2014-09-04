@@ -15,14 +15,14 @@
  */
 package io.gatling.http.request.builder
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ Request, RequestBuilder => AHCRequestBuilder }
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.HeaderNames
-import io.gatling.http.ahc.ConnectionPoolKeyStrategy
+import io.gatling.http.ahc.ConnectionPoolPartitioning
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.referer.RefererHandling
@@ -32,11 +32,11 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
 
   def makeAbsolute(url: String): Validation[String]
 
-  def buildURI(session: Session): Validation[UriComponents] = {
+  def buildURI(session: Session): Validation[Uri] = {
 
-      def createURI(url: String): Validation[UriComponents] =
+      def createURI(url: String): Validation[Uri] =
         try
-          UriComponents.create(url).success
+          Uri.create(url).success
         catch {
           case e: Exception => s"url $url can't be parsed into a URI: ${e.getMessage}".failure
         }
@@ -47,7 +47,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
     }
   }
 
-  def configureProxy(uri: UriComponents)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+  def configureProxy(uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
     if (!protocol.proxyPart.proxyExceptions.contains(uri.getHost)) {
       if (HttpHelper.isSecure(uri))
         commonAttributes.secureProxy.orElse(protocol.proxyPart.secureProxy).foreach(requestBuilder.setProxyServer)
@@ -57,17 +57,17 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
     requestBuilder.success
   }
 
-  def configureCookies(session: Session, uri: UriComponents)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+  def configureCookies(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
     CookieHandling.getStoredCookies(session, uri).foreach(requestBuilder.addCookie)
     requestBuilder.success
   }
 
-  def configureQuery(session: Session, uri: UriComponents)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+  def configureQuery(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
 
     if (commonAttributes.queryParams.nonEmpty)
-      commonAttributes.queryParams.resolveParamJList(session).map(requestBuilder.setQueryParams(_).setURI(uri))
+      commonAttributes.queryParams.resolveParamJList(session).map(requestBuilder.setQueryParams(_).setUri(uri))
     else
-      requestBuilder.setURI(uri).success
+      requestBuilder.setUri(uri).success
   }
 
   def configureVirtualHost(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
@@ -106,7 +106,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
       case None        => requestBuilder.success
     }
 
-  protected def configureRequestBuilder(session: Session, uri: UriComponents, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
+  protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
     configureProxy(uri)(requestBuilder)
       .flatMap(configureCookies(session, uri))
       .flatMap(configureQuery(session, uri))
@@ -122,7 +122,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
       requestBuilder.setBodyEncoding(configuration.core.encoding)
 
       if (!protocol.enginePart.shareConnections)
-        requestBuilder.setConnectionPoolKeyStrategy(new ConnectionPoolKeyStrategy(session))
+        requestBuilder.setConnectionPoolKeyStrategy(new ConnectionPoolPartitioning(session))
 
       protocol.enginePart.localAddress.foreach(requestBuilder.setLocalInetAddress)
 

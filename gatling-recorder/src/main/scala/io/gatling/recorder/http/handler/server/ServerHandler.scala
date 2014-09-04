@@ -17,7 +17,7 @@ package io.gatling.recorder.http.handler.server
 
 import java.net.InetSocketAddress
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import com.ning.http.util.Base64
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.http.HeaderNames
@@ -70,7 +70,7 @@ abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with
     }
   }
 
-  def defaultPort(uri: UriComponents): Int =
+  def defaultPort(uri: Uri): Int =
     uri.getPort match {
       case -1 => uri.getScheme match {
         case "https" | "wss" => 443
@@ -79,7 +79,7 @@ abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with
       case p => p
     }
 
-  def computeInetSocketAddress(uri: UriComponents): InetSocketAddress =
+  def computeInetSocketAddress(uri: Uri): InetSocketAddress =
     new InetSocketAddress(uri.getHost, defaultPort(uri))
 
   def writeRequestToClient(clientChannel: Channel, clientRequest: HttpRequest, loggedRequest: HttpRequest): Unit = {

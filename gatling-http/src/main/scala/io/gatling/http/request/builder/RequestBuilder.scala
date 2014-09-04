@@ -18,7 +18,7 @@ package io.gatling.http.request.builder
 import java.net.InetAddress
 
 import com.ning.http.client._
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
@@ -33,7 +33,7 @@ import io.gatling.http.util.HttpHelper
 case class CommonAttributes(
   requestName: Expression[String],
   method: String,
-  urlOrURI: Either[Expression[String], UriComponents],
+  urlOrURI: Either[Expression[String], Uri],
   disableUrlEncoding: Option[Boolean] = None,
   queryParams: List[HttpParam] = Nil,
   headers: Map[String, Expression[String]] = Map.empty,

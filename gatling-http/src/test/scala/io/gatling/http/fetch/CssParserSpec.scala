@@ -17,11 +17,11 @@ package io.gatling.http.fetch
 
 import org.scalatest.{ FlatSpec, Matchers }
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 
 class CssParserSpec extends FlatSpec with Matchers {
 
-  val rootURI = UriComponents.create("http://akka.io/")
+  val rootURI = Uri.create("http://akka.io/")
 
   def rulesUri(css: String) = CssParser.extractResources(rootURI, css).map(_.url)
 

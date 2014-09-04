@@ -17,7 +17,7 @@ package io.gatling.http.util
 
 import java.net.URLDecoder
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 
 import scala.collection.breakOut
 import scala.io.Codec.UTF8
@@ -68,15 +68,15 @@ object HttpHelper extends StrictLogging {
   def isAjax(headers: FluentCaseInsensitiveStringsMap): Boolean = headerExists(headers, HeaderNames.XRequestedWith, _.contains(HeaderValues.XmlHttpRequest))
   def isTxt(headers: FluentCaseInsensitiveStringsMap): Boolean = headerExists(headers, HeaderNames.ContentType, ct => ct.contains("text") || ct.contains("json") || ct.contains("javascript") || ct.contains("xml"))
 
-  def resolveFromURI(rootURI: UriComponents, relative: String): UriComponents =
+  def resolveFromUri(rootURI: Uri, relative: String): Uri =
     if (relative.startsWith("//"))
-      UriComponents.create(rootURI.getScheme + ":" + relative)
+      Uri.create(rootURI.getScheme + ":" + relative)
     else
-      UriComponents.create(rootURI, relative)
+      Uri.create(rootURI, relative)
 
-  def resolveFromURISilently(rootURI: UriComponents, relative: String): Option[UriComponents] =
+  def resolveFromUriSilently(rootURI: Uri, relative: String): Option[Uri] =
     try {
-      Some(resolveFromURI(rootURI, relative))
+      Some(resolveFromUri(rootURI, relative))
     } catch {
       case e: Exception =>
         logger.info(s"Failed to resolve URI rootURI='$rootURI', relative='$relative'", e)
@@ -87,7 +87,7 @@ object HttpHelper extends StrictLogging {
   def isPermanentRedirect(statusCode: Int): Boolean = statusCode == 301 || statusCode == 308
   def isNotModified(statusCode: Int) = statusCode == 304
 
-  def isSecure(uri: UriComponents) = uri.getScheme == HttpsScheme || uri.getScheme == WssScheme
+  def isSecure(uri: Uri) = uri.getScheme == HttpsScheme || uri.getScheme == WssScheme
 
   def isAbsoluteHttpUrl(url: String) = url.startsWith(HttpScheme)
   def isAbsoluteWsUrl(url: String) = url.startsWith(WsScheme)

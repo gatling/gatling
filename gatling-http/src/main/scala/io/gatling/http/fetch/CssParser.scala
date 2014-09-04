@@ -15,7 +15,7 @@
  */
 package io.gatling.http.fetch
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 
 import scala.annotation.{ switch, tailrec }
 import scala.collection.TraversableOnce.flattenTraversableOnce
@@ -108,7 +108,7 @@ object CssParser extends StrictLogging {
     }
   }
 
-  def extractResources(cssURI: UriComponents, cssContent: String): List[EmbeddedResource] = {
+  def extractResources(cssURI: Uri, cssContent: String): List[EmbeddedResource] = {
 
     val resources = collection.mutable.ArrayBuffer.empty[EmbeddedResource]
 
@@ -160,7 +160,7 @@ object CssParser extends StrictLogging {
         case ')' if !withinComment && withinUrl =>
           for {
             url <- extractUrl(cssContent, urlStart, i)
-            absoluteUri <- HttpHelper.resolveFromURISilently(cssURI, url)
+            absoluteUri <- HttpHelper.resolveFromUriSilently(cssURI, url)
           } {
             resources += CssResource(absoluteUri)
             withinUrl = false

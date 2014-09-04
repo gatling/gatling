@@ -15,24 +15,21 @@
  */
 package io.gatling.http.cache
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 
 import scala.annotation.tailrec
 import io.gatling.core.session.Session
 import io.gatling.http.ahc.HttpTx
 import com.ning.http.client.{ Request, RequestBuilder }
 
-/**
- * @author Ivan Mushketyk
- */
 object PermanentRedirect {
-  def addRedirect(session: Session, from: UriComponents, to: UriComponents): Session = {
+  def addRedirect(session: Session, from: Uri, to: Uri): Session = {
     val redirectStorage = CacheHandling.getRedirectMemoizationStore(session)
     session.set(CacheHandling.HttpRedirectMemoizationStoreAttributeName, redirectStorage + (from -> to))
   }
 
-  private def permanentRedirect(session: Session, uri: UriComponents): Option[(UriComponents, Int)] = {
-      @tailrec def permanentRedirect1(from: UriComponents, redirectCount: Int): Option[(UriComponents, Int)] = {
+  private def permanentRedirect(session: Session, uri: Uri): Option[(Uri, Int)] = {
+      @tailrec def permanentRedirect1(from: Uri, redirectCount: Int): Option[(Uri, Int)] = {
         val redirectMap = CacheHandling.getRedirectMemoizationStore(session)
         redirectMap.get(from) match {
           case Some(toUri) =>
@@ -49,15 +46,15 @@ object PermanentRedirect {
     permanentRedirect1(uri, 0)
   }
 
-  private def redirectRequest(request: Request, toUri: UriComponents): Request = {
+  private def redirectRequest(request: Request, toUri: Uri): Request = {
     val requestBuilder = new RequestBuilder(request)
-    requestBuilder.setURI(toUri)
+    requestBuilder.setUri(toUri)
     requestBuilder.build()
   }
 
   def applyPermanentRedirect(origTx: HttpTx): HttpTx =
     if (origTx.request.config.protocol.requestPart.cache)
-      permanentRedirect(origTx.session, origTx.request.ahcRequest.getURI) match {
+      permanentRedirect(origTx.session, origTx.request.ahcRequest.getUri) match {
         case Some(Pair(targetUri, redirectCount)) =>
 
           val newAhcRequest = redirectRequest(origTx.request.ahcRequest, targetUri)

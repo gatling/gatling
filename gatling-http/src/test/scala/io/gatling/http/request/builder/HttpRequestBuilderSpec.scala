@@ -19,7 +19,7 @@ import org.mockito.Mockito._
 import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.mock.MockitoSugar
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ Request, RequestBuilderBase, SignatureCalculator }
 
 import io.gatling.core.config.GatlingConfiguration
@@ -31,7 +31,7 @@ class HttpRequestBuilderSpec extends FlatSpec with Matchers with MockitoSugar {
   // Default config
   GatlingConfiguration.setUpForTest()
 
-  def mockComonAttributes() = CommonAttributes(_ => Success("attributes"), "method", Right(UriComponents.create("http://gatling-tool.org")))
+  def mockComonAttributes() = CommonAttributes(_ => Success("attributes"), "method", Right(Uri.create("http://gatling-tool.org")))
 
   "request builder" should "set signature calculator object" in {
     var builder = new HttpRequestBuilder(mockComonAttributes(), HttpAttributes())

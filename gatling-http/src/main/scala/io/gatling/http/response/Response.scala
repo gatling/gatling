@@ -17,7 +17,7 @@ package io.gatling.http.response
 
 import java.nio.charset.Charset
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import io.gatling.http.config.HttpProtocol
 
 import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet }
@@ -36,7 +36,7 @@ abstract class Response {
 
   def status: Option[HttpResponseStatus]
   def statusCode: Option[Int]
-  def uri: Option[UriComponents]
+  def uri: Option[Uri]
   def isRedirect: Boolean
 
   def header(name: String): Option[String]

@@ -15,11 +15,11 @@
  */
 package io.gatling.http.ahc
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import io.gatling.core.session.Session
-import com.ning.http.client.{ ConnectionPoolKeyStrategy => AHCConnectionPoolKeyStrategy, ProxyServer, DefaultConnectionPoolStrategy }
+import com.ning.http.client.{ ConnectionPoolPartitioning => AHCConnectionPoolPartitioning, ProxyServer, PerHostConnectionPoolPartioning }
 
-class ConnectionPoolKeyStrategy(session: Session) extends AHCConnectionPoolKeyStrategy {
+class ConnectionPoolPartitioning(session: Session) extends AHCConnectionPoolPartitioning {
 
-  def getKey(uri: UriComponents, proxyServer: ProxyServer): String = DefaultConnectionPoolStrategy.INSTANCE.getKey(uri, proxyServer) + session.userId
+  def getPartitionId(uri: Uri, proxyServer: ProxyServer): String = PerHostConnectionPoolPartioning.INSTANCE.getPartitionId(uri, proxyServer) + session.userId
 }

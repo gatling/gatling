@@ -19,7 +19,7 @@ import java.io.IOException
 import java.net.InetSocketAddress
 import javax.net.ssl.SSLException
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
@@ -30,7 +30,7 @@ import org.jboss.netty.handler.ssl.SslHandler
 
 class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with ScalaChannelHandler with StrictLogging {
 
-  var targetHostURI: UriComponents = _
+  var targetHostUri: Uri = _
 
   def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit = {
 
@@ -65,11 +65,11 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
                 }
               }
 
-        targetHostURI = UriComponents.create("https://" + request.getUri)
+        targetHostUri = Uri.create("https://" + request.getUri)
 
         proxy.outgoingProxy match {
           case Some((proxyHost, proxyPort)) => connectClientChannelThroughProxy(new InetSocketAddress(proxyHost, proxyPort))
-          case _                            => connectClientChannelDirect(computeInetSocketAddress(targetHostURI))
+          case _                            => connectClientChannelDirect(computeInetSocketAddress(targetHostUri))
         }
       }
 
@@ -77,7 +77,7 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
         _clientChannel match {
           case Some(clientChannel) if clientChannel.isConnected && clientChannel.isOpen =>
             // set full uri so that it's correctly recorded
-            val absoluteUri = UriComponents.create(targetHostURI, request.getUri).toString
+            val absoluteUri = Uri.create(targetHostUri, request.getUri).toString
             val loggedRequest = copyRequestWithNewUri(request, absoluteUri)
             writeRequestToClient(clientChannel, request, loggedRequest)
 
@@ -96,8 +96,8 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
   override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
 
       def handleSslException(e: Exception): Unit = {
-        logger.error(s"${e.getClass.getSimpleName} ${e.getMessage}, did you accept the certificate for $targetHostURI?")
-        proxy.controller.secureConnection(targetHostURI)
+        logger.error(s"${e.getClass.getSimpleName} ${e.getMessage}, did you accept the certificate for $targetHostUri?")
+        proxy.controller.secureConnection(targetHostUri)
         if (ctx.getChannel.isReadable)
           ctx.getChannel.close()
         _clientChannel.foreach { clientChannel =>

@@ -20,7 +20,7 @@ import org.mockito.Mockito._
 import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.mock.MockitoSugar
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
@@ -37,7 +37,7 @@ class HttpRequestActionSpec extends FlatSpec with Matchers with MockitoSugar {
     var session = Session("mockSession", "mockUserName")
 
     def addRedirect(from: String, to: String): Unit =
-      session = PermanentRedirect.addRedirect(session, UriComponents.create(from), UriComponents.create(to))
+      session = PermanentRedirect.addRedirect(session, Uri.create(from), Uri.create(to))
   }
 
   "HttpRequestAction" should "send same transaction with no redirect" in new Context {
@@ -55,7 +55,7 @@ class HttpRequestActionSpec extends FlatSpec with Matchers with MockitoSugar {
     verify(httpEngineMock, times(1)).startHttpTransaction(argumentCapture.capture())
     val actualTx = argumentCapture.getValue
 
-    actualTx.request.ahcRequest.getURI shouldBe UriComponents.create("http://gatling-tool.org/")
+    actualTx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling-tool.org/")
     actualTx.redirectCount shouldBe 1
   }
 }

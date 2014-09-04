@@ -16,7 +16,7 @@
 package io.gatling.http.cookie
 
 import com.ning.http.client.cookie.Cookie
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.util.HttpHelper.isSecure
@@ -30,9 +30,9 @@ object CookieJar {
   val UnspecifiedMaxAge = -1
   val UnspecifiedExpires = -1L
 
-  def requestDomain(requestURI: UriComponents) = requestURI.getHost.toLowerCase
+  def requestDomain(requestUri: Uri) = requestUri.getHost.toLowerCase
 
-  def requestPath(requestURI: UriComponents) = requestURI.getPath match {
+  def requestPath(requestUri: Uri) = requestUri.getPath match {
     case "" => "/"
     case p  => p
   }
@@ -79,7 +79,7 @@ object CookieJar {
     cookiePath == requestPath ||
       (requestPath.startsWith(cookiePath) && (cookiePath.last == '/' || requestPath.charAt(cookiePath.length) == '/'))
 
-  def apply(uri: UriComponents, cookies: List[Cookie]): CookieJar = CookieJar(Map.empty).add(uri, cookies)
+  def apply(uri: Uri, cookies: List[Cookie]): CookieJar = CookieJar(Map.empty).add(uri, cookies)
 }
 
 case class CookieJar(store: Map[CookieKey, StoredCookie]) {
@@ -87,13 +87,13 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
   import CookieJar._
 
   /**
-   * @param requestURI       the uri used to deduce defaults for  optional domains and paths
+   * @param requestUri       the uri used to deduce defaults for  optional domains and paths
    * @param cookies    the cookies to store
    */
-  def add(requestURI: UriComponents, cookies: List[Cookie]): CookieJar = {
+  def add(requestUri: Uri, cookies: List[Cookie]): CookieJar = {
 
-    val thisRequestDomain = requestDomain(requestURI)
-    val thisRequestPath = requestPath(requestURI)
+    val thisRequestDomain = requestDomain(requestUri)
+    val thisRequestPath = requestPath(requestUri)
 
     add(thisRequestDomain, thisRequestPath, cookies)
   }
@@ -119,20 +119,20 @@ case class CookieJar(store: Map[CookieKey, StoredCookie]) {
     CookieJar(newStore)
   }
 
-  def get(requestURI: UriComponents): List[Cookie] =
+  def get(requestUri: Uri): List[Cookie] =
     if (store.isEmpty) {
       Nil
     } else {
-      val thisRequestDomain = requestDomain(requestURI)
+      val thisRequestDomain = requestDomain(requestUri)
 
-      val thisRequestPath = requestPath(requestURI)
+      val thisRequestPath = requestPath(requestUri)
 
-      val secureURI = isSecure(requestURI)
+      val secureUri = isSecure(requestUri)
 
         def isCookieMatching(key: CookieKey, storedCookie: StoredCookie) =
           domainsMatch(key.domain, thisRequestDomain, storedCookie.hostOnly) &&
             pathsMatch(key.path, thisRequestPath) &&
-            (!storedCookie.cookie.isSecure || secureURI)
+            (!storedCookie.cookie.isSecure || secureUri)
 
       val matchingCookies = store.filter {
         case (key, storedCookie) => isCookieMatching(key, storedCookie)

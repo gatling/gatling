@@ -192,7 +192,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
         }
 
         message match {
-          case TextMessage(text)    => webSocket.sendTextMessage(text)
+          case TextMessage(text)    => webSocket.sendMessage(text)
           case BinaryMessage(bytes) => webSocket.sendMessage(bytes)
         }
 

@@ -59,7 +59,7 @@ case class HttpTx(session: Session,
       def silentBecauseProtocolSilentResources = !primary && request.config.protocol.requestPart.silentResources
 
       def silentBecauseProtocolSilentURI: Option[Boolean] = request.config.protocol.requestPart.silentURI
-        .map(_.matcher(request.ahcRequest.getURI.toUrl).matches)
+        .map(_.matcher(request.ahcRequest.getUrl).matches)
 
     request.config.silent.orElse(silentBecauseProtocolSilentURI).getOrElse(silentBecauseProtocolSilentResources)
   }

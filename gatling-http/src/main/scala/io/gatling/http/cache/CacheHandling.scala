@@ -15,7 +15,7 @@
  */
 package io.gatling.http.cache
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 
 import scala.collection.concurrent
 
@@ -38,48 +38,48 @@ object CacheHandling extends StrictLogging {
 
   val HttpRedirectMemoizationStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.redirects"
 
-  def getRedirectMemoizationStore(session: Session): concurrent.Map[UriComponents, UriComponents] =
-    session(HttpRedirectMemoizationStoreAttributeName).asOption[concurrent.Map[UriComponents, UriComponents]] match {
+  def getRedirectMemoizationStore(session: Session): concurrent.Map[Uri, Uri] =
+    session(HttpRedirectMemoizationStoreAttributeName).asOption[concurrent.Map[Uri, Uri]] match {
       case Some(store) => store
-      case _           => CacheHelper.newCache[UriComponents, UriComponents](configuration.http.redirectPerUserCacheMaxCapacity)
+      case _           => CacheHelper.newCache[Uri, Uri](configuration.http.redirectPerUserCacheMaxCapacity)
     }
 
   val HttpExpireStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.expireStore"
 
-  def getExpireStore(session: Session): concurrent.Map[UriComponents, Long] =
-    session(HttpExpireStoreAttributeName).asOption[concurrent.Map[UriComponents, Long]] match {
+  def getExpireStore(session: Session): concurrent.Map[Uri, Long] =
+    session(HttpExpireStoreAttributeName).asOption[concurrent.Map[Uri, Long]] match {
       case Some(store) => store
-      case _           => CacheHelper.newCache[UriComponents, Long](configuration.http.expirePerUserCacheMaxCapacity)
+      case _           => CacheHelper.newCache[Uri, Long](configuration.http.expirePerUserCacheMaxCapacity)
     }
 
-  def getExpire(httpProtocol: HttpProtocol, session: Session, uri: UriComponents): Option[Long] =
+  def getExpire(httpProtocol: HttpProtocol, session: Session, uri: Uri): Option[Long] =
     if (httpProtocol.requestPart.cache) getExpireStore(session).get(uri) else None
 
-  def clearExpire(session: Session, uri: UriComponents): Session = {
+  def clearExpire(session: Session, uri: Uri): Session = {
     logger.info(s"Resource $uri caching expired")
     session.set(HttpExpireStoreAttributeName, getExpireStore(session) - uri)
   }
 
   val HttpLastModifiedStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.lastModifiedStore"
 
-  def getLastModifiedStore(session: Session): concurrent.Map[UriComponents, String] =
-    session(HttpLastModifiedStoreAttributeName).asOption[concurrent.Map[UriComponents, String]] match {
+  def getLastModifiedStore(session: Session): concurrent.Map[Uri, String] =
+    session(HttpLastModifiedStoreAttributeName).asOption[concurrent.Map[Uri, String]] match {
       case Some(store) => store
-      case _           => CacheHelper.newCache[UriComponents, String](configuration.http.lastModifiedPerUserCacheMaxCapacity)
+      case _           => CacheHelper.newCache[Uri, String](configuration.http.lastModifiedPerUserCacheMaxCapacity)
     }
 
-  def getLastModified(httpProtocol: HttpProtocol, session: Session, uri: UriComponents): Option[String] =
+  def getLastModified(httpProtocol: HttpProtocol, session: Session, uri: Uri): Option[String] =
     if (httpProtocol.requestPart.cache) getLastModifiedStore(session).get(uri) else None
 
   val HttpEtagStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.etagStore"
 
-  def getEtagStore(session: Session): concurrent.Map[UriComponents, String] =
-    session(HttpEtagStoreAttributeName).asOption[concurrent.Map[UriComponents, String]] match {
+  def getEtagStore(session: Session): concurrent.Map[Uri, String] =
+    session(HttpEtagStoreAttributeName).asOption[concurrent.Map[Uri, String]] match {
       case Some(store) => store
-      case _           => CacheHelper.newCache[UriComponents, String](configuration.http.etagPerUserCacheMaxCapacity)
+      case _           => CacheHelper.newCache[Uri, String](configuration.http.etagPerUserCacheMaxCapacity)
     }
 
-  def getEtag(httpProtocol: HttpProtocol, session: Session, uri: UriComponents): Option[String] =
+  def getEtag(httpProtocol: HttpProtocol, session: Session, uri: Uri): Option[String] =
     if (httpProtocol.requestPart.cache) getEtagStore(session).get(uri) else None
 
   val MaxAgePrefix = "max-age="
@@ -145,7 +145,7 @@ object CacheHandling extends StrictLogging {
   def cache(httpProtocol: HttpProtocol, request: Request, response: Response): Session => Session =
     if (httpProtocol.requestPart.cache) {
 
-      val uri = request.getURI
+      val uri = request.getUri
 
       val updateExpire: Session => Session =
         getResponseExpires(httpProtocol, response) match {

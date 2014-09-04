@@ -20,7 +20,7 @@ import scala.io.Codec.UTF8
 import org.scalatest.{ FlatSpec, Matchers }
 
 import com.dongxiguo.fastring.Fastring.Implicits._
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 
 import io.gatling.core.util.IO._
 
@@ -39,9 +39,9 @@ class HtmlParserSpec extends FlatSpec with Matchers {
   }
 
   def embeddedResources(documentUri: String, htmlContent: Array[Char], userAgent: Option[UserAgent]) =
-    new HtmlParser().getEmbeddedResources(UriComponents.create(documentUri), htmlContent, userAgent)
+    new HtmlParser().getEmbeddedResources(Uri.create(documentUri), htmlContent, userAgent)
 
-  implicit def string2URI(string: String) = UriComponents.create(string)
+  implicit def string2URI(string: String) = Uri.create(string)
 
   "parsing Akka.io page" should "extract all urls" in {
     embeddedResources("http://akka.io", htmlContent, None) shouldBe List(

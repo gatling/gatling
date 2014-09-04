@@ -18,7 +18,7 @@ package io.gatling.http.cookie
 import org.scalatest.{ FlatSpec, Matchers }
 
 import com.ning.http.client.cookie.CookieDecoder.decode
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 
 import io.gatling.core.session.Session
 
@@ -41,7 +41,7 @@ class CookieHandlingSpec extends FlatSpec with Matchers {
 
   "storeCookies" should "be able to store a cookie in an empty session" in {
     val newCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/accounts; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-    CookieHandling.storeCookies(emptySession, UriComponents.create("https://docs.foo.com/accounts"), List(newCookie))
+    CookieHandling.storeCookies(emptySession, Uri.create("https://docs.foo.com/accounts"), List(newCookie))
 
     CookieHandling.getStoredCookies(emptySession, "https://docs.foo.com/accounts") shouldBe empty
   }

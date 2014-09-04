@@ -27,7 +27,7 @@ object CurrentLocationCheckBuilder {
 
   val CurrentLocationExtractor = new Extractor[Response, String] {
     val name = "currentLocation"
-    def apply(prepared: Response) = Some(prepared.request.getURI.toUrl).success
+    def apply(prepared: Response) = Some(prepared.request.getUrl).success
   }.expression
 
   val CurrentLocation = new DefaultFindCheckBuilder[HttpCheck, Response, Response, String](

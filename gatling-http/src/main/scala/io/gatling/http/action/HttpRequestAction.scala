@@ -34,12 +34,12 @@ object HttpRequestAction extends DataWriterClient with StrictLogging {
   def startHttpTransaction(origTx: HttpTx, httpEngine: HttpEngine = HttpEngine.instance)(implicit ctx: ActorContext): Unit = {
 
       def startHttpTransaction(tx: HttpTx): Unit = {
-        logger.info(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getURI}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+        logger.info(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
         httpEngine.startHttpTransaction(tx)
       }
 
     val tx = PermanentRedirect.applyPermanentRedirect(origTx)
-    val uri = tx.request.ahcRequest.getURI
+    val uri = tx.request.ahcRequest.getUri
     val protocol = tx.request.config.protocol
 
     CacheHandling.getExpire(protocol, tx.session, uri) match {

@@ -181,7 +181,7 @@ object GatlingConfiguration extends StrictLogging {
         ahc = AHCConfiguration(
           allowPoolingConnections = config.getBoolean(http.ahc.AllowPoolingConnections),
           allowPoolingSslConnections = config.getBoolean(http.ahc.AllowPoolingSslConnections),
-          compressionEnabled = config.getBoolean(http.ahc.CompressionEnabled),
+          compressionEnforced = config.getBoolean(http.ahc.CompressionEnforced),
           connectionTimeout = config.getInt(http.ahc.ConnectionTimeout),
           pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout),
           readTimeout = config.getInt(http.ahc.ReadTimeout),
@@ -325,7 +325,7 @@ case class HttpConfiguration(
 case class AHCConfiguration(
   allowPoolingConnections: Boolean,
   allowPoolingSslConnections: Boolean,
-  compressionEnabled: Boolean,
+  compressionEnforced: Boolean,
   connectionTimeout: Int,
   pooledConnectionIdleTimeout: Int,
   readTimeout: Int,

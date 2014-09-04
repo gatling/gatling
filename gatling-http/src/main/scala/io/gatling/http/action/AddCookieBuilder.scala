@@ -19,7 +19,7 @@ import com.ning.http.client.cookie.Cookie
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import io.gatling.core.action.SessionHook
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.{ Expression, Session }
@@ -46,7 +46,7 @@ object AddCookieBuilder {
   val DefaultPath: Expression[String] = _ => RootSuccess
 
   def defaultDomain(httpProtocol: HttpProtocol) = {
-    val baseUrlHost = httpProtocol.baseURL.map(url => UriComponents.create(url).getHost)
+    val baseUrlHost = httpProtocol.baseURL.map(url => Uri.create(url).getHost)
     (session: Session) => baseUrlHost match {
       case Some(host) => host.success
       case _          => NoBaseUrlFailure

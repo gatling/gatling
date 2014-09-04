@@ -15,7 +15,7 @@
  */
 package io.gatling.http.fetch
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import io.gatling.core.check.extractor.css.Jodd
 import jodd.lagarto.dom.HtmlCCommentExpressionMatcher
 
@@ -28,14 +28,14 @@ import jodd.lagarto.{ TagUtil, TagType, EmptyTagVisitor, Tag }
 
 sealed abstract class RawResource {
   def rawUrl: String
-  def uri(rootURI: UriComponents): Option[UriComponents] = HttpHelper.resolveFromURISilently(rootURI, rawUrl)
-  def toEmbeddedResource(rootURI: UriComponents): Option[EmbeddedResource]
+  def uri(rootURI: Uri): Option[Uri] = HttpHelper.resolveFromUriSilently(rootURI, rawUrl)
+  def toEmbeddedResource(rootURI: Uri): Option[EmbeddedResource]
 }
 case class CssRawResource(rawUrl: String) extends RawResource {
-  def toEmbeddedResource(rootURI: UriComponents): Option[EmbeddedResource] = uri(rootURI).map(CssResource)
+  def toEmbeddedResource(rootURI: Uri): Option[EmbeddedResource] = uri(rootURI).map(CssResource)
 }
 case class RegularRawResource(rawUrl: String) extends RawResource {
-  def toEmbeddedResource(rootURI: UriComponents): Option[EmbeddedResource] = uri(rootURI).map(RegularResource)
+  def toEmbeddedResource(rootURI: Uri): Option[EmbeddedResource] = uri(rootURI).map(RegularResource)
 }
 
 case class HtmlResources(rawResources: Seq[RawResource], base: Option[String])
@@ -192,11 +192,11 @@ class HtmlParser extends StrictLogging {
     HtmlResources(rawResources, base)
   }
 
-  def getEmbeddedResources(documentURI: UriComponents, htmlContent: Array[Char], userAgent: Option[UserAgent]): List[EmbeddedResource] = {
+  def getEmbeddedResources(documentURI: Uri, htmlContent: Array[Char], userAgent: Option[UserAgent]): List[EmbeddedResource] = {
 
     val htmlResources = parseHtml(htmlContent, userAgent)
 
-    val rootURI = htmlResources.base.map(UriComponents.create(documentURI, _)).getOrElse(documentURI)
+    val rootURI = htmlResources.base.map(Uri.create(documentURI, _)).getOrElse(documentURI)
 
     htmlResources.rawResources
       .distinct

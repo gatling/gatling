@@ -16,7 +16,7 @@
 package io.gatling.http.ahc
 
 import com.ning.http.client.Request
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.cache.PermanentRedirect
@@ -46,7 +46,7 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
       explicitResources = Nil)
 
     def addRedirect(from: String, to: String): Unit =
-      session = PermanentRedirect.addRedirect(session, UriComponents.create(from), UriComponents.create(to))
+      session = PermanentRedirect.addRedirect(session, Uri.create(from), Uri.create(to))
   }
 
   def tx(ahcRequest: Request, config: HttpRequestConfig, primary: Boolean) =
@@ -64,7 +64,7 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
 
     val ahcRequest = mock[Request]
 
-    when(ahcRequest.getURI) thenReturn UriComponents.create("http://example.com/")
+    when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/")
 
     val config = configBase.copy(silent = Some(true))
     tx(ahcRequest, config, true).silent shouldBe true
@@ -74,7 +74,7 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
 
     val ahcRequest = mock[Request]
 
-    when(ahcRequest.getURI) thenReturn UriComponents.create("http://example.com/")
+    when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/")
 
     val config = configBase.copy(silent = None)
     tx(ahcRequest, config, true).silent shouldBe false
@@ -86,7 +86,7 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
     val protocol = mock[HttpProtocol]
     val requestPart = mock[HttpProtocolRequestPart]
 
-    when(ahcRequest.getURI) thenReturn UriComponents.create("http://example.com/test.js")
+    when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
     when(requestPart.silentURI) thenReturn Some(""".*\.js""".r.pattern)
     when(requestPart.silentResources) thenReturn false
     when(protocol.requestPart) thenReturn requestPart
@@ -101,7 +101,7 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
     val protocol = mock[HttpProtocol]
     val requestPart = mock[HttpProtocolRequestPart]
 
-    when(ahcRequest.getURI) thenReturn UriComponents.create("http://example.com/test.js")
+    when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
     when(requestPart.silentURI) thenReturn None
     when(requestPart.silentResources) thenReturn true
     when(protocol.requestPart) thenReturn requestPart
@@ -116,7 +116,7 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
     val protocol = mock[HttpProtocol]
     val requestPart = mock[HttpProtocolRequestPart]
 
-    when(ahcRequest.getURI) thenReturn UriComponents.create("http://example.com/test.js")
+    when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
     when(requestPart.silentURI) thenReturn None
     when(requestPart.silentResources) thenReturn true
     when(protocol.requestPart) thenReturn requestPart

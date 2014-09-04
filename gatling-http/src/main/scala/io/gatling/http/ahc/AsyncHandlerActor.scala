@@ -17,7 +17,7 @@ package io.gatling.http.ahc
 
 import java.lang.{ StringBuilder => JStringBuilder }
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ Request, RequestBuilder }
 import akka.actor.{ ActorRef, Props }
 import akka.actor.ActorDSL.actor
@@ -40,7 +40,7 @@ import io.gatling.http.referer.RefererHandling
 import io.gatling.http.request.ExtraInfo
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
-import io.gatling.http.util.HttpHelper.{ isCss, resolveFromURI }
+import io.gatling.http.util.HttpHelper.{ isCss, resolveFromUri }
 import io.gatling.http.util.HttpStringBuilder
 
 object AsyncHandlerActor extends AkkaDefaults {
@@ -164,7 +164,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       }
 
     else {
-      val uri = response.request.getURI
+      val uri = response.request.getUri
 
       if (isCss(response.headers))
         tx.next ! CssResourceFetched(uri, status, update, response.statusCode, response.lastModifiedOrEtag(protocol), response.body.string)
@@ -189,13 +189,13 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
    */
   private def processResponse(tx: HttpTx, response: Response): Unit = {
 
-      def redirectRequest(redirectURI: UriComponents, sessionWithUpdatedCookies: Session): Request = {
+      def redirectRequest(redirectUri: Uri, sessionWithUpdatedCookies: Session): Request = {
         val originalRequest = tx.request.ahcRequest
 
         val requestBuilder = new RequestBuilder("GET")
-          .setURI(redirectURI)
+          .setUri(redirectUri)
           .setBodyEncoding(configuration.core.encoding)
-          .setConnectionPoolKeyStrategy(originalRequest.getConnectionPoolKeyStrategy)
+          .setConnectionPoolKeyStrategy(originalRequest.getConnectionPoolPartitioning)
           .setInetAddress(originalRequest.getInetAddress)
           .setLocalInetAddress(originalRequest.getLocalAddress)
           .setVirtualHost(originalRequest.getVirtualHost)
@@ -207,7 +207,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           headerValue <- Option(originalRequest.getHeaders.getFirstValue(headerName))
         } requestBuilder.addHeader(headerName, headerValue)
 
-        for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectURI))
+        for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectUri))
           requestBuilder.addCookie(cookie)
 
         requestBuilder.build
@@ -221,7 +221,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           case _ =>
             response.header(HeaderNames.Location) match {
               case Some(location) =>
-                val redirectURI = resolveFromURI(tx.request.ahcRequest.getURI, location)
+                val redirectURI = resolveFromUri(tx.request.ahcRequest.getUri, location)
 
                 val cacheRedirectUpdate =
                   if (tx.request.config.protocol.requestPart.cache)
@@ -253,11 +253,11 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
             }
         }
 
-      def cacheRedirect(originalRequest: Request, redirectURI: UriComponents): Session => Session =
+      def cacheRedirect(originalRequest: Request, redirectUri: Uri): Session => Session =
         response.statusCode match {
           case Some(code) if HttpHelper.isPermanentRedirect(code) =>
-            val originalURI = originalRequest.getURI
-            PermanentRedirect.addRedirect(_, originalURI, redirectURI)
+            val originalUri = originalRequest.getUri
+            PermanentRedirect.addRedirect(_, originalUri, redirectUri)
           case _ => Session.Identity
         }
 
@@ -286,7 +286,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     response.status match {
 
       case Some(status) =>
-        val uri = tx.request.ahcRequest.getURI
+        val uri = tx.request.ahcRequest.getUri
         val cookies = response.cookies
         val storeCookiesUpdate: Session => Session = CookieHandling.storeCookies(_, uri, cookies)
         val newUpdate = tx.update andThen storeCookiesUpdate

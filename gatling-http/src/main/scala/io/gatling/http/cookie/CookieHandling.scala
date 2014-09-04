@@ -16,7 +16,7 @@
 package io.gatling.http.cookie
 
 import com.ning.http.client.cookie.Cookie
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session.Expression
@@ -27,9 +27,9 @@ object CookieHandling {
 
   def cookieJar(session: Session): Option[CookieJar] = session(CookieJarAttributeName).asOption[CookieJar]
 
-  def getStoredCookies(session: Session, url: String): List[Cookie] = getStoredCookies(session, UriComponents.create(url))
+  def getStoredCookies(session: Session, url: String): List[Cookie] = getStoredCookies(session, Uri.create(url))
 
-  def getStoredCookies(session: Session, uri: UriComponents): List[Cookie] =
+  def getStoredCookies(session: Session, uri: Uri): List[Cookie] =
     session(CookieJarAttributeName).asOption[CookieJar] match {
       case Some(cookieJar) => cookieJar.get(uri)
       case _               => Nil
@@ -41,7 +41,7 @@ object CookieHandling {
       case _               => CookieJar(Map.empty)
     }
 
-  def storeCookies(session: Session, uri: UriComponents, cookies: List[Cookie]): Session = {
+  def storeCookies(session: Session, uri: Uri, cookies: List[Cookie]): Session = {
     val cookieJar = getCookieJar(session)
     session.set(CookieJarAttributeName, cookieJar.add(uri, cookies))
   }

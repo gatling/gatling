@@ -19,7 +19,7 @@ import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 
 import com.ning.http.client.Request
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 
 import io.gatling.core.session.Session
 import io.gatling.http.ahc.HttpTx
@@ -36,7 +36,7 @@ object MockUtils extends MockitoSugar {
     when(requestPart.cache) thenReturn cache
     when(requestPart.silentURI) thenReturn None
     when(requestPart.silentResources) thenReturn false
-    when(request.getURI) thenReturn UriComponents.create(uri)
+    when(request.getUri) thenReturn Uri.create(uri)
     when(protocol.requestPart) thenReturn requestPart
 
     HttpTx(session,

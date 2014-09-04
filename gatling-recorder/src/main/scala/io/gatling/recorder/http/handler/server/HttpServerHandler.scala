@@ -17,7 +17,7 @@ package io.gatling.recorder.http.handler.server
 
 import java.net.InetSocketAddress
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.handler.ScalaChannelHandler
 import org.jboss.netty.channel.{ Channel, ChannelFuture }
@@ -26,7 +26,7 @@ import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpRequest, Ht
 class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with ScalaChannelHandler {
 
   private def buildRequestWithRelativeURI(request: HttpRequest): HttpRequest = {
-    val relative = UriComponents.create(request.getUri).toRelativeUrl
+    val relative = Uri.create(request.getUri).toRelativeUrl
     copyRequestWithNewUri(request, relative)
   }
 
@@ -46,7 +46,7 @@ class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Scal
       case Some((host, port)) => new InetSocketAddress(host, port)
       case _ =>
         try {
-          computeInetSocketAddress(UriComponents.create(request.getUri))
+          computeInetSocketAddress(Uri.create(request.getUri))
         } catch {
           case e: Exception =>
             throw new RuntimeException(s"Could not build address requestURI='${request.getUri}'", e)
@@ -75,7 +75,7 @@ class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Scal
       case Some(clientChannel) if clientChannel.isConnected && clientChannel.isOpen =>
 
         val remoteAddress = clientChannel.getRemoteAddress.asInstanceOf[InetSocketAddress]
-        val requestUri = UriComponents.create(request.getUri)
+        val requestUri = Uri.create(request.getUri)
 
         if (remoteAddress.getHostString != requestUri.getHost || remoteAddress.getPort != defaultPort(requestUri)) {
           // not connected to the proper remote

@@ -17,7 +17,7 @@ package io.gatling.http.cache
 
 import org.scalatest.{ FlatSpec, Matchers }
 
-import com.ning.http.client.uri.UriComponents
+import com.ning.http.client.uri.Uri
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
@@ -31,7 +31,7 @@ class PermanentRedirectSpec extends FlatSpec with Matchers {
     var session = Session("mockSession", "mockUserName")
 
     def addRedirect(from: String, to: String): Unit =
-      session = PermanentRedirect.addRedirect(session, UriComponents.create(from), UriComponents.create(to))
+      session = PermanentRedirect.addRedirect(session, Uri.create(from), Uri.create(to))
   }
 
   "redirect memoization" should "return transaction with no redirect cache" in new Context {
@@ -51,7 +51,7 @@ class PermanentRedirectSpec extends FlatSpec with Matchers {
     val origTx = MockUtils.txTo("http://example.com/", session, cache = true)
     val tx = PermanentRedirect.applyPermanentRedirect(origTx)
 
-    tx.request.ahcRequest.getURI shouldBe UriComponents.create("http://gatling-tool.org/")
+    tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling-tool.org/")
     tx.redirectCount shouldBe 1
 
   }
@@ -64,7 +64,7 @@ class PermanentRedirectSpec extends FlatSpec with Matchers {
     val origTx = MockUtils.txTo("http://example.com/", session, cache = true)
     val tx = PermanentRedirect.applyPermanentRedirect(origTx)
 
-    tx.request.ahcRequest.getURI shouldBe UriComponents.create("http://gatling-tool3.org/")
+    tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling-tool3.org/")
     tx.redirectCount shouldBe 3
 
   }
@@ -78,7 +78,7 @@ class PermanentRedirectSpec extends FlatSpec with Matchers {
     val origTx = MockUtils.txTo("http://example.com/", session, 2, cache = true)
     val tx = PermanentRedirect.applyPermanentRedirect(origTx)
 
-    tx.request.ahcRequest.getURI shouldBe UriComponents.create("http://gatling-tool3.org/")
+    tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling-tool3.org/")
     // After 3 more redirects it is now equal to 5
     tx.redirectCount shouldBe 5
   }
