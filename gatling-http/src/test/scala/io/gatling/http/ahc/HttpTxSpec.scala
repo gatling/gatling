@@ -86,7 +86,7 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
     val protocol = mock[HttpProtocol]
     val requestPart = mock[HttpProtocolRequestPart]
 
-    when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/test.js")
+    when(ahcRequest.getUrl) thenReturn "http://example.com/test.js"
     when(requestPart.silentURI) thenReturn Some(""".*\.js""".r.pattern)
     when(requestPart.silentResources) thenReturn false
     when(protocol.requestPart) thenReturn requestPart
