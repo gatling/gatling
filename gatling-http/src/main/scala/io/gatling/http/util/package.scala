@@ -42,7 +42,7 @@ package object util {
 
     def appendAHCRequest(request: Request): JStringBuilder = {
 
-      buff.append(request.getMethod).append(" ").append(request.getUri.toUrl).append(Eol)
+      buff.append(request.getMethod).append(" ").append(request.getUrl).append(Eol)
 
       if (request.getHeaders != null && !request.getHeaders.isEmpty) {
         buff.append("headers=").append(Eol)
