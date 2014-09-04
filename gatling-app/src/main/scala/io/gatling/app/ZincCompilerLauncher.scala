@@ -32,7 +32,7 @@ object ZincCompilerLauncher {
     val binDirectory = binariesDirectory.getOrElse(GatlingHome / "target")
     val javaHome = jdkHome.trimToOption.getOrElse(throw new IllegalStateException("Couldn't locate java, try setting JAVA_HOME environment variable."))
     val javaExe = pathToUri(javaHome) / "bin" / (if (isWin) "java.exe" else "java")
-    val classesDirectory = binDirectory / "classes"
+    val classesDirectory = binDirectory / "test-classes"
     classesDirectory.toFile.mkdirs()
 
     val classPath = Seq("-cp", javaClassPath)
