@@ -7,8 +7,6 @@ import com.typesafe.sbt.SbtSite.site
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
 import sbtunidoc.Plugin.{ ScalaUnidoc, unidocSettings }
 
-import Resolvers._
-
 object BuildSettings {
 
   lazy val basicSettings = Seq(
@@ -19,7 +17,7 @@ object BuildSettings {
     licenses              := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion          := "2.10.4",
     autoScalaLibrary      := false,
-    resolvers             := Seq(Resolver.mavenLocal, sonatypeSnapshots),
+    resolvers             := Seq(Resolver.mavenLocal, Opts.resolver.sonatypeSnapshots),
     javacOptions          := Seq("-Xlint:-options","-source", "1.7", "-target", "1.7"),
     scalacOptions         := Seq(
       "-encoding", "UTF-8",
