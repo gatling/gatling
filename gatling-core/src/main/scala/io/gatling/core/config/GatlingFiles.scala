@@ -18,7 +18,7 @@ package io.gatling.core.config
 import java.io.File
 import java.net.URI
 
-import scala.tools.nsc.io.{ Directory, Path }
+import scala.tools.nsc.io.Path
 import scala.tools.nsc.io.Path.string2path
 import scala.util.Properties.{ envOrElse, propOrElse }
 
