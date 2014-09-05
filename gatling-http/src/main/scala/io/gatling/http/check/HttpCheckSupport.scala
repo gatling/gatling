@@ -21,7 +21,7 @@ import io.gatling.http.check.checksum.HttpChecksumCheckBuilder
 import io.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
 import io.gatling.http.check.status.HttpStatusCheckBuilder
 import io.gatling.http.check.time.HttpResponseTimeCheckBuilder
-import io.gatling.http.check.url.CurrentLocationCheckBuilder
+import io.gatling.http.check.url.{ CurrentLocationRegexCheckBuilder, CurrentLocationCheckBuilder }
 
 trait HttpCheckSupport {
 
@@ -45,6 +45,7 @@ trait HttpCheckSupport {
   val status = HttpStatusCheckBuilder.Status
 
   val currentLocation = CurrentLocationCheckBuilder.CurrentLocation
+  val currentLocationRegex = CurrentLocationRegexCheckBuilder.currentLocationRegex _
 
   val md5 = HttpChecksumCheckBuilder.Md5
   val sha1 = HttpChecksumCheckBuilder.Sha1
