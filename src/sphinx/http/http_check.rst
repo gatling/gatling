@@ -44,6 +44,9 @@ Targets the HTTP response status code.
 .. note:: A status check is automatically added to a request when you don't specify one.
           It checks that the HTTP response has a 2XX or 304 status code.
 
+Page location
+-------------
+
 .. _http-check-current-location:
 
 * ``currentLocation``
@@ -51,6 +54,23 @@ Targets the HTTP response status code.
 Targets the current page absolute URL.
 Useful when following redirects in order to check if the landing page is indeed the expected one.
 
+.. _http-check-current-location-regex:
+
+* ``currentLocationRegex(pattern)``
+
+Same as above, but *pattern* is used to apply a regex on the current location.
+
+By default, it can extract 0 or 1 capture group, so the extract type is ``String``.
+
+One can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step::
+
+  currentLocationRegex(pattern).ofType[T]
+
+Gatling provides built-in support for extracting String tuples from ``Tuple2[String]`` to ``Tuple8[String]``.
+
+The example below will capture two capture groups::
+
+  currentLocationRegex("http://foo.com/bar?(.*)=(.*)").ofType[(String, String)]
 
 HTTP header
 -----------
