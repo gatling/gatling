@@ -30,5 +30,5 @@ package object check {
    * Build a protocol specific check from a base one.
    * Usually just decorate the base one and add some more information.
    */
-  type CheckFactory[C <: Check[R], R] = Check[R] => C
+  type Extender[C <: Check[R], R] = Check[R] => C
 }

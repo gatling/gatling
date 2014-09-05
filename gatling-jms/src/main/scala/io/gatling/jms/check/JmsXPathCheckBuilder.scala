@@ -46,7 +46,7 @@ object JmsXPathCheckBuilder extends StrictLogging {
 
   val JDKXPathPreparer: Preparer[Message, Option[Document]] = preparer(JDKXPathExtractor.parse)
 
-  val CheckBuilder: CheckFactory[JmsCheck, Message] = (wrapped: Check[Message]) => wrapped
+  val CheckBuilder: Extender[JmsCheck, Message] = (wrapped: Check[Message]) => wrapped
 
   def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
     if (SaxonXPathExtractor.Enabled)

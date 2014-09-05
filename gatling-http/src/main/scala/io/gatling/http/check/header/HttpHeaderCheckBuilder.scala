@@ -24,7 +24,7 @@ import io.gatling.http.response.Response
 object HttpHeaderCheckBuilder {
 
   def header(headerName: Expression[String]) =
-    new DefaultMultipleFindCheckBuilder[HttpCheck, Response, Response, String](HeaderCheckFactory, PassThroughResponsePreparer) {
+    new DefaultMultipleFindCheckBuilder[HttpCheck, Response, Response, String](HeaderExtender, PassThroughResponsePreparer) {
       def findExtractor(occurrence: Int) = headerName.map(new SingleHttpHeaderExtractor(_, occurrence))
       def findAllExtractor = headerName.map(new MultipleHttpHeaderExtractor(_))
       def countExtractor = headerName.map(new CountHttpHeaderExtractor(_))

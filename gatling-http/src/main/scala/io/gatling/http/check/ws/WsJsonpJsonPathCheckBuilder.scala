@@ -18,27 +18,27 @@ package io.gatling.http.check.ws
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.check.extractor.jsonpath._
-import io.gatling.core.check.{ CheckFactory, DefaultMultipleFindCheckBuilder, Preparer }
+import io.gatling.core.check.{ Extender, DefaultMultipleFindCheckBuilder, Preparer }
 import io.gatling.core.session.Expression
 import io.gatling.http.check.body.HttpBodyJsonpJsonPathCheckBuilder
 
 trait WsJsonpJsonPathOfType {
   self: WsJsonpJsonPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter] = new WsJsonpJsonPathCheckBuilder[X](path, checkFactory)
+  def ofType[X: JsonFilter] = new WsJsonpJsonPathCheckBuilder[X](path, extender)
 }
 
 object WsJsonpJsonPathCheckBuilder extends StrictLogging {
 
   val WsJsonpPreparer: Preparer[String, Any] = HttpBodyJsonpJsonPathCheckBuilder.parseJsonpString
 
-  def jsonpJsonPath(path: Expression[String], checkFactory: CheckFactory[WsCheck, String]) =
-    new WsJsonpJsonPathCheckBuilder[String](path, checkFactory) with WsJsonpJsonPathOfType
+  def jsonpJsonPath(path: Expression[String], extender: Extender[WsCheck, String]) =
+    new WsJsonpJsonPathCheckBuilder[String](path, extender) with WsJsonpJsonPathOfType
 }
 
 class WsJsonpJsonPathCheckBuilder[X: JsonFilter](private[ws] val path: Expression[String],
-                                                 private[ws] val checkFactory: CheckFactory[WsCheck, String])
-    extends DefaultMultipleFindCheckBuilder[WsCheck, String, Any, X](checkFactory,
+                                                 private[ws] val extender: Extender[WsCheck, String])
+    extends DefaultMultipleFindCheckBuilder[WsCheck, String, Any, X](extender,
       WsJsonpJsonPathCheckBuilder.WsJsonpPreparer) {
 
   def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))

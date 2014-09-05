@@ -15,25 +15,25 @@
  */
 package io.gatling.http.check
 
-import io.gatling.core.check.{ Check, CheckFactory, Preparer }
+import io.gatling.core.check.{ Check, Extender, Preparer }
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.response.{ ByteArrayResponseBodyUsageStrategy, InputStreamResponseBodyUsageStrategy, Response, ResponseBodyUsageStrategy, StringResponseBodyUsageStrategy }
 
 object HttpCheckBuilders {
 
-  private def httpCheckFactory(target: HttpCheckScope, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]): CheckFactory[HttpCheck, Response] =
+  private def extender(target: HttpCheckScope, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]): Extender[HttpCheck, Response] =
     (wrapped: Check[Response]) => HttpCheck(wrapped, target, responseBodyUsageStrategy)
 
-  val StatusCheckFactory = httpCheckFactory(Status, None)
-  val UrlCheckFactory = httpCheckFactory(Url, None)
-  val ChecksumCheckFactory = httpCheckFactory(Checksum, None)
-  val HeaderCheckFactory = httpCheckFactory(Header, None)
-  def bodyCheckFactory(responseBodyUsageStrategy: ResponseBodyUsageStrategy) = httpCheckFactory(Body, Some(responseBodyUsageStrategy))
-  val StringBodyCheckFactory = bodyCheckFactory(StringResponseBodyUsageStrategy)
-  val StreamBodyCheckFactory = bodyCheckFactory(InputStreamResponseBodyUsageStrategy)
-  val BytesBodyCheckFactory = bodyCheckFactory(ByteArrayResponseBodyUsageStrategy)
-  val TimeCheckFactory = httpCheckFactory(Body, None)
+  val StatusExtender = extender(Status, None)
+  val UrlExtender = extender(Url, None)
+  val ChecksumExtender = extender(Checksum, None)
+  val HeaderExtender = extender(Header, None)
+  def bodyExtender(responseBodyUsageStrategy: ResponseBodyUsageStrategy) = extender(Body, Some(responseBodyUsageStrategy))
+  val StringBodyExtender = bodyExtender(StringResponseBodyUsageStrategy)
+  val StreamBodyExtender = bodyExtender(InputStreamResponseBodyUsageStrategy)
+  val BytesBodyExtender = bodyExtender(ByteArrayResponseBodyUsageStrategy)
+  val TimeExtender = extender(Body, None)
 
   val PassThroughResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
   val ResponseBodyStringPreparer: Preparer[Response, String] = (response: Response) => response.body.string.success

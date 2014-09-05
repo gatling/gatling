@@ -23,19 +23,19 @@ import io.gatling.http.check.ws.WsCheckBuilders._
 trait WsRegexOfType {
   self: WsRegexCheckBuilder[String] =>
 
-  def ofType[X](implicit groupExtractor: GroupExtractor[X]) = new WsRegexCheckBuilder[X](expression, checkFactory)
+  def ofType[X](implicit groupExtractor: GroupExtractor[X]) = new WsRegexCheckBuilder[X](expression, extender)
 }
 
 object WsRegexCheckBuilder {
 
-  def regex(expression: Expression[String], checkFactory: CheckFactory[WsCheck, String]) =
-    new WsRegexCheckBuilder[String](expression, checkFactory) with WsRegexOfType
+  def regex(expression: Expression[String], extender: Extender[WsCheck, String]) =
+    new WsRegexCheckBuilder[String](expression, extender) with WsRegexOfType
 }
 
 class WsRegexCheckBuilder[X](private[ws] val expression: Expression[String],
-                             private[ws] val checkFactory: CheckFactory[WsCheck, String])(implicit groupExtractor: GroupExtractor[X])
+                             private[ws] val extender: Extender[WsCheck, String])(implicit groupExtractor: GroupExtractor[X])
     extends DefaultMultipleFindCheckBuilder[WsCheck, String, CharSequence, X](
-      checkFactory,
+      extender,
       PassThroughMessagePreparer) {
 
   def findExtractor(occurrence: Int) = expression.map(new SingleRegexExtractor(_, occurrence))

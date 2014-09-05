@@ -49,13 +49,13 @@ object HttpBodyXPathCheckBuilder extends StrictLogging {
 
   def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
     if (SaxonXPathExtractor.Enabled)
-      new DefaultMultipleFindCheckBuilder[HttpCheck, Response, Option[XdmNode], String](StreamBodyCheckFactory, SaxonXPathPreparer) {
+      new DefaultMultipleFindCheckBuilder[HttpCheck, Response, Option[XdmNode], String](StreamBodyExtender, SaxonXPathPreparer) {
         def findExtractor(occurrence: Int) = expression.map(new SaxonXPathExtractor.SingleXPathExtractor(_, namespaces, occurrence))
         def findAllExtractor = expression.map(new SaxonXPathExtractor.MultipleXPathExtractor(_, namespaces))
         def countExtractor = expression.map(new SaxonXPathExtractor.CountXPathExtractor(_, namespaces))
       }
     else
-      new DefaultMultipleFindCheckBuilder[HttpCheck, Response, Option[Document], String](StreamBodyCheckFactory, JDKXPathPreparer) {
+      new DefaultMultipleFindCheckBuilder[HttpCheck, Response, Option[Document], String](StreamBodyExtender, JDKXPathPreparer) {
         def findExtractor(occurrence: Int) = expression.map(new JDKXPathExtractor.SingleXPathExtractor(_, namespaces, occurrence))
         def findAllExtractor = expression.map(new JDKXPathExtractor.MultipleXPathExtractor(_, namespaces))
         def countExtractor = expression.map(new JDKXPathExtractor.CountXPathExtractor(_, namespaces))

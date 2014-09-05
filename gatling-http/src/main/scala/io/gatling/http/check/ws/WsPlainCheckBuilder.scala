@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.ws
 
-import io.gatling.core.check.{ CheckFactory, DefaultFindCheckBuilder }
+import io.gatling.core.check.{ Extender, DefaultFindCheckBuilder }
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session.ExpressionWrapper
@@ -28,12 +28,12 @@ object WsPlainCheckBuilder {
     def apply(prepared: String) = Some(prepared).success
   }.expression
 
-  def message(checkFactory: CheckFactory[WsCheck, String]) =
-    new WsPlainCheckBuilder(checkFactory)
+  def message(extender: Extender[WsCheck, String]) =
+    new WsPlainCheckBuilder(extender)
 }
 
-class WsPlainCheckBuilder(checkFactory: CheckFactory[WsCheck, String])
+class WsPlainCheckBuilder(extender: Extender[WsCheck, String])
   extends DefaultFindCheckBuilder[WsCheck, String, String, String](
-    checkFactory,
+    extender,
     PassThroughMessagePreparer,
     WsPlainCheckBuilder.WsPlainExtractor)

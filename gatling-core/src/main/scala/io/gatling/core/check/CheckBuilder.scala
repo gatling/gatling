@@ -26,12 +26,12 @@ trait FindCheckBuilder[C <: Check[R], R, P, X] {
   def find: ValidatorCheckBuilder[C, R, P, X]
 }
 
-class DefaultFindCheckBuilder[C <: Check[R], R, P, X](checkFactory: CheckFactory[C, R],
+class DefaultFindCheckBuilder[C <: Check[R], R, P, X](extender: Extender[C, R],
                                                       preparer: Preparer[R, P],
                                                       extractor: Expression[Extractor[P, X]])
     extends FindCheckBuilder[C, R, P, X] {
 
-  def find: ValidatorCheckBuilder[C, R, P, X] = ValidatorCheckBuilder(checkFactory, preparer, extractor)
+  def find: ValidatorCheckBuilder[C, R, P, X] = ValidatorCheckBuilder(extender, preparer, extractor)
 }
 
 trait MultipleFindCheckBuilder[C <: Check[R], R, P, X] extends FindCheckBuilder[C, R, P, X] {
@@ -43,7 +43,7 @@ trait MultipleFindCheckBuilder[C <: Check[R], R, P, X] extends FindCheckBuilder[
   def count: ValidatorCheckBuilder[C, R, P, Int]
 }
 
-abstract class DefaultMultipleFindCheckBuilder[C <: Check[R], R, P, X](checkFactory: CheckFactory[C, R],
+abstract class DefaultMultipleFindCheckBuilder[C <: Check[R], R, P, X](extender: Extender[C, R],
                                                                        preparer: Preparer[R, P])
     extends MultipleFindCheckBuilder[C, R, P, X] {
 
@@ -55,15 +55,15 @@ abstract class DefaultMultipleFindCheckBuilder[C <: Check[R], R, P, X](checkFact
 
   def find = find(0)
 
-  def find(occurrence: Int): ValidatorCheckBuilder[C, R, P, X] = ValidatorCheckBuilder(checkFactory, preparer, findExtractor(occurrence))
+  def find(occurrence: Int): ValidatorCheckBuilder[C, R, P, X] = ValidatorCheckBuilder(extender, preparer, findExtractor(occurrence))
 
-  def findAll: ValidatorCheckBuilder[C, R, P, Seq[X]] = ValidatorCheckBuilder(checkFactory, preparer, findAllExtractor)
+  def findAll: ValidatorCheckBuilder[C, R, P, Seq[X]] = ValidatorCheckBuilder(extender, preparer, findAllExtractor)
 
-  def count: ValidatorCheckBuilder[C, R, P, Int] = ValidatorCheckBuilder(checkFactory, preparer, countExtractor)
+  def count: ValidatorCheckBuilder[C, R, P, Int] = ValidatorCheckBuilder(extender, preparer, countExtractor)
 }
 
 case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
-    checkFactory: CheckFactory[C, R],
+    extender: Extender[C, R],
     preparer: Preparer[R, P],
     extractor: Expression[Extractor[P, X]]) extends StrictLogging {
 
@@ -122,7 +122,7 @@ case class CheckBuilder[C <: Check[R], R, P, X](
 
   def build: C = {
     val base = CheckBase(validatorCheckBuilder.preparer, validatorCheckBuilder.extractor, validator, saveAs)
-    validatorCheckBuilder.checkFactory(base)
+    validatorCheckBuilder.extender(base)
   }
 }
 

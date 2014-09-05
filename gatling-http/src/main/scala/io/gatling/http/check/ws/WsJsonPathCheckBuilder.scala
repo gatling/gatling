@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.ws
 
-import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, CheckFactory, Preparer }
+import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Extender, Preparer }
 import io.gatling.core.json.{ Jackson, Boon }
 import io.gatling.core.util.StringHelper.{ TheStringImplementation, DirectCharsBasedStringImplementation }
 import io.gatling.core.check.extractor.jsonpath._
@@ -25,7 +25,7 @@ import io.gatling.core.session.Expression
 trait WsJsonPathOfType {
   self: WsJsonPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter] = new WsJsonPathCheckBuilder[X](path, checkFactory)
+  def ofType[X: JsonFilter] = new WsJsonPathCheckBuilder[X](path, extender)
 }
 
 object WsJsonPathCheckBuilder {
@@ -35,14 +35,14 @@ object WsJsonPathCheckBuilder {
     case _                                    => handleParseException(Jackson.parse)
   }
 
-  def jsonPath(path: Expression[String], checkFactory: CheckFactory[WsCheck, String]) =
-    new WsJsonPathCheckBuilder[String](path, checkFactory) with WsJsonPathOfType
+  def jsonPath(path: Expression[String], extender: Extender[WsCheck, String]) =
+    new WsJsonPathCheckBuilder[String](path, extender) with WsJsonPathOfType
 }
 
 class WsJsonPathCheckBuilder[X: JsonFilter](private[ws] val path: Expression[String],
-                                            private[ws] val checkFactory: CheckFactory[WsCheck, String])
+                                            private[ws] val extender: Extender[WsCheck, String])
     extends DefaultMultipleFindCheckBuilder[WsCheck, String, Any, X](
-      checkFactory,
+      extender,
       WsJsonPathCheckBuilder.WsJsonPathPreparer) {
 
   def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))

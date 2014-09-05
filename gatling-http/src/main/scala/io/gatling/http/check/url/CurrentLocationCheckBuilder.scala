@@ -31,7 +31,7 @@ object CurrentLocationCheckBuilder {
   }.expression
 
   val CurrentLocation = new DefaultFindCheckBuilder[HttpCheck, Response, Response, String](
-    UrlCheckFactory,
+    UrlExtender,
     PassThroughResponsePreparer,
     CurrentLocationExtractor)
 }

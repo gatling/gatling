@@ -34,7 +34,7 @@ object HttpBodyRegexCheckBuilder {
 
 class HttpBodyRegexCheckBuilder[X: GroupExtractor](private[body] val expression: Expression[String])
     extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, CharSequence, X](
-      StringBodyCheckFactory,
+      StringBodyExtender,
       ResponseBodyStringPreparer) {
 
   def findExtractor(occurrence: Int) = expression.map(new SingleRegexExtractor(_, occurrence))

@@ -34,7 +34,7 @@ object HttpStatusCheckBuilder {
   }.expression
 
   val Status = new DefaultFindCheckBuilder[HttpCheck, Response, Response, Int](
-    StatusCheckFactory,
+    StatusExtender,
     PassThroughResponsePreparer,
     StatusExtractor)
 }

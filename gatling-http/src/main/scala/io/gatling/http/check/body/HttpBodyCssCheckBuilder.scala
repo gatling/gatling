@@ -41,7 +41,7 @@ object HttpBodyCssCheckBuilder extends StrictLogging {
     }
 
   def css(expression: Expression[String], nodeAttribute: Option[String]) =
-    new DefaultMultipleFindCheckBuilder[HttpCheck, Response, NodeSelector, String](StringBodyCheckFactory, CssPreparer) {
+    new DefaultMultipleFindCheckBuilder[HttpCheck, Response, NodeSelector, String](StringBodyExtender, CssPreparer) {
       def findExtractor(occurrence: Int) = expression.map(new SingleCssExtractor(_, nodeAttribute, occurrence))
       def findAllExtractor = expression.map(new MultipleCssExtractor(_, nodeAttribute))
       def countExtractor = expression.map(new CountCssExtractor(_, nodeAttribute))

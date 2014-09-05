@@ -64,7 +64,7 @@ object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
 }
 
 class HttpBodyJsonpJsonPathCheckBuilder[X: JsonFilter](private[body] val path: Expression[String])
-    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Any, X](StringBodyCheckFactory,
+    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Any, X](StringBodyExtender,
       HttpBodyJsonpJsonPathCheckBuilder.JsonpPreparer) {
 
   def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))

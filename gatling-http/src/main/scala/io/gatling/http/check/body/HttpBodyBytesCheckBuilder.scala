@@ -31,7 +31,7 @@ object HttpBodyBytesCheckBuilder {
   }.expression
 
   val BodyBytes = new DefaultFindCheckBuilder[HttpCheck, Response, Array[Byte], Array[Byte]](
-    BytesBodyCheckFactory,
+    BytesBodyExtender,
     ResponseBodyBytesPreparer,
     BodyBytesExtractor)
 }

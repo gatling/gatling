@@ -36,7 +36,7 @@ object HttpResponseTimeCheckBuilder {
   }.expression)
 
   def apply(extractor: Expression[Extractor[Response, Long]]) = new DefaultFindCheckBuilder[HttpCheck, Response, Response, Long](
-    TimeCheckFactory,
+    TimeExtender,
     PassThroughResponsePreparer,
     extractor)
 }

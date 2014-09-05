@@ -41,7 +41,7 @@ object CurrentLocationRegexCheckBuilder {
  */
 class CurrentLocationRegexCheckBuilder[X: GroupExtractor](private[url] val expression: Expression[String])
     extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, CharSequence, X](
-      StringBodyCheckFactory,
+      StringBodyExtender,
       UrlStringPreparer) {
 
   def findExtractor(occurrence: Int) = expression.map(new SingleRegexExtractor(_, occurrence))

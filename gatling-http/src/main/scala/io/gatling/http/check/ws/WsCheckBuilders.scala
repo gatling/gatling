@@ -15,13 +15,13 @@
  */
 package io.gatling.http.check.ws
 
-import io.gatling.core.check.{ CheckFactory, Preparer }
+import io.gatling.core.check.{ Extender, Preparer }
 import io.gatling.core.validation.SuccessWrapper
 import scala.concurrent.duration.FiniteDuration
 
 object WsCheckBuilders {
 
-  def checkFactory(await: Boolean, timeout: FiniteDuration, expectation: Expectation): CheckFactory[WsCheck, String] =
+  def extender(await: Boolean, timeout: FiniteDuration, expectation: Expectation): Extender[WsCheck, String] =
     wrapped => new WsCheck(wrapped, await, timeout, expectation)
 
   val PassThroughMessagePreparer: Preparer[String, String] = (r: String) => r.success

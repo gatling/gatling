@@ -31,7 +31,7 @@ object HttpBodyStringCheckBuilder {
   }.expression
 
   val BodyString = new DefaultFindCheckBuilder[HttpCheck, Response, String, String](
-    StringBodyCheckFactory,
+    StringBodyExtender,
     ResponseBodyStringPreparer,
     BodyStringExtractor)
 }
