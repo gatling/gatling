@@ -40,14 +40,14 @@ This parameter can be increased with the ``-Xss`` JVM parameter.
 Another solution is of course to split into smaller chains.
 
 Since 2M3, Gatling forks a new process for running so compiler, so that one can tune JVM differently for compiler and running.
-The compiler JVM can be tuned with a parameter named ``gatling.core.zinc`` in `gatling.conf <https://github.com/gatling/gatling/blob/2.0.0-M3a/gatling-core/src/main/resources/gatling-defaults.conf#L44>`_.
+The compiler JVM can be tuned with a parameter named ``gatling.core.zinc`` in `gatling.conf <https://github.com/gatling/gatling/blob/master/gatling-core/src/main/resources/gatling-defaults.conf#49>`_.
 
 .. _faq-warmup:
 
 * **I get a "Connection timed out: no further information to http://gatling-tool.org", what happened?**
 
 Since 1.2.0, Gatling has an option for sending a request in order to warm up the engine and have more precise statistics during the run.
-This option is enabled by default and http://gatling-tool.org is the default url.
+This option is enabled by default and http://gatling.io is the default url.
 
 If Gatling can't reach out this url either because you don't have a connection, or because it requires a proxy configuration, you'll get this stacktrace.
 
