@@ -23,7 +23,8 @@ import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ Request, RequestBuilderBase, SignatureCalculator }
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.validation.Success
+import io.gatling.core.session.{ Session, Expression }
+import io.gatling.core.validation.{ Success, Failure }
 import io.gatling.http.config.HttpProtocol
 
 class HttpRequestBuilderSpec extends FlatSpec with Matchers with MockitoSugar {
@@ -35,7 +36,7 @@ class HttpRequestBuilderSpec extends FlatSpec with Matchers with MockitoSugar {
 
   "request builder" should "set signature calculator object" in {
     var builder = new HttpRequestBuilder(mockComonAttributes(), HttpAttributes())
-    val sigCalc = mock[SignatureCalculator]
+    val sigCalc = mock[Expression[SignatureCalculator]]
     builder = builder.signatureCalculator(sigCalc)
 
     val httpRequest = builder.build(HttpProtocol.DefaultHttpProtocol, throttled = false)
@@ -48,12 +49,15 @@ class HttpRequestBuilderSpec extends FlatSpec with Matchers with MockitoSugar {
     builder = builder.signatureCalculator(sigCalcFunc)
 
     val httpRequest = builder.build(HttpProtocol.DefaultHttpProtocol, throttled = false)
-    val sigCalc = httpRequest.signatureCalculator.get
+    val sigCalc = (httpRequest.signatureCalculator.get)(mock[Session])
 
     val mockRequest = mock[Request]
     val mockRequestBuilder = mock[RequestBuilderBase[_]]
 
-    sigCalc.calculateAndAddSignature(mockRequest, mockRequestBuilder)
+    sigCalc match {
+      case Success(sc) => sc.calculateAndAddSignature(mockRequest, mockRequestBuilder)
+      case Failure(e)  => ()
+    }
     verify(sigCalcFunc, times(1)).apply(mockRequest, mockRequestBuilder)
   }
 }

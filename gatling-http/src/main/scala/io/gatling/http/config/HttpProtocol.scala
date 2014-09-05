@@ -194,7 +194,7 @@ case class HttpProtocolRequestPart(
   disableUrlEscaping: Boolean,
   silentURI: Option[Pattern],
   silentResources: Boolean,
-  signatureCalculator: Option[SignatureCalculator])
+  signatureCalculator: Option[Expression[SignatureCalculator]])
 
 case class HttpProtocolResponsePart(
   followRedirect: Boolean,

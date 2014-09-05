@@ -32,7 +32,7 @@ package io.gatling.http.request
 import com.ning.http.client.{ RequestBuilder, SignatureCalculator, Request }
 
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.Validation
+import io.gatling.core.validation._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.Response
@@ -52,7 +52,7 @@ case class HttpRequestConfig(
 case class HttpRequestDef(
     requestName: Expression[String],
     ahcRequest: Expression[Request],
-    signatureCalculator: Option[SignatureCalculator],
+    signatureCalculator: Option[Expression[SignatureCalculator]],
     config: HttpRequestConfig) {
 
   def build(session: Session): Validation[HttpRequest] =
@@ -63,15 +63,16 @@ case class HttpRequestDef(
 
   def build(requestName: String, session: Session): Validation[HttpRequest] = {
 
-      def sign(request: Request, signatureCalculator: Option[SignatureCalculator]): Request =
+      def sign(request: Request, signatureCalculator: Option[Expression[SignatureCalculator]]): Validation[Request] =
         signatureCalculator match {
-          case Some(calculator) => new RequestBuilder(request).setSignatureCalculator(calculator).build()
-          case None             => request
+          case Some(calculatorExp) => calculatorExp(session).map(
+            calculator => new RequestBuilder(request).setSignatureCalculator(calculator).build())
+          case None => Success(request)
         }
 
     for {
       rawAhcRequest <- ahcRequest(session)
-      signedAhcRequest = sign(rawAhcRequest, signatureCalculator)
+      signedAhcRequest <- sign(rawAhcRequest, signatureCalculator)
 
     } yield HttpRequest(requestName, signedAhcRequest, config)
   }

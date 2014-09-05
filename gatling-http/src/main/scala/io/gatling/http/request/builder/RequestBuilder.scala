@@ -21,8 +21,9 @@ import com.ning.http.client._
 import com.ning.http.client.uri.Uri
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.session.{ Expression, ExpressionWrapper }
+import io.gatling.core.session._
 import io.gatling.core.session.el.EL
+import io.gatling.core.validation._
 import io.gatling.http.check.status.HttpStatusCheckBuilder._
 import io.gatling.http.util.HttpHelper._
 import io.gatling.http.{ HeaderNames, HeaderValues }
@@ -42,7 +43,7 @@ case class CommonAttributes(
   address: Option[InetAddress] = None,
   proxy: Option[ProxyServer] = None,
   secureProxy: Option[ProxyServer] = None,
-  signatureCalculator: Option[SignatureCalculator] = None)
+  signatureCalculator: Option[Expression[SignatureCalculator]] = None)
 
 object RequestBuilder {
 
@@ -115,7 +116,8 @@ abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: Comm
 
   def proxy(httpProxy: Proxy): B = newInstance(commonAttributes.copy(proxy = Some(httpProxy.proxyServer), secureProxy = httpProxy.secureProxyServer))
 
-  def signatureCalculator(calculator: SignatureCalculator): B = newInstance(commonAttributes.copy(signatureCalculator = Some(calculator)))
+  def signatureCalculator(calculator: Expression[SignatureCalculator]): B = newInstance(commonAttributes.copy(signatureCalculator = Some(calculator)))
+  def signatureCalculator(calculator: SignatureCalculator): B = signatureCalculator(calculator.expression)
   def signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit): B = signatureCalculator(new SignatureCalculator {
     def calculateAndAddSignature(request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(request, requestBuilder)
   })
