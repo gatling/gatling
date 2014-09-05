@@ -33,7 +33,7 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
 import io.gatling.http.action.HttpRequestAction
 import io.gatling.http.cache.{ PermanentRedirect, CacheHandling }
-import io.gatling.http.check.{ HttpCheck, HttpCheckTarget }
+import io.gatling.http.check.{ HttpCheck, HttpCheckScope }
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.referer.RefererHandling
@@ -297,7 +297,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         else {
           val checks =
             if (HttpHelper.isNotModified(status.getStatusCode))
-              tx.request.config.checks.filter(c => c.target != HttpCheckTarget.Body && c.target != HttpCheckTarget.Checksum)
+              tx.request.config.checks.filter(c => c.scope != HttpCheckScope.Body && c.scope != HttpCheckScope.Checksum)
             else
               tx.request.config.checks
 

@@ -17,12 +17,12 @@ package io.gatling.http.check
 
 import io.gatling.core.check.{ Check, CheckFactory, Preparer }
 import io.gatling.core.validation.SuccessWrapper
-import io.gatling.http.check.HttpCheckTarget._
+import io.gatling.http.check.HttpCheckScope._
 import io.gatling.http.response.{ ByteArrayResponseBodyUsageStrategy, InputStreamResponseBodyUsageStrategy, Response, ResponseBodyUsageStrategy, StringResponseBodyUsageStrategy }
 
 object HttpCheckBuilders {
 
-  private def httpCheckFactory(target: HttpCheckTarget, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]): CheckFactory[HttpCheck, Response] =
+  private def httpCheckFactory(target: HttpCheckScope, responseBodyUsageStrategy: Option[ResponseBodyUsageStrategy]): CheckFactory[HttpCheck, Response] =
     (wrapped: Check[Response]) => HttpCheck(wrapped, target, responseBodyUsageStrategy)
 
   val StatusCheckFactory = httpCheckFactory(Status, None)

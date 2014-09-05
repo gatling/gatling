@@ -15,14 +15,14 @@
  */
 package io.gatling.http.check
 
-sealed trait HttpCheckTarget
+sealed trait HttpCheckScope
 
-object HttpCheckTarget {
+object HttpCheckScope {
 
-  case object Status extends HttpCheckTarget
-  case object Url extends HttpCheckTarget
-  case object Time extends HttpCheckTarget
-  case object Checksum extends HttpCheckTarget
-  case object Header extends HttpCheckTarget
-  case object Body extends HttpCheckTarget
+  case object Status extends HttpCheckScope
+  case object Url extends HttpCheckScope
+  case object Time extends HttpCheckScope
+  case object Checksum extends HttpCheckScope
+  case object Header extends HttpCheckScope
+  case object Body extends HttpCheckScope
 }
