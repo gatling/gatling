@@ -124,7 +124,7 @@ class HttpCompileTest extends Simulation {
               css("""#foo""", "href"),
               css(""".foo""").count.is(1),
               css(""".foo""").notExists,
-              regex("""<input id="text1" type="text" value="aaaa" />""").dontValidate.saveAs("var1"),
+              regex("""<input id="text1" type="text" value="aaaa" />""").optional.saveAs("var1"),
               regex("""<input id="text1" type="text" value="aaaa" />""").count.is(1),
               regex("""<input id="text1" type="test" value="aaaa" />""").notExists,
               status.in(200 to 210).saveAs("blablaParam"),
