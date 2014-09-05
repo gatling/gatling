@@ -295,7 +295,11 @@ Transforming is an **optional** step for transforming the result of the extracti
 
 ``transform(function)`` takes a ``X => X2`` function, meaning that it can only transform the result when it exists.
 
+.. note:: You can also gain access to the ``Session`` and pass a ``(X, Session) => X2`` instead.
+
 ``transformOption(function)`` takes a ``Option[X] => Validation[Option[X2]]`` function, meaning that it gives full control over the extracted result, even providing a default value.
+
+.. note:: You can also gain access to the ``Session`` and pass a ``(Option[X], Session) => Validation[X2]`` instead.
 
 ::
 

@@ -18,7 +18,7 @@ package io.gatling.core.check
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.check.extractor.Extractor
-import io.gatling.core.session.{ Expression, ExpressionWrapper, RichExpression }
+import io.gatling.core.session.{ Session, Expression, ExpressionWrapper, RichExpression }
 import io.gatling.core.validation.{ FailureWrapper, Validation }
 
 trait FindCheckBuilder[C <: Check[R], R, P, X] {
@@ -67,37 +67,45 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
     preparer: Preparer[R, P],
     extractor: Expression[Extractor[P, X]]) extends StrictLogging {
 
-  def transform[X2](transformation: X => X2): ValidatorCheckBuilder[C, R, P, X2] =
-    copy(extractor = extractor.map { extractor =>
-      new Extractor[P, X2] {
-        def name = extractor.name + " transform"
+  private def transformExtractor[X2](transformation: X => X2)(e: Extractor[P, X]) =
+    new Extractor[P, X2] {
+      def name = e.name + " transform"
 
-        def apply(prepared: P): Validation[Option[X2]] =
-          try {
-            extractor(prepared).map { extracted =>
-              extracted.map(transformation)
-            }
-          } catch {
-            case e: Exception => s"transform crashed: ${e.getMessage}".failure
+      def apply(prepared: P): Validation[Option[X2]] =
+        try {
+          e(prepared).map { extracted =>
+            extracted.map(transformation)
           }
-      }
-    })
+        } catch {
+          case e: Exception => s"transform crashed: ${e.getMessage}".failure
+        }
+    }
+
+  def transform[X2](transformation: X => X2): ValidatorCheckBuilder[C, R, P, X2] =
+    copy(extractor = extractor.map(transformExtractor(transformation)))
+
+  def transform[X2](transformation: (X, Session) => X2): ValidatorCheckBuilder[C, R, P, X2] =
+    copy(extractor = session => extractor(session).map(transformExtractor(transformation(_, session))))
+
+  private def transformOptionExtractor[X2](transformation: Option[X] => Validation[Option[X2]])(e: Extractor[P, X]) =
+    new Extractor[P, X2] {
+      def name = e.name + " transformOption"
+
+      def apply(prepared: P): Validation[Option[X2]] =
+        try {
+          e(prepared).flatMap { extracted =>
+            transformation(extracted)
+          }
+        } catch {
+          case e: Exception => s"transformOption crashed: ${e.getMessage}".failure
+        }
+    }
 
   def transformOption[X2](transformation: Option[X] => Validation[Option[X2]]): ValidatorCheckBuilder[C, R, P, X2] =
-    copy(extractor = extractor.map { extractor =>
-      new Extractor[P, X2] {
-        def name = extractor.name + " transformOption"
+    copy(extractor = extractor.map(transformOptionExtractor(transformation)))
 
-        def apply(prepared: P): Validation[Option[X2]] =
-          try {
-            extractor(prepared).flatMap { extracted =>
-              transformation(extracted)
-            }
-          } catch {
-            case e: Exception => s"transformOption crashed: ${e.getMessage}".failure
-          }
-      }
-    })
+  def transformOption[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): ValidatorCheckBuilder[C, R, P, X2] =
+    copy(extractor = session => extractor(session).map(transformOptionExtractor(transformation(_, session))))
 
   def validate(validator: Expression[Validator[X]]) = new CheckBuilder(this, validator) with SaveAs[C, R, P, X]
 
