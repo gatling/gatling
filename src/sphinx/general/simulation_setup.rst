@@ -69,7 +69,15 @@ The pauses can be configure on ``Simulation`` with a bunch of methods:
 Throttling
 ==========
 
-If you want to reason in terms of request per second and not in terms of users, Gatling support throttling with the ``throttle`` method, e.g.::
+If you want to reason in terms of request per second and not in terms of users, Gatling support throttling with the ``throttle`` method
+
+.. note::
+
+  * You still have to inject users at the scenario level.
+    Throttling tries to ensure a targeted throughput with the given scenarios and their injection profiles, it's a bottleneck.
+  * Throttling can also be configured :ref:`per scenario <scenario-throttling>`.
+
+::
 
   setUp(...).throttle(
     reachRps(100) in (10 seconds),
@@ -85,12 +93,6 @@ The building block for the throttling are:
 * ``reachRps(target) in (duration)``: target a throughput with a ramp over a given duration.
 * ``jumpToRps(target)``: jump immediately to a given targeted throughput.
 * ``holdFor(duration)``: hold the current throughput for a given duration.
-
-.. note::
-
-  * Defining throttling doesn't prevent you from injecting users at the scenario level.
-    Throttling tries to ensure a targeted throughput on the simulation level with the given scenarios and their injection profiles.
-  * Throttling can also be configured at scenario level.
 
 .. _simulation-setup-maxduration:
 

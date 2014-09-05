@@ -443,7 +443,7 @@ Protocol definition
 
 You can configure protocols at scenario level with ``protocols`` method::
 
-  scn.protocols(httpConf)
+  scn.inject(...).protocols(httpConf)
 
 See the dedicated section for http protocol definition :ref:`here <http-protocol>`.
 
@@ -459,8 +459,12 @@ You can configure pause definition at scenario level, see :ref:`here <simulation
 Throttling
 ==========
 
-You can also configure throttling at scenario level with ``throttle`` method::
+You can also configure throttling at scenario level with ``throttle`` method.
 
-  scn.throttle(reachRps(100) in (10 seconds), holdFor(10 minute))
+This way, you can configure different throttling profiles for different scenarios running in the same simulation.
+
+::
+
+  scn.inject(...).throttle(reachRps(100) in (10 seconds), holdFor(10 minute))
 
 For further information see the dedicated section :ref:`here <simulation-setup-throttling>`.
