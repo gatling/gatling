@@ -101,24 +101,6 @@ It was possible in old versions, but it caused tons of problems, so we removed t
 
 However, just like scheduling, that's something very easy to achieve outside Gatling. For example, one can configure `multiple executions <http://maven.apache.org/guides/mini/guide-default-execution-ids.html>`_ of the Gatling maven plugin, or multiple Jenkins jobs.
 
-.. _faq-simulation-log:
-
-* **What's the meaning of the 4 longs in simulation.log file?**
-
-Those are currently:
-
-#. first byte sent timestamp
-#. last byte sent timestamp
-#. first byte received timestamp
-#. last byte received timestamp
-
-A timestamp is of course the number of milliseconds since epoch.
-
-* response time (in ms) = 4 - 1
-* latency (in ms) = 3 - 2
-
-Beware that the format of this file is an implementation details of the ``FileDataWriter``/``FileDataReader`` combo, so it might be subject to changes.
-
 .. _faq-elb:
 
 * **Using Amazon Elastic Load Balancing?**
