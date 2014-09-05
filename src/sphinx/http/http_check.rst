@@ -283,12 +283,10 @@ Transforming is an **optional** step for transforming the result of the extracti
 
   transformOption(extract => extract.orElse(Some("default"))).success)
 
-.. _http-check-verifying:
+.. _http-check-validating:
 
-Verifying
-=========
-
-
+Validating
+==========
 
 .. _http-check-is:
 
