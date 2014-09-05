@@ -24,7 +24,7 @@ See :ref:`License section <license>`
 
 .. _faq-gatling-highcharts-split2:
 
-* **I built from sources and got a java.lang.NoClassDefFoundError: com/excilys/ebi/gatling/charts/component/impl/ComponentLibraryImpl**
+* **I built from sources and got a java.lang.NoClassDefFoundError: io/gatling/charts/component/impl/ComponentLibraryImpl**
 
 See up here, the Highcharts based charts implementation is hosted in a separate project.
 You have to build it too.
