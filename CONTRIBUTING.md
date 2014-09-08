@@ -47,9 +47,9 @@ If there is any error message or stacktrace available, include it in your bug re
 
 Before you submit a pull request, make sure that:
 
-1. New features or API changes are properly documented (TODO : provide link to documentation guidelines)
+1. New features or API changes are properly documented and follows [Gatling's documentation guidelines](http://gatling.io/docs/2.0.0-RC3/developing_gatling/doc_guidelines.html)
 2. You provided tests for the code changes you made
-3. The code follows Gatling's code guidelines (TODO: provide link to code guidelines)
+3. The code follows [Gatling's code guidelines](http://gatling.io/docs/2.0.0-RC3/developing_gatling/dev_guidelines.html)
 4. The pull request's commits must follow our guidelines (see the **Commits and commit messages** below)
 5. Source files have the appropriate copyright header license :
 
