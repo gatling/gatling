@@ -93,7 +93,13 @@ class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogg
       val elements = new BorderPanel {
         border = titledBorder("Executed Events")
 
-        layout(new ScrollPane(events)) = Center
+        val scrollPane = new ScrollPane(events) {
+          horizontalScrollBarPolicy = ScrollPane.BarPolicy.AsNeeded
+          verticalScrollBarPolicy = ScrollPane.BarPolicy.AsNeeded
+          preferredSize = new Dimension(400, 120)
+        }
+
+        layout(scrollPane) = Center
       }
       val requests = new BorderPanel {
         border = titledBorder("Request Information")
