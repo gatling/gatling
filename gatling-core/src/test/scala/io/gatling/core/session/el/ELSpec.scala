@@ -253,6 +253,19 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
     expression(session).failed shouldBe el.ELMessages.randomNotSupported(10, "i")
   }
 
+  "'exists' function in Expression" should "validate that a value is in the session" in {
+    val session = Session("scenario", "1", Map("key1" -> "val1"))
+    val expression = "${key1.exists()}".el[Boolean]
+    println(expression(session))
+    expression(session).succeeded shouldBe true
+  }
+
+  it should "validate that a value is not in the session" in {
+    val session = Session("scenario", "1", Map.empty)
+    val expression = "${key1.exists()}".el[Boolean]
+    expression(session).succeeded shouldBe false
+  }
+
   "access map in Expression" should "return value by key" in {
     val map = Map("key1" -> "val1", "key2" -> "val2")
     val session = Session("scenario", "1", Map("map" -> map))

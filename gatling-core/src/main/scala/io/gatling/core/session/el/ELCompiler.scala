@@ -78,6 +78,11 @@ case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
   }
 }
 
+case class ExistsPart(name: String) extends Part[Boolean] {
+  def apply(session: Session): Validation[Boolean] =
+    session.contains(name).success
+}
+
 case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extends Part[Any] {
   def apply(session: Session): Validation[Any] = {
 
@@ -175,6 +180,7 @@ class ELCompiler extends RegexParsers {
   case class AccessKey(key: String, token: String) extends AccessToken
   case object AccessRandom extends AccessToken { val token = ".random" }
   case object AccessSize extends AccessToken { val token = ".size" }
+  case object AccessExists extends AccessToken { val token = ".exists" }
   case class AccessTuple(index: String, token: String) extends AccessToken
 
   override def skipWhitespace = false
@@ -208,6 +214,7 @@ class ELCompiler extends RegexParsers {
           case AccessKey(key, tokenName)     => MapKeyPart(subPart, subPartName, key)
           case AccessRandom                  => RandomPart(subPart, subPartName)
           case AccessSize                    => SizePart(subPart, subPartName)
+          case AccessExists                  => ExistsPart(subPartName)
           case AccessTuple(index, tokenName) => TupleAccessPart(subPart, subPartName, index.toInt)
         }
 
@@ -220,12 +227,14 @@ class ELCompiler extends RegexParsers {
 
   def objectName: Parser[AttributePart] = NamePattern ^^ { case name => AttributePart(name) }
 
-  def valueAccess: Parser[AccessToken] = tupleAccess | indexAccess | randomAccess | sizeAccess | keyAccess |
+  def valueAccess: Parser[AccessToken] = tupleAccess | indexAccess | randomAccess | sizeAccess | existsAccess | keyAccess |
     (elExpr ^^ { case _ => throw new Exception("nested attribute definition is not allowed") })
 
   def randomAccess: Parser[AccessToken] = ".random()" ^^ { case _ => AccessRandom }
 
   def sizeAccess: Parser[AccessToken] = ".size()" ^^ { case _ => AccessSize }
+
+  def existsAccess: Parser[AccessToken] = ".exists()" ^^ { case _ => AccessExists }
 
   def indexAccess: Parser[AccessToken] = "(" ~> NamePattern <~ ")" ^^ { case posStr => AccessIndex(posStr, s"($posStr)") }
 
