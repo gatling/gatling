@@ -178,9 +178,9 @@ class ELCompiler extends RegexParsers {
   sealed trait AccessToken { def token: String }
   case class AccessIndex(pos: String, token: String) extends AccessToken
   case class AccessKey(key: String, token: String) extends AccessToken
-  case object AccessRandom extends AccessToken { val token = ".random" }
-  case object AccessSize extends AccessToken { val token = ".size" }
-  case object AccessExists extends AccessToken { val token = ".exists" }
+  case object AccessRandom extends AccessToken { val token = ".random()" }
+  case object AccessSize extends AccessToken { val token = ".size()" }
+  case object AccessExists extends AccessToken { val token = ".exists()" }
   case class AccessTuple(index: String, token: String) extends AccessToken
 
   override def skipWhitespace = false
@@ -227,14 +227,10 @@ class ELCompiler extends RegexParsers {
 
   def objectName: Parser[AttributePart] = NamePattern ^^ { case name => AttributePart(name) }
 
-  def valueAccess: Parser[AccessToken] = tupleAccess | indexAccess | randomAccess | sizeAccess | existsAccess | keyAccess |
+  def functionAccess(access: AccessToken) = access.token ^^ { case _ => access }
+
+  def valueAccess: Parser[AccessToken] = tupleAccess | indexAccess | functionAccess(AccessRandom) | functionAccess(AccessSize) | functionAccess(AccessExists) | keyAccess |
     (elExpr ^^ { case _ => throw new Exception("nested attribute definition is not allowed") })
-
-  def randomAccess: Parser[AccessToken] = ".random()" ^^ { case _ => AccessRandom }
-
-  def sizeAccess: Parser[AccessToken] = ".size()" ^^ { case _ => AccessSize }
-
-  def existsAccess: Parser[AccessToken] = ".exists()" ^^ { case _ => AccessExists }
 
   def indexAccess: Parser[AccessToken] = "(" ~> NamePattern <~ ")" ^^ { case posStr => AccessIndex(posStr, s"($posStr)") }
 
