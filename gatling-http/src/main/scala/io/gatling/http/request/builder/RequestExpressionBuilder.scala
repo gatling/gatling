@@ -65,7 +65,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
   def configureQuery(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
 
     if (commonAttributes.queryParams.nonEmpty)
-      commonAttributes.queryParams.resolveParamJList(session).map(requestBuilder.setQueryParams(_).setUri(uri))
+      commonAttributes.queryParams.resolveParamJList(session).map(requestBuilder.addQueryParams(_).setUri(uri))
     else
       requestBuilder.setUri(uri).success
   }
