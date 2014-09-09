@@ -35,7 +35,7 @@ trait HttpBodyJsonpJsonPathOfType {
 
 object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
 
-  val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\)$""".r
+  val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\);?\s*$""".r
 
   val JsonParser = TheStringImplementation match {
     case DirectCharsBasedStringImplementation => Boon
