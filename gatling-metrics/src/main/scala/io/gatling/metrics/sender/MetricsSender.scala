@@ -30,11 +30,7 @@ abstract class MetricsSender {
   import io.gatling.core.util.StandardCharsets
 
   def sendToGraphite[T: Numeric](metricPath: String, value: T, epoch: Long): Unit = {
-    val msg = value match {
-      case x: Float  => s"$metricPath ${x.toLong} $epoch\n"
-      case x: Double => s"$metricPath ${x.toLong} $epoch\n"
-      case _         => s"$metricPath $value $epoch\n"
-    }
+    val msg = s"$metricPath $value $epoch\n"
     val bytes = msg.getBytes(StandardCharsets.UTF_8)
     sendToGraphite(bytes)
   }

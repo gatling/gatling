@@ -60,4 +60,4 @@ class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
 }
 
 case class MetricByStatus(ok: Option[Metrics], ko: Option[Metrics], all: Option[Metrics])
-case class Metrics(count: Long, min: Double, max: Double, percentile1: Double, percentile2: Double)
+case class Metrics(count: Long, min: Int, max: Int, percentile1: Int, percentile2: Int)
