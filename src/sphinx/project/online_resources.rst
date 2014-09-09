@@ -17,6 +17,10 @@ Extensions
 Public talks
 ============
 
+* Vaadin: Scaling with WildFly Webinar (WebSockets + Gatling)
+
+  - `<https://vaadin.com/forum#!/thread/8138889>`_
+
 * Devoxx 2012 Tool in Action:
 
   - `<http://www.devoxx.com/display/DV12/Blast+your+webapp+with+Gatling>`_
