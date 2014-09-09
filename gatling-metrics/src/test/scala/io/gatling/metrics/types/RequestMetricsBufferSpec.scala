@@ -52,7 +52,7 @@ class RequestMetricsBufferSpec extends FlatSpec with Matchers {
     metricsByStatus.ko shouldBe None
     metricsByStatus.all.map(_.count) shouldBe Some(1l)
     okMetrics.count shouldBe 1L
-    all(allValues(okMetrics)) shouldBe 20.0 +- 0.01
+    all(allValues(okMetrics)) shouldBe 20
   }
 
   it should "work when there are multiple measures" in {
@@ -66,13 +66,13 @@ class RequestMetricsBufferSpec extends FlatSpec with Matchers {
     val allMetrics = metricsByStatus.all.get
 
     koMetrics.count shouldBe 1
-    all(allValues(koMetrics)) shouldBe 10.0 +- 0.01
+    all(allValues(koMetrics)) shouldBe 10
     allMetrics.count shouldBe 102L
     okMetrics.count shouldBe 101L
-    okMetrics.min shouldBe 100.0 +- 0.01
-    okMetrics.max shouldBe 200.0 +- 0.01
-    okMetrics.percentile1 shouldBe 195.0 +- 1
-    okMetrics.percentile2 shouldBe 199.0 +- 1
+    okMetrics.min shouldBe 100
+    okMetrics.max shouldBe 200
+    okMetrics.percentile1 shouldBe 195
+    okMetrics.percentile2 shouldBe 199
   }
 
   it should "work when there are a large number of measures" in {
@@ -83,10 +83,10 @@ class RequestMetricsBufferSpec extends FlatSpec with Matchers {
     val okMetrics = metricsByStatus.ok.get
 
     okMetrics.count shouldBe 10000
-    okMetrics.min shouldBe 1.0 +- 0.01
-    okMetrics.max shouldBe 10000.0 +- 0.01
-    okMetrics.percentile1 shouldBe 9500.0 +- 10
-    okMetrics.percentile2 shouldBe 9900.0 +- 10
+    okMetrics.min shouldBe 1
+    okMetrics.max shouldBe 10000
+    okMetrics.percentile1 shouldBe 9500
+    okMetrics.percentile2 shouldBe 9900
   }
 
 }
