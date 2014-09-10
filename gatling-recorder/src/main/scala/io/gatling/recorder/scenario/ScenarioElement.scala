@@ -108,9 +108,9 @@ case class RequestElement(uri: String,
 
     val base = new StringBuilder().append(uriComponents.getScheme).append("://").append(uriComponents.getHost)
     val port = uriComponents.getScheme match {
-      case "http" if uriComponents.getPort != 80  => ":" + uriComponents.getPort
-      case "http" if uriComponents.getPort != 443 => ":" + uriComponents.getPort
-      case _                                      => ""
+      case "http" if !Set(-1, 80).contains(uriComponents.getPort)   => ":" + uriComponents.getPort
+      case "https" if !Set(-1, 443).contains(uriComponents.getPort) => ":" + uriComponents.getPort
+      case _                                                        => ""
     }
     base.append(port)
 
