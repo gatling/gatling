@@ -150,7 +150,14 @@ class ResponseBuilder(request: Request,
 
     val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
 
-    val charset = Option(headers.getFirstValue(HeaderNames.ContentEncoding)).map(Charset.forName).getOrElse(configuration.core.charset)
+    val charset = Option(headers.getFirstValue(HeaderNames.ContentType)) match {
+      case Some(contentType) =>
+        contentType.split(";")
+          .map(_.trim)
+          .collectFirst { case s if s.startsWith("charset=") => s.substring("charset=".length).trim}
+          .getOrElse(configuration.core.charset)
+      case None => configuration.core.charset
+    }
 
     val body: ResponseBody =
       if (chunks.isEmpty)
