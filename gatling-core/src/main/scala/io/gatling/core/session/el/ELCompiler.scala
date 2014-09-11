@@ -244,7 +244,7 @@ class ELCompiler extends RegexParsers {
       functionAccess(AccessExists) |
       functionAccess(AccessIsUndefined) |
       keyAccess |
-      (elExpr ^^ { case _ => throw new Exception("nested attribute definition is not allowed")})
+      (elExpr ^^ { case _ => throw new Exception("nested attribute definition is not allowed") })
 
   def indexAccess: Parser[AccessToken] = "(" ~> NamePattern <~ ")" ^^ { case posStr => AccessIndex(posStr, s"($posStr)") }
 
