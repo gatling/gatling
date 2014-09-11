@@ -162,12 +162,13 @@ class HtmlParser extends StrictLogging {
                   rawResources ++= appletResourcesUrls.map(RegularRawResource)
 
                 } else if (tag.nameEquals(ObjectTagName)) {
-                  val data = tag.getAttributeValue(DataAttribute).toString
-                  val objectResourceUrl = codeBase() match {
-                    case Some(cb) => prependCodeBase(cb, data)
-                    case _        => data
+                  Option(tag.getAttributeValue(DataAttribute)).foreach { data =>
+                    val objectResourceUrl = codeBase() match {
+                      case Some(cb) => prependCodeBase(cb, data.toString)
+                      case _        => data.toString
+                    }
+                    rawResources += RegularRawResource(objectResourceUrl)
                   }
-                  rawResources += RegularRawResource(objectResourceUrl)
 
                 } else {
                   Option(tag.getAttributeValue(StyleAttribute)).foreach { style =>
