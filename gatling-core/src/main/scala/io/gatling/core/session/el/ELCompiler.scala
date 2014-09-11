@@ -236,8 +236,15 @@ class ELCompiler extends RegexParsers {
 
   def functionAccess(access: AccessToken) = access.token ^^ { case _ => access }
 
-  def valueAccess: Parser[AccessToken] = tupleAccess | indexAccess | functionAccess(AccessRandom) | functionAccess(AccessSize) | functionAccess(AccessExists) | keyAccess |
-    (elExpr ^^ { case _ => throw new Exception("nested attribute definition is not allowed") })
+  def valueAccess =
+    tupleAccess |
+      indexAccess |
+      functionAccess(AccessRandom) |
+      functionAccess(AccessSize) |
+      functionAccess(AccessExists) |
+      functionAccess(AccessIsUndefined) |
+      keyAccess |
+      (elExpr ^^ { case _ => throw new Exception("nested attribute definition is not allowed")})
 
   def indexAccess: Parser[AccessToken] = "(" ~> NamePattern <~ ")" ^^ { case posStr => AccessIndex(posStr, s"($posStr)") }
 
