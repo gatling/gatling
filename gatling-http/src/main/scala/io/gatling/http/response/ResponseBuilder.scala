@@ -154,7 +154,7 @@ class ResponseBuilder(request: Request,
       case Some(contentType) =>
         contentType.split(";")
           .map(_.trim)
-          .collectFirst { case s if s.startsWith("charset=") => s.substring("charset=".length).trim}
+          .collectFirst { case s if s.startsWith("charset=") => Charset.forName(s.substring("charset=".length).trim) }
           .getOrElse(configuration.core.charset)
       case None => configuration.core.charset
     }
