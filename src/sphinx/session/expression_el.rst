@@ -23,13 +23,14 @@ For example::
 
 Moreover, Gatling EL provide the following built-in functions::
 
-  "${foo.size()}"   // returns the size of `foo` if `foo` is a Scala or Java collection
-  "${foo.random()}" // returns a random element of `foo` if `foo` is an indexed collectio
-  "${foo.exists()}" // returns true if the session contains `foo`, false otherwise
-  "${foo(5)}"       // returns the 5th element of `foo` if `foo` is an indexed collection
-  "${foo(n)}"       // returns the n-th element of `foo` if `n` is an Int and `foo` is an indexed collection
-  "${foo.bar}"      // returns the value associated with key `bar` if `foo` is a map
-  "${foo._2}"       // returns second element of Tuple or Pair object
+  "${foo.size()}"        // returns the size of `foo` if `foo` is a Scala or Java collection
+  "${foo.random()}"      // returns a random element of `foo` if `foo` is an indexed collectio
+  "${foo.exists()}"      // returns true if the session contains `foo`, false otherwise
+  "${foo.isUndefined()}" // returns true if the session doesn't contains `foo`, false otherwise
+  "${foo(5)}"            // returns the 5th element of `foo` if `foo` is an indexed collection
+  "${foo(n)}"            // returns the n-th element of `foo` if `n` is an Int and `foo` is an indexed collection
+  "${foo.bar}"           // returns the value associated with key `bar` if `foo` is a map
+  "${foo._2}"            // returns second element of Tuple or Pair object
 
 You can also combine different Gatling EL builtin functions. For example if ``foo`` is a List of Lists ``${foo(0)(0)}`` will return first element of the first list in ``foo``. ``${foo.list.random()}`` will return random element from an indexed collection associated with key ``list`` in a map ``foo``.
  

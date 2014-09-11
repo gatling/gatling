@@ -83,6 +83,11 @@ case class ExistsPart(name: String) extends Part[Boolean] {
     session.contains(name).success
 }
 
+case class IsUndefinedPart(name: String) extends Part[Boolean] {
+  def apply(session: Session): Validation[Boolean] =
+    (!session.contains(name)).success
+}
+
 case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extends Part[Any] {
   def apply(session: Session): Validation[Any] = {
 
@@ -181,6 +186,7 @@ class ELCompiler extends RegexParsers {
   case object AccessRandom extends AccessToken { val token = ".random()" }
   case object AccessSize extends AccessToken { val token = ".size()" }
   case object AccessExists extends AccessToken { val token = ".exists()" }
+  case object AccessIsUndefined extends AccessToken { val token = ".isUndefined()" }
   case class AccessTuple(index: String, token: String) extends AccessToken
 
   override def skipWhitespace = false
@@ -215,6 +221,7 @@ class ELCompiler extends RegexParsers {
           case AccessRandom                  => RandomPart(subPart, subPartName)
           case AccessSize                    => SizePart(subPart, subPartName)
           case AccessExists                  => ExistsPart(subPartName)
+          case AccessIsUndefined             => IsUndefinedPart(subPartName)
           case AccessTuple(index, tokenName) => TupleAccessPart(subPart, subPartName, index.toInt)
         }
 
