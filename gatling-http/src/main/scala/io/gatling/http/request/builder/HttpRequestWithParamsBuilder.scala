@@ -15,11 +15,15 @@
  */
 package io.gatling.http.request.builder
 
-import io.gatling.core.session.{ Expression, ExpressionWrapper, RichExpression }
+import io.gatling.core.session.el._
+import io.gatling.core.session.{ Session, Expression, ExpressionWrapper, RichExpression }
+import io.gatling.core.validation._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.{ BodyPart, RawFileBodies }
 import com.ning.http.client.Request
+
+import scala.annotation.tailrec
 
 object HttpRequestWithParamsBuilder {
   val MultipartFormDataValueExpression = HeaderValues.MultipartFormData.expression
@@ -49,8 +53,13 @@ class HttpRequestWithParamsBuilder(
 
   def formParam(key: Expression[String], value: Expression[Any]): HttpRequestWithParamsBuilder = formParam(SimpleParam(key, value))
   def multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestWithParamsBuilder = formParam(MultivaluedParam(key, values))
+
+  def formParamSeq(seq: Seq[(String, Any)]): HttpRequestWithParamsBuilder = formParamSeq(seq2SeqExpression(seq))
   def formParamSeq(seq: Expression[Seq[(String, Any)]]): HttpRequestWithParamsBuilder = formParam(ParamSeq(seq))
+
+  def formParamMap(map: Map[String, Any]): HttpRequestWithParamsBuilder = formParamSeq(map2SeqExpression(map))
   def formParamMap(map: Expression[Map[String, Any]]): HttpRequestWithParamsBuilder = formParam(ParamMap(map))
+
   private def formParam(formParam: HttpParam): HttpRequestWithParamsBuilder =
     new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, formParam :: formParams)
       .header(HeaderNames.ContentType, HttpRequestWithParamsBuilder.ApplicationFormUrlEncodedValueExpression)
