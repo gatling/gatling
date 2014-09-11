@@ -15,15 +15,11 @@
  */
 package io.gatling.http.request.builder
 
-import io.gatling.core.session.el._
-import io.gatling.core.session.{ Session, Expression, ExpressionWrapper, RichExpression }
-import io.gatling.core.validation._
+import io.gatling.core.session.{ Expression, ExpressionWrapper, RichExpression }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.{ BodyPart, RawFileBodies }
 import com.ning.http.client.Request
-
-import scala.annotation.tailrec
 
 object HttpRequestWithParamsBuilder {
   val MultipartFormDataValueExpression = HeaderValues.MultipartFormData.expression
