@@ -75,8 +75,9 @@ object ScenarioExporter extends StrictLogging {
       (if (config.http.automaticReferer) Set(HeaderNames.Referer) else Set.empty)
 
     val scenarioElements = scenario.elements
-    val requestElements = scenarioElements.collect { case req: RequestElement => req :: req.nonEmbeddedResources }.flatten
-    val baseUrl = getBaseUrl(requestElements)
+    val mainRequestElements = scenarioElements.collect { case req: RequestElement => req }
+    val requestElements = mainRequestElements.flatMap(req => req :: req.nonEmbeddedResources)
+    val baseUrl = getBaseUrl(mainRequestElements)
     val baseHeaders = getBaseHeaders(requestElements)
     val protocolConfigElement = new ProtocolDefinition(baseUrl, baseHeaders)
 
