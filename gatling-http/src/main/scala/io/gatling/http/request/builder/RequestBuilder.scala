@@ -69,17 +69,22 @@ abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: Comm
   def queryParam(key: Expression[String], value: Expression[Any]): B = queryParam(SimpleParam(key, value))
   def multivaluedQueryParam(key: Expression[String], values: Expression[Seq[Any]]): B = queryParam(MultivaluedParam(key, values))
 
-  @tailrec
-  private[http] def resolveRec(session: Session, entries: Iterator[(String, Expression[Any])], acc: List[(String, Any)]): Validation[Seq[(String, Any)]] = {
-    if (entries.isEmpty)
-      acc.reverse.success
-    else {
-      val (key, elValue) = entries.next()
-      elValue(session) match {
-        case Success(value)   => resolveRec(session, entries, (key -> value) :: acc)
-        case failure: Failure => failure
+  private[http] def resolveIterable(iterable: Iterable[(String, Expression[Any])]): Expression[Seq[(String, Any)]] = {
+
+      @tailrec
+      def resolveRec(session: Session, entries: Iterator[(String, Expression[Any])], acc: List[(String, Any)]): Validation[Seq[(String, Any)]] = {
+        if (entries.isEmpty)
+          acc.reverse.success
+        else {
+          val (key, elValue) = entries.next()
+          elValue(session) match {
+            case Success(value)   => resolveRec(session, entries, (key -> value) :: acc)
+            case failure: Failure => failure
+          }
+        }
       }
-    }
+
+    (session: Session) => resolveRec(session, iterable.iterator, Nil)
   }
 
   private[http] def seq2SeqExpression(seq: Seq[(String, Any)]): Expression[Seq[(String, Any)]] = {
@@ -92,7 +97,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: Comm
         key -> elValue
     }
 
-    (session: Session) => resolveRec(session, elValues.iterator, Nil)
+    resolveIterable(elValues)
   }
 
   private[http] def map2SeqExpression(map: Map[String, Any]): Expression[Seq[(String, Any)]] = {
@@ -101,7 +106,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: Comm
       case v         => v.expression
     }
 
-    (session: Session) => resolveRec(session, elValues.iterator, Nil)
+    resolveIterable(elValues)
   }
 
   def queryParamSeq(seq: Seq[(String, Any)]): B = queryParamSeq(seq2SeqExpression(seq))
