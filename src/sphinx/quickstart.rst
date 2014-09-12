@@ -155,7 +155,7 @@ Here is the produced output:
       .pause(5) // 10
 
     setUp( // 11
-      scn.inject(atOnceUsers(1) // 12
+      scn.inject(atOnceUsers(1)) // 12
     ).protocols(httpConf) // 13
   }
 
