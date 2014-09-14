@@ -35,7 +35,7 @@ class Protocols(val protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) 
   def getProtocol[T <: Protocol: ClassTag]: Option[T] = protocols.get(implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]).map(_.asInstanceOf[T])
 
   def +(protocol: Protocol): Protocols = new Protocols(protocols + (protocol.getClass -> protocol))
-  def ++(protocols: Seq[Protocol]): Protocols = new Protocols(this.protocols ++ protocols.map(p => p.getClass -> p))
+  def ++(protocols: Iterable[Protocol]): Protocols = new Protocols(this.protocols ++ protocols.map(p => p.getClass -> p))
 
   def ++(other: Protocols) = new Protocols(protocols ++ other.protocols)
 

@@ -38,7 +38,9 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = N
 
   private[core] def newInstance(actionBuilders: List[ActionBuilder]) = copy(actionBuilders = actionBuilders)
 
-  def inject(iss: InjectionStep*) = {
+  def inject(iss: InjectionStep*): PopulatedScenarioBuilder = inject(iss.toIterable)
+
+  def inject(iss: Iterable[InjectionStep]): PopulatedScenarioBuilder = {
     require(iss.nonEmpty, "Calling inject with empty injection steps")
 
     val defaultProtocols = actionBuilders.foldLeft(Protocols()) { (protocols, actionBuilder) =>

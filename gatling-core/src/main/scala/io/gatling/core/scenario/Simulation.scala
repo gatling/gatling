@@ -67,22 +67,28 @@ abstract class Simulation {
 
   class SetUp {
 
-    def protocols(ps: Protocol*) = {
+    def protocols(ps: Protocol*): SetUp = protocols(ps.toIterable)
+
+    def protocols(ps: Iterable[Protocol]): SetUp = {
       _globalProtocols = _globalProtocols ++ ps
       this
     }
 
-    def assertions(metrics: Metric[_]*) = {
-      _assertions = metrics.flatMap(_.assertions)
+    def assertions(metrics: Metric[_]*): SetUp = assertions(metrics.toIterable)
+
+    def assertions(metrics: Iterable[Metric[_]]): SetUp = {
+      _assertions = metrics.toIndexedSeq.flatMap(_.assertions)
       this
     }
 
-    def maxDuration(duration: FiniteDuration) = {
+    def maxDuration(duration: FiniteDuration): SetUp = {
       _maxDuration = Some(duration)
       this
     }
 
-    def throttle(throttlingBuilders: ThrottlingBuilder*) = {
+    def throttle(throttlingBuilders: ThrottlingBuilder*): SetUp = throttle(throttlingBuilders.toIterable)
+
+    def throttle(throttlingBuilders: Iterable[ThrottlingBuilder]): SetUp = {
 
       val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
       val throttling = ThrottlingProtocol(ThrottlingBuilder(steps).build)
