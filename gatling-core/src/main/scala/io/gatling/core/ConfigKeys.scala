@@ -131,6 +131,9 @@ object ConfigKeys {
     object file {
       val BufferSize = "gatling.data.file.bufferSize"
     }
+    object leak {
+      val NoActivityTimeout = "gatling.data.leak.noActivityTimeout"
+    }
     object console {
       val Light = "gatling.data.console.light"
     }
