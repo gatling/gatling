@@ -17,12 +17,13 @@ package io.gatling.http.response
 
 import java.io.{ ByteArrayInputStream, InputStream }
 import java.nio.charset.Charset
+import java.nio.charset.StandardCharsets._
 
 import scala.annotation.switch
 
 import org.jboss.netty.buffer.{ ChannelBuffer, ChannelBufferInputStream, ChannelBuffers }
 
-import io.gatling.core.util.{ StandardCharsets, UnsyncByteArrayInputStream }
+import io.gatling.core.util.UnsyncByteArrayInputStream
 
 sealed trait ResponseBodyUsage
 case object StringResponseBodyUsage extends ResponseBodyUsage
@@ -148,7 +149,7 @@ case class InputStreamResponseBody(chunks: Seq[ChannelBuffer], charset: Charset)
 }
 
 case object NoResponseBody extends ResponseBody {
-  val charset = StandardCharsets.UTF_8
+  val charset = UTF_8
   val bytes = Array.empty[Byte]
   def stream = new UnsyncByteArrayInputStream(bytes)
   val string = ""

@@ -16,9 +16,9 @@
 package io.gatling.core.check.extractor.xpath
 
 import java.io.{ Reader, InputStream }
+import java.nio.charset.StandardCharsets._
 
 import io.gatling.core.util.CacheHelper
-import io.gatling.core.util.StandardCharsets._
 
 import scala.collection.JavaConversions._
 
@@ -32,7 +32,7 @@ import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathExecutable, XdmNode, 
 
 object SaxonXPathExtractor {
 
-  val Enabled = Seq(UTF_8, UTF_16, ASCII, US_ASCII, ISO_8859_1).contains(configuration.core.charset)
+  val Enabled = Seq(UTF_8, UTF_16, US_ASCII, ISO_8859_1).contains(configuration.core.charset)
 
   val Processor = new Processor(false)
   val DocumentBuilder = Processor.newDocumentBuilder

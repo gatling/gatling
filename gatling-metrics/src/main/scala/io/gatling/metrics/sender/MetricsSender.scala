@@ -15,6 +15,8 @@
  */
 package io.gatling.metrics.sender
 
+import java.nio.charset.StandardCharsets.UTF_8
+
 import io.gatling.core.config.GatlingConfiguration.configuration
 
 object MetricsSender {
@@ -27,11 +29,10 @@ object MetricsSender {
 }
 
 abstract class MetricsSender {
-  import io.gatling.core.util.StandardCharsets
 
   def sendToGraphite[T: Numeric](metricPath: String, value: T, epoch: Long): Unit = {
     val msg = s"$metricPath $value $epoch\n"
-    val bytes = msg.getBytes(StandardCharsets.UTF_8)
+    val bytes = msg.getBytes(UTF_8)
     sendToGraphite(bytes)
   }
 

@@ -15,10 +15,11 @@
  */
 package io.gatling.redis.util
 
+import java.nio.charset.StandardCharsets._
+
 object RedisHelper {
 
   val Crlf = "\r\n"
-  val Charset = java.nio.charset.Charset.forName("UTF-8")
 
   /**
    * Generate Redis protocol required for mass insert
@@ -27,7 +28,7 @@ object RedisHelper {
   def generateRedisProtocol(d: String*): String = {
     val protocol = new StringBuilder().append("*").append(d.length).append(Crlf)
     d.foreach { x =>
-      val length = x.getBytes(Charset).length
+      val length = x.getBytes(UTF_8).length
       protocol.append("$").append(length).append(Crlf).append(x).append(Crlf)
     }
     protocol.toString()

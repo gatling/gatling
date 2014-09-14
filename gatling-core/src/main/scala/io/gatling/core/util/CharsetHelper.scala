@@ -17,12 +17,7 @@ package io.gatling.core.util
 
 import java.nio.charset.Charset
 
-object StandardCharsets {
+object CharsetHelper {
 
-  val UTF_8 = Charset.forName("UTF-8")
-  val UTF_16 = Charset.forName("UTF-16")
   val UTF_32 = Charset.forName("UTF-32")
-  val ASCII = Charset.forName("ASCII")
-  val US_ASCII = Charset.forName("US-ASCII")
-  val ISO_8859_1 = Charset.forName("ISO-8859-1")
 }

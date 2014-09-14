@@ -15,7 +15,7 @@
  */
 package io.gatling.core.check.extractor.css
 
-import java.nio.charset.StandardCharsets
+import java.nio.charset.StandardCharsets.UTF_8
 
 import org.scalatest.{ FlatSpec, Matchers }
 
@@ -29,7 +29,7 @@ class CssExtractorSpec extends FlatSpec with Matchers with ValidationValues {
   GatlingConfiguration.setUpForTest()
 
   def prepared(file: String): NodeSelector = withCloseable(getClass.getResourceAsStream(file)) { is =>
-    val string = is.toString(StandardCharsets.UTF_8)
+    val string = is.toString(UTF_8)
     CssExtractor.parse(string)
   }
 

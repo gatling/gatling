@@ -17,6 +17,7 @@ package io.gatling.recorder.har
 
 import java.io.{ FileInputStream, InputStream }
 import java.net.URL
+import java.nio.charset.StandardCharsets._
 
 import com.ning.http.client.uri.Uri
 
@@ -25,7 +26,6 @@ import scala.util.Try
 
 import io.gatling.core.util.IO._
 import io.gatling.core.util.StringHelper.RichString
-import io.gatling.core.util.StandardCharsets.UTF_8
 import io.gatling.http.HeaderNames._
 import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration
