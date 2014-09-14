@@ -15,7 +15,13 @@
  */
 package io.gatling.http.action.ws
 
-import com.ning.http.client.websocket.{ WebSocketByteListener, WebSocket, WebSocketCloseCodeReasonListener, WebSocketTextListener }
+import com.ning.http.client.websocket.{
+  WebSocket,
+  WebSocketByteListener,
+  WebSocketCloseCodeReasonListener,
+  WebSocketPingListener,
+  WebSocketTextListener
+}
 
 import akka.actor.ActorRef
 import io.gatling.core.util.TimeHelper.nowMillis
@@ -26,13 +32,16 @@ class WsListener(tx: WsTx, wsActor: ActorRef)
     extends WebSocketTextListener
     with WebSocketByteListener
     with WebSocketCloseCodeReasonListener
+    with WebSocketPingListener
     with StrictLogging {
 
   private var state: WsListenerState = Opening
+  private var webSocket: WebSocket = _
 
   // WebSocketListener
   def onOpen(webSocket: WebSocket): Unit = {
     state = Open
+    this.webSocket = webSocket
     wsActor ! OnOpen(tx, webSocket, nowMillis)
   }
 
@@ -67,6 +76,11 @@ class WsListener(tx: WsTx, wsActor: ActorRef)
   // WebSocketByteListener
   def onMessage(message: Array[Byte]): Unit =
     wsActor ! OnByteMessage(message, nowMillis)
+
+  // WebSocketPingListener
+  def onPing(message: Array[Byte]) {
+    webSocket.sendPong(message)
+  }
 }
 
 private sealed trait WsListenerState
