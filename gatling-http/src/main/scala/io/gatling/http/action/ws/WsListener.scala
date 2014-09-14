@@ -15,13 +15,7 @@
  */
 package io.gatling.http.action.ws
 
-import com.ning.http.client.websocket.{
-  WebSocket,
-  WebSocketByteListener,
-  WebSocketCloseCodeReasonListener,
-  WebSocketPingListener,
-  WebSocketTextListener
-}
+import com.ning.http.client.websocket._
 
 import akka.actor.ActorRef
 import io.gatling.core.util.TimeHelper.nowMillis
