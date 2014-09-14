@@ -26,4 +26,10 @@ class RedisHelperSpec extends FlatSpec with Matchers {
 
     generateRedisProtocol("SET", "mykey", "myvalue") shouldBe correctProtocol
   }
+
+  it should "count length by bytes length" in {
+    val correctProtocol = List("*3", "$3", "SET", "$5", "mykey", "$16", "もふもふmofu").mkString("", Crlf, Crlf)
+
+    generateRedisProtocol("SET", "mykey", "もふもふmofu") shouldBe correctProtocol
+  }
 }

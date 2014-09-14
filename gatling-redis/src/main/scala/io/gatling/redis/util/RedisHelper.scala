@@ -18,6 +18,7 @@ package io.gatling.redis.util
 object RedisHelper {
 
   val Crlf = "\r\n"
+  val Charset = java.nio.charset.Charset.forName("UTF-8")
 
   /**
    * Generate Redis protocol required for mass insert
@@ -25,7 +26,10 @@ object RedisHelper {
    */
   def generateRedisProtocol(d: String*): String = {
     val protocol = new StringBuilder().append("*").append(d.length).append(Crlf)
-    d.foreach(x => protocol.append("$").append(x.length).append(Crlf).append(x).append(Crlf))
+    d.foreach { x =>
+      val length = x.getBytes(Charset).length
+      protocol.append("$").append(length).append(Crlf).append(x).append(Crlf)
+    }
     protocol.toString()
   }
 }
