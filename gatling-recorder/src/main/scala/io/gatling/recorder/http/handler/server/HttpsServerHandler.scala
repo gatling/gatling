@@ -83,6 +83,7 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
 
           case _ =>
             _clientChannel = None
+            // FIXME remote server decided to disconnect => reconnect
             throw new IllegalStateException("Server channel is open but client channel is closed?!")
         }
 
