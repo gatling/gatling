@@ -215,6 +215,8 @@ object GatlingConfiguration extends StrictLogging {
           light = config.getBoolean(data.console.Light)),
         file = FileDataWriterConfiguration(
           bufferSize = config.getInt(data.file.BufferSize)),
+        leak = LeakDataWriterConfiguration(
+          noActivityTimeout = config.getInt(data.leak.NoActivityTimeout)),
         graphite = GraphiteDataWriterConfiguration(
           light = config.getBoolean(data.graphite.Light),
           host = config.getString(data.graphite.Host),
@@ -357,12 +359,16 @@ case class DataConfiguration(
   dataWriterClasses: Seq[String],
   dataReaderClass: String,
   file: FileDataWriterConfiguration,
+  leak: LeakDataWriterConfiguration,
   jdbc: JDBCDataWriterConfiguration,
   console: ConsoleDataWriterConfiguration,
   graphite: GraphiteDataWriterConfiguration)
 
 case class FileDataWriterConfiguration(
   bufferSize: Int)
+
+case class LeakDataWriterConfiguration(
+  noActivityTimeout: Int)
 
 case class DBConfiguration(
   url: String,

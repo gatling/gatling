@@ -20,18 +20,21 @@ import java.lang.System.currentTimeMillis
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
+import io.gatling.core.config.GatlingConfiguration.configuration
+
 import io.gatling.core.result.message.{ End, Start }
 
 class LeakReporterDataWriter extends DataWriter {
 
+  val noActivityTimeout = configuration.data.leak.noActivityTimeout seconds
   private var lastTouch = 0L
   private val events = mutable.Map.empty[String, DataWriterMessage]
 
   def display(): Unit = {
     val timeSinceLastTouch = (currentTimeMillis - lastTouch) / 1000
 
-    if (timeSinceLastTouch > 30 && events.nonEmpty) {
-      System.err.println("Gatling had no activity during last 30s. It could be a virtual user leak, here's their last events:")
+    if (timeSinceLastTouch > noActivityTimeout.toSeconds && events.nonEmpty) {
+      System.err.println(s"Gatling had no activity during last ${noActivityTimeout.toString}. It could be a virtual user leak, here's their last events:")
       events.values.foreach(System.err.println)
     }
   }
@@ -42,7 +45,7 @@ class LeakReporterDataWriter extends DataWriter {
 
   override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
     lastTouch = currentTimeMillis
-    scheduler.schedule(0 seconds, 30 seconds, self, Display)
+    scheduler.schedule(0 seconds, noActivityTimeout, self, Display)
   }
 
   override def onUserMessage(userMessage: UserMessage): Unit = {
