@@ -48,6 +48,8 @@ object StringHelper {
 
   val Eol = System.getProperty("line.separator")
 
+  val Crlf = "\r\n"
+
   val EmptyFastring = fast""
 
   def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new JStringBuilder(bytes.length)) { (buff, b) =>

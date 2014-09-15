@@ -17,9 +17,9 @@ package io.gatling.redis.util
 
 import java.nio.charset.StandardCharsets._
 
-object RedisHelper {
+import io.gatling.core.util.StringHelper.Crlf
 
-  val Crlf = "\r\n"
+object RedisHelper {
 
   /**
    * Generate Redis protocol required for mass insert
