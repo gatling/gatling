@@ -50,7 +50,8 @@ class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
   val renders = {
     val maxNbDigits = urlGroups.size.toString.length
 
-    urlGroups.zipWithIndex.map { case (keyVal, index) =>
+    urlGroups.zipWithIndex.map {
+      case (keyVal, index) =>
         val urls = keyVal._2
 
         val valName = "uri" + (index + 1).toString.leftPad(maxNbDigits, "0")
