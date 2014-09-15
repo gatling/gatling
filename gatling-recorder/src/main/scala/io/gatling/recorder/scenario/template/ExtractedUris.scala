@@ -20,21 +20,10 @@ import java.net.URL
 import io.gatling.core.util.StringHelper._
 import io.gatling.recorder.scenario.{ RequestElement, ScenarioElement }
 import com.dongxiguo.fastring.Fastring.Implicits._
-import com.typesafe.scalalogging.slf4j.StrictLogging
 
 case class Value(name: String, value: String)
 
 case class SchemeHost(scheme: String, host: String)
-
-object ExtractedUris {
-  /**
-   * Extract uris from scenario elements
-   * @param scenarioElements - scenarion elements to extract uris from
-   * @return extracted uris
-   */
-  private def extractUris(scenarioElements: Seq[ScenarioElement]): Seq[RequestElement] =
-    scenarioElements.collect({ case requestElement: RequestElement => requestElement })
-}
 
 /**
  * Extracts common URIs parts into vals. The algorithm is the following:
@@ -47,8 +36,8 @@ object ExtractedUris {
  *
  * @param scenarioElements - contains uris to extracts common parts from
  */
-class ExtractedUris(scenarioElements: Seq[ScenarioElement]) extends StrictLogging {
-  var requestElements = ExtractedUris.extractUris(scenarioElements)
+class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
+  var requestElements = scenarioElements.collect { case elem: RequestElement => elem }
   val uris = requestElements.map(_.uri) ++
     requestElements.map(_.embeddedResources).reduce(_ ++ _).map(_.url) ++
     requestElements.map(_.nonEmbeddedResources).reduce(_ ++ _).map(_.uri)
@@ -107,36 +96,26 @@ class ExtractedUris(scenarioElements: Seq[ScenarioElement]) extends StrictLoggin
   }
 
   private def schemesPortAreSame(urlUris: Seq[URL]): Boolean = {
-      def same(v1: Any, v2: Any) = Option(v1) == Option(v2)
-
     val firstUrl = urlUris.head
-    urlUris.tail.forall(url => same(url.getPort, firstUrl.getPort) && same(url.getProtocol, firstUrl.getProtocol))
+    urlUris.tail.forall(url => url.getPort == firstUrl.getPort && url.getProtocol == firstUrl.getProtocol)
   }
 
   private def value(str: Fastring) = fast"${protectWithTripleQuotes(str)}"
 
   private def query(url: URL): Fastring =
-    if (url.getQuery == null) EmptyFastring
-    else fast"?${url.getQuery}"
+    if (url.getQuery == null) EmptyFastring else fast"?${url.getQuery}"
 
   private def protocol(url: URL): Fastring =
     fast"${url.getProtocol}://"
 
   private def user(url: URL): Fastring =
-    if (url.getUserInfo == null) EmptyFastring
-    else fast"${url.getUserInfo}@"
+    if (url.getUserInfo == null) EmptyFastring else fast"${url.getUserInfo}@"
 
   private def port(url: URL): Fastring =
-    if (url.getPort < 0) EmptyFastring
-    else fast":${url.getPort}"
+    if (url.getPort < 0) EmptyFastring else fast":${url.getPort}"
 
   def vals: List[Value] = values
 
-  def renderUri(uri: String): Fastring = {
-    if (renders.contains(uri)) {
-      renders(uri)
-    } else {
-      fast"$uri"
-    }
-  }
+  def renderUri(uri: String): Fastring =
+    if (renders.contains(uri)) renders(uri) else fast"$uri"
 }
