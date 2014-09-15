@@ -26,15 +26,15 @@ case object Display
 
 class UserCounters(val totalCount: Int) {
 
-  private var _runningCount: Int = 0
+  private var _activeCount: Int = 0
   private var _doneCount: Int = 0
 
-  def runningCount = _runningCount
+  def activeCount = _activeCount
   def doneCount = _doneCount
 
-  def userStart(): Unit = { _runningCount += 1 }
-  def userDone(): Unit = { _runningCount -= 1; _doneCount += 1 }
-  def waitingCount = totalCount - _runningCount - _doneCount
+  def userStart(): Unit = { _activeCount += 1 }
+  def userDone(): Unit = { _activeCount -= 1; _doneCount += 1 }
+  def waitingCount = totalCount - _activeCount - _doneCount
 }
 
 class RequestCounters(var successfulCount: Int = 0, var failedCount: Int = 0)

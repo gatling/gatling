@@ -44,7 +44,7 @@ class ConsoleDataWriterSpec extends FlatSpec with Matchers {
     progressBar(summary) shouldBe "[                                                                          ]  0%"
   }
 
-  it should "handle it correctly when all the users are running" in {
+  it should "handle it correctly when all the users are active" in {
 
     val counters = new UserCounters(11)
     for (i <- 1 to 11) counters.userStart()
@@ -65,7 +65,7 @@ class ConsoleDataWriterSpec extends FlatSpec with Matchers {
     progressBar(summary) shouldBe "[##########################################################################]100%"
   }
 
-  it should "handle it correctly when there are running and done users" in {
+  it should "handle it correctly when there are active and done users" in {
 
     val counters = new UserCounters(11)
     for (i <- 1 to 11) counters.userStart()

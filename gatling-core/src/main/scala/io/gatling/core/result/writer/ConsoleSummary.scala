@@ -51,12 +51,12 @@ object ConsoleSummary {
 
         val donePercent = floor(100 * doneCount.toDouble / totalCount).toInt
         val done = floor(width * doneCount.toDouble / totalCount).toInt
-        val running = ceil(width * runningCount.toDouble / totalCount).toInt
-        val waiting = width - done - running
+        val active = ceil(width * activeCount.toDouble / totalCount).toInt
+        val waiting = width - done - active
 
         fast"""${writeSubTitle(scenarioName)}
-[${"#" * done}${"-" * running}${" " * waiting}]${donePercent.toString.leftPad(3)}%
-          waiting: ${waitingCount.toString.rightPad(6)} / running: ${runningCount.toString.rightPad(6)} / done:${doneCount.toString.rightPad(6)}"""
+[${"#" * done}${"-" * active}${" " * waiting}]${donePercent.toString.leftPad(3)}%
+          waiting: ${waitingCount.toString.rightPad(6)} / active: ${activeCount.toString.rightPad(6)} / done:${doneCount.toString.rightPad(6)}"""
       }
 
       def writeRequestsCounter(actionName: String, requestCounters: RequestCounters): Fastring = {
@@ -92,7 +92,7 @@ ${writeErrors()}$NewBlock
 
     val complete = {
       val totalWaiting = usersCounters.values.map(_.waitingCount).sum
-      val totalRunning = usersCounters.values.map(_.runningCount).sum
+      val totalRunning = usersCounters.values.map(_.activeCount).sum
       (totalWaiting == 0) && (totalRunning == 0)
     }
 

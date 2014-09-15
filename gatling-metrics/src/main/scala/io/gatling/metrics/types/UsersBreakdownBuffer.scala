@@ -52,8 +52,10 @@ class UsersBreakdownBuffer(val nbUsers: Int) {
 
 }
 
-case class UsersBreakdown(nbUsers: Int, active: Int, waiting: Int, done: Int)
 object UsersBreakdown {
   def apply(buf: UsersBreakdownBuffer): UsersBreakdown =
     UsersBreakdown(buf.nbUsers, buf.active, buf.waiting, buf.done)
 }
+
+case class UsersBreakdown(nbUsers: Int, active: Int, waiting: Int, done: Int)
+
