@@ -17,7 +17,8 @@ package io.gatling.redis.util
 
 import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.redis.util.RedisHelper.{ Crlf, generateRedisProtocol }
+import io.gatling.core.util.StringHelper.Crlf
+import io.gatling.redis.util.RedisHelper.generateRedisProtocol
 
 class RedisHelperSpec extends FlatSpec with Matchers {
 
