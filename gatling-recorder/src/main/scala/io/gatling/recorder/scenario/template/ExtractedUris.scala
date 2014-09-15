@@ -56,29 +56,30 @@ class ExtractedUris(scenarioElements: Seq[ScenarioElement]) extends StrictLoggin
   val urls = uris.map(uri => new URL(uri)).toList
   var values: List[Value] = Nil
 
-  var cnt = 0
-
   val urlGroups = urls.groupBy(url => SchemeHost(url.getProtocol, url.getHost)).toMap
 
-  val renders = urlGroups.map(keyVal => {
-    val urls = keyVal._2
+  val renders = {
+    val maxNbDigits = urlGroups.size.toString.length
 
-    cnt += 1
-    val valName = "uri" + cnt
-    if (urls.size > 1 && schemesPortAreSame(urls)) {
-      val paths = urls.map(url => url.getPath)
-      val longestCommonPath = longestCommonRoot(paths)
+    urlGroups.zipWithIndex.map { case (keyVal, index) =>
+        val urls = keyVal._2
 
-      val firstUrl = urls.head
-      values = new Value(valName, fast"${protocol(firstUrl)}${firstUrl.getAuthority}$longestCommonPath".toString) :: values
+        val valName = "uri" + (index + 1).toString.leftPad(maxNbDigits, "0")
+        if (urls.size > 1 && schemesPortAreSame(urls)) {
+          val paths = urls.map(url => url.getPath)
+          val longestCommonPath = longestCommonRoot(paths)
 
-      extractLongestPathUrls(urls, longestCommonPath, valName)
-    } else {
-      values = new Value(valName, urls.head.getHost) :: values
+          val firstUrl = urls.head
+          values = new Value(valName, fast"${protocol(firstUrl)}${firstUrl.getAuthority}$longestCommonPath".toString) :: values
 
-      extractCommonHostUrls(urls, valName)
-    }
-  }).flatten.toMap
+          extractLongestPathUrls(urls, longestCommonPath, valName)
+        } else {
+          values = new Value(valName, urls.head.getHost) :: values
+
+          extractCommonHostUrls(urls, valName)
+        }
+    }.flatten.toMap
+  }
 
   private def extractCommonHostUrls(urls: List[URL], valName: String): List[(String, Fastring)] =
     urls.map(url =>
