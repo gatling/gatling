@@ -323,32 +323,54 @@ Request Body
 
 You can add a full body to an HTTP request with the dedicated method ``body(body)``, where body can be:
 
+.. _http-request-body-rawfile:
+
 * ``RawFileBody(path: Expression[String])`` where path is the location of a file that will be uploaded as is
+
+``RawFileBody`` lets you pass a raw file that will be sent as is.
+Over regular HTTP, Gatling can optimise sending such a body and directly stream from the file to the socket, without copying in memory.
+Of course, this optimisation is disabled over HTTPS, as bytes have to be encoded, i.e. loaded in memory.::
+
+  // myFileBody.json is a file that contains
+  // { "myContent": "myHardCodedValue" }
+  .body(RawFileBody("myFileBody.json")).asJSON
+
+.. _http-request-body-elfile:
+
 * ``ELFileBody(path: Expression[String])`` where path is the location of a file whose content will be parsed and resolved with Gatling EL engine
+
+Here, the file content is parsed and turned into a Gatling EL expression.
+Of course, it can't be binary.::
+
+  // myFileBody.json is a file that contains
+  // { "myContent": "${myDynamicValue}" }
+  .body(ELFileBody("myFileBody.json")).asJSON
+
+.. _http-request-body-string:
+
 * ``StringBody(string: Expression[String])``
+
+Here, you can pass a raw String, a Gatling EL String, or an Expression function.::
+
+    .body(StringBody("""{ "myContent": "myHardCodedValue" }""")).asJSON
+
+    .body(StringBody("""{ "myContent": "${myDynamicValue}" }""")).asJSON
+
+    .body(StringBody(session => """{ "myContent": """" + someGenerator(session) + """" }""")).asJSON
+
+.. _http-request-body-bytes:
+
 * ``ByteArrayBody(bytes: Expression[Array[Byte]])``
+
+.. _http-request-body-stream:
+
+Here, you can pass bytes instead of text.
+
 * ``InputStreamBody(stream: Expression[InputStream])``
 
+Here, you can pass a Stream.
+
 .. note:: When you pass a path, Gatling searches first for an absolute path in the classpath and then in the ``request-bodies`` directory.
-
-e.g.::
-
-  http("String body")
-    .post("my.post.uri")
-    .body(StringBody("""{ "myContent": "myValue" }""")).asJSON
-
-::
-
-  /* user-files/request-bodies/myFileBody.json */
-  { "myContent": "${myValue}" }
-
-::
-
-  /* Scenario */
-  http("Template Body")
-    .post("my.post.uri")
-    .body(ELFileBody("myFileBody.json")).asJSON
-
 
 Note that one can take full advantage of Scala 2.10 macros for writing template directly in Scala compiled code instead of relying on a templating engine.
 See `Scala 2.10 string interpolation <(http://docs.scala-lang.org/overviews/core/string-interpolation.html>`_ and `Fastring <https://github.com/Atry/fastring>`_.
@@ -378,18 +400,26 @@ You can add a multipart body to an HTTP request and add parts with the dedicated
 * ``RawFileBodyPart(path: Expression[String])``
 * ``RawFileBodyPart(name: Expression[String], path: Expression[String])``
 
-where path is the location of a file that will be uploaded as is
+where path is the location of a file that will be uploaded as is.
+
+Similar to :ref=`RawFileBody <http-request-body-rawfile>`.
 
 * ``ELFileBodyPart(path: Expression[String])``
 * ``ELFileBodyPart(name: Expression[String], path: Expression[String])``
 
-where path is the location of a file whose content will be parsed and resolved with Gatling EL engine
+where path is the location of a file whose content will be parsed and resolved with Gatling EL engine.
+
+Similar to :ref=`ELFileBody <http-request-body-elfile>`.
 
 * ``StringBodyPart(string: Expression[String])``
 * ``StringBodyPart(name: Expression[String], string: Expression[String])``
 
+Similar to :ref=`StringBody <http-request-body-string>`.
+
 * ``ByteArrayBodyPart(bytes: Expression[Array[Byte])``
 * ``ByteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte])``
+
+Similar to :ref=`ByteArrayBody <http-request-body-bytes>`.
 
 Once bootstrapped, BodyPart has the following methods for setting additional optional information:
 
