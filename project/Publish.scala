@@ -35,12 +35,8 @@ object Publish {
 
   private val developers = Seq(
     GatlingDeveloper("slandelle@excilys.com", "Stephane Landelle", true),
-    GatlingDeveloper("rsertelon@excilys.com", "Romain Sertelon", true),
     GatlingDeveloper("nremond@gmail.com", "Nicolas Rémond", false),
-    GatlingDeveloper("skuenzli@gmail.com", "Stephen Kuenzli", false),
     GatlingDeveloper("pdalpra@excilys.com", "Pierre Dal-Pra", true),
-    GatlingDeveloper("gcoutant@excilys.com", "Grégory Coutant", true),
-    GatlingDeveloper("blemale@excilys.com", "Bastien Lemale", true),
     GatlingDeveloper("aduffy@gilt.com", "Andrew Duffy", false),
     GatlingDeveloper("jasonk@bluedevel.com", "Jason Koch", false),
     GatlingDeveloper("ivan.mushketik@gmail.com", "Ivan Mushketyk", false),
