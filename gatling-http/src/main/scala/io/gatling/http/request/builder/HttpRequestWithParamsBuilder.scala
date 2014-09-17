@@ -57,8 +57,7 @@ class HttpRequestWithParamsBuilder(
   def formParamMap(map: Expression[Map[String, Any]]): HttpRequestWithParamsBuilder = formParam(ParamMap(map))
 
   private def formParam(formParam: HttpParam): HttpRequestWithParamsBuilder =
-    new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, formParam :: formParams)
-      .header(HeaderNames.ContentType, HttpRequestWithParamsBuilder.ApplicationFormUrlEncodedValueExpression)
+    new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, formParam :: formParams).asMultipartForm
 
   def formUpload(name: Expression[String], filePath: Expression[String]) = {
 
