@@ -46,6 +46,7 @@ class HttpRequestWithParamsBuilder(
    * Adds Content-Type header to the request set with "multipart/form-data" value
    */
   def asMultipartForm: HttpRequestWithParamsBuilder = header(HeaderNames.ContentType, HttpRequestWithParamsBuilder.MultipartFormDataValueExpression)
+  def asFormUrlEncoded: HttpRequestWithParamsBuilder = header(HeaderNames.ContentType, HttpRequestWithParamsBuilder.ApplicationFormUrlEncodedValueExpression)
 
   def formParam(key: Expression[String], value: Expression[Any]): HttpRequestWithParamsBuilder = formParam(SimpleParam(key, value))
   def multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]]): HttpRequestWithParamsBuilder = formParam(MultivaluedParam(key, values))
@@ -57,7 +58,7 @@ class HttpRequestWithParamsBuilder(
   def formParamMap(map: Expression[Map[String, Any]]): HttpRequestWithParamsBuilder = formParam(ParamMap(map))
 
   private def formParam(formParam: HttpParam): HttpRequestWithParamsBuilder =
-    new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, formParam :: formParams).asMultipartForm
+    new HttpRequestWithParamsBuilder(commonAttributes, httpAttributes, formParam :: formParams).asFormUrlEncoded
 
   def formUpload(name: Expression[String], filePath: Expression[String]) = {
 
