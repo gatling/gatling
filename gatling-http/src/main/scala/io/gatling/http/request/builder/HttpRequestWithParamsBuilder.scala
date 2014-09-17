@@ -64,7 +64,7 @@ class HttpRequestWithParamsBuilder(
     val file = RawFileBodies.asFile(filePath)
     val fileName = file.map(_.getName)
 
-    bodyPart(BodyPart.fileBodyPart(name, file).fileName(fileName)).asMultipartForm
+    bodyPart(BodyPart.fileBodyPart(Some(name), file).fileName(fileName)).asMultipartForm
   }
 
   def request(protocol: HttpProtocol): Expression[Request] = new HttpRequestWithParamsExpressionBuilder(commonAttributes, httpAttributes, formParams, protocol).build

@@ -375,9 +375,20 @@ Multipart Request
 
 You can add a multipart body to an HTTP request and add parts with the dedicated method ``bodyPart(bodyPart)``, where bodyPart can be:
 
-* ``RawFileBodyPart(name: Expression[String], path: Expression[String])`` where path is the location of a file that will be uploaded as is
-* ``ELFileBodyPart(name: Expression[String], path: Expression[String])`` where path is the location of a file whose content will be parsed and resolved with Gatling EL engine
+* ``RawFileBodyPart(path: Expression[String])``
+* ``RawFileBodyPart(name: Expression[String], path: Expression[String])``
+
+where path is the location of a file that will be uploaded as is
+
+* ``ELFileBodyPart(path: Expression[String])``
+* ``ELFileBodyPart(name: Expression[String], path: Expression[String])``
+
+where path is the location of a file whose content will be parsed and resolved with Gatling EL engine
+
+* ``StringBodyPart(string: Expression[String])``
 * ``StringBodyPart(name: Expression[String], string: Expression[String])``
+
+* ``ByteArrayBodyPart(bytes: Expression[Array[Byte])``
 * ``ByteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte])``
 
 Once bootstrapped, BodyPart has the following methods for setting additional optional information:

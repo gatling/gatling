@@ -23,7 +23,7 @@ import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.config.HttpProtocolBuilder
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.feeder.SitemapFeederSupport
-import io.gatling.http.request.{ ExtraInfo, BodyProcessors }
+import io.gatling.http.request.{ BodyPart, ExtraInfo, BodyProcessors }
 import io.gatling.http.request.builder.Http
 import io.gatling.http.check.ws.WsCheckSupport
 import io.gatling.http.request.builder.ws.Ws
@@ -64,8 +64,12 @@ object Predef extends HttpCheckSupport with WsCheckSupport with SitemapFeederSup
   def ByteArrayBody = io.gatling.http.request.ByteArrayBody
   def InputStreamBody = io.gatling.http.request.InputStreamBody
 
-  def ELFileBodyPart = io.gatling.http.request.BodyPart.elFileBodyPart _
-  def StringBodyPart = io.gatling.http.request.BodyPart.stringBodyPart _
-  def RawFileBodyPart = io.gatling.http.request.BodyPart.rawFileBodyPart _
-  def ByteArrayBodyPart = io.gatling.http.request.BodyPart.byteArrayBodyPart _
+  def ELFileBodyPart(filePath: Expression[String]): BodyPart = BodyPart.elFileBodyPart(None, filePath)
+  def ELFileBodyPart(name: Expression[String], filePath: Expression[String]): BodyPart = BodyPart.elFileBodyPart(Some(name), filePath)
+  def StringBodyPart(string: Expression[String]): BodyPart = BodyPart.stringBodyPart(None, string)
+  def StringBodyPart(name: Expression[String], string: Expression[String]): BodyPart = BodyPart.stringBodyPart(Some(name), string)
+  def RawFileBodyPart(filePath: Expression[String]): BodyPart = BodyPart.rawFileBodyPart(None, filePath)
+  def RawFileBodyPart(name: Expression[String], filePath: Expression[String]): BodyPart = BodyPart.rawFileBodyPart(Some(name), filePath)
+  def ByteArrayBodyPart(bytes: Expression[Array[Byte]]): BodyPart = BodyPart.byteArrayBodyPart(None, bytes)
+  def ByteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte]]): BodyPart = BodyPart.byteArrayBodyPart(Some(name), bytes)
 }

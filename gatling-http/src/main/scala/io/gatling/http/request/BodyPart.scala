@@ -27,11 +27,11 @@ import io.gatling.core.validation.Validation
 
 object BodyPart {
 
-  def rawFileBodyPart(name: Expression[String], filePath: Expression[String]) = fileBodyPart(name, RawFileBodies.asFile(filePath))
-  def elFileBodyPart(name: Expression[String], filePath: Expression[String]) = stringBodyPart(name, ELFileBodies.asString(filePath))
-  def stringBodyPart(name: Expression[String], string: Expression[String]) = BodyPart(name, stringBodyPartBuilder(string), BodyPartAttributes(charset = Some(configuration.core.charset)))
-  def byteArrayBodyPart(name: Expression[String], bytes: Expression[Array[Byte]]) = BodyPart(name, byteArrayBodyPartBuilder(bytes), BodyPartAttributes())
-  def fileBodyPart(name: Expression[String], file: Expression[File]) = BodyPart(name, fileBodyPartBuilder(file), BodyPartAttributes())
+  def rawFileBodyPart(name: Option[Expression[String]], filePath: Expression[String]): BodyPart = fileBodyPart(name, RawFileBodies.asFile(filePath))
+  def elFileBodyPart(name: Option[Expression[String]], filePath: Expression[String]): BodyPart = stringBodyPart(name, ELFileBodies.asString(filePath))
+  def stringBodyPart(name: Option[Expression[String]], string: Expression[String]): BodyPart = BodyPart(name, stringBodyPartBuilder(string), BodyPartAttributes(charset = Some(configuration.core.charset)))
+  def byteArrayBodyPart(name: Option[Expression[String]], bytes: Expression[Array[Byte]]): BodyPart = BodyPart(name, byteArrayBodyPartBuilder(bytes), BodyPartAttributes())
+  def fileBodyPart(name: Option[Expression[String]], file: Expression[File]): BodyPart = BodyPart(name, fileBodyPartBuilder(file), BodyPartAttributes())
 
   private def stringBodyPartBuilder(string: Expression[String])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
     fileName match {
@@ -60,7 +60,7 @@ case class BodyPartAttributes(
   transferEncoding: Option[String] = None)
 
 case class BodyPart(
-    name: Expression[String],
+    name: Option[Expression[String]],
     partBuilder: (String, Option[String], Option[Charset], Option[String], Option[String], Option[String]) => Expression[PartBase], // name, fileName
     attributes: BodyPartAttributes) {
 
@@ -73,10 +73,10 @@ case class BodyPart(
 
   def toMultiPart(session: Session): Validation[Part] =
     for {
-      name <- name(session)
+      name <- resolveOptionalExpression(name, session)
       fileName <- resolveOptionalExpression(attributes.fileName, session)
       contentId <- resolveOptionalExpression(attributes.contentId, session)
-      part <- partBuilder(name, attributes.contentType, attributes.charset, fileName, contentId, attributes.transferEncoding)(session)
+      part <- partBuilder(name.orNull, attributes.contentType, attributes.charset, fileName, contentId, attributes.transferEncoding)(session)
     } yield {
       attributes.dispositionType.foreach(part.setDispositionType)
       part
