@@ -27,6 +27,9 @@ This API provides a dedicated DSL for chaining the following steps:
 4. verifying
 5. saving
 
+.. note:: By default, Gatling follows redirects (can be disabled in the :ref:`protocol <http-protocol-redirect>`).
+If this behavior is enabled, checks will ignore intermediate responses and will target the landing response.
+
 Defining the check type
 =======================
 
