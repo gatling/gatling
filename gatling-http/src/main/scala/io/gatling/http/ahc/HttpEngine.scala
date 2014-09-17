@@ -165,7 +165,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
       .setMaxRequestRetry(configuration.http.ahc.maxRetry)
       .setRequestTimeout(configuration.http.ahc.requestTimeOut)
       .setUseProxyProperties(configuration.http.ahc.useProxyProperties)
-      .setUserAgent("Gatling/2.0")
+      .setUserAgent(null)
       .setExecutorService(applicationThreadPool)
       .setAsyncHttpClientProviderConfig(nettyConfig)
       .setWebSocketTimeout(configuration.http.ahc.webSocketTimeout)
