@@ -234,14 +234,14 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
   def startHttpTransaction(tx: HttpTx): Unit = {
 
-    def executeRequestSafe(client: AsyncHttpClient, ahcRequest: Request, handler: AsyncHandler): Unit =
-      try {
-        client.executeRequest(ahcRequest, handler)
-      } catch {
-        // there might be some corner cases where executeRequest throws an Exception and onThrowable wasn't notified
-        // this works properly because we prevent multiple calls with an AtomicBoolean
-        case e: Exception => handler.onThrowable(e)
-      }
+      def executeRequestSafe(client: AsyncHttpClient, ahcRequest: Request, handler: AsyncHandler): Unit =
+        try {
+          client.executeRequest(ahcRequest, handler)
+        } catch {
+          // there might be some corner cases where executeRequest throws an Exception and onThrowable wasn't notified
+          // this works properly because we prevent multiple calls with an AtomicBoolean
+          case e: Exception => handler.onThrowable(e)
+        }
 
     val requestConfig = tx.request.config
 
