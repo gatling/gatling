@@ -234,6 +234,15 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
   def startHttpTransaction(tx: HttpTx): Unit = {
 
+    def executeRequestSafe(client: AsyncHttpClient, ahcRequest: Request, handler: AsyncHandler): Unit =
+      try {
+        client.executeRequest(ahcRequest, handler)
+      } catch {
+        // there might be some corner cases where executeRequest throws an Exception and onThrowable wasn't notified
+        // this works properly because we prevent multiple calls with an AtomicBoolean
+        case e: Exception => handler.onThrowable(e)
+      }
+
     val requestConfig = tx.request.config
 
     val (newTx, client) = {
@@ -242,11 +251,12 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     }
 
     val ahcRequest = newTx.request.ahcRequest
+    val handler = new AsyncHandler(newTx)
 
     if (requestConfig.throttled)
-      Controller ! ThrottledRequest(tx.session.scenarioName, () => client.executeRequest(ahcRequest, new AsyncHandler(newTx)))
+      Controller ! ThrottledRequest(tx.session.scenarioName, () => executeRequestSafe(client, ahcRequest, handler))
     else
-      client.executeRequest(ahcRequest, new AsyncHandler(newTx))
+      executeRequestSafe(client, ahcRequest, handler)
   }
 
   def startWebSocketTransaction(tx: WsTx, wsActor: ActorRef): Unit = {
