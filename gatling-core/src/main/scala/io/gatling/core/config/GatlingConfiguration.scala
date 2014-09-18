@@ -100,10 +100,10 @@ object GatlingConfiguration extends StrictLogging {
         if (!obsoleteUsages.isEmpty) {
           logger.error(
             s"""Your gatling.conf file is outdated, some properties have been renamed or removed.
-              |Please update (check gatling.conf in Gatling bundle, or gatling-default.conf in gatling-core jar).
-              |Obsolete properties:
-              |${obsoleteUsages.mkString("\n")}
-            """.stripMargin)
+Please update (check gatling.conf in Gatling bundle, or gatling-default.conf in gatling-core jar).
+Obsolete properties:
+${obsoleteUsages.mkString("\n")}
+            """)
         }
       }
 
