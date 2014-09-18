@@ -34,14 +34,14 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
 
   def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit = {
 
-      def handleConnect(): Unit = {
+      def handleConnect(reconnect: Boolean): Unit = {
 
           def connectClientChannelThroughProxy(proxyAddress: InetSocketAddress): Unit =
             proxy.clientBootstrap
               .connect(proxyAddress)
               .addListener { connectFuture: ChannelFuture =>
                 val clientChannel = connectFuture.getChannel
-                setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = true)
+                setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = true, reconnect = reconnect)
                 clientChannel.write(request)
               }
 
@@ -56,9 +56,13 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
                       .addListener { handshakeFuture: ChannelFuture =>
                         val clientChannel = handshakeFuture.getChannel
                         // TODO build certificate for peer
-                        setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = false)
-                        serverChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter)
-                        serverChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+                        setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = false, reconnect = reconnect)
+                        if (!reconnect) {
+                          serverChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter)
+                          serverChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+
+                        } else
+                          clientChannel.write(request)
                       }
 
                   case _ => throw new IllegalStateException("SslHandler missing from secureClientBootstrap")
@@ -75,7 +79,7 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
 
       def handlePropagatableRequest(): Unit =
         _clientChannel match {
-          case Some(clientChannel) if clientChannel.isConnected && clientChannel.isOpen =>
+          case Some(clientChannel) if clientChannel.isConnected =>
             // set full uri so that it's correctly recorded
             val absoluteUri = Uri.create(targetHostUri, request.getUri).toString
             val loggedRequest = copyRequestWithNewUri(request, absoluteUri)
@@ -83,13 +87,12 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
 
           case _ =>
             _clientChannel = None
-            // FIXME remote server decided to disconnect => reconnect
-            throw new IllegalStateException("Server channel is open but client channel is closed?!")
+            handleConnect(reconnect = true)
         }
 
     logger.info(s"Received ${request.getMethod} on ${request.getUri}")
     request.getMethod match {
-      case HttpMethod.CONNECT => handleConnect()
+      case HttpMethod.CONNECT => handleConnect(reconnect = false)
       case _                  => handlePropagatableRequest()
     }
   }

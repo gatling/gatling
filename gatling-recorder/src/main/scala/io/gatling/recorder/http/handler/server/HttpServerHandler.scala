@@ -63,7 +63,7 @@ class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Scal
       .addListener { future: ChannelFuture =>
         if (future.isSuccess) {
           val clientChannel = future.getChannel
-          setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = false)
+          setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = false, reconnect = false)
           writeRequest(clientChannel, request)
         } else {
           val t = future.getCause
@@ -77,7 +77,7 @@ class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Scal
 
   def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit =
     _clientChannel match {
-      case Some(clientChannel) if clientChannel.isConnected && clientChannel.isOpen =>
+      case Some(clientChannel) if clientChannel.isConnected =>
 
         val remoteAddress = clientChannel.getRemoteAddress.asInstanceOf[InetSocketAddress]
         val requestUri = Uri.create(request.getUri)

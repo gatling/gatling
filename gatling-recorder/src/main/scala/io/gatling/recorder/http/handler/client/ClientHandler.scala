@@ -29,7 +29,7 @@ import org.jboss.netty.handler.ssl.SslHandler
 
 case class TimedHttpRequest(httpRequest: HttpRequest, sendTime: Long = nowMillis)
 
-class ClientHandler(controller: RecorderController, serverChannel: Channel, var performConnect: Boolean)
+class ClientHandler(controller: RecorderController, serverChannel: Channel, var performConnect: Boolean, reconnect: Boolean)
     extends SimpleChannelHandler with ScalaChannelHandler with StrictLogging {
 
   override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent): Unit = {
@@ -47,11 +47,13 @@ class ClientHandler(controller: RecorderController, serverChannel: Channel, var 
           val clientSslHandler = new SslHandler(SSLEngineFactory.newClientSSLEngine)
           upgradeClientPipeline(ctx.getChannel.getPipeline, clientSslHandler)
 
-          clientSslHandler.handshake.addListener { handshakeFuture: ChannelFuture =>
-            // TODO here, we could generate a certificate for this given peer, even based on Session principal if it could be authenticated
-            serverChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter)
-            serverChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
-          }
+          // if we're reconnecting, server channel is already set up
+          if (!reconnect)
+            clientSslHandler.handshake.addListener { handshakeFuture: ChannelFuture =>
+              // TODO here, we could generate a certificate for this given peer, even based on Session principal if it could be authenticated
+              serverChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter)
+              serverChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+            }
         } else
           throw new UnsupportedOperationException(s"Outgoing proxy refused to connect: ${response.getStatus}")
       }
@@ -63,7 +65,7 @@ class ClientHandler(controller: RecorderController, serverChannel: Channel, var 
 
             ctx.setAttachment(null)
 
-            logger.debug(s"About to write request to server with channel ${serverChannel.getId} ${serverChannel.isOpen}")
+            logger.debug(s"About to write request to server with channel ${serverChannel.getId} connected=${serverChannel.isConnected}")
 
             serverChannel.write(response)
 

@@ -84,12 +84,12 @@ abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with
 
   def writeRequestToClient(clientChannel: Channel, clientRequest: HttpRequest, loggedRequest: HttpRequest): Unit = {
     clientChannel.getPipeline.getContext(GatlingHandlerName).setAttachment(TimedHttpRequest(loggedRequest))
-    logger.debug(s"About to write client request with channel ${clientChannel.getId} ${clientChannel.isOpen}")
+    logger.debug(s"About to write client request with channel ${clientChannel.getId} connected=${clientChannel.isConnected}")
     clientChannel.write(clientRequest)
   }
 
-  def setupClientChannel(clientChannel: Channel, controller: RecorderController, serverChannel: Channel, performConnect: Boolean): Unit = {
-    clientChannel.getPipeline.addLast(GatlingHandlerName, new ClientHandler(controller, serverChannel, performConnect))
+  def setupClientChannel(clientChannel: Channel, controller: RecorderController, serverChannel: Channel, performConnect: Boolean, reconnect: Boolean): Unit = {
+    clientChannel.getPipeline.addLast(GatlingHandlerName, new ClientHandler(controller, serverChannel, performConnect, reconnect))
     _clientChannel = Some(clientChannel)
   }
 
