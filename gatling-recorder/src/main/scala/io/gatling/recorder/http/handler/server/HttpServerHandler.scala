@@ -43,8 +43,13 @@ class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Scal
     _clientChannel = None
 
     val inetSocketAddress = proxy.outgoingProxy match {
-      case Some((host, port)) => new InetSocketAddress(host, port)
-      case _ =>
+      case Some((host, port)) =>
+        new InetSocketAddress(host, port)
+
+      case None if request.getUri.startsWith("/") =>
+        throw new IllegalArgumentException(s"Request url ${request.getUri} is relative, you're probably directly hitting the proxy")
+
+      case None =>
         try {
           computeInetSocketAddress(Uri.create(request.getUri))
         } catch {
