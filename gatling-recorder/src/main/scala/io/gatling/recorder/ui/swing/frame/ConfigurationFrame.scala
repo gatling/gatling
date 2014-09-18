@@ -313,10 +313,13 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
     simulationClassName.keys)
 
   private def registerValidators(): Unit = {
+
+    val outgoingProxyPortValidator = (s: String) => outgoingProxyHost.text.isEmpty || isValidPort(s)
+
     ValidationHelper.registerValidator(localProxyHttpPort, Validator(isValidPort))
     ValidationHelper.registerValidator(outgoingProxyHost, Validator(isNonEmpty, enableOutgoingProxyConfig, disableOutgoingProxyConfig, alwaysValid = true))
-    ValidationHelper.registerValidator(outgoingProxyHttpPort, Validator(isValidPort))
-    ValidationHelper.registerValidator(outgoingProxyHttpsPort, Validator(isValidPort))
+    ValidationHelper.registerValidator(outgoingProxyHttpPort, Validator(outgoingProxyPortValidator))
+    ValidationHelper.registerValidator(outgoingProxyHttpsPort, Validator(outgoingProxyPortValidator))
     ValidationHelper.registerValidator(outputFolderPath, Validator(isNonEmpty))
     ValidationHelper.registerValidator(simulationPackage, Validator(isValidPackageName))
     ValidationHelper.registerValidator(simulationClassName, Validator(isValidSimpleClassName))
@@ -337,10 +340,10 @@ class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
     outgoingProxyUsername.enabled = false
     outgoingProxyPassword.enabled = false
     // hack for validating outgoingProxyHttpPort and outgoingProxyHttpsPort
-    outgoingProxyHttpPort.text = "0"
-    outgoingProxyHttpsPort.text = "0"
-    outgoingProxyUsername.text = null
-    outgoingProxyPassword.text = null
+    outgoingProxyHttpPort.text = ""
+    outgoingProxyHttpsPort.text = ""
+    outgoingProxyUsername.text = ""
+    outgoingProxyPassword.text = ""
     publish(keyReleased(outgoingProxyHttpPort))
     publish(keyReleased(outgoingProxyHttpsPort))
   }
