@@ -58,11 +58,13 @@ object GatlingConfiguration extends StrictLogging {
 
       def warnAboutRemovedProperties(config: Config) {
 
-          def warnAboutRemovedProperty(path: String): Unit =
-            if (config.hasPath(path))
-              logger.warn(s"Beware, property $path is still defined but it was removed")
+        def warnAboutRemovedProperty(path: String): Option[String] =
+          if (config.hasPath(path))
+            Some(s"Beware, property $path is still defined but it was removed, update your gatling.conf (see gatling-default in gatling-core jar)")
+          else
+            None
 
-        Vector("gatling.core.extract.xpath.saxParserFactory",
+        val obsoleteUsages = Vector("gatling.core.extract.xpath.saxParserFactory",
           "gatling.core.extract.xpath.domParserFactory",
           "gatling.core.extract.xpath.expandEntityReferences",
           "gatling.core.extract.xpath.namespaceAware",
@@ -93,7 +95,16 @@ object GatlingConfiguration extends StrictLogging {
           "gatling.http.ahc.maximumConnectionsPerHost",
           "gatling.http.ahc.maximumConnectionsTotal",
           "gatling.http.ahc.requestTimeoutInMs",
-          "gatling.http.ahc.maxConnectionLifeTimeInMs").foreach(warnAboutRemovedProperty)
+          "gatling.http.ahc.maxConnectionLifeTimeInMs").flatMap(warnAboutRemovedProperty)
+
+        if (!obsoleteUsages.isEmpty) {
+          logger.error(
+            s"""Your gatling.conf file is outdated, some properties have been renamed or removed.
+              |Please update (check gatling.conf in Gatling bundle, or gatling-default.conf in gatling-core jar).
+              |Obsolete properties:
+              |${obsoleteUsages.mkString("\n")}
+            """.stripMargin)
+        }
       }
 
     val classLoader = getClass.getClassLoader
