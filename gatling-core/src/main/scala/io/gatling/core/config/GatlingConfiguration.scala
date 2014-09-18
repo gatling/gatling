@@ -58,11 +58,11 @@ object GatlingConfiguration extends StrictLogging {
 
       def warnAboutRemovedProperties(config: Config) {
 
-        def warnAboutRemovedProperty(path: String): Option[String] =
-          if (config.hasPath(path))
-            Some(s"Beware, property $path is still defined but it was removed, update your gatling.conf (see gatling-default in gatling-core jar)")
-          else
-            None
+          def warnAboutRemovedProperty(path: String): Option[String] =
+            if (config.hasPath(path))
+              Some(s"Beware, property $path is still defined but it was removed, update your gatling.conf (see gatling-default in gatling-core jar)")
+            else
+              None
 
         val obsoleteUsages = Vector("gatling.core.extract.xpath.saxParserFactory",
           "gatling.core.extract.xpath.domParserFactory",
