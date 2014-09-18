@@ -17,3 +17,8 @@ after_success:
   - "./check_master_or_tag.py && ./trigger_build.py gatling/gatling-maven-plugin"
   - "./check_master_or_tag.py && ./trigger_build.py gatling/gatling-highcharts-maven-archetype"
   - "./check_master_or_tag.py && ./trigger_build.py gatling/gatling-sbt"
+
+# whitelist
+branches:
+  only:
+    - master
