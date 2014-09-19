@@ -234,6 +234,27 @@ The urls can then be loaded in Redis using the following command::
 
   `cat /tmp/loadtest.txt | redis-cli --pipe`
 
+.. _feeder-convert:
+
+Converting
+==========
+
+Sometimes, you might want to convert the raw data you got from your feeder.
+
+For example, a csv feeder would give you only Strings, but you might want to convert one of the attribute into an Int.
+
+``convert(conversion: PartialFunction[(String, T), Any])`` takes:
+
+* a PartialFunction, meaning that you only define it for the scope you want to convert, non matching attributes will be left unchanged
+* whose input is a (String, T) couple where the first element is the attribute name, and the second one the attribute value
+* and whose output is Any, whatever you want
+
+For example::
+
+  csv("myFile.csv").convert {
+    case ("attributeThatShouldBeAnInt", string) => string.toInt
+  }
+
 .. _feeder-non-shared:
 
 Non Shared Data
