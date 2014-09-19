@@ -35,6 +35,11 @@ object JDKXPathExtractor {
   }
 
   lazy val DocumentBuilderFactoryInstance = {
+
+    System.setProperty("org.apache.xml.dtm.DTMManager", "org.apache.xml.dtm.ref.DTMManagerDefault")
+    System.setProperty("com.sun.org.apache.xml.internal.dtm.DTMManager", "com.sun.org.apache.xml.internal.dtm.ref.DTMManagerDefault")
+    System.setProperty("javax.xml.xpath.XPathFactory", "org.apache.xpath.jaxp.XPathFactoryImpl")
+
     val instance = DocumentBuilderFactory.newInstance
     instance.setExpandEntityReferences(false)
     instance.setNamespaceAware(true)
