@@ -95,7 +95,8 @@ object GatlingConfiguration extends StrictLogging {
           "gatling.http.ahc.maximumConnectionsPerHost",
           "gatling.http.ahc.maximumConnectionsTotal",
           "gatling.http.ahc.requestTimeoutInMs",
-          "gatling.http.ahc.maxConnectionLifeTimeInMs").flatMap(warnAboutRemovedProperty)
+          "gatling.http.ahc.maxConnectionLifeTimeInMs",
+          "gatling.http.ahc.compressionEnabled").flatMap(warnAboutRemovedProperty)
 
         if (!obsoleteUsages.isEmpty) {
           logger.error(
