@@ -11,12 +11,12 @@ env:
 
 # If building master, Publish to Sonatype and trigger builds
 after_success:
-  - "./check_master_or_tag.py && sbt publish"
-  - "./check_master_or_tag.py && ./trigger_build.py gatling/gatling-highcharts"
-  - "./check_master_or_tag.py && ./trigger_build.py gatling/gatling-vtd"
-  - "./check_master_or_tag.py && ./trigger_build.py gatling/gatling-maven-plugin"
-  - "./check_master_or_tag.py && ./trigger_build.py gatling/gatling-highcharts-maven-archetype"
-  - "./check_master_or_tag.py && ./trigger_build.py gatling/gatling-sbt"
+  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && sbt publish"
+  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-highcharts"
+  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-vtd"
+  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-maven-plugin"
+  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-highcharts-maven-archetype"
+  - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-sbt"
 
 # whitelist
 branches:
