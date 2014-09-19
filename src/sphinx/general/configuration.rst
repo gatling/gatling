@@ -38,8 +38,10 @@ Gatling uses a fallback strategy, where:
 
 If you want to override default values, you have two possibilities:
 
-* change the value in ``gatling.conf`` (don't forget to uncomment the line and remove the #).
+* change the value in ``gatling.conf``.
 * set a System property (the name of the property must match `HOCON Path <https://github.com/typesafehub/config/blob/master/HOCON.md#paths-as-keys>`_)
+
+.. warning:: When editing ``gatling.conf``, don't forget to remove the leading ``#`` that comments the line, otherwise your change will be ineffective.
 
 .. _gatling-cli-options:
 
