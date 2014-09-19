@@ -21,13 +21,13 @@ class UnsyncByteArrayInputStreamSpec extends FlatSpec with Matchers {
 
   val bytes = "test string".getBytes("utf-8")
   "BytesInputStream" should "signal eof when all bytes are read" in {
-    val byteStream = new UnsyncByteArrayInputStream(bytes)
+    val byteStream = new FastByteArrayInputStream(bytes)
     byteStream.read(bytes, 0, bytes.length)
     byteStream.read(bytes, 0, 1) shouldBe -1
   }
 
   it should "not allow to read more than available bytes" in {
-    val byteStream = new UnsyncByteArrayInputStream(bytes)
+    val byteStream = new FastByteArrayInputStream(bytes)
     byteStream.read(bytes, 0, bytes.length + 1) shouldBe bytes.length
   }
 

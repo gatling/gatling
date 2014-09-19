@@ -17,10 +17,10 @@ package io.gatling.core.util
 
 import java.io.InputStream
 
-final class UnsyncByteArrayInputStream(array: Array[Byte]) extends InputStream {
+final class FastByteArrayInputStream(bytes: Array[Byte]) extends InputStream {
 
   var offset: Int = _
-  var length: Int = array.length
+  var length: Int = bytes.length
   var position: Int = _
   var mark: Int = _
 
@@ -52,7 +52,7 @@ final class UnsyncByteArrayInputStream(array: Array[Byte]) extends InputStream {
     else {
       val oldPosition = position
       position += 1
-      array(offset + oldPosition) & 0xFF
+      bytes(offset + oldPosition) & 0xFF
     }
   }
 
@@ -61,7 +61,7 @@ final class UnsyncByteArrayInputStream(array: Array[Byte]) extends InputStream {
       if (length == 0) 0 else -1
     } else {
       val n = math.min(length, available)
-      System.arraycopy(array, offset + position, b, offset, n)
+      System.arraycopy(bytes, offset + position, b, offset, n)
       position += n
       n
     }

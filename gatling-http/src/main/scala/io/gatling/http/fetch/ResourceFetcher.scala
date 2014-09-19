@@ -80,7 +80,7 @@ object ResourceFetcher extends StrictLogging {
     val protocol = config.protocol
 
       def inferredResourcesRequests(): List[HttpRequest] = {
-        val inferred = new HtmlParser().getEmbeddedResources(htmlDocumentUri, response.body.string.unsafeChars, UserAgent.getAgent(request))
+        val inferred = new HtmlParser().getEmbeddedResources(htmlDocumentUri, response.body.string, UserAgent.getAgent(request))
         val filtered = applyResourceFilters(inferred, protocol.responsePart.htmlResourcesInferringFilters)
         resourcesToRequests(filtered, session, protocol, config.throttled)
       }

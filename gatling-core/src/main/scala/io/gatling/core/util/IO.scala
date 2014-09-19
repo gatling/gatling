@@ -63,21 +63,12 @@ object IO {
   implicit class RichInputStream(val is: InputStream) extends AnyVal {
 
     def toString(charset: Charset, bufferSize: Int = DefaultBufferSize): String = {
-      val writer = new UnsyncStringWriter(bufferSize)
+      val writer = new FastStringWriter(bufferSize)
       val reader = new InputStreamReader(is, charset)
 
       reader.copyTo(writer, bufferSize)
 
       writer.toString
-    }
-
-    def toCharArray(charset: Charset, bufferSize: Int = DefaultBufferSize): Array[Char] = {
-      val writer = new UnsyncCharArrayWriter
-      val reader = new InputStreamReader(is, charset)
-
-      reader.copyTo(writer, bufferSize)
-
-      writer.toCharArray
     }
 
     def toByteArray(bufferSize: Int = DefaultBufferSize): Array[Byte] = {

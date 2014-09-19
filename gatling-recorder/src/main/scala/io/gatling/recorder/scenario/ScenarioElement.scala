@@ -69,7 +69,7 @@ object RequestElement {
         val charsetName = Option(headerCharset).filter(Charset.isSupported).getOrElse(UTF8.name)
         val charset = Charset.forName(charsetName)
         extractContent(response).map(bytes => {
-          val htmlBuff = new String(bytes, charset).toCharArray
+          val htmlBuff = new String(bytes, charset)
           val userAgent = requestHeaders.get(UserAgent).flatMap(io.gatling.http.fetch.UserAgent.parseFromHeader)
           new HtmlParser().getEmbeddedResources(Uri.create(request.getUri), htmlBuff, userAgent)
         })

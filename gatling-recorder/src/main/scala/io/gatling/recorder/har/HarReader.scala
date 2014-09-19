@@ -78,7 +78,7 @@ object HarReader {
     val embeddedResources = entry.response.content match {
       case Content("text/html", Some(text)) =>
         val userAgent = requestHeaders.get(UserAgent).flatMap(io.gatling.http.fetch.UserAgent.parseFromHeader)
-        new HtmlParser().getEmbeddedResources(Uri.create(uri), text.toCharArray, userAgent)
+        new HtmlParser().getEmbeddedResources(Uri.create(uri), text, userAgent)
       case _ => Nil
     }
 

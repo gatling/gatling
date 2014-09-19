@@ -22,7 +22,7 @@ import java.nio.charset.StandardCharsets._
 import com.fasterxml.jackson.core.JsonParser.Feature
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.{ CharsetHelper, UnsyncByteArrayInputStream }
+import io.gatling.core.util.{ CharsetHelper, FastByteArrayInputStream }
 
 object Jackson extends JsonParser {
 
@@ -37,7 +37,7 @@ object Jackson extends JsonParser {
     if (JsonSupportedEncodings.contains(charset)) {
       TheObjectMapper.readValue(bytes, classOf[Object])
     } else {
-      val reader = new InputStreamReader(new UnsyncByteArrayInputStream(bytes), charset)
+      val reader = new InputStreamReader(new FastByteArrayInputStream(bytes), charset)
       TheObjectMapper.readValue(reader, classOf[Object])
     }
 

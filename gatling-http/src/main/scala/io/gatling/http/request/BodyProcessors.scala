@@ -19,7 +19,7 @@ import java.io.FileInputStream
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Session
-import io.gatling.core.util.UnsyncByteArrayInputStream
+import io.gatling.core.util.FastByteArrayInputStream
 import io.gatling.core.util.IO._
 import io.gatling.http.util.GZIPHelper
 
@@ -41,8 +41,8 @@ object BodyProcessors {
   val Stream = (body: Body) => {
 
     val stream = body match {
-      case StringBody(string) => (session: Session) => string(session).map(s => new UnsyncByteArrayInputStream(s.getBytes(configuration.core.encoding)))
-      case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(new UnsyncByteArrayInputStream(_))
+      case StringBody(string) => (session: Session) => string(session).map(s => new FastByteArrayInputStream(s.getBytes(configuration.core.encoding)))
+      case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(new FastByteArrayInputStream(_))
       case RawFileBody(file) => (session: Session) => file(session).map(new FileInputStream(_))
       case InputStreamBody(inputStream) => inputStream
       case _ => throw new UnsupportedOperationException(s"streamBody doesn't support $body")

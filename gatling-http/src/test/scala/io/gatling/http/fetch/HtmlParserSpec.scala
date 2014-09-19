@@ -19,26 +19,28 @@ import scala.io.Codec.UTF8
 
 import org.scalatest.{ FlatSpec, Matchers }
 
-import com.dongxiguo.fastring.Fastring.Implicits._
 import com.ning.http.client.uri.Uri
 
 import io.gatling.core.util.IO._
 
+import scala.io.Source
+
 class HtmlParserSpec extends FlatSpec with Matchers {
 
-  val htmlContent = withCloseable(getClass.getClassLoader.getResourceAsStream("akka.io.html"))(_.toCharArray(UTF8.charSet))
+  val htmlContent = withCloseable(getClass.getClassLoader.getResourceAsStream("akka.io.html")) { is =>
+    Source.fromInputStream(is)(UTF8).getLines().mkString
+  }
 
-  def mockHtml(body: String): Array[Char] = {
-    fast"""<!DOCTYPE html>
+  def mockHtml(body: String): String =
+    s"""<!DOCTYPE html>
       <html>
         <body>
           $body
         </body>
       </html>
-      """.toString.toCharArray
-  }
+      """
 
-  def embeddedResources(documentUri: String, htmlContent: Array[Char], userAgent: Option[UserAgent]) =
+  def embeddedResources(documentUri: String, htmlContent: String, userAgent: Option[UserAgent]) =
     new HtmlParser().getEmbeddedResources(Uri.create(documentUri), htmlContent, userAgent)
 
   implicit def string2URI(string: String) = Uri.create(string)

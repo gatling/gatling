@@ -15,16 +15,15 @@
  */
 package io.gatling.http.fetch
 
-import com.ning.http.client.uri.Uri
-import io.gatling.core.check.extractor.css.Jodd
-import jodd.lagarto.dom.HtmlCCommentExpressionMatcher
-
 import scala.collection.{ breakOut, mutable }
 
+import com.ning.http.client.uri.Uri
 import com.typesafe.scalalogging.slf4j.StrictLogging
-
+import io.gatling.core.check.extractor.css.Jodd
+import io.gatling.core.util.StringHelper._
 import io.gatling.http.util.HttpHelper
 import jodd.lagarto.{ TagUtil, TagType, EmptyTagVisitor, Tag }
+import jodd.lagarto.dom.HtmlCCommentExpressionMatcher
 
 sealed abstract class RawResource {
   def rawUrl: String
@@ -71,7 +70,7 @@ class HtmlParser extends StrictLogging {
 
   var inStyle = false
 
-  def parseHtml(htmlContent: Array[Char], userAgent: Option[UserAgent]): HtmlResources = {
+  def parseHtml(htmlContent: String, userAgent: Option[UserAgent]): HtmlResources = {
 
     var base: Option[String] = None
     val rawResources = mutable.ArrayBuffer.empty[RawResource]
@@ -189,11 +188,11 @@ class HtmlParser extends StrictLogging {
       }
     }
 
-    Jodd.newLagartoParser(htmlContent, ieVersion).parse(visitor)
+    Jodd.newLagartoParser(htmlContent.unsafeChars, ieVersion).parse(visitor)
     HtmlResources(rawResources, base)
   }
 
-  def getEmbeddedResources(documentURI: Uri, htmlContent: Array[Char], userAgent: Option[UserAgent]): List[EmbeddedResource] = {
+  def getEmbeddedResources(documentURI: Uri, htmlContent: String, userAgent: Option[UserAgent]): List[EmbeddedResource] = {
 
     val htmlResources = parseHtml(htmlContent, userAgent)
 

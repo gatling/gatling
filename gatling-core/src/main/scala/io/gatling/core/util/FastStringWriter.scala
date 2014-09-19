@@ -18,7 +18,7 @@ package io.gatling.core.util
 import java.lang.{ StringBuilder => JStringBuilder }
 import java.io.Writer
 
-final class UnsyncStringWriter(initialSize: Int = 16) extends Writer {
+final class FastStringWriter(initialSize: Int = 16) extends Writer {
 
   private val buf: JStringBuilder = new JStringBuilder(initialSize)
 
@@ -35,19 +35,19 @@ final class UnsyncStringWriter(initialSize: Int = 16) extends Writer {
 
   override def write(str: String, off: Int, len: Int): Unit = buf.append(str.substring(off, off + len))
 
-  override def append(csq: CharSequence): UnsyncStringWriter = {
+  override def append(csq: CharSequence): FastStringWriter = {
     if (csq == null) write("null")
     else write(csq.toString)
     this
   }
 
-  override def append(csq: CharSequence, start: Int, end: Int): UnsyncStringWriter = {
+  override def append(csq: CharSequence, start: Int, end: Int): FastStringWriter = {
     val cs: CharSequence = if (csq == null) "null" else csq
     write(cs.subSequence(start, end).toString)
     this
   }
 
-  override def append(c: Char): UnsyncStringWriter = {
+  override def append(c: Char): FastStringWriter = {
     write(c)
     this
   }

@@ -23,7 +23,7 @@ import scala.annotation.switch
 
 import org.jboss.netty.buffer.{ ChannelBuffer, ChannelBufferInputStream, ChannelBuffers }
 
-import io.gatling.core.util.UnsyncByteArrayInputStream
+import io.gatling.core.util.FastByteArrayInputStream
 
 sealed trait ResponseBodyUsage
 case object StringResponseBodyUsage extends ResponseBodyUsage
@@ -115,7 +115,7 @@ object ByteArrayResponseBody {
 
 case class ByteArrayResponseBody(bytes: Array[Byte], charset: Charset) extends ResponseBody {
 
-  def stream = new UnsyncByteArrayInputStream(bytes)
+  def stream = new FastByteArrayInputStream(bytes)
   lazy val string = new String(bytes, charset)
 }
 
@@ -125,7 +125,7 @@ case class InputStreamResponseBody(chunks: Seq[ChannelBuffer], charset: Charset)
 
   def stream = (chunks.size: @switch) match {
 
-    case 0 => new UnsyncByteArrayInputStream(ResponseBody.EmptyBytes)
+    case 0 => new FastByteArrayInputStream(ResponseBody.EmptyBytes)
 
     case 1 =>
       new ChannelBufferInputStream(chunks.head.duplicate)
@@ -151,6 +151,6 @@ case class InputStreamResponseBody(chunks: Seq[ChannelBuffer], charset: Charset)
 case object NoResponseBody extends ResponseBody {
   val charset = UTF_8
   val bytes = Array.empty[Byte]
-  def stream = new UnsyncByteArrayInputStream(bytes)
+  def stream = new FastByteArrayInputStream(bytes)
   val string = ""
 }
