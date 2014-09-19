@@ -16,9 +16,10 @@
 package io.gatling.http.check
 
 import io.gatling.core.check.{ Check, Extender, Preparer }
+import io.gatling.core.util.FastCharSequence
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.HttpCheckScope._
-import io.gatling.http.response.{ ByteArrayResponseBodyUsageStrategy, InputStreamResponseBodyUsageStrategy, Response, ResponseBodyUsageStrategy, StringResponseBodyUsageStrategy }
+import io.gatling.http.response._
 
 object HttpCheckBuilders {
 
@@ -36,7 +37,7 @@ object HttpCheckBuilders {
   val TimeExtender = extender(Body, None)
 
   val PassThroughResponsePreparer: Preparer[Response, Response] = (r: Response) => r.success
-  val ResponseBodyStringPreparer: Preparer[Response, String] = (response: Response) => response.body.string.success
+  val ResponseBodyCharSequencePreparer: Preparer[Response, CharSequence] = (response: Response) => FastCharSequence(response.body.string).success
   val ResponseBodyBytesPreparer: Preparer[Response, Array[Byte]] = (response: Response) => response.body.bytes.success
   val UrlStringPreparer: Preparer[Response, String] = (response: Response) => response.request.getUrl.success
 }
