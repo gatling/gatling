@@ -56,55 +56,62 @@ object GatlingConfiguration extends StrictLogging {
 
   def setUp(props: mutable.Map[String, _ <: Any] = mutable.Map.empty) {
 
+    sealed trait ObsoleteUsage { def path: String; def message: String }
+    case class Removed(path: String, advice: String) extends ObsoleteUsage {
+      def message = s"'$path' was removed, $advice."
+    }
+    case class Renamed(path: String, replacement: String) extends ObsoleteUsage {
+      def message = s"'$path' was renamed into $replacement."
+    }
+
       def warnAboutRemovedProperties(config: Config) {
 
-          def warnAboutRemovedProperty(path: String): Option[String] =
-            if (config.hasPath(path))
-              Some(s"Beware, property $path is still defined but it was removed, update your gatling.conf (see gatling-default in gatling-core jar)")
-            else
-              None
-
-        val obsoleteUsages = Vector("gatling.core.extract.xpath.saxParserFactory",
-          "gatling.core.extract.xpath.domParserFactory",
-          "gatling.core.extract.xpath.expandEntityReferences",
-          "gatling.core.extract.xpath.namespaceAware",
-          "gatling.core.extract.css.engine",
-          "gatling.core.timeOut.actor",
-          "gatling.charting.statsTsvSeparator",
-          "gatling.http.baseUrls",
-          "gatling.http.proxy.host",
-          "gatling.http.proxy.port",
-          "gatling.http.proxy.securedPort",
-          "gatling.http.proxy.username",
-          "gatling.http.proxy.password",
-          "gatling.http.followRedirect",
-          "gatling.http.autoReferer",
-          "gatling.http.cache",
-          "gatling.http.discardResponseChunks",
-          "gatling.http.shareConnections",
-          "gatling.http.basicAuth.username",
-          "gatling.http.basicAuth.password",
-          "gatling.http.ahc.provider",
-          "gatling.http.ahc.requestCompressionLevel",
-          "gatling.http.ahc.userAgent",
-          "gatling.http.ahc.rfc6265CookieEncoding",
-          "gatling.http.ahc.useRawUrl",
-          "gatling.http.ahc.allowPoolingConnection",
-          "gatling.http.ahc.allowSslConnectionPool",
-          "gatling.http.ahc.idleConnectionInPoolTimeoutInMs",
-          "gatling.http.ahc.maximumConnectionsPerHost",
-          "gatling.http.ahc.maximumConnectionsTotal",
-          "gatling.http.ahc.requestTimeoutInMs",
-          "gatling.http.ahc.maxConnectionLifeTimeInMs",
-          "gatling.http.ahc.compressionEnabled").flatMap(warnAboutRemovedProperty)
+        val obsoleteUsages = Vector(
+          Removed("gatling.core.extract.xpath.saxParserFactory", "now Gatling uses Saxon"),
+          Removed("gatling.core.extract.xpath.domParserFactory", "now Gatling uses Saxon"),
+          Removed("gatling.core.extract.xpath.expandEntityReferences", "now Gatling uses Saxon"),
+          Removed("gatling.core.extract.xpath.namespaceAware", "always enabled"),
+          Removed("gatling.core.extract.css.engine", "now Gatling supports only Jodd"),
+          Removed("gatling.core.timeOut.actor", "internal concern"),
+          Removed("gatling.charting.statsTsvSeparator", "stats.tsv was dropped"),
+          Removed("gatling.http.baseUrls", "use HttpProtocol"),
+          Removed("gatling.http.proxy.host", "use HttpProtocol"),
+          Removed("gatling.http.proxy.port", "use HttpProtocol"),
+          Removed("gatling.http.proxy.securedPort", "use HttpProtocol"),
+          Removed("gatling.http.proxy.username", "use HttpProtocol"),
+          Removed("gatling.http.proxy.password", "use HttpProtocol"),
+          Removed("gatling.http.followRedirect", "use HttpProtocol"),
+          Removed("gatling.http.autoReferer", "use HttpProtocol"),
+          Removed("gatling.http.cache", "use HttpProtocol"),
+          Removed("gatling.http.discardResponseChunks", "use HttpProtocol"),
+          Removed("gatling.http.shareConnections", "use HttpProtocol"),
+          Removed("gatling.http.basicAuth.username", "use HttpProtocol"),
+          Removed("gatling.http.basicAuth.password", "use HttpProtocol"),
+          Removed("gatling.http.ahc.provider", "now Gatling supports only Netty"),
+          Removed("gatling.http.ahc.requestCompressionLevel", "wasn't working, use processRequestBody(gzipBody)"),
+          Removed("gatling.http.ahc.userAgent", "use HttpProtocol"),
+          Removed("gatling.http.ahc.rfc6265CookieEncoding", "always enabled"),
+          Removed("gatling.http.ahc.useRawUrl", "feature dropped"),
+          Renamed("gatling.http.ahc.allowPoolingConnection", "gatling.http.ahc.allowPoolingConnections"),
+          Renamed("gatling.http.ahc.allowSslConnectionPool", "gatling.http.ahc.allowPoolingSslConnections"),
+          Renamed("gatling.http.ahc.idleConnectionInPoolTimeoutInMs", "gatling.http.ahc.pooledConnectionIdleTimeout"),
+          Renamed("gatling.http.ahc.maximumConnectionsPerHost", "gatling.http.ahc.maxConnectionsPerHost"),
+          Renamed("gatling.http.ahc.maximumConnectionsTotal", "gatling.http.ahc.maxConnections"),
+          Renamed("gatling.http.ahc.requestTimeoutInMs", "gatling.http.ahc.requestTimeout"),
+          Renamed("gatling.http.ahc.maxConnectionLifeTimeInMs", "gatling.http.ahc.connectionTTL"),
+          Removed("gatling.http.ahc.compressionEnabled", "always enabled but behavior driven by Accept-Encoding header, see gatling.http.ahc.compressionEnforced"),
+          Renamed("gatling.http.ahc.connectionTimeout", "gatling.http.ahc.connectTimeout"),
+          Renamed("gatling.http.ahc.idleConnectionTimeoutInMs", "gatling.http.ahc.readTimeout"),
+          Renamed("gatling.http.ahc.maximumConnectionsPerHost", "gatling.http.ahc.maxConnectionsPerHost"),
+          Renamed("gatling.http.ahc.maximumConnectionsTotal", "gatling.http.ahc.maxConnections"))
+          .collect{ case obs if config.hasPath(obs.path) => obs.message }
 
         if (!obsoleteUsages.isEmpty) {
           logger.error(
             s"""Your gatling.conf file is outdated, some properties have been renamed or removed.
 Please update (check gatling.conf in Gatling bundle, or gatling-default.conf in gatling-core jar).
-Obsolete properties:
-${obsoleteUsages.mkString("\n")}
-            """)
+Enabled obsolete properties:
+${obsoleteUsages.mkString("\n")}""")
         }
       }
 
