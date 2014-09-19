@@ -19,10 +19,13 @@ import StringHelper._
 
 object FastCharSequence {
 
-  def apply(s: String): FastCharSequence = new FastCharSequence(s.unsafeChars)
+  def apply(s: String): FastCharSequence = {
+    val chars = s.unsafeChars
+    new FastCharSequence(chars, 0, chars.length)
+  }
 }
 
-class FastCharSequence(chars: Array[Char], offset: Int = 0, count: Int = chars.length) extends CharSequence {
+class FastCharSequence(chars: Array[Char], offset: Int, count: Int) extends CharSequence {
 
   def length: Int = count
 
