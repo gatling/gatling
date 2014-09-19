@@ -34,7 +34,7 @@ object ConsoleSummary {
   val OutputLength = 80
   val NewBlock = "=" * OutputLength
 
-  def writeSubTitle(title: String) = fast"${("---- " + title + " ").rightPad(OutputLength, "-")}"
+  def writeSubTitle(title: String): Fastring = fast"${("---- " + title + " ").rightPad(OutputLength, "-")}"
 
   def apply(runDuration: Long,
             usersCounters: Map[String, UserCounters],
@@ -66,14 +66,19 @@ object ConsoleSummary {
         fast"> ${actionName.rightPad(OutputLength - 24)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
       }
 
-      def writeErrors(): Fastring =
-        if (errorsCounters.nonEmpty) {
+      def writeDetailedRequestsCounter: Fastring =
+        if (configuration.data.console.light)
+          EmptyFastring
+        else
+          requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(Eol)
+
+      def writeErrors: Fastring =
+        if (errorsCounters.nonEmpty)
           fast"""${writeSubTitle("Errors")}
 ${errorsCounters.toVector.sortBy(-_._2).map(err => ConsoleErrorsWriter.writeError(ErrorStats(err._1, err._2, globalRequestCounters.failedCount))).mkFastring(Eol)}
 """
-        } else {
-          fast""
-        }
+        else
+          EmptyFastring
 
     val text = fast"""
 $NewBlock
@@ -81,13 +86,8 @@ ${time.format(ConsoleSummary.Iso8601DateTimeFormat)} ${(runDuration + "s elapsed
 ${usersCounters.map { case (scenarioName, usersStats) => writeUsersCounters(scenarioName, usersStats) }.mkFastring(Eol)}
 ${writeSubTitle("Requests")}
 ${writeRequestsCounter("Global", globalRequestCounters)}
-${
-      if (!configuration.data.console.light)
-        requestsCounters.map { case (actionName, requestCounters) => writeRequestsCounter(actionName, requestCounters) }.mkFastring(Eol)
-      else
-        EmptyFastring
-    }
-${writeErrors()}$NewBlock
+$writeDetailedRequestsCounter
+$writeErrors$NewBlock
 """.toString
 
     val complete = {
