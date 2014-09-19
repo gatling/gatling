@@ -105,7 +105,7 @@ object ConfigKeys {
       val AllowPoolingConnections = "gatling.http.ahc.allowPoolingConnections"
       val AllowPoolingSslConnections = "gatling.http.ahc.allowPoolingSslConnections"
       val CompressionEnforced = "gatling.http.ahc.compressionEnforced"
-      val ConnectionTimeout = "gatling.http.ahc.connectionTimeout"
+      val ConnectTimeout = "gatling.http.ahc.connectTimeout"
       val PooledConnectionIdleTimeout = "gatling.http.ahc.pooledConnectionIdleTimeout"
       val ReadTimeout = "gatling.http.ahc.readTimeout"
       val ConnectionTTL = "gatling.http.ahc.connectionTTL"

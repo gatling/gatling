@@ -104,7 +104,7 @@ object GatlingConfiguration extends StrictLogging {
           Renamed("gatling.http.ahc.idleConnectionTimeoutInMs", "gatling.http.ahc.readTimeout"),
           Renamed("gatling.http.ahc.maximumConnectionsPerHost", "gatling.http.ahc.maxConnectionsPerHost"),
           Renamed("gatling.http.ahc.maximumConnectionsTotal", "gatling.http.ahc.maxConnections"))
-          .collect{ case obs if config.hasPath(obs.path) => obs.message }
+          .collect { case obs if config.hasPath(obs.path) => obs.message }
 
         if (!obsoleteUsages.isEmpty) {
           logger.error(
@@ -201,7 +201,7 @@ ${obsoleteUsages.mkString("\n")}""")
           allowPoolingConnections = config.getBoolean(http.ahc.AllowPoolingConnections),
           allowPoolingSslConnections = config.getBoolean(http.ahc.AllowPoolingSslConnections),
           compressionEnforced = config.getBoolean(http.ahc.CompressionEnforced),
-          connectionTimeout = config.getInt(http.ahc.ConnectionTimeout),
+          connectTimeout = config.getInt(http.ahc.ConnectTimeout),
           pooledConnectionIdleTimeout = config.getInt(http.ahc.PooledConnectionIdleTimeout),
           readTimeout = config.getInt(http.ahc.ReadTimeout),
           connectionTTL = config.getInt(http.ahc.ConnectionTTL),
@@ -347,7 +347,7 @@ case class AHCConfiguration(
   allowPoolingConnections: Boolean,
   allowPoolingSslConnections: Boolean,
   compressionEnforced: Boolean,
-  connectionTimeout: Int,
+  connectTimeout: Int,
   pooledConnectionIdleTimeout: Int,
   readTimeout: Int,
   connectionTTL: Int,
