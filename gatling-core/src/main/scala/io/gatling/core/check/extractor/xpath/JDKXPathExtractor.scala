@@ -97,7 +97,6 @@ object JDKXPathExtractor {
       i <- 0 until nodes.getLength
       item = nodes.item(i)
     } yield {
-      System.err.println(s"name=${item.getNodeName} type=${item.getNodeType} children=${item.getChildNodes.item(0).getNodeValue}")
       item.getNodeType match {
         case Node.ELEMENT_NODE if item.getChildNodes.getLength > 0 =>
           val firstChild = item.getChildNodes.item(0)
@@ -132,5 +131,4 @@ object JDKXPathExtractor {
     def extract(prepared: Option[Document]): Validation[Option[Int]] =
       prepared.map(document => JDKXPathExtractor.nodeList(document, criterion, namespaces).getLength).success
   }
-
 }
