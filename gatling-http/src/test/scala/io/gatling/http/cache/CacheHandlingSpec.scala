@@ -41,7 +41,7 @@ class CacheHandlingSpec extends FlatSpec with Matchers with MockitoSugar {
     val body = mock[ResponseBody]
     val headersMap = new FluentCaseInsensitiveStringsMap
     headers.foreach { case (name, value) => headersMap.add(name, value) }
-    val response = HttpResponse(request, Some(status), headersMap, body, Map.empty, 0, UTF_8, -1, -1, -1, -1)
+    val response = HttpResponse(request, None, Some(status), headersMap, body, Map.empty, 0, UTF_8, -1, -1, -1, -1)
 
     CacheHandling.getResponseExpires(http, response)
   }

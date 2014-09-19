@@ -18,7 +18,9 @@ package io.gatling.http
 import java.lang.{ StringBuilder => JStringBuilder }
 import java.util.{ List => JList, Map => JMap }
 
-import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet, collectionAsScalaIterable }
+import com.ning.http.client.providers.netty.request.NettyRequest
+
+import scala.collection.JavaConversions._
 
 import com.ning.http.client.{ Param, Request }
 import com.ning.http.client.multipart._
@@ -40,20 +42,33 @@ package object util {
         buff.append(param.getName).append(": ").append(param.getValue).append(Eol)
       }
 
-    def appendAHCRequest(request: Request): JStringBuilder = {
+    def appendRequest(request: Request, nettyRequest: Option[NettyRequest]): JStringBuilder = {
 
       buff.append(request.getMethod).append(" ").append(request.getUrl).append(Eol)
 
-      if (request.getHeaders != null && !request.getHeaders.isEmpty) {
-        buff.append("headers=").append(Eol)
-        buff.appendAHCStringsMap(request.getHeaders)
-      }
+      nettyRequest match {
+        case Some(nr) =>
 
-      if (!request.getCookies.isEmpty) {
-        buff.append("cookies=").append(Eol)
-        for (cookie <- request.getCookies) {
-          buff.append(cookie).append(Eol)
-        }
+          val headers = nr.getHttpRequest.headers
+          if (!headers.isEmpty) {
+            buff.append("headers=").append(Eol)
+            for (header <- headers) {
+              buff.append(header.getKey).append(": ").append(header.getValue).append(Eol)
+            }
+          }
+
+        case _ =>
+          if (request.getHeaders != null && !request.getHeaders.isEmpty) {
+            buff.append("headers=").append(Eol)
+            buff.appendAHCStringsMap(request.getHeaders)
+          }
+
+          if (!request.getCookies.isEmpty) {
+            buff.append("cookies=").append(Eol)
+            for (cookie <- request.getCookies) {
+              buff.append(cookie).append(Eol)
+            }
+          }
       }
 
       if (request.getFormParams != null && !request.getFormParams.isEmpty) {

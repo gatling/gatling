@@ -17,6 +17,7 @@ package io.gatling.http.ahc
 
 import java.util.concurrent.atomic.AtomicBoolean
 
+import com.ning.http.client.providers.netty.request.NettyRequest
 import com.ning.http.client.{ AsyncHandlerExtensions, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, ProgressAsyncHandler }
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
@@ -48,7 +49,11 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
 
   override def onConnectionPooled(): Unit = {}
 
-  override def onSendRequest(): Unit = start()
+  override def onSendRequest(request: Any): Unit = {
+    start()
+    if (logger.underlying.isDebugEnabled)
+      responseBuilder.setNettyRequest(request.asInstanceOf[NettyRequest])
+  }
 
   override def onRetry(): Unit = {
     if (!done.get) responseBuilder.reset()

@@ -155,7 +155,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
       .setAllowPoolingConnections(configuration.http.ahc.allowPoolingConnections)
       .setAllowPoolingSslConnections(configuration.http.ahc.allowPoolingSslConnections)
       .setCompressionEnforced(configuration.http.ahc.compressionEnforced)
-      .setConnectionTimeout(configuration.http.ahc.connectionTimeout)
+      .setConnectTimeout(configuration.http.ahc.connectionTimeout)
       .setPooledConnectionIdleTimeout(configuration.http.ahc.pooledConnectionIdleTimeout)
       .setReadTimeout(configuration.http.ahc.readTimeout)
       .setConnectionTTL(configuration.http.ahc.connectionTTL)

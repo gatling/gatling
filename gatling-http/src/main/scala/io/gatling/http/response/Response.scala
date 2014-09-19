@@ -17,6 +17,7 @@ package io.gatling.http.response
 
 import java.nio.charset.Charset
 
+import com.ning.http.client.providers.netty.request.NettyRequest
 import com.ning.http.client.uri.Uri
 import io.gatling.http.config.HttpProtocol
 
@@ -32,6 +33,7 @@ import io.gatling.http.util.HttpHelper
 abstract class Response {
 
   def request: AHCRequest
+  def nettyRequest: Option[NettyRequest]
   def isReceived: Boolean
 
   def status: Option[HttpResponseStatus]
@@ -65,6 +67,7 @@ abstract class Response {
 
 case class HttpResponse(
     request: AHCRequest,
+    nettyRequest: Option[NettyRequest],
     status: Option[HttpResponseStatus],
     headers: FluentCaseInsensitiveStringsMap,
     body: ResponseBody,
@@ -116,6 +119,7 @@ case class HttpResponse(
 class ReponseWrapper(delegate: Response) extends Response {
 
   def request: AHCRequest = delegate.request
+  def nettyRequest: Option[NettyRequest] = delegate.nettyRequest
   def isReceived = delegate.isReceived
 
   def status = delegate.status

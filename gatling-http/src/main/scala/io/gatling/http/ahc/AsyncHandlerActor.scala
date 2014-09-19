@@ -105,7 +105,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           buff.append("=========================").append(Eol)
           buff.append("Session:").append(Eol).append(tx.session).append(Eol)
           buff.append("=========================").append(Eol)
-          buff.append("HTTP request:").append(Eol).appendAHCRequest(tx.request.ahcRequest)
+          buff.append("HTTP request:").append(Eol).appendRequest(tx.request.ahcRequest, response.nettyRequest)
           buff.append("=========================").append(Eol)
           buff.append("HTTP response:").append(Eol).appendResponse(response).append(Eol)
           buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")

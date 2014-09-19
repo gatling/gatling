@@ -18,6 +18,8 @@ package io.gatling.http.response
 import java.nio.charset.Charset
 import java.security.MessageDigest
 
+import com.ning.http.client.providers.netty.request.NettyRequest
+
 import scala.collection.mutable.ArrayBuffer
 import scala.math.max
 
@@ -77,6 +79,7 @@ class ResponseBuilder(request: Request,
   private var headers: FluentCaseInsensitiveStringsMap = ResponseBuilder.EmptyHeaders
   private val chunks = new ArrayBuffer[ChannelBuffer]
   private var digests: Map[String, MessageDigest] = initDigests()
+  private var nettyRequest: Option[NettyRequest] = None
 
   def initDigests(): Map[String, MessageDigest] =
     if (computeChecksums)
@@ -87,6 +90,10 @@ class ResponseBuilder(request: Request,
       Map.empty[String, MessageDigest]
 
   def updateFirstByteSent(): Unit = firstByteSent = nowMillis
+
+  def setNettyRequest(nettyRequest: NettyRequest) = {
+    this.nettyRequest = Some(nettyRequest)
+  }
 
   def reset(): Unit = {
     firstByteSent = nowMillis
@@ -175,7 +182,7 @@ class ResponseBuilder(request: Request,
       else
         ByteArrayResponseBody(chunks, charset)
 
-    val rawResponse = HttpResponse(request, status, headers, body, checksums, bodyLength, charset, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
+    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, bodyLength, charset, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
 
     responseProcessor match {
       case Some(processor) => processor.applyOrElse(rawResponse, ResponseBuilder.Identity)
