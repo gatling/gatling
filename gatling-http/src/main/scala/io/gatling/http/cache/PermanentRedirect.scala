@@ -24,24 +24,29 @@ import com.ning.http.client.{ Request, RequestBuilder }
 
 object PermanentRedirect {
   def addRedirect(session: Session, from: Uri, to: Uri): Session = {
-    val redirectStorage = CacheHandling.getRedirectMemoizationStore(session)
+    val redirectStorage = CacheHandling.getOrCreateRedirectMemoizationStore(session)
     session.set(CacheHandling.HttpRedirectMemoizationStoreAttributeName, redirectStorage + (from -> to))
   }
 
   private def permanentRedirect(session: Session, uri: Uri): Option[(Uri, Int)] = {
-      @tailrec def permanentRedirect1(from: Uri, redirectCount: Int): Option[(Uri, Int)] = {
-        val redirectMap = CacheHandling.getRedirectMemoizationStore(session)
-        redirectMap.get(from) match {
-          case Some(toUri) =>
-            permanentRedirect1(toUri, redirectCount + 1)
 
-          case None =>
-            redirectCount match {
-              case 0 => None
-              case _ => Some(Pair(from, redirectCount))
-            }
+      @tailrec def permanentRedirect1(from: Uri, redirectCount: Int): Option[(Uri, Int)] =
+
+        CacheHandling.getRedirectMemoizationStore(session) match {
+
+          case Some(redirectMap) => redirectMap.get(from) match {
+            case Some(toUri) =>
+              permanentRedirect1(toUri, redirectCount + 1)
+
+            case None =>
+              redirectCount match {
+                case 0 => None
+                case _ => Some(Pair(from, redirectCount))
+              }
+          }
+
+          case None => None
         }
-      }
 
     permanentRedirect1(uri, 0)
   }
