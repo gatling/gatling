@@ -54,7 +54,7 @@ Response time distribution
 --------------------------
 
 .. image:: img/reports/charts-distrib.png
-    :alt: ReponseTimeDistribution
+    :alt: ResponseTimeDistribution
     :scale: 70
 
 This chart displays the distribution of the response times.

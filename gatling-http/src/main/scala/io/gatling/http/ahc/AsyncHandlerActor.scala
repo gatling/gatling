@@ -232,7 +232,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
                 // don't override group stats when redirecting a resource
                 val logGroupRequestUpdate: Session => Session =
                   if (tx.primary) {
-                    val responseTime = response.reponseTimeInMillis
+                    val responseTime = response.responseTimeInMillis
                     _.logGroupRequest(responseTime, OK)
                   } else
                     Session.Identity
@@ -274,7 +274,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
         val logGroupRequestUpdate: Session => Session =
           if (tx.primary)
-            _.logGroupRequest(response.reponseTimeInMillis, status)
+            _.logGroupRequest(response.responseTimeInMillis, status)
           else
             Session.Identity
 
