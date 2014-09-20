@@ -27,7 +27,7 @@ object HttpResponseTimeCheckBuilder {
 
   val ResponseTimeInMillis = apply(new Extractor[Response, Long] {
     val name = "responseTime"
-    def apply(prepared: Response) = Some(prepared.reponseTimeInMillis).success
+    def apply(prepared: Response) = Some(prepared.responseTimeInMillis).success
   }.expression)
 
   val LatencyInMillis = apply(new Extractor[Response, Long] {

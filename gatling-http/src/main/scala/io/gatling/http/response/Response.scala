@@ -57,7 +57,7 @@ abstract class Response {
   def lastByteSent: Long
   def firstByteReceived: Long
   def lastByteReceived: Long
-  def reponseTimeInMillis: Long
+  def responseTimeInMillis: Long
   def latencyInMillis: Long
 
   def lastModifiedOrEtag(protocol: HttpProtocol): Option[String] =
@@ -82,7 +82,7 @@ case class HttpResponse(
   def isReceived = status.isDefined
   val statusCode = status.map(_.getStatusCode)
 
-  def reponseTimeInMillis = lastByteReceived - firstByteSent
+  def responseTimeInMillis = lastByteReceived - firstByteSent
   def latencyInMillis = firstByteReceived - lastByteSent
 
   val isRedirect = status match {
@@ -116,7 +116,7 @@ case class HttpResponse(
   def hasResponseBody = bodyLength != 0
 }
 
-class ReponseWrapper(delegate: Response) extends Response {
+class ResponseWrapper(delegate: Response) extends Response {
 
   def request: AHCRequest = delegate.request
   def nettyRequest: Option[NettyRequest] = delegate.nettyRequest
@@ -143,6 +143,6 @@ class ReponseWrapper(delegate: Response) extends Response {
   def lastByteSent = delegate.lastByteSent
   def firstByteReceived = delegate.firstByteReceived
   def lastByteReceived = delegate.lastByteReceived
-  def reponseTimeInMillis = delegate.reponseTimeInMillis
+  def responseTimeInMillis = delegate.responseTimeInMillis
   def latencyInMillis = delegate.latencyInMillis
 }
