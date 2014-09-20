@@ -18,6 +18,7 @@ package io.gatling.core.session.el
 import java.lang.{ StringBuilder => JStringBuilder }
 import java.util.{ Collection => JCollection, List => JList, Map => JMap }
 
+import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
@@ -191,10 +192,34 @@ class ELCompiler extends RegexParsers {
 
   override def skipWhitespace = false
 
+  @tailrec
+  private def cleanUp(parts: List[Part[Any]], currentStaticPart: Option[String], acc: List[Part[Any]]): List[Part[Any]] =
+    parts match {
+      case Nil => currentStaticPart match {
+        case None         => acc
+        case Some(string) => StaticPart(string) :: acc
+      }
+
+      case head :: tail => head match {
+        case StaticPart(s) =>
+          currentStaticPart match {
+            case None         => cleanUp(tail, Some(s), acc)
+            case Some(string) => cleanUp(tail, Some(string + s), acc)
+          }
+
+        case part =>
+          currentStaticPart match {
+            case None         => cleanUp(tail, None, acc)
+            case Some(string) => cleanUp(tail, None, StaticPart(string) :: acc)
+          }
+
+      }
+    }
+
   def parseEl(string: String): List[Part[Any]] =
     try {
       parseAll(expr, string) match {
-        case Success(parts, _) => parts
+        case Success(parts, _) => cleanUp(parts, None, Nil).reverse
         case ns: NoSuccess     => throw new ELParserException(string, ns.msg)
       }
     } catch {
