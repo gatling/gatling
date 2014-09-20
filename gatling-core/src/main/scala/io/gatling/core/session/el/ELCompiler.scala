@@ -192,34 +192,39 @@ class ELCompiler extends RegexParsers {
 
   override def skipWhitespace = false
 
-  @tailrec
-  private def cleanUp(parts: List[Part[Any]], currentStaticPart: Option[String], acc: List[Part[Any]]): List[Part[Any]] =
-    parts match {
-      case Nil => currentStaticPart match {
-        case None         => acc
-        case Some(string) => StaticPart(string) :: acc
-      }
+  // FIXME remove once #2224 is fixed
+  private def mergeConsecutiveStaticParts(parts: List[Part[Any]]): List[Part[Any]] = {
 
-      case head :: tail => head match {
-        case StaticPart(s) =>
-          currentStaticPart match {
-            case None         => cleanUp(tail, Some(s), acc)
-            case Some(string) => cleanUp(tail, Some(string + s), acc)
+      @tailrec
+      def merge(parts: List[Part[Any]], currentStaticPart: Option[String], acc: List[Part[Any]]): List[Part[Any]] =
+        parts match {
+          case Nil => currentStaticPart match {
+            case None         => acc
+            case Some(string) => StaticPart(string) :: acc
           }
 
-        case part =>
-          currentStaticPart match {
-            case None         => cleanUp(tail, None, acc)
-            case Some(string) => cleanUp(tail, None, StaticPart(string) :: acc)
-          }
+          case head :: tail => head match {
+            case StaticPart(s) =>
+              currentStaticPart match {
+                case None         => merge(tail, Some(s), acc)
+                case Some(string) => merge(tail, Some(string + s), acc)
+              }
 
-      }
-    }
+            case part =>
+              currentStaticPart match {
+                case None         => merge(tail, None, part :: acc)
+                case Some(string) => merge(tail, None, part :: StaticPart(string) :: acc)
+              }
+          }
+        }
+
+    merge(parts, None, Nil).reverse
+  }
 
   def parseEl(string: String): List[Part[Any]] =
     try {
       parseAll(expr, string) match {
-        case Success(parts, _) => cleanUp(parts, None, Nil).reverse
+        case Success(parts, _) => mergeConsecutiveStaticParts(parts)
         case ns: NoSuccess     => throw new ELParserException(string, ns.msg)
       }
     } catch {
