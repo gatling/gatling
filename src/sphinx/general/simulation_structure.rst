@@ -93,3 +93,23 @@ which correspond to:
 
 #. We inject one single user into the ``scn`` scenario
 #. We configure ``httpConf`` on the ``setUp`` so that we pass the base URL and the common headers.
+
+.. _simulation-hooks:
+
+Hooks
+=====
+
+Gatling provides two hooks:
+
+* ``before`` for executing some code before the simulation actually runs
+* ``after`` for executing some code after the simulation actually runs
+
+::
+
+  before {
+    println("Simulation is about to start!")
+  }
+
+  after {
+    println("Simulation is finished!")
+  }
