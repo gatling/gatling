@@ -145,7 +145,6 @@ class ELParserException(string: String, msg: String) extends Exception(s"Failed 
 
 object ELCompiler {
 
-  val StaticPartPattern = """(?s).+?(?!$\{)""".r
   val NamePattern = "[^.${}()]+".r
 
   val ElCompiler = new ThreadLocal[ELCompiler] {
@@ -224,7 +223,7 @@ class ELCompiler extends RegexParsers {
   def parseEl(string: String): List[Part[Any]] =
     try {
       parseAll(expr, string) match {
-        case Success(parts, _) => mergeConsecutiveStaticParts(parts)
+        case Success(parts, _) => parts //mergeConsecutiveStaticParts(parts)
         case ns: NoSuccess     => throw new ELParserException(string, ns.msg)
       }
     } catch {
@@ -234,6 +233,20 @@ class ELCompiler extends RegexParsers {
   val expr: Parser[List[Part[Any]]] = multivaluedExpr | (elExpr ^^ { case part: Part[Any] => List(part) })
 
   def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart) *
+
+  def StaticPartPattern = new Parser[String] {
+    def apply(in: Input) = {
+      val source = in.source
+      val offset = in.offset
+      val end = source.length
+
+      source.toString.indexOf("${", offset) match {
+        case -1 if offset == end => Failure("Not a static part", in.drop(offset - offset))
+        case -1                  => Success(source.subSequence(offset, end).toString, in.drop(end - offset))
+        case n                   => Success(source.subSequence(offset, n).toString, in.drop(n - offset))
+      }
+    }
+  }
 
   def staticPart: Parser[StaticPart] = StaticPartPattern ^^ { case staticStr => StaticPart(staticStr) }
 
