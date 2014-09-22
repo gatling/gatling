@@ -35,8 +35,10 @@ object BodyPart {
 
   private def stringBodyPartBuilder(string: Expression[String])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
     fileName match {
-      case None => string.map(resolvedString => new StringPart(name, resolvedString, configuration.core.charset))
-      case _    => byteArrayBodyPartBuilder(string.map(_.getBytes(configuration.core.charset)))(name, contentType, charset, fileName, contentId, transferEncoding)
+      case None => string.map { resolvedString =>
+        new StringPart(name, resolvedString, contentType.orNull, charset.getOrElse(configuration.core.charset), contentId.orNull, transferEncoding.orNull)
+      }
+      case _ => byteArrayBodyPartBuilder(string.map(_.getBytes(charset.getOrElse(configuration.core.charset))))(name, contentType, charset, fileName, contentId, transferEncoding)
     }
 
   private def byteArrayBodyPartBuilder(bytes: Expression[Array[Byte]])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
