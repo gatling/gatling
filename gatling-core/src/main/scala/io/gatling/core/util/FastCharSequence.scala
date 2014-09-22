@@ -32,4 +32,6 @@ class FastCharSequence(chars: Array[Char], offset: Int, count: Int) extends Char
   def charAt(index: Int): Char = chars(offset + index)
 
   def subSequence(start: Int, end: Int): CharSequence = new FastCharSequence(chars, offset + start, end - start)
+
+  override def toString: String = String.valueOf(chars, offset, count)
 }
