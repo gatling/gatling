@@ -191,39 +191,10 @@ class ELCompiler extends RegexParsers {
 
   override def skipWhitespace = false
 
-  // FIXME remove once #2224 is fixed
-  private def mergeConsecutiveStaticParts(parts: List[Part[Any]]): List[Part[Any]] = {
-
-      @tailrec
-      def merge(parts: List[Part[Any]], currentStaticPart: Option[String], acc: List[Part[Any]]): List[Part[Any]] =
-        parts match {
-          case Nil => currentStaticPart match {
-            case None         => acc
-            case Some(string) => StaticPart(string) :: acc
-          }
-
-          case head :: tail => head match {
-            case StaticPart(s) =>
-              currentStaticPart match {
-                case None         => merge(tail, Some(s), acc)
-                case Some(string) => merge(tail, Some(string + s), acc)
-              }
-
-            case part =>
-              currentStaticPart match {
-                case None         => merge(tail, None, part :: acc)
-                case Some(string) => merge(tail, None, part :: StaticPart(string) :: acc)
-              }
-          }
-        }
-
-    merge(parts, None, Nil).reverse
-  }
-
   def parseEl(string: String): List[Part[Any]] =
     try {
       parseAll(expr, string) match {
-        case Success(parts, _) => parts //mergeConsecutiveStaticParts(parts)
+        case Success(parts, _) => parts
         case ns: NoSuccess     => throw new ELParserException(string, ns.msg)
       }
     } catch {
