@@ -34,9 +34,9 @@ object CommandLineConstants {
   val ResultsFolder = CommandLineConstant("results-folder", "rf")
   val RequestBodiesFolder = CommandLineConstant("request-bodies-folder", "bf")
   val SimulationsFolder = CommandLineConstant("simulations-folder", "sf")
-  val SimulationsBinariesFolder = CommandLineConstant("simulations-binaries-folder", "sbf")
+  val SimulationsBinariesFolder = CommandLineConstant("binaries-folder", "bf")
   val Simulation = CommandLineConstant("simulation", "s")
   val OutputDirectoryBaseName = CommandLineConstant("output-name", "on")
-  val SimulationDescription = CommandLineConstant("simulation-description", "sd")
+  val SimulationDescription = CommandLineConstant("run-description", "rd")
   val Mute = CommandLineConstant("mute", "m")
 }
