@@ -212,7 +212,7 @@ class ELCompiler extends RegexParsers {
       val end = source.length
 
       source.toString.indexOf("${", offset) match {
-        case -1 if offset == end => Failure("Not a static part", in.drop(offset - offset))
+        case -1 if offset == end => Failure("Not a static part", in)
         case -1                  => Success(source.subSequence(offset, end).toString, in.drop(end - offset))
         case n                   => Success(source.subSequence(offset, n).toString, in.drop(n - offset))
       }
