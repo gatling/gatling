@@ -63,17 +63,17 @@ Gatling can be started with several options listed below:
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
 | -rf <path>        | --results-folder <path>                | Uses <path> as the folder where results are stored                                               |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
-| -bf <path>        | --request-bodies-folder <path>         | Uses <path> as the folder where request bodies are stored                                        |
+| -rbf <path>       | --request-bodies-folder <path>         | Uses <path> as the folder where request bodies are stored                                        |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
 | -sf <path>        | --simulations-folder <path>            | Uses <path> as the folder where simulations are stored                                           |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
-| -sbf <path>       | --simulations-binaries-folder <path>   | Uses <path> as the folder where simulation binaries are stored                                   |
+| -bf <path>        | --binaries-folder <path>               | Uses <path> as the folder where simulation binaries are stored                                   |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
 | -s <className>    | --simulation <className>               | Uses <className> as the name of the simulation to be run                                         |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
 | -on <name>        | --output-name <name>                   | Uses <name> for the base name of the output directory                                            |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
-| -sd <description> | --simulation-description <description> | A short <description> of the run to include in the report                                        |
+| -rd <description> | --run-description <description>        | A short <description> of the run to include in the report                                        |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+
 | -m                | --mute                                 | Runs in mute mode: doesn't ask for run description nor simulation ID, uses defaults              |
 +-------------------+----------------------------------------+--------------------------------------------------------------------------------------------------+

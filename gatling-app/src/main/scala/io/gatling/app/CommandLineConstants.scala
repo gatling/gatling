@@ -32,7 +32,7 @@ object CommandLineConstants {
   val ReportsOnly = CommandLineConstant("reports-only", "ro")
   val DataFolder = CommandLineConstant("data-folder", "df")
   val ResultsFolder = CommandLineConstant("results-folder", "rf")
-  val RequestBodiesFolder = CommandLineConstant("request-bodies-folder", "bf")
+  val RequestBodiesFolder = CommandLineConstant("request-bodies-folder", "rbf")
   val SimulationsFolder = CommandLineConstant("simulations-folder", "sf")
   val SimulationsBinariesFolder = CommandLineConstant("binaries-folder", "bf")
   val Simulation = CommandLineConstant("simulation", "s")
