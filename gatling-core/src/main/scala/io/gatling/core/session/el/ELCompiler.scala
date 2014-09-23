@@ -147,12 +147,12 @@ object ELCompiler {
 
   val NamePattern = "[^.${}()]+".r
 
-  val ElCompiler = new ThreadLocal[ELCompiler] {
+  val TheELCompiler = new ThreadLocal[ELCompiler] {
     override def initialValue = new ELCompiler
   }
 
   def compile[T: ClassTag](string: String): Expression[T] = {
-    val parts = ElCompiler.get.parseEl(string)
+    val parts = TheELCompiler.get.parseEl(string)
 
     parts match {
       case List(StaticPart(staticStr)) =>
