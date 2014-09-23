@@ -153,7 +153,9 @@ class ResponseBuilder(request: Request,
       map + (algo -> bytes2Hex(md.digest))
     }
 
-    val bodyLength = chunks.map(_.readableBytes).sum
+    val bodyLength = chunks.foldLeft(0) { (sum, chunk) =>
+      sum + chunk.readableBytes
+    }
 
     val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
 
