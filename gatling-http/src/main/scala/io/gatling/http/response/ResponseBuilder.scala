@@ -19,6 +19,7 @@ import java.nio.charset.Charset
 import java.security.MessageDigest
 
 import com.ning.http.client.providers.netty.request.NettyRequest
+import io.gatling.http.util.HttpHelper
 
 import scala.collection.mutable.ArrayBuffer
 import scala.math.max
@@ -157,14 +158,9 @@ class ResponseBuilder(request: Request,
 
     val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
 
-    val charset = Option(headers.getFirstValue(HeaderNames.ContentType)) match {
-      case Some(contentType) =>
-        contentType.split(";")
-          .map(_.trim)
-          .collectFirst { case s if s.startsWith("charset=") => Charset.forName(s.substring("charset=".length).trim) }
-          .getOrElse(configuration.core.charset)
-      case None => configuration.core.charset
-    }
+    val charset = Option(headers.getFirstValue(HeaderNames.ContentType))
+      .map(HttpHelper.extractCharsetFromContentType)
+      .getOrElse(configuration.core.charset)
 
     val body: ResponseBody =
       if (chunks.isEmpty)

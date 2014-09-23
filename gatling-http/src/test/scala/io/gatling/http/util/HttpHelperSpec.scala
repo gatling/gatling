@@ -15,6 +15,8 @@
  */
 package io.gatling.http.util
 
+import java.nio.charset.StandardCharsets.UTF_8
+
 import org.scalatest.{ FlatSpec, Matchers }
 
 class HttpHelperSpec extends FlatSpec with Matchers {
@@ -37,5 +39,17 @@ class HttpHelperSpec extends FlatSpec with Matchers {
 
   it should "non 301 status code should be recognized as permanent redirect" in {
     HttpHelper.isPermanentRedirect(303) shouldBe false
+  }
+
+  "extractCharsetFromContentType" should "extract charset when it exists in latest position" in {
+    HttpHelper.extractCharsetFromContentType("text/plain; charset=UTF-8") shouldBe Some(UTF_8)
+  }
+
+  it should "extract charset when it exists in middle position" in {
+    HttpHelper.extractCharsetFromContentType("text/plain; charset=UTF-8; foo=bar") shouldBe Some(UTF_8)
+  }
+
+  it should "extract charset when it exists with leading and trailing spaces" in {
+    HttpHelper.extractCharsetFromContentType("text/plain;  charset=UTF-8 ; foo=bar") shouldBe Some(UTF_8)
   }
 }

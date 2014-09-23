@@ -16,6 +16,7 @@
 package io.gatling.http.util
 
 import java.net.URLDecoder
+import java.nio.charset.Charset
 
 import com.ning.http.client.uri.Uri
 
@@ -91,4 +92,20 @@ object HttpHelper extends StrictLogging {
 
   def isAbsoluteHttpUrl(url: String) = url.startsWith(HttpScheme)
   def isAbsoluteWsUrl(url: String) = url.startsWith(WsScheme)
+
+  def extractCharsetFromContentType(contentType: String): Option[Charset] =
+    contentType.indexOf("charset=") match {
+      case -1 => None
+
+      case s =>
+        val start = s + "charset=".length
+
+        val charsetString = contentType.indexOf(';', start) match {
+          case -1 => contentType.substring(start)
+
+          case e  => contentType.substring(start, e)
+        }
+
+        Some(Charset.forName(charsetString.trim))
+    }
 }
