@@ -30,32 +30,34 @@ object CookieHandling {
   def getStoredCookies(session: Session, url: String): List[Cookie] = getStoredCookies(session, Uri.create(url))
 
   def getStoredCookies(session: Session, uri: Uri): List[Cookie] =
-    session(CookieJarAttributeName).asOption[CookieJar] match {
+    cookieJar(session) match {
       case Some(cookieJar) => cookieJar.get(uri)
       case _               => Nil
     }
 
-  private def getCookieJar(session: Session) =
-    session(CookieJarAttributeName).asOption[CookieJar] match {
+  private def getOrCreateCookieJar(session: Session) =
+    cookieJar(session) match {
       case Some(cookieJar) => cookieJar
       case _               => CookieJar(Map.empty)
     }
 
   def storeCookies(session: Session, uri: Uri, cookies: List[Cookie]): Session = {
-    val cookieJar = getCookieJar(session)
+    val cookieJar = getOrCreateCookieJar(session)
     session.set(CookieJarAttributeName, cookieJar.add(uri, cookies))
   }
 
   def storeCookie(session: Session, domain: String, path: String, cookie: Cookie): Session = {
-    val cookieJar = getCookieJar(session)
+    val cookieJar = getOrCreateCookieJar(session)
     session.set(CookieJarAttributeName, cookieJar.add(domain, path, List(cookie)))
   }
 
-  val FlushSessionCookies: Expression[Session] = session => {
-    val cookieJar = getCookieJar(session)
-    val storeWithOnlyPersistentCookies = cookieJar.store.filter { case (_, storeCookie) => storeCookie.persistent }
-    session.set(CookieJarAttributeName, CookieJar(storeWithOnlyPersistentCookies)).success
-  }
+  val FlushSessionCookies: Expression[Session] = session =>
+    cookieJar(session) match {
+      case None => session.success
+      case Some(cookieJar) =>
+        val storeWithOnlyPersistentCookies = cookieJar.store.filter { case (_, storeCookie) => storeCookie.persistent }
+        session.set(CookieJarAttributeName, CookieJar(storeWithOnlyPersistentCookies)).success
+    }
 
   val FlushCookieJar: Expression[Session] = _.remove(CookieJarAttributeName).success
 }
