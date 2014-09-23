@@ -145,7 +145,7 @@ class ELParserException(string: String, msg: String) extends Exception(s"Failed 
 
 object ELCompiler {
 
-  val NamePattern = "[^.${}()]+".r
+  val NameRegex = "[^.${}()]+".r
 
   val TheELCompiler = new ThreadLocal[ELCompiler] {
     override def initialValue = new ELCompiler
@@ -205,7 +205,7 @@ class ELCompiler extends RegexParsers {
 
   def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart) *
 
-  def StaticPartPattern = new Parser[String] {
+  val staticPartPattern = new Parser[String] {
     def apply(in: Input) = {
       val source = in.source
       val offset = in.offset
@@ -219,7 +219,7 @@ class ELCompiler extends RegexParsers {
     }
   }
 
-  def staticPart: Parser[StaticPart] = StaticPartPattern ^^ { case staticStr => StaticPart(staticStr) }
+  def staticPart: Parser[StaticPart] = staticPartPattern ^^ { case staticStr => StaticPart(staticStr) }
 
   def elExpr: Parser[Part[Any]] = "${" ~> sessionObject <~ "}"
 
@@ -246,7 +246,7 @@ class ELCompiler extends RegexParsers {
       part
   }) | emptyAttribute
 
-  def objectName: Parser[AttributePart] = NamePattern ^^ { case name => AttributePart(name) }
+  def objectName: Parser[AttributePart] = NameRegex ^^ { case name => AttributePart(name) }
 
   def functionAccess(access: AccessToken) = access.token ^^ { case _ => access }
 
@@ -260,9 +260,9 @@ class ELCompiler extends RegexParsers {
       keyAccess |
       (elExpr ^^ { case _ => throw new Exception("nested attribute definition is not allowed") })
 
-  def indexAccess: Parser[AccessToken] = "(" ~> NamePattern <~ ")" ^^ { case posStr => AccessIndex(posStr, s"($posStr)") }
+  def indexAccess: Parser[AccessToken] = "(" ~> NameRegex <~ ")" ^^ { case posStr => AccessIndex(posStr, s"($posStr)") }
 
-  def keyAccess: Parser[AccessToken] = "." ~> NamePattern ^^ { case keyName => AccessKey(keyName, "." + keyName) }
+  def keyAccess: Parser[AccessToken] = "." ~> NameRegex ^^ { case keyName => AccessKey(keyName, "." + keyName) }
 
   def tupleAccess: Parser[AccessTuple] = "._" ~> "[0-9]+".r ^^ { case indexPart => AccessTuple(indexPart, "._" + indexPart) }
 
