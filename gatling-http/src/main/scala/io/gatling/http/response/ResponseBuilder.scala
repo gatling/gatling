@@ -148,18 +148,13 @@ class ResponseBuilder(request: Request,
     // ensure response doesn't end before starting
     lastByteReceived = max(lastByteReceived, firstByteReceived)
 
-    val checksums = if (computeChecksums)
-      digests.foldLeft(Map.empty[String, String]) { (map, entry) =>
+    val checksums = digests.foldLeft(Map.empty[String, String]) { (map, entry) =>
         val (algo, md) = entry
         map + (algo -> bytes2Hex(md.digest))
       }
-    else
-      Map.empty[String, String]
 
-    val bodyLength = {
-      var sum = 0
-      chunks.foreach(sum += _.readableBytes)
-      sum
+    val bodyLength = chunks.foldLeft(0) { (sum, chunk) =>
+      sum + chunk.readableBytes
     }
 
     val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
