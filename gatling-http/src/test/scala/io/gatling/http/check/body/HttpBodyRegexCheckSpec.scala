@@ -10,7 +10,6 @@ import org.scalatest.mock.MockitoSugar
 
 import io.gatling.core.session._
 import io.gatling.core.session.el._
-import io.gatling.core.validation._
 import io.gatling.core.test.ValidationValues
 import io.gatling.http.response.{ StringResponseBody, Response }
 
@@ -54,7 +53,7 @@ class HttpBodyRegexCheckSpec extends FlatSpec with Matchers with ValidationValue
     when(response.body) thenReturn StringResponseBody(""""[{"id":"1072920417"},"id":"1072920418"]"""", UTF_8)
     val regexValue = """"foo":"(.+?)""""
 
-    HttpBodyRegexCheckBuilder.regex(regexValue.el).findAll.exists.build.check(response, session).failed shouldBe Failure(s"regex($regexValue).exists, found nothing")
+    HttpBodyRegexCheckBuilder.regex(regexValue.el).findAll.exists.build.check(response, session).failed shouldBe s"regex($regexValue).exists, found nothing"
   }
 
   "regex.count.exists" should "find all occurrences" in {

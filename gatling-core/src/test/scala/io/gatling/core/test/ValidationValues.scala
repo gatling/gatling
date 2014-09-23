@@ -16,10 +16,10 @@ trait ValidationValues {
         throw new TestFailedException(s"Cannot call .value on $validation, was a Failure", 0)
     }
 
-    def failed: Failure = validation match {
+    def failed: String = validation match {
       case Success(v) =>
         throw new TestFailedException(s"Cannot call .failMessage on $validation, was a Success", 0)
-      case failure @ Failure(msg) => failure
+      case Failure(msg) => msg
     }
   }
 }
