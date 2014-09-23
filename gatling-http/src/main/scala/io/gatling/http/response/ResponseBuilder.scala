@@ -160,7 +160,7 @@ class ResponseBuilder(request: Request,
     val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
 
     val charset = Option(headers.getFirstValue(HeaderNames.ContentType))
-      .map(HttpHelper.extractCharsetFromContentType)
+      .flatMap(HttpHelper.extractCharsetFromContentType)
       .getOrElse(configuration.core.charset)
 
     val body: ResponseBody =
