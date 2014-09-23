@@ -134,8 +134,7 @@ class ResponseBuilder(request: Request,
       chunks += channelBuffer
 
     if (computeChecksums)
-      // FIXME use bodyPart.getBodyByteBuffer in 1.9.0-BETA6
-      digests.values.foreach(_.update(channelBuffer.toByteBuffer))
+      digests.values.foreach(_.update(bodyPart.getBodyByteBuffer))
   }
 
   def build: Response = {
