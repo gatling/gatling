@@ -149,9 +149,9 @@ class ResponseBuilder(request: Request,
     lastByteReceived = max(lastByteReceived, firstByteReceived)
 
     val checksums = digests.foldLeft(Map.empty[String, String]) { (map, entry) =>
-        val (algo, md) = entry
-        map + (algo -> bytes2Hex(md.digest))
-      }
+      val (algo, md) = entry
+      map + (algo -> bytes2Hex(md.digest))
+    }
 
     val bodyLength = chunks.foldLeft(0) { (sum, chunk) =>
       sum + chunk.readableBytes
