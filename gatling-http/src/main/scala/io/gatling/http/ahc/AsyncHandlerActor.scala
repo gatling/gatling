@@ -287,8 +287,11 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
       case Some(status) =>
         val uri = tx.request.ahcRequest.getUri
-        val cookies = response.cookies
-        val storeCookiesUpdate: Session => Session = CookieHandling.storeCookies(_, uri, cookies)
+        val storeCookiesUpdate: Session => Session =
+          response.cookies match {
+            case Nil     => Session.Identity
+            case cookies => CookieHandling.storeCookies(_, uri, cookies)
+          }
         val newUpdate = tx.update andThen storeCookiesUpdate
 
         if (HttpHelper.isRedirect(status.getStatusCode) && tx.request.config.followRedirect)
