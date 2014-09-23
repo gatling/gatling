@@ -68,7 +68,6 @@ object PermanentRedirect {
             ahcRequest = newAhcRequest),
             redirectCount = origTx.redirectCount + redirectCount)
 
-        //redirectTransaction(origTx, targetUri, redirectCount)
         case None => origTx
       }
     else
