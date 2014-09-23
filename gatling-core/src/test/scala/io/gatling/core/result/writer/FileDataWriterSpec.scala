@@ -27,7 +27,7 @@ class FileDataWriterSpec extends FlatSpec with Matchers {
 
   import FileDataWriter._
 
-  def logMessage(record: RequestMessage): String = new String(record.getBytes)
+  def logMessage(record: RequestMessage): String = record.serialize.toString
 
   "file data writer" should "log a standard request record" in {
     val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), Nil)
