@@ -182,8 +182,8 @@ class ResponseBuilder(request: Request,
     val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, bodyLength, charset, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
 
     responseProcessor match {
+      case None            => rawResponse
       case Some(processor) => processor.applyOrElse(rawResponse, ResponseBuilder.Identity)
-      case _               => rawResponse
     }
   }
 }
