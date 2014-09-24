@@ -225,8 +225,12 @@ Gatling lets you set some generic headers at the http protocol definition level 
 * ``header(name: String, value: Expression[String])``: set a single header.
 * ``headers(headers: Map[String, String])``: set a bunch of headers.
 
-.. warning:: ``headers`` used to be named ``baseHeaders``, please use the new name.
+e.g.::
 
+  .header("foo", "bar")
+  .headers(Map("foo" -> "bar", "baz" -> "qix"))
+
+.. warning:: ``headers`` used to be named ``baseHeaders``, please use the new name.
 
 You have also the following built-ins for the more commons headers:
 
