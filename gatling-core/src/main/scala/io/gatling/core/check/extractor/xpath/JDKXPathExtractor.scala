@@ -25,7 +25,7 @@ import org.w3c.dom.{ Node, NodeList, Document }
 
 import org.xml.sax.{ EntityResolver, InputSource }
 
-import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
+import io.gatling.core.check.extractor._
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object JDKXPathExtractor {
@@ -119,19 +119,19 @@ object JDKXPathExtractor {
     val criterionName = "xpath"
   }
 
-  class SingleXPathExtractor(val criterion: String, namespaces: List[(String, String)], occurrence: Int) extends JDKXPathExtractor[String] {
+  class SingleXPathExtractor(val criterion: String, namespaces: List[(String, String)], val occurrence: Int) extends JDKXPathExtractor[String] with FindArity {
 
     def extract(prepared: Option[Document]): Validation[Option[String]] =
       prepared.flatMap(document => JDKXPathExtractor.extractAll(document, criterion, namespaces).lift(occurrence)).success
   }
 
-  class MultipleXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends JDKXPathExtractor[Seq[String]] {
+  class MultipleXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends JDKXPathExtractor[Seq[String]] with FindAllArity {
 
     def extract(prepared: Option[Document]): Validation[Option[Seq[String]]] =
       prepared.flatMap(document => JDKXPathExtractor.extractAll(document, criterion, namespaces).liftSeqOption).success
   }
 
-  class CountXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends JDKXPathExtractor[Int] {
+  class CountXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends JDKXPathExtractor[Int] with CountArity {
 
     def extract(prepared: Option[Document]): Validation[Option[Int]] =
       prepared.map(document => JDKXPathExtractor.nodeList(document, criterion, namespaces).getLength).success

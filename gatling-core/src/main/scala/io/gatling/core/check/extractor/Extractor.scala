@@ -19,6 +19,7 @@ import io.gatling.core.validation.Validation
 
 trait Extractor[P, X] {
   def name: String
+  def arity: String
   def apply(prepared: P): Validation[Option[X]]
 }
 
@@ -31,4 +32,32 @@ abstract class CriterionExtractor[P, T, X] extends Extractor[P, X] {
     for {
       extracted <- extract(prepared).mapError(message => s" could not extract : $message")
     } yield extracted
+}
+
+trait SingleArity {
+  this: Extractor[_, _] =>
+
+  val arity = "find"
+}
+
+trait FindArity {
+  this: Extractor[_, _] =>
+
+  def occurrence: Int
+  def arity = occurrence match {
+    case 1 => "find"
+    case i => s"find($i)"
+  }
+}
+
+trait FindAllArity {
+  this: Extractor[_, _] =>
+
+  val arity = "findAll"
+}
+
+trait CountArity {
+  this: Extractor[_, _] =>
+
+  val arity = "count"
 }

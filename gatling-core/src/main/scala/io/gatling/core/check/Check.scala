@@ -81,9 +81,9 @@ case class CheckBase[R, P, X](
     for {
       extractor <- extractorExpression(session).mapError(message => s"Check extractor resolution crashed: $message")
       validator <- validatorExpression(session).mapError(message => s"Check validator resolution crashed: $message")
-      prepared <- memoizedPrepared.mapError(message => s"${extractor.name}.${validator.name} failed, could not prepare: $message")
-      actual <- extractor(prepared).mapError(message => s"${extractor.name}.${validator.name} failed, could not extract: $message")
-      matched <- validator(actual).mapError(message => s"${extractor.name}.${validator.name}, $message")
+      prepared <- memoizedPrepared.mapError(message => s"${extractor.name}.${extractor.arity}.${validator.name} failed, could not prepare: $message")
+      actual <- extractor(prepared).mapError(message => s"${extractor.name}.${extractor.arity}.${validator.name} failed, could not extract: $message")
+      matched <- validator(actual).mapError(message => s"${extractor.name}.${extractor.arity}.${validator.name}, $message")
 
     } yield CheckResult(matched, saveAs)
   }

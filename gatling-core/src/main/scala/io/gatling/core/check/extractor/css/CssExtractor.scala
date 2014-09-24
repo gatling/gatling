@@ -21,7 +21,7 @@ import io.gatling.core.util.CacheHelper
 
 import scala.collection.JavaConversions.asScalaBuffer
 
-import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
+import io.gatling.core.check.extractor._
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import jodd.csselly.{ CSSelly, CssSelector }
@@ -59,19 +59,19 @@ object CssExtractor {
 
 abstract class CssExtractor[X] extends CriterionExtractor[NodeSelector, String, X] { val criterionName = "css" }
 
-class SingleCssExtractor[X](val criterion: String, nodeAttribute: Option[String], occurrence: Int) extends CssExtractor[String] {
+class SingleCssExtractor[X](val criterion: String, nodeAttribute: Option[String], val occurrence: Int) extends CssExtractor[String] with FindArity {
 
   def extract(prepared: NodeSelector): Validation[Option[String]] =
     CssExtractor.extractAll(prepared, criterion, nodeAttribute).lift(occurrence).success
 }
 
-class MultipleCssExtractor[X](val criterion: String, nodeAttribute: Option[String]) extends CssExtractor[Seq[String]] {
+class MultipleCssExtractor[X](val criterion: String, nodeAttribute: Option[String]) extends CssExtractor[Seq[String]] with FindAllArity {
 
   def extract(prepared: NodeSelector): Validation[Option[Seq[String]]] =
     CssExtractor.extractAll(prepared, criterion, nodeAttribute).liftSeqOption.success
 }
 
-class CountCssExtractor(val criterion: String, nodeAttribute: Option[String]) extends CssExtractor[Int] {
+class CountCssExtractor(val criterion: String, nodeAttribute: Option[String]) extends CssExtractor[Int] with CountArity {
 
   def extract(prepared: NodeSelector): Validation[Option[Int]] = {
     val count = CssExtractor.extractAll(prepared, criterion, nodeAttribute).size

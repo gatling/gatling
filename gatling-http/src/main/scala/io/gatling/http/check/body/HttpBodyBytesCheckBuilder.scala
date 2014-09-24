@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.body
 
-import io.gatling.core.check.extractor.Extractor
+import io.gatling.core.check.extractor._
 import io.gatling.core.session.ExpressionWrapper
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.HttpCheck
@@ -25,7 +25,7 @@ import io.gatling.http.response.Response
 
 object HttpBodyBytesCheckBuilder {
 
-  val BodyBytesExtractor = new Extractor[Array[Byte], Array[Byte]] {
+  val BodyBytesExtractor = new Extractor[Array[Byte], Array[Byte]] with SingleArity {
     val name = "bodyBytes"
     def apply(prepared: Array[Byte]) = Some(prepared).success
   }.expression

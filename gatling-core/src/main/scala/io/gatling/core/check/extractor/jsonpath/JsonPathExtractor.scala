@@ -17,7 +17,7 @@ package io.gatling.core.check.extractor.jsonpath
 
 import io.gatling.core.util.CacheHelper
 
-import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
+import io.gatling.core.check.extractor._
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.jsonpath.JsonPath
@@ -41,19 +41,19 @@ object JsonPathExtractor {
 
 abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] { val criterionName = "jsonPath" }
 
-class SingleJsonPathExtractor[X: JsonFilter](val criterion: String, occurrence: Int) extends JsonPathExtractor[X] {
+class SingleJsonPathExtractor[X: JsonFilter](val criterion: String, val occurrence: Int) extends JsonPathExtractor[X] with FindArity {
 
   def extract(prepared: Any): Validation[Option[X]] =
     JsonPathExtractor.extractAll(prepared, criterion).map(_.toSeq.lift(occurrence))
 }
 
-class MultipleJsonPathExtractor[X: JsonFilter](val criterion: String) extends JsonPathExtractor[Seq[X]] {
+class MultipleJsonPathExtractor[X: JsonFilter](val criterion: String) extends JsonPathExtractor[Seq[X]] with FindAllArity {
 
   def extract(prepared: Any): Validation[Option[Seq[X]]] =
     JsonPathExtractor.extractAll(prepared, criterion).map(_.toVector.liftSeqOption)
 }
 
-class CountJsonPathExtractor(val criterion: String) extends JsonPathExtractor[Int] {
+class CountJsonPathExtractor(val criterion: String) extends JsonPathExtractor[Int] with CountArity {
 
   def extract(prepared: Any): Validation[Option[Int]] =
     JsonPathExtractor.extractAll[Any](prepared, criterion).map(i => Some(i.size))

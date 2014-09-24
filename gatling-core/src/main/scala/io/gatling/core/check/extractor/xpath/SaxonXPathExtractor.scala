@@ -24,7 +24,7 @@ import scala.collection.JavaConversions._
 
 import org.xml.sax.InputSource
 
-import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
+import io.gatling.core.check.extractor._
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import javax.xml.transform.sax.SAXSource
@@ -80,7 +80,7 @@ object SaxonXPathExtractor {
     val criterionName = "xpath"
   }
 
-  class SingleXPathExtractor(val criterion: String, namespaces: List[(String, String)], occurrence: Int) extends SaxonXPathExtractor[String] {
+  class SingleXPathExtractor(val criterion: String, namespaces: List[(String, String)], val occurrence: Int) extends SaxonXPathExtractor[String] with FindArity {
 
     def extract(prepared: Option[XdmNode]): Validation[Option[String]] = {
       val result = for {
@@ -93,7 +93,7 @@ object SaxonXPathExtractor {
     }
   }
 
-  class MultipleXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends SaxonXPathExtractor[Seq[String]] {
+  class MultipleXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends SaxonXPathExtractor[Seq[String]] with FindAllArity {
 
     def extract(prepared: Option[XdmNode]): Validation[Option[Seq[String]]] = {
       val result = for {
@@ -105,7 +105,7 @@ object SaxonXPathExtractor {
     }
   }
 
-  class CountXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends SaxonXPathExtractor[Int] {
+  class CountXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends SaxonXPathExtractor[Int] with CountArity {
 
     def extract(prepared: Option[XdmNode]): Validation[Option[Int]] = {
       val count = prepared.map(SaxonXPathExtractor.evaluate(criterion, namespaces, _).size).getOrElse(0)

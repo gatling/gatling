@@ -53,7 +53,7 @@ class HttpBodyRegexCheckSpec extends FlatSpec with Matchers with ValidationValue
     when(response.body) thenReturn StringResponseBody(""""[{"id":"1072920417"},"id":"1072920418"]"""", UTF_8)
     val regexValue = """"foo":"(.+?)""""
 
-    HttpBodyRegexCheckBuilder.regex(regexValue.el).findAll.exists.build.check(response, session).failed shouldBe s"regex($regexValue).exists, found nothing"
+    HttpBodyRegexCheckBuilder.regex(regexValue.el).findAll.exists.build.check(response, session).failed shouldBe s"regex($regexValue).findAll.exists, found nothing"
   }
 
   "regex.count.exists" should "find all occurrences" in {

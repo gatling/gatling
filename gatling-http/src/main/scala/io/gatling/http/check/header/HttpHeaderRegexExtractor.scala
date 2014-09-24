@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.header
 
-import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
+import io.gatling.core.check.extractor._
 import io.gatling.core.check.extractor.regex.{ GroupExtractor, RegexExtractor }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.response.Response
@@ -31,19 +31,19 @@ object HttpHeaderRegexExtractor {
 
 abstract class HttpHeaderRegexExtractor[X] extends CriterionExtractor[Response, (String, String), X] { val criterionName = "headerRegex" }
 
-class SingleHttpHeaderRegexExtractor[X](val criterion: (String, String), occurrence: Int)(implicit groupExtractor: GroupExtractor[X]) extends HttpHeaderRegexExtractor[X] {
+class SingleHttpHeaderRegexExtractor[X](val criterion: (String, String), val occurrence: Int)(implicit groupExtractor: GroupExtractor[X]) extends HttpHeaderRegexExtractor[X] with FindArity {
 
   def extract(prepared: Response): Validation[Option[X]] =
     HttpHeaderRegexExtractor.extractHeadersValues(prepared, criterion).lift(occurrence).success
 }
 
-class MultipleHttpHeaderRegexExtractor[X](val criterion: (String, String))(implicit groupExtractor: GroupExtractor[X]) extends HttpHeaderRegexExtractor[Seq[X]] {
+class MultipleHttpHeaderRegexExtractor[X](val criterion: (String, String))(implicit groupExtractor: GroupExtractor[X]) extends HttpHeaderRegexExtractor[Seq[X]] with FindAllArity {
 
   def extract(prepared: Response): Validation[Option[Seq[X]]] =
     HttpHeaderRegexExtractor.extractHeadersValues(prepared, criterion).liftSeqOption.success
 }
 
-class CountHttpHeaderRegexExtractor(val criterion: (String, String)) extends HttpHeaderRegexExtractor[Int] {
+class CountHttpHeaderRegexExtractor(val criterion: (String, String)) extends HttpHeaderRegexExtractor[Int] with CountArity {
 
   def extract(prepared: Response): Validation[Option[Int]] =
     HttpHeaderRegexExtractor.extractHeadersValues[String](prepared, criterion).liftSeqOption.map(_.size).success

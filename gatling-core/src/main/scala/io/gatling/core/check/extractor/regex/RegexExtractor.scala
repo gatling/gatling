@@ -19,7 +19,7 @@ import java.util.regex.Pattern
 
 import io.gatling.core.util.CacheHelper
 
-import io.gatling.core.check.extractor.{ CriterionExtractor, LiftedSeqOption }
+import io.gatling.core.check.extractor._
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
@@ -42,7 +42,7 @@ object RegexExtractor {
 
 abstract class RegexExtractor[X] extends CriterionExtractor[CharSequence, String, X] { val criterionName = "regex" }
 
-class SingleRegexExtractor[X: GroupExtractor](val criterion: String, occurrence: Int) extends RegexExtractor[X] {
+class SingleRegexExtractor[X: GroupExtractor](val criterion: String, val occurrence: Int) extends RegexExtractor[X] with FindArity {
 
   def extract(prepared: CharSequence): Validation[Option[X]] = {
     val matcher = RegexExtractor.cached(criterion).matcher(prepared)
@@ -50,12 +50,12 @@ class SingleRegexExtractor[X: GroupExtractor](val criterion: String, occurrence:
   }
 }
 
-class MultipleRegexExtractor[X: GroupExtractor](val criterion: String) extends RegexExtractor[Seq[X]] {
+class MultipleRegexExtractor[X: GroupExtractor](val criterion: String) extends RegexExtractor[Seq[X]] with FindAllArity {
 
   def extract(prepared: CharSequence): Validation[Option[Seq[X]]] = RegexExtractor.extractAll(prepared, criterion).liftSeqOption.success
 }
 
-class CountRegexExtractor(val criterion: String) extends RegexExtractor[Int] {
+class CountRegexExtractor(val criterion: String) extends RegexExtractor[Int] with CountArity {
 
   def extract(prepared: CharSequence): Validation[Option[Int]] = {
     val matcher = RegexExtractor.cached(criterion).matcher(prepared)
