@@ -27,6 +27,13 @@ Gatling requires **at least JDK7u6**, yet we recommend that you use an up-to-dat
 
 For all details regarding the installation and the tuning of the operating system (OS), please refer to the :ref:`operations` section.
 
+.. warning::
+  Gatling launch scripts and Gatling maven plugin honor ``JAVA_HOME`` env var if it's set.
+  OS, like OSX, have their own tricky way of discovering which version of Java to run,
+  so you might end up running a different version than the one ``java -version`` tells you.
+  If you get strange errors such as ``Unsupported major.minor version 51.0`` and you were expecting to run a JDK7,
+  you might want to explicitly set ``JAVA_HOME``.
+
 A Word on Encoding
 ------------------
 
