@@ -17,7 +17,6 @@ package io.gatling.charts.component
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-import io.gatling.charts.config.ChartsFiles.GlobalPageName
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.reader.DataReader.NoPlotMagicValue
 import io.gatling.core.util.NumberHelper._
