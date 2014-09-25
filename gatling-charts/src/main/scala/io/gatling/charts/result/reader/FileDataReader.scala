@@ -120,8 +120,6 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
   val buckets = StatsHelper.buckets(0, runEnd - runStart, step)
   val bucketFunction = StatsHelper.timeToBucketNumber(runStart, step, buckets.length) _
-  System.err.println(s"start=$runStart end=$runEnd step=$step size=${buckets.length}")
-  System.err.println(s"buckets=${buckets.toList}")
 
   private def secondPass(records: Iterator[String]): ResultsHolder = {
 
