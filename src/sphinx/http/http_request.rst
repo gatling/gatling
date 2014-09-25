@@ -380,8 +380,8 @@ For example::
   object Templates {
     val template: Expression[String] = (session: Session) =>
     for {
-      foo = session("foo").validate[String]
-      bar = session("bar").validate[String]
+      foo <- session("foo").validate[String]
+      bar <- session("bar").validate[String]
     } yield s"""{
       foo: $foo,
       bar: $bar
