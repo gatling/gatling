@@ -18,7 +18,7 @@ package io.gatling.charts.result.reader.buffers
 import scala.collection.mutable
 import io.gatling.charts.result.reader.{ RequestRecord, FileDataReader }
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.Group
+import io.gatling.core.result.{ IntVsTimePlot, Group }
 import io.gatling.core.result.message.Status
 import io.gatling.core.result.reader.GeneralStats
 import io.gatling.charts.result.reader.GroupRecord
@@ -64,13 +64,21 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
   }
 }
 
-class GeneralStatsBuffer(duration: Long) extends CountBuffer {
+class GeneralStatsBuffer(duration: Long) {
+
+  val counts = mutable.Map.empty[Int, Int]
   val digest = new AVLTreeDigest(100.0)
   var sumOfSquares = 0L
   var sum = 0L
 
-  override def update(time: Int): Unit = {
-    super.update(time)
+  def update(time: Int): Unit = {
+
+    val newCount = counts.get(time) match {
+      case Some(count) => count + 1
+      case None        => 1
+    }
+    counts.put(time, newCount)
+
     digest.add(time)
     sumOfSquares += time.toLong * time.toLong
     sum += time
@@ -95,4 +103,6 @@ class GeneralStatsBuffer(duration: Long) extends CountBuffer {
       GeneralStats(min.toInt, max.toInt, valuesCount, mean, stdDev, percentile1, percentile2, meanRequestsPerSec)
     }
   }
+
+  def distribution: Iterable[IntVsTimePlot] = counts.map { case (time, count) => IntVsTimePlot(time, count) }
 }

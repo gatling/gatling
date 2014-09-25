@@ -13,20 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.charts.result.reader.stats
+package io.gatling.charts.result.reader.buffers
 
-object StatsHelper {
-  def buckets(min: Long, max: Long, step: Double): Array[Int] = {
-    val halfStep = step / 2
-    (0 until math.ceil((max - min) / step).toInt).map(i => math.round(min + step * i + halfStep).toInt).toArray
-  }
+trait Buckets {
 
-  def step(min: Long, max: Long, maxPlots: Int): Double = {
-    val range = max - min
-    if (range < maxPlots) 1.0
-    else range / maxPlots.toDouble
-  }
-
-  def timeToBucketNumber(start: Long, step: Double, maxPlots: Int)(time: Long): Int =
-    math.min(math.round((time - start) / step).toInt, maxPlots - 1)
+  def buckets: Array[Int]
 }

@@ -68,13 +68,13 @@ trait SessionDeltaPerSecBuffers {
   def addSessionBuffers(record: UserRecord): Unit = {
     record.event match {
       case Start =>
-        getSessionDeltaPerSecBuffers(None).addStart(record.startDateBucket)
-        getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.startDateBucket)
+        getSessionDeltaPerSecBuffers(None).addStart(record.startBucket)
+        getSessionDeltaPerSecBuffers(Some(record.scenario)).addStart(record.startBucket)
         orphanStartRecords += record.userId -> record
 
       case End =>
-        getSessionDeltaPerSecBuffers(None).addEnd(record.endDateBucket)
-        getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.endDateBucket)
+        getSessionDeltaPerSecBuffers(None).addEnd(record.endBucket)
+        getSessionDeltaPerSecBuffers(Some(record.scenario)).addEnd(record.endBucket)
         orphanStartRecords -= record.userId
     }
   }

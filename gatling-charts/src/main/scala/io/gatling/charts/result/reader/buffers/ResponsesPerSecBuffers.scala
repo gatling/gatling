@@ -22,17 +22,18 @@ import io.gatling.core.result.Group
 import io.gatling.core.result.message.Status
 
 trait ResponsesPerSecBuffers {
+  this: Buckets =>
 
   val responsesPerSecBuffers = mutable.Map.empty[BufferKey, CountBuffer]
 
   def getResponsesPerSecBuffer(requestName: Option[String], group: Option[Group], status: Option[Status]): CountBuffer =
-    responsesPerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, status), new CountBuffer)
+    responsesPerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, status), new CountBuffer(buckets))
 
   def updateResponsesPerSecBuffers(record: RequestRecord): Unit = {
-    getResponsesPerSecBuffer(Some(record.name), record.group, None).update(record.responseEndBucket)
-    getResponsesPerSecBuffer(Some(record.name), record.group, Some(record.status)).update(record.responseEndBucket)
+    getResponsesPerSecBuffer(Some(record.name), record.group, None).update(record.endBucket)
+    getResponsesPerSecBuffer(Some(record.name), record.group, Some(record.status)).update(record.endBucket)
 
-    getResponsesPerSecBuffer(None, None, None).update(record.responseEndBucket)
-    getResponsesPerSecBuffer(None, None, Some(record.status)).update(record.responseEndBucket)
+    getResponsesPerSecBuffer(None, None, None).update(record.endBucket)
+    getResponsesPerSecBuffer(None, None, Some(record.status)).update(record.endBucket)
   }
 }

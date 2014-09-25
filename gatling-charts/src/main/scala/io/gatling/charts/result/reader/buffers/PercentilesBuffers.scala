@@ -15,35 +15,42 @@
  */
 package io.gatling.charts.result.reader.buffers
 
-import scala.collection.mutable
 import com.tdunning.math.stats.{ AVLTreeDigest, TDigest }
-import io.gatling.core.result.PercentilesVsTimePlot
+import io.gatling.core.result.{ Percentiles, PercentilesVsTimePlot }
 
-class PercentilesBuffers {
+class PercentilesBuffers(buckets: Array[Int]) {
 
-  val digests = mutable.Map.empty[Int, TDigest]
+  val digests: Array[Option[TDigest]] = Array.fill(buckets.length)(None)
 
-  def update(bucket: Int, value: Int): Unit = {
-    val digest = digests.getOrElseUpdate(bucket, new AVLTreeDigest(100.0))
-    digest.add(value)
+  def update(bucketNumber: Int, value: Int): Unit = {
+
+    digests(bucketNumber) match {
+      case Some(digest) => digest.add(value)
+      case None =>
+        val digest = new AVLTreeDigest(100.0)
+        digest.add(value)
+        digests(bucketNumber) = Some(digest)
+    }
   }
 
-  def percentiles: Seq[PercentilesVsTimePlot] =
-    digests
+  def percentiles: Iterable[PercentilesVsTimePlot] =
+    digests.view.zipWithIndex
       .map {
-        case (time, histogram) =>
-          PercentilesVsTimePlot(
-            time,
-            histogram.quantile(0).toInt,
-            histogram.quantile(0.25).toInt,
-            histogram.quantile(0.5).toInt,
-            histogram.quantile(0.75).toInt,
-            histogram.quantile(0.80).toInt,
-            histogram.quantile(0.85).toInt,
-            histogram.quantile(0.90).toInt,
-            histogram.quantile(0.95).toInt,
-            histogram.quantile(0.99).toInt,
-            histogram.quantile(1.0).toInt)
-      }.toSeq
-      .sortBy(_.time)
+        case (digestO, bucketNumber) =>
+          val time = buckets(bucketNumber)
+          val percentiles = digestO.map { digest =>
+            Percentiles(digest.quantile(0).toInt,
+              digest.quantile(0.25).toInt,
+              digest.quantile(0.5).toInt,
+              digest.quantile(0.75).toInt,
+              digest.quantile(0.80).toInt,
+              digest.quantile(0.85).toInt,
+              digest.quantile(0.90).toInt,
+              digest.quantile(0.95).toInt,
+              digest.quantile(0.99).toInt,
+              digest.quantile(1.0).toInt)
+          }
+
+          PercentilesVsTimePlot(time, percentiles)
+      }
 }

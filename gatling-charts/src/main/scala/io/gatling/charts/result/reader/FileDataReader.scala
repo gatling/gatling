@@ -56,7 +56,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
   private def doWithInputFiles[T](f: Iterator[String] => T): T = {
 
-      def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] = streams.map(Source.fromInputStream(_)(configuration.core.codec).getLines()).reduce((first, second) => first ++ second)
+      def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] =
+        streams.map(Source.fromInputStream(_)(configuration.core.codec).getLines()).reduce((first, second) => first ++ second)
 
     val streams = inputFiles.map(new FileInputStream(_))
     try f(multipleFileIterator(streams))
@@ -116,14 +117,17 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
   val FirstPassData(runStart, runEnd, runMessage) = doWithInputFiles(firstPass)
 
   val step = StatsHelper.step(math.floor(runStart / SecMillisecRatio).toInt, math.ceil(runEnd / SecMillisecRatio).toInt, configuration.charting.maxPlotsPerSeries) * SecMillisecRatio
-  val bucketFunction = StatsHelper.bucket(_: Int, 0, (runEnd - runStart).toInt, step, step / 2)
-  val buckets = StatsHelper.bucketsList(0, (runEnd - runStart).toInt, step)
 
-  private def secondPass(bucketFunction: Int => Int)(records: Iterator[String]): ResultsHolder = {
+  val buckets = StatsHelper.buckets(0, runEnd - runStart, step)
+  val bucketFunction = StatsHelper.timeToBucketNumber(runStart, step, buckets.length) _
+  System.err.println(s"start=$runStart end=$runEnd step=$step size=${buckets.length}")
+  System.err.println(s"buckets=${buckets.toList}")
+
+  private def secondPass(records: Iterator[String]): ResultsHolder = {
 
     logger.info("Second pass")
 
-    val resultsHolder = new ResultsHolder(runStart, runEnd)
+    val resultsHolder = new ResultsHolder(runStart, runEnd, buckets)
 
     var count = 0
 
@@ -151,7 +155,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     resultsHolder
   }
 
-  val resultsHolder = doWithInputFiles(secondPass(bucketFunction))
+  val resultsHolder = doWithInputFiles(secondPass)
 
   println("Parsing log file(s) done")
 
@@ -205,10 +209,13 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     } else {
       // use buckets
       val step = StatsHelper.step(min, max, maxPlots)
-      val halfStep = step / 2
-      val buckets = StatsHelper.bucketsList(min, max, step)
+      val buckets = StatsHelper.buckets(min, max, step)
 
-      val bucketFunction = StatsHelper.bucket(_: Int, min, max, step, halfStep)
+      val halfStep = step / 2
+      val bucketFunction = (t: Int) => {
+        val value = t min (max - 1)
+        math.round(value - (value - min) % step + halfStep).toInt
+      }
 
         def process(buffer: Iterable[IntVsTimePlot]): Seq[PercentVsTimePlot] = {
 
@@ -276,22 +283,21 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
       ("failed", counts.ko))
   }
 
-  def responseTimePercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Seq[PercentilesVsTimePlot] =
+  def responseTimePercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Iterable[PercentilesVsTimePlot] =
     resultsHolder.getResponseTimePercentilesBuffers(requestName, group, status).percentiles
 
-  def latencyPercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Seq[PercentilesVsTimePlot] =
+  def latencyPercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Iterable[PercentilesVsTimePlot] =
     resultsHolder.getLatencyPercentilesBuffers(requestName, group, status).percentiles
 
   private def timeAgainstGlobalNumberOfRequestsPerSec(buffer: PercentilesBuffers, status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
 
     val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None, None).counts
 
-    buffer
-      .digests
-      .map {
-        case (time, percentiles) =>
-          val count = globalCountsByBucket(time)
-          IntVsTimePlot(math.round(count / step * 1000).toInt, percentiles.quantile(0.95).toInt)
+    buffer.digests.view.zipWithIndex
+      .collect {
+        case (Some(digest), bucketNumer) =>
+          val count = globalCountsByBucket(bucketNumer)
+          IntVsTimePlot(math.round(count / step * 1000).toInt, digest.quantile(0.95).toInt)
       }
       .toSeq
       .sortBy(_.time)
@@ -307,10 +313,10 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     timeAgainstGlobalNumberOfRequestsPerSec(percentilesBuffer, status, requestName, group)
   }
 
-  def groupCumulatedResponseTimePercentilesOverTime(status: Status, group: Group): Seq[PercentilesVsTimePlot] =
+  def groupCumulatedResponseTimePercentilesOverTime(status: Status, group: Group): Iterable[PercentilesVsTimePlot] =
     resultsHolder.getGroupCumulatedResponseTimePercentilesBuffers(group, status).percentiles
 
-  def groupDurationPercentilesOverTime(status: Status, group: Group): Seq[PercentilesVsTimePlot] =
+  def groupDurationPercentilesOverTime(status: Status, group: Group): Iterable[PercentilesVsTimePlot] =
     resultsHolder.getGroupDurationPercentilesBuffers(group, status).percentiles
 
   def errors(requestName: Option[String], group: Option[Group]): Seq[ErrorStats] = {

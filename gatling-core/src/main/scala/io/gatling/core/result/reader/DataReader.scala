@@ -40,8 +40,8 @@ abstract class DataReader(runUuid: String) {
   def responseTimeDistribution(maxPlots: Int, requestName: Option[String] = None, group: Option[Group] = None): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
   def requestGeneralStats(requestName: Option[String] = None, group: Option[Group] = None, status: Option[Status] = None): GeneralStats
   def numberOfRequestInResponseTimeRange(requestName: Option[String] = None, group: Option[Group] = None): Seq[(String, Int)]
-  def responseTimePercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Seq[PercentilesVsTimePlot]
-  def latencyPercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Seq[PercentilesVsTimePlot]
+  def responseTimePercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Iterable[PercentilesVsTimePlot]
+  def latencyPercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Iterable[PercentilesVsTimePlot]
   def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group] = None): Seq[IntVsTimePlot]
   def latencyAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group] = None): Seq[IntVsTimePlot]
 
@@ -51,6 +51,6 @@ abstract class DataReader(runUuid: String) {
   def groupDurationGeneralStats(group: Group, status: Option[Status]): GeneralStats
   def groupCumulatedResponseTimeDistribution(maxPlots: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
   def groupDurationDistribution(maxPlots: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
-  def groupCumulatedResponseTimePercentilesOverTime(status: Status, group: Group): Seq[PercentilesVsTimePlot]
-  def groupDurationPercentilesOverTime(status: Status, group: Group): Seq[PercentilesVsTimePlot]
+  def groupCumulatedResponseTimePercentilesOverTime(status: Status, group: Group): Iterable[PercentilesVsTimePlot]
+  def groupDurationPercentilesOverTime(status: Status, group: Group): Iterable[PercentilesVsTimePlot]
 }

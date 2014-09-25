@@ -22,11 +22,12 @@ import io.gatling.core.result.Group
 import io.gatling.core.result.message.Status
 
 trait GroupPercentilesBuffers {
+  this: Buckets =>
 
   val groupPercentilesBuffers = mutable.Map.empty[BufferKey, (PercentilesBuffers, PercentilesBuffers)]
 
   private def percentilesBufferPair(group: Group, status: Status): (PercentilesBuffers, PercentilesBuffers) =
-    groupPercentilesBuffers.getOrElseUpdate(BufferKey(None, Some(group), Some(status)), (new PercentilesBuffers, new PercentilesBuffers))
+    groupPercentilesBuffers.getOrElseUpdate(BufferKey(None, Some(group), Some(status)), (new PercentilesBuffers(buckets), new PercentilesBuffers(buckets)))
 
   def getGroupCumulatedResponseTimePercentilesBuffers(group: Group, status: Status): PercentilesBuffers =
     percentilesBufferPair(group, status)._1
@@ -37,7 +38,7 @@ trait GroupPercentilesBuffers {
   def updateGroupPercentilesBuffers(record: GroupRecord): Unit = {
     import record._
     val (cumulatedResponseTimePercentilesBuffers, durationPercentilesBuffers) = percentilesBufferPair(group, status)
-    cumulatedResponseTimePercentilesBuffers.update(startDateBucket, cumulatedResponseTime)
-    durationPercentilesBuffers.update(startDateBucket, duration)
+    cumulatedResponseTimePercentilesBuffers.update(startBucket, cumulatedResponseTime)
+    durationPercentilesBuffers.update(startBucket, duration)
   }
 }

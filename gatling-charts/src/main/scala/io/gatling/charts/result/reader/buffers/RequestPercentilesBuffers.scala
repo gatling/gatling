@@ -21,11 +21,12 @@ import io.gatling.core.result.message.Status
 import io.gatling.charts.result.reader.RequestRecord
 
 trait RequestPercentilesBuffers {
+  this: Buckets =>
 
   val requestPercentilesBuffers = mutable.Map.empty[BufferKey, (PercentilesBuffers, PercentilesBuffers)]
 
   private def percentilesBufferPair(requestName: Option[String], group: Option[Group], status: Status): (PercentilesBuffers, PercentilesBuffers) =
-    requestPercentilesBuffers.getOrElseUpdate(BufferKey(requestName, group, Some(status)), (new PercentilesBuffers, new PercentilesBuffers))
+    requestPercentilesBuffers.getOrElseUpdate(BufferKey(requestName, group, Some(status)), (new PercentilesBuffers(buckets), new PercentilesBuffers(buckets)))
 
   def getResponseTimePercentilesBuffers(requestName: Option[String], group: Option[Group], status: Status): PercentilesBuffers =
     percentilesBufferPair(requestName, group, status)._1
@@ -41,7 +42,7 @@ trait RequestPercentilesBuffers {
 
   def updateRequestPercentilesBuffers(record: RequestRecord): Unit = {
     import record._
-    updateRequestPercentilesBuffers(Some(name), group, status, requestStartBucket, responseTime, latency)
-    updateRequestPercentilesBuffers(None, None, status, requestStartBucket, responseTime, latency)
+    updateRequestPercentilesBuffers(Some(name), group, status, startBucket, responseTime, latency)
+    updateRequestPercentilesBuffers(None, None, status, startBucket, responseTime, latency)
   }
 }

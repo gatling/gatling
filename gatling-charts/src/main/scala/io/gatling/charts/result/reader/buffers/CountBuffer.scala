@@ -15,20 +15,16 @@
  */
 package io.gatling.charts.result.reader.buffers
 
-import scala.collection.mutable
-
 import io.gatling.core.result.IntVsTimePlot
 
-class CountBuffer {
-  val counts = mutable.Map.empty[Int, Int]
+class CountBuffer(buckets: Array[Int]) {
+  val counts: Array[Int] = Array.fill(buckets.length)(0)
 
-  def update(time: Int): Unit = {
-    val newCount = counts.get(time) match {
-      case Some(count) => count + 1
-      case None        => 1
-    }
-    counts.put(time, newCount)
+  def update(bucketNumber: Int): Unit = {
+    counts(bucketNumber) = counts(bucketNumber) + 1
   }
 
-  def distribution: Iterable[IntVsTimePlot] = counts.map { case (time, count) => IntVsTimePlot(time, count) }
+  def distribution: Iterable[IntVsTimePlot] =
+    counts.view.zipWithIndex
+      .map { case (count, bucketNumber) => IntVsTimePlot(buckets(bucketNumber), count) }
 }
