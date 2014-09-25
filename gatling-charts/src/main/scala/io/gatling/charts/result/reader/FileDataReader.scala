@@ -293,8 +293,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
     buffer.digests.view.zipWithIndex
       .collect {
-        case (Some(digest), bucketNumer) =>
-          val count = globalCountsByBucket(bucketNumer)
+        case (Some(digest), bucketNumber) =>
+          val count = globalCountsByBucket(bucketNumber)
           IntVsTimePlot(math.round(count / step * 1000).toInt, digest.quantile(0.95).toInt)
       }
       .toSeq
