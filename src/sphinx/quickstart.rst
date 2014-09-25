@@ -90,9 +90,15 @@ Using the Recorder
 
 To ease the creation of the scenario, we will use the *Recorder*, a tool provided with Gatling that allows you to record your actions on a web application and export them as a Gatling scenario.
 
-This tool is launched with a script located in the *bin* directory::
+This tool is launched with a script located in the *bin* directory:
 
-  ~$ $GATLING_HOME/bin/recorder.sh/bat
+* On Linux/Unix::
+
+  $GATLING_HOME/bin/recorder.sh
+
+* On Windows::
+
+  %GATLING_HOME%\bin\recorder.bat
 
 Once launched, the following GUI lets you configure how requests and responses will be recorded.
 
@@ -198,10 +204,15 @@ What does it mean?
 Running Gatling
 ---------------
 
-Launch the second script located in the *bin* directory::
+Launch the second script located in the *bin* directory:
 
-  ~$ $GATLING_HOME/bin/gatling.sh/bat
+* On Linux/Unix::
 
+  $GATLING_HOME/bin/gatling.sh
+
+* On Windows::
+
+  %GATLING_HOME%\bin\gatling.bat
 
 You should see a menu with the simulation examples::
 
