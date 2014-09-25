@@ -200,7 +200,7 @@ Running Gatling
 
 Launch the second script located in the *bin* directory::
 
-  ~$ $GATLING_HOME/bin/gatling.sh/bat
+  ~$ $GATLING_HOME/bin/gatling.sh
 
 
 You should see a menu with the simulation examples::
