@@ -22,6 +22,7 @@ import com.ning.http.client.uri.Uri
 
 import scala.collection.breakOut
 import scala.io.Codec.UTF8
+import scala.util.Try
 
 import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, Realm }
 import com.ning.http.client.Realm.AuthScheme
@@ -98,14 +99,30 @@ object HttpHelper extends StrictLogging {
       case -1 => None
 
       case s =>
-        val start = s + "charset=".length
+        var start = s + "charset=".length
 
-        val charsetString = contentType.indexOf(';', start) match {
-          case -1 => contentType.substring(start)
+        var end = contentType.indexOf(';', start) match {
+          case -1 => contentType.length
 
-          case e  => contentType.substring(start, e)
+          case e  => e
         }
 
-        Some(Charset.forName(charsetString.trim))
+        Try {
+          while (contentType.charAt(start) == ' ' && start < end)
+            start += 1
+
+          while (contentType.charAt(end - 1) == ' ' && end > start)
+            end -= 1
+
+          if (contentType.charAt(start) == '"' && start < end)
+            start += 1
+
+          if (contentType.charAt(end - 1) == '"' && end > start)
+            end -= 1
+
+          val charsetString = contentType.substring(start, end)
+
+          Charset.forName(charsetString)
+        }.toOption
     }
 }

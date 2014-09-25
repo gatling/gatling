@@ -45,11 +45,28 @@ class HttpHelperSpec extends FlatSpec with Matchers {
     HttpHelper.extractCharsetFromContentType("text/plain; charset=UTF-8") shouldBe Some(UTF_8)
   }
 
+  it should "extract charset when it exists in latest position, whatever the case" in {
+    HttpHelper.extractCharsetFromContentType("text/plain; charset=utf-8") shouldBe Some(UTF_8)
+  }
+
   it should "extract charset when it exists in middle position" in {
     HttpHelper.extractCharsetFromContentType("text/plain; charset=UTF-8; foo=bar") shouldBe Some(UTF_8)
   }
 
   it should "extract charset when it exists with leading and trailing spaces" in {
-    HttpHelper.extractCharsetFromContentType("text/plain;  charset=UTF-8 ; foo=bar") shouldBe Some(UTF_8)
+    HttpHelper.extractCharsetFromContentType("text/plain; charset= UTF-8 ; foo=bar") shouldBe Some(UTF_8)
+  }
+
+  it should "extract charset when it's wrapped in double quotes" in {
+    HttpHelper.extractCharsetFromContentType("""text/plain;  charset="UTF-8" ; foo=bar""") shouldBe Some(UTF_8)
+  }
+
+  it should "not crash when double quotes are unbalanced" in {
+    HttpHelper.extractCharsetFromContentType("""text/plain;  charset="UTF-8 ; foo=bar""") shouldBe Some(UTF_8)
+    HttpHelper.extractCharsetFromContentType("""text/plain;  charset=UTF-8" ; foo=bar""") shouldBe Some(UTF_8)
+  }
+
+  it should "not crash when charset is unknown" in {
+    HttpHelper.extractCharsetFromContentType("text/plain; charset=Foo") shouldBe None
   }
 }
