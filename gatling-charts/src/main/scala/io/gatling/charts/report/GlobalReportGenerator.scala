@@ -42,10 +42,10 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
         val oks = dataReader.numberOfRequestsPerSecond(Some(OK)).sortBy(_.time)
         val kos = dataReader.numberOfRequestsPerSecond(Some(KO)).sortBy(_.time)
 
-        val allSeries = new Series[IntVsTimePlot]("All requests", all, List(Blue))
-        val kosSeries = new Series[IntVsTimePlot]("Failed requests", kos, List(Red))
-        val oksSeries = new Series[IntVsTimePlot]("Succeeded requests", oks, List(Green))
-        val pieRequestsSeries = new Series[PieSlice]("Distribution", PieSlice("Success", count(oks)) :: PieSlice("Failures", count(kos)) :: Nil, List(Green, Red))
+        val allSeries = new Series[IntVsTimePlot](Series.All, all, List(Blue))
+        val kosSeries = new Series[IntVsTimePlot](Series.KO, kos, List(Red))
+        val oksSeries = new Series[IntVsTimePlot](Series.OK, oks, List(Green))
+        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(oks)) :: PieSlice(Series.KO, count(kos)) :: Nil, List(Green, Red))
 
         componentLibrary.getRequestsChartComponent(dataReader.runStart, allSeries, kosSeries, oksSeries, pieRequestsSeries)
       }
@@ -55,18 +55,18 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
         val oks = dataReader.numberOfResponsesPerSecond(Some(OK)).sortBy(_.time)
         val kos = dataReader.numberOfResponsesPerSecond(Some(KO)).sortBy(_.time)
 
-        val allSeries = new Series[IntVsTimePlot]("All responses", all, List(Blue))
-        val kosSeries = new Series[IntVsTimePlot]("Failed responses", kos, List(Red))
-        val oksSeries = new Series[IntVsTimePlot]("Succeeded responses", oks, List(Green))
-        val pieRequestsSeries = new Series[PieSlice]("Distribution", PieSlice("Success", count(oks)) :: PieSlice("Failures", count(kos)) :: Nil, List(Green, Red))
+        val allSeries = new Series[IntVsTimePlot](Series.All, all, List(Blue))
+        val kosSeries = new Series[IntVsTimePlot](Series.KO, kos, List(Red))
+        val oksSeries = new Series[IntVsTimePlot](Series.OK, oks, List(Green))
+        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(oks)) :: PieSlice(Series.KO, count(kos)) :: Nil, List(Green, Red))
 
         componentLibrary.getResponsesChartComponent(dataReader.runStart, allSeries, kosSeries, oksSeries, pieRequestsSeries)
       }
 
       def responseTimeDistributionChartComponent: Component = {
         val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100)
-        val okDistributionSeries = new Series("Success", okDistribution, List(Blue))
-        val koDistributionSeries = new Series("Failure", koDistribution, List(Red))
+        val okDistributionSeries = new Series(Series.OK, okDistribution, List(Blue))
+        val koDistributionSeries = new Series(Series.KO, koDistribution, List(Red))
 
         componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
       }
@@ -74,7 +74,7 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
       def responseTimeChartComponent: Component = {
         val responseTimesPercentilesSuccessData = dataReader.responseTimePercentilesOverTime(OK, None, None)
 
-        val responseTimesSuccessSeries = new Series[PercentilesVsTimePlot]("Response Time Percentiles over Time (success)", responseTimesPercentilesSuccessData, ReportGenerator.PercentilesColors)
+        val responseTimesSuccessSeries = new Series[PercentilesVsTimePlot](s"Response Time Percentiles over Time (${Series.OK})", responseTimesPercentilesSuccessData, ReportGenerator.PercentilesColors)
 
         componentLibrary.getRequestDetailsResponseTimeChartComponent(dataReader.runStart, responseTimesSuccessSeries)
       }

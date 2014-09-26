@@ -17,6 +17,13 @@ package io.gatling.core
 
 package result {
 
+  object Series {
+    val OK = "OK"
+    val KO = "KO"
+    val All = "All"
+    val Distribution = "Distribution"
+  }
+
   case class Series[X](name: String, data: Iterable[X], colors: List[String])
   case class IntVsTimePlot(time: Int, value: Int)
   case class PercentVsTimePlot(time: Int, value: Double) {
