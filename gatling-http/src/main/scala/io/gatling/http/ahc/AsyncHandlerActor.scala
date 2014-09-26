@@ -68,19 +68,29 @@ object AsyncHandlerActor extends AkkaDefaults {
 
 class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
-  override def preRestart(reason: Throwable, message: Option[Any]): Unit =
+  override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
+
+    def abort(tx: HttpTx): Unit = {
+      logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
+      if (tx.primary)
+        tx.next ! tx.session.markAsFailed
+      else {
+        val uri = tx.request.ahcRequest.getUri
+        tx.next ! RegularResourceFetched(uri, KO, Session.Identity)
+      }
+    }
+
     message match {
       case Some(OnCompleted(tx, _)) =>
-        logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
-        tx.next ! tx.session.markAsFailed
+        abort(tx)
 
       case Some(OnThrowable(tx, _, _)) =>
-        logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
-        tx.next ! tx.session.markAsFailed
+        abort(tx)
 
       case _ =>
         logger.error(s"AsyncHandlerActor crashed on unknown message $message, dropping")
     }
+  }
 
   def receive = {
     case OnCompleted(tx, response)               => processResponse(tx, response)
