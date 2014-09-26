@@ -70,15 +70,15 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
   override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
 
-    def abort(tx: HttpTx): Unit = {
-      logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
-      if (tx.primary)
-        tx.next ! tx.session.markAsFailed
-      else {
-        val uri = tx.request.ahcRequest.getUri
-        tx.next ! RegularResourceFetched(uri, KO, Session.Identity)
+      def abort(tx: HttpTx): Unit = {
+        logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
+        if (tx.primary)
+          tx.next ! tx.session.markAsFailed
+        else {
+          val uri = tx.request.ahcRequest.getUri
+          tx.next ! RegularResourceFetched(uri, KO, Session.Identity)
+        }
       }
-    }
 
     message match {
       case Some(OnCompleted(tx, _)) =>
