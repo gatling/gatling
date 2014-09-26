@@ -142,7 +142,7 @@ trait ConditionalStatements[B] extends Execs[B] {
   }
 
   private def randomSwitch(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]): B =
-    exec(new RandomSwitchBuilder(possibilities, elseNext))
+    exec(RandomSwitchBuilder(possibilities, elseNext))
 
   /**
    * Add a switch in the chain. Selection uses a uniformly distributed random strategy

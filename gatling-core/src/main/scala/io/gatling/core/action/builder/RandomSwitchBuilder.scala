@@ -28,11 +28,25 @@ import io.gatling.core.session.Expression
 import io.gatling.core.structure.ChainBuilder
 import io.gatling.core.validation.SuccessWrapper
 
-class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder with StrictLogging {
+object RandomSwitchBuilder {
+
+  val Accuracy = 10000
+
+  def percentageToInt(p: Double) = (p * Accuracy / 100).toInt
+
+  def randomWithinAccuracy: Int = ThreadLocalRandom.current.nextInt(Accuracy)
+
+  def apply(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]) =
+    new RandomSwitchBuilder(possibilities.map { case (p, c) => (percentageToInt(p), c) }, elseNext)
+}
+
+class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder with StrictLogging {
+
+  import RandomSwitchBuilder._
 
   val sum = possibilities.map(_._1).sum
-  require(sum <= 100.0, "Can't build a random switch with percentage sum > 100")
-  if (sum == 100.0 && elseNext.isDefined)
+  require(sum <= Accuracy, s"Random switch weights sum is ${sum / Accuracy}, mustn't be bigger than 100%")
+  if (sum == Accuracy && elseNext.isDefined)
     logger.warn("Random switch has a 100% sum, yet a else is defined?!")
 
   def build(next: ActorRef, protocols: Protocols) = {
@@ -48,7 +62,7 @@ class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext:
     val nextAction: Expression[ActorRef] = _ => {
 
         @tailrec
-        def determineNextAction(index: Double, possibilities: List[(Double, ActorRef)]): ActorRef = possibilities match {
+        def determineNextAction(index: Int, possibilities: List[(Int, ActorRef)]): ActorRef = possibilities match {
           case Nil => elseNextActor
           case (percentage, possibleAction) :: others =>
             if (percentage >= index)
@@ -57,7 +71,7 @@ class RandomSwitchBuilder(possibilities: List[(Double, ChainBuilder)], elseNext:
               determineNextAction(index - percentage, others)
         }
 
-      determineNextAction(ThreadLocalRandom.current.nextDouble(0.0, 100.0), possibleActions).success
+      determineNextAction(randomWithinAccuracy, possibleActions).success
     }
 
     actor(new Switch(nextAction, next))
