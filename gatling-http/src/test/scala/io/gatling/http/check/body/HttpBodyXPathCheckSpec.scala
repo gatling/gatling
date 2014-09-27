@@ -8,10 +8,10 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.test.ValidationValues
 import io.gatling.http.Predef._
-import io.gatling.http.response.{Response, StringResponseBody}
+import io.gatling.http.response.{ Response, StringResponseBody }
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 
 import scala.collection.mutable
 import scala.xml.Elem
@@ -41,8 +41,8 @@ class HttpBodyXPathCheckSpec extends FlatSpec with Matchers with ValidationValue
   it should "find first occurrence" in {
 
     val response = mockResponse(<root>
-      <id>1072920417</id> <id>1072920418</id>
-    </root>)
+                                  <id>1072920417</id><id>1072920418</id>
+                                </root>)
 
     xpath("//id").find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
@@ -50,8 +50,8 @@ class HttpBodyXPathCheckSpec extends FlatSpec with Matchers with ValidationValue
   "xpath.findAll.exists" should "find all occurrences" in {
 
     val response = mockResponse(<root>
-      <id>1072920417</id> <id>1072920418</id>
-    </root>)
+                                  <id>1072920417</id><id>1072920418</id>
+                                </root>)
 
     xpath("//id").findAll.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
   }
@@ -59,8 +59,8 @@ class HttpBodyXPathCheckSpec extends FlatSpec with Matchers with ValidationValue
   it should "fail when finding nothing instead of returning an empty Seq" in {
 
     val response = mockResponse(<root>
-      <id>1072920417</id> <id>1072920418</id>
-    </root>)
+                                  <id>1072920417</id><id>1072920418</id>
+                                </root>)
 
     xpath("//fo").findAll.exists.build.check(response, session).failed shouldBe "xpath(//fo).findAll.exists, found nothing"
   }
@@ -68,8 +68,8 @@ class HttpBodyXPathCheckSpec extends FlatSpec with Matchers with ValidationValue
   "xpath.count.exists" should "find all occurrences" in {
 
     val response = mockResponse(<root>
-      <id>1072920417</id> <id>1072920418</id>
-    </root>)
+                                  <id>1072920417</id><id>1072920418</id>
+                                </root>)
 
     xpath("//id").count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
   }
@@ -77,8 +77,8 @@ class HttpBodyXPathCheckSpec extends FlatSpec with Matchers with ValidationValue
   it should "return 0 when finding nothing instead of failing" in {
 
     val response = mockResponse(<root>
-      <id>1072920417</id> <id>1072920418</id>
-    </root>)
+                                  <id>1072920417</id><id>1072920418</id>
+                                </root>)
 
     xpath("//fo").count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(0), None)
   }
