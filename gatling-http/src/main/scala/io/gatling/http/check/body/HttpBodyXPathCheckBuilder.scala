@@ -15,25 +15,20 @@
  */
 package io.gatling.http.check.body
 
-import java.io.InputStream
-
 import com.typesafe.scalalogging.slf4j.StrictLogging
-
-import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
-import io.gatling.core.check.extractor.xpath.{ JDKXPathExtractor, SaxonXPathExtractor }
-import io.gatling.core.session.{ Expression, RichExpression }
+import io.gatling.core.check._
+import io.gatling.core.check.extractor.xpath.XPathCheckBuilder
 import io.gatling.core.validation._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
-import net.sf.saxon.s9api.XdmNode
-import org.w3c.dom.Document
+import org.xml.sax.InputSource
 
-object HttpBodyXPathCheckBuilder extends StrictLogging {
+object HttpBodyXPathCheckBuilder extends XPathCheckBuilder[HttpCheck, Response] with StrictLogging {
 
-  def preparer[T](f: InputStream => T)(response: Response): Validation[Option[T]] =
+  def preparer[T](f: InputSource => T)(response: Response): Validation[Option[T]] =
     try {
-      val root = if (response.hasResponseBody) Some(f(response.body.stream)) else None
+      val root = if (response.hasResponseBody) Some(f(new InputSource(response.body.stream))) else None
       root.success
 
     } catch {
@@ -43,21 +38,5 @@ object HttpBodyXPathCheckBuilder extends StrictLogging {
         message.failure
     }
 
-  val SaxonXPathPreparer: Preparer[Response, Option[XdmNode]] = preparer(SaxonXPathExtractor.parse)
-
-  val JDKXPathPreparer: Preparer[Response, Option[Document]] = preparer(JDKXPathExtractor.parse)
-
-  def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
-    if (SaxonXPathExtractor.Enabled)
-      new DefaultMultipleFindCheckBuilder[HttpCheck, Response, Option[XdmNode], String](StreamBodyExtender, SaxonXPathPreparer) {
-        def findExtractor(occurrence: Int) = expression.map(new SaxonXPathExtractor.SingleXPathExtractor(_, namespaces, occurrence))
-        def findAllExtractor = expression.map(new SaxonXPathExtractor.MultipleXPathExtractor(_, namespaces))
-        def countExtractor = expression.map(new SaxonXPathExtractor.CountXPathExtractor(_, namespaces))
-      }
-    else
-      new DefaultMultipleFindCheckBuilder[HttpCheck, Response, Option[Document], String](StreamBodyExtender, JDKXPathPreparer) {
-        def findExtractor(occurrence: Int) = expression.map(new JDKXPathExtractor.SingleXPathExtractor(_, namespaces, occurrence))
-        def findAllExtractor = expression.map(new JDKXPathExtractor.MultipleXPathExtractor(_, namespaces))
-        def countExtractor = expression.map(new JDKXPathExtractor.CountXPathExtractor(_, namespaces))
-      }
+  val CheckBuilder: Extender[HttpCheck, Response] = StreamBodyExtender
 }
