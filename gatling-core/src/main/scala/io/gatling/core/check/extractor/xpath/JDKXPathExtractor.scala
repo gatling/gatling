@@ -63,12 +63,8 @@ object JDKXPathExtractor {
     }
   }
 
-  private def parse(inputSource: InputSource): Document =
+  def parse(inputSource: InputSource): Document =
     DocumentBuilderTL.get.parse(inputSource)
-
-  def parse(is: InputStream): Document = parse(new InputSource(is))
-
-  def parse(reader: Reader): Document = parse(new InputSource(reader))
 
   def nodeList(document: Document, expression: String, namespaces: List[(String, String)]): NodeList = {
     val path = XPathFactoryTL.get.newXPath

@@ -48,15 +48,11 @@ object SaxonXPathExtractor {
     xPathCompiler
   }
 
-  private def parse(inputSource: InputSource) = {
+  def parse(inputSource: InputSource) = {
     inputSource.setEncoding(configuration.core.encoding)
     val source = new SAXSource(inputSource)
     DocumentBuilder.build(source)
   }
-
-  def parse(is: InputStream): XdmNode = parse(new InputSource(is))
-
-  def parse(reader: Reader): XdmNode = parse(new InputSource(reader))
 
   def xpath(expression: String, xPathCompiler: XPathCompiler): XPathExecutable = xPathCompiler.compile(expression)
 

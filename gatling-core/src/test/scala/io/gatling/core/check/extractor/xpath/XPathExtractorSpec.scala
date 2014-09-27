@@ -20,6 +20,7 @@ import org.scalatest.{ FlatSpec, Matchers }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationValues
 import io.gatling.core.util.IO._
+import org.xml.sax.InputSource
 
 class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
@@ -29,12 +30,12 @@ class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
   def xmdNode(file: String) =
     withCloseable(getClass.getResourceAsStream(file)) { is =>
-      Some(SaxonXPathExtractor.parse(is))
+      Some(SaxonXPathExtractor.parse(new InputSource(is)))
     }
 
   def document(file: String) =
     withCloseable(getClass.getResourceAsStream(file)) { is =>
-      Some(JDKXPathExtractor.parse(is))
+      Some(JDKXPathExtractor.parse(new InputSource(is)))
     }
 
   def testCount(expression: String, file: String, expected: Int): Unit = {
