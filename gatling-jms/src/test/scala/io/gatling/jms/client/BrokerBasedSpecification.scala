@@ -26,15 +26,17 @@ trait BrokerBasedSpecification extends FlatSpecLike with Matchers with BeforeAnd
 
   override def beforeAll() = startBroker()
 
-  override def afterAll() = stopBroker()
+  override def afterAll() = {
+    cleanUpActions.foreach(f => f())
+    stopBroker()
+  }
 
+  var cleanUpActions: List[(() => Unit)] = Nil
   lazy val broker: BrokerService = BrokerFactory.createBroker("broker://()/gatling?persistent=false&useJmx=false")
 
   def startBroker() = {
-    {
-      broker.start()
-      broker.waitUntilStarted()
-    }
+    broker.start()
+    broker.waitUntilStarted()
   }
 
   def stopBroker() = {
