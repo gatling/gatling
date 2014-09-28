@@ -37,9 +37,6 @@ class JmsMockCustomer(client: SimpleJmsClient, mockResponse: PartialFunction[Mes
 
 trait JmsMockingSpec extends BrokerBasedSpecification {
 
-  // a way to check how data are reported to writers
-  //  System.setProperty(ConfigKeys.data.Writers, "file")
-
   def jmsProtocol = jms
     .connectionFactoryName("ConnectionFactory")
     .url("vm://gatling?broker.persistent=false&broker.useJmx=false")
