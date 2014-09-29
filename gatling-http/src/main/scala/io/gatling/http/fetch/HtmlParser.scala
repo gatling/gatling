@@ -70,7 +70,7 @@ class HtmlParser extends StrictLogging {
 
   var inStyle = false
 
-  def parseHtml(htmlContent: String, userAgent: Option[UserAgent]): HtmlResources = {
+  private def parseHtml(htmlContent: String, userAgent: Option[UserAgent]): HtmlResources = {
 
     var base: Option[String] = None
     val rawResources = mutable.ArrayBuffer.empty[RawResource]
@@ -191,7 +191,15 @@ class HtmlParser extends StrictLogging {
     try {
       Jodd.newLagartoParser(htmlContent.unsafeChars, ieVersion).parse(visitor)
     } catch {
-      case e: Exception => logger.error("Jodd Largarto HTML parser crashed, please report the bug and provide crashing the HTML response", e)
+      case e: Exception =>
+        if (logger.underlying.isDebugEnabled)
+          logger.debug(s"""HTML parser crashed, there's a chance your page wasn't proper HTML:
+>>>>>>>>>>>>>>>>>>>>>>>
+$htmlContent
+<<<<<<<<<<<<<<<<<<<<<<<""")
+        else
+          logger.error("HTML parser crashed, there's a chance your page wasn't proper HTML, enable debug on 'io.gatling.http.fetch' logger to get the HTML content", e)
+
     }
     HtmlResources(rawResources, base)
   }
