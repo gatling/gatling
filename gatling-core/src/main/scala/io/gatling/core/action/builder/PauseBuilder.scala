@@ -30,14 +30,14 @@ import io.gatling.core.session.Expression
  * @constructor create a new PauseBuilder
  * @param duration mean duration of the generated pause
  */
-class PauseBuilder(duration: Expression[Duration]) extends ActionBuilder {
+class PauseBuilder(duration: Expression[Duration], force: Boolean) extends ActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols) = {
 
     val pauseProtocol = protocols.getProtocol[PauseProtocol].getOrElse(throw new UnsupportedOperationException("Pause protocol hasn't been registered"))
 
     pauseProtocol.pauseType match {
-      case Disabled => next
+      case Disabled if !force => next
       case pauseType =>
         val generator = pauseType.generator(duration)
         actor(new Pause(generator, next))

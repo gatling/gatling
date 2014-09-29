@@ -97,6 +97,9 @@ There are several ways of using it:
   * ``pause(min: String, max: String, unit: TimeUnit)``
   * ``pause(min: Expression[Duration], max: Expression[Duration])``
 
+.. note::
+  All those methods also have an optional force boolean parameter that make the pause ignore a potential ``Disabled`` pause set up.
+
 .. _scenario-pace:
 
 ``pace``

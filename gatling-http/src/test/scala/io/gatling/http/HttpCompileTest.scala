@@ -138,7 +138,7 @@ class HttpCompileTest extends Simulation {
               latencyInMillis.lessThan(1000)))
         .during(12000 milliseconds, "foo") {
           exec(http("In During 1").get("http://localhost:3000/aaaa"))
-            .pause(2)
+            .pause(2, true)
             .repeat(2, "tutu") {
               exec(session => {
                 println("--nested loop: " + session("tutu"))

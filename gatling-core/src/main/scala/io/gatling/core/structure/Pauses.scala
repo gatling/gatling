@@ -28,14 +28,6 @@ import io.gatling.core.validation.SuccessWrapper
 
 trait Pauses[B] extends Execs[B] {
 
-  /**
-   * Method used to define a pause based on a duration defined in the session
-   *
-   * @param duration Expression that when resolved, provides the pause duration
-   * @return a new builder with a pause added to its actions
-   */
-  def pause(duration: Duration): B = pause(duration.expression)
-
   private def durationExpression(duration: String, unit: TimeUnit): Expression[Duration] = {
     val durationValue = duration.el[Int]
     durationValue(_).map(i => Duration(i, unit))
@@ -73,15 +65,31 @@ trait Pauses[B] extends Execs[B] {
         }
       }
 
-  def pause(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = pause(durationExpression(duration, unit))
+  /**
+   * Method used to define a pause based on a duration defined in the session
+   *
+   * @param duration Expression that when resolved, provides the pause duration
+   * @return a new builder with a pause added to its actions
+   */
+  def pause(duration: Duration): B = pause(duration, false)
+  def pause(duration: Duration, force: Boolean): B = pause(duration.expression, force)
 
-  def pause(min: Duration, max: Duration): B = pause(durationExpression(min, max))
+  def pause(duration: String): B = pause(duration, false)
+  def pause(duration: String, force: Boolean): B = pause(duration, TimeUnit.SECONDS, force)
+  def pause(duration: String, unit: TimeUnit): B = pause(duration, unit, false)
+  def pause(duration: String, unit: TimeUnit, force: Boolean): B = pause(durationExpression(duration, unit), force)
 
-  def pause(min: String, max: String, unit: TimeUnit): B = pause(durationExpression(min, max, unit))
+  def pause(min: Duration, max: Duration): B = pause(min, max, false)
+  def pause(min: Duration, max: Duration, force: Boolean): B = pause(durationExpression(min, max), force)
 
-  def pause(min: Expression[Duration], max: Expression[Duration]): B = pause(durationExpression(min, max))
+  def pause(min: String, max: String, unit: TimeUnit): B = pause(min, max, unit, false)
+  def pause(min: String, max: String, unit: TimeUnit, force: Boolean): B = pause(durationExpression(min, max, unit), force)
 
-  def pause(duration: Expression[Duration]): B = exec(new PauseBuilder(duration))
+  def pause(min: Expression[Duration], max: Expression[Duration]): B = pause(min, max, false)
+  def pause(min: Expression[Duration], max: Expression[Duration], force: Boolean): B = pause(durationExpression(min, max), force)
+
+  def pause(duration: Expression[Duration]): B = pause(duration, false)
+  def pause(duration: Expression[Duration], force: Boolean): B = exec(new PauseBuilder(duration, force))
 
   def pace(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = pace(durationExpression(duration, unit))
 
