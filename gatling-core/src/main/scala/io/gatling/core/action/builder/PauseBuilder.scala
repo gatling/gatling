@@ -21,7 +21,7 @@ import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.action.Pause
 import io.gatling.core.config.Protocols
-import io.gatling.core.pause.{ Disabled, PauseProtocol }
+import io.gatling.core.pause.{ PauseType, Disabled, PauseProtocol }
 import io.gatling.core.session.Expression
 
 /**
@@ -30,14 +30,14 @@ import io.gatling.core.session.Expression
  * @constructor create a new PauseBuilder
  * @param duration mean duration of the generated pause
  */
-class PauseBuilder(duration: Expression[Duration], force: Boolean) extends ActionBuilder {
+class PauseBuilder(duration: Expression[Duration], force: Option[PauseType]) extends ActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols) = {
 
     val pauseProtocol = protocols.getProtocol[PauseProtocol].getOrElse(throw new UnsupportedOperationException("Pause protocol hasn't been registered"))
 
-    pauseProtocol.pauseType match {
-      case Disabled if !force => next
+    force.getOrElse(pauseProtocol.pauseType) match {
+      case Disabled => next
       case pauseType =>
         val generator = pauseType.generator(duration)
         actor(new Pause(generator, next))

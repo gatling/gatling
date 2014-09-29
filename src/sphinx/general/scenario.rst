@@ -98,7 +98,8 @@ There are several ways of using it:
   * ``pause(min: Expression[Duration], max: Expression[Duration])``
 
 .. note::
-  All those methods also have an optional force boolean parameter that make the pause ignore a potential ``Disabled`` pause set up.
+  All those methods also have an optional force parameter that overrides the pause type defined in the set up.
+  Possible values are ``disabledPauses``, ``constantPauses`` and ``exponentialPauses``.
 
 .. _scenario-pace:
 

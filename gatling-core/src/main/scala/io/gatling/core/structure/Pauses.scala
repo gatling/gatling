@@ -18,6 +18,8 @@ package io.gatling.core.structure
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 
+import io.gatling.core.pause.PauseType
+
 import scala.concurrent.duration.{ Duration, DurationLong }
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
@@ -71,25 +73,31 @@ trait Pauses[B] extends Execs[B] {
    * @param duration Expression that when resolved, provides the pause duration
    * @return a new builder with a pause added to its actions
    */
-  def pause(duration: Duration): B = pause(duration, false)
-  def pause(duration: Duration, force: Boolean): B = pause(duration.expression, force)
+  def pause(duration: Duration): B = pause(duration, None)
+  def pause(duration: Duration, force: PauseType): B = pause(duration, Some(force))
+  private def pause(duration: Duration, force: Option[PauseType]): B = pause(duration.expression, force)
 
-  def pause(duration: String): B = pause(duration, false)
-  def pause(duration: String, force: Boolean): B = pause(duration, TimeUnit.SECONDS, force)
-  def pause(duration: String, unit: TimeUnit): B = pause(duration, unit, false)
-  def pause(duration: String, unit: TimeUnit, force: Boolean): B = pause(durationExpression(duration, unit), force)
+  def pause(duration: String): B = pause(duration, TimeUnit.SECONDS, None)
+  def pause(duration: String, force: PauseType): B = pause(duration, TimeUnit.SECONDS, Some(force))
+  def pause(duration: String, unit: TimeUnit): B = pause(duration, unit, None)
+  def pause(duration: String, unit: TimeUnit, force: PauseType): B = pause(duration, unit, Some(force))
+  private def pause(duration: String, unit: TimeUnit, force: Option[PauseType]): B = pause(durationExpression(duration, unit), force)
 
-  def pause(min: Duration, max: Duration): B = pause(min, max, false)
-  def pause(min: Duration, max: Duration, force: Boolean): B = pause(durationExpression(min, max), force)
+  def pause(min: Duration, max: Duration): B = pause(min, max, None)
+  def pause(min: Duration, max: Duration, force: PauseType): B = pause(min, max, Some(force))
+  private def pause(min: Duration, max: Duration, force: Option[PauseType]): B = pause(durationExpression(min, max), force)
 
-  def pause(min: String, max: String, unit: TimeUnit): B = pause(min, max, unit, false)
-  def pause(min: String, max: String, unit: TimeUnit, force: Boolean): B = pause(durationExpression(min, max, unit), force)
+  def pause(min: String, max: String, unit: TimeUnit): B = pause(min, max, unit, None)
+  def pause(min: String, max: String, unit: TimeUnit, force: PauseType): B = pause(min, max, unit, Some(force))
+  private def pause(min: String, max: String, unit: TimeUnit, force: Option[PauseType]): B = pause(durationExpression(min, max, unit), force)
 
-  def pause(min: Expression[Duration], max: Expression[Duration]): B = pause(min, max, false)
-  def pause(min: Expression[Duration], max: Expression[Duration], force: Boolean): B = pause(durationExpression(min, max), force)
+  def pause(min: Expression[Duration], max: Expression[Duration]): B = pause(min, max, None)
+  def pause(min: Expression[Duration], max: Expression[Duration], force: PauseType): B = pause(min, max, Some(force))
+  private def pause(min: Expression[Duration], max: Expression[Duration], force: Option[PauseType]): B = pause(min, max, force)
 
-  def pause(duration: Expression[Duration]): B = pause(duration, false)
-  def pause(duration: Expression[Duration], force: Boolean): B = exec(new PauseBuilder(duration, force))
+  def pause(duration: Expression[Duration]): B = pause(duration, None)
+  def pause(duration: Expression[Duration], force: PauseType): B = pause(duration, Some(force))
+  private def pause(duration: Expression[Duration], force: Option[PauseType]): B = exec(new PauseBuilder(duration, force))
 
   def pace(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = pace(durationExpression(duration, unit))
 

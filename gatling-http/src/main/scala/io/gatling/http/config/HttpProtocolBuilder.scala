@@ -23,7 +23,6 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.session._
 import io.gatling.core.session.el.EL
-import io.gatling.core.validation._
 import io.gatling.http.HeaderNames._
 import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.check.HttpCheck
