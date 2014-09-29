@@ -1,7 +1,7 @@
-.. _1.5.x-to-2.0.0-RC5:
+.. _1.5.x-to-2.0.0-RC6:
 
 #################################
-Migrating from 1.5.x to 2.0.0-RC5
+Migrating from 1.5.x to 2.0.0-RC6
 #################################
 
 Global changes
@@ -129,7 +129,7 @@ Checks
 Structure Elements
 ------------------
 
-The first parameter of ``foreach`` is now an ``Expression`` (e.g. a Gatling EL string), not the name of the attribute to loop over.
+* The first parameter of ``foreach`` is now an ``Expression`` (e.g. a Gatling EL string), not the name of the attribute to loop over.
 
 For example, if you have a ``list`` attribute in the user's session holding a list of values::
 
@@ -142,6 +142,8 @@ becomes::
   .foreach("${list}", "elem") {
     ...
   }
+
+* In ``asLongAs``, ``exitASAP`` now defaults to true. For more information on the change of behaviour it introduces, see :ref:`asLongAs documentation <scenario-aslongas>`.
 
 Session
 -------

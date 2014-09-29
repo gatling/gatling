@@ -1,7 +1,7 @@
-.. _2.0.0-M3a-to-2.0-RC5:
+.. _2.0.0-M3a-to-2.0-RC6:
 
 #####################################
-Migrating from 2.0.0-M3a to 2.0.0-RC5
+Migrating from 2.0.0-M3a to 2.0.0-RC6
 #####################################
 
 Global changes
@@ -41,6 +41,11 @@ Injection DSL
 
 Core
 ====
+
+Structure Elements
+------------------
+
+In ``asLongAs``, ``exitASAP`` now defaults to true. For more information on the change of behaviour it introduces, see :ref:`asLongAs documentation <scenario-aslongas>`.
 
 Checks
 ------

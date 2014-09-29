@@ -6,5 +6,5 @@ Migration guides
 .. toctree::
     :maxdepth: 1
 
-    1.5.x-to-2.0.0-RC5
-    2.0.0-M3a-to-2.0.0-RC5
+    1.5.x-to-2.0.0-RC6
+    2.0.0-M3a-to-2.0.0-RC6
