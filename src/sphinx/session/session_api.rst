@@ -32,6 +32,8 @@ In Gatling, entries in this map are called **Session attributes**.
 
   A ``Session`` is actually the message that are passed along a scenario workflow.
 
+.. _session-inject:
+
 Injecting Data
 --------------
 
@@ -43,6 +45,8 @@ There's 3 ways of doing that:
 * extracting data from responses and saving them, e.g. with :ref:`HTTP Check's saveAs <http-check-saving>`
 * manually with the Session API
 
+.. _session-fetch:
+
 Fetching Data
 -------------
 
@@ -52,6 +56,13 @@ There's 2 ways of doing that:
 
 * using Gatling's :ref:`Expression Language <el>`
 * manually with the Session API
+
+.. note::
+  If Gatling complains that an attribute could not be found, check that:
+  * you don't have a typo in a feeder file header
+  * you don't have a typo in a Gatling EL expression
+  * your feed action is properly called (e.g. could be be properly chained with other action because a dot is missing)
+  * the check that should have saved it actually failed
 
 .. _session-api:
 
