@@ -52,7 +52,7 @@ object HtmlParser {
   val StyleTagName = "style".toCharArray
 
   val ArchiveAttribute = "archive".toCharArray
-  val BackgroungAttribute = "background".toCharArray
+  val BackgroundAttribute = "background".toCharArray
   val CodeAttribute = "code".toCharArray
   val CodeBaseAttribute = "codebase".toCharArray
   val DataAttribute = "data".toCharArray
@@ -147,7 +147,7 @@ class HtmlParser extends StrictLogging {
                   addResource(tag, SrcAttribute, RegularRawResource)
 
                 } else if (tag.nameEquals(BodyTagName)) {
-                  addResource(tag, BackgroungAttribute, RegularRawResource)
+                  addResource(tag, BackgroundAttribute, RegularRawResource)
 
                 } else if (tag.nameEquals(AppletTagName)) {
                   val code = tag.getAttributeValue(CodeAttribute).toString
