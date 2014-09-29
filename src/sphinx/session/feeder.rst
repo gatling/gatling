@@ -278,7 +278,7 @@ User Dependent Data
 
 Sometimes, you could want to filter the injected data depending on some information from the Session.
 
-Feeder can achieve this as it's just an Iterator, so it's unaware of the context.
+Feeder can't achieve this as it's just an Iterator, so it's unaware of the context.
 
 You'll then have to write your own injection logic, but you can of course reuse Gatling parsers.
 
