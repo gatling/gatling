@@ -121,6 +121,7 @@ object ConfigKeys {
       val HttpClientCodecMaxInitialLineLength = "gatling.http.ahc.httpClientCodecMaxInitialLineLength"
       val HttpClientCodecMaxHeaderSize = "gatling.http.ahc.httpClientCodecMaxHeaderSize"
       val HttpClientCodecMaxChunkSize = "gatling.http.ahc.httpClientCodecMaxChunkSize"
+      val KeepEncodingHeader = "gatling.http.ahc.keepEncodingHeader"
     }
   }
 

@@ -147,6 +147,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
       override def newNettyWebSocket(channel: Channel, nettyConfig: NettyAsyncHttpProviderConfig): NettyWebSocket =
         new NettyWebSocket(channel, nettyConfig, new JArrayList[WebSocketListener](1))
     })
+    nettyConfig.setKeepEncodingHeader(configuration.http.ahc.keepEncodingHeader)
     nettyConfig
   }
 
