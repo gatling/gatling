@@ -232,7 +232,7 @@ Outgoing Proxy
 --------------
 
 You can tell Gatling to use a proxy to send the HTTP requests.
-You can set the HTTP proxy, on optional HTTPS proxy and optional credentials for the proxy::
+You can optionally set a different port for HTTPS and credentials::
 
   http("Getting issues")
     .get("https://github.com/gatling/gatling/issues")

@@ -19,14 +19,14 @@ import io.gatling.core.config.Credentials
 
 object HttpProxyBuilder {
 
-  def apply(host: String, port: Int) = new HttpProxyBuilder(Proxy(host, port))
+  def apply(host: String, port: Int) = new HttpProxyBuilder(Proxy(host, port, port))
 
   implicit def toProxy(proxyBuilder: HttpProxyBuilder): Proxy = proxyBuilder.proxy
 }
 
 class HttpProxyBuilder(val proxy: Proxy) {
 
-  def httpsPort(port: Int) = new HttpProxyBuilder(proxy.copy(securePort = Some(port)))
+  def httpsPort(port: Int) = new HttpProxyBuilder(proxy.copy(securePort = port))
 
   def credentials(username: String, password: String) = new HttpProxyBuilder(proxy.copy(credentials = Some(Credentials(username, password))))
 }

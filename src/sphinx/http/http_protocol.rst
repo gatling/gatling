@@ -362,7 +362,7 @@ Proxy parameters
 ----------------
 
 You can tell Gatling to use a proxy to send the HTTP requests.
-You can set the HTTP proxy, optionally a HTTPS proxy and credentials for the proxy::
+You can optionally set a different port for HTTPS and credentials::
 
   val httpConf = http.proxy(Proxy("myProxyHost", 8080)
                      .httpsPort(8143)

@@ -75,8 +75,7 @@ object HttpProtocol {
       reconnect = false,
       maxReconnects = None),
     proxyPart = HttpProtocolProxyPart(
-      proxy = None,
-      secureProxy = None,
+      proxies = None,
       proxyExceptions = Nil))
 
   val WarmUpUrls = mutable.Set.empty[String]
@@ -136,10 +135,11 @@ case class HttpProtocol(
           .setHeader(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
           .setRequestTimeout(2000)
 
-        if (url.startsWith("http://"))
-          proxyPart.proxy.foreach(requestBuilder.setProxyServer)
-        else
-          proxyPart.secureProxy.foreach(requestBuilder.setProxyServer)
+        proxyPart.proxies.foreach {
+          case (httpProxy, httpsProxy) =>
+            val proxy = if (url.startsWith("https")) httpsProxy else httpProxy
+            requestBuilder.setProxyServer(proxy)
+        }
 
         try {
           HttpEngine.instance.DefaultAHC.executeRequest(requestBuilder.build).get
@@ -218,6 +218,5 @@ case class HttpProtocolWsPart(
 }
 
 case class HttpProtocolProxyPart(
-  proxy: Option[ProxyServer],
-  secureProxy: Option[ProxyServer],
+  proxies: Option[(ProxyServer, ProxyServer)],
   proxyExceptions: Seq[String])

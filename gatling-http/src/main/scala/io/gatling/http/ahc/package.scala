@@ -26,14 +26,11 @@ package object ahc {
 
   implicit class ProxyConverter(val proxy: Proxy) extends AnyVal {
 
-    def proxyServer: ProxyServer = {
+    private def proxyServer(protocol: Protocol, port: Int): ProxyServer = {
       val (username, password) = proxy.credentials.map(c => (c.username, c.password)).getOrElse(NoCredentials)
-      new ProxyServer(proxy.host, proxy.port, username, password)
+      new ProxyServer(protocol, proxy.host, port, username, password)
     }
 
-    def secureProxyServer: Option[ProxyServer] = proxy.securePort.map { securePort =>
-      val (username, password) = proxy.credentials.map(c => (c.username, c.password)).getOrElse(NoCredentials)
-      new ProxyServer(Protocol.HTTPS, proxy.host, securePort, username, password)
-    }
+    def proxyServers: (ProxyServer, ProxyServer) = (proxyServer(Protocol.HTTP, proxy.port), proxyServer(Protocol.HTTPS, proxy.securePort))
   }
 }

@@ -20,6 +20,6 @@ import io.gatling.core.config.Credentials
 case class Proxy(
   host: String,
   port: Int,
-  securePort: Option[Int] = None,
+  securePort: Int,
   credentials: Option[Credentials] = None)
 

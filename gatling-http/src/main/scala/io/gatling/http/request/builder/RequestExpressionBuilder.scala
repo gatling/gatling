@@ -49,10 +49,11 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
 
   def configureProxy(uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
     if (!protocol.proxyPart.proxyExceptions.contains(uri.getHost)) {
-      if (HttpHelper.isSecure(uri))
-        commonAttributes.secureProxy.orElse(protocol.proxyPart.secureProxy).foreach(requestBuilder.setProxyServer)
-      else
-        commonAttributes.proxy.orElse(protocol.proxyPart.proxy).foreach(requestBuilder.setProxyServer)
+      commonAttributes.proxies.foreach {
+        case (httpProxy, httpsProxy) =>
+          val proxy = if (HttpHelper.isSecure(uri)) httpsProxy else httpProxy
+          requestBuilder.setProxyServer(proxy)
+      }
     }
     requestBuilder.success
   }
