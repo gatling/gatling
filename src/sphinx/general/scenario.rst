@@ -213,7 +213,7 @@ Current value can be retrieved on the Session as an attribute with a *counterNam
 
 *counterName* is optional.
 
-*exitASAP* is optional and defaults to true. If true, the condition will be evaluated for each element inside the loop, possibly causing to exit before reaching the end of the iteration.
+*exitASAP* is optional and defaults to false. If true, the condition will be evaluated for each element inside the loop, possibly causing to exit before reaching the end of the iteration.
 
 .. _scenario-forever:
 

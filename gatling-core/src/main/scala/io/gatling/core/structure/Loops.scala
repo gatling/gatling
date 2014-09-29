@@ -60,11 +60,11 @@ trait Loops[B] extends Execs[B] {
     asLongAs(continueCondition, counterName, exitASAP)(chain)
   }
 
-  def forever(chain: ChainBuilder): B = forever(UUID.randomUUID.toString, exitASAP = true)(chain)
+  def forever(chain: ChainBuilder): B = forever(UUID.randomUUID.toString, exitASAP = false)(chain)
 
-  def forever(counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
+  def forever(counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false)(chain: ChainBuilder): B =
     asLongAs(Loops.trueExpression, counterName, exitASAP)(chain)
 
-  def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
+  def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false)(chain: ChainBuilder): B =
     exec(new LoopBuilder(condition, chain, counterName, exitASAP))
 }
