@@ -260,7 +260,7 @@ For example::
 Non Shared Data
 ===============
 
-Sometimes, Gatling users still want all virtual users to play all the records in a file, and Feeder doesn't match this behavior.
+Sometimes, you could want all virtual users to play all the records in a file, and Feeder doesn't match this behavior.
 
 Still, it's quite easy to build, thanks to :ref:`flattenMapIntoAttributes <scenario-exec-function-flatten>`  e.g.::
 
@@ -271,3 +271,68 @@ Still, it's quite easy to build, thanks to :ref:`flattenMapIntoAttributes <scena
     ...
   }
 
+.. _feeder-user-dependent:
+
+User Dependent Data
+===================
+
+Sometimes, you could want to filter the injected data depending on some information from the Session.
+
+Feeder can achieve this as it's just an Iterator, so it's unaware of the context.
+
+You'll then have to write your own injection logic, but you can of course reuse Gatling parsers.
+
+Consider the following example, where you have 2 files and want to inject data from the second one,
+depending on what has been injected from the first one.
+
+In userProject.csv::
+
+  user, project
+  bob, aProject
+  sue, bProject
+
+In projectIssue.csv::
+
+  project,issue
+  aProject,1
+  aProject,12
+  aProject,14
+  aProject,15
+  aProject,17
+  aProject,5
+  aProject,7
+  bProject,1
+  bProject,2
+  bProject,6
+  bProject,64
+
+Here's how you can randomly inject an issue, depending on the project::
+
+	import io.gatling.core.feeder._
+	import scala.concurrent.forkjoin.ThreadLocalRandom
+
+  // index records by project
+	val recordsByProject: Map[String, IndexedSeq[Record[String]]] =
+	  csv("projectIssue.csv").records.groupBy{ record => record("project") }
+
+  // convert the Map values to get only the issues instead of the full records
+	val issuesByProject: Map[String, IndexedSeq[String]] =
+	  recordsByProject.mapValues{ records => records.map {record => record("issue")} }
+
+	// inject project
+	feed(csv("userProject.csv"))
+
+	.exec { session =>
+	  // fetch project from  session
+		session("project").validate[String].map { project =>
+
+		  // fetch project's issues
+			val issues = issuesByProject(project)
+
+			// randomly select an issue
+			val selectedIssue = issues(ThreadLocalRandom.current.nextInt(issues.length))
+
+			// inject the issue in the session
+			session.set("issue", selectedIssue)
+		}
+	}
