@@ -188,7 +188,11 @@ class HtmlParser extends StrictLogging {
       }
     }
 
-    Jodd.newLagartoParser(htmlContent.unsafeChars, ieVersion).parse(visitor)
+    try {
+      Jodd.newLagartoParser(htmlContent.unsafeChars, ieVersion).parse(visitor)
+    } catch {
+      case e: Exception => logger.error("Jodd Largarto HTML parser crashed, please report the bug and provide crashing the HTML response", e)
+    }
     HtmlResources(rawResources, base)
   }
 
