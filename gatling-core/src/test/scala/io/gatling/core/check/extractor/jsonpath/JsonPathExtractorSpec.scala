@@ -103,6 +103,10 @@ class JsonPathExtractorSpec extends FlatSpec with Matchers with ValidationValues
     testSingle("$[?(@.id==19434 && @.foo==1)].foo", 0, "/test2.json", Some("1"))
   }
 
+  it should "support @" in {
+    testSingle("$.object[*]['@id']", 0, "/test3.json", Some("3"))
+  }
+
   "extractMultiple" should "return expected result with anywhere expression" in {
     testMultiple("$..author", "/test.json", Some(List("Nigel Rees", "Evelyn Waugh", "Herman Melville", "J. R. R. Tolkien")))
   }
