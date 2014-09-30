@@ -15,7 +15,6 @@
  */
 package io.gatling.core.result.writer
 
-import java.lang.{ StringBuilder => JStringBuilder }
 import java.io.RandomAccessFile
 import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.channels.FileChannel
@@ -25,7 +24,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.Group
-import io.gatling.core.util.StringHelper.Eol
+import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.UriHelper.RichUri
 
 object FileDataWriter {
@@ -109,10 +108,9 @@ class FileDataWriter extends DataWriter {
   import FileDataWriter._
 
   private val limit = configuration.data.file.bufferSize
-  private val buffer: ByteBuffer = ByteBuffer.allocate(limit * 2)
+  private val buffer: ByteBuffer = ByteBuffer.allocateDirect(limit * 2)
   private val encoder = configuration.core.charset.newEncoder
   private var channel: FileChannel = _
-  private val sb = new JStringBuilder
 
   private def flush(): Unit = {
     buffer.flip()
@@ -122,9 +120,8 @@ class FileDataWriter extends DataWriter {
   }
 
   private def push(fs: Fastring): Unit = {
-    fs.appendTo(sb)
-    encoder.encode(CharBuffer.wrap(sb), buffer, false)
-    sb.setLength(0)
+    for (string <- fs)
+      encoder.encode(CharBuffer.wrap(string.unsafeChars), buffer, false)
     if (buffer.position >= limit)
       flush()
   }
