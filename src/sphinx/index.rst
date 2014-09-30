@@ -34,7 +34,7 @@ User's guide
     session/index
     http/index
     jms
-    graphite/index
+    realtime_monitoring/index
     extensions/index
     cookbook/index
     developing_gatling/index
