@@ -140,7 +140,7 @@ object IO {
     }
   }
 
-  def withCloseable[T, C <: Closeable](closeable: C)(block: C => T) = {
+  def withCloseable[T, C <: AutoCloseable](closeable: C)(block: C => T) = {
     try
       block(closeable)
     finally

@@ -21,12 +21,12 @@ import scala.annotation.tailrec
 import scala.collection.breakOut
 
 import io.gatling.core.feeder.Record
-import io.gatling.jdbc.util.SQLHelper.withConnection
+import io.gatling.core.util.IO.withCloseable
 
 object JdbcFeederSource {
 
   def apply(url: String, username: String, password: String, sql: String): Vector[Record[Any]] =
-    withConnection(DriverManager.getConnection(url, username, password)) { connection =>
+    withCloseable(DriverManager.getConnection(url, username, password)) { connection =>
       val preparedStatement = connection.prepareStatement(sql, TYPE_FORWARD_ONLY, CONCUR_READ_ONLY)
       val resultSet = preparedStatement.executeQuery
       val metadata = resultSet.getMetaData

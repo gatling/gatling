@@ -21,7 +21,7 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, UserMessage, ShortScenarioDescription }
-import io.gatling.jdbc.util.SQLHelper.withStatement
+import io.gatling.core.util.IO.withCloseable
 
 object JdbcDataWriter {
 
@@ -74,7 +74,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
       createScenarioRecord <- configuration.data.jdbc.createStatements.createScenarioRecordTable
       createGroupRecord <- configuration.data.jdbc.createStatements.createGroupRecordTable
     } {
-      withStatement(conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)) { statement =>
+      withCloseable(conn.createStatement(ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_UPDATABLE)) { statement =>
         statement.executeUpdate(createRunRecordTable)
         statement.executeUpdate(createRequestRecordTable)
         statement.executeUpdate(createScenarioRecord)
@@ -99,7 +99,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
       system.registerOnTermination(requestInsert.close())
 
       //Filling in run information
-      withStatement(conn.prepareStatement(insertRunRecord, Statement.RETURN_GENERATED_KEYS)) { runInsert =>
+      withCloseable(conn.prepareStatement(insertRunRecord, Statement.RETURN_GENERATED_KEYS)) { runInsert =>
         runInsert.setDate(1, new SQLDate(run.start))
         runInsert.setString(2, run.simulationId)
         runInsert.setString(3, run.runDescription)
