@@ -34,6 +34,7 @@ object GatlingBuild extends Build {
 
   lazy val jdbc = gatlingModule("gatling-jdbc")
     .dependsOn(core)
+    .settings(libraryDependencies ++= jdbcDependencies)
 
   lazy val redis = gatlingModule("gatling-redis")
     .dependsOn(core % "compile->compile;test->test")
