@@ -209,20 +209,20 @@ There's 3 ways to set a SignatureCalculator on a request::
 Authentication
 --------------
 
-HTTP provides two authentication methods:
+You can set the authentication methods at request level with these methods:
 
-* BASIC
-* DIGEST
+* ``basicAuth(username: Expression[String], password: Expression[String])``
+* ``digestAuth(username: Expression[String], password: Expression[String])``
+* ``ntlmAuth(username: Expression[String], password: Expression[String])``
+* ``ntlmAuth(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String])``
+* ``authRealm(realm: Expression[com.ning.http.client.Realm])``
 
-To add authentication headers to a request, use the method ``basicAuth(username: Expression[String], password: Expression[String])`` or ``digestAuth(username: Expression[String], password: Expression[String])`` as follows::
+::
 
   http("My BASIC secured request").get("http://my.secured.uri").basicAuth("myUser", "myPassword")
 
   http("My DIGEST secured request").get("http://my.secured.uri").digestAuth("myUser", "myPassword")
 
-Gatling provides also a more generic method to add authentication: ``authRealm(realm: Expression[Realm])``.
-Then the user is in charge of building a complete ``Realm`` instance suiting its needs.
-The two previous methods are in fact just shortcut for building a ``Realm`` instance.
 
 .. note:: Authentication can also be defined on the ``HttpProtocol``.
 

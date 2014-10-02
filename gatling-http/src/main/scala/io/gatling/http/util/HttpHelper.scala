@@ -28,7 +28,7 @@ import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, Realm }
 import com.ning.http.client.Realm.AuthScheme
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 
 object HttpHelper extends StrictLogging {
@@ -53,16 +53,35 @@ object HttpHelper extends StrictLogging {
       }(breakOut)
   }
 
-  def buildBasicAuthRealm(username: Expression[String], password: Expression[String]) = buildRealm(username, password, AuthScheme.BASIC, preemptive = true)
-  def buildDigestAuthRealm(username: Expression[String], password: Expression[String]) = buildRealm(username, password, AuthScheme.DIGEST, preemptive = false)
-  def buildRealm(username: Expression[String], password: Expression[String], authScheme: AuthScheme, preemptive: Boolean): Expression[Realm] = (session: Session) =>
-    for {
-      usernameValue <- username(session)
-      passwordValue <- password(session)
-    } yield buildRealm(usernameValue, passwordValue, authScheme, preemptive)
+  def buildBasicAuthRealm(username: Expression[String], password: Expression[String]) =
+    buildRealm(username, password, AuthScheme.BASIC, preemptive = true, None, None)
 
-  def buildBasicAuthRealm(username: String, password: String) = buildRealm(username, password, AuthScheme.BASIC, preemptive = true)
-  def buildRealm(username: String, password: String, authScheme: AuthScheme, preemptive: Boolean): Realm = new Realm.RealmBuilder().setPrincipal(username).setPassword(password).setUsePreemptiveAuth(preemptive).setScheme(authScheme).build
+  def buildDigestAuthRealm(username: Expression[String], password: Expression[String]) =
+    buildRealm(username, password, AuthScheme.DIGEST, preemptive = false, None, None)
+
+  def buildNTLMAuthRealm(username: Expression[String], password: Expression[String], ntlmDomain: Option[Expression[String]], ntlmHost: Option[Expression[String]]) =
+    buildRealm(username, password, AuthScheme.NTLM, preemptive = false, ntlmDomain, ntlmHost)
+
+  def buildRealm(username: Expression[String],
+                 password: Expression[String],
+                 authScheme: AuthScheme,
+                 preemptive: Boolean,
+                 ntlmDomain: Option[Expression[String]],
+                 ntlmHost: Option[Expression[String]]): Expression[Realm] =
+    (session: Session) =>
+      for {
+        usernameValue <- username(session)
+        passwordValue <- password(session)
+        ntlmDomainValue <- resolveOptionalExpression(ntlmDomain, session)
+        ntlmHostValue <- resolveOptionalExpression(ntlmHost, session)
+      } yield new Realm.RealmBuilder()
+        .setPrincipal(usernameValue)
+        .setPassword(passwordValue)
+        .setUsePreemptiveAuth(preemptive)
+        .setScheme(authScheme)
+        .setNtlmDomain(ntlmDomainValue.orNull)
+        .setNtlmHost(ntlmHostValue.orNull)
+        .build
 
   private def headerExists(headers: FluentCaseInsensitiveStringsMap, headerName: String, f: String => Boolean): Boolean = Option(headers.getFirstValue(headerName)).exists(f)
   def isCss(headers: FluentCaseInsensitiveStringsMap): Boolean = headerExists(headers, HeaderNames.ContentType, _.contains(HeaderValues.TextCss))

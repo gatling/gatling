@@ -90,6 +90,8 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
   def userAgentHeader(value: Expression[String]) = newRequestPart(protocol.requestPart.copy(baseHeaders = protocol.requestPart.baseHeaders + (UserAgent -> value)))
   def basicAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
   def digestAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
+  def ntlmAuth(username: Expression[String], password: Expression[String]) = authRealm(HttpHelper.buildNTLMAuthRealm(username, password, None, None))
+  def ntlmAuth(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String]) = authRealm(HttpHelper.buildNTLMAuthRealm(username, password, Some(ntlmDomain), Some(ntlmHost)))
   def authRealm(realm: Expression[Realm]) = newRequestPart(protocol.requestPart.copy(realm = Some(realm)))
   def silentResources = newRequestPart(protocol.requestPart.copy(silentResources = true))
   def silentURI(regex: String) = newRequestPart(protocol.requestPart.copy(silentURI = Some(regex.r.pattern)))
