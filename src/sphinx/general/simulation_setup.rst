@@ -53,7 +53,7 @@ The building blocks for profile injection the way you want are:
 
   Your load model is not only about getting the expected throughput (number of requests per second), but also open and close the proper number of connections per second.
 
-  Basic load testing tools such as `wrk <https://github.com/wg/wrk>`_ and `ab <http://httpd.apache.org/docs/2.2/programs/ab.html>`_ only support **close models**:
+  Basic load testing tools such as `wrk <https://github.com/wg/wrk>`_ and `ab <http://httpd.apache.org/docs/2.2/programs/ab.html>`_ only support **closed models**:
   users loop over the scenario so, assuming keep alive is used, you get as many open connections as you have users and you never close them.
   This kind of model is mostly suited for call centers, where new users are queued until an operator hangs up.
 
@@ -66,7 +66,7 @@ The building blocks for profile injection the way you want are:
   As a consequence, you might run out of resources (such as ephemeral ports, because your OS can't recycle them fast enough).
   If that's the case, you might:
    * consider scaling out
-   * reconsider your injection model: maybe you're testing a webservice that's used by just a few clients, so you should be using a close model and just few connections
+   * reconsider your injection model: maybe you're testing a webservice that's used by just a few clients, so you should be using a closed model and just few connections
    * tune Gatling's behavior and :ref:`share the connection pool amongst virtual users <http-protocol-connection-sharing>`.
 
 .. _simulation-setup-pause:
