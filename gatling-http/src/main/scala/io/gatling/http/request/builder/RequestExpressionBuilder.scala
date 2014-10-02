@@ -49,7 +49,8 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
 
   def configureProxy(uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
     if (!protocol.proxyPart.proxyExceptions.contains(uri.getHost)) {
-      commonAttributes.proxies.foreach {
+      val proxies = commonAttributes.proxies.orElse(protocol.proxyPart.proxies)
+      proxies.foreach {
         case (httpProxy, httpsProxy) =>
           val proxy = if (HttpHelper.isSecure(uri)) httpsProxy else httpProxy
           requestBuilder.setProxyServer(proxy)
