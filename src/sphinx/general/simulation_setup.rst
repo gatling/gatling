@@ -47,6 +47,28 @@ The building blocks for profile injection the way you want are:
 #. ``splitUsers(nbUsers) into(injectionStep) separatedBy(duration)``: Repeatedly execute the defined injection step separated by a pause of the given duration until reaching *nbUsers*, the total number of users to inject.
 #. ``splitUsers(nbUsers) into(injectionStep1) separatedBy(injectionStep2)``: Repeatedly execute the first defined injection step (*injectionStep1*) separated by the execution of the second injection step (*injectionStep2*) until reaching *nbUsers*, the total number of users to inject.
 
+.. warning::
+
+  Use the proper injection model that match your use case!
+
+  Your load model is not only about getting the expected throughput (number of requests per second), but also open and close the proper number of connections per second.
+
+  Basic load testing tools such as `wrk <https://github.com/wg/wrk>`_ and `ab <http://httpd.apache.org/docs/2.2/programs/ab.html>`_ only support **close models**:
+  users loop over the scenario so, assuming keep alive is used, you get as many open connections as you have users and you never close them.
+  This kind of model is mostly suited for call centers, where new users are queued until an operator hangs up.
+
+  With Gatling's ``constantUsersPerSec`` and ``rampUsersPerSec``, you can build **open models**:
+  new users keep on arriving no matter how many users are already there, even if the system over test starts slowing down or crashing.
+  This kind of model is the best one for most use cases.
+
+  Then, you have to understand that Gatling's default behavior is mimic human users with browsers, so each virtual user has its own connections.
+  If you have a high creation rate of users with a short lifespan, you'll end up opening and closing tons of connections every seconds.
+  As a consequence, you might run out of resources (such as ephemeral ports, because your OS can't recycle them fast enough).
+  If that's the case, you might:
+   * consider scaling out
+   * reconsider your injection model: maybe you're testing a webservice that's used by just a few clients, so you should be using a close model and just few connections
+   * tune Gatling's behavior and :ref:`share the connection pool amongst virtual users <http-protocol-connection-sharing>`.
+
 .. _simulation-setup-pause:
 
 Global Pause configuration
