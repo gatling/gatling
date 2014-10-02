@@ -177,9 +177,9 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       val uri = response.request.getUri
 
       if (isCss(response.headers))
-        tx.next ! CssResourceFetched(uri, status, update, response.statusCode, response.lastModifiedOrEtag(protocol), response.body.string)
+        tx.next ! CssResourceFetched(uri, status, update, tx.silent, response.statusCode, response.lastModifiedOrEtag(protocol), response.body.string)
       else
-        tx.next ! RegularResourceFetched(uri, status, update)
+        tx.next ! RegularResourceFetched(uri, status, update, tx.silent)
     }
   }
 
@@ -283,7 +283,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         }
 
         val logGroupRequestUpdate: Session => Session =
-          if (tx.primary)
+          if (tx.primary && !tx.silent)
             _.logGroupRequest(response.responseTimeInMillis, status)
           else
             Session.Identity

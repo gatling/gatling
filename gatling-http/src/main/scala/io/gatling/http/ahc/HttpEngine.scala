@@ -39,12 +39,25 @@ import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.action.ws.{ OnFailedOpen, WsListener }
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request.HttpRequest
+import io.gatling.http.request.{HttpRequestConfig, HttpRequest}
 import io.gatling.http.response.ResponseBuilder
 import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
 import io.gatling.http.check.ws.WsCheck
 import io.gatling.core.check.CheckResult
 import org.jboss.netty.util.HashedWheelTimer
+
+object HttpTx {
+
+  def silent(request: HttpRequest, primary: Boolean): Boolean = {
+
+    def silentBecauseProtocolSilentResources = !primary && request.config.protocol.requestPart.silentResources
+
+    def silentBecauseProtocolSilentURI: Option[Boolean] = request.config.protocol.requestPart.silentURI
+      .map(_.matcher(request.ahcRequest.getUrl).matches)
+
+    request.config.silent.orElse(silentBecauseProtocolSilentURI).getOrElse(silentBecauseProtocolSilentResources)
+  }
+}
 
 case class HttpTx(session: Session,
                   request: HttpRequest,
@@ -54,15 +67,7 @@ case class HttpTx(session: Session,
                   redirectCount: Int = 0,
                   update: Session => Session = Session.Identity) {
 
-  val silent: Boolean = {
-
-      def silentBecauseProtocolSilentResources = !primary && request.config.protocol.requestPart.silentResources
-
-      def silentBecauseProtocolSilentURI: Option[Boolean] = request.config.protocol.requestPart.silentURI
-        .map(_.matcher(request.ahcRequest.getUrl).matches)
-
-    request.config.silent.orElse(silentBecauseProtocolSilentURI).getOrElse(silentBecauseProtocolSilentResources)
-  }
+  val silent: Boolean = HttpTx.silent(request, primary)
 }
 
 case class WsTx(session: Session,

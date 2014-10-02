@@ -45,8 +45,8 @@ sealed trait ResourceFetched {
   def status: Status
   def sessionUpdates: Session => Session
 }
-case class RegularResourceFetched(uri: Uri, status: Status, sessionUpdates: Session => Session) extends ResourceFetched
-case class CssResourceFetched(uri: Uri, status: Status, sessionUpdates: Session => Session, statusCode: Option[Int], lastModifiedOrEtag: Option[String], content: String) extends ResourceFetched
+case class RegularResourceFetched(uri: Uri, status: Status, sessionUpdates: Session => Session, silent: Boolean) extends ResourceFetched
+case class CssResourceFetched(uri: Uri, status: Status, sessionUpdates: Session => Session, silent: Boolean, statusCode: Option[Int], lastModifiedOrEtag: Option[String], content: String) extends ResourceFetched
 
 case class InferredPageResources(expire: String, requests: List[HttpRequest])
 
@@ -225,11 +225,14 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
 
     logger.info(s"Fetching resource $uri from cache")
     // FIXME check if it's a css this way or use the Content-Type?
+
+    val silent = HttpTx.silent(resource, false)
+
     val resourceFetched =
       if (CssContentCache.contains(uri))
-        CssResourceFetched(uri, OK, Session.Identity, None, None, "")
+        CssResourceFetched(uri, OK, Session.Identity, silent, None, None, "")
       else
-        RegularResourceFetched(uri, OK, Session.Identity)
+        RegularResourceFetched(uri, OK, Session.Identity, silent)
 
     // mock like we've received the resource
     receive(resourceFetched)
@@ -275,11 +278,12 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
 
   private def done(): Unit = {
     logger.debug("All resources were fetched")
+    // FIXME only do so if not silent
     primaryTx.next ! session.logGroupAsyncRequests(nowMillis - start, okCount, koCount)
     context.stop(self)
   }
 
-  private def resourceFetched(uri: Uri, status: Status): Unit = {
+  private def resourceFetched(uri: Uri, status: Status, silent: Boolean): Unit = {
 
       def releaseToken(host: String): Unit = {
 
@@ -320,10 +324,12 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
     logger.debug(s"Resource $uri was fetched")
     pendingResourcesCount -= 1
 
-    if (status == OK)
-      okCount = okCount + 1
-    else
-      koCount = koCount + 1
+    if (!silent) {
+      if (status == OK)
+        okCount = okCount + 1
+      else
+        koCount = koCount + 1
+    }
 
     if (pendingResourcesCount == 0)
       done()
@@ -386,13 +392,13 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
   }
 
   def receive: Receive = {
-    case RegularResourceFetched(uri, status, sessionUpdates) =>
+    case RegularResourceFetched(uri, status, sessionUpdates, silent) =>
       session = sessionUpdates(session)
-      resourceFetched(uri, status)
+      resourceFetched(uri, status, silent)
 
-    case CssResourceFetched(uri, status, sessionUpdates, statusCode, lastModifiedOrEtag, content) =>
+    case CssResourceFetched(uri, status, sessionUpdates, silent, statusCode, lastModifiedOrEtag, content) =>
       session = sessionUpdates(session)
       cssFetched(uri, status, statusCode, lastModifiedOrEtag, content)
-      resourceFetched(uri, status)
+      resourceFetched(uri, status, silent)
   }
 }
