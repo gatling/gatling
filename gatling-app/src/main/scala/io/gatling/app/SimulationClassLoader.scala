@@ -15,11 +15,12 @@
  */
 package io.gatling.app
 
+import java.io.File
 import java.lang.reflect.Modifier
 import java.net.URI
 
 import scala.tools.nsc.interpreter.AbstractFileClassLoader
-import scala.tools.nsc.io.{ File, Path }
+import scala.tools.nsc.io.Path
 import scala.tools.nsc.io.Path.string2path
 import scala.tools.nsc.io.PlainFile
 import scala.util.{ Try, Success }
