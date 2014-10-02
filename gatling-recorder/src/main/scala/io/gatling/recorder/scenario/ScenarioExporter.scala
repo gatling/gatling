@@ -15,12 +15,12 @@
  */
 package io.gatling.recorder.scenario
 
-import java.io.{ File, FileOutputStream, IOException }
+import java.io.{ FileOutputStream, IOException }
 
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
 import scala.reflect.io.Path.string2path
-import scala.tools.nsc.io.Directory
+import scala.tools.nsc.io.{ Directory, File }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
@@ -64,7 +64,7 @@ object ScenarioExporter extends StrictLogging {
 
     val output = renderScenarioAndDumpBodies(scenarioElements)
 
-    withCloseable(new FileOutputStream(simulationFilePath.jfile)) {
+    withCloseable(new FileOutputStream(File(simulationFilePath).jfile)) {
       _.write(output.getBytes(config.core.encoding))
     }
   }
