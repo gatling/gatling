@@ -76,7 +76,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           tx.next ! tx.session.markAsFailed
         else {
           val uri = tx.request.ahcRequest.getUri
-          tx.next ! RegularResourceFetched(uri, KO, Session.Identity)
+          tx.next ! RegularResourceFetched(uri, KO, Session.Identity, tx.silent)
         }
       }
 
