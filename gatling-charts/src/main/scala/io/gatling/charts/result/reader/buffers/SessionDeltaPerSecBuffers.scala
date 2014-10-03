@@ -31,39 +31,32 @@ case class SessionDeltas(starts: Int, ends: Int) {
   def addEnd() = copy(ends = ends + 1)
 }
 
-class SessionDeltaBuffer {
+class SessionDeltaBuffer(buckets: Array[Int]) {
 
-  val map = mutable.HashMap.empty[Int, SessionDeltas].withDefaultValue(SessionDeltas.Empty)
+  val startCounts: Array[Int] = Array.fill(buckets.length)(0)
+  val endCounts: Array[Int] = Array.fill(buckets.length)(0)
 
-  def addStart(bucket: Int): Unit = {
-    val deltas = map(bucket)
-    map += (bucket -> deltas.addStart)
-  }
+  def addStart(bucket: Int): Unit = startCounts(bucket) = startCounts(bucket) + 1
 
-  def addEnd(bucket: Int): Unit = {
-    val delta = map(bucket)
-    map += (bucket -> delta.addEnd)
-  }
+  def addEnd(bucket: Int): Unit = endCounts(bucket) = endCounts(bucket) + 1
 
-  def compute(buckets: Seq[Int]): List[IntVsTimePlot] = {
-
-    val (_, _, sessions) = buckets.foldLeft(0, 0, List.empty[IntVsTimePlot]) { (accumulator, bucket) =>
-      val (previousSessions, previousEnds, sessions) = accumulator
-      val delta = map(bucket)
-      val bucketSessions = previousSessions - previousEnds + delta.starts
-      (bucketSessions, delta.ends, IntVsTimePlot(bucket, bucketSessions) :: sessions)
-    }
-
-    sessions.reverse
-  }
+  def distribution: List[IntVsTimePlot] =
+    buckets.view.zipWithIndex.foldLeft(List.empty[IntVsTimePlot]) { (activeSessions, timeAndBucketNumber) =>
+      val (time, bucketNumber) = timeAndBucketNumber
+      val previousSessions = if (activeSessions.isEmpty) 0 else activeSessions.head.value
+      val previousEnds = if (bucketNumber == 0) 0 else endCounts(bucketNumber - 1)
+      val bucketSessions = previousSessions - previousEnds + startCounts(bucketNumber)
+      IntVsTimePlot(time, bucketSessions) :: activeSessions
+    }.reverse
 }
 
 trait SessionDeltaPerSecBuffers {
+  this: Buckets =>
 
   val sessionDeltaPerSecBuffers: mutable.Map[Option[String], SessionDeltaBuffer] = mutable.Map.empty
   val orphanStartRecords = mutable.Map.empty[String, UserRecord]
 
-  def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer)
+  def getSessionDeltaPerSecBuffers(scenarioName: Option[String]): SessionDeltaBuffer = sessionDeltaPerSecBuffers.getOrElseUpdate(scenarioName, new SessionDeltaBuffer(buckets))
 
   def addSessionBuffers(record: UserRecord): Unit = {
     record.event match {

@@ -146,7 +146,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
         }
       }
 
-    resultsHolder.endOrphanUserRecords(bucketFunction(reduceAccuracy((runEnd - runStart).toInt)))
+    resultsHolder.endOrphanUserRecords(bucketFunction(runEnd))
 
     logger.info(s"Second pass: read $count lines")
 
@@ -174,7 +174,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
   def numberOfActiveSessionsPerSecond(scenarioName: Option[String]): Seq[IntVsTimePlot] = resultsHolder
     .getSessionDeltaPerSecBuffers(scenarioName)
-    .compute(buckets)
+    .distribution
 
   private def countBuffer2IntVsTimePlots(buffer: CountBuffer): Seq[IntVsTimePlot] = buffer
     .distribution
