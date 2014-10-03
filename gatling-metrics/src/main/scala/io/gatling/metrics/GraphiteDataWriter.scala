@@ -143,6 +143,4 @@ private class GraphiteSender(graphiteRootPathKey: String)(implicit configuration
 
     metricsSender.flush()
   }
-
 }
-
