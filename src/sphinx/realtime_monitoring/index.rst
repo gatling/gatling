@@ -43,9 +43,9 @@ Requests metrics give you, for each request (or all requests using _allRequests_
 * *min* and *max* : Min and Max response time for the request
 * *percentilesXX* :  First and second percentiles, as defined in gatling.conf (defaults are 95th and 99th percentiles)
 
-The metric path for requests metrics is *gatling.scenarioName.requestName.status.metric*, where :
+The metric path for requests metrics is *gatling.simulationId.requestName.status.metric*, where :
 
-* *scenarioName* is the name of your scenario
+* *simulationId* is a sanitized named computed from the name of your Simulation, or the one you set in the command line prompt
 * *requestName* is the name of your request
 * *status* is either **ok** (for successful requests), **ko** (for failed requests) or **all** (for both successful and failed requests)
 * *metric* is one of the metrics described above
