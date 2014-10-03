@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.http.handler.server
+package io.gatling.recorder.http.handler.user
 
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -28,25 +28,25 @@ import org.jboss.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext, 
 import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
 import org.jboss.netty.handler.ssl.SslHandler
 
-class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with ScalaChannelHandler with StrictLogging {
+class HttpsUserHandler(proxy: HttpProxy) extends UserHandler(proxy) with ScalaChannelHandler with StrictLogging {
 
   var targetHostUri: Uri = _
 
-  def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit = {
+  def propagateRequest(userChannel: Channel, request: HttpRequest): Unit = {
 
       def handleConnect(reconnect: Boolean): Unit = {
 
-          def connectClientChannelThroughProxy(proxyAddress: InetSocketAddress): Unit =
-            proxy.clientBootstrap
+          def connectRemoteChannelThroughProxy(proxyAddress: InetSocketAddress): Unit =
+            proxy.remoteBootstrap
               .connect(proxyAddress)
               .addListener { connectFuture: ChannelFuture =>
-                val clientChannel = connectFuture.getChannel
-                setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = true, reconnect = reconnect)
-                clientChannel.write(request)
+                val remoteChannel = connectFuture.getChannel
+                setupRemoteChannel(userChannel, remoteChannel, proxy.controller, performConnect = true, reconnect = reconnect)
+                remoteChannel.write(request)
               }
 
-          def connectClientChannelDirect(address: InetSocketAddress): Unit =
-            proxy.secureClientBootstrap
+          def connectRemoteChannelDirect(address: InetSocketAddress): Unit =
+            proxy.secureRemoteBootstrap
               .connect(address)
               .addListener { connectFuture: ChannelFuture =>
 
@@ -54,15 +54,15 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
                   case sslHandler: SslHandler =>
                     sslHandler.handshake
                       .addListener { handshakeFuture: ChannelFuture =>
-                        val clientChannel = handshakeFuture.getChannel
+                        val remoteChannel = handshakeFuture.getChannel
                         // TODO build certificate for peer
-                        setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = false, reconnect = reconnect)
+                        setupRemoteChannel(userChannel, remoteChannel, proxy.controller, performConnect = false, reconnect = reconnect)
                         if (!reconnect) {
-                          serverChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter)
-                          serverChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+                          userChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter)
+                          userChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
 
                         } else
-                          clientChannel.write(request)
+                          remoteChannel.write(request)
                       }
 
                   case _ => throw new IllegalStateException("SslHandler missing from secureClientBootstrap")
@@ -72,21 +72,21 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
         targetHostUri = Uri.create("https://" + request.getUri)
 
         proxy.outgoingProxy match {
-          case Some((proxyHost, proxyPort)) => connectClientChannelThroughProxy(new InetSocketAddress(proxyHost, proxyPort))
-          case _                            => connectClientChannelDirect(computeInetSocketAddress(targetHostUri))
+          case Some((proxyHost, proxyPort)) => connectRemoteChannelThroughProxy(new InetSocketAddress(proxyHost, proxyPort))
+          case _                            => connectRemoteChannelDirect(computeInetSocketAddress(targetHostUri))
         }
       }
 
       def handlePropagatableRequest(): Unit =
-        _clientChannel match {
-          case Some(clientChannel) if clientChannel.isConnected =>
+        _remoteChannel match {
+          case Some(remoteChannel) if remoteChannel.isConnected =>
             // set full uri so that it's correctly recorded
             val absoluteUri = Uri.create(targetHostUri, request.getUri).toString
             val loggedRequest = copyRequestWithNewUri(request, absoluteUri)
-            writeRequestToClient(clientChannel, request, loggedRequest)
+            writeRequestToRemote(userChannel, request, loggedRequest)
 
           case _ =>
-            _clientChannel = None
+            _remoteChannel = None
             handleConnect(reconnect = true)
         }
 
@@ -102,11 +102,15 @@ class HttpsServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Sca
       def handleSslException(e: Exception): Unit = {
         logger.error(s"${e.getClass.getSimpleName} ${e.getMessage}, did you accept the certificate for $targetHostUri?")
         proxy.controller.secureConnection(targetHostUri)
-        if (ctx.getChannel.isReadable)
+        if (ctx.getChannel.isReadable) {
+          logger.debug(s"SSL exception, closing user channel ${ctx.getChannel.getId}")
           ctx.getChannel.close()
-        _clientChannel.foreach { clientChannel =>
-          if (clientChannel.isReadable)
-            clientChannel.close()
+        }
+        _remoteChannel.foreach { remoteChannel =>
+          if (remoteChannel.isReadable) {
+            logger.debug(s"SSL exception, closing remote channel ${ctx.getChannel.getId} too")
+            remoteChannel.close()
+          }
         }
       }
 

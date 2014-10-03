@@ -17,7 +17,7 @@ package io.gatling.recorder.http.channel
 
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.http.handler.server.PortUnificationServerHandler
+import io.gatling.recorder.http.handler.user.PortUnificationUserHandler
 import io.gatling.recorder.http.ssl.SSLEngineFactory
 import org.jboss.netty.bootstrap.{ ClientBootstrap, ServerBootstrap }
 import org.jboss.netty.channel.{ ChannelPipeline, ChannelPipelineFactory, Channels }
@@ -33,14 +33,14 @@ object BootstrapFactory extends StrictLogging {
   val GatlingHandlerName = "gatling"
   val PortUnificationServerHandler = "port-unification"
 
-  def newClientBootstrap(ssl: Boolean, config: RecorderConfiguration): ClientBootstrap = {
+  def newRemoteBootstrap(ssl: Boolean, config: RecorderConfiguration): ClientBootstrap = {
 
     import config.netty._
 
     val bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory)
     bootstrap.setPipelineFactory(new ChannelPipelineFactory {
       def getPipeline: ChannelPipeline = {
-        logger.debug("Open new client channel")
+        logger.debug("Open new remote channel")
         val pipeline = Channels.pipeline
         if (ssl)
           pipeline.addLast(SslHandlerName, new SslHandler(SSLEngineFactory.newClientSSLEngine))
@@ -57,7 +57,7 @@ object BootstrapFactory extends StrictLogging {
     bootstrap
   }
 
-  def newServerBootstrap(proxy: HttpProxy, config: RecorderConfiguration): ServerBootstrap = {
+  def newUserBootstrap(proxy: HttpProxy, config: RecorderConfiguration): ServerBootstrap = {
 
     import config.netty._
 
@@ -65,11 +65,11 @@ object BootstrapFactory extends StrictLogging {
 
     bootstrap.setPipelineFactory(new ChannelPipelineFactory {
       def getPipeline: ChannelPipeline = {
-        logger.debug("Open new server channel")
+        logger.debug("Open new user channel")
         val pipeline = Channels.pipeline
         pipeline.addLast(CodecHandlerName, new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
         pipeline.addLast("deflater", new HttpContentCompressor)
-        pipeline.addLast(PortUnificationServerHandler, new PortUnificationServerHandler(proxy, pipeline))
+        pipeline.addLast(PortUnificationServerHandler, new PortUnificationUserHandler(proxy, pipeline))
         pipeline
       }
     })

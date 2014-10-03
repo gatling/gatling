@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.http.handler.server
+package io.gatling.recorder.http.handler.user
 
 import java.net.InetSocketAddress
 
@@ -23,24 +23,24 @@ import io.gatling.recorder.http.handler.ScalaChannelHandler
 import org.jboss.netty.channel.{ Channel, ChannelFuture }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpRequest, HttpResponseStatus, HttpVersion }
 
-class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with ScalaChannelHandler {
+class HttpUserHandler(proxy: HttpProxy) extends UserHandler(proxy) with ScalaChannelHandler {
 
   private def buildRequestWithRelativeURI(request: HttpRequest): HttpRequest = {
     val relative = Uri.create(request.getUri).toRelativeUrl
     copyRequestWithNewUri(request, relative)
   }
 
-  private def writeRequest(clientChannel: Channel, request: HttpRequest): Unit = {
-    val clientRequest = proxy.outgoingProxy match {
+  private def writeRequest(userChannel: Channel, request: HttpRequest): Unit = {
+    val remoteRequest = proxy.outgoingProxy match {
       case None => buildRequestWithRelativeURI(request)
       case _    => request
     }
 
-    writeRequestToClient(clientChannel, clientRequest, request)
+    writeRequestToRemote(userChannel, remoteRequest, request)
   }
 
-  private def writeRequestWithNewChannel(serverChannel: Channel, request: HttpRequest): Unit = {
-    _clientChannel = None
+  private def writeRequestWithNewChannel(userChannel: Channel, request: HttpRequest): Unit = {
+    _remoteChannel = None
 
     val inetSocketAddress = proxy.outgoingProxy match {
       case Some((host, port)) =>
@@ -58,40 +58,39 @@ class HttpServerHandler(proxy: HttpProxy) extends ServerHandler(proxy) with Scal
         }
     }
 
-    proxy.clientBootstrap
+    proxy.remoteBootstrap
       .connect(inetSocketAddress)
       .addListener { future: ChannelFuture =>
         if (future.isSuccess) {
-          val clientChannel = future.getChannel
-          setupClientChannel(clientChannel, proxy.controller, serverChannel, performConnect = false, reconnect = false)
-          writeRequest(clientChannel, request)
+          val remoteChannel = future.getChannel
+          setupRemoteChannel(userChannel, remoteChannel, proxy.controller, performConnect = false, reconnect = false)
+          writeRequest(userChannel, request)
         } else {
           val t = future.getCause
           logger.error(t.getMessage, t)
           // FIXME could be 404 or 500 depending on exception
-          val response = new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND)
-          serverChannel.write(response)
+          userChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.NOT_FOUND))
         }
       }
   }
 
-  def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit =
-    _clientChannel match {
-      case Some(clientChannel) if clientChannel.isConnected =>
+  def propagateRequest(userChannel: Channel, request: HttpRequest): Unit =
+    _remoteChannel match {
+      case Some(remoteChannel) if remoteChannel.isConnected =>
 
-        val remoteAddress = clientChannel.getRemoteAddress.asInstanceOf[InetSocketAddress]
+        val remoteAddress = remoteChannel.getRemoteAddress.asInstanceOf[InetSocketAddress]
         val requestUri = Uri.create(request.getUri)
 
         if (remoteAddress.getHostString != requestUri.getHost || remoteAddress.getPort != defaultPort(requestUri)) {
           // not connected to the proper remote
-          logger.debug("Client counterpart is not connected to the proper remote, closing it")
-          clientChannel.close()
-          writeRequestWithNewChannel(serverChannel, request)
+          logger.debug(s"User channel ${userChannel.getId} remote peer ${remoteChannel.getId} is not connected to the proper host, closing it")
+          remoteChannel.close()
+          writeRequestWithNewChannel(userChannel, request)
 
         } else
-          writeRequest(clientChannel, request)
+          writeRequest(userChannel, request)
 
       case _ =>
-        writeRequestWithNewChannel(serverChannel, request)
+        writeRequestWithNewChannel(userChannel, request)
     }
 }

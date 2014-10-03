@@ -18,7 +18,7 @@ package io.gatling.recorder.http
 import java.net.InetSocketAddress
 import org.jboss.netty.channel.group.DefaultChannelGroup
 import io.gatling.recorder.controller.RecorderController
-import io.gatling.recorder.http.channel.BootstrapFactory.{ newClientBootstrap, newServerBootstrap }
+import io.gatling.recorder.http.channel.BootstrapFactory.{ newRemoteBootstrap, newUserBootstrap }
 import io.gatling.recorder.config.RecorderConfiguration
 
 case class HttpProxy(config: RecorderConfiguration, controller: RecorderController) {
@@ -33,17 +33,17 @@ case class HttpProxy(config: RecorderConfiguration, controller: RecorderControll
   def outgoingUsername = config.proxy.outgoing.username
   def outgoingPassword = config.proxy.outgoing.password
 
-  val clientBootstrap = newClientBootstrap(ssl = false, config)
-  val secureClientBootstrap = newClientBootstrap(ssl = true, config)
+  val remoteBootstrap = newRemoteBootstrap(ssl = false, config)
+  val secureRemoteBootstrap = newRemoteBootstrap(ssl = true, config)
   private val group = new DefaultChannelGroup("Gatling_Recorder")
-  private val serverBootstrap = newServerBootstrap(this, config) // covers both http and https
+  private val userBootstrap = newUserBootstrap(this, config) // covers both http and https
 
-  group.add(serverBootstrap.bind(new InetSocketAddress(port)))
+  group.add(userBootstrap.bind(new InetSocketAddress(port)))
 
   def shutdown(): Unit = {
     group.close.awaitUninterruptibly
-    serverBootstrap.shutdown()
-    clientBootstrap.shutdown()
-    secureClientBootstrap.shutdown()
+    userBootstrap.shutdown()
+    remoteBootstrap.shutdown()
+    secureRemoteBootstrap.shutdown()
   }
 }

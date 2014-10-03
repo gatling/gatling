@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.http.handler.server
+package io.gatling.recorder.http.handler.user
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.recorder.http.channel.BootstrapFactory._

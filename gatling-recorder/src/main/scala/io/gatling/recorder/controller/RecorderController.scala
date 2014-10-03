@@ -16,7 +16,7 @@
 package io.gatling.recorder.controller
 
 import com.ning.http.client.uri.Uri
-import io.gatling.recorder.http.handler.client.TimedHttpRequest
+import io.gatling.recorder.http.handler.remote.TimedHttpRequest
 
 import scala.collection.mutable
 import scala.concurrent.duration.DurationLong

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.http.handler.server
+package io.gatling.recorder.http.handler.user
 
 import java.net.InetSocketAddress
 
@@ -24,18 +24,19 @@ import io.gatling.http.HeaderNames
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
-import io.gatling.recorder.http.handler.client.{ TimedHttpRequest, ClientHandler }
+import io.gatling.recorder.http.handler.remote.{ TimedHttpRequest, RemoteHandler }
 import org.jboss.netty.channel._
 import org.jboss.netty.handler.codec.http.HttpRequest
 
-abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
+abstract class UserHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
 
-  var _clientChannel: Option[Channel] = None
+  @volatile var _remoteChannel: Option[Channel] = None
 
   override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent): Unit =
-
     event.getMessage match {
       case request: HttpRequest =>
+
+        logger.debug(s"Received request on user channel ${ctx.getChannel.getId} remote peer is ${_remoteChannel.map(_.getId)}")
 
         proxy.outgoingProxy match {
           case None =>
@@ -57,16 +58,20 @@ abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with
       case unknown => logger.warn(s"Received unknown message: $unknown")
     }
 
-  def propagateRequest(serverChannel: Channel, request: HttpRequest): Unit
+  def propagateRequest(userChannel: Channel, request: HttpRequest): Unit
 
   override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
-    logger.error(s"Exception caught on channel ${ctx.getChannel.getId}", e.getCause)
+    logger.error(s"Exception caught on user channel ${ctx.getChannel.getId}", e.getCause)
 
-    if (ctx.getChannel.isReadable)
+    if (ctx.getChannel.isReadable) {
+      logger.debug(s"Exception, closing user channel ${ctx.getChannel.getId}")
       ctx.getChannel.close()
-    _clientChannel.foreach { clientChannel =>
-      if (clientChannel.isReadable)
-        clientChannel.close()
+    }
+    _remoteChannel.foreach { remoteChannel =>
+      if (remoteChannel.isReadable) {
+        logger.debug(s"Exception, closing remote channel ${ctx.getChannel.getId} too")
+        remoteChannel.close()
+      }
     }
   }
 
@@ -82,24 +87,28 @@ abstract class ServerHandler(proxy: HttpProxy) extends SimpleChannelHandler with
   def computeInetSocketAddress(uri: Uri): InetSocketAddress =
     new InetSocketAddress(uri.getHost, defaultPort(uri))
 
-  def writeRequestToClient(clientChannel: Channel, clientRequest: HttpRequest, loggedRequest: HttpRequest): Unit = {
-    clientChannel.getPipeline.getContext(GatlingHandlerName).setAttachment(TimedHttpRequest(loggedRequest))
-    logger.debug(s"About to write client request with channel ${clientChannel.getId} connected=${clientChannel.isConnected}")
-    clientChannel.write(clientRequest)
-  }
+  def writeRequestToRemote(userChannel: Channel, remoteRequest: HttpRequest, loggedRequest: HttpRequest): Unit =
+    _remoteChannel.foreach { remoteChannel =>
+      remoteChannel.getPipeline.getContext(GatlingHandlerName).setAttachment(TimedHttpRequest(loggedRequest))
+      logger.debug(s"Propagating request from user channel ${userChannel.getId} to remote channel ${remoteChannel.getId} connected=${remoteChannel.isConnected}")
+      remoteChannel.write(remoteRequest)
+    }
 
-  def setupClientChannel(clientChannel: Channel, controller: RecorderController, serverChannel: Channel, performConnect: Boolean, reconnect: Boolean): Unit = {
-    clientChannel.getPipeline.addLast(GatlingHandlerName, new ClientHandler(controller, serverChannel, performConnect, reconnect))
-    _clientChannel = Some(clientChannel)
+  def setupRemoteChannel(userChannel: Channel, remoteChannel: Channel, controller: RecorderController, performConnect: Boolean, reconnect: Boolean): Unit = {
+    logger.debug(s"Attaching user channel ${userChannel.getId} and remote peer ${remoteChannel.getId}")
+    _remoteChannel = Some(remoteChannel)
+    remoteChannel.getPipeline.addLast(GatlingHandlerName, new RemoteHandler(controller, userChannel, performConnect, reconnect))
   }
 
   override def channelDisconnected(ctx: ChannelHandlerContext, event: ChannelStateEvent): Unit = {
+    logger.debug(s"User channel ${ctx.getChannel.getId} was closed, remote peer is ${_remoteChannel.map(_.getId)}")
     super.channelDisconnected(ctx, event)
-    _clientChannel.foreach { clientChannel =>
-      logger.debug(s"server channel ${ctx.getChannel.getId} was closed, closing pear client channel ${clientChannel.getId}")
-      if (clientChannel.isReadable)
-        clientChannel.close()
-      _clientChannel = None
+    _remoteChannel.foreach { remoteChannel =>
+      _remoteChannel = None
+      if (remoteChannel.isReadable) {
+        logger.debug(s"User channel ${ctx.getChannel.getId} was closed, closing peer remote channel ${remoteChannel.getId}")
+        remoteChannel.close()
+      }
     }
   }
 }

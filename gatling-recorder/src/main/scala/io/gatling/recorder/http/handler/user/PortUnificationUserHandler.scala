@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.http.handler.server
+package io.gatling.recorder.http.handler.user
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import io.gatling.recorder.http.HttpProxy
@@ -21,7 +21,7 @@ import io.gatling.recorder.http.channel.BootstrapFactory._
 import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelPipeline, MessageEvent, SimpleChannelHandler }
 import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest }
 
-class PortUnificationServerHandler(proxy: HttpProxy, pipeline: ChannelPipeline) extends SimpleChannelHandler with StrictLogging {
+class PortUnificationUserHandler(proxy: HttpProxy, pipeline: ChannelPipeline) extends SimpleChannelHandler with StrictLogging {
 
   override def messageReceived(requestContext: ChannelHandlerContext, event: MessageEvent): Unit =
     try
@@ -29,9 +29,9 @@ class PortUnificationServerHandler(proxy: HttpProxy, pipeline: ChannelPipeline) 
         case request: HttpRequest =>
           val serverHandler =
             if (request.getMethod.toString == HttpMethod.CONNECT.getName)
-              new HttpsServerHandler(proxy)
+              new HttpsUserHandler(proxy)
             else
-              new HttpServerHandler(proxy)
+              new HttpUserHandler(proxy)
           pipeline.addLast(GatlingHandlerName, serverHandler)
           pipeline.remove(PortUnificationServerHandler)
 
