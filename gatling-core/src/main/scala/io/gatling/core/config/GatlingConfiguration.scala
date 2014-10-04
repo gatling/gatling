@@ -217,7 +217,8 @@ ${obsoleteUsages.mkString("\n")}""")
           httpClientCodecMaxInitialLineLength = config.getInt(http.ahc.HttpClientCodecMaxInitialLineLength),
           httpClientCodecMaxHeaderSize = config.getInt(http.ahc.HttpClientCodecMaxHeaderSize),
           httpClientCodecMaxChunkSize = config.getInt(http.ahc.HttpClientCodecMaxChunkSize),
-          keepEncodingHeader = config.getBoolean(http.ahc.KeepEncodingHeader))),
+          keepEncodingHeader = config.getBoolean(http.ahc.KeepEncodingHeader),
+          webSocketMaxFrameSize = config.getInt(http.ahc.WebSocketMaxFrameSize))),
       data = DataConfiguration(
         dataWriterClasses = config.getString(data.Writers).toStringList.map {
           case "console"  => "io.gatling.core.result.writer.ConsoleDataWriter"
@@ -364,7 +365,8 @@ case class AHCConfiguration(
   httpClientCodecMaxInitialLineLength: Int,
   httpClientCodecMaxHeaderSize: Int,
   httpClientCodecMaxChunkSize: Int,
-  keepEncodingHeader: Boolean)
+  keepEncodingHeader: Boolean,
+  webSocketMaxFrameSize: Int)
 
 case class SslConfiguration(
   trustStore: Option[StoreConfiguration],

@@ -153,6 +153,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
         new NettyWebSocket(channel, nettyConfig, new JArrayList[WebSocketListener](1))
     })
     nettyConfig.setKeepEncodingHeader(configuration.http.ahc.keepEncodingHeader)
+    nettyConfig.setWebSocketMaxFrameSize(configuration.http.ahc.webSocketMaxFrameSize)
     nettyConfig
   }
 
