@@ -22,8 +22,8 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object TypeHelper {
 
-  def isAnyValOrString[T: TypeTag](obj: T): Boolean =
-    implicitly[TypeTag[T]].tpe <:< typeOf[AnyVal] || obj.isInstanceOf[String]
+  def isAnyValOrString[T: TypeTag](obj: T) =
+    typeOf[T] <:< typeOf[AnyVal] || obj.isInstanceOf[String]
 
   val NullValueFailure = s"Value is null".failure
 
