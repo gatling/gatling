@@ -26,7 +26,7 @@ import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.remote.{ TimedHttpRequest, RemoteHandler }
 import org.jboss.netty.channel._
-import org.jboss.netty.handler.codec.http.{HttpChunk, HttpRequest}
+import org.jboss.netty.handler.codec.http.{ HttpChunk, HttpRequest }
 
 abstract class UserHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
 
