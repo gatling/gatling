@@ -1065,6 +1065,19 @@
         </div>
 
         <div class="function">
+          <label class="function-syntax" for="ntlmAuth">ntlmAuth</label>
+          <input type="checkbox" id="ntlmAuth" name="ntlmAuth">
+
+          <div class="function-details">
+            Sets the credentials for NTLM authentication
+            <dl>
+              <dt>(user, password)</dt>
+              <dd>Will authenticate as <i>user</i> with <i>password</i></dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
           <label class="function-syntax" for="authRealm">authRealm</label>
           <input type="checkbox" id="authRealm" name="authRealm">
 
@@ -1642,25 +1655,25 @@
       </div>
     </div>
 
-    <!-- HTTP Configuration -->
+    <!-- HTTP Protocol -->
 
     <div class="row-fluid">
       <h2>
-        HTTP Configuration
-        <small>Factorise your scenario's code and tune the behaviour of Gatling's HTTP client</small>
+        HTTP Protocol
+        <small>Mutualize your scenario's code and tune the behaviour of Gatling's HTTP client</small>
       </h2>
 
-      <!-- HTTP Configuration -->
+      <!-- HTTP Protocol -->
 
       <div class="http-config group col-lg-4 col-md-6 col-xs-12">
-        <h3>Configuration</h3>
+        <h3>Protocol</h3>
 
         <div class="function">
           <label class="function-syntax" for="http2">http</label>
           <input type="checkbox" id="http2" name="http">
 
           <div class="function-details">
-            Entry point of your HTTP configuration
+            Entry point of your HTTP protocol
           </div>
         </div>
       </div>
@@ -2027,8 +2040,61 @@
           Silence resource requests
           A silent request is issued but not logged nor reported
         </div>
+
+        <div class="function">
+          <label class="function-syntax" for="basicAuth-protocol">basicAuth</label>
+          <input type="checkbox" id="basicAuth-protocol" name="basicAuth-protocol">
+
+          <div class="function-details">
+            Sets the credentials for BASIC authentication
+            <dl>
+              <dt>(user, password)</dt>
+              <dd>Will authenticate as <i>user</i> with <i>password</i></dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="digestAuth-protocol">digestAuth</label>
+          <input type="checkbox" id="digestAuth-protocol" name="digestAuth-protocol">
+
+          <div class="function-details">
+            Sets the credentials for DIGEST authentication
+            <dl>
+              <dt>(user, password)</dt>
+              <dd>Will authenticate as <i>user</i> with <i>password</i></dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="ntlmAuth-protocol">ntlmAuth</label>
+          <input type="checkbox" id="ntlmAuth-protocol" name="ntlmAuth-protocol">
+
+          <div class="function-details">
+            Sets the credentials for NTLM authentication
+            <dl>
+              <dt>(user, password)</dt>
+              <dd>Will authenticate as <i>user</i> with <i>password</i></dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="authRealm-protocol">authRealm</label>
+          <input type="checkbox" id="authRealm-protocol" name="authRealm-protocol">
+
+          <div class="function-details">
+            Generic method to add authentication
+            <dl>
+              <dt>(Realm)</dt>
+              <dd>Takes a <i>Realm</i> instance</dd>
+            </dl>
+          </div>
+        </div>
+
       </div>
-      </div>
+    </div>
 
       <!-- Plumbing -->
 
@@ -2567,7 +2633,7 @@
     <div class="row-fluid">
       <h2>
         Websockets Configuration
-        <small>Factorise your websockets code and tune the behaviour of Gatling's websocket client</small>
+        <small>Mutualize your websockets code and tune the behaviour of Gatling's websocket client</small>
       </h2>
 
       <!-- Configuration -->
