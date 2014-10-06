@@ -106,8 +106,8 @@ package object builder {
             case Nil => ahcParams.success
             case head :: tail =>
               update(ahcParams, head) match {
-                case Success(newFsm) => resolveParamJList(newFsm, tail)
-                case f               => f
+                case Success(newAhcParams) => resolveParamJList(newAhcParams, tail)
+                case f                     => f
               }
           }
 

@@ -64,18 +64,16 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
     requestBuilder.success
   }
 
-  def configureQuery(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
-
-    if (commonAttributes.queryParams.nonEmpty)
-      commonAttributes.queryParams.resolveParamJList(session).map(requestBuilder.addQueryParams(_).setUri(uri))
-    else
-      requestBuilder.setUri(uri).success
-  }
+  def configureQuery(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
+    commonAttributes.queryParams match {
+      case Nil         => requestBuilder.success
+      case queryParams => queryParams.resolveParamJList(session).map(requestBuilder.addQueryParams)
+    }
 
   def configureVirtualHost(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
     commonAttributes.virtualHost.orElse(protocol.enginePart.virtualHost) match {
+      case None              => requestBuilder.success
       case Some(virtualHost) => virtualHost(session).map(requestBuilder.setVirtualHost)
-      case _                 => requestBuilder.success
     }
 
   def configureHeaders(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
@@ -109,16 +107,18 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
     }
 
   protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
-    configureProxy(uri)(requestBuilder)
+    configureProxy(uri)(requestBuilder.setUri(uri))
       .flatMap(configureCookies(session, uri))
       .flatMap(configureQuery(session, uri))
       .flatMap(configureVirtualHost(session))
       .flatMap(configureHeaders(session))
       .flatMap(configureRealm(session))
 
-  def build: Expression[Request] =
+  def build: Expression[Request] = {
+
+    val disableUrlEscaping = commonAttributes.disableUrlEncoding.getOrElse(protocol.requestPart.disableUrlEscaping)
+
     (session: Session) => {
-      val disableUrlEscaping = commonAttributes.disableUrlEncoding.getOrElse(protocol.requestPart.disableUrlEscaping)
       val requestBuilder = new AHCRequestBuilder(commonAttributes.method, disableUrlEscaping)
 
       requestBuilder.setBodyEncoding(configuration.core.encoding)
@@ -142,4 +142,5 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
           s"Failed to build request: ${e.getMessage}".failure
       }
     }
+  }
 }
