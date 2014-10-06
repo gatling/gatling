@@ -65,6 +65,7 @@ The building blocks for profile injection the way you want are:
   If you have a high creation rate of users with a short lifespan, you'll end up opening and closing tons of connections every seconds.
   As a consequence, you might run out of resources (such as ephemeral ports, because your OS can't recycle them fast enough).
   If that's the case, you might:
+
    * consider scaling out
    * reconsider your injection model: maybe you're testing a webservice that's used by just a few clients, so you should be using a closed model and just few connections
    * tune Gatling's behavior and :ref:`share the connection pool amongst virtual users <http-protocol-connection-sharing>`.
