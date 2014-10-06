@@ -82,6 +82,14 @@ class RemoteHandler(controller: RecorderController, userChannel: Channel, var pe
         else
           handleRequest(response)
 
+      case chunk: HttpChunk =>
+        if (userChannel.isConnected) {
+          logger.debug(s"Write response chunk to user channel ${userChannel.getId}")
+          userChannel.write(chunk)
+
+        } else
+          logger.error(s"Can't write response chunk to disconnected user channel ${userChannel.getId}, ignoring")
+
       case unknown => logger.warn(s"Received unknown message: $unknown")
     }
   }
