@@ -15,14 +15,14 @@
  */
 package io.gatling.charts.report
 
-import java.net.URI
+import java.nio.file.Path
 
 import com.dongxiguo.fastring.Fastring
 
 import io.gatling.core.util.IO._
-import io.gatling.core.util.UriHelper.RichUri
+import io.gatling.core.util.PathHelper._
 
-class TemplateWriter(path: URI) {
+class TemplateWriter(path: Path) {
 
   def writeToFile(output: Fastring): Unit =
     withCloseable(path.writer()) { output.appendTo }

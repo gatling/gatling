@@ -15,8 +15,6 @@
  */
 package io.gatling.core.assertion
 
-import scala.reflect.io.Path
-
 import io.gatling.core.result.{ GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.Status
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
@@ -24,16 +22,18 @@ import io.gatling.core.validation._
 
 trait AssertionSupport {
 
+  implicit def string2pathBuilder(string: String) = AssertionPath.string2assertionPath(string)
+
   val global = new Selector((reader, status) => reader.requestGeneralStats(None, None, status).success, "Global")
 
-  def details(selector: Path): Selector = {
+  def details(selector: AssertionPath): Selector = {
 
-      def generalStats(selector: Path): (DataReader, Option[Status]) => Validation[GeneralStats] = (reader, status) =>
-        if (selector.segments.isEmpty)
+      def generalStats(selector: AssertionPath): (DataReader, Option[Status]) => Validation[GeneralStats] = (reader, status) =>
+        if (selector.parts.isEmpty)
           reader.requestGeneralStats(None, None, status).success
 
         else {
-          val selectedPath: List[String] = selector.segments
+          val selectedPath: List[String] = selector.parts
           val foundPath = reader.statsPaths.find { statsPath =>
             val path: List[String] = statsPath match {
               case RequestStatsPath(request, group) =>
@@ -53,6 +53,6 @@ trait AssertionSupport {
           }
         }
 
-    new Selector(generalStats(selector), selector.segments.mkString(" / "))
+    new Selector(generalStats(selector), selector.parts.mkString(" / "))
   }
 }

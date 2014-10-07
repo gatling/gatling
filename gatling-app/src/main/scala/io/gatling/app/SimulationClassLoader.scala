@@ -17,48 +17,41 @@ package io.gatling.app
 
 import java.io.File
 import java.lang.reflect.Modifier
-import java.net.URI
+import java.nio.file.Path
 
-import scala.tools.nsc.interpreter.AbstractFileClassLoader
-import scala.tools.nsc.io.Path
-import scala.tools.nsc.io.Path.string2path
-import scala.tools.nsc.io.PlainFile
 import scala.util.{ Try, Success }
 
 import io.gatling.core.scenario.Simulation
-import io.gatling.core.util.UriHelper.RichUri
+import io.gatling.core.util.PathHelper._
 
 object SimulationClassLoader {
 
-  def fromSourcesDirectory(sourceDirectory: URI): SimulationClassLoader = {
+  def fromSourcesDirectory(sourceDirectory: Path): SimulationClassLoader = {
 
     // Compile the classes
     val classesDir = ZincCompilerLauncher(sourceDirectory)
 
     // Pass the compiled classes to a ClassLoader
-    Option(PlainFile.fromPath(classesDir.toPath)) match {
-      case Some(byteCodeDir) =>
-        val classLoader = new AbstractFileClassLoader(byteCodeDir, getClass.getClassLoader)
-
-        new SimulationClassLoader(classLoader, classesDir)
-
-      case None =>
-        throw new UnsupportedOperationException(s"""Zinc compiled into $classesDir but this is not a directory""")
+    if (classesDir.isDirectory) {
+      val classLoader = new FileSystemBackedClassLoader(classesDir, getClass.getClassLoader)
+      new SimulationClassLoader(classLoader, classesDir)
+    } else {
+      throw new UnsupportedOperationException(s"""Zinc compiled into $classesDir but this is not a directory""")
     }
   }
 
-  def fromClasspathBinariesDirectory(binariesDirectory: URI): SimulationClassLoader =
+  def fromClasspathBinariesDirectory(binariesDirectory: Path): SimulationClassLoader =
     new SimulationClassLoader(getClass.getClassLoader, binariesDirectory)
 }
 
-class SimulationClassLoader(classLoader: ClassLoader, binaryDir: URI) {
+class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {
 
   private def isSimulationClass(clazz: Class[_]): Boolean =
     classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
 
   private def pathToClassName(path: Path, root: Path): String =
-    (path.parent / path.stripExtension)
-      .toString()
+    (path.getParent / path.stripExtension)
+      .toString
       .stripPrefix(root + File.separator)
       .replace(File.separator, ".")
 
@@ -77,9 +70,8 @@ class SimulationClassLoader(classLoader: ClassLoader, binaryDir: URI) {
       }
     }.getOrElse {
       binaryDir
-        .toPath.toDirectory
         .deepFiles
-        .collect { case file if file.hasExtension("class") => classLoader.loadClass(pathToClassName(file, binaryDir.toPath)) }
+        .collect { case file if file.hasExtension("class") => classLoader.loadClass(pathToClassName(file, binaryDir)) }
         .collect { case clazz if isSimulationClass(clazz) => clazz.asInstanceOf[Class[Simulation]] }
         .toList
     }

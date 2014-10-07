@@ -15,10 +15,10 @@
  */
 package io.gatling.recorder.ui
 
-import scala.reflect.io.Path.string2path
 import scala.swing.Dialog
 import scala.swing.Swing.onEDT
 
+import io.gatling.core.util.PathHelper._
 import io.gatling.recorder.RecorderMode
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.swing.component.DialogFileSelector
@@ -99,8 +99,8 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
       } else {
         val selector = new DialogFileSelector(configurationFrame, possibleMatches)
         selector.open()
-        val parentPath = harFilePath.parent.path
-        configurationFrame.updateHarFilePath(selector.selectedFile.map(file => (parentPath / file).toString()))
+        val parentPath = harFilePath.getParent
+        configurationFrame.updateHarFilePath(selector.selectedFile.map(file => (parentPath / file).toString))
       }
     }
   }
@@ -149,8 +149,8 @@ private class SwingFrontend(controller: RecorderController) extends RecorderFron
 
   def receiveEventInfo(eventInfo: EventInfo): Unit = onEDT(runningFrame.receiveEventInfo(eventInfo))
 
-  private def lookupFiles(path: String) = {
-    val parent = path.parent
-    parent.files.filter(_.path.startsWith(path)).map(_.name).toList
+  private def lookupFiles(path: String): List[String] = {
+    val parent = path.getParent
+    parent.files.filter(_.path.startsWith(path)).map(_.filename).toList
   }
 }

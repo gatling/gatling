@@ -35,7 +35,6 @@ import io.gatling.core.result.reader.DataReader
 import io.gatling.core.runner.{ Runner, Selection }
 import io.gatling.core.scenario.Simulation
 import io.gatling.core.util.StringHelper.RichString
-import io.gatling.core.util.UriHelper.RichUri
 import scopt.OptionParser
 
 /**

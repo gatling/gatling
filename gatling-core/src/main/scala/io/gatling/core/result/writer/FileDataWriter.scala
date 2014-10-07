@@ -25,7 +25,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.Group
 import io.gatling.core.util.StringHelper._
-import io.gatling.core.util.UriHelper.RichUri
+import io.gatling.core.util.PathHelper._
 
 object FileDataWriter {
 

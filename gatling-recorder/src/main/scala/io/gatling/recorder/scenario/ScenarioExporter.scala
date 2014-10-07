@@ -15,16 +15,15 @@
  */
 package io.gatling.recorder.scenario
 
-import java.io.{ FileOutputStream, IOException }
+import java.io.{ File, IOException }
 
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
-import scala.reflect.io.Path.string2path
-import scala.tools.nsc.io.{ Directory, File }
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.util.IO._
+import io.gatling.core.util.PathHelper._
 import io.gatling.core.validation._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.recorder.config.RecorderConfiguration
@@ -64,7 +63,7 @@ object ScenarioExporter extends StrictLogging {
 
     val output = renderScenarioAndDumpBodies(scenarioElements)
 
-    withCloseable(new FileOutputStream(File(simulationFilePath).jfile)) {
+    withCloseable(simulationFilePath.outputStream) {
       _.write(output.getBytes(config.core.encoding))
     }
   }
@@ -184,7 +183,7 @@ object ScenarioExporter extends StrictLogging {
 
   private def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String)(implicit config: RecorderConfiguration): Unit = {
     val fileName = f"${simulationClass}_request_$idEvent%04d.txt"
-    withCloseable(File(getFolder(config.core.requestBodiesFolder) / fileName).outputStream()) { fw =>
+    withCloseable((getFolder(config.core.requestBodiesFolder) / fileName).outputStream) { fw =>
       try {
         fw.write(content)
       } catch {
@@ -193,5 +192,5 @@ object ScenarioExporter extends StrictLogging {
     }
   }
 
-  private def getFolder(folderPath: String) = Directory(folderPath).createDirectory()
+  private def getFolder(folderPath: String) = string2path(folderPath).mkdirs
 }

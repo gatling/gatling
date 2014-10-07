@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.result.reader
 
-import java.io.{ FileInputStream, InputStream }
+import java.io.InputStream
 
 import scala.collection.breakOut
 import scala.collection.mutable
@@ -31,7 +31,7 @@ import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ DataReader, GeneralStats }
 import io.gatling.core.result.writer._
-import io.gatling.core.util.UriHelper.RichUri
+import io.gatling.core.util.PathHelper._
 
 object FileDataReader {
 
@@ -47,8 +47,8 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
   println("Parsing log file(s)...")
 
-  val inputFiles = simulationLogDirectory(runUuid, create = false).toFile.listFiles()
-    .collect { case file if file.getName.matches(SimulationFilesNamePattern) => file }
+  val inputFiles = simulationLogDirectory(runUuid, create = false).files
+    .collect { case path if path.filename.matches(SimulationFilesNamePattern) => path }
     .toList
 
   logger.info(s"Collected $inputFiles from $runUuid")
@@ -59,7 +59,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
       def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] =
         streams.map(Source.fromInputStream(_)(configuration.core.codec).getLines()).reduce((first, second) => first ++ second)
 
-    val streams = inputFiles.map(new FileInputStream(_))
+    val streams = inputFiles.map(_.inputStream)
     try f(multipleFileIterator(streams))
     finally streams.foreach(_.close)
   }
