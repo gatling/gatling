@@ -96,57 +96,59 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
 
       def interactiveSelect(simulations: List[Class[Simulation]]): Selection = {
 
-          @tailrec
-          def selectSimulationClass(simulations: List[Class[Simulation]]): Class[Simulation] = {
+        val simulation: Class[Simulation] = {
+            @tailrec
+            def loop(): Class[Simulation] = {
 
-              def readSimulationNumber: Int =
-                Try(Console.readInt()).getOrElse {
-                  println("Invalid characters, please provide a correct simulation number:")
+                def readSimulationNumber: Int =
+                  Try(Console.readInt()).getOrElse {
+                    println("Invalid characters, please provide a correct simulation number:")
+                    readSimulationNumber
+                  }
+
+              val selection = simulations.size match {
+                case 0 =>
+                  // If there is no simulation file
+                  println("There is no simulation script. Please check that your scripts are in user-files/simulations")
+                  sys.exit()
+                case 1 =>
+                  println(s"${simulations.head.getName} is the only simulation, executing it.")
+                  0
+                case _ =>
+                  println("Choose a simulation number:")
+                  for ((simulation, index) <- simulations.zipWithIndex) {
+                    println(s"     [$index] ${simulation.getName}")
+                  }
                   readSimulationNumber
-                }
+              }
 
-            val selection = simulations.size match {
-              case 0 =>
-                // If there is no simulation file
-                println("There is no simulation script. Please check that your scripts are in user-files/simulations")
-                sys.exit()
-              case 1 =>
-                println(s"${simulations.head.getName} is the only simulation, executing it.")
-                0
-              case _ =>
-                println("Choose a simulation number:")
-                for ((simulation, index) <- simulations.zipWithIndex) {
-                  println(s"     [$index] ${simulation.getName}")
-                }
-                readSimulationNumber
+              val validRange = 0 until simulations.size
+              if (validRange contains selection)
+                simulations(selection)
+              else {
+                println(s"Invalid selection, must be in $validRange")
+                loop()
+              }
             }
 
-            val validRange = 0 until simulations.size
-            if (validRange contains selection)
-              simulations(selection)
-            else {
-              println(s"Invalid selection, must be in $validRange")
-              selectSimulationClass(simulations)
-            }
-          }
-
-        val simulation = selectSimulationClass(simulations)
+          loop()
+        }
 
         val myDefaultOutputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
 
         val userInput: String = {
             @tailrec
-            def _userInput: String = {
+            def loop(): String = {
               println(s"Select simulation id (default is '$myDefaultOutputDirectoryBaseName'). Accepted characters are a-z, A-Z, 0-9, - and _")
               val input = Console.readLine().trim
               if (input.matches("[\\w-_]*"))
                 input
               else {
                 println(s"$input contains illegal characters")
-                _userInput
+                loop()
               }
             }
-          _userInput
+          loop()
         }
 
         val simulationId = if (!userInput.isEmpty) userInput else myDefaultOutputDirectoryBaseName
