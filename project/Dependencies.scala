@@ -42,7 +42,7 @@ object Dependencies {
 
   private val scalaTest                      = "org.scalatest"                         %% "scalatest"                   % "2.2.2"       % "test"
   private val akkaTestKit                    = "com.typesafe.akka"                     %% "akka-testkit"                % akkaVersion   % "test"
-  private val mockitoCore                    = "org.mockito"                            % "mockito-core"                % "1.9.5"       % "test"
+  private val mockitoCore                    = "org.mockito"                            % "mockito-core"                % "1.10.5"      % "test"
   private val activemqCore                   = "org.apache.activemq"                    % "activemq-broker"             % "5.8.0"       % "test"
   private val sprayCan                       = "io.spray"                               % "spray-can"                   % "1.3.1"       % "test"
   private val h2                             = "com.h2database"                         % "h2"                          % "1.4.181"     % "test"
