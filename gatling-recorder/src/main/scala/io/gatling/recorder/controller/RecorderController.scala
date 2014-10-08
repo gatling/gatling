@@ -15,13 +15,13 @@
  */
 package io.gatling.recorder.controller
 
+import java.nio.file.Path
+
 import com.ning.http.client.uri.Uri
 import io.gatling.recorder.http.handler.remote.TimedHttpRequest
 
 import scala.collection.mutable
 import scala.concurrent.duration.DurationLong
-import scala.reflect.io.Path.string2path
-import scala.tools.nsc.io.File
 
 import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
@@ -30,16 +30,17 @@ import com.ning.http.util.Base64
 import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import io.gatling.core.validation.{ Failure, Success }
+import io.gatling.core.util.PathHelper._
 import io.gatling.recorder.{ Har, Proxy }
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.HttpProxy
-import io.gatling.recorder.scenario.{ RequestElement, ScenarioDefinition, ScenarioExporter, TimedScenarioElement, TagElement }
-import io.gatling.recorder.ui.{ PauseInfo, RecorderFrontend, RequestInfo, SSLInfo, TagInfo }
+import io.gatling.recorder.scenario._
+import io.gatling.recorder.ui._
 
 object RecorderController {
-  def apply(props: Map[String, Any], recorderConfigFile: Option[File] = None): Unit = {
+  def apply(props: Map[String, Any], recorderConfigFile: Option[Path] = None): Unit = {
     RecorderConfiguration.initialSetup(props, recorderConfigFile)
     new RecorderController
   }
@@ -63,11 +64,11 @@ class RecorderController extends StrictLogging {
   def startRecording(): Unit = {
     val selectedMode = frontEnd.selectedMode
     val harFilePath = frontEnd.harFilePath
-    if (selectedMode == Har && !File(harFilePath).exists) {
+    if (selectedMode == Har && !string2path(harFilePath).exists) {
       frontEnd.handleMissingHarFile(harFilePath)
     } else {
       implicit val config = configuration
-      val simulationFile = File(ScenarioExporter.simulationFilePath)
+      val simulationFile = ScenarioExporter.simulationFilePath
       val proceed = if (simulationFile.exists) frontEnd.askSimulationOverwrite else true
       if (proceed) {
         selectedMode match {

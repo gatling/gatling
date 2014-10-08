@@ -15,7 +15,6 @@
  */
 package io.gatling.http.feeder
 
-import scala.reflect.io.File
 import io.gatling.core.feeder.RecordSeqFeederBuilder
 import io.gatling.core.config.Resource
 import io.gatling.core.validation.{ Failure, Success, Validation }
@@ -27,7 +26,6 @@ import io.gatling.core.validation.{ Failure, Success, Validation }
  */
 trait SitemapFeederSupport {
 
-  def sitemap(file: File): RecordSeqFeederBuilder[String] = sitemap(file.path)
   def sitemap(fileName: String): RecordSeqFeederBuilder[String] = sitemap(Resource.feeder(fileName))
 
   def sitemap(resource: Validation[Resource]): RecordSeqFeederBuilder[String] =

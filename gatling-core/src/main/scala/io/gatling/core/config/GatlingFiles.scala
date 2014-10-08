@@ -15,47 +15,39 @@
  */
 package io.gatling.core.config
 
-import java.io.File
-import java.net.URI
+import java.nio.file.Path
 
-import scala.tools.nsc.io.Path
-import scala.tools.nsc.io.Path.string2path
 import scala.util.Properties.{ envOrElse, propOrElse }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.UriHelper._
+import io.gatling.core.util.PathHelper._
 
 object GatlingFiles {
 
-  val GatlingHome: URI = pathToUri(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
-  val GatlingAssetsPackage = "assets"
-  val GatlingJsFolder = "js"
-  val GatlingStyleFolder = "style"
+  val GatlingHome: Path = string2path(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
+  val GatlingAssetsPackage: Path = "assets"
+  val GatlingJsFolder: Path = "js"
+  val GatlingStyleFolder: Path = "style"
   val GatlingAssetsJsPackage = GatlingAssetsPackage / GatlingJsFolder
   val GatlingAssetsStylePackage = GatlingAssetsPackage / GatlingStyleFolder
 
-  private def resolvePath(path: String): URI = {
-    val rawPath = Path(path)
-    if (rawPath.isAbsolute || rawPath.exists) path.toURI else GatlingHome / path
+  private def resolvePath(path: Path): Path = {
+    if (path.isAbsolute || path.exists) path else GatlingHome / path
   }
 
-  def dataDirectory: URI = resolvePath(configuration.core.directory.data)
-  def requestBodiesDirectory: URI = resolvePath(configuration.core.directory.requestBodies)
-  def sourcesDirectory: URI = resolvePath(configuration.core.directory.sources)
+  def dataDirectory: Path = resolvePath(configuration.core.directory.data)
+  def requestBodiesDirectory: Path = resolvePath(configuration.core.directory.requestBodies)
+  def sourcesDirectory: Path = resolvePath(configuration.core.directory.sources)
   def reportsOnlyDirectory: Option[String] = configuration.core.directory.reportsOnly
-  def binariesDirectory: Option[URI] = configuration.core.directory.binaries.map(new File(_).toURI)
-  // FIXME : UriHelper (or other solutions) should be less strict about what non-existing folders in URIs
-  def resultDirectory(runUuid: String): URI = resolvePath(configuration.core.directory.results + "/" + runUuid)
-  def jsDirectory(runUuid: String): URI = resultDirectory(runUuid) / GatlingJsFolder
-  def styleDirectory(runUuid: String): URI = resultDirectory(runUuid) / GatlingStyleFolder
+  def binariesDirectory: Option[Path] = configuration.core.directory.binaries.map(string2path)
+  def resultDirectory(runUuid: String): Path = resolvePath(configuration.core.directory.results) / runUuid
+  def jsDirectory(runUuid: String): Path = resultDirectory(runUuid) / GatlingJsFolder
+  def styleDirectory(runUuid: String): Path = resultDirectory(runUuid) / GatlingStyleFolder
 
-  def simulationLogDirectory(runUuid: String, create: Boolean = true): URI = {
+  def simulationLogDirectory(runUuid: String, create: Boolean = true): Path = {
     val dir = resultDirectory(runUuid)
-    if (create) {
-      dir.toFile.mkdirs()
-      // FIXME : clean it up, currently necessary to ensure that it is a dir URI
-      resultDirectory(runUuid)
-    } else {
+    if (create) dir.mkdirs
+    else {
       require(dir.toFile.exists, s"simulation directory '$dir' doesn't exist")
       require(dir.toFile.isDirectory, s"simulation directory '$dir' is not a directory")
       dir

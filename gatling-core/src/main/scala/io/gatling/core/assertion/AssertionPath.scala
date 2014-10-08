@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.charts.report
+package io.gatling.core.assertion
 
-import java.nio.file.Path
+object AssertionPath {
+  implicit def string2assertionPath(path: String) = AssertionPath(List(path))
+}
 
-import com.dongxiguo.fastring.Fastring
+case class AssertionPath(parts: List[String]) {
 
-import io.gatling.core.util.IO._
-import io.gatling.core.util.PathHelper._
+  def /(part: String) = copy(parts = parts :+ part)
 
-class TemplateWriter(path: Path) {
-
-  def writeToFile(output: Fastring): Unit =
-    withCloseable(path.writer()) { output.appendTo }
 }

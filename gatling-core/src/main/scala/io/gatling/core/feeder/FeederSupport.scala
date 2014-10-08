@@ -15,8 +15,6 @@
  */
 package io.gatling.core.feeder
 
-import scala.reflect.io.File
-
 import io.gatling.core.config.Resource
 import SeparatedValuesParser.{ CommaSeparator, SemicolonSeparator, TabulationSeparator }
 import io.gatling.core.validation.{ Failure, Success, Validation }
@@ -29,13 +27,8 @@ trait FeederSupport {
   implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): RecordSeqFeederBuilder[T] = RecordSeqFeederBuilder(data)
   implicit def feeder2FeederBuilder[T](feeder: Feeder[T]): FeederBuilder[T] = FeederWrapper(feeder)
 
-  def csv(file: File, rawSplit: Boolean): RecordSeqFeederBuilder[String] = csv(file.path, rawSplit)
   def csv(fileName: String, rawSplit: Boolean = false): RecordSeqFeederBuilder[String] = separatedValues(fileName, CommaSeparator, rawSplit = rawSplit)
-
-  def ssv(file: File, rawSplit: Boolean): RecordSeqFeederBuilder[String] = ssv(file.path, rawSplit)
   def ssv(fileName: String, rawSplit: Boolean = false): RecordSeqFeederBuilder[String] = separatedValues(fileName, SemicolonSeparator, rawSplit = rawSplit)
-
-  def tsv(file: File, rawSplit: Boolean): RecordSeqFeederBuilder[String] = tsv(file.path, rawSplit)
   def tsv(fileName: String, rawSplit: Boolean = false): RecordSeqFeederBuilder[String] = separatedValues(fileName, TabulationSeparator, rawSplit = rawSplit)
 
   def separatedValues(fileName: String, separator: Char, quoteChar: Char = '"', rawSplit: Boolean = false): RecordSeqFeederBuilder[String] =
@@ -44,7 +37,6 @@ trait FeederSupport {
   def separatedValues(resource: Validation[Resource], separator: Char, quoteChar: Char, rawSplit: Boolean): RecordSeqFeederBuilder[String] =
     feederBuilder(resource)(SeparatedValuesParser.parse(_, separator, quoteChar, rawSplit))
 
-  def jsonFile(file: File): RecordSeqFeederBuilder[Any] = jsonFile(file.path)
   def jsonFile(fileName: String): RecordSeqFeederBuilder[Any] = jsonFile(Resource.feeder(fileName))
   def jsonFile(resource: Validation[Resource]): RecordSeqFeederBuilder[Any] =
     feederBuilder(resource)(JsonFeederFileParser.parse)

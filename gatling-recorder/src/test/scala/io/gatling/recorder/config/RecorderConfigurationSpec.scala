@@ -16,10 +16,13 @@
 package io.gatling.recorder.config
 
 import java.io.{ FileNotFoundException, File }
+import java.nio.file.Paths
+
+import io.gatling.core.util.PathHelper._
 
 import org.scalatest.{ BeforeAndAfter, FlatSpec, Matchers }
 
-class RecorderConfigrationSpec extends FlatSpec with Matchers with BeforeAndAfter {
+class RecorderConfigurationSpec extends FlatSpec with Matchers with BeforeAndAfter {
 
   val NON_EXISTING_DIR = "nonExistingDir"
   val EXISTING_DIR = "existingDir"
@@ -31,23 +34,25 @@ class RecorderConfigrationSpec extends FlatSpec with Matchers with BeforeAndAfte
     new File(FILE_NAME).delete()
   }
 
+  def file2path(file: File) = Paths.get(file.toURI)
+
   before(removeAll())
   after(removeAll())
 
   "Recorder Configuration" should "create file if directory exists" in {
-    val resFile = RecorderConfiguration.createAndOpen(new File(FILE_NAME))
+    val resFile = RecorderConfiguration.createAndOpen(file2path(new File(FILE_NAME)))
     resFile.exists shouldBe true
   }
 
   it should "create if parent directory exists" in {
     new File(EXISTING_DIR).mkdir()
     val testFile = new File(EXISTING_DIR, FILE_NAME)
-    val resFile = RecorderConfiguration.createAndOpen(testFile)
+    val resFile = RecorderConfiguration.createAndOpen(file2path(testFile))
     resFile.exists shouldBe true
   }
 
   it should "throw exception if parent directory is missing" in {
     val testFile = new File(NON_EXISTING_DIR, FILE_NAME)
-    a[FileNotFoundException] should be thrownBy RecorderConfiguration.createAndOpen(testFile)
+    a[FileNotFoundException] should be thrownBy RecorderConfiguration.createAndOpen(file2path(testFile))
   }
 }

@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.report
 
-import java.net.URI
+import java.nio.file.Path
 
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
@@ -24,19 +24,18 @@ import io.gatling.core.config.GatlingFiles._
 import io.gatling.core.result.RequestStatsPath
 import io.gatling.core.result.reader.DataReader
 import io.gatling.core.util.ScanHelper.deepCopyPackageContent
-import io.gatling.core.util.UriHelper.RichUri
 
 object ReportsGenerator {
 
-  def generateFor(outputDirectoryName: String, dataReader: DataReader): URI = {
+  def generateFor(outputDirectoryName: String, dataReader: DataReader): Path = {
 
       def generateMenu(): Unit = new TemplateWriter(menuFile(outputDirectoryName)).writeToFile(new MenuTemplate().getOutput)
 
       def generateStats(): Unit = new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.Instance).generate()
 
       def copyAssets(): Unit = {
-        deepCopyPackageContent(GatlingAssetsStylePackage, styleDirectory(outputDirectoryName).toPath)
-        deepCopyPackageContent(GatlingAssetsJsPackage, jsDirectory(outputDirectoryName).toPath)
+        deepCopyPackageContent(GatlingAssetsStylePackage, styleDirectory(outputDirectoryName))
+        deepCopyPackageContent(GatlingAssetsJsPackage, jsDirectory(outputDirectoryName))
       }
 
     if (!dataReader.statsPaths.collectFirst { case r @ RequestStatsPath(_, _) => r }.isDefined) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
@@ -50,7 +49,7 @@ object ReportsGenerator {
     copyAssets()
     generateMenu()
     PageTemplate.setRunInfo(dataReader.runMessage, dataReader.runEnd)
-    reportGenerators.foreach(_.generate)
+    reportGenerators.foreach(_.generate())
     generateStats()
 
     globalFile(outputDirectoryName)

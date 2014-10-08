@@ -15,13 +15,15 @@
  */
 package io.gatling.core.util
 
-import java.io.{ File => JFile }
+import java.io.InputStream
 import java.net.JarURLConnection
+import java.nio.file.{ Path, StandardCopyOption }
+import java.util.jar.JarFile
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
-import scala.tools.nsc.io.{ File, Fileish, Jar, Path }
 
 import io.gatling.core.util.IO._
+import io.gatling.core.util.PathHelper._
 
 object ScanHelper {
 
@@ -29,27 +31,26 @@ object ScanHelper {
 
   def getPackageResources(pkg: Path, deep: Boolean): Iterator[Resource] = {
 
-      def isResourceInRootDir(fileish: Fileish, rootDir: Path): Boolean = {
-        if (fileish.path.extension.isEmpty)
-          false
-        else if (deep)
-          fileish.path.startsWith(rootDir)
-        else
-          fileish.parent == rootDir
-      }
+      def isResourceInRootDir(resource: Path, rootDir: Path): Boolean =
+        if (resource.extension.isEmpty) false
+        else if (deep) resource.startsWith(rootDir)
+        else resource.getParent == rootDir
 
     getClass.getClassLoader.getResources(pkg.toString.replace("\\", "/")).flatMap { pkgURL =>
       pkgURL.getProtocol match {
         case "file" =>
-          val rootDir = File(pkgURL.jfile).toDirectory
+          val rootDir: Path = pkgURL
           val files = if (deep) rootDir.deepFiles else rootDir.files
           files.map(FileResource)
 
         case "jar" =>
           val connection = pkgURL.openConnection.asInstanceOf[JarURLConnection]
           val rootDir: Path = connection.getJarEntry.getName
-          val jar = new Jar(File(new JFile(connection.getJarFileURL.toURI)))
-          jar.fileishIterator.collect { case fileish if isResourceInRootDir(fileish, rootDir) => new FileishResource(fileish) }
+          val jar = new JarFile(connection.getJarFileURL.toFile)
+          jar.entries.collect {
+            case jarEntry if isResourceInRootDir(jarEntry.getName, rootDir) =>
+              JarResource(jarEntry.getName, jar.getInputStream(jarEntry))
+          }
 
         case _ => throw new UnsupportedOperationException
       }
@@ -61,7 +62,7 @@ object ScanHelper {
       def getPathStringAfterPackage(path: Path, pkg: Path): Path = {
         val pathString = path.segments.mkString(SEPARATOR)
         val pkgString = pkg.segments.mkString(SEPARATOR)
-        Path(pathString.split(pkgString).last.split(SEPARATOR))
+        segments2path(pathString.split(pkgString).last.split(SEPARATOR))
       }
 
     getPackageResources(pkg, deep = true).foreach { resource =>
@@ -73,24 +74,22 @@ object ScanHelper {
 
 sealed trait Resource {
   def path: Path
-  def copyTo(target: Path)
+  def copyTo(target: Path): Unit
 }
 
-case class FileResource(file: File) extends Resource {
-  def path = file.path
+case class FileResource(path: Path) extends Resource {
   def copyTo(target: Path) {
-    target.parent.createDirectory()
-    file.copyTo(target, preserveFileDate = true)
+    target.getParent.mkdirs
+    path.copyTo(target, StandardCopyOption.COPY_ATTRIBUTES)
   }
 }
 
-case class FileishResource(fileish: Fileish) extends Resource {
-  def path = fileish.path
+case class JarResource(path: Path, inputStream: InputStream) extends Resource {
   def copyTo(target: Path) {
-    target.parent.createDirectory()
+    target.getParent.mkdirs
 
-    withCloseable(fileish.input()) { input =>
-      withCloseable(target.toFile.outputStream(append = false)) { output =>
+    withCloseable(inputStream) { input =>
+      withCloseable(target.outputStream) { output =>
         input.copyTo(output)
       }
     }

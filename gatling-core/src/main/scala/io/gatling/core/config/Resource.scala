@@ -16,11 +16,12 @@
 package io.gatling.core.config
 
 import java.io.{ FileInputStream, File, FileOutputStream, InputStream }
-import java.net.{ URI, URL }
+import java.net.URL
+import java.nio.file.Path
 
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.core.util.IO._
-import io.gatling.core.util.UriHelper._
+import io.gatling.core.util.PathHelper._
 
 object Resource {
 
@@ -46,10 +47,10 @@ object Resource {
 
   object AbsoluteFileResource {
     def unapply(location: Location): Option[Validation[Resource]] =
-      pathToUri(location.path).ifFile(f => FileResource(f).success)
+      string2path(location.path).ifFile(f => FileResource(f).success)
   }
 
-  private def load(directory: URI, path: String): Validation[Resource] =
+  private def load(directory: Path, path: String): Validation[Resource] =
     new Location(directory, path) match {
       case ClasspathResource(res)    => res
       case FileInFolderResource(res) => res
@@ -57,7 +58,7 @@ object Resource {
       case _                         => s"file $path doesn't exist".failure
     }
 
-  private class Location(val directory: URI, val path: String)
+  private class Location(val directory: Path, val path: String)
 
   def feeder(fileName: String): Validation[Resource] = load(GatlingFiles.dataDirectory, fileName)
   def requestBody(fileName: String): Validation[Resource] = load(GatlingFiles.requestBodiesDirectory, fileName)

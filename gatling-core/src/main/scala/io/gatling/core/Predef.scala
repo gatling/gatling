@@ -17,7 +17,6 @@ package io.gatling.core
 
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.reflect.ClassTag
-import scala.reflect.io.Path
 
 import io.gatling.core.assertion.AssertionSupport
 import io.gatling.core.check.CheckSupport
@@ -45,8 +44,6 @@ object Predef extends StructureSupport with PauseSupport with CheckSupport with 
 
   def WhiteList(patterns: String*) = io.gatling.core.filter.WhiteList(patterns.toList)
   def BlackList(patterns: String*) = io.gatling.core.filter.BlackList(patterns.toList)
-
-  implicit def string2path(string: String) = Path.string2path(string)
 
   def flattenMapIntoAttributes(map: Expression[Map[String, Any]]): Expression[Session] =
     session => map(session).map(resolvedMap => session.setAll(resolvedMap))
