@@ -123,10 +123,10 @@ Let's then declare a feeder and use it to feed our users with the above data::
       .exec(http("Search")
         .get("/computers")
         .queryParam("f", "${searchCriterion}") // 4
-        .check(regex("""<a href="([^"]+)">${searchComputerName}</a>""").saveAs("url"))) // 5
+        .check(regex("""<a href="([^"]+)">${searchComputerName}</a>""").saveAs("computerURL"))) // 5
       .pause(1)
       .exec(http("Select")
-        .get("${url}")) // 6
+        .get("${computerURL}")) // 6
       .pause(1)
   }
 
