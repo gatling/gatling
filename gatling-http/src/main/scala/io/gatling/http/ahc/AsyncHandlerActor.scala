@@ -60,6 +60,7 @@ object AsyncHandlerActor extends AkkaDefaults {
 
   val PropagatedOnRedirectHeaders = Vector(
     HeaderNames.Accept,
+    HeaderNames.AcceptCharset,
     HeaderNames.AcceptEncoding,
     HeaderNames.AcceptLanguage,
     HeaderNames.Referer,
