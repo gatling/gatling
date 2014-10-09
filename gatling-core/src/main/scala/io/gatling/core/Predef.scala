@@ -15,7 +15,7 @@
  */
 package io.gatling.core
 
-import scala.concurrent.duration.{ DurationInt, FiniteDuration }
+import scala.concurrent.duration._
 import scala.reflect.ClassTag
 
 import io.gatling.core.assertion.AssertionSupport
@@ -54,6 +54,7 @@ object Predef extends StructureSupport with PauseSupport with CheckSupport with 
 
   implicit def intToFiniteDuration(i: Int): FiniteDuration = i.seconds
   implicit def integerToFiniteDuration(i: Integer): FiniteDuration = intToFiniteDuration(i.toInt)
+  implicit def jlongToFiniteDuration(i: java.lang.Long): FiniteDuration = i.toLong.seconds
 
   /**
    * Offers the same implicits conversions as [[scala.concurrent.duration.DurationInt]] for Java's Integer.
@@ -87,5 +88,39 @@ object Predef extends StructureSupport with PauseSupport with CheckSupport with 
 
     def days = i.toInt.days
     def day = i.toInt.day
+  }
+
+  /**
+   * Offers the same implicits conversions as [[scala.concurrent.duration.DurationInt]] for Java's Long.
+   * @param l the Java's Long that will converted to [[scala.concurrent.duration.FiniteDuration]]
+   */
+  implicit class DurationJLong(val l: java.lang.Long) extends AnyVal {
+
+    def nanoseconds = l.toLong.nanoseconds
+    def nanos = l.toLong.nanos
+    def nanosecond = l.toLong.nanosecond
+    def nano = l.toLong.nano
+
+    def microseconds = l.toLong.microseconds
+    def micros = l.toLong.micros
+    def microsecond = l.toLong.microsecond
+    def micro = l.toLong.micro
+
+    def milliseconds = l.toLong.milliseconds
+    def millis = l.toLong.millis
+    def millisecond = l.toLong.millisecond
+    def milli = l.toLong.milli
+
+    def seconds = l.toLong.seconds
+    def second = l.toLong.second
+
+    def minutes = l.toLong.minutes
+    def minute = l.toLong.minute
+
+    def hours = l.toLong.hours
+    def hour = l.toLong.hour
+
+    def days = l.toLong.days
+    def day = l.toLong.day
   }
 }
