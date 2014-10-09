@@ -11,6 +11,8 @@ In this way you can also monitor what happens in Gatling AND the system under te
 
 The sections below describe both systems that collect data (Gatling, collectd, "Powershell functions", etc) and tools that recieve and process the data (Graphite, InfluxDB, and other timeseries databases).
 
+The data the gatling pumps out via the graphite protocol can also be used to customize, tailor to your specific needs, the console output see below.
+
 Metrics
 =======
 
@@ -180,6 +182,56 @@ Graphite powershell functions configuration
 -------------------------------------------
 
 See the documentation here : https://github.com/MattHodge/Graphite-PowerShell-Functions
+
+Customizable console output via graphite datastream
+---------------------------------------------------
+
+Reporting can be a very user/system specific requirement. One possibility to obtain exactly what you want from realtime monitoring in the console is described below.
+
+Advantages of this approach are:
+
+* You can script the format and contents of the output exactly as you want
+* No need to set up Graphite server or timeseries databases as described above, which can take time.
+* Frees up Gatling developers to concentrate on the core DSL and injection, etc, components.
+* Inject load on 1 server and report to a console on another server (ProTip: if you have 5 injectors, the data can be sent to 1 central server...)
+
+Limitations:
+
+* currently as described this will only work on Linux/OSx load injectors (further work could adapt the setup for Windows in the future)
+
+Set up:
+
+* Enable the graphite output in gatling.conf as above
+* open a new console to write the realtime data to
+* Modify to your requirements and run "netcat" listening on port 2003 (the default for the graphite protocol), and pipe the output to commands that will format the data as you wish.
+* Start your test
+
+Scripts for running netcat and processing the output:
+
+::
+
+  # command to run the graphite console output
+  nc -l 2003 | awk -f a.awk | tee gatling_stats.txt
+
+::
+
+  # awk script to process raw graphite protocol data stream
+  BEGIN{
+    print "--------- stats ....... timestamp RPS error_percent 95percentile_response_time active_users -----";
+    curr=0
+  }
+  
+  {
+    if($NF != curr) {
+      print $NF" "n" "epct" "ptile" "u;
+    }
+    curr=$NF
+  }
+  
+  /allRequests.all.count/        {n=$2}
+  /allRequests.ko.count/         {e=$2; if(n==0){epct=0}else{epct=int(e/n*100)}}
+  /allRequests.ok.percentiles95/ {ptile=$2}
+  /users.allUsers.active/        {u=$2}
 
 
 Graphite tool chart Examples
