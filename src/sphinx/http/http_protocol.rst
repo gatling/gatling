@@ -251,7 +251,6 @@ You can set the authentication methods at protocol level with these methods:
 
 * ``basicAuth(username: Expression[String], password: Expression[String])``
 * ``digestAuth(username: Expression[String], password: Expression[String])``
-* ``ntlmAuth(username: Expression[String], password: Expression[String])``
 * ``ntlmAuth(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String])``
 * ``authRealm(realm: Expression[com.ning.http.client.Realm])``
 
