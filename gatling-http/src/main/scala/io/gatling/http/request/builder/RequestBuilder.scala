@@ -149,8 +149,8 @@ abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: Comm
    */
   def basicAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildBasicAuthRealm(username, password))
   def digestAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildDigestAuthRealm(username, password))
-  def ntlmAuth(username: Expression[String], password: Expression[String]): B = authRealm(HttpHelper.buildNTLMAuthRealm(username, password, None, None))
-  def ntlmAuth(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String]): B = authRealm(HttpHelper.buildNTLMAuthRealm(username, password, Some(ntlmDomain), Some(ntlmHost)))
+  def ntlmAuth(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String]): B =
+    authRealm(HttpHelper.buildNTLMAuthRealm(username, password, ntlmDomain, ntlmHost))
   def authRealm(realm: Expression[Realm]): B = newInstance(commonAttributes.copy(realm = Some(realm)))
 
   /**
