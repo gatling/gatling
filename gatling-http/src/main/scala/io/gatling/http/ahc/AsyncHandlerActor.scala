@@ -192,8 +192,15 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     executeNext(newTx, update, status, response)
   }
 
-  private def ko(tx: HttpTx, update: Session => Session, response: Response, message: String): Unit =
-    logAndExecuteNext(tx, update andThen Session.MarkAsFailedUpdate, KO, response, Some(message))
+  private def ko(tx: HttpTx, update: Session => Session, response: Response, message: String): Unit = {
+    val logGroupRequestUpdate: Session => Session =
+      if (tx.primary && !tx.silent)
+        _.logGroupRequest(response.responseTimeInMillis, KO)
+      else
+        Session.Identity
+
+    logAndExecuteNext(tx, update andThen Session.MarkAsFailedUpdate andThen logGroupRequestUpdate, KO, response, Some(message))
+  }
 
   /**
    * This method processes the response if needed for each checks given by the user
