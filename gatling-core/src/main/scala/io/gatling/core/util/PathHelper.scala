@@ -61,7 +61,7 @@ object PathHelper {
 
     def segments = path.iterator.toList
 
-    def parents = segments.init
+    def parents = (1 to segments.size).map(i => segments.take(i).reduceLeft(_ / _))
 
     def ifFile[T](f: File => T): Option[T] = if (isFile) Some(f(path.toFile)) else None
 
