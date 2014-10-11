@@ -61,6 +61,8 @@ object PathHelper {
 
     def segments = path.iterator.toList
 
+    def parents = segments.init
+
     def ifFile[T](f: File => T): Option[T] = if (isFile) Some(f(path.toFile)) else None
 
     def writer(charset: Charset = configuration.core.charset) = Files.newBufferedWriter(path, charset)
