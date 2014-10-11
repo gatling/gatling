@@ -69,7 +69,7 @@ trait Failable { self: Chainable =>
 
   def execute(session: Session): Unit =
     executeOrFail(session).onFailure { message =>
-      logger.error(message)
+      logger.debug(message)
       next ! session.markAsFailed
     }
 
