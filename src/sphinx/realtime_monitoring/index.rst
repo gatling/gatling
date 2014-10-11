@@ -197,7 +197,7 @@ Advantages of this approach are:
 
 Limitations:
 
-* currently as described this will only work on Linux/OSx load injectors (further work could adapt the setup for Windows in the future)
+* currently as described this will only work on X-platforms (Unix, Linux, OS X) load injectors (further work could adapt the setup for Windows in the future)
 
 Set up:
 
