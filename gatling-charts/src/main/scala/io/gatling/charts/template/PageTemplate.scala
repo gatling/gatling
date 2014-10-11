@@ -94,7 +94,7 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
                         <div class="item ${if (!isDetails) "ouvert" else ""}"><a href="index.html">GLOBAL</a></div>
                         <div class="item ${if (isDetails) "ouvert" else ""}"><a id="details_link" href="#">DETAILS</a></div>
                         <p class="sim_desc" title="$runStartHumanDate, duration : $duration seconds" data-content="${runMessage.runDescription.htmlEscape}">
-                            <b>$runStartHumanDate, duration : $duration seconds</b> ${runMessage.runDescription.truncate(70).htmlEscape}</b>
+                            <b>$runStartHumanDate, duration : $duration seconds ${runMessage.runDescription.truncate(70).htmlEscape}</b>
                         </p>
                     </div>
                     <div class="content-in">
