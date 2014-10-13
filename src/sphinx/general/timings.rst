@@ -6,6 +6,17 @@ Timings
 
 As Gatling runs and executes requests, several timings are recorded, which make up the basis of all forms of reporting in Gatling: console, HTML reports, etc...
 
+.. _users:
+
+Active Users
+============
+
+At a given second, active users are computed as:
+
+* the number of active users at the previous second
+* + the number of users who started during this second
+* - the number of users who finished during the previous second
+
 .. _request-timings:
 
 Requests
@@ -24,7 +35,7 @@ Response Time
 
 The response time is the elasped time between the beginning of the request's sending and the end of the response's receiving:
 
-* The beginning of the request's sending is the instant when the connection to the target host has been established.
+* The beginning of the request's sending is the instant when the connection to the target host has been established or grabbed from the pool.
 * The end of the response's receiving is the instant when the whole response (status, headers and body) has been received by Gatling
 
 .. _groups-timings:
