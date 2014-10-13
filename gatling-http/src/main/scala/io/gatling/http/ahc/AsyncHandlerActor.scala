@@ -193,11 +193,11 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
   }
 
   private def ko(tx: HttpTx, update: Session => Session, response: Response, message: String): Unit =
-    logAndExecuteNext(tx, update andThen Session.MarkAsFailedUpdate andThen logGroupRequestUpdate(tx, KO, response.responseTimeInMillis) , KO, response, Some(message))
+    logAndExecuteNext(tx, update andThen Session.MarkAsFailedUpdate andThen logGroupRequestUpdate(tx, KO, response.responseTimeInMillis), KO, response, Some(message))
 
   private def logGroupRequestUpdate(tx: HttpTx, status: Status, responseTimeInMillis: Long): Session => Session =
     if (tx.primary && !tx.silent)
-      _.logGroupRequest(responseTimeInMillis, KO)
+      _.logGroupRequest(responseTimeInMillis, status)
     else
       Session.Identity
 
@@ -247,14 +247,9 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
                     Session.Identity
 
                 // don't override group stats when redirecting a resource
-                val logGroupRequestUpdate: Session => Session =
-                  if (tx.primary) {
-                    val responseTime = response.responseTimeInMillis
-                    _.logGroupRequest(responseTime, OK)
-                  } else
-                    Session.Identity
+                val groupUpdate = logGroupRequestUpdate(tx, OK, response.responseTimeInMillis)
 
-                val newUpdate = update andThen cacheRedirectUpdate andThen logGroupRequestUpdate
+                val newUpdate = update andThen cacheRedirectUpdate andThen groupUpdate
                 val newSession = newUpdate(tx.session)
 
                 val loggedTx = tx.copy(session = newSession, update = newUpdate)
@@ -289,9 +284,9 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           case _    => KO
         }
 
-        val logGroupRequestUpdate = logGroupRequestUpdate(tx, status, response.responseTimeInMillis)
+        val groupUpdate = logGroupRequestUpdate(tx, status, response.responseTimeInMillis)
 
-        val newUpdate = sessionUpdate andThen cacheUpdate andThen checkSaveUpdate andThen logGroupRequestUpdate
+        val newUpdate = sessionUpdate andThen cacheUpdate andThen checkSaveUpdate andThen groupUpdate
 
         logAndExecuteNext(tx, newUpdate, status, response, checkError)
       }
