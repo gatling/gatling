@@ -19,39 +19,34 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.result.Group
 import io.gatling.core.result.writer.RunMessage
-import io.gatling.core.util.DateHelper.RichDateTime
 import io.gatling.core.util.HtmlHelper.HtmlRichString
 import io.gatling.core.util.StringHelper.{ RichString, Eol }
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles._
-import org.threeten.bp._
 
 object PageTemplate {
 
   private var runMessage: RunMessage = _
   private var runStart: Long = _
   private var runEnd: Long = _
-  private var runStartHumanDate: String = _
 
   def setRunInfo(runMessage: RunMessage, runEnd: Long): Unit = {
     this.runMessage = runMessage
     this.runStart = runMessage.start
     this.runEnd = runEnd
-    this.runStartHumanDate = ZonedDateTime.from(Instant.ofEpochMilli(runStart).atZone(ZoneId.systemDefault)).toLocalDateTime.toHumanDate
   }
 }
 
 abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Option[String], group: Option[Group], components: Component*) {
 
-  def jsFiles: Seq[String] = (Seq(JQueryFile, BootstrapFile, GatlingJsFile, MenuFile, AllSessionsFile, StatsJsFile) ++ components.flatMap(_.jsFiles)).distinct
+  def jsFiles: Seq[String] = (Seq(JQueryFile, BootstrapFile, GatlingJsFile, MenuFile, AllSessionsFile, StatsJsFile, MomentJsFile) ++ components.flatMap(_.jsFiles)).distinct
 
   def getOutput: Fastring = {
     val runMessage = PageTemplate.runMessage
     val runStart = PageTemplate.runStart
     val runEnd = PageTemplate.runEnd
     val duration = (runEnd - runStart) / 1000
-    val runStartHumanDate = PageTemplate.runStartHumanDate
 
     val pageStats =
       if (isDetails) {
@@ -75,6 +70,7 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
 <link rel="shortcut icon" type="image/x-icon" href="style/favicon.ico"/>
 <link href="style/style.css" rel="stylesheet" type="text/css" />
 <link href="style/bootstrap.min.css" rel="stylesheet" type="text/css" />
+${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"></script>""").mkFastring(Eol)}
 <title>Gatling Stats - $title</title>
 </head>
 <body>
@@ -93,9 +89,13 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
                     <div class="sous-menu">
                         <div class="item ${if (!isDetails) "ouvert" else ""}"><a href="index.html">GLOBAL</a></div>
                         <div class="item ${if (isDetails) "ouvert" else ""}"><a id="details_link" href="#">DETAILS</a></div>
-                        <p class="sim_desc" title="$runStartHumanDate, duration : $duration seconds" data-content="${runMessage.runDescription.htmlEscape}">
-                            <b>$runStartHumanDate, duration : $duration seconds ${runMessage.runDescription.truncate(70).htmlEscape}</b>
-                        </p>
+                        <script type="text/javascript">
+                          var timestamp = $runStart;
+                          var runStartHumanDate = moment(timestamp).format("YYYY-MM-DD HH:mm:ss Z");
+                          document.writeln("<p class='sim_desc' title='"+ runStartHumanDate +", duration : $duration seconds' data-content='${runMessage.runDescription.htmlEscape}'>");
+                          document.writeln("<b>" + runStartHumanDate + ", duration : $duration seconds ${runMessage.runDescription.truncate(70).htmlEscape}</b>");
+                          document.writeln("</p>");
+                        </script>
                     </div>
                     <div class="content-in">
                         <h1><span>> </span>$title</h1>
@@ -113,7 +113,6 @@ abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Opti
 <div class="foot">
     <a href="http://gatling-tool.org" title="Gatling Home Page"><img alt="Gatling" src="style/logo-gatling.jpg"/></a>
 </div>
-${jsFiles.map(jsFile => fast"""<script type="text/javascript" src="js/$jsFile"></script>""").mkFastring(Eol)}
 <script type="text/javascript">
     $pageStats
     $$(document).ready(function() {
