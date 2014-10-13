@@ -192,15 +192,14 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     executeNext(newTx, update, status, response)
   }
 
-  private def ko(tx: HttpTx, update: Session => Session, response: Response, message: String): Unit = {
-    val logGroupRequestUpdate: Session => Session =
-      if (tx.primary && !tx.silent)
-        _.logGroupRequest(response.responseTimeInMillis, KO)
-      else
-        Session.Identity
+  private def ko(tx: HttpTx, update: Session => Session, response: Response, message: String): Unit =
+    logAndExecuteNext(tx, update andThen Session.MarkAsFailedUpdate andThen logGroupRequestUpdate(tx, KO, response.responseTimeInMillis) , KO, response, Some(message))
 
-    logAndExecuteNext(tx, update andThen Session.MarkAsFailedUpdate andThen logGroupRequestUpdate, KO, response, Some(message))
-  }
+  private def logGroupRequestUpdate(tx: HttpTx, status: Status, responseTimeInMillis: Long): Session => Session =
+    if (tx.primary && !tx.silent)
+      _.logGroupRequest(responseTimeInMillis, KO)
+    else
+      Session.Identity
 
   /**
    * This method processes the response if needed for each checks given by the user
@@ -290,11 +289,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           case _    => KO
         }
 
-        val logGroupRequestUpdate: Session => Session =
-          if (tx.primary && !tx.silent)
-            _.logGroupRequest(response.responseTimeInMillis, status)
-          else
-            Session.Identity
+        val logGroupRequestUpdate = logGroupRequestUpdate(tx, status, response.responseTimeInMillis)
 
         val newUpdate = sessionUpdate andThen cacheUpdate andThen checkSaveUpdate andThen logGroupRequestUpdate
 
