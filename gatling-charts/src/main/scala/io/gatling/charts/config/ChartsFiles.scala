@@ -25,6 +25,7 @@ object ChartsFiles {
   val JQueryFile = "jquery.min.js"
   val BootstrapFile = "bootstrap.min.js"
   val GatlingJsFile = "gatling.js"
+  val MomentJsFile = "moment.min.js"
   val MenuFile = "menu.js"
   val AllSessionsFile = "all_sessions.js"
   val StatsJsFile = "stats.js"
