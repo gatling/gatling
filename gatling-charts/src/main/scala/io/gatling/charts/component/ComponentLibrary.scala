@@ -18,7 +18,7 @@ package io.gatling.charts.component
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 
 import com.dongxiguo.fastring.Fastring
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.charts.component.impl.ComponentLibraryImpl
 import io.gatling.core.result._

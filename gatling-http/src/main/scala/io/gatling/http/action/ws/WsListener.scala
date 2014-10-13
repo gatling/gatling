@@ -20,7 +20,7 @@ import com.ning.http.client.websocket._
 import akka.actor.ActorRef
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.WsTx
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 class WsListener(tx: WsTx, wsActor: ActorRef)
     extends WebSocketTextListener

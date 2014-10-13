@@ -19,7 +19,7 @@ import akka.actor.ActorRef
 import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 class GroupEnd(val next: ActorRef) extends Chainable with DataWriterClient with StrictLogging {
 

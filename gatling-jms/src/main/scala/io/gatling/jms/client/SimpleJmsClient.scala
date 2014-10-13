@@ -17,7 +17,7 @@ package io.gatling.jms.client
 
 import java.util.{ Hashtable => JHashtable }
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import javax.jms._
 import javax.naming.{ Context, InitialContext }
 import io.gatling.jms._

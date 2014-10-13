@@ -16,7 +16,7 @@
 package io.gatling.core.util
 
 import java.io.OutputStream
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 final class FastBufferedOutputStream(os: OutputStream, bufferSize: Int) extends StrictLogging {
 

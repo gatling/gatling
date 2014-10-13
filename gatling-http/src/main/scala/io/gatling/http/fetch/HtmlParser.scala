@@ -18,7 +18,7 @@ package io.gatling.http.fetch
 import scala.collection.{ breakOut, mutable }
 
 import com.ning.http.client.uri.Uri
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.check.extractor.css.Jodd
 import io.gatling.core.util.StringHelper._
 import io.gatling.http.util.HttpHelper

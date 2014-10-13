@@ -18,7 +18,7 @@ package org.jboss.netty.example.securechat
 import java.io.{ InputStream, FileInputStream }
 import java.security.{ KeyStore, Security }
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.util.IO._
 import javax.net.ssl.{ KeyManagerFactory, SSLContext }

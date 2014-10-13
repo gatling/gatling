@@ -22,7 +22,7 @@ import scala.concurrent.Future
 import scala.concurrent.duration.{ DurationInt, FiniteDuration }
 import scala.util.{ Failure => SFailure, Success => SSuccess }
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor

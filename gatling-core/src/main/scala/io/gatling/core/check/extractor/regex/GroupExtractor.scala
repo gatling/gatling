@@ -19,7 +19,7 @@ import java.util.regex.Matcher
 
 import scala.annotation.{ implicitNotFound, tailrec }
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 trait LowPriorityGroupExtractorImplicits extends StrictLogging {
 

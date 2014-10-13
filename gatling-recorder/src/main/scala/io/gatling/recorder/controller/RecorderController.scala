@@ -16,18 +16,19 @@
 package io.gatling.recorder.controller
 
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentLinkedQueue
 
 import com.ning.http.client.uri.Uri
 import io.gatling.recorder.http.handler.remote.TimedHttpRequest
 
-import scala.collection.mutable
+import scala.collection.JavaConversions._
 import scala.concurrent.duration.DurationLong
 
 import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
 import org.jboss.netty.handler.codec.http.HttpHeaders.Names.PROXY_AUTHORIZATION
 
 import com.ning.http.util.Base64
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.core.util.PathHelper._
@@ -52,12 +53,10 @@ class RecorderController extends StrictLogging {
 
   @volatile private var proxy: HttpProxy = _
 
-  private class SynchronizedArrayBuffer[T] extends mutable.ArrayBuffer[T] with mutable.SynchronizedBuffer[T]
-
   // Collection of tuples, (arrivalTime, request)
-  private val currentRequests = new SynchronizedArrayBuffer[TimedScenarioElement[RequestElement]]
+  private val currentRequests = new ConcurrentLinkedQueue[TimedScenarioElement[RequestElement]]()
   // Collection of tuples, (arrivalTime, tag)
-  private val currentTags = new SynchronizedArrayBuffer[TimedScenarioElement[TagElement]]
+  private val currentTags = new ConcurrentLinkedQueue[TimedScenarioElement[TagElement]]()
 
   frontEnd.init()
 
@@ -123,7 +122,7 @@ class RecorderController extends StrictLogging {
       val arrivalTime = System.currentTimeMillis
 
       val requestEl = RequestElement(request.httpRequest, response)
-      currentRequests += TimedScenarioElement(request.sendTime, arrivalTime, requestEl)
+      currentRequests.add(TimedScenarioElement(request.sendTime, arrivalTime, requestEl))
 
       // Notify the frontend
       val previousSendTime = currentRequests.lastOption.map(_.sendTime)
@@ -138,7 +137,7 @@ class RecorderController extends StrictLogging {
 
   def addTag(text: String): Unit = {
     val now = System.currentTimeMillis
-    currentTags += TimedScenarioElement(now, now, TagElement(text))
+    currentTags.add(TimedScenarioElement(now, now, TagElement(text)))
     frontEnd.receiveEventInfo(TagInfo(text))
   }
 

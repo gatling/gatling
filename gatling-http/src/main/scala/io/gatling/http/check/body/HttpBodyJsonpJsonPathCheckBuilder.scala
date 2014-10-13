@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.body
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
 import io.gatling.core.check.extractor.jsonpath.{ CountJsonPathExtractor, JsonFilter, MultipleJsonPathExtractor, SingleJsonPathExtractor }

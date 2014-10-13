@@ -41,7 +41,7 @@ object PermanentRedirect {
             case None =>
               redirectCount match {
                 case 0 => None
-                case _ => Some(Pair(from, redirectCount))
+                case _ => Some((from, redirectCount))
               }
           }
 
@@ -60,7 +60,7 @@ object PermanentRedirect {
   def applyPermanentRedirect(origTx: HttpTx): HttpTx =
     if (origTx.request.config.protocol.requestPart.cache)
       permanentRedirect(origTx.session, origTx.request.ahcRequest.getUri) match {
-        case Some(Pair(targetUri, redirectCount)) =>
+        case Some((targetUri, redirectCount)) =>
 
           val newAhcRequest = redirectRequest(origTx.request.ahcRequest, targetUri)
 

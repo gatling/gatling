@@ -15,7 +15,7 @@
  */
 package io.gatling.jms.action
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.result.writer._
 import io.gatling.core.session.{ GroupBlock, Session }

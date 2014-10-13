@@ -23,7 +23,7 @@ import scala.concurrent.duration.{ Duration, DurationInt }
 import scala.util.Properties.userHome
 
 import com.typesafe.config.{ ConfigFactory, Config, ConfigRenderOptions }
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }

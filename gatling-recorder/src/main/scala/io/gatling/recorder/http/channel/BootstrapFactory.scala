@@ -24,7 +24,7 @@ import org.jboss.netty.channel.{ ChannelPipeline, ChannelPipelineFactory, Channe
 import org.jboss.netty.channel.socket.nio.{ NioClientSocketChannelFactory, NioServerSocketChannelFactory }
 import org.jboss.netty.handler.codec.http._
 import org.jboss.netty.handler.ssl.SslHandler
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 object BootstrapFactory extends StrictLogging {
 

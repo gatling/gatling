@@ -18,7 +18,7 @@ package io.gatling.jms.check
 import java.io.StringReader
 import javax.jms.{ Message, TextMessage }
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.xpath._
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }

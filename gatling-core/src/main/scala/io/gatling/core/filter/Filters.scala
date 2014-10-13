@@ -17,7 +17,7 @@ package io.gatling.core.filter
 
 import scala.util.{ Failure, Success, Try }
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 case class Filters(first: Filter, second: Filter) {
   def accept(url: String) = first.accept(url) && second.accept(url)

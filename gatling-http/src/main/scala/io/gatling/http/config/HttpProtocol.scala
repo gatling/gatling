@@ -23,7 +23,7 @@ import scala.collection.mutable
 import com.ning.http.client._
 import com.ning.http.client.providers.netty.NettyAsyncHttpProvider
 import com.ning.http.client.providers.netty.channel.pool.ChannelPoolPartitionSelector
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.akka.GatlingActorSystem
 import io.gatling.core.config.GatlingConfiguration.configuration

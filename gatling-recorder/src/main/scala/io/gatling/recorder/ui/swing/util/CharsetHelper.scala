@@ -17,7 +17,7 @@ package io.gatling.recorder.ui.swing.util
 
 import java.nio.charset.Charset
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 object CharsetHelper extends StrictLogging {
   type Label = String

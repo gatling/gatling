@@ -60,6 +60,7 @@ object GatlingBuild extends Build {
     .settings(libraryDependencies ++= metricsDependencies)
 
   lazy val compiler = gatlingModule("gatling-compiler")
+    .settings(scalaVersion := "2.10.4")
     .settings(libraryDependencies ++= compilerDependencies(scalaVersion.value))
     .settings(exportJars := true)
 
@@ -69,7 +70,7 @@ object GatlingBuild extends Build {
 
   lazy val recorder = gatlingModule("gatling-recorder")
     .dependsOn(core, http)
-    .settings(libraryDependencies ++= recorderDependencies(scalaVersion.value))
+    .settings(libraryDependencies ++= recorderDependencies)
     .settings(generateConfigFileSettings(bundle): _*)
 
   lazy val bundle = gatlingModule("gatling-bundle")

@@ -21,9 +21,10 @@ import io.gatling.core.util.StringHelper
 
 import scala.annotation.tailrec
 import scala.collection.mutable
+import scala.io.StdIn
 import scala.util.Try
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.app.CommandLineConstants._
 import io.gatling.charts.report.ReportsGenerator
@@ -99,7 +100,7 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
             def loop(): Class[Simulation] = {
 
                 def readSimulationNumber: Int =
-                  Try(Console.readInt()).getOrElse {
+                  Try(StdIn.readInt()).getOrElse {
                     println("Invalid characters, please provide a correct simulation number:")
                     readSimulationNumber
                   }
@@ -138,7 +139,7 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
             @tailrec
             def loop(): String = {
               println(s"Select simulation id (default is '$myDefaultOutputDirectoryBaseName'). Accepted characters are a-z, A-Z, 0-9, - and _")
-              val input = Console.readLine().trim
+              val input = StdIn.readLine().trim
               if (input.matches("[\\w-_]*"))
                 input
               else {
@@ -152,7 +153,7 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
         val simulationId = if (!userInput.isEmpty) userInput else myDefaultOutputDirectoryBaseName
 
         println("Select run description (optional)")
-        val runDescription = Console.readLine().trim
+        val runDescription = StdIn.readLine().trim
 
         new Selection(simulation, simulationId, runDescription)
       }

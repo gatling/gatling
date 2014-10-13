@@ -24,7 +24,7 @@ import scala.swing.ListView.IntervalMode.Single
 import scala.swing.Swing.pair2Dimension
 import scala.swing.event.ListSelectionChanged
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.recorder.ui._
 import io.gatling.recorder.ui.swing.component.TextAreaPanel

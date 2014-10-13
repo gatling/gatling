@@ -10,7 +10,7 @@ import akka.io.IO
 import akka.pattern.ask
 import akka.testkit.{ ImplicitSender, TestKit }
 import akka.util.Timeout
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.StrictLogging
 import spray.can.Http
 import spray.http._
 
@@ -25,7 +25,7 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.Predef._
 import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine }
 
-object MockServerSupport extends Logging {
+object MockServerSupport extends StrictLogging {
 
   val mockHttpPort = Option(Integer.getInteger("gatling.mockHttp.port")).map(_.intValue).getOrElse(8702)
   def httpProtocol = http.baseURL(s"http://localhost:$mockHttpPort")

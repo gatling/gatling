@@ -15,7 +15,7 @@
  */
 package io.gatling.core.akka
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import akka.actor.{ Actor, Terminated }
 import io.gatling.core.util.ClassSimpleNameToString

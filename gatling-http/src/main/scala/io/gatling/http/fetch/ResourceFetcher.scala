@@ -25,7 +25,7 @@ import scala.annotation.tailrec
 import scala.collection.breakOut
 import scala.collection.mutable
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.filter.Filters

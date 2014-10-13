@@ -11,7 +11,8 @@ object Dependencies {
   private def scalaLibrary(version: String)  = "org.scala-lang"                         % "scala-library"               % version
   private def scalaCompiler(version: String) = "org.scala-lang"                         % "scala-compiler"              % version
   private def scalaReflect(version: String)  = "org.scala-lang"                         % "scala-reflect"               % version
-  private def scalaSwing(version: String)    = "org.scala-lang"                         % "scala-swing"                 % version
+  private val scalaSwing                     = "org.scala-lang.modules"                %% "scala-swing"                 % "1.0.1"
+  private val scalaXml                       = "org.scala-lang.modules"                %% "scala-xml"                   % "1.0.2"
   private val ahc                            = "com.ning"                               % "async-http-client"           % "1.9.0-BETA18"
   private val netty                          = "io.netty"                               % "netty"                       % "3.9.4.Final"
   private val akkaActor                      = "com.typesafe.akka"                     %% "akka-actor"                  % akkaVersion
@@ -21,7 +22,7 @@ object Dependencies {
   private val fastring                       = "com.dongxiguo"                         %% "fastring"                    % "0.2.4"
   private val threetenbp                     = "org.threeten"                           % "threetenbp"                  % "1.0"
   private val scopt                          = "com.github.scopt"                      %% "scopt"                       % "3.2.0"
-  private val scalalogging                   = "com.typesafe"                          %% "scalalogging-slf4j"          % "1.1.0"
+  private val scalalogging                   = "com.typesafe.scala-logging"            %% "scala-logging"               % "3.1.0"
   private val jackson                        = "com.fasterxml.jackson.core"             % "jackson-databind"            % "2.4.3"
   private val boon                           = "io.fastjson"                            % "boon"                        % "0.28"
   private val jsonpath                       = "io.gatling"                            %% "jsonpath"                    % "0.6.1"
@@ -63,7 +64,7 @@ object Dependencies {
 
   val redisDependencies = redisClient +: testDeps
 
-  val httpDependencies = Seq(ahc, netty, jzlib) ++ testDeps :+ sprayCan
+  val httpDependencies = Seq(ahc, netty, jzlib, scalaXml) ++ testDeps :+ sprayCan
 
   val jmsDependencies = Seq(jmsApi, lru) ++ testDeps :+ activemqCore
 
@@ -80,5 +81,5 @@ object Dependencies {
     scalaLibs(scalaVersion) ++ Seq(config, slf4jApi, logbackClassic, zinc)
   }
 
-  def recorderDependencies(scalaVersion: String) = Seq(scalaSwing(scalaVersion), scopt, jackson) ++ testDeps
+  def recorderDependencies = Seq(scalaSwing, scopt, jackson) ++ testDeps
 }

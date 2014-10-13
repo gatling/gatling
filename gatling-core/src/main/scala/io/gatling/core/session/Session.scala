@@ -17,7 +17,7 @@ package io.gatling.core.session
 
 import scala.reflect.ClassTag
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.NotNothing
 import io.gatling.core.result.message.{ KO, OK, Status }

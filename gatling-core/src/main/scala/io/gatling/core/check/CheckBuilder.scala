@@ -15,7 +15,7 @@
  */
 package io.gatling.core.check
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.{ Session, Expression, ExpressionWrapper, RichExpression }

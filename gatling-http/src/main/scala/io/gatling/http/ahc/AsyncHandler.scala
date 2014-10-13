@@ -21,7 +21,7 @@ import com.ning.http.client.providers.netty.request.NettyRequest
 import com.ning.http.client.{ AsyncHandlerExtensions, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, ProgressAsyncHandler }
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response

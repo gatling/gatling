@@ -17,7 +17,7 @@ package io.gatling.core.structure
 
 import scala.concurrent.duration.Duration
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.action.UserEnd
 import io.gatling.core.action.builder.ActionBuilder

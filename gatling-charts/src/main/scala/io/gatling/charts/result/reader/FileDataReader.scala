@@ -21,7 +21,7 @@ import scala.collection.breakOut
 import scala.collection.mutable
 import scala.io.Source
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.charts.result.reader.buffers.{ PercentilesBuffers, CountBuffer, GeneralStatsBuffer }
 import io.gatling.charts.result.reader.stats.StatsHelper

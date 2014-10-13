@@ -26,7 +26,7 @@ import com.typesafe.config.{ Config, ConfigFactory }
 import io.gatling.core.ConfigKeys._
 import io.gatling.core.util.ConfigHelper.configChain
 import io.gatling.core.util.StringHelper.RichString
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 /**
  * Configuration loader of Gatling

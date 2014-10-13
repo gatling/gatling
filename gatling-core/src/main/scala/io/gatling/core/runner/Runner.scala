@@ -18,7 +18,7 @@ package io.gatling.core.runner
 import scala.concurrent.Await
 import scala.util.{ Failure => SFailure, Success => SSuccess }
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import akka.util.Timeout
 import io.gatling.core.akka.{ AkkaDefaults, GatlingActorSystem }

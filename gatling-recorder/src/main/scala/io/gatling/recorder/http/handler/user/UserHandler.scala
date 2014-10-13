@@ -19,7 +19,7 @@ import java.net.InetSocketAddress
 
 import com.ning.http.client.uri.Uri
 import com.ning.http.util.Base64
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.gatling.http.HeaderNames
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.HttpProxy

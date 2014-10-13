@@ -2,7 +2,7 @@ package io.gatling.recorder.scenario
 
 import scala.concurrent.duration.{ Duration, DurationLong }
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.http.util.HttpHelper
 import io.gatling.recorder.config.RecorderConfiguration

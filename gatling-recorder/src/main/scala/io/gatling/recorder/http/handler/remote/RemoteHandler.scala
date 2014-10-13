@@ -17,7 +17,7 @@ package io.gatling.recorder.http.handler.remote
 
 import io.gatling.recorder.http.handler.user.SslHandlerSetter
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory._

@@ -20,7 +20,7 @@ import java.io.{ File, IOException }
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.util.IO._
 import io.gatling.core.util.PathHelper._

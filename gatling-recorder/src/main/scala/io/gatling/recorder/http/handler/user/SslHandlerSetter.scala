@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.http.handler.user
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.ssl.SSLEngineFactory
 import org.jboss.netty.channel._

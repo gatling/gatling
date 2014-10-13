@@ -21,7 +21,7 @@ import scala.collection.concurrent
 
 import com.ning.http.client.Request
 import com.ning.http.client.date.RFC2616DateParser
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.config.GatlingConfiguration._
 
 import io.gatling.core.session.{ Expression, Session, SessionPrivateAttributes }

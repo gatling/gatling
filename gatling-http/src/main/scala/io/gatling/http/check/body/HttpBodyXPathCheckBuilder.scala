@@ -15,7 +15,7 @@
  */
 package io.gatling.http.check.body
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.xpath.XPathCheckBuilder
 import io.gatling.core.validation._

@@ -15,7 +15,6 @@
  */
 package io.gatling.http.response
 
-import java.nio.charset.Charset
 import java.security.MessageDigest
 
 import com.ning.http.client.providers.netty.request.NettyRequest
@@ -28,7 +27,7 @@ import org.jboss.netty.buffer.ChannelBuffer
 
 import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
 import com.ning.http.client.providers.netty.response.NettyResponseBodyPart
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.bytes2Hex

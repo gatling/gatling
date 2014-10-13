@@ -26,7 +26,7 @@ import scala.util.Try
 
 import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, Realm }
 import com.ning.http.client.Realm.AuthScheme
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.session._
 import io.gatling.http.{ HeaderNames, HeaderValues }

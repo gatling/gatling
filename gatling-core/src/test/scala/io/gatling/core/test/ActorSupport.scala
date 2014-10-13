@@ -20,9 +20,9 @@ import scala.collection.mutable
 import akka.testkit.{ TestKit, ImplicitSender }
 import io.gatling.core.akka.GatlingActorSystem
 import io.gatling.core.config.GatlingConfiguration
-import com.typesafe.scalalogging.slf4j.Logging
+import com.typesafe.scalalogging.StrictLogging
 
-object ActorSupport extends Logging {
+object ActorSupport extends StrictLogging {
 
   def apply(f: TestKit with ImplicitSender => Any): Unit = synchronized {
     var oldGatlingConfiguration: GatlingConfiguration = null

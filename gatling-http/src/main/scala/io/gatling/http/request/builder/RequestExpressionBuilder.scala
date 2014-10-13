@@ -17,7 +17,7 @@ package io.gatling.http.request.builder
 
 import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ Request, RequestBuilder => AHCRequestBuilder }
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }

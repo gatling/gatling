@@ -15,7 +15,7 @@
  */
 package io.gatling.http.action
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import akka.actor.{ ActorRef, ActorContext }
 import akka.actor.ActorDSL.actor

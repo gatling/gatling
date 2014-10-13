@@ -18,7 +18,7 @@ package io.gatling.core.action.builder
 import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef

@@ -21,7 +21,7 @@ import scala.annotation.{ switch, tailrec }
 import scala.collection.TraversableOnce.flattenTraversableOnce
 import scala.util.matching.Regex
 
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.http.util.HttpHelper
 

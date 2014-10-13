@@ -19,7 +19,7 @@ import io.gatling.core.result.message.{ OK, KO, Status }
 import akka.actor.ActorRef
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
-import com.typesafe.scalalogging.slf4j.StrictLogging
+import com.typesafe.scalalogging.StrictLogging
 
 sealed trait Block
 
