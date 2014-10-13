@@ -80,7 +80,7 @@ object PathHelper {
       ext.toLowerCase == lower || exts.exists(_.toLowerCase == lower)
     }
 
-    def stripExtension = path.toString stripSuffix ("." + extension)
+    def stripExtension = filename stripSuffix ("." + extension)
 
     def deepList(maxDepth: Int = -1): List[Path] = {
         @tailrec

@@ -22,7 +22,6 @@ object ConfigKeys {
     val RunDescription = "gatling.core.runDescription"
     val Encoding = "gatling.core.encoding"
     val SimulationClass = "gatling.core.simulationClass"
-    val DisableCompiler = "gatling.core.disableCompiler"
     val Mute = "gatling.core.mute"
 
     object extract {
@@ -56,9 +55,6 @@ object ConfigKeys {
       val Binaries = "gatling.core.directory.binaries"
       val ReportsOnly = "gatling.core.directory.reportsOnly"
       val Results = "gatling.core.directory.results"
-    }
-    object zinc {
-      val JvmArgs = "gatling.core.zinc.jvmArgs"
     }
   }
 

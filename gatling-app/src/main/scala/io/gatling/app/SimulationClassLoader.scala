@@ -19,29 +19,25 @@ import java.io.File
 import java.lang.reflect.Modifier
 import java.nio.file.Path
 
-import scala.util.{ Try, Success }
+import scala.util.{ Properties, Try, Success }
 
 import io.gatling.core.scenario.Simulation
 import io.gatling.core.util.PathHelper._
 
 object SimulationClassLoader {
 
-  def fromSourcesDirectory(sourceDirectory: Path): SimulationClassLoader = {
-
-    // Compile the classes
-    val classesDir = ZincCompilerLauncher(sourceDirectory)
-
-    // Pass the compiled classes to a ClassLoader
-    if (classesDir.isDirectory) {
-      val classLoader = new FileSystemBackedClassLoader(classesDir, getClass.getClassLoader)
-      new SimulationClassLoader(classLoader, classesDir)
-    } else {
-      throw new UnsupportedOperationException(s"""Zinc compiled into $classesDir but this is not a directory""")
-    }
+  private def isInClassPath(binariesDirectory: Path): Boolean = {
+    val classpathElements = Properties.javaClassPath split File.pathSeparator
+    classpathElements.contains(binariesDirectory.toString)
   }
 
-  def fromClasspathBinariesDirectory(binariesDirectory: Path): SimulationClassLoader =
-    new SimulationClassLoader(getClass.getClassLoader, binariesDirectory)
+  def apply(binariesDirectory: Path): SimulationClassLoader = {
+    val classloader = {
+      if (isInClassPath(binariesDirectory)) getClass.getClassLoader
+      else new FileSystemBackedClassLoader(binariesDirectory, getClass.getClassLoader)
+    }
+    new SimulationClassLoader(classloader, binariesDirectory)
+  }
 }
 
 class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {

@@ -54,12 +54,11 @@ object Dependencies {
   /****************************/
 
   def coreDependencies(scalaVersion: String) = {
-    def scalaLibs(version: String) = Seq(scalaLibrary _, scalaCompiler _, scalaReflect _).map(_(version))
     val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
-    Seq(akkaActor, uncommonsMaths, config, fastring, openCsv, lru, threetenbp) ++
-    scalaLibs(scalaVersion) ++ loggingLibs ++ checksLibs ++ testDeps
+    Seq(scalaLibrary(scalaVersion), akkaActor, uncommonsMaths, config, fastring, openCsv, lru, threetenbp) ++
+      loggingLibs ++ checksLibs ++ testDeps
   }
 
   val redisDependencies = redisClient +: testDeps
@@ -74,7 +73,12 @@ object Dependencies {
 
   val metricsDependencies = tdigest +: testDeps
 
-  val appDependencies = Seq(scopt, zinc)
+  val appDependencies = Seq(scopt)
+
+  def compilerDependencies(scalaVersion: String) = {
+    def scalaLibs(version: String) = Seq(scalaLibrary _, scalaCompiler _, scalaReflect _).map(_(version))
+    scalaLibs(scalaVersion) ++ Seq(config, slf4jApi, logbackClassic, zinc)
+  }
 
   def recorderDependencies(scalaVersion: String) = Seq(scalaSwing(scalaVersion), scopt, jackson) ++ testDeps
 }

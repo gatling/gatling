@@ -92,6 +92,8 @@ object GatlingConfiguration extends StrictLogging {
           Removed("gatling.http.ahc.userAgent", "use HttpProtocol"),
           Removed("gatling.http.ahc.rfc6265CookieEncoding", "always enabled"),
           Removed("gatling.http.ahc.useRawUrl", "feature dropped"),
+          Removed("gatling.core.disableCompiler", "Gatling doesn't compile itself when it's not needed"),
+          Removed("gatling.core.zinc.jvmArgs", "Uneeded since the compiler is not started by Gatling"),
           Renamed("gatling.http.ahc.allowPoolingConnection", "gatling.http.ahc.allowPoolingConnections"),
           Renamed("gatling.http.ahc.allowSslConnectionPool", "gatling.http.ahc.allowPoolingSslConnections"),
           Renamed("gatling.http.ahc.idleConnectionInPoolTimeoutInMs", "gatling.http.ahc.pooledConnectionIdleTimeout"),
@@ -106,12 +108,12 @@ object GatlingConfiguration extends StrictLogging {
           Renamed("gatling.http.ahc.maximumConnectionsTotal", "gatling.http.ahc.maxConnections"))
           .collect { case obs if config.hasPath(obs.path) => obs.message }
 
-        if (!obsoleteUsages.isEmpty) {
+        if (obsoleteUsages.nonEmpty) {
           logger.error(
-            s"""Your gatling.conf file is outdated, some properties have been renamed or removed.
-Please update (check gatling.conf in Gatling bundle, or gatling-default.conf in gatling-core jar).
-Enabled obsolete properties:
-${obsoleteUsages.mkString("\n")}""")
+            s"""|Your gatling.conf file is outdated, some properties have been renamed or removed.
+                |Please update (check gatling.conf in Gatling bundle, or gatling-defaults.conf in gatling-core jar).
+                |Enabled obsolete properties:
+                |${obsoleteUsages.mkString("\n")}""".stripMargin)
         }
       }
 
@@ -135,7 +137,6 @@ ${obsoleteUsages.mkString("\n")}""")
         runDescription = config.getString(core.RunDescription).trimToOption,
         encoding = config.getString(core.Encoding),
         simulationClass = config.getString(core.SimulationClass).trimToOption,
-        disableCompiler = config.getBoolean(core.DisableCompiler),
         muteMode = config.getBoolean(core.Mute),
         extract = ExtractConfiguration(
           regex = RegexConfiguration(
@@ -159,9 +160,7 @@ ${obsoleteUsages.mkString("\n")}""")
           sources = config.getString(core.directory.Simulations),
           binaries = config.getString(core.directory.Binaries).trimToOption,
           reportsOnly = config.getString(core.directory.ReportsOnly).trimToOption,
-          results = config.getString(core.directory.Results)),
-        zinc = ZincConfiguration(
-          jvmArgs = config.getString(core.zinc.JvmArgs).split(" "))),
+          results = config.getString(core.directory.Results))),
       charting = ChartingConfiguration(
         noReports = config.getBoolean(charting.NoReports),
         maxPlotsPerSeries = config.getInt(charting.MaxPlotPerSeries),
@@ -270,12 +269,10 @@ case class CoreConfiguration(
     runDescription: Option[String],
     encoding: String,
     simulationClass: Option[String],
-    disableCompiler: Boolean,
     extract: ExtractConfiguration,
     timeOut: TimeOutConfiguration,
     directory: DirectoryConfiguration,
-    muteMode: Boolean,
-    zinc: ZincConfiguration) {
+    muteMode: Boolean) {
 
   val charset = Charset.forName(encoding)
   val codec: Codec = charset
@@ -316,9 +313,6 @@ case class DirectoryConfiguration(
   binaries: Option[String],
   reportsOnly: Option[String],
   results: String)
-
-case class ZincConfiguration(
-  jvmArgs: Array[String])
 
 case class ChartingConfiguration(
   noReports: Boolean,

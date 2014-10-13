@@ -69,7 +69,6 @@ object Gatling {
       opt[String](ResultsFolder).foreach(props.resultsDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where results are stored")
       opt[String](RequestBodiesFolder).foreach(props.requestBodiesDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where request bodies are stored")
       opt[String](SimulationsFolder).foreach(props.sourcesDirectory).valueName("<directoryPath>").text("Uses <directoryPath> to discover simulations that could be run")
-      opt[String](SimulationsBinariesFolder).foreach(props.binariesDirectory).valueName("<directoryPath>").text("Uses <directoryPath> to discover already compiled simulations")
       opt[String](Simulation).foreach(props.simulationClass).valueName("<className>").text("Runs <className> simulation")
       opt[String](OutputDirectoryBaseName).foreach(props.outputDirectoryBaseName).valueName("<name>").text("Use <name> for the base name of the output directory")
       opt[String](SimulationDescription).foreach(props.runDescription).valueName("<description>").text("A short <description> of the run to include in the report")
@@ -181,32 +180,11 @@ class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging 
     val simulations = simulationClass match {
       case Some(clazz) => List(clazz)
       case None =>
-        if (configuration.core.disableCompiler) {
-          configuration.core.simulationClass match {
-            case Some(className) =>
-              List(Class.forName(className).asInstanceOf[Class[Simulation]])
+        val simulationClassLoader = SimulationClassLoader(GatlingFiles.binariesDirectory)
 
-            case None =>
-              GatlingFiles.binariesDirectory match {
-                case Some(binDir) =>
-                  val simulationClassLoader = SimulationClassLoader.fromClasspathBinariesDirectory(binDir)
-
-                  simulationClassLoader
-                    .simulationClasses(None)
-                    .sortBy(_.getName)
-
-                case None =>
-                  throw new IllegalArgumentException("Compiler is disable, but no simulation class or binary directory is specified")
-              }
-          }
-
-        } else {
-          val simulationClassLoader = SimulationClassLoader.fromSourcesDirectory(GatlingFiles.sourcesDirectory)
-
-          simulationClassLoader
-            .simulationClasses(configuration.core.simulationClass)
-            .sortBy(_.getName)
-        }
+        simulationClassLoader
+          .simulationClasses(configuration.core.simulationClass)
+          .sortBy(_.getName)
     }
 
     val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory match {
