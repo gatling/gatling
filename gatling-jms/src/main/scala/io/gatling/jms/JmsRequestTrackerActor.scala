@@ -19,9 +19,10 @@ import scala.collection.mutable
 import akka.actor.ActorRef
 
 import io.gatling.core.Predef.Session
-import io.gatling.core.result.message.{ Status, KO, OK }
 import io.gatling.core.akka.BaseActor
+import io.gatling.core.result.message.{ Status, KO, OK }
 import io.gatling.core.result.writer.DataWriterClient
+import io.gatling.core.validation.Failure
 
 import javax.jms.Message
 import io.gatling.core.check.Check
@@ -100,17 +101,18 @@ class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
                      message: Message,
                      next: ActorRef,
                      title: String): Unit = {
+
       def executeNext(updatedSession: Session, status: Status, message: Option[String] = None) = {
         writeRequestData(updatedSession, title, startSend, endSend, endSend, received, status, message)
         next ! updatedSession.logGroupRequest(received - startSend, status).increaseDrift(nowMillis - received)
       }
 
     // run all the checks, advise the Gatling API that it is complete and move to next
-    val (checkSaveUpdate, error) = Check.check(message, session, checks, false)
+    val (checkSaveUpdate, error) = Check.check(message, session, checks)
     val newSession = checkSaveUpdate(session)
     error match {
-      case None    => executeNext(newSession, OK)
-      case Some(m) => executeNext(newSession.markAsFailed, KO, Some(m))
+      case None                   => executeNext(newSession, OK)
+      case Some(Failure(message)) => executeNext(newSession.markAsFailed, KO, Some(message))
     }
   }
 }

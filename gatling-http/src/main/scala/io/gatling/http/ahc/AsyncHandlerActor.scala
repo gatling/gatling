@@ -186,17 +186,24 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
   private def logAndExecuteNext(tx: HttpTx, update: Session => Session, status: Status, response: Response, message: Option[String]): Unit = {
 
-    val newTx = tx.copy(session = update(tx.session))
+    val statusUpdate = status match {
+      case KO if !tx.silent => Session.MarkAsFailedUpdate
+      case _                => Session.Identity
+    }
+    val groupUpdate = logGroupRequestUpdate(tx, status, response.responseTimeInMillis)
+    val totalUpdate = update andThen statusUpdate andThen groupUpdate
 
+    val newTx = tx.copy(session = totalUpdate(tx.session))
     logRequest(newTx, status, response, message)
     executeNext(newTx, update, status, response)
   }
 
   private def ko(tx: HttpTx, update: Session => Session, response: Response, message: String): Unit =
-    logAndExecuteNext(tx, update andThen Session.MarkAsFailedUpdate andThen logGroupRequestUpdate(tx, KO, response.responseTimeInMillis), KO, response, Some(message))
+    logAndExecuteNext(tx, update, KO, response, Some(message))
 
   private def logGroupRequestUpdate(tx: HttpTx, status: Status, responseTimeInMillis: Long): Session => Session =
     if (tx.primary && !tx.silent)
+      // resource logging is done in ResourceFetcher
       _.logGroupRequest(responseTimeInMillis, status)
     else
       Session.Identity
@@ -246,17 +253,14 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
                   else
                     Session.Identity
 
-                // don't override group stats when redirecting a resource
-                val groupUpdate = logGroupRequestUpdate(tx, OK, response.responseTimeInMillis)
-
-                val newUpdate = update andThen cacheRedirectUpdate andThen groupUpdate
+                val newUpdate = update andThen cacheRedirectUpdate
                 val newSession = newUpdate(tx.session)
 
                 val loggedTx = tx.copy(session = newSession, update = newUpdate)
                 logRequest(loggedTx, OK, response)
 
-                val newRequest = redirectRequest(redirectURI, newSession)
-                val redirectTx = loggedTx.copy(request = loggedTx.request.copy(ahcRequest = newRequest), redirectCount = tx.redirectCount + 1)
+                val newAhcRequest = redirectRequest(redirectURI, newSession)
+                val redirectTx = loggedTx.copy(request = loggedTx.request.copy(ahcRequest = newAhcRequest), redirectCount = tx.redirectCount + 1)
                 HttpRequestAction.startHttpTransaction(redirectTx)
 
               case None =>
@@ -275,20 +279,18 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
       def checkAndProceed(sessionUpdate: Session => Session, checks: List[HttpCheck]): Unit = {
 
-        val cacheUpdate = CacheHandling.cache(tx.request.config.protocol, tx.request.ahcRequest, response)
-
-        val (checkSaveUpdate, checkError) = Check.check(response, tx.session, checks, tx.silent)
+        val (checkSaveUpdate, checkError) = Check.check(response, tx.session, checks)
 
         val status = checkError match {
           case None => OK
           case _    => KO
         }
 
-        val groupUpdate = logGroupRequestUpdate(tx, status, response.responseTimeInMillis)
+        val cacheUpdate = CacheHandling.cache(tx.request.config.protocol, tx.request.ahcRequest, response)
 
-        val newUpdate = sessionUpdate andThen cacheUpdate andThen checkSaveUpdate andThen groupUpdate
+        val totalUpdate = sessionUpdate andThen cacheUpdate andThen checkSaveUpdate
 
-        logAndExecuteNext(tx, newUpdate, status, response, checkError)
+        logAndExecuteNext(tx, totalUpdate, status, response, checkError.map(_.message))
       }
 
     response.status match {
