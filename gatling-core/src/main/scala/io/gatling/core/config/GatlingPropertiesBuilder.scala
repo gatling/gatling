@@ -56,8 +56,5 @@ class GatlingPropertiesBuilder {
   def runDescription(v: String): Unit =
     props += core.RunDescription -> v
 
-  def disableCompiler(): Unit =
-    props += core.DisableCompiler -> true
-
   def build = props
 }

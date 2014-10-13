@@ -4,7 +4,7 @@ import sbt.Keys._
 import BuildSettings._
 import Bundle._
 import Dependencies._
-import Generate._
+import ConfigFiles._
 
 object GatlingBuild extends Build {
 
@@ -17,7 +17,7 @@ object GatlingBuild extends Build {
   /******************/
 
   lazy val root = Project("gatling-parent", file("."))
-    .aggregate(core, jdbc, redis, http, jms, charts, metrics, app, recorder, bundle)
+    .aggregate(core, jdbc, redis, http, jms, charts, metrics, app, recorder, bundle, compiler)
     .settings(basicSettings: _*)
     .settings(noCodeToPublish: _*)
     .settings(docSettings: _*)
@@ -31,6 +31,7 @@ object GatlingBuild extends Build {
   lazy val core = gatlingModule("gatling-core")
     .settings(libraryDependencies ++= coreDependencies(scalaVersion.value))
     .settings(generateConfigFileSettings(bundle): _*)
+    .settings(copyGatlingDefaults(compiler): _*)
 
   lazy val jdbc = gatlingModule("gatling-jdbc")
     .dependsOn(core)
@@ -58,6 +59,10 @@ object GatlingBuild extends Build {
     .dependsOn(core)
     .settings(libraryDependencies ++= metricsDependencies)
 
+  lazy val compiler = gatlingModule("gatling-compiler")
+    .settings(libraryDependencies ++= compilerDependencies(scalaVersion.value))
+    .settings(exportJars := true)
+
   lazy val app = gatlingModule("gatling-app")
     .dependsOn(core, http, jms, jdbc, redis, metrics, charts)
     .settings(libraryDependencies ++= appDependencies)
@@ -68,6 +73,7 @@ object GatlingBuild extends Build {
     .settings(generateConfigFileSettings(bundle): _*)
 
   lazy val bundle = gatlingModule("gatling-bundle")
+    .dependsOn(compiler % "runtime")
     .settings(bundleSettings: _*)
     .settings(noCodeToPublish: _*)
 }
