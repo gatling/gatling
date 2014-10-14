@@ -1,0 +1,44 @@
+.. _2.0-to-2.1:
+
+#########################
+Migrating from 2.0 to 2.1
+#########################
+
+Global changes
+==============
+
+Scala 2.11
+----------
+
+Gatling is now built with Scala 2.11.
+If you're using `Scala IDE <http://scala-ide.org/index.html>`__, make sure you're using a version compatible with Scala 2.11.
+
+Compiler runs standalone
+------------------------
+
+Gatling itself doesn't compile the Simulations anymore and expects that the simulations are already compiled.
+This means that gatling.sh/gatling.bat runs the compiler prior to running Gatling.
+Consequently, a few options in gatling.conf have been removed:
+
+* ``gatling.core.disableCompiler``
+* ``gatling.core.zinc.jvmArgs``
+
+Maven Archetype
+===============
+
+Due to some necessary changes to allow Gatling to use Scala 2.11, you'll need to update ``IDEPathHelper.scala`` and ``Engine.scala``
+if you're using the Maven archetype:
+
+* Remove ``props.disableCompiler`` in ``Engine.scala``
+* Replace ``val projectRootDir = File(gatlingConfUrl).parents(2)`` by ``val projectRootDir = File(gatlingConfUrl).ancestor(3)``
+* Replace the imports:
+
+::
+
+  import scala.tools.nsc.io.File
+  import scala.tools.nsc.io.Path.string2path
+
+by::
+
+  import java.nio.file.Path
+  import io.gatling.core.util.PathHelper._
