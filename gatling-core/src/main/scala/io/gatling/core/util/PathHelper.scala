@@ -61,13 +61,17 @@ object PathHelper {
 
     def segments = path.iterator.toList
 
-    def parents = {
-        @tailrec
-        def parentsAux(current: Path, acc: List[Path]): List[Path] =
-          if (current == current.getRoot) acc
-          else parentsAux(current.getParent, acc :+ current.getParent)
+    def ancestor(n: Int): Path = {
+      @tailrec
+      def loop(path: Path, n: Int): Path =
+        n match {
+          case 0 => path
+          case _ => loop(path.getParent, n - 1)
+        }
 
-      parentsAux(path, Nil)
+      require(n >= 0, s"ancestor rank must be positive but asked for $n")
+      require(n <= path.segments.length, s"can't ask for ancestor rank $n while segments length is ${path.segments.length}")
+      loop(path, n)
     }
 
     def ifFile[T](f: File => T): Option[T] = if (isFile) Some(f(path.toFile)) else None
