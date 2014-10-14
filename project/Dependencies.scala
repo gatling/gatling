@@ -58,7 +58,7 @@ object Dependencies {
     val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
-    Seq(scalaLibrary(scalaVersion), akkaActor, uncommonsMaths, config, fastring, openCsv, lru, threetenbp) ++
+    Seq(scalaLibrary(scalaVersion), scalaReflect(scalaVersion), akkaActor, uncommonsMaths, config, fastring, openCsv, lru, threetenbp) ++
       loggingLibs ++ checksLibs ++ testDeps
   }
 
