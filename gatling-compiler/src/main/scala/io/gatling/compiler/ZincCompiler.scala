@@ -26,8 +26,8 @@ import xsbti.{ F0, Logger }
 import xsbti.api.Compilation
 import xsbti.compile.CompileOrder
 
-import scala.tools.nsc.io.Directory
-import scala.tools.nsc.io.Path.string2path
+import scala.reflect.io.Directory
+import scala.reflect.io.Path.string2path
 import scala.util.Try
 
 object ZincCompiler extends App {
@@ -46,7 +46,11 @@ object ZincCompiler extends App {
 
   Files.createDirectories(classesDirectory)
 
-  val classpath = args(0).split(JFile.pathSeparator).map(new JFile(_))
+  val gatlingClasspath = args(0).split(JFile.pathSeparator).map(new JFile(_))
+  val compilerClasspath = {
+    val classloader = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader]
+    classloader.getURLs.map(_.toURI).map(new JFile(_))
+  }
 
   def simulationInputs: Inputs = {
 
@@ -58,7 +62,7 @@ object ZincCompiler extends App {
       def analysisCacheMapEntry(directoryName: String) =
         (GatlingHome.toString / directoryName).jfile -> (binariesDirectory.toString / "cache" / directoryName).jfile
 
-    Inputs.inputs(classpath = classpath,
+    Inputs.inputs(classpath = gatlingClasspath,
       sources = sources,
       classesDirectory = classesDirectory.toFile,
       scalacOptions = compilerOptions,
@@ -75,20 +79,16 @@ object ZincCompiler extends App {
   }
 
   def setupZincCompiler: Setup = {
-    val compilerClasspath = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader].getURLs
-      def jarMatching(regex: String): JFile = {
-        val jarUrl = compilerClasspath
+      def jarMatching(classpath: Seq[JFile], regex: String): JFile =
+        classpath
           .find(url => regex.r.findFirstMatchIn(url.toString).isDefined)
           .getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
 
-        new JFile(jarUrl.toURI)
-      }
-
-    val scalaCompiler = jarMatching("""(.*scala-compiler.*\.jar)$""")
-    val scalaLibrary = jarMatching("""(.*scala-library.*\.jar)$""")
-    val scalaReflect = jarMatching("""(.*scala-reflect.*\.jar)$""")
+    val scalaCompiler = jarMatching(gatlingClasspath, """(.*scala-compiler.*\.jar)$""")
+    val scalaLibrary = jarMatching(gatlingClasspath, """(.*scala-library.*\.jar)$""")
+    val scalaReflect = jarMatching(gatlingClasspath, """(.*scala-reflect.*\.jar)$""")
     val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.toURI)
-    val compilerInterfaceSrc: JFile = jarMatching("""(.*compiler-interface-.*-sources.jar)$""")
+    val compilerInterfaceSrc: JFile = jarMatching(compilerClasspath, """(.*compiler-interface-.*-sources.jar)$""")
 
     Setup.setup(scalaCompiler = scalaCompiler,
       scalaLibrary = scalaLibrary,

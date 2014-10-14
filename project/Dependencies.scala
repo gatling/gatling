@@ -30,7 +30,7 @@ object Dependencies {
   private val joddLagarto                    = "org.jodd"                               % "jodd-lagarto"                % "3.6.1"
   private val jzlib                          = "com.jcraft"                             % "jzlib"                       % "1.1.3"
   private val redisClient                    = "net.debasishg"                         %% "redisclient"                 % "2.13"
-  private val zinc                           = "com.typesafe.zinc"                      % "zinc"                        % "0.3.5.3"
+  private val zinc                           = "com.typesafe.zinc"                      % "zinc"                        % "0.3.5.3" exclude("org.scala-lang", "scala-compiler")
   private val openCsv                        = "net.sf.opencsv"                         % "opencsv"                     % "2.3"
   private val jmsApi                         = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"       % "1.1.1"
   private val logbackClassic                 = "ch.qos.logback"                         % "logback-classic"             % "1.1.2"
@@ -58,7 +58,7 @@ object Dependencies {
     val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
-    Seq(scalaLibrary(scalaVersion), scalaReflect(scalaVersion), akkaActor, uncommonsMaths, config, fastring, openCsv, lru, threetenbp) ++
+    Seq(scalaLibrary(scalaVersion), akkaActor, uncommonsMaths, config, fastring, openCsv, lru, threetenbp) ++
       loggingLibs ++ checksLibs ++ testDeps
   }
 
@@ -74,12 +74,10 @@ object Dependencies {
 
   val metricsDependencies = tdigest +: testDeps
 
-  val appDependencies = Seq(scopt)
+  def appDependencies(scalaVersion: String) = Seq(scopt, scalaCompiler(scalaVersion))
 
-  def compilerDependencies(scalaVersion: String) = {
-    def scalaLibs(version: String) = Seq(scalaLibrary _, scalaCompiler _, scalaReflect _).map(_(version))
-    scalaLibs(scalaVersion) ++ Seq(config, slf4jApi, logbackClassic, zinc)
-  }
+  def compilerDependencies(scalaVersion: String) =
+    Seq(scalaLibrary(scalaVersion), scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc)
 
   def recorderDependencies = Seq(scalaSwing, scopt, jackson) ++ testDeps
 }
