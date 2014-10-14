@@ -37,7 +37,7 @@ class FeederSupportSpec extends FlatSpec with Matchers with FeederSupport {
 
   "jsonFile" should "handle proper JSON file" in {
 
-    val data = jsonFile("test2.json").build.toArray
+    val data = jsonFile("test.json").build.toArray
 
     data.size shouldBe 2
     data(0)("id") shouldBe 19434
