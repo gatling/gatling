@@ -48,7 +48,7 @@ object Gatling {
    *
    * @param args Arguments of the main method
    */
-  def main(args: Array[String]): Unit = sys.exit(runGatling(args))
+  def main(args: Array[String]): Unit = sys.exit(runGatling(args, None))
 
   def fromMap(props: mutable.Map[String, Any], simulationClass: Option[Class[Simulation]] = None) = {
     GatlingConfiguration.setUp(props)
