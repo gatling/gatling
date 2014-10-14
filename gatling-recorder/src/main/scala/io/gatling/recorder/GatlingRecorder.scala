@@ -16,9 +16,12 @@
 package io.gatling.recorder
 
 import io.gatling.recorder.CommandLineConstants._
-import io.gatling.recorder.config.RecorderPropertiesBuilder
+import io.gatling.recorder.config.{ ConfigKeys, RecorderPropertiesBuilder }
 import io.gatling.recorder.controller.RecorderController
 import scopt.OptionParser
+
+import java.io.{ File, FileOutputStream }
+import java.lang.management.ManagementFactory
 
 object GatlingRecorder {
 
@@ -38,10 +41,61 @@ object GatlingRecorder {
     opt[Boolean](FollowRedirect).foreach(props.followRedirect).text("""Sets the "Follow Redirects" option to true""")
     opt[Boolean](AutomaticReferer).foreach(props.automaticReferer).text("""Sets the "Automatic Referers" option to true""")
     opt[Boolean](InferHtmlResources).foreach(props.inferHtmlResources).text("""Sets the "Fetch html resources" option to true""")
+    opt[Boolean](Headless).foreach(props.runHeadless).text("""Runs the recorder in headless mode""")
   }
 
   def main(args: Array[String]): Unit = {
-    if (cliOptsParser.parse(args))
-      RecorderController(props.build)
+    val parsedOptsSuccessfully = cliOptsParser.parse(args)
+
+    if (parsedOptsSuccessfully) {
+      val builtProperties = props.build
+      log(s"builtProperties: ${builtProperties}")
+      val recorderController = RecorderController(builtProperties)
+      if (builtProperties.contains(ConfigKeys.core.RunHeadless)
+        && builtProperties(ConfigKeys.core.RunHeadless) == true) {
+        runHeadless(recorderController)
+      } else {
+        log("Launching Swing UI")
+        recorderController.initSwingFrontEnd
+      }
+    }
   }
+
+  def runHeadless(recorderController: RecorderController): Unit = {
+    log("Welcome to headless mode.")
+
+    val recordingLockFile = new File(".gatling-recording-in-progress.lock")
+    if (recordingLockFile.exists) {
+      log(s"Recording lock file already exists: ${recordingLockFile.getAbsolutePath}")
+      log("Gatling cannot start recording in headless mode until this file is removed.")
+      sys exit 1
+    }
+
+    sys addShutdownHook {
+      try {
+        log("Shutdown hook running...")
+        recorderController.stopRecording(true)
+      } catch {
+        case e: Exception => {
+          e.printStackTrace
+          log("caught above exception when trying to shut down.")
+        }
+      } finally {
+        recordingLockFile.delete()
+      }
+    }
+
+    recorderController.initHeadlessFrontEnd()
+
+    recorderController.startRecording()
+
+    val out = new FileOutputStream(recordingLockFile)
+    out.write(extractProcessIdInAnArcaneFashion.getBytes("UTF-8"))
+    out.close
+  }
+
+  def log(message: String) = println(s"[HEADLESS] ${message}")
+
+  def extractProcessIdInAnArcaneFashion: String =
+    ManagementFactory.getRuntimeMXBean.getName.split("@")(0)
 }

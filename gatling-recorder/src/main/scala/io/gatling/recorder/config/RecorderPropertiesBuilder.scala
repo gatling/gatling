@@ -83,5 +83,8 @@ class RecorderPropertiesBuilder {
   def proxySslPort(port: Int): Unit =
     props += proxy.outgoing.SslPort -> port
 
+  def runHeadless(status: Boolean): Unit =
+    props += core.RunHeadless -> status
+
   def build = props
 }

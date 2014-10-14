@@ -27,6 +27,7 @@ object ConfigKeys {
     val ClassName = "recorder.core.className"
     val ThresholdForPauseCreation = "recorder.core.thresholdForPauseCreation"
     val SaveConfig = "recorder.core.saveConfig"
+    val RunHeadless = "recorder.core.runHeadless"
   }
   object filters {
     val FilterStrategy = "recorder.filters.filterStrategy"
