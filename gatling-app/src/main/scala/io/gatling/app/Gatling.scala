@@ -55,9 +55,6 @@ object Gatling {
     new Gatling(simulationClass).start
   }
 
-  // FIXME : needed for Maven plugin's in-process mode, better be cleaned up
-  def runGatling(args: Array[String]): Int = runGatling(args, None)
-
   def runGatling(args: Array[String], simulationClass: Option[Class[Simulation]]): Int = {
     val props = new GatlingPropertiesBuilder
 
