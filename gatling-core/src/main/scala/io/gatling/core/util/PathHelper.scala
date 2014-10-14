@@ -62,12 +62,12 @@ object PathHelper {
     def segments = path.iterator.toList
 
     def ancestor(n: Int): Path = {
-      @tailrec
-      def loop(path: Path, n: Int): Path =
-        n match {
-          case 0 => path
-          case _ => loop(path.getParent, n - 1)
-        }
+        @tailrec
+        def loop(path: Path, n: Int): Path =
+          n match {
+            case 0 => path
+            case _ => loop(path.getParent, n - 1)
+          }
 
       require(n >= 0, s"ancestor rank must be positive but asked for $n")
       require(n <= path.segments.length, s"can't ask for ancestor rank $n while segments length is ${path.segments.length}")
