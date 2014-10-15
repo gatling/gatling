@@ -2972,13 +2972,23 @@
 
           <div class="function-details">
             <p>Optional.</p>
-            Set the credentials to use to connect to your queues
+            Set the credentials used for the queues JNDI lookup
             <dl>
               <dt>(username, password)</dt>
               <dd>the username and password to use as credentials</dd>
             </dl>
           </div>
         </div>
+
+        <div class="function">
+          <label class="function-syntax" for="jms-disableAnonymousConnect">disableAnonymousConnect</label>
+          <input type="checkbox" id="jms-disableAnonymousConnect" name="jms-disableAnonymousConnect">
+
+          <div class="function-details">
+            <p>Optional.</p>
+            Use credentials for opening connections too
+        </div>
+
         <div class="function">
           <label class="function-syntax" for="listenerCount">listenerCount</label>
           <input type="checkbox" id="listenerCount" name="listenerCount">
