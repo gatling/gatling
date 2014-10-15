@@ -41,24 +41,27 @@ case class JmsProtocolBuilderUrlStep(connectionFactoryName: String) {
 case class JmsProtocolBuilderContextFactoryStep(
     connectionFactoryName: String,
     url: String,
-    credentials: Option[Credentials] = None) {
+    credentials: Option[Credentials] = None,
+    anonymousConnect: Boolean = false) {
 
-  def credentials(user: String, password: String) =
-    copy(credentials = Some(Credentials(user, password)))
+  def credentials(user: String, password: String) = copy(credentials = Some(Credentials(user, password)))
+
+  def disableAnonymousConnect = copy(anonymousConnect = false)
 
   def contextFactory(cf: String) =
-    JmsProtocolBuilderListenerCountStep(connectionFactoryName, url, credentials, cf)
+    JmsProtocolBuilderListenerCountStep(connectionFactoryName, url, credentials, anonymousConnect, cf)
 }
 
 case class JmsProtocolBuilderListenerCountStep(
     connectionFactoryName: String,
     url: String,
     credentials: Option[Credentials],
+    anonymousConnect: Boolean,
     contextFactory: String) {
 
   def listenerCount(count: Int) = {
     require(count > 0, "JMS response listener count must be at least 1")
-    JmsProtocolBuilder(connectionFactoryName, url, credentials, contextFactory, count)
+    JmsProtocolBuilder(connectionFactoryName, url, credentials, anonymousConnect, contextFactory, count)
   }
 }
 
@@ -66,6 +69,7 @@ case class JmsProtocolBuilder(
     connectionFactoryName: String,
     url: String,
     credentials: Option[Credentials],
+    anonymousConnect: Boolean,
     contextFactory: String,
     listenerCount: Int,
     deliveryMode: Int = DeliveryMode.NON_PERSISTENT,
@@ -82,6 +86,7 @@ case class JmsProtocolBuilder(
     connectionFactoryName = connectionFactoryName,
     url = url,
     credentials = credentials,
+    anonymousConnect = anonymousConnect,
     listenerCount = listenerCount,
     deliveryMode = deliveryMode,
     messageMatcher)

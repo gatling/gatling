@@ -35,6 +35,7 @@ class SimpleJmsClient(
   replyDestination: JmsDestination,
   url: String,
   credentials: Option[Credentials],
+  anonymousConnect: Boolean,
   contextFactory: String,
   deliveryMode: Int,
   messageMatcher: JmsMessageMatcher)
@@ -58,7 +59,10 @@ class SimpleJmsClient(
   logger.info(s"Got ConnectionFactory $qcf")
 
   // create QueueConnection
-  val conn = qcf.createConnection
+  val conn = credentials match {
+    case Some(creds) if !anonymousConnect => qcf.createConnection(creds.username, creds.password)
+    case _                                => qcf.createConnection
+  }
   conn.start()
 
   val session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE)

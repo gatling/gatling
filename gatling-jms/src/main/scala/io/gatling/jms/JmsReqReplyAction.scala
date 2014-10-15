@@ -52,6 +52,7 @@ class JmsReqReplyAction(
     attributes.replyDestination,
     protocol.url,
     protocol.credentials,
+    protocol.anonymousConnect,
     protocol.contextFactory,
     protocol.deliveryMode,
     protocol.messageMatcher)
