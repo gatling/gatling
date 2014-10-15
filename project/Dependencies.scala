@@ -9,7 +9,6 @@ object Dependencies {
   private val akkaVersion                    = "2.3.6"
 
   private def scalaLibrary(version: String)  = "org.scala-lang"                         % "scala-library"               % version
-  private def scalaCompiler(version: String) = "org.scala-lang"                         % "scala-compiler"              % version
   private def scalaReflect(version: String)  = "org.scala-lang"                         % "scala-reflect"               % version
   private val scalaSwing                     = "org.scala-lang.modules"                %% "scala-swing"                 % "1.0.1"
   private val scalaXml                       = "org.scala-lang.modules"                %% "scala-xml"                   % "1.0.2"
@@ -74,7 +73,7 @@ object Dependencies {
 
   val metricsDependencies = tdigest +: testDeps
 
-  def appDependencies(scalaVersion: String) = Seq(scopt, scalaCompiler(scalaVersion))
+  def appDependencies = Seq(scopt)
 
   def compilerDependencies(scalaVersion: String) =
     Seq(scalaLibrary(scalaVersion), scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc)
