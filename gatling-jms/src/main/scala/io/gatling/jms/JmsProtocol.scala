@@ -26,6 +26,7 @@ case class JmsProtocol(
   connectionFactoryName: String,
   url: String,
   credentials: Option[Credentials],
+  anonymousConnect: Boolean,
   listenerCount: Int,
   deliveryMode: Int,
   messageMatcher: JmsMessageMatcher)

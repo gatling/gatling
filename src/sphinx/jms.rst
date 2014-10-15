@@ -26,7 +26,8 @@ Use the ``jms`` object in order to create a JMS protocol.
 * ``connectionFactoryName``: mandatory
 * ``url``: mandatory
 * ``contextFactory``: mandatory
-* ``credentials``: optional
+* ``credentials``: optional, for performing JNDI lookup
+* ``disableAnonymousConnect``: optional, by default, connection won't use the above credentials
 * ``listenerCount``: the number of ReplyConsumers. mandatory (> 0)
 * ``useNonPersistentDeliveryMode`` / ``usePersistentDeliveryMode``: optional, default to non persistent
 * ``matchByMessageID`` / ``matchByCorrelationID`` / ``messageMatcher``: specify how request and response messages should be matched, default to matchByMessageID. Use matchByCorrelationID for ActiveMQ.

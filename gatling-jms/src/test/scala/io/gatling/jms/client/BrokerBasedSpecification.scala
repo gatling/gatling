@@ -51,6 +51,7 @@ trait BrokerBasedSpecification extends FlatSpecLike with Matchers with BeforeAnd
       destination,
       "vm://gatling?broker.persistent=false&broker.useJmx=false",
       None,
+      false,
       classOf[ActiveMQInitialContextFactory].getName,
       1,
       MessageIDMessageMatcher)
