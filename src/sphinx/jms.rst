@@ -100,7 +100,7 @@ Short example, assuming FFMQ on localhost, using a reqreply query, to the queue 
 
   class TestJmsDsl extends Simulation {
 
-    val jmsConfig = JmsProtocolBuilder.default
+    val jmsConfig = jms
       .connectionFactoryName(FFMQConstants.JNDI_CONNECTION_FACTORY_NAME)
       .url("tcp://localhost:10002")
       .credentials("user", "secret")
