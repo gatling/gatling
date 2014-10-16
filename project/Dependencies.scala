@@ -12,6 +12,7 @@ object Dependencies {
   private def scalaReflect(version: String)  = "org.scala-lang"                         % "scala-reflect"               % version
   private val scalaSwing                     = "org.scala-lang.modules"                %% "scala-swing"                 % "1.0.1"
   private val scalaXml                       = "org.scala-lang.modules"                %% "scala-xml"                   % "1.0.2"
+  private val scalaParserCombinators         = "org.scala-lang.modules"                %% "scala-parser-combinators"    % "1.0.2"
   private val ahc                            = "com.ning"                               % "async-http-client"           % "1.9.0-BETA19"
   private val netty                          = "io.netty"                               % "netty"                       % "3.9.4.Final"
   private val akkaActor                      = "com.typesafe.akka"                     %% "akka-actor"                  % akkaVersion
@@ -58,7 +59,7 @@ object Dependencies {
     val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
-    scalaLibs(scalaVersion) ++ Seq(akkaActor, uncommonsMaths, config, fastring, openCsv, lru, threetenbp) ++
+    scalaLibs(scalaVersion) ++ Seq(akkaActor, uncommonsMaths, config, fastring, openCsv, lru, threetenbp, scalaParserCombinators) ++
       loggingLibs ++ checksLibs ++ testDeps
   }
 
