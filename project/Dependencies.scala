@@ -54,10 +54,11 @@ object Dependencies {
   /****************************/
 
   def coreDependencies(scalaVersion: String) = {
+    def scalaLibs(scalaVersion: String) = Seq(scalaLibrary(scalaVersion), scalaReflect(scalaVersion))
     val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
-    Seq(scalaLibrary(scalaVersion), akkaActor, uncommonsMaths, config, fastring, openCsv, lru, threetenbp) ++
+    scalaLibs(scalaVersion) ++ Seq(akkaActor, uncommonsMaths, config, fastring, openCsv, lru, threetenbp) ++
       loggingLibs ++ checksLibs ++ testDeps
   }
 
