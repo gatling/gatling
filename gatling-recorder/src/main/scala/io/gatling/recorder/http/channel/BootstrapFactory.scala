@@ -67,8 +67,11 @@ object BootstrapFactory extends StrictLogging {
       def getPipeline: ChannelPipeline = {
         logger.debug("Open new user channel")
         val pipeline = Channels.pipeline
-        pipeline.addLast(CodecHandlerName, new HttpServerCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
+        pipeline.addLast("decoder", new HttpRequestDecoder(maxInitialLineLength, maxHeaderSize, maxChunkSize))
+        pipeline.addLast("aggregator", new HttpChunkAggregator(maxContentLength))
+        pipeline.addLast("encoder", new HttpResponseEncoder)
         pipeline.addLast("deflater", new HttpContentCompressor)
+
         pipeline.addLast(PortUnificationServerHandler, new PortUnificationUserHandler(proxy, pipeline))
         pipeline
       }
