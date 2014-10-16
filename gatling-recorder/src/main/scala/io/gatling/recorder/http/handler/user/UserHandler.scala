@@ -26,7 +26,7 @@ import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.remote.{ TimedHttpRequest, RemoteHandler }
 import org.jboss.netty.channel._
-import org.jboss.netty.handler.codec.http.{ HttpChunk, HttpRequest }
+import org.jboss.netty.handler.codec.http.HttpRequest
 
 abstract class UserHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
 
@@ -54,12 +54,6 @@ abstract class UserHandler(proxy: HttpProxy) extends SimpleChannelHandler with S
         propagateRequest(ctx.getChannel, request)
 
         proxy.controller.receiveRequest(request)
-
-      case chunk: HttpChunk =>
-        _remoteChannel.foreach { remoteChannel =>
-          if (remoteChannel.isConnected)
-            remoteChannel.write(chunk)
-        }
 
       case unknown => logger.warn(s"Received unknown message: $unknown")
     }
