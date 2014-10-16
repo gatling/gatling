@@ -16,6 +16,7 @@
 package io.gatling.recorder.controller
 
 import java.nio.file.Path
+import java.security.Security
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import com.ning.http.client.uri.Uri

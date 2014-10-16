@@ -36,6 +36,7 @@ object Dependencies {
   private val logbackClassic                 = "ch.qos.logback"                         % "logback-classic"             % "1.1.2"
   private val tdigest                        = "com.tdunning"                           % "t-digest"                    % "3.0"
   private val lru                            = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru" % "1.4"
+  private val bouncycastle                   = "org.bouncycastle"                       % "bcpkix-jdk15on"             % "1.51"
 
   /***********************/
   /** Test dependencies **/
@@ -81,5 +82,5 @@ object Dependencies {
   def compilerDependencies(scalaVersion: String) =
     Seq(scalaLibrary(scalaVersion), scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc)
 
-  def recorderDependencies = Seq(scalaSwing, scopt, jackson) ++ testDeps
+  def recorderDependencies = Seq(scalaSwing, scopt, jackson, bouncycastle) ++ testDeps
 }

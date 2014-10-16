@@ -18,7 +18,7 @@ package io.gatling.recorder.http.channel
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.handler.user.PortUnificationUserHandler
-import io.gatling.recorder.http.ssl.SSLEngineFactory
+import io.gatling.recorder.http.ssl.SSLClientContext
 import org.jboss.netty.bootstrap.{ ClientBootstrap, ServerBootstrap }
 import org.jboss.netty.channel.{ ChannelPipeline, ChannelPipelineFactory, Channels }
 import org.jboss.netty.channel.socket.nio.{ NioClientSocketChannelFactory, NioServerSocketChannelFactory }
@@ -43,7 +43,7 @@ object BootstrapFactory extends StrictLogging {
         logger.debug("Open new remote channel")
         val pipeline = Channels.pipeline
         if (ssl)
-          pipeline.addLast(SslHandlerName, new SslHandler(SSLEngineFactory.newClientSSLEngine))
+          pipeline.addLast(SslHandlerName, new SslHandler(SSLClientContext.createSSLEngine))
         pipeline.addLast(CodecHandlerName, new HttpClientCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
         pipeline.addLast("inflater", new HttpContentDecompressor)
         pipeline.addLast("aggregator", new HttpChunkAggregator(maxContentLength))

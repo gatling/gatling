@@ -97,7 +97,7 @@ abstract class UserHandler(proxy: HttpProxy) extends SimpleChannelHandler with S
   def setupRemoteChannel(userChannel: Channel, remoteChannel: Channel, controller: RecorderController, performConnect: Boolean, reconnect: Boolean): Unit = {
     logger.debug(s"Attaching user channel ${userChannel.getId} and remote peer ${remoteChannel.getId}")
     _remoteChannel = Some(remoteChannel)
-    remoteChannel.getPipeline.addLast(GatlingHandlerName, new RemoteHandler(controller, userChannel, performConnect, reconnect))
+    remoteChannel.getPipeline.addLast(GatlingHandlerName, new RemoteHandler(controller, proxy.sslServerContext, userChannel, performConnect, reconnect))
   }
 
   override def channelDisconnected(ctx: ChannelHandlerContext, event: ChannelStateEvent): Unit = {

@@ -26,10 +26,13 @@ import scala.swing.ListView.Renderer
 import scala.swing.event.{ ButtonClicked, KeyReleased, SelectionChanged }
 import scala.util.Try
 
+import io.gatling.core.util.PathHelper._
 import io.gatling.core.util.StringHelper.RichString
-import io.gatling.recorder.{ Har, Proxy, RecorderMode }
-import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration, RecorderPropertiesBuilder }
+import io.gatling.recorder._
+import io.gatling.recorder.config._
 import io.gatling.recorder.config.FilterStrategy.BlacklistFirst
+import io.gatling.recorder.http.ssl.{ SSLServerContext, SSLCertUtil, HttpsMode, KeyStoreType }
+import io.gatling.recorder.http.ssl.HttpsMode._
 import io.gatling.recorder.ui.RecorderFrontend
 import io.gatling.recorder.ui.swing.Commons._
 import io.gatling.recorder.ui.swing.component.FilterTable
@@ -57,6 +60,34 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   private val outgoingProxyUsername = new TextField(10) { enabled = false }
   private val outgoingProxyPassword = new TextField(10) { enabled = false }
 
+  /* HTTPS mode components */
+  private val httpsModes = new ComboBox[HttpsMode](HttpsMode.AllHttpsModes) {
+    selection.index = 0
+    renderer = Renderer(_.name)
+  }
+
+  private val keyStorePath = new TextField(25)
+  private val keyStoreChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly }
+  private val keyStoreBrowserButton = Button("Browse")(keyStoreChooser.openSelection().foreach(keyStorePath.text = _))
+  private val keyStorePassword = new TextField(10)
+  private val keyStoreTypes = new ComboBox[KeyStoreType](KeyStoreType.AllKeyStoreTypes) {
+    selection.index = 0
+    renderer = Renderer(_.name)
+  }
+  private val certificatePath = new TextField(22)
+  private val certificatePathChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly }
+  private val certificatePathBrowserButton = Button("Browse")(certificatePathChooser.openSelection().foreach(certificatePath.text = _))
+  private val privateKeyPath = new TextField(22)
+  private val privateKeyPathChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly }
+  private val privateKeyPathBrowserButton = Button("Browse")(privateKeyPathChooser.openSelection().foreach(privateKeyPath.text = _))
+
+  private val caFilesSavePathChooser = new FileChooser { fileSelectionMode = SelectionMode.DirectoriesOnly }
+  private val generateCAFilesButton = new Button(Action("Generate CA")(caFilesSavePathChooser.openSelection().foreach { dir =>
+    generateCAFiles(dir)
+    certificatePath.text = s"$dir/${SSLServerContext.GatlingCACrtFile}"
+    privateKeyPath.text = s"$dir/${SSLServerContext.GatlingCAKeyFile}"
+  }))
+
   /* Har Panel components */
   private val harPath = new TextField(66)
   private val harFileFilter = new FileNameExtensionFilter("HTTP Archive (.har)", "har")
@@ -74,7 +105,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
   /* Output panel components */
   private val outputEncoding = new ComboBox[String](CharsetHelper.orderedLabelList)
-  private val outputFolderPath = new TextField(66)
+  private val outputFolderPath = new TextField(60)
   private val outputFolderChooser = new FileChooser { fileSelectionMode = SelectionMode.DirectoriesOnly }
   private val outputFolderBrowserButton = Button("Browse")(outputFolderChooser.saveSelection().foreach(outputFolderPath.text = _))
 
@@ -98,9 +129,6 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   /* Bottom panel components */
   private val savePreferences = new CheckBox("Save preferences") { horizontalTextPosition = Alignment.Left }
   private val start = Button("Start !")(reloadConfigurationAndStart())
-
-  registerValidators()
-  populateItemsFromConfiguration()
 
   /**********************************/
   /**           UI SETUP           **/
@@ -129,13 +157,35 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
       val network = new BorderPanel {
         border = titledBorder("Network")
 
-        val localProxy = new LeftAlignedFlowPanel {
+        val customKeyStoreConfig = new LeftAlignedFlowPanel {
+          contents += new Label("Keystore file: ")
+          contents += keyStorePath
+          contents += keyStoreBrowserButton
+          contents += new Label("Keystore password: ")
+          contents += keyStorePassword
+          contents += new Label("Keystore type: ")
+          contents += keyStoreTypes
+        }
+
+        val certificateAuthorityConfig = new LeftAlignedFlowPanel {
+          contents += new Label("CA Certificate: ")
+          contents += certificatePath
+          contents += certificatePathBrowserButton
+          contents += new Label("CA Private Key: ")
+          contents += privateKeyPath
+          contents += privateKeyPathBrowserButton
+        }
+
+        val localProxyAndHttpsMode = new LeftAlignedFlowPanel {
           contents += new Label("Listening port*: ")
           contents += new Label("    localhost")
           contents += new Label("HTTP/HTTPS")
           contents += localProxyHttpPort
-
+          contents += new Label("    HTTPS mode: ")
+          contents += httpsModes
+          contents += generateCAFilesButton
         }
+
         val outgoingProxy = new LeftAlignedFlowPanel {
           contents += new Label("Outgoing proxy: ")
           contents += new Label("host:")
@@ -150,7 +200,13 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
           contents += outgoingProxyPassword
         }
 
-        layout(localProxy) = North
+        val httpsModesConfigs = new BoxPanel(Orientation.Vertical) {
+          contents += customKeyStoreConfig
+          contents += certificateAuthorityConfig
+        }
+
+        layout(localProxyAndHttpsMode) = North
+        layout(httpsModesConfigs) = Center
         layout(outgoingProxy) = South
       }
       val har = new BorderPanel {
@@ -182,16 +238,21 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
           layout(className) = East
         }
 
-        layout(config) = North
-        layout(new BorderPanel {
+        val redirectAndInferOptions = new BorderPanel {
           layout(followRedirects) = West
           layout(inferHtmlResources) = East
-        }) = West
-        layout(automaticReferers) = East
-        layout(new BorderPanel {
+        }
+
+        val cacheAndResponseBodiesCheck = new BorderPanel {
           layout(removeConditionalCache) = West
           layout(checkResponseBodies) = East
-        }) = South
+        }
+
+        layout(config) = North
+
+        layout(redirectAndInferOptions) = West
+        layout(automaticReferers) = East
+        layout(cacheAndResponseBodiesCheck) = South
       }
       val outputConfig = new BorderPanel {
         border = titledBorder("Output")
@@ -272,12 +333,15 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
   centerOnScreen()
 
+  registerValidators()
+  populateItemsFromConfiguration()
+
   /*****************************************/
   /**           EVENTS HANDLING           **/
   /*****************************************/
 
   /* Reactions I: handling filters, save checkbox, table edition and switching between Proxy and HAR mode */
-  listenTo(filterStrategies.selection, modeSelector.selection, savePreferences)
+  listenTo(filterStrategies.selection, modeSelector.selection, httpsModes.selection, savePreferences)
   // Backticks are needed to match the components, see section 8.1.5 of Scala spec.
   reactions += {
     case SelectionChanged(`modeSelector`) =>
@@ -292,6 +356,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
     case SelectionChanged(`filterStrategies`) =>
       val isNotDisabledStrategy = filterStrategies.selection.item != FilterStrategy.Disabled
       toggleFiltersEdition(isNotDisabledStrategy)
+    case SelectionChanged(`httpsModes`) => toggleHttpsModesConfigsVisibility(httpsModes.selection.item)
     case ButtonClicked(`savePreferences`) if !savePreferences.selected =>
       val props = new RecorderPropertiesBuilder
       props.saveConfig(savePreferences.selected)
@@ -304,6 +369,21 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
     whiteListTable.setFocusable(enabled)
     blackListTable.setEnabled(enabled)
     blackListTable.setFocusable(enabled)
+  }
+
+  private def toggleHttpsModesConfigsVisibility(currentMode: HttpsMode) = currentMode match {
+    case SelfSignedCertificate =>
+      root.center.network.customKeyStoreConfig.visible = false
+      root.center.network.certificateAuthorityConfig.visible = false
+      generateCAFilesButton.visible = false
+    case ProvidedKeyStore =>
+      root.center.network.customKeyStoreConfig.visible = true
+      root.center.network.certificateAuthorityConfig.visible = false
+      generateCAFilesButton.visible = false
+    case CertificateAuthority =>
+      root.center.network.customKeyStoreConfig.visible = false
+      root.center.network.certificateAuthorityConfig.visible = true
+      generateCAFilesButton.visible = true
   }
 
   /* Reactions II: fields validation */
@@ -378,6 +458,19 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
   def updateHarFilePath(path: Option[String]): Unit = path.foreach(harPath.text = _)
 
+  def generateCAFiles(directory: String): Unit = {
+    SSLCertUtil.generateGatlingCAPEMFiles(
+      directory,
+      SSLServerContext.GatlingCAKeyFile,
+      SSLServerContext.GatlingCACrtFile)
+
+    Dialog.showMessage(
+      title = "Download successful",
+      message =
+        s"""|Gatling's CA certificate and key were successfully saved to
+           |$directory .""".stripMargin)
+  }
+
   /****************************************/
   /**           CONFIGURATION            **/
   /****************************************/
@@ -387,6 +480,16 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
    */
   private def populateItemsFromConfiguration(): Unit = {
     localProxyHttpPort.text = configuration.proxy.port.toString
+
+    httpsModes.selection.item = configuration.proxy.https.mode
+    toggleHttpsModesConfigsVisibility(httpsModes.selection.item)
+
+    keyStorePath.text = configuration.proxy.https.keyStore.path
+    keyStorePassword.text = configuration.proxy.https.keyStore.password
+    keyStoreTypes.selection.item = configuration.proxy.https.keyStore.keyStoreType
+
+    certificatePath.text = configuration.proxy.https.customCertificate.certificatePath
+    privateKeyPath.text = configuration.proxy.https.customCertificate.privateKeyPath
 
     configuration.proxy.outgoing.host.map { proxyHost =>
       outgoingProxyHost.text = proxyHost
@@ -439,6 +542,15 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
       // Local proxy
       props.localPort(Try(localProxyHttpPort.text.toInt).getOrElse(0))
+
+      props.httpsMode(httpsModes.selection.item.toString)
+
+      props.keystorePath(keyStorePath.text)
+      props.keyStorePassword(keyStorePassword.text)
+      props.keyStoreType(keyStoreTypes.selection.item.toString)
+
+      props.certificatePath(certificatePath.text)
+      props.privateKeyPath(privateKeyPath.text)
 
       // Outgoing proxy
       outgoingProxyHost.text.trimToOption match {

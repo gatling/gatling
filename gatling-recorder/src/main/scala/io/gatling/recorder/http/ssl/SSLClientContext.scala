@@ -15,21 +15,19 @@
  */
 package io.gatling.recorder.http.ssl
 
-import org.jboss.netty.example.securechat.SecureChatSslContextFactory
+import javax.net.ssl.{ SSLEngine, SSLContext }
 
-import javax.net.ssl.SSLEngine
+object SSLClientContext {
 
-object SSLEngineFactory {
-
-  def newServerSSLEngine: SSLEngine = {
-    val ctx = SecureChatSslContextFactory.ServerContext.createSSLEngine
-    ctx.setUseClientMode(false)
-    ctx
+  val SslContext = {
+    val clientContext = SSLContext.getInstance(SSLServerContext.Protocol)
+    clientContext.init(null, TrustManagerFactory.LooseTrustManagers, null)
+    clientContext
   }
 
-  def newClientSSLEngine: SSLEngine = {
-    val ctx = SecureChatSslContextFactory.ClientContext.createSSLEngine
-    ctx.setUseClientMode(true)
-    ctx
+  def createSSLEngine(): SSLEngine = {
+    val engine = SslContext.createSSLEngine
+    engine.setUseClientMode(true)
+    engine
   }
 }

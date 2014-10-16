@@ -56,10 +56,10 @@ class HttpsUserHandler(proxy: HttpProxy) extends UserHandler(proxy) with ScalaCh
 
                         if (handshakeFuture.isSuccess) {
                           val remoteChannel = handshakeFuture.getChannel
-                          // TODO build certificate for peer
+                          val inetSocketAddress = remoteChannel.getRemoteAddress.asInstanceOf[InetSocketAddress]
                           setupRemoteChannel(userChannel, remoteChannel, proxy.controller, performConnect = false, reconnect = reconnect)
                           if (!reconnect) {
-                            userChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter)
+                            userChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter(inetSocketAddress.getHostString, proxy.sslServerContext))
                             userChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
                           } else
                             handlePropagatableRequest()

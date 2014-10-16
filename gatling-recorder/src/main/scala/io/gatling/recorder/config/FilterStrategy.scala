@@ -27,7 +27,7 @@ object FilterStrategy {
 
   val AllStrategies = List(WhitelistFirst, BlacklistFirst, Disabled)
 
-  def fromString(s: String): FilterStrategy =
+  def apply(s: String): FilterStrategy =
     AllStrategies.find(_.toString == s).getOrElse {
       throw new IllegalArgumentException(s"$s is not a valid filter strategy")
     }
