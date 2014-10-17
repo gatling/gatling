@@ -19,7 +19,7 @@ import scala.swing.Dialog
 import scala.swing.Swing.onEDT
 
 import io.gatling.core.util.PathHelper._
-import io.gatling.recorder.RecorderMode
+import io.gatling.recorder.{ Proxy, RecorderMode }
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.swing.component.DialogFileSelector
 import io.gatling.recorder.ui.swing.frame.{ ConfigurationFrame, RunningFrame }
@@ -28,9 +28,13 @@ object RecorderFrontend {
 
   // Currently hardwired to the Swing frontend
   // Will select the desired frontend when more are implemented
-  def newFrontend(controller: RecorderController): RecorderFrontend =
+  def newSwingFrontend(controller: RecorderController): RecorderFrontend =
     new SwingFrontend(controller)
+
+  def newHeadlessFrontend(controller: RecorderController): RecorderFrontend =
+    new HeadlessFrontend(controller)
 }
+
 sealed abstract class RecorderFrontend(controller: RecorderController) {
 
   /******************************/
@@ -70,6 +74,44 @@ sealed abstract class RecorderFrontend(controller: RecorderController) {
   def stopRecording(save: Boolean): Unit = controller.stopRecording(save)
 
   def clearRecorderState(): Unit = controller.clearRecorderState()
+}
+
+private class HeadlessFrontend(controller: RecorderController) extends RecorderFrontend(controller) {
+  override def selectedMode: RecorderMode = Proxy
+
+  override def receiveEventInfo(eventInfo: EventInfo): Unit =
+    log(s"[RECORD EVENT] ${eventInfo}")
+
+  override def init(): Unit = {}
+
+  override def handleHarExportFailure(message: String): Unit = ???
+
+  override def harFilePath: String = null
+
+  override def handleHarExportSuccess(): Unit = ???
+
+  override def recordingStarted(): Unit =
+    log("Recording started.")
+
+  override def handleFilterValidationFailures(failures: Seq[String]): Unit = ???
+
+  override def recordingStopped(): Unit =
+    log("Recording stopped.")
+
+  override def askSimulationOverwrite: Boolean = {
+    log(
+      """Could not start as simulation file already exists.
+        |  Try setting class, package or path to change the target file.
+        |  Call the recorder with `--help` switch for more info.
+        |
+        |TODO: it would be nice if there was a force-override option!""".stripMargin)
+    return false
+  }
+
+  override def handleMissingHarFile(path: String): Unit = ???
+
+  private def log(message: String) =
+    println(s"[HEADLESS] ${message}")
 }
 
 private class SwingFrontend(controller: RecorderController) extends RecorderFrontend(controller) {

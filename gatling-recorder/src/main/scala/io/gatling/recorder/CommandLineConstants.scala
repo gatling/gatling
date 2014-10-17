@@ -40,4 +40,5 @@ object CommandLineConstants {
   val FollowRedirect = CommandLineConstant("follow-redirect", "fr")
   val AutomaticReferer = CommandLineConstant("automatic-referer", "ar")
   val InferHtmlResources = CommandLineConstant("infer-html-resources", "ihr")
+  val Headless = CommandLineConstant("headless", "H")
 }

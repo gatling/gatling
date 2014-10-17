@@ -41,15 +41,14 @@ import io.gatling.recorder.scenario._
 import io.gatling.recorder.ui._
 
 object RecorderController {
-  def apply(props: Map[String, Any], recorderConfigFile: Option[Path] = None): Unit = {
+  def apply(props: Map[String, Any], recorderConfigFile: Option[Path] = None): RecorderController = {
     RecorderConfiguration.initialSetup(props, recorderConfigFile)
-    new RecorderController
+    return new RecorderController
   }
 }
 
 class RecorderController extends StrictLogging {
-
-  private val frontEnd = RecorderFrontend.newFrontend(this)
+  var frontEnd: RecorderFrontend = null
 
   @volatile private var proxy: HttpProxy = _
 
@@ -58,7 +57,15 @@ class RecorderController extends StrictLogging {
   // Collection of tuples, (arrivalTime, tag)
   private val currentTags = new ConcurrentLinkedQueue[TimedScenarioElement[TagElement]]()
 
-  frontEnd.init()
+  def initSwingFrontEnd() {
+    frontEnd = RecorderFrontend.newSwingFrontend(this)
+
+    frontEnd.init()
+  }
+
+  def initHeadlessFrontEnd(): Unit = {
+    frontEnd = RecorderFrontend.newHeadlessFrontend(this)
+  }
 
   def startRecording(): Unit = {
     val selectedMode = frontEnd.selectedMode
