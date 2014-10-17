@@ -35,7 +35,7 @@ object FileDataWriter {
     val SanitizerPattern = """[\n\r\t]""".r
   }
 
-  implicit class SanitizableString(val string: String) {
+  implicit class SanitizableString(val string: String) extends AnyVal {
 
     /**
      * Converts whitespace characters that would break the simulation log format into spaces.
