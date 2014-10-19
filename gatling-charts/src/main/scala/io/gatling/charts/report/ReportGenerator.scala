@@ -26,7 +26,7 @@ object ReportGenerator {
 }
 
 abstract class ReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
-  def generate()
+  def generate(): Unit
 
   def count(records: Seq[IntVsTimePlot]): Int = records.iterator.map(_.value).sum
 }

@@ -31,7 +31,7 @@ case class RecordSeqFeederBuilder[T](records: IndexedSeq[Record[T]], strategy: F
     val useValueAsIs: PartialFunction[(String, T), Any] = { case (_, value) => value }
     val fullConversion = conversion orElse useValueAsIs
 
-    copy[Any](records = records.map(_.map { case (key, value) => key -> fullConversion(key, value) }))
+    copy[Any](records = records.map(_.map { case (key, value) => key -> fullConversion(key -> value) }))
   }
 
   def build: Feeder[T] = strategy match {

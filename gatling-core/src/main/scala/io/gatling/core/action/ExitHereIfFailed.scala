@@ -23,7 +23,7 @@ import io.gatling.core.util.TimeHelper.nowMillis
 
 class ExitHereIfFailed(val next: ActorRef) extends Chainable with DataWriterClient {
 
-  def execute(session: Session) {
+  def execute(session: Session): Unit = {
 
     val now = nowMillis
 

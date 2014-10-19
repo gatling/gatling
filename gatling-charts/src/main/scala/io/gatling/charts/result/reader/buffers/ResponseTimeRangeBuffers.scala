@@ -46,7 +46,7 @@ trait ResponseTimeRangeBuffers {
     var high = 0
     var ko = 0
 
-    def update(time: Int, status: Status) {
+    def update(time: Int, status: Status): Unit = {
 
       if (status == KO) ko += 1
       else if (time < configuration.charting.indicators.lowerBound) low += 1

@@ -54,7 +54,7 @@ object GatlingConfiguration extends StrictLogging {
     thisConfiguration
   }
 
-  def setUp(props: mutable.Map[String, _ <: Any] = mutable.Map.empty) {
+  def setUp(props: mutable.Map[String, _ <: Any] = mutable.Map.empty): Unit = {
 
     sealed trait ObsoleteUsage { def path: String; def message: String }
     case class Removed(path: String, advice: String) extends ObsoleteUsage {
@@ -64,7 +64,7 @@ object GatlingConfiguration extends StrictLogging {
       def message = s"'$path' was renamed into $replacement."
     }
 
-      def warnAboutRemovedProperties(config: Config) {
+      def warnAboutRemovedProperties(config: Config): Unit = {
 
         val obsoleteUsages = Vector(
           Removed("gatling.core.extract.xpath.saxParserFactory", "now Gatling uses Saxon"),

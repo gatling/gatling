@@ -19,7 +19,7 @@ object Status {
   def valueOf(string: String) = string match {
     case "OK" => OK
     case "KO" => KO
-    case _    => throw new IllegalArgumentException("Illegal Status value $string")
+    case _    => throw new IllegalArgumentException(s"Illegal Status value $string")
   }
 }
 

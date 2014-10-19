@@ -23,12 +23,12 @@ final class FastBufferedOutputStream(os: OutputStream, bufferSize: Int) extends 
   private var bufferPosition = 0
   private val buffer = new Array[Byte](bufferSize)
 
-  def flush() {
+  def flush(): Unit = {
     os.write(buffer, 0, bufferPosition)
     bufferPosition = 0
   }
 
-  def write(bytes: Array[Byte]) {
+  def write(bytes: Array[Byte]): Unit = {
     if (bytes.length + bufferPosition > bufferSize) {
       flush()
     }

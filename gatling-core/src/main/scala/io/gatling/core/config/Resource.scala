@@ -25,7 +25,7 @@ import io.gatling.core.util.PathHelper._
 
 object Resource {
 
-  object ClasspathResource {
+  private object ClasspathResource {
     private def extension(s: String) = {
       val lastIndex = s.lastIndexOf('.')
       if (lastIndex != -1) "" else s.substring(lastIndex + 1)
@@ -40,12 +40,12 @@ object Resource {
       }
   }
 
-  object FileInFolderResource {
+  private object FileInFolderResource {
     def unapply(location: Location): Option[Validation[Resource]] =
       (location.directory / location.path).ifFile(f => FileResource(f).success)
   }
 
-  object AbsoluteFileResource {
+  private object AbsoluteFileResource {
     def unapply(location: Location): Option[Validation[Resource]] =
       string2path(location.path).ifFile(f => FileResource(f).success)
   }

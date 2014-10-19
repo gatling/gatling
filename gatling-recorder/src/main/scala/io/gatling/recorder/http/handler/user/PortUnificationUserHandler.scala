@@ -35,7 +35,7 @@ class PortUnificationUserHandler(proxy: HttpProxy, pipeline: ChannelPipeline) ex
           pipeline.addLast(GatlingHandlerName, serverHandler)
           pipeline.remove(PortUnificationServerHandler)
 
-        case unknown => logger.warn("Received unknown message: $unknown , in event : " + event)
+        case unknown => logger.warn(s"Received unknown message: $unknown , in event : $event")
       }
 
     finally

@@ -72,9 +72,8 @@ class WsListener(tx: WsTx, wsActor: ActorRef)
     wsActor ! OnByteMessage(message, nowMillis)
 
   // WebSocketPingListener
-  def onPing(message: Array[Byte]) {
+  def onPing(message: Array[Byte]): Unit =
     webSocket.sendPong(message)
-  }
 }
 
 private sealed trait WsListenerState

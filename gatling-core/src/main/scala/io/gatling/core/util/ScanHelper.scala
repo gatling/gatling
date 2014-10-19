@@ -57,7 +57,7 @@ object ScanHelper {
     }
   }
 
-  def deepCopyPackageContent(pkg: Path, targetDirectoryPath: Path) {
+  def deepCopyPackageContent(pkg: Path, targetDirectoryPath: Path): Unit = {
 
       def getPathStringAfterPackage(path: Path, pkg: Path): Path = {
         val pathString = path.segments.mkString(SEPARATOR)
@@ -78,14 +78,14 @@ sealed trait Resource {
 }
 
 case class FileResource(path: Path) extends Resource {
-  def copyTo(target: Path) {
+  def copyTo(target: Path): Unit = {
     target.getParent.mkdirs
     path.copyTo(target, StandardCopyOption.COPY_ATTRIBUTES)
   }
 }
 
 case class JarResource(path: Path, inputStream: InputStream) extends Resource {
-  def copyTo(target: Path) {
+  def copyTo(target: Path): Unit = {
     target.getParent.mkdirs
 
     withCloseable(inputStream) { input =>

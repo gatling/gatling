@@ -43,7 +43,7 @@ class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map
 
   newSecond()
 
-  private def newSecond() {
+  private def newSecond(): Unit = {
     thisTickStartNanoRef = nanoTime
     val thisTickStartSeconds = secondsSinceReference
     thisTickGlobalThrottler = globalProfile.map(p => new ThisSecondThrottler(p.limit(thisTickStartSeconds)))
@@ -83,12 +83,12 @@ class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map
 
   def millisSinceTickStart: Int = ((nanoTime - thisTickStartNanoRef) / 1000000).toInt
 
-  def send(scenarioName: String, request: () => Unit) {
+  def send(scenarioName: String, request: () => Unit): Unit = {
     if (!throttle(scenarioName, request, millisSinceTickStart))
       buffer += scenarioName -> request
   }
 
-  def flushBuffer() {
+  def flushBuffer(): Unit = {
     newSecond()
     // FIXME ugly, side effecting, can do better?
     // + no need to keep on testing when global limit is reached
