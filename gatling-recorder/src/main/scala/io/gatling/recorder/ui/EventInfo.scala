@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.ui
 
-import io.gatling.recorder.config.RecorderConfiguration.configuration
+import io.gatling.recorder.config.RecorderConfiguration
 import java.nio.charset.Charset
 import org.jboss.netty.handler.codec.http.{ HttpMessage, HttpRequest, HttpResponse }
 import scala.concurrent.duration.{ DurationLong, FiniteDuration }
@@ -27,7 +27,7 @@ case class PauseInfo(duration: FiniteDuration) extends EventInfo {
   override def toString = s"PAUSE $toPrint"
 }
 
-case class RequestInfo(request: HttpRequest, response: HttpResponse) extends EventInfo {
+case class RequestInfo(request: HttpRequest, response: HttpResponse)(implicit configuration: RecorderConfiguration) extends EventInfo {
 
   private def getHttpBody(message: HttpMessage) = message.getContent.toString(Charset.forName(configuration.core.encoding))
 

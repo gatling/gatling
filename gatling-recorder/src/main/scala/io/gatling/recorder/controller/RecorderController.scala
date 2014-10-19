@@ -34,7 +34,6 @@ import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.core.util.PathHelper._
 import io.gatling.recorder.{ Har, Proxy }
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.scenario._
@@ -47,7 +46,7 @@ object RecorderController {
   }
 }
 
-class RecorderController extends StrictLogging {
+class RecorderController(implicit configuration: RecorderConfiguration) extends StrictLogging {
 
   private val frontEnd = RecorderFrontend.newFrontend(this)
 
@@ -66,7 +65,6 @@ class RecorderController extends StrictLogging {
     if (selectedMode == Har && !string2path(harFilePath).exists) {
       frontEnd.handleMissingHarFile(harFilePath)
     } else {
-      implicit val config = configuration
       val simulationFile = ScenarioExporter.simulationFilePath
       val proceed = if (simulationFile.exists) frontEnd.askSimulationOverwrite else true
       if (proceed) {
@@ -77,7 +75,7 @@ class RecorderController extends StrictLogging {
               case Success(_)      => frontEnd.handleHarExportSuccess()
             }
           case Proxy =>
-            proxy = new HttpProxy(config, this)
+            proxy = new HttpProxy(this)
             frontEnd.recordingStarted()
         }
       }
@@ -90,7 +88,6 @@ class RecorderController extends StrictLogging {
       if (currentRequests.isEmpty)
         logger.info("Nothing was recorded, skipping scenario generation")
       else {
-        implicit val config = configuration
         val scenario = ScenarioDefinition(currentRequests.toVector, currentTags.toVector)
         ScenarioExporter.saveScenario(scenario)
       }

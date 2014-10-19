@@ -20,6 +20,7 @@ import scala.swing.Swing.onEDT
 
 import io.gatling.core.util.PathHelper._
 import io.gatling.recorder.RecorderMode
+import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.swing.component.DialogFileSelector
 import io.gatling.recorder.ui.swing.frame.{ ConfigurationFrame, RunningFrame }
@@ -28,7 +29,7 @@ object RecorderFrontend {
 
   // Currently hardwired to the Swing frontend
   // Will select the desired frontend when more are implemented
-  def newFrontend(controller: RecorderController): RecorderFrontend =
+  def newFrontend(controller: RecorderController)(implicit configuration: RecorderConfiguration): RecorderFrontend =
     new SwingFrontend(controller)
 }
 sealed abstract class RecorderFrontend(controller: RecorderController) {
@@ -72,7 +73,7 @@ sealed abstract class RecorderFrontend(controller: RecorderController) {
   def clearRecorderState(): Unit = controller.clearRecorderState()
 }
 
-private class SwingFrontend(controller: RecorderController) extends RecorderFrontend(controller) {
+private class SwingFrontend(controller: RecorderController)(implicit configuration: RecorderConfiguration) extends RecorderFrontend(controller) {
 
   private lazy val runningFrame = new RunningFrame(this)
   private lazy val configurationFrame = new ConfigurationFrame(this)

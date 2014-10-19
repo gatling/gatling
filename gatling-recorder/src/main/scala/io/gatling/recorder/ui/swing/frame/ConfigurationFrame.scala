@@ -30,7 +30,6 @@ import io.gatling.core.util.StringHelper.RichString
 import io.gatling.recorder.{ Har, Proxy, RecorderMode }
 import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration, RecorderPropertiesBuilder }
 import io.gatling.recorder.config.FilterStrategy.BlacklistFirst
-import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.ui.RecorderFrontend
 import io.gatling.recorder.ui.swing.Commons._
 import io.gatling.recorder.ui.swing.component.FilterTable
@@ -38,7 +37,7 @@ import io.gatling.recorder.ui.swing.frame.ValidationHelper._
 import io.gatling.recorder.ui.swing.util.CharsetHelper
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
-class ConfigurationFrame(frontend: RecorderFrontend) extends MainFrame {
+class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: RecorderConfiguration) extends MainFrame {
 
   /************************************/
   /**           COMPONENTS           **/

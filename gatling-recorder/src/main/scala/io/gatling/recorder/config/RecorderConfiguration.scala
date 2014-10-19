@@ -44,7 +44,7 @@ object RecorderConfiguration extends StrictLogging {
 
   var configFile: Option[Path] = None
 
-  var configuration: RecorderConfiguration = _
+  implicit var configuration: RecorderConfiguration = _
 
   GatlingConfiguration.setUp()
 

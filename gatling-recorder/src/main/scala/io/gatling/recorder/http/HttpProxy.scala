@@ -21,7 +21,7 @@ import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory.{ newRemoteBootstrap, newUserBootstrap }
 import io.gatling.recorder.config.RecorderConfiguration
 
-case class HttpProxy(config: RecorderConfiguration, controller: RecorderController) {
+case class HttpProxy(controller: RecorderController)(implicit config: RecorderConfiguration) {
 
   private def port = config.proxy.port
   def outgoingProxy =
