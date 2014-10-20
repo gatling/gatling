@@ -18,7 +18,6 @@ package io.gatling.core.session.el
 import java.lang.{ StringBuilder => JStringBuilder }
 import java.util.{ Collection => JCollection, List => JList, Map => JMap }
 
-import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
