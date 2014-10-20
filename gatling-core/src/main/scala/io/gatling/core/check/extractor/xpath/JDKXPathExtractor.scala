@@ -15,7 +15,7 @@
  */
 package io.gatling.core.check.extractor.xpath
 
-import java.io.{ StringReader, Reader, InputStream }
+import java.io.StringReader
 import javax.xml.namespace.NamespaceContext
 import javax.xml.parsers._
 import javax.xml.xpath.XPathConstants.NODESET
@@ -66,70 +66,71 @@ object JDKXPathExtractor {
   def parse(inputSource: InputSource): Document =
     DocumentBuilderTL.get.parse(inputSource)
 
-  def nodeList(document: Document, expression: String, namespaces: List[(String, String)]): NodeList = {
-    val path = XPathFactoryTL.get.newXPath
+  abstract class JDKXPathExtractor[X] extends CriterionExtractor[Option[Document], String, X] {
 
-    if (namespaces.nonEmpty) {
+    val criterionName = "xpath"
 
-      val namespaceCtx = new NamespaceContext {
+    def nodeList(document: Document, expression: String, namespaces: List[(String, String)]): NodeList = {
+      val path = XPathFactoryTL.get.newXPath
 
-        val map: Map[String, String] = namespaces.toMap
+      if (namespaces.nonEmpty) {
 
-        def getNamespaceURI(prefix: String) = map(prefix)
+        val namespaceCtx = new NamespaceContext {
 
-        def getPrefix(uri: String) = throw new UnsupportedOperationException
+          val map: Map[String, String] = namespaces.toMap
 
-        def getPrefixes(uri: String) = throw new UnsupportedOperationException
+          def getNamespaceURI(prefix: String) = map(prefix)
+
+          def getPrefix(uri: String) = throw new UnsupportedOperationException
+
+          def getPrefixes(uri: String) = throw new UnsupportedOperationException
+        }
+
+        path.setNamespaceContext(namespaceCtx)
       }
 
-      path.setNamespaceContext(namespaceCtx)
+      val xpathExpression = path.compile(expression)
+
+      xpathExpression.evaluate(document, NODESET).asInstanceOf[NodeList]
     }
 
-    val xpathExpression = path.compile(expression)
+    def extractAll(document: Document, expression: String, namespaces: List[(String, String)]): Seq[String] = {
 
-    xpathExpression.evaluate(document, NODESET).asInstanceOf[NodeList]
-  }
+      val nodes = nodeList(document, expression, namespaces)
 
-  def extractAll(document: Document, expression: String, namespaces: List[(String, String)]): Seq[String] = {
+      (for {
+        i <- 0 until nodes.getLength
+        item = nodes.item(i)
+      } yield {
+        item.getNodeType match {
+          case Node.ELEMENT_NODE if item.getChildNodes.getLength > 0 =>
+            val firstChild = item.getChildNodes.item(0)
+            if (firstChild.getNodeType == Node.TEXT_NODE)
+              Some(firstChild.getNodeValue)
+            else None
 
-    val nodes = nodeList(document, expression, namespaces)
-
-    (for {
-      i <- 0 until nodes.getLength
-      item = nodes.item(i)
-    } yield {
-      item.getNodeType match {
-        case Node.ELEMENT_NODE if item.getChildNodes.getLength > 0 =>
-          val firstChild = item.getChildNodes.item(0)
-          if (firstChild.getNodeType == Node.TEXT_NODE)
-            Some(firstChild.getNodeValue)
-          else None
-
-        case _ =>
-          Option(item.getNodeValue)
-      }
-    }).flatten
-  }
-
-  abstract class JDKXPathExtractor[X] extends CriterionExtractor[Option[Document], String, X] {
-    val criterionName = "xpath"
+          case _ =>
+            Option(item.getNodeValue)
+        }
+      }).flatten
+    }
   }
 
   class SingleXPathExtractor(val criterion: String, namespaces: List[(String, String)], val occurrence: Int) extends JDKXPathExtractor[String] with FindArity {
 
     def extract(prepared: Option[Document]): Validation[Option[String]] =
-      prepared.flatMap(document => JDKXPathExtractor.extractAll(document, criterion, namespaces).lift(occurrence)).success
+      prepared.flatMap(document => extractAll(document, criterion, namespaces).lift(occurrence)).success
   }
 
   class MultipleXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends JDKXPathExtractor[Seq[String]] with FindAllArity {
 
     def extract(prepared: Option[Document]): Validation[Option[Seq[String]]] =
-      prepared.flatMap(document => JDKXPathExtractor.extractAll(document, criterion, namespaces).liftSeqOption).success
+      prepared.flatMap(document => extractAll(document, criterion, namespaces).liftSeqOption).success
   }
 
   class CountXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends JDKXPathExtractor[Int] with CountArity {
 
     def extract(prepared: Option[Document]): Validation[Option[Int]] =
-      prepared.map(document => JDKXPathExtractor.nodeList(document, criterion, namespaces).getLength).success
+      prepared.map(document => nodeList(document, criterion, namespaces).getLength).success
   }
 }

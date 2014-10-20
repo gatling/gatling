@@ -17,7 +17,6 @@ package io.gatling.http.fetch
 
 import com.ning.http.client.Request
 import com.ning.http.client.uri.Uri
-import io.gatling.core.util.CacheHelper
 import io.gatling.http.request._
 import io.gatling.http.util.HttpHelper._
 
@@ -31,8 +30,8 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.filter.Filters
 import io.gatling.core.result.message.{ OK, Status }
 import io.gatling.core.session._
-import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.util.cache._
 import io.gatling.core.validation._
 import io.gatling.http.action.{ RequestAction, HttpRequestAction }
 import io.gatling.http.ahc.HttpTx
@@ -54,8 +53,8 @@ object ResourceFetcher extends StrictLogging {
 
   // FIXME should CssContentCache use the same key?
   case class InferredResourcesCacheKey(protocol: HttpProtocol, uri: Uri)
-  val CssContentCache = CacheHelper.newCache[Uri, List[EmbeddedResource]](configuration.http.fetchedCssCacheMaxCapacity)
-  val InferredResourcesCache = CacheHelper.newCache[InferredResourcesCacheKey, InferredPageResources](configuration.http.fetchedHtmlCacheMaxCapacity)
+  val CssContentCache = ThreadSafeCache[Uri, List[EmbeddedResource]](configuration.http.fetchedCssCacheMaxCapacity)
+  val InferredResourcesCache = ThreadSafeCache[InferredResourcesCacheKey, InferredPageResources](configuration.http.fetchedHtmlCacheMaxCapacity)
 
   private def applyResourceFilters(resources: List[EmbeddedResource], filters: Option[Filters]): List[EmbeddedResource] =
     filters match {

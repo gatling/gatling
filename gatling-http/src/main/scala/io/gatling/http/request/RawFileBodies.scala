@@ -17,21 +17,20 @@ package io.gatling.http.request
 
 import java.io.File
 
-import io.gatling.core.util.CacheHelper
-
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
 import io.gatling.core.session.Expression
+import io.gatling.core.util.cache._
 import io.gatling.core.util.IO._
 import io.gatling.core.validation.Validation
 
 object RawFileBodies {
 
-  lazy val Cache = CacheHelper.newCache[String, Validation[File]](configuration.http.rawFileBodiesCacheMaxCapacity)
+  lazy val RawFileBodyCache = ThreadSafeCache[String, Validation[File]](configuration.http.rawFileBodiesCacheMaxCapacity)
 
   def cached(path: String) =
     if (configuration.http.rawFileBodiesCacheMaxCapacity > 0)
-      Cache.getOrElseUpdate(path, Resource.requestBody(path).map(_.file))
+      RawFileBodyCache.getOrElsePutIfAbsent(path, Resource.requestBody(path).map(_.file))
     else
       Resource.requestBody(path).map(_.file)
 

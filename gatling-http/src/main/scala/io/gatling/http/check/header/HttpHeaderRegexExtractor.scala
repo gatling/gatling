@@ -20,31 +20,31 @@ import io.gatling.core.check.extractor.regex.{ GroupExtractor, RegexExtractor }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.http.response.Response
 
-object HttpHeaderRegexExtractor {
+abstract class HttpHeaderRegexExtractor[X] extends CriterionExtractor[Response, (String, String), X] with RegexExtractor {
 
-  def extractHeadersValues[X](response: Response, headerNameAndPattern: (String, String))(implicit groupExtractor: GroupExtractor[X]) = {
+  val criterionName = "headerRegex"
+
+  def extractHeadersValues[F](response: Response, headerNameAndPattern: (String, String))(implicit groupExtractor: GroupExtractor[F]) = {
     val (headerName, pattern) = headerNameAndPattern
     val headerValues = HttpHeaderExtractor.decodedHeaders(response, headerName)
-    headerValues.map(RegexExtractor.extractAll(_, pattern)).flatten
+    headerValues.map(extractAll(_, pattern)).flatten
   }
 }
-
-abstract class HttpHeaderRegexExtractor[X] extends CriterionExtractor[Response, (String, String), X] { val criterionName = "headerRegex" }
 
 class SingleHttpHeaderRegexExtractor[X](val criterion: (String, String), val occurrence: Int)(implicit groupExtractor: GroupExtractor[X]) extends HttpHeaderRegexExtractor[X] with FindArity {
 
   def extract(prepared: Response): Validation[Option[X]] =
-    HttpHeaderRegexExtractor.extractHeadersValues(prepared, criterion).lift(occurrence).success
+    extractHeadersValues(prepared, criterion).lift(occurrence).success
 }
 
 class MultipleHttpHeaderRegexExtractor[X](val criterion: (String, String))(implicit groupExtractor: GroupExtractor[X]) extends HttpHeaderRegexExtractor[Seq[X]] with FindAllArity {
 
   def extract(prepared: Response): Validation[Option[Seq[X]]] =
-    HttpHeaderRegexExtractor.extractHeadersValues(prepared, criterion).liftSeqOption.success
+    extractHeadersValues(prepared, criterion).liftSeqOption.success
 }
 
 class CountHttpHeaderRegexExtractor(val criterion: (String, String)) extends HttpHeaderRegexExtractor[Int] with CountArity {
 
   def extract(prepared: Response): Validation[Option[Int]] =
-    HttpHeaderRegexExtractor.extractHeadersValues[String](prepared, criterion).liftSeqOption.map(_.size).success
+    extractHeadersValues[String](prepared, criterion).liftSeqOption.map(_.size).success
 }

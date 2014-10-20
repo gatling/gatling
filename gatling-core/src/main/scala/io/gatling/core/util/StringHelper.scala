@@ -30,21 +30,10 @@ object StringHelper {
   val UnsupportedJavaVersion = new UnsupportedOperationException("Gatling requires Java >= 7u6")
   UnsupportedJavaVersion.setStackTrace(new Array[StackTraceElement](0))
 
-  sealed trait StringImplementation
-  case object DirectCharsBasedStringImplementation extends StringImplementation
-  case object OffsetBasedStringImplementation extends StringImplementation
+  private val StringValueFieldOffset: Long = TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
+  private val StringOffsetFieldOffset: Option[Long] = Try(TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("offset"))).toOption
 
-  val StringValueFieldOffset: Long = TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
-  val TheStringImplementation: StringImplementation =
-    Try(TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("offset"))).toOption match {
-      case None => DirectCharsBasedStringImplementation
-      case _    => OffsetBasedStringImplementation
-    }
-
-  def checkSupportedJavaVersion(): Unit = TheStringImplementation match {
-    case OffsetBasedStringImplementation => throw UnsupportedJavaVersion
-    case _                               =>
-  }
+  def checkSupportedJavaVersion(): Unit = StringOffsetFieldOffset.foreach(throw UnsupportedJavaVersion)
 
   val Eol = System.getProperty("line.separator")
 

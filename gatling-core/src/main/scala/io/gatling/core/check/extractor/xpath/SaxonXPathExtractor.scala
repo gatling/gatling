@@ -15,10 +15,7 @@
  */
 package io.gatling.core.check.extractor.xpath
 
-import java.io.{ Reader, InputStream }
 import java.nio.charset.StandardCharsets._
-
-import io.gatling.core.util.CacheHelper
 
 import scala.collection.JavaConversions._
 
@@ -27,6 +24,7 @@ import org.xml.sax.InputSource
 import io.gatling.core.check.extractor._
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.core.util.cache._
 import javax.xml.transform.sax.SAXSource
 import net.sf.saxon.s9api.{ Processor, XPathCompiler, XPathExecutable, XdmNode, XdmValue }
 
@@ -34,46 +32,49 @@ object SaxonXPathExtractor {
 
   val Enabled = Seq(UTF_8, UTF_16, US_ASCII, ISO_8859_1).contains(configuration.core.charset)
 
-  val Processor = new Processor(false)
-  val DocumentBuilder = Processor.newDocumentBuilder
+  val TheProcessor = new Processor(false)
+  val TheDocumentBuilder = TheProcessor.newDocumentBuilder
 
-  lazy val CompilerCache = CacheHelper.newCache[List[(String, String)], XPathCompiler](configuration.core.extract.xpath.cacheMaxCapacity)
-  lazy val XPathExecutableCache = CacheHelper.newCache[String, XPathExecutable](configuration.core.extract.xpath.cacheMaxCapacity)
-
-  def compiler(namespaces: List[(String, String)]) = {
-    val xPathCompiler = Processor.newXPathCompiler
-    for {
-      (prefix, uri) <- namespaces
-    } xPathCompiler.declareNamespace(prefix, uri)
-    xPathCompiler
-  }
+  val CompilerCache = ThreadSafeCache[List[(String, String)], XPathCompiler](configuration.core.extract.xpath.cacheMaxCapacity)
+  val XPathExecutableCache = ThreadSafeCache[String, XPathExecutable](configuration.core.extract.xpath.cacheMaxCapacity)
 
   def parse(inputSource: InputSource) = {
     inputSource.setEncoding(configuration.core.encoding)
     val source = new SAXSource(inputSource)
-    DocumentBuilder.build(source)
-  }
-
-  def xpath(expression: String, xPathCompiler: XPathCompiler): XPathExecutable = xPathCompiler.compile(expression)
-
-  def cached(expression: String, namespaces: List[(String, String)]): XPathExecutable =
-    if (configuration.core.extract.xpath.cacheMaxCapacity > 0)
-      XPathExecutableCache.getOrElseUpdate(expression, xpath(expression, CompilerCache.getOrElseUpdate(namespaces, compiler(namespaces))))
-    else
-      xpath(expression, compiler(namespaces))
-
-  def evaluate(criterion: String, namespaces: List[(String, String)], xdmNode: XdmNode): XdmValue = {
-    val xPathSelector = cached(criterion, namespaces).load
-    try {
-      xPathSelector.setContextItem(xdmNode)
-      xPathSelector.evaluate
-    } finally {
-      xPathSelector.getUnderlyingXPathContext.setContextItem(null)
-    }
+    TheDocumentBuilder.build(source)
   }
 
   abstract class SaxonXPathExtractor[X] extends CriterionExtractor[Option[XdmNode], String, X] {
+
     val criterionName = "xpath"
+
+    private val xpathCacheEnabled = configuration.core.extract.xpath.cacheMaxCapacity > 0
+
+    private def compileXPath(expression: String, namespaces: List[(String, String)]): XPathExecutable = {
+
+        def xPathCompiler(namespaces: List[(String, String)]) = {
+          val compiler = TheProcessor.newXPathCompiler
+          for {
+            (prefix, uri) <- namespaces
+          } compiler.declareNamespace(prefix, uri)
+          compiler
+        }
+
+      if (xpathCacheEnabled)
+        XPathExecutableCache.getOrElsePutIfAbsent(expression, CompilerCache.getOrElsePutIfAbsent(namespaces, xPathCompiler(namespaces)).compile(expression))
+      else
+        xPathCompiler(namespaces).compile(expression)
+    }
+
+    def evaluateXPath(criterion: String, namespaces: List[(String, String)], xdmNode: XdmNode): XdmValue = {
+      val xPathSelector = compileXPath(criterion, namespaces).load
+      try {
+        xPathSelector.setContextItem(xdmNode)
+        xPathSelector.evaluate
+      } finally {
+        xPathSelector.getUnderlyingXPathContext.setContextItem(null)
+      }
+    }
   }
 
   class SingleXPathExtractor(val criterion: String, namespaces: List[(String, String)], val occurrence: Int) extends SaxonXPathExtractor[String] with FindArity {
@@ -82,7 +83,7 @@ object SaxonXPathExtractor {
       val result = for {
         text <- prepared
         // XdmValue is an Iterable, so toSeq is a Stream
-        result <- SaxonXPathExtractor.evaluate(criterion, namespaces, text).toSeq.lift(occurrence)
+        result <- evaluateXPath(criterion, namespaces, text).toSeq.lift(occurrence)
       } yield result.getStringValue
 
       result.success
@@ -94,7 +95,7 @@ object SaxonXPathExtractor {
     def extract(prepared: Option[XdmNode]): Validation[Option[Seq[String]]] = {
       val result = for {
         node <- prepared
-        items <- SaxonXPathExtractor.evaluate(criterion, namespaces, node).iterator.map(_.getStringValue).toVector.liftSeqOption
+        items <- evaluateXPath(criterion, namespaces, node).iterator.map(_.getStringValue).toVector.liftSeqOption
       } yield items
 
       result.success
@@ -104,7 +105,7 @@ object SaxonXPathExtractor {
   class CountXPathExtractor(val criterion: String, namespaces: List[(String, String)]) extends SaxonXPathExtractor[Int] with CountArity {
 
     def extract(prepared: Option[XdmNode]): Validation[Option[Int]] = {
-      val count = prepared.map(SaxonXPathExtractor.evaluate(criterion, namespaces, _).size).getOrElse(0)
+      val count = prepared.map(evaluateXPath(criterion, namespaces, _).size).getOrElse(0)
       Some(count).success
     }
   }

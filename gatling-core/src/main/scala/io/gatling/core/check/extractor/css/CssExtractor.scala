@@ -17,13 +17,12 @@ package io.gatling.core.check.extractor.css
 
 import java.util.{ List => JList }
 
-import io.gatling.core.util.CacheHelper
-
 import scala.collection.JavaConversions.asScalaBuffer
 
 import io.gatling.core.check.extractor._
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.core.util.cache._
 import jodd.csselly.{ CSSelly, CssSelector }
 import jodd.lagarto.dom.NodeSelector
 import jodd.log.LoggerFactory
@@ -37,20 +36,23 @@ object CssExtractor {
   def parse(chars: Array[Char]) = new NodeSelector(DomBuilder.parse(chars))
   def parse(string: String) = new NodeSelector(DomBuilder.parse(string))
 
-  val Cache = CacheHelper.newCache[String, JList[JList[CssSelector]]](configuration.core.extract.css.cacheMaxCapacity)
+  val SelectorCache = ThreadSafeCache[String, JList[JList[CssSelector]]](configuration.core.extract.css.cacheMaxCapacity)
 }
 
 abstract class CssExtractor[X] extends CriterionExtractor[NodeSelector, String, X] {
 
   val criterionName = "css"
 
-  private def cached(query: String) =
-    if (configuration.core.extract.css.cacheMaxCapacity > 0) CssExtractor.Cache.getOrElseUpdate(query, CSSelly.parse(query))
-    else CSSelly.parse(query)
+  private val queryCacheEnabled = configuration.core.extract.css.cacheMaxCapacity > 0
+  private def parseQuery(query: String): JList[JList[CssSelector]] =
+    if (queryCacheEnabled)
+      CssExtractor.SelectorCache.getOrElsePutIfAbsent(query, CSSelly.parse(query))
+    else
+      CSSelly.parse(query)
 
   def extractAll(selector: NodeSelector, query: String, nodeAttribute: Option[String]): Seq[String] = {
 
-    val selectors = cached(query)
+    val selectors = parseQuery(query)
 
     selector.select(selectors).flatMap { node =>
       nodeAttribute match {

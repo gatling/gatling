@@ -15,22 +15,21 @@
  */
 package io.gatling.http.request
 
-import io.gatling.core.util.CacheHelper
-
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
 import io.gatling.core.session.Expression
 import io.gatling.core.session.el.EL
 import io.gatling.core.util.IO._
+import io.gatling.core.util.cache._
 import io.gatling.core.validation.Validation
 
 object ELFileBodies {
 
-  lazy val Cache = CacheHelper.newCache[String, Validation[Expression[String]]](configuration.http.elFileBodiesCacheMaxCapacity)
+  lazy val ELFileBodyCache = ThreadSafeCache[String, Validation[Expression[String]]](configuration.http.elFileBodiesCacheMaxCapacity)
 
   def cached(path: String) =
     if (configuration.http.elFileBodiesCacheMaxCapacity > 0)
-      Cache.getOrElseUpdate(path, compileFile(path))
+      ELFileBodyCache.getOrElsePutIfAbsent(path, compileFile(path))
     else
       compileFile(path)
 

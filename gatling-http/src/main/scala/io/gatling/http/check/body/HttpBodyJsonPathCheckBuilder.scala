@@ -22,7 +22,6 @@ import io.gatling.core.check.extractor.jsonpath.{ CountJsonPathExtractor, JsonFi
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.json.{ Jackson, Boon }
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.core.util.StringHelper.{ DirectCharsBasedStringImplementation, TheStringImplementation }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
 import io.gatling.http.response.{ ByteArrayResponseBodyUsage, InputStreamResponseBodyUsage, Response, ResponseBodyUsageStrategy, StringResponseBodyUsage }
@@ -47,21 +46,18 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
         message.failure
     }
 
-  val Preparer: Preparer[Response, Any] = TheStringImplementation match {
-
-    case DirectCharsBasedStringImplementation if !configuration.core.extract.jsonPath.preferJackson =>
+  val Preparer: Preparer[Response, Any] =
+    if (configuration.core.extract.jsonPath.preferJackson)
+      handleParseException { response =>
+        Jackson.parse(response.body.stream, response.charset)
+      }
+    else
       handleParseException { response =>
         if (response.bodyLength <= CharsParsingThreshold)
           Boon.parse(response.body.string)
         else
           Jackson.parse(response.body.stream, response.charset)
       }
-
-    case _ =>
-      handleParseException { response =>
-        Jackson.parse(response.body.stream, response.charset)
-      }
-  }
 
   val BoonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {
     def bodyUsage(bodyLength: Int) =
@@ -79,10 +75,9 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
         InputStreamResponseBodyUsage
   }
 
-  val ResponseBodyUsageStrategy = TheStringImplementation match {
-    case DirectCharsBasedStringImplementation => BoonResponseBodyUsageStrategy
-    case _                                    => JacksonResponseBodyUsageStrategy
-  }
+  val ResponseBodyUsageStrategy =
+    if (configuration.core.extract.jsonPath.preferJackson) JacksonResponseBodyUsageStrategy
+    else BoonResponseBodyUsageStrategy
 
   def jsonPath(path: Expression[String]) = new HttpBodyJsonPathCheckBuilder[String](path) with HttpBodyJsonPathOfType
 }

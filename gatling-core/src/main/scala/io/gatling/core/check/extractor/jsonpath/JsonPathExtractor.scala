@@ -15,46 +15,54 @@
  */
 package io.gatling.core.check.extractor.jsonpath
 
-import io.gatling.core.util.CacheHelper
-
 import io.gatling.core.check.extractor._
 import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.util.cache._
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.jsonpath.JsonPath
 
 object JsonPathExtractor {
 
-  lazy val Cache = CacheHelper.newCache[String, Validation[JsonPath]](configuration.core.extract.jsonPath.cacheMaxCapacity)
-
-  def cached(expression: String): Validation[JsonPath] =
-    if (configuration.core.extract.jsonPath.cacheMaxCapacity > 0) Cache.getOrElseUpdate(expression, compile(expression))
-    else compile(expression)
-
-  def compile(expression: String): Validation[JsonPath] = JsonPath.compile(expression) match {
-    case Left(error) => error.reason.failure
-    case Right(path) => path.success
-  }
-
-  def extractAll[X: JsonFilter](json: Any, expression: String): Validation[Iterator[X]] =
-    cached(expression).map(_.query(json).collect(implicitly[JsonFilter[X]].filter))
+  val JsonPathCache = ThreadSafeCache[String, Validation[JsonPath]](configuration.core.extract.jsonPath.cacheMaxCapacity)
 }
 
-abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] { val criterionName = "jsonPath" }
+abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] {
+
+  val criterionName = "jsonPath"
+
+  val jsonPathCacheEnabled = configuration.core.extract.jsonPath.cacheMaxCapacity > 0
+
+  def extractAll[F: JsonFilter](json: Any, expression: String): Validation[Iterator[F]] =
+    compileJsonPath(expression).map(_.query(json).collect(implicitly[JsonFilter[F]].filter))
+
+  def compileJsonPath(expression: String): Validation[JsonPath] = {
+
+      def compile(expression: String): Validation[JsonPath] = JsonPath.compile(expression) match {
+        case Left(error) => error.reason.failure
+        case Right(path) => path.success
+      }
+
+    if (jsonPathCacheEnabled)
+      JsonPathExtractor.JsonPathCache.getOrElsePutIfAbsent(expression, compile(expression))
+    else
+      compile(expression)
+  }
+}
 
 class SingleJsonPathExtractor[X: JsonFilter](val criterion: String, val occurrence: Int) extends JsonPathExtractor[X] with FindArity {
 
   def extract(prepared: Any): Validation[Option[X]] =
-    JsonPathExtractor.extractAll(prepared, criterion).map(_.toSeq.lift(occurrence))
+    extractAll(prepared, criterion).map(_.toSeq.lift(occurrence))
 }
 
 class MultipleJsonPathExtractor[X: JsonFilter](val criterion: String) extends JsonPathExtractor[Seq[X]] with FindAllArity {
 
   def extract(prepared: Any): Validation[Option[Seq[X]]] =
-    JsonPathExtractor.extractAll(prepared, criterion).map(_.toVector.liftSeqOption)
+    extractAll(prepared, criterion).map(_.toVector.liftSeqOption)
 }
 
 class CountJsonPathExtractor(val criterion: String) extends JsonPathExtractor[Int] with CountArity {
 
   def extract(prepared: Any): Validation[Option[Int]] =
-    JsonPathExtractor.extractAll[Any](prepared, criterion).map(i => Some(i.size))
+    extractAll[Any](prepared, criterion).map(i => Some(i.size))
 }

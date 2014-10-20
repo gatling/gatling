@@ -16,8 +16,8 @@
 package io.gatling.http.check.ws
 
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Extender, Preparer }
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.json.{ Jackson, Boon }
-import io.gatling.core.util.StringHelper.{ TheStringImplementation, DirectCharsBasedStringImplementation }
 import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.http.check.body.HttpBodyJsonPathCheckBuilder.handleParseException
 import io.gatling.core.session.Expression
@@ -30,10 +30,9 @@ trait WsJsonPathOfType {
 
 object WsJsonPathCheckBuilder {
 
-  val WsJsonPathPreparer: Preparer[String, Any] = TheStringImplementation match {
-    case DirectCharsBasedStringImplementation => handleParseException(Boon.parse)
-    case _                                    => handleParseException(Jackson.parse)
-  }
+  val WsJsonPathPreparer: Preparer[String, Any] =
+    if (configuration.core.extract.jsonPath.preferJackson) handleParseException(Jackson.parse)
+    else handleParseException(Boon.parse)
 
   def jsonPath(path: Expression[String], extender: Extender[WsCheck, String]) =
     new WsJsonPathCheckBuilder[String](path, extender) with WsJsonPathOfType

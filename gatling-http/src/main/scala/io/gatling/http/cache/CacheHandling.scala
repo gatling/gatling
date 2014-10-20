@@ -15,19 +15,16 @@
  */
 package io.gatling.http.cache
 
-import com.ning.http.client.uri.Uri
-
-import scala.collection.concurrent
-
 import com.ning.http.client.Request
 import com.ning.http.client.date.RFC2616DateParser
+import com.ning.http.client.uri.Uri
 import com.typesafe.scalalogging.StrictLogging
-import io.gatling.core.config.GatlingConfiguration._
 
+import io.gatling.core.config.GatlingConfiguration._
 import io.gatling.core.session.{ Expression, Session, SessionPrivateAttributes }
-import io.gatling.core.util.CacheHelper
 import io.gatling.core.util.NumberHelper.extractLongValue
 import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.util.cache._
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.ahc.ThreeTenBPConverter
@@ -38,24 +35,24 @@ object CacheHandling extends StrictLogging {
 
   val HttpRedirectMemoizationStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.redirects"
 
-  def getRedirectMemoizationStore(session: Session): Option[concurrent.Map[Uri, Uri]] =
-    session(HttpRedirectMemoizationStoreAttributeName).asOption[concurrent.Map[Uri, Uri]]
+  def getRedirectMemoizationStore(session: Session): Option[ThreadSafeCache[Uri, Uri]] =
+    session(HttpRedirectMemoizationStoreAttributeName).asOption[ThreadSafeCache[Uri, Uri]]
 
-  def getOrCreateRedirectMemoizationStore(session: Session): concurrent.Map[Uri, Uri] =
+  def getOrCreateRedirectMemoizationStore(session: Session): ThreadSafeCache[Uri, Uri] =
     getRedirectMemoizationStore(session) match {
       case Some(store) => store
-      case _           => CacheHelper.newCache[Uri, Uri](configuration.http.redirectPerUserCacheMaxCapacity)
+      case _           => ThreadSafeCache[Uri, Uri](configuration.http.redirectPerUserCacheMaxCapacity)
     }
 
   val HttpExpireStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.expireStore"
 
-  private def getExpireStore(session: Session): Option[concurrent.Map[Uri, Long]] =
-    session(HttpExpireStoreAttributeName).asOption[concurrent.Map[Uri, Long]]
+  private def getExpireStore(session: Session): Option[ThreadSafeCache[Uri, Long]] =
+    session(HttpExpireStoreAttributeName).asOption[ThreadSafeCache[Uri, Long]]
 
-  def getOrCreateExpireStore(session: Session): concurrent.Map[Uri, Long] =
+  def getOrCreateExpireStore(session: Session): ThreadSafeCache[Uri, Long] =
     getExpireStore(session) match {
       case Some(store) => store
-      case _           => CacheHelper.newCache[Uri, Long](configuration.http.expirePerUserCacheMaxCapacity)
+      case _           => ThreadSafeCache[Uri, Long](configuration.http.expirePerUserCacheMaxCapacity)
     }
 
   def getExpire(httpProtocol: HttpProtocol, session: Session, uri: Uri): Option[Long] =
@@ -71,13 +68,13 @@ object CacheHandling extends StrictLogging {
 
   val HttpLastModifiedStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.lastModifiedStore"
 
-  def getLastModifiedStore(session: Session): Option[concurrent.Map[Uri, String]] =
-    session(HttpLastModifiedStoreAttributeName).asOption[concurrent.Map[Uri, String]]
+  def getLastModifiedStore(session: Session): Option[ThreadSafeCache[Uri, String]] =
+    session(HttpLastModifiedStoreAttributeName).asOption[ThreadSafeCache[Uri, String]]
 
-  def getOrCreateLastModifiedStore(session: Session): concurrent.Map[Uri, String] =
+  def getOrCreateLastModifiedStore(session: Session): ThreadSafeCache[Uri, String] =
     getLastModifiedStore(session) match {
       case Some(store) => store
-      case _           => CacheHelper.newCache[Uri, String](configuration.http.lastModifiedPerUserCacheMaxCapacity)
+      case _           => ThreadSafeCache[Uri, String](configuration.http.lastModifiedPerUserCacheMaxCapacity)
     }
 
   def getLastModified(httpProtocol: HttpProtocol, session: Session, uri: Uri): Option[String] =
@@ -85,12 +82,12 @@ object CacheHandling extends StrictLogging {
 
   val HttpEtagStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.etagStore"
 
-  def getEtagStore(session: Session): Option[concurrent.Map[Uri, String]] =
-    session(HttpEtagStoreAttributeName).asOption[concurrent.Map[Uri, String]]
+  def getEtagStore(session: Session): Option[ThreadSafeCache[Uri, String]] =
+    session(HttpEtagStoreAttributeName).asOption[ThreadSafeCache[Uri, String]]
 
-  def getOrCreateEtagStore(session: Session): concurrent.Map[Uri, String] = getEtagStore(session) match {
+  def getOrCreateEtagStore(session: Session): ThreadSafeCache[Uri, String] = getEtagStore(session) match {
     case Some(store) => store
-    case _           => CacheHelper.newCache[Uri, String](configuration.http.etagPerUserCacheMaxCapacity)
+    case _           => ThreadSafeCache[Uri, String](configuration.http.etagPerUserCacheMaxCapacity)
   }
 
   def getEtag(httpProtocol: HttpProtocol, session: Session, uri: Uri): Option[String] =
