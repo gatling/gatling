@@ -43,7 +43,7 @@ import io.gatling.recorder.ui._
 object RecorderController {
   def apply(props: Map[String, Any], recorderConfigFile: Option[Path] = None): RecorderController = {
     RecorderConfiguration.initialSetup(props, recorderConfigFile)
-    return new RecorderController
+    new RecorderController
   }
 }
 
