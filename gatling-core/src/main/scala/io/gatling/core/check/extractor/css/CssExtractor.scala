@@ -34,24 +34,23 @@ object CssExtractor {
   LoggerFactory.setLoggerFactory(new Slf4jLoggerFactory)
 
   val DomBuilder = Jodd.newLagartoDomBuilder
-
-  lazy val Cache = CacheHelper.newCache[String, JList[JList[CssSelector]]](configuration.core.extract.css.cacheMaxCapacity)
-
-  def cached(query: String) =
-    if (configuration.core.extract.css.cacheMaxCapacity > 0) Cache.getOrElseUpdate(query, CSSelly.parse(query))
-    else CSSelly.parse(query)
-
   def parse(chars: Array[Char]) = new NodeSelector(DomBuilder.parse(chars))
   def parse(string: String) = new NodeSelector(DomBuilder.parse(string))
+
+  val Cache = CacheHelper.newCache[String, JList[JList[CssSelector]]](configuration.core.extract.css.cacheMaxCapacity)
 }
 
 abstract class CssExtractor[X] extends CriterionExtractor[NodeSelector, String, X] {
 
   val criterionName = "css"
 
+  private def cached(query: String) =
+    if (configuration.core.extract.css.cacheMaxCapacity > 0) CssExtractor.Cache.getOrElseUpdate(query, CSSelly.parse(query))
+    else CSSelly.parse(query)
+
   def extractAll(selector: NodeSelector, query: String, nodeAttribute: Option[String]): Seq[String] = {
 
-    val selectors = CssExtractor.cached(query)
+    val selectors = cached(query)
 
     selector.select(selectors).flatMap { node =>
       nodeAttribute match {
