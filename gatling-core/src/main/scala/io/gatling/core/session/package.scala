@@ -33,7 +33,7 @@ package object session {
   }
 
   def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression match {
-    case Some(e) => e(session).map(Some.apply)
-    case _       => NoneSuccess
+    case None      => NoneSuccess
+    case Some(exp) => exp(session).map(Some.apply)
   }
 }

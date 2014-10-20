@@ -25,24 +25,28 @@ import io.gatling.core.validation.Validation
 
 object ELFileBodies {
 
-  lazy val ELFileBodyCache = ThreadSafeCache[String, Validation[Expression[String]]](configuration.http.elFileBodiesCacheMaxCapacity)
+  val ELFileBodyCacheEnabled = configuration.http.elFileBodiesCacheMaxCapacity > 0
+  val ELFileBodyCache = ThreadSafeCache[String, Validation[Expression[String]]](configuration.http.elFileBodiesCacheMaxCapacity)
 
-  def cached(path: String) =
-    if (configuration.http.elFileBodiesCacheMaxCapacity > 0)
-      ELFileBodyCache.getOrElsePutIfAbsent(path, compileFile(path))
-    else
-      compileFile(path)
+  def asString(filePath: Expression[String]): Expression[String] = {
 
-  def compileFile(path: String): Validation[Expression[String]] =
-    Resource.requestBody(path)
-      .map(resource => withCloseable(resource.inputStream) {
-        _.toString(configuration.core.charset)
-      }).map(_.el[String])
+      def compileFile(path: String): Validation[Expression[String]] =
+        Resource.requestBody(path)
+          .map(resource => withCloseable(resource.inputStream) {
+            _.toString(configuration.core.charset)
+          }).map(_.el[String])
 
-  def asString(filePath: Expression[String]): Expression[String] = session =>
-    for {
-      path <- filePath(session)
-      expression <- cached(path)
-      body <- expression(session)
-    } yield body
+      def pathToExpression(path: String) =
+        if (ELFileBodyCacheEnabled)
+          ELFileBodyCache.getOrElsePutIfAbsent(path, compileFile(path))
+        else
+          compileFile(path)
+
+    session =>
+      for {
+        path <- filePath(session)
+        expression <- pathToExpression(path)
+        body <- expression(session)
+      } yield body
+  }
 }

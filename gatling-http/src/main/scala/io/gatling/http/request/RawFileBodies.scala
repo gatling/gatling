@@ -26,18 +26,22 @@ import io.gatling.core.validation.Validation
 
 object RawFileBodies {
 
-  lazy val RawFileBodyCache = ThreadSafeCache[String, Validation[File]](configuration.http.rawFileBodiesCacheMaxCapacity)
+  val RawFileBodyCacheEnabled = configuration.http.rawFileBodiesCacheMaxCapacity > 0
+  val RawFileBodyCache = ThreadSafeCache[String, Validation[File]](configuration.http.rawFileBodiesCacheMaxCapacity)
 
-  def cached(path: String) =
-    if (configuration.http.rawFileBodiesCacheMaxCapacity > 0)
-      RawFileBodyCache.getOrElsePutIfAbsent(path, Resource.requestBody(path).map(_.file))
-    else
-      Resource.requestBody(path).map(_.file)
+  def asFile(filePath: Expression[String]): Expression[File] = {
 
-  def asFile(filePath: Expression[String]): Expression[File] = session =>
-    for {
-      path <- filePath(session)
-      file <- cached(path)
-      validatedFile <- file.validateExistingReadable
-    } yield validatedFile
+      def pathToFile(path: String) =
+        if (RawFileBodyCacheEnabled)
+          RawFileBodyCache.getOrElsePutIfAbsent(path, Resource.requestBody(path).map(_.file))
+        else
+          Resource.requestBody(path).map(_.file)
+
+    session =>
+      for {
+        path <- filePath(session)
+        file <- pathToFile(path)
+        validatedFile <- file.validateExistingReadable
+      } yield validatedFile
+  }
 }

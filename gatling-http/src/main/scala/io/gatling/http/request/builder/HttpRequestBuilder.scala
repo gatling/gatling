@@ -106,10 +106,11 @@ abstract class AbstractHttpRequestBuilder[B <: AbstractHttpRequestBuilder[B]](co
       else
         protocol.responsePart.checks ::: httpAttributes.checks
 
-    val resolvedChecks = checks.find(_.scope == Status) match {
-      case None => checks ::: List(RequestBuilder.DefaultHttpCheck)
-      case _    => checks
-    }
+    val resolvedChecks =
+      if (checks.exists(_.scope == Status))
+        checks ::: List(RequestBuilder.DefaultHttpCheck)
+      else
+        checks
 
     val resolvedFollowRedirect = protocol.responsePart.followRedirect && httpAttributes.followRedirect
 
