@@ -26,7 +26,8 @@ object BuildSettings {
       "-feature",
       "-unchecked",
       "-language:implicitConversions",
-      "-language:postfixOps"
+      "-language:postfixOps",
+      "-Xfuture"
     )
   ) ++ Publish.settings ++ Release.settings
 
