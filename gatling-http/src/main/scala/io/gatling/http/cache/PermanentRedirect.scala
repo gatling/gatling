@@ -23,16 +23,17 @@ import io.gatling.http.ahc.HttpTx
 import com.ning.http.client.{ Request, RequestBuilder }
 
 object PermanentRedirect {
+
   def addRedirect(session: Session, from: Uri, to: Uri): Session = {
-    val redirectStorage = CacheHandling.getOrCreateRedirectMemoizationStore(session)
-    session.set(CacheHandling.HttpRedirectMemoizationStoreAttributeName, redirectStorage + (from -> to))
+    val redirectStorage = CacheHandling.getOrCreatePermanentRedirectStore(session)
+    session.set(CacheHandling.HttpPermanentRedirectStoreAttributeName, redirectStorage + (from -> to))
   }
 
   private def permanentRedirect(session: Session, uri: Uri): Option[(Uri, Int)] = {
 
       @tailrec def permanentRedirect1(from: Uri, redirectCount: Int): Option[(Uri, Int)] =
 
-        CacheHandling.getRedirectMemoizationStore(session) match {
+        CacheHandling.getPermanentRedirectStore(session) match {
 
           case Some(redirectMap) => redirectMap.get(from) match {
             case Some(toUri) =>

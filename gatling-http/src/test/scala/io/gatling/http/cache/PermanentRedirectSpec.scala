@@ -42,7 +42,7 @@ class PermanentRedirectSpec extends FlatSpec with Matchers {
   }
 
   it should "be empty" in new Context {
-    CacheHandling.getRedirectMemoizationStore(session) shouldBe empty
+    CacheHandling.getPermanentRedirectStore(session) shouldBe empty
   }
 
   it should "return updated transaction with single redirect" in new Context {

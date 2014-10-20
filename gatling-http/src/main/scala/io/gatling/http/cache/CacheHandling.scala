@@ -33,26 +33,26 @@ import io.gatling.http.response.Response
 
 object CacheHandling extends StrictLogging {
 
-  val HttpRedirectMemoizationStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.redirects"
+  val HttpPermanentRedirectStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.redirects"
 
-  def getRedirectMemoizationStore(session: Session): Option[ThreadSafeCache[Uri, Uri]] =
-    session(HttpRedirectMemoizationStoreAttributeName).asOption[ThreadSafeCache[Uri, Uri]]
+  def getPermanentRedirectStore(session: Session): Option[Cache[Uri, Uri]] =
+    session(HttpPermanentRedirectStoreAttributeName).asOption[Cache[Uri, Uri]]
 
-  def getOrCreateRedirectMemoizationStore(session: Session): ThreadSafeCache[Uri, Uri] =
-    getRedirectMemoizationStore(session) match {
+  def getOrCreatePermanentRedirectStore(session: Session): Cache[Uri, Uri] =
+    getPermanentRedirectStore(session) match {
       case Some(store) => store
-      case _           => ThreadSafeCache[Uri, Uri](configuration.http.redirectPerUserCacheMaxCapacity)
+      case _           => Cache[Uri, Uri](configuration.http.redirectPerUserCacheMaxCapacity)
     }
 
   val HttpExpireStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.expireStore"
 
-  private def getExpireStore(session: Session): Option[ThreadSafeCache[Uri, Long]] =
-    session(HttpExpireStoreAttributeName).asOption[ThreadSafeCache[Uri, Long]]
+  private def getExpireStore(session: Session): Option[Cache[Uri, Long]] =
+    session(HttpExpireStoreAttributeName).asOption[Cache[Uri, Long]]
 
-  def getOrCreateExpireStore(session: Session): ThreadSafeCache[Uri, Long] =
+  def getOrCreateExpireStore(session: Session): Cache[Uri, Long] =
     getExpireStore(session) match {
       case Some(store) => store
-      case _           => ThreadSafeCache[Uri, Long](configuration.http.expirePerUserCacheMaxCapacity)
+      case _           => Cache[Uri, Long](configuration.http.expirePerUserCacheMaxCapacity)
     }
 
   def getExpire(httpProtocol: HttpProtocol, session: Session, uri: Uri): Option[Long] =
@@ -68,13 +68,13 @@ object CacheHandling extends StrictLogging {
 
   val HttpLastModifiedStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.lastModifiedStore"
 
-  def getLastModifiedStore(session: Session): Option[ThreadSafeCache[Uri, String]] =
-    session(HttpLastModifiedStoreAttributeName).asOption[ThreadSafeCache[Uri, String]]
+  def getLastModifiedStore(session: Session): Option[Cache[Uri, String]] =
+    session(HttpLastModifiedStoreAttributeName).asOption[Cache[Uri, String]]
 
-  def getOrCreateLastModifiedStore(session: Session): ThreadSafeCache[Uri, String] =
+  def getOrCreateLastModifiedStore(session: Session): Cache[Uri, String] =
     getLastModifiedStore(session) match {
       case Some(store) => store
-      case _           => ThreadSafeCache[Uri, String](configuration.http.lastModifiedPerUserCacheMaxCapacity)
+      case _           => Cache[Uri, String](configuration.http.lastModifiedPerUserCacheMaxCapacity)
     }
 
   def getLastModified(httpProtocol: HttpProtocol, session: Session, uri: Uri): Option[String] =
@@ -82,12 +82,12 @@ object CacheHandling extends StrictLogging {
 
   val HttpEtagStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.etagStore"
 
-  def getEtagStore(session: Session): Option[ThreadSafeCache[Uri, String]] =
-    session(HttpEtagStoreAttributeName).asOption[ThreadSafeCache[Uri, String]]
+  def getEtagStore(session: Session): Option[Cache[Uri, String]] =
+    session(HttpEtagStoreAttributeName).asOption[Cache[Uri, String]]
 
-  def getOrCreateEtagStore(session: Session): ThreadSafeCache[Uri, String] = getEtagStore(session) match {
+  def getOrCreateEtagStore(session: Session): Cache[Uri, String] = getEtagStore(session) match {
     case Some(store) => store
-    case _           => ThreadSafeCache[Uri, String](configuration.http.etagPerUserCacheMaxCapacity)
+    case _           => Cache[Uri, String](configuration.http.etagPerUserCacheMaxCapacity)
   }
 
   def getEtag(httpProtocol: HttpProtocol, session: Session, uri: Uri): Option[String] =
