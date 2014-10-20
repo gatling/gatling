@@ -41,20 +41,19 @@ case class HttpRequestDef(
     signatureCalculator: Option[Expression[SignatureCalculator]],
     config: HttpRequestConfig) {
 
-  def build(session: Session): Validation[HttpRequest] = {
+  def build(requestName: String, session: Session): Validation[HttpRequest] = {
 
-    def sign(request: Request, signatureCalculator: Option[SignatureCalculator]): Request =
-      signatureCalculator match {
-        case None => request
-        case Some(sc) => new RequestBuilder(request).setSignatureCalculator(sc).build
-      }
+      def sign(request: Request, signatureCalculator: Option[SignatureCalculator]): Request =
+        signatureCalculator match {
+          case None     => request
+          case Some(sc) => new RequestBuilder(request).setSignatureCalculator(sc).build
+        }
 
     for {
-      rn <- requestName(session)
       rawAhcRequest <- ahcRequest(session)
       sc <- resolveOptionalExpression(signatureCalculator, session)
       signedRequest = sign(rawAhcRequest, sc)
-    } yield HttpRequest(rn, signedRequest, config)
+    } yield HttpRequest(requestName, signedRequest, config)
   }
 }
 
