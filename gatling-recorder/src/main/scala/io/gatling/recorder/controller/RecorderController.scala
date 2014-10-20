@@ -33,6 +33,7 @@ import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.core.util.PathHelper._
 import io.gatling.recorder.{ Har, Proxy }
+import io.gatling.recorder.config.ConfigKeys
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderConfiguration.configuration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
@@ -43,12 +44,14 @@ import io.gatling.recorder.ui._
 object RecorderController {
   def apply(props: Map[String, Any], recorderConfigFile: Option[Path] = None): RecorderController = {
     RecorderConfiguration.initialSetup(props, recorderConfigFile)
-    new RecorderController
+    val headless = props.contains(ConfigKeys.core.RunHeadless) &&
+      props(ConfigKeys.core.RunHeadless) == true
+    new RecorderController(headless)
   }
 }
 
-class RecorderController extends StrictLogging {
-  var frontEnd: RecorderFrontend = null
+class RecorderController(headless: Boolean) extends StrictLogging {
+  private val frontEnd: RecorderFrontend = RecorderFrontend.newFrontEnd(this, headless)
 
   @volatile private var proxy: HttpProxy = _
 
@@ -57,15 +60,7 @@ class RecorderController extends StrictLogging {
   // Collection of tuples, (arrivalTime, tag)
   private val currentTags = new ConcurrentLinkedQueue[TimedScenarioElement[TagElement]]()
 
-  def initSwingFrontEnd() {
-    frontEnd = RecorderFrontend.newSwingFrontend(this)
-
-    frontEnd.init()
-  }
-
-  def initHeadlessFrontEnd(): Unit = {
-    frontEnd = RecorderFrontend.newHeadlessFrontend(this)
-  }
+  frontEnd.init()
 
   def startRecording(): Unit = {
     val selectedMode = frontEnd.selectedMode

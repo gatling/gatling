@@ -54,9 +54,6 @@ object GatlingRecorder {
       if (builtProperties.contains(ConfigKeys.core.RunHeadless)
         && builtProperties(ConfigKeys.core.RunHeadless) == true) {
         runHeadless(recorderController)
-      } else {
-        log("Launching Swing UI")
-        recorderController.initSwingFrontEnd
       }
     }
   }
@@ -81,13 +78,11 @@ object GatlingRecorder {
           log("caught above exception when trying to shut down.")
         }
       } finally {
-        recordingLockFile.delete()
+        recordingLockFile.delete
       }
     }
 
-    recorderController.initHeadlessFrontEnd()
-
-    recorderController.startRecording()
+    recorderController.startRecording
 
     val out = new FileOutputStream(recordingLockFile)
     out.write(extractProcessIdInAnArcaneFashion.getBytes("UTF-8"))

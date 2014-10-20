@@ -25,14 +25,12 @@ import io.gatling.recorder.ui.swing.component.DialogFileSelector
 import io.gatling.recorder.ui.swing.frame.{ ConfigurationFrame, RunningFrame }
 
 object RecorderFrontend {
-
-  // Currently hardwired to the Swing frontend
-  // Will select the desired frontend when more are implemented
-  def newSwingFrontend(controller: RecorderController): RecorderFrontend =
-    new SwingFrontend(controller)
-
-  def newHeadlessFrontend(controller: RecorderController): RecorderFrontend =
-    new HeadlessFrontend(controller)
+  def newFrontEnd(controller: RecorderController, headless: Boolean) =
+    if (headless) {
+      new HeadlessFrontend(controller)
+    } else {
+      new SwingFrontend(controller)
+    }
 }
 
 sealed abstract class RecorderFrontend(controller: RecorderController) {
