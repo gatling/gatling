@@ -16,7 +16,7 @@
 package io.gatling
 
 import java.security.MessageDigest
-import io.gatling.core.config.GatlingConfiguration._
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper._
 
 package object charts {

@@ -43,10 +43,15 @@ object CssExtractor {
 
   def parse(chars: Array[Char]) = new NodeSelector(DomBuilder.parse(chars))
   def parse(string: String) = new NodeSelector(DomBuilder.parse(string))
+}
+
+abstract class CssExtractor[X] extends CriterionExtractor[NodeSelector, String, X] {
+
+  val criterionName = "css"
 
   def extractAll(selector: NodeSelector, query: String, nodeAttribute: Option[String]): Seq[String] = {
 
-    val selectors = cached(query)
+    val selectors = CssExtractor.cached(query)
 
     selector.select(selectors).flatMap { node =>
       nodeAttribute match {
@@ -57,24 +62,22 @@ object CssExtractor {
   }
 }
 
-abstract class CssExtractor[X] extends CriterionExtractor[NodeSelector, String, X] { val criterionName = "css" }
-
 class SingleCssExtractor[X](val criterion: String, nodeAttribute: Option[String], val occurrence: Int) extends CssExtractor[String] with FindArity {
 
   def extract(prepared: NodeSelector): Validation[Option[String]] =
-    CssExtractor.extractAll(prepared, criterion, nodeAttribute).lift(occurrence).success
+    extractAll(prepared, criterion, nodeAttribute).lift(occurrence).success
 }
 
 class MultipleCssExtractor[X](val criterion: String, nodeAttribute: Option[String]) extends CssExtractor[Seq[String]] with FindAllArity {
 
   def extract(prepared: NodeSelector): Validation[Option[Seq[String]]] =
-    CssExtractor.extractAll(prepared, criterion, nodeAttribute).liftSeqOption.success
+    extractAll(prepared, criterion, nodeAttribute).liftSeqOption.success
 }
 
 class CountCssExtractor(val criterion: String, nodeAttribute: Option[String]) extends CssExtractor[Int] with CountArity {
 
   def extract(prepared: NodeSelector): Validation[Option[Int]] = {
-    val count = CssExtractor.extractAll(prepared, criterion, nodeAttribute).size
+    val count = extractAll(prepared, criterion, nodeAttribute).size
     Some(count).success
   }
 }
