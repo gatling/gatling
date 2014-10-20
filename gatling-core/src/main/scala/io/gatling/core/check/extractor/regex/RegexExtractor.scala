@@ -24,8 +24,8 @@ import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
 object RegexExtractor {
 
-  val PatternCache = ThreadSafeCache[String, Pattern](configuration.core.extract.regex.cacheMaxCapacity)
   val PatternCacheEnabled = configuration.core.extract.regex.cacheMaxCapacity > 0
+  val PatternCache = ThreadSafeCache[String, Pattern](configuration.core.extract.regex.cacheMaxCapacity)
 }
 
 trait RegexExtractor {

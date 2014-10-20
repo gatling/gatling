@@ -35,6 +35,7 @@ object SaxonXPathExtractor {
   val TheProcessor = new Processor(false)
   val TheDocumentBuilder = TheProcessor.newDocumentBuilder
 
+  val XPathCacheEnabled = configuration.core.extract.xpath.cacheMaxCapacity > 0
   val CompilerCache = ThreadSafeCache[List[(String, String)], XPathCompiler](configuration.core.extract.xpath.cacheMaxCapacity)
   val XPathExecutableCache = ThreadSafeCache[String, XPathExecutable](configuration.core.extract.xpath.cacheMaxCapacity)
 
@@ -48,8 +49,6 @@ object SaxonXPathExtractor {
 
     val criterionName = "xpath"
 
-    private val xpathCacheEnabled = configuration.core.extract.xpath.cacheMaxCapacity > 0
-
     private def compileXPath(expression: String, namespaces: List[(String, String)]): XPathExecutable = {
 
         def xPathCompiler(namespaces: List[(String, String)]) = {
@@ -60,7 +59,7 @@ object SaxonXPathExtractor {
           compiler
         }
 
-      if (xpathCacheEnabled)
+      if (XPathCacheEnabled)
         XPathExecutableCache.getOrElsePutIfAbsent(expression, CompilerCache.getOrElsePutIfAbsent(namespaces, xPathCompiler(namespaces)).compile(expression))
       else
         xPathCompiler(namespaces).compile(expression)

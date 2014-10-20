@@ -36,17 +36,19 @@ object CssExtractor {
   def parse(chars: Array[Char]) = new NodeSelector(DomBuilder.parse(chars))
   def parse(string: String) = new NodeSelector(DomBuilder.parse(string))
 
+  val SelectorCacheEnabled = configuration.core.extract.css.cacheMaxCapacity > 0
   val SelectorCache = ThreadSafeCache[String, JList[JList[CssSelector]]](configuration.core.extract.css.cacheMaxCapacity)
 }
 
 abstract class CssExtractor[X] extends CriterionExtractor[NodeSelector, String, X] {
 
+  import CssExtractor._
+
   val criterionName = "css"
 
-  private val queryCacheEnabled = configuration.core.extract.css.cacheMaxCapacity > 0
   private def parseQuery(query: String): JList[JList[CssSelector]] =
-    if (queryCacheEnabled)
-      CssExtractor.SelectorCache.getOrElsePutIfAbsent(query, CSSelly.parse(query))
+    if (SelectorCacheEnabled)
+      SelectorCache.getOrElsePutIfAbsent(query, CSSelly.parse(query))
     else
       CSSelly.parse(query)
 
