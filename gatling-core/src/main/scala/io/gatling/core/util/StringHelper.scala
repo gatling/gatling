@@ -33,7 +33,7 @@ object StringHelper {
   private val StringValueFieldOffset: Long = TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
   private val StringOffsetFieldOffset: Option[Long] = Try(TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("offset"))).toOption
 
-  def checkSupportedJavaVersion(): Unit = StringOffsetFieldOffset.foreach(throw UnsupportedJavaVersion)
+  def checkSupportedJavaVersion(): Unit = StringOffsetFieldOffset.foreach(_ => throw UnsupportedJavaVersion)
 
   val Eol = System.getProperty("line.separator")
 
