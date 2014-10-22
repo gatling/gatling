@@ -126,6 +126,7 @@ object RecorderConfiguration extends StrictLogging {
         requestBodiesFolder = getRequestBodiesFolder,
         pkg = config.getString(core.Package),
         className = config.getString(core.ClassName),
+        superClassName = config.getString(core.SuperClassName),
         thresholdForPauseCreation = config.getInt(core.ThresholdForPauseCreation) milliseconds,
         saveConfig = config.getBoolean(core.SaveConfig)),
       filters = FiltersConfiguration(
@@ -172,6 +173,7 @@ case class CoreConfiguration(
   requestBodiesFolder: String,
   pkg: String,
   className: String,
+  superClassName: String,
   thresholdForPauseCreation: Duration,
   saveConfig: Boolean)
 

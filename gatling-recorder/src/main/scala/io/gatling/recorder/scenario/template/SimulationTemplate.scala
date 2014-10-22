@@ -26,6 +26,7 @@ object SimulationTemplate {
 
   def render(packageName: String,
              simulationClassName: String,
+             simulationSuperClassName: String,
              protocol: ProtocolDefinition,
              headers: Map[Int, Seq[(String, String)]],
              scenarioName: String,
@@ -112,7 +113,7 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import io.gatling.jdbc.Predef._
 
-class $simulationClassName extends Simulation {
+class $simulationClassName extends $simulationSuperClassName {
 
 	val httpProtocol = http${renderProtocol(protocol)}
 
