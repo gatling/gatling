@@ -35,6 +35,7 @@ object CommandLineConstants {
   val OutputFolder = CommandLineConstant("output-folder", "of")
   val RequestBodiesFolder = CommandLineConstant("request-bodies-folder", "rbf")
   val ClassName = CommandLineConstant("class-name", "cn")
+  val SuperClassName = CommandLineConstant("super-class-name", "scn")
   val Package = CommandLineConstant("package", "pkg")
   val Encoding = CommandLineConstant("encoding", "enc")
   val FollowRedirect = CommandLineConstant("follow-redirect", "fr")

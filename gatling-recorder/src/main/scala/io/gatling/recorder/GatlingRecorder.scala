@@ -36,6 +36,7 @@ object GatlingRecorder {
     opt[String](OutputFolder).valueName("<folderName>").foreach(props.simulationOutputFolder).text("Uses <folderName> as the folder where generated simulations will be stored")
     opt[String](RequestBodiesFolder).valueName("<folderName>").foreach(props.requestBodiesFolder).text("Uses <folderName> as the folder where request bodies are stored")
     opt[String](ClassName).foreach(props.simulationClassName).text("Sets the name of the generated class")
+    opt[String](SuperClassName).foreach(props.simulationSuperClassName).text("Sets the superclass of the generated class")
     opt[String](Package).foreach(props.simulationPackage).text("Sets the package of the generated class")
     opt[String](Encoding).foreach(props.encoding).text("Sets the encoding used in the recorder")
     opt[Boolean](FollowRedirect).foreach(props.followRedirect).text("""Sets the "Follow Redirects" option to true""")
