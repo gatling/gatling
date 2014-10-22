@@ -27,7 +27,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
  */
 object StringHelper {
 
-  val UnsupportedJavaVersion = new UnsupportedOperationException("Gatling requires Java >= 7u6")
+  val UnsupportedJavaVersion = new UnsupportedOperationException(s"Gatling requires Java >= 7u6, but running ${System.getProperty("java.version")}")
   UnsupportedJavaVersion.setStackTrace(new Array[StackTraceElement](0))
 
   private val StringValueFieldOffset: Long = TheUnsafe.objectFieldOffset(classOf[String].getDeclaredField("value"))
