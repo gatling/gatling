@@ -25,6 +25,7 @@ object ConfigKeys {
     val RequestBodiesFolder = "recorder.core.requestBodiesFolder"
     val Package = "recorder.core.package"
     val ClassName = "recorder.core.className"
+    val SuperClassName = "recorder.core.superClassName"
     val ThresholdForPauseCreation = "recorder.core.thresholdForPauseCreation"
     val SaveConfig = "recorder.core.saveConfig"
   }
