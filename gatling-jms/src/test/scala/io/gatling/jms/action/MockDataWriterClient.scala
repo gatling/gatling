@@ -33,7 +33,7 @@ trait MockDataWriterClient extends DataWriterClient with StrictLogging {
                                 responseEndDate: Long,
                                 status: Status,
                                 message: Option[String] = None,
-                                extraInfo: List[Any] = Nil) {
+                                extraInfo: List[Any] = Nil): Unit = {
     handle(RequestMessage(
       session.scenarioName,
       session.userId,

@@ -21,7 +21,7 @@ import io.gatling.jms.{ JmsQueue, JmsTopic, MockMessage }
 
 class SimpleJmsClientSpec extends BrokerBasedSpecification with MockMessage {
 
-  def withJmsClient(name: String)(testCode: (SimpleJmsClient, MessageConsumer, String) => Any) {
+  def withJmsClient(name: String)(testCode: (SimpleJmsClient, MessageConsumer, String) => Any): Unit = {
     val client = createClient(JmsQueue(name))
     val consumer = client.createReplyConsumer()
     try {
