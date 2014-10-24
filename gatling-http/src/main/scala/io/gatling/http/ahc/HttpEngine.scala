@@ -254,8 +254,6 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     val handler = new AsyncHandler(newTx)
 
     if (tx.skipRequest) {
-      println("[startHttpTransaction] NOT DOING ANYTHING!!!!")
-
       val handler = new AsyncHandler(newTx)
 
       handler.onStatusReceived(new EverythingsOk(ahcRequest.getUri, client.getConfig))
