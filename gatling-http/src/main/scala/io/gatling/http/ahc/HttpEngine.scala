@@ -39,7 +39,7 @@ import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.action.ws.{ OnFailedOpen, WsListener }
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request.{ HttpRequestConfig, HttpRequest }
+import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder
 import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
 import io.gatling.http.check.ws.WsCheck
