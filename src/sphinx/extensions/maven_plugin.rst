@@ -20,7 +20,7 @@ Set up the gatling-maven-plugin
 
   <dependencies>
     <dependency>
-      <groupId>io.gatling</groupId>
+      <groupId>io.gatling.highcharts</groupId>
       <artifactId>gatling-charts-highcharts</artifactId>
       <version>X.Y.Z</version>
       <scope>test</scope>
