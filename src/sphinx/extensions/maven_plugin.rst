@@ -25,7 +25,7 @@ Set up the gatling-maven-plugin
       <version>X.Y.Z</version>
       <scope>test</scope>
     </dependency>
-  <dependencies>
+  </dependencies>
 
   <plugin>
     <groupId>io.gatling</groupId>
