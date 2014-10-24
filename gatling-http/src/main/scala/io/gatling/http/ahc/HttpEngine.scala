@@ -15,6 +15,7 @@
  */
 package io.gatling.http.ahc
 
+import java.util
 import java.util.{ ArrayList => JArrayList }
 import java.util.concurrent.{ TimeUnit, Executors, ThreadFactory }
 
@@ -24,7 +25,7 @@ import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
 
-import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
+import com.ning.http.client._
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
 import com.ning.http.client.providers.netty.channel.pool.DefaultChannelPool
 import com.ning.http.client.websocket.{ WebSocketListener, WebSocketUpgradeHandler }
@@ -67,7 +68,8 @@ case class HttpTx(session: Session,
                   redirectCount: Int = 0,
                   update: Session => Session = Session.Identity) {
 
-  val silent: Boolean = HttpTx.silent(request, primary)
+  val skipRequest: Boolean = request.config.skipRequest.getOrElse(false)
+  val silent: Boolean = skipRequest || HttpTx.silent(request, primary)
 }
 
 case class WsTx(session: Session,
@@ -241,15 +243,6 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
   def startHttpTransaction(tx: HttpTx): Unit = {
 
-      def executeRequestSafe(client: AsyncHttpClient, ahcRequest: Request, handler: AsyncHandler): Unit =
-        try {
-          client.executeRequest(ahcRequest, handler)
-        } catch {
-          // there might be some corner cases where executeRequest throws an Exception and onThrowable wasn't notified
-          // this works properly because we prevent multiple calls with an AtomicBoolean
-          case e: Exception => handler.onThrowable(e)
-        }
-
     val requestConfig = tx.request.config
 
     val (newTx, client) = {
@@ -260,10 +253,26 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     val ahcRequest = newTx.request.ahcRequest
     val handler = new AsyncHandler(newTx)
 
-    if (requestConfig.throttled)
-      Controller ! ThrottledRequest(tx.session.scenarioName, () => executeRequestSafe(client, ahcRequest, handler))
-    else
-      executeRequestSafe(client, ahcRequest, handler)
+    if (tx.skipRequest) {
+      val handler = new AsyncHandler(newTx)
+
+      handler.onStatusReceived(new EverythingsOk(ahcRequest.getUri, client.getConfig))
+      handler.onCompleted
+    } else {
+        def executeRequestSafe(client: AsyncHttpClient, ahcRequest: Request, handler: AsyncHandler): Unit =
+          try {
+            client.executeRequest(ahcRequest, handler)
+          } catch {
+            // there might be some corner cases where executeRequest throws an Exception and onThrowable wasn't notified
+            // this works properly because we prevent multiple calls with an AtomicBoolean
+            case e: Exception => handler.onThrowable(e)
+          }
+
+      if (requestConfig.throttled)
+        Controller ! ThrottledRequest(tx.session.scenarioName, () => executeRequestSafe(client, ahcRequest, handler))
+      else
+        executeRequestSafe(client, ahcRequest, handler)
+    }
   }
 
   def startWebSocketTransaction(tx: WsTx, wsActor: ActorRef): Unit = {
@@ -283,4 +292,14 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
         wsActor ! OnFailedOpen(newTx, e.getMessage, nowMillis)
     }
   }
+}
+
+class EverythingsOk(uri: com.ning.http.client.uri.Uri, config: AsyncHttpClientConfig) extends com.ning.http.client.HttpResponseStatus(uri, config) {
+  override def prepareResponse(headers: HttpResponseHeaders, bodyParts: util.List[HttpResponseBodyPart]): Response = ???
+  override def getStatusCode: Int = 200
+  override def getProtocolText: String = "HTTP"
+  override def getProtocolMinorVersion: Int = 1
+  override def getProtocolMajorVersion: Int = 1
+  override def getStatusText: String = "OK"
+  override def getProtocolName: String = "HTTP"
 }
