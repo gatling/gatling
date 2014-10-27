@@ -101,7 +101,11 @@ If this is not sufficient for some reason then Gatling supports throttling with 
 .. note::
 
   * You still have to inject users at the scenario level.
-    Throttling tries to ensure a targeted throughput with the given scenarios and their injection profiles, it's a bottleneck.
+    Throttling tries to ensure a targeted throughput with the given scenarios and their injection profiles (number of users and duration).
+    It's a bottleneck, ie an upper limit.
+    If you don't provide enough users, you won't reach the throttle.
+    If your injection lasts less than the throttle, your simulation will simply stop when all the users are done.
+    If your injection lasts longer than the throttle, the throttle will simply be lifted when its end is reached, resulting in a burst from queued requests.
   * Throttling can also be configured :ref:`per scenario <scenario-throttling>`.
 
 ::
