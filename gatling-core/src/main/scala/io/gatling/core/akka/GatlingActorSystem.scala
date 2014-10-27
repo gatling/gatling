@@ -16,8 +16,9 @@
 package io.gatling.core.akka
 
 import akka.actor.ActorSystem
+import com.typesafe.scalalogging.StrictLogging
 
-object GatlingActorSystem {
+object GatlingActorSystem extends StrictLogging {
 
   var instanceOpt: Option[ActorSystem] = None
 
@@ -38,9 +39,14 @@ object GatlingActorSystem {
   }
 
   def shutdown(): Unit = synchronized {
-    val system = instance
-    system.shutdown()
-    system.awaitTermination()
-    instanceOpt = None
+    instanceOpt match {
+      case Some(system) =>
+        system.shutdown()
+        system.awaitTermination()
+        instanceOpt = None
+
+      case None =>
+        logger.warn("Gatling Actor system wasn't shut down as it wasn't started in the first place")
+    }
   }
 }
