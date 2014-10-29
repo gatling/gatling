@@ -22,6 +22,7 @@ import com.ning.http.client.uri.Uri
 import io.gatling.recorder.http.handler.remote.TimedHttpRequest
 
 import scala.collection.JavaConversions._
+import scala.collection.mutable
 import scala.concurrent.duration.DurationLong
 
 import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
@@ -40,7 +41,7 @@ import io.gatling.recorder.scenario._
 import io.gatling.recorder.ui._
 
 object RecorderController {
-  def apply(props: Map[String, Any], recorderConfigFile: Option[Path] = None): Unit = {
+  def apply(props: mutable.Map[String, Any], recorderConfigFile: Option[Path] = None): Unit = {
     RecorderConfiguration.initialSetup(props, recorderConfigFile)
     new RecorderController
   }

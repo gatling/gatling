@@ -19,6 +19,7 @@ import java.io.FileNotFoundException
 import java.nio.file.Path
 
 import scala.collection.JavaConversions._
+import scala.collection.mutable
 import scala.concurrent.duration.{ Duration, DurationInt }
 import scala.util.Properties.userHome
 
@@ -52,12 +53,12 @@ object RecorderConfiguration extends StrictLogging {
   private[this] def getDefaultConfig(classLoader: ClassLoader) =
     ConfigFactory.parseResources(classLoader, "recorder-defaults.conf")
 
-  def fakeConfig(props: Map[String, _]): RecorderConfiguration = {
+  def fakeConfig(props: mutable.Map[String, _ <: Any]): RecorderConfiguration = {
     val defaultConfig = getDefaultConfig(getClassLoader)
     buildConfig(configChain(ConfigFactory.parseMap(props), defaultConfig))
   }
 
-  def initialSetup(props: Map[String, _], recorderConfigFile: Option[Path] = None): Unit = {
+  def initialSetup(props: mutable.Map[String, _ <: Any], recorderConfigFile: Option[Path] = None): Unit = {
     val classLoader = getClassLoader
     val defaultConfig = getDefaultConfig(classLoader)
     configFile = recorderConfigFile.orElse(Option(classLoader.getResource("recorder.conf")).map(url => url.toURI))
@@ -81,7 +82,7 @@ object RecorderConfiguration extends StrictLogging {
     }
   }
 
-  def reload(props: Map[String, _]): Unit = {
+  def reload(props: mutable.Map[String, _ <: Any]): Unit = {
     val frameConfig = ConfigFactory.parseMap(props)
     configuration = buildConfig(configChain(frameConfig, configuration.config))
   }
