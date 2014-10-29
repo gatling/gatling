@@ -17,11 +17,13 @@ package io.gatling.recorder.config
 
 import java.util.{ List => JList }
 
+import scala.collection.mutable
+
 import io.gatling.recorder.config.ConfigKeys._
 
 class RecorderPropertiesBuilder {
 
-  var props = Map.empty[String, Any]
+  private val props = mutable.Map.empty[String, Any]
 
   def encoding(encoding: String): Unit =
     props += core.Encoding -> encoding
