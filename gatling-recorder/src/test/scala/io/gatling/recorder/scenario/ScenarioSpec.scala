@@ -15,6 +15,7 @@
  */
 package io.gatling.recorder.scenario
 
+import scala.collection.mutable
 import scala.concurrent.duration._
 
 import org.scalatest.{ FlatSpec, Matchers }
@@ -28,7 +29,7 @@ import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 
 class ScenarioSpec extends FlatSpec with Matchers {
 
-  implicit val config = fakeConfig(Map(FollowRedirect -> true, InferHtmlResources -> true))
+  implicit val config = fakeConfig(mutable.Map(FollowRedirect -> true, InferHtmlResources -> true))
 
   "Scenario" should "remove HTTP redirection " in {
 

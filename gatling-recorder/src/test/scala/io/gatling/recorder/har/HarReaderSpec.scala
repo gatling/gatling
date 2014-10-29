@@ -15,6 +15,7 @@
  */
 package io.gatling.recorder.har
 
+import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
 import org.scalatest.{ FlatSpec, Matchers }
@@ -28,10 +29,10 @@ class HarReaderSpec extends FlatSpec with Matchers {
 
   def resourceAsStream(p: String) = getClass.getClassLoader.getResourceAsStream(p)
 
-  val configWithResourcesFiltering = fakeConfig(Map(InferHtmlResources -> true))
+  val configWithResourcesFiltering = fakeConfig(mutable.Map(InferHtmlResources -> true))
 
   // By default, we assume that we don't want to filter out the HTML resources
-  implicit val config = fakeConfig(Map(InferHtmlResources -> false))
+  implicit val config = fakeConfig(mutable.Map(InferHtmlResources -> false))
 
   "HarReader" should "work with empty JSON" in {
     withCloseable(resourceAsStream("har/empty.har"))(HarReader(_) shouldBe empty)
