@@ -44,8 +44,8 @@ Here's the scenario.
           .get("/certificate")
           .headers(appHeader)
           .check(status.is(200),
-            jsonPath("$..id").exists.saveAs("certificateId"),
-            jsonPath("$..value").exists.saveAs("certificate"))
+            jsonPath("$.id").exists.saveAs("certificateId"),
+            jsonPath("$.value").exists.saveAs("certificate"))
         )
         .exec(
           session => {
