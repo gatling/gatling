@@ -16,7 +16,7 @@
 package io.gatling.core.akka
 
 import akka.actor.ActorSystem
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 object GatlingActorSystem extends StrictLogging {
 

@@ -17,7 +17,7 @@ package io.gatling.http.ahc
 
 import com.ning.http.client.uri.Uri
 import io.gatling.core.session.Session
-import com.ning.http.client.{ ConnectionPoolPartitioning, ProxyServer, PerHostConnectionPoolPartitioning }
+import com.ning.http.client.{ ConnectionPoolPartitioning, ProxyServer }
 
 object ChannelPoolPartitioning {
 
@@ -27,5 +27,5 @@ object ChannelPoolPartitioning {
 class ChannelPoolPartitioning(session: Session) extends ConnectionPoolPartitioning {
 
   def getPartitionId(uri: Uri, proxyServer: ProxyServer): String =
-    ChannelPoolPartitioning.partitionIdUserBase(session) + PerHostConnectionPoolPartitioning.INSTANCE.getPartitionId(uri, proxyServer)
+    ChannelPoolPartitioning.partitionIdUserBase(session) + ConnectionPoolPartitioning.PerHostConnectionPoolPartitioning.INSTANCE.getPartitionId(uri, proxyServer)
 }
