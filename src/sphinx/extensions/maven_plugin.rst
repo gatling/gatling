@@ -8,11 +8,6 @@ Maven Plugin
 
 Thanks to this plugin, Gatling can be launched when building your project, for example with your favorite CI solution.
 
-Set up the repositories
-=======================
-
-Gatling depends on libraries that are hosted on Maven Central.
-
 Set up the gatling-maven-plugin
 ===============================
 
