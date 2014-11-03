@@ -15,8 +15,8 @@
  */
 package io.gatling.recorder
 
-sealed trait RecorderMode { def name: String }
+sealed abstract class RecorderMode(val name: String)
 
-case object Proxy extends RecorderMode { val name = "HTTP Proxy" }
+case object Proxy extends RecorderMode("HTTP Proxy")
 
-case object Har extends RecorderMode { val name = "HAR Converter" }
+case object Har extends RecorderMode("HAR Converter")

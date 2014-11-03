@@ -29,7 +29,14 @@ import io.gatling.core.session.el.EL
 import io.gatling.core.structure.{ ScenarioBuilder, StructureSupport }
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
-object Predef extends StructureSupport with PauseSupport with CheckSupport with FeederSupport with InjectionSupport with ThrottlingSupport with AssertionSupport {
+object Predef
+    extends StructureSupport
+    with PauseSupport
+    with CheckSupport
+    with FeederSupport
+    with InjectionSupport
+    with ThrottlingSupport
+    with AssertionSupport {
 
   type Session = io.gatling.core.session.Session
   type Status = io.gatling.core.result.message.Status

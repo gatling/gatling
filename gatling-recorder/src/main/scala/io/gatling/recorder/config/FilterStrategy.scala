@@ -17,13 +17,13 @@ package io.gatling.recorder.config
 
 import io.gatling.core.util.ClassSimpleNameToString
 
-sealed trait FilterStrategy extends ClassSimpleNameToString { def name: String }
+sealed abstract class FilterStrategy(val name: String) extends ClassSimpleNameToString
 
 object FilterStrategy {
 
-  case object WhitelistFirst extends FilterStrategy { val name = "Whitelist First" }
-  case object BlacklistFirst extends FilterStrategy { val name = "Blacklist First" }
-  case object Disabled extends FilterStrategy { val name = "Disabled" }
+  case object WhitelistFirst extends FilterStrategy("Whitelist First")
+  case object BlacklistFirst extends FilterStrategy("Blacklist First")
+  case object Disabled extends FilterStrategy("Disabled")
 
   val AllStrategies = List(WhitelistFirst, BlacklistFirst, Disabled)
 

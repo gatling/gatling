@@ -15,7 +15,7 @@
  */
 package io.gatling.core.structure
 
-import io.gatling.core.action.builder.{ IfBuilder, RandomSwitchBuilder, RoundRobinSwitchBuilder, SwitchBuilder }
+import io.gatling.core.action.builder._
 import io.gatling.core.session.{ Expression, RichExpression, Session }
 
 trait ConditionalStatements[B] extends Execs[B] {
@@ -37,7 +37,8 @@ trait ConditionalStatements[B] extends Execs[B] {
    * @param thenNext the chain to be executed if the condition is satisfied
    * @return a new builder with a conditional execution added to its actions
    */
-  def doIf(sessionKey: Expression[String], value: String)(thenNext: ChainBuilder): B = doIf(sessionKey.map(_ == value), thenNext, None)
+  def doIf(sessionKey: Expression[String], value: String)(thenNext: ChainBuilder): B =
+    doIf(sessionKey.map(_ == value), thenNext, None)
 
   /**
    * Method used to add a conditional execution in the scenario with a fall back
@@ -48,7 +49,8 @@ trait ConditionalStatements[B] extends Execs[B] {
    * @param elseNext the chain to be executed if the condition is not satisfied
    * @return a new builder with a conditional execution added to its actions
    */
-  def doIfOrElse(condition: Expression[Boolean])(thenNext: ChainBuilder)(elseNext: ChainBuilder): B = doIf(condition, thenNext, Some(elseNext))
+  def doIfOrElse(condition: Expression[Boolean])(thenNext: ChainBuilder)(elseNext: ChainBuilder): B =
+    doIf(condition, thenNext, Some(elseNext))
 
   /**
    * Method used to add a conditional execution in the scenario with a fall back

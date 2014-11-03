@@ -21,7 +21,14 @@ import io.gatling.core.config.Protocols
 /**
  * This trait defines most of the scenario related DSL
  */
-trait StructureBuilder[B <: StructureBuilder[B]] extends Execs[B] with Pauses[B] with Feeds[B] with Loops[B] with ConditionalStatements[B] with Errors[B] with Groups[B] {
+trait StructureBuilder[B <: StructureBuilder[B]]
+    extends Execs[B]
+    with Pauses[B]
+    with Feeds[B]
+    with Loops[B]
+    with ConditionalStatements[B]
+    with Errors[B]
+    with Groups[B] {
 
   private[gatling] def build(exitPoint: ActorRef, protocols: Protocols): ActorRef =
     actionBuilders.foldLeft(exitPoint) { (actorRef, actionBuilder) =>

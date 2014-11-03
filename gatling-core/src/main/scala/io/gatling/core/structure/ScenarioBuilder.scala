@@ -24,7 +24,7 @@ import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.{ Protocol, Protocols }
 import io.gatling.core.controller.inject.{ InjectionProfile, InjectionStep }
 import io.gatling.core.controller.throttle.{ ThrottlingBuilder, ThrottlingProtocol }
-import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
+import io.gatling.core.pause._
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Expression
 
@@ -51,7 +51,12 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = N
   }
 }
 
-case class PopulatedScenarioBuilder(scenarioBuilder: ScenarioBuilder, injectionProfile: InjectionProfile, defaultProtocols: Protocols, populationProtocols: Protocols = Protocols()) extends StrictLogging {
+case class PopulatedScenarioBuilder(
+  scenarioBuilder: ScenarioBuilder,
+  injectionProfile: InjectionProfile,
+  defaultProtocols: Protocols,
+  populationProtocols: Protocols = Protocols())
+    extends StrictLogging {
 
   def protocols(protocols: Protocol*) = copy(populationProtocols = this.populationProtocols ++ protocols)
 

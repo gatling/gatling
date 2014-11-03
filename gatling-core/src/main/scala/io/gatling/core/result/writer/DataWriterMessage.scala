@@ -38,13 +38,34 @@ case class RequestMessage(
     status: Status,
     message: Option[String],
     extraInfo: List[Any]) extends DataWriterMessage {
+
   def responseTime = responseEndDate - requestStartDate
 }
 
-case class RunMessage(simulationClassName: String, simulationId: String, start: Long, runDescription: String) extends DataWriterMessage {
+case class RunMessage(
+  simulationClassName: String,
+  simulationId: String,
+  start: Long,
+  runDescription: String)
+    extends DataWriterMessage {
+
   val runId = simulationId + "-" + start
 }
 
-case class UserMessage(scenarioName: String, userId: String, event: MessageEvent, startDate: Long, endDate: Long) extends DataWriterMessage
+case class UserMessage(
+  scenarioName: String,
+  userId: String,
+  event: MessageEvent,
+  startDate: Long,
+  endDate: Long)
+    extends DataWriterMessage
 
-case class GroupMessage(scenarioName: String, userId: String, group: GroupBlock, groupHierarchy: List[String], startDate: Long, endDate: Long, status: Status) extends DataWriterMessage
+case class GroupMessage(
+  scenarioName: String,
+  userId: String,
+  group: GroupBlock,
+  groupHierarchy: List[String],
+  startDate: Long,
+  endDate: Long,
+  status: Status)
+    extends DataWriterMessage

@@ -15,31 +15,31 @@
  */
 package io.gatling.charts.util
 
-trait Color { def code: String }
+abstract class Color(val code: String)
 
 object Colors {
 
   implicit def color2String(c: Color) = c.code
 
-  case object Blue extends Color { val code = "#4572A7" }
-  case object Green extends Color { val code = "#A0B228" }
-  case object Yellow extends Color { val code = "#FFDD00" }
-  case object Orange extends Color { val code = "#FF9D00" }
-  case object Red extends Color { val code = "#FF0000" }
-  case object Cyan extends Color { val code = "#00D5FF" }
-  case object Lime extends Color { val code = "#00FF00" }
-  case object Purple extends Color { val code = "#9D00FF" }
-  case object Pink extends Color { val code = "#FF00E1" }
-  case object Black extends Color { val code = "#000000" }
-  case object LightGrey extends Color { val code = "#CFC9C6" }
-  case object LightBlue extends Color { val code = "#AECAEB" }
-  case object LightOrange extends Color { val code = "#FFD085" }
-  case object LightRed extends Color { val code = "#FF9C9C" }
-  case object LightLime extends Color { val code = "#9EFF9E" }
-  case object LightPurple extends Color { val code = "#CF82FF" }
-  case object LightPink extends Color { val code = "#FF82F0" }
-  case object TranslucidRed extends Color { val code = "rgba(255, 0, 0, .2)" }
-  case object TranslucidBlue extends Color { val code = "rgba(69, 114, 167, .2)" }
-  case object DarkGrey extends Color { val code = "#92918C" }
-  case object DarkOrange extends Color { val code = "#E37400" }
+  case object Blue extends Color("#4572A7")
+  case object Green extends Color("#A0B228")
+  case object Yellow extends Color("#FFDD00")
+  case object Orange extends Color("#FF9D00")
+  case object Red extends Color("#FF0000")
+  case object Cyan extends Color("#00D5FF")
+  case object Lime extends Color("#00FF00")
+  case object Purple extends Color("#9D00FF")
+  case object Pink extends Color("#FF00E1")
+  case object Black extends Color("#000000")
+  case object LightGrey extends Color("#CFC9C6")
+  case object LightBlue extends Color("#AECAEB")
+  case object LightOrange extends Color("#FFD085")
+  case object LightRed extends Color("#FF9C9C")
+  case object LightLime extends Color("#9EFF9E")
+  case object LightPurple extends Color("#CF82FF")
+  case object LightPink extends Color("#FF82F0")
+  case object TranslucidRed extends Color("rgba(255, 0, 0, .2)")
+  case object TranslucidBlue extends Color("rgba(69, 114, 167, .2)")
+  case object DarkGrey extends Color("#92918C")
+  case object DarkOrange extends Color("#E37400")
 }

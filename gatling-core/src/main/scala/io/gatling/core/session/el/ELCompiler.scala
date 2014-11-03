@@ -202,7 +202,7 @@ class ELCompiler extends RegexParsers {
 
   val expr: Parser[List[Part[Any]]] = multivaluedExpr | (elExpr ^^ { case part: Part[Any] => List(part) })
 
-  def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart) *
+  def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart).*
 
   val staticPartPattern = new Parser[String] {
     def apply(in: Input) = {

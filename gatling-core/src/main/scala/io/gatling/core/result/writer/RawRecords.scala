@@ -15,11 +15,11 @@
  */
 package io.gatling.core.result.writer
 
-sealed trait RecordHeader { def value: String }
-object RunRecordHeader extends RecordHeader { val value = "RUN" }
-object RequestRecordHeader extends RecordHeader { val value = "REQUEST" }
-object UserRecordHeader extends RecordHeader { val value = "USER" }
-object GroupRecordHeader extends RecordHeader { val value = "GROUP" }
+sealed abstract class RecordHeader(val value: String)
+object RunRecordHeader extends RecordHeader("RUN")
+object RequestRecordHeader extends RecordHeader("REQUEST")
+object UserRecordHeader extends RecordHeader("USER")
+object GroupRecordHeader extends RecordHeader("GROUP")
 
 sealed abstract class RawRecord(header: RecordHeader, recordLength: Int) {
   def unapply(array: Array[String]) =
