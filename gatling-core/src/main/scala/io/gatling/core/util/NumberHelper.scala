@@ -33,23 +33,21 @@ object NumberHelper {
     value
   }
 
-  implicit class RichInt(val i: Int) extends AnyVal {
-
-    def toRank: String = {
-
-      val suffix = i % 10 match {
-        case _ if (11 to 13) contains i % 100 => "th"
-        case 1                                => "st"
-        case 2                                => "nd"
-        case 3                                => "rd"
-        case _                                => "th"
-      }
-
-      i + suffix
-    }
-  }
-
   implicit class RichDouble(val double: Double) extends AnyVal {
+
+    private def suffix(i: Int) = i % 10 match {
+      case _ if (11 to 13) contains i % 100 => "th"
+      case 1                                => "st"
+      case 2                                => "nd"
+      case 3                                => "rd"
+      case _                                => "th"
+    }
+
+    def toRank: String =
+      if (double == Math.floor(double))
+        double.toInt.toString + suffix(double.toInt)
+      else
+        toPrintableString + suffix((double * 100).toInt % 100)
 
     def toPrintableString: String = double match {
       case d if d >= 1000.0 => d.round.toString
