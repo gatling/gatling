@@ -60,4 +60,48 @@ class NumberHelperSpec extends FlatSpec with Matchers {
   it should "return '12311th' for 12311" in {
     12311.toRank shouldBe "12311th"
   }
+
+  it should "return '1st' for 1.0" in {
+    1.0.toRank shouldBe "1st"
+  }
+
+  it should "return '2nd' for 2.0" in {
+    2.0.toRank shouldBe "2nd"
+  }
+
+  it should "return '3rd' for 3.0" in {
+    3.0.toRank shouldBe "3rd"
+  }
+
+  it should "return '4th' for 4.0" in {
+    4.0.toRank shouldBe "4th"
+  }
+
+  it should "return '11th' for 11.0" in {
+    11.0.toRank shouldBe "11th"
+  }
+
+  it should "return '12th' for 12.0" in {
+    12.0.toRank shouldBe "12th"
+  }
+
+  it should "return '13th' for 13.0" in {
+    13.0.toRank shouldBe "13th"
+  }
+
+  it should "return '21st' for 21.0" in {
+    21.0.toRank shouldBe "21st"
+  }
+
+  it should "return '99th' for 99.0" in {
+    99.0.toRank shouldBe "99th"
+  }
+
+  it should "return '99.99th' for 99.99" in {
+    99.99.toRank shouldBe "99.99th"
+  }
+
+  it should "return '4.01st' for 4.01" in {
+    4.01.toRank shouldBe "4.01st"
+  }
 }
