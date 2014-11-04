@@ -134,6 +134,7 @@ class HttpCompileTest extends Simulation {
               xpath("//input[@value='aaaa']/@id").not("omg"),
               xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2"),
               md5.is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
+              substring("Foo"),
               responseTimeInMillis.lessThan(1000),
               latencyInMillis.lessThan(1000)))
         .during(12000 milliseconds, "foo") {

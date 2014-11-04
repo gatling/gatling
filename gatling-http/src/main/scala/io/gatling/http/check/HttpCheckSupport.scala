@@ -27,6 +27,8 @@ trait HttpCheckSupport {
 
   val regex = HttpBodyRegexCheckBuilder.regex _
 
+  val substring = HttpBodySubstringCheckBuilder.substring _
+
   def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
 
   def css(selector: Expression[String]) = HttpBodyCssCheckBuilder.css(selector, None)

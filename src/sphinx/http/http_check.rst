@@ -140,6 +140,23 @@ Return the full response body String.
 
 Return the full response body byte array.
 
+.. _http-check-substring:
+
+* ``substring(expression)``
+
+Scans for the indices of a given substring inside the body string.
+
+*expression*  can be a plain ``String``, a ``String`` using Gatling EL or an ``Expression[String]``.
+
+::
+
+  substring("foo")                           // same as substring("foo").find.exists
+  substring("foo").findAll.saveAs("indices") // saves a Seq[Int]
+  substring("foo").count.saveAs("counts")    // saves the number of occurrences of foo
+
+
+.. note:: Typically used for checking the presence of a substring, as it's more CPU efficient than a regular expression.
+
 .. _http-check-regex:
 
 * ``regex(expression)``
