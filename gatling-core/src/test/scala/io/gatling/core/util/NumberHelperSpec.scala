@@ -97,6 +97,10 @@ class NumberHelperSpec extends FlatSpec with Matchers {
     99.0.toRank shouldBe "99th"
   }
 
+  it should "return '99.8th' for 99.8" in {
+    99.8.toRank shouldBe "99.8th"
+  }
+
   it should "return '99.99th' for 99.99" in {
     99.99.toRank shouldBe "99.99th"
   }
