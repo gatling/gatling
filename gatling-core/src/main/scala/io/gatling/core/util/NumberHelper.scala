@@ -17,6 +17,8 @@ package io.gatling.core.util
 
 object NumberHelper {
 
+  val formatter = new java.text.DecimalFormat("###.###")
+
   def extractLongValue(s: String, start: Int): Long = {
     assume(start >= 0 && start < s.length, s"Start=$start is not an acceptable starting index for the string=$s")
 
@@ -45,15 +47,11 @@ object NumberHelper {
 
     def toRank: String =
       if (double == Math.floor(double))
-        double.toInt.toString + suffix(double.toInt)
+        toPrintableString + suffix(double.toInt)
       else
         toPrintableString + suffix((double * 100).toInt % 100)
 
-    def toPrintableString: String = double match {
-      case d if d >= 1000.0 => d.round.toString
-      case d if d >= 100.0  => f"$d%.1f"
-      case d                => f"$d%.2f"
-    }
+    def toPrintableString: String = formatter.format(double)
   }
 
   object IntString {
