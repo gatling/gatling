@@ -20,6 +20,8 @@ import java.util.concurrent.{ TimeUnit, Executors, ThreadFactory }
 
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig.NettyWebSocketFactory
 import com.ning.http.client.providers.netty.ws.NettyWebSocket
+import io.gatling.http.action.sse.{ SseSource, SseHandler, OnSseSource }
+import io.gatling.http.check.sse.SseCheck
 import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
@@ -68,6 +70,23 @@ case class HttpTx(session: Session,
                   update: Session => Session = Session.Identity) {
 
   val silent: Boolean = HttpTx.silent(request, primary)
+}
+
+case class SseTx(session: Session,
+                 request: Request, // FIXME should it be a HttpRequest obj???
+                 requestName: String,
+                 protocol: HttpProtocol,
+                 next: ActorRef,
+                 start: Long,
+                 reconnectCount: Int = 0,
+                 check: Option[SseCheck] = None,
+                 pendingCheckSuccesses: List[CheckResult] = Nil,
+                 updates: List[Session => Session] = Nil) {
+
+  def applyUpdates(session: Session) = {
+    val newSession = session.update(updates)
+    copy(session = newSession, updates = Nil)
+  }
 }
 
 case class WsTx(session: Session,
@@ -264,6 +283,24 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
       Controller ! ThrottledRequest(tx.session.scenarioName, () => executeRequestSafe(client, ahcRequest, handler))
     else
       executeRequestSafe(client, ahcRequest, handler)
+  }
+
+  def startSseTransaction(tx: SseTx, sseActor: ActorRef): Unit = {
+    val (newTx, client) = {
+      val (newSession, client) = httpClient(tx.session, tx.protocol)
+      (tx.copy(session = newSession), client)
+    }
+
+    try {
+      val handler = new SseHandler(newTx, sseActor)
+      val future = client.executeRequest(newTx.request, handler)
+
+      sseActor ! OnSseSource(new SseSource(future))
+
+    } catch {
+      case e: Exception =>
+        sseActor ! io.gatling.http.action.sse.OnFailedOpen(newTx, e.getMessage, nowMillis)
+    }
   }
 
   def startWebSocketTransaction(tx: WsTx, wsActor: ActorRef): Unit = {
