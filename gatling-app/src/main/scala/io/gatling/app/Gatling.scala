@@ -17,43 +17,32 @@ package io.gatling.app
 
 import java.lang.System.currentTimeMillis
 
-import io.gatling.core.util.StringHelper
-
+import scala.Console.err
 import scala.annotation.tailrec
 import scala.collection.mutable
 import scala.io.StdIn
-import scala.util.Try
+import scala.util.{ Success, Try }
 
-import com.typesafe.scalalogging.StrictLogging
+import scopt.OptionParser
 
 import io.gatling.app.CommandLineConstants._
 import io.gatling.charts.report.ReportsGenerator
-import io.gatling.core.assertion.Assertion
+import io.gatling.core.assertion.AssertionValidator
 import io.gatling.core.config.{ GatlingFiles, GatlingPropertiesBuilder }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.reader.DataReader
 import io.gatling.core.runner.{ Runner, Selection }
 import io.gatling.core.scenario.Simulation
+import io.gatling.core.util.StringHelper
 import io.gatling.core.util.StringHelper.RichString
-import scopt.OptionParser
 
 /**
  * Object containing entry point of application
  */
 object Gatling {
 
-  /**
-   * Entry point of Application
-   *
-   * @param args Arguments of the main method
-   */
   def main(args: Array[String]): Unit = sys.exit(runGatling(args, None))
-
-  def fromMap(props: mutable.Map[String, Any], simulationClass: Option[Class[Simulation]] = None) = {
-    GatlingConfiguration.setUp(props)
-    new Gatling(simulationClass).start
-  }
 
   def runGatling(args: Array[String], simulationClass: Option[Class[Simulation]]): Int = {
     val props = new GatlingPropertiesBuilder
@@ -73,156 +62,148 @@ object Gatling {
     }
 
     // if arguments are incorrect, usage message is displayed
-    if (cliOptsParser.parse(args)) fromMap(props.build, simulationClass)
+    if (cliOptsParser.parse(args)) new Gatling(props.build, simulationClass).start
     else GatlingStatusCodes.InvalidArguments
   }
 }
+class Gatling(props: mutable.Map[String, _], simulationClass: Option[Class[Simulation]]) {
 
-class Gatling(simulationClass: Option[Class[Simulation]]) extends StrictLogging {
+  type SelectedSingleSimulation = Option[Class[Simulation]]
+  type AllSimulations = List[Class[Simulation]]
 
   def start: Int = {
-
     StringHelper.checkSupportedJavaVersion()
+    GatlingConfiguration.setUp(props)
 
-      def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) =
-        configuration.core.outputDirectoryBaseName.getOrElse(clazz.getSimpleName.clean)
+    val simulations = loadSimulations
+    val singleSimulation = selectSingleSimulationIfPossible(simulations)
 
-      def getSingleSimulation(simulations: List[Class[Simulation]]) =
-        configuration.core.simulationClass.map(_ => simulations.head.newInstance)
+    val runId = runSimulationIfNecessary(singleSimulation, simulations)
 
-      def interactiveSelect(simulations: List[Class[Simulation]]): Selection = {
+    val dataReader = DataReader.newInstance(runId)
 
-        val simulation: Class[Simulation] = {
-            @tailrec
-            def loop(): Class[Simulation] = {
+    if (!configuration.charting.noReports) generateReports(runId, dataReader)
 
-                def readSimulationNumber: Int =
-                  Try(StdIn.readInt()).getOrElse {
-                    println("Invalid characters, please provide a correct simulation number:")
-                    readSimulationNumber
-                  }
-
-              val selection = simulations.size match {
-                case 0 =>
-                  // If there is no simulation file
-                  println("There is no simulation script. Please check that your scripts are in user-files/simulations")
-                  sys.exit()
-                case 1 =>
-                  println(s"${simulations.head.getName} is the only simulation, executing it.")
-                  0
-                case _ =>
-                  println("Choose a simulation number:")
-                  for ((simulation, index) <- simulations.zipWithIndex) {
-                    println(s"     [$index] ${simulation.getName}")
-                  }
-                  readSimulationNumber
-              }
-
-              val validRange = 0 until simulations.size
-              if (validRange contains selection)
-                simulations(selection)
-              else {
-                println(s"Invalid selection, must be in $validRange")
-                loop()
-              }
-            }
-
-          loop()
-        }
-
-        val myDefaultOutputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
-
-        val userInput: String = {
-            @tailrec
-            def loop(): String = {
-              println(s"Select simulation id (default is '$myDefaultOutputDirectoryBaseName'). Accepted characters are a-z, A-Z, 0-9, - and _")
-              val input = StdIn.readLine().trim
-              if (input.matches("[\\w-_]*"))
-                input
-              else {
-                println(s"$input contains illegal characters")
-                loop()
-              }
-            }
-          loop()
-        }
-
-        val simulationId = if (!userInput.isEmpty) userInput else myDefaultOutputDirectoryBaseName
-
-        println("Select run description (optional)")
-        val runDescription = StdIn.readLine().trim
-
-        new Selection(simulation, simulationId, runDescription)
-      }
-
-      def applyAssertions(simulation: Simulation, dataReader: DataReader) = {
-        val successful = Assertion.assertThat(simulation.assertions, dataReader)
-
-        if (successful) {
-          println("Simulation successful.")
-          GatlingStatusCodes.Success
-        } else {
-          println("Simulation failed.")
-          GatlingStatusCodes.AssertionsFailed
-        }
-      }
-
-      def generateReports(outputDirectoryName: String, dataReader: => DataReader): Unit = {
-        println("Generating reports...")
-        val start = currentTimeMillis
-        val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader)
-        println(s"Reports generated in ${(currentTimeMillis - start) / 1000}s.")
-        println(s"Please open the following file: ${indexFile.toFile}")
-      }
-
-    val simulations = simulationClass match {
-      case Some(clazz) => List(clazz)
-      case None =>
-        val simulationClassLoader = SimulationClassLoader(GatlingFiles.binariesDirectory)
-
-        simulationClassLoader
-          .simulationClasses(configuration.core.simulationClass)
-          .sortBy(_.getName)
-    }
-
-    val (outputDirectoryName, simulation) = GatlingFiles.reportsOnlyDirectory match {
-      case Some(dir) =>
-        (dir, getSingleSimulation(simulations))
-
-      case None =>
-        val selection = configuration.core.simulationClass match {
-          case Some(_) =>
-            // FIXME ugly
-            val simulation = simulations.head
-            val outputDirectoryBaseName = defaultOutputDirectoryBaseName(simulation)
-            val runDescription = configuration.core.runDescription.getOrElse(outputDirectoryBaseName)
-            new Selection(simulation, outputDirectoryBaseName, runDescription)
-
-          case None =>
-            if (configuration.core.muteMode)
-              simulationClass match {
-                case Some(clazz) =>
-                  Selection(clazz, defaultOutputDirectoryBaseName(clazz), "")
-                case None =>
-                  throw new UnsupportedOperationException("Mute mode is currently used by Gatling SBT plugin only.")
-              }
-            else
-              interactiveSelect(simulations)
-        }
-
-        val (runId, simulation) = new Runner(selection).run
-        (runId, Some(simulation))
-    }
-
-    lazy val dataReader = DataReader.newInstance(outputDirectoryName)
-
-    val result = simulation match {
-      case Some(s) if s.assertions.nonEmpty => applyAssertions(s, dataReader)
-      case _                                => GatlingStatusCodes.Success
-    }
-
-    if (!configuration.charting.noReports) generateReports(outputDirectoryName, dataReader)
-
-    result
+    if (dataReader.assertions.nonEmpty) applyAssertions(dataReader)
+    else GatlingStatusCodes.Success
   }
+
+  private def loadSimulations = {
+    val fromSbt = simulationClass.isDefined
+    val reportsOnly = configuration.core.directory.reportsOnly.isDefined
+
+    if (fromSbt || reportsOnly) Nil
+    else SimulationClassLoader(GatlingFiles.binariesDirectory).simulationClasses.sortBy(_.getName)
+  }
+
+  private def selectSingleSimulationIfPossible(simulations: AllSimulations): SelectedSingleSimulation = {
+      def singleSimulationFromConfig =
+        configuration.core.simulationClass flatMap { className =>
+          simulations.find(_.getCanonicalName == className) match {
+            case Some(simulation) => Some(simulation)
+            case None =>
+              err.println(s"The requested class('$className') can not be found in the classpath or does not extends Simulation.")
+              None
+          }
+        }
+
+      def singleSimulationFromList =
+        if (simulations.size == 1) {
+          val simulation = simulations.head
+          println(s"${simulation.getName} is the only simulation, executing it.")
+          Some(simulation)
+        } else None
+
+    simulationClass orElse singleSimulationFromConfig orElse singleSimulationFromList
+  }
+
+  private def runSimulationIfNecessary(singleSimulation: SelectedSingleSimulation, simulations: AllSimulations): String = {
+    configuration.core.directory.reportsOnly.getOrElse {
+      // -- If no single simulation was available, allow user to select one -- //
+      val simulation = singleSimulation.getOrElse(interactiveSelect(simulations))
+
+      // -- Ask for simulation ID and run description if required -- //
+      val muteModeActive = configuration.core.muteMode
+      val defaultBaseName = defaultOutputDirectoryBaseName(simulation)
+      val optionalDescription = configuration.core.runDescription
+
+      val simulationId = if (muteModeActive) defaultBaseName else askSimulationId(simulation, defaultBaseName)
+      val runDescription = optionalDescription.getOrElse(if (muteModeActive) "" else askRunDescription())
+
+      // -- Run Gatling -- //
+      val selection = Selection(simulation, simulationId, runDescription)
+      new Runner(selection).run
+    }
+  }
+
+  private def askSimulationId(clazz: Class[Simulation], defaultBaseName: String): String = {
+      @tailrec
+      def loop(): String = {
+        println(s"Select simulation id (default is '$defaultBaseName'). Accepted characters are a-z, A-Z, 0-9, - and _")
+        val input = StdIn.readLine().trim
+        if (input.matches("[\\w-_]*")) input
+        else {
+          println(s"$input contains illegal characters")
+          loop()
+        }
+      }
+
+    val input = loop()
+    if (input.nonEmpty) input else defaultBaseName
+  }
+
+  private def askRunDescription(): String = {
+    println("Select run description (optional)")
+    StdIn.readLine().trim
+  }
+
+  def interactiveSelect(simulations: AllSimulations): Class[Simulation] = {
+    val validRange = 0 until simulations.size
+
+      @tailrec
+      def readSimulationNumber: Int = {
+        println("Choose a simulation number:")
+        for ((simulation, index) <- simulations.zipWithIndex) {
+          println(s"     [$index] ${simulation.getName}")
+        }
+
+        Try(StdIn.readInt()) match {
+          case Success(number) =>
+            if (validRange contains number) number
+            else {
+              println(s"Invalid selection, must be in $validRange")
+              readSimulationNumber
+            }
+          case _ =>
+            println("Invalid characters, please provide a correct simulation number:")
+            readSimulationNumber
+        }
+      }
+
+    if (simulations.isEmpty) {
+      println("There is no simulation script. Please check that your scripts are in user-files/simulations")
+      sys.exit()
+    }
+    simulations(readSimulationNumber)
+  }
+
+  private def generateReports(outputDirectoryName: String, dataReader: DataReader): Unit = {
+    println("Generating reports...")
+    val start = currentTimeMillis
+    val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader)
+    println(s"Reports generated in ${(currentTimeMillis - start) / 1000}s.")
+    println(s"Please open the following file: ${indexFile.toFile}")
+  }
+
+  private def applyAssertions(dataReader: DataReader) =
+    if (AssertionValidator.validateAssertions(dataReader)) {
+      println("Simulation successful.")
+      GatlingStatusCodes.Success
+    } else {
+      println("Simulation failed.")
+      GatlingStatusCodes.AssertionsFailed
+    }
+
+  private def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) =
+    configuration.core.outputDirectoryBaseName.getOrElse(clazz.getSimpleName.clean)
 }

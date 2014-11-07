@@ -15,44 +15,11 @@
  */
 package io.gatling.core.assertion
 
-import io.gatling.core.result.{ GroupStatsPath, RequestStatsPath }
-import io.gatling.core.result.message.Status
-import io.gatling.core.result.reader.{ DataReader, GeneralStats }
-import io.gatling.core.validation._
-
 trait AssertionSupport {
 
   implicit def string2pathBuilder(string: String) = AssertionPath.string2assertionPath(string)
 
-  val global = new Selector((reader, status) => reader.requestGeneralStats(None, None, status).success, "Global")
+  def global = new AssertionWithPath(Global)
 
-  def details(selector: AssertionPath): Selector = {
-
-      def generalStats(selector: AssertionPath): (DataReader, Option[Status]) => Validation[GeneralStats] = (reader, status) =>
-        if (selector.parts.isEmpty)
-          reader.requestGeneralStats(None, None, status).success
-
-        else {
-          val selectedPath: List[String] = selector.parts
-          val foundPath = reader.statsPaths.find { statsPath =>
-            val path: List[String] = statsPath match {
-              case RequestStatsPath(request, group) =>
-                group match {
-                  case Some(g) => g.hierarchy :+ request
-                  case _       => List(request)
-                }
-              case GroupStatsPath(group) => group.hierarchy
-            }
-            path == selectedPath
-          }
-
-          foundPath match {
-            case None                                   => s"Could not find stats matching selector $selector".failure
-            case Some(RequestStatsPath(request, group)) => reader.requestGeneralStats(Some(request), group, status).success
-            case Some(GroupStatsPath(group))            => reader.requestGeneralStats(None, Some(group), status).success
-          }
-        }
-
-    new Selector(generalStats(selector), selector.parts.mkString(" / "))
-  }
+  def details(path: AssertionPath) = new AssertionWithPath(Details(path.parts))
 }

@@ -21,6 +21,7 @@ import java.nio.channels.FileChannel
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
+import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.result.Group
@@ -126,11 +127,12 @@ class FileDataWriter extends DataWriter {
       flush()
   }
 
-  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
     val simulationLog = simulationLogDirectory(run.runId) / "simulation.log"
     channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
     buffer.clear()
     system.registerOnTermination(channel.close())
+    assertions.map(assertion => fast"${assertion.serialized}$Eol").foreach(push)
     push(run.serialize)
   }
 

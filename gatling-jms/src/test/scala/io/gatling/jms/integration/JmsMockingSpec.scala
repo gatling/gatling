@@ -45,7 +45,7 @@ trait JmsMockingSpec extends BrokerBasedSpecification {
 
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit testKit: TestKit with ImplicitSender) = {
     import testKit._
-    DataWriter.init(RunMessage("JmsIntegrationSimulation", sb.name, nowMillis, "test run"), Nil, self)
+    DataWriter.init(Nil, RunMessage("JmsIntegrationSimulation", sb.name, nowMillis, "test run"), Nil, self)
     expectMsgClass(classOf[DataWritersInitialized])
 
     val actor = sb.build(self, protocols)

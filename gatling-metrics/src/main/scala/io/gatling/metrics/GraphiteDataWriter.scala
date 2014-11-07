@@ -21,6 +21,7 @@ import scala.concurrent.duration.DurationInt
 import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor
 import io.gatling.core.akka.BaseActor
+import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingConfiguration.{ configuration => gatlingConfiguration }
 import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, ShortScenarioDescription, UserMessage }
@@ -46,7 +47,7 @@ class GraphiteDataWriter extends DataWriter {
   private val requestsByPath = mutable.Map.empty[GraphitePath, RequestMetricsBuffer]
   private val usersByScenario = mutable.Map.empty[GraphitePath, UsersBreakdownBuffer]
 
-  def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+  def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
     val metricRootPath = configuration.data.graphite.rootPathPrefix + "." + sanitizeString(run.simulationId) + "."
     graphiteSender = actor(context)(new GraphiteSender(metricRootPath))
 

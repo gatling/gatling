@@ -19,6 +19,7 @@ import java.sql.{ Connection, Date => SQLDate, DriverManager, PreparedStatement,
 
 import com.typesafe.scalalogging.StrictLogging
 
+import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, UserMessage, ShortScenarioDescription }
 import io.gatling.core.util.IO.withCloseable
@@ -57,7 +58,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
   private var groupCounter: Int = 0
   private var requestCounter: Int = 0
 
-  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
 
     conn = DriverManager.getConnection(
       configuration.data.jdbc.db.url,

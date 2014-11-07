@@ -42,13 +42,14 @@ object Dependencies {
   /***********************/
 
   private val scalaTest                      = "org.scalatest"                         %% "scalatest"                   % "2.2.2"       % "test"
+  private val scalaCheck                     = "org.scalacheck"                        %% "scalacheck"                  % "1.11.6"      % "test"
   private val akkaTestKit                    = "com.typesafe.akka"                     %% "akka-testkit"                % akkaVersion   % "test"
   private val mockitoCore                    = "org.mockito"                            % "mockito-core"                % "1.10.8"      % "test"
   private val activemqCore                   = "org.apache.activemq"                    % "activemq-broker"             % "5.8.0"       % "test"
   private val sprayCan                       = "io.spray"                              %% "spray-can"                   % "1.3.2"       % "test"
   private val h2                             = "com.h2database"                         % "h2"                          % "1.4.182"     % "test"
 
-  private val testDeps = Seq(scalaTest, akkaTestKit, mockitoCore)
+  private val testDeps = Seq(scalaTest, scalaCheck, akkaTestKit, mockitoCore)
 
   /****************************/
   /** Dependencies by module **/

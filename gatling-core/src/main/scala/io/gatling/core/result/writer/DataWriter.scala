@@ -21,6 +21,7 @@ import scala.concurrent.duration.DurationInt
 import akka.actor.{ Actor, ActorRef, Props }
 import akka.util.Timeout
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
+import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ DataWritersInitialized, DataWritersTerminated }
 import io.gatling.core.result.message.Status
@@ -42,7 +43,7 @@ object DataWriter extends AkkaDefaults {
 
   def dispatch(message: Any): Unit = instances.foreach(_ ! message)
 
-  def init(runMessage: RunMessage, scenarios: Seq[Scenario], replyTo: ActorRef): Unit = {
+  def init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[Scenario], replyTo: ActorRef): Unit = {
 
     _instances = {
       val dw = configuration.data.dataWriterClasses.map { className =>
@@ -56,7 +57,7 @@ object DataWriter extends AkkaDefaults {
     }
 
     val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.injectionProfile.users))
-    val responses = instances.map(_ ? Init(runMessage, shortScenarioDescriptions))
+    val responses = instances.map(_ ? Init(assertions, runMessage, shortScenarioDescriptions))
     Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersInitialized(_))
   }
 
@@ -74,7 +75,7 @@ object DataWriter extends AkkaDefaults {
  */
 abstract class DataWriter extends BaseActor {
 
-  def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit
+  def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit
 
   def onUserMessage(userMessage: UserMessage): Unit
 
@@ -85,9 +86,9 @@ abstract class DataWriter extends BaseActor {
   def onTerminateDataWriter(): Unit
 
   def uninitialized: Receive = {
-    case Init(runMessage, scenarios) =>
+    case Init(assertions, runMessage, scenarios) =>
       logger.info("Initializing")
-      onInitializeDataWriter(runMessage, scenarios)
+      onInitializeDataWriter(assertions, runMessage, scenarios)
       logger.info("Initialized")
       context.become(initialized)
       sender ! true

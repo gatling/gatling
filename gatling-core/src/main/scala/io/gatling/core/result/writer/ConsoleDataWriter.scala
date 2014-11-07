@@ -17,6 +17,8 @@ package io.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
 
+import io.gatling.core.assertion.Assertion
+
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
@@ -60,7 +62,7 @@ class ConsoleDataWriter extends DataWriter {
     case Display => display()
   }
 
-  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
 
     startUpTime = currentTimeMillis
 

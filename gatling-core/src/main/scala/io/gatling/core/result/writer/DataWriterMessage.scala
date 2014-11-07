@@ -15,6 +15,7 @@
  */
 package io.gatling.core.result.writer
 
+import io.gatling.core.assertion.Assertion
 import io.gatling.core.result.message.{ MessageEvent, Status }
 import io.gatling.core.session.GroupBlock
 
@@ -22,7 +23,7 @@ sealed trait DataWriterMessage
 
 case class ShortScenarioDescription(name: String, nbUsers: Int)
 
-case class Init(runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
+case class Init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
 
 case object Terminate extends DataWriterMessage
 
