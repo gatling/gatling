@@ -91,7 +91,7 @@ object MockServerSupport extends StrictLogging {
         AsyncHandlerActor.start()
 
         //Initialise DataWriter with fake data.
-        DataWriter.init(RunMessage("FakeSimulation", "fakesimulation1", nowMillis, "A fake run"), Nil, self)
+        DataWriter.init(Nil, RunMessage("FakeSimulation", "fakesimulation1", nowMillis, "A fake run"), Nil, self)
         expectMsgClass(classOf[DataWritersInitialized])
 
         f(testKit)

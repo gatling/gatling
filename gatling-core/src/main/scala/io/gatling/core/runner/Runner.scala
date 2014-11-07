@@ -23,11 +23,10 @@ import com.typesafe.scalalogging.StrictLogging
 import akka.util.Timeout
 import io.gatling.core.akka.{ AkkaDefaults, GatlingActorSystem }
 import io.gatling.core.controller.{ Controller, Run }
-import io.gatling.core.scenario.Simulation
 
 class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
 
-  def run: (String, Simulation) =
+  def run: String =
     try {
       val simulationClass = selection.simulationClass
       println(s"Simulation ${simulationClass.getName} started...")
@@ -51,7 +50,7 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
         case SSuccess(runId: String) =>
           println("Simulation finished")
           simulation._afterSteps.foreach(_.apply())
-          (runId, simulation)
+          runId
 
         case SFailure(t) => throw t
         case unexpected  => throw new UnsupportedOperationException(s"Controller replied an unexpected message $unexpected")
