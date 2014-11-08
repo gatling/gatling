@@ -17,9 +17,12 @@ package io.gatling.core.assertion
 
 trait AssertionSupport {
 
-  implicit def string2pathBuilder(string: String) = AssertionPath.string2assertionPath(string)
+  implicit def string2pathBuilder(string: String): AssertionPath =
+    AssertionPath.string2assertionPath(string)
 
   def global = new AssertionWithPath(Global)
+
+  def forAll = new AssertionWithPath(ForAll)
 
   def details(path: AssertionPath) = new AssertionWithPath(Details(path.parts))
 }

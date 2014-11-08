@@ -37,6 +37,8 @@ object NumberHelper {
 
   implicit class RichDouble(val double: Double) extends AnyVal {
 
+    def between(lower: Double, upper: Double) = lower <= double && double <= upper
+
     private def suffix(i: Int) = i % 10 match {
       case _ if (11 to 13) contains i % 100 => "th"
       case 1                                => "st"
