@@ -28,6 +28,7 @@ object AssertionTags {
 
   val GlobalTag = "GLOBAL"
   val DetailsTag = "DETAILS"
+  val ForAllTag = "FORALL"
 
   // -- Metric tags -- //
 

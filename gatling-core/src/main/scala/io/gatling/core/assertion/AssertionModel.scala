@@ -45,6 +45,7 @@ case class Assertion(path: Path, target: Target, condition: Condition)
 
 sealed abstract class Path(serialized: Fastring) extends Serialized(serialized)
 case object Global extends Path(serialize(GlobalTag))
+case object ForAll extends Path(serialize(ForAllTag))
 case class Details(parts: List[String]) extends Path(serialize(string2Serialized(DetailsTag) +: parts.map(string2Serialized)))
 
 // ---------------- //

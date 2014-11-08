@@ -10,6 +10,7 @@ class AssertionSerializationSpec extends FlatSpec with Matchers {
 
   "The serialization mechanism" should "be able to serialize Paths" in {
     Global.serialized.toString shouldBe tabSeparated(GlobalTag)
+    ForAll.serialized.toString shouldBe tabSeparated(ForAllTag)
     Details(List("Group", "Subgroup", "Request")).serialized.toString() shouldBe tabSeparated(DetailsTag, "Group", "Subgroup", "Request")
   }
 

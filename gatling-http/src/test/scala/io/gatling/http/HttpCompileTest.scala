@@ -240,6 +240,8 @@ class HttpCompileTest extends Simulation {
       global.responseTime.max.between(50, 500),
       global.successfulRequests.count.greaterThan(1500),
       global.allRequests.percent.is(100),
+      forAll.failedRequests.percent.is(0),
+      forAll.responseTime.max.is(100),
       details("Users" / "Search" / "Index page").responseTime.mean.greaterThan(0),
       details("Admins" / "Create").failedRequests.percent.lessThan(90),
       details("request_9").requestsPerSec.greaterThan(10.0))

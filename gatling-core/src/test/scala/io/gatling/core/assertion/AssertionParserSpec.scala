@@ -12,7 +12,7 @@ trait AssertionGenerator {
   private val pathGen = {
 
     val detailsGen = for (parts <- Gen.nonEmptyListOf(Gen.alphaStr.suchThat(_.size > 0))) yield Details(parts)
-    Gen.frequency(50 -> Gen.const(Global), 50 -> detailsGen)
+    Gen.frequency(33 -> Gen.const(Global), 33 -> Gen.const(ForAll), 33 -> detailsGen)
   }
 
   private val targetGen = {
