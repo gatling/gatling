@@ -73,7 +73,6 @@ object RecorderConfiguration extends StrictLogging {
 
     try {
       configuration = buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, customConfig, defaultConfig))
-      logger.debug(s"configured $configuration")
     } catch {
       case e: Exception =>
         logger.warn(s"Loading configuration crashed: ${e.getMessage}. Probable cause is a format change, resetting.")
