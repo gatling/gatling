@@ -98,7 +98,7 @@ class AssertionParser extends JavaTokenParsers {
   // -- Condition parser -- //
   // ---------------------- //
 
-  private val num = floatingPointNumber ^^ (_.toDouble)
+  private val num = wholeNumber ^^ (_.toInt)
 
   private val lessThan = (LessThanTag ~> num) ^^ LessThan.apply
   private val greaterThan = (GreaterThanTag ~> num) ^^ GreaterThan.apply

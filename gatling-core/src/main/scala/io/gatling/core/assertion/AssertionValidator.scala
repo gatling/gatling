@@ -32,7 +32,7 @@ object AssertionValidator {
 
   private case class AssertionResult(result: Boolean, message: String)
   private case class ResolvedMetric(stats: List[GeneralStats], message: String)
-  private case class ResolvedSelection(value: List[Double], message: String)
+  private case class ResolvedSelection(value: List[Int], message: String)
 
   def validateAssertions(dataReader: DataReader): Boolean =
     dataReader.assertions.foldLeft(true) { (isValid, assertion) =>
@@ -87,7 +87,7 @@ object AssertionValidator {
 
   private def resolveTarget(assertion: Assertion, stats: StatsByStatus, path: String) = assertion.target match {
     case MeanRequestsPerSecondTarget =>
-      val selection = stats(None).map(_.meanRequestsPerSec)
+      val selection = stats(None).map(_.meanRequestsPerSec.toInt)
       resolveCondition(assertion, selection, s"$path: mean requests per second")
 
     case target: CountTarget =>
@@ -104,11 +104,11 @@ object AssertionValidator {
       case SuccessfulRequests => ResolvedMetric(stats(Some(OK)), "successful requests")
     }
     val resolvedSelection = target.selection match {
-      case Count => ResolvedSelection(resolvedMetric.stats.map(_.count.toDouble), "count")
+      case Count => ResolvedSelection(resolvedMetric.stats.map(_.count), "count")
       case Percent =>
         val metricCountsAndAllCounts = resolvedMetric.stats.map(_.count).zip(stats(None).map(_.count))
         val percentages = metricCountsAndAllCounts.map { case (metricCount, allCount) => metricCount.toDouble / allCount * 100 }
-        ResolvedSelection(percentages, "percentage")
+        ResolvedSelection(percentages.map(_.toInt), "percentage")
     }
     resolveCondition(assertion, resolvedSelection.value, s"$path: ${resolvedSelection.message} of ${resolvedMetric.message}")
   }
@@ -118,17 +118,17 @@ object AssertionValidator {
       case ResponseTime => ResolvedMetric(stats(None), "response time")
     }
     val resolvedSelection = target.selection match {
-      case Min               => ResolvedSelection(resolvedMetric.stats.map(_.min.toDouble), "min")
-      case Max               => ResolvedSelection(resolvedMetric.stats.map(_.max.toDouble), "max")
-      case Mean              => ResolvedSelection(resolvedMetric.stats.map(_.mean.toDouble), "mean")
-      case StandardDeviation => ResolvedSelection(resolvedMetric.stats.map(_.stdDev.toDouble), "standard deviation")
-      case Percentiles1      => ResolvedSelection(resolvedMetric.stats.map(_.percentile1.toDouble), s"$Percentile1 percentile")
-      case Percentiles2      => ResolvedSelection(resolvedMetric.stats.map(_.percentile2.toDouble), s"$Percentile2 percentile")
+      case Min               => ResolvedSelection(resolvedMetric.stats.map(_.min), "min")
+      case Max               => ResolvedSelection(resolvedMetric.stats.map(_.max), "max")
+      case Mean              => ResolvedSelection(resolvedMetric.stats.map(_.mean), "mean")
+      case StandardDeviation => ResolvedSelection(resolvedMetric.stats.map(_.stdDev), "standard deviation")
+      case Percentiles1      => ResolvedSelection(resolvedMetric.stats.map(_.percentile1), s"$Percentile1 percentile")
+      case Percentiles2      => ResolvedSelection(resolvedMetric.stats.map(_.percentile2), s"$Percentile2 percentile")
     }
     resolveCondition(assertion, resolvedSelection.value, s"$path: ${resolvedSelection.message} of ${resolvedMetric.message}")
   }
 
-  private def resolveCondition(assertion: Assertion, values: List[Double], message: String) =
+  private def resolveCondition(assertion: Assertion, values: List[Int], message: String) =
     assertion.condition match {
       case LessThan(upper)       => AssertionResult(values.forall(_ <= upper), s"$message is less than $upper")
       case GreaterThan(lower)    => AssertionResult(values.forall(_ >= lower), s"$message is greater than $lower")
@@ -136,4 +136,8 @@ object AssertionValidator {
       case Between(lower, upper) => AssertionResult(values.forall(_.between(lower, upper)), s"$message is between $lower and $upper")
       case In(elements)          => AssertionResult(values.forall(elements contains), s"$message is in $elements")
     }
+
+  private implicit class RichInt(val int: Int) extends AnyVal {
+    def between(lower: Int, upper: Int) = lower <= int && int <= upper
+  }
 }

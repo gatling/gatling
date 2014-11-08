@@ -51,9 +51,9 @@ class AssertionWithPathAndTarget(path: Path, target: Target) {
   def next(condition: Condition) =
     Assertion(path, target, condition)
 
-  def lessThan(threshold: Double) = next(LessThan(threshold))
-  def greaterThan(threshold: Double) = next(GreaterThan(threshold))
-  def between(min: Double, max: Double) = next(Between(min, max))
-  def is(value: Double) = next(Is(value))
-  def in(set: Set[Double]) = next(In(set.toList))
+  def lessThan(threshold: Int) = next(LessThan(threshold))
+  def greaterThan(threshold: Int) = next(GreaterThan(threshold))
+  def between(min: Int, max: Int) = next(Between(min, max))
+  def is(value: Int) = next(Is(value))
+  def in(set: Set[Int]) = next(In(set.toList))
 }

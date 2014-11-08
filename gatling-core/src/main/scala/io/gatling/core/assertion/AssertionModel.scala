@@ -24,7 +24,7 @@ sealed abstract class Serialized(val serialized: Fastring)
 
 private object Serialized {
   implicit def string2Serialized(s: String): Serialized = new Serialized(fast"$s") {}
-  implicit def double2Serialized(d: Double): Serialized = new Serialized(fast"$d") {}
+  implicit def int2Serialized(i: Int): Serialized = new Serialized(fast"$i") {}
 
   def serialize(parts: List[Serialized]): Fastring = serialize(parts: _*)
   def serialize(parts: Serialized*): Fastring = parts.map(_.serialized).mkFastring("\t")
@@ -92,8 +92,8 @@ case object MeanRequestsPerSecondTarget extends Target(serialize(MeanRequestsPer
 // ------------------- //
 
 sealed abstract class Condition(serialized: Fastring) extends Serialized(serialized)
-case class LessThan(value: Double) extends Condition(serialize(LessThanTag, value))
-case class GreaterThan(value: Double) extends Condition(serialize(GreaterThanTag, value))
-case class Is(value: Double) extends Condition(serialize(IsTag, value))
-case class Between(lowerBound: Double, upperBound: Double) extends Condition(serialize(BetweenTag, lowerBound, upperBound))
-case class In(elements: List[Double]) extends Condition(serialize(string2Serialized(InTag) +: elements.map(double2Serialized)))
+case class LessThan(value: Int) extends Condition(serialize(LessThanTag, value))
+case class GreaterThan(value: Int) extends Condition(serialize(GreaterThanTag, value))
+case class Is(value: Int) extends Condition(serialize(IsTag, value))
+case class Between(lowerBound: Int, upperBound: Int) extends Condition(serialize(BetweenTag, lowerBound, upperBound))
+case class In(elements: List[Int]) extends Condition(serialize(string2Serialized(InTag) +: elements.map(int2Serialized)))

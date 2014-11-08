@@ -244,7 +244,7 @@ class HttpCompileTest extends Simulation {
       forAll.responseTime.max.is(100),
       details("Users" / "Search" / "Index page").responseTime.mean.greaterThan(0),
       details("Admins" / "Create").failedRequests.percent.lessThan(90),
-      details("request_9").requestsPerSec.greaterThan(10.0))
+      details("request_9").requestsPerSec.greaterThan(10))
     .throttle(jumpToRps(20) reachRps (40) in (10 seconds) holdFor (30 seconds))
     // Applies on the setup
     .constantPauses

@@ -33,11 +33,11 @@ class AssertionSerializationSpec extends FlatSpec with Matchers {
   }
 
   it should "be able to serialize Conditions" in {
-    LessThan(3).serialized.toString shouldBe tabSeparated(LessThanTag, "3.0")
-    GreaterThan(4).serialized.toString shouldBe tabSeparated(GreaterThanTag, "4.0")
-    Is(2.5).serialized.toString shouldBe tabSeparated(IsTag, "2.5")
-    Between(2.5, 6.3).serialized.toString shouldBe tabSeparated(BetweenTag, "2.5", "6.3")
-    In(List(2, 3, 4, 5.5, 7.2)).serialized.toString shouldBe tabSeparated(InTag, "2.0", "3.0", "4.0", "5.5", "7.2")
+    LessThan(3).serialized.toString shouldBe tabSeparated(LessThanTag, "3")
+    GreaterThan(4).serialized.toString shouldBe tabSeparated(GreaterThanTag, "4")
+    Is(2).serialized.toString shouldBe tabSeparated(IsTag, "2")
+    Between(2, 6).serialized.toString shouldBe tabSeparated(BetweenTag, "2", "6")
+    In(List(2, 3, 4, 5, 7)).serialized.toString shouldBe tabSeparated(InTag, "2", "3", "4", "5", "7")
   }
 
   it should "be able to serialize Targets" in {
@@ -46,16 +46,19 @@ class AssertionSerializationSpec extends FlatSpec with Matchers {
     MeanRequestsPerSecondTarget.serialized.toString shouldBe tabSeparated(MeanRequestsPerSecondTag)
   }
 
-  it should "be able to serialize to serialize assertions" in {
+  it should "be able to serialize assertions" in {
     Assertion(Global, MeanRequestsPerSecondTarget, LessThan(3)).serialized.toString shouldBe
-      tabSeparated(AssertionTag, PathTag, GlobalTag, TargetTag, MeanRequestsPerSecondTag, ConditionTag, LessThanTag, "3.0")
+      tabSeparated(AssertionTag, PathTag, GlobalTag, TargetTag, MeanRequestsPerSecondTag, ConditionTag, LessThanTag, "3")
 
     Assertion(Global, CountTarget(AllRequests, Count), Is(3)).serialized.toString shouldBe
-      tabSeparated(AssertionTag, PathTag, GlobalTag, TargetTag, AllRequestsTag, CountTag, ConditionTag, IsTag, "3.0")
+      tabSeparated(AssertionTag, PathTag, GlobalTag, TargetTag, AllRequestsTag, CountTag, ConditionTag, IsTag, "3")
+
+    Assertion(ForAll, CountTarget(SuccessfulRequests, Percent), LessThan(5)).serialized.toString shouldBe
+      tabSeparated(AssertionTag, PathTag, ForAllTag, TargetTag, SuccessfulRequestsTag, PercentTag, ConditionTag, LessThanTag, "5")
 
     Assertion(Details(List("Group", "Request")), TimeTarget(ResponseTime, Max), In(List(1, 2, 3))).serialized.toString shouldBe
       tabSeparated(AssertionTag, PathTag, DetailsTag, "Group", "Request", TargetTag,
-        ResponseTimeTag, MaxTag, ConditionTag, InTag, "1.0", "2.0", "3.0")
+        ResponseTimeTag, MaxTag, ConditionTag, InTag, "1", "2", "3")
   }
 
 }
