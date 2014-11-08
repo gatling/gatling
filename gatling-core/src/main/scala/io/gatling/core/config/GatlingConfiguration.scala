@@ -217,7 +217,9 @@ object GatlingConfiguration extends StrictLogging {
           httpClientCodecMaxHeaderSize = config.getInt(http.ahc.HttpClientCodecMaxHeaderSize),
           httpClientCodecMaxChunkSize = config.getInt(http.ahc.HttpClientCodecMaxChunkSize),
           keepEncodingHeader = config.getBoolean(http.ahc.KeepEncodingHeader),
-          webSocketMaxFrameSize = config.getInt(http.ahc.WebSocketMaxFrameSize))),
+          webSocketMaxFrameSize = config.getInt(http.ahc.WebSocketMaxFrameSize),
+          httpsEnabledProtocols = config.getString(http.ahc.HttpsEnabledProtocols).toStringList,
+          httpsEnabledCipherSuites = config.getString(http.ahc.HttpsEnabledCipherSuites).toStringList)),
       data = DataConfiguration(
         dataWriterClasses = config.getString(data.Writers).toStringList.map {
           case "console"  => "io.gatling.core.result.writer.ConsoleDataWriter"
@@ -360,7 +362,9 @@ case class AHCConfiguration(
   httpClientCodecMaxHeaderSize: Int,
   httpClientCodecMaxChunkSize: Int,
   keepEncodingHeader: Boolean,
-  webSocketMaxFrameSize: Int)
+  webSocketMaxFrameSize: Int,
+  httpsEnabledProtocols: List[String],
+  httpsEnabledCipherSuites: List[String])
 
 case class SslConfiguration(
   trustStore: Option[StoreConfiguration],

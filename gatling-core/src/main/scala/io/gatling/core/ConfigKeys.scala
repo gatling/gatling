@@ -119,6 +119,8 @@ object ConfigKeys {
       val HttpClientCodecMaxChunkSize = "gatling.http.ahc.httpClientCodecMaxChunkSize"
       val KeepEncodingHeader = "gatling.http.ahc.keepEncodingHeader"
       val WebSocketMaxFrameSize = "gatling.http.ahc.webSocketMaxFrameSize"
+      val HttpsEnabledProtocols = "gatling.http.ahc.httpsEnabledProtocols"
+      val HttpsEnabledCipherSuites = "gatling.http.ahc.httpsEnabledCipherSuites"
     }
   }
 
