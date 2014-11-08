@@ -101,20 +101,6 @@ Conditions can be chained to apply several conditions on the same metric.
 
 * ``in(sequence)``: check that the value of metric is in a sequence.
 
-* ``assert(condition, message)``: create a custom condition on the value of the metric.
-
-  The first argument is a function that takes an Int (the value of the metric) and returns a Boolean which is the result of the assertion.
-
-  The second argument is a function that takes a String (the name of the metric) and a Boolean (result of the assertion) and returns a message that describes the assertion as a String.
-
-  For example::
-
-    assert(
-      value => value % 2 == 0,
-      (name, result) => name + " is even : " + result)
-
-  This will assert that the value is even.
-
 Putting it all together
 =======================
 
