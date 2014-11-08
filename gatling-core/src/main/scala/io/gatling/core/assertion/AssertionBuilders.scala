@@ -56,4 +56,5 @@ class AssertionWithPathAndTarget(path: Path, target: Target) {
   def between(min: Int, max: Int) = next(Between(min, max))
   def is(value: Int) = next(Is(value))
   def in(set: Set[Int]) = next(In(set.toList))
+  def in(values: Int*) = next(In(values.toSet.toList))
 }

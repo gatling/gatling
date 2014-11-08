@@ -21,7 +21,7 @@ class AssertionDSLSpec extends FlatSpec with Matchers with AssertionSupport {
     global.failedRequests.count.greaterThan(10) shouldBe Assertion(Global, CountTarget(FailedRequests, Count), GreaterThan(10))
     details("Foo" / "Bar").failedRequests.percent.between(1, 5) shouldBe Assertion(Details(List("Foo", "Bar")), CountTarget(FailedRequests, Percent), Between(1, 5))
 
-    global.successfulRequests.count.in(Set(1, 2, 4)) shouldBe Assertion(Global, CountTarget(SuccessfulRequests, Count), In(List(1, 2, 4)))
+    global.successfulRequests.count.in(1, 2, 2, 4) shouldBe Assertion(Global, CountTarget(SuccessfulRequests, Count), In(List(1, 2, 4)))
     global.successfulRequests.percent.is(6) shouldBe Assertion(Global, CountTarget(SuccessfulRequests, Percent), Is(6))
   }
 }

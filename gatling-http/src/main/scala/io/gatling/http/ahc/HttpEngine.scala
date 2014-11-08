@@ -181,11 +181,11 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
       .setAcceptAnyCertificate(configuration.http.ahc.acceptAnyCertificate)
       .setEnabledProtocols(configuration.http.ahc.httpsEnabledProtocols match {
         case Nil => null
-        case ps => ps.toArray
+        case ps  => ps.toArray
       })
       .setEnabledCipherSuites(configuration.http.ahc.httpsEnabledCipherSuites match {
         case Nil => null
-        case ps => ps.toArray
+        case ps  => ps.toArray
       })
 
     val trustManagers = configuration.http.ssl.trustStore
