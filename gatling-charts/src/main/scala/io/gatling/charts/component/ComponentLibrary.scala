@@ -27,11 +27,11 @@ object ComponentLibrary extends StrictLogging {
 
   val Instance: ComponentLibrary = {
 
-    val STATIC_LIBRARY_BINDER_PATH = "com/excilys/ebi/gatling/charts/component/impl/ComponentLibraryImpl.class"
+    val StaticLibraryBinderPath = "io/gatling/charts/component/impl/ComponentLibraryImpl.class"
 
     val paths = Option(getClass.getClassLoader)
-      .map(_.getResources(STATIC_LIBRARY_BINDER_PATH))
-      .getOrElse(ClassLoader.getSystemResources(STATIC_LIBRARY_BINDER_PATH))
+      .map(_.getResources(StaticLibraryBinderPath))
+      .getOrElse(ClassLoader.getSystemResources(StaticLibraryBinderPath))
       .toList
 
     if (paths.size > 1) {
