@@ -30,16 +30,12 @@ object AssertionValidator {
   val Percentile1 = configuration.charting.indicators.percentile1.toRank
   val Percentile2 = configuration.charting.indicators.percentile2.toRank
 
-  private case class AssertionResult(result: Boolean, message: String)
+  case class AssertionResult(result: Boolean, message: String)
   private case class ResolvedMetric(stats: List[GeneralStats], message: String)
   private case class ResolvedSelection(value: List[Int], message: String)
 
-  def validateAssertions(dataReader: DataReader): Boolean =
-    dataReader.assertions.foldLeft(true) { (isValid, assertion) =>
-      val assertionResult = validateAssertion(assertion, dataReader)
-      println(s"${assertionResult.message} : ${assertionResult.result}")
-      isValid && assertionResult.result
-    }
+  def validateAssertions(dataReader: DataReader): List[AssertionResult] =
+    dataReader.assertions.map(validateAssertion(_, dataReader))
 
   private def validateAssertion(assertion: Assertion, dataReader: DataReader) = assertion.path match {
     case Global =>

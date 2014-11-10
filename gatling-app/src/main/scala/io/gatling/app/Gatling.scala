@@ -80,12 +80,15 @@ class Gatling(props: mutable.Map[String, _], simulationClass: Option[Class[Simul
 
     val runId = runSimulationIfNecessary(singleSimulation, simulations)
 
+    val start = currentTimeMillis
+
     val dataReader = DataReader.newInstance(runId)
 
-    if (!configuration.charting.noReports) generateReports(runId, dataReader)
+    val assertionResults = AssertionValidator.validateAssertions(dataReader)
 
-    if (dataReader.assertions.nonEmpty) applyAssertions(dataReader)
-    else GatlingStatusCodes.Success
+    if (!configuration.charting.noReports) generateReports(runId, dataReader, assertionResults, start)
+
+    runStatus(assertionResults)
   }
 
   private def loadSimulations = {
@@ -187,22 +190,22 @@ class Gatling(props: mutable.Map[String, _], simulationClass: Option[Class[Simul
     simulations(readSimulationNumber)
   }
 
-  private def generateReports(outputDirectoryName: String, dataReader: DataReader): Unit = {
+  private def generateReports(outputDirectoryName: String, dataReader: DataReader, assertionResults: List[AssertionValidator.AssertionResult], start: Long): Unit = {
     println("Generating reports...")
-    val start = currentTimeMillis
-    val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader)
+    val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader, assertionResults)
     println(s"Reports generated in ${(currentTimeMillis - start) / 1000}s.")
     println(s"Please open the following file: ${indexFile.toFile}")
   }
 
-  private def applyAssertions(dataReader: DataReader) =
-    if (AssertionValidator.validateAssertions(dataReader)) {
-      println("Simulation successful.")
-      GatlingStatusCodes.Success
-    } else {
-      println("Simulation failed.")
-      GatlingStatusCodes.AssertionsFailed
+  private def runStatus(assertionResults: List[AssertionValidator.AssertionResult]): Int = {
+    val consolidatedAssertionResult = assertionResults.foldLeft(true) { (isValid, assertionResult) =>
+      println(s"${assertionResult.message} : ${assertionResult.result}")
+      isValid && assertionResult.result
     }
+
+    if (consolidatedAssertionResult) GatlingStatusCodes.Success
+    else GatlingStatusCodes.AssertionsFailed
+  }
 
   private def defaultOutputDirectoryBaseName(clazz: Class[Simulation]) =
     configuration.core.outputDirectoryBaseName.getOrElse(clazz.getSimpleName.clean)
