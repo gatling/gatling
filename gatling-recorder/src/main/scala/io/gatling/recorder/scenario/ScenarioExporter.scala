@@ -49,6 +49,9 @@ object ScenarioExporter extends StrictLogging {
   def requestBodyFileName(request: RequestElement)(implicit config: RecorderConfiguration) =
     f"${config.core.className}_${request.id.filled(4, '0')}_request.txt"
 
+  def responseBodyFileName(request: RequestElement)(implicit config: RecorderConfiguration) =
+    f"${config.core.className}_${request.id.filled(4, '0')}_response.txt"
+
   def exportScenario(harFilePath: String)(implicit config: RecorderConfiguration): Validation[Unit] =
     try {
       val har = HarReader(harFilePath)
@@ -94,11 +97,17 @@ object ScenarioExporter extends StrictLogging {
     // FIXME mutability!!!
     requestElements.zipWithIndex.map { case (reqEl, index) => reqEl.setId(index) }
 
-    // dump request body if needed
+    // dump request & response bodies if needed
     requestElements.foreach(el => el.body.foreach {
       case RequestBodyBytes(bytes) => dumpBody(requestBodyFileName(el), bytes)
       case _                       =>
     })
+    if (config.http.checkResponseBodies) {
+      requestElements.foreach(el => el.responseBody.foreach {
+        case ResponseBodyBytes(bytes) => dumpBody(responseBodyFileName(el), bytes)
+        case _                        =>
+      })
+    }
 
     val headers: Map[Int, Seq[(String, String)]] = {
 

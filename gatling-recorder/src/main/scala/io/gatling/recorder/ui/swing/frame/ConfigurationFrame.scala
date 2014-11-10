@@ -69,6 +69,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   private val followRedirects = new CheckBox("Follow Redirects?")
   private val inferHtmlResources = new CheckBox("Infer html resources?")
   private val removeConditionalCache = new CheckBox("Remove conditional cache headers?")
+  private val checkResponseBodies = new CheckBox("Save & check response bodies?")
   private val automaticReferers = new CheckBox("Automatic Referers?")
 
   /* Output panel components */
@@ -187,7 +188,10 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
           layout(inferHtmlResources) = East
         }) = West
         layout(automaticReferers) = East
-        layout(removeConditionalCache) = South
+        layout(new BorderPanel {
+          layout(removeConditionalCache) = West
+          layout(checkResponseBodies) = East
+        }) = South
       }
       val outputConfig = new BorderPanel {
         border = titledBorder("Output")
@@ -401,6 +405,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
     followRedirects.selected = configuration.http.followRedirect
     inferHtmlResources.selected = configuration.http.inferHtmlResources
     removeConditionalCache.selected = configuration.http.removeConditionalCache
+    checkResponseBodies.selected = configuration.http.checkResponseBodies
     automaticReferers.selected = configuration.http.automaticReferer
     configuration.filters.blackList.patterns.foreach(blackListTable.addRow)
     configuration.filters.whiteList.patterns.foreach(whiteListTable.addRow)
@@ -463,6 +468,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
       props.followRedirect(followRedirects.selected)
       props.inferHtmlResources(inferHtmlResources.selected)
       props.removeConditionalCache(removeConditionalCache.selected)
+      props.checkResponseBodies(checkResponseBodies.selected)
       props.automaticReferer(automaticReferers.selected)
       props.simulationOutputFolder(outputFolderPath.text.trim)
       props.encoding(CharsetHelper.labelToCharsetName(outputEncoding.selection.item))

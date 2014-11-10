@@ -66,14 +66,18 @@ object HarReader {
     val method = entry.request.method
     val requestHeaders = buildRequestHeaders(entry)
 
+      // HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
+      def extractBytes(text: String) = text.trimToOption.map(_.getBytes(UTF_8))
+
     // NetExport doesn't copy post params to text field
-    val body = entry.request.postData.flatMap { postData =>
+    val requestBody = entry.request.postData.flatMap { postData =>
       if (postData.params.nonEmpty)
         Some(buildContent(postData.params))
       else
-        // HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
-        postData.text.trimToOption.map(text => RequestBodyBytes(text.getBytes(UTF_8)))
+        extractBytes(postData.text) map RequestBodyBytes
     }
+
+    val responseBody = entry.response.content.text flatMap extractBytes map ResponseBodyBytes
 
     val embeddedResources = entry.response.content match {
       case Content("text/html", Some(text)) =>
@@ -82,7 +86,7 @@ object HarReader {
       case _ => Nil
     }
 
-    TimedScenarioElement(entry.sendTime, entry.sendTime, RequestElement(uri, method, requestHeaders, body, entry.response.status, embeddedResources))
+    TimedScenarioElement(entry.sendTime, entry.sendTime, RequestElement(uri, method, requestHeaders, requestBody, responseBody, entry.response.status, embeddedResources))
   }
 
   private def buildRequestHeaders(entry: Entry): Map[String, String] = {

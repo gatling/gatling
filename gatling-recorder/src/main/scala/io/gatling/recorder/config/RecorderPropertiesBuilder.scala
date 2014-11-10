@@ -67,6 +67,9 @@ class RecorderPropertiesBuilder {
   def removeConditionalCache(status: Boolean): Unit =
     props += http.RemoveConditionalCache -> status
 
+  def checkResponseBodies(status: Boolean): Unit =
+    props += http.CheckResponseBodies -> status
+
   def localPort(port: Int): Unit =
     props += proxy.Port -> port
 

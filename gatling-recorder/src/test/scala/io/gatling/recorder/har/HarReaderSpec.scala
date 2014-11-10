@@ -69,8 +69,10 @@ class HarReaderSpec extends FlatSpec with Matchers {
     // The first element can't be a pause.
     elts.head shouldBe a[RequestElement]
     elts.head.asInstanceOf[RequestElement].uri shouldBe "https://www.kernel.org/"
+    elts.head.asInstanceOf[RequestElement].responseBody should not be empty
     elts(1) shouldBe a[RequestElement]
     elts(1).asInstanceOf[RequestElement].uri shouldBe "https://www.kernel.org/theme/css/main.css"
+    elts(1).asInstanceOf[RequestElement].responseBody should not be empty
   }
 
   it should "have the headers correctly set" in {
