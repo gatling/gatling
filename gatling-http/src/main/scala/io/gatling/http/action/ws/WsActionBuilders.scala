@@ -20,30 +20,30 @@ import akka.actor.ActorRef
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression
 import io.gatling.http.action.HttpActionBuilder
-import io.gatling.http.check.ws.WsCheck
+import io.gatling.http.check.ws._
 import io.gatling.http.request.builder.ws.WsOpenRequestBuilder
 
-class WsOpenActionBuilder(requestName: Expression[String], wsName: String, requestBuilder: WsOpenRequestBuilder, check: Option[WsCheck] = None) extends HttpActionBuilder {
+class WsOpenActionBuilder(requestName: Expression[String], wsName: String, requestBuilder: WsOpenRequestBuilder, checkBuilder: Option[WsCheckBuilder] = None) extends HttpActionBuilder {
 
-  def check(check: WsCheck) = new WsOpenActionBuilder(requestName, wsName, requestBuilder, Some(check))
+  def check(checkBuilder: WsCheckBuilder) = new WsOpenActionBuilder(requestName, wsName, requestBuilder, Some(checkBuilder))
 
   def build(next: ActorRef, protocols: Protocols): ActorRef = {
     val request = requestBuilder.build(httpProtocol(protocols))
     val protocol = httpProtocol(protocols)
-    actor(new WsOpenAction(requestName, wsName, request, check, next, protocol))
+    actor(new WsOpenAction(requestName, wsName, request, checkBuilder, next, protocol))
   }
 }
 
-class WsSendActionBuilder(requestName: Expression[String], wsName: String, message: Expression[WsMessage], check: Option[WsCheck] = None) extends HttpActionBuilder {
+class WsSendActionBuilder(requestName: Expression[String], wsName: String, message: Expression[WsMessage], checkBuilder: Option[WsCheckBuilder] = None) extends HttpActionBuilder {
 
-  def check(check: WsCheck) = new WsSendActionBuilder(requestName, wsName, message, Some(check))
+  def check(checkBuilder: WsCheckBuilder) = new WsSendActionBuilder(requestName, wsName, message, Some(checkBuilder))
 
-  def build(next: ActorRef, protocols: Protocols): ActorRef = actor(new WsSendAction(requestName, wsName, message, check, next))
+  def build(next: ActorRef, protocols: Protocols): ActorRef = actor(new WsSendAction(requestName, wsName, message, checkBuilder, next))
 }
 
-class WsSetCheckActionBuilder(requestName: Expression[String], check: WsCheck, wsName: String) extends HttpActionBuilder {
+class WsSetCheckActionBuilder(requestName: Expression[String], checkBuilder: WsCheckBuilder, wsName: String) extends HttpActionBuilder {
 
-  def build(next: ActorRef, protocols: Protocols): ActorRef = actor(new WsSetCheckAction(requestName, check, wsName, next))
+  def build(next: ActorRef, protocols: Protocols): ActorRef = actor(new WsSetCheckAction(requestName, checkBuilder, wsName, next))
 }
 
 class WsCancelCheckActionBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
