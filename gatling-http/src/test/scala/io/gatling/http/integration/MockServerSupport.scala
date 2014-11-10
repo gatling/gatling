@@ -68,6 +68,8 @@ object MockServerSupport extends StrictLogging {
         record(r)
         logger.warn(s"Unhandled request: $r")
         sender ! HttpResponse(404)
+
+      case _ => // Do nothing
     }
 
     def record(request: HttpRequest) = {

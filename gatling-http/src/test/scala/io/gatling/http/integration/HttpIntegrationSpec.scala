@@ -105,7 +105,7 @@ class HttpIntegrationSpec extends FlatSpec with Matchers {
           http("/resourceTest/indexIE.html")
             .get("/resourceTest/indexIE.html")
             .header("User-Agent",
-              "Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US))")),
+              "Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)")),
       protocols = Protocols(MockServerSupport.httpProtocol.inferHtmlResources()))
 
     session.isFailed shouldBe false
