@@ -36,7 +36,7 @@ import io.gatling.core.session.Expression
 
 trait WsCheckSupport extends WsCheckDSL {
 
-  implicit def wsDSLStep42Check(step: Step4): WsCheck = step.message.find.exists.build
+  implicit def wsDSLStep42Check(step: Step4): WsCheckBuilder = step.message.find.exists
 }
 
 trait WsCheckDSL {
