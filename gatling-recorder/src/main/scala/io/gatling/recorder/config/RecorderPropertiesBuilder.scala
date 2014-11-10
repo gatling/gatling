@@ -40,6 +40,9 @@ class RecorderPropertiesBuilder {
   def simulationClassName(className: String): Unit =
     props += core.ClassName -> className
 
+  def simulationSuperClassName(superClassName: String): Unit =
+    props += core.SuperClassName -> superClassName
+
   def thresholdForPauseCreation(threshold: String): Unit =
     props += core.ThresholdForPauseCreation -> threshold
 
