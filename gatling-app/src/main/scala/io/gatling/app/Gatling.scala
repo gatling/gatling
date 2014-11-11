@@ -27,7 +27,7 @@ import scopt.OptionParser
 
 import io.gatling.app.CommandLineConstants._
 import io.gatling.charts.report.ReportsGenerator
-import io.gatling.core.assertion.AssertionValidator
+import io.gatling.core.assertion.{ AssertionResult, AssertionValidator }
 import io.gatling.core.config.{ GatlingFiles, GatlingPropertiesBuilder }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -190,14 +190,14 @@ class Gatling(props: mutable.Map[String, _], simulationClass: Option[Class[Simul
     simulations(readSimulationNumber)
   }
 
-  private def generateReports(outputDirectoryName: String, dataReader: DataReader, assertionResults: List[AssertionValidator.AssertionResult], start: Long): Unit = {
+  private def generateReports(outputDirectoryName: String, dataReader: DataReader, assertionResults: List[AssertionResult], start: Long): Unit = {
     println("Generating reports...")
     val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader, assertionResults)
     println(s"Reports generated in ${(currentTimeMillis - start) / 1000}s.")
     println(s"Please open the following file: ${indexFile.toFile}")
   }
 
-  private def runStatus(assertionResults: List[AssertionValidator.AssertionResult]): Int = {
+  private def runStatus(assertionResults: List[AssertionResult]): Int = {
     val consolidatedAssertionResult = assertionResults.foldLeft(true) { (isValid, assertionResult) =>
       println(s"${assertionResult.message} : ${assertionResult.result}")
       isValid && assertionResult.result

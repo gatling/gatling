@@ -30,7 +30,6 @@ object AssertionValidator {
   val Percentile1 = configuration.charting.indicators.percentile1.toRank
   val Percentile2 = configuration.charting.indicators.percentile2.toRank
 
-  case class AssertionResult(result: Boolean, message: String)
   private case class ResolvedMetric(stats: List[GeneralStats], message: String)
   private case class ResolvedSelection(value: List[Int], message: String)
 

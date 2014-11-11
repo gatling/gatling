@@ -17,7 +17,7 @@ package io.gatling.charts.component
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-import io.gatling.core.assertion.AssertionValidator.AssertionResult
+import io.gatling.core.assertion.AssertionResult
 import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.HtmlHelper.HtmlRichString
 
