@@ -50,7 +50,7 @@ After importing the project, its structure should look like that:
 The archetype structure closely follows the bundle's structure :
 
 * ``data`` is where the files for your feeders are to be stored
-* ``request-bodies`` is where your request bodies are to be stored
+* ``bodies`` is where your request bodies are to be stored
 * Your simulations will live under ``src/test/scala``
 
 Running Gatling

@@ -22,7 +22,7 @@ object ConfigKeys {
   object core {
     val Encoding = "recorder.core.encoding"
     val SimulationOutputFolder = "recorder.core.outputFolder"
-    val RequestBodiesFolder = "recorder.core.requestBodiesFolder"
+    val BodiesFolder = "recorder.core.bodiesFolder"
     val Package = "recorder.core.package"
     val ClassName = "recorder.core.className"
     val ThresholdForPauseCreation = "recorder.core.thresholdForPauseCreation"

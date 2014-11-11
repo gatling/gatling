@@ -60,10 +60,10 @@ private[app] class ArgsParser(args: Array[String]) {
       .valueName("<directoryPath>")
       .text("Uses <directoryPath> as the absolute path of the directory where results are stored")
 
-    opt[String](RequestBodiesFolder)
-      .foreach(props.requestBodiesDirectory)
+    opt[String](BodiesFolder)
+      .foreach(props.bodiesDirectory)
       .valueName("<directoryPath>")
-      .text("Uses <directoryPath> as the absolute path of the directory where request bodies are stored")
+      .text("Uses <directoryPath> as the absolute path of the directory where bodies are stored")
 
     opt[String](SimulationsFolder)
       .foreach(props.sourcesDirectory)

@@ -23,7 +23,7 @@ private[cli] object CommandLineConstants {
   val ReportsOnly = CommandLineConstant("reports-only", "ro")
   val DataFolder = CommandLineConstant("data-folder", "df")
   val ResultsFolder = CommandLineConstant("results-folder", "rf")
-  val RequestBodiesFolder = CommandLineConstant("request-bodies-folder", "rbf")
+  val BodiesFolder = CommandLineConstant("bodies-folder", "bdf")
   val SimulationsFolder = CommandLineConstant("simulations-folder", "sf")
   val Simulation = CommandLineConstant("simulation", "s")
   val OutputDirectoryBaseName = CommandLineConstant("output-name", "on")

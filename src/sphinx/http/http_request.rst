@@ -360,7 +360,7 @@ This applies only for POST requests. When you find forms asking for text values 
 
 To define such a request, you have to add the parameters as stated above, and the file to be uploaded at the same time with the following method: ``formUpload(name: Expression[String], filePath: Expression[String])``.
 
-The uploaded file must be located in ``user-files/request-bodies``. The ``Content-Type`` header will be set to ``multipart/form-data`` and the file added in addition to the parameters.
+The uploaded file must be located in ``user-files/bodies``. The ``Content-Type`` header will be set to ``multipart/form-data`` and the file added in addition to the parameters.
 
 One can call ``formUpload()`` multiple times in order to upload multiple files.
 ::

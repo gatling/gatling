@@ -183,7 +183,7 @@ object ScenarioExporter extends StrictLogging {
 
   private def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String)(implicit config: RecorderConfiguration): Unit = {
     val fileName = f"${simulationClass}_request_$idEvent%04d.txt"
-    withCloseable((getFolder(config.core.requestBodiesFolder) / fileName).outputStream) { fw =>
+    withCloseable((getFolder(config.core.bodiesFolder) / fileName).outputStream) { fw =>
       try {
         fw.write(content)
       } catch {

@@ -43,7 +43,7 @@ The example below shows the default values.
     <configFolder>src/test/resources</configFolder>
     <dataFolder>src/test/resources/data</dataFolder>
     <resultsFolder>target/gatling/results</resultsFolder>
-    <requestBodiesFolder>src/test/resources/request-bodies</requestBodiesFolder>
+    <bodiesFolder>src/test/resources/bodies</bodiesFolder>
     <simulationsFolder>src/test/scala</simulationsFolder>
   <!--    <noReports>false</noReports> -->
   <!--   <reportsOnly>directoryName</reportsOnly> -->
