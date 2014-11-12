@@ -19,6 +19,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.util.StringHelper.EmptyFastring
 import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams }
 import io.gatling.recorder.scenario.RequestElement
+import io.gatling.recorder.scenario.ScenarioExporter
 
 object RequestTemplate {
 
@@ -49,7 +50,7 @@ object RequestTemplate {
 
       def renderBodyOrParams: Fastring = request.body.map {
         case RequestBodyBytes(_) => fast"""
-			.body(RawFileBody("${simulationClass}_request_${request.id.filled(4, '0')}.txt"))"""
+			.body(RawFileBody("${ScenarioExporter.requestBodyFileName(request)}"))"""
         case RequestBodyParams(params) => params.map {
           case (key, value) => fast"""
 			.formParam(${protectWithTripleQuotes(key)}, ${protectWithTripleQuotes(value)})"""
