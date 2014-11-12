@@ -21,13 +21,10 @@ HTTP requests have to be passed to the ``exec()`` method in order to be attached
   scenario("MyScenario")
     .exec(request)
 
-Common parameters
-=================
-
 .. _http-request-methods:
 
 Method and URL
---------------
+==============
 
 HTTP protocol requires 2 mandatory parameters: the method and the URL.
 
@@ -61,7 +58,7 @@ This is how an HTTP request is declared::
 .. _http-request-query-parameters:
 
 Query Parameters
-----------------
+================
 
 Frameworks and developers often pass additional information in the query, which is the part of the url after the ``?``. A query is composed of *key=value* pairs, separated by ``&``. Those are named *query parameters*.
 
@@ -132,7 +129,7 @@ If you want to add multiple query parameters at once, there are two suitable met
 .. _http-request-headers:
 
 HTTP Headers
-------------
+============
 
 HTTP protocol uses headers to exchange information between client and server that is not part of the message (stored in the body of the request, if there is one).
 
@@ -177,7 +174,7 @@ Here are some examples::
 .. _http-request-signature:
 
 Signature Calculator
---------------------
+====================
 
 You might want to generate some `HMAC <http://en.wikipedia.org/wiki/Hash-based_message_authentication_code>`_ header based on other request information: url, headers and/or body.
 This can only happen after Gatling has resolved the request, e.g. computed the body based on a template.
@@ -207,7 +204,7 @@ There's 3 ways to set a SignatureCalculator on a request::
 .. _http-request-authentication:
 
 Authentication
---------------
+==============
 
 You can set the authentication methods at request level with these methods:
 
@@ -228,7 +225,7 @@ You can set the authentication methods at request level with these methods:
 .. _http-request-outgoing-proxy:
 
 Outgoing Proxy
---------------
+==============
 
 You can tell Gatling to use a proxy to send the HTTP requests.
 You can optionally set a different port for HTTPS and credentials::
@@ -242,7 +239,7 @@ You can optionally set a different port for HTTPS and credentials::
 .. _http-virtual-host:
 
 Virtual Host
-------------
+============
 
 .. _http-request-virtual-host:
 
@@ -256,7 +253,7 @@ You can tell Gatling to override the default computed virtual host with the meth
 .. note:: Virtual Host can also be defined on the ``HttpProtocol``.
 
 HTTP Checks
------------
+===========
 
 .. _http-request-check:
 
@@ -277,7 +274,7 @@ For a given request, you can also disable common checks that were defined on the
     .ignoreDefaultChecks
 
 FollowRedirect
---------------
+==============
 
 .. _http-request-disable-follow-redirect:
 
@@ -290,7 +287,7 @@ For a given request, you can use ``disableFollowRedirect``, just like it can be 
 .. _http-request-silencing:
 
 Silencing
----------
+=========
 
 See :ref:`silencing protocol section <http-protocol-silencing>` for more details.
 
@@ -312,13 +309,79 @@ You might also want to do the exact opposite, typically on a given resource whil
     .notSilent
   )
 
-Regular HTTP request
-====================
+.. _http-post-parameters:
+
+POST Parameters
+===============
+
+POST requests can have parameters defined in their body.
+This is typically used for form submission, where all the values are stored as POST parameters in the body of the request.
+
+To add such parameters to a POST request, you must use the method ``formParam(key: Expression[String], value: Expression[Any])`` which is actually the same as ``queryParam`` in **terms of usage** (it has the same signatures).
+
+::
+
+  http("My Form Data")
+    .post("my.form-action.uri")
+    .formParam("myKey", "myValue")
+
+As for ``queryParam`` you have two methods to add multiple parameters at once:
+
+* ``formParamSeq(seq: Expression[Seq[(String, Any)]])``
+
+::
+
+  http("My Form Data")
+    .post("my.form-action.uri")
+    .formParamSeq(Seq(("myKey", "myValue"), ("anotherKey", "anotherValue")))
+
+* ``formParamMap(map: Expression[Map[String, Any]])``
+
+::
+
+  http("My Form Data")
+    .post("my.form-action.uri")
+    .formParamMap(Map("myKey" -> "myValue", "anotherKey" -> "anotherValue"))
+
+If you'd like to pass multiple values for your parameter, but all at once, you can use ``multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]])``::
+
+  multiValuedFormParam("omg", "${foo}")) // where foo is the name of a Seq Session attribute
+  multiValuedFormParam("omg", List("foo", "bar")))
+  multiValuedFormParam("omg", session => List("foo", "bar")))
+
+The method ``formParam`` can also take directly an `HttpParam` instance, if you want to build it by hand.
+
+.. _http-multipart-form:
+
+Multipart Form
+==============
+
+This applies only for POST requests. When you find forms asking for text values and a file to upload (usually an email attachment), your browser will send a multipart encoded request.
+
+To define such a request, you have to add the parameters as stated above, and the file to be uploaded at the same time with the following method: ``formUpload(name: Expression[String], filePath: Expression[String])``.
+
+The uploaded file must be located in ``user-files/request-bodies``. The ``Content-Type`` header will be set to ``multipart/form-data`` and the file added in addition to the parameters.
+
+One can call ``formUpload()`` multiple times in order to upload multiple files.
+::
+
+  http("My Multipart Request")
+    .post("my.form-action.uri")
+    .formParam("myKey", "myValue")
+    .formUpload("myKey2", "myAttachment.txt")
+
+.. note:: The MIME Type of the uploaded file defaults to ``application/octet-stream`` and the character set defaults to the one configured in ``gatling.conf`` (``UTF-8`` by default).
+          Don't forget to override them when needed.
+
+.. note:: There is a helpful method to help you deal with multipart form requests: ``asMultipartForm``.
+          It is equivalent to ``header(HttpHeaderNames.ContentType, HttpHeaderValues.MultipartFormData)``.
+          If you use ``formUpload`` the header is automatically set for you.
+
 
 .. _http-request-body:
 
 Request Body
-------------
+============
 
 You can add a full body to an HTTP request with the dedicated method ``body(body)``, where body can be:
 
@@ -392,7 +455,7 @@ For example::
 .. _http-request-body-parts:
 
 Multipart Request
------------------
+=================
 
 You can add a multipart body to an HTTP request and add parts with the dedicated method ``bodyPart(bodyPart)``, where bodyPart can be:
 
@@ -432,7 +495,7 @@ Once bootstrapped, BodyPart has the following methods for setting additional opt
 .. _http-request-processor:
 
 Request processor
------------------
+=================
 
 You might want to process the request body before it's being sent to the wire.
 
@@ -446,7 +509,7 @@ Gatling ships two built-ins:
 .. _http-response-processor:
 
 Response processors
--------------------
+===================
 
 Similarly, one might want to process the response before it's passed to the checks pipeline.
 
@@ -468,7 +531,7 @@ The example below shows how to decode some Base64 encoded response body::
 .. _http-resources:
 
 Resources
----------
+=========
 
 Gatling allow to fetch resources in parallel in order to emulate the behavior of a real web browser.
 
@@ -486,77 +549,6 @@ For example::
 .. _http-chunksdiscard:
 
 Response chunks discarding
---------------------------
+==========================
 
 ``disableResponseChunksDiscarding`` works just like the :ref:`protocol level parameter <http-protocol-chunksdiscard>`, except that it targets this request only.
-
-POST HTTP request
-=================
-
-.. _http-post-parameters:
-
-POST Parameters
----------------
-
-POST requests can have parameters defined in their body.
-This is typically used for form submission, where all the values are stored as POST parameters in the body of the request.
-
-To add such parameters to a POST request, you must use the method ``formParam(key: Expression[String], value: Expression[Any])`` which is actually the same as ``queryParam`` in **terms of usage** (it has the same signatures).
-
-::
-
-  http("My Form Data")
-    .post("my.form-action.uri")
-    .formParam("myKey", "myValue")
-
-As for ``queryParam`` you have two methods to add multiple parameters at once:
-
-* ``formParamSeq(seq: Expression[Seq[(String, Any)]])``
-
-::
-
-  http("My Form Data")
-    .post("my.form-action.uri")
-    .formParamSeq(Seq(("myKey", "myValue"), ("anotherKey", "anotherValue")))
-
-* ``formParamMap(map: Expression[Map[String, Any]])``
-
-::
-
-  http("My Form Data")
-    .post("my.form-action.uri")
-    .formParamMap(Map("myKey" -> "myValue", "anotherKey" -> "anotherValue"))
-
-If you'd like to pass multiple values for your parameter, but all at once, you can use ``multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]])``::
-
-  multiValuedFormParam("omg", "${foo}")) // where foo is the name of a Seq Session attribute
-  multiValuedFormParam("omg", List("foo", "bar")))
-  multiValuedFormParam("omg", session => List("foo", "bar")))
-
-The method ``formParam`` can also take directly an `HttpParam` instance, if you want to build it by hand.
-
-.. _http-multipart-form:
-
-Multipart Form
---------------
-
-This applies only for POST requests. When you find forms asking for text values and a file to upload (usually an email attachment), your browser will send a multipart encoded request.
-
-To define such a request, you have to add the parameters as stated above, and the file to be uploaded at the same time with the following method: ``formUpload(name: Expression[String], filePath: Expression[String])``.
-
-The uploaded file must be located in ``user-files/request-bodies``. The ``Content-Type`` header will be set to ``multipart/form-data`` and the file added in addition to the parameters.
-
-One can call ``formUpload()`` multiple times in order to upload multiple files.
-::
-
-  http("My Multipart Request")
-    .post("my.form-action.uri")
-    .formParam("myKey", "myValue")
-    .formUpload("myKey2", "myAttachment.txt")
-
-.. note:: The MIME Type of the uploaded file defaults to ``application/octet-stream`` and the character set defaults to the one configured in ``gatling.conf`` (``UTF-8`` by default).
-          Don't forget to override them when needed.
-
-.. note:: There is a helpful method to help you deal with multipart form requests: ``asMultipartForm``.
-          It is equivalent to ``header(HttpHeaderNames.ContentType, HttpHeaderValues.MultipartFormData)``.
-          If you use ``formUpload`` the header is automatically set for you.

@@ -15,8 +15,10 @@
  */
 package io.gatling.http.request.builder
 
+import com.ning.http.client.multipart.StringPart
 import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ RequestBuilder => AHCRequestBuilder }
+import io.gatling.core.config.GatlingConfiguration._
 
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
@@ -43,7 +45,32 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
     requestBuilder.success
   }
 
+  def configureFormParams(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+
+      def configureFormParamsAsParams: Validation[AHCRequestBuilder] = httpAttributes.formParams match {
+        case Nil => requestBuilder.success
+        case params =>
+          // As a side effect, requestBuilder.setFormParams() resets the body data, so, it should not be called with empty parameters
+          params.resolveParamJList(session).map(requestBuilder.setFormParams)
+      }
+
+      def configureFormParamsAsStringParts: Validation[AHCRequestBuilder] =
+        httpAttributes.formParams.resolveParams(session).map { params =>
+          for {
+            (key, value) <- params
+          } requestBuilder.addBodyPart(new StringPart(key, value, null, configuration.core.charset))
+
+          requestBuilder
+        }
+
+    httpAttributes.bodyParts match {
+      case Nil => configureFormParamsAsParams
+      case _   => configureFormParamsAsStringParts
+    }
+  }
+
   def configureParts(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+
     require(!httpAttributes.body.isDefined || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
     httpAttributes.body match {
@@ -70,5 +97,6 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
   override protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
     super.configureRequestBuilder(session, uri, requestBuilder)
       .flatMap(configureCaches(session, uri))
+      .flatMap(configureFormParams(session))
       .flatMap(configureParts(session))
 }
