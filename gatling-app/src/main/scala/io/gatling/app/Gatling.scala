@@ -19,16 +19,12 @@ import java.lang.System.currentTimeMillis
 
 import scala.Console.err
 import scala.annotation.tailrec
-import scala.collection.mutable
 import scala.io.StdIn
 import scala.util.{ Success, Try }
 
-import scopt.OptionParser
-
-import io.gatling.app.CommandLineConstants._
 import io.gatling.charts.report.ReportsGenerator
 import io.gatling.core.assertion.{ AssertionResult, AssertionValidator }
-import io.gatling.core.config.{ GatlingFiles, GatlingPropertiesBuilder }
+import io.gatling.core.config.GatlingFiles
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.reader.DataReader
@@ -42,41 +38,31 @@ import io.gatling.core.util.StringHelper.RichString
  */
 object Gatling {
 
-  def main(args: Array[String]): Unit = sys.exit(runGatling(args, None))
+  def main(args: Array[String]): Unit = sys.exit(fromArgs(args, None))
 
-  @deprecated(message = "Use new Gatling(mutable.Map[String, _], Option[Class[Simulation]]).start. Will be removed in 2.2.", since = "2.1")
-  def fromMap(props: mutable.Map[String, _]) = new Gatling(props, None).start
+  def fromMap(overrides: ConfigOverrides): StatusCode = new Gatling(overrides, None).start
 
-  def runGatling(args: Array[String], simulationClass: Option[Class[Simulation]]): Int = {
-    val props = new GatlingPropertiesBuilder
+  @deprecated(
+    message = "Use fromArgs(mutable.Map[String, _], Option[Class[Simulation]]). Will be removed in 2.2.",
+    since = "2.1")
+  def runGatling(args: Array[String], simulationClass: SelectedSingleSimulation): StatusCode =
+    fromArgs(args, simulationClass)
 
-    val cliOptsParser = new OptionParser[Unit]("gatling") with CommandLineConstantsSupport[Unit] {
-      help(Help).text("Show help (this message) and exit")
-      opt[Unit](NoReports).foreach(_ => props.noReports()).text("Runs simulation but does not generate reports")
-      opt[Unit](Mute).foreach(_ => props.mute()).text("Runs in mute mode: don't asks for run description nor simulation ID, use defaults")
-      opt[String](ReportsOnly).foreach(props.reportsOnly).valueName("<directoryName>").text("Generates the reports for the simulation in <directoryName>")
-      opt[String](DataFolder).foreach(props.dataDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where feeders are stored")
-      opt[String](ResultsFolder).foreach(props.resultsDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where results are stored")
-      opt[String](RequestBodiesFolder).foreach(props.requestBodiesDirectory).valueName("<directoryPath>").text("Uses <directoryPath> as the absolute path of the directory where request bodies are stored")
-      opt[String](SimulationsFolder).foreach(props.sourcesDirectory).valueName("<directoryPath>").text("Uses <directoryPath> to discover simulations that could be run")
-      opt[String](Simulation).foreach(props.simulationClass).valueName("<className>").text("Runs <className> simulation")
-      opt[String](OutputDirectoryBaseName).foreach(props.outputDirectoryBaseName).valueName("<name>").text("Use <name> for the base name of the output directory")
-      opt[String](SimulationDescription).foreach(props.runDescription).valueName("<description>").text("A short <description> of the run to include in the report")
+  def fromArgs(args: Array[String], simulationClass: SelectedSingleSimulation): StatusCode = {
+    val argsParser = new ArgsParser(args)
+
+    argsParser.parseArguments match {
+      case Left(commandLineOverrides) =>
+        new Gatling(commandLineOverrides, simulationClass).start
+      case Right(statusCode) => statusCode
     }
-
-    // if arguments are incorrect, usage message is displayed
-    if (cliOptsParser.parse(args)) new Gatling(props.build, simulationClass).start
-    else GatlingStatusCodes.InvalidArguments
   }
 }
-class Gatling(props: mutable.Map[String, _], simulationClass: Option[Class[Simulation]]) {
+class Gatling(overrides: ConfigOverrides, simulationClass: SelectedSingleSimulation) {
 
-  type SelectedSingleSimulation = Option[Class[Simulation]]
-  type AllSimulations = List[Class[Simulation]]
-
-  def start: Int = {
+  def start: StatusCode = {
     StringHelper.checkSupportedJavaVersion()
-    GatlingConfiguration.setUp(props)
+    GatlingConfiguration.setUp(overrides)
 
     val simulations = loadSimulations
     val singleSimulation = selectSingleSimulationIfPossible(simulations)
