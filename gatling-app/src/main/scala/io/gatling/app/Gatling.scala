@@ -44,6 +44,9 @@ object Gatling {
 
   def main(args: Array[String]): Unit = sys.exit(runGatling(args, None))
 
+  @deprecated(message = "Use new Gatling(mutable.Map[String, _], Option[Class[Simulation]]).start. Will be removed in 2.2.", since = "2.1")
+  def fromMap(props: mutable.Map[String, _]) = new Gatling(props, None).start
+
   def runGatling(args: Array[String], simulationClass: Option[Class[Simulation]]): Int = {
     val props = new GatlingPropertiesBuilder
 
