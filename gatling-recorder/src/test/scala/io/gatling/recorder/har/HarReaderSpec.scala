@@ -23,7 +23,7 @@ import org.scalatest.{ FlatSpec, Matchers }
 import io.gatling.core.util.IO.withCloseable
 import io.gatling.recorder.config.ConfigKeys.http.InferHtmlResources
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
-import io.gatling.recorder.scenario.{ PauseElement, RequestElement }
+import io.gatling.recorder.scenario.{ ResponseBodyBytes, PauseElement, RequestElement }
 
 class HarReaderSpec extends FlatSpec with Matchers {
 
@@ -124,6 +124,16 @@ class HarReaderSpec extends FlatSpec with Matchers {
 
       requests should have size 3
       statuses should not contain 0
+    }
+  }
+
+  it should "decode base64-encoded bodies" in {
+    withCloseable(resourceAsStream("har/base64_encoded.har")) { is =>
+      val scn = HarReader(is)
+      scn.elements.head.asInstanceOf[RequestElement].responseBody should not be empty
+      scn.elements.head.asInstanceOf[RequestElement].responseBody.get shouldBe a[ResponseBodyBytes]
+      val responseBodyBytes = scn.elements.head.asInstanceOf[RequestElement].responseBody.get.asInstanceOf[ResponseBodyBytes]
+      new String(responseBodyBytes.bytes) should include("stats-semi-blind")
     }
   }
 }

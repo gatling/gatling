@@ -17,7 +17,6 @@ package io.gatling.recorder.har
 
 import java.io.{ FileInputStream, InputStream }
 import java.net.URL
-import java.nio.charset.StandardCharsets._
 
 import com.ning.http.client.uri.Uri
 
@@ -25,7 +24,6 @@ import scala.collection.breakOut
 import scala.util.Try
 
 import io.gatling.core.util.IO._
-import io.gatling.core.util.StringHelper.RichString
 import io.gatling.http.HeaderNames._
 import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration
@@ -66,18 +64,15 @@ object HarReader {
     val method = entry.request.method
     val requestHeaders = buildRequestHeaders(entry)
 
-      // HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
-      def extractBytes(text: String) = text.trimToOption.map(_.getBytes(UTF_8))
-
     // NetExport doesn't copy post params to text field
     val requestBody = entry.request.postData.flatMap { postData =>
       if (postData.params.nonEmpty)
         Some(buildContent(postData.params))
       else
-        extractBytes(postData.text) map RequestBodyBytes
+        postData.textAsBytes map RequestBodyBytes
     }
 
-    val responseBody = entry.response.content.text flatMap extractBytes map ResponseBodyBytes
+    val responseBody = entry.response.content.textAsBytes map ResponseBodyBytes
 
     val embeddedResources = entry.response.content match {
       case Content("text/html", Some(text)) =>

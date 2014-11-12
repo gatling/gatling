@@ -15,16 +15,24 @@
  */
 package io.gatling.recorder.har
 
+import java.nio.charset.StandardCharsets
+
+import com.ning.http.util.Base64
+
 import org.threeten.bp.ZonedDateTime
 
 import scala.util.Try
 
+import io.gatling.core.util.StringHelper.RichString
 import io.gatling.recorder.util.Json
 import io.gatling.recorder.util.Json.{ JsonToInt, JsonToString }
 
 object HarMapping {
 
   private val ProtectedValue = """"(.*)\"""".r
+
+  // HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
+  val Charset = StandardCharsets.UTF_8
 
   def jsonToHttpArchive(json: Json): HttpArchive = HttpArchive(buildLog(json.log))
 
@@ -64,7 +72,14 @@ object HarMapping {
     val mimeType = response.content.mimeType
     assert(mimeType.toOption.isDefined, s"Response content ${response.content} does not contains a mimeType")
 
-    val text = response.content.text.toOption.map(_.toString.trim).filter(!_.isEmpty)
+    val rawText = response.content.text.toOption.map(_.toString.trim).filter(!_.isEmpty)
+    val encoding = response.content.encoding.toOption.map(_.toString.trim)
+    val text = rawText flatMap (_.trimToOption) map { trimmedText =>
+      encoding match {
+        case Some("base64") => new String(Base64.decode(trimmedText), HarMapping.Charset)
+        case _              => trimmedText
+      }
+    }
 
     val content = Content(mimeType, text)
     Response(response.status, content)
@@ -90,10 +105,14 @@ case class Request(method: String, url: String, headers: Seq[Header], postData: 
 
 case class Response(status: Int, content: Content)
 
-case class Content(mimeType: String, text: Option[String])
+case class Content(mimeType: String, text: Option[String]) {
+  def textAsBytes = text.map(_.getBytes(HarMapping.Charset))
+}
 
 case class Header(name: String, value: String)
 
-case class PostData(mimeType: String, text: String, params: Seq[PostParam])
+case class PostData(mimeType: String, text: String, params: Seq[PostParam]) {
+  def textAsBytes = text.trimToOption.map(_.getBytes(HarMapping.Charset))
+}
 
 case class PostParam(name: String, value: String)
