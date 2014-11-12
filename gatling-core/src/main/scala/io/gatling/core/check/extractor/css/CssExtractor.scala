@@ -17,6 +17,7 @@ package io.gatling.core.check.extractor.css
 
 import java.util.{ List => JList }
 
+import scala.collection.breakOut
 import scala.collection.JavaConversions.asScalaBuffer
 
 import io.gatling.core.check.extractor._
@@ -52,7 +53,7 @@ abstract class CssExtractor[X] extends CriterionExtractor[NodeSelector, String, 
     else
       CSSelly.parse(query)
 
-  def extractAll(selector: NodeSelector, query: String, nodeAttribute: Option[String]): Seq[String] = {
+  def extractAll(selector: NodeSelector, query: String, nodeAttribute: Option[String]): Vector[String] = {
 
     val selectors = parseQuery(query)
 
@@ -61,7 +62,7 @@ abstract class CssExtractor[X] extends CriterionExtractor[NodeSelector, String, 
         case Some(attr) => Option(node.getAttribute(attr))
         case _          => Some(node.getTextContent.trim)
       }
-    }
+    } (breakOut)
   }
 }
 
