@@ -62,7 +62,7 @@ abstract class CssExtractor[X] extends CriterionExtractor[NodeSelector, String, 
         case Some(attr) => Option(node.getAttribute(attr))
         case _          => Some(node.getTextContent.trim)
       }
-    } (breakOut)
+    }(breakOut)
   }
 }
 
