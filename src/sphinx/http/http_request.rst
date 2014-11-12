@@ -371,7 +371,8 @@ One can call ``formUpload()`` multiple times in order to upload multiple files.
     .formUpload("myKey2", "myAttachment.txt")
 
 .. note:: The MIME Type of the uploaded file defaults to ``application/octet-stream`` and the character set defaults to the one configured in ``gatling.conf`` (``UTF-8`` by default).
-          Don't forget to override them when needed. Then, directly use a body part.
+          Don't forget to override them when needed.
+          Then, directly use a body part, e.g. ``.bodyPart(RawFileBodyPart("file", data.xls").contentType("application/vnd.ms-excel").fileName("data.xls")).asMultipartForm``.
 
 .. note:: There is a helpful method to help you deal with multipart form requests: ``asMultipartForm``.
           It is equivalent to ``header(HttpHeaderNames.ContentType, HttpHeaderValues.MultipartFormData)``.
