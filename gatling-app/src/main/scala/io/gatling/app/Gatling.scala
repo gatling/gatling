@@ -151,7 +151,7 @@ class Gatling(overrides: ConfigOverrides, simulationClass: SelectedSingleSimulat
     StdIn.readLine().trim
   }
 
-  def interactiveSelect(simulations: AllSimulations): Class[Simulation] = {
+  private def interactiveSelect(simulations: AllSimulations): Class[Simulation] = {
     val validRange = 0 until simulations.size
 
       @tailrec
