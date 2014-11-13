@@ -17,7 +17,10 @@ package io.gatling.core
 
 package object validation {
 
+  val TrueSuccess = true.success
+  val FalseSuccess = false.success
   val NoneSuccess = None.success
+  val NullStringSuccess = "null".success
 
   implicit class SuccessWrapper[T](val value: T) extends AnyVal {
     def success: Validation[T] = Success(value)

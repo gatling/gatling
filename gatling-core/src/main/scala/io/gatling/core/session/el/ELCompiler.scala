@@ -80,19 +80,25 @@ case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
   }
 }
 
-case class ExistsPart(name: String) extends Part[Boolean] {
+case class ExistsPart(part: Part[Any], name: String) extends Part[Boolean] {
   def apply(session: Session): Validation[Boolean] =
-    session.contains(name).success
+    part(session) match {
+      case f: Failure => FalseSuccess
+      case _          => TrueSuccess
+    }
 }
 
-case class IsUndefinedPart(name: String) extends Part[Boolean] {
+case class IsUndefinedPart(part: Part[Any], name: String) extends Part[Boolean] {
   def apply(session: Session): Validation[Boolean] =
-    (!session.contains(name)).success
+    part(session) match {
+      case f: Failure => TrueSuccess
+      case _          => FalseSuccess
+    }
 }
 
-case class ToJsonValue(name: String) extends Part[String] {
+case class ToJsonValue(part: Part[Any], name: String) extends Part[String] {
   def apply(session: Session): Validation[String] =
-    session(name).validate[Any] match {
+    part(session) match {
       case Success(value) => value match {
         case str: String                        => s""""$str"""".success
         case anyVal if isAnyValOrString(anyVal) => anyVal.toString.success
@@ -100,7 +106,7 @@ case class ToJsonValue(name: String) extends Part[String] {
         case map: Map[_, _]                     => toJsonString(map.asJavaCollection).success
         case any                                => toJsonString(any).success
       }
-      case NullValueFailure => "null".success
+      case NullValueFailure => NullStringSuccess
       case failure: Failure => failure
     }
 }
@@ -251,9 +257,9 @@ class ELCompiler extends RegexParsers {
           case AccessKey(key, tokenName)     => MapKeyPart(subPart, subPartName, key)
           case AccessRandom                  => RandomPart(subPart, subPartName)
           case AccessSize                    => SizePart(subPart, subPartName)
-          case AccessExists                  => ExistsPart(subPartName)
-          case AccessIsUndefined             => IsUndefinedPart(subPartName)
-          case AccessToJsonValue             => ToJsonValue(subPartName)
+          case AccessExists                  => ExistsPart(subPart, subPartName)
+          case AccessIsUndefined             => IsUndefinedPart(subPart, subPartName)
+          case AccessToJsonValue             => ToJsonValue(subPart, subPartName)
           case AccessTuple(index, tokenName) => TupleAccessPart(subPart, subPartName, index.toInt)
         }
 
