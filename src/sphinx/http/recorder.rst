@@ -46,7 +46,7 @@ The order of evaluation between the whitelist and the blacklist entries can be d
 Embedded resources fetching
 ---------------------------
 
-If you check the option 'Fetch html resources?' option, the Recorder will fetch the embedded HTML resources as follow:
+If you check the 'Infer html resources?' option, the Recorder will fetch the embedded HTML resources as follow:
 
 * Add ``inferHtmlResources`` with the proper white/black lists on the HTTP protocol definition.
 * Parse HTML response body to retrieve embedded HTML resources.
