@@ -25,7 +25,7 @@ import scala.reflect.ClassTag
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.NumberHelper.IntString
 import io.gatling.core.util.TypeHelper.TypeCaster
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.validation.{Failure, FailureWrapper, SuccessWrapper, Validation}
 
 import scala.util.parsing.combinator.RegexParsers
 
@@ -79,14 +79,20 @@ case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
   }
 }
 
-case class ExistsPart(name: String) extends Part[Boolean] {
+case class ExistsPart(part: Part[Any], name: String) extends Part[Boolean] {
   def apply(session: Session): Validation[Boolean] =
-    session.contains(name).success
+    part(session) match {
+      case f: Failure => FalseSuccess
+      case _          => TrueSuccess
+    }
 }
 
-case class IsUndefinedPart(name: String) extends Part[Boolean] {
+case class IsUndefinedPart(part: Part[Any], name: String) extends Part[Boolean] {
   def apply(session: Session): Validation[Boolean] =
-    (!session.contains(name)).success
+    part(session) match {
+      case f: Failure => TrueSuccess
+      case _          => FalseSuccess
+    }
 }
 
 case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extends Part[Any] {
@@ -234,8 +240,8 @@ class ELCompiler extends RegexParsers {
           case AccessKey(key, tokenName)     => MapKeyPart(subPart, subPartName, key)
           case AccessRandom                  => RandomPart(subPart, subPartName)
           case AccessSize                    => SizePart(subPart, subPartName)
-          case AccessExists                  => ExistsPart(subPartName)
-          case AccessIsUndefined             => IsUndefinedPart(subPartName)
+          case AccessExists                  => ExistsPart(subPart, subPartName)
+          case AccessIsUndefined             => IsUndefinedPart(subPart, subPartName)
           case AccessTuple(index, tokenName) => TupleAccessPart(subPart, subPartName, index.toInt)
         }
 
