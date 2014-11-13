@@ -24,7 +24,7 @@ import scala.util.Properties
 import io.gatling.core.scenario.Simulation
 import io.gatling.core.util.PathHelper._
 
-object SimulationClassLoader {
+private[app] object SimulationClassLoader {
 
   private def isInClassPath(binariesDirectory: Path): Boolean = {
     val classpathElements = Properties.javaClassPath split File.pathSeparator
@@ -40,7 +40,7 @@ object SimulationClassLoader {
   }
 }
 
-class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {
+private[app] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {
 
   private def isSimulationClass(clazz: Class[_]): Boolean =
     classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
