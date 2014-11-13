@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.app
+package io.gatling.app.cli
 
 case class CommandLineConstant(full: String, abbr: String)
 

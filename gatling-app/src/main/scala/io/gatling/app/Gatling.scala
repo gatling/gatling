@@ -22,6 +22,8 @@ import scala.annotation.tailrec
 import scala.io.StdIn
 import scala.util.{ Success, Try }
 
+import io.gatling.app.classloader.SimulationClassLoader
+import io.gatling.app.cli.ArgsParser
 import io.gatling.charts.report.ReportsGenerator
 import io.gatling.core.assertion.{ AssertionResult, AssertionValidator }
 import io.gatling.core.config.GatlingFiles

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.app
+package io.gatling.app.classloader
 
 import java.io.File
 import java.lang.reflect.Modifier
@@ -32,11 +32,11 @@ object SimulationClassLoader {
   }
 
   def apply(binariesDirectory: Path): SimulationClassLoader = {
-    val classloader = {
+    val classLoader = {
       if (isInClassPath(binariesDirectory)) getClass.getClassLoader
       else new FileSystemBackedClassLoader(binariesDirectory, getClass.getClassLoader)
     }
-    new SimulationClassLoader(classloader, binariesDirectory)
+    new SimulationClassLoader(classLoader, binariesDirectory)
   }
 }
 

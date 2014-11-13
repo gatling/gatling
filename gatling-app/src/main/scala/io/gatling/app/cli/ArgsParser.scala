@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.app
+package io.gatling.app.cli
 
 import scopt.{ OptionDef, OptionParser, Read }
 
-import io.gatling.app.CommandLineConstants._
+import io.gatling.app.{ ConfigOverrides, StatusCode }
+import io.gatling.app.cli.CommandLineConstants._
 import io.gatling.core.config.GatlingPropertiesBuilder
 
 private[app] class ArgsParser(args: Array[String]) {
