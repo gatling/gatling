@@ -60,7 +60,7 @@ object Gatling {
     }
   }
 }
-class Gatling(overrides: ConfigOverrides, simulationClass: SelectedSingleSimulation) {
+private[app] class Gatling(overrides: ConfigOverrides, simulationClass: SelectedSingleSimulation) {
 
   def start: StatusCode = {
     StringHelper.checkSupportedJavaVersion()

@@ -31,7 +31,7 @@ private[app] class ArgsParser(args: Array[String]) {
       opt[A](constant.full).abbr(constant.abbr)
   }
 
-  val props = new GatlingPropertiesBuilder
+  private val props = new GatlingPropertiesBuilder
 
   private val cliOptsParser = new GatlingOptionParser {
 
