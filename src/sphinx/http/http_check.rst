@@ -132,7 +132,7 @@ Returns the latency of this request in milliseconds = the time between finishing
 
 * ``bodyString``
 
-Return the full response body String.
+Return the full response body String. Note that this can be matched against content from the the filesystem using :ref:`RawFileBody <http-request-body-rawfile>` or :ref:`ELFileBody <http-request-body-elfile>`.
 
 .. _http-check-body-bytes:
 
@@ -436,3 +436,15 @@ Verifies that there are at least **two** occurrences of "aWord"
   check(regex("aWord").notExists)
 
 Verifies that the response doesn't contain "aWord"
+
+::
+
+  bodyString.is(RawFileBody("expected_response.json"))
+
+Verifies that the response body matches the file ``user-files/bodies/expected_response.json``
+
+::
+
+  bodyString.is(ELFileBody("expected_template.json"))
+
+Verifies that the response body matches the content of the file ``user-files/bodies/expected_template.json`` resolved with :ref:`Gatling Expression Language (EL) <el>`.

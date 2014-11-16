@@ -88,7 +88,7 @@ object RecorderConfiguration extends StrictLogging {
 
   def saveConfig(): Unit = {
     // Remove request bodies folder configuration (transient), keep only Gatling-related properties
-    val configToSave = configuration.config.withoutPath(ConfigKeys.core.RequestBodiesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
+    val configToSave = configuration.config.withoutPath(ConfigKeys.core.BodiesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
     configFile.foreach(file => withCloseable(createAndOpen(file).writer())(_.write(configToSave.render(RenderOptions))))
   }
 
@@ -113,17 +113,17 @@ object RecorderConfiguration extends StrictLogging {
         }
       }
 
-      def getRequestBodiesFolder =
-        if (config.hasPath(core.RequestBodiesFolder))
-          config.getString(core.RequestBodiesFolder)
+      def getBodiesFolder =
+        if (config.hasPath(core.BodiesFolder))
+          config.getString(core.BodiesFolder)
         else
-          GatlingFiles.requestBodiesDirectory.toFile.toString
+          GatlingFiles.bodiesDirectory.toFile.toString
 
     RecorderConfiguration(
       core = CoreConfiguration(
         encoding = config.getString(core.Encoding),
         outputFolder = getOutputFolder(config.getString(core.SimulationOutputFolder)),
-        requestBodiesFolder = getRequestBodiesFolder,
+        bodiesFolder = getBodiesFolder,
         pkg = config.getString(core.Package),
         className = config.getString(core.ClassName),
         thresholdForPauseCreation = config.getInt(core.ThresholdForPauseCreation) milliseconds,
@@ -136,7 +136,8 @@ object RecorderConfiguration extends StrictLogging {
         automaticReferer = config.getBoolean(http.AutomaticReferer),
         followRedirect = config.getBoolean(http.FollowRedirect),
         inferHtmlResources = config.getBoolean(http.InferHtmlResources),
-        removeConditionalCache = config.getBoolean(http.RemoveConditionalCache)),
+        removeConditionalCache = config.getBoolean(http.RemoveConditionalCache),
+        checkResponseBodies = config.getBoolean(http.CheckResponseBodies)),
       proxy = ProxyConfiguration(
         port = config.getInt(proxy.Port),
         outgoing = OutgoingProxyConfiguration(
@@ -169,7 +170,7 @@ case class FiltersConfiguration(
 case class CoreConfiguration(
   encoding: String,
   outputFolder: String,
-  requestBodiesFolder: String,
+  bodiesFolder: String,
   pkg: String,
   className: String,
   thresholdForPauseCreation: Duration,
@@ -179,7 +180,8 @@ case class HttpConfiguration(
   automaticReferer: Boolean,
   followRedirect: Boolean,
   inferHtmlResources: Boolean,
-  removeConditionalCache: Boolean)
+  removeConditionalCache: Boolean,
+  checkResponseBodies: Boolean)
 
 case class OutgoingProxyConfiguration(
   host: Option[String],

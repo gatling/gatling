@@ -40,6 +40,9 @@ sealed trait RequestBody
 case class RequestBodyParams(params: List[(String, String)]) extends RequestBody
 case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
 
+sealed trait ResponseBody
+case class ResponseBodyBytes(bytes: Array[Byte]) extends ResponseBody
+
 sealed trait ScenarioElement
 
 case class PauseElement(duration: FiniteDuration) extends ScenarioElement
@@ -85,13 +88,15 @@ object RequestElement {
       else
         RequestBodyBytes(content))
 
+    val responseBody = extractContent(request) map ResponseBodyBytes
+
     val filteredRequestHeaders =
       if (configuration.http.removeConditionalCache)
         requestHeaders.filterKeys(name => !ConditionCacheHeaders.contains(name))
       else
         requestHeaders
 
-    RequestElement(new String(request.getUri), request.getMethod.toString, filteredRequestHeaders, requestBody, response.getStatus.getCode, embeddedResources)
+    RequestElement(new String(request.getUri), request.getMethod.toString, filteredRequestHeaders, requestBody, responseBody, response.getStatus.getCode, embeddedResources)
   }
 }
 
@@ -99,6 +104,7 @@ case class RequestElement(uri: String,
                           method: String,
                           headers: Map[String, String],
                           body: Option[RequestBody],
+                          responseBody: Option[ResponseBody],
                           statusCode: Int,
                           embeddedResources: List[EmbeddedResource],
                           nonEmbeddedResources: List[RequestElement] = Nil) extends ScenarioElement {

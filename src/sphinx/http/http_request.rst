@@ -360,7 +360,7 @@ This applies only for POST requests. When you find forms asking for text values 
 
 To define such a request, you have to add the parameters as stated above, and the file to be uploaded at the same time with the following method: ``formUpload(name: Expression[String], filePath: Expression[String])``.
 
-The uploaded file must be located in ``user-files/request-bodies``. The ``Content-Type`` header will be set to ``multipart/form-data`` and the file added in addition to the parameters.
+The uploaded file must be located in ``user-files/bodies``. The ``Content-Type`` header will be set to ``multipart/form-data`` and the file added in addition to the parameters.
 
 One can call ``formUpload()`` multiple times in order to upload multiple files.
 ::
@@ -433,7 +433,7 @@ Here, you can pass bytes instead of text.
 
 Here, you can pass a Stream.
 
-.. note:: When you pass a path, Gatling searches first for an absolute path in the classpath and then in the ``request-bodies`` directory.
+.. note:: When you pass a path, Gatling searches first for an absolute path in the classpath and then in the ``bodies`` directory.
 
 Note that one can take full advantage of Scala 2.10 macros for writing template directly in Scala compiled code instead of relying on a templating engine.
 See `Scala 2.10 string interpolation <(http://docs.scala-lang.org/overviews/core/string-interpolation.html>`_ and `Fastring <https://github.com/Atry/fastring>`_.

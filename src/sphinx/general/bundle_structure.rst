@@ -11,6 +11,6 @@ The bundle structure is as following:
 
   * ``simulations`` contains your Simulations scala files. Please respect package folder hierarchy.
   * ``data`` contains feeder files.
-  * ``request-bodies`` contains templates for request bodies.
+  * ``bodies`` contains templates for request bodies.
 
 * ``results`` contains ``simulation.log`` and reports generated in a sub directory.

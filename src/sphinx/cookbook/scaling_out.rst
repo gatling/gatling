@@ -10,7 +10,7 @@ In this case, you might want to use several Gatling instances hosted on multiple
 
 Gatling doesn't have a cluster mode yet, but you can achieve similar results manually:
 
-* deploy Gatling on several machines along with the Simulation classes and the associated resources (data, request-bodies, etc..)
+* deploy Gatling on several machines along with the Simulation classes and the associated resources (data, bodies, etc..)
 * launch them remotely from a script, with the ``-nr`` (no reports) option
 * retrieve all the simulation.log files
 * rename them so they don't clash

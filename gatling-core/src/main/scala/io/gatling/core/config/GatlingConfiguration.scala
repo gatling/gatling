@@ -120,7 +120,7 @@ object GatlingConfiguration extends StrictLogging {
           simulation = config.getInt(core.timeOut.Simulation)),
         directory = DirectoryConfiguration(
           data = config.getString(core.directory.Data),
-          requestBodies = config.getString(core.directory.RequestBodies),
+          bodies = config.getString(core.directory.Bodies),
           sources = config.getString(core.directory.Simulations),
           binaries = config.getString(core.directory.Binaries).trimToOption,
           reportsOnly = config.getString(core.directory.ReportsOnly).trimToOption,
@@ -274,7 +274,7 @@ case class CssConfiguration(
 
 case class DirectoryConfiguration(
   data: String,
-  requestBodies: String,
+  bodies: String,
   sources: String,
   binaries: Option[String],
   reportsOnly: Option[String],

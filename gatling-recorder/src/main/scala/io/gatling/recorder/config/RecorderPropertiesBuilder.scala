@@ -31,8 +31,8 @@ class RecorderPropertiesBuilder {
   def simulationOutputFolder(folder: String): Unit =
     props += core.SimulationOutputFolder -> folder
 
-  def requestBodiesFolder(folder: String): Unit =
-    props += core.RequestBodiesFolder -> folder
+  def bodiesFolder(folder: String): Unit =
+    props += core.BodiesFolder -> folder
 
   def simulationPackage(pkg: String): Unit =
     props += core.Package -> pkg
@@ -66,6 +66,9 @@ class RecorderPropertiesBuilder {
 
   def removeConditionalCache(status: Boolean): Unit =
     props += http.RemoveConditionalCache -> status
+
+  def checkResponseBodies(status: Boolean): Unit =
+    props += http.CheckResponseBodies -> status
 
   def localPort(port: Int): Unit =
     props += proxy.Port -> port
