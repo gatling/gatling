@@ -206,6 +206,11 @@ class HttpCompileTest extends Simulation {
     .exec(flushSessionCookies)
     .pause(pause4)
     .exec(addCookie(Cookie("foo", "bar").withDomain("/")))
+    .pace(5)
+    .pace(5 seconds)
+    .pace("${foo}")
+    .pace(5, 10)
+    .pace("${foo}", "${bar}")
     .doSwitch("${foo}")(
       "a" -> exec(http("a").get("/")),
       "b" -> exec(http("b").get("/")))
