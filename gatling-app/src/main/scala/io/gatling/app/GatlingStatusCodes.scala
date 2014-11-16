@@ -18,7 +18,7 @@ package io.gatling.app
 /**
  * List of status codes returned by Gatling
  */
-private[app] object GatlingStatusCodes {
+object GatlingStatusCodes {
   val Success = 0
   val InvalidArguments = 1
   val AssertionsFailed = 2
