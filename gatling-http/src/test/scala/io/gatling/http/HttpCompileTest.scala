@@ -131,6 +131,8 @@ class HttpCompileTest extends Simulation {
               regex("""<input id="text1" type="test" value="aaaa" />""").notExists,
               status.in(200 to 210).saveAs("blablaParam"),
               status.in(Seq(200, 304)).saveAs("blablaParam"),
+              bodyString.is(RawFileBody("foobar.txt")),
+              bodyString.is(ELFileBody("foobar.txt")),
               xpath("//input[@value='aaaa']/@id").not("omg"),
               xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2"),
               md5.is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
