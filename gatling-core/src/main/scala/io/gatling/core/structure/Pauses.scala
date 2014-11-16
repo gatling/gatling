@@ -99,16 +99,14 @@ trait Pauses[B] extends Execs[B] {
   def pause(duration: Expression[Duration], force: PauseType): B = pause(duration, Some(force))
   private def pause(duration: Expression[Duration], force: Option[PauseType]): B = exec(new PauseBuilder(duration, force))
 
+  def pace(duration: Duration): B = pace(duration.expression)
   def pace(duration: String, unit: TimeUnit = TimeUnit.SECONDS): B = pace(durationExpression(duration, unit))
 
   def pace(min: Duration, max: Duration): B = pace(durationExpression(min, max))
-
   def pace(min: String, max: String, unit: TimeUnit): B = pace(durationExpression(min, max, unit))
-
   def pace(min: Expression[Duration], max: Expression[Duration]): B = pace(durationExpression(min, max))
 
   def pace(duration: Expression[Duration]): B = pace(duration, UUID.randomUUID.toString)
-
   def pace(duration: Expression[Duration], counter: String): B = exec(new PaceBuilder(duration, counter))
 
   def rendezVous(users: Int): B = exec(new RendezVousBuilder(users))
