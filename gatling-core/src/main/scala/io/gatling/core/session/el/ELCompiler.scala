@@ -25,7 +25,7 @@ import scala.reflect.ClassTag
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.NumberHelper.IntString
 import io.gatling.core.util.TypeHelper.TypeCaster
-import io.gatling.core.validation.{Failure, FailureWrapper, SuccessWrapper, Validation}
+import io.gatling.core.validation._
 
 import scala.util.parsing.combinator.RegexParsers
 
