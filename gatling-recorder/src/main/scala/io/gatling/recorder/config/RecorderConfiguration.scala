@@ -18,6 +18,8 @@ package io.gatling.recorder.config
 import java.io.FileNotFoundException
 import java.nio.file.Path
 
+import io.gatling.recorder.http.ssl.{ KeyStoreType, HttpsMode }
+
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.concurrent.duration.{ Duration, DurationInt }
@@ -114,10 +116,8 @@ object RecorderConfiguration extends StrictLogging {
       }
 
       def getBodiesFolder =
-        if (config.hasPath(core.BodiesFolder))
-          config.getString(core.BodiesFolder)
-        else
-          GatlingFiles.bodiesDirectory.toFile.toString
+        if (config.hasPath(core.BodiesFolder)) config.getString(core.BodiesFolder)
+        else GatlingFiles.bodiesDirectory.toFile.toString
 
     RecorderConfiguration(
       core = CoreConfiguration(
@@ -129,7 +129,7 @@ object RecorderConfiguration extends StrictLogging {
         thresholdForPauseCreation = config.getInt(core.ThresholdForPauseCreation) milliseconds,
         saveConfig = config.getBoolean(core.SaveConfig)),
       filters = FiltersConfiguration(
-        filterStrategy = FilterStrategy.fromString(config.getString(filters.FilterStrategy)),
+        filterStrategy = FilterStrategy(config.getString(filters.FilterStrategy)),
         whiteList = WhiteList(config.getStringList(filters.WhitelistPatterns).toList),
         blackList = BlackList(config.getStringList(filters.BlacklistPatterns).toList)),
       http = HttpConfiguration(
@@ -140,6 +140,15 @@ object RecorderConfiguration extends StrictLogging {
         checkResponseBodies = config.getBoolean(http.CheckResponseBodies)),
       proxy = ProxyConfiguration(
         port = config.getInt(proxy.Port),
+        https = HttpsModeConfiguration(
+          mode = HttpsMode(config.getString(proxy.https.Mode)),
+          keyStore = KeyStoreConfiguration(
+            path = config.getString(proxy.https.keyStore.Path),
+            password = config.getString(proxy.https.keyStore.Password),
+            keyStoreType = KeyStoreType(config.getString(proxy.https.keyStore.Type))),
+          customCertificate = CustomCertificateConfiguration(
+            certificatePath = config.getString(proxy.https.customCertificate.CertificatePath),
+            privateKeyPath = config.getString(proxy.https.customCertificate.PrivateKeyPath))),
         outgoing = OutgoingProxyConfiguration(
           host = config.getString(proxy.outgoing.Host).trimToOption,
           username = config.getString(proxy.outgoing.Username).trimToOption,
@@ -183,6 +192,20 @@ case class HttpConfiguration(
   removeConditionalCache: Boolean,
   checkResponseBodies: Boolean)
 
+case class KeyStoreConfiguration(
+  path: String,
+  password: String,
+  keyStoreType: KeyStoreType)
+
+case class CustomCertificateConfiguration(
+  certificatePath: String,
+  privateKeyPath: String)
+
+case class HttpsModeConfiguration(
+  mode: HttpsMode,
+  keyStore: KeyStoreConfiguration,
+  customCertificate: CustomCertificateConfiguration)
+
 case class OutgoingProxyConfiguration(
   host: Option[String],
   username: Option[String],
@@ -192,6 +215,7 @@ case class OutgoingProxyConfiguration(
 
 case class ProxyConfiguration(
   port: Int,
+  https: HttpsModeConfiguration,
   outgoing: OutgoingProxyConfiguration)
 
 case class NettyConfiguration(

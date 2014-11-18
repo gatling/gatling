@@ -16,10 +16,12 @@
 package io.gatling.recorder.http
 
 import java.net.InetSocketAddress
-import org.jboss.netty.channel.group.DefaultChannelGroup
+
+import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory.{ newRemoteBootstrap, newUserBootstrap }
-import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.http.ssl.SSLServerContext
+import org.jboss.netty.channel.group.DefaultChannelGroup
 
 case class HttpProxy(controller: RecorderController)(implicit config: RecorderConfiguration) {
 
@@ -46,4 +48,6 @@ case class HttpProxy(controller: RecorderController)(implicit config: RecorderCo
     remoteBootstrap.shutdown()
     secureRemoteBootstrap.shutdown()
   }
+
+  val sslServerContext = SSLServerContext(config)
 }

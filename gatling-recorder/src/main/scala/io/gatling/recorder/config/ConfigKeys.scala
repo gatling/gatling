@@ -43,6 +43,21 @@ object ConfigKeys {
   object proxy {
     val Port = "recorder.proxy.port"
 
+    object https {
+      val Mode = "recorder.proxy.https.mode"
+
+      object keyStore {
+        val Path = "recorder.proxy.https.keyStore.path"
+        val Password = "recorder.proxy.https.keyStore.password"
+        val Type = "recorder.proxy.https.keyStore.type"
+      }
+
+      object customCertificate {
+        val CertificatePath = "recorder.proxy.https.customCertificate.certificatePath"
+        val PrivateKeyPath = "recorder.proxy.https.customCertificate.privateKeyPath"
+      }
+    }
+
     object outgoing {
       val Host = "recorder.proxy.outgoing.host"
       val Username = "recorder.proxy.outgoing.username"

@@ -153,4 +153,9 @@ object IO {
     finally
       closeable.close()
   }
+
+  def classpathResourceAsStream(path: String): InputStream =
+    Option(ClassLoader.getSystemResourceAsStream(path))
+      .orElse(Option(getClass.getResourceAsStream(path)))
+      .getOrElse(throw new IllegalStateException(s"Couldn't load $path neither from System ClassLoader nor from current one"))
 }

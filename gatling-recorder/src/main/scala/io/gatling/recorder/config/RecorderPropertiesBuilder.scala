@@ -88,5 +88,23 @@ class RecorderPropertiesBuilder {
   def proxySslPort(port: Int): Unit =
     props += proxy.outgoing.SslPort -> port
 
+  def httpsMode(mode: String): Unit =
+    props += proxy.https.Mode -> mode
+
+  def keystorePath(path: String): Unit =
+    props += proxy.https.keyStore.Path -> path
+
+  def keyStorePassword(password: String): Unit =
+    props += proxy.https.keyStore.Password -> password
+
+  def keyStoreType(keyStoreType: String): Unit =
+    props += proxy.https.keyStore.Type -> keyStoreType
+
+  def certificatePath(path: String): Unit =
+    props += proxy.https.customCertificate.CertificatePath -> path
+
+  def privateKeyPath(path: String): Unit =
+    props += proxy.https.customCertificate.PrivateKeyPath -> path
+
   def build = props
 }
