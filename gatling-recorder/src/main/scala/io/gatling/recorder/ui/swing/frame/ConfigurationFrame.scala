@@ -488,8 +488,8 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
     keyStorePassword.text = configuration.proxy.https.keyStore.password
     keyStoreTypes.selection.item = configuration.proxy.https.keyStore.keyStoreType
 
-    certificatePath.text = configuration.proxy.https.customCertificate.certificatePath
-    privateKeyPath.text = configuration.proxy.https.customCertificate.privateKeyPath
+    certificatePath.text = configuration.proxy.https.certificateAuthority.certificatePath
+    privateKeyPath.text = configuration.proxy.https.certificateAuthority.privateKeyPath
 
     configuration.proxy.outgoing.host.map { proxyHost =>
       outgoingProxyHost.text = proxyHost

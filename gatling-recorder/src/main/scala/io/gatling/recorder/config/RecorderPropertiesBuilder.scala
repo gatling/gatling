@@ -101,10 +101,10 @@ class RecorderPropertiesBuilder {
     props += proxy.https.keyStore.Type -> keyStoreType
 
   def certificatePath(path: String): Unit =
-    props += proxy.https.customCertificate.CertificatePath -> path
+    props += proxy.https.certificateAuthority.CertificatePath -> path
 
   def privateKeyPath(path: String): Unit =
-    props += proxy.https.customCertificate.PrivateKeyPath -> path
+    props += proxy.https.certificateAuthority.PrivateKeyPath -> path
 
   def build = props
 }

@@ -66,7 +66,7 @@ object SSLServerContext {
         new ProvidedKeystore(ksFile, keyStoreType, password)
 
       case HttpsMode.CertificateAuthority =>
-        new CertificateAuthority(customCertificate.certificatePath, customCertificate.privateKeyPath)
+        new CertificateAuthority(certificateAuthority.certificatePath, certificateAuthority.privateKeyPath)
     }
   }
 

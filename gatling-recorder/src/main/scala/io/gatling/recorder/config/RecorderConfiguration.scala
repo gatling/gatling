@@ -146,9 +146,9 @@ object RecorderConfiguration extends StrictLogging {
             path = config.getString(proxy.https.keyStore.Path),
             password = config.getString(proxy.https.keyStore.Password),
             keyStoreType = KeyStoreType(config.getString(proxy.https.keyStore.Type))),
-          customCertificate = CustomCertificateConfiguration(
-            certificatePath = config.getString(proxy.https.customCertificate.CertificatePath),
-            privateKeyPath = config.getString(proxy.https.customCertificate.PrivateKeyPath))),
+          certificateAuthority = CertificateAuthorityConfiguration(
+            certificatePath = config.getString(proxy.https.certificateAuthority.CertificatePath),
+            privateKeyPath = config.getString(proxy.https.certificateAuthority.PrivateKeyPath))),
         outgoing = OutgoingProxyConfiguration(
           host = config.getString(proxy.outgoing.Host).trimToOption,
           username = config.getString(proxy.outgoing.Username).trimToOption,
@@ -197,14 +197,14 @@ case class KeyStoreConfiguration(
   password: String,
   keyStoreType: KeyStoreType)
 
-case class CustomCertificateConfiguration(
+case class CertificateAuthorityConfiguration(
   certificatePath: String,
   privateKeyPath: String)
 
 case class HttpsModeConfiguration(
   mode: HttpsMode,
   keyStore: KeyStoreConfiguration,
-  customCertificate: CustomCertificateConfiguration)
+  certificateAuthority: CertificateAuthorityConfiguration)
 
 case class OutgoingProxyConfiguration(
   host: Option[String],
