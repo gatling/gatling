@@ -22,13 +22,12 @@ import scala.collection.JavaConversions.seqAsJavaList
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.FileChooser.SelectionMode
-import scala.swing.ListView.Renderer
 import scala.swing.event.{ ButtonClicked, KeyReleased, SelectionChanged }
 import scala.util.Try
 
 import io.gatling.core.util.PathHelper._
 import io.gatling.core.util.StringHelper.RichString
-import io.gatling.recorder._
+import io.gatling.recorder.RecorderMode
 import io.gatling.recorder.config._
 import io.gatling.recorder.config.FilterStrategy.BlacklistFirst
 import io.gatling.recorder.http.ssl.{ SSLServerContext, SSLCertUtil, HttpsMode, KeyStoreType }
@@ -37,7 +36,7 @@ import io.gatling.recorder.ui.RecorderFrontend
 import io.gatling.recorder.ui.swing.Commons._
 import io.gatling.recorder.ui.swing.component.FilterTable
 import io.gatling.recorder.ui.swing.frame.ValidationHelper._
-import io.gatling.recorder.ui.swing.util.CharsetHelper
+import io.gatling.recorder.ui.swing.util._
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
 class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: RecorderConfiguration) extends MainFrame {
@@ -47,37 +46,28 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   /************************************/
 
   /* Top panel components */
-  private val modeSelector = new ComboBox[RecorderMode](Seq(Proxy, Har)) {
-    selection.index = 0
-    renderer = Renderer(_.name)
-  }
+  private val modeSelector = new LabelledComboBox[RecorderMode](RecorderMode.AllModes)
 
   /* Network panel components */
   private val localProxyHttpPort = new TextField(4)
-  private val outgoingProxyHost = new TextField(12)
+  private val outgoingProxyHost = new TextField(10)
   private val outgoingProxyHttpPort = new TextField(4) { enabled = false }
   private val outgoingProxyHttpsPort = new TextField(4) { enabled = false }
   private val outgoingProxyUsername = new TextField(10) { enabled = false }
   private val outgoingProxyPassword = new TextField(10) { enabled = false }
 
   /* HTTPS mode components */
-  private val httpsModes = new ComboBox[HttpsMode](HttpsMode.AllHttpsModes) {
-    selection.index = 0
-    renderer = Renderer(_.name)
-  }
+  private val httpsModes = new LabelledComboBox[HttpsMode](HttpsMode.AllHttpsModes)
 
-  private val keyStorePath = new TextField(25)
+  private val keyStorePath = new TextField(20)
   private val keyStoreChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly }
   private val keyStoreBrowserButton = Button("Browse")(keyStoreChooser.openSelection().foreach(keyStorePath.text = _))
   private val keyStorePassword = new TextField(10)
-  private val keyStoreTypes = new ComboBox[KeyStoreType](KeyStoreType.AllKeyStoreTypes) {
-    selection.index = 0
-    renderer = Renderer(_.name)
-  }
-  private val certificatePath = new TextField(22)
+  private val keyStoreTypes = new LabelledComboBox[KeyStoreType](KeyStoreType.AllKeyStoreTypes)
+  private val certificatePath = new TextField(20)
   private val certificatePathChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly }
   private val certificatePathBrowserButton = Button("Browse")(certificatePathChooser.openSelection().foreach(certificatePath.text = _))
-  private val privateKeyPath = new TextField(22)
+  private val privateKeyPath = new TextField(20)
   private val privateKeyPathChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly }
   private val privateKeyPathBrowserButton = Button("Browse")(privateKeyPathChooser.openSelection().foreach(privateKeyPath.text = _))
 
@@ -121,10 +111,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   private val clearBlackListFilters = Button("Clear")(blackListTable.removeAllElements())
   private val ruleOutStaticResources = Button("No static resources")(blackListStaticResources())
 
-  private val filterStrategies = new ComboBox[FilterStrategy](FilterStrategy.AllStrategies) {
-    selection.index = 0
-    renderer = Renderer(_.name)
-  }
+  private val filterStrategies = new LabelledComboBox[FilterStrategy](FilterStrategy.AllStrategies)
 
   /* Bottom panel components */
   private val savePreferences = new CheckBox("Save preferences") { horizontalTextPosition = Alignment.Left }
@@ -345,6 +332,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   // Backticks are needed to match the components, see section 8.1.5 of Scala spec.
   reactions += {
     case SelectionChanged(`modeSelector`) =>
+      import RecorderMode._
       modeSelector.selection.item match {
         case Proxy =>
           root.center.network.visible = true

@@ -76,7 +76,7 @@ object SSLServerContext {
     def keyStoreType: KeyStoreType
 
     lazy val keyStore = {
-      val ks = KeyStore.getInstance(keyStoreType.name)
+      val ks = KeyStore.getInstance(keyStoreType.toString)
       withCloseable(keyStoreInitStream) { ks.load(_, password) }
       ks
     }
@@ -136,7 +136,7 @@ object SSLServerContext {
     val password: Array[Char] = GatlingPassword.toCharArray
 
     lazy val keyStore = {
-      val ks = KeyStore.getInstance(GatlingKeyStoreType.name)
+      val ks = KeyStore.getInstance(GatlingKeyStoreType.toString)
       ks.load(null, null)
       ks
     }

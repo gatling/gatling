@@ -16,7 +16,6 @@
 package io.gatling.recorder.controller
 
 import java.nio.file.Path
-import java.security.Security
 import java.util.concurrent.ConcurrentLinkedQueue
 
 import com.ning.http.client.uri.Uri
@@ -34,7 +33,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.core.util.PathHelper._
-import io.gatling.recorder.{ Har, Proxy }
+import io.gatling.recorder.RecorderMode._
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.HttpProxy

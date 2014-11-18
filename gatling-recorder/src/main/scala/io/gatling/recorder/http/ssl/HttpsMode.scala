@@ -1,8 +1,9 @@
 package io.gatling.recorder.http.ssl
 
 import io.gatling.core.util.ClassSimpleNameToString
+import io.gatling.recorder.util.Labelled
 
-sealed abstract class HttpsMode(val name: String) extends ClassSimpleNameToString
+sealed abstract class HttpsMode(val label: String) extends Labelled with ClassSimpleNameToString
 
 case object HttpsMode {
 
