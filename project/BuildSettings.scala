@@ -17,7 +17,7 @@ object BuildSettings {
     licenses              := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion          := "2.11.4",
     autoScalaLibrary      := false,
-    updateOptions         := updateOptions.value.withLatestSnapshots(false).withConsolidatedResolution(true),
+    updateOptions         := updateOptions.value.withCachedResolution(true),
     resolvers             := Seq(Resolver.mavenLocal, Opts.resolver.sonatypeSnapshots),
     javacOptions          := Seq("-Xlint:-options","-source", "1.7", "-target", "1.7"),
     scalacOptions         := Seq(
