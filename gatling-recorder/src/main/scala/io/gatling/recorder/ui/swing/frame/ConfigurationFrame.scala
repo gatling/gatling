@@ -79,7 +79,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   }))
 
   /* Har Panel components */
-  private val harPath = new TextField(66)
+  private val harPath = new TextField(60)
   private val harFileFilter = new FileNameExtensionFilter("HTTP Archive (.har)", "har")
   private val harFileChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly; fileFilter = harFileFilter }
   private val harFileBrowserButton = Button("Browse")(harFileChooser.openSelection().foreach(harPath.text = _))
