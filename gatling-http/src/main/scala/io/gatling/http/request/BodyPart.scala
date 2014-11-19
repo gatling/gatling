@@ -21,7 +21,7 @@ import java.nio.charset.Charset
 import com.ning.http.client.multipart.{ ByteArrayPart, FilePart, Part, PartBase, StringPart }
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.{ Expression, RichExpression, Session, resolveOptionalExpression }
+import io.gatling.core.session._
 import io.gatling.core.util.IO._
 import io.gatling.core.validation.Validation
 
@@ -54,7 +54,7 @@ object BodyPart {
 }
 
 case class BodyPartAttributes(
-  contentType: Option[String] = None,
+  contentType: Option[Expression[String]] = None,
   charset: Option[Charset] = None,
   dispositionType: Option[String] = None,
   fileName: Option[Expression[String]] = None,
@@ -66,7 +66,7 @@ case class BodyPart(
     partBuilder: (String, Option[String], Option[Charset], Option[String], Option[String], Option[String]) => Expression[PartBase], // name, fileName
     attributes: BodyPartAttributes) {
 
-  def contentType(contentType: String) = copy(attributes = attributes.copy(contentType = Some(contentType)))
+  def contentType(contentType: Expression[String]) = copy(attributes = attributes.copy(contentType = Some(contentType)))
   def charset(charset: String) = copy(attributes = attributes.copy(charset = Some(Charset.forName(charset))))
   def dispositionType(dispositionType: String) = copy(attributes = attributes.copy(dispositionType = Some(dispositionType)))
   def fileName(fileName: Expression[String]) = copy(attributes = attributes.copy(fileName = Some(fileName)))
@@ -76,9 +76,10 @@ case class BodyPart(
   def toMultiPart(session: Session): Validation[Part] =
     for {
       name <- resolveOptionalExpression(name, session)
+      contentType <- resolveOptionalExpression(attributes.contentType, session)
       fileName <- resolveOptionalExpression(attributes.fileName, session)
       contentId <- resolveOptionalExpression(attributes.contentId, session)
-      part <- partBuilder(name.orNull, attributes.contentType, attributes.charset, fileName, contentId, attributes.transferEncoding)(session)
+      part <- partBuilder(name.orNull, contentType, attributes.charset, fileName, contentId, attributes.transferEncoding)(session)
     } yield {
       attributes.dispositionType.foreach(part.setDispositionType)
       part
