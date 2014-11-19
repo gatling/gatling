@@ -17,9 +17,11 @@ package io.gatling.core.controller
 
 import java.util.UUID.randomUUID
 
+import io.gatling.core.session.Session
+
 import scala.collection.mutable
 import scala.concurrent.Future
-import scala.concurrent.duration.{ DurationInt, FiniteDuration }
+import scala.concurrent.duration._
 import scala.util.{ Failure => SFailure, Success => SSuccess }
 
 import com.typesafe.scalalogging.StrictLogging
@@ -33,7 +35,7 @@ import io.gatling.core.controller.throttle.{ Throttler, ThrottlingProtocol }
 import io.gatling.core.result.message.{ End, Start }
 import io.gatling.core.result.writer.{ DataWriter, RunMessage, UserMessage }
 import io.gatling.core.scenario.Scenario
-import io.gatling.core.util.TimeHelper.{ NanoTimeReference, nowMillis }
+import io.gatling.core.util.TimeHelper._
 
 case class Timings(maxDuration: Option[FiniteDuration], globalThrottling: Option[ThrottlingProtocol], perScenarioThrottlings: Map[String, ThrottlingProtocol])
 
@@ -68,7 +70,6 @@ class Controller extends BaseActor {
   var launcher: ActorRef = _
   var runId: String = _
   var timings: Timings = _
-  var throttler: Throttler = _
 
   val uninitialized: Receive = {
 
@@ -104,11 +105,18 @@ class Controller extends BaseActor {
       case _ =>
         val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
 
-        logger.debug("Launching All Scenarios")
-        scenarios.foldLeft(0) { (i, scenario) =>
-          scenario.run(userIdRoot, i)
-          i + scenario.injectionProfile.users
+        val (userStreams, _) = scenarios.foldLeft((Map.empty[String, UserStream], 0)) { (streamsAndOffset, scenario) =>
+          val (streams, offset) = streamsAndOffset
+
+          val stream = scenario.injectionProfile.allUsers.zipWithIndex
+          val userStream = UserStream(scenario, offset, stream)
+
+          (streams + (scenario.name -> userStream), offset + scenario.injectionProfile.users)
         }
+
+        val batcher = batchSchedule(userIdRoot, nowMillis, 10 seconds) _
+        logger.debug("Launching All Scenarios")
+        userStreams.values.foreach(batcher)
         logger.debug("Finished Launching scenarios executions")
 
         timings.maxDuration.foreach {
@@ -118,13 +126,15 @@ class Controller extends BaseActor {
           }
         }
 
+        val initializedState = initialized(userStreams, batcher)
+
         val newState = if (timings.globalThrottling.isDefined || timings.perScenarioThrottlings.nonEmpty) {
           logger.debug("Setting up throttling")
-          throttler = new Throttler(timings.globalThrottling, timings.perScenarioThrottlings)
           scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
-          throttling.orElse(initialized)
+          val throttler = new Throttler(timings.globalThrottling, timings.perScenarioThrottlings)
+          throttling(throttler).orElse(initializedState)
         } else
-          initialized
+          initializedState
 
         context.become(newState)
     }
@@ -132,12 +142,56 @@ class Controller extends BaseActor {
     case m => logger.error(s"Shouldn't happen. Ignore message $m while waiting for DataWriter to initialize")
   }
 
-  val throttling: Receive = {
+  def throttling(throttler: Throttler): Receive = {
     case OneSecondTick                           => throttler.flushBuffer()
     case ThrottledRequest(scenarioName, request) => throttler.send(scenarioName, request)
   }
 
-  def initialized: Receive = {
+  case class UserStream(scenario: Scenario, offset: Int, stream: Iterator[(FiniteDuration, Int)])
+
+  def batchSchedule(userIdRoot: String, start: Long, batchWindow: FiniteDuration)(userStream: UserStream): Unit = {
+
+    val scenario = userStream.scenario
+    val stream = userStream.stream
+
+      def startUser(i: Int): Unit = {
+        val session = Session(scenarioName = scenario.name,
+          userId = userIdRoot + (i + userStream.offset),
+          userEnd = scenario.protocols.userEnd)
+        // FIXME why not directly session?
+        self ! UserMessage(session.scenarioName, session.userId, Start, session.startDate, 0L)
+        scenario.entryPoint ! session
+      }
+
+    if (stream.hasNext) {
+      val batchTimeOffset = (nowMillis - start).millis
+      val nextBatchTimeOffset = batchTimeOffset + batchWindow
+
+      var continue = true
+
+      while (stream.hasNext && continue) {
+
+        val (startingTime, index) = stream.next
+        val delay = startingTime - batchTimeOffset
+        continue = startingTime < nextBatchTimeOffset
+
+        if (continue && delay <= ZeroMs)
+          startUser(index)
+
+        else
+          // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
+          scheduler.scheduleOnce(toMillisPrecision(delay)) {
+            startUser(index)
+          }
+      }
+
+      // schedule next batch
+      if (stream.hasNext)
+        self ! ScheduleNextUserBatch(scenario.name)
+    }
+  }
+
+  def initialized(userStreams: Map[String, UserStream], batcher: UserStream => Unit): Receive = {
 
       def dispatchUserEndToDataWriter(userMessage: UserMessage): Unit = {
         logger.info(s"End user #${userMessage.userId}")
@@ -163,6 +217,11 @@ class Controller extends BaseActor {
           if (finishedUsers == totalNumberOfUsers)
             becomeTerminating(None)
       }
+
+      case ScheduleNextUserBatch(scenarioName) =>
+        val userStream = userStreams(scenarioName)
+        logger.info(s"Starting new user batch for $scenarioName")
+        batcher(userStream)
 
       case ForceTermination(exception) =>
         // flush all active users
