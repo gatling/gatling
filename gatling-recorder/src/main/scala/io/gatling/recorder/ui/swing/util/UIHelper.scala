@@ -43,9 +43,8 @@ object UIHelper {
 
   implicit class RichTextComponent[T <: TextComponent](val textComponent: T) extends AnyVal {
 
-    def clear(): Unit = {
+    def clear(): Unit =
       textComponent.text = ""
-    }
   }
 
   implicit class RichFileChooser(val fileChooser: FileChooser) extends AnyVal {

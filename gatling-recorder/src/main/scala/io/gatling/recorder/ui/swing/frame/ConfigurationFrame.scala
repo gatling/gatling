@@ -23,7 +23,7 @@ import io.gatling.recorder.RecorderMode.{ Har, Proxy }
 import scala.collection.JavaConversions.seqAsJavaList
 import scala.swing._
 import scala.swing.BorderPanel.Position._
-import scala.swing.FileChooser.SelectionMode
+import scala.swing.FileChooser.SelectionMode._
 import scala.swing.event.{ ButtonClicked, KeyReleased, SelectionChanged }
 import scala.util.Try
 
@@ -36,7 +36,7 @@ import io.gatling.recorder.http.ssl.{ SSLServerContext, SSLCertUtil, HttpsMode, 
 import io.gatling.recorder.http.ssl.HttpsMode._
 import io.gatling.recorder.ui.RecorderFrontend
 import io.gatling.recorder.ui.swing.Commons._
-import io.gatling.recorder.ui.swing.component.FilterTable
+import io.gatling.recorder.ui.swing.component._
 import io.gatling.recorder.ui.swing.frame.ValidationHelper._
 import io.gatling.recorder.ui.swing.util._
 import io.gatling.recorder.ui.swing.util.UIHelper._
@@ -61,30 +61,22 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   /* HTTPS mode components */
   private val httpsModes = new LabelledComboBox[HttpsMode](HttpsMode.AllHttpsModes)
 
-  private val keyStorePath = new TextField(20)
-  private val keyStoreChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly }
-  private val keyStoreBrowserButton = Button("Browse")(keyStoreChooser.openSelection().foreach(keyStorePath.text = _))
+  private val keyStoreChooser = new DisplayedSelectionFileChooser(20, Open, selectionMode = FilesOnly)
   private val keyStorePassword = new TextField(10)
   private val keyStoreTypes = new LabelledComboBox[KeyStoreType](KeyStoreType.AllKeyStoreTypes)
-  private val certificatePath = new TextField(20)
-  private val certificatePathChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly }
-  private val certificatePathBrowserButton = Button("Browse")(certificatePathChooser.openSelection().foreach(certificatePath.text = _))
-  private val privateKeyPath = new TextField(20)
-  private val privateKeyPathChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly }
-  private val privateKeyPathBrowserButton = Button("Browse")(privateKeyPathChooser.openSelection().foreach(privateKeyPath.text = _))
+  private val certificatePathChooser = new DisplayedSelectionFileChooser(20, Open, selectionMode = FilesOnly)
+  private val privateKeyPathChooser = new DisplayedSelectionFileChooser(20, Open, selectionMode = FilesOnly)
 
-  private val caFilesSavePathChooser = new FileChooser { fileSelectionMode = SelectionMode.DirectoriesOnly }
-  private val generateCAFilesButton = new Button(Action("Generate CA")(caFilesSavePathChooser.openSelection().foreach { dir =>
+  private val caFilesSavePathChooser = new FileChooser { fileSelectionMode = DirectoriesOnly }
+  private val generateCAFilesButton = new Button(Action("Generate CA")(caFilesSavePathChooser.saveSelection().foreach { dir =>
     generateCAFiles(dir)
-    certificatePath.text = s"$dir/${SSLServerContext.GatlingCACrtFile}"
-    privateKeyPath.text = s"$dir/${SSLServerContext.GatlingCAKeyFile}"
+    certificatePathChooser.setPath(s"$dir/${SSLServerContext.GatlingCACrtFile}")
+    privateKeyPathChooser.setPath(s"$dir/${SSLServerContext.GatlingCAKeyFile}")
   }))
 
   /* Har Panel components */
-  private val harPath = new TextField(60)
   private val harFileFilter = new FileNameExtensionFilter("HTTP Archive (.har)", "har")
-  private val harFileChooser = new FileChooser { fileSelectionMode = SelectionMode.FilesOnly; fileFilter = harFileFilter }
-  private val harFileBrowserButton = Button("Browse")(harFileChooser.openSelection().foreach(harPath.text = _))
+  private val harPathChooser = new DisplayedSelectionFileChooser(60, Open, selectionMode = FilesOnly, fileFilter = harFileFilter)
 
   /* Simulation panel components */
   private val simulationPackage = new TextField(30)
@@ -97,9 +89,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
   /* Output panel components */
   private val outputEncoding = new ComboBox[String](CharsetHelper.orderedLabelList)
-  private val outputFolderPath = new TextField(60)
-  private val outputFolderChooser = new FileChooser { fileSelectionMode = SelectionMode.DirectoriesOnly }
-  private val outputFolderBrowserButton = Button("Browse")(outputFolderChooser.saveSelection().foreach(outputFolderPath.text = _))
+  private val outputFolderChooser = new DisplayedSelectionFileChooser(60, Open, selectionMode = DirectoriesOnly)
 
   /* Filters panel components */
   private val whiteListTable = new FilterTable("Whitelist")
@@ -148,8 +138,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
         val customKeyStoreConfig = new LeftAlignedFlowPanel {
           contents += new Label("Keystore file: ")
-          contents += keyStorePath
-          contents += keyStoreBrowserButton
+          contents += keyStoreChooser
           contents += new Label("Keystore password: ")
           contents += keyStorePassword
           contents += new Label("Keystore type: ")
@@ -158,11 +147,9 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
         val certificateAuthorityConfig = new LeftAlignedFlowPanel {
           contents += new Label("CA Certificate: ")
-          contents += certificatePath
-          contents += certificatePathBrowserButton
+          contents += certificatePathChooser
           contents += new Label("CA Private Key: ")
-          contents += privateKeyPath
-          contents += privateKeyPathBrowserButton
+          contents += privateKeyPathChooser
         }
 
         val localProxyAndHttpsMode = new LeftAlignedFlowPanel {
@@ -204,8 +191,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
         val fileSelection = new LeftAlignedFlowPanel {
           contents += new Label("HAR File: ")
-          contents += harPath
-          contents += harFileBrowserButton
+          contents += harPathChooser
         }
 
         layout(fileSelection) = Center
@@ -248,8 +234,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
         val folderSelection = new LeftAlignedFlowPanel {
           contents += new Label("Output folder*: ")
-          contents += outputFolderPath
-          contents += outputFolderBrowserButton
+          contents += outputFolderChooser
         }
         val encoding = new LeftAlignedFlowPanel {
           contents += new Label("Encoding: ")
@@ -382,7 +367,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
     outgoingProxyHost.keys,
     outgoingProxyHttpPort.keys,
     outgoingProxyHttpsPort.keys,
-    outputFolderPath.keys,
+    outputFolderChooser.chooserKeys,
     simulationPackage.keys,
     simulationClassName.keys)
 
@@ -394,7 +379,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
     ValidationHelper.registerValidator(outgoingProxyHost, Validator(isNonEmpty, enableOutgoingProxyConfig, disableOutgoingProxyConfig, alwaysValid = true))
     ValidationHelper.registerValidator(outgoingProxyHttpPort, Validator(outgoingProxyPortValidator))
     ValidationHelper.registerValidator(outgoingProxyHttpsPort, Validator(outgoingProxyPortValidator))
-    ValidationHelper.registerValidator(outputFolderPath, Validator(isNonEmpty))
+    ValidationHelper.registerValidator(outputFolderChooser.textField, Validator(isNonEmpty))
     ValidationHelper.registerValidator(simulationPackage, Validator(isValidPackageName))
     ValidationHelper.registerValidator(simulationClassName, Validator(isValidSimpleClassName))
   }
@@ -445,9 +430,9 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
   def selectedMode = modeSelector.selection.item
 
-  def harFilePath = harPath.text
+  def harFilePath = harPathChooser.selection
 
-  def updateHarFilePath(path: Option[String]): Unit = path.foreach(harPath.text = _)
+  def updateHarFilePath(path: Option[String]): Unit = path.foreach(p => harPathChooser.setPath(p))
 
   def generateCAFiles(directory: String): Unit = {
     SSLCertUtil.generateGatlingCAPEMFiles(
@@ -479,12 +464,12 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
     httpsModes.selection.item = configuration.proxy.https.mode
     toggleHttpsModesConfigsVisibility(httpsModes.selection.item)
 
-    keyStorePath.text = configuration.proxy.https.keyStore.path
+    keyStoreChooser.setPath(configuration.proxy.https.keyStore.path)
     keyStorePassword.text = configuration.proxy.https.keyStore.password
     keyStoreTypes.selection.item = configuration.proxy.https.keyStore.keyStoreType
 
-    certificatePath.text = configuration.proxy.https.certificateAuthority.certificatePath
-    privateKeyPath.text = configuration.proxy.https.certificateAuthority.privateKeyPath
+    certificatePathChooser.setPath(configuration.proxy.https.certificateAuthority.certificatePath)
+    privateKeyPathChooser.setPath(configuration.proxy.https.certificateAuthority.privateKeyPath)
 
     configuration.proxy.outgoing.host.map { proxyHost =>
       outgoingProxyHost.text = proxyHost
@@ -507,7 +492,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
     automaticReferers.selected = configuration.http.automaticReferer
     configuration.filters.blackList.patterns.foreach(blackListTable.addRow)
     configuration.filters.whiteList.patterns.foreach(whiteListTable.addRow)
-    outputFolderPath.text = configuration.core.outputFolder
+    outputFolderChooser.setPath(configuration.core.outputFolder)
     outputEncoding.selection.item = CharsetHelper.charsetNameToLabel(configuration.core.encoding)
     savePreferences.selected = configuration.core.saveConfig
 
@@ -541,12 +526,12 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
       props.httpsMode(httpsModes.selection.item.toString)
 
-      props.keystorePath(keyStorePath.text)
+      props.keystorePath(keyStoreChooser.selection)
       props.keyStorePassword(keyStorePassword.text)
       props.keyStoreType(keyStoreTypes.selection.item.toString)
 
-      props.certificatePath(certificatePath.text)
-      props.privateKeyPath(privateKeyPath.text)
+      props.certificatePath(certificatePathChooser.selection)
+      props.privateKeyPath(privateKeyPathChooser.selection)
 
       // Outgoing proxy
       outgoingProxyHost.text.trimToOption match {
@@ -578,7 +563,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
       props.removeConditionalCache(removeConditionalCache.selected)
       props.checkResponseBodies(checkResponseBodies.selected)
       props.automaticReferer(automaticReferers.selected)
-      props.simulationOutputFolder(outputFolderPath.text.trim)
+      props.simulationOutputFolder(outputFolderChooser.selection.trim)
       props.encoding(CharsetHelper.labelToCharsetName(outputEncoding.selection.item))
       props.saveConfig(savePreferences.selected)
 
