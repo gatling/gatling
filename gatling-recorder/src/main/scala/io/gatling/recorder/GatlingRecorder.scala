@@ -15,6 +15,8 @@
  */
 package io.gatling.recorder
 
+import java.nio.file.Path
+
 import io.gatling.recorder.CommandLineConstants._
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.controller.RecorderController
@@ -49,6 +51,6 @@ object GatlingRecorder {
       RecorderController(props.build)
   }
 
-  def fromMap(props: mutable.Map[String, Any]) =
-    RecorderController(props)
+  def fromMap(props: mutable.Map[String, Any], recorderConfigFile: Option[Path] = None) =
+    RecorderController(props, recorderConfigFile)
 }
