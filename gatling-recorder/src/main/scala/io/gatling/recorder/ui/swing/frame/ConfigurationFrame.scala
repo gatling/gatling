@@ -18,6 +18,8 @@ package io.gatling.recorder.ui.swing.frame
 import java.awt.Font
 import javax.swing.filechooser.FileNameExtensionFilter
 
+import io.gatling.recorder.RecorderMode.{ Har, Proxy }
+
 import scala.collection.JavaConversions.seqAsJavaList
 import scala.swing._
 import scala.swing.BorderPanel.Position._
@@ -327,20 +329,21 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   /**           EVENTS HANDLING           **/
   /*****************************************/
 
+  def toggleModeSelector(mode: RecorderMode): Unit = mode match {
+    case Proxy =>
+      root.center.network.visible = true
+      root.center.har.visible = false
+    case Har =>
+      root.center.network.visible = false
+      root.center.har.visible = true
+  }
+
   /* Reactions I: handling filters, save checkbox, table edition and switching between Proxy and HAR mode */
   listenTo(filterStrategies.selection, modeSelector.selection, httpsModes.selection, savePreferences)
   // Backticks are needed to match the components, see section 8.1.5 of Scala spec.
   reactions += {
     case SelectionChanged(`modeSelector`) =>
-      import RecorderMode._
-      modeSelector.selection.item match {
-        case Proxy =>
-          root.center.network.visible = true
-          root.center.har.visible = false
-        case Har =>
-          root.center.network.visible = false
-          root.center.har.visible = true
-      }
+      toggleModeSelector(modeSelector.selection.item)
     case SelectionChanged(`filterStrategies`) =>
       val isNotDisabledStrategy = filterStrategies.selection.item != FilterStrategy.Disabled
       toggleFiltersEdition(isNotDisabledStrategy)
@@ -467,6 +470,10 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
    * Configure fields, checkboxes, filters... based on the current Recorder configuration
    */
   private def populateItemsFromConfiguration(): Unit = {
+
+    modeSelector.selection.item = configuration.core.mode
+    toggleModeSelector(modeSelector.selection.item)
+
     localProxyHttpPort.text = configuration.proxy.port.toString
 
     httpsModes.selection.item = configuration.proxy.https.mode
@@ -525,8 +532,9 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
       frontend.handleFilterValidationFailures(filterValidationFailures)
 
     } else {
-
       val props = new RecorderPropertiesBuilder
+
+      props.mode(modeSelector.selection.item)
 
       // Local proxy
       props.localPort(Try(localProxyHttpPort.text.toInt).getOrElse(0))

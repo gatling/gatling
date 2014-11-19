@@ -18,6 +18,7 @@ package io.gatling.recorder.config
 import java.io.FileNotFoundException
 import java.nio.file.Path
 
+import io.gatling.recorder.RecorderMode
 import io.gatling.recorder.http.ssl.{ KeyStoreType, HttpsMode }
 
 import scala.collection.JavaConversions._
@@ -121,6 +122,7 @@ object RecorderConfiguration extends StrictLogging {
 
     RecorderConfiguration(
       core = CoreConfiguration(
+        mode = RecorderMode(config.getString(core.Mode)),
         encoding = config.getString(core.Encoding),
         outputFolder = getOutputFolder(config.getString(core.SimulationOutputFolder)),
         bodiesFolder = getBodiesFolder,
@@ -177,6 +179,7 @@ case class FiltersConfiguration(
 }
 
 case class CoreConfiguration(
+  mode: RecorderMode,
   encoding: String,
   outputFolder: String,
   bodiesFolder: String,

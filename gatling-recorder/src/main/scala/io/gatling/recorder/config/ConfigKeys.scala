@@ -20,6 +20,7 @@ object ConfigKeys {
   val ConfigRoot = "recorder"
 
   object core {
+    val Mode = "recorder.core.mode"
     val Encoding = "recorder.core.encoding"
     val SimulationOutputFolder = "recorder.core.outputFolder"
     val BodiesFolder = "recorder.core.bodiesFolder"

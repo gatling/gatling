@@ -17,6 +17,8 @@ package io.gatling.recorder.config
 
 import java.util.{ List => JList }
 
+import io.gatling.recorder.RecorderMode
+
 import scala.collection.mutable
 
 import io.gatling.recorder.config.ConfigKeys._
@@ -24,6 +26,9 @@ import io.gatling.recorder.config.ConfigKeys._
 class RecorderPropertiesBuilder {
 
   private val props = mutable.Map.empty[String, Any]
+
+  def mode(mode: RecorderMode): Unit =
+    props += core.Mode -> mode.toString
 
   def encoding(encoding: String): Unit =
     props += core.Encoding -> encoding
