@@ -21,12 +21,12 @@ import java.nio.file.Path
 import java.security._
 import java.security.cert.X509Certificate
 import java.util.Date
-import java.util.concurrent.TimeUnit
 import javax.security.auth.x500.X500Principal
 
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 
 import scala.util.Try
+import scala.concurrent.duration._
 
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.util.IO.withCloseable
@@ -76,7 +76,7 @@ object SSLCertUtil extends StrictLogging {
           new X500Principal(dn), // issuer
           BigInteger.valueOf(now), // serial
           new Date(now), // notBefore
-          new Date(now + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)), // notAfter
+          new Date(now + 365.days.toMillis), // notAfter
           new X500Principal(dn), //subject
           pair.getPublic) // publicKey
 
@@ -127,7 +127,7 @@ object SSLCertUtil extends StrictLogging {
         new JcaX509CertificateHolder(caCert).getSubject, // issuer
         BigInteger.valueOf(now), // serial
         new Date(now), // notBefore
-        new Date(now + TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)), // notAfter
+        new Date(now + 1.day.toMillis), // notAfter
         csr.getSubject, //subject
         csr.getSubjectPublicKeyInfo) // publicKey
       val signer = newSigner(caKey)
