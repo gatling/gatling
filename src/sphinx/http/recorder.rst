@@ -29,6 +29,36 @@ Then, update the connection settings:
 
 .. image:: img/recorder-browser_advanced_settings.png
 
+
+HTTPS mode
+----------
+
+On the contrary to regular proxies that act as a pass-though, the recorder acts as a man-in-the-middle and decrypt your HTTPS traffic.
+The consequence is that it's identified by browsers as a security threat, so, one way or the other, you have to tell your browser that everything is fine.
+
+The Recorder has 3 modes:
+
+* Self-signed certificate (historical default)
+
+The recorder will use the same self-signed certificate for every domain.
+Browsers will prompt a security alert, and ask you if you want to add a security exception for this domain.
+If it doesn't do so, it means that you've already registered a validated (by a standard Certificate Authority) certificate and it refuses to replace it by a less secured one.
+You then have to remove it from your certificate registry.
+
+.. warning:: Browsers will only prompt a security alert for the page domain, not for resource ones (typically, CNDs).
+             The Recorder will list all such domains, you'll then have to directly visit every one the them and add a security exception for each.
+
+* Provided KeyStore
+
+One can pass a full Java keyStore (JKS or PKCS#12 format) that contains the certificate to be used.
+
+* On-the-fly certificate generation
+
+This mode takes a Certificate Authority (certificate and private key, in PEM format) and generates signed certificates for every visited domain.
+It requires you to import the CA certificate into your browser's CA list.
+
+You can either ask Gatling to generate those files for you, or provide a CA of your own.
+
 Outgoing proxy
 --------------
 
