@@ -115,8 +115,8 @@ class RecorderController extends StrictLogging {
       }
     }
 
-  def receiveResponse(request: TimedHttpRequest, response: HttpResponse)(implicit configuration: RecorderConfiguration): Unit = {
-    if (configuration.filters.filters.map(_.accept(request.httpRequest.getUri)).getOrElse(true)) {
+  def receiveResponse(request: TimedHttpRequest, response: HttpResponse): Unit =
+    if (RecorderConfiguration.configuration.filters.filters.map(_.accept(request.httpRequest.getUri)).getOrElse(true)) {
       val arrivalTime = System.currentTimeMillis
 
       val requestEl = RequestElement(request.httpRequest, response)
@@ -126,12 +126,11 @@ class RecorderController extends StrictLogging {
       val previousSendTime = currentRequests.lastOption.map(_.sendTime)
       previousSendTime.foreach { t =>
         val delta = (arrivalTime - t).milliseconds
-        if (delta > configuration.core.thresholdForPauseCreation)
+        if (delta > RecorderConfiguration.configuration.core.thresholdForPauseCreation)
           frontEnd.receiveEventInfo(PauseInfo(delta))
       }
       frontEnd.receiveEventInfo(RequestInfo(request.httpRequest, response))
     }
-  }
 
   def addTag(text: String): Unit = {
     val now = System.currentTimeMillis
