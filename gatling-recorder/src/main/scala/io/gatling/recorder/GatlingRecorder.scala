@@ -20,6 +20,8 @@ import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.controller.RecorderController
 import scopt.OptionParser
 
+import scala.collection.mutable
+
 object GatlingRecorder {
 
   private val props = new RecorderPropertiesBuilder
@@ -40,8 +42,13 @@ object GatlingRecorder {
     opt[Boolean](InferHtmlResources).foreach(props.inferHtmlResources).text("""Sets the "Fetch html resources" option to true""")
   }
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit = fromArgs(args)
+
+  def fromArgs(args: Array[String]): Unit = {
     if (cliOptsParser.parse(args))
       RecorderController(props.build)
   }
+
+  def fromMap(props: mutable.Map[String, Any]) =
+    RecorderController(props)
 }
