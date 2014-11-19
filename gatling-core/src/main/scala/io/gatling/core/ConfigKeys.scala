@@ -50,7 +50,7 @@ object ConfigKeys {
     }
     object directory {
       val Data = "gatling.core.directory.data"
-      val RequestBodies = "gatling.core.directory.requestBodies"
+      val Bodies = "gatling.core.directory.bodies"
       val Simulations = "gatling.core.directory.simulations"
       val Binaries = "gatling.core.directory.binaries"
       val ReportsOnly = "gatling.core.directory.reportsOnly"
@@ -119,6 +119,8 @@ object ConfigKeys {
       val HttpClientCodecMaxChunkSize = "gatling.http.ahc.httpClientCodecMaxChunkSize"
       val KeepEncodingHeader = "gatling.http.ahc.keepEncodingHeader"
       val WebSocketMaxFrameSize = "gatling.http.ahc.webSocketMaxFrameSize"
+      val HttpsEnabledProtocols = "gatling.http.ahc.httpsEnabledProtocols"
+      val HttpsEnabledCipherSuites = "gatling.http.ahc.httpsEnabledCipherSuites"
     }
   }
 

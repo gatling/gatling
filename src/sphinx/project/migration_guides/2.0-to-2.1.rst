@@ -42,3 +42,18 @@ by::
 
   import java.nio.file.Path
   import io.gatling.core.util.PathHelper._
+
+Core
+====
+
+Mute mode
+---------
+
+The "mute mode" option, which was previously restricted to the SBT Plugin,
+is now also usable by the bundle scripts and the Maven Archetype.
+
+Assertions
+----------
+
+Validating assertions in combination with the ``reports-only`` / ``ro`` option
+does not require to pass the simulation (using ``-s``) for which the assertions will be validated anymore.

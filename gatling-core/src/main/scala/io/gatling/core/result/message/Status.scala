@@ -17,12 +17,12 @@ package io.gatling.core.result.message
 
 object Status {
   def valueOf(string: String) = string match {
-    case "OK" => OK
-    case "KO" => KO
-    case _    => throw new IllegalArgumentException(s"Illegal Status value $string")
+    case OK.name => OK
+    case KO.name => KO
+    case _       => throw new IllegalArgumentException(s"Illegal Status value $string")
   }
 }
 
-sealed trait Status
-case object OK extends Status
-case object KO extends Status
+sealed abstract class Status(val name: String)
+case object OK extends Status("OK")
+case object KO extends Status("KO")

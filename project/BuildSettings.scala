@@ -15,7 +15,7 @@ object BuildSettings {
     organizationHomepage  := Some(url("http://gatling.io")),
     startYear             := Some(2011),
     licenses              := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
-    scalaVersion          := "2.11.2",
+    scalaVersion          := "2.11.4",
     autoScalaLibrary      := false,
     updateOptions         := updateOptions.value.withLatestSnapshots(false).withConsolidatedResolution(true),
     resolvers             := Seq(Resolver.mavenLocal, Opts.resolver.sonatypeSnapshots),

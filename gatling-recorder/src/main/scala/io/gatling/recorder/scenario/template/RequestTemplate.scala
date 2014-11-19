@@ -17,8 +17,10 @@ package io.gatling.recorder.scenario.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.util.StringHelper.EmptyFastring
+import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams }
 import io.gatling.recorder.scenario.RequestElement
+import io.gatling.recorder.scenario.ScenarioExporter
 
 object RequestTemplate {
 
@@ -26,12 +28,12 @@ object RequestTemplate {
 
   def headersBlockName(id: Int) = fast"headers_$id"
 
-  def renderRequest(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris): Fastring = {
+  def renderRequest(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris)(implicit config: RecorderConfiguration): Fastring = {
       def renderMethod: Fastring =
         if (BuiltInHttpMethods.contains(request.method)) {
           fast"${request.method.toLowerCase}($renderUrl)"
         } else {
-          fast"""httpRequest("$request.method", Left($renderUrl))"""
+          fast"""httpRequest("${request.method}", Left($renderUrl))"""
         }
 
       def usesBaseUrl: Boolean =
@@ -49,7 +51,7 @@ object RequestTemplate {
 
       def renderBodyOrParams: Fastring = request.body.map {
         case RequestBodyBytes(_) => fast"""
-			.body(RawFileBody("${simulationClass}_request_${request.id.filled(4, '0')}.txt"))"""
+			.body(RawFileBody("${ScenarioExporter.requestBodyFileName(request)}"))"""
         case RequestBodyParams(params) => params.map {
           case (key, value) => fast"""
 			.formParam(${protectWithTripleQuotes(key)}, ${protectWithTripleQuotes(value)})"""
@@ -68,6 +70,13 @@ object RequestTemplate {
         else
           EmptyFastring
 
+      def renderResponseBodyCheck: Fastring =
+        if (request.responseBody.isDefined && config.http.checkResponseBodies)
+          fast"""
+			.check(bodyString.is(RawFileBody("${ScenarioExporter.responseBodyFileName(request)}")))"""
+        else
+          EmptyFastring
+
       def renderResources: Fastring =
         if (request.nonEmbeddedResources.nonEmpty)
           fast"""
@@ -80,9 +89,9 @@ object RequestTemplate {
           EmptyFastring
 
     fast"""http("request_${request.id}")
-			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderResources$renderStatusCheck"""
+			.$renderMethod$renderHeaders$renderBodyOrParams$renderCredentials$renderResources$renderStatusCheck$renderResponseBodyCheck"""
   }
 
-  def render(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris): String =
+  def render(simulationClass: String, request: RequestElement, extractedUri: ExtractedUris)(implicit config: RecorderConfiguration): String =
     fast"exec(${renderRequest(simulationClass, request, extractedUri)})".toString
 }

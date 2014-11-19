@@ -16,18 +16,19 @@
 package io.gatling.recorder.config
 
 import io.gatling.core.util.ClassSimpleNameToString
+import io.gatling.recorder.util.Labelled
 
-sealed trait FilterStrategy extends ClassSimpleNameToString { def name: String }
+sealed abstract class FilterStrategy(val label: String) extends Labelled with ClassSimpleNameToString
 
 object FilterStrategy {
 
-  case object WhitelistFirst extends FilterStrategy { val name = "Whitelist First" }
-  case object BlacklistFirst extends FilterStrategy { val name = "Blacklist First" }
-  case object Disabled extends FilterStrategy { val name = "Disabled" }
+  case object WhitelistFirst extends FilterStrategy("Whitelist First")
+  case object BlacklistFirst extends FilterStrategy("Blacklist First")
+  case object Disabled extends FilterStrategy("Disabled")
 
   val AllStrategies = List(WhitelistFirst, BlacklistFirst, Disabled)
 
-  def fromString(s: String): FilterStrategy =
+  def apply(s: String): FilterStrategy =
     AllStrategies.find(_.toString == s).getOrElse {
       throw new IllegalArgumentException(s"$s is not a valid filter strategy")
     }

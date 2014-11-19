@@ -8,11 +8,6 @@ Maven Plugin
 
 Thanks to this plugin, Gatling can be launched when building your project, for example with your favorite CI solution.
 
-Set up the repositories
-=======================
-
-Gatling depends on libraries that are hosted on Maven Central.
-
 Set up the gatling-maven-plugin
 ===============================
 
@@ -48,7 +43,7 @@ The example below shows the default values.
     <configFolder>src/test/resources</configFolder>
     <dataFolder>src/test/resources/data</dataFolder>
     <resultsFolder>target/gatling/results</resultsFolder>
-    <requestBodiesFolder>src/test/resources/request-bodies</requestBodiesFolder>
+    <bodiesFolder>src/test/resources/bodies</bodiesFolder>
     <simulationsFolder>src/test/scala</simulationsFolder>
   <!--    <noReports>false</noReports> -->
   <!--   <reportsOnly>directoryName</reportsOnly> -->

@@ -31,5 +31,6 @@ trait Feeds[B] extends Execs[B] {
    * @param feederBuilder the feeder from which the values will be loaded
    * @param number the number of records to be polled (default 1)
    */
-  def feed(feederBuilder: FeederBuilder[_], number: Expression[Int] = Feeds.oneExpression): B = exec(FeedBuilder(feederBuilder, number))
+  def feed(feederBuilder: FeederBuilder[_], number: Expression[Int] = Feeds.oneExpression): B =
+    exec(FeedBuilder(feederBuilder, number))
 }

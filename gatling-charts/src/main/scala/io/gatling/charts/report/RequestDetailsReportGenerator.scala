@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.report
 
-import io.gatling.charts.component.{ Component, ComponentLibrary, ErrorTableComponent, StatisticsTextComponent }
+import io.gatling.charts.component.{ Component, ComponentLibrary, ErrorsTableComponent, StatisticsTextComponent }
 import io.gatling.charts.config.ChartsFiles.requestFile
 import io.gatling.charts.result.reader.RequestPath
 import io.gatling.charts.template.RequestDetailsPageTemplate
@@ -102,7 +102,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
           new RequestDetailsPageTemplate(path, requestName, group,
             new StatisticsTextComponent,
             componentLibrary.getRequestDetailsIndicatorChartComponent,
-            new ErrorTableComponent(dataReader.errors(Some(requestName), group)),
+            new ErrorsTableComponent(dataReader.errors(Some(requestName), group)),
             responseTimeDistributionChartComponent,
             responseTimeChartComponent,
             latencyChartComponent,

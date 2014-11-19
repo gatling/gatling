@@ -17,7 +17,7 @@ package io.gatling.core.scenario
 
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
-import io.gatling.core.assertion.{ Assertion, Metric }
+import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.{ Protocol, Protocols }
 import io.gatling.core.controller.Timings
 import io.gatling.core.controller.throttle.{ ThrottlingBuilder, ThrottlingProtocol }
@@ -74,10 +74,10 @@ abstract class Simulation {
       this
     }
 
-    def assertions(metrics: Metric[_]*): SetUp = assertions(metrics.toIterable)
+    def assertions(asserts: Assertion*): SetUp = assertions(asserts.toIterable)
 
-    def assertions(metrics: Iterable[Metric[_]]): SetUp = {
-      _assertions = metrics.toIndexedSeq.flatMap(_.assertions)
+    def assertions(asserts: Iterable[Assertion]): SetUp = {
+      _assertions = _assertions ++ asserts
       this
     }
 

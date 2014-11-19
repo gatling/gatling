@@ -17,12 +17,16 @@ package io.gatling.core.session.el
 
 import java.util.{ ArrayList => JArrayList, HashMap => JHashMap, LinkedList => JLinkedList }
 
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.json.Jackson
 import org.scalatest.{ FlatSpec, Matchers }
 
 import io.gatling.core.session.{ el, Session }
 import io.gatling.core.test.ValidationValues
 
 class ELSpec extends FlatSpec with Matchers with ValidationValues {
+
+  GatlingConfiguration.setUpForTest()
 
   "One monovalued Expression" should "return expected result when the variable is the whole string" in {
     val session = Session("scenario", "1", Map("bar" -> "BAR"))
@@ -76,6 +80,37 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
         "foo": FOO,
         "bar": 1
       }"""
+  }
+
+  it should "have toJSONString deal with String value" in {
+    val session = Session("scenario", "1", Map("value" -> "VALUE"))
+    val expression = """"name": ${value.toJsonValue()}""".el[String]
+    expression(session).succeeded shouldBe """"name": "VALUE""""
+  }
+
+  it should "have toJSONString deal with number value" in {
+    val session = Session("scenario", "1", Map("value" -> 5.0))
+    val expression = """"name": ${value.toJsonValue()}""".el[String]
+    expression(session).succeeded shouldBe """"name": 5.0"""
+  }
+
+  it should "have toJSONString deal with null value" in {
+    val session = Session("scenario", "1", Map("value" -> null))
+    val expression = """"name": ${value.toJsonValue()}""".el[String]
+    expression(session).succeeded shouldBe """"name": null"""
+  }
+
+  it should "have toJsonValue deal with key access" in {
+
+    val json = Jackson.parse(
+      """{
+        |"bar": {
+        |    "baz": "qix"
+        |  }
+        |}""".stripMargin)
+    val session = Session("scenario", "1", Map("foo" -> json))
+    val expression = "${foo.bar.toJsonValue()}".el[String]
+    expression(session).succeeded shouldBe """{"baz":"qix"}"""
   }
 
   "Multivalued Expression" should "return expected result with 2 monovalued expressions" in {
@@ -289,8 +324,7 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
   }
 
   it should "handle nested map access" in {
-    val map = Map("key" -> Map("subKey" -> "val"))
-    val session = Session("scenario", "1", Map("map" -> map))
+    val session = Session("scenario", "1", Map("map" -> Map("key" -> Map("subKey" -> "val"))))
     val expression = "${map.key.subKey}".el[String]
     expression(session).succeeded shouldBe "val"
   }

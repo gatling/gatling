@@ -13,23 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.http.ssl
+package io.gatling
 
-import org.jboss.netty.example.securechat.SecureChatSslContextFactory
+import io.gatling.core.scenario.Simulation
 
-import javax.net.ssl.SSLEngine
+import scala.collection.mutable
 
-object SSLEngineFactory {
+package object app {
 
-  def newServerSSLEngine: SSLEngine = {
-    val ctx = SecureChatSslContextFactory.ServerContext.createSSLEngine
-    ctx.setUseClientMode(false)
-    ctx
-  }
+  type ConfigOverrides = mutable.Map[String, _]
+  type StatusCode = Int
 
-  def newClientSSLEngine: SSLEngine = {
-    val ctx = SecureChatSslContextFactory.ClientContext.createSSLEngine
-    ctx.setUseClientMode(true)
-    ctx
-  }
+  type SelectedSingleSimulation = Option[Class[Simulation]]
+  type AllSimulations = List[Class[Simulation]]
 }

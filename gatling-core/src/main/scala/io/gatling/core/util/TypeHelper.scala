@@ -25,7 +25,7 @@ object TypeHelper {
   def isAnyValOrString[T: TypeTag](obj: T) =
     typeOf[T] <:< typeOf[AnyVal] || obj.isInstanceOf[String]
 
-  val NullValueFailure = s"Value is null".failure
+  val NullValueFailure = "Value is null".failure
 
   implicit class TypeCaster(val value: Any) extends AnyVal {
 

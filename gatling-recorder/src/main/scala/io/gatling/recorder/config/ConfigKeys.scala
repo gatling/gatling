@@ -22,7 +22,7 @@ object ConfigKeys {
   object core {
     val Encoding = "recorder.core.encoding"
     val SimulationOutputFolder = "recorder.core.outputFolder"
-    val RequestBodiesFolder = "recorder.core.requestBodiesFolder"
+    val BodiesFolder = "recorder.core.bodiesFolder"
     val Package = "recorder.core.package"
     val ClassName = "recorder.core.className"
     val ThresholdForPauseCreation = "recorder.core.thresholdForPauseCreation"
@@ -38,9 +38,25 @@ object ConfigKeys {
     val FollowRedirect = "recorder.http.followRedirect"
     val InferHtmlResources = "recorder.http.inferHtmlResources"
     val RemoveConditionalCache = "recorder.http.removeConditionalCache"
+    val CheckResponseBodies = "recorder.http.checkResponseBodies"
   }
   object proxy {
     val Port = "recorder.proxy.port"
+
+    object https {
+      val Mode = "recorder.proxy.https.mode"
+
+      object keyStore {
+        val Path = "recorder.proxy.https.keyStore.path"
+        val Password = "recorder.proxy.https.keyStore.password"
+        val Type = "recorder.proxy.https.keyStore.type"
+      }
+
+      object certificateAuthority {
+        val CertificatePath = "recorder.proxy.https.certificateAuthority.certificatePath"
+        val PrivateKeyPath = "recorder.proxy.https.certificateAuthority.privateKeyPath"
+      }
+    }
 
     object outgoing {
       val Host = "recorder.proxy.outgoing.host"

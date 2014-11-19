@@ -17,6 +17,8 @@ package io.gatling.core.result.writer
  */
 import java.lang.System.currentTimeMillis
 
+import io.gatling.core.assertion.Assertion
+
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
@@ -43,7 +45,7 @@ class LeakReporterDataWriter extends DataWriter {
     case Display => display()
   }
 
-  override def onInitializeDataWriter(run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
     lastTouch = currentTimeMillis
     scheduler.schedule(0 seconds, noActivityTimeout, self, Display)
   }

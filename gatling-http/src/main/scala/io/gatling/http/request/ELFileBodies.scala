@@ -31,7 +31,7 @@ object ELFileBodies {
   def asString(filePath: Expression[String]): Expression[String] = {
 
       def compileFile(path: String): Validation[Expression[String]] =
-        Resource.requestBody(path)
+        Resource.body(path)
           .map(resource => withCloseable(resource.inputStream) {
             _.toString(configuration.core.charset)
           }).map(_.el[String])

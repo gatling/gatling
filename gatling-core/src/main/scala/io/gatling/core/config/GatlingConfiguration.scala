@@ -16,8 +16,9 @@
 package io.gatling.core.config
 
 import java.nio.charset.Charset
+import java.util.ResourceBundle
 
-import scala.collection.JavaConversions.mapAsJavaMap
+import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.io.Codec
 
@@ -55,58 +56,21 @@ object GatlingConfiguration extends StrictLogging {
   }
 
   def setUp(props: mutable.Map[String, _ <: Any] = mutable.Map.empty): Unit = {
+    sealed abstract class ObsoleteUsage(val message: String) { def path: String }
+    case class Removed(path: String, advice: String) extends ObsoleteUsage(s"'$path' was removed, $advice.")
+    case class Renamed(path: String, replacement: String) extends ObsoleteUsage(s"'$path' was renamed into $replacement.")
 
-    sealed trait ObsoleteUsage { def path: String; def message: String }
-    case class Removed(path: String, advice: String) extends ObsoleteUsage {
-      def message = s"'$path' was removed, $advice."
-    }
-    case class Renamed(path: String, replacement: String) extends ObsoleteUsage {
-      def message = s"'$path' was renamed into $replacement."
-    }
+      def loadObsoleteUsagesFromBundle[T <: ObsoleteUsage](bundleName: String, creator: (String, String) => T): Vector[T] = {
+        val bundle = ResourceBundle.getBundle(bundleName)
+        bundle.getKeys.map(key => creator(key, bundle.getString(key))).toVector
+      }
 
       def warnAboutRemovedProperties(config: Config): Unit = {
+        val removedProperties = loadObsoleteUsagesFromBundle("config-removed", Removed.apply)
+        val renamedProperties = loadObsoleteUsagesFromBundle("config-renamed", Renamed.apply)
 
-        val obsoleteUsages = Vector(
-          Removed("gatling.core.extract.xpath.saxParserFactory", "now Gatling uses Saxon"),
-          Removed("gatling.core.extract.xpath.domParserFactory", "now Gatling uses Saxon"),
-          Removed("gatling.core.extract.xpath.expandEntityReferences", "now Gatling uses Saxon"),
-          Removed("gatling.core.extract.xpath.namespaceAware", "always enabled"),
-          Removed("gatling.core.extract.css.engine", "now Gatling supports only Jodd"),
-          Removed("gatling.core.timeOut.actor", "internal concern"),
-          Removed("gatling.charting.statsTsvSeparator", "stats.tsv was dropped"),
-          Removed("gatling.http.baseUrls", "use HttpProtocol"),
-          Removed("gatling.http.proxy.host", "use HttpProtocol"),
-          Removed("gatling.http.proxy.port", "use HttpProtocol"),
-          Removed("gatling.http.proxy.securedPort", "use HttpProtocol"),
-          Removed("gatling.http.proxy.username", "use HttpProtocol"),
-          Removed("gatling.http.proxy.password", "use HttpProtocol"),
-          Removed("gatling.http.followRedirect", "use HttpProtocol"),
-          Removed("gatling.http.autoReferer", "use HttpProtocol"),
-          Removed("gatling.http.cache", "use HttpProtocol"),
-          Removed("gatling.http.discardResponseChunks", "use HttpProtocol"),
-          Removed("gatling.http.shareConnections", "use HttpProtocol"),
-          Removed("gatling.http.basicAuth.username", "use HttpProtocol"),
-          Removed("gatling.http.basicAuth.password", "use HttpProtocol"),
-          Removed("gatling.http.ahc.provider", "now Gatling supports only Netty"),
-          Removed("gatling.http.ahc.requestCompressionLevel", "wasn't working, use processRequestBody(gzipBody)"),
-          Removed("gatling.http.ahc.userAgent", "use HttpProtocol"),
-          Removed("gatling.http.ahc.rfc6265CookieEncoding", "always enabled"),
-          Removed("gatling.http.ahc.useRawUrl", "feature dropped"),
-          Removed("gatling.core.disableCompiler", "Gatling doesn't compile itself when it's not needed"),
-          Removed("gatling.core.zinc.jvmArgs", "Uneeded since the compiler is not started by Gatling"),
-          Renamed("gatling.http.ahc.allowPoolingConnection", "gatling.http.ahc.allowPoolingConnections"),
-          Renamed("gatling.http.ahc.allowSslConnectionPool", "gatling.http.ahc.allowPoolingSslConnections"),
-          Renamed("gatling.http.ahc.idleConnectionInPoolTimeoutInMs", "gatling.http.ahc.pooledConnectionIdleTimeout"),
-          Renamed("gatling.http.ahc.maximumConnectionsPerHost", "gatling.http.ahc.maxConnectionsPerHost"),
-          Renamed("gatling.http.ahc.maximumConnectionsTotal", "gatling.http.ahc.maxConnections"),
-          Renamed("gatling.http.ahc.requestTimeoutInMs", "gatling.http.ahc.requestTimeout"),
-          Renamed("gatling.http.ahc.maxConnectionLifeTimeInMs", "gatling.http.ahc.connectionTTL"),
-          Removed("gatling.http.ahc.compressionEnabled", "always enabled but behavior driven by Accept-Encoding header, see gatling.http.ahc.compressionEnforced"),
-          Renamed("gatling.http.ahc.connectionTimeout", "gatling.http.ahc.connectTimeout"),
-          Renamed("gatling.http.ahc.idleConnectionTimeoutInMs", "gatling.http.ahc.readTimeout"),
-          Renamed("gatling.http.ahc.maximumConnectionsPerHost", "gatling.http.ahc.maxConnectionsPerHost"),
-          Renamed("gatling.http.ahc.maximumConnectionsTotal", "gatling.http.ahc.maxConnections"))
-          .collect { case obs if config.hasPath(obs.path) => obs.message }
+        val obsoleteUsages =
+          (removedProperties ++ renamedProperties).collect { case obs if config.hasPath(obs.path) => obs.message }
 
         if (obsoleteUsages.nonEmpty) {
           logger.error(
@@ -156,7 +120,7 @@ object GatlingConfiguration extends StrictLogging {
           simulation = config.getInt(core.timeOut.Simulation)),
         directory = DirectoryConfiguration(
           data = config.getString(core.directory.Data),
-          requestBodies = config.getString(core.directory.RequestBodies),
+          bodies = config.getString(core.directory.Bodies),
           sources = config.getString(core.directory.Simulations),
           binaries = config.getString(core.directory.Binaries).trimToOption,
           reportsOnly = config.getString(core.directory.ReportsOnly).trimToOption,
@@ -168,8 +132,8 @@ object GatlingConfiguration extends StrictLogging {
         indicators = IndicatorsConfiguration(
           lowerBound = config.getInt(charting.indicators.LowerBound),
           higherBound = config.getInt(charting.indicators.HigherBound),
-          percentile1 = config.getInt(charting.indicators.Percentile1),
-          percentile2 = config.getInt(charting.indicators.Percentile2))),
+          percentile1 = config.getDouble(charting.indicators.Percentile1),
+          percentile2 = config.getDouble(charting.indicators.Percentile2))),
       http = HttpConfiguration(
         elFileBodiesCacheMaxCapacity = config.getLong(http.ELFileBodiesCacheMaxCapacity),
         rawFileBodiesCacheMaxCapacity = config.getLong(http.RawFileBodiesCacheMaxCapacity),
@@ -217,7 +181,9 @@ object GatlingConfiguration extends StrictLogging {
           httpClientCodecMaxHeaderSize = config.getInt(http.ahc.HttpClientCodecMaxHeaderSize),
           httpClientCodecMaxChunkSize = config.getInt(http.ahc.HttpClientCodecMaxChunkSize),
           keepEncodingHeader = config.getBoolean(http.ahc.KeepEncodingHeader),
-          webSocketMaxFrameSize = config.getInt(http.ahc.WebSocketMaxFrameSize))),
+          webSocketMaxFrameSize = config.getInt(http.ahc.WebSocketMaxFrameSize),
+          httpsEnabledProtocols = config.getString(http.ahc.HttpsEnabledProtocols).toStringList,
+          httpsEnabledCipherSuites = config.getString(http.ahc.HttpsEnabledCipherSuites).toStringList)),
       data = DataConfiguration(
         dataWriterClasses = config.getString(data.Writers).toStringList.map {
           case "console"  => "io.gatling.core.result.writer.ConsoleDataWriter"
@@ -308,7 +274,7 @@ case class CssConfiguration(
 
 case class DirectoryConfiguration(
   data: String,
-  requestBodies: String,
+  bodies: String,
   sources: String,
   binaries: Option[String],
   reportsOnly: Option[String],
@@ -323,8 +289,8 @@ case class ChartingConfiguration(
 case class IndicatorsConfiguration(
   lowerBound: Int,
   higherBound: Int,
-  percentile1: Int,
-  percentile2: Int)
+  percentile1: Double,
+  percentile2: Double)
 
 case class HttpConfiguration(
   elFileBodiesCacheMaxCapacity: Long,
@@ -360,7 +326,9 @@ case class AHCConfiguration(
   httpClientCodecMaxHeaderSize: Int,
   httpClientCodecMaxChunkSize: Int,
   keepEncodingHeader: Boolean,
-  webSocketMaxFrameSize: Int)
+  webSocketMaxFrameSize: Int,
+  httpsEnabledProtocols: List[String],
+  httpsEnabledCipherSuites: List[String])
 
 case class SslConfiguration(
   trustStore: Option[StoreConfiguration],

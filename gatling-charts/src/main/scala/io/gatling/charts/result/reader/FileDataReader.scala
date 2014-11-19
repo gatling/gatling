@@ -17,6 +17,8 @@ package io.gatling.charts.result.reader
 
 import java.io.InputStream
 
+import io.gatling.core.assertion.{ AssertionParser, Assertion }
+
 import scala.collection.breakOut
 import scala.collection.mutable
 import scala.io.Source
@@ -64,7 +66,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     finally streams.foreach(_.close)
   }
 
-  case class FirstPassData(runStart: Long, runEnd: Long, runMessage: RunMessage)
+  case class FirstPassData(runStart: Long, runEnd: Long, runMessage: RunMessage, assertions: List[Assertion])
 
   private def firstPass(records: Iterator[String]): FirstPassData = {
 
@@ -76,6 +78,7 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     var runEnd = Long.MinValue
 
     val runMessages = mutable.ListBuffer.empty[RunMessage]
+    val assertions = mutable.LinkedHashSet.empty[Assertion]
 
     records.foreach { line =>
       count += 1
@@ -104,6 +107,9 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
         case RawRunRecord(array) =>
           runMessages += RunMessage(array(0), array(1), array(3).toLong, array(4).trim)
 
+        case AssertionRecord(array) =>
+          assertions += new AssertionParser().parseAssertion(array.mkString("\t"))
+
         case _ =>
           logger.debug(s"Record broken on line $count: $line")
       }
@@ -111,10 +117,10 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
 
     logger.info(s"First pass done: read $count lines")
 
-    FirstPassData(runStart, runEnd, runMessages.head)
+    FirstPassData(runStart, runEnd, runMessages.head, assertions.toList)
   }
 
-  val FirstPassData(runStart, runEnd, runMessage) = doWithInputFiles(firstPass)
+  val FirstPassData(runStart, runEnd, runMessage, assertions) = doWithInputFiles(firstPass)
 
   val step = StatsHelper.step(math.floor(runStart / SecMillisecRatio).toInt, math.ceil(runEnd / SecMillisecRatio).toInt, configuration.charting.maxPlotsPerSeries) * SecMillisecRatio
 

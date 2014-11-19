@@ -36,7 +36,7 @@ object GatlingFiles {
   }
 
   def dataDirectory: Path = resolvePath(configuration.core.directory.data)
-  def requestBodiesDirectory: Path = resolvePath(configuration.core.directory.requestBodies)
+  def bodiesDirectory: Path = resolvePath(configuration.core.directory.bodies)
   def sourcesDirectory: Path = resolvePath(configuration.core.directory.sources)
   def reportsOnlyDirectory: Option[String] = configuration.core.directory.reportsOnly
   def binariesDirectory = configuration.core.directory.binaries.map(path => resolvePath(path)).getOrElse(GatlingHome / "target" / "test-classes")

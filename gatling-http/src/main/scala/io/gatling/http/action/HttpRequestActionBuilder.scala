@@ -19,7 +19,7 @@ import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.config.Protocols
 import io.gatling.core.controller.throttle.ThrottlingProtocol
-import io.gatling.http.request.builder.AbstractHttpRequestBuilder
+import io.gatling.http.request.builder.HttpRequestBuilder
 
 /**
  * Builder for HttpRequestActionBuilder
@@ -27,7 +27,7 @@ import io.gatling.http.request.builder.AbstractHttpRequestBuilder
  * @constructor creates an HttpRequestActionBuilder
  * @param requestBuilder the builder for the request that will be sent
  */
-class HttpRequestActionBuilder(requestBuilder: AbstractHttpRequestBuilder[_]) extends HttpActionBuilder {
+class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder) extends HttpActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols): ActorRef = {
 

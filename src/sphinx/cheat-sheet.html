@@ -1170,11 +1170,11 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="param">param</label>
-          <input type="checkbox" id="param" name="param">
+          <label class="function-syntax" for="formParam">formParam</label>
+          <input type="checkbox" id="formParam" name="formParam">
 
           <div class="function-details">
-            Adds a parameter to the request body
+            Adds a form parameter to the request body
             <dl>
               <dt>(key, value)</dt>
               <dd>Where <i>key</i> is the name and <i>value</i> is a string</dd>
@@ -1185,11 +1185,11 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="multivaluedParam">multivaluedParam</label>
-          <input type="checkbox" id="multivaluedParam" name="multivaluedParam">
+          <label class="function-syntax" for="multivaluedFormParam">multivaluedFormParam</label>
+          <input type="checkbox" id="multivaluedFormParam" name="multivaluedFormParam">
 
           <div class="function-details">
-            Adds a query parameter to the request body with multiple values
+            Adds a form parameter to the request body with multiple values
             <dl>
               <dt>(key, value...)</dt>
               <dd>Where <i>key</i> is the name of one parameter and <i>value</i> can be a list</dd>
@@ -1198,11 +1198,11 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="paramsSeq">paramsSeq</label>
-          <input type="checkbox" id="paramsSeq" name="paramsSeq">
+          <label class="function-syntax" for="formParamsSeq">formParamsSeq</label>
+          <input type="checkbox" id="formParamsSeq" name="formParamsSeq">
 
           <div class="function-details">
-            Adds multiple query parameters to the request body
+            Adds multiple form parameters to the request body
             <dl>
               <dt>((key, value)...)</dt>
               <dd>Where you can have multiple tuples of <i>key</i> and <i>value</i></dd>
@@ -1211,11 +1211,11 @@
         </div>
 
         <div class="function">
-          <label class="function-syntax" for="paramsMap">paramsMap</label>
-          <input type="checkbox" id="paramsMap" name="paramsMap">
+          <label class="function-syntax" for="formParamsMap">formParamsMap</label>
+          <input type="checkbox" id="formParamsMap" name="formParamsMap">
 
           <div class="function-details">
-            Adds multiple query parameters to the request body
+            Adds multiple form parameters to the request body
             <dl>
               <dt>(Map[key -> value])</dt>
               <dd>Where you can have a map of multiple <i>key</i> and <i>value</i></dd>
@@ -1259,7 +1259,7 @@
             <dl>
               <dt>(key, filePath)</dt>
               <dd>Where <i>key</i> is the name of the field and <i>filePath</i> a path to a file located in
-                /request-bodies
+                /bodies
               </dd>
             </dl>
           </div>
@@ -1382,6 +1382,19 @@
 
           <div class="function-details">
             Return the full response body byte array.
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="substring">substring</label>
+          <input type="checkbox" id="substring" name="substring">
+
+          <div class="function-details">
+            Check will be applied to an extract of the HTTP response's body
+            <dl>
+              <dt>(expression)</dt>
+              <dd>Extraction will look for <i>expression</i> indices.</dd>
+            </dl>
           </div>
         </div>
 
@@ -2179,6 +2192,15 @@
         </div>
 
         <div class="function">
+          <label class="function-syntax" for="forAll">forAll</label>
+          <input type="checkbox" id="forAll" name="forAll">
+
+          <div class="function-details">
+            Use statistics calculated for each individual request.
+          </div>
+        </div>
+
+        <div class="function">
           <label class="function-syntax" for="details">details</label>
           <input type="checkbox" id="details" name="details">
 
@@ -2395,18 +2417,6 @@
           </div>
         </div>
 
-        <div class="function">
-          <label class="function-syntax" for="assert">assert</label>
-          <input type="checkbox" id="assert" name="assert">
-
-          <div class="function-details">
-            Create a custom condition on the value of the statistic
-            <dl>
-              <dt>(condition,message)</dt>
-              <dd>the <i>condition</i> your statistic must fulfill,described by <i>message</i></dd>
-            </dl>
-          </div>
-        </div>
       </div>
     </div>
 

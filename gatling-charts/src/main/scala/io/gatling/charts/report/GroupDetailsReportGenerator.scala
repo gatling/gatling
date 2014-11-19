@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.report
 
-import io.gatling.charts.component.{ Component, ComponentLibrary, ErrorTableComponent, StatisticsTextComponent }
+import io.gatling.charts.component.{ Component, ComponentLibrary, ErrorsTableComponent, StatisticsTextComponent }
 import io.gatling.charts.config.ChartsFiles.requestFile
 import io.gatling.charts.template.GroupDetailsPageTemplate
 import io.gatling.charts.util.Colors._
@@ -66,7 +66,7 @@ class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, compone
           group,
           statisticsComponent,
           indicatorChartComponent,
-          new ErrorTableComponent(dataReader.errors(None, Some(group))),
+          new ErrorsTableComponent(dataReader.errors(None, Some(group))),
           cumulatedResponseTimeChartComponent,
           cumulatedResponseTimeDistributionChartComponent,
           durationChartComponent,

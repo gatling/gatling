@@ -29,20 +29,25 @@ import io.gatling.core.session.{ LoopBlock, Expression, Session }
  */
 class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, next: ActorRef) extends Actor {
 
-  var innerLoop: ActorRef = _
-
-  val initialized: Receive = Interruptable.TheInterrupt orElse { case m => innerLoop forward m }
+  def initialized(innerLoop: ActorRef): Receive =
+    Interruptable.TheInterrupt orElse { case m => innerLoop forward m }
 
   val uninitialized: Receive = {
     case loopNext: ActorRef =>
-      innerLoop = actor(new InnerLoop(continueCondition, loopNext, counterName, exitASAP, next))
-      context.become(initialized)
+      val innerLoop = actor(new InnerLoop(continueCondition, loopNext, counterName, exitASAP, next))
+      context.become(initialized(innerLoop))
   }
 
   override def receive = uninitialized
 }
 
-class InnerLoop(continueCondition: Expression[Boolean], loopNext: ActorRef, counterName: String, exitASAP: Boolean, val next: ActorRef) extends Chainable {
+class InnerLoop(
+  continueCondition: Expression[Boolean],
+  loopNext: ActorRef,
+  counterName: String,
+  exitASAP: Boolean,
+  val next: ActorRef)
+    extends Chainable {
 
   /**
    * Evaluates the condition and if true executes the first action of loopNext

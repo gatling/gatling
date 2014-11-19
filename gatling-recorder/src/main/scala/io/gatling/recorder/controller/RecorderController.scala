@@ -33,7 +33,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.core.util.PathHelper._
-import io.gatling.recorder.{ Har, Proxy }
+import io.gatling.recorder.RecorderMode._
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.HttpProxy
@@ -47,7 +47,7 @@ object RecorderController {
   }
 }
 
-class RecorderController(implicit configuration: RecorderConfiguration) extends StrictLogging {
+class RecorderController extends StrictLogging {
 
   private val frontEnd = RecorderFrontend.newFrontend(this)
 
@@ -115,7 +115,7 @@ class RecorderController(implicit configuration: RecorderConfiguration) extends 
       }
     }
 
-  def receiveResponse(request: TimedHttpRequest, response: HttpResponse): Unit = {
+  def receiveResponse(request: TimedHttpRequest, response: HttpResponse)(implicit configuration: RecorderConfiguration): Unit = {
     if (configuration.filters.filters.map(_.accept(request.httpRequest.getUri)).getOrElse(true)) {
       val arrivalTime = System.currentTimeMillis
 

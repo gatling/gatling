@@ -23,20 +23,25 @@ import io.gatling.core.validation.{ Failure, Success }
 
 class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
 
-  var innerTryMax: ActorRef = _
-
-  val initialized: Receive = Interruptable.TheInterrupt orElse { case m => innerTryMax forward m }
+  def initialized(innerTryMax: ActorRef): Receive =
+    Interruptable.TheInterrupt orElse { case m => innerTryMax forward m }
 
   val uninitialized: Receive = {
     case loopNext: ActorRef =>
-      innerTryMax = actor(new InnerTryMax(times, loopNext, counterName, next))
-      context.become(initialized)
+      val innerTryMax = actor(new InnerTryMax(times, loopNext, counterName, next))
+      context.become(initialized(innerTryMax))
   }
 
   override def receive = uninitialized
 }
 
-class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next: ActorRef) extends Chainable with DataWriterClient {
+class InnerTryMax(
+  times: Int,
+  loopNext: ActorRef,
+  counterName: String,
+  val next: ActorRef)
+    extends Chainable
+    with DataWriterClient {
 
   private def continue(session: Session): Boolean = session.isFailed && (session(counterName).validate[Int] match {
     case Success(i) => i < times

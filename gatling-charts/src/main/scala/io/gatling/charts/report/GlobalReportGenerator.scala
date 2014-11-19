@@ -15,15 +15,20 @@
  */
 package io.gatling.charts.report
 
-import io.gatling.charts.component.{ Component, ComponentLibrary, ErrorTableComponent, StatisticsTableComponent }
+import io.gatling.charts.component._
 import io.gatling.charts.config.ChartsFiles.globalFile
 import io.gatling.charts.template.GlobalPageTemplate
 import io.gatling.charts.util.Colors._
+import io.gatling.core.assertion.AssertionResult
 import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.reader.DataReader
 
-class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
+class GlobalReportGenerator(runOn: String,
+                            dataReader: DataReader,
+                            assertionResults: List[AssertionResult],
+                            componentLibrary: ComponentLibrary)
+    extends ReportGenerator(runOn, dataReader, componentLibrary) {
 
   def generate(): Unit = {
       def activeSessionsChartComponent = {
@@ -82,8 +87,9 @@ class GlobalReportGenerator(runOn: String, dataReader: DataReader, componentLibr
     val template = new GlobalPageTemplate(
       componentLibrary.getNumberOfRequestsChartComponent(dataReader.requestNames.size),
       componentLibrary.getRequestDetailsIndicatorChartComponent,
+      new AssertionsTableComponent(assertionResults),
       new StatisticsTableComponent,
-      new ErrorTableComponent(dataReader.errors(None, None)),
+      new ErrorsTableComponent(dataReader.errors(None, None)),
       activeSessionsChartComponent,
       responseTimeDistributionChartComponent,
       responseTimeChartComponent,

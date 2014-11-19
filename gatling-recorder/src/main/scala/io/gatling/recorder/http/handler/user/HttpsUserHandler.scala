@@ -49,27 +49,34 @@ class HttpsUserHandler(proxy: HttpProxy) extends UserHandler(proxy) with ScalaCh
             proxy.secureRemoteBootstrap
               .connect(address)
               .addListener { connectFuture: ChannelFuture =>
+                if (connectFuture.isSuccess) {
+                  connectFuture.getChannel.getPipeline.get(SslHandlerName) match {
+                    case sslHandler: SslHandler =>
+                      sslHandler.handshake.addListener { handshakeFuture: ChannelFuture =>
 
-                connectFuture.getChannel.getPipeline.get(SslHandlerName) match {
-                  case sslHandler: SslHandler =>
-                    sslHandler.handshake
-                      .addListener { handshakeFuture: ChannelFuture =>
-                        val remoteChannel = handshakeFuture.getChannel
-                        // TODO build certificate for peer
-                        setupRemoteChannel(userChannel, remoteChannel, proxy.controller, performConnect = false, reconnect = reconnect)
-                        if (!reconnect) {
-                          userChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter)
-                          userChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+                        if (handshakeFuture.isSuccess) {
+                          val remoteChannel = handshakeFuture.getChannel
+                          val inetSocketAddress = remoteChannel.getRemoteAddress.asInstanceOf[InetSocketAddress]
+                          setupRemoteChannel(userChannel, remoteChannel, proxy.controller, performConnect = false, reconnect = reconnect)
+                          if (!reconnect) {
+                            userChannel.getPipeline.addFirst(SslHandlerName, new SSLHandlerSetter(inetSocketAddress.getHostString, proxy.sslServerContext))
+                            userChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
+                          } else
+                            handlePropagatableRequest()
 
                         } else
-                          remoteChannel.write(request)
+                          logger.error(s"Handshake failure with $address", handshakeFuture.getCause)
                       }
 
-                  case _ => throw new IllegalStateException("SslHandler missing from secureClientBootstrap")
-                }
+                    case _ => throw new IllegalStateException("SslHandler missing from secureClientBootstrap")
+                  }
+                } else
+                  logger.error(s"Could not connect to $address", connectFuture.getCause)
               }
 
-        targetHostUri = Uri.create("https://" + request.getUri)
+        // only real CONNECT has an absolute url with the host, not reconnection
+        if (!reconnect)
+          targetHostUri = Uri.create("https://" + request.getUri)
 
         proxy.outgoingProxy match {
           case Some((proxyHost, proxyPort)) => connectRemoteChannelThroughProxy(new InetSocketAddress(proxyHost, proxyPort))

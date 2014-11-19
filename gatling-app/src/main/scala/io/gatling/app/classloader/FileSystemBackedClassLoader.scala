@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.app
+package io.gatling.app.classloader
 
-import java.net.{ URLConnection, URLStreamHandler, URL }
+import java.net.{ URL, URLConnection, URLStreamHandler }
 import java.nio.file.Path
 import java.security.cert.Certificate
 import java.security.{ CodeSource, ProtectionDomain }
@@ -25,7 +25,7 @@ import scala.collection.mutable
 import io.gatling.core.util.IO._
 import io.gatling.core.util.PathHelper._
 
-class FileSystemBackedClassLoader(root: Path, parent: ClassLoader)
+private[classloader] class FileSystemBackedClassLoader(root: Path, parent: ClassLoader)
     extends ClassLoader(parent) {
 
   def classNameToPath(name: String): Path =

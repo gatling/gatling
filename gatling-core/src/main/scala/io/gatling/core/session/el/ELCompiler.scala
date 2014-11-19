@@ -18,13 +18,15 @@ package io.gatling.core.session.el
 import java.lang.{ StringBuilder => JStringBuilder }
 import java.util.{ Collection => JCollection, List => JList, Map => JMap }
 
+import scala.collection.JavaConverters._
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
+import io.gatling.core.json.Jackson.toJsonString
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.NumberHelper.IntString
-import io.gatling.core.util.TypeHelper.TypeCaster
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.util.TypeHelper._
+import io.gatling.core.validation._
 
 import scala.util.parsing.combinator.RegexParsers
 
@@ -78,14 +80,35 @@ case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
   }
 }
 
-case class ExistsPart(name: String) extends Part[Boolean] {
+case class ExistsPart(part: Part[Any], name: String) extends Part[Boolean] {
   def apply(session: Session): Validation[Boolean] =
-    session.contains(name).success
+    part(session) match {
+      case f: Failure => FalseSuccess
+      case _          => TrueSuccess
+    }
 }
 
-case class IsUndefinedPart(name: String) extends Part[Boolean] {
+case class IsUndefinedPart(part: Part[Any], name: String) extends Part[Boolean] {
   def apply(session: Session): Validation[Boolean] =
-    (!session.contains(name)).success
+    part(session) match {
+      case f: Failure => TrueSuccess
+      case _          => FalseSuccess
+    }
+}
+
+case class ToJsonValue(part: Part[Any], name: String) extends Part[String] {
+  def apply(session: Session): Validation[String] =
+    part(session) match {
+      case Success(value) => value match {
+        case str: String                        => s""""$str"""".success
+        case anyVal if isAnyValOrString(anyVal) => anyVal.toString.success
+        case seq: Seq[_]                        => toJsonString(seq.asJavaCollection).success
+        case map: Map[_, _]                     => toJsonString(map.asJavaCollection).success
+        case any                                => toJsonString(any).success
+      }
+      case NullValueFailure => NullStringSuccess
+      case failure: Failure => failure
+    }
 }
 
 case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extends Part[Any] {
@@ -186,6 +209,7 @@ class ELCompiler extends RegexParsers {
   case object AccessSize extends AccessToken { val token = ".size()" }
   case object AccessExists extends AccessToken { val token = ".exists()" }
   case object AccessIsUndefined extends AccessToken { val token = ".isUndefined()" }
+  case object AccessToJsonValue extends AccessToken { val token = ".toJsonValue()" }
   case class AccessTuple(index: String, token: String) extends AccessToken
 
   override def skipWhitespace = false
@@ -202,7 +226,7 @@ class ELCompiler extends RegexParsers {
 
   val expr: Parser[List[Part[Any]]] = multivaluedExpr | (elExpr ^^ { case part: Part[Any] => List(part) })
 
-  def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart) *
+  def multivaluedExpr: Parser[List[Part[Any]]] = (elExpr | staticPart).*
 
   val staticPartPattern = new Parser[String] {
     def apply(in: Input) = {
@@ -233,8 +257,9 @@ class ELCompiler extends RegexParsers {
           case AccessKey(key, tokenName)     => MapKeyPart(subPart, subPartName, key)
           case AccessRandom                  => RandomPart(subPart, subPartName)
           case AccessSize                    => SizePart(subPart, subPartName)
-          case AccessExists                  => ExistsPart(subPartName)
-          case AccessIsUndefined             => IsUndefinedPart(subPartName)
+          case AccessExists                  => ExistsPart(subPart, subPartName)
+          case AccessIsUndefined             => IsUndefinedPart(subPart, subPartName)
+          case AccessToJsonValue             => ToJsonValue(subPart, subPartName)
           case AccessTuple(index, tokenName) => TupleAccessPart(subPart, subPartName, index.toInt)
         }
 
@@ -256,6 +281,7 @@ class ELCompiler extends RegexParsers {
       functionAccess(AccessSize) |
       functionAccess(AccessExists) |
       functionAccess(AccessIsUndefined) |
+      functionAccess(AccessToJsonValue) |
       keyAccess |
       (elExpr ^^ { case _ => throw new Exception("nested attribute definition is not allowed") })
 

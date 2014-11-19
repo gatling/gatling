@@ -27,7 +27,7 @@ class ExtractedUrisSpec extends FlatSpec with Matchers {
   val EXAMPLE_URL1 = "http://example.com/path/file1"
   val EXAMPLE_URL2 = "http://example.com/path/file2"
 
-  def mockRequestElement(uri: String) = RequestElement(uri, "get", Map(), None, 200, Nil)
+  def mockRequestElement(uri: String) = RequestElement(uri, "get", Map(), None, None, 200, Nil)
 
   def extractUris(uris: Seq[String]): ExtractedUris = {
     val requestElements = uris.map(mockRequestElement)

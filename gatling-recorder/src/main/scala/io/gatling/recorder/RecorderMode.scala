@@ -15,8 +15,20 @@
  */
 package io.gatling.recorder
 
-sealed trait RecorderMode { def name: String }
+import io.gatling.core.util.ClassSimpleNameToString
+import io.gatling.recorder.util.Labelled
 
-case object Proxy extends RecorderMode { val name = "HTTP Proxy" }
+sealed abstract class RecorderMode(val label: String) extends Labelled with ClassSimpleNameToString
 
-case object Har extends RecorderMode { val name = "HAR Converter" }
+object RecorderMode {
+
+  case object Proxy extends RecorderMode("HTTP Proxy")
+  case object Har extends RecorderMode("HAR Converter")
+
+  val AllModes = List(Proxy, Har)
+
+  def apply(s: String): RecorderMode =
+    AllModes.find(_.toString == s).getOrElse {
+      throw new IllegalArgumentException(s"$s is not a valid Recorder mode")
+    }
+}

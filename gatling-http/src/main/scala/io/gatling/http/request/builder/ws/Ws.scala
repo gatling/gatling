@@ -17,7 +17,7 @@ package io.gatling.http.request.builder.ws
 
 import io.gatling.core.session.{ Expression, SessionPrivateAttributes }
 import io.gatling.http.action.ws._
-import io.gatling.http.check.ws.WsCheck
+import io.gatling.http.check.ws._
 import io.gatling.http.request.builder.CommonAttributes
 
 object Ws {
@@ -58,9 +58,9 @@ class Ws(requestName: Expression[String], wsName: String = Ws.DefaultWebSocketNa
   /**
    * Check for incoming messages on the given websocket.
    *
-   * @param check The check
+   * @param checkBuilder The check builder
    */
-  def check(check: WsCheck) = new WsSetCheckActionBuilder(requestName, check, wsName)
+  def check(checkBuilder: WsCheckBuilder) = new WsSetCheckActionBuilder(requestName, checkBuilder, wsName)
 
   /**
    * Cancel current check on the given websocket.

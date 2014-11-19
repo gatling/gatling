@@ -41,7 +41,7 @@ class FilterTable(headerTitle: String) extends ScrollPane {
   model.addColumn(headerTitle)
   table.model = model
   table.rowHeight = 30
-  preferredSize = new Dimension(200, 300)
+  preferredSize = new Dimension(300, 200)
   initPopupMenu()
 
   def cleanUp(): Unit = {

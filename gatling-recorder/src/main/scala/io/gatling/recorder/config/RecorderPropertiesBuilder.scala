@@ -31,8 +31,8 @@ class RecorderPropertiesBuilder {
   def simulationOutputFolder(folder: String): Unit =
     props += core.SimulationOutputFolder -> folder
 
-  def requestBodiesFolder(folder: String): Unit =
-    props += core.RequestBodiesFolder -> folder
+  def bodiesFolder(folder: String): Unit =
+    props += core.BodiesFolder -> folder
 
   def simulationPackage(pkg: String): Unit =
     props += core.Package -> pkg
@@ -67,6 +67,9 @@ class RecorderPropertiesBuilder {
   def removeConditionalCache(status: Boolean): Unit =
     props += http.RemoveConditionalCache -> status
 
+  def checkResponseBodies(status: Boolean): Unit =
+    props += http.CheckResponseBodies -> status
+
   def localPort(port: Int): Unit =
     props += proxy.Port -> port
 
@@ -84,6 +87,24 @@ class RecorderPropertiesBuilder {
 
   def proxySslPort(port: Int): Unit =
     props += proxy.outgoing.SslPort -> port
+
+  def httpsMode(mode: String): Unit =
+    props += proxy.https.Mode -> mode
+
+  def keystorePath(path: String): Unit =
+    props += proxy.https.keyStore.Path -> path
+
+  def keyStorePassword(password: String): Unit =
+    props += proxy.https.keyStore.Password -> password
+
+  def keyStoreType(keyStoreType: String): Unit =
+    props += proxy.https.keyStore.Type -> keyStoreType
+
+  def certificatePath(path: String): Unit =
+    props += proxy.https.certificateAuthority.CertificatePath -> path
+
+  def privateKeyPath(path: String): Unit =
+    props += proxy.https.certificateAuthority.PrivateKeyPath -> path
 
   def build = props
 }

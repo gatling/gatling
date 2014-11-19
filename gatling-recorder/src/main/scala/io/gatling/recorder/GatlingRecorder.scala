@@ -20,6 +20,8 @@ import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.controller.RecorderController
 import scopt.OptionParser
 
+import scala.collection.mutable
+
 object GatlingRecorder {
 
   private val props = new RecorderPropertiesBuilder
@@ -31,7 +33,7 @@ object GatlingRecorder {
     opt[Int](ProxyPort).valueName("<port>").foreach(props.proxyPort).text("Outgoing proxy port for HTTP")
     opt[Int](ProxyPortSsl).valueName("<port>").foreach(props.proxySslPort).text("Outgoing proxy port for HTTPS")
     opt[String](OutputFolder).valueName("<folderName>").foreach(props.simulationOutputFolder).text("Uses <folderName> as the folder where generated simulations will be stored")
-    opt[String](RequestBodiesFolder).valueName("<folderName>").foreach(props.requestBodiesFolder).text("Uses <folderName> as the folder where request bodies are stored")
+    opt[String](BodiesFolder).valueName("<folderName>").foreach(props.bodiesFolder).text("Uses <folderName> as the folder where bodies are stored")
     opt[String](ClassName).foreach(props.simulationClassName).text("Sets the name of the generated class")
     opt[String](Package).foreach(props.simulationPackage).text("Sets the package of the generated class")
     opt[String](Encoding).foreach(props.encoding).text("Sets the encoding used in the recorder")
@@ -40,8 +42,13 @@ object GatlingRecorder {
     opt[Boolean](InferHtmlResources).foreach(props.inferHtmlResources).text("""Sets the "Fetch html resources" option to true""")
   }
 
-  def main(args: Array[String]): Unit = {
+  def main(args: Array[String]): Unit = fromArgs(args)
+
+  def fromArgs(args: Array[String]): Unit = {
     if (cliOptsParser.parse(args))
       RecorderController(props.build)
   }
+
+  def fromMap(props: mutable.Map[String, Any]) =
+    RecorderController(props)
 }

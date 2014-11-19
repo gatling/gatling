@@ -18,6 +18,8 @@ package io.gatling.recorder.config
 import java.io.FileNotFoundException
 import java.nio.file.Path
 
+import io.gatling.recorder.http.ssl.{ KeyStoreType, HttpsMode }
+
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.concurrent.duration.{ Duration, DurationInt }
@@ -73,7 +75,6 @@ object RecorderConfiguration extends StrictLogging {
 
     try {
       configuration = buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, customConfig, defaultConfig))
-      logger.debug(s"configured $configuration")
     } catch {
       case e: Exception =>
         logger.warn(s"Loading configuration crashed: ${e.getMessage}. Probable cause is a format change, resetting.")
@@ -89,7 +90,7 @@ object RecorderConfiguration extends StrictLogging {
 
   def saveConfig(): Unit = {
     // Remove request bodies folder configuration (transient), keep only Gatling-related properties
-    val configToSave = configuration.config.withoutPath(ConfigKeys.core.RequestBodiesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
+    val configToSave = configuration.config.withoutPath(ConfigKeys.core.BodiesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
     configFile.foreach(file => withCloseable(createAndOpen(file).writer())(_.write(configToSave.render(RenderOptions))))
   }
 
@@ -114,32 +115,40 @@ object RecorderConfiguration extends StrictLogging {
         }
       }
 
-      def getRequestBodiesFolder =
-        if (config.hasPath(core.RequestBodiesFolder))
-          config.getString(core.RequestBodiesFolder)
-        else
-          GatlingFiles.requestBodiesDirectory.toFile.toString
+      def getBodiesFolder =
+        if (config.hasPath(core.BodiesFolder)) config.getString(core.BodiesFolder)
+        else GatlingFiles.bodiesDirectory.toFile.toString
 
     RecorderConfiguration(
       core = CoreConfiguration(
         encoding = config.getString(core.Encoding),
         outputFolder = getOutputFolder(config.getString(core.SimulationOutputFolder)),
-        requestBodiesFolder = getRequestBodiesFolder,
+        bodiesFolder = getBodiesFolder,
         pkg = config.getString(core.Package),
         className = config.getString(core.ClassName),
         thresholdForPauseCreation = config.getInt(core.ThresholdForPauseCreation) milliseconds,
         saveConfig = config.getBoolean(core.SaveConfig)),
       filters = FiltersConfiguration(
-        filterStrategy = FilterStrategy.fromString(config.getString(filters.FilterStrategy)),
+        filterStrategy = FilterStrategy(config.getString(filters.FilterStrategy)),
         whiteList = WhiteList(config.getStringList(filters.WhitelistPatterns).toList),
         blackList = BlackList(config.getStringList(filters.BlacklistPatterns).toList)),
       http = HttpConfiguration(
         automaticReferer = config.getBoolean(http.AutomaticReferer),
         followRedirect = config.getBoolean(http.FollowRedirect),
         inferHtmlResources = config.getBoolean(http.InferHtmlResources),
-        removeConditionalCache = config.getBoolean(http.RemoveConditionalCache)),
+        removeConditionalCache = config.getBoolean(http.RemoveConditionalCache),
+        checkResponseBodies = config.getBoolean(http.CheckResponseBodies)),
       proxy = ProxyConfiguration(
         port = config.getInt(proxy.Port),
+        https = HttpsModeConfiguration(
+          mode = HttpsMode(config.getString(proxy.https.Mode)),
+          keyStore = KeyStoreConfiguration(
+            path = config.getString(proxy.https.keyStore.Path),
+            password = config.getString(proxy.https.keyStore.Password),
+            keyStoreType = KeyStoreType(config.getString(proxy.https.keyStore.Type))),
+          certificateAuthority = CertificateAuthorityConfiguration(
+            certificatePath = config.getString(proxy.https.certificateAuthority.CertificatePath),
+            privateKeyPath = config.getString(proxy.https.certificateAuthority.PrivateKeyPath))),
         outgoing = OutgoingProxyConfiguration(
           host = config.getString(proxy.outgoing.Host).trimToOption,
           username = config.getString(proxy.outgoing.Username).trimToOption,
@@ -170,7 +179,7 @@ case class FiltersConfiguration(
 case class CoreConfiguration(
   encoding: String,
   outputFolder: String,
-  requestBodiesFolder: String,
+  bodiesFolder: String,
   pkg: String,
   className: String,
   thresholdForPauseCreation: Duration,
@@ -180,7 +189,22 @@ case class HttpConfiguration(
   automaticReferer: Boolean,
   followRedirect: Boolean,
   inferHtmlResources: Boolean,
-  removeConditionalCache: Boolean)
+  removeConditionalCache: Boolean,
+  checkResponseBodies: Boolean)
+
+case class KeyStoreConfiguration(
+  path: String,
+  password: String,
+  keyStoreType: KeyStoreType)
+
+case class CertificateAuthorityConfiguration(
+  certificatePath: String,
+  privateKeyPath: String)
+
+case class HttpsModeConfiguration(
+  mode: HttpsMode,
+  keyStore: KeyStoreConfiguration,
+  certificateAuthority: CertificateAuthorityConfiguration)
 
 case class OutgoingProxyConfiguration(
   host: Option[String],
@@ -191,6 +215,7 @@ case class OutgoingProxyConfiguration(
 
 case class ProxyConfiguration(
   port: Int,
+  https: HttpsModeConfiguration,
   outgoing: OutgoingProxyConfiguration)
 
 case class NettyConfiguration(

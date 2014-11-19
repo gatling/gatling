@@ -17,7 +17,7 @@ package io.gatling.recorder.http.handler.user
 
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.recorder.http.channel.BootstrapFactory._
-import io.gatling.recorder.http.ssl.SSLEngineFactory
+import io.gatling.recorder.http.ssl.SSLServerContext
 import org.jboss.netty.channel._
 import org.jboss.netty.handler.ssl.SslHandler
 
@@ -25,10 +25,10 @@ import org.jboss.netty.handler.ssl.SslHandler
  * Placed on the server side pipeline, it replaces itself with a SslHandler when it sees the 200 response to the CONNECT request
  * (as CONNECT happens over HTTP, not HTTPS)
  */
-class SslHandlerSetter extends ChannelDownstreamHandler with StrictLogging {
+class SSLHandlerSetter(domainAlias: String, sslServerContext: SSLServerContext) extends ChannelDownstreamHandler with StrictLogging {
 
   override def handleDownstream(ctx: ChannelHandlerContext, e: ChannelEvent): Unit = {
-    ctx.getPipeline.replace(SslHandlerName, SslHandlerName, new SslHandler(SSLEngineFactory.newServerSSLEngine))
+    ctx.getPipeline.replace(SslHandlerName, SslHandlerName, new SslHandler(sslServerContext.createSSLEngine(domainAlias)))
     ctx.sendDownstream(e)
   }
 }

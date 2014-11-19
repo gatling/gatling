@@ -21,5 +21,6 @@ import io.gatling.core.structure.ChainBuilder.chainOf
 
 trait Groups[B] extends Execs[B] {
 
-  def group(name: Expression[String])(chain: ChainBuilder): B = exec(chainOf(GroupBuilder.start(name)).exec(chain).exec(GroupBuilder.End))
+  def group(name: Expression[String])(chain: ChainBuilder): B =
+    exec(chainOf(GroupBuilder.start(name)).exec(chain).exec(GroupBuilder.End))
 }

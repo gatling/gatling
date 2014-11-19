@@ -20,6 +20,8 @@ import java.io.{ File, IOException }
 import scala.annotation.tailrec
 import scala.collection.immutable.SortedMap
 
+import com.dongxiguo.fastring.Fastring.Implicits._
+
 import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.util.IO._
@@ -43,6 +45,12 @@ object ScenarioExporter extends StrictLogging {
 
     getOutputFolder / getSimulationFileName
   }
+
+  def requestBodyFileName(request: RequestElement)(implicit config: RecorderConfiguration) =
+    f"${config.core.className}_${request.id.filled(4, '0')}_request.txt"
+
+  def responseBodyFileName(request: RequestElement)(implicit config: RecorderConfiguration) =
+    f"${config.core.className}_${request.id.filled(4, '0')}_response.txt"
 
   def exportScenario(harFilePath: String)(implicit config: RecorderConfiguration): Validation[Unit] =
     try {
@@ -89,11 +97,17 @@ object ScenarioExporter extends StrictLogging {
     // FIXME mutability!!!
     requestElements.zipWithIndex.map { case (reqEl, index) => reqEl.setId(index) }
 
-    // dump request body if needed
+    // dump request & response bodies if needed
     requestElements.foreach(el => el.body.foreach {
-      case RequestBodyBytes(bytes) => dumpRequestBody(el.id, bytes, config.core.className)
+      case RequestBodyBytes(bytes) => dumpBody(requestBodyFileName(el), bytes)
       case _                       =>
     })
+    if (config.http.checkResponseBodies) {
+      requestElements.foreach(el => el.responseBody.foreach {
+        case ResponseBodyBytes(bytes) => dumpBody(responseBodyFileName(el), bytes)
+        case _                        =>
+      })
+    }
 
     val headers: Map[Int, Seq[(String, String)]] = {
 
@@ -181,16 +195,14 @@ object ScenarioExporter extends StrictLogging {
     else
       Left(scenarioElements)
 
-  private def dumpRequestBody(idEvent: Int, content: Array[Byte], simulationClass: String)(implicit config: RecorderConfiguration): Unit = {
-    val fileName = f"${simulationClass}_request_$idEvent%04d.txt"
-    withCloseable((getFolder(config.core.requestBodiesFolder) / fileName).outputStream) { fw =>
+  private def dumpBody(fileName: String, content: Array[Byte])(implicit config: RecorderConfiguration): Unit = {
+    withCloseable((getFolder(config.core.bodiesFolder) / fileName).outputStream) { fw =>
       try {
         fw.write(content)
       } catch {
-        case e: IOException => logger.error("Error, while dumping request body...", e)
+        case e: IOException => logger.error(s"Error, while dumping body $fileName...", e)
       }
     }
   }
-
   private def getFolder(folderPath: String) = string2path(folderPath).mkdirs
 }

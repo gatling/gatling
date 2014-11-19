@@ -34,6 +34,8 @@ An assertion can test a statistic calculated from all requests or only a part.
 
 * ``global``: use statistics calculated from all requests.
 
+* ``forAll``: use statistics calculated for each individual request.
+
 * ``details(path)``: use statistics calculated from a group or a request. The path is defined like a Unix filesystem path.
 
 For example, to perform an assertion on the request ``Index`` in the group ``Search``, use::
@@ -99,20 +101,6 @@ Conditions can be chained to apply several conditions on the same metric.
 
 * ``in(sequence)``: check that the value of metric is in a sequence.
 
-* ``assert(condition, message)``: create a custom condition on the value of the metric.
-
-  The first argument is a function that takes an Int (the value of the metric) and returns a Boolean which is the result of the assertion.
-
-  The second argument is a function that takes a String (the name of the metric) and a Boolean (result of the assertion) and returns a message that describes the assertion as a String.
-
-  For example::
-
-    assert(
-      value => value % 2 == 0,
-      (name, result) => name + " is even : " + result)
-
-  This will assert that the value is even.
-
 Putting it all together
 =======================
 
@@ -123,13 +111,12 @@ To help you understand how to use assertions, here is a list of examples :
   // Assert that the max response time of all requests is less than 100 ms
   setUp(...).assertions(global.responseTime.max.lessThan(100))
 
+  // Assert that every requests has no more than 5% of failing requests
+  setUp(...).assertions(forAll.failedRequests.percent.lessThan(5))
+
   // Assert that the percentage of failed requests named "Index" in the group "Search"
   // is exactly 0 %
   setUp(...).assertions(details("Search" / "Index").failedRequests.percent.is(0))
 
   // Assert that the rate of requests per seconds for the group "Search"
-  // is between 100 and 1000
-  setUp(...).assertions(details("Search").requestsPerSec.greaterThan(100).lessThan(1000))
-
-  // Same as above but using between
   setUp(...).assertions(details("Search").requestsPerSec.between(100, 1000))

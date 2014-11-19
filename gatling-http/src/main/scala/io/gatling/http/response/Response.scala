@@ -21,8 +21,7 @@ import com.ning.http.client.providers.netty.request.NettyRequest
 import com.ning.http.client.uri.Uri
 import io.gatling.http.config.HttpProtocol
 
-import scala.collection.JavaConversions.{ asScalaBuffer, asScalaSet }
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.JavaConversions.asScalaBuffer
 
 import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, HttpResponseStatus, Request => AHCRequest }
 import com.ning.http.client.cookie.{ Cookie, CookieDecoder }
@@ -96,21 +95,8 @@ case class HttpResponse(
     case Some(h) => h.toSeq
     case _       => Nil
   }
-  lazy val cookies =
-    if (headers.isEmpty) {
-      Nil
-    } else {
-      val buffer = new ArrayBuffer[Cookie]
 
-      headers.entrySet.foreach { entry =>
-        if (entry.getKey.equalsIgnoreCase(HeaderNames.SetCookie))
-          entry.getValue.foreach { string =>
-            buffer += CookieDecoder.decode(string)
-          }
-      }
-
-      buffer.toList
-    }
+  lazy val cookies = headers.get(HeaderNames.SetCookie).flatMap(cookie => Option(CookieDecoder.decode(cookie))).toList
 
   def checksum(algorithm: String) = checksums.get(algorithm)
   def hasResponseBody = bodyLength != 0

@@ -38,8 +38,8 @@ class GatlingPropertiesBuilder {
   def resultsDirectory(v: String): Unit =
     props += core.directory.Results -> v
 
-  def requestBodiesDirectory(v: String): Unit =
-    props += core.directory.RequestBodies -> v
+  def bodiesDirectory(v: String): Unit =
+    props += core.directory.Bodies -> v
 
   def sourcesDirectory(v: String): Unit =
     props += core.directory.Simulations -> v

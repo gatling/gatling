@@ -17,40 +17,39 @@ package io.gatling.charts.component
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-import io.gatling.core.result.ErrorStats
-import io.gatling.core.util.StringHelper.EmptyFastring
+import io.gatling.core.assertion.AssertionResult
+import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.HtmlHelper.HtmlRichString
-import io.gatling.core.util.NumberHelper._
 
-class ErrorTableComponent(errors: Seq[ErrorStats]) extends Component {
+class AssertionsTableComponent(assertionResults: List[AssertionResult]) extends Component {
 
   def js = fast"""
-	    $$('#container_errors').sortable('#container_errors');
+	    $$('#container_exceptions').sortable('#container_exceptions');
     """
 
-  def html = if (errors.isEmpty)
+  private def resultStyle(assertionResult: AssertionResult) = if (assertionResult.result) "ok" else "ko"
+
+  def html = if (assertionResults.isEmpty)
     EmptyFastring
   else
     fast"""<div class="statistics extensible-geant collapsed">
     <div class="title">
-        <div class="title_collapsed" style="cursor: auto;">ERRORS</div>
+        <div class="title_collapsed" style="cursor: auto;">ASSERTIONS</div>
     </div>
-    <table id="container_errors" class="statistics-in extensible-geant">
+    <table id="container_assertions" class="statistics-in extensible-geant">
         <thead>
             <tr>
-                <th id="error-col-1" class="header sortable"><span>Error</span></th>
-                <th id="error-col-2" class="header sortable"><span>Count</span></th>
-                <th id="error-col-3" class="header sortable"><span>Percentage</span></th>
+                <th id="assert-col-1" class="header sortable"><span>Assertion</span></th>
+                <th id="assert-col-2" class="header sortable"><span>Status</span></th>
             </tr>
         </thead>
 		<tbody>
 		    ${
-      errors.zipWithIndex.map {
-        case (error, index) => fast"""
+      assertionResults.zipWithIndex.map {
+        case (assertionResult, index) => fast"""
 		    <tr>
-		    	<td class="error-col-1 total">${error.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
-		    	<td class="value error-col-2 total">${error.count}</td>
-		    	<td class="value error-col-3 total">${error.percentage.toPrintableString} %</td>
+		    	<td class="error-col-1 ${resultStyle(assertionResult)} total">${assertionResult.message.htmlEscape}<span class="value" style="display:none">$index</span></td>
+		    	<td class="error-col-2 value ${resultStyle(assertionResult)} total">${if (assertionResult.result) "OK" else "KO"}</td>
 		    </tr>"""
       }.mkFastring
     }

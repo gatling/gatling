@@ -133,3 +133,6 @@ Maximum duration
 Finally, you can configure the maximum duration of your simulation with the method ``maxDuration``.
 It is useful if you need to bound the duration of your simulation when you can't predict it.
 
+::
+
+  setUp(...).maxDuration(10 minutes)

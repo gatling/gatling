@@ -91,7 +91,7 @@ class Controller extends BaseActor {
 
         val runMessage = RunMessage(simulation.getClass.getName, simulationId, nowMillis, description)
         runId = runMessage.runId
-        DataWriter.init(runMessage, scenarios, self)
+        DataWriter.init(simulation.assertions, runMessage, scenarios, self)
         context.become(waitingForDataWriterToInit)
       }
   }

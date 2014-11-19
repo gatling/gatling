@@ -46,7 +46,7 @@ The order of evaluation between the whitelist and the blacklist entries can be d
 Embedded resources fetching
 ---------------------------
 
-If you check the option 'Fetch html resources?' option, the Recorder will fetch the embedded HTML resources as follow:
+If you check the 'Infer html resources?' option, the Recorder will fetch the embedded HTML resources as follow:
 
 * Add ``inferHtmlResources`` with the proper white/black lists on the HTTP protocol definition.
 * Parse HTML response body to retrieve embedded HTML resources.
@@ -54,6 +54,11 @@ If you check the option 'Fetch html resources?' option, the Recorder will fetch 
 
 .. warning:: Gatling can't retrieve all the embedded resources in HTML as images embedded in a css embedded in HTML.
              This remaining resources are currently loaded sequentially as regular requests.
+
+Response bodies
+---------------
+
+When the 'Save & check response bodies?' option is enabled, response bodies will be dumped in the same folder as the request bodies, and the simulation will contain extra checks using :ref:`RawFileBody <http-request-body-rawfile>` to ensure the actual bodies are matching the dumped ones. You might want to edit these checks, for example to parametrize the expected bodies, using :ref:`ELFileBody <http-request-body-elfile>` instead.
 
 Running
 =======
@@ -167,7 +172,7 @@ For those who prefer the command line, command line options can be passed to the
 +--------------------+-------------------------------------+-----------------------------------------+
 | -of <path>         | --output-folder <path>              | Output folder for generated simulations |
 +--------------------+-------------------------------------+-----------------------------------------+
-| -rbf <path>        | --request-bodies-folder <path>      | Folder for requests bodies              |
+| -bdf <path>        | --bodies-folder <path>              | Folder for bodies                       |
 +--------------------+-------------------------------------+-----------------------------------------+
 | -cn <className>    | --class-name <className>            | Name of the generated simulation        |
 +--------------------+-------------------------------------+-----------------------------------------+

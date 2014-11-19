@@ -33,9 +33,9 @@ object RawFileBodies {
 
       def pathToFile(path: String) =
         if (RawFileBodyCacheEnabled)
-          RawFileBodyCache.getOrElsePutIfAbsent(path, Resource.requestBody(path).map(_.file))
+          RawFileBodyCache.getOrElsePutIfAbsent(path, Resource.body(path).map(_.file))
         else
-          Resource.requestBody(path).map(_.file)
+          Resource.body(path).map(_.file)
 
     session =>
       for {
