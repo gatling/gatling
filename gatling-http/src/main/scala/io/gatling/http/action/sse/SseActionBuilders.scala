@@ -6,7 +6,7 @@ import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.check.sse.SseCheck
-import io.gatling.http.check.ws.WsCheck
+import io.gatling.http.check.ws.{ WsCheckBuilder, WsCheck }
 import io.gatling.http.request.builder.sse.SseGetRequestBuilder
 
 /**
@@ -20,7 +20,10 @@ class SseGetActionBuilder(
 
   def check(check: SseCheck) = new SseGetActionBuilder(requestName, sseName, requestBuilder, Some(check))
 
-  def check(wsCheck: WsCheck): SseGetActionBuilder = check(SseCheck(wsCheck, wsCheck.blocking, wsCheck.timeout, wsCheck.expectation))
+  def check(wsCheckBuilder: WsCheckBuilder): SseGetActionBuilder = {
+    val wsCheck = wsCheckBuilder.build
+    check(SseCheck(wsCheck, wsCheck.blocking, wsCheck.timeout, wsCheck.expectation))
+  }
 
   override def build(next: ActorRef, protocols: Protocols): ActorRef = {
     val request = requestBuilder.build(httpProtocol(protocols))

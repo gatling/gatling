@@ -16,7 +16,7 @@ class SseCompileTest extends Simulation {
   val scn = scenario(this.getClass.getSimpleName)
             .exec(sse("sse")
                   .get("/stocks/prices")
-                  .check(wsAwait.within(10).until(1).regex("""event: snapshot(.*)""").count.is(1)))
+                  .check(wsAwait.within(10).until(1).regex("""event: snapshot(.*)""")))
             .pause(15)
             .exec(sse("close").close())
 

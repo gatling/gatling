@@ -107,6 +107,14 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
   override def stopForward(): Unit = {
     done.compareAndSet(false, true)
   }
+
+  override def onDnsResolved(): Unit = {
+
+  }
+
+  override def onSslHandshakeCompleted(): Unit = {
+
+  }
 }
 
 private sealed trait SseState
