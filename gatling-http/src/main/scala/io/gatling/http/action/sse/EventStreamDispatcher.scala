@@ -15,20 +15,6 @@
  */
 package io.gatling.http.action.sse
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import scala.collection.JavaConverters.mapAsJavaMapConverter
-
-case class ServerSentEvent(
-    data: Option[String] = None,
-    name: Option[String] = None,
-    id: Option[String] = None,
-    retry: Option[Int] = None) {
-
-  def asJSONString(): String = {
-    val map =
-      Map("event" -> name, "id" -> id, "data" -> data, "retry" -> retry)
-        .collect({ case (key, Some(value)) => (key, value) })
-
-    new ObjectMapper().writeValueAsString(map.asJava)
-  }
+trait EventStreamDispatcher {
+  def dispatchEventStream(sse: ServerSentEvent): Unit
 }

@@ -1,3 +1,18 @@
+/**
+ * Copyright 2011-2014 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * 		http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package io.gatling.http.action.sse
 
 import java.util.concurrent.atomic.AtomicBoolean
@@ -5,20 +20,19 @@ import javax.xml.ws.http.HTTPException
 
 import akka.actor.ActorRef
 import com.ning.http.client.AsyncHandler.STATE
-import com.ning.http.client.AsyncHandler.STATE.CONTINUE
+import com.ning.http.client.AsyncHandler.STATE.{ ABORT, CONTINUE }
 import com.ning.http.client._
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.SseTx
 
-/**
- * @author ctranxuan
- */
 class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     with AsyncHandlerExtensions
     with SseForwarder
+    with EventStreamDispatcher
     with StrictLogging {
 
+  private val sseParser = EventStreamParser(this)
   private val done = new AtomicBoolean
   private var state: SseState = Opening
 
@@ -46,15 +60,15 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
   override def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
     logger.debug(s"Status ${responseStatus.getStatusCode} received for sse '${tx.requestName}")
 
-    responseStatus.getStatusCode match {
-      case 200 =>
-        CONTINUE
+    if (responseStatus.getStatusCode == org.jboss.netty.handler.codec.http.HttpResponseStatus.OK.getCode) {
+      CONTINUE
 
-      case unexpected =>
-        onThrowable(new HTTPException(unexpected) {
-          override def getMessage: String = s"Server returned http response with code ${responseStatus.getStatusCode}"
-        })
-        STATE.ABORT
+    } else {
+      onThrowable(new HTTPException(responseStatus.getStatusCode) {
+        override def getMessage: String = s"Server returned http response with code ${responseStatus.getStatusCode}"
+      })
+      ABORT
+
     }
   }
 
@@ -63,8 +77,7 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
   override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
     if (!done.get) {
       val message = new String(bodyPart.getBodyPartBytes)
-
-      sseActor ! OnMessage(message, nowMillis, this)
+      sseParser.parse(message)
     }
     CONTINUE
   }
@@ -106,6 +119,18 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 
   override def stopForward(): Unit = {
     done.compareAndSet(false, true)
+  }
+
+  override def onDnsResolved(): Unit = {
+
+  }
+
+  override def onSslHandshakeCompleted(): Unit = {
+
+  }
+
+  override def dispatchEventStream(sse: ServerSentEvent): Unit = {
+    sseActor ! OnMessage(sse.asJSONString(), nowMillis, this)
   }
 }
 
