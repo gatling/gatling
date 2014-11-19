@@ -11,3 +11,4 @@ HTTP
     http_helpers
     recorder
     websocket
+    sse
