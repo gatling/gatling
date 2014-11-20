@@ -17,8 +17,10 @@ import io.gatling.http.ahc.SseTx
 class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     with AsyncHandlerExtensions
     with SseForwarder
+    with EventStreamDispatcher
     with StrictLogging {
 
+  private val sseParser = new EventStreamParser(this)
   private val done = new AtomicBoolean
   private var state: SseState = Opening
 
@@ -63,8 +65,7 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
   override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
     if (!done.get) {
       val message = new String(bodyPart.getBodyPartBytes)
-
-      sseActor ! OnMessage(message, nowMillis, this)
+      sseParser.parse(message)
     }
     CONTINUE
   }
@@ -114,6 +115,10 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 
   override def onSslHandshakeCompleted(): Unit = {
 
+  }
+
+  override def dispatchEventStream(sse: ServerSentEvent): Unit = {
+    sseActor ! OnMessage(sse.asJSONString(), nowMillis, this)
   }
 }
 
