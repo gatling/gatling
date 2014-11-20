@@ -113,3 +113,5 @@ Gatling provides two hooks:
   after {
     println("Simulation is finished!")
   }
+
+.. note:: You won't be able to use Gatling DSL in there, as it's only intended for load test. You can only use your custom code.
