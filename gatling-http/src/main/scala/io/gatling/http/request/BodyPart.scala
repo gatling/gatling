@@ -56,7 +56,7 @@ object BodyPart {
 case class BodyPartAttributes(
   contentType: Option[Expression[String]] = None,
   charset: Option[Charset] = None,
-  dispositionType: Option[String] = None,
+  dispositionType: Option[Expression[String]] = None,
   fileName: Option[Expression[String]] = None,
   contentId: Option[Expression[String]] = None,
   transferEncoding: Option[String] = None)
@@ -68,7 +68,7 @@ case class BodyPart(
 
   def contentType(contentType: Expression[String]) = copy(attributes = attributes.copy(contentType = Some(contentType)))
   def charset(charset: String) = copy(attributes = attributes.copy(charset = Some(Charset.forName(charset))))
-  def dispositionType(dispositionType: String) = copy(attributes = attributes.copy(dispositionType = Some(dispositionType)))
+  def dispositionType(dispositionType: Expression[String]) = copy(attributes = attributes.copy(dispositionType = Some(dispositionType)))
   def fileName(fileName: Expression[String]) = copy(attributes = attributes.copy(fileName = Some(fileName)))
   def contentId(contentId: Expression[String]) = copy(attributes = attributes.copy(contentId = Some(contentId)))
   def transferEncoding(transferEncoding: String) = copy(attributes = attributes.copy(transferEncoding = Some(transferEncoding)))
@@ -77,11 +77,12 @@ case class BodyPart(
     for {
       name <- resolveOptionalExpression(name, session)
       contentType <- resolveOptionalExpression(attributes.contentType, session)
+      dispositionType <- resolveOptionalExpression(attributes.dispositionType, session)
       fileName <- resolveOptionalExpression(attributes.fileName, session)
       contentId <- resolveOptionalExpression(attributes.contentId, session)
       part <- partBuilder(name.orNull, contentType, attributes.charset, fileName, contentId, attributes.transferEncoding)(session)
     } yield {
-      attributes.dispositionType.foreach(part.setDispositionType)
+      dispositionType.foreach(part.setDispositionType)
       part
     }
 }
