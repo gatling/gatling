@@ -17,6 +17,7 @@ package io.gatling.core.config
 
 import java.io.{ FileInputStream, File, FileOutputStream, InputStream }
 import java.net.URL
+import java.nio.charset.Charset
 import java.nio.file.Path
 
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
@@ -67,6 +68,7 @@ object Resource {
 sealed trait Resource {
   def inputStream: InputStream
   def file: File
+  def string(charset: Charset) = withCloseable(inputStream) { _.toString(charset) }
 }
 
 case class FileResource(file: File) extends Resource {

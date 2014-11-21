@@ -17,6 +17,10 @@ package io.gatling.http.request
 
 import java.io.{ File => JFile, InputStream }
 
+import io.gatling.core.session.el.ELCompiler
+
+import scala.collection.JavaConverters._
+
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.generators.InputStreamBodyGenerator
 
@@ -26,7 +30,7 @@ import io.gatling.core.util.IO._
 import io.gatling.core.validation.Validation
 
 object ELFileBody {
-  def apply(filePath: Expression[String]) = StringBody(ELFileBodies.asString(filePath))
+  def apply(filePath: Expression[String]) = CompositeByteArrayBody(ELFileBodies.asBytesSeq(filePath))
 }
 
 trait Body {
@@ -71,6 +75,21 @@ class RawFileBody(val file: Expression[JFile]) extends Body with Expression[Stri
 
 case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body {
   def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = bytes(session).map(requestBuilder.setBody)
+}
+
+object CompositeByteArrayBody {
+  def apply(string: String) = new CompositeByteArrayBody(ELCompiler.compile2BytesSeq(string))
+}
+
+case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]]) extends Body with Expression[String] {
+
+  def apply(session: Session) = bytes(session).map { bs =>
+    val sb = new StringBuilder
+    bs.foreach(b => sb.append(new String(b, configuration.core.charset)))
+    sb.toString
+  }
+
+  def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = bytes(session).map(bs => requestBuilder.setBody(bs.asJava))
 }
 
 case class InputStreamBody(is: Expression[InputStream]) extends Body {

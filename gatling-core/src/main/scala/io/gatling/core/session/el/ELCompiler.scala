@@ -18,6 +18,9 @@ package io.gatling.core.session.el
 import java.lang.{ StringBuilder => JStringBuilder }
 import java.util.{ Collection => JCollection, List => JList, Map => JMap }
 
+import io.gatling.core.config.GatlingConfiguration._
+
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
@@ -173,17 +176,17 @@ object ELCompiler {
     override def initialValue = new ELCompiler
   }
 
-  def compile[T: ClassTag](string: String): Expression[T] = {
-    val parts = TheELCompiler.get.parseEl(string)
+  def parse(string: String): List[Part[Any]] = TheELCompiler.get.parseEl(string)
 
-    parts match {
+  def compile[T: ClassTag](string: String): Expression[T] =
+    parse(string) match {
       case List(StaticPart(staticStr)) =>
         val stringV = staticStr.asValidation[T]
         _ => stringV
 
         case List(dynamicPart) => dynamicPart(_).flatMap(_.asValidation[T])
 
-      case _ =>
+      case parts =>
         (session: Session) => parts.foldLeft(new JStringBuilder(string.length + 5).success) { (sb, part) =>
           part match {
             case StaticPart(s) => sb.map(_.append(s))
@@ -195,6 +198,33 @@ object ELCompiler {
           }
         }.flatMap(_.toString.asValidation[T])
     }
+
+  def compile2BytesSeq(string: String): Expression[Seq[Array[Byte]]] = {
+
+    sealed trait Bytes { def bytes: Expression[Array[Byte]] }
+    case class StaticBytes(val bytes: Expression[Array[Byte]]) extends Bytes
+    case class DynamicBytes(part: Part[Any]) extends Bytes {
+      val bytes: Expression[Array[Byte]] = session => part(session).map(_.toString.getBytes(configuration.core.charset))
+    }
+
+      @tailrec
+      def loop(session: Session, bytes: List[Bytes], resolved: List[Array[Byte]]): Validation[Seq[Array[Byte]]] = bytes match {
+        case Nil => resolved.reverse.success
+        case head :: tail => head.bytes(session) match {
+          case Success(bs)      => loop(session, tail, bs :: resolved)
+          case failure: Failure => failure
+        }
+      }
+
+    val parts = ELCompiler.parse(string)
+    val bytes = parts.map {
+      case StaticPart(s) =>
+        val bs = s.getBytes(configuration.core.charset).success
+        StaticBytes(session => bs)
+      case part => DynamicBytes(part)
+    }
+
+    session: Session => loop(session, bytes, Nil)
   }
 }
 

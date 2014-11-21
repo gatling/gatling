@@ -59,7 +59,8 @@ object Predef extends HttpCheckSupport with WsCheckSupport with SitemapFeederSup
   def Cookie = CookieDSL
 
   def ELFileBody = io.gatling.http.request.ELFileBody
-  def StringBody = io.gatling.http.request.StringBody
+  def StringBody(string: String) = io.gatling.http.request.CompositeByteArrayBody(string)
+  def StringBody(string: Expression[String]) = io.gatling.http.request.StringBody(string)
   def RawFileBody = io.gatling.http.request.RawFileBody
   def ByteArrayBody = io.gatling.http.request.ByteArrayBody
   def InputStreamBody = io.gatling.http.request.InputStreamBody

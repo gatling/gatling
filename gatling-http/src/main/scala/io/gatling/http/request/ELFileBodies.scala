@@ -17,16 +17,17 @@ package io.gatling.http.request
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
-import io.gatling.core.session.Expression
-import io.gatling.core.session.el.EL
+import io.gatling.core.session._
+import io.gatling.core.session.el.{ ELCompiler, EL }
 import io.gatling.core.util.IO._
 import io.gatling.core.util.cache._
-import io.gatling.core.validation.Validation
+import io.gatling.core.validation._
 
 object ELFileBodies {
 
   val ELFileBodyCacheEnabled = configuration.http.elFileBodiesCacheMaxCapacity > 0
-  val ELFileBodyCache = ThreadSafeCache[String, Validation[Expression[String]]](configuration.http.elFileBodiesCacheMaxCapacity)
+
+  val ELFileBodyStringCache = ThreadSafeCache[String, Validation[Expression[String]]](configuration.http.elFileBodiesCacheMaxCapacity)
 
   def asString(filePath: Expression[String]): Expression[String] = {
 
@@ -38,9 +39,31 @@ object ELFileBodies {
 
       def pathToExpression(path: String) =
         if (ELFileBodyCacheEnabled)
-          ELFileBodyCache.getOrElsePutIfAbsent(path, compileFile(path))
+          ELFileBodyStringCache.getOrElsePutIfAbsent(path, compileFile(path))
         else
           compileFile(path)
+
+    session =>
+      for {
+        path <- filePath(session)
+        expression <- pathToExpression(path)
+        body <- expression(session)
+      } yield body
+  }
+
+  val ELFileBodyBytesCache = ThreadSafeCache[String, Validation[Expression[Seq[Array[Byte]]]]](configuration.http.elFileBodiesCacheMaxCapacity)
+
+  def asBytesSeq(filePath: Expression[String]): Expression[Seq[Array[Byte]]] = {
+
+      def resource2BytesSeq(path: String): Validation[Expression[Seq[Array[Byte]]]] = Resource.body(path).map { resource =>
+        ELCompiler.compile2BytesSeq(resource.string(configuration.core.charset))
+      }
+
+      def pathToExpression(path: String) =
+        if (ELFileBodyCacheEnabled)
+          ELFileBodyBytesCache.getOrElsePutIfAbsent(path, resource2BytesSeq(path))
+        else
+          resource2BytesSeq(path)
 
     session =>
       for {
