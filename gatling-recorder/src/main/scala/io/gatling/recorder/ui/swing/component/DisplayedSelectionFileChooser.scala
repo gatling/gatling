@@ -7,6 +7,7 @@ import scala.swing._
 import scala.swing.FileChooser.SelectionMode
 
 import io.gatling.recorder.ui.swing.util.UIHelper._
+import io.gatling.recorder.ui.swing.keyReleased
 
 private[component] class AcceptAllFileFilter extends FileFilter {
   override def accept(f: File) = true
@@ -18,6 +19,7 @@ case object Open extends ChooserType
 case object Save extends ChooserType
 
 class DisplayedSelectionFileChooser(
+  creator: Container,
   textFieldLength: Int,
   chooserType: ChooserType,
   buttonText: String = "Browse",
@@ -27,7 +29,7 @@ class DisplayedSelectionFileChooser(
 
   val selectionDisplay = new TextField(textFieldLength)
   private val fileChooser = new FileChooser { fileSelectionMode = selectionMode; fileFilter = fileFilter }
-  private val openChooserButton = Button("Browse")(fileChooserSelection().foreach(selectionDisplay.text = _))
+  private val openChooserButton = Button("Browse")(fileChooserSelection().foreach(setAndPublish))
 
   def selection = selectionDisplay.text
 
@@ -41,6 +43,11 @@ class DisplayedSelectionFileChooser(
   private def fileChooserSelection() = chooserType match {
     case Open => fileChooser.openSelection()
     case Save => fileChooser.saveSelection()
+  }
+
+  private def setAndPublish(newValue: String) = {
+    selectionDisplay.text = newValue
+    creator.publish(keyReleased(selectionDisplay))
   }
 
   // ------------ //

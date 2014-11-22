@@ -38,7 +38,7 @@ sealed abstract class RecorderFrontend(controller: RecorderController) {
   /**  Controller => Frontend  **/
   /******************************/
 
-  def selectedMode: RecorderMode
+  def selectedRecorderMode: RecorderMode
 
   def harFilePath: String
 
@@ -78,7 +78,7 @@ private class SwingFrontend(controller: RecorderController)(implicit configurati
   private lazy val runningFrame = new RunningFrame(this)
   private lazy val configurationFrame = new ConfigurationFrame(this)
 
-  def selectedMode = configurationFrame.selectedMode
+  def selectedRecorderMode = configurationFrame.selectedRecorderMode
 
   def harFilePath = configurationFrame.harFilePath
 
@@ -93,9 +93,9 @@ private class SwingFrontend(controller: RecorderController)(implicit configurati
       if (possibleMatches.isEmpty) {
         Dialog.showMessage(
           title = "No matches found",
-          message = """	|No files that could closely match the
-									|selected file's name have been found.
-									|Please check the file's path is correct.""".stripMargin,
+          message = """|No files that could closely match the
+                       |selected file's name have been found.
+                       |Please check the file's path is correct.""".stripMargin,
           messageType = Dialog.Message.Warning)
       } else {
         val selector = new DialogFileSelector(configurationFrame, possibleMatches)
@@ -116,8 +116,8 @@ private class SwingFrontend(controller: RecorderController)(implicit configurati
   def handleHarExportFailure(message: String): Unit = {
     Dialog.showMessage(
       title = "Error",
-      message = s"""	|Export to HAR File unsuccessful: $message.
-							|See logs for more information""".stripMargin,
+      message = s"""|Export to HAR File unsuccessful: $message.
+                    |See logs for more information""".stripMargin,
       messageType = Dialog.Message.Error)
   }
 

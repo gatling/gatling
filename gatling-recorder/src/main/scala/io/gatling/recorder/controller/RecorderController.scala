@@ -61,7 +61,7 @@ class RecorderController extends StrictLogging {
   frontEnd.init()
 
   def startRecording(): Unit = {
-    val selectedMode = frontEnd.selectedMode
+    val selectedMode = frontEnd.selectedRecorderMode
     val harFilePath = frontEnd.harFilePath
     if (selectedMode == Har && !string2path(harFilePath).exists) {
       frontEnd.handleMissingHarFile(harFilePath)

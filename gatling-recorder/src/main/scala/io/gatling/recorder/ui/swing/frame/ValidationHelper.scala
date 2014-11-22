@@ -20,7 +20,6 @@ import java.awt.Color
 import scala.collection.mutable
 import scala.swing._
 import scala.swing.Swing.MatteBorder
-import scala.swing.event.KeyReleased
 import scala.util.Try
 
 import io.gatling.core.util.StringHelper.RichString
@@ -32,8 +31,6 @@ object ValidationHelper {
     successCallback: Component => Unit = setStandardBorder,
     failureCallback: Component => Unit = setErrorBorder,
     alwaysValid: Boolean = false)
-
-  def keyReleased(c: Component) = KeyReleased(c, null, 0, null)(null)
 
   // Those are lazy vals to avoid unneccessary component creation when they're not needed (e.g. tests)
   private lazy val standardBorder = new TextField().border
@@ -74,6 +71,11 @@ object ValidationHelper {
       status += (field -> (validator.alwaysValid || isValid))
     case None =>
       throw new IllegalStateException(s"No validator registered for component : $field")
+  }
+
+  def allValid = {
+    validators.keys.map(updateValidationStatus)
+    validationStatus
   }
 
   def validationStatus = status.values.forall(identity)

@@ -24,7 +24,7 @@ import scala.collection.JavaConversions.seqAsJavaList
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 import scala.swing.FileChooser.SelectionMode._
-import scala.swing.event.{ ButtonClicked, KeyReleased, SelectionChanged }
+import scala.swing.event._
 import scala.util.Try
 
 import io.gatling.core.util.PathHelper._
@@ -35,6 +35,7 @@ import io.gatling.recorder.config.FilterStrategy.BlacklistFirst
 import io.gatling.recorder.http.ssl.{ SSLServerContext, SSLCertUtil, HttpsMode, KeyStoreType }
 import io.gatling.recorder.http.ssl.HttpsMode._
 import io.gatling.recorder.ui.RecorderFrontend
+import io.gatling.recorder.ui.swing.keyReleased
 import io.gatling.recorder.ui.swing.Commons._
 import io.gatling.recorder.ui.swing.component._
 import io.gatling.recorder.ui.swing.frame.ValidationHelper._
@@ -61,11 +62,11 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   /* HTTPS mode components */
   private val httpsModes = new LabelledComboBox[HttpsMode](HttpsMode.AllHttpsModes)
 
-  private val keyStoreChooser = new DisplayedSelectionFileChooser(20, Open, selectionMode = FilesOnly)
+  private val keyStoreChooser = new DisplayedSelectionFileChooser(this, 20, Open, selectionMode = FilesOnly)
   private val keyStorePassword = new TextField(10)
   private val keyStoreTypes = new LabelledComboBox[KeyStoreType](KeyStoreType.AllKeyStoreTypes)
-  private val certificatePathChooser = new DisplayedSelectionFileChooser(20, Open, selectionMode = FilesOnly)
-  private val privateKeyPathChooser = new DisplayedSelectionFileChooser(20, Open, selectionMode = FilesOnly)
+  private val certificatePathChooser = new DisplayedSelectionFileChooser(this, 20, Open, selectionMode = FilesOnly)
+  private val privateKeyPathChooser = new DisplayedSelectionFileChooser(this, 20, Open, selectionMode = FilesOnly)
 
   private val caFilesSavePathChooser = new FileChooser { fileSelectionMode = DirectoriesOnly }
   private val generateCAFilesButton = new Button(Action("Generate CA")(caFilesSavePathChooser.saveSelection().foreach { dir =>
@@ -76,7 +77,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
   /* Har Panel components */
   private val harFileFilter = new FileNameExtensionFilter("HTTP Archive (.har)", "har")
-  private val harPathChooser = new DisplayedSelectionFileChooser(60, Open, selectionMode = FilesOnly, fileFilter = harFileFilter)
+  private val harPathChooser = new DisplayedSelectionFileChooser(this, 60, Open, selectionMode = FilesOnly, fileFilter = harFileFilter)
 
   /* Simulation panel components */
   private val simulationPackage = new TextField(30)
@@ -89,7 +90,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
   /* Output panel components */
   private val outputEncoding = new ComboBox[String](CharsetHelper.orderedLabelList)
-  private val outputFolderChooser = new DisplayedSelectionFileChooser(60, Open, selectionMode = DirectoriesOnly)
+  private val outputFolderChooser = new DisplayedSelectionFileChooser(this, 60, Open, selectionMode = DirectoriesOnly)
 
   /* Filters panel components */
   private val whiteListTable = new FilterTable("Whitelist")
@@ -363,7 +364,12 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   }
 
   /* Reactions II: fields validation */
-  listenTo(localProxyHttpPort.keys,
+  listenTo(
+    localProxyHttpPort.keys,
+    keyStoreChooser.chooserKeys,
+    keyStorePassword.keys,
+    certificatePathChooser.chooserKeys,
+    privateKeyPathChooser.chooserKeys,
     outgoingProxyHost.keys,
     outgoingProxyHttpPort.keys,
     outgoingProxyHttpsPort.keys,
@@ -373,9 +379,19 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
   private def registerValidators(): Unit = {
 
+    val keystorePathValidator = (s: String) => selectedHttpsMode != ProvidedKeyStore || isNonEmpty(s)
+    val keystorePasswordValidator = (s: String) => selectedHttpsMode != ProvidedKeyStore || isNonEmpty(s)
+
+    val certificatePathValidator = (s: String) => selectedHttpsMode != CertificateAuthority || isNonEmpty(s)
+    val privateKeyPathValidator = (s: String) => selectedHttpsMode != CertificateAuthority || isNonEmpty(s)
+
     val outgoingProxyPortValidator = (s: String) => outgoingProxyHost.text.isEmpty || isValidPort(s)
 
     ValidationHelper.registerValidator(localProxyHttpPort, Validator(isValidPort))
+    ValidationHelper.registerValidator(keyStoreChooser.textField, Validator(keystorePathValidator))
+    ValidationHelper.registerValidator(keyStorePassword, Validator(keystorePasswordValidator))
+    ValidationHelper.registerValidator(certificatePathChooser.textField, Validator(certificatePathValidator))
+    ValidationHelper.registerValidator(privateKeyPathChooser.textField, Validator(privateKeyPathValidator))
     ValidationHelper.registerValidator(outgoingProxyHost, Validator(isNonEmpty, enableOutgoingProxyConfig, disableOutgoingProxyConfig, alwaysValid = true))
     ValidationHelper.registerValidator(outgoingProxyHttpPort, Validator(outgoingProxyPortValidator))
     ValidationHelper.registerValidator(outgoingProxyHttpsPort, Validator(outgoingProxyPortValidator))
@@ -428,7 +444,9 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
       start.enabled = ValidationHelper.validationStatus
   }
 
-  def selectedMode = modeSelector.selection.item
+  def selectedRecorderMode = modeSelector.selection.item
+
+  private def selectedHttpsMode = httpsModes.selection.item
 
   def harFilePath = harPathChooser.selection
 
@@ -462,7 +480,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
     localProxyHttpPort.text = configuration.proxy.port.toString
 
     httpsModes.selection.item = configuration.proxy.https.mode
-    toggleHttpsModesConfigsVisibility(httpsModes.selection.item)
+    toggleHttpsModesConfigsVisibility(selectedHttpsMode)
 
     keyStoreChooser.setPath(configuration.proxy.https.keyStore.path)
     keyStorePassword.text = configuration.proxy.https.keyStore.password
@@ -573,7 +591,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
         RecorderConfiguration.saveConfig()
       }
 
-      frontend.startRecording()
+      if (ValidationHelper.allValid) frontend.startRecording()
     }
   }
 }
