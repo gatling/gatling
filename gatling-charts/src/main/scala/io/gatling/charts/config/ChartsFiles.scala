@@ -32,6 +32,11 @@ object ChartsFiles {
   val StatsJSONFile = "global_stats.json"
   val GlobalPageName = "Global Information"
 
+  val CommonJsFiles = Seq(
+    JQueryFile, BootstrapFile, GatlingJsFile,
+    MomentJsFile, MenuFile, AllSessionsFile, StatsJsFile
+  )
+
   def menuFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / MenuFile
 
   def allSessionsFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / AllSessionsFile

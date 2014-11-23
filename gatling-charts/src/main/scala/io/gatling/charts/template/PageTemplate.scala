@@ -40,7 +40,7 @@ object PageTemplate {
 
 abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Option[String], group: Option[Group], components: Component*) {
 
-  def jsFiles: Seq[String] = (Seq(JQueryFile, BootstrapFile, GatlingJsFile, MenuFile, AllSessionsFile, StatsJsFile, MomentJsFile) ++ components.flatMap(_.jsFiles)).distinct
+  def jsFiles: Seq[String] = (CommonJsFiles ++ components.flatMap(_.jsFiles)).distinct
 
   def getOutput: Fastring = {
     val runMessage = PageTemplate.runMessage
