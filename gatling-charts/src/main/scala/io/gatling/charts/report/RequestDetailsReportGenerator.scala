@@ -15,19 +15,21 @@
  */
 package io.gatling.charts.report
 
-import io.gatling.charts.component.{ Component, ComponentLibrary, ErrorsTableComponent, StatisticsTextComponent }
+import io.gatling.charts.component._
 import io.gatling.charts.config.ChartsFiles.requestFile
 import io.gatling.charts.result.reader.RequestPath
 import io.gatling.charts.template.RequestDetailsPageTemplate
 import io.gatling.charts.util.Colors._
 import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK }
-import io.gatling.core.result.reader.DataReader
 import io.gatling.core.result.message.Status
 
-class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
+class RequestDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)
+    extends ReportGenerator {
 
   def generate(): Unit = {
+    import reportsGenerationInputs._
+
       def generateDetailPage(path: String, requestName: String, group: Option[Group]): Unit = {
 
           def responseTimeDistributionChartComponent: Component = {
@@ -111,7 +113,7 @@ class RequestDetailsReportGenerator(runOn: String, dataReader: DataReader, compo
             responseTimeScatterChartComponent,
             latencyScatterChartComponent)
 
-        new TemplateWriter(requestFile(runOn, path)).writeToFile(template.getOutput)
+        new TemplateWriter(requestFile(reportFolderName, path)).writeToFile(template.getOutput)
       }
 
     dataReader.statsPaths.foreach {

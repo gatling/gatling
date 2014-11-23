@@ -20,32 +20,35 @@ import java.nio.file.Path
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
 import io.gatling.charts.template.{ MenuTemplate, PageTemplate }
-import io.gatling.core.assertion.AssertionResult
 import io.gatling.core.config.GatlingFiles._
 import io.gatling.core.result.RequestStatsPath
-import io.gatling.core.result.reader.DataReader
 import io.gatling.core.util.ScanHelper.deepCopyPackageContent
 
 object ReportsGenerator {
 
-  def generateFor(outputDirectoryName: String, dataReader: DataReader, assertionResults: List[AssertionResult]): Path = {
+  def generateFor(reportsGenerationInputs: ReportsGenerationInputs): Path = {
+    import reportsGenerationInputs._
 
-      def generateMenu(): Unit = new TemplateWriter(menuFile(outputDirectoryName)).writeToFile(new MenuTemplate().getOutput)
+      def hasAtLeastOneRequestReported: Boolean =
+        dataReader.statsPaths.exists(_.isInstanceOf[RequestStatsPath])
 
-      def generateStats(): Unit = new StatsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.Instance).generate()
+      def generateMenu(): Unit = new TemplateWriter(menuFile(reportFolderName)).writeToFile(new MenuTemplate().getOutput)
+
+      def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance).generate()
 
       def copyAssets(): Unit = {
-        deepCopyPackageContent(GatlingAssetsStylePackage, styleDirectory(outputDirectoryName))
-        deepCopyPackageContent(GatlingAssetsJsPackage, jsDirectory(outputDirectoryName))
+        deepCopyPackageContent(GatlingAssetsStylePackage, styleDirectory(reportFolderName))
+        deepCopyPackageContent(GatlingAssetsJsPackage, jsDirectory(reportFolderName))
       }
 
-    if (!dataReader.statsPaths.collectFirst { case r @ RequestStatsPath(_, _) => r }.isDefined) throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
+    if (!hasAtLeastOneRequestReported)
+      throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
 
     val reportGenerators =
-      List(new AllSessionsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.Instance),
-        new GlobalReportGenerator(outputDirectoryName, dataReader, assertionResults, ComponentLibrary.Instance),
-        new RequestDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.Instance),
-        new GroupDetailsReportGenerator(outputDirectoryName, dataReader, ComponentLibrary.Instance))
+      List(new AllSessionsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance),
+        new GlobalReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance),
+        new RequestDetailsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance),
+        new GroupDetailsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance))
 
     copyAssets()
     generateMenu()
@@ -53,6 +56,6 @@ object ReportsGenerator {
     reportGenerators.foreach(_.generate())
     generateStats()
 
-    globalFile(outputDirectoryName)
+    globalFile(reportFolderName)
   }
 }

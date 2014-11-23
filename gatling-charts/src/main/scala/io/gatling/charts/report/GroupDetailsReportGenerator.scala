@@ -21,12 +21,14 @@ import io.gatling.charts.template.GroupDetailsPageTemplate
 import io.gatling.charts.util.Colors._
 import io.gatling.core.result._
 import io.gatling.core.result.message.OK
-import io.gatling.core.result.reader.DataReader
 import io.gatling.charts.result.reader.RequestPath
 
-class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
+class GroupDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)
+    extends ReportGenerator {
 
   def generate(): Unit = {
+    import reportsGenerationInputs._
+
       def generateDetailPage(path: String, group: Group): Unit = {
           def cumulatedResponseTimeChartComponent: Component = {
             val dataSuccess = dataReader.groupCumulatedResponseTimePercentilesOverTime(OK, group)
@@ -72,7 +74,7 @@ class GroupDetailsReportGenerator(runOn: String, dataReader: DataReader, compone
           durationChartComponent,
           durationDistributionChartComponent)
 
-        new TemplateWriter(requestFile(runOn, path)).writeToFile(template.getOutput)
+        new TemplateWriter(requestFile(reportFolderName, path)).writeToFile(template.getOutput)
       }
 
     dataReader.statsPaths.foreach {

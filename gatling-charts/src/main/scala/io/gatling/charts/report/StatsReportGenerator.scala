@@ -24,10 +24,11 @@ import io.gatling.charts.template.{ ConsoleTemplate, StatsJsTemplate, StatsJsonT
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.{ Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.{ KO, OK }
-import io.gatling.core.result.reader.DataReader
 import io.gatling.core.util.NumberHelper._
 
-class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) {
+class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary) {
+
+  import reportsGenerationInputs._
 
   def generate(): Unit = {
 
@@ -118,8 +119,8 @@ class StatsReportGenerator(runOn: String, dataReader: DataReader, componentLibra
         rootContainer.addRequest(group, request, stats)
     }
 
-    new TemplateWriter(jsStatsFile(runOn)).writeToFile(new StatsJsTemplate(rootContainer).getOutput)
-    new TemplateWriter(jsonStatsFile(runOn)).writeToFile(new StatsJsonTemplate(rootContainer.stats, true).getOutput)
+    new TemplateWriter(jsStatsFile(reportFolderName)).writeToFile(new StatsJsTemplate(rootContainer).getOutput)
+    new TemplateWriter(jsonStatsFile(reportFolderName)).writeToFile(new StatsJsonTemplate(rootContainer.stats, true).getOutput)
     println(ConsoleTemplate(dataReader, rootContainer.stats))
   }
 }

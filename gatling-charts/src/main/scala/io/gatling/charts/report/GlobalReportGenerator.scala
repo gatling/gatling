@@ -19,18 +19,15 @@ import io.gatling.charts.component._
 import io.gatling.charts.config.ChartsFiles.globalFile
 import io.gatling.charts.template.GlobalPageTemplate
 import io.gatling.charts.util.Colors._
-import io.gatling.core.assertion.AssertionResult
 import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK }
-import io.gatling.core.result.reader.DataReader
 
-class GlobalReportGenerator(runOn: String,
-                            dataReader: DataReader,
-                            assertionResults: List[AssertionResult],
-                            componentLibrary: ComponentLibrary)
-    extends ReportGenerator(runOn, dataReader, componentLibrary) {
+class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)
+    extends ReportGenerator {
 
   def generate(): Unit = {
+    import reportsGenerationInputs._
+
       def activeSessionsChartComponent = {
         val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = dataReader
           .scenarioNames
@@ -96,6 +93,6 @@ class GlobalReportGenerator(runOn: String,
       requestsChartComponent,
       responsesChartComponent)
 
-    new TemplateWriter(globalFile(runOn)).writeToFile(template.getOutput)
+    new TemplateWriter(globalFile(reportFolderName)).writeToFile(template.getOutput)
   }
 }

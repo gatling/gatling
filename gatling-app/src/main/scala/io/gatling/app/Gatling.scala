@@ -24,7 +24,7 @@ import scala.util.{ Success, Try }
 
 import io.gatling.app.classloader.SimulationClassLoader
 import io.gatling.app.cli.ArgsParser
-import io.gatling.charts.report.ReportsGenerator
+import io.gatling.charts.report.{ ReportsGenerationInputs, ReportsGenerator }
 import io.gatling.core.assertion.{ AssertionResult, AssertionValidator }
 import io.gatling.core.config.GatlingFiles
 import io.gatling.core.config.GatlingConfiguration
@@ -77,7 +77,8 @@ private[app] class Gatling(overrides: ConfigOverrides, simulationClass: Selected
 
     val assertionResults = AssertionValidator.validateAssertions(dataReader)
 
-    if (!configuration.charting.noReports) generateReports(runId, dataReader, assertionResults, start)
+    val reportsGenerationInputs = ReportsGenerationInputs(runId, dataReader, assertionResults)
+    if (!configuration.charting.noReports) generateReports(reportsGenerationInputs, start)
 
     runStatus(assertionResults)
   }
@@ -181,9 +182,9 @@ private[app] class Gatling(overrides: ConfigOverrides, simulationClass: Selected
     simulations(readSimulationNumber)
   }
 
-  private def generateReports(outputDirectoryName: String, dataReader: DataReader, assertionResults: List[AssertionResult], start: Long): Unit = {
+  private def generateReports(reportsGenerationInputs: ReportsGenerationInputs, start: Long): Unit = {
     println("Generating reports...")
-    val indexFile = ReportsGenerator.generateFor(outputDirectoryName, dataReader, assertionResults)
+    val indexFile = ReportsGenerator.generateFor(reportsGenerationInputs)
     println(s"Reports generated in ${(currentTimeMillis - start) / 1000}s.")
     println(s"Please open the following file: ${indexFile.toFile}")
   }

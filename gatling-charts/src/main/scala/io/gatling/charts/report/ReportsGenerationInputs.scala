@@ -15,16 +15,10 @@
  */
 package io.gatling.charts.report
 
-import io.gatling.charts.util.Colors._
-import io.gatling.core.result.IntVsTimePlot
+import io.gatling.core.assertion.AssertionResult
+import io.gatling.core.result.reader.DataReader
 
-object ReportGenerator {
-
-  val PercentilesColors: List[String] = List(Red, LightRed, DarkOrange, Orange, Yellow, Lime, LightLime, Green, LightBlue, Blue)
-}
-
-abstract class ReportGenerator {
-  def generate(): Unit
-
-  def count(records: Seq[IntVsTimePlot]): Int = records.iterator.map(_.value).sum
-}
+case class ReportsGenerationInputs(
+  reportFolderName: String,
+  dataReader: DataReader,
+  assertionResults: List[AssertionResult])

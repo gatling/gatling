@@ -19,15 +19,17 @@ import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles.allSessionsFile
 import io.gatling.charts.util.Colors.Orange
 import io.gatling.core.result.{ IntVsTimePlot, Series }
-import io.gatling.core.result.reader.DataReader
 
-class AllSessionsReportGenerator(runOn: String, dataReader: DataReader, componentLibrary: ComponentLibrary) extends ReportGenerator(runOn, dataReader, componentLibrary) {
+class AllSessionsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)
+    extends ReportGenerator {
 
   def generate(): Unit = {
+    import reportsGenerationInputs._
+
     val series = new Series[IntVsTimePlot]("All Users", dataReader.numberOfActiveSessionsPerSecond(), List(Orange))
 
     val javascript = componentLibrary.getAllUsersJs(dataReader.runStart, series)
 
-    new TemplateWriter(allSessionsFile(runOn)).writeToFile(javascript)
+    new TemplateWriter(allSessionsFile(reportFolderName)).writeToFile(javascript)
   }
 }
