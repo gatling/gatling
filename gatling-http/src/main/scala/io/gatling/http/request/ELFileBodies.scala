@@ -25,8 +25,6 @@ import io.gatling.core.validation._
 
 object ELFileBodies {
 
-  val ELFileBodyCacheEnabled = configuration.http.elFileBodiesCacheMaxCapacity > 0
-
   val ELFileBodyStringCache = ThreadSafeCache[String, Validation[Expression[String]]](configuration.http.elFileBodiesCacheMaxCapacity)
 
   def asString(filePath: Expression[String]): Expression[String] = {
@@ -38,7 +36,7 @@ object ELFileBodies {
           }).map(_.el[String])
 
       def pathToExpression(path: String) =
-        if (ELFileBodyCacheEnabled)
+        if (ELFileBodyStringCache.enabled)
           ELFileBodyStringCache.getOrElsePutIfAbsent(path, compileFile(path))
         else
           compileFile(path)
@@ -60,10 +58,8 @@ object ELFileBodies {
       }
 
       def pathToExpression(path: String) =
-        if (ELFileBodyCacheEnabled)
-          ELFileBodyBytesCache.getOrElsePutIfAbsent(path, resource2BytesSeq(path))
-        else
-          resource2BytesSeq(path)
+        if (ELFileBodyBytesCache.enabled) ELFileBodyBytesCache.getOrElsePutIfAbsent(path, resource2BytesSeq(path))
+        else resource2BytesSeq(path)
 
     session =>
       for {

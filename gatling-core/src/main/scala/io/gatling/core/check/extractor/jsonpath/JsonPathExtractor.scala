@@ -23,7 +23,6 @@ import io.gatling.jsonpath.JsonPath
 
 object JsonPathExtractor {
 
-  val JsonPathCacheEnabled = configuration.core.extract.jsonPath.cacheMaxCapacity > 0
   val JsonPathCache = ThreadSafeCache[String, Validation[JsonPath]](configuration.core.extract.jsonPath.cacheMaxCapacity)
 }
 
@@ -43,10 +42,8 @@ abstract class JsonPathExtractor[X] extends CriterionExtractor[Any, String, X] {
         case Right(path) => path.success
       }
 
-    if (JsonPathCacheEnabled)
-      JsonPathCache.getOrElsePutIfAbsent(expression, compile(expression))
-    else
-      compile(expression)
+    if (JsonPathCache.enabled) JsonPathCache.getOrElsePutIfAbsent(expression, compile(expression))
+    else compile(expression)
   }
 }
 
