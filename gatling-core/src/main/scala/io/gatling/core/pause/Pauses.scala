@@ -37,7 +37,7 @@ object Exponential extends PauseType {
 
   private def nextValue = {
     val rnd = ThreadLocalRandom.current
-    var u: Double = .0
+    var u = 0d
     do {
       u = rnd.nextDouble
     } while (u == 0d)
