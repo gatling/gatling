@@ -18,8 +18,6 @@ package io.gatling.core.pause
 import scala.concurrent.duration.Duration
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
-import org.uncommons.maths.random.{ UnsafeXORShiftRNG, ExponentialGenerator }
-
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
 
 sealed abstract class PauseType {
@@ -37,11 +35,18 @@ object Constant extends PauseType {
 
 object Exponential extends PauseType {
 
-  val Generator = new ThreadLocal[ExponentialGenerator] {
-    override def initialValue = new ExponentialGenerator(1.0, new UnsafeXORShiftRNG)
+  private def nextValue = {
+    val rnd = ThreadLocalRandom.current
+    var u: Double = .0
+    do {
+      u = rnd.nextDouble
+    } while (u == 0d)
+    -Math.log(u)
   }
 
-  def generator(duration: Expression[Duration]) = duration.map(duration => math.round(Generator.get.nextValue * duration.toMillis))
+  def generator(duration: Expression[Duration]) = duration.map {
+    duration => math.round(nextValue * duration.toMillis)
+  }
 }
 
 case class Custom(custom: Expression[Long]) extends PauseType {

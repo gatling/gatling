@@ -26,7 +26,6 @@ object Dependencies {
   private val jackson                        = "com.fasterxml.jackson.core"             % "jackson-databind"            % "2.4.3"
   private val boon                           = "io.fastjson"                            % "boon"                        % "0.28"
   private val jsonpath                       = "io.gatling"                            %% "jsonpath"                    % "0.6.1"
-  private val uncommonsMaths                 = "io.gatling.uncommons.maths"             % "uncommons-maths"             % "1.2.3"
   private val joddLagarto                    = "org.jodd"                               % "jodd-lagarto"                % "3.6.2"
   private val jzlib                          = "com.jcraft"                             % "jzlib"                       % "1.1.3"
   private val redisClient                    = "net.debasishg"                         %% "redisclient"                 % "2.14"
@@ -61,7 +60,7 @@ object Dependencies {
     val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
-    scalaLibs(scalaVersion) ++ Seq(akkaActor, uncommonsMaths, config, fastring, openCsv, lru, threetenbp, scalaParserCombinators) ++
+    scalaLibs(scalaVersion) ++ Seq(akkaActor, config, fastring, openCsv, lru, threetenbp, scalaParserCombinators) ++
       loggingLibs ++ checksLibs ++ testDeps
   }
 
