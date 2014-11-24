@@ -33,7 +33,7 @@ class StatisticsTableComponent extends Component {
 
     val pct1 = configuration.charting.indicators.percentile1.toRank + " pct"
     val pct2 = configuration.charting.indicators.percentile2.toRank + " pct"
-    val responseTimeFields = Vector("Min", "Max", "Mean", "Std Dev", pct1, pct2, "Req/s")
+    val responseTimeFields = Vector("Min", pct1, pct2, "Max", "Mean", "Std Dev")
 
     fast"""
                         <div class="statistics extensible-geant collapsed">
@@ -48,7 +48,7 @@ class StatisticsTableComponent extends Component {
                                     <tr>
                                         <th rowspan="2" id="col-1" class="header sortable sorted-up"><span>Requests</span></th>
                                         <th rowspan="2"></th>
-                                        <th colspan="4" class="header"><span class="executions">Executions</span></th>
+                                        <th colspan="5" class="header"><span class="executions">Executions</span></th>
                                         <th rowspan="2"></th>
                                         <th colspan="${responseTimeFields.size}" class="header"><span class="response-time">Response Time (ms)</span></th>
                                     </tr>
@@ -57,7 +57,8 @@ class StatisticsTableComponent extends Component {
                                         <th id="col-3" class="header sortable"><span>OK</span></th>
                                         <th id="col-4" class="header sortable"><span>KO</span></th>
                                         <th id="col-5" class="header sortable"><span>% KO</span></th>
-                                        ${responseTimeFields.zipWithIndex.map { case (header, i) => fast"""<th id="col-${i + 6}" class="header sortable"><span>$header</span></th>""" }.mkFastring(Eol)}
+                                        <th id="col-6" class="header sortable"><span>Req/s</span></th>
+                                        ${responseTimeFields.zipWithIndex.map { case (header, i) => fast"""<th id="col-${i + 7}" class="header sortable"><span>$header</span></th>""" }.mkFastring(Eol)}
                                     </tr>
                                 </thead>
                                 <tbody></tbody>
@@ -101,15 +102,15 @@ function generateHtmlRow(request, level, index, parent, group) {
         <td class="value total col-2">' + request.stats.numberOfRequests.total + '</td> \\
         <td class="value ok col-3">' + request.stats.numberOfRequests.ok + '</td> \\
         <td class="value ko col-4">' + request.stats.numberOfRequests.ko + '</td> \\
-         <td class="value ko col-5">' + koPercent + ' %' + '</td> \\
+        <td class="value ko col-5">' + koPercent + ' %' + '</td> \\
+        <td class="value total col-6">' + request.stats.meanNumberOfRequestsPerSecond.total + '</td> \\
         <td></td> \\
-        <td class="value total col-6">' + request.stats.minResponseTime.total + '</td> \\
-        <td class="value total col-7">' + request.stats.maxResponseTime.total + '</td> \\
-        <td class="value total col-8">' + request.stats.meanResponseTime.total + '</td> \\
-        <td class="value total col-9">' + request.stats.standardDeviation.total + '</td> \\
-        <td class="value total col-10">' + request.stats.percentiles1.total + '</td> \\
-        <td class="value total col-11">' + request.stats.percentiles2.total + '</td> \\
-        <td class="value total col-12">' + request.stats.meanNumberOfRequestsPerSecond.total + '</td> \\
+        <td class="value total col-7">' + request.stats.minResponseTime.total + '</td> \\
+        <td class="value total col-8">' + request.stats.percentiles1.total + '</td> \\
+        <td class="value total col-9">' + request.stats.percentiles2.total + '</td> \\
+        <td class="value total col-10">' + request.stats.maxResponseTime.total + '</td> \\
+        <td class="value total col-11">' + request.stats.meanResponseTime.total + '</td> \\
+        <td class="value total col-12">' + request.stats.standardDeviation.total + '</td> \\
         </tr>';
 }
 
