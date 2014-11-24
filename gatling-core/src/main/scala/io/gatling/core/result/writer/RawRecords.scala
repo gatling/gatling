@@ -34,5 +34,5 @@ object RawGroupRecord extends RawRecord(GroupRecordHeader, 7)
 
 object AssertionRecord {
   def unapply(array: Array[String]) =
-    if (array(0) == "ASSERTION") Some(array) else None
+    if (array(0) == AssertionRecordHeader.value) Some(array) else None
 }
