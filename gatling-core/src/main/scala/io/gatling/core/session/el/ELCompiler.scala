@@ -19,6 +19,7 @@ import java.lang.{ StringBuilder => JStringBuilder }
 import java.util.{ Collection => JCollection, List => JList, Map => JMap }
 
 import io.gatling.core.config.GatlingConfiguration._
+import io.gatling.core.json.JSON
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -102,13 +103,7 @@ case class IsUndefinedPart(part: Part[Any], name: String) extends Part[Boolean] 
 case class ToJsonValue(part: Part[Any], name: String) extends Part[String] {
   def apply(session: Session): Validation[String] =
     part(session) match {
-      case Success(value) => value match {
-        case str: String                        => s""""$str"""".success
-        case anyVal if isAnyValOrString(anyVal) => anyVal.toString.success
-        case seq: Seq[_]                        => toJsonString(seq.asJavaCollection).success
-        case map: Map[_, _]                     => toJsonString(map.asJavaCollection).success
-        case any                                => toJsonString(any).success
-      }
+      case Success(value)   => JSON.stringify(value, isRootObject = false).success
       case NullValueFailure => NullStringSuccess
       case failure: Failure => failure
     }
@@ -202,7 +197,7 @@ object ELCompiler {
   def compile2BytesSeq(string: String): Expression[Seq[Array[Byte]]] = {
 
     sealed trait Bytes { def bytes: Expression[Array[Byte]] }
-    case class StaticBytes(val bytes: Expression[Array[Byte]]) extends Bytes
+    case class StaticBytes(bytes: Expression[Array[Byte]]) extends Bytes
     case class DynamicBytes(part: Part[Any]) extends Bytes {
       val bytes: Expression[Array[Byte]] = session => part(session).map(_.toString.getBytes(configuration.core.charset))
     }
