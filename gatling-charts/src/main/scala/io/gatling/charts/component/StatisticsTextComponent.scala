@@ -46,6 +46,8 @@ case class RequestStatistics(name: String,
                              stdDeviationStatistics: Statistics[Int],
                              percentiles1: Statistics[Int],
                              percentiles2: Statistics[Int],
+                             percentiles3: Statistics[Int],
+                             percentiles4: Statistics[Int],
                              groupedCounts: Seq[GroupedCount],
                              meanNumberOfRequestsPerSecondStatistics: Statistics[Double])
 
@@ -68,6 +70,12 @@ class StatisticsTextComponent extends Component {
                                                 <td id="numberOfRequests" class="total"></td>
                                                 <td id="numberOfRequestsOK" class="ok"></td>
                                                 <td id="numberOfRequestsKO" class="ko"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="title">Mean req/s</td>
+                                                <td id="meanNumberOfRequestsPerSecond" class="total"></td>
+                                                <td id="meanNumberOfRequestsPerSecondOK" class="ok"></td>
+                                                <td id="meanNumberOfRequestsPerSecondKO" class="ko"></td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -119,10 +127,16 @@ class StatisticsTextComponent extends Component {
                                                 <td id="percentiles2KO" class="ko"></td>
                                             </tr>
                                             <tr>
-                                                <td class="title">Mean req/s</td>
-                                                <td id="meanNumberOfRequestsPerSecond" class="total"></td>
-                                                <td id="meanNumberOfRequestsPerSecondOK" class="ok"></td>
-                                                <td id="meanNumberOfRequestsPerSecondKO" class="ko"></td>
+                                                <td class="title">${configuration.charting.indicators.percentile3.toRank} percentile</td>
+                                                <td id="percentiles3" class="total"></td>
+                                                <td id="percentiles3OK" class="ok"></td>
+                                                <td id="percentiles3KO" class="ko"></td>
+                                            </tr>
+                                            <tr>
+                                                <td class="title">${configuration.charting.indicators.percentile4.toRank} percentile</td>
+                                                <td id="percentiles4" class="total"></td>
+                                                <td id="percentiles4OK" class="ok"></td>
+                                                <td id="percentiles4KO" class="ko"></td>
                                             </tr>
                                         </tbody>
                                     </table>

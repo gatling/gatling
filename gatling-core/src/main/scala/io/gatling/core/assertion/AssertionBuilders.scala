@@ -35,6 +35,8 @@ class AssertionWithPathAndTimeMetric(path: Path, metric: TimeMetric) {
   def stdDev = next(StandardDeviation)
   def percentile1 = next(Percentiles1)
   def percentile2 = next(Percentiles2)
+  def percentile3 = next(Percentiles3)
+  def percentile4 = next(Percentiles4)
 }
 
 class AssertionWithPathAndCountMetric(path: Path, metric: CountMetric) {

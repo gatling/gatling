@@ -45,6 +45,8 @@ class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, com
         val stdDeviationStatistics = Statistics("std deviation", total.stdDev, ok.stdDev, ko.stdDev)
         val percentiles1 = Statistics(s"response time ${configuration.charting.indicators.percentile1.toRank} percentile", total.percentile1, ok.percentile1, ko.percentile1)
         val percentiles2 = Statistics(s"response time ${configuration.charting.indicators.percentile2.toRank} percentile", total.percentile2, ok.percentile2, ko.percentile2)
+        val percentiles3 = Statistics(s"response time ${configuration.charting.indicators.percentile3.toRank} percentile", total.percentile3, ok.percentile3, ko.percentile3)
+        val percentiles4 = Statistics(s"response time ${configuration.charting.indicators.percentile4.toRank} percentile", total.percentile4, ok.percentile4, ko.percentile4)
         val meanNumberOfRequestsPerSecondStatistics = Statistics("mean requests/sec", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
         val groupedCounts = dataReader
@@ -57,7 +59,7 @@ class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, com
           case None    => group.map(RequestPath.path).getOrElse("")
         }
 
-        RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
+        RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, percentiles3, percentiles4, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
       }
 
       def computeGroupStats(name: String, group: Group): RequestStatistics = {
@@ -73,6 +75,8 @@ class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, com
         val stdDeviationStatistics = Statistics("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev)
         val percentiles1 = Statistics("percentiles1", total.percentile1, ok.percentile1, ko.percentile1)
         val percentiles2 = Statistics("percentiles2", total.percentile2, ok.percentile2, ko.percentile2)
+        val percentiles3 = Statistics("percentiles3", total.percentile3, ok.percentile3, ko.percentile3)
+        val percentiles4 = Statistics("percentiles4", total.percentile4, ok.percentile4, ko.percentile4)
         val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
         val groupedCounts = dataReader
@@ -82,7 +86,7 @@ class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, com
 
         val path = RequestPath.path(group)
 
-        RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
+        RequestStatistics(name, path, numberOfRequestsStatistics, minResponseTimeStatistics, maxResponseTimeStatistics, meanResponseTimeStatistics, stdDeviationStatistics, percentiles1, percentiles2, percentiles3, percentiles4, groupedCounts, meanNumberOfRequestsPerSecondStatistics)
       }
 
     val rootContainer = GroupContainer.root(computeRequestStats(GlobalPageName, None, None))

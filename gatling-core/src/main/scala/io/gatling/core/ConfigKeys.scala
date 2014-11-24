@@ -68,6 +68,8 @@ object ConfigKeys {
       val HigherBound = "gatling.charting.indicators.higherBound"
       val Percentile1 = "gatling.charting.indicators.percentile1"
       val Percentile2 = "gatling.charting.indicators.percentile2"
+      val Percentile3 = "gatling.charting.indicators.percentile3"
+      val Percentile4 = "gatling.charting.indicators.percentile4"
     }
   }
 

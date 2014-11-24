@@ -87,6 +87,14 @@ function fillStats(stat){
     $$("#percentiles2OK").append(stat.percentiles2.ok);
     $$("#percentiles2KO").append(stat.percentiles2.ko);
 
+    $$("#percentiles3").append(stat.percentiles3.total);
+    $$("#percentiles3OK").append(stat.percentiles3.ok);
+    $$("#percentiles3KO").append(stat.percentiles3.ko);
+
+    $$("#percentiles4").append(stat.percentiles4.total);
+    $$("#percentiles4OK").append(stat.percentiles4.ok);
+    $$("#percentiles4KO").append(stat.percentiles4.ko);
+
     $$("#meanNumberOfRequestsPerSecond").append(stat.meanNumberOfRequestsPerSecond.total);
     $$("#meanNumberOfRequestsPerSecondOK").append(stat.meanNumberOfRequestsPerSecond.ok);
     $$("#meanNumberOfRequestsPerSecondKO").append(stat.meanNumberOfRequestsPerSecond.ko);

@@ -93,6 +93,8 @@ private class GraphiteSender(graphiteRootPathKey: String)(implicit configuration
 
   private val percentiles1Name = "percentiles" + configuration.charting.indicators.percentile1
   private val percentiles2Name = "percentiles" + configuration.charting.indicators.percentile2
+  private val percentiles3Name = "percentiles" + configuration.charting.indicators.percentile3
+  private val percentiles4Name = "percentiles" + configuration.charting.indicators.percentile4
 
   private var metricsSender: MetricsSender = _
 
@@ -127,6 +129,8 @@ private class GraphiteSender(graphiteRootPathKey: String)(implicit configuration
             sendToGraphite(metricPath / "min", m.min)
             sendToGraphite(metricPath / percentiles1Name, m.percentile1)
             sendToGraphite(metricPath / percentiles2Name, m.percentile2)
+            sendToGraphite(metricPath / percentiles3Name, m.percentile3)
+            sendToGraphite(metricPath / percentiles4Name, m.percentile4)
         }
 
       def sendRequestMetrics(metricPath: GraphitePath, metricByStatus: MetricByStatus): Unit = {

@@ -133,7 +133,9 @@ object GatlingConfiguration extends StrictLogging {
           lowerBound = config.getInt(charting.indicators.LowerBound),
           higherBound = config.getInt(charting.indicators.HigherBound),
           percentile1 = config.getDouble(charting.indicators.Percentile1),
-          percentile2 = config.getDouble(charting.indicators.Percentile2))),
+          percentile2 = config.getDouble(charting.indicators.Percentile2),
+          percentile3 = config.getDouble(charting.indicators.Percentile3),
+          percentile4 = config.getDouble(charting.indicators.Percentile4))),
       http = HttpConfiguration(
         elFileBodiesCacheMaxCapacity = config.getLong(http.ELFileBodiesCacheMaxCapacity),
         rawFileBodiesCacheMaxCapacity = config.getLong(http.RawFileBodiesCacheMaxCapacity),
@@ -290,7 +292,9 @@ case class IndicatorsConfiguration(
   lowerBound: Int,
   higherBound: Int,
   percentile1: Double,
-  percentile2: Double)
+  percentile2: Double,
+  percentile3: Double,
+  percentile4: Double)
 
 case class HttpConfiguration(
   elFileBodiesCacheMaxCapacity: Long,

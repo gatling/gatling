@@ -77,6 +77,8 @@ case object Mean extends TimeSelection(serialize(MeanTag))
 case object StandardDeviation extends TimeSelection(serialize(StandardDeviationTag))
 case object Percentiles1 extends TimeSelection(serialize(Percentiles1Tag))
 case object Percentiles2 extends TimeSelection(serialize(Percentiles2Tag))
+case object Percentiles3 extends TimeSelection(serialize(Percentiles3Tag))
+case object Percentiles4 extends TimeSelection(serialize(Percentiles4Tag))
 
 // ---------------- //
 // -- Target ADT -- //

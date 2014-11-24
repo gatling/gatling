@@ -75,9 +75,13 @@ Applicable to response time
 
 * ``stdDev``: perform the assertion on the standard deviation of the metric.
 
-* ``percentile1``: perform the assertion on the first percentile of the metric.
+* ``percentile1``: perform the assertion on the 1st percentile of the metric.
 
-* ``percentile2``: perform the assertion on the second percentile of the metric.
+* ``percentile2``: perform the assertion on the 2nd percentile of the metric.
+
+* ``percentile3``: perform the assertion on the 3rd percentile of the metric.
+
+* ``percentile4``: perform the assertion on the 4th percentile of the metric.
 
 Applicable to number of requests (all, failed or successful)
 ------------------------------------------------------------

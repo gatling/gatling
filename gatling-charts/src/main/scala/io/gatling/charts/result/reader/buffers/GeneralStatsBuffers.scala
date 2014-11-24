@@ -97,10 +97,12 @@ class GeneralStatsBuffer(duration: Long) {
 
       val percentile1 = digest.quantile(configuration.charting.indicators.percentile1 / 100.0).toInt
       val percentile2 = digest.quantile(configuration.charting.indicators.percentile2 / 100.0).toInt
+      val percentile3 = digest.quantile(configuration.charting.indicators.percentile3 / 100.0).toInt
+      val percentile4 = digest.quantile(configuration.charting.indicators.percentile4 / 100.0).toInt
       val min = digest.quantile(0).toInt
       val max = digest.quantile(1).toInt
 
-      GeneralStats(min.toInt, max.toInt, valuesCount, mean, stdDev, percentile1, percentile2, meanRequestsPerSec)
+      GeneralStats(min.toInt, max.toInt, valuesCount, mean, stdDev, percentile1, percentile2, percentile3, percentile4, meanRequestsPerSec)
     }
   }
 

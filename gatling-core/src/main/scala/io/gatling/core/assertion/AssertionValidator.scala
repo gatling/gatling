@@ -29,6 +29,8 @@ object AssertionValidator {
 
   val Percentile1 = configuration.charting.indicators.percentile1.toRank
   val Percentile2 = configuration.charting.indicators.percentile2.toRank
+  val Percentile3 = configuration.charting.indicators.percentile3.toRank
+  val Percentile4 = configuration.charting.indicators.percentile4.toRank
 
   private case class ResolvedMetric(stats: List[GeneralStats], message: String)
   private case class ResolvedSelection(value: List[Int], message: String)
@@ -119,6 +121,8 @@ object AssertionValidator {
       case StandardDeviation => ResolvedSelection(resolvedMetric.stats.map(_.stdDev), "standard deviation")
       case Percentiles1      => ResolvedSelection(resolvedMetric.stats.map(_.percentile1), s"$Percentile1 percentile")
       case Percentiles2      => ResolvedSelection(resolvedMetric.stats.map(_.percentile2), s"$Percentile2 percentile")
+      case Percentiles3      => ResolvedSelection(resolvedMetric.stats.map(_.percentile1), s"$Percentile3 percentile")
+      case Percentiles4      => ResolvedSelection(resolvedMetric.stats.map(_.percentile2), s"$Percentile4 percentile")
     }
     resolveCondition(assertion, resolvedSelection.value, s"$path: ${resolvedSelection.message} of ${resolvedMetric.message}")
   }

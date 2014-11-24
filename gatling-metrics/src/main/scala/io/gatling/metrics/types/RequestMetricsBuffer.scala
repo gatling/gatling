@@ -23,6 +23,8 @@ class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
 
   private val percentile1 = configuration.charting.indicators.percentile1 / 100.0
   private val percentile2 = configuration.charting.indicators.percentile2 / 100.0
+  private val percentile3 = configuration.charting.indicators.percentile3 / 100.0
+  private val percentile4 = configuration.charting.indicators.percentile4 / 100.0
 
   private var okDigest: TDigest = _
   private var koDigest: TDigest = _
@@ -53,11 +55,13 @@ class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
     if (count > 0) {
       val percentile1Value = digest.quantile(percentile1).toInt
       val percentile2Value = digest.quantile(percentile2).toInt
-      Some(Metrics(count, digest.quantile(0).toInt, digest.quantile(1).toInt, percentile1Value, percentile2Value))
+      val percentile3Value = digest.quantile(percentile3).toInt
+      val percentile4Value = digest.quantile(percentile4).toInt
+      Some(Metrics(count, digest.quantile(0).toInt, digest.quantile(1).toInt, percentile1Value, percentile2Value, percentile3Value, percentile4Value))
     } else
       None
   }
 }
 
 case class MetricByStatus(ok: Option[Metrics], ko: Option[Metrics], all: Option[Metrics])
-case class Metrics(count: Long, min: Int, max: Int, percentile1: Int, percentile2: Int)
+case class Metrics(count: Long, min: Int, max: Int, percentile1: Int, percentile2: Int, percentile3: Int, percentile4: Int)

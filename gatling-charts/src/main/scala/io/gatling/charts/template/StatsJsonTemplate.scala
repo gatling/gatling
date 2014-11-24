@@ -67,6 +67,16 @@ class StatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
         "ok": ${style(stats.percentiles2.success)},
         "ko": ${style(stats.percentiles2.failure)}
     },
+    "percentiles3": {
+        "total": ${style(stats.percentiles3.total)},
+        "ok": ${style(stats.percentiles3.success)},
+        "ko": ${style(stats.percentiles3.failure)}
+    },
+    "percentiles4": {
+        "total": ${style(stats.percentiles4.total)},
+        "ok": ${style(stats.percentiles4.success)},
+        "ko": ${style(stats.percentiles4.failure)}
+    },
     "group1": {
         "name": "${stats.groupedCounts(0).name}",
         "count": ${stats.groupedCounts(0).count},

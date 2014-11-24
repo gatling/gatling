@@ -49,6 +49,8 @@ object AssertionTags {
   val StandardDeviationTag = "STANDARD_DEVIATION"
   val Percentiles1Tag = "PERCENTILES_1"
   val Percentiles2Tag = "PERCENTILES_2"
+  val Percentiles3Tag = "PERCENTILES_3"
+  val Percentiles4Tag = "PERCENTILES_4"
 
   // -- Target tags -- //
 

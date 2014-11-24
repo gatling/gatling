@@ -43,7 +43,7 @@ Requests metrics give you, for each request (or all requests using _allRequests_
 
 * *count* : requests/sec
 * *min* and *max* : Min and Max response time for the request
-* *percentilesXX* :  First and second percentiles, as defined in gatling.conf (defaults are 95th and 99th percentiles)
+* *percentilesXX* :  1st, 2nd, 3rd and 4th percentiles, as defined in gatling.conf (defaults are 95th and 99th percentiles)
 
 The metric path for requests metrics is *gatling.simulationId.requestName.status.metric*, where :
 

@@ -372,7 +372,7 @@ h1 span {
 
 .demi {
 	width: 630px;
-	height: 330px;
+	height: 375px;
 }
 
 .geant {
@@ -386,7 +386,7 @@ h1 span {
 
 .polar {
 	width: 250px;
-	height: 330px;
+	height: 375px;
 	position: absolute;
 	top: 0px;
 	right: -17px;
@@ -492,7 +492,7 @@ h1 span {
 
 .sortable span {
 	background: url('sortable.png') no-repeat right 3px;
-	padding-right: 15px;
+	padding-right: 10px;
 }
 
 .sorted-up span {
