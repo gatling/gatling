@@ -137,17 +137,11 @@ object ResourceFetcher extends StrictLogging {
     }
   }
 
-  private def resourceFetcher(tx: HttpTx, inferredResources: List[HttpRequest], explicitResources: List[HttpRequest]) = {
-
-    // explicit resources have precedence over implicit ones, so add them last to the Map
-    val uniqueResources: Map[Uri, HttpRequest] = (inferredResources ::: explicitResources).map(res => res.ahcRequest.getUri -> res)(breakOut)
-
-    if (uniqueResources.isEmpty)
-      None
-    else {
-      Some(() => new ResourceFetcher(tx, uniqueResources.values.toSeq))
+  private def resourceFetcher(tx: HttpTx, inferredResources: List[HttpRequest], explicitResources: List[HttpRequest]) =
+    inferredResources ::: explicitResources match {
+      case Nil       => None
+      case resources => Some(() => new ResourceFetcher(tx, resources))
     }
-  }
 
   def resourceFetcherForCachedPage(htmlDocumentURI: Uri, tx: HttpTx): Option[() => ResourceFetcher] = {
 
