@@ -234,7 +234,7 @@ class ELCompiler extends RegexParsers {
   case object AccessSize extends AccessToken { val token = ".size()" }
   case object AccessExists extends AccessToken { val token = ".exists()" }
   case object AccessIsUndefined extends AccessToken { val token = ".isUndefined()" }
-  case object AccessToJsonValue extends AccessToken { val token = ".toJsonValue()" }
+  case object AccessToJsonValue extends AccessToken { val token = ".jsonStringify()" }
   case class AccessTuple(index: String, token: String) extends AccessToken
 
   override def skipWhitespace = false

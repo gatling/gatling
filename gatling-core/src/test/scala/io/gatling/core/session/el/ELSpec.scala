@@ -82,25 +82,25 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
       }"""
   }
 
-  it should "have toJSONString deal with String value" in {
+  it should "have jsonStringify deal with String value" in {
     val session = Session("scenario", "1", Map("value" -> "VALUE"))
-    val expression = """"name": ${value.toJsonValue()}""".el[String]
+    val expression = """"name": ${value.jsonStringify()}""".el[String]
     expression(session).succeeded shouldBe """"name": "VALUE""""
   }
 
-  it should "have toJSONString deal with number value" in {
+  it should "have jsonStringify deal with number value" in {
     val session = Session("scenario", "1", Map("value" -> 5.0))
-    val expression = """"name": ${value.toJsonValue()}""".el[String]
+    val expression = """"name": ${value.jsonStringify()}""".el[String]
     expression(session).succeeded shouldBe """"name": 5.0"""
   }
 
-  it should "have toJSONString deal with null value" in {
+  it should "have jsonStringify deal with null value" in {
     val session = Session("scenario", "1", Map("value" -> null))
-    val expression = """"name": ${value.toJsonValue()}""".el[String]
+    val expression = """"name": ${value.jsonStringify()}""".el[String]
     expression(session).succeeded shouldBe """"name": null"""
   }
 
-  it should "have toJsonValue deal with key access" in {
+  it should "have jsonStringify deal with key access" in {
 
     val json = Jackson.parse(
       """{
@@ -109,7 +109,7 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
         |  }
         |}""".stripMargin)
     val session = Session("scenario", "1", Map("foo" -> json))
-    val expression = "${foo.bar.toJsonValue()}".el[String]
+    val expression = "${foo.bar.jsonStringify()}".el[String]
     expression(session).succeeded shouldBe """{"baz":"qix"}"""
   }
 
