@@ -54,11 +54,12 @@ object NumberHelper {
     def toPrintableString: String = formatter.format(double)
   }
 
+  class IntStringOpt(val s: String) extends AnyVal {
+    def isEmpty: Boolean = s.exists(char => char < '0' || char > '9')
+    def get: Int = s.toInt
+  }
+
   object IntString {
-    def unapply(s: String): Option[Int] =
-      if (s.forall(char => char >= '0' && char <= '9'))
-        Some(s.toInt)
-      else
-        None
+    def unapply(s: String): IntStringOpt = new IntStringOpt(s)
   }
 }
