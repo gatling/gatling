@@ -16,7 +16,7 @@
 package io.gatling.core.result.message
 
 object Status {
-  def valueOf(string: String) = string match {
+  def apply(string: String) = string match {
     case OK.name => OK
     case KO.name => KO
     case _       => throw new IllegalArgumentException(s"Illegal Status value $string")

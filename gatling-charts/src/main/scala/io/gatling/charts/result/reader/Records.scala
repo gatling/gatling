@@ -56,7 +56,7 @@ class RequestRecordParser(bucketFunction: Long => Int, runStart: Long) {
     val firstByteReceivedTimestamp = strings(7).toLong
     val lastByteReceivedTimestamp = strings(8).toLong
 
-    val status = Status.valueOf(strings(9))
+    val status = Status.apply(strings(9))
     val errorMessage = if (status == KO) Some(strings(10)) else None
 
     val responseTime = (lastByteReceivedTimestamp - firstByteSentTimestamp).toInt
@@ -85,7 +85,7 @@ class GroupRecordParser(bucketFunction: Long => Int, runStart: Long) {
     val cumulatedResponseTime = strings(6).toInt
     val oks = strings(7).toInt
     val kos = strings(8).toInt
-    val status = Status.valueOf(strings(9))
+    val status = Status.apply(strings(9))
     val duration = (endTimestamp - startTimestamp).toInt
     GroupRecord(group, duration, cumulatedResponseTime, oks, kos, status, bucketFunction(startTimestamp))
   }
