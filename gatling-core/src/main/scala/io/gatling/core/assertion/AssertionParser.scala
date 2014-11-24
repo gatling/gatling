@@ -49,8 +49,7 @@ class AssertionParser extends JavaTokenParsers {
   // -- Paths parsers -- //
   // ------------------- //
 
-  // TODO : Can pretty obviously be a cleaner regex
-  private def parts = """(?U).+?(?=\tTARGET)""".r.map(_.split("\t").toList)
+  private val parts = """(?U).+?(?=\tTARGET)""".r.map(_.split(whiteSpace.regex).toList)
   private val global = GlobalTag ^^^ Global
   private val forAll = ForAllTag ^^^ ForAll
   private val details = (DetailsTag ~> parts) ^^ Details.apply
