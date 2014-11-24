@@ -100,7 +100,7 @@ case class IsUndefinedPart(part: Part[Any], name: String) extends Part[Boolean] 
     }
 }
 
-case class ToJsonValue(part: Part[Any], name: String) extends Part[String] {
+case class JSONStringify(part: Part[Any], name: String) extends Part[String] {
   def apply(session: Session): Validation[String] =
     part(session) match {
       case Success(value)   => JSON.stringify(value, isRootObject = false).success
@@ -234,7 +234,7 @@ class ELCompiler extends RegexParsers {
   case object AccessSize extends AccessToken { val token = ".size()" }
   case object AccessExists extends AccessToken { val token = ".exists()" }
   case object AccessIsUndefined extends AccessToken { val token = ".isUndefined()" }
-  case object AccessToJsonValue extends AccessToken { val token = ".jsonStringify()" }
+  case object AccessJSONStringify extends AccessToken { val token = ".jsonStringify()" }
   case class AccessTuple(index: String, token: String) extends AccessToken
 
   override def skipWhitespace = false
@@ -284,7 +284,7 @@ class ELCompiler extends RegexParsers {
           case AccessSize                    => SizePart(subPart, subPartName)
           case AccessExists                  => ExistsPart(subPart, subPartName)
           case AccessIsUndefined             => IsUndefinedPart(subPart, subPartName)
-          case AccessToJsonValue             => ToJsonValue(subPart, subPartName)
+          case AccessJSONStringify           => JSONStringify(subPart, subPartName)
           case AccessTuple(index, tokenName) => TupleAccessPart(subPart, subPartName, index.toInt)
         }
 
@@ -306,7 +306,7 @@ class ELCompiler extends RegexParsers {
       functionAccess(AccessSize) |
       functionAccess(AccessExists) |
       functionAccess(AccessIsUndefined) |
-      functionAccess(AccessToJsonValue) |
+      functionAccess(AccessJSONStringify) |
       keyAccess |
       (elExpr ^^ { case _ => throw new Exception("nested attribute definition is not allowed") })
 
