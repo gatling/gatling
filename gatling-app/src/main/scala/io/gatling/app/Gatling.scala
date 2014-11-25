@@ -78,8 +78,7 @@ private[app] class Gatling(overrides: ConfigOverrides, simulationClass: Selected
     val assertionResults = AssertionValidator.validateAssertions(dataReader)
 
     val reportsGenerationInputs = ReportsGenerationInputs(runId, dataReader, assertionResults)
-    if (!configuration.charting.noReports && configuration.data.fileDataWriterEnabled)
-      generateReports(reportsGenerationInputs, start)
+    if (reportsGenerationEnabled) generateReports(reportsGenerationInputs, start)
 
     runStatus(assertionResults)
   }
@@ -131,6 +130,9 @@ private[app] class Gatling(overrides: ConfigOverrides, simulationClass: Selected
       new Runner(selection).run
     }
   }
+
+  private def reportsGenerationEnabled =
+    configuration.data.fileDataWriterEnabled && !configuration.charting.noReports
 
   private def askSimulationId(clazz: Class[Simulation], defaultBaseName: String): String = {
       @tailrec
