@@ -49,7 +49,7 @@ class GraphiteDataWriter extends DataWriter {
 
   def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
     val metricRootPath = configuration.data.graphite.rootPathPrefix + "." + sanitizeString(run.simulationId) + "."
-    graphiteSender = actor(context)(new GraphiteSender(metricRootPath))
+    graphiteSender = actor(actorName("graphiteSender"))(new GraphiteSender(metricRootPath))
 
     usersByScenario.update(allUsersKey, new UsersBreakdownBuffer(scenarios.map(_.nbUsers).sum))
     scenarios.foreach(scenario => usersByScenario += (usersRootKey / scenario.name) -> new UsersBreakdownBuffer(scenario.nbUsers))

@@ -22,6 +22,13 @@ import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ChainBuilder
 
+sealed trait LoopType { def name: String }
+case object RepeatLoopType extends LoopType { val name = "repeat" }
+case object ForeachLoopType extends LoopType { val name = "foreach" }
+case object DuringLoopType extends LoopType { val name = "during" }
+case object ForeverLoopType extends LoopType { val name = "forever" }
+case object AsLongAsLoopType extends LoopType { val name = "asLongAs" }
+
 /**
  * @constructor create a new Loop
  * @param condition the function that determine the condition
@@ -29,10 +36,10 @@ import io.gatling.core.structure.ChainBuilder
  * @param counterName the name of the loop counter
  * @param exitASAP if the loop is to be exited as soon as the condition no longer holds
  */
-class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean) extends ActionBuilder {
+class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean, loopType: LoopType) extends ActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols) = {
-    val whileActor = actor(new Loop(condition, counterName, exitASAP, next))
+    val whileActor = actor(actorName(loopType.name))(new Loop(condition, counterName, exitASAP, next))
     val loopNextActor = loopNext.build(whileActor, protocols)
     whileActor ! loopNextActor
     whileActor

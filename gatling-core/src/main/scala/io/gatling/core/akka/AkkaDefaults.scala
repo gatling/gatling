@@ -15,15 +15,25 @@
  */
 package io.gatling.core.akka
 
+import java.util.concurrent.atomic.AtomicLong
+
 import scala.concurrent.duration.DurationInt
 
 import akka.pattern.AskSupport
 import io.gatling.core.config.GatlingConfiguration.configuration
 
+object AkkaDefaults {
+  val IdGen = new AtomicLong()
+}
+
 trait AkkaDefaults extends AskSupport {
+
+  import AkkaDefaults._
 
   implicit def system = GatlingActorSystem.instance
   implicit def dispatcher = system.dispatcher
   implicit def scheduler = system.scheduler
   val simulationTimeOut = configuration.core.timeOut.simulation seconds
+
+  def actorName(base: String) = base + "#" + IdGen.incrementAndGet
 }

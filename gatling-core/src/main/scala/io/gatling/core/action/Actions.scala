@@ -55,21 +55,21 @@ trait Chainable extends Action {
   override def preRestart(reason: Throwable, message: Option[Any]): Unit =
     message.foreach {
       case session: Session =>
-        logger.error(s"Action $this crashed on session $message, forwarding to the next one", reason)
+        logger.error(s"'${self.path.name}' crashed on session $session, forwarding to the next one", reason)
         next ! session.markAsFailed
       case _ =>
-        logger.error(s"Action $this crashed on unknown message $message, dropping", reason)
+        logger.error(s"'${self.path.name}' crashed on unknown message $message, dropping", reason)
     }
 }
 
 /**
  * An Action that handles failures gracefully by returning a Validation
  */
-trait Failable { self: Chainable =>
+trait Failable { this: Chainable =>
 
   def execute(session: Session): Unit =
     executeOrFail(session).onFailure { message =>
-      logger.error(message)
+      logger.error(s"'${self.path.name}' failed to execute", message)
       next ! session.markAsFailed
     }
 

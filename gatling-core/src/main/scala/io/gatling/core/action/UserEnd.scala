@@ -29,7 +29,7 @@ object UserEnd extends AkkaDefaults {
   var _instance: Option[ActorRef] = None
 
   def start(): Unit = {
-    _instance = Some(actor(new UserEnd))
+    _instance = Some(actor("userEnd")(new UserEnd))
     system.registerOnTermination(_instance = None)
   }
 

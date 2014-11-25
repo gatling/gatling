@@ -21,6 +21,7 @@ import io.gatling.core.action.If
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ChainBuilder
+
 /**
  * @constructor create a new IfBuilder
  * @param condition condition of the if
@@ -32,7 +33,7 @@ class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext
   def build(next: ActorRef, protocols: Protocols) = {
     val thenNextActor = thenNext.build(next, protocols)
     val elseNextActor = elseNext.map(_.build(next, protocols)).getOrElse(next)
-    actor(new If(condition, thenNextActor, elseNextActor, next))
+    actor(actorName("if"))(new If(condition, thenNextActor, elseNextActor, next))
   }
 
   override def registerDefaultProtocols(protocols: Protocols) = {

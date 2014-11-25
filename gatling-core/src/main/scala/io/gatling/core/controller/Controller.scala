@@ -44,7 +44,7 @@ object Controller extends AkkaDefaults with StrictLogging {
   private var _instance: Option[ActorRef] = None
 
   def start(): Unit = {
-    _instance = Some(actor(new Controller))
+    _instance = Some(actor("controller")(new Controller))
     system.registerOnTermination(_instance = None)
     UserEnd.start()
   }

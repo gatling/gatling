@@ -39,7 +39,7 @@ class WsOpenAction(
       def open(tx: WsTx): Unit = {
         logger.info(s"Opening websocket '$wsName': Scenario '${session.scenarioName}', UserId #${session.userId}")
 
-        val wsActor = actor(context)(new WsActor(wsName))
+        val wsActor = actor((actorName("wsActor")))(new WsActor(wsName))
 
         HttpEngine.instance.startWebSocketTransaction(tx, wsActor)
       }

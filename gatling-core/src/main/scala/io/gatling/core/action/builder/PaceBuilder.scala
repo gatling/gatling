@@ -30,5 +30,5 @@ import io.gatling.core.session.Expression
  */
 class PaceBuilder(interval: Expression[Duration], counter: String) extends ActionBuilder {
 
-  def build(next: ActorRef, protocols: Protocols) = actor(new Pace(interval, counter, next))
+  def build(next: ActorRef, protocols: Protocols) = actor(actorName("pace"))(new Pace(interval, counter, next))
 }

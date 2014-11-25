@@ -48,7 +48,7 @@ object DataWriter extends AkkaDefaults {
     _instances = {
       val dw = configuration.data.dataWriterClasses.map { className =>
         val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
-        system.actorOf(Props(clazz))
+        system.actorOf(Props(clazz), clazz.getSimpleName)
       }
 
       system.registerOnTermination(_instances = None)

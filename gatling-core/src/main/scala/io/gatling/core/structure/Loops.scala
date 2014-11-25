@@ -19,7 +19,7 @@ import java.util.UUID
 
 import scala.concurrent.duration.Duration
 
-import io.gatling.core.action.builder.{ SessionHookBuilder, LoopBuilder }
+import io.gatling.core.action.builder._
 import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
 import io.gatling.core.structure.ChainBuilder.chainOf
 import io.gatling.core.util.TimeHelper.nowMillis
@@ -39,7 +39,7 @@ trait Loops[B] extends Execs[B] {
 
     val continueCondition = (session: Session) => times(session).map(session.loopCounterValue(counterName) < _)
 
-    asLongAs(continueCondition, counterName, exitASAP = false)(chain)
+    asLongAs(continueCondition, counterName, exitASAP = false, RepeatLoopType)(chain)
   }
 
   def foreach(seq: Expression[Seq[Any]], attributeName: String, counterName: String = UUID.randomUUID.toString)(chain: ChainBuilder): B = {
@@ -47,7 +47,7 @@ trait Loops[B] extends Execs[B] {
     val exposeCurrentValue = (session: Session) => seq(session).map(seq => session.set(attributeName, seq(session.loopCounterValue(counterName))))
     val continueCondition = (session: Session) => seq(session).map(_.size > session.loopCounterValue(counterName))
 
-    asLongAs(continueCondition, counterName, exitASAP = false)(chainOf(new SessionHookBuilder(exposeCurrentValue)).exec(chain))
+    asLongAs(continueCondition, counterName, exitASAP = false, ForeachLoopType)(chainOf(new SessionHookBuilder(exposeCurrentValue)).exec(chain))
   }
 
   def during(duration: Duration, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
@@ -57,14 +57,14 @@ trait Loops[B] extends Execs[B] {
 
     val continueCondition = (session: Session) => duration(session).map(d => nowMillis - session.loopTimestampValue(counterName) <= d.toMillis)
 
-    asLongAs(continueCondition, counterName, exitASAP)(chain)
+    asLongAs(continueCondition, counterName, exitASAP, DuringLoopType)(chain)
   }
 
   def forever(chain: ChainBuilder): B = forever(UUID.randomUUID.toString, exitASAP = false)(chain)
 
   def forever(counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false)(chain: ChainBuilder): B =
-    asLongAs(Loops.trueExpression, counterName, exitASAP)(chain)
+    asLongAs(Loops.trueExpression, counterName, exitASAP, ForeverLoopType)(chain)
 
-  def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false)(chain: ChainBuilder): B =
-    exec(new LoopBuilder(condition, chain, counterName, exitASAP))
+  def asLongAs(condition: Expression[Boolean], counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = false, loopType: LoopType = AsLongAsLoopType)(chain: ChainBuilder): B =
+    exec(new LoopBuilder(condition, chain, counterName, exitASAP, loopType))
 }

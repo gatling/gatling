@@ -71,6 +71,6 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
       cookie = new Cookie(name, value, value, domain, path, expires, maxAge, false, false)
     } yield storeCookie(session, domain, path, cookie)
 
-    actor(new SessionHook(expression, next))
+    actor(actorName("addCookie"))(new SessionHook(expression, next))
   }
 }

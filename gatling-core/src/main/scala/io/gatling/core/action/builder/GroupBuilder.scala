@@ -24,10 +24,10 @@ import io.gatling.core.session.Expression
 object GroupBuilder {
 
   def start(groupName: Expression[String]) = new ActionBuilder {
-    def build(next: ActorRef, protocols: Protocols) = actor(new GroupStart(groupName, next))
+    def build(next: ActorRef, protocols: Protocols) = actor(actorName("groupStart"))(new GroupStart(groupName, next))
   }
 
   val End = new ActionBuilder {
-    def build(next: ActorRef, protocols: Protocols) = actor(new GroupEnd(next))
+    def build(next: ActorRef, protocols: Protocols) = actor(actorName("groupEnd"))(new GroupEnd(next))
   }
 }

@@ -39,7 +39,7 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
     val nextAction = (session: Session) => value(session).map { v => possibleActions.getOrElse(v, elseNextActor) }
 
-    actor(new Switch(nextAction, next))
+    actor(actorName("switch"))(new Switch(nextAction, next))
   }
 
   override def registerDefaultProtocols(protocols: Protocols) = {

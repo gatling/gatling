@@ -18,9 +18,8 @@ package io.gatling.core.akka
 import com.typesafe.scalalogging.StrictLogging
 
 import akka.actor.{ Actor, Terminated }
-import io.gatling.core.util.ClassSimpleNameToString
 
-abstract class BaseActor extends Actor with AkkaDefaults with ClassSimpleNameToString with StrictLogging {
+abstract class BaseActor extends Actor with AkkaDefaults with StrictLogging {
 
   override def preStart(): Unit = context.setReceiveTimeout(simulationTimeOut)
 

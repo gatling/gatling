@@ -33,6 +33,6 @@ class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder) extends HttpA
 
     val throttled = protocols.getProtocol[ThrottlingProtocol].isDefined
     val httpRequest = requestBuilder.build(httpProtocol(protocols), throttled)
-    actor(new HttpRequestAction(httpRequest, next))
+    actor(actorName("httpRequest"))(new HttpRequestAction(httpRequest, next))
   }
 }

@@ -49,7 +49,7 @@ object AsyncHandlerActor extends AkkaDefaults {
 
   def start(): Unit =
     if (!_instance.isDefined) {
-      _instance = Some(system.actorOf(RoundRobinPool(3 * Runtime.getRuntime.availableProcessors).props(Props[AsyncHandlerActor])))
+      _instance = Some(system.actorOf(RoundRobinPool(3 * Runtime.getRuntime.availableProcessors).props(Props[AsyncHandlerActor]), "asyncHandler"))
       system.registerOnTermination(_instance = None)
     }
 
@@ -168,7 +168,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     if (tx.primary)
       ResourceFetcher.resourceFetcherForFetchedPage(tx.request.ahcRequest, response, tx) match {
         case Some(resourceFetcher) =>
-          actor(context)(resourceFetcher())
+          actor(actorName("resourceFetcher"))(resourceFetcher())
 
         case None =>
           tx.next ! tx.session.increaseDrift(nowMillis - response.lastByteReceived)

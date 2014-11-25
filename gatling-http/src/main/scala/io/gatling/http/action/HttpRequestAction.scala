@@ -19,6 +19,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 import akka.actor.{ ActorRef, ActorContext }
 import akka.actor.ActorDSL.actor
+import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
@@ -29,7 +30,7 @@ import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response._
 
-object HttpRequestAction extends DataWriterClient with StrictLogging {
+object HttpRequestAction extends DataWriterClient with AkkaDefaults with StrictLogging {
 
   def startHttpTransaction(origTx: HttpTx, httpEngine: HttpEngine = HttpEngine.instance)(implicit ctx: ActorContext): Unit = {
 
@@ -55,7 +56,7 @@ object HttpRequestAction extends DataWriterClient with StrictLogging {
         ResourceFetcher.resourceFetcherForCachedPage(uri, tx) match {
           case Some(resourceFetcher) =>
             logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-            actor(resourceFetcher())
+            actor(actorName("resourceFetcher"))(resourceFetcher())
 
           case None =>
             logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
