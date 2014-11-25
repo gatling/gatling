@@ -12,7 +12,7 @@ This can be done very easily with additional ``JAVA_OPTS`` in the launch script:
 
   val nbUsers = Integer.getInteger("users", 1)
   val myRamp  = java.lang.Long.getLong("ramp", 0L)
-  setUp(scn.inject(ramp(nbUsers users) over (ramp seconds))
+  setUp(scn.inject(rampUsers(nbUsers) over (ramp seconds))
 
 Of course, passing a String is just as easy as:
 
