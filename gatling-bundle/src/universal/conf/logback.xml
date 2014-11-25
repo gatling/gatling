@@ -9,9 +9,9 @@
 	</appender>
 
 	<!-- Uncomment for logging ALL HTTP request and responses -->
-	<!-- 	<logger name="io.gatling.http.ahc.AsyncHandlerActor" level="TRACE" /> -->
+	<!-- 	<logger name="io.gatling.http.ahc" level="TRACE" /> -->
 	<!-- Uncomment for logging ONLY FAILED HTTP request and responses -->
-	<!-- 	<logger name="io.gatling.http.ahc.AsyncHandlerActor" level="DEBUG" /> -->
+	<!-- 	<logger name="io.gatling.http.ahc" level="DEBUG" /> -->
 
 	<root level="WARN">
 		<appender-ref ref="CONSOLE" />
