@@ -172,12 +172,12 @@ Query parameters
 Removed
 ^^^^^^^
 
-Versions of ``queryParam`` and `multiValuedQueryParam` that took no other parameters than the key (resolving the value from the session, using the key's name to find the attribute with the same name) have been removed.
+Versions of ``queryParam`` and `multivaluedQueryParam` that took no other parameters than the key (resolving the value from the session, using the key's name to find the attribute with the same name) have been removed.
 
 Modified
 ^^^^^^^^
 
-``multiValuedQueryParam`` can now resolve the values directly from the session, using Gatling's EL.
+``multivaluedQueryParam`` can now resolve the values directly from the session, using Gatling's EL.
 
 Form parameters (for POST requests)
 -----------------------------------
@@ -187,16 +187,16 @@ Renamed
 Methods for adding form parameters to the request have been renamed:
 
 * ``param`` => ``formParam``
-* ``multiValuedParam`` => ``multiValuedFormParam``
+* ``multiValuedParam`` => ``multivaluedFormParam``
 
 Removed
 ^^^^^^^
-Versions of ``queryParam`` and `multiValuedQueryParam` that took no other parameters than the key (resolving the value from the session, using the key's name to find the attribute with the same name) have been removed.
+Versions of ``queryParam`` and `multivaluedQueryParam` that took no other parameters than the key (resolving the value from the session, using the key's name to find the attribute with the same name) have been removed.
 
 Modified
 ^^^^^^^^
 
-``multiValuedFormParam`` can now resolve the values directly from the session, using Gatling's EL.
+``multivaluedFormParam`` can now resolve the values directly from the session, using Gatling's EL.
 
 Request bodies
 --------------

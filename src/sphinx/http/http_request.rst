@@ -345,9 +345,9 @@ As for ``queryParam`` you have two methods to add multiple parameters at once:
 
 If you'd like to pass multiple values for your parameter, but all at once, you can use ``multivaluedFormParam(key: Expression[String], values: Expression[Seq[Any]])``::
 
-  multiValuedFormParam("omg", "${foo}")) // where foo is the name of a Seq Session attribute
-  multiValuedFormParam("omg", List("foo", "bar")))
-  multiValuedFormParam("omg", session => List("foo", "bar")))
+  multivaluedFormParam("omg", "${foo}")) // where foo is the name of a Seq Session attribute
+  multivaluedFormParam("omg", List("foo", "bar")))
+  multivaluedFormParam("omg", session => List("foo", "bar")))
 
 The method ``formParam`` can also take directly an `HttpParam` instance, if you want to build it by hand.
 
