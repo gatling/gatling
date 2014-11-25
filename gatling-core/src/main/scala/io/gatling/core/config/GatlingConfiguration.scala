@@ -190,7 +190,7 @@ object GatlingConfiguration extends StrictLogging {
         dataWriterClasses = config.getString(data.Writers).toStringList.map { string =>
           DataConfiguration.Aliases.get(string) match {
             case Some(clazz) => clazz
-            case None => string
+            case None        => string
           }
         },
         dataReaderClass = config.getString(data.Reader).trim match {
@@ -357,13 +357,13 @@ object DataConfiguration {
 }
 
 case class DataConfiguration(
-  dataWriterClasses: Seq[String],
-  dataReaderClass: String,
-  file: FileDataWriterConfiguration,
-  leak: LeakDataWriterConfiguration,
-  jdbc: JDBCDataWriterConfiguration,
-  console: ConsoleDataWriterConfiguration,
-  graphite: GraphiteDataWriterConfiguration) {
+    dataWriterClasses: Seq[String],
+    dataReaderClass: String,
+    file: FileDataWriterConfiguration,
+    leak: LeakDataWriterConfiguration,
+    jdbc: JDBCDataWriterConfiguration,
+    console: ConsoleDataWriterConfiguration,
+    graphite: GraphiteDataWriterConfiguration) {
 
   def fileDataWriterEnabled: Boolean = dataWriterClasses.contains(DataConfiguration.FileDataWriterAlias.className)
 }
