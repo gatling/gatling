@@ -35,5 +35,5 @@ trait AkkaDefaults extends AskSupport {
   implicit def scheduler = system.scheduler
   val simulationTimeOut = configuration.core.timeOut.simulation seconds
 
-  def actorName(base: String) = base + "#" + IdGen.incrementAndGet
+  def actorName(base: String) = base + "-" + IdGen.incrementAndGet
 }
