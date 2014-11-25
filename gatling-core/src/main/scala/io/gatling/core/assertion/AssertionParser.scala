@@ -78,7 +78,9 @@ class AssertionParser extends JavaTokenParsers {
     MeanTag ^^^ Mean,
     StandardDeviationTag ^^^ StandardDeviation,
     Percentiles1Tag ^^^ Percentiles1,
-    Percentiles2Tag ^^^ Percentiles2)
+    Percentiles2Tag ^^^ Percentiles2,
+    Percentiles3Tag ^^^ Percentiles3,
+    Percentiles4Tag ^^^ Percentiles4)
 
   // --------------------- //
   // -- Targets parsers -- //

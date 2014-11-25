@@ -121,8 +121,8 @@ object AssertionValidator {
       case StandardDeviation => ResolvedSelection(resolvedMetric.stats.map(_.stdDev), "standard deviation")
       case Percentiles1      => ResolvedSelection(resolvedMetric.stats.map(_.percentile1), s"$Percentile1 percentile")
       case Percentiles2      => ResolvedSelection(resolvedMetric.stats.map(_.percentile2), s"$Percentile2 percentile")
-      case Percentiles3      => ResolvedSelection(resolvedMetric.stats.map(_.percentile1), s"$Percentile3 percentile")
-      case Percentiles4      => ResolvedSelection(resolvedMetric.stats.map(_.percentile2), s"$Percentile4 percentile")
+      case Percentiles3      => ResolvedSelection(resolvedMetric.stats.map(_.percentile3), s"$Percentile3 percentile")
+      case Percentiles4      => ResolvedSelection(resolvedMetric.stats.map(_.percentile4), s"$Percentile4 percentile")
     }
     resolveCondition(assertion, resolvedSelection.value, s"$path: ${resolvedSelection.message} of ${resolvedMetric.message}")
   }

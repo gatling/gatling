@@ -25,7 +25,7 @@ trait AssertionGenerator {
 
     val timeTargetGen = {
       val timeMetricGen = Gen.const(ResponseTime)
-      val timeSelectionGen = Gen.oneOf(Min, Max, Mean, StandardDeviation, Percentiles1, Percentiles2)
+      val timeSelectionGen = Gen.oneOf(Min, Max, Mean, StandardDeviation, Percentiles1, Percentiles2, Percentiles3, Percentiles4)
 
       for (metric <- timeMetricGen; selection <- timeSelectionGen) yield TimeTarget(metric, selection)
     }

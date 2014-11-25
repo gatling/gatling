@@ -30,6 +30,8 @@ class AssertionSerializationSpec extends FlatSpec with Matchers {
     StandardDeviation.serialized.toString shouldBe tabSeparated(StandardDeviationTag)
     Percentiles1.serialized.toString shouldBe tabSeparated(Percentiles1Tag)
     Percentiles2.serialized.toString shouldBe tabSeparated(Percentiles2Tag)
+    Percentiles3.serialized.toString shouldBe tabSeparated(Percentiles3Tag)
+    Percentiles4.serialized.toString shouldBe tabSeparated(Percentiles4Tag)
   }
 
   it should "be able to serialize Conditions" in {
