@@ -18,7 +18,6 @@ package io.gatling.core.util.cache
 import scala.collection.immutable.Queue
 
 object Cache {
-
   def apply[K, V](maxCapacity: Int) = new Cache[K, V](Queue.empty, Map.empty, maxCapacity)
 }
 
