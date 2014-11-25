@@ -187,13 +187,11 @@ object GatlingConfiguration extends StrictLogging {
           httpsEnabledProtocols = config.getString(http.ahc.HttpsEnabledProtocols).toStringList,
           httpsEnabledCipherSuites = config.getString(http.ahc.HttpsEnabledCipherSuites).toStringList)),
       data = DataConfiguration(
-        dataWriterClasses = config.getString(data.Writers).toStringList.map {
-          case "console"  => "io.gatling.core.result.writer.ConsoleDataWriter"
-          case "file"     => "io.gatling.core.result.writer.FileDataWriter"
-          case "graphite" => "io.gatling.metrics.GraphiteDataWriter"
-          case "jdbc"     => "io.gatling.jdbc.result.writer.JdbcDataWriter"
-          case "leak"     => "io.gatling.core.result.writer.LeakReporterDataWriter"
-          case clazz      => clazz
+        dataWriterClasses = config.getString(data.Writers).toStringList.map { string =>
+          DataConfiguration.Aliases.get(string) match {
+            case Some(clazz) => clazz
+            case None => string
+          }
         },
         dataReaderClass = config.getString(data.Reader).trim match {
           case "file" => "io.gatling.charts.result.reader.FileDataReader"
@@ -344,6 +342,20 @@ case class StoreConfiguration(
   password: String,
   algorithm: Option[String])
 
+object DataConfiguration {
+
+  case class DataWriterAlias(alias: String, className: String)
+
+  val ConsoleDataWriterAlias = DataWriterAlias("console", "io.gatling.core.result.writer.ConsoleDataWriter")
+  val FileDataWriterAlias = DataWriterAlias("file", "io.gatling.core.result.writer.FileDataWriter")
+  val GraphiteDataWriterAlias = DataWriterAlias("graphite", "io.gatling.metrics.GraphiteDataWriter")
+  val JdbcDataWriterAlias = DataWriterAlias("jdbc", "io.gatling.jdbc.result.writer.JdbcDataWriter")
+  val LeakReporterDataWriterAlias = DataWriterAlias("leak", "io.gatling.core.result.writer.LeakReporterDataWriter")
+
+  val Aliases = Seq(ConsoleDataWriterAlias, FileDataWriterAlias, GraphiteDataWriterAlias, JdbcDataWriterAlias, LeakReporterDataWriterAlias)
+    .map(alias => alias.alias -> alias.className).toMap
+}
+
 case class DataConfiguration(
   dataWriterClasses: Seq[String],
   dataReaderClass: String,
@@ -351,7 +363,10 @@ case class DataConfiguration(
   leak: LeakDataWriterConfiguration,
   jdbc: JDBCDataWriterConfiguration,
   console: ConsoleDataWriterConfiguration,
-  graphite: GraphiteDataWriterConfiguration)
+  graphite: GraphiteDataWriterConfiguration) {
+
+  def fileDataWriterEnabled: Boolean = dataWriterClasses.contains(DataConfiguration.FileDataWriterAlias.className)
+}
 
 case class FileDataWriterConfiguration(
   bufferSize: Int)

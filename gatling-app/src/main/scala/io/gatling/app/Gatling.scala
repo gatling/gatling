@@ -78,7 +78,8 @@ private[app] class Gatling(overrides: ConfigOverrides, simulationClass: Selected
     val assertionResults = AssertionValidator.validateAssertions(dataReader)
 
     val reportsGenerationInputs = ReportsGenerationInputs(runId, dataReader, assertionResults)
-    if (!configuration.charting.noReports) generateReports(reportsGenerationInputs, start)
+    if (!configuration.charting.noReports && configuration.data.fileDataWriterEnabled)
+      generateReports(reportsGenerationInputs, start)
 
     runStatus(assertionResults)
   }
