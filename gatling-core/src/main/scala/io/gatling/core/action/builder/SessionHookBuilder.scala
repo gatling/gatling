@@ -30,10 +30,9 @@ import io.gatling.core.session.{ Expression, Session }
 class SessionHookBuilder(sessionFunction: Expression[Session], bypassable: Boolean = false) extends ActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols) = {
-    val actorName = actorName("sessionHook")
     if (bypassable)
-      actor(actorName)(new SessionHook(sessionFunction, next) with Interruptable)
+      actor(actorName("sessionHook"))(new SessionHook(sessionFunction, next) with Interruptable)
     else
-      actor(actorName)(new SessionHook(sessionFunction, next))
+      actor(actorName("sessionHook"))(new SessionHook(sessionFunction, next))
   }
 }

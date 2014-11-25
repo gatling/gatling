@@ -168,7 +168,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     if (tx.primary)
       ResourceFetcher.resourceFetcherForFetchedPage(tx.request.ahcRequest, response, tx) match {
         case Some(resourceFetcher) =>
-          actor(actorName("resourceFetcher"))(resourceFetcher())
+          actor(context, actorName("resourceFetcher"))(resourceFetcher())
 
         case None =>
           tx.next ! tx.session.increaseDrift(nowMillis - response.lastByteReceived)

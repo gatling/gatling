@@ -56,7 +56,7 @@ object HttpRequestAction extends DataWriterClient with AkkaDefaults with StrictL
         ResourceFetcher.resourceFetcherForCachedPage(uri, tx) match {
           case Some(resourceFetcher) =>
             logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-            actor(actorName("resourceFetcher"))(resourceFetcher())
+            actor(ctx, actorName("resourceFetcher"))(resourceFetcher())
 
           case None =>
             logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
