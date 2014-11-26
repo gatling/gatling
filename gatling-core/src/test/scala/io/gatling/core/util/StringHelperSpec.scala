@@ -40,6 +40,14 @@ class StringHelperSpec extends FlatSpec with Matchers {
     StringHelper.bytes2Hex(digestBytes) shouldBe "08f6575e7712febe2f529e1ea2c0179e"
   }
 
+  "truncate" should "truncate the string when its length exceeds the max length" in {
+    "hello".truncate(2) shouldBe "he..."
+  }
+
+  it should "left the string untouched when the string does not exceeds the max length" in {
+    "hello".truncate(6) shouldBe "hello"
+  }
+
   "leftPad" should "pad correctly a two digits number" in {
     "12".leftPad(6) shouldBe "    12"
   }
@@ -54,5 +62,9 @@ class StringHelperSpec extends FlatSpec with Matchers {
 
   it should "not pad when the number of digits is higher than the expected string size" in {
     "123456".rightPad(4) shouldBe "123456"
+  }
+
+  "unsafeChars" should "correctly get the char array corresponding to the string" in {
+    "foo".unsafeChars shouldBe Array('f', 'o', 'o')
   }
 }
