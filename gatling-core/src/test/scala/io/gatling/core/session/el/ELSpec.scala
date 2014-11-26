@@ -28,6 +28,18 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
 
   GatlingConfiguration.setUpForTest()
 
+  "Static String" should "return itself" in {
+    val session = Session("scenario", "1", Map("bar" -> "BAR"))
+    val expression = "bar".el[String]
+    expression(session).succeeded shouldBe "bar"
+  }
+
+  it should "return empty when empty" in {
+    val session = Session("scenario", "1", Map("bar" -> "BAR"))
+    val expression = "".el[String]
+    expression(session).succeeded shouldBe ""
+  }
+
   "One monovalued Expression" should "return expected result when the variable is the whole string" in {
     val session = Session("scenario", "1", Map("bar" -> "BAR"))
     val expression = "${bar}".el[String]
