@@ -22,11 +22,9 @@ import io.gatling.core.config.GatlingConfiguration._
 import io.gatling.core.json.JSON
 
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
-import io.gatling.core.json.Jackson.toJsonString
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.NumberHelper.IntString
 import io.gatling.core.util.TypeHelper._
@@ -259,10 +257,15 @@ class ELCompiler extends RegexParsers {
       val offset = in.offset
       val end = source.length
 
+        def success(i: Int) = Success(source.subSequence(offset, i).toString, in.drop(i - offset))
+        def failure = Failure("Not a static part", in)
+
+      // FIXME optimize!!!
       source.toString.indexOf("${", offset) match {
-        case -1 if offset == end => Failure("Not a static part", in)
-        case -1                  => Success(source.subSequence(offset, end).toString, in.drop(end - offset))
-        case n                   => Success(source.subSequence(offset, n).toString, in.drop(n - offset))
+        case -1 if offset == end => failure
+        case -1                  => success(end)
+        case n if n == offset    => failure
+        case n                   => success(n)
       }
     }
   }
