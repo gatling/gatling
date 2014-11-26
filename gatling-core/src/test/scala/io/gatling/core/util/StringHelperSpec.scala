@@ -83,4 +83,12 @@ class StringHelperSpec extends FlatSpec with Matchers {
   it should "find target when placed at the middle and there's an inferior offset" in {
     StringHelper.RichCharSequence("foo${bar}").indexOf("${", 2) shouldBe 3
   }
+
+  it should "not find target when placed at the middle and there's an superior offset" in {
+    StringHelper.RichCharSequence("foo${bar}").indexOf("${", 4) shouldBe -1
+  }
+
+  it should "not find target when target is longer" in {
+    StringHelper.RichCharSequence("$").indexOf("${", 0) shouldBe -1
+  }
 }
