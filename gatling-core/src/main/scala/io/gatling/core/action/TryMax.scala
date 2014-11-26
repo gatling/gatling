@@ -28,7 +28,7 @@ class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
 
   val uninitialized: Receive = {
     case loopNext: ActorRef =>
-      val actorName = self.path.name + "#inner"
+      val actorName = self.path.name + "-inner"
       val innerTryMax = actor(actorName)(new InnerTryMax(times, loopNext, counterName, next))
       context.become(initialized(innerTryMax))
   }

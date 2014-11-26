@@ -34,7 +34,7 @@ class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP
 
   val uninitialized: Receive = {
     case loopNext: ActorRef =>
-      val actorName = self.path.name + "#inner"
+      val actorName = self.path.name + "-inner"
       val innerLoop = actor(actorName)(new InnerLoop(continueCondition, loopNext, counterName, exitASAP, next))
       context.become(initialized(innerLoop))
   }
