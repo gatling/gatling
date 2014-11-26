@@ -82,4 +82,56 @@ object StringHelper {
 
     def unsafeChars: Array[Char] = TheUnsafe.getObject(string, StringValueFieldOffset).asInstanceOf[Array[Char]]
   }
+
+  implicit class RichCharSequence(val source: CharSequence) extends AnyVal {
+
+    def indexOf(s: String, fromIndex: Int): Int = {
+
+      val sourceCount = source.length
+      val target = s.unsafeChars
+      val targetCount = target.length
+
+      if (fromIndex >= sourceCount) {
+        if (targetCount == 0) sourceCount else -1
+
+      } else if (targetCount == 0) {
+        fromIndex
+
+      } else {
+        var i = fromIndex
+        val first = target(0)
+        val max = sourceCount - targetCount
+
+        while (i <= max) {
+          // Look for first character
+          if (source.charAt(i) != first) {
+            i += 1
+            while (i <= max && source.charAt(i) != first) {
+              i += 1
+            }
+          }
+
+          // Found first character, now look at the rest of v2
+          if (i <= max) {
+            var j = i + 1
+            val end = j + targetCount - 1
+            var k = 1
+
+            while (j < end && source.charAt(j) == target(k)) {
+              j += 1
+              k += 1
+            }
+
+            if (j == end) {
+              // Found whole string
+              return i
+            }
+          }
+
+          i += 1
+        }
+        -1
+      }
+    }
+  }
 }

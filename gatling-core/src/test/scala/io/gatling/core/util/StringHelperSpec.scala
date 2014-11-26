@@ -67,4 +67,20 @@ class StringHelperSpec extends FlatSpec with Matchers {
   "unsafeChars" should "correctly get the char array corresponding to the string" in {
     "foo".unsafeChars shouldBe Array('f', 'o', 'o')
   }
+
+  "RichCharSequence.indexOf" should "find target when placed at the beginning" in {
+    StringHelper.RichCharSequence("${foobar}").indexOf("${", 0) shouldBe 0
+  }
+
+  it should "not find target when placed at the beginning but there's an offset" in {
+    StringHelper.RichCharSequence("${foobar}").indexOf("${", 1) shouldBe -1
+  }
+
+  it should "find target when placed at the middle" in {
+    StringHelper.RichCharSequence("foo${bar}").indexOf("${", 0) shouldBe 3
+  }
+
+  it should "find target when placed at the middle and there's an inferior offset" in {
+    StringHelper.RichCharSequence("foo${bar}").indexOf("${", 2) shouldBe 3
+  }
 }

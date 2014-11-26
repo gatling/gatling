@@ -27,6 +27,7 @@ import scala.reflect.ClassTag
 
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.NumberHelper.IntString
+import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.TypeHelper._
 import io.gatling.core.validation._
 
@@ -260,8 +261,7 @@ class ELCompiler extends RegexParsers {
         def success(i: Int) = Success(source.subSequence(offset, i).toString, in.drop(i - offset))
         def failure = Failure("Not a static part", in)
 
-      // FIXME optimize!!!
-      source.toString.indexOf("${", offset) match {
+      source.indexOf("${", offset) match {
         case -1 if offset == end => failure
         case -1                  => success(end)
         case n if n == offset    => failure
