@@ -41,10 +41,7 @@ case class StringBody(string: Expression[String]) extends Body with Expression[S
 
   def apply(session: Session) = string(session)
 
-  def asBytes: ByteArrayBody = {
-    val bytes = (session: Session) => string(session).map(_.getBytes(configuration.core.charset))
-    ByteArrayBody(bytes)
-  }
+  def asBytes: ByteArrayBody = ByteArrayBody(string.map(_.getBytes(configuration.core.charset)))
 
   def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = string(session).map(requestBuilder.setBody)
 }
@@ -60,15 +57,9 @@ class RawFileBody(val file: Expression[JFile]) extends Body with Expression[Stri
 
   def apply(session: Session) = asString(session)
 
-  def asString: StringBody = {
-    val string = file.map(f => f.toString(configuration.core.charset))
-    StringBody(string)
-  }
+  def asString: StringBody = StringBody(file.map(_.toString(configuration.core.charset)))
 
-  def asBytes: ByteArrayBody = {
-    val bytes = file.map(f => f.toByteArray())
-    ByteArrayBody(bytes)
-  }
+  def asBytes: ByteArrayBody = ByteArrayBody(file.map(_.toByteArray()))
 
   def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = file(session).map(requestBuilder.setBody)
 }
