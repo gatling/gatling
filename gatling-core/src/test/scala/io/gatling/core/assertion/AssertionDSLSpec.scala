@@ -27,6 +27,8 @@ class AssertionDSLSpec extends FlatSpec with Matchers with AssertionSupport {
     global.responseTime.stdDev.between(1, 3) shouldBe Assertion(Global, TimeTarget(ResponseTime, StandardDeviation), Between(1, 3))
     global.responseTime.percentile1.is(300) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles1), Is(300))
     global.responseTime.percentile2.in(Set(1, 2, 3)) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles2), In(List(1, 2, 3)))
+    global.responseTime.percentile3.is(300) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles3), Is(300))
+    global.responseTime.percentile4.in(Set(1, 2, 3)) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles4), In(List(1, 2, 3)))
 
     global.allRequests.count.is(20) shouldBe Assertion(Global, CountTarget(AllRequests, Count), Is(20))
     forAll.allRequests.percent.lessThan(5) shouldBe Assertion(ForAll, CountTarget(AllRequests, Percent), LessThan(5))
@@ -36,5 +38,8 @@ class AssertionDSLSpec extends FlatSpec with Matchers with AssertionSupport {
 
     global.successfulRequests.count.in(1, 2, 2, 4) shouldBe Assertion(Global, CountTarget(SuccessfulRequests, Count), In(List(1, 2, 4)))
     global.successfulRequests.percent.is(6) shouldBe Assertion(Global, CountTarget(SuccessfulRequests, Percent), Is(6))
+
+    global.requestsPerSec.is(35) shouldBe Assertion(Global, MeanRequestsPerSecondTarget, Is(35))
+
   }
 }
