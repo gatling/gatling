@@ -229,11 +229,12 @@ class ELCompiler extends RegexParsers {
   sealed trait AccessToken { def token: String }
   case class AccessIndex(pos: String, token: String) extends AccessToken
   case class AccessKey(key: String, token: String) extends AccessToken
-  case object AccessRandom extends AccessToken { val token = ".random()" }
-  case object AccessSize extends AccessToken { val token = ".size()" }
-  case object AccessExists extends AccessToken { val token = ".exists()" }
-  case object AccessIsUndefined extends AccessToken { val token = ".isUndefined()" }
-  case object AccessJSONStringify extends AccessToken { val token = ".jsonStringify()" }
+  sealed trait AccessFunction extends AccessToken { protected def functionToken(functionName: String) = s".$functionName()" }
+  case object AccessRandom extends AccessFunction { val token = functionToken("random") }
+  case object AccessSize extends AccessFunction { val token = functionToken("size") }
+  case object AccessExists extends AccessFunction { val token = functionToken("exists") }
+  case object AccessIsUndefined extends AccessFunction { val token = functionToken("isUndefined") }
+  case object AccessJSONStringify extends AccessFunction { val token = functionToken("jsonStringify") }
   case class AccessTuple(index: String, token: String) extends AccessToken
 
   override def skipWhitespace = false
@@ -300,7 +301,7 @@ class ELCompiler extends RegexParsers {
 
   def objectName: Parser[AttributePart] = NameRegex ^^ { case name => AttributePart(name) }
 
-  def functionAccess(access: AccessToken) = access.token ^^ { case _ => access }
+  def functionAccess(access: AccessFunction) = access.token ^^ { case _ => access }
 
   def valueAccess =
     tupleAccess |
