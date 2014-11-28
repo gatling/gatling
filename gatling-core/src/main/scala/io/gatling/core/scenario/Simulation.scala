@@ -20,7 +20,7 @@ import scala.concurrent.duration.{ Duration, FiniteDuration }
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.{ Protocol, Protocols }
 import io.gatling.core.controller.Timings
-import io.gatling.core.controller.throttle.{ ThrottlingBuilder, ThrottlingProtocol }
+import io.gatling.core.controller.throttle.{ Throttling, ThrottlingProtocol }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.PopulatedScenarioBuilder
@@ -86,12 +86,12 @@ abstract class Simulation {
       this
     }
 
-    def throttle(throttlingBuilders: ThrottlingBuilder*): SetUp = throttle(throttlingBuilders.toIterable)
+    def throttle(throttlingBuilders: Throttling*): SetUp = throttle(throttlingBuilders.toIterable)
 
-    def throttle(throttlingBuilders: Iterable[ThrottlingBuilder]): SetUp = {
+    def throttle(throttlingBuilders: Iterable[Throttling]): SetUp = {
 
       val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
-      val throttling = ThrottlingProtocol(ThrottlingBuilder(steps).build)
+      val throttling = Throttling(steps).protocol
       _globalThrottling = Some(throttling)
       _globalProtocols = _globalProtocols + throttling
       this

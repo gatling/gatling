@@ -16,9 +16,9 @@
 package io.gatling.core.controller.throttle
 
 import scala.annotation.tailrec
-import scala.concurrent.duration.Duration
+import scala.concurrent.duration._
 
-trait ThrottleStep {
+sealed trait ThrottleStep {
 
   val durationInSec: Long
   def target(previousLastValue: Int): Int
@@ -26,16 +26,16 @@ trait ThrottleStep {
 }
 
 case class ReachIntermediate(target: Int, history: List[ThrottleStep]) {
-  def in(duration: Duration) = ThrottlingBuilder(Reach(target, duration) :: history)
+  def in(duration: FiniteDuration) = Throttling(Reach(target, duration) :: history)
 }
 
-case class Reach(target: Int, duration: Duration) extends ThrottleStep {
+case class Reach(target: Int, duration: FiniteDuration) extends ThrottleStep {
   val durationInSec = duration.toSeconds
   def target(previousLastValue: Int) = target
   def rps(time: Long, previousLastValue: Int): Int = ((target - previousLastValue) * time / durationInSec + previousLastValue).toInt
 }
 
-case class Hold(duration: Duration) extends ThrottleStep {
+case class Hold(duration: FiniteDuration) extends ThrottleStep {
   val durationInSec = duration.toSeconds
   def target(previousLastValue: Int) = previousLastValue
   def rps(time: Long, previousLastValue: Int) = previousLastValue
@@ -50,24 +50,37 @@ case class Jump(target: Int) extends ThrottleStep {
 trait ThrottlingSupport {
   def steps: List[ThrottleStep] = Nil
   def reachRps(target: Int) = ReachIntermediate(target, steps)
-  def holdFor(duration: Duration) = ThrottlingBuilder(Hold(duration) :: steps)
-  def jumpToRps(target: Int) = ThrottlingBuilder(Jump(target) :: steps)
+  def holdFor(duration: FiniteDuration) = Throttling(Hold(duration) :: steps)
+  def jumpToRps(target: Int) = Throttling(Jump(target) :: steps)
 }
 
-case class ThrottlingBuilder(override val steps: List[ThrottleStep]) extends ThrottlingSupport {
+case class Throttling(override val steps: List[ThrottleStep]) extends ThrottlingSupport {
 
-  def build: (Long => Int) = {
-      @tailrec
-      def valueAt(steps: List[ThrottleStep], pendingTime: Long, previousLastValue: Int): Int = steps match {
-        case Nil => Int.MaxValue
-        case head :: tail =>
-          if (pendingTime < head.durationInSec)
-            head.rps(pendingTime, previousLastValue)
-          else
-            valueAt(tail, pendingTime - head.durationInSec, head.target(previousLastValue))
+  def protocol: ThrottlingProtocol = {
+
+    val userStream: (Long => Int) = {
+        @tailrec
+        def valueAt(steps: List[ThrottleStep], pendingTime: Long, previousLastValue: Int): Int = steps match {
+          case Nil => Int.MaxValue
+          case head :: tail =>
+            if (pendingTime < head.durationInSec)
+              head.rps(pendingTime, previousLastValue)
+            else
+              valueAt(tail, pendingTime - head.durationInSec, head.target(previousLastValue))
+        }
+
+      val reversedSteps = steps.reverse
+      (now: Long) => valueAt(reversedSteps, now, 0)
+    }
+
+    val duration: FiniteDuration = steps.foldLeft(0 second) { (acc, step) =>
+      step match {
+        case Reach(_, d) => (acc + d)
+        case Hold(d)     => acc + d
+        case _           => acc
       }
+    }
 
-    val reversedSteps = steps.reverse
-    (now: Long) => valueAt(reversedSteps, now, 0)
+    ThrottlingProtocol(userStream, duration)
   }
 }

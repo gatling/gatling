@@ -17,13 +17,13 @@ package io.gatling.core.controller.throttle
 
 import java.lang.System.nanoTime
 
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{ FiniteDuration, DurationInt }
 
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.Protocol
 import io.gatling.core.util.TimeHelper.secondsSinceReference
 
-case class ThrottlingProtocol(limit: Long => Int) extends Protocol
+case class ThrottlingProtocol(limit: Long => Int, duration: FiniteDuration) extends Protocol
 
 class ThisSecondThrottler(val limit: Int, var count: Int = 0) {
 

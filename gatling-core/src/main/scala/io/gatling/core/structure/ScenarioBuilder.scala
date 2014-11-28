@@ -23,7 +23,7 @@ import io.gatling.core.action.UserEnd
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.{ Protocol, Protocols }
 import io.gatling.core.controller.inject.{ InjectionProfile, InjectionStep }
-import io.gatling.core.controller.throttle.{ ThrottlingBuilder, ThrottlingProtocol }
+import io.gatling.core.controller.throttle.{ Throttling, ThrottlingProtocol }
 import io.gatling.core.pause._
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Expression
@@ -68,10 +68,10 @@ case class PopulatedScenarioBuilder(
   def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
   def pauses(pauseType: PauseType) = protocols(PauseProtocol(pauseType))
 
-  def throttle(throttlingBuilders: ThrottlingBuilder*) = {
+  def throttle(throttlingBuilders: Throttling*) = {
     if (throttlingBuilders.isEmpty) System.err.println(s"Scenario '${scenarioBuilder.name}' has an empty throttling definition.")
     val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
-    protocols(ThrottlingProtocol(ThrottlingBuilder(steps).build))
+    protocols(Throttling(steps).protocol)
   }
 
   /**

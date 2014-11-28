@@ -119,12 +119,15 @@ class Controller extends BaseActor {
         userStreams.values.foreach(batcher)
         logger.debug("Finished Launching scenarios executions")
 
-        timings.maxDuration.foreach {
-          logger.debug("Setting up max duration")
-          scheduler.scheduleOnce(_) {
-            self ! ForceTermination(None)
+        timings.maxDuration
+          .orElse(timings.globalThrottling.map(_.duration))
+          .orElse(if (timings.perScenarioThrottlings.nonEmpty) Some(timings.perScenarioThrottlings.values.map(_.duration).min) else None)
+          .foreach {
+            logger.debug("Setting up max duration")
+            scheduler.scheduleOnce(_) {
+              self ! ForceTermination(None)
+            }
           }
-        }
 
         val initializedState = initialized(userStreams, batcher)
 
