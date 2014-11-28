@@ -50,7 +50,7 @@ set GATLING_CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\user-files;%COMMON
 
 rem Run the compiler
 set COMPILATION_CLASSPATH=""
-for /R %GATLING_HOME%/lib %%i in ("*.jar") do call :addToPath "%%i"
+for %%i in ("%GATLING_HOME%\lib\*.jar") do call :addToPath "%%i"
 java %JAVA_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler %COMPILATION_CLASSPATH%
 rem Run Gatling
 java %JAVA_OPTS% -cp %GATLING_CLASSPATH% io.gatling.app.Gatling %*
