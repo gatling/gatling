@@ -506,6 +506,11 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
     a[ELParserException] should be thrownBy "foo${}bar".el[String]
   }
 
+  it should "be handled when ${ is not closed" in {
+    val session = newSession(Map("foo" -> "FOO"))
+    a[ELParserException] should be thrownBy "${foo".el[String]
+  }
+
   "'isUndefined' function in Expression" should "validate that a value is not in the session" in {
     val session = newSession(Map.empty)
     val expression = "${key1.isUndefined()}".el[Boolean]
