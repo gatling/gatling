@@ -108,4 +108,73 @@ class SessionSpec extends FlatSpec with Matchers {
     val unModifiedSession = session.exitGroup
     session should be theSameInstanceAs unModifiedSession
   }
+
+  "groupHierarchy" should "return the group hierarchy if there is one" in {
+    val session = newSession
+    session.groupHierarchy shouldBe empty
+
+    val sessionWithGroup = session.enterGroup("root group").enterGroup("child group")
+    sessionWithGroup.groupHierarchy shouldBe List("root group", "child group")
+  }
+
+  "initCounter" should "add a counter, initialized to 0, and a timestamp for the counter creation in the session" in {
+    val session = newSession.initCounter("counter")
+
+    session.contains("counter") shouldBe true
+    session.attributes("counter") shouldBe 0
+    session.contains("timestamp.counter") shouldBe true
+  }
+
+  "incrementCounter" should "increment a counter in session" in {
+    val session = newSession.initCounter("counter")
+    val sessionWithUpdatedCounter = session.incrementCounter("counter")
+
+    sessionWithUpdatedCounter.attributes("counter") shouldBe 1
+  }
+
+  it should "should leave the session unmodified if there was no counter created with the specified name" in {
+    val session = newSession
+    val unModifiedSession = session.incrementCounter("counter")
+    session should be theSameInstanceAs unModifiedSession
+  }
+
+  "removeCounter" should "remove a counter and its associated timestamp from the session" in {
+    val session = newSession.initCounter("counter")
+    val sessionWithRemovedCounter = session.removeCounter("counter")
+
+    sessionWithRemovedCounter.contains("counter") shouldBe false
+    sessionWithRemovedCounter.contains("timestamp.counter") shouldBe false
+  }
+
+  it should "should leave the session unmodified if there was no counter created with the specified name" in {
+    val session = newSession
+    val unModifiedSession = session.removeCounter("counter")
+    session should be theSameInstanceAs unModifiedSession
+  }
+
+  "update" should "apply sequentially all updates functions on the session" in {
+    val session = newSession.update(List(_.set("foo", "bar"), _.set("quz", "qiz"), _.remove("foo")))
+
+    session.contains("foo") shouldBe false
+    session.contains("quz") shouldBe true
+  }
+
+  "terminate" should "call the userEnd function" in {
+    var i = 0
+    val session = newSession.copy(userEnd = (s: Session) => i += 1)
+    session.terminate()
+
+    i shouldBe 1
+  }
+
+  "MarkAsFailedUpdate function" should "mark as failed the session passed as parameter" in {
+    val failedSession = Session.MarkAsFailedUpdate(newSession)
+    failedSession.isFailed shouldBe true
+  }
+
+  "Identity function" should "return the same session instance" in {
+    val session = newSession
+    val unModifiedSession = Session.Identity(session)
+    session should be theSameInstanceAs unModifiedSession
+  }
 }
