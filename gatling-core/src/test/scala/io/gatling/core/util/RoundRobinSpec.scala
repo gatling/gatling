@@ -31,7 +31,18 @@ class RoundRobinSpec extends FlatSpec with Matchers {
     rr.next shouldBe 3
   }
 
-  it should "throw NoSuchElementException with iterating on an empty Iterable" in {
+  it should "always return the same value when iterating a single value Iterable" in {
+    val rr = RoundRobin(Array(1))
+
+    rr.next shouldBe 1
+    rr.next shouldBe 1
+    rr.next shouldBe 1
+    rr.next shouldBe 1
+    rr.next shouldBe 1
+    rr.next shouldBe 1
+  }
+
+  it should "throw NoSuchElementException when iterating on an empty Iterable" in {
 
     val rr = RoundRobin(Array.empty[Int])
 
