@@ -15,7 +15,10 @@
  */
 package io.gatling.core.session
 
+import akka.actor.ActorRef.noSender
 import org.scalatest.{ FlatSpec, Matchers }
+
+import io.gatling.core.result.message._
 
 class SessionSpec extends FlatSpec with Matchers {
 
@@ -89,7 +92,7 @@ class SessionSpec extends FlatSpec with Matchers {
     lastBlock.asInstanceOf[GroupBlock].hierarchy shouldBe List("root group")
   }
 
-  "enterGroup" should "add a group block with its hierarchy is there are groups in the stack" in {
+  it should "add a group block with its hierarchy is there are groups in the stack" in {
     val session = newSession.enterGroup("root group").enterGroup("child group")
     val sessionWithThreeGroups = session.enterGroup("last group")
     val lastBlock = sessionWithThreeGroups.blockStack.head
@@ -109,12 +112,208 @@ class SessionSpec extends FlatSpec with Matchers {
     session should be theSameInstanceAs unModifiedSession
   }
 
+  "logGroupAsyncRequests" should "update stats in all parent groups" in {
+    val session = newSession.enterGroup("root group").enterGroup("child group").enterTryMax("tryMax", noSender)
+    val sessionWithGroupStatsUpdated = session.logGroupAsyncRequests(5L, 3, 4)
+    val allGroupBlocks = sessionWithGroupStatsUpdated.blockStack.collect { case g: GroupBlock => g }
+
+    for (group <- allGroupBlocks) {
+      group.cumulatedResponseTime shouldBe 5L
+      group.oks shouldBe 3
+      group.kos shouldBe 4
+    }
+  }
+
+  it should "leave the session unmodified if there is no groups in the stack" in {
+    val session = newSession
+    val unModifiedSession = session.logGroupAsyncRequests(1L, 1, 1)
+
+    session should be theSameInstanceAs unModifiedSession
+  }
+
+  "logGroupRequest" should "add the response time to all parents groups and add 1 to the okCount is status is OK" in {
+    val session = newSession.enterGroup("root group").enterGroup("child group").enterTryMax("tryMax", noSender)
+    val sessionWithGroupStatsUpdated = session.logGroupRequest(5L, OK)
+    val allGroupBlocks = sessionWithGroupStatsUpdated.blockStack.collect { case g: GroupBlock => g }
+
+    for (group <- allGroupBlocks) {
+      group.cumulatedResponseTime shouldBe 5L
+      group.oks shouldBe 1
+      group.kos shouldBe 0
+    }
+  }
+
+  it should "add the response time to all parents groups and add 1 to the koCount is status is KO" in {
+    val session = newSession.enterGroup("root group").enterGroup("child group").enterTryMax("tryMax", noSender)
+    val sessionWithGroupStatsUpdated = session.logGroupRequest(5L, KO)
+    val allGroupBlocks = sessionWithGroupStatsUpdated.blockStack.collect { case g: GroupBlock => g }
+
+    for (group <- allGroupBlocks) {
+      group.cumulatedResponseTime shouldBe 5L
+      group.oks shouldBe 0
+      group.kos shouldBe 1
+    }
+  }
+
+  it should "leave the session unmodified if there is no groups in the stack" in {
+    val session = newSession
+    val unModifiedSession = session.logGroupRequest(1L, KO)
+
+    session should be theSameInstanceAs unModifiedSession
+  }
+
   "groupHierarchy" should "return the group hierarchy if there is one" in {
     val session = newSession
     session.groupHierarchy shouldBe empty
 
     val sessionWithGroup = session.enterGroup("root group").enterGroup("child group")
     sessionWithGroup.groupHierarchy shouldBe List("root group", "child group")
+  }
+
+  "enterTryMax" should "add a TryMaxBlock on top of the stack and init a counter" in {
+    val session = newSession.enterTryMax("tryMax", noSender)
+
+    session.blockStack.head shouldBe a[TryMaxBlock]
+    session.contains("tryMax") shouldBe true
+    session.contains("timestamp.tryMax") shouldBe true
+  }
+
+  "exitTryMax" should "simply exit the closest TryMaxBlock and remove its associated counter if it has not failed" in {
+    val session = newSession.enterTryMax("tryMax", noSender).exitTryMax
+
+    session.blockStack shouldBe empty
+    session.contains("tryMax") shouldBe false
+    session.contains("timestamp.tryMax") shouldBe false
+  }
+
+  it should "simply exit the TryMaxBlock and remove its associated counter if it has failed but with no other TryMaxBlock in the stack" in {
+    val session = newSession.enterGroup("root group").enterTryMax("tryMax", noSender).markAsFailed.exitTryMax
+
+    session.blockStack.head shouldBe a[GroupBlock]
+    session.contains("tryMax") shouldBe false
+    session.contains("timestamp.tryMax") shouldBe false
+  }
+
+  it should "exit the TryMaxBlock, remove its associated counter and set the closest TryMaxBlock in the stack's status to KO if it has failed" in {
+    val session = newSession.enterTryMax("tryMax1", noSender).enterGroup("root group").enterTryMax("tryMax2", noSender).markAsFailed.exitTryMax
+
+    session.blockStack.head shouldBe a[GroupBlock]
+    session.blockStack(1) shouldBe a[TryMaxBlock]
+    session.blockStack(1).asInstanceOf[TryMaxBlock].status shouldBe KO
+    session.contains("tryMax2") shouldBe false
+    session.contains("timestamp.tryMax2") shouldBe false
+  }
+
+  it should "leave the session unmodified if there is no TryMaxBlock on top of the stack" in {
+    val session = newSession
+    val unmodifiedSession = session.exitTryMax
+
+    session should be theSameInstanceAs unmodifiedSession
+  }
+
+  "isFailed" should "return true if baseStatus is KO and there is no failed TryMaxBlock in the stack" in {
+    val session = newSession.copy(baseStatus = KO)
+
+    session.isFailed shouldBe true
+  }
+
+  it should "return true if baseStatus is OK and there is a failed TryMaxBlock in the stack" in {
+    val session = newSession.copy(blockStack = List(TryMaxBlock("tryMax", noSender, status = KO)))
+
+    session.isFailed shouldBe true
+  }
+
+  it should "return false if baseStatus is OK and there is no TryMaxBlock in the stack" in {
+    newSession.isFailed shouldBe false
+  }
+
+  it should "return false if baseStatus is OK and there is no failed TryMaxBlock in the stack" in {
+    val session = newSession.copy(blockStack = List(TryMaxBlock("tryMax", noSender)))
+
+    session.isFailed shouldBe false
+  }
+
+  "status" should "be OK if the session is not failed" in {
+    newSession.status shouldBe OK
+  }
+
+  it should "be KO if the session is failed" in {
+    newSession.copy(baseStatus = KO).status shouldBe KO
+  }
+  "markAsSucceeded" should "only set the baseStatus to OK if it was not set and there is no TryMaxBlock in the stack" in {
+    val session = newSession.copy(baseStatus = KO)
+    val failedSession = session.markAsSucceeded
+
+    failedSession should not be theSameInstanceAs(session)
+    failedSession.baseStatus shouldBe OK
+  }
+
+  it should "leave the session unmodified if baseStatus is already OK and there is no TryMaxBlock in the stack" in {
+    val session = newSession
+    val failedSession = session.markAsSucceeded
+
+    failedSession should be theSameInstanceAs session
+  }
+
+  it should "set the TryMaxBlock's status to KO if there is a TryMaxBlock in the stack, but leave the baseStatus unmodified" in {
+    val session = newSession.copy(baseStatus = KO).enterGroup("root group").enterTryMax("tryMax", noSender)
+    val failedSession = session.markAsSucceeded
+
+    failedSession.baseStatus shouldBe KO
+    failedSession.blockStack.head.asInstanceOf[TryMaxBlock].status shouldBe OK
+  }
+
+  "markAsFailed" should "only set the baseStatus to KO if it was not set and there is no TryMaxBlock in the stack" in {
+    val session = newSession
+    val failedSession = session.markAsFailed
+
+    failedSession should not be theSameInstanceAs(session)
+    failedSession.baseStatus shouldBe KO
+  }
+
+  it should "leave the session unmodified if baseStatus is already KO and there is no TryMaxBlock in the stack" in {
+    val session = newSession.copy(baseStatus = KO)
+    val failedSession = session.markAsFailed
+
+    failedSession should be theSameInstanceAs session
+  }
+
+  it should "set the TryMaxBlock's status to KO if there is a TryMaxBlock in the stack, but leave the baseStatus unmodified" in {
+    val session = newSession.enterGroup("root group").enterTryMax("tryMax", noSender)
+    val failedSession = session.markAsFailed
+
+    failedSession.baseStatus shouldBe OK
+    failedSession.blockStack.head.asInstanceOf[TryMaxBlock].status shouldBe KO
+  }
+
+  "enterLoop" should "add an ExitASAPLoopBlock on top of the stack and init a counter when exitASAP = true" in {
+    val session = newSession.enterLoop("loop", true.expression, noSender, exitASAP = true)
+
+    session.blockStack.head shouldBe a[ExitASAPLoopBlock]
+    session.contains("loop") shouldBe true
+    session.attributes("loop") shouldBe 0
+  }
+
+  it should "add an ExitOnCompleteLoopBlock on top of the stack and init a counter when exitASAP = false" in {
+    val session = newSession.enterLoop("loop", true.expression, noSender, exitASAP = false)
+
+    session.blockStack.head shouldBe a[ExitOnCompleteLoopBlock]
+    session.contains("loop") shouldBe true
+    session.attributes("loop") shouldBe 0
+  }
+
+  "exitLoop" should "remove the LoopBlock from the top of the stack and its associated counter" in {
+    val session = newSession.enterLoop("loop", true.expression, noSender, exitASAP = false)
+    val sessionOutOfLoop = session.exitLoop
+
+    sessionOutOfLoop.blockStack shouldBe empty
+    sessionOutOfLoop.contains("loop") shouldBe false
+  }
+
+  it should "leave the stack unmodified if there's no LoopBlock on top of the stack" in {
+    val session = newSession
+    val unModifiedSession = session.exitLoop
+    session should be theSameInstanceAs unModifiedSession
   }
 
   "initCounter" should "add a counter, initialized to 0, and a timestamp for the counter creation in the session" in {
