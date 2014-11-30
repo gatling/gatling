@@ -6,6 +6,8 @@ import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import com.typesafe.sbt.SbtSite.site
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
 import sbtunidoc.Plugin.{ ScalaUnidoc, unidocSettings }
+import scoverage.ScoverageSbtPlugin.instrumentSettings
+import scoverage.ScoverageSbtPlugin.ScoverageKeys
 
 object BuildSettings {
 
@@ -33,7 +35,7 @@ object BuildSettings {
   ) ++ Publish.settings ++ Release.settings
 
   lazy val gatlingModuleSettings =
-    basicSettings ++ formattingSettings ++ graphSettings ++ scaladocSettings
+    basicSettings ++ formattingSettings ++ graphSettings ++ scaladocSettings ++ instrumentSettings ++ Seq(ScoverageKeys.highlighting := true)
 
   lazy val noCodeToPublish = Seq(
     publishArtifact in Compile := false
