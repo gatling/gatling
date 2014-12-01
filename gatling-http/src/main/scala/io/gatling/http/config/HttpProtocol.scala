@@ -53,7 +53,7 @@ object HttpProtocol {
       virtualHost = None,
       localAddress = None),
     requestPart = HttpProtocolRequestPart(
-      baseHeaders = Map.empty,
+      headers = Map.empty,
       realm = None,
       autoReferer = true,
       cache = true,
@@ -187,7 +187,7 @@ case class HttpProtocolEnginePart(
   localAddress: Option[InetAddress])
 
 case class HttpProtocolRequestPart(
-  baseHeaders: Map[String, Expression[String]],
+  headers: Map[String, Expression[String]],
   realm: Option[Expression[Realm]],
   autoReferer: Boolean,
   cache: Boolean,

@@ -18,7 +18,7 @@ package io.gatling.recorder.scenario.template
 import io.gatling.core.util.StringHelper.{ EmptyFastring, Eol }
 import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration }
 import io.gatling.recorder.scenario.ProtocolDefinition
-import io.gatling.recorder.scenario.ProtocolDefinition.baseHeaders
+import io.gatling.recorder.scenario.ProtocolDefinition.BaseHeaders
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 object ProtocolTemplate {
@@ -73,7 +73,7 @@ object ProtocolTemplate {
 
       def renderHeaders = {
           def renderHeader(methodName: String, headerValue: String) = fast"""$Eol$Indent.$methodName(\"\"\"$headerValue\"\"\")"""
-        protocol.headers.toList.sorted.flatMap { case (headerName, headerValue) => baseHeaders.get(headerName).map(renderHeader(_, headerValue)) }.mkFastring
+        protocol.headers.toList.sorted.flatMap { case (headerName, headerValue) => BaseHeaders.get(headerName).map(renderHeader(_, headerValue)) }.mkFastring
       }
 
     fast"""

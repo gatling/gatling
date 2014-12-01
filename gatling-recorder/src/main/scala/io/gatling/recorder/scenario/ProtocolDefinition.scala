@@ -19,7 +19,7 @@ import io.gatling.http.HeaderNames
 
 object ProtocolDefinition {
 
-  val baseHeaders = Map(
+  val BaseHeaders = Map(
     HeaderNames.Accept -> "acceptHeader",
     HeaderNames.AcceptCharset -> "acceptCharsetHeader",
     HeaderNames.AcceptEncoding -> "acceptEncodingHeader",

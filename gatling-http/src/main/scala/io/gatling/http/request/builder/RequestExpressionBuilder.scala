@@ -78,7 +78,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
 
   def configureHeaders(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
 
-    val headers = protocol.requestPart.baseHeaders ++ commonAttributes.headers
+    val headers = protocol.requestPart.headers ++ commonAttributes.headers
 
     val requestBuilderWithHeaders = headers.foldLeft(requestBuilder.success) { (requestBuilder, header) =>
       val (key, value) = header

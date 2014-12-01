@@ -180,7 +180,7 @@ object ScenarioExporter extends StrictLogging {
         case headerName :: others => resolveBaseHeaders(addHeader(headers, headerName), others)
       }
 
-    resolveBaseHeaders(Map.empty, ProtocolDefinition.baseHeaders.keySet.toList)
+    resolveBaseHeaders(Map.empty, ProtocolDefinition.BaseHeaders.keySet.toList)
   }
 
   private def getBaseUrl(requestElements: Seq[RequestElement]): String = {
