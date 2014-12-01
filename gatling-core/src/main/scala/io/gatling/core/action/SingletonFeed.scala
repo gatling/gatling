@@ -56,7 +56,7 @@ class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
     val newSession = number(session).flatMap(injectRecords) match {
       case Success(s) => s
       case Failure(message) =>
-        logger.error(message)
+        logger.error(s"Injection failed: $message, please report.")
         Controller ! ForceTermination(Some(new IllegalStateException(message)))
         session
     }

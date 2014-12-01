@@ -61,7 +61,7 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
 
   override def onRetry(): Unit = {
     if (!done.get) responseBuilder.reset()
-    else logger.error("onRetry is not supposed to be called once done")
+    else logger.error("onRetry is not supposed to be called once done, please report")
   }
 
   override def onHeaderWriteCompleted: STATE = {
