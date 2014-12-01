@@ -94,3 +94,10 @@ The directory name was changed from ``request-bodies`` to ``bodies`` as it now c
 The latter one are now captured by the recorder, and can be used as template for :ref:`http-check-body-string <checking the response body>`.
 
 CLI option was renamed from ``rbf`` to ``bdf``.
+
+Checks
+------
+
+Deprecated ``dontValidate`` was dropped in 2.1 as previously announced.
+Please use ``optional`` instead.
+
