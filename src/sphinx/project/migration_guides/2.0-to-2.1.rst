@@ -101,3 +101,8 @@ Checks
 Deprecated ``dontValidate`` was dropped in 2.1 as previously announced.
 Please use ``optional`` instead.
 
+Protocol
+--------
+
+Deprecated ``baseHeaders`` was dropped in 2.1 as previously announced.
+Please use ``headers`` instead.
