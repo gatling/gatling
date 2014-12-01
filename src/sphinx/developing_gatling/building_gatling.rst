@@ -62,4 +62,3 @@ Using Gatling's plugins/integrations
 You can use any of Gatling plugins and integrations with your locally compiled sources.
 
 Just make sure that you change the Gatling's version you're using in your project to the current SNAPSHOT version.
-
