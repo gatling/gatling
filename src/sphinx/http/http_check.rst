@@ -137,7 +137,8 @@ Returns the latency of this request in milliseconds = the time between finishing
 
 * ``bodyString``
 
-Return the full response body String. Note that this can be matched against content from the the filesystem using :ref:`RawFileBody <http-request-body-rawfile>` or :ref:`ELFileBody <http-request-body-elfile>`.
+Return the full response body String.
+Note that this can be matched against content from the the filesystem using :ref:`RawFileBody <http-request-body-rawfile>` or :ref:`ELFileBody <http-request-body-elfile>`.
 
 .. _http-check-body-bytes:
 

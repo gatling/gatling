@@ -65,3 +65,11 @@ Parameters
 ----------
 
 Form parameters are no longer specific to POST method, you can use them with all methods.
+
+Request Bodies Directory
+------------------------
+
+The directory name was changed from ``request-bodies`` to ``bodies`` as it now can host both request bodies and response bodies.
+The latter one are now captured by the recorder, and can be used as template for :ref:`http-check-body-string <checking the response body>`.
+
+CLI option was renamed from ``rbf`` to ``bdf``.
