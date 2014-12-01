@@ -113,11 +113,10 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
 
   def is(expected: Expression[X]) = validate(expected.map(new IsMatcher(_)))
   def not(expected: Expression[X]) = validate(expected.map(new NotMatcher(_)))
+  def in(expected: X*) = validate(expected.toSeq.expression.map(new InMatcher(_)))
   def in(expected: Expression[Seq[X]]) = validate(expected.map(new InMatcher(_)))
   def exists = validate(new ExistsValidator[X]().expression)
   def notExists = validate(new NotExistsValidator[X]().expression)
-  @deprecated("Will be removed in 2.1, use 'optional' instead", "2.0-RC3")
-  def dontValidate = optional
   def optional = validate(new NoopValidator[X]().expression)
   def lessThan(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(expected.map(new CompareMatcher("lessThan", "less than", ordering.lt, _)))
   def lessThanOrEqual(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(expected.map(new CompareMatcher("lessThanOrEqual", "less than or equal to", ordering.lteq, _)))

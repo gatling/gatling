@@ -130,6 +130,7 @@ class HttpCompileTest extends Simulation {
               regex("""<input id="text1" type="text" value="aaaa" />""").count.is(1),
               regex("""<input id="text1" type="test" value="aaaa" />""").notExists,
               status.in(200 to 210).saveAs("blablaParam"),
+              status.in(200, 210).saveAs("blablaParam"),
               status.in(Seq(200, 304)).saveAs("blablaParam"),
               bodyString.is(RawFileBody("foobar.txt")),
               bodyString.is(ELFileBody("foobar.txt")),
