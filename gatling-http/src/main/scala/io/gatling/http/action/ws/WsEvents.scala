@@ -15,12 +15,11 @@
  */
 package io.gatling.http.action.ws
 
-import com.ning.http.client.websocket.WebSocket
-
 import akka.actor.ActorRef
 import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.ahc.WsTx
 import io.gatling.core.session.Session
+import com.ning.http.client.ws.WebSocket
 
 sealed trait WsEvent
 case class OnOpen(tx: WsTx, webSocket: WebSocket, time: Long) extends WsEvent

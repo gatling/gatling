@@ -15,7 +15,7 @@
  */
 package io.gatling.http.action.ws
 
-import com.ning.http.client.websocket.WebSocket
+import com.ning.http.client.ws.WebSocket
 
 import scala.collection.mutable
 import akka.actor.ActorRef

@@ -28,7 +28,7 @@ import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig.NettyWebSocketFactory
 import com.ning.http.client.providers.netty.ws.NettyWebSocket
 import com.ning.http.client.providers.netty.channel.pool.DefaultChannelPool
-import com.ning.http.client.websocket.{ WebSocketListener, WebSocketUpgradeHandler }
+import com.ning.http.client.ws.{ WebSocketListener, WebSocketUpgradeHandler }
 import com.typesafe.scalalogging.StrictLogging
 
 import akka.actor.ActorRef
