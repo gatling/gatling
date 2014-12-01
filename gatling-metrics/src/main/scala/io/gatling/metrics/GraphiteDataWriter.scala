@@ -31,9 +31,9 @@ import io.gatling.metrics.types._
 
 object GraphiteDataWriter {
   import GraphitePath._
-  val allRequestsKey = graphitePath("allRequests")
-  val usersRootKey = graphitePath("users")
-  val allUsersKey = usersRootKey / "allUsers"
+  val AllRequestsKey = graphitePath("allRequests")
+  val UsersRootKey = graphitePath("users")
+  val AllUsersKey = UsersRootKey / "allUsers"
 }
 
 class GraphiteDataWriter extends DataWriter {
@@ -51,15 +51,15 @@ class GraphiteDataWriter extends DataWriter {
     val metricRootPath = configuration.data.graphite.rootPathPrefix + "." + sanitizeString(run.simulationId) + "."
     graphiteSender = actor(context, actorName("graphiteSender"))(new GraphiteSender(metricRootPath))
 
-    usersByScenario.update(allUsersKey, new UsersBreakdownBuffer(scenarios.map(_.nbUsers).sum))
-    scenarios.foreach(scenario => usersByScenario += (usersRootKey / scenario.name) -> new UsersBreakdownBuffer(scenario.nbUsers))
+    usersByScenario.update(AllUsersKey, new UsersBreakdownBuffer(scenarios.map(_.nbUsers).sum))
+    scenarios.foreach(scenario => usersByScenario += (UsersRootKey / scenario.name) -> new UsersBreakdownBuffer(scenario.nbUsers))
 
     scheduler.schedule(0 millisecond, 1 second, self, Send)
   }
 
   def onUserMessage(userMessage: UserMessage): Unit = {
-    usersByScenario(usersRootKey / userMessage.scenarioName).add(userMessage)
-    usersByScenario(allUsersKey).add(userMessage)
+    usersByScenario(UsersRootKey / userMessage.scenarioName).add(userMessage)
+    usersByScenario(AllUsersKey).add(userMessage)
   }
 
   def onGroupMessage(group: GroupMessage): Unit = {}
@@ -69,7 +69,7 @@ class GraphiteDataWriter extends DataWriter {
       val path = graphitePath(request.groupHierarchy :+ request.name)
       requestsByPath.getOrElseUpdate(path, new RequestMetricsBuffer).add(request.status, request.responseTime)
     }
-    requestsByPath.getOrElseUpdate(allRequestsKey, new RequestMetricsBuffer).add(request.status, request.responseTime)
+    requestsByPath.getOrElseUpdate(AllRequestsKey, new RequestMetricsBuffer).add(request.status, request.responseTime)
   }
 
   def onTerminateDataWriter(): Unit = graphiteSender ! Flush
@@ -142,7 +142,7 @@ private class GraphiteSender(graphiteRootPathKey: String)(implicit configuration
     for ((metricPath, usersBreakdown) <- usersBreakdowns) sendUserMetrics(metricPath, usersBreakdown)
 
     if (configuration.data.graphite.light)
-      requestsMetrics.get(allRequestsKey).foreach(allRequestsMetric => sendRequestMetrics(allRequestsKey, allRequestsMetric))
+      requestsMetrics.get(AllRequestsKey).foreach(allRequestsMetric => sendRequestMetrics(AllRequestsKey, allRequestsMetric))
     else
       for ((path, requestMetric) <- requestsMetrics) sendRequestMetrics(path, requestMetric)
 
