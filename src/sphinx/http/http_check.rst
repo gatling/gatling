@@ -7,7 +7,10 @@ Checks
 Concepts
 ========
 
-The Check API is used for verifying that the response to a request matches expectations and capturing some elements in it.
+The Check API is used for 2 things:
+
+* verifying that the response to a request matches expectations
+* eventually capturing some elements in it.
 
 Checks are performed on a request with the ``check`` method.
 For example, on an HTTP request::
@@ -21,14 +24,16 @@ One can of course perform multiple checks::
 
 This API provides a dedicated DSL for chaining the following steps:
 
-1. defining the check
-2. extracting
-3. transforming
-4. verifying
-5. saving
+1. :ref:`defining the check type <http-check-type>`
+2. :ref:`extracting <http-check-extracting>`
+3. :ref:`transforming <http-check-transform>`
+4. :ref:`validating <http-check-validating>`
+5. :ref:`saving <http-check-saving>`
 
 .. note:: By default, Gatling follows redirects (can be disabled in the :ref:`protocol <http-protocol-redirect>`).
           If this behavior is enabled, checks will ignore intermediate responses and will target the landing response.
+
+.. _http-check-type:
 
 Defining the check type
 =======================
@@ -203,6 +208,9 @@ Defines an XPath 1.0 expression to be applied on an XML response body.
   xpath("//input[@id='text1']/@value")
   xpath("//foo:input[@id='text1']/@value", List("foo" -> "http://foo.com"))
 
+.. note:: XPath only works on well formed XML documents, which regular HTML is not (while XHTML is).
+If you're looking for path expression for matching HTML documents, please have a look at our :ref:`CSS selectors support<http-check-css>`.
+
 .. note:: You can also use ``vtdXpath(xpathExpression: Expression[String])``, this check uses VTD as the XPath engine,
           it is available as a `separate module <https://github.com/gatling/gatling-vtd>`_.
 
@@ -210,7 +218,8 @@ Defines an XPath 1.0 expression to be applied on an XML response body.
 
 * ``jsonPath(expression)``
 
-Based on `Goessner's JsonPath <http://goessner.net/articles/JsonPath>`_.
+JsonPath is a XPath-like syntax for JSON. It was specified by Stefan Goessner.
+Please check `Goessner's website <http://goessner.net/articles/JsonPath>`_ for more information about the syntax.
 
 *expression*  can be a plain ``String``, a ``String`` using Gatling EL or an ``Expression[String]``.
 
@@ -237,9 +246,19 @@ Gatling provides built-in support for the following types:
 * Map (JSON object)
 * Any
 
-The example below shows how to extract Ints::
 
-  jsonPath("$..foo").ofType[Int]
+The example below shows how to extract Ints
+
+.. code-block:: json
+
+  {
+    "foo": 1,
+    "bar" "baz"
+  }
+
+::
+
+  jsonPath("$..foo").ofType[Int] // will match 1
 
 .. _http-check-jsonp-jsonpath:
 
@@ -258,6 +277,10 @@ Gatling supports `CSS Selectors <http://jodd.org/doc/csselly>`_.
 *attribute* is an optional ``String``.
 When filled, check is performed against the attribute value.
 Otherwise check is performed against the node text content.
+
+::
+
+  css("article.more a", "href")
 
 .. _http-check-checksum:
 
@@ -278,7 +301,9 @@ Extracting
 
 * ``find``
 
-Returns the first occurrence.
+Returns the first occurrence. If the check targets more than a single element, ``find`` is identical to ``find(0)``.
+
+.. note:: In the case where no extracting step is defined, a ``find`` is added implicitly.
 
 Multiple results
 ----------------
@@ -303,8 +328,6 @@ Returns the number of occurrences.
 
 ``find(occurrence)``, ``findAll`` and ``count`` are only available on check types that might produce multiple results.
 For example, ``status`` only has ``find``.
-
-.. note:: In the case where no extracting step is defined, a ``find`` is added implicitly.
 
 .. _http-check-transform:
 
@@ -336,7 +359,9 @@ Validating
 
 * ``is(expected)``
 
-Checks that the value is equal to the expected one.
+Checks that the value is equal to the expected one, e.g.::
+
+  status.is(200)
 
 *expected* is a function that returns a value of the same type of the previous step (extraction or transformation).
 
@@ -346,7 +371,9 @@ In case of a ``String``, it can also be a ``String`` using Gatling EL or an ``Ex
 
 * ``not(expected)``
 
-Checks that the value is different from the expected one.
+Checks that the value is different from the expected one::
+
+  status.not(500)
 
 *expected* is a function that returns a value of the same type of the previous step (extraction or transformation).
 
@@ -356,26 +383,34 @@ In case of a ``String``, it can also be a ``String`` using Gatling EL or an ``Ex
 
 * ``exists``
 
-Checks that the value exists and is not empty in case of multiple results.
+Checks that the value exists and is not empty in case of multiple results::
+
+  jsonPath("$..foo").exists
 
 .. _http-check-not-exists:
 
 * ``notExists``
 
-Checks that the value doesn't exist and or is empty in case of multiple results.
+Checks that the value doesn't exist and or is empty in case of multiple results::
+
+  jsonPath("$..foo").notExists
 
 .. _http-check-in:
 
 * ``in(sequence)``
 
-Checks that the value belongs to a given sequence.
+Checks that the value belongs to a given sequence or vararg::
+
+  status.in(200, 304)
+
+*sequence*
 
 .. _http-check-optional:
 
 * ``optional``
 
 .. warning::
-  ``optional`` used to be named ``dontValidate``. The old name still works but will be removed in Gatling 2.1.
+  ``optional`` used to be named ``dontValidate``. The old name has been deprecated, then removed in Gatling 2.1.
 
 Always true, used for capture an optional value.
 
@@ -390,7 +425,7 @@ Saving
 
 ``saveAs(key)``
 
-Saving is an optional step for storing the result of the previous step (extraction or transformation) into the virtual user Session, so that it can be reused later.
+Saving is an **optional** step for storing the result of the previous step (extraction or transformation) into the virtual user Session, so that it can be reused later.
 
 *key* is a ``String``.
 

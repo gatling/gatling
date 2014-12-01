@@ -230,7 +230,7 @@ e.g.::
   .header("foo", "bar")
   .headers(Map("foo" -> "bar", "baz" -> "qix"))
 
-.. warning:: ``headers`` used to be named ``baseHeaders``, please use the new name.
+.. warning:: ``headers`` used to be named ``baseHeaders``. Old name was deprecated, then removed in 2.1.
 
 You have also the following built-ins for the more commons headers:
 

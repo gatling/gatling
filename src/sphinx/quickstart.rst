@@ -41,7 +41,7 @@ Gatling's **default encoding is UTF-8**. If you want to use a different one, you
 
 * select the proper encoding while using the Recorder
 * configure the proper encoding in the ``gatling.conf`` file.
-    It will be used for compiling your simulations and building your requests.
+    It will be used for compiling your simulations, building your requests and your responses.
 * make sure your text editor encoding is properly configured to match.
 
 A Word on Scala
@@ -53,7 +53,7 @@ In most situations the DSL will cover most of your needs and you'll be able to b
 If you are interested in knowing more about Scala, then we recommend that you have a look at `Twitter's Scala School <http://twitter.github.io/scala_school>`_.
 
 .. note::
-  Feel also free to join our `Google Group`_ and ask for help.
+  Feel also free to join our `Google Group`_ and ask for help **once you've read this documentation**.
 
 Test Case
 =========

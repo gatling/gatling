@@ -11,7 +11,7 @@ SSL
 Configuring KeyStore and TrustStore
 ===================================
 
-For now, default Gatling TrustStore is very permissive and doesn't validate certificates,
+Default Gatling TrustStore is very permissive and doesn't validate certificates,
 meaning that it works out of the box with self-signed certificates.
 
 .. _http-ssl-stores-shared:
