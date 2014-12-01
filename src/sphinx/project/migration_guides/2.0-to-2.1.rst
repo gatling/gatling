@@ -74,6 +74,11 @@ Assertions
 Validating assertions in combination with the ``reports-only`` / ``ro`` option
 does not require to pass the simulation (using ``-s``) for which the assertions will be validated anymore.
 
+Throttling
+----------
+
+Throttling now automatically adds a maxDuration of either the simulation throttling duration, or the minimum of the scenarios throttling durations.
+
 HTTP
 ====
 
