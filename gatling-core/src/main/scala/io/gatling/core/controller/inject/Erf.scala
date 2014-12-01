@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.util
+package io.gatling.core.controller.inject
 
 import scala.math.{ abs, log, sqrt }
 
-object Erf {
+private[inject] object Erf {
 
   val invP1 = Vector(
     0.160304955844066229311e2,

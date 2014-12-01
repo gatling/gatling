@@ -148,12 +148,11 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
  * }}}
  */
 case class HeavisideInjection(users: Int, duration: FiniteDuration) extends InjectionStep {
-  import io.gatling.core.util.Erf.erfinv
 
   override def chain(chained: Iterator[FiniteDuration]) = {
       def heavisideInv(u: Int) = {
         val x = u.toDouble / (users + 2)
-        erfinv(2 * x - 1)
+        Erf.erfinv(2 * x - 1)
       }
 
     val t0 = abs(heavisideInv(1))
