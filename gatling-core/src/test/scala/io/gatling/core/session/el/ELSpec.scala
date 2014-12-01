@@ -507,7 +507,6 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
   }
 
   it should "be handled when ${ is not closed" in {
-    val session = newSession(Map("foo" -> "FOO"))
     a[ELParserException] should be thrownBy "${foo".el[String]
   }
 
