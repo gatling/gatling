@@ -25,12 +25,12 @@ import io.gatling.http.response.Response
 
 object HttpChecksumCheckBuilder {
 
-  def checksum(algorythm: String) = {
+  def checksum(algorithm: String) = {
 
-    val checksumCheckFactory = (wrapped: Check[Response]) => new ChecksumCheck(algorythm, wrapped)
+    val checksumCheckFactory = (wrapped: Check[Response]) => new ChecksumCheck(algorithm, wrapped)
     val extractor = new Extractor[Response, String] with SingleArity {
-      val name = algorythm
-      def apply(prepared: Response) = prepared.checksum(algorythm).success
+      val name = algorithm
+      def apply(prepared: Response) = prepared.checksum(algorithm).success
     }.expression
 
     new DefaultFindCheckBuilder[HttpCheck, Response, Response, String](

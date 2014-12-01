@@ -18,14 +18,15 @@ package io.gatling.http.ahc
 import java.util.{ ArrayList => JArrayList }
 import java.util.concurrent.{ TimeUnit, Executors, ThreadFactory }
 
-import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig.NettyWebSocketFactory
-import com.ning.http.client.providers.netty.ws.NettyWebSocket
 import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
+import org.jboss.netty.util.HashedWheelTimer
 
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
+import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig.NettyWebSocketFactory
+import com.ning.http.client.providers.netty.ws.NettyWebSocket
 import com.ning.http.client.providers.netty.channel.pool.DefaultChannelPool
 import com.ning.http.client.websocket.{ WebSocketListener, WebSocketUpgradeHandler }
 import com.typesafe.scalalogging.StrictLogging
@@ -33,6 +34,7 @@ import com.typesafe.scalalogging.StrictLogging
 import akka.actor.ActorRef
 import io.gatling.core.ConfigKeys
 import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ Controller, ThrottledRequest }
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
@@ -43,8 +45,6 @@ import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder
 import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
 import io.gatling.http.check.ws.WsCheck
-import io.gatling.core.check.CheckResult
-import org.jboss.netty.util.HashedWheelTimer
 
 object HttpTx {
 

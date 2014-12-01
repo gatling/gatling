@@ -15,9 +15,9 @@
  */
 package io.gatling.http.ahc
 
+import com.ning.http.client.{ ConnectionPoolPartitioning, ProxyServer }
 import com.ning.http.client.uri.Uri
 import io.gatling.core.session.Session
-import com.ning.http.client.{ ConnectionPoolPartitioning, ProxyServer }
 
 object ChannelPoolPartitioning {
 

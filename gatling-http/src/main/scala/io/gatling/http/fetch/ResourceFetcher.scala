@@ -17,11 +17,8 @@ package io.gatling.http.fetch
 
 import com.ning.http.client.Request
 import com.ning.http.client.uri.Uri
-import io.gatling.http.request._
-import io.gatling.http.util.HttpHelper._
 
 import scala.annotation.tailrec
-import scala.collection.breakOut
 import scala.collection.mutable
 
 import com.typesafe.scalalogging.StrictLogging
@@ -37,7 +34,9 @@ import io.gatling.http.action.{ RequestAction, HttpRequestAction }
 import io.gatling.http.ahc.HttpTx
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.config.HttpProtocol
+import io.gatling.http.request._
 import io.gatling.http.response._
+import io.gatling.http.util.HttpHelper._
 
 sealed trait ResourceFetched {
   def uri: Uri

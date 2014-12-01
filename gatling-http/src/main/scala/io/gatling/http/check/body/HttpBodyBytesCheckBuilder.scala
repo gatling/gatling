@@ -15,12 +15,12 @@
  */
 package io.gatling.http.check.body
 
+import io.gatling.core.check.DefaultFindCheckBuilder
 import io.gatling.core.check.extractor._
 import io.gatling.core.session.ExpressionWrapper
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
-import io.gatling.core.check.DefaultFindCheckBuilder
 import io.gatling.http.response.Response
 
 object HttpBodyBytesCheckBuilder {
