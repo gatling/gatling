@@ -57,3 +57,11 @@ Assertions
 
 Validating assertions in combination with the ``reports-only`` / ``ro`` option
 does not require to pass the simulation (using ``-s``) for which the assertions will be validated anymore.
+
+HTTP
+====
+
+Parameters
+----------
+
+Form parameters are no longer specific to POST method, you can use them with all methods.

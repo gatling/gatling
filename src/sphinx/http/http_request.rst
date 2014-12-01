@@ -128,8 +128,8 @@ If you want to add multiple query parameters at once, there are two suitable met
 
 .. _http-request-headers:
 
-HTTP Headers
-============
+Headers
+=======
 
 HTTP protocol uses headers to exchange information between client and server that is not part of the message (stored in the body of the request, if there is one).
 
@@ -309,12 +309,12 @@ You might also want to do the exact opposite, typically on a given resource whil
     .notSilent
   )
 
-.. _http-post-parameters:
+.. _http-parameters:
 
-POST Parameters
-===============
+Parameters
+==========
 
-POST requests can have parameters defined in their body.
+Requests can have parameters defined in their body.
 This is typically used for form submission, where all the values are stored as POST parameters in the body of the request.
 
 To add such parameters to a POST request, you must use the method ``formParam(key: Expression[String], value: Expression[Any])`` which is actually the same as ``queryParam`` in **terms of usage** (it has the same signatures).
