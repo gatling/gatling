@@ -23,6 +23,22 @@ Consequently, a few options in gatling.conf have been removed:
 * ``gatling.core.disableCompiler``
 * ``gatling.core.zinc.jvmArgs``
 
+Percentiles
+-----------
+
+Gatling now publishes 4 percentiles instead of 2.
+These percentiles are published in the reports and in the Graphite integration module.
+Beware that keys in ``gatling.conf`` file have been translated:
+
+* Gatling 2.0:
+  * percentile1 = 95
+  * percentile2 = 99
+* Gatling 2.1+:
+  * percentile1 = 50
+  * percentile2 = 75
+  * percentile3 = 95
+  * percentile4 = 99
+
 Maven Archetype
 ===============
 
