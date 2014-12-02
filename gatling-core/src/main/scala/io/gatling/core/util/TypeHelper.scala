@@ -16,13 +16,10 @@
 package io.gatling.core.util
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe.{ typeOf, TypeTag }
 
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object TypeHelper {
-
-  def isAnyVal[T: TypeTag](obj: T) = typeOf[T] <:< typeOf[AnyVal]
 
   val NullValueFailure = "Value is null".failure
 
@@ -37,12 +34,15 @@ object TypeHelper {
 
         else {
             def valueClazz = value.getClass.getName match {
-              case "java.lang.Boolean" => classOf[Boolean]
-              case "java.lang.Integer" => classOf[Int]
-              case "java.lang.Long"    => classOf[Long]
-              case "java.lang.Double"  => classOf[Double]
-              case "java.lang.Float"   => classOf[Float]
-              case _                   => value.getClass
+              case "java.lang.Boolean"   => classOf[Boolean]
+              case "java.lang.Byte"      => classOf[Byte]
+              case "java.lang.Short"     => classOf[Short]
+              case "java.lang.Integer"   => classOf[Int]
+              case "java.lang.Long"      => classOf[Long]
+              case "java.lang.Float"     => classOf[Float]
+              case "java.lang.Double"    => classOf[Double]
+              case "java.lang.Character" => classOf[Char]
+              case _                     => value.getClass
             }
 
           if (clazz.isAssignableFrom(value.getClass) || clazz.isAssignableFrom(valueClazz))
