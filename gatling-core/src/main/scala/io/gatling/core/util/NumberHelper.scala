@@ -20,7 +20,7 @@ object NumberHelper {
   val formatter = new java.text.DecimalFormat("###.###")
 
   def extractLongValue(s: String, start: Int): Long = {
-    assume(start >= 0 && start < s.length, s"Start=$start is not an acceptable starting index for the string=$s")
+    require(start >= 0 && start < s.length, s"Start=$start is not an acceptable starting index for the string=$s")
 
     var value = 0l
     var k = start

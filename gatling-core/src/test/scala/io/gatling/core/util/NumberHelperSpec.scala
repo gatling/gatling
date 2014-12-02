@@ -21,7 +21,20 @@ class NumberHelperSpec extends FlatSpec with Matchers {
 
   import NumberHelper._
 
-  "formatNumberWithSuffix" should "return '1st' for 1" in {
+  "extractLongValue" should "throw an IllegalArgumentException if start < 0 or > the string length " in {
+    an[IllegalArgumentException] should be thrownBy extractLongValue("1234", -1)
+    an[IllegalArgumentException] should be thrownBy extractLongValue("1234", 4)
+  }
+
+  it should "be able to extract a Long from a series of digits in a string" in {
+    extractLongValue("foo12345bar", 3) shouldBe 12345L
+  }
+
+  it should "return 0 if there was no series of digit at the specified index" in {
+    extractLongValue("foobar", 3) shouldBe 0L
+  }
+
+  "toRank" should "return '1st' for 1" in {
     1.toRank shouldBe "1st"
   }
 
