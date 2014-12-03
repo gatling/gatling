@@ -67,6 +67,11 @@ Besides escaping features described in the RFC, one can use a ``\`` character an
 
 Those built-ins returns ``RecordSeqFeederBuilder`` instances, meaning that the whole file is loaded in memory and parsed, so the resulting feeders doesn't read on disk during the simulation run.
 
+.. warning::
+  Loading feeder files in memory uses a lot of heap, expect a 5-to-10-times ratio with the file size.
+  This is due to JVM's internal UTF-16 char encoding and object headers overhead.
+  If memory is an issue for you, you might want to read from the filesystem on the fly and build your own Feeder.
+
 .. _feeder-csv-json:
 
 Some users might be interested in storing JSON bodies inside a Feeder file.
