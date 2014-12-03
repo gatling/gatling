@@ -207,7 +207,10 @@ object GatlingConfiguration extends StrictLogging {
           light = config.getBoolean(data.graphite.Light),
           host = config.getString(data.graphite.Host),
           port = config.getInt(data.graphite.Port),
-          protocol = config.getString(data.graphite.Protocol),
+          protocol = {
+            val protocolName = config.getString(data.graphite.Protocol).trim
+            GraphiteProtocol.fromName(protocolName).getOrElse(throw new IllegalArgumentException(s"Unsupported Graphite protocol: '$protocolName'"))
+          },
           rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
           bufferSize = config.getInt(data.graphite.BufferSize)),
         jdbc = JDBCDataWriterConfiguration(
@@ -400,11 +403,23 @@ case class JDBCDataWriterConfiguration(
 case class ConsoleDataWriterConfiguration(
   light: Boolean)
 
+object GraphiteProtocol {
+
+  def fromName(name: String) = name match {
+    case Tcp.name => Some(Tcp)
+    case Udp.name => Some(Udp)
+    case _        => None
+  }
+}
+sealed trait GraphiteProtocol { def name: String }
+case object Tcp extends GraphiteProtocol { val name = "tcp" }
+object Udp extends GraphiteProtocol { val name = "udp" }
+
 case class GraphiteDataWriterConfiguration(
   light: Boolean,
   host: String,
   port: Int,
-  protocol: String,
+  protocol: GraphiteProtocol,
   rootPathPrefix: String,
   bufferSize: Int)
 
