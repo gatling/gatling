@@ -48,6 +48,7 @@ object GatlingConfiguration extends StrictLogging {
   private[gatling] def set(config: GatlingConfiguration): Unit = thisConfiguration = config
 
   def setUpForTest(props: mutable.Map[String, _ <: Any] = mutable.Map.empty) = {
+
     val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, "gatling-defaults.conf")
     val propertiesConfig = ConfigFactory.parseMap(props + (data.Writers -> "")) // Disable DataWriters by default
     val config = configChain(ConfigFactory.systemProperties, propertiesConfig, defaultsConfig)
@@ -97,6 +98,7 @@ object GatlingConfiguration extends StrictLogging {
   private def mapToGatlingConfig(config: Config) =
     GatlingConfiguration(
       core = CoreConfiguration(
+        version = ResourceBundle.getBundle("gatling-version").getString("version"),
         outputDirectoryBaseName = config.getString(core.OutputDirectoryBaseName).trimToOption,
         runDescription = config.getString(core.RunDescription).trimToOption,
         encoding = config.getString(core.Encoding),
@@ -146,6 +148,7 @@ object GatlingConfiguration extends StrictLogging {
         lastModifiedPerUserCacheMaxCapacity = config.getInt(http.LastModifiedPerUserCacheMaxCapacity),
         etagPerUserCacheMaxCapacity = config.getInt(http.EtagPerUserCacheMaxCapacity),
         warmUpUrl = config.getString(http.WarmUpUrl).trimToOption,
+        enableGA = config.getBoolean(http.EnableGA),
         ssl = {
             def storeConfig(typeKey: String, fileKey: String, passwordKey: String, algorithmKey: String) = {
 
@@ -234,6 +237,7 @@ object GatlingConfiguration extends StrictLogging {
 }
 
 case class CoreConfiguration(
+    version: String,
     outputDirectoryBaseName: Option[String],
     runDescription: Option[String],
     encoding: String,
@@ -307,6 +311,7 @@ case class HttpConfiguration(
   lastModifiedPerUserCacheMaxCapacity: Int,
   etagPerUserCacheMaxCapacity: Int,
   warmUpUrl: Option[String],
+  enableGA: Boolean,
   ssl: SslConfiguration,
   ahc: AHCConfiguration)
 
