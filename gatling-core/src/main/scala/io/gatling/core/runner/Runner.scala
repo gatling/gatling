@@ -15,7 +15,7 @@
  */
 package io.gatling.core.runner
 
-import scala.concurrent.Await
+import scala.concurrent._
 import scala.util.{ Failure => SFailure, Success => SSuccess }
 
 import com.typesafe.scalalogging.StrictLogging
@@ -46,14 +46,20 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
       implicit val timeOut = Timeout(simulationTimeOut)
       val runResult = Controller ? Run(simulation, selection.simulationId, selection.description, simulation.timings)
 
-      Await.result(runResult, simulationTimeOut) match {
+      val res = try {
+        Await.result(runResult, simulationTimeOut)
+      } catch {
+        case t: TimeoutException => throw new TimeoutException(s"Reach simulation timeout of $timeOut")
+      }
+
+      res match {
         case SSuccess(runId: String) =>
           println("Simulation finished")
           simulation._afterSteps.foreach(_.apply())
           runId
 
         case SFailure(t) => throw t
-        case unexpected  => throw new UnsupportedOperationException(s"Controller replied an unexpected message $unexpected")
+        case unexpected => throw new UnsupportedOperationException(s"Controller replied an unexpected message $unexpected")
       }
 
     } finally {
