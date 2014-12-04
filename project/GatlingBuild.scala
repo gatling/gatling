@@ -5,6 +5,7 @@ import BuildSettings._
 import Bundle._
 import Dependencies._
 import ConfigFiles._
+import VersionFile._
 
 object GatlingBuild extends Build {
 
@@ -30,6 +31,7 @@ object GatlingBuild extends Build {
 
   lazy val core = gatlingModule("gatling-core")
     .settings(libraryDependencies ++= coreDependencies(scalaVersion.value))
+    .settings(generateVersionFileSettings: _*)
     .settings(generateConfigFileSettings(bundle): _*)
     .settings(copyGatlingDefaults(compiler): _*)
 
