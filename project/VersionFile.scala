@@ -11,7 +11,7 @@ object VersionFile {
 
   private def generateVersionFile(resourcesDir: File, version: String): File = {
     val versionFile = resourcesDir / "gatling-version.properties"
-    IO.append(versionFile, s"version=$version")
+    IO.write(versionFile, s"version=$version")
     versionFile
   }
 }
