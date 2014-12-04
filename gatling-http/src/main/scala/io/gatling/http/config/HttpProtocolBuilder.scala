@@ -103,6 +103,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
   private def newResponsePart(responsePart: HttpProtocolResponsePart) = copy(protocol = copy(protocol.copy(responsePart = responsePart)))
   def disableFollowRedirect = newResponsePart(protocol.responsePart.copy(followRedirect = false))
   def maxRedirects(max: Int) = newResponsePart(protocol.responsePart.copy(maxRedirects = Some(max)))
+  def strict302Handling = newResponsePart(protocol.responsePart.copy(strict302Handling = true))
   def disableResponseChunksDiscarding = newResponsePart(protocol.responsePart.copy(discardResponseChunks = false))
   def extraInfoExtractor(f: ExtraInfoExtractor) = newResponsePart(protocol.responsePart.copy(extraInfoExtractor = Some(f)))
   def transformResponse(responseTransformer: PartialFunction[Response, Response]) = newResponsePart(protocol.responsePart.copy(responseTransformer = Some(responseTransformer)))

@@ -213,10 +213,16 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
    */
   private def processResponse(tx: HttpTx, response: Response): Unit = {
 
-      def redirectRequest(redirectUri: Uri, sessionWithUpdatedCookies: Session): Request = {
+      def redirectRequest(statusCode: Int, redirectUri: Uri, sessionWithUpdatedCookies: Session): Request = {
         val originalRequest = tx.request.ahcRequest
 
-        val requestBuilder = new RequestBuilder("GET")
+        val method = statusCode match {
+          case 303                                                               => "GET"
+          case 302 if !tx.request.config.protocol.responsePart.strict302Handling => "GET"
+          case _                                                                 => originalRequest.getMethod
+        }
+
+        val requestBuilder = new RequestBuilder(method)
           .setUri(redirectUri)
           .setBodyEncoding(configuration.core.encoding)
           .setConnectionPoolKeyStrategy(originalRequest.getConnectionPoolPartitioning)
@@ -237,7 +243,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         requestBuilder.build
       }
 
-      def redirect(update: Session => Session): Unit =
+      def redirect(statusCode: Int, update: Session => Session): Unit =
         tx.request.config.maxRedirects match {
           case Some(maxRedirects) if maxRedirects == tx.redirectCount =>
             ko(tx, update, response, s"Too many redirects, max is $maxRedirects")
@@ -259,7 +265,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
                 val loggedTx = tx.copy(session = newSession, update = newUpdate)
                 logRequest(loggedTx, OK, response)
 
-                val newAhcRequest = redirectRequest(redirectURI, newSession)
+                val newAhcRequest = redirectRequest(statusCode, redirectURI, newSession)
                 val redirectTx = loggedTx.copy(request = loggedTx.request.copy(ahcRequest = newAhcRequest), redirectCount = tx.redirectCount + 1)
                 HttpRequestAction.startHttpTransaction(redirectTx)
 
@@ -303,13 +309,14 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
             case cookies => CookieHandling.storeCookies(_, uri, cookies)
           }
         val newUpdate = tx.update andThen storeCookiesUpdate
+        val statusCode = status.getStatusCode
 
-        if (HttpHelper.isRedirect(status.getStatusCode) && tx.request.config.followRedirect)
-          redirect(newUpdate)
+        if (HttpHelper.isRedirect(statusCode) && tx.request.config.followRedirect)
+          redirect(statusCode, newUpdate)
 
         else {
           val checks =
-            if (HttpHelper.isNotModified(status.getStatusCode))
+            if (HttpHelper.isNotModified(statusCode))
               tx.request.config.checks.filter(c => c.scope != HttpCheckScope.Body && c.scope != HttpCheckScope.Checksum)
             else
               tx.request.config.checks

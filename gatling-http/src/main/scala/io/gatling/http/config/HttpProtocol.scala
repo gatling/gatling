@@ -64,6 +64,7 @@ object HttpProtocol {
     responsePart = HttpProtocolResponsePart(
       followRedirect = true,
       maxRedirects = None,
+      strict302Handling = false,
       discardResponseChunks = true,
       responseTransformer = None,
       checks = Nil,
@@ -199,6 +200,7 @@ case class HttpProtocolRequestPart(
 case class HttpProtocolResponsePart(
   followRedirect: Boolean,
   maxRedirects: Option[Int],
+  strict302Handling: Boolean,
   discardResponseChunks: Boolean,
   responseTransformer: Option[PartialFunction[Response, Response]],
   checks: List[HttpCheck],
