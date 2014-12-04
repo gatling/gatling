@@ -217,9 +217,9 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         val originalRequest = tx.request.ahcRequest
 
         val method = statusCode match {
-          case 303                                                               => "GET"
+          case 303 => "GET"
           case 302 if !tx.request.config.protocol.responsePart.strict302Handling => "GET"
-          case _                                                                 => originalRequest.getMethod
+          case _ => originalRequest.getMethod
         }
 
         val requestBuilder = new RequestBuilder(method)
