@@ -59,7 +59,7 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
           runId
 
         case SFailure(t) => throw t
-        case unexpected => throw new UnsupportedOperationException(s"Controller replied an unexpected message $unexpected")
+        case unexpected  => throw new UnsupportedOperationException(s"Controller replied an unexpected message $unexpected")
       }
 
     } finally {
