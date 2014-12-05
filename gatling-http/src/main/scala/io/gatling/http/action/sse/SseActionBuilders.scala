@@ -21,7 +21,7 @@ import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.check.sse.SseCheck
-import io.gatling.http.check.ws.{ WsCheckBuilder, WsCheck }
+import io.gatling.http.check.ws.WsCheckBuilder
 import io.gatling.http.request.builder.sse.SseGetRequestBuilder
 
 class SseGetActionBuilder(

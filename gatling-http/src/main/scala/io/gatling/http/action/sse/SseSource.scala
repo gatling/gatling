@@ -20,7 +20,5 @@ import java.io.Closeable
 import com.ning.http.client.ListenableFuture
 
 class SseSource(val future: ListenableFuture[Unit]) extends Closeable {
-  override def close(): Unit = {
-    future.done
-  }
+  override def close(): Unit = future.done
 }

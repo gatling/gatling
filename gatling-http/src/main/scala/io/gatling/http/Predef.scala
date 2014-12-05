@@ -20,13 +20,13 @@ import io.gatling.core.session.Expression
 import io.gatling.http.action.{ AddCookieBuilder, CookieDSL }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheckSupport
+import io.gatling.http.check.ws.WsCheckSupport
 import io.gatling.http.config.HttpProtocolBuilder
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.feeder.SitemapFeederSupport
-import io.gatling.http.request.builder.sse.Sse
 import io.gatling.http.request.{ BodyPart, ExtraInfo, BodyProcessors }
 import io.gatling.http.request.builder.Http
-import io.gatling.http.check.ws.WsCheckSupport
+import io.gatling.http.request.builder.sse.Sse
 import io.gatling.http.request.builder.ws.Ws
 
 object Predef extends HttpCheckSupport with WsCheckSupport with SitemapFeederSupport {

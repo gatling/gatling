@@ -16,5 +16,5 @@
 package io.gatling.http.action.sse
 
 trait SseForwarder {
-  def stopForward(): Unit;
+  def stopForward(): Unit
 }
