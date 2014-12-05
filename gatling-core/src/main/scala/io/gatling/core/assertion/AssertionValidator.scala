@@ -132,11 +132,7 @@ object AssertionValidator {
       case LessThan(upper)       => AssertionResult(values.forall(_ <= upper), s"$message is less than $upper")
       case GreaterThan(lower)    => AssertionResult(values.forall(_ >= lower), s"$message is greater than $lower")
       case Is(exactValue)        => AssertionResult(values.forall(_ == exactValue), s"$message is $exactValue")
-      case Between(lower, upper) => AssertionResult(values.forall(_.between(lower, upper)), s"$message is between $lower and $upper")
+      case Between(lower, upper) => AssertionResult(values.forall(v => lower <= v && v <= upper), s"$message is between $lower and $upper")
       case In(elements)          => AssertionResult(values.forall(elements contains), s"$message is in $elements")
     }
-
-  private implicit class RichInt(val int: Int) extends AnyVal {
-    def between(lower: Int, upper: Int) = lower <= int && int <= upper
-  }
 }
