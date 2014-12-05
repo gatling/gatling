@@ -15,8 +15,7 @@
  */
 package io.gatling.http.action.sse
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import scala.collection.JavaConverters.mapAsJavaMapConverter
+import io.gatling.core.json.JSON
 
 case class ServerSentEvent(
     data: Option[String] = None,
@@ -29,6 +28,6 @@ case class ServerSentEvent(
       Map("event" -> name, "id" -> id, "data" -> data, "retry" -> retry)
         .collect({ case (key, Some(value)) => (key, value) })
 
-    new ObjectMapper().writeValueAsString(map.asJava)
+    JSON.stringify(map, isRootObject = true)
   }
 }
