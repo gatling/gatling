@@ -83,6 +83,7 @@ object ConfigKeys {
     val LastModifiedPerUserCacheMaxCapacity = "gatling.http.lastModifiedPerUserCacheMaxCapacity"
     val EtagPerUserCacheMaxCapacity = "gatling.http.etagPerUserCacheMaxCapacity"
     val WarmUpUrl = "gatling.http.warmUpUrl"
+    val EnableGA = "gatling.http.enableGA"
 
     object ssl {
       object trustStore {

@@ -34,6 +34,7 @@ import io.gatling.core.runner.{ Runner, Selection }
 import io.gatling.core.scenario.Simulation
 import io.gatling.core.util.StringHelper
 import io.gatling.core.util.StringHelper.RichString
+import io.gatling.http.util.GA
 
 /**
  * Object containing entry point of application
@@ -127,6 +128,7 @@ private[app] class Gatling(overrides: ConfigOverrides, simulationClass: Selected
 
       // -- Run Gatling -- //
       val selection = Selection(simulation, simulationId, runDescription)
+      GA.send()
       new Runner(selection).run
     }
   }
