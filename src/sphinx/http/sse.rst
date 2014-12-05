@@ -35,6 +35,8 @@ For example::
   .exec(sse("Get SSE").get("/stocks/prices"))
 
 
+.. note:: ``Accept`` header is automatically set to ``text/event-stream``.
+
 .. _http-sse-close:
 
 Close
@@ -106,7 +108,6 @@ Here's an example that runs against a stock market sample::
 
   val httpConf = http
     .baseURL("http://localhost:8080/app")
-    .header("Accept", "text/event-stream")
 
   val scn = scenario("Server Sent Event")
     .exec(sse("Stocks").get("/stocks/prices"))

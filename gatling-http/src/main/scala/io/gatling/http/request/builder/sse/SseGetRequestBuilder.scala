@@ -16,12 +16,18 @@
 package io.gatling.http.request.builder.sse
 
 import com.ning.http.client.Request
-import io.gatling.core.session.Expression
+import io.gatling.core.session._
+import io.gatling.http.{HeaderValues, HeaderNames}
 import io.gatling.http.action.sse.SseGetActionBuilder
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
 
 object SseGetRequestBuilder {
+
+  val SseHeaderValueExpression = HeaderValues.TextEventStream.expression
+
+  def apply(requestName: Expression[String], url: Expression[String], sseName: String) =
+    new SseGetRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), sseName).header(HeaderNames.Accept, SseHeaderValueExpression)
 
   implicit def toActionBuilder(requestBuilder: SseGetRequestBuilder) = new SseGetActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder)
 }

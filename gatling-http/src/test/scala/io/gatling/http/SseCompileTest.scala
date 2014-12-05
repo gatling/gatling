@@ -22,7 +22,6 @@ class SseCompileTest extends Simulation {
 
   val httpConf = http
                  .baseURL("http://localhost:8080/app")
-                 .header("Accept", "text/event-stream")
                  .doNotTrackHeader("1")
 
   val scn = scenario(this.getClass.getSimpleName)
