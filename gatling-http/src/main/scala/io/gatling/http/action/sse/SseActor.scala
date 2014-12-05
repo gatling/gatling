@@ -65,7 +65,6 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
 
       next ! session.markAsFailed
       context.stop(self)
-
   }
 
   def openState(tx: SseTx, sseSource: Option[SseSource]): Receive = {

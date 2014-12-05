@@ -15,6 +15,7 @@
  */
 package io.gatling.http.action.sse
 
+import java.nio.charset.StandardCharsets.UTF_8
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.xml.ws.http.HTTPException
 
@@ -80,17 +81,12 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
   override def onHeadersReceived(headers: HttpResponseHeaders): STATE = CONTINUE
 
   override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
-    if (!done.get) {
-      // FIXME encoding
-      val message = new String(bodyPart.getBodyPartBytes)
-      parse(message)
-    }
+    if (!done.get)
+      parse(new String(bodyPart.getBodyPartBytes, UTF_8))
     CONTINUE
   }
 
-  override def onCompleted(): Unit = {
-    sseActor ! OnClose
-  }
+  override def onCompleted(): Unit = sseActor ! OnClose
 
   override def onThrowable(throwable: Throwable): Unit =
     if (done.compareAndSet(false, true)) {
