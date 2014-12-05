@@ -1,8 +1,8 @@
 .. _http-sse:
 
-#########
+#######################
 SSE (Server Sent Event)
-#########
+#######################
 
 SSE support is an extension to the HTTP DSL, whose entry point is the ``sse(requestName: Expression[String])`` method.
 
@@ -24,7 +24,7 @@ Of course, this step is not required if you deal with one single server sent eve
 .. _http-ws-open:
 
 Get
-----
+---
 
 The first thing is to get a server sent event:
 
@@ -98,16 +98,6 @@ Server sent event support uses the same parameter as the HttpProtocol:
 ``baseURL(url: String)``: serves as root that will be prepended to all relative server sent event urls
 
 ``baseURLs(urls: String*)``: serves as round-robin roots that will be prepended to all relative server sent event urls
-
-**Important:** you need to set the request timeout of the gatling http client to -1 to make it work with the server sent event feature::
-
-  http {
-    ...
-        ahc {
-          requestTimeout = -1                     # Timeout of the requests
-          ...
-        }
-  }
 
 Example
 =======
