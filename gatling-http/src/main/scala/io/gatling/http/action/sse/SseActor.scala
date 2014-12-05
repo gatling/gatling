@@ -43,6 +43,7 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
   }
 
   def initialState(sseSource: Option[SseSource]): Receive = {
+    // FIXME should buffer all messages until OnSseSource is received
     case OnSseSource(sseSource) =>
       logger.debug(s"Initiate state with sseSource #${sseSource.hashCode}")
       context.become(initialState(Some(sseSource)))
