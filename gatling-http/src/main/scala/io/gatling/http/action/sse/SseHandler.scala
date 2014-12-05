@@ -25,50 +25,55 @@ import com.ning.http.client._
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.SseTx
+import org.jboss.netty.handler.codec.http.HttpResponseStatus.OK
 
 class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     with AsyncHandlerExtensions
     with SseForwarder
     with EventStreamDispatcher
+    with EventStreamParser
     with StrictLogging {
 
-  private val sseParser = EventStreamParser(this)
   private val done = new AtomicBoolean
   private var state: SseState = Opening
 
-  override def onOpenConnection(): Unit = {
+  override def onOpenConnection(): Unit = {}
+
+  override def onConnectionOpen(): Unit = {
+    state = Open
   }
 
   override def onPoolConnection(): Unit = {}
 
   override def onConnectionPooled(): Unit = {}
 
-  override def onConnectionOpen(): Unit = {
-    state = Open
-  }
+  override def onDnsResolved(): Unit = {}
+
+  override def onSslHandshakeCompleted(): Unit = {}
 
   override def onRetry(): Unit = {
     if (done.get)
       logger.error("onRetry is not supposed to be called once done")
   }
 
-  override def onSendRequest(request: scala.Any): Unit = {
-    logger.debug(s"Request ${request} has been sent by the http client")
+  override def onSendRequest(request: Any): Unit = {
+    logger.debug(s"Request $request has been sent by the http client")
     sseActor ! OnSend(tx)
   }
 
   override def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
-    logger.debug(s"Status ${responseStatus.getStatusCode} received for sse '${tx.requestName}")
 
-    if (responseStatus.getStatusCode == org.jboss.netty.handler.codec.http.HttpResponseStatus.OK.getCode) {
+    val statusCode = responseStatus.getStatusCode
+    logger.debug(s"Status $statusCode received for sse '${tx.requestName}")
+
+    if (statusCode == OK.getCode) {
       CONTINUE
 
     } else {
-      onThrowable(new HTTPException(responseStatus.getStatusCode) {
-        override def getMessage: String = s"Server returned http response with code ${responseStatus.getStatusCode}"
+      onThrowable(new HTTPException(statusCode) {
+        override def getMessage: String = s"Server returned http response with code $statusCode"
       })
       ABORT
-
     }
   }
 
@@ -76,8 +81,9 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 
   override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
     if (!done.get) {
+      // FIXME encoding
       val message = new String(bodyPart.getBodyPartBytes)
-      sseParser.parse(message)
+      parse(message)
     }
     CONTINUE
   }
@@ -86,11 +92,10 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     sseActor ! OnClose
   }
 
-  override def onThrowable(throwable: Throwable): Unit = {
+  override def onThrowable(throwable: Throwable): Unit =
     if (done.compareAndSet(false, true)) {
       sendOnThrowable(throwable)
     }
-  }
 
   def sendOnThrowable(throwable: Throwable): Unit = {
     val className = throwable.getClass.getName
@@ -119,14 +124,6 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 
   override def stopForward(): Unit = {
     done.compareAndSet(false, true)
-  }
-
-  override def onDnsResolved(): Unit = {
-
-  }
-
-  override def onSslHandshakeCompleted(): Unit = {
-
   }
 
   override def dispatchEventStream(sse: ServerSentEvent): Unit = {
