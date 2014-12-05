@@ -25,9 +25,8 @@ class SseReconciliateAction(val requestName: Expression[String], sseName: String
     with SseAction {
 
   override def sendRequest(requestName: String,
-                           session: Session): Validation[Unit] = {
+                           session: Session): Validation[Unit] =
     for {
       sseActor <- fetchSse(sseName, session)
     } yield sseActor ! Reconciliate(requestName, next, session)
-  }
 }

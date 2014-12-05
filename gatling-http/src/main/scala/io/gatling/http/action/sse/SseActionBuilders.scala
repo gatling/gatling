@@ -47,8 +47,8 @@ class SseGetActionBuilder(
 
 class SseReconciliateActionBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
 
-  override def build(next: ActorRef,
-                     protocols: Protocols): ActorRef = actor(new SseReconciliateAction(requestName, sseName, next))
+  override def build(next: ActorRef, protocols: Protocols): ActorRef =
+    actor(new SseReconciliateAction(requestName, sseName, next))
 }
 
 class SseCloseActionBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
