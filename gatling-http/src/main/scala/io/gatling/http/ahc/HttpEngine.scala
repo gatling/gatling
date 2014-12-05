@@ -18,8 +18,6 @@ package io.gatling.http.ahc
 import java.util.{ ArrayList => JArrayList }
 import java.util.concurrent.{ TimeUnit, Executors, ThreadFactory }
 
-import io.gatling.http.action.sse.{ SseSource, SseHandler, OnSseSource }
-import io.gatling.http.check.sse.SseCheck
 import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
@@ -40,13 +38,14 @@ import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ Controller, ThrottledRequest }
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
-import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.http.action.ws.{ OnFailedOpen, WsListener }
+import io.gatling.http.action.sse.{ SseSource, SseHandler, OnSseSource }
+import io.gatling.http.action.ws.WsListener
+import io.gatling.http.check.sse.SseCheck
+import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder
 import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
-import io.gatling.http.check.ws.WsCheck
 
 object HttpTx {
 
@@ -268,15 +267,6 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
   def startHttpTransaction(tx: HttpTx): Unit = {
 
-      def executeRequestSafe(client: AsyncHttpClient, ahcRequest: Request, handler: AsyncHandler): Unit =
-        try {
-          client.executeRequest(ahcRequest, handler)
-        } catch {
-          // there might be some corner cases where executeRequest throws an Exception and onThrowable wasn't notified
-          // this works properly because we prevent multiple calls with an AtomicBoolean
-          case e: Exception => handler.onThrowable(e)
-        }
-
     val requestConfig = tx.request.config
 
     val (newTx, client) = {
@@ -288,9 +278,9 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     val handler = new AsyncHandler(newTx)
 
     if (requestConfig.throttled)
-      Controller ! ThrottledRequest(tx.session.scenarioName, () => executeRequestSafe(client, ahcRequest, handler))
+      Controller ! ThrottledRequest(tx.session.scenarioName, () => client.executeRequest(ahcRequest, handler))
     else
-      executeRequestSafe(client, ahcRequest, handler)
+      client.executeRequest(ahcRequest, handler)
   }
 
   def startSseTransaction(tx: SseTx, sseActor: ActorRef): Unit = {
@@ -299,16 +289,9 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
       (tx.copy(session = newSession), client)
     }
 
-    try {
-      val handler = new SseHandler(newTx, sseActor)
-      val future = client.executeRequest(newTx.request, handler)
-
-      sseActor ! OnSseSource(new SseSource(future))
-
-    } catch {
-      case e: Exception =>
-        sseActor ! io.gatling.http.action.sse.OnFailedOpen(newTx, e.getMessage, nowMillis)
-    }
+    val handler = new SseHandler(newTx, sseActor)
+    val future = client.executeRequest(newTx.request, handler)
+    sseActor ! OnSseSource(new SseSource(future))
   }
 
   def startWebSocketTransaction(tx: WsTx, wsActor: ActorRef): Unit = {
@@ -317,15 +300,9 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
       (tx.copy(session = newSession), client)
     }
 
-    try {
-      val listener = new WsListener(newTx, wsActor)
+    val listener = new WsListener(newTx, wsActor)
 
-      val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
-      client.executeRequest(tx.request, handler)
-
-    } catch {
-      case e: Exception =>
-        wsActor ! OnFailedOpen(newTx, e.getMessage, nowMillis)
-    }
+    val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
+    client.executeRequest(tx.request, handler)
   }
 }
