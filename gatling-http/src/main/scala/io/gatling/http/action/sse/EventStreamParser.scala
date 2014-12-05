@@ -18,23 +18,30 @@ package io.gatling.http.action.sse
 import com.typesafe.scalalogging.StrictLogging
 
 object EventStreamParser {
-  def apply(dispatcher: EventStreamDispatcher) = new EventStreamParser(dispatcher)
+
+  // FIXME remove starting whitespace here
+  val IdRegexp = "^id:(.*)$".r
+  val EventRegexp = "^event:(.*)$".r
+  // FIXME capture must be a number
+  val RetryRegexp = "^retry:(.*)$".r
+  val DataRegexp = "^data:(.*)$".r
 }
 
-class EventStreamParser(dispatcher: EventStreamDispatcher) extends StrictLogging {
-  val idRegexp = "^id:(.*)$".r
-  val eventRegexp = "^event:(.*)$".r
-  val retryRegexp = "^retry:(.*)$".r
-  val dataRegexp = "^data:(.*)$".r
+trait EventStreamParser extends StrictLogging { this: EventStreamDispatcher =>
+
+  import EventStreamParser._
 
   var currentSse = ServerSentEvent()
 
   def parse(expression: String): Unit = {
     expression.lines map (line => line.trim) foreach {
-      case idRegexp(i)    => currentSse = currentSse.copy(id = Some(i.trim))
-      case eventRegexp(n) => currentSse = currentSse.copy(name = Some(n.trim))
-      case retryRegexp(r) => currentSse = currentSse.copy(retry = Some(r.trim.toInt))
-      case dataRegexp(d) => currentSse = currentSse.copy(data =
+      // FIXME Too many trims
+      case IdRegexp(i)    => currentSse = currentSse.copy(id = Some(i.trim))
+      case EventRegexp(n) => currentSse = currentSse.copy(name = Some(n.trim))
+      case RetryRegexp(r) => currentSse = currentSse.copy(retry = Some(r.trim.toInt))
+      case DataRegexp(d) =>
+        // FIXME do we really need to update if data is empty ?
+        currentSse = currentSse.copy(data =
         currentSse.data match {
           case Some("") => Some(d.trim)
           case None     => Some(d.trim)
@@ -43,18 +50,16 @@ class EventStreamParser(dispatcher: EventStreamDispatcher) extends StrictLogging
       case "" => dispatchEvent()
       case _  =>
     }
-
   }
 
   private def dispatchEvent(): Unit = {
     currentSse.data match {
       case None     => currentSse = currentSse.copy(name = None)
+      // FIXME see above: would we really have an empty line?
       case Some("") => currentSse = currentSse.copy(name = None)
-      case _ => {
-        dispatcher.dispatchEventStream(currentSse.copy())
+      case _ =>
+        dispatchEventStream(currentSse.copy())
         currentSse = currentSse.copy(data = Some(""), name = None)
-      }
     }
   }
-
 }
