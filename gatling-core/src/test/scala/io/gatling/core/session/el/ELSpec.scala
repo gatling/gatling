@@ -32,13 +32,13 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
     Session("scenario", "1", contents)
 
   "Static String" should "return itself" in {
-    val session = newSession(Map("bar" -> "BAR"))
+    val session = newSession(Map.empty)
     val expression = "bar".el[String]
     expression(session).succeeded shouldBe "bar"
   }
 
   it should "return empty when empty" in {
-    val session = newSession(Map("bar" -> "BAR"))
+    val session = newSession(Map.empty)
     val expression = "".el[String]
     expression(session).succeeded shouldBe ""
   }
@@ -126,6 +126,13 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
     val session = newSession(Map("foo" -> json))
     val expression = "${foo.bar.jsonStringify()}".el[String]
     expression(session).succeeded shouldBe """{"baz":"qix"}"""
+  }
+
+  it should "have jsonStringify return the original failure when failing" in {
+    val session = newSession(Map("foo" -> "bar"))
+    val failedKeyAccessExpression = "${foo.bar}".el[String]
+    val failedJsonStringifyExpression = "${foo.bar.jsonStringify()}".el[String]
+    failedJsonStringifyExpression(session).failed shouldBe failedKeyAccessExpression(session).failed
   }
 
   "Multivalued Expression" should "return expected result with 2 monovalued expressions" in {
