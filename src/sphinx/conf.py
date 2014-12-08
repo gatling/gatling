@@ -8,7 +8,8 @@ import sys, os
 # Extensions #
 ##############
 
-extensions = ['sphinx.ext.todo', 'sphinx.ext.extlinks']
+sys.path.append(os.path.abspath("_sphinx/exts"))
+extensions = ['sphinx.ext.todo', 'sphinx.ext.extlinks', 'includecode']
 todo_include_todos = True
 extlinks = {
   'issue' : ('https://github.com/gatling/gatling/issues/%s', '#'),

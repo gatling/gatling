@@ -27,6 +27,9 @@ build.log
 .DS_Store
 *~
 
+#Python
+*.pyc
+
 # project files to ignore
 /gatling-bundle/src/main/assembly/assembly-structure/results/*
 !/results/.gitkeep
