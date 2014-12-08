@@ -49,7 +49,7 @@ class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
 
     val sse = parseFullSse(completeSse)
 
-    sse.data shouldBe data
+    sse.data shouldBe Some(data)
     sse.name shouldBe Some(name)
     sse.id shouldBe Some(id)
     sse.retry shouldBe Some(retry)
@@ -84,7 +84,7 @@ class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
     verify(sseDispatcher, times(1)).dispatchEventStream(argumentCapture.capture())
     val sse = argumentCapture.getValue
 
-    sse.data shouldBe data
+    sse.data shouldBe Some(data)
     sse.name shouldBe Some(name)
     sse.id shouldBe Some(id)
     sse.retry shouldBe Some(retry)
@@ -100,7 +100,7 @@ class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
     val data = "[{\"title\":\"Value 1\",\"price\":91,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 2\",\"price\":52,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 3\",\"price\":64,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 4\",\"price\":10,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 5\",\"price\":67,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 6\",\"price\":86,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 7\",\"price\":40,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 8\",\"price\":91,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 9\",\"price\":1,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 10\",\"price\":95,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 11\",\"price\":91,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 12\",\"price\":13,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 13\",\"price\":52,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 14\",\"price\":24,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 15\",\"price\":30\",\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"}]"
 
     val sse = parseFullSse(sseNoRetry)
-    sse.data shouldBe data
+    sse.data shouldBe Some(data)
     sse.name shouldBe Some(name)
     sse.id shouldBe Some(id)
     sse.retry shouldBe None
@@ -114,7 +114,7 @@ class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
     val data = "[{\"title\":\"Value 1\",\"price\":91,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 2\",\"price\":52,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 3\",\"price\":64,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 4\",\"price\":10,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 5\",\"price\":67,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 6\",\"price\":86,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 7\",\"price\":40,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 8\",\"price\":91,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 9\",\"price\":1,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 10\",\"price\":95,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 11\",\"price\":91,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 12\",\"price\":13,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 13\",\"price\":52,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 14\",\"price\":24,\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"},{\"title\":\"Value 15\",\"price\":30\",\"param1\":\"value1\",\"param2\":\"value2\",\"param3\":\"value3\",\"param4\":\"value4\",\"param5\":\"value5\",\"param6\":\"value6\",\"param7\":\"value7\",\"param8\":\"value8\"}]"
 
     val sse = parseFullSse(sseNoRetryNoId)
-    sse.data shouldBe data
+    sse.data shouldBe Some(data)
     sse.name shouldBe Some(eventType)
     sse.id shouldBe None
     sse.retry shouldBe None
@@ -127,7 +127,7 @@ class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
 
     val sse = parseFullSse(sseOnlyData)
 
-    sse.data shouldBe data
+    sse.data shouldBe Some(data)
     sse.name shouldBe None
     sse.id shouldBe None
     sse.retry shouldBe None
@@ -148,7 +148,7 @@ class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
     val retry = 1200
 
     val sse = parseFullSse(sseWithExtraFields)
-    sse.data shouldBe data
+    sse.data shouldBe Some(data)
     sse.name shouldBe Some(eventType)
     sse.id shouldBe Some(id)
     sse.retry shouldBe Some(retry)
@@ -171,7 +171,7 @@ class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
     val retry = 1200
 
     val sse = parseFullSse(sseWithComments)
-    sse.data shouldBe data
+    sse.data shouldBe Some(data)
     sse.name shouldBe Some(eventType)
     sse.id shouldBe Some(id)
     sse.retry shouldBe Some(retry)
