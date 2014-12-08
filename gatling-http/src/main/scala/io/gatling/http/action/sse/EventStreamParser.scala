@@ -16,15 +16,85 @@
 package io.gatling.http.action.sse
 
 import com.typesafe.scalalogging.StrictLogging
+import io.gatling.core.util.FastCharSequence
+import io.gatling.core.util.StringHelper._
+
+import scala.annotation.tailrec
 
 object EventStreamParser {
 
-  // FIXME remove starting whitespace here
-  val IdRegexp = "^id:(.*)$".r
-  val EventRegexp = "^event:(.*)$".r
-  // FIXME capture must be a number
-  val RetryRegexp = "^retry:(.*)$".r
-  val DataRegexp = "^data:(.*)$".r
+  private final val LF = 0x0A
+  private final val CR = 0x0D
+
+  object Event {
+
+    def unapply(cs: FastCharSequence, prefix: Array[Char]): Option[String] =
+      if (cs.startWith(prefix)) {
+        val subCs =
+          if (cs.length > prefix.length + 1 && cs.charAt(prefix.length) == ' ')
+            cs.subSequence(prefix.length + 1, cs.length)
+          else
+            cs.subSequence(prefix.length, cs.length)
+
+        Some(subCs.toString)
+      } else
+        None
+
+  }
+
+  case object Dispatch {
+    def unapply(cs: FastCharSequence): Option[Unit] = if (cs.isBlank) Some(Unit) else None
+  }
+
+  object EventName {
+    val EventPrefix = "event:".toCharArray
+    def unapply(cs: FastCharSequence): Option[String] = Event.unapply(cs, EventPrefix)
+  }
+
+  object Id {
+    val IdPrefix = "id:".toCharArray
+    def unapply(cs: FastCharSequence) = Event.unapply(cs, IdPrefix)
+  }
+
+  object Retry {
+    val RetryPrefix = "retry:".toCharArray
+    def unapply(cs: FastCharSequence) = Event.unapply(cs, RetryPrefix)
+  }
+
+  object Data {
+    val DataPrefix = "data:".toCharArray
+    def unapply(cs: FastCharSequence) = Event.unapply(cs, DataPrefix)
+  }
+
+  implicit class EventStream(val string: String) extends AnyVal {
+
+    def eventLines: Iterator[FastCharSequence] = {
+
+      val chars = string.unsafeChars
+
+        @tailrec
+        def loop(start: Int, curr: Int, it: Iterator[FastCharSequence], inline: Boolean): Iterator[FastCharSequence] = {
+
+          if (curr == chars.length) {
+            val newLine = if (inline) FastCharSequence(chars, start, curr - start) else FastCharSequence.Empty
+            it ++ Iterator.single(newLine)
+
+          } else
+            chars(curr) match {
+              case LF | CR =>
+                if (inline)
+                  loop(curr + 1, curr + 1, it ++ Iterator.single(FastCharSequence(chars, start, curr - start)), inline = false)
+                else
+                  loop(curr + 1, curr + 1, it, inline = false)
+
+              case _ =>
+                loop(start, curr + 1, it, inline = true)
+            }
+        }
+
+      loop(0, 0, Iterator.empty, inline = true)
+    }
+  }
 }
 
 trait EventStreamParser extends StrictLogging { this: EventStreamDispatcher =>
@@ -33,33 +103,26 @@ trait EventStreamParser extends StrictLogging { this: EventStreamDispatcher =>
 
   var currentSse = ServerSentEvent()
 
-  def parse(expression: String): Unit = {
-    expression.lines map (line => line.trim) foreach {
-      // FIXME Too many trims
-      case IdRegexp(i)    => currentSse = currentSse.copy(id = Some(i.trim))
-      case EventRegexp(n) => currentSse = currentSse.copy(name = Some(n.trim))
-      case RetryRegexp(r) => currentSse = currentSse.copy(retry = Some(r.trim.toInt))
-      case DataRegexp(d) =>
-        // FIXME do we really need to update if data is empty ?
-        currentSse = currentSse.copy(data =
-          currentSse.data match {
-            case Some("") => Some(d.trim)
-            case None     => Some(d.trim)
-            case _        => Some(currentSse.data + "\n" + d.trim)
-          })
-      case "" => dispatchEvent()
-      case _  =>
+  def parse(expression: String): Unit =
+    expression.eventLines.foreach {
+      case EventName(name) => currentSse = currentSse.copy(name = Some(name))
+      case Id(id)          => currentSse = currentSse.copy(id = Some(id))
+      case Retry(retry)    => currentSse = currentSse.copy(retry = Some(retry.toInt))
+      case Data(data) =>
+        val newData = currentSse.data match {
+          case None          => data
+          case Some(oldData) => oldData + "\n" + data
+        }
+        currentSse = currentSse.copy(data = Some(newData))
+      case Dispatch(_) => currentSse = dispatchEvent()
+      case _           =>
     }
-  }
 
-  private def dispatchEvent(): Unit = {
+  private def dispatchEvent(): ServerSentEvent =
     currentSse.data match {
-      case None     => currentSse = currentSse.copy(name = None)
-      // FIXME see above: would we really have an empty line?
-      case Some("") => currentSse = currentSse.copy(name = None)
+      case None => currentSse.copy(name = None)
       case _ =>
         dispatchEventStream(currentSse.copy())
-        currentSse = currentSse.copy(data = Some(""), name = None)
+        currentSse.copy(data = None, name = None)
     }
-  }
 }

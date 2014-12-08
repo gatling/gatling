@@ -19,19 +19,48 @@ import StringHelper._
 
 object FastCharSequence {
 
+  val Empty = new FastCharSequence(Array.empty, 0, 0)
+
   def apply(s: String): FastCharSequence = {
     val chars = s.unsafeChars
     new FastCharSequence(chars, 0, chars.length)
   }
 }
 
-class FastCharSequence(chars: Array[Char], offset: Int, count: Int) extends CharSequence {
+case class FastCharSequence(chars: Array[Char], offset: Int, count: Int) extends CharSequence {
 
   def length: Int = count
 
   def charAt(index: Int): Char = chars(offset + index)
 
+  def subSequence(start: Int): CharSequence = subSequence(start, count)
+
   def subSequence(start: Int, end: Int): CharSequence = new FastCharSequence(chars, offset + start, end - start)
+
+  def startWith(others: Array[Char]): Boolean = {
+
+    if (others.length > count)
+      false
+
+    else {
+      var i = 0
+      while (i < count && i < others.length) {
+        if (chars(offset + i) != others(i))
+          return false
+        i += 1
+      }
+
+      i == others.length
+    }
+  }
+
+  def isBlank: Boolean = {
+    for (i <- offset until offset + count)
+      if (chars(i) != ' ')
+        return false
+
+    true
+  }
 
   override def toString: String = String.valueOf(chars, offset, count)
 }
