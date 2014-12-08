@@ -72,7 +72,7 @@ object ProtocolTemplate {
       def renderAutomaticReferer = if (!config.http.automaticReferer) fast"$Eol$Indent.disableAutoReferer" else fast""
 
       def renderHeaders = {
-          def renderHeader(methodName: String, headerValue: String) = fast"""$Eol$Indent.$methodName(\"\"\"$headerValue\"\"\")"""
+          def renderHeader(methodName: String, headerValue: String) = fast"""$Eol$Indent.$methodName(${protectWithTripleQuotes(headerValue)})"""
         protocol.headers.toList.sorted.flatMap { case (headerName, headerValue) => BaseHeaders.get(headerName).map(renderHeader(_, headerValue)) }.mkFastring
       }
 
