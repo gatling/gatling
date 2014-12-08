@@ -78,7 +78,7 @@ class CssExtractorSpec extends FlatSpec with Matchers with ValidationValues {
   }
 
   it should "be able to extract a precise node attribute" in {
-    new MultipleCssExtractor("#sample_requests", Some("href")).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("http://gatling-tool.org/sample/requests.html"))
+    new MultipleCssExtractor("#sample_requests", Some("href")).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("http://gatling.io/sample/requests.html"))
   }
 
   "CssExtractor extractSingle" should "return expected result with a class selector" in {

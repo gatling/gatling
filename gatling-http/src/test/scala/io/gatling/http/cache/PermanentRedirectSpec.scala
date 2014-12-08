@@ -46,39 +46,39 @@ class PermanentRedirectSpec extends FlatSpec with Matchers {
   }
 
   it should "return updated transaction with single redirect" in new Context {
-    addRedirect("http://example.com/", "http://gatling-tool.org/")
+    addRedirect("http://example.com/", "http://gatling.io/")
 
     val origTx = MockUtils.txTo("http://example.com/", session, cache = true)
     val tx = PermanentRedirect.applyPermanentRedirect(origTx)
 
-    tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling-tool.org/")
+    tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling.io/")
     tx.redirectCount shouldBe 1
 
   }
 
   it should "return updated transaction with several redirects" in new Context {
-    addRedirect("http://example.com/", "http://gatling-tool.org/")
-    addRedirect("http://gatling-tool.org/", "http://gatling-tool2.org/")
-    addRedirect("http://gatling-tool2.org/", "http://gatling-tool3.org/")
+    addRedirect("http://example.com/", "http://gatling.io/")
+    addRedirect("http://gatling.io/", "http://gatling2.io/")
+    addRedirect("http://gatling2.io/", "http://gatling3.io/")
 
     val origTx = MockUtils.txTo("http://example.com/", session, cache = true)
     val tx = PermanentRedirect.applyPermanentRedirect(origTx)
 
-    tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling-tool3.org/")
+    tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling3.io/")
     tx.redirectCount shouldBe 3
 
   }
 
   it should "return updated transaction with several redirects, with redirectCount preset" in new Context {
-    addRedirect("http://example.com/", "http://gatling-tool.org/")
-    addRedirect("http://gatling-tool.org/", "http://gatling-tool2.org/")
-    addRedirect("http://gatling-tool2.org/", "http://gatling-tool3.org/")
+    addRedirect("http://example.com/", "http://gatling.io/")
+    addRedirect("http://gatling.io/", "http://gatling2.io/")
+    addRedirect("http://gatling2.io/", "http://gatling3.io/")
 
     // Redirect count is already 2
     val origTx = MockUtils.txTo("http://example.com/", session, 2, cache = true)
     val tx = PermanentRedirect.applyPermanentRedirect(origTx)
 
-    tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling-tool3.org/")
+    tx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling3.io/")
     // After 3 more redirects it is now equal to 5
     tx.redirectCount shouldBe 5
   }

@@ -47,7 +47,7 @@ class HttpRequestActionSpec extends FlatSpec with Matchers with MockitoSugar {
   }
 
   it should "update transaction in case of a redirect" in new Context {
-    addRedirect("http://example.com/", "http://gatling-tool.org/")
+    addRedirect("http://example.com/", "http://gatling.io/")
     val tx = MockUtils.txTo("http://example.com/", session, cache = true)
     HttpRequestAction.startHttpTransaction(tx, httpEngineMock)(null)
 
@@ -55,7 +55,7 @@ class HttpRequestActionSpec extends FlatSpec with Matchers with MockitoSugar {
     verify(httpEngineMock, times(1)).startHttpTransaction(argumentCapture.capture())
     val actualTx = argumentCapture.getValue
 
-    actualTx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling-tool.org/")
+    actualTx.request.ahcRequest.getUri shouldBe Uri.create("http://gatling.io/")
     actualTx.redirectCount shouldBe 1
   }
 }
