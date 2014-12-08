@@ -53,7 +53,7 @@ From the bundle
 After you have successfully built both Gatling and Gatling Highcharts, you can then find in your local Ivy repository the full bundle built by Gatling Highcharts,
 which behaves exactly like the bundles published on Sonatype.
 
-The bundle can be found in ``<Ivy repo root/local/io.gatling.highcharts/gatling-charts-highcharts/<version>/zips/gatling-charts-highcharts-bundle.zip``,
+The bundle can be found in ``<Ivy repo root/local/io.gatling.highcharts/gatling-charts-highcharts-bundle/<version>/zips/gatling-charts-highcharts-bundle-bundle.zip``,
 ``<Ivy repo root>`` usually being ``~/.ivy2/``.
 
 Using Gatling's plugins/integrations
