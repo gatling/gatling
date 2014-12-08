@@ -35,7 +35,7 @@ For example::
   .exec(sse("Get SSE").get("/stocks/prices"))
 
 
-.. note:: ``Accept`` header is automatically set to ``text/event-stream``.
+.. note:: Gatling automatically sets ``Accept`` header to ``text/event-stream`` and ``Cache-Control`` to ``no-cache``.
 
 .. _http-sse-close:
 

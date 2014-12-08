@@ -25,9 +25,12 @@ import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
 object SseGetRequestBuilder {
 
   val SseHeaderValueExpression = HeaderValues.TextEventStream.expression
+  val CacheControlNoCacheValueExpression = HeaderValues.NoCache.expression
 
   def apply(requestName: Expression[String], url: Expression[String], sseName: String) =
-    new SseGetRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), sseName).header(HeaderNames.Accept, SseHeaderValueExpression)
+    new SseGetRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), sseName)
+      .header(HeaderNames.Accept, SseHeaderValueExpression)
+      .header(HeaderNames.CacheControl, CacheControlNoCacheValueExpression)
 
   implicit def toActionBuilder(requestBuilder: SseGetRequestBuilder) = new SseGetActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder)
 }
