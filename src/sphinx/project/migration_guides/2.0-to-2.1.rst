@@ -39,26 +39,6 @@ Beware that keys in ``gatling.conf`` file have been translated:
   * percentile3 = 95
   * percentile4 = 99
 
-Maven Archetype
-===============
-
-Due to some necessary changes to allow Gatling to use Scala 2.11, you'll need to update ``IDEPathHelper.scala`` and ``Engine.scala``
-if you're using the Maven archetype:
-
-* Remove ``props.disableCompiler`` in ``Engine.scala``
-* Replace ``val projectRootDir = File(gatlingConfUrl).parents(2)`` by ``val projectRootDir = File(gatlingConfUrl).ancestor(3)``
-* Replace the imports:
-
-::
-
-  import scala.tools.nsc.io.File
-  import scala.tools.nsc.io.Path.string2path
-
-by::
-
-  import java.nio.file.Path
-  import io.gatling.core.util.PathHelper._
-
 Core
 ====
 
@@ -91,7 +71,7 @@ Request Bodies Directory
 ------------------------
 
 The directory name was changed from ``request-bodies`` to ``bodies`` as it now can host both request bodies and response bodies.
-The latter one are now captured by the recorder, and can be used as template for :ref:`http-check-body-string <checking the response body>`.
+The latter one are now captured by the recorder, and can be used as template for :ref:`checking the response body <http-check-body-string>`.
 
 CLI option was renamed from ``rbf`` to ``bdf``.
 
@@ -106,3 +86,39 @@ Protocol
 
 Deprecated ``baseHeaders`` was dropped in 2.1 as previously announced.
 Please use ``headers`` instead.
+
+Maven Archetype
+===============
+
+Due to some necessary changes to allow Gatling to use Scala 2.11, you'll need to update ``IDEPathHelper.scala`` and ``Engine.scala``
+if you're using the Maven archetype:
+
+* Remove ``props.disableCompiler`` in ``Engine.scala``
+* Replace ``val projectRootDir = File(gatlingConfUrl).parents(2)`` by ``val projectRootDir = File(gatlingConfUrl).ancestor(3)``
+* Replace the imports:
+
+::
+
+  import scala.tools.nsc.io.File
+  import scala.tools.nsc.io.Path.string2path
+
+by::
+
+  import java.nio.file.Path
+  import io.gatling.core.util.PathHelper._
+
+
+SBT Plugin
+==========
+
+The SBT Plugin's test framework has been moved to the core project in 2.1.
+As a consequence, the test framework name has be modified to follow the naming conventions of all core modules
+and share its versionning.
+
+The SBT Plugin will also share the same versionning schema as all other Gatling modules,
+and has been renamed to 'gatling-sbt'.
+
+The new coordinates are therefore :
+
+* ``"io.gatling" % "gatling-sbt" % "2.1.0"`` for the SBT Plugin
+* ``"io.gatling" % "gatling-test-framework" % "2.1.0"`` for the testing framework.
