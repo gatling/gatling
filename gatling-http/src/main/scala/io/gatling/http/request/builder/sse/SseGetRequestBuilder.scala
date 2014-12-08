@@ -17,7 +17,7 @@ package io.gatling.http.request.builder.sse
 
 import com.ning.http.client.Request
 import io.gatling.core.session._
-import io.gatling.http.{HeaderValues, HeaderNames}
+import io.gatling.http.{ HeaderValues, HeaderNames }
 import io.gatling.http.action.sse.SseGetActionBuilder
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }

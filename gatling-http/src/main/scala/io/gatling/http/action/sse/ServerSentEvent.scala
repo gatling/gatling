@@ -25,7 +25,7 @@ case class ServerSentEvent(
 
   def asJSONString(): String = {
     val map = Map("event" -> name, "id" -> id, "data" -> data, "retry" -> retry)
-        .collect({ case (key, Some(value)) => (key, value) })
+      .collect({ case (key, Some(value)) => (key, value) })
 
     JSON.stringify(map, isRootObject = true)
   }

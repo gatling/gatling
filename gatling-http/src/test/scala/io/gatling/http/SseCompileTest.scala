@@ -21,15 +21,15 @@ import io.gatling.http.Predef._
 class SseCompileTest extends Simulation {
 
   val httpConf = http
-                 .baseURL("http://localhost:8080/app")
-                 .doNotTrackHeader("1")
+    .baseURL("http://localhost:8080/app")
+    .doNotTrackHeader("1")
 
   val scn = scenario(this.getClass.getSimpleName)
-            .exec(sse("sse")
-                  .get("/stocks/prices")
-                  .check(wsAwait.within(10).until(1).regex("""event: snapshot(.*)""")))
-            .pause(15)
-            .exec(sse("close").close())
+    .exec(sse("sse")
+      .get("/stocks/prices")
+      .check(wsAwait.within(10).until(1).regex("""event: snapshot(.*)""")))
+    .pause(15)
+    .exec(sse("close").close())
 
   setUp(scn.inject(rampUsers(100) over 10)).protocols(httpConf)
 }

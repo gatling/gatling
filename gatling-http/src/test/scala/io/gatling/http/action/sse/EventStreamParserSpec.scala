@@ -18,15 +18,15 @@ package io.gatling.http.action.sse
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.{ FlatSpec, Matchers }
 
 class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
 
-
-
   private def parseFullSse(sse: String): ServerSentEvent = {
     val sseDispatcher = mock[EventStreamDispatcher]
-    val sseParser = new EventStreamParser(sseDispatcher)
+    val sseParser = new EventStreamDispatcher with EventStreamParser {
+      def dispatchEventStream(sse: ServerSentEvent): Unit = sseDispatcher.dispatchEventStream(sse)
+    }
 
     sseParser.parse(sse)
 
@@ -71,12 +71,14 @@ class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
     val retry = 1200
 
     val sseDispatcher = mock[EventStreamDispatcher]
-    val sseParser = new EventStreamParser(sseDispatcher)
+    val sseParser = new EventStreamDispatcher with EventStreamParser {
+      def dispatchEventStream(sse: ServerSentEvent): Unit = sseDispatcher.dispatchEventStream(sse)
+    }
 
-    sseParser parse(eventSse)
-    sseParser parse(idSse)
-    sseParser parse(retrySse)
-    sseParser parse(dataSse)
+    sseParser parse (eventSse)
+    sseParser parse (idSse)
+    sseParser parse (retrySse)
+    sseParser parse (dataSse)
 
     val argumentCapture = ArgumentCaptor.forClass(classOf[ServerSentEvent])
     verify(sseDispatcher, times(1)).dispatchEventStream(argumentCapture.capture())
@@ -87,7 +89,6 @@ class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
     sse.id shouldBe Some(id)
     sse.retry shouldBe Some(retry)
   }
-
 
   "sseNoRetry" should "return a server sent event with a snapshot type with no retry" in {
     val sseNoRetry = """event: snapshot
@@ -105,8 +106,6 @@ class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
     sse.retry shouldBe None
   }
 
-
-
   "sseNoRetryNoId" should "return a server sent event with a snapshot type with no retry and no id" in {
     val sseNoRetryNoId = """event: snapshot
                             data: [{"title":"Value 1","price":91,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 2","price":52,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 3","price":64,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 4","price":10,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 5","price":67,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 6","price":86,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 7","price":40,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 8","price":91,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 9","price":1,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 10","price":95,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 11","price":91,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 12","price":13,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 13","price":52,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 14","price":24,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 15","price":30","param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"}]
@@ -120,7 +119,6 @@ class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
     sse.id shouldBe None
     sse.retry shouldBe None
   }
-
 
   "sseOnlyData" should "return a server sent event with only data" in {
     val sseOnlyData = """data: [{"title":"Value 1","price":91,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 2","price":52,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 3","price":64,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 4","price":10,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 5","price":67,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 6","price":86,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 7","price":40,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 8","price":91,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 9","price":1,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 10","price":95,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 11","price":91,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 12","price":13,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 13","price":52,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 14","price":24,"param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"},{"title":"Value 15","price":30","param1":"value1","param2":"value2","param3":"value3","param4":"value4","param5":"value5","param6":"value6","param7":"value7","param8":"value8"}]

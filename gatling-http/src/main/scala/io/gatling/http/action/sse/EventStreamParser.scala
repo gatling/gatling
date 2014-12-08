@@ -42,11 +42,11 @@ trait EventStreamParser extends StrictLogging { this: EventStreamDispatcher =>
       case DataRegexp(d) =>
         // FIXME do we really need to update if data is empty ?
         currentSse = currentSse.copy(data =
-        currentSse.data match {
-          case Some("") => Some(d.trim)
-          case None     => Some(d.trim)
-          case _        => Some(currentSse.data + "\n" + d.trim)
-        })
+          currentSse.data match {
+            case Some("") => Some(d.trim)
+            case None     => Some(d.trim)
+            case _        => Some(currentSse.data + "\n" + d.trim)
+          })
       case "" => dispatchEvent()
       case _  =>
     }
