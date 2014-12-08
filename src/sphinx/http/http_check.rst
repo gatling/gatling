@@ -210,7 +210,7 @@ Defines an XPath 1.0 expression to be applied on an XML response body.
   xpath("//foo:input[@id='text1']/@value", List("foo" -> "http://foo.com"))
 
 .. note:: XPath only works on well formed XML documents, which regular HTML is not (while XHTML is).
-If you're looking for path expression for matching HTML documents, please have a look at our :ref:`CSS selectors support<http-check-css>`.
+          If you're looking for path expression for matching HTML documents, please have a look at our :ref:`CSS selectors support<http-check-css>`.
 
 .. note:: You can also use ``vtdXpath(xpathExpression: Expression[String])``, this check uses VTD as the XPath engine,
           it is available as a `separate module <https://github.com/gatling/gatling-vtd>`_.
