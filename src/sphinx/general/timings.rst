@@ -14,8 +14,8 @@ Active Users
 At a given second, active users are computed as:
 
 * the number of active users at the previous second
-* + the number of users who started during this second
-* - the number of users who finished during the previous second
+* \+ the number of users who started during this second
+* \- the number of users who finished during the previous second
 
 .. _request-timings:
 
