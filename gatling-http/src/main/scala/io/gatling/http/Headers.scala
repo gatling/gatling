@@ -111,6 +111,7 @@ object HeaderValues {
   val TextJavascript = "text/javascript"
   val TextPlain = "text/plain"
   val TextXml = "text/xml"
+  val TextEventStream = "text/event-stream"
   val VideoMpeg = "video/mpeg"
   val VideoMp4 = "video/mp4"
   val VideoOgg = "video/ogg"
