@@ -38,8 +38,8 @@ class ExtractedUrisSpec extends FlatSpec with Matchers {
     val extractedUris = extractUris(Seq(GATLING_URL1, GATLING_URL2))
 
     extractedUris.vals shouldBe List(Value("uri1", "http://gatling-tool.org/path1"))
-    extractedUris.renderUri(GATLING_URL1).toString shouldBe "uri1 + \"/file1\""
-    extractedUris.renderUri(GATLING_URL2).toString shouldBe "uri1 + \"/file2\""
+    extractedUris.renderUri(GATLING_URL1).toString shouldBe """uri1 + "/file1""""
+    extractedUris.renderUri(GATLING_URL2).toString shouldBe """uri1 + "/file2""""
   }
 
   it should "extract common root from different authorities" in {
@@ -47,10 +47,10 @@ class ExtractedUrisSpec extends FlatSpec with Matchers {
 
     extractedUris.vals shouldBe List(Value("uri2", "http://gatling-tool.org/path1"), Value("uri1", "http://example.com/path"))
 
-    extractedUris.renderUri(GATLING_URL1).toString shouldBe "uri2 + \"/file1\""
-    extractedUris.renderUri(GATLING_URL2).toString shouldBe "uri2 + \"/file2\""
-    extractedUris.renderUri(EXAMPLE_URL1).toString shouldBe "uri1 + \"/file1\""
-    extractedUris.renderUri(EXAMPLE_URL2).toString shouldBe "uri1 + \"/file2\""
+    extractedUris.renderUri(GATLING_URL1).toString shouldBe """uri2 + "/file1""""
+    extractedUris.renderUri(GATLING_URL2).toString shouldBe """uri2 + "/file2""""
+    extractedUris.renderUri(EXAMPLE_URL1).toString shouldBe """uri1 + "/file1""""
+    extractedUris.renderUri(EXAMPLE_URL2).toString shouldBe """uri1 + "/file2""""
   }
 
   it should "extract only authorities" in {
@@ -58,8 +58,8 @@ class ExtractedUrisSpec extends FlatSpec with Matchers {
 
     extractedUris.vals shouldBe List(Value("uri2", "gatling-tool.org"), Value("uri1", "example.com"))
 
-    extractedUris.renderUri(GATLING_URL1).toString shouldBe "\"http://\" + uri2 + \"/path1/file1\""
-    extractedUris.renderUri(EXAMPLE_URL1).toString shouldBe "\"http://\" + uri1 + \"/path/file1\""
+    extractedUris.renderUri(GATLING_URL1).toString shouldBe """"http://" + uri2 + "/path1/file1""""
+    extractedUris.renderUri(EXAMPLE_URL1).toString shouldBe """"http://" + uri1 + "/path/file1""""
   }
 
   it should "extract authorities" in {
@@ -70,8 +70,8 @@ class ExtractedUrisSpec extends FlatSpec with Matchers {
 
     extractedUris.vals shouldBe List(Value("uri2", "gatling-tool.org"), Value("uri1", "example.com"))
 
-    extractedUris.renderUri(gatlingUri).toString shouldBe "\"http://\" + uri2 + \"/?q=v\""
-    extractedUris.renderUri(exampleUri).toString shouldBe "\"http://\" + uri1 + \"/?var=val\""
+    extractedUris.renderUri(gatlingUri).toString shouldBe """"http://" + uri2 + "/?q=v""""
+    extractedUris.renderUri(exampleUri).toString shouldBe """"http://" + uri1 + "/?var=val""""
   }
 
   it should "preserve the protocol" in {
@@ -79,7 +79,7 @@ class ExtractedUrisSpec extends FlatSpec with Matchers {
     val extractedUris = extractUris(Seq(gatlingUri))
 
     extractedUris.vals shouldBe List(Value("uri1", "gatling-tool.org"))
-    extractedUris.renderUri(gatlingUri).toString shouldBe "\"https://\" + uri1 + \"/?q=v\""
+    extractedUris.renderUri(gatlingUri).toString shouldBe """"https://" + uri1 + "/?q=v""""
   }
 
   it should "port and user are preserved" in {
@@ -87,7 +87,7 @@ class ExtractedUrisSpec extends FlatSpec with Matchers {
     val extractedUris = extractUris(Seq(gatlingUri))
 
     extractedUris.vals shouldBe List(Value("uri1", "gatling-tool.org"))
-    extractedUris.renderUri(gatlingUri).toString shouldBe "\"https://user@\" + uri1 + \":8080/?q=v\""
+    extractedUris.renderUri(gatlingUri).toString shouldBe """"https://user@" + uri1 + ":8080/?q=v""""
   }
 
   it should "same roots but different ports" in {
@@ -97,7 +97,7 @@ class ExtractedUrisSpec extends FlatSpec with Matchers {
 
     extractedUris.vals shouldBe List(Value("uri1", "gatling-tool.org"))
 
-    extractedUris.renderUri(uri1).toString shouldBe "\"http://\" + uri1 + \"/path1/file\""
-    extractedUris.renderUri(uri2).toString shouldBe "\"http://\" + uri1 + \":8080/path1/file\""
+    extractedUris.renderUri(uri1).toString shouldBe """"http://" + uri1 + "/path1/file""""
+    extractedUris.renderUri(uri2).toString shouldBe """"http://" + uri1 + ":8080/path1/file""""
   }
 }
