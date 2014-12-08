@@ -33,9 +33,9 @@ case class FastCharSequence(chars: Array[Char], offset: Int, count: Int) extends
 
   def charAt(index: Int): Char = chars(offset + index)
 
-  def subSequence(start: Int): CharSequence = subSequence(start, count)
+  def subSequence(start: Int): FastCharSequence = subSequence(start, count)
 
-  def subSequence(start: Int, end: Int): CharSequence = new FastCharSequence(chars, offset + start, end - start)
+  def subSequence(start: Int, end: Int): FastCharSequence = new FastCharSequence(chars, offset + start, end - start)
 
   def startWith(others: Array[Char]): Boolean = {
 
