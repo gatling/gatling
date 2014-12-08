@@ -15,9 +15,12 @@
  */
 package io.gatling.core.util
 
+import java.text.{ DecimalFormat, DecimalFormatSymbols }
+import java.util.Locale.ENGLISH
+
 object NumberHelper {
 
-  val formatter = new java.text.DecimalFormat("###.###")
+  private val Formatter = new DecimalFormat("###.###", DecimalFormatSymbols.getInstance(ENGLISH))
 
   def extractLongValue(s: String, start: Int): Long = {
     require(start >= 0 && start < s.length, s"Start=$start is not an acceptable starting index for the string=$s")
@@ -51,7 +54,7 @@ object NumberHelper {
       else
         toPrintableString + suffix((double * 100).toInt % 100)
 
-    def toPrintableString: String = formatter.format(double)
+    def toPrintableString: String = Formatter.format(double)
   }
 
   class IntStringOpt(val s: String) extends AnyVal {
