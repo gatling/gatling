@@ -18,7 +18,7 @@ object GatlingBuild extends Build {
   /******************/
 
   lazy val root = Project("gatling-parent", file("."))
-    .aggregate(core, jdbc, redis, http, jms, charts, metrics, app, recorder, bundle, compiler)
+    .aggregate(core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
     .settings(basicSettings: _*)
     .settings(noCodeToPublish: _*)
     .settings(docSettings: _*)
@@ -73,6 +73,10 @@ object GatlingBuild extends Build {
     .dependsOn(core, http)
     .settings(libraryDependencies ++= recorderDependencies)
     .settings(generateConfigFileSettings(bundle): _*)
+
+  lazy val testFramework = gatlingModule("gatling-test-framework")
+    .dependsOn(app)
+    .settings(libraryDependencies ++= testFrameworkDependencies)
 
   lazy val bundle = gatlingModule("gatling-bundle")
     .settings(bundleSettings: _*)
