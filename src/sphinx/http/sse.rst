@@ -21,7 +21,7 @@ For example::
 
 Of course, this step is not required if you deal with one single server sent event per virtual user.
 
-.. _http-ws-open:
+.. _http-sse-open:
 
 Get
 ---
@@ -75,7 +75,7 @@ Then, directly from the main HTTP flow::
 
 If a check was already registered on the server sent event at this time, it's considered as failed and replaced with the new one.
 
-.. _http-ws-check-build:
+.. _http-sse-check-build:
 
 Build a Check
 -------------
