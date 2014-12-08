@@ -69,8 +69,8 @@ class RecorderPropertiesBuilder {
   def inferHtmlResources(status: Boolean): Unit =
     props += http.InferHtmlResources -> status
 
-  def removeConditionalCache(status: Boolean): Unit =
-    props += http.RemoveConditionalCache -> status
+  def removeCacheHeaders(status: Boolean): Unit =
+    props += http.RemoveCacheHeaders -> status
 
   def checkResponseBodies(status: Boolean): Unit =
     props += http.CheckResponseBodies -> status

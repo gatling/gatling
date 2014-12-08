@@ -59,7 +59,7 @@ object RequestElement {
       Some(bufferBytes)
     } else None
 
-  val ConditionCacheHeaders = Set(IfMatch, IfModifiedSince, IfNoneMatch, IfRange, IfUnmodifiedSince)
+  val CacheHeaders = Set(CacheControl, IfMatch, IfModifiedSince, IfNoneMatch, IfRange, IfUnmodifiedSince)
 
   def apply(request: HttpRequest, response: HttpResponse)(implicit configuration: RecorderConfiguration): RequestElement = {
     val requestHeaders: Map[String, String] = request.headers.entries.map { entry => (entry.getKey, entry.getValue) }(breakOut)
@@ -91,8 +91,8 @@ object RequestElement {
     val responseBody = extractContent(request) map ResponseBodyBytes
 
     val filteredRequestHeaders =
-      if (configuration.http.removeConditionalCache)
-        requestHeaders.filterKeys(name => !ConditionCacheHeaders.contains(name))
+      if (configuration.http.removeCacheHeaders)
+        requestHeaders.filterKeys(name => !CacheHeaders.contains(name))
       else
         requestHeaders
 

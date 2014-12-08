@@ -84,7 +84,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   private val simulationClassName = new TextField(30)
   private val followRedirects = new CheckBox("Follow Redirects?")
   private val inferHtmlResources = new CheckBox("Infer html resources?")
-  private val removeConditionalCache = new CheckBox("Remove conditional cache headers?")
+  private val removeCacheHeaders = new CheckBox("Remove cache headers?")
   private val checkResponseBodies = new CheckBox("Save & check response bodies?")
   private val automaticReferers = new CheckBox("Automatic Referers?")
 
@@ -220,7 +220,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
         }
 
         val cacheAndResponseBodiesCheck = new BorderPanel {
-          layout(removeConditionalCache) = West
+          layout(removeCacheHeaders) = West
           layout(checkResponseBodies) = East
         }
 
@@ -505,7 +505,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
     filterStrategies.selection.item = configuration.filters.filterStrategy
     followRedirects.selected = configuration.http.followRedirect
     inferHtmlResources.selected = configuration.http.inferHtmlResources
-    removeConditionalCache.selected = configuration.http.removeConditionalCache
+    removeCacheHeaders.selected = configuration.http.removeCacheHeaders
     checkResponseBodies.selected = configuration.http.checkResponseBodies
     automaticReferers.selected = configuration.http.automaticReferer
     configuration.filters.blackList.patterns.foreach(blackListTable.addRow)
@@ -578,7 +578,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
       props.simulationClassName(simulationClassName.text.trim)
       props.followRedirect(followRedirects.selected)
       props.inferHtmlResources(inferHtmlResources.selected)
-      props.removeConditionalCache(removeConditionalCache.selected)
+      props.removeCacheHeaders(removeCacheHeaders.selected)
       props.checkResponseBodies(checkResponseBodies.selected)
       props.automaticReferer(automaticReferers.selected)
       props.simulationOutputFolder(outputFolderChooser.selection.trim)
