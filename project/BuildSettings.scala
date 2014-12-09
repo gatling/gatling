@@ -4,6 +4,7 @@ import sbt.Keys._
 import com.typesafe.sbt.SbtScalariform
 import com.typesafe.sbt.SbtScalariform.ScalariformKeys
 import com.typesafe.sbt.SbtSite.site
+import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
 import sbtunidoc.Plugin.{ ScalaUnidoc, unidocSettings }
 import scoverage.ScoverageSbtPlugin.instrumentSettings
@@ -18,7 +19,6 @@ object BuildSettings {
     startYear             := Some(2011),
     licenses              := Seq("Apache 2" -> url("http://www.apache.org/licenses/LICENSE-2.0.html")),
     scalaVersion          := "2.11.4",
-    autoScalaLibrary      := false,
     updateOptions         := updateOptions.value.withCachedResolution(true),
     resolvers             := Seq(Resolver.mavenLocal, Opts.resolver.sonatypeSnapshots),
     javacOptions          := Seq("-Xlint:-options","-source", "1.7", "-target", "1.7"),
@@ -50,7 +50,8 @@ object BuildSettings {
   )
 
   lazy val docSettings = unidocSettings ++ site.settings ++ site.sphinxSupport() ++ Seq(
-    site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "latest/api")
+    site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "latest/api"),
+    unmanagedSourceDirectories in Test := ((sourceDirectory in Sphinx).value ** "code").get
   ) ++ scaladocSettings
 
   /**************************************/

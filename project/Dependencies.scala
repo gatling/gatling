@@ -8,7 +8,6 @@ object Dependencies {
 
   private val akkaVersion                    = "2.3.7"
 
-  private def scalaLibrary(version: String) = "org.scala-lang"                         % "scala-library"               % version
   private def scalaReflect(version: String) = "org.scala-lang"                         % "scala-reflect"               % version
   private val scalaSwing                    = "org.scala-lang.modules"                %% "scala-swing"                 % "1.0.1"
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                   % "1.0.3"
@@ -57,7 +56,7 @@ object Dependencies {
   /****************************/
 
   def coreDependencies(scalaVersion: String) = {
-    def scalaLibs(scalaVersion: String) = Seq(scalaLibrary(scalaVersion), scalaReflect(scalaVersion))
+    def scalaLibs(scalaVersion: String) = Seq(scalaReflect(scalaVersion))
     val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
@@ -80,7 +79,7 @@ object Dependencies {
   val appDependencies = Seq(scopt)
 
   def compilerDependencies(scalaVersion: String) =
-    Seq(scalaLibrary(scalaVersion), scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc)
+    Seq(scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc)
 
   val recorderDependencies = Seq(scalaSwing, scopt, jackson, bouncycastle) ++ testDeps
 
