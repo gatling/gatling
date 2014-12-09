@@ -15,16 +15,18 @@
  */
 package io.gatling.http
 
+import java.io.ByteArrayOutputStream
 import java.lang.{ StringBuilder => JStringBuilder }
+import java.nio.charset.StandardCharsets.US_ASCII
 import java.util.{ List => JList, Map => JMap }
-
-import com.ning.http.client.providers.netty.request.NettyRequest
 
 import scala.collection.JavaConversions._
 
 import com.ning.http.client.{ Param, Request }
 import com.ning.http.client.multipart._
+import com.ning.http.client.providers.netty.request.NettyRequest
 
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.Eol
 import io.gatling.http.response.Response
 
@@ -119,6 +121,14 @@ package object util {
               .append(" filename=").append(part.getFileName)
               .append(Eol)
         }
+
+        buff.append("multipart=").append(Eol)
+        val boundary = nettyRequest.map(_.asInstanceOf[MultipartBody].getBoundary).getOrElse(("0" * 30).getBytes(US_ASCII))
+
+        val os = new ByteArrayOutputStream
+        for (part <- request.getParts)
+          part.write(os, boundary)
+        buff.append(new String(os.toByteArray, configuration.core.charset))
       }
 
       if (request.getProxyServer != null) buff.append("proxy=").append(request.getProxyServer).append(Eol)
