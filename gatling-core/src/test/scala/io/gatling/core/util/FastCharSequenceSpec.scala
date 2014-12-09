@@ -51,15 +51,6 @@ class FastCharSequenceSpec extends FlatSpec with Matchers with GeneratorDrivenPr
     }
   }
 
-  "subSequence(start, end)" should "behave like CharSequence's subSequence(start, end)" in {
-    implicit val generatorDrivenConfig = PropertyCheckConfig(minSuccessful = 5)
-    forAll(arbitrary[String], posNum[Int], posNum[Int]) { (s: String, start: Int, end: Int) =>
-      whenever(start < s.length && end < s.length && start <= end) {
-        FastCharSequence(s).subSequence(start, end).toString shouldBe s.subSequence(start, end).toString
-      }
-    }
-  }
-
   "startsWith(chars)" should "behave like String's startsWith(string)" in {
     forAll { (s1: String, s2: String) =>
       FastCharSequence(s1).startWith(s2.toCharArray) shouldBe s1.startsWith(s2)
