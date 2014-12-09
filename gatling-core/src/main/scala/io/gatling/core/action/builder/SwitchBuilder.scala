@@ -20,7 +20,7 @@ import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.action.Switch
 import io.gatling.core.config.Protocols
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session._
 import io.gatling.core.structure.ChainBuilder
 
 class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder {
@@ -37,7 +37,7 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
     val elseNextActor = elseNext.map(_.build(next, protocols)).getOrElse(next)
 
-    val nextAction = (session: Session) => value(session).map { v => possibleActions.getOrElse(v, elseNextActor) }
+    val nextAction = value.map(resolvedValue => possibleActions.getOrElse(resolvedValue, elseNextActor))
 
     actor(actorName("switch"))(new Switch(nextAction, next))
   }

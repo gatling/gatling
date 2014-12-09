@@ -25,7 +25,7 @@ import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session._
 import io.gatling.core.util.NumberHelper.IntString
 import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.TypeHelper._
@@ -45,9 +45,7 @@ object ELMessages {
   def tupleAccessNotSupported(name: String, value: Any) = s"Product $value named $name do not support tuple access".failure
 }
 
-trait Part[+T] {
-  def apply(session: Session): Validation[T]
-}
+trait Part[+T] extends Expression[T]
 
 case class StaticPart(string: String) extends Part[String] {
   def apply(session: Session): Validation[String] = string.success
@@ -198,7 +196,7 @@ object ELCompiler {
     sealed trait Bytes { def bytes: Expression[Array[Byte]] }
     case class StaticBytes(bytes: Expression[Array[Byte]]) extends Bytes
     case class DynamicBytes(part: Part[Any]) extends Bytes {
-      val bytes: Expression[Array[Byte]] = session => part(session).map(_.toString.getBytes(configuration.core.charset))
+      val bytes: Expression[Array[Byte]] = part.map(_.toString.getBytes(configuration.core.charset))
     }
 
       @tailrec

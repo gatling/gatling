@@ -18,7 +18,7 @@ package io.gatling.http.request
 import java.io.FileInputStream
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session.Session
+import io.gatling.core.session._
 import io.gatling.core.util.FastByteArrayInputStream
 import io.gatling.core.util.IO._
 import io.gatling.http.util.GZIPHelper
@@ -28,11 +28,11 @@ object BodyProcessors {
   val Gzip = (body: Body) => {
 
     val gzippedBytes = body match {
-      case StringBody(string) => (session: Session) => string(session).map(GZIPHelper.gzip)
-      case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(GZIPHelper.gzip)
-      case RawFileBody(file) => (session: Session) => file(session).map { f => withCloseable(new FileInputStream(f))(GZIPHelper.gzip(_)) }
-      case InputStreamBody(inputStream) => (session: Session) => inputStream(session).map { withCloseable(_)(GZIPHelper.gzip(_)) }
-      case _ => throw new UnsupportedOperationException(s"requestCompressor doesn't support $body")
+      case StringBody(string)           => string.map(GZIPHelper.gzip)
+      case ByteArrayBody(byteArray)     => byteArray.map(GZIPHelper.gzip)
+      case RawFileBody(file)            => file.map(f => withCloseable(new FileInputStream(f))(GZIPHelper.gzip(_)))
+      case InputStreamBody(inputStream) => inputStream.map(withCloseable(_)(GZIPHelper.gzip(_)))
+      case _                            => throw new UnsupportedOperationException(s"requestCompressor doesn't support $body")
     }
 
     ByteArrayBody(gzippedBytes)
@@ -41,11 +41,11 @@ object BodyProcessors {
   val Stream = (body: Body) => {
 
     val stream = body match {
-      case StringBody(string) => (session: Session) => string(session).map(s => new FastByteArrayInputStream(s.getBytes(configuration.core.encoding)))
-      case ByteArrayBody(byteArray) => (session: Session) => byteArray(session).map(new FastByteArrayInputStream(_))
-      case RawFileBody(file) => (session: Session) => file(session).map(new FileInputStream(_))
+      case StringBody(string)           => string.map(s => new FastByteArrayInputStream(s.getBytes(configuration.core.encoding)))
+      case ByteArrayBody(byteArray)     => byteArray.map(new FastByteArrayInputStream(_))
+      case RawFileBody(file)            => file.map(new FileInputStream(_))
       case InputStreamBody(inputStream) => inputStream
-      case _ => throw new UnsupportedOperationException(s"streamBody doesn't support $body")
+      case _                            => throw new UnsupportedOperationException(s"streamBody doesn't support $body")
     }
 
     InputStreamBody(stream)

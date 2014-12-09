@@ -29,7 +29,7 @@ package object session {
   }
 
   implicit class RichExpression[T](val expression: Expression[T]) extends AnyVal {
-    def map[U](f: T => U): Expression[U] = session => expression(session).map(f)
+    def map[U](f: T => U): Expression[U] = expression.andThen(_.map(f))
   }
 
   def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression match {
