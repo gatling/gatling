@@ -93,7 +93,7 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     }
   }
 
-  override def onCompleted(): Unit = sseActor ! OnClose(currentSse)
+  override def onCompleted(): Unit = sseActor ! OnClose
 
   override def onThrowable(throwable: Throwable): Unit =
     if (done.compareAndSet(false, true)) {

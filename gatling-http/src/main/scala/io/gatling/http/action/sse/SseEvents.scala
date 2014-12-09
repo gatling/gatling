@@ -24,7 +24,7 @@ case class OnSend(tx: SseTx) extends SseEvent
 case class OnFailedOpen(tx: SseTx, errorMessage: String, time: Long) extends SseEvent
 case class OnMessage(message: String, time: Long, sseForwarder: SseForwarder) extends SseEvent
 case class OnThrowable(tx: SseTx, errorMessage: String, time: Long) extends SseEvent
-case class OnClose() extends SseEvent
+case object OnClose extends SseEvent
 case class OnSseSource(sseSource: SseSource) extends SseEvent
 
 sealed trait SseUserAction extends SseEvent {
