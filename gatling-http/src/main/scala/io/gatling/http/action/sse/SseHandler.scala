@@ -23,6 +23,7 @@ import akka.actor.ActorRef
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.AsyncHandler.STATE.{ ABORT, CONTINUE }
 import com.ning.http.client._
+import com.ning.http.client.providers.netty.response.NettyResponseBodyPart
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.SseTx
@@ -78,15 +79,21 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     }
   }
 
-  override def onHeadersReceived(headers: HttpResponseHeaders): STATE = CONTINUE
+  override def onHeadersReceived(headers: HttpResponseHeaders): STATE =
+    if (done.get) ABORT
+    else CONTINUE
 
   override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
-    if (!done.get)
-      parse(new String(bodyPart.getBodyPartBytes, UTF_8))
-    CONTINUE
+    if (done.get)
+      ABORT
+    else {
+      val payload = bodyPart.asInstanceOf[NettyResponseBodyPart].getChannelBuffer.toString(UTF_8)
+      parse(payload)
+      CONTINUE
+    }
   }
 
-  override def onCompleted(): Unit = sseActor ! OnClose
+  override def onCompleted(): Unit = sseActor ! OnClose(currentSse)
 
   override def onThrowable(throwable: Throwable): Unit =
     if (done.compareAndSet(false, true)) {
@@ -115,16 +122,11 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
       case Closed =>
         logger.error(s"unexpected state closed with error message: $errorMessage")
     }
-
   }
 
-  override def stopForward(): Unit = {
-    done.compareAndSet(false, true)
-  }
+  override def stopForward(): Unit = done.compareAndSet(false, true)
 
-  override def dispatchEventStream(sse: ServerSentEvent): Unit = {
-    sseActor ! OnMessage(sse.asJSONString(), nowMillis, this)
-  }
+  override def dispatchEventStream(sse: ServerSentEvent): Unit = sseActor ! OnMessage(sse.asJSONString, nowMillis, this)
 }
 
 private sealed trait SseState
