@@ -49,13 +49,19 @@ object Exponential extends PauseType {
   }
 }
 
+case class Normal(stdDev: Double) extends PauseType {
+  def generator(duration: Expression[Duration]) = duration.map { d =>
+    (ThreadLocalRandom.current.nextGaussian * stdDev + d.toMillis).toLong
+  }
+}
+
 case class Custom(custom: Expression[Long]) extends PauseType {
   def generator(duration: Expression[Duration]) = custom
 }
 
 case class UniformPercentage(plusOrMinus: Double) extends PauseType {
-  def generator(duration: Expression[Duration]) = duration.map { duration =>
-    val mean = duration.toMillis
+  def generator(duration: Expression[Duration]) = duration.map { d =>
+    val mean = d.toMillis
     val halfWidth = math.round(mean * plusOrMinus / 100.0)
     val least = mean - halfWidth
     val bound = mean + halfWidth + 1
