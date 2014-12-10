@@ -50,12 +50,9 @@ class InjectionStepSpec extends FlatSpec with Matchers {
     rampScheduling shouldBe sorted
   }
 
-  val injec = ConstantRateInjection(1.0, 5 seconds)
-  val injec2 = ConstantRateInjection(0.4978, 100 seconds)
-
   "ConstantRateInjection" should "return the correct number of users" in {
-    injec.users shouldBe 5
-    injec2.users shouldBe 49
+    ConstantRateInjection(1.0, 5 seconds).users shouldBe 5
+    ConstantRateInjection(0.4978, 100 seconds).users shouldBe 49
   }
 
   val waiting = NothingForInjection(1 second)

@@ -200,9 +200,7 @@ case class PoissonInjection(duration: FiniteDuration, startRate: Double, endRate
       .scanLeft(0.0)(_ + _) // Rolling sum
       .drop(1) // Throw away first value of 0.0. It is not random, but a quirk of using scanLeft
       .takeWhile(_ < durationSecs)
-      .flatMap { d =>
-        if (shouldKeep(d)) Iterator(d.seconds)
-        else Iterator.empty
-      } ++ chained.map(_ + duration)
+      .filter(shouldKeep)
+      .map(_.seconds) ++ chained.map(_ + duration)
   }
 }
