@@ -18,7 +18,6 @@ package io.gatling.http.request
 import java.io.{ File => JFile, InputStream }
 
 import io.gatling.core.session.el.ELCompiler
-import io.gatling.core.util.StringHelper
 
 import scala.collection.JavaConverters._
 
