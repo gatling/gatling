@@ -48,15 +48,6 @@ object StringHelper {
     buff.append(JLong.toString(shifted.toLong, 16))
   }.toString
 
-  private val StringBuilders = new ThreadLocal[StringBuilder] {
-    override def initialValue = new StringBuilder(512)
-  }
-  def stringBuilder = {
-    val sb = StringBuilders.get
-    sb.setLength(0)
-    sb
-  }
-
   implicit class RichString(val string: String) extends AnyVal {
 
     def clean = {

@@ -17,8 +17,6 @@ package io.gatling.http.feeder
 
 import java.io.InputStream
 
-import io.gatling.core.util.StringHelper
-
 import scala.collection.breakOut
 import scala.collection.mutable
 import scala.xml.Node
@@ -79,7 +77,7 @@ object SitemapParser {
   }
 
   private def name(node: Node): String = {
-    val sb = StringHelper.stringBuilder
+    val sb = new StringBuilder
     node.nameToString(sb)
     sb.toString
   }

@@ -24,6 +24,7 @@ import scala.collection.JavaConverters._
 
 import com.ning.http.client.RequestBuilder
 import com.ning.http.client.generators.InputStreamBodyGenerator
+import com.ning.http.util.StringUtils.stringBuilder
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, Session }
@@ -76,7 +77,7 @@ object CompositeByteArrayBody {
 case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]]) extends Body with Expression[String] {
 
   def apply(session: Session) = bytes(session).map { bs =>
-    val sb = StringHelper.stringBuilder
+    val sb = stringBuilder
     bs.foreach(b => sb.append(new String(b, configuration.core.charset)))
     sb.toString
   }

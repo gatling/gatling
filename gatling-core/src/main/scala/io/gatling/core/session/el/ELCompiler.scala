@@ -17,14 +17,13 @@ package io.gatling.core.session.el
 
 import java.util.{ Collection => JCollection, List => JList, Map => JMap }
 
-import io.gatling.core.config.GatlingConfiguration._
-import io.gatling.core.json.JSON
-import io.gatling.core.util.StringHelper
-
 import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
+import com.ning.http.util.StringUtils.stringBuilder
+import io.gatling.core.config.GatlingConfiguration._
+import io.gatling.core.json.JSON
 import io.gatling.core.session._
 import io.gatling.core.util.NumberHelper.IntString
 import io.gatling.core.util.StringHelper._
@@ -179,7 +178,7 @@ object ELCompiler {
         case List(dynamicPart) => dynamicPart(_).flatMap(_.asValidation[T])
 
       case parts =>
-        (session: Session) => parts.foldLeft(StringHelper.stringBuilder.success) { (sb, part) =>
+        (session: Session) => parts.foldLeft(stringBuilder.success) { (sb, part) =>
           part match {
             case StaticPart(s) => sb.map(_.append(s))
             case _ =>
