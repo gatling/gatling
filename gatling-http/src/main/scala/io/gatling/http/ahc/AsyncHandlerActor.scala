@@ -15,8 +15,6 @@
  */
 package io.gatling.http.ahc
 
-import java.lang.{ StringBuilder => JStringBuilder }
-
 import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ Request, RequestBuilder }
 import akka.actor.{ ActorRef, Props }
@@ -28,6 +26,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.Session
 import io.gatling.core.result.writer.DataWriterClient
+import io.gatling.core.util.StringHelper
 import io.gatling.core.util.StringHelper.Eol
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
@@ -110,7 +109,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       else tx.request.requestName
 
         def dump = {
-          val buff = new JStringBuilder
+          val buff = StringHelper.stringBuilder
           buff.append(Eol).append(">>>>>>>>>>>>>>>>>>>>>>>>>>").append(Eol)
           buff.append("Request:").append(Eol).append(s"$fullRequestName: $status ${errorMessage.getOrElse("")}").append(Eol)
           buff.append("=========================").append(Eol)

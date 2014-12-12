@@ -15,11 +15,11 @@
  */
 package io.gatling.core.session.el
 
-import java.lang.{ StringBuilder => JStringBuilder }
 import java.util.{ Collection => JCollection, List => JList, Map => JMap }
 
 import io.gatling.core.config.GatlingConfiguration._
 import io.gatling.core.json.JSON
+import io.gatling.core.util.StringHelper
 
 import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
@@ -179,7 +179,7 @@ object ELCompiler {
         case List(dynamicPart) => dynamicPart(_).flatMap(_.asValidation[T])
 
       case parts =>
-        (session: Session) => parts.foldLeft(new JStringBuilder(string.length + 5).success) { (sb, part) =>
+        (session: Session) => parts.foldLeft(StringHelper.stringBuilder.success) { (sb, part) =>
           part match {
             case StaticPart(s) => sb.map(_.append(s))
             case _ =>

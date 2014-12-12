@@ -16,7 +16,6 @@
 package io.gatling.http
 
 import java.io.ByteArrayOutputStream
-import java.lang.{ StringBuilder => JStringBuilder }
 import java.nio.charset.StandardCharsets.US_ASCII
 import java.util.{ List => JList, Map => JMap }
 
@@ -32,19 +31,19 @@ import io.gatling.http.response.Response
 
 package object util {
 
-  implicit class HttpStringBuilder(val buff: JStringBuilder) extends AnyVal {
+  implicit class HttpStringBuilder(val buff: StringBuilder) extends AnyVal {
 
-    def appendAHCStringsMap(map: JMap[String, JList[String]]): JStringBuilder =
+    def appendAHCStringsMap(map: JMap[String, JList[String]]): StringBuilder =
       map.entrySet.foldLeft(buff) { (buf, entry) =>
         buff.append(entry.getKey).append(": ").append(entry.getValue).append(Eol)
       }
 
-    def appendParamJList(list: JList[Param]): JStringBuilder =
+    def appendParamJList(list: JList[Param]): StringBuilder =
       list.foldLeft(buff) { (buf, param) =>
         buff.append(param.getName).append(": ").append(param.getValue).append(Eol)
       }
 
-    def appendRequest(request: Request, nettyRequest: Option[NettyRequest]): JStringBuilder = {
+    def appendRequest(request: Request, nettyRequest: Option[NettyRequest]): StringBuilder = {
 
       buff.append(request.getMethod).append(" ").append(request.getUrl).append(Eol)
 

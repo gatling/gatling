@@ -18,6 +18,7 @@ package io.gatling.http.request
 import java.io.{ File => JFile, InputStream }
 
 import io.gatling.core.session.el.ELCompiler
+import io.gatling.core.util.StringHelper
 
 import scala.collection.JavaConverters._
 
@@ -75,7 +76,7 @@ object CompositeByteArrayBody {
 case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]]) extends Body with Expression[String] {
 
   def apply(session: Session) = bytes(session).map { bs =>
-    val sb = new StringBuilder
+    val sb = StringHelper.stringBuilder
     bs.foreach(b => sb.append(new String(b, configuration.core.charset)))
     sb.toString
   }
