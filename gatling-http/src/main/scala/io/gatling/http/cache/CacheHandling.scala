@@ -16,7 +16,7 @@
 package io.gatling.http.cache
 
 import com.ning.http.client.Request
-import com.ning.http.client.date.RFC2616DateParser
+import com.ning.http.client.cookie.RFC2616DateParser
 import com.ning.http.client.uri.Uri
 import com.typesafe.scalalogging.StrictLogging
 
@@ -27,7 +27,6 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.cache._
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.{ HeaderNames, HeaderValues }
-import io.gatling.http.ahc.ThreeTenBPConverter
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.Response
 
@@ -116,7 +115,7 @@ object CacheHandling extends StrictLogging {
     // FIXME use offset instead of 2 substrings
     val trimmedTimeString = removeQuote(timestring.trim)
 
-    Option(new RFC2616DateParser(trimmedTimeString).parse).map(ThreeTenBPConverter.toTime)
+    Option(RFC2616DateParser.get.parse(trimmedTimeString)).map(_.getTime)
   }
 
   def extractMaxAgeValue(s: String): Option[Long] = {

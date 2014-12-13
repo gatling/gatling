@@ -195,7 +195,6 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
       .setAsyncHttpClientProviderConfig(nettyConfig)
       .setWebSocketTimeout(configuration.http.ahc.webSocketTimeout)
       .setUseRelativeURIsWithConnectProxies(configuration.http.ahc.useRelativeURIsWithConnectProxies)
-      .setTimeConverter(ThreeTenBPConverter)
       .setAcceptAnyCertificate(configuration.http.ahc.acceptAnyCertificate)
       .setEnabledProtocols(configuration.http.ahc.httpsEnabledProtocols match {
         case Nil => null
