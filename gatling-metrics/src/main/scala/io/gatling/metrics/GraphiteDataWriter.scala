@@ -98,10 +98,6 @@ private class GraphiteSender(graphiteRootPathKey: String)(implicit configuration
 
   private var metricsSender: MetricsSender = _
 
-  override def preStart(): Unit = {
-    metricsSender = MetricsSender.newMetricsSender
-  }
-
   def receive: Receive = {
     case SendMetrics(requestsMetrics, usersBreakdowns) => sendMetricsToGraphite(nowSeconds, requestsMetrics, usersBreakdowns)
     case Flush                                         => metricsSender.flush()
@@ -138,6 +134,11 @@ private class GraphiteSender(graphiteRootPathKey: String)(implicit configuration
         sendMetrics(metricPath / "ko", metricByStatus.ko)
         sendMetrics(metricPath / "all", metricByStatus.all)
       }
+
+    // Initialize the Metrics sender if it wasn't
+    if (metricsSender == null) {
+      metricsSender = MetricsSender.newMetricsSender
+    }
 
     for ((metricPath, usersBreakdown) <- usersBreakdowns) sendUserMetrics(metricPath, usersBreakdown)
 
