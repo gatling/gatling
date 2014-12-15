@@ -48,6 +48,7 @@ object Dependencies {
   private val activemqCore                   = "org.apache.activemq"                    % "activemq-broker"             % "5.8.0"       % "test"
   private val sprayCan                       = "io.spray"                              %% "spray-can"                   % "1.3.2"       % "test"
   private val h2                             = "com.h2database"                         % "h2"                          % "1.4.182"     % "test"
+  private val ffmq                           = "net.timewalker.ffmq"                    % "ffmq3-core"                  % "3.0.7"       % "test" exclude("log4j", "log4j") exclude("javax.jms", "jms")
 
   private val testDeps = Seq(scalaTest, scalaCheck, akkaTestKit, mockitoCore)
 
@@ -84,4 +85,6 @@ object Dependencies {
   val recorderDependencies = Seq(scalaSwing, scopt, jackson, bouncycastle) ++ testDeps
 
   val testFrameworkDependencies = Seq(testInterface)
+
+  val docDependencies = Seq(ffmq)
 }

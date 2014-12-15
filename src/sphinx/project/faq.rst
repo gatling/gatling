@@ -128,30 +128,9 @@ OpenJDK 7 and Hotspot JDK8 seem to be fine.
 
 In Java and Scala, there's a method size limit. Here, the method is your Simulation constructor.
 
-Typically, you have to move your chains out of your Simulation class, for example into objects::
+Typically, you have to move your chains out of your Simulation class, for example into objects:
 
-  object ChainLibrary1 {
-    val chain1 = ???
-    val chain2 = ???
-    ...
-    val chain100 = ???
-  }
-
-  object ChainLibrary2 {
-    val chain101 = ???
-    val chain102 = ???
-    ...
-    val chain150 = ???
-  }
-
-  class MyVeryBigSimulation {
-
-    import ChainLibrary1._
-    import ChainLibrary2._
-
-    val scn = scenario("Name").exec(chain1, ..., chain150)
-    ...
-  }
+.. includecode:: code/FAQ.scala#chains
 
 .. _dandling-connections:
 
@@ -160,3 +139,4 @@ Typically, you have to move your chains out of your Simulation class, for exampl
 This issue has been reported once, and preferring IPv4 fixed it::
 
   -Djava.net.preferIPv4Stack=true
+

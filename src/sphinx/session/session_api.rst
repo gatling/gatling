@@ -59,6 +59,7 @@ There's 2 ways of doing that:
 
 .. note::
   If Gatling complains that an attribute could not be found, check that:
+
   * you don't have a typo in a feeder file header
   * you don't have a typo in a Gatling EL expression
   * your feed action is properly called (e.g. could be be properly chained with other action because a dot is missing)
@@ -86,29 +87,18 @@ Session has the following methods:
 
   A very common pitfall is to forget that ``set`` and ``setAll`` actually return new instances.
 
-::
-
-  val session: Session = ???
-
-  // wrong usage
-  session.set("foo", "FOO") // wrong: the result of this set call is just discarded
-  session.set("bar", "BAR")
-
-  // proper usage
-  session.set("foo", "FOO").set("bar", "BAR")
+.. includecode:: code/SessionSpec.scala#sessions-are-immutable
 
 Getting Attributes
 ------------------
 
 Let's say a Session instance variable named session contains a String attribute named "foo".
-::
 
-  val session: Session = ???
+.. includecode:: code/SessionSpec.scala#session
 
-Then::
+Then:
 
-  val attribute: SessionAttribute = session("foo")
-
+.. includecode:: code/SessionSpec.scala#session-attribute
 
 .. warning::
   ``session("foo")`` doesn't return the value, but a wrapper.

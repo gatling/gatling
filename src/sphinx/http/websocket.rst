@@ -20,9 +20,9 @@ If you want to deal with several websockets per virtual users, you have to give 
 
 ``wsName(name: String)``
 
-For example::
+For example:
 
-  ws("WS Operation").wsName("myCustomName")
+.. includecode:: code/WebSocket.scala#wsName
 
 Of course, this step is not required if you deal with one single websocket per virtual user.
 
@@ -35,10 +35,9 @@ The first thing is to open a websocket:
 
 ``open(url: Expression[String])``
 
-For example::
+For example:
 
-  .exec(ws("Connect WS").open("/room/chat?username=steph"))
-
+.. includecode:: code/WebSocket.scala#wsOpen
 
 .. _http-ws-close:
 
@@ -49,9 +48,9 @@ When you're done with a websocket, you can close it:
 
 ``close``
 
-For example::
+For example:
 
-  .exec(ws("Close WS").close)
+.. includecode:: code/WebSocket.scala#wsClose
 
 .. _http-ws-send:
 
@@ -63,10 +62,9 @@ One can send 2 forms of messages: binary and text:
 * ``sendText(text: Expression[String])``
 * ``sendBytes(bytes: Expression[Array[Byte]])``
 
-For example::
+For example:
 
-  .exec(ws("Message")
-    .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}"""))
+.. includecode:: code/WebSocket.scala#sendText
 
 Server Messages: Checks
 =======================
@@ -82,14 +80,13 @@ Set a Check
 
 Checks can be set in 2 ways.
 
-First, when sending a message::
+First, when sending a message:
 
-  exec(ws("Send").sendText("hello").check(...))
+.. includecode:: code/WebSocket.scala#check-from-message
 
+Then, directly from the main HTTP flow:
 
-Then, directly from the main HTTP flow::
-
-  exec(ws("Set Check").check(...))
+.. includecode:: code/WebSocket.scala#check-from-main-flow
 
 If a check was already registered on the websocket at this time, it's considered as failed and replaced with the new one.
 
@@ -98,9 +95,9 @@ If a check was already registered on the websocket at this time, it's considered
 Cancel a Check
 --------------
 
-One can decide to cancel a pending check::
+One can decide to cancel a pending check:
 
-  exec(ws("Cancel Check").cancelCheck)
+.. includecode:: code/WebSocket.scala#cancel-check
 
 .. _http-ws-check-build:
 
@@ -145,12 +142,9 @@ See :ref:`HTTP counterparts <http-check>` for more details.
 
 Just like regular HTTP checks, one can use checks for saving data into the virtual user's session.
 
-Here are an example::
+Here are an example:
 
-  exec(ws("Send Message")
-         .sendText("hello, I'm Stephane")
-         .check(wsListen.within(30 seconds).until(1).regex("hello (.*)").saveAs("name"))
-
+.. includecode:: code/WebSocket.scala#check-example
 
 Reconciliate
 ------------
@@ -164,10 +158,7 @@ This can be done:
 * implicitly when performing an action on the websocket from the main flow, such as send a message to the server
 * explicitly with the ``reconciliate`` method.
 
-::
-
-  exec(ws("Reconciliate states").reconciliate)
-
+.. includecode:: code/WebSocket.scala#reconciliate
 
 Configuration
 =============
@@ -185,31 +176,7 @@ Websocket support introduces new parameters on HttpProtocol:
 Example
 =======
 
-Here's an example that runs against Play's chatroom sample::
+Here's an example that runs against Play's chatroom sample:
 
-  val httpConf = http
-    .baseURL("http://localhost:9000")
-    .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-    .doNotTrackHeader("1")
-    .acceptLanguageHeader("en-US,en;q=0.5")
-    .acceptEncodingHeader("gzip, deflate")
-    .userAgentHeader("Gatling2")
-    .wsBaseURL("ws://localhost:9000")
-
-  val scn = scenario("WebSocket")
-    .exec(http("Home").get("/"))
-    .pause(1)
-    .exec(session => session.set("id", "Steph" + session.userId))
-    .exec(http("Login").get("/room?username=${id}"))
-    .pause(1)
-    .exec(ws("Connect WS").open("/room/chat?username=${id}"))
-    .pause(1)
-    .repeat(2, "i") {
-      exec(ws("Say Hello WS")
-        .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-        .check(wsAwait.within(30).until(1).regex(".*I'm still alive.*"))
-      )
-      .pause(1)
-    }
-    .exec(ws("Close WS").close)
+.. includecode:: code/WebSocket.scala#chatroom-example
 

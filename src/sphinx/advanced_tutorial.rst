@@ -24,35 +24,11 @@ We are going to extract those chains and store them into *objects*.
 Objects are native Scala singletons.
 You can create those in dedicated files, or directly in the same file as the Simulation.
 
-::
+.. includecode:: code/AdvancedTutorial.scala#isolate-processes
 
-  object Search {
+We can now rewrite our scenario using these reusable business processes:
 
-    val search = exec(http("Home") // let's give proper names, as they are displayed in the reports
-        .get("/"))
-      .pause(7)
-      .exec(http("Search")
-        .get("/computers")
-        .queryParam("""f""", """macbook"""))
-      .pause(2)
-        .exec(http("Select")
-        .get("/computers/6"))
-      .pause(3)
-  }
-
-  object Browse {
-
-    val browse = ...
-  }
-
-  object Edit {
-
-    val edit = ...
-  }
-
-We can now rewrite our scenario using these reusable business processes::
-
-  val scn = scenario("Scenario Name").exec(Search.search, Browse.browse, Edit.edit)
+.. includecode:: code/AdvancedTutorial.scala#processes
 
 Step 02: Configure virtual users
 ================================
@@ -69,9 +45,9 @@ Translating into a scenario this gives::
   val users = scenario("Users").exec(Search.search, Browse.browse)
   val admins = scenario("Admins").exec(Search.search, Browse.browse, Edit.edit)
 
-To increase the number of simulated users, all you have to do is to change the configuration of the simulation as follows::
+To increase the number of simulated users, all you have to do is to change the configuration of the simulation as follows:
 
-  setUp(users.inject(atOnceUsers(10)).protocols(httpConf))
+.. includecode:: code/AdvancedTutorial.scala#setup-users
 
 Here we set only 10 users, because we don't want to flood our test web application. *Please*, be kind and don't crash our Heroku instance ;-)
 
@@ -81,12 +57,9 @@ Indeed, real users are more likely to connect to your web application gradually.
 Gatling provides ``rampUsers`` to implement this behavior.
 The value of the ramp indicates the duration over which the users will be linearly started.
 
-In our scenario let's have 10 regular users and 2 admins, and ramp them over 10 seconds so we don't hammer the server::
+In our scenario let's have 10 regular users and 2 admins, and ramp them over 10 seconds so we don't hammer the server:
 
-  setUp(
-    users.inject(rampUsers(10) over (10 seconds)),
-    admins.inject(rampUsers(2) over (10 seconds))
-  ).protocols(httpConf)
+.. includecode:: code/AdvancedTutorial.scala#setup-users-and-admins
 
 Step 03: Use dynamic data with Feeders and Checks
 =================================================
@@ -110,26 +83,9 @@ This file contains the following lines:
   Macbook,MacBook Pro
   eee,ASUS Eee PC 1005PE
 
-Let's then declare a feeder and use it to feed our users with the above data::
+Let's then declare a feeder and use it to feed our users with the above data:
 
-  object Search {
-
-    val feeder = csv("search.csv").random // 1, 2
-
-    val search = exec(http("Home")
-      .get("/"))
-      .pause(1)
-      .feed(feeder) // 3
-      .exec(http("Search")
-        .get("/computers")
-        .queryParam("f", "${searchCriterion}") // 4
-        .check(regex("""<a href="([^"]+)">${searchComputerName}</a>""").saveAs("computerURL"))) // 5
-      .pause(1)
-      .exec(http("Select")
-        .get("${computerURL}")) // 6
-      .pause(1)
-  }
-
+.. includecode:: code/AdvancedTutorial.scala#feeder
 
 Explanations:
   1. First we create a feeder from a csv file with the following columns: *searchCriterion*, *searchComputerName*.
@@ -153,28 +109,14 @@ In the *browse* process we have a lot of repetition when iterating through the p
 We have four times the same request with a different query param value. Can we change this to not violate the DRY principle?
 
 First we will extract the repeated ``exec`` block to a function.
-Indeed, ``Simulation``'s are plain Scala classes so we can use all the power of the language if needed::
+Indeed, ``Simulation``'s are plain Scala classes so we can use all the power of the language if needed:
 
-  object Browse {
-
-    def gotoPage(page: Int) = exec(http("Page " + page)
-      .get("/computers?p=" + page)
-      .pause(1)
-
-    val browse = gotoPage(0).gotoPage(1).gotoPage(2).gotoPage(3).gotoPage(4)
-  }
+.. includecode:: code/AdvancedTutorial.scala#loop-simple
 
 We can now call this function and pass the desired page number.
-But we still have repetition, it's time to introduce another builtin structure::
+But we still have repetition, it's time to introduce another builtin structure:
 
-  object Browse {
-
-    val browse = repeat(5, "n") { // 1
-      exec(http("Page ${n}")
-        .get("/computers?p=${n}") // 2
-      .pause(1)
-    }
-  }
+.. includecode:: code/AdvancedTutorial.scala#loop-for
 
 Explanations:
   1. The ``repeat`` builtin is a loop resolved at **runtime**.
@@ -191,29 +133,19 @@ Up until now we have only used ``check`` to extract some data from the html resp
 But ``check`` is also handy to check properties of the response.
 By default Gatling checks if the http response status is *20x* or *304*.
 
-To demonstrate failure management we will introduce a ``check`` on a condition that fails randomly::
+To demonstrate failure management we will introduce a ``check`` on a condition that fails randomly:
 
-  import scala.concurrent.forkjoin.ThreadLocalRandom // 1
-
-  val edit = exec(http("Form")
-      .get("/computers/new"))
-    .pause(1)
-    .exec(http("Post")
-      .post("/computers")
-      ...
-      .check(status.is(session => 200 + ThreadLocalRandom.current.nextInt(2)))) // 2
+.. includecode:: code/AdvancedTutorial.scala#check
 
 Explanations:
-  1. First we import ``ThreadLocalRandom``. This class is just a backport of the JDK7 one for running with JDK6.
+  1. First we import ``ThreadLocalRandom``, to generate random values.
   2. We do a check on a condition that's been customized with a lambda.
      It will be evaluated every time a user executes the request and randomly return *200* or *201*.
      As response status is 200, the check will fail randomly.
 
-To handle this random failure we use the ``tryMax`` and ``exitHereIfFailed`` constructs as follow::
+To handle this random failure we use the ``tryMax`` and ``exitHereIfFailed`` constructs as follow:
 
-  val edit = tryMax(2) { // 1
-    exec(...)
-  }.exitHereIfFailed // 2
+.. includecode:: code/AdvancedTutorial.scala#tryMax-exitHereIfFailed
 
 Explanations:
   1. ``tryMax`` tries a given block up to n times.

@@ -38,13 +38,9 @@ For example, a standard e-commerce application scenario could be:
 Scenarios are represented as scripts in conjunction with a DSL (`Domain Specific Language <http://en.wikipedia.org/wiki/Domain-specific_language>`_).
 This allows fast writing of scenarios and easy maintenance of existing scenarios.
 
-Here is a simple example of a scenario::
+Here is a simple example of a scenario:
 
-  scenario("Standard User")
-    .exec(http("Access Github").get("https://github.com"))
-    .pause(2, 3)
-    .exec(http("Search for 'gatling'").get("https://github.com/search?q=gatling"))
-    .pause(2))
+.. includecode:: code/Concepts.scala#simple-scenario
 
 As we can easily guess, this scenario:
 
@@ -68,17 +64,9 @@ Simulation
 
 A simulation is a description of the load test. It describes how, possibly several, user populations will run: which scenario they will execute and how new virtual users will be injected.
 
-Here is an example of simulation definition::
+Here is an example of simulation definition:
 
-  val stdUser = scenario("Standard User")...
-  val admUser = scenario("Admin User")...
-  val advUser = scenario("Advanced User")...
-
-  setUp(
-    stdUser.inject(atOnceUsers(2000)),
-    admUser.inject(nothingFor(60 seconds), rampUsers(5) over (400 seconds)),
-    advUser.inject(rampUsers(500) over (200 seconds))
-  )
+.. includecode:: code/Concepts.scala#example-definition
 
 For more information, check the :ref:`Simulation Setup reference section <simulation-setup>`.
 

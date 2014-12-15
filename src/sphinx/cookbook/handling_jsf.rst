@@ -10,55 +10,19 @@ JSF requires a parameter named ``javax.faces.ViewState`` to be captured on every
 Adding a check for capturing the value and a param on very request would be very cumbersome.
 Hopefully, we can factor out these operations.
 
-Define factory methods for building JSF requests that would automatically perform those operations::
+Define factory methods for building JSF requests that would automatically perform those operations:
 
-  import io.gatling.core.session.Expression
+.. includecode:: code/HandlingJsf.scala#factory-methods
 
-  val jsfViewStateCheck = regex("""="javax.faces.ViewState" value="([^"]*)"""")
-    .saveAs("viewState")
-  def jsfGet(name: String, url: Expression[String]) = http(name).get(url)
-    .check(jsfViewStateCheck)
-  def jsfPost(name: String, url: Expression[String]) = http(name).post(url)
-    .formParam("javax.faces.ViewState", "${viewState}")
-    .check(jsfViewStateCheck)
+You can then build your requests just like you're used to:
 
-You can then build your requests just like you're used to::
-
-  val scn = scenario("Scenario Name")
-    .exec(jsfGet("request_1", "/showcase-labs/ui/pprUpdate.jsf").headers(headers_1))
-    .pause(80 milliseconds)
-    .exec(
-      jsfPost("request_2", "/showcase-labs/ui/pprUpdate.jsf")
-        .formParam("javax.faces.partial.ajax", "true")
-        .formParam("javax.faces.source", "form:btn")
-        .formParam("javax.faces.partial.execute", "@all")
-        .formParam("javax.faces.partial.render", "form:display")
-        .formParam("form:btn", "form:btn")
-        .formParam("form", "form")
-        .formParam("form:name", "foo"))
+.. includecode:: code/HandlingJsf.scala#example-scenario
 
 .. note:: The sample above is taken from the `Primefaces demo <http://www.primefaces.org/showcase-labs>`_
 
 Trinidad
 ========
 
-Trinidad's ``_afPfm`` query parameter can be handled in a similar fashion::
+Trinidad's ``_afPfm`` query parameter can be handled in a similar fashion:
 
-  val jsfPageFlowCheck = regex("""\?_afPfm=([^"]*)"""").saveAs("afPfm")
-  val jsfViewStateCheck = regex("""="javax.faces.ViewState" value="([^"]*)"""")
-    .saveAs("viewState")
-
-  def jsfGet(name: String, url: Expression[String]) = http(name).get(url)
-    .check(jsfViewStateCheck)
-  def jsfPost(name: String, url: Expression[String]) = http(name).post(url)
-    .formParam("javax.faces.ViewState", "${viewState}")
-    .check(jsfViewStateCheck).check(jsfPageFlowCheck)
-
-  def trinidadPost(name: String, url: Expression[String]) = http(name).post(url)
-    .formParam("javax.faces.ViewState", "${viewState}")
-    .queryParam("_afPfm", "${afPfm}")
-    .check(jsfViewStateCheck)
-    .check(jsfPageFlowCheck)
-  def trinidadDownload(name: String, url: Expression[String]) = http(name).post(url)
-    .formParam("javax.faces.ViewState", "${viewState}")
-    .queryParam("_afPfm", "${afPfm}")
+.. includecode:: code/HandlingJsf.scala#trinidad
