@@ -97,7 +97,7 @@ Here are few examples:
 
 .. includecode:: code/Sse.scala#build-check
 
-.. _http-ws-check-reconciliate:
+.. _http-sse-check-reconciliate:
 
 Reconciliate
 ------------
@@ -113,7 +113,7 @@ This can be done:
 
 .. includecode:: code/WebSocket.scala#reconciliate
 
-.. _http-ws-check-conf:
+.. _http-sse-check-conf:
 
 Configuration
 =============
