@@ -17,7 +17,8 @@ object Dependencies {
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                  % akkaVersion
   private val config                        = "com.typesafe"                           % "config"                      % "1.2.1"
   private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                    % "9.6.0-3"
-  private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                   % "1.7.7"
+  private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                   % "1.7.8"
+  private val jsr305                        = "com.google.code.findbugs"               % "jsr305"                      % "3.0.0"
   private val fastring                      = "com.dongxiguo"                         %% "fastring"                    % "0.2.4"
   private val threetenbp                    = "org.threeten"                           % "threetenbp"                  % "1.2"
   private val scopt                         = "com.github.scopt"                      %% "scopt"                       % "3.2.0"
@@ -58,7 +59,7 @@ object Dependencies {
 
   def coreDependencies(scalaVersion: String) = {
     def scalaLibs(scalaVersion: String) = Seq(scalaReflect(scalaVersion))
-    val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
+    val loggingLibs = Seq(slf4jApi, jsr305, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
     scalaLibs(scalaVersion) ++ Seq(akkaActor, config, fastring, openCsv, lru, threetenbp, scalaParserCombinators, ahc) ++
@@ -80,7 +81,7 @@ object Dependencies {
   val appDependencies = Seq(scopt)
 
   def compilerDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc)
+    Seq(scalaReflect(scalaVersion), config, slf4jApi, jsr305, logbackClassic, zinc)
 
   val recorderDependencies = Seq(scalaSwing, scopt, jackson, bouncycastle) ++ testDeps
 
