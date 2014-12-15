@@ -17,11 +17,14 @@ Compiler runs standalone
 ------------------------
 
 Gatling itself doesn't compile the Simulations anymore and expects that the simulations are already compiled.
-This means that gatling.sh/gatling.bat runs the compiler prior to running Gatling.
+This means that gatling.sh/gatling.bat and the Maven plugin runs the compiler prior to running Gatling.
 Consequently, a few options in gatling.conf have been removed:
 
 * ``gatling.core.disableCompiler``
 * ``gatling.core.zinc.jvmArgs``
+
+Please note that, as this change implied that the Maven Plugin was heavily modified so that it compiles the simulations
+separately prior to running Gatling, you'll need to upgrade the Maven Plugin to its version 2.1.0 too.
 
 Percentiles
 -----------
