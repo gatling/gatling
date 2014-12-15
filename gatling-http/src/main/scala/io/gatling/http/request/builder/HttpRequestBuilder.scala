@@ -138,9 +138,9 @@ class HttpRequestBuilder(commonAttributes: CommonAttributes, val httpAttributes:
 
     val resolvedChecks =
       if (checks.exists(_.scope == Status))
-        checks ::: List(RequestBuilder.DefaultHttpCheck)
-      else
         checks
+      else
+        checks ::: List(RequestBuilder.DefaultHttpCheck)
 
     val resolvedFollowRedirect = protocol.responsePart.followRedirect && httpAttributes.followRedirect
 
