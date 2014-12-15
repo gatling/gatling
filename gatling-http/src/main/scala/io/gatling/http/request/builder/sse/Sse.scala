@@ -29,7 +29,7 @@ class Sse(requestName: Expression[String], sseName: String = Sse.DefaultSseName)
   /**
    * Open the sse stream and get the results of the stream
    */
-  def get(url: Expression[String]) = SseGetRequestBuilder(requestName, url, sseName)
+  def open(url: Expression[String]) = SseOpenRequestBuilder(requestName, url, sseName)
 
   /**
    * Reconciliate the main state with the one of the sse flow.
@@ -40,5 +40,4 @@ class Sse(requestName: Expression[String], sseName: String = Sse.DefaultSseName)
    * Closes the sse stream.
    */
   def close() = new SseCloseActionBuilder(requestName, sseName)
-
 }

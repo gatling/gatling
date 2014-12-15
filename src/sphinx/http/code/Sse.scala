@@ -9,7 +9,7 @@ class Sse {
   //#sseName
 
   //#sseOpen
-  exec(sse("Get SSE").get("/stocks/prices"))
+  exec(sse("Get SSE").open("/stocks/prices"))
   //#sseOpen
 
   //#sseClose
@@ -19,7 +19,7 @@ class Sse {
   val myCheck = wsAwait.within(10).until(1).regex(""""event":"snapshot(.*)"""")
 
   //#set-check-from-message
-  exec(sse("Get SSE").get("/stocks/prices").check(myCheck))
+  exec(sse("Get SSE").open("/stocks/prices").check(myCheck))
   //#set-check-from-message
 
   //#set-check-from-flow
@@ -27,10 +27,10 @@ class Sse {
   //#set-check-from-flow
 
   //#build-check
-  exec(sse("sse").get("/stocks/prices")
+  exec(sse("sse").open("/stocks/prices")
     .check(wsAwait.within(10).until(1).regex(""""event":"snapshot(.*)"""")))
 
-  exec(sse("sse").get("/stocks/prices")
+  exec(sse("sse").open("/stocks/prices")
     .check(wsListen.within(30 seconds).expect(1)))
   //#build-check
 
@@ -41,7 +41,7 @@ class Sse {
 
   val scn = scenario("Server Sent Event")
     .exec(
-      sse("Stocks").get("/stocks/prices")
+      sse("Stocks").open("/stocks/prices")
       .check(wsAwait.within(10).until(1).regex(""""event":"snapshot(.*)"""")))
     .pause(15)
     .exec(sse("Close SSE").close())

@@ -22,12 +22,12 @@ import io.gatling.core.session.Expression
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.check.sse.SseCheck
 import io.gatling.http.check.ws.WsCheckBuilder
-import io.gatling.http.request.builder.sse.SseGetRequestBuilder
+import io.gatling.http.request.builder.sse.SseOpenRequestBuilder
 
 class SseGetActionBuilder(
     requestName: Expression[String],
     sseName: String,
-    requestBuilder: SseGetRequestBuilder,
+    requestBuilder: SseOpenRequestBuilder,
     check: Option[SseCheck] = None) extends HttpActionBuilder {
 
   def check(check: SseCheck) = new SseGetActionBuilder(requestName, sseName, requestBuilder, Some(check))
@@ -41,7 +41,7 @@ class SseGetActionBuilder(
     val request = requestBuilder.build(httpProtocol(protocols))
     val protocol = httpProtocol(protocols)
 
-    actor(new SseGetAction(requestName, sseName, request, check, next, protocol))
+    actor(new SseOpenAction(requestName, sseName, request, check, next, protocol))
   }
 }
 

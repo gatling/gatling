@@ -22,22 +22,23 @@ import io.gatling.http.action.sse.SseGetActionBuilder
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
 
-object SseGetRequestBuilder {
+object SseOpenRequestBuilder {
 
   val SseHeaderValueExpression = HeaderValues.TextEventStream.expression
   val CacheControlNoCacheValueExpression = HeaderValues.NoCache.expression
 
   def apply(requestName: Expression[String], url: Expression[String], sseName: String) =
-    new SseGetRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), sseName)
+    new SseOpenRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), sseName)
       .header(HeaderNames.Accept, SseHeaderValueExpression)
       .header(HeaderNames.CacheControl, CacheControlNoCacheValueExpression)
 
-  implicit def toActionBuilder(requestBuilder: SseGetRequestBuilder) = new SseGetActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder)
+  implicit def toActionBuilder(requestBuilder: SseOpenRequestBuilder): SseGetActionBuilder =
+    new SseGetActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder)
 }
 
-class SseGetRequestBuilder(commonAttributes: CommonAttributes, val sseName: String) extends RequestBuilder[SseGetRequestBuilder](commonAttributes) {
+class SseOpenRequestBuilder(commonAttributes: CommonAttributes, val sseName: String) extends RequestBuilder[SseOpenRequestBuilder](commonAttributes) {
 
-  override private[http] def newInstance(commonAttributes: CommonAttributes): SseGetRequestBuilder = new SseGetRequestBuilder(commonAttributes, sseName)
+  override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseOpenRequestBuilder(commonAttributes, sseName)
 
   def build(protocol: HttpProtocol): Expression[Request] = new SseRequestExpressionBuilder(commonAttributes, protocol).build
 }

@@ -25,7 +25,7 @@ import io.gatling.http.ahc.{ HttpEngine, SseTx }
 import io.gatling.http.check.sse.SseCheck
 import io.gatling.http.config.HttpProtocol
 
-class SseGetAction(
+class SseOpenAction(
     requestName: Expression[String],
     sseName: String,
     request: Expression[Request],
@@ -35,7 +35,7 @@ class SseGetAction(
 
   override def execute(session: Session): Unit = {
 
-      def get(tx: SseTx): Unit = {
+      def open(tx: SseTx): Unit = {
         logger.info(s"Opening and getting sse '$sseName': Scenario '${session.scenarioName}', UserId #${session.userId}")
         val sseActor = actor(context)(new SseActor(sseName))
         HttpEngine.instance.startSseTransaction(tx, sseActor)
@@ -44,6 +44,6 @@ class SseGetAction(
     for {
       requestName <- requestName(session)
       request <- request(session)
-    } yield get(SseTx(session, request, requestName, protocol, next, nowMillis, check = check))
+    } yield open(SseTx(session, request, requestName, protocol, next, nowMillis, check = check))
   }
 }

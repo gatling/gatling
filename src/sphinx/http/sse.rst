@@ -23,12 +23,12 @@ Of course, this step is not required if you deal with one single server sent eve
 
 .. _http-sse-open:
 
-Get
----
+Open
+----
 
 The first thing is to get a server sent event:
 
-``get(url: Expression[String])``
+``open(url: Expression[String])``
 
 For example:
 
