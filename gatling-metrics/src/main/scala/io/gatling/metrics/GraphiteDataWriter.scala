@@ -18,7 +18,7 @@ package io.gatling.metrics
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
-import akka.actor.ActorRef
+import akka.actor.{ ActorRef, OneForOneStrategy, SupervisorStrategy }
 import akka.actor.ActorDSL.actor
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.assertion.Assertion
@@ -39,6 +39,9 @@ object GraphiteDataWriter {
 class GraphiteDataWriter extends DataWriter {
   import GraphiteDataWriter._
   import GraphitePath._
+
+  override val supervisorStrategy =
+    OneForOneStrategy(maxNrOfRetries = 5, withinTimeRange = 5.seconds)(SupervisorStrategy.defaultDecider)
 
   implicit val configuration = gatlingConfiguration
 
