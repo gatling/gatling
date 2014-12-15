@@ -805,6 +805,294 @@
       </div>
     </div>
 
+    <!-- Assertions -->
+
+    <div class="row-fluid">
+      <h2>
+        Assertions
+        <small>Check that your results match your expectations</small>
+      </h2>
+
+      <!-- Assertion -->
+
+      <div class="assertion group col-lg-4 col-md-6 col-xs-12">
+        <h3>Assertions</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="assertions">assertions</label>
+          <input type="checkbox" id="assertions" name="assertions">
+
+          <div class="function-details">
+            Declare the assertions on your simulation
+            <dl>
+              <dt>(assertions)</dt>
+              <dd>The assertions your simulation will be checked against</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scopes -->
+
+      <div class="scopes group col-lg-4 col-md-6 col-xs-12">
+        <h3>Scopes</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="global">global</label>
+          <input type="checkbox" id="global" name="global">
+
+          <div class="function-details">
+            Use statistics calculated from all requests
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="forAll">forAll</label>
+          <input type="checkbox" id="forAll" name="forAll">
+
+          <div class="function-details">
+            Use statistics calculated for each individual request.
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="details">details</label>
+          <input type="checkbox" id="details" name="details">
+
+          <div class="function-details">
+            Use statistics calculated from a group or a request
+            <dl>
+              <dt>(path)</dt>
+              <dd>The request or group path</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <div class="statistics group col-lg-4 col-md-6 col-xs-12">
+        <h3>Statistics</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="responseTime">responseTime</label>
+          <input type="checkbox" id="responseTime" name="responseTime">
+
+          <div class="function-details">
+            Target the response time in milliseconds
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="allRequests">allRequests</label>
+          <input type="checkbox" id="allRequests" name="allRequests">
+
+          <div class="function-details">
+            Target the number of requests
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="failedRequests">failedRequests</label>
+          <input type="checkbox" id="failedRequests" name="failedRequests">
+
+          <div class="function-details">
+            Target the number of failed requests
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="successfulRequests">successfulRequests</label>
+          <input type="checkbox" id="successfulRequests" name="successfulRequests">
+
+          <div class="function-details">
+            Target the number of successful requests
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="requestsPerSec">requestsPerSec</label>
+          <input type="checkbox" id="requestsPerSec" name="requestsPerSec">
+
+          <div class="function-details">
+            Target the rate of requests per second
+          </div>
+        </div>
+      </div>
+
+      <!-- Response time selectors -->
+
+      <div class="response-time-selectors group col-lg-4 col-md-6 col-xs-12">
+        <h3>Response time selectors</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="min">min</label>
+          <input type="checkbox" id="min" name="min">
+
+          <div class="function-details">
+            Perform the assertion on the minimum of the stat
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="max">max</label>
+          <input type="checkbox" id="max" name="max">
+
+          <div class="function-details">
+            Perform the assertion on the maximum of the stat
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="mean">mean</label>
+          <input type="checkbox" id="mean" name="mean">
+
+          <div class="function-details">
+            Perform the assertion on the mean of the stat
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="stdDev">stdDev</label>
+          <input type="checkbox" id="stdDev" name="stdDev">
+
+          <div class="function-details">
+            Perform the assertion on the standard deviation of the stat
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="percentiles1">percentiles1</label>
+          <input type="checkbox" id="percentiles1" name="percentiles1">
+
+          <div class="function-details">
+            Perform the assertion on the first percentile of the stat
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="percentiles2">percentiles2</label>
+          <input type="checkbox" id="percentiles2" name="percentiles2">
+
+          <div class="function-details">
+            Perform the assertion on the second percentile of the stat
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="percentiles3">percentiles3</label>
+          <input type="checkbox" id="percentiles3" name="percentiles3">
+
+          <div class="function-details">
+            Perform the assertion on the third percentile of the stat
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="percentiles4">percentiles4</label>
+          <input type="checkbox" id="percentiles4" name="percentiles4">
+
+          <div class="function-details">
+            Perform the assertion on the fourth percentile of the stat
+          </div>
+        </div>
+      </div>
+
+      <!-- Count selectors -->
+
+      <div class="count-selectors group col-lg-4 col-md-6 col-xs-12">
+        <h3>Count selectors</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="percent">percent</label>
+          <input type="checkbox" id="percent" name="percent">
+
+          <div class="function-details">
+            Use the value as a percentage between 0 and 100
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="count2">count</label>
+          <input type="checkbox" id="count2" name="count">
+
+          <div class="function-details">
+            Perform the assertion on the count of requests
+          </div>
+        </div>
+      </div>
+
+      <!-- Assertions conditions -->
+
+      <div class="assertions-conditions group col-lg-4 col-md-6 col-xs-12">
+        <h3>Assertions conditions</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="lessThan">lessThan</label>
+          <input type="checkbox" id="lessThan" name="lessThan">
+
+          <div class="function-details">
+            Check that the value of the statistic is less than the threshold
+            <dl>
+              <dt>(threshold)</dt>
+              <dd>the statistic's higher bound</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="greaterThan">greaterThan</label>
+          <input type="checkbox" id="greaterThan" name="greaterThan">
+
+          <div class="function-details">
+            Check that the value of the statistic is greater than the threshold
+            <dl>
+              <dt>(threshold)</dt>
+              <dd>the statistic's lower bound</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="between">between</label>
+          <input type="checkbox" id="between" name="between">
+
+          <div class="function-details">
+            Check that the value of the statistic is between two thresholds
+            <dl>
+              <dt>(thresholdMin,thresholdMax)</dt>
+              <dd>the statistic's bounds</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="is2">is</label>
+          <input type="checkbox" id="is2" name="is">
+
+          <div class="function-details">
+            Check that the value of the statistic is equal to the given value
+            <dl>
+              <dt>(value)</dt>
+              <dd>the <i>value</i> the statistic must be equal to</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="in2">in</label>
+          <input type="checkbox" id="in2" name="in">
+
+          <div class="function-details">
+            Check that the value of statistic is in a sequence
+            <dl>
+              <dt>(sequence)</dt>
+              <dd>the <i>sequence</i> the statistic has to be in</dd>
+            </dl>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    
     <!-- HTTP action -->
 
     <div class="row-fluid">
@@ -2147,294 +2435,6 @@
             disable response chunk discard (which is a performance optimization)
           </div>
         </div>
-      </div>
-    </div>
-
-    <!-- Assertions -->
-
-    <div class="row-fluid">
-      <h2>
-        Assertions
-        <small>Check that your results match your expectations</small>
-      </h2>
-
-      <!-- Assertion -->
-
-      <div class="assertion group col-lg-4 col-md-6 col-xs-12">
-        <h3>Assertions</h3>
-
-        <div class="function">
-          <label class="function-syntax" for="assertions">assertions</label>
-          <input type="checkbox" id="assertions" name="assertions">
-
-          <div class="function-details">
-            Declare the assertions on your simulation
-            <dl>
-              <dt>(assertions)</dt>
-              <dd>The assertions your simulation will be checked against</dd>
-            </dl>
-          </div>
-        </div>
-      </div>
-
-      <!-- Scopes -->
-
-      <div class="scopes group col-lg-4 col-md-6 col-xs-12">
-        <h3>Scopes</h3>
-
-        <div class="function">
-          <label class="function-syntax" for="global">global</label>
-          <input type="checkbox" id="global" name="global">
-
-          <div class="function-details">
-            Use statistics calculated from all requests
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="forAll">forAll</label>
-          <input type="checkbox" id="forAll" name="forAll">
-
-          <div class="function-details">
-            Use statistics calculated for each individual request.
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="details">details</label>
-          <input type="checkbox" id="details" name="details">
-
-          <div class="function-details">
-            Use statistics calculated from a group or a request
-            <dl>
-              <dt>(path)</dt>
-              <dd>The request or group path</dd>
-            </dl>
-          </div>
-        </div>
-      </div>
-
-      <div class="statistics group col-lg-4 col-md-6 col-xs-12">
-        <h3>Statistics</h3>
-
-        <div class="function">
-          <label class="function-syntax" for="responseTime">responseTime</label>
-          <input type="checkbox" id="responseTime" name="responseTime">
-
-          <div class="function-details">
-            Target the response time in milliseconds
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="allRequests">allRequests</label>
-          <input type="checkbox" id="allRequests" name="allRequests">
-
-          <div class="function-details">
-            Target the number of requests
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="failedRequests">failedRequests</label>
-          <input type="checkbox" id="failedRequests" name="failedRequests">
-
-          <div class="function-details">
-            Target the number of failed requests
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="successfulRequests">successfulRequests</label>
-          <input type="checkbox" id="successfulRequests" name="successfulRequests">
-
-          <div class="function-details">
-            Target the number of successful requests
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="requestsPerSec">requestsPerSec</label>
-          <input type="checkbox" id="requestsPerSec" name="requestsPerSec">
-
-          <div class="function-details">
-            Target the rate of requests per second
-          </div>
-        </div>
-      </div>
-
-      <!-- Response time selectors -->
-
-      <div class="response-time-selectors group col-lg-4 col-md-6 col-xs-12">
-        <h3>Response time selectors</h3>
-
-        <div class="function">
-          <label class="function-syntax" for="min">min</label>
-          <input type="checkbox" id="min" name="min">
-
-          <div class="function-details">
-            Perform the assertion on the minimum of the stat
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="max">max</label>
-          <input type="checkbox" id="max" name="max">
-
-          <div class="function-details">
-            Perform the assertion on the maximum of the stat
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="mean">mean</label>
-          <input type="checkbox" id="mean" name="mean">
-
-          <div class="function-details">
-            Perform the assertion on the mean of the stat
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="stdDev">stdDev</label>
-          <input type="checkbox" id="stdDev" name="stdDev">
-
-          <div class="function-details">
-            Perform the assertion on the standard deviation of the stat
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="percentiles1">percentiles1</label>
-          <input type="checkbox" id="percentiles1" name="percentiles1">
-
-          <div class="function-details">
-            Perform the assertion on the first percentile of the stat
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="percentiles2">percentiles2</label>
-          <input type="checkbox" id="percentiles2" name="percentiles2">
-
-          <div class="function-details">
-            Perform the assertion on the second percentile of the stat
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="percentiles3">percentiles3</label>
-          <input type="checkbox" id="percentiles3" name="percentiles3">
-
-          <div class="function-details">
-            Perform the assertion on the third percentile of the stat
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="percentiles4">percentiles4</label>
-          <input type="checkbox" id="percentiles4" name="percentiles4">
-
-          <div class="function-details">
-            Perform the assertion on the fourth percentile of the stat
-          </div>
-        </div>
-      </div>
-
-      <!-- Count selectors -->
-
-      <div class="count-selectors group col-lg-4 col-md-6 col-xs-12">
-        <h3>Count selectors</h3>
-
-        <div class="function">
-          <label class="function-syntax" for="percent">percent</label>
-          <input type="checkbox" id="percent" name="percent">
-
-          <div class="function-details">
-            Use the value as a percentage between 0 and 100
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="count2">count</label>
-          <input type="checkbox" id="count2" name="count">
-
-          <div class="function-details">
-            Perform the assertion on the count of requests
-          </div>
-        </div>
-      </div>
-
-      <!-- Assertions conditions -->
-
-      <div class="assertions-conditions group col-lg-4 col-md-6 col-xs-12">
-        <h3>Assertions conditions</h3>
-
-        <div class="function">
-          <label class="function-syntax" for="lessThan">lessThan</label>
-          <input type="checkbox" id="lessThan" name="lessThan">
-
-          <div class="function-details">
-            Check that the value of the statistic is less than the threshold
-            <dl>
-              <dt>(threshold)</dt>
-              <dd>the statistic's higher bound</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="greaterThan">greaterThan</label>
-          <input type="checkbox" id="greaterThan" name="greaterThan">
-
-          <div class="function-details">
-            Check that the value of the statistic is greater than the threshold
-            <dl>
-              <dt>(threshold)</dt>
-              <dd>the statistic's lower bound</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="between">between</label>
-          <input type="checkbox" id="between" name="between">
-
-          <div class="function-details">
-            Check that the value of the statistic is between two thresholds
-            <dl>
-              <dt>(thresholdMin,thresholdMax)</dt>
-              <dd>the statistic's bounds</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="is2">is</label>
-          <input type="checkbox" id="is2" name="is">
-
-          <div class="function-details">
-            Check that the value of the statistic is equal to the given value
-            <dl>
-              <dt>(value)</dt>
-              <dd>the <i>value</i> the statistic must be equal to</dd>
-            </dl>
-          </div>
-        </div>
-
-        <div class="function">
-          <label class="function-syntax" for="in2">in</label>
-          <input type="checkbox" id="in2" name="in">
-
-          <div class="function-details">
-            Check that the value of statistic is in a sequence
-            <dl>
-              <dt>(sequence)</dt>
-              <dd>the <i>sequence</i> the statistic has to be in</dd>
-            </dl>
-          </div>
-        </div>
-
       </div>
     </div>
 
