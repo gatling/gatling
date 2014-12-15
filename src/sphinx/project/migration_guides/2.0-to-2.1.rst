@@ -93,23 +93,11 @@ Please use ``headers`` instead.
 Maven Archetype
 ===============
 
-Due to some necessary changes to allow Gatling to use Scala 2.11, you'll need to update ``IDEPathHelper.scala`` and ``Engine.scala``
-if you're using the Maven archetype:
+Due to some necessary changes to allow Gatling to use Scala 2.11, you'll have to update ``IDEPathHelper.scala``, ``Engine.scala`` and ``Recorder.scala``
+if you're using the Maven archetype.
 
-* Remove ``props.disableCompiler`` in ``Engine.scala``
-* Replace ``val projectRootDir = File(gatlingConfUrl).parents(2)`` by ``val projectRootDir = File(gatlingConfUrl).ancestor(3)``
-* Replace the imports:
-
-::
-
-  import scala.tools.nsc.io.File
-  import scala.tools.nsc.io.Path.string2path
-
-by::
-
-  import java.nio.file.Path
-  import io.gatling.core.util.PathHelper._
-
+Either generate a new project with the 2.1 archetype, or override your classes with the ones `here <https://github.com/gatling/gatling-maven/tree/gatling-maven-parent-2.1.0/gatling-highcharts-maven-archetype/src/main/scala>`_.
+If you choose the latter, don't forget to fix the simulationPackage in ``Recorder.scala``.
 
 SBT Plugin
 ==========
