@@ -13,14 +13,13 @@ The Check API is used for 2 things:
 * eventually capturing some elements in it.
 
 Checks are performed on a request with the ``check`` method.
-For example, on an HTTP request::
+For example, on an HTTP request:
 
-  http("My Request").get("myUrl").check(status.is(200))
+.. includecode:: code/Checks.scala#status-is-200
 
-One can of course perform multiple checks::
+One can of course perform multiple checks:
 
-  http("My Request").get("myUrl").check(status.not(404), status.not(500)))
-
+.. includecode:: code/Checks.scala#status-is-not-404-or-500
 
 This API provides a dedicated DSL for chaining the following steps:
 
@@ -70,15 +69,15 @@ Same as above, but *pattern* is used to apply a regex on the current location.
 
 By default, it can extract 0 or 1 capture group, so the extract type is ``String``.
 
-One can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step::
+One can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step:
 
-  currentLocationRegex(pattern).ofType[T]
+.. includecode:: code/Checks.scala#currentLocationRegex-ofType
 
 Gatling provides built-in support for extracting String tuples from ``Tuple2[String]`` to ``Tuple8[String]``.
 
-The example below will capture two capture groups::
+The example below will capture two capture groups:
 
-  currentLocationRegex("http://foo.com/bar?(.*)=(.*)").ofType[(String, String)]
+.. includecode:: code/Checks.scala#currentLocationRegex-example
 
 HTTP header
 -----------
@@ -102,15 +101,15 @@ Same as above, but *pattern* is used to apply a regex on the header value.
 
 By default, it can extract 0 or 1 capture group, so the extract type is ``String``.
 
-One can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step::
+One can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step:
 
-  headerRegex(headerName, pattern).ofType[T]
+.. includecode:: code/Checks.scala#headerRegex-ofType
 
 Gatling provides built-in support for extracting String tuples from ``Tuple2[String]`` to ``Tuple8[String]``.
 
-The example below will capture two capture groups::
+The example below will capture two capture groups:
 
-  headerRegex("FOO", "foo(.*)bar(.*)baz").ofType[(String, String)]
+.. includecode:: code/Checks.scala#headerRegex-example
 
 .. _http-check-response-body:
 
@@ -154,12 +153,7 @@ Scans for the indices of a given substring inside the body string.
 
 *expression*  can be a plain ``String``, a ``String`` using Gatling EL or an ``Expression[String]``.
 
-::
-
-  substring("foo")                           // same as substring("foo").find.exists
-  substring("foo").findAll.saveAs("indices") // saves a Seq[Int]
-  substring("foo").count.saveAs("counts")    // saves the number of occurrences of foo
-
+.. includecode:: code/Checks.scala#substring
 
 .. note:: Typically used for checking the presence of a substring, as it's more CPU efficient than a regular expression.
 
@@ -173,26 +167,23 @@ Defines a Java regular expression to be applied on any text response body.
 
 It can contain multiple capture groups.
 
-::
-
-  regex("""<td class="number">""")
-  regex("""<td class="number">ACC${account_id}</td>""")
-  regex("""/private/bank/account/(ACC[0-9]*)/operations.html""")
+.. includecode:: code/Checks.scala#regex
 
 .. note:: In Scala, you can use escaped strings with this notation: ``"""my "non-escaped" string"""``.
+
           This simplifies the writing and reading of regular expressions.
 
 By default, it can extract 0 or 1 capture group, so the extract type is ``String``.
 
-You can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step::
+You can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step:
 
-  regex(expression).ofType[T]
+.. includecode:: code/Checks.scala#regex-ofType
 
 Gatling provides built-in support for extracting String tuples from ``Tuple2[String]`` to ``Tuple8[String]``.
 
-The example below will capture two capture groups::
+The example below will capture two capture groups:
 
-  regex("foo(.*)bar(.*)baz").ofType[(String, String)]
+.. includecode:: code/Checks.scala#regex-example
 
 .. _http-check-xpath:
 
@@ -204,10 +195,7 @@ Defines an XPath 1.0 expression to be applied on an XML response body.
 
 *namespaces* is an optional List of couples of (prefix, uri)
 
-::
-
-  xpath("//input[@id='text1']/@value")
-  xpath("//foo:input[@id='text1']/@value", List("foo" -> "http://foo.com"))
+.. includecode:: code/Checks.scala#xpath
 
 .. note:: XPath only works on well formed XML documents, which regular HTML is not (while XHTML is).
           If you're looking for path expression for matching HTML documents, please have a look at our :ref:`CSS selectors support<http-check-css>`.
@@ -224,16 +212,13 @@ Please check `Goessner's website <http://goessner.net/articles/JsonPath>`_ for m
 
 *expression*  can be a plain ``String``, a ``String`` using Gatling EL or an ``Expression[String]``.
 
-::
-
-  jsonPath("$..foo.bar[2].baz")
-
+.. includecode:: code/Checks.scala#jsonPath
 
 By default, it extracts ``String``\ s, so JSON values of different types get serialized.
 
-You can define an different type with the ``ofType[T]`` extra step::
+You can define an different type with the ``ofType[T]`` extra step:
 
-  jsonPath(expression).ofType[T]
+.. includecode:: code/Checks.scala#jsonPath-ofType
 
 Gatling provides built-in support for the following types:
 
@@ -248,18 +233,10 @@ Gatling provides built-in support for the following types:
 * Any
 
 
-The example below shows how to extract Ints
+The example below shows how to extract Ints:
 
-.. code-block:: json
-
-  {
-    "foo": 1,
-    "bar" "baz"
-  }
-
-::
-
-  jsonPath("$..foo").ofType[Int] // will match 1
+.. includecode:: code/Checks.scala
+  :include: json-response,jsonPath-Int
 
 .. _http-check-jsonp-jsonpath:
 
@@ -279,9 +256,7 @@ Gatling supports `CSS Selectors <http://jodd.org/doc/csselly>`_.
 When filled, check is performed against the attribute value.
 Otherwise check is performed against the node text content.
 
-::
-
-  css("article.more a", "href")
+.. includecode:: code/Checks.scala#css
 
 .. _http-check-checksum:
 
@@ -345,11 +320,8 @@ Transforming is an **optional** step for transforming the result of the extracti
 
 .. note:: You can also gain access to the ``Session`` and pass a ``(Option[X], Session) => Validation[X2]`` instead.
 
-::
-
-  transform(string => string + "foo")
-
-  transformOption(extract => extract.orElse(Some("default"))).success)
+.. includecode:: code/Checks.scala
+  :include: transform,transformOption
 
 .. _http-check-validating:
 
@@ -360,9 +332,9 @@ Validating
 
 * ``is(expected)``
 
-Checks that the value is equal to the expected one, e.g.::
+Checks that the value is equal to the expected one, e.g.:
 
-  status.is(200)
+.. includecode:: code/Checks.scala#is
 
 *expected* is a function that returns a value of the same type of the previous step (extraction or transformation).
 
@@ -372,9 +344,9 @@ In case of a ``String``, it can also be a ``String`` using Gatling EL or an ``Ex
 
 * ``not(expected)``
 
-Checks that the value is different from the expected one::
+Checks that the value is different from the expected one:
 
-  status.not(500)
+.. includecode:: code/Checks.scala#not
 
 *expected* is a function that returns a value of the same type of the previous step (extraction or transformation).
 
@@ -384,25 +356,25 @@ In case of a ``String``, it can also be a ``String`` using Gatling EL or an ``Ex
 
 * ``exists``
 
-Checks that the value exists and is not empty in case of multiple results::
+Checks that the value exists and is not empty in case of multiple results:
 
-  jsonPath("$..foo").exists
+.. includecode:: code/Checks.scala#exists
 
 .. _http-check-not-exists:
 
 * ``notExists``
 
-Checks that the value doesn't exist and or is empty in case of multiple results::
+Checks that the value doesn't exist and or is empty in case of multiple results:
 
-  jsonPath("$..foo").notExists
+.. includecode:: code/Checks.scala#notExists
 
 .. _http-check-in:
 
 * ``in(sequence)``
 
-Checks that the value belongs to a given sequence or vararg::
+Checks that the value belongs to a given sequence or vararg:
 
-  status.in(200, 304)
+.. includecode:: code/Checks.scala#in
 
 *sequence*
 
@@ -435,52 +407,34 @@ Putting it all together
 
 To help you understand the checks, here is a list of examples:
 
-::
-
-  check(regex("""https://(.*)""").count.is(5))
+.. includecode:: code/Checks.scala#regex-count-is
 
 Verifies that there are exactly 5 HTTPS links in the response.
 
-::
-
-  check(regex("""https://(.*)/.*""")
-        .findAll
-        .is(List("www.google.com", "www.mysecuredsite.com"))
+.. includecode:: code/Checks.scala#regex-findAll-is
 
 Verifies that there are two secured links pointing at the specified websites.
 
-::
+.. includecode:: code/Checks.scala#status-is
 
-  check(status.is(200))
+Verifies that the status is equal to 200.
 
-Verifies that the status is equal to 200
+.. includecode:: code/Checks.scala#status-in
 
-::
+Verifies that the status is one of: 200, 201, 202, ..., 209, 210.
 
-  check(status.in(200 to 210))
+.. includecode:: code/Checks.scala#regex-find-exists
 
-Verifies that the status is one of: 200, 201, 202, ..., 209, 210
+Verifies that there are at least **two** occurrences of "aWord".
 
-::
+.. includecode:: code/Checks.scala#regex-notExists
 
-  check(regex("aWord").find(1).exists))
+Verifies that the response doesn't contain "aWord".
 
-Verifies that there are at least **two** occurrences of "aWord"
-
-::
-
-  check(regex("aWord").notExists)
-
-Verifies that the response doesn't contain "aWord"
-
-::
-
-  bodyString.is(RawFileBody("expected_response.json"))
+.. includecode:: code/Checks.scala#bodyString-is-RawFileBody
 
 Verifies that the response body matches the file ``user-files/bodies/expected_response.json``
 
-::
-
-  bodyString.is(ELFileBody("expected_template.json"))
+.. includecode:: code/Checks.scala#bodyString-isELFileBody
 
 Verifies that the response body matches the content of the file ``user-files/bodies/expected_template.json`` resolved with :ref:`Gatling Expression Language (EL) <el>`.

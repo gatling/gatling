@@ -1,7 +1,7 @@
 .. _http-sse:
 
 #######################
-SSE (Server Sent Event)
+SSE (Server Sent Event)
 #######################
 
 SSE support is an extension to the HTTP DSL, whose entry point is the ``sse(requestName: Expression[String])`` method.
@@ -15,9 +15,9 @@ If you want to deal with several sse per virtual users, you have to give them a 
 
 ``sseName(name: String)``
 
-For example::
+For example:
 
-  sse("SSE Operation").sseName("myCustomName")
+.. includecode:: code/Sse.scala#sseName
 
 Of course, this step is not required if you deal with one single server sent event per virtual user.
 
@@ -30,9 +30,9 @@ The first thing is to get a server sent event:
 
 ``get(url: Expression[String])``
 
-For example::
+For example:
 
-  .exec(sse("Get SSE").get("/stocks/prices"))
+.. includecode:: code/Sse.scala#sseOpen
 
 
 .. note:: Gatling automatically sets ``Accept`` header to ``text/event-stream`` and ``Cache-Control`` to ``no-cache``.
@@ -46,9 +46,9 @@ When you're done with a server sent event, you can close it:
 
 ``close``
 
-For example::
+For example:
 
-  .exec(sse("Close SSE").close)
+.. includecode:: code/Sse.scala#sseClose
 
 Server Messages: Checks
 =======================
@@ -64,14 +64,13 @@ Set a Check
 
 Checks can be set in 2 ways.
 
-First, when sending a message::
+First, when sending a message:
 
-  exec(sse("Get SSE").get("/stocks/prices").check(...))
+.. includecode:: code/Sse.scala#set-check-from-message
 
+Then, directly from the main HTTP flow:
 
-Then, directly from the main HTTP flow::
-
-  exec(sse("Set Check").check(...))
+.. includecode:: code/Sse.scala#set-check-from-flow
 
 If a check was already registered on the server sent event at this time, it's considered as failed and replaced with the new one.
 
@@ -81,16 +80,11 @@ Build a Check
 -------------
 
 Now, to the matter at heart, how to build a server sent event check. Right now, the checks for the server sent event  are the ones
-of the web socket. So, please refer to the websocket section :ref:`Build a Check <http-ws-check-build>` for more details.
+of the web socket. So, please refer to the webSocket section :ref:`Build a Check <http-ws-check-build>` for more details.
 
-Here are few examples::
+Here are few examples:
 
-  exec(sse("sse").get("/stocks/prices")
-          .check(wsAwait.within(10).until(1).regex(""""event":"snapshot(.*)"""")))
-
-  exec(sse("sse").get("/stocks/prices")
-                     .check(wsListen.within(30 seconds).expect(1))
-
+.. includecode:: code/Sse.scala#build-check
 
 Configuration
 =============
@@ -104,14 +98,6 @@ Server sent event support uses the same parameter as the HttpProtocol:
 Example
 =======
 
-Here's an example that runs against a stock market sample::
+Here's an example that runs against a stock market sample:
 
-  val httpConf = http
-    .baseURL("http://localhost:8080/app")
-
-  val scn = scenario("Server Sent Event")
-    .exec(sse("Stocks").get("/stocks/prices"))
-        .check(wsAwait.within(10).until(1).regex(""""event":"snapshot(.*)"""")))
-        .pause(15)
-        .exec(sse("Close SSE").close())
-
+.. includecode:: code/Sse.scala#stock-market-sample

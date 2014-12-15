@@ -9,12 +9,9 @@ Concepts
 
 The Assertions API is used to verify that global statistics like response time or number of failed requests matches expectations for a whole simulation.
 
-Assertions are registered for a simulation using the method ``assertions`` on the ``setUp``. For example::
+Assertions are registered for a simulation using the method ``assertions`` on the ``setUp``. For example:
 
-  setUp(...).assertions(
-    global.responseTime.max.lessThan(50),
-    global.successfulRequests.percent.greaterThan(95)
-  )
+.. includecode:: code/Assertions.scala#setUp
 
 This method takes as many assertions as you like.
 
@@ -38,10 +35,9 @@ An assertion can test a statistic calculated from all requests or only a part.
 
 * ``details(path)``: use statistics calculated from a group or a request. The path is defined like a Unix filesystem path.
 
-For example, to perform an assertion on the request ``Index`` in the group ``Search``, use::
+For example, to perform an assertion on the request ``Index`` in the group ``Search``, use:
 
-  details("Search" / "Index")
-
+.. includecode:: code/Assertions.scala#details
 
 .. note::
 
@@ -110,17 +106,4 @@ Putting it all together
 
 To help you understand how to use assertions, here is a list of examples :
 
-::
-
-  // Assert that the max response time of all requests is less than 100 ms
-  setUp(...).assertions(global.responseTime.max.lessThan(100))
-
-  // Assert that every request has no more than 5% of failing requests
-  setUp(...).assertions(forAll.failedRequests.percent.lessThan(5))
-
-  // Assert that the percentage of failed requests named "Index" in the group "Search"
-  // is exactly 0 %
-  setUp(...).assertions(details("Search" / "Index").failedRequests.percent.is(0))
-
-  // Assert that the rate of requests per seconds for the group "Search"
-  setUp(...).assertions(details("Search").requestsPerSec.between(100, 1000))
+.. includecode:: code/Assertions.scala#examples

@@ -18,10 +18,12 @@ object GatlingBuild extends Build {
   /******************/
 
   lazy val root = Project("gatling-parent", file("."))
+    .dependsOn(Seq(core, http, jms, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
     .aggregate(core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
     .settings(basicSettings: _*)
     .settings(noCodeToPublish: _*)
     .settings(docSettings: _*)
+    .settings(libraryDependencies ++= docDependencies)
 
   /*************/
   /** Modules **/

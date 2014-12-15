@@ -20,9 +20,9 @@ However, some use cases require a more fine grain control.
 Adding a Cookie
 ---------------
 
-One might want to manually add or compute a cookie::
+One might want to manually add or compute a cookie:
 
-  .exec(addCookie(Cookie("name", "value")))
+.. includecode:: code/HttpHelpers.scala#cookie
 
 Cookie can also take more optional parameters::
 
@@ -37,18 +37,18 @@ Cookie can also take more optional parameters::
 Flushing Session Cookies
 ------------------------
 
-One might want to simulate closing a browser, so Session cookies are dropped but permanent cookies are still there::
+One might want to simulate closing a browser, so Session cookies are dropped but permanent cookies are still there:
 
-  .exec(flushSessionCookies)
+.. includecode:: code/HttpHelpers.scala#flushSessionCookies
 
 .. _http-helpers-cookie-flush-all:
 
 Flushing All Cookies
 --------------------
 
-One might want to flush the whole CookieJar::
+One might want to flush the whole CookieJar:
 
-  .exec(flushCookieJar)
+.. includecode:: code/HttpHelpers.scala#flushCookieJar
 
 .. _http-helpers-cache:
 
@@ -60,7 +60,7 @@ Dealing with Caching
 Flushing the Cache
 ------------------
 
-One might want to flush the whole HTTP cache (for the virtual user) ::
+One might want to flush the whole HTTP cache (for the virtual user) :
 
-  .exec(flushHttpCache)
+.. includecode:: code/HttpHelpers.scala#flushHttpCache
 

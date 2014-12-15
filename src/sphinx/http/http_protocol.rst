@@ -20,11 +20,9 @@ Bootstrapping
 Use the ``http`` object in order to create an HTTP protocol.
 
 As every protocol in Gatling, the HTTP protocol can be configured for a scenario.
-This is done thanks to the following statements::
+This is done thanks to the following statements:
 
-  val httpConf = http.baseURL("http://my.website.tld")
-  ...
-  setUp(scn.protocols(httpConf))
+.. includecode:: code/HttpProtocol.scala#bootstrapping
 
 Core parameters
 ===============
@@ -35,28 +33,16 @@ Base URL
 --------
 
 As you may have seen in the previous example, you can set a base URL.
-This base URL will be prepended to all urls that does not start with ``http``, e.g.::
+This base URL will be prepended to all urls that does not start with ``http``, e.g.:
 
-  val httpConf = http.baseURL("http://my.website.tld")
-
-  val scn = scenario("My Scenario")
-    .exec(
-      http("My Request")
-      .get("/my_path") // Will actually make a request on "http://my.website.tld/my_path"
-    )
-    .exec(
-      http("My Other Request")
-      .get("http://other.website.tld") // Will make a request on "http://other.website.tld"
-    ...
-
-  setUp(scn.inject(...).protocols(httpConf))
+.. includecode:: code/HttpProtocol.scala#baseUrl
 
 Load testing several servers with client based load balancing
 -------------------------------------------------------------
 
-If you want to load test several servers at the same time, to bypass a load-balancer for example, you can use methods named ``baseURLs`` which accepts a ``String*`` or a ``List[String]``::
+If you want to load test several servers at the same time, to bypass a load-balancer for example, you can use methods named ``baseURLs`` which accepts a ``String*`` or a ``List[String]``:
 
-	val httpConf = http.baseURLs("http://my1.website.tld", "http://my2.website.tld", "http://my3.website.tld")
+.. includecode:: code/HttpProtocol.scala#baseUrls
 
 The selection of the URL is made at each request, using the ``Random`` generator.
 
@@ -72,12 +58,7 @@ In order to compensate this effect, Gatling automatically performs a request to 
 To disable this feature, just add ``.disableWarmUp`` to an HTTP Protocol Configuration definition.
 To change the warm up url, just add ``.warmUp("newUrl")``.
 
-::
-
-    // override warm up URL to http://www.google.com
-    val httpConf = http.warmUp("http://www.google.com")
-    // disable warm up
-    val httpConfNoWarmUp = http.disableWarmUp
+.. includecode:: code/HttpProtocol.scala#warmUp
 
 Engine parameters
 =================
@@ -101,12 +82,7 @@ Gatling ships a bunch of built-ins for well-known browsers:
 * ``maxConnectionsPerHostLikeIE10``
 * ``maxConnectionsPerHostLikeChrome``
 
-::
-
-    // 10 connections per host.
-    val httpConf= http.maxConnectionsPerHost(10)
-    // Firefox max connections per host preset.
-    val httpConf= http.maxConnectionsPerHostLikeFirefox
+.. includecode:: code/HttpProtocol.scala#maxConnectionsPerHost
 
 .. _http-protocol-connection-sharing:
 
@@ -207,9 +183,9 @@ Rules are:
 
 .. _http-protocol-silentURI:
 
-``silentURI`` lets you pass a regular expression that would disable logging for ALL matching requests::
+``silentURI`` lets you pass a regular expression that would disable logging for ALL matching requests:
 
-  .silentURI("https://myCDN/.*")
+.. includecode:: code/HttpProtocol.scala#silentURI
 
 .. _http-protocol-silentResources:
 
@@ -225,10 +201,9 @@ Gatling lets you set some generic headers at the http protocol definition level 
 * ``header(name: String, value: Expression[String])``: set a single header.
 * ``headers(headers: Map[String, String])``: set a bunch of headers.
 
-e.g.::
+e.g.:
 
-  .header("foo", "bar")
-  .headers(Map("foo" -> "bar", "baz" -> "qix"))
+.. includecode:: code/HttpProtocol.scala#headers
 
 .. warning:: ``headers`` used to be named ``baseHeaders``. Old name was deprecated, then removed in 2.1.
 
@@ -366,13 +341,10 @@ Proxy parameters
 ----------------
 
 You can tell Gatling to use a proxy to send the HTTP requests.
-You can optionally set a different port for HTTPS and credentials::
+You can optionally set a different port for HTTPS and credentials:
 
-  val httpConf = http.proxy(Proxy("myProxyHost", 8080)
-                     .httpsPort(8143)
-                     .credentials("myUsername","myPassword"))
+.. includecode:: code/HttpProtocol.scala#proxy
 
-You can also disable the use of proxy for a given list of host with ``noProxyFor(hosts: String*)``::
+You can also disable the use of proxy for a given list of host with ``noProxyFor(hosts: String*)``:
 
-  val httpConf = http.proxy(Proxy("myProxyHost", 8080))
-                     .noProxyFor("www.github.com", "www.akka.io")
+.. includecode:: code/HttpProtocol.scala#noProxyFor

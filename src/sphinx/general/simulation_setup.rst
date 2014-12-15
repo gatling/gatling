@@ -17,22 +17,9 @@ Injection
 =========
 
 The definition of the injection profile of users is done with the ``inject`` method. This method takes as argument a sequence of injection steps that will be processed sequentially.
-E.g.::
+E.g.:
 
-  setUp(
-    scn.inject(
-      nothingFor(4 seconds), // 1
-      atOnceUsers(10), // 2
-      rampUsers(10) over(5 seconds), // 3
-      constantUsersPerSec(20) during(15 seconds), // 4
-      constantUsersPerSec(20) during(15 seconds) randomized, // 5
-      rampUsersPerSec(10) to(20) during(10 minutes), // 6
-      rampUsersPerSec(10) to(20) during(10 minutes) randomized, // 7
-      splitUsers(1000) into(rampUsers(10) over(10 seconds)) separatedBy(10 seconds), // 8
-      splitUsers(1000) into(rampUsers(10) over(10 seconds)) separatedBy(atOnceUsers(30)), // 9
-      heavisideUsers(1000) over(20 seconds) // 10
-      ).protocols(httpConf)
-    )
+.. includecode:: code/SimulationSetup.scala#injection
 
 The building blocks for profile injection the way you want are:
 
@@ -109,14 +96,7 @@ If this is not sufficient for some reason then Gatling supports throttling with 
     If your injection lasts longer than the throttle, the simulation will stop at the end of the throttle.
   * Throttling can also be configured :ref:`per scenario <scenario-throttling>`.
 
-::
-
-  setUp(...).throttle(
-    reachRps(100) in (10 seconds),
-    holdFor(1 minute),
-    jumpToRps(50),
-    holdFor(2 hours)
-  )
+.. includecode:: code/SimulationSetup.scala#throttling
 
 This simulation will reach 100 req/s with a ramp of 10 seconds, then hold this throughput for 1 minute, jump to 50 req/s and finally hold this throughput for 2 hours.
 
@@ -134,6 +114,4 @@ Maximum duration
 Finally, you can configure the maximum duration of your simulation with the method ``maxDuration``.
 It is useful if you need to bound the duration of your simulation when you can't predict it.
 
-::
-
-  setUp(...).maxDuration(10 minutes)
+.. includecode:: code/SimulationSetup.scala#max-duration
