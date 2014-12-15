@@ -18,13 +18,17 @@ class Sse {
 
   val myCheck = wsAwait.within(10).until(1).regex(""""event":"snapshot(.*)"""")
 
-  //#set-check-from-message
+  //#check-from-message
   exec(sse("Get SSE").open("/stocks/prices").check(myCheck))
-  //#set-check-from-message
+  //#check-from-message
 
-  //#set-check-from-flow
+  //#check-from-flow
   exec(sse("Set Check").check(myCheck))
-  //#set-check-from-flow
+  //#check-from-flow
+
+  //#cancel-check
+  exec(sse("Cancel Check").cancelCheck)
+  //#cancel-check
 
   //#build-check
   exec(sse("sse").open("/stocks/prices")

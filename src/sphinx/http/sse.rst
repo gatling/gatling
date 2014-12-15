@@ -66,13 +66,22 @@ Checks can be set in 2 ways.
 
 First, when sending a message:
 
-.. includecode:: code/Sse.scala#set-check-from-message
+.. includecode:: code/Sse.scala#check-from-message
 
 Then, directly from the main HTTP flow:
 
-.. includecode:: code/Sse.scala#set-check-from-flow
+.. includecode:: code/Sse.scala#check-from-flow
 
 If a check was already registered on the server sent event at this time, it's considered as failed and replaced with the new one.
+
+.. _http-sse-check-cancel:
+
+Cancel a Check
+--------------
+
+One can decide to cancel a pending check:
+
+.. includecode:: code/Sse.scala#cancel-check
 
 .. _http-sse-check-build:
 
@@ -87,6 +96,24 @@ So, please refer to the WebSocket section :ref:`Build a Check <http-ws-check-bui
 Here are few examples:
 
 .. includecode:: code/Sse.scala#build-check
+
+.. _http-ws-check-reconciliate:
+
+Reconciliate
+------------
+
+One complex thing is that, when using non blocking checks that save data, state is stored in a different flow than the main one.
+
+So, one has to reconciliate the main flow state and the WebSocket flow one.
+
+This can be done:
+
+* implicitly when performing an action on the WebSocket from the main flow, such as send a message to the server
+* explicitly with the ``reconciliate`` method.
+
+.. includecode:: code/WebSocket.scala#reconciliate
+
+.. _http-ws-check-conf:
 
 Configuration
 =============
