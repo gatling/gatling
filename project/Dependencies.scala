@@ -21,7 +21,7 @@ object Dependencies {
   private val jsr305                        = "com.google.code.findbugs"               % "jsr305"                      % "3.0.0"
   private val fastring                      = "com.dongxiguo"                         %% "fastring"                    % "0.2.4"
   private val threetenbp                    = "org.threeten"                           % "threetenbp"                  % "1.2"
-  private val scopt                         = "com.github.scopt"                      %% "scopt"                       % "3.2.0"
+  private val scopt                         = "com.github.scopt"                      %% "scopt"                       % "3.3.0"
   private val scalalogging                  = "com.typesafe.scala-logging"            %% "scala-logging"               % "3.1.0"
   private val jackson                       = "com.fasterxml.jackson.core"             % "jackson-databind"            % "2.4.4"
   private val boon                          = "io.fastjson"                            % "boon"                        % "0.30"
