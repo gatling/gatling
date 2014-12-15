@@ -86,7 +86,7 @@ First, when sending a message:
 
 Then, directly from the main HTTP flow:
 
-.. includecode:: code/WebSocket.scala#check-from-main-flow
+.. includecode:: code/WebSocket.scala#check-from-flow
 
 If a check was already registered on the WebSocket at this time, it's considered as failed and replaced with the new one.
 
@@ -146,6 +146,8 @@ Here are an example:
 
 .. includecode:: code/WebSocket.scala#check-example
 
+.. _http-ws-check-reconciliate:
+
 Reconciliate
 ------------
 
@@ -159,6 +161,8 @@ This can be done:
 * explicitly with the ``reconciliate`` method.
 
 .. includecode:: code/WebSocket.scala#reconciliate
+
+.. _http-ws-check-conf:
 
 Configuration
 =============

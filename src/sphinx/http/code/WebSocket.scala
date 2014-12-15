@@ -27,9 +27,9 @@ class WebSocket {
   exec(ws("Send").sendText("hello").check(myCheck))
   //#check-from-message
 
-  //#check-from-main-flow
+  //#check-from-flow
   exec(ws("Set Check").check(myCheck))
-  //#check-from-main-flow
+  //#check-from-flow
 
   //#cancel-check
   exec(ws("Cancel Check").cancelCheck)
