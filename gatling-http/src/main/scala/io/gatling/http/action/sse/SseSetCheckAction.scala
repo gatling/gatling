@@ -13,17 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.sse
+package io.gatling.http.action.sse
 
-import io.gatling.core.check.{ Check, CheckResult }
-import io.gatling.core.session.Session
+import akka.actor.ActorRef
+import io.gatling.core.session._
 import io.gatling.core.validation.Validation
-import io.gatling.http.check.ws.Expectation
+import io.gatling.http.action.RequestAction
+import io.gatling.http.check.ws._
 
-import scala.collection.mutable
-import scala.concurrent.duration.FiniteDuration
+class SseSetCheckAction(val requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String, val next: ActorRef)
+    extends RequestAction with SseAction {
 
-case class SseCheck(wrapped: Check[String], blocking: Boolean, timeout: FiniteDuration, expectation: Expectation) extends Check[String] {
-  override def check(message: String, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] = wrapped.check(message, session)
-
+  def sendRequest(requestName: String, session: Session): Validation[Unit] =
+    for {
+      sseActor <- fetchSse(sseName, session)
+      check = checkBuilder.build
+    } yield sseActor ! SetCheck(requestName, check, next, session)
 }

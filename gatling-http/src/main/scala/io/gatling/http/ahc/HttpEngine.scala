@@ -38,9 +38,8 @@ import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ Controller, ThrottledRequest }
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
-import io.gatling.http.action.sse.{ SseSource, SseHandler, OnSseSource }
+import io.gatling.http.action.sse.SseHandler
 import io.gatling.http.action.ws.WsListener
-import io.gatling.http.check.sse.SseCheck
 import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.HttpRequest
@@ -78,7 +77,7 @@ case class SseTx(session: Session,
                  next: ActorRef,
                  start: Long,
                  reconnectCount: Int = 0,
-                 check: Option[SseCheck] = None,
+                 check: Option[WsCheck] = None,
                  pendingCheckSuccesses: List[CheckResult] = Nil,
                  updates: List[Session => Session] = Nil) {
 
@@ -289,8 +288,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     }
 
     val handler = new SseHandler(newTx, sseActor)
-    val future = client.executeRequest(newTx.request, handler)
-    sseActor ! OnSseSource(new SseSource(future))
+    client.executeRequest(newTx.request, handler)
   }
 
   def startWebSocketTransaction(tx: WsTx, wsActor: ActorRef): Unit = {

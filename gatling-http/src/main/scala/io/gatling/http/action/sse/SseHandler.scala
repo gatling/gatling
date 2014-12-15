@@ -60,7 +60,7 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 
   override def onSendRequest(request: Any): Unit = {
     logger.debug(s"Request $request has been sent by the http client")
-    sseActor ! OnSend(tx)
+    sseActor ! OnSend(this, tx)
   }
 
   override def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
@@ -84,9 +84,10 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     else CONTINUE
 
   override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
-    if (done.get)
+    if (done.get) {
+      bodyPart.markUnderlyingConnectionAsToBeClosed()
       ABORT
-    else {
+    } else {
       val payload = bodyPart.asInstanceOf[NettyResponseBodyPart].getChannelBuffer.toString(UTF_8)
       parse(payload)
       CONTINUE
@@ -126,7 +127,7 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 
   override def stopForward(): Unit = done.compareAndSet(false, true)
 
-  override def dispatchEventStream(sse: ServerSentEvent): Unit = sseActor ! OnMessage(sse.asJSONString, nowMillis, this)
+  override def dispatchEventStream(sse: ServerSentEvent): Unit = sseActor ! OnMessage(sse.asJSONString, nowMillis)
 }
 
 private sealed trait SseState

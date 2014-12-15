@@ -15,10 +15,15 @@
  */
 package io.gatling.http.action.sse
 
-import java.io.Closeable
+import akka.actor.ActorRef
+import io.gatling.core.session._
+import io.gatling.core.validation.Validation
+import io.gatling.http.action.RequestAction
 
-import com.ning.http.client.ListenableFuture
+class SseCancelCheckAction(val requestName: Expression[String], sseName: String, val next: ActorRef) extends RequestAction {
 
-class SseSource(val future: ListenableFuture[Unit]) extends Closeable {
-  override def close(): Unit = future.done
+  def sendRequest(requestName: String, session: Session): Validation[Unit] =
+    for {
+      sseActor <- session(sseName).validate[ActorRef]
+    } yield sseActor ! CancelCheck(requestName, next, session)
 }

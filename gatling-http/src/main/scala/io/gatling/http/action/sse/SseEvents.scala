@@ -18,19 +18,22 @@ package io.gatling.http.action.sse
 import akka.actor.ActorRef
 import io.gatling.core.session.Session
 import io.gatling.http.ahc.SseTx
+import io.gatling.http.check.ws.WsCheck
 
 sealed trait SseEvent
-case class OnSend(tx: SseTx) extends SseEvent
+case class OnSend(forwarder: SseForwarder, tx: SseTx) extends SseEvent
 case class OnFailedOpen(tx: SseTx, errorMessage: String, time: Long) extends SseEvent
-case class OnMessage(message: String, time: Long, sseForwarder: SseForwarder) extends SseEvent
+case class OnMessage(message: String, time: Long) extends SseEvent
 case class OnThrowable(tx: SseTx, errorMessage: String, time: Long) extends SseEvent
 case object OnClose extends SseEvent
-case class OnSseSource(sseSource: SseSource) extends SseEvent
+case class CheckTimeout(check: WsCheck) extends SseEvent
 
 sealed trait SseUserAction extends SseEvent {
   def requestName: String
   def next: ActorRef
   def session: Session
 }
+case class SetCheck(requestName: String, check: WsCheck, next: ActorRef, session: Session) extends SseUserAction
+case class CancelCheck(requestName: String, next: ActorRef, session: Session) extends SseUserAction
 case class Close(requestName: String, next: ActorRef, session: Session) extends SseUserAction
 case class Reconciliate(requestName: String, next: ActorRef, session: Session) extends SseUserAction

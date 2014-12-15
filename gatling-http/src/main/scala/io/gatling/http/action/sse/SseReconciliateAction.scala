@@ -21,8 +21,7 @@ import io.gatling.core.validation.Validation
 import io.gatling.http.action.RequestAction
 
 class SseReconciliateAction(val requestName: Expression[String], sseName: String, val next: ActorRef)
-    extends RequestAction
-    with SseAction {
+    extends RequestAction with SseAction {
 
   override def sendRequest(requestName: String,
                            session: Session): Validation[Unit] =

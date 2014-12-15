@@ -15,10 +15,15 @@
  */
 package io.gatling.http.request.builder.sse
 
+import akka.actor.ActorDSL._
+import akka.actor.ActorRef
 import com.ning.http.client.Request
+import io.gatling.core.config.Protocols
 import io.gatling.core.session._
+import io.gatling.http.action.HttpActionBuilder
+import io.gatling.http.check.ws._
 import io.gatling.http.{ HeaderValues, HeaderNames }
-import io.gatling.http.action.sse.SseGetActionBuilder
+import io.gatling.http.action.sse._
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
 
@@ -32,8 +37,8 @@ object SseOpenRequestBuilder {
       .header(HeaderNames.Accept, SseHeaderValueExpression)
       .header(HeaderNames.CacheControl, CacheControlNoCacheValueExpression)
 
-  implicit def toActionBuilder(requestBuilder: SseOpenRequestBuilder): SseGetActionBuilder =
-    new SseGetActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder)
+  implicit def toActionBuilder(requestBuilder: SseOpenRequestBuilder): SseOpenActionBuilder =
+    new SseOpenActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder)
 }
 
 class SseOpenRequestBuilder(commonAttributes: CommonAttributes, val sseName: String) extends RequestBuilder[SseOpenRequestBuilder](commonAttributes) {
@@ -41,4 +46,9 @@ class SseOpenRequestBuilder(commonAttributes: CommonAttributes, val sseName: Str
   override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseOpenRequestBuilder(commonAttributes, sseName)
 
   def build(protocol: HttpProtocol): Expression[Request] = new SseRequestExpressionBuilder(commonAttributes, protocol).build
+}
+
+class SseSetCheckActionBuilder(requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String) extends HttpActionBuilder {
+
+  def build(next: ActorRef, protocols: Protocols): ActorRef = actor(actorName("sseSetCheck"))(new SseSetCheckAction(requestName, checkBuilder, sseName, next))
 }

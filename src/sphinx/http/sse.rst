@@ -11,7 +11,7 @@ Common operations
 
 .. _http-sse-name:
 
-If you want to deal with several sse per virtual users, you have to give them a name and pass this name on each sse operation:
+If you want to deal with several SSE streams per virtual users, you have to give them a name and pass this name on each SSE operation:
 
 ``sseName(name: String)``
 
@@ -19,7 +19,7 @@ For example:
 
 .. includecode:: code/Sse.scala#sseName
 
-Of course, this step is not required if you deal with one single server sent event per virtual user.
+Of course, this step is not required if you deal with one single SSE stream per virtual user.
 
 .. _http-sse-open:
 
@@ -42,7 +42,7 @@ For example:
 Close
 -----
 
-When you're done with a server sent event, you can close it:
+When you're done with a SSE stream, you can close it:
 
 ``close``
 
@@ -55,7 +55,7 @@ Server Messages: Checks
 
 Dealing with incoming messages from the server is done with checks, passed with the usual ``check()`` method.
 
-Gatling currently only support one check at a time per server sent event.
+Gatling currently only support one check at a time per SSE stream.
 
 .. _http-sse-check-set:
 
@@ -79,8 +79,10 @@ If a check was already registered on the server sent event at this time, it's co
 Build a Check
 -------------
 
-Now, to the matter at heart, how to build a server sent event check. Right now, the checks for the server sent event  are the ones
-of the web socket. So, please refer to the webSocket section :ref:`Build a Check <http-ws-check-build>` for more details.
+Now, to the matter at heart, how to build a server sent event check.
+
+SSE support uses the same checks as WebSockets.
+So, please refer to the WebSocket section :ref:`Build a Check <http-ws-check-build>` for more details.
 
 Here are few examples:
 

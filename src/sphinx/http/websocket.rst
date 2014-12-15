@@ -1,14 +1,14 @@
 .. _http-ws:
 
 #########
-Websocket
+WebSocket
 #########
 
-Websocket support is an extension to the HTTP DSL, whose entry point is the ``ws(requestName: Expression[String])`` method.
+WebSocket support is an extension to the HTTP DSL, whose entry point is the ``ws(requestName: Expression[String])`` method.
 
-Websocket protocol is very different from the HTTP one as the communication is 2 ways: both client-to-server and server-to-client, so the model is different from the HTTP request/response pair.
+WebSocket protocol is very different from the HTTP one as the communication is 2 ways: both client-to-server and server-to-client, so the model is different from the HTTP request/response pair.
 
-As a consequence, main HTTP branch and a Websocket branch can exist in a Gatling scenario in a dissociated way, in parallel.
+As a consequence, main HTTP branch and a WebSocket branch can exist in a Gatling scenario in a dissociated way, in parallel.
 When doing so, each flow branch has it's own state, so a user might have to reconciliate them, for example when capturing data from a websocket check and wanting this data to be available to the HTTP branch.
 
 Common operations
@@ -16,7 +16,7 @@ Common operations
 
 .. _http-ws-name:
 
-If you want to deal with several websockets per virtual users, you have to give them a name and pass this name on each ws operation:
+If you want to deal with several WebSockets per virtual users, you have to give them a name and pass this name on each ws operation:
 
 ``wsName(name: String)``
 
@@ -24,14 +24,14 @@ For example:
 
 .. includecode:: code/WebSocket.scala#wsName
 
-Of course, this step is not required if you deal with one single websocket per virtual user.
+Of course, this step is not required if you deal with one single WebSocket per virtual user.
 
 .. _http-ws-open:
 
 Open
 ----
 
-The first thing is to open a websocket:
+The first thing is to open a WebSocket:
 
 ``open(url: Expression[String])``
 
@@ -44,7 +44,7 @@ For example:
 Close
 -----
 
-When you're done with a websocket, you can close it:
+When you're done with a WebSocket, you can close it:
 
 ``close``
 
@@ -71,7 +71,7 @@ Server Messages: Checks
 
 Dealing with incoming messages from the server is done with checks, passed with the usual ``check()`` method.
 
-Gatling currently only support one check at a time per websocket.
+Gatling currently only support one check at a time per WebSocket.
 
 .. _http-ws-check-set:
 
@@ -88,7 +88,7 @@ Then, directly from the main HTTP flow:
 
 .. includecode:: code/WebSocket.scala#check-from-main-flow
 
-If a check was already registered on the websocket at this time, it's considered as failed and replaced with the new one.
+If a check was already registered on the WebSocket at this time, it's considered as failed and replaced with the new one.
 
 .. _http-ws-check-cancel:
 
@@ -104,13 +104,13 @@ One can decide to cancel a pending check:
 Build a Check
 -------------
 
-Now, to the matter at heart, how to build a websocket check.
+Now, to the matter at heart, how to build a WebSocket check.
 
 **Step 1: Blocking or non Blocking**
 
 The first thing is to decide if the main HTTP flow is blocked until the check completes or not.
 
-``wsListen`` creates a non blocking check: the main HTTP flow will go on and Gatling will listen for websocket incoming messages on the background.
+``wsListen`` creates a non blocking check: the main HTTP flow will go on and Gatling will listen for WebSocket incoming messages on the background.
 
 ``wsAwait`` creates a blocking check: the main HTTP flow is blocked until the check completes.
 
@@ -151,11 +151,11 @@ Reconciliate
 
 One complex thing is that, when using non blocking checks that save data, state is stored in a different flow than the main one.
 
-So, one has to reconciliate the main flow state and the websocket flow one.
+So, one has to reconciliate the main flow state and the WebSocket flow one.
 
 This can be done:
 
-* implicitly when performing an action on the websocket from the main flow, such as send a message to the server
+* implicitly when performing an action on the WebSocket from the main flow, such as send a message to the server
 * explicitly with the ``reconciliate`` method.
 
 .. includecode:: code/WebSocket.scala#reconciliate
@@ -165,13 +165,13 @@ Configuration
 
 Websocket support introduces new parameters on HttpProtocol:
 
-``wsBaseURL(url: String)``: similar to standard ``baseURL`` for HTTP, serves as root that will be prepended to all relative websocket urls
+``wsBaseURL(url: String)``: similar to standard ``baseURL`` for HTTP, serves as root that will be prepended to all relative WebSocket urls
 
-``wsBaseURLs(urls: String*)``: similar to standard ``baseURLs`` for HTTP, serves as round-robin roots that will be prepended to all relative websocket urls
+``wsBaseURLs(urls: String*)``: similar to standard ``baseURLs`` for HTTP, serves as round-robin roots that will be prepended to all relative WebSocket urls
 
-``wsReconnect``: automatically reconnect a websocket that would have been closed by someone else than the client.
+``wsReconnect``: automatically reconnect a WebSocket that would have been closed by someone else than the client.
 
-``wsMaxReconnects(max: Int)``: set a limit on the number of times a websocket will be automatically reconnected
+``wsMaxReconnects(max: Int)``: set a limit on the number of times a WebSocket will be automatically reconnected
 
 Example
 =======

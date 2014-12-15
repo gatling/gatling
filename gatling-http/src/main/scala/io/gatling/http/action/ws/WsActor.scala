@@ -43,6 +43,18 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
     }
   }
 
+  private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
+    writeRequestData(
+      session,
+      requestName,
+      started,
+      ended,
+      ended,
+      ended,
+      status,
+      errorMessage)
+  }
+
   def setCheck(tx: WsTx, webSocket: WebSocket, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
 
     logger.debug(s"setCheck blocking=${check.blocking} timeout=${check.timeout}")
@@ -87,18 +99,6 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
       next ! session.markAsFailed
 
       context.stop(self)
-  }
-
-  private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
-    writeRequestData(
-      session,
-      requestName,
-      started,
-      ended,
-      ended,
-      ended,
-      status,
-      errorMessage)
   }
 
   def openState(webSocket: WebSocket, tx: WsTx): Receive = {

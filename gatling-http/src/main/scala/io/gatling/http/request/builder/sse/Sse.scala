@@ -16,7 +16,9 @@
 package io.gatling.http.request.builder.sse
 
 import io.gatling.core.session.{ SessionPrivateAttributes, Expression }
-import io.gatling.http.action.sse.{ SseReconciliateActionBuilder, SseCloseActionBuilder }
+import io.gatling.http.action.sse._
+import io.gatling.http.action.ws.WsSetCheckActionBuilder
+import io.gatling.http.check.ws._
 
 object Sse {
   val DefaultSseName = SessionPrivateAttributes.PrivateAttributePrefix + "http.sse"
@@ -30,6 +32,18 @@ class Sse(requestName: Expression[String], sseName: String = Sse.DefaultSseName)
    * Open the sse stream and get the results of the stream
    */
   def open(url: Expression[String]) = SseOpenRequestBuilder(requestName, url, sseName)
+
+  /**
+   * Check for incoming messages on the given sse.
+   *
+   * @param checkBuilder The check builder
+   */
+  def check(checkBuilder: WsCheckBuilder) = new WsSetCheckActionBuilder(requestName, checkBuilder, sseName)
+
+  /**
+   * Cancel current check on the given sse.
+   */
+  def cancelCheck = new SseCancelCheckActionBuilder(requestName, sseName)
 
   /**
    * Reconciliate the main state with the one of the sse flow.

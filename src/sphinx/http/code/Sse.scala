@@ -23,7 +23,7 @@ class Sse {
   //#set-check-from-message
 
   //#set-check-from-flow
-  //exec(sse("Set Check").check(myCheck)) NON WORKING !!!!
+  exec(sse("Set Check").check(myCheck))
   //#set-check-from-flow
 
   //#build-check
@@ -37,7 +37,6 @@ class Sse {
   //#stock-market-sample
   val httpConf = http
     .baseURL("http://localhost:8080/app")
-
 
   val scn = scenario("Server Sent Event")
     .exec(

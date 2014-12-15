@@ -24,13 +24,13 @@ import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.http.ahc.SseTx
-import io.gatling.http.check.ws.{ ExpectedCount, ExpectedRange, UntilCount }
+import io.gatling.http.check.ws.{ WsCheck, ExpectedCount, ExpectedRange, UntilCount }
 
 import scala.collection.mutable
 
 class SseActor(sseName: String) extends BaseActor with DataWriterClient {
 
-  override def receive = initialState(None)
+  override def receive = initialState
 
   def failPendingCheck(tx: SseTx, message: String): SseTx = {
     tx.check match {
@@ -42,35 +42,61 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
     }
   }
 
-  def initialState(sseSource: Option[SseSource]): Receive = {
-    // FIXME should buffer all messages until OnSseSource is received
-    case OnSseSource(sseSource) =>
-      logger.debug(s"Initiate state with sseSource #${sseSource.hashCode}")
-      context.become(initialState(Some(sseSource)))
+  private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
+    writeRequestData(
+      session,
+      requestName,
+      started,
+      ended,
+      ended,
+      ended,
+      status,
+      errorMessage)
+  }
 
-    case OnSend(tx) =>
+  def setCheck(forwarder: SseForwarder, tx: SseTx, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
+
+    logger.debug(s"setCheck blocking=${check.blocking} timeout=${check.timeout}")
+
+    // schedule timeout
+    scheduler.scheduleOnce(check.timeout) {
+      self ! CheckTimeout(check)
+    }
+
+    val newTx = failPendingCheck(tx, "Check didn't succeed by the time a new one was set up")
+      .applyUpdates(session)
+      .copy(requestName = requestName, start = nowMillis, check = Some(check), pendingCheckSuccesses = Nil, next = next)
+    context.become(openState(forwarder, newTx))
+
+    if (!check.blocking)
+      next ! newTx.session
+  }
+
+  val initialState: Receive = {
+
+    case OnSend(forwarder, tx) =>
       import tx._
       logger.debug(s"sse request '$requestName' has been sent")
 
       val newSession = session.set(sseName, self)
       val newTx = tx.copy(session = newSession)
 
-      context.become(openState(newTx, sseSource))
+      context.become(openState(forwarder, newTx))
       next ! newSession
 
     case OnFailedOpen(tx, message, end) =>
       import tx._
-      logger.debug(s"sse '${sseName}' failed to open:$message")
+      logger.debug(s"sse '$sseName' failed to open:$message")
       logRequest(session, requestName, KO, start, end, Some(message))
 
       next ! session.markAsFailed
       context.stop(self)
   }
 
-  def openState(tx: SseTx, sseSource: Option[SseSource]): Receive = {
+  def openState(forwarder: SseForwarder, tx: SseTx): Receive = {
 
       def stopForwarderAndSucceedPendingCheck(forwarder: SseForwarder, results: List[CheckResult]): Unit = {
-        forwarder.stopForward
+        forwarder.stopForward()
         succeedPendingCheck(results)
       }
 
@@ -109,17 +135,15 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
               // apply updates and release blocked flow
               val newSession = tx.session.update(newUpdates)
 
-              // todo check the start = nowMillis with an example
               val newTx = tx.copy(session = newSession, updates = Nil, check = None, pendingCheckSuccesses = Nil, start = nowMillis)
-              context.become(openState(newTx, sseSource))
+              context.become(openState(forwarder, newTx))
 
               newTx.next ! newSession
 
             } else {
               // add to pending updates
-              // todo check the start = nowMillis with an example
               val newTx = tx.copy(updates = newUpdates, check = None, pendingCheckSuccesses = Nil, start = nowMillis)
-              context.become(openState(newTx, sseSource))
+              context.become(openState(forwarder, newTx))
             }
 
           case _ =>
@@ -128,16 +152,47 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
 
       def reconciliate(next: ActorRef, session: Session): Unit = {
         val newTx = tx.applyUpdates(session)
-        context.become(openState(newTx, sseSource))
+        context.become(openState(forwarder, newTx))
         next ! newTx.session
       }
 
     {
-      case OnSseSource(sseSource) =>
-        logger.debug(s"Associate the sseSource #${sseSource.hashCode} to the user #${tx.session.userId}")
-        context.become(openState(tx, Some(sseSource)))
+      case SetCheck(requestName, check, next, session) =>
+        logger.debug(s"Setting check on sse '$sseName'")
+        setCheck(forwarder, tx, requestName, check, next, session)
 
-      case OnMessage(message, end, forwarder) =>
+      case CancelCheck(requestName, next, session) =>
+        logger.debug(s"Cancelling check on sse '$sseName'")
+
+        val newTx = tx
+          .applyUpdates(session)
+          .copy(check = None, pendingCheckSuccesses = Nil)
+
+        context.become(openState(forwarder, newTx))
+        next ! newTx.session
+
+      case CheckTimeout(check) =>
+        logger.debug(s"Check on sse '$sseName' timed out")
+
+        tx.check match {
+          case Some(`check`) =>
+            check.expectation match {
+              case ExpectedCount(count) if count == tx.pendingCheckSuccesses.size        => succeedPendingCheck(tx.pendingCheckSuccesses)
+              case ExpectedRange(range) if range.contains(tx.pendingCheckSuccesses.size) => succeedPendingCheck(tx.pendingCheckSuccesses)
+              case _ =>
+                val newTx = failPendingCheck(tx, "Check failed: Timeout")
+                context.become(openState(forwarder, newTx))
+
+                if (check.blocking)
+                  // release blocked session
+                  newTx.next ! newTx.applyUpdates(newTx.session).session
+            }
+
+          case _ =>
+          // ignore outdated timeout
+        }
+
+      case OnMessage(message, end) =>
         logger.debug(s"Received message '$message' for user #${tx.session.userId}")
         import tx._
 
@@ -160,19 +215,19 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
                       // let's pile up
                       logRequest(session, requestName, OK, start, end) // todo check with an example
                       val newTx = tx.copy(pendingCheckSuccesses = results, start = end)
-                      context.become(openState(newTx, sseSource))
+                      context.become(openState(forwarder, newTx))
                   }
 
                 case Failure(error) =>
                   val newTx = failPendingCheck(tx, error)
-                  context.become(openState(newTx, sseSource))
+                  context.become(openState(forwarder, newTx))
               }
             }
 
           case None =>
             logRequest(session, requestName, OK, start, end)
             val newTx = tx.copy(start = end)
-            context.become(openState(newTx, sseSource))
+            context.become(openState(forwarder, newTx))
         }
 
       case Reconciliate(requestName, next, session) =>
@@ -180,8 +235,8 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
         reconciliate(next, session)
 
       case Close(requestName, next, session) =>
-        logger.debug(s"Closing sse '$sseName' for user #${session.userId} with sseSource #${sseSource.hashCode}")
-        sseSource.foreach(s => s.close)
+        logger.debug(s"Closing sse '$sseName' for user #${session.userId}")
+        forwarder.stopForward()
 
         val newTx = failPendingCheck(tx, "Check didn't succeed by the time the sse was asked to closed")
           .applyUpdates(session)
@@ -189,14 +244,13 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
 
         context.become(closingState(newTx))
 
-      case OnThrowable(tx, message, end) => {
-        import tx._
+      case OnThrowable(ttx, message, end) =>
+        import ttx._
         logRequest(session, requestName, KO, start, end, Some(message))
 
         next ! session.remove(sseName)
 
         context.stop(self)
-      }
 
       case unexpected =>
         logger.error(s"Discarding unknown message $unexpected while in open state")
@@ -212,17 +266,5 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
 
     case unexpected =>
       logger.error(s"Discarding unknown message $unexpected while in closing state")
-  }
-
-  private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
-    writeRequestData(
-      session,
-      requestName,
-      started,
-      ended,
-      ended,
-      ended,
-      status,
-      errorMessage)
   }
 }
