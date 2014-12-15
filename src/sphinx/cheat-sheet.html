@@ -2438,23 +2438,89 @@
       </div>
     </div>
 
-    <!-- Websockets -->
+    <!-- SSE -->
 
     <div class="row-fluid">
       <h2>
-        Websockets
-        <small>Define the Websocket requests sent in your scenario</small>
+        SSE (Server Side Events)
+        <small>Define the SSE requests sent in your scenario</small>
       </h2>
 
       <div class="ws group col-lg-4 col-md-6 col-xs-12">
-        <h3>Websocket</h3>
+        <h3>SSE</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="sse">sse</label>
+          <input type="checkbox" id="sse" name="sse">
+
+          <div class="function-details">
+            Declares an SSE request
+            <dl>
+              <dt>(requestName)</dt>
+              <dd>Name of the request</dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+
+      <div class="ws-common group col-lg-4 col-md-6 col-xs-12">
+        <h3>Commons</h3>
+
+        <div class="function">
+          <label class="function-syntax" for="sseName">sseName</label>
+          <input type="checkbox" id="sseName" name="sseName">
+
+          <div class="function-details">
+            Allows to deal with several SSE per virtual user
+            <dl>
+              <dt>(requestName)</dt>
+              <dd>Gives the requests a name and pass this name on each SSE operation</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="sse-open">open</label>
+          <input type="checkbox" id="sse-open" name="sse-open">
+
+          <div class="function-details">
+            Opens a SSE
+            <dl>
+              <dt>(url)</dt>
+              <dd>Enables communication to the given <i>url</i></dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="sse-close">close</label>
+          <input type="checkbox" id="sse-close" name="sse-close">
+
+          <div class="function-details">
+            Closes a SSE
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- WebSockets -->
+
+    <div class="row-fluid">
+      <h2>
+        WebSockets
+        <small>Define the WebSocket requests sent in your scenario</small>
+      </h2>
+
+      <div class="ws group col-lg-4 col-md-6 col-xs-12">
+        <h3>WebSocket</h3>
 
         <div class="function">
           <label class="function-syntax" for="ws">ws</label>
           <input type="checkbox" id="ws" name="ws">
 
           <div class="function-details">
-            Declares an websocket request
+            Declares an webSocket request
             <dl>
               <dt>(requestName)</dt>
               <dd>Name of the request</dd>
@@ -2471,7 +2537,7 @@
           <input type="checkbox" id="wsName" name="wsName">
 
           <div class="function-details">
-            Allows to deal with several websockets per virtual user
+            Allows to deal with several webSockets per virtual user
             <dl>
               <dt>(requestName)</dt>
               <dd>Gives the requests a name and pass this name on each ws operation</dd>
@@ -2484,7 +2550,7 @@
           <input type="checkbox" id="open" name="open">
 
           <div class="function-details">
-            Opens a websocket
+            Opens a webSocket
             <dl>
               <dt>(url)</dt>
               <dd>Enables communication to the given <i>url</i></dd>
@@ -2497,7 +2563,7 @@
           <input type="checkbox" id="close" name="close">
 
           <div class="function-details">
-            Closes a websocket
+            Closes a webSocket
           </div>
         </div>
 
@@ -2518,11 +2584,11 @@
       </div>
     </div>
 
-    <!-- Websockets checks -->
+    <!-- WebSockets checks -->
 
     <div class="row-fluid">
       <h2>
-        Websockets Checks
+        WebSockets/SSE Checks
         <small>Verifying server responses</small>
       </h2>
 
@@ -2650,18 +2716,18 @@
           <input type="checkbox" id="reconciliate" name="reconciliate">
 
           <div class="function-details">
-            Reconciliates main flow and websocket's flow
+            Reconciliates main flow and WebSocket/SSE flow
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Websockets configuration -->
+    <!-- WebSockets configuration -->
 
     <div class="row-fluid">
       <h2>
-        Websockets Configuration
-        <small>Mutualize your websockets code and tune the behaviour of Gatling's websocket client</small>
+        WebSockets Configuration
+        <small>Mutualize your webSockets code and tune the behaviour of Gatling's webSocket client</small>
       </h2>
 
       <!-- Configuration -->
@@ -2674,7 +2740,7 @@
           <input type="checkbox" id="wsBaseURL" name="wsBaseURL">
 
           <div class="function-details">
-            Serves as root that will be prepended to all relative websocket urls
+            Serves as root that will be prepended to all relative webSocket urls
             <dl>
               <dt>(url)</dt>
               <dd>Where <i>url</i> is the root url</dd>
@@ -2687,7 +2753,7 @@
           <input type="checkbox" id="wsBaseURLs" name="wsBaseURLs">
 
           <div class="function-details">
-            Serves as roundrobin roots that will be prepended to all relative websocket urls
+            Serves as round-robin roots that will be prepended to all relative webSocket urls
             <dl>
               <dt>(url...)</dt>
               <dd>Where <i>url</i> are the root urls</dd>
@@ -2700,7 +2766,7 @@
           <input type="checkbox" id="wsReconnect" name="wsReconnect">
 
           <div class="function-details">
-            Automatically reconnect a websocket that would have been closed by someone else than the client
+            Automatically reconnect a webSocket that would have been closed by someone else than the client
           </div>
         </div>
 
@@ -2709,7 +2775,7 @@
           <input type="checkbox" id="wsMaxReconnects" name="wsMaxReconnects">
 
           <div class="function-details">
-            Sets a limit on the number of times a websocket will be automatically reconnected
+            Sets a limit on the number of times a webSocket will be automatically reconnected
             <dl>
               <dt>(count)</dt>
               <dd>Where <i>count</i> is the number of maximum reconnections url</dd>
