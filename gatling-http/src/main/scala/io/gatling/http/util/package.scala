@@ -80,7 +80,13 @@ package object util {
 
       if (request.getStringData != null) buff.append("stringData=").append(request.getStringData).append(Eol)
 
-      if (request.getByteData != null) buff.append("byteData.length=").append(request.getByteData.length).append(Eol)
+      if (request.getByteData != null) buff.append("byteData=").append(new String(request.getByteData, configuration.core.charset)).append(Eol)
+
+      if (request.getCompositeByteData != null) {
+        buff.append("compositeByteData=")
+        request.getCompositeByteData.foreach(b => buff.append(new String(b, configuration.core.charset)))
+        buff.append(Eol)
+      }
 
       if (request.getFile != null) buff.append("file=").append(request.getFile.getAbsolutePath).append(Eol)
 
