@@ -44,6 +44,6 @@ object ConfigFiles {
     val outputPath = projectPath / "src" / "main" / "resources"
     val targetFile = outputPath / configFile.getName
     IO.copyFile(configFile, targetFile)
-    List(targetFile.getAbsoluteFile)
+    Seq(targetFile.getAbsoluteFile)
   }
 }

@@ -5,6 +5,7 @@ import BuildSettings._
 import Bundle._
 import Dependencies._
 import ConfigFiles._
+import CopyLogback._
 import VersionFile._
 
 object GatlingBuild extends Build {
@@ -35,6 +36,7 @@ object GatlingBuild extends Build {
     .settings(libraryDependencies ++= coreDependencies(scalaVersion.value))
     .settings(generateVersionFileSettings: _*)
     .settings(generateConfigFileSettings(bundle): _*)
+    .settings(copyLogbackXmlSettings(bundle): _*)
     .settings(copyGatlingDefaults(compiler): _*)
 
   lazy val jdbc = gatlingModule("gatling-jdbc")
