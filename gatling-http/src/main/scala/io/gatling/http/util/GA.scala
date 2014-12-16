@@ -24,6 +24,8 @@ import io.gatling.core.config.GatlingConfiguration._
 import io.gatling.core.util.IO._
 import io.gatling.http.HeaderNames._
 
+import scala.util.Try
+
 object GA {
 
   def send(): Unit =
@@ -46,6 +48,6 @@ object GA {
 
       val config = new AsyncHttpClientConfig.Builder().setMaxRequestRetry(0).build
 
-      withCloseable(new AsyncHttpClient(config)) { _.executeRequest(request).get }
+      Try(withCloseable(new AsyncHttpClient(config)) { _.executeRequest(request).get })
     }
 }
