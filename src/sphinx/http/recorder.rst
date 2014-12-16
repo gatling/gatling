@@ -15,10 +15,13 @@ You will get a window that looks like this one:
 Configuration
 =============
 
-Local proxy port
-----------------
+Listening proxy port
+--------------------
 
 In the Recorder, you have to define one port (for both HTTP and HTTPS): the local proxy port. This is the port your browser must connect to so that the Recorder is able to capture your navigation.
+
+.. image:: img/recorder-listening-port.png
+
 Then, you have to configure your browser to use the defined port.
 
 Here is how to do with Firefox, open the browser settings:
