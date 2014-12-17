@@ -95,11 +95,6 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
 
   def openState(forwarder: SseForwarder, tx: SseTx): Receive = {
 
-      def stopForwarderAndSucceedPendingCheck(forwarder: SseForwarder, results: List[CheckResult]): Unit = {
-        forwarder.stopForward()
-        succeedPendingCheck(results)
-      }
-
       def succeedPendingCheck(results: List[CheckResult]): Unit = {
         tx.check match {
           case Some(check) =>
@@ -208,12 +203,12 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
                   val results = result :: tx.pendingCheckSuccesses
 
                   check.expectation match {
-                    case UntilCount(count) if count == results.length                          => stopForwarderAndSucceedPendingCheck(forwarder, results)
-                    case ExpectedCount(count) if count == results.length                       => stopForwarderAndSucceedPendingCheck(forwarder, results)
-                    case ExpectedRange(range) if range.contains(tx.pendingCheckSuccesses.size) => stopForwarderAndSucceedPendingCheck(forwarder, results)
+                    case UntilCount(count) if count == results.length                          => succeedPendingCheck(results)
+                    case ExpectedCount(count) if count == results.length                       => succeedPendingCheck(results)
+                    case ExpectedRange(range) if range.contains(tx.pendingCheckSuccesses.size) => succeedPendingCheck(results)
                     case _ =>
                       // let's pile up
-                      logRequest(session, requestName, OK, start, end) // todo check with an example
+                      logRequest(session, requestName, OK, start, end)
                       val newTx = tx.copy(pendingCheckSuccesses = results, start = end)
                       context.become(openState(forwarder, newTx))
                   }
