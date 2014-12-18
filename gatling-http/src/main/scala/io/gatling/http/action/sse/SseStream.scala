@@ -15,6 +15,6 @@
  */
 package io.gatling.http.action.sse
 
-trait SseForwarder {
-  def stopForward(): Unit
+trait SseStream {
+  def close(): Unit
 }

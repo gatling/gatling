@@ -22,7 +22,7 @@ import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.{ Failure, Success }
+import io.gatling.core.validation.Success
 import io.gatling.http.ahc.SseTx
 import io.gatling.http.check.ws.{ WsCheck, ExpectedCount, ExpectedRange, UntilCount }
 
@@ -54,7 +54,7 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
       errorMessage)
   }
 
-  def setCheck(forwarder: SseForwarder, tx: SseTx, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
+  def setCheck(sseStream: SseStream, tx: SseTx, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
 
     logger.debug(s"setCheck blocking=${check.blocking} timeout=${check.timeout}")
 
@@ -66,7 +66,7 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
     val newTx = failPendingCheck(tx, "Check didn't succeed by the time a new one was set up")
       .applyUpdates(session)
       .copy(requestName = requestName, start = nowMillis, check = Some(check), pendingCheckSuccesses = Nil, next = next)
-    context.become(openState(forwarder, newTx))
+    context.become(openState(sseStream, newTx))
 
     if (!check.blocking)
       next ! newTx.session
@@ -74,14 +74,14 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
 
   val initialState: Receive = {
 
-    case OnSend(forwarder, tx) =>
+    case OnSend(sseStream, tx) =>
       import tx._
       logger.debug(s"sse request '$requestName' has been sent")
 
       val newSession = session.set(sseName, self)
       val newTx = tx.copy(session = newSession)
 
-      context.become(openState(forwarder, newTx))
+      context.become(openState(sseStream, newTx))
       next ! newSession
 
     case OnFailedOpen(tx, message, end) =>
@@ -93,7 +93,7 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
       context.stop(self)
   }
 
-  def openState(forwarder: SseForwarder, tx: SseTx): Receive = {
+  def openState(sseStream: SseStream, tx: SseTx): Receive = {
 
       def succeedPendingCheck(results: List[CheckResult]): Unit = {
         tx.check match {
@@ -130,15 +130,14 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
               // apply updates and release blocked flow
               val newSession = tx.session.update(newUpdates)
 
-              val newTx = tx.copy(session = newSession, updates = Nil, check = None, pendingCheckSuccesses = Nil, start = nowMillis)
-              context.become(openState(forwarder, newTx))
-
-              newTx.next ! newSession
+              tx.next ! newSession
+              val newTx = tx.copy(session = newSession, updates = Nil, check = None, pendingCheckSuccesses = Nil)
+              context.become(openState(sseStream, newTx))
 
             } else {
               // add to pending updates
-              val newTx = tx.copy(updates = newUpdates, check = None, pendingCheckSuccesses = Nil, start = nowMillis)
-              context.become(openState(forwarder, newTx))
+              val newTx = tx.copy(updates = newUpdates, check = None, pendingCheckSuccesses = Nil)
+              context.become(openState(sseStream, newTx))
             }
 
           case _ =>
@@ -147,14 +146,14 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
 
       def reconciliate(next: ActorRef, session: Session): Unit = {
         val newTx = tx.applyUpdates(session)
-        context.become(openState(forwarder, newTx))
+        context.become(openState(sseStream, newTx))
         next ! newTx.session
       }
 
     {
       case SetCheck(requestName, check, next, session) =>
         logger.debug(s"Setting check on sse '$sseName'")
-        setCheck(forwarder, tx, requestName, check, next, session)
+        setCheck(sseStream, tx, requestName, check, next, session)
 
       case CancelCheck(requestName, next, session) =>
         logger.debug(s"Cancelling check on sse '$sseName'")
@@ -163,7 +162,7 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
           .applyUpdates(session)
           .copy(check = None, pendingCheckSuccesses = Nil)
 
-        context.become(openState(forwarder, newTx))
+        context.become(openState(sseStream, newTx))
         next ! newTx.session
 
       case CheckTimeout(check) =>
@@ -176,7 +175,7 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
               case ExpectedRange(range) if range.contains(tx.pendingCheckSuccesses.size) => succeedPendingCheck(tx.pendingCheckSuccesses)
               case _ =>
                 val newTx = failPendingCheck(tx, "Check failed: Timeout")
-                context.become(openState(forwarder, newTx))
+                context.become(openState(sseStream, newTx))
 
                 if (check.blocking)
                   // release blocked session
@@ -187,42 +186,28 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
           // ignore outdated timeout
         }
 
-      case OnMessage(message, end) =>
+      case OnMessage(message, time) =>
         logger.debug(s"Received message '$message' for user #${tx.session.userId}")
-        import tx._
 
-        tx.check match {
-          case Some(c) =>
-            implicit val cache = mutable.Map.empty[Any, Any]
+        tx.check.foreach { check =>
 
-            tx.check.foreach { check =>
-              val validation = check.check(message, tx.session)
+          implicit val cache = mutable.Map.empty[Any, Any]
 
-              validation match {
-                case Success(result) =>
-                  val results = result :: tx.pendingCheckSuccesses
+          check.check(message, tx.session) match {
+            case Success(result) =>
+              val results = result :: tx.pendingCheckSuccesses
 
-                  check.expectation match {
-                    case UntilCount(count) if count == results.length                          => succeedPendingCheck(results)
-                    case ExpectedCount(count) if count == results.length                       => succeedPendingCheck(results)
-                    case ExpectedRange(range) if range.contains(tx.pendingCheckSuccesses.size) => succeedPendingCheck(results)
-                    case _ =>
-                      // let's pile up
-                      logRequest(session, requestName, OK, start, end)
-                      val newTx = tx.copy(pendingCheckSuccesses = results, start = end)
-                      context.become(openState(forwarder, newTx))
-                  }
+              check.expectation match {
+                case UntilCount(count) if count == results.length => succeedPendingCheck(results)
 
-                case Failure(error) =>
-                  val newTx = failPendingCheck(tx, error)
-                  context.become(openState(forwarder, newTx))
+                case _ =>
+                  // let's pile up
+                  val newTx = tx.copy(pendingCheckSuccesses = results)
+                  context.become(openState(sseStream, newTx))
               }
-            }
 
-          case None =>
-            logRequest(session, requestName, OK, start, end)
-            val newTx = tx.copy(start = end)
-            context.become(openState(forwarder, newTx))
+            case _ =>
+          }
         }
 
       case Reconciliate(requestName, next, session) =>
@@ -231,7 +216,7 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
 
       case Close(requestName, next, session) =>
         logger.debug(s"Closing sse '$sseName' for user #${session.userId}")
-        forwarder.stopForward()
+        sseStream.close()
 
         val newTx = failPendingCheck(tx, "Check didn't succeed by the time the sse was asked to closed")
           .applyUpdates(session)
