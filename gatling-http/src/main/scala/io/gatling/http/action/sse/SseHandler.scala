@@ -31,7 +31,7 @@ import org.jboss.netty.handler.codec.http.HttpResponseStatus.OK
 
 class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     with AsyncHandlerExtensions
-    with SseForwarder
+    with SseStream
     with EventStreamDispatcher
     with EventStreamParser
     with StrictLogging {
@@ -125,7 +125,7 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     }
   }
 
-  override def stopForward(): Unit = done.compareAndSet(false, true)
+  override def close(): Unit = done.compareAndSet(false, true)
 
   override def dispatchEventStream(sse: ServerSentEvent): Unit = sseActor ! OnMessage(sse.asJSONString, nowMillis)
 }
