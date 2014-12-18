@@ -150,8 +150,8 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
                     case v           => Seq(v)
                   }))
 
-                val newUpdate = (session: Session) => session.setAll(mergedCaptures)
-                newUpdate :: tx.updates
+                val newUpdates = (session: Session) => session.setAll(mergedCaptures)
+                newUpdates :: tx.updates
             }
 
             if (check.blocking) {
@@ -236,9 +236,9 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
       case OnTextMessage(message, time) =>
         logger.debug(s"Received text message on websocket '$wsName':$message")
 
-        implicit val cache = mutable.Map.empty[Any, Any]
-
         tx.check.foreach { check =>
+
+          implicit val cache = mutable.Map.empty[Any, Any]
 
           check.check(message, tx.session) match {
             case Success(result) =>
