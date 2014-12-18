@@ -180,7 +180,7 @@ Websocket support introduces new parameters on HttpProtocol:
 Example
 =======
 
-Here's an example that runs against Play's chatroom sample:
+Here's an example that runs against `Play 2.2 <https://www.playframework.com/download#older-versions`_'s chatroom sample (beware that this sample is missing from Play 2.3 and above):
 
 .. includecode:: code/WebSocket.scala#chatroom-example
 
