@@ -20,7 +20,7 @@ Two types of metrics are provided by Gatling  :
  * Users metrics
  * Requests metrics
 
-Gatling pushes this data to Graphite every second.
+Gatling pushes this data to Graphite every second by default, but the push frequency can be changed by setting the "writeInterval" in the GraphiteDataWriter section of gatling.conf
 
 User metrics
 ------------
@@ -89,10 +89,10 @@ In ``$GATLING_HOME/conf/gatling.conf``, be sure to :
       host = "192.168.56.101"
       port = 2003
       #light = false              # only send the all* stats
-      #protocol = "tcp"           # Choose between 'tcp' or 'udp'
-      #rootPathPrefix = "gatling"
-      #bucketWidth = 100
-      #bufferSize = 8192
+      #protocol = "tcp"           # The protocol used to send data to Carbon (currently supported : "tcp", "udp")
+      #rootPathPrefix = "gatling" # The common prefix of all metrics sent to Graphite
+      #bufferSize = 8192          # GraphiteDataWriter's internal data buffer size, in bytes
+      #writeInterval = 1          # GraphiteDataWriter's write interval, in seconds
     }
   }
 
@@ -109,6 +109,9 @@ In ``$GRAPHITE_HOME/conf/storage-schemas.conf``:
   priority = 110
   pattern = ^gatling\..*
   retentions = 1s:6d,10s:60d
+
+
+If you use a different writeInterval in your GraphiteDataWriter configuration, makes sure that your smallest retention is equal or greater than your writeInterval.
 
 In ``$GRAPHITE_HOME/conf/storage-aggregation.conf``:
 ::

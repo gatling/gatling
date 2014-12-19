@@ -57,7 +57,7 @@ class GraphiteDataWriter extends DataWriter {
     usersByScenario.update(AllUsersKey, new UsersBreakdownBuffer(scenarios.map(_.nbUsers).sum))
     scenarios.foreach(scenario => usersByScenario += (UsersRootKey / scenario.name) -> new UsersBreakdownBuffer(scenario.nbUsers))
 
-    scheduler.schedule(0 millisecond, 1 second, self, Send)
+    scheduler.schedule(0 millisecond, configuration.data.graphite.writeInterval second, self, Send)
   }
 
   def onUserMessage(userMessage: UserMessage): Unit = {
