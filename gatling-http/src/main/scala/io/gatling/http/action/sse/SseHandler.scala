@@ -58,10 +58,8 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
       logger.error("onRetry is not supposed to be called once done")
   }
 
-  override def onSendRequest(request: Any): Unit = {
+  override def onSendRequest(request: Any): Unit =
     logger.debug(s"Request $request has been sent by the http client")
-    sseActor ! OnSend(this, tx)
-  }
 
   override def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
 
@@ -69,6 +67,7 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     logger.debug(s"Status $statusCode received for sse '${tx.requestName}")
 
     if (statusCode == OK.getCode) {
+      sseActor ! OnOpen(tx, this, nowMillis)
       CONTINUE
 
     } else {

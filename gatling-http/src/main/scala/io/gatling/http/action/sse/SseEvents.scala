@@ -21,7 +21,7 @@ import io.gatling.http.ahc.SseTx
 import io.gatling.http.check.ws.WsCheck
 
 sealed trait SseEvent
-case class OnSend(sseStream: SseStream, tx: SseTx) extends SseEvent
+case class OnOpen(tx: SseTx, sseStream: SseStream, time: Long) extends SseEvent
 case class OnFailedOpen(tx: SseTx, errorMessage: String, time: Long) extends SseEvent
 case class OnMessage(message: String, time: Long) extends SseEvent
 case class OnThrowable(tx: SseTx, errorMessage: String, time: Long) extends SseEvent
