@@ -54,7 +54,7 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
       errorMessage)
   }
 
-  def setCheck(sseStream: SseStream, tx: SseTx, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
+  def setCheck(tx: SseTx, sseStream: SseStream, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
 
     logger.debug(s"setCheck blocking=${check.blocking} timeout=${check.timeout}")
 
@@ -74,15 +74,22 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
 
   val initialState: Receive = {
 
-    case OnSend(sseStream, tx) =>
+    case OnOpen(tx, sseStream, time) =>
       import tx._
-      logger.debug(s"sse request '$requestName' has been sent")
-
+      logger.debug(s"sse stream '$sseName' open")
       val newSession = session.set(sseName, self)
       val newTx = tx.copy(session = newSession)
 
-      context.become(openState(sseStream, newTx))
-      next ! newSession
+      check match {
+        case None =>
+          logRequest(session, requestName, OK, start, time)
+          context.become(openState(sseStream, newTx))
+          next ! newSession
+
+        case Some(c) =>
+          // hack, reset check so that there's no pending one
+          setCheck(newTx.copy(check = None), sseStream, requestName, c, next, newSession)
+      }
 
     case OnFailedOpen(tx, message, end) =>
       import tx._
@@ -153,7 +160,7 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
     {
       case SetCheck(requestName, check, next, session) =>
         logger.debug(s"Setting check on sse '$sseName'")
-        setCheck(sseStream, tx, requestName, check, next, session)
+        setCheck(tx, sseStream, requestName, check, next, session)
 
       case CancelCheck(requestName, next, session) =>
         logger.debug(s"Cancelling check on sse '$sseName'")
