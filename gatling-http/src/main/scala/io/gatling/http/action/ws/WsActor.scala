@@ -75,7 +75,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
 
   val initialState: Receive = {
 
-    case OnOpen(tx, webSocket, end) =>
+    case OnOpen(tx, webSocket, time) =>
       import tx._
       logger.debug(s"Websocket '$wsName' open")
       val newSession = session.set(wsName, self)
@@ -83,7 +83,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
 
       check match {
         case None =>
-          logRequest(session, requestName, OK, start, end)
+          logRequest(session, requestName, OK, start, time)
           context.become(openState(webSocket, newTx))
           next ! newSession
 
