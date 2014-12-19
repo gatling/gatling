@@ -27,24 +27,22 @@ object FastCharSequence {
   }
 }
 
-case class FastCharSequence(chars: Array[Char], offset: Int, count: Int) extends CharSequence {
-
-  def length: Int = count
+case class FastCharSequence(chars: Array[Char], offset: Int, length: Int) extends CharSequence {
 
   def charAt(index: Int): Char = chars(offset + index)
 
-  def subSequence(start: Int): FastCharSequence = subSequence(start, count)
+  def subSequence(start: Int): FastCharSequence = subSequence(start, length)
 
   def subSequence(start: Int, end: Int): FastCharSequence = new FastCharSequence(chars, offset + start, end - start)
 
   def startWith(others: Array[Char]): Boolean = {
 
-    if (others.length > count)
+    if (others.length > length)
       false
 
     else {
       var i = 0
-      while (i < count && i < others.length) {
+      while (i < length && i < others.length) {
         if (chars(offset + i) != others(i))
           return false
         i += 1
@@ -55,12 +53,12 @@ case class FastCharSequence(chars: Array[Char], offset: Int, count: Int) extends
   }
 
   def isBlank: Boolean = {
-    for (i <- offset until offset + count)
+    for (i <- offset until offset + length)
       if (chars(i) != ' ')
         return false
 
     true
   }
 
-  override def toString: String = String.valueOf(chars, offset, count)
+  override def toString: String = String.valueOf(chars, offset, length)
 }
