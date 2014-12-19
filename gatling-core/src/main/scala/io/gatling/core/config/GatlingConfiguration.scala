@@ -215,7 +215,8 @@ object GatlingConfiguration extends StrictLogging {
             GraphiteProtocol.fromName(protocolName).getOrElse(throw new IllegalArgumentException(s"Unsupported Graphite protocol: '$protocolName'"))
           },
           rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
-          bufferSize = config.getInt(data.graphite.BufferSize)),
+          bufferSize = config.getInt(data.graphite.BufferSize),
+          writeInterval = config.getInt(data.graphite.WriteInterval)),
         jdbc = JDBCDataWriterConfiguration(
           db = DBConfiguration(
             url = config.getString(data.jdbc.Url),
@@ -426,7 +427,8 @@ case class GraphiteDataWriterConfiguration(
   port: Int,
   protocol: GraphiteProtocol,
   rootPathPrefix: String,
-  bufferSize: Int)
+  bufferSize: Int,
+  writeInterval: Int)
 
 case class GatlingConfiguration(
   core: CoreConfiguration,
