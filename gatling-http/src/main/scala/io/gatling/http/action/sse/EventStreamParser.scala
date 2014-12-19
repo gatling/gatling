@@ -73,26 +73,6 @@ object EventStreamParser {
       val chars = string.unsafeChars
       val length = string.length
 
-        @tailrec
-        def loop(start: Int, curr: Int, last: Int, it: Iterator[FastCharSequence], inline: Boolean): Iterator[FastCharSequence] = {
-
-          if (curr == last) {
-            val newLine = if (inline) FastCharSequence(chars, start, curr - start) else FastCharSequence.Empty
-            it ++ Iterator.single(newLine)
-
-          } else
-            chars(curr) match {
-              case LF | CR =>
-                if (inline)
-                  loop(curr + 1, curr + 1, last, it ++ Iterator.single(FastCharSequence(chars, start, curr - start)), inline = false)
-                else
-                  loop(curr + 1, curr + 1, last, it, inline = false)
-
-              case _ =>
-                loop(start, curr + 1, last, it, inline = true)
-            }
-        }
-
       val last =
         if (string.isEmpty)
           0
@@ -103,7 +83,27 @@ object EventStreamParser {
         else
           length
 
-      loop(0, 0, last, Iterator.empty, inline = true)
+        @tailrec
+        def loop(start: Int, curr: Int, it: Iterator[FastCharSequence], inline: Boolean): Iterator[FastCharSequence] = {
+
+          if (curr == last) {
+            val newLine = if (inline) FastCharSequence(chars, start, curr - start) else FastCharSequence.Empty
+            it ++ Iterator.single(newLine)
+
+          } else
+            chars(curr) match {
+              case LF | CR =>
+                if (inline)
+                  loop(curr + 1, curr + 1, it ++ Iterator.single(FastCharSequence(chars, start, curr - start)), inline = false)
+                else
+                  loop(curr + 1, curr + 1, it, inline = false)
+
+              case _ =>
+                loop(start, curr + 1, it, inline = true)
+            }
+        }
+
+      loop(0, 0, Iterator.empty, inline = true)
     }
   }
 }
