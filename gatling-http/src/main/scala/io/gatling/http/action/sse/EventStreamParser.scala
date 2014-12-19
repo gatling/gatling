@@ -71,11 +71,12 @@ object EventStreamParser {
     def eventLines: Iterator[FastCharSequence] = {
 
       val chars = string.unsafeChars
+      val length = string.length
 
         @tailrec
-        def loop(start: Int, curr: Int, it: Iterator[FastCharSequence], inline: Boolean): Iterator[FastCharSequence] = {
+        def loop(start: Int, curr: Int, last: Int, it: Iterator[FastCharSequence], inline: Boolean): Iterator[FastCharSequence] = {
 
-          if (curr == chars.length) {
+          if (curr == last) {
             val newLine = if (inline) FastCharSequence(chars, start, curr - start) else FastCharSequence.Empty
             it ++ Iterator.single(newLine)
 
@@ -83,16 +84,26 @@ object EventStreamParser {
             chars(curr) match {
               case LF | CR =>
                 if (inline)
-                  loop(curr + 1, curr + 1, it ++ Iterator.single(FastCharSequence(chars, start, curr - start)), inline = false)
+                  loop(curr + 1, curr + 1, last, it ++ Iterator.single(FastCharSequence(chars, start, curr - start)), inline = false)
                 else
-                  loop(curr + 1, curr + 1, it, inline = false)
+                  loop(curr + 1, curr + 1, last, it, inline = false)
 
               case _ =>
-                loop(start, curr + 1, it, inline = true)
+                loop(start, curr + 1, last, it, inline = true)
             }
         }
 
-      loop(0, 0, Iterator.empty, inline = true)
+      val last =
+        if (string.isEmpty)
+          0
+        else if (length >= 2 && chars(length - 2) == CR && chars(length - 1) == LF)
+          length - 2
+        else if (length >= 1 && chars(length - 1) == CR || chars(length - 1) == LF)
+          length - 1
+        else
+          length
+
+      loop(0, 0, last, Iterator.empty, inline = true)
     }
   }
 }
@@ -106,16 +117,16 @@ trait EventStreamParser extends StrictLogging { this: EventStreamDispatcher =>
   def parse(expression: String): Unit =
     expression.eventLines.foreach {
       case EventName(name) => currentSse = currentSse.copy(name = Some(name))
-      case Id(id)          => currentSse = currentSse.copy(id = Some(id))
-      case Retry(retry)    => currentSse = currentSse.copy(retry = Some(retry.toInt))
+      case Id(id) =>          currentSse = currentSse.copy(id = Some(id))
+      case Retry(retry) =>    currentSse = currentSse.copy(retry = Some(retry.toInt))
       case Data(data) =>
         val newData = currentSse.data match {
           case None          => data
           case Some(oldData) => oldData + "\n" + data
         }
         currentSse = currentSse.copy(data = Some(newData))
-      case Dispatch(_) => currentSse = dispatchEvent()
-      case _           =>
+      case Dispatch(_) =>     currentSse = dispatchEvent()
+      case _ =>
     }
 
   private def dispatchEvent(): ServerSentEvent =
