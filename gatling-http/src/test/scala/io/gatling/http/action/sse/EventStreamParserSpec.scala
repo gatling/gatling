@@ -46,6 +46,7 @@ class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
 id: $id
 data: $data
 retry: $retry
+
 """
 
     val sse = parseFullSse(completeSse)
@@ -63,10 +64,10 @@ retry: $retry
       def dispatchEventStream(sse: ServerSentEvent): Unit = sseDispatcher.dispatchEventStream(sse)
     }
 
-    sseParser.parse(s"event: $name")
-    sseParser.parse(s"id: $id")
-    sseParser.parse(s"data: $data")
-    sseParser.parse(s"retry: $retry\n")
+    sseParser.parse(s"event: $name\n")
+    sseParser.parse(s"id: $id\n")
+    sseParser.parse(s"data: $data\n")
+    sseParser.parse(s"retry: $retry\n\n")
 
     val argumentCapture = ArgumentCaptor.forClass(classOf[ServerSentEvent])
     verify(sseDispatcher, times(1)).dispatchEventStream(argumentCapture.capture())
@@ -83,6 +84,7 @@ retry: $retry
     val sseNoRetry = s"""event: $name
 id: $id
 data: $data
+
 """
 
     val sse = parseFullSse(sseNoRetry)
@@ -96,6 +98,7 @@ data: $data
 
     val sseNoRetryNoId = s"""event: $name
 data: $data
+
 """
 
     val sse = parseFullSse(sseNoRetryNoId)
@@ -108,6 +111,7 @@ data: $data
   "sseOnlyData" should "return a server sent event with only data" in {
 
     val sseOnlyData = s"""data: $data
+
 """
 
     val sse = parseFullSse(sseOnlyData)
@@ -126,6 +130,7 @@ data: $data
 retry: $retry
 foo: bar
 fooz
+
 """
 
     val sse = parseFullSse(sseWithExtraFields)
@@ -143,6 +148,7 @@ id: $id
 data: $data
 retry: $retry
 : This is an end comment
+
 """
 
     val sse = parseFullSse(sseWithComments)
