@@ -117,16 +117,16 @@ trait EventStreamParser extends StrictLogging { this: EventStreamDispatcher =>
   def parse(expression: String): Unit =
     expression.eventLines.foreach {
       case EventName(name) => currentSse = currentSse.copy(name = Some(name))
-      case Id(id) =>          currentSse = currentSse.copy(id = Some(id))
-      case Retry(retry) =>    currentSse = currentSse.copy(retry = Some(retry.toInt))
+      case Id(id)          => currentSse = currentSse.copy(id = Some(id))
+      case Retry(retry)    => currentSse = currentSse.copy(retry = Some(retry.toInt))
       case Data(data) =>
         val newData = currentSse.data match {
           case None          => data
           case Some(oldData) => oldData + "\n" + data
         }
         currentSse = currentSse.copy(data = Some(newData))
-      case Dispatch(_) =>     currentSse = dispatchEvent()
-      case _ =>
+      case Dispatch(_) => currentSse = dispatchEvent()
+      case _           =>
     }
 
   private def dispatchEvent(): ServerSentEvent =
