@@ -148,7 +148,6 @@ object ConfigKeys {
       val RootPathPrefix = "gatling.data.graphite.rootPathPrefix"
       val BufferSize = "gatling.data.graphite.bufferSize"
       val WriteInterval = "gatling.data.graphite.writeInterval"
-
     }
     object jdbc {
       val Url = "gatling.data.jdbc.db.url"
@@ -170,5 +169,4 @@ object ConfigKeys {
       }
     }
   }
-
 }
