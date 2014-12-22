@@ -15,6 +15,8 @@
 # limitations under the License.
 #
 
+USER_ARGS="$@"
+
 OLDDIR=`pwd`
 BIN_DIR=`dirname $0`
 cd "${BIN_DIR}/.." && DEFAULT_GATLING_HOME=`pwd` && cd "${OLDDIR}"
@@ -37,6 +39,6 @@ GATLING_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/user-files:$COMMON_CLASSPAT
 COMPILATION_CLASSPATH=`find -L $GATLING_HOME/lib -maxdepth 1 -name "*.jar" -type f -exec printf :{} ';'`
 
 # Run the compiler
-java $JAVA_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler $COMPILATION_CLASSPATH
+java $JAVA_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler -ccp "$COMPILATION_CLASSPATH" $USER_ARGS
 # Run Gatling
-java $JAVA_OPTS -cp "$GATLING_CLASSPATH" io.gatling.app.Gatling "$@"
+java $JAVA_OPTS -cp "$GATLING_CLASSPATH" io.gatling.app.Gatling $USER_ARGS
