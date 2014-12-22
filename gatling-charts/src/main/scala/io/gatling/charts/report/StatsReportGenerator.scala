@@ -81,7 +81,7 @@ class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, com
 
         val groupedCounts = dataReader
           .numberOfRequestInResponseTimeRange(None, Some(group)).map {
-            case (rangeName, count) => GroupedCount(rangeName, count, count * 100 / total.count)
+            case (rangeName, count) => if (total.count != 0) GroupedCount(rangeName, count, count * 100 / total.count) else GroupedCount(rangeName, count, 0)
           }
 
         val path = RequestPath.path(group)
@@ -93,7 +93,12 @@ class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, com
 
     val statsPaths = dataReader.statsPaths
 
-    val groupStatsPaths: Map[List[String], GroupStatsPath] = statsPaths.collect { case path: GroupStatsPath => path.group.hierarchy.reverse -> path }(breakOut)
+    val groupsByHierarchy: Map[List[String], Group] = statsPaths
+      .collect {
+        case GroupStatsPath(group)            => group
+        case RequestStatsPath(_, Some(group)) => group
+      }.map(group => group.hierarchy.reverse -> group)(breakOut)
+
     val seenGroups = collection.mutable.HashSet.empty[List[String]]
 
       def addGroupsRec(hierarchy: List[String]): Unit = {
@@ -106,10 +111,9 @@ class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, com
             case _                             =>
           }
 
-          val group = groupStatsPaths(hierarchy).group
+          val group = groupsByHierarchy(hierarchy)
           val stats = computeGroupStats(group.name, group)
           rootContainer.addGroup(group, stats)
-
         }
       }
 

@@ -94,7 +94,11 @@ function generateHtmlRow(request, level, index, parent, group) {
     else
         var expandButtonStyle = ' hidden';
 
-    var koPercent = (request.stats.numberOfRequests.ko * 100 / request.stats.numberOfRequests.total).toFixed(0);
+    if (request.stats.numberOfRequests.total != 0)
+        var koPercent = (request.stats.numberOfRequests.ko * 100 / request.stats.numberOfRequests.total).toFixed(0) + '%';
+    else
+        var koPercent = '-'
+
     return '<tr id="' + request.pathFormatted + '" class="child-of-' + parent + '"> \\
         <td class="total col-1"> \\
             <span id="' + request.pathFormatted + '" style="margin-left: ' + (level * 10) + 'px;" class="expand-button' + expandButtonStyle + '">&nbsp;</span> \\
@@ -103,7 +107,7 @@ function generateHtmlRow(request, level, index, parent, group) {
         <td class="value total col-2">' + request.stats.numberOfRequests.total + '</td> \\
         <td class="value ok col-3">' + request.stats.numberOfRequests.ok + '</td> \\
         <td class="value ko col-4">' + request.stats.numberOfRequests.ko + '</td> \\
-        <td class="value ko col-5">' + koPercent + ' %' + '</td> \\
+        <td class="value ko col-5">' + koPercent + '</td> \\
         <td class="value total col-6">' + request.stats.meanNumberOfRequestsPerSecond.total + '</td> \\
         <td class="value total col-7">' + request.stats.minResponseTime.total + '</td> \\
         <td class="value total col-8">' + request.stats.percentiles1.total + '</td> \\
