@@ -80,7 +80,7 @@ object Dependencies {
   val appDependencies = Seq(scopt)
 
   def compilerDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc)
+    Seq(scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc, scopt)
 
   val recorderDependencies = Seq(scalaSwing, scopt, jackson, bouncycastle) ++ testDeps
 

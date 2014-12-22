@@ -19,24 +19,28 @@ import java.io.{ File => JFile }
 import java.net.URLClassLoader
 import java.nio.file.Files
 
+import scala.reflect.io.Directory
+import scala.reflect.io.Path.string2path
+import scala.util.Try
+
 import com.typesafe.zinc.{ Compiler, IncOptions, Inputs, Setup }
-import io.gatling.compiler.CompilerConfiguration._
 import org.slf4j.LoggerFactory
 import xsbti.{ F0, Logger }
 import xsbti.api.Compilation
 import xsbti.compile.CompileOrder
 
-import scala.reflect.io.Directory
-import scala.reflect.io.Path.string2path
-import scala.util.Try
+import io.gatling.compiler.config.CompilerConfiguration
+import io.gatling.compiler.config.ConfigUtils._
 
 object ZincCompiler extends App {
+
+  val configuration = CompilerConfiguration.configuration(args)
 
   private val logger = LoggerFactory.getLogger(getClass)
   private val FoldersToCache = List("bin", "conf", "user-files")
   private val compilerOptions = Seq(
     "-encoding",
-    encoding,
+    configuration.encoding,
     "-target:jvm-1.7",
     "-deprecation",
     "-feature",
@@ -44,30 +48,29 @@ object ZincCompiler extends App {
     "-language:implicitConversions",
     "-language:postfixOps")
 
-  Files.createDirectories(classesDirectory)
+  Files.createDirectories(configuration.classesDirectory)
 
-  val gatlingClasspath = args(0).split(JFile.pathSeparator).map(new JFile(_))
   val compilerClasspath = {
-    val classloader = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader]
-    classloader.getURLs.map(_.toURI).map(new JFile(_))
+    val classLoader = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader]
+    classLoader.getURLs.map(_.toURI).map(new JFile(_))
   }
 
   def simulationInputs: Inputs = {
 
-    val sources = Directory(sourceDirectory.toString)
+    val sources = Directory(configuration.simulationsDirectory.toString)
       .deepFiles
       .collect { case file if file.hasExtension("scala") => file.jfile }
       .toSeq
 
       def analysisCacheMapEntry(directoryName: String) =
-        (GatlingHome.toString / directoryName).jfile -> (binariesDirectory.toString / "cache" / directoryName).jfile
+        (GatlingHome.toString / directoryName).jfile -> (configuration.binariesDirectory.toString / "cache" / directoryName).jfile
 
-    Inputs.inputs(classpath = gatlingClasspath,
+    Inputs.inputs(classpath = configuration.classpathElements,
       sources = sources,
-      classesDirectory = classesDirectory.toFile,
+      classesDirectory = configuration.classesDirectory.toFile,
       scalacOptions = compilerOptions,
       javacOptions = Nil,
-      analysisCache = Some((binariesDirectory.toString / "zincCache").jfile),
+      analysisCache = Some((configuration.binariesDirectory.toString / "zincCache").jfile),
       analysisCacheMap = FoldersToCache.map(analysisCacheMapEntry).toMap, // avoids having GATLING_HOME polluted with a "cache" folder
       forceClean = false,
       javaOnly = false,
@@ -84,9 +87,9 @@ object ZincCompiler extends App {
           .find(url => regex.r.findFirstMatchIn(url.toString).isDefined)
           .getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
 
-    val scalaCompiler = jarMatching(gatlingClasspath, """(.*scala-compiler.*\.jar)$""")
-    val scalaLibrary = jarMatching(gatlingClasspath, """(.*scala-library.*\.jar)$""")
-    val scalaReflect = jarMatching(gatlingClasspath, """(.*scala-reflect.*\.jar)$""")
+    val scalaCompiler = jarMatching(configuration.classpathElements, """(.*scala-compiler.*\.jar)$""")
+    val scalaLibrary = jarMatching(configuration.classpathElements, """(.*scala-library.*\.jar)$""")
+    val scalaReflect = jarMatching(configuration.classpathElements, """(.*scala-reflect.*\.jar)$""")
     val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.toURI)
     val compilerInterfaceSrc: JFile = jarMatching(compilerClasspath, """(.*compiler-interface-.*-sources.jar)$""")
 

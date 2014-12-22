@@ -17,6 +17,8 @@
 
 setlocal
 
+set USER_ARGS=%*
+
 rem set GATLING_HOME automatically if possible
 set "OLD_DIR=%cd%"
 cd ..
@@ -51,9 +53,9 @@ set GATLING_CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\user-files;%COMMON
 rem Run the compiler
 set COMPILATION_CLASSPATH=""
 for %%i in ("%GATLING_HOME%\lib\*.jar") do call :addToPath "%%i"
-java %JAVA_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler %COMPILATION_CLASSPATH%
+java %JAVA_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler -ccp %COMPILATION_CLASSPATH% %USER_ARGS%
 rem Run Gatling
-java %JAVA_OPTS% -cp %GATLING_CLASSPATH% io.gatling.app.Gatling %*
+java %JAVA_OPTS% -cp %GATLING_CLASSPATH% io.gatling.app.Gatling %USER_ARGS%
 
 goto exit
 
