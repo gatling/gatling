@@ -45,12 +45,6 @@ object Gatling {
 
   def fromMap(overrides: ConfigOverrides): StatusCode = new Gatling(overrides, None).start
 
-  @deprecated(
-    message = "Use fromArgs(mutable.Map[String, _], Option[Class[Simulation]]). Will be removed in 2.2.",
-    since = "2.1")
-  def runGatling(args: Array[String], simulationClass: SelectedSingleSimulation): StatusCode =
-    fromArgs(args, simulationClass)
-
   def fromArgs(args: Array[String], simulationClass: SelectedSingleSimulation): StatusCode = {
     val argsParser = new ArgsParser(args)
 
