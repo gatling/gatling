@@ -21,7 +21,7 @@ import akka.actor.ActorRef
 import akka.io.{ IO, Tcp }
 import akka.util.ByteString
 
-class TcpSender(remote: InetSocketAddress) extends MetricsSender {
+private[metrics] class TcpSender(remote: InetSocketAddress) extends MetricsSender {
 
   import Tcp._
 

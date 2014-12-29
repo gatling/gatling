@@ -19,8 +19,8 @@ import java.nio.charset.StandardCharsets.UTF_8
 
 import akka.util.ByteString
 
-sealed trait MetricsSenderMessage
+private[metrics] sealed trait MetricsSenderMessage
 
-case class SendMetric[T: Numeric](metricPath: String, value: T, epoch: Long) extends MetricsSenderMessage {
+private[metrics] case class SendMetric[T: Numeric](metricPath: String, value: T, epoch: Long) extends MetricsSenderMessage {
   def byteString = ByteString(s"$metricPath $value $epoch\n", UTF_8.name)
 }

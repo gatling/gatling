@@ -21,7 +21,7 @@ import akka.actor.ActorRef
 import akka.io.{ IO, Udp }
 import akka.util.ByteString
 
-class UdpSender(remote: InetSocketAddress) extends MetricsSender {
+private[metrics] class UdpSender(remote: InetSocketAddress) extends MetricsSender {
 
   import Udp._
 
