@@ -4,7 +4,7 @@ import java.nio.file.{ Files, Path, Paths }
 
 import scala.util.Properties._
 
-object ConfigUtils {
+private[compiler] object ConfigUtils {
 
   val GatlingHome = Paths.get(envOrElse("GATLING_HOME", propOrElse("GATLING_HOME", ".")))
 

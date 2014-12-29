@@ -25,14 +25,14 @@ import com.typesafe.config.ConfigFactory
 import io.gatling.compiler.config.ConfigUtils._
 import io.gatling.compiler.config.cli.{ CommandLineOverrides, ArgsParser }
 
-case class CompilerConfiguration(
+private[compiler] case class CompilerConfiguration(
   encoding: String,
   simulationsDirectory: Path,
   binariesDirectory: Path,
   classesDirectory: Path,
   classpathElements: Seq[File])
 
-object CompilerConfiguration {
+private[compiler] object CompilerConfiguration {
 
   private val encodingKey = "gatling.core.encoding"
   private val simulationsDirectoryKey = "gatling.core.directory.simulations"

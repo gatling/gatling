@@ -34,7 +34,7 @@ import io.gatling.compiler.config.ConfigUtils._
 
 object ZincCompiler extends App {
 
-  val configuration = CompilerConfiguration.configuration(args)
+  private val configuration = CompilerConfiguration.configuration(args)
 
   private val logger = LoggerFactory.getLogger(getClass)
   private val FoldersToCache = List("bin", "conf", "user-files")
@@ -50,12 +50,12 @@ object ZincCompiler extends App {
 
   Files.createDirectories(configuration.classesDirectory)
 
-  val compilerClasspath = {
+  private val compilerClasspath = {
     val classLoader = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader]
     classLoader.getURLs.map(_.toURI).map(new JFile(_))
   }
 
-  def simulationInputs: Inputs = {
+  private def simulationInputs: Inputs = {
 
     val sources = Directory(configuration.simulationsDirectory.toString)
       .deepFiles
@@ -81,7 +81,7 @@ object ZincCompiler extends App {
       mirrorAnalysis = false)
   }
 
-  def setupZincCompiler: Setup = {
+  private def setupZincCompiler: Setup = {
       def jarMatching(classpath: Seq[JFile], regex: String): JFile =
         classpath
           .find(url => regex.r.findFirstMatchIn(url.toString).isDefined)
@@ -103,8 +103,9 @@ object ZincCompiler extends App {
   }
 
   // Setup the compiler
-  val setup = setupZincCompiler
-  val zincLogger = new Logger {
+  private val setup = setupZincCompiler
+
+  private val zincLogger = new Logger {
     def error(arg: F0[String]): Unit = logger.error(arg.apply)
     def warn(arg: F0[String]): Unit = logger.warn(arg.apply)
     def info(arg: F0[String]): Unit = logger.info(arg.apply)
@@ -112,10 +113,10 @@ object ZincCompiler extends App {
     def trace(arg: F0[Throwable]): Unit = logger.trace("", arg.apply)
   }
 
-  val zincCompiler = Compiler.create(setup, zincLogger)
+  private val zincCompiler = Compiler.create(setup, zincLogger)
 
   // Define the inputs
-  val inputs = simulationInputs
+  private val inputs = simulationInputs
   Inputs.debug(inputs, zincLogger)
 
   if (Try(zincCompiler.compile(inputs)(zincLogger)).isFailure) {
