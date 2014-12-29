@@ -13,29 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.metrics.sender
+package io.gatling.metrics.message
 
-import java.net.InetSocketAddress
+import java.nio.charset.StandardCharsets.UTF_8
 
-import akka.actor.ActorRef
-import akka.io.{ IO, Udp }
 import akka.util.ByteString
 
-class UdpSender(remote: InetSocketAddress) extends MetricsSender {
+sealed trait MetricsSenderMessage
 
-  import Udp._
-
-  IO(Udp) ! SimpleSender
-
-  def receive = uninitialized
-
-  private def uninitialized: Receive = {
-    case SimpleSenderReady =>
-      unstashAll()
-      context become connected(sender())
-    case _ => stash()
-  }
-
-  override def sendByteString(connection: ActorRef, byteString: ByteString): Unit =
-    connection ! Send(byteString, remote)
+case class SendMetric[T: Numeric](metricPath: String, value: T, epoch: Long) extends MetricsSenderMessage {
+  def byteString = ByteString(s"$metricPath $value $epoch\n", UTF_8.name)
 }

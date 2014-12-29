@@ -15,28 +15,33 @@
  */
 package io.gatling.metrics.sender
 
-import java.nio.charset.StandardCharsets.UTF_8
+import java.net.InetSocketAddress
 
+import akka.actor.{ ActorRef, Stash }
+import akka.util.ByteString
+
+import io.gatling.core.akka.BaseActor
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config._
+import io.gatling.metrics.message._
 
 object MetricsSender {
 
-  def newMetricsSender: MetricsSender = configuration.data.graphite.protocol match {
-    case Tcp => new TcpSender
-    case Udp => new UdpSender
+  def newMetricsSender: MetricsSender = {
+    val remote = new InetSocketAddress(configuration.data.graphite.host, configuration.data.graphite.port)
+    configuration.data.graphite.protocol match {
+      case Tcp => new TcpSender(remote)
+      case Udp => new UdpSender(remote)
+    }
   }
 }
 
-abstract class MetricsSender {
+abstract class MetricsSender extends BaseActor with Stash {
 
-  def sendToGraphite[T: Numeric](metricPath: String, value: T, epoch: Long): Unit = {
-    val msg = s"$metricPath $value $epoch\n"
-    val bytes = msg.getBytes(UTF_8)
-    sendToGraphite(bytes)
+  def connected(connection: ActorRef): Receive = {
+    case m: SendMetric[_] =>
+      sendByteString(connection, m.byteString)
   }
 
-  def sendToGraphite(bytes: Array[Byte]): Unit
-
-  def flush(): Unit
+  def sendByteString(connection: ActorRef, byteString: ByteString): Unit
 }

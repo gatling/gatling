@@ -13,13 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.metrics
+package io.gatling.metrics.message
 
+import io.gatling.metrics.GraphitePath
 import io.gatling.metrics.types.{ MetricByStatus, UsersBreakdown }
 
 sealed trait GraphiteDataMessage
-
-case object Flush extends GraphiteDataMessage
 
 case object Send extends GraphiteDataMessage
 
