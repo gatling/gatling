@@ -16,10 +16,9 @@
 package io.gatling.recorder.har
 
 import java.nio.charset.StandardCharsets
+import java.text.SimpleDateFormat
 
 import com.ning.http.util.Base64
-
-import org.threeten.bp.ZonedDateTime
 
 import scala.util.Try
 
@@ -30,13 +29,14 @@ import io.gatling.recorder.util.Json.{ JsonToInt, JsonToString }
 object HarMapping {
 
   private val ProtectedValue = """"(.*)\"""".r
+  private val Iso8601ZonedDateAndTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
 
   // HAR files are required to be saved in UTF-8 encoding, other encodings are forbidden
   val Charset = StandardCharsets.UTF_8
 
   def jsonToHttpArchive(json: Json): HttpArchive = HttpArchive(buildLog(json.log))
 
-  private def parseMillisFromIso8601DateTime(time: String): Long = ZonedDateTime.parse(time).toInstant.toEpochMilli
+  private def parseMillisFromIso8601DateTime(time: String): Long = Iso8601ZonedDateAndTime.parse(time).getTime
 
   private def buildLog(log: Json): Log = {
     val entries = log.entries.iterator

@@ -19,7 +19,6 @@ object Dependencies {
   private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                    % "9.6.0-3"
   private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                   % "1.7.9"
   private val fastring                      = "com.dongxiguo"                         %% "fastring"                    % "0.2.4"
-  private val threetenbp                    = "org.threeten"                           % "threetenbp"                  % "1.2"
   private val scopt                         = "com.github.scopt"                      %% "scopt"                       % "3.3.0"
   private val scalalogging                  = "com.typesafe.scala-logging"            %% "scala-logging"               % "3.1.0"
   private val jackson                       = "com.fasterxml.jackson.core"             % "jackson-databind"            % "2.4.4"
@@ -61,7 +60,7 @@ object Dependencies {
     val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
-    scalaLibs(scalaVersion) ++ Seq(akkaActor, config, fastring, openCsv, lru, threetenbp, scalaParserCombinators, ahc) ++
+    scalaLibs(scalaVersion) ++ Seq(akkaActor, config, fastring, openCsv, lru, scalaParserCombinators, ahc) ++
       loggingLibs ++ checksLibs ++ testDeps
   }
 

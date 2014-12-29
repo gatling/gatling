@@ -15,9 +15,9 @@
  */
 package io.gatling.core.result.writer
 
-import scala.collection.mutable
+import java.util.GregorianCalendar
 
-import org.threeten.bp.LocalDateTime
+import scala.collection.mutable
 
 import org.scalatest.{ FlatSpec, Matchers }
 
@@ -27,7 +27,7 @@ class ConsoleDataWriterSpec extends FlatSpec with Matchers {
 
   GatlingConfiguration.setUpForTest()
 
-  val time = LocalDateTime.of(2012, 8, 24, 13, 37)
+  val time = new GregorianCalendar(2012, 8, 24, 13, 37).getTime
 
   def lines(summary: ConsoleSummary) = summary.text.toString.split("\r?\n")
 

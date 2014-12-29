@@ -15,10 +15,10 @@
  */
 package io.gatling.core.result.writer
 
-import org.threeten.bp.LocalDateTime
-import org.threeten.bp.format.DateTimeFormatter
+import java.text.SimpleDateFormat
+import java.util.Date
 
-import scala.collection.mutable.Map
+import scala.collection.mutable
 import scala.math.{ ceil, floor }
 
 import com.dongxiguo.fastring.Fastring.Implicits._
@@ -30,18 +30,18 @@ import io.gatling.core.result.ErrorStats
 object ConsoleSummary {
 
   val Iso8601Format = "yyyy-MM-dd HH:mm:ss"
-  val Iso8601DateTimeFormat = DateTimeFormatter.ofPattern(Iso8601Format)
+  val Iso8601DateTimeFormat = new SimpleDateFormat(Iso8601Format)
   val OutputLength = 80
   val NewBlock = "=" * OutputLength
 
   def writeSubTitle(title: String): Fastring = fast"${("---- " + title + " ").rightPad(OutputLength, "-")}"
 
   def apply(runDuration: Long,
-            usersCounters: Map[String, UserCounters],
+            usersCounters: mutable.Map[String, UserCounters],
             globalRequestCounters: RequestCounters,
-            requestsCounters: Map[String, RequestCounters],
-            errorsCounters: Map[String, Int],
-            time: LocalDateTime = LocalDateTime.now) = {
+            requestsCounters: mutable.Map[String, RequestCounters],
+            errorsCounters: mutable.Map[String, Int],
+            time: Date = new Date) = {
 
       def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 
@@ -82,7 +82,7 @@ ${errorsCounters.toVector.sortBy(-_._2).map(err => ConsoleErrorsWriter.writeErro
 
     val text = fast"""
 $NewBlock
-${time.format(ConsoleSummary.Iso8601DateTimeFormat)} ${(runDuration + "s elapsed").leftPad(OutputLength - Iso8601Format.length - 9)}
+${ConsoleSummary.Iso8601DateTimeFormat.format(time)} ${(runDuration + "s elapsed").leftPad(OutputLength - Iso8601Format.length - 9)}
 ${usersCounters.map { case (scenarioName, usersStats) => writeUsersCounters(scenarioName, usersStats) }.mkFastring(Eol)}
 ${writeSubTitle("Requests")}
 ${writeRequestsCounter("Global", globalRequestCounters)}
