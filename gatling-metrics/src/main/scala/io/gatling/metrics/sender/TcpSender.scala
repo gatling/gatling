@@ -15,21 +15,32 @@
  */
 package io.gatling.metrics.sender
 
-import java.net.Socket
+import java.net.InetSocketAddress
 
-import io.gatling.core.akka.AkkaDefaults
-import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.FastBufferedOutputStream
+import akka.actor.ActorRef
+import akka.io.{ IO, Tcp }
+import akka.util.ByteString
 
-class TcpSender extends MetricsSender with AkkaDefaults {
+class TcpSender(remote: InetSocketAddress) extends MetricsSender {
 
-  val os = {
-    val sos = new Socket(configuration.data.graphite.host, configuration.data.graphite.port).getOutputStream
-    system.registerOnTermination(sos.close())
-    new FastBufferedOutputStream(sos, configuration.data.graphite.bufferSize)
+  import Tcp._
+
+  IO(Tcp) ! Connect(remote)
+
+  def receive = uninitialized
+
+  private def uninitialized: Receive = {
+    case CommandFailed(_: Connect) =>
+      logger.error(s"Graphite was unable to connect to $remote")
+      context stop self
+    case _: Connected =>
+      unstashAll()
+      val connection = sender()
+      connection ! Register(self)
+      context become connected(connection)
+    case _ => stash()
   }
 
-  def sendToGraphite(bytes: Array[Byte]): Unit = os.write(bytes)
-
-  def flush(): Unit = os.flush()
+  override def sendByteString(connection: ActorRef, byteString: ByteString): Unit =
+    connection ! Write(byteString)
 }
