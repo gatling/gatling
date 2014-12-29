@@ -27,14 +27,14 @@ import io.gatling.core.result.writer._
 import io.gatling.metrics.message._
 import io.gatling.metrics.types._
 
-object GraphiteDataWriter {
+private[metrics] object GraphiteDataWriter {
   import GraphitePath._
   val AllRequestsKey = graphitePath("allRequests")
   val UsersRootKey = graphitePath("users")
   val AllUsersKey = UsersRootKey / "allUsers"
 }
 
-class GraphiteDataWriter extends DataWriter {
+private[gatling] class GraphiteDataWriter extends DataWriter {
   import GraphiteDataWriter._
   import GraphitePath._
 

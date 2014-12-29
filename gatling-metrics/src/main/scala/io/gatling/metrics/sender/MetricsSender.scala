@@ -25,7 +25,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config._
 import io.gatling.metrics.message._
 
-object MetricsSender {
+private[metrics] object MetricsSender {
 
   def newMetricsSender: MetricsSender = {
     val remote = new InetSocketAddress(configuration.data.graphite.host, configuration.data.graphite.port)
@@ -36,7 +36,7 @@ object MetricsSender {
   }
 }
 
-abstract class MetricsSender extends BaseActor with Stash {
+private[metrics] abstract class MetricsSender extends BaseActor with Stash {
 
   def connected(connection: ActorRef): Receive = {
     case m: SendMetric[_] =>

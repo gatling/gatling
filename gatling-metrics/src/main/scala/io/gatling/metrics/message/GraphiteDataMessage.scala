@@ -18,11 +18,11 @@ package io.gatling.metrics.message
 import io.gatling.metrics.GraphitePath
 import io.gatling.metrics.types.{ MetricByStatus, UsersBreakdown }
 
-sealed trait GraphiteDataMessage
+private[metrics] sealed trait GraphiteDataMessage
 
-case object Send extends GraphiteDataMessage
+private[metrics] case object Send extends GraphiteDataMessage
 
-case class SendMetrics(
+private[metrics] case class SendMetrics(
   requestMetrics: Map[GraphitePath, MetricByStatus],
   usersBreakdowns: Map[GraphitePath, UsersBreakdown])
     extends GraphiteDataMessage
