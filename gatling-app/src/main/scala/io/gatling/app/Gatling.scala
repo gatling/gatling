@@ -113,7 +113,7 @@ private[app] class Gatling(overrides: ConfigOverrides, simulationClass: Selected
       val simulation = singleSimulation.getOrElse(interactiveSelect(simulations))
 
       // -- Ask for simulation ID and run description if required -- //
-      val muteModeActive = configuration.core.muteMode
+      val muteModeActive = configuration.core.muteMode || configuration.core.simulationClass.isDefined
       val defaultBaseName = defaultOutputDirectoryBaseName(simulation)
       val optionalDescription = configuration.core.runDescription
 
