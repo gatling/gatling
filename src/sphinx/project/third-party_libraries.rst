@@ -79,7 +79,7 @@ Test dependencies
 +------------+-------------------------------+
 
 .. _Scala License (BSD-style): http://www.scala-lang.org/license.html
-.. _Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0.txt>
+.. _Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0.txt
 .. _Eclipse Public License 1.0: https://www.eclipse.org/legal/epl-v10.html
 .. _MIT License: http://opensource.org/licenses/mit-license.php
 .. _Mozilla Public License 2.0: http://www.mozilla.org/MPL/2.0/
