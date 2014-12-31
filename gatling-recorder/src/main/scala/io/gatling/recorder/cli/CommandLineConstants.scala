@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder
+package io.gatling.recorder.cli
 
-import scopt.{ OptionDef, Read, OptionParser }
+import scopt.{ OptionDef, OptionParser, Read }
 
-case class CommandLineConstant(full: String, abbr: String)
+private[cli] case class CommandLineConstant(full: String, abbr: String)
 
-object CommandLineConstants {
+private[cli] object CommandLineConstants {
 
   trait CommandLineConstantsSupport[C] { self: OptionParser[C] =>
 

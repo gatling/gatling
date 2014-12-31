@@ -41,7 +41,7 @@ import io.gatling.recorder.scenario._
 import io.gatling.recorder.ui._
 
 object RecorderController {
-  def apply(props: mutable.Map[String, Any], recorderConfigFile: Option[Path] = None): Unit = {
+  def apply(props: mutable.Map[String, _], recorderConfigFile: Option[Path] = None): Unit = {
     RecorderConfiguration.initialSetup(props, recorderConfigFile)
     new RecorderController
   }

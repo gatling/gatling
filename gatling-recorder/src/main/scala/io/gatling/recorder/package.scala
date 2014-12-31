@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder
+package io.gatling
 
-import java.nio.file.Path
+import scala.collection.mutable
 
-import io.gatling.recorder.cli.ArgsParser
-import io.gatling.recorder.controller.RecorderController
+package object recorder {
 
-object GatlingRecorder {
+  type ConfigOverrides = mutable.Map[String, _]
 
-  def main(args: Array[String]): Unit = fromArgs(args)
-
-  def fromArgs(args: Array[String]): Unit = {
-    val argsParser = new ArgsParser(args)
-    argsParser.parseArguments.map(overrides => RecorderController(overrides))
-  }
-
-  def fromMap(props: ConfigOverrides, recorderConfigFile: Option[Path] = None) =
-    RecorderController(props, recorderConfigFile)
 }
