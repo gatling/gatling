@@ -73,12 +73,12 @@ class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
 
   private def extractCommonHostUrls(urls: List[URL], valName: String): List[(String, Fastring)] =
     urls.map(url =>
-      (url.toString, fast""""${protocol(url)}${user(url)}" + $valName + ${value(fast"${port(url)}${url.getPath}${query(url)}")}"""))
+      (url.toString, fast""""${protocol(url)}${user(url)}" + $valName + ${value(s"${port(url)}${url.getPath}${query(url)}")}"""))
 
   private def extractLongestPathUrls(urls: List[URL], longestCommonPath: String, valName: String): List[(String, Fastring)] =
     urls.map(url => {
       val restPath = url.getPath.substring(longestCommonPath.length)
-      (url.toString, fast"$valName + ${value(fast"${restPath}${query(url)}")}")
+      (url.toString, fast"$valName + ${value(s"${restPath}${query(url)}")}")
     })
 
   private def longestCommonRoot(pathsStrs: List[String]): String = {
@@ -101,7 +101,7 @@ class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
     urlUris.tail.forall(url => url.getPort == firstUrl.getPort && url.getProtocol == firstUrl.getProtocol)
   }
 
-  private def value(str: Fastring) = fast"${protectWithTripleQuotes(str)}"
+  private def value(str: String) = fast"${protectWithTripleQuotes(str)}"
 
   private def query(url: URL): Fastring =
     if (url.getQuery == null) EmptyFastring else fast"?${url.getQuery}"
