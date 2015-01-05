@@ -19,16 +19,14 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 package object template {
 
-  private val SimpleQuotes = "\""
-  private val TripleQuotes = SimpleQuotes * 3
+  val SimpleQuotes = "\""
+  val TripleQuotes = SimpleQuotes * 3
 
-  private def isEscapeCharacter(char: String) = char == "\\" || char == "\""
+  private def isEscapeCharacter(char: Char) = char == '\\' || char == '"'
 
-  private def containsEscapeCharacters(string: Fastring) = string.exists(isEscapeCharacter)
+  private def containsEscapeCharacters(string: String) = string.exists(isEscapeCharacter)
 
-  def protectWithTripleQuotes(string: String): Fastring = protectWithTripleQuotes(fast"$string")
-
-  def protectWithTripleQuotes(string: Fastring): Fastring = {
+  def protectWithTripleQuotes(string: String): Fastring = {
     val stringDelimiter = if (containsEscapeCharacters(string)) TripleQuotes else SimpleQuotes
     fast"$stringDelimiter$string$stringDelimiter"
   }
