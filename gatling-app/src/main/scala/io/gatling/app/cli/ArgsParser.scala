@@ -17,8 +17,9 @@ package io.gatling.app.cli
 
 import scopt.{ OptionDef, OptionParser, Read }
 
-import io.gatling.app.{ ConfigOverrides, GatlingStatusCodes, StatusCode }
+import io.gatling.app.{ ConfigOverrides, GatlingStatusCodes }
 import io.gatling.app.cli.CommandLineConstants._
+import io.gatling.core.cli.StatusCode
 import io.gatling.core.config.GatlingPropertiesBuilder
 
 private[app] class ArgsParser(args: Array[String]) {

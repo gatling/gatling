@@ -26,6 +26,7 @@ import io.gatling.app.classloader.SimulationClassLoader
 import io.gatling.app.cli.ArgsParser
 import io.gatling.charts.report.{ ReportsGenerationInputs, ReportsGenerator }
 import io.gatling.core.assertion.{ AssertionResult, AssertionValidator }
+import io.gatling.core.cli.StatusCode
 import io.gatling.core.config.GatlingFiles
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingConfiguration.configuration
@@ -43,15 +44,15 @@ object Gatling {
 
   def main(args: Array[String]): Unit = sys.exit(fromArgs(args, None))
 
-  def fromMap(overrides: ConfigOverrides): StatusCode = new Gatling(overrides, None).start
+  def fromMap(overrides: ConfigOverrides): Int = new Gatling(overrides, None).start.code
 
-  def fromArgs(args: Array[String], simulationClass: SelectedSingleSimulation): StatusCode = {
+  def fromArgs(args: Array[String], simulationClass: SelectedSingleSimulation): Int = {
     val argsParser = new ArgsParser(args)
 
     argsParser.parseArguments match {
       case Left(commandLineOverrides) =>
-        new Gatling(commandLineOverrides, simulationClass).start
-      case Right(statusCode) => statusCode
+        new Gatling(commandLineOverrides, simulationClass).start.code
+      case Right(statusCode) => statusCode.code
     }
   }
 }
@@ -188,7 +189,7 @@ private[app] class Gatling(overrides: ConfigOverrides, simulationClass: Selected
     println(s"Please open the following file: ${indexFile.toFile}")
   }
 
-  private def runStatus(assertionResults: List[AssertionResult]): Int = {
+  private def runStatus(assertionResults: List[AssertionResult]): StatusCode = {
     val consolidatedAssertionResult = assertionResults.foldLeft(true) { (isValid, assertionResult) =>
       println(s"${assertionResult.message} : ${assertionResult.result}")
       isValid && assertionResult.result
