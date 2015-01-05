@@ -15,7 +15,7 @@
  */
 package io.gatling.app.cli
 
-private[cli] case class CommandLineConstant(full: String, abbr: String)
+import io.gatling.core.cli.CommandLineConstant
 
 private[cli] object CommandLineConstants {
   val Help = CommandLineConstant("help", "h")

@@ -60,7 +60,7 @@ object Dependencies {
     val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
-    scalaLibs(scalaVersion) ++ Seq(akkaActor, config, fastring, openCsv, lru, scalaParserCombinators, ahc) ++
+    scalaLibs(scalaVersion) ++ Seq(akkaActor, config, fastring, openCsv, lru, scalaParserCombinators, ahc, scopt) ++
       loggingLibs ++ checksLibs ++ testDeps
   }
 
@@ -76,12 +76,10 @@ object Dependencies {
 
   val metricsDependencies = tdigest +: testDeps
 
-  val appDependencies = Seq(scopt)
-
   def compilerDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc, scopt)
 
-  val recorderDependencies = Seq(scalaSwing, scopt, jackson, bouncycastle) ++ testDeps
+  val recorderDependencies = Seq(scalaSwing, jackson, bouncycastle) ++ testDeps
 
   val testFrameworkDependencies = Seq(testInterface)
 
