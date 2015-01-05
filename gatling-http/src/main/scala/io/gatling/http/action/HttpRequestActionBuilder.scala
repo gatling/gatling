@@ -18,7 +18,6 @@ package io.gatling.http.action
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.config.Protocols
-import io.gatling.core.controller.throttle.ThrottlingProtocol
 import io.gatling.http.request.builder.HttpRequestBuilder
 
 /**
@@ -31,7 +30,7 @@ class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder) extends HttpA
 
   def build(next: ActorRef, protocols: Protocols): ActorRef = {
 
-    val throttled = protocols.getProtocol[ThrottlingProtocol].isDefined
+    val throttled = protocols.globalThrottling.orElse(protocols.scenarioThrottling).isDefined
     val httpRequest = requestBuilder.build(httpProtocol(protocols), throttled)
     actor(actorName("httpRequest"))(new HttpRequestAction(httpRequest, next))
   }

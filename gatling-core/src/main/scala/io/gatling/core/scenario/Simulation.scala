@@ -18,37 +18,22 @@ package io.gatling.core.scenario
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
 import io.gatling.core.assertion.Assertion
-import io.gatling.core.config.{ Protocol, Protocols }
-import io.gatling.core.controller.Timings
-import io.gatling.core.controller.throttle.{ Throttling, ThrottlingProtocol }
-import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseProtocol, PauseType, UniformDuration, UniformPercentage }
+import io.gatling.core.config.Protocol
+import io.gatling.core.controller.throttle.{ ThrottlingProfile, Throttling }
+import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseType, UniformDuration, UniformPercentage }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.PopulatedScenarioBuilder
 
 abstract class Simulation {
 
-  private[core] var _scenarios: List[PopulatedScenarioBuilder] = Nil
-  private[core] var _globalProtocols = Protocols()
-  private[core] var _assertions = Seq.empty[Assertion]
-  private[core] var _maxDuration: Option[FiniteDuration] = None
-  private[core] var _globalThrottling: Option[ThrottlingProtocol] = None
-  private[core] var _beforeSteps: List[() => Unit] = Nil
-  private[core] var _afterSteps: List[() => Unit] = Nil
-
-  def scenarios: List[Scenario] = {
-    require(_scenarios.nonEmpty, "No scenario set up")
-    _scenarios.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
-    _scenarios.map(_.build(_globalProtocols))
-  }
-
-  def assertions = _assertions
-  def timings = {
-    val perScenarioThrottlings: Map[String, ThrottlingProtocol] = _scenarios
-      .map(scn => scn
-        .scenarioProtocols.getProtocol[ThrottlingProtocol]
-        .map(throttling => scn.scenarioBuilder.name -> throttling)).flatten.toMap
-    Timings(_maxDuration, _globalThrottling, perScenarioThrottlings)
-  }
+  private var _scenarios: List[PopulatedScenarioBuilder] = Nil
+  private var _globalProtocols: List[Protocol] = Nil
+  private var _assertions = Seq.empty[Assertion]
+  private var _maxDuration: Option[FiniteDuration] = None
+  private var _globalPauseType: PauseType = Constant
+  private var _globalThrottling: Option[ThrottlingProfile] = None
+  private var _beforeSteps: List[() => Unit] = Nil
+  private var _afterSteps: List[() => Unit] = Nil
 
   def before(step: => Unit): Unit =
     _beforeSteps = _beforeSteps ::: List(() => step)
@@ -91,9 +76,8 @@ abstract class Simulation {
     def throttle(throttlingBuilders: Iterable[Throttling]): SetUp = {
 
       val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
-      val throttling = Throttling(steps).protocol
+      val throttling = Throttling(steps).profile
       _globalThrottling = Some(throttling)
-      _globalProtocols = _globalProtocols + throttling
       this
     }
 
@@ -103,6 +87,50 @@ abstract class Simulation {
     def customPauses(custom: Expression[Long]) = pauses(Custom(custom))
     def uniformPauses(plusOrMinus: Double) = pauses(UniformPercentage(plusOrMinus))
     def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
-    def pauses(pauseType: PauseType) = protocols(PauseProtocol(pauseType))
+    def pauses(pauseType: PauseType): SetUp = {
+      _globalPauseType = pauseType
+      this
+    }
   }
+
+  private[core] def build: SimulationDef = {
+
+    require(_scenarios.nonEmpty, "No scenario set up")
+    require(_scenarios.map(_.scenarioBuilder.name).toSet.size == _scenarios.size, s"Scenario names must be unique but found a duplicate")
+    _scenarios.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
+
+    val scenarios = _scenarios.map(_.build(_globalProtocols, _globalPauseType, _globalThrottling))
+
+    val scenarioThrottlings: Map[String, ThrottlingProfile] = _scenarios
+      .map(scn => scn.scenarioThrottling.map(t => scn.scenarioBuilder.name -> t)).flatten.toMap
+
+    val globalThrottlingMaxDuration = _globalThrottling.map(_.duration)
+    val scenarioThrottlingMaxDurations = scenarioThrottlings.values.map(_.duration).toList
+
+    val maxDuration = _maxDuration.map(List(_)).getOrElse(Nil) ++ globalThrottlingMaxDuration.map(List(_)).getOrElse(Nil) ++ scenarioThrottlingMaxDurations match {
+      case Nil => None
+      case nel => Some(nel.min)
+    }
+
+    SimulationDef(getClass.getName,
+      scenarios,
+      _assertions,
+      maxDuration,
+      _globalThrottling,
+      scenarioThrottlings,
+      _beforeSteps,
+      _afterSteps)
+  }
+}
+
+case class SimulationDef(name: String,
+                         scenarios: List[Scenario],
+                         assertions: Seq[Assertion],
+                         maxDuration: Option[FiniteDuration],
+                         globalThrottling: Option[ThrottlingProfile],
+                         scenarioThrottlings: Map[String, ThrottlingProfile],
+                         beforeSteps: List[() => Unit],
+                         afterSteps: List[() => Unit]) {
+
+  val throttled = globalThrottling.isDefined || scenarioThrottlings.nonEmpty
 }

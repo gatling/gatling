@@ -56,7 +56,7 @@ trait ThrottlingSupport {
 
 case class Throttling(override val steps: List[ThrottleStep]) extends ThrottlingSupport {
 
-  def protocol: ThrottlingProtocol = {
+  def profile: ThrottlingProfile = {
 
     val userStream: (Long => Int) = {
         @tailrec
@@ -75,12 +75,12 @@ case class Throttling(override val steps: List[ThrottleStep]) extends Throttling
 
     val duration: FiniteDuration = steps.foldLeft(0 second) { (acc, step) =>
       step match {
-        case Reach(_, d) => (acc + d)
+        case Reach(_, d) => acc + d
         case Hold(d)     => acc + d
         case _           => acc
       }
     }
 
-    ThrottlingProtocol(userStream, duration)
+    ThrottlingProfile(userStream, duration)
   }
 }

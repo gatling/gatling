@@ -17,6 +17,7 @@ package io.gatling.core.controller
 
 import java.util.UUID.randomUUID
 
+import io.gatling.core.runner.Selection
 import io.gatling.core.session.Session
 
 import scala.collection.mutable
@@ -26,27 +27,32 @@ import scala.util.{ Failure => SFailure, Success => SSuccess }
 
 import com.typesafe.scalalogging.StrictLogging
 
-import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor
+import akka.actor.ActorRef
 import akka.util.Timeout
 import io.gatling.core.action.UserEnd
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
-import io.gatling.core.controller.throttle.{ Throttler, ThrottlingProtocol }
 import io.gatling.core.result.message.{ End, Start }
 import io.gatling.core.result.writer.{ DataWriter, RunMessage, UserMessage }
-import io.gatling.core.scenario.Scenario
+import io.gatling.core.scenario.{ SimulationDef, Scenario }
 import io.gatling.core.util.TimeHelper._
-
-case class Timings(maxDuration: Option[FiniteDuration], globalThrottling: Option[ThrottlingProtocol], perScenarioThrottlings: Map[String, ThrottlingProtocol])
 
 object Controller extends AkkaDefaults with StrictLogging {
 
   private var _instance: Option[ActorRef] = None
 
-  def start(): Unit = {
-    _instance = Some(actor("controller")(new Controller))
+  def run(simulation: SimulationDef, selection: Selection)(implicit timeout: Timeout): Future[Any] = {
+
+    val totalNumberOfUsers = simulation.scenarios.map(_.injectionProfile.users).sum
+    logger.info(s"Total number of users : $totalNumberOfUsers")
+
+    val controller = actor("controller")(new Controller(simulation, selection, totalNumberOfUsers))
+
+    _instance = Some(controller)
     system.registerOnTermination(_instance = None)
     UserEnd.start()
+
+    controller.ask(Run)(timeout)
   }
 
   def !(message: Any): Unit =
@@ -54,47 +60,25 @@ object Controller extends AkkaDefaults with StrictLogging {
       case Some(c) => c ! message
       case None    => logger.debug("Controller hasn't been started")
     }
-
-  def ?(message: Any)(implicit timeout: Timeout): Future[Any] = _instance match {
-    case Some(c) => c.ask(message)(timeout)
-    case None    => throw new UnsupportedOperationException("Controller has not been started")
-  }
 }
 
-class Controller extends BaseActor {
+class Controller(simulation: SimulationDef, selection: Selection, totalNumberOfUsers: Int) extends BaseActor {
 
-  var scenarios: Seq[Scenario] = _
-  var totalNumberOfUsers = 0
+  var launcher: ActorRef = _
   val activeUsers = mutable.Map.empty[String, UserMessage]
   var finishedUsers = 0
-  var launcher: ActorRef = _
   var runId: String = _
-  var timings: Timings = _
 
   val uninitialized: Receive = {
 
-    case Run(simulation, simulationId, description, runTimings) =>
-      // important, initialize time reference
-      val timeRef = NanoTimeReference
+    case Run =>
+      val runMessage = RunMessage(simulation.name, selection.simulationId, nowMillis, selection.description)
+      runId = runMessage.runId
+
       launcher = sender()
-      timings = runTimings
-      scenarios = simulation.scenarios
 
-      if (scenarios.isEmpty)
-        launcher ! SFailure(new IllegalArgumentException(s"Simulation ${simulation.getClass} doesn't have any configured scenario"))
-
-      else if (scenarios.map(_.name).toSet.size != scenarios.size)
-        launcher ! SFailure(new IllegalArgumentException(s"Scenario names must be unique but found a duplicate"))
-
-      else {
-        totalNumberOfUsers = scenarios.map(_.injectionProfile.users).sum
-        logger.info(s"Total number of users : $totalNumberOfUsers")
-
-        val runMessage = RunMessage(simulation.getClass.getName, simulationId, nowMillis, description)
-        runId = runMessage.runId
-        DataWriter.init(simulation.assertions, runMessage, scenarios, self)
-        context.become(waitingForDataWriterToInit)
-      }
+      DataWriter.init(simulation.assertions, runMessage, simulation.scenarios, self)
+      context.become(waitingForDataWriterToInit)
   }
 
   def waitingForDataWriterToInit: Receive = {
@@ -105,7 +89,7 @@ class Controller extends BaseActor {
       case _ =>
         val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
 
-        val (userStreams, _) = scenarios.foldLeft((Map.empty[String, UserStream], 0)) { (streamsAndOffset, scenario) =>
+        val (userStreams, _) = simulation.scenarios.foldLeft((Map.empty[String, UserStream], 0)) { (streamsAndOffset, scenario) =>
           val (streams, offset) = streamsAndOffset
 
           val stream = scenario.injectionProfile.allUsers.zipWithIndex
@@ -119,35 +103,17 @@ class Controller extends BaseActor {
         userStreams.values.foreach(batcher)
         logger.debug("Finished Launching scenarios executions")
 
-        timings.maxDuration
-          .orElse(timings.globalThrottling.map(_.duration))
-          .orElse(if (timings.perScenarioThrottlings.nonEmpty) Some(timings.perScenarioThrottlings.values.map(_.duration).min) else None)
-          .foreach {
-            logger.debug("Setting up max duration")
-            scheduler.scheduleOnce(_) {
-              self ! ForceTermination(None)
-            }
+        simulation.maxDuration.foreach {
+          logger.debug("Setting up max duration")
+          scheduler.scheduleOnce(_) {
+            self ! ForceTermination(None)
           }
+        }
 
-        val initializedState = initialized(userStreams, batcher)
-
-        val newState = if (timings.globalThrottling.isDefined || timings.perScenarioThrottlings.nonEmpty) {
-          logger.debug("Setting up throttling")
-          scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
-          val throttler = new Throttler(timings.globalThrottling, timings.perScenarioThrottlings)
-          throttling(throttler).orElse(initializedState)
-        } else
-          initializedState
-
-        context.become(newState)
+        context.become(initialized(userStreams, batcher))
     }
 
     case m => logger.error(s"Shouldn't happen. Ignore message $m while waiting for DataWriter to initialize")
-  }
-
-  def throttling(throttler: Throttler): Receive = {
-    case OneSecondTick                           => throttler.flushBuffer()
-    case ThrottledRequest(scenarioName, request) => throttler.send(scenarioName, request)
   }
 
   case class UserStream(scenario: Scenario, offset: Int, stream: Iterator[(FiniteDuration, Int)])
@@ -174,7 +140,7 @@ class Controller extends BaseActor {
 
       while (stream.hasNext && continue) {
 
-        val (startingTime, index) = stream.next
+        val (startingTime, index) = stream.next()
         val delay = startingTime - batchTimeOffset
         continue = startingTime < nextBatchTimeOffset
 
