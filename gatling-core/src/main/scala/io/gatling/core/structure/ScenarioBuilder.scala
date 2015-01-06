@@ -71,7 +71,7 @@ case class PopulatedScenarioBuilder(
   def pauses(pauseType: PauseType) = copy(pauseType = Some(pauseType))
 
   def throttle(throttlingBuilders: Throttling*) = {
-    if (throttlingBuilders.isEmpty) System.err.println(s"Scenario '${scenarioBuilder.name}' has an empty throttling definition.")
+    require(throttlingBuilders.nonEmpty, s"Scenario '${scenarioBuilder.name}' has an empty throttling definition.")
     val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
     copy(scenarioThrottling = Some(Throttling(steps).profile))
   }
