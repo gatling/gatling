@@ -18,6 +18,7 @@ package io.gatling.http.ahc
 import java.util.{ ArrayList => JArrayList }
 import java.util.concurrent.{ TimeUnit, Executors, ThreadFactory }
 
+import io.gatling.core.controller.throttle.Throttler
 import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
@@ -36,7 +37,6 @@ import io.gatling.core.ConfigKeys
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.controller.{ Controller, ThrottledRequest }
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.action.sse.SseHandler
 import io.gatling.http.action.ws.WsListener
@@ -265,6 +265,8 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
   def startHttpTransaction(tx: HttpTx): Unit = {
 
+    logger.info(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+
     val requestConfig = tx.request.config
 
     val (newTx, client) = {
@@ -276,7 +278,7 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     val handler = new AsyncHandler(newTx)
 
     if (requestConfig.throttled)
-      Controller ! ThrottledRequest(tx.session.scenarioName, () => client.executeRequest(ahcRequest, handler))
+      Throttler.throttle(tx.session.scenarioName, () => client.executeRequest(ahcRequest, handler))
     else
       client.executeRequest(ahcRequest, handler)
   }

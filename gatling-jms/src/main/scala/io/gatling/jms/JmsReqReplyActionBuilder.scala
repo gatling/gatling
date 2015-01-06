@@ -26,7 +26,7 @@ case class JmsReqReplyActionBuilder(attributes: JmsAttributes) extends ActionBui
    * Builds an action instance
    */
   def build(next: ActorRef, registry: Protocols) = {
-    val jmsProtocol = registry.getProtocol[JmsProtocol].getOrElse(throw new UnsupportedOperationException("JMS protocol wasn't registered"))
+    val jmsProtocol = registry.protocol[JmsProtocol].getOrElse(throw new UnsupportedOperationException("JMS protocol wasn't registered"))
     val tracker = actor(actorName("jmsRequestTracker"))(new JmsRequestTrackerActor)
     actor(actorName("jmsReqReply"))(new JmsReqReplyAction(next, attributes, jmsProtocol, tracker))
   }

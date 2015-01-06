@@ -15,6 +15,9 @@
  */
 package io.gatling.core.runner
 
+import io.gatling.core.controller.throttle.Throttler
+import io.gatling.core.util.TimeHelper._
+
 import scala.concurrent._
 import scala.util.{ Failure => SFailure, Success => SSuccess }
 
@@ -31,25 +34,32 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
       val simulationClass = selection.simulationClass
       println(s"Simulation ${simulationClass.getName} started...")
 
+      // important, initialize time reference
+      val timeRef = NanoTimeReference
+
       // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
       GatlingActorSystem.start()
       val simulation = simulationClass.newInstance
 
-      System.gc()
-      System.gc()
-      System.gc()
-
-      Controller.start()
-
       simulation._beforeSteps.foreach(_.apply())
 
-      implicit val timeOut = Timeout(simulationTimeOut)
-      val runResult = Controller ? Run(simulation, selection.simulationId, selection.description, simulation.timings)
+      System.gc()
+      System.gc()
+      System.gc()
+
+      val simulationDef = simulation.build
+
+      if (simulationDef.throttled) {
+        Throttler.start(simulationDef.globalThrottling, simulationDef.scenarioThrottlings)
+      }
+
+      implicit val timeout = Timeout(simulationTimeOut)
+      val runResult = Controller.run(simulationDef, selection)
 
       val res = try {
         Await.result(runResult, simulationTimeOut)
       } catch {
-        case t: TimeoutException => throw new TimeoutException(s"Reach simulation timeout of $timeOut")
+        case t: TimeoutException => throw new TimeoutException(s"Reach simulation timeout of $timeout")
       }
 
       res match {

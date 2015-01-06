@@ -15,29 +15,31 @@
  */
 package io.gatling.core.config
 
+import io.gatling.core.controller.throttle.ThrottlingProfile
+import io.gatling.core.pause._
 import io.gatling.core.session.Session
 
 import scala.reflect.ClassTag
 
 object Protocols {
 
-  def apply(protocols: Protocol*) = new Protocols() ++ protocols
+  def apply(protocols: Protocol*) = new Protocols(Map.empty, Constant, None, None) ++ protocols
 }
 
 /**
  * A placeholder for Protocols
  */
-class Protocols(val protocols: Map[Class[_ <: Protocol], Protocol] = Map.empty) {
+case class Protocols(protocols: Map[Class[_ <: Protocol], Protocol], pauseType: PauseType, globalThrottling: Option[ThrottlingProfile], scenarioThrottling: Option[ThrottlingProfile]) {
 
   /**
    * @return a registered Protocol according to its type
    */
-  def getProtocol[T <: Protocol: ClassTag]: Option[T] = protocols.get(implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]).map(_.asInstanceOf[T])
+  def protocol[T <: Protocol: ClassTag]: Option[T] = protocols.get(implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]).map(_.asInstanceOf[T])
 
-  def +(protocol: Protocol): Protocols = new Protocols(protocols + (protocol.getClass -> protocol))
-  def ++(protocols: Iterable[Protocol]): Protocols = new Protocols(this.protocols ++ protocols.map(p => p.getClass -> p))
+  def +(protocol: Protocol): Protocols = copy(protocols = protocols + (protocol.getClass -> protocol))
+  def ++(protocols: Iterable[Protocol]): Protocols = copy(protocols = this.protocols ++ protocols.map(p => p.getClass -> p))
 
-  def ++(other: Protocols) = new Protocols(protocols ++ other.protocols)
+  def ++(other: Protocols) = copy(protocols = protocols ++ other.protocols)
 
   def warmUp(): Unit =
     protocols.values.foreach(_.warmUp())
