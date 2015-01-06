@@ -20,13 +20,14 @@ import com.typesafe.scalalogging.StrictLogging
 import akka.actor.{ ActorRef, ActorContext }
 import akka.actor.ActorDSL.actor
 import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.result.message.OK
 import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation._
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
 import io.gatling.http.cache.{ PermanentRedirect, CacheHandling }
-import io.gatling.http.fetch.ResourceFetcher
+import io.gatling.http.fetch.{ RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response._
 
@@ -60,7 +61,10 @@ object HttpRequestAction extends DataWriterClient with AkkaDefaults with StrictL
 
           case None =>
             logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-            tx.next ! tx.session
+            if (tx.primary)
+              tx.next ! tx.session
+            else
+              tx.next ! RegularResourceFetched(uri, OK, Session.Identity, tx.silent)
         }
     }
   }
