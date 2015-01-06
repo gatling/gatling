@@ -30,7 +30,6 @@ import com.typesafe.scalalogging.StrictLogging
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import akka.util.Timeout
-import io.gatling.core.action.UserEnd
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.result.message.{ End, Start }
 import io.gatling.core.result.writer.{ DataWriter, RunMessage, UserMessage }
@@ -50,7 +49,6 @@ object Controller extends AkkaDefaults with StrictLogging {
 
     _instance = Some(controller)
     system.registerOnTermination(_instance = None)
-    UserEnd.start()
 
     controller.ask(Run)(timeout)
   }

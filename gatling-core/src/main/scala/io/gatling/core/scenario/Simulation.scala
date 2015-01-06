@@ -15,6 +15,8 @@
  */
 package io.gatling.core.scenario
 
+import io.gatling.core.action.UserEnd
+
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
 import io.gatling.core.assertion.Assertion
@@ -32,8 +34,8 @@ abstract class Simulation {
   private var _maxDuration: Option[FiniteDuration] = None
   private var _globalPauseType: PauseType = Constant
   private var _globalThrottling: Option[ThrottlingProfile] = None
-  private var _beforeSteps: List[() => Unit] = Nil
-  private var _afterSteps: List[() => Unit] = Nil
+  private[core] var _beforeSteps: List[() => Unit] = Nil
+  private[core] var _afterSteps: List[() => Unit] = Nil
 
   def before(step: => Unit): Unit =
     _beforeSteps = _beforeSteps ::: List(() => step)
@@ -99,6 +101,9 @@ abstract class Simulation {
     require(_scenarios.map(_.scenarioBuilder.name).toSet.size == _scenarios.size, s"Scenario names must be unique but found a duplicate")
     _scenarios.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
 
+    // FIXME ugly: has to be started in order to build the scenario
+    UserEnd.start()
+
     val scenarios = _scenarios.map(_.build(_globalProtocols, _globalPauseType, _globalThrottling))
 
     val scenarioThrottlings: Map[String, ThrottlingProfile] = _scenarios
@@ -117,9 +122,7 @@ abstract class Simulation {
       _assertions,
       maxDuration,
       _globalThrottling,
-      scenarioThrottlings,
-      _beforeSteps,
-      _afterSteps)
+      scenarioThrottlings)
   }
 }
 
@@ -128,9 +131,7 @@ case class SimulationDef(name: String,
                          assertions: Seq[Assertion],
                          maxDuration: Option[FiniteDuration],
                          globalThrottling: Option[ThrottlingProfile],
-                         scenarioThrottlings: Map[String, ThrottlingProfile],
-                         beforeSteps: List[() => Unit],
-                         afterSteps: List[() => Unit]) {
+                         scenarioThrottlings: Map[String, ThrottlingProfile]) {
 
   val throttled = globalThrottling.isDefined || scenarioThrottlings.nonEmpty
 }

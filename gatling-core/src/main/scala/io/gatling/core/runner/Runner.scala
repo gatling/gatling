@@ -39,20 +39,22 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
 
       // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
       GatlingActorSystem.start()
-      val simulation = simulationClass.newInstance.build
+      val simulation = simulationClass.newInstance
+
+      simulation._beforeSteps.foreach(_.apply())
 
       System.gc()
       System.gc()
       System.gc()
 
-      if (simulation.throttled) {
-        Throttler.start(simulation.globalThrottling, simulation.scenarioThrottlings)
+      val simulationDef = simulation.build
+
+      if (simulationDef.throttled) {
+        Throttler.start(simulationDef.globalThrottling, simulationDef.scenarioThrottlings)
       }
 
-      simulation.beforeSteps.foreach(_.apply())
-
       implicit val timeout = Timeout(simulationTimeOut)
-      val runResult = Controller.run(simulation, selection)
+      val runResult = Controller.run(simulationDef, selection)
 
       val res = try {
         Await.result(runResult, simulationTimeOut)
@@ -63,7 +65,7 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
       res match {
         case SSuccess(runId: String) =>
           println("Simulation finished")
-          simulation.afterSteps.foreach(_.apply())
+          simulation._afterSteps.foreach(_.apply())
           runId
 
         case SFailure(t) => throw t
