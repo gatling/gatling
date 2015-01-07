@@ -18,7 +18,7 @@ package io.gatling.app
 import io.gatling.core.cli.StatusCode
 
 /** List of status codes returned by Gatling */
-object GatlingStatusCodes {
+private[gatling] object GatlingStatusCodes {
   val Success = StatusCode(0)
   val InvalidArguments = StatusCode(1)
   val AssertionsFailed = StatusCode(2)
