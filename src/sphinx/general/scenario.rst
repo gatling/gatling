@@ -80,7 +80,7 @@ There are several ways of using it:
 
 .. note::
   All those methods also have an optional force parameter that overrides the pause type defined in the set up.
-  Possible values are ``disabledPauses``, ``constantPauses`` and ``exponentialPauses``.
+  Possible values are the :ref:`same ones than for global definition <simulation-setup-pause>`.
 
 .. _scenario-pace:
 
