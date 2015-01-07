@@ -65,15 +65,15 @@ class GatlingTask(val taskDef: TaskDef, testClassLoader: ClassLoader, args: Arra
     // Check return code and fire appropriate event
     val event = returnCode match {
 
-      case GatlingStatusCodes.Success =>
+      case GatlingStatusCodes.Success.code =>
         loggers.map(_.info(s"Simulation $simulationName successful."))
         SimulationSuccessful(className, fingerprint, selector, optionalThrowable, duration)
 
-      case GatlingStatusCodes.AssertionsFailed =>
+      case GatlingStatusCodes.AssertionsFailed.code =>
         loggers.map(_.error(s"Simulation $simulationName failed."))
         SimulationFailed(className, fingerprint, selector, optionalThrowable, duration)
 
-      case GatlingStatusCodes.InvalidArguments =>
+      case GatlingStatusCodes.InvalidArguments.code =>
         val formattedArgs = args.mkString("(", "", ")")
         loggers.map(_.error(s"Provided arguments $formattedArgs are not valid."))
         InvalidArguments(className, fingerprint, selector, optionalThrowable, duration)
