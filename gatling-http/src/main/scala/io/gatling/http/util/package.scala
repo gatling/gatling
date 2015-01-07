@@ -25,6 +25,7 @@ import scala.collection.JavaConversions._
 import com.ning.http.client.{ Param, Request }
 import com.ning.http.client.multipart._
 import com.ning.http.client.providers.netty.request.NettyRequest
+import com.ning.http.client.providers.netty.request.body.NettyMultipartBody
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.Eol
@@ -129,7 +130,7 @@ package object util {
         }
 
         buff.append("multipart=").append(Eol)
-        val boundary = nettyRequest.map(_.asInstanceOf[MultipartBody].getBoundary).getOrElse(("0" * 30).getBytes(US_ASCII))
+        val boundary = nettyRequest.map(_.getBody.asInstanceOf[NettyMultipartBody].getBody.asInstanceOf[MultipartBody].getBoundary).getOrElse(("0" * 30).getBytes(US_ASCII))
 
         val os = new ByteArrayOutputStream
         for (part <- request.getParts)
