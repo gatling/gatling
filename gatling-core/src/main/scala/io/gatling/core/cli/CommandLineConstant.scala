@@ -13,13 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.app
+package io.gatling.core.cli
 
-import io.gatling.core.cli.StatusCode
-
-/** List of status codes returned by Gatling */
-object GatlingStatusCodes {
-  val Success = StatusCode(0)
-  val InvalidArguments = StatusCode(1)
-  val AssertionsFailed = StatusCode(2)
-}
+private[gatling] case class CommandLineConstant(full: String, abbr: String)

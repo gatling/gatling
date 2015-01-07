@@ -22,7 +22,6 @@ import scala.collection.mutable
 package object app {
 
   type ConfigOverrides = mutable.Map[String, _]
-  type StatusCode = Int
 
   type SelectedSingleSimulation = Option[Class[Simulation]]
   type AllSimulations = List[Class[Simulation]]

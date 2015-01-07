@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.cli
 
-private[cli] case class CommandLineConstant(full: String, abbr: String)
+import io.gatling.core.cli.CommandLineConstant
 
 private[cli] object CommandLineConstants {
 

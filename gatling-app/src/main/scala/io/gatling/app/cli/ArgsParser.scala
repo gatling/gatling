@@ -15,25 +15,16 @@
  */
 package io.gatling.app.cli
 
-import scopt.{ OptionDef, OptionParser, Read }
-
-import io.gatling.app.{ ConfigOverrides, GatlingStatusCodes, StatusCode }
+import io.gatling.app.{ ConfigOverrides, GatlingStatusCodes }
 import io.gatling.app.cli.CommandLineConstants._
+import io.gatling.core.cli.{ GatlingOptionParser, StatusCode }
 import io.gatling.core.config.GatlingPropertiesBuilder
 
 private[app] class ArgsParser(args: Array[String]) {
 
-  private class GatlingOptionParser extends OptionParser[Unit]("gatling") {
-    def help(constant: CommandLineConstant): OptionDef[Unit, Unit] =
-      help(constant.full).abbr(constant.abbr)
-
-    def opt[A: Read](constant: CommandLineConstant): OptionDef[A, Unit] =
-      opt[A](constant.full).abbr(constant.abbr)
-  }
-
   private val props = new GatlingPropertiesBuilder
 
-  private val cliOptsParser = new GatlingOptionParser {
+  private val cliOptsParser = new GatlingOptionParser("gatling") {
 
     help(Help).text("Show help (this message) and exit")
 

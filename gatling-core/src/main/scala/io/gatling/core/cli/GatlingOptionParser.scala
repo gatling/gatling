@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.app
+package io.gatling.core.cli
 
-import io.gatling.core.cli.StatusCode
+import scopt.{ OptionDef, OptionParser, Read }
 
-/** List of status codes returned by Gatling */
-object GatlingStatusCodes {
-  val Success = StatusCode(0)
-  val InvalidArguments = StatusCode(1)
-  val AssertionsFailed = StatusCode(2)
+private[gatling] class GatlingOptionParser(programName: String) extends OptionParser[Unit](programName) {
+  def help(constant: CommandLineConstant): OptionDef[Unit, Unit] =
+    help(constant.full).abbr(constant.abbr)
+
+  def opt[A: Read](constant: CommandLineConstant): OptionDef[A, Unit] =
+    opt[A](constant.full).abbr(constant.abbr)
 }

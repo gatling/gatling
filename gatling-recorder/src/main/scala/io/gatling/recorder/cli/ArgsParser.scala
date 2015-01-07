@@ -15,25 +15,16 @@
  */
 package io.gatling.recorder.cli
 
-import scopt.{ OptionDef, OptionParser, Read }
-
+import io.gatling.core.cli.GatlingOptionParser
 import io.gatling.recorder.ConfigOverrides
 import io.gatling.recorder.cli.CommandLineConstants._
 import io.gatling.recorder.config.RecorderPropertiesBuilder
 
 private[recorder] class ArgsParser(args: Array[String]) {
 
-  private class RecorderOptionParser extends OptionParser[Unit]("recorder") {
-    def help(constant: CommandLineConstant): OptionDef[Unit, Unit] =
-      help(constant.full).abbr(constant.abbr)
-
-    def opt[A: Read](constant: CommandLineConstant): OptionDef[A, Unit] =
-      opt[A](constant.full).abbr(constant.abbr)
-  }
-
   private val props = new RecorderPropertiesBuilder
 
-  private val cliOptsParser = new RecorderOptionParser {
+  private val cliOptsParser = new GatlingOptionParser("recorder") {
 
     help(Help).text("Show help (this message) and exit")
 
