@@ -1,0 +1,40 @@
+#!/bin/bash
+
+echo "starting elasticsearch"
+docker kill gatling-elasticsearch >/dev/null 2>&1
+docker rm gatling-elasticsearch >/dev/null 2>&1
+docker run -d \
+           -p 9200:9200 \
+           --name gatling-elasticsearch gatling/elasticsearch
+
+echo "starting carbon"
+docker kill gatling-carbon >/dev/null 2>&1
+docker rm gatling-carbon >/dev/null 2>&1
+docker run -d \
+           -p 7002:7002 \
+           -p 2003:2003 \
+           -p 2004:2004 \
+           -v /opt/graphite \
+           --name gatling-carbon gatling/carbon
+
+echo "starting graphite"
+docker kill gatling-graphite >/dev/null 2>&1
+docker rm gatling-graphite >/dev/null 2>&1
+docker run -d \
+           -p 8000:8000 \
+           --volumes-from gatling-carbon \
+           --name gatling-graphite gatling/graphite
+
+echo "starting nginx"
+docker kill gatling-nginx >/dev/null 2>&1
+docker rm gatling-nginx >/dev/null 2>&1
+docker run -d -p 8080:80 --name gatling-nginx --link gatling-graphite:gatling-graphite-link gatling/nginx
+
+echo "starting grafana"
+docker kill gatling-grafana >/dev/null 2>&1
+docker rm gatling-grafana >/dev/null 2>&1
+docker run -d -P --name gatling-grafana gatling/grafana
+
+PORT=`docker ps | grep gatling-grafana | sed -e 's/.*://' | sed -e 's/\-.*//'`
+HOST=`/usr/bin/env | grep DOCKER_HOST | perl -pe 's/.*\/([0-9\.]+):.*/$1/'`
+echo "Dashboard running at http://$HOST:$PORT"

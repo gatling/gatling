@@ -1,0 +1,23 @@
+#!/bin/bash
+
+echo "stopping elasticsearch"
+docker kill gatling-elasticsearch >/dev/null 2>&1
+docker rm gatling-elasticsearch >/dev/null 2>&1
+
+echo "stopping carbon"
+docker kill gatling-carbon >/dev/null 2>&1
+docker rm gatling-carbon >/dev/null 2>&1
+
+echo "stopping graphite"
+docker kill gatling-graphite >/dev/null 2>&1
+docker rm gatling-graphite >/dev/null 2>&1
+
+echo "stopping grafana"
+docker kill gatling-grafana >/dev/null 2>&1
+docker rm gatling-grafana >/dev/null 2>&1
+
+echo "stopping nginx"
+docker kill gatling-nginx >/dev/null 2>&1
+docker rm gatling-nginx >/dev/null 2>&1
+
+echo "Everything is stopped."

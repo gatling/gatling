@@ -1,0 +1,21 @@
+#!/bin/bash
+
+echo -e "Build starting, this can take up to 15 minutes"
+
+cd components/elasticsearch
+docker build -t gatling/elasticsearch .
+
+cd ../../components/carbon
+docker build -t gatling/carbon .
+
+cd ../../components/graphite
+docker build -t gatling/graphite .
+
+cd ../../components/grafana
+docker build -t gatling/grafana .
+
+cd ../../components/nginx
+docker build -t gatling/nginx .
+
+
+echo -e "Build complete, ready to start dashboard"
