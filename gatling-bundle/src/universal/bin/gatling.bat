@@ -43,7 +43,7 @@ set GATLING_CONF="%GATLING_HOME%"\conf
 echo GATLING_HOME is set to "%GATLING_HOME%"
 
 set JAVA_OPTS=-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false %JAVA_OPTS%
-
+set COMPILER_OPTS=-Xss10M %JAVA_OPTS%
 rem Setup classpaths
 set COMMON_CLASSPATH=%GATLING_CONF%;%JAVA_CLASSPATH%
 set COMPILER_CLASSPATH="%GATLING_HOME%"\lib\zinc\*;%COMMON_CLASSPATH%
@@ -53,7 +53,7 @@ set GATLING_CLASSPATH="%GATLING_HOME%"\lib\*;"%GATLING_HOME%"\user-files;%COMMON
 rem Run the compiler
 set COMPILATION_CLASSPATH=""
 for %%i in ("%GATLING_HOME%\lib\*.jar") do call :addToPath "%%i"
-java %JAVA_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler -ccp %COMPILATION_CLASSPATH% %USER_ARGS% 2>NUL
+java %COMPILER_OPTS% -cp %COMPILER_CLASSPATH% io.gatling.compiler.ZincCompiler -ccp %COMPILATION_CLASSPATH% %USER_ARGS%  2>NUL
 rem Run Gatling
 java %JAVA_OPTS% -cp %GATLING_CLASSPATH% io.gatling.app.Gatling %USER_ARGS%
 
