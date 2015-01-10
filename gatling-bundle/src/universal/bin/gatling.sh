@@ -29,6 +29,7 @@ export GATLING_HOME GATLING_CONF
 echo "GATLING_HOME is set to ${GATLING_HOME}"
 
 JAVA_OPTS="-server -XX:+UseThreadPriorities -XX:ThreadPriorityPolicy=42 -Xms512M -Xmx512M -Xmn100M -XX:+HeapDumpOnOutOfMemoryError -XX:+AggressiveOpts -XX:+OptimizeStringConcat -XX:+UseFastAccessorMethods -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:+CMSParallelRemarkEnabled -Djava.net.preferIPv4Stack=true -Djava.net.preferIPv6Addresses=false ${JAVA_OPTS}"
+COMPILER_OPTS="$JAVA_OPTS -Xss10M"
 
 # Setup classpaths
 COMMON_CLASSPATH="$GATLING_CONF:${JAVA_CLASSPATH}"
@@ -39,6 +40,6 @@ GATLING_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/user-files:$COMMON_CLASSPAT
 COMPILATION_CLASSPATH=`find -L $GATLING_HOME/lib -maxdepth 1 -name "*.jar" -type f -exec printf :{} ';'`
 
 # Run the compiler
-java $JAVA_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler -ccp "$COMPILATION_CLASSPATH" $USER_ARGS 2> /dev/null
+java $COMPILER_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler -ccp "$COMPILATION_CLASSPATH" $USER_ARGS  2> /dev/null
 # Run Gatling
 java $JAVA_OPTS -cp "$GATLING_CLASSPATH" io.gatling.app.Gatling $USER_ARGS
