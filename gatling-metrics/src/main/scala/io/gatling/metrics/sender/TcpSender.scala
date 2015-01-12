@@ -29,7 +29,7 @@ private[metrics] class TcpSender(remote: InetSocketAddress) extends MetricsSende
 
   def receive = uninitialized
 
-  val commandFailed = {
+  val commandFailed: Receive = {
     case CommandFailed(cmd) => throw new RuntimeException(s"Command $cmd failed")
   }
 
