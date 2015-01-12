@@ -26,30 +26,20 @@ import io.gatling.core.util.PathHelper._
 
 object SimulationClassLoader {
 
-  private def isInClassPath(binariesDirectory: Path): Boolean = {
+  def apply(binariesDirectory: Path): SimulationClassLoader =
+    new SimulationClassLoader(selectClassLoaderImplementation(binariesDirectory), binariesDirectory)
+
+  private def selectClassLoaderImplementation(binariesDirectory: Path): ClassLoader =
+    if (isInClasspath(binariesDirectory)) getClass.getClassLoader
+    else new FileSystemBackedClassLoader(binariesDirectory, getClass.getClassLoader)
+
+  private def isInClasspath(binariesDirectory: Path): Boolean = {
     val classpathElements = Properties.javaClassPath split File.pathSeparator
     classpathElements.contains(binariesDirectory.toString)
-  }
-
-  def apply(binariesDirectory: Path): SimulationClassLoader = {
-    val classLoader = {
-      if (isInClassPath(binariesDirectory)) getClass.getClassLoader
-      else new FileSystemBackedClassLoader(binariesDirectory, getClass.getClassLoader)
-    }
-    new SimulationClassLoader(classLoader, binariesDirectory)
   }
 }
 
 private[app] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Path) {
-
-  private def isSimulationClass(clazz: Class[_]): Boolean =
-    classOf[Simulation].isAssignableFrom(clazz) && !clazz.isInterface && !Modifier.isAbstract(clazz.getModifiers)
-
-  private def pathToClassName(path: Path, root: Path): String =
-    (path.getParent / path.stripExtension)
-      .toString
-      .stripPrefix(root + File.separator)
-      .replace(File.separator, ".")
 
   def simulationClasses: List[Class[Simulation]] =
     binaryDir
@@ -57,4 +47,16 @@ private[app] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Pa
       .collect { case file if file.hasExtension("class") => classLoader.loadClass(pathToClassName(file, binaryDir)) }
       .collect { case clazz if isSimulationClass(clazz) => clazz.asInstanceOf[Class[Simulation]] }
       .toList
+
+  private def isSimulationClass(clazz: Class[_]): Boolean = {
+    val isSimulation = classOf[Simulation].isAssignableFrom(clazz)
+    val isConcreteClass = !(clazz.isInterface || Modifier.isAbstract(clazz.getModifiers))
+    isSimulation && isConcreteClass
+  }
+
+  private def pathToClassName(path: Path, root: Path): String =
+    (path.getParent / path.stripExtension)
+      .toString
+      .stripPrefix(root + File.separator)
+      .replace(File.separator, ".")
 }
