@@ -29,6 +29,10 @@ private[metrics] class TcpSender(remote: InetSocketAddress) extends MetricsSende
 
   def receive = uninitialized
 
+  val commandFailed = {
+    case CommandFailed(cmd) => throw new RuntimeException(s"Command $cmd failed")
+  }
+
   private def uninitialized: Receive = {
     case CommandFailed(_: Connect) =>
       logger.error(s"Graphite was unable to connect to $remote")
@@ -37,7 +41,7 @@ private[metrics] class TcpSender(remote: InetSocketAddress) extends MetricsSende
       unstashAll()
       val connection = sender()
       connection ! Register(self)
-      context become connected(connection)
+      context become connected(connection).orElse(commandFailed)
     case _ => stash()
   }
 
