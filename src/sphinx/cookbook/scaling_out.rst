@@ -19,7 +19,7 @@ Gatling doesn't have a cluster mode yet, but you can achieve similar results man
 
 Example script using the above commands: (the script will run the same simulation parralel on given hosts, gather logs and generate a single report)
 
-.. code-block:: shell
+.. code-block:: bash
 
    #!/bin/bash
    ##################################################################################################################
