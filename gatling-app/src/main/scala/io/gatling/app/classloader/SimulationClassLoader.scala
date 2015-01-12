@@ -24,7 +24,7 @@ import scala.util.Properties
 import io.gatling.core.scenario.Simulation
 import io.gatling.core.util.PathHelper._
 
-private[app] object SimulationClassLoader {
+object SimulationClassLoader {
 
   private def isInClassPath(binariesDirectory: Path): Boolean = {
     val classpathElements = Properties.javaClassPath split File.pathSeparator
