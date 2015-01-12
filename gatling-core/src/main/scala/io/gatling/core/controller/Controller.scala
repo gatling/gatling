@@ -189,8 +189,11 @@ class Controller extends BaseActor {
       }
 
       // schedule next batch
-      if (stream.hasNext)
-        self ! ScheduleNextUserBatch(scenario.name)
+      if (stream.hasNext) {
+        scheduler.scheduleOnce(batchWindow) {
+          self ! ScheduleNextUserBatch(scenario.name)
+        }
+      }
     }
   }
 
