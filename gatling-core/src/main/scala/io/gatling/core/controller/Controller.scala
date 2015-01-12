@@ -17,22 +17,22 @@ package io.gatling.core.controller
 
 import java.util.UUID.randomUUID
 
-import io.gatling.core.runner.Selection
-import io.gatling.core.session.Session
-
 import scala.collection.mutable
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.util.{ Failure => SFailure, Success => SSuccess }
+import scala.util.{ Failure => SFailure, Success => SSuccess, Try }
 
 import com.typesafe.scalalogging.StrictLogging
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import akka.util.Timeout
+
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.result.message.{ End, Start }
 import io.gatling.core.result.writer.{ DataWriter, RunMessage, UserMessage }
+import io.gatling.core.runner.Selection
+import io.gatling.core.session.Session
 import io.gatling.core.scenario.{ SimulationDef, Scenario }
 import io.gatling.core.util.TimeHelper._
 
@@ -40,7 +40,7 @@ object Controller extends AkkaDefaults with StrictLogging {
 
   private var _instance: Option[ActorRef] = None
 
-  def run(simulation: SimulationDef, selection: Selection)(implicit timeout: Timeout): Future[Any] = {
+  def run(simulation: SimulationDef, selection: Selection)(implicit timeout: Timeout): Future[Try[String]] = {
 
     val totalNumberOfUsers = simulation.scenarios.map(_.injectionProfile.users).sum
     logger.info(s"Total number of users : $totalNumberOfUsers")
@@ -50,7 +50,7 @@ object Controller extends AkkaDefaults with StrictLogging {
     _instance = Some(controller)
     system.registerOnTermination(_instance = None)
 
-    controller.ask(Run)(timeout)
+    (controller ? Run).mapTo[Try[String]]
   }
 
   def !(message: Any): Unit =

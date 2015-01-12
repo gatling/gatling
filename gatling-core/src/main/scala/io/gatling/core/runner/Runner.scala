@@ -15,17 +15,16 @@
  */
 package io.gatling.core.runner
 
-import io.gatling.core.controller.throttle.Throttler
-import io.gatling.core.util.TimeHelper._
-
-import scala.concurrent._
+import scala.concurrent.{ Await, TimeoutException }
 import scala.util.{ Failure => SFailure, Success => SSuccess }
 
 import com.typesafe.scalalogging.StrictLogging
 
 import akka.util.Timeout
 import io.gatling.core.akka.{ AkkaDefaults, GatlingActorSystem }
-import io.gatling.core.controller.{ Controller, Run }
+import io.gatling.core.controller.Controller
+import io.gatling.core.controller.throttle.Throttler
+import io.gatling.core.util.TimeHelper._
 
 class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
 
@@ -69,7 +68,6 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
           runId
 
         case SFailure(t) => throw t
-        case unexpected  => throw new UnsupportedOperationException(s"Controller replied an unexpected message $unexpected")
       }
 
     } finally {
