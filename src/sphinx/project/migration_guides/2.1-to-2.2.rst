@@ -1,0 +1,18 @@
+.. _2.1-to-2.2:
+
+#########################
+Migrating from 2.1 to 2.2
+#########################
+
+Global changes
+==============
+
+* The format of a few configuration properties in gatling.conf has changed and must be updated to its new form.
+
+  Where the values took the form ``"value1, value2, value3"``, it must be changed to : ``[value1, value2, value3]``.
+
+  This impacts three configuration properties :
+
+  * ``gatling.http.ahc.httpsEnabledProtocols`` : by default ``""``, now ``[]``
+  * ``gatling.http.ahc.httpsEnabledCipherSuites`` : by default ``""``, now ``[]``
+  * ``gatling.data.writers`` : by default ``"console, file"``, now ``[console, file]``
