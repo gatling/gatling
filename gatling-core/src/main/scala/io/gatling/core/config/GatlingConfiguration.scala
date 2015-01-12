@@ -16,6 +16,7 @@
 package io.gatling.core.config
 
 import java.nio.charset.Charset
+import java.util.ArrayList
 import java.util.ResourceBundle
 
 import scala.collection.JavaConversions._
@@ -38,19 +39,12 @@ object GatlingConfiguration extends StrictLogging {
   private var thisConfiguration: GatlingConfiguration = _
   def configuration = thisConfiguration
 
-  implicit class ConfigStringSeq(val string: String) extends AnyVal {
-    def toStringList: List[String] = string.trim match {
-      case "" => Nil
-      case s  => s.split(",").map(_.trim).toList
-    }
-  }
-
   private[gatling] def set(config: GatlingConfiguration): Unit = thisConfiguration = config
 
   def setUpForTest(props: mutable.Map[String, _ <: Any] = mutable.Map.empty) = {
 
     val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, "gatling-defaults.conf")
-    val propertiesConfig = ConfigFactory.parseMap(props + (data.Writers -> "")) // Disable DataWriters by default
+    val propertiesConfig = ConfigFactory.parseMap(props + (data.Writers -> new ArrayList)) // Disable DataWriters by default
     val config = configChain(ConfigFactory.systemProperties, propertiesConfig, defaultsConfig)
     thisConfiguration = mapToGatlingConfig(config)
     thisConfiguration
@@ -187,10 +181,10 @@ object GatlingConfiguration extends StrictLogging {
           httpClientCodecMaxChunkSize = config.getInt(http.ahc.HttpClientCodecMaxChunkSize),
           keepEncodingHeader = config.getBoolean(http.ahc.KeepEncodingHeader),
           webSocketMaxFrameSize = config.getInt(http.ahc.WebSocketMaxFrameSize),
-          httpsEnabledProtocols = config.getString(http.ahc.HttpsEnabledProtocols).toStringList,
-          httpsEnabledCipherSuites = config.getString(http.ahc.HttpsEnabledCipherSuites).toStringList)),
+          httpsEnabledProtocols = config.getStringList(http.ahc.HttpsEnabledProtocols).toList,
+          httpsEnabledCipherSuites = config.getStringList(http.ahc.HttpsEnabledCipherSuites).toList)),
       data = DataConfiguration(
-        dataWriterClasses = config.getString(data.Writers).toStringList.map { string =>
+        dataWriterClasses = config.getStringList(data.Writers).map { string =>
           DataConfiguration.Aliases.get(string) match {
             case Some(clazz) => clazz
             case None        => string
