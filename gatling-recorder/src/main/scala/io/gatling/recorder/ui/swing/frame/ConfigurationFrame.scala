@@ -370,6 +370,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
     keyStorePassword.keys,
     certificatePathChooser.chooserKeys,
     privateKeyPathChooser.chooserKeys,
+    harPathChooser.chooserKeys,
     outgoingProxyHost.keys,
     outgoingProxyHttpPort.keys,
     outgoingProxyHttpsPort.keys,
@@ -384,6 +385,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
 
     val certificatePathValidator = (s: String) => selectedHttpsMode != CertificateAuthority || isNonEmpty(s)
     val privateKeyPathValidator = (s: String) => selectedHttpsMode != CertificateAuthority || isNonEmpty(s)
+    val harFilePathValidator = (s: String) => selectedRecorderMode == Proxy || isNonEmpty(s)
 
     val outgoingProxyPortValidator = (s: String) => outgoingProxyHost.text.isEmpty || isValidPort(s)
 
@@ -392,6 +394,7 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
     ValidationHelper.registerValidator(keyStorePassword, Validator(keystorePasswordValidator))
     ValidationHelper.registerValidator(certificatePathChooser.textField, Validator(certificatePathValidator))
     ValidationHelper.registerValidator(privateKeyPathChooser.textField, Validator(privateKeyPathValidator))
+    ValidationHelper.registerValidator(harPathChooser.textField, Validator(harFilePathValidator))
     ValidationHelper.registerValidator(outgoingProxyHost, Validator(isNonEmpty, enableOutgoingProxyConfig, disableOutgoingProxyConfig, alwaysValid = true))
     ValidationHelper.registerValidator(outgoingProxyHttpPort, Validator(outgoingProxyPortValidator))
     ValidationHelper.registerValidator(outgoingProxyHttpsPort, Validator(outgoingProxyPortValidator))
