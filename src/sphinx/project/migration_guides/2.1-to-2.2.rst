@@ -16,3 +16,11 @@ Global changes
   * ``gatling.http.ahc.httpsEnabledProtocols`` : by default ``""``, now ``[]``
   * ``gatling.http.ahc.httpsEnabledCipherSuites`` : by default ``""``, now ``[]``
   * ``gatling.data.writers`` : by default ``"console, file"``, now ``[console, file]``
+
+HTTP
+====
+
+Protocol
+--------
+
+A typo was fixed and ``connection`` was renamed into ``connectionHeader``.
