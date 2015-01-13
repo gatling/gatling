@@ -25,7 +25,7 @@ object ProtocolDefinition {
     HeaderNames.AcceptEncoding -> "acceptEncodingHeader",
     HeaderNames.AcceptLanguage -> "acceptLanguageHeader",
     HeaderNames.Authorization -> "authorizationHeader",
-    HeaderNames.Connection -> "connection",
+    HeaderNames.Connection -> "connectionHeader",
     HeaderNames.ContentType -> "contentTypeHeader",
     HeaderNames.DNT -> "doNotTrackHeader",
     HeaderNames.UserAgent -> "userAgentHeader")

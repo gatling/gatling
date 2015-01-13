@@ -82,7 +82,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
   def acceptEncodingHeader(value: Expression[String]) = header(AcceptEncoding, value)
   def acceptLanguageHeader(value: Expression[String]) = header(AcceptLanguage, value)
   def authorizationHeader(value: Expression[String]) = header(Authorization, value)
-  def connection(value: Expression[String]) = header(Connection, value)
+  def connectionHeader(value: Expression[String]) = header(Connection, value)
   def contentTypeHeader(value: Expression[String]) = header(ContentType, value)
   def doNotTrackHeader(value: Expression[String]) = header(DNT, value)
   def userAgentHeader(value: Expression[String]) = header(UserAgent, value)

@@ -214,6 +214,8 @@ You have also the following built-ins for the more commons headers:
 * ``acceptEncodingHeader(value: Expression[String])``: set ``Accept-Encoding`` header.
 * ``acceptLanguageHeader(value: Expression[String])``: set ``Accept-Language`` header.
 * ``authorizationHeader(value: Expression[String])``: set ``Authorization`` header.
+* ``connectionHeader(value: Expression[String])``: set ``Connection`` header.
+* ``contentTypeHeader(value: Expression[String])``: set ``Content-Type`` header.
 * ``doNotTrackHeader(value: Expression[String])``: set ``DNT`` header.
 * ``userAgentHeader(value: Expression[String])``: set ``User-Agent`` header.
 
