@@ -58,10 +58,10 @@ case class Throttling(override val steps: List[ThrottleStep]) extends Throttling
 
   def protocol: ThrottlingProtocol = {
 
-    val userStream: (Long => Int) = {
+    val limit: (Long => Int) = {
         @tailrec
         def valueAt(steps: List[ThrottleStep], pendingTime: Long, previousLastValue: Int): Int = steps match {
-          case Nil => Int.MaxValue
+          case Nil => 0
           case head :: tail =>
             if (pendingTime < head.durationInSec)
               head.rps(pendingTime, previousLastValue)
@@ -81,6 +81,6 @@ case class Throttling(override val steps: List[ThrottleStep]) extends Throttling
       }
     }
 
-    ThrottlingProtocol(userStream, duration)
+    ThrottlingProtocol(limit, duration)
   }
 }
