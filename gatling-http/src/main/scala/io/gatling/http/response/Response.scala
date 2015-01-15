@@ -19,6 +19,7 @@ import java.nio.charset.Charset
 
 import com.ning.http.client.providers.netty.request.NettyRequest
 import com.ning.http.client.uri.Uri
+import io.gatling.core.result.message.RequestTimings
 import io.gatling.http.config.HttpProtocol
 
 import scala.collection.JavaConversions.asScalaBuffer
@@ -52,12 +53,7 @@ abstract class Response {
   def bodyLength: Int
   def charset: Charset
 
-  def firstByteSent: Long
-  def lastByteSent: Long
-  def firstByteReceived: Long
-  def lastByteReceived: Long
-  def responseTimeInMillis: Long
-  def latencyInMillis: Long
+  def timings: RequestTimings
 
   def lastModifiedOrEtag(protocol: HttpProtocol): Option[String] =
     if (protocol.requestPart.cache) header(HeaderNames.LastModified).orElse(header(HeaderNames.ETag))
@@ -73,16 +69,10 @@ case class HttpResponse(
     checksums: Map[String, String],
     bodyLength: Int,
     charset: Charset,
-    firstByteSent: Long,
-    lastByteSent: Long,
-    firstByteReceived: Long,
-    lastByteReceived: Long) extends Response {
+    timings: RequestTimings) extends Response {
 
   def isReceived = status.isDefined
   val statusCode = status.map(_.getStatusCode)
-
-  def responseTimeInMillis = lastByteReceived - firstByteSent
-  def latencyInMillis = firstByteReceived - lastByteSent
 
   val isRedirect = status match {
     case Some(s) => HttpHelper.isRedirect(s.getStatusCode)
@@ -125,10 +115,5 @@ class ResponseWrapper(delegate: Response) extends Response {
   def bodyLength = delegate.bodyLength
   def charset = delegate.charset
 
-  def firstByteSent = delegate.firstByteSent
-  def lastByteSent = delegate.lastByteSent
-  def firstByteReceived = delegate.firstByteReceived
-  def lastByteReceived = delegate.lastByteReceived
-  def responseTimeInMillis = delegate.responseTimeInMillis
-  def latencyInMillis = delegate.latencyInMillis
+  def timings = delegate.timings
 }

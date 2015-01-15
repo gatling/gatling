@@ -16,7 +16,7 @@
 package io.gatling.core.result.writer
 
 import io.gatling.core.assertion.Assertion
-import io.gatling.core.result.message.{ MessageEvent, Status }
+import io.gatling.core.result.message.{ RequestTimings, MessageEvent, Status }
 import io.gatling.core.session.GroupBlock
 
 sealed trait DataWriterMessage
@@ -32,15 +32,10 @@ case class RequestMessage(
     userId: String,
     groupHierarchy: List[String],
     name: String,
-    requestStartDate: Long,
-    requestEndDate: Long,
-    responseStartDate: Long,
-    responseEndDate: Long,
+    timings: RequestTimings,
     status: Status,
     message: Option[String],
     extraInfo: List[Any]) extends DataWriterMessage {
-
-  def responseTime = responseEndDate - requestStartDate
 }
 
 case class RunMessage(

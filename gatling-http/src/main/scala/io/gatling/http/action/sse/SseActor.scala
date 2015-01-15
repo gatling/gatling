@@ -18,7 +18,7 @@ package io.gatling.http.action.sse
 import akka.actor.ActorRef
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.CheckResult
-import io.gatling.core.result.message.{ KO, OK, Status }
+import io.gatling.core.result.message.{ RequestTimings, KO, OK, Status }
 import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
@@ -42,18 +42,6 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
     }
   }
 
-  private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
-    writeRequestData(
-      session,
-      requestName,
-      started,
-      ended,
-      ended,
-      ended,
-      status,
-      errorMessage)
-  }
-
   def setCheck(tx: SseTx, sseStream: SseStream, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
 
     logger.debug(s"setCheck blocking=${check.blocking} timeout=${check.timeout}")
@@ -70,6 +58,11 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
 
     if (!check.blocking)
       next ! newTx.session
+  }
+
+  private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
+    val timings = RequestTimings(started, ended, ended, ended)
+    writeRequestData(session, requestName, timings, status, errorMessage)
   }
 
   val initialState: Receive = {

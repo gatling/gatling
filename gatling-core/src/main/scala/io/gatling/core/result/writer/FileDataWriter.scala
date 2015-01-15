@@ -78,6 +78,7 @@ object FileDataWriter {
     def serialize: Fastring = {
       import requestMessage._
       import GroupMessageSerializer._
+      import timings._
       fast"$scenario$Separator$userId$Separator${RequestRecordHeader.value}$Separator${serializeGroups(groupHierarchy)}$Separator$name$Separator$requestStartDate$Separator$requestEndDate$Separator$responseStartDate$Separator$responseEndDate$Separator$status$Separator${serializeMessage(message)}${serializeExtraInfo(extraInfo)}$Eol"
     }
   }

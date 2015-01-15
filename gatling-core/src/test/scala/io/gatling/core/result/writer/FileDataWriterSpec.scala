@@ -18,7 +18,7 @@ package io.gatling.core.result.writer
 import org.scalatest.{ FlatSpec, Matchers }
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.OK
+import io.gatling.core.result.message.{ RequestTimings, OK }
 import io.gatling.core.util.StringHelper._
 
 class FileDataWriterSpec extends FlatSpec with Matchers {
@@ -30,14 +30,14 @@ class FileDataWriterSpec extends FlatSpec with Matchers {
   def logMessage(record: RequestMessage): String = record.serialize.toString
 
   "file data writer" should "log a standard request record" in {
-    val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), Nil)
+    val record = new RequestMessage("scenario", "1", Nil, "requestName", RequestTimings(2L, 3L, 4L, 5L), OK, Some("message"), Nil)
 
     logMessage(record) shouldBe "scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage" + Eol
   }
 
   it should "append extra info to request records" in {
     val extraInfo: List[String] = List("some", "extra info", "for the log")
-    val record = new RequestMessage("scenario", "1", Nil, "requestName", 2L, 3L, 4L, 5L, OK, Some("message"), extraInfo)
+    val record = new RequestMessage("scenario", "1", Nil, "requestName", RequestTimings(2L, 3L, 4L, 5L), OK, Some("message"), extraInfo)
 
     logMessage(record) shouldBe "scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + Eol
   }

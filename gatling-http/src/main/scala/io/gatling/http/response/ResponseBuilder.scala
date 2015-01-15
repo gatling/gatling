@@ -18,6 +18,7 @@ package io.gatling.http.response
 import java.security.MessageDigest
 
 import com.ning.http.client.providers.netty.request.NettyRequest
+import io.gatling.core.result.message.RequestTimings
 import io.gatling.http.util.HttpHelper
 
 import scala.collection.mutable.ArrayBuffer
@@ -178,7 +179,8 @@ class ResponseBuilder(request: Request,
       else
         ByteArrayResponseBody(chunks, charset)
 
-    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, bodyLength, charset, firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
+    val timings = RequestTimings(firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
+    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, bodyLength, charset, timings)
 
     responseProcessor match {
       case None            => rawResponse

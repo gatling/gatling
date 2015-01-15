@@ -20,7 +20,7 @@ import akka.testkit.TestActorRef
 import org.scalatest.{ FlatSpec, Matchers }
 
 import io.gatling.core.Predef._
-import io.gatling.core.result.message.{ KO, OK }
+import io.gatling.core.result.message.{ RequestTimings, KO, OK }
 import io.gatling.core.result.writer.RequestMessage
 import io.gatling.core.session.Session
 import io.gatling.core.test.ActorSupport
@@ -50,7 +50,7 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session
-    val expected = RequestMessage("mockSession", "mockUserName", List(), "success", 15, 20, 20, 30, OK, None, List())
+    val expected = RequestMessage("mockSession", "mockUserName", List(), "success", RequestTimings(15, 20, 20, 30), OK, None, Nil)
     tracker.underlyingActor.dataWriterMsg should contain(expected)
   }
 
@@ -65,7 +65,7 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session
-    val expected = RequestMessage("mockSession", "mockUserName", List(), "outofsync", 15, 20, 20, 30, OK, None, List())
+    val expected = RequestMessage("mockSession", "mockUserName", List(), "outofsync", RequestTimings(15, 20, 20, 30), OK, None, Nil)
     tracker.underlyingActor.dataWriterMsg should contain(expected)
   }
 
@@ -81,7 +81,7 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session.markAsFailed
-    val expected = RequestMessage("mockSession", "mockUserName", List(), "failure", 15, 20, 20, 30, KO, Some("Jms check failed"), List())
+    val expected = RequestMessage("mockSession", "mockUserName", List(), "failure", RequestTimings(15, 20, 20, 30), KO, Some("Jms check failed"), Nil)
     tracker.underlyingActor.dataWriterMsg should contain(expected)
   }
 
@@ -97,7 +97,7 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session.set("id", "5")
-    val expected = RequestMessage("mockSession", "mockUserName", List(), "updated", 15, 20, 20, 30, OK, None, List())
+    val expected = RequestMessage("mockSession", "mockUserName", List(), "updated", RequestTimings(15, 20, 20, 30), OK, None, Nil)
     tracker.underlyingActor.dataWriterMsg should contain(expected)
   }
 

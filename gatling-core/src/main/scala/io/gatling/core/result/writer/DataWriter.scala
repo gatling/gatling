@@ -24,7 +24,7 @@ import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ DataWritersInitialized, DataWritersTerminated }
-import io.gatling.core.result.message.Status
+import io.gatling.core.result.message.{ RequestTimings, Status }
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.{ GroupBlock, Session }
 
@@ -122,10 +122,7 @@ trait DataWriterClient {
 
   def writeRequestData(session: Session,
                        requestName: String,
-                       requestStartDate: Long,
-                       requestEndDate: Long,
-                       responseStartDate: Long,
-                       responseEndDate: Long,
+                       timings: RequestTimings,
                        status: Status,
                        message: Option[String] = None,
                        extraInfo: List[Any] = Nil): Unit =
@@ -134,10 +131,7 @@ trait DataWriterClient {
       session.userId,
       session.groupHierarchy,
       requestName,
-      requestStartDate,
-      requestEndDate,
-      responseStartDate,
-      responseEndDate,
+      timings,
       status,
       message,
       extraInfo))

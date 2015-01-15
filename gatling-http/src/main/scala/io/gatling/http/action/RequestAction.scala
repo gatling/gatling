@@ -16,7 +16,7 @@
 package io.gatling.http.action
 
 import io.gatling.core.action.{ Failable, Interruptable }
-import io.gatling.core.result.message.KO
+import io.gatling.core.result.message.{ RequestTimings, KO }
 import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
@@ -26,7 +26,8 @@ object RequestAction extends DataWriterClient {
 
   def reportUnbuildableRequest(requestName: String, session: Session, errorMessage: String): Unit = {
     val now = nowMillis
-    writeRequestData(session, requestName, now, now, now, now, KO, Some(errorMessage))
+    val timings = RequestTimings(now, now, now, now)
+    writeRequestData(session, requestName, timings, KO, Some(errorMessage))
   }
 }
 

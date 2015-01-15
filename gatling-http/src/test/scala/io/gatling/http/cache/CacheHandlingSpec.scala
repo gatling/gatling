@@ -17,6 +17,7 @@ package io.gatling.http.cache
 
 import java.nio.charset.StandardCharsets._
 
+import io.gatling.core.result.message.RequestTimings
 import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.mock.MockitoSugar
 
@@ -41,7 +42,7 @@ class CacheHandlingSpec extends FlatSpec with Matchers with MockitoSugar {
     val body = mock[ResponseBody]
     val headersMap = new FluentCaseInsensitiveStringsMap
     headers.foreach { case (name, value) => headersMap.add(name, value) }
-    val response = HttpResponse(request, None, Some(status), headersMap, body, Map.empty, 0, UTF_8, -1, -1, -1, -1)
+    val response = HttpResponse(request, None, Some(status), headersMap, body, Map.empty, 0, UTF_8, RequestTimings(-1, -1, -1, -1))
 
     CacheHandling.getResponseExpires(http, response)
   }

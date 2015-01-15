@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2014 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
+ * Copyright 2011-2015 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,17 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.result.writer
+package io.gatling.core.result.message
 
-import org.scalatest.{ FlatSpec, Matchers }
+case class RequestTimings(requestStartDate: Long,
+                          requestEndDate: Long,
+                          responseStartDate: Long,
+                          responseEndDate: Long) {
 
-import io.gatling.core.result.message.{ RequestTimings, OK }
+  val responseTime = responseEndDate - requestStartDate
 
-class RequestMessageSpec extends FlatSpec with Matchers {
-
-  "constructor" should "have sensible defaults for optional parameters" in {
-    val record: RequestMessage = RequestMessage("scenarioName", "1", Nil, "requestName", RequestTimings(0L, 0L, 0L, 0L), OK, Some("requestMessage"), Nil)
-
-    record.extraInfo shouldBe empty
-  }
+  val latency = responseStartDate - requestEndDate
 }

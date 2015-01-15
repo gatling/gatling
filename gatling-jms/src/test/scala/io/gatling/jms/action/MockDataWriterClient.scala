@@ -19,7 +19,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.result.writer._
 import io.gatling.core.session.{ GroupBlock, Session }
-import io.gatling.core.result.message.Status
+import io.gatling.core.result.message.{ RequestTimings, Status }
 
 trait MockDataWriterClient extends DataWriterClient with StrictLogging {
 
@@ -27,10 +27,7 @@ trait MockDataWriterClient extends DataWriterClient with StrictLogging {
 
   override def writeRequestData(session: Session,
                                 requestName: String,
-                                requestStartDate: Long,
-                                requestEndDate: Long,
-                                responseStartDate: Long,
-                                responseEndDate: Long,
+                                timings: RequestTimings,
                                 status: Status,
                                 message: Option[String] = None,
                                 extraInfo: List[Any] = Nil): Unit = {
@@ -39,10 +36,7 @@ trait MockDataWriterClient extends DataWriterClient with StrictLogging {
       session.userId,
       session.groupHierarchy,
       requestName,
-      requestStartDate,
-      requestEndDate,
-      responseStartDate,
-      responseEndDate,
+      timings,
       status,
       message,
       extraInfo))
@@ -55,5 +49,4 @@ trait MockDataWriterClient extends DataWriterClient with StrictLogging {
     dataWriterMsg = msg :: dataWriterMsg
     logger.info(msg.toString)
   }
-
 }

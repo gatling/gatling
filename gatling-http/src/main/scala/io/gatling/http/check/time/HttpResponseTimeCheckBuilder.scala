@@ -27,12 +27,12 @@ object HttpResponseTimeCheckBuilder {
 
   val ResponseTimeInMillis = apply(new Extractor[Response, Long] with SingleArity {
     val name = "responseTime"
-    def apply(prepared: Response) = Some(prepared.responseTimeInMillis).success
+    def apply(prepared: Response) = Some(prepared.timings.responseTime).success
   }.expression)
 
   val LatencyInMillis = apply(new Extractor[Response, Long] with SingleArity {
     val name = "latency"
-    def apply(prepared: Response) = Some(prepared.latencyInMillis).success
+    def apply(prepared: Response) = Some(prepared.timings.latency).success
   }.expression)
 
   def apply(extractor: Expression[Extractor[Response, Long]]) = new DefaultFindCheckBuilder[HttpCheck, Response, Response, Long](

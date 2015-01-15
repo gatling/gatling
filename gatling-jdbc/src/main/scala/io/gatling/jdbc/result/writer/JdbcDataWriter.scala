@@ -154,6 +154,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
   override def onRequestMessage(request: RequestMessage): Unit = {
 
     import request._
+    import timings._
     requestInsert.setInt(1, runId)
     requestInsert.setString(2, scenario)
     requestInsert.setString(3, userId)

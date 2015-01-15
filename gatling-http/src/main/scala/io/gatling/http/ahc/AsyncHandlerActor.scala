@@ -143,10 +143,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       writeRequestData(
         tx.session,
         fullRequestName,
-        response.firstByteSent,
-        response.lastByteSent,
-        response.firstByteReceived,
-        response.lastByteReceived,
+        response.timings,
         status,
         errorMessage,
         extraInfo)
@@ -171,7 +168,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           actor(context, actorName("resourceFetcher"))(resourceFetcher())
 
         case None =>
-          tx.next ! tx.session.increaseDrift(nowMillis - response.lastByteReceived)
+          tx.next ! tx.session.increaseDrift(nowMillis - response.timings.responseEndDate)
       }
 
     else {
@@ -190,7 +187,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       case KO if !tx.silent => Session.MarkAsFailedUpdate
       case _                => Session.Identity
     }
-    val groupUpdate = logGroupRequestUpdate(tx, status, response.responseTimeInMillis)
+    val groupUpdate = logGroupRequestUpdate(tx, status, response.timings.responseTime)
     val totalUpdate = update andThen statusUpdate andThen groupUpdate
 
     val newTx = tx.copy(session = totalUpdate(tx.session))

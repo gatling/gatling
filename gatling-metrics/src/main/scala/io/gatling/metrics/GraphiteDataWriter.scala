@@ -68,9 +68,9 @@ private[gatling] class GraphiteDataWriter extends DataWriter {
   def onRequestMessage(request: RequestMessage): Unit = {
     if (!configuration.data.graphite.light) {
       val path = graphitePath(request.groupHierarchy :+ request.name)
-      requestsByPath.getOrElseUpdate(path, new RequestMetricsBuffer).add(request.status, request.responseTime)
+      requestsByPath.getOrElseUpdate(path, new RequestMetricsBuffer).add(request.status, request.timings.responseTime)
     }
-    requestsByPath.getOrElseUpdate(AllRequestsKey, new RequestMetricsBuffer).add(request.status, request.responseTime)
+    requestsByPath.getOrElseUpdate(AllRequestsKey, new RequestMetricsBuffer).add(request.status, request.timings.responseTime)
   }
 
   def onTerminateDataWriter(): Unit = () // Do nothing, let the ActorSystem free resources
