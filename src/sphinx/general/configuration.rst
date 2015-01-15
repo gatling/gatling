@@ -19,7 +19,7 @@ logback.xml
 This file allows you to configure the log level of Gatling.
 For further information, you should have a look at `Logback Documentation <http://logback.qos.ch/manual/index.html>`_.
 
-.. note:: In order to log requests and responses, uncomment the dedicated logger in the `default logging configuration file <https://github.com/gatling/gatling/blob/master/gatling-bundle/src/universal/conf/logback.xml>`_.
+.. note:: In order to log requests and responses, uncomment the dedicated logger in the `default logging configuration file <https://github.com/gatling/gatling/blob/master/gatling-core/src/main/resources/logback.dummy>`_.
 
 gatling.conf
 ------------
