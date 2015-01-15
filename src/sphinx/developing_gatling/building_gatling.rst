@@ -2,7 +2,7 @@
 Building Gatling
 ################
 
-.. note:: We use `Travis CI <https://travis-ci.org/excilys/gatling>`_ for continuous integration. You can find the latest snapshot on `Sonatype <https://oss.sonatype.org/content/repositories/snapshots/io/gatling/highcharts/gatling-charts-highcharts/2.0.0-SNAPSHOT/>`_.
+.. note:: We use `Travis CI <https://travis-ci.org/excilys/gatling>`_ for continuous integration. You can find the latest snapshot on `Sonatype <https://oss.sonatype.org/content/repositories/snapshots/io/gatling/highcharts/gatling-charts-highcharts-bundle/>`_.
 
 Introduction
 ============
