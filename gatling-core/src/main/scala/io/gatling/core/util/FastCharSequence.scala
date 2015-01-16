@@ -27,13 +27,13 @@ object FastCharSequence {
   }
 }
 
-case class FastCharSequence(chars: Array[Char], offset: Int, length: Int) extends CharSequence {
+case class FastCharSequence(charArray: Array[Char], offset: Int, length: Int) extends CharSequence {
 
-  def charAt(index: Int): Char = chars(offset + index)
+  def charAt(index: Int): Char = charArray(offset + index)
 
   def subSequence(start: Int): FastCharSequence = subSequence(start, length)
 
-  def subSequence(start: Int, end: Int): FastCharSequence = new FastCharSequence(chars, offset + start, end - start)
+  def subSequence(start: Int, end: Int): FastCharSequence = new FastCharSequence(charArray, offset + start, end - start)
 
   def startWith(others: Array[Char]): Boolean = {
 
@@ -43,7 +43,7 @@ case class FastCharSequence(chars: Array[Char], offset: Int, length: Int) extend
     else {
       var i = 0
       while (i < length && i < others.length) {
-        if (chars(offset + i) != others(i))
+        if (charArray(offset + i) != others(i))
           return false
         i += 1
       }
@@ -54,11 +54,11 @@ case class FastCharSequence(chars: Array[Char], offset: Int, length: Int) extend
 
   def isBlank: Boolean = {
     for (i <- offset until offset + length)
-      if (chars(i) != ' ')
+      if (charArray(i) != ' ')
         return false
 
     true
   }
 
-  override def toString: String = String.valueOf(chars, offset, length)
+  override def toString: String = String.valueOf(charArray, offset, length)
 }
