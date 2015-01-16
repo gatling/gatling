@@ -24,11 +24,7 @@ In the Recorder, you have to define one port (for both HTTP and HTTPS): the loca
 
 Then, you have to configure your browser to use the defined port.
 
-Here is how to do with Firefox, open the browser settings:
-
-.. image:: img/recorder-browser_settings.png
-
-Then, update the connection settings:
+Here is how to do with Firefox, open the browser Advanced settings, then go to the Network panel and update the connection settings:
 
 .. image:: img/recorder-browser_advanced_settings.png
 
