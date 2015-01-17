@@ -33,7 +33,7 @@ Read the [documentation](http://gatling.io/docs/).
 
 Join the [Gatling User Group](https://groups.google.com/group/gatling).
 
-Got a real problem? Raise an [issue](https://github.com/gatling/gatling/issues?sort=created&direction=desc&state=open).
+Found a real bug? Raise an [issue](https://github.com/gatling/gatling/issues?sort=created&direction=desc&state=open).
 
 ## Sponsors
 
