@@ -1,7 +1,5 @@
 # Gatling [![Build Status](https://travis-ci.org/gatling/gatling.svg?branch=master)](https://travis-ci.org/gatling/gatling)
 
-Gatling versions 2.0.0-M3a and lower build with `maven`, master builds with `sbt`.
-
 ## What is Gatling ?
 
 Gatling is a stress tool.
