@@ -104,7 +104,7 @@ class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
 
       def executeNext(updatedSession: Session, status: Status, message: Option[String] = None) = {
         val timings = RequestTimings(startSend, endSend, endSend, received)
-        writeRequestData(updatedSession, title, timings, status, message)
+        logRequestEnd(updatedSession, title, timings, status, message)
         next ! updatedSession.logGroupRequest(received - startSend, status).increaseDrift(nowMillis - received)
       }
 

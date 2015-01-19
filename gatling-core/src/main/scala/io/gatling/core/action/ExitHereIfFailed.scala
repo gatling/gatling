@@ -30,7 +30,7 @@ class ExitHereIfFailed(val next: ActorRef) extends Chainable with DataWriterClie
     if (session.status == KO) {
 
       session.blockStack.foreach {
-        case group: GroupBlock => writeGroupData(session, group, now)
+        case group: GroupBlock => logGroupEnd(session, group, now)
         case _                 =>
       }
 

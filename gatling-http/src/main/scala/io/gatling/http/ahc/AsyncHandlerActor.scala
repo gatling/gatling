@@ -140,7 +140,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           Nil
       }
 
-      writeRequestData(
+      logRequestEnd(
         tx.session,
         fullRequestName,
         response.timings,

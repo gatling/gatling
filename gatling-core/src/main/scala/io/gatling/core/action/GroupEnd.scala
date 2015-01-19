@@ -27,7 +27,7 @@ class GroupEnd(val next: ActorRef) extends Chainable with DataWriterClient with 
     session.blockStack match {
 
       case (group: GroupBlock) :: tail =>
-        writeGroupData(session, group, nowMillis)
+        logGroupEnd(session, group, nowMillis)
         next ! session.exitGroup
 
       case _ =>

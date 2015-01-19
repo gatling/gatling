@@ -27,7 +27,7 @@ object RequestAction extends DataWriterClient {
   def reportUnbuildableRequest(requestName: String, session: Session, errorMessage: String): Unit = {
     val now = nowMillis
     val timings = RequestTimings(now, now, now, now)
-    writeRequestData(session, requestName, timings, KO, Some(errorMessage))
+    logRequestEnd(session, requestName, timings, KO, Some(errorMessage))
   }
 }
 

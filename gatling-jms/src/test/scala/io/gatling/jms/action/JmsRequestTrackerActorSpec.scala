@@ -20,8 +20,8 @@ import akka.testkit.TestActorRef
 import org.scalatest.{ FlatSpec, Matchers }
 
 import io.gatling.core.Predef._
-import io.gatling.core.result.message.{ RequestTimings, KO, OK }
-import io.gatling.core.result.writer.RequestMessage
+import io.gatling.core.result.message._
+import io.gatling.core.result.writer.RequestEndMessage
 import io.gatling.core.session.Session
 import io.gatling.core.test.ActorSupport
 import io.gatling.jms._
@@ -44,13 +44,13 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage
 
     val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
 
-    tracker ! MessageSent("1", 15, 20, List(), session, testActor, "success")
+    tracker ! MessageSent("1", 15, 20, Nil, session, testActor, "success")
     tracker ! MessageReceived("1", 30, textMessage("test"))
 
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session
-    val expected = RequestMessage("mockSession", "mockUserName", List(), "success", RequestTimings(15, 20, 20, 30), OK, None, Nil)
+    val expected = RequestEndMessage("mockSession", "mockUserName", Nil, "success", RequestTimings(15, 20, 20, 30), OK, None, Nil)
     tracker.underlyingActor.dataWriterMsg should contain(expected)
   }
 
@@ -60,12 +60,12 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage
     val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
 
     tracker ! MessageReceived("1", 30, textMessage("test"))
-    tracker ! MessageSent("1", 15, 20, List(), session, testActor, "outofsync")
+    tracker ! MessageSent("1", 15, 20, Nil, session, testActor, "outofsync")
 
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session
-    val expected = RequestMessage("mockSession", "mockUserName", List(), "outofsync", RequestTimings(15, 20, 20, 30), OK, None, Nil)
+    val expected = RequestEndMessage("mockSession", "mockUserName", Nil, "outofsync", RequestTimings(15, 20, 20, 30), OK, None, Nil)
     tracker.underlyingActor.dataWriterMsg should contain(expected)
   }
 
@@ -81,7 +81,7 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session.markAsFailed
-    val expected = RequestMessage("mockSession", "mockUserName", List(), "failure", RequestTimings(15, 20, 20, 30), KO, Some("Jms check failed"), Nil)
+    val expected = RequestEndMessage("mockSession", "mockUserName", Nil, "failure", RequestTimings(15, 20, 20, 30), KO, Some("Jms check failed"), Nil)
     tracker.underlyingActor.dataWriterMsg should contain(expected)
   }
 
@@ -97,7 +97,7 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session.set("id", "5")
-    val expected = RequestMessage("mockSession", "mockUserName", List(), "updated", RequestTimings(15, 20, 20, 30), OK, None, Nil)
+    val expected = RequestEndMessage("mockSession", "mockUserName", Nil, "updated", RequestTimings(15, 20, 20, 30), OK, None, Nil)
     tracker.underlyingActor.dataWriterMsg should contain(expected)
   }
 
@@ -107,7 +107,7 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage
     val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
 
     val groupSession = session.enterGroup("group")
-    tracker ! MessageSent("1", 15, 20, List(), groupSession, testActor, "logGroupResponse")
+    tracker ! MessageSent("1", 15, 20, Nil, groupSession, testActor, "logGroupResponse")
     tracker ! MessageReceived("1", 30, textMessage("group"))
 
     val newSession = groupSession.logGroupRequest(15, OK)

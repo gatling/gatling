@@ -136,7 +136,7 @@ object Interruptable extends DataWriterClient {
   private def doInterrupt(interruption: Interruption): Unit = {
     val now = nowMillis
     import interruption._
-    groupsToClose.foreach(writeGroupData(nextSession, _, now))
+    groupsToClose.foreach(logGroupEnd(nextSession, _, now))
     nextActor ! nextSession
   }
 

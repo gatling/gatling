@@ -71,28 +71,26 @@ class ConsoleDataWriter extends DataWriter {
     scheduler.schedule(0 seconds, 5 seconds, self, Display)
   }
 
-  override def onUserMessage(userMessage: UserMessage): Unit = {
+  private def onUserMessage(userMessage: UserMessage): Unit = {
 
     import userMessage._
 
     event match {
       case Start =>
-        usersCounters.get(scenarioName) match {
+        usersCounters.get(scenario) match {
           case Some(name) => name.userStart()
-          case _          => logger.error(s"Internal error, scenario '$scenarioName' has not been correctly initialized")
+          case _          => logger.error(s"Internal error, scenario '$scenario' has not been correctly initialized")
         }
 
       case End =>
-        usersCounters.get(scenarioName) match {
+        usersCounters.get(scenario) match {
           case Some(name) => name.userDone()
-          case _          => logger.error(s"Internal error, scenario '$scenarioName' has not been correctly initialized")
+          case _          => logger.error(s"Internal error, scenario '$scenario' has not been correctly initialized")
         }
     }
   }
 
-  override def onGroupMessage(group: GroupMessage): Unit = {}
-
-  override def onRequestMessage(request: RequestMessage): Unit = {
+  private def onRequestMessage(request: RequestEndMessage): Unit = {
 
     import request._
 
@@ -109,6 +107,12 @@ class ConsoleDataWriter extends DataWriter {
         val errorMessage = message.getOrElse("<no-message>")
         errorsCounters(errorMessage) = errorsCounters.getOrElse(errorMessage, 0) + 1
     }
+  }
+
+  override def onMessage(message: LoadEventMessage): Unit = message match {
+    case user: UserMessage          => onUserMessage(user)
+    case request: RequestEndMessage => onRequestMessage(request)
+    case _                          =>
   }
 
   override def onTerminateDataWriter(): Unit = if (!complete) display()

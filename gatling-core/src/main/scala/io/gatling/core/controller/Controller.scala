@@ -165,7 +165,7 @@ class Controller(simulation: SimulationDef, selection: Selection, totalNumberOfU
 
       def dispatchUserEndToDataWriter(userMessage: UserMessage): Unit = {
         logger.info(s"End user #${userMessage.userId}")
-        DataWriter.dispatch(userMessage)
+        DataWriter ! userMessage
       }
 
       def becomeTerminating(exception: Option[Exception]): Unit = {
@@ -178,7 +178,7 @@ class Controller(simulation: SimulationDef, selection: Selection, totalNumberOfU
         case Start =>
           activeUsers += userId -> userMessage
           logger.info(s"Start user #${userMessage.userId}")
-          DataWriter.dispatch(userMessage)
+          DataWriter ! userMessage
 
         case End =>
           finishedUsers += 1

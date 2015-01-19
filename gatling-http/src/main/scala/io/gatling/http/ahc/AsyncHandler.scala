@@ -22,6 +22,7 @@ import com.ning.http.client.{ AsyncHandlerExtensions, HttpResponseBodyPart, Http
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
 import com.typesafe.scalalogging.StrictLogging
+import io.gatling.core.result.writer.DataWriterClient
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -31,15 +32,17 @@ import com.typesafe.scalalogging.StrictLogging
  * @constructor constructs a GatlingAsyncHandler
  * @param tx the data about the request to be sent and processed
  */
-class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with StrictLogging {
+class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with StrictLogging with DataWriterClient {
 
   val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
   private val init = new AtomicBoolean
   private val done = new AtomicBoolean
 
   private def start(): Unit =
-    if (init.compareAndSet(false, true))
+    if (init.compareAndSet(false, true)) {
+      logRequestStart(tx.session, tx.request.requestName)
       responseBuilder.updateFirstByteSent()
+    }
 
   override def onOpenConnection(): Unit = start()
 

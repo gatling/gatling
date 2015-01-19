@@ -21,7 +21,6 @@ import scala.collection.mutable
 
 import io.gatling.core.result.Group
 import io.gatling.core.result.message.{ KO, MessageEvent, Status }
-import io.gatling.core.result.writer.FileDataWriter.GroupMessageSerializer
 
 class UserRecordParser(bucketFunction: Long => Int, runStart: Long) {
 
@@ -70,7 +69,7 @@ object GroupRecordParser {
 
   val GroupCache = mutable.Map.empty[String, Group]
 
-  def parseGroup(string: String) = GroupCache.getOrElseUpdate(string, GroupMessageSerializer.deserializeGroups(string))
+  def parseGroup(string: String) = GroupCache.getOrElseUpdate(string, Group(string.split(",").toList))
 }
 
 class GroupRecordParser(bucketFunction: Long => Int, runStart: Long) {

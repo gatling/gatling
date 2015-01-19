@@ -24,7 +24,6 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
-import io.gatling.core.result.Group
 import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.PathHelper._
 
@@ -44,24 +43,31 @@ object FileDataWriter {
     def sanitize = SanitizableString.SanitizerPattern.replaceAllIn(string, " ")
   }
 
-  implicit class RunMessageSerializer(val runMessage: RunMessage) extends AnyVal {
+  sealed trait DataWriterMessageSerializer[T] {
 
-    def serialize: Fastring = {
+    def serializeGroups(groupHierarchy: List[String]): Fastring = groupHierarchy.mkFastring(",")
+
+    def serialize(m: T): Fastring
+  }
+
+  implicit val RunMessageSerializer = new DataWriterMessageSerializer[RunMessage] {
+
+    def serialize(runMessage: RunMessage): Fastring = {
       import runMessage._
       val description = if (runDescription.isEmpty) " " else runDescription
       fast"$simulationClassName$Separator$simulationId$Separator${RunRecordHeader.value}$Separator$start$Separator$description${Separator}2.0$Eol"
     }
   }
 
-  implicit class UserMessageSerializer(val userMessage: UserMessage) extends AnyVal {
+  implicit val UserMessageSerializer = new DataWriterMessageSerializer[UserMessage] {
 
-    def serialize: Fastring = {
+    def serialize(userMessage: UserMessage): Fastring = {
       import userMessage._
-      fast"$scenarioName$Separator$userId$Separator${UserRecordHeader.value}$Separator${event.name}$Separator$startDate$Separator$endDate$Eol"
+      fast"$scenario$Separator$userId$Separator${UserRecordHeader.value}$Separator${event.name}$Separator$startDate$Separator$endDate$Eol"
     }
   }
 
-  implicit class RequestMessageSerializer(val requestMessage: RequestMessage) extends AnyVal {
+  implicit val RequestEndMessageSerializer = new DataWriterMessageSerializer[RequestEndMessage] {
 
     private def serializeExtraInfo(extraInfo: List[Any]): Fastring =
       extraInfo.map {
@@ -75,28 +81,24 @@ object FileDataWriter {
         case None    => " "
       }
 
-    def serialize: Fastring = {
+    def serialize(requestMessage: RequestEndMessage): Fastring = {
       import requestMessage._
-      import GroupMessageSerializer._
       import timings._
       fast"$scenario$Separator$userId$Separator${RequestRecordHeader.value}$Separator${serializeGroups(groupHierarchy)}$Separator$name$Separator$requestStartDate$Separator$requestEndDate$Separator$responseStartDate$Separator$responseEndDate$Separator$status$Separator${serializeMessage(message)}${serializeExtraInfo(extraInfo)}$Eol"
     }
   }
 
-  object GroupMessageSerializer {
+  implicit val GroupMessageSerializer = new DataWriterMessageSerializer[GroupMessage] {
 
-    def serializeGroups(groupHierarchy: List[String]): Fastring = groupHierarchy.mkFastring(",")
-
-    def deserializeGroups(string: String) = Group(string.split(",").toList)
+    def serialize(groupMessage: GroupMessage): Fastring = {
+      import groupMessage._
+      fast"$scenario$Separator$userId$Separator${GroupRecordHeader.value}$Separator${serializeGroups(groupHierarchy)}$Separator$startDate$Separator$endDate$Separator${group.cumulatedResponseTime}$Separator${group.oks}$Separator${group.kos}$Separator$status$Eol"
+    }
   }
 
-  implicit class GroupMessageSerializer(val groupMessage: GroupMessage) extends AnyVal {
+  implicit val AssertionSerializer = new DataWriterMessageSerializer[Assertion] {
 
-    def serialize: Fastring = {
-      import groupMessage._
-      import GroupMessageSerializer._
-      fast"$scenarioName$Separator$userId$Separator${GroupRecordHeader.value}$Separator${serializeGroups(groupHierarchy)}$Separator$startDate$Separator$endDate$Separator${group.cumulatedResponseTime}$Separator${group.oks}$Separator${group.kos}$Separator$status$Eol"
-    }
+    def serialize(assertion: Assertion): Fastring = fast"${assertion.serialized}$Eol"
   }
 }
 
@@ -121,7 +123,10 @@ class FileDataWriter extends DataWriter {
     buffer.clear()
   }
 
-  private def push(fs: Fastring): Unit = {
+  private def push[T](message: T)(implicit serializer: DataWriterMessageSerializer[T]): Unit = {
+
+    val fs = serializer.serialize(message)
+
     for (string <- fs)
       encoder.encode(CharBuffer.wrap(string.unsafeChars), buffer, false)
     if (buffer.position >= limit)
@@ -133,15 +138,16 @@ class FileDataWriter extends DataWriter {
     channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
     buffer.clear()
     system.registerOnTermination(channel.close())
-    assertions.map(assertion => fast"${assertion.serialized}$Eol").foreach(push)
-    push(run.serialize)
+    assertions.foreach(assertion => push(assertion))
+    push(run)
   }
 
-  override def onUserMessage(userMessage: UserMessage): Unit = push(userMessage.serialize)
-
-  override def onGroupMessage(group: GroupMessage): Unit = push(group.serialize)
-
-  override def onRequestMessage(request: RequestMessage): Unit = push(request.serialize)
+  override def onMessage(message: LoadEventMessage): Unit = message match {
+    case user: UserMessage          => push(user)
+    case group: GroupMessage        => push(group)
+    case request: RequestEndMessage => push(request)
+    case _                          =>
+  }
 
   override def onTerminateDataWriter(): Unit = {
     flush()

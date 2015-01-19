@@ -24,9 +24,10 @@ import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.controller.{ DataWritersInitialized, DataWritersTerminated }
-import io.gatling.core.result.message.{ RequestTimings, Status }
+import io.gatling.core.result.message._
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.{ GroupBlock, Session }
+import io.gatling.core.util.TimeHelper._
 
 case class InitDataWriter(totalNumberOfUsers: Int)
 
@@ -41,7 +42,7 @@ object DataWriter extends AkkaDefaults {
     case _        => throw new UnsupportedOperationException("DataWriters haven't been initialized")
   }
 
-  def dispatch(message: Any): Unit = instances.foreach(_ ! message)
+  def !(message: DataWriterMessage): Unit = instances.foreach(_ ! message)
 
   def init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[Scenario], replyTo: ActorRef): Unit = {
 
@@ -77,12 +78,6 @@ abstract class DataWriter extends BaseActor {
 
   def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit
 
-  def onUserMessage(userMessage: UserMessage): Unit
-
-  def onGroupMessage(group: GroupMessage): Unit
-
-  def onRequestMessage(request: RequestMessage): Unit
-
   def onTerminateDataWriter(): Unit
 
   def uninitialized: Receive = {
@@ -96,12 +91,9 @@ abstract class DataWriter extends BaseActor {
     case m: DataWriterMessage => logger.error(s"Can't handle $m when in uninitialized state, discarding")
   }
 
+  def onMessage(message: LoadEventMessage): Unit
+
   def initialized: Receive = {
-    case userMessage: UserMessage       => onUserMessage(userMessage)
-
-    case groupMessage: GroupMessage     => onGroupMessage(groupMessage)
-
-    case requestMessage: RequestMessage => onRequestMessage(requestMessage)
 
     case Terminate => try {
       onTerminateDataWriter()
@@ -109,6 +101,8 @@ abstract class DataWriter extends BaseActor {
       context.become(flushed)
       sender ! true
     }
+
+    case message: LoadEventMessage => onMessage(message)
   }
 
   def flushed: Receive = {
@@ -120,13 +114,21 @@ abstract class DataWriter extends BaseActor {
 
 trait DataWriterClient {
 
-  def writeRequestData(session: Session,
-                       requestName: String,
-                       timings: RequestTimings,
-                       status: Status,
-                       message: Option[String] = None,
-                       extraInfo: List[Any] = Nil): Unit =
-    DataWriter.dispatch(RequestMessage(
+  def logRequestStart(session: Session,
+                      requestName: String): Unit =
+    DataWriter ! RequestStartMessage(session.scenarioName,
+      session.userId,
+      session.groupHierarchy,
+      requestName,
+      nowMillis)
+
+  def logRequestEnd(session: Session,
+                    requestName: String,
+                    timings: RequestTimings,
+                    status: Status,
+                    message: Option[String] = None,
+                    extraInfo: List[Any] = Nil): Unit =
+    DataWriter ! RequestEndMessage(
       session.scenarioName,
       session.userId,
       session.groupHierarchy,
@@ -134,8 +136,17 @@ trait DataWriterClient {
       timings,
       status,
       message,
-      extraInfo))
+      extraInfo)
 
-  def writeGroupData(session: Session, group: GroupBlock, exitDate: Long): Unit =
-    DataWriter.dispatch(GroupMessage(session.scenarioName, session.userId, group, group.hierarchy, group.startDate, exitDate, group.status))
+  def logGroupEnd(session: Session,
+                  group: GroupBlock,
+                  exitDate: Long): Unit =
+    DataWriter ! GroupMessage(
+      session.scenarioName,
+      session.userId,
+      group,
+      group.hierarchy,
+      group.startDate,
+      exitDate,
+      group.status)
 }

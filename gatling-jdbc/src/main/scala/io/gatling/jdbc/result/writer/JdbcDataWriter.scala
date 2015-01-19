@@ -21,7 +21,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.result.writer.{ DataWriter, GroupMessage, RequestMessage, RunMessage, UserMessage, ShortScenarioDescription }
+import io.gatling.core.result.writer._
 import io.gatling.core.util.IO.withCloseable
 
 object JdbcDataWriter {
@@ -113,11 +113,11 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     }
   }
 
-  override def onUserMessage(userMessage: UserMessage): Unit = {
+  private def onUserMessage(userMessage: UserMessage): Unit = {
 
     import userMessage._
     scenarioInsert.setInt(1, runId)
-    scenarioInsert.setString(2, scenarioName)
+    scenarioInsert.setString(2, scenario)
     scenarioInsert.setString(3, userId)
     scenarioInsert.setString(4, event.name)
     scenarioInsert.setLong(5, startDate)
@@ -132,11 +132,11 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     }
   }
 
-  override def onGroupMessage(group: GroupMessage): Unit = {
+  private def onGroupMessage(group: GroupMessage): Unit = {
 
     import group._
     groupInsert.setInt(1, runId)
-    groupInsert.setString(2, scenarioName)
+    groupInsert.setString(2, scenario)
     groupInsert.setString(3, userId)
     groupInsert.setLong(4, startDate)
     groupInsert.setLong(5, endDate)
@@ -151,7 +151,7 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     }
   }
 
-  override def onRequestMessage(request: RequestMessage): Unit = {
+  private def onRequestMessage(request: RequestEndMessage): Unit = {
 
     import request._
     import timings._
@@ -174,6 +174,13 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
       requestInsert.executeAndClearBatch()
       requestCounter = 0
     }
+  }
+
+  override def onMessage(message: LoadEventMessage): Unit = message match {
+    case user: UserMessage          => onUserMessage(user)
+    case group: GroupMessage        => onGroupMessage(group)
+    case request: RequestEndMessage => onRequestMessage(request)
+    case _                          =>
   }
 
   override def onTerminateDataWriter(): Unit = {

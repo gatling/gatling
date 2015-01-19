@@ -58,19 +58,23 @@ private[gatling] class GraphiteDataWriter extends DataWriter {
     scheduler.schedule(0 millisecond, configuration.data.graphite.writeInterval second, self, Send)
   }
 
-  def onUserMessage(userMessage: UserMessage): Unit = {
-    usersByScenario(UsersRootKey / userMessage.scenarioName).add(userMessage)
+  private def onUserMessage(userMessage: UserMessage): Unit = {
+    usersByScenario(UsersRootKey / userMessage.scenario).add(userMessage)
     usersByScenario(AllUsersKey).add(userMessage)
   }
 
-  def onGroupMessage(group: GroupMessage): Unit = {}
-
-  def onRequestMessage(request: RequestMessage): Unit = {
+  private def onRequestMessage(request: RequestEndMessage): Unit = {
     if (!configuration.data.graphite.light) {
       val path = graphitePath(request.groupHierarchy :+ request.name)
       requestsByPath.getOrElseUpdate(path, new RequestMetricsBuffer).add(request.status, request.timings.responseTime)
     }
     requestsByPath.getOrElseUpdate(AllRequestsKey, new RequestMetricsBuffer).add(request.status, request.timings.responseTime)
+  }
+
+  override def onMessage(message: LoadEventMessage): Unit = message match {
+    case user: UserMessage          => onUserMessage(user)
+    case request: RequestEndMessage => onRequestMessage(request)
+    case _                          =>
   }
 
   def onTerminateDataWriter(): Unit = () // Do nothing, let the ActorSystem free resources

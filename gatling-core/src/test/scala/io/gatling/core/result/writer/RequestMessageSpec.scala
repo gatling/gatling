@@ -17,12 +17,12 @@ package io.gatling.core.result.writer
 
 import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.result.message.{ RequestTimings, OK }
+import io.gatling.core.result.message._
 
 class RequestMessageSpec extends FlatSpec with Matchers {
 
   "constructor" should "have sensible defaults for optional parameters" in {
-    val record: RequestMessage = RequestMessage("scenarioName", "1", Nil, "requestName", RequestTimings(0L, 0L, 0L, 0L), OK, Some("requestMessage"), Nil)
+    val record: RequestEndMessage = RequestEndMessage("scenarioName", "1", Nil, "requestName", RequestTimings(0L, 0L, 0L, 0L), OK, Some("requestMessage"), Nil)
 
     record.extraInfo shouldBe empty
   }

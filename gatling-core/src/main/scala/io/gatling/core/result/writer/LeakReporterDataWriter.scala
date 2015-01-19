@@ -50,7 +50,7 @@ class LeakReporterDataWriter extends DataWriter {
     scheduler.schedule(0 seconds, noActivityTimeout, self, Display)
   }
 
-  override def onUserMessage(userMessage: UserMessage): Unit = {
+  private def onUserMessage(userMessage: UserMessage): Unit = {
     lastTouch = currentTimeMillis
     userMessage.event match {
       case Start => events += userMessage.userId -> userMessage
@@ -58,14 +58,26 @@ class LeakReporterDataWriter extends DataWriter {
     }
   }
 
-  override def onGroupMessage(groupMessage: GroupMessage): Unit = {
+  private def onGroupMessage(groupMessage: GroupMessage): Unit = {
     lastTouch = currentTimeMillis
     events += groupMessage.userId -> groupMessage
   }
 
-  override def onRequestMessage(requestMessage: RequestMessage): Unit = {
+  private def onRequestStartMessage(requestMessage: RequestStartMessage): Unit = {
     lastTouch = currentTimeMillis
     events += requestMessage.userId -> requestMessage
+  }
+
+  private def onRequestEndMessage(requestMessage: RequestEndMessage): Unit = {
+    lastTouch = currentTimeMillis
+    events += requestMessage.userId -> requestMessage
+  }
+
+  override def onMessage(message: LoadEventMessage): Unit = message match {
+    case user: UserMessage            => onUserMessage(user)
+    case group: GroupMessage          => onGroupMessage(group)
+    case request: RequestStartMessage => onRequestStartMessage(request)
+    case request: RequestEndMessage   => onRequestEndMessage(request)
   }
 
   override def onTerminateDataWriter(): Unit = {}

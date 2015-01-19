@@ -19,19 +19,19 @@ import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.result.writer._
 import io.gatling.core.session.{ GroupBlock, Session }
-import io.gatling.core.result.message.{ RequestTimings, Status }
+import io.gatling.core.result.message._
 
 trait MockDataWriterClient extends DataWriterClient with StrictLogging {
 
   var dataWriterMsg: List[DataWriterMessage] = List()
 
-  override def writeRequestData(session: Session,
-                                requestName: String,
-                                timings: RequestTimings,
-                                status: Status,
-                                message: Option[String] = None,
-                                extraInfo: List[Any] = Nil): Unit = {
-    handle(RequestMessage(
+  override def logRequestEnd(session: Session,
+                             requestName: String,
+                             timings: RequestTimings,
+                             status: Status,
+                             message: Option[String] = None,
+                             extraInfo: List[Any] = Nil): Unit =
+    handle(RequestEndMessage(
       session.scenarioName,
       session.userId,
       session.groupHierarchy,
@@ -40,9 +40,8 @@ trait MockDataWriterClient extends DataWriterClient with StrictLogging {
       status,
       message,
       extraInfo))
-  }
 
-  override def writeGroupData(session: Session, group: GroupBlock, exitDate: Long): Unit =
+  override def logGroupEnd(session: Session, group: GroupBlock, exitDate: Long): Unit =
     handle(GroupMessage(session.scenarioName, session.userId, group, group.hierarchy, group.startDate, exitDate, group.status))
 
   private def handle(msg: DataWriterMessage) = {

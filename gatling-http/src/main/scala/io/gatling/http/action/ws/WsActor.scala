@@ -63,7 +63,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
 
   private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
     val timings = RequestTimings(started, ended, ended, ended)
-    writeRequestData(session, requestName, timings, status, errorMessage)
+    logRequestEnd(session, requestName, timings, status, errorMessage)
   }
 
   val initialState: Receive = {

@@ -18,7 +18,7 @@ package io.gatling.core.result.writer
 import org.scalatest.{ FlatSpec, Matchers }
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.{ RequestTimings, OK }
+import io.gatling.core.result.message._
 import io.gatling.core.util.StringHelper._
 
 class FileDataWriterSpec extends FlatSpec with Matchers {
@@ -27,24 +27,24 @@ class FileDataWriterSpec extends FlatSpec with Matchers {
 
   import FileDataWriter._
 
-  def logMessage(record: RequestMessage): String = record.serialize.toString
+  def logMessage(record: RequestEndMessage)(implicit serializer: DataWriterMessageSerializer[RequestEndMessage]): String = serializer.serialize(record).toString
 
   "file data writer" should "log a standard request record" in {
-    val record = new RequestMessage("scenario", "1", Nil, "requestName", RequestTimings(2L, 3L, 4L, 5L), OK, Some("message"), Nil)
+    val record = new RequestEndMessage("scenario", "1", Nil, "requestName", RequestTimings(2L, 3L, 4L, 5L), OK, Some("message"), Nil)
 
-    logMessage(record) shouldBe "scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage" + Eol
+    logMessage(record) shouldBe s"scenario${Separator}1${Separator}REQUEST${Separator}${Separator}requestName${Separator}2${Separator}3${Separator}4${Separator}5${Separator}OK${Separator}message" + Eol
   }
 
   it should "append extra info to request records" in {
     val extraInfo: List[String] = List("some", "extra info", "for the log")
-    val record = new RequestMessage("scenario", "1", Nil, "requestName", RequestTimings(2L, 3L, 4L, 5L), OK, Some("message"), extraInfo)
+    val record = new RequestEndMessage("scenario", "1", Nil, "requestName", RequestTimings(2L, 3L, 4L, 5L), OK, Some("message"), extraInfo)
 
-    logMessage(record) shouldBe "scenario\t1\tREQUEST\t\trequestName\t2\t3\t4\t5\tOK\tmessage\tsome\textra info\tfor the log" + Eol
+    logMessage(record) shouldBe s"scenario${Separator}1${Separator}REQUEST${Separator}${Separator}requestName${Separator}2${Separator}3${Separator}4${Separator}5${Separator}OK${Separator}message${Separator}some${Separator}extra info${Separator}for the log" + Eol
   }
 
   it should "sanitize extra info so that simulation log format is preserved" in {
     "\nnewlines \n are\nnot \n\n allowed\n".sanitize shouldBe " newlines   are not    allowed "
     "\rcarriage returns \r are\rnot \r\r allowed\r".sanitize shouldBe " carriage returns   are not    allowed "
-    "\ttabs \t are\tnot \t\t allowed\t".sanitize shouldBe " tabs   are not    allowed "
+    s"${Separator}tabs ${Separator} are${Separator}not ${Separator}${Separator} allowed${Separator}".sanitize shouldBe " tabs   are not    allowed "
   }
 }
