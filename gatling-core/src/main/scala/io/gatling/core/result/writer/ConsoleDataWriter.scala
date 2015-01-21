@@ -17,14 +17,12 @@ package io.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
 
-import io.gatling.core.assertion.Assertion
-
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
+import io.gatling.core.assertion.Assertion
 import io.gatling.core.result.message.{ End, KO, OK, Start }
-
-case object Display
+import io.gatling.core.util.TimeHelper.nowMillis
 
 class UserCounters(val totalCount: Int) {
 
@@ -50,25 +48,21 @@ class ConsoleDataWriter extends DataWriter {
   private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
   private val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
 
-  def display(): Unit = {
-    val runDuration = (currentTimeMillis - startUpTime) / 1000
-
-    val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters)
-    complete = summary.complete
-    println(summary.text)
-  }
-
-  override def initialized: Receive = super.initialized.orElse {
-    case Display => display()
-  }
-
   override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
 
     startUpTime = currentTimeMillis
 
     scenarios.foreach(scenario => usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
 
-    scheduler.schedule(0 seconds, 5 seconds, self, Display)
+    scheduler.schedule(0 seconds, 5 seconds, self, Flush())
+  }
+
+  override def onFlush(timestamp: Long): Unit = {
+    val runDuration = (currentTimeMillis - startUpTime) / 1000
+
+    val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters)
+    complete = summary.complete
+    println(summary.text)
   }
 
   private def onUserMessage(userMessage: UserMessage): Unit = {
@@ -115,5 +109,5 @@ class ConsoleDataWriter extends DataWriter {
     case _                          =>
   }
 
-  override def onTerminateDataWriter(): Unit = if (!complete) display()
+  override def onTerminateDataWriter(): Unit = if (!complete) onFlush(nowMillis)
 }

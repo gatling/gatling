@@ -113,6 +113,8 @@ class JdbcDataWriter extends DataWriter with StrictLogging {
     }
   }
 
+  override def onFlush(timestamp: Long): Unit = {}
+
   private def onUserMessage(userMessage: UserMessage): Unit = {
 
     import userMessage._

@@ -142,6 +142,8 @@ class FileDataWriter extends DataWriter {
     push(run)
   }
 
+  override def onFlush(timestamp: Long): Unit = {}
+
   override def onMessage(message: LoadEventMessage): Unit = message match {
     case user: UserMessage          => push(user)
     case group: GroupMessage        => push(group)

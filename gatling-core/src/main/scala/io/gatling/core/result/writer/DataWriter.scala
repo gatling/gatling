@@ -91,9 +91,13 @@ abstract class DataWriter extends BaseActor {
     case m: DataWriterMessage => logger.error(s"Can't handle $m when in uninitialized state, discarding")
   }
 
+  def onFlush(timestamp: Long): Unit
+
   def onMessage(message: LoadEventMessage): Unit
 
   def initialized: Receive = {
+
+    case Flush(timestamp: Long) => onFlush(timestamp)
 
     case Terminate => try {
       onTerminateDataWriter()

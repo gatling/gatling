@@ -18,6 +18,7 @@ package io.gatling.core.result.writer
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.result.message.{ RequestTimings, MessageEvent, Status }
 import io.gatling.core.session.GroupBlock
+import io.gatling.core.util.TimeHelper.nowMillis
 
 case class ShortScenarioDescription(name: String, nbUsers: Int)
 
@@ -30,9 +31,8 @@ case class RunMessage(simulationClassName: String,
 }
 
 sealed trait DataWriterMessage
-
 case class Init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
-
+case class Flush(timestamp: Long = nowMillis) extends DataWriterMessage
 case object Terminate extends DataWriterMessage
 
 sealed trait LoadEventMessage extends DataWriterMessage {

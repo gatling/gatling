@@ -23,7 +23,6 @@ import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-
 import io.gatling.core.result.message.{ End, Start }
 
 class LeakReporterDataWriter extends DataWriter {
@@ -32,22 +31,18 @@ class LeakReporterDataWriter extends DataWriter {
   private var lastTouch = 0L
   private val events = mutable.Map.empty[String, DataWriterMessage]
 
-  def display(): Unit = {
+  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+    lastTouch = currentTimeMillis
+    scheduler.schedule(0 seconds, noActivityTimeout, self, Flush())
+  }
+
+  override def onFlush(timestamp: Long): Unit = {
     val timeSinceLastTouch = (currentTimeMillis - lastTouch) / 1000
 
     if (timeSinceLastTouch > noActivityTimeout.toSeconds && events.nonEmpty) {
       System.err.println(s"Gatling had no activity during last ${noActivityTimeout.toString}. It could be a virtual user leak, here's their last events:")
       events.values.foreach(System.err.println)
     }
-  }
-
-  override def initialized: Receive = super.initialized.orElse {
-    case Display => display()
-  }
-
-  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
-    lastTouch = currentTimeMillis
-    scheduler.schedule(0 seconds, noActivityTimeout, self, Display)
   }
 
   private def onUserMessage(userMessage: UserMessage): Unit = {

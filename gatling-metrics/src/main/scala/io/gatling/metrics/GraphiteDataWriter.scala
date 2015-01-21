@@ -55,7 +55,17 @@ private[gatling] class GraphiteDataWriter extends DataWriter {
     usersByScenario.update(AllUsersKey, new UsersBreakdownBuffer(scenarios.map(_.nbUsers).sum))
     scenarios.foreach(scenario => usersByScenario += (UsersRootKey / scenario.name) -> new UsersBreakdownBuffer(scenario.nbUsers))
 
-    scheduler.schedule(0 millisecond, configuration.data.graphite.writeInterval second, self, Send)
+    scheduler.schedule(0 millisecond, configuration.data.graphite.writeInterval second, self, Flush())
+  }
+
+  override def onFlush(timestamp: Long): Unit = {
+    val requestMetrics = requestsByPath.mapValues(_.metricsByStatus).toMap
+    val currentUserBreakdowns = usersByScenario.mapValues(UsersBreakdown(_)).toMap
+
+    // Reset all metrics
+    requestsByPath.foreach { case (_, buff) => buff.clear() }
+
+    graphiteSender ! SendMetrics(requestMetrics, currentUserBreakdowns)
   }
 
   private def onUserMessage(userMessage: UserMessage): Unit = {
@@ -80,15 +90,4 @@ private[gatling] class GraphiteDataWriter extends DataWriter {
   def onTerminateDataWriter(): Unit = () // Do nothing, let the ActorSystem free resources
 
   override def receive: Receive = uninitialized
-
-  override def initialized: Receive = super.initialized.orElse {
-    case Send =>
-      val requestMetrics = requestsByPath.mapValues(_.metricsByStatus).toMap
-      val currentUserBreakdowns = usersByScenario.mapValues(UsersBreakdown(_)).toMap
-
-      // Reset all metrics
-      requestsByPath.foreach { case (_, buff) => buff.clear() }
-
-      graphiteSender ! SendMetrics(requestMetrics, currentUserBreakdowns)
-  }
 }
