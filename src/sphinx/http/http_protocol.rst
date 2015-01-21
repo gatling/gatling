@@ -150,14 +150,14 @@ To disable this feature, just add ``.disableCaching`` to an HTTP Protocol Config
 
 .. _http-protocol-urlencoding:
 
-UrlEncoding
------------
+Url Encoding
+------------
 
 Url components are supposed to be `urlencoded <http://www.w3schools.com/tags/ref_urlencode.asp>`_.
 Gatling will encode them for you, there might be some corner cases where already encoded components might be encoded twice.
 
-If you know that your urls are already properly encoded, you can disable this feature with ``.disableUrlEscaping``.
-Note that this feature can also be disabled per request.
+If you know that your urls are already properly encoded, you can disable this feature with ``.disableUrlEncoding``.
+Note that this feature can also be :ref:`disabled per request <http-request-urlencoding>`.
 
 .. _http-protocol-silencing:
 

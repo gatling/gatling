@@ -57,7 +57,7 @@ object HttpProtocol {
       realm = None,
       autoReferer = true,
       cache = true,
-      disableUrlEscaping = false,
+      disableUrlEncoding = false,
       silentResources = false,
       silentURI = None,
       signatureCalculator = None),
@@ -192,7 +192,7 @@ case class HttpProtocolRequestPart(
   realm: Option[Expression[Realm]],
   autoReferer: Boolean,
   cache: Boolean,
-  disableUrlEscaping: Boolean,
+  disableUrlEncoding: Boolean,
   silentURI: Option[Pattern],
   silentResources: Boolean,
   signatureCalculator: Option[Expression[SignatureCalculator]])
