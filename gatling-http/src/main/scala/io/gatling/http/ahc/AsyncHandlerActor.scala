@@ -57,14 +57,6 @@ object AsyncHandlerActor extends AkkaDefaults {
     case Some(a) => a
     case _       => throw new UnsupportedOperationException("AsyncHandlerActor pool hasn't been started")
   }
-
-  val PropagatedOnRedirectHeaders = Vector(
-    HeaderNames.Accept,
-    HeaderNames.AcceptCharset,
-    HeaderNames.AcceptEncoding,
-    HeaderNames.AcceptLanguage,
-    HeaderNames.Referer,
-    HeaderNames.UserAgent)
 }
 
 class AsyncHandlerActor extends BaseActor with DataWriterClient {
@@ -213,13 +205,11 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
       def redirectRequest(statusCode: Int, redirectUri: Uri, sessionWithUpdatedCookies: Session): Request = {
         val originalRequest = tx.request.ahcRequest
 
-        val method = statusCode match {
-          case 303 => "GET"
-          case 302 if !tx.request.config.protocol.responsePart.strict302Handling => "GET"
-          case _ => originalRequest.getMethod
-        }
+        val switchToGet = originalRequest.getMethod != "GET" && (statusCode == 303 || (statusCode == 302 && !tx.request.config.protocol.responsePart.strict302Handling))
 
-        val requestBuilder = new RequestBuilder(method)
+        val newMethod = if (switchToGet) "GET" else originalRequest.getMethod
+
+        val requestBuilder = new RequestBuilder(newMethod)
           .setUri(redirectUri)
           .setBodyEncoding(configuration.core.encoding)
           .setConnectionPoolKeyStrategy(originalRequest.getConnectionPoolPartitioning)
@@ -229,10 +219,10 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           .setProxyServer(originalRequest.getProxyServer)
           .setRealm(originalRequest.getRealm)
 
-        for {
-          headerName <- AsyncHandlerActor.PropagatedOnRedirectHeaders
-          headerValue <- Option(originalRequest.getHeaders.getFirstValue(headerName))
-        } requestBuilder.addHeader(headerName, headerValue)
+        originalRequest.getHeaders.remove(HeaderNames.Host)
+        originalRequest.getHeaders.remove(HeaderNames.ContentLength)
+        originalRequest.getHeaders.remove(HeaderNames.Cookie)
+        if (switchToGet) originalRequest.getHeaders.remove(HeaderNames.ContentType)
 
         for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectUri))
           requestBuilder.addCookie(cookie)
