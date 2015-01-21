@@ -21,6 +21,12 @@ Every time a virtual user reaches this step, it will pop a record out of the Fee
 
 If the Feeder can't produce enough records, Gatling will complain about it and your simulation will stop.
 
+.. note::
+  You can also feed multiple records all at once. If so, attribute names, will be suffixed.
+  For example, if the columns are name "foo" and "bar" and you're feeding 2 records at once, you'll get "foo1", "bar1", "foo2" and "bar2" session attributes.
+
+.. includecode:: code/Feeders.scala#feed-multiple
+
 .. _feeder-builder:
 
 RecordSeqFeederBuilder
