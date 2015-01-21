@@ -102,14 +102,14 @@ abstract class DataWriter extends BaseActor {
     case Terminate => try {
       onTerminateDataWriter()
     } finally {
-      context.become(flushed)
+      context.become(terminated)
       sender ! true
     }
 
     case message: LoadEventMessage => onMessage(message)
   }
 
-  def flushed: Receive = {
+  def terminated: Receive = {
     case m => logger.info(s"Can't handle $m after being flush")
   }
 
