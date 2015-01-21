@@ -14,6 +14,10 @@ class Feeders {
     feed(feeder)
     //#feed
 
+    //#feed-multiple
+    feed(feeder, 2)
+    //#feed-multiple
+
     csv("foo")
       //#strategies
       .queue    // default behavior: use an Iterator on the underlying sequence
