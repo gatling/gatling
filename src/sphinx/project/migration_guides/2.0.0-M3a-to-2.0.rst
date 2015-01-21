@@ -70,7 +70,7 @@ Misc
 ----
 
 * ``requestInfoExtractor`` and ``responseInfoExtractor`` have been merged into a single ``extraInfoExtractor``, which takes a ``ExtraInfo => List[Any]`` function.
-* ``gatling.http.ahc.useRawUrl`` configuration parameter was removed, please use ``disableUrlEscaping`` instead, as described :ref:`here <http-protocol-urlencoding>`.
+* ``gatling.http.ahc.useRawUrl`` configuration parameter was removed, please use ``disableUrlEncoding`` instead, as described :ref:`here <http-protocol-urlencoding>`.
 
 For more information on ``extraInfoExtractor``, please refer to its :ref:`documentation <http-protocol-extractor>`.
 

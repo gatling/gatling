@@ -116,10 +116,10 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
 
   def build: Expression[Request] = {
 
-    val disableUrlEscaping = commonAttributes.disableUrlEncoding.getOrElse(protocol.requestPart.disableUrlEscaping)
+    val disableUrlEncoding = commonAttributes.disableUrlEncoding.getOrElse(protocol.requestPart.disableUrlEncoding)
 
     (session: Session) => {
-      val requestBuilder = new AHCRequestBuilder(commonAttributes.method, disableUrlEscaping)
+      val requestBuilder = new AHCRequestBuilder(commonAttributes.method, disableUrlEncoding)
 
       requestBuilder.setBodyEncoding(configuration.core.encoding)
 

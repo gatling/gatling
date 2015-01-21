@@ -219,6 +219,16 @@ For a given request, you can use ``disableFollowRedirect``, just like it can be 
 
 .. includecode:: code/HttpRequest.scala#disableFollowRedirect
 
+.. _http-request-urlencoding:
+
+Url Encoding
+============
+
+Url components are supposed to be `urlencoded <http://www.w3schools.com/tags/ref_urlencode.asp>`_.
+Gatling will encode them for you, there might be some corner cases where already encoded components might be encoded twice.
+
+If you know that your urls are already properly encoded, you can disable this feature with ``.disableUrlEncoding``.
+
 .. _http-request-silencing:
 
 Silencing
