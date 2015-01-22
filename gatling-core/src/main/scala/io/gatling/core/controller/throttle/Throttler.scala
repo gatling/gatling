@@ -50,11 +50,7 @@ class Throttler(globalProfile: Option[ThrottlingProtocol], scenarioProfiles: Map
     thisTickPerScenarioThrottlers = Map.empty ++ scenarioProfiles.mapValues(p => new ThisSecondThrottler(p.limit(thisTickStartSeconds)))
     val globalLimit = thisTickGlobalThrottler.map(_.limit)
     val perScenarioLimits = thisTickPerScenarioThrottlers.map(_._2.limit)
-    val maxNumberOfRequests =
-      if (perScenarioLimits.isEmpty)
-        globalLimit.get
-      else
-        math.max(perScenarioLimits.max, globalLimit.getOrElse(0))
+    val maxNumberOfRequests = math.min(perScenarioLimits.sum, globalLimit.getOrElse(Int.MaxValue))
 
     requestPeriod = 1000.0 / maxNumberOfRequests
     thisTickRequestCount = 0
