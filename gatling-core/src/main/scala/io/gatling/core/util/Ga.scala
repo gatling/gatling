@@ -5,7 +5,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * 		http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,7 +15,7 @@
  */
 package io.gatling.core.util
 
-import java.net.{URLEncoder, URL}
+import java.net.{ URLEncoder, URL }
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.UUID
 import javax.net.ssl.HttpsURLConnection
@@ -34,8 +34,10 @@ object Ga {
 
         val url = new URL("https://ssl.google-analytics.com/collect")
 
-        withCloseable(url.openConnection().asInstanceOf[HttpsURLConnection]) { conn =>
+        val conn = url.openConnection().asInstanceOf[HttpsURLConnection]
 
+        try {
+          conn.connect()
           conn.setReadTimeout(2000)
           conn.setConnectTimeout(2000)
           conn.setRequestMethod("POST")
@@ -47,10 +49,10 @@ object Ga {
 
             val trackingId = if (configuration.core.version.endsWith("SNAPSHOT")) "UA-53375088-4" else "UA-53375088-5"
 
-            def encode(string: String) = URLEncoder.encode(string, UTF_8.name)
+              def encode(string: String) = URLEncoder.encode(string, UTF_8.name)
 
             val body =
-             s"""tid=$trackingId&
+              s"""tid=$trackingId&
                 |dl=${encode("http://gatling.io/" + configuration.core.version)}&
                 |de=UTF-8}&
                 |ul=en-US}&
@@ -60,8 +62,9 @@ object Ga {
 
             os.write(body.getBytes(UTF_8))
             os.flush()
-            os.close()
           }
+        } finally {
+          conn.disconnect()
         }
       }
     }
