@@ -15,7 +15,7 @@
  */
 package io.gatling.http.action.sse
 
-import io.gatling.core.json.JSON
+import io.gatling.core.json.Json
 
 case class ServerSentEvent(
     data: Option[String] = None,
@@ -29,6 +29,6 @@ case class ServerSentEvent(
     val map = Map("event" -> name, "id" -> id, "data" -> data, "retry" -> retry)
       .collect({ case (key, Some(value)) => (key, value) })
 
-    JSON.stringify(map, isRootObject = true)
+    Json.stringify(map, isRootObject = true)
   }
 }

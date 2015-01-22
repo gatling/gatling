@@ -22,7 +22,7 @@ import java.security.{ CodeSource, ProtectionDomain }
 
 import scala.collection.mutable
 
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import io.gatling.core.util.PathHelper._
 
 private[classloader] class FileSystemBackedClassLoader(root: Path, parent: ClassLoader)

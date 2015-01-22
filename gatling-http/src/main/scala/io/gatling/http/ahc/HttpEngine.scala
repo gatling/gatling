@@ -44,7 +44,7 @@ import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response.ResponseBuilder
-import io.gatling.http.util.SSLHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
+import io.gatling.http.util.SslHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
 
 object HttpTx {
 

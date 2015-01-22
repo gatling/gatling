@@ -20,7 +20,7 @@ import java.nio.file.Path
 import java.security.{ Security, KeyStore }
 import javax.net.ssl.{ SSLEngine, X509KeyManager, KeyManagerFactory, SSLContext }
 
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import io.gatling.core.util.PathHelper._
 import io.gatling.recorder.config.RecorderConfiguration
 

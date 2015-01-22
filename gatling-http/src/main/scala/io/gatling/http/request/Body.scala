@@ -17,7 +17,7 @@ package io.gatling.http.request
 
 import java.io.{ File => JFile, InputStream }
 
-import io.gatling.core.session.el.ELCompiler
+import io.gatling.core.session.el.ElCompiler
 
 import scala.collection.JavaConverters._
 
@@ -27,10 +27,10 @@ import com.ning.http.util.StringUtils.stringBuilder
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import io.gatling.core.validation.Validation
 
-object ELFileBody {
+object ElFileBody {
   def apply(filePath: Expression[String]) = CompositeByteArrayBody(ELFileBodies.asBytesSeq(filePath))
 }
 
@@ -70,7 +70,7 @@ case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body {
 }
 
 object CompositeByteArrayBody {
-  def apply(string: String) = new CompositeByteArrayBody(ELCompiler.compile2BytesSeq(string))
+  def apply(string: String) = new CompositeByteArrayBody(ElCompiler.compile2BytesSeq(string))
 }
 
 case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]]) extends Body with Expression[String] {

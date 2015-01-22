@@ -20,7 +20,7 @@ import scala.concurrent.duration.DurationInt
 
 import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.util.IO.withCloseable
+import io.gatling.core.util.Io.withCloseable
 import io.gatling.recorder.config.ConfigKeys.http.InferHtmlResources
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
 import io.gatling.recorder.scenario.{ ResponseBodyBytes, PauseElement, RequestElement }

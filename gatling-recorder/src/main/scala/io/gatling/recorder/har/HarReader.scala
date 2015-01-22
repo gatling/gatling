@@ -23,7 +23,7 @@ import com.ning.http.client.uri.Uri
 import scala.collection.breakOut
 import scala.util.Try
 
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import io.gatling.http.HeaderNames._
 import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration

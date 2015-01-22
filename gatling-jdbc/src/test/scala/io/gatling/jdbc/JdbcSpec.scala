@@ -1,7 +1,7 @@
 package io.gatling.jdbc
 
 import java.sql.DriverManager
-import io.gatling.core.util.IO.withCloseable
+import io.gatling.core.util.Io.withCloseable
 
 trait JdbcSpec {
 

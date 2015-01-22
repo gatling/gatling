@@ -23,7 +23,7 @@ import scala.util.Try
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import java.nio.charset.Charset
 
-object IO {
+object Io {
 
   val DefaultBufferSize = 4 * 1024
 

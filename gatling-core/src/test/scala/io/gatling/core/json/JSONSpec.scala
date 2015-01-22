@@ -21,9 +21,9 @@ import scala.collection.JavaConversions._
 
 import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.json.JSON.stringify
+import io.gatling.core.json.Json.stringify
 
-class JSONSpec extends FlatSpec with Matchers {
+class JsonSpec extends FlatSpec with Matchers {
 
   "JSON.stringify" should "be able to stringify strings" in {
     stringify("Foo") shouldBe "Foo"

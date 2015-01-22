@@ -18,8 +18,8 @@ package io.gatling.http.request
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
 import io.gatling.core.session._
-import io.gatling.core.session.el.{ ELCompiler, EL }
-import io.gatling.core.util.IO._
+import io.gatling.core.session.el.{ ElCompiler, El }
+import io.gatling.core.util.Io._
 import io.gatling.core.util.cache._
 import io.gatling.core.validation._
 
@@ -54,7 +54,7 @@ object ELFileBodies {
   def asBytesSeq(filePath: Expression[String]): Expression[Seq[Array[Byte]]] = {
 
       def resource2BytesSeq(path: String): Validation[Expression[Seq[Array[Byte]]]] = Resource.body(path).map { resource =>
-        ELCompiler.compile2BytesSeq(resource.string(configuration.core.charset))
+        ElCompiler.compile2BytesSeq(resource.string(configuration.core.charset))
       }
 
       def pathToExpression(path: String) =

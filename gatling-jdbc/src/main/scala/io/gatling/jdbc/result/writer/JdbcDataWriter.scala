@@ -22,7 +22,7 @@ import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.writer._
-import io.gatling.core.util.IO.withCloseable
+import io.gatling.core.util.Io.withCloseable
 
 object JdbcDataWriter {
 

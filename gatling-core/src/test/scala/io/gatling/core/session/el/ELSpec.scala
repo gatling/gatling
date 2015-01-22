@@ -24,7 +24,7 @@ import org.scalatest.{ FlatSpec, Matchers }
 import io.gatling.core.session.{ el, Session }
 import io.gatling.core.test.ValidationValues
 
-class ELSpec extends FlatSpec with Matchers with ValidationValues {
+class ElSpec extends FlatSpec with Matchers with ValidationValues {
 
   GatlingConfiguration.setUpForTest()
 
@@ -70,7 +70,7 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
   it should "handle gracefully when an attribute is missing" in {
     val session = newSession(Map("foo" -> "FOO"))
     val expression = "foo${bar}".el[String]
-    expression(session).failed shouldBe ELMessages.undefinedSessionAttribute("bar").message
+    expression(session).failed shouldBe ElMessages.undefinedSessionAttribute("bar").message
   }
 
   it should "properly handle JsonPath expression" in {
@@ -177,7 +177,7 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
   it should "handle gracefully when index in an Array is out of range" in {
     val session = newSession(Map("arr" -> Array(1, 2)))
     val expression = "${arr(2)}".el[Int]
-    expression(session).failed shouldBe ELMessages.undefinedSeqIndex("arr", 2).message
+    expression(session).failed shouldBe ElMessages.undefinedSeqIndex("arr", 2).message
   }
 
   it should "handle gracefully when index in an JList is out of range" in {
@@ -186,37 +186,37 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
     lst.add(2)
     val session = newSession(Map("lst" -> lst))
     val expression = "${lst(2)}".el[Int]
-    expression(session).failed shouldBe ELMessages.undefinedSeqIndex("lst", 2).message
+    expression(session).failed shouldBe ElMessages.undefinedSeqIndex("lst", 2).message
   }
 
   it should "handle gracefully when used with static index and missing attribute" in {
     val session = newSession(Map.empty)
     val expression = "foo${bar(1)}".el[String]
-    expression(session).failed shouldBe ELMessages.undefinedSessionAttribute("bar").message
+    expression(session).failed shouldBe ElMessages.undefinedSessionAttribute("bar").message
   }
 
   it should "handle gracefully when used with static index and empty attribute" in {
     val session = newSession(Map("bar" -> Nil))
     val expression = "foo${bar(1)}".el[String]
-    expression(session).failed shouldBe ELMessages.undefinedSeqIndex("bar", 1).message
+    expression(session).failed shouldBe ElMessages.undefinedSeqIndex("bar", 1).message
   }
 
   it should "handle gracefully when used with static index and missing index" in {
     val session = newSession(Map("bar" -> List("BAR1")))
     val expression = "foo${bar(1)}".el[String]
-    expression(session).failed shouldBe ELMessages.undefinedSeqIndex("bar", 1).message
+    expression(session).failed shouldBe ElMessages.undefinedSeqIndex("bar", 1).message
   }
 
   it should "handle gracefully when used with missing resolved index attribute" in {
     val session = newSession(Map("bar" -> List("BAR1", "BAR2")))
     val expression = "{foo${bar(baz)}}".el[String]
-    expression(session).failed shouldBe ELMessages.undefinedSessionAttribute("baz").message
+    expression(session).failed shouldBe ElMessages.undefinedSessionAttribute("baz").message
   }
 
   it should "handle gracefully value of unsupported type" in {
     val session = newSession(Map("i" -> 1))
     val expression = "${i(0)}".el[Int]
-    expression(session).failed shouldBe ELMessages.indexAccessNotSupported(1, "i").message
+    expression(session).failed shouldBe ElMessages.indexAccessNotSupported(1, "i").message
   }
 
   "'size' function in Expression" should "return correct size for non empty seq" in {
@@ -234,7 +234,7 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
   it should "return 0 size for missing attribute" in {
     val session = newSession(Map.empty)
     val expression = "${bar.size()}".el[Int]
-    expression(session).failed shouldBe ELMessages.undefinedSessionAttribute("bar").message
+    expression(session).failed shouldBe ElMessages.undefinedSessionAttribute("bar").message
   }
 
   it should "return correct size for a non empty Array" in {
@@ -279,7 +279,7 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
   it should "handle gracefully unsupported type" in {
     val session = newSession(Map("i" -> 10))
     val expression = "${i.size()}".el[Int]
-    expression(session).failed shouldBe ELMessages.sizeNotSupported(10, "i").message
+    expression(session).failed shouldBe ElMessages.sizeNotSupported(10, "i").message
   }
 
   "'random' function in Expression" should "return one of elements of List" in {
@@ -307,7 +307,7 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
   it should "handle unsupported type" in {
     val session = newSession(Map("i" -> 10))
     val expression = "${i.random()}".el[Int]
-    expression(session).failed shouldBe el.ELMessages.randomNotSupported(10, "i").message
+    expression(session).failed shouldBe el.ElMessages.randomNotSupported(10, "i").message
   }
 
   "'exists' function in Expression" should "validate that a value is in the session" in {
@@ -341,7 +341,7 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
   it should "handle missing map correctly" in {
     val session = newSession(Map.empty)
     val expression = "${map.key1}".el[String]
-    expression(session).failed shouldBe ELMessages.undefinedSessionAttribute("map").message
+    expression(session).failed shouldBe ElMessages.undefinedSessionAttribute("map").message
   }
 
   it should "handle nested map access" in {
@@ -354,7 +354,7 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
     val map = Map("key" -> "val")
     val session = newSession(Map("map" -> map))
     val expression = "${map.nonexisting}".el[String]
-    expression(session).failed shouldBe ELMessages.undefinedMapKey("map", "nonexisting").message
+    expression(session).failed shouldBe ElMessages.undefinedMapKey("map", "nonexisting").message
   }
 
   it should "handle missing value in JMap correctly" in {
@@ -362,13 +362,13 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
     map.put("key1", 1)
     val session = newSession(Map("map" -> map))
     val expression = "${map.nonexisting}".el[Int]
-    expression(session).failed shouldBe ELMessages.undefinedMapKey("map", "nonexisting").message
+    expression(session).failed shouldBe ElMessages.undefinedMapKey("map", "nonexisting").message
   }
 
   it should "handle wrong type correctly" in {
     val session = newSession(Map("i" -> 1))
     val expression = "${i.key}".el[Int]
-    expression(session).failed shouldBe ELMessages.accessByKeyNotSupported(1, "i").message
+    expression(session).failed shouldBe ElMessages.accessByKeyNotSupported(1, "i").message
   }
 
   "multiple level access" should "return an element of a sub-list" in {
@@ -417,7 +417,7 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
     val lst = List(Map("key" -> "value"))
     val session = newSession(Map("lst" -> lst))
     val expression = "${lst(0).key.nonexisting}".el[Int]
-    expression(session).failed shouldBe ELMessages.accessByKeyNotSupported("value", "lst(0).key").message
+    expression(session).failed shouldBe ElMessages.accessByKeyNotSupported("value", "lst(0).key").message
   }
 
   "tuples access" should "return size of Tuple2" in {
@@ -454,21 +454,21 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
     val tuple = Tuple3(1, 2, 3)
     val session = newSession(Map("tuple" -> tuple))
     val expression = "${tuple._0}".el[Int]
-    expression(session).failed shouldBe ELMessages.outOfRangeAccess("tuple", tuple, 0).message
+    expression(session).failed shouldBe ElMessages.outOfRangeAccess("tuple", tuple, 0).message
   }
 
   it should "return element of range" in {
     val tuple = Tuple3(1, 2, 3)
     val session = newSession(Map("tuple" -> tuple))
     val expression = "${tuple._4}".el[Int]
-    expression(session).failed shouldBe ELMessages.outOfRangeAccess("tuple", tuple, 4).message
+    expression(session).failed shouldBe ElMessages.outOfRangeAccess("tuple", tuple, 4).message
   }
 
   it should "handle correctly if object do not support tuple access" in {
     val int = 5
     val session = newSession(Map("i" -> int))
     val expression = "${i._3}".el[Int]
-    expression(session).failed shouldBe ELMessages.tupleAccessNotSupported("i", int).message
+    expression(session).failed shouldBe ElMessages.tupleAccessNotSupported("i", int).message
   }
 
   "pairs access" should "return size of a Pair" in {
@@ -499,22 +499,22 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
     val pair = 1 -> 2
     val session = newSession(Map("pair" -> pair))
     val expression = "${pair._0}".el[Int]
-    expression(session).failed shouldBe ELMessages.outOfRangeAccess("pair", pair, 0).message
+    expression(session).failed shouldBe ElMessages.outOfRangeAccess("pair", pair, 0).message
   }
 
   it should "return out of range element of a pair" in {
     val pair = 1 -> 2
     val session = newSession(Map("pair" -> pair))
     val expression = "${pair._3}".el[Int]
-    expression(session).failed shouldBe ELMessages.outOfRangeAccess("pair", pair, 3).message
+    expression(session).failed shouldBe ElMessages.outOfRangeAccess("pair", pair, 3).message
   }
 
   "Malformed Expression" should "be handled correctly when an attribute name is missing" in {
-    a[ELParserException] should be thrownBy "foo${}bar".el[String]
+    a[ElParserException] should be thrownBy "foo${}bar".el[String]
   }
 
   it should "be handled when ${ is not closed" in {
-    a[ELParserException] should be thrownBy "${foo".el[String]
+    a[ElParserException] should be thrownBy "${foo".el[String]
   }
 
   "'isUndefined' function in Expression" should "validate that a value is not in the session" in {
@@ -530,22 +530,22 @@ class ELSpec extends FlatSpec with Matchers with ValidationValues {
   }
 
   it should "be handled correctly when there is a nested attribute definition with string before nested attribute" in {
-    a[ELParserException] should be thrownBy "${foo${bar}}".el[String]
+    a[ElParserException] should be thrownBy "${foo${bar}}".el[String]
   }
 
   it should "be handled correctly when there is a nested attribute definition with string after nested attribute" in {
-    a[ELParserException] should be thrownBy "${${bar}foo}".el[String]
+    a[ElParserException] should be thrownBy "${${bar}foo}".el[String]
   }
 
   it should "be handled correctly when there is a nested attribute definition with string before and after nested attribute" in {
-    a[ELParserException] should be thrownBy "${foo${bar}foo}".el[String]
+    a[ElParserException] should be thrownBy "${foo${bar}foo}".el[String]
   }
 
   it should "be handled correctly when there is a nested attribute definition" in {
-    a[ELParserException] should be thrownBy "${${bar}}".el[String]
+    a[ElParserException] should be thrownBy "${${bar}}".el[String]
   }
 
   it should "be handled correctly when there are several nested attributes" in {
-    a[ELParserException] should be thrownBy "${${bar}${bar}}".el[String]
+    a[ElParserException] should be thrownBy "${${bar}${bar}}".el[String]
   }
 }

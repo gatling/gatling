@@ -61,15 +61,21 @@ object Predef extends HttpCheckSupport with WsCheckSupport with SitemapFeederSup
 
   def Cookie = CookieDSL
 
-  def ELFileBody = io.gatling.http.request.ELFileBody
+  @deprecated("Use ElFileBody instead", "2.2.0")
+  def ELFileBody = ElFileBody
+  def ElFileBody = io.gatling.http.request.ElFileBody
   def StringBody(string: String) = io.gatling.http.request.CompositeByteArrayBody(string)
   def StringBody(string: Expression[String]) = io.gatling.http.request.StringBody(string)
   def RawFileBody = io.gatling.http.request.RawFileBody
   def ByteArrayBody = io.gatling.http.request.ByteArrayBody
   def InputStreamBody = io.gatling.http.request.InputStreamBody
 
-  def ELFileBodyPart(filePath: Expression[String]): BodyPart = BodyPart.elFileBodyPart(None, filePath)
-  def ELFileBodyPart(name: Expression[String], filePath: Expression[String]): BodyPart = BodyPart.elFileBodyPart(Some(name), filePath)
+  @deprecated("Use ElFileBody instead", "2.2.0")
+  def ELFileBodyPart(filePath: Expression[String]): BodyPart = ElFileBodyPart(filePath)
+  def ElFileBodyPart(filePath: Expression[String]): BodyPart = BodyPart.elFileBodyPart(None, filePath)
+  @deprecated("Use ElFileBody instead", "2.2.0")
+  def ELFileBodyPart(name: Expression[String], filePath: Expression[String]): BodyPart = ElFileBodyPart(name, filePath)
+  def ElFileBodyPart(name: Expression[String], filePath: Expression[String]): BodyPart = BodyPart.elFileBodyPart(Some(name), filePath)
   def StringBodyPart(string: Expression[String]): BodyPart = BodyPart.stringBodyPart(None, string)
   def StringBodyPart(name: Expression[String], string: Expression[String]): BodyPart = BodyPart.stringBodyPart(Some(name), string)
   def RawFileBodyPart(filePath: Expression[String]): BodyPart = BodyPart.rawFileBodyPart(None, filePath)

@@ -19,7 +19,7 @@ import org.scalatest.{ FlatSpec, Matchers }
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationValues
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import org.xml.sax.InputSource
 
 class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
@@ -35,22 +35,22 @@ class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
   def document(file: String) =
     withCloseable(getClass.getResourceAsStream(file)) { is =>
-      Some(JDKXPathExtractor.parse(new InputSource(is)))
+      Some(JdkXPathExtractor.parse(new InputSource(is)))
     }
 
   def testCount(expression: String, file: String, expected: Int): Unit = {
     new SaxonXPathExtractor.CountXPathExtractor(expression, namespaces)(xmdNode(file)).succeeded shouldBe Some(expected)
-    new JDKXPathExtractor.CountXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe Some(expected)
+    new JdkXPathExtractor.CountXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe Some(expected)
   }
 
   def testSingle(expression: String, namespaces: List[(String, String)], rank: Int, file: String, expected: Option[String]): Unit = {
     new SaxonXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
+    new JdkXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
   }
 
   def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
     new SaxonXPathExtractor.MultipleXPathExtractor(expression, namespaces)(xmdNode(file)).succeeded shouldBe expected
-    new JDKXPathExtractor.MultipleXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe expected
+    new JdkXPathExtractor.MultipleXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe expected
   }
 
   "count" should "return expected result with anywhere expression" in {

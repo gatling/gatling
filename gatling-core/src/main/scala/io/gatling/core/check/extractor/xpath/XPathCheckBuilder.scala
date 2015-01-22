@@ -30,7 +30,7 @@ trait XPathCheckBuilder[C <: Check[R], R] {
 
   val SaxonXPathPreparer: Preparer[R, Option[XdmNode]] = preparer(SaxonXPathExtractor.parse)
 
-  val JDKXPathPreparer: Preparer[R, Option[Document]] = preparer(JDKXPathExtractor.parse)
+  val JDKXPathPreparer: Preparer[R, Option[Document]] = preparer(JdkXPathExtractor.parse)
 
   def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
     if (SaxonXPathExtractor.Enabled)
@@ -41,8 +41,8 @@ trait XPathCheckBuilder[C <: Check[R], R] {
       }
     else
       new DefaultMultipleFindCheckBuilder[C, R, Option[Document], String](CheckBuilder, JDKXPathPreparer) {
-        def findExtractor(occurrence: Int) = expression.map(new JDKXPathExtractor.SingleXPathExtractor(_, namespaces, occurrence))
-        def findAllExtractor = expression.map(new JDKXPathExtractor.MultipleXPathExtractor(_, namespaces))
-        def countExtractor = expression.map(new JDKXPathExtractor.CountXPathExtractor(_, namespaces))
+        def findExtractor(occurrence: Int) = expression.map(new JdkXPathExtractor.SingleXPathExtractor(_, namespaces, occurrence))
+        def findAllExtractor = expression.map(new JdkXPathExtractor.MultipleXPathExtractor(_, namespaces))
+        def countExtractor = expression.map(new JdkXPathExtractor.CountXPathExtractor(_, namespaces))
       }
 }

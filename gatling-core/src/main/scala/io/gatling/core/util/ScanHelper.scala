@@ -22,7 +22,7 @@ import java.util.jar.JarFile
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import io.gatling.core.util.PathHelper._
 
 object ScanHelper {

@@ -23,7 +23,7 @@ import scala.reflect.ClassTag
 
 import com.ning.http.util.StringUtils.stringBuilder
 import io.gatling.core.config.GatlingConfiguration._
-import io.gatling.core.json.JSON
+import io.gatling.core.json.Json
 import io.gatling.core.session._
 import io.gatling.core.util.NumberHelper.IntString
 import io.gatling.core.util.StringHelper._
@@ -32,7 +32,7 @@ import io.gatling.core.validation._
 
 import scala.util.parsing.combinator.RegexParsers
 
-object ELMessages {
+object ElMessages {
   def undefinedSeqIndex(name: String, index: Int) = s"Seq named '$name' is undefined for index $index".failure
   def undefinedSessionAttribute(name: String) = s"No attribute named '$name' is defined".failure
   def undefinedMapKey(map: String, key: String) = s"Map named '$map' does not contain key '$key'".failure
@@ -62,7 +62,7 @@ case class SizePart(seqPart: Part[Any], name: String) extends Part[Int] {
       case map: JMap[_, _]            => map.size.success
       case arr: Array[_]              => arr.length.success
       case product: Product           => product.productArity.success
-      case other                      => ELMessages.sizeNotSupported(other, name)
+      case other                      => ElMessages.sizeNotSupported(other, name)
     }
 }
 
@@ -75,7 +75,7 @@ case class RandomPart(seq: Part[Any], name: String) extends Part[Any] {
       case list: JList[_]   => list.get(random(list.size)).success
       case arr: Array[_]    => arr(random(arr.length)).success
       case product: Product => product.productElement(random(product.productArity)).success
-      case other            => ELMessages.randomNotSupported(other, name)
+      case other            => ElMessages.randomNotSupported(other, name)
     }
   }
 }
@@ -99,7 +99,7 @@ case class IsUndefinedPart(part: Part[Any], name: String) extends Part[Boolean] 
 case class JSONStringify(part: Part[Any], name: String) extends Part[String] {
   def apply(session: Session): Validation[String] =
     part(session) match {
-      case Success(value)   => JSON.stringify(value, isRootObject = false).success
+      case Success(value)   => Json.stringify(value, isRootObject = false).success
       case NullValueFailure => NullStringSuccess
       case failure: Failure => failure
     }
@@ -111,17 +111,17 @@ case class SeqElementPart(seq: Part[Any], seqName: String, index: String) extend
       def seqElementPart(index: Int): Validation[Any] = seq(session).flatMap {
         case seq: Seq[_] =>
           if (seq.isDefinedAt(index)) seq(index).success
-          else ELMessages.undefinedSeqIndex(seqName, index)
+          else ElMessages.undefinedSeqIndex(seqName, index)
 
         case arr: Array[_] =>
           if (index < arr.length) arr(index).success
-          else ELMessages.undefinedSeqIndex(seqName, index)
+          else ElMessages.undefinedSeqIndex(seqName, index)
 
         case list: JList[_] =>
           if (index < list.size) list.get(index).success
-          else ELMessages.undefinedSeqIndex(seqName, index)
+          else ElMessages.undefinedSeqIndex(seqName, index)
 
-        case other => ELMessages.indexAccessNotSupported(other, seqName)
+        case other => ElMessages.indexAccessNotSupported(other, seqName)
       }
 
     index match {
@@ -136,14 +136,14 @@ case class MapKeyPart(map: Part[Any], mapName: String, key: String) extends Part
   def apply(session: Session): Validation[Any] = map(session).flatMap {
     case m: Map[_, _] => m.asInstanceOf[Map[Any, _]].get(key) match {
       case Some(value) => value.success
-      case None        => ELMessages.undefinedMapKey(mapName, key)
+      case None        => ElMessages.undefinedMapKey(mapName, key)
     }
 
     case map: JMap[_, _] =>
       if (map.containsKey(key)) map.get(key).success
-      else ELMessages.undefinedMapKey(mapName, key)
+      else ElMessages.undefinedMapKey(mapName, key)
 
-    case other => ELMessages.accessByKeyNotSupported(other, mapName)
+    case other => ElMessages.accessByKeyNotSupported(other, mapName)
   }
 }
 
@@ -151,20 +151,20 @@ case class TupleAccessPart(tuple: Part[Any], tupleName: String, index: Int) exte
   def apply(session: Session): Validation[Any] = tuple(session).flatMap {
     case product: Product =>
       if (index > 0 && product.productArity >= index) product.productElement(index - 1).success
-      else ELMessages.outOfRangeAccess(tupleName, product, index)
+      else ElMessages.outOfRangeAccess(tupleName, product, index)
 
-    case other => ELMessages.tupleAccessNotSupported(tupleName, other)
+    case other => ElMessages.tupleAccessNotSupported(tupleName, other)
   }
 }
 
-class ELParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
+class ElParserException(string: String, msg: String) extends Exception(s"Failed to parse $string with error '$msg'")
 
-object ELCompiler {
+object ElCompiler {
 
   val NameRegex = "[^.${}()]+".r
 
-  val TheELCompiler = new ThreadLocal[ELCompiler] {
-    override def initialValue = new ELCompiler
+  val TheELCompiler = new ThreadLocal[ElCompiler] {
+    override def initialValue = new ElCompiler
   }
 
   def parse(string: String): List[Part[Any]] = TheELCompiler.get.parseEl(string)
@@ -207,7 +207,7 @@ object ELCompiler {
         }
       }
 
-    val parts = ELCompiler.parse(string)
+    val parts = ElCompiler.parse(string)
     val bytes = parts.map {
       case StaticPart(s) =>
         val bs = s.getBytes(configuration.core.charset).success
@@ -219,9 +219,9 @@ object ELCompiler {
   }
 }
 
-class ELCompiler extends RegexParsers {
+class ElCompiler extends RegexParsers {
 
-  import ELCompiler._
+  import ElCompiler._
 
   sealed trait AccessToken { def token: String }
   case class AccessIndex(pos: String, token: String) extends AccessToken
@@ -240,10 +240,10 @@ class ELCompiler extends RegexParsers {
     try {
       parseAll(expr, string) match {
         case Success(parts, _) => parts
-        case ns: NoSuccess     => throw new ELParserException(string, ns.msg)
+        case ns: NoSuccess     => throw new ElParserException(string, ns.msg)
       }
     } catch {
-      case e: Exception => throw new ELParserException(string, e.getMessage)
+      case e: Exception => throw new ElParserException(string, e.getMessage)
     }
 
   val expr: Parser[List[Part[Any]]] = multivaluedExpr | (elExpr ^^ { case part: Part[Any] => List(part) })

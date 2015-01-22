@@ -21,12 +21,12 @@ import scala.util.Properties._
 
 import com.ning.http.client.{ AsyncHttpClientConfig, RequestBuilder, AsyncHttpClient }
 import io.gatling.core.config.GatlingConfiguration._
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import io.gatling.http.HeaderNames._
 
 import scala.util.Try
 
-object GA {
+object Ga {
 
   def send(): Unit =
     if (configuration.http.enableGA) {

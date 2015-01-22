@@ -21,7 +21,7 @@ import java.nio.charset.Charset
 import java.nio.file.Path
 
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import io.gatling.core.util.PathHelper._
 
 object Resource {

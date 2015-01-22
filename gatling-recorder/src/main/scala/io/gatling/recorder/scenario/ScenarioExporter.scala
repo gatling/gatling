@@ -24,7 +24,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 import com.typesafe.scalalogging.StrictLogging
 
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import io.gatling.core.util.PathHelper._
 import io.gatling.core.validation._
 import io.gatling.http.{ HeaderNames, HeaderValues }

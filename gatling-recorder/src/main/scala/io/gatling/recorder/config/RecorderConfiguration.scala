@@ -32,7 +32,7 @@ import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.util.ConfigHelper.configChain
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import io.gatling.core.util.PathHelper._
 import io.gatling.core.util.StringHelper.RichString
 

@@ -25,7 +25,7 @@ import scala.concurrent.forkjoin.ThreadLocalRandom
 
 import io.gatling.core.action.builder.{ PaceBuilder, PauseBuilder, RendezVousBuilder }
 import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
-import io.gatling.core.session.el.EL
+import io.gatling.core.session.el.El
 import io.gatling.core.validation.SuccessWrapper
 
 trait Pauses[B] extends Execs[B] {

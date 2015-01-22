@@ -21,7 +21,7 @@ import scala.io.Source
 import au.com.bytecode.opencsv.CSVParser
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 
 object SeparatedValuesParser {
 

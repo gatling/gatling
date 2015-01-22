@@ -29,7 +29,7 @@ import scala.util.Try
 import scala.concurrent.duration._
 
 import com.typesafe.scalalogging.StrictLogging
-import io.gatling.core.util.IO.withCloseable
+import io.gatling.core.util.Io.withCloseable
 import io.gatling.core.util.PathHelper._
 
 import org.bouncycastle.cert.{ X509CertificateHolder, X509v3CertificateBuilder }

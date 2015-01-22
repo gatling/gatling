@@ -21,7 +21,7 @@ import scala.annotation.tailrec
 import scala.collection.breakOut
 
 import io.gatling.core.feeder.Record
-import io.gatling.core.util.IO.withCloseable
+import io.gatling.core.util.Io.withCloseable
 
 object JdbcFeederSource {
 

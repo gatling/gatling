@@ -19,7 +19,7 @@ import java.security.MessageDigest
 
 import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import io.gatling.core.util.StringHelper.RichString
 
 class StringHelperSpec extends FlatSpec with Matchers {

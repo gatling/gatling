@@ -22,7 +22,7 @@ import org.scalatest.{ FlatSpec, Matchers }
 import jodd.lagarto.dom.NodeSelector
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationValues
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 
 class CssExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 

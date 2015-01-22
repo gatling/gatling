@@ -21,7 +21,7 @@ import scala.collection.JavaConversions.{ collectionAsScalaIterable, mapAsScalaM
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-object JSON {
+object Json {
 
   def stringify(value: Any, isRootObject: Boolean = true): String =
     fastringify(value, isRootObject).toString()

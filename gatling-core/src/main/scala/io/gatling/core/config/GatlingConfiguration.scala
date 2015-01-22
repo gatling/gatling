@@ -159,7 +159,7 @@ object GatlingConfiguration extends StrictLogging {
 
           SslConfiguration(trustStore, keyStore)
         },
-        ahc = AHCConfiguration(
+        ahc = AhcConfiguration(
           allowPoolingConnections = config.getBoolean(http.ahc.AllowPoolingConnections),
           allowPoolingSslConnections = config.getBoolean(http.ahc.AllowPoolingSslConnections),
           compressionEnforced = config.getBoolean(http.ahc.CompressionEnforced),
@@ -208,8 +208,8 @@ object GatlingConfiguration extends StrictLogging {
           rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
           bufferSize = config.getInt(data.graphite.BufferSize),
           writeInterval = config.getInt(data.graphite.WriteInterval)),
-        jdbc = JDBCDataWriterConfiguration(
-          db = DBConfiguration(
+        jdbc = JdbcDataWriterConfiguration(
+          db = DbConfiguration(
             url = config.getString(data.jdbc.Url),
             username = config.getString(data.jdbc.Username),
             password = config.getString(data.jdbc.Password)),
@@ -305,9 +305,9 @@ case class HttpConfiguration(
   warmUpUrl: Option[String],
   enableGA: Boolean,
   ssl: SslConfiguration,
-  ahc: AHCConfiguration)
+  ahc: AhcConfiguration)
 
-case class AHCConfiguration(
+case class AhcConfiguration(
   allowPoolingConnections: Boolean,
   allowPoolingSslConnections: Boolean,
   compressionEnforced: Boolean,
@@ -361,7 +361,7 @@ case class DataConfiguration(
     dataReaderClass: String,
     file: FileDataWriterConfiguration,
     leak: LeakDataWriterConfiguration,
-    jdbc: JDBCDataWriterConfiguration,
+    jdbc: JdbcDataWriterConfiguration,
     console: ConsoleDataWriterConfiguration,
     graphite: GraphiteDataWriterConfiguration) {
 
@@ -374,7 +374,7 @@ case class FileDataWriterConfiguration(
 case class LeakDataWriterConfiguration(
   noActivityTimeout: Int)
 
-case class DBConfiguration(
+case class DbConfiguration(
   url: String,
   username: String,
   password: String)
@@ -391,8 +391,8 @@ case class InsertStatements(
   insertScenarioRecord: Option[String],
   insertGroupRecord: Option[String])
 
-case class JDBCDataWriterConfiguration(
-  db: DBConfiguration,
+case class JdbcDataWriterConfiguration(
+  db: DbConfiguration,
   bufferSize: Int,
   createStatements: CreateStatements,
   insertStatements: InsertStatements)

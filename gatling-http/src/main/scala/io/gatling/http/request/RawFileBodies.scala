@@ -21,7 +21,7 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
 import io.gatling.core.session.Expression
 import io.gatling.core.util.cache._
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import io.gatling.core.validation.Validation
 
 object RawFileBodies {

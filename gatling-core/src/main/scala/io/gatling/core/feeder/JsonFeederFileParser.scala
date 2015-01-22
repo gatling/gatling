@@ -25,7 +25,7 @@ import scala.collection._
 import scala.collection.JavaConversions._
 import io.gatling.core.config.GatlingConfiguration._
 import io.gatling.core.config.Resource
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 
 object JsonFeederFileParser {
 

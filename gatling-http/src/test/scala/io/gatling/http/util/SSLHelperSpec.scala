@@ -33,32 +33,32 @@ class SSLHelperSpec extends FlatSpec with Matchers {
   "SSLHelperSpec" should "load keystore from file" in {
     val keystoreFile = fileFromResource(KEYSTORE)
 
-    val keyManagers = SSLHelper.newKeyManagers(None, keystoreFile, PASSWORD, None)
+    val keyManagers = SslHelper.newKeyManagers(None, keystoreFile, PASSWORD, None)
     keyManagers should have size 1
   }
 
   it should "load keystore from classpath" in {
-    val keyManagers = SSLHelper.newKeyManagers(None, KEYSTORE, PASSWORD, None)
+    val keyManagers = SslHelper.newKeyManagers(None, KEYSTORE, PASSWORD, None)
     keyManagers should have size 1
   }
 
   it should "throw FileNotFoundException when load non-existing keystore from classpath" in {
-    a[FileNotFoundException] shouldBe thrownBy(SSLHelper.newKeyManagers(None, "some/non/existing", PASSWORD, None))
+    a[FileNotFoundException] shouldBe thrownBy(SslHelper.newKeyManagers(None, "some/non/existing", PASSWORD, None))
   }
 
   it should "load truststore from file" in {
     val truststoreFile = fileFromResource(KEYSTORE)
 
-    val trustManagers = SSLHelper.newTrustManagers(None, truststoreFile, PASSWORD, None)
+    val trustManagers = SslHelper.newTrustManagers(None, truststoreFile, PASSWORD, None)
     trustManagers should have size 1
   }
 
   it should "load truststore from classpath" in {
-    val trustManagers = SSLHelper.newTrustManagers(None, KEYSTORE, PASSWORD, None)
+    val trustManagers = SslHelper.newTrustManagers(None, KEYSTORE, PASSWORD, None)
     trustManagers should have size 1
   }
 
   it should "throw FileNotFoundException when load non-existing truststore from classpath" in {
-    a[FileNotFoundException] shouldBe thrownBy(SSLHelper.newTrustManagers(None, "some/non/existing", PASSWORD, None))
+    a[FileNotFoundException] shouldBe thrownBy(SslHelper.newTrustManagers(None, "some/non/existing", PASSWORD, None))
   }
 }

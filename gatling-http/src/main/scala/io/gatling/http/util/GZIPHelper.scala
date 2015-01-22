@@ -19,9 +19,9 @@ import java.io.{ ByteArrayOutputStream, InputStream }
 
 import com.jcraft.jzlib.GZIPOutputStream
 
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 
-object GZIPHelper {
+object GzipHelper {
 
   def gzip(string: String): Array[Byte] = gzip(string.getBytes)
 

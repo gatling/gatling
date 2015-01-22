@@ -35,7 +35,7 @@ package object util {
 
   implicit class HttpStringBuilder(val buff: JStringBuilder) extends AnyVal {
 
-    def appendAHCStringsMap(map: JMap[String, JList[String]]): JStringBuilder =
+    def appendAhcStringsMap(map: JMap[String, JList[String]]): JStringBuilder =
       map.entrySet.foldLeft(buff) { (buf, entry) =>
         buff.append(entry.getKey).append(": ").append(entry.getValue).append(Eol)
       }
@@ -63,7 +63,7 @@ package object util {
         case _ =>
           if (request.getHeaders != null && !request.getHeaders.isEmpty) {
             buff.append("headers=").append(Eol)
-            buff.appendAHCStringsMap(request.getHeaders)
+            buff.appendAhcStringsMap(request.getHeaders)
           }
 
           if (!request.getCookies.isEmpty) {
@@ -152,7 +152,7 @@ package object util {
 
         if (!response.headers.isEmpty) {
           buff.append("headers= ").append(Eol)
-          buff.appendAHCStringsMap(response.headers).append(Eol)
+          buff.appendAhcStringsMap(response.headers).append(Eol)
         }
 
         if (response.hasResponseBody)

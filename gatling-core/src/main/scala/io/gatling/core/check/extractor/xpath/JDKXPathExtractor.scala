@@ -28,7 +28,7 @@ import org.xml.sax.{ EntityResolver, InputSource }
 import io.gatling.core.check.extractor._
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
 
-object JDKXPathExtractor {
+object JdkXPathExtractor {
 
   val XPathFactoryTL = new ThreadLocal[XPathFactory] {
     override def initialValue() = XPathFactory.newInstance

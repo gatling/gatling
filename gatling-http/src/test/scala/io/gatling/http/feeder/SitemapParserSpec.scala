@@ -24,7 +24,7 @@ import org.scalatest.mock.MockitoSugar
 
 import io.gatling.core.feeder.Record
 import io.gatling.core.config._
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 
 class SitemapParserSpec extends FlatSpec with Matchers with MockitoSugar {
 

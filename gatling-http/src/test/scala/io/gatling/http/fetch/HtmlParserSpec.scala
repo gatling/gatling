@@ -21,7 +21,7 @@ import org.scalatest.{ FlatSpec, Matchers }
 
 import com.ning.http.client.uri.Uri
 
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 
 import scala.io.Source
 

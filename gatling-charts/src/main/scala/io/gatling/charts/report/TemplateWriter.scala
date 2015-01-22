@@ -19,7 +19,7 @@ import java.nio.file.Path
 
 import com.dongxiguo.fastring.Fastring
 
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import io.gatling.core.util.PathHelper._
 
 class TemplateWriter(path: Path) {

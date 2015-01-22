@@ -22,7 +22,7 @@ import com.ning.http.client.uri.Uri
 import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.session._
-import io.gatling.core.session.el.EL
+import io.gatling.core.session.el.El
 import io.gatling.core.validation._
 import io.gatling.http.check.status.HttpStatusCheckBuilder._
 import io.gatling.http.util.HttpHelper._

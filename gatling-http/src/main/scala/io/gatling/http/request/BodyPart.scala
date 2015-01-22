@@ -22,7 +22,7 @@ import com.ning.http.client.multipart.{ ByteArrayPart, FilePart, Part, PartBase,
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session._
-import io.gatling.core.util.IO._
+import io.gatling.core.util.Io._
 import io.gatling.core.validation.Validation
 
 object BodyPart {
