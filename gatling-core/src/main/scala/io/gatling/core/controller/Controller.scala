@@ -45,7 +45,7 @@ object Controller extends AkkaDefaults with StrictLogging {
     val totalNumberOfUsers = simulation.scenarios.map(_.injectionProfile.users).sum
     logger.info(s"Total number of users : $totalNumberOfUsers")
 
-    val controller = actor("controller")(new Controller(simulation, selection, totalNumberOfUsers))
+    val controller = actor("gatling-controller")(new Controller(simulation, selection, totalNumberOfUsers))
 
     _instance = Some(controller)
     system.registerOnTermination(_instance = None)
