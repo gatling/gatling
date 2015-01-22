@@ -22,6 +22,7 @@ import io.gatling.core.util.TimeHelper.nowMillis
 
 case class ShortScenarioDescription(name: String, nbUsers: Int)
 
+// TODO : take directly a Selection : contains simulationClassName, simulationId and runDescription
 case class RunMessage(simulationClassName: String,
                       simulationId: String,
                       start: Long,
@@ -40,6 +41,7 @@ sealed trait LoadEventMessage extends DataWriterMessage {
   def userId: String
 }
 
+// TODO : take directly a session : contains the scenario name, the user id and the startDate
 case class UserMessage(
   scenario: String,
   userId: String,

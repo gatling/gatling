@@ -53,7 +53,7 @@ trait JmsMockingSpec extends BrokerBasedSpecification {
     val session = expectMsgClass(timeout, classOf[Session])
 
     DataWriter.terminate(self)
-    expectMsgClass(classOf[DataWritersTerminated])
+    expectMsg(DataWritersTerminated)
 
     session
   }
