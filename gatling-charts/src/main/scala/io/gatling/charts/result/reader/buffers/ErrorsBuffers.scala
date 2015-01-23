@@ -20,7 +20,7 @@ import scala.collection.mutable
 import io.gatling.charts.result.reader.RequestRecord
 import io.gatling.core.result.Group
 
-trait ErrorsBuffers {
+private[reader] trait ErrorsBuffers {
 
   val errorsBuffers = mutable.Map.empty[BufferKey, mutable.Map[String, Int]]
 

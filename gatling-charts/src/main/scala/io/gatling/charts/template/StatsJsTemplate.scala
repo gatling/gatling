@@ -23,7 +23,7 @@ import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.report.{ GroupContainer, RequestContainer }
 import io.gatling.charts.report.Container.{ Group, Request }
 
-class StatsJsTemplate(stats: GroupContainer) {
+private[charts] class StatsJsTemplate(stats: GroupContainer) {
 
   def getOutput: Fastring = {
 

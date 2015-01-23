@@ -18,4 +18,4 @@ package io.gatling.charts.result.reader.buffers
 import io.gatling.core.result.Group
 import io.gatling.core.result.message.Status
 
-case class BufferKey(requestName: Option[String], group: Option[Group], status: Option[Status])
+private[reader] case class BufferKey(requestName: Option[String], group: Option[Group], status: Option[Status])

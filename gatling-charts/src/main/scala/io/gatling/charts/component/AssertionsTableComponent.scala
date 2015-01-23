@@ -21,7 +21,7 @@ import io.gatling.core.assertion.AssertionResult
 import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.HtmlHelper.HtmlRichString
 
-class AssertionsTableComponent(assertionResults: List[AssertionResult]) extends Component {
+private[charts] class AssertionsTableComponent(assertionResults: List[AssertionResult]) extends Component {
 
   def js = fast"""
 	    $$('#container_exceptions').sortable('#container_exceptions');

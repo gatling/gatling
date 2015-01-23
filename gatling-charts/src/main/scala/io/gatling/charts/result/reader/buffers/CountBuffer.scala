@@ -17,7 +17,7 @@ package io.gatling.charts.result.reader.buffers
 
 import io.gatling.core.result.IntVsTimePlot
 
-class CountBuffer(buckets: Array[Int]) {
+private[reader] class CountBuffer(buckets: Array[Int]) {
   val counts: Array[Int] = Array.fill(buckets.length)(0)
 
   def update(bucketNumber: Int): Unit = {

@@ -24,7 +24,7 @@ import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.message.Status
 
-class RequestDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)
+private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)
     extends ReportGenerator {
 
   def generate(): Unit = {

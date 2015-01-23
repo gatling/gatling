@@ -26,7 +26,7 @@ import io.gatling.core.result.{ Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.util.NumberHelper._
 
-class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary) {
+private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary) {
 
   import reportsGenerationInputs._
 

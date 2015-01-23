@@ -18,12 +18,12 @@ package io.gatling.charts.report
 import io.gatling.charts.util.Colors._
 import io.gatling.core.result.IntVsTimePlot
 
-object ReportGenerator {
+private[charts] object ReportGenerator {
 
   val PercentilesColors: List[String] = List(Red, LightRed, DarkOrange, Orange, Yellow, Lime, LightLime, Green, LightBlue, Blue)
 }
 
-abstract class ReportGenerator {
+private[charts] abstract class ReportGenerator {
   def generate(): Unit
 
   def count(records: Seq[IntVsTimePlot]): Int = records.iterator.map(_.value).sum

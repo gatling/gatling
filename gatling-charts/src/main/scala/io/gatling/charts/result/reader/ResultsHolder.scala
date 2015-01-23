@@ -17,7 +17,7 @@ package io.gatling.charts.result.reader
 
 import io.gatling.charts.result.reader.buffers._
 
-class ResultsHolder(minTime: Long, maxTime: Long, val buckets: Array[Int])
+private[reader] class ResultsHolder(minTime: Long, maxTime: Long, val buckets: Array[Int])
     extends GeneralStatsBuffers(maxTime - minTime)
     with Buckets
     with NamesBuffers

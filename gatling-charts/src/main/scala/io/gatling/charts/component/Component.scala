@@ -17,7 +17,7 @@ package io.gatling.charts.component
 
 import com.dongxiguo.fastring.Fastring
 
-trait Component {
+private[gatling] trait Component {
 
   def html: Fastring
 

@@ -22,7 +22,7 @@ import io.gatling.core.result.reader.DataReader.NoPlotMagicValue
 import io.gatling.core.util.NumberHelper._
 import io.gatling.core.util.StringHelper.EmptyFastring
 
-object Statistics {
+private[charts] object Statistics {
   def printable[T: Numeric](value: T) =
     value match {
       case NoPlotMagicValue     => "-"
@@ -31,27 +31,27 @@ object Statistics {
     }
 }
 
-case class Statistics[T: Numeric](name: String, total: T, success: T, failure: T) {
+private[charts] case class Statistics[T: Numeric](name: String, total: T, success: T, failure: T) {
   def all = List(total, success, failure)
 }
 
-case class GroupedCount(name: String, count: Int, percentage: Int)
+private[charts] case class GroupedCount(name: String, count: Int, percentage: Int)
 
-case class RequestStatistics(name: String,
-                             path: String,
-                             numberOfRequestsStatistics: Statistics[Int],
-                             minResponseTimeStatistics: Statistics[Int],
-                             maxResponseTimeStatistics: Statistics[Int],
-                             meanStatistics: Statistics[Int],
-                             stdDeviationStatistics: Statistics[Int],
-                             percentiles1: Statistics[Int],
-                             percentiles2: Statistics[Int],
-                             percentiles3: Statistics[Int],
-                             percentiles4: Statistics[Int],
-                             groupedCounts: Seq[GroupedCount],
-                             meanNumberOfRequestsPerSecondStatistics: Statistics[Double])
+private[charts] case class RequestStatistics(name: String,
+                                             path: String,
+                                             numberOfRequestsStatistics: Statistics[Int],
+                                             minResponseTimeStatistics: Statistics[Int],
+                                             maxResponseTimeStatistics: Statistics[Int],
+                                             meanStatistics: Statistics[Int],
+                                             stdDeviationStatistics: Statistics[Int],
+                                             percentiles1: Statistics[Int],
+                                             percentiles2: Statistics[Int],
+                                             percentiles3: Statistics[Int],
+                                             percentiles4: Statistics[Int],
+                                             groupedCounts: Seq[GroupedCount],
+                                             meanNumberOfRequestsPerSecondStatistics: Statistics[Double])
 
-class StatisticsTextComponent extends Component {
+private[charts] class StatisticsTextComponent extends Component {
 
   def html = fast"""
                         <div class="infos">

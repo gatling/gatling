@@ -20,7 +20,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.component.Statistics.printable
 
-class StatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
+private[charts] class StatsJsonTemplate(stats: RequestStatistics, raw: Boolean) {
 
   def getOutput: Fastring = {
 

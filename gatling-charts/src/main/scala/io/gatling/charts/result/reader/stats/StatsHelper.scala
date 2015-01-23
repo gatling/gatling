@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.result.reader.stats
 
-object StatsHelper {
+private[reader] object StatsHelper {
   def buckets(min: Long, max: Long, step: Double): Array[Int] = {
     val halfStep = step / 2
     (0 until math.ceil((max - min) / step).toInt).map(i => math.round(min + step * i + halfStep).toInt).toArray

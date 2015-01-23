@@ -18,5 +18,5 @@ package io.gatling.charts.template
 import io.gatling.charts.component.Component
 import io.gatling.core.result.Group
 
-class GroupDetailsPageTemplate(group: Group, components: Component*)
+private[charts] class GroupDetailsPageTemplate(group: Group, components: Component*)
   extends PageTemplate(group.name, true, None, Some(group), components: _*)

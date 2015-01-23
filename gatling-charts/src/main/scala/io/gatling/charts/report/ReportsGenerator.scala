@@ -24,7 +24,7 @@ import io.gatling.core.config.GatlingFiles._
 import io.gatling.core.result.RequestStatsPath
 import io.gatling.core.util.ScanHelper.deepCopyPackageContent
 
-object ReportsGenerator {
+private[gatling] object ReportsGenerator {
 
   def generateFor(reportsGenerationInputs: ReportsGenerationInputs): Path = {
     import reportsGenerationInputs._

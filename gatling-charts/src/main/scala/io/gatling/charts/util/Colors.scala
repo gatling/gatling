@@ -15,9 +15,9 @@
  */
 package io.gatling.charts.util
 
-sealed abstract class Color(val code: String)
+private[gatling] sealed abstract class Color(val code: String)
 
-object Colors {
+private[gatling] object Colors {
 
   implicit def color2String(c: Color): String = c.code
 

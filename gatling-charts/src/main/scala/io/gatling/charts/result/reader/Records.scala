@@ -22,7 +22,7 @@ import scala.collection.mutable
 import io.gatling.core.result.Group
 import io.gatling.core.result.message.{ KO, MessageEvent, Status }
 
-class UserRecordParser(bucketFunction: Long => Int, runStart: Long) {
+private[reader] class UserRecordParser(bucketFunction: Long => Int, runStart: Long) {
 
   def unapply(array: Array[String]) = RawUserRecord.unapply(array).map(parseUserRecord)
 
@@ -38,7 +38,7 @@ class UserRecordParser(bucketFunction: Long => Int, runStart: Long) {
   }
 }
 
-class RequestRecordParser(bucketFunction: Long => Int, runStart: Long) {
+private[reader] class RequestRecordParser(bucketFunction: Long => Int, runStart: Long) {
 
   def unapply(array: Array[String]) = RawRequestRecord.unapply(array).map(parseRequestRecord)
 
@@ -65,14 +65,14 @@ class RequestRecordParser(bucketFunction: Long => Int, runStart: Long) {
   }
 }
 
-object GroupRecordParser {
+private[reader] object GroupRecordParser {
 
   val GroupCache = mutable.Map.empty[String, Group]
 
   def parseGroup(string: String) = GroupCache.getOrElseUpdate(string, Group(string.split(",").toList))
 }
 
-class GroupRecordParser(bucketFunction: Long => Int, runStart: Long) {
+private[reader] class GroupRecordParser(bucketFunction: Long => Int, runStart: Long) {
 
   def unapply(array: Array[String]) = RawGroupRecord.unapply(array).map(parseGroupRecord)
 
@@ -90,6 +90,6 @@ class GroupRecordParser(bucketFunction: Long => Int, runStart: Long) {
   }
 }
 
-case class RequestRecord(group: Option[Group], name: String, status: Status, startBucket: Int, endBucket: Int, responseTime: Int, latency: Int, errorMessage: Option[String])
-case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, oks: Int, kos: Int, status: Status, startBucket: Int)
-case class UserRecord(scenario: String, userId: String, event: MessageEvent, startBucket: Int, endBucket: Int)
+private[reader] case class RequestRecord(group: Option[Group], name: String, status: Status, startBucket: Int, endBucket: Int, responseTime: Int, latency: Int, errorMessage: Option[String])
+private[reader] case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, oks: Int, kos: Int, status: Status, startBucket: Int)
+private[reader] case class UserRecord(scenario: String, userId: String, event: MessageEvent, startBucket: Int, endBucket: Int)

@@ -23,7 +23,7 @@ import com.typesafe.scalalogging.StrictLogging
 import io.gatling.charts.component.impl.ComponentLibraryImpl
 import io.gatling.core.result._
 
-object ComponentLibrary extends StrictLogging {
+private[charts] object ComponentLibrary extends StrictLogging {
 
   val Instance: ComponentLibrary = {
 
@@ -43,7 +43,7 @@ object ComponentLibrary extends StrictLogging {
   }
 }
 
-trait ComponentLibrary {
+private[gatling] trait ComponentLibrary {
   def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): Fastring
   def getActiveSessionsChartComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component
   def getRequestsChartComponent(runStart: Long, allRequests: Series[IntVsTimePlot], failedRequests: Series[IntVsTimePlot], succeededRequests: Series[IntVsTimePlot], pieSeries: Series[PieSlice]): Component

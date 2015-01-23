@@ -18,7 +18,7 @@ package io.gatling.charts.report
 import io.gatling.core.assertion.AssertionResult
 import io.gatling.core.result.reader.DataReader
 
-case class ReportsGenerationInputs(
+private[gatling] case class ReportsGenerationInputs(
   reportFolderName: String,
   dataReader: DataReader,
   assertionResults: List[AssertionResult])

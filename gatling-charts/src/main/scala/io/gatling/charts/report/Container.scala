@@ -21,22 +21,22 @@ import scala.collection.mutable
 import io.gatling.charts.component.RequestStatistics
 import io.gatling.core.result.Group
 
-object Container {
+private[gatling] object Container {
   val Group = "GROUP"
   val Request = "REQUEST"
 }
 
-trait Container
+private[charts] trait Container
 
-case class RequestContainer(name: String, stats: RequestStatistics) extends Container
+private[charts] case class RequestContainer(name: String, stats: RequestStatistics) extends Container
 
-object GroupContainer {
+private[charts] object GroupContainer {
   def root(requestStats: RequestStatistics) = GroupContainer("ROOT", requestStats)
 }
 
-case class GroupContainer(name: String,
-                          stats: RequestStatistics,
-                          contents: mutable.Map[String, Container] = mutable.LinkedHashMap.empty) extends Container {
+private[charts] case class GroupContainer(name: String,
+                                          stats: RequestStatistics,
+                                          contents: mutable.Map[String, Container] = mutable.LinkedHashMap.empty) extends Container {
 
   private def findGroup(path: List[String]) = {
 

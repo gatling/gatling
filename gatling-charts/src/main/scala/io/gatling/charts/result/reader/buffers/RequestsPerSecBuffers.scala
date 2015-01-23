@@ -21,7 +21,7 @@ import io.gatling.charts.result.reader.RequestRecord
 import io.gatling.core.result.Group
 import io.gatling.core.result.message.Status
 
-trait RequestsPerSecBuffers {
+private[reader] trait RequestsPerSecBuffers {
   this: Buckets =>
 
   val requestsPerSecBuffers = mutable.Map.empty[BufferKey, CountBuffer]

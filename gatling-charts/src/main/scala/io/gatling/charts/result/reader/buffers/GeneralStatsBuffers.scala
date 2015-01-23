@@ -24,7 +24,7 @@ import io.gatling.core.result.reader.GeneralStats
 import io.gatling.charts.result.reader.GroupRecord
 import com.tdunning.math.stats.AVLTreeDigest
 
-abstract class GeneralStatsBuffers(durationInSec: Long) {
+private[reader] abstract class GeneralStatsBuffers(durationInSec: Long) {
 
   val requestGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
   val groupDurationGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
@@ -64,7 +64,7 @@ abstract class GeneralStatsBuffers(durationInSec: Long) {
   }
 }
 
-class GeneralStatsBuffer(duration: Long) {
+private[reader] class GeneralStatsBuffer(duration: Long) {
 
   val counts = mutable.Map.empty[Int, Int]
   val digest = new AVLTreeDigest(100.0)
