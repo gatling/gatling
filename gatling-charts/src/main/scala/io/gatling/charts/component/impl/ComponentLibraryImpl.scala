@@ -28,7 +28,7 @@ import io.gatling.core.result.IntVsTimePlot
  * Mock implementation that is removed from the binary.
  * A unique implementation is expected to be present in the classpath.
  */
-class ComponentLibraryImpl extends ComponentLibrary {
+private[component] class ComponentLibraryImpl extends ComponentLibrary {
 
   def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): Fastring = throw new UnsupportedOperationException
   def getActiveSessionsChartComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component = throw new UnsupportedOperationException

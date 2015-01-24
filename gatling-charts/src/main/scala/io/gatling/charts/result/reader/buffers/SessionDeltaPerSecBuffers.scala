@@ -21,17 +21,17 @@ import io.gatling.charts.result.reader.UserRecord
 import io.gatling.core.result.IntVsTimePlot
 import io.gatling.core.result.message.{ End, Start }
 
-object SessionDeltas {
+private[reader] object SessionDeltas {
   val Empty = SessionDeltas(0, 0)
 }
 
-case class SessionDeltas(starts: Int, ends: Int) {
+private[reader] case class SessionDeltas(starts: Int, ends: Int) {
 
   def addStart() = copy(starts = starts + 1)
   def addEnd() = copy(ends = ends + 1)
 }
 
-class SessionDeltaBuffer(buckets: Array[Int]) {
+private[reader] class SessionDeltaBuffer(buckets: Array[Int]) {
 
   val startCounts: Array[Int] = Array.fill(buckets.length)(0)
   val endCounts: Array[Int] = Array.fill(buckets.length)(0)
@@ -50,7 +50,7 @@ class SessionDeltaBuffer(buckets: Array[Int]) {
     }.reverse
 }
 
-trait SessionDeltaPerSecBuffers {
+private[reader] trait SessionDeltaPerSecBuffers {
   this: Buckets =>
 
   val sessionDeltaPerSecBuffers: mutable.Map[Option[String], SessionDeltaBuffer] = mutable.Map.empty

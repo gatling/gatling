@@ -25,7 +25,7 @@ import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.Component
 import io.gatling.charts.config.ChartsFiles._
 
-object PageTemplate {
+private[charts] object PageTemplate {
 
   private var runMessage: RunMessage = _
   private var runStart: Long = _
@@ -38,7 +38,7 @@ object PageTemplate {
   }
 }
 
-abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Option[String], group: Option[Group], components: Component*) {
+private[charts] abstract class PageTemplate(title: String, isDetails: Boolean, requestName: Option[String], group: Option[Group], components: Component*) {
 
   def jsFiles: Seq[String] = (CommonJsFiles ++ components.flatMap(_.jsFiles)).distinct
 

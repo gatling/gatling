@@ -21,7 +21,7 @@ import io.gatling.core.util.StringHelper._
 
 package object charts {
 
-  implicit class FileNamingConventions(val string: String) extends AnyVal {
+  private[charts] implicit class FileNamingConventions(val string: String) extends AnyVal {
 
     /**
      * Transform a string to a simpler one that can be used safely as file name

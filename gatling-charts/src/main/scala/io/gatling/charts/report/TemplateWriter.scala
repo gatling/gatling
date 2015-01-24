@@ -22,7 +22,7 @@ import com.dongxiguo.fastring.Fastring
 import io.gatling.core.util.Io._
 import io.gatling.core.util.PathHelper._
 
-class TemplateWriter(path: Path) {
+private[charts] class TemplateWriter(path: Path) {
 
   def writeToFile(output: Fastring): Unit =
     withCloseable(path.writer()) { output.appendTo }

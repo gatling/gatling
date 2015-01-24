@@ -22,7 +22,7 @@ import io.gatling.core.util.StringHelper.EmptyFastring
 import io.gatling.core.util.HtmlHelper.HtmlRichString
 import io.gatling.core.util.NumberHelper._
 
-class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Component {
+private[charts] class ErrorsTableComponent(errors: Seq[ErrorStats]) extends Component {
 
   def js = fast"""
 	    $$('#container_errors').sortable('#container_errors');

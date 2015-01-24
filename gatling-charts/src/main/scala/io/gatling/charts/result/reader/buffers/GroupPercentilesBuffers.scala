@@ -21,7 +21,7 @@ import io.gatling.charts.result.reader.GroupRecord
 import io.gatling.core.result.Group
 import io.gatling.core.result.message.Status
 
-trait GroupPercentilesBuffers {
+private[reader] trait GroupPercentilesBuffers {
   this: Buckets =>
 
   val groupPercentilesBuffers = mutable.Map.empty[BufferKey, (PercentilesBuffers, PercentilesBuffers)]

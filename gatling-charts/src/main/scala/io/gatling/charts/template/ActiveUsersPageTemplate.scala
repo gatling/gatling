@@ -17,4 +17,4 @@ package io.gatling.charts.template
 
 import io.gatling.charts.component.Component
 
-class ActiveUsersPageTemplate(chartComponent: Component) extends PageTemplate("Active Users", false, None, None, chartComponent)
+private[charts] class ActiveUsersPageTemplate(chartComponent: Component) extends PageTemplate("Active Users", false, None, None, chartComponent)

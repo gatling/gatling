@@ -22,7 +22,7 @@ import io.gatling.charts.util.Colors._
 import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK }
 
-class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)
+private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)
     extends ReportGenerator {
 
   def generate(): Unit = {

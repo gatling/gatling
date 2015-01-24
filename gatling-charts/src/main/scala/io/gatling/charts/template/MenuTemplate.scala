@@ -19,7 +19,7 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.charts.report.Container.{ Group, Request }
 
-class MenuTemplate {
+private[charts] class MenuTemplate {
   def getOutput: Fastring = fast"""	
 function getItemLink(item){
 	return 'req_' + item.pathFormatted + '.html';

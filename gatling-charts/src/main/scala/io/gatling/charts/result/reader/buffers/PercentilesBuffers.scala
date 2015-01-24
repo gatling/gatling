@@ -18,7 +18,7 @@ package io.gatling.charts.result.reader.buffers
 import com.tdunning.math.stats.{ AVLTreeDigest, TDigest }
 import io.gatling.core.result.{ Percentiles, PercentilesVsTimePlot }
 
-class PercentilesBuffers(buckets: Array[Int]) {
+private[reader] class PercentilesBuffers(buckets: Array[Int]) {
 
   val digests: Array[Option[TDigest]] = Array.fill(buckets.length)(None)
 

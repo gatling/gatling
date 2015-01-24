@@ -23,7 +23,7 @@ import io.gatling.core.result._
 import io.gatling.core.result.message.OK
 import io.gatling.charts.result.reader.RequestPath
 
-class GroupDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)
+private[charts] class GroupDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)
     extends ReportGenerator {
 
   def generate(): Unit = {

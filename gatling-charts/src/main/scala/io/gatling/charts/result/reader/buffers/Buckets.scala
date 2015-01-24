@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.result.reader.buffers
 
-trait Buckets {
+private[reader] trait Buckets {
 
   def buckets: Array[Int]
 }

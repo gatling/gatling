@@ -26,7 +26,7 @@ import io.gatling.core.result.reader.DataReader
 import io.gatling.charts.component.GroupedCount
 import io.gatling.charts.component.RequestStatistics
 
-object ConsoleTemplate {
+private[charts] object ConsoleTemplate {
 
   def writeRequestCounters[T: Numeric](statistics: Statistics[T]): Fastring = {
     import statistics._

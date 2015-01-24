@@ -21,7 +21,7 @@ import io.gatling.core.result.Group
 import io.gatling.core.result.message.{ KO, Status }
 import io.gatling.charts.result.reader.GroupRecord
 
-trait ResponseTimeRangeBuffers {
+private[reader] trait ResponseTimeRangeBuffers {
 
   val responseTimeRangeBuffers = mutable.Map.empty[BufferKey, ResponseTimeRangeBuffer]
 

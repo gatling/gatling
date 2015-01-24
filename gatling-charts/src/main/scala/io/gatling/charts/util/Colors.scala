@@ -15,11 +15,11 @@
  */
 package io.gatling.charts.util
 
-abstract class Color(val code: String)
+private[gatling] sealed abstract class Color(val code: String)
 
-object Colors {
+private[gatling] object Colors {
 
-  implicit def color2String(c: Color) = c.code
+  implicit def color2String(c: Color): String = c.code
 
   case object Blue extends Color("#4572A7")
   case object Green extends Color("#A0B228")

@@ -20,7 +20,7 @@ import scala.collection.mutable
 import io.gatling.charts.result.reader.{ GroupRecord, RequestRecord, UserRecord }
 import io.gatling.core.result.{ GroupStatsPath, RequestStatsPath, StatsPath }
 
-trait NamesBuffers {
+private[reader] trait NamesBuffers {
 
   class NameBuffer[A] {
 
