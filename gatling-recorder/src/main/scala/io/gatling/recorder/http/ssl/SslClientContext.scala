@@ -20,7 +20,7 @@ import javax.net.ssl.{ SSLEngine, SSLContext }
 object SslClientContext {
 
   val SslContext = {
-    val clientContext = SSLContext.getInstance(SSLServerContext.Protocol)
+    val clientContext = SSLContext.getInstance(SslServerContext.Protocol)
     clientContext.init(null, TrustManagerFactory.LooseTrustManagers, null)
     clientContext
   }

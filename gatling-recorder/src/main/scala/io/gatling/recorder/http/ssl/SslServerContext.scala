@@ -27,7 +27,7 @@ import io.gatling.recorder.config.RecorderConfiguration
 import scala.collection.concurrent.TrieMap
 import scala.util.{ Failure, Try }
 
-sealed trait SSLServerContext {
+sealed trait SslServerContext {
 
   def password: Array[Char]
 
@@ -42,7 +42,7 @@ sealed trait SSLServerContext {
   }
 }
 
-object SSLServerContext {
+object SslServerContext {
 
   val GatlingSelfSignedKeyStore = "gatling.jks"
   val GatlingKeyStoreType = KeyStoreType.JKS
@@ -52,7 +52,7 @@ object SSLServerContext {
   val Algorithm = Option(Security.getProperty("ssl.KeyManagerFactory.algorithm")).getOrElse("SunX509")
   val Protocol = "TLS"
 
-  def apply(config: RecorderConfiguration): SSLServerContext = {
+  def apply(config: RecorderConfiguration): SslServerContext = {
 
     import config.proxy.https._
 
@@ -70,7 +70,7 @@ object SSLServerContext {
     }
   }
 
-  abstract class ImmutableFactory extends SSLServerContext {
+  abstract class ImmutableFactory extends SslServerContext {
 
     def keyStoreInitStream: InputStream
     def keyStoreType: KeyStoreType
@@ -109,7 +109,7 @@ object SSLServerContext {
     def keyStoreInitStream: InputStream = new FileInputStream(ksFile)
   }
 
-  abstract class OnTheFlyFactory extends SSLServerContext {
+  abstract class OnTheFlyFactory extends SslServerContext {
 
     val aliasContexts = TrieMap.empty[String, SSLContext]
 
@@ -144,8 +144,8 @@ object SSLServerContext {
 
   case class CertificateAuthority(pemCrtFile: Path, pemKeyFile: Path) extends OnTheFlyFactory {
 
-    assert(pemCrtFile.isFile, s"$pemCrtFile is not a file")
-    assert(pemKeyFile.isFile, s"$pemKeyFile is not a file")
+    require(pemCrtFile.isFile, s"$pemCrtFile is not a file")
+    require(pemKeyFile.isFile, s"$pemKeyFile is not a file")
 
     lazy val ca = SslCertUtil.getCA(pemCrtFile.inputStream, pemKeyFile.inputStream)
   }

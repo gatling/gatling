@@ -32,7 +32,7 @@ import io.gatling.core.util.StringHelper.RichString
 import io.gatling.recorder.RecorderMode
 import io.gatling.recorder.config._
 import io.gatling.recorder.config.FilterStrategy.BlacklistFirst
-import io.gatling.recorder.http.ssl.{ SSLServerContext, SslCertUtil, HttpsMode, KeyStoreType }
+import io.gatling.recorder.http.ssl.{ SslServerContext, SslCertUtil, HttpsMode, KeyStoreType }
 import io.gatling.recorder.http.ssl.HttpsMode._
 import io.gatling.recorder.ui.RecorderFrontend
 import io.gatling.recorder.ui.swing.keyReleased
@@ -71,8 +71,8 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   private val caFilesSavePathChooser = new FileChooser { fileSelectionMode = DirectoriesOnly }
   private val generateCAFilesButton = new Button(Action("Generate CA")(caFilesSavePathChooser.saveSelection().foreach { dir =>
     generateCAFiles(dir)
-    certificatePathChooser.setPath(s"$dir/${SSLServerContext.GatlingCACrtFile}")
-    privateKeyPathChooser.setPath(s"$dir/${SSLServerContext.GatlingCAKeyFile}")
+    certificatePathChooser.setPath(s"$dir/${SslServerContext.GatlingCACrtFile}")
+    privateKeyPathChooser.setPath(s"$dir/${SslServerContext.GatlingCAKeyFile}")
   }))
 
   /* Har Panel components */
@@ -458,8 +458,8 @@ class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: Rec
   def generateCAFiles(directory: String): Unit = {
     SslCertUtil.generateGatlingCAPEMFiles(
       directory,
-      SSLServerContext.GatlingCAKeyFile,
-      SSLServerContext.GatlingCACrtFile)
+      SslServerContext.GatlingCAKeyFile,
+      SslServerContext.GatlingCACrtFile)
 
     Dialog.showMessage(
       title = "Download successful",

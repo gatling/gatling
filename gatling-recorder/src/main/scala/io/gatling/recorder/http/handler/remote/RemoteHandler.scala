@@ -23,7 +23,7 @@ import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.ScalaChannelHandler
 import io.gatling.recorder.http.handler.user.SSLHandlerSetter
-import io.gatling.recorder.http.ssl.{ SslClientContext, SSLServerContext }
+import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
 import org.jboss.netty.channel._
 import org.jboss.netty.handler.codec.http._
 import org.jboss.netty.handler.ssl.SslHandler
@@ -31,7 +31,7 @@ import org.jboss.netty.handler.ssl.SslHandler
 case class TimedHttpRequest(httpRequest: HttpRequest, sendTime: Long = nowMillis)
 
 class RemoteHandler(controller: RecorderController,
-                    sslServerContext: SSLServerContext,
+                    sslServerContext: SslServerContext,
                     userChannel: Channel,
                     var performConnect: Boolean,
                     reconnect: Boolean)
