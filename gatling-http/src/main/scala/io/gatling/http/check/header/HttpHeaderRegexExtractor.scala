@@ -26,7 +26,7 @@ abstract class HttpHeaderRegexExtractor[X] extends CriterionExtractor[Response, 
 
   def extractHeadersValues[F](response: Response, headerNameAndPattern: (String, String))(implicit groupExtractor: GroupExtractor[F]) = {
     val (headerName, pattern) = headerNameAndPattern
-    val headerValues = HttpHeaderExtractor.decodedHeaders(response, headerName)
+    val headerValues = response.headers(headerName)
     headerValues.map(extractAll(_, pattern)).flatten
   }
 }
