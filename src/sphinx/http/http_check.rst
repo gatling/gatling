@@ -97,8 +97,6 @@ Same as above, but *pattern* is used to apply a regex on the header value.
 
 .. note:: The header names are available as constants in the DSL, accessible from the ``HttpHeaderNames`` object, e.g. ``HttpHeaderNames.ContentType``.
 
-.. note:: ``Location`` header value is automatically decoded when performing a check on it.
-
 By default, it can extract 0 or 1 capture group, so the extract type is ``String``.
 
 One can extract more than 1 capture group and define an different type with the ``ofType[T]`` extra step:
