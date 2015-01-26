@@ -96,7 +96,7 @@ case class IsUndefinedPart(part: Part[Any], name: String) extends Part[Boolean] 
     }
 }
 
-case class JSONStringify(part: Part[Any], name: String) extends Part[String] {
+case class JsonStringify(part: Part[Any], name: String) extends Part[String] {
   def apply(session: Session): Validation[String] =
     part(session) match {
       case Success(value)   => Json.stringify(value, isRootObject = false).success
@@ -285,7 +285,7 @@ class ElCompiler extends RegexParsers {
           case AccessSize                    => SizePart(subPart, subPartName)
           case AccessExists                  => ExistsPart(subPart, subPartName)
           case AccessIsUndefined             => IsUndefinedPart(subPart, subPartName)
-          case AccessJSONStringify           => JSONStringify(subPart, subPartName)
+          case AccessJSONStringify           => JsonStringify(subPart, subPartName)
           case AccessTuple(index, tokenName) => TupleAccessPart(subPart, subPartName, index.toInt)
         }
 
