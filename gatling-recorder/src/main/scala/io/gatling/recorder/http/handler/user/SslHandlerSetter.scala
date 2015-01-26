@@ -28,7 +28,9 @@ import org.jboss.netty.handler.ssl.SslHandler
 class SSLHandlerSetter(domainAlias: String, sslServerContext: SSLServerContext) extends ChannelDownstreamHandler with StrictLogging {
 
   override def handleDownstream(ctx: ChannelHandlerContext, e: ChannelEvent): Unit = {
-    ctx.getPipeline.replace(SslHandlerName, SslHandlerName, new SslHandler(sslServerContext.createSSLEngine(domainAlias)))
+    val sslHandler = new SslHandler(sslServerContext.createSSLEngine(domainAlias))
+    sslHandler.setCloseOnSSLException(true)
+    ctx.getPipeline.replace(SslHandlerName, SslHandlerName, sslHandler)
     ctx.sendDownstream(e)
   }
 }

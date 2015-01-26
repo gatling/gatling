@@ -42,8 +42,11 @@ object BootstrapFactory extends StrictLogging {
       def getPipeline: ChannelPipeline = {
         logger.debug("Open new remote channel")
         val pipeline = Channels.pipeline
-        if (ssl)
-          pipeline.addLast(SslHandlerName, new SslHandler(SSLClientContext.createSSLEngine))
+        if (ssl) {
+          val sslHandler = new SslHandler(SSLClientContext.createSSLEngine)
+          sslHandler.setCloseOnSSLException(true)
+          pipeline.addLast(SslHandlerName, sslHandler)
+        }
         pipeline.addLast(CodecHandlerName, new HttpClientCodec(maxInitialLineLength, maxHeaderSize, maxChunkSize))
         pipeline.addLast("inflater", new HttpContentDecompressor)
         pipeline.addLast("aggregator", new HttpChunkAggregator(maxContentLength))

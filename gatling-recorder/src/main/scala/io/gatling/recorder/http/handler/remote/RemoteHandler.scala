@@ -50,6 +50,7 @@ class RemoteHandler(controller: RecorderController,
         if (response.getStatus == HttpResponseStatus.OK) {
           performConnect = false
           val remoteSslHandler = new SslHandler(SSLClientContext.createSSLEngine)
+          remoteSslHandler.setCloseOnSSLException(true)
           upgradeRemotePipeline(ctx.getChannel.getPipeline, remoteSslHandler)
 
           // if we're reconnecting, server channel is already set up
