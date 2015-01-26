@@ -59,12 +59,12 @@ object DataWriter extends AkkaDefaults {
 
     val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.injectionProfile.users))
     val responses = instances.map(_ ? Init(assertions, runMessage, shortScenarioDescriptions))
-    Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersInitialized(_))
+    Future.sequence(responses).map(_ => ()).onComplete(replyTo ! DataWritersInitialized(_))
   }
 
   def terminate(replyTo: ActorRef): Unit = {
     val responses = instances.map(_ ? Terminate)
-    Future.sequence(responses).map(_ => {}).onComplete(replyTo ! DataWritersTerminated(_))
+    Future.sequence(responses).onComplete(_ => replyTo ! DataWritersTerminated)
   }
 }
 

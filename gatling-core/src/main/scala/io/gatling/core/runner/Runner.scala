@@ -16,7 +16,7 @@
 package io.gatling.core.runner
 
 import scala.concurrent.{ Await, TimeoutException }
-import scala.util.{ Failure => SFailure, Success => SSuccess }
+import scala.util.{ Failure, Success }
 
 import com.typesafe.scalalogging.StrictLogging
 
@@ -62,12 +62,12 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
       }
 
       res match {
-        case SSuccess(runId: String) =>
+        case Success(runId: String) =>
           println("Simulation finished")
           simulation._afterSteps.foreach(_.apply())
           runId
 
-        case SFailure(t) => throw t
+        case Failure(t) => throw t
       }
 
     } finally {

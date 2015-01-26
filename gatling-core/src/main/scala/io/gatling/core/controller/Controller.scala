@@ -17,10 +17,9 @@ package io.gatling.core.controller
 
 import java.util.UUID.randomUUID
 
-import scala.collection.mutable
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.util.{ Failure => SFailure, Success => SSuccess, Try }
+import scala.util.{ Failure, Success, Try }
 
 import com.typesafe.scalalogging.StrictLogging
 
@@ -28,13 +27,12 @@ import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import akka.util.Timeout
 
-import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
+import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.result.message.{ End, Start }
 import io.gatling.core.result.writer.{ DataWriter, RunMessage, UserMessage }
 import io.gatling.core.runner.Selection
-import io.gatling.core.session.Session
-import io.gatling.core.scenario.{ SimulationDef, Scenario }
-import io.gatling.core.util.TimeHelper._
+import io.gatling.core.scenario.SimulationDef
+import io.gatling.core.util.TimeHelper.nowMillis
 
 object Controller extends AkkaDefaults with StrictLogging {
 
@@ -60,157 +58,166 @@ object Controller extends AkkaDefaults with StrictLogging {
     }
 }
 
-class Controller(simulation: SimulationDef, selection: Selection, totalNumberOfUsers: Int) extends BaseActor {
+class Controller(simulationDef: SimulationDef, selection: Selection, totalNumberOfUsers: Int)
+    extends ControllerStateMachine {
 
-  var launcher: ActorRef = _
-  val activeUsers = mutable.Map.empty[String, UserMessage]
-  var finishedUsers = 0
-  var runId: String = _
+  startWith(WaitingToStart, NoData)
 
-  val uninitialized: Receive = {
+  // -- STEP 1 :  Waiting for the Runner to start the Controller -- //
 
-    case Run =>
-      val runMessage = RunMessage(simulation.name, selection.simulationId, nowMillis, selection.description)
-      runId = runMessage.runId
-
-      launcher = sender()
-
-      DataWriter.init(simulation.assertions, runMessage, simulation.scenarios, self)
-      context.become(waitingForDataWriterToInit)
+  when(WaitingToStart) {
+    case Event(Run, NoData) =>
+      val initializationData = initDataWriters()
+      goto(WaitingForDataWritersToInit) using initializationData
   }
 
-  def waitingForDataWriterToInit: Receive = {
+  private def initDataWriters(): InitData = {
+    val runMessage = RunMessage(simulationDef.name, selection.simulationId, nowMillis, selection.description)
+    DataWriter.init(simulationDef.assertions, runMessage, simulationDef.scenarios, self)
+    InitData(runMessage.runId, sender())
+  }
 
-    case DataWritersInitialized(result) => result match {
-      case f: SFailure[_] => launcher ! f
+  // -- STEP 2 : Waiting for DataWriters to be initialized and confirm initialization -- //
 
-      case _ =>
-        val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
+  when(WaitingForDataWritersToInit) {
+    case Event(DataWritersInitialized(result), initData: InitData) =>
+      processInitializationResult(result, initData)
 
-        val (userStreams, _) = simulation.scenarios.foldLeft((Map.empty[String, UserStream], 0)) { (streamsAndOffset, scenario) =>
+    case Event(message, _) =>
+      logger.error(s"Shouldn't happen. Ignore message $message while waiting for DataWriter to initialize")
+      stay()
+  }
+
+  private def processInitializationResult(result: Try[Unit], initData: InitData): State = {
+      def buildUserStreams: Map[String, UserStream] = {
+        simulationDef.scenarios.foldLeft((Map.empty[String, UserStream], 0)) { (streamsAndOffset, scenario) =>
           val (streams, offset) = streamsAndOffset
 
           val stream = scenario.injectionProfile.allUsers.zipWithIndex
           val userStream = UserStream(scenario, offset, stream)
 
           (streams + (scenario.name -> userStream), offset + scenario.injectionProfile.users)
+        }._1
+      }
+
+      def setUpSimulationMaxDuration(): Unit =
+        simulationDef.maxDuration.foreach { maxDuration =>
+          logger.debug("Setting up max duration")
+          scheduler.scheduleOnce(maxDuration)(self ! ForceTermination())
         }
 
-        val batcher = batchSchedule(userIdRoot, nowMillis, 10 seconds) _
+      def startUpScenarios(userIdRoot: String, userStreams: Map[String, UserStream]): BatchScheduler = {
+        val scheduler = new BatchScheduler(userIdRoot, nowMillis, 10 seconds, self)
+
         logger.debug("Launching All Scenarios")
-        userStreams.values.foreach(batcher)
+        userStreams.values.foreach(scheduler.scheduleUserStream)
         logger.debug("Finished Launching scenarios executions")
 
-        simulation.maxDuration.foreach {
-          logger.debug("Setting up max duration")
-          scheduler.scheduleOnce(_) {
-            self ! ForceTermination(None)
-          }
-        }
+        setUpSimulationMaxDuration()
 
-        context.become(initialized(userStreams, batcher))
-    }
-
-    case m => logger.error(s"Shouldn't happen. Ignore message $m while waiting for DataWriter to initialize")
-  }
-
-  case class UserStream(scenario: Scenario, offset: Int, stream: Iterator[(FiniteDuration, Int)])
-
-  def batchSchedule(userIdRoot: String, start: Long, batchWindow: FiniteDuration)(userStream: UserStream): Unit = {
-
-    val scenario = userStream.scenario
-    val stream = userStream.stream
-
-      def startUser(i: Int): Unit = {
-        val session = Session(scenarioName = scenario.name,
-          userId = userIdRoot + (i + userStream.offset),
-          userEnd = scenario.protocols.userEnd)
-        // FIXME why not directly session?
-        self ! UserMessage(session.scenarioName, session.userId, Start, session.startDate, 0L)
-        scenario.entryPoint ! session
+        scheduler
       }
 
-    if (stream.hasNext) {
-      val batchTimeOffset = (nowMillis - start).millis
-      val nextBatchTimeOffset = batchTimeOffset + batchWindow
+    result match {
+      case f: Failure[_] =>
+        initData.runner ! f
+        goto(Stopped)
 
-      var continue = true
-
-      while (stream.hasNext && continue) {
-
-        val (startingTime, index) = stream.next()
-        val delay = startingTime - batchTimeOffset
-        continue = startingTime < nextBatchTimeOffset
-
-        if (continue && delay <= ZeroMs)
-          startUser(index)
-
-        else
-          // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
-          scheduler.scheduleOnce(toMillisPrecision(delay)) {
-            startUser(index)
-          }
-      }
-
-      // schedule next batch
-      if (stream.hasNext) {
-        scheduler.scheduleOnce(batchWindow) {
-          self ! ScheduleNextUserBatch(scenario.name)
-        }
-      }
+      case Success(_) =>
+        val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
+        val userStreams = buildUserStreams
+        val scheduler = startUpScenarios(userIdRoot, userStreams)
+        goto(Running) using RunData(initData, userStreams, scheduler, Map.empty, 0)
     }
   }
 
-  def initialized(userStreams: Map[String, UserStream], batcher: UserStream => Unit): Receive = {
+  // -- STEP 3 : The Controller and Data Writers are fully initialized, Simulation is now running -- //
 
-      def dispatchUserEndToDataWriter(userMessage: UserMessage): Unit = {
-        logger.info(s"End user #${userMessage.userId}")
+  when(Running) {
+    case Event(userMessage: UserMessage, runData: RunData) =>
+      processUserMessage(userMessage, runData)
+
+    case Event(ScheduleNextUserBatch(scenarioName), runData: RunData) =>
+      scheduleNextBatch(runData, scenarioName)
+      stay()
+
+    case Event(ForceTermination(exception), runData: RunData) =>
+      endAllRemainingUsers(runData)
+      terminateDataWritersAndWaitForConfirmation(runData.initData, exception)
+  }
+
+  private def processUserMessage(userMessage: UserMessage, runData: RunData): State = {
+      def startNewUser: State = {
+        val newActiveUsers = runData.activeUsers + (userMessage.userId -> userMessage)
+        logger.info(s"Start user #${userMessage.userId}")
         DataWriter ! userMessage
+        stay() using runData.copy(activeUsers = newActiveUsers)
       }
 
-      def becomeTerminating(exception: Option[Exception]): Unit = {
-        DataWriter.terminate(self)
-        context.become(waitingForDataWriterToTerminate(exception))
+      def endUserAndTerminateIfLast: State = {
+        val newActiveUsers = runData.activeUsers - userMessage.userId
+        val newUserCount = runData.completedUsersCount + 1
+        dispatchUserEndToDataWriter(userMessage)
+        if (newUserCount == totalNumberOfUsers)
+          terminateDataWritersAndWaitForConfirmation(runData.initData, None)
+        else
+          stay() using runData.copy(completedUsersCount = newUserCount, activeUsers = newActiveUsers)
       }
 
-    {
-      case userMessage @ UserMessage(_, userId, event, _, _) => event match {
-        case Start =>
-          activeUsers += userId -> userMessage
-          logger.info(s"Start user #${userMessage.userId}")
-          DataWriter ! userMessage
-
-        case End =>
-          finishedUsers += 1
-          activeUsers -= userId
-          dispatchUserEndToDataWriter(userMessage)
-          if (finishedUsers == totalNumberOfUsers)
-            becomeTerminating(None)
-      }
-
-      case ScheduleNextUserBatch(scenarioName) =>
-        val userStream = userStreams(scenarioName)
-        logger.info(s"Starting new user batch for $scenarioName")
-        batcher(userStream)
-
-      case ForceTermination(exception) =>
-        // flush all active users
-        val now = nowMillis
-        for (activeUser <- activeUsers.values) {
-          dispatchUserEndToDataWriter(activeUser.copy(event = End, endDate = now))
-        }
-        becomeTerminating(exception)
+    userMessage.event match {
+      case Start => startNewUser
+      case End   => endUserAndTerminateIfLast
     }
   }
 
-  def waitingForDataWriterToTerminate(exception: Option[Exception]): Receive = {
-    case DataWritersTerminated(result) =>
-      exception match {
-        case Some(e) => launcher ! SFailure(e)
-        case _       => launcher ! SSuccess(runId)
-      }
-    case m => logger.debug(s"Ignore message $m while waiting for DataWriter to terminate")
+  private def scheduleNextBatch(runData: RunData, scenarioName: String): Unit = {
+    val userStream = runData.userStreams(scenarioName)
+    logger.info(s"Starting new user batch for $scenarioName")
+    runData.scheduler.scheduleUserStream(userStream)
   }
 
-  def receive = uninitialized
+  private def endAllRemainingUsers(runData: RunData): Unit = {
+    val now = nowMillis
+    for (userMessage <- runData.activeUsers.values) {
+      dispatchUserEndToDataWriter(userMessage.copy(event = End, endDate = now))
+    }
+  }
+
+  private def dispatchUserEndToDataWriter(userMessage: UserMessage): Unit = {
+    logger.info(s"End user #${userMessage.userId}")
+    DataWriter ! userMessage
+  }
+
+  private def terminateDataWritersAndWaitForConfirmation(initData: InitData, exception: Option[Exception]): State = {
+    DataWriter.terminate(self)
+    goto(WaitingForDataWritersToTerminate) using EndData(initData, exception)
+  }
+
+  // -- STEP 4 : Waiting for DataWriters to terminate, discarding all other messages -- //
+
+  when(WaitingForDataWritersToTerminate) {
+    case Event(DataWritersTerminated, endData: EndData) =>
+      endData.initData.runner ! answerToRunner(endData)
+      goto(Stopped) using NoData
+
+    case Event(message, _) =>
+      logger.debug(s"Ignore message $message while waiting for DataWriter to terminate")
+      stay()
+  }
+
+  private def answerToRunner(endData: EndData): Try[String] =
+    endData.exception match {
+      case Some(exception) => Failure(exception)
+      case None            => Success(endData.initData.runId)
+    }
+
+  // -- STEP 5 : Controller has been stopped, all new messages will be discarded -- //
+
+  when(Stopped) {
+    case Event(message, NoData) =>
+      logger.debug(s"Ignore message $message since Controller has been stopped")
+      stay()
+  }
+
+  initialize()
 }
