@@ -133,7 +133,7 @@ class HttpCompileTest extends Simulation {
               status.in(200, 210).saveAs("blablaParam"),
               status.in(Seq(200, 304)).saveAs("blablaParam"),
               bodyString.is(RawFileBody("foobar.txt")),
-              bodyString.is(ELFileBody("foobar.txt")),
+              bodyString.is(ElFileBody("foobar.txt")),
               xpath("//input[@value='aaaa']/@id").not("omg"),
               xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2"),
               md5.is("0xA59E79AB53EEF2883D72B8F8398C9AC3"),
@@ -182,7 +182,7 @@ class HttpCompileTest extends Simulation {
         .exec(http("Url from session").get("/aaaa"))
         .pause(1000 milliseconds)
         // Second request to be repeated
-        .exec(http("Create Thing blabla").post("/things").queryParam("login", "${login}").queryParam("password", "${password}").body(ELFileBody("create_thing.txt")).asJSON)
+        .exec(http("Create Thing blabla").post("/things").queryParam("login", "${login}").queryParam("password", "${password}").body(ElFileBody("create_thing.txt")).asJSON)
         .pause(pause1)
         // Third request to be repeated
         .exec(http("Liste Articles").get("/things").queryParam("firstname", "${firstname}").queryParam("lastname", "${lastname}"))

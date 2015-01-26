@@ -133,7 +133,7 @@ object GatlingConfiguration extends StrictLogging {
           percentile3 = config.getDouble(charting.indicators.Percentile3),
           percentile4 = config.getDouble(charting.indicators.Percentile4))),
       http = HttpConfiguration(
-        elFileBodiesCacheMaxCapacity = config.getLong(http.ELFileBodiesCacheMaxCapacity),
+        elFileBodiesCacheMaxCapacity = config.getLong(http.ElFileBodiesCacheMaxCapacity),
         rawFileBodiesCacheMaxCapacity = config.getLong(http.RawFileBodiesCacheMaxCapacity),
         fetchedCssCacheMaxCapacity = config.getLong(http.FetchedCssCacheMaxCapacity),
         fetchedHtmlCacheMaxCapacity = config.getLong(http.FetchedHtmlCacheMaxCapacity),

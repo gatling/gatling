@@ -31,7 +31,7 @@ import io.gatling.core.util.Io._
 import io.gatling.core.validation.Validation
 
 object ElFileBody {
-  def apply(filePath: Expression[String]) = CompositeByteArrayBody(ELFileBodies.asBytesSeq(filePath))
+  def apply(filePath: Expression[String]) = CompositeByteArrayBody(ElFileBodies.asBytesSeq(filePath))
 }
 
 trait Body {

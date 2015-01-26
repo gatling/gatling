@@ -201,11 +201,11 @@ class HttpRequest {
       // { "myContent": "myHardCodedValue" }
       .body(RawFileBody("myFileBody.json")).asJSON
       //#RawFileBody
-      //#ELFileBody
+      //#ElFileBody
       // myFileBody.json is a file that contains
       // { "myContent": "${myDynamicValue}" }
-      .body(ELFileBody("myFileBody.json")).asJSON
-      //#ELFileBody
+      .body(ElFileBody("myFileBody.json")).asJSON
+      //#ElFileBody
       //#StringBody
       .body(StringBody("""{ "myContent": "myHardCodedValue" }""")).asJSON
 

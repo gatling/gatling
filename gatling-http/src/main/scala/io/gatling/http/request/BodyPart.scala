@@ -28,7 +28,7 @@ import io.gatling.core.validation.Validation
 object BodyPart {
 
   def rawFileBodyPart(name: Option[Expression[String]], filePath: Expression[String]): BodyPart = fileBodyPart(name, RawFileBodies.asFile(filePath))
-  def elFileBodyPart(name: Option[Expression[String]], filePath: Expression[String]): BodyPart = stringBodyPart(name, ELFileBodies.asString(filePath))
+  def elFileBodyPart(name: Option[Expression[String]], filePath: Expression[String]): BodyPart = stringBodyPart(name, ElFileBodies.asString(filePath))
   def stringBodyPart(name: Option[Expression[String]], string: Expression[String]): BodyPart = BodyPart(name, stringBodyPartBuilder(string), BodyPartAttributes(charset = Some(configuration.core.charset)))
   def byteArrayBodyPart(name: Option[Expression[String]], bytes: Expression[Array[Byte]]): BodyPart = BodyPart(name, byteArrayBodyPartBuilder(bytes), BodyPartAttributes())
   def fileBodyPart(name: Option[Expression[String]], file: Expression[File]): BodyPart = BodyPart(name, fileBodyPartBuilder(file), BodyPartAttributes())

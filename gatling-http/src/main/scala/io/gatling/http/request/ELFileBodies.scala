@@ -23,9 +23,9 @@ import io.gatling.core.util.Io._
 import io.gatling.core.util.cache._
 import io.gatling.core.validation._
 
-object ELFileBodies {
+object ElFileBodies {
 
-  val ELFileBodyStringCache = ThreadSafeCache[String, Validation[Expression[String]]](configuration.http.elFileBodiesCacheMaxCapacity)
+  val ElFileBodyStringCache = ThreadSafeCache[String, Validation[Expression[String]]](configuration.http.elFileBodiesCacheMaxCapacity)
 
   def asString(filePath: Expression[String]): Expression[String] = {
 
@@ -36,8 +36,8 @@ object ELFileBodies {
           }).map(_.el[String])
 
       def pathToExpression(path: String) =
-        if (ELFileBodyStringCache.enabled)
-          ELFileBodyStringCache.getOrElsePutIfAbsent(path, compileFile(path))
+        if (ElFileBodyStringCache.enabled)
+          ElFileBodyStringCache.getOrElsePutIfAbsent(path, compileFile(path))
         else
           compileFile(path)
 
@@ -49,7 +49,7 @@ object ELFileBodies {
       } yield body
   }
 
-  val ELFileBodyBytesCache = ThreadSafeCache[String, Validation[Expression[Seq[Array[Byte]]]]](configuration.http.elFileBodiesCacheMaxCapacity)
+  val ElFileBodyBytesCache = ThreadSafeCache[String, Validation[Expression[Seq[Array[Byte]]]]](configuration.http.elFileBodiesCacheMaxCapacity)
 
   def asBytesSeq(filePath: Expression[String]): Expression[Seq[Array[Byte]]] = {
 
@@ -58,7 +58,7 @@ object ELFileBodies {
       }
 
       def pathToExpression(path: String) =
-        if (ELFileBodyBytesCache.enabled) ELFileBodyBytesCache.getOrElsePutIfAbsent(path, resource2BytesSeq(path))
+        if (ElFileBodyBytesCache.enabled) ElFileBodyBytesCache.getOrElsePutIfAbsent(path, resource2BytesSeq(path))
         else resource2BytesSeq(path)
 
     session =>

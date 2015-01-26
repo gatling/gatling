@@ -87,7 +87,7 @@ If you check the 'Infer html resources?' option, the Recorder will fetch the emb
 Response bodies
 ---------------
 
-When the 'Save & check response bodies?' option is enabled, response bodies will be dumped in the same folder as the request bodies, and the simulation will contain extra checks using :ref:`RawFileBody <http-request-body-rawfile>` to ensure the actual bodies are matching the dumped ones. You might want to edit these checks, for example to parametrize the expected bodies, using :ref:`ELFileBody <http-request-body-elfile>` instead.
+When the 'Save & check response bodies?' option is enabled, response bodies will be dumped in the same folder as the request bodies, and the simulation will contain extra checks using :ref:`RawFileBody <http-request-body-rawfile>` to ensure the actual bodies are matching the dumped ones. You might want to edit these checks, for example to parametrize the expected bodies, using :ref:`ElFileBody <http-request-body-elfile>` instead.
 
 Running
 =======

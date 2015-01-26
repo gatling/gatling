@@ -146,9 +146,9 @@ class Checks {
     bodyString.is(RawFileBody("expected_response.json"))
     //#bodyString-is-RawFileBody
 
-    //#bodyString-isELFileBody
-    bodyString.is(ELFileBody("expected_template.json"))
-    //#bodyString-isELFileBody
+    //#bodyString-isElFileBody
+    bodyString.is(ElFileBody("expected_template.json"))
+    //#bodyString-isElFileBody
   }
 
 }

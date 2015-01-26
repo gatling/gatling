@@ -99,7 +99,7 @@ class Feeders {
     import java.io.{ File, PrintWriter }
     import io.gatling.redis.util.RedisHelper._
 
-    def generateOneMillionUrls() = {
+    def generateOneMillionUrls(): Unit = {
       val writer = new PrintWriter(new File("/tmp/loadtest.txt"))
       try {
         for (i <- 0 to 1000000) {

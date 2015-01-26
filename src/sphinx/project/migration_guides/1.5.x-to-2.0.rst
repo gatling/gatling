@@ -201,7 +201,7 @@ Modified
 Request bodies
 --------------
 
-* Scalate templates support has been dropped. ELFileBody (see below) is the best suited to replace your existing Scalate templates.
+* Scalate templates support has been dropped. ElFileBody (see below) is the best suited to replace your existing Scalate templates.
 * The API for setting request bodies on request has changed.
   Instead of having several methods like ``body``, ``fileBody`` and ``byteArrayBody``, there is a now a single method, ``body(...)`` in which you set the type of body to send.
 
@@ -242,7 +242,7 @@ becomes::
 Migrating ``.fileBody(filePath, values)``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``.fileBody(filePath, values)`` has been replaced by ``.body(ELFileBody(filePath))``.
+``.fileBody(filePath, values)`` has been replaced by ``.body(ElFileBody(filePath))``.
 ``values`` are now directly resolved from the virtual user's session's content.
 
 ::
@@ -255,7 +255,7 @@ becomes::
 
   http("my post request")
     .post("http://www.example.org")
-    .body(ELFileBody("my template.txt"))
+    .body(ElFileBody("my template.txt"))
 
 If ``my template.txt`` contains::
 

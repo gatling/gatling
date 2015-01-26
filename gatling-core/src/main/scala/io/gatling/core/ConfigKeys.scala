@@ -74,7 +74,7 @@ object ConfigKeys {
   }
 
   object http {
-    val ELFileBodiesCacheMaxCapacity = "gatling.http.elFileBodiesCacheMaxCapacity"
+    val ElFileBodiesCacheMaxCapacity = "gatling.http.elFileBodiesCacheMaxCapacity"
     val RawFileBodiesCacheMaxCapacity = "gatling.http.rawFileBodiesCacheMaxCapacity"
     val FetchedCssCacheMaxCapacity = "gatling.http.fetchedCssCacheMaxCapacity"
     val FetchedHtmlCacheMaxCapacity = "gatling.http.fetchedHtmlCacheMaxCapacity"

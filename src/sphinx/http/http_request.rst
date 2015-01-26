@@ -319,14 +319,14 @@ Of course, this optimisation is disabled over HTTPS, as bytes have to be encoded
 
 .. _http-request-body-elfile:
 
-* ``ELFileBody(path: Expression[String])`` where path is the location of a file whose content will be parsed and resolved with Gatling EL engine
+* ``ElFileBody(path: Expression[String])`` where path is the location of a file whose content will be parsed and resolved with Gatling EL engine
 
 Here, the file content is parsed and turned into a Gatling EL expression.
 Of course, it can't be binary.::
 
   // myFileBody.json is a file that contains
   // { "myContent": "${myDynamicValue}" }
-  .body(ELFileBody("myFileBody.json")).asJSON
+  .body(ElFileBody("myFileBody.json")).asJSON
 
 .. _http-request-body-string:
 
@@ -373,12 +373,12 @@ where path is the location of a file that will be uploaded as is.
 
 Similar to :ref:`RawFileBody <http-request-body-rawfile>`.
 
-* ``ELFileBodyPart(path: Expression[String])``
-* ``ELFileBodyPart(name: Expression[String], path: Expression[String])``
+* ``ElFileBodyPart(path: Expression[String])``
+* ``ElFileBodyPart(name: Expression[String], path: Expression[String])``
 
 where path is the location of a file whose content will be parsed and resolved with Gatling EL engine.
 
-Similar to :ref:`ELFileBody <http-request-body-elfile>`.
+Similar to :ref:`ElFileBody <http-request-body-elfile>`.
 
 * ``StringBodyPart(string: Expression[String])``
 * ``StringBodyPart(name: Expression[String], string: Expression[String])``
