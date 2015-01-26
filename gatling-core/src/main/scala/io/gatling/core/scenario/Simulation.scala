@@ -98,7 +98,8 @@ abstract class Simulation {
   private[core] def build: SimulationDef = {
 
     require(_scenarios.nonEmpty, "No scenario set up")
-    require(_scenarios.map(_.scenarioBuilder.name).toSet.size == _scenarios.size, s"Scenario names must be unique but found a duplicate")
+    val duplicates = _scenarios.groupBy(_.scenarioBuilder.name).collect { case (name, scns) if scns.size > 1 => name }
+    require(duplicates.isEmpty, s"Scenario names must be unique but found duplicates: $duplicates")
     _scenarios.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
 
     // FIXME ugly: has to be started in order to build the scenario
