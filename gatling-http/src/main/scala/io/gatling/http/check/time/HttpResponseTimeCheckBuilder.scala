@@ -25,17 +25,17 @@ import io.gatling.http.response.Response
 
 object HttpResponseTimeCheckBuilder {
 
-  val ResponseTimeInMillis = apply(new Extractor[Response, Long] with SingleArity {
+  val ResponseTimeInMillis = apply(new Extractor[Response, Int] with SingleArity {
     val name = "responseTime"
     def apply(prepared: Response) = Some(prepared.timings.responseTime).success
   }.expression)
 
-  val LatencyInMillis = apply(new Extractor[Response, Long] with SingleArity {
+  val LatencyInMillis = apply(new Extractor[Response, Int] with SingleArity {
     val name = "latency"
     def apply(prepared: Response) = Some(prepared.timings.latency).success
   }.expression)
 
-  def apply(extractor: Expression[Extractor[Response, Long]]) = new DefaultFindCheckBuilder[HttpCheck, Response, Response, Long](
+  def apply(extractor: Expression[Extractor[Response, Int]]) = new DefaultFindCheckBuilder[HttpCheck, Response, Response, Int](
     TimeExtender,
     PassThroughResponsePreparer,
     extractor)

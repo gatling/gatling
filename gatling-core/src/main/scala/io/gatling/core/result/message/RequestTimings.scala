@@ -20,7 +20,7 @@ case class RequestTimings(requestStartDate: Long,
                           responseStartDate: Long,
                           responseEndDate: Long) {
 
-  val responseTime = responseEndDate - requestStartDate
+  val responseTime = (responseEndDate - requestStartDate).toInt
 
-  val latency = responseStartDate - requestEndDate
+  val latency = (responseStartDate - requestEndDate).toInt
 }
