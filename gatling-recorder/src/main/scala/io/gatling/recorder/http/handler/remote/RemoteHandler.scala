@@ -23,7 +23,7 @@ import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.ScalaChannelHandler
 import io.gatling.recorder.http.handler.user.SSLHandlerSetter
-import io.gatling.recorder.http.ssl.{ SSLClientContext, SSLServerContext }
+import io.gatling.recorder.http.ssl.{ SslClientContext, SSLServerContext }
 import org.jboss.netty.channel._
 import org.jboss.netty.handler.codec.http._
 import org.jboss.netty.handler.ssl.SslHandler
@@ -49,7 +49,7 @@ class RemoteHandler(controller: RecorderController,
 
         if (response.getStatus == HttpResponseStatus.OK) {
           performConnect = false
-          val remoteSslHandler = new SslHandler(SSLClientContext.createSSLEngine)
+          val remoteSslHandler = new SslHandler(SslClientContext.createSSLEngine)
           remoteSslHandler.setCloseOnSSLException(true)
           upgradeRemotePipeline(ctx.getChannel.getPipeline, remoteSslHandler)
 

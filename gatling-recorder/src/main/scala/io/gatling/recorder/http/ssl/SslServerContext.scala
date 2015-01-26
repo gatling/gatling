@@ -117,10 +117,10 @@ object SSLServerContext {
       aliasContexts.getOrElseUpdate(alias, newAliasContext(alias))
     }
 
-    def ca(): Try[CA]
+    def ca(): Try[Ca]
 
     private def newAliasContext(alias: String): SSLContext =
-      SSLCertUtil.updateKeystoreWithNewAlias(keyStore, password, alias, ca) match {
+      SslCertUtil.updateKeystoreWithNewAlias(keyStore, password, alias, ca) match {
         case Failure(t) => throw t
         case _ =>
           // Set up key manager factory to use our key store
@@ -147,6 +147,6 @@ object SSLServerContext {
     assert(pemCrtFile.isFile, s"$pemCrtFile is not a file")
     assert(pemKeyFile.isFile, s"$pemKeyFile is not a file")
 
-    lazy val ca = SSLCertUtil.getCA(pemCrtFile.inputStream, pemKeyFile.inputStream)
+    lazy val ca = SslCertUtil.getCA(pemCrtFile.inputStream, pemKeyFile.inputStream)
   }
 }

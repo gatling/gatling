@@ -40,13 +40,13 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 import org.bouncycastle.pkcs.PKCS10CertificationRequest
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder
 
-case class CA(cert: X509Certificate, privKey: PrivateKey)
-case class CSR(cert: PKCS10CertificationRequest, privKey: PrivateKey)
+case class Ca(cert: X509Certificate, privKey: PrivateKey)
+case class Csr(cert: PKCS10CertificationRequest, privKey: PrivateKey)
 
 /**
  * Utility class to create SSL server certificate on the fly for the recorder keystore
  */
-object SSLCertUtil extends StrictLogging {
+object SslCertUtil extends StrictLogging {
 
   Security.addProvider(new BouncyCastleProvider)
 
@@ -91,7 +91,7 @@ object SSLCertUtil extends StrictLogging {
     writePEM(pair, (dir / privKeyFileName).outputStream)
   }
 
-  def getCA(crtFile: InputStream, keyFile: InputStream): Try[CA] =
+  def getCA(crtFile: InputStream, keyFile: InputStream): Try[Ca] =
     Try {
       val certHolder = readPEM(crtFile).asInstanceOf[X509CertificateHolder]
       val certificate = certificateFromHolder(certHolder)
@@ -99,10 +99,10 @@ object SSLCertUtil extends StrictLogging {
       val keyInfo = readPEM(keyFile).asInstanceOf[PEMKeyPair].getPrivateKeyInfo
       val privKey = new JcaPEMKeyConverter().getPrivateKey(keyInfo)
 
-      CA(certificate, privKey)
+      Ca(certificate, privKey)
     }
 
-  def updateKeystoreWithNewAlias(keyStore: KeyStore, password: Array[Char], alias: String, caT: Try[CA]): Try[KeyStore] =
+  def updateKeystoreWithNewAlias(keyStore: KeyStore, password: Array[Char], alias: String, caT: Try[Ca]): Try[KeyStore] =
     for {
       ca <- caT
       csr <- createCSR(alias)
@@ -110,14 +110,14 @@ object SSLCertUtil extends StrictLogging {
       updatedKeyStore <- addNewKeystoreEntry(keyStore, password, serverCrt, csr.privKey, ca.cert, alias)
     } yield updatedKeyStore
 
-  private def createCSR(dnHostName: String): Try[CSR] =
+  private def createCSR(dnHostName: String): Try[Csr] =
     Try {
       val pair = newRSAKeyPair
       val dn = s"C=FR, ST=Val de marne, O=GatlingCA, OU=Gatling, CN=$dnHostName"
       val builder = new JcaPKCS10CertificationRequestBuilder(new X500Principal(dn), pair.getPublic)
       val signer = newSigner(pair.getPrivate)
       val pkcs10CR = builder.build(signer)
-      CSR(pkcs10CR, pair.getPrivate)
+      Csr(pkcs10CR, pair.getPrivate)
     }
 
   private def createServerCert(caCert: X509Certificate, caKey: PrivateKey, csr: PKCS10CertificationRequest): Try[X509Certificate] =
