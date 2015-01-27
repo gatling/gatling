@@ -16,11 +16,6 @@
 package io.gatling.http.request.builder
 
 import io.gatling.core.session.Expression
-import io.gatling.core.validation.SuccessWrapper
-
-object HttpParam {
-  val EmptyParamListSuccess = List.empty[(String, String)].success
-}
 
 sealed trait HttpParam
 case class SimpleParam(key: Expression[String], value: Expression[Any]) extends HttpParam
