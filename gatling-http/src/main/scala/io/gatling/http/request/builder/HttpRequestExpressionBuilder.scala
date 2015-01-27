@@ -15,11 +15,13 @@
  */
 package io.gatling.http.request.builder
 
+import scala.collection.JavaConversions._
+
 import com.ning.http.client.multipart.StringPart
 import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ RequestBuilder => AHCRequestBuilder }
-import io.gatling.core.config.GatlingConfiguration._
 
+import io.gatling.core.config.GatlingConfiguration._
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.{ HeaderNames, HeaderValues }
@@ -55,10 +57,10 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
       }
 
       def configureFormParamsAsStringParts: Validation[AHCRequestBuilder] =
-        httpAttributes.formParams.resolveParams(session).map { params =>
+        httpAttributes.formParams.resolveParamJList(session).map { params =>
           for {
-            (key, value) <- params
-          } requestBuilder.addBodyPart(new StringPart(key, value, null, configuration.core.charset))
+            param <- params
+          } requestBuilder.addBodyPart(new StringPart(param.getName, param.getValue, null, configuration.core.charset))
 
           requestBuilder
         }

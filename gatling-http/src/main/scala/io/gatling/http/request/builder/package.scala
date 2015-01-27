@@ -16,7 +16,6 @@
 package io.gatling.http.request
 
 import scala.annotation.tailrec
-import scala.collection.breakOut
 
 import com.ning.http.client.Param
 
@@ -28,39 +27,6 @@ import java.util.{ List => JList, ArrayList => JArrayList }
 package object builder {
 
   implicit class HttpParams(val params: List[HttpParam]) extends AnyVal {
-
-    def resolveParams(session: Session): Validation[List[(String, String)]] =
-
-      params.foldLeft(HttpParam.EmptyParamListSuccess) { (resolvedParams, param) =>
-        val newParams: Validation[List[(String, String)]] = param match {
-          case SimpleParam(key, value) =>
-            for {
-              key <- key(session)
-              value <- value(session)
-            } yield List(key -> value.toString)
-
-          case MultivaluedParam(key, values) =>
-            for {
-              key <- key(session)
-              values <- values(session)
-            } yield values.map(key -> _.toString)(breakOut)
-
-          case ParamSeq(seq) =>
-            for {
-              seq <- seq(session)
-            } yield seq.map { case (key, value) => key -> value.toString }(breakOut)
-
-          case ParamMap(map) =>
-            for {
-              map <- map(session)
-            } yield map.map { case (key, value) => key -> value.toString }(breakOut)
-        }
-
-        for {
-          newParams <- newParams
-          resolvedParams <- resolvedParams
-        } yield newParams ::: resolvedParams
-      }
 
     def resolveParamJList(session: Session): Validation[JList[Param]] = {
 
