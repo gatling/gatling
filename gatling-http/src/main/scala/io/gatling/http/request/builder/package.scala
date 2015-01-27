@@ -15,14 +15,13 @@
  */
 package io.gatling.http.request
 
+import java.util.{ List => JList, ArrayList => JArrayList }
+
 import scala.annotation.tailrec
 
 import com.ning.http.client.Param
-
 import io.gatling.core.session.Session
 import io.gatling.core.validation._
-
-import java.util.{ List => JList, ArrayList => JArrayList }
 
 package object builder {
 

@@ -15,11 +15,13 @@
  */
 package io.gatling.core.session
 
+import io.gatling.core.NotNothing
+
 import scala.reflect.ClassTag
 
 package object el {
 
   implicit class EL(val string: String) extends AnyVal {
-    def el[T: ClassTag]: Expression[T] = ELCompiler.compile[T](string)
+    def el[T: ClassTag: NotNothing]: Expression[T] = ELCompiler.compile[T](string)
   }
 }

@@ -15,6 +15,8 @@
  */
 package io.gatling.core.util
 
+import io.gatling.core.NotNothing
+
 import scala.reflect.ClassTag
 
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
@@ -25,7 +27,7 @@ object TypeHelper {
 
   implicit class TypeCaster(val value: Any) extends AnyVal {
 
-    def asValidation[T: ClassTag]: Validation[T] = Option(value) match {
+    def asValidation[T: ClassTag: NotNothing]: Validation[T] = Option(value) match {
       case Some(v) =>
         val clazz = implicitly[ClassTag[T]].runtimeClass
 

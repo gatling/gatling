@@ -90,7 +90,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: Comm
     val elValues: Seq[(String, Expression[Any])] = seq.map {
       case (key, value) =>
         val elValue = value match {
-          case s: String => s.el
+          case s: String => s.el[Any]
           case v         => v.expression
         }
         key -> elValue
@@ -101,7 +101,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: Comm
 
   private[http] def map2SeqExpression(map: Map[String, Any]): Expression[Seq[(String, Any)]] = {
     val elValues: Map[String, Expression[Any]] = map.mapValues {
-      case s: String => s.el
+      case s: String => s.el[Any]
       case v         => v.expression
     }
 
