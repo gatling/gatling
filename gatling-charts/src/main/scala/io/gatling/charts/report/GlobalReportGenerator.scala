@@ -29,11 +29,15 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
     import reportsGenerationInputs._
 
       def activeSessionsChartComponent = {
+
+        val baseColors = List(Blue, Green, Red, Yellow, Cyan, Lime, Purple, Pink, LightBlue, LightOrange, LightRed, LightLime, LightPurple, LightPink)
+        val seriesColors = Iterator.continually(baseColors).flatten.take(dataReader.scenarioNames.size).toList
+
         val activeSessionsSeries: Seq[Series[IntVsTimePlot]] = dataReader
           .scenarioNames
           .map { scenarioName => scenarioName -> dataReader.numberOfActiveSessionsPerSecond(Some(scenarioName)) }
           .reverse
-          .zip(List(Blue, Green, Red, Yellow, Cyan, Lime, Purple, Pink, LightBlue, LightOrange, LightRed, LightLime, LightPurple, LightPink))
+          .zip(seriesColors)
           .map { case ((scenarioName, data), color) => new Series[IntVsTimePlot](scenarioName, data, List(color)) }
 
         componentLibrary.getActiveSessionsChartComponent(dataReader.runStart, activeSessionsSeries)
