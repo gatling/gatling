@@ -17,6 +17,8 @@ package io.gatling.core.session.el
 
 import java.util.{ Collection => JCollection, List => JList, Map => JMap }
 
+import io.gatling.core.NotNothing
+
 import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
@@ -169,7 +171,7 @@ object ElCompiler {
 
   def parse(string: String): List[Part[Any]] = TheELCompiler.get.parseEl(string)
 
-  def compile[T: ClassTag](string: String): Expression[T] =
+  def compile[T: ClassTag: NotNothing](string: String): Expression[T] =
     parse(string) match {
       case List(StaticPart(staticStr)) =>
         val stringV = staticStr.asValidation[T]
