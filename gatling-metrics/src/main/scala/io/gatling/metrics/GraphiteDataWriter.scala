@@ -55,7 +55,7 @@ private[gatling] class GraphiteDataWriter extends DataWriter with Flushable {
     usersByScenario.update(AllUsersKey, new UsersBreakdownBuffer(scenarios.map(_.nbUsers).sum))
     scenarios.foreach(scenario => usersByScenario += (UsersRootKey / scenario.name) -> new UsersBreakdownBuffer(scenario.nbUsers))
 
-    scheduler.schedule(0 millisecond, configuration.data.graphite.writeInterval second, self, Flush())
+    scheduler.schedule(0 millisecond, configuration.data.graphite.writeInterval second, self, Flush)
   }
 
   override def onFlush(): Unit = {
