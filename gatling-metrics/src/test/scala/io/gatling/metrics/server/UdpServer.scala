@@ -13,31 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.metrics.sender
+package io.gatling.metrics.server
 
 import java.net.InetSocketAddress
 
 import akka.actor.ActorRef
-import akka.io.{ IO, Udp }
-import akka.util.ByteString
-import io.gatling.metrics.message.SendMetric
+import akka.io.{ Udp, IO }
+import io.gatling.core.akka.BaseActor
 
-private[metrics] class UdpSender(remote: InetSocketAddress) extends MetricsSender {
+class UdpServer extends BaseActor {
 
   import Udp._
 
-  IO(Udp) ! SimpleSender
+  IO(Udp) ! Bind(self, new InetSocketAddress("localhost", 2003))
 
-  def receive = uninitialized
-
-  private def uninitialized: Receive = {
-    case SimpleSenderReady =>
-      unstashAll()
-      context become connected(sender())
-    case _ => stash()
+  def receive = {
+    case Bound(local) => context.become(bound(sender()))
   }
 
-  private def connected(connection: ActorRef): Receive = {
-    case m: SendMetric[_] => connection ! Send(m.byteString, remote)
+  def bound(socket: ActorRef): Receive = {
+    case Received(data, _) => // Do nothing upon receive
+    case Unbind            => socket ! Unbind
+    case Unbound           => context stop self
   }
 }
