@@ -33,7 +33,7 @@ case class RunMessage(simulationClassName: String,
 
 sealed trait DataWriterMessage
 case class Init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
-case class Flush(timestamp: Long = nowMillis) extends DataWriterMessage
+case object Flush extends DataWriterMessage
 case object Terminate extends DataWriterMessage
 
 sealed trait LoadEventMessage extends DataWriterMessage {

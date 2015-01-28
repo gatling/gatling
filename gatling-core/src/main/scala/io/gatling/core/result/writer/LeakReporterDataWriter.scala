@@ -25,7 +25,7 @@ import scala.concurrent.duration.DurationInt
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.result.message.{ End, Start }
 
-class LeakReporterDataWriter extends DataWriter {
+class LeakReporterDataWriter extends DataWriter with Flushable {
 
   val noActivityTimeout = configuration.data.leak.noActivityTimeout seconds
   private var lastTouch = 0L
@@ -33,10 +33,10 @@ class LeakReporterDataWriter extends DataWriter {
 
   override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
     lastTouch = currentTimeMillis
-    scheduler.schedule(0 seconds, noActivityTimeout, self, Flush())
+    scheduler.schedule(0 seconds, noActivityTimeout, self, Flush)
   }
 
-  override def onFlush(timestamp: Long): Unit = {
+  override def onFlush(): Unit = {
     val timeSinceLastTouch = (currentTimeMillis - lastTouch) / 1000
 
     if (timeSinceLastTouch > noActivityTimeout.toSeconds && events.nonEmpty) {

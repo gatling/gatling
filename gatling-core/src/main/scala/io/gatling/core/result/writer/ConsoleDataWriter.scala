@@ -22,7 +22,6 @@ import scala.concurrent.duration.DurationInt
 
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.result.message.{ End, KO, OK, Start }
-import io.gatling.core.util.TimeHelper.nowMillis
 
 class UserCounters(val totalCount: Int) {
 
@@ -39,7 +38,7 @@ class UserCounters(val totalCount: Int) {
 
 class RequestCounters(var successfulCount: Int = 0, var failedCount: Int = 0)
 
-class ConsoleDataWriter extends DataWriter {
+class ConsoleDataWriter extends DataWriter with Flushable {
 
   private var startUpTime = 0L
   private var complete = false
@@ -54,10 +53,10 @@ class ConsoleDataWriter extends DataWriter {
 
     scenarios.foreach(scenario => usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
 
-    scheduler.schedule(0 seconds, 5 seconds, self, Flush())
+    scheduler.schedule(0 seconds, 5 seconds, self, Flush)
   }
 
-  override def onFlush(timestamp: Long): Unit = {
+  override def onFlush(): Unit = {
     val runDuration = (currentTimeMillis - startUpTime) / 1000
 
     val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters)
@@ -109,5 +108,5 @@ class ConsoleDataWriter extends DataWriter {
     case _                          =>
   }
 
-  override def onTerminateDataWriter(): Unit = if (!complete) onFlush(nowMillis)
+  override def onTerminateDataWriter(): Unit = if (!complete) onFlush()
 }

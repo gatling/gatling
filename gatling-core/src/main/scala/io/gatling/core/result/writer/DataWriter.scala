@@ -68,6 +68,17 @@ object DataWriter extends AkkaDefaults {
   }
 }
 
+trait Flushable extends DataWriter {
+
+  def onFlush(): Unit
+
+  val receiveFlush: Receive = {
+    case Flush => onFlush()
+  }
+
+  abstract override def initialized: Receive = receiveFlush orElse super.initialized
+}
+
 /**
  * Abstract class for all DataWriters
  *
@@ -91,13 +102,9 @@ abstract class DataWriter extends BaseActor {
     case m: DataWriterMessage => logger.error(s"Can't handle $m when in uninitialized state, discarding")
   }
 
-  def onFlush(timestamp: Long): Unit
-
   def onMessage(message: LoadEventMessage): Unit
 
   def initialized: Receive = {
-
-    case Flush(timestamp: Long) => onFlush(timestamp)
 
     case Terminate => try {
       onTerminateDataWriter()

@@ -34,7 +34,7 @@ private[metrics] object GraphiteDataWriter {
   val AllUsersKey = UsersRootKey / "allUsers"
 }
 
-private[gatling] class GraphiteDataWriter extends DataWriter {
+private[gatling] class GraphiteDataWriter extends DataWriter with Flushable {
   import GraphiteDataWriter._
   import GraphitePath._
 
@@ -58,7 +58,7 @@ private[gatling] class GraphiteDataWriter extends DataWriter {
     scheduler.schedule(0 millisecond, configuration.data.graphite.writeInterval second, self, Flush())
   }
 
-  override def onFlush(timestamp: Long): Unit = {
+  override def onFlush(): Unit = {
     val requestMetrics = requestsByPath.mapValues(_.metricsByStatus).toMap
     val currentUserBreakdowns = usersByScenario.mapValues(UsersBreakdown(_)).toMap
 
