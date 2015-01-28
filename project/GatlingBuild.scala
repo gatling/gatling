@@ -62,7 +62,7 @@ object GatlingBuild extends Build {
     .settings(chartTestsSettings: _*)
 
   lazy val metrics = gatlingModule("gatling-metrics")
-    .dependsOn(core)
+    .dependsOn(core % "compile->compile;test->test")
     .settings(libraryDependencies ++= metricsDependencies)
 
   lazy val compiler = gatlingModule("gatling-compiler")

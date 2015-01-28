@@ -15,29 +15,17 @@
  */
 package io.gatling.metrics.sender
 
-import java.net.InetSocketAddress
+import akka.actor.{ ActorRef, FSM }
 
-import akka.actor.ActorRef
-import akka.io.{ IO, Udp }
-import akka.util.ByteString
-import io.gatling.metrics.message.SendMetric
+private[sender] trait TcpSenderStateMachine extends FSM[TcpSenderState, TcpSenderData]
 
-private[metrics] class UdpSender(remote: InetSocketAddress) extends MetricsSender {
+private[sender] sealed trait TcpSenderState
+private[sender] case object WaitingForConnection extends TcpSenderState
+private[sender] case object Running extends TcpSenderState
+private[sender] case object RetriesExhausted extends TcpSenderState
 
-  import Udp._
+private[sender] sealed trait TcpSenderData
+private[sender] case object NoData extends TcpSenderData
+private[sender] case class DisconnectedData(failures: Failures) extends TcpSenderData
+private[sender] case class ConnectedData(connection: ActorRef, failures: Failures) extends TcpSenderData
 
-  IO(Udp) ! SimpleSender
-
-  def receive = uninitialized
-
-  private def uninitialized: Receive = {
-    case SimpleSenderReady =>
-      unstashAll()
-      context become connected(sender())
-    case _ => stash()
-  }
-
-  private def connected(connection: ActorRef): Receive = {
-    case m: SendMetric[_] => connection ! Send(m.byteString, remote)
-  }
-}
