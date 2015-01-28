@@ -33,7 +33,7 @@ object Dependencies {
   private val jmsApi                        = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"       % "1.1.1"
   private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"             % "1.1.2"
   private val tdigest                       = "com.tdunning"                           % "t-digest"                    % "3.0"
-  private val lru                           = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru" % "1.4.1"
+  private val lru                           = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru" % "1.4.2"
   private val bouncycastle                  = "org.bouncycastle"                       % "bcpkix-jdk15on"              % "1.51"
   private val testInterface                 = "org.scala-sbt"                          % "test-interface"              % "1.0"
 
