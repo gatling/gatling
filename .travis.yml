@@ -1,7 +1,10 @@
 language: scala
 sbt_args: -Xmx2048M
 before_script: ./make_credentials.sh
-script: sbt test
+script: 
+  - sbt test
+  - find $HOME/.sbt -name "*.lock" | xargs rm
+  - find $HOME/.ivy2 -name "ivydata-*.properties" | xargs rm
 
 # If building master, Publish to Sonatype and trigger builds
 after_success:
@@ -12,6 +15,12 @@ after_success:
   - "[[ $TRAVIS_PULL_REQUEST == \"false\" ]] && ./trigger_build.py gatling/gatling-sbt"
 
 sudo: false
+
+# Cache settings
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/launchers
 
 # whitelist
 branches:
