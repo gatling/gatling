@@ -25,7 +25,7 @@ import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.filter.Filters
-import io.gatling.core.result.message.{ OK, Status }
+import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session._
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.cache._
@@ -191,8 +191,7 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
   val bufferedResourcesByHost = mutable.HashMap.empty[String, List[HttpRequest]].withDefaultValue(Nil)
   val availableTokensByHost = mutable.HashMap.empty[String, Int].withDefaultValue(protocol.enginePart.maxConnectionsPerHost)
   var pendingResourcesCount = 0
-  var okCount = 0
-  var koCount = 0
+  var globalStatus: Status = OK
   val start = nowMillis
 
   // start fetching
@@ -271,7 +270,7 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
   private def done(): Unit = {
     logger.debug("All resources were fetched")
     // FIXME only do so if not silent
-    primaryTx.next ! session.logGroupAsyncRequests(nowMillis - start, okCount, koCount)
+    primaryTx.next ! session.logGroupRequest(nowMillis - start, globalStatus)
     context.stop(self)
   }
 
@@ -316,12 +315,8 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
     logger.debug(s"Resource $uri was fetched")
     pendingResourcesCount -= 1
 
-    if (!silent) {
-      if (status == OK)
-        okCount = okCount + 1
-      else
-        koCount = koCount + 1
-    }
+    if (!silent && status == KO)
+      globalStatus = KO
 
     if (pendingResourcesCount == 0)
       done()

@@ -18,7 +18,6 @@ package io.gatling.core.session
 import akka.actor.ActorRef.noSender
 import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.result.message._
 import io.gatling.core.validation._
 
 class BlockSpec extends FlatSpec with Matchers {
@@ -44,13 +43,5 @@ class BlockSpec extends FlatSpec with Matchers {
     LoopBlock.continue(session => (session("foo").as[Int] == 0).success, session) shouldBe false
 
     LoopBlock.continue(session => "failed".failure, session) shouldBe false
-  }
-
-  "GroupBlock.status" should "be OK if kos count = 0" in {
-    GroupBlock(List("root group")).status shouldBe OK
-  }
-
-  it should "be KO if kos count > 0" in {
-    GroupBlock(List("root group"), kos = 1).status shouldBe KO
   }
 }

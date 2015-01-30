@@ -15,7 +15,7 @@
  */
 package io.gatling.core.session
 
-import io.gatling.core.result.message.{ OK, KO, Status }
+import io.gatling.core.result.message.{ OK, Status }
 import akka.actor.ActorRef
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
@@ -49,13 +49,4 @@ case class ExitASAPLoopBlock(counterName: String, condition: Expression[Boolean]
 
 case class TryMaxBlock(counterName: String, tryMaxActor: ActorRef, status: Status = OK) extends CounterBlock
 
-case class GroupBlock(
-  hierarchy: List[String],
-  startDate: Long = nowMillis,
-  cumulatedResponseTime: Long = 0L,
-  oks: Int = 0,
-  kos: Int = 0)
-    extends Block {
-
-  def status: Status = if (kos > 0) KO else OK
-}
+case class GroupBlock(hierarchy: List[String], startDate: Long = nowMillis, cumulatedResponseTime: Long = 0L, status: Status = OK) extends Block

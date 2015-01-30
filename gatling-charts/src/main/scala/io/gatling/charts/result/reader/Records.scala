@@ -82,14 +82,12 @@ private[reader] class GroupRecordParser(bucketFunction: Long => Int, runStart: L
     val startTimestamp = strings(4).toLong
     val endTimestamp = strings(5).toLong
     val cumulatedResponseTime = strings(6).toInt
-    val oks = strings(7).toInt
-    val kos = strings(8).toInt
-    val status = Status.apply(strings(9))
+    val status = Status.apply(strings(7))
     val duration = (endTimestamp - startTimestamp).toInt
-    GroupRecord(group, duration, cumulatedResponseTime, oks, kos, status, bucketFunction(startTimestamp))
+    GroupRecord(group, duration, cumulatedResponseTime, status, bucketFunction(startTimestamp))
   }
 }
 
 private[reader] case class RequestRecord(group: Option[Group], name: String, status: Status, startBucket: Int, endBucket: Int, responseTime: Int, latency: Int, errorMessage: Option[String])
-private[reader] case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, oks: Int, kos: Int, status: Status, startBucket: Int)
+private[reader] case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, status: Status, startBucket: Int)
 private[reader] case class UserRecord(scenario: String, userId: String, event: MessageEvent, startBucket: Int, endBucket: Int)

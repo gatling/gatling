@@ -107,18 +107,13 @@ case class Session(
       this
   }
 
-  private[gatling] def logGroupAsyncRequests(asyncFetchTime: Long, okCount: Int, koCount: Int) = blockStack match {
+  private[gatling] def logGroupRequest(responseTime: Long, status: Status) = blockStack match {
     case Nil => this
     case _ =>
       copy(blockStack = blockStack.map {
-        case g: GroupBlock => g.copy(cumulatedResponseTime = g.cumulatedResponseTime + asyncFetchTime, oks = g.oks + okCount, kos = g.kos + koCount)
+        case g: GroupBlock => g.copy(cumulatedResponseTime = g.cumulatedResponseTime + responseTime, status = if (status == KO) KO else g.status)
         case b             => b
       })
-  }
-
-  private[gatling] def logGroupRequest(responseTime: Long, status: Status) = {
-    val (okCount, koCount) = if (status == OK) (1, 0) else (0, 1)
-    logGroupAsyncRequests(responseTime, okCount, koCount)
   }
 
   def groupHierarchy: List[String] = blockStack.collectFirst { case g: GroupBlock => g.hierarchy }.getOrElse(Nil)

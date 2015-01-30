@@ -114,44 +114,41 @@ class SessionSpec extends FlatSpec with Matchers {
 
   "logGroupAsyncRequests" should "update stats in all parent groups" in {
     val session = newSession.enterGroup("root group").enterGroup("child group").enterTryMax("tryMax", noSender)
-    val sessionWithGroupStatsUpdated = session.logGroupAsyncRequests(5L, 3, 4)
+    val sessionWithGroupStatsUpdated = session.logGroupRequest(5L, KO)
     val allGroupBlocks = sessionWithGroupStatsUpdated.blockStack.collect { case g: GroupBlock => g }
 
     for (group <- allGroupBlocks) {
       group.cumulatedResponseTime shouldBe 5L
-      group.oks shouldBe 3
-      group.kos shouldBe 4
+      group.status shouldBe KO
     }
   }
 
   it should "leave the session unmodified if there is no groups in the stack" in {
     val session = newSession
-    val unModifiedSession = session.logGroupAsyncRequests(1L, 1, 1)
+    val unModifiedSession = session.logGroupRequest(1L, KO)
 
     session should be theSameInstanceAs unModifiedSession
   }
 
-  "logGroupRequest" should "add the response time to all parents groups and add 1 to the okCount is status is OK" in {
+  "logGroupRequest" should "add the response time to all parents groups" in {
     val session = newSession.enterGroup("root group").enterGroup("child group").enterTryMax("tryMax", noSender)
     val sessionWithGroupStatsUpdated = session.logGroupRequest(5L, OK)
     val allGroupBlocks = sessionWithGroupStatsUpdated.blockStack.collect { case g: GroupBlock => g }
 
     for (group <- allGroupBlocks) {
       group.cumulatedResponseTime shouldBe 5L
-      group.oks shouldBe 1
-      group.kos shouldBe 0
+      group.status shouldBe OK
     }
   }
 
-  it should "add the response time to all parents groups and add 1 to the koCount is status is KO" in {
+  it should "add the response time to all parents groups and add KO all if status was KO" in {
     val session = newSession.enterGroup("root group").enterGroup("child group").enterTryMax("tryMax", noSender)
     val sessionWithGroupStatsUpdated = session.logGroupRequest(5L, KO)
     val allGroupBlocks = sessionWithGroupStatsUpdated.blockStack.collect { case g: GroupBlock => g }
 
     for (group <- allGroupBlocks) {
       group.cumulatedResponseTime shouldBe 5L
-      group.oks shouldBe 0
-      group.kos shouldBe 1
+      group.status shouldBe KO
     }
   }
 
