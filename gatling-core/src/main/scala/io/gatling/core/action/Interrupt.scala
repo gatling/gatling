@@ -108,7 +108,7 @@ object Interrupt {
 
       case head :: tail => head match {
 
-        case TryMaxBlock(_, tryMaxActor, status) if status == KO =>
+        case TryMaxBlock(_, tryMaxActor, KO) =>
           val interruption = Interrupt.exitBlocks(session.blockStack, head, tryMaxActor, session, Nil)
           Some(interruption)
 
