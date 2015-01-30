@@ -17,8 +17,9 @@ package io.gatling.core.action
 
 import akka.actor.{ Actor, ActorRef }
 import akka.actor.ActorDSL.actor
+import io.gatling.core.result.message.KO
 import io.gatling.core.result.writer.DataWriterClient
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ TryMaxBlock, Session }
 import io.gatling.core.validation.{ Failure, Success }
 
 class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
@@ -44,12 +45,19 @@ class InnerTryMax(
     extends Chainable
     with DataWriterClient {
 
-  private def continue(session: Session): Boolean = session.isFailed && (session(counterName).validate[Int] match {
+  private def blockFailed(session: Session): Boolean = session.blockStack.headOption match {
+    case Some(TryMaxBlock(_, _, KO)) => true
+    case _                           => false
+  }
+
+  private def maxNotReached(session: Session): Boolean = session(counterName).validate[Int] match {
     case Success(i) => i < times
     case Failure(message) =>
       logger.error(s"Condition evaluation for tryMax $counterName crashed with message '$message', exiting tryMax")
       false
-  })
+  }
+
+  private def continue(session: Session): Boolean = blockFailed(session) && maxNotReached(session)
 
   /**
    * Evaluates the condition and if true executes the first action of loopNext
