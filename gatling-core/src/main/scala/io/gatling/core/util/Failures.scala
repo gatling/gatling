@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.metrics.sender
+package io.gatling.core.util
 
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.util.TimeHelper.nowMillis
 
-private[sender] class Failures private (maxFailuresLimit: Int, failureWindow: FiniteDuration, failures: List[Long]) {
+private[gatling] class Failures private (maxFailuresLimit: Int, failureWindow: FiniteDuration, failures: List[Long]) {
 
   def this(maxFailuresLimit: Int, failureWindow: FiniteDuration) =
     this(maxFailuresLimit, failureWindow, Nil)

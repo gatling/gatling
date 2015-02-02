@@ -17,6 +17,8 @@ package io.gatling.metrics.sender
 
 import akka.actor.{ ActorRef, FSM }
 
+import io.gatling.core.util.Failures
+
 private[sender] trait TcpSenderStateMachine extends FSM[TcpSenderState, TcpSenderData]
 
 private[sender] sealed trait TcpSenderState

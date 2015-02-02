@@ -21,6 +21,7 @@ import scala.concurrent.duration._
 
 import akka.io.{ IO, Tcp }
 
+import io.gatling.core.util.Failures
 import io.gatling.metrics.message.SendMetric
 
 private[metrics] class TcpSender(
