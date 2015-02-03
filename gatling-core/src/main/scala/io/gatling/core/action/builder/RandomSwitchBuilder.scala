@@ -36,8 +36,12 @@ object RandomSwitchBuilder {
 
   def randomWithinAccuracy: Int = ThreadLocalRandom.current.nextInt(Accuracy)
 
-  def apply(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]) =
-    new RandomSwitchBuilder(possibilities.map { case (p, c) => (percentageToInt(p), c) }, elseNext)
+  def apply(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]) = {
+    val normalizedPossibilities = possibilities
+      .collect { case (p, c) => (percentageToInt(p), c)}
+      .filter { case (p, c) => p > 0}
+    new RandomSwitchBuilder(normalizedPossibilities, elseNext)
+  }
 }
 
 class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder with StrictLogging {
