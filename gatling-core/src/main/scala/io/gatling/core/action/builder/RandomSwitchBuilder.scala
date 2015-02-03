@@ -38,8 +38,8 @@ object RandomSwitchBuilder {
 
   def apply(possibilities: List[(Double, ChainBuilder)], elseNext: Option[ChainBuilder]) = {
     val normalizedPossibilities = possibilities
-      .collect { case (p, c) => (percentageToInt(p), c)}
-      .filter { case (p, c) => p > 0}
+      .collect { case (p, c) => (percentageToInt(p), c) }
+      .filter { case (p, c) => p > 0 }
     new RandomSwitchBuilder(normalizedPossibilities, elseNext)
   }
 }
