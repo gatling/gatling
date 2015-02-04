@@ -37,17 +37,14 @@ class TcpServer extends BaseActor {
     case b: Bound               => logger.debug("Server is now bound")
     case CommandFailed(_: Bind) => context stop self
     case c: Connected =>
-      val handler = context.actorOf(Props(new NoopHandler))
-      sender() ! Register(handler)
+      sender() ! Register(self)
+      context become connected
   }
 
-  private class NoopHandler extends BaseActor {
-
-    def receive = {
-      case Received(data) =>
-        receivedCount += 1
-        logger.debug(s"Received ${data.decodeString(UTF_8.name())}")
-      case PeerClosed => context stop self
-    }
+  def connected: Receive = {
+    case Received(data) =>
+      receivedCount += 1
+      logger.debug(s"Received ${data.decodeString(UTF_8.name())}")
+    case PeerClosed => context stop self
   }
 }
