@@ -51,7 +51,7 @@ class TcpSenderSpec extends FlatSpec with Matchers {
     val tcpServer = newTcpServer
     val tcpSender = TestFSMRef(new TcpSender(serverUrl, 1, 1.second))
 
-    Thread.sleep(2000) // Give the sender some time to initialize
+    Thread.sleep(5000) // Give the sender some time to initialize
 
     tcpServer.underlyingActor.receivedCount shouldBe 0
 
