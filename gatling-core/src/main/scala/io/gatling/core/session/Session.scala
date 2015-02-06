@@ -107,7 +107,7 @@ case class Session(
       this
   }
 
-  private[gatling] def logGroupRequest(responseTime: Long, status: Status) = blockStack match {
+  private[gatling] def logGroupRequest(responseTime: Int, status: Status) = blockStack match {
     case Nil => this
     case _ =>
       copy(blockStack = blockStack.map {

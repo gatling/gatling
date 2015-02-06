@@ -105,7 +105,7 @@ class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
       def executeNext(updatedSession: Session, status: Status, message: Option[String] = None) = {
         val timings = RequestTimings(startSend, endSend, endSend, received)
         logRequestEnd(updatedSession, title, timings, status, message)
-        next ! updatedSession.logGroupRequest(received - startSend, status).increaseDrift(nowMillis - received)
+        next ! updatedSession.logGroupRequest((received - startSend).toInt, status).increaseDrift(nowMillis - received)
       }
 
     // run all the checks, advise the Gatling API that it is complete and move to next

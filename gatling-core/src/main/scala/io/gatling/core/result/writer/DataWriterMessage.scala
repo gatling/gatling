@@ -65,10 +65,12 @@ case class RequestEndMessage(
   extraInfo: List[Any]) extends LoadEventMessage
 
 case class GroupMessage(
-  scenario: String,
-  userId: String,
-  groupHierarchy: List[String],
-  startDate: Long,
-  endDate: Long,
-  cumulatedResponseTime: Long,
-  status: Status) extends LoadEventMessage
+    scenario: String,
+    userId: String,
+    groupHierarchy: List[String],
+    startDate: Long,
+    endDate: Long,
+    cumulatedResponseTime: Int,
+    status: Status) extends LoadEventMessage {
+  val duration = (endDate - startDate).toInt
+}

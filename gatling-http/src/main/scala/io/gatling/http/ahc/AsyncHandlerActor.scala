@@ -190,7 +190,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
   private def ko(tx: HttpTx, update: Session => Session, response: Response, message: String): Unit =
     logAndExecuteNext(tx, update, KO, response, Some(message))
 
-  private def logGroupRequestUpdate(tx: HttpTx, status: Status, responseTimeInMillis: Long): Session => Session =
+  private def logGroupRequestUpdate(tx: HttpTx, status: Status, responseTimeInMillis: Int): Session => Session =
     if (tx.primary && !tx.silent)
       // resource logging is done in ResourceFetcher
       _.logGroupRequest(responseTimeInMillis, status)

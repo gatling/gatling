@@ -270,7 +270,7 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
   private def done(): Unit = {
     logger.debug("All resources were fetched")
     // FIXME only do so if not silent
-    primaryTx.next ! session.logGroupRequest(nowMillis - start, globalStatus)
+    primaryTx.next ! session.logGroupRequest((nowMillis - start).toInt, globalStatus)
     context.stop(self)
   }
 

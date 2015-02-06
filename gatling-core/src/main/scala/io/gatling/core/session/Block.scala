@@ -49,4 +49,4 @@ case class ExitASAPLoopBlock(counterName: String, condition: Expression[Boolean]
 
 case class TryMaxBlock(counterName: String, tryMaxActor: ActorRef, status: Status = OK) extends CounterBlock
 
-case class GroupBlock(hierarchy: List[String], startDate: Long = nowMillis, cumulatedResponseTime: Long = 0L, status: Status = OK) extends Block
+case class GroupBlock(hierarchy: List[String], startDate: Long = nowMillis, cumulatedResponseTime: Int = 0, status: Status = OK) extends Block
