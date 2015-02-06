@@ -222,10 +222,12 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           .setProxyServer(originalRequest.getProxyServer)
           .setRealm(originalRequest.getRealm)
 
-        originalRequest.getHeaders.remove(HeaderNames.Host)
-        originalRequest.getHeaders.remove(HeaderNames.ContentLength)
-        originalRequest.getHeaders.remove(HeaderNames.Cookie)
-        if (switchToGet) originalRequest.getHeaders.remove(HeaderNames.ContentType)
+        val originalHeaders = originalRequest.getHeaders
+        originalHeaders.remove(HeaderNames.Host)
+        originalHeaders.remove(HeaderNames.ContentLength)
+        originalHeaders.remove(HeaderNames.Cookie)
+        if (switchToGet) originalHeaders.remove(HeaderNames.ContentType)
+        requestBuilder.setHeaders(originalHeaders)
 
         for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectUri))
           requestBuilder.addCookie(cookie)
@@ -261,7 +263,6 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
 
               case None =>
                 ko(tx, update, response, "Redirect status, yet no Location header")
-
             }
         }
 
