@@ -42,7 +42,7 @@ trait MockDataWriterClient extends DataWriterClient with StrictLogging {
       extraInfo))
 
   override def logGroupEnd(session: Session, group: GroupBlock, exitDate: Long): Unit =
-    handle(GroupMessage(session.scenarioName, session.userId, group, group.hierarchy, group.startDate, exitDate, group.status))
+    handle(GroupMessage(session.scenarioName, session.userId, group.hierarchy, group.startDate, exitDate, group.cumulatedResponseTime, group.status))
 
   private def handle(msg: DataWriterMessage) = {
     dataWriterMsg = msg :: dataWriterMsg

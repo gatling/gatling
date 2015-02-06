@@ -92,7 +92,7 @@ object FileDataWriter {
 
     def serialize(groupMessage: GroupMessage): Fastring = {
       import groupMessage._
-      fast"$scenario$Separator$userId$Separator${GroupRecordHeader.value}$Separator${serializeGroups(groupHierarchy)}$Separator$startDate$Separator$endDate$Separator${group.cumulatedResponseTime}$Separator$status$Eol"
+      fast"$scenario$Separator$userId$Separator${GroupRecordHeader.value}$Separator${serializeGroups(groupHierarchy)}$Separator$startDate$Separator$endDate$Separator$cumulatedResponseTime$Separator$status$Eol"
     }
   }
 

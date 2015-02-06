@@ -155,9 +155,9 @@ trait DataWriterClient {
     DataWriter ! GroupMessage(
       session.scenarioName,
       session.userId,
-      group,
       group.hierarchy,
       group.startDate,
       exitDate,
+      group.cumulatedResponseTime,
       group.status)
 }

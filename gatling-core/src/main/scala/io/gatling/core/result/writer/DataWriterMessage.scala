@@ -17,8 +17,6 @@ package io.gatling.core.result.writer
 
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.result.message.{ RequestTimings, MessageEvent, Status }
-import io.gatling.core.session.GroupBlock
-import io.gatling.core.util.TimeHelper.nowMillis
 
 case class ShortScenarioDescription(name: String, nbUsers: Int)
 
@@ -69,8 +67,8 @@ case class RequestEndMessage(
 case class GroupMessage(
   scenario: String,
   userId: String,
-  group: GroupBlock,
   groupHierarchy: List[String],
   startDate: Long,
   endDate: Long,
+  cumulatedResponseTime: Long,
   status: Status) extends LoadEventMessage
