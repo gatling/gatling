@@ -22,7 +22,7 @@ object Dependencies {
   private val threetenbp                    = "org.threeten"                           % "threetenbp"                  % "1.2"
   private val scopt                         = "com.github.scopt"                      %% "scopt"                       % "3.3.0"
   private val scalalogging                  = "com.typesafe.scala-logging"            %% "scala-logging"               % "3.1.0"
-  private val jackson                       = "com.fasterxml.jackson.core"             % "jackson-databind"            % "2.4.4"
+  private val jackson                       = "com.fasterxml.jackson.core"             % "jackson-databind"            % "2.5.1"
   private val boon                          = "io.fastjson"                            % "boon"                        % "0.30"
   private val jsonpath                      = "io.gatling"                            %% "jsonpath"                    % "0.6.2"
   private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                % "3.6.4"
