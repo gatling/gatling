@@ -75,7 +75,7 @@ object ZincCompiler extends App {
       forceClean = false,
       javaOnly = false,
       compileOrder = CompileOrder.JavaThenScala,
-      incOptions = IncOptions(nameHashing = true),
+      incOptions = IncOptions(),
       outputRelations = None,
       outputProducts = None,
       mirrorAnalysis = false)
