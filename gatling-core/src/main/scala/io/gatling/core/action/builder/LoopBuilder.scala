@@ -39,7 +39,8 @@ case object AsLongAsLoopType extends LoopType { val name = "asLongAs" }
 class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean, loopType: LoopType) extends ActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols) = {
-    val whileActor = actor(actorName(loopType.name))(new Loop(condition, counterName, exitASAP, next))
+    val safeCondition = condition.safe
+    val whileActor = actor(actorName(loopType.name))(new Loop(safeCondition, counterName, exitASAP, next))
     val loopNextActor = loopNext.build(whileActor, protocols)
     whileActor ! loopNextActor
     whileActor
