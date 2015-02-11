@@ -265,6 +265,8 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
   def startHttpTransaction(tx: HttpTx): Unit = {
 
+    logger.info(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+
     val requestConfig = tx.request.config
 
     val (newTx, client) = {

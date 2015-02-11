@@ -35,11 +35,6 @@ object HttpRequestAction extends DataWriterClient with AkkaDefaults with StrictL
 
   def startHttpTransaction(origTx: HttpTx, httpEngine: HttpEngine = HttpEngine.instance)(implicit ctx: ActorContext): Unit = {
 
-      def startHttpTransaction(tx: HttpTx): Unit = {
-        logger.info(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-        httpEngine.startHttpTransaction(tx)
-      }
-
     val tx = PermanentRedirect.applyPermanentRedirect(origTx)
     val uri = tx.request.ahcRequest.getUri
     val method = tx.request.ahcRequest.getMethod
@@ -47,7 +42,7 @@ object HttpRequestAction extends DataWriterClient with AkkaDefaults with StrictL
     CacheHandling.getExpire(tx.session, uri, method) match {
 
       case None =>
-        startHttpTransaction(tx)
+        httpEngine.startHttpTransaction(tx)
 
       case Some(expire) if nowMillis > expire =>
         val newTx = tx.copy(session = CacheHandling.clearExpire(tx.session, uri, method))
