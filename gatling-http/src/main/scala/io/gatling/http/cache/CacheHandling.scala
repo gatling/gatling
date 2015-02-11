@@ -32,67 +32,30 @@ import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.Response
 
+case class RequestCacheKey(uri: Uri, method: String)
+
 object CacheHandling extends StrictLogging {
 
-  val HttpPermanentRedirectStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.redirects"
+  val HttpExpireCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.expireCache"
+  private val HttpExpireCacheHandler = new SessionCacheHandler[RequestCacheKey, Long](HttpExpireCacheAttributeName, configuration.http.expirePerUserCacheMaxCapacity)
 
-  def getPermanentRedirectStore(session: Session): Option[Cache[Uri, Uri]] =
-    session(HttpPermanentRedirectStoreAttributeName).asOption[Cache[Uri, Uri]]
+  val HttpLastModifiedCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.lastModifiedCache"
+  private val HttpLastModifiedCacheHandler = new SessionCacheHandler[RequestCacheKey, String](HttpLastModifiedCacheAttributeName, configuration.http.lastModifiedPerUserCacheMaxCapacity)
 
-  def getOrCreatePermanentRedirectStore(session: Session): Cache[Uri, Uri] =
-    getPermanentRedirectStore(session) match {
-      case Some(store) => store
-      case _           => Cache[Uri, Uri](configuration.http.redirectPerUserCacheMaxCapacity)
-    }
+  val HttpEtagCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.etagCache"
+  private val HttpEtagCacheHandler = new SessionCacheHandler[RequestCacheKey, String](HttpEtagCacheAttributeName, configuration.http.etagPerUserCacheMaxCapacity)
 
-  val HttpExpireStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.expireStore"
+  def getExpire(session: Session, uri: Uri, method: String): Option[Long] =
+    HttpExpireCacheHandler.getEntry(session, RequestCacheKey(uri, method))
 
-  private def getExpireStore(session: Session): Option[Cache[Uri, Long]] =
-    session(HttpExpireStoreAttributeName).asOption[Cache[Uri, Long]]
+  def clearExpire(session: Session, uri: Uri, method: String): Session =
+    HttpExpireCacheHandler.removeEntry(session, RequestCacheKey(uri, method))
 
-  def getOrCreateExpireStore(session: Session): Cache[Uri, Long] =
-    getExpireStore(session) match {
-      case Some(store) => store
-      case _           => Cache[Uri, Long](configuration.http.expirePerUserCacheMaxCapacity)
-    }
+  def getLastModified(session: Session, uri: Uri, method: String): Option[String] =
+    HttpLastModifiedCacheHandler.getEntry(session, RequestCacheKey(uri, method))
 
-  def getExpire(httpProtocol: HttpProtocol, session: Session, uri: Uri): Option[Long] =
-    if (httpProtocol.requestPart.cache) getExpireStore(session).flatMap(_.get(uri)) else None
-
-  def clearExpire(session: Session, uri: Uri): Session = {
-    logger.info(s"Resource $uri caching expired")
-    getExpireStore(session) match {
-      case Some(expireStore) => session.set(HttpExpireStoreAttributeName, expireStore - uri)
-      case _                 => session
-    }
-  }
-
-  val HttpLastModifiedStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.lastModifiedStore"
-
-  def getLastModifiedStore(session: Session): Option[Cache[Uri, String]] =
-    session(HttpLastModifiedStoreAttributeName).asOption[Cache[Uri, String]]
-
-  def getOrCreateLastModifiedStore(session: Session): Cache[Uri, String] =
-    getLastModifiedStore(session) match {
-      case Some(store) => store
-      case _           => Cache[Uri, String](configuration.http.lastModifiedPerUserCacheMaxCapacity)
-    }
-
-  def getLastModified(httpProtocol: HttpProtocol, session: Session, uri: Uri): Option[String] =
-    if (httpProtocol.requestPart.cache) getLastModifiedStore(session).flatMap(_.get(uri)) else None
-
-  val HttpEtagStoreAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.etagStore"
-
-  def getEtagStore(session: Session): Option[Cache[Uri, String]] =
-    session(HttpEtagStoreAttributeName).asOption[Cache[Uri, String]]
-
-  def getOrCreateEtagStore(session: Session): Cache[Uri, String] = getEtagStore(session) match {
-    case Some(store) => store
-    case _           => Cache[Uri, String](configuration.http.etagPerUserCacheMaxCapacity)
-  }
-
-  def getEtag(httpProtocol: HttpProtocol, session: Session, uri: Uri): Option[String] =
-    if (httpProtocol.requestPart.cache) getEtagStore(session).flatMap(_.get(uri)) else None
+  def getEtag(session: Session, uri: Uri, method: String): Option[String] =
+    HttpEtagCacheHandler.getEntry(session, RequestCacheKey(uri, method))
 
   val MaxAgePrefix = "max-age="
   val MaxAgeZero = MaxAgePrefix + "0"
@@ -136,7 +99,7 @@ object CacheHandling extends StrictLogging {
   def getResponseExpires(httpProtocol: HttpProtocol, response: Response): Option[Long] = {
       def pragmaNoCache = response.header(HeaderNames.Pragma).exists(_.contains(HeaderValues.NoCache))
       def cacheControlNoCache = response.header(HeaderNames.CacheControl)
-        .exists(h => h.contains(HeaderValues.NoCache) || h.contains(HeaderValues.NoStore) || h.contains(MaxAgeZero))
+        .exists(h => h.contains(HeaderValues.NoCache) || h.contains(HeaderValues.NoCache) || h.contains(MaxAgeZero))
       def maxAgeAsExpiresValue = response.header(HeaderNames.CacheControl).flatMap(extractMaxAgeValue).map { maxAge =>
         if (maxAge < 0)
           maxAge
@@ -156,48 +119,21 @@ object CacheHandling extends StrictLogging {
 
   def cache(httpProtocol: HttpProtocol, request: Request, response: Response): Session => Session =
     if (httpProtocol.requestPart.cache) {
+      val key = RequestCacheKey(request.getUri, request.getMethod)
 
-      val uri = request.getUri
+        def updateCache[T](cacheHandler: SessionCacheHandler[RequestCacheKey, T], value: Option[T]): Session => Session =
+          value match {
+            case Some(v) => cacheHandler.addEntry(_, key, v)
+            case None    => Session.Identity
+          }
 
-      val updateExpire: Session => Session =
-        getResponseExpires(httpProtocol, response) match {
-          case Some(expires) =>
-            session => {
-              logger.debug(s"Setting Expires $expires for uri $uri")
-              val expireStore = getOrCreateExpireStore(session)
-              session.set(HttpExpireStoreAttributeName, expireStore + (uri -> expires))
-            }
-
-            case None => Session.Identity
-        }
-
-      val updateLastModified: Session => Session =
-        response.header(HeaderNames.LastModified) match {
-          case Some(lastModified) =>
-            session => {
-              logger.debug(s"Setting LastModified $lastModified for uri $uri")
-              val lastModifiedStore = getOrCreateLastModifiedStore(session)
-              session.set(HttpLastModifiedStoreAttributeName, lastModifiedStore + (uri -> lastModified))
-            }
-
-            case None => Session.Identity
-        }
-
-      val updateEtag: Session => Session =
-        response.header(HeaderNames.ETag) match {
-          case Some(etag) =>
-            session => {
-              logger.debug(s"Setting Etag $etag for uri $uri")
-              val etagStore = getOrCreateEtagStore(session)
-              session.set(HttpEtagStoreAttributeName, etagStore + (uri -> etag))
-            }
-
-            case None => Session.Identity
-        }
+      val updateExpire = updateCache(HttpExpireCacheHandler, getResponseExpires(httpProtocol, response))
+      val updateEtag = updateCache(HttpEtagCacheHandler, response.header(HeaderNames.ETag))
+      val updateLastModified = updateCache(HttpLastModifiedCacheHandler, response.header(HeaderNames.LastModified))
 
       updateExpire andThen updateEtag andThen updateLastModified
     } else
       Session.Identity
 
-  val FlushCache: Expression[Session] = _.removeAll(HttpExpireStoreAttributeName, HttpLastModifiedStoreAttributeName, HttpEtagStoreAttributeName).success
+  val FlushCache: Expression[Session] = _.removeAll(HttpExpireCacheAttributeName, HttpLastModifiedCacheAttributeName, HttpEtagCacheAttributeName).success
 }

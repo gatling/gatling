@@ -245,11 +245,12 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
 
     val (cached, nonCached) = resources.partition { resource =>
       val uri = resource.ahcRequest.getUri
-      CacheHandling.getExpire(protocol, session, uri) match {
+      val method = resource.ahcRequest.getMethod
+      CacheHandling.getExpire(session, uri, method) match {
         case None => false
         case Some(expire) if nowMillis > expire =>
           // beware, side effecting
-          session = CacheHandling.clearExpire(session, uri)
+          session = CacheHandling.clearExpire(session, uri, method)
           false
         case _ => true
       }
@@ -289,14 +290,14 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
               case request :: tail =>
                 bufferedResourcesByHost += host -> tail
                 val requestUri = request.ahcRequest.getUri
-                CacheHandling.getExpire(protocol, session, requestUri) match {
+                CacheHandling.getExpire(session, requestUri, "GET") match {
                   case None =>
                     // recycle token, fetch a buffered resource
                     fetchResource(request)
 
                   case Some(expire) if nowMillis > expire =>
                     // expire reached
-                    session = CacheHandling.clearExpire(session, requestUri)
+                    session = CacheHandling.clearExpire(session, requestUri, "GET")
                     fetchResource(request)
 
                   case _ =>

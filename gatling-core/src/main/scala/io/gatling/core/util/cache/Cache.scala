@@ -15,6 +15,8 @@
  */
 package io.gatling.core.util.cache
 
+import io.gatling.core.session.Session
+
 import scala.collection.immutable.Queue
 
 object Cache {
@@ -55,5 +57,29 @@ class Cache[K, V](queue: Queue[K], map: Map[K, V], maxCapacity: Int) {
   }
 
   def get(key: K): Option[V] = map.get(key)
+}
+
+class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
+
+  def getCache(session: Session): Option[Cache[K, V]] =
+    session(cacheName).asOption[Cache[K, V]]
+
+  def getOrCreateCache(session: Session): Cache[K, V] =
+    getCache(session) match {
+      case Some(cache) => cache
+      case _           => Cache[K, V](maxCapacity)
+    }
+
+  def addEntry(session: Session, key: K, value: V): Session =
+    session.set(cacheName, getOrCreateCache(session) + (key -> value))
+
+  def getEntry(session: Session, key: K): Option[V] =
+    getCache(session).flatMap(_.get(key))
+
+  def removeEntry(session: Session, key: K): Session =
+    getCache(session) match {
+      case Some(store) => session.set(cacheName, store - key)
+      case _           => session
+    }
 }
 
