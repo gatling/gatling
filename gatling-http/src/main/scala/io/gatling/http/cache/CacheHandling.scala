@@ -99,7 +99,7 @@ object CacheHandling extends StrictLogging {
   def getResponseExpires(httpProtocol: HttpProtocol, response: Response): Option[Long] = {
       def pragmaNoCache = response.header(HeaderNames.Pragma).exists(_.contains(HeaderValues.NoCache))
       def cacheControlNoCache = response.header(HeaderNames.CacheControl)
-        .exists(h => h.contains(HeaderValues.NoCache) || h.contains(HeaderValues.NoCache) || h.contains(MaxAgeZero))
+        .exists(h => h.contains(HeaderValues.NoCache) || h.contains(HeaderValues.NoStore) || h.contains(MaxAgeZero))
       def maxAgeAsExpiresValue = response.header(HeaderNames.CacheControl).flatMap(extractMaxAgeValue).map { maxAge =>
         if (maxAge < 0)
           maxAge

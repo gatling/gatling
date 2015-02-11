@@ -64,7 +64,7 @@ class CacheHandlingSpec extends FlatSpec with Matchers with MockitoSugar {
     getResponseExpire(List(HeaderNames.Expires -> "Wed, 16 Oct 2033 21:56:44 GMT")) shouldBe 'defined
   }
 
-  it should "Cache-Control has priority over Expires" in {
+  it should "give priority to Cache-Control over Expires" in {
     getResponseExpire(List(HeaderNames.Expires -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CacheControl -> HeaderValues.NoStore)) shouldBe None
     getResponseExpire(List(HeaderNames.Expires -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CacheControl -> "max-age=-1")) shouldBe None
     getResponseExpire(List(HeaderNames.Expires -> "Tue, 19 Jan 2038 03:14:06 GMT", HeaderNames.CacheControl -> "max-age=0")) shouldBe None
