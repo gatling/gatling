@@ -222,6 +222,9 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
           .applyUpdates(session)
           .copy(requestName = requestName, start = nowMillis, next = next)
 
+        logRequest(session, requestName, OK, newTx.start, nowMillis)
+        next ! session.remove(sseName)
+
         context.become(closingState(newTx))
 
       case OnClose =>
@@ -246,9 +249,6 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
 
   def closingState(tx: SseTx): Receive = {
     case OnClose =>
-      import tx._
-      logRequest(session, requestName, OK, start, nowMillis)
-      next ! session.remove(sseName)
       context.stop(self)
 
     case unexpected =>
