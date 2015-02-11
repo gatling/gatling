@@ -54,8 +54,6 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
 
   override def onDnsResolved(): Unit = {}
 
-  override def onSslHandshakeCompleted(): Unit = {}
-
   override def onSendRequest(request: Any): Unit = {
     start()
     if (logger.underlying.isDebugEnabled)

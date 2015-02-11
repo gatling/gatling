@@ -12,7 +12,7 @@ object Dependencies {
   private val scalaSwing                    = "org.scala-lang.modules"                %% "scala-swing"                 % "1.0.1"
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                   % "1.0.3"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"    % "1.0.3"
-  private val ahc                           = "com.ning"                               % "async-http-client"           % "1.9.8"
+  private val ahc                           = "com.ning"                               % "async-http-client"           % "1.9.9"
   private val netty                         = "io.netty"                               % "netty"                       % "3.10.0.Final"
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                  % akkaVersion
   private val config                        = "com.typesafe"                           % "config"                      % "1.2.1"
@@ -26,7 +26,7 @@ object Dependencies {
   private val jsonpath                      = "io.gatling"                            %% "jsonpath"                    % "0.6.2"
   private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                % "3.6.4"
   private val jzlib                         = "com.jcraft"                             % "jzlib"                       % "1.1.3"
-  private val redisClient                   = "net.debasishg"                         %% "redisclient"                 % "2.14"
+  private val redisClient                   = "net.debasishg"                         %% "redisclient"                 % "2.14"SseHandler
   private val zinc                          = "com.typesafe.zinc"                      % "zinc"                        % "0.3.7" exclude("org.scala-lang", "scala-compiler")
   private val openCsv                       = "net.sf.opencsv"                         % "opencsv"                     % "2.3"
   private val jmsApi                        = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"       % "1.1.1"
