@@ -278,6 +278,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
       case OnClose(status, reason, time) =>
         logger.debug(s"Websocket '$wsName' closed by the server")
         // this close order wasn't triggered by the client, otherwise, we would have received a Close first and state would be closing or stopped
+        // FIXME what about pending checks?
         handleClose(status, reason, time)
 
       case unexpected =>

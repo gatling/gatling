@@ -231,6 +231,13 @@ class SseActor(sseName: String) extends BaseActor with DataWriterClient {
 
         context.become(closingState(newTx))
 
+      case OnClose =>
+        logger.debug(s"Sse '$sseName' closed by the server")
+        val newTx = failPendingCheck(tx, "Check didn't succeed by the time the server closed the sse")
+
+        context.become(closingState(newTx))
+        self ! OnClose
+
       case OnThrowable(ttx, message, end) =>
         import ttx._
         logRequest(session, requestName, KO, start, end, Some(message))

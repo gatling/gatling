@@ -93,12 +93,13 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     }
   }
 
-  override def onCompleted(): Unit = sseActor ! OnClose
+  override def onCompleted(): Unit =
+    if (done.compareAndSet(false, true))
+      sseActor ! OnClose
 
   override def onThrowable(throwable: Throwable): Unit =
-    if (done.compareAndSet(false, true)) {
+    if (done.compareAndSet(false, true))
       sendOnThrowable(throwable)
-    }
 
   def sendOnThrowable(throwable: Throwable): Unit = {
     val className = throwable.getClass.getName
@@ -124,7 +125,7 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     }
   }
 
-  override def close(): Unit = done.compareAndSet(false, true)
+  override def close(): Unit = onCompleted()
 
   override def dispatchEventStream(sse: ServerSentEvent): Unit = sseActor ! OnMessage(sse.asJSONString, nowMillis)
 }
