@@ -41,10 +41,6 @@ class PermanentRedirectSpec extends FlatSpec with Matchers {
     actualTx shouldBe tx
   }
 
-  it should "be empty" in new Context {
-    CacheHandling.getPermanentRedirectStore(session) shouldBe empty
-  }
-
   it should "return updated transaction with single redirect" in new Context {
     addRedirect("http://example.com/", "http://gatling.io/")
 

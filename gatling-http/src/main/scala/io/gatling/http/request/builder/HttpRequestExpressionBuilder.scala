@@ -42,8 +42,8 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
       }
 
   def configureCaches(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
-    CacheHandling.getLastModified(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IfModifiedSince, _))
-    CacheHandling.getEtag(protocol, session, uri).foreach(requestBuilder.setHeader(HeaderNames.IfNoneMatch, _))
+    CacheHandling.getLastModified(session, uri, commonAttributes.method).foreach(requestBuilder.setHeader(HeaderNames.IfModifiedSince, _))
+    CacheHandling.getEtag(session, uri, commonAttributes.method).foreach(requestBuilder.setHeader(HeaderNames.IfNoneMatch, _))
     requestBuilder.success
   }
 

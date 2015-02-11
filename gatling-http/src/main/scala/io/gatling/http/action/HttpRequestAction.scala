@@ -37,15 +37,15 @@ object HttpRequestAction extends DataWriterClient with AkkaDefaults with StrictL
 
     val tx = PermanentRedirect.applyPermanentRedirect(origTx)
     val uri = tx.request.ahcRequest.getUri
-    val protocol = tx.request.config.protocol
+    val method = tx.request.ahcRequest.getMethod
 
-    CacheHandling.getExpire(protocol, tx.session, uri) match {
+    CacheHandling.getExpire(tx.session, uri, method) match {
 
       case None =>
         httpEngine.startHttpTransaction(tx)
 
       case Some(expire) if nowMillis > expire =>
-        val newTx = tx.copy(session = CacheHandling.clearExpire(tx.session, uri))
+        val newTx = tx.copy(session = CacheHandling.clearExpire(tx.session, uri, method))
         httpEngine.startHttpTransaction(newTx)
 
       case _ =>
