@@ -11,13 +11,9 @@ gatling/layout.html
 {% set css_files = css_files + ['http://fonts.googleapis.com/css?family=Maven+Pro:400,500,700'] %}
 {% set css_files = css_files + ['http://fonts.googleapis.com/css?family=Inconsolata:400,700'] %}
 
-{% set css_files = css_files + ['/vendor/css/bootstrap.min.css'] %}
-{% set css_files = css_files + ['/vendor/css/bootstrap-theme.min.css'] %}
+{% set css_files = css_files + ['/styles/main.css'] %}
 
-{% set css_files = css_files + ['/assets/css/style.css'] %}
-
-{% set script_files = script_files + ['/vendor/javascripts/modernizr.min.js'] %}
-{% set script_files = script_files + ['/vendor/javascripts/bootstrap.min.js'] %}
+{% set script_files = script_files + ['/scripts/vendor.js'] %}
 
 {# do not display relbars #}
 {% block relbar1 %}{% endblock %}
@@ -93,10 +89,10 @@ gatling/layout.html
 
       <nav id="navbar-collapse" class="collapse navbar-collapse">
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="/">HOME</a></li>
-          <li><a href="/download">DOWNLOAD</a></li>
-          <li class="active"><a href="/docs">DOCUMENTATION</a></li>
-          <li><a href="/services">PROFESSIONAL SERVICES</a></li>
+          <li><a href="/#/">HOME</a></li>
+          <li><a href="/#/download">DOWNLOAD</a></li>
+          <li class="active"><a href="/#/docs">DOCUMENTATION</a></li>
+          <li><a href="/#/services">PROFESSIONAL SERVICES</a></li>
           <li><a class="icon icon-github" href="https://github.com/gatling/gatling"></a></li>
           <li><a class="icon icon-twitter" href="https://twitter.com/GatlingTool"></a></li>
           <li><a class="icon icon-googlegroup" href="https://groups.google.com/forum/#!forum/gatling"></a></li>
