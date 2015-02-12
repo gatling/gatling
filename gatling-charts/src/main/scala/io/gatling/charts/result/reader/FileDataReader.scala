@@ -77,6 +77,11 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
     var runStart = Long.MaxValue
     var runEnd = Long.MinValue
 
+      def updateRunLimits(eventStart: Long, eventEnd: Long): Unit = {
+        runStart = math.min(runStart, eventStart)
+        runEnd = math.max(runEnd, eventEnd)
+      }
+
     val runMessages = mutable.ListBuffer.empty[RunMessage]
     val assertions = mutable.LinkedHashSet.empty[Assertion]
 
@@ -87,22 +92,13 @@ class FileDataReader(runUuid: String) extends DataReader(runUuid) with StrictLog
       line.split(FileDataWriter.Separator) match {
 
         case RawRequestRecord(array) =>
-          val firstByteSent = array(5).toLong
-          val lastByteReceived = array(8).toLong
-
-          runStart = math.min(runStart, firstByteSent)
-          runEnd = math.max(runEnd, lastByteReceived)
+          updateRunLimits(array(5).toLong, array(8).toLong)
 
         case RawUserRecord(array) =>
-          runStart = math.min(runStart, array(4).toLong)
-          runEnd = math.max(runEnd, array(5).toLong)
+          updateRunLimits(array(4).toLong, array(5).toLong)
 
         case RawGroupRecord(array) =>
-          val groupEntry = array(4).toLong
-          val groupExit = array(5).toLong
-
-          runStart = math.min(runStart, groupEntry)
-          runEnd = math.max(runEnd, groupExit)
+          updateRunLimits(array(4).toLong, array(5).toLong)
 
         case RawRunRecord(array) =>
           runMessages += RunMessage(array(0), array(1), array(3).toLong, array(4).trim)
