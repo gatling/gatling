@@ -13,7 +13,7 @@ gatling/layout.html
 
 {% set css_files = css_files + ['/styles/main.css'] %}
 
-{% set script_files = script_files + ['/scripts/vendor.js'] %}
+{% set script_files = ['/scripts/vendor.js'] + script_files %}
 
 {# do not display relbars #}
 {% block relbar1 %}{% endblock %}
