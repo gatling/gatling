@@ -23,7 +23,7 @@ import javax.net.ssl.HttpsURLConnection
 import scala.util.Properties._
 import scala.util.Try
 
-import io.gatling.core.config.GatlingConfiguration._
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.Io._
 
 object Ga {

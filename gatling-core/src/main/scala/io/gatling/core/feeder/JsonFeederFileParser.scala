@@ -23,7 +23,7 @@ import io.gatling.core.json.Jackson
 
 import scala.collection._
 import scala.collection.JavaConversions._
-import io.gatling.core.config.GatlingConfiguration._
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
 import io.gatling.core.util.Io._
 
