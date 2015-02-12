@@ -27,13 +27,13 @@ import io.gatling.core.config.GatlingConfiguration.configuration
 
 object PathHelper {
 
-  implicit def string2path(pathString: String) = Paths.get(pathString)
+  implicit def string2path(pathString: String): Path = Paths.get(pathString)
 
-  implicit def uri2path(uri: URI) = Paths.get(uri)
+  implicit def uri2path(uri: URI): Path = Paths.get(uri)
 
-  implicit def url2path(url: URL) = Paths.get(url.toURI)
+  implicit def url2path(url: URL): Path = Paths.get(url.toURI)
 
-  implicit def segments2path(segments: Seq[String]) = Paths.get(segments.head, segments.tail: _*)
+  implicit def segments2path(segments: Seq[String]): Path = Paths.get(segments.head, segments.tail: _*)
 
   implicit class RichPath(val path: Path) extends AnyVal {
 
