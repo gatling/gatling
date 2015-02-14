@@ -22,7 +22,7 @@ import com.ning.http.client.cookie.RFC2616DateParser
 import com.ning.http.client.uri.Uri
 import com.typesafe.scalalogging.StrictLogging
 
-import io.gatling.core.config.GatlingConfiguration._
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.{ Expression, Session, SessionPrivateAttributes }
 import io.gatling.core.util.NumberHelper.extractLongValue
 import io.gatling.core.util.TimeHelper.nowMillis

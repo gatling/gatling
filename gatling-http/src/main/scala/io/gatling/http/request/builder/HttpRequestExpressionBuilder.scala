@@ -23,7 +23,7 @@ import com.ning.http.client.{ RequestBuilder => AHCRequestBuilder }
 import com.ning.http.client.generators.InputStreamBodyGenerator
 
 import io.gatling.core.body._
-import io.gatling.core.config.GatlingConfiguration._
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.{ HeaderNames, HeaderValues }

@@ -17,7 +17,7 @@ package io.gatling.http.cache
 
 import com.ning.http.client.{ Request, RequestBuilder }
 import com.ning.http.client.uri.Uri
-import io.gatling.core.config.GatlingConfiguration._
+import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.cache.SessionCacheHandler
 
 import scala.annotation.tailrec
