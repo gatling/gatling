@@ -29,6 +29,7 @@ import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.cache.CacheHandling
 import io.gatling.http.config.HttpProtocol
+import io.gatling.http.request.BodyPart
 import io.gatling.http.util.HttpHelper
 
 class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, protocol: HttpProtocol)
@@ -77,8 +78,7 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
 
     require(!httpAttributes.body.isDefined || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
-    httpAttributes.body match {
-      case Some(body) =>
+      def setBody(body: Body): Validation[AHCRequestBuilder] =
         body match {
           case StringBody(string)            => string(session).map(requestBuilder.setBody)
           case RawFileBody(file)             => file(session).map(requestBuilder.setBody)
@@ -87,20 +87,25 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
           case InputStreamBody(is)           => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
         }
 
-      case None =>
-        httpAttributes.bodyParts match {
-          case Nil => requestBuilder.success
-          case bodyParts =>
-            if (!commonAttributes.headers.contains(HeaderNames.ContentType))
-              requestBuilder.addHeader(HeaderNames.ContentType, HeaderValues.MultipartFormData)
+      def setBodyParts(bodyParts: List[BodyPart]): Validation[AHCRequestBuilder] = {
+        if (!commonAttributes.headers.contains(HeaderNames.ContentType))
+          requestBuilder.addHeader(HeaderNames.ContentType, HeaderValues.MultipartFormData)
 
-            bodyParts.foldLeft(requestBuilder.success) { (requestBuilder, part) =>
-              for {
-                requestBuilder <- requestBuilder
-                part <- part.toMultiPart(session)
-              } yield requestBuilder.addBodyPart(part)
-            }
+        bodyParts.foldLeft(requestBuilder.success) { (requestBuilder, part) =>
+          for {
+            requestBuilder <- requestBuilder
+            part <- part.toMultiPart(session)
+          } yield requestBuilder.addBodyPart(part)
         }
+      }
+
+    httpAttributes.body match {
+      case Some(body) => setBody(body)
+
+      case None => httpAttributes.bodyParts match {
+        case Nil       => requestBuilder.success
+        case bodyParts => setBodyParts(bodyParts)
+      }
     }
   }
 
