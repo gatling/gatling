@@ -41,7 +41,7 @@ object Json {
     case array: Array[_]           => writeArray(array)
     case seq: Seq[_]               => writeArray(seq)
     case coll: JCollection[_]      => writeArray(coll)
-    case any                       => fast"${Jackson.toJsonString(any)}"
+    case any                       => writeString(any.toString, rootLevel)
   }
 
   private def writeString(s: String, rootLevel: Boolean) = if (rootLevel) fast"$s" else fast""""$s""""
