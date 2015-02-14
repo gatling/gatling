@@ -60,13 +60,13 @@ object Dependencies {
     val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
-    scalaLibs(scalaVersion) ++ Seq(akkaActor, config, fastring, openCsv, lru, scalaParserCombinators, ahc, scopt) ++
+    scalaLibs(scalaVersion) ++ Seq(akkaActor, config, fastring, openCsv, lru, scalaParserCombinators, scopt, jzlib) ++
       loggingLibs ++ checksLibs ++ testDeps
   }
 
   val redisDependencies = redisClient +: testDeps
 
-  val httpDependencies = Seq(ahc, netty, jzlib, scalaXml) ++ testDeps :+ sprayCan
+  val httpDependencies = Seq(ahc, netty, scalaXml) ++ testDeps :+ sprayCan
 
   val jmsDependencies = Seq(jmsApi, lru) ++ testDeps :+ activemqCore
 

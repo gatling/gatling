@@ -13,12 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.util
+package io.gatling.core.util
 
 import java.io.{ ByteArrayOutputStream, InputStream }
 
 import com.jcraft.jzlib.GZIPOutputStream
-
 import io.gatling.core.util.Io._
 
 object GzipHelper {

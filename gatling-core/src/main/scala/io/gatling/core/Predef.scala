@@ -55,6 +55,18 @@ object Predef
   def flattenMapIntoAttributes(map: Expression[Map[String, Any]]): Expression[Session] =
     session => map(session).map(resolvedMap => session.setAll(resolvedMap))
 
+  @deprecated("Use ElFileBody instead", "2.2.0")
+  def ELFileBody = ElFileBody
+  def ElFileBody = io.gatling.core.body.ElFileBody
+  def StringBody(string: String) = io.gatling.core.body.CompositeByteArrayBody(string)
+  def StringBody(string: Expression[String]) = io.gatling.core.body.StringBody(string)
+  def RawFileBody = io.gatling.core.body.RawFileBody
+  def ByteArrayBody = io.gatling.core.body.ByteArrayBody
+  def InputStreamBody = io.gatling.core.body.InputStreamBody
+
+  val gzipBody = io.gatling.core.body.BodyProcessors.Gzip
+  val streamBody = io.gatling.core.body.BodyProcessors.Stream
+
   /**********************************/
   /** Duration implicit conversions */
   /**********************************/

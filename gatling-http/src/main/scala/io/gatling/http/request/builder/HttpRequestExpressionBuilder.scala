@@ -20,7 +20,9 @@ import scala.collection.JavaConversions._
 import com.ning.http.client.multipart.StringPart
 import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ RequestBuilder => AHCRequestBuilder }
+import com.ning.http.client.generators.InputStreamBodyGenerator
 
+import io.gatling.core.body._
 import io.gatling.core.config.GatlingConfiguration._
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
@@ -77,7 +79,13 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
 
     httpAttributes.body match {
       case Some(body) =>
-        body.setBody(requestBuilder, session)
+        body match {
+          case StringBody(string)            => string(session).map(requestBuilder.setBody)
+          case RawFileBody(file)             => file(session).map(requestBuilder.setBody)
+          case ByteArrayBody(bytes)          => bytes(session).map(requestBuilder.setBody)
+          case CompositeByteArrayBody(bytes) => bytes(session).map(bs => requestBuilder.setBody(bs))
+          case InputStreamBody(is)           => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
+        }
 
       case None =>
         httpAttributes.bodyParts match {

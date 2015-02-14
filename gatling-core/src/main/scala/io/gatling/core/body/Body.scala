@@ -13,38 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.request
+package io.gatling.core.body
 
 import java.io.{ File => JFile, InputStream }
 
-import io.gatling.core.session.el.ElCompiler
-
-import scala.collection.JavaConverters._
-
-import com.ning.http.client.RequestBuilder
-import com.ning.http.client.generators.InputStreamBodyGenerator
-import com.ning.http.util.StringUtils.stringBuilder
-
 import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.session.el.ElCompiler
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.Io._
-import io.gatling.core.validation.Validation
+import io.gatling.core.util.StringHelper._
 
 object ElFileBody {
   def apply(filePath: Expression[String]) = CompositeByteArrayBody(ElFileBodies.asBytesSeq(filePath))
 }
 
-trait Body {
-  def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder]
-}
+sealed trait Body
 
 case class StringBody(string: Expression[String]) extends Body with Expression[String] {
 
   def apply(session: Session) = string(session)
 
   def asBytes: ByteArrayBody = ByteArrayBody(string.map(_.getBytes(configuration.core.charset)))
-
-  def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = string(session).map(requestBuilder.setBody)
 }
 
 object RawFileBody {
@@ -61,13 +50,9 @@ class RawFileBody(val file: Expression[JFile]) extends Body with Expression[Stri
   def asString: StringBody = StringBody(file.map(_.toString(configuration.core.charset)))
 
   def asBytes: ByteArrayBody = ByteArrayBody(file.map(_.toByteArray()))
-
-  def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = file(session).map(requestBuilder.setBody)
 }
 
-case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body {
-  def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = bytes(session).map(requestBuilder.setBody)
-}
+case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body
 
 object CompositeByteArrayBody {
   def apply(string: String) = new CompositeByteArrayBody(ElCompiler.compile2BytesSeq(string))
@@ -80,10 +65,6 @@ case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]]) extends B
     bs.foreach(b => sb.append(new String(b, configuration.core.charset)))
     sb.toString
   }
-
-  def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = bytes(session).map(bs => requestBuilder.setBody(bs.asJava))
 }
 
-case class InputStreamBody(is: Expression[InputStream]) extends Body {
-  def setBody(requestBuilder: RequestBuilder, session: Session): Validation[RequestBuilder] = is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
-}
+case class InputStreamBody(is: Expression[InputStream]) extends Body

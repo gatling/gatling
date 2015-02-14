@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.request
+package io.gatling.core.body
 
 import java.io.File
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
 import io.gatling.core.session.Expression
-import io.gatling.core.util.cache._
 import io.gatling.core.util.Io._
+import io.gatling.core.util.cache._
 import io.gatling.core.validation.Validation
 
 object RawFileBodies {
 
-  val RawFileBodyCache = ThreadSafeCache[String, Validation[File]](configuration.http.rawFileBodiesCacheMaxCapacity)
+  val RawFileBodyCache = ThreadSafeCache[String, Validation[File]](configuration.core.rawFileBodiesCacheMaxCapacity)
 
   def asFile(filePath: Expression[String]): Expression[File] = {
 

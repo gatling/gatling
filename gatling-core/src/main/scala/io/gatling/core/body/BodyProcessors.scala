@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.request
+package io.gatling.core.body
 
 import java.io.FileInputStream
 
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.session._
 import io.gatling.core.util.FastByteArrayInputStream
+import io.gatling.core.util.GzipHelper
 import io.gatling.core.util.Io._
-import io.gatling.http.util.GzipHelper
 
 object BodyProcessors {
 

@@ -24,7 +24,7 @@ import io.gatling.http.check.ws.WsCheckSupport
 import io.gatling.http.config.HttpProtocolBuilder
 import io.gatling.http.cookie.CookieHandling
 import io.gatling.http.feeder.SitemapFeederSupport
-import io.gatling.http.request.{ BodyPart, ExtraInfo, BodyProcessors }
+import io.gatling.http.request.{ BodyPart, ExtraInfo }
 import io.gatling.http.request.builder.Http
 import io.gatling.http.request.builder.sse.Sse
 import io.gatling.http.request.builder.ws.Ws
@@ -51,24 +51,12 @@ object Predef extends HttpCheckSupport with WsCheckSupport with SitemapFeederSup
   val HttpHeaderNames = HeaderNames
   val HttpHeaderValues = HeaderValues
 
-  val gzipBody = BodyProcessors.Gzip
-  val streamBody = BodyProcessors.Stream
-
   val dumpSessionOnFailure: ExtraInfo => List[Any] = extraInfo => extraInfo.status match {
     case KO => List(extraInfo.session)
     case _  => Nil
   }
 
   def Cookie = CookieDSL
-
-  @deprecated("Use ElFileBody instead", "2.2.0")
-  def ELFileBody = ElFileBody
-  def ElFileBody = io.gatling.http.request.ElFileBody
-  def StringBody(string: String) = io.gatling.http.request.CompositeByteArrayBody(string)
-  def StringBody(string: Expression[String]) = io.gatling.http.request.StringBody(string)
-  def RawFileBody = io.gatling.http.request.RawFileBody
-  def ByteArrayBody = io.gatling.http.request.ByteArrayBody
-  def InputStreamBody = io.gatling.http.request.InputStreamBody
 
   @deprecated("Use ElFileBody instead", "2.2.0")
   def ELFileBodyPart(filePath: Expression[String]): BodyPart = ElFileBodyPart(filePath)

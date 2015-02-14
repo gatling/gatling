@@ -19,7 +19,7 @@ import java.io.File
 import java.nio.charset.Charset
 
 import com.ning.http.client.multipart.{ ByteArrayPart, FilePart, Part, PartBase, StringPart }
-
+import io.gatling.core.body.{ ElFileBodies, RawFileBodies }
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.session._
 import io.gatling.core.util.Io._

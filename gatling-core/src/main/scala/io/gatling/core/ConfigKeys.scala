@@ -23,6 +23,8 @@ object ConfigKeys {
     val Encoding = "gatling.core.encoding"
     val SimulationClass = "gatling.core.simulationClass"
     val Mute = "gatling.core.mute"
+    val ElFileBodiesCacheMaxCapacity = "gatling.core.elFileBodiesCacheMaxCapacity"
+    val RawFileBodiesCacheMaxCapacity = "gatling.core.rawFileBodiesCacheMaxCapacity"
 
     object extract {
       object regex {
@@ -74,8 +76,6 @@ object ConfigKeys {
   }
 
   object http {
-    val ElFileBodiesCacheMaxCapacity = "gatling.http.elFileBodiesCacheMaxCapacity"
-    val RawFileBodiesCacheMaxCapacity = "gatling.http.rawFileBodiesCacheMaxCapacity"
     val FetchedCssCacheMaxCapacity = "gatling.http.fetchedCssCacheMaxCapacity"
     val FetchedHtmlCacheMaxCapacity = "gatling.http.fetchedHtmlCacheMaxCapacity"
     val RedirectPerUserCacheMaxCapacity = "gatling.http.redirectPerUserCacheMaxCapacity"

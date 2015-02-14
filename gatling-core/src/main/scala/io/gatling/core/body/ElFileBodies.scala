@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.request
+package io.gatling.core.body
 
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.config.Resource
 import io.gatling.core.session._
-import io.gatling.core.session.el.{ ElCompiler, El }
+import io.gatling.core.session.el.{ El, ElCompiler }
 import io.gatling.core.util.Io._
 import io.gatling.core.util.cache._
 import io.gatling.core.validation._
 
 object ElFileBodies {
 
-  val ElFileBodyStringCache = ThreadSafeCache[String, Validation[Expression[String]]](configuration.http.elFileBodiesCacheMaxCapacity)
+  val ElFileBodyStringCache = ThreadSafeCache[String, Validation[Expression[String]]](configuration.core.elFileBodiesCacheMaxCapacity)
 
   def asString(filePath: Expression[String]): Expression[String] = {
 
@@ -49,7 +49,7 @@ object ElFileBodies {
       } yield body
   }
 
-  val ElFileBodyBytesCache = ThreadSafeCache[String, Validation[Expression[Seq[Array[Byte]]]]](configuration.http.elFileBodiesCacheMaxCapacity)
+  val ElFileBodyBytesCache = ThreadSafeCache[String, Validation[Expression[Seq[Array[Byte]]]]](configuration.core.elFileBodiesCacheMaxCapacity)
 
   def asBytesSeq(filePath: Expression[String]): Expression[Seq[Array[Byte]]] = {
 

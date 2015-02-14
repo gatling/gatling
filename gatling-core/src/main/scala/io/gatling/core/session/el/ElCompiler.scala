@@ -23,7 +23,6 @@ import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
-import com.ning.http.util.StringUtils.stringBuilder
 import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.json.Json
 import io.gatling.core.session._

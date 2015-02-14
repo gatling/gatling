@@ -98,6 +98,8 @@ object GatlingConfiguration extends StrictLogging {
         encoding = config.getString(core.Encoding),
         simulationClass = config.getString(core.SimulationClass).trimToOption,
         muteMode = config.getBoolean(core.Mute),
+        elFileBodiesCacheMaxCapacity = config.getLong(core.ElFileBodiesCacheMaxCapacity),
+        rawFileBodiesCacheMaxCapacity = config.getLong(core.RawFileBodiesCacheMaxCapacity),
         extract = ExtractConfiguration(
           regex = RegexConfiguration(
             cacheMaxCapacity = config.getLong(core.extract.regex.CacheMaxCapacity)),
@@ -133,8 +135,6 @@ object GatlingConfiguration extends StrictLogging {
           percentile3 = config.getDouble(charting.indicators.Percentile3),
           percentile4 = config.getDouble(charting.indicators.Percentile4))),
       http = HttpConfiguration(
-        elFileBodiesCacheMaxCapacity = config.getLong(http.ElFileBodiesCacheMaxCapacity),
-        rawFileBodiesCacheMaxCapacity = config.getLong(http.RawFileBodiesCacheMaxCapacity),
         fetchedCssCacheMaxCapacity = config.getLong(http.FetchedCssCacheMaxCapacity),
         fetchedHtmlCacheMaxCapacity = config.getLong(http.FetchedHtmlCacheMaxCapacity),
         redirectPerUserCacheMaxCapacity = config.getInt(http.RedirectPerUserCacheMaxCapacity),
@@ -237,7 +237,9 @@ case class CoreConfiguration(
     extract: ExtractConfiguration,
     timeOut: TimeOutConfiguration,
     directory: DirectoryConfiguration,
-    muteMode: Boolean) {
+    muteMode: Boolean,
+    elFileBodiesCacheMaxCapacity: Long,
+    rawFileBodiesCacheMaxCapacity: Long) {
 
   val charset = Charset.forName(encoding)
   val codec: Codec = charset
@@ -294,8 +296,6 @@ case class IndicatorsConfiguration(
   percentile4: Double)
 
 case class HttpConfiguration(
-  elFileBodiesCacheMaxCapacity: Long,
-  rawFileBodiesCacheMaxCapacity: Long,
   fetchedCssCacheMaxCapacity: Long,
   fetchedHtmlCacheMaxCapacity: Long,
   redirectPerUserCacheMaxCapacity: Int,

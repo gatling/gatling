@@ -17,6 +17,7 @@ package io.gatling.http.request.builder
 
 import com.ning.http.client.Request
 
+import io.gatling.core.body.{ Body, RawFileBodies }
 import io.gatling.core.session._
 import io.gatling.http.{ HeaderValues, HeaderNames }
 import io.gatling.http.action.HttpRequestActionBuilder
