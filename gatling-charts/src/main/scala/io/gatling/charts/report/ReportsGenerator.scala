@@ -20,11 +20,12 @@ import java.nio.file.Path
 import io.gatling.charts.component.ComponentLibrary
 import io.gatling.charts.config.ChartsFiles.{ globalFile, menuFile }
 import io.gatling.charts.template.{ MenuTemplate, PageTemplate }
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles._
 import io.gatling.core.result.RequestStatsPath
 import io.gatling.core.util.ScanHelper.deepCopyPackageContent
 
-private[gatling] object ReportsGenerator {
+private[gatling] class ReportsGenerator(implicit configuration: GatlingConfiguration) {
 
   def generateFor(reportsGenerationInputs: ReportsGenerationInputs): Path = {
     import reportsGenerationInputs._

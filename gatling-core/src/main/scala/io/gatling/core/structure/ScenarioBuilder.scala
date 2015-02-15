@@ -21,7 +21,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.action.UserEnd
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.{ Protocol, Protocols }
+import io.gatling.core.config.{ GatlingConfiguration, Protocol, Protocols }
 import io.gatling.core.controller.inject.{ InjectionProfile, InjectionStep }
 import io.gatling.core.controller.throttle.{ ThrottlingProfile, Throttling }
 import io.gatling.core.pause._
@@ -82,7 +82,7 @@ case class PopulatedScenarioBuilder(
    * @param globalThrottling the optional throttling profile
    * @return the scenario
    */
-  private[core] def build(globalProtocols: List[Protocol], globalPauseType: PauseType, globalThrottling: Option[ThrottlingProfile]): Scenario = {
+  private[core] def build(globalProtocols: List[Protocol], globalPauseType: PauseType, globalThrottling: Option[ThrottlingProfile])(implicit configuration: GatlingConfiguration): Scenario = {
 
     val resolvedPauseType = globalThrottling.orElse(scenarioThrottling).map { _ =>
       logger.info("Throttle is enabled, disabling pauses")
@@ -93,7 +93,7 @@ case class PopulatedScenarioBuilder(
 
     val protocols = new Protocols(protocolsMap, resolvedPauseType, globalThrottling, scenarioThrottling)
 
-    protocols.warmUp()
+    protocols.warmUp
 
     val entryPoint = scenarioBuilder.build(UserEnd.instance, protocols)
     new Scenario(scenarioBuilder.name, entryPoint, injectionProfile, protocols)

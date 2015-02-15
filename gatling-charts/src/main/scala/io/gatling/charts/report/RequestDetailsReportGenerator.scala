@@ -20,11 +20,12 @@ import io.gatling.charts.config.ChartsFiles.requestFile
 import io.gatling.charts.result.reader.RequestPath
 import io.gatling.charts.template.RequestDetailsPageTemplate
 import io.gatling.charts.util.Colors._
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result._
 import io.gatling.core.result.message.{ KO, OK }
 import io.gatling.core.result.message.Status
 
-private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)
+private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration)
     extends ReportGenerator {
 
   def generate(): Unit = {
@@ -113,7 +114,7 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
             responseTimeScatterChartComponent,
             latencyScatterChartComponent)
 
-        new TemplateWriter(requestFile(reportFolderName, path)).writeToFile(template.getOutput)
+        new TemplateWriter(requestFile(reportFolderName, path)).writeToFile(template.getOutput(configuration.core.charset))
       }
 
     dataReader.statsPaths.foreach {

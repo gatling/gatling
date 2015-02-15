@@ -24,8 +24,8 @@ import io.gatling.core.action.SessionHook
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
-import io.gatling.http.config.HttpProtocol
-import io.gatling.http.cookie.CookieHandling.storeCookie
+import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocol }
+import io.gatling.http.cookie.CookieSupport.storeCookie
 
 case class CookieDSL(name: Expression[String], value: Expression[String],
                      domain: Option[Expression[String]] = None,
@@ -54,7 +54,7 @@ object AddCookieBuilder {
   }
 }
 
-class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], expires: Long, maxAge: Int) extends HttpActionBuilder {
+class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], expires: Long, maxAge: Int)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
   import AddCookieBuilder._
 

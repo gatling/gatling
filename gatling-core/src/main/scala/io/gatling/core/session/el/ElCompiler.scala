@@ -15,6 +15,7 @@
  */
 package io.gatling.core.session.el
 
+import java.nio.charset.Charset
 import java.util.{ Collection => JCollection, List => JList, Map => JMap }
 
 import io.gatling.core.NotNothing
@@ -23,7 +24,6 @@ import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.reflect.ClassTag
 
-import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.json.Json
 import io.gatling.core.session._
 import io.gatling.core.util.NumberHelper.IntString
@@ -191,12 +191,12 @@ object ElCompiler {
         }.flatMap(_.toString.asValidation[T])
     }
 
-  def compile2BytesSeq(string: String): Expression[Seq[Array[Byte]]] = {
+  def compile2BytesSeq(string: String, charset: Charset): Expression[Seq[Array[Byte]]] = {
 
     sealed trait Bytes { def bytes: Expression[Array[Byte]] }
     case class StaticBytes(bytes: Expression[Array[Byte]]) extends Bytes
     case class DynamicBytes(part: Part[Any]) extends Bytes {
-      val bytes: Expression[Array[Byte]] = part.map(_.toString.getBytes(configuration.core.charset))
+      val bytes: Expression[Array[Byte]] = part.map(_.toString.getBytes(charset))
     }
 
       @tailrec
@@ -211,7 +211,7 @@ object ElCompiler {
     val parts = ElCompiler.parse(string)
     val bytes = parts.map {
       case StaticPart(s) =>
-        val bs = s.getBytes(configuration.core.charset).success
+        val bs = s.getBytes(charset).success
         StaticBytes(session => bs)
       case part => DynamicBytes(part)
     }

@@ -15,6 +15,10 @@
  */
 package io.gatling.http.request.builder
 
+import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.cache.HttpCaches
+import io.gatling.http.fetch.ResourceFetcher
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{ FlatSpec, Matchers }
 
 import com.ning.http.client.uri.Uri
@@ -22,13 +26,17 @@ import com.ning.http.client.{ Request, RequestBuilderBase, SignatureCalculator }
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.http.config.HttpProtocol
+import io.gatling.http.config.DefaultHttpProtocol
 import io.gatling.core.test.ValidationValues
 
-class HttpRequestBuilderSpec extends FlatSpec with Matchers with ValidationValues {
+class HttpRequestBuilderSpec extends FlatSpec with Matchers with ValidationValues with MockitoSugar {
 
   // Default config
-  GatlingConfiguration.setUpForTest()
+  implicit val configuration = GatlingConfiguration.loadForTest()
+  implicit val httpEngine = mock[HttpEngine]
+  implicit val httpCaches = new HttpCaches
+  implicit val resourceFetcher = new ResourceFetcher
+  val defaultHttpProtocol = new DefaultHttpProtocol().value
 
   private def performTest(addSignatureCalculator: HttpRequestBuilder => HttpRequestBuilder): Unit = {
 
@@ -36,7 +44,7 @@ class HttpRequestBuilderSpec extends FlatSpec with Matchers with ValidationValue
 
     val builder = addSignatureCalculator(new HttpRequestBuilder(commonAttributes, HttpAttributes()))
 
-    val httpRequestDef = builder.build(HttpProtocol.DefaultHttpProtocol, throttled = false)
+    val httpRequestDef = builder.build(defaultHttpProtocol, throttled = false)
     httpRequestDef.build("requestName", Session("scenarioName", "userId")).map(_.ahcRequest.getHeaders.getFirstValue("X-Token")).succeeded shouldBe "foo"
   }
 

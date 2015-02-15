@@ -32,7 +32,7 @@ class WsOpenAction(
     request: Expression[Request],
     checkBuilder: Option[WsCheckBuilder],
     val next: ActorRef,
-    protocol: HttpProtocol) extends Interruptable {
+    protocol: HttpProtocol)(implicit httpEngine: HttpEngine) extends Interruptable {
 
   def execute(session: Session): Unit = {
 
@@ -41,7 +41,7 @@ class WsOpenAction(
 
         val wsActor = actor(context, actorName("wsActor"))(new WsActor(wsName))
 
-        HttpEngine.instance.startWebSocketTransaction(tx, wsActor)
+        httpEngine.startWebSocketTransaction(tx, wsActor)
       }
 
     for {

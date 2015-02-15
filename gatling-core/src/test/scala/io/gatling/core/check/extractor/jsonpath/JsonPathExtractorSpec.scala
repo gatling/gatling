@@ -15,26 +15,34 @@
  */
 package io.gatling.core.check.extractor.jsonpath
 
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.json.JsonParsers
 import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationValues
 
 class JsonPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
-  GatlingConfiguration.setUpForTest()
+  implicit val configuration = GatlingConfiguration.loadForTest()
+  implicit val jsonPaths = new JsonPaths
+  implicit val jsonParsers = new JsonParsers
+  val extractorFactory = new JsonPathExtractorFactory
+  import extractorFactory._
 
   def testCount(path: String, sample: JsonSample, expected: Int): Unit = {
-    new CountJsonPathExtractor(path)(sample.boonAST).succeeded shouldBe Some(expected)
-    new CountJsonPathExtractor(path)(sample.jacksonAST).succeeded shouldBe Some(expected)
+    val extractor = newCountExtractor(path)
+    extractor(sample.boonAST).succeeded shouldBe Some(expected)
+    extractor(sample.jacksonAST).succeeded shouldBe Some(expected)
   }
   def testSingle(path: String, occurrence: Int, sample: JsonSample, expected: Option[String]): Unit = {
-    new SingleJsonPathExtractor[String](path, occurrence).apply(sample.boonAST).succeeded shouldBe expected
-    new SingleJsonPathExtractor[String](path, occurrence).apply(sample.jacksonAST).succeeded shouldBe expected
+    val extractor = newSingleExtractor[String](path, occurrence)
+    extractor(sample.boonAST).succeeded shouldBe expected
+    extractor.apply(sample.jacksonAST).succeeded shouldBe expected
   }
   def testMultiple(path: String, sample: JsonSample, expected: Option[List[String]]): Unit = {
-    new MultipleJsonPathExtractor[String](path).apply(sample.boonAST).succeeded shouldBe expected
-    new MultipleJsonPathExtractor[String](path).apply(sample.jacksonAST).succeeded shouldBe expected
+    val extractor = newMultipleExtractor[String](path)
+    extractor(sample.boonAST).succeeded shouldBe expected
+    extractor(sample.jacksonAST).succeeded shouldBe expected
   }
 
   "count" should "return expected result with anywhere expression" in {

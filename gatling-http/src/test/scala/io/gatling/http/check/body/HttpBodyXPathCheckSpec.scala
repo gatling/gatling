@@ -17,26 +17,27 @@ package io.gatling.http.check.body
 
 import java.nio.charset.StandardCharsets._
 
-import io.gatling.core.Predef._
+import scala.collection.mutable
+import scala.xml.Elem
+
+import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.FlatSpec
+import org.scalatest.Matchers.{ regex => _, _ }
+
+import io.gatling.core.CoreModule
 import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.test.ValidationValues
-import io.gatling.http.Predef._
+import io.gatling.http.HttpModule
 import io.gatling.http.response.{ Response, StringResponseBody }
-import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{ FlatSpec, Matchers }
 
-import scala.collection.mutable
-import scala.xml.Elem
+class HttpBodyXPathCheckSpec extends FlatSpec with ValidationValues with MockitoSugar with CoreModule with HttpModule {
 
-class HttpBodyXPathCheckSpec extends FlatSpec with Matchers with ValidationValues with MockitoSugar {
-
-  GatlingConfiguration.setUpForTest()
+  implicit val configuration = GatlingConfiguration.loadForTest()
 
   implicit def cache = mutable.Map.empty[Any, Any]
-
   val session = Session("mockSession", "mockUserName")
 
   def mockResponse(xml: Elem): Response = {
@@ -77,7 +78,7 @@ class HttpBodyXPathCheckSpec extends FlatSpec with Matchers with ValidationValue
                                   <id>1072920417</id><id>1072920418</id>
                                 </root>)
 
-    xpath("//fo").findAll.exists.build.check(response, session).failed shouldBe "xpath(//fo).findAll.exists, found nothing"
+    xpath("//fo").findAll.exists.build.check(response, session).failed shouldBe "xpath((//fo,List())).findAll.exists, found nothing"
   }
 
   "xpath.count.exists" should "find all occurrences" in {

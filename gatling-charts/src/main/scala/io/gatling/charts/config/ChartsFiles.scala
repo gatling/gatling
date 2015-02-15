@@ -17,6 +17,7 @@ package io.gatling.charts.config
 
 import java.nio.file.Path
 
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles._
 import io.gatling.charts.FileNamingConventions
 import io.gatling.core.util.PathHelper._
@@ -36,15 +37,15 @@ private[charts] object ChartsFiles {
     JQueryFile, BootstrapFile, GatlingJsFile,
     MomentJsFile, MenuFile, AllSessionsFile, StatsJsFile)
 
-  def menuFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / MenuFile
+  def menuFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / MenuFile
 
-  def allSessionsFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / AllSessionsFile
+  def allSessionsFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / AllSessionsFile
 
-  def globalFile(runOn: String): Path = resultDirectory(runOn) / "index.html"
+  def globalFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / "index.html"
 
-  def requestFile(runOn: String, requestName: String): Path = resultDirectory(runOn) / requestName.toRequestFileName
+  def requestFile(runOn: String, requestName: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / requestName.toRequestFileName(configuration.core.charset)
 
-  def jsStatsFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsFile
+  def jsStatsFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsFile
 
-  def jsonStatsFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJSONFile
+  def jsonStatsFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJSONFile
 }

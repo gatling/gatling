@@ -15,7 +15,10 @@
  */
 package io.gatling.core.runner
 
+import io.gatling.core.config.GatlingConfiguration
+
 import scala.concurrent.{ Await, TimeoutException }
+import scala.concurrent.duration._
 import scala.util.{ Failure, Success }
 
 import com.typesafe.scalalogging.StrictLogging
@@ -26,7 +29,7 @@ import io.gatling.core.controller.Controller
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.util.TimeHelper._
 
-class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
+class Runner(selection: Selection)(implicit configuration: GatlingConfiguration) extends AkkaDefaults with StrictLogging {
 
   def run: String =
     try {
@@ -52,6 +55,7 @@ class Runner(selection: Selection) extends AkkaDefaults with StrictLogging {
         Throttler.start(simulationDef.globalThrottling, simulationDef.scenarioThrottlings)
       }
 
+      val simulationTimeOut = configuration.core.timeOut.simulation seconds
       implicit val timeout = Timeout(simulationTimeOut)
       val runResult = Controller.run(simulationDef, selection)
 

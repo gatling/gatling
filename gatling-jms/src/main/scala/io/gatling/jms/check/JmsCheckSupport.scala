@@ -15,11 +15,13 @@
  */
 package io.gatling.jms.check
 
+import io.gatling.core.check.extractor.xpath.{ JdkXPathExtractorFactory, SaxonXPathExtractorFactory }
 import io.gatling.core.session.Expression
 
 trait JmsCheckSupport {
 
   def simpleCheck = JmsSimpleCheck
 
-  def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = JmsXPathCheckBuilder.xpath(expression, namespaces)
+  def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil)(implicit saxonXPathExtractorFactory: SaxonXPathExtractorFactory, jdkXPathExtractorFactory: JdkXPathExtractorFactory) =
+    JmsXPathCheckBuilder.xpath(expression, namespaces)
 }

@@ -20,7 +20,7 @@ import java.sql.{ Connection, Date => SQLDate, DriverManager, PreparedStatement,
 import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.assertion.Assertion
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.writer._
 import io.gatling.core.util.Io.withCloseable
 
@@ -40,7 +40,7 @@ object JdbcDataWriter {
  *
  * It writes the data of the simulation to a database
  */
-class JdbcDataWriter extends DataWriter with StrictLogging {
+class JdbcDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter with StrictLogging {
 
   import JdbcDataWriter._
 

@@ -17,83 +17,86 @@ package io.gatling.core.check.extractor.css
 
 import java.nio.charset.StandardCharsets.UTF_8
 
+import io.gatling.core.config.GatlingConfiguration
 import org.scalatest.{ FlatSpec, Matchers }
 
 import jodd.lagarto.dom.NodeSelector
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationValues
 import io.gatling.core.util.Io._
 
 class CssExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
-  GatlingConfiguration.setUpForTest()
+  implicit val configuration = GatlingConfiguration.loadForTest()
+  implicit val cssSelectors = new CssSelectors
+  val extractorFactory = new CssExtractorFactory
+  import extractorFactory._
 
   def prepared(file: String): NodeSelector = withCloseable(getClass.getResourceAsStream(file)) { is =>
     val string = is.toString(UTF_8)
-    CssExtractor.parse(string)
+    cssSelectors.parse(string)
   }
 
   "CssExtractor" should "support browser conditional tests and behave as a non-IE browser" in {
-    new CountCssExtractor("#helloworld", None).extract(prepared("/IeConditionalTests.html")).succeeded shouldBe Some(1)
+    newCountExtractor("#helloworld", None).extract(prepared("/IeConditionalTests.html")).succeeded shouldBe Some(1)
   }
 
-  "CssExtractor count" should "return expected result with a class selector" in {
-    new CountCssExtractor(".nav-menu", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(3)
+  it should "return expected result with a class selector" in {
+    newCountExtractor(".nav-menu", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(3)
   }
 
   it should "return expected result with an id selector" in {
-    new CountCssExtractor("#twitter_button", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(1)
+    newCountExtractor("#twitter_button", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(1)
   }
 
   it should "return expected result with an :empty selector" in {
-    new CountCssExtractor(".frise:empty", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(1)
+    newCountExtractor(".frise:empty", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(1)
   }
 
   it should "return None when the selector doesn't match anything" in {
-    new CountCssExtractor("bad_selector", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(0)
+    newCountExtractor("bad_selector", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(0)
   }
 
   "CssExtractor extractMultiple" should "return expected result with a class selector" in {
-    new MultipleCssExtractor("#social", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("Social"))
+    newMultipleExtractor[String]("#social", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("Social"))
   }
 
   it should "return expected result with an id selector" in {
-    new MultipleCssExtractor(".nav", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("Sponsors", "Social"))
+    newMultipleExtractor[String](".nav", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("Sponsors", "Social"))
   }
 
   it should "return expected result with an attribute containg a given substring" in {
-    new MultipleCssExtractor(".article a[href*=api]", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("API Documentation"))
+    newMultipleExtractor[String](".article a[href*=api]", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("API Documentation"))
   }
 
   it should "return expected result with an element being the n-th child of its parent" in {
-    new MultipleCssExtractor(".article a:nth-child(2)", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("JMeter's"))
+    newMultipleExtractor[String](".article a:nth-child(2)", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("JMeter's"))
   }
 
   it should "return expected result with a predecessor selector" in {
-    new MultipleCssExtractor("img ~ p", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("Efficient Load Testing"))
+    newMultipleExtractor[String]("img ~ p", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("Efficient Load Testing"))
   }
 
   it should "return None when the selector doesn't match anything" in {
-    new MultipleCssExtractor("bad_selector", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe None
+    newMultipleExtractor[String]("bad_selector", None).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe None
   }
 
   it should "be able to extract a precise node attribute" in {
-    new MultipleCssExtractor("#sample_requests", Some("href")).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("http://gatling.io/sample/requests.html"))
+    newMultipleExtractor[String]("#sample_requests", Some("href")).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some(List("http://gatling.io/sample/requests.html"))
   }
 
   "CssExtractor extractSingle" should "return expected result with a class selector" in {
-    new SingleCssExtractor(".nav", None, 1).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some("Social")
+    newSingleExtractor[String]((".nav", None), 1).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some("Social")
   }
 
   it should "return None when the index is out of the range of returned elements" in {
-    new SingleCssExtractor(".nav", None, 3).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe None
+    newSingleExtractor[String]((".nav", None), 3).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe None
   }
 
   it should "return None when the selector doesn't match anything" in {
-    new SingleCssExtractor("bad_selector", None, 1).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe None
+    newSingleExtractor[String](("bad_selector", None), 1).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe None
   }
 
   it should "be able to extract a precise node attribute" in {
-    new SingleCssExtractor(".nav", Some("id"), 1).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some("social")
+    newSingleExtractor[String]((".nav", Some("id")), 1).extract(prepared("/GatlingHomePage.html")).succeeded shouldBe Some("social")
   }
 }

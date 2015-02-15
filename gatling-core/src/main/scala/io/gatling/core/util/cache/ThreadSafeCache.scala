@@ -25,6 +25,7 @@ object ThreadSafeCache {
   def apply[K, V](maxCapacity: Long): ThreadSafeCache[K, V] =
     new ThreadSafeCache[K, V](maxCapacity)
 }
+
 class ThreadSafeCache[K, V](maxCapacity: Long) {
 
   val cache: concurrent.Map[K, V] = {
@@ -35,11 +36,25 @@ class ThreadSafeCache[K, V](maxCapacity: Long) {
 
   def enabled = maxCapacity > 0
 
-  def getOrElsePutIfAbsent(key: K, value: => V): V = cache.get(key) match {
-    case Some(v) => v
-    case None =>
-      val v = value
-      cache.putIfAbsent(key, v)
-      v
+  def getOrElsePutIfAbsent(key: K, value: => V): V =
+    cache.get(key) match {
+      case Some(v) => v
+      case None =>
+        val v = value
+        cache.putIfAbsent(key, v)
+        v
+    }
+}
+
+class SelfLoadingThreadSafeCache[K, V](maxCapacity: Long, f: K => V) {
+
+  private val enabled = maxCapacity > 0
+  private val cache = if (enabled) ThreadSafeCache[K, V](maxCapacity) else null
+
+  def get(key: K): V = {
+    if (enabled)
+      cache.getOrElsePutIfAbsent(key, f(key))
+    else
+      f(key)
   }
 }

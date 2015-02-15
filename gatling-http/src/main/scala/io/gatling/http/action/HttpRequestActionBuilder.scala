@@ -17,7 +17,11 @@ package io.gatling.http.action
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
-import io.gatling.core.config.Protocols
+import io.gatling.core.config.{ GatlingConfiguration, Protocols }
+import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.cache.HttpCaches
+import io.gatling.http.config.DefaultHttpProtocol
+import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.request.builder.HttpRequestBuilder
 
 /**
@@ -26,7 +30,7 @@ import io.gatling.http.request.builder.HttpRequestBuilder
  * @constructor creates an HttpRequestActionBuilder
  * @param requestBuilder the builder for the request that will be sent
  */
-class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder) extends HttpActionBuilder {
+class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher) extends HttpActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols): ActorRef = {
 

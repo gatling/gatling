@@ -15,65 +15,18 @@
  */
 package io.gatling.core
 
+import io.gatling.core.config.GatlingConfiguration
+
 import scala.concurrent.duration._
-import scala.reflect.ClassTag
 
-import io.gatling.core.assertion.AssertionSupport
-import io.gatling.core.check.CheckSupport
-import io.gatling.core.controller.inject.InjectionSupport
-import io.gatling.core.controller.throttle.ThrottlingSupport
-import io.gatling.core.feeder.FeederSupport
-import io.gatling.core.pause.PauseSupport
-import io.gatling.core.session.{ Expression, ExpressionWrapper }
-import io.gatling.core.session.el.El
-import io.gatling.core.structure.{ ScenarioBuilder, StructureSupport }
-import io.gatling.core.validation.{ SuccessWrapper, Validation }
+object Predef extends CoreModule {
 
-object Predef
-    extends StructureSupport
-    with PauseSupport
-    with CheckSupport
-    with FeederSupport
-    with InjectionSupport
-    with ThrottlingSupport
-    with AssertionSupport {
+  implicit var configuration: GatlingConfiguration = _
 
   type Session = io.gatling.core.session.Session
   type Status = io.gatling.core.result.message.Status
   type Simulation = io.gatling.core.scenario.Simulation
   type Assertion = io.gatling.core.assertion.Assertion
-
-  implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
-  implicit def value2Success[T](value: T): Validation[T] = value.success
-  implicit def value2Expression[T](value: T): Expression[T] = value.expression
-
-  def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
-
-  def WhiteList(patterns: String*) = io.gatling.core.filter.WhiteList(patterns.toList)
-  def BlackList(patterns: String*) = io.gatling.core.filter.BlackList(patterns.toList)
-
-  def flattenMapIntoAttributes(map: Expression[Map[String, Any]]): Expression[Session] =
-    session => map(session).map(resolvedMap => session.setAll(resolvedMap))
-
-  @deprecated("Use ElFileBody instead", "2.2.0")
-  def ELFileBody = ElFileBody
-  def ElFileBody = io.gatling.core.body.ElFileBody
-  def StringBody(string: String) = io.gatling.core.body.CompositeByteArrayBody(string)
-  def StringBody(string: Expression[String]) = io.gatling.core.body.StringBody(string)
-  def RawFileBody = io.gatling.core.body.RawFileBody
-  def ByteArrayBody = io.gatling.core.body.ByteArrayBody
-  def InputStreamBody = io.gatling.core.body.InputStreamBody
-
-  val gzipBody = io.gatling.core.body.BodyProcessors.Gzip
-  val streamBody = io.gatling.core.body.BodyProcessors.Stream
-
-  /**********************************/
-  /** Duration implicit conversions */
-  /**********************************/
-
-  implicit def intToFiniteDuration(i: Int): FiniteDuration = i.seconds
-  implicit def integerToFiniteDuration(i: Integer): FiniteDuration = intToFiniteDuration(i.toInt)
-  implicit def jlongToFiniteDuration(i: java.lang.Long): FiniteDuration = i.toLong.seconds
 
   /**
    * Offers the same implicits conversions as [[scala.concurrent.duration.DurationInt]] for Java's Integer.

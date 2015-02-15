@@ -15,14 +15,16 @@
  */
 package io.gatling.core.structure
 
+import io.gatling.core.CoreModule
 import org.scalatest.{ FlatSpec, Matchers }
 
 import io.gatling.core.test.ActorSupport
-import io.gatling.core.Predef._
-import io.gatling.core.config.Protocols
+import io.gatling.core.config.{ GatlingConfiguration, Protocols }
 import io.gatling.core.session.Session
 
-class ExecsSpec extends FlatSpec with Matchers {
+class ExecsSpec extends FlatSpec with Matchers with CoreModule {
+
+  implicit val configuration = GatlingConfiguration.loadForTest()
 
   "Execs" should "wrap Scenarios in chains, using exec" in ActorSupport { testKit =>
     import testKit._

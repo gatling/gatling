@@ -20,14 +20,16 @@ import akka.actor.ActorRef
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression
 import io.gatling.http.action.HttpActionBuilder
+import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.check.ws.WsCheckBuilder
+import io.gatling.http.config.DefaultHttpProtocol
 import io.gatling.http.request.builder.sse.SseOpenRequestBuilder
 
 class SseOpenActionBuilder(
     requestName: Expression[String],
     sseName: String,
     requestBuilder: SseOpenRequestBuilder,
-    checkBuilder: Option[WsCheckBuilder] = None) extends HttpActionBuilder {
+    checkBuilder: Option[WsCheckBuilder] = None)(implicit defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine) extends HttpActionBuilder {
 
   def check(checkBuilder: WsCheckBuilder) = new SseOpenActionBuilder(requestName, sseName, requestBuilder, Some(checkBuilder))
 
@@ -39,23 +41,23 @@ class SseOpenActionBuilder(
   }
 }
 
-class SseSetCheckActionBuilder(requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String) extends HttpActionBuilder {
+class SseSetCheckActionBuilder(requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols): ActorRef = actor(actorName("sseSetCheck"))(new SseSetCheckAction(requestName, checkBuilder, sseName, next))
 }
 
-class SseCancelCheckActionBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
+class SseCancelCheckActionBuilder(requestName: Expression[String], sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols): ActorRef = actor(actorName("sseCancelCheck"))(new SseCancelCheckAction(requestName, sseName, next))
 }
 
-class SseReconciliateActionBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
+class SseReconciliateActionBuilder(requestName: Expression[String], sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
   override def build(next: ActorRef, protocols: Protocols): ActorRef =
     actor(new SseReconciliateAction(requestName, sseName, next))
 }
 
-class SseCloseActionBuilder(requestName: Expression[String], sseName: String) extends HttpActionBuilder {
+class SseCloseActionBuilder(requestName: Expression[String], sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
   override def build(next: ActorRef, protocols: Protocols): ActorRef = actor(new SseCloseAction(requestName, sseName, next))
 }

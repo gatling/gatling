@@ -17,6 +17,7 @@ package io.gatling.http
 
 import java.io.ByteArrayOutputStream
 import java.lang.{ StringBuilder => JStringBuilder }
+import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.US_ASCII
 import java.util.{ List => JList, Map => JMap }
 
@@ -27,7 +28,6 @@ import com.ning.http.client.multipart._
 import com.ning.http.client.providers.netty.request.NettyRequest
 import com.ning.http.client.providers.netty.request.body.NettyMultipartBody
 
-import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.StringHelper.Eol
 import io.gatling.http.response.Response
 
@@ -45,7 +45,7 @@ package object util {
         buff.append(param.getName).append(": ").append(param.getValue).append(Eol)
       }
 
-    def appendRequest(request: Request, nettyRequest: Option[NettyRequest]): JStringBuilder = {
+    def appendRequest(request: Request, nettyRequest: Option[NettyRequest], charset: Charset): JStringBuilder = {
 
       buff.append(request.getMethod).append(" ").append(request.getUrl).append(Eol)
 
@@ -81,11 +81,11 @@ package object util {
 
       if (request.getStringData != null) buff.append("stringData=").append(request.getStringData).append(Eol)
 
-      if (request.getByteData != null) buff.append("byteData=").append(new String(request.getByteData, configuration.core.charset)).append(Eol)
+      if (request.getByteData != null) buff.append("byteData=").append(new String(request.getByteData, charset)).append(Eol)
 
       if (request.getCompositeByteData != null) {
         buff.append("compositeByteData=")
-        request.getCompositeByteData.foreach(b => buff.append(new String(b, configuration.core.charset)))
+        request.getCompositeByteData.foreach(b => buff.append(new String(b, charset)))
         buff.append(Eol)
       }
 
@@ -135,7 +135,7 @@ package object util {
         val os = new ByteArrayOutputStream
         for (part <- request.getParts)
           part.write(os, boundary)
-        buff.append(new String(os.toByteArray, configuration.core.charset))
+        buff.append(new String(os.toByteArray, charset))
       }
 
       if (request.getProxyServer != null) buff.append("proxy=").append(request.getProxyServer).append(Eol)

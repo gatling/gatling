@@ -3,7 +3,7 @@ package io.gatling.jms.integration
 import javax.jms.{ Message, MessageListener }
 
 import akka.testkit.{ ImplicitSender, TestKit }
-import io.gatling.core.config.Protocols
+import io.gatling.core.config.{ GatlingConfiguration, Protocols }
 import io.gatling.core.controller.{ DataWritersTerminated, DataWritersInitialized }
 import io.gatling.core.result.writer.{ RunMessage, DataWriter }
 import io.gatling.core.session.Session
@@ -43,7 +43,7 @@ trait JmsMockingSpec extends BrokerBasedSpecification {
     .contextFactory(classOf[ActiveMQInitialContextFactory].getName)
     .listenerCount(1)
 
-  def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit testKit: TestKit with ImplicitSender) = {
+  def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit testKit: TestKit with ImplicitSender, configuration: GatlingConfiguration) = {
     import testKit._
     DataWriter.init(Nil, RunMessage("JmsIntegrationSimulation", sb.name, nowMillis, "test run"), Nil, self)
     expectMsgClass(classOf[DataWritersInitialized])
@@ -62,5 +62,4 @@ trait JmsMockingSpec extends BrokerBasedSpecification {
     val processor = new JmsMockCustomer(createClient(queue), f)
     cleanUpActions = { () => processor.close() } :: cleanUpActions
   }
-
 }

@@ -18,32 +18,27 @@ package io.gatling.http.config
 import java.net.InetAddress
 import java.util.regex.Pattern
 
-import scala.collection.mutable
-
 import com.ning.http.client._
 import com.ning.http.client.providers.netty.NettyAsyncHttpProvider
 import com.ning.http.client.providers.netty.channel.pool.ChannelPoolPartitionSelector
 import com.typesafe.scalalogging.StrictLogging
 
-import io.gatling.core.akka.GatlingActorSystem
-import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.config.Protocol
+import io.gatling.core.config.{ GatlingConfiguration, Protocol }
 import io.gatling.core.filter.Filters
 import io.gatling.core.session.{ Session, Expression, ExpressionWrapper }
 import io.gatling.core.util.RoundRobin
 import io.gatling.http.HeaderNames._
 import io.gatling.http.ahc.{ ChannelPoolPartitioning, AsyncHandlerActor, HttpEngine }
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
+import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.request.builder.Http
 import io.gatling.http.response.Response
 
-/**
- * HttpProtocol class companion
- */
-object HttpProtocol {
+class DefaultHttpProtocol(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher) {
 
-  val DefaultHttpProtocol = HttpProtocol(
+  val value = HttpProtocol(
     baseURLs = Nil,
     warmUpUrl = configuration.http.warmUpUrl,
     enginePart = HttpProtocolEnginePart(
@@ -78,19 +73,100 @@ object HttpProtocol {
     proxyPart = HttpProtocolProxyPart(
       proxies = None,
       proxyExceptions = Nil))
+}
 
-  val WarmUpUrls = mutable.Set.empty[String]
+object HttpProtocol extends StrictLogging {
 
-  GatlingActorSystem.instanceOpt.foreach(_.registerOnTermination(WarmUpUrls.clear()))
-
-  def nextBaseUrlF(urls: List[String]): () => Option[String] =
+  def baseUrlIterator(urls: List[String]): Iterator[Option[String]] =
     urls match {
-      case Nil => () => None
-      case url :: Nil => () => Some(url)
-      case _ =>
-        val roundRobinUrls = RoundRobin(urls.map(Some(_)).toVector)
-        () => roundRobinUrls.next()
+      case Nil        => Iterator.continually(None)
+      case url :: Nil => Iterator.continually(Some(url))
+      case _          => RoundRobin(urls.map(Some(_)).toVector)
     }
+
+  def apply(
+    baseURLs: List[String],
+    warmUpUrl: Option[String],
+    enginePart: HttpProtocolEnginePart,
+    requestPart: HttpProtocolRequestPart,
+    responsePart: HttpProtocolResponsePart,
+    wsPart: HttpProtocolWsPart,
+    proxyPart: HttpProtocolProxyPart)(implicit configuration: GatlingConfiguration,
+                                      httpEngine: HttpEngine,
+                                      httpCaches: HttpCaches,
+                                      resourceFetcher: ResourceFetcher): HttpProtocol = {
+
+    val warmUpF = (httProtocol: HttpProtocol) => {
+      logger.info("Start warm up")
+
+      implicit val httpCaches = new HttpCaches
+
+      httpEngine.start()
+      AsyncHandlerActor.start
+
+      warmUpUrl match {
+        case Some(url) =>
+          val requestBuilder = new RequestBuilder().setUrl(url)
+            .setHeader(Accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
+            .setHeader(AcceptLanguage, "en-US,en;q=0.5")
+            .setHeader(AcceptEncoding, "gzip")
+            .setHeader(Connection, "keep-alive")
+            .setHeader(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
+            .setRequestTimeout(2000)
+
+          proxyPart.proxies.foreach {
+            case (httpProxy, httpsProxy) =>
+              val proxy = if (url.startsWith("https")) httpsProxy else httpProxy
+              requestBuilder.setProxyServer(proxy)
+          }
+
+          try {
+            httpEngine.defaultAhc.executeRequest(requestBuilder.build).get
+          } catch {
+            case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
+          }
+
+        case _ =>
+          val expression = "foo".expression
+
+          implicit val protocol = this
+
+          new Http(expression)
+            .get(expression)
+            .header("bar", expression)
+            .queryParam(expression, expression)
+            .build(httProtocol, throttled = false)
+
+          new Http(expression)
+            .post(expression)
+            .header("bar", expression)
+            .formParam(expression, expression)
+            .build(httProtocol, throttled = false)
+      }
+
+      logger.info("Warm up done")
+    }
+
+    val userEndF: HttpProtocol => Session => Unit = protocol => session => {
+      val (_, ahc) = httpEngine.httpClient(session, protocol)
+      ahc.getProvider.asInstanceOf[NettyAsyncHttpProvider].flushChannelPoolPartitions(new ChannelPoolPartitionSelector() {
+
+        val userBase = ChannelPoolPartitioning.partitionIdUserBase(session)
+
+        override def select(partitionId: String): Boolean = partitionId.startsWith(userBase)
+      })
+    }
+
+    new HttpProtocol(baseURLs,
+      warmUpUrl,
+      enginePart,
+      requestPart,
+      responsePart,
+      wsPart,
+      proxyPart,
+      warmUpF,
+      userEndF)
+  }
 }
 
 /**
@@ -105,79 +181,25 @@ object HttpProtocol {
  * @param proxyPart the Proxy related configuration
  */
 case class HttpProtocol(
-    baseURLs: List[String],
-    warmUpUrl: Option[String],
-    enginePart: HttpProtocolEnginePart,
-    requestPart: HttpProtocolRequestPart,
-    responsePart: HttpProtocolResponsePart,
-    wsPart: HttpProtocolWsPart,
-    proxyPart: HttpProtocolProxyPart) extends Protocol with StrictLogging {
+  baseURLs: List[String],
+  warmUpUrl: Option[String],
+  enginePart: HttpProtocolEnginePart,
+  requestPart: HttpProtocolRequestPart,
+  responsePart: HttpProtocolResponsePart,
+  wsPart: HttpProtocolWsPart,
+  proxyPart: HttpProtocolProxyPart,
+  warmUpF: HttpProtocol => Unit,
+  userEndF: HttpProtocol => Session => Unit)
+    extends Protocol with StrictLogging {
 
   import HttpProtocol._
 
-  private val baseURLF = nextBaseUrlF(baseURLs)
-  def baseURL: Option[String] = baseURLF()
+  private val httpBaseUrlIterator = baseUrlIterator(baseURLs)
+  def baseURL: Option[String] = httpBaseUrlIterator.next()
 
-  override def warmUp(): Unit = {
+  override def warmUp(): Unit = warmUpF(this)
 
-    logger.info("Start warm up")
-
-    HttpEngine.start()
-    AsyncHandlerActor.start()
-
-    warmUpUrl.map { url =>
-      if (!WarmUpUrls.contains(url)) {
-        WarmUpUrls += url
-        val requestBuilder = new RequestBuilder().setUrl(url)
-          .setHeader(Accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
-          .setHeader(AcceptLanguage, "en-US,en;q=0.5")
-          .setHeader(AcceptEncoding, "gzip")
-          .setHeader(Connection, "keep-alive")
-          .setHeader(UserAgent, "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.8; rv:16.0) Gecko/20100101 Firefox/16.0")
-          .setRequestTimeout(2000)
-
-        proxyPart.proxies.foreach {
-          case (httpProxy, httpsProxy) =>
-            val proxy = if (url.startsWith("https")) httpsProxy else httpProxy
-            requestBuilder.setProxyServer(proxy)
-        }
-
-        try {
-          HttpEngine.instance.DefaultAHC.executeRequest(requestBuilder.build).get
-        } catch {
-          case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
-        }
-      }
-    }
-
-    if (WarmUpUrls.isEmpty) {
-      val expression = "foo".expression
-
-      new Http(expression)
-        .get(expression)
-        .header("bar", expression)
-        .queryParam(expression, expression)
-        .build(DefaultHttpProtocol, throttled = false)
-
-      new Http(expression)
-        .post(expression)
-        .header("bar", expression)
-        .formParam(expression, expression)
-        .build(DefaultHttpProtocol, throttled = false)
-    }
-
-    logger.info("Warm up done")
-  }
-
-  override def userEnd(session: Session): Unit = {
-    val (_, ahc) = HttpEngine.instance.httpClient(session, this)
-    ahc.getProvider.asInstanceOf[NettyAsyncHttpProvider].flushChannelPoolPartitions(new ChannelPoolPartitionSelector() {
-
-      val userBase = ChannelPoolPartitioning.partitionIdUserBase(session)
-
-      override def select(partitionId: String): Boolean = partitionId.startsWith(userBase)
-    })
-  }
+  override def userEnd(session: Session): Unit = userEndF(this)(session)
 }
 
 case class HttpProtocolEnginePart(
@@ -215,8 +237,8 @@ case class HttpProtocolWsPart(
 
   import HttpProtocol._
 
-  private val wsBaseURLF = nextBaseUrlF(wsBaseURLs)
-  def wsBaseURL: Option[String] = wsBaseURLF()
+  private val wsBaseUrlIterator = baseUrlIterator(wsBaseURLs)
+  def wsBaseURL: Option[String] = wsBaseUrlIterator.next()
 }
 
 case class HttpProtocolProxyPart(

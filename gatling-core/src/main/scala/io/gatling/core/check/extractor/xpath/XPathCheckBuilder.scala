@@ -28,21 +28,28 @@ trait XPathCheckBuilder[C <: Check[R], R] {
 
   val CheckBuilder: Extender[C, R]
 
-  val SaxonXPathPreparer: Preparer[R, Option[XdmNode]] = preparer(SaxonXPathExtractor.parse)
+  def saxonXPathPreparer(saxon: Saxon): Preparer[R, Option[XdmNode]] = preparer(saxon.parse)
 
-  val JDKXPathPreparer: Preparer[R, Option[Document]] = preparer(JdkXPathExtractor.parse)
+  def jdkXPathPreparer(jdkXPath: JdkXmlParsers): Preparer[R, Option[Document]] = preparer(jdkXPath.parse)
 
-  def xpath(expression: Expression[String], namespaces: List[(String, String)]) =
-    if (SaxonXPathExtractor.Enabled)
-      new DefaultMultipleFindCheckBuilder[C, R, Option[XdmNode], String](CheckBuilder, SaxonXPathPreparer) {
-        def findExtractor(occurrence: Int) = expression.map(new SaxonXPathExtractor.SingleXPathExtractor(_, namespaces, occurrence))
-        def findAllExtractor = expression.map(new SaxonXPathExtractor.MultipleXPathExtractor(_, namespaces))
-        def countExtractor = expression.map(new SaxonXPathExtractor.CountXPathExtractor(_, namespaces))
+  def xpath(expression: Expression[String], namespaces: List[(String, String)])(implicit saxonXPathExtractorFactory: SaxonXPathExtractorFactory, jdkXPathExtractorFactory: JdkXPathExtractorFactory) =
+    if (saxonXPathExtractorFactory.saxon.enabled) {
+
+      import saxonXPathExtractorFactory._
+
+      new DefaultMultipleFindCheckBuilder[C, R, Option[XdmNode], String](CheckBuilder, saxonXPathPreparer(saxon)) {
+        def findExtractor(occurrence: Int) = expression.map(path => newSingleExtractor((path, namespaces), occurrence))
+        def findAllExtractor = expression.map(newMultipleExtractor(_, namespaces))
+        def countExtractor = expression.map(newCountExtractor(_, namespaces))
       }
-    else
-      new DefaultMultipleFindCheckBuilder[C, R, Option[Document], String](CheckBuilder, JDKXPathPreparer) {
-        def findExtractor(occurrence: Int) = expression.map(new JdkXPathExtractor.SingleXPathExtractor(_, namespaces, occurrence))
-        def findAllExtractor = expression.map(new JdkXPathExtractor.MultipleXPathExtractor(_, namespaces))
-        def countExtractor = expression.map(new JdkXPathExtractor.CountXPathExtractor(_, namespaces))
+    } else {
+
+      import jdkXPathExtractorFactory._
+
+      new DefaultMultipleFindCheckBuilder[C, R, Option[Document], String](CheckBuilder, jdkXPathPreparer(jdkXmlParsers)) {
+        def findExtractor(occurrence: Int) = expression.map(path => newSingleExtractor((path, namespaces), occurrence))
+        def findAllExtractor = expression.map(newMultipleExtractor(_, namespaces))
+        def countExtractor = expression.map(newCountExtractor(_, namespaces))
       }
+    }
 }

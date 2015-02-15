@@ -17,10 +17,10 @@ package io.gatling.http.action
 
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.Protocols
-import io.gatling.http.config.HttpProtocol
+import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocol }
 
-abstract class HttpActionBuilder extends ActionBuilder {
+abstract class HttpActionBuilder(implicit defaultHttpProtocol: DefaultHttpProtocol) extends ActionBuilder {
 
   def httpProtocol(protocols: Protocols) = protocols.protocol[HttpProtocol].getOrElse(throw new UnsupportedOperationException("Http Protocol wasn't registered"))
-  override def registerDefaultProtocols(protocols: Protocols): Protocols = protocols + HttpProtocol.DefaultHttpProtocol
+  override def registerDefaultProtocols(protocols: Protocols): Protocols = protocols + defaultHttpProtocol.value
 }

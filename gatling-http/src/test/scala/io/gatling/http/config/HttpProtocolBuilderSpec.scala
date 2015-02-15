@@ -15,20 +15,28 @@
  */
 package io.gatling.http.config
 
+import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.cache.HttpCaches
+import io.gatling.http.fetch.ResourceFetcher
 import org.scalatest.{ FlatSpec, Matchers }
+import org.scalatest.mock.MockitoSugar
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.request.ExtraInfo
 
-class HttpProtocolBuilderSpec extends FlatSpec with Matchers {
+class HttpProtocolBuilderSpec extends FlatSpec with Matchers with MockitoSugar {
 
-  GatlingConfiguration.setUpForTest()
+  implicit val configuration = GatlingConfiguration.loadForTest()
+  implicit val httpEngine = mock[HttpEngine]
+  implicit val httpCaches = new HttpCaches
+  implicit val resourceFetcher = new ResourceFetcher
+  implicit val httpProtocolBuilder = new HttpProtocolBuilder(new DefaultHttpProtocol().value)
 
   "http protocol configuration builder" should "support an optional extra info extractor" in {
 
     val expectedExtractor = (extraInfo: ExtraInfo) => Nil
 
-    val builder = HttpProtocolBuilder.DefaultHttpProtocolBuilder
+    val builder = httpProtocolBuilder
       .disableWarmUp
       .extraInfoExtractor(expectedExtractor)
     val config: HttpProtocol = builder.build
@@ -39,7 +47,7 @@ class HttpProtocolBuilderSpec extends FlatSpec with Matchers {
   it should "be able to support a base URL" in {
     val url = "http://url"
 
-    val builder = HttpProtocolBuilder.DefaultHttpProtocolBuilder
+    val builder = httpProtocolBuilder
       .baseURL(url)
       .disableWarmUp
 
@@ -52,7 +60,7 @@ class HttpProtocolBuilderSpec extends FlatSpec with Matchers {
     val url1 = "http://url1"
     val url2 = "http://url2"
 
-    val builder = HttpProtocolBuilder.DefaultHttpProtocolBuilder
+    val builder = httpProtocolBuilder
       .baseURLs(url1, url2)
       .disableWarmUp
 
@@ -62,12 +70,12 @@ class HttpProtocolBuilderSpec extends FlatSpec with Matchers {
   }
 
   it should "set a silent URI regex" in {
-    val builder = HttpProtocolBuilder.DefaultHttpProtocolBuilder
+    val builder = httpProtocolBuilder
       .silentURI(".*")
 
     val config: HttpProtocol = builder.build
 
-    val actualPattern: String = config.requestPart.silentURI.get.toString()
+    val actualPattern: String = config.requestPart.silentURI.get.toString
     actualPattern.equals(".*") shouldBe true
   }
 }

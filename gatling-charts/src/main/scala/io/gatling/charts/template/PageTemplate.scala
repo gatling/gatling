@@ -15,6 +15,8 @@
  */
 package io.gatling.charts.template
 
+import java.nio.charset.Charset
+
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.result.Group
@@ -42,7 +44,7 @@ private[charts] abstract class PageTemplate(title: String, isDetails: Boolean, r
 
   def jsFiles: Seq[String] = (CommonJsFiles ++ components.flatMap(_.jsFiles)).distinct
 
-  def getOutput: Fastring = {
+  def getOutput(charset: Charset): Fastring = {
     val runMessage = PageTemplate.runMessage
     val runStart = PageTemplate.runStart
     val runEnd = PageTemplate.runEnd
@@ -57,7 +59,7 @@ private[charts] abstract class PageTemplate(title: String, isDetails: Boolean, r
           case _         => groupHierarchy
         }
 
-        s"""var pageStats = stats.contents['${groupAndRequestHierarchy.map(_.toFileName).mkString("'].contents['")}'].stats;"""
+        s"""var pageStats = stats.contents['${groupAndRequestHierarchy.map(_.toFileName(charset)).mkString("'].contents['")}'].stats;"""
       } else {
         "var pageStats = stats.stats;"
       }

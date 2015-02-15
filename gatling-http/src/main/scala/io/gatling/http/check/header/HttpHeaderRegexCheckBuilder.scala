@@ -16,7 +16,7 @@
 package io.gatling.http.check.header
 
 import io.gatling.core.check.DefaultMultipleFindCheckBuilder
-import io.gatling.core.check.extractor.regex.GroupExtractor
+import io.gatling.core.check.extractor.regex.{ RegexExtractorFactory, GroupExtractor }
 import io.gatling.core.session.{ Expression, RichExpression, Session }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
@@ -25,16 +25,16 @@ import io.gatling.http.response.Response
 trait HttpHeaderRegexOfType {
   self: HttpHeaderRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor] = new HttpHeaderRegexCheckBuilder[X](headerName, pattern)
+  def ofType[X: GroupExtractor](implicit extractorFactory: HttpHeaderRegexExtractorFactory) = new HttpHeaderRegexCheckBuilder[X](headerName, pattern)
 }
 
 object HttpHeaderRegexCheckBuilder {
 
-  def headerRegex(headerName: Expression[String], pattern: Expression[String]) =
+  def headerRegex(headerName: Expression[String], pattern: Expression[String])(implicit extractorFactory: HttpHeaderRegexExtractorFactory) =
     new HttpHeaderRegexCheckBuilder[String](headerName, pattern) with HttpHeaderRegexOfType
 }
 
-class HttpHeaderRegexCheckBuilder[X: GroupExtractor](private[header] val headerName: Expression[String], val pattern: Expression[String])
+class HttpHeaderRegexCheckBuilder[X: GroupExtractor](private[header] val headerName: Expression[String], val pattern: Expression[String])(implicit extractorFactory: HttpHeaderRegexExtractorFactory)
     extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Response, X](
       HeaderExtender,
       PassThroughResponsePreparer) {
@@ -44,9 +44,9 @@ class HttpHeaderRegexCheckBuilder[X: GroupExtractor](private[header] val headerN
     pattern <- pattern(session)
   } yield (headerName, pattern)
 
-  def findExtractor(occurrence: Int) = headerAndPattern.map(new SingleHttpHeaderRegexExtractor(_, occurrence))
+  import extractorFactory._
 
-  def findAllExtractor = headerAndPattern.map(new MultipleHttpHeaderRegexExtractor(_))
-
-  def countExtractor = headerAndPattern.map(new CountHttpHeaderRegexExtractor(_))
+  def findExtractor(occurrence: Int) = headerAndPattern.map(newSingleExtractor[X](_, occurrence))
+  def findAllExtractor = headerAndPattern.map(newMultipleExtractor[X])
+  def countExtractor = headerAndPattern.map(newCountExtractor)
 }

@@ -20,7 +20,7 @@ import io.gatling.core.action.UserEnd
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
 import io.gatling.core.assertion.Assertion
-import io.gatling.core.config.Protocol
+import io.gatling.core.config.{ GatlingConfiguration, Protocol }
 import io.gatling.core.controller.throttle.{ ThrottlingProfile, Throttling }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseType, UniformDuration, UniformPercentage }
 import io.gatling.core.session.Expression
@@ -95,7 +95,7 @@ abstract class Simulation {
     }
   }
 
-  private[core] def build: SimulationDef = {
+  private[core] def build(implicit configuration: GatlingConfiguration): SimulationDef = {
 
     require(_scenarios.nonEmpty, "No scenario set up")
     val duplicates = _scenarios.groupBy(_.scenarioBuilder.name).collect { case (name, scns) if scns.size > 1 => name }

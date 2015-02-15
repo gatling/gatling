@@ -35,8 +35,6 @@ import io.gatling.http.util.HttpHelper
  */
 object HttpProtocolBuilder {
 
-  val DefaultHttpProtocolBuilder = new HttpProtocolBuilder(HttpProtocol.DefaultHttpProtocol)
-
   implicit def toHttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
 }
 

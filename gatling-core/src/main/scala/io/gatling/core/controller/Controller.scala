@@ -28,6 +28,7 @@ import akka.actor.ActorRef
 import akka.util.Timeout
 
 import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ End, Start }
 import io.gatling.core.result.writer.{ DataWriter, RunMessage, UserMessage }
 import io.gatling.core.runner.Selection
@@ -38,7 +39,7 @@ object Controller extends AkkaDefaults with StrictLogging {
 
   private var _instance: Option[ActorRef] = None
 
-  def run(simulation: SimulationDef, selection: Selection)(implicit timeout: Timeout): Future[Try[String]] = {
+  def run(simulation: SimulationDef, selection: Selection)(implicit configuration: GatlingConfiguration, timeout: Timeout): Future[Try[String]] = {
 
     val totalNumberOfUsers = simulation.scenarios.map(_.injectionProfile.users).sum
     logger.info(s"Total number of users : $totalNumberOfUsers")
@@ -58,7 +59,7 @@ object Controller extends AkkaDefaults with StrictLogging {
     }
 }
 
-class Controller(simulationDef: SimulationDef, selection: Selection, totalNumberOfUsers: Int)
+class Controller(simulationDef: SimulationDef, selection: Selection, totalNumberOfUsers: Int)(implicit configuration: GatlingConfiguration)
     extends ControllerStateMachine {
 
   startWith(WaitingToStart, NoData)

@@ -16,9 +16,8 @@
 package io.gatling.http.ahc
 
 import java.util.{ ArrayList => JArrayList }
-import java.util.concurrent.{ TimeUnit, Executors, ThreadFactory }
+import java.util.concurrent.{ ExecutorService, TimeUnit, Executors, ThreadFactory }
 
-import io.gatling.core.controller.throttle.Throttler
 import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
@@ -28,15 +27,16 @@ import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig.NettyWebSocketFactory
 import com.ning.http.client.providers.netty.ws.NettyWebSocket
-import com.ning.http.client.providers.netty.channel.pool.DefaultChannelPool
+import com.ning.http.client.providers.netty.channel.pool.{ ChannelPool, DefaultChannelPool }
 import com.ning.http.client.ws.{ WebSocketListener, WebSocketUpgradeHandler }
 import com.typesafe.scalalogging.StrictLogging
 
-import akka.actor.ActorRef
+import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.ConfigKeys
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.check.CheckResult
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.http.action.sse.SseHandler
 import io.gatling.http.action.ws.WsListener
@@ -104,121 +104,52 @@ case class WsTx(session: Session,
   }
 }
 
-object HttpEngine extends AkkaDefaults with StrictLogging {
-
-  private var _instance: Option[HttpEngine] = None
-
-  def start(): Unit = {
-    if (!_instance.isDefined) {
-      val client = new HttpEngine
-      _instance = Some(client)
-      system.registerOnTermination(stop())
-    }
-  }
-
-  def stop(): Unit = {
-    _instance.map { engine =>
-      engine.applicationThreadPool.shutdown()
-      engine.nioThreadPool.shutdown()
-    }
-    _instance = None
-  }
-
-  def instance: HttpEngine = _instance match {
-    case Some(engine) => engine
-    case _            => throw new UnsupportedOperationException("HTTP engine hasn't been started")
-  }
+object HttpEngine {
+  val AhcAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.ahc"
 }
 
-class HttpEngine extends AkkaDefaults with StrictLogging {
+trait HttpEngine {
 
-  val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
-    override def newThread(r: Runnable) = {
-      val t = new Thread(r, "Netty Thread")
-      t.setDaemon(true)
-      t
-    }
-  })
+  def start(): Unit
 
-  val nioThreadPool = Executors.newCachedThreadPool
+  def stop(): Unit
 
-  val nettyTimer = new HashedWheelTimer(10, TimeUnit.MILLISECONDS)
-  nettyTimer.start()
-  system.registerOnTermination(nettyTimer.stop())
+  def newAhc(session: Session): AsyncHttpClient
+
+  def newAhc(session: Option[Session]): AsyncHttpClient
+
+  def defaultAhc: AsyncHttpClient
+
+  def httpClient(session: Session, protocol: HttpProtocol): (Session, AsyncHttpClient)
+
+  def startHttpTransaction(tx: HttpTx): Unit
+
+  def startSseTransaction(tx: SseTx, sseActor: ActorRef): Unit
+
+  def startWebSocketTransaction(tx: WsTx, wsActor: ActorRef): Unit
+}
+
+class AhcHttpEngine(implicit configuration: GatlingConfiguration) extends HttpEngine with AkkaDefaults with StrictLogging {
 
   // set up Netty LoggerFactory for slf4j instead of default JDK
   InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
 
-  val channelPool = new DefaultChannelPool(configuration.http.ahc.pooledConnectionIdleTimeout,
-    configuration.http.ahc.connectionTTL,
-    configuration.http.ahc.allowPoolingSslConnections,
-    nettyTimer)
+  lazy val state = loadInternalState()
+  lazy val defaultAhc = newAhc(None)
 
-  val nettyConfig = {
-    val numWorkers = configuration.http.ahc.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
-    val socketChannelFactory = new NioClientSocketChannelFactory(new NioClientBossPool(nioThreadPool, 1, nettyTimer, null), new NioWorkerPool(nioThreadPool, numWorkers))
-    system.registerOnTermination(socketChannelFactory.releaseExternalResources())
-    val nettyConfig = new NettyAsyncHttpProviderConfig
-    nettyConfig.setSocketChannelFactory(socketChannelFactory)
-    nettyConfig.setNettyTimer(nettyTimer)
-    nettyConfig.setChannelPool(channelPool)
-    nettyConfig.setHttpClientCodecMaxInitialLineLength(configuration.http.ahc.httpClientCodecMaxInitialLineLength)
-    nettyConfig.setHttpClientCodecMaxHeaderSize(configuration.http.ahc.httpClientCodecMaxHeaderSize)
-    nettyConfig.setHttpClientCodecMaxChunkSize(configuration.http.ahc.httpClientCodecMaxChunkSize)
-    nettyConfig.setNettyWebSocketFactory(new NettyWebSocketFactory {
-      override def newNettyWebSocket(channel: Channel, nettyConfig: NettyAsyncHttpProviderConfig): NettyWebSocket =
-        new NettyWebSocket(channel, nettyConfig, new JArrayList[WebSocketListener](1))
-    })
-    nettyConfig.setKeepEncodingHeader(configuration.http.ahc.keepEncodingHeader)
-    nettyConfig.setWebSocketMaxFrameSize(configuration.http.ahc.webSocketMaxFrameSize)
-    nettyConfig
+  def start(): Unit = {
+    system.registerOnTermination(stop())
+    defaultAhc
   }
 
-  val defaultAhcConfig = {
-    val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
-      .setAllowPoolingConnections(configuration.http.ahc.allowPoolingConnections)
-      .setAllowPoolingSslConnections(configuration.http.ahc.allowPoolingSslConnections)
-      .setCompressionEnforced(configuration.http.ahc.compressionEnforced)
-      .setConnectTimeout(configuration.http.ahc.connectTimeout)
-      .setPooledConnectionIdleTimeout(configuration.http.ahc.pooledConnectionIdleTimeout)
-      .setReadTimeout(configuration.http.ahc.readTimeout)
-      .setConnectionTTL(configuration.http.ahc.connectionTTL)
-      .setIOThreadMultiplier(configuration.http.ahc.ioThreadMultiplier)
-      .setMaxConnectionsPerHost(configuration.http.ahc.maxConnectionsPerHost)
-      .setMaxConnections(configuration.http.ahc.maxConnections)
-      .setMaxRequestRetry(configuration.http.ahc.maxRetry)
-      .setRequestTimeout(configuration.http.ahc.requestTimeOut)
-      .setUseProxyProperties(configuration.http.ahc.useProxyProperties)
-      .setUserAgent(null)
-      .setExecutorService(applicationThreadPool)
-      .setAsyncHttpClientProviderConfig(nettyConfig)
-      .setWebSocketTimeout(configuration.http.ahc.webSocketTimeout)
-      .setUseRelativeURIsWithConnectProxies(configuration.http.ahc.useRelativeURIsWithConnectProxies)
-      .setAcceptAnyCertificate(configuration.http.ahc.acceptAnyCertificate)
-      .setEnabledProtocols(configuration.http.ahc.httpsEnabledProtocols match {
-        case Nil => null
-        case ps  => ps.toArray
-      })
-      .setEnabledCipherSuites(configuration.http.ahc.httpsEnabledCipherSuites match {
-        case Nil => null
-        case ps  => ps.toArray
-      })
-
-    val trustManagers = configuration.http.ssl.trustStore
-      .map(config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm))
-
-    val keyManagers = configuration.http.ssl.keyStore
-      .map(config => newKeyManagers(config.storeType, config.file, config.password, config.algorithm))
-
-    if (trustManagers.isDefined || keyManagers.isDefined)
-      ahcConfigBuilder.setSSLContext(trustManagers, keyManagers)
-
-    ahcConfigBuilder.build
+  def stop(): Unit = {
+    state.applicationThreadPool.shutdown()
+    state.nioThreadPool.shutdown()
   }
 
-  def newAHC(session: Session): AsyncHttpClient = newAHC(Some(session))
+  def newAhc(session: Session): AsyncHttpClient = newAhc(Some(session))
 
-  def newAHC(session: Option[Session]) = {
+  def newAhc(session: Option[Session]) = {
     val ahcConfig = session.flatMap { session =>
 
       val trustManagers = for {
@@ -237,29 +168,25 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
 
       trustManagers.orElse(keyManagers).map { _ =>
         logger.info(s"Setting a custom SSLContext for user ${session.userId}")
-        new AsyncHttpClientConfig.Builder(defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build
+        new AsyncHttpClientConfig.Builder(state.defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build
       }
 
-    }.getOrElse(defaultAhcConfig)
+    }.getOrElse(state.defaultAhcConfig)
 
     val client = new AsyncHttpClient(ahcConfig)
     system.registerOnTermination(client.close())
     client
   }
 
-  lazy val DefaultAHC = newAHC(None)
-
-  val AhcAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.ahc"
-
   def httpClient(session: Session, protocol: HttpProtocol): (Session, AsyncHttpClient) = {
     if (protocol.enginePart.shareClient)
-      (session, DefaultAHC)
+      (session, defaultAhc)
     else
-      session(AhcAttributeName).asOption[AsyncHttpClient] match {
+      session(HttpEngine.AhcAttributeName).asOption[AsyncHttpClient] match {
         case Some(client) => (session, client)
         case _ =>
-          val httpClient = newAHC(session)
-          (session.set(AhcAttributeName, httpClient), httpClient)
+          val httpClient = newAhc(session)
+          (session.set(HttpEngine.AhcAttributeName, httpClient), httpClient)
       }
   }
 
@@ -304,4 +231,101 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
     val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
     client.executeRequest(tx.request, handler)
   }
+
+  def loadInternalState() = {
+
+    val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
+      override def newThread(r: Runnable) = {
+        val t = new Thread(r, "Netty Thread")
+        t.setDaemon(true)
+        t
+      }
+    })
+
+    val nioThreadPool = Executors.newCachedThreadPool
+
+    val nettyTimer = {
+      val timer = new HashedWheelTimer(10, TimeUnit.MILLISECONDS)
+      timer.start()
+      system.registerOnTermination(timer.stop())
+      timer
+    }
+
+    val channelPool = new DefaultChannelPool(configuration.http.ahc.pooledConnectionIdleTimeout,
+      configuration.http.ahc.connectionTTL,
+      configuration.http.ahc.allowPoolingSslConnections,
+      nettyTimer)
+
+    val nettyConfig = {
+      val numWorkers = configuration.http.ahc.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
+      val socketChannelFactory = new NioClientSocketChannelFactory(new NioClientBossPool(nioThreadPool, 1, nettyTimer, null), new NioWorkerPool(nioThreadPool, numWorkers))
+      system.registerOnTermination(socketChannelFactory.releaseExternalResources())
+      val nettyConfig = new NettyAsyncHttpProviderConfig
+      nettyConfig.setSocketChannelFactory(socketChannelFactory)
+      nettyConfig.setNettyTimer(nettyTimer)
+      nettyConfig.setChannelPool(channelPool)
+      nettyConfig.setHttpClientCodecMaxInitialLineLength(configuration.http.ahc.httpClientCodecMaxInitialLineLength)
+      nettyConfig.setHttpClientCodecMaxHeaderSize(configuration.http.ahc.httpClientCodecMaxHeaderSize)
+      nettyConfig.setHttpClientCodecMaxChunkSize(configuration.http.ahc.httpClientCodecMaxChunkSize)
+      nettyConfig.setNettyWebSocketFactory(new NettyWebSocketFactory {
+        override def newNettyWebSocket(channel: Channel, nettyConfig: NettyAsyncHttpProviderConfig): NettyWebSocket =
+          new NettyWebSocket(channel, nettyConfig, new JArrayList[WebSocketListener](1))
+      })
+      nettyConfig.setKeepEncodingHeader(configuration.http.ahc.keepEncodingHeader)
+      nettyConfig.setWebSocketMaxFrameSize(configuration.http.ahc.webSocketMaxFrameSize)
+      nettyConfig
+    }
+
+    val defaultAhcConfig = {
+      val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
+        .setAllowPoolingConnections(configuration.http.ahc.allowPoolingConnections)
+        .setAllowPoolingSslConnections(configuration.http.ahc.allowPoolingSslConnections)
+        .setCompressionEnforced(configuration.http.ahc.compressionEnforced)
+        .setConnectTimeout(configuration.http.ahc.connectTimeout)
+        .setPooledConnectionIdleTimeout(configuration.http.ahc.pooledConnectionIdleTimeout)
+        .setReadTimeout(configuration.http.ahc.readTimeout)
+        .setConnectionTTL(configuration.http.ahc.connectionTTL)
+        .setIOThreadMultiplier(configuration.http.ahc.ioThreadMultiplier)
+        .setMaxConnectionsPerHost(configuration.http.ahc.maxConnectionsPerHost)
+        .setMaxConnections(configuration.http.ahc.maxConnections)
+        .setMaxRequestRetry(configuration.http.ahc.maxRetry)
+        .setRequestTimeout(configuration.http.ahc.requestTimeOut)
+        .setUseProxyProperties(configuration.http.ahc.useProxyProperties)
+        .setUserAgent(null)
+        .setExecutorService(applicationThreadPool)
+        .setAsyncHttpClientProviderConfig(nettyConfig)
+        .setWebSocketTimeout(configuration.http.ahc.webSocketTimeout)
+        .setUseRelativeURIsWithConnectProxies(configuration.http.ahc.useRelativeURIsWithConnectProxies)
+        .setAcceptAnyCertificate(configuration.http.ahc.acceptAnyCertificate)
+        .setEnabledProtocols(configuration.http.ahc.httpsEnabledProtocols match {
+          case Nil => null
+          case ps  => ps.toArray
+        })
+        .setEnabledCipherSuites(configuration.http.ahc.httpsEnabledCipherSuites match {
+          case Nil => null
+          case ps  => ps.toArray
+        })
+
+      val trustManagers = configuration.http.ssl.trustStore
+        .map(config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm))
+
+      val keyManagers = configuration.http.ssl.keyStore
+        .map(config => newKeyManagers(config.storeType, config.file, config.password, config.algorithm))
+
+      if (trustManagers.isDefined || keyManagers.isDefined)
+        ahcConfigBuilder.setSSLContext(trustManagers, keyManagers)
+
+      ahcConfigBuilder.build
+    }
+
+    new InternalState(applicationThreadPool, nioThreadPool, channelPool, nettyConfig, defaultAhcConfig)
+  }
+
+  case class InternalState(applicationThreadPool: ExecutorService,
+                           nioThreadPool: ExecutorService,
+                           channelPool: ChannelPool,
+                           nettyConfig: NettyAsyncHttpProviderConfig,
+                           defaultAhcConfig: AsyncHttpClientConfig)
+
 }
+

@@ -15,9 +15,11 @@
  */
 package io.gatling.http.request.builder.ws
 
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, SessionPrivateAttributes }
 import io.gatling.http.action.ws._
 import io.gatling.http.check.ws._
+import io.gatling.http.config.DefaultHttpProtocol
 import io.gatling.http.request.builder.CommonAttributes
 
 object Ws {
@@ -29,7 +31,7 @@ object Ws {
  * @param requestName The name of this request
  * @param wsName The name of the session attribute used to store the websocket
  */
-class Ws(requestName: Expression[String], wsName: String = Ws.DefaultWebSocketName) {
+class Ws(requestName: Expression[String], wsName: String = Ws.DefaultWebSocketName)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol) {
 
   def wsName(wsName: String) = new Ws(requestName, wsName)
 

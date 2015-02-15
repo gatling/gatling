@@ -30,6 +30,10 @@
  */
 package io.gatling.http.check.ws
 
+import io.gatling.core.check.extractor.jsonpath.JsonPathExtractorFactory
+import io.gatling.core.check.extractor.regex.RegexExtractorFactory
+import io.gatling.core.json.JsonParsers
+
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.session.Expression
@@ -61,11 +65,14 @@ trait WsCheckDSL {
 
   class Step4(await: Boolean, timeout: FiniteDuration, expectation: Expectation) {
 
-    def regex(expression: Expression[String]) = WsRegexCheckBuilder.regex(expression, WsCheckBuilders.extender(await, timeout, expectation))
+    def regex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory) =
+      WsRegexCheckBuilder.regex(expression, WsCheckBuilders.extender(await, timeout, expectation))
 
-    def jsonPath(path: Expression[String]) = WsJsonPathCheckBuilder.jsonPath(path, WsCheckBuilders.extender(await, timeout, expectation))
+    def jsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+      WsJsonPathCheckBuilder.jsonPath(path, WsCheckBuilders.extender(await, timeout, expectation))
 
-    def jsonpJsonPath(path: Expression[String]) = WsJsonpJsonPathCheckBuilder.jsonpJsonPath(path, WsCheckBuilders.extender(await, timeout, expectation))
+    def jsonpJsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+      WsJsonpJsonPathCheckBuilder.jsonpJsonPath(path, WsCheckBuilders.extender(await, timeout, expectation))
 
     val message = WsPlainCheckBuilder.message(WsCheckBuilders.extender(await, timeout, expectation))
   }

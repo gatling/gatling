@@ -24,7 +24,7 @@ import akka.actor.ActorDSL.actor
 import akka.routing.RoundRobinPool
 import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
 import io.gatling.core.check.Check
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.Session
 import io.gatling.core.result.writer.DataWriterClient
@@ -32,9 +32,9 @@ import io.gatling.core.util.StringHelper.Eol
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
 import io.gatling.http.action.HttpRequestAction
-import io.gatling.http.cache.{ PermanentRedirect, CacheHandling }
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.{ HttpCheck, HttpCheckScope }
-import io.gatling.http.cookie.CookieHandling
+import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.request.ExtraInfo
@@ -47,9 +47,9 @@ object AsyncHandlerActor extends AkkaDefaults {
 
   private var _instance: Option[ActorRef] = None
 
-  def start(): Unit =
+  def start(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher): Unit =
     if (!_instance.isDefined) {
-      _instance = Some(system.actorOf(RoundRobinPool(3 * Runtime.getRuntime.availableProcessors).props(Props[AsyncHandlerActor]), "asyncHandler"))
+      _instance = Some(system.actorOf(RoundRobinPool(3 * Runtime.getRuntime.availableProcessors).props(Props(classOf[AsyncHandlerActor], configuration, httpEngine, httpCaches, resourceFetcher)), "asyncHandler"))
       system.registerOnTermination(_instance = None)
     }
 
@@ -59,7 +59,7 @@ object AsyncHandlerActor extends AkkaDefaults {
   }
 }
 
-class AsyncHandlerActor extends BaseActor with DataWriterClient {
+class AsyncHandlerActor(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher) extends BaseActor with DataWriterClient {
 
   override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
 
@@ -108,7 +108,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           buff.append("=========================").append(Eol)
           buff.append("Session:").append(Eol).append(tx.session).append(Eol)
           buff.append("=========================").append(Eol)
-          buff.append("HTTP request:").append(Eol).appendRequest(tx.request.ahcRequest, response.nettyRequest)
+          buff.append("HTTP request:").append(Eol).appendRequest(tx.request.ahcRequest, response.nettyRequest, configuration.core.charset)
           buff.append("=========================").append(Eol)
           buff.append("HTTP response:").append(Eol).appendResponse(response).append(Eol)
           buff.append("<<<<<<<<<<<<<<<<<<<<<<<<<")
@@ -155,9 +155,9 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
     val protocol = tx.request.config.protocol
 
     if (tx.primary)
-      ResourceFetcher.resourceFetcherForFetchedPage(tx.request.ahcRequest, response, tx) match {
-        case Some(resourceFetcher) =>
-          actor(context, actorName("resourceFetcher"))(resourceFetcher())
+      resourceFetcher.resourceFetcherActorForFetchedPage(tx.request.ahcRequest, response, tx) match {
+        case Some(resourceFetcherActor) =>
+          actor(context, actorName("resourceFetcher"))(resourceFetcherActor())
 
         case None =>
           tx.next ! tx.session.increaseDrift(nowMillis - response.timings.responseEndDate)
@@ -226,7 +226,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         if (switchToGet) originalHeaders.remove(HeaderNames.ContentType)
         requestBuilder.setHeaders(originalHeaders)
 
-        for (cookie <- CookieHandling.getStoredCookies(sessionWithUpdatedCookies, redirectUri))
+        for (cookie <- CookieSupport.getStoredCookies(sessionWithUpdatedCookies, redirectUri))
           requestBuilder.addCookie(cookie)
 
         requestBuilder.build
@@ -267,7 +267,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         response.statusCode match {
           case Some(code) if HttpHelper.isPermanentRedirect(code) =>
             val originalUri = originalRequest.getUri
-            PermanentRedirect.addRedirect(_, originalUri, redirectUri)
+            httpCaches.addRedirect(_, originalUri, redirectUri)
           case _ => Session.Identity
         }
 
@@ -280,7 +280,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           case _    => KO
         }
 
-        val cacheUpdate = CacheHandling.cache(tx.request.config.protocol, tx.request.ahcRequest, response)
+        val cacheUpdate = httpCaches.cache(tx.request.config.protocol, tx.request.ahcRequest, response)
 
         val totalUpdate = sessionUpdate andThen cacheUpdate andThen checkSaveUpdate
 
@@ -294,7 +294,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         val storeCookiesUpdate: Session => Session =
           response.cookies match {
             case Nil     => Session.Identity
-            case cookies => CookieHandling.storeCookies(_, uri, cookies)
+            case cookies => CookieSupport.storeCookies(_, uri, cookies)
           }
         val newUpdate = tx.update andThen storeCookiesUpdate
         val statusCode = status.getStatusCode

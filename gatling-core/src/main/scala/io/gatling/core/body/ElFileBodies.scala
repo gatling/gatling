@@ -15,7 +15,7 @@
  */
 package io.gatling.core.body
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.Resource
 import io.gatling.core.session._
 import io.gatling.core.session.el.{ El, ElCompiler }
@@ -23,49 +23,42 @@ import io.gatling.core.util.Io._
 import io.gatling.core.util.cache._
 import io.gatling.core.validation._
 
-object ElFileBodies {
+class ElFileBodies(implicit configuration: GatlingConfiguration) {
 
-  val ElFileBodyStringCache = ThreadSafeCache[String, Validation[Expression[String]]](configuration.core.elFileBodiesCacheMaxCapacity)
+  val charset = configuration.core.charset
 
-  def asString(filePath: Expression[String]): Expression[String] = {
-
+  private val elFileBodyStringCache = {
       def compileFile(path: String): Validation[Expression[String]] =
-        Resource.body(path)
-          .map(resource => withCloseable(resource.inputStream) {
-            _.toString(configuration.core.charset)
-          }).map(_.el[String])
+        Resource.body(path).map { resource =>
+          withCloseable(resource.inputStream) {
+            _.toString(charset)
+          }
+        }.map(_.el[String])
 
-      def pathToExpression(path: String) =
-        if (ElFileBodyStringCache.enabled)
-          ElFileBodyStringCache.getOrElsePutIfAbsent(path, compileFile(path))
-        else
-          compileFile(path)
+    new SelfLoadingThreadSafeCache[String, Validation[Expression[String]]](configuration.core.elFileBodiesCacheMaxCapacity, compileFile)
+  }
+  private val elFileBodyBytesCache = {
+      def resource2BytesSeq(path: String): Validation[Expression[Seq[Array[Byte]]]] =
+        Resource.body(path).map { resource =>
+          ElCompiler.compile2BytesSeq(resource.string(charset), charset)
+        }
 
+    new SelfLoadingThreadSafeCache[String, Validation[Expression[Seq[Array[Byte]]]]](configuration.core.elFileBodiesCacheMaxCapacity, resource2BytesSeq)
+  }
+
+  def asString(filePath: Expression[String]): Expression[String] =
     session =>
       for {
         path <- filePath(session)
-        expression <- pathToExpression(path)
+        expression <- elFileBodyStringCache.get(path)
         body <- expression(session)
       } yield body
-  }
 
-  val ElFileBodyBytesCache = ThreadSafeCache[String, Validation[Expression[Seq[Array[Byte]]]]](configuration.core.elFileBodiesCacheMaxCapacity)
-
-  def asBytesSeq(filePath: Expression[String]): Expression[Seq[Array[Byte]]] = {
-
-      def resource2BytesSeq(path: String): Validation[Expression[Seq[Array[Byte]]]] = Resource.body(path).map { resource =>
-        ElCompiler.compile2BytesSeq(resource.string(configuration.core.charset))
-      }
-
-      def pathToExpression(path: String) =
-        if (ElFileBodyBytesCache.enabled) ElFileBodyBytesCache.getOrElsePutIfAbsent(path, resource2BytesSeq(path))
-        else resource2BytesSeq(path)
-
+  def asBytesSeq(filePath: Expression[String]): Expression[Seq[Array[Byte]]] =
     session =>
       for {
         path <- filePath(session)
-        expression <- pathToExpression(path)
+        expression <- elFileBodyBytesCache.get(path)
         body <- expression(session)
       } yield body
-  }
 }

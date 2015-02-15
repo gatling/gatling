@@ -23,24 +23,24 @@ import io.gatling.http.check.ws.WsCheckBuilders._
 trait WsRegexOfType {
   self: WsRegexCheckBuilder[String] =>
 
-  def ofType[X](implicit groupExtractor: GroupExtractor[X]) = new WsRegexCheckBuilder[X](expression, extender)
+  def ofType[X: GroupExtractor](implicit extractorFactory: RegexExtractorFactory) = new WsRegexCheckBuilder[X](expression, extender)
 }
 
 object WsRegexCheckBuilder {
 
-  def regex(expression: Expression[String], extender: Extender[WsCheck, String]) =
+  def regex(expression: Expression[String], extender: Extender[WsCheck, String])(implicit extractorFactory: RegexExtractorFactory) =
     new WsRegexCheckBuilder[String](expression, extender) with WsRegexOfType
 }
 
-class WsRegexCheckBuilder[X](private[ws] val expression: Expression[String],
-                             private[ws] val extender: Extender[WsCheck, String])(implicit groupExtractor: GroupExtractor[X])
+class WsRegexCheckBuilder[X: GroupExtractor](private[ws] val expression: Expression[String],
+                                             private[ws] val extender: Extender[WsCheck, String])(implicit extractorFactory: RegexExtractorFactory)
     extends DefaultMultipleFindCheckBuilder[WsCheck, String, CharSequence, X](
       extender,
       PassThroughMessagePreparer) {
 
-  def findExtractor(occurrence: Int) = expression.map(new SingleRegexExtractor(_, occurrence))
+  import extractorFactory._
 
-  def findAllExtractor = expression.map(new MultipleRegexExtractor(_))
-
-  def countExtractor = expression.map(new CountRegexExtractor(_))
+  def findExtractor(occurrence: Int) = expression.map(newSingleExtractor[X](_, occurrence))
+  def findAllExtractor = expression.map(newMultipleExtractor[X])
+  def countExtractor = expression.map(newCountExtractor)
 }

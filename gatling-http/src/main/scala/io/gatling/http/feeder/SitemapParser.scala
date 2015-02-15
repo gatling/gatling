@@ -27,8 +27,6 @@ import io.gatling.core.util.Io._
 
 /**
  * Parser for files in [[http://www.sitemaps.org/protocol.html sitemap]] format.
- *
- * @author Ivan Mushketyk
  */
 object SitemapParser {
 

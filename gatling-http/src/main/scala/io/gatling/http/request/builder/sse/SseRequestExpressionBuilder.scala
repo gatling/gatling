@@ -17,13 +17,15 @@ package io.gatling.http.request.builder.sse
 
 import com.ning.http.client.{ RequestBuilder => AHCRequestBuilder }
 import com.ning.http.client.uri.Uri
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
 import io.gatling.http.util.HttpHelper
 
-class SseRequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol) extends RequestExpressionBuilder(commonAttributes, protocol) {
+class SseRequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol)(implicit configuration: GatlingConfiguration)
+    extends RequestExpressionBuilder(commonAttributes, protocol) {
 
   override protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
     // disable request timeout for SSE

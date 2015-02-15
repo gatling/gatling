@@ -15,6 +15,7 @@
  */
 package io.gatling.http.response
 
+import java.nio.charset.Charset
 import java.security.MessageDigest
 
 import com.ning.http.client.providers.netty.request.NettyRequest
@@ -30,7 +31,7 @@ import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, HttpResponseBodyP
 import com.ning.http.client.providers.netty.response.NettyResponseBodyPart
 import com.typesafe.scalalogging.StrictLogging
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.StringHelper.bytes2Hex
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
@@ -49,7 +50,7 @@ object ResponseBuilder extends StrictLogging {
   def newResponseBuilderFactory(checks: List[HttpCheck],
                                 responseTransformer: Option[PartialFunction[Response, Response]],
                                 discardResponseChunks: Boolean,
-                                inferHtmlResources: Boolean): Request => ResponseBuilder = {
+                                inferHtmlResources: Boolean)(implicit configuration: GatlingConfiguration): Request => ResponseBuilder = {
 
     val checksumChecks = checks.collect {
       case checksumCheck: ChecksumCheck => checksumCheck
@@ -59,7 +60,14 @@ object ResponseBuilder extends StrictLogging {
 
     val storeBodyParts = IsDebugEnabled || !discardResponseChunks || responseBodyUsageStrategies.nonEmpty || responseTransformer.isDefined
 
-    request: Request => new ResponseBuilder(request, checksumChecks, responseBodyUsageStrategies, responseTransformer, storeBodyParts, inferHtmlResources)
+    request: Request => new ResponseBuilder(
+      request,
+      checksumChecks,
+      responseBodyUsageStrategies,
+      responseTransformer,
+      storeBodyParts,
+      inferHtmlResources,
+      configuration.core.charset)
   }
 }
 
@@ -68,7 +76,8 @@ class ResponseBuilder(request: Request,
                       bodyUsageStrategies: Set[ResponseBodyUsageStrategy],
                       responseProcessor: Option[PartialFunction[Response, Response]],
                       storeBodyParts: Boolean,
-                      inferHtmlResources: Boolean) {
+                      inferHtmlResources: Boolean,
+                      charset: Charset) {
 
   val computeChecksums = checksumChecks.nonEmpty
   var storeHtmlOrCss = false
@@ -159,28 +168,28 @@ class ResponseBuilder(request: Request,
 
     val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
 
-    val charset = Option(headers.getFirstValue(HeaderNames.ContentType))
+    val resolvedCharset = Option(headers.getFirstValue(HeaderNames.ContentType))
       .flatMap(HttpHelper.extractCharsetFromContentType)
-      .getOrElse(configuration.core.charset)
+      .getOrElse(charset)
 
     val body: ResponseBody =
       if (chunks.isEmpty)
         NoResponseBody
 
       else if (bodyUsages.contains(ByteArrayResponseBodyUsage))
-        ByteArrayResponseBody(chunks, charset)
+        ByteArrayResponseBody(chunks, resolvedCharset)
 
       else if (bodyUsages.contains(InputStreamResponseBodyUsage) || bodyUsages.isEmpty)
-        InputStreamResponseBody(chunks, charset)
+        InputStreamResponseBody(chunks, resolvedCharset)
 
       else if (isTxt(headers))
-        StringResponseBody(chunks, charset)
+        StringResponseBody(chunks, resolvedCharset)
 
       else
-        ByteArrayResponseBody(chunks, charset)
+        ByteArrayResponseBody(chunks, resolvedCharset)
 
     val timings = RequestTimings(firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
-    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, bodyLength, charset, timings)
+    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
 
     responseProcessor match {
       case None            => rawResponse

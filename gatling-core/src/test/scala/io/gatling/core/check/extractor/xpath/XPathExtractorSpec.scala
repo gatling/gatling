@@ -15,43 +15,23 @@
  */
 package io.gatling.core.check.extractor.xpath
 
+import io.gatling.core.config.GatlingConfiguration
+import net.sf.saxon.s9api.XdmNode
 import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationValues
 import io.gatling.core.util.Io._
+import org.w3c.dom.Document
 import org.xml.sax.InputSource
 
-class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
+abstract class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
-  GatlingConfiguration.setUpForTest()
-
+  implicit val configuration = GatlingConfiguration.loadForTest()
   val namespaces = List("foo" -> "http://foo/foo")
 
-  def xmdNode(file: String) =
-    withCloseable(getClass.getResourceAsStream(file)) { is =>
-      Some(SaxonXPathExtractor.parse(new InputSource(is)))
-    }
-
-  def document(file: String) =
-    withCloseable(getClass.getResourceAsStream(file)) { is =>
-      Some(JdkXPathExtractor.parse(new InputSource(is)))
-    }
-
-  def testCount(expression: String, file: String, expected: Int): Unit = {
-    new SaxonXPathExtractor.CountXPathExtractor(expression, namespaces)(xmdNode(file)).succeeded shouldBe Some(expected)
-    new JdkXPathExtractor.CountXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe Some(expected)
-  }
-
-  def testSingle(expression: String, namespaces: List[(String, String)], rank: Int, file: String, expected: Option[String]): Unit = {
-    new SaxonXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(xmdNode(file)).succeeded shouldBe expected
-    new JdkXPathExtractor.SingleXPathExtractor(expression, namespaces, rank)(document(file)).succeeded shouldBe expected
-  }
-
-  def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
-    new SaxonXPathExtractor.MultipleXPathExtractor(expression, namespaces)(xmdNode(file)).succeeded shouldBe expected
-    new JdkXPathExtractor.MultipleXPathExtractor(expression, namespaces)(document(file)).succeeded shouldBe expected
-  }
+  def testCount(expression: String, file: String, expected: Int): Unit
+  def testSingle(expression: String, namespaces: List[(String, String)], rank: Int, file: String, expected: Option[String]): Unit
+  def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit
 
   "count" should "return expected result with anywhere expression" in {
     testCount("//author", "/test.xml", 4)
@@ -107,5 +87,59 @@ class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
   it should "return expected result with anywhere namespaced element" in {
     testMultiple("//foo:bar", namespaces, "/test.xml", Some(List("fooBar")))
+  }
+}
+
+class SaxonXPathExtractorSpec extends XPathExtractorSpec {
+
+  implicit val saxon = new Saxon
+  val extractorFactory = new SaxonXPathExtractorFactory
+  import extractorFactory._
+
+  def xdmNode(file: String): Option[XdmNode] =
+    withCloseable(getClass.getResourceAsStream(file)) { is =>
+      Some(saxon.parse(new InputSource(is)))
+    }
+
+  def testCount(expression: String, file: String, expected: Int): Unit = {
+    val extractor = newCountExtractor(expression, namespaces)
+    extractor(xdmNode(file)).succeeded shouldBe Some(expected)
+  }
+
+  def testSingle(expression: String, namespaces: List[(String, String)], occurrence: Int, file: String, expected: Option[String]): Unit = {
+    val extractor = newSingleExtractor((expression, namespaces), occurrence)
+    extractor(xdmNode(file)).succeeded shouldBe expected
+  }
+
+  def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
+    val extractor = newMultipleExtractor(expression, namespaces)
+    extractor(xdmNode(file)).succeeded shouldBe expected
+  }
+}
+
+class JdkXPathExtractorSpec extends XPathExtractorSpec {
+
+  implicit val jdkXmlParsers = new JdkXmlParsers
+  val extractorFactory = new JdkXPathExtractorFactory
+  import extractorFactory._
+
+  def document(file: String): Option[Document] =
+    withCloseable(getClass.getResourceAsStream(file)) { is =>
+      Some(jdkXmlParsers.parse(new InputSource(is)))
+    }
+
+  def testCount(expression: String, file: String, expected: Int): Unit = {
+    val extractor = newCountExtractor(expression, namespaces)
+    extractor(document(file)).succeeded shouldBe Some(expected)
+  }
+
+  def testSingle(expression: String, namespaces: List[(String, String)], occurrence: Int, file: String, expected: Option[String]): Unit = {
+    val extractor = newSingleExtractor((expression, namespaces), occurrence)
+    extractor(document(file)).succeeded shouldBe expected
+  }
+
+  def testMultiple(expression: String, namespaces: List[(String, String)], file: String, expected: Option[List[String]]): Unit = {
+    val extractor = newMultipleExtractor(expression, namespaces)
+    extractor(document(file)).succeeded shouldBe expected
   }
 }

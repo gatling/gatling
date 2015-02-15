@@ -18,11 +18,10 @@ package io.gatling.http.check.body
 import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
-import io.gatling.core.check.extractor.jsonpath.{ CountJsonPathExtractor, JsonFilter, MultipleJsonPathExtractor, SingleJsonPathExtractor }
-import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.json.{ Jackson, Boon }
+import io.gatling.core.check.extractor.jsonpath._
+import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.core.validation.{ Validation, FailureWrapper, SuccessWrapper }
+import io.gatling.core.validation._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
@@ -30,43 +29,36 @@ import io.gatling.http.response.Response
 trait HttpBodyJsonpJsonPathOfType {
   self: HttpBodyJsonpJsonPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter] = new HttpBodyJsonpJsonPathCheckBuilder[X](path)
+  def ofType[X: JsonFilter](implicit extractorFactory: JsonPathExtractorFactory) = new HttpBodyJsonpJsonPathCheckBuilder[X](path, jsonParsers)
 }
 
 object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
 
   val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\);?\s*$""".r
 
-  val JsonParser =
-    if (configuration.core.extract.jsonPath.preferJackson) Jackson
-    else Boon
-
-  def parseJsonpString(string: String): Validation[Any] = string match {
+  def parseJsonpString(string: String, jsonParsers: JsonParsers): Validation[Any] = string match {
     case JsonpRegex(jsonp) =>
-      try {
-        JsonParser.parse(jsonp).success
-      } catch {
-        case e: Exception =>
-          val message = s"Could not parse JSONP string into a JSON object: ${e.getMessage}"
-          logger.info(message, e)
-          message.failure
-      }
+      jsonParsers.safeParse(jsonp)
+
     case _ =>
-      val message = "Regex could not extract JSON object from JSONP response"
-      logger.info(message)
-      message.failure
+      "Regex could not extract JSON object from JSONP response".failure
   }
 
-  val JsonpPreparer: Preparer[Response, Any] = response => parseJsonpString(response.body.string)
+  def jsonpPreparer(jsonParsers: JsonParsers): Preparer[Response, Any] = response => parseJsonpString(response.body.string, jsonParsers)
 
-  def jsonpJsonPath(path: Expression[String]) = new HttpBodyJsonpJsonPathCheckBuilder[String](path) with HttpBodyJsonpJsonPathOfType
+  def jsonpJsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+    new HttpBodyJsonpJsonPathCheckBuilder[String](path, jsonParsers) with HttpBodyJsonpJsonPathOfType
 }
 
-class HttpBodyJsonpJsonPathCheckBuilder[X: JsonFilter](private[body] val path: Expression[String])
-    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Any, X](StringBodyExtender,
-      HttpBodyJsonpJsonPathCheckBuilder.JsonpPreparer) {
+class HttpBodyJsonpJsonPathCheckBuilder[X: JsonFilter](private[body] val path: Expression[String],
+                                                       private[body] val jsonParsers: JsonParsers)(implicit extractorFactory: JsonPathExtractorFactory)
+    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Any, X](
+      StringBodyExtender,
+      HttpBodyJsonpJsonPathCheckBuilder.jsonpPreparer(jsonParsers)) {
 
-  def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
-  def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))
-  def countExtractor = path.map(new CountJsonPathExtractor(_))
+  import extractorFactory._
+
+  def findExtractor(occurrence: Int) = path.map(newSingleExtractor[X](_, occurrence))
+  def findAllExtractor = path.map(newMultipleExtractor[X])
+  def countExtractor = path.map(newCountExtractor)
 }

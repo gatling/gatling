@@ -15,6 +15,8 @@
  */
 package io.gatling.charts.result.reader.buffers
 
+import io.gatling.core.config.GatlingConfiguration
+
 import scala.collection.mutable
 import io.gatling.charts.result.reader.RequestRecord
 import io.gatling.core.result.Group
@@ -25,21 +27,19 @@ private[reader] trait ResponseTimeRangeBuffers {
 
   val responseTimeRangeBuffers = mutable.Map.empty[BufferKey, ResponseTimeRangeBuffer]
 
-  def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group]): ResponseTimeRangeBuffer =
+  def getResponseTimeRangeBuffers(requestName: Option[String], group: Option[Group])(implicit configuration: GatlingConfiguration): ResponseTimeRangeBuffer =
     responseTimeRangeBuffers.getOrElseUpdate(BufferKey(requestName, group, None), new ResponseTimeRangeBuffer)
 
-  def updateResponseTimeRangeBuffer(record: RequestRecord): Unit = {
+  def updateResponseTimeRangeBuffer(record: RequestRecord)(implicit configuration: GatlingConfiguration): Unit = {
     import record._
     getResponseTimeRangeBuffers(Some(name), group).update(responseTime, status)
     getResponseTimeRangeBuffers(None, None).update(responseTime, status)
   }
 
-  def updateGroupResponseTimeRangeBuffer(record: GroupRecord): Unit =
+  def updateGroupResponseTimeRangeBuffer(record: GroupRecord)(implicit configuration: GatlingConfiguration): Unit =
     getResponseTimeRangeBuffers(None, Some(record.group)).update(record.duration, record.status)
 
-  class ResponseTimeRangeBuffer {
-
-    import io.gatling.core.config.GatlingConfiguration.configuration
+  class ResponseTimeRangeBuffer(implicit configuration: GatlingConfiguration) {
 
     var low = 0
     var middle = 0

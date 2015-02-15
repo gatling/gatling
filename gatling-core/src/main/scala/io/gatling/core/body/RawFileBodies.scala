@@ -17,27 +17,27 @@ package io.gatling.core.body
 
 import java.io.File
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.Resource
 import io.gatling.core.session.Expression
 import io.gatling.core.util.Io._
-import io.gatling.core.util.cache._
+import io.gatling.core.util.cache.SelfLoadingThreadSafeCache
 import io.gatling.core.validation.Validation
 
-object RawFileBodies {
+class RawFileBodies(implicit configuration: GatlingConfiguration) {
 
-  val RawFileBodyCache = ThreadSafeCache[String, Validation[File]](configuration.core.rawFileBodiesCacheMaxCapacity)
+  private val rawFileBodyCache = {
+      def pathToFile(path: String): Validation[File] = Resource.body(path).map(_.file)
+
+    new SelfLoadingThreadSafeCache[String, Validation[File]](configuration.core.rawFileBodiesCacheMaxCapacity, pathToFile)
+  }
 
   def asFile(filePath: Expression[String]): Expression[File] = {
-
-      def pathToFile(path: String) =
-        if (RawFileBodyCache.enabled) RawFileBodyCache.getOrElsePutIfAbsent(path, Resource.body(path).map(_.file))
-        else Resource.body(path).map(_.file)
 
     session =>
       for {
         path <- filePath(session)
-        file <- pathToFile(path)
+        file <- rawFileBodyCache.get(path)
         validatedFile <- file.validateExistingReadable
       } yield validatedFile
   }

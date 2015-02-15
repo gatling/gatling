@@ -27,7 +27,8 @@ import io.gatling.core.util.StringHelper.RichString
 
 class AssertionValidatorSpec extends FlatSpec with Matchers with MockitoSugar with AssertionSupport {
 
-  GatlingConfiguration.setUpForTest()
+  implicit val configuration = GatlingConfiguration.loadForTest()
+  val assertionValidator = new AssertionValidator
 
   private type Conditions = List[AssertionWithPathAndTarget => Assertion]
   private type StatsModifiers = List[Stats => Stats]
@@ -71,7 +72,7 @@ class AssertionValidatorSpec extends FlatSpec with Matchers with MockitoSugar wi
   }
 
   private def validateAssertions(dataReader: DataReader) =
-    AssertionValidator.validateAssertions(dataReader).map(_.result).forall(identity)
+    assertionValidator.validateAssertions(dataReader).map(_.result).forall(identity)
 
   "AssertionValidator" should "fail the assertion when the request path does not exist" in {
     val requestStats = Stats(GeneralStats.NoPlot, requestName = "bar")

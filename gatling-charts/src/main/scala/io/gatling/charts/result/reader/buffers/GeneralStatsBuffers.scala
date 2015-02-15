@@ -17,14 +17,14 @@ package io.gatling.charts.result.reader.buffers
 
 import scala.collection.mutable
 import io.gatling.charts.result.reader.{ RequestRecord, FileDataReader }
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.{ IntVsTimePlot, Group }
 import io.gatling.core.result.message.Status
 import io.gatling.core.result.reader.GeneralStats
 import io.gatling.charts.result.reader.GroupRecord
 import com.tdunning.math.stats.AVLTreeDigest
 
-private[reader] abstract class GeneralStatsBuffers(durationInSec: Long) {
+private[reader] abstract class GeneralStatsBuffers(durationInSec: Long)(implicit configuration: GatlingConfiguration) {
 
   val requestGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
   val groupDurationGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
@@ -58,7 +58,7 @@ private[reader] abstract class GeneralStatsBuffers(durationInSec: Long) {
   }
 }
 
-private[reader] class GeneralStatsBuffer(duration: Long) {
+private[reader] class GeneralStatsBuffer(duration: Long)(implicit configuration: GatlingConfiguration) {
 
   val counts = mutable.Map.empty[Int, Int]
   val digest = new AVLTreeDigest(100.0)

@@ -18,17 +18,17 @@ package io.gatling.http.request.builder
 import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ Request, RequestBuilder => AHCRequestBuilder }
 import com.typesafe.scalalogging.StrictLogging
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.HeaderNames
 import io.gatling.http.ahc.ChannelPoolPartitioning
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.cookie.CookieHandling
+import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.util.HttpHelper
 
-abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol) extends StrictLogging {
+abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol)(implicit configuration: GatlingConfiguration) extends StrictLogging {
 
   def makeAbsolute(url: String): Validation[String]
 
@@ -60,7 +60,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
   }
 
   def configureCookies(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
-    CookieHandling.getStoredCookies(session, uri).foreach(requestBuilder.addCookie)
+    CookieSupport.getStoredCookies(session, uri).foreach(requestBuilder.addCookie)
     requestBuilder.success
   }
 

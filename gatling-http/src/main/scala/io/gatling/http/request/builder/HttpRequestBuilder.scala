@@ -18,12 +18,16 @@ package io.gatling.http.request.builder
 import com.ning.http.client.Request
 
 import io.gatling.core.body.{ Body, RawFileBodies }
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
+import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.cache.HttpCaches
+import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.{ HeaderValues, HeaderNames }
 import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope.Status
-import io.gatling.http.config.HttpProtocol
+import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocol }
 import io.gatling.http.request._
 import io.gatling.http.response.Response
 
@@ -42,7 +46,8 @@ case class HttpAttributes(
 
 object HttpRequestBuilder {
 
-  implicit def toActionBuilder(requestBuilder: HttpRequestBuilder) = new HttpRequestActionBuilder(requestBuilder)
+  implicit def toActionBuilder(requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher) =
+    new HttpRequestActionBuilder(requestBuilder)
 
   val MultipartFormDataValueExpression = HeaderValues.MultipartFormData.expression
   val ApplicationFormUrlEncodedValueExpression = HeaderValues.ApplicationFormUrlEncoded.expression
@@ -53,7 +58,7 @@ object HttpRequestBuilder {
  *
  * @param httpAttributes the base HTTP attributes
  */
-class HttpRequestBuilder(commonAttributes: CommonAttributes, val httpAttributes: HttpAttributes)
+class HttpRequestBuilder(commonAttributes: CommonAttributes, val httpAttributes: HttpAttributes)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches)
     extends RequestBuilder[HttpRequestBuilder](commonAttributes) {
 
   private[http] def newInstance(commonAttributes: CommonAttributes): HttpRequestBuilder = new HttpRequestBuilder(commonAttributes, httpAttributes)
@@ -113,15 +118,16 @@ class HttpRequestBuilder(commonAttributes: CommonAttributes, val httpAttributes:
   private def formParam(formParam: HttpParam): HttpRequestBuilder =
     newInstance(httpAttributes.copy(formParams = httpAttributes.formParams ::: List(formParam))).asFormUrlEncoded
 
-  def formUpload(name: Expression[String], filePath: Expression[String]) = {
+  def formUpload(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies) = {
 
-    val file = RawFileBodies.asFile(filePath)
+    val file = rawFileBodies.asFile(filePath)
     val fileName = file.map(_.getName)
 
     bodyPart(BodyPart.fileBodyPart(Some(name), file).fileName(fileName)).asMultipartForm
   }
 
-  def request(protocol: HttpProtocol): Expression[Request] = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, protocol).build
+  def request(protocol: HttpProtocol)(implicit httpCaches: HttpCaches): Expression[Request] =
+    new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, protocol).build
 
   /**
    * This method builds the request that will be sent

@@ -66,6 +66,7 @@ class WsCompileTest extends Simulation {
                     .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
                     .check(wsAwait.within(30 seconds).until(1)))
     .exec(ws("Close WS").close)
+    .exec(ws("Open Named", "foo").open("/bar"))
 
   setUp(scn.inject(rampUsers(100) over 10)).protocols(httpConf)
 }

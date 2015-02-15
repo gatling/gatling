@@ -15,6 +15,8 @@
  */
 package io.gatling.charts.template
 
+import java.nio.charset.Charset
+
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.util.StringHelper.RichString
@@ -25,14 +27,14 @@ import io.gatling.charts.report.Container.{ Group, Request }
 
 private[charts] class StatsJsTemplate(stats: GroupContainer) {
 
-  def getOutput: Fastring = {
+  def getOutput(charset: Charset): Fastring = {
 
       def renderStatsRequest(request: RequestStatistics): Fastring = {
         val jsonStats = new StatsJsonTemplate(request, false).getOutput
 
         fast"""name: "${request.name.escapeJsDoubleQuoteString}",
 path: "${request.path.escapeJsDoubleQuoteString}",
-pathFormatted: "${request.path.toFileName}",
+pathFormatted: "${request.path.toFileName(charset)}",
 stats: $jsonStats"""
       }
 
@@ -42,10 +44,10 @@ ${renderStatsRequest(group.stats)},
 contents: {
 ${
           group.contents.values.map {
-            case subGroup: GroupContainer => fast""""${subGroup.name.toFileName}": {
+            case subGroup: GroupContainer => fast""""${subGroup.name.toFileName(charset)}": {
         ${renderStatsGroup(subGroup)}
     }"""
-            case request: RequestContainer => fast""""${request.name.toFileName}": {
+            case request: RequestContainer => fast""""${request.name.toFileName(charset)}": {
         type: "$Request",
         ${renderStatsRequest(request.stats)}
     }"""

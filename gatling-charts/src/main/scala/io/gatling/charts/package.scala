@@ -15,8 +15,9 @@
  */
 package io.gatling
 
+import java.nio.charset.Charset
 import java.security.MessageDigest
-import io.gatling.core.config.GatlingConfiguration.configuration
+
 import io.gatling.core.util.StringHelper._
 
 package object charts {
@@ -28,7 +29,7 @@ package object charts {
      *
      * @return a simplified string
      */
-    def toFileName = {
+    def toFileName(charset: Charset) = {
 
       val trimmed = string.trim match {
         case "" => "missing_name"
@@ -36,10 +37,10 @@ package object charts {
       }
 
       val md = MessageDigest.getInstance("md5")
-      md.update(trimmed.getBytes(configuration.core.charset))
+      md.update(trimmed.getBytes(charset))
       trimmed.clean.take(15) + "-" + bytes2Hex(md.digest).take(5)
     }
 
-    def toRequestFileName = s"req_$toFileName.html"
+    def toRequestFileName(charset: Charset) = s"req_${toFileName(charset)}.html"
   }
 }

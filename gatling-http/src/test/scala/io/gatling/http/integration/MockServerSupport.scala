@@ -15,20 +15,23 @@ import spray.can.Http
 import spray.http._
 
 import io.gatling.core.akka.GatlingActorSystem
-import io.gatling.core.config.Protocols
+import io.gatling.core.config.{ GatlingConfiguration, Protocols }
 import io.gatling.core.controller.DataWritersInitialized
 import io.gatling.core.result.writer.{ DataWriter, RunMessage }
 import io.gatling.core.session.Session
 import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.core.test.ActorSupport
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.http.Predef._
 import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine }
+import io.gatling.http.cache.HttpCaches
+import io.gatling.http.config.{ HttpProtocolBuilder, DefaultHttpProtocol }
+import io.gatling.http.fetch.ResourceFetcher
 
-object MockServerSupport extends StrictLogging {
+class MockServerSupport(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher) extends StrictLogging {
 
+  // FIXME allocate random port
   val mockHttpPort = Option(Integer.getInteger("gatling.mockHttp.port")).map(_.intValue).getOrElse(8702)
-  def httpProtocol = http.baseURL(s"http://localhost:$mockHttpPort")
+  def httpProtocol = new HttpProtocolBuilder(defaultHttpProtocol.value).baseURL(s"http://localhost:$mockHttpPort")
 
   var serverActor: ActorRef = _
 
@@ -72,9 +75,7 @@ object MockServerSupport extends StrictLogging {
       case _ => // Do nothing
     }
 
-    def record(request: HttpRequest) = {
-      requests = request :: requests
-    }
+    def record(request: HttpRequest) = { requests = request :: requests }
   }
 
   def serverMock(f: PartialFunction[Any, HttpResponse])(implicit testKit: TestKit with ImplicitSender) = {
@@ -84,19 +85,19 @@ object MockServerSupport extends StrictLogging {
     Await.result(future, Duration.Inf)
   }
 
-  def apply(f: TestKit with ImplicitSender => Any): Unit = {
+  def exec(f: MockServerSupport => TestKit with ImplicitSender => Any): Unit = {
     ActorSupport { implicit testKit =>
       import testKit._
 
       try {
-        HttpEngine.start()
-        AsyncHandlerActor.start()
+        httpEngine.start()
+        AsyncHandlerActor.start
 
         //Initialise DataWriter with fake data.
         DataWriter.init(Nil, RunMessage("FakeSimulation", "fakesimulation1", nowMillis, "A fake run"), Nil, self)
         expectMsgClass(classOf[DataWritersInitialized])
 
-        f(testKit)
+        f(this)(testKit)
       } finally {
         /*
          * DataWriter, AsyncHandlerActor and HttpEngine don't need explicit shutdown - they have callbacks registered
@@ -140,7 +141,6 @@ object MockServerSupport extends StrictLogging {
     val file = new File(resource.getFile)
     HttpEntity(contentType, HttpData(file))
   }
-
 }
 
 object Checks {
@@ -148,7 +148,7 @@ object Checks {
     val cookies = request.cookies.filter(_.name == cookie)
 
     if (cookies.isEmpty) {
-      throw new AssertionError(s"In request $request there were no header '$header'")
+      throw new AssertionError(s"In request $request there were no cookies")
     }
 
     for (cookie <- cookies) {
@@ -158,4 +158,3 @@ object Checks {
     }
   }
 }
-

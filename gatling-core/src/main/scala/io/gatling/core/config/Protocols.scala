@@ -41,8 +41,8 @@ case class Protocols(protocols: Map[Class[_ <: Protocol], Protocol], pauseType: 
 
   def ++(other: Protocols) = copy(protocols = protocols ++ other.protocols)
 
-  def warmUp(): Unit =
-    protocols.values.foreach(_.warmUp())
+  def warmUp(implicit configuration: GatlingConfiguration): Unit =
+    protocols.values.foreach(_.warmUp)
 
   val userEnd: Session => Unit =
     session => protocols.values.foreach(_.userEnd(session))

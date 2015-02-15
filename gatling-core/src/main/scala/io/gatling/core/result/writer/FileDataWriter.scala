@@ -22,7 +22,7 @@ import java.nio.channels.FileChannel
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.assertion.Assertion
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.PathHelper._
@@ -107,7 +107,7 @@ object FileDataWriter {
  *
  * It writes the data of the simulation if a tabulation separated values file
  */
-class FileDataWriter extends DataWriter {
+class FileDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter {
 
   import FileDataWriter._
 

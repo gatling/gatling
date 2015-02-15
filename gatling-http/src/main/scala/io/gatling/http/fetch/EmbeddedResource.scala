@@ -16,9 +16,11 @@
 package io.gatling.http.fetch
 
 import com.ning.http.client.uri.Uri
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.validation.Validation
 import io.gatling.http.HeaderNames
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.Http
 import io.gatling.http.request.builder.RequestBuilder._
@@ -35,7 +37,7 @@ sealed abstract class EmbeddedResource {
   def acceptHeader: Expression[String]
   val url = uri.toString
 
-  def toRequest(session: Session, protocol: HttpProtocol, throttled: Boolean): Validation[HttpRequest] = {
+  def toRequest(session: Session, protocol: HttpProtocol, throttled: Boolean)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches): Validation[HttpRequest] = {
 
     val requestName = {
       val start = url.lastIndexOf('/') + 1
@@ -45,7 +47,7 @@ sealed abstract class EmbeddedResource {
         "/"
     }
 
-    val httpRequestDef = new Http(requestName.expression).get(uri).header(HeaderNames.Accept, acceptHeader) build (protocol, throttled)
+    val httpRequestDef = new Http(requestName.expression).get(uri).header(HeaderNames.Accept, acceptHeader).build(protocol, throttled)
 
     httpRequestDef.build(requestName, session)
   }

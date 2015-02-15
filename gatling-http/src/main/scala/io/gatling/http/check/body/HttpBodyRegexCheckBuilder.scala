@@ -16,7 +16,7 @@
 package io.gatling.http.check.body
 
 import io.gatling.core.check.DefaultMultipleFindCheckBuilder
-import io.gatling.core.check.extractor.regex.{ CountRegexExtractor, GroupExtractor, MultipleRegexExtractor, SingleRegexExtractor }
+import io.gatling.core.check.extractor.regex._
 import io.gatling.core.session.{ Expression, RichExpression }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
@@ -24,20 +24,22 @@ import io.gatling.http.response.Response
 
 trait HttpBodyRegexOfType { self: HttpBodyRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor] = new HttpBodyRegexCheckBuilder[X](expression)
+  def ofType[X: GroupExtractor](implicit extractorFactory: RegexExtractorFactory) = new HttpBodyRegexCheckBuilder[X](expression)
 }
 
 object HttpBodyRegexCheckBuilder {
 
-  def regex(expression: Expression[String]) = new HttpBodyRegexCheckBuilder[String](expression) with HttpBodyRegexOfType
+  def regex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory) =
+    new HttpBodyRegexCheckBuilder[String](expression) with HttpBodyRegexOfType
 }
 
-class HttpBodyRegexCheckBuilder[X: GroupExtractor](private[body] val expression: Expression[String])
+class HttpBodyRegexCheckBuilder[X: GroupExtractor](private[body] val expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory)
     extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, CharSequence, X](
       StringBodyExtender,
       ResponseBodyCharSequencePreparer) {
+  import extractorFactory._
 
-  def findExtractor(occurrence: Int) = expression.map(new SingleRegexExtractor(_, occurrence))
-  def findAllExtractor = expression.map(new MultipleRegexExtractor(_))
-  def countExtractor = expression.map(new CountRegexExtractor(_))
+  def findExtractor(occurrence: Int) = expression.map(newSingleExtractor[X](_, occurrence))
+  def findAllExtractor = expression.map(newMultipleExtractor[X])
+  def countExtractor = expression.map(newCountExtractor)
 }

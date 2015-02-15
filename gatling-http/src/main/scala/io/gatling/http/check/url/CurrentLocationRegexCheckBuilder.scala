@@ -16,7 +16,7 @@
 package io.gatling.http.check.url
 
 import io.gatling.core.check.DefaultMultipleFindCheckBuilder
-import io.gatling.core.check.extractor.regex.{ CountRegexExtractor, MultipleRegexExtractor, SingleRegexExtractor, GroupExtractor }
+import io.gatling.core.check.extractor.regex._
 import io.gatling.core.session._
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
@@ -24,12 +24,13 @@ import io.gatling.http.response.Response
 
 trait CurrentLocationRegexOfType { self: CurrentLocationRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor] = new CurrentLocationRegexCheckBuilder[X](expression)
+  def ofType[X: GroupExtractor](implicit extractorFactory: RegexExtractorFactory) = new CurrentLocationRegexCheckBuilder[X](expression)
 }
 
 object CurrentLocationRegexCheckBuilder {
 
-  def currentLocationRegex(expression: Expression[String]) = new CurrentLocationRegexCheckBuilder[String](expression) with CurrentLocationRegexOfType
+  def currentLocationRegex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory) =
+    new CurrentLocationRegexCheckBuilder[String](expression) with CurrentLocationRegexOfType
 }
 
 /**
@@ -39,12 +40,14 @@ object CurrentLocationRegexCheckBuilder {
  * @param expression
  * @tparam X
  */
-class CurrentLocationRegexCheckBuilder[X: GroupExtractor](private[url] val expression: Expression[String])
+class CurrentLocationRegexCheckBuilder[X: GroupExtractor](private[url] val expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory)
     extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, CharSequence, X](
       StringBodyExtender,
       UrlStringPreparer) {
 
-  def findExtractor(occurrence: Int) = expression.map(new SingleRegexExtractor(_, occurrence))
-  def findAllExtractor = expression.map(new MultipleRegexExtractor(_))
-  def countExtractor = expression.map(new CountRegexExtractor(_))
+  import extractorFactory._
+
+  def findExtractor(occurrence: Int) = expression.map(newSingleExtractor[X](_, occurrence))
+  def findAllExtractor = expression.map(newMultipleExtractor[X])
+  def countExtractor = expression.map(newCountExtractor)
 }

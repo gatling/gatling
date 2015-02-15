@@ -19,11 +19,11 @@ import com.dongxiguo.fastring.Fastring.Implicits.{ FastringContext, MkFastring }
 
 import io.gatling.charts.config.ChartsFiles.GlobalPageName
 import io.gatling.charts.report.Container.{ Group, Request }
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.NumberHelper._
 import io.gatling.core.util.StringHelper._
 
-private[charts] class StatisticsTableComponent extends Component {
+private[charts] class StatisticsTableComponent(implicit configuration: GatlingConfiguration) extends Component {
 
   private val MaxRequestNameSize = 20
   private val NumberOfCharsBeforeDots = 8

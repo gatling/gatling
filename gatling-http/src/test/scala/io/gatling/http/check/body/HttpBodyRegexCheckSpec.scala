@@ -17,25 +17,29 @@ package io.gatling.http.check.body
 
 import java.nio.charset.StandardCharsets._
 
-import io.gatling.core.check.CheckResult
-import io.gatling.core.config.GatlingConfiguration
-import org.mockito.Mockito._
-import org.scalatest.{ Matchers, FlatSpec }
-import org.scalatest.mock.MockitoSugar
-
-import io.gatling.core.session._
-import io.gatling.core.session.el._
-import io.gatling.core.test.ValidationValues
-import io.gatling.http.response.{ StringResponseBody, Response }
+import io.gatling.http.ahc.HttpEngine
 
 import scala.collection.mutable
 
-class HttpBodyRegexCheckSpec extends FlatSpec with Matchers with ValidationValues with MockitoSugar {
+import org.mockito.Mockito._
+import org.scalatest.FlatSpec
+import org.scalatest.Matchers.{ regex => _, _ }
+import org.scalatest.mock.MockitoSugar
 
-  GatlingConfiguration.setUpForTest()
+import io.gatling.core.CoreModule
+import io.gatling.core.check.CheckResult
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.session._
+import io.gatling.core.test.ValidationValues
+import io.gatling.http.HttpModule
+import io.gatling.http.response.{ StringResponseBody, Response }
+
+class HttpBodyRegexCheckSpec extends FlatSpec with ValidationValues with MockitoSugar with CoreModule with HttpModule {
+
+  implicit val configuration = GatlingConfiguration.loadForTest()
+  implicit val httpEngine = mock[HttpEngine]
 
   implicit def cache = mutable.Map.empty[Any, Any]
-
   val session = Session("mockSession", "mockUserName")
 
   "regex.find.exists" should "find single result" in {
@@ -43,7 +47,7 @@ class HttpBodyRegexCheckSpec extends FlatSpec with Matchers with ValidationValue
     val response = mock[Response]
     when(response.body) thenReturn StringResponseBody(""""{"id":"1072920417"}"""", UTF_8)
 
-    HttpBodyRegexCheckBuilder.regex(""""id":"(.+?)"""".el).find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    regex(""""id":"(.+?)"""").find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   it should "find first occurrence" in {
@@ -51,7 +55,7 @@ class HttpBodyRegexCheckSpec extends FlatSpec with Matchers with ValidationValue
     val response = mock[Response]
     when(response.body) thenReturn StringResponseBody(""""[{"id":"1072920417"},"id":"1072920418"]"""", UTF_8)
 
-    HttpBodyRegexCheckBuilder.regex(""""id":"(.+?)"""".el).find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    regex(""""id":"(.+?)"""").find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   "regex.findAll.exists" should "find all occurrences" in {
@@ -59,7 +63,7 @@ class HttpBodyRegexCheckSpec extends FlatSpec with Matchers with ValidationValue
     val response = mock[Response]
     when(response.body) thenReturn StringResponseBody(""""[{"id":"1072920417"},"id":"1072920418"]"""", UTF_8)
 
-    HttpBodyRegexCheckBuilder.regex(""""id":"(.+?)"""".el).findAll.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
+    regex(""""id":"(.+?)"""").findAll.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
   }
 
   it should "fail when finding nothing instead of returning an empty Seq" in {
@@ -68,7 +72,7 @@ class HttpBodyRegexCheckSpec extends FlatSpec with Matchers with ValidationValue
     when(response.body) thenReturn StringResponseBody(""""[{"id":"1072920417"},"id":"1072920418"]"""", UTF_8)
     val regexValue = """"foo":"(.+?)""""
 
-    HttpBodyRegexCheckBuilder.regex(regexValue.el).findAll.exists.build.check(response, session).failed shouldBe s"regex($regexValue).findAll.exists, found nothing"
+    regex(regexValue).findAll.exists.build.check(response, session).failed shouldBe s"regex($regexValue).findAll.exists, found nothing"
   }
 
   "regex.count.exists" should "find all occurrences" in {
@@ -76,7 +80,7 @@ class HttpBodyRegexCheckSpec extends FlatSpec with Matchers with ValidationValue
     val response = mock[Response]
     when(response.body) thenReturn StringResponseBody(""""[{"id":"1072920417"},"id":"1072920418"]"""", UTF_8)
 
-    HttpBodyRegexCheckBuilder.regex(""""id":"(.+?)"""".el).count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
+    regex(""""id":"(.+?)"""").count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
   }
 
   it should "return 0 when finding nothing instead of failing" in {
@@ -85,6 +89,6 @@ class HttpBodyRegexCheckSpec extends FlatSpec with Matchers with ValidationValue
     when(response.body) thenReturn StringResponseBody(""""[{"id":"1072920417"},"id":"1072920418"]"""", UTF_8)
     val regexValue = """"foo":"(.+?)""""
 
-    HttpBodyRegexCheckBuilder.regex(regexValue.el).count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(0), None)
+    regex(regexValue).count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(0), None)
   }
 }

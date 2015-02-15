@@ -17,7 +17,7 @@ package io.gatling.http.cache
 
 import com.ning.http.client.{ Request, RequestBuilder }
 import com.ning.http.client.uri.Uri
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.SessionCacheHandler
 
 import scala.annotation.tailrec
@@ -25,19 +25,24 @@ import scala.annotation.tailrec
 import io.gatling.core.session.{ SessionPrivateAttributes, Session }
 import io.gatling.http.ahc.HttpTx
 
-object PermanentRedirect {
-
+object PermanentRedirectCache {
   val HttpPermanentRedirectCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.redirects"
-  private val HttpPermanentRedirectCacheHandler = new SessionCacheHandler[Uri, Uri](HttpPermanentRedirectCacheAttributeName, configuration.http.redirectPerUserCacheMaxCapacity)
+}
+
+trait PermanentRedirectCache {
+
+  def configuration: GatlingConfiguration
+
+  private val httpPermanentRedirectCacheHandler = new SessionCacheHandler[Uri, Uri](PermanentRedirectCache.HttpPermanentRedirectCacheAttributeName, configuration.http.redirectPerUserCacheMaxCapacity)
 
   def addRedirect(session: Session, from: Uri, to: Uri): Session =
-    HttpPermanentRedirectCacheHandler.addEntry(session, from, to)
+    httpPermanentRedirectCacheHandler.addEntry(session, from, to)
 
   private def permanentRedirect(session: Session, uri: Uri): Option[(Uri, Int)] = {
 
       @tailrec def permanentRedirect1(from: Uri, redirectCount: Int): Option[(Uri, Int)] =
 
-        HttpPermanentRedirectCacheHandler.getEntry(session, from) match {
+        httpPermanentRedirectCacheHandler.getEntry(session, from) match {
           case Some(toUri) => permanentRedirect1(toUri, redirectCount + 1)
 
           case None => redirectCount match {

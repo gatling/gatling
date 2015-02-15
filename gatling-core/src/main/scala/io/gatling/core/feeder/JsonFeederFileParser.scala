@@ -19,15 +19,14 @@ import java.io.InputStream
 import java.net.URL
 import java.util.{ Collection => JCollection, Map => JMap }
 
-import io.gatling.core.json.Jackson
-
 import scala.collection._
 import scala.collection.JavaConversions._
-import io.gatling.core.config.GatlingConfiguration.configuration
+
 import io.gatling.core.config.Resource
+import io.gatling.core.json.JsonParsers
 import io.gatling.core.util.Io._
 
-object JsonFeederFileParser {
+class JsonFeederFileParser(implicit jsonParsers: JsonParsers) {
 
   def parse(resource: Resource): IndexedSeq[Record[Any]] =
     withCloseable(resource.inputStream) { is =>
@@ -41,7 +40,7 @@ object JsonFeederFileParser {
 
   def stream(is: InputStream): Iterator[Record[Any]] = {
 
-    Jackson.parse(is, configuration.core.charset) match {
+    jsonParsers.jackson.parse(is) match {
 
       case array: JCollection[_] =>
 

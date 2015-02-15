@@ -20,10 +20,12 @@ import akka.actor.ActorRef
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression
 import io.gatling.http.action.HttpActionBuilder
+import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.check.ws._
+import io.gatling.http.config.DefaultHttpProtocol
 import io.gatling.http.request.builder.ws.WsOpenRequestBuilder
 
-class WsOpenActionBuilder(requestName: Expression[String], wsName: String, requestBuilder: WsOpenRequestBuilder, checkBuilder: Option[WsCheckBuilder] = None) extends HttpActionBuilder {
+class WsOpenActionBuilder(requestName: Expression[String], wsName: String, requestBuilder: WsOpenRequestBuilder, checkBuilder: Option[WsCheckBuilder] = None)(implicit defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine) extends HttpActionBuilder {
 
   def check(checkBuilder: WsCheckBuilder) = new WsOpenActionBuilder(requestName, wsName, requestBuilder, Some(checkBuilder))
 
@@ -34,29 +36,29 @@ class WsOpenActionBuilder(requestName: Expression[String], wsName: String, reque
   }
 }
 
-class WsSendActionBuilder(requestName: Expression[String], wsName: String, message: Expression[WsMessage], checkBuilder: Option[WsCheckBuilder] = None) extends HttpActionBuilder {
+class WsSendActionBuilder(requestName: Expression[String], wsName: String, message: Expression[WsMessage], checkBuilder: Option[WsCheckBuilder] = None)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
   def check(checkBuilder: WsCheckBuilder) = new WsSendActionBuilder(requestName, wsName, message, Some(checkBuilder))
 
   def build(next: ActorRef, protocols: Protocols): ActorRef = actor(actorName("wsSend"))(new WsSendAction(requestName, wsName, message, checkBuilder, next))
 }
 
-class WsSetCheckActionBuilder(requestName: Expression[String], checkBuilder: WsCheckBuilder, wsName: String) extends HttpActionBuilder {
+class WsSetCheckActionBuilder(requestName: Expression[String], checkBuilder: WsCheckBuilder, wsName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols): ActorRef = actor(actorName("wsSetCheck"))(new WsSetCheckAction(requestName, checkBuilder, wsName, next))
 }
 
-class WsCancelCheckActionBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
+class WsCancelCheckActionBuilder(requestName: Expression[String], wsName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols): ActorRef = actor(actorName("wsCancelCheck"))(new WsCancelCheckAction(requestName, wsName, next))
 }
 
-class WsReconciliateActionBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
+class WsReconciliateActionBuilder(requestName: Expression[String], wsName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols): ActorRef = actor(actorName("wsReconciliate"))(new WsReconciliateAction(requestName, wsName, next))
 }
 
-class WsCloseActionBuilder(requestName: Expression[String], wsName: String) extends HttpActionBuilder {
+class WsCloseActionBuilder(requestName: Expression[String], wsName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
   def build(next: ActorRef, protocols: Protocols): ActorRef = actor(actorName("wsClose"))(new WsCloseAction(requestName, wsName, next))
 }

@@ -61,8 +61,10 @@ object Resource {
 
   private class Location(val directory: Path, val path: String)
 
-  def feeder(fileName: String): Validation[Resource] = load(GatlingFiles.dataDirectory, fileName)
-  def body(fileName: String): Validation[Resource] = load(GatlingFiles.bodiesDirectory, fileName)
+  def feeder(fileName: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
+    load(GatlingFiles.dataDirectory, fileName)
+  def body(fileName: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
+    load(GatlingFiles.bodiesDirectory, fileName)
 }
 
 sealed trait Resource {

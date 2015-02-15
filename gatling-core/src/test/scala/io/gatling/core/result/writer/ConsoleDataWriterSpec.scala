@@ -25,7 +25,7 @@ import io.gatling.core.config.GatlingConfiguration
 
 class ConsoleDataWriterSpec extends FlatSpec with Matchers {
 
-  GatlingConfiguration.setUpForTest()
+  implicit val configuration = GatlingConfiguration.loadForTest()
 
   val time = new GregorianCalendar(2012, 8, 24, 13, 37).getTime
 

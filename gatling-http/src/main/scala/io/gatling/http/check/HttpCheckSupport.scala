@@ -15,39 +15,54 @@
  */
 package io.gatling.http.check
 
+import io.gatling.core.check.extractor.css.CssExtractorFactory
+import io.gatling.core.check.extractor.jsonpath.JsonPathExtractorFactory
+import io.gatling.core.check.extractor.regex.{ Patterns, RegexExtractorFactory }
+import io.gatling.core.check.extractor.xpath.{ JdkXPathExtractorFactory, SaxonXPathExtractorFactory }
+import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.Expression
 import io.gatling.http.check.body._
 import io.gatling.http.check.checksum.HttpChecksumCheckBuilder
-import io.gatling.http.check.header.{ HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
+import io.gatling.http.check.header.{ HttpHeaderRegexExtractorFactory, HttpHeaderCheckBuilder, HttpHeaderRegexCheckBuilder }
 import io.gatling.http.check.status.HttpStatusCheckBuilder
 import io.gatling.http.check.time.HttpResponseTimeCheckBuilder
 import io.gatling.http.check.url.{ CurrentLocationRegexCheckBuilder, CurrentLocationCheckBuilder }
 
 trait HttpCheckSupport {
 
-  val regex = HttpBodyRegexCheckBuilder.regex _
+  def regex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory) =
+    HttpBodyRegexCheckBuilder.regex(expression)
 
   val substring = HttpBodySubstringCheckBuilder.substring _
 
-  def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil) = HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
+  def xpath(expression: Expression[String], namespaces: List[(String, String)] = Nil)(implicit extractorFactory: SaxonXPathExtractorFactory, jdkXPathExtractorFactory: JdkXPathExtractorFactory) =
+    HttpBodyXPathCheckBuilder.xpath(expression, namespaces)
 
-  def css(selector: Expression[String]) = HttpBodyCssCheckBuilder.css(selector, None)
-  def css(selector: Expression[String], nodeAttribute: String) = HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))
+  def css(selector: Expression[String])(implicit extractorFactory: CssExtractorFactory) =
+    HttpBodyCssCheckBuilder.css(selector, None)
+  def css(selector: Expression[String], nodeAttribute: String)(implicit extractorFactory: CssExtractorFactory) =
+    HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))
 
-  val jsonPath = HttpBodyJsonPathCheckBuilder.jsonPath _
-  val jsonpJsonPath = HttpBodyJsonpJsonPathCheckBuilder.jsonpJsonPath _
+  def jsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+    HttpBodyJsonPathCheckBuilder.jsonPath(path)
+  def jsonpJsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+    HttpBodyJsonpJsonPathCheckBuilder.jsonpJsonPath(path)
 
   val bodyString = HttpBodyStringCheckBuilder.BodyString
   val bodyBytes = HttpBodyBytesCheckBuilder.BodyBytes
 
   val header = HttpHeaderCheckBuilder.header _
 
-  val headerRegex = HttpHeaderRegexCheckBuilder.headerRegex _
+  implicit def defaultHttpHeaderRegexExtractorFactory(implicit patterns: Patterns) = new HttpHeaderRegexExtractorFactory
+
+  def headerRegex(headerName: Expression[String], pattern: Expression[String])(implicit extractorFactory: HttpHeaderRegexExtractorFactory) =
+    HttpHeaderRegexCheckBuilder.headerRegex(headerName, pattern)
 
   val status = HttpStatusCheckBuilder.Status
 
   val currentLocation = CurrentLocationCheckBuilder.CurrentLocation
-  val currentLocationRegex = CurrentLocationRegexCheckBuilder.currentLocationRegex _
+  def currentLocationRegex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory) =
+    CurrentLocationRegexCheckBuilder.currentLocationRegex(expression)
 
   val md5 = HttpChecksumCheckBuilder.Md5
   val sha1 = HttpChecksumCheckBuilder.Sha1

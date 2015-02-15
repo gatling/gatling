@@ -22,7 +22,7 @@ import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor
 
 import io.gatling.core.assertion.Assertion
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.writer._
 import io.gatling.core.util.TimeHelper.nowSeconds
 import io.gatling.metrics.message._
@@ -34,27 +34,24 @@ private[metrics] object GraphiteDataWriter {
   val AllRequestsKey = graphitePath("allRequests")
   val UsersRootKey = graphitePath("users")
   val AllUsersKey = UsersRootKey / "allUsers"
-
-  private val percentiles1Name = "percentiles" + configuration.charting.indicators.percentile1
-  private val percentiles2Name = "percentiles" + configuration.charting.indicators.percentile2
-  private val percentiles3Name = "percentiles" + configuration.charting.indicators.percentile3
-  private val percentiles4Name = "percentiles" + configuration.charting.indicators.percentile4
 }
 
-private[gatling] class GraphiteDataWriter extends DataWriter with Flushable {
+private[gatling] class GraphiteDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter with Flushable {
   import GraphiteDataWriter._
   import GraphitePath._
-
-  implicit val config = configuration
 
   private var metricRootPath: String = _
 
   private val metricsSender: ActorRef = actor(context, actorName("metricsSender"))(MetricsSender.newMetricsSender)
   private val requestsByPath = mutable.Map.empty[GraphitePath, RequestMetricsBuffer]
   private val usersByScenario = mutable.Map.empty[GraphitePath, UsersBreakdownBuffer]
+  private val percentiles1Name = "percentiles" + configuration.charting.indicators.percentile1
+  private val percentiles2Name = "percentiles" + configuration.charting.indicators.percentile2
+  private val percentiles3Name = "percentiles" + configuration.charting.indicators.percentile3
+  private val percentiles4Name = "percentiles" + configuration.charting.indicators.percentile4
 
   def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
-    metricRootPath = config.data.graphite.rootPathPrefix + "." + sanitizeString(run.simulationId) + "."
+    metricRootPath = configuration.data.graphite.rootPathPrefix + "." + sanitizeString(run.simulationId) + "."
 
     usersByScenario.update(AllUsersKey, new UsersBreakdownBuffer(scenarios.map(_.nbUsers).sum))
     scenarios.foreach(scenario => usersByScenario += (UsersRootKey / scenario.name) -> new UsersBreakdownBuffer(scenario.nbUsers))

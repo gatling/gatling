@@ -15,22 +15,25 @@
  */
 package io.gatling.core.check.extractor.regex
 
+import io.gatling.core.config.GatlingConfiguration
 import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ValidationValues
 
 class RegexExtractorSpec extends FlatSpec with Matchers with ValidationValues {
 
-  GatlingConfiguration.setUpForTest()
+  implicit val configuration = GatlingConfiguration.loadForTest()
+  implicit val patterns = new Patterns()
+  val extractorFactory = new RegexExtractorFactory
+  import extractorFactory._
 
   "count" should "return Some(0) when no results" in {
-    val stringRegexExtractor = new CountRegexExtractor("""foo""")
+    val stringRegexExtractor = newCountExtractor("""foo""")
     stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""").succeeded shouldBe Some(0)
   }
 
   "extractMultiple" should "return expected result with anywhere expression" in {
-    val stringRegexExtractor = new MultipleRegexExtractor[String](""""SearchDefinitionID\\":(\d*)""")
+    val stringRegexExtractor = newMultipleExtractor[String](""""SearchDefinitionID\\":(\d*)""")
     stringRegexExtractor("""{"id":"1072920417","result":"[{\"SearchDefinitionID\":116},{\"SearchDefinitionID\":108}]","error":null}""").succeeded shouldBe Some(List("116", "108"))
   }
 }

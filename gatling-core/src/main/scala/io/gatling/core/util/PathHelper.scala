@@ -23,8 +23,6 @@ import java.nio.file._
 import scala.annotation.tailrec
 import scala.collection.JavaConversions._
 
-import io.gatling.core.config.GatlingConfiguration.configuration
-
 object PathHelper {
 
   implicit def string2path(pathString: String): Path = Paths.get(pathString)
@@ -76,7 +74,7 @@ object PathHelper {
 
     def ifFile[T](f: File => T): Option[T] = if (isFile) Some(f(path.toFile)) else None
 
-    def writer(charset: Charset = configuration.core.charset) = Files.newBufferedWriter(path, charset)
+    def writer(charset: Charset) = Files.newBufferedWriter(path, charset)
 
     def copyTo(other: Path, options: CopyOption*) = Files.copy(path, other, options: _*)
 

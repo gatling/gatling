@@ -15,11 +15,15 @@
  */
 package io.gatling.charts.result
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 
 package object reader {
 
-  private[reader] val AccuracyAsDouble = configuration.charting.accuracy.toDouble
+  private[reader] def reduceAccuracy(configuration: GatlingConfiguration): Int => Int = {
 
-  private[reader] def reduceAccuracy(time: Int): Int = math.round(time / AccuracyAsDouble).toInt * configuration.charting.accuracy
+    val accuracy = configuration.charting.accuracy
+    val accuracyAsDouble = accuracy.toDouble
+
+    (time: Int) => math.round(time / accuracyAsDouble).toInt * accuracy
+  }
 }

@@ -17,7 +17,6 @@ package io.gatling.core.body
 
 import java.io.FileInputStream
 
-import io.gatling.core.config.GatlingConfiguration.configuration
 import io.gatling.core.util.FastByteArrayInputStream
 import io.gatling.core.util.GzipHelper
 import io.gatling.core.util.Io._
@@ -40,7 +39,7 @@ object BodyProcessors {
   val Stream = (body: Body) => {
 
     val stream = body match {
-      case StringBody(string)           => string.map(s => new FastByteArrayInputStream(s.getBytes(configuration.core.encoding)))
+      case stringBody: StringBody       => stringBody.asBytes.bytes.map(new FastByteArrayInputStream(_))
       case ByteArrayBody(byteArray)     => byteArray.map(new FastByteArrayInputStream(_))
       case RawFileBody(file)            => file.map(new FileInputStream(_))
       case InputStreamBody(inputStream) => inputStream

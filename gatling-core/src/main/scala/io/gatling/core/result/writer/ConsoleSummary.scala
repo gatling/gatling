@@ -23,7 +23,7 @@ import scala.math.{ ceil, floor }
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.StringHelper._
 import io.gatling.core.result.ErrorStats
 
@@ -41,7 +41,7 @@ object ConsoleSummary {
             globalRequestCounters: RequestCounters,
             requestsCounters: mutable.Map[String, RequestCounters],
             errorsCounters: mutable.Map[String, Int],
-            time: Date = new Date) = {
+            time: Date = new Date)(implicit configuration: GatlingConfiguration) = {
 
       def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 

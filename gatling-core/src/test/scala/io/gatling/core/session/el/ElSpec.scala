@@ -18,7 +18,7 @@ package io.gatling.core.session.el
 import java.util.{ ArrayList => JArrayList, HashMap => JHashMap, LinkedList => JLinkedList }
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.json.Jackson
+import io.gatling.core.json.{ JsonParsers, Jackson }
 import org.scalatest.{ FlatSpec, Matchers }
 
 import io.gatling.core.session.{ el, Session }
@@ -26,7 +26,7 @@ import io.gatling.core.test.ValidationValues
 
 class ElSpec extends FlatSpec with Matchers with ValidationValues {
 
-  GatlingConfiguration.setUpForTest()
+  implicit val configuration = GatlingConfiguration.loadForTest()
 
   def newSession(contents: Map[String, Any]) =
     Session("scenario", "1", contents)
@@ -117,7 +117,7 @@ class ElSpec extends FlatSpec with Matchers with ValidationValues {
 
   it should "have jsonStringify deal with key access" in {
 
-    val json = Jackson.parse(
+    val json = new JsonParsers().jackson.parse(
       """{
         |"bar": {
         |    "baz": "qix"

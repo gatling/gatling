@@ -15,12 +15,13 @@
  */
 package io.gatling.http.request.builder.ws
 
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.builder.{ RequestExpressionBuilder, CommonAttributes }
 import io.gatling.http.util.HttpHelper
 
-class WsRequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol)
+class WsRequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol)(implicit configuration: GatlingConfiguration)
     extends RequestExpressionBuilder(commonAttributes, protocol) {
 
   def makeAbsolute(url: String): Validation[String] =

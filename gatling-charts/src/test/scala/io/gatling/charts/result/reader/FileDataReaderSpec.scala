@@ -28,7 +28,7 @@ class FileDataReaderSpec extends FlatSpec with Matchers {
   props.sourcesDirectory("src/test/resources")
   props.resultsDirectory("src/test/resources")
 
-  GatlingConfiguration.setUpForTest(props.build)
+  implicit val configuration = GatlingConfiguration.loadForTest(props.build)
 
   // FIXME re-enable with fresh and SIMPLE samples
   //	"When reading a single log file, FileDataReader" should {
@@ -102,7 +102,7 @@ class FileDataReaderSpec extends FlatSpec with Matchers {
     props.put(charting.indicators.Percentile2, 70)
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
-    GatlingConfiguration.setUpForTest(props)
+    implicit val configuration = GatlingConfiguration.loadForTest(props)
     val lowPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats")
     lowPercentilesFileDataReader.requestGeneralStats().percentile1 shouldBe 2000
     lowPercentilesFileDataReader.requestGeneralStats().percentile2 shouldBe 5000
@@ -114,7 +114,7 @@ class FileDataReaderSpec extends FlatSpec with Matchers {
     props.put(charting.indicators.Percentile2, 100)
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
-    GatlingConfiguration.setUpForTest(props)
+    implicit val configuration = GatlingConfiguration.loadForTest(props)
     val highPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats")
     highPercentilesFileDataReader.requestGeneralStats().percentile1 shouldBe 8860
     highPercentilesFileDataReader.requestGeneralStats().percentile2 shouldBe 9000
@@ -126,7 +126,7 @@ class FileDataReaderSpec extends FlatSpec with Matchers {
     props.put(charting.indicators.HigherBound, 100000)
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
-    GatlingConfiguration.setUpForTest(props)
+    implicit val configuration = GatlingConfiguration.loadForTest(props)
     val fileDataReader = new FileDataReader("run_single_node_with_known_stats")
     fileDataReader.numberOfRequestInResponseTimeRange().map(_._2) shouldBe List(0, 8, 0, 0)
   }
@@ -137,7 +137,7 @@ class FileDataReaderSpec extends FlatSpec with Matchers {
     props.put(charting.indicators.HigherBound, 5000)
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
-    GatlingConfiguration.setUpForTest(props)
+    implicit val configuration = GatlingConfiguration.loadForTest(props)
     val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
     nRequestInResponseTimeRange(0) shouldBe 1
   }
@@ -148,7 +148,7 @@ class FileDataReaderSpec extends FlatSpec with Matchers {
     props.put(charting.indicators.HigherBound, 5000)
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
-    GatlingConfiguration.setUpForTest(props)
+    implicit val configuration = GatlingConfiguration.loadForTest(props)
     val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
     nRequestInResponseTimeRange(1) shouldBe 5
   }
@@ -159,7 +159,7 @@ class FileDataReaderSpec extends FlatSpec with Matchers {
     props.put(charting.indicators.HigherBound, 5000)
     props.put(core.directory.Simulations, "src/test/resources")
     props.put(core.directory.Results, "src/test/resources")
-    GatlingConfiguration.setUpForTest(props)
+    implicit val configuration = GatlingConfiguration.loadForTest(props)
     val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
     nRequestInResponseTimeRange(2) shouldBe 2
   }

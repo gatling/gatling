@@ -21,7 +21,7 @@ import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session.Expression
 
-object CookieHandling {
+object CookieSupport {
 
   val CookieJarAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cookies"
 

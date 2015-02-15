@@ -19,9 +19,12 @@ import com.typesafe.scalalogging.StrictLogging
 
 import akka.actor.{ Actor, Terminated }
 
+import scala.concurrent.duration.Duration
+
 abstract class BaseActor extends Actor with AkkaDefaults with StrictLogging {
 
-  override def preStart(): Unit = context.setReceiveTimeout(simulationTimeOut)
+  // FIXME is ReceiveTimeout set up by default?
+  override def preStart(): Unit = context.setReceiveTimeout(Duration.Undefined)
 
   override def preRestart(reason: Throwable, message: Option[Any]): Unit =
     logger.error(s"Actor $this crashed on message $message", reason)

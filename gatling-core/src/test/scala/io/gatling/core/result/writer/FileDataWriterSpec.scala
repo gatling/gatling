@@ -23,8 +23,7 @@ import io.gatling.core.util.StringHelper._
 
 class FileDataWriterSpec extends FlatSpec with Matchers {
 
-  GatlingConfiguration.setUpForTest()
-
+  implicit val configuration = GatlingConfiguration.loadForTest()
   import FileDataWriter._
 
   def logMessage(record: RequestEndMessage)(implicit serializer: DataWriterMessageSerializer[RequestEndMessage]): String = serializer.serialize(record).toString

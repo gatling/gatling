@@ -19,7 +19,7 @@ import scala.collection.breakOut
 import scala.io.Source
 
 import au.com.bytecode.opencsv.CSVParser
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.Resource
 import io.gatling.core.util.Io._
 
@@ -29,7 +29,7 @@ object SeparatedValuesParser {
   val SemicolonSeparator = ';'
   val TabulationSeparator = '\t'
 
-  def parse(resource: Resource, separator: Char, doubleQuote: Char, rawSplit: Boolean): IndexedSeq[Record[String]] =
+  def parse(resource: Resource, separator: Char, doubleQuote: Char, rawSplit: Boolean)(implicit configuration: GatlingConfiguration): IndexedSeq[Record[String]] =
     withSource(Source.fromInputStream(resource.inputStream)(configuration.core.codec)) { source =>
       stream(source, separator, doubleQuote, rawSplit).toVector
     }

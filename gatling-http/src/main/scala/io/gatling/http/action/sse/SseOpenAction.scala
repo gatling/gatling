@@ -31,14 +31,14 @@ class SseOpenAction(
     request: Expression[Request],
     checkBuilder: Option[WsCheckBuilder],
     val next: ActorRef,
-    protocol: HttpProtocol) extends Interruptable {
+    protocol: HttpProtocol)(implicit httpEngine: HttpEngine) extends Interruptable {
 
   override def execute(session: Session): Unit = {
 
       def open(tx: SseTx): Unit = {
         logger.info(s"Opening and getting sse '$sseName': Scenario '${session.scenarioName}', UserId #${session.userId}")
         val sseActor = actor(context)(new SseActor(sseName))
-        HttpEngine.instance.startSseTransaction(tx, sseActor)
+        httpEngine.startSseTransaction(tx, sseActor)
       }
 
     for {

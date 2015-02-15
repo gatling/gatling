@@ -15,14 +15,14 @@
  */
 package io.gatling.core.assertion
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.{ GroupStatsPath, RequestStatsPath, StatsPath }
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ GeneralStats, DataReader }
 import io.gatling.core.util.NumberHelper.RichDouble
 import io.gatling.core.validation._
 
-object AssertionValidator {
+class AssertionValidator(implicit configuration: GatlingConfiguration) {
 
   type ValidatedRequestPath = Validation[Option[Status] => List[GeneralStats]]
   type StatsByStatus = Option[Status] => List[GeneralStats]

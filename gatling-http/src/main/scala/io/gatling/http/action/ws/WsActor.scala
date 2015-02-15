@@ -29,7 +29,7 @@ import io.gatling.core.validation.Success
 import io.gatling.http.ahc.{ HttpEngine, WsTx }
 import io.gatling.http.check.ws.{ ExpectedRange, UntilCount, ExpectedCount, WsCheck }
 
-class WsActor(wsName: String) extends BaseActor with DataWriterClient {
+class WsActor(wsName: String)(implicit httpEngine: HttpEngine) extends BaseActor with DataWriterClient {
 
   def receive = initialState
 
@@ -295,7 +295,7 @@ class WsActor(wsName: String) extends BaseActor with DataWriterClient {
     case action: WsUserAction =>
       // reconnect on first client message tentative
       val newTx = tx.copy(reconnectCount = tx.reconnectCount + 1)
-      HttpEngine.instance.startWebSocketTransaction(newTx, self)
+      httpEngine.startWebSocketTransaction(newTx, self)
 
       context.become(reconnectingState(status, reason, action))
 

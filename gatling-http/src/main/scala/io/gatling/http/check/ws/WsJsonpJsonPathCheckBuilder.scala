@@ -19,31 +19,33 @@ import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.core.check.{ Extender, DefaultMultipleFindCheckBuilder, Preparer }
+import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.Expression
 import io.gatling.http.check.body.HttpBodyJsonpJsonPathCheckBuilder
 
 trait WsJsonpJsonPathOfType {
   self: WsJsonpJsonPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter] = new WsJsonpJsonPathCheckBuilder[X](path, extender)
+  def ofType[X: JsonFilter](implicit extractorFactory: JsonPathExtractorFactory) =
+    new WsJsonpJsonPathCheckBuilder[X](path, extender, jsonParsers)
 }
 
 object WsJsonpJsonPathCheckBuilder extends StrictLogging {
 
-  val WsJsonpPreparer: Preparer[String, Any] = HttpBodyJsonpJsonPathCheckBuilder.parseJsonpString
+  def wsJsonpPreparer(jsonParsers: JsonParsers): Preparer[String, Any] = HttpBodyJsonpJsonPathCheckBuilder.parseJsonpString(_, jsonParsers)
 
-  def jsonpJsonPath(path: Expression[String], extender: Extender[WsCheck, String]) =
-    new WsJsonpJsonPathCheckBuilder[String](path, extender) with WsJsonpJsonPathOfType
+  def jsonpJsonPath(path: Expression[String], extender: Extender[WsCheck, String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+    new WsJsonpJsonPathCheckBuilder[String](path, extender, jsonParsers) with WsJsonpJsonPathOfType
 }
 
 class WsJsonpJsonPathCheckBuilder[X: JsonFilter](private[ws] val path: Expression[String],
-                                                 private[ws] val extender: Extender[WsCheck, String])
-    extends DefaultMultipleFindCheckBuilder[WsCheck, String, Any, X](extender,
-      WsJsonpJsonPathCheckBuilder.WsJsonpPreparer) {
+                                                 private[ws] val extender: Extender[WsCheck, String],
+                                                 private[ws] val jsonParsers: JsonParsers)(implicit extractorFactory: JsonPathExtractorFactory)
+    extends DefaultMultipleFindCheckBuilder[WsCheck, String, Any, X](extender, WsJsonpJsonPathCheckBuilder.wsJsonpPreparer(jsonParsers)) {
 
-  def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
+  import extractorFactory._
 
-  def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))
-
-  def countExtractor = path.map(new CountJsonPathExtractor(_))
+  def findExtractor(occurrence: Int) = path.map(newSingleExtractor[X](_, occurrence))
+  def findAllExtractor = path.map(newMultipleExtractor[X])
+  def countExtractor = path.map(newCountExtractor)
 }

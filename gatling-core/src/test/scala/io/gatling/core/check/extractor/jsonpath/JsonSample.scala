@@ -15,13 +15,13 @@
  */
 package io.gatling.core.check.extractor.jsonpath
 
-import io.gatling.core.json.{ Jackson, Boon }
+import io.gatling.core.json.JsonParsers
 
 trait JsonSample {
 
   def value: String
 
-  def boonAST = Boon.parse(value)
+  def boonAST(implicit jsonParsers: JsonParsers) = jsonParsers.boon.parse(value)
 
-  def jacksonAST = Jackson.parse(value)
+  def jacksonAST(implicit jsonParsers: JsonParsers) = jsonParsers.jackson.parse(value)
 }

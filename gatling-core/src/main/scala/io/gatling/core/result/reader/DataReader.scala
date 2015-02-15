@@ -16,7 +16,7 @@
 package io.gatling.core.result.reader
 
 import io.gatling.core.assertion.Assertion
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result._
 import io.gatling.core.result.message.Status
 import io.gatling.core.result.writer.RunMessage
@@ -24,11 +24,11 @@ import io.gatling.core.result.writer.RunMessage
 object DataReader {
   val NoPlotMagicValue = -1
 
-  def newInstance(runOn: String) =
+  def newInstance(runOn: String)(implicit configuration: GatlingConfiguration) =
     Class.forName(configuration.data.dataReaderClass)
       .asInstanceOf[Class[DataReader]]
-      .getConstructor(classOf[String])
-      .newInstance(runOn)
+      .getConstructor(classOf[String], classOf[GatlingConfiguration])
+      .newInstance(runOn, configuration)
 }
 
 abstract class DataReader(runUuid: String) {

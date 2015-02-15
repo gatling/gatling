@@ -30,9 +30,7 @@ package object session {
 
   implicit class RichExpression[T](val expression: Expression[T]) extends AnyVal {
     def map[U](f: T => U): Expression[U] = expression.andThen(_.map(f))
-    def safe: Expression[T] = session =>
-      try { expression(session) }
-      catch { case e: Exception => Failure(e.getMessage) }
+    def safe: Expression[T] = session => executeSafe(expression(session))
   }
 
   def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression match {

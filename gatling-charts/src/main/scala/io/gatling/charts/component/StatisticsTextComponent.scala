@@ -17,7 +17,7 @@ package io.gatling.charts.component
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.reader.DataReader.NoPlotMagicValue
 import io.gatling.core.util.NumberHelper._
 import io.gatling.core.util.StringHelper.EmptyFastring
@@ -51,7 +51,7 @@ private[charts] case class RequestStatistics(name: String,
                                              groupedCounts: Seq[GroupedCount],
                                              meanNumberOfRequestsPerSecondStatistics: Statistics[Double])
 
-private[charts] class StatisticsTextComponent extends Component {
+private[charts] class StatisticsTextComponent(implicit configuration: GatlingConfiguration) extends Component {
 
   def html = fast"""
                         <div class="infos">

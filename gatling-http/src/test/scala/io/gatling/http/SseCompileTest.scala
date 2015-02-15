@@ -30,6 +30,7 @@ class SseCompileTest extends Simulation {
       .check(wsAwait.within(10).until(1).regex("""event: snapshot(.*)""")))
     .pause(15)
     .exec(sse("close").close())
+    .exec(sse("foo", "bar").open("url"))
 
   setUp(scn.inject(rampUsers(100) over 10)).protocols(httpConf)
 }

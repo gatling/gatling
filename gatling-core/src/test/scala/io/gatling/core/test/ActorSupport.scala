@@ -15,8 +15,6 @@
  */
 package io.gatling.core.test
 
-import scala.collection.mutable
-
 import akka.testkit.{ TestKit, ImplicitSender }
 import io.gatling.core.akka.GatlingActorSystem
 import io.gatling.core.config.GatlingConfiguration
@@ -25,14 +23,10 @@ import com.typesafe.scalalogging.StrictLogging
 object ActorSupport extends StrictLogging {
 
   def apply(f: TestKit with ImplicitSender => Any): Unit = synchronized {
-    var oldGatlingConfiguration: GatlingConfiguration = null
     try {
-      oldGatlingConfiguration = GatlingConfiguration.configuration
-      GatlingConfiguration.set(GatlingConfiguration.setUpForTest())
       f(new TestKit(GatlingActorSystem.start()) with ImplicitSender)
 
     } finally {
-      GatlingConfiguration.set(oldGatlingConfiguration)
       logger.info("Shutting down GatlingActorSystem")
       GatlingActorSystem.shutdown()
     }

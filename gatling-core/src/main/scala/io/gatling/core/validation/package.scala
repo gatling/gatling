@@ -15,12 +15,18 @@
  */
 package io.gatling.core
 
+import scala.util.control.NonFatal
+
 package object validation {
 
   val TrueSuccess = true.success
   val FalseSuccess = false.success
   val NoneSuccess = None.success
   val NullStringSuccess = "null".success
+
+  def executeSafe[T](f: => Validation[T]): Validation[T] =
+    try { f }
+    catch { case NonFatal(e) => e.getMessage.failure }
 
   implicit class SuccessWrapper[T](val value: T) extends AnyVal {
     def success: Validation[T] = Success(value)

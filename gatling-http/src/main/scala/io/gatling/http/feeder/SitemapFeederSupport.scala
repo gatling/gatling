@@ -16,17 +16,15 @@
 package io.gatling.http.feeder
 
 import io.gatling.core.feeder.RecordSeqFeederBuilder
-import io.gatling.core.config.Resource
+import io.gatling.core.config.{ GatlingConfiguration, Resource }
 import io.gatling.core.validation.{ Failure, Success, Validation }
 
 /**
  * Feeder for [[http://www.sitemaps.org/protocol.html sitemap]] file format.
- *
- * @author Ivan Mushketyk
  */
 trait SitemapFeederSupport {
 
-  def sitemap(fileName: String): RecordSeqFeederBuilder[String] = sitemap(Resource.feeder(fileName))
+  def sitemap(fileName: String)(implicit configuration: GatlingConfiguration): RecordSeqFeederBuilder[String] = sitemap(Resource.feeder(fileName))
 
   def sitemap(resource: Validation[Resource]): RecordSeqFeederBuilder[String] =
     resource match {

@@ -23,7 +23,7 @@ import scala.collection.mutable
 
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session._
@@ -31,8 +31,8 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.cache._
 import io.gatling.core.validation._
 import io.gatling.http.action.{ RequestAction, HttpRequestAction }
-import io.gatling.http.ahc.HttpTx
-import io.gatling.http.cache.CacheHandling
+import io.gatling.http.ahc.{ HttpEngine, HttpTx }
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request._
 import io.gatling.http.response._
@@ -47,21 +47,21 @@ case class RegularResourceFetched(uri: Uri, status: Status, sessionUpdates: Sess
 case class CssResourceFetched(uri: Uri, status: Status, sessionUpdates: Session => Session, silent: Boolean, statusCode: Option[Int], lastModifiedOrEtag: Option[String], content: String) extends ResourceFetched
 
 case class InferredPageResources(expire: String, requests: List[HttpRequest])
+case class InferredResourcesCacheKey(protocol: HttpProtocol, uri: Uri)
 
-object ResourceFetcher extends StrictLogging {
+class ResourceFetcher(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine, httpCaches: HttpCaches) extends StrictLogging {
 
   // FIXME should CssContentCache use the same key?
-  case class InferredResourcesCacheKey(protocol: HttpProtocol, uri: Uri)
   val CssContentCache = ThreadSafeCache[Uri, List[EmbeddedResource]](configuration.http.fetchedCssCacheMaxCapacity)
   val InferredResourcesCache = ThreadSafeCache[InferredResourcesCacheKey, InferredPageResources](configuration.http.fetchedHtmlCacheMaxCapacity)
 
-  private def applyResourceFilters(resources: List[EmbeddedResource], filters: Option[Filters]): List[EmbeddedResource] =
+  def applyResourceFilters(resources: List[EmbeddedResource], filters: Option[Filters]): List[EmbeddedResource] =
     filters match {
       case Some(f) => f.filter(resources)
       case none    => resources
     }
 
-  private def resourcesToRequests(resources: List[EmbeddedResource], session: Session, protocol: HttpProtocol, throttled: Boolean): List[HttpRequest] =
+  def resourcesToRequests(resources: List[EmbeddedResource], session: Session, protocol: HttpProtocol, throttled: Boolean): List[HttpRequest] =
     resources.flatMap {
       _.toRequest(session, protocol, throttled) match {
         case Success(httpRequest) => Some(httpRequest)
@@ -136,13 +136,15 @@ object ResourceFetcher extends StrictLogging {
     }
   }
 
-  private def resourceFetcher(tx: HttpTx, inferredResources: List[HttpRequest], explicitResources: List[HttpRequest]) =
+  private def resourceFetcherActor(tx: HttpTx, inferredResources: List[HttpRequest], explicitResources: List[HttpRequest]) =
     inferredResources ::: explicitResources match {
-      case Nil       => None
-      case resources => Some(() => new ResourceFetcher(tx, resources))
+      case Nil => None
+      case resources =>
+        implicit val resourceFetcher = this
+        Some(() => new ResourceFetcherActor(tx, resources))
     }
 
-  def resourceFetcherForCachedPage(htmlDocumentURI: Uri, tx: HttpTx): Option[() => ResourceFetcher] = {
+  def resourceFetcherActorForCachedPage(htmlDocumentURI: Uri, tx: HttpTx): Option[() => ResourceFetcherActor] = {
 
     val inferredResources =
       InferredResourcesCache.cache.get(InferredResourcesCacheKey(tx.request.config.protocol, htmlDocumentURI)) match {
@@ -152,33 +154,31 @@ object ResourceFetcher extends StrictLogging {
 
     val explicitResources = buildExplicitResources(tx.request.config.explicitResources, tx.session)
 
-    resourceFetcher(tx, inferredResources, explicitResources)
+    resourceFetcherActor(tx, inferredResources, explicitResources)
   }
 
-  def resourceFetcherForFetchedPage(request: Request, response: Response, tx: HttpTx): Option[() => ResourceFetcher] = {
+  def resourceFetcherActorForFetchedPage(request: Request, response: Response, tx: HttpTx): Option[() => ResourceFetcherActor] = {
 
     val protocol = tx.request.config.protocol
 
     val explicitResources =
       if (tx.request.config.explicitResources.nonEmpty)
-        ResourceFetcher.buildExplicitResources(tx.request.config.explicitResources, tx.session)
+        buildExplicitResources(tx.request.config.explicitResources, tx.session)
       else
         Nil
 
     val inferredResources =
       if (protocol.responsePart.inferHtmlResources && response.isReceived && isHtml(response.headers))
-        ResourceFetcher.inferPageResources(request, response, tx.session, tx.request.config)
+        inferPageResources(request, response, tx.session, tx.request.config)
       else
         Nil
 
-    resourceFetcher(tx, inferredResources, explicitResources)
+    resourceFetcherActor(tx, inferredResources, explicitResources)
   }
 }
 
 // FIXME handle crash
-class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) extends BaseActor {
-
-  import ResourceFetcher._
+class ResourceFetcherActor(primaryTx: HttpTx, initialResources: Seq[HttpRequest])(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher) extends BaseActor {
 
   // immutable state
   val protocol = primaryTx.request.config.protocol
@@ -220,7 +220,7 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
     val silent = HttpTx.silent(resource, false)
 
     val resourceFetched =
-      if (CssContentCache.cache.contains(uri))
+      if (resourceFetcher.CssContentCache.cache.contains(uri))
         CssResourceFetched(uri, OK, Session.Identity, silent, None, None, "")
       else
         RegularResourceFetched(uri, OK, Session.Identity, silent)
@@ -245,11 +245,11 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
     val (cached, nonCached) = resources.partition { resource =>
       val uri = resource.ahcRequest.getUri
       val method = resource.ahcRequest.getMethod
-      CacheHandling.getExpire(session, uri, method) match {
+      httpCaches.getExpires(session, uri, method) match {
         case None => false
         case Some(expire) if nowMillis > expire =>
           // beware, side effecting
-          session = CacheHandling.clearExpire(session, uri, method)
+          session = httpCaches.clearExpires(session, uri, method)
           false
         case _ => true
       }
@@ -289,14 +289,14 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
               case request :: tail =>
                 bufferedResourcesByHost += host -> tail
                 val requestUri = request.ahcRequest.getUri
-                CacheHandling.getExpire(session, requestUri, "GET") match {
+                httpCaches.getExpires(session, requestUri, "GET") match {
                   case None =>
                     // recycle token, fetch a buffered resource
                     fetchResource(request)
 
                   case Some(expire) if nowMillis > expire =>
                     // expire reached
-                    session = CacheHandling.clearExpire(session, requestUri, "GET")
+                    session = httpCaches.clearExpires(session, requestUri, "GET")
                     fetchResource(request)
 
                   case _ =>
@@ -325,7 +325,9 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
       releaseToken(uri.getHost)
   }
 
-  private def cssFetched(uri: Uri, status: Status, statusCode: Option[Int], lastModifiedOrEtag: Option[String], content: String): Unit = {
+  private def cssFetched(uri: Uri, status: Status, statusCode: Option[Int], lastModifiedOrEtag: Option[String], content: String)(implicit httpCaches: HttpCaches): Unit = {
+
+    import resourceFetcher._
 
       def parseCssResources(): List[HttpRequest] = {
         val inferred = CssContentCache.cache.getOrElseUpdate(uri, CssParser.extractResources(uri, content))

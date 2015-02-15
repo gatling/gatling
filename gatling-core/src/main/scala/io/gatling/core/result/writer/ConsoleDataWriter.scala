@@ -17,6 +17,8 @@ package io.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
 
+import io.gatling.core.config.GatlingConfiguration
+
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
@@ -38,7 +40,7 @@ class UserCounters(val totalCount: Int) {
 
 class RequestCounters(var successfulCount: Int = 0, var failedCount: Int = 0)
 
-class ConsoleDataWriter extends DataWriter with Flushable {
+class ConsoleDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter with Flushable {
 
   private var startUpTime = 0L
   private var complete = false

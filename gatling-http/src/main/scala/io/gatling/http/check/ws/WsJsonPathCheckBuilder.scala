@@ -15,38 +15,33 @@
  */
 package io.gatling.http.check.ws
 
-import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Extender, Preparer }
-import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.json.{ Jackson, Boon }
+import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Extender }
+import io.gatling.core.json.JsonParsers
 import io.gatling.core.check.extractor.jsonpath._
-import io.gatling.http.check.body.HttpBodyJsonPathCheckBuilder.handleParseException
 import io.gatling.core.session.Expression
 
 trait WsJsonPathOfType {
   self: WsJsonPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter] = new WsJsonPathCheckBuilder[X](path, extender)
+  def ofType[X: JsonFilter](implicit extractorFactory: JsonPathExtractorFactory) = new WsJsonPathCheckBuilder[X](path, extender, jsonParsers)
 }
 
 object WsJsonPathCheckBuilder {
 
-  val WsJsonPathPreparer: Preparer[String, Any] =
-    if (configuration.core.extract.jsonPath.preferJackson) handleParseException(Jackson.parse)
-    else handleParseException(Boon.parse)
-
-  def jsonPath(path: Expression[String], extender: Extender[WsCheck, String]) =
-    new WsJsonPathCheckBuilder[String](path, extender) with WsJsonPathOfType
+  def jsonPath(path: Expression[String], extender: Extender[WsCheck, String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+    new WsJsonPathCheckBuilder[String](path, extender, jsonParsers) with WsJsonPathOfType
 }
 
 class WsJsonPathCheckBuilder[X: JsonFilter](private[ws] val path: Expression[String],
-                                            private[ws] val extender: Extender[WsCheck, String])
+                                            private[ws] val extender: Extender[WsCheck, String],
+                                            private[ws] val jsonParsers: JsonParsers)(implicit extractorFactory: JsonPathExtractorFactory)
     extends DefaultMultipleFindCheckBuilder[WsCheck, String, Any, X](
       extender,
-      WsJsonPathCheckBuilder.WsJsonPathPreparer) {
+      jsonParsers.safeParse) {
 
-  def findExtractor(occurrence: Int) = path.map(new SingleJsonPathExtractor(_, occurrence))
+  import extractorFactory._
 
-  def findAllExtractor = path.map(new MultipleJsonPathExtractor(_))
-
-  def countExtractor = path.map(new CountJsonPathExtractor(_))
+  def findExtractor(occurrence: Int) = path.map(newSingleExtractor[X](_, occurrence))
+  def findAllExtractor = path.map(newMultipleExtractor[X])
+  def countExtractor = path.map(newCountExtractor)
 }

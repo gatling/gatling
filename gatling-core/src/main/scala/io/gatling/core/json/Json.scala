@@ -56,5 +56,4 @@ object Json {
       def serializeEntry(key: String, value: Any) = fast""""$key":${fastringify(value, false)}"""
     fast"{${map.map { case (key, value) => serializeEntry(key.toString, value) }.mkFastring(",")}}"
   }
-
 }

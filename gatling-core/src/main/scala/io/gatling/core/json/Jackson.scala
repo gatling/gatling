@@ -21,36 +21,38 @@ import java.nio.charset.StandardCharsets._
 
 import com.fasterxml.jackson.core.JsonParser.Feature
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.FastByteArrayInputStream
 import io.gatling.core.util.NonStandardCharsets.UTF_32
 
-object Jackson extends JsonParser {
-
+object Jackson {
   val JsonSupportedEncodings = Vector(UTF_8, UTF_16, UTF_32)
+}
 
-  val TheObjectMapper = new ObjectMapper
-  TheObjectMapper.configure(Feature.ALLOW_COMMENTS, configuration.core.extract.jsonPath.jackson.allowComments)
-  TheObjectMapper.configure(Feature.ALLOW_SINGLE_QUOTES, configuration.core.extract.jsonPath.jackson.allowSingleQuotes)
-  TheObjectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, configuration.core.extract.jsonPath.jackson.allowUnquotedFieldNames)
+class Jackson(implicit configuration: GatlingConfiguration) extends JsonParser {
+
+  import Jackson.JsonSupportedEncodings
+
+  val objectMapper = new ObjectMapper
+  objectMapper.configure(Feature.ALLOW_COMMENTS, configuration.core.extract.jsonPath.jackson.allowComments)
+  objectMapper.configure(Feature.ALLOW_SINGLE_QUOTES, configuration.core.extract.jsonPath.jackson.allowSingleQuotes)
+  objectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, configuration.core.extract.jsonPath.jackson.allowUnquotedFieldNames)
 
   def parse(bytes: Array[Byte], charset: Charset) =
     if (JsonSupportedEncodings.contains(charset)) {
-      TheObjectMapper.readValue(bytes, classOf[Object])
+      objectMapper.readValue(bytes, classOf[Object])
     } else {
       val reader = new InputStreamReader(new FastByteArrayInputStream(bytes), charset)
-      TheObjectMapper.readValue(reader, classOf[Object])
+      objectMapper.readValue(reader, classOf[Object])
     }
 
-  def parse(string: String) = TheObjectMapper.readValue(string, classOf[Object])
+  def parse(string: String) = objectMapper.readValue(string, classOf[Object])
 
-  def parse(stream: InputStream, charset: Charset) =
+  def parse(stream: InputStream, charset: Charset = configuration.core.charset) =
     if (JsonSupportedEncodings.contains(charset)) {
-      TheObjectMapper.readValue(stream, classOf[Object])
+      objectMapper.readValue(stream, classOf[Object])
     } else {
       val reader = new InputStreamReader(stream, charset)
-      TheObjectMapper.readValue(reader, classOf[Object])
+      objectMapper.readValue(reader, classOf[Object])
     }
-
-  def toJsonString(obj: Any) = TheObjectMapper.writeValueAsString(obj)
 }

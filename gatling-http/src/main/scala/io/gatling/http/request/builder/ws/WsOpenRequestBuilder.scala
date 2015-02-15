@@ -16,17 +16,21 @@
 package io.gatling.http.request.builder.ws
 
 import com.ning.http.client.Request
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
 import io.gatling.http.action.ws.WsOpenActionBuilder
-import io.gatling.http.config.HttpProtocol
+import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocol }
 import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
 
 object WsOpenRequestBuilder {
 
-  implicit def toActionBuilder(requestBuilder: WsOpenRequestBuilder) = new WsOpenActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.wsName, requestBuilder)
+  implicit def toActionBuilder(requestBuilder: WsOpenRequestBuilder)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine) =
+    new WsOpenActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.wsName, requestBuilder)
 }
 
-class WsOpenRequestBuilder(commonAttributes: CommonAttributes, val wsName: String) extends RequestBuilder[WsOpenRequestBuilder](commonAttributes) {
+class WsOpenRequestBuilder(commonAttributes: CommonAttributes, val wsName: String)(implicit configuration: GatlingConfiguration)
+    extends RequestBuilder[WsOpenRequestBuilder](commonAttributes) {
 
   private[http] def newInstance(commonAttributes: CommonAttributes) = new WsOpenRequestBuilder(commonAttributes, wsName)
 

@@ -19,8 +19,9 @@ import com.ning.http.client.Request
 import com.ning.http.client.uri.Uri
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.http.cache.PermanentRedirect
-import io.gatling.http.config.{ HttpProtocol, HttpProtocolRequestPart }
+import io.gatling.http.cache.HttpCaches
+import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocol, HttpProtocolRequestPart }
+import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -28,11 +29,14 @@ import org.scalatest.{ FlatSpec, Matchers }
 
 class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
 
-  GatlingConfiguration.setUpForTest()
+  implicit val configuration = GatlingConfiguration.loadForTest()
 
   trait Context {
-    val httpEngineMock = mock[HttpEngine]
+    implicit val httpEngineMock = mock[HttpEngine]
     var session = Session("mockSession", "mockUserName")
+    implicit val httpCaches = new HttpCaches
+    implicit val resourceFetcher = mock[ResourceFetcher]
+
     val configBase = HttpRequestConfig(
       checks = Nil,
       responseTransformer = None,
@@ -42,11 +46,11 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
       silent = None,
       followRedirect = false,
       discardResponseChunks = true,
-      protocol = HttpProtocol.DefaultHttpProtocol,
+      protocol = new DefaultHttpProtocol().value,
       explicitResources = Nil)
 
     def addRedirect(from: String, to: String): Unit =
-      session = PermanentRedirect.addRedirect(session, Uri.create(from), Uri.create(to))
+      session = httpCaches.addRedirect(session, Uri.create(from), Uri.create(to))
   }
 
   def tx(ahcRequest: Request, config: HttpRequestConfig, primary: Boolean) =
@@ -67,7 +71,7 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/")
 
     val config = configBase.copy(silent = Some(true))
-    tx(ahcRequest, config, true).silent shouldBe true
+    tx(ahcRequest, config, primary = true).silent shouldBe true
   }
 
   it should "be non-silent when using default protocol and containing a regular request" in new Context {
@@ -77,7 +81,7 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/")
 
     val config = configBase.copy(silent = None)
-    tx(ahcRequest, config, true).silent shouldBe false
+    tx(ahcRequest, config, primary = true).silent shouldBe false
   }
 
   it should "not be silent when using a protocol with a silentURI pattern match the request url" in new Context {
@@ -92,7 +96,7 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
     when(protocol.requestPart) thenReturn requestPart
 
     val config = configBase.copy(silent = None, protocol = protocol)
-    tx(ahcRequest, config, true).silent shouldBe true
+    tx(ahcRequest, config, primary = true).silent shouldBe true
   }
 
   it should "be silent when passed a protocol silencing resources and a resource (non primary) request" in new Context {
@@ -107,7 +111,7 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
     when(protocol.requestPart) thenReturn requestPart
 
     val config = configBase.copy(silent = None, protocol = protocol)
-    tx(ahcRequest, config, false).silent shouldBe true
+    tx(ahcRequest, config, primary = false).silent shouldBe true
   }
 
   it should "not be silent when passed a protocol silencing resources and a primary request" in new Context {
@@ -122,6 +126,6 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
     when(protocol.requestPart) thenReturn requestPart
 
     val config = configBase.copy(silent = None, protocol = protocol)
-    tx(ahcRequest, config, true).silent shouldBe false
+    tx(ahcRequest, config, primary = true).silent shouldBe false
   }
 }

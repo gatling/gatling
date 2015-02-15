@@ -23,12 +23,12 @@ import javax.net.ssl.HttpsURLConnection
 import scala.util.Properties._
 import scala.util.Try
 
-import io.gatling.core.config.GatlingConfiguration.configuration
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.Io._
 
 object Ga {
 
-  def send(): Unit =
+  def send(configuration: GatlingConfiguration): Unit =
     if (configuration.http.enableGA) {
       Try {
 

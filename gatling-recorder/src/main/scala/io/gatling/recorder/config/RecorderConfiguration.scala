@@ -29,7 +29,8 @@ import scala.util.Properties.userHome
 import com.typesafe.config.{ ConfigFactory, Config, ConfigRenderOptions }
 import com.typesafe.scalalogging.StrictLogging
 
-import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.GatlingFiles._
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.util.ConfigHelper.configChain
 import io.gatling.core.util.Io._
@@ -50,7 +51,7 @@ object RecorderConfiguration extends StrictLogging {
 
   implicit var configuration: RecorderConfiguration = _
 
-  GatlingConfiguration.setUp()
+  implicit val gatlingConfiguration = GatlingConfiguration.load()
 
   private[this] def getClassLoader = Thread.currentThread.getContextClassLoader
   private[this] def getDefaultConfig(classLoader: ClassLoader) =
@@ -92,7 +93,7 @@ object RecorderConfiguration extends StrictLogging {
   def saveConfig(): Unit = {
     // Remove request bodies folder configuration (transient), keep only Gatling-related properties
     val configToSave = configuration.config.withoutPath(ConfigKeys.core.BodiesFolder).root.withOnlyKey(ConfigKeys.ConfigRoot)
-    configFile.foreach(file => withCloseable(createAndOpen(file).writer())(_.write(configToSave.render(RenderOptions))))
+    configFile.foreach(file => withCloseable(createAndOpen(file).writer(gatlingConfiguration.core.charset))(_.write(configToSave.render(RenderOptions))))
   }
 
   private[config] def createAndOpen(path: Path): Path = {
@@ -111,14 +112,14 @@ object RecorderConfiguration extends StrictLogging {
       def getOutputFolder(folder: String) = {
         folder.trimToOption match {
           case Some(f)                               => f
-          case _ if sys.env.contains("GATLING_HOME") => GatlingFiles.sourcesDirectory.toFile.toString
+          case _ if sys.env.contains("GATLING_HOME") => sourcesDirectory.toFile.toString
           case _                                     => userHome
         }
       }
 
       def getBodiesFolder =
         if (config.hasPath(core.BodiesFolder)) config.getString(core.BodiesFolder)
-        else GatlingFiles.bodiesDirectory.toFile.toString
+        else bodiesDirectory.toFile.toString
 
     RecorderConfiguration(
       core = CoreConfiguration(

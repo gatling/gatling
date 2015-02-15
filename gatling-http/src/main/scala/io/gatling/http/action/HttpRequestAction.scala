@@ -20,39 +20,40 @@ import com.typesafe.scalalogging.StrictLogging
 import akka.actor.{ ActorRef, ActorContext }
 import akka.actor.ActorDSL.actor
 import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.OK
 import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation._
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
-import io.gatling.http.cache.{ PermanentRedirect, CacheHandling }
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.fetch.{ RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response._
 
 object HttpRequestAction extends DataWriterClient with AkkaDefaults with StrictLogging {
 
-  def startHttpTransaction(origTx: HttpTx, httpEngine: HttpEngine = HttpEngine.instance)(implicit ctx: ActorContext): Unit = {
+  def startHttpTransaction(origTx: HttpTx)(implicit ctx: ActorContext, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher): Unit = {
 
-    val tx = PermanentRedirect.applyPermanentRedirect(origTx)
+    val tx = httpCaches.applyPermanentRedirect(origTx)
     val uri = tx.request.ahcRequest.getUri
     val method = tx.request.ahcRequest.getMethod
 
-    CacheHandling.getExpire(tx.session, uri, method) match {
+    httpCaches.getExpires(tx.session, uri, method) match {
 
       case None =>
         httpEngine.startHttpTransaction(tx)
 
       case Some(expire) if nowMillis > expire =>
-        val newTx = tx.copy(session = CacheHandling.clearExpire(tx.session, uri, method))
+        val newTx = tx.copy(session = httpCaches.clearExpires(tx.session, uri, method))
         httpEngine.startHttpTransaction(newTx)
 
       case _ =>
-        ResourceFetcher.resourceFetcherForCachedPage(uri, tx) match {
-          case Some(resourceFetcher) =>
+        resourceFetcher.resourceFetcherActorForCachedPage(uri, tx) match {
+          case Some(resourceFetcherActor) =>
             logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-            actor(ctx, actorName("resourceFetcher"))(resourceFetcher())
+            actor(ctx, actorName("resourceFetcher"))(resourceFetcherActor())
 
           case None =>
             logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
@@ -72,7 +73,7 @@ object HttpRequestAction extends DataWriterClient with AkkaDefaults with StrictL
  * @param httpRequestDef the request definition
  * @param next the next action that will be executed after the request
  */
-class HttpRequestAction(httpRequestDef: HttpRequestDef, val next: ActorRef) extends RequestAction {
+class HttpRequestAction(httpRequestDef: HttpRequestDef, val next: ActorRef)(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher) extends RequestAction {
 
   import httpRequestDef._
 

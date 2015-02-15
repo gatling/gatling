@@ -19,13 +19,13 @@ import scala.collection.mutable
 
 import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.config.GatlingConfiguration.setUpForTest
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ OK, KO }
 import io.gatling.core.ConfigKeys._
 
 class RequestMetricsBufferSpec extends FlatSpec with Matchers {
 
-  implicit val defaultConfig = setUpForTest(mutable.Map(
+  implicit val defaultConfig = GatlingConfiguration.loadForTest(mutable.Map(
     charting.indicators.Percentile1 -> 95,
     charting.indicators.Percentile2 -> 99,
     http.ahc.RequestTimeout -> 60000))
