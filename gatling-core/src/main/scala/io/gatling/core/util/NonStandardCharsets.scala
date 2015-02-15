@@ -17,7 +17,7 @@ package io.gatling.core.util
 
 import java.nio.charset.Charset
 
-object CharsetHelper {
+object NonStandardCharsets {
 
   val UTF_32 = Charset.forName("UTF-32")
 }

@@ -22,11 +22,12 @@ import java.nio.charset.StandardCharsets._
 import com.fasterxml.jackson.core.JsonParser.Feature
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.gatling.core.config.GatlingConfiguration.configuration
-import io.gatling.core.util.{ CharsetHelper, FastByteArrayInputStream }
+import io.gatling.core.util.FastByteArrayInputStream
+import io.gatling.core.util.NonStandardCharsets.UTF_32
 
 object Jackson extends JsonParser {
 
-  val JsonSupportedEncodings = Vector(UTF_8, UTF_16, CharsetHelper.UTF_32)
+  val JsonSupportedEncodings = Vector(UTF_8, UTF_16, UTF_32)
 
   val TheObjectMapper = new ObjectMapper
   TheObjectMapper.configure(Feature.ALLOW_COMMENTS, configuration.core.extract.jsonPath.jackson.allowComments)
