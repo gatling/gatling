@@ -54,7 +54,7 @@ object GatlingBuild extends Build {
   lazy val jms = gatlingModule("gatling-jms")
     .dependsOn(core % "compile->compile;test->test")
     .settings(libraryDependencies ++= jmsDependencies)
-    .settings(parallelExecution in Test := true)
+    .settings(parallelExecution in Test := false)
 
   lazy val charts = gatlingModule("gatling-charts")
     .dependsOn(core)
