@@ -45,8 +45,10 @@ object Predef extends HttpCheckSupport with WsCheckSupport with SitemapFeederSup
   def flushHttpCache = CacheHandling.FlushCache
 
   def sse(requestName: Expression[String]) = new Sse(requestName)
+  def sse(requestName: Expression[String], sseName: String) = new Sse(requestName, sseName)
 
   def ws(requestName: Expression[String]) = new Ws(requestName)
+  def ws(requestName: Expression[String], wsName: String) = new Ws(requestName, wsName)
 
   val HttpHeaderNames = HeaderNames
   val HttpHeaderValues = HeaderValues
