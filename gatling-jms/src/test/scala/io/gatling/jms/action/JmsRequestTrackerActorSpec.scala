@@ -15,11 +15,11 @@
  */
 package io.gatling.jms.action
 
-import akka.testkit.TestActorRef
-
 import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.Predef._
+import akka.testkit.TestActorRef
+import io.gatling.core.CoreModule
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message._
 import io.gatling.core.result.writer.RequestEndMessage
 import io.gatling.core.session.Session
@@ -30,7 +30,9 @@ import io.gatling.jms.check.JmsSimpleCheck
 
 class JmsRequestTrackerActorWithMockWriter extends JmsRequestTrackerActor with MockDataWriterClient
 
-class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage {
+class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage with CoreModule {
+
+  implicit val configuration = GatlingConfiguration.loadForTest()
 
   def ignoreDrift(actual: Session) = {
     actual.drift shouldBe >(0L)

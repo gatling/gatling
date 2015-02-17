@@ -2,18 +2,15 @@ package io.gatling.jms.integration
 
 import javax.jms.TextMessage
 
-import io.gatling.core.{ Predef => CorePredef }
-import io.gatling.core.Predef._
+import io.gatling.core.CoreModule
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ActorSupport
 import io.gatling.jms.JmsQueue
 import io.gatling.jms.Predef._
 
-class JmsIntegrationSpec extends JmsMockingSpec {
+class JmsIntegrationSpec extends JmsMockingSpec with CoreModule {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  // FIXME to be removed
-  CorePredef.configuration = configuration
 
   "gatling-jms" should "send and receive JMS message" in ActorSupport { implicit testKit =>
 
@@ -35,5 +32,4 @@ class JmsIntegrationSpec extends JmsMockingSpec {
     session.isFailed shouldBe false
     session("content").as[String] shouldBe "HI"
   }
-
 }

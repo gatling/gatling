@@ -15,23 +15,21 @@
  */
 package io.gatling.jms.check
 
+import io.gatling.core.config.GatlingConfiguration
+
 import scala.collection.mutable
 
 import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.Predef._
-import io.gatling.core.{ Predef => CorePredef }
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.CoreModule
 import io.gatling.core.validation._
 import io.gatling.core.session.Session
 import io.gatling.core.test.ValidationValues
-import io.gatling.jms.Predef._
 import io.gatling.jms.{ MockMessage, JmsCheck }
 
-class JmsXPathCheckSpec extends FlatSpec with Matchers with ValidationValues with MockMessage {
+class JmsXPathCheckSpec extends FlatSpec with Matchers with ValidationValues with MockMessage with CoreModule with JmsCheckSupport {
 
-  CorePredef.configuration = GatlingConfiguration.loadForTest()
-
+  implicit val configuration = GatlingConfiguration.loadForTest()
   implicit def cache = mutable.Map.empty[Any, Any]
 
   val session = Session("mockSession", "mockUserName")
