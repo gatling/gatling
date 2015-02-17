@@ -248,10 +248,12 @@ class AsyncHandlerActor(implicit configuration: GatlingConfiguration, httpEngine
                   else
                     Session.Identity
 
-                val newUpdate = update andThen cacheRedirectUpdate
-                val newSession = newUpdate(tx.session)
+                val groupUpdate = logGroupRequestUpdate(tx, OK, response.timings.responseTime)
 
-                val loggedTx = tx.copy(session = newSession, update = newUpdate)
+                val totalUpdate = update andThen cacheRedirectUpdate andThen groupUpdate
+                val newSession = totalUpdate(tx.session)
+
+                val loggedTx = tx.copy(session = newSession, update = totalUpdate)
                 logRequest(loggedTx, OK, response)
 
                 val newAhcRequest = redirectRequest(statusCode, redirectURI, newSession)
