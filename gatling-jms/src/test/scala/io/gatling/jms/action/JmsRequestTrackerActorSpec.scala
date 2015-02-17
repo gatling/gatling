@@ -25,12 +25,11 @@ import io.gatling.core.result.writer.RequestEndMessage
 import io.gatling.core.session.Session
 import io.gatling.core.test.ActorSupport
 import io.gatling.jms._
-import io.gatling.jms.Predef._
 import io.gatling.jms.check.JmsSimpleCheck
 
 class JmsRequestTrackerActorWithMockWriter extends JmsRequestTrackerActor with MockDataWriterClient
 
-class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with MockMessage with CoreModule {
+class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with CoreModule with JmsModule with MockMessage {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 

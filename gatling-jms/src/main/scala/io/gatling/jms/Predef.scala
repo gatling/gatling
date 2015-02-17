@@ -15,36 +15,9 @@
  */
 package io.gatling.jms
 
-import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.jms.check.JmsCheckSupport
-
 /**
  * Imports to be used to simplify the DSL
  * <p>
  * Scenario scripts will import this and generally start interacting with the DSL from the functions exposed here
- * @author jasonk@bluedevel.com
  */
-object Predef extends JmsCheckSupport {
-
-  val jms = JmsProtocolBuilderBase
-
-  /**
-   * DSL text to start the jms builder
-   *
-   * @param requestName human readable name of request
-   * @return a PingBuilder instance which can be used to build up a ping
-   */
-  def jms(requestName: String) = JmsRequestBuilderBase(requestName)
-
-  /**
-   * Convert a JmsProtocolBuilder to a JmsProtocol
-   * <p>
-   * Simplifies the API somewhat (you can pass the builder reference to the scenario .protocolConfig() method)
-   */
-  implicit def jmsProtocolBuilder2jmsProtocol(builder: JmsProtocolBuilder): JmsProtocol = builder.build
-
-  implicit def jmsRequestBuilder2ActionBuilder(builder: JmsRequestBuilder): ActionBuilder = builder.build()
-
-  def topic(name: String) = JmsTopic(name)
-  def queue(name: String) = JmsQueue(name)
-}
+object Predef extends JmsModule

@@ -10,7 +10,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.structure.ScenarioBuilder
 import io.gatling.core.util.TimeHelper._
 import io.gatling.jms.JmsDestination
-import io.gatling.jms.Predef._
+import io.gatling.jms._
 import io.gatling.jms.client.{ SimpleJmsClient, BrokerBasedSpecification }
 import org.apache.activemq.jndi.ActiveMQInitialContextFactory
 
@@ -35,7 +35,7 @@ class JmsMockCustomer(client: SimpleJmsClient, mockResponse: PartialFunction[Mes
   }
 }
 
-trait JmsMockingSpec extends BrokerBasedSpecification {
+trait JmsMockingSpec extends BrokerBasedSpecification with JmsModule {
 
   def jmsProtocol = jms
     .connectionFactoryName("ConnectionFactory")

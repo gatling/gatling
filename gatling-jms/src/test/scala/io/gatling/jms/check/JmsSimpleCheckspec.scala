@@ -23,10 +23,9 @@ import org.scalatest.{ FlatSpec, Matchers }
 
 import io.gatling.core.session.Session
 import io.gatling.core.validation._
-import io.gatling.jms.MockMessage
-import io.gatling.jms.Predef._
+import io.gatling.jms._
 
-class JmsSimpleCheckSpec extends FlatSpec with Matchers with MockMessage {
+class JmsSimpleCheckSpec extends FlatSpec with Matchers with JmsModule with MockMessage {
 
   implicit def cache = mutable.Map.empty[Any, Any]
 

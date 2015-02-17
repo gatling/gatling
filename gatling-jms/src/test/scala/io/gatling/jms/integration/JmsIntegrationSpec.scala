@@ -5,10 +5,9 @@ import javax.jms.TextMessage
 import io.gatling.core.CoreModule
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.test.ActorSupport
-import io.gatling.jms.JmsQueue
-import io.gatling.jms.Predef._
+import io.gatling.jms._
 
-class JmsIntegrationSpec extends JmsMockingSpec with CoreModule {
+class JmsIntegrationSpec extends JmsMockingSpec with CoreModule with JmsModule {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 
