@@ -22,7 +22,6 @@ object BuildSettings {
     updateOptions             := updateOptions.value.withCachedResolution(true),
     resolvers                 := Seq(Resolver.mavenLocal, Opts.resolver.sonatypeSnapshots),
     javacOptions              := Seq("-Xlint:-options","-source", "1.7", "-target", "1.7"),
-    parallelExecution in Test := false,
     scalacOptions             := Seq(
       "-encoding", "UTF-8",
       "-target:jvm-1.7",
