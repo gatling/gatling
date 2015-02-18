@@ -20,12 +20,11 @@ import java.util.{ List => JList, Map => JMap }
 
 import scala.language.dynamics
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.jr.ob.JSON
 
 object Json {
-  val objectMapper = new ObjectMapper
 
-  def parseJson(is: InputStream) = new Json(objectMapper.readValue(is, classOf[Object]))
+  def parseJson(is: InputStream) = new Json(JSON.std.anyFrom(is))
 
   implicit def JsonToString(s: Json) = s.toString
   implicit def JsonToInt(s: Json) = s.toInt

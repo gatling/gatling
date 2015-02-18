@@ -100,11 +100,7 @@ object GatlingConfiguration extends StrictLogging {
             cacheMaxCapacity = config.getLong(core.extract.xpath.CacheMaxCapacity)),
           jsonPath = JsonPathConfiguration(
             cacheMaxCapacity = config.getLong(core.extract.jsonPath.CacheMaxCapacity),
-            preferJackson = config.getBoolean(core.extract.jsonPath.PreferJackson),
-            jackson = JacksonConfiguration(
-              allowComments = config.getBoolean(core.extract.jsonPath.jackson.AllowComments),
-              allowUnquotedFieldNames = config.getBoolean(core.extract.jsonPath.jackson.AllowUnquotedFieldNames),
-              allowSingleQuotes = config.getBoolean(core.extract.jsonPath.jackson.AllowSingleQuotes))),
+            preferJackson = config.getBoolean(core.extract.jsonPath.PreferJackson)),
           css = CssConfiguration(
             cacheMaxCapacity = config.getLong(core.extract.css.CacheMaxCapacity))),
         timeOut = TimeOutConfiguration(
@@ -254,13 +250,7 @@ case class XPathConfiguration(
 
 case class JsonPathConfiguration(
   cacheMaxCapacity: Long,
-  preferJackson: Boolean,
-  jackson: JacksonConfiguration)
-
-case class JacksonConfiguration(
-  allowComments: Boolean,
-  allowUnquotedFieldNames: Boolean,
-  allowSingleQuotes: Boolean)
+  preferJackson: Boolean)
 
 case class CssConfiguration(
   cacheMaxCapacity: Long)
