@@ -69,7 +69,7 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
 
   private def transformExtractor[X2](transformation: X => X2)(e: Extractor[P, X]) =
     new Extractor[P, X2] {
-      def name = e.name + " transform"
+      val name = e.name + " transform"
       def arity = e.arity
 
       def apply(prepared: P): Validation[Option[X2]] =
@@ -90,7 +90,7 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
 
   private def transformOptionExtractor[X2](transformation: Option[X] => Validation[Option[X2]])(e: Extractor[P, X]) =
     new Extractor[P, X2] {
-      def name = e.name + " transformOption"
+      val name = e.name + " transformOption"
       def arity = e.arity
 
       def apply(prepared: P): Validation[Option[X2]] =
