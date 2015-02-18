@@ -37,7 +37,7 @@ class HttpBodyXPathCheckSpec extends FlatSpec with ValidationValues with Mockito
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 
-  implicit def cache = mutable.Map.empty[Any, Any]
+  implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
   val session = Session("mockSession", "mockUserName")
 
   def mockResponse(xml: Elem): Response = {
