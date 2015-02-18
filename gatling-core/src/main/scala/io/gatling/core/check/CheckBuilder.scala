@@ -67,16 +67,14 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
     preparer: Preparer[R, P],
     extractor: Expression[Extractor[P, X]]) extends StrictLogging {
 
-  private def transformExtractor[X2](transformation: X => X2)(e: Extractor[P, X]) =
+  private def transformExtractor[X2](transformation: X => X2)(extractor: Extractor[P, X]) =
     new Extractor[P, X2] {
-      val name = e.name + " transform"
-      def arity = e.arity
+      val name = extractor.name + " transform"
+      def arity = extractor.arity
 
       def apply(prepared: P): Validation[Option[X2]] =
         try {
-          e(prepared).map { extracted =>
-            extracted.map(transformation)
-          }
+          extractor(prepared).map(_.map(transformation))
         } catch {
           case e: Exception => s"transform crashed: ${e.getMessage}".failure
         }
@@ -88,16 +86,14 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
   def transform[X2](transformation: (X, Session) => X2): ValidatorCheckBuilder[C, R, P, X2] =
     copy(extractor = session => extractor(session).map(transformExtractor(transformation(_, session))))
 
-  private def transformOptionExtractor[X2](transformation: Option[X] => Validation[Option[X2]])(e: Extractor[P, X]) =
+  private def transformOptionExtractor[X2](transformation: Option[X] => Validation[Option[X2]])(extractor: Extractor[P, X]) =
     new Extractor[P, X2] {
-      val name = e.name + " transformOption"
-      def arity = e.arity
+      val name = extractor.name + " transformOption"
+      def arity = extractor.arity
 
       def apply(prepared: P): Validation[Option[X2]] =
         try {
-          e(prepared).flatMap { extracted =>
-            transformation(extracted)
-          }
+          extractor(prepared).flatMap(transformation)
         } catch {
           case e: Exception => s"transformOption crashed: ${e.getMessage}".failure
         }
