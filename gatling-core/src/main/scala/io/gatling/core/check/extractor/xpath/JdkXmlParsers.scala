@@ -50,13 +50,9 @@ class JdkXmlParsers(implicit configuration: GatlingConfiguration) {
 
   val documentBuilderTL = new ThreadLocal[DocumentBuilder] {
     override def initialValue() = {
-      try {
-        val builder = documentBuilderFactoryInstance.newDocumentBuilder
-        builder.setEntityResolver(noopEntityResolver)
-        builder
-      } catch {
-        case e: ParserConfigurationException => throw new RuntimeException(e)
-      }
+      val builder = documentBuilderFactoryInstance.newDocumentBuilder
+      builder.setEntityResolver(noopEntityResolver)
+      builder
     }
   }
 
