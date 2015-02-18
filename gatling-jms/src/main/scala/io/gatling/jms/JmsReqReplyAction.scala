@@ -15,19 +15,22 @@
  */
 package io.gatling.jms
 
+import scala.util.control.NonFatal
+
+import java.util.concurrent.atomic.AtomicBoolean
+
+import javax.jms.Message
 import akka.actor.ActorRef
 import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.session.Expression
 import io.gatling.core.util.TimeHelper.nowMillis
-import javax.jms.Message
-import java.util.concurrent.atomic.AtomicBoolean
 import io.gatling.core.validation.Validation
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session.Session
 import io.gatling.jms.client.SimpleJmsClient
 
 object JmsReqReplyAction {
-  val blockingReceiveReturnedNull = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
+  val BlockingReceiveReturnedNull = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
 }
 
 /**
@@ -44,6 +47,8 @@ class JmsReqReplyAction(
   tracker: ActorRef)
     extends Interruptable
     with Failable {
+
+  import JmsReqReplyAction._
 
   // Create a client to refer to
   val client = new SimpleJmsClient(
@@ -70,13 +75,12 @@ class JmsReqReplyAction(
               tracker ! MessageReceived(messageMatcher.responseID(msg), nowMillis, msg)
               logMessage(s"Message received ${msg.getJMSMessageID}", msg)
             case _ =>
-              logger.error(JmsReqReplyAction.blockingReceiveReturnedNull.getMessage)
-              throw JmsReqReplyAction.blockingReceiveReturnedNull
+              throw BlockingReceiveReturnedNull
           }
         }
       } catch {
         // when we close, receive can throw exception
-        case e: Exception => logger.error(e.getMessage)
+        case NonFatal(e) => logger.error(e.getMessage)
       } finally {
         replyConsumer.close()
       }

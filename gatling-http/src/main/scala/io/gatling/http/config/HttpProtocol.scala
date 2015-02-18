@@ -18,6 +18,8 @@ package io.gatling.http.config
 import java.net.InetAddress
 import java.util.regex.Pattern
 
+import scala.util.control.NonFatal
+
 import com.ning.http.client._
 import com.ning.http.client.providers.netty.NettyAsyncHttpProvider
 import com.ning.http.client.providers.netty.channel.pool.ChannelPoolPartitionSelector
@@ -120,11 +122,8 @@ object HttpProtocol extends StrictLogging {
               requestBuilder.setProxyServer(proxy)
           }
 
-          try {
-            httpEngine.defaultAhc.executeRequest(requestBuilder.build).get
-          } catch {
-            case e: Exception => logger.info(s"Couldn't execute warm up request $url", e)
-          }
+          try { httpEngine.defaultAhc.executeRequest(requestBuilder.build).get }
+          catch { case NonFatal(e) => logger.info(s"Couldn't execute warm up request $url", e) }
 
         case _ =>
           val expression = "foo".expression

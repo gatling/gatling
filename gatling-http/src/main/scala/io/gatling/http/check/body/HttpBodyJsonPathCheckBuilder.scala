@@ -38,9 +38,9 @@ object HttpBodyJsonPathCheckBuilder extends StrictLogging {
   def preparer(jsonParsers: JsonParsers): Preparer[Response, Any] =
     response => {
       if (response.bodyLength > CharsParsingThreshold || jsonParsers.preferJackson)
-        executeSafe(jsonParsers.jackson.parse(response.body.stream, response.charset).success)
+        jsonParsers.safeParseJackson(response.body.stream, response.charset)
       else
-        executeSafe(jsonParsers.boon.parse(response.body.string).success)
+        jsonParsers.safeParseBoon(response.body.string)
     }
 
   val BoonResponseBodyUsageStrategy = new ResponseBodyUsageStrategy {

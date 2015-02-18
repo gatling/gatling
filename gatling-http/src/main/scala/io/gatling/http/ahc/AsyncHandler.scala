@@ -24,6 +24,8 @@ import com.ning.http.client.AsyncHandler.STATE.CONTINUE
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.result.writer.DataWriterClient
 
+import scala.util.control.NonFatal
+
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
  *
@@ -94,12 +96,8 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
 
   override def onCompleted: Unit =
     if (done.compareAndSet(false, true)) {
-      try {
-        val response = responseBuilder.build
-        AsyncHandlerActor.instance ! OnCompleted(tx, response)
-      } catch {
-        case e: Exception => sendOnThrowable(e)
-      }
+      try { AsyncHandlerActor.instance ! OnCompleted(tx, responseBuilder.build) }
+      catch { case NonFatal(e) => sendOnThrowable(e) }
     }
 
   override def onThrowable(throwable: Throwable): Unit =

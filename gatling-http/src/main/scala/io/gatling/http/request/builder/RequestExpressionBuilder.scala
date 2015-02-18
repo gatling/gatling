@@ -20,7 +20,7 @@ import com.ning.http.client.{ Request, RequestBuilder => AHCRequestBuilder }
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.validation._
 import io.gatling.http.HeaderNames
 import io.gatling.http.ahc.ChannelPoolPartitioning
 import io.gatling.http.config.HttpProtocol
@@ -28,7 +28,15 @@ import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.util.HttpHelper
 
+import scala.util.control.NonFatal
+
+object RequestExpressionBuilder {
+  val BuildRequestErrorMapper = "Failed to build request: " + _
+}
+
 abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol)(implicit configuration: GatlingConfiguration) extends StrictLogging {
+
+  import RequestExpressionBuilder._
 
   def makeAbsolute(url: String): Validation[String]
 
@@ -38,7 +46,8 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
         try
           Uri.create(url).success
         catch {
-          case e: Exception => s"url $url can't be parsed into a URI: ${e.getMessage}".failure
+          // don't use executeSafe in order to safe lambda instances
+          case NonFatal(e) => s"url $url can't be parsed into a URI: ${e.getMessage}".failure
         }
 
     commonAttributes.urlOrURI match {
@@ -130,16 +139,11 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
 
       commonAttributes.address.foreach(requestBuilder.setInetAddress)
 
-      try
+      executeSafe(BuildRequestErrorMapper) {
         for {
           uri <- buildURI(session)
           rb <- configureRequestBuilder(session, uri, requestBuilder)
         } yield rb.build
-
-      catch {
-        case e: Exception =>
-          logger.warn("Failed to build request", e)
-          s"Failed to build request: ${e.getMessage}".failure
       }
     }
   }

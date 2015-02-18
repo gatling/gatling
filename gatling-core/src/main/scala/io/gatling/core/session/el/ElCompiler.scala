@@ -244,7 +244,7 @@ class ElCompiler extends RegexParsers {
 
     parseResult match {
       case Success(parts, _) => parts
-      case ns: NoSuccess => throw new ElParserException(string, ns.msg)
+      case ns: NoSuccess     => throw new ElParserException(string, ns.msg)
     }
   }
 

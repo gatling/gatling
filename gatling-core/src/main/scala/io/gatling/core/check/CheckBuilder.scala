@@ -19,7 +19,7 @@ import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.{ Session, Expression, ExpressionWrapper, RichExpression }
-import io.gatling.core.validation.{ FailureWrapper, Validation }
+import io.gatling.core.validation._
 
 trait FindCheckBuilder[C <: Check[R], R, P, X] {
 
@@ -62,10 +62,17 @@ abstract class DefaultMultipleFindCheckBuilder[C <: Check[R], R, P, X](extender:
   def count: ValidatorCheckBuilder[C, R, P, Int] = ValidatorCheckBuilder(extender, preparer, countExtractor)
 }
 
+object ValidatorCheckBuilder {
+  val TransformErrorMapper: String => String = "transform crashed: " + _
+  val TransformOptionErrorMapper: String => String = "transformOption crashed: " + _
+}
+
 case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
     extender: Extender[C, R],
     preparer: Preparer[R, P],
     extractor: Expression[Extractor[P, X]]) extends StrictLogging {
+
+  import ValidatorCheckBuilder._
 
   private def transformExtractor[X2](transformation: X => X2)(extractor: Extractor[P, X]) =
     new Extractor[P, X2] {
@@ -73,10 +80,8 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
       def arity = extractor.arity
 
       def apply(prepared: P): Validation[Option[X2]] =
-        try {
+        executeSafe(TransformErrorMapper) {
           extractor(prepared).map(_.map(transformation))
-        } catch {
-          case e: Exception => s"transform crashed: ${e.getMessage}".failure
         }
     }
 
@@ -92,10 +97,8 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
       def arity = extractor.arity
 
       def apply(prepared: P): Validation[Option[X2]] =
-        try {
+        executeSafe(TransformOptionErrorMapper) {
           extractor(prepared).flatMap(transformation)
-        } catch {
-          case e: Exception => s"transformOption crashed: ${e.getMessage}".failure
         }
     }
 

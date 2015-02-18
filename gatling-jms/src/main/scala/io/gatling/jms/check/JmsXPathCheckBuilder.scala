@@ -21,23 +21,20 @@ import javax.jms.{ Message, TextMessage }
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.xpath._
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.validation._
 import io.gatling.jms.JmsCheck
 import org.xml.sax.InputSource
 
 object JmsXPathCheckBuilder extends XPathCheckBuilder[JmsCheck, Message] with StrictLogging {
 
+  private val ErrorMapper: String => String = "Could not parse response into a DOM Document: " + _
+
   def preparer[T](f: InputSource => T)(message: Message): Validation[Option[T]] =
-    try {
+    executeSafe(ErrorMapper) {
       message match {
         case tm: TextMessage => Some(f(new InputSource(new StringReader(tm.getText)))).success
         case _               => "Unsupported message type".failure
       }
-    } catch {
-      case e: Exception =>
-        val message = s"Could not parse response into a DOM Document: ${e.getMessage}"
-        logger.info(message, e)
-        message.failure
     }
 
   val CheckBuilder: Extender[JmsCheck, Message] = (wrapped: Check[Message]) => wrapped

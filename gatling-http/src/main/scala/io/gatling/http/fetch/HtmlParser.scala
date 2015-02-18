@@ -16,6 +16,7 @@
 package io.gatling.http.fetch
 
 import scala.collection.{ breakOut, mutable }
+import scala.util.control.NonFatal
 
 import com.ning.http.client.uri.Uri
 import com.typesafe.scalalogging.StrictLogging
@@ -191,7 +192,7 @@ class HtmlParser extends StrictLogging {
     try {
       Jodd.newLagartoParser(htmlContent.unsafeChars, ieVersion).parse(visitor)
     } catch {
-      case e: Exception =>
+      case NonFatal(e) =>
         if (logger.underlying.isDebugEnabled)
           logger.debug(s"""HTML parser crashed, there's a chance your page wasn't proper HTML:
 >>>>>>>>>>>>>>>>>>>>>>>

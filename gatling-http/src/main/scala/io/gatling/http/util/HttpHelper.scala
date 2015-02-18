@@ -18,14 +18,14 @@ package io.gatling.http.util
 import java.net.URLDecoder
 import java.nio.charset.Charset
 
-import com.ning.http.client.uri.Uri
-
 import scala.collection.breakOut
 import scala.io.Codec.UTF8
 import scala.util.Try
+import scala.util.control.NonFatal
 
 import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, Realm }
 import com.ning.http.client.Realm.AuthScheme
+import com.ning.http.client.uri.Uri
 import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.session._
@@ -99,7 +99,7 @@ object HttpHelper extends StrictLogging {
     try {
       Some(resolveFromUri(rootURI, relative))
     } catch {
-      case e: Exception =>
+      case NonFatal(e) =>
         logger.info(s"Failed to resolve URI rootURI='$rootURI', relative='$relative'", e)
         None
     }

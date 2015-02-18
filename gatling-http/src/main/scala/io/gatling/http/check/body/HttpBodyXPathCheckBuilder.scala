@@ -15,7 +15,6 @@
  */
 package io.gatling.http.check.body
 
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.xpath.XPathCheckBuilder
 import io.gatling.core.validation._
@@ -24,18 +23,14 @@ import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 import org.xml.sax.InputSource
 
-object HttpBodyXPathCheckBuilder extends XPathCheckBuilder[HttpCheck, Response] with StrictLogging {
+object HttpBodyXPathCheckBuilder extends XPathCheckBuilder[HttpCheck, Response] {
+
+  private val ErrorMapper = "Could not parse response into a DOM Document: " + _
 
   def preparer[T](f: InputSource => T)(response: Response): Validation[Option[T]] =
-    try {
+    executeSafe(ErrorMapper) {
       val root = if (response.hasResponseBody) Some(f(new InputSource(response.body.stream))) else None
       root.success
-
-    } catch {
-      case e: Exception =>
-        val message = s"Could not parse response into a DOM Document: ${e.getMessage}"
-        logger.info(message, e)
-        message.failure
     }
 
   val CheckBuilder: Extender[HttpCheck, Response] = StreamBodyExtender

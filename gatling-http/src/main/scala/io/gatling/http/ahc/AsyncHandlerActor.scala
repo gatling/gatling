@@ -15,6 +15,8 @@
  */
 package io.gatling.http.ahc
 
+import scala.util.control.NonFatal
+
 import com.ning.http.client.{ Request, RequestBuilder }
 import com.ning.http.client.uri.Uri
 import com.ning.http.util.StringUtils.stringBuilder
@@ -127,7 +129,7 @@ class AsyncHandlerActor(implicit configuration: GatlingConfiguration, httpEngine
           case _               => Nil
         }
       } catch {
-        case e: Exception =>
+        case NonFatal(e) =>
           logger.warn("Encountered error while extracting extra request info", e)
           Nil
       }

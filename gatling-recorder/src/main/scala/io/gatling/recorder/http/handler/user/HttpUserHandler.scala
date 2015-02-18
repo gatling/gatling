@@ -17,6 +17,8 @@ package io.gatling.recorder.http.handler.user
 
 import java.net.InetSocketAddress
 
+import scala.util.control.NonFatal
+
 import com.ning.http.client.uri.Uri
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.handler.ScalaChannelHandler
@@ -53,7 +55,7 @@ class HttpUserHandler(proxy: HttpProxy) extends UserHandler(proxy) with ScalaCha
         try {
           computeInetSocketAddress(Uri.create(request.getUri))
         } catch {
-          case e: Exception =>
+          case NonFatal(e) =>
             throw new RuntimeException(s"Could not build address requestURI='${request.getUri}'", e)
         }
     }

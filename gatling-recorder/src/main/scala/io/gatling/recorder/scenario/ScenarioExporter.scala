@@ -53,17 +53,13 @@ object ScenarioExporter extends StrictLogging {
     f"${config.core.className}_${request.id.filled(4, '0')}_response.txt"
 
   def exportScenario(harFilePath: String)(implicit config: RecorderConfiguration): Validation[Unit] =
-    try {
+    executeSafe(_ => "Error while processing HAR file") {
       val har = HarReader(harFilePath)
       if (har.elements.isEmpty) {
         "the selected file doesn't contain any valid HTTP requests".failure
       } else {
         ScenarioExporter.saveScenario(har).success
       }
-    } catch {
-      case e: Exception =>
-        logger.error("Error while processing HAR file", e)
-        e.getMessage.failure
     }
 
   def saveScenario(scenarioElements: ScenarioDefinition)(implicit config: RecorderConfiguration): Unit = {

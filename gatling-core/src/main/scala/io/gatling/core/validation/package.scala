@@ -17,16 +17,23 @@ package io.gatling.core
 
 import scala.util.control.NonFatal
 
-package object validation {
+import com.typesafe.scalalogging.StrictLogging
+
+package object validation extends StrictLogging {
 
   val TrueSuccess = true.success
   val FalseSuccess = false.success
   val NoneSuccess = None.success
   val NullStringSuccess = "null".success
 
-  def executeSafe[T](f: => Validation[T]): Validation[T] =
+  def executeSafe[T](errorMapper: String => String = identity)(f: => Validation[T]): Validation[T] =
     try { f }
-    catch { case NonFatal(e) => e.getMessage.failure }
+    catch {
+      case NonFatal(e) =>
+        val message = errorMapper(e.getMessage)
+        logger.info(message, e)
+        message.failure
+    }
 
   implicit class SuccessWrapper[T](val value: T) extends AnyVal {
     def success: Validation[T] = Success(value)

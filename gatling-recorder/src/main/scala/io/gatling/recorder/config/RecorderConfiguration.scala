@@ -37,6 +37,8 @@ import io.gatling.core.util.Io._
 import io.gatling.core.util.PathHelper._
 import io.gatling.core.util.StringHelper.RichString
 
+import scala.util.control.NonFatal
+
 object RecorderConfiguration extends StrictLogging {
 
   implicit class IntOption(val value: Int) extends AnyVal {
@@ -78,7 +80,7 @@ object RecorderConfiguration extends StrictLogging {
     try {
       configuration = buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, customConfig, defaultConfig))
     } catch {
-      case e: Exception =>
+      case NonFatal(e) =>
         logger.warn(s"Loading configuration crashed: ${e.getMessage}. Probable cause is a format change, resetting.")
         configFile.foreach(_.delete())
         configuration = buildConfig(configChain(ConfigFactory.systemProperties, propertiesConfig, defaultConfig))
