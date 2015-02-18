@@ -26,8 +26,9 @@ object HttpBodySubstringCheckBuilder {
 
   def substring(expression: Expression[String]) =
     new DefaultMultipleFindCheckBuilder[HttpCheck, Response, String, Int](StringBodyExtender, ResponseBodyStringPreparer) {
-      def findExtractor(occurrence: Int) = expression.map(new SingleSubstringExtractor(_, occurrence))
-      def findAllExtractor = expression.map(new MultipleSubstringExtractor(_))
-      def countExtractor = expression.map(new CountSubstringExtractor(_))
+      import SubstringExtractorFactory._
+      def findExtractor(occurrence: Int) = expression.map(newSingleExtractor[Int](_, occurrence))
+      def findAllExtractor = expression.map(newMultipleExtractor[Int])
+      def countExtractor = expression.map(newCountExtractor)
     }
 }
