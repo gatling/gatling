@@ -22,8 +22,7 @@ import scala.xml.Elem
 
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers.{ regex => _, _ }
+import org.scalatest.{ Matchers, FlatSpec }
 
 import io.gatling.core.CoreModule
 import io.gatling.core.check.CheckResult
@@ -33,7 +32,7 @@ import io.gatling.core.test.ValidationValues
 import io.gatling.http.HttpModule
 import io.gatling.http.response.{ Response, StringResponseBody }
 
-class HttpBodyXPathCheckSpec extends FlatSpec with ValidationValues with MockitoSugar with CoreModule with HttpModule {
+class HttpBodyXPathCheckSpec extends FlatSpec with Matchers with ValidationValues with MockitoSugar with CoreModule with HttpModule {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 

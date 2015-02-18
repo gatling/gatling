@@ -46,33 +46,33 @@ class HttpBodyRegexCheckSpec extends FlatSpec with ValidationValues with Mockito
   }
 
   "regex.find.exists" should "find single result" in {
-    val response = mockResponse(""""{"id":"1072920417"}"""")
+    val response = mockResponse("""{"id":"1072920417"}""")
     regex(""""id":"(.+?)"""").find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   it should "find first occurrence" in {
-    val response = mockResponse(""""[{"id":"1072920417"},"id":"1072920418"]"""")
+    val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     regex(""""id":"(.+?)"""").find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   "regex.findAll.exists" should "find all occurrences" in {
-    val response = mockResponse(""""[{"id":"1072920417"},"id":"1072920418"]"""")
+    val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     regex(""""id":"(.+?)"""").findAll.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
   }
 
   it should "fail when finding nothing instead of returning an empty Seq" in {
-    val response = mockResponse(""""[{"id":"1072920417"},"id":"1072920418"]"""")
+    val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val regexValue = """"foo":"(.+?)""""
     regex(regexValue).findAll.exists.build.check(response, session).failed shouldBe s"regex($regexValue).findAll.exists, found nothing"
   }
 
   "regex.count.exists" should "find all occurrences" in {
-    val response = mockResponse(""""[{"id":"1072920417"},"id":"1072920418"]"""")
+    val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     regex(""""id":"(.+?)"""").count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
   }
 
   it should "return 0 when finding nothing instead of failing" in {
-    val response = mockResponse(""""[{"id":"1072920417"},"id":"1072920418"]"""")
+    val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val regexValue = """"foo":"(.+?)""""
     regex(regexValue).count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(0), None)
   }
