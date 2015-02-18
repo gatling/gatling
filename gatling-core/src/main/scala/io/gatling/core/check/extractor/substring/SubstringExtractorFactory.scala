@@ -22,6 +22,21 @@ import io.gatling.core.validation._
 
 object SubstringExtractorFactory extends CriterionExtractorFactory[String, String]("substring") {
 
+  private def extractAll(prepared: String, criterion: String): List[Int] = {
+
+      @tailrec
+      def loop(fromIndex: Int, is: List[Int]): List[Int] =
+        if (fromIndex >= prepared.length)
+          is
+        else
+          prepared.indexOf(criterion, fromIndex) match {
+            case -1 => is
+            case i  => loop(i + criterion.length, i :: is)
+          }
+
+    loop(0, Nil)
+  }
+
   implicit def defaultSingleExtractor = new SingleExtractor[String, String, Int] {
 
     def extract(prepared: String, criterion: String, occurrence: Int): Validation[Option[Int]] = {
@@ -45,40 +60,15 @@ object SubstringExtractorFactory extends CriterionExtractorFactory[String, Strin
   }
 
   implicit def defaultMultipleExtractor = new MultipleExtractor[String, String, Int] {
-    def extract(prepared: String, criterion: String): Validation[Option[Seq[Int]]] = {
-
-        @tailrec
-        def loop(fromIndex: Int, is: List[Int]): List[Int] =
-          if (fromIndex >= prepared.length)
-            is
-          else
-            prepared.indexOf(criterion, fromIndex) match {
-              case -1 => is
-              case i  => loop(i + criterion.length, i :: is)
-            }
-
-      loop(0, Nil) match {
+    def extract(prepared: String, criterion: String): Validation[Option[Seq[Int]]] =
+      extractAll(prepared, criterion) match {
         case Nil => NoneSuccess
         case is  => Some(is.reverse).success
       }
-    }
   }
 
   implicit val defaultCountExtractor = new CountExtractor[String, String] {
-    def extract(prepared: String, criterion: String): Validation[Option[Int]] = {
-
-        @tailrec
-        def loop(fromIndex: Int, count: Int): Int =
-          if (fromIndex >= prepared.length)
-            count
-          else
-            prepared.indexOf(criterion, fromIndex) match {
-              case -1 => count
-              case i  => loop(i + criterion.length, count + 1)
-            }
-
-      val count = loop(0, 0)
-      Some(count).success
-    }
+    def extract(prepared: String, criterion: String): Validation[Option[Int]] =
+      Some(extractAll(prepared, criterion).size).success
   }
 }
