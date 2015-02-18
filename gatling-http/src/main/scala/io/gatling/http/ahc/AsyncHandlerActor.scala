@@ -251,7 +251,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
                   else
                     Session.Identity
 
-                val groupUpdate = logGroupRequestUpdate(tx, OK, response.timings.responseTime)
+                val groupUpdate = logGroupRequestUpdate(tx, OK, response.responseTimeInMillis)
 
                 val totalUpdate = update andThen cacheRedirectUpdate andThen groupUpdate
                 val newSession = totalUpdate(tx.session)
