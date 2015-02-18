@@ -40,7 +40,7 @@ class SingleSubstringExtractor(val criterion: String, val occurrence: Int) exten
               if (occ == occurrence)
                 Some(i).success
               else
-                loop(i + prepared.length, occ + 1)
+                loop(i + criterion.length, occ + 1)
           }
 
     loop(0, 0)
@@ -58,7 +58,7 @@ class MultipleSubstringExtractor(val criterion: String) extends SubstringExtract
         else
           prepared.indexOf(criterion, fromIndex) match {
             case -1 => is
-            case i  => loop(i + prepared.length, i :: is)
+            case i  => loop(i + criterion.length, i :: is)
           }
 
     loop(0, Nil) match {
@@ -79,7 +79,7 @@ class CountSubstringExtractor(val criterion: String) extends SubstringExtractorB
         else
           prepared.indexOf(criterion, fromIndex) match {
             case -1 => count
-            case i  => loop(i + prepared.length, count + 1)
+            case i  => loop(i + criterion.length, count + 1)
           }
 
     val count = loop(0, 0)
