@@ -49,9 +49,18 @@ object Exponential extends PauseType {
   }
 }
 
-case class Normal(stdDev: Double) extends PauseType {
+case class NormalWithPercentageDuration(stdDev: Double) extends PauseType {
+
+  private val stdDevPercent = stdDev / 100.0
+
   def generator(duration: Expression[Duration]) = duration.map { d =>
-    math.max(0L, (ThreadLocalRandom.current.nextGaussian * stdDev + d.toMillis).toLong)
+    math.max(0L, ((1 + ThreadLocalRandom.current.nextGaussian * stdDevPercent) * d.toMillis).toLong)
+  }
+}
+
+case class NormalWithStdDevDuration(stdDev: Duration) extends PauseType {
+  def generator(duration: Expression[Duration]) = duration.map { d =>
+    math.max(0L, (ThreadLocalRandom.current.nextGaussian * stdDev.toMillis + d.toMillis).toLong)
   }
 }
 

@@ -24,7 +24,8 @@ trait PauseSupport {
   val disabledPauses = Disabled
   val constantPauses = Constant
   val exponentialPauses = Exponential
-  def normalPauses(stdDev: Double = 1.0) = Normal(stdDev)
+  def normalPausesWithPercentageDuration(stdDev: Double) = NormalWithPercentageDuration(stdDev)
+  def normalPausesWithStdDevDuration(stdDev: Duration) = NormalWithStdDevDuration(stdDev)
   def customPauses(custom: Expression[Long]) = Custom(custom)
   def uniformPausesPlusOrMinusPercentage(plusOrMinus: Double) = UniformPercentage(plusOrMinus)
   def uniformPausesPlusOrMinusDuration(plusOrMinus: Duration) = UniformDuration(plusOrMinus)
