@@ -67,7 +67,7 @@ The pauses can be configure on ``Simulation`` with a bunch of methods:
 * ``disablePauses``: disable the pauses for the simulation
 * ``constantPauses``: the duration of each pause is precisely that specified in the ``pause(duration)`` element.
 * ``exponentialPauses``: the duration of each pause is on average that specified in the ``pause(duration)`` element and follow an exponential distribution.
-* ``normalPauses(stdDev: Double)``: the duration of each pause is on average that specified in the ``pause(duration)`` element and follow an normal distribution. ``stdDev`` defaults to 1.0.
+* ``normalPauses(stdDev: Double)``: the duration of each pause is on average that specified in the ``pause(duration)`` element and follow an normal distribution. ``stdDev`` expressed in milliseconds, defaults to 1.0.
 * ``customPauses(custom: Expression[Long])``: the pause duration is computed by the provided ``Expression[Long]``.
   In this case the filled duration is bypassed.
 * ``uniformPausesPlusOrMinusPercentage(plusOrMinus: Double)`` and ``uniformPausesPlusOrMinusDuration(plusOrMinus: Duration)``:
