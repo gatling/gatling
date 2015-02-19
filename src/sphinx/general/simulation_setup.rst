@@ -70,7 +70,7 @@ The pauses can be configure on ``Simulation`` with a bunch of methods:
 * ``normalPauses(stdDev: Double)``: the duration of each pause is on average that specified in the ``pause(duration)`` element and follow an normal distribution. ``stdDev`` defaults to 1.0.
 * ``customPauses(custom: Expression[Long])``: the pause duration is computed by the provided ``Expression[Long]``.
   In this case the filled duration is bypassed.
-* ``uniformPauses(plusOrMinus: Double)`` and ``uniformPauses(plusOrMinus: Duration)``:
+* ``uniformPausesPlusOrMinusPercentage(plusOrMinus: Double)`` and ``uniformPausesPlusOrMinusDuration(plusOrMinus: Duration)``:
   the duration of each pause is on average that specified in the ``pause(duration)`` element and follow a uniform distribution.
 
 .. note:: Pause definition can also be configured at scenario level.
