@@ -51,7 +51,7 @@ object Exponential extends PauseType {
 
 case class Normal(stdDev: Double) extends PauseType {
   def generator(duration: Expression[Duration]) = duration.map { d =>
-    (ThreadLocalRandom.current.nextGaussian * stdDev + d.toMillis).toLong
+    math.max(0L, (ThreadLocalRandom.current.nextGaussian * stdDev + d.toMillis).toLong)
   }
 }
 
@@ -60,20 +60,25 @@ case class Custom(custom: Expression[Long]) extends PauseType {
 }
 
 case class UniformPercentage(plusOrMinus: Double) extends PauseType {
+
+  private val plusOrMinusPercent = plusOrMinus / 100.0
+
   def generator(duration: Expression[Duration]) = duration.map { d =>
     val mean = d.toMillis
-    val halfWidth = math.round(mean * plusOrMinus / 100.0)
-    val least = mean - halfWidth
+    val halfWidth = math.round(mean * plusOrMinusPercent)
+    val least = math.max(0L, mean - halfWidth)
     val bound = mean + halfWidth + 1
     ThreadLocalRandom.current.nextLong(least, bound)
   }
 }
 
 case class UniformDuration(plusOrMinus: Duration) extends PauseType {
+
+  private val halfWidth = plusOrMinus.toMillis
+
   def generator(duration: Expression[Duration]) = duration.map { duration =>
     val mean = duration.toMillis
-    val halfWidth = plusOrMinus.toMillis
-    val least = math.max(mean - halfWidth, 0L)
+    val least = math.max(0L, mean - halfWidth)
     val bound = mean + halfWidth + 1
     ThreadLocalRandom.current.nextLong(least, bound)
   }
