@@ -12,8 +12,12 @@ You will get a window that looks like this one:
 
 .. image:: img/recorder.png
 
+.. _recorder-config:
+
 Configuration
 =============
+
+.. _recorder-port:
 
 Listening proxy port
 --------------------
@@ -28,6 +32,7 @@ Here is how to do with Firefox, open the browser Advanced settings, then go to t
 
 .. image:: img/recorder-browser_advanced_settings.png
 
+.. _recorder-https:
 
 HTTPS mode
 ----------
@@ -50,13 +55,21 @@ You then have to remove it from your certificate registry.
 * Provided KeyStore
 
 One can pass a full Java keyStore (JKS or PKCS#12 format) that contains the certificate to be used.
+This mode is useful if you have already generated a Java keystore for your application and want to reuse it for recording.
 
 * On-the-fly certificate generation
 
 This mode takes a Certificate Authority (certificate and private key, in PEM format) and generates signed certificates for every visited domain.
-It requires you to import the CA certificate into your browser's CA list.
 
 You can either ask Gatling to generate those files for you, or provide a CA of your own.
+
+.. note:: If you're not using the self-signed certificate, you'll have to import the Certificate Authority certificate into your browser's keystore:
+* under desktop Chrome, go in HTTPS/SSL settings, Manage Certificates
+* under desktop Firefox, go in Advanced settings, Certificates, Display, Authorities, Import
+* on OSX for iPhone, IPad, you simply have to send you the certificate file by email, and then open the attached file
+* on Android, check `official documentation <https://support.google.com/nexus/answer/2844832?hl=en>`_.
+
+.. _recorder-proxy:
 
 Outgoing proxy
 --------------
@@ -65,12 +78,16 @@ If you must access your web application through a proxy, you can set it up in th
 
 .. note:: Even if HTTP and HTTPS are on the same port for the outgoing proxy, you need to explicitly specify both.
 
+.. _recorder-filters:
+
 Filters
 -------
 
 Allow you to filter out some requests you don't want to record. For example, if you don't want to record any CSS files, you can add in the blacklist section the following Java regex ``.*\\.css``.
 
 The order of evaluation between the whitelist and the blacklist entries can be determined with the *strategy* setting. You can either evaluate the whitelist or the blacklist first.
+
+.. _recorder-fetch:
 
 Embedded resources fetching
 ---------------------------
@@ -84,15 +101,21 @@ If you check the 'Infer html resources?' option, the Recorder will fetch the emb
 .. warning:: Gatling can't retrieve all the embedded resources in HTML as images embedded in a css embedded in HTML.
              This remaining resources are currently loaded sequentially as regular requests.
 
+.. _recorder-response-bodies:
+
 Response bodies
 ---------------
 
 When the 'Save & check response bodies?' option is enabled, response bodies will be dumped in the same folder as the request bodies, and the simulation will contain extra checks using :ref:`RawFileBody <http-request-body-rawfile>` to ensure the actual bodies are matching the dumped ones. You might want to edit these checks, for example to parametrize the expected bodies, using :ref:`ElFileBody <http-request-body-elfile>` instead.
 
+.. _recorder-run:
+
 Running
 =======
 
 Once everything has been configured, press the **Start** button to launch the recorder.
+
+.. _recorder-events:
 
 Recorded Events
 ---------------
@@ -103,6 +126,8 @@ As you navigate through your application, the recorder will log three kinds of e
 * **Pauses**: The time between each request.
 * **Tags**: Manually set markers.
 
+.. _recorder-tags:
+
 Tag Events
 ----------
 
@@ -112,11 +137,14 @@ To add a tag, fill in the text field provided and press the **Add** button. Afte
 
 For example: ``TAG | my tag``
 
+.. _recorder-stop:
 
 Stop
 ----
 
 When you have finished recording your scenario, press the **Stop** button to save it in the format defined in the configuration.
+
+.. _recorder-har:
 
 HAR Files
 =========
@@ -133,55 +161,7 @@ Charles is an amazing tool and has an HAR export feature, but it's a proxy, so w
 
 To import a HAR file, select the *HAR converter* mode in the top right dropdown in the Recorder.
 
-Certificates
-============
-
-Recording browsers' http traffic over ssl is possible usually as the browser allows the user the option to accept a self signed certificate.
-Devices other than browsers may not provide that option, making it impossible to record SSL traffic on those devices.
-
-A set of certificates can be generated to allow devices to trust the recorder proxy.
-
-As creating fake certificates in this way could be misused the lifetime of the certificates can be set to 1 day to ensure that they cannot be misused at a later date.
-
-Steps:
-
-* Generate a Certificate Authority certificate
-* Generate a server certificate signed by the CA certificate for the proxy. The certificate is generated against the site domain name(s) being recorded
-* Import the server certificate and Chain (CA cert) into a java keystore
-* Import the CA certificate into the Device/Client
-* configure the recorder to use the custom keystore
-
-Generating the custom certificates
-----------------------------------
-
-- Certificate Authority
-
-OpenSSL commands::
-
-  openssl genrsa -out rootCA.key 2048
-  openssl req -x509 -new -nodes -key rootCA.key -days 1 -out rootCA.pem
-  openssl x509 -outform der -in rootCA.pem -out gatlingCA.crt
-
-- Proxy SSL certificate
-
-.. note:: the 'common name' (which is deprecated but still works) and/or 'Subject Alternative Name' should match the domain name(s) that you are testing through the proxy.
-
-OpenSSL commands::
-
-  openssl genrsa -out device.key 2048
-  openssl req -new -key device.key -out device.csr
-  openssl x509 -req -in device.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out device.crt -days 1
-  openssl pkcs12 -export -in device.crt -inkey device.key -out server.p12 -name gatling -CAfile rootCA.pem -caname gatling -chain
-  keytool -importkeystore -deststorepass gatling -destkeypass gatling -destkeystore gatling-custom.jks  -srckeystore server.p12 -srcstoretype PKCS12 -srcstorepass gatling -alias gatling
-
-Configuring / Set up
---------------------
-
-Install the CA certificate into the client device - gatlingCA.crt
-
-Configure the recorder to use the custom java keystore - gatling-custom.jks
-
-
+.. _recorder-cli:
 
 Command-line options
 ====================
