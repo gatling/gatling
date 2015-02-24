@@ -31,7 +31,7 @@ import com.ning.http.client.providers.netty.channel.pool.{ ChannelPool, DefaultC
 import com.ning.http.client.ws.{ WebSocketListener, WebSocketUpgradeHandler }
 import com.typesafe.scalalogging.StrictLogging
 
-import akka.actor.{ ActorSystem, ActorRef }
+import akka.actor.ActorRef
 import io.gatling.core.ConfigKeys
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.check.CheckResult
@@ -234,6 +234,8 @@ class AhcHttpEngine(implicit configuration: GatlingConfiguration) extends HttpEn
 
   def loadInternalState() = {
 
+    import configuration.http. { ahc => ahcConfig }
+
     val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
       override def newThread(r: Runnable) = {
         val t = new Thread(r, "Netty Thread")
@@ -251,57 +253,57 @@ class AhcHttpEngine(implicit configuration: GatlingConfiguration) extends HttpEn
       timer
     }
 
-    val channelPool = new DefaultChannelPool(configuration.http.ahc.pooledConnectionIdleTimeout,
-      configuration.http.ahc.connectionTTL,
-      configuration.http.ahc.allowPoolingSslConnections,
+    val channelPool = new DefaultChannelPool(ahcConfig.pooledConnectionIdleTimeout,
+      ahcConfig.connectionTTL,
+      ahcConfig.allowPoolingSslConnections,
       nettyTimer)
 
     val nettyConfig = {
-      val numWorkers = configuration.http.ahc.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
+      val numWorkers = ahcConfig.ioThreadMultiplier * Runtime.getRuntime.availableProcessors
       val socketChannelFactory = new NioClientSocketChannelFactory(new NioClientBossPool(nioThreadPool, 1, nettyTimer, null), new NioWorkerPool(nioThreadPool, numWorkers))
       system.registerOnTermination(socketChannelFactory.releaseExternalResources())
       val nettyConfig = new NettyAsyncHttpProviderConfig
       nettyConfig.setSocketChannelFactory(socketChannelFactory)
       nettyConfig.setNettyTimer(nettyTimer)
       nettyConfig.setChannelPool(channelPool)
-      nettyConfig.setHttpClientCodecMaxInitialLineLength(configuration.http.ahc.httpClientCodecMaxInitialLineLength)
-      nettyConfig.setHttpClientCodecMaxHeaderSize(configuration.http.ahc.httpClientCodecMaxHeaderSize)
-      nettyConfig.setHttpClientCodecMaxChunkSize(configuration.http.ahc.httpClientCodecMaxChunkSize)
+      nettyConfig.setHttpClientCodecMaxInitialLineLength(ahcConfig.httpClientCodecMaxInitialLineLength)
+      nettyConfig.setHttpClientCodecMaxHeaderSize(ahcConfig.httpClientCodecMaxHeaderSize)
+      nettyConfig.setHttpClientCodecMaxChunkSize(ahcConfig.httpClientCodecMaxChunkSize)
       nettyConfig.setNettyWebSocketFactory(new NettyWebSocketFactory {
         override def newNettyWebSocket(channel: Channel, nettyConfig: NettyAsyncHttpProviderConfig): NettyWebSocket =
           new NettyWebSocket(channel, nettyConfig, new JArrayList[WebSocketListener](1))
       })
-      nettyConfig.setKeepEncodingHeader(configuration.http.ahc.keepEncodingHeader)
-      nettyConfig.setWebSocketMaxFrameSize(configuration.http.ahc.webSocketMaxFrameSize)
+      nettyConfig.setKeepEncodingHeader(ahcConfig.keepEncodingHeader)
+      nettyConfig.setWebSocketMaxFrameSize(ahcConfig.webSocketMaxFrameSize)
       nettyConfig
     }
 
     val defaultAhcConfig = {
       val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
-        .setAllowPoolingConnections(configuration.http.ahc.allowPoolingConnections)
-        .setAllowPoolingSslConnections(configuration.http.ahc.allowPoolingSslConnections)
-        .setCompressionEnforced(configuration.http.ahc.compressionEnforced)
-        .setConnectTimeout(configuration.http.ahc.connectTimeout)
-        .setPooledConnectionIdleTimeout(configuration.http.ahc.pooledConnectionIdleTimeout)
-        .setReadTimeout(configuration.http.ahc.readTimeout)
-        .setConnectionTTL(configuration.http.ahc.connectionTTL)
-        .setIOThreadMultiplier(configuration.http.ahc.ioThreadMultiplier)
-        .setMaxConnectionsPerHost(configuration.http.ahc.maxConnectionsPerHost)
-        .setMaxConnections(configuration.http.ahc.maxConnections)
-        .setMaxRequestRetry(configuration.http.ahc.maxRetry)
-        .setRequestTimeout(configuration.http.ahc.requestTimeOut)
-        .setUseProxyProperties(configuration.http.ahc.useProxyProperties)
+        .setAllowPoolingConnections(ahcConfig.allowPoolingConnections)
+        .setAllowPoolingSslConnections(ahcConfig.allowPoolingSslConnections)
+        .setCompressionEnforced(ahcConfig.compressionEnforced)
+        .setConnectTimeout(ahcConfig.connectTimeout)
+        .setPooledConnectionIdleTimeout(ahcConfig.pooledConnectionIdleTimeout)
+        .setReadTimeout(ahcConfig.readTimeout)
+        .setConnectionTTL(ahcConfig.connectionTTL)
+        .setIOThreadMultiplier(ahcConfig.ioThreadMultiplier)
+        .setMaxConnectionsPerHost(ahcConfig.maxConnectionsPerHost)
+        .setMaxConnections(ahcConfig.maxConnections)
+        .setMaxRequestRetry(ahcConfig.maxRetry)
+        .setRequestTimeout(ahcConfig.requestTimeOut)
+        .setUseProxyProperties(ahcConfig.useProxyProperties)
         .setUserAgent(null)
         .setExecutorService(applicationThreadPool)
         .setAsyncHttpClientProviderConfig(nettyConfig)
-        .setWebSocketTimeout(configuration.http.ahc.webSocketTimeout)
-        .setUseRelativeURIsWithConnectProxies(configuration.http.ahc.useRelativeURIsWithConnectProxies)
-        .setAcceptAnyCertificate(configuration.http.ahc.acceptAnyCertificate)
-        .setEnabledProtocols(configuration.http.ahc.httpsEnabledProtocols match {
+        .setWebSocketTimeout(ahcConfig.webSocketTimeout)
+        .setUseRelativeURIsWithConnectProxies(ahcConfig.useRelativeURIsWithConnectProxies)
+        .setAcceptAnyCertificate(ahcConfig.acceptAnyCertificate)
+        .setEnabledProtocols(ahcConfig.httpsEnabledProtocols match {
           case Nil => null
           case ps  => ps.toArray
         })
-        .setEnabledCipherSuites(configuration.http.ahc.httpsEnabledCipherSuites match {
+        .setEnabledCipherSuites(ahcConfig.httpsEnabledCipherSuites match {
           case Nil => null
           case ps  => ps.toArray
         })
@@ -326,6 +328,5 @@ class AhcHttpEngine(implicit configuration: GatlingConfiguration) extends HttpEn
                            channelPool: ChannelPool,
                            nettyConfig: NettyAsyncHttpProviderConfig,
                            defaultAhcConfig: AsyncHttpClientConfig)
-
 }
 
