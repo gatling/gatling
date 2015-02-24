@@ -234,7 +234,7 @@ class AhcHttpEngine(implicit configuration: GatlingConfiguration) extends HttpEn
 
   def loadInternalState() = {
 
-    import configuration.http. { ahc => ahcConfig }
+    import configuration.http.{ ahc => ahcConfig }
 
     val applicationThreadPool = Executors.newCachedThreadPool(new ThreadFactory {
       override def newThread(r: Runnable) = {
