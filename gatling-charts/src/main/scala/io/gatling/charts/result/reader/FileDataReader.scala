@@ -23,7 +23,7 @@ import scala.io.Source
 
 import com.typesafe.scalalogging.StrictLogging
 
-import io.gatling.charts.result.reader.buffers.{ PercentilesBuffers, CountBuffer, GeneralStatsBuffer }
+import io.gatling.charts.result.reader.buffers.{ CountsBuffer, PercentilesBuffers, GeneralStatsBuffer }
 import io.gatling.charts.result.reader.stats.StatsHelper
 import io.gatling.core.assertion.{ AssertionParser, Assertion }
 import io.gatling.core.config.GatlingConfiguration
@@ -177,17 +177,20 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
     .getSessionDeltaPerSecBuffers(scenarioName)
     .distribution
 
-  private def countBuffer2IntVsTimePlots(buffer: CountBuffer): Seq[IntVsTimePlot] = buffer
-    .distribution
-    .map(plot => plot.copy(value = (plot.value / step * SecMillisecRatio).toInt))
-    .toSeq
-    .sortBy(_.time)
+  private def toNumberPerSec(value: Int) = math.round(value / step * SecMillisecRatio).toInt
 
-  def numberOfRequestsPerSecond(status: Option[Status], requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] =
-    countBuffer2IntVsTimePlots(resultsHolder.getRequestsPerSecBuffer(requestName, group, status))
+  private def countBuffer2IntVsTimePlots(buffer: CountsBuffer): Seq[CountsVsTimePlot] =
+    buffer
+      .distribution
+      .map(plot => plot.copy(oks = toNumberPerSec(plot.oks), kos = toNumberPerSec(plot.kos)))
+      .toSeq
+      .sortBy(_.time)
 
-  def numberOfResponsesPerSecond(status: Option[Status], requestName: Option[String], group: Option[Group]): Seq[IntVsTimePlot] =
-    countBuffer2IntVsTimePlots(resultsHolder.getResponsesPerSecBuffer(requestName, group, status))
+  def numberOfRequestsPerSecond(requestName: Option[String], group: Option[Group]): Seq[CountsVsTimePlot] =
+    countBuffer2IntVsTimePlots(resultsHolder.getRequestsPerSecBuffer(requestName, group))
+
+  def numberOfResponsesPerSecond(requestName: Option[String], group: Option[Group]): Seq[CountsVsTimePlot] =
+    countBuffer2IntVsTimePlots(resultsHolder.getResponsesPerSecBuffer(requestName, group))
 
   private def distribution(maxPlots: Int, allBuffer: GeneralStatsBuffer, okBuffers: GeneralStatsBuffer, koBuffer: GeneralStatsBuffer): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) = {
 
@@ -290,13 +293,13 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
 
   private def timeAgainstGlobalNumberOfRequestsPerSec(buffer: PercentilesBuffers, status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
 
-    val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None, None).counts
+    val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None).counts
 
     buffer.digests.view.zipWithIndex
       .collect {
         case (Some(digest), bucketNumber) =>
           val count = globalCountsByBucket(bucketNumber)
-          IntVsTimePlot(math.round(count / step * 1000).toInt, digest.quantile(0.95).toInt)
+          IntVsTimePlot(toNumberPerSec(count.total), digest.quantile(0.95).toInt)
       }
       .toSeq
       .sortBy(_.time)

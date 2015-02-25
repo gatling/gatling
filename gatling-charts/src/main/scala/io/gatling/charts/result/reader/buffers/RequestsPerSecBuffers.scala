@@ -19,21 +19,18 @@ import scala.collection.mutable
 
 import io.gatling.charts.result.reader.RequestRecord
 import io.gatling.core.result.Group
-import io.gatling.core.result.message.Status
 
 private[reader] trait RequestsPerSecBuffers {
   this: Buckets =>
 
-  val requestsPerSecBuffers = mutable.Map.empty[BufferKey, CountBuffer]
+  val requestsPerSecBuffers = mutable.Map.empty[BufferKey, CountsBuffer]
 
-  def getRequestsPerSecBuffer(requestName: Option[String], group: Option[Group], status: Option[Status]): CountBuffer =
-    requestsPerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, status), new CountBuffer(buckets))
+  def getRequestsPerSecBuffer(requestName: Option[String], group: Option[Group]): CountsBuffer =
+    requestsPerSecBuffers.getOrElseUpdate(BufferKey(requestName, group, None), new CountsBuffer(buckets))
 
   def updateRequestsPerSecBuffers(record: RequestRecord): Unit = {
-    getRequestsPerSecBuffer(Some(record.name), record.group, None).update(record.startBucket)
-    getRequestsPerSecBuffer(Some(record.name), record.group, Some(record.status)).update(record.startBucket)
+    getRequestsPerSecBuffer(Some(record.name), record.group).update(record.startBucket, record.status)
 
-    getRequestsPerSecBuffer(None, None, None).update(record.startBucket)
-    getRequestsPerSecBuffer(None, None, Some(record.status)).update(record.startBucket)
+    getRequestsPerSecBuffer(None, None).update(record.startBucket, record.status)
   }
 }

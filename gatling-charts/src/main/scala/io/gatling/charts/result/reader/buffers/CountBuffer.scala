@@ -15,16 +15,27 @@
  */
 package io.gatling.charts.result.reader.buffers
 
-import io.gatling.core.result.IntVsTimePlot
+import io.gatling.core.result.CountsVsTimePlot
+import io.gatling.core.result.message.{ OK, Status }
 
-private[reader] class CountBuffer(buckets: Array[Int]) {
-  val counts: Array[Int] = Array.fill(buckets.length)(0)
+private[reader] class Counts(var oks: Int = 0, var kos: Int = 0) {
 
-  def update(bucketNumber: Int): Unit = {
-    counts(bucketNumber) = counts(bucketNumber) + 1
+  def increment(status: Status): Unit = status match {
+    case OK => oks += 1
+    case _  => kos += 1
   }
 
-  def distribution: Iterable[IntVsTimePlot] =
+  def total = oks + kos
+}
+
+private[reader] class CountsBuffer(buckets: Array[Int]) {
+  val counts: Array[Counts] = Array.fill(buckets.length)(new Counts)
+
+  def update(bucketNumber: Int, status: Status): Unit = {
+    counts(bucketNumber).increment(status)
+  }
+
+  def distribution: Iterable[CountsVsTimePlot] =
     counts.view.zipWithIndex
-      .map { case (count, bucketNumber) => IntVsTimePlot(buckets(bucketNumber), count) }
+      .map { case (count, bucketNumber) => CountsVsTimePlot(buckets(bucketNumber), count.oks, count.kos) }
 }

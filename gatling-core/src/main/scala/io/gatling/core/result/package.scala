@@ -26,6 +26,9 @@ package result {
 
   case class Series[X](name: String, data: Iterable[X], colors: List[String])
   case class IntVsTimePlot(time: Int, value: Int)
+  case class CountsVsTimePlot(time: Int, oks: Int, kos: Int) {
+    def total: Int = oks + kos
+  }
   case class PercentVsTimePlot(time: Int, value: Double) {
     def roundedUpValue: Double = (value * 100).toInt / 100.0
   }

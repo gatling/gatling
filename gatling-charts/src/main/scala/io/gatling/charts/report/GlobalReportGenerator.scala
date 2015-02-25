@@ -45,29 +45,21 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       }
 
       def requestsChartComponent: Component = {
-        val all = dataReader.numberOfRequestsPerSecond().sortBy(_.time)
-        val oks = dataReader.numberOfRequestsPerSecond(Some(OK)).sortBy(_.time)
-        val kos = dataReader.numberOfRequestsPerSecond(Some(KO)).sortBy(_.time)
+        val globalCounts = dataReader.numberOfRequestsPerSecond().sortBy(_.time)
 
-        val allSeries = new Series[IntVsTimePlot](Series.All, all, List(Blue))
-        val kosSeries = new Series[IntVsTimePlot](Series.KO, kos, List(Red))
-        val oksSeries = new Series[IntVsTimePlot](Series.OK, oks, List(Green))
-        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(oks)) :: PieSlice(Series.KO, count(kos)) :: Nil, List(Green, Red))
+        val globalCountsSeries = new Series[CountsVsTimePlot]("Number of Requests per sec", globalCounts, List(Blue, Red, Green))
+        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(globalCounts, OK)) :: PieSlice(Series.KO, count(globalCounts, KO)) :: Nil, List(Green, Red))
 
-        componentLibrary.getRequestsChartComponent(dataReader.runStart, allSeries, kosSeries, oksSeries, pieRequestsSeries)
+        componentLibrary.getRequestsChartComponent(dataReader.runStart, globalCountsSeries, pieRequestsSeries)
       }
 
       def responsesChartComponent: Component = {
-        val all = dataReader.numberOfResponsesPerSecond().sortBy(_.time)
-        val oks = dataReader.numberOfResponsesPerSecond(Some(OK)).sortBy(_.time)
-        val kos = dataReader.numberOfResponsesPerSecond(Some(KO)).sortBy(_.time)
+        val globalCounts = dataReader.numberOfResponsesPerSecond().sortBy(_.time)
 
-        val allSeries = new Series[IntVsTimePlot](Series.All, all, List(Blue))
-        val kosSeries = new Series[IntVsTimePlot](Series.KO, kos, List(Red))
-        val oksSeries = new Series[IntVsTimePlot](Series.OK, oks, List(Green))
-        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(oks)) :: PieSlice(Series.KO, count(kos)) :: Nil, List(Green, Red))
+        val globalCountsSeries = new Series[CountsVsTimePlot]("Number of Responses per sec", globalCounts, List(Blue, Red, Green))
+        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(globalCounts, OK)) :: PieSlice(Series.KO, count(globalCounts, KO)) :: Nil, List(Green, Red))
 
-        componentLibrary.getResponsesChartComponent(dataReader.runStart, allSeries, kosSeries, oksSeries, pieRequestsSeries)
+        componentLibrary.getResponsesChartComponent(dataReader.runStart, globalCountsSeries, pieRequestsSeries)
       }
 
       def responseTimeDistributionChartComponent: Component = {

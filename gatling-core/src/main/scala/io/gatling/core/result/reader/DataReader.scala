@@ -41,8 +41,8 @@ abstract class DataReader(runUuid: String) {
   def requestNames: List[String]
   def scenarioNames: List[String]
   def numberOfActiveSessionsPerSecond(scenarioName: Option[String] = None): Seq[IntVsTimePlot]
-  def numberOfRequestsPerSecond(status: Option[Status] = None, requestName: Option[String] = None, group: Option[Group] = None): Seq[IntVsTimePlot]
-  def numberOfResponsesPerSecond(status: Option[Status] = None, requestName: Option[String] = None, group: Option[Group] = None): Seq[IntVsTimePlot]
+  def numberOfRequestsPerSecond(requestName: Option[String] = None, group: Option[Group] = None): Seq[CountsVsTimePlot]
+  def numberOfResponsesPerSecond(requestName: Option[String] = None, group: Option[Group] = None): Seq[CountsVsTimePlot]
   def responseTimeDistribution(maxPlots: Int, requestName: Option[String] = None, group: Option[Group] = None): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot])
   def requestGeneralStats(requestName: Option[String] = None, group: Option[Group] = None, status: Option[Status] = None): GeneralStats
   def numberOfRequestInResponseTimeRange(requestName: Option[String] = None, group: Option[Group] = None): Seq[(String, Int)]

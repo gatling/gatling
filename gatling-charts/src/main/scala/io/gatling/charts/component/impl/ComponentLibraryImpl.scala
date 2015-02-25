@@ -32,8 +32,8 @@ private[component] class ComponentLibraryImpl extends ComponentLibrary {
 
   def getAllUsersJs(runStart: Long, series: Series[IntVsTimePlot]): Fastring = throw new UnsupportedOperationException
   def getActiveSessionsChartComponent(runStart: Long, series: Seq[Series[IntVsTimePlot]]): Component = throw new UnsupportedOperationException
-  def getRequestsChartComponent(runStart: Long, allRequests: Series[IntVsTimePlot], failedRequests: Series[IntVsTimePlot], succeededRequests: Series[IntVsTimePlot], pieSeries: Series[PieSlice]): Component = throw new UnsupportedOperationException
-  def getResponsesChartComponent(runStart: Long, allResponses: Series[IntVsTimePlot], failedResponses: Series[IntVsTimePlot], succeededResponses: Series[IntVsTimePlot], pieSeries: Series[PieSlice]): Component = throw new UnsupportedOperationException
+  def getRequestsChartComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component = throw new UnsupportedOperationException
+  def getResponsesChartComponent(runStart: Long, counts: Series[CountsVsTimePlot], pieSeries: Series[PieSlice]): Component = throw new UnsupportedOperationException
   def getRequestDetailsResponseTimeChartComponent(runStart: Long, responseTimesSuccess: Series[PercentilesVsTimePlot]): Component = throw new UnsupportedOperationException
   def getRequestDetailsResponseTimeDistributionChartComponent(responseTimesSuccess: Series[PercentVsTimePlot], responseTimesFailures: Series[PercentVsTimePlot]): Component = throw new UnsupportedOperationException
   def getRequestDetailsLatencyChartComponent(runStart: Long, latencySuccess: Series[PercentilesVsTimePlot]): Component = throw new UnsupportedOperationException
