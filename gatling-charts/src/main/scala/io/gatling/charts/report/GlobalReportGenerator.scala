@@ -86,6 +86,15 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
         componentLibrary.getRequestDetailsResponseTimeChartComponent(dataReader.runStart, responseTimesSuccessSeries)
       }
 
+      def latencyChartComponent: Component = {
+
+        val latencyPercentilesSuccessData = dataReader.latencyPercentilesOverTime(OK, None, None)
+
+        val latencySuccessSeries = new Series[PercentilesVsTimePlot](s"Latency Percentiles over Time (${Series.OK})", latencyPercentilesSuccessData, ReportGenerator.PercentilesColors)
+
+        componentLibrary.getRequestDetailsLatencyChartComponent(dataReader.runStart, latencySuccessSeries)
+      }
+
     val template = new GlobalPageTemplate(
       componentLibrary.getNumberOfRequestsChartComponent(dataReader.requestNames.size),
       componentLibrary.getRequestDetailsIndicatorChartComponent,
@@ -95,6 +104,7 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       activeSessionsChartComponent,
       responseTimeDistributionChartComponent,
       responseTimeChartComponent,
+      latencyChartComponent,
       requestsChartComponent,
       responsesChartComponent)
 
