@@ -41,50 +41,38 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
             componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
           }
 
-          def responseTimeChartComponent: Component = {
-            val responseTimesPercentilesSuccessData = dataReader.responseTimePercentilesOverTime(OK, Some(requestName), group)
+          def responseTimeChartComponent: Component =
+            percentilesChartComponent(dataReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
 
-            val responseTimesSuccessSeries = new Series[PercentilesVsTimePlot](s"Response Time Percentiles over Time (${Series.OK})", responseTimesPercentilesSuccessData, ReportGenerator.PercentilesColors)
+          def latencyChartComponent: Component =
+            percentilesChartComponent(dataReader.latencyPercentilesOverTime, componentLibrary.getRequestDetailsLatencyChartComponent, "Latency Percentiles over Time")
 
-            componentLibrary.getRequestDetailsResponseTimeChartComponent(dataReader.runStart, responseTimesSuccessSeries)
+          def percentilesChartComponent(dataSource: (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
+                                        componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
+                                        title: String): Component = {
+            val successData = dataSource(OK, Some(requestName), group)
+            val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
+
+            componentFactory(dataReader.runStart, successSeries)
           }
 
-          def requestsChartComponent: Component = {
-            val counts = dataReader.numberOfRequestsPerSecond(Some(requestName), None).sortBy(_.time)
+          def requestsChartComponent: Component =
+            countsChartComponent(dataReader.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
+
+          def responsesChartComponent: Component =
+            countsChartComponent(dataReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
+
+          def countsChartComponent(dataSource: (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
+                                   componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component): Component = {
+
+            val counts = dataSource(Some(requestName), group).sortBy(_.time)
 
             val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Blue, Red, Green))
-            val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(counts, OK)) :: PieSlice(Series.KO, count(counts, KO)) :: Nil, List(Green, Red))
+            val okPieSlice = PieSlice(Series.OK, count(counts, OK))
+            val koPieSlice = PieSlice(Series.KO, count(counts, KO))
+            val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Green, Red))
 
-            componentLibrary.getRequestsChartComponent(dataReader.runStart, countsSeries, pieRequestsSeries)
-          }
-
-          def responsesChartComponent: Component = {
-            val counts = dataReader.numberOfResponsesPerSecond(Some(requestName), group).sortBy(_.time)
-
-            val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Blue, Red, Green))
-            val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(counts, OK)) :: PieSlice(Series.KO, count(counts, KO)) :: Nil, List(Green, Red))
-
-            componentLibrary.getResponsesChartComponent(dataReader.runStart, countsSeries, pieRequestsSeries)
-          }
-
-          def latencyChartComponent: Component = {
-
-            val latencyPercentilesSuccessData = dataReader.latencyPercentilesOverTime(OK, Some(requestName), group)
-
-            val latencySuccessSeries = new Series[PercentilesVsTimePlot](s"Latency Percentiles over Time (${Series.OK})", latencyPercentilesSuccessData, ReportGenerator.PercentilesColors)
-
-            componentLibrary.getRequestDetailsLatencyChartComponent(dataReader.runStart, latencySuccessSeries)
-          }
-
-          def scatterChartComponent(datasource: (Status, String, Option[Group]) => Seq[IntVsTimePlot],
-                                    componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component): Component = {
-
-            val scatterPlotSuccessData = datasource(OK, requestName, group)
-            val scatterPlotFailuresData = datasource(KO, requestName, group)
-            val scatterPlotSuccessSeries = new Series[IntVsTimePlot](Series.OK, scatterPlotSuccessData, List(TranslucidBlue))
-            val scatterPlotFailuresSeries = new Series[IntVsTimePlot](Series.KO, scatterPlotFailuresData, List(TranslucidRed))
-
-            componentFactory(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
+            componentFactory(dataReader.runStart, countsSeries, pieRequestsSeries)
           }
 
           def responseTimeScatterChartComponent: Component =
@@ -92,6 +80,17 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
 
           def latencyScatterChartComponent: Component =
             scatterChartComponent(dataReader.latencyAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsLatencyScatterChartComponent)
+
+          def scatterChartComponent(dataSource: (Status, String, Option[Group]) => Seq[IntVsTimePlot],
+                                    componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component): Component = {
+
+            val scatterPlotSuccessData = dataSource(OK, requestName, group)
+            val scatterPlotFailuresData = dataSource(KO, requestName, group)
+            val scatterPlotSuccessSeries = new Series[IntVsTimePlot](Series.OK, scatterPlotSuccessData, List(TranslucidBlue))
+            val scatterPlotFailuresSeries = new Series[IntVsTimePlot](Series.KO, scatterPlotFailuresData, List(TranslucidRed))
+
+            componentFactory(scatterPlotSuccessSeries, scatterPlotFailuresSeries)
+          }
 
         val template =
           new RequestDetailsPageTemplate(path, requestName, group,

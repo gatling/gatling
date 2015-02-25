@@ -21,7 +21,7 @@ import io.gatling.charts.template.GlobalPageTemplate
 import io.gatling.charts.util.Colors._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result._
-import io.gatling.core.result.message.{ KO, OK }
+import io.gatling.core.result.message.{ Status, KO, OK }
 
 private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration)
     extends ReportGenerator {
@@ -44,24 +44,6 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
         componentLibrary.getActiveSessionsChartComponent(dataReader.runStart, activeSessionsSeries)
       }
 
-      def requestsChartComponent: Component = {
-        val globalCounts = dataReader.numberOfRequestsPerSecond().sortBy(_.time)
-
-        val globalCountsSeries = new Series[CountsVsTimePlot]("", globalCounts, List(Blue, Red, Green))
-        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(globalCounts, OK)) :: PieSlice(Series.KO, count(globalCounts, KO)) :: Nil, List(Green, Red))
-
-        componentLibrary.getRequestsChartComponent(dataReader.runStart, globalCountsSeries, pieRequestsSeries)
-      }
-
-      def responsesChartComponent: Component = {
-        val globalCounts = dataReader.numberOfResponsesPerSecond().sortBy(_.time)
-
-        val globalCountsSeries = new Series[CountsVsTimePlot]("", globalCounts, List(Blue, Red, Green))
-        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(globalCounts, OK)) :: PieSlice(Series.KO, count(globalCounts, KO)) :: Nil, List(Green, Red))
-
-        componentLibrary.getResponsesChartComponent(dataReader.runStart, globalCountsSeries, pieRequestsSeries)
-      }
-
       def responseTimeDistributionChartComponent: Component = {
         val (okDistribution, koDistribution) = dataReader.responseTimeDistribution(100)
         val okDistributionSeries = new Series(Series.OK, okDistribution, List(Blue))
@@ -70,21 +52,37 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
         componentLibrary.getRequestDetailsResponseTimeDistributionChartComponent(okDistributionSeries, koDistributionSeries)
       }
 
-      def responseTimeChartComponent: Component = {
-        val responseTimesPercentilesSuccessData = dataReader.responseTimePercentilesOverTime(OK, None, None)
+      def responseTimeChartComponent: Component =
+        percentilesChartComponent(dataReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
 
-        val responseTimesSuccessSeries = new Series[PercentilesVsTimePlot](s"Response Time Percentiles over Time (${Series.OK})", responseTimesPercentilesSuccessData, ReportGenerator.PercentilesColors)
+      def latencyChartComponent: Component =
+        percentilesChartComponent(dataReader.latencyPercentilesOverTime, componentLibrary.getRequestDetailsLatencyChartComponent, "Latency Percentiles over Time")
 
-        componentLibrary.getRequestDetailsResponseTimeChartComponent(dataReader.runStart, responseTimesSuccessSeries)
+      def percentilesChartComponent(dataSource: (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
+                                    componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
+                                    title: String): Component = {
+        val successData = dataSource(OK, None, None)
+        val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
+
+        componentFactory(dataReader.runStart, successSeries)
       }
 
-      def latencyChartComponent: Component = {
+      def requestsChartComponent: Component =
+        countsChartComponent(dataReader.numberOfRequestsPerSecond, componentLibrary.getRequestsChartComponent)
 
-        val latencyPercentilesSuccessData = dataReader.latencyPercentilesOverTime(OK, None, None)
+      def responsesChartComponent: Component =
+        countsChartComponent(dataReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
 
-        val latencySuccessSeries = new Series[PercentilesVsTimePlot](s"Latency Percentiles over Time (${Series.OK})", latencyPercentilesSuccessData, ReportGenerator.PercentilesColors)
+      def countsChartComponent(dataSource: (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
+                               componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component): Component = {
+        val counts = dataSource(None, None).sortBy(_.time)
 
-        componentLibrary.getRequestDetailsLatencyChartComponent(dataReader.runStart, latencySuccessSeries)
+        val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Blue, Red, Green))
+        val okPieSlice = PieSlice(Series.OK, count(counts, OK))
+        val koPieSlice = PieSlice(Series.KO, count(counts, KO))
+        val pieRequestsSeries = new Series[PieSlice](Series.Distribution, Seq(okPieSlice, koPieSlice), List(Green, Red))
+
+        componentFactory(dataReader.runStart, countsSeries, pieRequestsSeries)
       }
 
     val template = new GlobalPageTemplate(
