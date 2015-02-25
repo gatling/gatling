@@ -52,7 +52,7 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
           def requestsChartComponent: Component = {
             val counts = dataReader.numberOfRequestsPerSecond(Some(requestName), None).sortBy(_.time)
 
-            val countsSeries = new Series[CountsVsTimePlot]("Number of Requests per sec", counts, List(Blue, Red, Green))
+            val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Blue, Red, Green))
             val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(counts, OK)) :: PieSlice(Series.KO, count(counts, KO)) :: Nil, List(Green, Red))
 
             componentLibrary.getRequestsChartComponent(dataReader.runStart, countsSeries, pieRequestsSeries)
@@ -61,7 +61,7 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
           def responsesChartComponent: Component = {
             val counts = dataReader.numberOfResponsesPerSecond(Some(requestName), group).sortBy(_.time)
 
-            val countsSeries = new Series[CountsVsTimePlot]("Number of Responses per sec", counts, List(Blue, Red, Green))
+            val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Blue, Red, Green))
             val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(counts, OK)) :: PieSlice(Series.KO, count(counts, KO)) :: Nil, List(Green, Red))
 
             componentLibrary.getResponsesChartComponent(dataReader.runStart, countsSeries, pieRequestsSeries)

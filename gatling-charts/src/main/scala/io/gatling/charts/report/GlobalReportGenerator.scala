@@ -47,7 +47,7 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       def requestsChartComponent: Component = {
         val globalCounts = dataReader.numberOfRequestsPerSecond().sortBy(_.time)
 
-        val globalCountsSeries = new Series[CountsVsTimePlot]("Number of Requests per sec", globalCounts, List(Blue, Red, Green))
+        val globalCountsSeries = new Series[CountsVsTimePlot]("", globalCounts, List(Blue, Red, Green))
         val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(globalCounts, OK)) :: PieSlice(Series.KO, count(globalCounts, KO)) :: Nil, List(Green, Red))
 
         componentLibrary.getRequestsChartComponent(dataReader.runStart, globalCountsSeries, pieRequestsSeries)
@@ -56,7 +56,7 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       def responsesChartComponent: Component = {
         val globalCounts = dataReader.numberOfResponsesPerSecond().sortBy(_.time)
 
-        val globalCountsSeries = new Series[CountsVsTimePlot]("Number of Responses per sec", globalCounts, List(Blue, Red, Green))
+        val globalCountsSeries = new Series[CountsVsTimePlot]("", globalCounts, List(Blue, Red, Green))
         val pieRequestsSeries = new Series[PieSlice](Series.Distribution, PieSlice(Series.OK, count(globalCounts, OK)) :: PieSlice(Series.KO, count(globalCounts, KO)) :: Nil, List(Green, Red))
 
         componentLibrary.getResponsesChartComponent(dataReader.runStart, globalCountsSeries, pieRequestsSeries)
