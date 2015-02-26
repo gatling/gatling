@@ -52,14 +52,14 @@ object Resource {
   }
 
   private def load(directory: Path, path: String): Validation[Resource] =
-    new Location(directory, path) match {
+    Location(directory, path) match {
       case ClasspathResource(res)    => res
       case FileInFolderResource(res) => res
       case AbsoluteFileResource(res) => res
       case _                         => s"file $path doesn't exist".failure
     }
 
-  private class Location(val directory: Path, val path: String)
+  private case class Location(directory: Path, path: String)
 
   def feeder(fileName: String)(implicit configuration: GatlingConfiguration): Validation[Resource] =
     load(GatlingFiles.dataDirectory, fileName)
