@@ -64,10 +64,7 @@ object FileDataWriter {
   implicit class RequestMessageSerializer(val requestMessage: RequestMessage) extends AnyVal {
 
     private def serializeExtraInfo(extraInfo: List[Any]): Fastring =
-      extraInfo.map {
-        case info: CharSequence => fast"$Separator${info.toString.sanitize}"
-        case info               => fast"$info"
-      }.mkFastring
+      extraInfo.map(info => fast"$Separator${info.toString.sanitize}").mkFastring
 
     private def serializeMessage(message: Option[String]): String =
       message match {
