@@ -66,6 +66,12 @@ class HttpBodyRegexCheckSpec extends FlatSpec with ValidationValues with Mockito
     regex(regexValue).findAll.exists.build.check(response, session).failed shouldBe s"regex($regexValue).findAll.exists, found nothing"
   }
 
+  it should "fail with expected message when transforming" in {
+    val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
+    val regexValue = """"foo":"(.+?)""""
+    regex(regexValue).findAll.transform(_.map(_ + "foo")).exists.build.check(response, session).failed shouldBe s"regex($regexValue).findAll.transform.exists, found nothing"
+  }
+
   "regex.count.exists" should "find all occurrences" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     regex(""""id":"(.+?)"""").count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
