@@ -71,6 +71,13 @@ class HttpBodyRegexCheckSpec extends FlatSpec with Matchers with ValidationValue
     HttpBodyRegexCheckBuilder.regex(regexValue.el).findAll.exists.build.check(response, session).failed shouldBe s"regex($regexValue).findAll.exists, found nothing"
   }
 
+  it should "fail with expected message when transforming" in {
+    val response = mock[Response]
+    when(response.body) thenReturn StringResponseBody(""""[{"id":"1072920417"},"id":"1072920418"]"""", UTF_8)
+    val regexValue = """"foo":"(.+?)""""
+    HttpBodyRegexCheckBuilder.regex(regexValue.el).findAll.transform(_.map(_ + "foo")).exists.build.check(response, session).failed shouldBe s"regex($regexValue).findAll.transform.exists, found nothing"
+  }
+
   "regex.count.exists" should "find all occurrences" in {
 
     val response = mock[Response]
