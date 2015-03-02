@@ -82,7 +82,7 @@ In ``$GATLING_HOME/conf/gatling.conf``, be sure to :
 ::
 
   data {
-    writers = "console, file, graphite"
+    writers = [console, file, graphite]
     reader = file
 
     graphite {
