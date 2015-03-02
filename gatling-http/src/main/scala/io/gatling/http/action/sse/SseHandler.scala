@@ -43,6 +43,7 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 
   override def onConnectionOpen(): Unit = {
     state = Open
+    sseActor ! OnOpen(tx, this, nowMillis)
   }
 
   override def onPoolConnection(): Unit = {}
@@ -65,7 +66,6 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     logger.debug(s"Status $statusCode received for sse '${tx.requestName}")
 
     if (statusCode == OK.getCode) {
-      sseActor ! OnOpen(tx, this, nowMillis)
       CONTINUE
 
     } else {
