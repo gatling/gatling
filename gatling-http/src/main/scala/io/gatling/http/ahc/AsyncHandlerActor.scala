@@ -313,7 +313,10 @@ class AsyncHandlerActor(implicit configuration: GatlingConfiguration, httpEngine
             else
               tx.request.config.checks
 
-          val storeRefererUpdate = RefererHandling.storeReferer(tx.request.ahcRequest, response, tx.request.config.protocol)
+          val storeRefererUpdate =
+            if (tx.primary)
+              RefererHandling.storeReferer(tx.request.ahcRequest, response, tx.request.config.protocol)
+            else Session.Identity
 
           checkAndProceed(newUpdate andThen storeRefererUpdate, checks)
         }
