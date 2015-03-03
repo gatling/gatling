@@ -142,20 +142,20 @@ case class Session(
 
   def status: Status = if (isFailed) KO else OK
 
-  private def isInTryMax = blockStack.exists(_.isInstanceOf[TryMaxBlock])
-
-  private def changeFirstTryMaxStatus(oldStatus: Status, newStatus: Status): List[Block] = {
-    var first = true
-    blockStack.map {
-      case tryMax: TryMaxBlock if first =>
-        first = false
-        if (tryMax.status == oldStatus) tryMax.copy(status = newStatus)
-        else tryMax
-      case b => b
-    }
-  }
-
   private def updateStatus(newStatus: Status): Session = {
+
+      def isInTryMax = blockStack.exists(_.isInstanceOf[TryMaxBlock])
+
+      def changeFirstTryMaxStatus(oldStatus: Status, newStatus: Status): List[Block] = {
+        var first = true
+        blockStack.map {
+          case tryMax: TryMaxBlock if first =>
+            first = false
+            if (tryMax.status == oldStatus) tryMax.copy(status = newStatus)
+            else tryMax
+          case b => b
+        }
+      }
 
     val oldStatus = if (newStatus == OK) KO else OK
 
