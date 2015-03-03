@@ -1,5 +1,9 @@
+##########
 Extensions
-==========
+##########
+
+Official Extensions
+===================
 
 .. toctree::
     :maxdepth: 1
@@ -9,4 +13,17 @@ Extensions
     maven_archetype
     jenkins_plugin
     vtd_xml
-    third_parties
+
+Third Parties
+=============
+
+* `Gradle plugin <https://github.com/alphagov/gradle-gatling-plugin>`_
+* `Cassandra plugin <https://github.com/Mishail/GatlingCql>`_
+* `MQTT plugin <https://github.com/mnogu/gatling-mqtt>`_
+* `Kafka plugin <https://github.com/mnogu/gatling-kafka>`_
+* `RabbitMQ plugin <https://github.com/fhalim/gatling-rabbitmq>`_
+
+.. warning::
+  Those projects are third parties and are not maintained but the Gatling core committers.
+  We'll consider supporting them only if there's enough demand for them.
+  If you run into an issue, please contact their respective owners.
