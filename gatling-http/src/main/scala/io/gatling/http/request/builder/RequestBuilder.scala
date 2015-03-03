@@ -61,7 +61,9 @@ object RequestBuilder {
   val CssHeaderHeaderValueExpression = "text/css,*/*;q=0.1".expression
 }
 
-abstract class RequestBuilder[B <: RequestBuilder[B]](val commonAttributes: CommonAttributes) extends StrictLogging {
+abstract class RequestBuilder[B <: RequestBuilder[B]] extends StrictLogging {
+
+  def commonAttributes: CommonAttributes
 
   private[http] def newInstance(commonAttributes: CommonAttributes): B
 

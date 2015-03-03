@@ -38,7 +38,7 @@ object SseOpenRequestBuilder {
     new SseOpenActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder)
 }
 
-class SseOpenRequestBuilder(commonAttributes: CommonAttributes, val sseName: String)(implicit configuration: GatlingConfiguration) extends RequestBuilder[SseOpenRequestBuilder](commonAttributes) {
+case class SseOpenRequestBuilder(commonAttributes: CommonAttributes, sseName: String)(implicit configuration: GatlingConfiguration) extends RequestBuilder[SseOpenRequestBuilder] {
 
   override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseOpenRequestBuilder(commonAttributes, sseName)
 

@@ -58,8 +58,8 @@ object HttpRequestBuilder {
  *
  * @param httpAttributes the base HTTP attributes
  */
-class HttpRequestBuilder(commonAttributes: CommonAttributes, val httpAttributes: HttpAttributes)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches)
-    extends RequestBuilder[HttpRequestBuilder](commonAttributes) {
+case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches)
+    extends RequestBuilder[HttpRequestBuilder] {
 
   private[http] def newInstance(commonAttributes: CommonAttributes): HttpRequestBuilder = new HttpRequestBuilder(commonAttributes, httpAttributes)
 

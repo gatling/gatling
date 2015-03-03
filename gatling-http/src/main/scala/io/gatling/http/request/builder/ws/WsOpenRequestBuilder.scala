@@ -29,8 +29,8 @@ object WsOpenRequestBuilder {
     new WsOpenActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.wsName, requestBuilder)
 }
 
-class WsOpenRequestBuilder(commonAttributes: CommonAttributes, val wsName: String)(implicit configuration: GatlingConfiguration)
-    extends RequestBuilder[WsOpenRequestBuilder](commonAttributes) {
+case class WsOpenRequestBuilder(commonAttributes: CommonAttributes, wsName: String)(implicit configuration: GatlingConfiguration)
+    extends RequestBuilder[WsOpenRequestBuilder] {
 
   private[http] def newInstance(commonAttributes: CommonAttributes) = new WsOpenRequestBuilder(commonAttributes, wsName)
 
