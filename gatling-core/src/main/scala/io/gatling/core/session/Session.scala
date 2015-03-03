@@ -123,20 +123,7 @@ case class Session(
 
   private[gatling] def exitTryMax: Session = blockStack match {
     case TryMaxBlock(counterName, _, status) :: tail =>
-      val newStack =
-        if (status == KO) {
-          // propagate failure to closest TryMax
-          var first = true
-          tail.map {
-            case tryMax: TryMaxBlock if first =>
-              first = false
-              tryMax.copy(status = KO)
-            case b => b
-          }
-        } else
-          tail
-
-      copy(blockStack = newStack).removeCounter(counterName)
+      copy(blockStack = tail).updateStatus(status).removeCounter(counterName)
 
     case _ =>
       logger.error(s"exitTryMax called but stack head $blockStack isn't a TryMaxBlock, please report.")
@@ -150,41 +137,35 @@ case class Session(
 
   def status: Status = if (isFailed) KO else OK
 
-  def markAsSucceeded: Session = {
+  private def isInTryMax = blockStack.exists(_.isInstanceOf[TryMaxBlock])
+
+  private def changeFirstTryMaxStatus(oldStatus: Status, newStatus: Status): List[Block] = {
     var first = true
-    val newStack = blockStack.map {
+    blockStack.map {
       case tryMax: TryMaxBlock if first =>
         first = false
-        tryMax.copy(status = OK)
+        if (tryMax.status == oldStatus) tryMax.copy(status = newStatus)
+        else tryMax
       case b => b
     }
-
-    if (first) {
-      if (baseStatus == OK)
-        this
-      else
-        copy(baseStatus = OK)
-    } else
-      copy(blockStack = newStack)
   }
 
-  def markAsFailed: Session = {
-    var first = true
-    val newStack = blockStack.map {
-      case tryMax: TryMaxBlock if first =>
-        first = false
-        tryMax.copy(status = KO)
-      case b => b
+  private def updateStatus(newStatus: Status): Session = {
+
+    val oldStatus = if (newStatus == OK) KO else OK
+
+    if (!isInTryMax) {
+      if (baseStatus == oldStatus) copy(baseStatus = newStatus)
+      else this
+
+    } else {
+      copy(blockStack = changeFirstTryMaxStatus(oldStatus, newStatus))
     }
-
-    if (first) {
-      if (baseStatus == KO)
-        this
-      else
-        copy(baseStatus = KO)
-    } else
-      copy(blockStack = newStack)
   }
+
+  def markAsSucceeded: Session = updateStatus(OK)
+
+  def markAsFailed: Session = updateStatus(KO)
 
   private[gatling] def enterLoop(counterName: String, condition: Expression[Boolean], loopActor: ActorRef, exitASAP: Boolean): Session = {
 

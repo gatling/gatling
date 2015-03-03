@@ -208,6 +208,12 @@ class SessionSpec extends FlatSpec with Matchers {
     session should be theSameInstanceAs unmodifiedSession
   }
 
+  it should "propagate the failure to the baseStatus" in {
+    val session = newSession.enterTryMax("tryMax1", noSender).markAsFailed.exitTryMax
+
+    session.isFailed shouldBe true
+  }
+
   "isFailed" should "return true if baseStatus is KO and there is no failed TryMaxBlock in the stack" in {
     val session = newSession.copy(baseStatus = KO)
 
