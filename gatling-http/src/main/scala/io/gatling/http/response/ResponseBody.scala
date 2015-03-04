@@ -150,7 +150,7 @@ case class InputStreamResponseBody(chunks: Seq[ChannelBuffer], charset: Charset)
 
 case object NoResponseBody extends ResponseBody {
   val charset = UTF_8
-  val bytes = Array.empty[Byte]
+  val bytes = ResponseBody.EmptyBytes
   def stream = new FastByteArrayInputStream(bytes)
   val string = ""
 }
