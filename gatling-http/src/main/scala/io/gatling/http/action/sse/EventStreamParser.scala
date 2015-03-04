@@ -16,7 +16,6 @@
 package io.gatling.http.action.sse
 
 import com.typesafe.scalalogging.StrictLogging
-import io.gatling.core.util.FastCharSequence
 import io.gatling.core.util.StringHelper._
 
 import scala.annotation.tailrec
@@ -28,7 +27,7 @@ object EventStreamParser {
 
   object Event {
 
-    def unapply(cs: FastCharSequence, prefix: Array[Char]): Option[String] =
+    def unapply(cs: CharSequence, prefix: Array[Char]): Option[String] =
       if (cs.startWith(prefix)) {
         val subCs =
           if (cs.length > prefix.length + 1 && cs.charAt(prefix.length) == ' ')
@@ -43,58 +42,58 @@ object EventStreamParser {
   }
 
   case object Dispatch {
-    def unapply(cs: FastCharSequence): Option[Unit] = if (cs.isBlank) Some(Unit) else None
+    def unapply(cs: CharSequence): Option[Unit] = if (cs.contains(_ != ' ')) None else Some(Unit)
   }
 
   object EventName {
     val EventPrefix = "event:".toCharArray
-    def unapply(cs: FastCharSequence): Option[String] = Event.unapply(cs, EventPrefix)
+    def unapply(cs: CharSequence): Option[String] = Event.unapply(cs, EventPrefix)
   }
 
   object Id {
     val IdPrefix = "id:".toCharArray
-    def unapply(cs: FastCharSequence) = Event.unapply(cs, IdPrefix)
+    def unapply(cs: CharSequence) = Event.unapply(cs, IdPrefix)
   }
 
   object Retry {
     val RetryPrefix = "retry:".toCharArray
-    def unapply(cs: FastCharSequence) = Event.unapply(cs, RetryPrefix)
+    def unapply(cs: CharSequence) = Event.unapply(cs, RetryPrefix)
   }
 
   object Data {
     val DataPrefix = "data:".toCharArray
-    def unapply(cs: FastCharSequence) = Event.unapply(cs, DataPrefix)
+    def unapply(cs: CharSequence) = Event.unapply(cs, DataPrefix)
   }
 
   implicit class EventStream(val string: String) extends AnyVal {
 
-    def eventLines: Iterator[FastCharSequence] = {
+    def eventLines: Iterator[CharSequence] = {
 
-      val chars = string.unsafeChars
+      val chars = ArrayCharSequence(string.unsafeChars)
       val length = string.length
 
       val last =
         if (string.isEmpty)
           0
-        else if (length >= 2 && chars(length - 2) == CR && chars(length - 1) == LF)
+        else if (length >= 2 && chars.charAt(length - 2) == CR && chars.charAt(length - 1) == LF)
           length - 2
-        else if (length >= 1 && chars(length - 1) == CR || chars(length - 1) == LF)
+        else if (length >= 1 && chars.charAt(length - 1) == CR || chars.charAt(length - 1) == LF)
           length - 1
         else
           length
 
         @tailrec
-        def loop(start: Int, curr: Int, it: Iterator[FastCharSequence], inline: Boolean): Iterator[FastCharSequence] = {
+        def loop(start: Int, curr: Int, it: Iterator[CharSequence], inline: Boolean): Iterator[CharSequence] = {
 
           if (curr == last) {
-            val newLine = if (inline) FastCharSequence(chars, start, curr - start) else FastCharSequence.Empty
+            val newLine = if (inline) chars.subSequence(start, curr) else EmptyCharSequence
             it ++ Iterator.single(newLine)
 
           } else
-            chars(curr) match {
+            chars.charAt(curr) match {
               case LF | CR =>
                 if (inline)
-                  loop(curr + 1, curr + 1, it ++ Iterator.single(FastCharSequence(chars, start, curr - start)), inline = false)
+                  loop(curr + 1, curr + 1, it ++ Iterator.single(chars.subSequence(start, curr)), inline = false)
                 else
                   loop(curr + 1, curr + 1, it, inline = false)
 

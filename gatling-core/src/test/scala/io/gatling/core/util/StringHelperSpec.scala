@@ -91,4 +91,12 @@ class StringHelperSpec extends FlatSpec with Matchers {
   it should "not find target when target is longer" in {
     StringHelper.RichCharSequence("$").indexOf("${", 0) shouldBe -1
   }
+
+  "RichCharSequence.contains" should "find an existing char in a sequence" in {
+    StringHelper.RichCharSequence("foo bar").contains(_ == ' ') shouldBe true
+  }
+
+  it should "not find an missing char in a sequence" in {
+    StringHelper.RichCharSequence("foo bar").contains(_ == 'z') shouldBe false
+  }
 }

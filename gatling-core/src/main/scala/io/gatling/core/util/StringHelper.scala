@@ -41,6 +41,8 @@ object StringHelper {
 
   val EmptyFastring = fast""
 
+  val EmptyCharSequence = ArrayCharSequence(Array.empty[Char])
+
   def bytes2Hex(bytes: Array[Byte]): String = bytes.foldLeft(new JStringBuilder(bytes.length)) { (buff, b) =>
     val shifted = b & 0xff
     if (shifted < 0x10)
@@ -146,6 +148,32 @@ object StringHelper {
         }
         -1
       }
+    }
+
+    def startWith(chars: Array[Char]): Boolean = {
+
+      if (chars.length > source.length)
+        false
+
+      else {
+        var i = 0
+        while (i < source.length && i < chars.length) {
+          if (source.charAt(i) != chars(i))
+            return false
+          i += 1
+        }
+
+        i == chars.length
+      }
+    }
+
+    def contains(f: Char => Boolean): Boolean = {
+      for (i <- 0 until source.length) {
+        if (f(source.charAt(i)))
+          return true
+      }
+
+      false
     }
   }
 }
