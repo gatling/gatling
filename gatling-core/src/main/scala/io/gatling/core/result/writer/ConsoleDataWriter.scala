@@ -49,13 +49,15 @@ class ConsoleDataWriter(implicit configuration: GatlingConfiguration) extends Da
   private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
   private val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
 
-  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
 
     startUpTime = currentTimeMillis
 
     scenarios.foreach(scenario => usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
 
     scheduler.schedule(0 seconds, 5 seconds, self, Flush)
+
+    true
   }
 
   override def onFlush(): Unit = {

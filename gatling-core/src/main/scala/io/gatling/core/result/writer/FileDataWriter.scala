@@ -130,13 +130,14 @@ class FileDataWriter(implicit configuration: GatlingConfiguration) extends DataW
       flush()
   }
 
-  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
     val simulationLog = simulationLogDirectory(run.runId) / "simulation.log"
     channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
     buffer.clear()
     system.registerOnTermination(channel.close())
     assertions.foreach(assertion => push(assertion))
     push(run)
+    true
   }
 
   override def onMessage(message: LoadEventMessage): Unit = message match {

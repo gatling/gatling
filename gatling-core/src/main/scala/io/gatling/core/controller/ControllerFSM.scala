@@ -54,7 +54,7 @@ private[controller] case class EndData(
 
 sealed trait ControllerMessage
 case object Run extends ControllerMessage
-case class DataWritersInitialized(count: Try[Unit]) extends ControllerMessage
+case class DataWritersInitialized(success: Try[Unit]) extends ControllerMessage
 case class ForceTermination(e: Option[Exception] = None) extends ControllerMessage
 case object DataWritersTerminated extends ControllerMessage
 case class ScheduleNextUserBatch(scenarioName: String) extends ControllerMessage

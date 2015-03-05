@@ -58,7 +58,7 @@ class JdbcDataWriter(implicit configuration: GatlingConfiguration) extends DataW
   private var groupCounter: Int = 0
   private var requestCounter: Int = 0
 
-  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
 
     conn = DriverManager.getConnection(
       configuration.data.jdbc.db.url,
@@ -111,6 +111,8 @@ class JdbcDataWriter(implicit configuration: GatlingConfiguration) extends DataW
         conn.commit()
       }
     }
+
+    true
   }
 
   private def onUserMessage(userMessage: UserMessage): Unit = {

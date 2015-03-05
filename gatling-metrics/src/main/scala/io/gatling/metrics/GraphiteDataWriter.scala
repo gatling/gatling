@@ -50,13 +50,15 @@ private[gatling] class GraphiteDataWriter(implicit configuration: GatlingConfigu
   private val percentiles3Name = "percentiles" + configuration.charting.indicators.percentile3
   private val percentiles4Name = "percentiles" + configuration.charting.indicators.percentile4
 
-  def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+  def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
     metricRootPath = configuration.data.graphite.rootPathPrefix + "." + sanitizeString(run.simulationId) + "."
 
     usersByScenario.update(AllUsersKey, new UsersBreakdownBuffer(scenarios.map(_.nbUsers).sum))
     scenarios.foreach(scenario => usersByScenario += (UsersRootKey / scenario.name) -> new UsersBreakdownBuffer(scenario.nbUsers))
 
     scheduler.schedule(0 millisecond, configuration.data.graphite.writeInterval second, self, Flush)
+
+    true
   }
 
   override def onFlush(): Unit = {

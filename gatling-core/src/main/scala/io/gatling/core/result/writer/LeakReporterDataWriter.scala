@@ -30,9 +30,10 @@ class LeakReporterDataWriter(implicit configuration: GatlingConfiguration) exten
   private var lastTouch = 0L
   private val events = mutable.Map.empty[String, DataWriterMessage]
 
-  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Unit = {
+  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
     lastTouch = currentTimeMillis
     scheduler.schedule(0 seconds, noActivityTimeout, self, Flush)
+    true
   }
 
   override def onFlush(): Unit = {
