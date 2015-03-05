@@ -23,8 +23,7 @@ import io.gatling.core.result.writer.ConsoleSummary._
 import io.gatling.core.util.StringHelper._
 import io.gatling.core.result.writer.ConsoleErrorsWriter
 import io.gatling.core.result.reader.DataReader
-import io.gatling.charts.component.GroupedCount
-import io.gatling.charts.component.RequestStatistics
+import io.gatling.charts.component.{ GroupedCount, RequestStatistics }
 
 private[charts] object ConsoleTemplate {
 

@@ -19,10 +19,6 @@ import com.dongxiguo.fastring.Fastring
 
 import io.gatling.charts.component.{ Component, ComponentLibrary }
 import io.gatling.core.result._
-import io.gatling.core.result.PercentilesVsTimePlot
-import io.gatling.core.result.PieSlice
-import io.gatling.core.result.Series
-import io.gatling.core.result.IntVsTimePlot
 
 /**
  * Mock implementation that is removed from the binary.

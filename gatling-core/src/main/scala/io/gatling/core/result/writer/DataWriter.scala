@@ -70,7 +70,7 @@ object DataWriter extends AkkaDefaults {
     Future.sequence(responses)
       .map(allSucceeded)
       .map {
-        case true => Success(())
+        case true  => Success(())
         case false => Failure(new Exception("DataWriters didn't initialize properly"))
       }.foreach(t => replyTo ! DataWritersInitialized(t))
   }

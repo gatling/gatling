@@ -18,8 +18,7 @@ package io.gatling.recorder.scenario.template
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.recorder.scenario.{ ProtocolDefinition, ScenarioElement, TagElement }
-import io.gatling.recorder.scenario.PauseElement
-import io.gatling.recorder.scenario.RequestElement
+import io.gatling.recorder.scenario.{ PauseElement, RequestElement }
 import io.gatling.recorder.config.RecorderConfiguration
 
 object SimulationTemplate {

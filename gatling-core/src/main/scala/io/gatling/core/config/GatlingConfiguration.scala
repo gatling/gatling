@@ -16,8 +16,7 @@
 package io.gatling.core.config
 
 import java.nio.charset.Charset
-import java.util.ArrayList
-import java.util.ResourceBundle
+import java.util.{ ArrayList, ResourceBundle }
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
