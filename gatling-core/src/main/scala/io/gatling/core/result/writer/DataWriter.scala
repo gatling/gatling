@@ -15,8 +15,9 @@
  */
 package io.gatling.core.result.writer
 
-import scala.concurrent.{ Promise, Future }
+import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
+import scala.util.{ Failure, Success }
 
 import akka.actor.{ Actor, ActorRef, Props }
 import akka.util.Timeout
@@ -28,8 +29,6 @@ import io.gatling.core.result.message._
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.util.TimeHelper._
-
-import scala.util.{ Failure, Try, Success }
 
 case class InitDataWriter(totalNumberOfUsers: Int)
 
@@ -61,24 +60,19 @@ object DataWriter extends AkkaDefaults {
 
     val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.injectionProfile.users))
     val responses = instances.map(_ ? Init(assertions, runMessage, shortScenarioDescriptions))
+
       def allSucceeded(responses: Seq[Any]): Boolean =
         responses.map {
           case b: Boolean => b
           case _          => false
         }.forall(identity)
 
-    val promise = Promise[Try[Unit]]()
-
     Future.sequence(responses)
       .map(allSucceeded)
-      .onComplete {
-        case Success(true)       => promise.success(Success(()))
-        case Success(false)      => promise.failure(new Exception("DataWriters didn't initialize properly"))
-        case failure: Failure[_] => promise.failure(failure.exception)
-        case m                   => promise.failure(new Exception(s"Unknown DataWriters initialization result"))
-      }
-
-    promise.future.foreach(t => replyTo ! DataWritersInitialized(t))
+      .map {
+        case true => Success(())
+        case false => Failure(new Exception("DataWriters didn't initialize properly"))
+      }.foreach(t => replyTo ! DataWritersInitialized(t))
   }
 
   def terminate(replyTo: ActorRef): Unit = {
@@ -106,14 +100,14 @@ trait Flushable extends DataWriter {
  */
 abstract class DataWriter extends BaseActor {
 
-  def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean
+  def onInitialize(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean
 
-  def onTerminateDataWriter(): Unit
+  def onTerminate(): Unit
 
   def uninitialized: Receive = {
     case Init(assertions, runMessage, scenarios) =>
       logger.info("Initializing")
-      val status = onInitializeDataWriter(assertions, runMessage, scenarios)
+      val status = onInitialize(assertions, runMessage, scenarios)
       logger.info("Initialized")
       context.become(initialized)
       sender ! status
@@ -126,7 +120,7 @@ abstract class DataWriter extends BaseActor {
   def initialized: Receive = {
 
     case Terminate => try {
-      onTerminateDataWriter()
+      onTerminate()
     } finally {
       context.become(terminated)
       sender ! true

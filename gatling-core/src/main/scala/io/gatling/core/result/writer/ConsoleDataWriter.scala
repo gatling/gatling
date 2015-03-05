@@ -49,7 +49,7 @@ class ConsoleDataWriter(implicit configuration: GatlingConfiguration) extends Da
   private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
   private val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
 
-  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
+  override def onInitialize(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
 
     startUpTime = currentTimeMillis
 
@@ -112,5 +112,5 @@ class ConsoleDataWriter(implicit configuration: GatlingConfiguration) extends Da
     case _                          =>
   }
 
-  override def onTerminateDataWriter(): Unit = if (!complete) onFlush()
+  override def onTerminate(): Unit = if (!complete) onFlush()
 }

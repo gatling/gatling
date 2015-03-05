@@ -58,7 +58,7 @@ class JdbcDataWriter(implicit configuration: GatlingConfiguration) extends DataW
   private var groupCounter: Int = 0
   private var requestCounter: Int = 0
 
-  override def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
+  override def onInitialize(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
 
     conn = DriverManager.getConnection(
       configuration.data.jdbc.db.url,
@@ -185,7 +185,7 @@ class JdbcDataWriter(implicit configuration: GatlingConfiguration) extends DataW
     case _                          =>
   }
 
-  override def onTerminateDataWriter(): Unit = {
+  override def onTerminate(): Unit = {
     logger.info("Received flush order")
     //Flush all the batch jdbc execution
     scenarioInsert.executeAndClearBatch()

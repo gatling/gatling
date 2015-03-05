@@ -50,7 +50,7 @@ private[gatling] class GraphiteDataWriter(implicit configuration: GatlingConfigu
   private val percentiles3Name = "percentiles" + configuration.charting.indicators.percentile3
   private val percentiles4Name = "percentiles" + configuration.charting.indicators.percentile4
 
-  def onInitializeDataWriter(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
+  def onInitialize(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
     metricRootPath = configuration.data.graphite.rootPathPrefix + "." + sanitizeString(run.simulationId) + "."
 
     usersByScenario.update(AllUsersKey, new UsersBreakdownBuffer(scenarios.map(_.nbUsers).sum))
@@ -90,7 +90,7 @@ private[gatling] class GraphiteDataWriter(implicit configuration: GatlingConfigu
     case _                          =>
   }
 
-  def onTerminateDataWriter(): Unit = () // Do nothing, let the ActorSystem free resources
+  def onTerminate(): Unit = () // Do nothing, let the ActorSystem free resources
 
   override def receive: Receive = uninitialized
 
