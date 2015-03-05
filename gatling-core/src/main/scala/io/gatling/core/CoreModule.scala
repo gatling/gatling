@@ -70,12 +70,11 @@ trait CoreModule extends StructureSupport
 
   def InputStreamBody = io.gatling.core.body.InputStreamBody
 
-  /** ********************************/
-  /** Duration implicit conversions */
+  /***********************************/
+  /** Duration implicit conversions **/
+  /***********************************/
 
   implicit def integerToFiniteDuration(i: Integer): FiniteDuration = intToFiniteDuration(i.toInt)
-
-  /** ********************************/
 
   implicit def intToFiniteDuration(i: Int): FiniteDuration = i.seconds
 
