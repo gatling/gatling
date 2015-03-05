@@ -27,7 +27,7 @@ import io.gatling.core.util.PathHelper._
 
 object ScanHelper {
 
-  val SEPARATOR = Character.valueOf(28).toString
+  val Separator = Character.valueOf(28).toString
 
   def getPackageResources(pkg: Path, deep: Boolean): Iterator[Resource] = {
 
@@ -60,9 +60,9 @@ object ScanHelper {
   def deepCopyPackageContent(pkg: Path, targetDirectoryPath: Path): Unit = {
 
       def getPathStringAfterPackage(path: Path, pkg: Path): Path = {
-        val pathString = path.segments.mkString(SEPARATOR)
-        val pkgString = pkg.segments.mkString(SEPARATOR)
-        segments2path(pathString.split(pkgString).last.split(SEPARATOR))
+        val pathString = path.segments.mkString(Separator)
+        val pkgString = pkg.segments.mkString(Separator)
+        segments2path(pathString.split(pkgString).last.split(Separator))
       }
 
     getPackageResources(pkg, deep = true).foreach { resource =>

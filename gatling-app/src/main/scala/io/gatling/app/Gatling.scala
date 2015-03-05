@@ -105,12 +105,13 @@ private[app] class ConfiguredGatling(simulationClass: SelectedSingleSimulation)(
           }
         }
 
-      def singleSimulationFromList =
-        if (simulations.size == 1) {
-          val simulation = simulations.head
-          println(s"${simulation.getName} is the only simulation, executing it.")
-          Some(simulation)
-        } else None
+      def singleSimulationFromList = simulations match {
+          case simulation :: Nil =>
+            println(s"${simulation.getName} is the only simulation, executing it.")
+            Some(simulation)
+
+          case _ => None
+        }
 
     simulationClass orElse singleSimulationFromConfig orElse singleSimulationFromList
   }
