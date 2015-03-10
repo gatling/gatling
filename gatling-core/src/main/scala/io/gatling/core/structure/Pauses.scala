@@ -93,7 +93,7 @@ trait Pauses[B] extends Execs[B] {
 
   def pause(min: Expression[Duration], max: Expression[Duration]): B = pause(min, max, None)
   def pause(min: Expression[Duration], max: Expression[Duration], force: PauseType): B = pause(min, max, Some(force))
-  private def pause(min: Expression[Duration], max: Expression[Duration], force: Option[PauseType]): B = pause(min, max, force)
+  private def pause(min: Expression[Duration], max: Expression[Duration], force: Option[PauseType]): B = pause(durationExpression(min, max), force)
 
   def pause(duration: Expression[Duration]): B = pause(duration, None)
   def pause(duration: Expression[Duration], force: PauseType): B = pause(duration, Some(force))
