@@ -30,7 +30,7 @@ import io.gatling.core.cli.StatusCode
 import io.gatling.core.config.GatlingFiles
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.reader.DataReader
-import io.gatling.core.runner.{ Runner, Selection }
+import io.gatling.core.runner.{ Runner, RunResult, Selection }
 import io.gatling.core.scenario.Simulation
 import io.gatling.core.util.{ Ga, StringHelper }
 import io.gatling.core.util.StringHelper.RichString
@@ -72,18 +72,20 @@ private[app] class ConfiguredGatling(simulationClass: SelectedSingleSimulation)(
     val simulations = loadSimulations
     val singleSimulation = selectSingleSimulationIfPossible(simulations)
 
-    val runId = runSimulationIfNecessary(singleSimulation, simulations)
+    val runResult = runSimulationIfNecessary(singleSimulation, simulations)
 
     val start = currentTimeMillis
 
-    val dataReader = DataReader.newInstance(runId)
+    val dataReader = initDataReaderIfNecessary(runResult)
 
-    val assertionResults = new AssertionValidator().validateAssertions(dataReader)
+    dataReader.map { reader =>
+      val assertionResults = new AssertionValidator().validateAssertions(reader)
+      val reportsGenerationInputs = ReportsGenerationInputs(runResult.runId, reader, assertionResults)
 
-    val reportsGenerationInputs = ReportsGenerationInputs(runId, dataReader, assertionResults)
-    if (reportsGenerationEnabled) generateReports(reportsGenerationInputs, start)
+      if (reportsGenerationEnabled) generateReports(reportsGenerationInputs, start)
 
-    runStatus(assertionResults)
+      runStatus(assertionResults)
+    }.getOrElse(GatlingStatusCodes.Success)
   }
 
   private def loadSimulations = {
@@ -116,8 +118,8 @@ private[app] class ConfiguredGatling(simulationClass: SelectedSingleSimulation)(
     simulationClass orElse singleSimulationFromConfig orElse singleSimulationFromList
   }
 
-  private def runSimulationIfNecessary(singleSimulation: SelectedSingleSimulation, simulations: AllSimulations): String = {
-    configuration.core.directory.reportsOnly.getOrElse {
+  private def runSimulationIfNecessary(singleSimulation: SelectedSingleSimulation, simulations: AllSimulations): RunResult = {
+    configuration.core.directory.reportsOnly.map(RunResult(_, hasAssertions = true)).getOrElse {
       // -- If no single simulation was available, allow user to select one -- //
       val simulation = singleSimulation.getOrElse(interactiveSelect(simulations))
 
@@ -135,9 +137,6 @@ private[app] class ConfiguredGatling(simulationClass: SelectedSingleSimulation)(
       new Runner(selection).run
     }
   }
-
-  private def reportsGenerationEnabled =
-    configuration.data.fileDataWriterEnabled && !configuration.charting.noReports
 
   private def askSimulationId(clazz: Class[Simulation], defaultBaseName: String): String = {
       @tailrec
@@ -189,6 +188,18 @@ private[app] class ConfiguredGatling(simulationClass: SelectedSingleSimulation)(
     }
     simulations(readSimulationNumber)
   }
+
+  private def initDataReaderIfNecessary(runResult: RunResult): Option[DataReader] = {
+    val shouldInitDataReader = reportsGenerationEnabled || runResult.hasAssertions
+
+    if (shouldInitDataReader)
+      Some(DataReader.newInstance(runResult.runId))
+    else
+      None
+  }
+
+  private def reportsGenerationEnabled =
+    configuration.data.fileDataWriterEnabled && !configuration.charting.noReports
 
   private def generateReports(reportsGenerationInputs: ReportsGenerationInputs, start: Long): Unit = {
     println("Generating reports...")

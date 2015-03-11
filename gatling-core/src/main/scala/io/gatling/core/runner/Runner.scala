@@ -29,9 +29,11 @@ import io.gatling.core.controller.Controller
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.util.TimeHelper._
 
+case class RunResult(runId: String, hasAssertions: Boolean)
+
 class Runner(selection: Selection)(implicit configuration: GatlingConfiguration) extends AkkaDefaults with StrictLogging {
 
-  def run: String =
+  def run: RunResult =
     try {
       val simulationClass = selection.simulationClass
       println(s"Simulation ${simulationClass.getName} started...")
@@ -69,7 +71,7 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
         case Success(runId: String) =>
           println("Simulation finished")
           simulation._afterSteps.foreach(_.apply())
-          runId
+          RunResult(runId, simulationDef.assertions.nonEmpty)
 
         case Failure(t) => throw t
       }
