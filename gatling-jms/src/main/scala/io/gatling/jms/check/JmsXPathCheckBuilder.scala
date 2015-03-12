@@ -18,14 +18,13 @@ package io.gatling.jms.check
 import java.io.StringReader
 import javax.jms.{ Message, TextMessage }
 
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.check._
 import io.gatling.core.check.extractor.xpath._
 import io.gatling.core.validation._
 import io.gatling.jms.JmsCheck
 import org.xml.sax.InputSource
 
-object JmsXPathCheckBuilder extends XPathCheckBuilder[JmsCheck, Message] with StrictLogging {
+object JmsXPathCheckBuilder extends XPathCheckBuilder[JmsCheck, Message] {
 
   private val ErrorMapper: String => String = "Could not parse response into a DOM Document: " + _
 

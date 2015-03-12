@@ -15,8 +15,6 @@
  */
 package io.gatling.http.check.ws
 
-import com.typesafe.scalalogging.StrictLogging
-
 import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.core.check.{ Extender, DefaultMultipleFindCheckBuilder, Preparer }
 import io.gatling.core.json.JsonParsers
@@ -30,7 +28,7 @@ trait WsJsonpJsonPathOfType {
     new WsJsonpJsonPathCheckBuilder[X](path, extender, jsonParsers)
 }
 
-object WsJsonpJsonPathCheckBuilder extends StrictLogging {
+object WsJsonpJsonPathCheckBuilder {
 
   def wsJsonpPreparer(jsonParsers: JsonParsers): Preparer[String, Any] = HttpBodyJsonpJsonPathCheckBuilder.parseJsonpString(_, jsonParsers)
 

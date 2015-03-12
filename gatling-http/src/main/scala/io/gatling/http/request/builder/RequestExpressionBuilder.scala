@@ -17,7 +17,6 @@ package io.gatling.http.request.builder
 
 import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ Request, RequestBuilder => AHCRequestBuilder }
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation._
@@ -34,7 +33,7 @@ object RequestExpressionBuilder {
   val BuildRequestErrorMapper = "Failed to build request: " + _
 }
 
-abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol)(implicit configuration: GatlingConfiguration) extends StrictLogging {
+abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol)(implicit configuration: GatlingConfiguration) {
 
   import RequestExpressionBuilder._
 

@@ -25,7 +25,6 @@ import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.http.util.HttpHelper
 
-// FIXME Would it be more efficient to work with Array[Char] instead of String?
 object CssParser extends StrictLogging {
 
   val InlineStyleImageUrls = """url\((.*)\)""".r

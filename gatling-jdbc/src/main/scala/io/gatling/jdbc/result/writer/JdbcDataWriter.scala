@@ -17,8 +17,6 @@ package io.gatling.jdbc.result.writer
 
 import java.sql.{ Connection, Date => SQLDate, DriverManager, PreparedStatement, ResultSet, Statement }
 
-import com.typesafe.scalalogging.StrictLogging
-
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.writer._
@@ -40,7 +38,7 @@ object JdbcDataWriter {
  *
  * It writes the data of the simulation to a database
  */
-class JdbcDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter with StrictLogging {
+class JdbcDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter {
 
   import JdbcDataWriter._
 

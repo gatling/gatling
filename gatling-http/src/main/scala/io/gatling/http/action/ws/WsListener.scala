@@ -19,14 +19,14 @@ import akka.actor.ActorRef
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.WsTx
 import com.ning.http.client.ws._
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging.LazyLogging
 
 class WsListener(tx: WsTx, wsActor: ActorRef)
     extends WebSocketTextListener
     with WebSocketByteListener
     with WebSocketCloseCodeReasonListener
     with WebSocketPingListener
-    with StrictLogging {
+    with LazyLogging {
 
   private var state: WsListenerState = Opening
   private var webSocket: WebSocket = _

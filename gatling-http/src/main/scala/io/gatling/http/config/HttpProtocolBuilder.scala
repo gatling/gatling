@@ -18,7 +18,6 @@ package io.gatling.http.config
 import java.net.InetAddress
 
 import com.ning.http.client.{ RequestBuilderBase, Request, SignatureCalculator, Realm }
-import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.session._
@@ -43,7 +42,7 @@ object HttpProtocolBuilder {
  *
  * @param protocol the protocol being built
  */
-case class HttpProtocolBuilder(protocol: HttpProtocol) extends StrictLogging {
+case class HttpProtocolBuilder(protocol: HttpProtocol) {
 
   def baseURL(url: String) = copy(protocol = protocol.copy(baseURLs = List(url)))
   def baseURLs(urls: String*): HttpProtocolBuilder = baseURLs(urls.toList)

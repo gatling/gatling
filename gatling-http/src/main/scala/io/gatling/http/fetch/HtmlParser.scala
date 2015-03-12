@@ -21,7 +21,6 @@ import scala.util.control.NonFatal
 import com.ning.http.client.uri.Uri
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.check.extractor.css.Jodd
-import io.gatling.core.util.StringHelper._
 import io.gatling.http.util.HttpHelper
 import jodd.lagarto.{ TagUtil, TagType, EmptyTagVisitor, Tag }
 import jodd.lagarto.dom.HtmlCCommentExpressionMatcher
@@ -40,7 +39,7 @@ case class RegularRawResource(rawUrl: String) extends RawResource {
 
 case class HtmlResources(rawResources: Seq[RawResource], base: Option[String])
 
-object HtmlParser {
+object HtmlParser extends StrictLogging {
   val AppletTagName = "applet".toCharArray
   val BaseTagName = "base".toCharArray
   val BgsoundTagName = "bgsound".toCharArray
@@ -63,6 +62,15 @@ object HtmlParser {
   val SrcAttribute = "src".toCharArray
   val StyleAttribute = StyleTagName
   val StylesheetAttributeName = "stylesheet".toCharArray
+
+  def logException(htmlContent: String, e: Throwable): Unit =
+    if (logger.underlying.isDebugEnabled)
+      logger.debug(s"""HTML parser crashed, there's a chance your page wasn't proper HTML:
+>>>>>>>>>>>>>>>>>>>>>>>
+$htmlContent
+<<<<<<<<<<<<<<<<<<<<<<<""")
+    else
+      logger.error("HTML parser crashed, there's a chance your page wasn't proper HTML, enable debug on 'io.gatling.http.fetch' logger to get the HTML content", e)
 }
 
 class HtmlParser extends StrictLogging {
@@ -189,19 +197,8 @@ class HtmlParser extends StrictLogging {
       }
     }
 
-    try {
-      Jodd.newLagartoParser(htmlContent.unsafeChars, ieVersion).parse(visitor)
-    } catch {
-      case NonFatal(e) =>
-        if (logger.underlying.isDebugEnabled)
-          logger.debug(s"""HTML parser crashed, there's a chance your page wasn't proper HTML:
->>>>>>>>>>>>>>>>>>>>>>>
-$htmlContent
-<<<<<<<<<<<<<<<<<<<<<<<""")
-        else
-          logger.error("HTML parser crashed, there's a chance your page wasn't proper HTML, enable debug on 'io.gatling.http.fetch' logger to get the HTML content", e)
-
-    }
+    try { Jodd.newLagartoParser(htmlContent, ieVersion).parse(visitor) }
+    catch { case NonFatal(e) => logException(htmlContent, e) }
     HtmlResources(rawResources, base)
   }
 

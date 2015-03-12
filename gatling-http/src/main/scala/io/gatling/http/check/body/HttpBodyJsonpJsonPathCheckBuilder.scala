@@ -15,8 +15,6 @@
  */
 package io.gatling.http.check.body
 
-import com.typesafe.scalalogging.StrictLogging
-
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
 import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.core.json.JsonParsers
@@ -32,7 +30,7 @@ trait HttpBodyJsonpJsonPathOfType {
   def ofType[X: JsonFilter](implicit extractorFactory: JsonPathExtractorFactory) = new HttpBodyJsonpJsonPathCheckBuilder[X](path, jsonParsers)
 }
 
-object HttpBodyJsonpJsonPathCheckBuilder extends StrictLogging {
+object HttpBodyJsonpJsonPathCheckBuilder {
 
   val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\);?\s*$""".r
 

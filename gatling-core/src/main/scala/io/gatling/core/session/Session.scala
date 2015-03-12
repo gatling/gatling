@@ -17,7 +17,7 @@ package io.gatling.core.session
 
 import scala.reflect.ClassTag
 
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging.LazyLogging
 
 import io.gatling.core.NotNothing
 import io.gatling.core.result.message.{ KO, OK, Status }
@@ -73,7 +73,7 @@ case class Session(
     drift: Long = 0L,
     baseStatus: Status = OK,
     blockStack: List[Block] = Nil,
-    userEnd: Session => Unit = session => ()) extends StrictLogging {
+    userEnd: Session => Unit = session => ()) extends LazyLogging {
 
   def apply(name: String) = SessionAttribute(this, name)
   def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)

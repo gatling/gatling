@@ -17,7 +17,7 @@ package io.gatling.core.structure
 
 import scala.concurrent.duration.Duration
 
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging.LazyLogging
 
 import io.gatling.core.action.UserEnd
 import io.gatling.core.action.builder.ActionBuilder
@@ -58,7 +58,7 @@ case class PopulatedScenarioBuilder(
   scenarioProtocols: List[Protocol] = Nil,
   scenarioThrottling: Option[ThrottlingProfile] = None,
   pauseType: Option[PauseType] = None)
-    extends StrictLogging {
+    extends LazyLogging {
 
   def protocols(protocols: Protocol*) = copy(scenarioProtocols = this.scenarioProtocols ++ protocols)
 

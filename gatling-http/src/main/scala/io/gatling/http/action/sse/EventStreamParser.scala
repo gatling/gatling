@@ -15,7 +15,6 @@
  */
 package io.gatling.http.action.sse
 
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.util.StringHelper._
 
 import scala.annotation.tailrec
@@ -107,7 +106,7 @@ object EventStreamParser {
   }
 }
 
-trait EventStreamParser extends StrictLogging { this: EventStreamDispatcher =>
+trait EventStreamParser { this: EventStreamDispatcher =>
 
   import EventStreamParser._
 

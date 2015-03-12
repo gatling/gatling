@@ -19,7 +19,7 @@ import io.gatling.core.result.message.{ OK, Status }
 import akka.actor.ActorRef
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging.LazyLogging
 
 sealed trait Block
 
@@ -27,7 +27,7 @@ sealed trait CounterBlock extends Block {
   def counterName: String
 }
 
-object LoopBlock extends StrictLogging {
+object LoopBlock extends LazyLogging {
 
   def unapply(block: Block): Option[String] = block match {
     case ExitASAPLoopBlock(counterName, _, _) => Some(counterName)

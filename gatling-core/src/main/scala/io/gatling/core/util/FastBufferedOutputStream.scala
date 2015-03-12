@@ -16,9 +16,9 @@
 package io.gatling.core.util
 
 import java.io.OutputStream
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging.LazyLogging
 
-final class FastBufferedOutputStream(os: OutputStream, bufferSize: Int) extends StrictLogging {
+final class FastBufferedOutputStream(os: OutputStream, bufferSize: Int) extends LazyLogging {
 
   private var bufferPosition = 0
   private val buffer = new Array[Byte](bufferSize)

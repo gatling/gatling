@@ -34,7 +34,7 @@ import scala.util.control.NonFatal
  * @constructor constructs a GatlingAsyncHandler
  * @param tx the data about the request to be sent and processed
  */
-class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with StrictLogging with DataWriterClient {
+class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with DataWriterClient with StrictLogging {
 
   val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
   private val init = new AtomicBoolean
@@ -62,10 +62,9 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
       responseBuilder.setNettyRequest(request.asInstanceOf[NettyRequest])
   }
 
-  override def onRetry(): Unit = {
+  override def onRetry(): Unit =
     if (!done.get) responseBuilder.reset()
     else logger.error("onRetry is not supposed to be called once done, please report")
-  }
 
   override def onHeaderWriteCompleted: STATE = {
     if (!done.get) responseBuilder.updateLastByteSent()

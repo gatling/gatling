@@ -19,7 +19,6 @@ import java.net.InetAddress
 
 import com.ning.http.client._
 import com.ning.http.client.uri.Uri
-import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
@@ -61,7 +60,7 @@ object RequestBuilder {
   val CssHeaderHeaderValueExpression = "text/css,*/*;q=0.1".expression
 }
 
-abstract class RequestBuilder[B <: RequestBuilder[B]] extends StrictLogging {
+abstract class RequestBuilder[B <: RequestBuilder[B]] {
 
   def commonAttributes: CommonAttributes
 

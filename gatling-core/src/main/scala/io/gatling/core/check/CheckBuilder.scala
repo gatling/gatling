@@ -15,8 +15,6 @@
  */
 package io.gatling.core.check
 
-import com.typesafe.scalalogging.StrictLogging
-
 import io.gatling.core.check.extractor.Extractor
 import io.gatling.core.session.{ Session, Expression, ExpressionWrapper, RichExpression }
 import io.gatling.core.validation._
@@ -70,7 +68,7 @@ object ValidatorCheckBuilder {
 case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
     extender: Extender[C, R],
     preparer: Preparer[R, P],
-    extractor: Expression[Extractor[P, X]]) extends StrictLogging {
+    extractor: Expression[Extractor[P, X]]) {
 
   import ValidatorCheckBuilder._
 

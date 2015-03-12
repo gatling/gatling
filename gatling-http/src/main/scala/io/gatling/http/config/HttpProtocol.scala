@@ -189,7 +189,7 @@ case class HttpProtocol(
   proxyPart: HttpProtocolProxyPart,
   warmUpF: HttpProtocol => Unit,
   userEndF: HttpProtocol => Session => Unit)
-    extends Protocol with StrictLogging {
+    extends Protocol {
 
   import HttpProtocol._
 

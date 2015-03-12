@@ -15,13 +15,10 @@
  */
 package io.gatling.http.check.body
 
-import com.typesafe.scalalogging.StrictLogging
-
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Preparer }
 import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.{ Expression, RichExpression }
-import io.gatling.core.validation._
 import io.gatling.http.check.{ HttpCheck, HttpCheckBuilders }
 import io.gatling.http.response.{ ByteArrayResponseBodyUsage, InputStreamResponseBodyUsage, Response, ResponseBodyUsageStrategy, StringResponseBodyUsage }
 
@@ -31,7 +28,7 @@ trait HttpBodyJsonPathOfType {
   def ofType[X: JsonFilter](implicit extractorFactory: JsonPathExtractorFactory) = new HttpBodyJsonPathCheckBuilder[X](path, jsonParsers)
 }
 
-object HttpBodyJsonPathCheckBuilder extends StrictLogging {
+object HttpBodyJsonPathCheckBuilder {
 
   val CharsParsingThreshold = 1000000
 
