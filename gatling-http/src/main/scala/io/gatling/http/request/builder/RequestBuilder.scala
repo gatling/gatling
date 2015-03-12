@@ -115,7 +115,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def queryParamMap(map: Map[String, Any]): B = queryParamSeq(map2SeqExpression(map))
   def queryParamMap(map: Expression[Map[String, Any]]): B = queryParam(ParamMap(map))
 
-  private def queryParam(param: HttpParam): B = newInstance(commonAttributes.copy(queryParams = param :: commonAttributes.queryParams))
+  private def queryParam(param: HttpParam): B = newInstance(commonAttributes.copy(queryParams = commonAttributes.queryParams ::: List(param)))
 
   /**
    * Adds a header to the request
