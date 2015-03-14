@@ -27,6 +27,22 @@ class ValidationSpec extends FlatSpec with Matchers {
     "foo".failure shouldBe Failure("foo")
   }
 
+  "executeSafe" should "returned the provided Validation if it didn't throw exceptions" in {
+    executeSafe()(1.success) shouldBe 1.success
+  }
+
+  it should "return a failure if the provided Validation threw exceptions" in {
+      def exceptionThrower = {
+          def thrower = throw new Exception("Woops")
+
+        thrower
+        Success(1)
+      }
+
+    executeSafe()(exceptionThrower) shouldBe "Woops".failure
+    executeSafe(_ + "y")(exceptionThrower) shouldBe "Woopsy".failure
+  }
+
   "map" should "apply the passed function to the value when called on a Success" in {
     1.success.map(_ + 1) shouldBe Success(2)
   }
