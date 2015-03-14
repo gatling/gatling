@@ -188,7 +188,9 @@ object GatlingConfiguration extends StrictLogging {
           keepEncodingHeader = config.getBoolean(http.ahc.KeepEncodingHeader),
           webSocketMaxFrameSize = config.getInt(http.ahc.WebSocketMaxFrameSize),
           httpsEnabledProtocols = config.getString(http.ahc.HttpsEnabledProtocols).toStringList,
-          httpsEnabledCipherSuites = config.getString(http.ahc.HttpsEnabledCipherSuites).toStringList)),
+          httpsEnabledCipherSuites = config.getString(http.ahc.HttpsEnabledCipherSuites).toStringList,
+          sslSessionCacheSize = config.getInt(http.ahc.SslSessionCacheSize),
+          sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout))),
       data = DataConfiguration(
         dataWriterClasses = config.getString(data.Writers).toStringList.map { string =>
           DataConfiguration.Aliases.get(string) match {
@@ -339,7 +341,9 @@ case class AHCConfiguration(
   keepEncodingHeader: Boolean,
   webSocketMaxFrameSize: Int,
   httpsEnabledProtocols: List[String],
-  httpsEnabledCipherSuites: List[String])
+  httpsEnabledCipherSuites: List[String],
+  sslSessionCacheSize: Int,
+  sslSessionTimeout: Int)
 
 case class SslConfiguration(
   trustStore: Option[StoreConfiguration],

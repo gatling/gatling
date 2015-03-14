@@ -203,6 +203,8 @@ class HttpEngine extends AkkaDefaults with StrictLogging {
         case Nil => null
         case ps  => ps.toArray
       })
+      .setSslSessionCacheSize(if (configuration.http.ahc.sslSessionCacheSize > 0) configuration.http.ahc.sslSessionCacheSize else null)
+        .setSslSessionTimeout(if (configuration.http.ahc.sslSessionTimeout > 0) configuration.http.ahc.sslSessionTimeout else null)
 
     val trustManagers = configuration.http.ssl.trustStore
       .map(config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm))
