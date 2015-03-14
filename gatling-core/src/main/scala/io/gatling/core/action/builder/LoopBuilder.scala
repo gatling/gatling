@@ -22,12 +22,12 @@ import io.gatling.core.config.Protocols
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ChainBuilder
 
-sealed trait LoopType { def name: String }
-case object RepeatLoopType extends LoopType { val name = "repeat" }
-case object ForeachLoopType extends LoopType { val name = "foreach" }
-case object DuringLoopType extends LoopType { val name = "during" }
-case object ForeverLoopType extends LoopType { val name = "forever" }
-case object AsLongAsLoopType extends LoopType { val name = "asLongAs" }
+sealed abstract class LoopType(val name: String)
+case object RepeatLoopType extends LoopType("repeat")
+case object ForeachLoopType extends LoopType("foreach")
+case object DuringLoopType extends LoopType("during")
+case object ForeverLoopType extends LoopType("forever")
+case object AsLongAsLoopType extends LoopType("asLongAs")
 
 /**
  * @constructor create a new Loop
