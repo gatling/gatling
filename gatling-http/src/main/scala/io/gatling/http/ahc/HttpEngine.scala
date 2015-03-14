@@ -307,6 +307,8 @@ class AhcHttpEngine(implicit configuration: GatlingConfiguration) extends HttpEn
           case Nil => null
           case ps  => ps.toArray
         })
+        .setSslSessionCacheSize(if (ahcConfig.sslSessionCacheSize > 0) ahcConfig.sslSessionCacheSize else null)
+        .setSslSessionTimeout(if (ahcConfig.sslSessionTimeout > 0) ahcConfig.sslSessionTimeout else null)
 
       val trustManagers = configuration.http.ssl.trustStore
         .map(config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm))

@@ -117,6 +117,8 @@ object ConfigKeys {
       val WebSocketMaxFrameSize = "gatling.http.ahc.webSocketMaxFrameSize"
       val HttpsEnabledProtocols = "gatling.http.ahc.httpsEnabledProtocols"
       val HttpsEnabledCipherSuites = "gatling.http.ahc.httpsEnabledCipherSuites"
+      val SslSessionCacheSize = "gatling.http.ahc.sslSessionCacheSize"
+      val SslSessionTimeout = "gatling.http.ahc.sslSessionTimeout"
     }
   }
 
