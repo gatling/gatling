@@ -8,17 +8,16 @@ import ConfigFiles._
 import CopyLogback._
 import VersionFile._
 
-object GatlingBuild extends Build {
+import io.gatling.build.SonatypeReleasePlugin
 
-  override lazy val settings = super.settings ++ {
-    shellPrompt := { state => Project.extract(state).currentProject.id + " > " }
-  }
+object GatlingBuild extends Build {
 
   /******************/
   /** Root project **/
   /******************/
 
   lazy val root = Project("gatling-parent", file("."))
+    .enablePlugins(SonatypeReleasePlugin)
     .dependsOn(Seq(core, http, jms, jdbc, redis).map(_ % "compile->compile;test->test"): _*)
     .aggregate(core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
     .settings(basicSettings: _*)
@@ -30,7 +29,9 @@ object GatlingBuild extends Build {
   /** Modules **/
   /*************/
 
-  def gatlingModule(id: String) = Project(id, file(id)).settings(gatlingModuleSettings: _*)
+  def gatlingModule(id: String) = Project(id, file(id))
+    .enablePlugins(SonatypeReleasePlugin)
+    .settings(gatlingModuleSettings: _*)
 
   lazy val core = gatlingModule("gatling-core")
     .settings(libraryDependencies ++= coreDependencies(scalaVersion.value))
