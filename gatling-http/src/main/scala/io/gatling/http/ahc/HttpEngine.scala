@@ -299,11 +299,11 @@ class AhcHttpEngine(implicit configuration: GatlingConfiguration) extends HttpEn
         .setWebSocketTimeout(ahcConfig.webSocketTimeout)
         .setUseRelativeURIsWithConnectProxies(ahcConfig.useRelativeURIsWithConnectProxies)
         .setAcceptAnyCertificate(ahcConfig.acceptAnyCertificate)
-        .setEnabledProtocols(ahcConfig.httpsEnabledProtocols match {
+        .setEnabledProtocols(ahcConfig.sslEnabledProtocols match {
           case Nil => null
           case ps  => ps.toArray
         })
-        .setEnabledCipherSuites(ahcConfig.httpsEnabledCipherSuites match {
+        .setEnabledCipherSuites(ahcConfig.sslEnabledCipherSuites match {
           case Nil => null
           case ps  => ps.toArray
         })
