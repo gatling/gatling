@@ -7,8 +7,6 @@ import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
 import net.virtualvoid.sbt.graph.Plugin.graphSettings
 import sbtunidoc.Plugin.{ ScalaUnidoc, unidocSettings }
-import scoverage.ScoverageSbtPlugin.instrumentSettings
-import scoverage.ScoverageSbtPlugin.ScoverageKeys
 
 object BuildSettings {
 
@@ -35,7 +33,7 @@ object BuildSettings {
   ) ++ Publish.settings ++ Release.settings
 
   lazy val gatlingModuleSettings =
-    basicSettings ++ formattingSettings ++ graphSettings ++ scaladocSettings ++ instrumentSettings ++ Seq(ScoverageKeys.highlighting := true)
+    basicSettings ++ formattingSettings ++ graphSettings ++ scaladocSettings
 
   lazy val noCodeToPublish = Seq(
     publishArtifact in Compile := false
