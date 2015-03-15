@@ -42,7 +42,7 @@ object ConfigKeys {
       }
     }
     object timeout {
-      val Simulation = "gatling.core.timeOut.simulation"
+      val Simulation = "gatling.core.timeout.simulation"
     }
     object directory {
       val Data = "gatling.core.directory.data"
