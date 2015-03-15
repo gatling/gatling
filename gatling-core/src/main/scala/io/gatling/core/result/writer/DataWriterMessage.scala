@@ -21,7 +21,6 @@ import io.gatling.core.session.Session
 
 case class ShortScenarioDescription(name: String, nbUsers: Int)
 
-// TODO : take directly a Selection : contains simulationClassName, simulationId and runDescription
 case class RunMessage(simulationClassName: String,
                       simulationId: String,
                       start: Long,
