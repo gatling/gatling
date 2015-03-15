@@ -15,18 +15,23 @@
  */
 package io.gatling.core.structure
 
+import akka.actor.ActorRef
 import io.gatling.core.CoreModule
+import io.gatling.core.pause.Constant
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{ FlatSpec, Matchers }
 
 import io.gatling.core.test.ActorSupport
 import io.gatling.core.config.{ GatlingConfiguration, Protocols }
 import io.gatling.core.session.Session
 
-class ExecsSpec extends FlatSpec with Matchers with CoreModule {
+class ExecsSpec extends FlatSpec with Matchers with MockitoSugar with CoreModule {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
+  val ctx = ScenarioContext(mock[ActorRef], Protocols(), Constant, throttled = false)
 
   "Execs" should "wrap Scenarios in chains, using exec" in ActorSupport { testKit =>
+
     import testKit._
     val testScenario = scenario("Test Scenario").exec { session =>
       self ! "Message 2"
@@ -43,7 +48,7 @@ class ExecsSpec extends FlatSpec with Matchers with CoreModule {
         session
       }
 
-    val chain = chainBuilder.build(self, Protocols())
+    val chain = chainBuilder.build(self, ctx)
     val session = Session("TestScenario", "testUser")
     chain ! session
     /*

@@ -21,20 +21,24 @@ import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 
-class ExitHereIfFailed(val next: ActorRef) extends Chainable with DataWriterClient {
+class ExitHereIfFailed(userEnd: ActorRef, val next: ActorRef) extends Chainable with DataWriterClient {
 
   def execute(session: Session): Unit = {
 
-    val now = nowMillis
+    val nextStep = session.status match {
+      case KO =>
+        val now = nowMillis
 
-    if (session.status == KO) {
+        session.blockStack.foreach {
+          case group: GroupBlock => logGroupEnd(session, group, now)
+          case _                 =>
+        }
 
-      session.blockStack.foreach {
-        case group: GroupBlock => logGroupEnd(session, group, now)
-        case _                 =>
-      }
+        userEnd
 
-      UserEnd.instance ! session
-    } else next ! session
+      case _ => next
+    }
+
+    nextStep ! session
   }
 }

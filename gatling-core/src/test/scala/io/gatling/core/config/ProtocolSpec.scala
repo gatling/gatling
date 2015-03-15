@@ -24,20 +24,20 @@ class ProtocolSpec extends FlatSpec with Matchers with OptionValues {
   case class BarProtocol(bar: String) extends Protocol
 
   "building registry" should "return the configuration when 1 configuration" in {
-    Protocols(new FooProtocol("foo")).protocol[FooProtocol].value.foo shouldBe "foo"
+    Protocols(new FooProtocol("foo")).protocol[FooProtocol].foo shouldBe "foo"
   }
 
   it should "return the configurations when 2 different configurations" in {
     val protocols = Protocols(new FooProtocol("foo"), new BarProtocol("bar"))
-    protocols.protocol[FooProtocol].value.foo shouldBe "foo"
-    protocols.protocol[BarProtocol].value.bar shouldBe "bar"
+    protocols.protocol[FooProtocol].foo shouldBe "foo"
+    protocols.protocol[BarProtocol].bar shouldBe "bar"
   }
 
   it should "not fail when no configuration" in {
-    Protocols().protocol[FooProtocol] shouldBe None
+    an[UnsupportedOperationException] shouldBe thrownBy(Protocols().protocol[FooProtocol])
   }
 
   it should "override with latest when multiple configurations of the same type" in {
-    Protocols(new FooProtocol("foo1"), new FooProtocol("foo2")).protocol[FooProtocol].value.foo shouldBe "foo2"
+    Protocols(new FooProtocol("foo1"), new FooProtocol("foo2")).protocol[FooProtocol].foo shouldBe "foo2"
   }
 }

@@ -15,21 +15,21 @@
  */
 package io.gatling.core.scenario
 
-import io.gatling.core.action.UserEnd
+import akka.actor.ActorRef
 
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
 import io.gatling.core.assertion.Assertion
-import io.gatling.core.config.{ GatlingConfiguration, Protocol }
+import io.gatling.core.config.{ Protocols, GatlingConfiguration, Protocol }
 import io.gatling.core.controller.throttle.{ ThrottlingProfile, Throttling }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseType, UniformDuration, UniformPercentage }
 import io.gatling.core.session.Expression
-import io.gatling.core.structure.PopulatedScenarioBuilder
+import io.gatling.core.structure.PopulationBuilder
 
 abstract class Simulation {
 
-  private var _scenarios: List[PopulatedScenarioBuilder] = Nil
-  private var _globalProtocols: List[Protocol] = Nil
+  private var _populationBuilders: List[PopulationBuilder] = Nil
+  private var _globalProtocols: Protocols = Protocols()
   private var _assertions = Seq.empty[Assertion]
   private var _maxDuration: Option[FiniteDuration] = None
   private var _globalPauseType: PauseType = Constant
@@ -40,12 +40,12 @@ abstract class Simulation {
   def before(step: => Unit): Unit =
     _beforeSteps = _beforeSteps ::: List(() => step)
 
-  def setUp(scenarios: PopulatedScenarioBuilder*): SetUp = setUp(scenarios.toList)
+  def setUp(populationBuilders: PopulationBuilder*): SetUp = setUp(populationBuilders.toList)
 
-  def setUp(scenarios: List[PopulatedScenarioBuilder]): SetUp = {
-    if (_scenarios.nonEmpty)
+  def setUp(populationBuilders: List[PopulationBuilder]): SetUp = {
+    if (_populationBuilders.nonEmpty)
       throw new UnsupportedOperationException("setUp can only be called once")
-    _scenarios = scenarios
+    _populationBuilders = populationBuilders
     new SetUp
   }
 
@@ -95,27 +95,27 @@ abstract class Simulation {
     }
   }
 
-  private[core] def build(implicit configuration: GatlingConfiguration): SimulationDef = {
+  private[core] def build(userEnd: ActorRef)(implicit configuration: GatlingConfiguration): SimulationDef = {
 
-    require(_scenarios.nonEmpty, "No scenario set up")
-    val duplicates = _scenarios.groupBy(_.scenarioBuilder.name).collect { case (name, scns) if scns.size > 1 => name }
+    require(_populationBuilders.nonEmpty, "No scenario set up")
+    val duplicates = _populationBuilders.groupBy(_.scenarioBuilder.name).collect { case (name, scns) if scns.size > 1 => name }
     require(duplicates.isEmpty, s"Scenario names must be unique but found duplicates: $duplicates")
-    _scenarios.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
+    _populationBuilders.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
 
-    // FIXME ugly: has to be started in order to build the scenario
-    UserEnd.start()
+    val scenarios = _populationBuilders.map(_.build(userEnd, _globalProtocols, _globalPauseType, _globalThrottling))
 
-    val scenarios = _scenarios.map(_.build(_globalProtocols, _globalPauseType, _globalThrottling))
+    val scenarioThrottlings: Map[String, ThrottlingProfile] = _populationBuilders
+      .flatMap(scn => scn.scenarioThrottling.map(t => scn.scenarioBuilder.name -> t)).toMap
 
-    val scenarioThrottlings: Map[String, ThrottlingProfile] = _scenarios
-      .map(scn => scn.scenarioThrottling.map(t => scn.scenarioBuilder.name -> t)).flatten.toMap
+    val maxDuration = {
 
-    val globalThrottlingMaxDuration = _globalThrottling.map(_.duration)
-    val scenarioThrottlingMaxDurations = scenarioThrottlings.values.map(_.duration).toList
+      val globalThrottlingMaxDuration = _globalThrottling.map(_.duration)
+      val scenarioThrottlingMaxDurations = scenarioThrottlings.values.map(_.duration).toList
 
-    val maxDuration = _maxDuration.map(List(_)).getOrElse(Nil) ++ globalThrottlingMaxDuration.map(List(_)).getOrElse(Nil) ++ scenarioThrottlingMaxDurations match {
-      case Nil => None
-      case nel => Some(nel.min)
+      _maxDuration.map(List(_)).getOrElse(Nil) ::: globalThrottlingMaxDuration.map(List(_)).getOrElse(Nil) ::: scenarioThrottlingMaxDurations match {
+        case Nil => None
+        case nel => Some(nel.min)
+      }
     }
 
     SimulationDef(getClass.getName,
@@ -134,5 +134,8 @@ case class SimulationDef(name: String,
                          globalThrottling: Option[ThrottlingProfile],
                          scenarioThrottlings: Map[String, ThrottlingProfile]) {
 
-  val throttled = globalThrottling.isDefined || scenarioThrottlings.nonEmpty
+  def warmUp(implicit configuration: GatlingConfiguration): Unit =
+    scenarios.foldLeft(Protocols()) { (protocols, scenario) =>
+      protocols ++ scenario.ctx.protocols
+    }.warmUp
 }

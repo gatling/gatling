@@ -18,9 +18,10 @@ package io.gatling.core.action.builder
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.action.ExitHereIfFailed
-import io.gatling.core.config.Protocols
+import io.gatling.core.structure.ScenarioContext
 
 object ExitHereIfFailedBuilder extends ActionBuilder {
 
-  def build(next: ActorRef, protocols: Protocols) = actor(actorName("exitHereIfFailed"))(new ExitHereIfFailed(next))
+  def build(next: ActorRef, ctx: ScenarioContext) =
+    actor(actorName("exitHereIfFailed"))(new ExitHereIfFailed(next, ctx.userEnd))
 }

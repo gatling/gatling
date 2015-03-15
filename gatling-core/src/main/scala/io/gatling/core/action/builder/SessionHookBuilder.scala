@@ -18,8 +18,8 @@ package io.gatling.core.action.builder
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.action.{ Interruptable, SessionHook }
-import io.gatling.core.config.Protocols
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.structure.ScenarioContext
 
 /**
  * Builder for SimpleAction
@@ -29,10 +29,9 @@ import io.gatling.core.session.{ Expression, Session }
  */
 class SessionHookBuilder(sessionFunction: Expression[Session], bypassable: Boolean = false) extends ActionBuilder {
 
-  def build(next: ActorRef, protocols: Protocols) = {
+  def build(next: ActorRef, ctx: ScenarioContext) =
     if (bypassable)
       actor(actorName("sessionHook"))(new SessionHook(sessionFunction, next) with Interruptable)
     else
       actor(actorName("sessionHook"))(new SessionHook(sessionFunction, next))
-  }
 }

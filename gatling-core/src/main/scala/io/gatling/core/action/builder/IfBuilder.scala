@@ -18,9 +18,9 @@ package io.gatling.core.action.builder
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.action.If
-import io.gatling.core.config.Protocols
+import io.gatling.core.config.{ Protocol, Protocols }
 import io.gatling.core.session.Expression
-import io.gatling.core.structure.ChainBuilder
+import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
 
 /**
  * @constructor create a new IfBuilder
@@ -30,19 +30,16 @@ import io.gatling.core.structure.ChainBuilder
  */
 class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) extends ActionBuilder {
 
-  def build(next: ActorRef, protocols: Protocols) = {
+  def build(next: ActorRef, ctx: ScenarioContext) = {
     val safeCondition = condition.safe
-    val thenNextActor = thenNext.build(next, protocols)
-    val elseNextActor = elseNext.map(_.build(next, protocols)).getOrElse(next)
+    val thenNextActor = thenNext.build(next, ctx)
+    val elseNextActor = elseNext.map(_.build(next, ctx)).getOrElse(next)
     actor(actorName("if"))(new If(safeCondition, thenNextActor, elseNextActor, next))
   }
 
-  override def registerDefaultProtocols(protocols: Protocols) = {
+  override def defaultProtocols: Set[Protocol] = {
 
     val actionBuilders = thenNext.actionBuilders ::: elseNext.map(_.actionBuilders).getOrElse(Nil)
-
-    actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
-      actionBuilder.registerDefaultProtocols(protocols)
-    }
+    actionBuilders.flatMap(_.defaultProtocols).toSet
   }
 }

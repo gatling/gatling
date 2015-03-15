@@ -16,11 +16,11 @@
 package io.gatling.core.action.builder
 
 import akka.actor.ActorRef
-import io.gatling.core.config.Protocols
 import akka.actor.ActorDSL.actor
 import io.gatling.core.action.RendezVous
+import io.gatling.core.structure.ScenarioContext
 
 class RendezVousBuilder(users: Int) extends ActionBuilder {
 
-  def build(next: ActorRef, protocols: Protocols) = actor(actorName("rendezVous"))(new RendezVous(users, next))
+  def build(next: ActorRef, ctx: ScenarioContext) = actor(actorName("rendezVous"))(new RendezVous(users, next))
 }

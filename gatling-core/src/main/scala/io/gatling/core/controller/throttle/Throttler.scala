@@ -17,6 +17,8 @@ package io.gatling.core.controller.throttle
 
 import java.lang.System.nanoTime
 
+import io.gatling.core.scenario.SimulationDef
+
 import scala.concurrent.duration.{ FiniteDuration, DurationInt }
 
 import akka.actor.ActorDSL.actor
@@ -42,14 +44,17 @@ object Throttler extends StrictLogging {
 
   private var _instance: Option[ActorRef] = None
 
-  def start(globalProfile: Option[ThrottlingProfile], scenarioProfiles: Map[String, ThrottlingProfile]): Unit = {
+  def start(simulationDef: SimulationDef): Unit = {
 
-    val throttler = actor("controller")(new Throttler(globalProfile, scenarioProfiles))
+    if (simulationDef.globalThrottling.isDefined || simulationDef.scenarioThrottlings.nonEmpty) {
 
-    _instance = Some(throttler)
-    logger.debug("Setting up throttling")
-    scheduler.schedule(0 seconds, 1 seconds, throttler, OneSecondTick)
-    system.registerOnTermination(_instance = None)
+      val throttler = actor("controller")(new Throttler(simulationDef.globalThrottling, simulationDef.scenarioThrottlings))
+
+      _instance = Some(throttler)
+      logger.debug("Setting up throttling")
+      scheduler.schedule(0 seconds, 1 seconds, throttler, OneSecondTick)
+      system.registerOnTermination(_instance = None)
+    }
   }
 
   def throttle(scenarioName: String, action: () => Unit): Unit =

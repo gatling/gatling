@@ -17,7 +17,6 @@ package io.gatling.core.test
 
 import akka.testkit.{ TestKit, ImplicitSender }
 import io.gatling.core.akka.GatlingActorSystem
-import io.gatling.core.config.GatlingConfiguration
 import com.typesafe.scalalogging.StrictLogging
 
 object ActorSupport extends StrictLogging {

@@ -39,9 +39,8 @@ class BatchScheduler(
       def startUser(i: Int): Unit = {
         val session = Session(scenarioName = scenario.name,
           userId = userIdRoot + (i + userStream.offset),
-          userEnd = scenario.protocols.userEnd)
-        // FIXME why not directly session?
-        controller ! UserMessage(session.scenarioName, session.userId, Start, session.startDate, 0L)
+          userEnd = scenario.ctx.protocols.userEnd)
+        controller ! UserMessage(session, Start, 0L)
         scenario.entryPoint ! session
       }
 

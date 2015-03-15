@@ -16,17 +16,14 @@
 package io.gatling.jms
 
 import akka.actor.ActorDSL.actor
-import akka.actor.{ ActorRef, Props }
+import akka.actor.ActorRef
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.Protocols
+import io.gatling.core.structure.ScenarioContext
 
 case class JmsReqReplyActionBuilder(attributes: JmsAttributes) extends ActionBuilder {
 
-  /**
-   * Builds an action instance
-   */
-  def build(next: ActorRef, registry: Protocols) = {
-    val jmsProtocol = registry.protocol[JmsProtocol].getOrElse(throw new UnsupportedOperationException("JMS protocol wasn't registered"))
+  def build(next: ActorRef, ctx: ScenarioContext) = {
+    val jmsProtocol = ctx.protocols.protocol[JmsProtocol]
     val tracker = actor(actorName("jmsRequestTracker"))(new JmsRequestTrackerActor)
     actor(actorName("jmsReqReply"))(new JmsReqReplyAction(next, attributes, jmsProtocol, tracker))
   }

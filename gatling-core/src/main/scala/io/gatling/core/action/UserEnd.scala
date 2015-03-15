@@ -15,8 +15,8 @@
  */
 package io.gatling.core.action
 
-import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor
+import akka.actor.ActorRef
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.controller.Controller
 import io.gatling.core.result.message.End
@@ -26,23 +26,13 @@ import io.gatling.core.util.TimeHelper.nowMillis
 
 object UserEnd extends AkkaDefaults {
 
-  var _instance: Option[ActorRef] = None
-
-  def start(): Unit = {
-    _instance = Some(actor("userEnd")(new UserEnd))
-    system.registerOnTermination(_instance = None)
-  }
-
-  def instance = _instance match {
-    case Some(a) => a
-    case None    => throw new UnsupportedOperationException("UserEnd hasn't been initialized")
-  }
+  def userEnd(): ActorRef = actor("userEnd")(new UserEnd)
 }
 
 class UserEnd extends Action {
 
   def execute(session: Session): Unit = {
     session.terminate()
-    Controller ! UserMessage(session.scenarioName, session.userId, End, session.startDate, nowMillis)
+    Controller ! UserMessage(session, End, nowMillis)
   }
 }

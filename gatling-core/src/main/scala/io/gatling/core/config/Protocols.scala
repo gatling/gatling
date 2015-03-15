@@ -15,34 +15,35 @@
  */
 package io.gatling.core.config
 
-import io.gatling.core.controller.throttle.ThrottlingProfile
-import io.gatling.core.pause._
 import io.gatling.core.session.Session
 
 import scala.reflect.ClassTag
 
 object Protocols {
 
-  def apply(protocols: Protocol*) = new Protocols(Map.empty, Constant, None, None) ++ protocols
+  def apply(protocols: Protocol*): Protocols = apply(protocols.toIterable)
+  def apply(protocols: Iterable[Protocol]): Protocols = new Protocols(Map.empty) ++ protocols
 }
 
 /**
  * A placeholder for Protocols
  */
-case class Protocols(protocols: Map[Class[_ <: Protocol], Protocol], pauseType: PauseType, globalThrottling: Option[ThrottlingProfile], scenarioThrottling: Option[ThrottlingProfile]) {
+case class Protocols(protocols: Map[Class[_ <: Protocol], Protocol]) {
 
   /**
    * @return a registered Protocol according to its type
    */
-  def protocol[T <: Protocol: ClassTag]: Option[T] = protocols.get(implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]).map(_.asInstanceOf[T])
+  def protocol[T <: Protocol: ClassTag]: T = {
+    val protocolClass = implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
+    protocols.get(protocolClass).map(_.asInstanceOf[T]).getOrElse(throw new UnsupportedOperationException(s"${protocolClass.getSimpleName} hasn't been registered"))
+  }
 
-  def +(protocol: Protocol): Protocols = copy(protocols = protocols + (protocol.getClass -> protocol))
   def ++(protocols: Iterable[Protocol]): Protocols = copy(protocols = this.protocols ++ protocols.map(p => p.getClass -> p))
 
   def ++(other: Protocols) = copy(protocols = protocols ++ other.protocols)
 
   def warmUp(implicit configuration: GatlingConfiguration): Unit =
-    protocols.values.foreach(_.warmUp)
+    protocols.values.foreach(_.warmUp())
 
   val userEnd: Session => Unit =
     session => protocols.values.foreach(_.userEnd(session))

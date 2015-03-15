@@ -102,8 +102,8 @@ object GatlingConfiguration extends StrictLogging {
             preferJackson = config.getBoolean(core.extract.jsonPath.PreferJackson)),
           css = CssConfiguration(
             cacheMaxCapacity = config.getLong(core.extract.css.CacheMaxCapacity))),
-        timeOut = TimeOutConfiguration(
-          simulation = config.getInt(core.timeOut.Simulation)),
+        timeout = TimeoutConfiguration(
+          simulation = config.getInt(core.timeout.Simulation)),
         directory = DirectoryConfiguration(
           data = config.getString(core.directory.Data),
           bodies = config.getString(core.directory.Bodies),
@@ -224,7 +224,7 @@ case class CoreConfiguration(
     encoding: String,
     simulationClass: Option[String],
     extract: ExtractConfiguration,
-    timeOut: TimeOutConfiguration,
+    timeout: TimeoutConfiguration,
     directory: DirectoryConfiguration,
     muteMode: Boolean,
     elFileBodiesCacheMaxCapacity: Long,
@@ -234,7 +234,7 @@ case class CoreConfiguration(
   val codec: Codec = charset
 }
 
-case class TimeOutConfiguration(
+case class TimeoutConfiguration(
   simulation: Int)
 
 case class ExtractConfiguration(

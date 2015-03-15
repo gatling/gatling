@@ -17,6 +17,7 @@ package io.gatling.core.result.writer
 
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.result.message.{ RequestTimings, MessageEvent, Status }
+import io.gatling.core.session.Session
 
 case class ShortScenarioDescription(name: String, nbUsers: Int)
 
@@ -39,13 +40,13 @@ sealed trait LoadEventMessage extends DataWriterMessage {
   def userId: String
 }
 
-// TODO : take directly a session : contains the scenario name, the user id and the startDate
 case class UserMessage(
-  scenario: String,
-  userId: String,
-  event: MessageEvent,
-  startDate: Long,
-  endDate: Long) extends LoadEventMessage
+    session: Session,
+    event: MessageEvent,
+    endDate: Long) extends LoadEventMessage {
+  override def scenario: String = session.scenarioName
+  override def userId: String = session.userId
+}
 
 case class RequestStartMessage(
   scenario: String,

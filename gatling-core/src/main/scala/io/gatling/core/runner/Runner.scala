@@ -15,6 +15,7 @@
  */
 package io.gatling.core.runner
 
+import io.gatling.core.action.UserEnd
 import io.gatling.core.config.GatlingConfiguration
 
 import scala.concurrent.{ Await, TimeoutException }
@@ -47,22 +48,25 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
 
       simulation._beforeSteps.foreach(_.apply())
 
+      val userEnd = UserEnd.userEnd()
+
+      val simulationDef = simulation.build(userEnd)
+
+      simulationDef.warmUp
+
+      Throttler.start(simulationDef)
+
+      val simulationTimeout = configuration.core.timeout.simulation seconds
+      implicit val timeout = Timeout(simulationTimeout)
+
       System.gc()
       System.gc()
       System.gc()
 
-      val simulationDef = simulation.build
-
-      if (simulationDef.throttled) {
-        Throttler.start(simulationDef.globalThrottling, simulationDef.scenarioThrottlings)
-      }
-
-      val simulationTimeOut = configuration.core.timeOut.simulation seconds
-      implicit val timeout = Timeout(simulationTimeOut)
       val runResult = Controller.run(simulationDef, selection)
 
       val res = try {
-        Await.result(runResult, simulationTimeOut)
+        Await.result(runResult, simulationTimeout)
       } catch {
         case t: TimeoutException => throw new TimeoutException(s"Reach simulation timeout of $timeout")
       }

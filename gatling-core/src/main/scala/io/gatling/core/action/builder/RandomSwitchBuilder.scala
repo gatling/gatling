@@ -23,9 +23,9 @@ import com.typesafe.scalalogging.StrictLogging
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.action.Switch
-import io.gatling.core.config.Protocols
+import io.gatling.core.config.Protocol
 import io.gatling.core.session.Expression
-import io.gatling.core.structure.ChainBuilder
+import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
 import io.gatling.core.validation.SuccessWrapper
 
 object RandomSwitchBuilder {
@@ -53,15 +53,15 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
   if (sum == Accuracy && elseNext.isDefined)
     logger.warn("Random switch has a 100% sum, yet a else is defined?!")
 
-  def build(next: ActorRef, protocols: Protocols) = {
+  def build(next: ActorRef, ctx: ScenarioContext) = {
 
     val possibleActions = possibilities.map {
       case (percentage, possibility) =>
-        val possibilityAction = possibility.build(next, protocols)
+        val possibilityAction = possibility.build(next, ctx)
         (percentage, possibilityAction)
     }
 
-    val elseNextActor = elseNext.map(_.build(next, protocols)).getOrElse(next)
+    val elseNextActor = elseNext.map(_.build(next, ctx)).getOrElse(next)
 
     val nextAction: Expression[ActorRef] = _ => {
 
@@ -81,12 +81,9 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
     actor(actorName("randomSwitch"))(new Switch(nextAction, next))
   }
 
-  override def registerDefaultProtocols(protocols: Protocols) = {
+  override def defaultProtocols: Set[Protocol] = {
 
     val actionBuilders = possibilities.flatMap { case (_, chainBuilder) => chainBuilder.actionBuilders } ::: elseNext.map(_.actionBuilders).getOrElse(Nil)
-
-    actionBuilders.foldLeft(protocols) { (protocols, actionBuilder) =>
-      actionBuilder.registerDefaultProtocols(protocols)
-    }
+    actionBuilders.flatMap(_.defaultProtocols).toSet
   }
 }

@@ -21,8 +21,8 @@ import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import com.ning.http.client.uri.Uri
 import io.gatling.core.action.SessionHook
-import io.gatling.core.config.Protocols
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocol }
 import io.gatling.http.cookie.CookieSupport.storeCookie
@@ -58,9 +58,9 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 
   import AddCookieBuilder._
 
-  def build(next: ActorRef, protocols: Protocols): ActorRef = {
+  def build(next: ActorRef, ctx: ScenarioContext): ActorRef = {
 
-    val resolvedDomain = domain.getOrElse(defaultDomain(httpProtocol(protocols)))
+    val resolvedDomain = domain.getOrElse(defaultDomain(ctx.protocols.protocol[HttpProtocol]))
     val resolvedPath = path.getOrElse(DefaultPath)
 
     val expression: Expression[Session] = session => for {

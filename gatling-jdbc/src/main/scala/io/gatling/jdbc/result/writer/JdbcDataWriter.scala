@@ -120,7 +120,7 @@ class JdbcDataWriter(implicit configuration: GatlingConfiguration) extends DataW
     scenarioInsert.setString(2, scenario)
     scenarioInsert.setString(3, userId)
     scenarioInsert.setString(4, event.name)
-    scenarioInsert.setLong(5, startDate)
+    scenarioInsert.setLong(5, session.startDate)
     scenarioInsert.setLong(6, endDate)
     scenarioInsert.addBatch()
 

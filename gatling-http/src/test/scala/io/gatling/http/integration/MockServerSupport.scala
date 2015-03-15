@@ -2,6 +2,9 @@ package io.gatling.http.integration
 
 import java.io.File
 
+import io.gatling.core.pause.Constant
+import org.scalatest.mock.MockitoSugar
+
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
@@ -19,7 +22,7 @@ import io.gatling.core.config.{ GatlingConfiguration, Protocols }
 import io.gatling.core.controller.DataWritersInitialized
 import io.gatling.core.result.writer.{ DataWriter, RunMessage }
 import io.gatling.core.session.Session
-import io.gatling.core.structure.ScenarioBuilder
+import io.gatling.core.structure.{ ScenarioContext, ScenarioBuilder }
 import io.gatling.core.test.ActorSupport
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine }
@@ -27,7 +30,8 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.{ HttpProtocolBuilder, DefaultHttpProtocol }
 import io.gatling.http.fetch.ResourceFetcher
 
-class MockServerSupport(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher) extends StrictLogging {
+class MockServerSupport(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher)
+    extends MockitoSugar with StrictLogging {
 
   // FIXME allocate random port
   val mockHttpPort = Option(Integer.getInteger("gatling.mockHttp.port")).map(_.intValue).getOrElse(8702)
@@ -118,7 +122,7 @@ class MockServerSupport(implicit configuration: GatlingConfiguration, defaultHtt
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(httpProtocol))(implicit testKit: TestKit with ImplicitSender) = {
     import testKit._
 
-    val actor = sb.build(testKit.self, protocols)
+    val actor = sb.build(testKit.self, ScenarioContext(mock[ActorRef], protocols, Constant, false))
     actor ! Session("TestSession", "testUser")
     expectMsgClass(timeout, classOf[Session])
   }

@@ -17,7 +17,8 @@ package io.gatling.core.action.builder
 
 import akka.actor.ActorRef
 import io.gatling.core.akka.AkkaDefaults
-import io.gatling.core.config.Protocols
+import io.gatling.core.config.Protocol
+import io.gatling.core.structure.ScenarioContext
 
 /**
  * Top level abstraction for components in charge of building Actions.
@@ -27,17 +28,16 @@ trait ActionBuilder extends AkkaDefaults {
 
   /**
    * @param next the Action that will be chained with the Action build by this builder
-   * @param protocols the protocols configurations
+   * @param ctx the scenario context
    * @return the resulting Action actor
    */
-  def build(next: ActorRef, protocols: Protocols): ActorRef
+  def build(next: ActorRef, ctx: ScenarioContext): ActorRef
 
   /**
    * Register default values of the protocols that the Actions produced by this ActionBuilder will use.
    * With this, the simulation is aware of the protocols and can trigger warm-ups.
    *
-   * @param protocols the default protocols
    * @return the default protocols updated with the ones used here
    */
-  def registerDefaultProtocols(protocols: Protocols): Protocols = protocols
+  def defaultProtocols: Set[Protocol] = Set.empty
 }

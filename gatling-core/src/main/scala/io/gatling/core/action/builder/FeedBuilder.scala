@@ -15,19 +15,20 @@
  */
 package io.gatling.core.action.builder
 
+import io.gatling.core.structure.ScenarioContext
+
 import scala.collection.mutable
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.action.{ Feed, SingletonFeed }
 import io.gatling.core.akka.AkkaDefaults
-import io.gatling.core.config.Protocols
 import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.session.Expression
 
 object FeedBuilder extends AkkaDefaults {
 
-  // FIXME not very clean + leaked if multiple runs
+  // FIXME not very clean
   val Instances = mutable.Map.empty[FeederBuilder[_], ActorRef]
 
   def apply[T](feederBuilder: FeederBuilder[T], number: Expression[Int]) =
@@ -35,5 +36,6 @@ object FeedBuilder extends AkkaDefaults {
 }
 class FeedBuilder(instance: => ActorRef, number: Expression[Int]) extends ActionBuilder {
 
-  def build(next: ActorRef, protocols: Protocols) = actor(actorName("feed"))(new Feed(instance, number, next))
+  def build(next: ActorRef, ctx: ScenarioContext) =
+    actor(actorName("feed"))(new Feed(instance, number, next))
 }
