@@ -20,13 +20,13 @@ import io.gatling.core.config.GatlingConfiguration
 
 import scala.concurrent.{ Await, TimeoutException }
 import scala.concurrent.duration._
-import scala.util.{ Failure, Success }
+import scala.util.{ Try, Failure, Success }
 
 import com.typesafe.scalalogging.StrictLogging
 
 import akka.util.Timeout
 import io.gatling.core.akka.{ AkkaDefaults, GatlingActorSystem }
-import io.gatling.core.controller.Controller
+import io.gatling.core.controller.{ Run, Controller }
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.util.TimeHelper._
 
@@ -48,9 +48,10 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
 
       simulation._beforeSteps.foreach(_.apply())
 
-      val userEnd = UserEnd.userEnd()
+      val controller = Controller.newController(selection)
+      val userEnd = UserEnd.newUserEnd(controller)
 
-      val simulationDef = simulation.build(userEnd)
+      val simulationDef = simulation.build(controller, userEnd)
 
       simulationDef.warmUp
 
@@ -63,7 +64,7 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
       System.gc()
       System.gc()
 
-      val runResult = Controller.run(simulationDef, selection)
+      val runResult = (controller ? Run).mapTo[Try[String]]
 
       val res = try {
         Await.result(runResult, simulationTimeout)

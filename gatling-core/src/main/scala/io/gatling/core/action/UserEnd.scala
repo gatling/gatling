@@ -18,7 +18,6 @@ package io.gatling.core.action
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.akka.AkkaDefaults
-import io.gatling.core.controller.Controller
 import io.gatling.core.result.message.End
 import io.gatling.core.result.writer.UserMessage
 import io.gatling.core.session.Session
@@ -26,13 +25,13 @@ import io.gatling.core.util.TimeHelper.nowMillis
 
 object UserEnd extends AkkaDefaults {
 
-  def userEnd(): ActorRef = actor("userEnd")(new UserEnd)
+  def newUserEnd(controller: ActorRef): ActorRef = actor("userEnd")(new UserEnd(controller))
 }
 
-class UserEnd extends Action {
+class UserEnd(controller: ActorRef) extends Action {
 
   def execute(session: Session): Unit = {
     session.terminate()
-    Controller ! UserMessage(session, End, nowMillis)
+    controller ! UserMessage(session, End, nowMillis)
   }
 }

@@ -16,13 +16,14 @@
 package io.gatling.core.controller
 
 import io.gatling.core.akka.BaseActor
+import io.gatling.core.runner.Selection
 
 import scala.concurrent.duration.FiniteDuration
 import scala.util.Try
 
 import akka.actor.{ ActorRef, FSM }
 
-import io.gatling.core.scenario.Scenario
+import io.gatling.core.scenario.{ SimulationDef, Scenario }
 import io.gatling.core.result.writer.UserMessage
 
 private[controller] case class UserStream(
@@ -41,19 +42,20 @@ private[controller] case object Stopped extends ControllerState
 
 private[controller] sealed trait ControllerData
 private[controller] case object NoData extends ControllerData
-private[controller] case class InitData(runId: String, runner: ActorRef) extends ControllerData
+private[controller] case class InitData(runId: String, runner: ActorRef, simulationDef: SimulationDef) extends ControllerData
 private[controller] case class RunData(
   initData: InitData,
   userStreams: Map[String, UserStream],
   scheduler: BatchScheduler,
   activeUsers: Map[String, UserMessage],
-  completedUsersCount: Int) extends ControllerData
+  completedUsersCount: Int,
+  totalUsers: Int) extends ControllerData
 private[controller] case class EndData(
   initData: InitData,
   exception: Option[Exception]) extends ControllerData
 
 sealed trait ControllerMessage
-case object Run extends ControllerMessage
+case class Run(simulation: SimulationDef) extends ControllerMessage
 case class DataWritersInitialized(success: Try[Unit]) extends ControllerMessage
 case class ForceTermination(e: Option[Exception] = None) extends ControllerMessage
 case object DataWritersTerminated extends ControllerMessage

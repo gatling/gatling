@@ -33,7 +33,7 @@ import io.gatling.core.test.ActorSupport
 
 class PaceSpec extends FlatSpec with Matchers with MockitoSugar {
 
-  val ctx = ScenarioContext(mock[ActorRef], Protocols(), Constant, throttled = false)
+  val ctx = ScenarioContext(mock[ActorRef], mock[ActorRef], Protocols(), Constant, throttled = false)
 
   "pace" should "run actions with a minimum wait time" in ActorSupport { testKit =>
     import testKit._

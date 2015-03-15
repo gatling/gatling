@@ -76,13 +76,14 @@ case class PopulationBuilder(
   }
 
   /**
+   * @param controller: the controller
    * @param userEnd: the exit point
    * @param globalProtocols the protocols
    * @param globalPauseType the pause type
    * @param globalThrottling the optional throttling profile
    * @return the scenario
    */
-  private[core] def build(userEnd: ActorRef, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[ThrottlingProfile])(implicit configuration: GatlingConfiguration): Scenario = {
+  private[core] def build(controller: ActorRef, userEnd: ActorRef, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[ThrottlingProfile])(implicit configuration: GatlingConfiguration): Scenario = {
 
     val resolvedPauseType = globalThrottling.orElse(scenarioThrottling).map { _ =>
       logger.info("Throttle is enabled, disabling pauses")
@@ -91,11 +92,11 @@ case class PopulationBuilder(
 
     val protocols = (defaultProtocols ++ globalProtocols ++ scenarioProtocols)
 
-    val ctx = ScenarioContext(userEnd, protocols, resolvedPauseType, globalThrottling.isDefined || scenarioThrottling.isDefined)
+    val ctx = ScenarioContext(controller, userEnd, protocols, resolvedPauseType, globalThrottling.isDefined || scenarioThrottling.isDefined)
 
     val entryPoint = scenarioBuilder.build(userEnd, ctx)
     new Scenario(scenarioBuilder.name, entryPoint, injectionProfile, ctx)
   }
 }
 
-case class ScenarioContext(userEnd: ActorRef, protocols: Protocols, pauseType: PauseType, throttled: Boolean)
+case class ScenarioContext(controller: ActorRef, userEnd: ActorRef, protocols: Protocols, pauseType: PauseType, throttled: Boolean)

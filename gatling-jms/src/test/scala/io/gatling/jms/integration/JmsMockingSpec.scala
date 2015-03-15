@@ -51,7 +51,7 @@ trait JmsMockingSpec extends BrokerBasedSpecification with MockitoSugar with Jms
     DataWriter.init(Nil, RunMessage("JmsIntegrationSimulation", sb.name, nowMillis, "test run"), Nil, self)
     expectMsgClass(classOf[DataWritersInitialized])
 
-    val actor = sb.build(self, ScenarioContext(mock[ActorRef], protocols, Constant, throttled = false))
+    val actor = sb.build(self, ScenarioContext(mock[ActorRef], mock[ActorRef], protocols, Constant, throttled = false))
     actor ! Session("TestSession", "testUser")
     val session = expectMsgClass(timeout, classOf[Session])
 

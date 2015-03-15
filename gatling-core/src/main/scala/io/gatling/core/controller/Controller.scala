@@ -17,7 +17,6 @@ package io.gatling.core.controller
 
 import java.util.UUID.randomUUID
 
-import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
 
@@ -25,7 +24,6 @@ import com.typesafe.scalalogging.StrictLogging
 
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
-import akka.util.Timeout
 
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.GatlingConfiguration
@@ -37,29 +35,11 @@ import io.gatling.core.util.TimeHelper.nowMillis
 
 object Controller extends AkkaDefaults with StrictLogging {
 
-  private var _instance: Option[ActorRef] = None
-
-  def run(simulation: SimulationDef, selection: Selection)(implicit configuration: GatlingConfiguration, timeout: Timeout): Future[Try[String]] = {
-
-    val totalNumberOfUsers = simulation.scenarios.map(_.injectionProfile.users).sum
-    logger.info(s"Total number of users : $totalNumberOfUsers")
-
-    val controller = actor("gatling-controller")(new Controller(simulation, selection, totalNumberOfUsers))
-
-    _instance = Some(controller)
-    system.registerOnTermination(_instance = None)
-
-    (controller ? Run).mapTo[Try[String]]
-  }
-
-  def !(message: Any): Unit =
-    _instance match {
-      case Some(c) => c ! message
-      case None    => logger.debug("Controller hasn't been started")
-    }
+  def newController(selection: Selection)(implicit configuration: GatlingConfiguration): ActorRef =
+    actor("gatling-controller")(new Controller(selection))
 }
 
-class Controller(simulationDef: SimulationDef, selection: Selection, totalNumberOfUsers: Int)(implicit configuration: GatlingConfiguration)
+class Controller(selection: Selection)(implicit configuration: GatlingConfiguration)
     extends ControllerStateMachine {
 
   startWith(WaitingToStart, NoData)
@@ -67,15 +47,15 @@ class Controller(simulationDef: SimulationDef, selection: Selection, totalNumber
   // -- STEP 1 :  Waiting for the Runner to start the Controller -- //
 
   when(WaitingToStart) {
-    case Event(Run, NoData) =>
-      val initializationData = initDataWriters()
+    case Event(Run(simulationDef), NoData) =>
+      val initializationData = initDataWriters(simulationDef, selection)
       goto(WaitingForDataWritersToInit) using initializationData
   }
 
-  private def initDataWriters(): InitData = {
+  private def initDataWriters(simulationDef: SimulationDef, selection: Selection): InitData = {
     val runMessage = RunMessage(simulationDef.name, selection.simulationId, nowMillis, selection.description)
     DataWriter.init(simulationDef.assertions, runMessage, simulationDef.scenarios, self)
-    InitData(runMessage.runId, sender())
+    InitData(runMessage.runId, sender(), simulationDef)
   }
 
   // -- STEP 2 : Waiting for DataWriters to be initialized and confirm initialization -- //
@@ -91,7 +71,7 @@ class Controller(simulationDef: SimulationDef, selection: Selection, totalNumber
 
   private def processInitializationResult(result: Try[Unit], initData: InitData): State = {
       def buildUserStreams: Map[String, UserStream] = {
-        simulationDef.scenarios.foldLeft((Map.empty[String, UserStream], 0)) { (streamsAndOffset, scenario) =>
+        initData.simulationDef.scenarios.foldLeft((Map.empty[String, UserStream], 0)) { (streamsAndOffset, scenario) =>
           val (streams, offset) = streamsAndOffset
 
           val stream = scenario.injectionProfile.allUsers.zipWithIndex
@@ -102,7 +82,7 @@ class Controller(simulationDef: SimulationDef, selection: Selection, totalNumber
       }
 
       def setUpSimulationMaxDuration(): Unit =
-        simulationDef.maxDuration.foreach { maxDuration =>
+        initData.simulationDef.maxDuration.foreach { maxDuration =>
           logger.debug("Setting up max duration")
           scheduler.scheduleOnce(maxDuration)(self ! ForceTermination())
         }
@@ -128,7 +108,7 @@ class Controller(simulationDef: SimulationDef, selection: Selection, totalNumber
         val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
         val userStreams = buildUserStreams
         val scheduler = startUpScenarios(userIdRoot, userStreams)
-        goto(Running) using RunData(initData, userStreams, scheduler, Map.empty, 0)
+        goto(Running) using RunData(initData, userStreams, scheduler, Map.empty, 0, initData.simulationDef.scenarios.map(_.injectionProfile.users).sum)
     }
   }
 
@@ -159,7 +139,7 @@ class Controller(simulationDef: SimulationDef, selection: Selection, totalNumber
         val newActiveUsers = runData.activeUsers - userMessage.userId
         val newUserCount = runData.completedUsersCount + 1
         dispatchUserEndToDataWriter(userMessage)
-        if (newUserCount == totalNumberOfUsers)
+        if (newUserCount == runData.totalUsers)
           terminateDataWritersAndWaitForConfirmation(runData.initData, None)
         else
           stay() using runData.copy(completedUsersCount = newUserCount, activeUsers = newActiveUsers)

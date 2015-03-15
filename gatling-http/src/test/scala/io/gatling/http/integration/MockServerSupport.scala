@@ -122,7 +122,7 @@ class MockServerSupport(implicit configuration: GatlingConfiguration, defaultHtt
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(httpProtocol))(implicit testKit: TestKit with ImplicitSender) = {
     import testKit._
 
-    val actor = sb.build(testKit.self, ScenarioContext(mock[ActorRef], protocols, Constant, false))
+    val actor = sb.build(testKit.self, ScenarioContext(mock[ActorRef], mock[ActorRef], protocols, Constant, false))
     actor ! Session("TestSession", "testUser")
     expectMsgClass(timeout, classOf[Session])
   }

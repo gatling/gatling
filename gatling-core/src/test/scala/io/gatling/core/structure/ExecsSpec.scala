@@ -28,7 +28,7 @@ import io.gatling.core.session.Session
 class ExecsSpec extends FlatSpec with Matchers with MockitoSugar with CoreModule {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  val ctx = ScenarioContext(mock[ActorRef], Protocols(), Constant, throttled = false)
+  val ctx = ScenarioContext(mock[ActorRef], mock[ActorRef], Protocols(), Constant, throttled = false)
 
   "Execs" should "wrap Scenarios in chains, using exec" in ActorSupport { testKit =>
 
