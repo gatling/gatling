@@ -46,7 +46,7 @@ object Dependencies {
   private val mockitoCore                    = "org.mockito"                            % "mockito-core"                % "1.10.19"     % "test"
   private val activemqCore                   = "org.apache.activemq"                    % "activemq-broker"             % "5.8.0"       % "test"
   private val sprayCan                       = "io.spray"                              %% "spray-can"                   % "1.3.2"       % "test"
-  private val h2                             = "com.h2database"                         % "h2"                          % "1.4.185"     % "test"
+  private val h2                             = "com.h2database"                         % "h2"                          % "1.4.186"     % "test"
   private val ffmq                           = "net.timewalker.ffmq"                    % "ffmq3-core"                  % "3.0.7"       % "test" exclude("log4j", "log4j") exclude("javax.jms", "jms")
 
   private val testDeps = Seq(scalaTest, scalaCheck, akkaTestKit, mockitoCore)
