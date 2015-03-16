@@ -43,17 +43,15 @@ class FeederBuilderSpec extends FlatSpec with Matchers with FeederSupport {
     queuedFeeder.toArray shouldBe Array(Map("1" -> "Test"), Map("2" -> "Test"))
 
     //Random
-    val randomData =
-      (1 to 50).foldLeft(IndexedSeq.empty[Record[String]]) { (acc, id) => Map(id.toString -> "Test") +: acc }
+    val fiftyTimes = 1 to 50
+    val orderedMaps =
+      fiftyTimes.foldLeft(IndexedSeq.empty[Record[String]]) { (acc, id) => Map(id.toString -> "Test") +: acc }
 
-    val orderedMaps = randomData.take(5)
-
-    val threeTimes = 1 to 3
     val testsOutcome: immutable.IndexedSeq[Boolean] =
-      threeTimes.map { _ =>
-        val randomFeeder = RecordSeqFeederBuilder(randomData).random.build
+      (1 to 3).map { _ =>
+        val randomFeeder = RecordSeqFeederBuilder(orderedMaps).random.build
         randomFeeder.hasNext shouldBe true
-        val retrievedMaps = threeTimes.map(_ => randomFeeder.next())
+        val retrievedMaps = fiftyTimes.map(_ => randomFeeder.next())
         retrievedMaps != orderedMaps
       }
 
