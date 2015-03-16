@@ -18,7 +18,6 @@ package io.gatling.http.fetch
 import com.ning.http.client.Request
 import com.ning.http.client.uri.Uri
 
-import scala.annotation.tailrec
 import scala.collection.mutable
 
 import com.typesafe.scalalogging.StrictLogging
@@ -278,40 +277,28 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
 
   private def resourceFetched(uri: Uri, status: Status, silent: Boolean): Unit = {
 
-      def releaseToken(host: String): Unit = {
+    def releaseToken(host: String): Unit =
+      bufferedResourcesByHost.get(uri.getHost) match {
+        case Some(Nil) | None =>
+          // nothing to send for this host for now
+          availableTokensByHost += host -> (availableTokensByHost(host) + 1)
 
-          @tailrec
-          def releaseTokenRec(bufferedResourcesForHost: List[HttpRequest]): Unit =
-            bufferedResourcesForHost match {
-              case Nil =>
-                // nothing to send for this host for now
-                availableTokensByHost += host -> (availableTokensByHost(host) + 1)
+        case Some(request :: tail) =>
+          bufferedResourcesByHost += host -> tail
+          val requestUri = request.ahcRequest.getUri
+          CacheHandling.getExpire(session, requestUri, "GET") match {
+            case None =>
+              // recycle token, fetch a buffered resource
+              fetchResource(request)
 
-              case request :: tail =>
-                bufferedResourcesByHost += host -> tail
-                val requestUri = request.ahcRequest.getUri
-                CacheHandling.getExpire(session, requestUri, "GET") match {
-                  case None =>
-                    // recycle token, fetch a buffered resource
-                    fetchResource(request)
+            case Some(expire) if nowMillis > expire =>
+              // expire reached
+              session = CacheHandling.clearExpire(session, requestUri, "GET")
+              fetchResource(request)
 
-                  case Some(expire) if nowMillis > expire =>
-                    // expire reached
-                    session = CacheHandling.clearExpire(session, requestUri, "GET")
-                    fetchResource(request)
-
-                  case _ =>
-                    handleCachedResource(request)
-                    releaseTokenRec(tail)
-                }
-            }
-
-        val hostBufferedResources = bufferedResourcesByHost.get(uri.getHost) match {
-          case None            => Nil
-          case Some(resources) => resources
-        }
-
-        releaseTokenRec(hostBufferedResources)
+            case _ =>
+              handleCachedResource(request)
+          }
       }
 
     logger.debug(s"Resource $uri was fetched")
