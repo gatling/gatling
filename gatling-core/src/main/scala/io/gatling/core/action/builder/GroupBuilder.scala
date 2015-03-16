@@ -25,11 +25,11 @@ object GroupBuilder {
 
   def start(groupName: Expression[String]) = new ActionBuilder {
     def build(next: ActorRef, ctx: ScenarioContext) =
-      actor(actorName("groupStart"))(new GroupStart(groupName, next))
+      actor(actorName("groupStart"))(new GroupStart(groupName, ctx.dataWriters, next))
   }
 
   val End = new ActionBuilder {
     def build(next: ActorRef, ctx: ScenarioContext) =
-      actor(actorName("groupEnd"))(new GroupEnd(next))
+      actor(actorName("groupEnd"))(new GroupEnd(ctx.dataWriters, next))
   }
 }

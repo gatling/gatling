@@ -16,22 +16,11 @@
 package io.gatling.http.action
 
 import io.gatling.core.action.{ Failable, Interruptable }
-import io.gatling.core.result.message.{ RequestTimings, KO }
-import io.gatling.core.result.writer.DataWriterClient
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Validation
 
-object RequestAction extends DataWriterClient {
-
-  def reportUnbuildableRequest(requestName: String, session: Session, errorMessage: String): Unit = {
-    val now = nowMillis
-    val timings = RequestTimings(now, now, now, now)
-    logRequestEnd(session, requestName, timings, KO, Some(errorMessage))
-  }
-}
-
-abstract class RequestAction extends Interruptable with Failable {
+abstract class RequestAction(val dataWriters: DataWriters) extends Interruptable with Failable {
 
   def requestName: Expression[String]
   def sendRequest(requestName: String, session: Session): Validation[Unit]
@@ -40,9 +29,7 @@ abstract class RequestAction extends Interruptable with Failable {
     requestName(session).flatMap { resolvedRequestName =>
 
       val outcome = sendRequest(resolvedRequestName, session)
-
-      outcome.onFailure(errorMessage => RequestAction.reportUnbuildableRequest(resolvedRequestName, session, errorMessage))
-
+      outcome.onFailure(errorMessage => dataWriters.reportUnbuildableRequest(resolvedRequestName, session, errorMessage))
       outcome
     }
 }

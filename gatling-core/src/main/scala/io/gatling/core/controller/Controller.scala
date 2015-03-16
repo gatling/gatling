@@ -28,18 +28,18 @@ import akka.actor.ActorRef
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ End, Start }
-import io.gatling.core.result.writer.{ DataWriter, RunMessage, UserMessage }
+import io.gatling.core.result.writer.{ DataWriters, RunMessage, UserMessage }
 import io.gatling.core.runner.Selection
 import io.gatling.core.scenario.SimulationDef
 import io.gatling.core.util.TimeHelper.nowMillis
 
 object Controller extends AkkaDefaults with StrictLogging {
 
-  def newController(selection: Selection)(implicit configuration: GatlingConfiguration): ActorRef =
-    actor("gatling-controller")(new Controller(selection))
+  def apply(selection: Selection, dataWriters: DataWriters)(implicit configuration: GatlingConfiguration): ActorRef =
+    actor("gatling-controller")(new Controller(selection, dataWriters))
 }
 
-class Controller(selection: Selection)(implicit configuration: GatlingConfiguration)
+class Controller(selection: Selection, dataWriters: DataWriters)(implicit configuration: GatlingConfiguration)
     extends ControllerStateMachine {
 
   startWith(WaitingToStart, NoData)
@@ -48,28 +48,13 @@ class Controller(selection: Selection)(implicit configuration: GatlingConfigurat
 
   when(WaitingToStart) {
     case Event(Run(simulationDef), NoData) =>
-      val initializationData = initDataWriters(simulationDef, selection)
-      goto(WaitingForDataWritersToInit) using initializationData
-  }
-
-  private def initDataWriters(simulationDef: SimulationDef, selection: Selection): InitData = {
-    val runMessage = RunMessage(simulationDef.name, selection.simulationId, nowMillis, selection.description)
-    DataWriter.init(simulationDef.assertions, runMessage, simulationDef.scenarios, self)
-    InitData(runMessage.runId, sender(), simulationDef)
+      val initData = InitData(sender(), simulationDef)
+      processInitializationResult(initData)
   }
 
   // -- STEP 2 : Waiting for DataWriters to be initialized and confirm initialization -- //
 
-  when(WaitingForDataWritersToInit) {
-    case Event(DataWritersInitialized(result), initData: InitData) =>
-      processInitializationResult(result, initData)
-
-    case Event(message, _) =>
-      logger.error(s"Shouldn't happen. Ignore message $message while waiting for DataWriter to initialize")
-      stay()
-  }
-
-  private def processInitializationResult(result: Try[Unit], initData: InitData): State = {
+  private def processInitializationResult(initData: InitData): State = {
       def buildUserStreams: Map[String, UserStream] = {
         initData.simulationDef.scenarios.foldLeft((Map.empty[String, UserStream], 0)) { (streamsAndOffset, scenario) =>
           val (streams, offset) = streamsAndOffset
@@ -99,17 +84,10 @@ class Controller(selection: Selection)(implicit configuration: GatlingConfigurat
         scheduler
       }
 
-    result match {
-      case f: Failure[_] =>
-        initData.runner ! f
-        goto(Stopped)
-
-      case Success(_) =>
-        val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
-        val userStreams = buildUserStreams
-        val scheduler = startUpScenarios(userIdRoot, userStreams)
-        goto(Running) using RunData(initData, userStreams, scheduler, Map.empty, 0, initData.simulationDef.scenarios.map(_.injectionProfile.users).sum)
-    }
+    val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
+    val userStreams = buildUserStreams
+    val batchScheduler = startUpScenarios(userIdRoot, userStreams)
+    goto(Running) using RunData(initData, userStreams, batchScheduler, Map.empty, 0, initData.simulationDef.scenarios.map(_.injectionProfile.users).sum)
   }
 
   // -- STEP 3 : The Controller and Data Writers are fully initialized, Simulation is now running -- //
@@ -131,7 +109,7 @@ class Controller(selection: Selection)(implicit configuration: GatlingConfigurat
       def startNewUser: State = {
         val newActiveUsers = runData.activeUsers + (userMessage.userId -> userMessage)
         logger.info(s"Start user #${userMessage.userId}")
-        DataWriter ! userMessage
+        dataWriters ! userMessage
         stay() using runData.copy(activeUsers = newActiveUsers)
       }
 
@@ -166,11 +144,11 @@ class Controller(selection: Selection)(implicit configuration: GatlingConfigurat
 
   private def dispatchUserEndToDataWriter(userMessage: UserMessage): Unit = {
     logger.info(s"End user #${userMessage.userId}")
-    DataWriter ! userMessage
+    dataWriters ! userMessage
   }
 
   private def terminateDataWritersAndWaitForConfirmation(initData: InitData, exception: Option[Exception]): State = {
-    DataWriter.terminate(self)
+    dataWriters.terminate(self)
     goto(WaitingForDataWritersToTerminate) using EndData(initData, exception)
   }
 
@@ -186,10 +164,10 @@ class Controller(selection: Selection)(implicit configuration: GatlingConfigurat
       stay()
   }
 
-  private def answerToRunner(endData: EndData): Try[String] =
+  private def answerToRunner(endData: EndData): Try[Unit] =
     endData.exception match {
       case Some(exception) => Failure(exception)
-      case None            => Success(endData.initData.runId)
+      case None            => Success(())
     }
 
   // -- STEP 5 : Controller has been stopped, all new messages will be discarded -- //

@@ -15,6 +15,8 @@
  */
 package io.gatling.core.action
 
+import io.gatling.core.result.writer.DataWriters
+
 import scala.concurrent.duration.DurationLong
 
 import akka.actor.ActorRef
@@ -25,9 +27,10 @@ import io.gatling.core.util.TimeHelper.nowMillis
  * PauseAction provides a convenient means to implement pause actions based on random distributions.
  *
  * @param pauseDuration a function that can be used to generate a delay for the pause action
+ * @param dataWriters the DataWriters
  * @param next the next action to execute, which will be notified after the pause is complete
  */
-class Pause(pauseDuration: Expression[Long], val next: ActorRef) extends Interruptable with Failable {
+class Pause(pauseDuration: Expression[Long], val dataWriters: DataWriters, val next: ActorRef) extends Interruptable with Failable {
 
   /**
    * Generates a duration if required or use the one given and defer

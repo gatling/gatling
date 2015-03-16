@@ -21,7 +21,7 @@ import io.gatling.core.result.writer._
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.result.message._
 
-trait MockDataWriterClient extends DataWriterClient with StrictLogging {
+class MockDataWriters extends DataWriters(Nil) with StrictLogging {
 
   var dataWriterMsg: List[DataWriterMessage] = List()
 

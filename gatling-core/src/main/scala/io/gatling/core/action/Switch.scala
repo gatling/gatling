@@ -16,9 +16,10 @@
 package io.gatling.core.action
 
 import akka.actor.ActorRef
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Expression, Session }
 
-class Switch(nextAction: Expression[ActorRef], val next: ActorRef) extends Interruptable with Failable {
+class Switch(nextAction: Expression[ActorRef], val dataWriters: DataWriters, val next: ActorRef) extends Interruptable with Failable {
 
   def executeOrFail(session: Session) = nextAction(session).map(_ ! session)
 }

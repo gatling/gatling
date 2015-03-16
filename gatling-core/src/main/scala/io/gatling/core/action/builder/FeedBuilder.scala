@@ -38,5 +38,5 @@ object FeedBuilder extends AkkaDefaults {
 class FeedBuilder(instance: => ActorRef, number: Expression[Int]) extends ActionBuilder {
 
   def build(next: ActorRef, ctx: ScenarioContext) =
-    actor(actorName("feed"))(new Feed(instance, ctx.controller, number, next))
+    actor(actorName("feed"))(new Feed(instance, ctx.controller, number, ctx.dataWriters, next))
 }

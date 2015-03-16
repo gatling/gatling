@@ -22,7 +22,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.{ HeaderValues, HeaderNames }
 import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.check.HttpCheck
@@ -46,7 +45,7 @@ case class HttpAttributes(
 
 object HttpRequestBuilder {
 
-  implicit def toActionBuilder(requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher) =
+  implicit def toActionBuilder(requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine) =
     new HttpRequestActionBuilder(requestBuilder)
 
   val MultipartFormDataValueExpression = HeaderValues.MultipartFormData.expression

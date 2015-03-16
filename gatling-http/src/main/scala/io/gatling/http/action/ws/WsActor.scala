@@ -22,14 +22,14 @@ import akka.actor.ActorRef
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.CheckResult
 import io.gatling.core.result.message.{ RequestTimings, KO, OK, Status }
-import io.gatling.core.result.writer.DataWriterClient
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Success
 import io.gatling.http.ahc.{ HttpEngine, WsTx }
 import io.gatling.http.check.ws.{ ExpectedRange, UntilCount, ExpectedCount, WsCheck }
 
-class WsActor(wsName: String)(implicit httpEngine: HttpEngine) extends BaseActor with DataWriterClient {
+class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: HttpEngine) extends BaseActor {
 
   def receive = initialState
 
@@ -63,7 +63,7 @@ class WsActor(wsName: String)(implicit httpEngine: HttpEngine) extends BaseActor
 
   private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
     val timings = RequestTimings(started, ended, ended, ended)
-    logRequestEnd(session, requestName, timings, status, errorMessage)
+    dataWriters.logRequestEnd(session, requestName, timings, status, errorMessage)
   }
 
   val initialState: Receive = {

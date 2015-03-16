@@ -21,7 +21,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocol, HttpProtocolRequestPart }
-import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
@@ -32,10 +31,9 @@ class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
   implicit val configuration = GatlingConfiguration.loadForTest()
 
   trait Context {
+    implicit val httpCaches = new HttpCaches
     implicit val httpEngineMock = mock[HttpEngine]
     var session = Session("mockSession", "mockUserName")
-    implicit val httpCaches = new HttpCaches
-    implicit val resourceFetcher = mock[ResourceFetcher]
 
     val configBase = HttpRequestConfig(
       checks = Nil,

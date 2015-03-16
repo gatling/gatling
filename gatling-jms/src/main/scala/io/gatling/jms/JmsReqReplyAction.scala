@@ -15,6 +15,8 @@
  */
 package io.gatling.jms
 
+import io.gatling.core.result.writer.DataWriters
+
 import scala.util.control.NonFatal
 
 import java.util.concurrent.atomic.AtomicBoolean
@@ -38,15 +40,9 @@ object JmsReqReplyAction {
  * <p>
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  * This implementation then forwards it on to a tracking actor.
- * @author jasonk@bluedevel.com
  */
-class JmsReqReplyAction(
-  val next: ActorRef,
-  attributes: JmsAttributes,
-  protocol: JmsProtocol,
-  tracker: ActorRef)
-    extends Interruptable
-    with Failable {
+class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, val dataWriters: DataWriters, val next: ActorRef)
+    extends Interruptable with Failable {
 
   import JmsReqReplyAction._
 

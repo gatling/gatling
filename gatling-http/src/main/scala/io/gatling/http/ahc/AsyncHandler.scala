@@ -22,7 +22,6 @@ import com.ning.http.client.{ AsyncHandlerExtensions, HttpResponseBodyPart, Http
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
 import com.typesafe.scalalogging.StrictLogging
-import io.gatling.core.result.writer.DataWriterClient
 
 import scala.util.control.NonFatal
 
@@ -33,8 +32,9 @@ import scala.util.control.NonFatal
  *
  * @constructor constructs a GatlingAsyncHandler
  * @param tx the data about the request to be sent and processed
+ * @param httpEngine the HTTP engine
  */
-class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with DataWriterClient with StrictLogging {
+class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with StrictLogging {
 
   val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
   private val init = new AtomicBoolean
@@ -42,7 +42,7 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
 
   private def start(): Unit =
     if (init.compareAndSet(false, true)) {
-      logRequestStart(tx.session, tx.request.requestName)
+      httpEngine.dataWriters.logRequestStart(tx.session, tx.request.requestName)
       responseBuilder.updateFirstByteSent()
     }
 
@@ -95,7 +95,7 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
 
   override def onCompleted: Unit =
     if (done.compareAndSet(false, true)) {
-      try { AsyncHandlerActor.instance ! OnCompleted(tx, responseBuilder.build) }
+      try { httpEngine.asyncHandlerActors ! OnCompleted(tx, responseBuilder.build) }
       catch { case NonFatal(e) => sendOnThrowable(e) }
     }
 
@@ -117,6 +117,6 @@ class AsyncHandler(tx: HttpTx) extends ProgressAsyncHandler[Unit] with AsyncHand
     else
       logger.info(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}: $errorMessage")
 
-    AsyncHandlerActor.instance ! OnThrowable(tx, responseBuilder.build, errorMessage)
+    httpEngine.asyncHandlerActors ! OnThrowable(tx, responseBuilder.build, errorMessage)
   }
 }

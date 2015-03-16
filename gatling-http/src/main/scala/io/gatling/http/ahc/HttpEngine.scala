@@ -18,6 +18,10 @@ package io.gatling.http.ahc
 import java.util.{ ArrayList => JArrayList }
 import java.util.concurrent.{ ExecutorService, TimeUnit, Executors, ThreadFactory }
 
+import akka.routing.RoundRobinPool
+import io.gatling.core.result.writer.DataWriters
+import io.gatling.http.cache.HttpCaches
+import io.gatling.http.fetch.ResourceFetcher
 import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
@@ -31,7 +35,7 @@ import com.ning.http.client.providers.netty.channel.pool.{ ChannelPool, DefaultC
 import com.ning.http.client.ws.{ WebSocketListener, WebSocketUpgradeHandler }
 import com.typesafe.scalalogging.StrictLogging
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.ConfigKeys
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.check.CheckResult
@@ -108,36 +112,20 @@ object HttpEngine {
   val AhcAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.ahc"
 }
 
-trait HttpEngine {
-
-  def start(): Unit
-
-  def stop(): Unit
-
-  def newAhc(session: Session): AsyncHttpClient
-
-  def newAhc(session: Option[Session]): AsyncHttpClient
-
-  def defaultAhc: AsyncHttpClient
-
-  def httpClient(session: Session, protocol: HttpProtocol): (Session, AsyncHttpClient)
-
-  def startHttpTransaction(tx: HttpTx): Unit
-
-  def startSseTransaction(tx: SseTx, sseActor: ActorRef): Unit
-
-  def startWebSocketTransaction(tx: WsTx, wsActor: ActorRef): Unit
-}
-
-class AhcHttpEngine(implicit configuration: GatlingConfiguration) extends HttpEngine with AkkaDefaults with StrictLogging {
+class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCaches: HttpCaches) extends ResourceFetcher with AkkaDefaults with StrictLogging {
 
   // set up Netty LoggerFactory for slf4j instead of default JDK
   InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
 
-  lazy val state = loadInternalState()
-  lazy val defaultAhc = newAhc(None)
+  private[this] var _state: Option[InternalState] = None
+  private[this] def state: InternalState = _state.getOrElse(throw new IllegalStateException("HttpEngine hasn't been started"))
 
-  def start(): Unit = {
+  lazy val defaultAhc: AsyncHttpClient = newAhc(None)
+
+  def start(dataWriters: DataWriters): Unit = {
+
+    _state = Some(loadInternalState(dataWriters))
+
     system.registerOnTermination(stop())
     defaultAhc
   }
@@ -145,6 +133,7 @@ class AhcHttpEngine(implicit configuration: GatlingConfiguration) extends HttpEn
   def stop(): Unit = {
     state.applicationThreadPool.shutdown()
     state.nioThreadPool.shutdown()
+    _state = None
   }
 
   def newAhc(session: Session): AsyncHttpClient = newAhc(Some(session))
@@ -202,7 +191,7 @@ class AhcHttpEngine(implicit configuration: GatlingConfiguration) extends HttpEn
     }
 
     val ahcRequest = newTx.request.ahcRequest
-    val handler = new AsyncHandler(newTx)
+    val handler = new AsyncHandler(newTx, this)
 
     if (requestConfig.throttled)
       Throttler.throttle(tx.session.scenarioName, () => client.executeRequest(ahcRequest, handler))
@@ -232,7 +221,7 @@ class AhcHttpEngine(implicit configuration: GatlingConfiguration) extends HttpEn
     client.executeRequest(tx.request, handler)
   }
 
-  def loadInternalState() = {
+  def loadInternalState(dataWriters: DataWriters) = {
 
     import configuration.http.{ ahc => ahcConfig }
 
@@ -322,13 +311,19 @@ class AhcHttpEngine(implicit configuration: GatlingConfiguration) extends HttpEn
       ahcConfigBuilder.build
     }
 
-    new InternalState(applicationThreadPool, nioThreadPool, channelPool, nettyConfig, defaultAhcConfig)
+    val asyncHandlerActors = system.actorOf(RoundRobinPool(3 * Runtime.getRuntime.availableProcessors).props(Props(classOf[AsyncHandlerActor], configuration, this)), "asyncHandler")
+
+    new InternalState(applicationThreadPool, nioThreadPool, channelPool, nettyConfig, defaultAhcConfig, dataWriters, asyncHandlerActors)
   }
 
   case class InternalState(applicationThreadPool: ExecutorService,
                            nioThreadPool: ExecutorService,
                            channelPool: ChannelPool,
                            nettyConfig: NettyAsyncHttpProviderConfig,
-                           defaultAhcConfig: AsyncHttpClientConfig)
-}
+                           defaultAhcConfig: AsyncHttpClientConfig,
+                           dataWriters: DataWriters,
+                           asyncHandlerActors: ActorRef)
 
+  def dataWriters: DataWriters = state.dataWriters
+  def asyncHandlerActors: ActorRef = state.asyncHandlerActors
+}

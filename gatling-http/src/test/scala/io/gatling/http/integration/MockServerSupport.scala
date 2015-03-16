@@ -3,6 +3,7 @@ package io.gatling.http.integration
 import java.io.File
 
 import io.gatling.core.pause.Constant
+import io.gatling.core.result.writer.DataWriters
 import org.scalatest.mock.MockitoSugar
 
 import scala.concurrent.Await
@@ -19,18 +20,13 @@ import spray.http._
 
 import io.gatling.core.akka.GatlingActorSystem
 import io.gatling.core.config.{ GatlingConfiguration, Protocols }
-import io.gatling.core.controller.DataWritersInitialized
-import io.gatling.core.result.writer.{ DataWriter, RunMessage }
 import io.gatling.core.session.Session
 import io.gatling.core.structure.{ ScenarioContext, ScenarioBuilder }
 import io.gatling.core.test.ActorSupport
-import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.http.ahc.{ AsyncHandlerActor, HttpEngine }
-import io.gatling.http.cache.HttpCaches
+import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.config.{ HttpProtocolBuilder, DefaultHttpProtocol }
-import io.gatling.http.fetch.ResourceFetcher
 
-class MockServerSupport(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher)
+class MockServerSupport(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine)
     extends MockitoSugar with StrictLogging {
 
   // FIXME allocate random port
@@ -94,12 +90,7 @@ class MockServerSupport(implicit configuration: GatlingConfiguration, defaultHtt
       import testKit._
 
       try {
-        httpEngine.start()
-        AsyncHandlerActor.start
-
-        //Initialise DataWriter with fake data.
-        DataWriter.init(Nil, RunMessage("FakeSimulation", "fakesimulation1", nowMillis, "A fake run"), Nil, self)
-        expectMsgClass(classOf[DataWritersInitialized])
+        httpEngine.start(mock[DataWriters])
 
         f(this)(testKit)
       } finally {
@@ -122,7 +113,7 @@ class MockServerSupport(implicit configuration: GatlingConfiguration, defaultHtt
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(httpProtocol))(implicit testKit: TestKit with ImplicitSender) = {
     import testKit._
 
-    val actor = sb.build(testKit.self, ScenarioContext(mock[ActorRef], mock[ActorRef], protocols, Constant, false))
+    val actor = sb.build(testKit.self, ScenarioContext(mock[ActorRef], mock[DataWriters], mock[ActorRef], protocols, Constant, false))
     actor ! Session("TestSession", "testUser")
     expectMsgClass(timeout, classOf[Session])
   }

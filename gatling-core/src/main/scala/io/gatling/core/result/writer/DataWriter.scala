@@ -15,71 +15,10 @@
  */
 package io.gatling.core.result.writer
 
-import scala.concurrent.Future
-import scala.concurrent.duration.DurationInt
-import scala.util.{ Failure, Success }
-
-import akka.actor.{ Actor, ActorRef, Props }
-import akka.util.Timeout
-import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
+import io.gatling.core.akka.BaseActor
 import io.gatling.core.assertion.Assertion
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.{ DataWritersInitialized, DataWritersTerminated }
-import io.gatling.core.result.message._
-import io.gatling.core.scenario.Scenario
-import io.gatling.core.session.{ GroupBlock, Session }
-import io.gatling.core.util.TimeHelper._
 
 case class InitDataWriter(totalNumberOfUsers: Int)
-
-object DataWriter extends AkkaDefaults {
-
-  implicit val dataWriterTimeOut = Timeout(5 seconds)
-
-  private var _instances: Option[Seq[ActorRef]] = None
-
-  def instances = _instances match {
-    case Some(dw) => dw
-    case _        => throw new UnsupportedOperationException("DataWriters haven't been initialized")
-  }
-
-  def !(message: DataWriterMessage): Unit = instances.foreach(_ ! message)
-
-  def init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[Scenario], replyTo: ActorRef)(implicit configuration: GatlingConfiguration): Unit = {
-
-    _instances = {
-      val dw = configuration.data.dataWriterClasses.map { className =>
-        val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
-        system.actorOf(Props(clazz, configuration), clazz.getSimpleName)
-      }
-
-      system.registerOnTermination(_instances = None)
-
-      Some(dw)
-    }
-
-    val shortScenarioDescriptions = scenarios.map(scenario => ShortScenarioDescription(scenario.name, scenario.injectionProfile.users))
-    val responses = instances.map(_ ? Init(assertions, runMessage, shortScenarioDescriptions))
-
-      def allSucceeded(responses: Seq[Any]): Boolean =
-        responses.map {
-          case b: Boolean => b
-          case _          => false
-        }.forall(identity)
-
-    Future.sequence(responses)
-      .map(allSucceeded)
-      .map {
-        case true  => Success(())
-        case false => Failure(new Exception("DataWriters didn't initialize properly"))
-      }.foreach(t => replyTo ! DataWritersInitialized(t))
-  }
-
-  def terminate(replyTo: ActorRef): Unit = {
-    val responses = instances.map(_ ? Terminate)
-    Future.sequence(responses).onComplete(_ => replyTo ! DataWritersTerminated)
-  }
-}
 
 trait Flushable extends DataWriter {
 
@@ -134,43 +73,4 @@ abstract class DataWriter extends BaseActor {
   }
 
   def receive = uninitialized
-}
-
-trait DataWriterClient {
-
-  def logRequestStart(session: Session,
-                      requestName: String): Unit =
-    DataWriter ! RequestStartMessage(session.scenarioName,
-      session.userId,
-      session.groupHierarchy,
-      requestName,
-      nowMillis)
-
-  def logRequestEnd(session: Session,
-                    requestName: String,
-                    timings: RequestTimings,
-                    status: Status,
-                    message: Option[String] = None,
-                    extraInfo: List[Any] = Nil): Unit =
-    DataWriter ! RequestEndMessage(
-      session.scenarioName,
-      session.userId,
-      session.groupHierarchy,
-      requestName,
-      timings,
-      status,
-      message,
-      extraInfo)
-
-  def logGroupEnd(session: Session,
-                  group: GroupBlock,
-                  exitDate: Long): Unit =
-    DataWriter ! GroupMessage(
-      session.scenarioName,
-      session.userId,
-      group.hierarchy,
-      group.startDate,
-      exitDate,
-      group.cumulatedResponseTime,
-      group.status)
 }

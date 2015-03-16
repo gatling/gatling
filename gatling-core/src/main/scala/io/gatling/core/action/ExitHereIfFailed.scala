@@ -17,11 +17,11 @@ package io.gatling.core.action
 
 import akka.actor.ActorRef
 import io.gatling.core.result.message.KO
-import io.gatling.core.result.writer.DataWriterClient
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 
-class ExitHereIfFailed(userEnd: ActorRef, val next: ActorRef) extends Chainable with DataWriterClient {
+class ExitHereIfFailed(userEnd: ActorRef, dataWriters: DataWriters, val next: ActorRef) extends Chainable {
 
   def execute(session: Session): Unit = {
 
@@ -30,7 +30,7 @@ class ExitHereIfFailed(userEnd: ActorRef, val next: ActorRef) extends Chainable 
         val now = nowMillis
 
         session.blockStack.foreach {
-          case group: GroupBlock => logGroupEnd(session, group, now)
+          case group: GroupBlock => dataWriters.logGroupEnd(session, group, now)
           case _                 =>
         }
 

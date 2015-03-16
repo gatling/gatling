@@ -35,14 +35,13 @@ private[controller] trait ControllerStateMachine extends BaseActor with FSM[Cont
 
 private[controller] sealed trait ControllerState
 private[controller] case object WaitingToStart extends ControllerState
-private[controller] case object WaitingForDataWritersToInit extends ControllerState
 private[controller] case object Running extends ControllerState
 private[controller] case object WaitingForDataWritersToTerminate extends ControllerState
 private[controller] case object Stopped extends ControllerState
 
 private[controller] sealed trait ControllerData
 private[controller] case object NoData extends ControllerData
-private[controller] case class InitData(runId: String, runner: ActorRef, simulationDef: SimulationDef) extends ControllerData
+private[controller] case class InitData(runner: ActorRef, simulationDef: SimulationDef)
 private[controller] case class RunData(
   initData: InitData,
   userStreams: Map[String, UserStream],
@@ -56,7 +55,6 @@ private[controller] case class EndData(
 
 sealed trait ControllerMessage
 case class Run(simulation: SimulationDef) extends ControllerMessage
-case class DataWritersInitialized(success: Try[Unit]) extends ControllerMessage
 case class ForceTermination(e: Option[Exception] = None) extends ControllerMessage
 case object DataWritersTerminated extends ControllerMessage
 case class ScheduleNextUserBatch(scenarioName: String) extends ControllerMessage

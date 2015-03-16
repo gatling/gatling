@@ -5,12 +5,10 @@ import javax.jms.{ Message, MessageListener }
 import akka.actor.ActorRef
 import akka.testkit.{ ImplicitSender, TestKit }
 import io.gatling.core.config.{ GatlingConfiguration, Protocols }
-import io.gatling.core.controller.{ DataWritersTerminated, DataWritersInitialized }
 import io.gatling.core.pause.Constant
-import io.gatling.core.result.writer.{ RunMessage, DataWriter }
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.Session
 import io.gatling.core.structure.{ ScenarioContext, ScenarioBuilder }
-import io.gatling.core.util.TimeHelper._
 import io.gatling.jms.JmsDestination
 import io.gatling.jms._
 import io.gatling.jms.client.{ SimpleJmsClient, BrokerBasedSpecification }
@@ -48,15 +46,10 @@ trait JmsMockingSpec extends BrokerBasedSpecification with MockitoSugar with Jms
 
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit testKit: TestKit with ImplicitSender, configuration: GatlingConfiguration) = {
     import testKit._
-    DataWriter.init(Nil, RunMessage("JmsIntegrationSimulation", sb.name, nowMillis, "test run"), Nil, self)
-    expectMsgClass(classOf[DataWritersInitialized])
 
-    val actor = sb.build(self, ScenarioContext(mock[ActorRef], mock[ActorRef], protocols, Constant, throttled = false))
+    val actor = sb.build(self, ScenarioContext(mock[ActorRef], mock[DataWriters], mock[ActorRef], protocols, Constant, throttled = false))
     actor ! Session("TestSession", "testUser")
     val session = expectMsgClass(timeout, classOf[Session])
-
-    DataWriter.terminate(self)
-    expectMsg(DataWritersTerminated)
 
     session
   }

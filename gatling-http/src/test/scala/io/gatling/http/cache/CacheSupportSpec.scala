@@ -21,7 +21,6 @@ import com.ning.http.client.uri.Uri
 import io.gatling.core.result.message.RequestTimings
 import io.gatling.core.session.Session
 import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.fetch.ResourceFetcher
 import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.mock.MockitoSugar
 
@@ -36,9 +35,8 @@ class CacheSupportSpec extends FlatSpec with Matchers with MockitoSugar {
 
   // Default config
   implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val httpEngine = mock[HttpEngine]
   implicit val httpCaches = new HttpCaches
-  implicit val resourceFetcher = new ResourceFetcher
+  implicit val httpEngine = mock[HttpEngine]
 
   class CacheContext {
     val http = {

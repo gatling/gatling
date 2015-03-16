@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit.SECONDS
 
 import akka.actor.ActorRef
 import io.gatling.core.pause.Constant
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.structure.ScenarioContext
 import org.scalatest.mock.MockitoSugar
 
@@ -33,7 +34,7 @@ import io.gatling.core.test.ActorSupport
 
 class PaceSpec extends FlatSpec with Matchers with MockitoSugar {
 
-  val ctx = ScenarioContext(mock[ActorRef], mock[ActorRef], Protocols(), Constant, throttled = false)
+  val ctx = ScenarioContext(mock[ActorRef], mock[DataWriters], mock[ActorRef], Protocols(), Constant, throttled = false)
 
   "pace" should "run actions with a minimum wait time" in ActorSupport { testKit =>
     import testKit._

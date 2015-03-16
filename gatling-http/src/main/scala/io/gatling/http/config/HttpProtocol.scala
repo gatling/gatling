@@ -18,6 +18,8 @@ package io.gatling.http.config
 import java.net.InetAddress
 import java.util.regex.Pattern
 
+import io.gatling.core.result.writer.DataWriters
+
 import scala.util.control.NonFatal
 
 import com.ning.http.client._
@@ -30,15 +32,13 @@ import io.gatling.core.filter.Filters
 import io.gatling.core.session.{ Session, Expression, ExpressionWrapper }
 import io.gatling.core.util.RoundRobin
 import io.gatling.http.HeaderNames._
-import io.gatling.http.ahc.{ ChannelPoolPartitioning, AsyncHandlerActor, HttpEngine }
-import io.gatling.http.cache.HttpCaches
+import io.gatling.http.ahc.{ ChannelPoolPartitioning, HttpEngine }
 import io.gatling.http.check.HttpCheck
-import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.request.builder.Http
 import io.gatling.http.response.Response
 
-class DefaultHttpProtocol(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher) {
+class DefaultHttpProtocol(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine) {
 
   val value = HttpProtocol(
     baseURLs = Nil,
@@ -93,18 +93,12 @@ object HttpProtocol extends StrictLogging {
     requestPart: HttpProtocolRequestPart,
     responsePart: HttpProtocolResponsePart,
     wsPart: HttpProtocolWsPart,
-    proxyPart: HttpProtocolProxyPart)(implicit configuration: GatlingConfiguration,
-                                      httpEngine: HttpEngine,
-                                      httpCaches: HttpCaches,
-                                      resourceFetcher: ResourceFetcher): HttpProtocol = {
+    proxyPart: HttpProtocolProxyPart)(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine): HttpProtocol = {
 
-    val warmUpF = (httProtocol: HttpProtocol) => {
+    val warmUpF = (httProtocol: HttpProtocol, dataWriters: DataWriters) => {
       logger.info("Start warm up")
 
-      implicit val httpCaches = new HttpCaches
-
-      httpEngine.start()
-      AsyncHandlerActor.start
+      httpEngine.start(dataWriters)
 
       warmUpUrl match {
         case Some(url) =>
@@ -129,6 +123,7 @@ object HttpProtocol extends StrictLogging {
           val expression = "foo".expression
 
           implicit val protocol = this
+          implicit val httpCaches = httpEngine.httpCaches
 
           new Http(expression)
             .get(expression)
@@ -187,7 +182,7 @@ case class HttpProtocol(
   responsePart: HttpProtocolResponsePart,
   wsPart: HttpProtocolWsPart,
   proxyPart: HttpProtocolProxyPart,
-  warmUpF: HttpProtocol => Unit,
+  warmUpF: (HttpProtocol, DataWriters) => Unit,
   userEndF: HttpProtocol => Session => Unit)
     extends Protocol {
 
@@ -196,7 +191,7 @@ case class HttpProtocol(
   private val httpBaseUrlIterator = baseUrlIterator(baseURLs)
   def baseURL: Option[String] = httpBaseUrlIterator.next()
 
-  override def warmUp(): Unit = warmUpF(this)
+  override def warmUp(dataWriters: DataWriters): Unit = warmUpF(this, dataWriters)
 
   override def userEnd(session: Session): Unit = userEndF(this)(session)
 }

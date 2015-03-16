@@ -17,7 +17,6 @@ package io.gatling.http.config
 
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.fetch.ResourceFetcher
 import org.scalatest.{ FlatSpec, Matchers }
 import org.scalatest.mock.MockitoSugar
 
@@ -27,9 +26,8 @@ import io.gatling.http.request.ExtraInfo
 class HttpProtocolBuilderSpec extends FlatSpec with Matchers with MockitoSugar {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val httpEngine = mock[HttpEngine]
   implicit val httpCaches = new HttpCaches
-  implicit val resourceFetcher = new ResourceFetcher
+  implicit val httpEngine = mock[HttpEngine]
   implicit val httpProtocolBuilder = new HttpProtocolBuilder(new DefaultHttpProtocol().value)
 
   "http protocol configuration builder" should "support an optional extra info extractor" in {

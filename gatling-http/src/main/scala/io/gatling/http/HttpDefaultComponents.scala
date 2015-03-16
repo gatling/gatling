@@ -16,10 +16,9 @@
 package io.gatling.http
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.ahc.{ AhcHttpEngine, HttpEngine }
+import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.DefaultHttpProtocol
-import io.gatling.http.fetch.ResourceFetcher
 
 trait HttpDefaultComponents {
 
@@ -27,11 +26,9 @@ trait HttpDefaultComponents {
 
   private implicit def thisConfiguration = configurationForHttp
 
-  implicit lazy val httpEngine: HttpEngine = new AhcHttpEngine
-
   implicit lazy val httpCaches = new HttpCaches
 
-  implicit lazy val resourceFetcher = new ResourceFetcher
+  implicit lazy val httpEngine = new HttpEngine
 
   implicit lazy val defaultHttpProtocol = new DefaultHttpProtocol
 }

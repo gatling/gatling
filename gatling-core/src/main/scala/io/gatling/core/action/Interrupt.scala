@@ -21,7 +21,7 @@ import akka.actor.Actor.Receive
 import akka.actor.ActorRef
 import io.gatling.core.session._
 import io.gatling.core.result.message.KO
-import io.gatling.core.result.writer.DataWriterClient
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.util.TimeHelper.nowMillis
 
 object Interrupt {
@@ -131,12 +131,12 @@ object Interrupt {
  */
 case class Interruption(nextActor: ActorRef, nextSession: Session, groupsToClose: List[GroupBlock])
 
-object Interruptable extends DataWriterClient {
+object Interruptable {
 
-  private def doInterrupt(interruption: Interruption): Unit = {
+  private def doInterrupt(dataWriters: DataWriters, interruption: Interruption): Unit = {
     val now = nowMillis
     import interruption._
-    groupsToClose.foreach(logGroupEnd(nextSession, _, now))
+    groupsToClose.foreach(dataWriters.logGroupEnd(nextSession, _, now))
     nextActor ! nextSession
   }
 
@@ -145,9 +145,9 @@ object Interruptable extends DataWriterClient {
    * This logic is not directly in Interruptable trait as Interruptable behavior can me mixed in dynamically.
    * For example, loops and trymax blocks become interruptable once they've become initialized with the loop content.
    */
-  val TheInterrupt: Receive = {
-    case Interrupt.InterruptOnExitASAPLoop(interruption) => doInterrupt(interruption)
-    case Interrupt.InterruptOnTryMax(interruption)       => doInterrupt(interruption)
+  def interrupt(dataWriters: DataWriters): Receive = {
+    case Interrupt.InterruptOnExitASAPLoop(interruption) => doInterrupt(dataWriters, interruption)
+    case Interrupt.InterruptOnTryMax(interruption)       => doInterrupt(dataWriters, interruption)
   }
 }
 
@@ -156,7 +156,9 @@ object Interruptable extends DataWriterClient {
  */
 trait Interruptable extends Chainable {
 
-  val interrupt = Interruptable.TheInterrupt orElse super.receive
+  def dataWriters: DataWriters
+
+  val interrupt = Interruptable.interrupt(dataWriters) orElse super.receive
 
   abstract override def receive = interrupt
 }

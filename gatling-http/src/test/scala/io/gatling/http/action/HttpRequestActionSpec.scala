@@ -16,8 +16,6 @@
 package io.gatling.http.action
 
 import akka.actor.ActorContext
-import io.gatling.http.cache.HttpCaches
-import io.gatling.http.fetch.ResourceFetcher
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
 import org.scalatest.{ FlatSpec, Matchers }
@@ -28,6 +26,7 @@ import com.ning.http.client.uri.Uri
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.MockUtils
 
 class HttpRequestActionSpec extends FlatSpec with Matchers with MockitoSugar {
@@ -35,7 +34,7 @@ class HttpRequestActionSpec extends FlatSpec with Matchers with MockitoSugar {
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val httpCaches = new HttpCaches()
   implicit val httpEngineMock = mock[HttpEngine]
-  implicit val resourceFetcher = new ResourceFetcher
+  when(httpEngineMock.httpCaches).thenReturn(httpCaches)
   implicit val actorContext: ActorContext = null
 
   trait Context {
@@ -47,6 +46,7 @@ class HttpRequestActionSpec extends FlatSpec with Matchers with MockitoSugar {
 
   "HttpRequestAction" should "send same transaction with no redirect" in new Context {
     val tx = MockUtils.txTo("http://example.com/", session, cache = true)
+
     HttpRequestAction.startHttpTransaction(tx)
     verify(httpEngineMock, times(1)).startHttpTransaction(tx)
   }

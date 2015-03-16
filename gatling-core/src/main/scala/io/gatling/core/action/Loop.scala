@@ -17,6 +17,7 @@ package io.gatling.core.action
 
 import akka.actor.{ Actor, ActorRef }
 import akka.actor.ActorDSL.actor
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ LoopBlock, Expression, Session }
 
 /**
@@ -27,10 +28,10 @@ import io.gatling.core.session.{ LoopBlock, Expression, Session }
  * @param counterName the name of the counter for this loop
  * @param next the chain executed if testFunction evaluates to false
  */
-class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, next: ActorRef) extends Actor {
+class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, dataWriters: DataWriters, next: ActorRef) extends Actor {
 
   def initialized(innerLoop: ActorRef): Receive =
-    Interruptable.TheInterrupt orElse { case m => innerLoop forward m }
+    Interruptable.interrupt(dataWriters) orElse { case m => innerLoop forward m }
 
   val uninitialized: Receive = {
     case loopNext: ActorRef =>

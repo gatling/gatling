@@ -25,38 +25,40 @@ import io.gatling.http.check.ws.WsCheckBuilder
 import io.gatling.http.config.{ HttpProtocol, DefaultHttpProtocol }
 import io.gatling.http.request.builder.sse.SseOpenRequestBuilder
 
-class SseOpenActionBuilder(
-    requestName: Expression[String],
-    sseName: String,
-    requestBuilder: SseOpenRequestBuilder,
-    checkBuilder: Option[WsCheckBuilder] = None)(implicit defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine) extends HttpActionBuilder {
+class SseOpenActionBuilder(requestName: Expression[String],
+                           sseName: String,
+                           requestBuilder: SseOpenRequestBuilder,
+                           checkBuilder: Option[WsCheckBuilder] = None)(implicit defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine) extends HttpActionBuilder {
 
   def check(checkBuilder: WsCheckBuilder) = new SseOpenActionBuilder(requestName, sseName, requestBuilder, Some(checkBuilder))
 
   override def build(next: ActorRef, ctx: ScenarioContext): ActorRef = {
     val protocol = ctx.protocols.protocol[HttpProtocol]
     val request = requestBuilder.build(protocol)
-    actor(new SseOpenAction(requestName, sseName, request, checkBuilder, next, protocol))
+    actor(new SseOpenAction(requestName, sseName, request, checkBuilder, ctx.dataWriters, next, protocol))
   }
 }
 
 class SseSetCheckActionBuilder(requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext): ActorRef = actor(actorName("sseSetCheck"))(new SseSetCheckAction(requestName, checkBuilder, sseName, next))
+  def build(next: ActorRef, ctx: ScenarioContext): ActorRef =
+    actor(actorName("sseSetCheck"))(new SseSetCheckAction(requestName, checkBuilder, sseName, ctx.dataWriters, next))
 }
 
 class SseCancelCheckActionBuilder(requestName: Expression[String], sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext): ActorRef = actor(actorName("sseCancelCheck"))(new SseCancelCheckAction(requestName, sseName, next))
+  def build(next: ActorRef, ctx: ScenarioContext): ActorRef =
+    actor(actorName("sseCancelCheck"))(new SseCancelCheckAction(requestName, sseName, ctx.dataWriters, next))
 }
 
 class SseReconciliateActionBuilder(requestName: Expression[String], sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
   override def build(next: ActorRef, ctx: ScenarioContext): ActorRef =
-    actor(new SseReconciliateAction(requestName, sseName, next))
+    actor(new SseReconciliateAction(requestName, sseName, ctx.dataWriters, next))
 }
 
 class SseCloseActionBuilder(requestName: Expression[String], sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  override def build(next: ActorRef, ctx: ScenarioContext): ActorRef = actor(new SseCloseAction(requestName, sseName, next))
+  override def build(next: ActorRef, ctx: ScenarioContext): ActorRef =
+    actor(new SseCloseAction(requestName, sseName, ctx.dataWriters, next))
 }

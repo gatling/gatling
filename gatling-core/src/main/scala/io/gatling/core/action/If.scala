@@ -16,6 +16,7 @@
 package io.gatling.core.action
 
 import akka.actor.ActorRef
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Expression, Session }
 
 /**
@@ -25,9 +26,10 @@ import io.gatling.core.session.{ Expression, Session }
  * @param condition the condition that decides whether to execute thenNext or elseNext
  * @param thenNext the chain of actions executed if condition evaluates to true
  * @param elseNext chain of actions executed if condition evaluates to false
+ * @param dataWriters the DataWriters
  * @param next chain of actions executed if condition evaluates to false and elseNext equals None
  */
-class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, val next: ActorRef) extends Interruptable with Failable {
+class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, val dataWriters: DataWriters, val next: ActorRef) extends Interruptable with Failable {
 
   /**
    * Evaluates the condition and decides what to do next

@@ -16,7 +16,8 @@
 package io.gatling.core.runner
 
 import io.gatling.core.action.UserEnd
-import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.config.{ Protocols, GatlingConfiguration }
+import io.gatling.core.result.writer.{ RunMessage, DataWriters }
 
 import scala.concurrent.{ Await, TimeoutException }
 import scala.concurrent.duration._
@@ -48,12 +49,19 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
 
       simulation._beforeSteps.foreach(_.apply())
 
-      val controller = Controller.newController(selection)
-      val userEnd = UserEnd.newUserEnd(controller)
+      val runMessage = RunMessage(selection.simulationClass.getName, selection.simulationId, nowMillis, selection.description)
 
-      val simulationDef = simulation.build(controller, userEnd)
+      val dataWritersInit = DataWriters(simulation._populationBuilders, simulation._assertions, selection, runMessage)
+      val dataWriters = Await.result(dataWritersInit, 5 seconds).get
 
-      simulationDef.warmUp
+      val controller = Controller(selection, dataWriters)
+      val userEnd = UserEnd(controller)
+
+      val simulationDef = simulation.build(controller, dataWriters, userEnd)
+
+      simulationDef.scenarios.foldLeft(Protocols()) { (protocols, scenario) =>
+        protocols ++ scenario.ctx.protocols
+      }.warmUp(dataWriters)
 
       Throttler.start(simulationDef)
 
@@ -64,7 +72,7 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
       System.gc()
       System.gc()
 
-      val runResult = (controller ? Run).mapTo[Try[String]]
+      val runResult = (controller ? Run(simulationDef)).mapTo[Try[String]]
 
       val res = try {
         Await.result(runResult, simulationTimeout)
@@ -73,10 +81,10 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
       }
 
       res match {
-        case Success(runId: String) =>
+        case Success(_) =>
           println("Simulation finished")
           simulation._afterSteps.foreach(_.apply())
-          RunResult(runId, simulationDef.assertions.nonEmpty)
+          RunResult(runMessage.runId, simulationDef.assertions.nonEmpty)
 
         case Failure(t) => throw t
       }

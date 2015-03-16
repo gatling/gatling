@@ -20,9 +20,7 @@ import akka.actor.ActorRef
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.{ HttpProtocol, DefaultHttpProtocol }
-import io.gatling.http.fetch.ResourceFetcher
 import io.gatling.http.request.builder.HttpRequestBuilder
 
 /**
@@ -31,11 +29,11 @@ import io.gatling.http.request.builder.HttpRequestBuilder
  * @constructor creates an HttpRequestActionBuilder
  * @param requestBuilder the builder for the request that will be sent
  */
-class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher) extends HttpActionBuilder {
+class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine) extends HttpActionBuilder {
 
   def build(next: ActorRef, ctx: ScenarioContext): ActorRef = {
 
     val httpRequest = requestBuilder.build(ctx.protocols.protocol[HttpProtocol], ctx.throttled)
-    actor(actorName("httpRequest"))(new HttpRequestAction(httpRequest, next))
+    actor(actorName("httpRequest"))(new HttpRequestAction(httpRequest, ctx.dataWriters, next))
   }
 }

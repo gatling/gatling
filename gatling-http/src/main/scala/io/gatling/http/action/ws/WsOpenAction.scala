@@ -20,6 +20,7 @@ import com.ning.http.client.Request
 import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import io.gatling.core.action.Interruptable
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.{ HttpEngine, WsTx }
@@ -31,6 +32,7 @@ class WsOpenAction(
     wsName: String,
     request: Expression[Request],
     checkBuilder: Option[WsCheckBuilder],
+    val dataWriters: DataWriters,
     val next: ActorRef,
     protocol: HttpProtocol)(implicit httpEngine: HttpEngine) extends Interruptable {
 
@@ -39,7 +41,7 @@ class WsOpenAction(
       def open(tx: WsTx): Unit = {
         logger.info(s"Opening websocket '$wsName': Scenario '${session.scenarioName}', UserId #${session.userId}")
 
-        val wsActor = actor(context, actorName("wsActor"))(new WsActor(wsName))
+        val wsActor = actor(context, actorName("wsActor"))(new WsActor(wsName, dataWriters))
 
         httpEngine.startWebSocketTransaction(tx, wsActor)
       }

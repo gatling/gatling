@@ -40,7 +40,7 @@ class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counte
 
   def build(next: ActorRef, ctx: ScenarioContext) = {
     val safeCondition = condition.safe
-    val whileActor = actor(actorName(loopType.name))(new Loop(safeCondition, counterName, exitASAP, next))
+    val whileActor = actor(actorName(loopType.name))(new Loop(safeCondition, counterName, exitASAP, ctx.dataWriters, next))
     val loopNextActor = loopNext.build(whileActor, ctx)
     whileActor ! loopNextActor
     whileActor

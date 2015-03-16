@@ -18,14 +18,14 @@ package io.gatling.core.action
 import akka.actor.{ Actor, ActorRef }
 import akka.actor.ActorDSL.actor
 import io.gatling.core.result.message.KO
-import io.gatling.core.result.writer.DataWriterClient
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ TryMaxBlock, Session }
 import io.gatling.core.validation.{ Failure, Success }
 
-class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
+class TryMax(times: Int, counterName: String, dataWriters: DataWriters, next: ActorRef) extends Actor {
 
   def initialized(innerTryMax: ActorRef): Receive =
-    Interruptable.TheInterrupt orElse { case m => innerTryMax forward m }
+    Interruptable.interrupt(dataWriters) orElse { case m => innerTryMax forward m }
 
   val uninitialized: Receive = {
     case loopNext: ActorRef =>
@@ -37,13 +37,8 @@ class TryMax(times: Int, counterName: String, next: ActorRef) extends Actor {
   override def receive = uninitialized
 }
 
-class InnerTryMax(
-  times: Int,
-  loopNext: ActorRef,
-  counterName: String,
-  val next: ActorRef)
-    extends Chainable
-    with DataWriterClient {
+class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next: ActorRef)
+    extends Chainable {
 
   private def blockFailed(session: Session): Boolean = session.blockStack.headOption match {
     case Some(TryMaxBlock(_, _, KO)) => true

@@ -39,7 +39,7 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
     val nextAction = value.map(resolvedValue => possibleActions.getOrElse(resolvedValue, elseNextActor))
 
-    actor(actorName("switch"))(new Switch(nextAction, next))
+    actor(actorName("switch"))(new Switch(nextAction, ctx.dataWriters, next))
   }
 
   override def defaultProtocols: Set[Protocol] = {

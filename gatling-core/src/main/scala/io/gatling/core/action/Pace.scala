@@ -15,6 +15,8 @@
  */
 package io.gatling.core.action
 
+import io.gatling.core.result.writer.DataWriters
+
 import scala.concurrent.duration.{ Duration, DurationLong }
 
 import akka.actor.ActorRef
@@ -29,9 +31,10 @@ import io.gatling.core.util.TimeHelper.nowMillis
  * @param intervalExpr a function that decides how long to wait before the next iteration
  * @param counter the name of the counter used to keep track of the run state. Typically this would be random, but
  *                can be set explicitly if needed
+ * @param dataWriters the DataWriters
  * @param next the next actor in the chain
  */
-class Pace(intervalExpr: Expression[Duration], counter: String, val next: ActorRef) extends Interruptable with Failable {
+class Pace(intervalExpr: Expression[Duration], counter: String, val dataWriters: DataWriters, val next: ActorRef) extends Interruptable with Failable {
   /**
    * Pace keeps track of when it can next run using a counter in the session. If this counter does not exist, it will
    * run immediately. On each run, it increments the counter by intervalExpr.

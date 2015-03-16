@@ -16,12 +16,13 @@
 package io.gatling.http.action.sse
 
 import akka.actor.ActorRef
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Session, Expression }
 import io.gatling.core.validation.Validation
 import io.gatling.http.action.RequestAction
 
-class SseReconciliateAction(val requestName: Expression[String], sseName: String, val next: ActorRef)
-    extends RequestAction with SseAction {
+class SseReconciliateAction(val requestName: Expression[String], sseName: String, dataWriters: DataWriters, val next: ActorRef)
+    extends RequestAction(dataWriters) with SseAction {
 
   override def sendRequest(requestName: String,
                            session: Session): Validation[Unit] =

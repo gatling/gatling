@@ -32,7 +32,7 @@ class WsOpenActionBuilder(requestName: Expression[String], wsName: String, reque
   def build(next: ActorRef, ctx: ScenarioContext): ActorRef = {
     val protocol = ctx.protocols.protocol[HttpProtocol]
     val request = requestBuilder.build(protocol)
-    actor(actorName("wsOpen"))(new WsOpenAction(requestName, wsName, request, checkBuilder, next, protocol))
+    actor(actorName("wsOpen"))(new WsOpenAction(requestName, wsName, request, checkBuilder, ctx.dataWriters, next, protocol))
   }
 }
 
@@ -40,25 +40,30 @@ class WsSendActionBuilder(requestName: Expression[String], wsName: String, messa
 
   def check(checkBuilder: WsCheckBuilder) = new WsSendActionBuilder(requestName, wsName, message, Some(checkBuilder))
 
-  def build(next: ActorRef, ctx: ScenarioContext): ActorRef = actor(actorName("wsSend"))(new WsSendAction(requestName, wsName, message, checkBuilder, next))
+  def build(next: ActorRef, ctx: ScenarioContext): ActorRef =
+    actor(actorName("wsSend"))(new WsSendAction(requestName, wsName, message, checkBuilder, ctx.dataWriters, next))
 }
 
 class WsSetCheckActionBuilder(requestName: Expression[String], checkBuilder: WsCheckBuilder, wsName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext): ActorRef = actor(actorName("wsSetCheck"))(new WsSetCheckAction(requestName, checkBuilder, wsName, next))
+  def build(next: ActorRef, ctx: ScenarioContext): ActorRef =
+    actor(actorName("wsSetCheck"))(new WsSetCheckAction(requestName, checkBuilder, wsName, ctx.dataWriters, next))
 }
 
 class WsCancelCheckActionBuilder(requestName: Expression[String], wsName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext): ActorRef = actor(actorName("wsCancelCheck"))(new WsCancelCheckAction(requestName, wsName, next))
+  def build(next: ActorRef, ctx: ScenarioContext): ActorRef =
+    actor(actorName("wsCancelCheck"))(new WsCancelCheckAction(requestName, wsName, ctx.dataWriters, next))
 }
 
 class WsReconciliateActionBuilder(requestName: Expression[String], wsName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext): ActorRef = actor(actorName("wsReconciliate"))(new WsReconciliateAction(requestName, wsName, next))
+  def build(next: ActorRef, ctx: ScenarioContext): ActorRef =
+    actor(actorName("wsReconciliate"))(new WsReconciliateAction(requestName, wsName, ctx.dataWriters, next))
 }
 
 class WsCloseActionBuilder(requestName: Expression[String], wsName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext): ActorRef = actor(actorName("wsClose"))(new WsCloseAction(requestName, wsName, next))
+  def build(next: ActorRef, ctx: ScenarioContext): ActorRef =
+    actor(actorName("wsClose"))(new WsCloseAction(requestName, wsName, ctx.dataWriters, next))
 }

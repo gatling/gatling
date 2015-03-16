@@ -16,6 +16,7 @@
 package io.gatling.core.scenario
 
 import akka.actor.ActorRef
+import io.gatling.core.result.writer.DataWriters
 
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
@@ -28,9 +29,9 @@ import io.gatling.core.structure.PopulationBuilder
 
 abstract class Simulation {
 
-  private var _populationBuilders: List[PopulationBuilder] = Nil
+  private[core] var _populationBuilders: List[PopulationBuilder] = Nil
   private var _globalProtocols: Protocols = Protocols()
-  private var _assertions = Seq.empty[Assertion]
+  private[core] var _assertions = Seq.empty[Assertion]
   private var _maxDuration: Option[FiniteDuration] = None
   private var _globalPauseType: PauseType = Constant
   private var _globalThrottling: Option[ThrottlingProfile] = None
@@ -95,14 +96,14 @@ abstract class Simulation {
     }
   }
 
-  private[core] def build(controller: ActorRef, userEnd: ActorRef)(implicit configuration: GatlingConfiguration): SimulationDef = {
+  private[core] def build(controller: ActorRef, dataWriters: DataWriters, userEnd: ActorRef)(implicit configuration: GatlingConfiguration): SimulationDef = {
 
     require(_populationBuilders.nonEmpty, "No scenario set up")
     val duplicates = _populationBuilders.groupBy(_.scenarioBuilder.name).collect { case (name, scns) if scns.size > 1 => name }
     require(duplicates.isEmpty, s"Scenario names must be unique but found duplicates: $duplicates")
     _populationBuilders.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
 
-    val scenarios = _populationBuilders.map(_.build(controller, userEnd, _globalProtocols, _globalPauseType, _globalThrottling))
+    val scenarios = _populationBuilders.map(_.build(controller, dataWriters, userEnd, _globalProtocols, _globalPauseType, _globalThrottling))
 
     val scenarioThrottlings: Map[String, ThrottlingProfile] = _populationBuilders
       .flatMap(scn => scn.scenarioThrottling.map(t => scn.scenarioBuilder.name -> t)).toMap
@@ -132,10 +133,4 @@ case class SimulationDef(name: String,
                          assertions: Seq[Assertion],
                          maxDuration: Option[FiniteDuration],
                          globalThrottling: Option[ThrottlingProfile],
-                         scenarioThrottlings: Map[String, ThrottlingProfile]) {
-
-  def warmUp(implicit configuration: GatlingConfiguration): Unit =
-    scenarios.foldLeft(Protocols()) { (protocols, scenario) =>
-      protocols ++ scenario.ctx.protocols
-    }.warmUp
-}
+                         scenarioThrottlings: Map[String, ThrottlingProfile])

@@ -27,8 +27,6 @@ import io.gatling.core.test.ActorSupport
 import io.gatling.jms._
 import io.gatling.jms.check.JmsSimpleCheck
 
-class JmsRequestTrackerActorWithMockWriter extends JmsRequestTrackerActor with MockDataWriterClient
-
 class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with CoreModule with JmsModule with MockMessage {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
@@ -43,7 +41,8 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with CoreModule 
   "JmsRequestTrackerActor" should "pass to next to next actor when matching message is received" in ActorSupport { testKit =>
     import testKit._
 
-    val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
+    val dataWriters = new MockDataWriters
+    val tracker = TestActorRef(new JmsRequestTrackerActor(dataWriters))
 
     tracker ! MessageSent("1", 15, 20, Nil, session, testActor, "success")
     tracker ! MessageReceived("1", 30, textMessage("test"))
@@ -52,13 +51,14 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with CoreModule 
 
     ignoreDrift(nextSession) shouldBe session
     val expected = RequestEndMessage("mockSession", "mockUserName", Nil, "success", RequestTimings(15, 20, 20, 30), OK, None, Nil)
-    tracker.underlyingActor.dataWriterMsg should contain(expected)
+    dataWriters.dataWriterMsg should contain(expected)
   }
 
   it should "pass to next to next actor even if messages are out of sync" in ActorSupport { testKit =>
     import testKit._
 
-    val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
+    val dataWriters = new MockDataWriters
+    val tracker = TestActorRef(new JmsRequestTrackerActor(dataWriters))
 
     tracker ! MessageReceived("1", 30, textMessage("test"))
     tracker ! MessageSent("1", 15, 20, Nil, session, testActor, "outofsync")
@@ -67,14 +67,15 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with CoreModule 
 
     ignoreDrift(nextSession) shouldBe session
     val expected = RequestEndMessage("mockSession", "mockUserName", Nil, "outofsync", RequestTimings(15, 20, 20, 30), OK, None, Nil)
-    tracker.underlyingActor.dataWriterMsg should contain(expected)
+    dataWriters.dataWriterMsg should contain(expected)
   }
 
   it should "pass KO to next actor when check fails" in ActorSupport { testKit =>
     import testKit._
 
     val failedCheck = JmsSimpleCheck(_ => false)
-    val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
+    val dataWriters = new MockDataWriters
+    val tracker = TestActorRef(new JmsRequestTrackerActor(dataWriters))
 
     tracker ! MessageSent("1", 15, 20, List(failedCheck), session, testActor, "failure")
     tracker ! MessageReceived("1", 30, textMessage("test"))
@@ -83,14 +84,15 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with CoreModule 
 
     ignoreDrift(nextSession) shouldBe session.markAsFailed
     val expected = RequestEndMessage("mockSession", "mockUserName", Nil, "failure", RequestTimings(15, 20, 20, 30), KO, Some("Jms check failed"), Nil)
-    tracker.underlyingActor.dataWriterMsg should contain(expected)
+    dataWriters.dataWriterMsg should contain(expected)
   }
 
   it should "pass updated session to next actor if modified by checks" in ActorSupport { testKit =>
     import testKit._
 
     val check: JmsCheck = xpath("/id").saveAs("id")
-    val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
+    val dataWriters = new MockDataWriters
+    val tracker = TestActorRef(new JmsRequestTrackerActor(dataWriters))
 
     tracker ! MessageSent("1", 15, 20, List(check), session, testActor, "updated")
     tracker ! MessageReceived("1", 30, textMessage("<id>5</id>"))
@@ -99,13 +101,14 @@ class JmsRequestTrackerActorSpec extends FlatSpec with Matchers with CoreModule 
 
     ignoreDrift(nextSession) shouldBe session.set("id", "5")
     val expected = RequestEndMessage("mockSession", "mockUserName", Nil, "updated", RequestTimings(15, 20, 20, 30), OK, None, Nil)
-    tracker.underlyingActor.dataWriterMsg should contain(expected)
+    dataWriters.dataWriterMsg should contain(expected)
   }
 
   it should "pass information to session about response time in case group are used" in ActorSupport { testKit =>
     import testKit._
 
-    val tracker = TestActorRef[JmsRequestTrackerActorWithMockWriter]
+    val dataWriters = new MockDataWriters
+    val tracker = TestActorRef(new JmsRequestTrackerActor(dataWriters))
 
     val groupSession = session.enterGroup("group")
     tracker ! MessageSent("1", 15, 20, Nil, groupSession, testActor, "logGroupResponse")

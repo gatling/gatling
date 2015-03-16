@@ -15,6 +15,7 @@
  */
 package io.gatling.core.config
 
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.Session
 
 /**
@@ -22,7 +23,7 @@ import io.gatling.core.session.Session
  */
 trait Protocol {
 
-  def warmUp(): Unit = {}
+  def warmUp(dataWriters: DataWriters): Unit = {}
 
   def userEnd(session: Session): Unit = {}
 }

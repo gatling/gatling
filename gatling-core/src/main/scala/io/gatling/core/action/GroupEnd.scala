@@ -16,18 +16,18 @@
 package io.gatling.core.action
 
 import akka.actor.ActorRef
-import io.gatling.core.result.writer.DataWriterClient
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import com.typesafe.scalalogging.StrictLogging
 
-class GroupEnd(val next: ActorRef) extends Chainable with DataWriterClient with StrictLogging {
+class GroupEnd(dataWriters: DataWriters, val next: ActorRef) extends Chainable with StrictLogging {
 
   def execute(session: Session): Unit =
     session.blockStack match {
 
       case (group: GroupBlock) :: tail =>
-        logGroupEnd(session, group, nowMillis)
+        dataWriters.logGroupEnd(session, group, nowMillis)
         next ! session.exitGroup
 
       case _ =>

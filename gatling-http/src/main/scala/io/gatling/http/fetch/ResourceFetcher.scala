@@ -21,7 +21,6 @@ import com.ning.http.client.uri.Uri
 import scala.annotation.tailrec
 import scala.collection.mutable
 
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
@@ -30,9 +29,8 @@ import io.gatling.core.session._
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.cache._
 import io.gatling.core.validation._
-import io.gatling.http.action.{ RequestAction, HttpRequestAction }
+import io.gatling.http.action.HttpRequestAction
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
-import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request._
 import io.gatling.http.response._
@@ -49,7 +47,8 @@ case class CssResourceFetched(uri: Uri, status: Status, sessionUpdates: Session 
 case class InferredPageResources(expire: String, requests: List[HttpRequest])
 case class InferredResourcesCacheKey(protocol: HttpProtocol, uri: Uri)
 
-class ResourceFetcher(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine, httpCaches: HttpCaches) extends StrictLogging {
+trait ResourceFetcher {
+  self: HttpEngine =>
 
   // FIXME should CssContentCache use the same key?
   val CssContentCache = ThreadSafeCache[Uri, List[EmbeddedResource]](configuration.http.fetchedCssCacheMaxCapacity)
@@ -126,7 +125,7 @@ class ResourceFetcher(implicit configuration: GatlingConfiguration, httpEngine: 
           Some(httpRequest)
 
         case Failure(m) =>
-          RequestAction.reportUnbuildableRequest(requestName, session, m)
+          dataWriters.reportUnbuildableRequest(requestName, session, m)
           None
       }
 
@@ -178,7 +177,7 @@ class ResourceFetcher(implicit configuration: GatlingConfiguration, httpEngine: 
 }
 
 // FIXME handle crash
-class ResourceFetcherActor(primaryTx: HttpTx, initialResources: Seq[HttpRequest])(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher) extends BaseActor {
+class ResourceFetcherActor(primaryTx: HttpTx, initialResources: Seq[HttpRequest])(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine) extends BaseActor {
 
   // immutable state
   val protocol = primaryTx.request.config.protocol
@@ -220,7 +219,7 @@ class ResourceFetcherActor(primaryTx: HttpTx, initialResources: Seq[HttpRequest]
     val silent = HttpTx.silent(resource, false)
 
     val resourceFetched =
-      if (resourceFetcher.CssContentCache.cache.contains(uri))
+      if (httpEngine.CssContentCache.cache.contains(uri))
         CssResourceFetched(uri, OK, Session.Identity, silent, None, None, "")
       else
         RegularResourceFetched(uri, OK, Session.Identity, silent)
@@ -245,11 +244,11 @@ class ResourceFetcherActor(primaryTx: HttpTx, initialResources: Seq[HttpRequest]
     val (cached, nonCached) = resources.partition { resource =>
       val uri = resource.ahcRequest.getUri
       val method = resource.ahcRequest.getMethod
-      httpCaches.getExpires(session, uri, method) match {
+      httpEngine.httpCaches.getExpires(session, uri, method) match {
         case None => false
         case Some(expire) if nowMillis > expire =>
           // beware, side effecting
-          session = httpCaches.clearExpires(session, uri, method)
+          session = httpEngine.httpCaches.clearExpires(session, uri, method)
           false
         case _ => true
       }
@@ -289,14 +288,14 @@ class ResourceFetcherActor(primaryTx: HttpTx, initialResources: Seq[HttpRequest]
               case request :: tail =>
                 bufferedResourcesByHost += host -> tail
                 val requestUri = request.ahcRequest.getUri
-                httpCaches.getExpires(session, requestUri, "GET") match {
+                httpEngine.httpCaches.getExpires(session, requestUri, "GET") match {
                   case None =>
                     // recycle token, fetch a buffered resource
                     fetchResource(request)
 
                   case Some(expire) if nowMillis > expire =>
                     // expire reached
-                    session = httpCaches.clearExpires(session, requestUri, "GET")
+                    session = httpEngine.httpCaches.clearExpires(session, requestUri, "GET")
                     fetchResource(request)
 
                   case _ =>
@@ -325,14 +324,12 @@ class ResourceFetcherActor(primaryTx: HttpTx, initialResources: Seq[HttpRequest]
       releaseToken(uri.getHost)
   }
 
-  private def cssFetched(uri: Uri, status: Status, statusCode: Option[Int], lastModifiedOrEtag: Option[String], content: String)(implicit httpCaches: HttpCaches): Unit = {
-
-    import resourceFetcher._
+  private def cssFetched(uri: Uri, status: Status, statusCode: Option[Int], lastModifiedOrEtag: Option[String], content: String): Unit = {
 
       def parseCssResources(): List[HttpRequest] = {
-        val inferred = CssContentCache.cache.getOrElseUpdate(uri, CssParser.extractResources(uri, content))
-        val filtered = applyResourceFilters(inferred, filters)
-        resourcesToRequests(filtered, session, protocol, throttled)
+        val inferred = httpEngine.CssContentCache.cache.getOrElseUpdate(uri, CssParser.extractResources(uri, content))
+        val filtered = httpEngine.applyResourceFilters(inferred, filters)
+        httpEngine.resourcesToRequests(filtered, session, protocol, throttled)
       }
 
     if (status == OK) {
@@ -347,16 +344,16 @@ class ResourceFetcherActor(primaryTx: HttpTx, initialResources: Seq[HttpRequest]
 
                 val cacheKey = InferredResourcesCacheKey(protocol, uri)
 
-                InferredResourcesCache.cache.get(cacheKey) match {
+                httpEngine.InferredResourcesCache.cache.get(cacheKey) match {
                   case Some(InferredPageResources(`newLastModifiedOrEtag`, inferredResources)) =>
                     //cache entry didn't expire, use it
                     inferredResources
 
                   case _ =>
                     // cache entry missing or expired, set/update it
-                    CssContentCache.cache.remove(uri)
+                    httpEngine.CssContentCache.cache.remove(uri)
                     val inferredResources = parseCssResources()
-                    InferredResourcesCache.cache.put(InferredResourcesCacheKey(protocol, uri), InferredPageResources(newLastModifiedOrEtag, inferredResources))
+                    httpEngine.InferredResourcesCache.cache.put(InferredResourcesCacheKey(protocol, uri), InferredPageResources(newLastModifiedOrEtag, inferredResources))
                     inferredResources
                 }
 
@@ -367,7 +364,7 @@ class ResourceFetcherActor(primaryTx: HttpTx, initialResources: Seq[HttpRequest]
 
           case Some(304) =>
             // resource was already cached
-            InferredResourcesCache.cache.get(InferredResourcesCacheKey(protocol, uri)) match {
+            httpEngine.InferredResourcesCache.cache.get(InferredResourcesCacheKey(protocol, uri)) match {
               case Some(inferredPageResources) => inferredPageResources.requests
               case _ =>
                 logger.warn(s"Got a 304 for $uri but could find cache entry?!")

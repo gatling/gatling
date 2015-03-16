@@ -21,7 +21,7 @@ import akka.actor.ActorRef
 import io.gatling.core.Predef.Session
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.message.{ RequestTimings, Status, KO, OK }
-import io.gatling.core.result.writer.DataWriterClient
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.validation.Failure
 
 import javax.jms.Message
@@ -43,16 +43,14 @@ case class MessageSent(
 
 /**
  * Advise actor a response message was received from JMS provider
- * @author jasonk@bluedevel.com
  */
 case class MessageReceived(responseId: String, received: Long, message: Message)
 
 /**
  * Bookkeeping actor to correlate request and response JMS messages
  * Once a message is correlated, it publishes to the Gatling core DataWriter
- * @author jasonk@bluedevel.com
  */
-class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
+class JmsRequestTrackerActor(dataWriters: DataWriters) extends BaseActor {
 
   // messages to be tracked through this HashMap - note it is a mutable hashmap
   val sentMessages = mutable.HashMap.empty[String, (Long, Long, List[JmsCheck], Session, ActorRef, String)]
@@ -104,7 +102,7 @@ class JmsRequestTrackerActor extends BaseActor with DataWriterClient {
 
       def executeNext(updatedSession: Session, status: Status, message: Option[String] = None) = {
         val timings = RequestTimings(startSend, endSend, endSend, received)
-        logRequestEnd(updatedSession, title, timings, status, message)
+        dataWriters.logRequestEnd(updatedSession, title, timings, status, message)
         next ! updatedSession.logGroupRequest((received - startSend).toInt, status).increaseDrift(nowMillis - received)
       }
 

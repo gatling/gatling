@@ -21,23 +21,19 @@ import com.ning.http.client.{ Request, RequestBuilder }
 import com.ning.http.client.uri.Uri
 import com.ning.http.util.StringUtils.stringBuilder
 
-import akka.actor.{ ActorRef, Props }
 import akka.actor.ActorDSL.actor
-import akka.routing.RoundRobinPool
-import io.gatling.core.akka.{ AkkaDefaults, BaseActor }
+import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.Session
-import io.gatling.core.result.writer.DataWriterClient
 import io.gatling.core.util.StringHelper.Eol
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
 import io.gatling.http.action.HttpRequestAction
-import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.{ HttpCheck, HttpCheckScope }
 import io.gatling.http.cookie.CookieSupport
-import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched, ResourceFetcher }
+import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched }
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.request.ExtraInfo
 import io.gatling.http.response.Response
@@ -45,23 +41,7 @@ import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, resolveFromUri }
 import io.gatling.http.util.HttpStringBuilder
 
-object AsyncHandlerActor extends AkkaDefaults {
-
-  private var _instance: Option[ActorRef] = None
-
-  def start(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher): Unit =
-    if (!_instance.isDefined) {
-      _instance = Some(system.actorOf(RoundRobinPool(3 * Runtime.getRuntime.availableProcessors).props(Props(classOf[AsyncHandlerActor], configuration, httpEngine, httpCaches, resourceFetcher)), "asyncHandler"))
-      system.registerOnTermination(_instance = None)
-    }
-
-  def instance() = _instance match {
-    case Some(a) => a
-    case _       => throw new UnsupportedOperationException("AsyncHandlerActor pool hasn't been started")
-  }
-}
-
-class AsyncHandlerActor(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine, httpCaches: HttpCaches, resourceFetcher: ResourceFetcher) extends BaseActor with DataWriterClient {
+class AsyncHandlerActor(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine) extends BaseActor {
 
   override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
 
@@ -134,7 +114,7 @@ class AsyncHandlerActor(implicit configuration: GatlingConfiguration, httpEngine
           Nil
       }
 
-      logRequestEnd(
+      httpEngine.dataWriters.logRequestEnd(
         tx.session,
         fullRequestName,
         response.timings,
@@ -157,7 +137,7 @@ class AsyncHandlerActor(implicit configuration: GatlingConfiguration, httpEngine
     val protocol = tx.request.config.protocol
 
     if (tx.primary)
-      resourceFetcher.resourceFetcherActorForFetchedPage(tx.request.ahcRequest, response, tx) match {
+      httpEngine.resourceFetcherActorForFetchedPage(tx.request.ahcRequest, response, tx) match {
         case Some(resourceFetcherActor) =>
           actor(context, actorName("resourceFetcher"))(resourceFetcherActor())
 
@@ -271,7 +251,7 @@ class AsyncHandlerActor(implicit configuration: GatlingConfiguration, httpEngine
         response.statusCode match {
           case Some(code) if HttpHelper.isPermanentRedirect(code) =>
             val originalUri = originalRequest.getUri
-            httpCaches.addRedirect(_, originalUri, redirectUri)
+            httpEngine.httpCaches.addRedirect(_, originalUri, redirectUri)
           case _ => Session.Identity
         }
 
@@ -284,7 +264,7 @@ class AsyncHandlerActor(implicit configuration: GatlingConfiguration, httpEngine
           case _    => KO
         }
 
-        val cacheUpdate = httpCaches.cache(tx.request.config.protocol, tx.request.ahcRequest, response)
+        val cacheUpdate = httpEngine.httpCaches.cache(tx.request.config.protocol, tx.request.ahcRequest, response)
 
         val totalUpdate = sessionUpdate andThen cacheUpdate andThen checkSaveUpdate
 

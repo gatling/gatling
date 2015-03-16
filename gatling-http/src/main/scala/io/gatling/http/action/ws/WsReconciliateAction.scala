@@ -16,11 +16,12 @@
 package io.gatling.http.action.ws
 
 import akka.actor.ActorRef
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session._
 import io.gatling.core.validation.Validation
 import io.gatling.http.action.RequestAction
 
-class WsReconciliateAction(val requestName: Expression[String], wsName: String, val next: ActorRef) extends RequestAction {
+class WsReconciliateAction(val requestName: Expression[String], wsName: String, dataWriters: DataWriters, val next: ActorRef) extends RequestAction(dataWriters) {
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] = {
     for {

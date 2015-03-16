@@ -25,7 +25,7 @@ import io.gatling.core.util.TimeHelper.nowMillis
 
 object UserEnd extends AkkaDefaults {
 
-  def newUserEnd(controller: ActorRef): ActorRef = actor("userEnd")(new UserEnd(controller))
+  def apply(controller: ActorRef): ActorRef = actor("userEnd")(new UserEnd(controller))
 }
 
 class UserEnd(controller: ActorRef) extends Action {

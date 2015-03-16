@@ -17,10 +17,9 @@ package io.gatling.http.integration
 
 import io.gatling.core.CoreModule
 import io.gatling.http.HttpModule
-import io.gatling.http.ahc.{ HttpEngine, AhcHttpEngine }
+import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.DefaultHttpProtocol
-import io.gatling.http.fetch.ResourceFetcher
 import org.scalatest.FlatSpec
 import org.scalatest.Matchers.{ regex => _, _ }
 import org.scalatest.mock.MockitoSugar
@@ -38,9 +37,8 @@ class HttpIntegrationSpec extends FlatSpec with MockitoSugar with CoreModule wit
 
   "Gatling" should "send cookies returned in redirects in subsequent requests" in {
 
-    implicit val httpEngine: HttpEngine = new AhcHttpEngine
     implicit val httpCaches = new HttpCaches
-    implicit val resourceFetcher = new ResourceFetcher
+    implicit val httpEngine: HttpEngine = new HttpEngine
     implicit val defaultHttpProtocol = new DefaultHttpProtocol
 
     new MockServerSupport().exec { mockServerSupport =>
@@ -84,9 +82,8 @@ class HttpIntegrationSpec extends FlatSpec with MockitoSugar with CoreModule wit
 
   it should "retrieve linked resources, when resource downloading is enabled" in {
 
-    implicit val httpEngine: HttpEngine = new AhcHttpEngine
     implicit val httpCaches = new HttpCaches
-    implicit val resourceFetcher = new ResourceFetcher
+    implicit val httpEngine: HttpEngine = new HttpEngine
     implicit val defaultHttpProtocol = new DefaultHttpProtocol
 
     new MockServerSupport().exec { mockServerSupport =>
@@ -129,9 +126,8 @@ class HttpIntegrationSpec extends FlatSpec with MockitoSugar with CoreModule wit
 
   it should "fetch resources in conditional comments" in {
 
-    implicit val httpEngine: HttpEngine = new AhcHttpEngine
     implicit val httpCaches = new HttpCaches
-    implicit val resourceFetcher = new ResourceFetcher
+    implicit val httpEngine = new HttpEngine
     implicit val defaultHttpProtocol = new DefaultHttpProtocol
 
     new MockServerSupport().exec { mockServerSupport =>

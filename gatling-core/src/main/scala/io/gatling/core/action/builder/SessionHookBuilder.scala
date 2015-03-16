@@ -30,8 +30,10 @@ import io.gatling.core.structure.ScenarioContext
 class SessionHookBuilder(sessionFunction: Expression[Session], bypassable: Boolean = false) extends ActionBuilder {
 
   def build(next: ActorRef, ctx: ScenarioContext) =
-    if (bypassable)
-      actor(actorName("sessionHook"))(new SessionHook(sessionFunction, next) with Interruptable)
-    else
-      actor(actorName("sessionHook"))(new SessionHook(sessionFunction, next))
+    actor(actorName("sessionHook")) {
+      if (bypassable)
+        new SessionHook(sessionFunction, ctx.dataWriters, next) with Interruptable
+      else
+        new SessionHook(sessionFunction, ctx.dataWriters, next)
+    }
 }

@@ -16,6 +16,7 @@
 package io.gatling.core.action
 
 import akka.actor.ActorRef
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Expression, Session }
 
 /**
@@ -23,9 +24,10 @@ import io.gatling.core.session.{ Expression, Session }
  *
  * @constructor Constructs a SimpleAction
  * @param sessionFunction a function for manipulating the Session
+ * @param dataWriters the DataWriters
  * @param next the action to be executed after this one
  */
-class SessionHook(sessionFunction: Expression[Session], val next: ActorRef) extends Chainable with Failable {
+class SessionHook(sessionFunction: Expression[Session], val dataWriters: DataWriters, val next: ActorRef) extends Chainable with Failable {
 
   /**
    * Applies the function to the Session

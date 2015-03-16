@@ -16,12 +16,14 @@
 package io.gatling.http.action.ws
 
 import akka.actor.ActorRef
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.action.RequestAction
 import io.gatling.http.check.ws._
 import io.gatling.core.validation.Validation
 
-class WsSendAction(val requestName: Expression[String], wsName: String, message: Expression[WsMessage], checkBuilder: Option[WsCheckBuilder], val next: ActorRef) extends RequestAction with WsAction {
+class WsSendAction(val requestName: Expression[String], wsName: String, message: Expression[WsMessage], checkBuilder: Option[WsCheckBuilder], dataWriters: DataWriters, val next: ActorRef)
+    extends RequestAction(dataWriters) with WsAction {
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {

@@ -17,7 +17,6 @@ package io.gatling.http.request.builder
 
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.fetch.ResourceFetcher
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{ FlatSpec, Matchers }
 
@@ -35,7 +34,6 @@ class HttpRequestBuilderSpec extends FlatSpec with Matchers with ValidationValue
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val httpEngine = mock[HttpEngine]
   implicit val httpCaches = new HttpCaches
-  implicit val resourceFetcher = new ResourceFetcher
   val defaultHttpProtocol = new DefaultHttpProtocol().value
 
   private def performTest(addSignatureCalculator: HttpRequestBuilder => HttpRequestBuilder): Unit = {

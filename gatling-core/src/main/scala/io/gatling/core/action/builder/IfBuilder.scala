@@ -34,7 +34,7 @@ class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext
     val safeCondition = condition.safe
     val thenNextActor = thenNext.build(next, ctx)
     val elseNextActor = elseNext.map(_.build(next, ctx)).getOrElse(next)
-    actor(actorName("if"))(new If(safeCondition, thenNextActor, elseNextActor, next))
+    actor(actorName("if"))(new If(safeCondition, thenNextActor, elseNextActor, ctx.dataWriters, next))
   }
 
   override def defaultProtocols: Set[Protocol] = {

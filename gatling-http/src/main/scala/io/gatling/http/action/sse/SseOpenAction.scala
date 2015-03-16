@@ -19,6 +19,7 @@ import akka.actor.ActorDSL.actor
 import akka.actor.ActorRef
 import com.ning.http.client.Request
 import io.gatling.core.action.Interruptable
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.{ HttpEngine, SseTx }
@@ -30,6 +31,7 @@ class SseOpenAction(
     sseName: String,
     request: Expression[Request],
     checkBuilder: Option[WsCheckBuilder],
+    val dataWriters: DataWriters,
     val next: ActorRef,
     protocol: HttpProtocol)(implicit httpEngine: HttpEngine) extends Interruptable {
 
@@ -37,7 +39,7 @@ class SseOpenAction(
 
       def open(tx: SseTx): Unit = {
         logger.info(s"Opening and getting sse '$sseName': Scenario '${session.scenarioName}', UserId #${session.userId}")
-        val sseActor = actor(context)(new SseActor(sseName))
+        val sseActor = actor(context)(new SseActor(sseName, dataWriters))
         httpEngine.startSseTransaction(tx, sseActor)
       }
 
