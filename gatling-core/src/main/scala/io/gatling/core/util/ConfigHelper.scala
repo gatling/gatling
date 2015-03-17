@@ -28,5 +28,5 @@ object ConfigHelper {
    * @return the configuration with its fallback configs configured
    */
   def configChain(config: Config, fallbacks: Config*) =
-    fallbacks.foldLeft(config)(_ withFallback _)
+    fallbacks.foldLeft(config)(_ withFallback _).resolve
 }
