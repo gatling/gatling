@@ -13,7 +13,8 @@ gatling/layout.html
 
 {% set css_files = css_files + ['/styles/main.css'] %}
 
-{% set script_files = ['/scripts/vendor.js'] + script_files %}
+{% set script_files = script_files + ['/vendor/javascripts/modernizr.min.js'] %}
+{% set script_files = script_files + ['/vendor/javascripts/bootstrap.min.js'] %}
 
 {# do not display relbars #}
 {% block relbar1 %}{% endblock %}
