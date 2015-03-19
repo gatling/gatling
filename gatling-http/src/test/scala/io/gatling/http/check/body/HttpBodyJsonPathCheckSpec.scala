@@ -26,7 +26,7 @@ import io.gatling.http.HttpModule
 import io.gatling.http.response.{ Response, StringResponseBody }
 import org.mockito.Mockito._
 import org.scalatest.FlatSpec
-import org.scalatest.Matchers.{ regex => _, _ }
+import org.scalatest.Matchers._
 import org.scalatest.mock.MockitoSugar
 
 import scala.collection.mutable
