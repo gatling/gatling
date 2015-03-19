@@ -21,7 +21,7 @@ import scala.concurrent.duration._
 
 import akka.io.{ IO, Tcp }
 
-import io.gatling.core.util.Failures
+import io.gatling.core.util.Retry
 import io.gatling.metrics.message.SendMetric
 
 private[metrics] class TcpSender(
@@ -35,7 +35,7 @@ private[metrics] class TcpSender(
   askForConnection()
 
   // Wait for answer from IO manager
-  startWith(WaitingForConnection, DisconnectedData(new Failures(maxRetries, retryWindow)))
+  startWith(WaitingForConnection, DisconnectedData(new Retry(maxRetries, retryWindow)))
 
   when(WaitingForConnection) {
     // Connection succeeded: proceed to running state
@@ -48,7 +48,7 @@ private[metrics] class TcpSender(
     // Connection failed: either stop if all retries are exhausted or retry connection
     case Event(CommandFailed(_: Connect), DisconnectedData(failures)) =>
       logger.info(s"Failed to connect to Graphite server located at: $remote")
-      val newFailures = failures.newFailure
+      val newFailures = failures.newRetry
 
       stopIfLimitReachedOrContinueWith(newFailures) {
         scheduler.scheduleOnce(1.second)(askForConnection())
@@ -70,7 +70,7 @@ private[metrics] class TcpSender(
     // Connection actor failed to send metric, log it as a failure
     case Event(CommandFailed(_: Write), data: ConnectedData) =>
       logger.debug(s"Failed to write to Graphite server located at: $remote, retrying...")
-      val newFailures = data.failures.newFailure
+      val newFailures = data.failures.newRetry
 
       stopIfLimitReachedOrContinueWith(newFailures) {
         stay() using data.copy(failures = newFailures)
@@ -79,7 +79,7 @@ private[metrics] class TcpSender(
     // Server quits unexpectedly, retry connection
     case Event(PeerClosed | ErrorClosed(_), data: ConnectedData) =>
       logger.info(s"Disconnected from Graphite server located at: $remote, retrying...")
-      val newFailures = data.failures.newFailure
+      val newFailures = data.failures.newRetry
 
       stopIfLimitReachedOrContinueWith(newFailures) {
         scheduler.scheduleOnce(1.second)(askForConnection())
@@ -98,7 +98,7 @@ private[metrics] class TcpSender(
   def askForConnection(): Unit =
     IO(Tcp) ! Connect(remote)
 
-  def stopIfLimitReachedOrContinueWith(failures: Failures)(continueState: this.State) =
+  def stopIfLimitReachedOrContinueWith(failures: Retry)(continueState: this.State) =
     if (failures.isLimitReached) goto(RetriesExhausted) using NoData
     else continueState
 }

@@ -19,18 +19,20 @@ import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.util.TimeHelper.nowMillis
 
-private[gatling] class Failures private (maxFailuresLimit: Int, failureWindow: FiniteDuration, failures: List[Long]) {
+private[gatling] class Retry private (maxRetryLimit: Int, retryWindow: FiniteDuration, retries: List[Long]) {
 
-  def this(maxFailuresLimit: Int, failureWindow: FiniteDuration) =
-    this(maxFailuresLimit, failureWindow, Nil)
+  def this(maxRetryLimit: Int, retryWindow: FiniteDuration) =
+    this(maxRetryLimit, retryWindow, Nil)
 
-  private def copyWithNewFailures(failures: List[Long]) =
-    new Failures(maxFailuresLimit, failureWindow, failures)
+  private def copyWithNewRetries(retries: List[Long]) =
+    new Retry(maxRetryLimit, retryWindow, retries)
 
-  def newFailure: Failures = copyWithNewFailures(nowMillis :: cleanupOldFailures)
+  def newRetry: Retry = copyWithNewRetries(nowMillis :: cleanupOldRetries)
 
-  def isLimitReached = cleanupOldFailures.length >= maxFailuresLimit
+  def isLimitReached = cleanupOldRetries.length >= maxRetryLimit
 
-  private def cleanupOldFailures: List[Long] =
-    failures.filterNot(_ < (nowMillis - failureWindow.toMillis))
+  private def cleanupOldRetries: List[Long] = {
+    val now = nowMillis
+    retries.filterNot(_ < (now - retryWindow.toMillis))
+  }
 }
