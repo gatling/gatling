@@ -82,7 +82,7 @@ Throttling
 ==========
 
 If you want to reason in terms of requests per second and not in terms of concurrent users,
-consider using constantUsersPerSecond() to set the arrival rate of users, and therefore requests,
+consider using constantUsersPerSec(...) to set the arrival rate of users, and therefore requests,
 without need for throttling as well as it will be redundant in most cases.
 
 If this is not sufficient for some reason then Gatling supports throttling with the ``throttle`` method
