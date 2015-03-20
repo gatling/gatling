@@ -23,7 +23,7 @@ object Dependencies {
   private val scalalogging                  = "com.typesafe.scala-logging"            %% "scala-logging"               % "3.1.0"
   private val jackson                       = "com.fasterxml.jackson.jr"               % "jackson-jr-objects"          % "2.5.1"
   private val boon                          = "io.fastjson"                            % "boon"                        % "0.32"
-  private val jsonpath                      = "io.gatling"                            %% "jsonpath"                    % "0.6.2"
+  private val jsonpath                      = "io.gatling"                            %% "jsonpath"                    % "0.6.3"
   private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                % "3.6.4"
   private val jzlib                         = "com.jcraft"                             % "jzlib"                       % "1.1.3"
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                 % "2.14"
