@@ -73,13 +73,15 @@ case class JmsProtocolBuilder(
     contextFactory: String,
     listenerCount: Int,
     deliveryMode: Int = DeliveryMode.NON_PERSISTENT,
-    messageMatcher: JmsMessageMatcher = MessageIDMessageMatcher) {
+    messageMatcher: JmsMessageMatcher = MessageIDMessageMatcher,
+    receiveTimeout: Option[Long] = None) {
 
   def usePersistentDeliveryMode = copy(deliveryMode = DeliveryMode.PERSISTENT)
   def useNonPersistentDeliveryMode = copy(deliveryMode = DeliveryMode.NON_PERSISTENT)
   def matchByMessageID = messageMatcher(MessageIDMessageMatcher)
   def matchByCorrelationID = messageMatcher(CorrelationIDMessageMatcher)
   def messageMatcher(matcher: JmsMessageMatcher) = copy(messageMatcher = matcher)
+  def receiveTimeout(timeout: Long): JmsProtocolBuilder = copy(receiveTimeout = Some(timeout))
 
   def build = new JmsProtocol(
     contextFactory = contextFactory,
@@ -89,5 +91,6 @@ case class JmsProtocolBuilder(
     anonymousConnect = anonymousConnect,
     listenerCount = listenerCount,
     deliveryMode = deliveryMode,
-    messageMatcher)
+    messageMatcher = messageMatcher,
+    receiveTimeout = receiveTimeout)
 }
