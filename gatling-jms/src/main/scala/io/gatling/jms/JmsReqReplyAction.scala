@@ -57,6 +57,7 @@ class JmsReqReplyAction(
     protocol.deliveryMode,
     protocol.messageMatcher)
 
+  val receiveTimeout = protocol.receiveTimeout.getOrElse(0L)
   val messageMatcher = protocol.messageMatcher
 
   class ListenerThread(val continue: AtomicBoolean = new AtomicBoolean(true)) extends Thread(new Runnable {
@@ -64,7 +65,7 @@ class JmsReqReplyAction(
       val replyConsumer = client.createReplyConsumer(attributes.selector.orNull)
       try {
         while (continue.get) {
-          val m = replyConsumer.receive
+          val m = replyConsumer.receive(receiveTimeout)
           m match {
             case msg: Message =>
               tracker ! MessageReceived(messageMatcher.responseID(msg), nowMillis, msg)

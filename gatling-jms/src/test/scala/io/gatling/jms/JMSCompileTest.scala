@@ -36,6 +36,7 @@ class JMSCompileTest extends Simulation {
     .contextFactory("FFMQConstants.JNDI_CONTEXT_FACTORY")
     .listenerCount(1)
     .usePersistentDeliveryMode
+    .receiveTimeout(1000)
     .messageMatcher(IdentificationMatcher)
 
   val scn = scenario("JMS DSL test").repeat(1) {
