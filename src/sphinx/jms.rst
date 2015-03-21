@@ -30,6 +30,7 @@ Use the ``jms`` object in order to create a JMS protocol.
 * ``listenerCount``: the number of ReplyConsumers. mandatory (> 0)
 * ``useNonPersistentDeliveryMode`` / ``usePersistentDeliveryMode``: optional, default to non persistent
 * ``matchByMessageID`` / ``matchByCorrelationID`` / ``messageMatcher``: specify how request and response messages should be matched, default to matchByMessageID. Use matchByCorrelationID for ActiveMQ.
+* ``receiveTimeout``: optional receive timeout for JMS receive method, default is 0 - infinite
 
 JMS Request API
 ===============

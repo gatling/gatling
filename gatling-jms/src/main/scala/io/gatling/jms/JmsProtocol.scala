@@ -29,5 +29,6 @@ case class JmsProtocol(
   anonymousConnect: Boolean,
   listenerCount: Int,
   deliveryMode: Int,
+  receiveTimeout: Option[Long],
   messageMatcher: JmsMessageMatcher)
     extends Protocol
