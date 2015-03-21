@@ -7,7 +7,7 @@ class Feeders {
   {
     //#random-mail-generator
     import scala.util.Random
-    val feeder = Iterator.continually(Map("email" -> Random.alphanumeric.take(20).mkString("","@foo.com","")))
+    val feeder = Iterator.continually(Map("email" -> (Random.alphanumeric.take(20).mkString + "@foo.com")))
     //#random-mail-generator
 
     //#feed
