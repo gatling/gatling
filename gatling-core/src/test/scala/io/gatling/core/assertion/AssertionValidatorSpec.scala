@@ -50,8 +50,12 @@ class AssertionValidatorSpec extends FlatSpec with Matchers with MockitoSugar wi
                                       stats: Stats*) = {
       def mockAssertion(dataReader: DataReader) = when(dataReader.assertions) thenReturn conditions.map(_(metric))
 
-      def mockStats(stat: Stats, dataReader: DataReader) =
+      def mockStats(stat: Stats, dataReader: DataReader) = {
         when(dataReader.requestGeneralStats(stat.request, stat.group, stat.status)) thenReturn stat.generalStats
+        stat.group.foreach { group =>
+          when(dataReader.groupCumulatedResponseTimeGeneralStats(group, stat.status)) thenReturn stat.generalStats
+        }
+      }
 
       def statsPaths = stats.map(stat => (stat.request, stat.group)).map {
         case (Some(request), group) => RequestStatsPath(request, group)
