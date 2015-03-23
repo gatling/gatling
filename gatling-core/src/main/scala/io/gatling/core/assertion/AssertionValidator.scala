@@ -62,7 +62,7 @@ class AssertionValidator(implicit configuration: GatlingConfiguration) {
           Success(status => List(dataReader.requestGeneralStats(Some(request), group, status)))
 
         case Some(GroupStatsPath(group)) =>
-          Success(status => List(dataReader.requestGeneralStats(None, Some(group), status)))
+          Success(status => List(dataReader.groupCumulatedResponseTimeGeneralStats(group, status)))
       }
       generalStats match {
         case Success(stats) => resolveTarget(assertion, stats, parts.mkString(" / "))
