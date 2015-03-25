@@ -66,7 +66,7 @@ class AssertionValidator(implicit configuration: GatlingConfiguration) {
       }
       generalStats match {
         case Success(stats) => resolveTarget(assertion, stats, parts.mkString(" / "))
-        case Failure(msg)   => AssertionResult(result = false, msg)
+        case Failure(msg)   => AssertionResult(assertion, result = false, msg, Nil)
       }
   }
 
@@ -127,12 +127,16 @@ class AssertionValidator(implicit configuration: GatlingConfiguration) {
     resolveCondition(assertion, resolvedSelection.value, s"$path: ${resolvedSelection.message} of ${resolvedMetric.message}")
   }
 
-  private def resolveCondition(assertion: Assertion, values: List[Int], message: String) =
+  private def resolveCondition(assertion: Assertion, values: List[Int], message: String) = {
+
+      def assertionResult(result: Boolean, fullMessage: String) = AssertionResult(assertion, result, fullMessage, values)
+
     assertion.condition match {
-      case LessThan(upper)       => AssertionResult(values.forall(_ <= upper), s"$message is less than $upper")
-      case GreaterThan(lower)    => AssertionResult(values.forall(_ >= lower), s"$message is greater than $lower")
-      case Is(exactValue)        => AssertionResult(values.forall(_ == exactValue), s"$message is $exactValue")
-      case Between(lower, upper) => AssertionResult(values.forall(v => lower <= v && v <= upper), s"$message is between $lower and $upper")
-      case In(elements)          => AssertionResult(values.forall(elements contains), s"$message is in $elements")
+      case LessThan(upper)       => assertionResult(values.forall(_ <= upper), s"$message is less than $upper")
+      case GreaterThan(lower)    => assertionResult(values.forall(_ >= lower), s"$message is greater than $lower")
+      case Is(exactValue)        => assertionResult(values.forall(_ == exactValue), s"$message is $exactValue")
+      case Between(lower, upper) => assertionResult(values.forall(v => lower <= v && v <= upper), s"$message is between $lower and $upper")
+      case In(elements)          => assertionResult(values.forall(elements contains), s"$message is in $elements")
     }
+  }
 }

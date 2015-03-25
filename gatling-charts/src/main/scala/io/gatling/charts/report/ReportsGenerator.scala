@@ -37,6 +37,8 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
 
       def generateStats(): Unit = new StatsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance).generate()
 
+      def generateAssertions(): Unit = new AssertionsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance).generate()
+
       def copyAssets(): Unit = {
         deepCopyPackageContent(GatlingAssetsStylePackage, styleDirectory(reportFolderName))
         deepCopyPackageContent(GatlingAssetsJsPackage, jsDirectory(reportFolderName))
@@ -56,6 +58,7 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
     PageTemplate.setRunInfo(dataReader.runMessage, dataReader.runEnd)
     reportGenerators.foreach(_.generate())
     generateStats()
+    generateAssertions()
 
     globalFile(reportFolderName)
   }

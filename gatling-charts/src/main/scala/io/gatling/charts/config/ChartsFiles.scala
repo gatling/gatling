@@ -30,7 +30,9 @@ private[charts] object ChartsFiles {
   val MenuFile = "menu.js"
   val AllSessionsFile = "all_sessions.js"
   val StatsJsFile = "stats.js"
-  val StatsJSONFile = "global_stats.json"
+  val StatsJsonFile = "global_stats.json"
+  val AssertionsJsonFile = "assertions.json"
+  val AssertionsJUnitFile = "assertions.xml"
   val GlobalPageName = "Global Information"
 
   val CommonJsFiles = Seq(
@@ -45,7 +47,11 @@ private[charts] object ChartsFiles {
 
   def requestFile(runOn: String, requestName: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / requestName.toRequestFileName(configuration.core.charset)
 
-  def jsStatsFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsFile
+  def statsJsFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsFile
 
-  def jsonStatsFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJSONFile
+  def statsJsonFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsonFile
+
+  def assertionsJsonFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / AssertionsJsonFile
+
+  def assertionsJUnitFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / AssertionsJUnitFile
 }
