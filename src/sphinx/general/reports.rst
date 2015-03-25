@@ -76,7 +76,7 @@ Requests per second over time
     :alt: RequestsPerSecond
     :scale: 70
 
-This chart displays the number of requests per second over time : total, successes and failures.
+This chart displays the number of requests sent per second over time.
 
 Responses per second over time
 ------------------------------
