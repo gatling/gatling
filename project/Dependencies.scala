@@ -31,7 +31,7 @@ object Dependencies {
   private val zinc                          = "com.typesafe.zinc"                      % "zinc"                        % "0.3.5.3" exclude("org.scala-lang", "scala-compiler")
   private val openCsv                       = "net.sf.opencsv"                         % "opencsv"                     % "2.3"
   private val jmsApi                        = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"       % "1.1.1"
-  private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"             % "1.1.2"
+  private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"             % "1.1.3"
   private val tdigest                       = "com.tdunning"                           % "t-digest"                    % "3.0"
   private val lru                           = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru" % "1.4.2"
   private val bouncycastle                  = "org.bouncycastle"                       % "bcpkix-jdk15on"              % "1.52"
