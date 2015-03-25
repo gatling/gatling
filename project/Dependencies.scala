@@ -6,15 +6,13 @@ object Dependencies {
   /** Compile dependencies **/
   /**************************/
 
-  private val akkaVersion                    = "2.3.9"
-
   private def scalaReflect(version: String) = "org.scala-lang"                         % "scala-reflect"               % version
   private val scalaSwing                    = "org.scala-lang.modules"                %% "scala-swing"                 % "1.0.1"
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                   % "1.0.3"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"    % "1.0.3"
   private val ahc                           = "com.ning"                               % "async-http-client"           % "1.9.15"
   private val netty                         = "io.netty"                               % "netty"                       % "3.10.0.Final"
-  private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                  % akkaVersion
+  private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                  % "2.3.9"
   private val config                        = "com.typesafe"                           % "config"                      % "1.2.1"
   private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                    % "9.6.0-4"
   private val slf4jApi                      = "org.slf4j"                              % "slf4j-api"                   % "1.7.10"
@@ -40,14 +38,14 @@ object Dependencies {
   /** Test dependencies **/
   /***********************/
 
-  private val scalaTest                      = "org.scalatest"                         %% "scalatest"                   % "2.2.4"       % "test"
-  private val scalaCheck                     = "org.scalacheck"                        %% "scalacheck"                  % "1.12.2"      % "test"
-  private val akkaTestKit                    = "com.typesafe.akka"                     %% "akka-testkit"                % akkaVersion   % "test"
-  private val mockitoCore                    = "org.mockito"                            % "mockito-core"                % "1.10.19"     % "test"
-  private val activemqCore                   = "org.apache.activemq"                    % "activemq-broker"             % "5.8.0"       % "test"
-  private val sprayCan                       = "io.spray"                              %% "spray-can"                   % "1.3.3"       % "test"
-  private val h2                             = "com.h2database"                         % "h2"                          % "1.4.186"     % "test"
-  private val ffmq                           = "net.timewalker.ffmq"                    % "ffmq3-core"                  % "3.0.7"       % "test" exclude("log4j", "log4j") exclude("javax.jms", "jms")
+  private val scalaTest                      = "org.scalatest"                         %% "scalatest"                   % "2.2.4"             % "test"
+  private val scalaCheck                     = "org.scalacheck"                        %% "scalacheck"                  % "1.12.2"            % "test"
+  private val akkaTestKit                    = "com.typesafe.akka"                     %% "akka-testkit"                % akkaActor.revision  % "test"
+  private val mockitoCore                    = "org.mockito"                            % "mockito-core"                % "1.10.19"           % "test"
+  private val activemqCore                   = "org.apache.activemq"                    % "activemq-broker"             % "5.8.0"             % "test"
+  private val sprayCan                       = "io.spray"                              %% "spray-can"                   % "1.3.3"             % "test"
+  private val h2                             = "com.h2database"                         % "h2"                          % "1.4.186"           % "test"
+  private val ffmq                           = "net.timewalker.ffmq"                    % "ffmq3-core"                  % "3.0.7"             % "test" exclude("log4j", "log4j") exclude("javax.jms", "jms")
 
   private val testDeps = Seq(scalaTest, scalaCheck, akkaTestKit, mockitoCore)
 
