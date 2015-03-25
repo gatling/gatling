@@ -28,9 +28,8 @@ import akka.actor.ActorRef
 import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ End, Start }
-import io.gatling.core.result.writer.{ DataWriters, RunMessage, UserMessage }
+import io.gatling.core.result.writer.{ DataWriters, UserMessage }
 import io.gatling.core.runner.Selection
-import io.gatling.core.scenario.SimulationDef
 import io.gatling.core.util.TimeHelper.nowMillis
 
 object Controller extends AkkaDefaults with StrictLogging {
@@ -87,7 +86,8 @@ class Controller(selection: Selection, dataWriters: DataWriters)(implicit config
     val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
     val userStreams = buildUserStreams
     val batchScheduler = startUpScenarios(userIdRoot, userStreams)
-    goto(Running) using RunData(initData, userStreams, batchScheduler, Map.empty, 0, initData.simulationDef.scenarios.map(_.injectionProfile.users).sum)
+    val totalUsers = initData.simulationDef.scenarios.map(_.injectionProfile.users).sum
+    goto(Running) using RunData(initData, userStreams, batchScheduler, Map.empty, 0, totalUsers)
   }
 
   // -- STEP 3 : The Controller and Data Writers are fully initialized, Simulation is now running -- //
