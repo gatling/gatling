@@ -36,7 +36,7 @@ private[metrics] object GraphiteDataWriter {
   val AllUsersKey = UsersRootKey / "allUsers"
 }
 
-private[gatling] class GraphiteDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter with Flushable {
+private[gatling] class GraphiteDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter {
   import GraphiteDataWriter._
   import GraphitePath._
 

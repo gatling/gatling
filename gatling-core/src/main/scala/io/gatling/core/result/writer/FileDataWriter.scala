@@ -113,6 +113,8 @@ class FileDataWriter(implicit configuration: GatlingConfiguration) extends DataW
   private val encoder = configuration.core.charset.newEncoder
   private var channel: FileChannel = _
 
+  override def onFlush(): Unit = {}
+
   private def flush(): Unit = {
     buffer.flip()
     while (buffer.hasRemaining)

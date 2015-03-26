@@ -20,17 +20,6 @@ import io.gatling.core.assertion.Assertion
 
 case class InitDataWriter(totalNumberOfUsers: Int)
 
-trait Flushable extends DataWriter {
-
-  def onFlush(): Unit
-
-  val receiveFlush: Receive = {
-    case Flush => onFlush()
-  }
-
-  abstract override def initialized: Receive = receiveFlush orElse super.initialized
-}
-
 /**
  * Abstract class for all DataWriters
  *
@@ -56,7 +45,11 @@ abstract class DataWriter extends BaseActor {
 
   def onMessage(message: LoadEventMessage): Unit
 
+  def onFlush(): Unit
+
   def initialized: Receive = {
+
+    case Flush => onFlush()
 
     case Terminate => try {
       onTerminate()

@@ -24,7 +24,7 @@ import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ End, Start }
 
-class LeakReporterDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter with Flushable {
+class LeakReporterDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter {
 
   val noActivityTimeout = configuration.data.leak.noActivityTimeout seconds
   private var lastTouch = 0L
@@ -40,7 +40,7 @@ class LeakReporterDataWriter(implicit configuration: GatlingConfiguration) exten
     val timeSinceLastTouch = (currentTimeMillis - lastTouch) / 1000
 
     if (timeSinceLastTouch > noActivityTimeout.toSeconds && events.nonEmpty) {
-      System.err.println(s"Gatling had no activity during last ${noActivityTimeout.toString}. It could be a virtual user leak, here's their last events:")
+      System.err.println(s"Gatling had no activity during last $noActivityTimeout. It could be a virtual user leak, here's their last events:")
       events.values.foreach(System.err.println)
     }
   }
