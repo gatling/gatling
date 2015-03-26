@@ -15,10 +15,10 @@
  */
 package io.gatling.core.result.writer
 
-import io.gatling.core.akka.BaseActor
-import io.gatling.core.assertion.Assertion
+import akka.actor.ActorRef
 
-case class InitDataWriter(totalNumberOfUsers: Int)
+import scala.reflect.ClassTag
+import scala.util.control.NonFatal
 
 /**
  * Abstract class for all DataWriters
@@ -26,44 +26,52 @@ case class InitDataWriter(totalNumberOfUsers: Int)
  * These writers are responsible for writing the logs that will be read to
  * generate the statistics
  */
-abstract class DataWriter extends BaseActor {
+abstract class DataWriter[T <: DataWriterData: ClassTag] extends DataWriterFSM {
 
-  def onInitialize(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean
+  startWith(Uninitialized, NoData)
 
-  def onTerminate(): Unit
+  def onInit(init: Init, controller: ActorRef): T
 
-  def uninitialized: Receive = {
-    case Init(assertions, runMessage, scenarios) =>
+  def onFlush(data: T): Unit
+
+  def onTerminate(data: T): Unit
+
+  def onMessage(message: LoadEventMessage, data: T): Unit
+
+  when(Uninitialized) {
+    case Event(init: Init, NoData) =>
       logger.info("Initializing")
-      val status = onInitialize(assertions, runMessage, scenarios)
-      logger.info("Initialized")
-      context.become(initialized)
-      sender ! status
-
-    case m: DataWriterMessage => logger.error(s"Can't handle $m when in uninitialized state, discarding")
+      try {
+        val newState = onInit(init, sender())
+        logger.info("Initialized")
+        sender ! true
+        goto(Initialized) using (newState)
+      } catch {
+        case NonFatal(e) =>
+          logger.error("DataWriter failed to initialize", e)
+          sender ! false
+          goto(Terminated)
+      }
   }
 
-  def onMessage(message: LoadEventMessage): Unit
+  // FIXME type erasure
+  when(Initialized) {
+    case Event(Flush, data: Any) =>
+      onFlush(data.asInstanceOf[T])
+      stay()
 
-  def onFlush(): Unit
+    case Event(Flush, data: Any) =>
+      onTerminate(data.asInstanceOf[T])
+      goto(Terminated) using NoData
 
-  def initialized: Receive = {
-
-    case Flush => onFlush()
-
-    case Terminate => try {
-      onTerminate()
-    } finally {
-      context.become(terminated)
-      sender ! true
-    }
-
-    case message: LoadEventMessage => onMessage(message)
+    case Event(message: LoadEventMessage, data: Any) =>
+      onMessage(message, data.asInstanceOf[T])
+      stay()
   }
 
-  def terminated: Receive = {
-    case m => logger.info(s"Can't handle $m after being flush")
+  whenUnhandled {
+    case Event(m, data) =>
+      logger.info(s"Can't handle $m in state $stateName")
+      stay()
   }
-
-  def receive = uninitialized
 }

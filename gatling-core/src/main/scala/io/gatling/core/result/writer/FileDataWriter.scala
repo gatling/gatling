@@ -16,13 +16,14 @@
 package io.gatling.core.result.writer
 
 import java.io.RandomAccessFile
+import java.nio.charset.CharsetEncoder
 import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.channels.FileChannel
 
+import akka.actor.ActorRef
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.assertion.Assertion
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.PathHelper._
@@ -99,58 +100,67 @@ object FileDataWriter {
   }
 }
 
+case class FileData(limit: Int, buffer: ByteBuffer, encoder: CharsetEncoder, channel: FileChannel) extends DataWriterData
+
 /**
  * File implementation of the DataWriter
  *
  * It writes the data of the simulation if a tabulation separated values file
  */
-class FileDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter {
+class FileDataWriter extends DataWriter[FileData] {
 
   import FileDataWriter._
 
-  private val limit = configuration.data.file.bufferSize
-  private val buffer: ByteBuffer = ByteBuffer.allocate(limit * 2)
-  private val encoder = configuration.core.charset.newEncoder
-  private var channel: FileChannel = _
+  def onInit(init: Init, controller: ActorRef): FileData = {
 
-  override def onFlush(): Unit = {}
+    import init._
 
-  private def flush(): Unit = {
+    val simulationLog = simulationLogDirectory(runMessage.runId)(configuration) / "simulation.log"
+
+    val limit = configuration.data.file.bufferSize
+
+    val channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
+
+    val data = FileData(limit, ByteBuffer.allocate(limit * 2), configuration.core.charset.newEncoder, channel)
+
+    system.registerOnTermination(channel.close())
+    assertions.foreach(assertion => push(assertion, data))
+    push(runMessage, data)
+
+    data
+  }
+
+  override def onFlush(data: FileData): Unit = {}
+
+  private def flush(data: FileData): Unit = {
+    import data._
     buffer.flip()
     while (buffer.hasRemaining)
       channel.write(buffer)
     buffer.clear()
   }
 
-  private def push[T](message: T)(implicit serializer: DataWriterMessageSerializer[T]): Unit = {
+  private def push[T](message: T, data: FileData)(implicit serializer: DataWriterMessageSerializer[T]): Unit = {
+
+    import data._
 
     val fs = serializer.serialize(message)
 
     for (string <- fs)
       encoder.encode(CharBuffer.wrap(string.unsafeChars), buffer, false)
     if (buffer.position >= limit)
-      flush()
+      flush(data)
   }
 
-  override def onInitialize(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
-    val simulationLog = simulationLogDirectory(run.runId) / "simulation.log"
-    channel = new RandomAccessFile(simulationLog.toFile, "rw").getChannel
-    buffer.clear()
-    system.registerOnTermination(channel.close())
-    assertions.foreach(assertion => push(assertion))
-    push(run)
-    true
-  }
-
-  override def onMessage(message: LoadEventMessage): Unit = message match {
-    case user: UserMessage          => push(user)
-    case group: GroupMessage        => push(group)
-    case request: RequestEndMessage => push(request)
+  override def onMessage(message: LoadEventMessage, data: FileData): Unit = message match {
+    case user: UserMessage          => push(user, data)
+    case group: GroupMessage        => push(group, data)
+    case request: RequestEndMessage => push(request, data)
     case _                          =>
   }
 
-  override def onTerminate(): Unit = {
-    flush()
-    channel.force(true)
+  override def onTerminate(data: FileData): Unit = {
+    flush(data)
+    data.channel.force(true)
   }
 }

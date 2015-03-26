@@ -25,7 +25,7 @@ import io.gatling.core.config.GatlingConfiguration
 
 class ConsoleDataWriterSpec extends FlatSpec with Matchers {
 
-  implicit val configuration = GatlingConfiguration.loadForTest()
+  val configuration = GatlingConfiguration.loadForTest()
 
   val time = new GregorianCalendar(2012, 8, 24, 13, 37).getTime
 
@@ -39,7 +39,7 @@ class ConsoleDataWriterSpec extends FlatSpec with Matchers {
 
     val counters = new UserCounters(11)
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, time)
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, configuration, time)
     summary.complete shouldBe false
     progressBar(summary) shouldBe "[                                                                          ]  0%"
   }
@@ -49,7 +49,7 @@ class ConsoleDataWriterSpec extends FlatSpec with Matchers {
     val counters = new UserCounters(11)
     for (i <- 1 to 11) counters.userStart()
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, time)
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, configuration, time)
     summary.complete shouldBe false
     progressBar(summary) shouldBe "[--------------------------------------------------------------------------]  0%"
   }
@@ -60,7 +60,7 @@ class ConsoleDataWriterSpec extends FlatSpec with Matchers {
     for (i <- 1 to 11) counters.userStart()
     for (i <- 1 to 11) counters.userDone()
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, time)
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, configuration, time)
     summary.complete shouldBe true
     progressBar(summary) shouldBe "[##########################################################################]100%"
   }
@@ -71,7 +71,7 @@ class ConsoleDataWriterSpec extends FlatSpec with Matchers {
     for (i <- 1 to 11) counters.userStart()
     for (i <- 1 to 10) counters.userDone()
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, time)
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> counters), new RequestCounters, mutable.Map.empty, mutable.Map.empty, configuration, time)
     summary.complete shouldBe false
     progressBar(summary) shouldBe "[###################################################################-------] 90%"
   }
@@ -79,7 +79,7 @@ class ConsoleDataWriterSpec extends FlatSpec with Matchers {
   "console summary" should "display requests without errors" in {
     val requestCounters = mutable.Map("request1" -> new RequestCounters(20, 0))
 
-    val summary = ConsoleSummary(10000, mutable.Map("request1" -> new UserCounters(11)), new RequestCounters(20, 0), requestCounters, mutable.Map.empty, time)
+    val summary = ConsoleSummary(10000, mutable.Map("request1" -> new UserCounters(11)), new RequestCounters(20, 0), requestCounters, mutable.Map.empty, configuration, time)
 
     val actual = requestsInfo(summary)
     actual shouldBe """---- Requests ------------------------------------------------------------------
@@ -93,7 +93,7 @@ class ConsoleDataWriterSpec extends FlatSpec with Matchers {
 
     val errorsCounters1 = mutable.Map("error1" -> 19, "error2" -> 1)
     val summary1 = ConsoleSummary(10000, mutable.Map("request1" -> new UserCounters(11)), new RequestCounters(0, 20),
-      requestCounters, errorsCounters1, time)
+      requestCounters, errorsCounters1, configuration, time)
 
     val output = requestsInfo(summary1)
 
@@ -112,7 +112,7 @@ class ConsoleDataWriterSpec extends FlatSpec with Matchers {
     val loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
     val errorsCounters = mutable.Map(loremIpsum -> 123456)
     val summary = ConsoleSummary(10000, mutable.Map("request1" -> new UserCounters(11)), new RequestCounters(0, 123456),
-      requestCounters, errorsCounters, time)
+      requestCounters, errorsCounters, configuration, time)
 
     val output = requestsInfo(summary)
 

@@ -39,12 +39,12 @@ object DataWriters extends AkkaDefaults {
 
     val writers = configuration.data.dataWriterClasses.map { className =>
       val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
-      system.actorOf(Props(clazz, configuration), clazz.getSimpleName)
+      system.actorOf(Props(clazz), clazz.getSimpleName)
     }
 
     val shortScenarioDescriptions = populationBuilders.map(populationBuilder => ShortScenarioDescription(populationBuilder.scenarioBuilder.name, populationBuilder.injectionProfile.users))
 
-    val responses = writers.map(_ ? Init(assertions, runMessage, shortScenarioDescriptions))
+    val responses = writers.map(_ ? Init(configuration, assertions, runMessage, shortScenarioDescriptions))
 
       def allSucceeded(responses: Seq[Any]): Boolean =
         responses.map {

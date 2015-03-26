@@ -41,7 +41,8 @@ object ConsoleSummary {
             globalRequestCounters: RequestCounters,
             requestsCounters: mutable.Map[String, RequestCounters],
             errorsCounters: mutable.Map[String, Int],
-            time: Date = new Date)(implicit configuration: GatlingConfiguration) = {
+            configuration: GatlingConfiguration,
+            time: Date = new Date) = {
 
       def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 

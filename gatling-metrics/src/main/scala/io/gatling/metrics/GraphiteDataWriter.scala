@@ -21,7 +21,6 @@ import scala.concurrent.duration.DurationInt
 import akka.actor.ActorRef
 import akka.actor.ActorDSL.actor
 
-import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.writer._
 import io.gatling.core.util.TimeHelper.nowSeconds
@@ -36,102 +35,116 @@ private[metrics] object GraphiteDataWriter {
   val AllUsersKey = UsersRootKey / "allUsers"
 }
 
-private[gatling] class GraphiteDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter {
+case class GraphiteData(configuration: GatlingConfiguration,
+                        metricRootPath: String,
+                        metricsSender: ActorRef,
+                        requestsByPath: mutable.Map[GraphitePath, RequestMetricsBuffer],
+                        usersByScenario: mutable.Map[GraphitePath, UsersBreakdownBuffer],
+                        percentiles1Name: String,
+                        percentiles2Name: String,
+                        percentiles3Name: String,
+                        percentiles4Name: String) extends DataWriterData
+
+private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
   import GraphiteDataWriter._
   import GraphitePath._
 
-  private var metricRootPath: String = _
-
-  private val metricsSender: ActorRef = actor(context, actorName("metricsSender"))(MetricsSender.newMetricsSender)
-  private val requestsByPath = mutable.Map.empty[GraphitePath, RequestMetricsBuffer]
-  private val usersByScenario = mutable.Map.empty[GraphitePath, UsersBreakdownBuffer]
-  private val percentiles1Name = "percentiles" + configuration.charting.indicators.percentile1
-  private val percentiles2Name = "percentiles" + configuration.charting.indicators.percentile2
-  private val percentiles3Name = "percentiles" + configuration.charting.indicators.percentile3
-  private val percentiles4Name = "percentiles" + configuration.charting.indicators.percentile4
-
-  def onInitialize(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
-    metricRootPath = configuration.data.graphite.rootPathPrefix + "." + sanitizeString(run.simulationId) + "."
+  def onInit(init: Init, controller: ActorRef): GraphiteData = {
+    import init._
+    val metricRootPath = configuration.data.graphite.rootPathPrefix + "." + sanitizeString(runMessage.simulationId) + "."
+    val metricsSender: ActorRef = actor(context, actorName("metricsSender"))(MetricsSender.newMetricsSender(configuration))
+    val requestsByPath = mutable.Map.empty[GraphitePath, RequestMetricsBuffer]
+    val usersByScenario = mutable.Map.empty[GraphitePath, UsersBreakdownBuffer]
+    val percentiles1Name = "percentiles" + configuration.charting.indicators.percentile1
+    val percentiles2Name = "percentiles" + configuration.charting.indicators.percentile2
+    val percentiles3Name = "percentiles" + configuration.charting.indicators.percentile3
+    val percentiles4Name = "percentiles" + configuration.charting.indicators.percentile4
 
     usersByScenario.update(AllUsersKey, new UsersBreakdownBuffer(scenarios.map(_.nbUsers).sum))
     scenarios.foreach(scenario => usersByScenario += (UsersRootKey / scenario.name) -> new UsersBreakdownBuffer(scenario.nbUsers))
 
     scheduler.schedule(0 millisecond, configuration.data.graphite.writeInterval second, self, Flush)
 
-    true
+    GraphiteData(configuration, metricRootPath, metricsSender, requestsByPath, usersByScenario, percentiles1Name, percentiles2Name, percentiles3Name, percentiles4Name)
   }
 
-  override def onFlush(): Unit = {
+  def onFlush(data: GraphiteData): Unit = {
+    import data._
+
     val requestsMetrics = requestsByPath.mapValues(_.metricsByStatus).toMap
     val usersBreakdowns = usersByScenario.mapValues(UsersBreakdown(_)).toMap
 
     // Reset all metrics
     requestsByPath.foreach { case (_, buff) => buff.clear() }
 
-    sendMetricsToGraphite(nowSeconds, requestsMetrics, usersBreakdowns)
+    sendMetricsToGraphite(data, nowSeconds, requestsMetrics, usersBreakdowns)
   }
 
-  private def onUserMessage(userMessage: UserMessage): Unit = {
+  private def onUserMessage(userMessage: UserMessage, data: GraphiteData): Unit = {
+    import data._
     usersByScenario(UsersRootKey / userMessage.scenario).add(userMessage)
     usersByScenario(AllUsersKey).add(userMessage)
   }
 
-  private def onRequestMessage(request: RequestEndMessage): Unit = {
+  private def onRequestMessage(request: RequestEndMessage, data: GraphiteData): Unit = {
+    import data._
     if (!configuration.data.graphite.light) {
       val path = graphitePath(request.groupHierarchy :+ request.name)
-      requestsByPath.getOrElseUpdate(path, new RequestMetricsBuffer).add(request.status, request.timings.responseTime)
+      requestsByPath.getOrElseUpdate(path, new RequestMetricsBuffer(configuration)).add(request.status, request.timings.responseTime)
     }
-    requestsByPath.getOrElseUpdate(AllRequestsKey, new RequestMetricsBuffer).add(request.status, request.timings.responseTime)
+    requestsByPath.getOrElseUpdate(AllRequestsKey, new RequestMetricsBuffer(configuration)).add(request.status, request.timings.responseTime)
   }
 
-  override def onMessage(message: LoadEventMessage): Unit = message match {
-    case user: UserMessage          => onUserMessage(user)
-    case request: RequestEndMessage => onRequestMessage(request)
+  override def onMessage(message: LoadEventMessage, data: GraphiteData): Unit = message match {
+    case user: UserMessage          => onUserMessage(user, data)
+    case request: RequestEndMessage => onRequestMessage(request, data)
     case _                          =>
   }
 
-  def onTerminate(): Unit = () // Do nothing, let the ActorSystem free resources
+  def onTerminate(data: GraphiteData): Unit = () // Do nothing, let the ActorSystem free resources
 
-  override def receive: Receive = uninitialized
-
-  private def sendMetricsToGraphite(epoch: Long,
+  private def sendMetricsToGraphite(data: GraphiteData,
+                                    epoch: Long,
                                     requestsMetrics: Map[GraphitePath, MetricByStatus],
                                     usersBreakdowns: Map[GraphitePath, UsersBreakdown]): Unit = {
 
-    for ((metricPath, usersBreakdown) <- usersBreakdowns) sendUserMetrics(metricPath, usersBreakdown, epoch)
+    for ((metricPath, usersBreakdown) <- usersBreakdowns) sendUserMetrics(data, metricPath, usersBreakdown, epoch)
 
-    if (configuration.data.graphite.light)
-      requestsMetrics.get(AllRequestsKey).foreach(allRequestsMetric => sendRequestMetrics(AllRequestsKey, allRequestsMetric, epoch))
+    if (data.configuration.data.graphite.light)
+      requestsMetrics.get(AllRequestsKey).foreach(allRequestsMetric => sendRequestMetrics(data, AllRequestsKey, allRequestsMetric, epoch))
     else
-      for ((path, requestMetric) <- requestsMetrics) sendRequestMetrics(path, requestMetric, epoch)
+      for ((path, requestMetric) <- requestsMetrics) sendRequestMetrics(data, path, requestMetric, epoch)
 
   }
 
-  private def sendRequestMetrics(metricPath: GraphitePath, metricByStatus: MetricByStatus, epoch: Long): Unit = {
-    sendMetrics(metricPath / "ok", metricByStatus.ok, epoch)
-    sendMetrics(metricPath / "ko", metricByStatus.ko, epoch)
-    sendMetrics(metricPath / "all", metricByStatus.all, epoch)
+  private def sendRequestMetrics(data: GraphiteData, metricPath: GraphitePath, metricByStatus: MetricByStatus, epoch: Long): Unit = {
+    sendMetrics(data, metricPath / "ok", metricByStatus.ok, epoch)
+    sendMetrics(data, metricPath / "ko", metricByStatus.ko, epoch)
+    sendMetrics(data, metricPath / "all", metricByStatus.all, epoch)
   }
 
-  private def sendUserMetrics(userMetricPath: GraphitePath, userMetric: UsersBreakdown, epoch: Long): Unit = {
-    sendToGraphite(userMetricPath / "active", userMetric.active, epoch)
-    sendToGraphite(userMetricPath / "waiting", userMetric.waiting, epoch)
-    sendToGraphite(userMetricPath / "done", userMetric.done, epoch)
+  private def sendUserMetrics(data: GraphiteData, userMetricPath: GraphitePath, userMetric: UsersBreakdown, epoch: Long): Unit = {
+    sendToGraphite(data, userMetricPath / "active", userMetric.active, epoch)
+    sendToGraphite(data, userMetricPath / "waiting", userMetric.waiting, epoch)
+    sendToGraphite(data, userMetricPath / "done", userMetric.done, epoch)
   }
 
-  private def sendMetrics(metricPath: GraphitePath, metrics: Option[Metrics], epoch: Long): Unit =
+  private def sendMetrics(data: GraphiteData, metricPath: GraphitePath, metrics: Option[Metrics], epoch: Long): Unit =
     metrics match {
-      case None => sendToGraphite(metricPath / "count", 0, epoch)
+      case None => sendToGraphite(data, metricPath / "count", 0, epoch)
       case Some(m) =>
-        sendToGraphite(metricPath / "count", m.count, epoch)
-        sendToGraphite(metricPath / "max", m.max, epoch)
-        sendToGraphite(metricPath / "min", m.min, epoch)
-        sendToGraphite(metricPath / percentiles1Name, m.percentile1, epoch)
-        sendToGraphite(metricPath / percentiles2Name, m.percentile2, epoch)
-        sendToGraphite(metricPath / percentiles3Name, m.percentile3, epoch)
-        sendToGraphite(metricPath / percentiles4Name, m.percentile4, epoch)
+        import data._
+        sendToGraphite(data, metricPath / "count", m.count, epoch)
+        sendToGraphite(data, metricPath / "max", m.max, epoch)
+        sendToGraphite(data, metricPath / "min", m.min, epoch)
+        sendToGraphite(data, metricPath / percentiles1Name, m.percentile1, epoch)
+        sendToGraphite(data, metricPath / percentiles2Name, m.percentile2, epoch)
+        sendToGraphite(data, metricPath / percentiles3Name, m.percentile3, epoch)
+        sendToGraphite(data, metricPath / percentiles4Name, m.percentile4, epoch)
     }
 
-  private def sendToGraphite[T: Numeric](metricPath: GraphitePath, value: T, epoch: Long): Unit =
+  private def sendToGraphite[T: Numeric](data: GraphiteData, metricPath: GraphitePath, value: T, epoch: Long): Unit = {
+    import data._
     metricsSender ! SendMetric(metricPath.pathKeyWithPrefix(metricRootPath), value, epoch)
+  }
 }

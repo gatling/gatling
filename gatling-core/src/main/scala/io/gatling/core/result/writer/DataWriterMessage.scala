@@ -16,6 +16,7 @@
 package io.gatling.core.result.writer
 
 import io.gatling.core.assertion.Assertion
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ RequestTimings, MessageEvent, Status }
 import io.gatling.core.session.Session
 
@@ -30,7 +31,7 @@ case class RunMessage(simulationClassName: String,
 }
 
 sealed trait DataWriterMessage
-case class Init(assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
+case class Init(configuration: GatlingConfiguration, assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
 case object Flush extends DataWriterMessage
 case object Terminate extends DataWriterMessage
 

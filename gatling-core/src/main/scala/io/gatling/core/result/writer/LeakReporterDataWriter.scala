@@ -17,26 +17,35 @@ package io.gatling.core.result.writer
  */
 import java.lang.System.currentTimeMillis
 
+import akka.actor.ActorRef
+
 import scala.collection.mutable
-import scala.concurrent.duration.DurationInt
+import scala.concurrent.duration.{ FiniteDuration, DurationInt }
 
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ End, Start }
 
-class LeakReporterDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter {
+class LeakData(val noActivityTimeout: FiniteDuration, var lastTouch: Long, val events: mutable.Map[String, DataWriterMessage]) extends DataWriterData
 
-  val noActivityTimeout = configuration.data.leak.noActivityTimeout seconds
-  private var lastTouch = 0L
-  private val events = mutable.Map.empty[String, DataWriterMessage]
+class LeakReporterDataWriter extends DataWriter[LeakData] {
 
-  override def onInitialize(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
-    lastTouch = currentTimeMillis
+  //  val noActivityTimeout = configuration.data.leak.noActivityTimeout seconds
+  //  private var lastTouch = 0L
+  //  private val events = mutable.Map.empty[String, DataWriterMessage]
+
+  def onInit(init: Init, controller: ActorRef): LeakData = {
+    import init._
+
+    val noActivityTimeout = configuration.data.leak.noActivityTimeout seconds
+
     scheduler.schedule(0 seconds, noActivityTimeout, self, Flush)
-    true
+
+    new LeakData(noActivityTimeout, currentTimeMillis, mutable.Map.empty[String, DataWriterMessage])
   }
 
-  override def onFlush(): Unit = {
+  override def onFlush(data: LeakData): Unit = {
+    import data._
     val timeSinceLastTouch = (currentTimeMillis - lastTouch) / 1000
 
     if (timeSinceLastTouch > noActivityTimeout.toSeconds && events.nonEmpty) {
@@ -45,7 +54,8 @@ class LeakReporterDataWriter(implicit configuration: GatlingConfiguration) exten
     }
   }
 
-  private def onUserMessage(userMessage: UserMessage): Unit = {
+  private def onUserMessage(userMessage: UserMessage, data: LeakData): Unit = {
+    import data._
     lastTouch = currentTimeMillis
     userMessage.event match {
       case Start => events += userMessage.userId -> userMessage
@@ -53,27 +63,30 @@ class LeakReporterDataWriter(implicit configuration: GatlingConfiguration) exten
     }
   }
 
-  private def onGroupMessage(groupMessage: GroupMessage): Unit = {
+  private def onGroupMessage(groupMessage: GroupMessage, data: LeakData): Unit = {
+    import data._
     lastTouch = currentTimeMillis
     events += groupMessage.userId -> groupMessage
   }
 
-  private def onRequestStartMessage(requestMessage: RequestStartMessage): Unit = {
+  private def onRequestStartMessage(requestMessage: RequestStartMessage, data: LeakData): Unit = {
+    import data._
     lastTouch = currentTimeMillis
     events += requestMessage.userId -> requestMessage
   }
 
-  private def onRequestEndMessage(requestMessage: RequestEndMessage): Unit = {
+  private def onRequestEndMessage(requestMessage: RequestEndMessage, data: LeakData): Unit = {
+    import data._
     lastTouch = currentTimeMillis
     events += requestMessage.userId -> requestMessage
   }
 
-  override def onMessage(message: LoadEventMessage): Unit = message match {
-    case user: UserMessage            => onUserMessage(user)
-    case group: GroupMessage          => onGroupMessage(group)
-    case request: RequestStartMessage => onRequestStartMessage(request)
-    case request: RequestEndMessage   => onRequestEndMessage(request)
+  override def onMessage(message: LoadEventMessage, data: LeakData): Unit = message match {
+    case user: UserMessage            => onUserMessage(user, data)
+    case group: GroupMessage          => onGroupMessage(group, data)
+    case request: RequestStartMessage => onRequestStartMessage(request, data)
+    case request: RequestEndMessage   => onRequestEndMessage(request, data)
   }
 
-  override def onTerminate(): Unit = {}
+  override def onTerminate(data: LeakData): Unit = {}
 }

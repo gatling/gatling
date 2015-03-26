@@ -16,7 +16,9 @@
 package io.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
+import java.util.concurrent.atomic.AtomicBoolean
 
+import akka.actor.ActorRef
 import io.gatling.core.config.GatlingConfiguration
 
 import scala.collection.mutable
@@ -40,36 +42,47 @@ class UserCounters(val totalCount: Int) {
 
 class RequestCounters(var successfulCount: Int = 0, var failedCount: Int = 0)
 
-class ConsoleDataWriter(implicit configuration: GatlingConfiguration) extends DataWriter {
+class ConsoleData(val configuration: GatlingConfiguration,
+                  val startUpTime: Long,
+                  var complete: Boolean = false,
+                  val usersCounters: mutable.Map[String, UserCounters] = mutable.Map.empty[String, UserCounters],
+                  val globalRequestCounters: RequestCounters = new RequestCounters,
+                  val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty,
+                  val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty) extends DataWriterData
 
-  private var startUpTime = 0L
-  private var complete = false
-  private val usersCounters = mutable.Map.empty[String, UserCounters]
-  private val globalRequestCounters = new RequestCounters
-  private val requestsCounters: mutable.Map[String, RequestCounters] = mutable.LinkedHashMap.empty
-  private val errorsCounters: mutable.Map[String, Int] = mutable.LinkedHashMap.empty
+class ConsoleDataWriter extends DataWriter[ConsoleData] {
 
-  override def onInitialize(assertions: Seq[Assertion], run: RunMessage, scenarios: Seq[ShortScenarioDescription]): Boolean = {
+  def onInit(init: Init, controller: ActorRef): ConsoleData = {
 
-    startUpTime = currentTimeMillis
+    import init._
 
-    scenarios.foreach(scenario => usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
+    val data = new ConsoleData(configuration, currentTimeMillis)
+
+    scenarios.foreach(scenario => data.usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
 
     scheduler.schedule(0 seconds, 5 seconds, self, Flush)
 
-    true
+    data
   }
 
-  override def onFlush(): Unit = {
+  override def onFlush(data: ConsoleData): Unit = {
+    import data._
+
     val runDuration = (currentTimeMillis - startUpTime) / 1000
 
-    val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters)
+    val summary = ConsoleSummary(runDuration, usersCounters, globalRequestCounters, requestsCounters, errorsCounters, configuration)
     complete = summary.complete
     println(summary.text)
   }
 
-  private def onUserMessage(userMessage: UserMessage): Unit = {
+  override def onMessage(message: LoadEventMessage, data: ConsoleData): Unit = message match {
+    case user: UserMessage          => onUserMessage(user, data)
+    case request: RequestEndMessage => onRequestMessage(request, data)
+    case _                          =>
+  }
 
+  private def onUserMessage(userMessage: UserMessage, data: ConsoleData): Unit = {
+    import data._
     import userMessage._
 
     event match {
@@ -87,8 +100,8 @@ class ConsoleDataWriter(implicit configuration: GatlingConfiguration) extends Da
     }
   }
 
-  private def onRequestMessage(request: RequestEndMessage): Unit = {
-
+  private def onRequestMessage(request: RequestEndMessage, data: ConsoleData): Unit = {
+    import data._
     import request._
 
     val requestPath = (groupHierarchy :+ name).mkString(" / ")
@@ -106,11 +119,6 @@ class ConsoleDataWriter(implicit configuration: GatlingConfiguration) extends Da
     }
   }
 
-  override def onMessage(message: LoadEventMessage): Unit = message match {
-    case user: UserMessage          => onUserMessage(user)
-    case request: RequestEndMessage => onRequestMessage(request)
-    case _                          =>
-  }
-
-  override def onTerminate(): Unit = if (!complete) onFlush()
+  override def onTerminate(data: ConsoleData): Unit =
+    if (!data.complete) onFlush(data)
 }

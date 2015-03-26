@@ -19,7 +19,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ KO, OK, Status }
 import com.tdunning.math.stats.{ AVLTreeDigest, TDigest }
 
-private[metrics] class RequestMetricsBuffer(implicit configuration: GatlingConfiguration) {
+private[metrics] class RequestMetricsBuffer(configuration: GatlingConfiguration) {
 
   private val percentile1 = configuration.charting.indicators.percentile1 / 100.0
   private val percentile2 = configuration.charting.indicators.percentile2 / 100.0

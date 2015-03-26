@@ -25,7 +25,7 @@ import io.gatling.core.ConfigKeys._
 
 class RequestMetricsBufferSpec extends FlatSpec with Matchers {
 
-  implicit val defaultConfig = GatlingConfiguration.loadForTest(mutable.Map(
+  val configuration = GatlingConfiguration.loadForTest(mutable.Map(
     charting.indicators.Percentile1 -> 95,
     charting.indicators.Percentile2 -> 99,
     http.ahc.RequestTimeout -> 60000))
@@ -33,7 +33,7 @@ class RequestMetricsBufferSpec extends FlatSpec with Matchers {
   def allValues(m: Metrics) = Seq(m.max, m.min, m.percentile1, m.percentile2)
 
   "RequestMetricsBuffer" should "work when there is no measure" in {
-    val buff = new RequestMetricsBuffer
+    val buff = new RequestMetricsBuffer(configuration)
     val metricsByStatus = buff.metricsByStatus
 
     metricsByStatus.ok shouldBe None
@@ -43,7 +43,7 @@ class RequestMetricsBufferSpec extends FlatSpec with Matchers {
   }
 
   it should "work when there is one OK mesure" in {
-    val buff = new RequestMetricsBuffer
+    val buff = new RequestMetricsBuffer(configuration)
     buff.add(OK, 20)
 
     val metricsByStatus = buff.metricsByStatus
@@ -56,7 +56,7 @@ class RequestMetricsBufferSpec extends FlatSpec with Matchers {
   }
 
   it should "work when there are multiple measures" in {
-    val buff = new RequestMetricsBuffer
+    val buff = new RequestMetricsBuffer(configuration)
     buff.add(KO, 10)
     for (t <- 100 to 200) buff.add(OK, t)
 
@@ -76,7 +76,7 @@ class RequestMetricsBufferSpec extends FlatSpec with Matchers {
   }
 
   it should "work when there are a large number of measures" in {
-    val buff = new RequestMetricsBuffer
+    val buff = new RequestMetricsBuffer(configuration)
     for (t <- 1 to 10000) buff.add(OK, t)
 
     val metricsByStatus = buff.metricsByStatus
@@ -88,5 +88,4 @@ class RequestMetricsBufferSpec extends FlatSpec with Matchers {
     okMetrics.percentile1 shouldBe 9500
     okMetrics.percentile2 shouldBe 9900
   }
-
 }
