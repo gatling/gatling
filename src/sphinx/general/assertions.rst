@@ -107,3 +107,47 @@ Putting it all together
 To help you understand how to use assertions, here is a list of examples :
 
 .. includecode:: code/Assertions.scala#examples
+
+Reports
+=======
+
+If a simulation defines assertions, Gatling will generate 2 reports in the js result directory:
+
+* a JSON file
+* a JUnit file
+
+The latter can be used for example with Jenkin's JUnit plugin.
+
+Here are some examples:
+
+.. code-block:: json
+  [
+    {
+      "path": "Global",
+      "target": "max of response time",
+      "condition": "is less than",
+      "conditionValues": [50],
+      "result": false,
+      "message": "Global: max of response time is less than 50",
+      "values": [145]
+    },
+    {
+      "path": "requestName",
+      "target": "percent of successful requests",
+      "condition": "is greater than",
+      "conditionValues": [95],
+      "result": true,
+      "message": "requestName: percent of successful requests is greater than 95",
+      "values": [100]
+    }
+  ]
+
+.. code-block:: xml
+  <testsuite name="GoogleTest" tests="2" errors="0" failures="1" time="0">
+    <testcase name="Global: max of response time is less than 50" status="false" time="0">
+      <failure type="Global">Actual values: 145</failure>
+    </testcase>
+    <testcase name="selfSigned: percent of successful requests is greater than 95" status="true" time="0">
+      <system-out>selfSigned: percent of successful requests is greater than 95</system-out>
+    </testcase>
+  </testsuite>
