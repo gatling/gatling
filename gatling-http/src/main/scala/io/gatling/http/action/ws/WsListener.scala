@@ -76,9 +76,6 @@ class WsListener(tx: WsTx, wsActor: ActorRef)
 }
 
 private sealed trait WsListenerState
-
 private case object Opening extends WsListenerState
-
 private case object Open extends WsListenerState
-
 private case object Closed extends WsListenerState

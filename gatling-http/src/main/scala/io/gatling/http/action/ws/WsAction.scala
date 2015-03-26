@@ -20,5 +20,8 @@ import io.gatling.core.session.Session
 
 trait WsAction {
 
-  def fetchWebSocket(wsName: String, session: Session) = session(wsName).validate[ActorRef].mapError(m => s"Couldn't fetch open websocket: $m")
+  def fetchWebSocket(wsName: String, session: Session) =
+    session(wsName)
+      .validate[ActorRef]
+      .mapError(msg => s"Couldn't fetch open websocket: $msg")
 }

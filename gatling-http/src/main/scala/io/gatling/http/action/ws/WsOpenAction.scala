@@ -28,13 +28,14 @@ import io.gatling.http.check.ws._
 import io.gatling.http.config.HttpProtocol
 
 class WsOpenAction(
-    requestName: Expression[String],
-    wsName: String,
-    request: Expression[Request],
-    checkBuilder: Option[WsCheckBuilder],
-    val dataWriters: DataWriters,
-    val next: ActorRef,
-    protocol: HttpProtocol)(implicit httpEngine: HttpEngine) extends Interruptable {
+  requestName: Expression[String],
+  wsName: String,
+  request: Expression[Request],
+  checkBuilder: Option[WsCheckBuilder],
+  val dataWriters: DataWriters,
+  val next: ActorRef,
+  protocol: HttpProtocol)(implicit httpEngine: HttpEngine)
+    extends Interruptable {
 
   def execute(session: Session): Unit = {
 

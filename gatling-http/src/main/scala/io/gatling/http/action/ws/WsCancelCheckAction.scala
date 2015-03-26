@@ -18,13 +18,18 @@ package io.gatling.http.action.ws
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session._
 import akka.actor.ActorRef
-import io.gatling.core.validation.Validation
 import io.gatling.http.action.RequestAction
 
-class WsCancelCheckAction(val requestName: Expression[String], wsName: String, dataWriters: DataWriters, val next: ActorRef) extends RequestAction(dataWriters) {
+class WsCancelCheckAction(
+  val requestName: Expression[String],
+  wsName: String,
+  dataWriters: DataWriters,
+  val next: ActorRef)
+    extends RequestAction(dataWriters)
+    with WsAction {
 
-  def sendRequest(requestName: String, session: Session): Validation[Unit] =
+  override def sendRequest(requestName: String, session: Session) =
     for {
-      wsActor <- session(wsName).validate[ActorRef]
+      wsActor <- fetchWebSocket(wsName, session)
     } yield wsActor ! CancelCheck(requestName, next, session)
 }
