@@ -74,7 +74,7 @@ object ZincCompiler extends App {
       analysisCacheMap = FoldersToCache.map(analysisCacheMapEntry).toMap, // avoids having GATLING_HOME polluted with a "cache" folder
       forceClean = false,
       javaOnly = false,
-      compileOrder = CompileOrder.JavaThenScala,
+      compileOrder = CompileOrder.Mixed,
       incOptions = IncOptions(nameHashing = true),
       outputRelations = None,
       outputProducts = None,
