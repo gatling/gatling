@@ -16,7 +16,6 @@
 package io.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
-import java.util.concurrent.atomic.AtomicBoolean
 
 import akka.actor.ActorRef
 import io.gatling.core.config.GatlingConfiguration
@@ -24,7 +23,6 @@ import io.gatling.core.config.GatlingConfiguration
 import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
-import io.gatling.core.assertion.Assertion
 import io.gatling.core.result.message.{ End, KO, OK, Start }
 
 class UserCounters(val totalCount: Int) {
@@ -52,6 +50,8 @@ class ConsoleData(val configuration: GatlingConfiguration,
 
 class ConsoleDataWriter extends DataWriter[ConsoleData] {
 
+  private val flushTimerName = "flushTimer"
+
   def onInit(init: Init, controller: ActorRef): ConsoleData = {
 
     import init._
@@ -60,7 +60,7 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
 
     scenarios.foreach(scenario => data.usersCounters.put(scenario.name, new UserCounters(scenario.nbUsers)))
 
-    scheduler.schedule(0 seconds, 5 seconds, self, Flush)
+    setTimer(flushTimerName, Flush, 5 seconds, repeat = true)
 
     data
   }
@@ -119,6 +119,8 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
     }
   }
 
-  override def onTerminate(data: ConsoleData): Unit =
+  override def onTerminate(data: ConsoleData): Unit = {
+    cancelTimer(flushTimerName)
     if (!data.complete) onFlush(data)
+  }
 }

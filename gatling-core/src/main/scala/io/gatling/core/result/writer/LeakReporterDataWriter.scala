@@ -22,24 +22,20 @@ import akka.actor.ActorRef
 import scala.collection.mutable
 import scala.concurrent.duration.{ FiniteDuration, DurationInt }
 
-import io.gatling.core.assertion.Assertion
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ End, Start }
 
 class LeakData(val noActivityTimeout: FiniteDuration, var lastTouch: Long, val events: mutable.Map[String, DataWriterMessage]) extends DataWriterData
 
 class LeakReporterDataWriter extends DataWriter[LeakData] {
 
-  //  val noActivityTimeout = configuration.data.leak.noActivityTimeout seconds
-  //  private var lastTouch = 0L
-  //  private val events = mutable.Map.empty[String, DataWriterMessage]
+  private val flushTimerName = "flushTimer"
 
   def onInit(init: Init, controller: ActorRef): LeakData = {
     import init._
 
     val noActivityTimeout = configuration.data.leak.noActivityTimeout seconds
 
-    scheduler.schedule(0 seconds, noActivityTimeout, self, Flush)
+    setTimer(flushTimerName, Flush, noActivityTimeout, repeat = true)
 
     new LeakData(noActivityTimeout, currentTimeMillis, mutable.Map.empty[String, DataWriterMessage])
   }
@@ -88,5 +84,5 @@ class LeakReporterDataWriter extends DataWriter[LeakData] {
     case request: RequestEndMessage   => onRequestEndMessage(request, data)
   }
 
-  override def onTerminate(data: LeakData): Unit = {}
+  override def onTerminate(data: LeakData): Unit = cancelTimer(flushTimerName)
 }

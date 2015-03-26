@@ -16,6 +16,7 @@
 package io.gatling.core.result.writer
 
 import akka.actor.ActorRef
+import akka.actor.FSM.NullFunction
 
 import scala.reflect.ClassTag
 import scala.util.control.NonFatal
@@ -60,7 +61,7 @@ abstract class DataWriter[T <: DataWriterData: ClassTag] extends DataWriterFSM {
       onFlush(data.asInstanceOf[T])
       stay()
 
-    case Event(Flush, data: Any) =>
+    case Event(Terminate, data: Any) =>
       onTerminate(data.asInstanceOf[T])
       goto(Terminated) using NoData
 
@@ -68,6 +69,8 @@ abstract class DataWriter[T <: DataWriterData: ClassTag] extends DataWriterFSM {
       onMessage(message, data.asInstanceOf[T])
       stay()
   }
+
+  when(Terminated)(NullFunction)
 
   whenUnhandled {
     case Event(m, data) =>

@@ -49,6 +49,8 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
   import GraphiteDataWriter._
   import GraphitePath._
 
+  private val flushTimerName = "flushTimer"
+
   def onInit(init: Init, controller: ActorRef): GraphiteData = {
     import init._
     val metricRootPath = configuration.data.graphite.rootPathPrefix + "." + sanitizeString(runMessage.simulationId) + "."
@@ -63,7 +65,7 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
     usersByScenario.update(AllUsersKey, new UsersBreakdownBuffer(scenarios.map(_.nbUsers).sum))
     scenarios.foreach(scenario => usersByScenario += (UsersRootKey / scenario.name) -> new UsersBreakdownBuffer(scenario.nbUsers))
 
-    scheduler.schedule(0 millisecond, configuration.data.graphite.writeInterval second, self, Flush)
+    setTimer(flushTimerName, Flush, configuration.data.graphite.writeInterval seconds, repeat = true)
 
     GraphiteData(configuration, metricRootPath, metricsSender, requestsByPath, usersByScenario, percentiles1Name, percentiles2Name, percentiles3Name, percentiles4Name)
   }
@@ -101,7 +103,7 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
     case _                          =>
   }
 
-  def onTerminate(data: GraphiteData): Unit = () // Do nothing, let the ActorSystem free resources
+  def onTerminate(data: GraphiteData): Unit = cancelTimer(flushTimerName)
 
   private def sendMetricsToGraphite(data: GraphiteData,
                                     epoch: Long,
