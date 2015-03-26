@@ -109,7 +109,7 @@ class FileDataWriter(implicit configuration: GatlingConfiguration) extends DataW
   import FileDataWriter._
 
   private val limit = configuration.data.file.bufferSize
-  private val buffer: ByteBuffer = ByteBuffer.allocateDirect(limit * 2)
+  private val buffer: ByteBuffer = ByteBuffer.allocate(limit * 2)
   private val encoder = configuration.core.charset.newEncoder
   private var channel: FileChannel = _
 
