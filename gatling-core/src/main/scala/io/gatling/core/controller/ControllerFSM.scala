@@ -16,10 +16,8 @@
 package io.gatling.core.controller
 
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.runner.Selection
 
 import scala.concurrent.duration.FiniteDuration
-import scala.util.Try
 
 import akka.actor.{ ActorRef, FSM }
 
@@ -31,7 +29,7 @@ private[controller] case class UserStream(
   offset: Int,
   stream: Iterator[(FiniteDuration, Int)])
 
-private[controller] trait ControllerStateMachine extends BaseActor with FSM[ControllerState, ControllerData]
+private[controller] trait ControllerFSM extends BaseActor with FSM[ControllerState, ControllerData]
 
 private[controller] sealed trait ControllerState
 private[controller] case object WaitingToStart extends ControllerState

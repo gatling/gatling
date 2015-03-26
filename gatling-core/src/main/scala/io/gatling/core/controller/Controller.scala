@@ -39,7 +39,7 @@ object Controller extends AkkaDefaults with StrictLogging {
 }
 
 class Controller(selection: Selection, dataWriters: DataWriters)(implicit configuration: GatlingConfiguration)
-    extends ControllerStateMachine {
+    extends ControllerFSM {
 
   startWith(WaitingToStart, NoData)
 
