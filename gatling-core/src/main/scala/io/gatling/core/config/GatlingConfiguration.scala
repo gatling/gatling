@@ -196,23 +196,7 @@ object GatlingConfiguration extends StrictLogging {
           protocol = GraphiteProtocol(config.getString(data.graphite.Protocol).trim),
           rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
           bufferSize = config.getInt(data.graphite.BufferSize),
-          writeInterval = config.getInt(data.graphite.WriteInterval)),
-        jdbc = JdbcDataWriterConfiguration(
-          db = DbConfiguration(
-            url = config.getString(data.jdbc.Url),
-            username = config.getString(data.jdbc.Username),
-            password = config.getString(data.jdbc.Password)),
-          bufferSize = config.getInt(data.jdbc.BufferSize),
-          createStatements = CreateStatements(
-            createRunRecordTable = config.getString(data.jdbc.create.CreateRunRecordTable).trimToOption,
-            createRequestRecordTable = config.getString(data.jdbc.create.CreateRequestRecordTable).trimToOption,
-            createScenarioRecordTable = config.getString(data.jdbc.create.CreateScenarioRecordTable).trimToOption,
-            createGroupRecordTable = config.getString(data.jdbc.create.CreateGroupRecordTable).trimToOption),
-          insertStatements = InsertStatements(
-            insertRunRecord = config.getString(data.jdbc.insert.InsertRunRecord).trimToOption,
-            insertRequestRecord = config.getString(data.jdbc.insert.InsertRequestRecord).trimToOption,
-            insertScenarioRecord = config.getString(data.jdbc.insert.InsertScenarioRecord).trimToOption,
-            insertGroupRecord = config.getString(data.jdbc.insert.InsertGroupRecord).trimToOption))),
+          writeInterval = config.getInt(data.graphite.WriteInterval))),
       config)
 
 }
@@ -345,7 +329,6 @@ case class DataConfiguration(
     dataReaderClass: String,
     file: FileDataWriterConfiguration,
     leak: LeakDataWriterConfiguration,
-    jdbc: JdbcDataWriterConfiguration,
     console: ConsoleDataWriterConfiguration,
     graphite: GraphiteDataWriterConfiguration) {
 
@@ -374,12 +357,6 @@ case class InsertStatements(
   insertRequestRecord: Option[String],
   insertScenarioRecord: Option[String],
   insertGroupRecord: Option[String])
-
-case class JdbcDataWriterConfiguration(
-  db: DbConfiguration,
-  bufferSize: Int,
-  createStatements: CreateStatements,
-  insertStatements: InsertStatements)
 
 case class ConsoleDataWriterConfiguration(
   light: Boolean)
