@@ -19,7 +19,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.{ GroupStatsPath, RequestStatsPath, StatsPath }
 import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.result.reader.{ GeneralStats, DataReader }
-import io.gatling.core.util.NumberHelper.RichDouble
 import io.gatling.core.validation._
 
 class AssertionValidator(implicit configuration: GatlingConfiguration) {
@@ -27,47 +26,44 @@ class AssertionValidator(implicit configuration: GatlingConfiguration) {
   type ValidatedRequestPath = Validation[Option[Status] => List[GeneralStats]]
   type StatsByStatus = Option[Status] => List[GeneralStats]
 
-  val Percentile1 = configuration.charting.indicators.percentile1.toRank
-  val Percentile2 = configuration.charting.indicators.percentile2.toRank
-  val Percentile3 = configuration.charting.indicators.percentile3.toRank
-  val Percentile4 = configuration.charting.indicators.percentile4.toRank
-
-  private case class ResolvedMetric(stats: List[GeneralStats], message: String)
-  private case class ResolvedSelection(value: List[Int], message: String)
-
   def validateAssertions(dataReader: DataReader): List[AssertionResult] =
     dataReader.assertions.map(validateAssertion(_, dataReader))
 
-  private def validateAssertion(assertion: Assertion, dataReader: DataReader) = assertion.path match {
-    case Global =>
-      resolveTarget(assertion, status => List(dataReader.requestGeneralStats(None, None, status)), "Global")
+  private def validateAssertion(assertion: Assertion, dataReader: DataReader) = {
 
-    case ForAll =>
-      val paths = dataReader.statsPaths.collect { case path: RequestStatsPath => path }
-      val statsList: StatsByStatus = status => paths.map {
-        case RequestStatsPath(request, group) =>
-          dataReader.requestGeneralStats(Some(request), group, status)
-      }
-      resolveTarget(assertion, statsList, "For all requests")
+    val printablePath = assertion.path.printable(configuration)
 
-    case Details(parts) if parts.isEmpty =>
-      resolveTarget(assertion, status => List(dataReader.requestGeneralStats(None, None, status)), "Global")
+    assertion.path match {
+      case Global =>
+        resolveTarget(assertion, status => List(dataReader.requestGeneralStats(None, None, status)), printablePath)
 
-    case Details(parts) =>
-      val generalStats: ValidatedRequestPath = findPath(parts, dataReader) match {
-        case None =>
-          Failure(s"Could not find stats matching assertion path $parts")
+      case ForAll =>
+        val paths = dataReader.statsPaths.collect { case path: RequestStatsPath => path }
+        val statsList: StatsByStatus = status => paths.map {
+          case RequestStatsPath(request, group) =>
+            dataReader.requestGeneralStats(Some(request), group, status)
+        }
+        resolveTarget(assertion, statsList, printablePath)
 
-        case Some(RequestStatsPath(request, group)) =>
-          Success(status => List(dataReader.requestGeneralStats(Some(request), group, status)))
+      case Details(parts) if parts.isEmpty =>
+        resolveTarget(assertion, status => List(dataReader.requestGeneralStats(None, None, status)), printablePath)
 
-        case Some(GroupStatsPath(group)) =>
-          Success(status => List(dataReader.groupCumulatedResponseTimeGeneralStats(group, status)))
-      }
-      generalStats match {
-        case Success(stats) => resolveTarget(assertion, stats, parts.mkString(" / "))
-        case Failure(msg)   => AssertionResult(assertion, result = false, msg, Nil)
-      }
+      case Details(parts) =>
+        val generalStats: ValidatedRequestPath = findPath(parts, dataReader) match {
+          case None =>
+            Failure(s"Could not find stats matching assertion path $parts")
+
+          case Some(RequestStatsPath(request, group)) =>
+            Success(status => List(dataReader.requestGeneralStats(Some(request), group, status)))
+
+          case Some(GroupStatsPath(group)) =>
+            Success(status => List(dataReader.groupCumulatedResponseTimeGeneralStats(group, status)))
+        }
+        generalStats match {
+          case Success(stats) => resolveTarget(assertion, stats, printablePath)
+          case Failure(msg)   => AssertionResult(assertion, result = false, msg, Nil)
+        }
+    }
   }
 
   private def findPath(parts: List[String], dataReader: DataReader): Option[StatsPath] =
@@ -82,61 +78,67 @@ class AssertionValidator(implicit configuration: GatlingConfiguration) {
       path == parts
     }
 
-  private def resolveTarget(assertion: Assertion, stats: StatsByStatus, path: String) = assertion.target match {
-    case MeanRequestsPerSecondTarget =>
-      val selection = stats(None).map(_.meanRequestsPerSec.toInt)
-      resolveCondition(assertion, selection, s"$path: mean requests per second")
+  private def resolveTarget(assertion: Assertion, stats: StatsByStatus, path: String) = {
 
-    case target: CountTarget =>
-      resolveCountTarget(assertion, target, stats, path)
+    val printableTarget = assertion.target.printable(configuration)
 
-    case target: TimeTarget =>
-      resolveTimeTarget(assertion, target, stats, path)
+    val realValues = assertion.target match {
+      case MeanRequestsPerSecondTarget => stats(None).map(_.meanRequestsPerSec.toInt)
+      case target: CountTarget         => resolveCountTargetRealValues(target, stats)
+      case target: TimeTarget          => resolveTimeTargetRealValues(target, stats)
+    }
+
+    resolveCondition(assertion, path, printableTarget, realValues)
   }
 
-  private def resolveCountTarget(assertion: Assertion, target: CountTarget, stats: StatsByStatus, path: String) = {
-    val resolvedMetric = target.metric match {
-      case AllRequests        => ResolvedMetric(stats(None), "all requests")
-      case FailedRequests     => ResolvedMetric(stats(Some(KO)), "failed requests")
-      case SuccessfulRequests => ResolvedMetric(stats(Some(OK)), "successful requests")
+  private def resolveCountTargetRealValues(target: CountTarget, stats: StatsByStatus): List[Int] = {
+
+    val resolvedStats = target.metric match {
+      case AllRequests        => stats(None)
+      case FailedRequests     => stats(Some(KO))
+      case SuccessfulRequests => stats(Some(OK))
     }
-    val resolvedSelection = target.selection match {
-      case Count => ResolvedSelection(resolvedMetric.stats.map(_.count), "count")
+
+    target.selection match {
+      case Count => resolvedStats.map(_.count)
       case Percent =>
-        val metricCountsAndAllCounts = resolvedMetric.stats.map(_.count).zip(stats(None).map(_.count))
+        val metricCountsAndAllCounts = resolvedStats.map(_.count).zip(stats(None).map(_.count))
         val percentages = metricCountsAndAllCounts.map { case (metricCount, allCount) => metricCount.toDouble / allCount * 100 }
-        ResolvedSelection(percentages.map(_.toInt), "percentage")
+        percentages.map(_.toInt)
     }
-    resolveCondition(assertion, resolvedSelection.value, s"$path: ${resolvedSelection.message} of ${resolvedMetric.message}")
   }
 
-  private def resolveTimeTarget(assertion: Assertion, target: TimeTarget, stats: StatsByStatus, path: String) = {
-    val resolvedMetric = target.metric match {
-      case ResponseTime => ResolvedMetric(stats(None), "response time")
+  private def resolveTimeTargetRealValues(target: TimeTarget, stats: StatsByStatus): List[Int] = {
+
+    val resolvedStats = target.metric match {
+      case ResponseTime => stats(None)
     }
-    val resolvedSelection = target.selection match {
-      case Min               => ResolvedSelection(resolvedMetric.stats.map(_.min), "min")
-      case Max               => ResolvedSelection(resolvedMetric.stats.map(_.max), "max")
-      case Mean              => ResolvedSelection(resolvedMetric.stats.map(_.mean), "mean")
-      case StandardDeviation => ResolvedSelection(resolvedMetric.stats.map(_.stdDev), "standard deviation")
-      case Percentiles1      => ResolvedSelection(resolvedMetric.stats.map(_.percentile1), s"$Percentile1 percentile")
-      case Percentiles2      => ResolvedSelection(resolvedMetric.stats.map(_.percentile2), s"$Percentile2 percentile")
-      case Percentiles3      => ResolvedSelection(resolvedMetric.stats.map(_.percentile3), s"$Percentile3 percentile")
-      case Percentiles4      => ResolvedSelection(resolvedMetric.stats.map(_.percentile4), s"$Percentile4 percentile")
+
+    target.selection match {
+      case Min               => resolvedStats.map(_.min)
+      case Max               => resolvedStats.map(_.max)
+      case Mean              => resolvedStats.map(_.mean)
+      case StandardDeviation => resolvedStats.map(_.stdDev)
+      case Percentiles1      => resolvedStats.map(_.percentile1)
+      case Percentiles2      => resolvedStats.map(_.percentile2)
+      case Percentiles3      => resolvedStats.map(_.percentile3)
+      case Percentiles4      => resolvedStats.map(_.percentile4)
     }
-    resolveCondition(assertion, resolvedSelection.value, s"$path: ${resolvedSelection.message} of ${resolvedMetric.message}")
   }
 
-  private def resolveCondition(assertion: Assertion, values: List[Int], message: String) = {
+  private def resolveCondition(assertion: Assertion, path: String, printableTarget: String, realValues: List[Int]) = {
 
-      def assertionResult(result: Boolean, fullMessage: String) = AssertionResult(assertion, result, fullMessage, values)
+    val printableCondition = assertion.condition.printable(configuration)
+
+      def assertionResult(result: Boolean, expectedValueMessage: Any) =
+        AssertionResult(assertion, result, s"$path: $printableTarget $printableCondition $expectedValueMessage", realValues)
 
     assertion.condition match {
-      case LessThan(upper)       => assertionResult(values.forall(_ <= upper), s"$message is less than $upper")
-      case GreaterThan(lower)    => assertionResult(values.forall(_ >= lower), s"$message is greater than $lower")
-      case Is(exactValue)        => assertionResult(values.forall(_ == exactValue), s"$message is $exactValue")
-      case Between(lower, upper) => assertionResult(values.forall(v => lower <= v && v <= upper), s"$message is between $lower and $upper")
-      case In(elements)          => assertionResult(values.forall(elements contains), s"$message is in $elements")
+      case LessThan(upper)       => assertionResult(realValues.forall(_ <= upper), upper)
+      case GreaterThan(lower)    => assertionResult(realValues.forall(_ >= lower), lower)
+      case Is(exactValue)        => assertionResult(realValues.forall(_ == exactValue), exactValue)
+      case Between(lower, upper) => assertionResult(realValues.forall(v => lower <= v && v <= upper), s"$lower and $upper")
+      case In(elements)          => assertionResult(realValues.forall(elements contains), elements)
     }
   }
 }

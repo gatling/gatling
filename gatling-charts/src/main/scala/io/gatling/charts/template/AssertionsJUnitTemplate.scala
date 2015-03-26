@@ -2,15 +2,16 @@ package io.gatling.charts.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.assertion.AssertionResult
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.writer.RunMessage
 
-class AssertionsJUnitTemplate(runMessage: RunMessage, assertionResults: List[AssertionResult]) {
+class AssertionsJUnitTemplate(runMessage: RunMessage, assertionResults: List[AssertionResult])(implicit configuration: GatlingConfiguration) {
 
   private[this] def printMessage(assertionResult: AssertionResult): Fastring =
     if (assertionResult.result)
       fast"""<system-out>${assertionResult.message}</system-out>"""
     else
-      fast"""<failure type="${assertionResult.assertion.path}">Actual values: ${assertionResult.values.mkString(", ")}</failure>"""
+      fast"""<failure type="${assertionResult.assertion.path.printable(configuration)}">Actual values: ${assertionResult.values.mkString(", ")}</failure>"""
 
   private[this] def print(assertionResult: AssertionResult): Fastring =
     fast"""<testcase name="${assertionResult.message}" status="${assertionResult.result}" time="0">
