@@ -59,7 +59,7 @@ object ZincCompiler extends App {
 
     val sources = Directory(configuration.simulationsDirectory.toString)
       .deepFiles
-      .collect { case file if file.hasExtension("scala") => file.jfile }
+      .collect { case file if file.hasExtension("scala") || file.hasExtension("java") => file.jfile }
       .toSeq
 
       def analysisCacheMapEntry(directoryName: String) =
