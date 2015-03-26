@@ -277,29 +277,29 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
 
   private def resourceFetched(uri: Uri, status: Status, silent: Boolean): Unit = {
 
-    def releaseToken(host: String): Unit =
-      bufferedResourcesByHost.get(uri.getHost) match {
-        case Some(Nil) | None =>
-          // nothing to send for this host for now
-          availableTokensByHost += host -> (availableTokensByHost(host) + 1)
+      def releaseToken(host: String): Unit =
+        bufferedResourcesByHost.get(uri.getHost) match {
+          case Some(Nil) | None =>
+            // nothing to send for this host for now
+            availableTokensByHost += host -> (availableTokensByHost(host) + 1)
 
-        case Some(request :: tail) =>
-          bufferedResourcesByHost += host -> tail
-          val requestUri = request.ahcRequest.getUri
-          CacheHandling.getExpire(session, requestUri, "GET") match {
-            case None =>
-              // recycle token, fetch a buffered resource
-              fetchResource(request)
+          case Some(request :: tail) =>
+            bufferedResourcesByHost += host -> tail
+            val requestUri = request.ahcRequest.getUri
+            CacheHandling.getExpire(session, requestUri, "GET") match {
+              case None =>
+                // recycle token, fetch a buffered resource
+                fetchResource(request)
 
-            case Some(expire) if nowMillis > expire =>
-              // expire reached
-              session = CacheHandling.clearExpire(session, requestUri, "GET")
-              fetchResource(request)
+              case Some(expire) if nowMillis > expire =>
+                // expire reached
+                session = CacheHandling.clearExpire(session, requestUri, "GET")
+                fetchResource(request)
 
-            case _ =>
-              handleCachedResource(request)
-          }
-      }
+              case _ =>
+                handleCachedResource(request)
+            }
+        }
 
     logger.debug(s"Resource $uri was fetched")
     pendingResourcesCount -= 1
