@@ -35,7 +35,10 @@ object DataWriters extends AkkaDefaults {
 
   implicit val DataWriterTimeOut = Timeout(5 seconds)
 
-  def apply(populationBuilders: List[PopulationBuilder], assertions: Seq[Assertion], selection: Selection, runMessage: RunMessage)(implicit configuration: GatlingConfiguration): Future[Try[DataWriters]] = {
+  def apply(populationBuilders: List[PopulationBuilder],
+            assertions: Seq[Assertion],
+            selection: Selection,
+            runMessage: RunMessage)(implicit configuration: GatlingConfiguration): Future[Try[DataWriters]] = {
 
     val writers = configuration.data.dataWriterClasses.map { className =>
       val clazz = Class.forName(className).asInstanceOf[Class[Actor]]

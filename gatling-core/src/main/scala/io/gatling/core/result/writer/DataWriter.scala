@@ -15,11 +15,13 @@
  */
 package io.gatling.core.result.writer
 
+import scala.reflect.ClassTag
+import scala.util.control.NonFatal
+
 import akka.actor.ActorRef
 import akka.actor.FSM.NullFunction
 
-import scala.reflect.ClassTag
-import scala.util.control.NonFatal
+import io.gatling.core.util.TypeHelper.typeMatches
 
 /**
  * Abstract class for all DataWriters
@@ -46,7 +48,7 @@ abstract class DataWriter[T <: DataWriterData: ClassTag] extends DataWriterFSM {
         val newState = onInit(init, sender())
         logger.info("Initialized")
         sender ! true
-        goto(Initialized) using (newState)
+        goto(Initialized) using newState
       } catch {
         case NonFatal(e) =>
           logger.error("DataWriter failed to initialize", e)
@@ -55,17 +57,16 @@ abstract class DataWriter[T <: DataWriterData: ClassTag] extends DataWriterFSM {
       }
   }
 
-  // FIXME type erasure
   when(Initialized) {
-    case Event(Flush, data: Any) =>
+    case Event(Flush, data: Any) if typeMatches[T](data) =>
       onFlush(data.asInstanceOf[T])
       stay()
 
-    case Event(Terminate, data: Any) =>
+    case Event(Terminate, data: Any) if typeMatches[T](data) =>
       onTerminate(data.asInstanceOf[T])
       goto(Terminated) using NoData
 
-    case Event(message: LoadEventMessage, data: Any) =>
+    case Event(message: LoadEventMessage, data: Any) if typeMatches[T](data) =>
       onMessage(message, data.asInstanceOf[T])
       stay()
   }

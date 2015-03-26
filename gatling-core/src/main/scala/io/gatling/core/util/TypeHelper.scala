@@ -25,6 +25,9 @@ object TypeHelper {
 
   val NullValueFailure = "Value is null".failure
 
+  def typeMatches[T: ClassTag](obj: Any) =
+    obj.getClass.isAssignableFrom(implicitly[ClassTag[T]].runtimeClass)
+
   implicit class TypeCaster(val value: Any) extends AnyVal {
 
     def asValidation[T: ClassTag: NotNothing]: Validation[T] = Option(value) match {
