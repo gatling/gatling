@@ -42,7 +42,7 @@ case class JmsProtocolBuilderContextFactoryStep(
     connectionFactoryName: String,
     url: String,
     credentials: Option[Credentials] = None,
-    anonymousConnect: Boolean = false) {
+    anonymousConnect: Boolean = true) {
 
   def credentials(user: String, password: String) = copy(credentials = Some(Credentials(user, password)))
 
