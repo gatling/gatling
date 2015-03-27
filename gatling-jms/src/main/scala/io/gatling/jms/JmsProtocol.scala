@@ -19,7 +19,6 @@ import io.gatling.core.config.{ Credentials, Protocol }
 
 /**
  * Wraps a JMS protocol configuration
- * @author jasonk@bluedevel.com
  */
 case class JmsProtocol(
   contextFactory: String,

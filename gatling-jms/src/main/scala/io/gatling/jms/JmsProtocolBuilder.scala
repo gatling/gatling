@@ -24,8 +24,6 @@ import javax.jms.DeliveryMode
  * This allows multiple scenarios or jms methods to refer to a single protocol configuration.
  * <p>
  * See your JMS provider documentation for information on the values to set here.
- *
- * @author jasonk@bluedevel.com
  */
 case object JmsProtocolBuilderBase {
 
@@ -42,7 +40,7 @@ case class JmsProtocolBuilderContextFactoryStep(
     connectionFactoryName: String,
     url: String,
     credentials: Option[Credentials] = None,
-    anonymousConnect: Boolean = false) {
+    anonymousConnect: Boolean = true) {
 
   def credentials(user: String, password: String) = copy(credentials = Some(Credentials(user, password)))
 
