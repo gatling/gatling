@@ -17,6 +17,7 @@ package io.gatling.core.runner
 
 import io.gatling.core.action.UserEnd
 import io.gatling.core.config.{ Protocols, GatlingConfiguration }
+import io.gatling.core.funspec.GatlingFunSpec
 import io.gatling.core.result.writer.{ RunMessage, DataWriters }
 
 import scala.concurrent.{ Await, TimeoutException }
@@ -46,6 +47,11 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
       // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
       GatlingActorSystem.start()
       val simulation = simulationClass.newInstance
+
+      simulation match {
+        case funSpec: GatlingFunSpec => funSpec.setupRegisteredSpecs
+        case _                       =>
+      }
 
       simulation._beforeSteps.foreach(_.apply())
 

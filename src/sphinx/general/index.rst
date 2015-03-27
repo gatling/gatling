@@ -14,3 +14,4 @@ General
     assertions
     timings
     reports
+    functional_specs
