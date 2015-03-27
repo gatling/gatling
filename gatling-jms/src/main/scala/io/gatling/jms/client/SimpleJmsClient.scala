@@ -39,7 +39,7 @@ class SimpleJmsClient(
   contextFactory: String,
   deliveryMode: Int,
   messageMatcher: JmsMessageMatcher)
-    extends StrictLogging {
+    extends JmsClient with StrictLogging {
 
   // create InitialContext
   val properties = new JHashtable[String, String]
