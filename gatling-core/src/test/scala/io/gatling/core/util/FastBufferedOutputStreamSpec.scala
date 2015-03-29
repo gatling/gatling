@@ -18,9 +18,9 @@ package io.gatling.core.util
 import java.io.ByteArrayOutputStream
 import java.nio.charset.StandardCharsets.UTF_8
 
-import org.scalatest.{ FlatSpec, Matchers }
+import io.gatling.BaseSpec
 
-class FastBufferedOutputStreamSpec extends FlatSpec with Matchers {
+class FastBufferedOutputStreamSpec extends BaseSpec {
 
   def toString(baos: ByteArrayOutputStream) = baos.toString(UTF_8.name())
   def toByteArray(s: String) = s.getBytes(UTF_8)

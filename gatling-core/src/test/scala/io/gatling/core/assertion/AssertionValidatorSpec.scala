@@ -15,17 +15,16 @@
  */
 package io.gatling.core.assertion
 
-import io.gatling.core.config.GatlingConfiguration
 import org.mockito.Mockito.when
-import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.mock.MockitoSugar
 
+import io.gatling.BaseSpec
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result._
 import io.gatling.core.result.message._
 import io.gatling.core.result.reader._
 import io.gatling.core.util.StringHelper.RichString
 
-class AssertionValidatorSpec extends FlatSpec with Matchers with MockitoSugar with AssertionSupport {
+class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   val assertionValidator = new AssertionValidator

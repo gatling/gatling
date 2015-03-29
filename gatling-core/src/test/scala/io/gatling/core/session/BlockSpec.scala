@@ -16,11 +16,11 @@
 package io.gatling.core.session
 
 import akka.actor.ActorRef.noSender
-import org.scalatest.{ FlatSpec, Matchers }
 
+import io.gatling.BaseSpec
 import io.gatling.core.validation._
 
-class BlockSpec extends FlatSpec with Matchers {
+class BlockSpec extends BaseSpec {
 
   def newSession = Session("scenario", "1")
 

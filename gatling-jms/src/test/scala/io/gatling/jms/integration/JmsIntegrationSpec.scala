@@ -4,14 +4,13 @@ import javax.jms.TextMessage
 
 import io.gatling.core.CoreModule
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.test.ActorSupport
 import io.gatling.jms._
 
 class JmsIntegrationSpec extends JmsMockingSpec with CoreModule with JmsModule {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 
-  "gatling-jms" should "send and receive JMS message" in ActorSupport { implicit testKit =>
+  "gatling-jms" should "send and receive JMS message" in {
 
     val requestQueue = JmsQueue("request")
 

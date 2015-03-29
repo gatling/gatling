@@ -15,11 +15,10 @@
  */
 package io.gatling.core.util
 
-import org.scalatest.{ FlatSpec, Matchers }
-
+import io.gatling.BaseSpec
 import io.gatling.core.util.PathHelper._
 
-class PathHelperSpec extends FlatSpec with Matchers {
+class PathHelperSpec extends BaseSpec {
 
   val root = string2path("foo")
 

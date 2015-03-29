@@ -41,7 +41,7 @@ object GatlingBuild extends Build {
     .settings(copyGatlingDefaults(compiler): _*)
 
   lazy val jdbc = gatlingModule("gatling-jdbc")
-    .dependsOn(core)
+    .dependsOn(core  % "compile->compile;test->test")
     .settings(libraryDependencies ++= jdbcDependencies)
 
   lazy val redis = gatlingModule("gatling-redis")
@@ -58,7 +58,7 @@ object GatlingBuild extends Build {
     .settings(parallelExecution in Test := false)
 
   lazy val charts = gatlingModule("gatling-charts")
-    .dependsOn(core)
+    .dependsOn(core  % "compile->compile;test->test")
     .settings(libraryDependencies ++= chartsDependencies)
     .settings(excludeDummyComponentLibrary: _*)
     .settings(chartTestsSettings: _*)
@@ -75,7 +75,7 @@ object GatlingBuild extends Build {
     .dependsOn(core, http, jms, jdbc, redis, metrics, charts)
 
   lazy val recorder = gatlingModule("gatling-recorder")
-    .dependsOn(core, http)
+    .dependsOn(core  % "compile->compile;test->test", http)
     .settings(libraryDependencies ++= recorderDependencies)
     .settings(generateConfigFileSettings(bundle): _*)
 

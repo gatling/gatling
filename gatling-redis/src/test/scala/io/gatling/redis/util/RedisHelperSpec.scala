@@ -15,12 +15,11 @@
  */
 package io.gatling.redis.util
 
-import org.scalatest.{ FlatSpec, Matchers }
-
+import io.gatling.BaseSpec
 import io.gatling.core.util.StringHelper.Crlf
 import io.gatling.redis.util.RedisHelper.generateRedisProtocol
 
-class RedisHelperSpec extends FlatSpec with Matchers {
+class RedisHelperSpec extends BaseSpec {
 
   "generateRedisProtocol" should "generate a correct protocol" in {
     val correctProtocol = List("*3", "$3", "SET", "$5", "mykey", "$7", "myvalue").mkString("", Crlf, Crlf)

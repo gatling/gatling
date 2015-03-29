@@ -15,11 +15,10 @@
  */
 package io.gatling.recorder.scenario.template
 
-import org.scalatest.{ FlatSpec, Matchers }
-
+import io.gatling.BaseSpec
 import io.gatling.recorder.scenario.RequestElement
 
-class ExtractedUrisSpec extends FlatSpec with Matchers {
+class ExtractedUrisSpec extends BaseSpec {
 
   val GATLING_URL1 = "http://gatling.io/path1/file1"
   val GATLING_URL2 = "http://gatling.io/path1/file2"

@@ -15,11 +15,11 @@
  */
 package io.gatling.core.feeder
 
+import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
-import org.scalatest.{ FlatSpec, Matchers }
 
-class JsonFeederSpec extends FlatSpec with Matchers with FeederSupport {
+class JsonFeederSpec extends BaseSpec with FeederSupport {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val jsonParsers = new JsonParsers

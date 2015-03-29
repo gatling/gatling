@@ -17,14 +17,13 @@ package io.gatling.core.session.el
 
 import java.util.{ ArrayList => JArrayList, HashMap => JHashMap, LinkedList => JLinkedList }
 
+import io.gatling.BaseSpec
+import io.gatling.core.ValidationValues
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.json.{ JsonParsers, Jackson }
-import org.scalatest.{ FlatSpec, Matchers }
-
+import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.{ el, Session }
-import io.gatling.core.test.ValidationValues
 
-class ElSpec extends FlatSpec with Matchers with ValidationValues {
+class ElSpec extends BaseSpec with ValidationValues {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 

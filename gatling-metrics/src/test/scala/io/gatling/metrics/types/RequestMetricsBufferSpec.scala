@@ -17,13 +17,12 @@ package io.gatling.metrics.types
 
 import scala.collection.mutable
 
-import org.scalatest.{ FlatSpec, Matchers }
-
+import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ OK, KO }
 import io.gatling.core.ConfigKeys._
 
-class RequestMetricsBufferSpec extends FlatSpec with Matchers {
+class RequestMetricsBufferSpec extends BaseSpec {
 
   val configuration = GatlingConfiguration.loadForTest(mutable.Map(
     charting.indicators.Percentile1 -> 95,

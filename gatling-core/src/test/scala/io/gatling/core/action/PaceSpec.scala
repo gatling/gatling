@@ -15,58 +15,46 @@
  */
 package io.gatling.core.action
 
-import java.util.concurrent.TimeUnit.SECONDS
+import scala.concurrent.duration._
 
-import akka.actor.ActorRef
-import io.gatling.core.pause.Constant
+import akka.actor.ActorDSL.actor
+
+import io.gatling.AkkaSpec
 import io.gatling.core.result.writer.DataWriters
-import io.gatling.core.structure.ScenarioContext
-import org.scalatest.mock.MockitoSugar
-
-import scala.concurrent.duration.Duration
-
-import org.scalatest.{ FlatSpec, Matchers }
-
-import io.gatling.core.Predef.{ pace, value2Expression }
-import io.gatling.core.config.Protocols
+import io.gatling.core.Predef.value2Expression
 import io.gatling.core.session.Session
-import io.gatling.core.test.ActorSupport
 
-class PaceSpec extends FlatSpec with Matchers with MockitoSugar {
+class PaceSpec extends AkkaSpec {
 
-  val ctx = ScenarioContext(mock[ActorRef], mock[DataWriters], mock[ActorRef], Protocols(), Constant, throttled = false)
-
-  "pace" should "run actions with a minimum wait time" in ActorSupport { testKit =>
-    import testKit._
-    val instance = pace(Duration(3, SECONDS), "paceCounter").build(self, ctx)
+  "pace" should "run actions with a minimum wait time" in {
+    val instance = actor(new Pace(3.seconds, "paceCounter", mock[DataWriters], self))
 
     // Send session, expect response near-instantly
     instance ! Session("TestScenario", "testUser")
-    val session1 = expectMsgClass(Duration(1, SECONDS), classOf[Session])
+    val session1 = expectMsgClass(1.second, classOf[Session])
 
     // Send second session, expect nothing for 7 seconds, then a response
     instance ! session1
-    expectNoMsg(Duration(2, SECONDS))
-    val session2 = expectMsgClass(Duration(2, SECONDS), classOf[Session])
+    expectNoMsg(2.seconds)
+    val session2 = expectMsgClass(2.seconds, classOf[Session])
 
     // counter must have incremented by 3 seconds
     session2("paceCounter").as[Long] shouldBe session1("paceCounter").as[Long] + 3000L
   }
 
-  it should "run actions immediately if the minimum time has expired" in ActorSupport { testKit =>
-    import testKit._
-    val instance = pace(Duration(3, SECONDS), "paceCounter").build(self, ctx)
+  it should "run actions immediately if the minimum time has expired" in {
+    val instance = actor(new Pace(3.seconds, "paceCounter", mock[DataWriters], self))
 
     // Send session, expect response near-instantly
     instance ! Session("TestScenario", "testUser")
-    val session1 = expectMsgClass(Duration(1, SECONDS), classOf[Session])
+    val session1 = expectMsgClass(1.second, classOf[Session])
 
     // Wait 3 seconds - simulate overrunning action
     Thread.sleep(3000L)
 
     // Send second session, expect response near-instantly
     instance ! session1
-    val session2 = expectMsgClass(Duration(1, SECONDS), classOf[Session])
+    val session2 = expectMsgClass(1.second, classOf[Session])
 
     // counter must have incremented by 3 seconds
     session2("paceCounter").as[Long] shouldBe session1("paceCounter").as[Long] + 3000L

@@ -15,18 +15,17 @@
  */
 package io.gatling.redis.feeder
 
+import com.redis._
+
 import org.mockito.Mockito._
 import org.mockito.Matchers._
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.stubbing.Answer
-import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.mock.MockitoSugar
 
-import com.redis._
+import io.gatling.AkkaSpec
 import io.gatling.core.feeder.Record
-import io.gatling.core.test.ActorSupport
 
-class RedisFeederSpec extends FlatSpec with Matchers with MockitoSugar {
+class RedisFeederSpec extends AkkaSpec {
 
   val KEY = "key"
 
@@ -49,7 +48,7 @@ class RedisFeederSpec extends FlatSpec with Matchers with MockitoSugar {
     })
   }
 
-  "redis feeder" should "use lpop as default command" in ActorSupport { testKit =>
+  "redis feeder" should "use lpop as default command" in {
     new MockContext {
       when(client.lpop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
@@ -60,7 +59,7 @@ class RedisFeederSpec extends FlatSpec with Matchers with MockitoSugar {
     }
   }
 
-  it should "use spop command" in ActorSupport { testKit =>
+  it should "use spop command" in {
     new MockContext {
       when(client.spop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
@@ -71,7 +70,7 @@ class RedisFeederSpec extends FlatSpec with Matchers with MockitoSugar {
     }
   }
 
-  it should "use srandmember command" in ActorSupport { testKit =>
+  it should "use srandmember command" in {
     new MockContext {
       when(client.srandmember(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"))
 

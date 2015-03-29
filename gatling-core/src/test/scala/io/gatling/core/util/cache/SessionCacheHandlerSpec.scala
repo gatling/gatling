@@ -15,10 +15,11 @@
  */
 package io.gatling.core.util.cache
 
+import io.gatling.BaseSpec
 import io.gatling.core.session.Session
-import org.scalatest.{ FlatSpec, Matchers, OptionValues }
+import org.scalatest.OptionValues
 
-class SessionCacheHandlerSpec extends FlatSpec with Matchers with OptionValues {
+class SessionCacheHandlerSpec extends BaseSpec with OptionValues {
 
   val sessionCacheHandler = new SessionCacheHandler[String, String]("stringCache", 1)
   val defaultSession = Session("scenarioName", "userId")

@@ -19,11 +19,10 @@ import java.util.GregorianCalendar
 
 import scala.collection.mutable
 
-import org.scalatest.{ FlatSpec, Matchers }
-
+import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
 
-class ConsoleDataWriterSpec extends FlatSpec with Matchers {
+class ConsoleDataWriterSpec extends BaseSpec {
 
   val configuration = GatlingConfiguration.loadForTest()
 

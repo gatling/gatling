@@ -15,13 +15,12 @@
  */
 package io.gatling.core.check.extractor.jsonpath
 
+import io.gatling.BaseSpec
+import io.gatling.core.ValidationValues
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
-import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.test.ValidationValues
-
-class JsonPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
+class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val jsonPaths = new JsonPaths

@@ -15,9 +15,9 @@
  */
 package io.gatling.core.assertion
 
-import org.scalatest.{ FlatSpec, Matchers }
+import io.gatling.BaseSpec
 
-class AssertionDSLSpec extends FlatSpec with Matchers with AssertionSupport {
+class AssertionDSLSpec extends BaseSpec with AssertionSupport {
 
   "The Assertion DSL builders" should "produce the expected Assertions ASTs" in {
 

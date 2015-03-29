@@ -15,9 +15,9 @@
  */
 package io.gatling.core.util
 
-import org.scalatest.{ FlatSpec, Matchers }
+import io.gatling.BaseSpec
 
-class UnsyncByteArrayInputStreamSpec extends FlatSpec with Matchers {
+class UnsyncByteArrayInputStreamSpec extends BaseSpec {
 
   val bytes = "test string".getBytes("utf-8")
   "BytesInputStream" should "signal eof when all bytes are read" in {

@@ -17,9 +17,9 @@ package io.gatling.core.controller.inject
 
 import scala.concurrent.duration._
 
-import org.scalatest.{ FlatSpec, Matchers }
+import io.gatling.BaseSpec
 
-class InjectionStepSpec extends FlatSpec with Matchers {
+class InjectionStepSpec extends BaseSpec {
 
   val ramp = RampInjection(5, 1 second)
   "RampInjection" should "return the correct number of users" in {

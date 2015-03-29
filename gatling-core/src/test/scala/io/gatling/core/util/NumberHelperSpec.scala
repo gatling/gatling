@@ -15,9 +15,9 @@
  */
 package io.gatling.core.util
 
-import org.scalatest.{ FlatSpec, Matchers }
+import io.gatling.BaseSpec
 
-class NumberHelperSpec extends FlatSpec with Matchers {
+class NumberHelperSpec extends BaseSpec {
 
   import NumberHelper._
 

@@ -20,19 +20,21 @@ import java.nio.charset.StandardCharsets._
 import scala.collection.mutable
 
 import org.mockito.Mockito._
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers.{ regex => _, _ }
-import org.scalatest.mock.MockitoSugar
 
-import io.gatling.core.CoreModule
+import io.gatling.BaseSpec
+import io.gatling.core.{ ValidationValues, CoreModule }
 import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.core.test.ValidationValues
 import io.gatling.http.HttpModule
+import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.response.{ StringResponseBody, Response }
 
-class HttpBodyRegexCheckSpec extends FlatSpec with ValidationValues with MockitoSugar with CoreModule with HttpModule {
+class HttpBodyRegexCheckSpec extends BaseSpec with ValidationValues with CoreModule with HttpModule {
+
+  // FIXME
+  object RegexSupport extends HttpCheckSupport
+  val regexCheck = RegexSupport.regex _
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 
@@ -47,39 +49,39 @@ class HttpBodyRegexCheckSpec extends FlatSpec with ValidationValues with Mockito
 
   "regex.find.exists" should "find single result" in {
     val response = mockResponse("""{"id":"1072920417"}""")
-    regex(""""id":"(.+?)"""").find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    regexCheck(""""id":"(.+?)"""").find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   it should "find first occurrence" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    regex(""""id":"(.+?)"""").find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
+    regexCheck(""""id":"(.+?)"""").find.exists.build.check(response, session).succeeded shouldBe CheckResult(Some("1072920417"), None)
   }
 
   "regex.findAll.exists" should "find all occurrences" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    regex(""""id":"(.+?)"""").findAll.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
+    regexCheck(""""id":"(.+?)"""").findAll.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(Seq("1072920417", "1072920418")), None)
   }
 
   it should "fail when finding nothing instead of returning an empty Seq" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val regexValue = """"foo":"(.+?)""""
-    regex(regexValue).findAll.exists.build.check(response, session).failed shouldBe s"regex($regexValue).findAll.exists, found nothing"
+    regexCheck(regexValue).findAll.exists.build.check(response, session).failed shouldBe s"regex($regexValue).findAll.exists, found nothing"
   }
 
   it should "fail with expected message when transforming" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val regexValue = """"foo":"(.+?)""""
-    regex(regexValue).findAll.transform(_.map(_ + "foo")).exists.build.check(response, session).failed shouldBe s"regex($regexValue).findAll.transform.exists, found nothing"
+    regexCheck(regexValue).findAll.transform(_.map(_ + "foo")).exists.build.check(response, session).failed shouldBe s"regex($regexValue).findAll.transform.exists, found nothing"
   }
 
   "regex.count.exists" should "find all occurrences" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
-    regex(""""id":"(.+?)"""").count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
+    regexCheck(""""id":"(.+?)"""").count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(2), None)
   }
 
   it should "return 0 when finding nothing instead of failing" in {
     val response = mockResponse("""[{"id":"1072920417"},"id":"1072920418"]""")
     val regexValue = """"foo":"(.+?)""""
-    regex(regexValue).count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(0), None)
+    regexCheck(regexValue).count.exists.build.check(response, session).succeeded shouldBe CheckResult(Some(0), None)
   }
 }

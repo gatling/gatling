@@ -15,16 +15,16 @@
  */
 package io.gatling.core.check.extractor.xpath
 
-import io.gatling.core.config.GatlingConfiguration
 import net.sf.saxon.s9api.XdmNode
-import org.scalatest.{ FlatSpec, Matchers }
-
-import io.gatling.core.test.ValidationValues
-import io.gatling.core.util.Io._
 import org.w3c.dom.Document
 import org.xml.sax.InputSource
 
-abstract class XPathExtractorSpec extends FlatSpec with Matchers with ValidationValues {
+import io.gatling.BaseSpec
+import io.gatling.core.ValidationValues
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.util.Io._
+
+abstract class XPathExtractorSpec extends BaseSpec with ValidationValues {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   val namespaces = List("foo" -> "http://foo/foo")

@@ -15,9 +15,9 @@
  */
 package io.gatling.core.validation
 
-import org.scalatest.{ FlatSpec, Matchers }
+import io.gatling.BaseSpec
 
-class ValidationSpec extends FlatSpec with Matchers {
+class ValidationSpec extends BaseSpec {
 
   "SuccessWrapper" should "wrap a value in a Success" in {
     1.success shouldBe Success(1)

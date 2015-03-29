@@ -15,12 +15,12 @@
  */
 package io.gatling.http.cookie
 
-import org.scalatest.{ FlatSpec, Matchers }
-
 import com.ning.http.client.cookie.CookieDecoder.decode
 import com.ning.http.client.uri.Uri
 
-class CookieJarSpec extends FlatSpec with Matchers {
+import io.gatling.BaseSpec
+
+class CookieJarSpec extends BaseSpec {
 
   "storeCookies" should "return nothing when it's empty" in {
     new CookieJar(Map.empty).get(Uri.create("http://docs.foo.com")) shouldBe empty

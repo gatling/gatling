@@ -15,11 +15,11 @@
  */
 package io.gatling.recorder.scenario.template
 
-import org.scalatest.{ FlatSpec, Matchers }
-
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-class ValuesTemplateSpec extends FlatSpec with Matchers {
+import io.gatling.BaseSpec
+
+class ValuesTemplateSpec extends BaseSpec {
 
   def str(s: Fastring) = s.toString.replaceAll("""\r?\n""", "\n")
 

@@ -17,14 +17,14 @@ package io.gatling.core.check.extractor.css
 
 import java.nio.charset.StandardCharsets.UTF_8
 
-import io.gatling.core.config.GatlingConfiguration
-import org.scalatest.{ FlatSpec, Matchers }
-
 import jodd.lagarto.dom.NodeSelector
-import io.gatling.core.test.ValidationValues
+
+import io.gatling.BaseSpec
+import io.gatling.core.ValidationValues
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.Io._
 
-class CssExtractorSpec extends FlatSpec with Matchers with ValidationValues {
+class CssExtractorSpec extends BaseSpec with ValidationValues {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val cssSelectors = new CssSelectors

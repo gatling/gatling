@@ -15,15 +15,13 @@
  */
 package io.gatling.http.config
 
+import io.gatling.BaseSpec
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
-import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.mock.MockitoSugar
-
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.request.ExtraInfo
 
-class HttpProtocolBuilderSpec extends FlatSpec with Matchers with MockitoSugar {
+class HttpProtocolBuilderSpec extends BaseSpec {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val httpCaches = new HttpCaches

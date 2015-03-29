@@ -15,9 +15,9 @@
  */
 package io.gatling.http.fetch
 
-import org.scalatest.{ FlatSpec, Matchers }
+import io.gatling.BaseSpec
 
-class UserAgentSpec extends FlatSpec with Matchers {
+class UserAgentSpec extends BaseSpec {
 
   "UserAgent.parseFromHeader" should "extract IE 9.0 version" in {
     val agent = UserAgent.parseFromHeader("Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US))")

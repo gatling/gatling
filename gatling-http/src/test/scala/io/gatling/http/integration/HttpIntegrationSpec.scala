@@ -15,112 +15,101 @@
  */
 package io.gatling.http.integration
 
+import org.jboss.netty.handler.codec.http._
+
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.http.HeaderNames._
+import io.gatling.http.HttpSpec
 import io.gatling.core.CoreModule
 import io.gatling.http.HttpModule
+import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.DefaultHttpProtocol
-import org.scalatest.FlatSpec
-import org.scalatest.Matchers.{ regex => _, _ }
-import org.scalatest.mock.MockitoSugar
 
-import spray.http.HttpHeaders.{ Location, `Set-Cookie` }
-import spray.http.HttpMethods._
-import spray.http.MediaTypes._
-import spray.http._
+class HttpIntegrationSpec extends HttpSpec with CoreModule with HttpModule {
 
-import io.gatling.core.config.{ GatlingConfiguration, Protocols }
-
-class HttpIntegrationSpec extends FlatSpec with MockitoSugar with CoreModule with HttpModule {
+  // FIXME
+  object RegexSupport extends HttpCheckSupport
+  val regexCheck = RegexSupport.regex _
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 
   "Gatling" should "send cookies returned in redirects in subsequent requests" in {
-
     implicit val httpCaches = new HttpCaches
-    implicit val httpEngine: HttpEngine = new HttpEngine
+    implicit val httpEngine = new HttpEngine
     implicit val defaultHttpProtocol = new DefaultHttpProtocol
 
-    new MockServerSupport().exec { mockServerSupport =>
-      implicit testKit =>
+    val handler: Handler = {
+      case HttpRequest(HttpMethod.GET, "/page1") =>
+        val cookieEncoder = new CookieEncoder(true)
+        cookieEncoder.addCookie("TestCookie1", "Test1")
+        val headers = Map(SetCookie -> cookieEncoder.encode(), Location -> "/page2")
+        sendResponse(status = HttpResponseStatus.MOVED_PERMANENTLY, headers = headers)
 
-        import mockServerSupport._
-        import Checks._
+      case HttpRequest(HttpMethod.GET, "/page2") =>
+        val cookieEncoder = new CookieEncoder(true)
+        cookieEncoder.addCookie("TestCookie2", "Test2")
+        val headers = Map(SetCookie -> cookieEncoder.encode())
+        sendResponse(content = "Hello World", headers = headers)
 
-        serverMock({
-          case HttpRequest(GET, Uri.Path("/page1"), _, _, _) =>
-            HttpResponse(status = 301, headers = List(Location("/page2"), `Set-Cookie`(HttpCookie("TestCookie1", "Test1"))))
+      case HttpRequest(HttpMethod.GET, "/page3") =>
+        sendResponse(content = "Hello Again")
+    }
 
-          case HttpRequest(GET, Uri.Path("/page2"), _, _, _) =>
-            HttpResponse(entity = "Hello World", headers = List(`Set-Cookie`(HttpCookie("TestCookie2", "Test2"))))
+    runWithHttpServer(handler) { implicit httpServer =>
 
-          case HttpRequest(GET, Uri.Path("/page3"), _, _, _) =>
-            HttpResponse(entity = "Hello Again")
-        })
+      val session = runScenario(
+        scenario("Cookie Redirect")
+          .exec(
+            http("/page1")
+              .get("/page1")
+              .check(
+                regexCheck("Hello World"),
+                currentLocation.is(s"http://localhost:$mockHttpPort/page2")))
+          .exec(
+            http("/page3")
+              .get("/page3")
+              .check(
+                regexCheck("Hello Again"))))
 
-        val session = runScenario(
-          scenario("Cookie Redirect")
-            .exec(
-              http("/page1")
-                .get("/page1")
-                .check(
-                  regex("Hello World"),
-                  currentLocation.is(s"http://localhost:$mockHttpPort/page2")))
-            .exec(
-              http("/page3")
-                .get("/page3")
-                .check(
-                  regex("Hello Again"))))
+      session.isFailed shouldBe false
 
-        session.isFailed shouldBe false
-
-        verifyRequestTo("/page1")
-        verifyRequestTo("/page2", 1, checkCookie("TestCookie1", "Test1"))
-        verifyRequestTo("/page3", 1, checkCookie("TestCookie1", "Test1"), checkCookie("TestCookie2", "Test2"))
+      verifyRequestTo("/page1")
+      verifyRequestTo("/page2", 1, checkCookie("TestCookie1", "Test1"))
+      verifyRequestTo("/page3", 1, checkCookie("TestCookie1", "Test1"), checkCookie("TestCookie2", "Test2"))
     }
   }
 
   it should "retrieve linked resources, when resource downloading is enabled" in {
 
     implicit val httpCaches = new HttpCaches
-    implicit val httpEngine: HttpEngine = new HttpEngine
+    implicit val httpEngine = new HttpEngine
     implicit val defaultHttpProtocol = new DefaultHttpProtocol
 
-    new MockServerSupport().exec { mockServerSupport =>
-      implicit testKit =>
-        import mockServerSupport._
+    val handler: Handler = {
+      case HttpRequest(HttpMethod.GET, path) =>
+        sendFile(path.drop(1)) // Drop leading slash in path
+    }
 
-        serverMock({
-          case HttpRequest(GET, Uri.Path("/resourceTest/index.html"), _, _, _) =>
-            HttpResponse(entity = file("resourceTest/index.html", `text/html`))
+    runWithHttpServer(handler) { implicit httpServer =>
+      val session = runScenario(
+        scenario("Resource downloads")
+          .exec(
+            http("/resourceTest/index.html")
+              .get("/resourceTest/index.html")
+              .check(
+                css("h1").is("Resource Test"),
+                regexCheck("<title>Resource Test</title>"))),
+        protocolCustomizer = _.inferHtmlResources(BlackList(".*/bad_resource.png")))
 
-          case HttpRequest(GET, Uri.Path("/resourceTest/stylesheet.css"), _, _, _) =>
-            HttpResponse(entity = file("resourceTest/stylesheet.css"))
+      session.isFailed shouldBe false
 
-          case HttpRequest(GET, Uri.Path("/resourceTest/img.png"), _, _, _) =>
-            HttpResponse(entity = file("resourceTest/img.png"))
-
-          case HttpRequest(GET, Uri.Path("/resourceTest/script.js"), _, _, _) =>
-            HttpResponse(entity = file("resourceTest/script.js"))
-        })
-
-        val session = mockServerSupport.runScenario(
-          scenario("Resource downloads")
-            .exec(
-              http("/resourceTest/index.html")
-                .get("/resourceTest/index.html")
-                .check(
-                  css("h1").is("Resource Test"),
-                  regex("<title>Resource Test</title>"))),
-          protocols = Protocols(mockServerSupport.httpProtocol.inferHtmlResources(BlackList(".*/bad_resource.png"))))
-
-        session.isFailed shouldBe false
-
-        verifyRequestTo("/resourceTest/index.html")
-        verifyRequestTo("/resourceTest/stylesheet.css")
-        verifyRequestTo("/resourceTest/script.js")
-        verifyRequestTo("/resourceTest/img.png")
-        verifyRequestTo("/bad_resource.png", 0)
+      verifyRequestTo("/resourceTest/index.html")
+      verifyRequestTo("/resourceTest/stylesheet.css")
+      verifyRequestTo("/resourceTest/script.js")
+      verifyRequestTo("/resourceTest/img.png")
+      verifyRequestTo("/resourceTest/bad_resource.png", 0)
     }
   }
 
@@ -130,31 +119,25 @@ class HttpIntegrationSpec extends FlatSpec with MockitoSugar with CoreModule wit
     implicit val httpEngine = new HttpEngine
     implicit val defaultHttpProtocol = new DefaultHttpProtocol
 
-    new MockServerSupport().exec { mockServerSupport =>
-      implicit testKit =>
-        import mockServerSupport._
+    val handler: Handler = {
+      case HttpRequest(HttpMethod.GET, path) =>
+        sendFile(path.drop(1)) // Drop leading slash in path
+    }
 
-        serverMock({
-          case HttpRequest(GET, Uri.Path("/resourceTest/indexIE.html"), _, _, _) =>
-            HttpResponse(entity = file("resourceTest/indexIE.html", `text/html`))
+    runWithHttpServer(handler) { implicit httpServer =>
+      val session = runScenario(
+        scenario("Resource downloads")
+          .exec(
+            http("/resourceTest/indexIE.html")
+              .get("/resourceTest/indexIE.html")
+              .header("User-Agent",
+                "Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)")),
+        protocolCustomizer = _.inferHtmlResources())
 
-          case HttpRequest(GET, Uri.Path("/resourceTest/stylesheet.css"), _, _, _) =>
-            HttpResponse(entity = file("resourceTest/stylesheet.css"))
-        })
+      session.isFailed shouldBe false
 
-        val session = runScenario(
-          scenario("Resource downloads")
-            .exec(
-              http("/resourceTest/indexIE.html")
-                .get("/resourceTest/indexIE.html")
-                .header("User-Agent",
-                  "Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)")),
-          protocols = Protocols(mockServerSupport.httpProtocol.inferHtmlResources()))
-
-        session.isFailed shouldBe false
-
-        verifyRequestTo("/resourceTest/indexIE.html")
-        verifyRequestTo("/resourceTest/stylesheet.css")
+      verifyRequestTo("/resourceTest/indexIE.html")
+      verifyRequestTo("/resourceTest/stylesheet.css")
     }
   }
 }

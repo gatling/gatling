@@ -15,12 +15,11 @@
  */
 package io.gatling.core.check.extractor.regex
 
+import io.gatling.BaseSpec
+import io.gatling.core.ValidationValues
 import io.gatling.core.config.GatlingConfiguration
-import org.scalatest.{ FlatSpec, Matchers }
 
-import io.gatling.core.test.ValidationValues
-
-class RegexExtractorSpec extends FlatSpec with Matchers with ValidationValues {
+class RegexExtractorSpec extends BaseSpec with ValidationValues {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val patterns = new Patterns()

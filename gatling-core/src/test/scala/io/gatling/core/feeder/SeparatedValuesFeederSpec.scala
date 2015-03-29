@@ -1,11 +1,11 @@
 package io.gatling.core.feeder
 
-import io.gatling.core.config.GatlingConfiguration
-import org.scalatest.{ FlatSpec, Matchers }
-
 import scala.io.Source
 
-class SeparatedValuesFeederSpec extends FlatSpec with Matchers with FeederSupport {
+import io.gatling.BaseSpec
+import io.gatling.core.config.GatlingConfiguration
+
+class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 

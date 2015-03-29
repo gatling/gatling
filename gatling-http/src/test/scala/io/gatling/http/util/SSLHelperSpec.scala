@@ -17,9 +17,9 @@ package io.gatling.http.util
 
 import java.io.{ FileNotFoundException, File }
 
-import org.scalatest.{ FlatSpec, Matchers }
+import io.gatling.BaseSpec
 
-class SSLHelperSpec extends FlatSpec with Matchers {
+class SSLHelperSpec extends BaseSpec {
 
   val KEYSTORE = "testkeystore"
   val PASSWORD = "123456"

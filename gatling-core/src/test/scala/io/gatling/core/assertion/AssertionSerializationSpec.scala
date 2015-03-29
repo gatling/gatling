@@ -15,11 +15,10 @@
  */
 package io.gatling.core.assertion
 
-import org.scalatest.{ FlatSpec, Matchers }
-
+import io.gatling.BaseSpec
 import io.gatling.core.assertion.AssertionTags._
 
-class AssertionSerializationSpec extends FlatSpec with Matchers {
+class AssertionSerializationSpec extends BaseSpec {
 
   private def tabSeparated(elems: String*) = elems.mkString("\t")
 

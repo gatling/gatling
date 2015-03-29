@@ -15,9 +15,10 @@
  */
 package io.gatling.core.config
 
-import org.scalatest.{ FlatSpec, Matchers, OptionValues }
+import io.gatling.BaseSpec
+import org.scalatest.OptionValues
 
-class ProtocolSpec extends FlatSpec with Matchers with OptionValues {
+class ProtocolSpec extends BaseSpec with OptionValues {
 
   case class FooProtocol(foo: String) extends Protocol
 

@@ -15,9 +15,9 @@
  */
 package io.gatling.core.util
 
-import org.scalatest.{ FlatSpec, Matchers }
+import io.gatling.BaseSpec
 
-class RoundRobinSpec extends FlatSpec with Matchers {
+class RoundRobinSpec extends BaseSpec {
 
   "round robin" should "work fine with non empty Iterable" in {
 

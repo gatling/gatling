@@ -15,13 +15,12 @@
  */
 package io.gatling.core.session
 
-import org.scalatest.{ FlatSpec, Matchers }
-
+import io.gatling.BaseSpec
+import io.gatling.core.ValidationValues
 import io.gatling.core.session.el._
-import io.gatling.core.test.ValidationValues
 import io.gatling.core.validation.{ NoneSuccess, Success }
 
-class ExpressionUtilsSpec extends FlatSpec with Matchers with ValidationValues {
+class ExpressionUtilsSpec extends BaseSpec with ValidationValues {
 
   def newSession = Session("scenario", "1")
 

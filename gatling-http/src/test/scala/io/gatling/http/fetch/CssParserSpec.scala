@@ -15,11 +15,11 @@
  */
 package io.gatling.http.fetch
 
-import org.scalatest.{ FlatSpec, Matchers }
-
 import com.ning.http.client.uri.Uri
 
-class CssParserSpec extends FlatSpec with Matchers {
+import io.gatling.BaseSpec
+
+class CssParserSpec extends BaseSpec {
 
   val rootURI = Uri.create("http://akka.io/")
 
