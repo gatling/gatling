@@ -112,6 +112,8 @@ class Feeders {
       }
     }
     //#redis-1million
+
+    generateOneMillionUrls()
   }
 
   {

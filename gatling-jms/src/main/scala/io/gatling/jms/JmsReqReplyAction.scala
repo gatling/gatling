@@ -29,7 +29,7 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Validation
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session.Session
-import io.gatling.jms.client.{JmsClient, SimpleJmsClient}
+import io.gatling.jms.client.{ JmsClient, SimpleJmsClient }
 
 object JmsReqReplyAction {
   val BlockingReceiveReturnedNull = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
