@@ -311,7 +311,9 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
       ahcConfigBuilder.build
     }
 
-    val asyncHandlerActors = system.actorOf(RoundRobinPool(3 * Runtime.getRuntime.availableProcessors).props(Props(classOf[AsyncHandlerActor], configuration, this)), "asyncHandler")
+    val poolSize = 3 * Runtime.getRuntime.availableProcessors
+    val asyncHandlerProps = Props(classOf[AsyncHandlerActor], configuration, this)
+    val asyncHandlerActors = system.actorOf(RoundRobinPool(poolSize).props(asyncHandlerProps), actorName("asyncHandler"))
 
     new InternalState(applicationThreadPool, nioThreadPool, channelPool, nettyConfig, defaultAhcConfig, dataWriters, asyncHandlerActors)
   }
