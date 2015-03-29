@@ -16,8 +16,8 @@
 package io.gatling.core.assertion
 
 import org.scalacheck.{ Arbitrary, Gen }
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import org.scalatest.{ FlatSpec, Matchers }
+
+import io.gatling.BaseSpec
 
 trait AssertionGenerator {
   this: AssertionParserSpec =>
@@ -26,7 +26,7 @@ trait AssertionGenerator {
 
   private val pathGen = {
 
-    val detailsGen = for (parts <- Gen.nonEmptyListOf(Gen.alphaStr.suchThat(_.size > 0))) yield Details(parts)
+    val detailsGen = for (parts <- Gen.nonEmptyListOf(Gen.alphaStr.suchThat(_.length > 0))) yield Details(parts)
     Gen.frequency(33 -> Gen.const(Global), 33 -> Gen.const(ForAll), 33 -> detailsGen)
   }
 
@@ -64,7 +64,7 @@ trait AssertionGenerator {
     condition <- conditionGen
   } yield Assertion(path, target, condition)
 }
-class AssertionParserSpec extends FlatSpec with Matchers with GeneratorDrivenPropertyChecks with AssertionGenerator {
+class AssertionParserSpec extends BaseSpec with AssertionGenerator {
 
   override implicit val generatorDrivenConfig = PropertyCheckConfig(minSuccessful = 300)
 

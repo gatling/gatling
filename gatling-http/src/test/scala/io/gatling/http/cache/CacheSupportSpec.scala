@@ -18,20 +18,18 @@ package io.gatling.http.cache
 import java.nio.charset.StandardCharsets._
 
 import com.ning.http.client.uri.Uri
+import com.ning.http.client._
+
+import io.gatling.BaseSpec
 import io.gatling.core.result.message.RequestTimings
 import io.gatling.core.session.Session
 import io.gatling.http.ahc.HttpEngine
-import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.mock.MockitoSugar
-
-import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, HttpResponseStatus, RequestBuilder }
-
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.{ MockUtils, HeaderNames, HeaderValues }
 import io.gatling.http.config.DefaultHttpProtocol
 import io.gatling.http.response.{ HttpResponse, ResponseBody }
 
-class CacheSupportSpec extends FlatSpec with Matchers with MockitoSugar {
+class CacheSupportSpec extends BaseSpec {
 
   // Default config
   implicit val configuration = GatlingConfiguration.loadForTest()

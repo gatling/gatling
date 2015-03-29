@@ -15,18 +15,18 @@
  */
 package io.gatling.jms.client
 
-import org.scalatest.{ BeforeAndAfterAll, FlatSpecLike, Matchers }
 import org.apache.activemq.broker.{ BrokerFactory, BrokerService }
-
 import org.apache.activemq.jndi.ActiveMQInitialContextFactory
 
+import io.gatling.AkkaSpec
 import io.gatling.jms.{ MessageIDMessageMatcher, JmsDestination }
 
-trait BrokerBasedSpecification extends FlatSpecLike with Matchers with BeforeAndAfterAll {
+trait BrokerBasedSpec extends AkkaSpec {
 
   override def beforeAll() = startBroker()
 
   override def afterAll() = {
+    super.afterAll()
     cleanUpActions.foreach(f => f())
     stopBroker()
   }

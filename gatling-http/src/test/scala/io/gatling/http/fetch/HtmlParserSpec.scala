@@ -16,16 +16,14 @@
 package io.gatling.http.fetch
 
 import scala.io.Codec.UTF8
-
-import org.scalatest.{ FlatSpec, Matchers }
+import scala.io.Source
 
 import com.ning.http.client.uri.Uri
 
+import io.gatling.BaseSpec
 import io.gatling.core.util.Io._
 
-import scala.io.Source
-
-class HtmlParserSpec extends FlatSpec with Matchers {
+class HtmlParserSpec extends BaseSpec {
 
   val htmlContent = withCloseable(getClass.getClassLoader.getResourceAsStream("akka.io.html")) { is =>
     Source.fromInputStream(is)(UTF8).getLines().mkString

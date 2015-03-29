@@ -19,66 +19,71 @@ import java.net.InetSocketAddress
 
 import scala.concurrent.duration._
 
-import akka.actor.{ PoisonPill, ActorSystem }
 import akka.testkit._
+import akka.io.Tcp._
+import akka.util.ByteString
 
-import org.scalatest.{ FlatSpec, Matchers }
-
-import io.gatling.core.test.ActorSupport
+import io.gatling.AkkaSpec
 import io.gatling.metrics.message.SendMetric
-import io.gatling.metrics.server.TcpServer
 
-class TcpSenderSpec extends FlatSpec with Matchers {
+class TcpSenderSpec extends AkkaSpec {
 
-  val serverUrl = new InetSocketAddress(2003)
+  val dummySocketAddress = new InetSocketAddress(9999)
 
-  def newTcpServer(implicit actorSystem: ActorSystem) = TestActorRef[TcpServer]
+  class TcpSenderNoIo extends TcpSender(dummySocketAddress, 2, 1.second) {
+    override def askForConnection(): Unit = ()
+  }
 
-  "TcpSender" should "fail if server is unreachable" in ActorSupport { implicit testKit =>
-    import testKit._
+  "TcpSender" should "fail if server is unreachable" in {
+    val tcpSender = TestFSMRef(new TcpSenderNoIo)
 
-    val tcpSender = TestFSMRef(new TcpSender(serverUrl, 1, 1.second))
-
-    Thread.sleep(2000) // Wait for failure
+    // Fail 2 times in a row, retry limit is exhausted
+    tcpSender ! CommandFailed(Connect(dummySocketAddress))
+    tcpSender ! CommandFailed(Connect(dummySocketAddress))
 
     tcpSender.stateName shouldBe RetriesExhausted
     tcpSender.stateData shouldBe NoData
   }
 
-  it should "go to the Running state and send metrics if it could connect without issues" in ActorSupport { implicit testKit =>
-    import testKit._
+  it should "go to the Running state and send metrics if it could connect without issues" in {
+    val tcpSender = TestFSMRef(new TcpSenderNoIo)
 
-    val tcpServer = newTcpServer
+    tcpSender ! Connected(dummySocketAddress, dummySocketAddress)
 
-    Thread.sleep(5000) // Give the server some time to initialize
-
-    val tcpSender = TestFSMRef(new TcpSender(serverUrl, 1, 1.second))
-
-    Thread.sleep(4000) // Give the server some time to initialize
-
-    tcpServer.underlyingActor.receivedCount shouldBe 0
+    expectMsg(Register(tcpSender))
 
     tcpSender.stateName shouldBe Running
 
-    tcpSender ! SendMetric("foo", 1, 1)
-    Thread.sleep(500) // Give some time to the server to receive the message
-    tcpServer.underlyingActor.receivedCount shouldBe 1
+    val metric = SendMetric("foo", 1, 1)
+
+    tcpSender ! metric
+
+    expectMsg(Write(metric.byteString))
   }
 
-  it should "retry to connected until the retry limit has been exceeded to finally stop" in ActorSupport { implicit testKit =>
-    import testKit._
+  it should "retry to connected until the retry limit has been exceeded to finally stop" in {
+    val tcpSender = TestFSMRef(new TcpSenderNoIo)
 
-    var tcpServer = newTcpServer
-    val tcpSender = TestFSMRef(new TcpSender(serverUrl, 5, 10.seconds))
-
-    Thread.sleep(2000) // Give the sender some time to initialize
+    // Connect
+    tcpSender ! Connected(dummySocketAddress, dummySocketAddress)
+    expectMsg(Register(tcpSender))
 
     tcpSender.stateName shouldBe Running
 
-    tcpServer ! PoisonPill
-    Thread.sleep(6000) // Wait before restarting
-    tcpServer = newTcpServer
-    tcpSender.stateName shouldBe RetriesExhausted
+    // Fail one time, retries limit is not exhausted
+    tcpSender ! PeerClosed
+    tcpSender ! Connected(dummySocketAddress, dummySocketAddress)
 
+    tcpSender.stateName shouldBe Running
+
+    // Make sure one second has passed to reset the retry window
+    Thread.sleep(1.second.toMillis)
+
+    // Fail 2 times in a row, retry limit is exhausted
+    tcpSender ! CommandFailed(Write(ByteString.empty))
+    tcpSender ! CommandFailed(Write(ByteString.empty))
+
+    tcpSender.stateName shouldBe RetriesExhausted
+    tcpSender.stateData shouldBe NoData
   }
 }

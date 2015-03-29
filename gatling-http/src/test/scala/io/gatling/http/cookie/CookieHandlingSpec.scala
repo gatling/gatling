@@ -15,14 +15,13 @@
  */
 package io.gatling.http.cookie
 
-import org.scalatest.{ FlatSpec, Matchers }
-
 import com.ning.http.client.cookie.CookieDecoder.decode
 import com.ning.http.client.uri.Uri
 
+import io.gatling.BaseSpec
 import io.gatling.core.session.Session
 
-class CookieHandlingSpec extends FlatSpec with Matchers {
+class CookieHandlingSpec extends BaseSpec {
 
   val originalCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
   val originalDomain = "docs.foo.com"

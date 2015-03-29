@@ -17,12 +17,11 @@ package io.gatling.core.util
 
 import java.security.MessageDigest
 
-import org.scalatest.{ FlatSpec, Matchers }
-
+import io.gatling.BaseSpec
 import io.gatling.core.util.Io._
 import io.gatling.core.util.StringHelper.RichString
 
-class StringHelperSpec extends FlatSpec with Matchers {
+class StringHelperSpec extends BaseSpec {
 
   val fileBytes = getClass.getResource("/emoticon.png").toByteArray()
 

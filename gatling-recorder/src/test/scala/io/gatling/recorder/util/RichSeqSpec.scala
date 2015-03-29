@@ -15,11 +15,10 @@
  */
 package io.gatling.recorder.util
 
-import org.scalatest.{ FlatSpec, Matchers }
-
+import io.gatling.BaseSpec
 import io.gatling.recorder.util.collection._
 
-class RichSeqSpec extends FlatSpec with Matchers {
+class RichSeqSpec extends BaseSpec {
 
   "groupAsLongAs()" should "group elements as long as the predicate applies" in {
     val reqs = Vector(200, 200, 304, 304, 200, 304, 200, 200).zipWithIndex.map(_.swap)

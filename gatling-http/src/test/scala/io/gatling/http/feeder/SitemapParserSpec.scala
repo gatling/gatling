@@ -19,14 +19,13 @@ import java.io.{ File, InputStream, IOException }
 
 import org.mockito.Mockito._
 import org.mockito.Matchers._
-import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.mock.MockitoSugar
 
+import io.gatling.BaseSpec
 import io.gatling.core.feeder.Record
 import io.gatling.core.config._
 import io.gatling.core.util.Io._
 
-class SitemapParserSpec extends FlatSpec with Matchers with MockitoSugar {
+class SitemapParserSpec extends BaseSpec {
 
   def getFile(filePath: String) = new File(getClass.getClassLoader.getResource("sitemap.xml").getFile)
 

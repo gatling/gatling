@@ -17,10 +17,10 @@ package io.gatling.http.action.sse
 
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{ FlatSpec, Matchers }
 
-class EventStreamParserSpec extends FlatSpec with Matchers with MockitoSugar {
+import io.gatling.BaseSpec
+
+class EventStreamParserSpec extends BaseSpec {
 
   private def parseFullSse(sse: String): ServerSentEvent = {
     val sseDispatcher = mock[EventStreamDispatcher]

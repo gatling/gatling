@@ -15,13 +15,12 @@
  */
 package io.gatling.charts.template
 
-import org.scalatest.{ FlatSpec, Matchers }
-
+import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.charts.component.Statistics
 import io.gatling.charts.component.GroupedCount
 
-class ConsoleTemplateSpec extends FlatSpec with Matchers {
+class ConsoleTemplateSpec extends BaseSpec {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 

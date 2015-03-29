@@ -17,16 +17,17 @@ package io.gatling.http.ahc
 
 import com.ning.http.client.Request
 import com.ning.http.client.uri.Uri
+
+import org.mockito.Mockito._
+
+import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocol, HttpProtocolRequestPart }
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
-import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{ FlatSpec, Matchers }
 
-class HttpTxSpec extends FlatSpec with Matchers with MockitoSugar {
+class HttpTxSpec extends BaseSpec {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 

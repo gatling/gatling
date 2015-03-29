@@ -15,13 +15,13 @@
  */
 package io.gatling.core.feeder
 
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.validation.Failure
-import org.scalatest.{ FlatSpec, Matchers }
-
 import scala.collection.immutable
 
-class FeederBuilderSpec extends FlatSpec with Matchers with FeederSupport {
+import io.gatling.BaseSpec
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.validation.Failure
+
+class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 

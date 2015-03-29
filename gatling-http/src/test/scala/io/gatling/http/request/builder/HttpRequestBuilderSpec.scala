@@ -15,20 +15,18 @@
  */
 package io.gatling.http.request.builder
 
-import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.cache.HttpCaches
-import org.scalatest.mock.MockitoSugar
-import org.scalatest.{ FlatSpec, Matchers }
-
 import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ Request, RequestBuilderBase, SignatureCalculator }
 
+import io.gatling.BaseSpec
+import io.gatling.core.ValidationValues
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
+import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.DefaultHttpProtocol
-import io.gatling.core.test.ValidationValues
 
-class HttpRequestBuilderSpec extends FlatSpec with Matchers with ValidationValues with MockitoSugar {
+class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
   // Default config
   implicit val configuration = GatlingConfiguration.loadForTest()

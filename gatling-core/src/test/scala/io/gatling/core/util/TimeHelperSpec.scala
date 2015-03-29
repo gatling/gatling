@@ -17,11 +17,11 @@ package io.gatling.core.util
 
 import scala.concurrent.duration._
 
-import org.scalatest.{ FlatSpec, Matchers }
+import io.gatling.BaseSpec
 
 import TimeHelper._
 
-class TimeHelperSpec extends FlatSpec with Matchers {
+class TimeHelperSpec extends BaseSpec {
 
   "TimeHelper" should "toMillisPrecision should work correctly" in {
     val t1 = 100.nanoseconds

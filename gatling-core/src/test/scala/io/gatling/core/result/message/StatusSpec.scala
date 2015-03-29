@@ -16,10 +16,10 @@
 package io.gatling.core.result.message
 
 import org.scalacheck.Gen.alphaStr
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import org.scalatest.{ FlatSpec, Matchers }
 
-class StatusSpec extends FlatSpec with Matchers with GeneratorDrivenPropertyChecks {
+import io.gatling.BaseSpec
+
+class StatusSpec extends BaseSpec {
 
   "Status.apply" should "return OK when passing 'OK'" in {
     Status("OK") shouldBe OK

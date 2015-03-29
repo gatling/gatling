@@ -1,5 +1,5 @@
 /**
- * Copyright 2011-2014 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
+ * Copyright 2011-2015 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.util
+package io.gatling
 
-import io.gatling.BaseSpec
-import io.gatling.core.util.HtmlHelper.HtmlRichString
+import org.scalatest.mock.MockitoSugar
+import org.scalatest.{ FlatSpecLike, Matchers }
+import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
-class HtmlHelperSpec extends BaseSpec {
-
-  "htmlEscape" should "escape with entity chars" in {
-    "fooYéfoo".htmlEscape shouldBe "fooY&eacute;foo"
-  }
-}
+trait BaseSpec extends FlatSpecLike with Matchers with MockitoSugar with GeneratorDrivenPropertyChecks

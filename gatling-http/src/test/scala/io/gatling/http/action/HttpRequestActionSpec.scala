@@ -18,18 +18,17 @@ package io.gatling.http.action
 import akka.actor.ActorContext
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
-import org.scalatest.{ FlatSpec, Matchers }
-import org.scalatest.mock.MockitoSugar
 
 import com.ning.http.client.uri.Uri
 
+import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.MockUtils
 
-class HttpRequestActionSpec extends FlatSpec with Matchers with MockitoSugar {
+class HttpRequestActionSpec extends BaseSpec {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val httpCaches = new HttpCaches()

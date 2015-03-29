@@ -15,12 +15,12 @@
  */
 package io.gatling.jms.protocol
 
-import io.gatling.core.test.ValidationValues
+import io.gatling.BaseSpec
+import io.gatling.core.ValidationValues
 import io.gatling.jms.MockMessage
 import io.gatling.jms.Predef._
-import org.scalatest.{ FlatSpec, Matchers }
 
-class JmsProtocolSpec extends FlatSpec with Matchers with ValidationValues with MockMessage {
+class JmsProtocolSpec extends BaseSpec with ValidationValues with MockMessage {
 
   "jms protocol" should "pass defined parameters" in {
 

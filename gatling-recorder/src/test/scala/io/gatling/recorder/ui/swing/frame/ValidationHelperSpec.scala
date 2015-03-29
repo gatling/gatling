@@ -15,11 +15,10 @@
  */
 package io.gatling.recorder.ui.swing.frame
 
-import org.scalatest.{ FlatSpec, Matchers }
+import io.gatling.BaseSpec
+import io.gatling.recorder.ui.swing.frame.ValidationHelper._
 
-import ValidationHelper._
-
-class ValidationHelperSpec extends FlatSpec with Matchers {
+class ValidationHelperSpec extends BaseSpec {
 
   "isValidPackageName" should "accept lower case" in {
     isValidPackageName("foo.bar") shouldBe true

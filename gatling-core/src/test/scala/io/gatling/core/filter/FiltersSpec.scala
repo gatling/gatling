@@ -15,9 +15,10 @@
  */
 package io.gatling.core.filter
 
-import org.scalatest.{ FlatSpec, Inspectors, Matchers }
+import org.scalatest.Inspectors
+import io.gatling.BaseSpec
 
-class FiltersSpec extends FlatSpec with Matchers with Inspectors {
+class FiltersSpec extends BaseSpec with Inspectors {
 
   val hosts = List(
     "http://excilys.com",

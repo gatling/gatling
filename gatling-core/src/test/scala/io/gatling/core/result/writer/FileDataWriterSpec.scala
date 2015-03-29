@@ -15,13 +15,12 @@
  */
 package io.gatling.core.result.writer
 
-import org.scalatest.{ FlatSpec, Matchers }
-
+import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message._
 import io.gatling.core.util.StringHelper._
 
-class FileDataWriterSpec extends FlatSpec with Matchers {
+class FileDataWriterSpec extends BaseSpec {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   import FileDataWriter._

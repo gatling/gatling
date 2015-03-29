@@ -16,12 +16,12 @@
 package io.gatling.core.util
 
 import java.lang
-import org.scalatest.{ FlatSpec, Matchers }
 
+import io.gatling.BaseSpec
 import io.gatling.core.util.TypeHelper._
 import io.gatling.core.validation._
 
-class TypeHelperSpec extends FlatSpec with Matchers {
+class TypeHelperSpec extends BaseSpec {
 
   "asValidation" should "return the string representation of the object when asking for type String" in {
     3.2.asValidation[String] shouldBe Success("3.2")

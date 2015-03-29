@@ -17,9 +17,9 @@ package io.gatling.http.util
 
 import java.nio.charset.StandardCharsets.UTF_8
 
-import org.scalatest.{ FlatSpec, Matchers }
+import io.gatling.BaseSpec
 
-class HttpHelperSpec extends FlatSpec with Matchers {
+class HttpHelperSpec extends BaseSpec {
 
   "parseFormBody" should "support unique param" in {
     HttpHelper.parseFormBody("foo=bar") shouldBe List("foo" -> "bar")

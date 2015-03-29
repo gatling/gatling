@@ -15,9 +15,9 @@
  */
 package io.gatling.core.util.cache
 
-import org.scalatest.{ FlatSpec, Matchers }
+import io.gatling.BaseSpec
 
-class CacheSpec extends FlatSpec with Matchers {
+class CacheSpec extends BaseSpec {
 
   "Cache.get" should "return the value wrapped in an Option if key present in cache" in {
     val cache = Cache[String, String](1)
