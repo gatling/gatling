@@ -82,7 +82,19 @@ Additional tasks
 
 Gatling's SBT plugin also offers four additional tasks:
 
-* ``startRecorder``, which start the Recorder, configured to save recorded simulations to the location specified by ``scalaSource in Gatling`` (by default, ``src/test/scala``).
-* ``lastReport``, which opens the last generated report in your web browser.
-* ``copyConfigFiles``, which copies Gatling's configuration files (gatling.conf & recorder.conf) from the bundle into your project resources if they're missing.
-* ``copyLogbackXml``, which copies Gatling's default logback.xml.
+* ``startRecorder``: starts the Recorder, configured to save recorded simulations to the location specified by ``scalaSource in Gatling`` (by default, ``src/test/scala``).
+* ``generateReport``: generates reports for a specified report folder.
+* ``lastReport``: opens by the last generated report in your web browser. A simulation name can be specified to open the last report for that simulation.
+* ``copyConfigFiles``: copies Gatling's configuration files (gatling.conf & recorder.conf) from the bundle into your project resources if they're missing.
+* ``copyLogbackXml``: copies Gatling's default logback.xml.
+
+Overriding JVM options
+======================
+
+Gatling's SBT plugin uses the same default JVM options as the bundle launchers or the Maven plugin, which should be sufficient for most simulations.
+However, should you need to tweak them, you can use ``overrideDefaultJavaOptions`` to only override those default options, without replacing them completely.
+
+E.g., if you want to tweak Xms/Xmx to give more memory to Gatling::
+
+  javaOptions in Gatling := overrideDefaultJavaOptions("-Xms1024m", "-Xmx2048m")
+  
