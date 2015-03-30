@@ -15,11 +15,16 @@
  */
 package io.gatling.core.action
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.result.message.KO
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
+
+object ExitHereIfFailed {
+  def props(userEnd: ActorRef, dataWriters: DataWriters, next: ActorRef) =
+    Props(new ExitHereIfFailed(userEnd, dataWriters, next))
+}
 
 class ExitHereIfFailed(userEnd: ActorRef, dataWriters: DataWriters, val next: ActorRef) extends Chainable {
 

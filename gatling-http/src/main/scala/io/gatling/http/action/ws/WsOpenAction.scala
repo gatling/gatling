@@ -17,8 +17,7 @@ package io.gatling.http.action.ws
 
 import com.ning.http.client.Request
 
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.action.Interruptable
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Expression, Session }
@@ -26,6 +25,17 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.{ HttpEngine, WsTx }
 import io.gatling.http.check.ws._
 import io.gatling.http.config.HttpProtocol
+
+object WsOpenAction {
+  def props(requestName: Expression[String],
+            wsName: String,
+            request: Expression[Request],
+            checkBuilder: Option[WsCheckBuilder],
+            dataWriters: DataWriters,
+            next: ActorRef,
+            protocol: HttpProtocol)(implicit httpEngine: HttpEngine) =
+    Props(new WsOpenAction(requestName, wsName, request, checkBuilder, dataWriters, next, protocol))
+}
 
 class WsOpenAction(
   requestName: Expression[String],
@@ -41,10 +51,8 @@ class WsOpenAction(
 
       def open(tx: WsTx): Unit = {
         logger.info(s"Opening websocket '$wsName': Scenario '${session.scenarioName}', UserId #${session.userId}")
-
-        val wsActor = actor(context, actorName("wsActor"))(new WsActor(wsName, dataWriters))
-
-        httpEngine.startWebSocketTransaction(tx, wsActor)
+        val wsActor = context.actorOf(WsActor.props(wsName, dataWriters), actorName("wsActor"))
+        httpEngine.startWsTransaction(tx, wsActor)
       }
 
     for {

@@ -15,9 +15,14 @@
  */
 package io.gatling.core.action
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Expression, Session }
+
+object Switch {
+  def props(nextAction: Expression[ActorRef], dataWriters: DataWriters, next: ActorRef) =
+    Props(new Switch(nextAction, dataWriters, next))
+}
 
 class Switch(nextAction: Expression[ActorRef], val dataWriters: DataWriters, val next: ActorRef) extends Interruptable with Failable {
 

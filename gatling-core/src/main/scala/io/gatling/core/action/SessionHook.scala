@@ -15,9 +15,17 @@
  */
 package io.gatling.core.action
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Expression, Session }
+
+object SessionHook {
+  def props(sessionFunction: Expression[Session], dataWriters: DataWriters, next: ActorRef, interruptable: Boolean) =
+    if (interruptable)
+      Props(new SessionHook(sessionFunction, dataWriters, next) with Interruptable)
+    else
+      Props(new SessionHook(sessionFunction, dataWriters, next))
+}
 
 /**
  * Hook for interacting with the Session

@@ -15,9 +15,14 @@
  */
 package io.gatling.core.action
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Expression, Session }
+
+object If {
+  def props(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, dataWriters: DataWriters, next: ActorRef) =
+    Props(new If(condition, thenNext, elseNext, dataWriters, next))
+}
 
 /**
  * A conditional Action

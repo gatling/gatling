@@ -15,10 +15,18 @@
  */
 package io.gatling.http.action.ws
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session._
 import io.gatling.http.action.RequestAction
+
+object WsReconciliateAction {
+  def props(requestName: Expression[String],
+            wsName: String,
+            dataWriters: DataWriters,
+            next: ActorRef) =
+    Props(new WsReconciliateAction(requestName, wsName, dataWriters, next))
+}
 
 class WsReconciliateAction(
   val requestName: Expression[String],

@@ -15,8 +15,7 @@
  */
 package io.gatling.core.action.builder
 
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
+import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Pause
 import io.gatling.core.pause.Disabled
 import io.gatling.core.session.Expression
@@ -30,9 +29,9 @@ import io.gatling.core.structure.ScenarioContext
  */
 class CustomPauseBuilder(delayGenerator: Expression[Long]) extends ActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext) =
+  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
     ctx.pauseType match {
       case Disabled => next
-      case _        => actor(actorName("customPause"))(new Pause(delayGenerator, ctx.dataWriters, next))
+      case _        => system.actorOf(Pause.props(delayGenerator, ctx.dataWriters, next), actorName("customPause"))
     }
 }

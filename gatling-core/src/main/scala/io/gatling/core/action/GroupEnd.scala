@@ -15,11 +15,16 @@
  */
 package io.gatling.core.action
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import com.typesafe.scalalogging.StrictLogging
+
+object GroupEnd {
+  def props(dataWriters: DataWriters, next: ActorRef) =
+    Props(new GroupEnd(dataWriters, next))
+}
 
 class GroupEnd(dataWriters: DataWriters, val next: ActorRef) extends Chainable with StrictLogging {
 

@@ -17,19 +17,12 @@ package io.gatling.core.akka
 
 import java.util.concurrent.atomic.AtomicLong
 
-import akka.pattern.AskSupport
-
-object AkkaDefaults {
+object ActorNames {
   val IdGen = new AtomicLong()
 }
 
-trait AkkaDefaults extends AskSupport {
-
-  import AkkaDefaults._
-
-  implicit def system = GatlingActorSystem.instance
-  implicit def dispatcher = system.dispatcher
-  implicit def scheduler = system.scheduler
+trait ActorNames {
+  import ActorNames._
 
   def actorName(base: String) = base + "-" + IdGen.incrementAndGet
 }

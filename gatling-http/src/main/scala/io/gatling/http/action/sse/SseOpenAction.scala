@@ -15,8 +15,7 @@
  */
 package io.gatling.http.action.sse
 
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import com.ning.http.client.Request
 import io.gatling.core.action.Interruptable
 import io.gatling.core.result.writer.DataWriters
@@ -25,6 +24,18 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.{ HttpEngine, SseTx }
 import io.gatling.http.check.ws._
 import io.gatling.http.config.HttpProtocol
+
+object SseOpenAction {
+  def props(
+    requestName: Expression[String],
+    sseName: String,
+    request: Expression[Request],
+    checkBuilder: Option[WsCheckBuilder],
+    dataWriters: DataWriters,
+    next: ActorRef,
+    protocol: HttpProtocol)(implicit httpEngine: HttpEngine) =
+    Props(new SseOpenAction(requestName, sseName, request, checkBuilder, dataWriters, next: ActorRef, protocol))
+}
 
 class SseOpenAction(
     requestName: Expression[String],
@@ -39,7 +50,7 @@ class SseOpenAction(
 
       def open(tx: SseTx): Unit = {
         logger.info(s"Opening and getting sse '$sseName': Scenario '${session.scenarioName}', UserId #${session.userId}")
-        val sseActor = actor(context)(new SseActor(sseName, dataWriters))
+        val sseActor = context.actorOf(SseActor.props(sseName, dataWriters), actorName("sseActor"))
         httpEngine.startSseTransaction(tx, sseActor)
       }
 

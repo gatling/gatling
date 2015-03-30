@@ -15,8 +15,7 @@
  */
 package io.gatling.core.action.builder
 
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
+import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Switch
 import io.gatling.core.config.Protocol
 import io.gatling.core.session.Expression
@@ -28,14 +27,14 @@ class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionB
 
   require(possibilities.size >= 2, "Round robin switch requires at least 2 possibilities")
 
-  def build(next: ActorRef, ctx: ScenarioContext) = {
+  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
 
-    val possibleActions = possibilities.map(_.build(next, ctx)).toArray
+    val possibleActions = possibilities.map(_.build(system, next, ctx)).toArray
     val roundRobin = RoundRobin(possibleActions)
 
     val nextAction: Expression[ActorRef] = _ => roundRobin.next.success
 
-    actor(actorName("roundRobinSwitch"))(new Switch(nextAction, ctx.dataWriters, next))
+    system.actorOf(Switch.props(nextAction, ctx.dataWriters, next), actorName("roundRobinSwitch"))
   }
 
   override def defaultProtocols: Set[Protocol] = {

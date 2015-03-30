@@ -45,7 +45,7 @@ trait JmsMockingSpec extends BrokerBasedSpec with JmsModule {
     .listenerCount(1)
 
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit configuration: GatlingConfiguration) = {
-    val actor = sb.build(self, ScenarioContext(mock[ActorRef], mock[DataWriters], mock[ActorRef], protocols, Constant, throttled = false))
+    val actor = sb.build(system, self, ScenarioContext(mock[ActorRef], mock[DataWriters], mock[ActorRef], protocols, Constant, throttled = false))
     actor ! Session("TestSession", "testUser")
     val session = expectMsgClass(timeout, classOf[Session])
 

@@ -15,10 +15,9 @@
  */
 package io.gatling.core.action.builder
 
-import akka.actor.ActorRef
-import akka.actor.ActorDSL.actor
+import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Loop
-import io.gatling.core.config.{ Protocol, Protocols }
+import io.gatling.core.config.Protocol
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
 
@@ -38,10 +37,10 @@ case object AsLongAsLoopType extends LoopType("asLongAs")
  */
 class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean, loopType: LoopType) extends ActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext) = {
+  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
     val safeCondition = condition.safe
-    val whileActor = actor(actorName(loopType.name))(new Loop(safeCondition, counterName, exitASAP, ctx.dataWriters, next))
-    val loopNextActor = loopNext.build(whileActor, ctx)
+    val whileActor = system.actorOf(Loop.props(safeCondition, counterName, exitASAP, ctx.dataWriters, next), actorName(loopType.name))
+    val loopNextActor = loopNext.build(system, whileActor, ctx)
     whileActor ! loopNextActor
     whileActor
   }

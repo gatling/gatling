@@ -19,24 +19,23 @@ import io.gatling.core.structure.ScenarioContext
 
 import scala.collection.mutable
 
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
+import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.{ Feed, SingletonFeed }
-import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.session.Expression
 
-object FeedBuilder extends AkkaDefaults {
+object FeedBuilder {
 
-  // FIXME not very clean
+  // FIXME not very clean, but is there a better way?
   val Instances = mutable.Map.empty[FeederBuilder[_], ActorRef]
-
-  def apply[T](feederBuilder: FeederBuilder[T], number: Expression[Int]) =
-    new FeedBuilder(Instances.getOrElseUpdate(feederBuilder, actor(new SingletonFeed(feederBuilder.build))), number)
 }
 
-class FeedBuilder(instance: => ActorRef, number: Expression[Int]) extends ActionBuilder {
+class FeedBuilder(feederBuilder: FeederBuilder[_], number: Expression[Int]) extends ActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext) =
-    actor(actorName("feed"))(new Feed(instance, ctx.controller, number, ctx.dataWriters, next))
+  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
+
+    val feederInstance = FeedBuilder.Instances.getOrElseUpdate(feederBuilder, system.actorOf(SingletonFeed.props(feederBuilder.build(system)), actorName("singletonFeed")))
+
+    system.actorOf(Feed.props(feederInstance, ctx.controller, number, ctx.dataWriters, next), actorName("feed"))
+  }
 }

@@ -15,6 +15,8 @@
  */
 package io.gatling.core.feeder
 
+import akka.actor.ActorSystem
+
 import scala.collection.immutable
 
 import io.gatling.BaseSpec
@@ -39,7 +41,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
   "RecordSeqFeederBuilder" should "build a Feeder behaving accordingly to each strategy" in {
     //Queue
-    val queuedFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).queue.build
+    val queuedFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).queue.build(mock[ActorSystem])
     queuedFeeder.toArray shouldBe Array(Map("1" -> "Test"), Map("2" -> "Test"))
 
     //Random
@@ -49,7 +51,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
     val testsOutcome: immutable.IndexedSeq[Boolean] =
       (1 to 3).map { _ =>
-        val randomFeeder = RecordSeqFeederBuilder(orderedMaps).random.build
+        val randomFeeder = RecordSeqFeederBuilder(orderedMaps).random.build(mock[ActorSystem])
         randomFeeder.hasNext shouldBe true
         val retrievedMaps = fiftyTimes.map(_ => randomFeeder.next())
         retrievedMaps != orderedMaps
@@ -58,7 +60,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
     if (!testsOutcome.reduce(_ || _)) fail("Random feeder did not return a random order even once out of three attempts")
 
     //Circular
-    val circularFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).circular.build
+    val circularFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).circular.build(mock[ActorSystem])
     circularFeeder.next()
     circularFeeder.next()
     circularFeeder.next() shouldBe Map("1" -> "Test")
@@ -81,10 +83,10 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   }
 
   "FeederBuilder" should "have working implicit conversions" in {
-    IndexedSeq(Map("1" -> "Test")).build shouldBe a[Feeder[_]]
-    val convertedObj = Array(Map("1" -> "Test")).build
+    IndexedSeq(Map("1" -> "Test")).build(mock[ActorSystem]) shouldBe a[Feeder[_]]
+    val convertedObj = Array(Map("1" -> "Test")).build(mock[ActorSystem])
     convertedObj shouldBe a[Feeder[_]]
-    convertedObj.build shouldBe a[Feeder[_]]
+    convertedObj.build(mock[ActorSystem]) shouldBe a[Feeder[_]]
   }
 
 }

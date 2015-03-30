@@ -15,9 +15,14 @@
  */
 package io.gatling.core.action
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Expression, Session }
+
+object GroupStart {
+  def props(groupName: Expression[String], dataWriters: DataWriters, next: ActorRef) =
+    Props(new GroupStart(groupName, dataWriters, next))
+}
 
 class GroupStart(groupName: Expression[String], val dataWriters: DataWriters, val next: ActorRef) extends Interruptable with Failable {
 

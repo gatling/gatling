@@ -17,8 +17,13 @@ package io.gatling.core.action
 
 import scala.collection.mutable
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.session.Session
+
+object RendezVous {
+  def props(users: Int, next: ActorRef) =
+    Props(new RendezVous(users: Int, next))
+}
 
 /**
  * Buffer Sessions until users is reached, then unleash buffer and become passthrough.

@@ -15,10 +15,15 @@
  */
 package io.gatling.core.action
 
-import akka.actor.{ Actor, ActorRef }
-import akka.actor.ActorDSL.actor
+import akka.actor.{ Props, ActorRef }
+import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ LoopBlock, Expression, Session }
+
+object Loop {
+  def props(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, dataWriters: DataWriters, next: ActorRef) =
+    Props(new Loop(continueCondition, counterName, exitASAP, dataWriters, next))
+}
 
 /**
  * Action in charge of controlling a while loop execution.
@@ -28,19 +33,28 @@ import io.gatling.core.session.{ LoopBlock, Expression, Session }
  * @param counterName the name of the counter for this loop
  * @param next the chain executed if testFunction evaluates to false
  */
-class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, dataWriters: DataWriters, next: ActorRef) extends Actor {
+class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, dataWriters: DataWriters, next: ActorRef) extends BaseActor {
 
   def initialized(innerLoop: ActorRef): Receive =
     Interruptable.interrupt(dataWriters) orElse { case m => innerLoop forward m }
 
   val uninitialized: Receive = {
     case loopNext: ActorRef =>
-      val actorName = self.path.name + "-inner"
-      val innerLoop = actor(actorName)(new InnerLoop(continueCondition, loopNext, counterName, exitASAP, next))
+      val innerLoopName = self.path.name + "-inner"
+      val innerLoop = context.actorOf(InnerLoop.props(continueCondition, loopNext, counterName, exitASAP, next), innerLoopName)
       context.become(initialized(innerLoop))
   }
 
   override def receive = uninitialized
+}
+
+object InnerLoop {
+  def props(continueCondition: Expression[Boolean],
+            loopNext: ActorRef,
+            counterName: String,
+            exitASAP: Boolean,
+            next: ActorRef) =
+    Props(new InnerLoop(continueCondition, loopNext, counterName, exitASAP, next))
 }
 
 class InnerLoop(

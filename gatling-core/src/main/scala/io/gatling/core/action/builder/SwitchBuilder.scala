@@ -16,8 +16,7 @@
 package io.gatling.core.action.builder
 
 import scala.collection.breakOut
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
+import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Switch
 import io.gatling.core.config.Protocol
 import io.gatling.core.session._
@@ -27,19 +26,19 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
   require(possibilities.size >= 2, "Switch requires at least 2 possibilities")
 
-  def build(next: ActorRef, ctx: ScenarioContext) = {
+  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
 
     val possibleActions: Map[Any, ActorRef] = possibilities.map {
       case (percentage, possibility) =>
-        val possibilityAction = possibility.build(next, ctx)
+        val possibilityAction = possibility.build(system, next, ctx)
         (percentage, possibilityAction)
     }(breakOut)
 
-    val elseNextActor = elseNext.map(_.build(next, ctx)).getOrElse(next)
+    val elseNextActor = elseNext.map(_.build(system, next, ctx)).getOrElse(next)
 
     val nextAction = value.map(resolvedValue => possibleActions.getOrElse(resolvedValue, elseNextActor))
 
-    actor(actorName("switch"))(new Switch(nextAction, ctx.dataWriters, next))
+    system.actorOf(Switch.props(nextAction, ctx.dataWriters, next), actorName("switch"))
   }
 
   override def defaultProtocols: Set[Protocol] = {

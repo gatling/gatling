@@ -15,6 +15,8 @@
  */
 package io.gatling.core.runner
 
+import akka.actor.ActorSystem
+import akka.pattern.ask
 import io.gatling.core.action.UserEnd
 import io.gatling.core.config.{ Protocols, GatlingConfiguration }
 import io.gatling.core.funspec.GatlingFunSpec
@@ -27,16 +29,19 @@ import scala.util.{ Try, Failure, Success }
 import com.typesafe.scalalogging.StrictLogging
 
 import akka.util.Timeout
-import io.gatling.core.akka.{ AkkaDefaults, GatlingActorSystem }
 import io.gatling.core.controller.{ Run, Controller }
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.util.TimeHelper._
 
 case class RunResult(runId: String, hasAssertions: Boolean)
 
-class Runner(selection: Selection)(implicit configuration: GatlingConfiguration) extends AkkaDefaults with StrictLogging {
+class Runner(selection: Selection)(implicit configuration: GatlingConfiguration) extends StrictLogging {
 
-  def run: RunResult =
+  def run: RunResult = {
+
+    // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
+    val system = ActorSystem("GatlingSystem")
+
     try {
       val simulationClass = selection.simulationClass
       println(s"Simulation ${simulationClass.getName} started...")
@@ -44,8 +49,6 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
       // important, initialize time reference
       val timeRef = NanoTimeReference
 
-      // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
-      GatlingActorSystem.start()
       val simulation = simulationClass.newInstance
 
       simulation match {
@@ -57,19 +60,19 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
 
       val runMessage = RunMessage(selection.simulationClass.getName, selection.simulationId, nowMillis, selection.description)
 
-      val dataWritersInit = DataWriters(simulation._populationBuilders, simulation._assertions, selection, runMessage)
+      val dataWritersInit = DataWriters(system, simulation._populationBuilders, simulation._assertions, selection, runMessage)
       val dataWriters = Await.result(dataWritersInit, 5 seconds).get
 
-      val controller = Controller(selection, dataWriters)
-      val userEnd = UserEnd(controller)
+      val controller = system.actorOf(Controller.props(selection, dataWriters, configuration), "gatling-controller")
+      val userEnd = system.actorOf(UserEnd.props(controller), "userEnd")
 
-      val simulationDef = simulation.build(controller, dataWriters, userEnd)
+      val simulationDef = simulation.build(system, controller, dataWriters, userEnd)
 
       simulationDef.scenarios.foldLeft(Protocols()) { (protocols, scenario) =>
         protocols ++ scenario.ctx.protocols
-      }.warmUp(dataWriters)
+      }.warmUp(system, dataWriters)
 
-      Throttler.start(simulationDef)
+      Throttler.start(system, simulationDef)
 
       val simulationTimeout = configuration.core.timeout.simulation seconds
       implicit val timeout = Timeout(simulationTimeout)
@@ -96,6 +99,8 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
       }
 
     } finally {
-      GatlingActorSystem.shutdown()
+      system.shutdown()
+      system.awaitTermination()
     }
+  }
 }

@@ -21,7 +21,11 @@ import akka.actor.{ Actor, Terminated }
 
 import scala.concurrent.duration.Duration
 
-abstract class BaseActor extends Actor with AkkaDefaults with StrictLogging {
+abstract class BaseActor extends Actor with ActorNames with StrictLogging {
+
+  implicit def system = context.system
+  def scheduler = system.scheduler
+  implicit def dispatcher = system.dispatcher
 
   // FIXME is ReceiveTimeout set up by default?
   override def preStart(): Unit = context.setReceiveTimeout(Duration.Undefined)

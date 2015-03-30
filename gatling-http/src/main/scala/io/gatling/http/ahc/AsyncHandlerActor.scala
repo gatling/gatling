@@ -15,13 +15,14 @@
  */
 package io.gatling.http.ahc
 
+import akka.actor.Props
+
 import scala.util.control.NonFatal
 
 import com.ning.http.client.{ Request, RequestBuilder }
 import com.ning.http.client.uri.Uri
 import com.ning.http.util.StringUtils.stringBuilder
 
-import akka.actor.ActorDSL.actor
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration
@@ -139,7 +140,7 @@ class AsyncHandlerActor(implicit configuration: GatlingConfiguration, httpEngine
     if (tx.primary)
       httpEngine.resourceFetcherActorForFetchedPage(tx.request.ahcRequest, response, tx) match {
         case Some(resourceFetcherActor) =>
-          actor(context, actorName("resourceFetcher"))(resourceFetcherActor())
+          context.actorOf(Props(resourceFetcherActor()), actorName("resourceFetcher"))
 
         case None =>
           tx.next ! tx.session.increaseDrift(nowMillis - response.timings.responseEndDate)

@@ -46,7 +46,7 @@ class ExecsSpec extends AkkaSpec with CoreModule {
         session
       }
 
-    val chain = chainBuilder.build(self, ctx)
+    val chain = chainBuilder.build(system, self, ctx)
     val session = Session("TestScenario", "testUser")
     chain ! session
     /*

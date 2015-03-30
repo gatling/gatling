@@ -22,23 +22,20 @@ import scala.util.{ Failure, Success, Try }
 
 import com.typesafe.scalalogging.StrictLogging
 
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
+import akka.actor.Props
 
-import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ End, Start }
 import io.gatling.core.result.writer.{ DataWriters, UserMessage }
 import io.gatling.core.runner.Selection
 import io.gatling.core.util.TimeHelper.nowMillis
 
-object Controller extends AkkaDefaults with StrictLogging {
-
-  def apply(selection: Selection, dataWriters: DataWriters)(implicit configuration: GatlingConfiguration): ActorRef =
-    actor("gatling-controller")(new Controller(selection, dataWriters))
+object Controller extends StrictLogging {
+  def props(selection: Selection, dataWriters: DataWriters, configuration: GatlingConfiguration) =
+    Props(new Controller(selection, dataWriters, configuration))
 }
 
-class Controller(selection: Selection, dataWriters: DataWriters)(implicit configuration: GatlingConfiguration)
+class Controller(selection: Selection, dataWriters: DataWriters, configuration: GatlingConfiguration)
     extends ControllerFSM {
 
   startWith(WaitingToStart, NoData)
@@ -68,14 +65,14 @@ class Controller(selection: Selection, dataWriters: DataWriters)(implicit config
       def setUpSimulationMaxDuration(): Unit =
         initData.simulationDef.maxDuration.foreach { maxDuration =>
           logger.debug("Setting up max duration")
-          scheduler.scheduleOnce(maxDuration)(self ! ForceTermination())
+          setTimer("maxDurationTimer", ForceTermination(), maxDuration)
         }
 
       def startUpScenarios(userIdRoot: String, userStreams: Map[String, UserStream]): BatchScheduler = {
         val scheduler = new BatchScheduler(userIdRoot, nowMillis, 10 seconds, self)
 
         logger.debug("Launching All Scenarios")
-        userStreams.values.foreach(scheduler.scheduleUserStream)
+        userStreams.values.foreach(scheduler.scheduleUserStream(system, _))
         logger.debug("Finished Launching scenarios executions")
 
         setUpSimulationMaxDuration()
@@ -132,7 +129,7 @@ class Controller(selection: Selection, dataWriters: DataWriters)(implicit config
   private def scheduleNextBatch(runData: RunData, scenarioName: String): Unit = {
     val userStream = runData.userStreams(scenarioName)
     logger.info(s"Starting new user batch for $scenarioName")
-    runData.scheduler.scheduleUserStream(userStream)
+    runData.scheduler.scheduleUserStream(system, userStream)
   }
 
   private def endAllRemainingUsers(runData: RunData): Unit = {

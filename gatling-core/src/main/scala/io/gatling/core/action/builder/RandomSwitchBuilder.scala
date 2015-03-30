@@ -20,8 +20,7 @@ import scala.concurrent.forkjoin.ThreadLocalRandom
 
 import com.typesafe.scalalogging.StrictLogging
 
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
+import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Switch
 import io.gatling.core.config.Protocol
 import io.gatling.core.session.Expression
@@ -53,15 +52,15 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
   if (sum == Accuracy && elseNext.isDefined)
     logger.warn("Random switch has a 100% sum, yet a else is defined?!")
 
-  def build(next: ActorRef, ctx: ScenarioContext) = {
+  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
 
     val possibleActions = possibilities.map {
       case (percentage, possibility) =>
-        val possibilityAction = possibility.build(next, ctx)
+        val possibilityAction = possibility.build(system, next, ctx)
         (percentage, possibilityAction)
     }
 
-    val elseNextActor = elseNext.map(_.build(next, ctx)).getOrElse(next)
+    val elseNextActor = elseNext.map(_.build(system, next, ctx)).getOrElse(next)
 
     val nextAction: Expression[ActorRef] = _ => {
 
@@ -77,8 +76,7 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
 
       determineNextAction(randomWithinAccuracy, possibleActions).success
     }
-
-    actor(actorName("randomSwitch"))(new Switch(nextAction, ctx.dataWriters, next))
+    system.actorOf(Switch.props(nextAction, ctx.dataWriters, next), actorName("randomSwitch"))
   }
 
   override def defaultProtocols: Set[Protocol] = {

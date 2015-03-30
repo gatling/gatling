@@ -15,17 +15,16 @@
  */
 package io.gatling.core.action
 
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
-import io.gatling.core.akka.AkkaDefaults
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.result.message.End
 import io.gatling.core.result.writer.UserMessage
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 
-object UserEnd extends AkkaDefaults {
+object UserEnd {
 
-  def apply(controller: ActorRef): ActorRef = actor("userEnd")(new UserEnd(controller))
+  def props(controller: ActorRef) =
+    Props(new UserEnd(controller))
 }
 
 class UserEnd(controller: ActorRef) extends Action {

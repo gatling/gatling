@@ -19,8 +19,7 @@ import io.gatling.core.structure.ScenarioContext
 
 import scala.concurrent.duration.Duration
 
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
+import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Pause
 import io.gatling.core.pause.{ PauseType, Disabled }
 import io.gatling.core.session.Expression
@@ -30,16 +29,17 @@ import io.gatling.core.session.Expression
  *
  * @constructor create a new PauseBuilder
  * @param duration mean duration of the generated pause
+ * @param force if the global pause type has to be overridden
  */
 class PauseBuilder(duration: Expression[Duration], force: Option[PauseType]) extends ActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext) = {
+  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
 
     force.getOrElse(ctx.pauseType) match {
       case Disabled => next
       case pauseType =>
         val generator = pauseType.generator(duration)
-        actor(actorName("pause"))(new Pause(generator, ctx.dataWriters, next))
+        system.actorOf(Pause.props(generator, ctx.dataWriters, next), actorName("pause"))
     }
   }
 }

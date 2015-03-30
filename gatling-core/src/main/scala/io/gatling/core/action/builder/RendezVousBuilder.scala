@@ -15,12 +15,12 @@
  */
 package io.gatling.core.action.builder
 
-import akka.actor.ActorRef
-import akka.actor.ActorDSL.actor
+import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.RendezVous
 import io.gatling.core.structure.ScenarioContext
 
 class RendezVousBuilder(users: Int) extends ActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext) = actor(actorName("rendezVous"))(new RendezVous(users, next))
+  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
+    system.actorOf(RendezVous.props(users, next), actorName("rendezVous"))
 }

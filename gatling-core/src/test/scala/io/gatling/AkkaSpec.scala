@@ -15,16 +15,15 @@
  */
 package io.gatling
 
+import akka.actor.ActorSystem
 import akka.testkit.{ TestKit, ImplicitSender }
 import org.scalatest.BeforeAndAfterAll
 
-import io.gatling.core.akka.GatlingActorSystem
-
 abstract class AkkaSpec
-    extends TestKit(GatlingActorSystem.start())
+    extends TestKit(ActorSystem())
     with BaseSpec
     with ImplicitSender
     with BeforeAndAfterAll {
 
-  override def afterAll() = GatlingActorSystem.shutdown()
+  override def afterAll() = system.shutdown()
 }

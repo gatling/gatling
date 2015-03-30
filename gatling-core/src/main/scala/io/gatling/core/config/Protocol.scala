@@ -15,6 +15,7 @@
  */
 package io.gatling.core.config
 
+import akka.actor.ActorSystem
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.Session
 
@@ -23,7 +24,7 @@ import io.gatling.core.session.Session
  */
 trait Protocol {
 
-  def warmUp(dataWriters: DataWriters): Unit = {}
+  def warmUp(system: ActorSystem, dataWriters: DataWriters): Unit = {}
 
   def userEnd(session: Session): Unit = {}
 }

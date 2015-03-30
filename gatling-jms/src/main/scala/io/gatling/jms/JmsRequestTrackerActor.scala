@@ -16,7 +16,7 @@
 package io.gatling.jms
 
 import scala.collection.mutable
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 
 import io.gatling.core.Predef.Session
 import io.gatling.core.akka.BaseActor
@@ -45,6 +45,10 @@ case class MessageSent(
  * Advise actor a response message was received from JMS provider
  */
 case class MessageReceived(responseId: String, received: Long, message: Message)
+
+object JmsRequestTrackerActor {
+  def props(dataWriters: DataWriters) = Props(new JmsRequestTrackerActor(dataWriters))
+}
 
 /**
  * Bookkeeping actor to correlate request and response JMS messages

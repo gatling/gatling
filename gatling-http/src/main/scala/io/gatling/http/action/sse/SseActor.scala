@@ -15,7 +15,7 @@
  */
 package io.gatling.http.action.sse
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.CheckResult
 import io.gatling.core.result.message.{ RequestTimings, KO, OK, Status }
@@ -27,6 +27,11 @@ import io.gatling.http.ahc.SseTx
 import io.gatling.http.check.ws.{ WsCheck, ExpectedCount, ExpectedRange, UntilCount }
 
 import scala.collection.mutable
+
+object SseActor {
+  def props(sseName: String, dataWriters: DataWriters) =
+    Props(new SseActor(sseName, dataWriters))
+}
 
 class SseActor(sseName: String, dataWriters: DataWriters) extends BaseActor {
 

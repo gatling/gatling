@@ -15,8 +15,7 @@
  */
 package io.gatling.http.action.sse
 
-import akka.actor.ActorDSL._
-import akka.actor.ActorRef
+import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
@@ -32,33 +31,33 @@ class SseOpenActionBuilder(requestName: Expression[String],
 
   def check(checkBuilder: WsCheckBuilder) = new SseOpenActionBuilder(requestName, sseName, requestBuilder, Some(checkBuilder))
 
-  override def build(next: ActorRef, ctx: ScenarioContext): ActorRef = {
+  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef = {
     val protocol = ctx.protocols.protocol[HttpProtocol]
     val request = requestBuilder.build(protocol)
-    actor(new SseOpenAction(requestName, sseName, request, checkBuilder, ctx.dataWriters, next, protocol))
+    system.actorOf(SseOpenAction.props(requestName, sseName, request, checkBuilder, ctx.dataWriters, next, protocol), actorName("sseOpen"))
   }
 }
 
 class SseSetCheckActionBuilder(requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext): ActorRef =
-    actor(actorName("sseSetCheck"))(new SseSetCheckAction(requestName, checkBuilder, sseName, ctx.dataWriters, next))
+  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef =
+    system.actorOf(SseSetCheckAction.props(requestName, checkBuilder, sseName, ctx.dataWriters, next), actorName("sseSetCheck"))
 }
 
 class SseCancelCheckActionBuilder(requestName: Expression[String], sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext): ActorRef =
-    actor(actorName("sseCancelCheck"))(new SseCancelCheckAction(requestName, sseName, ctx.dataWriters, next))
+  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef =
+    system.actorOf(SseCancelCheckAction.props(requestName, sseName, ctx.dataWriters, next), actorName("sseCancelCheck"))
 }
 
 class SseReconciliateActionBuilder(requestName: Expression[String], sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  override def build(next: ActorRef, ctx: ScenarioContext): ActorRef =
-    actor(new SseReconciliateAction(requestName, sseName, ctx.dataWriters, next))
+  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef =
+    system.actorOf(SseReconciliateAction.props(requestName, sseName, ctx.dataWriters, next), actorName("sseReconciliate"))
 }
 
 class SseCloseActionBuilder(requestName: Expression[String], sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  override def build(next: ActorRef, ctx: ScenarioContext): ActorRef =
-    actor(new SseCloseAction(requestName, sseName, ctx.dataWriters, next))
+  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef =
+    system.actorOf(SseCloseAction.props(requestName, sseName, ctx.dataWriters, next), actorName("sseClose"))
 }

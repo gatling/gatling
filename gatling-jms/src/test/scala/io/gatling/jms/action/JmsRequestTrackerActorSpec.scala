@@ -38,7 +38,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreModule with JmsModule
   val session = Session("mockSession", "mockUserName")
 
   "JmsRequestTrackerActor" should "pass to next to next actor when matching message is received" in {
-    val dataWriters = new MockDataWriters
+    val dataWriters = new MockDataWriters(system)
     val tracker = TestActorRef(new JmsRequestTrackerActor(dataWriters))
 
     tracker ! MessageSent("1", 15, 20, Nil, session, testActor, "success")
@@ -52,7 +52,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreModule with JmsModule
   }
 
   it should "pass to next to next actor even if messages are out of sync" in {
-    val dataWriters = new MockDataWriters
+    val dataWriters = new MockDataWriters(system)
     val tracker = TestActorRef(new JmsRequestTrackerActor(dataWriters))
 
     tracker ! MessageReceived("1", 30, textMessage("test"))
@@ -67,7 +67,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreModule with JmsModule
 
   it should "pass KO to next actor when check fails" in {
     val failedCheck = JmsSimpleCheck(_ => false)
-    val dataWriters = new MockDataWriters
+    val dataWriters = new MockDataWriters(system)
     val tracker = TestActorRef(new JmsRequestTrackerActor(dataWriters))
 
     tracker ! MessageSent("1", 15, 20, List(failedCheck), session, testActor, "failure")
@@ -82,7 +82,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreModule with JmsModule
 
   it should "pass updated session to next actor if modified by checks" in {
     val check: JmsCheck = xpath("/id").saveAs("id")
-    val dataWriters = new MockDataWriters
+    val dataWriters = new MockDataWriters(system)
     val tracker = TestActorRef(new JmsRequestTrackerActor(dataWriters))
 
     tracker ! MessageSent("1", 15, 20, List(check), session, testActor, "updated")
@@ -96,7 +96,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreModule with JmsModule
   }
 
   it should "pass information to session about response time in case group are used" in {
-    val dataWriters = new MockDataWriters
+    val dataWriters = new MockDataWriters(system)
     val tracker = TestActorRef(new JmsRequestTrackerActor(dataWriters))
 
     val groupSession = session.enterGroup("group")

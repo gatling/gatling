@@ -15,6 +15,7 @@
  */
 package io.gatling.core.config
 
+import akka.actor.ActorSystem
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.Session
 
@@ -43,8 +44,8 @@ case class Protocols(protocols: Map[Class[_ <: Protocol], Protocol]) {
 
   def ++(other: Protocols) = copy(protocols = protocols ++ other.protocols)
 
-  def warmUp(dataWriters: DataWriters)(implicit configuration: GatlingConfiguration): Unit =
-    protocols.values.foreach(_.warmUp(dataWriters))
+  def warmUp(system: ActorSystem, dataWriters: DataWriters)(implicit configuration: GatlingConfiguration): Unit =
+    protocols.values.foreach(_.warmUp(system, dataWriters))
 
   val userEnd: Session => Unit =
     session => protocols.values.foreach(_.userEnd(session))

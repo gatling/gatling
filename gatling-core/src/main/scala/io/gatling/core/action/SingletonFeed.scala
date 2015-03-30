@@ -15,12 +15,16 @@
  */
 package io.gatling.core.action
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.controller.ForceTermination
 import io.gatling.core.feeder.{ Feeder, Record }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ Failure, FailureWrapper, Success, SuccessWrapper, Validation }
+
+object SingletonFeed {
+  def props[T](feeder: Feeder[T]) = Props(new SingletonFeed(feeder))
+}
 
 class SingletonFeed[T](val feeder: Feeder[T]) extends BaseActor {
 

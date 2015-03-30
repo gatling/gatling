@@ -35,9 +35,9 @@ import com.ning.http.client.providers.netty.channel.pool.{ ChannelPool, DefaultC
 import com.ning.http.client.ws.{ WebSocketListener, WebSocketUpgradeHandler }
 import com.typesafe.scalalogging.StrictLogging
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.{ ActorSystem, Props, ActorRef }
 import io.gatling.core.ConfigKeys
-import io.gatling.core.akka.AkkaDefaults
+import io.gatling.core.akka.ActorNames
 import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
@@ -112,7 +112,7 @@ object HttpEngine {
   val AhcAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.ahc"
 }
 
-class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCaches: HttpCaches) extends ResourceFetcher with AkkaDefaults with StrictLogging {
+class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCaches: HttpCaches) extends ResourceFetcher with ActorNames with StrictLogging {
 
   // set up Netty LoggerFactory for slf4j instead of default JDK
   InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
@@ -120,11 +120,9 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
   private[this] var _state: Option[InternalState] = None
   private[this] def state: InternalState = _state.getOrElse(throw new IllegalStateException("HttpEngine hasn't been started"))
 
-  lazy val defaultAhc: AsyncHttpClient = newAhc(None)
+  def start(system: ActorSystem, dataWriters: DataWriters): Unit = {
 
-  def start(dataWriters: DataWriters): Unit = {
-
-    _state = Some(loadInternalState(dataWriters))
+    _state = Some(loadInternalState(system, dataWriters))
 
     system.registerOnTermination(stop())
     defaultAhc
@@ -134,49 +132,6 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     state.applicationThreadPool.shutdown()
     state.nioThreadPool.shutdown()
     _state = None
-  }
-
-  def newAhc(session: Session): AsyncHttpClient = newAhc(Some(session))
-
-  def newAhc(session: Option[Session]) = {
-    val ahcConfig = session.flatMap { session =>
-
-      val trustManagers = for {
-        file <- session(ConfigKeys.http.ssl.trustStore.File).asOption[String]
-        password <- session(ConfigKeys.http.ssl.trustStore.Password).asOption[String]
-        storeType = session(ConfigKeys.http.ssl.trustStore.Type).asOption[String]
-        algorithm = session(ConfigKeys.http.ssl.trustStore.Algorithm).asOption[String]
-      } yield newTrustManagers(storeType, file, password, algorithm)
-
-      val keyManagers = for {
-        file <- session(ConfigKeys.http.ssl.keyStore.File).asOption[String]
-        password <- session(ConfigKeys.http.ssl.keyStore.Password).asOption[String]
-        storeType = session(ConfigKeys.http.ssl.keyStore.Type).asOption[String]
-        algorithm = session(ConfigKeys.http.ssl.keyStore.Algorithm).asOption[String]
-      } yield newKeyManagers(storeType, file, password, algorithm)
-
-      trustManagers.orElse(keyManagers).map { _ =>
-        logger.info(s"Setting a custom SSLContext for user ${session.userId}")
-        new AsyncHttpClientConfig.Builder(state.defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build
-      }
-
-    }.getOrElse(state.defaultAhcConfig)
-
-    val client = new AsyncHttpClient(ahcConfig)
-    system.registerOnTermination(client.close())
-    client
-  }
-
-  def httpClient(session: Session, protocol: HttpProtocol): (Session, AsyncHttpClient) = {
-    if (protocol.enginePart.shareClient)
-      (session, defaultAhc)
-    else
-      session(HttpEngine.AhcAttributeName).asOption[AsyncHttpClient] match {
-        case Some(client) => (session, client)
-        case _ =>
-          val httpClient = newAhc(session)
-          (session.set(HttpEngine.AhcAttributeName, httpClient), httpClient)
-      }
   }
 
   def startHttpTransaction(tx: HttpTx): Unit = {
@@ -199,17 +154,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
       client.executeRequest(ahcRequest, handler)
   }
 
-  def startSseTransaction(tx: SseTx, sseActor: ActorRef): Unit = {
-    val (newTx, client) = {
-      val (newSession, client) = httpClient(tx.session, tx.protocol)
-      (tx.copy(session = newSession), client)
-    }
-
-    val handler = new SseHandler(newTx, sseActor)
-    client.executeRequest(newTx.request, handler)
-  }
-
-  def startWebSocketTransaction(tx: WsTx, wsActor: ActorRef): Unit = {
+  def startWsTransaction(tx: WsTx, wsActor: ActorRef): Unit = {
     val (newTx, client) = {
       val (newSession, client) = httpClient(tx.session, tx.protocol)
       (tx.copy(session = newSession), client)
@@ -221,7 +166,17 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     client.executeRequest(tx.request, handler)
   }
 
-  def loadInternalState(dataWriters: DataWriters) = {
+  def startSseTransaction(tx: SseTx, sseActor: ActorRef): Unit = {
+    val (newTx, client) = {
+      val (newSession, client) = httpClient(tx.session, tx.protocol)
+      (tx.copy(session = newSession), client)
+    }
+
+    val handler = new SseHandler(newTx, sseActor)
+    client.executeRequest(newTx.request, handler)
+  }
+
+  private def loadInternalState(system: ActorSystem, dataWriters: DataWriters) = {
 
     import configuration.http.{ ahc => ahcConfig }
 
@@ -315,7 +270,19 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     val asyncHandlerProps = Props(classOf[AsyncHandlerActor], configuration, this)
     val asyncHandlerActors = system.actorOf(RoundRobinPool(poolSize).props(asyncHandlerProps), actorName("asyncHandler"))
 
-    new InternalState(applicationThreadPool, nioThreadPool, channelPool, nettyConfig, defaultAhcConfig, dataWriters, asyncHandlerActors)
+    new InternalState(applicationThreadPool, nioThreadPool, channelPool, nettyConfig, defaultAhcConfig, dataWriters, asyncHandlerActors, system)
+  }
+
+  def httpClient(session: Session, protocol: HttpProtocol): (Session, AsyncHttpClient) = {
+    if (protocol.enginePart.shareClient)
+      (session, defaultAhc)
+    else
+      session(HttpEngine.AhcAttributeName).asOption[AsyncHttpClient] match {
+        case Some(client) => (session, client)
+        case _ =>
+          val httpClient = state.newAhc(session)
+          (session.set(HttpEngine.AhcAttributeName, httpClient), httpClient)
+      }
   }
 
   case class InternalState(applicationThreadPool: ExecutorService,
@@ -324,8 +291,42 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
                            nettyConfig: NettyAsyncHttpProviderConfig,
                            defaultAhcConfig: AsyncHttpClientConfig,
                            dataWriters: DataWriters,
-                           asyncHandlerActors: ActorRef)
+                           asyncHandlerActors: ActorRef,
+                           system: ActorSystem) {
 
+    def newAhc(session: Session): AsyncHttpClient = newAhc(Some(session))
+
+    def newAhc(session: Option[Session]) = {
+      val ahcConfig = session.flatMap { session =>
+
+        val trustManagers = for {
+          file <- session(ConfigKeys.http.ssl.trustStore.File).asOption[String]
+          password <- session(ConfigKeys.http.ssl.trustStore.Password).asOption[String]
+          storeType = session(ConfigKeys.http.ssl.trustStore.Type).asOption[String]
+          algorithm = session(ConfigKeys.http.ssl.trustStore.Algorithm).asOption[String]
+        } yield newTrustManagers(storeType, file, password, algorithm)
+
+        val keyManagers = for {
+          file <- session(ConfigKeys.http.ssl.keyStore.File).asOption[String]
+          password <- session(ConfigKeys.http.ssl.keyStore.Password).asOption[String]
+          storeType = session(ConfigKeys.http.ssl.keyStore.Type).asOption[String]
+          algorithm = session(ConfigKeys.http.ssl.keyStore.Algorithm).asOption[String]
+        } yield newKeyManagers(storeType, file, password, algorithm)
+
+        trustManagers.orElse(keyManagers).map { _ =>
+          logger.info(s"Setting a custom SSLContext for user ${session.userId}")
+          new AsyncHttpClientConfig.Builder(state.defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build
+        }
+
+      }.getOrElse(state.defaultAhcConfig)
+
+      val client = new AsyncHttpClient(ahcConfig)
+      system.registerOnTermination(client.close())
+      client
+    }
+  }
+
+  lazy val defaultAhc: AsyncHttpClient = state.newAhc(None)
   def dataWriters: DataWriters = state.dataWriters
   def asyncHandlerActors: ActorRef = state.asyncHandlerActors
 }

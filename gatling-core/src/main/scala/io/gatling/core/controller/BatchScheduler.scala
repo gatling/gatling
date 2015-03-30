@@ -17,22 +17,23 @@ package io.gatling.core.controller
 
 import scala.concurrent.duration._
 
-import akka.actor.ActorRef
+import akka.actor.{ ActorSystem, ActorRef }
 
-import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.result.message.Start
 import io.gatling.core.result.writer.UserMessage
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper._
 
 class BatchScheduler(
-  userIdRoot: String,
-  startTime: Long,
-  batchWindow: FiniteDuration,
-  controller: ActorRef)
-    extends AkkaDefaults {
+    userIdRoot: String,
+    startTime: Long,
+    batchWindow: FiniteDuration,
+    controller: ActorRef) {
 
-  def scheduleUserStream(userStream: UserStream): Unit = {
+  def scheduleUserStream(system: ActorSystem, userStream: UserStream): Unit = {
+
+    implicit val dispatcher = system.dispatcher
+
     val scenario = userStream.scenario
     val stream = userStream.stream
 
@@ -60,13 +61,13 @@ class BatchScheduler(
           startUser(index)
         } else {
           // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
-          scheduler.scheduleOnce(toMillisPrecision(delay))(startUser(index))
+          system.scheduler.scheduleOnce(toMillisPrecision(delay))(startUser(index))
         }
       }
 
       // schedule next batch
       if (stream.hasNext) {
-        scheduler.scheduleOnce(batchWindow) {
+        system.scheduler.scheduleOnce(batchWindow) {
           controller ! ScheduleNextUserBatch(scenario.name)
         }
       }

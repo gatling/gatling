@@ -19,7 +19,6 @@ import scala.collection.mutable
 import scala.concurrent.duration.DurationInt
 
 import akka.actor.ActorRef
-import akka.actor.ActorDSL.actor
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.writer._
@@ -54,7 +53,7 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
   def onInit(init: Init, controller: ActorRef): GraphiteData = {
     import init._
     val metricRootPath = configuration.data.graphite.rootPathPrefix + "." + sanitizeString(runMessage.simulationId) + "."
-    val metricsSender: ActorRef = actor(context, actorName("metricsSender"))(MetricsSender.newMetricsSender(configuration))
+    val metricsSender: ActorRef = context.actorOf(MetricsSender.props(configuration), actorName("metricsSender"))
     val requestsByPath = mutable.Map.empty[GraphitePath, RequestMetricsBuffer]
     val usersByScenario = mutable.Map.empty[GraphitePath, UsersBreakdownBuffer]
     val percentiles1Name = "percentiles" + configuration.charting.indicators.percentile1

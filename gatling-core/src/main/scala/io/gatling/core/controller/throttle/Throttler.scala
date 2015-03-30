@@ -21,11 +21,9 @@ import io.gatling.core.scenario.SimulationDef
 
 import scala.concurrent.duration.{ FiniteDuration, DurationInt }
 
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorSystem, ActorRef }
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.controller.Controller._
 import io.gatling.core.util.TimeHelper.secondsSinceReference
 
 sealed trait ThrottlerMessage
@@ -42,17 +40,19 @@ class ThisSecondThrottle(val limit: Int, var count: Int = 0) {
 
 object Throttler extends StrictLogging {
 
+  // FIXME
   private var _instance: Option[ActorRef] = None
 
-  def start(simulationDef: SimulationDef): Unit = {
+  def start(system: ActorSystem, simulationDef: SimulationDef): Unit = {
 
     if (simulationDef.globalThrottling.isDefined || simulationDef.scenarioThrottlings.nonEmpty) {
 
-      val throttler = actor("controller")(new Throttler(simulationDef.globalThrottling, simulationDef.scenarioThrottlings))
+      val throttler = system.actorOf(Props(new Throttler(simulationDef.globalThrottling, simulationDef.scenarioThrottlings)), "throttler")
 
       _instance = Some(throttler)
       logger.debug("Setting up throttling")
-      scheduler.schedule(0 seconds, 1 seconds, throttler, OneSecondTick)
+      implicit val dispatcher = system.dispatcher
+      system.scheduler.schedule(0 seconds, 1 seconds, throttler, OneSecondTick)
       system.registerOnTermination(_instance = None)
     }
   }

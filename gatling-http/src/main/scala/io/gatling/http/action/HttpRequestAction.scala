@@ -17,9 +17,8 @@ package io.gatling.http.action
 
 import com.typesafe.scalalogging.StrictLogging
 
-import akka.actor.{ ActorRef, ActorContext }
-import akka.actor.ActorDSL.actor
-import io.gatling.core.akka.AkkaDefaults
+import akka.actor.{ Props, ActorRef, ActorContext }
+import io.gatling.core.akka.ActorNames
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.OK
 import io.gatling.core.result.writer.DataWriters
@@ -31,7 +30,10 @@ import io.gatling.http.fetch.RegularResourceFetched
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response._
 
-object HttpRequestAction extends AkkaDefaults with StrictLogging {
+object HttpRequestAction extends ActorNames with StrictLogging {
+
+  def props(httpRequestDef: HttpRequestDef, dataWriters: DataWriters, next: ActorRef)(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine) =
+    Props(new HttpRequestAction(httpRequestDef, dataWriters, next))
 
   // FIXME Move to HttpEngine?
   def startHttpTransaction(origTx: HttpTx)(implicit ctx: ActorContext, httpEngine: HttpEngine): Unit = {
@@ -53,7 +55,7 @@ object HttpRequestAction extends AkkaDefaults with StrictLogging {
         httpEngine.resourceFetcherActorForCachedPage(uri, tx) match {
           case Some(resourceFetcherActor) =>
             logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-            actor(ctx, actorName("resourceFetcher"))(resourceFetcherActor())
+            ctx.actorOf(Props(resourceFetcherActor()), actorName("resourceFetcher"))
 
           case None =>
             logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")

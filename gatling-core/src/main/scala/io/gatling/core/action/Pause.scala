@@ -19,9 +19,14 @@ import io.gatling.core.result.writer.DataWriters
 
 import scala.concurrent.duration.DurationLong
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
+
+object Pause {
+  def props(delayGenerator: Expression[Long], dataWriters: DataWriters, next: ActorRef) =
+    Props(new Pause(delayGenerator, dataWriters, next))
+}
 
 /**
  * PauseAction provides a convenient means to implement pause actions based on random distributions.
@@ -49,6 +54,7 @@ class Pause(pauseDuration: Expression[Long], val dataWriters: DataWriters, val n
           logger.info(s"Pausing for ${durationInMillis}ms (real=${durationMinusDrift}ms)")
 
           val pauseStart = nowMillis
+
           scheduler.scheduleOnce(durationMinusDrift milliseconds) {
             val newDrift = nowMillis - pauseStart - durationMinusDrift
             next ! session.setDrift(newDrift)

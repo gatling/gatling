@@ -15,9 +15,8 @@
  */
 package io.gatling.core.action.builder
 
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
-import io.gatling.core.action.{ Interruptable, SessionHook }
+import akka.actor.{ ActorSystem, ActorRef }
+import io.gatling.core.action.SessionHook
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.ScenarioContext
 
@@ -26,14 +25,10 @@ import io.gatling.core.structure.ScenarioContext
  *
  * @constructor creates a SimpleActionBuilder
  * @param sessionFunction the function that will be executed by the simple action
+ * @param interruptable if the action can be interrupted
  */
-class SessionHookBuilder(sessionFunction: Expression[Session], bypassable: Boolean = false) extends ActionBuilder {
+class SessionHookBuilder(sessionFunction: Expression[Session], interruptable: Boolean = false) extends ActionBuilder {
 
-  def build(next: ActorRef, ctx: ScenarioContext) =
-    actor(actorName("sessionHook")) {
-      if (bypassable)
-        new SessionHook(sessionFunction, ctx.dataWriters, next) with Interruptable
-      else
-        new SessionHook(sessionFunction, ctx.dataWriters, next)
-    }
+  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
+    system.actorOf(SessionHook.props(sessionFunction, ctx.dataWriters, next, interruptable), actorName("sessionHook"))
 }

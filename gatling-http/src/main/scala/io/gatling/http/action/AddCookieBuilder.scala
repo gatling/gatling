@@ -15,10 +15,8 @@
  */
 package io.gatling.http.action
 
+import akka.actor.{ ActorSystem, ActorRef }
 import com.ning.http.client.cookie.Cookie
-
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
 import com.ning.http.client.uri.Uri
 import io.gatling.core.action.SessionHook
 import io.gatling.core.session.{ Expression, Session }
@@ -58,7 +56,7 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 
   import AddCookieBuilder._
 
-  def build(next: ActorRef, ctx: ScenarioContext): ActorRef = {
+  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef = {
 
     val resolvedDomain = domain.getOrElse(defaultDomain(ctx.protocols.protocol[HttpProtocol]))
     val resolvedPath = path.getOrElse(DefaultPath)
@@ -71,6 +69,6 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
       cookie = new Cookie(name, value, value, domain, path, expires, maxAge, false, false)
     } yield storeCookie(session, domain, path, cookie)
 
-    actor(actorName("addCookie"))(new SessionHook(expression, ctx.dataWriters, next))
+    system.actorOf(SessionHook.props(expression, ctx.dataWriters, next, true), actorName("addCookie"))
   }
 }

@@ -15,14 +15,19 @@
  */
 package io.gatling.core.action
 
-import akka.actor.{ Actor, ActorRef }
-import akka.actor.ActorDSL.actor
+import akka.actor.{ Props, ActorRef }
+import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.message.KO
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ TryMaxBlock, Session }
 import io.gatling.core.validation.{ Failure, Success }
 
-class TryMax(times: Int, counterName: String, dataWriters: DataWriters, next: ActorRef) extends Actor {
+object TryMax {
+  def props(times: Int, counterName: String, dataWriters: DataWriters, next: ActorRef) =
+    Props(new TryMax(times, counterName, dataWriters, next))
+}
+
+class TryMax(times: Int, counterName: String, dataWriters: DataWriters, next: ActorRef) extends BaseActor {
 
   def initialized(innerTryMax: ActorRef): Receive =
     Interruptable.interrupt(dataWriters) orElse { case m => innerTryMax forward m }
@@ -30,11 +35,16 @@ class TryMax(times: Int, counterName: String, dataWriters: DataWriters, next: Ac
   val uninitialized: Receive = {
     case loopNext: ActorRef =>
       val actorName = self.path.name + "-inner"
-      val innerTryMax = actor(actorName)(new InnerTryMax(times, loopNext, counterName, next))
+      val innerTryMax = context.actorOf(InnerTryMax.props(times, loopNext, counterName, next), actorName)
       context.become(initialized(innerTryMax))
   }
 
   override def receive = uninitialized
+}
+
+object InnerTryMax {
+  def props(times: Int, loopNext: ActorRef, counterName: String, next: ActorRef) =
+    Props(new InnerTryMax(times, loopNext, counterName, next))
 }
 
 class InnerTryMax(times: Int, loopNext: ActorRef, counterName: String, val next: ActorRef)

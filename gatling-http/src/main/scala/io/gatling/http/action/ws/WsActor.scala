@@ -18,7 +18,7 @@ package io.gatling.http.action.ws
 import com.ning.http.client.ws.WebSocket
 
 import scala.collection.mutable
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.CheckResult
 import io.gatling.core.result.message.{ RequestTimings, KO, OK, Status }
@@ -28,6 +28,11 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Success
 import io.gatling.http.ahc.{ HttpEngine, WsTx }
 import io.gatling.http.check.ws.{ ExpectedRange, UntilCount, ExpectedCount, WsCheck }
+
+object WsActor {
+  def props(wsName: String, dataWriters: DataWriters)(implicit httpEngine: HttpEngine) =
+    Props(new WsActor(wsName, dataWriters))
+}
 
 class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: HttpEngine) extends BaseActor {
 
@@ -296,7 +301,7 @@ class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: Htt
     case action: WsUserAction =>
       // reconnect on first client message tentative
       val newTx = tx.copy(reconnectCount = tx.reconnectCount + 1)
-      httpEngine.startWebSocketTransaction(newTx, self)
+      httpEngine.startWsTransaction(newTx, self)
 
       context.become(reconnectingState(status, reason, action))
 

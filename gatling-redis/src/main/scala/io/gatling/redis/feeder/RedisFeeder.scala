@@ -15,10 +15,10 @@
  */
 package io.gatling.redis.feeder
 
+import akka.actor.ActorSystem
 import com.redis.{ RedisClient, RedisClientPool }
 
-import io.gatling.core.akka.AkkaDefaults
-import io.gatling.core.feeder.Feeder
+import io.gatling.core.feeder.{ FeederBuilder, Feeder }
 
 /**
  * Class for feeding data from Redis DB, using LPOP, SPOP or
@@ -26,7 +26,7 @@ import io.gatling.core.feeder.Feeder
  *
  * Originally contributed by Krishnen Chedambarum.
  */
-object RedisFeeder extends AkkaDefaults {
+object RedisFeeder {
 
   // Function for executing Redis command
   type RedisCommand = (RedisClient, String) => Option[String]
@@ -40,14 +40,18 @@ object RedisFeeder extends AkkaDefaults {
   // SRANDMEMBER Redis command
   def SRANDMEMBER(redisClient: RedisClient, key: String) = redisClient.srandmember(key)
 
-  def apply(clientPool: RedisClientPool, key: String, redisCommand: RedisCommand = LPOP): Feeder[String] = {
-    system.registerOnTermination(clientPool.close)
+  def apply(clientPool: RedisClientPool, key: String, redisCommand: RedisCommand = LPOP): FeederBuilder[String] =
+    new FeederBuilder[String] {
 
-      def next = clientPool.withClient { client =>
-        val value = redisCommand(client, key)
-        value.map(value => Map(key -> value))
+      def build(system: ActorSystem): Feeder[String] = {
+        system.registerOnTermination(clientPool.close)
+
+          def next = clientPool.withClient { client =>
+            val value = redisCommand(client, key)
+            value.map(value => Map(key -> value))
+          }
+
+        Iterator.continually(next).takeWhile(_.isDefined).map(_.get)
       }
-
-    Iterator.continually(next).takeWhile(_.isDefined).map(_.get)
-  }
+    }
 }

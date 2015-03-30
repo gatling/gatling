@@ -17,8 +17,16 @@ package io.gatling.http.action.ws
 
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session._
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.http.action.RequestAction
+
+object WsCancelCheckAction {
+  def props(requestName: Expression[String],
+            wsName: String,
+            dataWriters: DataWriters,
+            next: ActorRef) =
+    Props(new WsCancelCheckAction(requestName, wsName, dataWriters, next))
+}
 
 class WsCancelCheckAction(
   val requestName: Expression[String],

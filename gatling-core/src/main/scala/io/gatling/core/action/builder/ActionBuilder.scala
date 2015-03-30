@@ -15,8 +15,8 @@
  */
 package io.gatling.core.action.builder
 
-import akka.actor.ActorRef
-import io.gatling.core.akka.AkkaDefaults
+import akka.actor.{ ActorSystem, ActorRef }
+import io.gatling.core.akka.ActorNames
 import io.gatling.core.config.Protocol
 import io.gatling.core.structure.ScenarioContext
 
@@ -24,14 +24,15 @@ import io.gatling.core.structure.ScenarioContext
  * Top level abstraction for components in charge of building Actions.
  * ActionBuilder is what is passed to the DSL exec() method.
  */
-trait ActionBuilder extends AkkaDefaults {
+trait ActionBuilder extends ActorNames {
 
   /**
+   * @param system the ActorSystem
    * @param next the Action that will be chained with the Action build by this builder
    * @param ctx the scenario context
    * @return the resulting Action actor
    */
-  def build(next: ActorRef, ctx: ScenarioContext): ActorRef
+  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef
 
   /**
    * Register default values of the protocols that the Actions produced by this ActionBuilder will use.

@@ -15,10 +15,15 @@
  */
 package io.gatling.core.action
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.Session
 import io.gatling.core.session.Expression
+
+object Feed {
+  def props(singleton: ActorRef, controller: ActorRef, number: Expression[Int], dataWriters: DataWriters, next: ActorRef) =
+    Props(new Feed(singleton, controller, number, dataWriters, next))
+}
 
 class Feed(singleton: ActorRef, controller: ActorRef, number: Expression[Int], val dataWriters: DataWriters, val next: ActorRef) extends Action with Interruptable {
 

@@ -22,17 +22,20 @@ import scala.util.control.NonFatal
 import java.util.concurrent.atomic.AtomicBoolean
 
 import javax.jms.Message
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.session.Expression
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Validation
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session.Session
-import io.gatling.jms.client.{ JmsClient, SimpleJmsClient }
+import io.gatling.jms.client.JmsClient
 
 object JmsReqReplyAction {
   val BlockingReceiveReturnedNull = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
+
+  def props(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, dataWriters: DataWriters, next: ActorRef) =
+    Props(new JmsReqReplyAction(attributes, protocol, tracker, dataWriters, next))
 }
 
 /**

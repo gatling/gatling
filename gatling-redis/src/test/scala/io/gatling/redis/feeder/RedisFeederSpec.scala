@@ -15,6 +15,7 @@
  */
 package io.gatling.redis.feeder
 
+import akka.actor.ActorSystem
 import com.redis._
 
 import org.mockito.Mockito._
@@ -52,7 +53,7 @@ class RedisFeederSpec extends AkkaSpec {
     new MockContext {
       when(client.lpop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
-      val feeder = RedisFeeder(clientPool, KEY)
+      val feeder = RedisFeeder(clientPool, KEY).build(mock[ActorSystem])
       val actual = feeder.toList
 
       actual shouldBe valsLst(KEY, "v1", "v2", "v3")
@@ -63,7 +64,7 @@ class RedisFeederSpec extends AkkaSpec {
     new MockContext {
       when(client.spop(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"), None)
 
-      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SPOP)
+      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SPOP).build(mock[ActorSystem])
       val actual = feeder.toList
 
       actual shouldBe valsLst(KEY, "v1", "v2", "v3")
@@ -74,7 +75,7 @@ class RedisFeederSpec extends AkkaSpec {
     new MockContext {
       when(client.srandmember(KEY)).thenReturn(Some("v1"), Some("v2"), Some("v3"))
 
-      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SRANDMEMBER)
+      val feeder = RedisFeeder(clientPool, KEY, RedisFeeder.SRANDMEMBER).build(mock[ActorSystem])
 
       feeder.next() shouldBe Map(KEY -> "v1")
       feeder.next() shouldBe Map(KEY -> "v2")

@@ -20,6 +20,7 @@ import io.gatling.core.feeder.FeederBuilder
 import io.gatling.core.session.{ Expression, ExpressionWrapper }
 
 object Feeds {
+
   val oneExpression = 1.expression
 }
 
@@ -32,5 +33,5 @@ trait Feeds[B] extends Execs[B] {
    * @param number the number of records to be polled (default 1)
    */
   def feed(feederBuilder: FeederBuilder[_], number: Expression[Int] = Feeds.oneExpression): B =
-    exec(FeedBuilder(feederBuilder, number))
+    exec(new FeedBuilder(feederBuilder, number))
 }

@@ -15,8 +15,7 @@
  */
 package io.gatling.core.action.builder
 
-import akka.actor.ActorDSL.actor
-import akka.actor.ActorRef
+import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.{ GroupEnd, GroupStart }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
@@ -24,12 +23,12 @@ import io.gatling.core.structure.ScenarioContext
 object GroupBuilder {
 
   def start(groupName: Expression[String]) = new ActionBuilder {
-    def build(next: ActorRef, ctx: ScenarioContext) =
-      actor(actorName("groupStart"))(new GroupStart(groupName, ctx.dataWriters, next))
+    def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
+      system.actorOf(GroupStart.props(groupName, ctx.dataWriters, next), actorName("groupStart"))
   }
 
   val End = new ActionBuilder {
-    def build(next: ActorRef, ctx: ScenarioContext) =
-      actor(actorName("groupEnd"))(new GroupEnd(ctx.dataWriters, next))
+    def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
+      system.actorOf(GroupEnd.props(ctx.dataWriters, next), actorName("groupEnd"))
   }
 }

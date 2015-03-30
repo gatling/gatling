@@ -15,11 +15,16 @@
  */
 package io.gatling.http.action.sse
 
-import akka.actor.ActorRef
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Validation
 import io.gatling.http.action.RequestAction
+
+object SseCloseAction {
+  def props(requestName: Expression[String], sseName: String, dataWriters: DataWriters, next: ActorRef) =
+    Props(new SseCloseAction(requestName, sseName, dataWriters, next))
+}
 
 class SseCloseAction(val requestName: Expression[String], sseName: String, dataWriters: DataWriters, val next: ActorRef)
     extends RequestAction(dataWriters) with SseAction {

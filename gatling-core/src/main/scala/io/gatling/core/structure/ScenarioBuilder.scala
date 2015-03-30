@@ -15,7 +15,7 @@
  */
 package io.gatling.core.structure
 
-import akka.actor.ActorRef
+import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.result.writer.DataWriters
 
 import scala.concurrent.duration.Duration
@@ -77,26 +77,27 @@ case class PopulationBuilder(
   }
 
   /**
-   * @param controller: the controller
-   * @param dataWriters: the DataWriters
-   * @param userEnd: the exit point
+   * @param system the actor system
+   * @param controller the controller
+   * @param dataWriters the DataWriters
+   * @param userEnd the exit point
    * @param globalProtocols the protocols
    * @param globalPauseType the pause type
    * @param globalThrottling the optional throttling profile
    * @return the scenario
    */
-  private[core] def build(controller: ActorRef, dataWriters: DataWriters, userEnd: ActorRef, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[ThrottlingProfile])(implicit configuration: GatlingConfiguration): Scenario = {
+  private[core] def build(system: ActorSystem, controller: ActorRef, dataWriters: DataWriters, userEnd: ActorRef, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[ThrottlingProfile])(implicit configuration: GatlingConfiguration): Scenario = {
 
     val resolvedPauseType = globalThrottling.orElse(scenarioThrottling).map { _ =>
       logger.info("Throttle is enabled, disabling pauses")
       Disabled
     }.orElse(pauseType).getOrElse(globalPauseType)
 
-    val protocols = (defaultProtocols ++ globalProtocols ++ scenarioProtocols)
+    val protocols = defaultProtocols ++ globalProtocols ++ scenarioProtocols
 
     val ctx = ScenarioContext(controller, dataWriters, userEnd, protocols, resolvedPauseType, globalThrottling.isDefined || scenarioThrottling.isDefined)
 
-    val entryPoint = scenarioBuilder.build(userEnd, ctx)
+    val entryPoint = scenarioBuilder.build(system, userEnd, ctx)
     new Scenario(scenarioBuilder.name, entryPoint, injectionProfile, ctx)
   }
 }

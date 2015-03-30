@@ -15,9 +15,9 @@
  */
 package io.gatling.core.result.writer
 
-import akka.actor.{ Props, Actor, ActorRef }
+import akka.actor.{ ActorSystem, Props, Actor, ActorRef }
+import akka.pattern.ask
 import akka.util.Timeout
-import io.gatling.core.akka.AkkaDefaults
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.DataWritersTerminated
@@ -31,18 +31,19 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{ Try, Failure, Success }
 
-object DataWriters extends AkkaDefaults {
+object DataWriters {
 
   implicit val DataWriterTimeOut = Timeout(5 seconds)
 
-  def apply(populationBuilders: List[PopulationBuilder],
+  def apply(system: ActorSystem,
+            populationBuilders: List[PopulationBuilder],
             assertions: Seq[Assertion],
             selection: Selection,
             runMessage: RunMessage)(implicit configuration: GatlingConfiguration): Future[Try[DataWriters]] = {
 
     val writers = configuration.data.dataWriterClasses.map { className =>
       val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
-      system.actorOf(Props(clazz), clazz.getSimpleName)
+      system.actorOf(Props(clazz), clazz.getName)
     }
 
     val shortScenarioDescriptions = populationBuilders.map(populationBuilder => ShortScenarioDescription(populationBuilder.scenarioBuilder.name, populationBuilder.injectionProfile.users))
@@ -55,18 +56,22 @@ object DataWriters extends AkkaDefaults {
           case _          => false
         }.forall(identity)
 
+    implicit val dispatcher = system.dispatcher
+
     Future.sequence(responses)
       .map(allSucceeded)
       .map {
-        case true  => Success(new DataWriters(writers))
+        case true  => Success(new DataWriters(system, writers))
         case false => Failure(new Exception("DataWriters didn't initialize properly"))
       }
   }
 }
 
-class DataWriters(writers: Seq[ActorRef]) extends AkkaDefaults {
+class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
 
   import DataWriters._
+
+  implicit val dispatcher = system.dispatcher
 
   def !(message: DataWriterMessage): Unit = writers.foreach(_ ! message)
 
