@@ -21,14 +21,15 @@ class AssertionsJsonTemplate(runMessage: RunMessage, scenarioNames: List[String]
   }
 
   def getOutput: Fastring = {
-    fast"""
-"simulation": "${runMessage.simulationClassName}",
-"simulationId": "${runMessage.simulationId}",
-"start": ${runMessage.start},
-"description": "${runMessage.runDescription}",
-"scenarios": [${scenarioNames.map(n => s""""$n"""").mkString(", ")}],
-"assertions": [
+    fast"""{
+  "simulation": "${runMessage.simulationClassName}",
+  "simulationId": "${runMessage.simulationId}",
+  "start": ${runMessage.start},
+  "description": "${runMessage.runDescription}",
+  "scenarios": [${scenarioNames.map(n => s""""$n"""").mkString(", ")}],
+  "assertions": [
 ${assertionResults.map(print).mkFastring(",\n")}
-]"""
+  ]
+}"""
   }
 }
