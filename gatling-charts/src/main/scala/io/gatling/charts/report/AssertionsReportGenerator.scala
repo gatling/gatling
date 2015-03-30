@@ -11,6 +11,6 @@ private[charts] class AssertionsReportGenerator(reportsGenerationInputs: Reports
 
   def generate(): Unit = {
     new TemplateWriter(assertionsJUnitFile(reportFolderName)).writeToFile(new AssertionsJUnitTemplate(dataReader.runMessage, assertionResults).getOutput)
-    new TemplateWriter(assertionsJsonFile(reportFolderName)).writeToFile(new AssertionsJsonTemplate(assertionResults).getOutput)
+    new TemplateWriter(assertionsJsonFile(reportFolderName)).writeToFile(new AssertionsJsonTemplate(dataReader.runMessage, dataReader.scenarioNames, assertionResults).getOutput)
   }
 }
