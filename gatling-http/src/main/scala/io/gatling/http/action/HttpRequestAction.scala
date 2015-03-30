@@ -59,7 +59,7 @@ object HttpRequestAction extends ActorNames with StrictLogging {
 
           case None =>
             logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-            if (tx.primary)
+            if (tx.blocking)
               tx.next ! tx.session
             else
               tx.next ! RegularResourceFetched(uri, OK, Session.Identity, tx.silent)

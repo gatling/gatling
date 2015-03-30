@@ -203,7 +203,7 @@ class ResourceFetcherActor(primaryTx: HttpTx, initialResources: Seq[HttpRequest]
       request = resource,
       responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(resource.config.checks, None, protocol.responsePart.discardResponseChunks, protocol.responsePart.inferHtmlResources),
       next = self,
-      primary = false)
+      blocking = false)
 
     HttpRequestAction.startHttpTransaction(resourceTx)
   }

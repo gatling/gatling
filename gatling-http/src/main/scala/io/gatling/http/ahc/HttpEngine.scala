@@ -67,11 +67,11 @@ case class HttpTx(session: Session,
                   request: HttpRequest,
                   responseBuilderFactory: Request => ResponseBuilder,
                   next: ActorRef,
-                  primary: Boolean = true,
+                  blocking: Boolean = true,
                   redirectCount: Int = 0,
                   update: Session => Session = Session.Identity) {
 
-  val silent: Boolean = HttpTx.silent(request, primary)
+  val silent: Boolean = HttpTx.silent(request, blocking)
 }
 
 case class SseTx(session: Session,
