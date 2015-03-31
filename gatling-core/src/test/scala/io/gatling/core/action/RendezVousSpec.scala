@@ -18,8 +18,6 @@ package io.gatling.core.action
 import akka.testkit._
 import io.gatling.AkkaSpec
 
-import io.gatling.core.result.message.End
-import io.gatling.core.result.writer.UserMessage
 import io.gatling.core.session.Session
 
 class RendezVousSpec extends AkkaSpec {
