@@ -30,7 +30,7 @@ private[charts] class StatsJsTemplate(stats: GroupContainer) {
   def getOutput(charset: Charset): Fastring = {
 
       def renderStatsRequest(request: RequestStatistics): Fastring = {
-        val jsonStats = new StatsJsonTemplate(request, false).getOutput
+        val jsonStats = new GlobalStatsJsonTemplate(request, false).getOutput
 
         fast"""name: "${request.name.escapeJsDoubleQuoteString}",
 path: "${request.path.escapeJsDoubleQuoteString}",

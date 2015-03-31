@@ -20,7 +20,7 @@ import scala.collection.breakOut
 import io.gatling.charts.component.{ ComponentLibrary, GroupedCount, RequestStatistics, Statistics }
 import io.gatling.charts.config.ChartsFiles._
 import io.gatling.charts.result.reader.RequestPath
-import io.gatling.charts.template.{ ConsoleTemplate, StatsJsTemplate, StatsJsonTemplate }
+import io.gatling.charts.template.{ ConsoleTemplate, StatsJsTemplate, GlobalStatsJsonTemplate }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.{ Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.result.message.{ KO, OK }
@@ -128,7 +128,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
     }
 
     new TemplateWriter(statsJsFile(reportFolderName)).writeToFile(new StatsJsTemplate(rootContainer).getOutput(configuration.core.charset))
-    new TemplateWriter(statsJsonFile(reportFolderName)).writeToFile(new StatsJsonTemplate(rootContainer.stats, true).getOutput)
+    new TemplateWriter(globalStatsJsonFile(reportFolderName)).writeToFile(new GlobalStatsJsonTemplate(rootContainer.stats, true).getOutput)
     println(ConsoleTemplate(dataReader, rootContainer.stats))
   }
 }
