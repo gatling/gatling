@@ -15,10 +15,14 @@
  */
 package io.gatling.core.feeder
 
-import scala.collection.breakOut
-import scala.io.Source
+import java.io.InputStream
+import java.util.{ Map => JMap }
 
-import au.com.bytecode.opencsv.CSVParser
+import com.fasterxml.jackson.databind.{ ObjectReader, MappingIterator }
+
+import scala.collection.JavaConversions._
+
+import com.fasterxml.jackson.dataformat.csv.{ CsvSchema, CsvMapper }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.Resource
 import io.gatling.core.util.Io._
@@ -29,29 +33,22 @@ object SeparatedValuesParser {
   val SemicolonSeparator = ';'
   val TabulationSeparator = '\t'
 
-  def parse(resource: Resource, separator: Char, doubleQuote: Char, rawSplit: Boolean)(implicit configuration: GatlingConfiguration): IndexedSeq[Record[String]] =
-    withSource(Source.fromInputStream(resource.inputStream)(configuration.core.codec)) { source =>
-      stream(source, separator, doubleQuote, rawSplit).toVector
+  def parse(resource: Resource, columnSeparator: Char, quoteChar: Char, rawSplit: Boolean)(implicit configuration: GatlingConfiguration): IndexedSeq[Record[String]] =
+    withCloseable(resource.inputStream) { source =>
+      stream(source, columnSeparator, quoteChar, rawSplit).toVector
     }
 
-  def stream(source: Source, separator: Char, doubleQuote: Char, rawSplit: Boolean): Iterator[Record[String]] = {
-    val parseLine: String => Array[String] =
-      if (rawSplit) {
-        val separatorString = separator.toString
-        _.split(separatorString)
-      } else {
-        val csvParser = new CSVParser(separator, doubleQuote)
-        csvParser.parseLine
-      }
+  def stream(is: InputStream, columnSeparator: Char, quoteChar: Char, rawSplit: Boolean): Iterator[Record[String]] = {
 
-    val rawLines = source.getLines().map(parseLine)
-    val headers =
-      try
-        rawLines.next().map(_.trim)
-      catch {
-        case e: NoSuchElementException =>
-          throw new IllegalArgumentException("SeparatedValuesParser expects files to contain a first headers line")
-      }
-    rawLines.map(headers.zip(_)(breakOut))
+    val mapper = new CsvMapper
+    val schema = CsvSchema.emptySchema.withHeader.withColumnSeparator(columnSeparator).withQuoteChar(quoteChar).withEscapeChar('\\')
+
+    val reader: ObjectReader = mapper.reader(classOf[JMap[_, _]])
+
+    val it: MappingIterator[JMap[String, String]] = reader
+      .`with`(schema)
+      .readValues(is)
+
+    it.map(_.toMap)
   }
 }

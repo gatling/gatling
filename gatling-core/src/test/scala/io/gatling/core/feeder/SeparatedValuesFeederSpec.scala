@@ -48,7 +48,7 @@ class SeparatedValuesFeederSpec extends BaseSpec with FeederSupport {
 
   "SeparatedValuesParser" should "throw an exception when provided with bad resource" in {
     import io.gatling.core.feeder.SeparatedValuesParser._
-    an[IllegalArgumentException] should be thrownBy
-      stream(Source.fromInputStream(this.getClass.getClassLoader.getResourceAsStream("empty.csv")), CommaSeparator, '\'', rawSplit = false)
+    an[Exception] should be thrownBy
+      stream(this.getClass.getClassLoader.getResourceAsStream("empty.csv"), CommaSeparator, '\'', rawSplit = false)
   }
 }

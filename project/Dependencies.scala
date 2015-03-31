@@ -20,13 +20,13 @@ object Dependencies {
   private val scopt                         = "com.github.scopt"                      %% "scopt"                       % "3.3.0"
   private val scalalogging                  = "com.typesafe.scala-logging"            %% "scala-logging"               % "3.1.0"
   private val jackson                       = "com.fasterxml.jackson.core"             % "jackson-databind"            % "2.5.2"
+  private val jacksonCsv                    = "com.fasterxml.jackson.dataformat"       % "jackson-dataformat-csv"      % jackson.revision
   private val boon                          = "io.fastjson"                            % "boon"                        % "0.32"
   private val jsonpath                      = "io.gatling"                            %% "jsonpath"                    % "0.6.3"
   private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                % "3.6.5"
   private val jzlib                         = "com.jcraft"                             % "jzlib"                       % "1.1.3"
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                 % "2.14"
   private val zinc                          = "com.typesafe.zinc"                      % "zinc"                        % "0.3.7" exclude("org.scala-lang", "scala-compiler")
-  private val openCsv                       = "net.sf.opencsv"                         % "opencsv"                     % "2.3"
   private val jmsApi                        = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"       % "1.1.1"
   private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"             % "1.1.3"
   private val tdigest                       = "com.tdunning"                           % "t-digest"                    % "3.0"
@@ -57,7 +57,7 @@ object Dependencies {
     val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
-    scalaLibs(scalaVersion) ++ Seq(akkaActor, config, fastring, openCsv, lru, scalaParserCombinators, scopt, jzlib) ++
+    scalaLibs(scalaVersion) ++ Seq(akkaActor, config, fastring, jacksonCsv, lru, scalaParserCombinators, scopt, jzlib) ++
       loggingLibs ++ checksLibs ++ testDeps
   }
 
