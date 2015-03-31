@@ -18,7 +18,7 @@ package io.gatling.core.feeder
 import java.io.InputStream
 import java.util.{ Map => JMap }
 
-import com.fasterxml.jackson.databind.{ ObjectReader, MappingIterator }
+import com.fasterxml.jackson.databind.{MapperFeature, ObjectReader, MappingIterator}
 
 import scala.collection.JavaConversions._
 
@@ -40,7 +40,7 @@ object SeparatedValuesParser {
 
   def stream(is: InputStream, columnSeparator: Char, quoteChar: Char, rawSplit: Boolean): Iterator[Record[String]] = {
 
-    val mapper = new CsvMapper
+    val mapper = new CsvMapper().disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
     val schema = CsvSchema.emptySchema.withHeader.withColumnSeparator(columnSeparator).withQuoteChar(quoteChar).withEscapeChar('\\')
 
     val reader: ObjectReader = mapper.reader(classOf[JMap[_, _]])
