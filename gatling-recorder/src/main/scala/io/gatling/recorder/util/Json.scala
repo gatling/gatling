@@ -18,13 +18,15 @@ package io.gatling.recorder.util
 import java.io.InputStream
 import java.util.{ List => JList, Map => JMap }
 
-import scala.language.dynamics
+import com.fasterxml.jackson.databind.ObjectMapper
 
-import com.fasterxml.jackson.jr.ob.JSON
+import scala.language.dynamics
 
 object Json {
 
-  def parseJson(is: InputStream) = new Json(JSON.std.anyFrom(is))
+  val objectMapper = new ObjectMapper
+
+  def parseJson(is: InputStream) = new Json(objectMapper.readValue(is, classOf[Object]))
 
   implicit def JsonToString(s: Json) = s.toString
   implicit def JsonToInt(s: Json) = s.toInt

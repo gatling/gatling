@@ -19,7 +19,7 @@ import java.io.{ InputStream, InputStreamReader }
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets._
 
-import com.fasterxml.jackson.jr.ob.JSON
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.FastByteArrayInputStream
 import io.gatling.core.util.NonStandardCharsets.UTF_32
@@ -32,25 +32,23 @@ class Jackson(implicit configuration: GatlingConfiguration) extends JsonParser {
 
   import Jackson.JsonSupportedEncodings
 
-  val jsonJr: JSON = JSON.std
-    .`with`(JSON.Feature.READ_ONLY)
-    .`without`(JSON.Feature.HANDLE_JAVA_BEANS)
+  val objectMapper = new ObjectMapper
 
   def parse(bytes: Array[Byte], charset: Charset) =
     if (JsonSupportedEncodings.contains(charset)) {
-      jsonJr.anyFrom(bytes)
+      objectMapper.readValue(bytes, classOf[Object])
     } else {
       val reader = new InputStreamReader(new FastByteArrayInputStream(bytes), charset)
-      jsonJr.anyFrom(reader)
+      objectMapper.readValue(reader, classOf[Object])
     }
 
-  def parse(string: String) = jsonJr.anyFrom(string)
+  def parse(string: String) = objectMapper.readValue(string, classOf[Object])
 
   def parse(stream: InputStream, charset: Charset = configuration.core.charset) =
     if (JsonSupportedEncodings.contains(charset)) {
-      jsonJr.anyFrom(stream)
+      objectMapper.readValue(stream, classOf[Object])
     } else {
       val reader = new InputStreamReader(stream, charset)
-      jsonJr.anyFrom(reader)
+      objectMapper.readValue(reader, classOf[Object])
     }
 }
