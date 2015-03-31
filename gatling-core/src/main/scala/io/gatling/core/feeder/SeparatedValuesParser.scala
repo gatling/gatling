@@ -18,7 +18,7 @@ package io.gatling.core.feeder
 import java.io.InputStream
 import java.util.{ Map => JMap }
 
-import com.fasterxml.jackson.databind.{MapperFeature, ObjectReader, MappingIterator}
+import com.fasterxml.jackson.databind.{ MapperFeature, ObjectReader, MappingIterator }
 
 import scala.collection.JavaConversions._
 
