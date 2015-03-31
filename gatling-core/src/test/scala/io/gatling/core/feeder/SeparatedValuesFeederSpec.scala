@@ -2,8 +2,6 @@ package io.gatling.core.feeder
 
 import akka.actor.ActorSystem
 
-import scala.io.Source
-
 import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
 
