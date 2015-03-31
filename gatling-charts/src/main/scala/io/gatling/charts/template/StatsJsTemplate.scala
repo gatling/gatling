@@ -25,30 +25,32 @@ import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.report.{ GroupContainer, RequestContainer }
 import io.gatling.charts.report.Container.{ Group, Request }
 
-private[charts] class StatsJsTemplate(stats: GroupContainer) {
+private[charts] class StatsJsTemplate(stats: GroupContainer, rawJson: Boolean) {
+
+  private def quote(field: String) = if (rawJson) '"' + field + '"' else field
 
   def getOutput(charset: Charset): Fastring = {
 
       def renderStatsRequest(request: RequestStatistics): Fastring = {
         val jsonStats = new GlobalStatsJsonTemplate(request, false).getOutput
 
-        fast"""name: "${request.name.escapeJsDoubleQuoteString}",
-path: "${request.path.escapeJsDoubleQuoteString}",
-pathFormatted: "${request.path.toFileName(charset)}",
-stats: $jsonStats"""
+        fast"""${quote("name")}: "${request.name.escapeJsDoubleQuoteString}",
+${quote("path")}: "${request.path.escapeJsDoubleQuoteString}",
+${quote("pathFormatted")}: "${request.path.toFileName(charset)}",
+${quote("stats")}: $jsonStats"""
       }
 
       def renderStatsGroup(group: GroupContainer): Fastring =
-        fast"""type: "$Group",
+        fast"""${quote("type")}: "$Group",
 ${renderStatsRequest(group.stats)},
-contents: {
+${quote("contents")}: {
 ${
           group.contents.values.map {
             case subGroup: GroupContainer => fast""""${subGroup.name.toFileName(charset)}": {
         ${renderStatsGroup(subGroup)}
     }"""
             case request: RequestContainer => fast""""${request.name.toFileName(charset)}": {
-        type: "$Request",
+        ${quote("type")}: "$Request",
         ${renderStatsRequest(request.stats)}
     }"""
           }.mkFastring(",")
@@ -56,7 +58,12 @@ ${
 }
 """
 
-    fast"""var stats = {
+    if (rawJson)
+      fast"""{
+  ${renderStatsGroup(stats)}
+}"""
+    else
+      fast"""var stats = {
     ${renderStatsGroup(stats)}
 }
 

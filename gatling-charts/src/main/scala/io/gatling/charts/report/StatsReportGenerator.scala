@@ -127,7 +127,8 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
         rootContainer.addRequest(group, request, stats)
     }
 
-    new TemplateWriter(statsJsFile(reportFolderName)).writeToFile(new StatsJsTemplate(rootContainer).getOutput(configuration.core.charset))
+    new TemplateWriter(statsJsFile(reportFolderName)).writeToFile(new StatsJsTemplate(rootContainer, false).getOutput(configuration.core.charset))
+    new TemplateWriter(statsJsonFile(reportFolderName)).writeToFile(new StatsJsTemplate(rootContainer, true).getOutput(configuration.core.charset))
     new TemplateWriter(globalStatsJsonFile(reportFolderName)).writeToFile(new GlobalStatsJsonTemplate(rootContainer.stats, true).getOutput)
     println(ConsoleTemplate(dataReader, rootContainer.stats))
   }

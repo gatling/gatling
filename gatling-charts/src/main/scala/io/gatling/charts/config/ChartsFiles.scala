@@ -50,6 +50,8 @@ private[charts] object ChartsFiles {
 
   def statsJsFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsFile
 
+  def statsJsonFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsonFile
+
   def globalStatsJsonFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / GlobalStatsJsonFile
 
   def assertionsJsonFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / AssertionsJsonFile
