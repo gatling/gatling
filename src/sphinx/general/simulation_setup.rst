@@ -62,7 +62,7 @@ The building blocks for profile injection the way you want are:
 Global Pause configuration
 ==========================
 
-The pauses can be configure on ``Simulation`` with a bunch of methods:
+The pauses can be configured on ``Simulation`` with a bunch of methods:
 
 * ``disablePauses``: disable the pauses for the simulation
 * ``constantPauses``: the duration of each pause is precisely that specified in the ``pause(duration)`` element.
