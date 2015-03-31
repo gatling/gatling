@@ -20,7 +20,7 @@ import java.nio.charset.Charset
 
 import org.boon.json.implementation.{ JsonFastParser, JsonParserUsingCharacterSource }
 
-object Boon extends JsonParser {
+class Boon extends JsonParser {
 
   private def newFastParser = new JsonFastParser(false, false, true, false)
 

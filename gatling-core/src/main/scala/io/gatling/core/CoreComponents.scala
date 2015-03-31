@@ -30,7 +30,7 @@ trait CoreComponents {
   implicit lazy val defaultPatterns = new Patterns
   implicit lazy val defaultRegexExtractorFactory = new RegexExtractorFactory
 
-  implicit lazy val defaultJsonParsers = new JsonParsers
+  implicit lazy val defaultJsonParsers: JsonParsers = JsonParsers()
   implicit lazy val defaultJsonPaths = new JsonPaths
   implicit lazy val defaultJsonPathExtractorFactory = new JsonPathExtractorFactory
 

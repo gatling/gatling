@@ -20,7 +20,7 @@ import java.util.{ ArrayList => JArrayList, HashMap => JHashMap, LinkedList => J
 import io.gatling.BaseSpec
 import io.gatling.core.ValidationValues
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.json.JsonParsers
+import io.gatling.core.json.Jackson
 import io.gatling.core.session.{ el, Session }
 
 class ElSpec extends BaseSpec with ValidationValues {
@@ -116,7 +116,7 @@ class ElSpec extends BaseSpec with ValidationValues {
 
   it should "have jsonStringify deal with key access" in {
 
-    val json = new JsonParsers().jackson.parse(
+    val json = Jackson().parse(
       """{
         |"bar": {
         |    "baz": "qix"

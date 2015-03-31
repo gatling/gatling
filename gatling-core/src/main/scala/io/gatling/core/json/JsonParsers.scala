@@ -7,19 +7,15 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.validation._
 
 object JsonParsers {
-  val JacksonErrorMapper: String => String = "Jackson failed to parse into a valid AST: " + _
-  val BoonErrorMapper: String => String = "Boon failed to parse into a valid AST: " + _
+
+  def apply()(implicit configuration: GatlingConfiguration) =
+    new JsonParsers(Jackson(), new Boon, configuration.core.extract.jsonPath.preferJackson)
 }
 
-class JsonParsers(implicit configuration: GatlingConfiguration) {
+case class JsonParsers(jackson: Jackson, boon: Boon, preferJackson: Boolean) {
 
-  import JsonParsers._
-
-  val jackson: Jackson = new Jackson
-
-  val boon = Boon
-
-  val preferJackson = configuration.core.extract.jsonPath.preferJackson
+  private val JacksonErrorMapper: String => String = "Jackson failed to parse into a valid AST: " + _
+  private val BoonErrorMapper: String => String = "Boon failed to parse into a valid AST: " + _
 
   def safeParseJackson(string: String): Validation[Object] =
     executeSafe(JacksonErrorMapper)(jackson.parse(string).success)

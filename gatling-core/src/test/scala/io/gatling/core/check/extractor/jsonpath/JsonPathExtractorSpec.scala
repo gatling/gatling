@@ -24,7 +24,7 @@ class JsonPathExtractorSpec extends BaseSpec with ValidationValues {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val jsonPaths = new JsonPaths
-  implicit val jsonParsers = new JsonParsers
+  implicit val jsonParsers = JsonParsers()
   val extractorFactory = new JsonPathExtractorFactory
   import extractorFactory._
 

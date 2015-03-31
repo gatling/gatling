@@ -25,14 +25,14 @@ import io.gatling.core.util.FastByteArrayInputStream
 import io.gatling.core.util.NonStandardCharsets.UTF_32
 
 object Jackson {
-  val JsonSupportedEncodings = Vector(UTF_8, UTF_16, UTF_32)
+
+  def apply()(implicit configuration: GatlingConfiguration) =
+    new Jackson(new ObjectMapper, configuration.core.charset)
 }
 
-class Jackson(implicit configuration: GatlingConfiguration) extends JsonParser {
+class Jackson(objectMapper: ObjectMapper, defaultCharset: Charset) extends JsonParser {
 
-  import Jackson.JsonSupportedEncodings
-
-  val objectMapper = new ObjectMapper
+  val JsonSupportedEncodings = Vector(UTF_8, UTF_16, UTF_32)
 
   def parse(bytes: Array[Byte], charset: Charset) =
     if (JsonSupportedEncodings.contains(charset)) {
@@ -44,7 +44,7 @@ class Jackson(implicit configuration: GatlingConfiguration) extends JsonParser {
 
   def parse(string: String) = objectMapper.readValue(string, classOf[Object])
 
-  def parse(stream: InputStream, charset: Charset = configuration.core.charset) =
+  def parse(stream: InputStream, charset: Charset = defaultCharset) =
     if (JsonSupportedEncodings.contains(charset)) {
       objectMapper.readValue(stream, classOf[Object])
     } else {

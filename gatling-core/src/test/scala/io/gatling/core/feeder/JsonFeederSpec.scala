@@ -23,7 +23,7 @@ import io.gatling.core.json.JsonParsers
 class JsonFeederSpec extends BaseSpec with FeederSupport {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  implicit val jsonParsers = new JsonParsers
+  implicit val jsonParsers = JsonParsers()
 
   "jsonFile" should "handle proper JSON file" in {
     val data = jsonFile("test.json").build(mock[ActorSystem]).toArray
