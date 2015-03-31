@@ -23,6 +23,7 @@ import io.gatling.core.validation.{ Failure, Success, Validation }
 trait FeederSupport {
 
   type Feeder[T] = io.gatling.core.feeder.Feeder[T]
+  type FeederBuilder[T] = io.gatling.core.feeder.FeederBuilder[T]
 
   implicit def seq2FeederBuilder[T](data: IndexedSeq[Map[String, T]]): RecordSeqFeederBuilder[T] = RecordSeqFeederBuilder(data)
   implicit def array2FeederBuilder[T](data: Array[Map[String, T]]): RecordSeqFeederBuilder[T] = RecordSeqFeederBuilder(data)
