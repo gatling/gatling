@@ -20,6 +20,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.KO
 import io.gatling.core.session._
 import io.gatling.http.action.{ AddCookieBuilder, CookieDSL }
+import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.check.ws.WsCheckSupport
@@ -28,6 +29,7 @@ import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.feeder.SitemapFeederSupport
 import io.gatling.http.request.{ BodyPart, ExtraInfo }
 import io.gatling.http.request.builder.Http
+import io.gatling.http.request.builder.polling.Polling
 import io.gatling.http.request.builder.sse.Sse
 import io.gatling.http.request.builder.ws.Ws
 
@@ -47,6 +49,7 @@ trait HttpModule extends HttpCheckSupport with WsCheckSupport with SitemapFeeder
   def sse(requestName: Expression[String], sseName: String)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol) = new Sse(requestName, sseName)
   def ws(requestName: Expression[String])(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol) = new Ws(requestName)
   def ws(requestName: Expression[String], wsName: String)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol) = new Ws(requestName, wsName)
+  def polling(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine) = new Polling()
 
   val HttpHeaderNames = HeaderNames
   val HttpHeaderValues = HeaderValues
