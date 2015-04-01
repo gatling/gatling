@@ -22,7 +22,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.math.max
 
 import com.ning.http.client.providers.netty.request.NettyRequest
-import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
+import com.ning.http.client._
 import com.ning.http.client.providers.netty.response.NettyResponseBodyPart
 import com.typesafe.scalalogging.StrictLogging
 import org.jboss.netty.buffer.ChannelBuffer
