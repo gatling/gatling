@@ -57,7 +57,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   def runWithHttpServer(requestHandler: Handler)(f: HttpServer => Unit)(implicit httpEngine: HttpEngine, protocol: DefaultHttpProtocol) = {
     val httpServer = new HttpServer(requestHandler, mockHttpPort)
     try {
-      httpEngine.start(system, mock[DataWriters])
+      httpEngine.start(system, mock[DataWriters], mock[ActorRef])
       f(httpServer)
     } finally {
       httpServer.stop()

@@ -120,9 +120,9 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
   private[this] var _state: Option[InternalState] = None
   private[this] def state: InternalState = _state.getOrElse(throw new IllegalStateException("HttpEngine hasn't been started"))
 
-  def start(system: ActorSystem, dataWriters: DataWriters): Unit = {
+  def start(system: ActorSystem, dataWriters: DataWriters, throttler: ActorRef): Unit = {
 
-    _state = Some(loadInternalState(system, dataWriters))
+    _state = Some(loadInternalState(system, dataWriters, throttler))
 
     system.registerOnTermination(stop())
     defaultAhc
@@ -149,7 +149,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     val handler = new AsyncHandler(newTx, this)
 
     if (requestConfig.throttled)
-      Throttler.throttle(tx.session.scenarioName, () => client.executeRequest(ahcRequest, handler))
+      Throttler.throttle(state.throttler, tx.session.scenarioName, () => client.executeRequest(ahcRequest, handler))
     else
       client.executeRequest(ahcRequest, handler)
   }
@@ -176,7 +176,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     client.executeRequest(newTx.request, handler)
   }
 
-  private def loadInternalState(system: ActorSystem, dataWriters: DataWriters) = {
+  private def loadInternalState(system: ActorSystem, dataWriters: DataWriters, throttler: ActorRef) = {
 
     import configuration.http.{ ahc => ahcConfig }
 
@@ -270,7 +270,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     val asyncHandlerProps = Props(classOf[AsyncHandlerActor], configuration, this)
     val asyncHandlerActors = system.actorOf(RoundRobinPool(poolSize).props(asyncHandlerProps), actorName("asyncHandler"))
 
-    new InternalState(applicationThreadPool, nioThreadPool, channelPool, nettyConfig, defaultAhcConfig, dataWriters, asyncHandlerActors, system)
+    new InternalState(applicationThreadPool, nioThreadPool, channelPool, nettyConfig, defaultAhcConfig, dataWriters, throttler, asyncHandlerActors, system)
   }
 
   def httpClient(session: Session, protocol: HttpProtocol): (Session, AsyncHttpClient) = {
@@ -291,6 +291,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
                            nettyConfig: NettyAsyncHttpProviderConfig,
                            defaultAhcConfig: AsyncHttpClientConfig,
                            dataWriters: DataWriters,
+                           throttler: ActorRef,
                            asyncHandlerActors: ActorRef,
                            system: ActorSystem) {
 

@@ -40,31 +40,18 @@ class ThisSecondThrottle(val limit: Int, var count: Int = 0) {
 
 object Throttler extends StrictLogging {
 
-  // FIXME
-  private var _instance: Option[ActorRef] = None
+  def props(system: ActorSystem, simulationDef: SimulationDef) =
+    Props(new Throttler(simulationDef.globalThrottling, simulationDef.scenarioThrottlings))
 
-  def start(system: ActorSystem, simulationDef: SimulationDef): Unit = {
-
-    if (simulationDef.globalThrottling.isDefined || simulationDef.scenarioThrottlings.nonEmpty) {
-
-      val throttler = system.actorOf(Props(new Throttler(simulationDef.globalThrottling, simulationDef.scenarioThrottlings)), "throttler")
-
-      _instance = Some(throttler)
-      logger.debug("Setting up throttling")
-      implicit val dispatcher = system.dispatcher
-      system.scheduler.schedule(0 seconds, 1 seconds, throttler, OneSecondTick)
-      system.registerOnTermination(_instance = None)
-    }
-  }
-
-  def throttle(scenarioName: String, action: () => Unit): Unit =
-    _instance match {
-      case Some(t) => t ! ThrottledRequest(scenarioName, action)
-      case None    => logger.debug("Throttler hasn't been started")
-    }
+  def throttle(throttler: ActorRef, scenarioName: String, action: () => Unit): Unit =
+    throttler ! ThrottledRequest(scenarioName, action)
 }
 
 class Throttler(globalProfile: Option[ThrottlingProfile], scenarioProfiles: Map[String, ThrottlingProfile]) extends BaseActor {
+
+  val timerCancellable = system.scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
+
+  override def postStop(): Unit = timerCancellable.cancel()
 
   val buffer = collection.mutable.Queue.empty[(String, () => Unit)]
 

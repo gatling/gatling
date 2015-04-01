@@ -68,11 +68,11 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
 
       val simulationDef = simulation.build(system, controller, dataWriters, userEnd)
 
+      val throttler = system.actorOf(Throttler.props(system, simulationDef), "throttler")
+
       simulationDef.scenarios.foldLeft(Protocols()) { (protocols, scenario) =>
         protocols ++ scenario.ctx.protocols
-      }.warmUp(system, dataWriters)
-
-      Throttler.start(system, simulationDef)
+      }.warmUp(system, dataWriters, throttler)
 
       val simulationTimeout = configuration.core.timeout.simulation seconds
       implicit val timeout = Timeout(simulationTimeout)
