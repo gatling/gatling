@@ -61,7 +61,7 @@ trait ResourceFetcher {
 
   def resourcesToRequests(resources: List[EmbeddedResource], session: Session, protocol: HttpProtocol, throttled: Boolean): List[HttpRequest] =
     resources.flatMap {
-      _.toRequest(session, protocol, throttled) match {
+      _.toRequest(session, protocol, httpCaches, throttled) match {
         case Success(httpRequest) => Some(httpRequest)
         case Failure(m) =>
           // shouldn't happen, only static values
@@ -139,7 +139,7 @@ trait ResourceFetcher {
       case Nil => None
       case resources =>
         implicit val resourceFetcher = this
-        Some(() => new ResourceFetcherActor(tx, resources))
+        Some(() => new ResourceFetcherActor(this, tx, resources))
     }
 
   def resourceFetcherActorForCachedPage(htmlDocumentURI: Uri, tx: HttpTx): Option[() => ResourceFetcherActor] = {
@@ -176,7 +176,7 @@ trait ResourceFetcher {
 }
 
 // FIXME handle crash
-class ResourceFetcherActor(primaryTx: HttpTx, initialResources: Seq[HttpRequest])(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine) extends BaseActor {
+class ResourceFetcherActor(httpEngine: HttpEngine, primaryTx: HttpTx, initialResources: Seq[HttpRequest])(implicit configuration: GatlingConfiguration) extends BaseActor {
 
   // immutable state
   val protocol = primaryTx.request.config.protocol
@@ -205,7 +205,7 @@ class ResourceFetcherActor(primaryTx: HttpTx, initialResources: Seq[HttpRequest]
       next = self,
       blocking = false)
 
-    HttpRequestAction.startHttpTransaction(resourceTx)
+    HttpRequestAction.startHttpTransaction(httpEngine, resourceTx)
   }
 
   private def handleCachedResource(resource: HttpRequest): Unit = {

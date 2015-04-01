@@ -44,6 +44,7 @@ class DefaultHttpProtocol(implicit configuration: GatlingConfiguration, httpEngi
   val value = HttpProtocol(
     baseURLs = Nil,
     warmUpUrl = configuration.http.warmUpUrl,
+    httpEngine,
     enginePart = HttpProtocolEnginePart(
       shareClient = true,
       shareConnections = false,
@@ -90,11 +91,12 @@ object HttpProtocol extends StrictLogging {
   def apply(
     baseURLs: List[String],
     warmUpUrl: Option[String],
+    httpEngine: HttpEngine,
     enginePart: HttpProtocolEnginePart,
     requestPart: HttpProtocolRequestPart,
     responsePart: HttpProtocolResponsePart,
     wsPart: HttpProtocolWsPart,
-    proxyPart: HttpProtocolProxyPart)(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine): HttpProtocol = {
+    proxyPart: HttpProtocolProxyPart)(implicit configuration: GatlingConfiguration): HttpProtocol = {
 
     val warmUpF = (system: ActorSystem, dataWriters: DataWriters, throttler: ActorRef, httProtocol: HttpProtocol) => {
       logger.info("Start warm up")

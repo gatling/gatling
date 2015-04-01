@@ -37,7 +37,7 @@ sealed abstract class EmbeddedResource {
   def acceptHeader: Expression[String]
   val url = uri.toString
 
-  def toRequest(session: Session, protocol: HttpProtocol, throttled: Boolean)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches): Validation[HttpRequest] = {
+  def toRequest(session: Session, protocol: HttpProtocol, httpCaches: HttpCaches, throttled: Boolean)(implicit configuration: GatlingConfiguration): Validation[HttpRequest] = {
 
     val requestName = {
       val start = url.lastIndexOf('/') + 1
@@ -47,7 +47,7 @@ sealed abstract class EmbeddedResource {
         "/"
     }
 
-    val httpRequestDef = new Http(requestName.expression).get(uri).header(HeaderNames.Accept, acceptHeader).build(protocol, throttled)
+    val httpRequestDef = new Http(requestName.expression)(configuration, httpCaches).get(uri).header(HeaderNames.Accept, acceptHeader).build(protocol, throttled)
 
     httpRequestDef.build(requestName, session)
   }

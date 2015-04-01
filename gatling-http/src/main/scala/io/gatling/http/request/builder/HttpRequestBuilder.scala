@@ -46,7 +46,7 @@ case class HttpAttributes(
 object HttpRequestBuilder {
 
   implicit def toActionBuilder(requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine) =
-    new HttpRequestActionBuilder(requestBuilder)
+    new HttpRequestActionBuilder(requestBuilder, httpEngine)
 
   val MultipartFormDataValueExpression = HeaderValues.MultipartFormData.expression
   val ApplicationFormUrlEncodedValueExpression = HeaderValues.ApplicationFormUrlEncoded.expression

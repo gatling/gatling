@@ -42,7 +42,7 @@ import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, resolveFromUri }
 import io.gatling.http.util.HttpStringBuilder
 
-class AsyncHandlerActor(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine) extends BaseActor {
+class AsyncHandlerActor(httpEngine: HttpEngine)(implicit configuration: GatlingConfiguration) extends BaseActor {
 
   override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
 
@@ -241,7 +241,7 @@ class AsyncHandlerActor(implicit configuration: GatlingConfiguration, httpEngine
 
                 val newAhcRequest = redirectRequest(statusCode, redirectURI, newSession)
                 val redirectTx = loggedTx.copy(request = loggedTx.request.copy(ahcRequest = newAhcRequest), redirectCount = tx.redirectCount + 1)
-                HttpRequestAction.startHttpTransaction(redirectTx)
+                HttpRequestAction.startHttpTransaction(httpEngine, redirectTx)
 
               case None =>
                 ko(tx, update, response, "Redirect status, yet no Location header")

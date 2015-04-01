@@ -46,14 +46,14 @@ class HttpRequestActionSpec extends BaseSpec {
   "HttpRequestAction" should "send same transaction with no redirect" in new Context {
     val tx = MockUtils.txTo("http://example.com/", session, cache = true)
 
-    HttpRequestAction.startHttpTransaction(tx)
+    HttpRequestAction.startHttpTransaction(httpEngineMock, tx)
     verify(httpEngineMock, times(1)).startHttpTransaction(tx)
   }
 
   it should "update transaction in case of a redirect" in new Context {
     addRedirect("http://example.com/", "http://gatling.io/")
     val tx = MockUtils.txTo("http://example.com/", session, cache = true)
-    HttpRequestAction.startHttpTransaction(tx)
+    HttpRequestAction.startHttpTransaction(httpEngineMock, tx)
 
     val argumentCapture = ArgumentCaptor.forClass(classOf[HttpTx])
     verify(httpEngineMock, times(2)).startHttpTransaction(argumentCapture.capture())

@@ -32,11 +32,11 @@ import io.gatling.http.response._
 
 object HttpRequestAction extends ActorNames with StrictLogging {
 
-  def props(httpRequestDef: HttpRequestDef, dataWriters: DataWriters, next: ActorRef)(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine) =
-    Props(new HttpRequestAction(httpRequestDef, dataWriters, next))
+  def props(httpRequestDef: HttpRequestDef, httpEngine: HttpEngine, dataWriters: DataWriters, next: ActorRef)(implicit configuration: GatlingConfiguration) =
+    Props(new HttpRequestAction(httpRequestDef, httpEngine, dataWriters, next))
 
   // FIXME Move to HttpEngine?
-  def startHttpTransaction(origTx: HttpTx)(implicit ctx: ActorContext, httpEngine: HttpEngine): Unit = {
+  def startHttpTransaction(httpEngine: HttpEngine, origTx: HttpTx)(implicit ctx: ActorContext): Unit = {
 
     val tx = httpEngine.httpCaches.applyPermanentRedirect(origTx)
     val uri = tx.request.ahcRequest.getUri
@@ -73,10 +73,11 @@ object HttpRequestAction extends ActorNames with StrictLogging {
  *
  * @constructor constructs an HttpRequestAction
  * @param httpRequestDef the request definition
+ * @param httpEngine the HttpEngine
  * @param dataWriters the DataWriters
  * @param next the next action that will be executed after the request
  */
-class HttpRequestAction(httpRequestDef: HttpRequestDef, dataWriters: DataWriters, val next: ActorRef)(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine)
+class HttpRequestAction(httpRequestDef: HttpRequestDef, httpEngine: HttpEngine, dataWriters: DataWriters, val next: ActorRef)(implicit configuration: GatlingConfiguration)
     extends RequestAction(dataWriters) {
 
   import httpRequestDef._
@@ -97,6 +98,6 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, dataWriters: DataWriters
         responseBuilderFactory,
         next: ActorRef)
 
-      HttpRequestAction.startHttpTransaction(tx)
+      HttpRequestAction.startHttpTransaction(httpEngine, tx)
     }
 }
