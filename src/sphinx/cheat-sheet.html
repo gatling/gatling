@@ -660,11 +660,21 @@
         </div>
 
         <div class="function">
+          <label class="function-syntax" for="shuffle">shuffle</label>
+          <input type="checkbox" id="shuffle" name="shuffle">
+
+          <div class="function-details">
+            This strategy shuffles the values in the feeder.
+          </div>
+        </div>
+
+        <div class="function">
           <label class="function-syntax" for="random">random</label>
           <input type="checkbox" id="random" name="random">
 
           <div class="function-details">
-            This strategy chooses values randomly in the feeder. Values can be chosen several times.
+            This strategy chooses values randomly in the feeder. In contrast to a <i>shuffle</i> strategy
+            the same values can be chosen several times.
           </div>
         </div>
 
