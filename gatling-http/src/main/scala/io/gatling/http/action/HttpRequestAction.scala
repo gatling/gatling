@@ -17,16 +17,13 @@ package io.gatling.http.action
 
 import com.typesafe.scalalogging.StrictLogging
 
-import akka.actor.{ Props, ActorRef, ActorContext }
+import akka.actor.{ Props, ActorRef }
 import io.gatling.core.akka.ActorNames
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.OK
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.Session
-import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation._
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
-import io.gatling.http.fetch.RegularResourceFetched
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response._
 
@@ -34,38 +31,6 @@ object HttpRequestAction extends ActorNames with StrictLogging {
 
   def props(httpRequestDef: HttpRequestDef, httpEngine: HttpEngine, dataWriters: DataWriters, next: ActorRef)(implicit configuration: GatlingConfiguration) =
     Props(new HttpRequestAction(httpRequestDef, httpEngine, dataWriters, next))
-
-  // FIXME Move to HttpEngine?
-  def startHttpTransaction(httpEngine: HttpEngine, origTx: HttpTx)(implicit ctx: ActorContext): Unit = {
-
-    val tx = httpEngine.httpCaches.applyPermanentRedirect(origTx)
-    val uri = tx.request.ahcRequest.getUri
-    val method = tx.request.ahcRequest.getMethod
-
-    httpEngine.httpCaches.getExpires(tx.session, uri, method) match {
-
-      case None =>
-        httpEngine.startHttpTransaction(tx)
-
-      case Some(expire) if nowMillis > expire =>
-        val newTx = tx.copy(session = httpEngine.httpCaches.clearExpires(tx.session, uri, method))
-        httpEngine.startHttpTransaction(newTx)
-
-      case _ =>
-        httpEngine.resourceFetcherActorForCachedPage(uri, tx) match {
-          case Some(resourceFetcherActor) =>
-            logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-            ctx.actorOf(Props(resourceFetcherActor()), actorName("resourceFetcher"))
-
-          case None =>
-            logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
-            if (tx.blocking)
-              tx.next ! tx.session
-            else
-              tx.next ! RegularResourceFetched(uri, OK, Session.Identity, tx.silent)
-        }
-    }
-  }
 }
 
 /**
@@ -98,6 +63,6 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, httpEngine: HttpEngine, 
         responseBuilderFactory,
         next: ActorRef)
 
-      HttpRequestAction.startHttpTransaction(httpEngine, tx)
+      httpEngine.startHttpTransaction(tx)
     }
 }

@@ -31,7 +31,6 @@ import io.gatling.core.session.Session
 import io.gatling.core.util.StringHelper.Eol
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
-import io.gatling.http.action.HttpRequestAction
 import io.gatling.http.check.{ HttpCheck, HttpCheckScope }
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched }
@@ -241,7 +240,7 @@ class AsyncHandlerActor(httpEngine: HttpEngine)(implicit configuration: GatlingC
 
                 val newAhcRequest = redirectRequest(statusCode, redirectURI, newSession)
                 val redirectTx = loggedTx.copy(request = loggedTx.request.copy(ahcRequest = newAhcRequest), redirectCount = tx.redirectCount + 1)
-                HttpRequestAction.startHttpTransaction(httpEngine, redirectTx)
+                httpEngine.startHttpTransaction(redirectTx)
 
               case None =>
                 ko(tx, update, response, "Redirect status, yet no Location header")

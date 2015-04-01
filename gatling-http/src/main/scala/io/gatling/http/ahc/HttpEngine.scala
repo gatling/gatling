@@ -19,9 +19,12 @@ import java.util.{ ArrayList => JArrayList }
 import java.util.concurrent.{ ExecutorService, TimeUnit, Executors, ThreadFactory }
 
 import akka.routing.RoundRobinPool
+import io.gatling.core.result.message.OK
 import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.util.TimeHelper._
+import io.gatling.http.action.HttpRequestAction._
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.fetch.ResourceFetcher
+import io.gatling.http.fetch.{ RegularResourceFetched, ResourceFetcher }
 import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
@@ -35,7 +38,7 @@ import com.ning.http.client.providers.netty.channel.pool.{ ChannelPool, DefaultC
 import com.ning.http.client.ws.{ WebSocketListener, WebSocketUpgradeHandler }
 import com.typesafe.scalalogging.StrictLogging
 
-import akka.actor.{ ActorSystem, Props, ActorRef }
+import akka.actor.{ ActorContext, ActorSystem, Props, ActorRef }
 import io.gatling.core.ConfigKeys
 import io.gatling.core.akka.ActorNames
 import io.gatling.core.check.CheckResult
@@ -134,7 +137,38 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     _state = None
   }
 
-  def startHttpTransaction(tx: HttpTx): Unit = {
+  def startHttpTransaction(origTx: HttpTx)(implicit ctx: ActorContext): Unit = {
+
+    val tx = httpCaches.applyPermanentRedirect(origTx)
+    val uri = tx.request.ahcRequest.getUri
+    val method = tx.request.ahcRequest.getMethod
+
+    httpCaches.getExpires(tx.session, uri, method) match {
+
+      case None =>
+        doStartHttpTransaction(tx)
+
+      case Some(expire) if nowMillis > expire =>
+        val newTx = tx.copy(session = httpCaches.clearExpires(tx.session, uri, method))
+        doStartHttpTransaction(newTx)
+
+      case _ =>
+        resourceFetcherActorForCachedPage(uri, tx) match {
+          case Some(resourceFetcherActor) =>
+            logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+            ctx.actorOf(Props(resourceFetcherActor()), actorName("resourceFetcher"))
+
+          case None =>
+            logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+            if (tx.blocking)
+              tx.next ! tx.session
+            else
+              tx.next ! RegularResourceFetched(uri, OK, Session.Identity, tx.silent)
+        }
+    }
+  }
+
+  private def doStartHttpTransaction(tx: HttpTx): Unit = {
 
     logger.info(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
 

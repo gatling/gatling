@@ -28,7 +28,6 @@ import io.gatling.core.session._
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.cache._
 import io.gatling.core.validation._
-import io.gatling.http.action.HttpRequestAction
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request._
@@ -205,7 +204,7 @@ class ResourceFetcherActor(httpEngine: HttpEngine, primaryTx: HttpTx, initialRes
       next = self,
       blocking = false)
 
-    HttpRequestAction.startHttpTransaction(httpEngine, resourceTx)
+    httpEngine.startHttpTransaction(resourceTx)
   }
 
   private def handleCachedResource(resource: HttpRequest): Unit = {
