@@ -40,12 +40,12 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
       feederBuilder(Failure(""))(SeparatedValuesParser.parse(_, SeparatedValuesParser.CommaSeparator, '\'', rawSplit = false))
   }
 
-  "RecordSeqFeederBuilder" should "build a Feeder behaving accordingly to each strategy" in {
-    //Queue
+  "RecordSeqFeederBuilder" should "build a Feeder with a queue strategy" in {
     val queuedFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).queue.build(mock[ActorSystem])
     queuedFeeder.toArray shouldBe Array(Map("1" -> "Test"), Map("2" -> "Test"))
+  }
 
-    //Random
+  it should "build a Feeder with a random strategy" in {
     val fiftyTimes = 1 to 50
     val orderedMaps =
       fiftyTimes.foldLeft(IndexedSeq.empty[Record[String]]) { (acc, id) => Map(id.toString -> "Test") +: acc }
@@ -59,8 +59,13 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
       }
 
     if (!testsOutcome.reduce(_ || _)) fail("Random feeder did not return a random order even once out of three attempts")
+  }
 
-    //Shuffle
+  it should "build a Feeder with a shuffle strategy" in {
+    val fiftyTimes = 1 to 50
+    val orderedMaps =
+      fiftyTimes.foldLeft(IndexedSeq.empty[Record[String]]) { (acc, id) => Map(id.toString -> "Test") +: acc }
+
     val shuffledOutcome: immutable.IndexedSeq[IndexedSeq[Record[String]]] =
       (1 to 3).map { _ =>
         val shuffleFeeder = RecordSeqFeederBuilder(orderedMaps).shuffle.build(mock[ActorSystem])
@@ -70,13 +75,13 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
     val allShuffledSeqsAreDifferent = (shuffledOutcome :+ orderedMaps).distinct.length == 4
     if (!allShuffledSeqsAreDifferent) fail("Shuffle feeder returned the same order at least once out of three attempts")
+  }
 
-    //Circular
+  it should "build a Feeder with a circular strategy" in {
     val circularFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).circular.build(mock[ActorSystem])
     circularFeeder.next()
     circularFeeder.next()
     circularFeeder.next() shouldBe Map("1" -> "Test")
-
   }
 
   "RecordSeqFeederBuilder" should "be able to have a record converted" in {
@@ -100,5 +105,4 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
     convertedObj shouldBe a[Feeder[_]]
     convertedObj.build(mock[ActorSystem]) shouldBe a[Feeder[_]]
   }
-
 }
