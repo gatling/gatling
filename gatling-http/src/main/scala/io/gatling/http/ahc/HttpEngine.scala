@@ -22,7 +22,6 @@ import akka.routing.RoundRobinPool
 import io.gatling.core.result.message.OK
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.util.TimeHelper._
-import io.gatling.http.action.HttpRequestAction._
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.fetch.{ RegularResourceFetched, ResourceFetcher }
 import org.jboss.netty.channel.Channel
@@ -301,8 +300,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     }
 
     val poolSize = 3 * Runtime.getRuntime.availableProcessors
-    val asyncHandlerProps = Props(classOf[AsyncHandlerActor], configuration, this)
-    val asyncHandlerActors = system.actorOf(RoundRobinPool(poolSize).props(asyncHandlerProps), actorName("asyncHandler"))
+    val asyncHandlerActors = system.actorOf(RoundRobinPool(poolSize).props(AsyncHandlerActor.props(this)), actorName("asyncHandler"))
 
     new InternalState(applicationThreadPool, nioThreadPool, channelPool, nettyConfig, defaultAhcConfig, dataWriters, throttler, asyncHandlerActors, system)
   }

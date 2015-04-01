@@ -41,6 +41,11 @@ import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, resolveFromUri }
 import io.gatling.http.util.HttpStringBuilder
 
+object AsyncHandlerActor {
+  def props(httpEngine: HttpEngine)(implicit configuration: GatlingConfiguration) =
+    Props(new AsyncHandlerActor(httpEngine))
+}
+
 class AsyncHandlerActor(httpEngine: HttpEngine)(implicit configuration: GatlingConfiguration) extends BaseActor {
 
   override def preRestart(reason: Throwable, message: Option[Any]): Unit = {
