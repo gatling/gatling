@@ -197,10 +197,16 @@ class ResourceFetcherActor(httpEngine: HttpEngine, primaryTx: HttpTx, initialRes
   private def fetchResource(resource: HttpRequest): Unit = {
     logger.debug(s"Fetching resource ${resource.ahcRequest.getUri}")
 
+    val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
+      resource.config.checks,
+      None,
+      protocol.responsePart.discardResponseChunks,
+      protocol.responsePart.inferHtmlResources)
+
     val resourceTx = primaryTx.copy(
       session = this.session,
       request = resource,
-      responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(resource.config.checks, None, protocol.responsePart.discardResponseChunks, protocol.responsePart.inferHtmlResources),
+      responseBuilderFactory = responseBuilderFactory,
       next = self,
       blocking = false)
 

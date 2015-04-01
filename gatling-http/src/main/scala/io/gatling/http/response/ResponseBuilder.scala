@@ -18,26 +18,23 @@ package io.gatling.http.response
 import java.nio.charset.Charset
 import java.security.MessageDigest
 
-import com.ning.http.client.providers.netty.request.NettyRequest
-import io.gatling.core.result.message.RequestTimings
-import io.gatling.http.util.HttpHelper
-
 import scala.collection.mutable.ArrayBuffer
 import scala.math.max
 
-import org.jboss.netty.buffer.ChannelBuffer
-
+import com.ning.http.client.providers.netty.request.NettyRequest
 import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, Request }
 import com.ning.http.client.providers.netty.response.NettyResponseBodyPart
 import com.typesafe.scalalogging.StrictLogging
+import org.jboss.netty.buffer.ChannelBuffer
 
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.result.message.RequestTimings
 import io.gatling.core.util.StringHelper.bytes2Hex
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.checksum.ChecksumCheck
-import io.gatling.http.util.HttpHelper.{ isCss, isHtml, isTxt }
+import io.gatling.http.util.HttpHelper.{ extractCharsetFromContentType, isCss, isHtml, isTxt }
 
 object ResponseBuilder extends StrictLogging {
 
@@ -50,7 +47,7 @@ object ResponseBuilder extends StrictLogging {
   def newResponseBuilderFactory(checks: List[HttpCheck],
                                 responseTransformer: Option[PartialFunction[Response, Response]],
                                 discardResponseChunks: Boolean,
-                                inferHtmlResources: Boolean)(implicit configuration: GatlingConfiguration): Request => ResponseBuilder = {
+                                inferHtmlResources: Boolean)(implicit configuration: GatlingConfiguration): ResponseBuilderFactory = {
 
     val checksumChecks = checks.collect {
       case checksumCheck: ChecksumCheck => checksumCheck
@@ -60,7 +57,7 @@ object ResponseBuilder extends StrictLogging {
 
     val storeBodyParts = IsDebugEnabled || !discardResponseChunks || responseBodyUsageStrategies.nonEmpty || responseTransformer.isDefined
 
-    request: Request => new ResponseBuilder(
+    request => new ResponseBuilder(
       request,
       checksumChecks,
       responseBodyUsageStrategies,
@@ -169,7 +166,7 @@ class ResponseBuilder(request: Request,
     val bodyUsages = bodyUsageStrategies.map(_.bodyUsage(bodyLength))
 
     val resolvedCharset = Option(headers.getFirstValue(HeaderNames.ContentType))
-      .flatMap(HttpHelper.extractCharsetFromContentType)
+      .flatMap(extractCharsetFromContentType)
       .getOrElse(charset)
 
     val body: ResponseBody =

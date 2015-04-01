@@ -18,17 +18,13 @@ package io.gatling.http.ahc
 import java.util.{ ArrayList => JArrayList }
 import java.util.concurrent.{ ExecutorService, TimeUnit, Executors, ThreadFactory }
 
+import akka.actor.{ ActorContext, ActorSystem, Props, ActorRef }
 import akka.routing.RoundRobinPool
-import io.gatling.core.result.message.OK
-import io.gatling.core.result.writer.DataWriters
-import io.gatling.core.util.TimeHelper._
-import io.gatling.http.cache.HttpCaches
-import io.gatling.http.fetch.{ RegularResourceFetched, ResourceFetcher }
+
 import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
 import org.jboss.netty.util.HashedWheelTimer
-
 import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig.NettyWebSocketFactory
@@ -37,20 +33,24 @@ import com.ning.http.client.providers.netty.channel.pool.{ ChannelPool, DefaultC
 import com.ning.http.client.ws.{ WebSocketListener, WebSocketUpgradeHandler }
 import com.typesafe.scalalogging.StrictLogging
 
-import akka.actor.{ ActorContext, ActorSystem, Props, ActorRef }
 import io.gatling.core.ConfigKeys
 import io.gatling.core.akka.ActorNames
 import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
+import io.gatling.core.result.message.OK
+import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
+import io.gatling.core.util.TimeHelper._
+import io.gatling.http.fetch.{ RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.action.sse.SseHandler
 import io.gatling.http.action.ws.WsListener
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.HttpRequest
-import io.gatling.http.response.ResponseBuilder
-import io.gatling.http.util.SslHelper.{ RichAsyncHttpClientConfigBuilder, newKeyManagers, newTrustManagers }
+import io.gatling.http.response.ResponseBuilderFactory
+import io.gatling.http.util.SslHelper._
 
 object HttpTx {
 
@@ -67,7 +67,7 @@ object HttpTx {
 
 case class HttpTx(session: Session,
                   request: HttpRequest,
-                  responseBuilderFactory: Request => ResponseBuilder,
+                  responseBuilderFactory: ResponseBuilderFactory,
                   next: ActorRef,
                   blocking: Boolean = true,
                   redirectCount: Int = 0,

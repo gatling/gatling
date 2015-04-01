@@ -61,7 +61,7 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, httpEngine: HttpEngine, 
         session,
         httpRequest,
         responseBuilderFactory,
-        next: ActorRef)
+        next)
 
       httpEngine.startHttpTransaction(tx)
     }
