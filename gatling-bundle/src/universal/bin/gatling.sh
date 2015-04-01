@@ -37,7 +37,7 @@ COMPILER_CLASSPATH="$GATLING_HOME/lib/zinc/*:$COMMON_CLASSPATH"
 GATLING_CLASSPATH="$GATLING_HOME/lib/*:$GATLING_HOME/user-files:$COMMON_CLASSPATH"
 
 # Build compilation classpath
-COMPILATION_CLASSPATH=`find -L $GATLING_HOME/lib -maxdepth 1 -name "*.jar" -type f -exec printf :{} ';'`
+COMPILATION_CLASSPATH=`find $GATLING_HOME/lib -maxdepth 1 -name "*.jar" -type f -exec printf :{} ';'`
 
 # Run the compiler
 java $COMPILER_OPTS -cp "$COMPILER_CLASSPATH" io.gatling.compiler.ZincCompiler -ccp "$COMPILATION_CLASSPATH" $USER_ARGS  2> /dev/null
