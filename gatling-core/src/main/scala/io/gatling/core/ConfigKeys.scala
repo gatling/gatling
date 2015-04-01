@@ -144,24 +144,5 @@ object ConfigKeys {
       val BufferSize = "gatling.data.graphite.bufferSize"
       val WriteInterval = "gatling.data.graphite.writeInterval"
     }
-    object jdbc {
-      val Url = "gatling.data.jdbc.db.url"
-      val Username = "gatling.data.jdbc.db.username"
-      val Password = "gatling.data.jdbc.db.password"
-      val BufferSize = "gatling.data.jdbc.bufferSize"
-
-      object create {
-        val CreateRunRecordTable = "gatling.data.jdbc.create.createRunRecordTable"
-        val CreateRequestRecordTable = "gatling.data.jdbc.create.createRequestRecordTable"
-        val CreateScenarioRecordTable = "gatling.data.jdbc.create.createScenarioRecordTable"
-        val CreateGroupRecordTable = "gatling.data.jdbc.create.createGroupRecordTable"
-      }
-      object insert {
-        val InsertRunRecord = "gatling.data.jdbc.insert.insertRunRecord"
-        val InsertRequestRecord = "gatling.data.jdbc.insert.insertRequestRecord"
-        val InsertScenarioRecord = "gatling.data.jdbc.insert.insertScenarioRecord"
-        val InsertGroupRecord = "gatling.data.jdbc.insert.insertGroupRecord"
-      }
-    }
   }
 }
