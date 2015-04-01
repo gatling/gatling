@@ -68,7 +68,7 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
 
       val simulationDef = simulation.build(system, controller, dataWriters, userEnd)
 
-      val throttler = system.actorOf(Throttler.props(system, simulationDef), "throttler")
+      val throttler = Throttler(system, simulationDef, "throttler")
 
       simulationDef.scenarios.foldLeft(Protocols()) { (protocols, scenario) =>
         protocols ++ scenario.ctx.protocols

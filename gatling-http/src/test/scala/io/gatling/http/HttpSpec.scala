@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets
 import javax.activation.MimetypesFileTypeMap
 
 import akka.actor.ActorRef
+import io.gatling.core.controller.throttle.Throttler
 import org.jboss.netty.buffer.ChannelBuffers
 import org.scalatest.BeforeAndAfter
 
@@ -57,7 +58,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   def runWithHttpServer(requestHandler: Handler)(f: HttpServer => Unit)(implicit httpEngine: HttpEngine, protocol: DefaultHttpProtocol) = {
     val httpServer = new HttpServer(requestHandler, mockHttpPort)
     try {
-      httpEngine.start(system, mock[DataWriters], mock[ActorRef])
+      httpEngine.start(system, mock[DataWriters], mock[Throttler])
       f(httpServer)
     } finally {
       httpServer.stop()

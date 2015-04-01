@@ -18,7 +18,8 @@ package io.gatling.http.config
 import java.net.InetAddress
 import java.util.regex.Pattern
 
-import akka.actor.{ ActorRef, ActorSystem }
+import akka.actor.ActorSystem
+import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.result.writer.DataWriters
 
 import scala.util.control.NonFatal
@@ -98,7 +99,7 @@ object HttpProtocol extends StrictLogging {
     wsPart: HttpProtocolWsPart,
     proxyPart: HttpProtocolProxyPart)(implicit configuration: GatlingConfiguration): HttpProtocol = {
 
-    val warmUpF = (system: ActorSystem, dataWriters: DataWriters, throttler: ActorRef, httProtocol: HttpProtocol) => {
+    val warmUpF = (system: ActorSystem, dataWriters: DataWriters, throttler: Throttler, httProtocol: HttpProtocol) => {
       logger.info("Start warm up")
 
       httpEngine.start(system, dataWriters, throttler)
@@ -185,7 +186,7 @@ case class HttpProtocol(
   responsePart: HttpProtocolResponsePart,
   wsPart: HttpProtocolWsPart,
   proxyPart: HttpProtocolProxyPart,
-  warmUpF: (ActorSystem, DataWriters, ActorRef, HttpProtocol) => Unit,
+  warmUpF: (ActorSystem, DataWriters, Throttler, HttpProtocol) => Unit,
   userEndF: HttpProtocol => Session => Unit)
     extends Protocol {
 
@@ -194,7 +195,7 @@ case class HttpProtocol(
   private val httpBaseUrlIterator = baseUrlIterator(baseURLs)
   def baseURL: Option[String] = httpBaseUrlIterator.next()
 
-  override def warmUp(system: ActorSystem, dataWriters: DataWriters, throttler: ActorRef): Unit = warmUpF(system, dataWriters, throttler, this)
+  override def warmUp(system: ActorSystem, dataWriters: DataWriters, throttler: Throttler): Unit = warmUpF(system, dataWriters, throttler, this)
 
   override def userEnd(session: Session): Unit = userEndF(this)(session)
 }

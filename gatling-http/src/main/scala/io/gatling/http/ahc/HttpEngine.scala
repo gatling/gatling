@@ -123,7 +123,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
   private[this] var _state: Option[InternalState] = None
   private[this] def state: InternalState = _state.getOrElse(throw new IllegalStateException("HttpEngine hasn't been started"))
 
-  def start(system: ActorSystem, dataWriters: DataWriters, throttler: ActorRef): Unit = {
+  def start(system: ActorSystem, dataWriters: DataWriters, throttler: Throttler): Unit = {
 
     _state = Some(loadInternalState(system, dataWriters, throttler))
 
@@ -137,8 +137,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     _state = None
   }
 
-  def startHttpTransaction(origTx: HttpTx)(implicit ctx: ActorContext): Unit = {
-
+  private def startHttpTransactionWithCache(origTx: HttpTx, ctx: ActorContext)(f: HttpTx => Unit): Unit = {
     val tx = httpCaches.applyPermanentRedirect(origTx)
     val uri = tx.request.ahcRequest.getUri
     val method = tx.request.ahcRequest.getMethod
@@ -146,11 +145,11 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     httpCaches.getExpires(tx.session, uri, method) match {
 
       case None =>
-        doStartHttpTransaction(tx)
+        f(tx)
 
       case Some(expire) if nowMillis > expire =>
         val newTx = tx.copy(session = httpCaches.clearExpires(tx.session, uri, method))
-        doStartHttpTransaction(newTx)
+        f(newTx)
 
       case _ =>
         resourceFetcherActorForCachedPage(uri, tx) match {
@@ -168,25 +167,26 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     }
   }
 
-  private def doStartHttpTransaction(tx: HttpTx): Unit = {
+  def startHttpTransaction(origTx: HttpTx)(implicit ctx: ActorContext): Unit =
+    startHttpTransactionWithCache(origTx, ctx) { tx =>
 
-    logger.info(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+      logger.info(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
 
-    val requestConfig = tx.request.config
+      val requestConfig = tx.request.config
 
-    val (newTx, client) = {
-      val (newSession, client) = httpClient(tx.session, requestConfig.protocol)
-      (tx.copy(session = newSession), client)
+      val (newTx, client) = {
+        val (newSession, client) = httpClient(tx.session, requestConfig.protocol)
+        (tx.copy(session = newSession), client)
+      }
+
+      val ahcRequest = newTx.request.ahcRequest
+      val handler = new AsyncHandler(newTx, this)
+
+      if (requestConfig.throttled)
+        state.throttler.throttle(tx.session.scenarioName, () => client.executeRequest(ahcRequest, handler))
+      else
+        client.executeRequest(ahcRequest, handler)
     }
-
-    val ahcRequest = newTx.request.ahcRequest
-    val handler = new AsyncHandler(newTx, this)
-
-    if (requestConfig.throttled)
-      Throttler.throttle(state.throttler, tx.session.scenarioName, () => client.executeRequest(ahcRequest, handler))
-    else
-      client.executeRequest(ahcRequest, handler)
-  }
 
   def startWsTransaction(tx: WsTx, wsActor: ActorRef): Unit = {
     val (newTx, client) = {
@@ -210,7 +210,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     client.executeRequest(newTx.request, handler)
   }
 
-  private def loadInternalState(system: ActorSystem, dataWriters: DataWriters, throttler: ActorRef) = {
+  private def loadInternalState(system: ActorSystem, dataWriters: DataWriters, throttler: Throttler) = {
 
     import configuration.http.{ ahc => ahcConfig }
 
@@ -325,7 +325,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
                            nettyConfig: NettyAsyncHttpProviderConfig,
                            defaultAhcConfig: AsyncHttpClientConfig,
                            dataWriters: DataWriters,
-                           throttler: ActorRef,
+                           throttler: Throttler,
                            asyncHandlerActors: ActorRef,
                            system: ActorSystem) {
 

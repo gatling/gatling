@@ -38,16 +38,27 @@ class ThisSecondThrottle(val limit: Int, var count: Int = 0) {
   def limitReached: Boolean = count >= limit
 }
 
-object Throttler extends StrictLogging {
+object Throttler {
+  def apply(system: ActorSystem, simulationDef: SimulationDef, throttlerActorName: String) =
+    new Throttler(system.actorOf(ThrottlerActor.props(simulationDef), throttlerActorName))
+}
 
-  def props(system: ActorSystem, simulationDef: SimulationDef) =
-    Props(new Throttler(simulationDef.globalThrottling, simulationDef.scenarioThrottlings))
+class Throttler(throttlerActor: ActorRef) {
+
+  def throttle(scenarioName: String, action: () => Unit): Unit =
+    throttlerActor ! ThrottledRequest(scenarioName, action)
+}
+
+object ThrottlerActor extends StrictLogging {
+
+  def props(simulationDef: SimulationDef) =
+    Props(new ThrottlerActor(simulationDef.globalThrottling, simulationDef.scenarioThrottlings))
 
   def throttle(throttler: ActorRef, scenarioName: String, action: () => Unit): Unit =
     throttler ! ThrottledRequest(scenarioName, action)
 }
 
-class Throttler(globalProfile: Option[ThrottlingProfile], scenarioProfiles: Map[String, ThrottlingProfile]) extends BaseActor {
+class ThrottlerActor(globalProfile: Option[ThrottlingProfile], scenarioProfiles: Map[String, ThrottlingProfile]) extends BaseActor {
 
   val timerCancellable = system.scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
 
