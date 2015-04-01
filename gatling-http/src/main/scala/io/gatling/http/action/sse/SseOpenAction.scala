@@ -21,6 +21,7 @@ import com.ning.http.client.Request
 import io.gatling.core.action.Interruptable
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.http.ahc.{ HttpEngine, SseTx }
 import io.gatling.http.check.ws._
 import io.gatling.http.config.HttpProtocol
@@ -31,7 +32,7 @@ class SseOpenAction(
     request: Expression[Request],
     checkBuilder: Option[WsCheckBuilder],
     val next: ActorRef,
-    protocol: HttpProtocol) extends Interruptable {
+    protocol: HttpProtocol) extends Interruptable with SseAction {
 
   override def execute(session: Session): Unit = {
 
@@ -41,10 +42,15 @@ class SseOpenAction(
         HttpEngine.instance.startSseTransaction(tx, sseActor)
       }
 
-    for {
-      requestName <- requestName(session)
-      request <- request(session)
-      check = checkBuilder.map(_.build)
-    } yield open(SseTx(session, request, requestName, protocol, next, nowMillis, check = check))
+    fetchSse(sseName, session) match {
+      case _: Success[_] =>
+        Failure(s"Unable to create a new SSE with name $sseName: Already exists")
+      case _ =>
+        for {
+          requestName <- requestName(session)
+          request <- request(session)
+          check = checkBuilder.map(_.build)
+        } yield open(SseTx(session, request, requestName, protocol, next, nowMillis, check = check))
+    }
   }
 }
