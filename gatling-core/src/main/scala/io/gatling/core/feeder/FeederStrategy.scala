@@ -18,4 +18,5 @@ package io.gatling.core.feeder
 sealed trait FeederStrategy
 case object Queue extends FeederStrategy
 case object Random extends FeederStrategy
+case object Shuffle extends FeederStrategy
 case object Circular extends FeederStrategy

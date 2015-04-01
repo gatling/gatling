@@ -31,6 +31,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
     val builder = RecordSeqFeederBuilder(IndexedSeq())
     builder.queue.strategy shouldBe Queue
     builder.random.strategy shouldBe Random
+    builder.shuffle.strategy shouldBe Shuffle
     builder.circular.strategy shouldBe Circular
   }
 
@@ -58,6 +59,17 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
       }
 
     if (!testsOutcome.reduce(_ || _)) fail("Random feeder did not return a random order even once out of three attempts")
+
+    //Shuffle
+    val shuffledOutcome: immutable.IndexedSeq[IndexedSeq[Record[String]]] =
+      (1 to 3).map { _ =>
+        val shuffleFeeder = RecordSeqFeederBuilder(orderedMaps).shuffle.build(mock[ActorSystem])
+        shuffleFeeder.hasNext shouldBe true
+        fiftyTimes.map(_ => shuffleFeeder.next())
+      }
+
+    val allShuffledSeqsAreDifferent = (shuffledOutcome :+ orderedMaps).distinct.length == 4
+    if (!allShuffledSeqsAreDifferent) fail("Shuffle feeder returned the same order at least once out of three attempts")
 
     //Circular
     val circularFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).circular.build(mock[ActorSystem])

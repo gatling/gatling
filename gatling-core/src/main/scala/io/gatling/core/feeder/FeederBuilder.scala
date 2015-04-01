@@ -44,10 +44,12 @@ case class RecordSeqFeederBuilder[T](records: IndexedSeq[Record[T]], strategy: F
       def hasNext = records.length != 0
       def next = records(ThreadLocalRandom.current.nextInt(records.length))
     }
+    case Shuffle  => scala.util.Random.shuffle(records).iterator
     case Circular => RoundRobin(records)
   }
 
   def queue = copy(strategy = Queue)
   def random = copy(strategy = Random)
+  def shuffle = copy(strategy = Shuffle)
   def circular = copy(strategy = Circular)
 }
