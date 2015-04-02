@@ -61,7 +61,7 @@ trait LowPriorityJsonFilterImplicits {
 }
 
 object JsonFilter extends LowPriorityJsonFilterImplicits {
-  def apply[X : JsonFilter] = implicitly[JsonFilter[X]]
+  def apply[X: JsonFilter] = implicitly[JsonFilter[X]]
 }
 
 @implicitNotFound("No member of type class JsonFilter found for type ${X}")
