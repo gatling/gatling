@@ -23,6 +23,12 @@ All Gatling tests use `ScalaTest <http://www.scalatest.org>`__.
 
 A few helpers are provided for testing actors or some of Gatling's APIs:
 
+``BaseSpec``
+------------
+
+BaseSpec must be used on every test, as it sets out the structure and commons helpers for Gatling tests
+
+
 ``ValidationValues``
 --------------------
 
@@ -30,22 +36,21 @@ When tests involves Gatling's ``Validation`` API, ``ValidationValues`` provides 
 
 Example: `ELSpec <https://github.com/gatling/gatling/blob/master/gatling-core/src/test/scala/io/gatling/core/session/el/ELSpec.scala>`__
 
-``ActorSupport``
-----------------
+``AkkaSpec``
+------------
 
 ``ActorSupport`` is meant to be used when Akka actors are to be involved in the test.
 
 
-``ActorSupport`` relies on Akka's TestKit (documentation `here <http://doc.akka.io/docs/akka/2.2.4/scala/testing.html>`__) and allows you
-to provide a specific Gatling configuration if needed.
+``ActorSupport`` relies on Akka's TestKit (documentation `here <http://doc.akka.io/docs/akka/2.2.4/scala/testing.html>`__).
 
 Example: `PaceSpec <https://github.com/gatling/gatling/blob/master/gatling-core/src/test/scala/io/gatling/core/action/PaceSpec.scala>`__
 
-``MockServerSupport``
----------------------
+``HttpSpec``
+------------
 
-``MockServerSupport`` allows to configure and expose a Spray-can server that Gatling can make HTTP request against.
+``HttpSpec`` allows to configure and expose a simple Netty server that Gatling can make HTTP requests against.
 
-``MockServerSupport`` also exposes methods to assert that requests were indeed made to the server.
+``HttpSpec`` also exposes methods to assert that requests were indeed made to the server.
 
 Example: `HttpIntegrationSpec <https://github.com/gatling/gatling/blob/master/gatling-http/src/test/scala/io/gatling/http/integration/HttpIntegrationSpec.scala>`__
