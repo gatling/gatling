@@ -77,7 +77,7 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
       System.gc()
       System.gc()
 
-      val timeout = Int.MaxValue seconds
+      val timeout = 1 week
 
       val runResult = controller.ask(Run(simulationDef))(timeout).mapTo[Try[String]]
 
