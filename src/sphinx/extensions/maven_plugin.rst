@@ -66,15 +66,36 @@ You can either have a ``logback-test.xml`` that has precedence over the embedded
 Running the Plugin
 ==================
 
-The standard way to run the plugin is to start the ``execute``::
+You can directly launch the gatling-maven-plugin with the ``execute`` task::
 
   mvn gatling:execute
 
+Then, you probably want to have it attached to a maven lifecycle phase so it's automatically triggered.
+You then have to configure an `execution <http://maven.apache.org/guides/mini/guide-configuring-plugins.html#Using_the_executions_Tag>`_ block.
+By default, the mojo is attached to the ``integration-test`` phase::
+
+  <plugin>
+    <groupId>io.gatling</groupId>
+    <artifactId>gatling-maven-plugin</artifactId>
+    <version>${gatling.version}</version>
+    <!-- optional if you only have one simulation -->
+    <configuration>
+      <simulationClass>Foo</simulationClass>
+    </configuration>
+    <executions>
+      <execution>
+        <!-- default, can be omitted -->
+        <phase>integration-test</phase>
+        <goals>
+          <goal>execute</goal>
+        </goals>
+      </execution>
+    </executions>
+  </plugin>
+
 Then, you may want to run the plugin several times in a build (e.g. in order to run several Simulations sequentially).
-
-A solution is then to use maven `executions <http://maven.apache.org/guides/mini/guide-configuring-plugins.html#Using_the_executions_Tag>`_.
-
-If you do so and have per execution configurations, beware that those won't be used when running ``gatling:execute``, as executions are triggered by maven phases.
+A solution is to configure several ``execution``s with each having a different ``configuration`` block.
+If you do so, beware that those won't be used when running ``gatling:execute``, as executions are triggered by maven phases.
 
 ::
 
@@ -84,18 +105,25 @@ If you do so and have per execution configurations, beware that those won't be u
     <version>${gatling.version}</version>
     <executions>
       <execution>
-        <phase>test</phase>
+        <id>execution1</id>
         <goals>
           <goal>execute</goal>
         </goals>
         <configuration>
-          <simulationsFolder>foo</simulationsFolder>
+          <simulationClass>Foo</simulationClass>
+        </configuration>
+      </execution>
+      <execution>
+        <id>execution2</id>
+        <goals>
+          <goal>execute</goal>
+        </goals>
+        <configuration>
+          <simulationClass>Bar</simulationClass>
         </configuration>
       </execution>
     </executions>
   </plugin>
-
-In the above example, as the execution is attached to the test phase, ``simulationsFolder`` will only be properly configured when running ``mvn test``.
 
 Sample
 ======
