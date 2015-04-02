@@ -10,5 +10,6 @@ HTTP
     http_ssl
     http_helpers
     recorder
+    polling
     websocket
     sse
