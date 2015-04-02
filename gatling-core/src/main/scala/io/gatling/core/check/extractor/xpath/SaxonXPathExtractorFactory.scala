@@ -28,8 +28,8 @@ class SaxonXPathExtractorFactory(implicit val saxon: Saxon) extends CriterionExt
       val (path, namespaces) = criterion
       val result = for {
         text <- prepared
-        // XdmValue is an Iterable, so toSeq is a Stream
-        result <- saxon.evaluateXPath(path, namespaces, text).toSeq.lift(occurrence)
+        xdmValue = saxon.evaluateXPath(path, namespaces, text)
+        result <- if (xdmValue.size < occurrence) Some(xdmValue.itemAt(occurrence)) else None
       } yield result.getStringValue
 
       result.success
@@ -41,7 +41,10 @@ class SaxonXPathExtractorFactory(implicit val saxon: Saxon) extends CriterionExt
       val (path, namespaces) = criterion
       val result = for {
         node <- prepared
-        items <- saxon.evaluateXPath(path, namespaces, node).iterator.map(_.getStringValue).toVector.liftSeqOption
+        xdmValue = saxon.evaluateXPath(path, namespaces, node)
+        // beware: we use toVector because xdmValue is an Iterable, so the Scala wrapper is a Stream
+        // we don't want it to lazy load and hold a reference to the underlying DOM
+        items <- if (xdmValue.size == 0) None else xdmValue.map(_.getStringValue).toVector.liftSeqOption
       } yield items
 
       result.success
