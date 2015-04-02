@@ -22,13 +22,12 @@ import io.gatling.core.config.{ Protocols, GatlingConfiguration }
 import io.gatling.core.funspec.GatlingFunSpec
 import io.gatling.core.result.writer.{ RunMessage, DataWriters }
 
-import scala.concurrent.{ Await, TimeoutException }
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{ Try, Failure, Success }
 
 import com.typesafe.scalalogging.StrictLogging
 
-import akka.util.Timeout
 import io.gatling.core.controller.{ Run, Controller }
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.util.TimeHelper._
@@ -74,20 +73,13 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
         protocols ++ scenario.ctx.protocols
       }.warmUp(system, dataWriters, throttler)
 
-      val simulationTimeout = configuration.core.timeout.simulation seconds
-      implicit val timeout = Timeout(simulationTimeout)
-
       System.gc()
       System.gc()
       System.gc()
 
       val runResult = (controller ? Run(simulationDef)).mapTo[Try[String]]
 
-      val res = try {
-        Await.result(runResult, simulationTimeout)
-      } catch {
-        case t: TimeoutException => throw new TimeoutException(s"Reach simulation timeout of $timeout")
-      }
+      val res = Await.result(runResult, Duration.Inf)
 
       res match {
         case Success(_) =>

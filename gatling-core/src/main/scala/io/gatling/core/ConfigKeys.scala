@@ -41,9 +41,6 @@ object ConfigKeys {
         val CacheMaxCapacity = "gatling.core.extract.css.cacheMaxCapacity"
       }
     }
-    object timeout {
-      val Simulation = "gatling.core.timeout.simulation"
-    }
     object directory {
       val Data = "gatling.core.directory.data"
       val Bodies = "gatling.core.directory.bodies"
