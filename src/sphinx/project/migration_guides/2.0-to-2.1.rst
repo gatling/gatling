@@ -34,9 +34,12 @@ These percentiles are published in the reports and in the Graphite integration m
 Beware that keys in ``gatling.conf`` file have been translated:
 
 * Gatling 2.0:
+
   * percentile1 = 95
   * percentile2 = 99
+
 * Gatling 2.1+:
+
   * percentile1 = 50
   * percentile2 = 75
   * percentile3 = 95

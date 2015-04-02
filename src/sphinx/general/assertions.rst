@@ -120,7 +120,10 @@ The latter can be used for example with Jenkin's JUnit plugin.
 
 Here are some examples:
 
-.. code-block:: json
+.. highlight:: json
+
+::
+
   [
     {
       "path": "Global",
@@ -142,7 +145,10 @@ Here are some examples:
     }
   ]
 
-.. code-block:: xml
+.. highlight:: xml
+
+::
+
   <testsuite name="GoogleTest" tests="2" errors="0" failures="1" time="0">
     <testcase name="Global: max of response time is less than 50" status="false" time="0">
       <failure type="Global">Actual values: 145</failure>

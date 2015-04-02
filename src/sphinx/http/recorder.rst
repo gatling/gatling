@@ -64,6 +64,7 @@ This mode takes a Certificate Authority (certificate and private key, in PEM for
 You can either ask Gatling to generate those files for you, or provide a CA of your own.
 
 .. note:: If you're not using the self-signed certificate, you'll have to import the Certificate Authority certificate into your browser's keystore:
+
 * under desktop Chrome, go in HTTPS/SSL settings, Manage Certificates
 * under desktop Firefox, go in Advanced settings, Certificates, Display, Authorities, Import
 * on OSX for iPhone, IPad, you simply have to send you the certificate file by email, and then open the attached file
