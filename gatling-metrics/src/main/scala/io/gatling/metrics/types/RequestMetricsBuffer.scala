@@ -19,7 +19,13 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ KO, OK, Status }
 import com.tdunning.math.stats.{ AVLTreeDigest, TDigest }
 
-private[metrics] class RequestMetricsBuffer(configuration: GatlingConfiguration) {
+private[metrics] trait RequestMetricsBuffer {
+  def add(status: Status, time: Long): Unit
+  def clear(): Unit
+  def metricsByStatus: MetricByStatus
+}
+
+private[metrics] class TDigestRequestMetricsBuffer(configuration: GatlingConfiguration) extends RequestMetricsBuffer {
 
   private val percentile1 = configuration.charting.indicators.percentile1 / 100.0
   private val percentile2 = configuration.charting.indicators.percentile2 / 100.0
@@ -31,7 +37,7 @@ private[metrics] class RequestMetricsBuffer(configuration: GatlingConfiguration)
   private var allDigest: TDigest = _
   clear()
 
-  def add(status: Status, time: Long): Unit = {
+  override def add(status: Status, time: Long): Unit = {
     val responseTime = time.max(0L)
 
     allDigest.add(responseTime)
@@ -41,13 +47,13 @@ private[metrics] class RequestMetricsBuffer(configuration: GatlingConfiguration)
     }
   }
 
-  def clear(): Unit = {
+  override def clear(): Unit = {
     okDigest = new AVLTreeDigest(100.0)
     koDigest = new AVLTreeDigest(100.0)
     allDigest = new AVLTreeDigest(100.0)
   }
 
-  def metricsByStatus: MetricByStatus =
+  override def metricsByStatus: MetricByStatus =
     MetricByStatus(metricsOfDigest(okDigest), metricsOfDigest(koDigest), metricsOfDigest(allDigest))
 
   private def metricsOfDigest(digest: TDigest): Option[Metrics] = {

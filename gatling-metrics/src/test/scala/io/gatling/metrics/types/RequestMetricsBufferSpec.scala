@@ -32,7 +32,7 @@ class RequestMetricsBufferSpec extends BaseSpec {
   def allValues(m: Metrics) = Seq(m.max, m.min, m.percentile1, m.percentile2)
 
   "RequestMetricsBuffer" should "work when there is no measure" in {
-    val buff = new RequestMetricsBuffer(configuration)
+    val buff = new TDigestRequestMetricsBuffer(configuration)
     val metricsByStatus = buff.metricsByStatus
 
     metricsByStatus.ok shouldBe None
@@ -42,7 +42,7 @@ class RequestMetricsBufferSpec extends BaseSpec {
   }
 
   it should "work when there is one OK mesure" in {
-    val buff = new RequestMetricsBuffer(configuration)
+    val buff = new TDigestRequestMetricsBuffer(configuration)
     buff.add(OK, 20)
 
     val metricsByStatus = buff.metricsByStatus
@@ -55,7 +55,7 @@ class RequestMetricsBufferSpec extends BaseSpec {
   }
 
   it should "work when there are multiple measures" in {
-    val buff = new RequestMetricsBuffer(configuration)
+    val buff = new TDigestRequestMetricsBuffer(configuration)
     buff.add(KO, 10)
     for (t <- 100 to 200) buff.add(OK, t)
 
@@ -75,7 +75,7 @@ class RequestMetricsBufferSpec extends BaseSpec {
   }
 
   it should "work when there are a large number of measures" in {
-    val buff = new RequestMetricsBuffer(configuration)
+    val buff = new TDigestRequestMetricsBuffer(configuration)
     for (t <- 1 to 10000) buff.add(OK, t)
 
     val metricsByStatus = buff.metricsByStatus

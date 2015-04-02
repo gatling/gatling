@@ -48,6 +48,9 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
   import GraphiteDataWriter._
   import GraphitePath._
 
+  def newRequestMetricsBuffer(configuration: GatlingConfiguration): RequestMetricsBuffer =
+    new TDigestRequestMetricsBuffer(configuration)
+
   private val flushTimerName = "flushTimer"
 
   def onInit(init: Init, controller: ActorRef): GraphiteData = {
@@ -91,9 +94,9 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
     import data._
     if (!configuration.data.graphite.light) {
       val path = graphitePath(request.groupHierarchy :+ request.name)
-      requestsByPath.getOrElseUpdate(path, new RequestMetricsBuffer(configuration)).add(request.status, request.timings.responseTime)
+      requestsByPath.getOrElseUpdate(path, newRequestMetricsBuffer(configuration)).add(request.status, request.timings.responseTime)
     }
-    requestsByPath.getOrElseUpdate(AllRequestsKey, new RequestMetricsBuffer(configuration)).add(request.status, request.timings.responseTime)
+    requestsByPath.getOrElseUpdate(AllRequestsKey, newRequestMetricsBuffer(configuration)).add(request.status, request.timings.responseTime)
   }
 
   override def onMessage(message: LoadEventMessage, data: GraphiteData): Unit = message match {
