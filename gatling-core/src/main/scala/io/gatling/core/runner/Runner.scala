@@ -77,9 +77,11 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
       System.gc()
       System.gc()
 
-      val runResult = (controller ? Run(simulationDef)).mapTo[Try[String]]
+      val timeout = Long.MaxValue seconds
 
-      val res = Await.result(runResult, Duration.Inf)
+      val runResult = controller.ask(Run(simulationDef))(timeout).mapTo[Try[String]]
+
+      val res = Await.result(runResult, timeout)
 
       res match {
         case Success(_) =>
