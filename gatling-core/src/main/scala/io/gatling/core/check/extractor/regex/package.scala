@@ -41,6 +41,6 @@ package object regex {
         None
     }
 
-    def value[X: GroupExtractor]: X = implicitly[GroupExtractor[X]].extract(matcher)
+    def value[X: GroupExtractor]: X = GroupExtractor[X].extract(matcher)
   }
 }

@@ -32,7 +32,7 @@ class JsonPaths(implicit configuration: GatlingConfiguration) {
   }
 
   def extractAll[X: JsonFilter](json: Any, expression: String): Validation[Iterator[X]] =
-    compileJsonPath(expression).map(_.query(json).collect(implicitly[JsonFilter[X]].filter))
+    compileJsonPath(expression).map(_.query(json).collect(JsonFilter[X].filter))
 
   def compileJsonPath(expression: String): Validation[JsonPath] = jsonPathCache.get(expression)
 }

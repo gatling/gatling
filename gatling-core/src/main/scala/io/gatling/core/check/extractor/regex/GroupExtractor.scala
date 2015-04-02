@@ -118,9 +118,11 @@ trait LowPriorityGroupExtractorImplicits extends StrictLogging {
   }
 }
 
-object GroupExtractor extends LowPriorityGroupExtractorImplicits
+object GroupExtractor extends LowPriorityGroupExtractorImplicits {
+  def apply[X : GroupExtractor] = implicitly[GroupExtractor[X]]
+}
 
-@implicitNotFound(msg = "Cannot find GroupExtractor type class for type ${X}")
+@implicitNotFound("No member of type class GroupExtractor found for type ${X}")
 trait GroupExtractor[X] {
   def extract(matcher: Matcher): X
 }
