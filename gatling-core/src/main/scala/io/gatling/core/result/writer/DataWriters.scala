@@ -86,6 +86,7 @@ class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
                   requestName: String,
                   timings: RequestTimings,
                   status: Status,
+                  responseCode: Option[String],
                   message: Option[String] = None,
                   extraInfo: List[Any] = Nil): Unit =
     this ! ResponseMessage(
@@ -95,6 +96,7 @@ class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
       requestName,
       timings,
       status,
+      responseCode,
       message,
       extraInfo)
 

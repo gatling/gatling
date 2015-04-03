@@ -63,6 +63,7 @@ case class ResponseMessage(
   name: String,
   timings: RequestTimings,
   status: Status,
+  responseCode: Option[String],
   message: Option[String],
   extraInfo: List[Any]) extends LoadEventMessage
 

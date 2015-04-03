@@ -30,6 +30,7 @@ class MockDataWriters(system: ActorSystem) extends DataWriters(system, Nil) with
                            requestName: String,
                            timings: RequestTimings,
                            status: Status,
+                           responseCode: Option[String],
                            message: Option[String] = None,
                            extraInfo: List[Any] = Nil): Unit =
     handle(ResponseMessage(
@@ -39,6 +40,7 @@ class MockDataWriters(system: ActorSystem) extends DataWriters(system, Nil) with
       requestName,
       timings,
       status,
+      None,
       message,
       extraInfo))
 

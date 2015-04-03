@@ -67,7 +67,7 @@ class SseActor(sseName: String, dataWriters: DataWriters) extends BaseActor {
 
   private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
     val timings = RequestTimings(started, ended, ended, ended)
-    dataWriters.logResponse(session, requestName, timings, status, errorMessage)
+    dataWriters.logResponse(session, requestName, timings, status, None, errorMessage)
   }
 
   val initialState: Receive = {

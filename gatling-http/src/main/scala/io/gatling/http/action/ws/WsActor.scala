@@ -68,7 +68,7 @@ class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: Htt
 
   private def logResponse(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
     val timings = RequestTimings(started, ended, ended, ended)
-    dataWriters.logResponse(session, requestName, timings, status, errorMessage)
+    dataWriters.logResponse(session, requestName, timings, status, None, errorMessage)
   }
 
   val initialState: Receive = {
