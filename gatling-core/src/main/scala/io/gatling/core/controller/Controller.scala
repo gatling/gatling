@@ -135,7 +135,7 @@ class Controller(selection: Selection, dataWriters: DataWriters, configuration: 
   private def endAllRemainingUsers(runData: RunData): Unit = {
     val now = nowMillis
     for (userMessage <- runData.activeUsers.values) {
-      dispatchUserEndToDataWriter(userMessage.copy(event = End, endDate = now))
+      dispatchUserEndToDataWriter(userMessage.copy(event = End, date = now))
     }
   }
 

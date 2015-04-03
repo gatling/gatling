@@ -84,5 +84,7 @@ class LeakReporterDataWriter extends DataWriter[LeakData] {
     case request: RequestEndMessage   => onRequestEndMessage(request, data)
   }
 
+  override def onCrash(cause: String, data: LeakData): Unit = {}
+
   override def onTerminate(data: LeakData): Unit = cancelTimer(flushTimerName)
 }

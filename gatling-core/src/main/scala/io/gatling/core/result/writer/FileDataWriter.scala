@@ -64,7 +64,7 @@ object FileDataWriter {
 
     def serialize(userMessage: UserMessage): Fastring = {
       import userMessage._
-      fast"$scenario$Separator$userId$Separator${UserRecordHeader.value}$Separator${event.name}$Separator${session.startDate}$Separator$endDate$Eol"
+      fast"$scenario$Separator$userId$Separator${UserRecordHeader.value}$Separator${event.name}$Separator${session.startDate}$Separator$date$Eol"
     }
   }
 
@@ -158,6 +158,8 @@ class FileDataWriter extends DataWriter[FileData] {
     case request: RequestEndMessage => push(request, data)
     case _                          =>
   }
+
+  override def onCrash(cause: String, data: FileData): Unit = {}
 
   override def onTerminate(data: FileData): Unit = {
     flush(data)

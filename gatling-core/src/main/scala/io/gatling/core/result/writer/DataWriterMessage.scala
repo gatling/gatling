@@ -33,6 +33,7 @@ case class RunMessage(simulationClassName: String,
 sealed trait DataWriterMessage
 case class Init(configuration: GatlingConfiguration, assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
 case object Flush extends DataWriterMessage
+case class Crash(cause: String) extends DataWriterMessage
 case object Terminate extends DataWriterMessage
 
 sealed trait LoadEventMessage extends DataWriterMessage {
@@ -43,7 +44,7 @@ sealed trait LoadEventMessage extends DataWriterMessage {
 case class UserMessage(
     session: Session,
     event: MessageEvent,
-    endDate: Long) extends LoadEventMessage {
+    date: Long) extends LoadEventMessage {
   override def scenario: String = session.scenarioName
   override def userId: String = session.userId
 }

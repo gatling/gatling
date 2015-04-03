@@ -105,6 +105,8 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
     case _                          =>
   }
 
+  override def onCrash(cause: String, data: GraphiteData): Unit = {}
+
   def onTerminate(data: GraphiteData): Unit = cancelTimer(flushTimerName)
 
   private def sendMetricsToGraphite(data: GraphiteData,
