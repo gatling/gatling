@@ -50,38 +50,38 @@ class LeakReporterDataWriter extends DataWriter[LeakData] {
     }
   }
 
-  private def onUserMessage(userMessage: UserMessage, data: LeakData): Unit = {
+  private def onUserMessage(user: UserMessage, data: LeakData): Unit = {
     import data._
     lastTouch = currentTimeMillis
-    userMessage.event match {
-      case Start => events += userMessage.userId -> userMessage
-      case End   => events -= userMessage.userId
+    user.event match {
+      case Start => events += user.userId -> user
+      case End   => events -= user.userId
     }
   }
 
-  private def onGroupMessage(groupMessage: GroupMessage, data: LeakData): Unit = {
+  private def onGroupMessage(group: GroupMessage, data: LeakData): Unit = {
     import data._
     lastTouch = currentTimeMillis
-    events += groupMessage.userId -> groupMessage
+    events += group.userId -> group
   }
 
-  private def onRequestStartMessage(requestMessage: RequestStartMessage, data: LeakData): Unit = {
+  private def onRequestMessage(request: RequestMessage, data: LeakData): Unit = {
     import data._
     lastTouch = currentTimeMillis
-    events += requestMessage.userId -> requestMessage
+    events += request.userId -> request
   }
 
-  private def onRequestEndMessage(requestMessage: RequestEndMessage, data: LeakData): Unit = {
+  private def onResponseMessage(response: ResponseMessage, data: LeakData): Unit = {
     import data._
     lastTouch = currentTimeMillis
-    events += requestMessage.userId -> requestMessage
+    events += response.userId -> response
   }
 
   override def onMessage(message: LoadEventMessage, data: LeakData): Unit = message match {
-    case user: UserMessage            => onUserMessage(user, data)
-    case group: GroupMessage          => onGroupMessage(group, data)
-    case request: RequestStartMessage => onRequestStartMessage(request, data)
-    case request: RequestEndMessage   => onRequestEndMessage(request, data)
+    case user: UserMessage        => onUserMessage(user, data)
+    case group: GroupMessage      => onGroupMessage(group, data)
+    case request: RequestMessage  => onRequestMessage(request, data)
+    case request: ResponseMessage => onResponseMessage(request, data)
   }
 
   override def onCrash(cause: String, data: LeakData): Unit = {}

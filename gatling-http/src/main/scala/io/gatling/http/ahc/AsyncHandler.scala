@@ -42,7 +42,7 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
 
   private def start(): Unit =
     if (init.compareAndSet(false, true)) {
-      httpEngine.dataWriters.logRequestStart(tx.session, tx.request.requestName)
+      httpEngine.dataWriters.logRequest(tx.session, tx.request.requestName)
       responseBuilder.updateFirstByteSent()
     }
 

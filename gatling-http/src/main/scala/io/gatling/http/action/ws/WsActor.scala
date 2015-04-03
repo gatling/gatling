@@ -41,7 +41,7 @@ class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: Htt
   def failPendingCheck(tx: WsTx, message: String): WsTx = {
     tx.check match {
       case Some(c) =>
-        logRequest(tx.session, tx.requestName, KO, tx.start, nowMillis, Some(message))
+        logResponse(tx.session, tx.requestName, KO, tx.start, nowMillis, Some(message))
         tx.copy(updates = Session.MarkAsFailedUpdate :: tx.updates, pendingCheckSuccesses = Nil, check = None)
 
       case _ => tx
@@ -66,9 +66,9 @@ class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: Htt
       next ! newTx.session
   }
 
-  private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
+  private def logResponse(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
     val timings = RequestTimings(started, ended, ended, ended)
-    dataWriters.logRequestEnd(session, requestName, timings, status, errorMessage)
+    dataWriters.logResponse(session, requestName, timings, status, errorMessage)
   }
 
   val initialState: Receive = {
@@ -81,7 +81,7 @@ class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: Htt
 
       check match {
         case None =>
-          logRequest(session, requestName, OK, start, time)
+          logResponse(session, requestName, OK, start, time)
           context.become(openState(webSocket, newTx))
           next ! newSession
 
@@ -93,7 +93,7 @@ class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: Htt
     case OnFailedOpen(tx, message, end) =>
       import tx._
       logger.debug(s"Websocket '$wsName' failed to open: $message")
-      logRequest(session, requestName, KO, start, end, Some(message))
+      logResponse(session, requestName, KO, start, end, Some(message))
       next ! session.markAsFailed
 
       context.stop(self)
@@ -115,7 +115,7 @@ class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: Htt
       def handleCrash(message: String, time: Long): Unit = {
 
         tx.check.foreach { check =>
-          logRequest(tx.session, tx.requestName, KO, tx.start, time, Some(message))
+          logResponse(tx.session, tx.requestName, KO, tx.start, time, Some(message))
         }
 
         context.become(crashedState(tx, message))
@@ -125,7 +125,7 @@ class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: Htt
         tx.check match {
           case Some(check) =>
             // expected count met, let's stop the check
-            logRequest(tx.session, tx.requestName, OK, tx.start, nowMillis, None)
+            logResponse(tx.session, tx.requestName, OK, tx.start, nowMillis, None)
 
             val checkResults = results.filter(_.hasUpdate)
 
@@ -194,7 +194,7 @@ class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: Htt
           case BinaryMessage(bytes) => webSocket.sendMessage(bytes)
         }
 
-        logRequest(session, requestName, OK, now, now)
+        logResponse(session, requestName, OK, now, now)
 
       case SetCheck(requestName, check, next, session) =>
         logger.debug(s"Setting check on WebSocket '$wsName'")
@@ -288,7 +288,7 @@ class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: Htt
   def closingState(tx: WsTx): Receive = {
     case m: OnClose =>
       import tx._
-      logRequest(session, requestName, OK, start, nowMillis)
+      logResponse(session, requestName, OK, start, nowMillis)
       next ! session.remove(wsName)
       context.stop(self)
 
@@ -328,7 +328,7 @@ class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: Htt
     case action: WsUserAction =>
       import action._
       val now = nowMillis
-      logRequest(session, requestName, KO, now, now, Some(error))
+      logResponse(session, requestName, KO, now, now, Some(error))
       next ! session.update(tx.updates).markAsFailed.remove(wsName)
       context.stop(self)
 

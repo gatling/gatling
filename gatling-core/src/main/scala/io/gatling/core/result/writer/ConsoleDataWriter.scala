@@ -78,9 +78,9 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
   }
 
   override def onMessage(message: LoadEventMessage, data: ConsoleData): Unit = message match {
-    case user: UserMessage          => onUserMessage(user, data)
-    case request: RequestEndMessage => onRequestMessage(request, data)
-    case _                          =>
+    case user: UserMessage         => onUserMessage(user, data)
+    case response: ResponseMessage => onResponseMessage(response, data)
+    case _                         =>
   }
 
   private def onUserMessage(userMessage: UserMessage, data: ConsoleData): Unit = {
@@ -102,9 +102,9 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
     }
   }
 
-  private def onRequestMessage(request: RequestEndMessage, data: ConsoleData): Unit = {
+  private def onResponseMessage(response: ResponseMessage, data: ConsoleData): Unit = {
     import data._
-    import request._
+    import response._
 
     val requestPath = (groupHierarchy :+ name).mkString(" / ")
     val requestCounters = requestsCounters.getOrElseUpdate(requestPath, new RequestCounters)

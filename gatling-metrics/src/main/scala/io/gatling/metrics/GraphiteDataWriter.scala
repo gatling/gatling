@@ -90,19 +90,20 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
     usersByScenario(AllUsersKey).add(userMessage)
   }
 
-  private def onRequestMessage(request: RequestEndMessage, data: GraphiteData): Unit = {
+  private def onResponseMessage(response: ResponseMessage, data: GraphiteData): Unit = {
     import data._
+    import response._
     if (!configuration.data.graphite.light) {
-      val path = graphitePath(request.groupHierarchy :+ request.name)
-      requestsByPath.getOrElseUpdate(path, newRequestMetricsBuffer(configuration)).add(request.status, request.timings.responseTime)
+      val path = graphitePath(groupHierarchy :+ name)
+      requestsByPath.getOrElseUpdate(path, newRequestMetricsBuffer(configuration)).add(status, timings.responseTime)
     }
-    requestsByPath.getOrElseUpdate(AllRequestsKey, newRequestMetricsBuffer(configuration)).add(request.status, request.timings.responseTime)
+    requestsByPath.getOrElseUpdate(AllRequestsKey, newRequestMetricsBuffer(configuration)).add(status, timings.responseTime)
   }
 
   override def onMessage(message: LoadEventMessage, data: GraphiteData): Unit = message match {
-    case user: UserMessage          => onUserMessage(user, data)
-    case request: RequestEndMessage => onRequestMessage(request, data)
-    case _                          =>
+    case user: UserMessage         => onUserMessage(user, data)
+    case response: ResponseMessage => onResponseMessage(response, data)
+    case _                         =>
   }
 
   override def onCrash(cause: String, data: GraphiteData): Unit = {}

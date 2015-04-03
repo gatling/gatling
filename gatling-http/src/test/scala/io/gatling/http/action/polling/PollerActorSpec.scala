@@ -24,7 +24,7 @@ import org.mockito.Mockito._
 import org.mockito.Matchers._
 
 import io.gatling.AkkaSpec
-import io.gatling.core.result.writer.{ RequestEndMessage, DataWriters }
+import io.gatling.core.result.writer.{ ResponseMessage, DataWriters }
 import io.gatling.core.session._
 import io.gatling.core.validation._
 import io.gatling.http.ahc.{ HttpTx, HttpEngine }
@@ -91,7 +91,7 @@ class PollerActorSpec extends AkkaSpec {
     val pollingData = poller.stateData.asInstanceOf[PollingData]
     pollingData.session.isFailed shouldBe true
 
-    dataWriterProbe.expectMsgType[RequestEndMessage]
+    dataWriterProbe.expectMsgType[ResponseMessage]
   }
 
   def createPollerActor(period: FiniteDuration,

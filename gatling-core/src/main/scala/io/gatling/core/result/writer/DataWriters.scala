@@ -75,21 +75,20 @@ class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
 
   def !(message: DataWriterMessage): Unit = writers.foreach(_ ! message)
 
-  def logRequestStart(session: Session,
-                      requestName: String): Unit =
-    this ! RequestStartMessage(session.scenarioName,
+  def logRequest(session: Session, requestName: String): Unit =
+    this ! RequestMessage(session.scenarioName,
       session.userId,
       session.groupHierarchy,
       requestName,
       nowMillis)
 
-  def logRequestEnd(session: Session,
-                    requestName: String,
-                    timings: RequestTimings,
-                    status: Status,
-                    message: Option[String] = None,
-                    extraInfo: List[Any] = Nil): Unit =
-    this ! RequestEndMessage(
+  def logResponse(session: Session,
+                  requestName: String,
+                  timings: RequestTimings,
+                  status: Status,
+                  message: Option[String] = None,
+                  extraInfo: List[Any] = Nil): Unit =
+    this ! ResponseMessage(
       session.scenarioName,
       session.userId,
       session.groupHierarchy,
@@ -119,6 +118,6 @@ class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
   def reportUnbuildableRequest(requestName: String, session: Session, errorMessage: String): Unit = {
     val now = nowMillis
     val timings = RequestTimings(now, now, now, now)
-    logRequestEnd(session, requestName, timings, KO, Some(errorMessage))
+    logResponse(session, requestName, timings, KO, Some(errorMessage))
   }
 }

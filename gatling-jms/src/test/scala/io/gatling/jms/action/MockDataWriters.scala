@@ -26,13 +26,13 @@ class MockDataWriters(system: ActorSystem) extends DataWriters(system, Nil) with
 
   var dataWriterMsg: List[DataWriterMessage] = List()
 
-  override def logRequestEnd(session: Session,
-                             requestName: String,
-                             timings: RequestTimings,
-                             status: Status,
-                             message: Option[String] = None,
-                             extraInfo: List[Any] = Nil): Unit =
-    handle(RequestEndMessage(
+  override def logResponse(session: Session,
+                           requestName: String,
+                           timings: RequestTimings,
+                           status: Status,
+                           message: Option[String] = None,
+                           extraInfo: List[Any] = Nil): Unit =
+    handle(ResponseMessage(
       session.scenarioName,
       session.userId,
       session.groupHierarchy,

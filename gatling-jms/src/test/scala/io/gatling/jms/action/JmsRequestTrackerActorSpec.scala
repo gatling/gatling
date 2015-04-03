@@ -21,7 +21,7 @@ import io.gatling.AkkaSpec
 import io.gatling.core.CoreModule
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message._
-import io.gatling.core.result.writer.RequestEndMessage
+import io.gatling.core.result.writer.ResponseMessage
 import io.gatling.core.session.Session
 import io.gatling.jms._
 import io.gatling.jms.check.JmsSimpleCheck
@@ -47,7 +47,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreModule with JmsModule
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session
-    val expected = RequestEndMessage("mockSession", "mockUserName", Nil, "success", RequestTimings(15, 20, 20, 30), OK, None, Nil)
+    val expected = ResponseMessage("mockSession", "mockUserName", Nil, "success", RequestTimings(15, 20, 20, 30), OK, None, Nil)
     dataWriters.dataWriterMsg should contain(expected)
   }
 
@@ -61,7 +61,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreModule with JmsModule
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session
-    val expected = RequestEndMessage("mockSession", "mockUserName", Nil, "outofsync", RequestTimings(15, 20, 20, 30), OK, None, Nil)
+    val expected = ResponseMessage("mockSession", "mockUserName", Nil, "outofsync", RequestTimings(15, 20, 20, 30), OK, None, Nil)
     dataWriters.dataWriterMsg should contain(expected)
   }
 
@@ -76,7 +76,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreModule with JmsModule
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session.markAsFailed
-    val expected = RequestEndMessage("mockSession", "mockUserName", Nil, "failure", RequestTimings(15, 20, 20, 30), KO, Some("Jms check failed"), Nil)
+    val expected = ResponseMessage("mockSession", "mockUserName", Nil, "failure", RequestTimings(15, 20, 20, 30), KO, Some("Jms check failed"), Nil)
     dataWriters.dataWriterMsg should contain(expected)
   }
 
@@ -91,7 +91,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreModule with JmsModule
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session.set("id", "5")
-    val expected = RequestEndMessage("mockSession", "mockUserName", Nil, "updated", RequestTimings(15, 20, 20, 30), OK, None, Nil)
+    val expected = ResponseMessage("mockSession", "mockUserName", Nil, "updated", RequestTimings(15, 20, 20, 30), OK, None, Nil)
     dataWriters.dataWriterMsg should contain(expected)
   }
 

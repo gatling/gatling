@@ -68,7 +68,7 @@ object FileDataWriter {
     }
   }
 
-  implicit val RequestEndMessageSerializer = new DataWriterMessageSerializer[RequestEndMessage] {
+  implicit val ResponseMessageSerializer = new DataWriterMessageSerializer[ResponseMessage] {
 
     private def serializeExtraInfo(extraInfo: List[Any]): Fastring =
       extraInfo.map(info => fast"$Separator${info.toString.sanitize}").mkFastring
@@ -79,8 +79,8 @@ object FileDataWriter {
         case None    => " "
       }
 
-    def serialize(requestMessage: RequestEndMessage): Fastring = {
-      import requestMessage._
+    def serialize(response: ResponseMessage): Fastring = {
+      import response._
       import timings._
       fast"$scenario$Separator$userId$Separator${RequestRecordHeader.value}$Separator${serializeGroups(groupHierarchy)}$Separator$name$Separator$requestStartDate$Separator$requestEndDate$Separator$responseStartDate$Separator$responseEndDate$Separator$status$Separator${serializeMessage(message)}${serializeExtraInfo(extraInfo)}$Eol"
     }
@@ -88,8 +88,8 @@ object FileDataWriter {
 
   implicit val GroupMessageSerializer = new DataWriterMessageSerializer[GroupMessage] {
 
-    def serialize(groupMessage: GroupMessage): Fastring = {
-      import groupMessage._
+    def serialize(group: GroupMessage): Fastring = {
+      import group._
       fast"$scenario$Separator$userId$Separator${GroupRecordHeader.value}$Separator${serializeGroups(groupHierarchy)}$Separator$startDate$Separator$endDate$Separator$cumulatedResponseTime$Separator$status$Eol"
     }
   }
@@ -153,10 +153,10 @@ class FileDataWriter extends DataWriter[FileData] {
   }
 
   override def onMessage(message: LoadEventMessage, data: FileData): Unit = message match {
-    case user: UserMessage          => push(user, data)
-    case group: GroupMessage        => push(group, data)
-    case request: RequestEndMessage => push(request, data)
-    case _                          =>
+    case user: UserMessage         => push(user, data)
+    case group: GroupMessage       => push(group, data)
+    case response: ResponseMessage => push(response, data)
+    case _                         =>
   }
 
   override def onCrash(cause: String, data: FileData): Unit = {}

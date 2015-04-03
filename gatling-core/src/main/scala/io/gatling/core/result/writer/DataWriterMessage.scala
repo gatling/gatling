@@ -49,14 +49,14 @@ case class UserMessage(
   override def userId: String = session.userId
 }
 
-case class RequestStartMessage(
+case class RequestMessage(
   scenario: String,
   userId: String,
   groupHierarchy: List[String],
   name: String,
   start: Long) extends LoadEventMessage
 
-case class RequestEndMessage(
+case class ResponseMessage(
   scenario: String,
   userId: String,
   groupHierarchy: List[String],

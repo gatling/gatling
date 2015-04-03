@@ -119,7 +119,7 @@ class AsyncHandlerActor(httpEngine: HttpEngine)(implicit configuration: GatlingC
           Nil
       }
 
-      httpEngine.dataWriters.logRequestEnd(
+      httpEngine.dataWriters.logResponse(
         tx.session,
         fullRequestName,
         response.timings,
