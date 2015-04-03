@@ -89,7 +89,7 @@ private[metrics] class TcpSender(
 
   when(RetriesExhausted) {
     case _ =>
-      logger.info("All connection/sending have been exhausted, ignore further messages")
+      logger.debug("All connection/sending retries have been exhausted, ignore further messages")
       stay()
   }
 
