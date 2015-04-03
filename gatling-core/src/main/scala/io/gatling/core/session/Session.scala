@@ -82,6 +82,7 @@ case class Session(
   def remove(key: String) = if (contains(key)) copy(attributes = attributes - key) else this
   def removeAll(keys: String*) = keys.foldLeft(this)(_ remove _)
   def contains(attributeKey: String) = attributes.contains(attributeKey)
+  def reset = copy(attributes = Map.empty)
 
   private[gatling] def setDrift(drift: Long) = copy(drift = drift)
   private[gatling] def increaseDrift(time: Long) = copy(drift = time + drift)
