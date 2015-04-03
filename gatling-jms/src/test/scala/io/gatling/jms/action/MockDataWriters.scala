@@ -34,7 +34,7 @@ class MockDataWriters(system: ActorSystem) extends DataWriters(system, Nil) with
                            message: Option[String] = None,
                            extraInfo: List[Any] = Nil): Unit =
     handle(ResponseMessage(
-      session.scenarioName,
+      session.scenario,
       session.userId,
       session.groupHierarchy,
       requestName,
@@ -45,7 +45,7 @@ class MockDataWriters(system: ActorSystem) extends DataWriters(system, Nil) with
       extraInfo))
 
   override def logGroupEnd(session: Session, group: GroupBlock, exitDate: Long): Unit =
-    handle(GroupMessage(session.scenarioName, session.userId, group.hierarchy, group.startDate, exitDate, group.cumulatedResponseTime, group.status))
+    handle(GroupMessage(session.scenario, session.userId, group.hierarchy, group.startDate, exitDate, group.cumulatedResponseTime, group.status))
 
   private def handle(msg: DataWriterMessage) = {
     dataWriterMsg = msg :: dataWriterMsg

@@ -50,7 +50,7 @@ class SseOpenAction(
   override def execute(session: Session): Unit = {
 
       def open(tx: SseTx): Unit = {
-        logger.info(s"Opening and getting sse '$sseName': Scenario '${session.scenarioName}', UserId #${session.userId}")
+        logger.info(s"Opening and getting sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
         val sseActor = context.actorOf(SseActor.props(sseName, dataWriters), actorName("sseActor"))
         httpEngine.startSseTransaction(tx, sseActor)
       }

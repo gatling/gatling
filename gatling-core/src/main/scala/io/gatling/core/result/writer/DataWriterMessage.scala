@@ -36,18 +36,12 @@ case object Flush extends DataWriterMessage
 case class Crash(cause: String) extends DataWriterMessage
 case object Terminate extends DataWriterMessage
 
-sealed trait LoadEventMessage extends DataWriterMessage {
-  def scenario: String
-  def userId: String
-}
+sealed trait LoadEventMessage extends DataWriterMessage
 
 case class UserMessage(
-    session: Session,
-    event: MessageEvent,
-    date: Long) extends LoadEventMessage {
-  override def scenario: String = session.scenarioName
-  override def userId: String = session.userId
-}
+  session: Session,
+  event: MessageEvent,
+  date: Long) extends LoadEventMessage
 
 case class RequestMessage(
   scenario: String,
@@ -77,3 +71,5 @@ case class GroupMessage(
     status: Status) extends LoadEventMessage {
   val duration = (endDate - startDate).toInt
 }
+
+case class ErrorMessage(date: Long, message: String) extends LoadEventMessage

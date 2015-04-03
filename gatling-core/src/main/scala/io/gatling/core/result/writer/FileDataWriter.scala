@@ -62,9 +62,9 @@ object FileDataWriter {
 
   implicit val UserMessageSerializer = new DataWriterMessageSerializer[UserMessage] {
 
-    def serialize(userMessage: UserMessage): Fastring = {
-      import userMessage._
-      fast"$scenario$Separator$userId$Separator${UserRecordHeader.value}$Separator${event.name}$Separator${session.startDate}$Separator$date$Eol"
+    def serialize(user: UserMessage): Fastring = {
+      import user._
+      fast"${session.scenario}$Separator${session.userId}$Separator${UserRecordHeader.value}$Separator${event.name}$Separator${session.startDate}$Separator$date$Eol"
     }
   }
 

@@ -153,11 +153,11 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
       case _ =>
         resourceFetcherActorForCachedPage(uri, tx) match {
           case Some(resourceFetcherActor) =>
-            logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+            logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
             ctx.actorOf(Props(resourceFetcherActor()), actorName("resourceFetcher"))
 
           case None =>
-            logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+            logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
             if (tx.blocking)
               tx.next ! tx.session
             else
@@ -169,7 +169,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
   def startHttpTransaction(origTx: HttpTx)(implicit ctx: ActorContext): Unit =
     startHttpTransactionWithCache(origTx, ctx) { tx =>
 
-      logger.info(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenarioName}, userId=${tx.session.userId}")
+      logger.info(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
 
       val requestConfig = tx.request.config
 
@@ -182,7 +182,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
       val handler = new AsyncHandler(newTx, this)
 
       if (requestConfig.throttled)
-        state.throttler.throttle(tx.session.scenarioName, () => client.executeRequest(ahcRequest, handler))
+        state.throttler.throttle(tx.session.scenario, () => client.executeRequest(ahcRequest, handler))
       else
         client.executeRequest(ahcRequest, handler)
     }

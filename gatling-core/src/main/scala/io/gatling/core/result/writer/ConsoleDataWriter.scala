@@ -83,21 +83,21 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
     case _                         =>
   }
 
-  private def onUserMessage(userMessage: UserMessage, data: ConsoleData): Unit = {
+  private def onUserMessage(user: UserMessage, data: ConsoleData): Unit = {
     import data._
-    import userMessage._
+    import user._
 
     event match {
       case Start =>
-        usersCounters.get(scenario) match {
+        usersCounters.get(session.scenario) match {
           case Some(name) => name.userStart()
-          case _          => logger.error(s"Internal error, scenario '$scenario' has not been correctly initialized")
+          case _          => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
         }
 
       case End =>
-        usersCounters.get(scenario) match {
+        usersCounters.get(session.scenario) match {
           case Some(name) => name.userDone()
-          case _          => logger.error(s"Internal error, scenario '$scenario' has not been correctly initialized")
+          case _          => logger.error(s"Internal error, scenario '${session.scenario}' has not been correctly initialized")
         }
     }
   }

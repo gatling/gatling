@@ -54,8 +54,8 @@ class LeakReporterDataWriter extends DataWriter[LeakData] {
     import data._
     lastTouch = currentTimeMillis
     user.event match {
-      case Start => events += user.userId -> user
-      case End   => events -= user.userId
+      case Start => events += user.session.userId -> user
+      case End   => events -= user.session.userId
     }
   }
 
@@ -82,6 +82,7 @@ class LeakReporterDataWriter extends DataWriter[LeakData] {
     case group: GroupMessage      => onGroupMessage(group, data)
     case request: RequestMessage  => onRequestMessage(request, data)
     case request: ResponseMessage => onResponseMessage(request, data)
+    case error: ErrorMessage      =>
   }
 
   override def onCrash(cause: String, data: LeakData): Unit = {}

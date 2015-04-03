@@ -86,7 +86,7 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
 
   private def onUserMessage(userMessage: UserMessage, data: GraphiteData): Unit = {
     import data._
-    usersByScenario(UsersRootKey / userMessage.scenario).add(userMessage)
+    usersByScenario(UsersRootKey / userMessage.session.scenario).add(userMessage)
     usersByScenario(AllUsersKey).add(userMessage)
   }
 

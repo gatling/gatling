@@ -104,14 +104,14 @@ class Controller(selection: Selection, dataWriters: DataWriters, configuration: 
 
   private def processUserMessage(userMessage: UserMessage, runData: RunData): State = {
       def startNewUser: State = {
-        val newActiveUsers = runData.activeUsers + (userMessage.userId -> userMessage)
-        logger.info(s"Start user #${userMessage.userId}")
+        val newActiveUsers = runData.activeUsers + (userMessage.session.userId -> userMessage)
+        logger.info(s"Start user #${userMessage.session.userId}")
         dataWriters ! userMessage
         stay() using runData.copy(activeUsers = newActiveUsers)
       }
 
       def endUserAndTerminateIfLast: State = {
-        val newActiveUsers = runData.activeUsers - userMessage.userId
+        val newActiveUsers = runData.activeUsers - userMessage.session.userId
         val newUserCount = runData.completedUsersCount + 1
         dispatchUserEndToDataWriter(userMessage)
         if (newUserCount == runData.totalUsers)
@@ -140,7 +140,7 @@ class Controller(selection: Selection, dataWriters: DataWriters, configuration: 
   }
 
   private def dispatchUserEndToDataWriter(userMessage: UserMessage): Unit = {
-    logger.info(s"End user #${userMessage.userId}")
+    logger.info(s"End user #${userMessage.session.userId}")
     dataWriters ! userMessage
   }
 

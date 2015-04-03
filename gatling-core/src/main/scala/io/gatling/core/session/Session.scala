@@ -56,7 +56,7 @@ object Session {
  * This session stores all needed data between requests
  *
  * @constructor creates a new session
- * @param scenarioName the name of the current scenario
+ * @param scenario the name of the current scenario
  * @param userId the id of the current user
  * @param userEnd hook to execute once the user terminates
  * @param attributes the map that stores all values needed
@@ -66,7 +66,7 @@ object Session {
  * @param blockStack the block stack
  */
 case class Session(
-    scenarioName: String,
+    scenario: String,
     userId: String,
     attributes: Map[String, Any] = Map.empty,
     startDate: Long = nowMillis,
