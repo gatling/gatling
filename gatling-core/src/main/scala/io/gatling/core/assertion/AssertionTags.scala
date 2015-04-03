@@ -19,7 +19,6 @@ object AssertionTags {
 
   // -- Assertion tags -- //
 
-  val AssertionTag = "ASSERTION"
   val PathTag = "PATH"
   val TargetTag = "TARGET"
   val ConditionTag = "CONDITION"

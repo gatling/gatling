@@ -43,7 +43,7 @@ import Serialized._
 // ------------------- //
 
 case class Assertion(path: Path, target: Target, condition: Condition)
-  extends Serialized(serialize(AssertionTag, PathTag, path, TargetTag, target, ConditionTag, condition))
+  extends Serialized(serialize(PathTag, path, TargetTag, target, ConditionTag, condition))
 
 // -------------- //
 // -- Path ADT -- //

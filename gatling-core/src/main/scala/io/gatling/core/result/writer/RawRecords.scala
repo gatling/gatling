@@ -20,19 +20,17 @@ object RunRecordHeader extends RecordHeader("RUN")
 object RequestRecordHeader extends RecordHeader("REQUEST")
 object UserRecordHeader extends RecordHeader("USER")
 object GroupRecordHeader extends RecordHeader("GROUP")
+object ErrorRecordHeader extends RecordHeader("ERROR")
 object AssertionRecordHeader extends RecordHeader("ASSERTION")
 
 sealed abstract class RawRecord(header: RecordHeader, recordLength: Int) {
   def unapply(array: Array[String]) =
-    if (array.length >= recordLength && array(2) == header.value) Some(array) else None
+    if (array.length >= recordLength && array(0) == header.value) Some(array) else None
 }
 
 object RawRunRecord extends RawRecord(RunRecordHeader, 6)
 object RawRequestRecord extends RawRecord(RequestRecordHeader, 10)
 object RawUserRecord extends RawRecord(UserRecordHeader, 5)
 object RawGroupRecord extends RawRecord(GroupRecordHeader, 7)
-
-object AssertionRecord {
-  def unapply(array: Array[String]) =
-    if (array(0) == AssertionRecordHeader.value) Some(array) else None
-}
+object RawErrorRecord extends RawRecord(ErrorRecordHeader, 3)
+object RawAssertionRecord extends RawRecord(AssertionRecordHeader, 1)

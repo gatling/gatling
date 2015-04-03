@@ -64,16 +64,16 @@ class AssertionSerializationSpec extends BaseSpec {
 
   it should "be able to serialize assertions" in {
     Assertion(Global, MeanRequestsPerSecondTarget, LessThan(3)).serialized.toString shouldBe
-      tabSeparated(AssertionTag, PathTag, GlobalTag, TargetTag, MeanRequestsPerSecondTag, ConditionTag, LessThanTag, "3")
+      tabSeparated(PathTag, GlobalTag, TargetTag, MeanRequestsPerSecondTag, ConditionTag, LessThanTag, "3")
 
     Assertion(Global, CountTarget(AllRequests, Count), Is(3)).serialized.toString shouldBe
-      tabSeparated(AssertionTag, PathTag, GlobalTag, TargetTag, AllRequestsTag, CountTag, ConditionTag, IsTag, "3")
+      tabSeparated(PathTag, GlobalTag, TargetTag, AllRequestsTag, CountTag, ConditionTag, IsTag, "3")
 
     Assertion(ForAll, CountTarget(SuccessfulRequests, Percent), LessThan(5)).serialized.toString shouldBe
-      tabSeparated(AssertionTag, PathTag, ForAllTag, TargetTag, SuccessfulRequestsTag, PercentTag, ConditionTag, LessThanTag, "5")
+      tabSeparated(PathTag, ForAllTag, TargetTag, SuccessfulRequestsTag, PercentTag, ConditionTag, LessThanTag, "5")
 
     Assertion(Details(List("Group", "Request")), TimeTarget(ResponseTime, Max), In(List(1, 2, 3))).serialized.toString shouldBe
-      tabSeparated(AssertionTag, PathTag, DetailsTag, "Group", "Request", TargetTag,
+      tabSeparated(PathTag, DetailsTag, "Group", "Request", TargetTag,
         ResponseTimeTag, MaxTag, ConditionTag, InTag, "1", "2", "3")
   }
 

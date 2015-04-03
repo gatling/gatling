@@ -15,7 +15,7 @@
  */
 package io.gatling.charts.result.reader
 
-import io.gatling.core.result.writer.{ RawUserRecord, RawGroupRecord, RawRequestRecord }
+import io.gatling.core.result.writer.{ RawErrorRecord, RawUserRecord, RawGroupRecord, RawRequestRecord }
 
 import scala.collection.mutable
 
@@ -28,8 +28,8 @@ private[reader] class UserRecordParser(bucketFunction: Long => Int, runStart: Lo
 
   private def parseUserRecord(strings: Array[String]): UserRecord = {
 
-    val scenario = strings(0)
-    val userId = strings(1)
+    val scenario = strings(1)
+    val userId = strings(2)
     val event = MessageEvent(strings(3))
     val startTimestamp = strings(4).toLong
     val endTimestamp = strings(5).toLong
@@ -88,6 +88,20 @@ private[reader] class GroupRecordParser(bucketFunction: Long => Int, runStart: L
   }
 }
 
+private[reader] object ErrorRecordParser {
+
+  def unapply(array: Array[String]) = RawErrorRecord.unapply(array).map(parseErrorRecord)
+
+  private def parseErrorRecord(strings: Array[String]): ErrorRecord = {
+
+    val message = strings(1)
+    val date = strings(2).toLong
+
+    ErrorRecord(message, date)
+  }
+}
+
 private[reader] case class RequestRecord(group: Option[Group], name: String, status: Status, startBucket: Int, endBucket: Int, responseTime: Int, latency: Int, errorMessage: Option[String])
 private[reader] case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, status: Status, startBucket: Int)
 private[reader] case class UserRecord(scenario: String, userId: String, event: MessageEvent, startBucket: Int, endBucket: Int)
+private[reader] case class ErrorRecord(message: String, date: Long)

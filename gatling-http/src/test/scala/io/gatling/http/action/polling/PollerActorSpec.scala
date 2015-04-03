@@ -24,7 +24,7 @@ import org.mockito.Mockito._
 import org.mockito.Matchers._
 
 import io.gatling.AkkaSpec
-import io.gatling.core.result.writer.{ ResponseMessage, DataWriters }
+import io.gatling.core.result.writer.{ ErrorMessage, DataWriters }
 import io.gatling.core.session._
 import io.gatling.core.validation._
 import io.gatling.http.ahc.{ HttpTx, HttpEngine }
@@ -91,7 +91,7 @@ class PollerActorSpec extends AkkaSpec {
     val pollingData = poller.stateData.asInstanceOf[PollingData]
     pollingData.session.isFailed shouldBe true
 
-    dataWriterProbe.expectMsgType[ResponseMessage]
+    dataWriterProbe.expectMsgType[ErrorMessage]
   }
 
   def createPollerActor(period: FiniteDuration,
@@ -108,5 +108,5 @@ class PollerActorSpec extends AkkaSpec {
         dataWriters = new DataWriters(system, List(dataWriterProbe.ref))))
 
   def failedExpr[T: ClassTag]: Expression[T] =
-    session => Failure("Failed expressinon")
+    session => Failure("Failed expression")
 }

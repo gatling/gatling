@@ -30,17 +30,17 @@ class FileDataWriterSpec extends BaseSpec {
   "file data writer" should "log a standard request record" in {
     val record = new ResponseMessage("scenario", "1", Nil, "requestName", RequestTimings(2L, 3L, 4L, 5L), OK, Some("200"), Some("message"), Nil)
 
-    logMessage(record) shouldBe s"scenario${Separator}1${Separator}REQUEST${Separator}${Separator}requestName${Separator}2${Separator}3${Separator}4${Separator}5${Separator}OK${Separator}message" + Eol
+    logMessage(record) shouldBe s"REQUEST${Separator}scenario${Separator}1${Separator}${Separator}requestName${Separator}2${Separator}3${Separator}4${Separator}5${Separator}OK${Separator}message" + Eol
   }
 
   it should "append extra info to request records" in {
     val extraInfo: List[String] = List("some", "extra info", "for the log")
     val record = new ResponseMessage("scenario", "1", Nil, "requestName", RequestTimings(2L, 3L, 4L, 5L), OK, Some("200"), Some("message"), extraInfo)
 
-    logMessage(record) shouldBe s"scenario${Separator}1${Separator}REQUEST${Separator}${Separator}requestName${Separator}2${Separator}3${Separator}4${Separator}5${Separator}OK${Separator}message${Separator}some${Separator}extra info${Separator}for the log" + Eol
+    logMessage(record) shouldBe s"REQUEST${Separator}scenario${Separator}1${Separator}${Separator}requestName${Separator}2${Separator}3${Separator}4${Separator}5${Separator}OK${Separator}message${Separator}some${Separator}extra info${Separator}for the log" + Eol
   }
 
-  it should "sanitize extra info so that simulation log format is preserved" in {
+  "sanitize" should "sanitize extra info so that simulation log format is preserved" in {
     "\nnewlines \n are\nnot \n\n allowed\n".sanitize shouldBe " newlines   are not    allowed "
     "\rcarriage returns \r are\rnot \r\r allowed\r".sanitize shouldBe " carriage returns   are not    allowed "
     s"${Separator}tabs ${Separator} are${Separator}not ${Separator}${Separator} allowed${Separator}".sanitize shouldBe " tabs   are not    allowed "

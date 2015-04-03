@@ -51,4 +51,8 @@ private[reader] class ResultsHolder(minTime: Long, maxTime: Long, val buckets: A
     updateErrorBuffers(record)
     updateRequestPercentilesBuffers(record)
   }
+
+  def addErrorRecord(record: ErrorRecord): Unit = {
+    updateGlobalError(record.message)
+  }
 }

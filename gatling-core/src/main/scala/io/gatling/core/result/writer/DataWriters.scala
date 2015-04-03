@@ -15,21 +15,22 @@
  */
 package io.gatling.core.result.writer
 
-import akka.actor.{ ActorSystem, Props, Actor, ActorRef }
-import akka.pattern.ask
-import akka.util.Timeout
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.util.{ Failure, Success, Try }
+
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.DataWritersTerminated
-import io.gatling.core.result.message.{ KO, Status, RequestTimings }
+import io.gatling.core.result.message.{ RequestTimings, Status }
 import io.gatling.core.runner.Selection
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.structure.PopulationBuilder
 import io.gatling.core.util.TimeHelper._
 
-import scala.concurrent.Future
-import scala.concurrent.duration._
-import scala.util.{ Try, Failure, Success }
+import akka.actor.{ Actor, ActorRef, ActorSystem, Props }
+import akka.pattern.ask
+import akka.util.Timeout
 
 object DataWriters {
 
@@ -76,7 +77,7 @@ class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
   def !(message: DataWriterMessage): Unit = writers.foreach(_ ! message)
 
   def logRequest(session: Session, requestName: String): Unit =
-    this ! RequestMessage(session.scenarioName,
+    this ! RequestMessage(session.scenario,
       session.userId,
       session.groupHierarchy,
       requestName,
@@ -87,10 +88,10 @@ class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
                   timings: RequestTimings,
                   status: Status,
                   responseCode: Option[String],
-                  message: Option[String] = None,
+                  message: Option[String],
                   extraInfo: List[Any] = Nil): Unit =
     this ! ResponseMessage(
-      session.scenarioName,
+      session.scenario,
       session.userId,
       session.groupHierarchy,
       requestName,
@@ -104,7 +105,7 @@ class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
                   group: GroupBlock,
                   exitDate: Long): Unit =
     this ! GroupMessage(
-      session.scenarioName,
+      session.scenario,
       session.userId,
       group.hierarchy,
       group.startDate,
@@ -112,14 +113,13 @@ class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
       group.cumulatedResponseTime,
       group.status)
 
+  def logError(error: String, date: Long): Unit = this ! ErrorMessage(error, date)
+
   def terminate(replyTo: ActorRef): Unit = {
     val responses = writers.map(_ ? Terminate)
     Future.sequence(responses).onComplete(_ => replyTo ! DataWritersTerminated)
   }
 
-  def reportUnbuildableRequest(requestName: String, session: Session, errorMessage: String): Unit = {
-    val now = nowMillis
-    val timings = RequestTimings(now, now, now, now)
-    logResponse(session, requestName, timings, KO, Some(errorMessage))
-  }
+  def reportUnbuildableRequest(requestName: String, session: Session, errorMessage: String): Unit =
+    logError(s"Failed to build request $requestName: $errorMessage", nowMillis)
 }

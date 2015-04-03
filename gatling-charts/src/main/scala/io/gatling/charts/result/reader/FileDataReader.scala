@@ -50,7 +50,6 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
 
   val inputFiles = simulationLogDirectory(runUuid, create = false).files
     .collect { case path if path.filename.matches(SimulationFilesNamePattern) => path }
-    .toList
 
   logger.info(s"Collected $inputFiles from $runUuid")
   require(inputFiles.nonEmpty, "simulation directory doesn't contain any log file.")
@@ -102,8 +101,10 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
         case RawRunRecord(array) =>
           runMessages += RunMessage(array(0), array(1), array(3).toLong, array(4).trim)
 
-        case AssertionRecord(array) =>
-          assertions += new AssertionParser().parseAssertion(array.mkString("\t"))
+        case RawAssertionRecord(array) =>
+          assertions += new AssertionParser().parseAssertion(array.tail.mkString("\t"))
+
+        case RawErrorRecord(array) =>
 
         case _ =>
           logger.debug(s"Record broken on line $count: $line")
@@ -143,6 +144,7 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
           case requestRecordParser(record) => resultsHolder.addRequestRecord(record)
           case groupRecordParser(record)   => resultsHolder.addGroupRecord(record)
           case userRecordParser(record)    => resultsHolder.addUserRecord(record)
+          case ErrorRecordParser(record)   => resultsHolder.addErrorRecord(record)
           case _                           =>
         }
       }

@@ -56,7 +56,7 @@ object FileDataWriter {
     def serialize(runMessage: RunMessage): Fastring = {
       import runMessage._
       val description = if (runDescription.isEmpty) " " else runDescription
-      fast"$simulationClassName$Separator$simulationId$Separator${RunRecordHeader.value}$Separator$start$Separator$description${Separator}2.0$Eol"
+      fast"${RunRecordHeader.value}$Separator$simulationClassName$Separator$simulationId$Separator$start$Separator$description${Separator}2.0$Eol"
     }
   }
 
@@ -64,7 +64,7 @@ object FileDataWriter {
 
     def serialize(user: UserMessage): Fastring = {
       import user._
-      fast"${session.scenario}$Separator${session.userId}$Separator${UserRecordHeader.value}$Separator${event.name}$Separator${session.startDate}$Separator$date$Eol"
+      fast"${UserRecordHeader.value}$Separator${session.scenario}$Separator${session.userId}$Separator${event.name}$Separator${session.startDate}$Separator$date$Eol"
     }
   }
 
@@ -82,7 +82,7 @@ object FileDataWriter {
     def serialize(response: ResponseMessage): Fastring = {
       import response._
       import timings._
-      fast"$scenario$Separator$userId$Separator${RequestRecordHeader.value}$Separator${serializeGroups(groupHierarchy)}$Separator$name$Separator$requestStartDate$Separator$requestEndDate$Separator$responseStartDate$Separator$responseEndDate$Separator$status$Separator${serializeMessage(message)}${serializeExtraInfo(extraInfo)}$Eol"
+      fast"${RequestRecordHeader.value}$Separator$scenario$Separator$userId$Separator${serializeGroups(groupHierarchy)}$Separator$name$Separator$requestStartDate$Separator$requestEndDate$Separator$responseStartDate$Separator$responseEndDate$Separator$status$Separator${serializeMessage(message)}${serializeExtraInfo(extraInfo)}$Eol"
     }
   }
 
@@ -90,13 +90,21 @@ object FileDataWriter {
 
     def serialize(group: GroupMessage): Fastring = {
       import group._
-      fast"$scenario$Separator$userId$Separator${GroupRecordHeader.value}$Separator${serializeGroups(groupHierarchy)}$Separator$startDate$Separator$endDate$Separator$cumulatedResponseTime$Separator$status$Eol"
+      fast"${GroupRecordHeader.value}$Separator$scenario$Separator$userId$Separator${serializeGroups(groupHierarchy)}$Separator$startDate$Separator$endDate$Separator$cumulatedResponseTime$Separator$status$Eol"
     }
   }
 
   implicit val AssertionSerializer = new DataWriterMessageSerializer[Assertion] {
 
-    def serialize(assertion: Assertion): Fastring = fast"${assertion.serialized}$Eol"
+    def serialize(assertion: Assertion): Fastring = fast"${AssertionRecordHeader.value}$Separator${assertion.serialized}$Eol"
+  }
+
+  implicit val ErrorMessageSerializer = new DataWriterMessageSerializer[ErrorMessage] {
+
+    def serialize(error: ErrorMessage): Fastring = {
+      import error._
+      fast"${GroupRecordHeader.value}$Separator$message$Separator$date$Eol"
+    }
   }
 }
 
@@ -156,6 +164,7 @@ class FileDataWriter extends DataWriter[FileData] {
     case user: UserMessage         => push(user, data)
     case group: GroupMessage       => push(group, data)
     case response: ResponseMessage => push(response, data)
+    case error: ErrorMessage       => push(error, data)
     case _                         =>
   }
 

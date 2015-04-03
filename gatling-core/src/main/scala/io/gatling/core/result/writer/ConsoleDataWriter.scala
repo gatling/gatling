@@ -80,6 +80,7 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
   override def onMessage(message: LoadEventMessage, data: ConsoleData): Unit = message match {
     case user: UserMessage         => onUserMessage(user, data)
     case response: ResponseMessage => onResponseMessage(response, data)
+    case error: ErrorMessage       => onErrorMessage(error, data)
     case _                         =>
   }
 
@@ -119,6 +120,11 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
         val errorMessage = message.getOrElse("<no-message>")
         errorsCounters(errorMessage) = errorsCounters.getOrElse(errorMessage, 0) + 1
     }
+  }
+
+  private def onErrorMessage(error: ErrorMessage, data: ConsoleData): Unit = {
+    import data._
+    errorsCounters(error.message) = errorsCounters.getOrElse(error.message, 0) + 1
   }
 
   override def onCrash(cause: String, data: ConsoleData): Unit = {}

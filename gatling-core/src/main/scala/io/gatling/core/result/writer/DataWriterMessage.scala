@@ -72,4 +72,4 @@ case class GroupMessage(
   val duration = (endDate - startDate).toInt
 }
 
-case class ErrorMessage(date: Long, message: String) extends LoadEventMessage
+case class ErrorMessage(message: String, date: Long) extends LoadEventMessage

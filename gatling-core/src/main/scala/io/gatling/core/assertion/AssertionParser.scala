@@ -113,7 +113,7 @@ class AssertionParser extends JavaTokenParsers {
   // -- Assertion parser -- //
   // ---------------------- //
 
-  private val assertion = AssertionTag ~> path ~ target ~ condition ^^ { case p ~ t ~ c => Assertion(p, t, c) }
+  private val assertion = path ~ target ~ condition ^^ { case p ~ t ~ c => Assertion(p, t, c) }
 
   def parseAssertion(input: String) =
     parseAll(assertion, input) match {
