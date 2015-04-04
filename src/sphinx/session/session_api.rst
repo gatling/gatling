@@ -78,6 +78,7 @@ Session has the following methods:
 * ``set(key: String, value: Any): Session``: add or replace an attribute
 * ``setAll(newAttributes: (String, Any)*): Session``: bulk add or replace attributes
 * ``setAll(newAttributes: Iterable[(String, Any)]): Session``: same as above but takes an Iterable instead of a varags
+* ``reset``: reset all attributes
 
 .. warning::
   ``Session`` instances are immutable!
