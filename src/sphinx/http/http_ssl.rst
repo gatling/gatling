@@ -6,6 +6,17 @@
 SSL
 ###
 
+.. _http-ssl-sni:
+
+Disabling SNI
+=============
+
+By default, since JDK7, JDK enables `SNI <http://en.wikipedia.org/wiki/Server_Name_Indication>`_ by default.
+This can cause SSL handshake exceptions, such as ``handshake alert:  unrecognized_name`` when server names are not properly configured on the server side.
+Browsers are more loose than JDK regarding this.
+
+If you want to disable SNI, you can set the following System property: ``-Djsse.enableSNIExtension=false``.
+
 .. _http-ssl-stores:
 
 Configuring KeyStore and TrustStore
