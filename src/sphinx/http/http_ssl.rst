@@ -15,7 +15,9 @@ By default, since JDK7, JDK enables `SNI <http://en.wikipedia.org/wiki/Server_Na
 This can cause SSL handshake exceptions, such as ``handshake alert:  unrecognized_name`` when server names are not properly configured on the server side.
 Browsers are more loose than JDK regarding this.
 
-If you want to disable SNI, you can set the following System property: ``-Djsse.enableSNIExtension=false``.
+If you want to disable SNI, you can set the following System property::
+
+  -Djsse.enableSNIExtension=false
 
 .. _http-ssl-stores:
 
