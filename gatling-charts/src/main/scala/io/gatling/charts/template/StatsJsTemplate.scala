@@ -25,32 +25,32 @@ import io.gatling.charts.component.RequestStatistics
 import io.gatling.charts.report.{ GroupContainer, RequestContainer }
 import io.gatling.charts.report.Container.{ Group, Request }
 
-private[charts] class StatsJsTemplate(stats: GroupContainer, rawJson: Boolean) {
+private[charts] class StatsJsTemplate(stats: GroupContainer, outputJson: Boolean) {
 
-  private def quote(field: String) = if (rawJson) '"' + field + '"' else field
+  private def fieldName(field: String) = if (outputJson) '"' + field + '"' else field
 
   def getOutput(charset: Charset): Fastring = {
 
       def renderStatsRequest(request: RequestStatistics): Fastring = {
-        val jsonStats = new GlobalStatsJsonTemplate(request, false).getOutput
+        val jsonStats = new GlobalStatsJsonTemplate(request, outputJson).getOutput
 
-        fast"""${quote("name")}: "${request.name.escapeJsDoubleQuoteString}",
-${quote("path")}: "${request.path.escapeJsDoubleQuoteString}",
-${quote("pathFormatted")}: "${request.path.toFileName(charset)}",
-${quote("stats")}: $jsonStats"""
+        fast"""${fieldName("name")}: "${request.name.escapeJsDoubleQuoteString}",
+${fieldName("path")}: "${request.path.escapeJsDoubleQuoteString}",
+${fieldName("pathFormatted")}: "${request.path.toFileName(charset)}",
+${fieldName("stats")}: $jsonStats"""
       }
 
       def renderStatsGroup(group: GroupContainer): Fastring =
-        fast"""${quote("type")}: "$Group",
+        fast"""${fieldName("type")}: "$Group",
 ${renderStatsRequest(group.stats)},
-${quote("contents")}: {
+${fieldName("contents")}: {
 ${
           group.contents.values.map {
             case subGroup: GroupContainer => fast""""${subGroup.name.toFileName(charset)}": {
         ${renderStatsGroup(subGroup)}
     }"""
             case request: RequestContainer => fast""""${request.name.toFileName(charset)}": {
-        ${quote("type")}: "$Request",
+        ${fieldName("type")}: "$Request",
         ${renderStatsRequest(request.stats)}
     }"""
           }.mkFastring(",")
@@ -58,7 +58,7 @@ ${
 }
 """
 
-    if (rawJson)
+    if (outputJson)
       fast"""{
   ${renderStatsGroup(stats)}
 }"""

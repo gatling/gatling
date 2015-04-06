@@ -15,6 +15,8 @@
  */
 package io.gatling.charts.template
 
+import io.gatling.charts.result.reader.FileDataReader
+
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.charts.component.RequestStatistics
@@ -25,9 +27,11 @@ private[charts] class GlobalStatsJsonTemplate(stats: RequestStatistics, raw: Boo
   def getOutput: Fastring = {
 
       def style[T: Numeric](value: T) =
-        if (raw) // raw mode is used for JSON extract, non-raw for displaying in the reports
-          value.toString
-        else
+        if (raw) {
+          // raw mode is used for JSON extract, non-raw for displaying in the reports
+          if (value == FileDataReader.NoPlotMagicValue) "0"
+          else value.toString
+        } else
           s""""${printable(value)}""""
 
     fast"""{
