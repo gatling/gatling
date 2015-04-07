@@ -99,7 +99,7 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
           updateRunLimits(array(4).toLong, array(5).toLong)
 
         case RawRunRecord(array) =>
-          runMessages += RunMessage(array(0), array(1), array(3).toLong, array(4).trim)
+          runMessages += RunMessage(array(1), array(2), array(3).toLong, array(4).trim)
 
         case RawAssertionRecord(array) =>
           assertions += new AssertionParser().parseAssertion(array.tail.mkString("\t"))
