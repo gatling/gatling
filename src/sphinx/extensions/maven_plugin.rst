@@ -66,13 +66,15 @@ You can either have a ``logback-test.xml`` that has precedence over the embedded
 Running the Plugin
 ==================
 
-You can directly launch the gatling-maven-plugin with the ``execute`` task::
+You can directly launch the gatling-maven-plugin with the ``test`` or ``integration-test`` task::
 
-  mvn gatling:execute
+  mvn gatling:test             // bound to test phase
+  mvn gatling:integration-test // bound to integration-test phase
 
 Then, you probably want to have it attached to a maven lifecycle phase so it's automatically triggered.
 You then have to configure an `execution <http://maven.apache.org/guides/mini/guide-configuring-plugins.html#Using_the_executions_Tag>`_ block.
-By default, the mojo is attached to the ``integration-test`` phase::
+
+::
 
   <plugin>
     <groupId>io.gatling</groupId>
@@ -84,10 +86,8 @@ By default, the mojo is attached to the ``integration-test`` phase::
     </configuration>
     <executions>
       <execution>
-        <!-- default, can be omitted -->
-        <phase>integration-test</phase>
         <goals>
-          <goal>execute</goal>
+          <goal>integration-test</goal>
         </goals>
       </execution>
     </executions>
@@ -95,7 +95,7 @@ By default, the mojo is attached to the ``integration-test`` phase::
 
 Then, you may want to run the plugin several times in a build (e.g. in order to run several Simulations sequentially).
 A solution is to configure several ``execution``s with each having a different ``configuration`` block.
-If you do so, beware that those won't be used when running ``gatling:execute``, as executions are triggered by maven phases.
+If you do so, beware that those won't be used when running ``gatling:test``, as executions are triggered by maven phases.
 
 ::
 
@@ -107,7 +107,7 @@ If you do so, beware that those won't be used when running ``gatling:execute``, 
       <execution>
         <id>execution1</id>
         <goals>
-          <goal>execute</goal>
+          <goal>integration-test</goal>
         </goals>
         <configuration>
           <simulationClass>Foo</simulationClass>
@@ -116,7 +116,7 @@ If you do so, beware that those won't be used when running ``gatling:execute``, 
       <execution>
         <id>execution2</id>
         <goals>
-          <goal>execute</goal>
+          <goal>integration-test</goal>
         </goals>
         <configuration>
           <simulationClass>Bar</simulationClass>
