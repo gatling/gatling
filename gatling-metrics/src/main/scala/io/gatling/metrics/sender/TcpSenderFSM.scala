@@ -19,7 +19,7 @@ import akka.actor.{ ActorRef, FSM }
 
 import io.gatling.core.util.Retry
 
-private[sender] trait TcpSenderStateMachine extends FSM[TcpSenderState, TcpSenderData]
+private[sender] trait TcpSenderFSM extends FSM[TcpSenderState, TcpSenderData]
 
 private[sender] sealed trait TcpSenderState
 private[sender] case object WaitingForConnection extends TcpSenderState
@@ -28,6 +28,6 @@ private[sender] case object RetriesExhausted extends TcpSenderState
 
 private[sender] sealed trait TcpSenderData
 private[sender] case object NoData extends TcpSenderData
-private[sender] case class DisconnectedData(failures: Retry) extends TcpSenderData
-private[sender] case class ConnectedData(connection: ActorRef, failures: Retry) extends TcpSenderData
+private[sender] case class DisconnectedData(retry: Retry) extends TcpSenderData
+private[sender] case class ConnectedData(connection: ActorRef, retry: Retry) extends TcpSenderData
 

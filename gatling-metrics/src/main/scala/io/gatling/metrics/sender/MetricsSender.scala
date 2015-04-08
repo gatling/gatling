@@ -19,11 +19,10 @@ import java.net.InetSocketAddress
 
 import scala.concurrent.duration._
 
-import akka.actor.{ Props, Stash }
-
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config._
+
+import akka.actor.{ Props, Stash }
 
 private[metrics] object MetricsSender {
 

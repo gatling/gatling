@@ -19,15 +19,15 @@ import java.net.InetSocketAddress
 
 import scala.concurrent.duration._
 
-import akka.io.{ IO, Tcp }
-
 import io.gatling.core.util.Retry
 import io.gatling.metrics.message.SendMetric
+
+import akka.io.{ IO, Tcp }
 
 private[metrics] class TcpSender(
     remote: InetSocketAddress,
     maxRetries: Int,
-    retryWindow: FiniteDuration) extends MetricsSender with TcpSenderStateMachine {
+    retryWindow: FiniteDuration) extends MetricsSender with TcpSenderFSM {
 
   import Tcp._
 
@@ -70,16 +70,16 @@ private[metrics] class TcpSender(
     // Connection actor failed to send metric, log it as a failure
     case Event(CommandFailed(_: Write), data: ConnectedData) =>
       logger.debug(s"Failed to write to Graphite server located at: $remote, retrying...")
-      val newFailures = data.failures.newRetry
+      val newFailures = data.retry.newRetry
 
       stopIfLimitReachedOrContinueWith(newFailures) {
-        stay() using data.copy(failures = newFailures)
+        stay() using data.copy(retry = newFailures)
       }
 
     // Server quits unexpectedly, retry connection
     case Event(PeerClosed | ErrorClosed(_), data: ConnectedData) =>
       logger.info(s"Disconnected from Graphite server located at: $remote, retrying...")
-      val newFailures = data.failures.newRetry
+      val newFailures = data.retry.newRetry
 
       stopIfLimitReachedOrContinueWith(newFailures) {
         scheduler.scheduleOnce(1.second)(askForConnection())

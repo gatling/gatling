@@ -17,6 +17,7 @@ package io.gatling.metrics.types
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ KO, OK, Status }
+
 import com.tdunning.math.stats.{ AVLTreeDigest, TDigest }
 
 private[metrics] trait RequestMetricsBuffer {

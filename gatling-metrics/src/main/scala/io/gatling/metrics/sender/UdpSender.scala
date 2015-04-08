@@ -17,10 +17,10 @@ package io.gatling.metrics.sender
 
 import java.net.InetSocketAddress
 
+import io.gatling.metrics.message.SendMetric
+
 import akka.actor.ActorRef
 import akka.io.{ IO, Udp }
-import akka.util.ByteString
-import io.gatling.metrics.message.SendMetric
 
 private[metrics] class UdpSender(remote: InetSocketAddress) extends MetricsSender {
 
