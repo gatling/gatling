@@ -41,7 +41,7 @@ class RequestMetricsBufferSpec extends BaseSpec {
 
   }
 
-  it should "work when there is one OK mesure" in {
+  it should "work when there is one OK measure" in {
     val buff = new TDigestRequestMetricsBuffer(configuration)
     buff.add(OK, 20)
 
