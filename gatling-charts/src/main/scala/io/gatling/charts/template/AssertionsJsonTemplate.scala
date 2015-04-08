@@ -5,7 +5,7 @@ import io.gatling.core.assertion.AssertionResult
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.writer.RunMessage
 
-class AssertionsJsonTemplate(runMessage: RunMessage, scenarioNames: List[String], assertionResults: List[AssertionResult])(implicit configuration: GatlingConfiguration) {
+private[charts] class AssertionsJsonTemplate(runMessage: RunMessage, scenarioNames: List[String], assertionResults: List[AssertionResult])(implicit configuration: GatlingConfiguration) {
 
   private[this] def print(assertionResult: AssertionResult): Fastring = {
     import assertionResult._

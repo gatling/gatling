@@ -5,7 +5,7 @@ import io.gatling.core.assertion.AssertionResult
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.writer.RunMessage
 
-class AssertionsJUnitTemplate(runMessage: RunMessage, assertionResults: List[AssertionResult])(implicit configuration: GatlingConfiguration) {
+private[charts] class AssertionsJUnitTemplate(runMessage: RunMessage, assertionResults: List[AssertionResult])(implicit configuration: GatlingConfiguration) {
 
   private[this] def printMessage(assertionResult: AssertionResult): Fastring =
     if (assertionResult.result)
@@ -19,7 +19,7 @@ class AssertionsJUnitTemplate(runMessage: RunMessage, assertionResults: List[Ass
 </testcase>"""
 
   def getOutput: Fastring = {
-    fast"""<testsuite name="${runMessage.simulationClassName}" tests="${assertionResults.size}" errors="0" failures="${assertionResults.filter(_.result == false).size}" time="0">
+    fast"""<testsuite name="${runMessage.simulationClassName}" tests="${assertionResults.size}" errors="0" failures="${assertionResults.count(_.result == false)}" time="0">
 ${assertionResults.map(print).mkFastring("\n")}
 </testsuite>"""
   }
