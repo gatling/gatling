@@ -24,7 +24,7 @@ import scala.util.Properties
 import io.gatling.core.scenario.Simulation
 import io.gatling.core.util.PathHelper._
 
-object SimulationClassLoader {
+private[app] object SimulationClassLoader {
 
   def apply(binariesDirectory: Path): SimulationClassLoader =
     new SimulationClassLoader(selectClassLoaderImplementation(binariesDirectory), binariesDirectory)
