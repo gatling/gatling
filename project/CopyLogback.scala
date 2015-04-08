@@ -1,17 +1,18 @@
-import sbt._
+import com.typesafe.sbt.SbtNativePackager.Universal
 import sbt.Keys._
+import sbt._
 
 object CopyLogback {
 
-  def copyLogbackXmlSettings(destProject: Project) = Seq(
-    resourceGenerators in Compile in destProject += Def.task {
-      copyLogbackXml(destProject.base, (resourceDirectory in Compile).value)
+  def copyLogbackXml(fromProject: Project) = Seq(
+    resourceGenerators in Compile += Def.task {
+      copyDummyLogbackXml((resources in Compile in fromProject).value, (sourceDirectory in Universal).value)
     }.taskValue
   )
 
-  private def copyLogbackXml(projectPath: File, resourceDirectory: File): Seq[File] = {
-    val configFile = (resourceDirectory ** new ExactFilter("logback.dummy")).get.head
-    val outputPath = projectPath / "src" / "universal" / "conf"
+  private def copyDummyLogbackXml(resources: Seq[File], sourceDirectory: File): Seq[File] = {
+    val configFile = resources.filter(_.getName ==  "logback.dummy").head
+    val outputPath = sourceDirectory / "conf"
     val targetFile = outputPath / (configFile.base + ".xml")
     IO.copyFile(configFile, targetFile)
     Seq(targetFile.getAbsoluteFile)

@@ -1,3 +1,4 @@
+import com.typesafe.sbt.SbtNativePackager.Universal
 import sbt._
 import sbt.Keys._
 
@@ -5,23 +6,19 @@ object ConfigFiles {
 
   private val LeadingSpacesRegex = """^(\s+)"""
 
-  def generateConfigFileSettings(destProject: Project) = Seq(
+  def generateConfigFiles(fromProject: Project) = Seq(
     resourceGenerators in Compile += Def.task {
-      generateCommentedConfigFile(destProject.base, (resourceDirectory in Compile).value)
-    }.taskValue,
-    mappings in (Compile, packageBin) := {
-      val compiledClassesMappings = (mappings in (Compile, packageBin)).value
-      compiledClassesMappings.filterNot { case (_, path) => path.endsWith(".conf") && !path.endsWith("-defaults.conf") }
-    }
+      generateCommentedConfigFile((resources in Compile in fromProject).value, (sourceDirectory in Universal).value)
+    }.taskValue
   )
 
   def copyGatlingDefaults(destProject: Project) = Seq(
     resourceGenerators in Compile in destProject += Def.task {
-      copyGatlingDefaultConfigFile(destProject.base, (resourceDirectory in Compile).value)
+      copyGatlingDefaultConfigFile((resourceDirectory in Compile in destProject).value, (resourceDirectory in Compile).value)
     }.taskValue
   )
 
-  private def generateCommentedConfigFile(projectPath: File, resourceDirectory: File): Seq[File] = {
+  private def generateCommentedConfigFile(resources: Seq[File], sourceDirectory: File): Seq[File] = {
     def generateFile(outputPath: File, source: File): File = {
       val outputFileName = source.getName.replaceAll("-defaults", "")
       val lines = IO.readLines(source)
@@ -34,15 +31,14 @@ object ConfigFiles {
       fullOutputPath
     }
 
-    val outputPath = projectPath / "src" / "universal" / "conf"
-    val configFiles = (resourceDirectory ** new SimpleFileFilter(_.getName.endsWith("conf"))).get
+    val outputPath = sourceDirectory / "conf"
+    val configFiles = resources.filter(_.getName.endsWith("conf"))
     configFiles.map(generateFile(outputPath, _))
    }
 
-  private def copyGatlingDefaultConfigFile(projectPath: File, resourceDirectory: File): Seq[File] = {
+  private def copyGatlingDefaultConfigFile(destDirectory: File, resourceDirectory: File): Seq[File] = {
     val configFile = (resourceDirectory ** new ExactFilter("gatling-defaults.conf")).get.head
-    val outputPath = projectPath / "src" / "main" / "resources"
-    val targetFile = outputPath / configFile.getName
+    val targetFile = destDirectory / configFile.getName
     IO.copyFile(configFile, targetFile)
     Seq(targetFile.getAbsoluteFile)
   }

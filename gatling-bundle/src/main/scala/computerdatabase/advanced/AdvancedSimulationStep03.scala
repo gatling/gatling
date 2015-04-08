@@ -4,36 +4,47 @@ import io.gatling.core.Predef._
 import io.gatling.http.Predef._
 import scala.concurrent.duration._
 
-class AdvancedSimulationStep04 extends Simulation {
+class AdvancedSimulationStep03 extends Simulation {
 
   object Search {
 
-    val feeder = csv("search.csv").random
+    // We need dynamic data so that all users don't play the same and we end up with a behavior completely different from the live system (caching, JIT...)
+    // ==> Feeders!
+
+    val feeder = csv("search.csv").random // default is queue, so for this test, we use random to avoid feeder starvation
 
     val search = exec(http("Home")
-        .get("/"))
+      .get("/"))
       .pause(1)
-      .feed(feeder)
+      .feed(feeder) // every time a user passes here, a record is popped from the feeder and injected into the user's session
       .exec(http("Search")
         .get("/computers")
-        .queryParam("""f""", "${searchCriterion}")
-      .check(regex("""<a href="([^"]+)">${searchComputerName}</a>""").saveAs("computerURL")))
+        .queryParam("""f""", "${searchCriterion}") // use session data thanks to Gatling's EL
+        .check(regex("""<a href="([^"]+)">${searchComputerName}</a>""").saveAs("computerURL"))) // use a regex with an EL, save the result of the capture group
       .pause(1)
       .exec(http("Select")
-        .get("${computerURL}")
+        .get("${computerURL}") // use the link previously saved
         .check(status.is(200)))
       .pause(1)
   }
 
   object Browse {
 
-	  // repeat is a loop resolved at RUNTIME
-	  val browse = repeat(4, "i") { // Note how we force the counter name so we can reuse it
-		  exec(http("Page ${i}")
-			  .get("/computers")
-			  .queryParam("""p""", "${i}"))
-			  .pause(1)
-	  }
+    val browse = exec(http("Home")
+      .get("/"))
+      .pause(2)
+      .exec(http("Page 1")
+        .get("/computers?p=1"))
+      .pause(670 milliseconds)
+      .exec(http("Page 2")
+        .get("/computers?p=2"))
+      .pause(629 milliseconds)
+      .exec(http("Page 3")
+        .get("/computers?p=3"))
+      .pause(734 milliseconds)
+      .exec(http("Page 4")
+        .get("/computers?p=4"))
+      .pause(5)
   }
 
   object Edit {
@@ -41,7 +52,7 @@ class AdvancedSimulationStep04 extends Simulation {
     val headers_10 = Map("Content-Type" -> """application/x-www-form-urlencoded""")
 
     val edit = exec(http("Form")
-        .get("/computers/new"))
+      .get("/computers/new"))
       .pause(1)
       .exec(http("Post")
         .post("/computers")
@@ -65,6 +76,5 @@ class AdvancedSimulationStep04 extends Simulation {
 
   setUp(
     users.inject(rampUsers(10) over (10 seconds)),
-    admins.inject(rampUsers(2) over (10 seconds))
-  ).protocols(httpConf)
+    admins.inject(rampUsers(2) over (10 seconds))).protocols(httpConf)
 }

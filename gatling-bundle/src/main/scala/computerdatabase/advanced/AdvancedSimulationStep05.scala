@@ -12,7 +12,7 @@ class AdvancedSimulationStep05 extends Simulation {
     val feeder = csv("search.csv").random
 
     val search = exec(http("Home")
-       .get("/"))
+      .get("/"))
       .pause(1)
       .feed(feeder)
       .exec(http("Search")
@@ -28,13 +28,13 @@ class AdvancedSimulationStep05 extends Simulation {
 
   object Browse {
 
-	  // repeat is a loop resolved at RUNTIME
-	  val browse = repeat(4, "i") { // Note how we force the counter name so we can reuse it
-		  exec(http("Page ${i}")
-			  .get("/computers")
-			  .queryParam("""p""", "${i}"))
-			  .pause(1)
-	  }
+    // repeat is a loop resolved at RUNTIME
+    val browse = repeat(4, "i") { // Note how we force the counter name so we can reuse it
+      exec(http("Page ${i}")
+        .get("/computers")
+        .queryParam("""p""", "${i}"))
+        .pause(1)
+    }
   }
 
   object Edit {
@@ -48,15 +48,15 @@ class AdvancedSimulationStep05 extends Simulation {
     val edit = tryMax(2) { // let's try at max 2 times
       exec(http("Form")
         .get("/computers/new"))
-      .pause(1)
-      .exec(http("Post")
-        .post("/computers")
-        .headers(headers_10)
-        .formParam("""name""", """Beautiful Computer""")
-        .formParam("""introduced""", """2012-05-30""")
-        .formParam("""discontinued""", """""")
-        .formParam("""company""", """37""").
-        check(status.is(session => 200 + ThreadLocalRandom.current.nextInt(2)))) // we do a check on a condition that's been customized with a lambda. It will be evaluated every time a user executes the request
+        .pause(1)
+        .exec(http("Post")
+          .post("/computers")
+          .headers(headers_10)
+          .formParam("""name""", """Beautiful Computer""")
+          .formParam("""introduced""", """2012-05-30""")
+          .formParam("""discontinued""", """""")
+          .formParam("""company""", """37""").
+          check(status.is(session => 200 + ThreadLocalRandom.current.nextInt(2)))) // we do a check on a condition that's been customized with a lambda. It will be evaluated every time a user executes the request
     }.exitHereIfFailed // if the chain didn't finally succeed, have the user exit the whole scenario
   }
 
@@ -73,6 +73,5 @@ class AdvancedSimulationStep05 extends Simulation {
 
   setUp(
     users.inject(rampUsers(10) over (10 seconds)),
-    admins.inject(rampUsers(2) over (10 seconds))
-  ).protocols(httpConf)
+    admins.inject(rampUsers(2) over (10 seconds))).protocols(httpConf)
 }

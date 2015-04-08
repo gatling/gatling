@@ -12,7 +12,7 @@ class AdvancedSimulationStep01 extends Simulation {
   object Search {
 
     val search = exec(http("Home") // let's give proper names, they are displayed in the reports, and used as keys
-        .get("/"))
+      .get("/"))
       .pause(1) // let's set the pauses to 1 sec for demo purpose
       .exec(http("Search")
         .get("/computers?f=macbook"))
@@ -25,10 +25,10 @@ class AdvancedSimulationStep01 extends Simulation {
   object Browse {
 
     val browse = exec(http("Home")
-        .get("/"))
+      .get("/"))
       .pause(2)
       .exec(http("Page 1")
-       .get("/computers?p=1"))
+        .get("/computers?p=1"))
       .pause(670 milliseconds)
       .exec(http("Page 2")
         .get("/computers?p=2"))
@@ -46,7 +46,7 @@ class AdvancedSimulationStep01 extends Simulation {
     val headers_10 = Map("Content-Type" -> """application/x-www-form-urlencoded""")
 
     val edit = exec(http("Form")
-       .get("/computers/new"))
+      .get("/computers/new"))
       .pause(1)
       .exec(http("Post")
         .post("/computers")

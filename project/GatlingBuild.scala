@@ -1,14 +1,13 @@
-import sbt._
-import sbt.Keys._
+import io.gatling.build.SonatypeReleasePlugin
 
 import BuildSettings._
 import Bundle._
-import Dependencies._
 import ConfigFiles._
 import CopyLogback._
+import Dependencies._
 import VersionFile._
-
-import io.gatling.build.SonatypeReleasePlugin
+import sbt.Keys._
+import sbt._
 
 object GatlingBuild extends Build {
 
@@ -36,8 +35,6 @@ object GatlingBuild extends Build {
   lazy val core = gatlingModule("gatling-core")
     .settings(libraryDependencies ++= coreDependencies(scalaVersion.value))
     .settings(generateVersionFileSettings: _*)
-    .settings(generateConfigFileSettings(bundle): _*)
-    .settings(copyLogbackXmlSettings(bundle): _*)
     .settings(copyGatlingDefaults(compiler): _*)
 
   lazy val jdbc = gatlingModule("gatling-jdbc")
@@ -77,13 +74,16 @@ object GatlingBuild extends Build {
   lazy val recorder = gatlingModule("gatling-recorder")
     .dependsOn(core  % "compile->compile;test->test", http)
     .settings(libraryDependencies ++= recorderDependencies)
-    .settings(generateConfigFileSettings(bundle): _*)
 
   lazy val testFramework = gatlingModule("gatling-test-framework")
     .dependsOn(app)
     .settings(libraryDependencies ++= testFrameworkDependencies)
 
   lazy val bundle = gatlingModule("gatling-bundle")
+    .dependsOn(core, http)
+    .settings(generateConfigFiles(core): _*)
+    .settings(generateConfigFiles(recorder): _*)
+    .settings(copyLogbackXml(core): _*)
     .settings(bundleSettings: _*)
     .settings(noCodeToPublish: _*)
 }
