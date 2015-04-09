@@ -24,3 +24,8 @@ Protocol
 --------
 
 A typo was fixed and ``connection`` was renamed into ``connectionHeader``.
+
+ElFileBody
+----------
+
+``ELFileBody`` has been renamed to ``ElFileBody``.
