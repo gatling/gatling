@@ -51,6 +51,8 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 
   override def onDnsResolved(): Unit = {}
 
+  override def onSslHandshakeCompleted(): Unit = {}
+
   override def onRetry(): Unit = {
     if (done.get)
       logger.error("onRetry is not supposed to be called once done")
