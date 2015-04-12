@@ -39,9 +39,9 @@ class Saxon(implicit configuration: GatlingConfiguration) {
         compiler
       }
 
-    new SelfLoadingThreadSafeCache[List[(String, String)], XPathCompiler](configuration.core.extract.xpath.cacheMaxCapacity, xPathCompiler)
+    SelfLoadingThreadSafeCache[List[(String, String)], XPathCompiler](configuration.core.extract.xpath.cacheMaxCapacity, xPathCompiler)
   }
-  private val executableCache = new ThreadSafeCache[String, XPathExecutable](configuration.core.extract.xpath.cacheMaxCapacity)
+  private val executableCache = ThreadSafeCache[String, XPathExecutable](configuration.core.extract.xpath.cacheMaxCapacity)
 
   def parse(inputSource: InputSource) = {
     inputSource.setEncoding(configuration.core.encoding)

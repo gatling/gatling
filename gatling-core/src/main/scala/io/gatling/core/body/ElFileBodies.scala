@@ -35,7 +35,7 @@ class ElFileBodies(implicit configuration: GatlingConfiguration) {
           }
         }.map(_.el[String])
 
-    new SelfLoadingThreadSafeCache[String, Validation[Expression[String]]](configuration.core.elFileBodiesCacheMaxCapacity, compileFile)
+    SelfLoadingThreadSafeCache[String, Validation[Expression[String]]](configuration.core.elFileBodiesCacheMaxCapacity, compileFile)
   }
   private val elFileBodyBytesCache = {
       def resource2BytesSeq(path: String): Validation[Expression[Seq[Array[Byte]]]] =
@@ -43,7 +43,7 @@ class ElFileBodies(implicit configuration: GatlingConfiguration) {
           ElCompiler.compile2BytesSeq(resource.string(charset), charset)
         }
 
-    new SelfLoadingThreadSafeCache[String, Validation[Expression[Seq[Array[Byte]]]]](configuration.core.elFileBodiesCacheMaxCapacity, resource2BytesSeq)
+    SelfLoadingThreadSafeCache[String, Validation[Expression[Seq[Array[Byte]]]]](configuration.core.elFileBodiesCacheMaxCapacity, resource2BytesSeq)
   }
 
   def asString(filePath: Expression[String]): Expression[String] =

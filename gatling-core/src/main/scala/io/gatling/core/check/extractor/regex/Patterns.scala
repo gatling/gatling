@@ -22,7 +22,7 @@ import io.gatling.core.util.cache.SelfLoadingThreadSafeCache
 
 class Patterns(implicit configuration: GatlingConfiguration) {
 
-  private val patternCache = new SelfLoadingThreadSafeCache[String, Pattern](configuration.core.extract.regex.cacheMaxCapacity, Pattern.compile)
+  private val patternCache = SelfLoadingThreadSafeCache[String, Pattern](configuration.core.extract.regex.cacheMaxCapacity, Pattern.compile)
 
   def extractAll[G: GroupExtractor](chars: CharSequence, pattern: String): Seq[G] = {
 

@@ -28,7 +28,7 @@ class JsonPaths(implicit configuration: GatlingConfiguration) {
         case Right(path) => path.success
       }
 
-    new SelfLoadingThreadSafeCache[String, Validation[JsonPath]](configuration.core.extract.jsonPath.cacheMaxCapacity, compile)
+    SelfLoadingThreadSafeCache[String, Validation[JsonPath]](configuration.core.extract.jsonPath.cacheMaxCapacity, compile)
   }
 
   def extractAll[X: JsonFilter](json: Any, expression: String): Validation[Iterator[X]] =

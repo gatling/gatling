@@ -29,7 +29,7 @@ class RawFileBodies(implicit configuration: GatlingConfiguration) {
   private val rawFileBodyCache = {
       def pathToFile(path: String): Validation[File] = Resource.body(path).map(_.file)
 
-    new SelfLoadingThreadSafeCache[String, Validation[File]](configuration.core.rawFileBodiesCacheMaxCapacity, pathToFile)
+    SelfLoadingThreadSafeCache[String, Validation[File]](configuration.core.rawFileBodiesCacheMaxCapacity, pathToFile)
   }
 
   def asFile(filePath: Expression[String]): Expression[File] = {

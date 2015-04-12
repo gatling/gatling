@@ -27,6 +27,7 @@ object ThreadSafeCache {
 }
 
 class ThreadSafeCache[K, V](maxCapacity: Long) {
+  require(maxCapacity >= 0, "The cache capacity cannot be a negative number.")
 
   val cache: concurrent.Map[K, V] = {
     new ConcurrentLinkedHashMap.Builder[K, V]
@@ -44,17 +45,4 @@ class ThreadSafeCache[K, V](maxCapacity: Long) {
         cache.putIfAbsent(key, v)
         v
     }
-}
-
-class SelfLoadingThreadSafeCache[K, V](maxCapacity: Long, f: K => V) {
-
-  private val enabled = maxCapacity > 0
-  private val cache = if (enabled) ThreadSafeCache[K, V](maxCapacity) else null
-
-  def get(key: K): V = {
-    if (enabled)
-      cache.getOrElsePutIfAbsent(key, f(key))
-    else
-      f(key)
-  }
 }

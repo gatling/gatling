@@ -32,7 +32,7 @@ class CssSelectors(implicit configuration: GatlingConfiguration) {
   LoggerFactory.setLoggerFactory(new Slf4jLoggerFactory)
 
   private val domBuilder = Jodd.newLagartoDomBuilder
-  private val selectorCache = new SelfLoadingThreadSafeCache[String, JList[JList[CssSelector]]](configuration.core.extract.css.cacheMaxCapacity, CSSelly.parse)
+  private val selectorCache = SelfLoadingThreadSafeCache[String, JList[JList[CssSelector]]](configuration.core.extract.css.cacheMaxCapacity, CSSelly.parse)
 
   def parse(chars: Array[Char]) = new NodeSelector(domBuilder.parse(chars))
 
