@@ -32,6 +32,12 @@ class SessionSpec extends BaseSpec {
     session.attributes("otherKey") shouldBe 2
   }
 
+  "reset" should "remove all attributes from the session" in {
+    val session = newSession.setAll("key" -> 1, "otherKey" -> 2)
+    val resetSession = session.reset
+    resetSession.attributes shouldBe empty
+  }
+
   "remove" should "remove an attribute from the session if present" in {
     val session = newSession.set("key", "value").remove("key")
     session.attributes.contains("key") shouldBe false
