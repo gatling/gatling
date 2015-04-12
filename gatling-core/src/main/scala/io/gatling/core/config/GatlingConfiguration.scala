@@ -16,7 +16,7 @@
 package io.gatling.core.config
 
 import java.nio.charset.Charset
-import java.util.{ ArrayList, ResourceBundle }
+import java.util.ResourceBundle
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable
@@ -37,7 +37,7 @@ object GatlingConfiguration extends StrictLogging {
   def loadForTest(props: mutable.Map[String, _ <: Any] = mutable.Map.empty): GatlingConfiguration = {
 
     val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, "gatling-defaults.conf")
-    val propertiesConfig = ConfigFactory.parseMap(props + (data.Writers -> new ArrayList)) // Disable DataWriters by default
+    val propertiesConfig = ConfigFactory.parseMap(props)
     val config = configChain(ConfigFactory.systemProperties, propertiesConfig, defaultsConfig)
     mapToGatlingConfig(config)
   }
