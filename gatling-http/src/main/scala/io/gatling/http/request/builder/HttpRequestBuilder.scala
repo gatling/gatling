@@ -109,8 +109,14 @@ class HttpRequestBuilder(commonAttributes: CommonAttributes, val httpAttributes:
   def formParamMap(map: Map[String, Any]): HttpRequestBuilder = formParamSeq(map2SeqExpression(map))
   def formParamMap(map: Expression[Map[String, Any]]): HttpRequestBuilder = formParam(ParamMap(map))
 
-  private def formParam(formParam: HttpParam): HttpRequestBuilder =
-    newInstance(httpAttributes.copy(formParams = httpAttributes.formParams ::: List(formParam))).asFormUrlEncoded
+  private def formParam(formParam: HttpParam): HttpRequestBuilder = {
+    val withFormParam = newInstance(httpAttributes.copy(formParams = httpAttributes.formParams ::: List(formParam)))
+
+    if (httpAttributes.bodyParts.isEmpty)
+      withFormParam.asFormUrlEncoded
+    else
+      withFormParam
+  }
 
   def formUpload(name: Expression[String], filePath: Expression[String]) = {
 
