@@ -22,6 +22,7 @@ class Feeders {
       //#strategies
       .queue    // default behavior: use an Iterator on the underlying sequence
       .random   // randomly pick an entry in the sequence
+      .shuffle  // shuffle entries, then behave live queue
       .circular // go back to the top of the sequence once the end is reached
       //#strategies
   }
