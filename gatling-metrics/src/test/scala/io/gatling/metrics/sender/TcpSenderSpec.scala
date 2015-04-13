@@ -24,7 +24,7 @@ import akka.io.Tcp._
 import akka.util.ByteString
 
 import io.gatling.AkkaSpec
-import io.gatling.metrics.message.SendMetric
+import io.gatling.metrics.message.PlainTextMetric
 
 class TcpSenderSpec extends AkkaSpec {
 
@@ -54,7 +54,7 @@ class TcpSenderSpec extends AkkaSpec {
 
     tcpSender.stateName shouldBe Running
 
-    val metric = SendMetric("foo", 1, 1)
+    val metric = PlainTextMetric("foo", 1, 1)
 
     tcpSender ! metric
 

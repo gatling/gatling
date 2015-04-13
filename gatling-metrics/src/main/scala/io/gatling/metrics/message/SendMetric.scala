@@ -15,6 +15,7 @@
  */
 package io.gatling.metrics.message
 
+import java.nio.ByteOrder.LITTLE_ENDIAN
 import java.nio.charset.StandardCharsets.UTF_8
 
 import akka.util.{ ByteStringBuilder, ByteString }
@@ -47,6 +48,7 @@ private[metrics] case class PickleMetric(metrics: Seq[PlainTextMetric]) extends 
 
   def byteString = {
 
+    implicit val byteOrder = LITTLE_ENDIAN
     val bsb = new ByteStringBuilder()
 
       def int2Bytes(i: Int): Array[Byte] = {
