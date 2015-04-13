@@ -144,6 +144,8 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
         sendToGraphite(data, metricPath / "count", m.count, epoch)
         sendToGraphite(data, metricPath / "max", m.max, epoch)
         sendToGraphite(data, metricPath / "min", m.min, epoch)
+        sendToGraphite(data, metricPath / "mean", m.mean, epoch)
+        sendToGraphite(data, metricPath / "stdDev", m.stdDev, epoch)
         sendToGraphite(data, metricPath / percentiles1Name, m.percentile1, epoch)
         sendToGraphite(data, metricPath / percentiles2Name, m.percentile2, epoch)
         sendToGraphite(data, metricPath / percentiles3Name, m.percentile3, epoch)

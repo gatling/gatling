@@ -57,6 +57,8 @@ class HistogramRequestMetricsBuffer(configuration: GatlingConfiguration) extends
         count,
         histogram.getMinValue.toInt,
         histogram.getMaxValue.toInt,
+        histogram.getMean.toInt,
+        histogram.getStdDeviation.toInt,
         histogram.getValueAtPercentile(percentile1).toInt,
         histogram.getValueAtPercentile(percentile2).toInt,
         histogram.getValueAtPercentile(percentile3).toInt,
