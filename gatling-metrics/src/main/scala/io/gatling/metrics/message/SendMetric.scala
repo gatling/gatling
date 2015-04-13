@@ -17,8 +17,6 @@ package io.gatling.metrics.message
 
 import java.nio.charset.StandardCharsets.UTF_8
 
-import io.gatling.core.util.StringHelper
-
 import akka.util.{ ByteStringBuilder, ByteString }
 
 sealed trait GraphiteMetric {
