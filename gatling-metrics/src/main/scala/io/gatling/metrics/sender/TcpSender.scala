@@ -20,7 +20,7 @@ import java.net.InetSocketAddress
 import scala.concurrent.duration._
 
 import io.gatling.core.util.Retry
-import io.gatling.metrics.message.SendMetric
+import io.gatling.metrics.message.GraphiteMetric
 
 import akka.io.{ IO, Tcp }
 
@@ -62,7 +62,7 @@ private[metrics] class TcpSender(
 
   when(Running) {
     // GraphiteDataWriter sent a metric, write to socket
-    case Event(m: SendMetric[_], ConnectedData(connection, _)) =>
+    case Event(m: GraphiteMetric, ConnectedData(connection, _)) =>
       logger.debug(s"Sending metric $m to Graphite server located at: $remote")
       connection ! Write(m.byteString)
       stay()

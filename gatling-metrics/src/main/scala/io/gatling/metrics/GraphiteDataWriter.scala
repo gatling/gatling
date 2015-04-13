@@ -21,7 +21,7 @@ import scala.concurrent.duration.DurationInt
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.writer._
 import io.gatling.core.util.TimeHelper.nowSeconds
-import io.gatling.metrics.message.SendMetric
+import io.gatling.metrics.message.{ PickleMetric, PlainTextMetric }
 import io.gatling.metrics.sender.MetricsSender
 import io.gatling.metrics.types._
 
@@ -100,7 +100,14 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
                                     userBreakdowns: Map[GraphitePath, UserBreakdown]): Unit = {
 
     import data._
-    format.metrics(userBreakdowns, requestsMetrics)
-      .foreach { case (path, value) => metricsSender ! SendMetric(path, value, epoch) }
+
+    val plainTextMetrics = format.metrics(userBreakdowns, requestsMetrics)
+      .map { case (path, value) => PlainTextMetric(path, value, epoch) }
+
+    if (configuration.data.graphite.usePickle)
+      metricsSender ! PickleMetric(plainTextMetrics.toSeq)
+
+    else
+      plainTextMetrics.foreach { m => metricsSender ! m }
   }
 }
