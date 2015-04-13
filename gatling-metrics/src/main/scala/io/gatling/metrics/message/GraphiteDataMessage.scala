@@ -16,9 +16,9 @@
 package io.gatling.metrics.message
 
 import io.gatling.metrics.GraphitePath
-import io.gatling.metrics.types.{ MetricByStatus, UsersBreakdown }
+import io.gatling.metrics.types.{ MetricByStatus, UserBreakdown }
 
 private[metrics] case class SendMetrics(
   requestMetrics: Map[GraphitePath, MetricByStatus],
-  usersBreakdowns: Map[GraphitePath, UsersBreakdown])
+  userBreakdowns: Map[GraphitePath, UserBreakdown])
 
