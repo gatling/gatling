@@ -31,77 +31,21 @@ private[metrics] case class PlainTextMetric(path: String, value: Long, epoch: Lo
 
 private[metrics] object OpCodes {
 
-  //  val Append = 'a'
-  //  val List = 'l'
-  //  val Long = 'L'
-  val Mark = '('
-  val Stop = '.'
-  //  val String = 'S'
-  //  val Tuple = 't'
-  //  val Quote = '\''
-  val Lf = '\n'
-
   val Proto: Short = 0x80
+  val Tuple2: Short = 0x86
+  val Mark: Short = '('
+  val Stop: Short = '.'
   val EmptyList: Short = ']'
   val Appends: Short = 'e'
-  val Tuple2: Short = 0x86
   val Int: Short = 'I' // push integer or bool; decimal string argument
   val BinInt: Short = 'J' // push four-byte signed int (little endian)
   val BinInt1: Short = 'K' // push 1-byte unsigned int
   val BinInt2: Short = 'M' // push 2-byte unsigned int
   val BinUnicode: Short = 'X' //push Unicode string; counted UTF-8 string argument
+  val Lf = '\n'
 }
 
 private[metrics] case class PickleMetric(metrics: Seq[PlainTextMetric]) extends GraphiteMetric {
-
-  //  def byteString = {
-  //
-  //    val sb = StringHelper.stringBuilder()
-  //
-  //    def appendString(string: String): Unit =
-  //    sb.append(OpCodes.String)
-  //      .append(OpCodes.Quote).append(string).append(OpCodes.Quote)
-  //      .append(OpCodes.Lf)
-  //
-  //    def appendLong(long: Long): Unit =
-  //    sb.append(OpCodes.Long)
-  //      .append(long).append(OpCodes.Long)
-  //      .append(OpCodes.Lf)
-  //
-  //    sb.append(OpCodes.Mark)
-  //
-  //    sb.append(OpCodes.List)
-  //
-  //    // [(path, (timestamp, value)), ...]
-  //    for (metric <- metrics) {
-  //      sb.append(OpCodes.Mark) // open outer tuple
-  //
-  //      // path
-  //      // https://hg.python.org/cpython/file/087cdbf49e80/Lib/pickletools.py#l1247
-  //      appendString(metric.path)
-  //
-  //      sb.append(OpCodes.Mark) // open inner tuple
-  //
-  //      // timestamp
-  //      // https://hg.python.org/cpython/file/087cdbf49e80/Lib/pickletools.py#l1205
-  //      appendLong(metric.epoch)
-  //
-  //      // value
-  //      appendLong(metric.value)
-  //
-  //      sb.append(OpCodes.Tuple) // close inner tuple
-  //        .append(OpCodes.Tuple) // close outer tuple
-  //
-  //      sb.append(OpCodes.Append)
-  //    }
-  //
-  //    // close array
-  //    sb.append(OpCodes.Stop)
-  //
-  //    val payload = ByteString(sb.toString, UTF_8.name)
-  //    val header = new ByteStringBuilder().putInt(payload.length).result
-  //    header ++ payload
-  //  }
 
   def byteString = {
 
