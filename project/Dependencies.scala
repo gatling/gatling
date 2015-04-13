@@ -30,6 +30,7 @@ object Dependencies {
   private val jmsApi                        = "org.apache.geronimo.specs"              % "geronimo-jms_1.1_spec"       % "1.1.1"
   private val logbackClassic                = "ch.qos.logback"                         % "logback-classic"             % "1.1.3"
   private val tdigest                       = "com.tdunning"                           % "t-digest"                    % "3.1"
+  private val hdrHistogram                  = "org.hdrhistogram"                       % "HdrHistogram"                % "2.1.4"
   private val lru                           = "com.googlecode.concurrentlinkedhashmap" % "concurrentlinkedhashmap-lru" % "1.4.2"
   private val bouncycastle                  = "org.bouncycastle"                       % "bcpkix-jdk15on"              % "1.52"
   private val testInterface                 = "org.scala-sbt"                          % "test-interface"              % "1.0"
@@ -71,7 +72,7 @@ object Dependencies {
 
   val chartsDependencies = tdigest +: testDeps
 
-  val metricsDependencies = tdigest +: testDeps
+  val metricsDependencies = hdrHistogram +: testDeps
 
   def compilerDependencies(scalaVersion: String) =
     Seq(scalaReflect(scalaVersion), config, slf4jApi, logbackClassic, zinc, scopt)

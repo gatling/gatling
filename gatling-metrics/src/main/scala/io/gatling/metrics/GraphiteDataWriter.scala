@@ -49,7 +49,7 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
   import GraphitePath._
 
   def newRequestMetricsBuffer(configuration: GatlingConfiguration): RequestMetricsBuffer =
-    new TDigestRequestMetricsBuffer(configuration)
+    new HistogramRequestMetricsBuffer(configuration)
 
   private val flushTimerName = "flushTimer"
 

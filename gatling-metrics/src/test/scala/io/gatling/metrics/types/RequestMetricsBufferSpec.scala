@@ -32,17 +32,16 @@ class RequestMetricsBufferSpec extends BaseSpec {
   def allValues(m: Metrics) = Seq(m.max, m.min, m.percentile1, m.percentile2)
 
   "RequestMetricsBuffer" should "work when there is no measure" in {
-    val buff = new TDigestRequestMetricsBuffer(configuration)
+    val buff = new HistogramRequestMetricsBuffer(configuration)
     val metricsByStatus = buff.metricsByStatus
 
     metricsByStatus.ok shouldBe None
     metricsByStatus.ko shouldBe None
     metricsByStatus.all shouldBe None
-
   }
 
   it should "work when there is one OK measure" in {
-    val buff = new TDigestRequestMetricsBuffer(configuration)
+    val buff = new HistogramRequestMetricsBuffer(configuration)
     buff.add(OK, 20)
 
     val metricsByStatus = buff.metricsByStatus
@@ -55,7 +54,7 @@ class RequestMetricsBufferSpec extends BaseSpec {
   }
 
   it should "work when there are multiple measures" in {
-    val buff = new TDigestRequestMetricsBuffer(configuration)
+    val buff = new HistogramRequestMetricsBuffer(configuration)
     buff.add(KO, 10)
     for (t <- 100 to 200) buff.add(OK, t)
 
@@ -75,7 +74,7 @@ class RequestMetricsBufferSpec extends BaseSpec {
   }
 
   it should "work when there are a large number of measures" in {
-    val buff = new TDigestRequestMetricsBuffer(configuration)
+    val buff = new HistogramRequestMetricsBuffer(configuration)
     for (t <- 1 to 10000) buff.add(OK, t)
 
     val metricsByStatus = buff.metricsByStatus
@@ -83,8 +82,8 @@ class RequestMetricsBufferSpec extends BaseSpec {
 
     okMetrics.count shouldBe 10000
     okMetrics.min shouldBe 1
-    okMetrics.max shouldBe 10000
-    okMetrics.percentile1 shouldBe 9500
-    okMetrics.percentile2 shouldBe 9900
+    okMetrics.max shouldBe 10000 +- (10000 / 100) // 2 digits resolution
+    okMetrics.percentile1 shouldBe 9500 +- (9500 / 100)
+    okMetrics.percentile2 shouldBe 9900 +- (9900 / 100)
   }
 }
