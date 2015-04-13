@@ -41,7 +41,6 @@ For example:
 
 .. includecode:: code/Feeders.scala#feeder-from-array-with-random
 
-
 .. _feeder-csv:
 
 CSV feeders
@@ -129,7 +128,7 @@ Only JDBC4 drivers are supported, so that they automatically registers to the Dr
 
 .. _feeder-redis:
 
-Sitemap feeder
+Sitemap Feeder
 ==============
 
 Gatling supports a feeder that reads data from a `Sitemap <http://www.sitemaps.org/protocol.html>`_ file.
