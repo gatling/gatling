@@ -27,7 +27,7 @@ class OldGraphitePathPattern(runMessage: RunMessage, configuration: GatlingConfi
   private val percentiles3Name = "percentiles" + configuration.charting.indicators.percentile3
   private val percentiles4Name = "percentiles" + configuration.charting.indicators.percentile4
 
-  val metricRootPath = GraphitePath.graphitePath(List(configuration.data.graphite.rootPathPrefix, runMessage.simulationId))
+  val metricRootPath = GraphitePath.graphitePath(configuration.data.graphite.rootPathPrefix) / runMessage.simulationId
 
   val allUsersPath = usersRootKey / "allUsers"
 
@@ -35,7 +35,7 @@ class OldGraphitePathPattern(runMessage: RunMessage, configuration: GatlingConfi
 
   val allResponsesPath = graphitePath("allRequests")
 
-  def responsePath(requestName: String, groupHierarchy: List[String]) = graphitePath(groupHierarchy :+ requestName)
+  def responsePath(requestName: String, groupHierarchy: List[String]) = graphitePath(groupHierarchy.reverse) / requestName
 
   protected def activeUsers(path: GraphitePath) = path / "active"
   protected def waitingUsers(path: GraphitePath) = path / "waiting"
