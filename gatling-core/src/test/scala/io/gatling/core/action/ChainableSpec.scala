@@ -27,7 +27,7 @@ class ChainableSpec extends AkkaSpec {
     var hasRun = false
 
     override def execute(session: Session): Unit =
-      if (fail) throw new Exception
+      if (fail) throw new Exception("expected crash")
       else hasRun = true
   }
 
