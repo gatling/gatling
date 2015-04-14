@@ -24,7 +24,7 @@ import akka.io.Tcp._
 import akka.util.ByteString
 
 import io.gatling.AkkaSpec
-import io.gatling.metrics.message.PlainTextMetrics
+import io.gatling.metrics.message.GraphiteMetrics
 
 class TcpSenderSpec extends AkkaSpec {
 
@@ -54,7 +54,7 @@ class TcpSenderSpec extends AkkaSpec {
 
     tcpSender.stateName shouldBe Running
 
-    val metrics = PlainTextMetrics(Iterator.single("foo" -> 1), 1)
+    val metrics = GraphiteMetrics(Iterator.single("foo" -> 1), 1)
 
     tcpSender ! metrics
 

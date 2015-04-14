@@ -137,7 +137,6 @@ object ConfigKeys {
       val Host = "gatling.data.graphite.host"
       val Port = "gatling.data.graphite.port"
       val Protocol = "gatling.data.graphite.protocol"
-      val UsePickle = "gatling.data.graphite.usePickle"
       val RootPathPrefix = "gatling.data.graphite.rootPathPrefix"
       val BufferSize = "gatling.data.graphite.bufferSize"
       val WriteInterval = "gatling.data.graphite.writeInterval"

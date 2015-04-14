@@ -192,7 +192,6 @@ object GatlingConfiguration extends StrictLogging {
           host = config.getString(data.graphite.Host),
           port = config.getInt(data.graphite.Port),
           protocol = GraphiteProtocol(config.getString(data.graphite.Protocol).trim),
-          usePickle = config.getBoolean(data.graphite.UsePickle),
           rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
           bufferSize = config.getInt(data.graphite.BufferSize),
           writeInterval = config.getInt(data.graphite.WriteInterval))),
@@ -361,7 +360,6 @@ case class GraphiteDataWriterConfiguration(
   host: String,
   port: Int,
   protocol: GraphiteProtocol,
-  usePickle: Boolean,
   rootPathPrefix: String,
   bufferSize: Int,
   writeInterval: Int)
