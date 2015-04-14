@@ -24,7 +24,7 @@ import akka.io.Tcp._
 import akka.util.ByteString
 
 import io.gatling.AkkaSpec
-import io.gatling.metrics.message.PlainTextMetric
+import io.gatling.metrics.message.PlainTextMetrics
 
 class TcpSenderSpec extends AkkaSpec {
 
@@ -54,11 +54,11 @@ class TcpSenderSpec extends AkkaSpec {
 
     tcpSender.stateName shouldBe Running
 
-    val metric = PlainTextMetric("foo", 1, 1)
+    val metrics = PlainTextMetrics(Iterator.single("foo" -> 1), 1)
 
-    tcpSender ! metric
+    tcpSender ! metrics
 
-    expectMsg(Write(metric.byteString))
+    expectMsg(Write(metrics.byteString))
   }
 
   it should "retry to connected until the retry limit has been exceeded to finally stop" in {

@@ -18,35 +18,44 @@ package io.gatling.metrics.message
 import java.nio.ByteOrder.LITTLE_ENDIAN
 import java.nio.charset.StandardCharsets.UTF_8
 
+import io.gatling.core.util.StringHelper
+
 import akka.util.{ ByteStringBuilder, ByteString }
 
-sealed trait GraphiteMetric {
-  def byteString: ByteString
+private[metrics] case class GraphiteMetrics(byteString: ByteString)
+
+private[metrics] object PlainTextMetrics {
+
+  def apply(pathValuePairs: Iterator[(String, Long)], epoch: Long): GraphiteMetrics = {
+
+    val sb = StringHelper.stringBuilder()
+    pathValuePairs.foreach {
+      case (path, value) =>
+        sb.append(path).append(' ').append(value).append(' ').append(epoch).append('\n')
+    }
+    GraphiteMetrics(ByteString(sb.toString, UTF_8.name))
+  }
 }
 
-private[metrics] case class PlainTextMetric(path: String, value: Long, epoch: Long) extends GraphiteMetric {
-  def byteString = ByteString(s"$path $value $epoch\n", UTF_8.name)
-}
+private[metrics] object PickleMetrics {
 
-private[metrics] object OpCodes {
+  object OpCodes {
 
-  val Proto: Short = 0x80
-  val Tuple2: Short = 0x86
-  val Mark: Short = '('
-  val Stop: Short = '.'
-  val EmptyList: Short = ']'
-  val Appends: Short = 'e'
-  val Int: Short = 'I' // push integer or bool; decimal string argument
-  val BinInt: Short = 'J' // push four-byte signed int (little endian)
-  val BinInt1: Short = 'K' // push 1-byte unsigned int
-  val BinInt2: Short = 'M' // push 2-byte unsigned int
-  val BinUnicode: Short = 'X' //push Unicode string; counted UTF-8 string argument
-  val Lf = '\n'
-}
+    val Proto: Short = 0x80
+    val Tuple2: Short = 0x86
+    val Mark: Short = '('
+    val Stop: Short = '.'
+    val EmptyList: Short = ']'
+    val Appends: Short = 'e'
+    val Int: Short = 'I' // push integer or bool; decimal string argument
+    val BinInt: Short = 'J' // push four-byte signed int (little endian)
+    val BinInt1: Short = 'K' // push 1-byte unsigned int
+    val BinInt2: Short = 'M' // push 2-byte unsigned int
+    val BinUnicode: Short = 'X' //push Unicode string; counted UTF-8 string argument
+    val Lf = '\n'
+  }
 
-private[metrics] case class PickleMetric(metrics: Seq[PlainTextMetric]) extends GraphiteMetric {
-
-  def byteString = {
+  def apply(pathValuePairs: Iterator[(String, Long)], epoch: Long): GraphiteMetrics = {
 
     implicit val byteOrder = LITTLE_ENDIAN
     val bsb = new ByteStringBuilder()
@@ -113,12 +122,13 @@ private[metrics] case class PickleMetric(metrics: Seq[PlainTextMetric]) extends 
     bsb.putInt(OpCodes.Mark)
 
     // [(path, (timestamp, value)), ...]
-    for (metric <- metrics) {
-      putString(metric.path)
-      putLong(metric.epoch)
-      putLong(metric.value)
-      bsb.putInt(OpCodes.Tuple2) // close inner tuple2
-      bsb.putInt(OpCodes.Tuple2) // close outer tuple2
+    pathValuePairs.foreach {
+      case (path, value) =>
+        putString(path)
+        putLong(epoch)
+        putLong(value)
+        bsb.putInt(OpCodes.Tuple2) // close inner tuple2
+        bsb.putInt(OpCodes.Tuple2) // close outer tuple2
     }
 
     bsb.putInt(OpCodes.Appends)
@@ -126,6 +136,6 @@ private[metrics] case class PickleMetric(metrics: Seq[PlainTextMetric]) extends 
 
     val payload = bsb.result
     val header = new ByteStringBuilder().putInt(payload.length).result
-    header ++ payload
+    GraphiteMetrics(header ++ payload)
   }
 }
