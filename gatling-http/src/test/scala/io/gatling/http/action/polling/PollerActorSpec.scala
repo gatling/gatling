@@ -36,9 +36,17 @@ import scala.reflect.ClassTag
 // TODO : test resourceFetched, stopPolling
 class PollerActorSpec extends AkkaSpec {
 
+  val requestName = "foo".expression
+
+  def mockHttpRequestDef = {
+    val requestDef = mock[HttpRequestDef]
+    when(requestDef.requestName) thenReturn requestName
+    requestDef
+  }
+
   "PollerActor" should "start in Uninitalized state with NoData" in {
     val dataWriterProbe = TestProbe()
-    val poller = createPollerActor(1.second, mock[HttpRequestDef], mock[HttpEngine], dataWriterProbe)
+    val poller = createPollerActor(1.second, mockHttpRequestDef, mock[HttpEngine], dataWriterProbe)
 
     poller.stateName shouldBe Uninitialized
     poller.stateData shouldBe NoData
@@ -46,7 +54,7 @@ class PollerActorSpec extends AkkaSpec {
 
   it should "after receiving a StartPolling, move to the Polling state with the initial session" in {
     val dataWriterProbe = TestProbe()
-    val poller = createPollerActor(1.second, mock[HttpRequestDef], mock[HttpEngine], dataWriterProbe)
+    val poller = createPollerActor(1.second, mockHttpRequestDef, mock[HttpEngine], dataWriterProbe)
 
     val session = Session("scenario", "userId")
 
@@ -77,7 +85,7 @@ class PollerActorSpec extends AkkaSpec {
 
   it should "do nothing if the request could not be resolved, fail the session and report to the DataWriters" in {
     val dataWriterProbe = TestProbe()
-    val httpRequestDef = HttpRequestDef("foo".expression, failedExpr, None, mock[HttpRequestConfig])
+    val httpRequestDef = HttpRequestDef(requestName, failedExpr, None, mock[HttpRequestConfig])
     val mockHttpEngine = mock[HttpEngine]
     val poller = createPollerActor(1.second, httpRequestDef, mockHttpEngine, dataWriterProbe)
     val session = Session("scenario", "userId")
