@@ -15,10 +15,9 @@
  */
 package io.gatling.http
 
-import java.io.ByteArrayOutputStream
 import java.lang.{ StringBuilder => JStringBuilder }
+import java.nio.ByteBuffer
 import java.nio.charset.Charset
-import java.nio.charset.StandardCharsets.US_ASCII
 import java.util.{ List => JList, Map => JMap }
 
 import scala.collection.JavaConversions._
@@ -130,12 +129,19 @@ package object util {
         }
 
         buff.append("multipart=").append(Eol)
-        val boundary = nettyRequest.map(_.getBody.asInstanceOf[NettyMultipartBody].getBody.asInstanceOf[MultipartBody].getBoundary).getOrElse(("0" * 30).getBytes(US_ASCII))
 
-        val os = new ByteArrayOutputStream
-        for (part <- request.getParts)
-          part.write(os, boundary)
-        buff.append(new String(os.toByteArray, charset))
+        val multipartBody = nettyRequest match {
+          case Some(req) =>
+            val originalMultipartBody = req.getBody.asInstanceOf[NettyMultipartBody].getBody.asInstanceOf[MultipartBody]
+            new MultipartBody(request.getParts, originalMultipartBody.getContentType, originalMultipartBody.getContentLength, originalMultipartBody.getBoundary)
+
+          case None => MultipartUtils.newMultipartBody(request.getParts, request.getHeaders)
+        }
+
+        val byteBuffer = ByteBuffer.allocate(8 * 1024)
+        multipartBody.read(byteBuffer)
+        byteBuffer.flip()
+        buff.append(charset.decode(byteBuffer).toString)
       }
 
       if (request.getProxyServer != null) buff.append("proxy=").append(request.getProxyServer).append(Eol)
