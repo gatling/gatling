@@ -21,11 +21,17 @@ import io.gatling.metrics.GraphitePath._
 
 class OldGraphitePathPattern(runMessage: RunMessage, configuration: GatlingConfiguration) extends GraphitePathPattern(runMessage, configuration) {
 
+  private def removeDecimalPart(d: Double): String = {
+    val i = d.toInt
+    if (d == i.toDouble) String.valueOf(i)
+    else String.valueOf(d)
+  }
+
   private val usersRootKey = graphitePath("users")
-  private val percentiles1Name = "percentiles" + configuration.charting.indicators.percentile1
-  private val percentiles2Name = "percentiles" + configuration.charting.indicators.percentile2
-  private val percentiles3Name = "percentiles" + configuration.charting.indicators.percentile3
-  private val percentiles4Name = "percentiles" + configuration.charting.indicators.percentile4
+  private val percentiles1Name = "percentiles" + removeDecimalPart(configuration.charting.indicators.percentile1)
+  private val percentiles2Name = "percentiles" + removeDecimalPart(configuration.charting.indicators.percentile2)
+  private val percentiles3Name = "percentiles" + removeDecimalPart(configuration.charting.indicators.percentile3)
+  private val percentiles4Name = "percentiles" + removeDecimalPart(configuration.charting.indicators.percentile4)
 
   val metricRootPath = GraphitePath.graphitePath(configuration.data.graphite.rootPathPrefix) / runMessage.simulationId
 
