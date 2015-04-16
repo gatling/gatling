@@ -1,11 +1,11 @@
 /**
- * Copyright 2014 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
+ * Copyright 2011-2015 eBusiness Information, Groupe Excilys (www.ebusinessinformation.fr)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -56,4 +56,3 @@ class Cache[K, V](queue: Queue[K], map: Map[K, V], maxCapacity: Int) {
 
   def get(key: K): Option[V] = map.get(key)
 }
-
