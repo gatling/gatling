@@ -20,10 +20,11 @@ import java.nio.charset.StandardCharsets.UTF_8
 import io.gatling.core.util.StringHelper
 
 import akka.util.ByteString
+import com.typesafe.scalalogging.StrictLogging
 
 private[metrics] case class GraphiteMetrics(byteString: ByteString)
 
-private[metrics] object GraphiteMetrics {
+private[metrics] object GraphiteMetrics extends StrictLogging {
 
   def apply(pathValuePairs: Iterator[(String, Long)], epoch: Long): GraphiteMetrics = {
 
@@ -32,6 +33,8 @@ private[metrics] object GraphiteMetrics {
       case (path, value) =>
         sb.append(path).append(' ').append(value).append(' ').append(epoch).append('\n')
     }
+    if (logger.underlying.isDebugEnabled)
+      logger.debug(s"GraphiteMetrics=${sb.toString}")
     GraphiteMetrics(ByteString(sb.toString, UTF_8.name))
   }
 }
