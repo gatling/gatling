@@ -61,8 +61,8 @@ abstract class GraphitePathPattern(runMessage: RunMessage, configuration: Gatlin
       case (path, None) => Seq(count(path) -> 0)
       case (path, Some(m)) =>
         Seq(count(path) -> m.count,
-          min(path) -> m.max,
-          max(path) -> m.min,
+          min(path) -> m.min,
+          max(path) -> m.max,
           mean(path) -> m.mean,
           stdDev(path) -> m.stdDev,
           percentiles1(path) -> m.percentile1,

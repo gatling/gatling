@@ -46,7 +46,7 @@ class OldGraphitePathPattern(runMessage: RunMessage, configuration: GatlingConfi
   protected def count(path: GraphitePath) = path / "count"
   protected def min(path: GraphitePath) = path / "min"
   protected def max(path: GraphitePath) = path / "max"
-  protected def mean(path: GraphitePath) = path / "min"
+  protected def mean(path: GraphitePath) = path / "mean"
   protected def stdDev(path: GraphitePath) = path / "stdDev"
   protected def percentiles1(path: GraphitePath) = path / percentiles1Name
   protected def percentiles2(path: GraphitePath) = path / percentiles2Name
