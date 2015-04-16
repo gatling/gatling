@@ -270,7 +270,7 @@ class AsyncHandlerActor(httpEngine: HttpEngine)(implicit configuration: GatlingC
           case _    => KO
         }
 
-        val cacheUpdate = httpEngine.httpCaches.cache(tx.request.config.protocol, tx.request.ahcRequest, response)
+        val cacheUpdate = httpEngine.httpCaches.cacheContent(tx.request.config.protocol, tx.request.ahcRequest, response)
 
         val totalUpdate = sessionUpdate andThen cacheUpdate andThen checkSaveUpdate
 
