@@ -48,7 +48,10 @@ class HistogramRequestMetricsBuffer(configuration: GatlingConfiguration) extends
   }
 
   override def metricsByStatus: MetricByStatus =
-    MetricByStatus(metricsOfHistogram(okHistogram), metricsOfHistogram(koHistogram), metricsOfHistogram(allHistogram))
+    MetricByStatus(
+      ok = metricsOfHistogram(okHistogram),
+      ko = metricsOfHistogram(koHistogram),
+      all = metricsOfHistogram(allHistogram))
 
   private def metricsOfHistogram(histogram: AbstractHistogram): Option[Metrics] = {
     val count = histogram.getTotalCount
