@@ -45,7 +45,7 @@ import io.gatling.core.util.TimeHelper._
 import io.gatling.http.fetch.{ RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.action.sse.SseHandler
 import io.gatling.http.action.ws.WsListener
-import io.gatling.http.cache.HttpCaches
+import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
 import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.HttpRequest
@@ -141,13 +141,13 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     val uri = tx.request.ahcRequest.getUri
     val method = tx.request.ahcRequest.getMethod
 
-    httpCaches.getExpires(tx.session, uri, method) match {
+    httpCaches.contentCacheEntry(tx.session, uri, method) match {
 
       case None =>
         f(tx)
 
-      case Some(expire) if nowMillis > expire =>
-        val newTx = tx.copy(session = httpCaches.clearExpires(tx.session, uri, method))
+      case Some(ContentCacheEntry(Some(expire), _, _)) if nowMillis > expire =>
+        val newTx = tx.copy(session = httpCaches.clearContentCache(tx.session, uri, method))
         f(newTx)
 
       case _ =>

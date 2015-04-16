@@ -15,6 +15,8 @@
  */
 package io.gatling.http.fetch
 
+import io.gatling.http.cache.ContentCacheEntry
+
 import com.ning.http.client.Request
 import com.ning.http.client.uri.Uri
 
@@ -248,11 +250,11 @@ class ResourceFetcherActor(httpEngine: HttpEngine, primaryTx: HttpTx, initialRes
     val (cached, nonCached) = resources.partition { resource =>
       val uri = resource.ahcRequest.getUri
       val method = resource.ahcRequest.getMethod
-      httpEngine.httpCaches.getExpires(session, uri, method) match {
+      httpEngine.httpCaches.contentCacheEntry(session, uri, method) match {
         case None => false
-        case Some(expire) if nowMillis > expire =>
+        case Some(ContentCacheEntry(Some(expire), _, _)) if nowMillis > expire =>
           // beware, side effecting
-          session = httpEngine.httpCaches.clearExpires(session, uri, method)
+          session = httpEngine.httpCaches.clearContentCache(session, uri, method)
           false
         case _ => true
       }
@@ -289,14 +291,14 @@ class ResourceFetcherActor(httpEngine: HttpEngine, primaryTx: HttpTx, initialRes
           case Some(request :: tail) =>
             bufferedResourcesByHost += host -> tail
             val requestUri = request.ahcRequest.getUri
-            httpEngine.httpCaches.getExpires(session, requestUri, "GET") match {
+            httpEngine.httpCaches.contentCacheEntry(session, requestUri, "GET") match {
               case None =>
                 // recycle token, fetch a buffered resource
                 fetchResource(request)
 
-              case Some(expire) if nowMillis > expire =>
+              case Some(ContentCacheEntry(Some(expire), _, _)) if nowMillis > expire =>
                 // expire reached
-                session = httpEngine.httpCaches.clearExpires(session, requestUri, "GET")
+                session = httpEngine.httpCaches.clearContentCache(session, requestUri, "GET")
                 fetchResource(request)
 
               case _ =>

@@ -27,7 +27,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.{ HeaderNames, HeaderValues }
-import io.gatling.http.cache.HttpCaches
+import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.request.BodyPart
 import io.gatling.http.util.HttpHelper
@@ -45,8 +45,13 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
       }
 
   def configureCaches(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
-    httpCaches.getLastModified(session, uri, commonAttributes.method).foreach(requestBuilder.setHeader(HeaderNames.IfModifiedSince, _))
-    httpCaches.getEtag(session, uri, commonAttributes.method).foreach(requestBuilder.setHeader(HeaderNames.IfNoneMatch, _))
+
+    httpCaches.contentCacheEntry(session, uri, commonAttributes.method).foreach {
+      case ContentCacheEntry(_, etag, lastModified) =>
+        etag.foreach(requestBuilder.setHeader(HeaderNames.IfModifiedSince, _))
+        lastModified.foreach(requestBuilder.setHeader(HeaderNames.IfNoneMatch, _))
+    }
+
     requestBuilder.success
   }
 

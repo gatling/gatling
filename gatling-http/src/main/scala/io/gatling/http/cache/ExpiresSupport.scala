@@ -17,37 +17,18 @@ package io.gatling.http.cache
 
 import java.text.ParsePosition
 
-import com.ning.http.client.cookie.RFC2616DateParser
-import com.ning.http.client.uri.Uri
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.NumberHelper._
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.util.cache.SessionCacheHandler
 import io.gatling.http.{ HeaderValues, HeaderNames }
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.Response
 
-object HttpExpiresCache {
-  val HttpExpiresCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.expiresCache"
+import com.ning.http.client.cookie.RFC2616DateParser
+
+trait ExpiresSupport {
 
   val MaxAgePrefix = "max-age="
   val MaxAgeZero = MaxAgePrefix + "0"
-}
-
-trait HttpExpiresCache {
-
-  import HttpExpiresCache._
-
-  def configuration: GatlingConfiguration
-
-  val httpExpiresCacheHandler = new SessionCacheHandler[RequestCacheKey, Long](HttpExpiresCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
-
-  def getExpires(session: Session, uri: Uri, method: String): Option[Long] =
-    httpExpiresCacheHandler.getEntry(session, RequestCacheKey(uri, method))
-
-  def clearExpires(session: Session, uri: Uri, method: String): Session =
-    httpExpiresCacheHandler.removeEntry(session, RequestCacheKey(uri, method))
 
   def extractMaxAgeValue(s: String): Option[Long] = {
     val index = s.indexOf(MaxAgePrefix)
