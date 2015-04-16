@@ -3,12 +3,16 @@ import sbt.Keys._
 
 import com.typesafe.sbt.SbtSite.site
 import com.typesafe.sbt.site.SphinxSupport.Sphinx
-import io.gatling.build.MavenPublishPlugin.autoImport._
+
+import io.gatling.build.license._
+import io.gatling.build.LicenseKeys._
+import io.gatling.build.MavenPublishKeys._
 import sbtunidoc.Plugin.{ ScalaUnidoc, unidocSettings }
 
 object BuildSettings {
 
   lazy val basicSettings = Seq(
+    license := ApacheV2,
     githubPath := "gatling/gatling",
     projectDevelopers := developers
   )
