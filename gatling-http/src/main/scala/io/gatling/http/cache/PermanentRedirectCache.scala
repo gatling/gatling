@@ -33,7 +33,7 @@ trait PermanentRedirectCache {
 
   def configuration: GatlingConfiguration
 
-  private val httpPermanentRedirectCacheHandler = new SessionCacheHandler[Uri, Uri](PermanentRedirectCache.HttpPermanentRedirectCacheAttributeName, configuration.http.redirectPerUserCacheMaxCapacity)
+  private val httpPermanentRedirectCacheHandler = new SessionCacheHandler[Uri, Uri](PermanentRedirectCache.HttpPermanentRedirectCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
 
   def addRedirect(session: Session, from: Uri, to: Uri): Session =
     httpPermanentRedirectCacheHandler.addEntry(session, from, to)

@@ -41,7 +41,7 @@ trait HttpExpiresCache {
 
   def configuration: GatlingConfiguration
 
-  val httpExpiresCacheHandler = new SessionCacheHandler[RequestCacheKey, Long](HttpExpiresCacheAttributeName, configuration.http.expirePerUserCacheMaxCapacity)
+  val httpExpiresCacheHandler = new SessionCacheHandler[RequestCacheKey, Long](HttpExpiresCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
 
   def getExpires(session: Session, uri: Uri, method: String): Option[Long] =
     httpExpiresCacheHandler.getEntry(session, RequestCacheKey(uri, method))

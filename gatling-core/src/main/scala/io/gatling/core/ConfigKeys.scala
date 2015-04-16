@@ -68,10 +68,7 @@ object ConfigKeys {
   object http {
     val FetchedCssCacheMaxCapacity = "gatling.http.fetchedCssCacheMaxCapacity"
     val FetchedHtmlCacheMaxCapacity = "gatling.http.fetchedHtmlCacheMaxCapacity"
-    val RedirectPerUserCacheMaxCapacity = "gatling.http.redirectPerUserCacheMaxCapacity"
-    val ExpirePerUserCacheMaxCapacity = "gatling.http.expirePerUserCacheMaxCapacity"
-    val LastModifiedPerUserCacheMaxCapacity = "gatling.http.lastModifiedPerUserCacheMaxCapacity"
-    val EtagPerUserCacheMaxCapacity = "gatling.http.etagPerUserCacheMaxCapacity"
+    val PerUserCacheMaxCapacity = "gatling.http.perUserCacheMaxCapacity"
     val WarmUpUrl = "gatling.http.warmUpUrl"
     val EnableGA = "gatling.http.enableGA"
 

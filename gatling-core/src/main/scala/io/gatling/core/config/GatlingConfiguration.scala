@@ -122,10 +122,7 @@ object GatlingConfiguration extends StrictLogging {
       http = HttpConfiguration(
         fetchedCssCacheMaxCapacity = config.getLong(http.FetchedCssCacheMaxCapacity),
         fetchedHtmlCacheMaxCapacity = config.getLong(http.FetchedHtmlCacheMaxCapacity),
-        redirectPerUserCacheMaxCapacity = config.getInt(http.RedirectPerUserCacheMaxCapacity),
-        expirePerUserCacheMaxCapacity = config.getInt(http.ExpirePerUserCacheMaxCapacity),
-        lastModifiedPerUserCacheMaxCapacity = config.getInt(http.LastModifiedPerUserCacheMaxCapacity),
-        etagPerUserCacheMaxCapacity = config.getInt(http.EtagPerUserCacheMaxCapacity),
+        perUserCacheMaxCapacity = config.getInt(http.PerUserCacheMaxCapacity),
         warmUpUrl = config.getString(http.WarmUpUrl).trimToOption,
         enableGA = config.getBoolean(http.EnableGA),
         ssl = {
@@ -258,10 +255,7 @@ case class IndicatorsConfiguration(
 case class HttpConfiguration(
   fetchedCssCacheMaxCapacity: Long,
   fetchedHtmlCacheMaxCapacity: Long,
-  redirectPerUserCacheMaxCapacity: Int,
-  expirePerUserCacheMaxCapacity: Int,
-  lastModifiedPerUserCacheMaxCapacity: Int,
-  etagPerUserCacheMaxCapacity: Int,
+  perUserCacheMaxCapacity: Int,
   warmUpUrl: Option[String],
   enableGA: Boolean,
   ssl: SslConfiguration,

@@ -28,7 +28,7 @@ trait HttpEtagCache {
 
   def configuration: GatlingConfiguration
 
-  val httpEtagCacheHandler = new SessionCacheHandler[RequestCacheKey, String](HttpEtagCache.HttpEtagCacheAttributeName, configuration.http.etagPerUserCacheMaxCapacity)
+  val httpEtagCacheHandler = new SessionCacheHandler[RequestCacheKey, String](HttpEtagCache.HttpEtagCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
 
   def getEtag(session: Session, uri: Uri, method: String): Option[String] =
     httpEtagCacheHandler.getEntry(session, RequestCacheKey(uri, method))

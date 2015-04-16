@@ -28,7 +28,7 @@ trait HttpLastModifiedCache {
 
   def configuration: GatlingConfiguration
 
-  val httpLastModifiedCacheHandler = new SessionCacheHandler[RequestCacheKey, String](HttpLastModifiedCache.HttpLastModifiedCacheAttributeName, configuration.http.lastModifiedPerUserCacheMaxCapacity)
+  val httpLastModifiedCacheHandler = new SessionCacheHandler[RequestCacheKey, String](HttpLastModifiedCache.HttpLastModifiedCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
 
   def getLastModified(session: Session, uri: Uri, method: String): Option[String] =
     httpLastModifiedCacheHandler.getEntry(session, RequestCacheKey(uri, method))
