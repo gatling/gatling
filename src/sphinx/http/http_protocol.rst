@@ -86,36 +86,44 @@ Gatling ships a bunch of built-ins for well-known browsers:
 
 .. _http-protocol-connection-sharing:
 
-Connection sharing
+Connection Sharing
 ------------------
 
 In Gatling 1, connections are shared amongst users until 1.5 version.
 This behavior does not match real browsers, and doesn't support SSL session tracking.
 
 In Gatling 2, the default behavior is that every user has his own connection pool.
-This can be tuned with the ``.shareConnections`` configuration param.
+This can be tuned with the ``.shareConnections`` param.
 
 .. _http-protocol-client-sharing:
 
-HTTP Client sharing
+HTTP Client Sharing
 -------------------
 
 If you need more isolation of your user, for instance if you need a dedicated key store per user,
 Gatling lets you have an instance of the HTTP client per user with ``.disableClientSharing``.
 
-Virtual Host
-------------
+.. _http-protocol-dns-sharing:
+
+DNS Cache Sharing
+-----------------
+
+By default, Gatling will have one DNS cache per virtual user.
+This can be tuned with the ``.shareDnsCache`` param so all virtual users share the same DNS cache.
 
 .. _http-protocol-virtual-host:
+
+Virtual Host
+------------
 
 One can set a different Host than the url one::
 
   virtualHost(virtualHost: Expression[String])
 
+.. _http-protocol-local-address:
+
 Local address
 -------------
-
-.. _http-protocol-local-address:
 
 You can bind the sockets from a specific local address instead of the default one::
 

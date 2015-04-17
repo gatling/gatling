@@ -44,7 +44,7 @@ class CacheSupportSpec extends BaseSpec {
       val body = mock[ResponseBody]
       val headersMap = new FluentCaseInsensitiveStringsMap
       headers.foreach { case (headerName, headerValue) => headersMap.add(headerName, headerValue) }
-      val response = HttpResponse(request, None, Some(status), headersMap, body, Map.empty, 0, UTF_8, RequestTimings(-1, -1, -1, -1))
+      val response = HttpResponse(request, None, None, Some(status), headersMap, body, Map.empty, 0, UTF_8, RequestTimings(-1, -1, -1, -1))
 
       httpCaches.getResponseExpires(response)
     }

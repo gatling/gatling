@@ -15,6 +15,7 @@
  */
 package io.gatling.http.response
 
+import java.net.InetAddress
 import java.nio.charset.Charset
 
 import com.ning.http.client.providers.netty.request.NettyRequest
@@ -34,6 +35,7 @@ abstract class Response {
 
   def request: AHCRequest
   def nettyRequest: Option[NettyRequest]
+  def remoteAddress: Option[InetAddress]
   def isReceived: Boolean
 
   def status: Option[HttpResponseStatus]
@@ -63,6 +65,7 @@ abstract class Response {
 case class HttpResponse(
     request: AHCRequest,
     nettyRequest: Option[NettyRequest],
+    remoteAddress: Option[InetAddress],
     status: Option[HttpResponseStatus],
     headers: FluentCaseInsensitiveStringsMap,
     body: ResponseBody,
@@ -96,6 +99,7 @@ class ResponseWrapper(delegate: Response) extends Response {
 
   def request: AHCRequest = delegate.request
   def nettyRequest: Option[NettyRequest] = delegate.nettyRequest
+  def remoteAddress: Option[InetAddress] = delegate.remoteAddress
   def isReceived = delegate.isReceived
 
   def status = delegate.status

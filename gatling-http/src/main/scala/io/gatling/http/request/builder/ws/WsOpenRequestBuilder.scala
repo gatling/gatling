@@ -20,6 +20,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
 import io.gatling.http.action.ws.WsOpenActionBuilder
 import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocol }
 import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
 
@@ -29,7 +30,7 @@ object WsOpenRequestBuilder {
     new WsOpenActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.wsName, requestBuilder)
 }
 
-case class WsOpenRequestBuilder(commonAttributes: CommonAttributes, wsName: String)(implicit configuration: GatlingConfiguration)
+case class WsOpenRequestBuilder(commonAttributes: CommonAttributes, wsName: String)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches)
     extends RequestBuilder[WsOpenRequestBuilder] {
 
   private[http] def newInstance(commonAttributes: CommonAttributes) = new WsOpenRequestBuilder(commonAttributes, wsName)

@@ -15,6 +15,7 @@
  */
 package io.gatling.http.ahc
 
+import java.net.InetAddress
 import java.util.concurrent.atomic.AtomicBoolean
 
 import com.ning.http.client.providers.netty.request.NettyRequest
@@ -54,7 +55,8 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
 
   override def onConnectionPooled(): Unit = {}
 
-  override def onDnsResolved(): Unit = {}
+  override def onDnsResolved(address: InetAddress): Unit =
+    responseBuilder.setRemoteAddress(address)
 
   override def onSslHandshakeCompleted(): Unit = {}
 

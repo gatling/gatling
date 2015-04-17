@@ -45,11 +45,11 @@ trait HttpModule extends HttpCheckSupport with WsCheckSupport with SitemapFeeder
   def flushCookieJar = CookieSupport.FlushCookieJar
   def flushHttpCache(implicit httpCaches: HttpCaches) = httpCaches.FlushCache
 
-  def sse(requestName: Expression[String])(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol) = new Sse(requestName)
-  def sse(requestName: Expression[String], sseName: String)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol) = new Sse(requestName, sseName)
-  def ws(requestName: Expression[String])(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol) = new Ws(requestName)
-  def ws(requestName: Expression[String], wsName: String)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol) = new Ws(requestName, wsName)
-  def polling(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine) = new Polling()
+  def sse(requestName: Expression[String])(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches, defaultHttpProtocol: DefaultHttpProtocol) = new Sse(requestName)
+  def sse(requestName: Expression[String], sseName: String)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches, defaultHttpProtocol: DefaultHttpProtocol) = new Sse(requestName, sseName)
+  def ws(requestName: Expression[String])(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches, defaultHttpProtocol: DefaultHttpProtocol) = new Ws(requestName)
+  def ws(requestName: Expression[String], wsName: String)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches, defaultHttpProtocol: DefaultHttpProtocol) = new Ws(requestName, wsName)
+  def polling(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine, defaultHttpProtocol: DefaultHttpProtocol) = new Polling()
 
   val HttpHeaderNames = HeaderNames
   val HttpHeaderValues = HeaderValues

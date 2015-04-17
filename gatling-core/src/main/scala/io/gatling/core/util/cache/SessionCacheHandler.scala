@@ -28,8 +28,13 @@ class SessionCacheHandler[K, V](cacheName: String, maxCapacity: Int) {
       case _           => Cache[K, V](maxCapacity)
     }
 
-  def addEntry(session: Session, key: K, value: V): Session =
-    session.set(cacheName, getOrCreateCache(session) + (key -> value))
+  def addEntry(session: Session, key: K, value: V): Session = {
+    val cache = getOrCreateCache(session)
+    cache.get(key) match {
+      case Some(`value`) => session
+      case _             => session.set(cacheName, cache + (key -> value))
+    }
+  }
 
   def getEntry(session: Session, key: K): Option[V] =
     getCache(session).flatMap(_.get(key))

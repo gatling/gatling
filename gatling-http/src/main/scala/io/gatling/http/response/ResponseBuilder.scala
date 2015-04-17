@@ -15,6 +15,7 @@
  */
 package io.gatling.http.response
 
+import java.net.InetAddress
 import java.nio.charset.Charset
 import java.security.MessageDigest
 
@@ -87,6 +88,7 @@ class ResponseBuilder(request: Request,
   private val chunks = new ArrayBuffer[ChannelBuffer]
   private var digests: Map[String, MessageDigest] = initDigests()
   private var nettyRequest: Option[NettyRequest] = None
+  private var remoteAddress: Option[InetAddress] = None
 
   def initDigests(): Map[String, MessageDigest] =
     if (computeChecksums)
@@ -98,9 +100,11 @@ class ResponseBuilder(request: Request,
 
   def updateFirstByteSent(): Unit = firstByteSent = nowMillis
 
-  def setNettyRequest(nettyRequest: NettyRequest) = {
+  def setNettyRequest(nettyRequest: NettyRequest) =
     this.nettyRequest = Some(nettyRequest)
-  }
+
+  def setRemoteAddress(remoteAddress: InetAddress) =
+    this.remoteAddress = Some(remoteAddress)
 
   def reset(): Unit = {
     firstByteSent = nowMillis
@@ -186,7 +190,7 @@ class ResponseBuilder(request: Request,
         ByteArrayResponseBody(chunks, resolvedCharset)
 
     val timings = RequestTimings(firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
-    val rawResponse = HttpResponse(request, nettyRequest, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
+    val rawResponse = HttpResponse(request, nettyRequest, remoteAddress, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
 
     responseProcessor match {
       case None            => rawResponse

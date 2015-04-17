@@ -24,9 +24,11 @@ import io.gatling.core.validation.SuccessWrapper
 class HttpCaches(implicit val configuration: GatlingConfiguration)
     extends HttpContentCache
     with PermanentRedirectCache
+    with DnsCache
     with StrictLogging {
 
   val FlushCache: Expression[Session] = _.removeAll(
     HttpContentCache.HttpContentCacheAttributeName,
+    DnsCache.DnsCacheAttributeName,
     PermanentRedirectCache.HttpPermanentRedirectCacheAttributeName).success
 }

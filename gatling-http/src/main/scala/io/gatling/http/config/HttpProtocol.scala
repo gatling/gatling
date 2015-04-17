@@ -49,6 +49,7 @@ class DefaultHttpProtocol(implicit configuration: GatlingConfiguration, httpEngi
     enginePart = HttpProtocolEnginePart(
       shareClient = true,
       shareConnections = false,
+      shareDnsCache = false,
       maxConnectionsPerHost = 6,
       virtualHost = None,
       localAddress = None),
@@ -204,6 +205,7 @@ case class HttpProtocolEnginePart(
   shareClient: Boolean,
   shareConnections: Boolean,
   maxConnectionsPerHost: Int,
+  shareDnsCache: Boolean,
   virtualHost: Option[Expression[String]],
   localAddress: Option[InetAddress])
 

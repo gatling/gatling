@@ -10,8 +10,9 @@ object Dependencies {
   private val scalaSwing                    = "org.scala-lang.modules"                %% "scala-swing"                 % "1.0.1"
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                   % "1.0.3"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"    % "1.0.3"
-  private val ahc                           = "com.ning"                               % "async-http-client"           % "1.9.18"
+  private val ahc                           = "com.ning"                               % "async-http-client"           % "1.9.20"
   private val netty                         = "io.netty"                               % "netty"                       % "3.10.1.Final"
+  private val dnsJava                       = "dnsjava"                                % "dnsjava"                     % "2.1.7"
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                  % "2.3.9"
   private val config                        = "com.typesafe"                           % "config"                      % "1.2.1"
   private val saxon                         = "net.sf.saxon"                           % "Saxon-HE"                    % "9.6.0-5"
@@ -64,7 +65,7 @@ object Dependencies {
 
   val redisDependencies = redisClient +: testDeps
 
-  val httpDependencies = Seq(ahc, netty, scalaXml) ++ testDeps
+  val httpDependencies = Seq(ahc, netty, dnsJava, scalaXml) ++ testDeps
 
   val jmsDependencies = Seq(jmsApi, lru) ++ testDeps :+ activemqCore
 
