@@ -26,7 +26,6 @@ import io.gatling.core.session.Session
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.{ MockUtils, HeaderNames, HeaderValues }
-import io.gatling.http.config.DefaultHttpProtocol
 import io.gatling.http.response.{ HttpResponse, ResponseBody }
 
 class CacheSupportSpec extends BaseSpec {
@@ -37,10 +36,6 @@ class CacheSupportSpec extends BaseSpec {
   implicit val httpEngine = mock[HttpEngine]
 
   class CacheContext {
-    val http = {
-      val defaultHttp = new DefaultHttpProtocol().value
-      defaultHttp.copy(requestPart = defaultHttp.requestPart.copy(cache = true))
-    }
 
     val request = new RequestBuilder().setUrl("http://localhost").build
 
@@ -51,7 +46,7 @@ class CacheSupportSpec extends BaseSpec {
       headers.foreach { case (headerName, headerValue) => headersMap.add(headerName, headerValue) }
       val response = HttpResponse(request, None, Some(status), headersMap, body, Map.empty, 0, UTF_8, RequestTimings(-1, -1, -1, -1))
 
-      httpCaches.getResponseExpires(http, response)
+      httpCaches.getResponseExpires(response)
     }
   }
 

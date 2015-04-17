@@ -20,7 +20,6 @@ import java.text.ParsePosition
 import io.gatling.core.util.NumberHelper._
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.{ HeaderValues, HeaderNames }
-import io.gatling.http.config.HttpProtocol
 import io.gatling.http.response.Response
 
 import com.ning.http.client.cookie.RFC2616DateParser
@@ -66,7 +65,7 @@ trait ExpiresSupport {
     Option(RFC2616DateParser.get.parse(trimmedTimeString, new ParsePosition(0))).map(_.getTime)
   }
 
-  def getResponseExpires(httpProtocol: HttpProtocol, response: Response): Option[Long] = {
+  def getResponseExpires(response: Response): Option[Long] = {
       def pragmaNoCache = response.header(HeaderNames.Pragma).exists(_.contains(HeaderValues.NoCache))
       def cacheControlNoCache = response.header(HeaderNames.CacheControl)
         .exists(h => h.contains(HeaderValues.NoCache) || h.contains(HeaderValues.NoStore) || h.contains(MaxAgeZero))

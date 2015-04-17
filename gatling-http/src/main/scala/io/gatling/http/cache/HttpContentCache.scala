@@ -44,7 +44,7 @@ trait HttpContentCache extends ExpiresSupport {
   def cacheContent(httpProtocol: HttpProtocol, request: Request, response: Response): Session => Session =
     if (httpProtocol.requestPart.cache) {
 
-      val expires = getResponseExpires(httpProtocol, response)
+      val expires = getResponseExpires(response)
       val etag = response.header(HeaderNames.ETag)
       val lastModified = response.header(HeaderNames.LastModified)
 
