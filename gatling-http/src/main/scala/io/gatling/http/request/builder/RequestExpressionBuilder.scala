@@ -29,12 +29,11 @@ import io.gatling.http.ahc.ChannelPoolPartitioning
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.referer.RefererHandling
-import io.gatling.http.util.HttpHelper
+import io.gatling.http.util.{ DnsHelper, HttpHelper }
 
 import scala.util.control.NonFatal
 
 import com.typesafe.scalalogging.LazyLogging
-import org.xbill.DNS.Address
 
 object RequestExpressionBuilder {
   val BuildRequestErrorMapper = "Failed to build request: " + _
@@ -71,7 +70,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
             case Some(address) => address
             case None =>
               try {
-                Address.getByName(name)
+                DnsHelper.getAddressByName(name)
               } catch {
                 case NonFatal(e) =>
                   logger.warn(s"Failed to resolve address of name $name")
