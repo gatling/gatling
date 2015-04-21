@@ -45,7 +45,12 @@ private[compiler] object CompilerConfiguration {
             .map(v => Map(simulationsDirectoryKey -> v))
             .getOrElse(Map.empty)
 
-        mapForSimulationFolder
+        val mapForBinariesFolder =
+          string2option(overrides.binariesFolder)
+            .map(v => Map(binariesDirectoryKey -> v))
+            .getOrElse(Map.empty)
+
+        mapForSimulationFolder ++ mapForBinariesFolder
       }
 
     val argsParser = new ArgsParser(args)

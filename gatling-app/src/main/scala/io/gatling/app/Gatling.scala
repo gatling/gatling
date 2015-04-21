@@ -88,7 +88,7 @@ private[app] class ConfiguredGatling(simulationClass: SelectedSingleSimulation)(
     }.getOrElse(GatlingStatusCodes.Success)
   }
 
-  private def loadSimulations: List[Class[Simulation]] = {
+  private def loadSimulations: AllSimulations = {
     val fromSbt = simulationClass.isDefined
     val reportsOnly = configuration.core.directory.reportsOnly.isDefined
 
