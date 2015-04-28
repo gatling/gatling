@@ -21,7 +21,7 @@ import com.ning.http.client.uri.Uri
 import com.ning.http.client._
 
 import io.gatling.BaseSpec
-import io.gatling.core.result.message.RequestTimings
+import io.gatling.core.result.message.ResponseTimings
 import io.gatling.core.session.Session
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.core.config.GatlingConfiguration
@@ -44,7 +44,7 @@ class CacheSupportSpec extends BaseSpec {
       val body = mock[ResponseBody]
       val headersMap = new FluentCaseInsensitiveStringsMap
       headers.foreach { case (headerName, headerValue) => headersMap.add(headerName, headerValue) }
-      val response = HttpResponse(request, None, None, Some(status), headersMap, body, Map.empty, 0, UTF_8, RequestTimings(-1, -1, -1, -1))
+      val response = HttpResponse(request, None, None, Some(status), headersMap, body, Map.empty, 0, UTF_8, ResponseTimings(-1, -1, -1, -1))
 
       httpCaches.getResponseExpires(response)
     }

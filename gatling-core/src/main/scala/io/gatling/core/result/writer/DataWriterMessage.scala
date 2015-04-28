@@ -17,7 +17,7 @@ package io.gatling.core.result.writer
 
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.{ RequestTimings, MessageEvent, Status }
+import io.gatling.core.result.message.{ ResponseTimings, MessageEvent, Status }
 import io.gatling.core.session.Session
 
 case class ShortScenarioDescription(name: String, nbUsers: Int)
@@ -55,7 +55,7 @@ case class ResponseMessage(
   userId: String,
   groupHierarchy: List[String],
   name: String,
-  timings: RequestTimings,
+  timings: ResponseTimings,
   status: Status,
   responseCode: Option[String],
   message: Option[String],

@@ -303,7 +303,6 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
           val count = globalCountsByBucket(bucketNumber)
           IntVsTimePlot(toNumberPerSec(count.total), digest.quantile(0.95).toInt)
       }
-      .toSeq
       .sortBy(_.time)
   }
 

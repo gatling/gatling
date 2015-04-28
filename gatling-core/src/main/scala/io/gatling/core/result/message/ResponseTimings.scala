@@ -15,10 +15,10 @@
  */
 package io.gatling.core.result.message
 
-case class RequestTimings(requestStartDate: Long,
-                          requestEndDate: Long,
-                          responseStartDate: Long,
-                          responseEndDate: Long) {
+case class ResponseTimings(requestStartDate: Long,
+                           requestEndDate: Long,
+                           responseStartDate: Long,
+                           responseEndDate: Long) {
 
   val responseTime = (responseEndDate - requestStartDate).toInt
 

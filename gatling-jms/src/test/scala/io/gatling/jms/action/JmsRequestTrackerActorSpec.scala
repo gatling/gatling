@@ -47,7 +47,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreModule with JmsModule
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session
-    val expected = ResponseMessage("mockSession", "mockUserName", Nil, "success", RequestTimings(15, 20, 20, 30), OK, None, None, Nil)
+    val expected = ResponseMessage("mockSession", "mockUserName", Nil, "success", ResponseTimings(15, 20, 20, 30), OK, None, None, Nil)
     dataWriters.dataWriterMsg should contain(expected)
   }
 
@@ -61,7 +61,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreModule with JmsModule
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session
-    val expected = ResponseMessage("mockSession", "mockUserName", Nil, "outofsync", RequestTimings(15, 20, 20, 30), OK, None, None, Nil)
+    val expected = ResponseMessage("mockSession", "mockUserName", Nil, "outofsync", ResponseTimings(15, 20, 20, 30), OK, None, None, Nil)
     dataWriters.dataWriterMsg should contain(expected)
   }
 
@@ -76,7 +76,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreModule with JmsModule
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session.markAsFailed
-    val expected = ResponseMessage("mockSession", "mockUserName", Nil, "failure", RequestTimings(15, 20, 20, 30), KO, None, Some("Jms check failed"), Nil)
+    val expected = ResponseMessage("mockSession", "mockUserName", Nil, "failure", ResponseTimings(15, 20, 20, 30), KO, None, Some("Jms check failed"), Nil)
     dataWriters.dataWriterMsg should contain(expected)
   }
 
@@ -91,7 +91,7 @@ class JmsRequestTrackerActorSpec extends AkkaSpec with CoreModule with JmsModule
     val nextSession = expectMsgType[Session]
 
     ignoreDrift(nextSession) shouldBe session.set("id", "5")
-    val expected = ResponseMessage("mockSession", "mockUserName", Nil, "updated", RequestTimings(15, 20, 20, 30), OK, None, None, Nil)
+    val expected = ResponseMessage("mockSession", "mockUserName", Nil, "updated", ResponseTimings(15, 20, 20, 30), OK, None, None, Nil)
     dataWriters.dataWriterMsg should contain(expected)
   }
 

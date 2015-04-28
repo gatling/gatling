@@ -20,7 +20,7 @@ import akka.actor.{ Props, ActorRef }
 
 import io.gatling.core.Predef.Session
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.result.message.{ RequestTimings, Status, KO, OK }
+import io.gatling.core.result.message.{ ResponseTimings, Status, KO, OK }
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.validation.Failure
 
@@ -105,7 +105,7 @@ class JmsRequestTrackerActor(dataWriters: DataWriters) extends BaseActor {
                      title: String): Unit = {
 
       def executeNext(updatedSession: Session, status: Status, message: Option[String] = None) = {
-        val timings = RequestTimings(startSend, endSend, endSend, received)
+        val timings = ResponseTimings(startSend, endSend, endSend, received)
         dataWriters.logResponse(updatedSession, title, timings, status, None, message)
         next ! updatedSession.logGroupRequest((received - startSend).toInt, status).increaseDrift(nowMillis - received)
       }

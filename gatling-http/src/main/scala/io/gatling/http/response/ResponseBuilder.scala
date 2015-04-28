@@ -29,7 +29,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.jboss.netty.buffer.ChannelBuffer
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.RequestTimings
+import io.gatling.core.result.message.ResponseTimings
 import io.gatling.core.util.StringHelper.bytes2Hex
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
@@ -189,7 +189,7 @@ class ResponseBuilder(request: Request,
       else
         ByteArrayResponseBody(chunks, resolvedCharset)
 
-    val timings = RequestTimings(firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
+    val timings = ResponseTimings(firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
     val rawResponse = HttpResponse(request, nettyRequest, remoteAddress, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
 
     responseProcessor match {

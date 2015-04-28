@@ -21,7 +21,7 @@ import io.gatling.core.result.message._
 class ResponseMessageSpec extends BaseSpec {
 
   "constructor" should "have sensible defaults for optional parameters" in {
-    val record: ResponseMessage = ResponseMessage("scenarioName", "1", Nil, "requestName", RequestTimings(0L, 0L, 0L, 0L), OK, Some("200"), Some("requestMessage"), Nil)
+    val record: ResponseMessage = ResponseMessage("scenarioName", "1", Nil, "requestName", ResponseTimings(0L, 0L, 0L, 0L), OK, Some("200"), Some("requestMessage"), Nil)
 
     record.extraInfo shouldBe empty
   }

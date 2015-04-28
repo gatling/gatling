@@ -22,7 +22,7 @@ import scala.util.{ Failure, Success, Try }
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.DataWritersTerminated
-import io.gatling.core.result.message.{ RequestTimings, Status }
+import io.gatling.core.result.message.{ ResponseTimings, Status }
 import io.gatling.core.runner.Selection
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.structure.PopulationBuilder
@@ -85,7 +85,7 @@ class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
 
   def logResponse(session: Session,
                   requestName: String,
-                  timings: RequestTimings,
+                  timings: ResponseTimings,
                   status: Status,
                   responseCode: Option[String],
                   message: Option[String],

@@ -21,7 +21,7 @@ import scala.collection.mutable
 import akka.actor.{ Props, ActorRef }
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.CheckResult
-import io.gatling.core.result.message.{ RequestTimings, KO, OK, Status }
+import io.gatling.core.result.message.{ ResponseTimings, KO, OK, Status }
 import io.gatling.core.result.writer.DataWriters
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
@@ -67,7 +67,7 @@ class WsActor(wsName: String, dataWriters: DataWriters)(implicit httpEngine: Htt
   }
 
   private def logResponse(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
-    val timings = RequestTimings(started, ended, ended, ended)
+    val timings = ResponseTimings(started, ended, ended, ended)
     dataWriters.logResponse(session, requestName, timings, status, None, errorMessage)
   }
 

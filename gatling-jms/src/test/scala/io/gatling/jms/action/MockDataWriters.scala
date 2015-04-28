@@ -28,7 +28,7 @@ class MockDataWriters(system: ActorSystem) extends DataWriters(system, Nil) with
 
   override def logResponse(session: Session,
                            requestName: String,
-                           timings: RequestTimings,
+                           timings: ResponseTimings,
                            status: Status,
                            responseCode: Option[String],
                            message: Option[String] = None,

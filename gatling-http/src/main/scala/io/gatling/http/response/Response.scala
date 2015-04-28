@@ -20,7 +20,7 @@ import java.nio.charset.Charset
 
 import com.ning.http.client.providers.netty.request.NettyRequest
 import com.ning.http.client.uri.Uri
-import io.gatling.core.result.message.RequestTimings
+import io.gatling.core.result.message.ResponseTimings
 import io.gatling.http.config.HttpProtocol
 
 import scala.collection.JavaConversions.asScalaBuffer
@@ -55,7 +55,7 @@ abstract class Response {
   def bodyLength: Int
   def charset: Charset
 
-  def timings: RequestTimings
+  def timings: ResponseTimings
 
   def lastModifiedOrEtag(protocol: HttpProtocol): Option[String] =
     if (protocol.requestPart.cache) header(HeaderNames.LastModified).orElse(header(HeaderNames.ETag))
@@ -72,7 +72,7 @@ case class HttpResponse(
     checksums: Map[String, String],
     bodyLength: Int,
     charset: Charset,
-    timings: RequestTimings) extends Response {
+    timings: ResponseTimings) extends Response {
 
   def isReceived = status.isDefined
   val statusCode = status.map(_.getStatusCode)
