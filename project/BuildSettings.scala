@@ -8,6 +8,7 @@ import io.gatling.build.license._
 import io.gatling.build.LicenseKeys._
 import io.gatling.build.MavenPublishKeys._
 import sbtunidoc.Plugin.{ ScalaUnidoc, unidocSettings }
+import sbtunidoc.Plugin.UnidocKeys._
 
 object BuildSettings {
 
@@ -42,9 +43,10 @@ object BuildSettings {
     autoAPIMappings := true
   )
 
-  lazy val docSettings = unidocSettings ++ site.settings ++ site.sphinxSupport() ++ Seq(
+  def docSettings(excludedProjects: ProjectReference*) = unidocSettings ++ site.settings ++ site.sphinxSupport() ++ Seq(
     site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "latest/api"),
-    unmanagedSourceDirectories in Test := ((sourceDirectory in Sphinx).value ** "code").get
+    unmanagedSourceDirectories in Test := ((sourceDirectory in Sphinx).value ** "code").get,
+    unidocProjectFilter in (ScalaUnidoc, unidoc) := inAnyProject -- inProjects(excludedProjects: _*)
   ) ++ scaladocSettings
 
   /**************************************/

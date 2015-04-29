@@ -21,7 +21,7 @@ object GatlingBuild extends Build {
     .aggregate(core, jdbc, redis, http, jms, charts, metrics, app, recorder, testFramework, bundle, compiler)
     .settings(basicSettings: _*)
     .settings(noCodeToPublish: _*)
-    .settings(docSettings: _*)
+    .settings(docSettings(bundle): _*)
     .settings(libraryDependencies ++= docDependencies)
 
   /*************/
