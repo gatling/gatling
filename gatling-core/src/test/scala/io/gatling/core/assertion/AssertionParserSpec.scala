@@ -33,7 +33,7 @@ trait AssertionGenerator {
   private val targetGen = {
     val countTargetGen = {
       val countMetricGen = Gen.oneOf(AllRequests, FailedRequests, SuccessfulRequests)
-      val countSelectionGen = Gen.oneOf(Count, Percent)
+      val countSelectionGen = Gen.oneOf(Count, Percent, PerMillion)
 
       for (metric <- countMetricGen; selection <- countSelectionGen) yield CountTarget(metric, selection)
     }

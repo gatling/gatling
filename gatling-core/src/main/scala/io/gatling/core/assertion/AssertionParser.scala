@@ -70,7 +70,7 @@ class AssertionParser extends JavaTokenParsers {
   // -- Selections parsers -- //
   // ------------------------ //
 
-  private val countSelection = anyOf(CountTag ^^^ Count, PercentTag ^^^ Percent)
+  private val countSelection = anyOf(CountTag ^^^ Count, PercentTag ^^^ Percent, PerMillionTag ^^^ PerMillion)
 
   private val timeSelection = anyOf(
     MinTag ^^^ Min,

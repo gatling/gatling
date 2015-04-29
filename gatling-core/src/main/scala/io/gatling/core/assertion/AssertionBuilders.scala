@@ -46,6 +46,7 @@ class AssertionWithPathAndCountMetric(path: Path, metric: CountMetric) {
 
   def count = next(Count)
   def percent = next(Percent)
+  def perMillion = next(PerMillion)
 }
 
 class AssertionWithPathAndTarget(path: Path, target: Target) {
