@@ -62,8 +62,9 @@ object ConsoleSummary {
       def writeRequestsCounter(actionName: String, requestCounters: RequestCounters): Fastring = {
 
         import requestCounters._
+        val maxActionNameLength = OutputLength - 24
 
-        fast"> ${actionName.rightPad(OutputLength - 24)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
+        fast"> ${actionName.truncate(maxActionNameLength - 3).rightPad(maxActionNameLength)} (OK=${successfulCount.toString.rightPad(6)} KO=${failedCount.toString.rightPad(6)})"
       }
 
       def writeDetailedRequestsCounter: Fastring =
