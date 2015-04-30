@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.config
 
-object ConfigKeys {
+private[recorder] object ConfigKeys {
 
   val ConfigRoot = "recorder"
 

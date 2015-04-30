@@ -18,6 +18,8 @@ package io.gatling.recorder.controller
 import java.nio.file.Path
 import java.util.concurrent.ConcurrentLinkedQueue
 
+import io.gatling.recorder.config.{ RecorderMode, RecorderConfiguration, RecorderPropertiesBuilder }
+
 import com.ning.http.client.uri.Uri
 import io.gatling.recorder.http.handler.remote.TimedHttpRequest
 
@@ -33,21 +35,20 @@ import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.core.util.PathHelper._
-import io.gatling.recorder.RecorderMode._
+import RecorderMode._
 import io.gatling.recorder.config.RecorderConfiguration
-import io.gatling.recorder.config.RecorderPropertiesBuilder
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.scenario._
 import io.gatling.recorder.ui._
 
-object RecorderController {
+private[recorder] object RecorderController {
   def apply(props: mutable.Map[String, _], recorderConfigFile: Option[Path] = None): Unit = {
     RecorderConfiguration.initialSetup(props, recorderConfigFile)
     new RecorderController
   }
 }
 
-class RecorderController extends StrictLogging {
+private[recorder] class RecorderController extends StrictLogging {
 
   private val frontEnd = RecorderFrontend.newFrontend(this)
 

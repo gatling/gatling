@@ -28,13 +28,12 @@ import io.gatling.http.HeaderNames._
 import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario._
-import io.gatling.recorder.util.Json
 import org.jboss.netty.handler.codec.http.HttpMethod
 
 /**
  * Implementation according to http://www.softwareishard.com/blog/har-12-spec/
  */
-object HarReader {
+private[recorder] object HarReader {
 
   def apply(path: String)(implicit config: RecorderConfiguration): ScenarioDefinition =
     withCloseable(new FileInputStream(path))(apply(_))

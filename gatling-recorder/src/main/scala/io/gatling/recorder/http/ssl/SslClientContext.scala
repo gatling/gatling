@@ -17,7 +17,7 @@ package io.gatling.recorder.http.ssl
 
 import javax.net.ssl.{ SSLEngine, SSLContext }
 
-object SslClientContext {
+private[http] object SslClientContext {
 
   val SslContext = {
     val clientContext = SSLContext.getInstance(SslServerContext.Protocol)

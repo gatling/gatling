@@ -17,7 +17,7 @@ package io.gatling.recorder.scenario
 
 import io.gatling.http.HeaderNames
 
-object ProtocolDefinition {
+private[scenario] object ProtocolDefinition {
 
   val BaseHeaders = Map(
     HeaderNames.Accept -> "acceptHeader",
@@ -31,4 +31,4 @@ object ProtocolDefinition {
     HeaderNames.UserAgent -> "userAgentHeader")
 }
 
-case class ProtocolDefinition(baseUrl: String, headers: Map[String, String])
+private[scenario] case class ProtocolDefinition(baseUrl: String, headers: Map[String, String])

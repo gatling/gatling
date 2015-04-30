@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.recorder.util
+package io.gatling.recorder.har
 
 import java.io.InputStream
 import java.util.{ List => JList, Map => JMap }
 
-import com.fasterxml.jackson.databind.ObjectMapper
-
 import scala.language.dynamics
 
-object Json {
+import com.fasterxml.jackson.databind.ObjectMapper
+
+private[har] object Json {
 
   val objectMapper = new ObjectMapper
 
@@ -33,14 +33,14 @@ object Json {
   implicit def JsonToDouble(s: Json) = s.toDouble
 }
 
-class JsonException(desc: String) extends Exception(desc)
+private[har] class JsonException(desc: String) extends Exception(desc)
 
-class JsonIterator(i: java.util.Iterator[Object]) extends Iterator[Json] {
+private[har] class JsonIterator(i: java.util.Iterator[Object]) extends Iterator[Json] {
   def hasNext = i.hasNext
   def next = new Json(i.next)
 }
 
-class Json(val o: Object) extends Seq[Json] with Dynamic {
+private[har] class Json(val o: Object) extends Seq[Json] with Dynamic {
 
   override def toString: String = if (o == null) "null" else o.toString
 

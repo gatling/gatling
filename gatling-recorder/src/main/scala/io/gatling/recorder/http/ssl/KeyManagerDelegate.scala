@@ -25,7 +25,7 @@ import com.typesafe.scalalogging.StrictLogging
 /**
  * Instructs to send server certificate according to the alias
  */
-class KeyManagerDelegate(manager: X509KeyManager, alias: String) extends X509ExtendedKeyManager with StrictLogging {
+private[ssl] class KeyManagerDelegate(manager: X509KeyManager, alias: String) extends X509ExtendedKeyManager with StrictLogging {
 
   override def chooseEngineServerAlias(keyType: String, issuers: Array[Principal], engine: SSLEngine): String = alias
 

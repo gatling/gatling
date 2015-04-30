@@ -20,14 +20,14 @@ import java.nio.charset.Charset
 import org.jboss.netty.handler.codec.http.{ HttpMessage, HttpRequest, HttpResponse }
 import scala.concurrent.duration.{ DurationLong, FiniteDuration }
 
-sealed trait EventInfo
+private[recorder] sealed trait EventInfo
 
-case class PauseInfo(duration: FiniteDuration) extends EventInfo {
+private[recorder] case class PauseInfo(duration: FiniteDuration) extends EventInfo {
   val toPrint = if (duration > 1.second) s"${duration.toSeconds}s" else s"${duration.length}ms"
   override def toString = s"PAUSE $toPrint"
 }
 
-case class RequestInfo(request: HttpRequest, response: HttpResponse)(implicit configuration: RecorderConfiguration) extends EventInfo {
+private[recorder] case class RequestInfo(request: HttpRequest, response: HttpResponse)(implicit configuration: RecorderConfiguration) extends EventInfo {
 
   private def getHttpBody(message: HttpMessage) = message.getContent.toString(Charset.forName(configuration.core.encoding))
 
@@ -38,8 +38,8 @@ case class RequestInfo(request: HttpRequest, response: HttpResponse)(implicit co
   override def toString = s"${request.getMethod} | ${request.getUri}"
 }
 
-case class SSLInfo(uri: String) extends EventInfo
+private[recorder] case class SSLInfo(uri: String) extends EventInfo
 
-case class TagInfo(tag: String) extends EventInfo {
+private[recorder] case class TagInfo(tag: String) extends EventInfo {
   override def toString = s"TAG | $tag"
 }

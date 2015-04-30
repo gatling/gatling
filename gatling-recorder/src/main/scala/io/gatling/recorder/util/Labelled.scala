@@ -15,4 +15,4 @@
  */
 package io.gatling.recorder.util
 
-trait Labelled { def label: String }
+private[recorder] trait Labelled { def label: String }

@@ -18,9 +18,9 @@ package io.gatling.recorder.http.ssl
 import io.gatling.core.util.ClassSimpleNameToString
 import io.gatling.recorder.util.Labelled
 
-sealed abstract class KeyStoreType(val label: String) extends Labelled with ClassSimpleNameToString
+private[recorder] sealed abstract class KeyStoreType(val label: String) extends Labelled with ClassSimpleNameToString
 
-object KeyStoreType {
+private[recorder] object KeyStoreType {
 
   case object JKS extends KeyStoreType("JKS")
   case object PKCS12 extends KeyStoreType("PKCS#12")

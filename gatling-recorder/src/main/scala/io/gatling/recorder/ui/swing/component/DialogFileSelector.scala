@@ -21,14 +21,14 @@ import scala.swing.BorderPanel.Position._
 import io.gatling.recorder.ui.swing.util.UIHelper._
 import io.gatling.recorder.ui.swing.frame.ConfigurationFrame
 
-object DialogFileSelector {
-  val message = """	|A Swing bug on Mac OS X prevents the Recorder from getting
-						|the correct path for file with some known extensions.
-						|Those files closely matches the file you selected, please select
-						|the correct one :
-						|""".stripMargin
+private[swing] object DialogFileSelector {
+  val message = """|A Swing bug on Mac OS X prevents the Recorder from getting
+                   |the correct path for file with some known extensions.
+                   |Those files closely matches the file you selected, please select
+                   |the correct one :
+                   |""".stripMargin
 }
-class DialogFileSelector(configurationFrame: ConfigurationFrame, possibleFiles: List[String]) extends Dialog(configurationFrame) {
+private[swing] class DialogFileSelector(configurationFrame: ConfigurationFrame, possibleFiles: List[String]) extends Dialog(configurationFrame) {
 
   var selectedFile: Option[String] = None
 

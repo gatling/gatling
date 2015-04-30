@@ -25,7 +25,7 @@ import io.gatling.recorder.http.handler.ScalaChannelHandler
 import org.jboss.netty.channel.{ Channel, ChannelFuture }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpRequest, HttpResponseStatus, HttpVersion }
 
-class HttpUserHandler(proxy: HttpProxy) extends UserHandler(proxy) with ScalaChannelHandler {
+private[user] class HttpUserHandler(proxy: HttpProxy) extends UserHandler(proxy) with ScalaChannelHandler {
 
   private def buildRequestWithRelativeURI(request: HttpRequest): HttpRequest = {
     val relative = Uri.create(request.getUri).toRelativeUrl

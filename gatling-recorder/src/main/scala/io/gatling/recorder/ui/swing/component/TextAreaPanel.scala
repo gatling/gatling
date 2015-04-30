@@ -18,7 +18,7 @@ package io.gatling.recorder.ui.swing.component
 import scala.swing._
 import scala.swing.BorderPanel.Position._
 
-class TextAreaPanel(title: String, initialSize: Dimension) extends BorderPanel {
+private[swing] class TextAreaPanel(title: String, initialSize: Dimension) extends BorderPanel {
 
   preferredSize = initialSize
 

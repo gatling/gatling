@@ -17,7 +17,7 @@ package io.gatling.recorder.ui.swing
 
 import scala.swing.Swing.Icon
 
-object Commons {
+private[swing] object Commons {
   val LogoSmall = Icon(getClass.getResource("img/logo_small.png"))
 
   private val IconsFiles = List("img/fav_small.png", "img/fav_big.png", "img/picto_small.png", "img/picto_big.png")

@@ -18,7 +18,8 @@ package io.gatling.recorder.ui.swing.frame
 import java.awt.Font
 import javax.swing.filechooser.FileNameExtensionFilter
 
-import io.gatling.recorder.RecorderMode.{ Har, Proxy }
+import io.gatling.recorder.config._
+import RecorderMode.{ Har, Proxy }
 
 import scala.collection.JavaConversions.seqAsJavaList
 import scala.swing._
@@ -29,7 +30,6 @@ import scala.util.Try
 
 import io.gatling.core.util.PathHelper._
 import io.gatling.core.util.StringHelper.RichString
-import io.gatling.recorder.RecorderMode
 import io.gatling.recorder.config._
 import io.gatling.recorder.config.FilterStrategy.BlacklistFirst
 import io.gatling.recorder.http.ssl.{ SslServerContext, SslCertUtil, HttpsMode, KeyStoreType }
@@ -42,7 +42,7 @@ import io.gatling.recorder.ui.swing.frame.ValidationHelper._
 import io.gatling.recorder.ui.swing.util._
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
-class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: RecorderConfiguration) extends MainFrame {
+private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit configuration: RecorderConfiguration) extends MainFrame {
 
   /************************************/
   /**           COMPONENTS           **/

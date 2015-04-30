@@ -22,19 +22,19 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.ScalaChannelHandler
-import io.gatling.recorder.http.handler.user.SSLHandlerSetter
+import io.gatling.recorder.http.handler.user.SslHandlerSetter
 import io.gatling.recorder.http.ssl.{ SslClientContext, SslServerContext }
 import org.jboss.netty.channel._
 import org.jboss.netty.handler.codec.http._
 import org.jboss.netty.handler.ssl.SslHandler
 
-case class TimedHttpRequest(httpRequest: HttpRequest, sendTime: Long = nowMillis)
+private[recorder] case class TimedHttpRequest(httpRequest: HttpRequest, sendTime: Long = nowMillis)
 
-class RemoteHandler(controller: RecorderController,
-                    sslServerContext: SslServerContext,
-                    userChannel: Channel,
-                    var performConnect: Boolean,
-                    reconnect: Boolean)
+private[handler] class RemoteHandler(controller: RecorderController,
+                                     sslServerContext: SslServerContext,
+                                     userChannel: Channel,
+                                     var performConnect: Boolean,
+                                     reconnect: Boolean)
     extends SimpleChannelHandler with ScalaChannelHandler with StrictLogging {
 
   override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent): Unit = {
@@ -57,7 +57,7 @@ class RemoteHandler(controller: RecorderController,
           if (!reconnect)
             remoteSslHandler.handshake.addListener { handshakeFuture: ChannelFuture =>
               val inetSocketAddress = handshakeFuture.getChannel.getRemoteAddress.asInstanceOf[InetSocketAddress]
-              userChannel.getPipeline.addFirst(SslHandlerName, new SSLHandlerSetter(inetSocketAddress.getHostString, sslServerContext))
+              userChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter(inetSocketAddress.getHostString, sslServerContext))
               userChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
             }
         } else

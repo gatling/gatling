@@ -21,7 +21,7 @@ import io.gatling.recorder.http.channel.BootstrapFactory._
 import org.jboss.netty.channel.{ ChannelHandlerContext, ChannelPipeline, MessageEvent, SimpleChannelHandler }
 import org.jboss.netty.handler.codec.http.{ HttpMethod, HttpRequest }
 
-class PortUnificationUserHandler(proxy: HttpProxy, pipeline: ChannelPipeline) extends SimpleChannelHandler with StrictLogging {
+private[http] class PortUnificationUserHandler(proxy: HttpProxy, pipeline: ChannelPipeline) extends SimpleChannelHandler with StrictLogging {
 
   override def messageReceived(requestContext: ChannelHandlerContext, event: MessageEvent): Unit =
     try

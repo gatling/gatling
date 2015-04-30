@@ -19,7 +19,7 @@ import java.security.KeyStore
 import java.security.cert.X509Certificate
 import javax.net.ssl._
 
-object TrustManagerFactory {
+private[ssl] object TrustManagerFactory {
 
   val LooseTrustManagers = Array[TrustManager](new X509TrustManager {
 
@@ -32,10 +32,10 @@ object TrustManagerFactory {
 }
 
 /**
- * Bogus {@link TrustManagerFactorySpi} which accepts any certificate even if it
+ * Bogus TrustManagerFactorySpi which accepts any certificate even if it
  * is invalid.
  */
-class TrustManagerFactory extends TrustManagerFactorySpi {
+private[ssl] class TrustManagerFactory extends TrustManagerFactorySpi {
 
   def engineGetTrustManagers = TrustManagerFactory.LooseTrustManagers
 

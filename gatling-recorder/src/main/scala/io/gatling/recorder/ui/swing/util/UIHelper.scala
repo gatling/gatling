@@ -19,7 +19,7 @@ import scala.swing._
 
 import javax.swing.JComponent
 
-object UIHelper {
+private[swing] object UIHelper {
 
   def titledBorder(title: String) = Swing.TitledBorder(null, title)
 

@@ -32,7 +32,7 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.har.HarReader
 import io.gatling.recorder.scenario.template.SimulationTemplate
 
-object ScenarioExporter extends StrictLogging {
+private[recorder] object ScenarioExporter extends StrictLogging {
 
   private val EventsGrouping = 100
 

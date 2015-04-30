@@ -40,13 +40,13 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder
 import org.bouncycastle.pkcs.PKCS10CertificationRequest
 import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder
 
-case class Ca(cert: X509Certificate, privKey: PrivateKey)
-case class Csr(cert: PKCS10CertificationRequest, privKey: PrivateKey)
+private[ssl] case class Ca(cert: X509Certificate, privKey: PrivateKey)
+private[ssl] case class Csr(cert: PKCS10CertificationRequest, privKey: PrivateKey)
 
 /**
  * Utility class to create SSL server certificate on the fly for the recorder keystore
  */
-object SslCertUtil extends StrictLogging {
+private[recorder] object SslCertUtil extends StrictLogging {
 
   Security.addProvider(new BouncyCastleProvider)
 

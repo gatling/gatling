@@ -21,9 +21,9 @@ import io.gatling.core.util.StringHelper._
 import io.gatling.recorder.scenario.{ RequestElement, ScenarioElement }
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-case class Value(name: String, value: String)
+private[scenario] case class Value(name: String, value: String)
 
-case class SchemeHost(scheme: String, host: String)
+private[scenario] case class SchemeHost(scheme: String, host: String)
 
 /**
  * Extracts common URIs parts into vals. The algorithm is the following:
@@ -36,7 +36,7 @@ case class SchemeHost(scheme: String, host: String)
  *
  * @param scenarioElements - contains uris to extracts common parts from
  */
-class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
+private[scenario] class ExtractedUris(scenarioElements: Seq[ScenarioElement]) {
   var requestElements = scenarioElements.collect { case elem: RequestElement => elem }
   val uris = requestElements.map(_.uri) ++
     requestElements.map(_.embeddedResources).reduce(_ ++ _).map(_.url) ++

@@ -21,7 +21,7 @@ import io.gatling.recorder.scenario.ProtocolDefinition
 import io.gatling.recorder.scenario.ProtocolDefinition.BaseHeaders
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-object ProtocolTemplate {
+private[scenario] object ProtocolTemplate {
 
   val Indent = "\t" * 2
 

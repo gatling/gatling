@@ -21,7 +21,7 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario.{ RequestBodyBytes, RequestBodyParams }
 import io.gatling.recorder.scenario.{ RequestElement, ScenarioExporter }
 
-object RequestTemplate {
+private[scenario] object RequestTemplate {
 
   val BuiltInHttpMethods = List("GET", "PUT", "PATCH", "HEAD", "DELETE", "OPTIONS", "POST")
 
