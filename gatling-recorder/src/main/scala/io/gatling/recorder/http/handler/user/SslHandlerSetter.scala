@@ -25,7 +25,7 @@ import org.jboss.netty.handler.ssl.SslHandler
  * Placed on the server side pipeline, it replaces itself with a SslHandler when it sees the 200 response to the CONNECT request
  * (as CONNECT happens over HTTP, not HTTPS)
  */
-class SSLHandlerSetter(domainAlias: String, sslServerContext: SslServerContext) extends ChannelDownstreamHandler with StrictLogging {
+private[handler] class SslHandlerSetter(domainAlias: String, sslServerContext: SslServerContext) extends ChannelDownstreamHandler with StrictLogging {
 
   override def handleDownstream(ctx: ChannelHandlerContext, e: ChannelEvent): Unit = {
     val sslHandler = new SslHandler(sslServerContext.createSSLEngine(domainAlias))

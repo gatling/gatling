@@ -19,7 +19,7 @@ import java.nio.charset.Charset
 
 import com.typesafe.scalalogging.StrictLogging
 
-object CharsetHelper extends StrictLogging {
+private[swing] object CharsetHelper extends StrictLogging {
   type Label = String
   type Name = String
 

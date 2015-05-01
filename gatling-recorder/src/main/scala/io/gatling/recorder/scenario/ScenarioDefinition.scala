@@ -23,11 +23,11 @@ import io.gatling.http.util.HttpHelper
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.util.collection.RichSeq
 
-case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
+private[recorder] case class ScenarioDefinition(elements: Seq[ScenarioElement]) {
   def isEmpty = elements.isEmpty
 }
 
-object ScenarioDefinition extends StrictLogging {
+private[recorder] object ScenarioDefinition extends StrictLogging {
 
   private val ConsecutiveResourcesMaxIntervalInMillis = 1000
 

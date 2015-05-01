@@ -34,21 +34,21 @@ import io.gatling.http.fetch.{ EmbeddedResource, HtmlParser }
 import io.gatling.http.util.HttpHelper.parseFormBody
 import io.gatling.recorder.config.RecorderConfiguration
 
-case class TimedScenarioElement[+T <: ScenarioElement](sendTime: Long, arrivalTime: Long, element: T)
+private[recorder] case class TimedScenarioElement[+T <: ScenarioElement](sendTime: Long, arrivalTime: Long, element: T)
 
-sealed trait RequestBody
-case class RequestBodyParams(params: List[(String, String)]) extends RequestBody
-case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
+private[recorder] sealed trait RequestBody
+private[recorder] case class RequestBodyParams(params: List[(String, String)]) extends RequestBody
+private[recorder] case class RequestBodyBytes(bytes: Array[Byte]) extends RequestBody
 
-sealed trait ResponseBody
-case class ResponseBodyBytes(bytes: Array[Byte]) extends ResponseBody
+private[recorder] sealed trait ResponseBody
+private[recorder] case class ResponseBodyBytes(bytes: Array[Byte]) extends ResponseBody
 
-sealed trait ScenarioElement
+private[recorder] sealed trait ScenarioElement
 
-case class PauseElement(duration: FiniteDuration) extends ScenarioElement
-case class TagElement(text: String) extends ScenarioElement
+private[recorder] case class PauseElement(duration: FiniteDuration) extends ScenarioElement
+private[recorder] case class TagElement(text: String) extends ScenarioElement
 
-object RequestElement {
+private[recorder] object RequestElement {
 
   val HtmlContentType = """(?i)text/html\s*(;\s+charset=(.+))?""".r
 
@@ -100,14 +100,14 @@ object RequestElement {
   }
 }
 
-case class RequestElement(uri: String,
-                          method: String,
-                          headers: Map[String, String],
-                          body: Option[RequestBody],
-                          responseBody: Option[ResponseBody],
-                          statusCode: Int,
-                          embeddedResources: List[EmbeddedResource],
-                          nonEmbeddedResources: List[RequestElement] = Nil) extends ScenarioElement {
+private[recorder] case class RequestElement(uri: String,
+                                            method: String,
+                                            headers: Map[String, String],
+                                            body: Option[RequestBody],
+                                            responseBody: Option[ResponseBody],
+                                            statusCode: Int,
+                                            embeddedResources: List[EmbeddedResource],
+                                            nonEmbeddedResources: List[RequestElement] = Nil) extends ScenarioElement {
 
   val (baseUrl, pathQuery) = {
     val uriComponents = Uri.create(uri)

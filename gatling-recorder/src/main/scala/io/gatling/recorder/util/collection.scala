@@ -15,7 +15,7 @@
  */
 package io.gatling.recorder.util
 
-object collection {
+private[recorder] object collection {
 
   implicit class RichSeq[T](val elts: Seq[T]) extends AnyVal {
 

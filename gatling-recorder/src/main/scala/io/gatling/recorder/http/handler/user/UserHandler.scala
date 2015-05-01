@@ -28,7 +28,7 @@ import io.gatling.recorder.http.handler.remote.{ TimedHttpRequest, RemoteHandler
 import org.jboss.netty.channel._
 import org.jboss.netty.handler.codec.http.HttpRequest
 
-abstract class UserHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
+private[user] abstract class UserHandler(proxy: HttpProxy) extends SimpleChannelHandler with StrictLogging {
 
   @volatile var _remoteChannel: Option[Channel] = None
 

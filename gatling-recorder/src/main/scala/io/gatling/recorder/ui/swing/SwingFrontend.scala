@@ -25,7 +25,7 @@ import io.gatling.recorder.ui.{ RecorderFrontend, EventInfo }
 import io.gatling.recorder.ui.swing.component.DialogFileSelector
 import io.gatling.recorder.ui.swing.frame.{ ConfigurationFrame, RunningFrame }
 
-class SwingFrontend(controller: RecorderController)(implicit configuration: RecorderConfiguration) extends RecorderFrontend(controller) {
+private[ui] class SwingFrontend(controller: RecorderController)(implicit configuration: RecorderConfiguration) extends RecorderFrontend(controller) {
 
   private lazy val runningFrame = new RunningFrame(this)
   private lazy val configurationFrame = new ConfigurationFrame(this)

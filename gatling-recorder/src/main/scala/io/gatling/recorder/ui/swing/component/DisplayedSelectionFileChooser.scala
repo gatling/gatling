@@ -29,11 +29,11 @@ private[component] class AcceptAllFileFilter extends FileFilter {
   override def getDescription = "Accept any file filter"
 }
 
-sealed trait ChooserType
-case object Open extends ChooserType
-case object Save extends ChooserType
+private[swing] sealed trait ChooserType
+private[swing] case object Open extends ChooserType
+private[swing] case object Save extends ChooserType
 
-class DisplayedSelectionFileChooser(
+private[swing] class DisplayedSelectionFileChooser(
   creator: Container,
   textFieldLength: Int,
   chooserType: ChooserType,

@@ -21,7 +21,7 @@ import org.jboss.netty.channel.ChannelFutureListener
 import org.jboss.netty.channel.ChannelFuture
 import org.jboss.netty.handler.codec.http.{ DefaultHttpRequest, HttpRequest }
 
-trait ScalaChannelHandler {
+private[handler] trait ScalaChannelHandler {
 
   implicit def function2ChannelFutureListener(thunk: ChannelFuture => Any) = new ChannelFutureListener {
     def operationComplete(future: ChannelFuture): Unit = thunk(future)

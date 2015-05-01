@@ -28,7 +28,7 @@ import org.jboss.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext, 
 import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
 import org.jboss.netty.handler.ssl.SslHandler
 
-class HttpsUserHandler(proxy: HttpProxy) extends UserHandler(proxy) with ScalaChannelHandler with StrictLogging {
+private[user] class HttpsUserHandler(proxy: HttpProxy) extends UserHandler(proxy) with ScalaChannelHandler with StrictLogging {
 
   var targetHostUri: Uri = _
 
@@ -59,7 +59,7 @@ class HttpsUserHandler(proxy: HttpProxy) extends UserHandler(proxy) with ScalaCh
                           val inetSocketAddress = remoteChannel.getRemoteAddress.asInstanceOf[InetSocketAddress]
                           setupRemoteChannel(userChannel, remoteChannel, proxy.controller, performConnect = false, reconnect = reconnect)
                           if (!reconnect) {
-                            userChannel.getPipeline.addFirst(SslHandlerName, new SSLHandlerSetter(inetSocketAddress.getHostString, proxy.sslServerContext))
+                            userChannel.getPipeline.addFirst(SslHandlerName, new SslHandlerSetter(inetSocketAddress.getHostString, proxy.sslServerContext))
                             userChannel.write(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK))
                           } else
                             handlePropagatableRequest()

@@ -26,7 +26,7 @@ import org.jboss.netty.handler.codec.http._
 import org.jboss.netty.handler.ssl.SslHandler
 import com.typesafe.scalalogging.StrictLogging
 
-object BootstrapFactory extends StrictLogging {
+private[http] object BootstrapFactory extends StrictLogging {
 
   val CodecHandlerName = "codec"
   val SslHandlerName = "ssl"
@@ -43,7 +43,7 @@ object BootstrapFactory extends StrictLogging {
         logger.debug("Open new remote channel")
         val pipeline = Channels.pipeline
         if (ssl) {
-          val sslHandler = new SslHandler(SslClientContext.createSSLEngine)
+          val sslHandler = new SslHandler(SslClientContext.createSSLEngine())
           sslHandler.setCloseOnSSLException(true)
           pipeline.addLast(SslHandlerName, sslHandler)
         }

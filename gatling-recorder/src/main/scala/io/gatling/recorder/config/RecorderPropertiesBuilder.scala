@@ -17,8 +17,6 @@ package io.gatling.recorder.config
 
 import java.util.{ List => JList }
 
-import io.gatling.recorder.RecorderMode
-
 import scala.collection.mutable
 
 import io.gatling.recorder.config.ConfigKeys._

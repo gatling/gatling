@@ -23,10 +23,9 @@ import com.ning.http.util.Base64
 import scala.util.Try
 
 import io.gatling.core.util.StringHelper.RichString
-import io.gatling.recorder.util.Json
-import io.gatling.recorder.util.Json.{ JsonToInt, JsonToString }
+import Json.{ JsonToInt, JsonToString }
 
-object HarMapping {
+private[har] object HarMapping {
 
   private val ProtectedValue = """"(.*)\"""".r
   private val Iso8601ZonedDateAndTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX")
@@ -95,24 +94,24 @@ object HarMapping {
 /*
  * HAR mapping is incomplete, as we deserialize only what is strictly necessary for building a simulation
  */
-case class HttpArchive(log: Log)
+private[har] case class HttpArchive(log: Log)
 
-case class Log(exchanges: Seq[Entry])
+private[har] case class Log(exchanges: Seq[Entry])
 
-case class Entry(sendTime: Long, arrivalTime: Long, request: Request, response: Response)
+private[har] case class Entry(sendTime: Long, arrivalTime: Long, request: Request, response: Response)
 
-case class Request(method: String, url: String, headers: Seq[Header], postData: Option[PostData])
+private[har] case class Request(method: String, url: String, headers: Seq[Header], postData: Option[PostData])
 
-case class Response(status: Int, content: Content)
+private[har] case class Response(status: Int, content: Content)
 
-case class Content(mimeType: String, text: Option[String]) {
+private[har] case class Content(mimeType: String, text: Option[String]) {
   def textAsBytes = text.map(_.getBytes(HarMapping.Charset))
 }
 
-case class Header(name: String, value: String)
+private[har] case class Header(name: String, value: String)
 
-case class PostData(mimeType: String, text: String, params: Seq[PostParam]) {
+private[har] case class PostData(mimeType: String, text: String, params: Seq[PostParam]) {
   def textAsBytes = text.trimToOption.map(_.getBytes(HarMapping.Charset))
 }
 
-case class PostParam(name: String, value: String)
+private[har] case class PostParam(name: String, value: String)

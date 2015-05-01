@@ -23,7 +23,7 @@ import io.gatling.recorder.http.channel.BootstrapFactory.{ newRemoteBootstrap, n
 import io.gatling.recorder.http.ssl.SslServerContext
 import org.jboss.netty.channel.group.DefaultChannelGroup
 
-case class HttpProxy(controller: RecorderController)(implicit config: RecorderConfiguration) {
+private[recorder] case class HttpProxy(controller: RecorderController)(implicit config: RecorderConfiguration) {
 
   private def port = config.proxy.port
   def outgoingProxy =

@@ -24,7 +24,7 @@ import scala.util.Try
 
 import io.gatling.core.util.StringHelper.RichString
 
-object ValidationHelper {
+private[swing] object ValidationHelper {
 
   case class Validator(
     condition: String => Boolean,

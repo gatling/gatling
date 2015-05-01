@@ -15,19 +15,18 @@
  */
 package io.gatling.recorder.ui
 
-import io.gatling.recorder.RecorderMode
-import io.gatling.recorder.config.RecorderConfiguration
+import io.gatling.recorder.config.{ RecorderMode, RecorderConfiguration }
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.ui.swing.SwingFrontend
 
-object RecorderFrontend {
+private[recorder] object RecorderFrontend {
 
   // Currently hardwired to the Swing frontend
   // Will select the desired frontend when more are implemented
   def newFrontend(controller: RecorderController)(implicit configuration: RecorderConfiguration): RecorderFrontend =
     new SwingFrontend(controller)
 }
-abstract class RecorderFrontend(controller: RecorderController) {
+private[recorder] abstract class RecorderFrontend(controller: RecorderController) {
 
   /******************************/
   /**  Controller => Frontend  **/

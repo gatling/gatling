@@ -17,8 +17,6 @@ package io.gatling.recorder.config
 
 import java.io.FileNotFoundException
 import java.nio.file.Path
-
-import io.gatling.recorder.RecorderMode
 import io.gatling.recorder.http.ssl.{ KeyStoreType, HttpsMode }
 
 import scala.collection.JavaConversions._
@@ -39,7 +37,7 @@ import io.gatling.core.util.StringHelper.RichString
 
 import scala.util.control.NonFatal
 
-object RecorderConfiguration extends StrictLogging {
+private[recorder] object RecorderConfiguration extends StrictLogging {
 
   implicit class IntOption(val value: Int) extends AnyVal {
     def toOption = if (value != 0) Some(value) else None
@@ -169,7 +167,7 @@ object RecorderConfiguration extends StrictLogging {
   }
 }
 
-case class FiltersConfiguration(
+private[recorder] case class FiltersConfiguration(
     filterStrategy: FilterStrategy,
     whiteList: WhiteList,
     blackList: BlackList) {
@@ -181,7 +179,7 @@ case class FiltersConfiguration(
   }
 }
 
-case class CoreConfiguration(
+private[recorder] case class CoreConfiguration(
   mode: RecorderMode,
   encoding: String,
   outputFolder: String,
@@ -191,46 +189,46 @@ case class CoreConfiguration(
   thresholdForPauseCreation: Duration,
   saveConfig: Boolean)
 
-case class HttpConfiguration(
+private[recorder] case class HttpConfiguration(
   automaticReferer: Boolean,
   followRedirect: Boolean,
   inferHtmlResources: Boolean,
   removeCacheHeaders: Boolean,
   checkResponseBodies: Boolean)
 
-case class KeyStoreConfiguration(
+private[recorder] case class KeyStoreConfiguration(
   path: String,
   password: String,
   keyStoreType: KeyStoreType)
 
-case class CertificateAuthorityConfiguration(
+private[recorder] case class CertificateAuthorityConfiguration(
   certificatePath: String,
   privateKeyPath: String)
 
-case class HttpsModeConfiguration(
+private[recorder] case class HttpsModeConfiguration(
   mode: HttpsMode,
   keyStore: KeyStoreConfiguration,
   certificateAuthority: CertificateAuthorityConfiguration)
 
-case class OutgoingProxyConfiguration(
+private[recorder] case class OutgoingProxyConfiguration(
   host: Option[String],
   username: Option[String],
   password: Option[String],
   port: Option[Int],
   sslPort: Option[Int])
 
-case class ProxyConfiguration(
+private[recorder] case class ProxyConfiguration(
   port: Int,
   https: HttpsModeConfiguration,
   outgoing: OutgoingProxyConfiguration)
 
-case class NettyConfiguration(
+private[recorder] case class NettyConfiguration(
   maxInitialLineLength: Int,
   maxHeaderSize: Int,
   maxChunkSize: Int,
   maxContentLength: Int)
 
-case class RecorderConfiguration(
+private[recorder] case class RecorderConfiguration(
   core: CoreConfiguration,
   filters: FiltersConfiguration,
   http: HttpConfiguration,

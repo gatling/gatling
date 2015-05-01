@@ -31,7 +31,7 @@ import io.gatling.recorder.ui.swing.component.TextAreaPanel
 import io.gatling.recorder.ui.swing.Commons.IconList
 import io.gatling.recorder.ui.swing.util.UIHelper._
 
-class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogging {
+private[swing] class RunningFrame(frontend: RecorderFrontend) extends MainFrame with StrictLogging {
 
   /************************************/
   /**           COMPONENTS           **/

@@ -25,7 +25,7 @@ import scala.util.{ Failure, Try }
 import javax.swing.{ JMenuItem, JPopupMenu }
 import javax.swing.table.DefaultTableModel
 
-class FilterTable(headerTitle: String) extends ScrollPane {
+private[swing] class FilterTable(headerTitle: String) extends ScrollPane {
 
   private val table = new Table {
     override def rendererComponent(isSelected: Boolean, focused: Boolean, row: Int, column: Int): Component = {

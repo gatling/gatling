@@ -21,7 +21,7 @@ import io.gatling.recorder.scenario.{ ProtocolDefinition, ScenarioElement, TagEl
 import io.gatling.recorder.scenario.{ PauseElement, RequestElement }
 import io.gatling.recorder.config.RecorderConfiguration
 
-object SimulationTemplate {
+private[scenario] object SimulationTemplate {
 
   def render(packageName: String,
              simulationClassName: String,

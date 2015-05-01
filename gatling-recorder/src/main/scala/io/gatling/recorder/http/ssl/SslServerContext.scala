@@ -27,7 +27,7 @@ import io.gatling.recorder.config.RecorderConfiguration
 import scala.collection.concurrent.TrieMap
 import scala.util.{ Failure, Try }
 
-sealed trait SslServerContext {
+private[http] sealed trait SslServerContext {
 
   def password: Array[Char]
 
@@ -42,7 +42,7 @@ sealed trait SslServerContext {
   }
 }
 
-object SslServerContext {
+private[recorder] object SslServerContext {
 
   val GatlingSelfSignedKeyStore = "gatling.jks"
   val GatlingKeyStoreType = KeyStoreType.JKS
