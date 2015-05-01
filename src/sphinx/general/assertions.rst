@@ -84,6 +84,8 @@ Applicable to number of requests (all, failed or successful)
 
 * ``percent``: use the value as a percentage between 0 and 100.
 
+* ``permillion``: use the value as a permillion between 0 and 1,000,000.
+
 * ``count``: perform the assertion directly on the count of requests.
 
 Condition
