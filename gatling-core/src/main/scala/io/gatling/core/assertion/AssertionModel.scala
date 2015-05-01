@@ -99,6 +99,9 @@ case object Count extends CountSelection(serialize(CountTag)) {
 case object Percent extends CountSelection(serialize(PercentTag)) {
   def printable(configuration: GatlingConfiguration) = "percentage"
 }
+case object PerMillion extends CountSelection(serialize(PerMillionTag)) {
+  def printable(configuration: GatlingConfiguration) = "per_million"
+}
 case object Min extends TimeSelection(serialize(MinTag)) {
   def printable(configuration: GatlingConfiguration) = "min"
 }

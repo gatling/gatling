@@ -41,6 +41,7 @@ object AssertionTags {
 
   val CountTag = "COUNT"
   val PercentTag = "PERCENT"
+  val PerMillionTag = "PER_MILLION"
 
   val MinTag = "MIN"
   val MaxTag = "MAX"

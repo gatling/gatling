@@ -38,6 +38,7 @@ class AssertionSerializationSpec extends BaseSpec {
   it should "be able to serialize Selections" in {
     Count.serialized.toString shouldBe tabSeparated(CountTag)
     Percent.serialized.toString shouldBe tabSeparated(PercentTag)
+    PerMillion.serialized.toString shouldBe tabSeparated(PerMillionTag)
     Min.serialized.toString shouldBe tabSeparated(MinTag)
     Max.serialized.toString shouldBe tabSeparated(MaxTag)
     Mean.serialized.toString shouldBe tabSeparated(MeanTag)
@@ -58,6 +59,7 @@ class AssertionSerializationSpec extends BaseSpec {
 
   it should "be able to serialize Targets" in {
     CountTarget(AllRequests, Percent).serialized.toString shouldBe tabSeparated(AllRequestsTag, PercentTag)
+    CountTarget(AllRequests, PerMillion).serialized.toString shouldBe tabSeparated(AllRequestsTag, PerMillionTag)
     TimeTarget(ResponseTime, StandardDeviation).serialized.toString shouldBe tabSeparated(ResponseTimeTag, StandardDeviationTag)
     MeanRequestsPerSecondTarget.serialized.toString shouldBe tabSeparated(MeanRequestsPerSecondTag)
   }
@@ -71,6 +73,9 @@ class AssertionSerializationSpec extends BaseSpec {
 
     Assertion(ForAll, CountTarget(SuccessfulRequests, Percent), LessThan(5)).serialized.toString shouldBe
       tabSeparated(PathTag, ForAllTag, TargetTag, SuccessfulRequestsTag, PercentTag, ConditionTag, LessThanTag, "5")
+
+    Assertion(ForAll, CountTarget(SuccessfulRequests, PerMillion), LessThan(5)).serialized.toString shouldBe
+      tabSeparated(PathTag, ForAllTag, TargetTag, SuccessfulRequestsTag, PerMillionTag, ConditionTag, LessThanTag, "5")
 
     Assertion(Details(List("Group", "Request")), TimeTarget(ResponseTime, Max), In(List(1, 2, 3))).serialized.toString shouldBe
       tabSeparated(PathTag, DetailsTag, "Group", "Request", TargetTag,
