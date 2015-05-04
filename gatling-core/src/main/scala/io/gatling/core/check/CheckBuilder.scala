@@ -78,7 +78,7 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
       def arity = extractor.arity + ".transform"
 
       def apply(prepared: P): Validation[Option[X2]] =
-        executeSafe(TransformErrorMapper) {
+        safe(TransformErrorMapper) {
           extractor(prepared).map(_.map(transformation))
         }
     }
@@ -95,7 +95,7 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
       def arity = extractor.arity + ".transformOption"
 
       def apply(prepared: P): Validation[Option[X2]] =
-        executeSafe(TransformOptionErrorMapper) {
+        safe(TransformOptionErrorMapper) {
           extractor(prepared).flatMap(transformation)
         }
     }

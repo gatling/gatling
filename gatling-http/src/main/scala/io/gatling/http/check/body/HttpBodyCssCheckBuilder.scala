@@ -30,7 +30,7 @@ object HttpBodyCssCheckBuilder {
   private val ErrorMapper = "Could not parse response into a Jodd NodeSelector: " + _
 
   def cssPreparer(implicit extractorFactory: CssExtractorFactory): Preparer[Response, NodeSelector] = (response: Response) =>
-    executeSafe(ErrorMapper) {
+    safe(ErrorMapper) {
       extractorFactory.selectors.parse(response.body.string.unsafeChars).success
     }
 

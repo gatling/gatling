@@ -28,7 +28,7 @@ class ValidationSpec extends BaseSpec {
   }
 
   "executeSafe" should "returned the provided Validation if it didn't throw exceptions" in {
-    executeSafe()(1.success) shouldBe 1.success
+    safe()(1.success) shouldBe 1.success
   }
 
   it should "return a failure if the provided Validation threw exceptions" in {
@@ -39,8 +39,8 @@ class ValidationSpec extends BaseSpec {
         Success(1)
       }
 
-    executeSafe()(exceptionThrower) shouldBe "Woops".failure
-    executeSafe(_ + "y")(exceptionThrower) shouldBe "Woopsy".failure
+    safe()(exceptionThrower) shouldBe "Woops".failure
+    safe(_ + "y")(exceptionThrower) shouldBe "Woopsy".failure
   }
 
   "map" should "apply the passed function to the value when called on a Success" in {

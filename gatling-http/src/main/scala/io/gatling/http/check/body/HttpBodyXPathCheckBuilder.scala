@@ -28,7 +28,7 @@ object HttpBodyXPathCheckBuilder extends XPathCheckBuilder[HttpCheck, Response] 
   private val ErrorMapper = "Could not parse response into a DOM Document: " + _
 
   def preparer[T](f: InputSource => T)(response: Response): Validation[Option[T]] =
-    executeSafe(ErrorMapper) {
+    safe(ErrorMapper) {
       val root = if (response.hasResponseBody) Some(f(new InputSource(response.body.stream))) else None
       root.success
     }

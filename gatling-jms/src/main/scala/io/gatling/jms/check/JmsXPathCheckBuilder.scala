@@ -29,7 +29,7 @@ object JmsXPathCheckBuilder extends XPathCheckBuilder[JmsCheck, Message] {
   private val ErrorMapper: String => String = "Could not parse response into a DOM Document: " + _
 
   def preparer[T](f: InputSource => T)(message: Message): Validation[Option[T]] =
-    executeSafe(ErrorMapper) {
+    safe(ErrorMapper) {
       message match {
         case tm: TextMessage => Some(f(new InputSource(new StringReader(tm.getText)))).success
         case _               => "Unsupported message type".failure

@@ -33,13 +33,13 @@ case class JsonParsers(jackson: Jackson, boon: Boon, preferJackson: Boolean) {
   private val BoonErrorMapper: String => String = "Boon failed to parse into a valid AST: " + _
 
   def safeParseJackson(string: String): Validation[Object] =
-    executeSafe(JacksonErrorMapper)(jackson.parse(string).success)
+    safe(JacksonErrorMapper)(jackson.parse(string).success)
 
   def safeParseJackson(is: InputStream, charset: Charset): Validation[Object] =
-    executeSafe(JacksonErrorMapper)(jackson.parse(is, charset).success)
+    safe(JacksonErrorMapper)(jackson.parse(is, charset).success)
 
   def safeParseBoon(string: String): Validation[Object] =
-    executeSafe(BoonErrorMapper)(boon.parse(string).success)
+    safe(BoonErrorMapper)(boon.parse(string).success)
 
   def safeParse(string: String): Validation[Object] =
     if (preferJackson)

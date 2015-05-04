@@ -52,7 +52,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
         try
           Uri.create(url).success
         catch {
-          // don't use executeSafe in order to safe lambda instances
+          // don't use safe in order to save lambda instances
           case NonFatal(e) => s"url $url can't be parsed into a URI: ${e.getMessage}".failure
         }
 
@@ -167,7 +167,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
 
       commonAttributes.address.foreach(requestBuilder.setInetAddress)
 
-      executeSafe(BuildRequestErrorMapper) {
+      safe(BuildRequestErrorMapper) {
         for {
           uri <- buildURI(session)
           rb <- configureRequestBuilder(session, uri, requestBuilder)
