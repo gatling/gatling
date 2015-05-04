@@ -26,8 +26,7 @@ trait Validator[A] {
   def apply(actual: Option[A]): Validation[Option[A]]
 }
 
-abstract class Matcher[A, E] extends Validator[A] {
-  def expected: E
+abstract class Matcher[A] extends Validator[A] {
   def doMatch(actual: Option[A]): Validation[Option[A]]
   def apply(actual: Option[A]): Validation[Option[A]] =
     for {
@@ -35,11 +34,11 @@ abstract class Matcher[A, E] extends Validator[A] {
     } yield matchResult
 }
 
-class IsMatcher[E](val expected: E) extends Matcher[E, E] {
+class IsMatcher[A](expected: A) extends Matcher[A] {
 
   def name = s"is($expected)"
 
-  def doMatch(actual: Option[E]): Validation[Option[E]] = actual match {
+  def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) =>
       if (actualValue == expected)
         actual.success
@@ -49,11 +48,11 @@ class IsMatcher[E](val expected: E) extends Matcher[E, E] {
   }
 }
 
-class NotMatcher[E](val expected: E) extends Matcher[E, E] {
+class NotMatcher[A](expected: A) extends Matcher[A] {
 
   def name = s"not($expected)"
 
-  def doMatch(actual: Option[E]): Validation[Option[E]] = actual match {
+  def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) =>
       if (actualValue != expected)
         actual.success
@@ -63,11 +62,11 @@ class NotMatcher[E](val expected: E) extends Matcher[E, E] {
   }
 }
 
-class InMatcher[E](val expected: Seq[E]) extends Matcher[E, Seq[E]] {
+class InMatcher[A](expected: Seq[A]) extends Matcher[A] {
 
   def name = expected.mkString("in(", ",", ")")
 
-  def doMatch(actual: Option[E]): Validation[Option[E]] = actual match {
+  def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) =>
       if (expected.contains(actualValue))
         actual.success
@@ -77,11 +76,11 @@ class InMatcher[E](val expected: Seq[E]) extends Matcher[E, Seq[E]] {
   }
 }
 
-class CompareMatcher[E](val comparisonName: String, message: String, compare: (E, E) => Boolean, val expected: E) extends Matcher[E, E] {
+class CompareMatcher[A](val comparisonName: String, message: String, compare: (A, A) => Boolean, expected: A) extends Matcher[A] {
 
   def name = s"$comparisonName($expected)"
 
-  def doMatch(actual: Option[E]): Validation[Option[E]] = actual match {
+  def doMatch(actual: Option[A]): Validation[Option[A]] = actual match {
     case Some(actualValue) =>
       if (compare(actualValue, expected))
         actual.success
