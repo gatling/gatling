@@ -374,7 +374,7 @@ Checks that the value belongs to a given sequence or vararg:
 
 .. includecode:: code/Checks.scala#in
 
-*sequence*
+*sequence* is a function that returns a sequence of values of the same type of the previous step (extraction or transformation).
 
 .. _http-check-optional:
 
@@ -385,7 +385,17 @@ Checks that the value belongs to a given sequence or vararg:
 
 Always true, used for capture an optional value.
 
-*expected* is a function that returns a sequence of values of the same type of the previous step (extraction or transformation).
+.. _http-check-validate:
+
+* ``validate(name, validator)``
+
+Built-ins validation steps actually resolve to this method.
+
+*name* is the String that would be used to describe this part in case of a failure in the final error message.
+
+*validator* is a ``(Option[X], Session) => Validation[Option[X]]`` function that performs the validation logic.
+Input is the actual extracted value and the Session.
+Output is a the Validation: a Success containing the value to be passed to the next step, a Failure with the error message otherwise.
 
 .. note:: In the case where no verifying step is defined, a ``exists`` is added implicitly.
 
