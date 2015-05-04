@@ -29,9 +29,7 @@ trait Validator[A] {
 abstract class Matcher[A] extends Validator[A] {
   def doMatch(actual: Option[A]): Validation[Option[A]]
   def apply(actual: Option[A]): Validation[Option[A]] =
-    for {
-      matchResult <- doMatch(actual).mapError(message => s"but actually $message")
-    } yield matchResult
+    doMatch(actual).mapError(message => s"but actually $message")
 }
 
 class IsMatcher[A](expected: A) extends Matcher[A] {
