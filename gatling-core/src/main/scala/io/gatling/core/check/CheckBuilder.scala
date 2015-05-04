@@ -106,7 +106,14 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
   def transformOption[X2](transformation: (Option[X], Session) => Validation[Option[X2]]): ValidatorCheckBuilder[C, R, P, X2] =
     copy(extractor = session => extractor(session).map(transformOptionExtractor(transformation(_, session))))
 
-  def validate(validator: Expression[Validator[X]]) = new CheckBuilder(this, validator) with SaveAs[C, R, P, X]
+  def validate(validator: Expression[Validator[X]]): CheckBuilder[C, R, P, X] with SaveAs[C, R, P, X] =
+    new CheckBuilder(this, validator) with SaveAs[C, R, P, X]
+
+  def validate(opName: String, validator: (Option[X], Session) => Validation[Option[X]]): CheckBuilder[C, R, P, X] with SaveAs[C, R, P, X] =
+    validate((session: Session) => new Validator[X] {
+      def name = opName
+      def apply(actual: Option[X]): Validation[Option[X]] = validator(actual, session)
+    }.success)
 
   def is(expected: Expression[X]) = validate(expected.map(new IsMatcher(_)))
   def not(expected: Expression[X]) = validate(expected.map(new NotMatcher(_)))
