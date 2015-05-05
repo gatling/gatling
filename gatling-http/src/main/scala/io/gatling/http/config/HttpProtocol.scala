@@ -146,14 +146,25 @@ object HttpProtocol extends StrictLogging {
       logger.info("Warm up done")
     }
 
-    val userEndF: HttpProtocol => Session => Unit = protocol => session => {
-      val (_, ahc) = httpEngine.httpClient(session, protocol)
-      ahc.getProvider.asInstanceOf[NettyAsyncHttpProvider].flushChannelPoolPartitions(new ChannelPoolPartitionSelector() {
+    val userEndF: HttpProtocol => Session => Unit = { protocol =>
 
-        val userBase = ChannelPoolPartitioning.partitionIdUserBase(session)
+      val doNothing: Session => Unit = _ => ()
 
-        override def select(partitionId: String): Boolean = partitionId.startsWith(userBase)
-      })
+      if (protocol.enginePart.shareConnections) {
+        doNothing
+
+      } else {
+        session =>
+          {
+            val (_, ahc) = httpEngine.httpClient(session, protocol)
+            ahc.getProvider.asInstanceOf[NettyAsyncHttpProvider].flushChannelPoolPartitions(new ChannelPoolPartitionSelector() {
+
+              val userBase = ChannelPoolPartitioning.partitionIdUserBase(session)
+
+              override def select(partitionId: String): Boolean = partitionId.startsWith(userBase)
+            })
+          }
+      }
     }
 
     new HttpProtocol(baseURLs,
