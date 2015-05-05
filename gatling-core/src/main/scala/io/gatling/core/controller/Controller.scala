@@ -17,6 +17,7 @@ package io.gatling.core.controller
 
 import java.util.UUID.randomUUID
 
+import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
 
@@ -84,7 +85,7 @@ class Controller(selection: Selection, dataWriters: DataWriters, configuration: 
     val userStreams = buildUserStreams
     val batchScheduler = startUpScenarios(userIdRoot, userStreams)
     val totalUsers = initData.simulationDef.scenarios.map(_.injectionProfile.users).sum
-    goto(Running) using RunData(initData, userStreams, batchScheduler, Map.empty, 0, totalUsers)
+    goto(Running) using new RunData(initData, userStreams, batchScheduler, mutable.Map.empty, 0, totalUsers)
   }
 
   // -- STEP 3 : The Controller and Data Writers are fully initialized, Simulation is now running -- //
@@ -104,20 +105,20 @@ class Controller(selection: Selection, dataWriters: DataWriters, configuration: 
 
   private def processUserMessage(userMessage: UserMessage, runData: RunData): State = {
       def startNewUser: State = {
-        val newActiveUsers = runData.activeUsers + (userMessage.session.userId -> userMessage)
+        runData.activeUsers += (userMessage.session.userId -> userMessage)
         logger.info(s"Start user #${userMessage.session.userId}")
         dataWriters ! userMessage
-        stay() using runData.copy(activeUsers = newActiveUsers)
+        stay()
       }
 
       def endUserAndTerminateIfLast: State = {
-        val newActiveUsers = runData.activeUsers - userMessage.session.userId
-        val newUserCount = runData.completedUsersCount + 1
+        runData.activeUsers -= userMessage.session.userId
+        runData.completedUsersCount += 1
         dispatchUserEndToDataWriter(userMessage)
-        if (newUserCount == runData.totalUsers)
+        if (runData.completedUsersCount == runData.totalUsers)
           terminateDataWritersAndWaitForConfirmation(runData.initData, None)
         else
-          stay() using runData.copy(completedUsersCount = newUserCount, activeUsers = newActiveUsers)
+          stay()
       }
 
     userMessage.event match {

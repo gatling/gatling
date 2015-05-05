@@ -17,6 +17,7 @@ package io.gatling.core.controller
 
 import io.gatling.core.akka.BaseActor
 
+import scala.collection.mutable
 import scala.concurrent.duration.FiniteDuration
 
 import akka.actor.{ ActorRef, FSM }
@@ -40,13 +41,13 @@ private[controller] case object Stopped extends ControllerState
 private[controller] sealed trait ControllerData
 private[controller] case object NoData extends ControllerData
 private[controller] case class InitData(runner: ActorRef, simulationDef: SimulationDef)
-private[controller] case class RunData(
-  initData: InitData,
-  userStreams: Map[String, UserStream],
-  scheduler: BatchScheduler,
-  activeUsers: Map[String, UserMessage],
-  completedUsersCount: Int,
-  totalUsers: Int) extends ControllerData
+private[controller] class RunData(
+  val initData: InitData,
+  val userStreams: Map[String, UserStream],
+  val scheduler: BatchScheduler,
+  val activeUsers: mutable.Map[String, UserMessage],
+  var completedUsersCount: Int,
+  val totalUsers: Int) extends ControllerData
 private[controller] case class EndData(
   initData: InitData,
   exception: Option[Exception]) extends ControllerData
