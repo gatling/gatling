@@ -240,13 +240,13 @@ class CookieJarSpec extends FlatSpec with Matchers {
 
     val barCookies = cookieStore2.get(Uri.create("http://www.foo.com/foo/bar/"))
     barCookies should have size 2
-    barCookies(0).getRawValue shouldBe "VALUE1"
-    barCookies(1).getRawValue shouldBe "VALUE0"
+    barCookies(0).getValue shouldBe "VALUE1"
+    barCookies(1).getValue shouldBe "VALUE0"
 
     val bazCookies = cookieStore2.get(Uri.create("http://www.foo.com/foo/baz/"))
     bazCookies should have size 2
-    bazCookies(0).getRawValue shouldBe "VALUE2"
-    bazCookies(1).getRawValue shouldBe "VALUE0"
+    bazCookies(0).getValue shouldBe "VALUE2"
+    bazCookies(1).getValue shouldBe "VALUE0"
   }
 
   it should "properly deal with trailing slashes in paths" in {
@@ -257,6 +257,6 @@ class CookieJarSpec extends FlatSpec with Matchers {
 
     val cookies = cookieStore.get(Uri.create("https://vagrant.moolb.com/app/consumer/"))
     cookies should have size 1
-    cookies(0).getRawValue shouldBe "211D17F016132BCBD31D9ABB31D90960"
+    cookies(0).getValue shouldBe "211D17F016132BCBD31D9ABB31D90960"
   }
 }

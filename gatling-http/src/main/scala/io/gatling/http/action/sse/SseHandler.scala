@@ -15,6 +15,7 @@
  */
 package io.gatling.http.action.sse
 
+import java.net.InetAddress
 import java.nio.charset.StandardCharsets.UTF_8
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.xml.ws.http.HTTPException
@@ -49,7 +50,7 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 
   override def onConnectionPooled(): Unit = {}
 
-  override def onDnsResolved(): Unit = {}
+  override def onDnsResolved(address: InetAddress): Unit = {}
 
   override def onSslHandshakeCompleted(): Unit = {}
 
