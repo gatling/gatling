@@ -27,55 +27,56 @@ class CookieJarSpec extends FlatSpec with Matchers {
   }
 
   it should "support adding cookie with empty path" in {
-    val cookie = decode("ALPHA; path=")
+    val cookie = decode("ALPHA=VALUE1; path=")
+    System.err.println(s"cookie=${cookie.getPath}")
     val uri = Uri.create("http://www.foo.com")
     new CookieJar(Map.empty).add(uri, List(cookie)).get(uri) should not be empty
   }
 
   it should "not return cookie when it was set on another domain" in {
-    val cookie = decode("ALPHA; Domain=www.foo.com")
+    val cookie = decode("ALPHA=VALUE1; Domain=www.foo.com")
     val cookieStore = CookieJar(Uri.create("http://www.foo.com"), List(cookie))
 
     cookieStore.get(Uri.create("http://www.bar.com")) shouldBe empty
   }
 
   it should "return the cookie when it was set on the same path" in {
-    val cookie = decode("ALPHA; path=/bar/")
+    val cookie = decode("ALPHA=VALUE1; path=/bar/")
     val cookieStore = CookieJar(Uri.create("http://www.foo.com"), List(cookie))
 
     cookieStore.get(Uri.create("http://www.foo.com/bar/")) should have size 1
   }
 
   it should "return the cookie when it was set on a parent path" in {
-    val cookie = decode("ALPHA; Domain=www.foo.com; path=/bar")
+    val cookie = decode("ALPHA=VALUE1; Domain=www.foo.com; path=/bar")
     val cookieStore = CookieJar(Uri.create("http://www.foo.com"), List(cookie))
 
     cookieStore.get(Uri.create("http://www.foo.com/bar/baz")) should have size 1
   }
 
   it should "not return the cookie when domain matches but path is different" in {
-    val cookie = decode("ALPHA; Domain=www.foo.com; path=/bar")
+    val cookie = decode("ALPHA=VALUE1; Domain=www.foo.com; path=/bar")
     val cookieStore = CookieJar(Uri.create("http://www.foo.com/bar"), List(cookie))
 
     cookieStore.get(Uri.create("http://www.foo.com/baz")) shouldBe empty
   }
 
   it should "not return the cookie when domain matches but path is a parent" in {
-    val cookie = decode("ALPHA; Domain=www.foo.com; path=/bar")
+    val cookie = decode("ALPHA=VALUE1; Domain=www.foo.com; path=/bar")
     val cookieStore = CookieJar(Uri.create("http://www.foo.com/bar"), List(cookie))
 
     cookieStore.get(Uri.create("http://www.foo.com")) shouldBe empty
   }
 
   it should "return the cookie when domain matches and path is a child" in {
-    val cookie = decode("ALPHA; Domain=www.foo.com; path=/bar")
+    val cookie = decode("ALPHA=VALUE1; Domain=www.foo.com; path=/bar")
     val cookieStore = CookieJar(Uri.create("http://www.foo.com/bar"), List(cookie))
 
     cookieStore.get(Uri.create("http://www.foo.com/bar/baz")) should have size 1
   }
 
   it should "return cookie when it was set on a sub domain" in {
-    val cookie = decode("ALPHA; Domain=.foo.com")
+    val cookie = decode("ALPHA=VALUE1; Domain=.foo.com")
     val cookieStore = CookieJar(Uri.create("http://www.foo.com"), List(cookie))
 
     cookieStore.get(Uri.create("http://bar.foo.com")) should have size 1
@@ -141,7 +142,7 @@ class CookieJarSpec extends FlatSpec with Matchers {
   }
 
   it should "return the cookie when it's issued from a request with a subpath" in {
-    val cookie = decode("ALPHA; path=/")
+    val cookie = decode("ALPHA=VALUE1; path=/")
     val cookieStore = CookieJar(Uri.create("http://www.foo.com/bar"), List(cookie))
 
     cookieStore.get(Uri.create("http://www.foo.com")) should have size 1
@@ -190,7 +191,7 @@ class CookieJarSpec extends FlatSpec with Matchers {
   }
 
   it should "not take into account the query parameter in the URI" in {
-    val cookie = decode("ALPHA; Domain=www.foo.com; path=/")
+    val cookie = decode("ALPHA=VALUE1; Domain=www.foo.com; path=/")
     val cookieStore = CookieJar(Uri.create("http://www.foo.com/bar?query1"), List(cookie))
 
     cookieStore.get(Uri.create("http://www.foo.com/bar?query2")) should have size 1
