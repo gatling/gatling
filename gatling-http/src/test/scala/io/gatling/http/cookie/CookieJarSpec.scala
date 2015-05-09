@@ -28,7 +28,6 @@ class CookieJarSpec extends FlatSpec with Matchers {
 
   it should "support adding cookie with empty path" in {
     val cookie = decode("ALPHA=VALUE1; path=")
-    System.err.println(s"cookie=${cookie.getPath}")
     val uri = Uri.create("http://www.foo.com")
     new CookieJar(Map.empty).add(uri, List(cookie)).get(uri) should not be empty
   }
