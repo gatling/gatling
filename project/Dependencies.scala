@@ -10,7 +10,7 @@ object Dependencies {
   private val scalaSwing                    = "org.scala-lang.modules"                %% "scala-swing"                 % "1.0.2"
   private val scalaXml                      = "org.scala-lang.modules"                %% "scala-xml"                   % "1.0.4"
   private val scalaParserCombinators        = "org.scala-lang.modules"                %% "scala-parser-combinators"    % "1.0.4"
-  private val ahc                           = "com.ning"                               % "async-http-client"           % "1.9.21"
+  private val ahc                           = "com.ning"                               % "async-http-client"           % "1.9.22"
   private val netty                         = "io.netty"                               % "netty"                       % "3.10.3.Final"
   private val dnsJava                       = "dnsjava"                                % "dnsjava"                     % "2.1.7"
   private val akkaActor                     = "com.typesafe.akka"                     %% "akka-actor"                  % "2.3.10"
