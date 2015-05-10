@@ -65,18 +65,20 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, prot
   def configureAddressNameResolver(session: Session, httpCaches: HttpCaches)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
     if (!protocol.enginePart.shareDnsCache) {
       requestBuilder.setNameResolver(new NameResolver {
-        override def resolve(name: String): InetAddress = {
-          httpCaches.dnsLookupCacheEntry(session, name) match {
-            case Some(address) => address
-            case None =>
-              try {
-                DnsHelper.getAddressByName(name)
-              } catch {
-                case NonFatal(e) =>
-                  logger.warn(s"Failed to resolve address of name $name")
-                  NameResolver.JdkNameResolver.INSTANCE.resolve(name)
-              }
-          }
+        override def resolve(name: String): InetAddress = name match {
+          case "localhost" => InetAddress.getLoopbackAddress
+          case _ =>
+            httpCaches.dnsLookupCacheEntry(session, name) match {
+              case Some(address) => address
+              case None =>
+                try {
+                  DnsHelper.getAddressByName(name)
+                } catch {
+                  case NonFatal(e) =>
+                    logger.warn(s"Failed to resolve address of name $name")
+                    NameResolver.JdkNameResolver.INSTANCE.resolve(name)
+                }
+            }
         }
       })
     }
