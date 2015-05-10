@@ -31,6 +31,7 @@ import scala.util.Try
 
 import org.jboss.netty.channel._
 import org.jboss.netty.handler.codec.http._
+import org.jboss.netty.handler.codec.http.cookie._
 
 import io.gatling.AkkaSpec
 import io.gatling.core.config.Protocols
@@ -69,7 +70,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
                   timeout: FiniteDuration = 10.seconds,
                   protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity)(implicit defaultHttpProtocol: DefaultHttpProtocol) = {
     val protocols = Protocols(protocolCustomizer(httpProtocol))
-    val actor = sb.build(system, self, ScenarioContext(mock[ActorRef], mock[DataWriters], mock[ActorRef], protocols, Constant, false))
+    val actor = sb.build(system, self, ScenarioContext(mock[ActorRef], mock[DataWriters], mock[ActorRef], protocols, Constant, throttled = false))
     actor ! Session("TestSession", "testUser")
     expectMsgClass(timeout, classOf[Session])
   }
@@ -121,16 +122,16 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   }
 
   def checkCookie(cookie: String, value: String)(request: DefaultHttpRequest) = {
-    val cookies = new CookieDecoder().decode(request.headers.get(HeaderNames.Cookie)).toList
-    val matchingCookies = cookies.filter(_.getName == cookie)
+    val cookies = ServerCookieDecoder.STRICT.decode(request.headers.get(HeaderNames.Cookie)).toList
+    val matchingCookies = cookies.filter(_.name == cookie)
 
     matchingCookies match {
       case Nil =>
         throw new AssertionError(s"In request $request there were no cookies")
       case list =>
         for (cookie <- list) {
-          if (cookie.getValue != value) {
-            throw new AssertionError(s"$request: cookie '${cookie.getName}', expected: '$value' but was '${cookie.getValue}'")
+          if (cookie.value != value) {
+            throw new AssertionError(s"$request: cookie '${cookie.name}', expected: '$value' but was '${cookie.value}'")
           }
         }
     }
