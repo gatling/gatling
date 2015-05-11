@@ -18,6 +18,7 @@ package io.gatling.recorder
 import java.nio.file.Path
 
 import io.gatling.recorder.cli.ArgsParser
+import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.controller.RecorderController
 
 object GatlingRecorder {
@@ -26,9 +27,14 @@ object GatlingRecorder {
 
   def fromArgs(args: Array[String]): Unit = {
     val argsParser = new ArgsParser(args)
-    argsParser.parseArguments.map(overrides => RecorderController(overrides))
+    argsParser.parseArguments.map(overrides => initRecorder(overrides, None))
   }
 
   def fromMap(props: ConfigOverrides, recorderConfigFile: Option[Path] = None) =
-    RecorderController(props, recorderConfigFile)
+    initRecorder(props, recorderConfigFile)
+
+  private def initRecorder(props: ConfigOverrides, recorderConfigFile: Option[Path]) = {
+    RecorderConfiguration.initialSetup(props, recorderConfigFile)
+    new RecorderController
+  }
 }

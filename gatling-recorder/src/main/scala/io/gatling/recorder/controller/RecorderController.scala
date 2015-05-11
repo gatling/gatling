@@ -15,16 +15,14 @@
  */
 package io.gatling.recorder.controller
 
-import java.nio.file.Path
 import java.util.concurrent.ConcurrentLinkedQueue
 
-import io.gatling.recorder.config.{ RecorderMode, RecorderConfiguration, RecorderPropertiesBuilder }
+import io.gatling.recorder.config.{ RecorderMode, RecorderPropertiesBuilder }
 
 import com.ning.http.client.uri.Uri
 import io.gatling.recorder.http.handler.remote.TimedHttpRequest
 
 import scala.collection.JavaConversions._
-import scala.collection.mutable
 import scala.concurrent.duration.DurationLong
 
 import org.jboss.netty.handler.codec.http.{ HttpRequest, HttpResponse }
@@ -40,13 +38,6 @@ import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.scenario._
 import io.gatling.recorder.ui._
-
-private[recorder] object RecorderController {
-  def apply(props: mutable.Map[String, _], recorderConfigFile: Option[Path] = None): Unit = {
-    RecorderConfiguration.initialSetup(props, recorderConfigFile)
-    new RecorderController
-  }
-}
 
 private[recorder] class RecorderController extends StrictLogging {
 
