@@ -41,7 +41,7 @@ import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.scenario._
 import io.gatling.recorder.ui._
 
-object RecorderController {
+private[recorder] object RecorderController {
   def apply(props: mutable.Map[String, _], recorderConfigFile: Option[Path] = None): Unit = {
     RecorderConfiguration.initialSetup(props, recorderConfigFile)
     new RecorderController
