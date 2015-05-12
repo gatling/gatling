@@ -120,17 +120,13 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
   InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory)
 
   private[this] var _state: Option[InternalState] = None
-  private[this] def state: InternalState = _state.getOrElse(throw new IllegalStateException("HttpEngine hasn't been started"))
 
   def start(system: ActorSystem, dataWriters: DataWriters, throttler: Throttler): Unit = {
-
     _state = Some(loadInternalState(system, dataWriters, throttler))
-
     system.registerOnTermination(stop())
-    defaultAhc
   }
 
-  def stop(): Unit = {
+  def stop(): Unit = _state.foreach { state =>
     state.applicationThreadPool.shutdown()
     state.nioThreadPool.shutdown()
     _state = None
@@ -182,9 +178,9 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
       val handler = new AsyncHandler(newTx, this)
 
       if (requestConfig.throttled)
-        state.throttler.throttle(tx.session.scenario, () => client.executeRequest(ahcRequest, handler))
+        _state.foreach(_.throttler.throttle(tx.session.scenario, () => client.foreach(_.executeRequest(ahcRequest, handler))))
       else
-        client.executeRequest(ahcRequest, handler)
+        client.foreach(_.executeRequest(ahcRequest, handler))
     }
 
   def startWsTransaction(tx: WsTx, wsActor: ActorRef): Unit = {
@@ -196,7 +192,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     val listener = new WsListener(newTx, wsActor)
 
     val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
-    client.executeRequest(tx.request, handler)
+    client.foreach(_.executeRequest(tx.request, handler))
   }
 
   def startSseTransaction(tx: SseTx, sseActor: ActorRef): Unit = {
@@ -206,7 +202,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     }
 
     val handler = new SseHandler(newTx, sseActor)
-    client.executeRequest(newTx.request, handler)
+    client.foreach(_.executeRequest(newTx.request, handler))
   }
 
   private def loadInternalState(system: ActorSystem, dataWriters: DataWriters, throttler: Throttler) = {
@@ -305,15 +301,15 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     new InternalState(applicationThreadPool, nioThreadPool, channelPool, nettyConfig, defaultAhcConfig, dataWriters, throttler, asyncHandlerActors, system)
   }
 
-  def httpClient(session: Session, protocol: HttpProtocol): (Session, AsyncHttpClient) = {
+  def httpClient(session: Session, protocol: HttpProtocol): (Session, Option[AsyncHttpClient]) = {
     if (protocol.enginePart.shareClient)
       (session, defaultAhc)
     else
       session(HttpEngine.AhcAttributeName).asOption[AsyncHttpClient] match {
-        case Some(client) => (session, client)
+        case client: Some[AsyncHttpClient] => (session, client)
         case _ =>
-          val httpClient = state.newAhc(session)
-          (session.set(HttpEngine.AhcAttributeName, httpClient), httpClient)
+          val httpClient = _state.map(_.newAhc(session))
+          (httpClient.map(client => session.set(HttpEngine.AhcAttributeName, client)).getOrElse(session), httpClient)
       }
   }
 
@@ -326,6 +322,8 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
                            throttler: Throttler,
                            asyncHandlerActors: ActorRef,
                            system: ActorSystem) {
+
+    val defaultAhc = newAhc(None)
 
     def newAhc(session: Session): AsyncHttpClient = newAhc(Some(session))
 
@@ -348,10 +346,10 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
 
         trustManagers.orElse(keyManagers).map { _ =>
           logger.info(s"Setting a custom SSLContext for user ${session.userId}")
-          new AsyncHttpClientConfig.Builder(state.defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build
+          new AsyncHttpClientConfig.Builder(defaultAhcConfig).setSSLContext(trustManagers, keyManagers).build
         }
 
-      }.getOrElse(state.defaultAhcConfig)
+      }.getOrElse(defaultAhcConfig)
 
       val client = new AsyncHttpClient(ahcConfig)
       system.registerOnTermination(client.close())
@@ -359,7 +357,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     }
   }
 
-  lazy val defaultAhc: AsyncHttpClient = state.newAhc(None)
-  def dataWriters: DataWriters = state.dataWriters
-  def asyncHandlerActors: ActorRef = state.asyncHandlerActors
+  def defaultAhc: Option[AsyncHttpClient] = _state.map(_.defaultAhc)
+  def dataWriters: Option[DataWriters] = _state.map(_.dataWriters)
+  def asyncHandlerActors: Option[ActorRef] = _state.map(_.asyncHandlerActors)
 }

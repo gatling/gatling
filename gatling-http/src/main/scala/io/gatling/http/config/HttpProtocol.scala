@@ -121,8 +121,13 @@ object HttpProtocol extends StrictLogging {
               requestBuilder.setProxyServer(proxy)
           }
 
-          try { httpEngine.defaultAhc.executeRequest(requestBuilder.build).get }
-          catch { case NonFatal(e) => logger.info(s"Couldn't execute warm up request $url", e) }
+          try {
+            httpEngine.defaultAhc
+              .getOrElse(throw new IllegalStateException("Trying to warmUp the HttpProtocol while the HttpEngine hasn't been started"))
+              .executeRequest(requestBuilder.build).get
+          } catch {
+            case NonFatal(e) => logger.info(s"Couldn't execute warm up request $url", e)
+          }
 
         case _ =>
           val expression = "foo".expression
@@ -157,12 +162,12 @@ object HttpProtocol extends StrictLogging {
         session =>
           {
             val (_, ahc) = httpEngine.httpClient(session, protocol)
-            ahc.getProvider.asInstanceOf[NettyAsyncHttpProvider].flushChannelPoolPartitions(new ChannelPoolPartitionSelector() {
+            ahc.foreach(_.getProvider.asInstanceOf[NettyAsyncHttpProvider].flushChannelPoolPartitions(new ChannelPoolPartitionSelector() {
 
               val userBase = ChannelPoolPartitioning.partitionIdUserBase(session)
 
               override def select(partitionId: String): Boolean = partitionId.startsWith(userBase)
-            })
+            }))
           }
       }
     }

@@ -119,14 +119,14 @@ class AsyncHandlerActor(httpEngine: HttpEngine)(implicit configuration: GatlingC
           Nil
       }
 
-      httpEngine.dataWriters.logResponse(
+      httpEngine.dataWriters.foreach(_.logResponse(
         tx.session,
         fullRequestName,
         response.timings,
         status,
         response.status.map(httpStatus => String.valueOf(httpStatus.getStatusCode)),
         errorMessage,
-        extraInfo)
+        extraInfo))
     }
   }
 
