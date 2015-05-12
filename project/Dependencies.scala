@@ -6,7 +6,7 @@ object Dependencies {
   /** Compile dependencies **/
   /**************************/
 
-  private val akkaVersion                    = "2.3.10"
+  private val akkaVersion                    = "2.3.11"
 
   private def scalaReflect(version: String) = "org.scala-lang"                         % "scala-reflect"               % version
   private val scalaSwing                    = "org.scala-lang.modules"                %% "scala-swing"                 % "1.0.2"
