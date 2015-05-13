@@ -169,18 +169,19 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
 
       val requestConfig = tx.request.config
 
-      val (newTx, client) = {
-        val (newSession, client) = httpClient(tx.session, requestConfig.protocol)
-        (tx.copy(session = newSession), client)
+      httpClient(tx.session, requestConfig.protocol) match {
+        case (newSession, Some(client)) =>
+          val newTx = tx.copy(session = newSession)
+          val ahcRequest = newTx.request.ahcRequest
+          val handler = new AsyncHandler(newTx, this)
+
+          if (requestConfig.throttled)
+            _state.foreach(_.throttler.throttle(tx.session.scenario, () => client.executeRequest(ahcRequest, handler)))
+          else
+            client.executeRequest(ahcRequest, handler)
+
+        case _ => // client has been shutdown, ignore
       }
-
-      val ahcRequest = newTx.request.ahcRequest
-      val handler = new AsyncHandler(newTx, this)
-
-      if (requestConfig.throttled)
-        _state.foreach(_.throttler.throttle(tx.session.scenario, () => client.foreach(_.executeRequest(ahcRequest, handler))))
-      else
-        client.foreach(_.executeRequest(ahcRequest, handler))
     }
 
   def startWsTransaction(tx: WsTx, wsActor: ActorRef): Unit = {

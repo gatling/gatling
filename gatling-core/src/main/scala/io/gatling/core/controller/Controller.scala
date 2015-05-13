@@ -154,7 +154,7 @@ class Controller(selection: Selection, dataWriters: DataWriters, configuration: 
 
   when(WaitingForDataWritersToTerminate) {
     case Event(DataWritersTerminated, endData: EndData) =>
-      endData.initData.runner ! answerToRunner(endData)
+      endData.initData.runner ! replyToRunner(endData)
       goto(Stopped) using NoData
 
     case Event(message, _) =>
@@ -162,7 +162,7 @@ class Controller(selection: Selection, dataWriters: DataWriters, configuration: 
       stay()
   }
 
-  private def answerToRunner(endData: EndData): Try[Unit] =
+  private def replyToRunner(endData: EndData): Try[Unit] =
     endData.exception match {
       case Some(exception) => Failure(exception)
       case None            => Success(())
