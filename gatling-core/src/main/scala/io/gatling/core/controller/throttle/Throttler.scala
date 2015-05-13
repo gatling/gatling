@@ -53,9 +53,6 @@ object ThrottlerActor extends StrictLogging {
 
   def props(simulationDef: SimulationDef) =
     Props(new ThrottlerActor(simulationDef.globalThrottling, simulationDef.scenarioThrottlings))
-
-  def throttle(throttler: ActorRef, scenarioName: String, action: () => Unit): Unit =
-    throttler ! ThrottledRequest(scenarioName, action)
 }
 
 class ThrottlerActor(globalProfile: Option[ThrottlingProfile], scenarioProfiles: Map[String, ThrottlingProfile]) extends BaseActor {
@@ -80,9 +77,13 @@ class ThrottlerActor(globalProfile: Option[ThrottlingProfile], scenarioProfiles:
     thisTickGlobalThrottle = globalProfile.map(p => new ThisSecondThrottle(p.limit(thisTickStartSeconds)))
     thisTickPerScenarioThrottles = Map.empty ++ scenarioProfiles.mapValues(p => new ThisSecondThrottle(p.limit(thisTickStartSeconds)))
     val globalLimit = thisTickGlobalThrottle.map(_.limit)
-    val perScenarioLimits = thisTickPerScenarioThrottles.map(_._2.limit)
+    val perScenarioLimit =
+      if (thisTickPerScenarioThrottles.nonEmpty)
+        Some(thisTickPerScenarioThrottles.map(_._2.limit).sum)
+      else
+        None
 
-    val maxNumberOfRequests = math.min(perScenarioLimits.sum, globalLimit.getOrElse(Int.MaxValue))
+    val maxNumberOfRequests = math.min(perScenarioLimit.getOrElse(Int.MaxValue), globalLimit.getOrElse(Int.MaxValue))
 
     requestPeriod = 1000.0 / maxNumberOfRequests
     thisTickRequestCount = 0
