@@ -70,7 +70,9 @@ case class PopulationBuilder(
   def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
   def pauses(pauseType: PauseType) = copy(pauseType = Some(pauseType))
 
-  def throttle(throttlingBuilders: Throttling*) = {
+  def throttle(throttlingBuilders: Throttling*): PopulationBuilder = throttle(throttlingBuilders.toIterable)
+
+  def throttle(throttlingBuilders: Iterable[Throttling]): PopulationBuilder = {
     require(throttlingBuilders.nonEmpty, s"Scenario '${scenarioBuilder.name}' has an empty throttling definition.")
     val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
     copy(scenarioThrottling = Some(Throttling(steps).profile))
