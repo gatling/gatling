@@ -43,13 +43,11 @@ object Throttler {
 }
 
 class Throttler(throttlerActor: ActorRef) {
-
   def throttle(scenarioName: String, action: () => Unit): Unit =
     throttlerActor ! ThrottledRequest(scenarioName, action)
 }
 
 object ThrottlerActor extends StrictLogging {
-
   def props(simulationDef: SimulationDef) =
     Props(new ThrottlerActor(simulationDef.globalThrottling, simulationDef.scenarioThrottlings))
 }
