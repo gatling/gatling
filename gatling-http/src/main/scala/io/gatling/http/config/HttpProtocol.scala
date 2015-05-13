@@ -105,7 +105,7 @@ object HttpProtocol extends StrictLogging {
 
       httpEngine.start(system, dataWriters, throttler)
 
-      warmUpUrl match {
+      httProtocol.warmUpUrl match {
         case Some(url) =>
           val requestBuilder = new RequestBuilder().setUrl(url)
             .setHeader(Accept, "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
