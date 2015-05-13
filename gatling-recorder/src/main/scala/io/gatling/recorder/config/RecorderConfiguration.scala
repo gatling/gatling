@@ -96,15 +96,12 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
     configFile.foreach(file => withCloseable(createAndOpen(file).writer(gatlingConfiguration.core.charset))(_.write(configToSave.render(RenderOptions))))
   }
 
-  private[config] def createAndOpen(path: Path): Path = {
+  private[config] def createAndOpen(path: Path): Path =
     if (!path.exists) {
       val parent = path.getParent
       if (parent.exists) path.touch
       else throw new FileNotFoundException(s"Directory '${parent.toString}' for recorder configuration does not exist")
-    }
-
-    path
-  }
+    } else path
 
   private def buildConfig(config: Config): RecorderConfiguration = {
     import ConfigKeys._
@@ -130,7 +127,9 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
         pkg = config.getString(core.Package),
         className = config.getString(core.ClassName),
         thresholdForPauseCreation = config.getInt(core.ThresholdForPauseCreation) milliseconds,
-        saveConfig = config.getBoolean(core.SaveConfig)),
+        saveConfig = config.getBoolean(core.SaveConfig),
+        headless = config.getBoolean(core.Headless),
+        harFilePath = config.getString(core.HarFilePath).trimToOption),
       filters = FiltersConfiguration(
         filterStrategy = FilterStrategy(config.getString(filters.FilterStrategy)),
         whiteList = WhiteList(config.getStringList(filters.WhitelistPatterns).toList),
@@ -187,7 +186,9 @@ private[recorder] case class CoreConfiguration(
   pkg: String,
   className: String,
   thresholdForPauseCreation: Duration,
-  saveConfig: Boolean)
+  saveConfig: Boolean,
+  headless: Boolean,
+  harFilePath: Option[String])
 
 private[recorder] case class HttpConfiguration(
   automaticReferer: Boolean,

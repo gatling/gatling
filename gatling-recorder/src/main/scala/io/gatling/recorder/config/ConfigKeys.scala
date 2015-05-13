@@ -28,6 +28,8 @@ private[recorder] object ConfigKeys {
     val ClassName = "recorder.core.className"
     val ThresholdForPauseCreation = "recorder.core.thresholdForPauseCreation"
     val SaveConfig = "recorder.core.saveConfig"
+    val Headless = "recorder.core.headless"
+    val HarFilePath = "recorder.core.harFilePath"
   }
   object filters {
     val FilterStrategy = "recorder.filters.filterStrategy"
