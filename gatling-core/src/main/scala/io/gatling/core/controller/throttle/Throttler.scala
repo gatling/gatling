@@ -24,7 +24,6 @@ import scala.concurrent.duration.{ FiniteDuration, DurationInt }
 import akka.actor.{ Props, ActorSystem, ActorRef }
 import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.util.TimeHelper.secondsSinceReference
 
 sealed trait ThrottlerMessage
 case object OneSecondTick extends ThrottlerMessage
@@ -61,6 +60,7 @@ class ThrottlerActor(globalProfile: Option[ThrottlingProfile], scenarioProfiles:
 
   override def postStop(): Unit = timerCancellable.cancel()
 
+  // FIXME use a capped size?
   val buffer = collection.mutable.Queue.empty[(String, () => Unit)]
 
   var thisTickStartNanoRef: Long = _
@@ -69,11 +69,22 @@ class ThrottlerActor(globalProfile: Option[ThrottlingProfile], scenarioProfiles:
   var requestPeriod: Double = _
   var thisTickRequestCount: Int = _
 
+  var thisTickStartSeconds: Int = -1
+
   newSecond()
 
   private def newSecond(): Unit = {
     thisTickStartNanoRef = nanoTime
-    val thisTickStartSeconds = secondsSinceReference
+
+    if (thisTickStartSeconds != 0 || thisTickRequestCount > 0) {
+      // either uninitialized
+      // or has indeed started
+      tick()
+    }
+  }
+
+  private def tick(): Unit = {
+    thisTickStartSeconds += 1
     thisTickGlobalThrottle = globalProfile.map(p => new ThisSecondThrottle(p.limit(thisTickStartSeconds)))
     thisTickPerScenarioThrottles = Map.empty ++ scenarioProfiles.mapValues(p => new ThisSecondThrottle(p.limit(thisTickStartSeconds)))
     val globalLimit = thisTickGlobalThrottle.map(_.limit)
