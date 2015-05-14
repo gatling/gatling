@@ -162,6 +162,30 @@ Charles is an amazing tool and has an HAR export feature, but it's a proxy, so w
 
 To import a HAR file, select the *HAR converter* mode in the top right dropdown in the Recorder.
 
+
+.. _recorder-headless:
+
+Headless mode
+=============
+
+Along the GUI mode, Gatling also offers a simple CLI interface, facilitating the automation of recording or converting simulations from HAR files.
+The Headless mode can be enabled either from the ``recorder.conf`` file or with the ``-cli``/``--headless`` command line option.
+Both 'Proxy' an 'HAR' modes are supported (you can set which mode to use using the ``-m``/``--mode`` command line option).
+
+Proxy
+-----
+
+In 'Proxy mode', the Recorder will start listening for requests from your browser right away.
+To stop the Recorder and create the Simulation, you have to 'kill' the Recorder by either:
+
+* Sending a 'kill' signal with ``CTRL-C``
+* Killing the Recorder's process, using the Recorder process ID written to the ``.gatling-recorder-pid`` file: ``cat .gatling-recorder-pid | xargs kill``
+
+HAR Converter
+-------------
+
+In 'Har' mode, the Recorder will convert the provided HAR file to a Simulation and exits.
+
 .. _recorder-cli:
 
 Command-line options
@@ -169,33 +193,39 @@ Command-line options
 
 For those who prefer the command line, command line options can be passed to the Recorder:
 
-+--------------------+-------------------------------------+-----------------------------------------+
-| Option (short)     | Option (long)                       | Description                             |
-+====================+=====================================+=========================================+
-| -lp <port>         | --local-port <port>                 | Local Proxy HTTP/HTTPS port             |
-+--------------------+-------------------------------------+-----------------------------------------+
-| -ph <port>         | --proxy-host <port>                 | Outgoing proxy host                     |
-+--------------------+-------------------------------------+-----------------------------------------+
-| -pp <port>         | --proxy-port <port>                 | Outgoing proxy port                     |
-+--------------------+-------------------------------------+-----------------------------------------+
-| -pps <port>        | --proxy-port-ssl <port>             | Outgoing proxy SSL port                 |
-+--------------------+-------------------------------------+-----------------------------------------+
-| -of <path>         | --output-folder <path>              | Output folder for generated simulations |
-+--------------------+-------------------------------------+-----------------------------------------+
-| -bdf <path>        | --bodies-folder <path>              | Folder for bodies                       |
-+--------------------+-------------------------------------+-----------------------------------------+
-| -cn <className>    | --class-name <className>            | Name of the generated simulation        |
-+--------------------+-------------------------------------+-----------------------------------------+
-| -pkg <packageName> | --package <packageName>             | Package of the generated simulation     |
-+--------------------+-------------------------------------+-----------------------------------------+
-| -enc <encoding>    | --encoding <encoding>               | Encoding used in the Recorder           |
-+--------------------+-------------------------------------+-----------------------------------------+
-| -fr <true|false>   | --follow-redirect <true|false>      | Enable *Follow Redirects*               |
-+--------------------+-------------------------------------+-----------------------------------------+
-| -ar <true|false>   | --automatic-referer <true|false>    | Enable *Automatic Referers*             |
-+--------------------+-------------------------------------+-----------------------------------------+
-| -fhr <true|false>  | --fetch-html-resources <true|false> | Enable *Fetch html resources*           |
-+--------------------+-------------------------------------+-----------------------------------------+
++--------------------+-------------------------------------+------------------------------------------+
+| Option (short)     | Option (long)                       | Description                              |
++====================+=====================================+==========================================+
+| -lp <port>         | --local-port <port>                 | Local Proxy HTTP/HTTPS port              |
++--------------------+-------------------------------------+------------------------------------------+
+| -ph <port>         | --proxy-host <port>                 | Outgoing proxy host                      |
++--------------------+-------------------------------------+------------------------------------------+
+| -pp <port>         | --proxy-port <port>                 | Outgoing proxy port                      |
++--------------------+-------------------------------------+------------------------------------------+
+| -pps <port>        | --proxy-port-ssl <port>             | Outgoing proxy SSL port                  |
++--------------------+-------------------------------------+------------------------------------------+
+| -of <path>         | --output-folder <path>              | Output folder for generated simulations  |
++--------------------+-------------------------------------+------------------------------------------+
+| -bdf <path>        | --bodies-folder <path>              | Folder for bodies                        |
++--------------------+-------------------------------------+------------------------------------------+
+| -cn <className>    | --class-name <className>            | Name of the generated simulation         |
++--------------------+-------------------------------------+------------------------------------------+
+| -pkg <packageName> | --package <packageName>             | Package of the generated simulation      |
++--------------------+-------------------------------------+------------------------------------------+
+| -enc <encoding>    | --encoding <encoding>               | Encoding used in the Recorder            |
++--------------------+-------------------------------------+------------------------------------------+
+| -fr <true|false>   | --follow-redirect <true|false>      | Enable *Follow Redirects*                |
++--------------------+-------------------------------------+------------------------------------------+
+| -ar <true|false>   | --automatic-referer <true|false>    | Enable *Automatic Referers*              |
++--------------------+-------------------------------------+------------------------------------------+
+| -fhr <true|false>  | --fetch-html-resources <true|false> | Enable *Fetch html resources*            |
++--------------------+-------------------------------------+------------------------------------------+
+| -m <Proxy|Har>     | --mode <Proxy|Har>                  | Recorder mode to use                     |
++--------------------+-------------------------------------+------------------------------------------+
+| -cli <true|false>  | --headless <true|false>             | Run Recorder in headless mode            |
++--------------------+-------------------------------------+------------------------------------------+
+| -hf <path>         | --har-file <path>                   | The HAR file to convert (if mode is Har) |
++--------------------+-------------------------------------+------------------------------------------+
 
 .. note:: Command-line options override saved preferences.
 
