@@ -22,7 +22,7 @@ class HandlingJsf {
   //#factory-methods
   import io.gatling.core.session.Expression
 
-  val jsfViewStateCheck = regex("""="javax.faces.ViewState" value="([^"]*)"""")
+  val jsfViewStateCheck = css("input[name=javax.faces.ViewState]", "value")
     .saveAs("viewState")
   def jsfGet(name: String, url: Expression[String]) = http(name).get(url)
     .check(jsfViewStateCheck)
