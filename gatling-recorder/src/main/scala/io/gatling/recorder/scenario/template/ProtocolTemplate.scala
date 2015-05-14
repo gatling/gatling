@@ -16,6 +16,7 @@
 package io.gatling.recorder.scenario.template
 
 import io.gatling.core.util.StringHelper.{ EmptyFastring, Eol }
+import io.gatling.http.HeaderNames
 import io.gatling.recorder.config.{ FilterStrategy, RecorderConfiguration }
 import io.gatling.recorder.scenario.ProtocolDefinition
 import io.gatling.recorder.scenario.ProtocolDefinition.BaseHeaders
@@ -73,7 +74,11 @@ private[scenario] object ProtocolTemplate {
 
       def renderHeaders = {
           def renderHeader(methodName: String, headerValue: String) = fast"""$Eol$Indent.$methodName(${protectWithTripleQuotes(headerValue)})"""
-        protocol.headers.toList.sorted.flatMap { case (headerName, headerValue) => BaseHeaders.get(headerName).map(renderHeader(_, headerValue)) }.mkFastring
+        protocol.headers.toList.sorted
+          .filter {
+            case (HeaderNames.Connection, value) => value == "close"
+            case _                               => false
+          }.flatMap { case (headerName, headerValue) => BaseHeaders.get(headerName).map(renderHeader(_, headerValue)) }.mkFastring
       }
 
     fast"""
