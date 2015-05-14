@@ -49,6 +49,12 @@ class RecorderPropertiesBuilder {
   def saveConfig(status: Boolean): Unit =
     props += core.SaveConfig -> status
 
+  def headless(status: Boolean): Unit =
+    props += core.Headless -> status
+
+  def harFilePath(path: String): Unit =
+    props += core.HarFilePath -> path
+
   def filterStrategy(strategy: String): Unit =
     props += filters.FilterStrategy -> strategy
 

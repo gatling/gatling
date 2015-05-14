@@ -480,6 +480,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
     modeSelector.selection.item = configuration.core.mode
     toggleModeSelector(modeSelector.selection.item)
 
+    configuration.core.harFilePath.foreach(harPathChooser.setPath)
+
     localProxyHttpPort.text = configuration.proxy.port.toString
 
     httpsModes.selection.item = configuration.proxy.https.mode
@@ -492,7 +494,7 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
     certificatePathChooser.setPath(configuration.proxy.https.certificateAuthority.certificatePath)
     privateKeyPathChooser.setPath(configuration.proxy.https.certificateAuthority.privateKeyPath)
 
-    configuration.proxy.outgoing.host.map { proxyHost =>
+    configuration.proxy.outgoing.host.foreach { proxyHost =>
       outgoingProxyHost.text = proxyHost
       outgoingProxyHttpPort.text = configuration.proxy.outgoing.port.map(_.toString).orNull
       outgoingProxyHttpsPort.text = configuration.proxy.outgoing.sslPort.map(_.toString).orNull
@@ -541,6 +543,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
       val props = new RecorderPropertiesBuilder
 
       props.mode(modeSelector.selection.item)
+
+      props.harFilePath(harPathChooser.selection)
 
       // Local proxy
       props.localPort(Try(localProxyHttpPort.text.toInt).getOrElse(0))
