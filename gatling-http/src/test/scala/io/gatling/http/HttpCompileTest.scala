@@ -124,7 +124,7 @@ class HttpCompileTest extends Simulation {
               xpath("//input[@id='${aaaa_value}']/@value").notExists,
               css(""".foo"""),
               css("""#foo""", "href"),
-              css(""".foo""").count.is(1),
+              css(""".foo""").ofType[Node].count.is(1),
               css(""".foo""").notExists,
               regex("""<input id="text1" type="text" value="aaaa" />""").optional.saveAs("var1"),
               regex("""<input id="text1" type="text" value="aaaa" />""").count.is(1),

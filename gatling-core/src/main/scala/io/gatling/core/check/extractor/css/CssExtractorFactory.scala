@@ -21,20 +21,20 @@ import jodd.lagarto.dom.NodeSelector
 
 class CssExtractorFactory(implicit val selectors: CssSelectors) extends CriterionExtractorFactory[NodeSelector, (String, Option[String])]("css") {
 
-  implicit def defaultSingleExtractor = new SingleExtractor[NodeSelector, (String, Option[String]), String] {
+  implicit def defaultSingleExtractor[X: NodeConverter] = new SingleExtractor[NodeSelector, (String, Option[String]), X] {
 
-    def extract(prepared: NodeSelector, criterion: (String, Option[String]), occurrence: Int): Validation[Option[String]] =
+    def extract(prepared: NodeSelector, criterion: (String, Option[String]), occurrence: Int): Validation[Option[X]] =
       selectors.extractAll(prepared, criterion).lift(occurrence).success
   }
 
-  implicit def defaultMultipleExtractor = new MultipleExtractor[NodeSelector, (String, Option[String]), String] {
-    def extract(prepared: NodeSelector, criterion: (String, Option[String])): Validation[Option[Seq[String]]] =
+  implicit def defaultMultipleExtractor[X: NodeConverter] = new MultipleExtractor[NodeSelector, (String, Option[String]), X] {
+    def extract(prepared: NodeSelector, criterion: (String, Option[String])): Validation[Option[Seq[X]]] =
       selectors.extractAll(prepared, criterion).liftSeqOption.success
   }
 
   implicit val defaultCountExtractor = new CountExtractor[NodeSelector, (String, Option[String])] {
     def extract(prepared: NodeSelector, criterion: (String, Option[String])): Validation[Option[Int]] = {
-      val count = selectors.extractAll(prepared, criterion).size
+      val count = selectors.extractAll[String](prepared, criterion).size
       Some(count).success
     }
   }

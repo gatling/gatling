@@ -25,6 +25,12 @@ import io.gatling.http.check.HttpCheckBuilders._
 import io.gatling.http.response.Response
 import jodd.lagarto.dom.NodeSelector
 
+trait HttpBodyCssOfType {
+  self: HttpBodyCssCheckBuilder[String] =>
+
+  def ofType[X: NodeConverter](implicit extractorFactory: CssExtractorFactory) = new HttpBodyCssCheckBuilder[X](expression, nodeAttribute)
+}
+
 object HttpBodyCssCheckBuilder {
 
   private val ErrorMapper = "Could not parse response into a Jodd NodeSelector: " + _
@@ -35,12 +41,15 @@ object HttpBodyCssCheckBuilder {
     }
 
   def css(expression: Expression[String], nodeAttribute: Option[String])(implicit extractorFactory: CssExtractorFactory) =
-    new DefaultMultipleFindCheckBuilder[HttpCheck, Response, NodeSelector, String](StringBodyExtender, cssPreparer) {
+    new HttpBodyCssCheckBuilder[String](expression, nodeAttribute) with HttpBodyCssOfType
+}
 
-      import extractorFactory._
+class HttpBodyCssCheckBuilder[X: NodeConverter](private[body] val expression: Expression[String], private[body] val nodeAttribute: Option[String])(implicit extractorFactory: CssExtractorFactory)
+    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, NodeSelector, String](StringBodyExtender, HttpBodyCssCheckBuilder.cssPreparer) {
 
-      def findExtractor(occurrence: Int) = expression.map(criterion => newSingleExtractor((criterion, nodeAttribute), occurrence))
-      def findAllExtractor = expression.map(newMultipleExtractor(_, nodeAttribute))
-      def countExtractor = expression.map(newCountExtractor(_, nodeAttribute))
-    }
+  import extractorFactory._
+
+  def findExtractor(occurrence: Int) = expression.map(criterion => newSingleExtractor((criterion, nodeAttribute), occurrence))
+  def findAllExtractor = expression.map(newMultipleExtractor(_, nodeAttribute))
+  def countExtractor = expression.map(newCountExtractor(_, nodeAttribute))
 }

@@ -251,10 +251,23 @@ Gatling supports `CSS Selectors <http://jodd.org/doc/csselly>`_.
 *expression*  can be a plain ``String``, a ``String`` using Gatling EL or an ``Expression[String]``.
 
 *attribute* is an optional ``String``.
+
 When filled, check is performed against the attribute value.
 Otherwise check is performed against the node text content.
 
 .. includecode:: code/Checks.scala#css
+
+You can define an different return type with the ``ofType[T]`` extra step:
+
+.. includecode:: code/Checks.scala#css-ofType
+
+Gatling provides built-in support for the following types:
+
+* String
+* Node
+
+Specifying a ``Node`` let you perform complex deep DOM tree traversing, typically in a ``transform`` check step.
+Node is a `Jodd Lagardo <http://jodd.org/doc/lagarto/>`_ DOM `Node <http://jodd.org/api/jodd/lagarto/dom/Node.html>`_.
 
 .. _http-check-checksum:
 

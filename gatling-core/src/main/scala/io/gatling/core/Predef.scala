@@ -27,6 +27,7 @@ object Predef extends CoreModule {
   type Status = io.gatling.core.result.message.Status
   type Simulation = io.gatling.core.scenario.Simulation
   type Assertion = io.gatling.core.assertion.Assertion
+  type Node = jodd.lagarto.dom.Node
 
   /**
    * Offers the same implicits conversions as [[scala.concurrent.duration.DurationInt]] for Java's Integer.

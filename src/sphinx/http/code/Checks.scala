@@ -100,6 +100,10 @@ class Checks {
     css("article.more a", "href")
     //#css
 
+    //#css-ofType
+    css("article.more a", "href").ofType[Node]
+    //#css-ofType
+
     jsonPath("$..foo.bar[2].baz").
     //#transform
     transform(string => string + "foo")

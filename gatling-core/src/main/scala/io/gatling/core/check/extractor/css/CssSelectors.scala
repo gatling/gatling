@@ -38,16 +38,13 @@ class CssSelectors(implicit configuration: GatlingConfiguration) {
 
   def parse(string: String) = new NodeSelector(domBuilder.parse(string))
 
-  def extractAll(selector: NodeSelector, criterion: (String, Option[String])): Vector[String] = {
+  def extractAll[X: NodeConverter](selector: NodeSelector, criterion: (String, Option[String])): Vector[X] = {
 
     val (query, nodeAttribute) = criterion
     val selectors = selectorCache.get(query)
 
     selector.select(selectors).flatMap { node =>
-      nodeAttribute match {
-        case Some(attr) => Option(node.getAttribute(attr))
-        case _          => Some(node.getTextContent.trim)
-      }
+      NodeConverter[X].convert(node, nodeAttribute)
     }(breakOut)
   }
 }
