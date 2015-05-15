@@ -15,7 +15,10 @@
  */
 package io.gatling.core
 
+import scala.annotation.tailrec
+
 import io.gatling.core.validation._
+import io.gatling.core.session.el._
 
 package object session {
 
@@ -36,5 +39,45 @@ package object session {
   def resolveOptionalExpression[T](expression: Option[Expression[T]], session: Session): Validation[Option[T]] = expression match {
     case None      => NoneSuccess
     case Some(exp) => exp(session).map(Some.apply)
+  }
+
+  def resolveIterable[X](iterable: Iterable[(String, Expression[X])]): Expression[Seq[(String, X)]] = {
+
+      @tailrec
+      def resolveRec(session: Session, entries: Iterator[(String, Expression[X])], acc: List[(String, X)]): Validation[Seq[(String, X)]] = {
+        if (entries.isEmpty)
+          acc.reverse.success
+        else {
+          val (key, elValue) = entries.next()
+          elValue(session) match {
+            case Success(value)   => resolveRec(session, entries, (key -> value) :: acc)
+            case failure: Failure => failure
+          }
+        }
+      }
+
+    (session: Session) => resolveRec(session, iterable.iterator, Nil)
+  }
+
+  def seq2SeqExpression(seq: Seq[(String, Any)]): Expression[Seq[(String, Any)]] = {
+    val elValues: Seq[(String, Expression[Any])] = seq.map {
+      case (key, value) =>
+        val elValue = value match {
+          case s: String => s.el[Any]
+          case v         => v.expression
+        }
+        key -> elValue
+    }
+
+    resolveIterable(elValues)
+  }
+
+  def map2SeqExpression(map: Map[String, Any]): Expression[Seq[(String, Any)]] = {
+    val elValues: Map[String, Expression[Any]] = map.mapValues {
+      case s: String => s.el[Any]
+      case v         => v.expression
+    }
+
+    resolveIterable(elValues)
   }
 }

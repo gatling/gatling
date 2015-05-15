@@ -22,15 +22,12 @@ import com.ning.http.client.uri.Uri
 
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
-import io.gatling.core.validation._
 import io.gatling.http.check.status.HttpStatusCheckBuilder._
 import io.gatling.http.util.HttpHelper._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.config.Proxy
 import io.gatling.http.util.HttpHelper
-
-import scala.annotation.tailrec
 
 case class CommonAttributes(
   requestName: Expression[String],
@@ -68,46 +65,6 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
 
   def queryParam(key: Expression[String], value: Expression[Any]): B = queryParam(SimpleParam(key, value))
   def multivaluedQueryParam(key: Expression[String], values: Expression[Seq[Any]]): B = queryParam(MultivaluedParam(key, values))
-
-  private[http] def resolveIterable(iterable: Iterable[(String, Expression[Any])]): Expression[Seq[(String, Any)]] = {
-
-      @tailrec
-      def resolveRec(session: Session, entries: Iterator[(String, Expression[Any])], acc: List[(String, Any)]): Validation[Seq[(String, Any)]] = {
-        if (entries.isEmpty)
-          acc.reverse.success
-        else {
-          val (key, elValue) = entries.next()
-          elValue(session) match {
-            case Success(value)   => resolveRec(session, entries, (key -> value) :: acc)
-            case failure: Failure => failure
-          }
-        }
-      }
-
-    (session: Session) => resolveRec(session, iterable.iterator, Nil)
-  }
-
-  private[http] def seq2SeqExpression(seq: Seq[(String, Any)]): Expression[Seq[(String, Any)]] = {
-    val elValues: Seq[(String, Expression[Any])] = seq.map {
-      case (key, value) =>
-        val elValue = value match {
-          case s: String => s.el[Any]
-          case v         => v.expression
-        }
-        key -> elValue
-    }
-
-    resolveIterable(elValues)
-  }
-
-  private[http] def map2SeqExpression(map: Map[String, Any]): Expression[Seq[(String, Any)]] = {
-    val elValues: Map[String, Expression[Any]] = map.mapValues {
-      case s: String => s.el[Any]
-      case v         => v.expression
-    }
-
-    resolveIterable(elValues)
-  }
 
   def queryParamSeq(seq: Seq[(String, Any)]): B = queryParamSeq(seq2SeqExpression(seq))
   def queryParamSeq(seq: Expression[Seq[(String, Any)]]): B = queryParam(ParamSeq(seq))

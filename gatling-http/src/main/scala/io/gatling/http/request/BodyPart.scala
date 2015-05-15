@@ -61,12 +61,16 @@ object BodyPart {
 }
 
 case class BodyPartAttributes(
-  contentType: Option[Expression[String]] = None,
-  charset: Option[Charset] = None,
-  dispositionType: Option[Expression[String]] = None,
-  fileName: Option[Expression[String]] = None,
-  contentId: Option[Expression[String]] = None,
-  transferEncoding: Option[String] = None)
+    contentType: Option[Expression[String]] = None,
+    charset: Option[Charset] = None,
+    dispositionType: Option[Expression[String]] = None,
+    fileName: Option[Expression[String]] = None,
+    contentId: Option[Expression[String]] = None,
+    transferEncoding: Option[String] = None,
+    customHeaders: List[(String, Expression[String])] = Nil) {
+
+  lazy val customHeadersExpression: Expression[Seq[(String, String)]] = resolveIterable(customHeaders)
+}
 
 case class BodyPart(
     name: Option[Expression[String]],
@@ -79,6 +83,7 @@ case class BodyPart(
   def fileName(fileName: Expression[String]) = copy(attributes = attributes.copy(fileName = Some(fileName)))
   def contentId(contentId: Expression[String]) = copy(attributes = attributes.copy(contentId = Some(contentId)))
   def transferEncoding(transferEncoding: String) = copy(attributes = attributes.copy(transferEncoding = Some(transferEncoding)))
+  def header(name: String, value: Expression[String]) = copy(attributes = attributes.copy(customHeaders = attributes.customHeaders ::: List(name -> value)))
 
   def toMultiPart(session: Session): Validation[Part] =
     for {
@@ -88,8 +93,11 @@ case class BodyPart(
       fileName <- resolveOptionalExpression(attributes.fileName, session)
       contentId <- resolveOptionalExpression(attributes.contentId, session)
       part <- partBuilder(name.orNull, contentType, attributes.charset, fileName, contentId, attributes.transferEncoding)(session)
+      customHeaders <- attributes.customHeadersExpression(session)
+
     } yield {
       dispositionType.foreach(part.setDispositionType)
+      customHeaders.foreach { case (name, value) => part.addCustomHeader(name, value) }
       part
     }
 }

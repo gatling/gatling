@@ -398,6 +398,7 @@ Once bootstrapped, BodyPart has the following methods for setting additional opt
 * ``dispositionType(contentId: String)``, part of the ``Content-Disposition`` header. If not set, defaults to ``form-data``.
 * ``contentId(contentId: Expression[String])``
 * ``transferEncoding(transferEncoding: String)``
+* ``header(name: String, value: Expression[String])``, let you define additional part headers
 
 .. _http-request-processor:
 
