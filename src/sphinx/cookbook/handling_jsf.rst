@@ -18,7 +18,9 @@ You can then build your requests just like you're used to:
 
 .. includecode:: code/HandlingJsf.scala#example-scenario
 
-.. note:: The sample above is taken from the `Primefaces demo <http://www.primefaces.org/showcase-labs>`_
+.. note:: The sample above is taken from the `Primefaces demo <http://www.primefaces.org/showcase-labs>`_.
+
+See Rafael Pestano's `demo project <https://github.com/rmpestano/gatling-jsf-demo>`_ for a complete sample.
 
 Trinidad
 ========

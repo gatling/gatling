@@ -9,11 +9,21 @@ class HandlingJsf {
 
   val jsfViewStateCheck = css("input[name=javax.faces.ViewState]", "value")
     .saveAs("viewState")
+
+  val jsfPartialViewStateCheck = xpath("//update[contains(@id,'ViewState')]")
+    .saveAs("viewState")
+
   def jsfGet(name: String, url: Expression[String]) = http(name).get(url)
     .check(jsfViewStateCheck)
   def jsfPost(name: String, url: Expression[String]) = http(name).post(url)
     .formParam("javax.faces.ViewState", "${viewState}")
     .check(jsfViewStateCheck)
+  def jsfPartialPost(name: String, url: Expression[String]) = http(name)
+    .post(url)
+    .header("Faces-Request", "partial/ajax")
+    .formParam("javax.faces.partial.ajax", "true")
+    .formParam("javax.faces.ViewState", "${viewState}")
+    .check(jsfPartialViewStateCheck)
   //#factory-methods
 
   //#example-scenario
