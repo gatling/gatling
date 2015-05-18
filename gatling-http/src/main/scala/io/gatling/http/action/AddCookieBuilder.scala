@@ -69,6 +69,6 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
       cookie = new Cookie(name, value, false, domain, path, expires, maxAge, false, false)
     } yield storeCookie(session, domain, path, cookie)
 
-    system.actorOf(SessionHook.props(expression, ctx.dataWriters, next, true), actorName("addCookie"))
+    system.actorOf(SessionHook.props(expression, ctx.statsEngine, next, true), actorName("addCookie"))
   }
 }

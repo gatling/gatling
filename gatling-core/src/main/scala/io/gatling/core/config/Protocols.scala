@@ -17,7 +17,7 @@ package io.gatling.core.config
 
 import akka.actor.ActorSystem
 import io.gatling.core.controller.throttle.Throttler
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.Session
 
 import scala.reflect.ClassTag
@@ -45,8 +45,8 @@ case class Protocols(protocols: Map[Class[_ <: Protocol], Protocol]) {
 
   def ++(other: Protocols) = copy(protocols = protocols ++ other.protocols)
 
-  def warmUp(system: ActorSystem, dataWriters: DataWriters, throttler: Throttler)(implicit configuration: GatlingConfiguration): Unit =
-    protocols.values.foreach(_.warmUp(system, dataWriters, throttler))
+  def warmUp(system: ActorSystem, statsEngine: StatsEngine, throttler: Throttler)(implicit configuration: GatlingConfiguration): Unit =
+    protocols.values.foreach(_.warmUp(system, statsEngine, throttler))
 
   val userEnd: Session => Unit =
     session => protocols.values.foreach(_.userEnd(session))

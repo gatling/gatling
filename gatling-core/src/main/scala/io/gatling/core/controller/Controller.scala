@@ -27,16 +27,16 @@ import akka.actor.Props
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ End, Start }
-import io.gatling.core.result.writer.{ DataWriters, UserMessage }
+import io.gatling.core.result.writer.{ StatsEngine, UserMessage }
 import io.gatling.core.runner.Selection
 import io.gatling.core.util.TimeHelper.nowMillis
 
 object Controller extends StrictLogging {
-  def props(selection: Selection, dataWriters: DataWriters, configuration: GatlingConfiguration) =
-    Props(new Controller(selection, dataWriters, configuration))
+  def props(selection: Selection, statsEngine: StatsEngine, configuration: GatlingConfiguration) =
+    Props(new Controller(selection, statsEngine, configuration))
 }
 
-class Controller(selection: Selection, dataWriters: DataWriters, configuration: GatlingConfiguration)
+class Controller(selection: Selection, statsEngine: StatsEngine, configuration: GatlingConfiguration)
     extends ControllerFSM {
 
   startWith(WaitingToStart, NoData)
@@ -107,7 +107,7 @@ class Controller(selection: Selection, dataWriters: DataWriters, configuration: 
       def startNewUser: State = {
         runData.activeUsers += (userMessage.session.userId -> userMessage)
         logger.info(s"Start user #${userMessage.session.userId}")
-        dataWriters ! userMessage
+        statsEngine ! userMessage
         stay()
       }
 
@@ -142,11 +142,11 @@ class Controller(selection: Selection, dataWriters: DataWriters, configuration: 
 
   private def dispatchUserEndToDataWriter(userMessage: UserMessage): Unit = {
     logger.info(s"End user #${userMessage.session.userId}")
-    dataWriters ! userMessage
+    statsEngine ! userMessage
   }
 
   private def terminateDataWritersAndWaitForConfirmation(initData: InitData, exception: Option[Exception]): State = {
-    dataWriters.terminate(self)
+    statsEngine.terminate(self)
     goto(WaitingForDataWritersToTerminate) using EndData(initData, exception)
   }
 

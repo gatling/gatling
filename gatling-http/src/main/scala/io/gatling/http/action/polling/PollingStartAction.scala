@@ -21,7 +21,7 @@ import akka.actor.{ ActorRef, Props }
 
 import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session._
 import io.gatling.core.validation._
 import io.gatling.http.ahc.HttpEngine
@@ -33,9 +33,9 @@ object PollingStartAction {
             period: Expression[FiniteDuration],
             requestDef: HttpRequestDef,
             httpEngine: HttpEngine,
-            dataWriters: DataWriters,
+            statsEngine: StatsEngine,
             next: ActorRef)(implicit configuration: GatlingConfiguration): Props =
-    Props(new PollingStartAction(pollerName, period, requestDef, httpEngine, dataWriters, next))
+    Props(new PollingStartAction(pollerName, period, requestDef, httpEngine, statsEngine, next))
 }
 
 class PollingStartAction(
@@ -43,7 +43,7 @@ class PollingStartAction(
   period: Expression[FiniteDuration],
   requestDef: HttpRequestDef,
   httpEngine: HttpEngine,
-  val dataWriters: DataWriters,
+  val statsEngine: StatsEngine,
   val next: ActorRef)(implicit configuration: GatlingConfiguration)
     extends Interruptable
     with Failable
@@ -59,7 +59,7 @@ class PollingStartAction(
 
       def startPolling(period: FiniteDuration): Unit = {
         logger.info(s"Starting poller $pollerName")
-        val pollingActor = context.actorOf(PollerActor.props(pollerName, period, requestDef, responseBuilderFactory, httpEngine, dataWriters), actorName("pollingActor"))
+        val pollingActor = context.actorOf(PollerActor.props(pollerName, period, requestDef, responseBuilderFactory, httpEngine, statsEngine), actorName("pollingActor"))
 
         val newSession = session.set(pollerName, pollingActor)
 

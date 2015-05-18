@@ -34,7 +34,7 @@ class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionB
 
     val nextAction: Expression[ActorRef] = _ => roundRobin.next.success
 
-    system.actorOf(Switch.props(nextAction, ctx.dataWriters, next), actorName("roundRobinSwitch"))
+    system.actorOf(Switch.props(nextAction, ctx.statsEngine, next), actorName("roundRobinSwitch"))
   }
 
   override def defaultProtocols: Set[Protocol] = {

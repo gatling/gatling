@@ -23,7 +23,7 @@ import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
 class TryMaxBuilder(times: Int, counterName: String, loopNext: ChainBuilder) extends ActionBuilder {
 
   def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
-    val tryMaxActor = system.actorOf(TryMax.props(times, counterName, ctx.dataWriters, next), actorName("tryMax"))
+    val tryMaxActor = system.actorOf(TryMax.props(times, counterName, ctx.statsEngine, next), actorName("tryMax"))
     val loopContent = loopNext.build(system, tryMaxActor, ctx)
     tryMaxActor ! loopContent
     tryMaxActor

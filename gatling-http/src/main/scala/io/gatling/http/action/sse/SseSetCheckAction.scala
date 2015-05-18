@@ -16,19 +16,19 @@
 package io.gatling.http.action.sse
 
 import akka.actor.{ Props, ActorRef }
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session._
 import io.gatling.core.validation.Validation
 import io.gatling.http.action.RequestAction
 import io.gatling.http.check.ws._
 
 object SseSetCheckAction {
-  def props(requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String, dataWriters: DataWriters, next: ActorRef) =
-    Props(new SseSetCheckAction(requestName, checkBuilder, sseName, dataWriters, next))
+  def props(requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String, statsEngine: StatsEngine, next: ActorRef) =
+    Props(new SseSetCheckAction(requestName, checkBuilder, sseName, statsEngine, next))
 }
 
-class SseSetCheckAction(val requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String, dataWriters: DataWriters, val next: ActorRef)
-    extends RequestAction(dataWriters) with SseAction {
+class SseSetCheckAction(val requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String, statsEngine: StatsEngine, val next: ActorRef)
+    extends RequestAction(statsEngine) with SseAction {
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {

@@ -16,18 +16,18 @@
 package io.gatling.http.action.sse
 
 import akka.actor.{ Props, ActorRef }
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ Session, Expression }
 import io.gatling.core.validation.Validation
 import io.gatling.http.action.RequestAction
 
 object SseReconciliateAction {
-  def props(requestName: Expression[String], sseName: String, dataWriters: DataWriters, next: ActorRef) =
-    Props(new SseReconciliateAction(requestName, sseName, dataWriters, next))
+  def props(requestName: Expression[String], sseName: String, statsEngine: StatsEngine, next: ActorRef) =
+    Props(new SseReconciliateAction(requestName, sseName, statsEngine, next))
 }
 
-class SseReconciliateAction(val requestName: Expression[String], sseName: String, dataWriters: DataWriters, val next: ActorRef)
-    extends RequestAction(dataWriters) with SseAction {
+class SseReconciliateAction(val requestName: Expression[String], sseName: String, statsEngine: StatsEngine, val next: ActorRef)
+    extends RequestAction(statsEngine) with SseAction {
 
   override def sendRequest(requestName: String,
                            session: Session): Validation[Unit] =

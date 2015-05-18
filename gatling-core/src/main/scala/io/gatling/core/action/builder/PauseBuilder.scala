@@ -39,7 +39,7 @@ class PauseBuilder(duration: Expression[Duration], force: Option[PauseType]) ext
       case Disabled => next
       case pauseType =>
         val generator = pauseType.generator(duration)
-        system.actorOf(Pause.props(generator, ctx.dataWriters, next), actorName("pause"))
+        system.actorOf(Pause.props(generator, ctx.statsEngine, next), actorName("pause"))
     }
   }
 }

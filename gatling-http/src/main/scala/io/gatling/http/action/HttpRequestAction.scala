@@ -20,7 +20,7 @@ import com.typesafe.scalalogging.StrictLogging
 import akka.actor.{ Props, ActorRef }
 import io.gatling.core.akka.ActorNames
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.Session
 import io.gatling.core.validation._
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
@@ -29,8 +29,8 @@ import io.gatling.http.response._
 
 object HttpRequestAction extends ActorNames with StrictLogging {
 
-  def props(httpRequestDef: HttpRequestDef, httpEngine: HttpEngine, dataWriters: DataWriters, next: ActorRef)(implicit configuration: GatlingConfiguration) =
-    Props(new HttpRequestAction(httpRequestDef, httpEngine, dataWriters, next))
+  def props(httpRequestDef: HttpRequestDef, httpEngine: HttpEngine, statsEngine: StatsEngine, next: ActorRef)(implicit configuration: GatlingConfiguration) =
+    Props(new HttpRequestAction(httpRequestDef, httpEngine, statsEngine, next))
 }
 
 /**
@@ -39,11 +39,11 @@ object HttpRequestAction extends ActorNames with StrictLogging {
  * @constructor constructs an HttpRequestAction
  * @param httpRequestDef the request definition
  * @param httpEngine the HttpEngine
- * @param dataWriters the DataWriters
+ * @param statsEngine the StatsEngine
  * @param next the next action that will be executed after the request
  */
-class HttpRequestAction(httpRequestDef: HttpRequestDef, httpEngine: HttpEngine, dataWriters: DataWriters, val next: ActorRef)(implicit configuration: GatlingConfiguration)
-    extends RequestAction(dataWriters) {
+class HttpRequestAction(httpRequestDef: HttpRequestDef, httpEngine: HttpEngine, statsEngine: StatsEngine, val next: ActorRef)(implicit configuration: GatlingConfiguration)
+    extends RequestAction(statsEngine) {
 
   import httpRequestDef._
 

@@ -17,22 +17,22 @@ package io.gatling.core.action
 
 import akka.actor.{ Props, ActorRef }
 
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 
 object GroupEnd {
-  def props(dataWriters: DataWriters, next: ActorRef) =
-    Props(new GroupEnd(dataWriters, next))
+  def props(statsEngine: StatsEngine, next: ActorRef) =
+    Props(new GroupEnd(statsEngine, next))
 }
 
-class GroupEnd(dataWriters: DataWriters, val next: ActorRef) extends Chainable {
+class GroupEnd(statsEngine: StatsEngine, val next: ActorRef) extends Chainable {
 
   def execute(session: Session): Unit =
     session.blockStack match {
 
       case (group: GroupBlock) :: tail =>
-        dataWriters.logGroupEnd(session, group, nowMillis)
+        statsEngine.logGroupEnd(session, group, nowMillis)
         next ! session.exitGroup
 
       case _ =>

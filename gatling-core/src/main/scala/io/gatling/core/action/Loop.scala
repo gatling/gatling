@@ -17,12 +17,12 @@ package io.gatling.core.action
 
 import akka.actor.{ Props, ActorRef }
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ LoopBlock, Expression, Session }
 
 object Loop {
-  def props(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, dataWriters: DataWriters, next: ActorRef) =
-    Props(new Loop(continueCondition, counterName, exitASAP, dataWriters, next))
+  def props(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, statsEngine: StatsEngine, next: ActorRef) =
+    Props(new Loop(continueCondition, counterName, exitASAP, statsEngine, next))
 }
 
 /**
@@ -31,12 +31,13 @@ object Loop {
  * @constructor creates a Loop in the scenario
  * @param continueCondition the condition that decides when to exit the loop
  * @param counterName the name of the counter for this loop
+ * @param statsEngine the StatsEngine
  * @param next the chain executed if testFunction evaluates to false
  */
-class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, dataWriters: DataWriters, next: ActorRef) extends BaseActor {
+class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP: Boolean, statsEngine: StatsEngine, next: ActorRef) extends BaseActor {
 
   def initialized(innerLoop: ActorRef): Receive =
-    Interruptable.interrupt(dataWriters) orElse { case m => innerLoop forward m }
+    Interruptable.interrupt(statsEngine) orElse { case m => innerLoop forward m }
 
   val uninitialized: Receive = {
     case loopNext: ActorRef =>

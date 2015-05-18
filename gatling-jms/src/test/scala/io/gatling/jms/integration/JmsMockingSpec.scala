@@ -25,7 +25,7 @@ import org.apache.activemq.jndi.ActiveMQInitialContextFactory
 
 import io.gatling.core.config.{ GatlingConfiguration, Protocols }
 import io.gatling.core.pause.Constant
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.Session
 import io.gatling.core.structure.{ ScenarioContext, ScenarioBuilder }
 import io.gatling.jms.JmsDestination
@@ -60,7 +60,7 @@ trait JmsMockingSpec extends BrokerBasedSpec with JmsModule {
     .listenerCount(1)
 
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit configuration: GatlingConfiguration) = {
-    val actor = sb.build(system, self, ScenarioContext(mock[ActorRef], mock[DataWriters], mock[ActorRef], protocols, Constant, throttled = false))
+    val actor = sb.build(system, self, ScenarioContext(mock[ActorRef], mock[StatsEngine], mock[ActorRef], protocols, Constant, throttled = false))
     actor ! Session("TestSession", "testUser")
     val session = expectMsgClass(timeout, classOf[Session])
 

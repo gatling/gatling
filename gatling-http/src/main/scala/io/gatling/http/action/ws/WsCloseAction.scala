@@ -16,7 +16,7 @@
 package io.gatling.http.action.ws
 
 import akka.actor.{ Props, ActorRef }
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.action.RequestAction
 
@@ -24,17 +24,17 @@ object WsCloseAction {
   def props(
     requestName: Expression[String],
     wsName: String,
-    dataWriters: DataWriters,
+    statsEngine: StatsEngine,
     next: ActorRef) =
-    Props(new WsCloseAction(requestName, wsName, dataWriters, next))
+    Props(new WsCloseAction(requestName, wsName, statsEngine, next))
 }
 
 class WsCloseAction(
   val requestName: Expression[String],
   wsName: String,
-  dataWriters: DataWriters,
+  statsEngine: StatsEngine,
   val next: ActorRef)
-    extends RequestAction(dataWriters)
+    extends RequestAction(statsEngine)
     with WsAction {
 
   override def sendRequest(requestName: String, session: Session) =

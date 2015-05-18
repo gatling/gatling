@@ -31,5 +31,5 @@ import io.gatling.core.session.Expression
 class PaceBuilder(interval: Expression[Duration], counter: String) extends ActionBuilder {
 
   def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-    system.actorOf(Pace.props(interval, counter, ctx.dataWriters, next), actorName("pace"))
+    system.actorOf(Pace.props(interval, counter, ctx.statsEngine, next), actorName("pace"))
 }

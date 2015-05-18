@@ -23,7 +23,7 @@ case class JmsReqReplyActionBuilder(attributes: JmsAttributes) extends ActionBui
 
   def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
     val jmsProtocol = ctx.protocols.protocol[JmsProtocol]
-    val tracker = system.actorOf(JmsRequestTrackerActor.props(ctx.dataWriters), actorName("jmsRequestTracker"))
-    system.actorOf(JmsReqReplyAction.props(attributes, jmsProtocol, tracker, ctx.dataWriters, next), actorName("jmsReqReply"))
+    val tracker = system.actorOf(JmsRequestTrackerActor.props(ctx.statsEngine), actorName("jmsRequestTracker"))
+    system.actorOf(JmsReqReplyAction.props(attributes, jmsProtocol, tracker, ctx.statsEngine, next), actorName("jmsReqReply"))
   }
 }

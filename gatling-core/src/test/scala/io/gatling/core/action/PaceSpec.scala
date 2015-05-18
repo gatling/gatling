@@ -18,14 +18,14 @@ package io.gatling.core.action
 import scala.concurrent.duration._
 
 import io.gatling.AkkaSpec
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.Predef.value2Expression
 import io.gatling.core.session.Session
 
 class PaceSpec extends AkkaSpec {
 
   "pace" should "run actions with a minimum wait time" in {
-    val instance = system.actorOf(Pace.props(3.seconds, "paceCounter", mock[DataWriters], self))
+    val instance = system.actorOf(Pace.props(3.seconds, "paceCounter", mock[StatsEngine], self))
 
     // Send session, expect response near-instantly
     instance ! Session("TestScenario", "testUser")
@@ -41,7 +41,7 @@ class PaceSpec extends AkkaSpec {
   }
 
   it should "run actions immediately if the minimum time has expired" in {
-    val instance = system.actorOf(Pace.props(3.seconds, "paceCounter", mock[DataWriters], self))
+    val instance = system.actorOf(Pace.props(3.seconds, "paceCounter", mock[StatsEngine], self))
 
     // Send session, expect response near-instantly
     instance ! Session("TestScenario", "testUser")

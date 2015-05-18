@@ -19,7 +19,7 @@ import com.ning.http.client.Request
 
 import akka.actor.{ Props, ActorRef }
 import io.gatling.core.action.Interruptable
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
@@ -32,10 +32,10 @@ object WsOpenAction {
             wsName: String,
             request: Expression[Request],
             checkBuilder: Option[WsCheckBuilder],
-            dataWriters: DataWriters,
+            statsEngine: StatsEngine,
             next: ActorRef,
             protocol: HttpProtocol)(implicit httpEngine: HttpEngine) =
-    Props(new WsOpenAction(requestName, wsName, request, checkBuilder, dataWriters, next, protocol))
+    Props(new WsOpenAction(requestName, wsName, request, checkBuilder, statsEngine, next, protocol))
 }
 
 class WsOpenAction(
@@ -43,7 +43,7 @@ class WsOpenAction(
     wsName: String,
     request: Expression[Request],
     checkBuilder: Option[WsCheckBuilder],
-    val dataWriters: DataWriters,
+    val statsEngine: StatsEngine,
     val next: ActorRef,
     protocol: HttpProtocol)(implicit httpEngine: HttpEngine) extends Interruptable with WsAction {
 
@@ -51,7 +51,7 @@ class WsOpenAction(
 
       def open(tx: WsTx): Unit = {
         logger.info(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-        val wsActor = context.actorOf(WsActor.props(wsName, dataWriters), actorName("wsActor"))
+        val wsActor = context.actorOf(WsActor.props(wsName, statsEngine), actorName("wsActor"))
         httpEngine.startWsTransaction(tx, wsActor)
       }
 

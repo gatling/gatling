@@ -125,7 +125,7 @@ trait ResourceFetcher {
           Some(httpRequest)
 
         case Failure(m) =>
-          dataWriters.foreach(_.reportUnbuildableRequest(requestName, session, m))
+          statsEngine.foreach(_.reportUnbuildableRequest(requestName, session, m))
           None
       }
 

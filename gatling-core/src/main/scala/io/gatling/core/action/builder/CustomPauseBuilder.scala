@@ -32,6 +32,6 @@ class CustomPauseBuilder(delayGenerator: Expression[Long]) extends ActionBuilder
   def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
     ctx.pauseType match {
       case Disabled => next
-      case _        => system.actorOf(Pause.props(delayGenerator, ctx.dataWriters, next), actorName("customPause"))
+      case _        => system.actorOf(Pause.props(delayGenerator, ctx.statsEngine, next), actorName("customPause"))
     }
 }

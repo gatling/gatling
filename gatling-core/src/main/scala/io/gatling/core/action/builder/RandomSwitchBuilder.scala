@@ -76,7 +76,7 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
 
       determineNextAction(randomWithinAccuracy, possibleActions).success
     }
-    system.actorOf(Switch.props(nextAction, ctx.dataWriters, next), actorName("randomSwitch"))
+    system.actorOf(Switch.props(nextAction, ctx.statsEngine, next), actorName("randomSwitch"))
   }
 
   override def defaultProtocols: Set[Protocol] = {

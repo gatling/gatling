@@ -21,7 +21,7 @@ import akka.actor.{ Props, ActorRef }
 import io.gatling.core.Predef.Session
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.message.{ ResponseTimings, Status, KO, OK }
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.validation.Failure
 
 import javax.jms.Message
@@ -47,14 +47,14 @@ case class MessageSent(
 case class MessageReceived(responseId: String, received: Long, message: Message)
 
 object JmsRequestTrackerActor {
-  def props(dataWriters: DataWriters) = Props(new JmsRequestTrackerActor(dataWriters))
+  def props(statsEngine: StatsEngine) = Props(new JmsRequestTrackerActor(statsEngine))
 }
 
 /**
  * Bookkeeping actor to correlate request and response JMS messages
  * Once a message is correlated, it publishes to the Gatling core DataWriter
  */
-class JmsRequestTrackerActor(dataWriters: DataWriters) extends BaseActor {
+class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
 
   // messages to be tracked through this HashMap - note it is a mutable hashmap
   val sentMessages = mutable.HashMap.empty[String, (Long, Long, List[JmsCheck], Session, ActorRef, String)]
@@ -106,7 +106,7 @@ class JmsRequestTrackerActor(dataWriters: DataWriters) extends BaseActor {
 
       def executeNext(updatedSession: Session, status: Status, message: Option[String] = None) = {
         val timings = ResponseTimings(startSend, endSend, endSend, received)
-        dataWriters.logResponse(updatedSession, title, timings, status, None, message)
+        statsEngine.logResponse(updatedSession, title, timings, status, None, message)
         next ! updatedSession.logGroupRequest((received - startSend).toInt, status).increaseDrift(nowMillis - received)
       }
 

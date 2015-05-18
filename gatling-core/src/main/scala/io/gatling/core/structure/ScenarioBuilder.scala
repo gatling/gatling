@@ -16,7 +16,7 @@
 package io.gatling.core.structure
 
 import akka.actor.{ ActorSystem, ActorRef }
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 
 import scala.concurrent.duration.Duration
 
@@ -81,14 +81,14 @@ case class PopulationBuilder(
   /**
    * @param system the actor system
    * @param controller the controller
-   * @param dataWriters the DataWriters
+   * @param statsEngine the StatsEngine
    * @param userEnd the exit point
    * @param globalProtocols the protocols
    * @param globalPauseType the pause type
    * @param globalThrottling the optional throttling profile
    * @return the scenario
    */
-  private[core] def build(system: ActorSystem, controller: ActorRef, dataWriters: DataWriters, userEnd: ActorRef, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[ThrottlingProfile])(implicit configuration: GatlingConfiguration): Scenario = {
+  private[core] def build(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, userEnd: ActorRef, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[ThrottlingProfile])(implicit configuration: GatlingConfiguration): Scenario = {
 
     val resolvedPauseType = globalThrottling.orElse(scenarioThrottling).map { _ =>
       logger.info("Throttle is enabled, disabling pauses")
@@ -97,11 +97,11 @@ case class PopulationBuilder(
 
     val protocols = defaultProtocols ++ globalProtocols ++ scenarioProtocols
 
-    val ctx = ScenarioContext(controller, dataWriters, userEnd, protocols, resolvedPauseType, globalThrottling.isDefined || scenarioThrottling.isDefined)
+    val ctx = ScenarioContext(controller, statsEngine, userEnd, protocols, resolvedPauseType, globalThrottling.isDefined || scenarioThrottling.isDefined)
 
     val entryPoint = scenarioBuilder.build(system, userEnd, ctx)
     new Scenario(scenarioBuilder.name, entryPoint, injectionProfile, ctx)
   }
 }
 
-case class ScenarioContext(controller: ActorRef, dataWriters: DataWriters, userEnd: ActorRef, protocols: Protocols, pauseType: PauseType, throttled: Boolean)
+case class ScenarioContext(controller: ActorRef, statsEngine: StatsEngine, userEnd: ActorRef, protocols: Protocols, pauseType: PauseType, throttled: Boolean)

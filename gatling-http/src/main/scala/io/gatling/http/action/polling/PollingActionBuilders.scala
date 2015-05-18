@@ -35,7 +35,7 @@ class PollingStartBuilder(
 
   override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
     val requestDef = requestBuilder.build(ctx.protocols.protocol[HttpProtocol], ctx.throttled)
-    system.actorOf(PollingStartAction.props(pollerName, period, requestDef, httpEngine, ctx.dataWriters, next), actorName("pollingStart"))
+    system.actorOf(PollingStartAction.props(pollerName, period, requestDef, httpEngine, ctx.statsEngine, next), actorName("pollingStart"))
   }
 }
 
@@ -44,5 +44,5 @@ class PollingStopBuilder(
     extends HttpActionBuilder {
 
   override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-    system.actorOf(PollingStopAction.props(pollerName, ctx.dataWriters, next), actorName("pollingStop"))
+    system.actorOf(PollingStopAction.props(pollerName, ctx.statsEngine, next), actorName("pollingStop"))
 }

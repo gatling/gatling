@@ -15,7 +15,7 @@
  */
 package io.gatling.core.action
 
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 
 import scala.concurrent.duration.DurationLong
 
@@ -24,18 +24,18 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 
 object Pause {
-  def props(delayGenerator: Expression[Long], dataWriters: DataWriters, next: ActorRef) =
-    Props(new Pause(delayGenerator, dataWriters, next))
+  def props(delayGenerator: Expression[Long], statsEngine: StatsEngine, next: ActorRef) =
+    Props(new Pause(delayGenerator, statsEngine, next))
 }
 
 /**
  * PauseAction provides a convenient means to implement pause actions based on random distributions.
  *
  * @param pauseDuration a function that can be used to generate a delay for the pause action
- * @param dataWriters the DataWriters
+ * @param statsEngine the StatsEngine
  * @param next the next action to execute, which will be notified after the pause is complete
  */
-class Pause(pauseDuration: Expression[Long], val dataWriters: DataWriters, val next: ActorRef) extends Interruptable with Failable {
+class Pause(pauseDuration: Expression[Long], val statsEngine: StatsEngine, val next: ActorRef) extends Interruptable with Failable {
 
   /**
    * Generates a duration if required or use the one given and defer

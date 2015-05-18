@@ -16,7 +16,7 @@
 package io.gatling.core.scenario
 
 import akka.actor.{ ActorSystem, ActorRef }
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
@@ -96,14 +96,14 @@ abstract class Simulation {
     }
   }
 
-  private[core] def build(system: ActorSystem, controller: ActorRef, dataWriters: DataWriters, userEnd: ActorRef)(implicit configuration: GatlingConfiguration): SimulationDef = {
+  private[core] def build(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, userEnd: ActorRef)(implicit configuration: GatlingConfiguration): SimulationDef = {
 
     require(_populationBuilders.nonEmpty, "No scenario set up")
     val duplicates = _populationBuilders.groupBy(_.scenarioBuilder.name).collect { case (name, scns) if scns.size > 1 => name }
     require(duplicates.isEmpty, s"Scenario names must be unique but found duplicates: $duplicates")
     _populationBuilders.foreach(scn => require(scn.scenarioBuilder.actionBuilders.nonEmpty, s"Scenario ${scn.scenarioBuilder.name} is empty"))
 
-    val scenarios = _populationBuilders.map(_.build(system, controller, dataWriters, userEnd, _globalProtocols, _globalPauseType, _globalThrottling))
+    val scenarios = _populationBuilders.map(_.build(system, controller, statsEngine, userEnd, _globalProtocols, _globalPauseType, _globalThrottling))
 
     val scenarioThrottlings: Map[String, ThrottlingProfile] = _populationBuilders
       .flatMap(scn => scn.scenarioThrottling.map(t => scn.scenarioBuilder.name -> t)).toMap

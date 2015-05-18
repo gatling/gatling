@@ -16,18 +16,18 @@
 package io.gatling.http.action.sse
 
 import akka.actor.{ Props, ActorRef }
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session._
 import io.gatling.core.validation.Validation
 import io.gatling.http.action.RequestAction
 
 object SseCancelCheckAction {
-  def props(requestName: Expression[String], sseName: String, dataWriters: DataWriters, next: ActorRef) =
-    Props(new SseCancelCheckAction(requestName, sseName, dataWriters, next))
+  def props(requestName: Expression[String], sseName: String, statsEngine: StatsEngine, next: ActorRef) =
+    Props(new SseCancelCheckAction(requestName, sseName, statsEngine, next))
 }
 
-class SseCancelCheckAction(val requestName: Expression[String], sseName: String, dataWriters: DataWriters, val next: ActorRef)
-    extends RequestAction(dataWriters) {
+class SseCancelCheckAction(val requestName: Expression[String], sseName: String, statsEngine: StatsEngine, val next: ActorRef)
+    extends RequestAction(statsEngine) {
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
     for {

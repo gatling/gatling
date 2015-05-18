@@ -30,5 +30,5 @@ import io.gatling.core.structure.ScenarioContext
 class SessionHookBuilder(sessionFunction: Expression[Session], interruptable: Boolean = false) extends ActionBuilder {
 
   def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-    system.actorOf(SessionHook.props(sessionFunction, ctx.dataWriters, next, interruptable), actorName("sessionHook"))
+    system.actorOf(SessionHook.props(sessionFunction, ctx.statsEngine, next, interruptable), actorName("sessionHook"))
 }

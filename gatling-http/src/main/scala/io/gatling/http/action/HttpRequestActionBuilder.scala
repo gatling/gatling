@@ -33,6 +33,6 @@ class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder, httpEngine: H
 
   def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef = {
     val httpRequest = requestBuilder.build(ctx.protocols.protocol[HttpProtocol], ctx.throttled)
-    system.actorOf(HttpRequestAction.props(httpRequest, httpEngine, ctx.dataWriters, next), actorName("httpRequest"))
+    system.actorOf(HttpRequestAction.props(httpRequest, httpEngine, ctx.statsEngine, next), actorName("httpRequest"))
   }
 }

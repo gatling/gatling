@@ -16,11 +16,11 @@
 package io.gatling.http.action
 
 import io.gatling.core.action.{ Failable, Interruptable }
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.Validation
 
-abstract class RequestAction(val dataWriters: DataWriters) extends Interruptable with Failable {
+abstract class RequestAction(val statsEngine: StatsEngine) extends Interruptable with Failable {
 
   def requestName: Expression[String]
   def sendRequest(requestName: String, session: Session): Validation[Unit]
@@ -29,7 +29,7 @@ abstract class RequestAction(val dataWriters: DataWriters) extends Interruptable
     requestName(session).flatMap { resolvedRequestName =>
 
       val outcome = sendRequest(resolvedRequestName, session)
-      outcome.onFailure(errorMessage => dataWriters.reportUnbuildableRequest(resolvedRequestName, session, errorMessage))
+      outcome.onFailure(errorMessage => statsEngine.reportUnbuildableRequest(resolvedRequestName, session, errorMessage))
       outcome
     }
 }

@@ -16,12 +16,12 @@
 package io.gatling.core.action
 
 import akka.actor.{ Props, ActorRef }
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 
 object If {
-  def props(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, dataWriters: DataWriters, next: ActorRef) =
-    Props(new If(condition, thenNext, elseNext, dataWriters, next))
+  def props(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, statsEngine: StatsEngine, next: ActorRef) =
+    Props(new If(condition, thenNext, elseNext, statsEngine, next))
 }
 
 /**
@@ -31,10 +31,10 @@ object If {
  * @param condition the condition that decides whether to execute thenNext or elseNext
  * @param thenNext the chain of actions executed if condition evaluates to true
  * @param elseNext chain of actions executed if condition evaluates to false
- * @param dataWriters the DataWriters
+ * @param statsEngine the StatsEngine
  * @param next chain of actions executed if condition evaluates to false and elseNext equals None
  */
-class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, val dataWriters: DataWriters, val next: ActorRef) extends Interruptable with Failable {
+class If(condition: Expression[Boolean], thenNext: ActorRef, elseNext: ActorRef, val statsEngine: StatsEngine, val next: ActorRef) extends Interruptable with Failable {
 
   /**
    * Evaluates the condition and decides what to do next

@@ -24,11 +24,11 @@ object GroupBuilder {
 
   def start(groupName: Expression[String]) = new ActionBuilder {
     def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-      system.actorOf(GroupStart.props(groupName, ctx.dataWriters, next), actorName("groupStart"))
+      system.actorOf(GroupStart.props(groupName, ctx.statsEngine, next), actorName("groupStart"))
   }
 
   val End = new ActionBuilder {
     def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-      system.actorOf(GroupEnd.props(ctx.dataWriters, next), actorName("groupEnd"))
+      system.actorOf(GroupEnd.props(ctx.statsEngine, next), actorName("groupEnd"))
   }
 }

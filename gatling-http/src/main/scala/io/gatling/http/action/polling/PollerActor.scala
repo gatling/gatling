@@ -22,7 +22,7 @@ import akka.actor.Props
 import io.gatling.core.session.Session
 import io.gatling.core.validation._
 import io.gatling.http.ahc.{ HttpTx, HttpEngine }
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.http.fetch.RegularResourceFetched
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response.ResponseBuilderFactory
@@ -33,8 +33,8 @@ object PollerActor {
             requestDef: HttpRequestDef,
             responseBuilderFactory: ResponseBuilderFactory,
             httpEngine: HttpEngine,
-            dataWriters: DataWriters): Props =
-    Props(new PollerActor(pollerName, period, requestDef, responseBuilderFactory, httpEngine, dataWriters))
+            statsEngine: StatsEngine): Props =
+    Props(new PollerActor(pollerName, period, requestDef, responseBuilderFactory, httpEngine, statsEngine))
 
   private[polling] val PollTimerName = "pollTimer"
 }
@@ -45,7 +45,7 @@ class PollerActor(
   requestDef: HttpRequestDef,
   responseBuilderFactory: ResponseBuilderFactory,
   httpEngine: HttpEngine,
-  dataWriters: DataWriters)
+  statsEngine: StatsEngine)
     extends PollerFSM {
 
   import PollerActor.PollTimerName
@@ -67,7 +67,7 @@ class PollerActor(
         }
 
         httpRequest <- requestDef.build(requestName, session).mapError { errorMessage =>
-          dataWriters.reportUnbuildableRequest(pollerName, session, errorMessage)
+          statsEngine.reportUnbuildableRequest(pollerName, session, errorMessage)
           errorMessage
         }
 

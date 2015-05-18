@@ -22,7 +22,7 @@ import io.gatling.core.result.writer._
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.result.message._
 
-class MockDataWriters(system: ActorSystem) extends DataWriters(system, Nil) with StrictLogging {
+class MockStatsEngine(system: ActorSystem) extends DefaultStatsEngine(system, Nil) with StrictLogging {
 
   var dataWriterMsg: List[DataWriterMessage] = List()
 

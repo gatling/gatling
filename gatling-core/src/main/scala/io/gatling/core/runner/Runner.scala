@@ -20,7 +20,7 @@ import akka.pattern.ask
 import io.gatling.core.action.UserEnd
 import io.gatling.core.config.{ Protocols, GatlingConfiguration }
 import io.gatling.core.funspec.GatlingFunSpec
-import io.gatling.core.result.writer.{ RunMessage, DataWriters }
+import io.gatling.core.result.writer._
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
@@ -59,19 +59,19 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
 
       val runMessage = RunMessage(selection.simulationClass.getName, selection.simulationId, nowMillis, selection.description)
 
-      val dataWritersInit = DataWriters(system, simulation._populationBuilders, simulation._assertions, selection, runMessage)
-      val dataWriters = Await.result(dataWritersInit, 5 seconds).get
+      val statsEngineInit = new DefaultStatsEngineFactory().apply(system, simulation._populationBuilders, simulation._assertions, selection, runMessage)
+      val statsEngine = Await.result(statsEngineInit, 5 seconds).get
 
-      val controller = system.actorOf(Controller.props(selection, dataWriters, configuration), "gatling-controller")
+      val controller = system.actorOf(Controller.props(selection, statsEngine, configuration), "gatling-controller")
       val userEnd = system.actorOf(UserEnd.props(controller), "userEnd")
 
-      val simulationDef = simulation.build(system, controller, dataWriters, userEnd)
+      val simulationDef = simulation.build(system, controller, statsEngine, userEnd)
 
       val throttler = Throttler(system, simulationDef, "throttler")
 
       simulationDef.scenarios.foldLeft(Protocols()) { (protocols, scenario) =>
         protocols ++ scenario.ctx.protocols
-      }.warmUp(system, dataWriters, throttler)
+      }.warmUp(system, statsEngine, throttler)
 
       System.gc()
       System.gc()

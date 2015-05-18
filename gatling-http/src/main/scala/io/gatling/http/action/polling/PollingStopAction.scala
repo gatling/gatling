@@ -16,19 +16,19 @@
 package io.gatling.http.action.polling
 
 import akka.actor.{ ActorRef, Props }
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session._
 import io.gatling.http.action.UnnamedRequestAction
 
 object PollingStopAction {
-  def props(pollerName: String, dataWriters: DataWriters, next: ActorRef): Props =
-    Props(new PollingStopAction(pollerName, dataWriters, next))
+  def props(pollerName: String, statsEngine: StatsEngine, next: ActorRef): Props =
+    Props(new PollingStopAction(pollerName, statsEngine, next))
 }
 class PollingStopAction(
   pollerName: String,
-  dataWriters: DataWriters,
+  statsEngine: StatsEngine,
   val next: ActorRef)
-    extends UnnamedRequestAction(dataWriters)
+    extends UnnamedRequestAction(statsEngine)
     with PollingAction {
 
   override def sendRequest(requestName: String, session: Session) =

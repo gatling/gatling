@@ -17,16 +17,16 @@ package io.gatling.core.action
 
 import akka.actor.{ Props, ActorRef }
 import io.gatling.core.result.message.KO
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 
 object ExitHereIfFailed {
-  def props(userEnd: ActorRef, dataWriters: DataWriters, next: ActorRef) =
-    Props(new ExitHereIfFailed(userEnd, dataWriters, next))
+  def props(userEnd: ActorRef, statsEngine: StatsEngine, next: ActorRef) =
+    Props(new ExitHereIfFailed(userEnd, statsEngine, next))
 }
 
-class ExitHereIfFailed(userEnd: ActorRef, dataWriters: DataWriters, val next: ActorRef) extends Chainable {
+class ExitHereIfFailed(userEnd: ActorRef, statsEngine: StatsEngine, val next: ActorRef) extends Chainable {
 
   def execute(session: Session): Unit = {
 
@@ -35,7 +35,7 @@ class ExitHereIfFailed(userEnd: ActorRef, dataWriters: DataWriters, val next: Ac
         val now = nowMillis
 
         session.blockStack.foreach {
-          case group: GroupBlock => dataWriters.logGroupEnd(session, group, now)
+          case group: GroupBlock => statsEngine.logGroupEnd(session, group, now)
           case _                 =>
         }
 

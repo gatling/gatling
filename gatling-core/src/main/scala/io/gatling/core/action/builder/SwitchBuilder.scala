@@ -38,7 +38,7 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
     val nextAction = value.map(resolvedValue => possibleActions.getOrElse(resolvedValue, elseNextActor))
 
-    system.actorOf(Switch.props(nextAction, ctx.dataWriters, next), actorName("switch"))
+    system.actorOf(Switch.props(nextAction, ctx.statsEngine, next), actorName("switch"))
   }
 
   override def defaultProtocols: Set[Protocol] = {

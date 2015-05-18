@@ -16,15 +16,15 @@
 package io.gatling.core.action
 
 import akka.actor.{ Props, ActorRef }
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 
 object SessionHook {
-  def props(sessionFunction: Expression[Session], dataWriters: DataWriters, next: ActorRef, interruptable: Boolean) =
+  def props(sessionFunction: Expression[Session], statsEngine: StatsEngine, next: ActorRef, interruptable: Boolean) =
     if (interruptable)
-      Props(new SessionHook(sessionFunction, dataWriters, next) with Interruptable)
+      Props(new SessionHook(sessionFunction, statsEngine, next) with Interruptable)
     else
-      Props(new SessionHook(sessionFunction, dataWriters, next))
+      Props(new SessionHook(sessionFunction, statsEngine, next))
 }
 
 /**
@@ -32,10 +32,10 @@ object SessionHook {
  *
  * @constructor Constructs a SimpleAction
  * @param sessionFunction a function for manipulating the Session
- * @param dataWriters the DataWriters
+ * @param statsEngine the StatsEngine
  * @param next the action to be executed after this one
  */
-class SessionHook(sessionFunction: Expression[Session], val dataWriters: DataWriters, val next: ActorRef) extends Chainable with Failable {
+class SessionHook(sessionFunction: Expression[Session], val statsEngine: StatsEngine, val next: ActorRef) extends Chainable with Failable {
 
   /**
    * Applies the function to the Session

@@ -18,19 +18,19 @@ package io.gatling.core.action
 import akka.actor.{ Props, ActorRef }
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.result.message.KO
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ TryMaxBlock, Session }
 import io.gatling.core.validation.{ Failure, Success }
 
 object TryMax {
-  def props(times: Int, counterName: String, dataWriters: DataWriters, next: ActorRef) =
-    Props(new TryMax(times, counterName, dataWriters, next))
+  def props(times: Int, counterName: String, statsEngine: StatsEngine, next: ActorRef) =
+    Props(new TryMax(times, counterName, statsEngine, next))
 }
 
-class TryMax(times: Int, counterName: String, dataWriters: DataWriters, next: ActorRef) extends BaseActor {
+class TryMax(times: Int, counterName: String, statsEngine: StatsEngine, next: ActorRef) extends BaseActor {
 
   def initialized(innerTryMax: ActorRef): Receive =
-    Interruptable.interrupt(dataWriters) orElse { case m => innerTryMax forward m }
+    Interruptable.interrupt(statsEngine) orElse { case m => innerTryMax forward m }
 
   val uninitialized: Receive = {
     case loopNext: ActorRef =>

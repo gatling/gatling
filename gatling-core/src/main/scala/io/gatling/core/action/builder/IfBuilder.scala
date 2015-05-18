@@ -33,7 +33,7 @@ class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext
     val safeCondition = condition.safe
     val thenNextActor = thenNext.build(system, next, ctx)
     val elseNextActor = elseNext.map(_.build(system, next, ctx)).getOrElse(next)
-    system.actorOf(If.props(safeCondition, thenNextActor, elseNextActor, ctx.dataWriters, next), actorName("if"))
+    system.actorOf(If.props(safeCondition, thenNextActor, elseNextActor, ctx.statsEngine, next), actorName("if"))
   }
 
   override def defaultProtocols: Set[Protocol] = {

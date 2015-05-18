@@ -18,7 +18,7 @@ package io.gatling.http.action.sse
 import akka.actor.{ Props, ActorRef }
 import com.ning.http.client.Request
 import io.gatling.core.action.Interruptable
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
@@ -32,10 +32,10 @@ object SseOpenAction {
     sseName: String,
     request: Expression[Request],
     checkBuilder: Option[WsCheckBuilder],
-    dataWriters: DataWriters,
+    statsEngine: StatsEngine,
     next: ActorRef,
     protocol: HttpProtocol)(implicit httpEngine: HttpEngine) =
-    Props(new SseOpenAction(requestName, sseName, request, checkBuilder, dataWriters, next: ActorRef, protocol))
+    Props(new SseOpenAction(requestName, sseName, request, checkBuilder, statsEngine, next: ActorRef, protocol))
 }
 
 class SseOpenAction(
@@ -43,7 +43,7 @@ class SseOpenAction(
     sseName: String,
     request: Expression[Request],
     checkBuilder: Option[WsCheckBuilder],
-    val dataWriters: DataWriters,
+    val statsEngine: StatsEngine,
     val next: ActorRef,
     protocol: HttpProtocol)(implicit httpEngine: HttpEngine) extends Interruptable with SseAction {
 
@@ -51,7 +51,7 @@ class SseOpenAction(
 
       def open(tx: SseTx): Unit = {
         logger.info(s"Opening and getting sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
-        val sseActor = context.actorOf(SseActor.props(sseName, dataWriters), actorName("sseActor"))
+        val sseActor = context.actorOf(SseActor.props(sseName, statsEngine), actorName("sseActor"))
         httpEngine.startSseTransaction(tx, sseActor)
       }
 

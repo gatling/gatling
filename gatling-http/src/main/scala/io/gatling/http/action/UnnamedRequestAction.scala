@@ -15,9 +15,9 @@
  */
 package io.gatling.http.action
 
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.validation._
 
-abstract class UnnamedRequestAction(dataWriters: DataWriters) extends RequestAction(dataWriters) {
+abstract class UnnamedRequestAction(statsEngine: StatsEngine) extends RequestAction(statsEngine) {
   override def requestName = session => "".success
 }

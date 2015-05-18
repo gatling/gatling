@@ -15,7 +15,7 @@
  */
 package io.gatling.jms
 
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 
 import scala.util.control.NonFatal
 
@@ -34,8 +34,8 @@ import io.gatling.jms.client.JmsClient
 object JmsReqReplyAction {
   val BlockingReceiveReturnedNull = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
 
-  def props(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, dataWriters: DataWriters, next: ActorRef) =
-    Props(new JmsReqReplyAction(attributes, protocol, tracker, dataWriters, next))
+  def props(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, statsEngine: StatsEngine, next: ActorRef) =
+    Props(new JmsReqReplyAction(attributes, protocol, tracker, statsEngine, next))
 }
 
 /**
@@ -44,7 +44,7 @@ object JmsReqReplyAction {
  * This handles the core "send"ing of messages. Gatling calls the execute method to trigger a send.
  * This implementation then forwards it on to a tracking actor.
  */
-class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, val dataWriters: DataWriters, val next: ActorRef)
+class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracker: ActorRef, val statsEngine: StatsEngine, val next: ActorRef)
     extends Interruptable with Failable {
 
   import JmsReqReplyAction._

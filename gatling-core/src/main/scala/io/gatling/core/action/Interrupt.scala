@@ -21,7 +21,7 @@ import akka.actor.Actor.Receive
 import akka.actor.ActorRef
 import io.gatling.core.session._
 import io.gatling.core.result.message.KO
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.util.TimeHelper.nowMillis
 
 object Interrupt {
@@ -133,10 +133,10 @@ case class Interruption(nextActor: ActorRef, nextSession: Session, groupsToClose
 
 object Interruptable {
 
-  private def doInterrupt(dataWriters: DataWriters, interruption: Interruption): Unit = {
+  private def doInterrupt(statsEngine: StatsEngine, interruption: Interruption): Unit = {
     val now = nowMillis
     import interruption._
-    groupsToClose.foreach(dataWriters.logGroupEnd(nextSession, _, now))
+    groupsToClose.foreach(statsEngine.logGroupEnd(nextSession, _, now))
     nextActor ! nextSession
   }
 
@@ -144,10 +144,11 @@ object Interruptable {
    * Check for ExitASAP loops and TryMax blocks that might interrupt the regular flow.
    * This logic is not directly in Interruptable trait as Interruptable behavior can me mixed in dynamically.
    * For example, loops and trymax blocks become interruptable once they've become initialized with the loop content.
+   * @param statsEngine the StatsEngine
    */
-  def interrupt(dataWriters: DataWriters): Receive = {
-    case Interrupt.InterruptOnExitASAPLoop(interruption) => doInterrupt(dataWriters, interruption)
-    case Interrupt.InterruptOnTryMax(interruption)       => doInterrupt(dataWriters, interruption)
+  def interrupt(statsEngine: StatsEngine): Receive = {
+    case Interrupt.InterruptOnExitASAPLoop(interruption) => doInterrupt(statsEngine, interruption)
+    case Interrupt.InterruptOnTryMax(interruption)       => doInterrupt(statsEngine, interruption)
   }
 }
 
@@ -156,9 +157,9 @@ object Interruptable {
  */
 trait Interruptable extends Chainable {
 
-  def dataWriters: DataWriters
+  def statsEngine: StatsEngine
 
-  val interrupt = Interruptable.interrupt(dataWriters) orElse super.receive
+  val interrupt = Interruptable.interrupt(statsEngine) orElse super.receive
 
   abstract override def receive = interrupt
 }

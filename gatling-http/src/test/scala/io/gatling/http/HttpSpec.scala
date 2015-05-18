@@ -36,7 +36,7 @@ import org.jboss.netty.handler.codec.http.cookie._
 import io.gatling.AkkaSpec
 import io.gatling.core.config.Protocols
 import io.gatling.core.pause.Constant
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.Session
 import io.gatling.core.structure.{ ScenarioContext, ScenarioBuilder }
 import io.gatling.core.util.Io
@@ -59,7 +59,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
   def runWithHttpServer(requestHandler: Handler)(f: HttpServer => Unit)(implicit httpEngine: HttpEngine, protocol: DefaultHttpProtocol) = {
     val httpServer = new HttpServer(requestHandler, mockHttpPort)
     try {
-      httpEngine.start(system, mock[DataWriters], mock[Throttler])
+      httpEngine.start(system, mock[StatsEngine], mock[Throttler])
       f(httpServer)
     } finally {
       httpServer.stop()
@@ -70,7 +70,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
                   timeout: FiniteDuration = 10.seconds,
                   protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity)(implicit defaultHttpProtocol: DefaultHttpProtocol) = {
     val protocols = Protocols(protocolCustomizer(httpProtocol))
-    val actor = sb.build(system, self, ScenarioContext(mock[ActorRef], mock[DataWriters], mock[ActorRef], protocols, Constant, throttled = false))
+    val actor = sb.build(system, self, ScenarioContext(mock[ActorRef], mock[StatsEngine], mock[ActorRef], protocols, Constant, throttled = false))
     actor ! Session("TestSession", "testUser")
     expectMsgClass(timeout, classOf[Session])
   }

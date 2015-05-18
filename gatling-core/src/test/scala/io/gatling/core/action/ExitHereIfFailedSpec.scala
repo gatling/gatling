@@ -19,13 +19,13 @@ import akka.actor.ActorRef
 import akka.testkit._
 
 import io.gatling.AkkaSpec
-import io.gatling.core.result.writer.{ GroupMessage, DataWriters }
+import io.gatling.core.result.writer.{ DefaultStatsEngine, GroupMessage }
 import io.gatling.core.session.Session
 
 class ExitHereIfFailedSpec extends AkkaSpec {
 
   def createExitHereIfFailed(userEndProbe: TestProbe, datawriterProbe: TestProbe) =
-    TestActorRef(ExitHereIfFailed.props(userEndProbe.ref, new DataWriters(system, List(datawriterProbe.ref)), self))
+    TestActorRef(ExitHereIfFailed.props(userEndProbe.ref, new DefaultStatsEngine(system, List(datawriterProbe.ref)), self))
 
   "ExitHereIfFailed" should "send the session to the next actor if the session was not failed" in {
     val userEndProbe = TestProbe()

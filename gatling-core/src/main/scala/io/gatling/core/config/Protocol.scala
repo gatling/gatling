@@ -17,7 +17,7 @@ package io.gatling.core.config
 
 import akka.actor.ActorSystem
 import io.gatling.core.controller.throttle.Throttler
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.Session
 
 /**
@@ -25,7 +25,7 @@ import io.gatling.core.session.Session
  */
 trait Protocol {
 
-  def warmUp(system: ActorSystem, dataWriters: DataWriters, throttler: Throttler): Unit = {}
+  def warmUp(system: ActorSystem, StatsEngine: StatsEngine, throttler: Throttler): Unit = {}
 
   def userEnd(session: Session): Unit = {}
 }

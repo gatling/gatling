@@ -20,14 +20,14 @@ import akka.actor.ActorRef
 import io.gatling.AkkaSpec
 import io.gatling.core.CoreModule
 import io.gatling.core.pause.Constant
-import io.gatling.core.result.writer.DataWriters
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.config.{ GatlingConfiguration, Protocols }
 import io.gatling.core.session.Session
 
 class ExecsSpec extends AkkaSpec with CoreModule {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  val ctx = ScenarioContext(mock[ActorRef], mock[DataWriters], mock[ActorRef], Protocols(), Constant, throttled = false)
+  val ctx = ScenarioContext(mock[ActorRef], mock[StatsEngine], mock[ActorRef], Protocols(), Constant, throttled = false)
 
   "Execs" should "wrap Scenarios in chains, using exec" in {
 

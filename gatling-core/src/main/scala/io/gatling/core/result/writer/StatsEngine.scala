@@ -32,15 +32,24 @@ import akka.actor.{ Actor, ActorRef, ActorSystem, Props }
 import akka.pattern.ask
 import akka.util.Timeout
 
-object DataWriters {
-
-  implicit val DataWriterTimeOut = Timeout(5 seconds)
+trait StatsEngineFactory {
 
   def apply(system: ActorSystem,
             populationBuilders: List[PopulationBuilder],
             assertions: Seq[Assertion],
             selection: Selection,
-            runMessage: RunMessage)(implicit configuration: GatlingConfiguration): Future[Try[DataWriters]] = {
+            runMessage: RunMessage)(implicit configuration: GatlingConfiguration): Future[Try[StatsEngine]]
+}
+
+class DefaultStatsEngineFactory extends StatsEngineFactory {
+
+  override def apply(system: ActorSystem,
+                     populationBuilders: List[PopulationBuilder],
+                     assertions: Seq[Assertion],
+                     selection: Selection,
+                     runMessage: RunMessage)(implicit configuration: GatlingConfiguration): Future[Try[StatsEngine]] = {
+
+    implicit val dataWriterTimeOut = Timeout(5 seconds)
 
     val writers = configuration.data.dataWriterClasses.map { className =>
       val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
@@ -62,26 +71,16 @@ object DataWriters {
     Future.sequence(responses)
       .map(allSucceeded)
       .map {
-        case true  => Success(new DataWriters(system, writers))
+        case true  => Success(new DefaultStatsEngine(system, writers))
         case false => Failure(new Exception("DataWriters didn't initialize properly"))
       }
   }
 }
 
-class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
+trait StatsEngine {
+  def !(message: DataWriterMessage): Unit
 
-  import DataWriters._
-
-  implicit val dispatcher = system.dispatcher
-
-  def !(message: DataWriterMessage): Unit = writers.foreach(_ ! message)
-
-  def logRequest(session: Session, requestName: String): Unit =
-    this ! RequestMessage(session.scenario,
-      session.userId,
-      session.groupHierarchy,
-      requestName,
-      nowMillis)
+  def logRequest(session: Session, requestName: String): Unit
 
   def logResponse(session: Session,
                   requestName: String,
@@ -89,7 +88,40 @@ class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
                   status: Status,
                   responseCode: Option[String],
                   message: Option[String],
-                  extraInfo: List[Any] = Nil): Unit =
+                  extraInfo: List[Any] = Nil): Unit
+
+  def logGroupEnd(session: Session,
+                  group: GroupBlock,
+                  exitDate: Long): Unit
+
+  def logError(error: String, date: Long): Unit
+
+  def terminate(replyTo: ActorRef): Unit
+
+  def reportUnbuildableRequest(requestName: String, session: Session, errorMessage: String): Unit =
+    logError(s"Failed to build request $requestName: $errorMessage", nowMillis)
+}
+
+class DefaultStatsEngine(system: ActorSystem, writers: Seq[ActorRef]) extends StatsEngine {
+
+  implicit val dispatcher = system.dispatcher
+
+  override def !(message: DataWriterMessage): Unit = writers.foreach(_ ! message)
+
+  override def logRequest(session: Session, requestName: String): Unit =
+    this ! RequestMessage(session.scenario,
+      session.userId,
+      session.groupHierarchy,
+      requestName,
+      nowMillis)
+
+  override def logResponse(session: Session,
+                           requestName: String,
+                           timings: ResponseTimings,
+                           status: Status,
+                           responseCode: Option[String],
+                           message: Option[String],
+                           extraInfo: List[Any] = Nil): Unit =
     this ! ResponseMessage(
       session.scenario,
       session.userId,
@@ -101,9 +133,9 @@ class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
       message,
       extraInfo)
 
-  def logGroupEnd(session: Session,
-                  group: GroupBlock,
-                  exitDate: Long): Unit =
+  override def logGroupEnd(session: Session,
+                           group: GroupBlock,
+                           exitDate: Long): Unit =
     this ! GroupMessage(
       session.scenario,
       session.userId,
@@ -113,13 +145,11 @@ class DataWriters(system: ActorSystem, writers: Seq[ActorRef]) {
       group.cumulatedResponseTime,
       group.status)
 
-  def logError(error: String, date: Long): Unit = this ! ErrorMessage(error, date)
+  override def logError(error: String, date: Long): Unit = this ! ErrorMessage(error, date)
 
-  def terminate(replyTo: ActorRef): Unit = {
+  override def terminate(replyTo: ActorRef): Unit = {
+    implicit val dataWriterTimeOut = Timeout(5 seconds)
     val responses = writers.map(_ ? Terminate)
     Future.sequence(responses).onComplete(_ => replyTo ! DataWritersTerminated)
   }
-
-  def reportUnbuildableRequest(requestName: String, session: Session, errorMessage: String): Unit =
-    logError(s"Failed to build request $requestName: $errorMessage", nowMillis)
 }
