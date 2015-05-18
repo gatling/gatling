@@ -168,12 +168,8 @@ object GatlingConfiguration extends StrictLogging {
           sslSessionCacheSize = config.getInt(http.ahc.SslSessionCacheSize),
           sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout))),
       data = DataConfiguration(
-        dataWriterClasses = config.getStringList(data.Writers).map { string =>
-          DataConfiguration.Aliases.get(string) match {
-            case Some(clazz) => clazz
-            case None        => string
-          }
-        },
+        statsEngineFactoryClass = DataConfiguration.resolveAlias(config.getString(data.StatsEngineFactory), DataConfiguration.StatsEngineFactoryAliases),
+        dataWriterClasses = config.getStringList(data.Writers).map(DataConfiguration.resolveAlias(_, DataConfiguration.DataWriterAliases)),
         dataReaderClass = config.getString(data.Reader).trim match {
           case "file" => "io.gatling.charts.result.reader.FileDataReader"
           case clazz  => clazz
@@ -192,7 +188,7 @@ object GatlingConfiguration extends StrictLogging {
           rootPathPrefix = config.getString(data.graphite.RootPathPrefix),
           bufferSize = config.getInt(data.graphite.BufferSize),
           writeInterval = config.getInt(data.graphite.WriteInterval))),
-      config)
+      config = config)
 
 }
 
@@ -300,19 +296,30 @@ case class StoreConfiguration(
 
 object DataConfiguration {
 
-  case class DataWriterAlias(alias: String, className: String)
+  case class ClassAlias(alias: String, className: String)
 
-  val ConsoleDataWriterAlias = DataWriterAlias("console", "io.gatling.core.result.writer.ConsoleDataWriter")
-  val FileDataWriterAlias = DataWriterAlias("file", "io.gatling.core.result.writer.FileDataWriter")
-  val GraphiteDataWriterAlias = DataWriterAlias("graphite", "io.gatling.metrics.GraphiteDataWriter")
-  val JdbcDataWriterAlias = DataWriterAlias("jdbc", "io.gatling.jdbc.result.writer.JdbcDataWriter")
-  val LeakReporterDataWriterAlias = DataWriterAlias("leak", "io.gatling.core.result.writer.LeakReporterDataWriter")
+  val DefaultStatsEngineFactoryAlias = ClassAlias("default", "io.gatling.core.result.writer.DefaultStatsEngineFactory")
 
-  val Aliases = Seq(ConsoleDataWriterAlias, FileDataWriterAlias, GraphiteDataWriterAlias, JdbcDataWriterAlias, LeakReporterDataWriterAlias)
+  val StatsEngineFactoryAliases = Seq(DefaultStatsEngineFactoryAlias)
     .map(alias => alias.alias -> alias.className).toMap
+
+  val ConsoleDataWriterAlias = ClassAlias("console", "io.gatling.core.result.writer.ConsoleDataWriter")
+  val FileDataWriterAlias = ClassAlias("file", "io.gatling.core.result.writer.FileDataWriter")
+  val GraphiteDataWriterAlias = ClassAlias("graphite", "io.gatling.metrics.GraphiteDataWriter")
+  val JdbcDataWriterAlias = ClassAlias("jdbc", "io.gatling.jdbc.result.writer.JdbcDataWriter")
+  val LeakReporterDataWriterAlias = ClassAlias("leak", "io.gatling.core.result.writer.LeakReporterDataWriter")
+
+  val DataWriterAliases = Seq(ConsoleDataWriterAlias, FileDataWriterAlias, GraphiteDataWriterAlias, JdbcDataWriterAlias, LeakReporterDataWriterAlias)
+    .map(alias => alias.alias -> alias.className).toMap
+
+  def resolveAlias(string: String, aliases: Map[String, String]): String = aliases.get(string) match {
+    case Some(clazz) => clazz
+    case None        => string
+  }
 }
 
 case class DataConfiguration(
+    statsEngineFactoryClass: String,
     dataWriterClasses: Seq[String],
     dataReaderClass: String,
     file: FileDataWriterConfiguration,
@@ -328,23 +335,6 @@ case class FileDataWriterConfiguration(
 
 case class LeakDataWriterConfiguration(
   noActivityTimeout: Int)
-
-case class DbConfiguration(
-  url: String,
-  username: String,
-  password: String)
-
-case class CreateStatements(
-  createRunRecordTable: Option[String],
-  createRequestRecordTable: Option[String],
-  createScenarioRecordTable: Option[String],
-  createGroupRecordTable: Option[String])
-
-case class InsertStatements(
-  insertRunRecord: Option[String],
-  insertRequestRecord: Option[String],
-  insertScenarioRecord: Option[String],
-  insertGroupRecord: Option[String])
 
 case class ConsoleDataWriterConfiguration(
   light: Boolean)

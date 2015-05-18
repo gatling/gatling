@@ -117,6 +117,7 @@ object ConfigKeys {
   }
 
   object data {
+    val StatsEngineFactory = "gatling.data.statsEngineFactory"
     val Writers = "gatling.data.writers"
     val Reader = "gatling.data.reader"
 
