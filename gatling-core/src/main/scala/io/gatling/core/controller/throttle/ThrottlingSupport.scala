@@ -73,7 +73,7 @@ case class Throttling(override val steps: List[ThrottleStep]) extends Throttling
       (now: Long) => valueAt(reversedSteps, now, 0)
     }
 
-    val duration: FiniteDuration = steps.foldLeft(0 second) { (acc, step) =>
+    val duration: FiniteDuration = steps.foldLeft(Duration.Zero) { (acc, step) =>
       step match {
         case Reach(_, d) => acc + d
         case Hold(d)     => acc + d

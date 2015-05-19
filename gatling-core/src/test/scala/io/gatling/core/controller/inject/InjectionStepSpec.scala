@@ -45,7 +45,7 @@ class InjectionStepSpec extends BaseSpec {
     val first = rampScheduling.head
     val last = rampScheduling.last
 
-    first shouldBe (0 second)
+    first shouldBe Duration.Zero
     last shouldBe <(1 second)
     rampScheduling shouldBe sorted
   }
@@ -76,12 +76,12 @@ class InjectionStepSpec extends BaseSpec {
   val atOnceScheduling = peak.chain(Iterator.empty).toList
 
   it should "return the correct injection duration" in {
-    atOnceScheduling.max shouldBe (0 second)
+    atOnceScheduling.max shouldBe Duration.Zero
   }
 
   it should "return the correct injection scheduling" in {
     val uniqueScheduling = atOnceScheduling.toSet
-    uniqueScheduling should contain(0 second)
+    uniqueScheduling should contain Duration.Zero
     atOnceScheduling should have length peak.users
   }
 
@@ -101,7 +101,7 @@ class InjectionStepSpec extends BaseSpec {
   }
 
   it should "provides an injection scheduling with the correct values" in {
-    rampRateScheduling(0) shouldBe (0 seconds)
+    rampRateScheduling(0) shouldBe Duration.Zero
     rampRateScheduling(1) shouldBe (488 milliseconds)
   }
 
@@ -131,7 +131,7 @@ class InjectionStepSpec extends BaseSpec {
   "SplitInjection" should "provide an appropriate injection scheduling and ignore extra users" in {
     val scheduling = SplitInjection(6, RampInjection(2, 2 seconds), NothingForInjection(5 seconds)).chain(Iterator.empty).toList
     scheduling shouldBe List(
-      0 second, 1 second, // 1st ramp
+      Duration.Zero, 1 second, // 1st ramp
       7 seconds, 8 seconds, // 2nd ramp after a pause
       14 seconds, 15 seconds) // 3rd ramp after a pause
   }
@@ -139,7 +139,7 @@ class InjectionStepSpec extends BaseSpec {
   it should "should schedule the first and last user through the 'into' injection step" in {
     val scheduling = SplitInjection(5, RampInjection(2, 2 seconds), AtOnceInjection(1)).chain(AtOnceInjection(1).chain(Iterator.empty)).toList
     scheduling shouldBe List(
-      0 second, 1 second, // 1st ramp
+      Duration.Zero, 1 second, // 1st ramp
       2 seconds, // at once in between
       2 seconds, 3 seconds, // 2nd ramp until reaching 5 users
       4 seconds) // at once from the chained injection
