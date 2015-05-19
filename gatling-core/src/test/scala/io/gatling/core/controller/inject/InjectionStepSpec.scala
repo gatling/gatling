@@ -81,7 +81,7 @@ class InjectionStepSpec extends BaseSpec {
 
   it should "return the correct injection scheduling" in {
     val uniqueScheduling = atOnceScheduling.toSet
-    uniqueScheduling should contain Duration.Zero
+    uniqueScheduling should contain(Duration.Zero)
     atOnceScheduling should have length peak.users
   }
 
