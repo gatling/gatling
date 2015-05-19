@@ -19,7 +19,7 @@ import java.lang.System.nanoTime
 
 import io.gatling.core.scenario.SimulationDef
 
-import scala.concurrent.duration.{ FiniteDuration, DurationInt }
+import scala.concurrent.duration.{ Duration, FiniteDuration, DurationInt }
 
 import akka.actor.{ Props, ActorSystem, ActorRef }
 import com.typesafe.scalalogging.StrictLogging
@@ -54,7 +54,7 @@ object ThrottlerActor extends StrictLogging {
 
 class ThrottlerActor(globalProfile: Option[ThrottlingProfile], scenarioProfiles: Map[String, ThrottlingProfile]) extends BaseActor {
 
-  val timerCancellable = system.scheduler.schedule(0 seconds, 1 seconds, self, OneSecondTick)
+  val timerCancellable = system.scheduler.schedule(Duration.Zero, 1 seconds, self, OneSecondTick)
 
   override def postStop(): Unit = timerCancellable.cancel()
 
