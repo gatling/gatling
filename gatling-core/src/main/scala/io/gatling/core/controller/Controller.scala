@@ -107,7 +107,7 @@ class Controller(selection: Selection, statsEngine: StatsEngine, configuration: 
       def startNewUser: State = {
         runData.activeUsers += (userMessage.session.userId -> userMessage)
         logger.info(s"Start user #${userMessage.session.userId}")
-        statsEngine ! userMessage
+        statsEngine.logUser(userMessage)
         stay()
       }
 
@@ -142,7 +142,7 @@ class Controller(selection: Selection, statsEngine: StatsEngine, configuration: 
 
   private def dispatchUserEndToDataWriter(userMessage: UserMessage): Unit = {
     logger.info(s"End user #${userMessage.session.userId}")
-    statsEngine ! userMessage
+    statsEngine.logUser(userMessage)
   }
 
   private def terminateDataWritersAndWaitForConfirmation(initData: InitData, exception: Option[Exception]): State = {

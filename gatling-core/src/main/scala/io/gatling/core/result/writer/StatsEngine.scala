@@ -78,7 +78,8 @@ class DefaultStatsEngineFactory extends StatsEngineFactory {
 }
 
 trait StatsEngine {
-  def !(message: DataWriterMessage): Unit
+
+  def logUser(userMessage: UserMessage): Unit
 
   def logRequest(session: Session, requestName: String): Unit
 
@@ -106,14 +107,16 @@ class DefaultStatsEngine(system: ActorSystem, writers: Seq[ActorRef]) extends St
 
   implicit val dispatcher = system.dispatcher
 
-  override def !(message: DataWriterMessage): Unit = writers.foreach(_ ! message)
+  private def dispatch(message: DataWriterMessage): Unit = writers.foreach(_ ! message)
+
+  override def logUser(userMessage: UserMessage): Unit = dispatch(userMessage)
 
   override def logRequest(session: Session, requestName: String): Unit =
-    this ! RequestMessage(session.scenario,
+    dispatch(RequestMessage(session.scenario,
       session.userId,
       session.groupHierarchy,
       requestName,
-      nowMillis)
+      nowMillis))
 
   override def logResponse(session: Session,
                            requestName: String,
@@ -122,7 +125,7 @@ class DefaultStatsEngine(system: ActorSystem, writers: Seq[ActorRef]) extends St
                            responseCode: Option[String],
                            message: Option[String],
                            extraInfo: List[Any] = Nil): Unit =
-    this ! ResponseMessage(
+    dispatch(ResponseMessage(
       session.scenario,
       session.userId,
       session.groupHierarchy,
@@ -131,21 +134,21 @@ class DefaultStatsEngine(system: ActorSystem, writers: Seq[ActorRef]) extends St
       status,
       responseCode,
       message,
-      extraInfo)
+      extraInfo))
 
   override def logGroupEnd(session: Session,
                            group: GroupBlock,
                            exitDate: Long): Unit =
-    this ! GroupMessage(
+    dispatch(GroupMessage(
       session.scenario,
       session.userId,
       group.hierarchy,
       group.startDate,
       exitDate,
       group.cumulatedResponseTime,
-      group.status)
+      group.status))
 
-  override def logError(error: String, date: Long): Unit = this ! ErrorMessage(error, date)
+  override def logError(error: String, date: Long): Unit = dispatch(ErrorMessage(error, date))
 
   override def terminate(replyTo: ActorRef): Unit = {
     implicit val dataWriterTimeOut = Timeout(5 seconds)
