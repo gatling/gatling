@@ -67,7 +67,7 @@ class PollerActor(
         }
 
         httpRequest <- requestDef.build(requestName, session).mapError { errorMessage =>
-          statsEngine.reportUnbuildableRequest(pollerName, session, errorMessage)
+          statsEngine.reportUnbuildableRequest(session, pollerName, errorMessage)
           errorMessage
         }
 

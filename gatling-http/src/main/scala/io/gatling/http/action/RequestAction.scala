@@ -29,7 +29,7 @@ abstract class RequestAction(val statsEngine: StatsEngine) extends Interruptable
     requestName(session).flatMap { resolvedRequestName =>
 
       val outcome = sendRequest(resolvedRequestName, session)
-      outcome.onFailure(errorMessage => statsEngine.reportUnbuildableRequest(resolvedRequestName, session, errorMessage))
+      outcome.onFailure(errorMessage => statsEngine.reportUnbuildableRequest(session, resolvedRequestName, errorMessage))
       outcome
     }
 }

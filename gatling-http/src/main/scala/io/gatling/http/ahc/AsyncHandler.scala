@@ -22,9 +22,14 @@ import com.ning.http.client.providers.netty.request.NettyRequest
 import com.ning.http.client.{ AsyncHandlerExtensions, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, ProgressAsyncHandler }
 import com.ning.http.client.AsyncHandler.STATE
 import com.ning.http.client.AsyncHandler.STATE.CONTINUE
-import com.typesafe.scalalogging.StrictLogging
+import com.typesafe.scalalogging._
 
 import scala.util.control.NonFatal
+
+object AsyncHandler extends StrictLogging {
+  val DebugEnabled = logger.underlying.isDebugEnabled
+  val InfoEnabled = logger.underlying.isInfoEnabled
+}
 
 /**
  * This class is the AsyncHandler that AsyncHttpClient needs to process a request's response
@@ -35,7 +40,7 @@ import scala.util.control.NonFatal
  * @param tx the data about the request to be sent and processed
  * @param httpEngine the HTTP engine
  */
-class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with StrictLogging {
+class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHandler[Unit] with AsyncHandlerExtensions with LazyLogging {
 
   val responseBuilder = tx.responseBuilderFactory(tx.request.ahcRequest)
   private val init = new AtomicBoolean
@@ -62,7 +67,7 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
 
   override def onSendRequest(request: Any): Unit = {
     start()
-    if (logger.underlying.isDebugEnabled)
+    if (AsyncHandler.DebugEnabled)
       responseBuilder.setNettyRequest(request.asInstanceOf[NettyRequest])
   }
 
@@ -116,9 +121,9 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
       case m    => s"$className: $m"
     }
 
-    if (logger.underlying.isDebugEnabled)
+    if (AsyncHandler.DebugEnabled)
       logger.debug(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}", throwable)
-    else
+    else if (AsyncHandler.InfoEnabled)
       logger.info(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}: $errorMessage")
 
     httpEngine.asyncHandlerActors.foreach(_ ! OnThrowable(tx, responseBuilder.build, errorMessage))

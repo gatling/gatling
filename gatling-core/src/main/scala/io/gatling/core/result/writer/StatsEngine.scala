@@ -95,12 +95,12 @@ trait StatsEngine {
                   group: GroupBlock,
                   exitDate: Long): Unit
 
-  def logError(error: String, date: Long): Unit
+  def logError(session: Session, requestName: String, error: String, date: Long): Unit
 
   def terminate(replyTo: ActorRef): Unit
 
-  def reportUnbuildableRequest(requestName: String, session: Session, errorMessage: String): Unit =
-    logError(s"Failed to build request $requestName: $errorMessage", nowMillis)
+  def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit =
+    logError(session, requestName, s"Failed to build request $requestName: $errorMessage", nowMillis)
 }
 
 class DefaultStatsEngine(system: ActorSystem, writers: Seq[ActorRef]) extends StatsEngine {
@@ -148,7 +148,7 @@ class DefaultStatsEngine(system: ActorSystem, writers: Seq[ActorRef]) extends St
       group.cumulatedResponseTime,
       group.status))
 
-  override def logError(error: String, date: Long): Unit = dispatch(ErrorMessage(error, date))
+  override def logError(session: Session, requestName: String, error: String, date: Long): Unit = dispatch(ErrorMessage(s"$error ", date))
 
   override def terminate(replyTo: ActorRef): Unit = {
     implicit val dataWriterTimeOut = Timeout(5 seconds)
