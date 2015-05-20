@@ -33,14 +33,14 @@ import io.gatling.core.validation._
 
 import scala.reflect.ClassTag
 
-trait CoreModule extends StructureSupport
+trait CoreDsl extends StructureSupport
     with PauseSupport
     with CheckSupport
     with FeederSupport
     with InjectionSupport
     with ThrottlingSupport
     with AssertionSupport
-    with CoreComponents {
+    with CoreDefaultImplicits {
 
   val gzipBody = io.gatling.core.body.BodyProcessors.Gzip
   val streamBody = io.gatling.core.body.BodyProcessors.Stream

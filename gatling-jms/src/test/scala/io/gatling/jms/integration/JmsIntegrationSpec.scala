@@ -17,11 +17,11 @@ package io.gatling.jms.integration
 
 import javax.jms.TextMessage
 
-import io.gatling.core.CoreModule
+import io.gatling.core.CoreDsl
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.jms._
 
-class JmsIntegrationSpec extends JmsMockingSpec with CoreModule with JmsModule {
+class JmsIntegrationSpec extends JmsMockingSpec with CoreDsl with JmsModule {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 

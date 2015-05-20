@@ -20,7 +20,7 @@ import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.DefaultHttpProtocol
 
-trait HttpDefaultComponents {
+trait HttpDefaultImplicits {
 
   def configurationForHttp: GatlingConfiguration
 

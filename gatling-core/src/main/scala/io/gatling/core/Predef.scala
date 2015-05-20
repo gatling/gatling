@@ -19,7 +19,7 @@ import io.gatling.core.config.GatlingConfiguration
 
 import scala.concurrent.duration._
 
-object Predef extends CoreModule {
+object Predef extends CoreDsl {
 
   implicit var configuration: GatlingConfiguration = _
 

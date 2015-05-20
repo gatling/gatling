@@ -18,13 +18,13 @@ package io.gatling.core.structure
 import akka.actor.ActorRef
 
 import io.gatling.AkkaSpec
-import io.gatling.core.CoreModule
+import io.gatling.core.CoreDsl
 import io.gatling.core.pause.Constant
 import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.config.{ GatlingConfiguration, Protocols }
 import io.gatling.core.session.Session
 
-class ExecsSpec extends AkkaSpec with CoreModule {
+class ExecsSpec extends AkkaSpec with CoreDsl {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
   val ctx = ScenarioContext(mock[ActorRef], mock[StatsEngine], mock[ActorRef], Protocols(), Constant, throttled = false)

@@ -15,7 +15,7 @@
  */
 package io.gatling.http
 
-object Predef extends HttpModule with HttpDefaultComponents {
+object Predef extends HttpDsl with HttpDefaultImplicits {
 
   def configurationForHttp = io.gatling.core.Predef.configuration
 

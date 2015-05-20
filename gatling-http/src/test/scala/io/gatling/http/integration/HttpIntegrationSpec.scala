@@ -20,14 +20,14 @@ import org.jboss.netty.handler.codec.http._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.http.HeaderNames._
 import io.gatling.http.HttpSpec
-import io.gatling.core.CoreModule
-import io.gatling.http.HttpModule
+import io.gatling.core.CoreDsl
+import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.config.DefaultHttpProtocol
 
-class HttpIntegrationSpec extends HttpSpec with CoreModule with HttpModule {
+class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
   // FIXME
   object RegexSupport extends HttpCheckSupport

@@ -33,7 +33,7 @@ import io.gatling.http.request.builder.polling.Polling
 import io.gatling.http.request.builder.sse.Sse
 import io.gatling.http.request.builder.ws.Ws
 
-trait HttpModule extends HttpCheckSupport with WsCheckSupport with SitemapFeederSupport {
+trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SitemapFeederSupport {
 
   def http(implicit defaultHttpProtocol: DefaultHttpProtocol) = new HttpProtocolBuilder(defaultHttpProtocol.value)
 

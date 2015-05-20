@@ -23,7 +23,7 @@ import io.gatling.core.check.extractor.xpath.{ SaxonXPathExtractorFactory, Saxon
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 
-trait CoreComponents {
+trait CoreDefaultImplicits {
 
   implicit def configuration: GatlingConfiguration
 
