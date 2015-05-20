@@ -25,7 +25,7 @@ import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
 import org.jboss.netty.logging.{ InternalLoggerFactory, Slf4JLoggerFactory }
 import org.jboss.netty.util.HashedWheelTimer
-import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig, Request }
+import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
 import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig.NettyWebSocketFactory
 import com.ning.http.client.providers.netty.ws.NettyWebSocket
@@ -35,7 +35,6 @@ import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.core.ConfigKeys
 import io.gatling.core.akka.ActorNames
-import io.gatling.core.check.CheckResult
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.result.message.OK
@@ -46,69 +45,8 @@ import io.gatling.http.fetch.{ RegularResourceFetched, ResourceFetcher }
 import io.gatling.http.action.sse.SseHandler
 import io.gatling.http.action.ws.WsListener
 import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
-import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.config.HttpProtocol
-import io.gatling.http.request.HttpRequest
-import io.gatling.http.response.ResponseBuilderFactory
 import io.gatling.http.util.SslHelper._
-
-object HttpTx {
-
-  def silent(request: HttpRequest, root: Boolean): Boolean = {
-
-      def silentBecauseProtocolSilentResources = !root && request.config.protocol.requestPart.silentResources
-
-      def silentBecauseProtocolSilentURI: Option[Boolean] = request.config.protocol.requestPart.silentURI
-        .map(_.matcher(request.ahcRequest.getUrl).matches)
-
-    request.config.silent.orElse(silentBecauseProtocolSilentURI).getOrElse(silentBecauseProtocolSilentResources)
-  }
-}
-
-case class HttpTx(session: Session,
-                  request: HttpRequest,
-                  responseBuilderFactory: ResponseBuilderFactory,
-                  next: ActorRef,
-                  root: Boolean = true,
-                  redirectCount: Int = 0,
-                  update: Session => Session = Session.Identity) {
-
-  val silent: Boolean = HttpTx.silent(request, root)
-}
-
-case class SseTx(session: Session,
-                 request: Request, // FIXME should it be a HttpRequest obj???
-                 requestName: String,
-                 protocol: HttpProtocol,
-                 next: ActorRef,
-                 start: Long,
-                 reconnectCount: Int = 0,
-                 check: Option[WsCheck] = None,
-                 pendingCheckSuccesses: List[CheckResult] = Nil,
-                 updates: List[Session => Session] = Nil) {
-
-  def applyUpdates(session: Session) = {
-    val newSession = session.update(updates)
-    copy(session = newSession, updates = Nil)
-  }
-}
-
-case class WsTx(session: Session,
-                request: Request,
-                requestName: String,
-                protocol: HttpProtocol,
-                next: ActorRef,
-                start: Long,
-                reconnectCount: Int = 0,
-                check: Option[WsCheck] = None,
-                pendingCheckSuccesses: List[CheckResult] = Nil,
-                updates: List[Session => Session] = Nil) {
-
-  def applyUpdates(session: Session) = {
-    val newSession = session.update(updates)
-    copy(session = newSession, updates = Nil)
-  }
-}
 
 object HttpEngine {
   val AhcAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.ahc"
