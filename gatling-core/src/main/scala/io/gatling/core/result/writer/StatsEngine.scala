@@ -51,14 +51,14 @@ class DefaultStatsEngineFactory extends StatsEngineFactory {
 
     implicit val dataWriterTimeOut = Timeout(5 seconds)
 
-    val writers = configuration.data.dataWriterClasses.map { className =>
+    val dataWriters = configuration.data.dataWriterClasses.map { className =>
       val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
       system.actorOf(Props(clazz), clazz.getName)
     }
 
     val shortScenarioDescriptions = populationBuilders.map(populationBuilder => ShortScenarioDescription(populationBuilder.scenarioBuilder.name, populationBuilder.injectionProfile.users))
 
-    val responses = writers.map(_ ? Init(configuration, assertions, runMessage, shortScenarioDescriptions))
+    val responses = dataWriters.map(_ ? Init(configuration, assertions, runMessage, shortScenarioDescriptions))
 
       def allSucceeded(responses: Seq[Any]): Boolean =
         responses.map {
@@ -71,7 +71,7 @@ class DefaultStatsEngineFactory extends StatsEngineFactory {
     Future.sequence(responses)
       .map(allSucceeded)
       .map {
-        case true  => Success(new DefaultStatsEngine(system, writers))
+        case true  => Success(new DefaultStatsEngine(system, dataWriters))
         case false => Failure(new Exception("DataWriters didn't initialize properly"))
       }
   }
@@ -103,11 +103,11 @@ trait StatsEngine {
     logError(session, requestName, s"Failed to build request $requestName: $errorMessage", nowMillis)
 }
 
-class DefaultStatsEngine(system: ActorSystem, writers: Seq[ActorRef]) extends StatsEngine {
+class DefaultStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extends StatsEngine {
 
   implicit val dispatcher = system.dispatcher
 
-  private def dispatch(message: DataWriterMessage): Unit = writers.foreach(_ ! message)
+  private def dispatch(message: DataWriterMessage): Unit = dataWriters.foreach(_ ! message)
 
   override def logUser(userMessage: UserMessage): Unit = dispatch(userMessage)
 
@@ -152,7 +152,7 @@ class DefaultStatsEngine(system: ActorSystem, writers: Seq[ActorRef]) extends St
 
   override def terminate(replyTo: ActorRef): Unit = {
     implicit val dataWriterTimeOut = Timeout(5 seconds)
-    val responses = writers.map(_ ? Terminate)
+    val responses = dataWriters.map(_ ? Terminate)
     Future.sequence(responses).onComplete(_ => replyTo ! DataWritersTerminated)
   }
 }
