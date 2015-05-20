@@ -61,9 +61,11 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
 
       val runMessage = RunMessage(selection.simulationClass.getName, selection.simulationId, nowMillis, selection.description)
 
-      val statsEngineFactory = Class.forName(configuration.data.statsEngineFactoryClass).newInstance().asInstanceOf[StatsEngineFactory]
-      val statsEngineInit = statsEngineFactory.apply(system, simulationParams.populationBuilders, simulationParams.assertions, selection, runMessage)
-      val statsEngine = Await.result(statsEngineInit, 5 seconds).get
+      val statsEngine = {
+        val statsEngineFactory = Class.forName(configuration.data.statsEngineFactoryClass).newInstance().asInstanceOf[StatsEngineFactory]
+        val statsEngineInit = statsEngineFactory.apply(system, simulationParams.populationBuilders, simulationParams.assertions, selection, runMessage)
+        Await.result(statsEngineInit, 5 seconds).get
+      }
 
       val controller = system.actorOf(Controller.props(selection, statsEngine, configuration), "gatling-controller")
       val throttler = Throttler(system, simulationParams, "throttler")
@@ -75,8 +77,6 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
         protocols ++ scenario.ctx.protocols
       }.warmUp(system, statsEngine, throttler)
 
-      System.gc()
-      System.gc()
       System.gc()
 
       val timeout = Int.MaxValue.milliseconds - 10.seconds
