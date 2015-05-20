@@ -24,46 +24,46 @@ import io.gatling.core.session.Session
 
 class ExitHereIfFailedSpec extends AkkaSpec {
 
-  def createExitHereIfFailed(userEndProbe: TestProbe, datawriterProbe: TestProbe) =
-    TestActorRef(ExitHereIfFailed.props(userEndProbe.ref, new DefaultStatsEngine(system, List(datawriterProbe.ref)), self))
+  def createExitHereIfFailed(exitProbe: TestProbe, datawriterProbe: TestProbe) =
+    TestActorRef(ExitHereIfFailed.props(exitProbe.ref, new DefaultStatsEngine(system, List(datawriterProbe.ref)), self))
 
   "ExitHereIfFailed" should "send the session to the next actor if the session was not failed" in {
-    val userEndProbe = TestProbe()
+    val exitProbe = TestProbe()
     val dataWriterProbe = TestProbe()
-    val exitHereIfFailed = createExitHereIfFailed(userEndProbe, dataWriterProbe)
+    val exitHereIfFailed = createExitHereIfFailed(exitProbe, dataWriterProbe)
 
     val session = Session("scenario", "userId")
 
     exitHereIfFailed ! session
 
     expectMsg(session)
-    userEndProbe.expectNoMsg()
+    exitProbe.expectNoMsg()
   }
 
   it should "end the scenario by sending the session to the user end if the session failed" in {
-    val userEndProbe = TestProbe()
+    val exitProbe = TestProbe()
     val dataWriterProbe = TestProbe()
-    val exitHereIfFailed = createExitHereIfFailed(userEndProbe, dataWriterProbe)
+    val exitHereIfFailed = createExitHereIfFailed(exitProbe, dataWriterProbe)
 
     val session = Session("scenario", "userId").enterTryMax("loop", ActorRef.noSender).markAsFailed
 
     exitHereIfFailed ! session
 
     expectNoMsg()
-    userEndProbe.expectMsg(session)
+    exitProbe.expectMsg(session)
   }
 
   it should "also log a group end if the user was inside a group" in {
-    val userEndProbe = TestProbe()
+    val exitProbe = TestProbe()
     val dataWriterProbe = TestProbe()
-    val exitHereIfFailed = createExitHereIfFailed(userEndProbe, dataWriterProbe)
+    val exitHereIfFailed = createExitHereIfFailed(exitProbe, dataWriterProbe)
 
     val session = Session("scenario", "userId").enterGroup("group").markAsFailed
 
     exitHereIfFailed ! session
 
     expectNoMsg()
-    userEndProbe.expectMsg(session)
+    exitProbe.expectMsg(session)
     dataWriterProbe.expectMsgType[GroupMessage]
   }
 }

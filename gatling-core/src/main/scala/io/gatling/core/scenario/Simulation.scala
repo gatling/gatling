@@ -138,6 +138,6 @@ case class SimulationParams(name: String,
                             beforeSteps: List[() => Unit],
                             afterSteps: List[() => Unit]) {
 
-  def scenarios(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, userEnd: ActorRef)(implicit configuration: GatlingConfiguration): List[Scenario] =
-    populationBuilders.map(_.build(system, controller, statsEngine, userEnd, globalProtocols, globalPauseType, globalThrottling))
+  def scenarios(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, exit: ActorRef)(implicit configuration: GatlingConfiguration): List[Scenario] =
+    populationBuilders.map(_.build(system, controller, statsEngine, exit, globalProtocols, globalPauseType, globalThrottling))
 }

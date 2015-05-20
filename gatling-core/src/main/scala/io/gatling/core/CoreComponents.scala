@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.action.builder
+package io.gatling.core
 
-import akka.actor.{ ActorSystem, ActorRef }
-import io.gatling.core.action.ExitHereIfFailed
-import io.gatling.core.structure.ScenarioContext
+import io.gatling.core.controller.throttle.Throttler
+import io.gatling.core.result.writer.StatsEngine
 
-object ExitHereIfFailedBuilder extends ActionBuilder {
+import _root_.akka.actor.ActorRef
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-    system.actorOf(ExitHereIfFailed.props(ctx.exit, ctx.statsEngine, next), actorName("exitHereIfFailed"))
-}
+case class CoreComponents(controller: ActorRef,
+                          throttler: Throttler,
+                          statsEngine: StatsEngine,
+                          exit: ActorRef)

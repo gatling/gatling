@@ -20,4 +20,4 @@ import akka.actor.ActorRef
 import io.gatling.core.controller.inject.InjectionProfile
 import io.gatling.core.structure.ScenarioContext
 
-case class Scenario(name: String, entryPoint: ActorRef, injectionProfile: InjectionProfile, ctx: ScenarioContext)
+case class Scenario(name: String, entry: ActorRef, injectionProfile: InjectionProfile, ctx: ScenarioContext)

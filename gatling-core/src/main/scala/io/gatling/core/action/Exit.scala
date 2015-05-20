@@ -21,13 +21,13 @@ import io.gatling.core.result.writer.UserMessage
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper.nowMillis
 
-object UserEnd {
+object Exit {
 
   def props(controller: ActorRef) =
-    Props(new UserEnd(controller))
+    Props(new Exit(controller))
 }
 
-class UserEnd(controller: ActorRef) extends Action {
+class Exit(controller: ActorRef) extends Action {
 
   def execute(session: Session): Unit = {
     session.terminate()

@@ -48,6 +48,6 @@ case class Protocols(protocols: Map[Class[_ <: Protocol], Protocol]) {
   def warmUp(system: ActorSystem, statsEngine: StatsEngine, throttler: Throttler)(implicit configuration: GatlingConfiguration): Unit =
     protocols.values.foreach(_.warmUp(system, statsEngine, throttler))
 
-  val userEnd: Session => Unit =
-    session => protocols.values.foreach(_.userEnd(session))
+  val onExit: Session => Unit =
+    session => protocols.values.foreach(_.onExit(session))
 }

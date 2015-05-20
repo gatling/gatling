@@ -22,16 +22,16 @@ import io.gatling.core.result.message.End
 import io.gatling.core.result.writer.UserMessage
 import io.gatling.core.session.Session
 
-class UserEndSpec extends AkkaSpec {
+class ExitSpec extends AkkaSpec {
 
-  "UserEnd" should "terminate the session and notify the Controller execution has ended" in {
-    val userEnd = TestActorRef(UserEnd.props(self))
+  "Exit" should "terminate the session and notify the Controller execution has ended" in {
+    val exit = TestActorRef(Exit.props(self))
 
     var hasTerminated = false
 
-    val session = Session("scenario", "userId", userEnd = _ => hasTerminated = true)
+    val session = Session("scenario", "userId", onExit = _ => hasTerminated = true)
 
-    userEnd ! session
+    exit ! session
 
     hasTerminated shouldBe true
     val userMessage = expectMsgType[UserMessage]

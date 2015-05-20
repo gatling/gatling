@@ -22,11 +22,11 @@ import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 
 object ExitHereIfFailed {
-  def props(userEnd: ActorRef, statsEngine: StatsEngine, next: ActorRef) =
-    Props(new ExitHereIfFailed(userEnd, statsEngine, next))
+  def props(exit: ActorRef, statsEngine: StatsEngine, next: ActorRef) =
+    Props(new ExitHereIfFailed(exit, statsEngine, next))
 }
 
-class ExitHereIfFailed(userEnd: ActorRef, statsEngine: StatsEngine, val next: ActorRef) extends Chainable {
+class ExitHereIfFailed(exit: ActorRef, statsEngine: StatsEngine, val next: ActorRef) extends Chainable {
 
   def execute(session: Session): Unit = {
 
@@ -39,7 +39,7 @@ class ExitHereIfFailed(userEnd: ActorRef, statsEngine: StatsEngine, val next: Ac
           case _                 =>
         }
 
-        userEnd
+        exit
 
       case _ => next
     }

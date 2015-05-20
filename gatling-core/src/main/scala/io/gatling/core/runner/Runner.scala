@@ -17,7 +17,7 @@ package io.gatling.core.runner
 
 import akka.actor.ActorSystem
 import akka.pattern.ask
-import io.gatling.core.action.UserEnd
+import io.gatling.core.action.Exit
 import io.gatling.core.config.{ Protocols, GatlingConfiguration }
 import io.gatling.core.funspec.GatlingFunSpec
 import io.gatling.core.result.writer._
@@ -69,9 +69,9 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
 
       val controller = system.actorOf(Controller.props(selection, statsEngine, configuration), "gatling-controller")
       val throttler = Throttler(system, simulationParams, "throttler")
-      val userEnd = system.actorOf(UserEnd.props(controller), "userEnd")
+      val exit = system.actorOf(Exit.props(controller), "exit")
 
-      val scenarios = simulationParams.scenarios(system, controller, statsEngine, userEnd)
+      val scenarios = simulationParams.scenarios(system, controller, statsEngine, exit)
 
       scenarios.foldLeft(Protocols()) { (protocols, scenario) =>
         protocols ++ scenario.ctx.protocols

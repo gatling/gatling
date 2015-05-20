@@ -27,5 +27,5 @@ trait Protocol {
 
   def warmUp(system: ActorSystem, StatsEngine: StatsEngine, throttler: Throttler): Unit = {}
 
-  def userEnd(session: Session): Unit = {}
+  def onExit(session: Session): Unit = {}
 }

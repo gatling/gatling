@@ -58,12 +58,12 @@ object Session {
  * @constructor creates a new session
  * @param scenario the name of the current scenario
  * @param userId the id of the current user
- * @param userEnd hook to execute once the user terminates
  * @param attributes the map that stores all values needed
  * @param startDate when the user was started
  * @param drift the cumulated time that was spent in Gatling on computation and that wasn't compensated for
  * @param baseStatus the status when not in a TryMax blocks hierarchy
  * @param blockStack the block stack
+ * @param onExit hook to execute once the user reaches the exit
  */
 case class Session(
     scenario: String,
@@ -73,7 +73,7 @@ case class Session(
     drift: Long = 0L,
     baseStatus: Status = OK,
     blockStack: List[Block] = Nil,
-    userEnd: Session => Unit = session => ()) extends LazyLogging {
+    onExit: Session => Unit = session => ()) extends LazyLogging {
 
   def apply(name: String) = SessionAttribute(this, name)
   def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)
@@ -209,5 +209,5 @@ case class Session(
     (session, update) => update(session)
   }
 
-  def terminate(): Unit = userEnd(this)
+  def terminate(): Unit = onExit(this)
 }

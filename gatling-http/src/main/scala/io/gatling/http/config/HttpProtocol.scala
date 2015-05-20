@@ -151,7 +151,7 @@ object HttpProtocol extends StrictLogging {
       logger.info("Warm up done")
     }
 
-    val userEndF: HttpProtocol => Session => Unit = { protocol =>
+    val onExitF: HttpProtocol => Session => Unit = { protocol =>
 
       val doNothing: Session => Unit = _ => ()
 
@@ -180,7 +180,7 @@ object HttpProtocol extends StrictLogging {
       wsPart,
       proxyPart,
       warmUpF,
-      userEndF)
+      onExitF)
   }
 }
 
@@ -204,7 +204,7 @@ case class HttpProtocol(
   wsPart: HttpProtocolWsPart,
   proxyPart: HttpProtocolProxyPart,
   warmUpF: (ActorSystem, StatsEngine, Throttler, HttpProtocol) => Unit,
-  userEndF: HttpProtocol => Session => Unit)
+  onExitF: HttpProtocol => Session => Unit)
     extends Protocol {
 
   import HttpProtocol._
@@ -214,7 +214,7 @@ case class HttpProtocol(
 
   override def warmUp(system: ActorSystem, statsEngine: StatsEngine, throttler: Throttler): Unit = warmUpF(system, statsEngine, throttler, this)
 
-  override def userEnd(session: Session): Unit = userEndF(this)(session)
+  override def onExit(session: Session): Unit = onExitF(this)(session)
 }
 
 case class HttpProtocolEnginePart(

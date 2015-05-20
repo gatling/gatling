@@ -371,7 +371,7 @@ class SessionSpec extends BaseSpec {
 
   "terminate" should "call the userEnd function" in {
     var i = 0
-    val session = newSession.copy(userEnd = (s: Session) => i += 1)
+    val session = newSession.copy(onExit = (s: Session) => i += 1)
     session.terminate()
 
     i shouldBe 1
