@@ -40,7 +40,7 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
 
   private val flushTimerName = "flushTimer"
 
-  def onInit(init: Init, controller: ActorRef): GraphiteData = {
+  def onInit(init: Init): GraphiteData = {
     import init._
 
     val metricsSender: ActorRef = context.actorOf(MetricsSender.props(configuration), actorName("metricsSender"))

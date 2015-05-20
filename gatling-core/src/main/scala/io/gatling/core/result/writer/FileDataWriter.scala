@@ -20,7 +20,6 @@ import java.nio.charset.CharsetEncoder
 import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.channels.FileChannel
 
-import akka.actor.ActorRef
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.assertion.Assertion
@@ -119,7 +118,7 @@ class FileDataWriter extends DataWriter[FileData] {
 
   import FileDataWriter._
 
-  def onInit(init: Init, controller: ActorRef): FileData = {
+  def onInit(init: Init): FileData = {
 
     import init._
 

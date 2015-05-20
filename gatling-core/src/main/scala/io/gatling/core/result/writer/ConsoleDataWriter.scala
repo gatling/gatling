@@ -17,7 +17,6 @@ package io.gatling.core.result.writer
 
 import java.lang.System.currentTimeMillis
 
-import akka.actor.ActorRef
 import io.gatling.core.config.GatlingConfiguration
 
 import scala.collection.mutable
@@ -54,7 +53,7 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
 
   private val flushTimerName = "flushTimer"
 
-  def onInit(init: Init, controller: ActorRef): ConsoleData = {
+  def onInit(init: Init): ConsoleData = {
 
     import init._
 

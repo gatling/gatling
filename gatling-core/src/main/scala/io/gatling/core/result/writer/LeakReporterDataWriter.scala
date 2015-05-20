@@ -32,8 +32,6 @@ package io.gatling.core.result.writer
  */
 import java.lang.System.currentTimeMillis
 
-import akka.actor.ActorRef
-
 import scala.collection.mutable
 import scala.concurrent.duration.{ FiniteDuration, DurationInt }
 
@@ -45,7 +43,7 @@ class LeakReporterDataWriter extends DataWriter[LeakData] {
 
   private val flushTimerName = "flushTimer"
 
-  def onInit(init: Init, controller: ActorRef): LeakData = {
+  def onInit(init: Init): LeakData = {
     import init._
 
     val noActivityTimeout = configuration.data.leak.noActivityTimeout seconds

@@ -33,7 +33,7 @@ abstract class DataWriter[T <: DataWriterData: ClassTag] extends DataWriterFSM {
 
   startWith(Uninitialized, NoData)
 
-  def onInit(init: Init, controller: ActorRef): T
+  def onInit(init: Init): T
 
   def onFlush(data: T): Unit
 
@@ -47,7 +47,7 @@ abstract class DataWriter[T <: DataWriterData: ClassTag] extends DataWriterFSM {
     case Event(init: Init, NoData) =>
       logger.info("Initializing")
       try {
-        val newState = onInit(init, sender())
+        val newState = onInit(init)
         logger.info("Initialized")
         sender ! true
         goto(Initialized) using newState
