@@ -15,6 +15,8 @@
  */
 package io.gatling.core.result.writer
 
+import java.util.concurrent.atomic.AtomicBoolean
+
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
@@ -107,7 +109,9 @@ class DefaultStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extend
 
   implicit val dispatcher = system.dispatcher
 
-  private def dispatch(message: DataWriterMessage): Unit = dataWriters.foreach(_ ! message)
+  private val active = new AtomicBoolean(true)
+
+  private def dispatch(message: DataWriterMessage): Unit = if (active.get) dataWriters.foreach(_ ! message)
 
   override def logUser(userMessage: UserMessage): Unit = dispatch(userMessage)
 
@@ -150,9 +154,10 @@ class DefaultStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extend
 
   override def logError(session: Session, requestName: String, error: String, date: Long): Unit = dispatch(ErrorMessage(s"$error ", date))
 
-  override def terminate(replyTo: ActorRef): Unit = {
-    implicit val dataWriterTimeOut = Timeout(5 seconds)
-    val responses = dataWriters.map(_ ? Terminate)
-    Future.sequence(responses).onComplete(_ => replyTo ! DataWritersTerminated)
-  }
+  override def terminate(replyTo: ActorRef): Unit =
+    if (active.getAndSet(false)) {
+      implicit val dataWriterTimeOut = Timeout(5 seconds)
+      val responses = dataWriters.map(_ ? Terminate)
+      Future.sequence(responses).onComplete(_ => replyTo ! DataWritersTerminated)
+    }
 }
