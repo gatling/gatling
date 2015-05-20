@@ -44,8 +44,8 @@ class Controller(selection: Selection, statsEngine: StatsEngine, configuration: 
   // -- STEP 1 :  Waiting for the Runner to start the Controller -- //
 
   when(WaitingToStart) {
-    case Event(Run(simulationDef), NoData) =>
-      val initData = InitData(sender(), simulationDef)
+    case Event(Run(scenarios, simulationParams), NoData) =>
+      val initData = InitData(sender(), scenarios, simulationParams)
       processInitializationResult(initData)
   }
 
@@ -53,7 +53,7 @@ class Controller(selection: Selection, statsEngine: StatsEngine, configuration: 
 
   private def processInitializationResult(initData: InitData): State = {
       def buildUserStreams: Map[String, UserStream] = {
-        initData.simulationDef.scenarios.foldLeft((Map.empty[String, UserStream], 0)) { (streamsAndOffset, scenario) =>
+        initData.scenarios.foldLeft((Map.empty[String, UserStream], 0)) { (streamsAndOffset, scenario) =>
           val (streams, offset) = streamsAndOffset
 
           val stream = scenario.injectionProfile.allUsers.zipWithIndex
@@ -64,7 +64,7 @@ class Controller(selection: Selection, statsEngine: StatsEngine, configuration: 
       }
 
       def setUpSimulationMaxDuration(): Unit =
-        initData.simulationDef.maxDuration.foreach { maxDuration =>
+        initData.simulationParams.maxDuration.foreach { maxDuration =>
           logger.debug("Setting up max duration")
           setTimer("maxDurationTimer", ForceTermination(), maxDuration)
         }
@@ -84,7 +84,7 @@ class Controller(selection: Selection, statsEngine: StatsEngine, configuration: 
     val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
     val userStreams = buildUserStreams
     val batchScheduler = startUpScenarios(userIdRoot, userStreams)
-    val totalUsers = initData.simulationDef.scenarios.map(_.injectionProfile.users).sum
+    val totalUsers = initData.scenarios.map(_.injectionProfile.users).sum
     goto(Running) using new RunData(initData, userStreams, batchScheduler, mutable.Map.empty, 0, totalUsers)
   }
 

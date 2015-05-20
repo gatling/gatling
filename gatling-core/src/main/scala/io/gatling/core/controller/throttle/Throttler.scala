@@ -19,7 +19,7 @@ import java.lang.System.nanoTime
 
 import scala.annotation.tailrec
 
-import io.gatling.core.scenario.SimulationDef
+import io.gatling.core.scenario.SimulationParams
 
 import scala.concurrent.duration.{ Duration, FiniteDuration, DurationInt }
 
@@ -71,8 +71,8 @@ class ThisSecondThrottle(val limit: Int, var count: Int = 0) {
 }
 
 object Throttler {
-  def apply(system: ActorSystem, simulationDef: SimulationDef, throttlerActorName: String) =
-    new Throttler(system.actorOf(ThrottlerActor.props(simulationDef), throttlerActorName))
+  def apply(system: ActorSystem, simulationParams: SimulationParams, throttlerActorName: String) =
+    new Throttler(system.actorOf(ThrottlerActor.props(simulationParams), throttlerActorName))
 }
 
 class Throttler(throttlerActor: ActorRef) {
@@ -81,8 +81,8 @@ class Throttler(throttlerActor: ActorRef) {
 }
 
 object ThrottlerActor extends StrictLogging {
-  def props(simulationDef: SimulationDef) =
-    Props(new ThrottlerActor(simulationDef.globalThrottling, simulationDef.scenarioThrottlings))
+  def props(simulationParams: SimulationParams) =
+    Props(new ThrottlerActor(simulationParams.globalThrottling, simulationParams.scenarioThrottlings))
 }
 
 class ThrottlerActor(globalThrottling: Option[Throttling], scenarioThrottlings: Map[String, Throttling]) extends BaseActor {

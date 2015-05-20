@@ -55,22 +55,23 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
         case _                       =>
       }
 
-      simulation._beforeSteps.foreach(_.apply())
+      val simulationParams = simulation.params
+
+      simulationParams.beforeSteps.foreach(_.apply())
 
       val runMessage = RunMessage(selection.simulationClass.getName, selection.simulationId, nowMillis, selection.description)
 
       val statsEngineFactory = Class.forName(configuration.data.statsEngineFactoryClass).newInstance().asInstanceOf[StatsEngineFactory]
-      val statsEngineInit = statsEngineFactory.apply(system, simulation._populationBuilders, simulation._assertions, selection, runMessage)
+      val statsEngineInit = statsEngineFactory.apply(system, simulationParams.populationBuilders, simulationParams.assertions, selection, runMessage)
       val statsEngine = Await.result(statsEngineInit, 5 seconds).get
 
       val controller = system.actorOf(Controller.props(selection, statsEngine, configuration), "gatling-controller")
+      val throttler = Throttler(system, simulationParams, "throttler")
       val userEnd = system.actorOf(UserEnd.props(controller), "userEnd")
 
-      val simulationDef = simulation.build(system, controller, statsEngine, userEnd)
+      val scenarios = simulationParams.scenarios(system, controller, statsEngine, userEnd)
 
-      val throttler = Throttler(system, simulationDef, "throttler")
-
-      simulationDef.scenarios.foldLeft(Protocols()) { (protocols, scenario) =>
+      scenarios.foldLeft(Protocols()) { (protocols, scenario) =>
         protocols ++ scenario.ctx.protocols
       }.warmUp(system, statsEngine, throttler)
 
@@ -80,15 +81,15 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
 
       val timeout = Int.MaxValue.milliseconds - 10.seconds
 
-      val runResult = controller.ask(Run(simulationDef))(timeout).mapTo[Try[String]]
+      val runResult = controller.ask(Run(scenarios, simulationParams))(timeout).mapTo[Try[String]]
 
       val res = Await.result(runResult, timeout)
 
       res match {
         case Success(_) =>
           println("Simulation finished")
-          simulation._afterSteps.foreach(_.apply())
-          RunResult(runMessage.runId, simulationDef.assertions.nonEmpty)
+          simulationParams.afterSteps.foreach(_.apply())
+          RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
 
         case Failure(t) => throw t
       }
