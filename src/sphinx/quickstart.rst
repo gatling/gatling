@@ -63,11 +63,11 @@ This page will guide you through most of Gatling HTTP features. You'll learn abo
 Application under Test
 ----------------------
 
-In this tutorial, we will use an application named *Computer-Database* deployed at the URL: `<http://computer-database.herokuapp.com>`__.
+In this tutorial, we will use an application named *Computer-Database* deployed at the URL: `<http://computer-database.gatling.io>`__.
 
-This application is a simple CRUD application for managing computer models, and was a sample for the `Play Framework <http://www.playframework.com/>`_.
+This application is a simple CRUD application for managing computer models, and was a sample for the `Play Framework <http://www.playframework.com/>`_ before version 2.3.
 
-You can also run it on your local machine: download Play! 2.2.x's bundle and check out `the samples <https://github.com/playframework/playframework/tree/2.2.x/samples/scala/computer-database>`__.
+You can also run it on your local machine: download Play! 2.2.x's bundle and check out `the app <https://github.com/gatling/gatling-computer-database>`__.
 
 Scenario
 --------
@@ -122,7 +122,7 @@ Recording the scenario
 
 Now simply browse the application:
   #. Enter 'Search' tag.
-  #. Go to the website: http://computer-database.herokuapp.com
+  #. Go to the website: http://computer-database.gatling.io
   #. Search for models with 'macbook' in their name.
   #. Select 'Macbook pro'.
   #. Enter 'Browse' tag.
