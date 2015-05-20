@@ -71,7 +71,7 @@ class PollerActor(
           errorMessage
         }
 
-        nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, self, blocking = false)
+        nonBlockingTx = HttpTx(session, httpRequest, responseBuilderFactory, self, root = false)
 
       } yield httpEngine.startHttpTransaction(nonBlockingTx)
 

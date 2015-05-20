@@ -52,7 +52,7 @@ class AsyncHandlerActor(httpEngine: HttpEngine)(implicit configuration: GatlingC
 
       def abort(tx: HttpTx): Unit = {
         logger.error(s"AsyncHandlerActor crashed on message $message, forwarding user to the next action", reason)
-        if (tx.blocking)
+        if (tx.root)
           tx.next ! tx.session.markAsFailed
         else {
           val uri = tx.request.ahcRequest.getUri
@@ -142,7 +142,7 @@ class AsyncHandlerActor(httpEngine: HttpEngine)(implicit configuration: GatlingC
 
     val protocol = tx.request.config.protocol
 
-    if (tx.blocking)
+    if (tx.root)
       httpEngine.resourceFetcherActorForFetchedPage(tx.request.ahcRequest, response, tx) match {
         case Some(resourceFetcherActor) =>
           context.actorOf(Props(resourceFetcherActor()), actorName("resourceFetcher"))
@@ -179,7 +179,7 @@ class AsyncHandlerActor(httpEngine: HttpEngine)(implicit configuration: GatlingC
     logAndExecuteNext(tx, update, KO, response, Some(message))
 
   private def logGroupRequestUpdate(tx: HttpTx, status: Status, responseTimeInMillis: Int): Session => Session =
-    if (tx.blocking && !tx.silent)
+    if (tx.root && !tx.silent)
       // resource logging is done in ResourceFetcher
       _.logGroupRequest(responseTimeInMillis, status)
     else
@@ -302,7 +302,7 @@ class AsyncHandlerActor(httpEngine: HttpEngine)(implicit configuration: GatlingC
               tx.request.config.checks
 
           val storeRefererUpdate =
-            if (tx.blocking)
+            if (tx.root)
               RefererHandling.storeReferer(tx.request.ahcRequest, response, tx.request.config.protocol)
             else Session.Identity
 

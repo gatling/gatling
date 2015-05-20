@@ -54,9 +54,9 @@ import io.gatling.http.util.SslHelper._
 
 object HttpTx {
 
-  def silent(request: HttpRequest, primary: Boolean): Boolean = {
+  def silent(request: HttpRequest, root: Boolean): Boolean = {
 
-      def silentBecauseProtocolSilentResources = !primary && request.config.protocol.requestPart.silentResources
+      def silentBecauseProtocolSilentResources = !root && request.config.protocol.requestPart.silentResources
 
       def silentBecauseProtocolSilentURI: Option[Boolean] = request.config.protocol.requestPart.silentURI
         .map(_.matcher(request.ahcRequest.getUrl).matches)
@@ -69,11 +69,11 @@ case class HttpTx(session: Session,
                   request: HttpRequest,
                   responseBuilderFactory: ResponseBuilderFactory,
                   next: ActorRef,
-                  blocking: Boolean = true,
+                  root: Boolean = true,
                   redirectCount: Int = 0,
                   update: Session => Session = Session.Identity) {
 
-  val silent: Boolean = HttpTx.silent(request, blocking)
+  val silent: Boolean = HttpTx.silent(request, root)
 }
 
 case class SseTx(session: Session,
@@ -154,7 +154,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
 
           case None =>
             logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
-            if (tx.blocking)
+            if (tx.root)
               tx.next ! tx.session
             else
               tx.next ! RegularResourceFetched(uri, OK, Session.Identity, tx.silent)

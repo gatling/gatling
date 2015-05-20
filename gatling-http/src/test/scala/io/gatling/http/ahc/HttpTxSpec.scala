@@ -52,14 +52,14 @@ class HttpTxSpec extends BaseSpec {
       session = httpCaches.addRedirect(session, Uri.create(from), Uri.create(to))
   }
 
-  def tx(ahcRequest: Request, config: HttpRequestConfig, blocking: Boolean) =
+  def tx(ahcRequest: Request, config: HttpRequestConfig, root: Boolean) =
     HttpTx(null,
       request = HttpRequest(
         requestName = "mockHttpTx",
         ahcRequest = ahcRequest,
         config = config),
       responseBuilderFactory = null,
-      blocking = blocking,
+      root = root,
       next = null,
       redirectCount = 0)
 
@@ -70,7 +70,7 @@ class HttpTxSpec extends BaseSpec {
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/")
 
     val config = configBase.copy(silent = Some(true))
-    tx(ahcRequest, config, blocking = true).silent shouldBe true
+    tx(ahcRequest, config, root = true).silent shouldBe true
   }
 
   it should "be non-silent when using default protocol and containing a regular request" in new Context {
@@ -80,7 +80,7 @@ class HttpTxSpec extends BaseSpec {
     when(ahcRequest.getUri) thenReturn Uri.create("http://example.com/")
 
     val config = configBase.copy(silent = None)
-    tx(ahcRequest, config, blocking = true).silent shouldBe false
+    tx(ahcRequest, config, root = true).silent shouldBe false
   }
 
   it should "not be silent when using a protocol with a silentURI pattern match the request url" in new Context {
@@ -95,10 +95,10 @@ class HttpTxSpec extends BaseSpec {
     when(protocol.requestPart) thenReturn requestPart
 
     val config = configBase.copy(silent = None, protocol = protocol)
-    tx(ahcRequest, config, blocking = true).silent shouldBe true
+    tx(ahcRequest, config, root = true).silent shouldBe true
   }
 
-  it should "be silent when passed a protocol silencing resources and a resource (non primary) request" in new Context {
+  it should "be silent when passed a protocol silencing resources and a resource (non root) request" in new Context {
 
     val ahcRequest = mock[Request]
     val protocol = mock[HttpProtocol]
@@ -110,10 +110,10 @@ class HttpTxSpec extends BaseSpec {
     when(protocol.requestPart) thenReturn requestPart
 
     val config = configBase.copy(silent = None, protocol = protocol)
-    tx(ahcRequest, config, blocking = false).silent shouldBe true
+    tx(ahcRequest, config, root = false).silent shouldBe true
   }
 
-  it should "not be silent when passed a protocol silencing resources and a primary request" in new Context {
+  it should "not be silent when passed a protocol silencing resources and a root request" in new Context {
 
     val ahcRequest = mock[Request]
     val protocol = mock[HttpProtocol]
@@ -125,6 +125,6 @@ class HttpTxSpec extends BaseSpec {
     when(protocol.requestPart) thenReturn requestPart
 
     val config = configBase.copy(silent = None, protocol = protocol)
-    tx(ahcRequest, config, blocking = true).silent shouldBe false
+    tx(ahcRequest, config, root = true).silent shouldBe false
   }
 }

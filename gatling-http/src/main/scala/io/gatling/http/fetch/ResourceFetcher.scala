@@ -177,15 +177,15 @@ trait ResourceFetcher {
 }
 
 // FIXME handle crash
-class ResourceFetcherActor(httpEngine: HttpEngine, primaryTx: HttpTx, initialResources: Seq[HttpRequest])(implicit configuration: GatlingConfiguration) extends BaseActor {
+class ResourceFetcherActor(httpEngine: HttpEngine, rootTx: HttpTx, initialResources: Seq[HttpRequest])(implicit configuration: GatlingConfiguration) extends BaseActor {
 
   // immutable state
-  val protocol = primaryTx.request.config.protocol
-  val throttled = primaryTx.request.config.throttled
+  val protocol = rootTx.request.config.protocol
+  val throttled = rootTx.request.config.throttled
   val filters = protocol.responsePart.htmlResourcesInferringFilters
 
   // mutable state
-  var session = primaryTx.session
+  var session = rootTx.session
   val alreadySeen = mutable.Set.empty[Uri]
   val bufferedResourcesByHost = mutable.HashMap.empty[String, List[HttpRequest]].withDefaultValue(Nil)
   val availableTokensByHost = mutable.HashMap.empty[String, Int].withDefaultValue(protocol.enginePart.maxConnectionsPerHost)
@@ -205,12 +205,12 @@ class ResourceFetcherActor(httpEngine: HttpEngine, primaryTx: HttpTx, initialRes
       protocol.responsePart.discardResponseChunks,
       protocol.responsePart.inferHtmlResources)
 
-    val resourceTx = primaryTx.copy(
+    val resourceTx = rootTx.copy(
       session = this.session,
       request = resource,
       responseBuilderFactory = responseBuilderFactory,
       next = self,
-      blocking = false)
+      root = false)
 
     httpEngine.startHttpTransaction(resourceTx)
   }
@@ -222,7 +222,7 @@ class ResourceFetcherActor(httpEngine: HttpEngine, primaryTx: HttpTx, initialRes
     logger.info(s"Fetching resource $uri from cache")
     // FIXME check if it's a css this way or use the Content-Type?
 
-    val silent = HttpTx.silent(resource, false)
+    val silent = HttpTx.silent(resource, root = false)
 
     val resourceFetched =
       if (httpEngine.CssContentCache.cache.contains(uri))
@@ -276,7 +276,7 @@ class ResourceFetcherActor(httpEngine: HttpEngine, primaryTx: HttpTx, initialRes
   private def done(): Unit = {
     logger.debug("All resources were fetched")
     // FIXME only do so if not silent
-    primaryTx.next ! session.logGroupRequest((nowMillis - start).toInt, globalStatus)
+    rootTx.next ! session.logGroupRequest((nowMillis - start).toInt, globalStatus)
     context.stop(self)
   }
 
