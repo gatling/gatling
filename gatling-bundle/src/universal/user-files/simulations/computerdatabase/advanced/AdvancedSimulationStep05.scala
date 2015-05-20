@@ -61,7 +61,7 @@ class AdvancedSimulationStep05 extends Simulation {
   }
 
   val httpConf = http
-    .baseURL("http://computer-database.herokuapp.com")
+    .baseURL("http://computer-database.gatling.io")
     .acceptHeader("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
     .doNotTrackHeader("1")
     .acceptLanguageHeader("en-US,en;q=0.5")

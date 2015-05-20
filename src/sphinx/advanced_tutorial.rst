@@ -49,7 +49,7 @@ To increase the number of simulated users, all you have to do is to change the c
 
 .. includecode:: code/AdvancedTutorial.scala#setup-users
 
-Here we set only 10 users, because we don't want to flood our test web application. *Please*, be kind and don't crash our Heroku instance ;-)
+Here we set only 10 users, because we don't want to flood our test web application. *Please*, be kind and don't crash our server ;-)
 
 If you want to simulate 3000 users, you might not want them to start at the same time.
 Indeed, real users are more likely to connect to your web application gradually.
