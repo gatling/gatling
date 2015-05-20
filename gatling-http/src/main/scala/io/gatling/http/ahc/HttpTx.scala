@@ -25,10 +25,10 @@ object HttpTx {
 
   def silent(request: HttpRequest, root: Boolean): Boolean = {
 
-    def silentBecauseProtocolSilentResources = !root && request.config.protocol.requestPart.silentResources
+      def silentBecauseProtocolSilentResources = !root && request.config.protocol.requestPart.silentResources
 
-    def silentBecauseProtocolSilentURI: Option[Boolean] = request.config.protocol.requestPart.silentURI
-      .map(_.matcher(request.ahcRequest.getUrl).matches)
+      def silentBecauseProtocolSilentURI: Option[Boolean] = request.config.protocol.requestPart.silentURI
+        .map(_.matcher(request.ahcRequest.getUrl).matches)
 
     request.config.silent.orElse(silentBecauseProtocolSilentURI).getOrElse(silentBecauseProtocolSilentResources)
   }
