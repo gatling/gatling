@@ -64,7 +64,7 @@ class HttpEngine(implicit val configuration: GatlingConfiguration, val httpCache
     system.registerOnTermination(stop())
   }
 
-  def stop(): Unit = _state.foreach { state =>
+  private def stop(): Unit = _state.foreach { state =>
     state.applicationThreadPool.shutdown()
     state.nioThreadPool.shutdown()
     _state = None
