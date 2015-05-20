@@ -43,7 +43,7 @@ object SeparatedValuesParser {
     val mapper = new CsvMapper().disable(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY)
     val schema = CsvSchema.emptySchema.withHeader.withColumnSeparator(columnSeparator).withQuoteChar(quoteChar).withEscapeChar('\\')
 
-    val reader: ObjectReader = mapper.reader(classOf[JMap[_, _]])
+    val reader: ObjectReader = mapper.readerFor(classOf[JMap[_, _]])
 
     val it: MappingIterator[JMap[String, String]] = reader
       .`with`(schema)
