@@ -22,7 +22,7 @@ import scala.concurrent.duration.{ Duration, FiniteDuration }
 
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.{ Protocols, GatlingConfiguration, Protocol }
-import io.gatling.core.controller.throttle.{ ThrottlingProfile, Throttling }
+import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseType, UniformDuration, UniformPercentage }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.PopulationBuilder
@@ -34,7 +34,7 @@ abstract class Simulation {
   private[core] var _assertions = Seq.empty[Assertion]
   private var _maxDuration: Option[FiniteDuration] = None
   private var _globalPauseType: PauseType = Constant
-  private var _globalThrottling: Option[ThrottlingProfile] = None
+  private var _globalThrottling: Option[Throttling] = None
   private[core] var _beforeSteps: List[() => Unit] = Nil
   private[core] var _afterSteps: List[() => Unit] = Nil
 
@@ -74,13 +74,10 @@ abstract class Simulation {
       this
     }
 
-    def throttle(throttlingBuilders: Throttling*): SetUp = throttle(throttlingBuilders.toIterable)
+    def throttle(throttleSteps: ThrottleStep*): SetUp = throttle(throttleSteps.toIterable)
 
-    def throttle(throttlingBuilders: Iterable[Throttling]): SetUp = {
-
-      val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
-      val throttling = Throttling(steps).profile
-      _globalThrottling = Some(throttling)
+    def throttle(throttleSteps: Iterable[ThrottleStep]): SetUp = {
+      _globalThrottling = Some(Throttling(throttleSteps))
       this
     }
 
@@ -105,7 +102,7 @@ abstract class Simulation {
 
     val scenarios = _populationBuilders.map(_.build(system, controller, statsEngine, userEnd, _globalProtocols, _globalPauseType, _globalThrottling))
 
-    val scenarioThrottlings: Map[String, ThrottlingProfile] = _populationBuilders
+    val scenarioThrottlings: Map[String, Throttling] = _populationBuilders
       .flatMap(scn => scn.scenarioThrottling.map(t => scn.scenarioBuilder.name -> t)).toMap
 
     val maxDuration = {
@@ -132,5 +129,5 @@ case class SimulationDef(name: String,
                          scenarios: List[Scenario],
                          assertions: Seq[Assertion],
                          maxDuration: Option[FiniteDuration],
-                         globalThrottling: Option[ThrottlingProfile],
-                         scenarioThrottlings: Map[String, ThrottlingProfile])
+                         globalThrottling: Option[Throttling],
+                         scenarioThrottlings: Map[String, Throttling])

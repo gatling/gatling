@@ -25,7 +25,7 @@ import com.typesafe.scalalogging.LazyLogging
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.{ GatlingConfiguration, Protocol, Protocols }
 import io.gatling.core.controller.inject.{ InjectionProfile, InjectionStep }
-import io.gatling.core.controller.throttle.{ ThrottlingProfile, Throttling }
+import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling }
 import io.gatling.core.pause._
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Expression
@@ -56,7 +56,7 @@ case class PopulationBuilder(
   injectionProfile: InjectionProfile,
   defaultProtocols: Protocols,
   scenarioProtocols: Protocols = Protocols(),
-  scenarioThrottling: Option[ThrottlingProfile] = None,
+  scenarioThrottling: Option[Throttling] = None,
   pauseType: Option[PauseType] = None)
     extends LazyLogging {
 
@@ -70,12 +70,11 @@ case class PopulationBuilder(
   def uniformPauses(plusOrMinus: Duration) = pauses(UniformDuration(plusOrMinus))
   def pauses(pauseType: PauseType) = copy(pauseType = Some(pauseType))
 
-  def throttle(throttlingBuilders: Throttling*): PopulationBuilder = throttle(throttlingBuilders.toIterable)
+  def throttle(throttleSteps: ThrottleStep*): PopulationBuilder = throttle(throttleSteps.toIterable)
 
-  def throttle(throttlingBuilders: Iterable[Throttling]): PopulationBuilder = {
-    require(throttlingBuilders.nonEmpty, s"Scenario '${scenarioBuilder.name}' has an empty throttling definition.")
-    val steps = throttlingBuilders.toList.map(_.steps).reverse.flatten
-    copy(scenarioThrottling = Some(Throttling(steps).profile))
+  def throttle(throttleSteps: Iterable[ThrottleStep]): PopulationBuilder = {
+    require(throttleSteps.nonEmpty, s"Scenario '${scenarioBuilder.name}' has an empty throttling definition.")
+    copy(scenarioThrottling = Some(Throttling(throttleSteps)))
   }
 
   /**
@@ -88,7 +87,7 @@ case class PopulationBuilder(
    * @param globalThrottling the optional throttling profile
    * @return the scenario
    */
-  private[core] def build(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, userEnd: ActorRef, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[ThrottlingProfile])(implicit configuration: GatlingConfiguration): Scenario = {
+  private[core] def build(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, userEnd: ActorRef, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[Throttling])(implicit configuration: GatlingConfiguration): Scenario = {
 
     val resolvedPauseType = globalThrottling.orElse(scenarioThrottling).map { _ =>
       logger.info("Throttle is enabled, disabling pauses")

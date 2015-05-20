@@ -17,6 +17,8 @@ package io.gatling.core.controller.throttle
 
 import java.lang.System.nanoTime
 
+import scala.annotation.tailrec
+
 import io.gatling.core.scenario.SimulationDef
 
 import scala.concurrent.duration.{ Duration, FiniteDuration, DurationInt }
@@ -29,7 +31,38 @@ sealed trait ThrottlerMessage
 case object OneSecondTick extends ThrottlerMessage
 case class ThrottledRequest(scenarioName: String, request: () => Unit) extends ThrottlerMessage
 
-case class ThrottlingProfile(limit: Long => Int, duration: FiniteDuration)
+object Throttling {
+
+  def apply(steps: Iterable[ThrottleStep]): Throttling = {
+
+    val limit: (Long => Int) = {
+        @tailrec
+        def valueAt(steps: List[ThrottleStep], pendingTime: Long, previousLastValue: Int): Int = steps match {
+          case Nil => 0
+          case head :: tail =>
+            if (pendingTime < head.durationInSec)
+              head.rps(pendingTime, previousLastValue)
+            else
+              valueAt(tail, pendingTime - head.durationInSec, head.target(previousLastValue))
+        }
+
+      val reversedSteps = steps.toList.reverse
+      (now: Long) => valueAt(reversedSteps, now, 0)
+    }
+
+    val duration: FiniteDuration = steps.foldLeft(Duration.Zero) { (acc, step) =>
+      step match {
+        case Reach(_, d) => acc + d
+        case Hold(d)     => acc + d
+        case _           => acc
+      }
+    }
+
+    Throttling(limit, duration)
+  }
+}
+
+case class Throttling(limit: Long => Int, duration: FiniteDuration)
 
 class ThisSecondThrottle(val limit: Int, var count: Int = 0) {
 
@@ -52,7 +85,7 @@ object ThrottlerActor extends StrictLogging {
     Props(new ThrottlerActor(simulationDef.globalThrottling, simulationDef.scenarioThrottlings))
 }
 
-class ThrottlerActor(globalProfile: Option[ThrottlingProfile], scenarioProfiles: Map[String, ThrottlingProfile]) extends BaseActor {
+class ThrottlerActor(globalThrottling: Option[Throttling], scenarioThrottlings: Map[String, Throttling]) extends BaseActor {
 
   val timerCancellable = system.scheduler.schedule(Duration.Zero, 1 seconds, self, OneSecondTick)
 
@@ -83,8 +116,8 @@ class ThrottlerActor(globalProfile: Option[ThrottlingProfile], scenarioProfiles:
 
   private def tick(): Unit = {
     thisTickStartSeconds += 1
-    thisTickGlobalThrottle = globalProfile.map(p => new ThisSecondThrottle(p.limit(thisTickStartSeconds)))
-    thisTickPerScenarioThrottles = Map.empty ++ scenarioProfiles.mapValues(p => new ThisSecondThrottle(p.limit(thisTickStartSeconds)))
+    thisTickGlobalThrottle = globalThrottling.map(p => new ThisSecondThrottle(p.limit(thisTickStartSeconds)))
+    thisTickPerScenarioThrottles = Map.empty ++ scenarioThrottlings.mapValues(p => new ThisSecondThrottle(p.limit(thisTickStartSeconds)))
     val globalLimit = thisTickGlobalThrottle.map(_.limit)
     val perScenarioLimit =
       if (thisTickPerScenarioThrottles.nonEmpty)
