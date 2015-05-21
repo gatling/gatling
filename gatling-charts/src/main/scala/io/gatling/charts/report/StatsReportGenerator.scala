@@ -51,7 +51,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
         val groupedCounts = dataReader
           .numberOfRequestInResponseTimeRange(requestName, group).map {
-            case (rangeName, count) => GroupedCount(rangeName, count, math.round(count * 100.0f / total.count))
+            case (rangeName, count) => GroupedCount(rangeName, count, total.count)
           }
 
         val path = requestName match {
@@ -81,7 +81,7 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
 
         val groupedCounts = dataReader
           .numberOfRequestInResponseTimeRange(None, Some(group)).map {
-            case (rangeName, count) => if (total.count != 0) GroupedCount(rangeName, count, count * 100 / total.count) else GroupedCount(rangeName, count, 0)
+            case (rangeName, count) => GroupedCount(rangeName, count, total.count)
           }
 
         val path = RequestPath.path(group)

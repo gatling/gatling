@@ -35,7 +35,9 @@ private[charts] case class Statistics[T: Numeric](name: String, total: T, succes
   def all = List(total, success, failure)
 }
 
-private[charts] case class GroupedCount(name: String, count: Int, percentage: Int)
+private[charts] case class GroupedCount(name: String, count: Int, total: Int) {
+  val percentage: Int = if (total == 0) 0 else math.round(count.toDouble / total * 100).toInt
+}
 
 private[charts] case class RequestStatistics(name: String,
                                              path: String,
