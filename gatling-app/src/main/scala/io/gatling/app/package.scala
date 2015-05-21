@@ -23,6 +23,6 @@ package object app {
 
   type ConfigOverrides = mutable.Map[String, _]
 
-  type SelectedSingleSimulation = Option[Class[Simulation]]
-  type AllSimulations = List[Class[Simulation]]
+  type SelectedSimulationClass = Option[Class[Simulation]]
+  type SimulationClasses = List[Class[Simulation]]
 }

@@ -44,29 +44,27 @@ object Gatling {
 
   def fromMap(overrides: ConfigOverrides): Int = new Gatling(overrides, None).start.code
 
-  def fromArgs(args: Array[String], simulationClass: SelectedSingleSimulation): Int = {
+  def fromArgs(args: Array[String], selectedSimulationClass: SelectedSimulationClass): Int = {
     val argsParser = new ArgsParser(args)
 
     argsParser.parseArguments match {
       case Left(commandLineOverrides) =>
-        new Gatling(commandLineOverrides, simulationClass).start.code
+        new Gatling(commandLineOverrides, selectedSimulationClass).start.code
       case Right(statusCode) => statusCode.code
     }
   }
 }
-private[app] class Gatling(overrides: ConfigOverrides, simulationClass: SelectedSingleSimulation) {
+private[app] class Gatling(overrides: ConfigOverrides, selectedSimulationClass: SelectedSimulationClass) {
 
   def start: StatusCode = {
     StringHelper.checkSupportedJavaVersion()
     implicit val configuration = GatlingConfiguration.load(overrides)
-    // ugly way to pass the configuration to the Simulation constructor
-    io.gatling.core.Predef.configuration = configuration
 
-    new ConfiguredGatling(simulationClass).start
+    new ConfiguredGatling(selectedSimulationClass).start
   }
 }
 
-private[app] class ConfiguredGatling(simulationClass: SelectedSingleSimulation)(implicit configuration: GatlingConfiguration) {
+private[app] class ConfiguredGatling(selectedSimulationClass: SelectedSimulationClass)(implicit configuration: GatlingConfiguration) {
 
   def start: StatusCode = {
     val simulations = loadSimulations
@@ -88,20 +86,20 @@ private[app] class ConfiguredGatling(simulationClass: SelectedSingleSimulation)(
     }.getOrElse(GatlingStatusCodes.Success)
   }
 
-  private def loadSimulations: AllSimulations = {
-    val fromSbt = simulationClass.isDefined
+  private def loadSimulations: SimulationClasses = {
+    val fromSbt = selectedSimulationClass.isDefined
     val reportsOnly = configuration.core.directory.reportsOnly.isDefined
 
     if (fromSbt || reportsOnly) Nil
     else SimulationClassLoader(GatlingFiles.binariesDirectory).simulationClasses.sortBy(_.getName)
   }
 
-  private def selectSingleSimulationIfPossible(simulations: AllSimulations): SelectedSingleSimulation = {
+  private def selectSingleSimulationIfPossible(simulationClasses: SimulationClasses): SelectedSimulationClass = {
 
-      def findSelectedSingleSimulationAmongstCompileOnes(className: String): SelectedSingleSimulation =
-        simulations.find(_.getCanonicalName == className)
+      def findSelectedSingleSimulationAmongstCompileOnes(className: String): SelectedSimulationClass =
+        simulationClasses.find(_.getCanonicalName == className)
 
-      def findSelectedSingleSimulationInClassload(className: String): SelectedSingleSimulation =
+      def findSelectedSingleSimulationInClassload(className: String): SelectedSimulationClass =
         Try(Class.forName(className)).toOption.collect { case clazz if classOf[Simulation].isAssignableFrom(clazz) => clazz.asInstanceOf[Class[Simulation]] }
 
       def singleSimulationFromConfig =
@@ -114,7 +112,7 @@ private[app] class ConfiguredGatling(simulationClass: SelectedSingleSimulation)(
           found
         }
 
-      def singleSimulationFromList = simulations match {
+      def singleSimulationFromList = simulationClasses match {
         case simulation :: Nil =>
           println(s"${simulation.getName} is the only simulation, executing it.")
           Some(simulation)
@@ -122,13 +120,13 @@ private[app] class ConfiguredGatling(simulationClass: SelectedSingleSimulation)(
         case _ => None
       }
 
-    simulationClass orElse singleSimulationFromConfig orElse singleSimulationFromList
+    selectedSimulationClass orElse singleSimulationFromConfig orElse singleSimulationFromList
   }
 
-  private def runSimulationIfNecessary(singleSimulation: SelectedSingleSimulation, simulations: AllSimulations): RunResult = {
+  private def runSimulationIfNecessary(selectedSimulationClass: SelectedSimulationClass, simulationClasses: SimulationClasses): RunResult = {
     configuration.core.directory.reportsOnly.map(RunResult(_, hasAssertions = true)).getOrElse {
       // -- If no single simulation was available, allow user to select one -- //
-      val simulation = singleSimulation.getOrElse(interactiveSelect(simulations))
+      val simulation = selectedSimulationClass.getOrElse(interactiveSelect(simulationClasses))
 
       // -- Ask for simulation ID and run description if required -- //
       val muteModeActive = configuration.core.muteMode || configuration.core.simulationClass.isDefined
@@ -166,13 +164,13 @@ private[app] class ConfiguredGatling(simulationClass: SelectedSingleSimulation)(
     StdIn.readLine().trim
   }
 
-  private def interactiveSelect(simulations: AllSimulations): Class[Simulation] = {
-    val validRange = 0 until simulations.size
+  private def interactiveSelect(simulationClasses: SimulationClasses): Class[Simulation] = {
+    val validRange = simulationClasses.indices
 
       @tailrec
       def readSimulationNumber: Int = {
         println("Choose a simulation number:")
-        for ((simulation, index) <- simulations.zipWithIndex) {
+        for ((simulation, index) <- simulationClasses.zipWithIndex) {
           println(s"     [$index] ${simulation.getName}")
         }
 
@@ -189,11 +187,11 @@ private[app] class ConfiguredGatling(simulationClass: SelectedSingleSimulation)(
         }
       }
 
-    if (simulations.isEmpty) {
+    if (simulationClasses.isEmpty) {
       println("There is no simulation script. Please check that your scripts are in user-files/simulations")
       sys.exit()
     }
-    simulations(readSimulationNumber)
+    simulationClasses(readSimulationNumber)
   }
 
   private def initDataReaderIfNecessary(runResult: RunResult): Option[DataReader] = {

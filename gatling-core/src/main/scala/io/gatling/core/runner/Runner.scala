@@ -48,6 +48,9 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
       // important, initialize time reference
       val timeRef = NanoTimeReference
 
+      // ugly way to pass the configuration to the Simulation constructor
+      io.gatling.core.Predef.configuration = configuration
+
       val simulation = simulationClass.newInstance
 
       simulation match {
