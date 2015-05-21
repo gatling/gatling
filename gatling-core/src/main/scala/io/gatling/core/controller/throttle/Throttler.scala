@@ -68,6 +68,8 @@ class ThisSecondThrottle(val limit: Int, var count: Int = 0) {
 
   def increment(): Unit = count += 1
   def limitReached: Boolean = count >= limit
+
+  override def toString = s"ThisSecondThrottle(limit=$limit, count=$count)"
 }
 
 object Throttler {
