@@ -103,12 +103,10 @@ class AssertionValidator(implicit configuration: GatlingConfiguration) {
       case Count => resolvedStats.map(_.count)
       case Percent =>
         val metricCountsAndAllCounts = resolvedStats.map(_.count).zip(stats(None).map(_.count))
-        val percentages = metricCountsAndAllCounts.map { case (metricCount, allCount) => metricCount.toDouble / allCount * 100 }
-        percentages.map(_.toInt)
+        metricCountsAndAllCounts.map { case (metricCount, allCount) => math.round(metricCount.toDouble / allCount * 100).toInt }
       case PerMillion =>
         val metricCountsAndAllCounts = resolvedStats.map(_.count).zip(stats(None).map(_.count))
-        val percentages = metricCountsAndAllCounts.map { case (metricCount, allCount) => metricCount.toDouble / allCount * 1000000 }
-        percentages.map(_.toInt)
+        metricCountsAndAllCounts.map { case (metricCount, allCount) => math.round(metricCount.toDouble / allCount * 1000000).toInt }
     }
   }
 
