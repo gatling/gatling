@@ -104,8 +104,8 @@ object AssertionValidator {
       case Count => ResolvedSelection(resolvedMetric.stats.map(_.count), "count")
       case Percent =>
         val metricCountsAndAllCounts = resolvedMetric.stats.map(_.count).zip(stats(None).map(_.count))
-        val percentages = metricCountsAndAllCounts.map { case (metricCount, allCount) => metricCount.toDouble / allCount * 100 }
-        ResolvedSelection(percentages.map(_.toInt), "percentage")
+        val percentages = metricCountsAndAllCounts.map { case (metricCount, allCount) => math.round(metricCount.toDouble / allCount * 100).toInt }
+        ResolvedSelection(percentages, "percentage")
     }
     resolveCondition(assertion, resolvedSelection.value, s"$path: ${resolvedSelection.message} of ${resolvedMetric.message}")
   }
