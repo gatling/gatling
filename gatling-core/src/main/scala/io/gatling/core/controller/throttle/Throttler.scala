@@ -46,7 +46,7 @@ object Throttling {
               valueAt(tail, pendingTime - head.durationInSec, head.target(previousLastValue))
         }
 
-      val reversedSteps = steps.toList.reverse
+      val reversedSteps = steps.toList
       (now: Long) => valueAt(reversedSteps, now, 0)
     }
 
