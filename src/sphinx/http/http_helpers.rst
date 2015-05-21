@@ -29,7 +29,6 @@ Cookie can also take more optional parameters::
   Cookie(name: Expression[String], value: Expression[String])
     .withDomain(domain: Expression[String])
     .withPath(path: Expression[String])
-    .withExpires(expires: Long)
     .withMaxAge(maxAge: Int)
 
 .. _http-helpers-cookie-flush-session:

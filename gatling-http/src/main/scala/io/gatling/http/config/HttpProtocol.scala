@@ -34,7 +34,7 @@ import io.gatling.core.filter.Filters
 import io.gatling.core.session.{ Session, Expression, ExpressionWrapper }
 import io.gatling.core.util.RoundRobin
 import io.gatling.http.HeaderNames._
-import io.gatling.http.ahc.{ ChannelPoolPartitioning, HttpEngine }
+import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.request.builder.Http
@@ -164,9 +164,12 @@ object HttpProtocol extends StrictLogging {
             val (_, ahc) = httpEngine.httpClient(session, protocol)
             ahc.foreach(_.getProvider.asInstanceOf[NettyAsyncHttpProvider].flushChannelPoolPartitions(new ChannelPoolPartitionSelector() {
 
-              val userBase = ChannelPoolPartitioning.partitionIdUserBase(session)
+              val userId = session.userId
 
-              override def select(partitionId: String): Boolean = partitionId.startsWith(userBase.toString)
+              override def select(partitionKey: Object): Boolean = partitionKey match {
+                case (`userId`, _) => true
+                case _             => false
+              }
             }))
           }
       }

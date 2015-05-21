@@ -40,7 +40,7 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SitemapFeederSup
   val Proxy = io.gatling.http.config.HttpProxyBuilder.apply _
 
   def http(requestName: Expression[String])(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches) = new Http(requestName)
-  def addCookie(cookie: CookieDSL)(implicit defaultHttpProtocol: DefaultHttpProtocol) = new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.expires.getOrElse(-1L), cookie.maxAge.getOrElse(-1))
+  def addCookie(cookie: CookieDSL)(implicit defaultHttpProtocol: DefaultHttpProtocol) = new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(Long.MinValue))
   def flushSessionCookies = CookieSupport.FlushSessionCookies
   def flushCookieJar = CookieSupport.FlushCookieJar
   def flushHttpCache(implicit httpCaches: HttpCaches) = httpCaches.FlushCache

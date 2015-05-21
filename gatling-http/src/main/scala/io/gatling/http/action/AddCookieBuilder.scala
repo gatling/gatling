@@ -28,12 +28,10 @@ import io.gatling.http.cookie.CookieSupport.storeCookie
 case class CookieDSL(name: Expression[String], value: Expression[String],
                      domain: Option[Expression[String]] = None,
                      path: Option[Expression[String]] = None,
-                     expires: Option[Long] = None,
-                     maxAge: Option[Int] = None) {
+                     maxAge: Option[Long] = None) {
 
   def withDomain(domain: Expression[String]) = copy(domain = Some(domain))
   def withPath(path: Expression[String]) = copy(path = Some(path))
-  def withExpires(expires: Long) = copy(expires = Some(expires))
   def withMaxAge(maxAge: Int) = copy(maxAge = Some(maxAge))
 }
 
@@ -52,7 +50,7 @@ object AddCookieBuilder {
   }
 }
 
-class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], expires: Long, maxAge: Int)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
+class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Long)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
   import AddCookieBuilder._
 
@@ -66,9 +64,9 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
       value <- value(session)
       domain <- resolvedDomain(session)
       path <- resolvedPath(session)
-      cookie = new Cookie(name, value, false, domain, path, expires, maxAge, false, false)
+      cookie = new Cookie(name, value, false, domain, path, maxAge, false, false)
     } yield storeCookie(session, domain, path, cookie)
 
-    system.actorOf(SessionHook.props(expression, ctx.statsEngine, next, true), actorName("addCookie"))
+    system.actorOf(SessionHook.props(expression, ctx.statsEngine, next, interruptable = true), actorName("addCookie"))
   }
 }

@@ -19,13 +19,8 @@ import com.ning.http.client.{ ConnectionPoolPartitioning, ProxyServer }
 import com.ning.http.client.uri.Uri
 import io.gatling.core.session.Session
 
-object ChannelPoolPartitioning {
-
-  def partitionIdUserBase(session: Session) = session.userId + '|'
-}
-
 class ChannelPoolPartitioning(session: Session) extends ConnectionPoolPartitioning {
 
-  def getPartitionId(uri: Uri, proxyServer: ProxyServer): String =
-    ChannelPoolPartitioning.partitionIdUserBase(session) + ConnectionPoolPartitioning.PerHostConnectionPoolPartitioning.INSTANCE.getPartitionId(uri, proxyServer)
+  def getPartitionKey(uri: Uri, proxyServer: ProxyServer): (Long, String) =
+    (session.userId, ConnectionPoolPartitioning.PerHostConnectionPoolPartitioning.INSTANCE.getPartitionKey(uri, proxyServer))
 }
