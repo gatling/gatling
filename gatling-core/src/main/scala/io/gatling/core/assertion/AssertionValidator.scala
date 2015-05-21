@@ -83,7 +83,7 @@ class AssertionValidator(implicit configuration: GatlingConfiguration) {
     val printableTarget = assertion.target.printable(configuration)
 
     val realValues = assertion.target match {
-      case MeanRequestsPerSecondTarget => stats(None).map(_.meanRequestsPerSec.toInt)
+      case MeanRequestsPerSecondTarget => stats(None).map(s => math.round(s.meanRequestsPerSec).toInt)
       case target: CountTarget         => resolveCountTargetRealValues(target, stats)
       case target: TimeTarget          => resolveTimeTargetRealValues(target, stats)
     }
