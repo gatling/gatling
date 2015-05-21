@@ -33,7 +33,7 @@ class FeedSpec extends AkkaSpec {
 
     val feed = TestActorRef(Feed.props(singleton.ref, controller.ref, number, statsEngine, self))
 
-    val session = Session("scenario", "userId")
+    val session = Session("scenario", 0)
 
     feed ! session
 

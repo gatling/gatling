@@ -51,7 +51,7 @@ class PollerActorSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val poller = createPollerActor(1.second, newHttpRequestDef, mock[HttpEngine], dataWriterProbe)
 
-    val session = Session("scenario", "userId")
+    val session = Session("scenario", 0)
 
     poller ! StartPolling(session)
 
@@ -65,7 +65,7 @@ class PollerActorSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val mockHttpEngine = mock[HttpEngine]
     val poller = createPollerActor(1.second, newHttpRequestDef, mockHttpEngine, dataWriterProbe)
-    val session = Session("scenario", "userId")
+    val session = Session("scenario", 0)
 
     poller ! StartPolling(session)
     Thread.sleep(2.seconds.toMillis)
@@ -81,7 +81,7 @@ class PollerActorSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val mockHttpEngine = mock[HttpEngine]
     val poller = createPollerActor(1.second, newHttpRequestDef, mockHttpEngine, dataWriterProbe)
-    val session = Session("scenario", "userId")
+    val session = Session("scenario", 0)
 
     poller ! StartPolling(session)
     Thread.sleep(2.seconds.toMillis)

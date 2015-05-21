@@ -29,7 +29,7 @@ class JmsXPathCheckSpec extends BaseSpec with ValidationValues with MockMessage 
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit def cache = mutable.Map.empty[Any, Any]
 
-  val session = Session("mockSession", "mockUserName")
+  val session = Session("mockSession", 0)
   val check: JmsCheck = xpath("/ok").find
 
   "xpath check" should "return success if condition is true" in {

@@ -15,8 +15,6 @@
  */
 package io.gatling.core.controller
 
-import java.util.UUID.randomUUID
-
 import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
@@ -53,10 +51,10 @@ class Controller(selection: Selection, statsEngine: StatsEngine, configuration: 
 
   private def processInitializationResult(initData: InitData): State = {
       def buildUserStreams: Map[String, UserStream] = {
-        initData.scenarios.foldLeft((Map.empty[String, UserStream], 0)) { (streamsAndOffset, scenario) =>
+        initData.scenarios.foldLeft((Map.empty[String, UserStream], 0L)) { (streamsAndOffset, scenario) =>
           val (streams, offset) = streamsAndOffset
 
-          val stream = scenario.injectionProfile.allUsers.zipWithIndex
+          val stream = scenario.injectionProfile.allUsers.zip(Iterator.iterate(0L)(_ + 1L))
           val userStream = UserStream(scenario, offset, stream)
 
           (streams + (scenario.name -> userStream), offset + scenario.injectionProfile.users)
@@ -69,8 +67,8 @@ class Controller(selection: Selection, statsEngine: StatsEngine, configuration: 
           setTimer("maxDurationTimer", ForceTermination(), maxDuration)
         }
 
-      def startUpScenarios(userIdRoot: String, userStreams: Map[String, UserStream]): BatchScheduler = {
-        val scheduler = new BatchScheduler(userIdRoot, nowMillis, 10 seconds, self)
+      def startUpScenarios(userStreams: Map[String, UserStream]): BatchScheduler = {
+        val scheduler = new BatchScheduler(nowMillis, 10 seconds, self)
 
         logger.debug("Launching All Scenarios")
         userStreams.values.foreach(scheduler.scheduleUserStream(system, _))
@@ -81,9 +79,8 @@ class Controller(selection: Selection, statsEngine: StatsEngine, configuration: 
         scheduler
       }
 
-    val userIdRoot = math.abs(randomUUID.getMostSignificantBits) + "-"
     val userStreams = buildUserStreams
-    val batchScheduler = startUpScenarios(userIdRoot, userStreams)
+    val batchScheduler = startUpScenarios(userStreams)
     val totalUsers = initData.scenarios.map(_.injectionProfile.users).sum
     goto(Running) using new RunData(initData, userStreams, batchScheduler, mutable.Map.empty, 0, totalUsers)
   }

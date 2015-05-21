@@ -23,14 +23,13 @@ import io.gatling.core.session.Session
 
 class CookieHandlingSpec extends BaseSpec {
 
-  val originalCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
-  val originalDomain = "docs.foo.com"
-  val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
-  val originalSession = Session("scenarioName", "1", Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
-
-  val emptySession = Session("scenarioName", "2")
+  val emptySession = Session("scenarioName", 0)
 
   "getStoredCookies" should "be able to get a cookie from session" in {
+    val originalCookie = decode("ALPHA=VALUE1; Domain=docs.foo.com; Path=/; Expires=Wed, 13-Jan-2021 22:23:01 GMT; Secure; HttpOnly")
+    val originalDomain = "docs.foo.com"
+    val originalCookieJar = new CookieJar(Map(CookieKey("ALPHA", originalDomain, "/") -> StoredCookie(originalCookie, hostOnly = true, persistent = true, 0L)))
+    val originalSession = Session("scenarioName", 0, Map(CookieSupport.CookieJarAttributeName -> originalCookieJar))
     CookieSupport.getStoredCookies(originalSession, "https://docs.foo.com/accounts").map(x => x.getValue) shouldBe List("VALUE1")
   }
 

@@ -26,7 +26,7 @@ class IfSpec extends AkkaSpec {
 
   "If" should "evaluate the condition using the session and send the session to one of the two actors only" in {
     val condition = "${condition}".el[Boolean]
-    val baseSession = Session("scenario", "userId")
+    val baseSession = Session("scenario", 0)
 
     val thenActorProbe = TestProbe()
     val elseActorProbe = TestProbe()

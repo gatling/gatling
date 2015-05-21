@@ -39,14 +39,14 @@ class FailableSpec extends AkkaSpec {
     val testAction = TestActorRef(new TestAction(self, fail = false))
 
     testAction.underlyingActor.hasRun shouldBe false
-    testAction ! Session("scenario", "userId")
+    testAction ! Session("scenario", 0)
 
     testAction.underlyingActor.hasRun shouldBe true
   }
 
   it should "send the session, failed, to the next actor when executeOrFail returns a Failure" in {
     val testAction = TestActorRef(new TestAction(self, fail = true))
-    val session = Session("scenario", "userId")
+    val session = Session("scenario", 0)
 
     testAction ! session
 

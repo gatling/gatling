@@ -34,7 +34,7 @@ class HttpBodySubstringCheckSpec extends BaseSpec with ValidationValues with Cor
   implicit val configuration = GatlingConfiguration.loadForTest()
 
   implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
-  val session = Session("mockSession", "mockUserName")
+  val session = Session("mockSession", 0)
 
   private def mockResponse(body: String) = {
     val response = mock[Response]

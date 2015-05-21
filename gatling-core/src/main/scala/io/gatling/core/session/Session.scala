@@ -67,7 +67,7 @@ object Session {
  */
 case class Session(
     scenario: String,
-    userId: String,
+    userId: Long,
     attributes: Map[String, Any] = Map.empty,
     startDate: Long = nowMillis,
     drift: Long = 0L,

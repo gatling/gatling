@@ -24,11 +24,9 @@ import io.gatling.core.result.writer.UserMessage
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper._
 
-class BatchScheduler(
-    userIdRoot: String,
-    startTime: Long,
-    batchWindow: FiniteDuration,
-    controller: ActorRef) {
+class BatchScheduler(startTime: Long,
+                     batchWindow: FiniteDuration,
+                     controller: ActorRef) {
 
   def scheduleUserStream(system: ActorSystem, userStream: UserStream): Unit = {
 
@@ -37,9 +35,9 @@ class BatchScheduler(
     val scenario = userStream.scenario
     val stream = userStream.stream
 
-      def startUser(i: Int): Unit = {
+      def startUser(i: Long): Unit = {
         val session = Session(scenario = scenario.name,
-          userId = userIdRoot + (i + userStream.offset),
+          userId = i + userStream.offset,
           onExit = scenario.ctx.protocols.onExit)
         controller ! UserMessage(session, Start, 0L)
         scenario.entry ! session

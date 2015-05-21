@@ -29,7 +29,7 @@ class GroupEndSpec extends AkkaSpec {
 
     val groupEnd = TestActorRef(GroupEnd.props(statsEngine, self))
 
-    val session = Session("scenario", "userId")
+    val session = Session("scenario", 0)
     val sessionInGroup = session.enterGroup("group")
 
     groupEnd ! sessionInGroup

@@ -31,7 +31,7 @@ class GroupStartSpec extends AkkaSpec {
 
     val groupStart = TestActorRef(GroupStart.props(groupExpr, statsEngine, self))
 
-    val session = Session("scenario", "userId", attributes = Map("theGroupName" -> "foo"))
+    val session = Session("scenario", 0, attributes = Map("theGroupName" -> "foo"))
 
     groupStart ! session
 

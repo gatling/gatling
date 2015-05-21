@@ -41,7 +41,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
     val builder = addSignatureCalculator(new HttpRequestBuilder(commonAttributes, HttpAttributes()))
 
     val httpRequestDef = builder.build(defaultHttpProtocol, throttled = false)
-    httpRequestDef.build("requestName", Session("scenarioName", "userId")).map(_.ahcRequest.getHeaders.getFirstValue("X-Token")).succeeded shouldBe "foo"
+    httpRequestDef.build("requestName", Session("scenarioName", 0)).map(_.ahcRequest.getHeaders.getFirstValue("X-Token")).succeeded shouldBe "foo"
   }
 
   "request builder" should "set signature calculator object" in {

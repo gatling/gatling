@@ -100,7 +100,7 @@ class CacheSupportSpec extends BaseSpec {
   }
 
   class RedirectContext {
-    var session = Session("mockSession", "mockUserName")
+    var session = Session("mockSession", 0)
 
     def addRedirect(from: String, to: String): Unit =
       session = httpCaches.addRedirect(session, Uri.create(from), Uri.create(to))

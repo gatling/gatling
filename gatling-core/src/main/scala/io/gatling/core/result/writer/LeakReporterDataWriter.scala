@@ -37,7 +37,7 @@ import scala.concurrent.duration.{ FiniteDuration, DurationInt }
 
 import io.gatling.core.result.message.{ End, Start }
 
-class LeakData(val noActivityTimeout: FiniteDuration, var lastTouch: Long, val events: mutable.Map[String, DataWriterMessage]) extends DataWriterData
+class LeakData(val noActivityTimeout: FiniteDuration, var lastTouch: Long, val events: mutable.Map[Long, DataWriterMessage]) extends DataWriterData
 
 class LeakReporterDataWriter extends DataWriter[LeakData] {
 
@@ -50,7 +50,7 @@ class LeakReporterDataWriter extends DataWriter[LeakData] {
 
     setTimer(flushTimerName, Flush, noActivityTimeout, repeat = true)
 
-    new LeakData(noActivityTimeout, currentTimeMillis, mutable.Map.empty[String, DataWriterMessage])
+    new LeakData(noActivityTimeout, currentTimeMillis, mutable.Map.empty[Long, DataWriterMessage])
   }
 
   override def onFlush(data: LeakData): Unit = {

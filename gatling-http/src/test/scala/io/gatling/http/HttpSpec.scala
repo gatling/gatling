@@ -71,7 +71,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
                   protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity)(implicit defaultHttpProtocol: DefaultHttpProtocol) = {
     val protocols = Protocols(protocolCustomizer(httpProtocol))
     val actor = sb.build(system, self, ScenarioContext(mock[ActorRef], mock[StatsEngine], mock[ActorRef], protocols, Constant, throttled = false))
-    actor ! Session("TestSession", "testUser")
+    actor ! Session("TestSession", 0)
     expectMsgClass(timeout, classOf[Session])
   }
 

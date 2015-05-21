@@ -32,7 +32,7 @@ class ExitHereIfFailedSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val exitHereIfFailed = createExitHereIfFailed(exitProbe, dataWriterProbe)
 
-    val session = Session("scenario", "userId")
+    val session = Session("scenario", 0)
 
     exitHereIfFailed ! session
 
@@ -45,7 +45,7 @@ class ExitHereIfFailedSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val exitHereIfFailed = createExitHereIfFailed(exitProbe, dataWriterProbe)
 
-    val session = Session("scenario", "userId").enterTryMax("loop", ActorRef.noSender).markAsFailed
+    val session = Session("scenario", 0).enterTryMax("loop", ActorRef.noSender).markAsFailed
 
     exitHereIfFailed ! session
 
@@ -58,7 +58,7 @@ class ExitHereIfFailedSpec extends AkkaSpec {
     val dataWriterProbe = TestProbe()
     val exitHereIfFailed = createExitHereIfFailed(exitProbe, dataWriterProbe)
 
-    val session = Session("scenario", "userId").enterGroup("group").markAsFailed
+    val session = Session("scenario", 0).enterGroup("group").markAsFailed
 
     exitHereIfFailed ! session
 

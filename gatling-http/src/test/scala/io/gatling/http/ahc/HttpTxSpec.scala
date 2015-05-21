@@ -34,7 +34,7 @@ class HttpTxSpec extends BaseSpec {
   trait Context {
     implicit val httpCaches = new HttpCaches
     implicit val httpEngineMock = mock[HttpEngine]
-    var session = Session("mockSession", "mockUserName")
+    var session = Session("mockSession", 0)
 
     val configBase = HttpRequestConfig(
       checks = Nil,

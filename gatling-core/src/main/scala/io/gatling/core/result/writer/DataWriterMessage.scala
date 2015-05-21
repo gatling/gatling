@@ -45,14 +45,14 @@ case class UserMessage(
 
 case class RequestMessage(
   scenario: String,
-  userId: String,
+  userId: Long,
   groupHierarchy: List[String],
   name: String,
   start: Long) extends LoadEventMessage
 
 case class ResponseMessage(
   scenario: String,
-  userId: String,
+  userId: Long,
   groupHierarchy: List[String],
   name: String,
   timings: ResponseTimings,
@@ -63,7 +63,7 @@ case class ResponseMessage(
 
 case class GroupMessage(
     scenario: String,
-    userId: String,
+    userId: Long,
     groupHierarchy: List[String],
     startDate: Long,
     endDate: Long,

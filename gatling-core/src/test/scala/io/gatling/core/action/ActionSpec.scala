@@ -33,7 +33,7 @@ class ActionSpec extends AkkaSpec {
     val testAction = TestActorRef(new TestAction)
 
     testAction.underlyingActor.hasRun shouldBe false
-    testAction ! Session("scenario", "userId")
+    testAction ! Session("scenario", 0)
 
     testAction.underlyingActor.hasRun shouldBe true
   }

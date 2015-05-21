@@ -28,7 +28,7 @@ class PaceSpec extends AkkaSpec {
     val instance = system.actorOf(Pace.props(3.seconds, "paceCounter", mock[StatsEngine], self))
 
     // Send session, expect response near-instantly
-    instance ! Session("TestScenario", "testUser")
+    instance ! Session("TestScenario", 0)
     val session1 = expectMsgClass(1.second, classOf[Session])
 
     // Send second session, expect nothing for 7 seconds, then a response
@@ -44,7 +44,7 @@ class PaceSpec extends AkkaSpec {
     val instance = system.actorOf(Pace.props(3.seconds, "paceCounter", mock[StatsEngine], self))
 
     // Send session, expect response near-instantly
-    instance ! Session("TestScenario", "testUser")
+    instance ! Session("TestScenario", 0)
     val session1 = expectMsgClass(1.second, classOf[Session])
 
     // Wait 3 seconds - simulate overrunning action

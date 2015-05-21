@@ -24,7 +24,7 @@ import io.gatling.core.result.message._
 
 class SessionSpec extends BaseSpec {
 
-  def newSession = Session("scenario", "1")
+  def newSession = Session("scenario", 0)
 
   "setAll" should "set all give key/values pairs in session" in {
     val session = newSession.setAll("key" -> 1, "otherKey" -> 2)

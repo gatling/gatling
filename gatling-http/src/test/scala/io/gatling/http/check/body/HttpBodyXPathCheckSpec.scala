@@ -35,7 +35,7 @@ class HttpBodyXPathCheckSpec extends BaseSpec with ValidationValues with CoreDsl
   implicit val configuration = GatlingConfiguration.loadForTest()
 
   implicit def cache: mutable.Map[Any, Any] = mutable.Map.empty
-  val session = Session("mockSession", "mockUserName")
+  val session = Session("mockSession", 0)
 
   def mockResponse(xml: Elem): Response = {
     val response = mock[Response]

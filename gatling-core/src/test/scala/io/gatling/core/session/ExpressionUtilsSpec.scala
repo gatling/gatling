@@ -22,7 +22,7 @@ import io.gatling.core.validation.{ NoneSuccess, Success }
 
 class ExpressionUtilsSpec extends BaseSpec with ValidationValues {
 
-  def newSession = Session("scenario", "1")
+  def newSession = Session("scenario", 0)
 
   "resolveOptionalExpression" should "return NoneSuccess if the expression was None" in {
     resolveOptionalExpression(None, newSession) shouldBe NoneSuccess

@@ -47,7 +47,7 @@ class ExecsSpec extends AkkaSpec with CoreDsl {
       }
 
     val chain = chainBuilder.build(system, self, ctx)
-    val session = Session("TestScenario", "testUser")
+    val session = Session("TestScenario", 0)
     chain ! session
     /*
      * We're cheating slightly by assuming messages will be delivered

@@ -29,7 +29,7 @@ class ExitSpec extends AkkaSpec {
 
     var hasTerminated = false
 
-    val session = Session("scenario", "userId", onExit = _ => hasTerminated = true)
+    val session = Session("scenario", 0, onExit = _ => hasTerminated = true)
 
     exit ! session
 

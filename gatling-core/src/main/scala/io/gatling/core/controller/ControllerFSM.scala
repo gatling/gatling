@@ -27,8 +27,8 @@ import io.gatling.core.result.writer.UserMessage
 
 private[controller] case class UserStream(
   scenario: Scenario,
-  offset: Int,
-  stream: Iterator[(FiniteDuration, Int)])
+  offset: Long,
+  stream: Iterator[(FiniteDuration, Long)])
 
 private[controller] trait ControllerFSM extends BaseActor with FSM[ControllerState, ControllerData]
 
@@ -45,7 +45,7 @@ private[controller] class RunData(
   val initData: InitData,
   val userStreams: Map[String, UserStream],
   val scheduler: BatchScheduler,
-  val activeUsers: mutable.Map[String, UserMessage],
+  val activeUsers: mutable.Map[Long, UserMessage],
   var completedUsersCount: Int,
   val totalUsers: Int) extends ControllerData
 private[controller] case class EndData(

@@ -166,7 +166,7 @@ object HttpProtocol extends StrictLogging {
 
               val userBase = ChannelPoolPartitioning.partitionIdUserBase(session)
 
-              override def select(partitionId: String): Boolean = partitionId.startsWith(userBase)
+              override def select(partitionId: String): Boolean = partitionId.startsWith(userBase.toString)
             }))
           }
       }
