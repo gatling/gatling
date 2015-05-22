@@ -18,11 +18,12 @@ package io.gatling.core.action.builder
 import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
+import io.gatling.core.protocol.Protocol
+
 import com.typesafe.scalalogging.StrictLogging
 
 import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Switch
-import io.gatling.core.config.Protocol
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
 import io.gatling.core.validation.SuccessWrapper

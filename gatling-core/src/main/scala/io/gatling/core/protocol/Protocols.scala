@@ -13,14 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.config
+package io.gatling.core.protocol
 
-import akka.actor.ActorSystem
+import scala.reflect.ClassTag
+
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.Session
 
-import scala.reflect.ClassTag
+import akka.actor.ActorSystem
 
 object Protocols {
 

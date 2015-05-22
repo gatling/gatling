@@ -19,9 +19,11 @@ import scala.concurrent.duration._
 
 import javax.jms.{ Message, MessageListener }
 
+import io.gatling.core.protocol.Protocols
+
 import akka.actor.ActorRef
 import io.gatling.core.CoreComponents
-import io.gatling.core.config.{ GatlingConfiguration, Protocols }
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.pause.Constant
 import io.gatling.core.result.writer.StatsEngine

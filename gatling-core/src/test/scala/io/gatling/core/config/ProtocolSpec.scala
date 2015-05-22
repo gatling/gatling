@@ -16,6 +16,7 @@
 package io.gatling.core.config
 
 import io.gatling.BaseSpec
+import io.gatling.core.protocol.{Protocols, Protocol}
 import org.scalatest.OptionValues
 
 class ProtocolSpec extends BaseSpec with OptionValues {

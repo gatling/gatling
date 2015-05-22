@@ -16,8 +16,8 @@
 package io.gatling.http.funspec
 
 import io.gatling.core.Predef._
-import io.gatling.core.config.Protocol
 import io.gatling.core.funspec.GatlingFunSpec
+import io.gatling.core.protocol.Protocol
 import io.gatling.http.Predef._
 import io.gatling.http.config.HttpProtocolBuilder
 

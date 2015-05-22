@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.config
+package io.gatling.core.protocol
 
-import akka.actor.ActorSystem
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.Session
+
+import akka.actor.ActorSystem
 
 /**
  * This trait is a model to all protocol specific configuration

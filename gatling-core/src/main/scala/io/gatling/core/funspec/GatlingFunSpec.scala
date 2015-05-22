@@ -17,7 +17,7 @@ package io.gatling.core.funspec
 
 import io.gatling.core.Predef._
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.Protocol
+import io.gatling.core.protocol.Protocol
 import io.gatling.core.structure.ChainBuilder
 
 import scala.collection.mutable.ListBuffer

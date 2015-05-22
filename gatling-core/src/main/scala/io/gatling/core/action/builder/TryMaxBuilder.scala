@@ -15,9 +15,10 @@
  */
 package io.gatling.core.action.builder
 
+import io.gatling.core.protocol.Protocol
+
 import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.TryMax
-import io.gatling.core.config.Protocol
 import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
 
 class TryMaxBuilder(times: Int, counterName: String, loopNext: ChainBuilder) extends ActionBuilder {

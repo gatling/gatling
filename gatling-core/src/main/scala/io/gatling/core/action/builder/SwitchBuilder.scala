@@ -16,9 +16,10 @@
 package io.gatling.core.action.builder
 
 import scala.collection.breakOut
+import io.gatling.core.protocol.Protocol
+
 import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Switch
-import io.gatling.core.config.Protocol
 import io.gatling.core.session._
 import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
 

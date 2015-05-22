@@ -19,11 +19,13 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{ Try, Failure, Success }
 
+import io.gatling.core.protocol.Protocols
+
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.Exit
-import io.gatling.core.config.{ Protocols, GatlingConfiguration }
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.{ Run, Controller }
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.funspec.GatlingFunSpec

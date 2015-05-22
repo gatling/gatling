@@ -15,7 +15,8 @@
  */
 package io.gatling.jms
 
-import io.gatling.core.config.{ Credentials, Protocol }
+import io.gatling.core.config.Credentials
+import io.gatling.core.protocol.Protocol
 
 /**
  * Wraps a JMS protocol configuration

@@ -15,14 +15,14 @@
  */
 package io.gatling.core.config
 
-object GraphiteProtocol {
-  def apply(name: String): GraphiteProtocol = name match {
+object TransportProtocol {
+  def apply(name: String): TransportProtocol = name match {
     case Tcp.name => Tcp
     case Udp.name => Udp
     case _        => throw new IllegalArgumentException(s"Unsupported Graphite protocol: '$name'")
   }
 }
 
-sealed abstract class GraphiteProtocol(val name: String)
-case object Tcp extends GraphiteProtocol("tcp")
-case object Udp extends GraphiteProtocol("udp")
+sealed abstract class TransportProtocol(val name: String)
+case object Tcp extends TransportProtocol("tcp")
+case object Udp extends TransportProtocol("udp")

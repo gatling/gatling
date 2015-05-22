@@ -15,9 +15,10 @@
  */
 package io.gatling.core.action.builder
 
+import io.gatling.core.protocol.Protocol
+
 import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.If
-import io.gatling.core.config.Protocol
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
 

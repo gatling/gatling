@@ -18,6 +18,8 @@ package io.gatling.http.config
 import java.net.InetAddress
 import java.util.regex.Pattern
 
+import io.gatling.core.protocol.Protocol
+
 import akka.actor.ActorSystem
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.result.writer.StatsEngine
@@ -29,7 +31,7 @@ import com.ning.http.client.providers.netty.NettyAsyncHttpProvider
 import com.ning.http.client.providers.netty.channel.pool.ChannelPoolPartitionSelector
 import com.typesafe.scalalogging.StrictLogging
 
-import io.gatling.core.config.{ GatlingConfiguration, Protocol }
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
 import io.gatling.core.session.{ Session, Expression, ExpressionWrapper }
 import io.gatling.core.util.RoundRobin

@@ -17,10 +17,12 @@ package io.gatling.core.structure
 
 import scala.concurrent.duration.Duration
 
+import io.gatling.core.protocol.{Protocols, Protocol}
+
 import akka.actor.ActorSystem
 import io.gatling.core.CoreComponents
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.{ GatlingConfiguration, Protocol, Protocols }
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.inject.{ InjectionProfile, InjectionStep }
 import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling }
 import io.gatling.core.pause._

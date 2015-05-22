@@ -16,7 +16,7 @@
 package io.gatling.http.action
 
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.config.Protocol
+import io.gatling.core.protocol.Protocol
 import io.gatling.http.config.DefaultHttpProtocol
 
 abstract class HttpActionBuilder(implicit defaultHttpProtocol: DefaultHttpProtocol) extends ActionBuilder {
