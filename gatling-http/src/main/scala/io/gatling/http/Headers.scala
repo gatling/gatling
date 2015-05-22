@@ -104,6 +104,7 @@ object HeaderValues {
   val ImageJpeg = "image/jpeg"
   val ImageGif = "image/gif"
   val ImageSvg = "image/svg+xml"
+  val KeepAlive = "keep-alive"
   val MultipartFormData = "multipart/form-data"
   val TextCss = "text/css"
   val TextCsv = "text/csv"
