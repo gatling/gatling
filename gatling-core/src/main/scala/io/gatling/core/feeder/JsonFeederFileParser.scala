@@ -21,10 +21,9 @@ import java.util.{ Collection => JCollection, Map => JMap }
 
 import scala.collection._
 import scala.collection.JavaConversions._
-
-import io.gatling.core.config.Resource
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.util.Io._
+import io.gatling.core.util.Resource
 
 class JsonFeederFileParser(implicit jsonParsers: JsonParsers) {
 

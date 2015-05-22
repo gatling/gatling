@@ -18,14 +18,13 @@ package io.gatling.core.feeder
 import java.io.InputStream
 import java.util.{ Map => JMap }
 
-import com.fasterxml.jackson.databind.{ MapperFeature, ObjectReader, MappingIterator }
-
 import scala.collection.JavaConversions._
 
+import com.fasterxml.jackson.databind.{ MapperFeature, ObjectReader, MappingIterator }
 import com.fasterxml.jackson.dataformat.csv.{ CsvSchema, CsvMapper }
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.config.Resource
 import io.gatling.core.util.Io._
+import io.gatling.core.util.Resource
 
 object SeparatedValuesParser {
 

@@ -29,6 +29,30 @@ object ScanHelper {
 
   val Separator = Character.valueOf(28).toString
 
+  sealed trait Resource {
+    def path: Path
+    def copyTo(target: Path): Unit
+  }
+
+  case class FileResource(path: Path) extends Resource {
+    def copyTo(target: Path): Unit = {
+      target.getParent.mkdirs
+      path.copyTo(target, StandardCopyOption.COPY_ATTRIBUTES)
+    }
+  }
+
+  case class JarResource(path: Path, inputStream: InputStream) extends Resource {
+    def copyTo(target: Path): Unit = {
+      target.getParent.mkdirs
+
+      withCloseable(inputStream) { input =>
+        withCloseable(target.outputStream) { output =>
+          input.copyTo(output)
+        }
+      }
+    }
+  }
+
   def getPackageResources(pkg: Path, deep: Boolean): Iterator[Resource] = {
 
       def isResourceInRootDir(resource: Path, rootDir: Path): Boolean =
@@ -68,30 +92,6 @@ object ScanHelper {
     getPackageResources(pkg, deep = true).foreach { resource =>
       val target = targetDirectoryPath / getPathStringAfterPackage(resource.path, pkg)
       resource.copyTo(target)
-    }
-  }
-}
-
-sealed trait Resource {
-  def path: Path
-  def copyTo(target: Path): Unit
-}
-
-case class FileResource(path: Path) extends Resource {
-  def copyTo(target: Path): Unit = {
-    target.getParent.mkdirs
-    path.copyTo(target, StandardCopyOption.COPY_ATTRIBUTES)
-  }
-}
-
-case class JarResource(path: Path, inputStream: InputStream) extends Resource {
-  def copyTo(target: Path): Unit = {
-    target.getParent.mkdirs
-
-    withCloseable(inputStream) { input =>
-      withCloseable(target.outputStream) { output =>
-        input.copyTo(output)
-      }
     }
   }
 }

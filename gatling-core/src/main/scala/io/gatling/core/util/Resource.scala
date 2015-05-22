@@ -13,16 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.config
+package io.gatling.core.util
 
-import java.io.{ FileInputStream, File, FileOutputStream, InputStream }
+import java.io.{ File, FileInputStream, FileOutputStream, InputStream }
 import java.net.URL
 import java.nio.charset.Charset
 import java.nio.file.Path
 
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.config.{ GatlingConfiguration, GatlingFiles }
 import io.gatling.core.util.Io._
 import io.gatling.core.util.PathHelper._
+import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 
 object Resource {
 

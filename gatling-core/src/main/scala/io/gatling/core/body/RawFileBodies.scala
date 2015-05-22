@@ -18,9 +18,9 @@ package io.gatling.core.body
 import java.io.File
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.config.Resource
 import io.gatling.core.session.Expression
 import io.gatling.core.util.Io._
+import io.gatling.core.util.Resource
 import io.gatling.core.util.cache.SelfLoadingThreadSafeCache
 import io.gatling.core.validation.Validation
 
