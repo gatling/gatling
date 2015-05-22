@@ -29,9 +29,9 @@ import io.gatling.core.structure.ScenarioContext
  */
 class CustomPauseBuilder(delayGenerator: Expression[Long]) extends ActionBuilder {
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) =
     ctx.pauseType match {
       case Disabled => next
-      case _        => system.actorOf(Pause.props(delayGenerator, ctx.statsEngine, next), actorName("customPause"))
+      case _        => system.actorOf(Pause.props(delayGenerator, ctx.coreComponents.statsEngine, next), actorName("customPause"))
     }
 }

@@ -26,19 +26,19 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
   require(possibilities.size >= 2, "Switch requires at least 2 possibilities")
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) = {
 
     val possibleActions: Map[Any, ActorRef] = possibilities.map {
       case (percentage, possibility) =>
-        val possibilityAction = possibility.build(system, next, ctx)
+        val possibilityAction = possibility.build(system, ctx, next)
         (percentage, possibilityAction)
     }(breakOut)
 
-    val elseNextActor = elseNext.map(_.build(system, next, ctx)).getOrElse(next)
+    val elseNextActor = elseNext.map(_.build(system, ctx, next)).getOrElse(next)
 
     val nextAction = value.map(resolvedValue => possibleActions.getOrElse(resolvedValue, elseNextActor))
 
-    system.actorOf(Switch.props(nextAction, ctx.statsEngine, next), actorName("switch"))
+    system.actorOf(Switch.props(nextAction, ctx.coreComponents.statsEngine, next), actorName("switch"))
   }
 
   override def defaultProtocols: Set[Protocol] = {

@@ -52,15 +52,15 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
   if (sum == Accuracy && elseNext.isDefined)
     logger.warn("Random switch has a 100% sum, yet a else is defined?!")
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) = {
 
     val possibleActions = possibilities.map {
       case (percentage, possibility) =>
-        val possibilityAction = possibility.build(system, next, ctx)
+        val possibilityAction = possibility.build(system, ctx, next)
         (percentage, possibilityAction)
     }
 
-    val elseNextActor = elseNext.map(_.build(system, next, ctx)).getOrElse(next)
+    val elseNextActor = elseNext.map(_.build(system, ctx, next)).getOrElse(next)
 
     val nextAction: Expression[ActorRef] = _ => {
 
@@ -76,7 +76,7 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
 
       determineNextAction(randomWithinAccuracy, possibleActions).success
     }
-    system.actorOf(Switch.props(nextAction, ctx.statsEngine, next), actorName("randomSwitch"))
+    system.actorOf(Switch.props(nextAction, ctx.coreComponents.statsEngine, next), actorName("randomSwitch"))
   }
 
   override def defaultProtocols: Set[Protocol] = {

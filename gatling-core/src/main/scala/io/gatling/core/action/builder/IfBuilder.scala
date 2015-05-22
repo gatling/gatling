@@ -29,11 +29,11 @@ import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
  */
 class IfBuilder(condition: Expression[Boolean], thenNext: ChainBuilder, elseNext: Option[ChainBuilder]) extends ActionBuilder {
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) = {
     val safeCondition = condition.safe
-    val thenNextActor = thenNext.build(system, next, ctx)
-    val elseNextActor = elseNext.map(_.build(system, next, ctx)).getOrElse(next)
-    system.actorOf(If.props(safeCondition, thenNextActor, elseNextActor, ctx.statsEngine, next), actorName("if"))
+    val thenNextActor = thenNext.build(system, ctx, next)
+    val elseNextActor = elseNext.map(_.build(system, ctx, next)).getOrElse(next)
+    system.actorOf(If.props(safeCondition, thenNextActor, elseNextActor, ctx.coreComponents.statsEngine, next), actorName("if"))
   }
 
   override def defaultProtocols: Set[Protocol] = {

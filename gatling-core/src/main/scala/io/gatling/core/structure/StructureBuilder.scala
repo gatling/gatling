@@ -29,8 +29,8 @@ trait StructureBuilder[B <: StructureBuilder[B]]
     with Errors[B]
     with Groups[B] {
 
-  private[gatling] def build(system: ActorSystem, exit: ActorRef, ctx: ScenarioContext): ActorRef =
+  private[gatling] def build(system: ActorSystem, ctx: ScenarioContext, exit: ActorRef): ActorRef =
     actionBuilders.foldLeft(exit) { (next, actionBuilder) =>
-      actionBuilder.build(system, next, ctx)
+      actionBuilder.build(system, ctx, next)
     }
 }

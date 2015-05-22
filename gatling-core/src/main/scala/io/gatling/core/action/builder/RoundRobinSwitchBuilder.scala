@@ -27,14 +27,14 @@ class RoundRobinSwitchBuilder(possibilities: List[ChainBuilder]) extends ActionB
 
   require(possibilities.size >= 2, "Round robin switch requires at least 2 possibilities")
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) = {
 
-    val possibleActions = possibilities.map(_.build(system, next, ctx)).toArray
+    val possibleActions = possibilities.map(_.build(system, ctx, next)).toArray
     val roundRobin = RoundRobin(possibleActions)
 
     val nextAction: Expression[ActorRef] = _ => roundRobin.next.success
 
-    system.actorOf(Switch.props(nextAction, ctx.statsEngine, next), actorName("roundRobinSwitch"))
+    system.actorOf(Switch.props(nextAction, ctx.coreComponents.statsEngine, next), actorName("roundRobinSwitch"))
   }
 
   override def defaultProtocols: Set[Protocol] = {

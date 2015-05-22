@@ -33,9 +33,9 @@ class PollingStartBuilder(
   requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine)
     extends HttpActionBuilder {
 
-  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
+  override def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) = {
     val requestDef = requestBuilder.build(ctx.protocols.protocol[HttpProtocol], ctx.throttled)
-    system.actorOf(PollingStartAction.props(pollerName, period, requestDef, httpEngine, ctx.statsEngine, next), actorName("pollingStart"))
+    system.actorOf(PollingStartAction.props(pollerName, period, requestDef, httpEngine, ctx.coreComponents.statsEngine, next), actorName("pollingStart"))
   }
 }
 
@@ -43,6 +43,6 @@ class PollingStopBuilder(
   pollerName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol)
     extends HttpActionBuilder {
 
-  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-    system.actorOf(PollingStopAction.props(pollerName, ctx.statsEngine, next), actorName("pollingStop"))
+  override def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) =
+    system.actorOf(PollingStopAction.props(pollerName, ctx.coreComponents.statsEngine, next), actorName("pollingStop"))
 }

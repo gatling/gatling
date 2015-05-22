@@ -31,8 +31,8 @@ import io.gatling.http.request.builder.HttpRequestBuilder
  */
 class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder, httpEngine: HttpEngine)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef = {
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef): ActorRef = {
     val httpRequest = requestBuilder.build(ctx.protocols.protocol[HttpProtocol], ctx.throttled)
-    system.actorOf(HttpRequestAction.props(httpRequest, httpEngine, ctx.statsEngine, next), actorName("httpRequest"))
+    system.actorOf(HttpRequestAction.props(httpRequest, httpEngine, ctx.coreComponents.statsEngine, next), actorName("httpRequest"))
   }
 }

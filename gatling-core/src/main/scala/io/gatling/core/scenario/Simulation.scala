@@ -15,11 +15,10 @@
  */
 package io.gatling.core.scenario
 
-import akka.actor.{ ActorSystem, ActorRef }
-import io.gatling.core.result.writer.StatsEngine
-
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
+import akka.actor.ActorSystem
+import io.gatling.core.CoreComponents
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.{ Protocols, GatlingConfiguration, Protocol }
 import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling }
@@ -138,6 +137,6 @@ case class SimulationParams(name: String,
                             beforeSteps: List[() => Unit],
                             afterSteps: List[() => Unit]) {
 
-  def scenarios(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, exit: ActorRef)(implicit configuration: GatlingConfiguration): List[Scenario] =
-    populationBuilders.map(_.build(system, controller, statsEngine, exit, globalProtocols, globalPauseType, globalThrottling))
+  def scenarios(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): List[Scenario] =
+    populationBuilders.map(_.build(system, coreComponents, globalProtocols, globalPauseType, globalThrottling))
 }

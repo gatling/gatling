@@ -15,22 +15,21 @@
  */
 package io.gatling.core.runner
 
-import akka.actor.ActorSystem
-import akka.pattern.ask
-import io.gatling.core.action.Exit
-import io.gatling.core.config.{ Protocols, GatlingConfiguration }
-import io.gatling.core.funspec.GatlingFunSpec
-import io.gatling.core.result.writer._
-
 import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{ Try, Failure, Success }
 
-import com.typesafe.scalalogging.StrictLogging
-
+import akka.actor.ActorSystem
+import akka.pattern.ask
+import io.gatling.core.CoreComponents
+import io.gatling.core.action.Exit
+import io.gatling.core.config.{ Protocols, GatlingConfiguration }
 import io.gatling.core.controller.{ Run, Controller }
 import io.gatling.core.controller.throttle.Throttler
+import io.gatling.core.funspec.GatlingFunSpec
+import io.gatling.core.result.writer._
 import io.gatling.core.util.TimeHelper._
+import com.typesafe.scalalogging.StrictLogging
 
 case class RunResult(runId: String, hasAssertions: Boolean)
 
@@ -74,7 +73,9 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
       val throttler = Throttler(system, simulationParams, "throttler")
       val exit = system.actorOf(Exit.props(controller), "exit")
 
-      val scenarios = simulationParams.scenarios(system, controller, statsEngine, exit)
+      val coreComponents = CoreComponents(controller, throttler, statsEngine, exit)
+
+      val scenarios = simulationParams.scenarios(system, coreComponents)
 
       scenarios.foldLeft(Protocols()) { (protocols, scenario) =>
         protocols ++ scenario.ctx.protocols

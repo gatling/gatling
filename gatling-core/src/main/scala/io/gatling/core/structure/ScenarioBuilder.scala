@@ -15,13 +15,10 @@
  */
 package io.gatling.core.structure
 
-import akka.actor.{ ActorSystem, ActorRef }
-import io.gatling.core.result.writer.StatsEngine
-
 import scala.concurrent.duration.Duration
 
-import com.typesafe.scalalogging.LazyLogging
-
+import akka.actor.ActorSystem
+import io.gatling.core.CoreComponents
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.core.config.{ GatlingConfiguration, Protocol, Protocols }
 import io.gatling.core.controller.inject.{ InjectionProfile, InjectionStep }
@@ -29,6 +26,7 @@ import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling }
 import io.gatling.core.pause._
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.session.Expression
+import com.typesafe.scalalogging.LazyLogging
 
 /**
  * The scenario builder is used in the DSL to define the scenario
@@ -79,15 +77,13 @@ case class PopulationBuilder(
 
   /**
    * @param system the actor system
-   * @param controller the controller
-   * @param statsEngine the StatsEngine
-   * @param exit the exit point
+   * @param coreComponents the CoreComponents
    * @param globalProtocols the protocols
    * @param globalPauseType the pause type
    * @param globalThrottling the optional throttling profile
    * @return the scenario
    */
-  private[core] def build(system: ActorSystem, controller: ActorRef, statsEngine: StatsEngine, exit: ActorRef, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[Throttling])(implicit configuration: GatlingConfiguration): Scenario = {
+  private[core] def build(system: ActorSystem, coreComponents: CoreComponents, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[Throttling])(implicit configuration: GatlingConfiguration): Scenario = {
 
     val resolvedPauseType = globalThrottling.orElse(scenarioThrottling).map { _ =>
       logger.info("Throttle is enabled, disabling pauses")
@@ -96,11 +92,11 @@ case class PopulationBuilder(
 
     val protocols = defaultProtocols ++ globalProtocols ++ scenarioProtocols
 
-    val ctx = ScenarioContext(controller, statsEngine, exit, protocols, resolvedPauseType, globalThrottling.isDefined || scenarioThrottling.isDefined)
+    val ctx = ScenarioContext(coreComponents, protocols, resolvedPauseType, globalThrottling.isDefined || scenarioThrottling.isDefined)
 
-    val entry = scenarioBuilder.build(system, exit, ctx)
+    val entry = scenarioBuilder.build(system, ctx, coreComponents.exit)
     new Scenario(scenarioBuilder.name, entry, injectionProfile, ctx)
   }
 }
 
-case class ScenarioContext(controller: ActorRef, statsEngine: StatsEngine, exit: ActorRef, protocols: Protocols, pauseType: PauseType, throttled: Boolean)
+case class ScenarioContext(coreComponents: CoreComponents, protocols: Protocols, pauseType: PauseType, throttled: Boolean)

@@ -23,12 +23,12 @@ import io.gatling.core.structure.ScenarioContext
 object GroupBuilder {
 
   def start(groupName: Expression[String]) = new ActionBuilder {
-    def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-      system.actorOf(GroupStart.props(groupName, ctx.statsEngine, next), actorName("groupStart"))
+    def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) =
+      system.actorOf(GroupStart.props(groupName, ctx.coreComponents.statsEngine, next), actorName("groupStart"))
   }
 
   val End = new ActionBuilder {
-    def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-      system.actorOf(GroupEnd.props(ctx.statsEngine, next), actorName("groupEnd"))
+    def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) =
+      system.actorOf(GroupEnd.props(ctx.coreComponents.statsEngine, next), actorName("groupEnd"))
   }
 }

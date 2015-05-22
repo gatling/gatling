@@ -21,6 +21,6 @@ import io.gatling.core.structure.ScenarioContext
 
 class RendezVousBuilder(users: Int) extends ActionBuilder {
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) =
     system.actorOf(RendezVous.props(users, next), actorName("rendezVous"))
 }

@@ -54,7 +54,7 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 
   import AddCookieBuilder._
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef = {
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef): ActorRef = {
 
     val resolvedDomain = domain.getOrElse(defaultDomain(ctx.protocols.protocol[HttpProtocol]))
     val resolvedPath = path.getOrElse(DefaultPath)
@@ -67,6 +67,6 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
       cookie = new Cookie(name, value, false, domain, path, maxAge, false, false)
     } yield storeCookie(session, domain, path, cookie)
 
-    system.actorOf(SessionHook.props(expression, ctx.statsEngine, next, interruptable = true), actorName("addCookie"))
+    system.actorOf(SessionHook.props(expression, ctx.coreComponents.statsEngine, next, interruptable = true), actorName("addCookie"))
   }
 }

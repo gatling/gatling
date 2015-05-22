@@ -33,13 +33,13 @@ import io.gatling.core.session.Expression
  */
 class PauseBuilder(duration: Expression[Duration], force: Option[PauseType]) extends ActionBuilder {
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) = {
 
     force.getOrElse(ctx.pauseType) match {
       case Disabled => next
       case pauseType =>
         val generator = pauseType.generator(duration)
-        system.actorOf(Pause.props(generator, ctx.statsEngine, next), actorName("pause"))
+        system.actorOf(Pause.props(generator, ctx.coreComponents.statsEngine, next), actorName("pause"))
     }
   }
 }

@@ -31,33 +31,33 @@ class SseOpenActionBuilder(requestName: Expression[String],
 
   def check(checkBuilder: WsCheckBuilder) = new SseOpenActionBuilder(requestName, sseName, requestBuilder, Some(checkBuilder))
 
-  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef = {
+  override def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef): ActorRef = {
     val protocol = ctx.protocols.protocol[HttpProtocol]
     val request = requestBuilder.build(protocol)
-    system.actorOf(SseOpenAction.props(requestName, sseName, request, checkBuilder, ctx.statsEngine, next, protocol), actorName("sseOpen"))
+    system.actorOf(SseOpenAction.props(requestName, sseName, request, checkBuilder, ctx.coreComponents.statsEngine, next, protocol), actorName("sseOpen"))
   }
 }
 
 class SseSetCheckActionBuilder(requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef =
-    system.actorOf(SseSetCheckAction.props(requestName, checkBuilder, sseName, ctx.statsEngine, next), actorName("sseSetCheck"))
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef): ActorRef =
+    system.actorOf(SseSetCheckAction.props(requestName, checkBuilder, sseName, ctx.coreComponents.statsEngine, next), actorName("sseSetCheck"))
 }
 
 class SseCancelCheckActionBuilder(requestName: Expression[String], sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef =
-    system.actorOf(SseCancelCheckAction.props(requestName, sseName, ctx.statsEngine, next), actorName("sseCancelCheck"))
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef): ActorRef =
+    system.actorOf(SseCancelCheckAction.props(requestName, sseName, ctx.coreComponents.statsEngine, next), actorName("sseCancelCheck"))
 }
 
 class SseReconciliateActionBuilder(requestName: Expression[String], sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef =
-    system.actorOf(SseReconciliateAction.props(requestName, sseName, ctx.statsEngine, next), actorName("sseReconciliate"))
+  override def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef): ActorRef =
+    system.actorOf(SseReconciliateAction.props(requestName, sseName, ctx.coreComponents.statsEngine, next), actorName("sseReconciliate"))
 }
 
 class SseCloseActionBuilder(requestName: Expression[String], sseName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
 
-  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef =
-    system.actorOf(SseCloseAction.props(requestName, sseName, ctx.statsEngine, next), actorName("sseClose"))
+  override def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef): ActorRef =
+    system.actorOf(SseCloseAction.props(requestName, sseName, ctx.coreComponents.statsEngine, next), actorName("sseClose"))
 }

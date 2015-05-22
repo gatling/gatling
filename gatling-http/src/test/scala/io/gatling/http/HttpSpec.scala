@@ -20,21 +20,15 @@ import java.net.ServerSocket
 import java.nio.charset.StandardCharsets
 import javax.activation.MimetypesFileTypeMap
 
-import akka.actor.ActorRef
-import io.gatling.core.controller.throttle.Throttler
-import org.jboss.netty.buffer.ChannelBuffers
-import org.scalatest.BeforeAndAfter
-
 import scala.collection.JavaConversions._
 import scala.concurrent.duration._
 import scala.util.Try
 
-import org.jboss.netty.channel._
-import org.jboss.netty.handler.codec.http._
-import org.jboss.netty.handler.codec.http.cookie._
-
+import akka.actor.ActorRef
 import io.gatling.AkkaSpec
+import io.gatling.core.CoreComponents
 import io.gatling.core.config.Protocols
+import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.pause.Constant
 import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.Session
@@ -42,6 +36,11 @@ import io.gatling.core.structure.{ ScenarioContext, ScenarioBuilder }
 import io.gatling.core.util.Io
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.config._
+import org.scalatest.BeforeAndAfter
+import org.jboss.netty.buffer.ChannelBuffers
+import org.jboss.netty.channel._
+import org.jboss.netty.handler.codec.http._
+import org.jboss.netty.handler.codec.http.cookie._
 
 abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
 
@@ -70,7 +69,8 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
                   timeout: FiniteDuration = 10.seconds,
                   protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity)(implicit defaultHttpProtocol: DefaultHttpProtocol) = {
     val protocols = Protocols(protocolCustomizer(httpProtocol))
-    val actor = sb.build(system, self, ScenarioContext(mock[ActorRef], mock[StatsEngine], mock[ActorRef], protocols, Constant, throttled = false))
+    val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[ActorRef])
+    val actor = sb.build(system, ScenarioContext(coreComponents, protocols, Constant, throttled = false), self)
     actor ! Session("TestSession", 0)
     expectMsgClass(timeout, classOf[Session])
   }

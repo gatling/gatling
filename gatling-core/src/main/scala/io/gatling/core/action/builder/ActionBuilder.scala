@@ -32,7 +32,7 @@ trait ActionBuilder extends ActorNames {
    * @param ctx the scenario context
    * @return the resulting Action actor
    */
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext): ActorRef
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef): ActorRef
 
   /**
    * Register default values of the protocols that the Actions produced by this ActionBuilder will use.

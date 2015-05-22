@@ -33,10 +33,10 @@ class WsOpenActionBuilder(
 
   def check(checkBuilder: WsCheckBuilder) = new WsOpenActionBuilder(requestName, wsName, requestBuilder, Some(checkBuilder))
 
-  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
+  override def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) = {
     val protocol = ctx.protocols.protocol[HttpProtocol]
     val request = requestBuilder.build(protocol)
-    system.actorOf(WsOpenAction.props(requestName, wsName, request, checkBuilder, ctx.statsEngine, next, protocol), actorName("wsOpen"))
+    system.actorOf(WsOpenAction.props(requestName, wsName, request, checkBuilder, ctx.coreComponents.statsEngine, next, protocol), actorName("wsOpen"))
   }
 }
 
@@ -49,8 +49,8 @@ class WsSendActionBuilder(
 
   def check(checkBuilder: WsCheckBuilder) = new WsSendActionBuilder(requestName, wsName, message, Some(checkBuilder))
 
-  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-    system.actorOf(WsSendAction.props(requestName, wsName, message, checkBuilder, ctx.statsEngine, next), actorName("wsSend"))
+  override def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) =
+    system.actorOf(WsSendAction.props(requestName, wsName, message, checkBuilder, ctx.coreComponents.statsEngine, next), actorName("wsSend"))
 }
 
 class WsSetCheckActionBuilder(
@@ -59,8 +59,8 @@ class WsSetCheckActionBuilder(
   wsName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol)
     extends HttpActionBuilder {
 
-  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-    system.actorOf(WsSetCheckAction.props(requestName, checkBuilder, wsName, ctx.statsEngine, next), actorName("wsSetCheck"))
+  override def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) =
+    system.actorOf(WsSetCheckAction.props(requestName, checkBuilder, wsName, ctx.coreComponents.statsEngine, next), actorName("wsSetCheck"))
 }
 
 class WsCancelCheckActionBuilder(
@@ -68,8 +68,8 @@ class WsCancelCheckActionBuilder(
   wsName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol)
     extends HttpActionBuilder {
 
-  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-    system.actorOf(WsCancelCheckAction.props(requestName, wsName, ctx.statsEngine, next), actorName("wsCancelCheck"))
+  override def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) =
+    system.actorOf(WsCancelCheckAction.props(requestName, wsName, ctx.coreComponents.statsEngine, next), actorName("wsCancelCheck"))
 }
 
 class WsReconciliateActionBuilder(
@@ -77,8 +77,8 @@ class WsReconciliateActionBuilder(
   wsName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol)
     extends HttpActionBuilder {
 
-  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-    system.actorOf(WsReconciliateAction.props(requestName, wsName, ctx.statsEngine, next), actorName("wsReconciliate"))
+  override def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) =
+    system.actorOf(WsReconciliateAction.props(requestName, wsName, ctx.coreComponents.statsEngine, next), actorName("wsReconciliate"))
 }
 
 class WsCloseActionBuilder(
@@ -86,6 +86,6 @@ class WsCloseActionBuilder(
   wsName: String)(implicit defaultHttpProtocol: DefaultHttpProtocol)
     extends HttpActionBuilder {
 
-  override def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-    system.actorOf(WsCloseAction.props(requestName, wsName, ctx.statsEngine, next), actorName("wsClose"))
+  override def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) =
+    system.actorOf(WsCloseAction.props(requestName, wsName, ctx.coreComponents.statsEngine, next), actorName("wsClose"))
 }

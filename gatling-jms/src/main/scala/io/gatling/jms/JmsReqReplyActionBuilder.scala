@@ -21,9 +21,10 @@ import io.gatling.core.structure.ScenarioContext
 
 case class JmsReqReplyActionBuilder(attributes: JmsAttributes) extends ActionBuilder {
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) = {
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) = {
     val jmsProtocol = ctx.protocols.protocol[JmsProtocol]
-    val tracker = system.actorOf(JmsRequestTrackerActor.props(ctx.statsEngine), actorName("jmsRequestTracker"))
-    system.actorOf(JmsReqReplyAction.props(attributes, jmsProtocol, tracker, ctx.statsEngine, next), actorName("jmsReqReply"))
+    val statsEngine = ctx.coreComponents.statsEngine
+    val tracker = system.actorOf(JmsRequestTrackerActor.props(statsEngine), actorName("jmsRequestTracker"))
+    system.actorOf(JmsReqReplyAction.props(attributes, jmsProtocol, tracker, statsEngine, next), actorName("jmsReqReply"))
   }
 }

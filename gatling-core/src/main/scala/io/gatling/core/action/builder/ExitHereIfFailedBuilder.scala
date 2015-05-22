@@ -21,6 +21,6 @@ import io.gatling.core.structure.ScenarioContext
 
 object ExitHereIfFailedBuilder extends ActionBuilder {
 
-  def build(system: ActorSystem, next: ActorRef, ctx: ScenarioContext) =
-    system.actorOf(ExitHereIfFailed.props(ctx.exit, ctx.statsEngine, next), actorName("exitHereIfFailed"))
+  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) =
+    system.actorOf(ExitHereIfFailed.props(ctx.coreComponents.exit, ctx.coreComponents.statsEngine, next), actorName("exitHereIfFailed"))
 }
