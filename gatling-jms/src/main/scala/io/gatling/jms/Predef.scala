@@ -20,4 +20,4 @@ package io.gatling.jms
  * <p>
  * Scenario scripts will import this and generally start interacting with the DSL from the functions exposed here
  */
-object Predef extends JmsModule
+object Predef extends JmsDsl

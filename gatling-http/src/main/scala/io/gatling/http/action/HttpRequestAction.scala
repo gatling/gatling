@@ -29,8 +29,8 @@ import io.gatling.http.response._
 
 object HttpRequestAction extends ActorNames with StrictLogging {
 
-  def props(httpRequestDef: HttpRequestDef, httpEngine: HttpEngine, statsEngine: StatsEngine, next: ActorRef)(implicit configuration: GatlingConfiguration) =
-    Props(new HttpRequestAction(httpRequestDef, httpEngine, statsEngine, next))
+  def props(httpRequestDef: HttpRequestDef, statsEngine: StatsEngine, httpEngine: HttpEngine, next: ActorRef)(implicit configuration: GatlingConfiguration) =
+    Props(new HttpRequestAction(httpRequestDef, statsEngine, httpEngine, next))
 }
 
 /**
@@ -38,11 +38,11 @@ object HttpRequestAction extends ActorNames with StrictLogging {
  *
  * @constructor constructs an HttpRequestAction
  * @param httpRequestDef the request definition
- * @param httpEngine the HttpEngine
  * @param statsEngine the StatsEngine
+ * @param httpEngine the HttpEngine
  * @param next the next action that will be executed after the request
  */
-class HttpRequestAction(httpRequestDef: HttpRequestDef, httpEngine: HttpEngine, statsEngine: StatsEngine, val next: ActorRef)(implicit configuration: GatlingConfiguration)
+class HttpRequestAction(httpRequestDef: HttpRequestDef, statsEngine: StatsEngine, httpEngine: HttpEngine, val next: ActorRef)(implicit configuration: GatlingConfiguration)
     extends RequestAction(statsEngine) {
 
   import httpRequestDef._
@@ -51,7 +51,7 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, httpEngine: HttpEngine, 
     config.checks,
     config.responseTransformer,
     config.discardResponseChunks,
-    config.protocol.responsePart.inferHtmlResources)
+    config.httpComponents.httpProtocol.responsePart.inferHtmlResources)
   val requestName = httpRequestDef.requestName
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
@@ -63,6 +63,6 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, httpEngine: HttpEngine, 
         responseBuilderFactory,
         next)
 
-      httpEngine.startHttpTransaction(tx)
+      HttpTx.start(tx, config.httpComponents)
     }
 }

@@ -38,7 +38,7 @@ class BatchScheduler(startTime: Long,
       def startUser(i: Long): Unit = {
         val session = Session(scenario = scenario.name,
           userId = i + userStream.offset,
-          onExit = scenario.ctx.protocols.onExit)
+          onExit = scenario.onExit)
         controller ! UserMessage(session, Start, 0L)
         scenario.entry ! session
       }

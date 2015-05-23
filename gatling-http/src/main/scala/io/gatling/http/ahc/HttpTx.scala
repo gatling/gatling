@@ -15,23 +15,85 @@
  */
 package io.gatling.http.ahc
 
+import akka.actor.{ Props, ActorContext, ActorRef }
+import io.gatling.core.akka.ActorNames
+import io.gatling.core.result.message.OK
+import io.gatling.core.util.TimeHelper._
+import io.gatling.http.cache.ContentCacheEntry
+import io.gatling.http.fetch.RegularResourceFetched
+import io.gatling.http.protocol.HttpComponents
 import io.gatling.core.session.Session
 import io.gatling.http.request.HttpRequest
 import io.gatling.http.response._
+import com.typesafe.scalalogging.StrictLogging
 
-import akka.actor.ActorRef
-
-object HttpTx {
+object HttpTx extends ActorNames with StrictLogging {
 
   def silent(request: HttpRequest, root: Boolean): Boolean = {
 
-      def silentBecauseProtocolSilentResources = !root && request.config.protocol.requestPart.silentResources
+    val requestPart = request.config.httpComponents.httpProtocol.requestPart
 
-      def silentBecauseProtocolSilentURI: Option[Boolean] = request.config.protocol.requestPart.silentURI
+      def silentBecauseProtocolSilentResources = !root && requestPart.silentResources
+
+      def silentBecauseProtocolSilentURI: Option[Boolean] = requestPart.silentURI
         .map(_.matcher(request.ahcRequest.getUrl).matches)
 
     request.config.silent.orElse(silentBecauseProtocolSilentURI).getOrElse(silentBecauseProtocolSilentResources)
   }
+
+  private def startWithCache(origTx: HttpTx, ctx: ActorContext, httpComponents: HttpComponents)(f: HttpTx => Unit): Unit = {
+    import httpComponents._
+    val tx = httpComponents.httpCaches.applyPermanentRedirect(origTx)
+    val uri = tx.request.ahcRequest.getUri
+    val method = tx.request.ahcRequest.getMethod
+
+    httpCaches.contentCacheEntry(tx.session, uri, method) match {
+
+      case None =>
+        f(tx)
+
+      case Some(ContentCacheEntry(Some(expire), _, _)) if nowMillis > expire =>
+        val newTx = tx.copy(session = httpCaches.clearContentCache(tx.session, uri, method))
+        f(newTx)
+
+      case _ =>
+        httpEngine.resourceFetcherActorForCachedPage(uri, tx) match {
+          case Some(resourceFetcherActor) =>
+            logger.info(s"Fetching resources of cached page request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
+            ctx.actorOf(Props(resourceFetcherActor()), actorName("resourceFetcher"))
+
+          case None =>
+            logger.info(s"Skipping cached request=${tx.request.requestName} uri=$uri: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
+            if (tx.root)
+              tx.next ! tx.session
+            else
+              tx.next ! RegularResourceFetched(uri, OK, Session.Identity, tx.silent)
+        }
+    }
+  }
+
+  def start(origTx: HttpTx, httpComponents: HttpComponents)(implicit ctx: ActorContext): Unit =
+    startWithCache(origTx, ctx, httpComponents) { tx =>
+
+      val httpEngine = httpComponents.httpEngine
+      logger.info(s"Sending request=${tx.request.requestName} uri=${tx.request.ahcRequest.getUri}: scenario=${tx.session.scenario}, userId=${tx.session.userId}")
+
+      val requestConfig = tx.request.config
+
+      httpEngine.httpClient(tx.session, requestConfig.httpComponents.httpProtocol) match {
+        case (newSession, client) =>
+          val newTx = tx.copy(session = newSession)
+          val ahcRequest = newTx.request.ahcRequest
+          val handler = new AsyncHandler(newTx, httpEngine)
+
+          if (requestConfig.throttled)
+            httpEngine.coreComponents.throttler.throttle(tx.session.scenario, () => client.executeRequest(ahcRequest, handler))
+          else
+            client.executeRequest(ahcRequest, handler)
+
+        case _ => // client has been shutdown, ignore
+      }
+    }
 }
 
 case class HttpTx(session: Session,

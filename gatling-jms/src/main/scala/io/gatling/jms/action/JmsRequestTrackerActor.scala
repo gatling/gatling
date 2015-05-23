@@ -13,20 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.jms
+package io.gatling.jms.action
+
+import javax.jms.Message
 
 import scala.collection.mutable
-import akka.actor.{ Props, ActorRef }
 
 import io.gatling.core.Predef.Session
 import io.gatling.core.akka.BaseActor
-import io.gatling.core.result.message.{ ResponseTimings, Status, KO, OK }
-import io.gatling.core.result.writer.StatsEngine
-import io.gatling.core.validation.Failure
-
-import javax.jms.Message
 import io.gatling.core.check.Check
+import io.gatling.core.result.message.{ KO, OK, ResponseTimings, Status }
+import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.util.TimeHelper.nowMillis
+import io.gatling.core.validation.Failure
+import io.gatling.jms._
+
+import akka.actor.{ ActorRef, Props }
 
 /**
  * Advise actor a message was sent to JMS provider

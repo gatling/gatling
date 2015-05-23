@@ -13,16 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.jms
+package io.gatling.jms.request
 
 import java.io.{ Serializable => JSerializable }
 
 import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
+import io.gatling.jms._
+import io.gatling.jms.action.JmsReqReplyActionBuilder
 
 case class JmsRequestBuilderBase(requestName: String) {
 
-  def reqreply = JmsRequestBuilderQueue(requestName, JmsReqReplyActionBuilder)
+  def reqreply(implicit configuration: GatlingConfiguration) = JmsRequestBuilderQueue(requestName, JmsReqReplyActionBuilder.apply)
 }
 
 case class JmsRequestBuilderQueue(requestName: String,

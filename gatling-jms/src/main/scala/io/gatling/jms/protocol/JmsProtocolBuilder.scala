@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.jms
+package io.gatling.jms.protocol
+
+import javax.jms.DeliveryMode
 
 import io.gatling.core.config.Credentials
-import javax.jms.DeliveryMode
 
 /**
  * JmsProtocolBuilder allows building of the JMS protocol

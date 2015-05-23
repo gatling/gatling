@@ -19,21 +19,19 @@ import com.ning.http.client.Request
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
 import io.gatling.http.action.ws.WsOpenActionBuilder
-import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.cache.HttpCaches
-import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocol }
+import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
 
 object WsOpenRequestBuilder {
 
-  implicit def toActionBuilder(requestBuilder: WsOpenRequestBuilder)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine) =
+  implicit def toActionBuilder(requestBuilder: WsOpenRequestBuilder)(implicit configuration: GatlingConfiguration) =
     new WsOpenActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.wsName, requestBuilder)
 }
 
-case class WsOpenRequestBuilder(commonAttributes: CommonAttributes, wsName: String)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches)
-    extends RequestBuilder[WsOpenRequestBuilder] {
+case class WsOpenRequestBuilder(commonAttributes: CommonAttributes, wsName: String) extends RequestBuilder[WsOpenRequestBuilder] {
 
   private[http] def newInstance(commonAttributes: CommonAttributes) = new WsOpenRequestBuilder(commonAttributes, wsName)
 
-  def build(protocol: HttpProtocol): Expression[Request] = new WsRequestExpressionBuilder(commonAttributes, protocol).build
+  def build(httpComponents: HttpComponents)(implicit configuration: GatlingConfiguration): Expression[Request] =
+    new WsRequestExpressionBuilder(commonAttributes, httpComponents).build
 }

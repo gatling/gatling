@@ -15,9 +15,7 @@
  */
 package io.gatling.http
 
-object Predef extends HttpDsl with HttpDefaultImplicits {
-
-  def configurationForHttp = io.gatling.core.Predef.configuration
+object Predef extends HttpDsl {
 
   type Request = com.ning.http.client.Request
   type Response = io.gatling.http.response.Response

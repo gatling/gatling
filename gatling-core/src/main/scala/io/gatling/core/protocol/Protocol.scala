@@ -15,8 +15,10 @@
  */
 package io.gatling.core.protocol
 
-import io.gatling.core.controller.throttle.Throttler
-import io.gatling.core.result.writer.StatsEngine
+import scala.collection.mutable
+
+import io.gatling.core.CoreComponents
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 
 import akka.actor.ActorSystem
@@ -24,9 +26,49 @@ import akka.actor.ActorSystem
 /**
  * This trait is a model to all protocol specific configuration
  */
-trait Protocol {
+trait Protocol
 
-  def warmUp(system: ActorSystem, StatsEngine: StatsEngine, throttler: Throttler): Unit = {}
+trait ProtocolKey {
+  type Protocol
+  type Components
+  def protocolClass: Class[io.gatling.core.protocol.Protocol]
 
-  def onExit(session: Session): Unit = {}
+  def defaultValue(implicit configuration: GatlingConfiguration): Protocol
+  def newComponents(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): Protocol => Components
+}
+
+trait ProtocolComponents {
+  def onExit: Option[Session => Unit]
+}
+
+class ProtocolComponentsRegistry(system: ActorSystem, coreComponents: CoreComponents, globalProtocols: Protocols)(implicit configuration: GatlingConfiguration) {
+
+  // mustn't reset
+  val componentsFactoryCache = mutable.Map.empty[ProtocolKey, Any]
+
+  // must reset
+  var protocols = globalProtocols
+  val protocolCache = mutable.Map.empty[ProtocolKey, Protocol]
+  val componentsCache = mutable.Map.empty[ProtocolKey, Any]
+
+  def components(key: ProtocolKey): key.Components = {
+
+      def componentsFactory = componentsFactoryCache.getOrElseUpdate(key, key.newComponents(system, coreComponents)).asInstanceOf[key.Protocol => key.Components]
+      def protocol: key.Protocol = protocolCache.getOrElse(key, protocols.protocols.getOrElse(key.protocolClass, key.defaultValue)).asInstanceOf[key.Protocol]
+      def comps = componentsFactory(protocol)
+
+    componentsCache.getOrElseUpdate(key, comps).asInstanceOf[key.Components]
+  }
+
+  def setScenarioProtocols(scenarioProtocols: Protocols): Unit = {
+    protocols = globalProtocols ++ scenarioProtocols
+    protocolCache.clear()
+    componentsCache.clear()
+  }
+
+  def onExit: Session => Unit =
+    componentsCache.values.flatMap(any => any.asInstanceOf[ProtocolComponents].onExit).toList match {
+      case Nil => _ => ()
+      case onExits => session => onExits.foreach(_(session))
+    }
 }

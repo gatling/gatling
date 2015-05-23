@@ -13,23 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.jms
+package io.gatling.jms.action
 
-import io.gatling.core.result.writer.StatsEngine
+import java.util.concurrent.atomic.AtomicBoolean
+import javax.jms.Message
 
 import scala.util.control.NonFatal
 
-import java.util.concurrent.atomic.AtomicBoolean
-
-import javax.jms.Message
-import akka.actor.{ Props, ActorRef }
 import io.gatling.core.action.{ Failable, Interruptable }
-import io.gatling.core.session.Expression
+import io.gatling.core.result.writer.StatsEngine
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.core.validation.Validation
-import io.gatling.core.validation.SuccessWrapper
-import io.gatling.core.session.Session
+import io.gatling.core.validation.{ SuccessWrapper, Validation }
 import io.gatling.jms.client.JmsClient
+import io.gatling.jms.protocol.JmsProtocol
+import io.gatling.jms.request._
+
+import akka.actor.{ ActorRef, Props }
 
 object JmsReqReplyAction {
   val BlockingReceiveReturnedNull = new Exception("Blocking receive returned null. Possibly the consumer was closed.")

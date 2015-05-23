@@ -18,12 +18,11 @@ package io.gatling.http.request.builder
 import com.ning.http.client.uri.Uri
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
-import io.gatling.http.cache.HttpCaches
 
 /**
  * @param requestName the name of the request
  */
-class Http(requestName: Expression[String])(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches) {
+class Http(requestName: Expression[String])(implicit configuration: GatlingConfiguration) {
 
   def get(url: Expression[String]) = httpRequest("GET", url)
   def get(uri: Uri) = httpRequest("GET", Right(uri))

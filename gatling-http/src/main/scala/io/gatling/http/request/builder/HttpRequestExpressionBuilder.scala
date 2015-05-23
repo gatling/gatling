@@ -21,19 +21,18 @@ import com.ning.http.client.multipart.StringPart
 import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ RequestBuilder => AHCRequestBuilder }
 import com.ning.http.client.generators.InputStreamBodyGenerator
-
 import io.gatling.core.body._
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.{ HeaderNames, HeaderValues }
-import io.gatling.http.cache.{ ContentCacheEntry, HttpCaches }
-import io.gatling.http.config.HttpProtocol
+import io.gatling.http.cache.ContentCacheEntry
+import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.BodyPart
 import io.gatling.http.util.HttpHelper
 
-class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, protocol: HttpProtocol)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches)
-    extends RequestExpressionBuilder(commonAttributes, protocol) {
+class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, httpComponents: HttpComponents)(implicit configuration: GatlingConfiguration)
+    extends RequestExpressionBuilder(commonAttributes, httpComponents) {
 
   def makeAbsolute(url: String): Validation[String] =
     if (HttpHelper.isAbsoluteHttpUrl(url))

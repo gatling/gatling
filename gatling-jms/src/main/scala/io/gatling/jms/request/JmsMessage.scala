@@ -13,24 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.jms
+package io.gatling.jms.request
+
+import java.io.{ Serializable => JSerializable }
 
 import io.gatling.core.session.Expression
 
 /**
- * JmsAttributes carries around the JMS settings.
- * <p>
- * As the JmsReqReplyBuilder is building a request from the DSL, it uses this object
- * to represent the in progress request. Once the request is built it can then be used
- * so that the JmsReqReplyAction knows exactly what message to send.
- *
+ * Provides the enumeration of JMSMessage types that the implementation supports
  * @author jasonk@bluedevel.com
  */
-case class JmsAttributes(
-  requestName: String,
-  destination: JmsDestination,
-  replyDestination: JmsDestination,
-  selector: Option[String],
-  message: JmsMessage,
-  messageProperties: Map[Expression[String], Expression[Any]] = Map.empty,
-  checks: List[JmsCheck] = Nil)
+sealed trait JmsMessage
+case class BytesJmsMessage(bytes: Expression[Array[Byte]]) extends JmsMessage
+case class MapJmsMessage(map: Expression[Map[String, Any]]) extends JmsMessage
+case class ObjectJmsMessage(o: Expression[JSerializable]) extends JmsMessage
+case class TextJmsMessage(text: Expression[String]) extends JmsMessage

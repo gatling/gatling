@@ -16,10 +16,11 @@
 package io.gatling.http.action
 
 import io.gatling.core.action.builder.ActionBuilder
-import io.gatling.core.protocol.Protocol
-import io.gatling.http.config.DefaultHttpProtocol
+import io.gatling.core.protocol.ProtocolComponentsRegistry
+import io.gatling.http.protocol.{ HttpProtocol, HttpComponents }
 
-abstract class HttpActionBuilder(implicit defaultHttpProtocol: DefaultHttpProtocol) extends ActionBuilder {
+abstract class HttpActionBuilder extends ActionBuilder {
 
-  override def defaultProtocols: Set[Protocol] = Set(defaultHttpProtocol.value)
+  def httpComponents(protocolComponentsRegistry: ProtocolComponentsRegistry): HttpComponents =
+    protocolComponentsRegistry.components(HttpProtocol.HttpProtocolKey)
 }

@@ -26,7 +26,7 @@ import io.gatling.core.session.Session
 import io.gatling.jms._
 import io.gatling.jms.check.JmsSimpleCheck
 
-class JmsRequestTrackerActorSpec extends AkkaSpec with CoreDsl with JmsModule with MockMessage {
+class JmsRequestTrackerActorSpec extends AkkaSpec with CoreDsl with JmsDsl with MockMessage {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.config
+package io.gatling.jms.protocol
 
-import io.gatling.core.config.Credentials
+import io.gatling.core.protocol.ProtocolComponents
+import io.gatling.core.session.Session
 
-case class Proxy(
-  host: String,
-  port: Int,
-  securePort: Int,
-  credentials: Option[Credentials] = None)
+case class JmsComponents(jmsProtocol: JmsProtocol) extends ProtocolComponents {
+
+  def onExit: Option[Session => Unit] = None
+}

@@ -33,7 +33,11 @@ class ValidationSpec extends BaseSpec {
 
   it should "return a failure if the provided Validation threw exceptions" in {
       def exceptionThrower = {
-          def thrower = throw new Exception("Woops")
+          def thrower = {
+            val e = new Exception("Woops")
+            e.setStackTrace(Array.empty)
+            throw e
+          }
 
         thrower
         Success(1)

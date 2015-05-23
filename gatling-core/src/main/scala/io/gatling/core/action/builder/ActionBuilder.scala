@@ -15,10 +15,9 @@
  */
 package io.gatling.core.action.builder
 
-import io.gatling.core.protocol.Protocol
-
 import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.akka.ActorNames
+import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.structure.ScenarioContext
 
 /**
@@ -31,15 +30,8 @@ trait ActionBuilder extends ActorNames {
    * @param system the ActorSystem
    * @param next the Action that will be chained with the Action build by this builder
    * @param ctx the scenario context
+   * @param protocolComponentsRegistry the ProtocolComponents registry
    * @return the resulting Action actor
    */
-  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef): ActorRef
-
-  /**
-   * Register default values of the protocols that the Actions produced by this ActionBuilder will use.
-   * With this, the simulation is aware of the protocols and can trigger warm-ups.
-   *
-   * @return the default protocols updated with the ones used here
-   */
-  def defaultProtocols: Set[Protocol] = Set.empty
+  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef): ActorRef
 }

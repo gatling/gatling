@@ -17,13 +17,6 @@ package io.gatling.core.protocol
 
 import scala.reflect.ClassTag
 
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.throttle.Throttler
-import io.gatling.core.result.writer.StatsEngine
-import io.gatling.core.session.Session
-
-import akka.actor.ActorSystem
-
 object Protocols {
 
   def apply(protocols: Protocol*): Protocols = apply(protocols.toIterable)
@@ -38,18 +31,12 @@ case class Protocols(protocols: Map[Class[_ <: Protocol], Protocol]) {
   /**
    * @return a registered Protocol according to its type
    */
-  def protocol[T <: Protocol: ClassTag]: T = {
+  def protocol[T <: Protocol: ClassTag]: Option[T] = {
     val protocolClass = implicitly[ClassTag[T]].runtimeClass.asInstanceOf[Class[T]]
-    protocols.get(protocolClass).map(_.asInstanceOf[T]).getOrElse(throw new UnsupportedOperationException(s"${protocolClass.getSimpleName} hasn't been registered"))
+    protocols.get(protocolClass).map(_.asInstanceOf[T])
   }
 
-  def ++(protocols: Iterable[Protocol]): Protocols = copy(protocols = this.protocols ++ protocols.map(p => p.getClass -> p))
+  def ++(protocols: Iterable[Protocol]): Protocols = copy(protocols = this.protocols ++ protocols.map(p => p.getClass.asInstanceOf[Class[Protocol]] -> p))
 
   def ++(other: Protocols) = copy(protocols = protocols ++ other.protocols)
-
-  def warmUp(system: ActorSystem, statsEngine: StatsEngine, throttler: Throttler)(implicit configuration: GatlingConfiguration): Unit =
-    protocols.values.foreach(_.warmUp(system, statsEngine, throttler))
-
-  val onExit: Session => Unit =
-    session => protocols.values.foreach(_.onExit(session))
 }

@@ -19,7 +19,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.cache.SessionCacheHandler
 import io.gatling.http.HeaderNames
-import io.gatling.http.config.HttpProtocol
+import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.response.Response
 
 import com.ning.http.client.Request

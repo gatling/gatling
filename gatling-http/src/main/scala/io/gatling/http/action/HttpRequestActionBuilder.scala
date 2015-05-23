@@ -17,9 +17,8 @@ package io.gatling.http.action
 
 import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.structure.ScenarioContext
-import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocol }
 import io.gatling.http.request.builder.HttpRequestBuilder
 
 /**
@@ -27,12 +26,12 @@ import io.gatling.http.request.builder.HttpRequestBuilder
  *
  * @constructor creates an HttpRequestActionBuilder
  * @param requestBuilder the builder for the request that will be sent
- * @param httpEngine the HTTP engine
  */
-class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder, httpEngine: HttpEngine)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol) extends HttpActionBuilder {
+class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration) extends HttpActionBuilder {
 
-  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef): ActorRef = {
-    val httpRequest = requestBuilder.build(ctx.protocols.protocol[HttpProtocol], ctx.throttled)
-    system.actorOf(HttpRequestAction.props(httpRequest, httpEngine, ctx.coreComponents.statsEngine, next), actorName("httpRequest"))
+  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef): ActorRef = {
+    val hc = httpComponents(protocolComponentsRegistry)
+    val httpRequest = requestBuilder.build(hc, ctx.throttled)
+    system.actorOf(HttpRequestAction.props(httpRequest, ctx.coreComponents.statsEngine, hc.httpEngine, next), actorName("httpRequest"))
   }
 }

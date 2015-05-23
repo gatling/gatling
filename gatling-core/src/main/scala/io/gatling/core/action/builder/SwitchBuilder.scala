@@ -16,10 +16,10 @@
 package io.gatling.core.action.builder
 
 import scala.collection.breakOut
-import io.gatling.core.protocol.Protocol
 
 import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Switch
+import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.session._
 import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
 
@@ -27,24 +27,18 @@ class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuild
 
   require(possibilities.size >= 2, "Switch requires at least 2 possibilities")
 
-  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) = {
+  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) = {
 
     val possibleActions: Map[Any, ActorRef] = possibilities.map {
       case (percentage, possibility) =>
-        val possibilityAction = possibility.build(system, ctx, next)
+        val possibilityAction = possibility.build(system, ctx, protocolComponentsRegistry, next)
         (percentage, possibilityAction)
     }(breakOut)
 
-    val elseNextActor = elseNext.map(_.build(system, ctx, next)).getOrElse(next)
+    val elseNextActor = elseNext.map(_.build(system, ctx, protocolComponentsRegistry, next)).getOrElse(next)
 
     val nextAction = value.map(resolvedValue => possibleActions.getOrElse(resolvedValue, elseNextActor))
 
     system.actorOf(Switch.props(nextAction, ctx.coreComponents.statsEngine, next), actorName("switch"))
-  }
-
-  override def defaultProtocols: Set[Protocol] = {
-
-    val actionBuilders = possibilities.flatMap { case (_, chainBuilder) => chainBuilder.actionBuilders } ::: elseNext.map(_.actionBuilders).getOrElse(Nil)
-    actionBuilders.flatMap(_.defaultProtocols).toSet
   }
 }

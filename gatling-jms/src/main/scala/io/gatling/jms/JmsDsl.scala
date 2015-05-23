@@ -17,8 +17,10 @@ package io.gatling.jms
 
 import io.gatling.core.action.builder.ActionBuilder
 import io.gatling.jms.check.JmsCheckSupport
+import io.gatling.jms.protocol.{ JmsProtocolBuilderBase, JmsProtocolBuilder, JmsProtocol }
+import io.gatling.jms.request.{ JmsTopic, JmsQueue, JmsRequestBuilderBase, JmsRequestBuilder }
 
-trait JmsModule extends JmsCheckSupport {
+trait JmsDsl extends JmsCheckSupport {
 
   val jms = JmsProtocolBuilderBase
 

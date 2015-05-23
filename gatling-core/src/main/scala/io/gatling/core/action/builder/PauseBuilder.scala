@@ -15,14 +15,14 @@
  */
 package io.gatling.core.action.builder
 
-import io.gatling.core.structure.ScenarioContext
-
 import scala.concurrent.duration.Duration
 
 import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Pause
 import io.gatling.core.pause.{ PauseType, Disabled }
+import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.session.Expression
+import io.gatling.core.structure.ScenarioContext
 
 /**
  * Builder for the 'pause' action.
@@ -33,7 +33,7 @@ import io.gatling.core.session.Expression
  */
 class PauseBuilder(duration: Expression[Duration], force: Option[PauseType]) extends ActionBuilder {
 
-  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) = {
+  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) = {
 
     force.getOrElse(ctx.pauseType) match {
       case Disabled => next

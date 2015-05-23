@@ -15,10 +15,9 @@
  */
 package io.gatling.core.action.builder
 
-import io.gatling.core.protocol.Protocol
-
 import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Loop
+import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
 
@@ -38,14 +37,11 @@ case object AsLongAsLoopType extends LoopType("asLongAs")
  */
 class LoopBuilder(condition: Expression[Boolean], loopNext: ChainBuilder, counterName: String, exitASAP: Boolean, loopType: LoopType) extends ActionBuilder {
 
-  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) = {
+  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) = {
     val safeCondition = condition.safe
     val whileActor = system.actorOf(Loop.props(safeCondition, counterName, exitASAP, ctx.coreComponents.statsEngine, next), actorName(loopType.name))
-    val loopNextActor = loopNext.build(system, ctx, whileActor)
+    val loopNextActor = loopNext.build(system, ctx, protocolComponentsRegistry, whileActor)
     whileActor ! loopNextActor
     whileActor
   }
-
-  override def defaultProtocols: Set[Protocol] =
-    loopNext.actionBuilders.flatMap(_.defaultProtocols).toSet
 }

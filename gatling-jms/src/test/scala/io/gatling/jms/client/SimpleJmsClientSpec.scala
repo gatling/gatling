@@ -17,7 +17,8 @@ package io.gatling.jms.client
 
 import javax.jms._
 
-import io.gatling.jms.{ JmsQueue, JmsTopic, MockMessage }
+import io.gatling.jms.request.{ JmsTopic, JmsQueue }
+import io.gatling.jms.MockMessage
 
 class SimpleJmsClientSpec extends BrokerBasedSpec with MockMessage {
 

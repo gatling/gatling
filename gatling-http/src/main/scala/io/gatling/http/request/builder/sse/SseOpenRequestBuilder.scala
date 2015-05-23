@@ -19,10 +19,8 @@ import com.ning.http.client.Request
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.{ HeaderValues, HeaderNames }
-import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.cache.HttpCaches
 import io.gatling.http.action.sse._
-import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocol }
+import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
 
 object SseOpenRequestBuilder {
@@ -30,19 +28,20 @@ object SseOpenRequestBuilder {
   val SseHeaderValueExpression = HeaderValues.TextEventStream.expression
   val CacheControlNoCacheValueExpression = HeaderValues.NoCache.expression
 
-  def apply(requestName: Expression[String], url: Expression[String], sseName: String)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches) =
+  def apply(requestName: Expression[String], url: Expression[String], sseName: String)(implicit configuration: GatlingConfiguration) =
     new SseOpenRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), sseName)
       .header(HeaderNames.Accept, SseHeaderValueExpression)
       .header(HeaderNames.CacheControl, CacheControlNoCacheValueExpression)
 
-  implicit def toActionBuilder(requestBuilder: SseOpenRequestBuilder)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine): SseOpenActionBuilder =
+  implicit def toActionBuilder(requestBuilder: SseOpenRequestBuilder)(implicit configuration: GatlingConfiguration): SseOpenActionBuilder =
     new SseOpenActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder)
 }
 
-case class SseOpenRequestBuilder(commonAttributes: CommonAttributes, sseName: String)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches)
+case class SseOpenRequestBuilder(commonAttributes: CommonAttributes, sseName: String)
     extends RequestBuilder[SseOpenRequestBuilder] {
 
   override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseOpenRequestBuilder(commonAttributes, sseName)
 
-  def build(protocol: HttpProtocol): Expression[Request] = new SseRequestExpressionBuilder(commonAttributes, protocol).build
+  def build(httpComponents: HttpComponents)(implicit configuration: GatlingConfiguration): Expression[Request] =
+    new SseRequestExpressionBuilder(commonAttributes, httpComponents).build
 }

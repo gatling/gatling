@@ -17,14 +17,13 @@ package io.gatling.http.request.builder
 
 import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ Request, RequestBuilderBase, SignatureCalculator }
-
 import io.gatling.BaseSpec
 import io.gatling.core.ValidationValues
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.config.DefaultHttpProtocol
+import io.gatling.http.protocol.{ HttpProtocol, HttpComponents }
 
 class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
@@ -32,7 +31,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val httpEngine = mock[HttpEngine]
   implicit val httpCaches = new HttpCaches
-  val defaultHttpProtocol = new DefaultHttpProtocol().value
+  val httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, httpCaches)
 
   private def performTest(addSignatureCalculator: HttpRequestBuilder => HttpRequestBuilder): Unit = {
 
@@ -40,7 +39,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
     val builder = addSignatureCalculator(new HttpRequestBuilder(commonAttributes, HttpAttributes()))
 
-    val httpRequestDef = builder.build(defaultHttpProtocol, throttled = false)
+    val httpRequestDef = builder.build(httpComponents, throttled = false)
     httpRequestDef.build("requestName", Session("scenarioName", 0)).map(_.ahcRequest.getHeaders.getFirstValue("X-Token")).succeeded shouldBe "foo"
   }
 

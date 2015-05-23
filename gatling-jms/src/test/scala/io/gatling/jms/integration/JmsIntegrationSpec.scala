@@ -20,8 +20,9 @@ import javax.jms.TextMessage
 import io.gatling.core.CoreDsl
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.jms._
+import io.gatling.jms.request.JmsQueue
 
-class JmsIntegrationSpec extends JmsMockingSpec with CoreDsl with JmsModule {
+class JmsIntegrationSpec extends JmsMockingSpec with CoreDsl with JmsDsl {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 

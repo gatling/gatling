@@ -16,14 +16,14 @@
 package io.gatling.jms.client
 
 import java.util.{ Hashtable => JHashtable }
+import io.gatling.jms.protocol.JmsMessageMatcher
+import io.gatling.jms.request._
 
 import com.typesafe.scalalogging.StrictLogging
 import javax.jms._
 import javax.naming.{ Context, InitialContext }
 import io.gatling.jms._
 import io.gatling.core.config.Credentials
-import io.gatling.jms.JmsQueue
-import io.gatling.jms.JmsTopic
 
 /**
  * Trivial JMS client, allows sending messages and use of a MessageListener

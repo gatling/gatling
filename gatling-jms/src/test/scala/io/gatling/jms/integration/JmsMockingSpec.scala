@@ -19,19 +19,18 @@ import scala.concurrent.duration._
 
 import javax.jms.{ Message, MessageListener }
 
-import io.gatling.core.protocol.Protocols
-
 import akka.actor.ActorRef
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.pause.Constant
+import io.gatling.core.protocol.{ ProtocolComponentsRegistry, Protocols }
 import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.Session
 import io.gatling.core.structure.{ ScenarioContext, ScenarioBuilder }
-import io.gatling.jms.JmsDestination
 import io.gatling.jms._
 import io.gatling.jms.client.{ SimpleJmsClient, BrokerBasedSpec }
+import io.gatling.jms.request.JmsDestination
 import org.apache.activemq.jndi.ActiveMQInitialContextFactory
 
 class JmsMockCustomer(client: SimpleJmsClient, mockResponse: PartialFunction[Message, String]) extends MessageListener {
@@ -53,7 +52,7 @@ class JmsMockCustomer(client: SimpleJmsClient, mockResponse: PartialFunction[Mes
   }
 }
 
-trait JmsMockingSpec extends BrokerBasedSpec with JmsModule {
+trait JmsMockingSpec extends BrokerBasedSpec with JmsDsl {
 
   def jmsProtocol = jms
     .connectionFactoryName("ConnectionFactory")
@@ -63,7 +62,7 @@ trait JmsMockingSpec extends BrokerBasedSpec with JmsModule {
 
   def runScenario(sb: ScenarioBuilder, timeout: FiniteDuration = 10.seconds, protocols: Protocols = Protocols(jmsProtocol))(implicit configuration: GatlingConfiguration) = {
     val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[ActorRef])
-    val actor = sb.build(system, ScenarioContext(coreComponents, protocols, Constant, throttled = false), self)
+    val actor = sb.build(system, ScenarioContext(coreComponents, Constant, throttled = false), new ProtocolComponentsRegistry(system, coreComponents, protocols), self)
     actor ! Session("TestSession", 0)
     val session = expectMsgClass(timeout, classOf[Session])
 

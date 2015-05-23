@@ -17,7 +17,7 @@ package io.gatling.http.request.builder
 
 import java.net.InetAddress
 
-import io.gatling.http.cache.HttpCaches
+import scala.util.control.NonFatal
 
 import com.ning.http.client.uri.Uri
 import com.ning.http.client.{ RequestBuilder => AHCRequestBuilder, NameResolver, Request }
@@ -26,23 +26,23 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation._
 import io.gatling.http.HeaderNames
 import io.gatling.http.ahc.ChannelPoolPartitioning
-import io.gatling.http.config.HttpProtocol
+import io.gatling.http.cache.HttpCaches
 import io.gatling.http.cookie.CookieSupport
+import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.util.{ DnsHelper, HttpHelper }
-
-import scala.util.control.NonFatal
-
 import com.typesafe.scalalogging.LazyLogging
 
 object RequestExpressionBuilder {
   val BuildRequestErrorMapper = "Failed to build request: " + _
 }
 
-abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches)
+abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, httpComponents: HttpComponents)(implicit configuration: GatlingConfiguration)
     extends LazyLogging {
 
   import RequestExpressionBuilder._
+  val protocol = httpComponents.httpProtocol
+  val httpCaches = httpComponents.httpCaches
 
   def makeAbsolute(url: String): Validation[String]
 

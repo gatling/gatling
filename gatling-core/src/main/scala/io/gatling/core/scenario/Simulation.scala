@@ -17,14 +17,13 @@ package io.gatling.core.scenario
 
 import scala.concurrent.duration.{ Duration, FiniteDuration }
 
-import io.gatling.core.protocol.{Protocols, Protocol}
-
 import akka.actor.ActorSystem
 import io.gatling.core.CoreComponents
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.throttle.{ ThrottleStep, Throttling }
 import io.gatling.core.pause.{ Constant, Custom, Disabled, Exponential, PauseType, UniformDuration, UniformPercentage }
+import io.gatling.core.protocol.{ ProtocolComponentsRegistry, Protocols, Protocol }
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.PopulationBuilder
 
@@ -139,6 +138,10 @@ case class SimulationParams(name: String,
                             beforeSteps: List[() => Unit],
                             afterSteps: List[() => Unit]) {
 
-  def scenarios(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): List[Scenario] =
-    populationBuilders.map(_.build(system, coreComponents, globalProtocols, globalPauseType, globalThrottling))
+  def scenarios(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): List[Scenario] = {
+
+    val protocolComponentsRegistry = new ProtocolComponentsRegistry(system, coreComponents, globalProtocols)
+
+    populationBuilders.map(_.build(system, coreComponents, protocolComponentsRegistry, globalProtocols, globalPauseType, globalThrottling))
+  }
 }

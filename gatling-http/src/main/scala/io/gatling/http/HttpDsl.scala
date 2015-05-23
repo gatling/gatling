@@ -19,14 +19,12 @@ import io.gatling.core.body.{ RawFileBodies, ElFileBodies }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.KO
 import io.gatling.core.session._
-import io.gatling.http.action.{ AddCookieBuilder, CookieDSL }
-import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.cache.HttpCaches
+import io.gatling.http.action.{ FlushCacheBuilder, AddCookieBuilder, CookieDSL }
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.check.ws.WsCheckSupport
-import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocolBuilder }
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.feeder.SitemapFeederSupport
+import io.gatling.http.protocol.{ HttpProtocolBuilder, HttpProxyBuilder }
 import io.gatling.http.request.{ BodyPart, ExtraInfo }
 import io.gatling.http.request.builder.Http
 import io.gatling.http.request.builder.polling.Polling
@@ -35,21 +33,22 @@ import io.gatling.http.request.builder.ws.Ws
 
 trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SitemapFeederSupport {
 
-  def http(implicit defaultHttpProtocol: DefaultHttpProtocol) = new HttpProtocolBuilder(defaultHttpProtocol.value)
+  def http(implicit configuration: GatlingConfiguration) = HttpProtocolBuilder(configuration)
 
-  val Proxy = io.gatling.http.config.HttpProxyBuilder.apply _
+  val Proxy = HttpProxyBuilder.apply _
 
-  def http(requestName: Expression[String])(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches) = new Http(requestName)
-  def addCookie(cookie: CookieDSL)(implicit defaultHttpProtocol: DefaultHttpProtocol) = new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(Long.MinValue))
+  def http(requestName: Expression[String])(implicit configuration: GatlingConfiguration) = new Http(requestName)
+  def addCookie(cookie: CookieDSL)(implicit configuration: GatlingConfiguration) =
+    new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(Long.MinValue))
   def flushSessionCookies = CookieSupport.FlushSessionCookies
   def flushCookieJar = CookieSupport.FlushCookieJar
-  def flushHttpCache(implicit httpCaches: HttpCaches) = httpCaches.FlushCache
+  def flushHttpCache(implicit configuration: GatlingConfiguration) = new FlushCacheBuilder
 
-  def sse(requestName: Expression[String])(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches, defaultHttpProtocol: DefaultHttpProtocol) = new Sse(requestName)
-  def sse(requestName: Expression[String], sseName: String)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches, defaultHttpProtocol: DefaultHttpProtocol) = new Sse(requestName, sseName)
-  def ws(requestName: Expression[String])(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches, defaultHttpProtocol: DefaultHttpProtocol) = new Ws(requestName)
-  def ws(requestName: Expression[String], wsName: String)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches, defaultHttpProtocol: DefaultHttpProtocol) = new Ws(requestName, wsName)
-  def polling(implicit configuration: GatlingConfiguration, httpEngine: HttpEngine, defaultHttpProtocol: DefaultHttpProtocol) = new Polling()
+  def sse(requestName: Expression[String])(implicit configuration: GatlingConfiguration) = new Sse(requestName)
+  def sse(requestName: Expression[String], sseName: String)(implicit configuration: GatlingConfiguration) = new Sse(requestName, sseName)
+  def ws(requestName: Expression[String])(implicit configuration: GatlingConfiguration) = new Ws(requestName)
+  def ws(requestName: Expression[String], wsName: String)(implicit configuration: GatlingConfiguration) = new Ws(requestName, wsName)
+  def polling(implicit configuration: GatlingConfiguration) = new Polling()
 
   val HttpHeaderNames = HeaderNames
   val HttpHeaderValues = HeaderValues

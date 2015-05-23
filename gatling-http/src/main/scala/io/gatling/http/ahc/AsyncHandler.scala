@@ -48,7 +48,7 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
 
   private def start(): Unit =
     if (init.compareAndSet(false, true)) {
-      httpEngine.statsEngine.foreach(_.logRequest(tx.session, tx.request.requestName))
+      httpEngine.coreComponents.statsEngine.logRequest(tx.session, tx.request.requestName)
       responseBuilder.updateFirstByteSent()
     }
 
@@ -104,7 +104,7 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
 
   override def onCompleted: Unit =
     if (done.compareAndSet(false, true)) {
-      try { httpEngine.asyncHandlerActors.foreach(_ ! OnCompleted(tx, responseBuilder.build)) }
+      try { httpEngine.asyncHandlerActors ! OnCompleted(tx, responseBuilder.build) }
       catch { case NonFatal(e) => sendOnThrowable(e) }
     }
 
@@ -126,6 +126,6 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
     else if (AsyncHandler.InfoEnabled)
       logger.info(s"Request '${tx.request.requestName}' failed for user ${tx.session.userId}: $errorMessage")
 
-    httpEngine.asyncHandlerActors.foreach(_ ! OnThrowable(tx, responseBuilder.build, errorMessage))
+    httpEngine.asyncHandlerActors ! OnThrowable(tx, responseBuilder.build, errorMessage)
   }
 }

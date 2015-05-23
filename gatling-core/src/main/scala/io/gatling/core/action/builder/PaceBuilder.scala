@@ -15,12 +15,12 @@
  */
 package io.gatling.core.action.builder
 
-import io.gatling.core.structure.ScenarioContext
-
 import scala.concurrent.duration.Duration
 
 import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Pace
+import io.gatling.core.protocol.ProtocolComponentsRegistry
+import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.session.Expression
 
 /**
@@ -30,6 +30,6 @@ import io.gatling.core.session.Expression
  */
 class PaceBuilder(interval: Expression[Duration], counter: String) extends ActionBuilder {
 
-  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) =
+  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) =
     system.actorOf(Pace.props(interval, counter, ctx.coreComponents.statsEngine, next), actorName("pace"))
 }

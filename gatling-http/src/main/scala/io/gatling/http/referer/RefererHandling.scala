@@ -15,10 +15,11 @@
  */
 package io.gatling.http.referer
 
+import io.gatling.http.protocol.HttpProtocol
+
 import com.ning.http.client.Request
 
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
-import io.gatling.http.config.HttpProtocol
 import io.gatling.http.util.HttpHelper.{ isAjax, isHtml }
 import io.gatling.http.response.Response
 

@@ -13,22 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.jms
+package io.gatling.http.protocol
 
 import io.gatling.core.config.Credentials
-import io.gatling.core.protocol.Protocol
 
-/**
- * Wraps a JMS protocol configuration
- */
-case class JmsProtocol(
-  contextFactory: String,
-  connectionFactoryName: String,
-  url: String,
-  credentials: Option[Credentials],
-  anonymousConnect: Boolean,
-  listenerCount: Int,
-  deliveryMode: Int,
-  receiveTimeout: Option[Long],
-  messageMatcher: JmsMessageMatcher)
-    extends Protocol
+object HttpProxyBuilder {
+
+  def apply(host: String, port: Int) = new HttpProxyBuilder(Proxy(host, port, port))
+
+  implicit def toProxy(proxyBuilder: HttpProxyBuilder): Proxy = proxyBuilder.proxy
+}
+
+class HttpProxyBuilder(val proxy: Proxy) {
+
+  def httpsPort(port: Int) = new HttpProxyBuilder(proxy.copy(securePort = port))
+
+  def credentials(username: String, password: String) = new HttpProxyBuilder(proxy.copy(credentials = Some(Credentials(username, password))))
+}

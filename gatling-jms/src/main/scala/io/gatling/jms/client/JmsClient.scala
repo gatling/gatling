@@ -16,8 +16,8 @@
 package io.gatling.jms.client
 
 import javax.jms.{ Message, MessageConsumer }
-
-import io.gatling.jms.{ JmsDestination, JmsProtocol }
+import io.gatling.jms.protocol.JmsProtocol
+import io.gatling.jms.request.JmsDestination
 
 object JmsClient {
   def apply(protocol: JmsProtocol, destination: JmsDestination, replyDestination: JmsDestination): JmsClient = {

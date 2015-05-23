@@ -36,5 +36,5 @@ object JmsXPathCheckBuilder extends XPathCheckBuilder[JmsCheck, Message] {
       }
     }
 
-  val CheckBuilder: Extender[JmsCheck, Message] = (wrapped: Check[Message]) => wrapped
+  val CheckBuilder: Extender[JmsCheck, Message] = (wrapped: JmsCheck) => wrapped
 }

@@ -30,11 +30,11 @@ import io.gatling.http.ahc.{ HttpEngine, WsTx }
 import io.gatling.http.check.ws.{ ExpectedRange, UntilCount, ExpectedCount, WsCheck }
 
 object WsActor {
-  def props(wsName: String, statsEngine: StatsEngine)(implicit httpEngine: HttpEngine) =
-    Props(new WsActor(wsName, statsEngine))
+  def props(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) =
+    Props(new WsActor(wsName, statsEngine, httpEngine))
 }
 
-class WsActor(wsName: String, statsEngine: StatsEngine)(implicit httpEngine: HttpEngine) extends BaseActor {
+class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) extends BaseActor {
 
   def receive = initialState
 
@@ -301,7 +301,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine)(implicit httpEngine: Htt
     case action: WsUserAction =>
       // reconnect on first client message tentative
       val newTx = tx.copy(reconnectCount = tx.reconnectCount + 1)
-      httpEngine.startWsTransaction(newTx, self)
+      WsTx.start(newTx, self, httpEngine)
 
       context.become(reconnectingState(status, reason, action))
 

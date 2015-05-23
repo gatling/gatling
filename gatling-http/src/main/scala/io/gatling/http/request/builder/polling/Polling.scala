@@ -20,16 +20,12 @@ import scala.concurrent.duration.FiniteDuration
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.action.polling.{ PollingStartBuilder, PollingStopBuilder }
-import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.config.DefaultHttpProtocol
 import io.gatling.http.request.builder.HttpRequestBuilder
 
 object Polling {
   val DefaultPollerName = SessionPrivateAttributes.PrivateAttributePrefix + "http.polling"
 }
-class Polling(pollerName: String = Polling.DefaultPollerName)(implicit configuration: GatlingConfiguration,
-                                                              defaultHttpProtocol: DefaultHttpProtocol,
-                                                              httpEngine: HttpEngine) {
+class Polling(pollerName: String = Polling.DefaultPollerName)(implicit configuration: GatlingConfiguration) {
 
   def pollerName(pollerName: String) = new Polling(pollerName)
 
@@ -38,9 +34,7 @@ class Polling(pollerName: String = Polling.DefaultPollerName)(implicit configura
   def stop = new PollingStopBuilder(pollerName)
 }
 
-class PollingEveryStep(pollerName: String, period: Expression[FiniteDuration])(implicit configuration: GatlingConfiguration,
-                                                                               defaultHttpProtocol: DefaultHttpProtocol,
-                                                                               httpEngine: HttpEngine) {
+class PollingEveryStep(pollerName: String, period: Expression[FiniteDuration])(implicit configuration: GatlingConfiguration) {
 
   def exec(requestBuilder: HttpRequestBuilder) =
     new PollingStartBuilder(pollerName, period, requestBuilder)

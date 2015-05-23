@@ -17,7 +17,10 @@ package io.gatling.http.action.polling
 
 import scala.concurrent.duration._
 
-import akka.actor.ActorContext
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.http.cache.HttpCaches
+import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
+
 import akka.testkit._
 import org.mockito.Mockito._
 import org.mockito.Matchers._
@@ -26,7 +29,7 @@ import io.gatling.AkkaSpec
 import io.gatling.core.result.writer.{ DefaultStatsEngine, ErrorMessage }
 import io.gatling.core.session._
 import io.gatling.core.validation._
-import io.gatling.http.ahc.{ HttpTx, HttpEngine }
+import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.request.{ HttpRequestConfig, HttpRequestDef }
 import io.gatling.http.response.ResponseBuilderFactory
 
@@ -34,6 +37,8 @@ import scala.reflect.ClassTag
 
 // TODO : test resourceFetched, stopPolling
 class PollerActorSpec extends AkkaSpec {
+
+  implicit val configuration = GatlingConfiguration.loadForTest()
 
   val requestName = "foo".expression
 
@@ -70,7 +75,7 @@ class PollerActorSpec extends AkkaSpec {
     poller ! StartPolling(session)
     Thread.sleep(2.seconds.toMillis)
 
-    verify(mockHttpEngine, never).startHttpTransaction(any[HttpTx])(any[ActorContext])
+    verify(mockHttpEngine, never).httpClient(any[Session], any[HttpProtocol])
     poller.stateName shouldBe Polling
     poller.stateData shouldBe a[PollingData]
     val pollingData = poller.stateData.asInstanceOf[PollingData]
@@ -86,7 +91,7 @@ class PollerActorSpec extends AkkaSpec {
     poller ! StartPolling(session)
     Thread.sleep(2.seconds.toMillis)
 
-    verify(mockHttpEngine, never).startHttpTransaction(any[HttpTx])(any[ActorContext])
+    verify(mockHttpEngine, never).httpClient(any[Session], any[HttpProtocol])
     poller.stateName shouldBe Polling
     poller.stateData shouldBe a[PollingData]
     val pollingData = poller.stateData.asInstanceOf[PollingData]
@@ -105,7 +110,7 @@ class PollerActorSpec extends AkkaSpec {
         period = period,
         requestDef = requestDef,
         responseBuilderFactory = mock[ResponseBuilderFactory],
-        httpEngine = httpEngine,
+        httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, mock[HttpCaches]),
         statsEngine = new DefaultStatsEngine(system, List(dataWriterProbe.ref))))
 
   def failedExpr[T: ClassTag]: Expression[T] =

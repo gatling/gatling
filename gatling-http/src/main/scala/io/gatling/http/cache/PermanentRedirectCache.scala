@@ -15,13 +15,12 @@
  */
 package io.gatling.http.cache
 
+import scala.annotation.tailrec
+
 import com.ning.http.client.{ Request, RequestBuilder }
 import com.ning.http.client.uri.Uri
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.SessionCacheHandler
-
-import scala.annotation.tailrec
-
 import io.gatling.core.session.{ SessionPrivateAttributes, Session }
 import io.gatling.http.ahc.HttpTx
 
@@ -61,7 +60,7 @@ trait PermanentRedirectCache {
   }
 
   def applyPermanentRedirect(origTx: HttpTx): HttpTx =
-    if (origTx.request.config.protocol.requestPart.cache)
+    if (origTx.request.config.httpComponents.httpProtocol.requestPart.cache)
       permanentRedirect(origTx.session, origTx.request.ahcRequest.getUri) match {
         case Some((targetUri, redirectCount)) =>
 

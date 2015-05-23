@@ -20,7 +20,7 @@ import java.net.InetAddress
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Session, SessionPrivateAttributes }
 import io.gatling.core.util.cache.SessionCacheHandler
-import io.gatling.http.config.HttpProtocol
+import io.gatling.http.protocol.HttpProtocol
 
 object DnsCache {
   val DnsCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.dns"

@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.config
+package io.gatling.http.action
 
-import io.gatling.core.config.Credentials
+import io.gatling.core.action.SessionHook
+import io.gatling.core.protocol.ProtocolComponentsRegistry
+import io.gatling.core.structure.ScenarioContext
 
-object HttpProxyBuilder {
+import akka.actor.{ ActorRef, ActorSystem }
 
-  def apply(host: String, port: Int) = new HttpProxyBuilder(Proxy(host, port, port))
+class FlushCacheBuilder extends HttpActionBuilder {
 
-  implicit def toProxy(proxyBuilder: HttpProxyBuilder): Proxy = proxyBuilder.proxy
-}
+  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef): ActorRef = {
 
-class HttpProxyBuilder(val proxy: Proxy) {
+    val expression = httpComponents(protocolComponentsRegistry).httpCaches.FlushCache
 
-  def httpsPort(port: Int) = new HttpProxyBuilder(proxy.copy(securePort = port))
-
-  def credentials(username: String, password: String) = new HttpProxyBuilder(proxy.copy(credentials = Some(Credentials(username, password))))
+    system.actorOf(SessionHook.props(expression, ctx.coreComponents.statsEngine, next, interruptable = true), actorName("flushCache"))
+  }
 }

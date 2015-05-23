@@ -19,7 +19,7 @@ import io.gatling.core.Predef._
 import io.gatling.core.funspec.GatlingFunSpec
 import io.gatling.core.protocol.Protocol
 import io.gatling.http.Predef._
-import io.gatling.http.config.HttpProtocolBuilder
+import io.gatling.http.protocol.HttpProtocolBuilder
 
 abstract class GatlingHttpFunSpec extends GatlingFunSpec {
 

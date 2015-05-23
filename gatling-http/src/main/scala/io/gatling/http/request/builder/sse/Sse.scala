@@ -19,15 +19,13 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ SessionPrivateAttributes, Expression }
 import io.gatling.http.action.sse._
 import io.gatling.http.action.ws.WsSetCheckActionBuilder
-import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.ws._
-import io.gatling.http.config.DefaultHttpProtocol
 
 object Sse {
   val DefaultSseName = SessionPrivateAttributes.PrivateAttributePrefix + "http.sse"
 }
 
-class Sse(requestName: Expression[String], sseName: String = Sse.DefaultSseName)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches, defaultHttpProtocol: DefaultHttpProtocol) {
+class Sse(requestName: Expression[String], sseName: String = Sse.DefaultSseName)(implicit configuration: GatlingConfiguration) {
 
   def sseName(sseName: String) = new Sse(requestName, sseName)
   def open(url: Expression[String]) = SseOpenRequestBuilder(requestName, url, sseName)

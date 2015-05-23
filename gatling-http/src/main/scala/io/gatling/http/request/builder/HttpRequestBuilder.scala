@@ -15,18 +15,14 @@
  */
 package io.gatling.http.request.builder
 
-import com.ning.http.client.Request
-
 import io.gatling.core.body.{ Body, RawFileBodies }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
-import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.cache.HttpCaches
 import io.gatling.http.{ HeaderValues, HeaderNames }
 import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope.Status
-import io.gatling.http.config.{ DefaultHttpProtocol, HttpProtocol }
+import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request._
 import io.gatling.http.response.Response
 
@@ -45,8 +41,8 @@ case class HttpAttributes(
 
 object HttpRequestBuilder {
 
-  implicit def toActionBuilder(requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration, defaultHttpProtocol: DefaultHttpProtocol, httpEngine: HttpEngine) =
-    new HttpRequestActionBuilder(requestBuilder, httpEngine)
+  implicit def toActionBuilder(requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration) =
+    new HttpRequestActionBuilder(requestBuilder)
 
   val MultipartFormDataValueExpression = HeaderValues.MultipartFormData.expression
   val ApplicationFormUrlEncodedValueExpression = HeaderValues.ApplicationFormUrlEncoded.expression
@@ -57,8 +53,7 @@ object HttpRequestBuilder {
  *
  * @param httpAttributes the base HTTP attributes
  */
-case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches)
-    extends RequestBuilder[HttpRequestBuilder] {
+case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes) extends RequestBuilder[HttpRequestBuilder] {
 
   private[http] def newInstance(commonAttributes: CommonAttributes): HttpRequestBuilder = new HttpRequestBuilder(commonAttributes, httpAttributes)
 
@@ -131,22 +126,21 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
     bodyPart(BodyPart.fileBodyPart(Some(name), file).fileName(fileName)).asMultipartForm
   }
 
-  def request(protocol: HttpProtocol)(implicit httpCaches: HttpCaches): Expression[Request] =
-    new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, protocol).build
-
   /**
    * This method builds the request that will be sent
    *
-   * @param protocol the protocol of the current scenario
+   * @param httpComponents the HttpComponents
    * @param throttled if throttling is enabled
    */
-  def build(protocol: HttpProtocol, throttled: Boolean): HttpRequestDef = {
+  def build(httpComponents: HttpComponents, throttled: Boolean)(implicit configuration: GatlingConfiguration): HttpRequestDef = {
+
+    val httpProtocol = httpComponents.httpProtocol
 
     val checks =
       if (httpAttributes.ignoreDefaultChecks)
         httpAttributes.checks
       else
-        protocol.responsePart.checks ::: httpAttributes.checks
+        httpProtocol.responsePart.checks ::: httpAttributes.checks
 
     val resolvedChecks =
       if (checks.exists(_.scope == Status))
@@ -154,19 +148,19 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
       else
         checks ::: List(RequestBuilder.DefaultHttpCheck)
 
-    val resolvedFollowRedirect = protocol.responsePart.followRedirect && httpAttributes.followRedirect
+    val resolvedFollowRedirect = httpProtocol.responsePart.followRedirect && httpAttributes.followRedirect
 
-    val resolvedResponseTransformer = httpAttributes.responseTransformer.orElse(protocol.responsePart.responseTransformer)
+    val resolvedResponseTransformer = httpAttributes.responseTransformer.orElse(httpProtocol.responsePart.responseTransformer)
 
-    val resolvedResources = httpAttributes.explicitResources.map(_.build(protocol, throttled))
+    val resolvedResources = httpAttributes.explicitResources.map(_.build(httpComponents, throttled))
 
-    val resolvedExtraInfoExtractor = httpAttributes.extraInfoExtractor.orElse(protocol.responsePart.extraInfoExtractor)
+    val resolvedExtraInfoExtractor = httpAttributes.extraInfoExtractor.orElse(httpProtocol.responsePart.extraInfoExtractor)
 
-    val resolvedRequestExpression = request(protocol)
+    val resolvedRequestExpression = new HttpRequestExpressionBuilder(commonAttributes, httpAttributes, httpComponents).build
 
-    val resolvedSignatureCalculatorExpression = commonAttributes.signatureCalculator.orElse(protocol.requestPart.signatureCalculator)
+    val resolvedSignatureCalculatorExpression = commonAttributes.signatureCalculator.orElse(httpProtocol.requestPart.signatureCalculator)
 
-    val resolvedDiscardResponseChunks = httpAttributes.discardResponseChunks && protocol.responsePart.discardResponseChunks
+    val resolvedDiscardResponseChunks = httpAttributes.discardResponseChunks && httpProtocol.responsePart.discardResponseChunks
 
     HttpRequestDef(
       commonAttributes.requestName,
@@ -176,12 +170,12 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
         checks = resolvedChecks,
         responseTransformer = resolvedResponseTransformer,
         extraInfoExtractor = resolvedExtraInfoExtractor,
-        maxRedirects = protocol.responsePart.maxRedirects,
+        maxRedirects = httpProtocol.responsePart.maxRedirects,
         throttled = throttled,
         silent = httpAttributes.silent,
         followRedirect = resolvedFollowRedirect,
         discardResponseChunks = resolvedDiscardResponseChunks,
-        protocol = protocol,
+        httpComponents = httpComponents,
         explicitResources = resolvedResources))
   }
 }

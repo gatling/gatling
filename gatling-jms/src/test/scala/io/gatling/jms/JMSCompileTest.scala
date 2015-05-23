@@ -21,6 +21,8 @@ import io.gatling.core.Predef._
 import io.gatling.jms.Predef._
 import javax.jms._
 
+import io.gatling.jms.protocol.JmsMessageMatcher
+
 object IdentificationMatcher extends JmsMessageMatcher {
   override def prepareRequest(msg: Message): Unit = {}
   override def responseID(msg: Message): String = requestID(msg)

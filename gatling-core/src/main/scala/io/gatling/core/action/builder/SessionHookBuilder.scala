@@ -17,6 +17,7 @@ package io.gatling.core.action.builder
 
 import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.SessionHook
+import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.ScenarioContext
 
@@ -29,6 +30,6 @@ import io.gatling.core.structure.ScenarioContext
  */
 class SessionHookBuilder(sessionFunction: Expression[Session], interruptable: Boolean = false) extends ActionBuilder {
 
-  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) =
+  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) =
     system.actorOf(SessionHook.props(sessionFunction, ctx.coreComponents.statsEngine, next, interruptable), actorName("sessionHook"))
 }

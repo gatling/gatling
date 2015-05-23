@@ -15,13 +15,29 @@
  */
 package io.gatling.http.ahc
 
+import akka.actor.ActorRef
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
+import io.gatling.http.action.ws.WsListener
 import io.gatling.http.check.ws.WsCheck
-import io.gatling.http.config.HttpProtocol
-
-import akka.actor.ActorRef
+import io.gatling.http.protocol.HttpProtocol
 import com.ning.http.client.Request
+import com.ning.http.client.ws.WebSocketUpgradeHandler
+
+object WsTx {
+
+  def start(tx: WsTx, wsActor: ActorRef, httpEngine: HttpEngine): Unit = {
+    val (newTx, client) = {
+      val (newSession, client) = httpEngine.httpClient(tx.session, tx.protocol)
+      (tx.copy(session = newSession), client)
+    }
+
+    val listener = new WsListener(newTx, wsActor)
+
+    val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
+    client.executeRequest(tx.request, handler)
+  }
+}
 
 case class WsTx(session: Session,
                 request: Request,

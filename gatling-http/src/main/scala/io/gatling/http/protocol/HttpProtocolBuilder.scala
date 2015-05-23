@@ -13,9 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.config
+package io.gatling.http.protocol
 
 import java.net.InetAddress
+
+import io.gatling.core.config.GatlingConfiguration
 
 import com.ning.http.client.{ RequestBuilderBase, Request, SignatureCalculator, Realm }
 
@@ -35,6 +37,9 @@ import io.gatling.http.util.HttpHelper
 object HttpProtocolBuilder {
 
   implicit def toHttpProtocol(builder: HttpProtocolBuilder): HttpProtocol = builder.build
+
+  def apply(configuration: GatlingConfiguration): HttpProtocolBuilder =
+    HttpProtocolBuilder(HttpProtocol(configuration))
 }
 
 /**

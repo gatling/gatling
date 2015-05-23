@@ -17,13 +17,12 @@ package io.gatling.http.request.builder.ws
 
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
-import io.gatling.http.cache.HttpCaches
-import io.gatling.http.config.HttpProtocol
+import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ RequestExpressionBuilder, CommonAttributes }
 import io.gatling.http.util.HttpHelper
 
-class WsRequestExpressionBuilder(commonAttributes: CommonAttributes, protocol: HttpProtocol)(implicit configuration: GatlingConfiguration, httpCaches: HttpCaches)
-    extends RequestExpressionBuilder(commonAttributes, protocol) {
+class WsRequestExpressionBuilder(commonAttributes: CommonAttributes, httpComponents: HttpComponents)(implicit configuration: GatlingConfiguration)
+    extends RequestExpressionBuilder(commonAttributes, httpComponents) {
 
   def makeAbsolute(url: String): Validation[String] =
     if (HttpHelper.isAbsoluteWsUrl(url))

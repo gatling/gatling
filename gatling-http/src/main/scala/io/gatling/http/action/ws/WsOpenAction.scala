@@ -15,17 +15,16 @@
  */
 package io.gatling.http.action.ws
 
-import com.ning.http.client.Request
-
 import akka.actor.{ Props, ActorRef }
+import com.ning.http.client.Request
 import io.gatling.core.action.Interruptable
 import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
-import io.gatling.http.ahc.{ HttpEngine, WsTx }
+import io.gatling.http.ahc.WsTx
 import io.gatling.http.check.ws._
-import io.gatling.http.config.HttpProtocol
+import io.gatling.http.protocol.HttpComponents
 
 object WsOpenAction {
   def props(requestName: Expression[String],
@@ -33,9 +32,9 @@ object WsOpenAction {
             request: Expression[Request],
             checkBuilder: Option[WsCheckBuilder],
             statsEngine: StatsEngine,
-            next: ActorRef,
-            protocol: HttpProtocol)(implicit httpEngine: HttpEngine) =
-    Props(new WsOpenAction(requestName, wsName, request, checkBuilder, statsEngine, next, protocol))
+            httpComponents: HttpComponents,
+            next: ActorRef) =
+    Props(new WsOpenAction(requestName, wsName, request, checkBuilder, statsEngine, httpComponents, next))
 }
 
 class WsOpenAction(
@@ -44,15 +43,15 @@ class WsOpenAction(
     request: Expression[Request],
     checkBuilder: Option[WsCheckBuilder],
     val statsEngine: StatsEngine,
-    val next: ActorRef,
-    protocol: HttpProtocol)(implicit httpEngine: HttpEngine) extends Interruptable with WsAction {
+    httpComponents: HttpComponents,
+    val next: ActorRef) extends Interruptable with WsAction {
 
   def execute(session: Session): Unit = {
 
       def open(tx: WsTx): Unit = {
         logger.info(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
-        val wsActor = context.actorOf(WsActor.props(wsName, statsEngine), actorName("wsActor"))
-        httpEngine.startWsTransaction(tx, wsActor)
+        val wsActor = context.actorOf(WsActor.props(wsName, statsEngine, httpComponents.httpEngine), actorName("wsActor"))
+        WsTx.start(tx, wsActor, httpComponents.httpEngine)
       }
 
     fetchWebSocket(wsName, session) match {
@@ -63,8 +62,7 @@ class WsOpenAction(
           requestName <- requestName(session)
           request <- request(session)
           check = checkBuilder.map(_.build)
-        } yield open(WsTx(session, request, requestName, protocol, next, nowMillis, check = check))
+        } yield open(WsTx(session, request, requestName, httpComponents.httpProtocol, next, nowMillis, check = check))
     }
-
   }
 }

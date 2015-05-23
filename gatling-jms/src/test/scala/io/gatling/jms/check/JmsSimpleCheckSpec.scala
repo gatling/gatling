@@ -24,7 +24,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.validation._
 import io.gatling.jms._
 
-class JmsSimpleCheckSpec extends BaseSpec with JmsModule with MockMessage {
+class JmsSimpleCheckSpec extends BaseSpec with JmsDsl with MockMessage {
 
   implicit def cache = mutable.Map.empty[Any, Any]
 

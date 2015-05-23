@@ -13,22 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http
+package io.gatling.jms.request
 
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.cache.HttpCaches
-import io.gatling.http.config.DefaultHttpProtocol
-
-trait HttpDefaultImplicits {
-
-  def configurationForHttp: GatlingConfiguration
-
-  private implicit def thisConfiguration = configurationForHttp
-
-  implicit lazy val httpCaches = new HttpCaches
-
-  implicit lazy val httpEngine = new HttpEngine
-
-  implicit lazy val defaultHttpProtocol = new DefaultHttpProtocol
-}
+sealed trait JmsDestination
+case class JmsQueue(name: String) extends JmsDestination
+case class JmsTopic(name: String) extends JmsDestination
+case object JmsTemporaryQueue extends JmsDestination
+case object JmsTemporaryTopic extends JmsDestination

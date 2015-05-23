@@ -15,13 +15,26 @@
  */
 package io.gatling.http.ahc
 
+import akka.actor.ActorRef
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
+import io.gatling.http.action.sse.SseHandler
 import io.gatling.http.check.ws.WsCheck
-import io.gatling.http.config.HttpProtocol
-
-import akka.actor.ActorRef
+import io.gatling.http.protocol.HttpProtocol
 import com.ning.http.client.Request
+
+object SseTx {
+
+  def start(tx: SseTx, sseActor: ActorRef, httpEngine: HttpEngine): Unit = {
+    val (newTx, client) = {
+      val (newSession, client) = httpEngine.httpClient(tx.session, tx.protocol)
+      (tx.copy(session = newSession), client)
+    }
+
+    val handler = new SseHandler(newTx, sseActor)
+    client.executeRequest(newTx.request, handler)
+  }
+}
 
 case class SseTx(session: Session,
                  request: Request, // FIXME should it be a HttpRequest obj???

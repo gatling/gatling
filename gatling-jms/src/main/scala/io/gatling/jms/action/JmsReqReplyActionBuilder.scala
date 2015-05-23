@@ -13,18 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.jms
+package io.gatling.jms.action
 
-import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.builder.ActionBuilder
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.structure.ScenarioContext
+import io.gatling.jms.protocol.{ JmsProtocol, JmsComponents }
+import io.gatling.jms.request.JmsAttributes
 
-case class JmsReqReplyActionBuilder(attributes: JmsAttributes) extends ActionBuilder {
+import akka.actor.{ ActorRef, ActorSystem }
 
-  def build(system: ActorSystem, ctx: ScenarioContext, next: ActorRef) = {
-    val jmsProtocol = ctx.protocols.protocol[JmsProtocol]
+case class JmsReqReplyActionBuilder(attributes: JmsAttributes)(implicit configuration: GatlingConfiguration) extends ActionBuilder {
+
+  def jmsComponents(protocolComponentsRegistry: ProtocolComponentsRegistry): JmsComponents =
+    protocolComponentsRegistry.components(JmsProtocol.JmsProtocolKey)
+
+  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) = {
     val statsEngine = ctx.coreComponents.statsEngine
     val tracker = system.actorOf(JmsRequestTrackerActor.props(statsEngine), actorName("jmsRequestTracker"))
-    system.actorOf(JmsReqReplyAction.props(attributes, jmsProtocol, tracker, statsEngine, next), actorName("jmsReqReply"))
+    system.actorOf(JmsReqReplyAction.props(attributes, jmsComponents(protocolComponentsRegistry).jmsProtocol, tracker, statsEngine, next), actorName("jmsReqReply"))
   }
 }

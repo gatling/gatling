@@ -27,8 +27,11 @@ class ChainableSpec extends AkkaSpec {
     var hasRun = false
 
     override def execute(session: Session): Unit =
-      if (fail) throw new Exception("expected crash")
-      else hasRun = true
+      if (fail) {
+        val e = new Exception("expected crash")
+        e.setStackTrace(Array.empty)
+        throw e
+      } else hasRun = true
   }
 
   "A Chainable Action" should "call the execute method when receiving a Session" in {

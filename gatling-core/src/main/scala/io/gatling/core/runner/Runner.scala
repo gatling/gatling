@@ -19,8 +19,6 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{ Try, Failure, Success }
 
-import io.gatling.core.protocol.Protocols
-
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import io.gatling.core.CoreComponents
@@ -78,10 +76,6 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
       val coreComponents = CoreComponents(controller, throttler, statsEngine, exit)
 
       val scenarios = simulationParams.scenarios(system, coreComponents)
-
-      scenarios.foldLeft(Protocols()) { (protocols, scenario) =>
-        protocols ++ scenario.ctx.protocols
-      }.warmUp(system, statsEngine, throttler)
 
       System.gc()
 

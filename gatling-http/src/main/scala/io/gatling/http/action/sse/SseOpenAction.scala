@@ -22,20 +22,21 @@ import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
-import io.gatling.http.ahc.{ HttpEngine, SseTx }
+import io.gatling.http.ahc.SseTx
 import io.gatling.http.check.ws._
-import io.gatling.http.config.HttpProtocol
+import io.gatling.http.protocol.HttpComponents
 
 object SseOpenAction {
+
   def props(
     requestName: Expression[String],
     sseName: String,
     request: Expression[Request],
     checkBuilder: Option[WsCheckBuilder],
     statsEngine: StatsEngine,
-    next: ActorRef,
-    protocol: HttpProtocol)(implicit httpEngine: HttpEngine) =
-    Props(new SseOpenAction(requestName, sseName, request, checkBuilder, statsEngine, next: ActorRef, protocol))
+    httpComponents: HttpComponents,
+    next: ActorRef) =
+    Props(new SseOpenAction(requestName, sseName, request, checkBuilder, statsEngine, httpComponents, next))
 }
 
 class SseOpenAction(
@@ -44,15 +45,17 @@ class SseOpenAction(
     request: Expression[Request],
     checkBuilder: Option[WsCheckBuilder],
     val statsEngine: StatsEngine,
-    val next: ActorRef,
-    protocol: HttpProtocol)(implicit httpEngine: HttpEngine) extends Interruptable with SseAction {
+    httpComponents: HttpComponents,
+    val next: ActorRef) extends Interruptable with SseAction {
+
+  import httpComponents._
 
   override def execute(session: Session): Unit = {
 
       def open(tx: SseTx): Unit = {
         logger.info(s"Opening and getting sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
         val sseActor = context.actorOf(SseActor.props(sseName, statsEngine), actorName("sseActor"))
-        httpEngine.startSseTransaction(tx, sseActor)
+        SseTx.start(tx, sseActor, httpEngine)
       }
 
     fetchSse(sseName, session) match {
@@ -63,7 +66,7 @@ class SseOpenAction(
           requestName <- requestName(session)
           request <- request(session)
           check = checkBuilder.map(_.build)
-        } yield open(SseTx(session, request, requestName, protocol, next, nowMillis, check = check))
+        } yield open(SseTx(session, request, requestName, httpProtocol, next, nowMillis, check = check))
     }
   }
 }

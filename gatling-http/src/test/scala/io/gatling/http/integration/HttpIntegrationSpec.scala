@@ -25,7 +25,6 @@ import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
-import io.gatling.http.config.DefaultHttpProtocol
 
 class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
@@ -36,9 +35,6 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
   implicit val configuration = GatlingConfiguration.loadForTest()
 
   "Gatling" should "send cookies returned in redirects in subsequent requests" in {
-    implicit val httpCaches = new HttpCaches
-    implicit val httpEngine = new HttpEngine
-    implicit val defaultHttpProtocol = new DefaultHttpProtocol
 
     val handler: Handler = {
       case HttpRequest(HttpMethod.GET, "/page1") =>
@@ -83,10 +79,6 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 
   it should "retrieve linked resources, when resource downloading is enabled" in {
 
-    implicit val httpCaches = new HttpCaches
-    implicit val httpEngine = new HttpEngine
-    implicit val defaultHttpProtocol = new DefaultHttpProtocol
-
     val handler: Handler = {
       case HttpRequest(HttpMethod.GET, path) =>
         sendFile(path.drop(1)) // Drop leading slash in path
@@ -114,10 +106,6 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
   }
 
   it should "fetch resources in conditional comments" in {
-
-    implicit val httpCaches = new HttpCaches
-    implicit val httpEngine = new HttpEngine
-    implicit val defaultHttpProtocol = new DefaultHttpProtocol
 
     val handler: Handler = {
       case HttpRequest(HttpMethod.GET, path) =>

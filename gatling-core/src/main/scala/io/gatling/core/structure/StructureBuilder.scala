@@ -16,6 +16,7 @@
 package io.gatling.core.structure
 
 import akka.actor.{ ActorSystem, ActorRef }
+import io.gatling.core.protocol.ProtocolComponentsRegistry
 
 /**
  * This trait defines most of the scenario related DSL
@@ -29,8 +30,8 @@ trait StructureBuilder[B <: StructureBuilder[B]]
     with Errors[B]
     with Groups[B] {
 
-  private[gatling] def build(system: ActorSystem, ctx: ScenarioContext, exit: ActorRef): ActorRef =
+  private[gatling] def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, exit: ActorRef): ActorRef =
     actionBuilders.foldLeft(exit) { (next, actionBuilder) =>
-      actionBuilder.build(system, ctx, next)
+      actionBuilder.build(system, ctx, protocolComponentsRegistry, next)
     }
 }

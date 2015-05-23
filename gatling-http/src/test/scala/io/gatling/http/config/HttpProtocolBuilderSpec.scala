@@ -19,6 +19,7 @@ import io.gatling.BaseSpec
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.http.protocol.{ HttpProtocolBuilder, HttpProtocol }
 import io.gatling.http.request.ExtraInfo
 
 class HttpProtocolBuilderSpec extends BaseSpec {
@@ -26,7 +27,7 @@ class HttpProtocolBuilderSpec extends BaseSpec {
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val httpCaches = new HttpCaches
   implicit val httpEngine = mock[HttpEngine]
-  implicit val httpProtocolBuilder = new HttpProtocolBuilder(new DefaultHttpProtocol().value)
+  implicit val httpProtocolBuilder = HttpProtocolBuilder(configuration)
 
   "http protocol configuration builder" should "support an optional extra info extractor" in {
 
