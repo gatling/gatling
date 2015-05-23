@@ -18,7 +18,9 @@ package io.gatling.compiler
 import java.io.{ File => JFile }
 import java.net.URLClassLoader
 import java.nio.file.Files
+import java.util.jar.{ Manifest => JManifest, Attributes }
 
+import scala.collection.JavaConversions._
 import scala.reflect.io.Directory
 import scala.reflect.io.Path.string2path
 import scala.util.Try
@@ -52,7 +54,33 @@ object ZincCompiler extends App {
 
   private val compilerClasspath = {
     val classLoader = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader]
-    classLoader.getURLs.map(_.toURI).map(new JFile(_))
+    val files = classLoader.getURLs.map(_.toURI).map(new JFile(_))
+
+    if (files.exists(_.getName.startsWith("gatlingbooter"))) {
+      // yippee, we've been started by the manifest-only jar,
+      // we have to add the manifest Class-Path entries
+
+      val manifests = Thread.currentThread.getContextClassLoader.getResources("META-INF/MANIFEST.MF")
+        .map { url =>
+          val is = url.openStream()
+          try {
+            new JManifest(is)
+          } finally {
+            is.close()
+          }
+        }
+
+      val classPathEntries = manifests.collect {
+        case manifest if Option(manifest.getMainAttributes.getValue(Attributes.Name.MAIN_CLASS)) == Some("io.gatling.mojo.MainWithArgsInFile") =>
+          manifest.getMainAttributes.getValue(Attributes.Name.CLASS_PATH).split(" ").map(new JFile(_))
+      }
+
+      files ++ classPathEntries.flatten
+
+    } else {
+
+      files
+    }
   }
 
   private def simulationInputs: Inputs = {
