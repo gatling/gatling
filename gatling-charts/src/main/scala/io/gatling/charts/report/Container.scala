@@ -19,7 +19,7 @@ import scala.annotation.tailrec
 import scala.collection.mutable
 
 import io.gatling.charts.component.RequestStatistics
-import io.gatling.core.result.Group
+import io.gatling.core.stats.Group
 
 private[gatling] object Container {
   val Group = "GROUP"

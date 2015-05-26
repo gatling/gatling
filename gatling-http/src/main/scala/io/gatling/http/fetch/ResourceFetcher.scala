@@ -17,13 +17,15 @@ package io.gatling.http.fetch
 
 import scala.collection.mutable
 
+import io.gatling.core.stats.message.{ KO, OK, Status }
+
 import com.ning.http.client.Request
 import com.ning.http.client.uri.Uri
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
-import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session._
+import io.gatling.core.stats.message.KO
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.cache._
 import io.gatling.core.validation._

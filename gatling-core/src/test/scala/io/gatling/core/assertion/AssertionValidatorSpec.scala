@@ -19,9 +19,9 @@ import org.mockito.Mockito.when
 
 import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result._
-import io.gatling.core.result.message._
-import io.gatling.core.result.reader._
+import io.gatling.core.stats.message.{ KO, OK, Status }
+import io.gatling.core.stats.reader.{ GeneralStats, DataReader }
+import io.gatling.core.stats.{ Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.util.StringHelper.RichString
 
 class AssertionValidatorSpec extends BaseSpec with AssertionSupport {

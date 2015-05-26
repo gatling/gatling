@@ -29,9 +29,9 @@ import io.gatling.core.assertion.{ AssertionResult, AssertionValidator }
 import io.gatling.core.cli.StatusCode
 import io.gatling.core.config.GatlingFiles
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.reader.DataReader
 import io.gatling.core.runner.{ Runner, RunResult, Selection }
 import io.gatling.core.scenario.Simulation
+import io.gatling.core.stats.reader.DataReader
 import io.gatling.core.util.{ Ga, StringHelper }
 import io.gatling.core.util.StringHelper.RichString
 

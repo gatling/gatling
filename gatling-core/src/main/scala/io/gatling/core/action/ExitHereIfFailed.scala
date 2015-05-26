@@ -15,9 +15,10 @@
  */
 package io.gatling.core.action
 
+import io.gatling.core.stats.StatsEngine
+import io.gatling.core.stats.message.KO
+
 import akka.actor.{ Props, ActorRef }
-import io.gatling.core.result.message.KO
-import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 

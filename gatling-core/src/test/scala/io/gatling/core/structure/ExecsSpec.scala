@@ -15,13 +15,14 @@
  */
 package io.gatling.core.structure
 
+import io.gatling.core.stats.StatsEngine
+
 import akka.actor.ActorRef
 import io.gatling.AkkaSpec
 import io.gatling.core.{ CoreComponents, CoreDsl }
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.pause.Constant
 import io.gatling.core.protocol.{ Protocols, ProtocolComponentsRegistry }
-import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 

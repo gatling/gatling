@@ -16,8 +16,8 @@
 package io.gatling.charts.report
 
 import io.gatling.charts.util.Colors._
-import io.gatling.core.result.message.{ OK, Status }
-import io.gatling.core.result.CountsVsTimePlot
+import io.gatling.core.stats.CountsVsTimePlot
+import io.gatling.core.stats.message.{ OK, Status }
 
 private[charts] object ReportGenerator {
 

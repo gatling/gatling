@@ -15,10 +15,11 @@
  */
 package io.gatling.charts.component.impl
 
+import io.gatling.core.stats._
+
 import com.dongxiguo.fastring.Fastring
 
 import io.gatling.charts.component.{ Component, ComponentLibrary }
-import io.gatling.core.result._
 
 /**
  * Mock implementation that is removed from the binary.

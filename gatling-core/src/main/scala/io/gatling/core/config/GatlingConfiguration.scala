@@ -170,10 +170,7 @@ object GatlingConfiguration extends StrictLogging {
       data = DataConfiguration(
         statsEngineFactoryClass = DataConfiguration.resolveAlias(config.getString(data.StatsEngineFactory), DataConfiguration.StatsEngineFactoryAliases),
         dataWriterClasses = config.getStringList(data.Writers).map(DataConfiguration.resolveAlias(_, DataConfiguration.DataWriterAliases)),
-        dataReaderClass = config.getString(data.Reader).trim match {
-          case "file" => "io.gatling.charts.result.reader.FileDataReader"
-          case clazz  => clazz
-        },
+        dataReaderClass = DataConfiguration.resolveAlias(config.getString(data.Reader), DataConfiguration.DataReaderAliases),
         console = ConsoleDataWriterConfiguration(
           light = config.getBoolean(data.console.Light)),
         file = FileDataWriterConfiguration(
@@ -298,18 +295,22 @@ object DataConfiguration {
 
   case class ClassAlias(alias: String, className: String)
 
-  val DefaultStatsEngineFactoryAlias = ClassAlias("default", "io.gatling.core.result.writer.DefaultStatsEngineFactory")
+  val DefaultStatsEngineFactoryAlias = ClassAlias("default", "io.gatling.core.stats.DefaultStatsEngineFactory")
 
   val StatsEngineFactoryAliases = Seq(DefaultStatsEngineFactoryAlias)
     .map(alias => alias.alias -> alias.className).toMap
 
-  val ConsoleDataWriterAlias = ClassAlias("console", "io.gatling.core.result.writer.ConsoleDataWriter")
-  val FileDataWriterAlias = ClassAlias("file", "io.gatling.core.result.writer.FileDataWriter")
+  val ConsoleDataWriterAlias = ClassAlias("console", "io.gatling.core.stats.writer.ConsoleDataWriter")
+  val FileDataWriterAlias = ClassAlias("file", "io.gatling.core.stats.writer.FileDataWriter")
   val GraphiteDataWriterAlias = ClassAlias("graphite", "io.gatling.metrics.GraphiteDataWriter")
-  val JdbcDataWriterAlias = ClassAlias("jdbc", "io.gatling.jdbc.result.writer.JdbcDataWriter")
-  val LeakReporterDataWriterAlias = ClassAlias("leak", "io.gatling.core.result.writer.LeakReporterDataWriter")
+  val LeakReporterDataWriterAlias = ClassAlias("leak", "io.gatling.core.stats.writer.LeakReporterDataWriter")
 
-  val DataWriterAliases = Seq(ConsoleDataWriterAlias, FileDataWriterAlias, GraphiteDataWriterAlias, JdbcDataWriterAlias, LeakReporterDataWriterAlias)
+  val FileDataReaderAlias = ClassAlias("file", "io.gatling.core.stats.reader.FileDataReader")
+
+  val DataWriterAliases = Seq(ConsoleDataWriterAlias, FileDataWriterAlias, GraphiteDataWriterAlias, LeakReporterDataWriterAlias)
+    .map(alias => alias.alias -> alias.className).toMap
+
+  val DataReaderAliases = Seq(FileDataWriterAlias)
     .map(alias => alias.alias -> alias.className).toMap
 
   def resolveAlias(string: String, aliases: Map[String, String]): String = aliases.get(string) match {

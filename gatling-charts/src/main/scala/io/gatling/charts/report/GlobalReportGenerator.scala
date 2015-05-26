@@ -20,8 +20,8 @@ import io.gatling.charts.config.ChartsFiles.globalFile
 import io.gatling.charts.template.GlobalPageTemplate
 import io.gatling.charts.util.Colors._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result._
-import io.gatling.core.result.message.{ Status, KO, OK }
+import io.gatling.core.stats._
+import io.gatling.core.stats.message.{ KO, OK, Status }
 
 private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration)
     extends ReportGenerator {

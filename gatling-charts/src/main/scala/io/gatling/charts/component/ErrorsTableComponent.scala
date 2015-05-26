@@ -15,9 +15,9 @@
  */
 package io.gatling.charts.component
 
-import com.dongxiguo.fastring.Fastring.Implicits._
+import io.gatling.core.stats.ErrorStats
 
-import io.gatling.core.result.ErrorStats
+import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.util.StringHelper.EmptyFastring
 import io.gatling.core.util.HtmlHelper.HtmlRichString
 import io.gatling.core.util.NumberHelper._

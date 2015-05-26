@@ -17,11 +17,12 @@ package io.gatling.core.action
 
 import scala.annotation.tailrec
 
+import io.gatling.core.stats.StatsEngine
+import io.gatling.core.stats.message.KO
+
 import akka.actor.Actor.Receive
 import akka.actor.ActorRef
 import io.gatling.core.session._
-import io.gatling.core.result.message.KO
-import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.util.TimeHelper.nowMillis
 
 object Interrupt {

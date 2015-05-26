@@ -18,6 +18,7 @@ package io.gatling.charts.result.reader
 import scala.collection.mutable
 
 import io.gatling.BaseSpec
+import io.gatling.charts.stats.reader.FileDataReader
 import io.gatling.core.ConfigKeys._
 import io.gatling.core.config.{ GatlingConfiguration, GatlingPropertiesBuilder }
 

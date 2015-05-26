@@ -15,7 +15,8 @@
  */
 package io.gatling.http.ahc
 
-import io.gatling.core.result.writer.StatsEngine
+import io.gatling.core.stats.StatsEngine
+import io.gatling.core.stats.message.{ KO, OK, Status }
 
 import akka.actor.Props
 
@@ -28,8 +29,8 @@ import com.ning.http.util.StringUtils.stringBuilder
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.{ KO, OK, Status }
 import io.gatling.core.session.Session
+import io.gatling.core.stats.message.KO
 import io.gatling.core.util.StringHelper.Eol
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames

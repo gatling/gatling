@@ -17,10 +17,10 @@ package io.gatling.core.action
 
 import akka.actor.ActorRef
 import akka.testkit._
-
 import io.gatling.AkkaSpec
-import io.gatling.core.result.writer.{ DefaultStatsEngine, GroupMessage }
 import io.gatling.core.session.Session
+import io.gatling.core.stats.DefaultStatsEngine
+import io.gatling.core.stats.writer.GroupMessage
 
 class ExitHereIfFailedSpec extends AkkaSpec {
 

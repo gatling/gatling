@@ -20,9 +20,9 @@ import io.gatling.charts.config.ChartsFiles.requestFile
 import io.gatling.charts.template.GroupDetailsPageTemplate
 import io.gatling.charts.util.Colors._
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result._
-import io.gatling.core.result.message.OK
-import io.gatling.charts.result.reader.RequestPath
+import io.gatling.charts.stats.reader.RequestPath
+import io.gatling.core.stats.{ Group, GroupStatsPath, PercentilesVsTimePlot, Series }
+import io.gatling.core.stats.message.OK
 
 private[charts] class GroupDetailsReportGenerator(reportsGenerationInputs: ReportsGenerationInputs, componentLibrary: ComponentLibrary)(implicit configuration: GatlingConfiguration)
     extends ReportGenerator {

@@ -16,13 +16,12 @@
 package io.gatling.jms.action
 
 import akka.testkit.TestActorRef
-
 import io.gatling.AkkaSpec
 import io.gatling.core.CoreDsl
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message._
-import io.gatling.core.result.writer.ResponseMessage
 import io.gatling.core.session.Session
+import io.gatling.core.stats.message.{ KO, OK, ResponseTimings }
+import io.gatling.core.stats.writer.ResponseMessage
 import io.gatling.jms._
 import io.gatling.jms.check.JmsSimpleCheck
 

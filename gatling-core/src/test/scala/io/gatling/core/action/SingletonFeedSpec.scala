@@ -15,12 +15,11 @@
  */
 package io.gatling.core.action
 
+import akka.testkit._
 import io.gatling.AkkaSpec
 import io.gatling.core.controller.ForceTermination
 import io.gatling.core.feeder.Feeder
 import io.gatling.core.session._
-
-import akka.testkit._
 
 class SingletonFeedSpec extends AkkaSpec {
 

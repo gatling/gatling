@@ -19,6 +19,9 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{ Try, Failure, Success }
 
+import io.gatling.core.stats.StatsEngineFactory
+import io.gatling.core.stats.writer.RunMessage
+
 import akka.actor.ActorSystem
 import akka.pattern.ask
 import io.gatling.core.CoreComponents
@@ -27,7 +30,6 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.{ Run, Controller }
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.funspec.GatlingFunSpec
-import io.gatling.core.result.writer._
 import io.gatling.core.util.TimeHelper._
 import com.typesafe.scalalogging.StrictLogging
 

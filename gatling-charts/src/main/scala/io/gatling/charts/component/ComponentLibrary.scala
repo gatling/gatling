@@ -17,11 +17,12 @@ package io.gatling.charts.component
 
 import scala.collection.JavaConversions.enumerationAsScalaIterator
 
+import io.gatling.core.stats._
+
 import com.dongxiguo.fastring.Fastring
 import com.typesafe.scalalogging.StrictLogging
 
 import io.gatling.charts.component.impl.ComponentLibraryImpl
-import io.gatling.core.result._
 
 private[charts] object ComponentLibrary extends StrictLogging {
 

@@ -15,7 +15,7 @@
  */
 package io.gatling.core.session
 
-import io.gatling.core.result.message.{ OK, Status }
+import io.gatling.core.stats.message.{ OK, Status }
 import akka.actor.ActorRef
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }

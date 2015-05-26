@@ -15,7 +15,7 @@
  */
 package io.gatling.http.action
 
-import io.gatling.core.result.writer.StatsEngine
+import io.gatling.core.stats.StatsEngine
 import io.gatling.core.validation._
 
 abstract class UnnamedRequestAction(statsEngine: StatsEngine) extends RequestAction(statsEngine) {

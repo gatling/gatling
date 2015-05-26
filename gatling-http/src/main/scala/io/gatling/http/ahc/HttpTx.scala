@@ -15,9 +15,10 @@
  */
 package io.gatling.http.ahc
 
+import io.gatling.core.stats.message.OK
+
 import akka.actor.{ Props, ActorContext, ActorRef }
 import io.gatling.core.akka.ActorNames
-import io.gatling.core.result.message.OK
 import io.gatling.core.util.TimeHelper._
 import io.gatling.http.cache.ContentCacheEntry
 import io.gatling.http.fetch.RegularResourceFetched

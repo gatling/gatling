@@ -15,8 +15,9 @@
  */
 package io.gatling.http.action.sse
 
+import io.gatling.core.stats.StatsEngine
+
 import akka.actor.{ Props, ActorRef }
-import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ Session, Expression }
 import io.gatling.core.validation.Validation
 import io.gatling.http.action.RequestAction

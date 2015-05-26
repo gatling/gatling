@@ -17,8 +17,8 @@ package io.gatling.http
 
 import io.gatling.core.body.{ RawFileBodies, ElFileBodies }
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.KO
 import io.gatling.core.session._
+import io.gatling.core.stats.message.KO
 import io.gatling.http.action.{ FlushCacheBuilder, AddCookieBuilder, CookieDSL }
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.check.ws.WsCheckSupport

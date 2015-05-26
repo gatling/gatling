@@ -22,8 +22,8 @@ import scala.collection.mutable
 import io.gatling.core.Predef.Session
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.Check
-import io.gatling.core.result.message.{ KO, OK, ResponseTimings, Status }
-import io.gatling.core.result.writer.StatsEngine
+import io.gatling.core.stats.StatsEngine
+import io.gatling.core.stats.message.{ KO, OK, Status, ResponseTimings }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Failure
 import io.gatling.jms._

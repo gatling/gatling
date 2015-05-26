@@ -17,11 +17,12 @@ package io.gatling.http.cache
 
 import java.nio.charset.StandardCharsets._
 
+import io.gatling.core.stats.message.ResponseTimings
+
 import com.ning.http.client.uri.Uri
 import com.ning.http.client._
 
 import io.gatling.BaseSpec
-import io.gatling.core.result.message.ResponseTimings
 import io.gatling.core.session.Session
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.core.config.GatlingConfiguration

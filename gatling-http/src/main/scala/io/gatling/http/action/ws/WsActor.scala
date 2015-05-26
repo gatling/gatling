@@ -15,15 +15,17 @@
  */
 package io.gatling.http.action.ws
 
+import io.gatling.core.stats.StatsEngine
+import io.gatling.core.stats.message.{ KO, OK, Status, ResponseTimings }
+
 import com.ning.http.client.ws.WebSocket
 
 import scala.collection.mutable
 import akka.actor.{ Props, ActorRef }
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.CheckResult
-import io.gatling.core.result.message.{ ResponseTimings, KO, OK, Status }
-import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.Session
+import io.gatling.core.stats.message.KO
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Success
 import io.gatling.http.ahc.{ HttpEngine, WsTx }

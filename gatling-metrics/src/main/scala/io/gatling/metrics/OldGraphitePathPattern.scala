@@ -16,7 +16,7 @@
 package io.gatling.metrics
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.writer.RunMessage
+import io.gatling.core.stats.writer.RunMessage
 import io.gatling.metrics.GraphitePath._
 
 class OldGraphitePathPattern(runMessage: RunMessage, configuration: GatlingConfiguration) extends GraphitePathPattern(runMessage, configuration) {

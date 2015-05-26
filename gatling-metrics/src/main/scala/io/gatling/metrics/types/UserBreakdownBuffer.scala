@@ -15,8 +15,8 @@
  */
 package io.gatling.metrics.types
 
-import io.gatling.core.result.message.{ End, Start }
-import io.gatling.core.result.writer.UserMessage
+import io.gatling.core.stats.message.{ End, Start }
+import io.gatling.core.stats.writer.UserMessage
 
 private[metrics] class UserBreakdownBuffer(val totalUserEstimate: Int) {
 

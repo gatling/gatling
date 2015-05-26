@@ -19,8 +19,8 @@ import scala.collection.mutable
 
 import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.{ OK, KO }
 import io.gatling.core.ConfigKeys._
+import io.gatling.core.stats.message.{ KO, OK }
 
 class RequestMetricsBufferSpec extends BaseSpec {
 

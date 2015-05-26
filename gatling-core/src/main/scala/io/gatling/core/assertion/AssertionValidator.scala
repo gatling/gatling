@@ -16,9 +16,9 @@
 package io.gatling.core.assertion
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.{ GroupStatsPath, RequestStatsPath, StatsPath }
-import io.gatling.core.result.message.{ KO, OK, Status }
-import io.gatling.core.result.reader.{ GeneralStats, DataReader }
+import io.gatling.core.stats.message.{ KO, OK, Status }
+import io.gatling.core.stats.reader.{ GeneralStats, DataReader }
+import io.gatling.core.stats.{ RequestStatsPath, GroupStatsPath, StatsPath }
 import io.gatling.core.validation._
 
 class AssertionValidator(implicit configuration: GatlingConfiguration) {

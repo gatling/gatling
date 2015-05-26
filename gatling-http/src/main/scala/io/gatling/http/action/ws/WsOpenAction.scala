@@ -15,10 +15,11 @@
  */
 package io.gatling.http.action.ws
 
+import io.gatling.core.stats.StatsEngine
+
 import akka.actor.{ Props, ActorRef }
 import com.ning.http.client.Request
 import io.gatling.core.action.Interruptable
-import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }

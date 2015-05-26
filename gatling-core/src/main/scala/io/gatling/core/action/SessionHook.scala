@@ -15,8 +15,9 @@
  */
 package io.gatling.core.action
 
+import io.gatling.core.stats.StatsEngine
+
 import akka.actor.{ Props, ActorRef }
-import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
 
 object SessionHook {

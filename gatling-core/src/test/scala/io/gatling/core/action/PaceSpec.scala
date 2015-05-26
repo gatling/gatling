@@ -18,9 +18,9 @@ package io.gatling.core.action
 import scala.concurrent.duration._
 
 import io.gatling.AkkaSpec
-import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.Predef.value2Expression
 import io.gatling.core.session.Session
+import io.gatling.core.stats.StatsEngine
 
 class PaceSpec extends AkkaSpec {
 

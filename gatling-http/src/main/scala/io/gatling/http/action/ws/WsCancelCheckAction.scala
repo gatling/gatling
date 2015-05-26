@@ -15,8 +15,8 @@
  */
 package io.gatling.http.action.ws
 
-import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session._
+import io.gatling.core.stats.StatsEngine
 import akka.actor.{ Props, ActorRef }
 import io.gatling.http.action.RequestAction
 

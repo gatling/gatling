@@ -16,7 +16,7 @@
 package io.gatling.core
 
 import io.gatling.core.controller.throttle.Throttler
-import io.gatling.core.result.writer.StatsEngine
+import io.gatling.core.stats.StatsEngine
 
 import _root_.akka.actor.ActorRef
 

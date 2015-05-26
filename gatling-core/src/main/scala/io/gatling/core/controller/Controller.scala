@@ -18,13 +18,15 @@ package io.gatling.core.controller
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
 
+import io.gatling.core.stats.StatsEngine
+import io.gatling.core.stats.message.{ End, Start }
+import io.gatling.core.stats.writer.UserMessage
+
 import com.typesafe.scalalogging.StrictLogging
 
 import akka.actor.Props
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.{ End, Start }
-import io.gatling.core.result.writer.{ StatsEngine, UserMessage }
 import io.gatling.core.runner.Selection
 import io.gatling.core.util.TimeHelper.nowMillis
 

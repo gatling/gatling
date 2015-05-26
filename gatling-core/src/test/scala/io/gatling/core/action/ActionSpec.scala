@@ -16,7 +16,6 @@
 package io.gatling.core.action
 
 import akka.testkit._
-
 import io.gatling.AkkaSpec
 import io.gatling.core.session.Session
 

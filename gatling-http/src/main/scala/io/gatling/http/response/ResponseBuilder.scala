@@ -22,6 +22,8 @@ import java.security.MessageDigest
 import scala.collection.mutable.ArrayBuffer
 import scala.math.max
 
+import io.gatling.core.stats.message.ResponseTimings
+
 import com.ning.http.client.providers.netty.request.NettyRequest
 import com.ning.http.client._
 import com.ning.http.client.providers.netty.response.NettyResponseBodyPart
@@ -29,7 +31,6 @@ import com.typesafe.scalalogging.StrictLogging
 import org.jboss.netty.buffer.ChannelBuffer
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.result.message.ResponseTimings
 import io.gatling.core.util.StringHelper.bytes2Hex
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames

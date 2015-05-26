@@ -16,8 +16,8 @@
 package io.gatling.http.action
 
 import io.gatling.core.action.{ Failable, Interruptable }
-import io.gatling.core.result.writer.StatsEngine
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.stats.StatsEngine
 import io.gatling.core.validation.Validation
 
 abstract class RequestAction(val statsEngine: StatsEngine) extends Interruptable with Failable {

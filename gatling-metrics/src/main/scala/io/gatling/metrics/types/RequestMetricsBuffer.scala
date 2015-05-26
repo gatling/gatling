@@ -15,7 +15,7 @@
  */
 package io.gatling.metrics.types
 
-import io.gatling.core.result.message.Status
+import io.gatling.core.stats.message.Status
 
 private[metrics] trait RequestMetricsBuffer {
   def add(status: Status, time: Long): Unit

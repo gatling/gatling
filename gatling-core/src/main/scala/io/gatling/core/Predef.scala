@@ -24,7 +24,7 @@ object Predef extends CoreDsl {
   implicit var configuration: GatlingConfiguration = _
 
   type Session = io.gatling.core.session.Session
-  type Status = io.gatling.core.result.message.Status
+  type Status = io.gatling.core.stats.message.Status
   type Simulation = io.gatling.core.scenario.Simulation
   type Assertion = io.gatling.core.assertion.Assertion
   type Node = jodd.lagarto.dom.Node

@@ -16,13 +16,12 @@
 package io.gatling.charts.template
 
 import com.dongxiguo.fastring.Fastring.Implicits._
-
 import io.gatling.charts.component.Statistics
 import io.gatling.charts.component.Statistics.printable
-import io.gatling.core.result.writer.ConsoleSummary._
+import io.gatling.core.stats.reader.DataReader
+import io.gatling.core.stats.writer.ConsoleErrorsWriter
+import io.gatling.core.stats.writer.ConsoleSummary._
 import io.gatling.core.util.StringHelper._
-import io.gatling.core.result.writer.ConsoleErrorsWriter
-import io.gatling.core.result.reader.DataReader
 import io.gatling.charts.component.{ GroupedCount, RequestStatistics }
 
 private[charts] object ConsoleTemplate {

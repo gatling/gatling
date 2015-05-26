@@ -18,11 +18,11 @@ package io.gatling.http.response
 import java.net.InetAddress
 import java.nio.charset.Charset
 
+import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.protocol.HttpProtocol
 
 import com.ning.http.client.providers.netty.request.NettyRequest
 import com.ning.http.client.uri.Uri
-import io.gatling.core.result.message.ResponseTimings
 
 import scala.collection.JavaConversions.asScalaBuffer
 
