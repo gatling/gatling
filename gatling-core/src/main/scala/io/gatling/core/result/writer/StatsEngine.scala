@@ -58,7 +58,7 @@ class DefaultStatsEngineFactory extends StatsEngineFactory {
       system.actorOf(Props(clazz), clazz.getName)
     }
 
-    val shortScenarioDescriptions = populationBuilders.map(populationBuilder => ShortScenarioDescription(populationBuilder.scenarioBuilder.name, populationBuilder.injectionProfile.users))
+    val shortScenarioDescriptions = populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserEstimate))
 
     val responses = dataWriters.map(_ ? Init(configuration, assertions, runMessage, shortScenarioDescriptions))
 

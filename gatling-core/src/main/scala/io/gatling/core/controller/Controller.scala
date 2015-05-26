@@ -49,16 +49,8 @@ class Controller(selection: Selection, statsEngine: StatsEngine, configuration: 
   // -- STEP 2 : Waiting for DataWriters to be initialized and confirm initialization -- //
 
   private def processInitializationResult(initData: InitData): State = {
-      def buildUserStreams: Map[String, UserStream] = {
-        initData.scenarios.foldLeft((Map.empty[String, UserStream], 0L)) { (streamsAndOffset, scenario) =>
-          val (streams, offset) = streamsAndOffset
-
-          val stream = scenario.injectionProfile.allUsers.zip(Iterator.iterate(0L)(_ + 1L))
-          val userStream = UserStream(scenario, offset, stream)
-
-          (streams + (scenario.name -> userStream), offset + scenario.injectionProfile.users)
-        }._1
-      }
+      def buildUserStreams: Map[String, UserStream] =
+        initData.scenarios.map(scenario => scenario.name -> UserStream(scenario, scenario.injectionProfile.allUsers)).toMap
 
       def setUpSimulationMaxDuration(): Unit =
         initData.simulationParams.maxDuration.foreach { maxDuration =>

@@ -20,7 +20,7 @@ import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.result.message.{ ResponseTimings, MessageEvent, Status }
 import io.gatling.core.session.Session
 
-case class ShortScenarioDescription(name: String, nbUsers: Int)
+case class ShortScenarioDescription(name: String, totalUserEstimate: Int)
 
 case class RunMessage(simulationClassName: String,
                       simulationId: String,

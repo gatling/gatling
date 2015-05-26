@@ -18,6 +18,7 @@ package io.gatling.core.controller.inject
 import java.util.concurrent.TimeUnit
 
 import scala.concurrent.duration.{ DurationLong, DurationDouble, FiniteDuration }
+import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.math.{ abs, sqrt }
 import scala.util.Random
 
@@ -30,7 +31,7 @@ trait InjectionStep {
   /**
    * Number of users to inject
    */
-  def users: Int
+  def totalUserEstimate: Int
 }
 
 /**
@@ -43,6 +44,8 @@ case class RampInjection(users: Int, duration: FiniteDuration) extends Injection
     val interval = duration / users.max(1)
     Iterator.iterate(0 milliseconds)(_ + interval).take(users) ++ chained.map(_ + duration)
   }
+
+  override def totalUserEstimate = users
 }
 
 /**
@@ -53,14 +56,16 @@ case class ConstantRateInjection(rate: Double, duration: FiniteDuration) extends
   val ramp = RampInjection(users, duration)
   def randomized = PoissonInjection(duration, rate, rate)
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = ramp.chain(chained)
+
+  override def totalUserEstimate = users
 }
 
 /**
  * Don't injection any user for a given duration
  */
 case class NothingForInjection(duration: FiniteDuration) extends InjectionStep {
-  override val users = 0
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = chained.map(_ + duration)
+  override def totalUserEstimate = 0
 }
 
 /**
@@ -71,6 +76,8 @@ case class AtOnceInjection(users: Int) extends InjectionStep {
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] =
     Iterator.continually(0 milliseconds).take(users) ++ chained
+
+  override def totalUserEstimate = users
 }
 
 /**
@@ -84,8 +91,7 @@ case class AtOnceInjection(users: Int) extends InjectionStep {
 case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) extends InjectionStep {
   require(r1 > 0 && r2 > 0, "injection rates must be strictly positive values")
 
-  override val users = ((r1 + (r2 - r1) / 2) * duration.toSeconds).toInt
-
+  val users = ((r1 + (r2 - r1) / 2) * duration.toSeconds).toInt
   def randomized = PoissonInjection(duration, r1, r2)
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
@@ -107,6 +113,8 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
       Iterator.range(0, users).map(userScheduling) ++ chained.map(_ + duration)
     }
   }
+
+  override def totalUserEstimate = users
 }
 
 /**
@@ -117,14 +125,8 @@ case class RampRateInjection(r1: Double, r2: Double, duration: FiniteDuration) e
  *  @param separator Will be injected in between the regular injection steps.
  */
 case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: InjectionStep) extends InjectionStep {
-  private val stepUsers = step.users
-  private lazy val separatorUsers = separator.users
-
-  val users = {
-    if (possibleUsers > stepUsers)
-      possibleUsers - (possibleUsers - stepUsers) % (stepUsers + separatorUsers)
-    else 0
-  }
+  private val stepUsers = step.totalUserEstimate
+  private lazy val separatorUsers = separator.totalUserEstimate
 
   override def chain(chained: Iterator[FiniteDuration]) = {
     if (possibleUsers > stepUsers) {
@@ -133,6 +135,12 @@ case class SplitInjection(possibleUsers: Int, step: InjectionStep, separator: In
       (1 to n).foldRight(lastScheduling)((_, iterator) => step.chain(separator.chain(iterator)))
     } else
       chained
+  }
+
+  def totalUserEstimate = {
+    if (possibleUsers > stepUsers)
+      possibleUsers - (possibleUsers - stepUsers) % (stepUsers + separatorUsers)
+    else 0
   }
 }
 
@@ -161,6 +169,8 @@ case class HeavisideInjection(users: Int, duration: FiniteDuration) extends Inje
 
     Iterator.range(1, users + 1).map(heavisideInv).map(t => (k * (t + t0)).toLong.milliseconds) ++ chained.map(_ + duration)
   }
+
+  override def totalUserEstimate = users
 }
 
 /**
@@ -179,20 +189,18 @@ case class HeavisideInjection(users: Int, duration: FiniteDuration) extends Inje
  */
 case class PoissonInjection(duration: FiniteDuration, startRate: Double, endRate: Double, seed: Long = System.nanoTime) extends InjectionStep {
   private val durationSecs = duration.toUnit(TimeUnit.SECONDS)
-  val users = chain(Iterator.empty).size
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
-    val rand = new Random(seed)
 
     // Uses Lewis and Shedler's thinning algorithm: http://www.dtic.mil/dtic/tr/fulltext/u2/a059904.pdf
     val maxLambda = startRate max endRate
       def shouldKeep(d: Double) = {
         val actualLambda = startRate + (endRate - startRate) * d / durationSecs
-        rand.nextDouble() < actualLambda / maxLambda
+        ThreadLocalRandom.current.nextDouble() < actualLambda / maxLambda
       }
 
     val rawIntervals = Iterator.continually {
-      val u = rand.nextDouble()
+      val u = ThreadLocalRandom.current.nextDouble()
       -math.log(u) / maxLambda
     }
 
@@ -203,4 +211,6 @@ case class PoissonInjection(duration: FiniteDuration, startRate: Double, endRate
       .filter(shouldKeep)
       .map(_.seconds) ++ chained.map(_ + duration)
   }
+
+  val totalUserEstimate = chain(Iterator.empty).size
 }

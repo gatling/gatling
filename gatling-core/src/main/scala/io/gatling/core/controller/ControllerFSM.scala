@@ -23,10 +23,7 @@ import akka.actor.{ ActorRef, FSM }
 
 import io.gatling.core.scenario.{ SimulationParams, Scenario }
 
-private[controller] case class UserStream(
-  scenario: Scenario,
-  offset: Long,
-  stream: Iterator[(FiniteDuration, Long)])
+private[controller] case class UserStream(scenario: Scenario, stream: Iterator[FiniteDuration])
 
 private[controller] trait ControllerFSM extends BaseActor with FSM[ControllerState, ControllerData]
 

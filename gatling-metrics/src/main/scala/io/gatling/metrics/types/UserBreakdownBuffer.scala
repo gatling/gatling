@@ -18,11 +18,11 @@ package io.gatling.metrics.types
 import io.gatling.core.result.message.{ End, Start }
 import io.gatling.core.result.writer.UserMessage
 
-private[metrics] class UserBreakdownBuffer(val nbUsers: Int) {
+private[metrics] class UserBreakdownBuffer(val totalUserEstimate: Int) {
 
   private var _active = 0
   private var activeBuffer = 0
-  private var _waiting = nbUsers
+  private var _waiting = totalUserEstimate
   private var _done = 0
   private var doneBuffer = 0
 
@@ -42,7 +42,7 @@ private[metrics] class UserBreakdownBuffer(val nbUsers: Int) {
     _active
   }
 
-  def waiting: Int = _waiting
+  def waiting: Int = math.max(0, _waiting)
 
   def done: Int = {
     _done += doneBuffer
@@ -54,7 +54,7 @@ private[metrics] class UserBreakdownBuffer(val nbUsers: Int) {
 
 private[metrics] object UserBreakdown {
   def apply(buf: UserBreakdownBuffer): UserBreakdown =
-    UserBreakdown(buf.nbUsers, buf.active, buf.waiting, buf.done)
+    UserBreakdown(buf.totalUserEstimate, buf.active, buf.waiting, buf.done)
 }
 
 private[metrics] case class UserBreakdown(nbUsers: Int, active: Int, waiting: Int, done: Int)

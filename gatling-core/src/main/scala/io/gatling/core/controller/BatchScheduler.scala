@@ -15,6 +15,8 @@
  */
 package io.gatling.core.controller
 
+import java.util.concurrent.atomic.AtomicLong
+
 import scala.concurrent.duration._
 
 import akka.actor.{ ActorSystem, ActorRef }
@@ -34,10 +36,12 @@ class BatchScheduler(startTime: Long,
 
     val scenario = userStream.scenario
     val stream = userStream.stream
+    // FIXME use LongAdder
+    val userIdGen = new AtomicLong
 
-      def startUser(i: Long, notLast: Boolean): Unit = {
+      def startUser(notLast: Boolean): Unit = {
         val session = Session(scenario = scenario.name,
-          userId = i + userStream.offset,
+          userId = userIdGen.getAndIncrement,
           onExit = scenario.onExit,
           last = !notLast)
         controller ! UserMessage(session, Start, nowMillis)
@@ -53,16 +57,16 @@ class BatchScheduler(startTime: Long,
 
       while (notLast && continue) {
 
-        val (startingTime, index) = stream.next()
+        val startingTime = stream.next()
         notLast = stream.hasNext
         val delay = startingTime - batchTimeOffset
         continue = startingTime < nextBatchTimeOffset
 
         if (continue && delay <= ZeroMs) {
-          startUser(index, notLast)
+          startUser(notLast)
         } else {
           // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
-          system.scheduler.scheduleOnce(toMillisPrecision(delay))(startUser(index, notLast))
+          system.scheduler.scheduleOnce(toMillisPrecision(delay))(startUser(notLast))
         }
       }
 
