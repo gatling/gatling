@@ -310,7 +310,7 @@ object DataConfiguration {
   val DataWriterAliases = Seq(ConsoleDataWriterAlias, FileDataWriterAlias, GraphiteDataWriterAlias, LeakReporterDataWriterAlias)
     .map(alias => alias.alias -> alias.className).toMap
 
-  val DataReaderAliases = Seq(FileDataWriterAlias)
+  val DataReaderAliases = Seq(FileDataReaderAlias)
     .map(alias => alias.alias -> alias.className).toMap
 
   def resolveAlias(string: String, aliases: Map[String, String]): String = aliases.get(string) match {
