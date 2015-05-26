@@ -72,6 +72,7 @@ sealed trait Resource {
   def inputStream: InputStream
   def file: File
   def string(charset: Charset) = withCloseable(inputStream) { _.toString(charset) }
+  def bytes: Array[Byte] = Io.withCloseable(inputStream)(_.toByteArray())
 }
 
 case class FileResource(file: File) extends Resource {

@@ -132,7 +132,7 @@ class HttpCompileTest extends Simulation {
               status.in(200 to 210).saveAs("blablaParam"),
               status.in(200, 210).saveAs("blablaParam"),
               status.in(Seq(200, 304)).saveAs("blablaParam"),
-              bodyString.is(RawFileBody("foobar.txt")),
+              bodyBytes.is(RawFileBody("foobar.txt")),
               bodyString.is(ElFileBody("foobar.txt")),
               xpath("//input[@value='aaaa']/@id").not("omg"),
               xpath("//input[@id='text1']/@value").is("aaaa").saveAs("test2"),

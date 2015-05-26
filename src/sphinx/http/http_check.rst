@@ -452,10 +452,10 @@ Verifies that there are at least **two** occurrences of "aWord".
 
 Verifies that the response doesn't contain "aWord".
 
-.. includecode:: code/Checks.scala#bodyString-is-RawFileBody
+.. includecode:: code/Checks.scala#bodyBytes-is-RawFileBody
 
-Verifies that the response body matches the file ``user-files/bodies/expected_response.json``
+Verifies that the response body matches the binary content of the file ``user-files/bodies/expected_response.json``
 
 .. includecode:: code/Checks.scala#bodyString-isElFileBody
 
-Verifies that the response body matches the content of the file ``user-files/bodies/expected_template.json`` resolved with :ref:`Gatling Expression Language (EL) <el>`.
+Verifies that the response body matches the text content of the file ``user-files/bodies/expected_template.json`` resolved with :ref:`Gatling Expression Language (EL) <el>`.

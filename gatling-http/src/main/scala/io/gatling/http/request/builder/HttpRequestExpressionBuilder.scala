@@ -85,7 +85,6 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
       def setBody(body: Body): Validation[AHCRequestBuilder] =
         body match {
           case StringBody(string)            => string(session).map(requestBuilder.setBody)
-          case RawFileBody(file)             => file(session).map(requestBuilder.setBody)
           case ByteArrayBody(bytes)          => bytes(session).map(requestBuilder.setBody)
           case CompositeByteArrayBody(bytes) => bytes(session).map(bs => requestBuilder.setBody(bs))
           case InputStreamBody(is)           => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))

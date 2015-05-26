@@ -15,20 +15,18 @@
  */
 package io.gatling.core.body
 
-import java.io.FileInputStream
-
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.FastByteArrayInputStream
 import io.gatling.core.util.GzipHelper
 import io.gatling.core.util.Io._
 
 object BodyProcessors {
 
-  val Gzip = (body: Body) => {
+  def gzip(implicit configuration: GatlingConfiguration) = (body: Body) => {
 
     val gzippedBytes = body match {
       case StringBody(string)           => string.map(GzipHelper.gzip)
       case ByteArrayBody(byteArray)     => byteArray.map(GzipHelper.gzip)
-      case RawFileBody(file)            => file.map(f => withCloseable(new FileInputStream(f))(GzipHelper.gzip(_)))
       case InputStreamBody(inputStream) => inputStream.map(withCloseable(_)(GzipHelper.gzip(_)))
       case _                            => throw new UnsupportedOperationException(s"requestCompressor doesn't support $body")
     }
@@ -36,12 +34,11 @@ object BodyProcessors {
     ByteArrayBody(gzippedBytes)
   }
 
-  val Stream = (body: Body) => {
+  def stream(implicit configuration: GatlingConfiguration) = (body: Body) => {
 
     val stream = body match {
       case stringBody: StringBody       => stringBody.asBytes.bytes.map(new FastByteArrayInputStream(_))
       case ByteArrayBody(byteArray)     => byteArray.map(new FastByteArrayInputStream(_))
-      case RawFileBody(file)            => file.map(new FileInputStream(_))
       case InputStreamBody(inputStream) => inputStream
       case _                            => throw new UnsupportedOperationException(s"streamBody doesn't support $body")
     }

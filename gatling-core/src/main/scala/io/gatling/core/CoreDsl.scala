@@ -15,6 +15,7 @@
  */
 package io.gatling.core
 
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.validation.Validation
 
 import scala.concurrent.duration._
@@ -42,8 +43,8 @@ trait CoreDsl extends StructureSupport
     with AssertionSupport
     with CoreDefaultImplicits {
 
-  val gzipBody = io.gatling.core.body.BodyProcessors.Gzip
-  val streamBody = io.gatling.core.body.BodyProcessors.Stream
+  def gzipBody(implicit configuration: GatlingConfiguration) = io.gatling.core.body.BodyProcessors.gzip
+  def streamBody(implicit configuration: GatlingConfiguration) = io.gatling.core.body.BodyProcessors.stream
 
   implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
   implicit def value2Success[T](value: T): Validation[T] = value.success

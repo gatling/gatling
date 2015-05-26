@@ -28,7 +28,7 @@ import io.gatling.core.validation.Validation
 object BodyPart {
 
   def rawFileBodyPart(name: Option[Expression[String]], filePath: Expression[String])(implicit configuration: GatlingConfiguration, rawFileBodies: RawFileBodies): BodyPart =
-    fileBodyPart(name, rawFileBodies.asFile(filePath))
+    byteArrayBodyPart(name, rawFileBodies.asBytes(filePath)).fileName(rawFileBodies.asFile(filePath).map(_.getName))
 
   def elFileBodyPart(name: Option[Expression[String]], filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
     stringBodyPart(name, elFileBodies.asString(filePath))
@@ -37,8 +37,6 @@ object BodyPart {
     BodyPart(name, stringBodyPartBuilder(string), BodyPartAttributes(charset = Some(configuration.core.charset)))
 
   def byteArrayBodyPart(name: Option[Expression[String]], bytes: Expression[Array[Byte]]): BodyPart = BodyPart(name, byteArrayBodyPartBuilder(bytes), BodyPartAttributes())
-
-  def fileBodyPart(name: Option[Expression[String]], file: Expression[File]): BodyPart = BodyPart(name, fileBodyPartBuilder(file), BodyPartAttributes())
 
   private def stringBodyPartBuilder(string: Expression[String])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
     fileName match {

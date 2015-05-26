@@ -15,13 +15,13 @@
  */
 package io.gatling.core.body
 
-import java.io.{ File => JFile, InputStream }
+import java.io.InputStream
 
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session._
 import io.gatling.core.session.el.ElCompiler
-import io.gatling.core.util.Io._
 import io.gatling.core.util.StringHelper._
+import io.gatling.core.validation.Validation
 
 object ElFileBody {
   def apply(filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies) = CompositeByteArrayBody(elFileBodies.asBytesSeq(filePath))
@@ -37,22 +37,17 @@ case class StringBody(string: Expression[String])(implicit configuration: Gatlin
 }
 
 object RawFileBody {
-
-  def apply(filePath: Expression[String])(implicit configuration: GatlingConfiguration, rawFileBodies: RawFileBodies) = new RawFileBody(rawFileBodies.asFile(filePath))
-
-  def unapply(b: RawFileBody) = Some(b.file)
+  def apply(filePath: Expression[String])(implicit configuration: GatlingConfiguration, rawFileBodies: RawFileBodies): ByteArrayBody = new ByteArrayBody(rawFileBodies.asBytes(filePath))
 }
 
-class RawFileBody(val file: Expression[JFile])(implicit configuration: GatlingConfiguration) extends Body with Expression[String] {
-
-  def apply(session: Session) = asString(session)
-
-  def asString: StringBody = StringBody(file.map(_.toString(configuration.core.charset)))
-
-  def asBytes: ByteArrayBody = ByteArrayBody(file.map(_.toByteArray()))
+object ByteArrayBody {
+  def apply(string: String)(implicit configuration: GatlingConfiguration) = new ByteArrayBody(string.getBytes(configuration.core.charset).expression)
 }
 
-case class ByteArrayBody(bytes: Expression[Array[Byte]]) extends Body
+case class ByteArrayBody(bytes: Expression[Array[Byte]])(implicit configuration: GatlingConfiguration) extends Body with Expression[Array[Byte]] {
+
+  def apply(session: Session): Validation[Array[Byte]] = bytes(session)
+}
 
 object CompositeByteArrayBody {
   def apply(string: String)(implicit configuration: GatlingConfiguration) = new CompositeByteArrayBody(ElCompiler.compile2BytesSeq(string, configuration.core.charset))
@@ -60,10 +55,10 @@ object CompositeByteArrayBody {
 
 case class CompositeByteArrayBody(bytes: Expression[Seq[Array[Byte]]])(implicit configuration: GatlingConfiguration) extends Body with Expression[String] {
 
-  def apply(session: Session) = bytes(session).map { bs =>
+  def apply(session: Session): Validation[String] = bytes(session).map { bs =>
     val sb = stringBuilder()
     bs.foreach(b => sb.append(new String(b, configuration.core.charset)))
-    sb.toString()
+    sb.toString
   }
 }
 

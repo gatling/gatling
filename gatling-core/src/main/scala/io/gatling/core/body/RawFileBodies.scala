@@ -26,19 +26,27 @@ import io.gatling.core.validation.Validation
 
 class RawFileBodies(implicit configuration: GatlingConfiguration) {
 
-  private val rawFileBodyCache = {
-      def pathToFile(path: String): Validation[File] = Resource.body(path).map(_.file)
+  private val pathToFile: String => Validation[File] = path => Resource.body(path).map(_.file)
+  private val pathToFileBytes: String => Validation[Array[Byte]] = path => Resource.body(path).map(_.file.toByteArray())
 
+  private val rawFileBodyCache =
     SelfLoadingThreadSafeCache[String, Validation[File]](configuration.core.rawFileBodiesCacheMaxCapacity, pathToFile)
-  }
 
-  def asFile(filePath: Expression[String]): Expression[File] = {
-
+  def asFile(filePath: Expression[String]): Expression[File] =
     session =>
       for {
         path <- filePath(session)
         file <- rawFileBodyCache.get(path)
         validatedFile <- file.validateExistingReadable
       } yield validatedFile
-  }
+
+  private val rawFileBodyBytesCache =
+    SelfLoadingThreadSafeCache[String, Validation[Array[Byte]]](configuration.core.rawFileBodiesCacheMaxCapacity, pathToFileBytes)
+
+  def asBytes(filePath: Expression[String]): Expression[Array[Byte]] =
+    session =>
+      for {
+        path <- filePath(session)
+        bytes <- rawFileBodyBytesCache.get(path)
+      } yield bytes
 }
