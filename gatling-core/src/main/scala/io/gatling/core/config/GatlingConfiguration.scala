@@ -305,7 +305,7 @@ object DataConfiguration {
   val GraphiteDataWriterAlias = ClassAlias("graphite", "io.gatling.metrics.GraphiteDataWriter")
   val LeakReporterDataWriterAlias = ClassAlias("leak", "io.gatling.core.stats.writer.LeakReporterDataWriter")
 
-  val FileDataReaderAlias = ClassAlias("file", "io.gatling.core.stats.reader.FileDataReader")
+  val FileDataReaderAlias = ClassAlias("file", "io.gatling.charts.stats.reader.FileDataReader")
 
   val DataWriterAliases = Seq(ConsoleDataWriterAlias, FileDataWriterAlias, GraphiteDataWriterAlias, LeakReporterDataWriterAlias)
     .map(alias => alias.alias -> alias.className).toMap
