@@ -73,7 +73,8 @@ case class Session(
     drift: Long = 0L,
     baseStatus: Status = OK,
     blockStack: List[Block] = Nil,
-    onExit: Session => Unit = session => ()) extends LazyLogging {
+    onExit: Session => Unit = session => (),
+    last: Boolean = false) extends LazyLogging {
 
   def apply(name: String) = SessionAttribute(this, name)
   def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)

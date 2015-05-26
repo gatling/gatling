@@ -15,7 +15,6 @@
  */
 package io.gatling.core.controller
 
-import scala.collection.mutable
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
 
@@ -81,8 +80,7 @@ class Controller(selection: Selection, statsEngine: StatsEngine, configuration: 
 
     val userStreams = buildUserStreams
     val batchScheduler = startUpScenarios(userStreams)
-    val totalUsers = initData.scenarios.map(_.injectionProfile.users).sum
-    goto(Running) using new RunData(initData, userStreams, batchScheduler, mutable.Map.empty, 0, totalUsers)
+    goto(Running) using new RunData(initData, userStreams, batchScheduler, 0L, Long.MinValue)
   }
 
   // -- STEP 3 : The Controller and Data Writers are fully initialized, Simulation is now running -- //
@@ -96,24 +94,26 @@ class Controller(selection: Selection, statsEngine: StatsEngine, configuration: 
       stay()
 
     case Event(ForceTermination(exception), runData: RunData) =>
-      endAllRemainingUsers(runData)
-      terminateDataWritersAndWaitForConfirmation(runData.initData, exception)
+      terminateStatsEngineAndWaitForConfirmation(runData.initData, exception)
   }
 
   private def processUserMessage(userMessage: UserMessage, runData: RunData): State = {
       def startNewUser: State = {
-        runData.activeUsers += (userMessage.session.userId -> userMessage)
         logger.info(s"Start user #${userMessage.session.userId}")
         statsEngine.logUser(userMessage)
         stay()
       }
 
       def endUserAndTerminateIfLast: State = {
-        runData.activeUsers -= userMessage.session.userId
         runData.completedUsersCount += 1
         dispatchUserEndToDataWriter(userMessage)
-        if (runData.completedUsersCount == runData.totalUsers)
-          terminateDataWritersAndWaitForConfirmation(runData.initData, None)
+
+        if (userMessage.session.last) {
+          runData.expectedUsersCount = userMessage.session.userId + 1
+        }
+
+        if (runData.completedUsersCount == runData.expectedUsersCount)
+          terminateStatsEngineAndWaitForConfirmation(runData.initData, None)
         else
           stay()
       }
@@ -130,27 +130,20 @@ class Controller(selection: Selection, statsEngine: StatsEngine, configuration: 
     runData.scheduler.scheduleUserStream(system, userStream)
   }
 
-  private def endAllRemainingUsers(runData: RunData): Unit = {
-    val now = nowMillis
-    for (userMessage <- runData.activeUsers.values) {
-      dispatchUserEndToDataWriter(userMessage.copy(event = End, date = now))
-    }
-  }
-
   private def dispatchUserEndToDataWriter(userMessage: UserMessage): Unit = {
     logger.info(s"End user #${userMessage.session.userId}")
     statsEngine.logUser(userMessage)
   }
 
-  private def terminateDataWritersAndWaitForConfirmation(initData: InitData, exception: Option[Exception]): State = {
+  private def terminateStatsEngineAndWaitForConfirmation(initData: InitData, exception: Option[Exception]): State = {
     statsEngine.terminate(self)
-    goto(WaitingForDataWritersToTerminate) using EndData(initData, exception)
+    goto(WaitingForStatsEngineToTerminate) using EndData(initData, exception)
   }
 
   // -- STEP 4 : Waiting for DataWriters to terminate, discarding all other messages -- //
 
-  when(WaitingForDataWritersToTerminate) {
-    case Event(DataWritersTerminated, endData: EndData) =>
+  when(WaitingForStatsEngineToTerminate) {
+    case Event(StatsEngineTerminated, endData: EndData) =>
       endData.initData.runner ! replyToRunner(endData)
       goto(Stopped) using NoData
 

@@ -17,13 +17,11 @@ package io.gatling.core.controller
 
 import io.gatling.core.akka.BaseActor
 
-import scala.collection.mutable
 import scala.concurrent.duration.FiniteDuration
 
 import akka.actor.{ ActorRef, FSM }
 
 import io.gatling.core.scenario.{ SimulationParams, Scenario }
-import io.gatling.core.result.writer.UserMessage
 
 private[controller] case class UserStream(
   scenario: Scenario,
@@ -35,7 +33,7 @@ private[controller] trait ControllerFSM extends BaseActor with FSM[ControllerSta
 private[controller] sealed trait ControllerState
 private[controller] case object WaitingToStart extends ControllerState
 private[controller] case object Running extends ControllerState
-private[controller] case object WaitingForDataWritersToTerminate extends ControllerState
+private[controller] case object WaitingForStatsEngineToTerminate extends ControllerState
 private[controller] case object Stopped extends ControllerState
 
 private[controller] sealed trait ControllerData
@@ -45,9 +43,8 @@ private[controller] class RunData(
   val initData: InitData,
   val userStreams: Map[String, UserStream],
   val scheduler: BatchScheduler,
-  val activeUsers: mutable.Map[Long, UserMessage],
-  var completedUsersCount: Int,
-  val totalUsers: Int) extends ControllerData
+  var completedUsersCount: Long,
+  var expectedUsersCount: Long) extends ControllerData
 private[controller] case class EndData(
   initData: InitData,
   exception: Option[Exception]) extends ControllerData
@@ -55,5 +52,5 @@ private[controller] case class EndData(
 sealed trait ControllerMessage
 case class Run(scenarios: List[Scenario], simulationParams: SimulationParams) extends ControllerMessage
 case class ForceTermination(e: Option[Exception] = None) extends ControllerMessage
-case object DataWritersTerminated extends ControllerMessage
+case object StatsEngineTerminated extends ControllerMessage
 case class ScheduleNextUserBatch(scenarioName: String) extends ControllerMessage

@@ -23,7 +23,7 @@ import scala.util.{ Failure, Success, Try }
 
 import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.DataWritersTerminated
+import io.gatling.core.controller.StatsEngineTerminated
 import io.gatling.core.result.message.{ ResponseTimings, Status }
 import io.gatling.core.runner.Selection
 import io.gatling.core.session.{ GroupBlock, Session }
@@ -158,6 +158,6 @@ class DefaultStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extend
     if (active.getAndSet(false)) {
       implicit val dataWriterTimeOut = Timeout(5 seconds)
       val responses = dataWriters.map(_ ? Terminate)
-      Future.sequence(responses).onComplete(_ => replyTo ! DataWritersTerminated)
+      Future.sequence(responses).onComplete(_ => replyTo ! StatsEngineTerminated)
     }
 }

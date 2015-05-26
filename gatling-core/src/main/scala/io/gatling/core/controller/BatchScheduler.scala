@@ -35,11 +35,12 @@ class BatchScheduler(startTime: Long,
     val scenario = userStream.scenario
     val stream = userStream.stream
 
-      def startUser(i: Long): Unit = {
+      def startUser(i: Long, notLast: Boolean): Unit = {
         val session = Session(scenario = scenario.name,
           userId = i + userStream.offset,
-          onExit = scenario.onExit)
-        controller ! UserMessage(session, Start, 0L)
+          onExit = scenario.onExit,
+          last = !notLast)
+        controller ! UserMessage(session, Start, nowMillis)
         scenario.entry ! session
       }
 
@@ -48,23 +49,25 @@ class BatchScheduler(startTime: Long,
       val nextBatchTimeOffset = batchTimeOffset + batchWindow
 
       var continue = true
+      var notLast = true
 
-      while (stream.hasNext && continue) {
+      while (notLast && continue) {
 
         val (startingTime, index) = stream.next()
+        notLast = stream.hasNext
         val delay = startingTime - batchTimeOffset
         continue = startingTime < nextBatchTimeOffset
 
         if (continue && delay <= ZeroMs) {
-          startUser(index)
+          startUser(index, notLast)
         } else {
           // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
-          system.scheduler.scheduleOnce(toMillisPrecision(delay))(startUser(index))
+          system.scheduler.scheduleOnce(toMillisPrecision(delay))(startUser(index, notLast))
         }
       }
 
       // schedule next batch
-      if (stream.hasNext) {
+      if (notLast) {
         system.scheduler.scheduleOnce(batchWindow) {
           controller ! ScheduleNextUserBatch(scenario.name)
         }

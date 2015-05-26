@@ -327,7 +327,9 @@ case class DataConfiguration(
     console: ConsoleDataWriterConfiguration,
     graphite: GraphiteDataWriterConfiguration) {
 
-  def fileDataWriterEnabled: Boolean = dataWriterClasses.contains(DataConfiguration.FileDataWriterAlias.className)
+  def fileDataWriterEnabled: Boolean =
+    statsEngineFactoryClass == DataConfiguration.DefaultStatsEngineFactoryAlias.className &&
+      dataWriterClasses.contains(DataConfiguration.FileDataWriterAlias.className)
 }
 
 case class FileDataWriterConfiguration(
