@@ -73,8 +73,11 @@ class ThisSecondThrottle(val limit: Int, var count: Int = 0) {
 }
 
 object Throttler {
-  def apply(system: ActorSystem, simulationParams: SimulationParams, throttlerActorName: String) =
-    new Throttler(system.actorOf(ThrottlerActor.props(simulationParams), throttlerActorName))
+
+  val ThrottlerActorName = "gatling-throttler"
+
+  def apply(system: ActorSystem, simulationParams: SimulationParams) =
+    new Throttler(system.actorOf(ThrottlerActor.props(simulationParams), ThrottlerActorName))
 }
 
 class Throttler(throttlerActor: ActorRef) {

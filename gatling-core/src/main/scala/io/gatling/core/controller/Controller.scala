@@ -29,6 +29,9 @@ import io.gatling.core.runner.Selection
 import io.gatling.core.util.TimeHelper.nowMillis
 
 object Controller extends StrictLogging {
+
+  val ControllerActorName = "gatling-controller"
+
   def props(selection: Selection, statsEngine: StatsEngine, configuration: GatlingConfiguration) =
     Props(new Controller(selection, statsEngine, configuration))
 }

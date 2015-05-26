@@ -69,9 +69,9 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
         Await.result(statsEngineF, 5 seconds).get
       }
 
-      val controller = system.actorOf(Controller.props(selection, statsEngine, configuration), "gatling-controller")
-      val throttler = Throttler(system, simulationParams, "throttler")
-      val exit = system.actorOf(Exit.props(controller), "exit")
+      val controller = system.actorOf(Controller.props(selection, statsEngine, configuration), Controller.ControllerActorName)
+      val throttler = Throttler(system, simulationParams)
+      val exit = system.actorOf(Exit.props(controller), Exit.ExitActorName)
 
       val coreComponents = CoreComponents(controller, throttler, statsEngine, exit)
 

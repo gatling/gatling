@@ -23,6 +23,8 @@ import io.gatling.core.util.TimeHelper.nowMillis
 
 object Exit {
 
+  val ExitActorName = "gatling-exit"
+
   def props(controller: ActorRef) =
     Props(new Exit(controller))
 }
