@@ -62,7 +62,7 @@ private[app] class ArgsParser(args: Array[String]) {
       .text("Uses <directoryPath> to discover simulations that could be run")
 
     opt[String](BinariesFolder)
-      .foreach(props.sourcesDirectory)
+      .foreach(props.binariesDirectory)
       .valueName("<directoryPath>")
       .text("Uses <directoryPath> as the absolute path of the directory where Gatling should produce compiled binaries")
 
