@@ -77,7 +77,7 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
   private def run(selection: Selection): RunResult = {
 
     // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
-    val system = ActorSystem("GatlingSystem")
+    val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
 
     try {
       val simulationClass = selection.simulationClass
