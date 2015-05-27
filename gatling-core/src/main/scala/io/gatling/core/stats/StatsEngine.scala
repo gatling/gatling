@@ -19,63 +19,16 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import scala.util.{ Failure, Success, Try }
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.StatsEngineTerminated
-import io.gatling.core.runner.Selection
-import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.message.{ ResponseTimings, Status }
 import io.gatling.core.stats.writer._
 import io.gatling.core.util.TimeHelper._
 
-import akka.actor.{ Actor, ActorRef, ActorSystem, Props }
+import akka.actor.{ ActorRef, ActorSystem }
 import akka.pattern.ask
 import akka.util.Timeout
-
-trait StatsEngineFactory {
-
-  def apply(system: ActorSystem,
-            simulationParams: SimulationParams,
-            selection: Selection,
-            runMessage: RunMessage)(implicit configuration: GatlingConfiguration): Future[Try[StatsEngine]]
-}
-
-class DefaultStatsEngineFactory extends StatsEngineFactory {
-
-  override def apply(system: ActorSystem,
-                     simulationParams: SimulationParams,
-                     selection: Selection,
-                     runMessage: RunMessage)(implicit configuration: GatlingConfiguration): Future[Try[StatsEngine]] = {
-
-    implicit val dataWriterTimeOut = Timeout(5 seconds)
-
-    val dataWriters = configuration.data.dataWriterClasses.map { className =>
-      val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
-      system.actorOf(Props(clazz), clazz.getName)
-    }
-
-    val shortScenarioDescriptions = simulationParams.populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserEstimate))
-
-    val responses = dataWriters.map(_ ? Init(configuration, simulationParams.assertions, runMessage, shortScenarioDescriptions))
-
-      def allSucceeded(responses: Seq[Any]): Boolean =
-        responses.map {
-          case b: Boolean => b
-          case _          => false
-        }.forall(identity)
-
-    implicit val dispatcher = system.dispatcher
-
-    Future.sequence(responses)
-      .map(allSucceeded)
-      .map {
-        case true  => Success(new DefaultStatsEngine(system, dataWriters))
-        case false => Failure(new Exception("DataWriters didn't initialize properly"))
-      }
-  }
-}
 
 trait StatsEngine {
 

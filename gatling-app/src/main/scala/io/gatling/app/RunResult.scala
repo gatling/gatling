@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.runner
+package io.gatling.app
 
-import io.gatling.core.scenario.Simulation
-
-case class Selection(simulationClass: Class[Simulation], simulationId: String, description: String)
+case class RunResult(runId: String, hasAssertions: Boolean)

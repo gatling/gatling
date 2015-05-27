@@ -168,7 +168,6 @@ object GatlingConfiguration extends StrictLogging {
           sslSessionCacheSize = config.getInt(http.ahc.SslSessionCacheSize),
           sslSessionTimeout = config.getInt(http.ahc.SslSessionTimeout))),
       data = DataConfiguration(
-        statsEngineFactoryClass = DataConfiguration.resolveAlias(config.getString(data.StatsEngineFactory), DataConfiguration.StatsEngineFactoryAliases),
         dataWriterClasses = config.getStringList(data.Writers).map(DataConfiguration.resolveAlias(_, DataConfiguration.DataWriterAliases)),
         dataReaderClass = DataConfiguration.resolveAlias(config.getString(data.Reader), DataConfiguration.DataReaderAliases),
         console = ConsoleDataWriterConfiguration(
@@ -293,13 +292,6 @@ case class StoreConfiguration(
 
 object DataConfiguration {
 
-  case class ClassAlias(alias: String, className: String)
-
-  val DefaultStatsEngineFactoryAlias = ClassAlias("default", "io.gatling.core.stats.DefaultStatsEngineFactory")
-
-  val StatsEngineFactoryAliases = Seq(DefaultStatsEngineFactoryAlias)
-    .map(alias => alias.alias -> alias.className).toMap
-
   val ConsoleDataWriterAlias = ClassAlias("console", "io.gatling.core.stats.writer.ConsoleDataWriter")
   val FileDataWriterAlias = ClassAlias("file", "io.gatling.core.stats.writer.FileDataWriter")
   val GraphiteDataWriterAlias = ClassAlias("graphite", "io.gatling.metrics.GraphiteDataWriter")
@@ -320,7 +312,6 @@ object DataConfiguration {
 }
 
 case class DataConfiguration(
-    statsEngineFactoryClass: String,
     dataWriterClasses: Seq[String],
     dataReaderClass: String,
     file: FileDataWriterConfiguration,
@@ -328,9 +319,7 @@ case class DataConfiguration(
     console: ConsoleDataWriterConfiguration,
     graphite: GraphiteDataWriterConfiguration) {
 
-  def fileDataWriterEnabled: Boolean =
-    statsEngineFactoryClass == DataConfiguration.DefaultStatsEngineFactoryAlias.className &&
-      dataWriterClasses.contains(DataConfiguration.FileDataWriterAlias.className)
+  def fileDataWriterEnabled: Boolean = dataWriterClasses.contains(DataConfiguration.FileDataWriterAlias.className)
 }
 
 case class FileDataWriterConfiguration(
@@ -357,3 +346,5 @@ case class GatlingConfiguration(
   http: HttpConfiguration,
   data: DataConfiguration,
   config: Config)
+
+case class ClassAlias(alias: String, className: String)

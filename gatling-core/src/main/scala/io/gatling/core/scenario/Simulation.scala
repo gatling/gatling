@@ -93,7 +93,7 @@ abstract class Simulation {
     }
   }
 
-  private[core] def params = {
+  private[gatling] def params = {
 
     require(_populationBuilders.nonEmpty, "No scenario set up")
     val duplicates = _populationBuilders.groupBy(_.scenarioBuilder.name).collect { case (name, scns) if scns.size > 1 => name }

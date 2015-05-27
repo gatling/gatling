@@ -42,7 +42,7 @@ abstract class GatlingFunSpec extends Simulation {
       .assertions(forAll.failedRequests.percent.is(0))
   }
 
-  private[core] override def params = {
+  private[gatling] override def params = {
     setupRegisteredSpecs()
     super.params
   }
