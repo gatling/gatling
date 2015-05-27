@@ -35,11 +35,15 @@ abstract class GatlingFunSpec extends Simulation {
   private[this] lazy val testScenario = scenario(this.getClass.getSimpleName)
     .exec(ChainBuilder(specs.reverse.toList))
 
-  private[core] def setupRegisteredSpecs = {
-    require(specs.length > 0, "At least one spec needs to be defined")
+  private def setupRegisteredSpecs() = {
+    require(specs.nonEmpty, "At least one spec needs to be defined")
     setUp(testScenario.inject(atOnceUsers(1)))
       .protocols(protocolConf)
       .assertions(forAll.failedRequests.percent.is(0))
   }
 
+  private[core] override def params = {
+    setupRegisteredSpecs()
+    super.params
+  }
 }

@@ -54,11 +54,6 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
 
       val simulation = simulationClass.newInstance
 
-      simulation match {
-        case funSpec: GatlingFunSpec => funSpec.setupRegisteredSpecs
-        case _                       =>
-      }
-
       val simulationParams = simulation.params
 
       simulationParams.beforeSteps.foreach(_.apply())
