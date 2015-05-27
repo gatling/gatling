@@ -62,7 +62,7 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
 
       val statsEngine = {
         val statsEngineFactory = Class.forName(configuration.data.statsEngineFactoryClass).newInstance().asInstanceOf[StatsEngineFactory]
-        val statsEngineF = statsEngineFactory.apply(system, simulationParams.populationBuilders, simulationParams.assertions, selection, runMessage)
+        val statsEngineF = statsEngineFactory.apply(system, simulationParams, selection, runMessage)
         Await.result(statsEngineF, 5 seconds).get
       }
 

@@ -21,14 +21,13 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
 
-import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.StatsEngineTerminated
 import io.gatling.core.runner.Selection
+import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.message.{ ResponseTimings, Status }
 import io.gatling.core.stats.writer._
-import io.gatling.core.structure.PopulationBuilder
 import io.gatling.core.util.TimeHelper._
 
 import akka.actor.{ Actor, ActorRef, ActorSystem, Props }
@@ -38,8 +37,7 @@ import akka.util.Timeout
 trait StatsEngineFactory {
 
   def apply(system: ActorSystem,
-            populationBuilders: List[PopulationBuilder],
-            assertions: Seq[Assertion],
+            simulationParams: SimulationParams,
             selection: Selection,
             runMessage: RunMessage)(implicit configuration: GatlingConfiguration): Future[Try[StatsEngine]]
 }
@@ -47,8 +45,7 @@ trait StatsEngineFactory {
 class DefaultStatsEngineFactory extends StatsEngineFactory {
 
   override def apply(system: ActorSystem,
-                     populationBuilders: List[PopulationBuilder],
-                     assertions: Seq[Assertion],
+                     simulationParams: SimulationParams,
                      selection: Selection,
                      runMessage: RunMessage)(implicit configuration: GatlingConfiguration): Future[Try[StatsEngine]] = {
 
@@ -59,9 +56,9 @@ class DefaultStatsEngineFactory extends StatsEngineFactory {
       system.actorOf(Props(clazz), clazz.getName)
     }
 
-    val shortScenarioDescriptions = populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserEstimate))
+    val shortScenarioDescriptions = simulationParams.populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserEstimate))
 
-    val responses = dataWriters.map(_ ? Init(configuration, assertions, runMessage, shortScenarioDescriptions))
+    val responses = dataWriters.map(_ ? Init(configuration, simulationParams.assertions, runMessage, shortScenarioDescriptions))
 
       def allSucceeded(responses: Seq[Any]): Boolean =
         responses.map {
