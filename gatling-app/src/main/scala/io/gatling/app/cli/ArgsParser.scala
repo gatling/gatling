@@ -15,7 +15,7 @@
  */
 package io.gatling.app.cli
 
-import io.gatling.app.{ ConfigOverrides, GatlingStatusCodes }
+import io.gatling.app.ConfigOverrides
 import io.gatling.app.cli.CommandLineConstants._
 import io.gatling.core.cli.{ GatlingOptionParser, StatusCode }
 import io.gatling.core.config.GatlingPropertiesBuilder
@@ -84,5 +84,5 @@ private[app] class ArgsParser(args: Array[String]) {
 
   def parseArguments: Either[ConfigOverrides, StatusCode] =
     if (cliOptsParser.parse(args)) Left(props.build)
-    else Right(GatlingStatusCodes.InvalidArguments)
+    else Right(StatusCode.InvalidArguments)
 }

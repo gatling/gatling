@@ -45,7 +45,7 @@ class DefaultResultsProcessor(implicit configuration: GatlingConfiguration) exte
         runStatus(assertionResults)
 
       case _ =>
-        GatlingStatusCodes.Success
+        StatusCode.Success
     }
   }
 
@@ -71,7 +71,7 @@ class DefaultResultsProcessor(implicit configuration: GatlingConfiguration) exte
       isValid && assertionResult.result
     }
 
-    if (consolidatedAssertionResult) GatlingStatusCodes.Success
-    else GatlingStatusCodes.AssertionsFailed
+    if (consolidatedAssertionResult) StatusCode.Success
+    else StatusCode.AssertionsFailed
   }
 }

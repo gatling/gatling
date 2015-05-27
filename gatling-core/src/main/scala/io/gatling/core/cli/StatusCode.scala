@@ -15,4 +15,10 @@
  */
 package io.gatling.core.cli
 
-private[gatling] case class StatusCode(code: Int) extends AnyVal
+object StatusCode {
+  case object Success extends StatusCode(0)
+  case object InvalidArguments extends StatusCode(1)
+  case object AssertionsFailed extends StatusCode(2)
+}
+
+private[gatling] sealed abstract class StatusCode(val code: Int)
