@@ -34,9 +34,23 @@ import com.typesafe.scalalogging.StrictLogging
  */
 object GatlingConfiguration extends StrictLogging {
 
+  private val GatlingDefaultsConfigFile = "gatling-defaults.conf"
+  private val GatlingConfigFile = "gatling.conf"
+  private val ActorSystemDefaultsConfigFile = "gatling-akka-defaults.conf"
+  private val ActorSystemConfigFile = "gatling-akka.conf"
+
+  def loadActorSystemConfiguration() = {
+    val classLoader = getClass.getClassLoader
+
+    val defaultsConfig = ConfigFactory.parseResources(classLoader, ActorSystemDefaultsConfigFile)
+    val customConfig = ConfigFactory.parseResources(classLoader, ActorSystemConfigFile)
+
+    configChain(customConfig, defaultsConfig)
+  }
+
   def loadForTest(props: mutable.Map[String, _ <: Any] = mutable.Map.empty): GatlingConfiguration = {
 
-    val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, "gatling-defaults.conf")
+    val defaultsConfig = ConfigFactory.parseResources(getClass.getClassLoader, GatlingDefaultsConfigFile)
     val propertiesConfig = ConfigFactory.parseMap(props)
     val config = configChain(ConfigFactory.systemProperties, propertiesConfig, defaultsConfig)
     mapToGatlingConfig(config)
@@ -70,8 +84,8 @@ object GatlingConfiguration extends StrictLogging {
 
     val classLoader = getClass.getClassLoader
 
-    val defaultsConfig = ConfigFactory.parseResources(classLoader, "gatling-defaults.conf")
-    val customConfig = ConfigFactory.parseResources(classLoader, "gatling.conf")
+    val defaultsConfig = ConfigFactory.parseResources(classLoader, GatlingDefaultsConfigFile)
+    val customConfig = ConfigFactory.parseResources(classLoader, GatlingConfigFile)
     val propertiesConfig = ConfigFactory.parseMap(props)
 
     val config = configChain(ConfigFactory.systemProperties, customConfig, propertiesConfig, defaultsConfig)

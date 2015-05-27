@@ -29,7 +29,6 @@ import io.gatling.core.action.Exit
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.{ Run, Controller }
 import io.gatling.core.controller.throttle.Throttler
-import io.gatling.core.funspec.GatlingFunSpec
 import io.gatling.core.util.TimeHelper._
 import com.typesafe.scalalogging.StrictLogging
 
@@ -40,7 +39,7 @@ class Runner(selection: Selection)(implicit configuration: GatlingConfiguration)
   def run: RunResult = {
 
     // start actor system before creating simulation instance, some components might need it (e.g. shutdown hook)
-    val system = ActorSystem("GatlingSystem")
+    val system = ActorSystem("GatlingSystem", GatlingConfiguration.loadActorSystemConfiguration())
 
     try {
       val simulationClass = selection.simulationClass
