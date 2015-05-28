@@ -43,7 +43,7 @@ private[gatling] object AhcFactory {
   val AhcFactorySystemProperty = "gatling.ahcFactory"
 
   def apply(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): AhcFactory =
-    sys.props.get(AhcFactorySystemProperty).map(newInstance(_, system, coreComponents))
+    sys.props.get(AhcFactorySystemProperty).map(newInstance[AhcFactory](_, system, coreComponents))
       .getOrElse(new DefaultAhcFactory(system, coreComponents))
 }
 

@@ -38,7 +38,7 @@ private[gatling] object CoreComponentsFactory {
   val CoreComponentsFactorySystemProperty = "gatling.coreComponentsFactory"
 
   def apply(configuration: GatlingConfiguration): CoreComponentsFactory =
-    sys.props.get(CoreComponentsFactorySystemProperty).map(newInstance)
+    sys.props.get(CoreComponentsFactorySystemProperty).map(newInstance[CoreComponentsFactory])
       .getOrElse(new DefaultCoreComponentsFactory)
 }
 
