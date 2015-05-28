@@ -22,7 +22,7 @@ import io.gatling.http.cache.CacheHandling
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.check.ws.WsCheckSupport
 import io.gatling.http.config.HttpProtocolBuilder
-import io.gatling.http.cookie.CookieHandling
+import io.gatling.http.cookie.{ CookieJar, CookieHandling }
 import io.gatling.http.feeder.SitemapFeederSupport
 import io.gatling.http.request.{ BodyPart, ExtraInfo, BodyProcessors }
 import io.gatling.http.request.builder.Http
@@ -39,7 +39,7 @@ object Predef extends HttpCheckSupport with WsCheckSupport with SitemapFeederSup
   val Proxy = io.gatling.http.config.HttpProxyBuilder.apply _
 
   def http(requestName: Expression[String]) = new Http(requestName)
-  def addCookie(cookie: CookieDSL) = new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.expires.getOrElse(-1L), cookie.maxAge.getOrElse(-1))
+  def addCookie(cookie: CookieDSL) = new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.expires.getOrElse(CookieJar.UnspecifiedExpires), cookie.maxAge.getOrElse(CookieJar.UnspecifiedMaxAge))
   def flushSessionCookies = CookieHandling.FlushSessionCookies
   def flushCookieJar = CookieHandling.FlushCookieJar
   def flushHttpCache = CacheHandling.FlushCache
