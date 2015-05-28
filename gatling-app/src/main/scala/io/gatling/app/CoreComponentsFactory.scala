@@ -38,8 +38,10 @@ private[gatling] object CoreComponentsFactory {
   val CoreComponentsFactorySystemProperty = "gatling.coreComponentsFactory"
 
   def apply(configuration: GatlingConfiguration): CoreComponentsFactory =
-    sys.props.get(CoreComponentsFactorySystemProperty).map(newInstance)
-      .getOrElse(new DefaultCoreComponentsFactory)
+    sys.props.get(CoreComponentsFactorySystemProperty) match {
+      case None        => new DefaultCoreComponentsFactory
+      case Some(value) => newInstance(value)
+    }
 }
 
 private[gatling] trait CoreComponentsFactory {
@@ -64,11 +66,11 @@ private[gatling] class DefaultCoreComponentsFactory extends CoreComponentsFactor
 
     val responses = dataWriters.map(_ ? Init(configuration, simulationParams.assertions, runMessage, shortScenarioDescriptions))
 
-      def allSucceeded(responses: Seq[Any]): Boolean =
-        responses.map {
-          case b: Boolean => b
-          case _          => false
-        }.forall(identity)
+    def allSucceeded(responses: Seq[Any]): Boolean =
+      responses.map {
+        case b: Boolean => b
+        case _          => false
+      }.forall(identity)
 
     implicit val dispatcher = system.dispatcher
 
