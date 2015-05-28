@@ -22,7 +22,7 @@ import io.gatling.core.stats.message.KO
 import io.gatling.http.action.{ FlushCacheBuilder, AddCookieBuilder, CookieDSL }
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.check.ws.WsCheckSupport
-import io.gatling.http.cookie.{CookieJar, CookieSupport}
+import io.gatling.http.cookie.{ CookieJar, CookieSupport }
 import io.gatling.http.feeder.SitemapFeederSupport
 import io.gatling.http.protocol.{ HttpProtocolBuilder, HttpProxyBuilder }
 import io.gatling.http.request.{ BodyPart, ExtraInfo }
