@@ -64,6 +64,7 @@ abstract class DataWriter[T <: DataWriterData: ClassTag] extends DataWriterFSM {
 
     case Event(Terminate, data: Any) if typeMatches[T](data) =>
       onTerminate(data.asInstanceOf[T])
+      sender ! true
       goto(Terminated) using NoData
 
     case Event(Crash(cause), data: Any) if typeMatches[T](data) =>
