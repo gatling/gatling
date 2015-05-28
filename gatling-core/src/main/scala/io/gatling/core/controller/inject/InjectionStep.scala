@@ -41,7 +41,7 @@ case class RampInjection(users: Int, duration: FiniteDuration) extends Injection
   require(users > 0, "The number of users must be a strictly positive value")
 
   override def chain(chained: Iterator[FiniteDuration]): Iterator[FiniteDuration] = {
-    val interval = duration / users.max(1)
+    val interval = duration / users
     Iterator.iterate(0 milliseconds)(_ + interval).take(users) ++ chained.map(_ + duration)
   }
 
