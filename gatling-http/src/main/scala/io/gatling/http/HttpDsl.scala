@@ -22,7 +22,7 @@ import io.gatling.core.stats.message.KO
 import io.gatling.http.action.{ FlushCacheBuilder, AddCookieBuilder, CookieDSL }
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.check.ws.WsCheckSupport
-import io.gatling.http.cookie.CookieSupport
+import io.gatling.http.cookie.{CookieJar, CookieSupport}
 import io.gatling.http.feeder.SitemapFeederSupport
 import io.gatling.http.protocol.{ HttpProtocolBuilder, HttpProxyBuilder }
 import io.gatling.http.request.{ BodyPart, ExtraInfo }
@@ -39,7 +39,7 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SitemapFeederSup
 
   def http(requestName: Expression[String])(implicit configuration: GatlingConfiguration) = new Http(requestName)
   def addCookie(cookie: CookieDSL)(implicit configuration: GatlingConfiguration) =
-    new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(Long.MinValue))
+    new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(CookieJar.UnspecifiedMaxAge))
   def flushSessionCookies = CookieSupport.FlushSessionCookies
   def flushCookieJar = CookieSupport.FlushCookieJar
   def flushHttpCache(implicit configuration: GatlingConfiguration) = new FlushCacheBuilder
