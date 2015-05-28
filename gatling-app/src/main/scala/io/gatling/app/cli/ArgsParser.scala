@@ -17,7 +17,7 @@ package io.gatling.app.cli
 
 import io.gatling.app.ConfigOverrides
 import io.gatling.app.cli.CommandLineConstants._
-import io.gatling.core.cli.{ GatlingOptionParser, StatusCode }
+import io.gatling.core.cli.GatlingOptionParser
 import io.gatling.core.config.GatlingPropertiesBuilder
 
 private[app] class ArgsParser(args: Array[String]) {

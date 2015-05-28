@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.core.cli
+package io.gatling.app.cli
 
 object StatusCode {
   case object Success extends StatusCode(0)

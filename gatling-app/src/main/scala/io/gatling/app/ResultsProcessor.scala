@@ -17,9 +17,9 @@ package io.gatling.app
 
 import java.lang.System._
 
+import io.gatling.app.cli.StatusCode
 import io.gatling.charts.report.{ ReportsGenerator, ReportsGenerationInputs }
 import io.gatling.core.assertion.{ AssertionResult, AssertionValidator }
-import io.gatling.core.cli.StatusCode
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.reader.DataReader
 

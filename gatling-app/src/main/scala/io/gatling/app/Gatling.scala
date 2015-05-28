@@ -19,8 +19,7 @@ import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
 
-import io.gatling.app.cli.ArgsParser
-import io.gatling.core.cli.StatusCode
+import io.gatling.app.cli.{ StatusCode, ArgsParser }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.Run
 import io.gatling.core.stats.writer.RunMessage
