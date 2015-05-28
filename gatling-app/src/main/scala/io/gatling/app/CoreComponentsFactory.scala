@@ -27,30 +27,31 @@ import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.{ DefaultStatsEngine, StatsEngine }
 import io.gatling.core.stats.writer.{ Init, ShortScenarioDescription, RunMessage }
+import io.gatling.core.util.ReflectionHelper._
 
 import akka.actor.{ Props, Actor, ActorSystem }
 import akka.pattern._
 import akka.util.Timeout
 
-object CoreComponentsFactory {
+private[gatling] object CoreComponentsFactory {
 
   val CoreComponentsFactorySystemProperty = "gatling.coreComponentsFactory"
 
   def apply(configuration: GatlingConfiguration): CoreComponentsFactory =
-    sys.props.get(CoreComponentsFactorySystemProperty).map(Class.forName(_).newInstance.asInstanceOf[CoreComponentsFactory])
+    sys.props.get(CoreComponentsFactorySystemProperty).map(newInstance)
       .getOrElse(new DefaultCoreComponentsFactory)
 }
 
-trait CoreComponentsFactory {
+private[gatling] trait CoreComponentsFactory {
 
-  private[gatling] def coreComponents(system: ActorSystem, simulationParams: SimulationParams, runMessage: RunMessage)(implicit configuration: GatlingConfiguration): CoreComponents
+  def coreComponents(system: ActorSystem, simulationParams: SimulationParams, runMessage: RunMessage)(implicit configuration: GatlingConfiguration): CoreComponents
 
-  private[gatling] def resultsProcessor(implicit configuration: GatlingConfiguration): ResultsProcessor
+  def resultsProcessor(implicit configuration: GatlingConfiguration): ResultsProcessor
 }
 
-class DefaultCoreComponentsFactory extends CoreComponentsFactory {
+private[gatling] class DefaultCoreComponentsFactory extends CoreComponentsFactory {
 
-  private[gatling] def statsEngine(system: ActorSystem, simulationParams: SimulationParams, runMessage: RunMessage)(implicit configuration: GatlingConfiguration): StatsEngine = {
+  def newStatsEngine(system: ActorSystem, simulationParams: SimulationParams, runMessage: RunMessage)(implicit configuration: GatlingConfiguration): StatsEngine = {
 
     implicit val dataWriterTimeOut = Timeout(5 seconds)
 
@@ -81,15 +82,15 @@ class DefaultCoreComponentsFactory extends CoreComponentsFactory {
     Await.result(statsEngineF, 5 seconds).get
   }
 
-  private[gatling] def coreComponents(system: ActorSystem, simulationParams: SimulationParams, runMessage: RunMessage)(implicit configuration: GatlingConfiguration): CoreComponents = {
-    val theStatsEngine = statsEngine(system, simulationParams, runMessage)
+  def coreComponents(system: ActorSystem, simulationParams: SimulationParams, runMessage: RunMessage)(implicit configuration: GatlingConfiguration): CoreComponents = {
+    val statsEngine = newStatsEngine(system, simulationParams, runMessage)
 
-    val controller = system.actorOf(Controller.props(theStatsEngine, configuration), Controller.ControllerActorName)
+    val controller = system.actorOf(Controller.props(statsEngine, configuration), Controller.ControllerActorName)
     val throttler = Throttler(system, simulationParams)
     val exit = system.actorOf(Exit.props(controller), Exit.ExitActorName)
 
-    CoreComponents(controller, throttler, theStatsEngine, exit)
+    CoreComponents(controller, throttler, statsEngine, exit)
   }
 
-  private[gatling] def resultsProcessor(implicit configuration: GatlingConfiguration): ResultsProcessor = new DefaultResultsProcessor()
+  def resultsProcessor(implicit configuration: GatlingConfiguration): ResultsProcessor = new DefaultResultsProcessor()
 }
