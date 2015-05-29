@@ -18,6 +18,7 @@ package io.gatling.core.controller
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
 
+import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.{ End, Start }
 import io.gatling.core.stats.writer.UserMessage
@@ -33,11 +34,11 @@ object Controller extends StrictLogging {
 
   val ControllerActorName = "gatling-controller"
 
-  def props(statsEngine: StatsEngine, configuration: GatlingConfiguration) =
-    Props(new Controller(statsEngine, configuration))
+  def props(statsEngine: StatsEngine, throttler: Throttler, configuration: GatlingConfiguration) =
+    Props(new Controller(statsEngine, throttler, configuration))
 }
 
-class Controller(statsEngine: StatsEngine, configuration: GatlingConfiguration)
+class Controller(statsEngine: StatsEngine, throttler: Throttler, configuration: GatlingConfiguration)
     extends ControllerFSM {
 
   startWith(WaitingToStart, NoData)
@@ -69,13 +70,13 @@ class Controller(statsEngine: StatsEngine, configuration: GatlingConfiguration)
         userStreams.values.foreach(scheduler.scheduleUserStream(system, _))
         logger.debug("Finished Launching scenarios executions")
 
-        setUpSimulationMaxDuration()
-
         scheduler
       }
 
     val userStreams = buildUserStreams
+    throttler.start()
     val batchScheduler = startUpScenarios(userStreams)
+    setUpSimulationMaxDuration()
     goto(Running) using new RunData(initData, userStreams, batchScheduler, 0L, Long.MinValue)
   }
 

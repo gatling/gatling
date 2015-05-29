@@ -15,6 +15,7 @@
  */
 package io.gatling.core.controller.throttle
 
+import scala.annotation.tailrec
 import scala.concurrent.duration._
 
 sealed trait ThrottleStep {
@@ -31,7 +32,7 @@ case class ReachIntermediate(target: Int) {
 case class Reach(target: Int, duration: FiniteDuration) extends ThrottleStep {
   val durationInSec = duration.toSeconds
   def target(previousLastValue: Int) = target
-  def rps(time: Long, previousLastValue: Int): Int = ((target - previousLastValue) * time / durationInSec + previousLastValue).toInt
+  def rps(time: Long, previousLastValue: Int): Int = (previousLastValue + (target - previousLastValue) * (time + 1) / durationInSec).toInt
 }
 
 case class Hold(duration: FiniteDuration) extends ThrottleStep {
@@ -51,3 +52,36 @@ trait ThrottlingSupport {
   def holdFor(duration: FiniteDuration) = Hold(duration)
   def jumpToRps(target: Int) = Jump(target)
 }
+
+object Throttling {
+
+  def apply(steps: Iterable[ThrottleStep]): Throttling = {
+
+    val limit: (Long => Int) = {
+        @tailrec
+        def valueAt(steps: List[ThrottleStep], pendingTime: Long, previousLastValue: Int): Int = steps match {
+          case Nil => 0
+          case head :: tail =>
+            if (pendingTime < head.durationInSec)
+              head.rps(pendingTime, previousLastValue)
+            else
+              valueAt(tail, pendingTime - head.durationInSec, head.target(previousLastValue))
+        }
+
+      val reversedSteps = steps.toList
+      (now: Long) => valueAt(reversedSteps, now, 0)
+    }
+
+    val duration: FiniteDuration = steps.foldLeft(Duration.Zero) { (acc, step) =>
+      step match {
+        case Reach(_, d) => acc + d
+        case Hold(d)     => acc + d
+        case _           => acc
+      }
+    }
+
+    Throttling(limit, duration)
+  }
+}
+
+case class Throttling(limit: Long => Int, duration: FiniteDuration)
