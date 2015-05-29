@@ -51,7 +51,7 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
   logger.info(s"Collected $inputFiles from $runUuid")
   require(inputFiles.nonEmpty, "simulation directory doesn't contain any log file.")
 
-  private def doWithInputFiles[T](f: Iterator[String] => T): T = {
+  private def parseInputFiles[T](f: Iterator[String] => T): T = {
 
       def multipleFileIterator(streams: Seq[InputStream]): Iterator[String] =
         streams.map(Source.fromInputStream(_)(configuration.core.codec).getLines()).reduce((first, second) => first ++ second)
@@ -113,7 +113,7 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
     FirstPassData(runStart, runEnd, runMessages.head, assertions.toList)
   }
 
-  val FirstPassData(runStart, runEnd, runMessage, assertions) = doWithInputFiles(firstPass)
+  val FirstPassData(runStart, runEnd, runMessage, assertions) = parseInputFiles(firstPass)
 
   val step = StatsHelper.step(math.floor(runStart / SecMillisecRatio).toInt, math.ceil(runEnd / SecMillisecRatio).toInt, configuration.charting.maxPlotsPerSeries) * SecMillisecRatio
 
@@ -153,7 +153,7 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
     resultsHolder
   }
 
-  val resultsHolder = doWithInputFiles(secondPass)
+  val resultsHolder = parseInputFiles(secondPass)
 
   println("Parsing log file(s) done")
 
