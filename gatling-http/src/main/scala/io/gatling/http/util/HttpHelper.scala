@@ -23,13 +23,14 @@ import scala.io.Codec.UTF8
 import scala.util.Try
 import scala.util.control.NonFatal
 
-import com.ning.http.client.{ FluentCaseInsensitiveStringsMap, Realm }
-import com.ning.http.client.Realm.AuthScheme
-import com.ning.http.client.uri.Uri
-import com.typesafe.scalalogging.StrictLogging
-
 import io.gatling.core.session._
 import io.gatling.http.{ HeaderNames, HeaderValues }
+
+import org.asynchttpclient.Realm
+import org.asynchttpclient.Realm.AuthScheme
+import org.asynchttpclient.request.FluentCaseInsensitiveStringsMap
+import org.asynchttpclient.uri.Uri
+import com.typesafe.scalalogging.StrictLogging
 
 object HttpHelper extends StrictLogging {
 

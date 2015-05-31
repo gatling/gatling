@@ -15,7 +15,6 @@
  */
 package io.gatling.http.action.ws
 
-import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.session.Expression
@@ -23,6 +22,8 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.check.ws._
 import io.gatling.http.request.builder.ws.WsOpenRequestBuilder
+
+import akka.actor.{ ActorSystem, ActorRef }
 
 class WsOpenActionBuilder(requestName: Expression[String],
                           wsName: String,

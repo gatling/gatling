@@ -18,13 +18,13 @@ package io.gatling.recorder.scenario
 import scala.collection.mutable
 import scala.concurrent.duration._
 
-import com.ning.http.client.uri.Uri
-import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
-
 import io.gatling.BaseSpec
 import io.gatling.http.fetch.{ CssResource, RegularResource }
 import io.gatling.recorder.config.ConfigKeys.http.{ InferHtmlResources, FollowRedirect }
 import io.gatling.recorder.config.RecorderConfiguration.fakeConfig
+
+import org.asynchttpclient.uri.Uri
+import org.jboss.netty.handler.codec.http.HttpHeaders.Names.CONTENT_TYPE
 
 class ScenarioSpec extends BaseSpec {
 

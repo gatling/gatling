@@ -15,10 +15,11 @@
  */
 package io.gatling.http.action.ws
 
-import akka.actor.ActorRef
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.WsTx
-import com.ning.http.client.ws._
+
+import akka.actor.ActorRef
+import org.asynchttpclient.ws._
 import com.typesafe.scalalogging.LazyLogging
 
 class WsListener(tx: WsTx, wsActor: ActorRef)

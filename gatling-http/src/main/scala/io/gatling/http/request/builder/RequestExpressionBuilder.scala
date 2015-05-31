@@ -19,8 +19,6 @@ import java.net.InetAddress
 
 import scala.util.control.NonFatal
 
-import com.ning.http.client.uri.Uri
-import com.ning.http.client.{ RequestBuilder => AHCRequestBuilder, NameResolver, Request }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation._
@@ -31,7 +29,11 @@ import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.referer.RefererHandling
 import io.gatling.http.util.{ DnsHelper, HttpHelper }
+
 import com.typesafe.scalalogging.LazyLogging
+import org.asynchttpclient.channel.NameResolver
+import org.asynchttpclient.request.{ RequestBuilder => AHCRequestBuilder, Request }
+import org.asynchttpclient.uri.Uri
 
 object RequestExpressionBuilder {
   val BuildRequestErrorMapper = "Failed to build request: " + _
@@ -160,10 +162,10 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
     (session: Session) => {
       val requestBuilder = new AHCRequestBuilder(commonAttributes.method, disableUrlEncoding)
 
-      requestBuilder.setBodyEncoding(configuration.core.encoding)
+      requestBuilder.setBodyCharset(configuration.core.charset)
 
       if (!protocol.enginePart.shareConnections)
-        requestBuilder.setConnectionPoolKeyStrategy(new ChannelPoolPartitioning(session))
+        requestBuilder.setConnectionPoolPartitioning(new ChannelPoolPartitioning(session))
 
       protocol.enginePart.localAddress.foreach(requestBuilder.setLocalInetAddress)
 

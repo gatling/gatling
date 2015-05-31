@@ -15,13 +15,14 @@
  */
 package io.gatling.http.ahc
 
-import akka.actor.ActorRef
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
 import io.gatling.http.action.sse.SseHandler
 import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.protocol.HttpProtocol
-import com.ning.http.client.Request
+
+import akka.actor.ActorRef
+import org.asynchttpclient.request.Request
 
 object SseTx {
 

@@ -15,9 +15,6 @@
  */
 package io.gatling.http.action
 
-import akka.actor.{ ActorSystem, ActorRef }
-import com.ning.http.client.cookie.Cookie
-import com.ning.http.client.uri.Uri
 import io.gatling.core.action.SessionHook
 import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.http.protocol.HttpProtocol
@@ -25,6 +22,10 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.cookie.CookieSupport.storeCookie
+
+import akka.actor.{ ActorSystem, ActorRef }
+import org.asynchttpclient.cookie.Cookie
+import org.asynchttpclient.uri.Uri
 
 case class CookieDSL(name: Expression[String], value: Expression[String],
                      domain: Option[Expression[String]] = None,

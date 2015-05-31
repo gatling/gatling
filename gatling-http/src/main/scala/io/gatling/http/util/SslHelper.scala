@@ -17,11 +17,11 @@ package io.gatling.http.util
 
 import java.io.{ FileNotFoundException, InputStream, File, FileInputStream }
 import java.security.{ KeyStore, SecureRandom }
-
-import com.ning.http.client.AsyncHttpClientConfig
+import javax.net.ssl.{ KeyManager, KeyManagerFactory, SSLContext, TrustManager, TrustManagerFactory }
 
 import io.gatling.core.util.Io._
-import javax.net.ssl.{ KeyManager, KeyManagerFactory, SSLContext, TrustManager, TrustManagerFactory }
+
+import org.asynchttpclient.config.AsyncHttpClientConfig
 
 object SslHelper {
 

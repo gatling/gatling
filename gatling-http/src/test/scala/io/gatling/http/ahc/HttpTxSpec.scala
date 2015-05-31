@@ -15,18 +15,16 @@
  */
 package io.gatling.http.ahc
 
-import io.gatling.http.protocol.{ HttpComponents, HttpProtocolRequestPart, HttpProtocol }
-
-import com.ning.http.client.Request
-import com.ning.http.client.uri.Uri
-
-import org.mockito.Mockito._
-
 import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.cache.HttpCaches
+import io.gatling.http.protocol.{ HttpComponents, HttpProtocolRequestPart, HttpProtocol }
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
+
+import org.asynchttpclient.request.Request
+import org.asynchttpclient.uri.Uri
+import org.mockito.Mockito._
 
 class HttpTxSpec extends BaseSpec {
 

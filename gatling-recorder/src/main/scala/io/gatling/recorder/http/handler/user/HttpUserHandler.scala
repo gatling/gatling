@@ -19,9 +19,10 @@ import java.net.InetSocketAddress
 
 import scala.util.control.NonFatal
 
-import com.ning.http.client.uri.Uri
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.handler.ScalaChannelHandler
+
+import org.asynchttpclient.uri.Uri
 import org.jboss.netty.channel.{ Channel, ChannelFuture }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpRequest, HttpResponseStatus, HttpVersion }
 

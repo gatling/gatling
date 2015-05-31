@@ -15,11 +15,11 @@
  */
 package io.gatling.http.cookie
 
-import com.ning.http.client.cookie.CookieDecoder.decode
-import com.ning.http.client.uri.Uri
-
 import io.gatling.BaseSpec
 import io.gatling.core.session.Session
+
+import org.asynchttpclient.cookie.CookieDecoder.decode
+import org.asynchttpclient.uri.Uri
 
 class CookieHandlingSpec extends BaseSpec {
 

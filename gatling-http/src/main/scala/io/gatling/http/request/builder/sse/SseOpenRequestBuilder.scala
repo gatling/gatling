@@ -15,13 +15,14 @@
  */
 package io.gatling.http.request.builder.sse
 
-import com.ning.http.client.Request
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.{ HeaderValues, HeaderNames }
 import io.gatling.http.action.sse._
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
+
+import org.asynchttpclient.request.Request
 
 object SseOpenRequestBuilder {
 

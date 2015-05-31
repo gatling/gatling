@@ -17,6 +17,6 @@ package io.gatling.http
 
 object Predef extends HttpDsl {
 
-  type Request = com.ning.http.client.Request
+  type Request = org.asynchttpclient.request.Request
   type Response = io.gatling.http.response.Response
 }

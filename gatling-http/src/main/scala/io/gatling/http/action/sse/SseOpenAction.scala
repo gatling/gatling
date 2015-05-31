@@ -15,17 +15,17 @@
  */
 package io.gatling.http.action.sse
 
-import io.gatling.core.stats.StatsEngine
-
-import akka.actor.{ Props, ActorRef }
-import com.ning.http.client.Request
 import io.gatling.core.action.Interruptable
 import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.http.ahc.SseTx
 import io.gatling.http.check.ws._
 import io.gatling.http.protocol.HttpComponents
+
+import akka.actor.{ Props, ActorRef }
+import org.asynchttpclient.request.Request
 
 object SseOpenAction {
 

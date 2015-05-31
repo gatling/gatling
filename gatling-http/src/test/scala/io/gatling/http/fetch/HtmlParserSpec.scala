@@ -18,10 +18,10 @@ package io.gatling.http.fetch
 import scala.io.Codec.UTF8
 import scala.io.Source
 
-import com.ning.http.client.uri.Uri
-
 import io.gatling.BaseSpec
 import io.gatling.core.util.Io._
+
+import org.asynchttpclient.uri.Uri
 
 class HtmlParserSpec extends BaseSpec {
 

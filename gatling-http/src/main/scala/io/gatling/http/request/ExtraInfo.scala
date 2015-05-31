@@ -15,11 +15,11 @@
  */
 package io.gatling.http.request
 
-import io.gatling.core.stats.message.Status
-
-import com.ning.http.client.Request
 import io.gatling.core.session.Session
+import io.gatling.core.stats.message.Status
 import io.gatling.http.response.Response
+
+import org.asynchttpclient.request.Request
 
 case class ExtraInfo(
   requestName: String,

@@ -17,14 +17,15 @@ package io.gatling.recorder.http.handler.user
 
 import java.net.InetSocketAddress
 
-import com.ning.http.client.uri.Uri
-import com.ning.http.util.Base64
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.http.HeaderNames
 import io.gatling.recorder.controller.RecorderController
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.remote.{ TimedHttpRequest, RemoteHandler }
+
+import com.typesafe.scalalogging.StrictLogging
+import org.asynchttpclient.util.Base64
+import org.asynchttpclient.uri.Uri
 import org.jboss.netty.channel._
 import org.jboss.netty.handler.codec.http.HttpRequest
 

@@ -20,15 +20,17 @@ import java.nio.charset.StandardCharsets.UTF_8
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.xml.ws.http.HTTPException
 
-import akka.actor.ActorRef
-import com.ning.http.client.AsyncHandler.STATE
-import com.ning.http.client.AsyncHandler.STATE.{ ABORT, CONTINUE }
-import com.ning.http.client._
-import com.ning.http.client.providers.netty.response.NettyResponseBodyPart
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.SseTx
+
+import akka.actor.ActorRef
+import org.asynchttpclient.handler._
+import org.asynchttpclient.handler.AsyncHandler.STATE
+import org.asynchttpclient.handler.AsyncHandler.STATE.{ ABORT, CONTINUE }
+import org.asynchttpclient.response._
+import org.asynchttpclient.netty.response.NettyResponseBodyPart
 import org.jboss.netty.handler.codec.http.HttpResponseStatus.OK
+import com.typesafe.scalalogging.StrictLogging
 
 class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     with AsyncHandlerExtensions

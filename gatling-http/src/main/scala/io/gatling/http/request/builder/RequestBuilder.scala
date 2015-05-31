@@ -17,9 +17,6 @@ package io.gatling.http.request.builder
 
 import java.net.InetAddress
 
-import com.ning.http.client._
-import com.ning.http.client.uri.Uri
-
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
 import io.gatling.http.check.status.HttpStatusCheckBuilder._
@@ -28,6 +25,11 @@ import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.ahc.ProxyConverter
 import io.gatling.http.protocol.Proxy
 import io.gatling.http.util.HttpHelper
+
+import org.asynchttpclient._
+import org.asynchttpclient.proxy._
+import org.asynchttpclient.request._
+import org.asynchttpclient.uri.Uri
 
 case class CommonAttributes(
   requestName: Expression[String],

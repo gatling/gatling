@@ -17,15 +17,11 @@ package io.gatling.http.fetch
 
 import scala.collection.mutable
 
-import io.gatling.core.stats.message.{ KO, OK, Status }
-
-import com.ning.http.client.Request
-import com.ning.http.client.uri.Uri
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
 import io.gatling.core.session._
-import io.gatling.core.stats.message.KO
+import io.gatling.core.stats.message.{ KO, OK, Status }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.cache._
 import io.gatling.core.validation._
@@ -35,6 +31,9 @@ import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request._
 import io.gatling.http.response._
 import io.gatling.http.util.HttpHelper._
+
+import org.asynchttpclient.request.Request
+import org.asynchttpclient.uri.Uri
 
 sealed trait ResourceFetched {
   def uri: Uri

@@ -18,12 +18,12 @@ package io.gatling.recorder.har
 import java.nio.charset.StandardCharsets
 import java.text.SimpleDateFormat
 
-import com.ning.http.util.Base64
-
 import scala.util.Try
 
 import io.gatling.core.util.StringHelper.RichString
 import Json.{ JsonToInt, JsonToString }
+
+import org.asynchttpclient.util.Base64
 
 private[har] object HarMapping {
 

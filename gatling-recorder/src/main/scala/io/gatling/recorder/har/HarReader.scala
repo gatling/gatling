@@ -18,8 +18,6 @@ package io.gatling.recorder.har
 import java.io.{ FileInputStream, InputStream }
 import java.net.URL
 
-import com.ning.http.client.uri.Uri
-
 import scala.collection.breakOut
 import scala.util.Try
 
@@ -28,6 +26,8 @@ import io.gatling.http.HeaderNames._
 import io.gatling.http.fetch.HtmlParser
 import io.gatling.recorder.config.RecorderConfiguration
 import io.gatling.recorder.scenario._
+
+import org.asynchttpclient.uri.Uri
 import org.jboss.netty.handler.codec.http.HttpMethod
 
 /**

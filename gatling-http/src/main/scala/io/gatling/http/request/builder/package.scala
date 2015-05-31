@@ -19,9 +19,10 @@ import java.util.{ List => JList, ArrayList => JArrayList }
 
 import scala.annotation.tailrec
 
-import com.ning.http.client.Param
 import io.gatling.core.session.Session
 import io.gatling.core.validation._
+
+import org.asynchttpclient.request.Param
 
 package object builder {
 

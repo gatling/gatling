@@ -18,9 +18,6 @@ package io.gatling.http.protocol
 import java.net.InetAddress
 import java.util.regex.Pattern
 
-import akka.actor.ActorSystem
-import com.ning.http.client._
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
@@ -32,6 +29,12 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.response.Response
+
+import akka.actor.ActorSystem
+import com.typesafe.scalalogging.StrictLogging
+import org.asynchttpclient._
+import org.asynchttpclient.request._
+import org.asynchttpclient.proxy._
 
 object HttpProtocol extends StrictLogging {
 

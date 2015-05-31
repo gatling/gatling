@@ -15,9 +15,9 @@
  */
 package io.gatling.http.fetch
 
-import com.ning.http.client.Request
-
 import io.gatling.http.HeaderNames
+
+import org.asynchttpclient.request.Request
 
 object UserAgent {
 

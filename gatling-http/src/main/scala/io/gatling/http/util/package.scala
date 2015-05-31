@@ -22,13 +22,13 @@ import java.util.{ List => JList, Map => JMap }
 
 import scala.collection.JavaConversions._
 
-import com.ning.http.client.{ Param, Request }
-import com.ning.http.client.multipart._
-import com.ning.http.client.providers.netty.request.NettyRequest
-import com.ning.http.client.providers.netty.request.body.NettyMultipartBody
-
 import io.gatling.core.util.StringHelper.Eol
 import io.gatling.http.response.Response
+
+import org.asynchttpclient.netty.request.NettyRequest
+import org.asynchttpclient.netty.request.body.NettyMultipartBody
+import org.asynchttpclient.request.{ Param, Request }
+import org.asynchttpclient.request.body.multipart._
 
 package object util {
 

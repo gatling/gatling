@@ -15,9 +15,10 @@
  */
 package io.gatling.http.request.builder
 
-import com.ning.http.client.uri.Uri
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
+
+import org.asynchttpclient.uri.Uri
 
 /**
  * @param requestName the name of the request

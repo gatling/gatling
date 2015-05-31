@@ -15,9 +15,11 @@
  */
 package io.gatling.http.ahc
 
-import com.ning.http.client.{ ConnectionPoolPartitioning, ProxyServer }
-import com.ning.http.client.uri.Uri
 import io.gatling.core.session.Session
+
+import org.asynchttpclient.channel.pool.ConnectionPoolPartitioning
+import org.asynchttpclient.proxy.ProxyServer
+import org.asynchttpclient.uri.Uri
 
 class ChannelPoolPartitioning(session: Session) extends ConnectionPoolPartitioning {
 

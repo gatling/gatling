@@ -15,22 +15,16 @@
  */
 package io.gatling.http.ahc
 
-import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.{ KO, OK, Status }
-
 import akka.actor.Props
 
 import scala.util.control.NonFatal
-
-import com.ning.http.client.{ Request, RequestBuilder }
-import com.ning.http.client.uri.Uri
-import com.ning.http.util.StringUtils.stringBuilder
 
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.Check
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
-import io.gatling.core.stats.message.KO
+import io.gatling.core.stats.StatsEngine
+import io.gatling.core.stats.message.{ KO, OK, Status }
 import io.gatling.core.util.StringHelper.Eol
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
@@ -43,6 +37,10 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, resolveFromUri }
 import io.gatling.http.util.HttpStringBuilder
+
+import org.asynchttpclient.request.{ Request, RequestBuilder }
+import org.asynchttpclient.uri.Uri
+import org.asynchttpclient.util.StringUtils.stringBuilder
 
 object AsyncHandlerActor {
   def props(statsEngine: StatsEngine, httpEngine: HttpEngine)(implicit configuration: GatlingConfiguration) =
@@ -202,8 +200,8 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
 
         val requestBuilder = new RequestBuilder(newMethod)
           .setUri(redirectUri)
-          .setBodyEncoding(configuration.core.encoding)
-          .setConnectionPoolKeyStrategy(originalRequest.getConnectionPoolPartitioning)
+          .setBodyCharset(configuration.core.charset)
+          .setConnectionPoolPartitioning(originalRequest.getConnectionPoolPartitioning)
           .setInetAddress(originalRequest.getInetAddress)
           .setLocalInetAddress(originalRequest.getLocalAddress)
           .setVirtualHost(originalRequest.getVirtualHost)

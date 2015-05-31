@@ -242,7 +242,7 @@ class HttpRequest {
 
   {
     //#resp-processors-imports
-    import com.ning.http.util.Base64
+    import org.asynchttpclient.util.Base64
     import io.gatling.http.response._
     import java.nio.charset.StandardCharsets.UTF_8
     //#resp-processors-imports

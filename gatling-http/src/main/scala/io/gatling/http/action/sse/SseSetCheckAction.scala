@@ -15,13 +15,13 @@
  */
 package io.gatling.http.action.sse
 
-import io.gatling.core.stats.StatsEngine
-
-import akka.actor.{ Props, ActorRef }
 import io.gatling.core.session._
 import io.gatling.core.validation.Validation
+import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.RequestAction
 import io.gatling.http.check.ws._
+
+import akka.actor.{ Props, ActorRef }
 
 object SseSetCheckAction {
   def props(requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String, statsEngine: StatsEngine, next: ActorRef) =

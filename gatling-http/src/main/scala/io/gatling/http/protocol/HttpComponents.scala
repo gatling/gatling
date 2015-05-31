@@ -20,8 +20,8 @@ import io.gatling.core.session.Session
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 
-import com.ning.http.client.providers.netty.NettyAsyncHttpProvider
-import com.ning.http.client.providers.netty.channel.pool.ChannelPoolPartitionSelector
+import org.asynchttpclient.netty.NettyAsyncHttpProvider
+import org.asynchttpclient.netty.channel.pool.ChannelPoolPartitionSelector
 
 case class HttpComponents(httpProtocol: HttpProtocol, httpEngine: HttpEngine, httpCaches: HttpCaches) extends ProtocolComponents {
 

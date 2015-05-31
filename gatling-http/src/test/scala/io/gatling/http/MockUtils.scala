@@ -21,8 +21,8 @@ import io.gatling.http.protocol.{ HttpComponents, HttpProtocolRequestPart, HttpP
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 
-import com.ning.http.client.Request
-import com.ning.http.client.uri.Uri
+import org.asynchttpclient.request.Request
+import org.asynchttpclient.uri.Uri
 
 import io.gatling.core.session.Session
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }

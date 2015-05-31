@@ -15,12 +15,13 @@
  */
 package io.gatling.http.request.builder.ws
 
-import com.ning.http.client.Request
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
 import io.gatling.http.action.ws.WsOpenActionBuilder
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
+
+import org.asynchttpclient.request.Request
 
 object WsOpenRequestBuilder {
 

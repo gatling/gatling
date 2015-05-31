@@ -22,7 +22,7 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.{ HeaderValues, HeaderNames }
 import io.gatling.http.response.Response
 
-import com.ning.http.client.cookie.RFC2616DateParser
+import org.asynchttpclient.cookie.RFC2616DateParser
 
 trait ExpiresSupport {
 

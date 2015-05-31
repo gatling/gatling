@@ -19,11 +19,12 @@ import java.io.IOException
 import java.net.InetSocketAddress
 import javax.net.ssl.SSLException
 
-import com.ning.http.client.uri.Uri
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
 import io.gatling.recorder.http.handler.ScalaChannelHandler
+
+import com.typesafe.scalalogging.StrictLogging
+import org.asynchttpclient.uri.Uri
 import org.jboss.netty.channel.{ Channel, ChannelFuture, ChannelHandlerContext, ExceptionEvent }
 import org.jboss.netty.handler.codec.http.{ DefaultHttpResponse, HttpMethod, HttpRequest, HttpResponseStatus, HttpVersion }
 import org.jboss.netty.handler.ssl.SslHandler

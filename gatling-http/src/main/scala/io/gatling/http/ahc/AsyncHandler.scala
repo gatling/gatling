@@ -18,10 +18,11 @@ package io.gatling.http.ahc
 import java.net.InetAddress
 import java.util.concurrent.atomic.AtomicBoolean
 
-import com.ning.http.client.providers.netty.request.NettyRequest
-import com.ning.http.client.{ AsyncHandlerExtensions, HttpResponseBodyPart, HttpResponseHeaders, HttpResponseStatus, ProgressAsyncHandler }
-import com.ning.http.client.AsyncHandler.STATE
-import com.ning.http.client.AsyncHandler.STATE.CONTINUE
+import org.asynchttpclient.netty.request.NettyRequest
+import org.asynchttpclient.handler._
+import org.asynchttpclient.handler.AsyncHandler.STATE
+import org.asynchttpclient.handler.AsyncHandler.STATE.CONTINUE
+import org.asynchttpclient.response._
 import com.typesafe.scalalogging._
 
 import scala.util.control.NonFatal

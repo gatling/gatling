@@ -15,21 +15,20 @@
  */
 package io.gatling.http.action.ws
 
-import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.{ KO, OK, Status, ResponseTimings }
-
-import com.ning.http.client.ws.WebSocket
-
 import scala.collection.mutable
-import akka.actor.{ Props, ActorRef }
+
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
-import io.gatling.core.stats.message.KO
+import io.gatling.core.stats.StatsEngine
+import io.gatling.core.stats.message.{ OK, KO, Status, ResponseTimings }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Success
 import io.gatling.http.ahc.{ HttpEngine, WsTx }
 import io.gatling.http.check.ws.{ ExpectedRange, UntilCount, ExpectedCount, WsCheck }
+
+import akka.actor.{ Props, ActorRef }
+import org.asynchttpclient.ws.WebSocket
 
 object WsActor {
   def props(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) =

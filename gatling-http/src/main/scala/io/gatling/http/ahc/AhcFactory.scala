@@ -22,16 +22,16 @@ import io.gatling.core.{ CoreComponents, ConfigKeys }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.util.ReflectionHelper._
-import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.util.SslHelper._
 
 import akka.actor.ActorSystem
-import com.ning.http.client.{ AsyncHttpClient, AsyncHttpClientConfig }
-import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig
-import com.ning.http.client.providers.netty.NettyAsyncHttpProviderConfig.NettyWebSocketFactory
-import com.ning.http.client.providers.netty.channel.pool.{ ChannelPool, DefaultChannelPool }
-import com.ning.http.client.providers.netty.ws.NettyWebSocket
-import com.ning.http.client.ws.WebSocketListener
+import org.asynchttpclient._
+import org.asynchttpclient.config.AsyncHttpClientConfig
+import org.asynchttpclient.netty.NettyAsyncHttpProviderConfig
+import org.asynchttpclient.netty.NettyAsyncHttpProviderConfig.NettyWebSocketFactory
+import org.asynchttpclient.netty.channel.pool.{ ChannelPool, DefaultChannelPool }
+import org.asynchttpclient.netty.ws.NettyWebSocket
+import org.asynchttpclient.ws.WebSocketListener
 import com.typesafe.scalalogging.StrictLogging
 import org.jboss.netty.channel.Channel
 import org.jboss.netty.channel.socket.nio.{ NioWorkerPool, NioClientBossPool, NioClientSocketChannelFactory }
@@ -102,15 +102,10 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     nettyConfig.setSocketChannelFactory(socketChannelFactory)
     nettyConfig.setNettyTimer(timer)
     nettyConfig.setChannelPool(channelPool)
-    nettyConfig.setHttpClientCodecMaxInitialLineLength(ahcConfig.httpClientCodecMaxInitialLineLength)
-    nettyConfig.setHttpClientCodecMaxHeaderSize(ahcConfig.httpClientCodecMaxHeaderSize)
-    nettyConfig.setHttpClientCodecMaxChunkSize(ahcConfig.httpClientCodecMaxChunkSize)
     nettyConfig.setNettyWebSocketFactory(new NettyWebSocketFactory {
-      override def newNettyWebSocket(channel: Channel, nettyConfig: NettyAsyncHttpProviderConfig): NettyWebSocket =
-        new NettyWebSocket(channel, nettyConfig, new JArrayList[WebSocketListener](1))
+      override def newNettyWebSocket(channel: Channel, config: AsyncHttpClientConfig): NettyWebSocket =
+        new NettyWebSocket(channel, config, new JArrayList[WebSocketListener](1))
     })
-    nettyConfig.setKeepEncodingHeader(ahcConfig.keepEncodingHeader)
-    nettyConfig.setWebSocketMaxFrameSize(ahcConfig.webSocketMaxFrameSize)
     nettyConfig
   }
 
@@ -133,7 +128,6 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       .setExecutorService(applicationThreadPool)
       .setAsyncHttpClientProviderConfig(nettyConfig)
       .setWebSocketTimeout(ahcConfig.webSocketTimeout)
-      .setUseRelativeURIsWithConnectProxies(ahcConfig.useRelativeURIsWithConnectProxies)
       .setAcceptAnyCertificate(ahcConfig.acceptAnyCertificate)
       .setEnabledProtocols(ahcConfig.sslEnabledProtocols match {
         case Nil => null
@@ -145,6 +139,11 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
       })
       .setSslSessionCacheSize(if (ahcConfig.sslSessionCacheSize > 0) ahcConfig.sslSessionCacheSize else null)
       .setSslSessionTimeout(if (ahcConfig.sslSessionTimeout > 0) ahcConfig.sslSessionTimeout else null)
+      .setHttpClientCodecMaxInitialLineLength(ahcConfig.httpClientCodecMaxInitialLineLength)
+      .setHttpClientCodecMaxHeaderSize(ahcConfig.httpClientCodecMaxHeaderSize)
+      .setHttpClientCodecMaxChunkSize(ahcConfig.httpClientCodecMaxChunkSize)
+      .setKeepEncodingHeader(ahcConfig.keepEncodingHeader)
+      .setWebSocketMaxFrameSize(ahcConfig.webSocketMaxFrameSize)
 
     val trustManagers = configuration.http.ssl.trustStore
       .map(config => newTrustManagers(config.storeType, config.file, config.password, config.algorithm))
@@ -196,7 +195,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
 
     }.getOrElse(defaultAhcConfig)
 
-    val client = new AsyncHttpClient(ahcConfig)
+    val client = new DefaultAsyncHttpClient(ahcConfig)
     system.registerOnTermination(client.close())
     client
   }

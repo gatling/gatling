@@ -17,12 +17,13 @@ package io.gatling.http.cache
 
 import scala.annotation.tailrec
 
-import com.ning.http.client.{ Request, RequestBuilder }
-import com.ning.http.client.uri.Uri
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.SessionCacheHandler
 import io.gatling.core.session.{ SessionPrivateAttributes, Session }
 import io.gatling.http.ahc.HttpTx
+
+import org.asynchttpclient.request.{ Request, RequestBuilder }
+import org.asynchttpclient.uri.Uri
 
 object PermanentRedirectCache {
   val HttpPermanentRedirectCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.redirects"

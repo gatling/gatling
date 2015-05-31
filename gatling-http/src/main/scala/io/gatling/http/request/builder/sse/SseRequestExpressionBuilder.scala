@@ -15,14 +15,15 @@
  */
 package io.gatling.http.request.builder.sse
 
-import com.ning.http.client.{ RequestBuilder => AHCRequestBuilder }
-import com.ning.http.client.uri.Uri
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
 import io.gatling.http.util.HttpHelper
+
+import org.asynchttpclient.request.{ RequestBuilder => AHCRequestBuilder }
+import org.asynchttpclient.uri.Uri
 
 class SseRequestExpressionBuilder(commonAttributes: CommonAttributes, httpComponents: HttpComponents)(implicit configuration: GatlingConfiguration)
     extends RequestExpressionBuilder(commonAttributes, httpComponents) {

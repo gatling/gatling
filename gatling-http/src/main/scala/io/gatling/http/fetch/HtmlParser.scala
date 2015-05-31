@@ -18,12 +18,13 @@ package io.gatling.http.fetch
 import scala.collection.{ breakOut, mutable }
 import scala.util.control.NonFatal
 
-import com.ning.http.client.uri.Uri
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.check.extractor.css.Jodd
 import io.gatling.http.util.HttpHelper
+
+import com.typesafe.scalalogging.StrictLogging
 import jodd.lagarto.{ TagUtil, TagType, EmptyTagVisitor, Tag }
 import jodd.lagarto.dom.HtmlCCommentExpressionMatcher
+import org.asynchttpclient.uri.Uri
 
 sealed abstract class RawResource {
   def rawUrl: String

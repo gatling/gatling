@@ -18,9 +18,6 @@ package io.gatling.http.protocol
 import java.net.InetAddress
 
 import io.gatling.core.config.GatlingConfiguration
-
-import com.ning.http.client.{ RequestBuilderBase, Request, SignatureCalculator, Realm }
-
 import io.gatling.core.filter.{ BlackList, Filters, WhiteList }
 import io.gatling.core.session._
 import io.gatling.core.session.el.El
@@ -30,6 +27,9 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
+
+import org.asynchttpclient.Realm
+import org.asynchttpclient.request.{ RequestBuilderBase, Request, SignatureCalculator }
 
 /**
  * HttpProtocolBuilder class companion

@@ -15,12 +15,12 @@
  */
 package io.gatling.http.action.sse
 
-import io.gatling.core.stats.StatsEngine
-
-import akka.actor.{ Props, ActorRef }
 import io.gatling.core.session.{ Session, Expression }
+import io.gatling.core.stats.StatsEngine
 import io.gatling.core.validation.Validation
 import io.gatling.http.action.RequestAction
+
+import akka.actor.{ Props, ActorRef }
 
 object SseReconciliateAction {
   def props(requestName: Expression[String], sseName: String, statsEngine: StatsEngine, next: ActorRef) =

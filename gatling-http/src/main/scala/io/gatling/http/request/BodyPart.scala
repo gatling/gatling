@@ -18,12 +18,13 @@ package io.gatling.http.request
 import java.io.File
 import java.nio.charset.Charset
 
-import com.ning.http.client.multipart.{ ByteArrayPart, FilePart, Part, PartBase, StringPart }
 import io.gatling.core.body.{ ElFileBodies, RawFileBodies }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.util.Io._
 import io.gatling.core.validation.Validation
+
+import org.asynchttpclient.request.body.multipart.{ ByteArrayPart, FilePart, Part, PartBase, StringPart }
 
 object BodyPart {
 

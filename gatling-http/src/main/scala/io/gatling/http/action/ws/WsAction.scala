@@ -15,8 +15,9 @@
  */
 package io.gatling.http.action.ws
 
-import akka.actor.ActorRef
 import io.gatling.core.session.Session
+
+import akka.actor.ActorRef
 
 trait WsAction {
 

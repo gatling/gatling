@@ -15,15 +15,14 @@
  */
 package io.gatling.http.fetch
 
-import com.ning.http.client.uri.Uri
-
 import scala.annotation.{ switch, tailrec }
 import scala.collection.TraversableOnce.flattenTraversableOnce
 import scala.util.matching.Regex
 
-import com.typesafe.scalalogging.StrictLogging
-
 import io.gatling.http.util.HttpHelper
+
+import org.asynchttpclient.uri.Uri
+import com.typesafe.scalalogging.StrictLogging
 
 object CssParser extends StrictLogging {
 

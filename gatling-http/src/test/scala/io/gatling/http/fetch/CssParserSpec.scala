@@ -15,9 +15,9 @@
  */
 package io.gatling.http.fetch
 
-import com.ning.http.client.uri.Uri
-
 import io.gatling.BaseSpec
+
+import org.asynchttpclient.uri.Uri
 
 class CssParserSpec extends BaseSpec {
 
