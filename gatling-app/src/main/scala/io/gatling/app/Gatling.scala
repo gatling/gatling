@@ -40,7 +40,7 @@ object Gatling {
 
   def fromArgs(args: Array[String], selectedSimulationClass: SelectedSimulationClass): Int =
     new ArgsParser(args).parseArguments match {
-      case Left(overrides)   => start(overrides, None)
+      case Left(overrides)   => start(overrides, selectedSimulationClass)
       case Right(statusCode) => statusCode.code
     }
 
