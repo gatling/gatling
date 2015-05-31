@@ -15,8 +15,6 @@
  */
 package io.gatling.http.ahc
 
-import akka.actor.Props
-
 import scala.util.control.NonFatal
 
 import io.gatling.core.akka.BaseActor
@@ -38,7 +36,8 @@ import io.gatling.http.util.HttpHelper
 import io.gatling.http.util.HttpHelper.{ isCss, resolveFromUri }
 import io.gatling.http.util.HttpStringBuilder
 
-import org.asynchttpclient.request.{ Request, RequestBuilder }
+import akka.actor.Props
+import org.asynchttpclient.{ Request, RequestBuilder }
 import org.asynchttpclient.uri.Uri
 import org.asynchttpclient.util.StringUtils.stringBuilder
 

@@ -24,11 +24,11 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.ahc.SseTx
 
 import akka.actor.ActorRef
+import org.asynchttpclient._
 import org.asynchttpclient.handler._
-import org.asynchttpclient.handler.AsyncHandler.STATE
-import org.asynchttpclient.handler.AsyncHandler.STATE.{ ABORT, CONTINUE }
-import org.asynchttpclient.response._
-import org.asynchttpclient.netty.response.NettyResponseBodyPart
+import org.asynchttpclient.AsyncHandler.State
+import org.asynchttpclient.AsyncHandler.State.{ ABORT, CONTINUE }
+import org.asynchttpclient.netty.NettyResponseBodyPart
 import org.jboss.netty.handler.codec.http.HttpResponseStatus.OK
 import com.typesafe.scalalogging.StrictLogging
 
@@ -64,7 +64,7 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
   override def onSendRequest(request: Any): Unit =
     logger.debug(s"Request $request has been sent by the http client")
 
-  override def onStatusReceived(responseStatus: HttpResponseStatus): STATE = {
+  override def onStatusReceived(responseStatus: HttpResponseStatus): State = {
 
     val statusCode = responseStatus.getStatusCode
     logger.debug(s"Status $statusCode received for sse '${tx.requestName}")
@@ -81,11 +81,11 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     }
   }
 
-  override def onHeadersReceived(headers: HttpResponseHeaders): STATE =
+  override def onHeadersReceived(headers: HttpResponseHeaders): State =
     if (done.get) ABORT
     else CONTINUE
 
-  override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
+  override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): State = {
     if (done.get) {
       bodyPart.markUnderlyingConnectionAsToBeClosed()
       ABORT

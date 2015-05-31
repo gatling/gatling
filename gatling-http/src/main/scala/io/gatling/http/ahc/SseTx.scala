@@ -22,7 +22,7 @@ import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.protocol.HttpProtocol
 
 import akka.actor.ActorRef
-import org.asynchttpclient.request.Request
+import org.asynchttpclient.Request
 
 object SseTx {
 

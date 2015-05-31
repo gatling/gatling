@@ -32,7 +32,7 @@ import io.gatling.http.util.{ DnsHelper, HttpHelper }
 
 import com.typesafe.scalalogging.LazyLogging
 import org.asynchttpclient.channel.NameResolver
-import org.asynchttpclient.request.{ RequestBuilder => AHCRequestBuilder, Request }
+import org.asynchttpclient.{ RequestBuilder => AHCRequestBuilder, Request }
 import org.asynchttpclient.uri.Uri
 
 object RequestExpressionBuilder {

@@ -22,7 +22,7 @@ import io.gatling.http.HeaderNames
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.response.Response
 
-import org.asynchttpclient.request.Request
+import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 
 object HttpContentCache {

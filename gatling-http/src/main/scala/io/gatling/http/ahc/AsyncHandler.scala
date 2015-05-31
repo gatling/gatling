@@ -19,10 +19,10 @@ import java.net.InetAddress
 import java.util.concurrent.atomic.AtomicBoolean
 
 import org.asynchttpclient.netty.request.NettyRequest
+import org.asynchttpclient._
 import org.asynchttpclient.handler._
-import org.asynchttpclient.handler.AsyncHandler.STATE
-import org.asynchttpclient.handler.AsyncHandler.STATE.CONTINUE
-import org.asynchttpclient.response._
+import org.asynchttpclient.AsyncHandler.State
+import org.asynchttpclient.AsyncHandler.State._
 import com.typesafe.scalalogging._
 
 import scala.util.control.NonFatal
@@ -76,29 +76,29 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
     if (!done.get) responseBuilder.reset()
     else logger.error("onRetry is not supposed to be called once done, please report")
 
-  override def onHeaderWriteCompleted: STATE = {
+  override def onHeaderWriteCompleted: State = {
     if (!done.get) responseBuilder.updateLastByteSent()
     CONTINUE
   }
 
-  override def onContentWriteCompleted: STATE = {
+  override def onContentWriteCompleted: State = {
     if (!done.get) responseBuilder.updateLastByteSent()
     CONTINUE
   }
 
   override def onContentWriteProgress(amount: Long, current: Long, total: Long) = CONTINUE
 
-  override def onStatusReceived(status: HttpResponseStatus): STATE = {
+  override def onStatusReceived(status: HttpResponseStatus): State = {
     if (!done.get) responseBuilder.accumulate(status)
     CONTINUE
   }
 
-  override def onHeadersReceived(headers: HttpResponseHeaders): STATE = {
+  override def onHeadersReceived(headers: HttpResponseHeaders): State = {
     if (!done.get) responseBuilder.accumulate(headers)
     CONTINUE
   }
 
-  override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): STATE = {
+  override def onBodyPartReceived(bodyPart: HttpResponseBodyPart): State = {
     if (!done.get) responseBuilder.accumulate(bodyPart)
     CONTINUE
   }

@@ -28,8 +28,7 @@ import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
-import org.asynchttpclient.Realm
-import org.asynchttpclient.request.{ RequestBuilderBase, Request, SignatureCalculator }
+import org.asynchttpclient.{ RequestBuilderBase, Realm, Request, SignatureCalculator }
 
 /**
  * HttpProtocolBuilder class companion

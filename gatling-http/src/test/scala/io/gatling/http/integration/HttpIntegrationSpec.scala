@@ -23,8 +23,6 @@ import io.gatling.http.HttpSpec
 import io.gatling.core.CoreDsl
 import io.gatling.http.HttpDsl
 import io.gatling.http.check.HttpCheckSupport
-import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.cache.HttpCaches
 
 class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
 

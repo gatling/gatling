@@ -22,7 +22,7 @@ import scala.annotation.tailrec
 import io.gatling.core.session.Session
 import io.gatling.core.validation._
 
-import org.asynchttpclient.request.Param
+import org.asynchttpclient.Param
 
 package object builder {
 

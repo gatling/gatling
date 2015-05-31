@@ -19,7 +19,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.stats.message.Status
 import io.gatling.http.response.Response
 
-import org.asynchttpclient.request.Request
+import org.asynchttpclient.Request
 
 case class ExtraInfo(
   requestName: String,

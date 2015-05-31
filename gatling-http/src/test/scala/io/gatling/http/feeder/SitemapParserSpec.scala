@@ -24,7 +24,6 @@ import org.mockito.Matchers._
 
 import io.gatling.BaseSpec
 import io.gatling.core.feeder.Record
-import io.gatling.core.config._
 import io.gatling.core.util.Io._
 
 class SitemapParserSpec extends BaseSpec {

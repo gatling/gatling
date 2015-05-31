@@ -22,7 +22,7 @@ import io.gatling.http.action.sse._
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
 
-import org.asynchttpclient.request.Request
+import org.asynchttpclient.Request
 
 object SseOpenRequestBuilder {
 

@@ -22,7 +22,7 @@ import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
 import io.gatling.http.util.HttpHelper
 
-import org.asynchttpclient.request.{ RequestBuilder => AHCRequestBuilder }
+import org.asynchttpclient.{ RequestBuilder => AHCRequestBuilder }
 import org.asynchttpclient.uri.Uri
 
 class SseRequestExpressionBuilder(commonAttributes: CommonAttributes, httpComponents: HttpComponents)(implicit configuration: GatlingConfiguration)

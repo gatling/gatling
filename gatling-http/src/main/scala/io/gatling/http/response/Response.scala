@@ -22,8 +22,7 @@ import scala.collection.JavaConversions.asScalaBuffer
 
 import org.asynchttpclient.cookie.{ Cookie, CookieDecoder }
 import org.asynchttpclient.netty.request.NettyRequest
-import org.asynchttpclient.request.{ FluentCaseInsensitiveStringsMap, Request => AHCRequest }
-import org.asynchttpclient.response.HttpResponseStatus
+import org.asynchttpclient.{ FluentCaseInsensitiveStringsMap, HttpResponseStatus, Request => AHCRequest }
 import org.asynchttpclient.uri.Uri
 
 import io.gatling.core.stats.message.ResponseTimings

@@ -20,7 +20,7 @@ import io.gatling.http.util.HttpHelper.{ isAjax, isHtml }
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.http.response.Response
 
-import org.asynchttpclient.request.Request
+import org.asynchttpclient.Request
 
 object RefererHandling {
 

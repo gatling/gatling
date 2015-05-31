@@ -26,7 +26,6 @@ import io.gatling.http.util.SslHelper._
 
 import akka.actor.ActorSystem
 import org.asynchttpclient._
-import org.asynchttpclient.config.AsyncHttpClientConfig
 import org.asynchttpclient.netty.NettyAsyncHttpProviderConfig
 import org.asynchttpclient.netty.NettyAsyncHttpProviderConfig.NettyWebSocketFactory
 import org.asynchttpclient.netty.channel.pool.{ ChannelPool, DefaultChannelPool }

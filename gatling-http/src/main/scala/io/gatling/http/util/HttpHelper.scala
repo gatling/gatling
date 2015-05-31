@@ -26,9 +26,8 @@ import scala.util.control.NonFatal
 import io.gatling.core.session._
 import io.gatling.http.{ HeaderNames, HeaderValues }
 
-import org.asynchttpclient.Realm
+import org.asynchttpclient.{ FluentCaseInsensitiveStringsMap, Realm }
 import org.asynchttpclient.Realm.AuthScheme
-import org.asynchttpclient.request.FluentCaseInsensitiveStringsMap
 import org.asynchttpclient.uri.Uri
 import com.typesafe.scalalogging.StrictLogging
 

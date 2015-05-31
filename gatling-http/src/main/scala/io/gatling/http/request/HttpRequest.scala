@@ -21,7 +21,7 @@ import io.gatling.http.check.HttpCheck
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.response.Response
 
-import org.asynchttpclient.request.{ RequestBuilder, SignatureCalculator, Request }
+import org.asynchttpclient.{ RequestBuilder, SignatureCalculator, Request }
 
 case class HttpRequestConfig(
   checks: List[HttpCheck],

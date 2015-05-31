@@ -25,7 +25,7 @@ import io.gatling.http.check.ws._
 import io.gatling.http.protocol.HttpComponents
 
 import akka.actor.{ Props, ActorRef }
-import org.asynchttpclient.request.Request
+import org.asynchttpclient.Request
 
 object SseOpenAction {
 

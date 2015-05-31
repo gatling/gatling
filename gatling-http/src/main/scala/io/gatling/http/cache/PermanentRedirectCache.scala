@@ -22,7 +22,7 @@ import io.gatling.core.util.cache.SessionCacheHandler
 import io.gatling.core.session.{ SessionPrivateAttributes, Session }
 import io.gatling.http.ahc.HttpTx
 
-import org.asynchttpclient.request.{ Request, RequestBuilder }
+import org.asynchttpclient.{ Request, RequestBuilder }
 import org.asynchttpclient.uri.Uri
 
 object PermanentRedirectCache {

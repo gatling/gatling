@@ -25,8 +25,7 @@ import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.{ MockUtils, HeaderNames, HeaderValues }
 import io.gatling.http.response.{ HttpResponse, ResponseBody }
 
-import org.asynchttpclient.request._
-import org.asynchttpclient.response._
+import org.asynchttpclient._
 import org.asynchttpclient.uri.Uri
 
 class CacheSupportSpec extends BaseSpec {

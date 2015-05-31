@@ -15,10 +15,10 @@
  */
 package io.gatling.http.action.sse
 
+import io.gatling.BaseSpec
+
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito._
-
-import io.gatling.BaseSpec
 
 class EventStreamParserSpec extends BaseSpec {
 

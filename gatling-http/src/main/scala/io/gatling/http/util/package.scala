@@ -27,7 +27,7 @@ import io.gatling.http.response.Response
 
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient.netty.request.body.NettyMultipartBody
-import org.asynchttpclient.request.{ Param, Request }
+import org.asynchttpclient.{ Param, Request }
 import org.asynchttpclient.request.body.multipart._
 
 package object util {

@@ -21,9 +21,9 @@ import java.nio.charset.StandardCharsets._
 
 import scala.annotation.switch
 
-import org.jboss.netty.buffer.{ ChannelBuffer, ChannelBufferInputStream, ChannelBuffers }
-
 import io.gatling.core.util.FastByteArrayInputStream
+
+import org.jboss.netty.buffer.{ ChannelBuffer, ChannelBufferInputStream, ChannelBuffers }
 
 sealed trait ResponseBodyUsage
 case object StringResponseBodyUsage extends ResponseBodyUsage

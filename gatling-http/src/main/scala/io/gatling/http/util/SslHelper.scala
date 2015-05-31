@@ -21,7 +21,7 @@ import javax.net.ssl.{ KeyManager, KeyManagerFactory, SSLContext, TrustManager, 
 
 import io.gatling.core.util.Io._
 
-import org.asynchttpclient.config.AsyncHttpClientConfig
+import org.asynchttpclient.AsyncHttpClientConfig
 
 object SslHelper {
 

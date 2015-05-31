@@ -29,8 +29,7 @@ import io.gatling.http.request.builder.Http
 
 import akka.actor.{ ActorSystem, ActorRef }
 import akka.routing.RoundRobinPool
-import org.asynchttpclient.AsyncHttpClient
-import org.asynchttpclient.request.RequestBuilder
+import org.asynchttpclient.{ AsyncHttpClient, RequestBuilder }
 import com.typesafe.scalalogging.StrictLogging
 
 object HttpEngine {

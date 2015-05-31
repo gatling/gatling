@@ -16,10 +16,8 @@
 package io.gatling.http.action.polling
 
 import scala.concurrent.duration._
+import scala.reflect.ClassTag
 
-import akka.testkit._
-import org.mockito.Mockito._
-import org.mockito.Matchers._
 import io.gatling.AkkaSpec
 import io.gatling.core.session._
 import io.gatling.core.config.GatlingConfiguration
@@ -32,7 +30,9 @@ import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request.{ HttpRequestConfig, HttpRequestDef }
 import io.gatling.http.response.ResponseBuilderFactory
 
-import scala.reflect.ClassTag
+import akka.testkit._
+import org.mockito.Mockito._
+import org.mockito.Matchers._
 
 // TODO : test resourceFetched, stopPolling
 class PollerActorSpec extends AkkaSpec {

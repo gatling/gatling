@@ -17,7 +17,7 @@ package io.gatling.http.fetch
 
 import io.gatling.http.HeaderNames
 
-import org.asynchttpclient.request.Request
+import org.asynchttpclient.Request
 
 object UserAgent {
 

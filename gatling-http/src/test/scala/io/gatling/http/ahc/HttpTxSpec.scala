@@ -22,7 +22,7 @@ import io.gatling.http.cache.HttpCaches
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocolRequestPart, HttpProtocol }
 import io.gatling.http.request.{ HttpRequest, HttpRequestConfig }
 
-import org.asynchttpclient.request.Request
+import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 import org.mockito.Mockito._
 

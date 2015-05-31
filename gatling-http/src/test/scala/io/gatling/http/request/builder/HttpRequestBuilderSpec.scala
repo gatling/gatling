@@ -23,8 +23,8 @@ import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.protocol.{ HttpProtocol, HttpComponents }
 
+import org.asynchttpclient.{ Request, RequestBuilderBase, SignatureCalculator }
 import org.asynchttpclient.uri.Uri
-import org.asynchttpclient.request.{ Request, RequestBuilderBase, SignatureCalculator }
 
 class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 

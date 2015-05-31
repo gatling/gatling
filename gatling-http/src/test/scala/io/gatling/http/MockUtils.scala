@@ -15,18 +15,16 @@
  */
 package io.gatling.http
 
-import io.gatling.http.cache.HttpCaches
-import io.gatling.http.protocol.{ HttpComponents, HttpProtocolRequestPart, HttpProtocol }
-
-import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
-
-import org.asynchttpclient.request.Request
-import org.asynchttpclient.uri.Uri
-
 import io.gatling.core.session.Session
 import io.gatling.http.ahc.{ HttpEngine, HttpTx }
+import io.gatling.http.cache.HttpCaches
+import io.gatling.http.protocol.{ HttpComponents, HttpProtocolRequestPart, HttpProtocol }
 import io.gatling.http.request.{ HttpRequestConfig, HttpRequest }
+
+import org.asynchttpclient.Request
+import org.asynchttpclient.uri.Uri
+import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
 
 object MockUtils extends MockitoSugar {
 

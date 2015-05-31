@@ -28,7 +28,7 @@ import io.gatling.http.request.BodyPart
 import io.gatling.http.util.HttpHelper
 
 import org.asynchttpclient.uri.Uri
-import org.asynchttpclient.request.{ RequestBuilder => AHCRequestBuilder }
+import org.asynchttpclient.{ RequestBuilder => AHCRequestBuilder }
 import org.asynchttpclient.request.body.generator.InputStreamBodyGenerator
 import org.asynchttpclient.request.body.multipart.StringPart
 

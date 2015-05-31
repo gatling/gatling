@@ -32,7 +32,7 @@ import io.gatling.http.request._
 import io.gatling.http.response._
 import io.gatling.http.util.HttpHelper._
 
-import org.asynchttpclient.request.Request
+import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 
 sealed trait ResourceFetched {
