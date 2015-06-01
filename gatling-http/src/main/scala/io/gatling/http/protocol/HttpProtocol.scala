@@ -137,7 +137,7 @@ case class HttpProtocolEnginePart(
   maxConnectionsPerHost: Int,
   shareDnsCache: Boolean,
   virtualHost: Option[Expression[String]],
-  localAddress: Option[InetAddress])
+  localAddress: Option[Expression[InetAddress]])
 
 case class HttpProtocolRequestPart(
   headers: Map[String, Expression[String]],

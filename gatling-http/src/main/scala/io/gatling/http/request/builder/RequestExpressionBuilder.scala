@@ -146,6 +146,12 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
       case None        => requestBuilder.success
     }
 
+  def configureLocalAddress(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
+    commonAttributes.address.orElse(protocol.enginePart.localAddress) match {
+      case Some(localAddress) => localAddress(session).map(requestBuilder.setLocalInetAddress)
+      case None => requestBuilder.success
+    }
+
   protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
     configureProxy(uri)(requestBuilder.setUri(uri))
       .flatMap(configureAddressNameResolver(session, httpCaches))
@@ -154,6 +160,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
       .flatMap(configureVirtualHost(session))
       .flatMap(configureHeaders(session))
       .flatMap(configureRealm(session))
+      .flatMap(configureLocalAddress(session))
 
   def build: Expression[Request] = {
 
@@ -166,10 +173,6 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
 
       if (!protocol.enginePart.shareConnections)
         requestBuilder.setConnectionPoolPartitioning(new ChannelPoolPartitioning(session))
-
-      protocol.enginePart.localAddress.foreach(requestBuilder.setLocalInetAddress)
-
-      commonAttributes.address.foreach(requestBuilder.setInetAddress)
 
       safe(BuildRequestErrorMapper) {
         for {
