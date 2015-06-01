@@ -39,7 +39,7 @@ case class CommonAttributes(
   headers: Map[String, Expression[String]] = Map.empty,
   realm: Option[Expression[Realm]] = None,
   virtualHost: Option[Expression[String]] = None,
-  address: Option[InetAddress] = None,
+  address: Option[Expression[InetAddress]] = None,
   proxies: Option[(ProxyServer, ProxyServer)] = None,
   signatureCalculator: Option[Expression[SignatureCalculator]] = None)
 
@@ -117,7 +117,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
    */
   def virtualHost(virtualHost: Expression[String]): B = newInstance(commonAttributes.copy(virtualHost = Some(virtualHost)))
 
-  def address(address: InetAddress): B = newInstance(commonAttributes.copy(address = Some(address)))
+  def address(address: Expression[InetAddress]): B = newInstance(commonAttributes.copy(address = Some(address)))
 
   def disableUrlEncoding: B = newInstance(commonAttributes.copy(disableUrlEncoding = Some(true)))
 
