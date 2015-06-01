@@ -192,12 +192,17 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
 
       def redirectRequest(statusCode: Int, redirectUri: Uri, sessionWithUpdatedCookies: Session): Request = {
         val originalRequest = tx.request.ahcRequest
+        val originalMethod = originalRequest.getMethod
 
-        val switchToGet = originalRequest.getMethod != "GET" && (statusCode == 303 || (statusCode == 302 && !httpProtocol.responsePart.strict302Handling))
+        val newHeaders = originalRequest.getHeaders
+          .delete(HeaderNames.Host)
+          .delete(HeaderNames.ContentLength)
+          .delete(HeaderNames.Cookie)
+          .delete(HeaderNames.ContentType)
 
-        val newMethod = if (switchToGet) "GET" else originalRequest.getMethod
+        val switchToGet = originalMethod != "GET" && (statusCode == 303 || (statusCode == 302 && !httpProtocol.responsePart.strict302Handling))
 
-        val requestBuilder = new RequestBuilder(newMethod)
+        val requestBuilder = new RequestBuilder(if (switchToGet) "GET" else originalMethod)
           .setUri(redirectUri)
           .setBodyCharset(configuration.core.charset)
           .setConnectionPoolPartitioning(originalRequest.getConnectionPoolPartitioning)
@@ -206,13 +211,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
           .setVirtualHost(originalRequest.getVirtualHost)
           .setProxyServer(originalRequest.getProxyServer)
           .setRealm(originalRequest.getRealm)
-
-        val originalHeaders = originalRequest.getHeaders
-        originalHeaders.remove(HeaderNames.Host)
-        originalHeaders.remove(HeaderNames.ContentLength)
-        originalHeaders.remove(HeaderNames.Cookie)
-        if (switchToGet) originalHeaders.remove(HeaderNames.ContentType)
-        requestBuilder.setHeaders(originalHeaders)
+          .setHeaders(newHeaders)
 
         for (cookie <- CookieSupport.getStoredCookies(sessionWithUpdatedCookies, redirectUri))
           requestBuilder.addCookie(cookie)
