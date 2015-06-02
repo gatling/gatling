@@ -64,7 +64,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
     }
   }
 
-  def configureAddressNameResolver(session: Session, httpCaches: HttpCaches)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+  def configureAddressNameResolver(session: Session, httpCaches: HttpCaches)(requestBuilder: AHCRequestBuilder): AHCRequestBuilder = {
     if (!protocol.enginePart.shareDnsCache) {
       requestBuilder.setNameResolver(new NameResolver {
         override def resolve(name: String): InetAddress = name match {
@@ -84,7 +84,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
         }
       })
     }
-    requestBuilder.success
+    requestBuilder
   }
 
   def configureProxy(uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
@@ -99,9 +99,9 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
     requestBuilder.success
   }
 
-  def configureCookies(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+  def configureCookies(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): AHCRequestBuilder = {
     CookieSupport.getStoredCookies(session, uri).foreach(requestBuilder.addCookie)
-    requestBuilder.success
+    requestBuilder
   }
 
   def configureQuery(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
@@ -154,8 +154,8 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
 
   protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
     configureProxy(uri)(requestBuilder.setUri(uri))
-      .flatMap(configureAddressNameResolver(session, httpCaches))
-      .flatMap(configureCookies(session, uri))
+      .map(configureAddressNameResolver(session, httpCaches))
+      .map(configureCookies(session, uri))
       .flatMap(configureQuery(session, uri))
       .flatMap(configureVirtualHost(session))
       .flatMap(configureHeaders(session))
