@@ -80,7 +80,6 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
 
     try {
       val simulationClass = selection.simulationClass
-      println(s"Simulation ${simulationClass.getName} started...")
 
       // important, initialize time reference
       val timeRef = NanoTimeReference
@@ -104,6 +103,7 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
 
       val timeout = Int.MaxValue.milliseconds - 10.seconds
 
+      println(s"Simulation ${simulationClass.getName} started...")
       val runResult = coreComponents.controller.ask(Run(scenarios, simulationParams))(timeout).mapTo[Try[String]]
 
       val res = Await.result(runResult, timeout)
