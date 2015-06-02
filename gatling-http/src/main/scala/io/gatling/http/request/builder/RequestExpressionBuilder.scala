@@ -149,7 +149,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
   def configureLocalAddress(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
     commonAttributes.address.orElse(protocol.enginePart.localAddress) match {
       case Some(localAddress) => localAddress(session).map(requestBuilder.setLocalInetAddress)
-      case None => requestBuilder.success
+      case None               => requestBuilder.success
     }
 
   protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
