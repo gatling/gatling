@@ -109,12 +109,10 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
       val res = Await.result(runResult, timeout)
 
       res match {
-        case Success(_) =>
-          println("Simulation finished")
+        case Failure(t) => throw t
+        case _ =>
           simulationParams.afterSteps.foreach(_.apply())
           RunResult(runMessage.runId, simulationParams.assertions.nonEmpty)
-
-        case Failure(t) => throw t
       }
 
     } finally {
