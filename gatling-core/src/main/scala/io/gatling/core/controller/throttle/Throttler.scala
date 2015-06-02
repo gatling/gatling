@@ -63,7 +63,7 @@ class ThrottlerActor(globalThrottling: Option[Throttling], scenarioThrottlings: 
   // FIXME FSM
   var timerCancellable: Cancellable = _
 
-  override def postStop(): Unit = timerCancellable.cancel()
+  override def postStop(): Unit = Option(timerCancellable).foreach(_.cancel())
 
   // FIXME use a capped size?
   val buffer = collection.mutable.Queue.empty[(String, () => Unit)]
