@@ -351,7 +351,7 @@ Here, you can pass a Stream.
 .. note:: When you pass a path, Gatling searches first for an absolute path in the classpath and then in the ``bodies`` directory.
 
 Note that one can take full advantage of Scala 2.10 macros for writing template directly in Scala compiled code instead of relying on a templating engine.
-See `Scala 2.10 string interpolation <(http://docs.scala-lang.org/overviews/core/string-interpolation.html>`_ and `Fastring <https://github.com/Atry/fastring>`_.
+See `Scala 2.10 string interpolation <http://docs.scala-lang.org/overviews/core/string-interpolation.html>`_ and `Fastring <https://github.com/Atry/fastring>`_.
 
 For example:
 
