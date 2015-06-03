@@ -15,13 +15,12 @@
  */
 package io.gatling.core.assertion
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.message.{ KO, OK, Status }
 import io.gatling.core.stats.reader.{ GeneralStats, DataReader }
 import io.gatling.core.stats.{ RequestStatsPath, GroupStatsPath, StatsPath }
 import io.gatling.core.validation._
 
-class AssertionValidator(implicit configuration: GatlingConfiguration) {
+class AssertionValidator {
 
   type ValidatedRequestPath = Validation[Option[Status] => List[GeneralStats]]
   type StatsByStatus = Option[Status] => List[GeneralStats]
@@ -31,7 +30,7 @@ class AssertionValidator(implicit configuration: GatlingConfiguration) {
 
   private def validateAssertion(assertion: Assertion, dataReader: DataReader) = {
 
-    val printablePath = assertion.path.printable(configuration)
+    val printablePath = assertion.path.printable
 
     assertion.path match {
       case Global =>
@@ -80,7 +79,7 @@ class AssertionValidator(implicit configuration: GatlingConfiguration) {
 
   private def resolveTarget(assertion: Assertion, stats: StatsByStatus, path: String) = {
 
-    val printableTarget = assertion.target.printable(configuration)
+    val printableTarget = assertion.target.printable
 
     val realValues = assertion.target match {
       case MeanRequestsPerSecondTarget => stats(None).map(s => math.round(s.meanRequestsPerSec).toInt)
@@ -117,20 +116,17 @@ class AssertionValidator(implicit configuration: GatlingConfiguration) {
     }
 
     target.selection match {
-      case Min               => resolvedStats.map(_.min)
-      case Max               => resolvedStats.map(_.max)
-      case Mean              => resolvedStats.map(_.mean)
-      case StandardDeviation => resolvedStats.map(_.stdDev)
-      case Percentiles1      => resolvedStats.map(_.percentile1)
-      case Percentiles2      => resolvedStats.map(_.percentile2)
-      case Percentiles3      => resolvedStats.map(_.percentile3)
-      case Percentiles4      => resolvedStats.map(_.percentile4)
+      case Min                => resolvedStats.map(_.min)
+      case Max                => resolvedStats.map(_.max)
+      case Mean               => resolvedStats.map(_.mean)
+      case StandardDeviation  => resolvedStats.map(_.stdDev)
+      case Percentiles(value) => resolvedStats.map(_.percentile(value))
     }
   }
 
   private def resolveCondition(assertion: Assertion, path: String, printableTarget: String, realValues: List[Int]) = {
 
-    val printableCondition = assertion.condition.printable(configuration)
+    val printableCondition = assertion.condition.printable
 
       def assertionResult(result: Boolean, expectedValueMessage: Any) =
         AssertionResult(assertion, result, s"$path: $printableTarget $printableCondition $expectedValueMessage", realValues)

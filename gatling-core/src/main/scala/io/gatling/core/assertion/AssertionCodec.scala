@@ -68,13 +68,11 @@ trait TargetCodec extends CountMetricCodec with TimeMetricCodec with CountSelect
           obj match {
             case CountTarget(metric: CountMetric, selection: CountSelection) =>
               state.enc.writeInt(0)
-              state.pickle(metric)
-              state.pickle(selection)
+              state.pickle(metric).pickle(selection)
 
             case TimeTarget(metric: TimeMetric, selection: TimeSelection) =>
               state.enc.writeInt(1)
-              state.pickle(metric)
-              state.pickle(selection)
+              state.pickle(metric).pickle(selection)
 
             case MeanRequestsPerSecondTarget =>
               state.enc.writeInt(2)
@@ -209,14 +207,11 @@ trait TimeSelectionCodec {
           state.enc.writeInt(-idx)
         case None =>
           obj match {
-            case Min               => state.enc.writeInt(0)
-            case Max               => state.enc.writeInt(1)
-            case Mean              => state.enc.writeInt(2)
-            case StandardDeviation => state.enc.writeInt(3)
-            case Percentiles1      => state.enc.writeInt(4)
-            case Percentiles2      => state.enc.writeInt(5)
-            case Percentiles3      => state.enc.writeInt(6)
-            case Percentiles4      => state.enc.writeInt(7)
+            case Min                => state.enc.writeInt(0)
+            case Max                => state.enc.writeInt(1)
+            case Mean               => state.enc.writeInt(2)
+            case StandardDeviation  => state.enc.writeInt(3)
+            case Percentiles(value) => state.enc.writeInt(4).writeDouble(value)
           }
 
           state.addIdentityRef(obj)
@@ -234,10 +229,7 @@ trait TimeSelectionCodec {
         case Right(1) => Max
         case Right(2) => Mean
         case Right(3) => StandardDeviation
-        case Right(4) => Percentiles1
-        case Right(5) => Percentiles2
-        case Right(6) => Percentiles3
-        case Right(7) => Percentiles4
+        case Right(4) => Percentiles(read[Double])
         case Right(i) => throw new IllegalArgumentException(s"Invalid coding for TimeSelection type: $i")
       }
   }

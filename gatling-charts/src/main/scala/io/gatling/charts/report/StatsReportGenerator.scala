@@ -22,6 +22,7 @@ import io.gatling.charts.config.ChartsFiles._
 import io.gatling.charts.stats.reader.RequestPath
 import io.gatling.charts.template.{ ConsoleTemplate, StatsJsTemplate, GlobalStatsJsonTemplate }
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.stats.reader.GeneralStats
 import io.gatling.core.stats.{ Group, GroupStatsPath, RequestStatsPath }
 import io.gatling.core.stats.message.{ KO, OK }
 import io.gatling.core.util.NumberHelper._
@@ -31,6 +32,9 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
   import reportsGenerationInputs._
 
   def generate(): Unit = {
+
+      def percentiles(rank: Double, title: Double => String, total: GeneralStats, ok: GeneralStats, ko: GeneralStats) =
+        Statistics(title(rank), total.percentile(rank), ok.percentile(rank), ko.percentile(rank))
 
       def computeRequestStats(name: String, requestName: Option[String], group: Option[Group]): RequestStatistics = {
 
@@ -43,10 +47,13 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
         val maxResponseTimeStatistics = Statistics("max response time", total.max, ok.max, ko.max)
         val meanResponseTimeStatistics = Statistics("mean response time", total.mean, ok.mean, ko.mean)
         val stdDeviationStatistics = Statistics("std deviation", total.stdDev, ok.stdDev, ko.stdDev)
-        val percentiles1 = Statistics(s"response time ${configuration.charting.indicators.percentile1.toRank} percentile", total.percentile1, ok.percentile1, ko.percentile1)
-        val percentiles2 = Statistics(s"response time ${configuration.charting.indicators.percentile2.toRank} percentile", total.percentile2, ok.percentile2, ko.percentile2)
-        val percentiles3 = Statistics(s"response time ${configuration.charting.indicators.percentile3.toRank} percentile", total.percentile3, ok.percentile3, ko.percentile3)
-        val percentiles4 = Statistics(s"response time ${configuration.charting.indicators.percentile4.toRank} percentile", total.percentile4, ok.percentile4, ko.percentile4)
+
+        val percentilesTitle = (rank: Double) => s"response time ${rank.toRank} percentile"
+
+        val percentiles1 = percentiles(configuration.charting.indicators.percentile1, percentilesTitle, total, ok, ko)
+        val percentiles2 = percentiles(configuration.charting.indicators.percentile2, percentilesTitle, total, ok, ko)
+        val percentiles3 = percentiles(configuration.charting.indicators.percentile3, percentilesTitle, total, ok, ko)
+        val percentiles4 = percentiles(configuration.charting.indicators.percentile4, percentilesTitle, total, ok, ko)
         val meanNumberOfRequestsPerSecondStatistics = Statistics("mean requests/sec", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
         val groupedCounts = dataReader
@@ -73,10 +80,11 @@ private[charts] class StatsReportGenerator(reportsGenerationInputs: ReportsGener
         val maxResponseTimeStatistics = Statistics("maxResponseTime", total.max, ok.max, ko.max)
         val meanResponseTimeStatistics = Statistics("meanResponseTime", total.mean, ok.mean, ko.mean)
         val stdDeviationStatistics = Statistics("stdDeviation", total.stdDev, ok.stdDev, ko.stdDev)
-        val percentiles1 = Statistics("percentiles1", total.percentile1, ok.percentile1, ko.percentile1)
-        val percentiles2 = Statistics("percentiles2", total.percentile2, ok.percentile2, ko.percentile2)
-        val percentiles3 = Statistics("percentiles3", total.percentile3, ok.percentile3, ko.percentile3)
-        val percentiles4 = Statistics("percentiles4", total.percentile4, ok.percentile4, ko.percentile4)
+
+        val percentiles1 = percentiles(configuration.charting.indicators.percentile1, _ => "percentiles1", total, ok, ko)
+        val percentiles2 = percentiles(configuration.charting.indicators.percentile2, _ => "percentiles2", total, ok, ko)
+        val percentiles3 = percentiles(configuration.charting.indicators.percentile3, _ => "percentiles3", total, ok, ko)
+        val percentiles4 = percentiles(configuration.charting.indicators.percentile4, _ => "percentiles4", total, ok, ko)
         val meanNumberOfRequestsPerSecondStatistics = Statistics("meanNumberOfRequestsPerSecond", total.meanRequestsPerSec, ok.meanRequestsPerSec, ko.meanRequestsPerSec)
 
         val groupedCounts = dataReader

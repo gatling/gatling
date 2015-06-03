@@ -15,11 +15,10 @@
  */
 package io.gatling.core.assertion
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.NumberHelper._
 
 trait Printable {
-  def printable(configuration: GatlingConfiguration): String
+  def printable: String
 }
 
 // ------------------- //
@@ -34,15 +33,15 @@ case class Assertion(path: Path, target: Target, condition: Condition)
 
 sealed trait Path extends Printable
 case object Global extends Path {
-  def printable(configuration: GatlingConfiguration) = "Global"
+  def printable = "Global"
 }
 case object ForAll extends Path {
-  def printable(configuration: GatlingConfiguration) = "For all requests"
+  def printable = "For all requests"
 }
 case class Details(parts: List[String]) extends Path {
-  def printable(configuration: GatlingConfiguration) =
+  def printable =
     if (parts.isEmpty)
-      Global.printable(configuration)
+      Global.printable
     else
       parts.mkString(" / ")
 }
@@ -55,16 +54,16 @@ sealed trait TimeMetric extends Printable
 sealed trait CountMetric extends Printable
 
 case object AllRequests extends CountMetric {
-  def printable(configuration: GatlingConfiguration) = "all requests"
+  def printable = "all requests"
 }
 case object FailedRequests extends CountMetric {
-  def printable(configuration: GatlingConfiguration) = "failed requests"
+  def printable = "failed requests"
 }
 case object SuccessfulRequests extends CountMetric {
-  def printable(configuration: GatlingConfiguration) = "successful requests"
+  def printable = "successful requests"
 }
 case object ResponseTime extends TimeMetric {
-  def printable(configuration: GatlingConfiguration) = "response time"
+  def printable = "response time"
 }
 
 // ------------------- //
@@ -75,37 +74,28 @@ sealed trait TimeSelection extends Printable
 sealed trait CountSelection extends Printable
 
 case object Count extends CountSelection {
-  def printable(configuration: GatlingConfiguration) = "count"
+  def printable = "count"
 }
 case object Percent extends CountSelection {
-  def printable(configuration: GatlingConfiguration) = "percentage"
+  def printable = "percentage"
 }
 case object PerMillion extends CountSelection {
-  def printable(configuration: GatlingConfiguration) = "per_million"
+  def printable = "per_million"
 }
 case object Min extends TimeSelection {
-  def printable(configuration: GatlingConfiguration) = "min"
+  def printable = "min"
 }
 case object Max extends TimeSelection {
-  def printable(configuration: GatlingConfiguration) = "max"
+  def printable = "max"
 }
 case object Mean extends TimeSelection {
-  def printable(configuration: GatlingConfiguration) = "mean"
+  def printable = "mean"
 }
 case object StandardDeviation extends TimeSelection {
-  def printable(configuration: GatlingConfiguration) = "standard deviation"
+  def printable = "standard deviation"
 }
-case object Percentiles1 extends TimeSelection {
-  def printable(configuration: GatlingConfiguration) = s"${configuration.charting.indicators.percentile1.toRank} percentile"
-}
-case object Percentiles2 extends TimeSelection {
-  def printable(configuration: GatlingConfiguration) = s"${configuration.charting.indicators.percentile2.toRank} percentile"
-}
-case object Percentiles3 extends TimeSelection {
-  def printable(configuration: GatlingConfiguration) = s"${configuration.charting.indicators.percentile3.toRank} percentile"
-}
-case object Percentiles4 extends TimeSelection {
-  def printable(configuration: GatlingConfiguration) = s"${configuration.charting.indicators.percentile4.toRank} percentile"
+case class Percentiles(value: Double) extends TimeSelection {
+  def printable = s"${value.toRank} percentile"
 }
 
 // ---------------- //
@@ -114,13 +104,13 @@ case object Percentiles4 extends TimeSelection {
 
 sealed trait Target extends Printable
 case class CountTarget(metric: CountMetric, selection: CountSelection) extends Target {
-  def printable(configuration: GatlingConfiguration) = s"${selection.printable(configuration)} of ${metric.printable(configuration)}"
+  def printable = s"${selection.printable} of ${metric.printable}"
 }
 case class TimeTarget(metric: TimeMetric, selection: TimeSelection) extends Target {
-  def printable(configuration: GatlingConfiguration) = s"${selection.printable(configuration)} of ${metric.printable(configuration)}"
+  def printable = s"${selection.printable} of ${metric.printable}"
 }
 case object MeanRequestsPerSecondTarget extends Target {
-  def printable(configuration: GatlingConfiguration) = "mean requests per second"
+  def printable = "mean requests per second"
 }
 
 // ------------------- //
@@ -131,22 +121,22 @@ sealed trait Condition extends Printable {
   def values: List[Int]
 }
 case class LessThan(value: Int) extends Condition {
-  def printable(configuration: GatlingConfiguration) = "is less than"
+  def printable = "is less than"
   override def values = List(value)
 }
 case class GreaterThan(value: Int) extends Condition {
-  def printable(configuration: GatlingConfiguration) = "is greater than"
+  def printable = "is greater than"
   override def values = List(value)
 }
 case class Is(value: Int) extends Condition {
-  def printable(configuration: GatlingConfiguration) = "is"
+  def printable = "is"
   override def values = List(value)
 }
 case class Between(lowerBound: Int, upperBound: Int) extends Condition {
-  def printable(configuration: GatlingConfiguration) = "is between"
+  def printable = "is between"
   override def values = List(lowerBound, upperBound)
 }
 case class In(elements: List[Int]) extends Condition {
-  def printable(configuration: GatlingConfiguration) = "is in"
+  def printable = "is in"
   override def values = elements
 }

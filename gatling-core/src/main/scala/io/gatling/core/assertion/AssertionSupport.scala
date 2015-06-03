@@ -15,14 +15,16 @@
  */
 package io.gatling.core.assertion
 
+import io.gatling.core.config.GatlingConfiguration
+
 trait AssertionSupport {
 
   implicit def string2pathBuilder(string: String): AssertionPath =
     AssertionPath.string2assertionPath(string)
 
-  def global = new AssertionWithPath(Global)
+  def global(implicit configuration: GatlingConfiguration) = new AssertionWithPath(Global)
 
-  def forAll = new AssertionWithPath(ForAll)
+  def forAll(implicit configuration: GatlingConfiguration) = new AssertionWithPath(ForAll)
 
-  def details(path: AssertionPath) = new AssertionWithPath(Details(path.parts))
+  def details(path: AssertionPath)(implicit configuration: GatlingConfiguration) = new AssertionWithPath(Details(path.parts))
 }

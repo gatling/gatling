@@ -40,9 +40,13 @@ trait AssertionGenerator {
 
     val timeTargetGen = {
       val timeMetricGen = Gen.const(ResponseTime)
-      val timeSelectionGen = Gen.oneOf(Min, Max, Mean, StandardDeviation, Percentiles1, Percentiles2, Percentiles3, Percentiles4)
+      val percentiles = (0 until 100).map(Percentiles(_))
+      val timeSelectionGen = Gen.oneOf(Seq(Min, Max, Mean, StandardDeviation) ++ percentiles)
 
-      for (metric <- timeMetricGen; selection <- timeSelectionGen) yield TimeTarget(metric, selection)
+      for {
+        metric <- timeMetricGen
+        selection <- timeSelectionGen
+      } yield TimeTarget(metric, selection)
     }
 
     Gen.oneOf(countTargetGen, timeTargetGen, Gen.const(MeanRequestsPerSecondTarget))

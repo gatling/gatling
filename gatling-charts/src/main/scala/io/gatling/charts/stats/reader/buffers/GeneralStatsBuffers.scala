@@ -17,13 +17,12 @@ package io.gatling.charts.stats.reader.buffers
 
 import scala.collection.mutable
 import io.gatling.charts.stats.reader.{ GroupRecord, RequestRecord, FileDataReader }
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.{ Group, IntVsTimePlot }
 import io.gatling.core.stats.message.Status
 import io.gatling.core.stats.reader.GeneralStats
 import com.tdunning.math.stats.AVLTreeDigest
 
-private[reader] abstract class GeneralStatsBuffers(durationInSec: Long)(implicit configuration: GatlingConfiguration) {
+private[reader] abstract class GeneralStatsBuffers(durationInSec: Long) {
 
   val requestGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
   val groupDurationGeneralStatsBuffers = mutable.Map.empty[BufferKey, GeneralStatsBuffer]
@@ -57,7 +56,7 @@ private[reader] abstract class GeneralStatsBuffers(durationInSec: Long)(implicit
   }
 }
 
-private[reader] class GeneralStatsBuffer(duration: Long)(implicit configuration: GatlingConfiguration) {
+private[reader] class GeneralStatsBuffer(duration: Long) {
 
   val counts = mutable.Map.empty[Int, Int]
   val digest = new AVLTreeDigest(100.0)
@@ -88,14 +87,12 @@ private[reader] class GeneralStatsBuffer(duration: Long)(implicit configuration:
       val stdDev = math.sqrt((sumOfSquares - (sum * sum) / count) / count).toInt
       val meanRequestsPerSec = valuesCount / (duration / FileDataReader.SecMillisecRatio)
 
-      val percentile1 = digest.quantile(configuration.charting.indicators.percentile1 / 100.0).toInt
-      val percentile2 = digest.quantile(configuration.charting.indicators.percentile2 / 100.0).toInt
-      val percentile3 = digest.quantile(configuration.charting.indicators.percentile3 / 100.0).toInt
-      val percentile4 = digest.quantile(configuration.charting.indicators.percentile4 / 100.0).toInt
       val min = digest.quantile(0).toInt
       val max = digest.quantile(1).toInt
 
-      GeneralStats(min.toInt, max.toInt, valuesCount, mean, stdDev, percentile1, percentile2, percentile3, percentile4, meanRequestsPerSec)
+      val percentile: Double => Int = (rank: Double) => digest.quantile(rank / 100.0).toInt
+
+      GeneralStats(min.toInt, max.toInt, valuesCount, mean, stdDev, percentile, meanRequestsPerSec)
     }
   }
 

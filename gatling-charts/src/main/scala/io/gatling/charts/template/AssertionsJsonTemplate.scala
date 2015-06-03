@@ -19,16 +19,15 @@ import io.gatling.core.stats.writer.RunMessage
 
 import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.assertion.AssertionResult
-import io.gatling.core.config.GatlingConfiguration
 
-private[charts] class AssertionsJsonTemplate(runMessage: RunMessage, scenarioNames: List[String], assertionResults: List[AssertionResult])(implicit configuration: GatlingConfiguration) {
+private[charts] class AssertionsJsonTemplate(runMessage: RunMessage, scenarioNames: List[String], assertionResults: List[AssertionResult]) {
 
   private[this] def print(assertionResult: AssertionResult): Fastring = {
     import assertionResult._
     fast"""{
-  "path": "${assertion.path.printable(configuration)}",
-  "target": "${assertion.target.printable(configuration)}",
-  "condition": "${assertion.condition.printable(configuration)}",
+  "path": "${assertion.path.printable}",
+  "target": "${assertion.target.printable}",
+  "condition": "${assertion.condition.printable}",
   "conditionValues": [${assertion.condition.values.mkString(",")}],
   "result": $result,
   "message": "$message",

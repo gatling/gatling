@@ -15,7 +15,9 @@
  */
 package io.gatling.core.assertion
 
-class AssertionWithPath(path: Path) {
+import io.gatling.core.config.GatlingConfiguration
+
+class AssertionWithPath(path: Path)(implicit configuration: GatlingConfiguration) {
 
   def responseTime = new AssertionWithPathAndTimeMetric(path, ResponseTime)
   def allRequests = new AssertionWithPathAndCountMetric(path, AllRequests)
@@ -24,7 +26,7 @@ class AssertionWithPath(path: Path) {
   def requestsPerSec = new AssertionWithPathAndTarget(path, MeanRequestsPerSecondTarget)
 }
 
-class AssertionWithPathAndTimeMetric(path: Path, metric: TimeMetric) {
+class AssertionWithPathAndTimeMetric(path: Path, metric: TimeMetric)(implicit configuration: GatlingConfiguration) {
 
   private def next(selection: TimeSelection) =
     new AssertionWithPathAndTarget(path, TimeTarget(metric, selection))
@@ -33,10 +35,10 @@ class AssertionWithPathAndTimeMetric(path: Path, metric: TimeMetric) {
   def max = next(Max)
   def mean = next(Mean)
   def stdDev = next(StandardDeviation)
-  def percentile1 = next(Percentiles1)
-  def percentile2 = next(Percentiles2)
-  def percentile3 = next(Percentiles3)
-  def percentile4 = next(Percentiles4)
+  def percentile1 = next(Percentiles(configuration.charting.indicators.percentile1))
+  def percentile2 = next(Percentiles(configuration.charting.indicators.percentile2))
+  def percentile3 = next(Percentiles(configuration.charting.indicators.percentile3))
+  def percentile4 = next(Percentiles(configuration.charting.indicators.percentile4))
 }
 
 class AssertionWithPathAndCountMetric(path: Path, metric: CountMetric) {

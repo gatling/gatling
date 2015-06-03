@@ -16,19 +16,22 @@
 package io.gatling.core.assertion
 
 import io.gatling.BaseSpec
+import io.gatling.core.config.GatlingConfiguration
 
 class AssertionDSLSpec extends BaseSpec with AssertionSupport {
 
   "The Assertion DSL builders" should "produce the expected Assertions ASTs" in {
 
+    implicit val configuration = GatlingConfiguration.loadForTest()
+
     global.responseTime.min.is(100) shouldBe Assertion(Global, TimeTarget(ResponseTime, Min), Is(100))
     details("Foo" / "Bar").responseTime.max.lessThan(100) shouldBe Assertion(Details(List("Foo", "Bar")), TimeTarget(ResponseTime, Max), LessThan(100))
     forAll.responseTime.mean.greaterThan(100) shouldBe Assertion(ForAll, TimeTarget(ResponseTime, Mean), GreaterThan(100))
     global.responseTime.stdDev.between(1, 3) shouldBe Assertion(Global, TimeTarget(ResponseTime, StandardDeviation), Between(1, 3))
-    global.responseTime.percentile1.is(300) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles1), Is(300))
-    global.responseTime.percentile2.in(Set(1, 2, 3)) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles2), In(List(1, 2, 3)))
-    global.responseTime.percentile3.is(300) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles3), Is(300))
-    global.responseTime.percentile4.in(Set(1, 2, 3)) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles4), In(List(1, 2, 3)))
+    global.responseTime.percentile1.is(300) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles(50)), Is(300))
+    global.responseTime.percentile2.in(Set(1, 2, 3)) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles(75)), In(List(1, 2, 3)))
+    global.responseTime.percentile3.is(300) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles(95)), Is(300))
+    global.responseTime.percentile4.in(Set(1, 2, 3)) shouldBe Assertion(Global, TimeTarget(ResponseTime, Percentiles(99)), In(List(1, 2, 3)))
 
     global.allRequests.count.is(20) shouldBe Assertion(Global, CountTarget(AllRequests, Count), Is(20))
     forAll.allRequests.percent.lessThan(5) shouldBe Assertion(ForAll, CountTarget(AllRequests, Percent), LessThan(5))

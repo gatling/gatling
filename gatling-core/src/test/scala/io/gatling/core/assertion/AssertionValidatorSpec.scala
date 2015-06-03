@@ -206,7 +206,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
   //TODO : add test on global and forAll
   it should "be able to validate a responseTime.percentiles1 assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile1 = 10)))
+      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
       val conditions: Conditions = List(_.lessThan(15), _.greaterThan(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
       val reader3 = mockDataReaderWithStats(details("foo").responseTime.percentile1, conditions, requestStats)
       validateAssertions(reader3) shouldBe true
@@ -216,7 +216,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
   //TODO : add test on global and forAll
   it should "be able to validate a responseTime.percentiles2 assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile2 = 10)))
+      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
       val conditions: Conditions = List(_.lessThan(15), _.greaterThan(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
       val reader3 = mockDataReaderWithStats(details("foo").responseTime.percentile2, conditions, requestStats)
       validateAssertions(reader3) shouldBe true
@@ -226,7 +226,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
   //TODO : add test on global and forAll
   it should "be able to validate a responseTime.percentiles3 assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile3 = 10)))
+      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
       val conditions: Conditions = List(_.lessThan(15), _.greaterThan(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
       val reader3 = mockDataReaderWithStats(details("foo").responseTime.percentile3, conditions, requestStats)
       validateAssertions(reader3) shouldBe true
@@ -236,7 +236,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
   //TODO : add test on global and forAll
   it should "be able to validate a responseTime.percentiles4 assertion for requests and groups" in {
     for (modifier <- SetRequestThenGroupModifiers) {
-      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile4 = 10)))
+      val requestStats = modifier(Stats(GeneralStats.NoPlot.copy(percentile = _ => 10)))
       val conditions: Conditions = List(_.lessThan(15), _.greaterThan(8), _.is(10), _.between(8, 12), _.in(1, 3, 10, 13))
       val reader3 = mockDataReaderWithStats(details("foo").responseTime.percentile4, conditions, requestStats)
       validateAssertions(reader3) shouldBe true

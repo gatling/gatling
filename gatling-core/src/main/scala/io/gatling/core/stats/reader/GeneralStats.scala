@@ -18,7 +18,7 @@ package io.gatling.core.stats.reader
 import DataReader.NoPlotMagicValue
 
 object GeneralStats {
-  val NoPlot = GeneralStats(NoPlotMagicValue, NoPlotMagicValue, 0, NoPlotMagicValue, NoPlotMagicValue, NoPlotMagicValue, NoPlotMagicValue, NoPlotMagicValue, NoPlotMagicValue, NoPlotMagicValue)
+  val NoPlot = GeneralStats(NoPlotMagicValue, NoPlotMagicValue, 0, NoPlotMagicValue, NoPlotMagicValue, _ => NoPlotMagicValue, NoPlotMagicValue)
 }
 
-case class GeneralStats(min: Int, max: Int, count: Int, mean: Int, stdDev: Int, percentile1: Int, percentile2: Int, percentile3: Int, percentile4: Int, meanRequestsPerSec: Double)
+case class GeneralStats(min: Int, max: Int, count: Int, mean: Int, stdDev: Int, percentile: Double => Int, meanRequestsPerSec: Double)

@@ -104,8 +104,8 @@ class FileDataReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration = GatlingConfiguration.loadForTest(props)
     val lowPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats")
-    lowPercentilesFileDataReader.requestGeneralStats().percentile1 shouldBe 2000
-    lowPercentilesFileDataReader.requestGeneralStats().percentile2 shouldBe 5000
+    lowPercentilesFileDataReader.requestGeneralStats().percentile(configuration.charting.indicators.percentile1) shouldBe 2000
+    lowPercentilesFileDataReader.requestGeneralStats().percentile(configuration.charting.indicators.percentile2) shouldBe 5000
   }
 
   it should "return expected result for the (99.99, 100) percentiles" in {
@@ -116,8 +116,8 @@ class FileDataReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration = GatlingConfiguration.loadForTest(props)
     val highPercentilesFileDataReader = new FileDataReader("run_single_node_with_known_stats")
-    highPercentilesFileDataReader.requestGeneralStats().percentile1 shouldBe 8860
-    highPercentilesFileDataReader.requestGeneralStats().percentile2 shouldBe 9000
+    highPercentilesFileDataReader.requestGeneralStats().percentile(configuration.charting.indicators.percentile1) shouldBe 8860
+    highPercentilesFileDataReader.requestGeneralStats().percentile(configuration.charting.indicators.percentile2) shouldBe 9000
   }
 
   it should "indicate that all the request have their response time in between 0 and 100000" in {
