@@ -16,14 +16,14 @@
 package io.gatling.charts.stats.reader
 
 import java.io.InputStream
+import java.nio.ByteBuffer
 
 import scala.collection.breakOut
 import scala.collection.mutable
 import scala.io.Source
 
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.charts.stats.reader.buffers.{ CountsBuffer, PercentilesBuffers, GeneralStatsBuffer }
-import io.gatling.core.assertion.{ AssertionParser, Assertion }
+import io.gatling.core.assertion.{ AssertionCodec, Assertion }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.stats._
@@ -32,6 +32,10 @@ import io.gatling.core.stats.reader.{ GeneralStats, DataReader }
 import io.gatling.core.stats.writer._
 import io.gatling.core.util.PathHelper._
 
+import boopickle._
+import com.typesafe.scalalogging.StrictLogging
+import jodd.util.Base64
+
 object FileDataReader {
 
   val LogStep = 100000
@@ -39,7 +43,7 @@ object FileDataReader {
   val SimulationFilesNamePattern = """.*\.log"""
 }
 
-class FileDataReader(runUuid: String)(implicit configuration: GatlingConfiguration) extends DataReader(runUuid) with StrictLogging {
+class FileDataReader(runUuid: String)(implicit configuration: GatlingConfiguration) extends DataReader(runUuid) with AssertionCodec with StrictLogging {
 
   import FileDataReader._
 
@@ -99,7 +103,13 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
           runMessages += RunMessage(array(1), array(2), array(3).toLong, array(4).trim)
 
         case RawAssertionRecord(array) =>
-          assertions += new AssertionParser().parseAssertion(array.tail.mkString("\t"))
+          val assertion: Assertion = {
+            val base64String = array(1)
+            val bytes = Base64.decode(base64String)
+            Unpickle[Assertion].fromBytes(ByteBuffer.wrap(bytes))
+          }
+
+          assertions += assertion
 
         case RawErrorRecord(array) =>
 

@@ -25,6 +25,7 @@ object Dependencies {
   private val boon                          = "io.fastjson"                            % "boon"                                % "0.33"
   private val jsonpath                      = "io.gatling"                            %% "jsonpath"                            % "0.6.4"
   private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                        % "3.6.6"
+  private val boopickle                     = "me.chrons"                             %% "boopickle"                           % "0.1.3"
   private val jzlib                         = "com.jcraft"                             % "jzlib"                               % "1.1.3"
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                         % "2.15"
   private val zinc                          = "com.typesafe.zinc"                      % "zinc"                                % "0.3.7" exclude("org.scala-lang", "scala-compiler")
@@ -59,7 +60,7 @@ object Dependencies {
     val loggingLibs = Seq(slf4jApi, scalalogging, logbackClassic)
     val checksLibs = Seq(jsonpath, jackson, boon, saxon, joddLagarto)
 
-    scalaLibs(scalaVersion) ++ Seq(akkaActor, config, fastring, jacksonCsv, lru, scalaParserCombinators, scopt, jzlib) ++
+    scalaLibs(scalaVersion) ++ Seq(akkaActor, config, fastring, jacksonCsv, boopickle, lru, scalaParserCombinators, scopt, jzlib) ++
       loggingLibs ++ checksLibs ++ testDeps
   }
 
@@ -71,7 +72,7 @@ object Dependencies {
 
   val jdbcDependencies = testDeps :+ h2
 
-  val chartsDependencies = tdigest +: testDeps
+  val chartsDependencies = Seq(tdigest, boopickle) ++ testDeps
 
   val metricsDependencies = hdrHistogram +: testDeps
 

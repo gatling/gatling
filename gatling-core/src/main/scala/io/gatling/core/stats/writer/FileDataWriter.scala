@@ -20,14 +20,17 @@ import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.charset.CharsetEncoder
 import java.nio.channels.FileChannel
 
+import boopickle.Pickle
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-import io.gatling.core.assertion.Assertion
+import io.gatling.core.assertion.{ AssertionCodec, Assertion }
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.PathHelper._
 
-object FileDataWriter {
+import jodd.util.Base64
+
+object FileDataWriter extends AssertionCodec {
 
   val Separator = '\t'
 
@@ -95,7 +98,15 @@ object FileDataWriter {
 
   implicit val AssertionSerializer = new DataWriterMessageSerializer[Assertion] {
 
-    def serialize(assertion: Assertion): Fastring = fast"${AssertionRecordHeader.value}$Separator${assertion.serialized}$Eol"
+    def serialize(assertion: Assertion): Fastring = {
+
+      val byteBuffer = Pickle.intoBytes(assertion)
+      val bytes = new Array[Byte](byteBuffer.remaining)
+      byteBuffer.get(bytes)
+      val base64String = Base64.encodeToString(bytes)
+
+      fast"${AssertionRecordHeader.value}$Separator$base64String$Eol"
+    }
   }
 
   implicit val ErrorMessageSerializer = new DataWriterMessageSerializer[ErrorMessage] {

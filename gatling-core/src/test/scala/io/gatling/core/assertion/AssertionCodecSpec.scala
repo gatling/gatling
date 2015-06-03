@@ -15,12 +15,12 @@
  */
 package io.gatling.core.assertion
 
-import org.scalacheck.{ Arbitrary, Gen }
-
 import io.gatling.BaseSpec
 
+import boopickle._
+import org.scalacheck.{ Arbitrary, Gen }
+
 trait AssertionGenerator {
-  this: AssertionParserSpec =>
 
   private val intGen = Arbitrary.arbitrary[Int]
 
@@ -64,14 +64,18 @@ trait AssertionGenerator {
     condition <- conditionGen
   } yield Assertion(path, target, condition)
 }
-class AssertionParserSpec extends BaseSpec with AssertionGenerator {
+
+class AssertionCodecSpec extends BaseSpec with AssertionCodec with AssertionGenerator {
 
   override implicit val generatorDrivenConfig = PropertyCheckConfig(minSuccessful = 300)
 
   "The assertion parser" should "be able to parse correctly arbitrary assertions" in {
     forAll(assertionGen) { assertion =>
-      val parser = new AssertionParser
-      parser.parseAssertion(assertion.serialized.toString) shouldBe assertion
+
+      val bytes = Pickle.intoBytes(assertion)
+      val roundtrip = Unpickle[Assertion].fromBytes(bytes)
+
+      assertion shouldBe assertion
     }
   }
 }
