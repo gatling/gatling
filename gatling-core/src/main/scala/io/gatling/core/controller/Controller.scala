@@ -23,13 +23,11 @@ import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.{ End, Start }
 import io.gatling.core.stats.writer.UserMessage
-
-import com.typesafe.scalalogging.StrictLogging
-
-import akka.actor.Props
-
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.TimeHelper.nowMillis
+
+import akka.actor.Props
+import com.typesafe.scalalogging.StrictLogging
 
 object Controller extends StrictLogging {
 

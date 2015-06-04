@@ -19,12 +19,12 @@ import java.util.concurrent.atomic.AtomicLong
 
 import scala.concurrent.duration._
 
+import io.gatling.core.session.Session
 import io.gatling.core.stats.message.Start
 import io.gatling.core.stats.writer.UserMessage
+import io.gatling.core.util.TimeHelper._
 
 import akka.actor.{ ActorSystem, ActorRef }
-import io.gatling.core.session.Session
-import io.gatling.core.util.TimeHelper._
 
 class BatchScheduler(startTime: Long,
                      batchWindow: FiniteDuration,

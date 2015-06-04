@@ -19,10 +19,11 @@ import java.lang.System.nanoTime
 
 import scala.concurrent.duration.{ Duration, DurationInt }
 
-import akka.actor.{ Cancellable, Props, ActorSystem, ActorRef }
-import com.typesafe.scalalogging.StrictLogging
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.scenario.SimulationParams
+
+import akka.actor.{ Cancellable, Props, ActorSystem, ActorRef }
+import com.typesafe.scalalogging.StrictLogging
 
 sealed trait ThrottlerMessage
 case object Start extends ThrottlerMessage

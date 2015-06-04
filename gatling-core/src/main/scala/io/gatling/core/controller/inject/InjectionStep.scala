@@ -20,7 +20,6 @@ import java.util.concurrent.TimeUnit
 import scala.concurrent.duration.{ DurationLong, DurationDouble, FiniteDuration }
 import scala.concurrent.forkjoin.ThreadLocalRandom
 import scala.math.{ abs, sqrt }
-import scala.util.Random
 
 trait InjectionStep {
   /**

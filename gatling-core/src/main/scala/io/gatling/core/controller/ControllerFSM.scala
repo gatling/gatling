@@ -15,13 +15,12 @@
  */
 package io.gatling.core.controller
 
-import io.gatling.core.akka.BaseActor
-
 import scala.concurrent.duration.FiniteDuration
 
-import akka.actor.{ ActorRef, FSM }
+import io.gatling.core.scenario.Scenario
+import io.gatling.core.akka.BaseActor
 
-import io.gatling.core.scenario.{ SimulationParams, Scenario }
+import akka.actor.{ ActorRef, FSM }
 
 private[controller] case class UserStream(scenario: Scenario, stream: Iterator[FiniteDuration])
 
