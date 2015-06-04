@@ -19,6 +19,7 @@ import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
 
 import io.gatling.core.controller.throttle.Throttler
+import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.{ End, Start }
 import io.gatling.core.stats.writer.UserMessage
@@ -34,11 +35,11 @@ object Controller extends StrictLogging {
 
   val ControllerActorName = "gatling-controller"
 
-  def props(statsEngine: StatsEngine, throttler: Throttler, configuration: GatlingConfiguration) =
-    Props(new Controller(statsEngine, throttler, configuration))
+  def props(statsEngine: StatsEngine, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration) =
+    Props(new Controller(statsEngine, throttler, simulationParams, configuration))
 }
 
-class Controller(statsEngine: StatsEngine, throttler: Throttler, configuration: GatlingConfiguration)
+class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration)
     extends ControllerFSM {
 
   startWith(WaitingToStart, NoData)
@@ -46,8 +47,8 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, configuration: 
   // -- STEP 1 :  Waiting for the Runner to start the Controller -- //
 
   when(WaitingToStart) {
-    case Event(Run(scenarios, simulationParams), NoData) =>
-      val initData = InitData(sender(), scenarios, simulationParams)
+    case Event(Run(scenarios), NoData) =>
+      val initData = InitData(sender(), scenarios)
       processInitializationResult(initData)
   }
 
@@ -58,7 +59,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, configuration: 
         initData.scenarios.map(scenario => scenario.name -> UserStream(scenario, scenario.injectionProfile.allUsers)).toMap
 
       def setUpSimulationMaxDuration(): Unit =
-        initData.simulationParams.maxDuration.foreach { maxDuration =>
+        simulationParams.maxDuration.foreach { maxDuration =>
           logger.debug("Setting up max duration")
           setTimer("maxDurationTimer", ForceTermination(), maxDuration)
         }

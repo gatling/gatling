@@ -35,7 +35,7 @@ private[controller] case object Stopped extends ControllerState
 
 private[controller] sealed trait ControllerData
 private[controller] case object NoData extends ControllerData
-private[controller] case class InitData(runner: ActorRef, scenarios: List[Scenario], simulationParams: SimulationParams)
+private[controller] case class InitData(runner: ActorRef, scenarios: List[Scenario])
 private[controller] class RunData(
   val initData: InitData,
   val userStreams: Map[String, UserStream],
@@ -47,7 +47,7 @@ private[controller] case class EndData(
   exception: Option[Exception]) extends ControllerData
 
 sealed trait ControllerMessage
-case class Run(scenarios: List[Scenario], simulationParams: SimulationParams) extends ControllerMessage
+case class Run(scenarios: List[Scenario]) extends ControllerMessage
 case class ForceTermination(e: Option[Exception] = None) extends ControllerMessage
 case object StatsEngineTerminated extends ControllerMessage
 case class ScheduleNextUserBatch(scenarioName: String) extends ControllerMessage

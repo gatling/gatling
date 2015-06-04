@@ -104,7 +104,7 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
       val timeout = Int.MaxValue.milliseconds - 10.seconds
 
       println(s"Simulation ${simulationClass.getName} started...")
-      val runResult = coreComponents.controller.ask(Run(scenarios, simulationParams))(timeout).mapTo[Try[String]]
+      val runResult = coreComponents.controller.ask(Run(scenarios))(timeout).mapTo[Try[String]]
 
       val res = Await.result(runResult, timeout)
 
