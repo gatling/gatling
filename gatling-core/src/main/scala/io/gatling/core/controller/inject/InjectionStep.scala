@@ -69,7 +69,7 @@ case class NothingForInjection(duration: FiniteDuration) extends InjectionStep {
 }
 
 /**
- * Injection all the users at once
+ * Inject all the users at once
  */
 case class AtOnceInjection(users: Int) extends InjectionStep {
   require(users > 0, "The number of users must be a strictly positive value")
