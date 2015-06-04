@@ -51,7 +51,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, configuration: 
       processInitializationResult(initData)
   }
 
-  // -- STEP 2 : Waiting for DataWriters to be initialized and confirm initialization -- //
+  // -- STEP 2 : Process injection and start running -- //
 
   private def processInitializationResult(initData: InitData): State = {
       def buildUserStreams: Map[String, UserStream] =
