@@ -15,16 +15,21 @@
  */
 package io.gatling.jms
 
-import akka.actor.ActorRef
+import java.util.concurrent.atomic.AtomicBoolean
+import javax.jms.Message
+
+import scala.util.Try
+import scala.util.control.NonFatal
+
 import io.gatling.core.action.{ Failable, Interruptable }
 import io.gatling.core.session.Expression
 import io.gatling.core.util.TimeHelper.nowMillis
-import javax.jms.Message
-import java.util.concurrent.atomic.AtomicBoolean
 import io.gatling.core.validation.Validation
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session.Session
 import io.gatling.jms.client.SimpleJmsClient
+
+import akka.actor.ActorRef
 
 object JmsReqReplyAction {
   val blockingReceiveReturnedNull = new Exception("Blocking receive returned null. Possibly the consumer was closed.")
@@ -86,7 +91,7 @@ class JmsReqReplyAction(
     def close() = {
       continue.set(false)
       interrupt()
-      join()
+      join(1000)
     }
   }
 
@@ -95,7 +100,7 @@ class JmsReqReplyAction(
   listenerThreads.foreach(_.start)
 
   override def postStop(): Unit = {
-    listenerThreads.foreach(_.close())
+    listenerThreads.foreach(thread => Try(thread.close()).recover { case NonFatal(e) => logger.warn("Could not shutdown listener thread", e) })
     client.close()
   }
 
