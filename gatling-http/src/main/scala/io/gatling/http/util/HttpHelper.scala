@@ -16,7 +16,7 @@
 package io.gatling.http.util
 
 import java.net.URLDecoder
-import java.nio.charset.Charset
+import java.nio.charset.{ StandardCharsets, Charset }
 
 import scala.collection.breakOut
 import scala.io.Codec.UTF8
@@ -120,28 +120,34 @@ object HttpHelper extends StrictLogging {
       case s =>
         var start = s + "charset=".length
 
-        var end = contentType.indexOf(';', start) match {
-          case -1 => contentType.length
+        if (contentType.regionMatches(true, start, "UTF-8", 0, 5)) {
+          // minor optim, bypass lookup for most common
+          Some(StandardCharsets.UTF_8)
 
-          case e  => e
+        } else {
+          var end = contentType.indexOf(';', start) match {
+            case -1 => contentType.length
+
+            case e  => e
+          }
+
+          Try {
+            while (contentType.charAt(start) == ' ' && start < end)
+              start += 1
+
+            while (contentType.charAt(end - 1) == ' ' && end > start)
+              end -= 1
+
+            if (contentType.charAt(start) == '"' && start < end)
+              start += 1
+
+            if (contentType.charAt(end - 1) == '"' && end > start)
+              end -= 1
+
+            val charsetString = contentType.substring(start, end)
+
+            Charset.forName(charsetString)
+          }.toOption
         }
-
-        Try {
-          while (contentType.charAt(start) == ' ' && start < end)
-            start += 1
-
-          while (contentType.charAt(end - 1) == ' ' && end > start)
-            end -= 1
-
-          if (contentType.charAt(start) == '"' && start < end)
-            start += 1
-
-          if (contentType.charAt(end - 1) == '"' && end > start)
-            end -= 1
-
-          val charsetString = contentType.substring(start, end)
-
-          Charset.forName(charsetString)
-        }.toOption
     }
 }
