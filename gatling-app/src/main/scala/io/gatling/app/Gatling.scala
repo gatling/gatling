@@ -105,8 +105,8 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
 
       println(s"Simulation ${simulationClass.getName} started...")
       val runResult = coreComponents.controller.ask(Run(scenarios))(timeout).mapTo[Try[String]]
-
       val res = Await.result(runResult, timeout)
+      println(s"Simulation ${simulationClass.getName} completed")
 
       res match {
         case Failure(t) => throw t
