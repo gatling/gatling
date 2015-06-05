@@ -18,6 +18,7 @@ package io.gatling.jms.action
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.jms.Message
 
+import scala.util.Try
 import scala.util.control.NonFatal
 
 import io.gatling.core.action.{ Failable, Interruptable }
@@ -80,7 +81,7 @@ class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracke
     def close() = {
       continue.set(false)
       interrupt()
-      join()
+      join(1000)
     }
   }
 
@@ -89,7 +90,7 @@ class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracke
   listenerThreads.foreach(_.start)
 
   override def postStop(): Unit = {
-    listenerThreads.foreach(_.close())
+    listenerThreads.foreach(thread => Try(thread.close()).recover { case NonFatal(e) => logger.warn("Could not shutdown listener thread", e) })
     client.close()
   }
 
