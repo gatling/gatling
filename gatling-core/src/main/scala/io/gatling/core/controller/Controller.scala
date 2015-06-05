@@ -18,18 +18,17 @@ package io.gatling.core.controller
 import scala.concurrent.duration._
 import scala.util.{ Failure, Success, Try }
 
+import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.controller.inject.{ Injection, Injector }
 import io.gatling.core.controller.throttle.Throttler
 import io.gatling.core.scenario.SimulationParams
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.{ End, Start }
+import io.gatling.core.stats.message.End
 import io.gatling.core.stats.writer.UserMessage
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.util.TimeHelper.nowMillis
 
 import akka.actor.Props
-import com.typesafe.scalalogging.StrictLogging
 
-object Controller extends StrictLogging {
+object Controller {
 
   val ControllerActorName = "gatling-controller"
 
@@ -39,6 +38,8 @@ object Controller extends StrictLogging {
 
 class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParams: SimulationParams, configuration: GatlingConfiguration)
     extends ControllerFSM {
+
+  val injectorPeriod = 1 second
 
   startWith(WaitingToStart, NoData)
 
@@ -50,11 +51,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       processInitializationResult(initData)
   }
 
-  // -- STEP 2 : Process injection and start running -- //
-
   private def processInitializationResult(initData: InitData): State = {
-      def buildUserStreams: Map[String, UserStream] =
-        initData.scenarios.map(scenario => scenario.name -> UserStream(scenario, scenario.injectionProfile.allUsers)).toMap
 
       def setUpSimulationMaxDuration(): Unit =
         simulationParams.maxDuration.foreach { maxDuration =>
@@ -62,73 +59,55 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
           setTimer("maxDurationTimer", ForceTermination(), maxDuration)
         }
 
-      def startUpScenarios(userStreams: Map[String, UserStream]): BatchScheduler = {
-        val scheduler = new BatchScheduler(nowMillis, 10 seconds, self)
-
-        logger.debug("Launching All Scenarios")
-        userStreams.values.foreach(scheduler.scheduleUserStream(system, _))
-        logger.debug("Finished Launching scenarios executions")
-
-        scheduler
-      }
-
-    val userStreams = buildUserStreams
-    throttler.start()
-    val batchScheduler = startUpScenarios(userStreams)
+    val injector = Injector(system, statsEngine, injectorPeriod, initData.scenarios)
     setUpSimulationMaxDuration()
-    goto(Running) using new RunData(initData, userStreams, batchScheduler, 0L, Long.MinValue)
+
+    throttler.start()
+    val injection = injectTwice(injector)
+    scheduleNextInjection(injection, injector)
+
+    goto(Running) using new RunData(initData, injector, 0L, injection.count)
   }
 
   // -- STEP 3 : The Controller and Data Writers are fully initialized, Simulation is now running -- //
 
-  when(Running) {
-    case Event(userMessage: UserMessage, runData: RunData) =>
-      processUserMessage(userMessage, runData)
+  private def scheduleNextInjection(injection: Injection, injector: Injector): Unit =
+    if (injection.continue)
+      setTimer("injection", ScheduleNextInjection, injector.batchWindow, false)
 
-    case Event(ScheduleNextUserBatch(scenarioName), runData: RunData) =>
-      scheduleNextBatch(runData, scenarioName)
+  private def injectTwice(injector: Injector): Injection = {
+    val injection = injector.inject()
+    // inject one period ahead to avoid bumps
+    val nextInjection = if (injection.continue) injector.inject() else Injection(0, false)
+    injection + nextInjection
+  }
+
+  private def injectOnce(runData: RunData): Unit = {
+    val injector = runData.injector
+    val injection = injector.inject()
+    runData.expectedUsersCount += injection.count
+  }
+
+  when(Running) {
+    case Event(UserMessage(_, End, _), runData: RunData) =>
+      processUserMessage(runData)
+
+    case Event(ScheduleNextInjection, runData: RunData) =>
+      injectOnce(runData)
       stay()
 
     case Event(ForceTermination(exception), runData: RunData) =>
       terminateStatsEngineAndWaitForConfirmation(runData.initData, exception)
   }
 
-  private def processUserMessage(userMessage: UserMessage, runData: RunData): State = {
-      def startNewUser: State = {
-        logger.info(s"Start user #${userMessage.session.userId}")
-        statsEngine.logUser(userMessage)
-        stay()
-      }
+  private def processUserMessage(runData: RunData): State = {
 
-      def endUserAndTerminateIfLast: State = {
-        runData.completedUsersCount += 1
-        dispatchUserEndToDataWriter(userMessage)
+    runData.completedUsersCount += 1
 
-        if (userMessage.session.last) {
-          runData.expectedUsersCount = userMessage.session.userId + 1
-        }
-
-        if (runData.completedUsersCount == runData.expectedUsersCount)
-          terminateStatsEngineAndWaitForConfirmation(runData.initData, None)
-        else
-          stay()
-      }
-
-    userMessage.event match {
-      case Start => startNewUser
-      case End   => endUserAndTerminateIfLast
-    }
-  }
-
-  private def scheduleNextBatch(runData: RunData, scenarioName: String): Unit = {
-    val userStream = runData.userStreams(scenarioName)
-    logger.info(s"Starting new user batch for $scenarioName")
-    runData.scheduler.scheduleUserStream(system, userStream)
-  }
-
-  private def dispatchUserEndToDataWriter(userMessage: UserMessage): Unit = {
-    logger.info(s"End user #${userMessage.session.userId}")
-    statsEngine.logUser(userMessage)
+    if (runData.completedUsersCount == runData.expectedUsersCount)
+      terminateStatsEngineAndWaitForConfirmation(runData.initData, None)
+    else
+      stay()
   }
 
   private def terminateStatsEngineAndWaitForConfirmation(initData: InitData, exception: Option[Exception]): State = {

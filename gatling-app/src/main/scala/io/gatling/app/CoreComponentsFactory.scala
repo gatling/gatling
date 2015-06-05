@@ -87,7 +87,7 @@ private[gatling] class DefaultCoreComponentsFactory extends CoreComponentsFactor
 
     val throttler = Throttler(system, simulationParams)
     val controller = system.actorOf(Controller.props(statsEngine, throttler, simulationParams, configuration), Controller.ControllerActorName)
-    val exit = system.actorOf(Exit.props(controller), Exit.ExitActorName)
+    val exit = system.actorOf(Exit.props(controller, statsEngine), Exit.ExitActorName)
 
     CoreComponents(controller, throttler, statsEngine, exit)
   }

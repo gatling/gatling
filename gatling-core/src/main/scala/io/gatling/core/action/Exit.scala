@@ -15,6 +15,7 @@
  */
 package io.gatling.core.action
 
+import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.End
 import io.gatling.core.stats.writer.UserMessage
 
@@ -26,14 +27,17 @@ object Exit {
 
   val ExitActorName = "gatling-exit"
 
-  def props(controller: ActorRef) =
-    Props(new Exit(controller))
+  def props(controller: ActorRef, statsEngine: StatsEngine) =
+    Props(new Exit(controller, statsEngine))
 }
 
-class Exit(controller: ActorRef) extends Action {
+class Exit(controller: ActorRef, statsEngine: StatsEngine) extends Action {
 
   def execute(session: Session): Unit = {
+    logger.info(s"End user #${session.userId}")
     session.terminate()
-    controller ! UserMessage(session, End, nowMillis)
+    val userEnd = UserMessage(session, End, nowMillis)
+    statsEngine.logUser(userEnd)
+    controller ! userEnd
   }
 }

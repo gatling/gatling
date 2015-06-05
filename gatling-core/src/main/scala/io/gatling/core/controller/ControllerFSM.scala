@@ -17,6 +17,7 @@ package io.gatling.core.controller
 
 import scala.concurrent.duration.FiniteDuration
 
+import io.gatling.core.controller.inject.Injector
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.akka.BaseActor
 
@@ -37,8 +38,7 @@ private[controller] case object NoData extends ControllerData
 private[controller] case class InitData(runner: ActorRef, scenarios: List[Scenario])
 private[controller] class RunData(
   val initData: InitData,
-  val userStreams: Map[String, UserStream],
-  val scheduler: BatchScheduler,
+  val injector: Injector,
   var completedUsersCount: Long,
   var expectedUsersCount: Long) extends ControllerData
 private[controller] case class EndData(
@@ -49,4 +49,4 @@ sealed trait ControllerMessage
 case class Run(scenarios: List[Scenario]) extends ControllerMessage
 case class ForceTermination(e: Option[Exception] = None) extends ControllerMessage
 case object StatsEngineTerminated extends ControllerMessage
-case class ScheduleNextUserBatch(scenarioName: String) extends ControllerMessage
+case object ScheduleNextInjection extends ControllerMessage
