@@ -49,6 +49,7 @@ case class SessionAttribute(session: Session, key: String) {
 object Session {
   val MarkAsFailedUpdate: Session => Session = _.markAsFailed
   val Identity: Session => Session = identity[Session]
+  val NothingOnExit: Session => Unit = _ => ()
 }
 
 /**
@@ -74,7 +75,7 @@ case class Session(
     drift: Long = 0L,
     baseStatus: Status = OK,
     blockStack: List[Block] = Nil,
-    onExit: Session => Unit = session => ()) extends LazyLogging {
+    onExit: Session => Unit = Session.NothingOnExit) extends LazyLogging {
 
   def apply(name: String) = SessionAttribute(this, name)
   def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)
