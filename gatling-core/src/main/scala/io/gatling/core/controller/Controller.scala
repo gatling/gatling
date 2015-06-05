@@ -53,14 +53,12 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
 
   private def processInitializationResult(initData: InitData): State = {
 
-      def setUpSimulationMaxDuration(): Unit =
-        simulationParams.maxDuration.foreach { maxDuration =>
-          logger.debug("Setting up max duration")
-          setTimer("maxDurationTimer", ForceTermination(), maxDuration)
-        }
-
     val injector = Injector(system, statsEngine, injectorPeriod, initData.scenarios)
-    setUpSimulationMaxDuration()
+
+    simulationParams.maxDuration.foreach { maxDuration =>
+      logger.debug("Setting up max duration")
+      setTimer("maxDurationTimer", ForceTermination(), maxDuration)
+    }
 
     throttler.start()
     // inject twice: one period ahead to avoid bumps
@@ -106,7 +104,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
     goto(WaitingForStatsEngineToTerminate) using EndData(initData, exception)
   }
 
-  // -- STEP 4 : Waiting for DataWriters to terminate, discarding all other messages -- //
+  // -- STEP 4 : Waiting for StatsEngine to terminate, discarding all other messages -- //
 
   when(WaitingForStatsEngineToTerminate) {
     case Event(StatsEngineTerminated, endData: EndData) =>
@@ -114,7 +112,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       goto(Stopped) using NoData
 
     case Event(message, _) =>
-      logger.debug(s"Ignore message $message while waiting for DataWriter to terminate")
+      logger.debug(s"Ignore message $message while waiting for StatsEngine to terminate")
       stay()
   }
 
