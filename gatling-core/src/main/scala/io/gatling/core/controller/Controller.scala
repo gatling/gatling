@@ -64,7 +64,6 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
 
     throttler.start()
     val injection = injectTwice(injector)
-    scheduleNextInjection(injection, injector)
 
     goto(Running) using new RunData(initData, injector, 0L, injection.count)
   }
@@ -79,13 +78,16 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
     val injection = injector.inject()
     // inject one period ahead to avoid bumps
     val nextInjection = if (injection.continue) injector.inject() else Injection(0, false)
-    injection + nextInjection
+    val totalInjection = injection + nextInjection
+    scheduleNextInjection(totalInjection, injector)
+    totalInjection
   }
 
   private def injectOnce(runData: RunData): Unit = {
     val injector = runData.injector
     val injection = injector.inject()
     runData.expectedUsersCount += injection.count
+    scheduleNextInjection(injection, injector)
   }
 
   when(Running) {

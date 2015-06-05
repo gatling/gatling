@@ -64,10 +64,10 @@ class DefaultInjector(system: ActorSystem, statsEngine: StatsEngine, val batchWi
 
   def inject(): Injection = {
     initStartTime()
-    userStreams.values.foldLeft(Injection(0, true)) {
-      case (injection, userStream) =>
-        injection + injectUserStream(userStream)
-    }
+    val injections = userStreams.values.map(injectUserStream)
+    val totalCount = injections.map(_.count).sum
+    val totalContinue = !injections.exists(i => !i.continue)
+    Injection(totalCount, totalContinue)
   }
 
   private def injectUserStream(userStream: UserStream): Injection = {
@@ -78,9 +78,7 @@ class DefaultInjector(system: ActorSystem, statsEngine: StatsEngine, val batchWi
     val stream = userStream.stream
 
       def startUser(userId: Long): Unit = {
-        val session = Session(scenario = scenario.name,
-          userId = userId,
-          onExit = scenario.onExit)
+        val session = Session(scenario = scenario.name, userId = userId, onExit = scenario.onExit)
         scenario.entry ! session
         logger.info(s"Start user #${session.userId}")
         val userStart = UserMessage(session, Start, session.startDate)
