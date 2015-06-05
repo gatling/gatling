@@ -51,7 +51,7 @@ private[gatling] trait CoreComponentsFactory {
 
 private[gatling] class DefaultCoreComponentsFactory extends CoreComponentsFactory {
 
-  def newStatsEngine(system: ActorSystem, simulationParams: SimulationParams, runMessage: RunMessage)(implicit configuration: GatlingConfiguration): StatsEngine = {
+  private def newStatsEngine(system: ActorSystem, simulationParams: SimulationParams, runMessage: RunMessage)(implicit configuration: GatlingConfiguration): StatsEngine = {
 
     implicit val dataWriterTimeOut = Timeout(5 seconds)
 

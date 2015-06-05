@@ -28,6 +28,10 @@ import io.gatling.core.util.TimeHelper._
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 
+object Injection {
+  val Empty = Injection(0, false)
+}
+
 case class Injection(count: Long, continue: Boolean) {
   def +(other: Injection): Injection =
     Injection(count + other.count, continue && other.continue)
@@ -112,7 +116,7 @@ class DefaultInjector(system: ActorSystem, statsEngine: StatsEngine, val batchWi
 
       Injection(count, notLast)
     } else {
-      Injection(0, false)
+      Injection.Empty
     }
   }
 }

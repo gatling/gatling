@@ -63,39 +63,28 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
     setUpSimulationMaxDuration()
 
     throttler.start()
-    val injection = injectTwice(injector)
+    // inject twice: one period ahead to avoid bumps
+    val injection = injector.inject() + injector.inject()
+    scheduleNextInjection(injection)
 
     goto(Running) using new RunData(initData, injector, 0L, injection.count)
   }
 
   // -- STEP 3 : The Controller and Data Writers are fully initialized, Simulation is now running -- //
 
-  private def scheduleNextInjection(injection: Injection, injector: Injector): Unit =
+  private def scheduleNextInjection(injection: Injection): Unit =
     if (injection.continue)
-      setTimer("injection", ScheduleNextInjection, injector.batchWindow, false)
-
-  private def injectTwice(injector: Injector): Injection = {
-    val injection = injector.inject()
-    // inject one period ahead to avoid bumps
-    val nextInjection = if (injection.continue) injector.inject() else Injection(0, false)
-    val totalInjection = injection + nextInjection
-    scheduleNextInjection(totalInjection, injector)
-    totalInjection
-  }
-
-  private def injectOnce(runData: RunData): Unit = {
-    val injector = runData.injector
-    val injection = injector.inject()
-    runData.expectedUsersCount += injection.count
-    scheduleNextInjection(injection, injector)
-  }
+      setTimer("injection", ScheduleNextInjection, injectorPeriod, false)
 
   when(Running) {
     case Event(UserMessage(_, End, _), runData: RunData) =>
       processUserMessage(runData)
 
     case Event(ScheduleNextInjection, runData: RunData) =>
-      injectOnce(runData)
+      val injector = runData.injector
+      val injection = injector.inject()
+      runData.expectedUsersCount += injection.count
+      scheduleNextInjection(injection)
       stay()
 
     case Event(ForceTermination(exception), runData: RunData) =>
