@@ -17,16 +17,15 @@ package io.gatling.core.session
 
 import scala.reflect.ClassTag
 
-import io.gatling.core.stats.message.{ KO, OK, Status }
-
-import com.typesafe.scalalogging.LazyLogging
-
 import io.gatling.core.NotNothing
 import io.gatling.core.session.el.ElMessages
+import io.gatling.core.stats.message.{ KO, OK, Status }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.TypeHelper._
 import io.gatling.core.validation._
+
 import akka.actor.ActorRef
+import com.typesafe.scalalogging.LazyLogging
 
 /**
  * Private Gatling Session attributes
