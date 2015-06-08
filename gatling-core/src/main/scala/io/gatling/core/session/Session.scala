@@ -210,5 +210,5 @@ case class Session(
     (session, update) => update(session)
   }
 
-  def terminate(): Unit = onExit(this)
+  def exit(): Unit = onExit(this)
 }

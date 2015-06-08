@@ -35,7 +35,7 @@ class Exit(controller: ActorRef, statsEngine: StatsEngine) extends Action {
 
   def execute(session: Session): Unit = {
     logger.info(s"End user #${session.userId}")
-    session.terminate()
+    session.exit()
     val userEnd = UserMessage(session, End, nowMillis)
     statsEngine.logUser(userEnd)
     controller ! userEnd
