@@ -36,12 +36,12 @@ The metric path for users metrics is *gatling.scenarioName.users.metric*, where 
 * *scenarioName* is the name of your scenario
 * *metric* is one of the metrics described above
 
-Request metrics
----------------
+Response metrics
+----------------
 
-Requests metrics give you, for each request (or all requests using _allRequests_) and by status (OK, KO and both) :
+Response metrics give you, for each request (or all requests using _allRequests_) and by status (OK, KO and both) :
 
-* *count* : requests/sec
+* *count* : responses/sec
 * *min* and *max* : Min and Max response time for the request
 * *percentilesXX* :  1st, 2nd, 3rd and 4th percentiles, as defined in gatling.conf (defaults are 95th and 99th percentiles)
 
