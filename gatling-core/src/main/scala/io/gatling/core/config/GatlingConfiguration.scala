@@ -22,11 +22,11 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.io.Codec
 
-import com.typesafe.config.{ Config, ConfigFactory }
-
 import io.gatling.core.ConfigKeys._
 import io.gatling.core.util.ConfigHelper.configChain
 import io.gatling.core.util.StringHelper.RichString
+
+import com.typesafe.config.{ Config, ConfigFactory }
 import com.typesafe.scalalogging.StrictLogging
 
 /**
