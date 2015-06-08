@@ -34,7 +34,7 @@ sealed trait DataWriterMessage
 case class Init(configuration: GatlingConfiguration, assertions: Seq[Assertion], runMessage: RunMessage, scenarios: Seq[ShortScenarioDescription]) extends DataWriterMessage
 case object Flush extends DataWriterMessage
 case class Crash(cause: String) extends DataWriterMessage
-case object Terminate extends DataWriterMessage
+case object Stop extends DataWriterMessage
 
 sealed trait LoadEventMessage extends DataWriterMessage
 

@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-import io.gatling.core.controller.StatsEngineTerminated
+import io.gatling.core.controller.StatsEngineStopped
 import io.gatling.core.session.{ GroupBlock, Session }
 import io.gatling.core.stats.message.{ ResponseTimings, Status }
 import io.gatling.core.stats.writer._
@@ -50,7 +50,7 @@ trait StatsEngine {
 
   def logError(session: Session, requestName: String, error: String, date: Long): Unit
 
-  def terminate(replyTo: ActorRef): Unit
+  def stop(replyTo: ActorRef): Unit
 
   def reportUnbuildableRequest(session: Session, requestName: String, errorMessage: String): Unit =
     logError(session, requestName, s"Failed to build request $requestName: $errorMessage", nowMillis)
@@ -105,10 +105,10 @@ class DefaultStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extend
 
   override def logError(session: Session, requestName: String, error: String, date: Long): Unit = dispatch(ErrorMessage(s"$error ", date))
 
-  override def terminate(replyTo: ActorRef): Unit =
+  override def stop(replyTo: ActorRef): Unit =
     if (active.getAndSet(false)) {
       implicit val dataWriterTimeOut = Timeout(5 seconds)
-      val responses = dataWriters.map(_ ? Terminate)
-      Future.sequence(responses).onComplete(_ => replyTo ! StatsEngineTerminated)
+      val responses = dataWriters.map(_ ? Stop)
+      Future.sequence(responses).onComplete(_ => replyTo ! StatsEngineStopped)
     }
 }

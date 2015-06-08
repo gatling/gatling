@@ -25,11 +25,11 @@ import io.gatling.core.stats.message.Start
 import io.gatling.core.stats.writer.UserMessage
 import io.gatling.core.util.TimeHelper._
 
-import akka.actor.ActorSystem
+import akka.actor.{ Cancellable, ActorSystem }
 import com.typesafe.scalalogging.StrictLogging
 
 object Injection {
-  val Empty = Injection(0, false)
+  val Empty = Injection(0, continue = false)
 }
 
 case class Injection(count: Long, continue: Boolean) {
@@ -39,22 +39,23 @@ case class Injection(count: Long, continue: Boolean) {
 
 object Injector {
 
-  def apply(system: ActorSystem, statsEngine: StatsEngine, batchWindow: FiniteDuration, scenarios: List[Scenario]): Injector = {
+  def apply(system: ActorSystem, statsEngine: StatsEngine, scenarios: List[Scenario]): Injector = {
     val userStreams = scenarios.map(scenario => scenario.name -> UserStream(scenario, scenario.injectionProfile.allUsers)).toMap
-    new DefaultInjector(system, statsEngine, batchWindow, userStreams)
+    new DefaultInjector(system, statsEngine, userStreams)
   }
 }
 
 trait Injector {
-  def inject(): Injection
-  def batchWindow: FiniteDuration
+  def inject(batchWindow: FiniteDuration): Injection
 }
 
 // not thread-safe, supposed to be called only by controller with is an Actor and guarantees thread-safety
-class DefaultInjector(system: ActorSystem, statsEngine: StatsEngine, val batchWindow: FiniteDuration, userStreams: Map[String, UserStream]) extends Injector with StrictLogging {
+class DefaultInjector(system: ActorSystem, statsEngine: StatsEngine, userStreams: Map[String, UserStream]) extends Injector with StrictLogging {
 
+  implicit val dispatcher = system.dispatcher
   var startTime: Long = _
   var userIdGen: Long = _
+  var timer: Option[Cancellable] = None
 
   private def initStartTime(): Unit =
     if (startTime == 0L) {
@@ -66,17 +67,15 @@ class DefaultInjector(system: ActorSystem, statsEngine: StatsEngine, val batchWi
     userIdGen
   }
 
-  def inject(): Injection = {
+  override def inject(batchWindow: FiniteDuration): Injection = {
     initStartTime()
-    val injections = userStreams.values.map(injectUserStream)
+    val injections = userStreams.values.map(injectUserStream(_, batchWindow))
     val totalCount = injections.map(_.count).sum
     val totalContinue = !injections.exists(i => !i.continue)
     Injection(totalCount, totalContinue)
   }
 
-  private def injectUserStream(userStream: UserStream): Injection = {
-
-    implicit val dispatcher = system.dispatcher
+  private def injectUserStream(userStream: UserStream, batchWindow: FiniteDuration): Injection = {
 
     val scenario = userStream.scenario
     val stream = userStream.stream

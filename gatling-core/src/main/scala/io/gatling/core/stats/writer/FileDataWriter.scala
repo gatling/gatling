@@ -180,7 +180,7 @@ class FileDataWriter extends DataWriter[FileData] {
 
   override def onCrash(cause: String, data: FileData): Unit = {}
 
-  override def onTerminate(data: FileData): Unit = {
+  override def onStop(data: FileData): Unit = {
     flush(data)
     data.channel.force(true)
   }

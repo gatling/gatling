@@ -37,7 +37,7 @@ abstract class DataWriter[T <: DataWriterData: ClassTag] extends DataWriterFSM {
 
   def onCrash(cause: String, data: T): Unit
 
-  def onTerminate(data: T): Unit
+  def onStop(data: T): Unit
 
   def onMessage(message: LoadEventMessage, data: T): Unit
 
@@ -62,8 +62,8 @@ abstract class DataWriter[T <: DataWriterData: ClassTag] extends DataWriterFSM {
       onFlush(data.asInstanceOf[T])
       stay()
 
-    case Event(Terminate, data: Any) if typeMatches[T](data) =>
-      onTerminate(data.asInstanceOf[T])
+    case Event(Stop, data: Any) if typeMatches[T](data) =>
+      onStop(data.asInstanceOf[T])
       sender ! true
       goto(Terminated) using NoData
 

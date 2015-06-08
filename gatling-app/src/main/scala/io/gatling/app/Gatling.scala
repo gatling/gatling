@@ -21,7 +21,7 @@ import scala.util.{ Failure, Try }
 
 import io.gatling.app.cli.{ StatusCode, ArgsParser }
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.controller.Run
+import io.gatling.core.controller.Start
 import io.gatling.core.stats.writer.RunMessage
 import io.gatling.core.util.TimeHelper._
 import io.gatling.core.util.{ Ga, StringHelper }
@@ -104,7 +104,7 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
       val timeout = Int.MaxValue.milliseconds - 10.seconds
 
       println(s"Simulation ${simulationClass.getName} started...")
-      val runResult = coreComponents.controller.ask(Run(scenarios))(timeout).mapTo[Try[String]]
+      val runResult = coreComponents.controller.ask(Start(scenarios))(timeout).mapTo[Try[String]]
       val res = Await.result(runResult, timeout)
       println(s"Simulation ${simulationClass.getName} completed")
 

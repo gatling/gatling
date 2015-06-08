@@ -29,14 +29,14 @@ private[controller] trait ControllerFSM extends BaseActor with FSM[ControllerSta
 
 private[controller] sealed trait ControllerState
 private[controller] case object WaitingToStart extends ControllerState
-private[controller] case object Running extends ControllerState
-private[controller] case object WaitingForStatsEngineToTerminate extends ControllerState
+private[controller] case object Started extends ControllerState
+private[controller] case object WaitingForResourcesToStop extends ControllerState
 private[controller] case object Stopped extends ControllerState
 
 private[controller] sealed trait ControllerData
 private[controller] case object NoData extends ControllerData
-private[controller] case class InitData(runner: ActorRef, scenarios: List[Scenario])
-private[controller] class RunData(
+private[controller] case class InitData(launcher: ActorRef, scenarios: List[Scenario])
+private[controller] class StartedData(
   val initData: InitData,
   val injector: Injector,
   var completedUsersCount: Long,
@@ -46,7 +46,7 @@ private[controller] case class EndData(
   exception: Option[Exception]) extends ControllerData
 
 sealed trait ControllerMessage
-case class Run(scenarios: List[Scenario]) extends ControllerMessage
-case class ForceTermination(e: Option[Exception] = None) extends ControllerMessage
-case object StatsEngineTerminated extends ControllerMessage
+case class Start(scenarios: List[Scenario]) extends ControllerMessage
+case class ForceStop(e: Option[Exception] = None) extends ControllerMessage
+case object StatsEngineStopped extends ControllerMessage
 case object ScheduleNextInjection extends ControllerMessage

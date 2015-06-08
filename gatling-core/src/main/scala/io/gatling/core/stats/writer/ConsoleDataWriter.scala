@@ -127,7 +127,7 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
 
   override def onCrash(cause: String, data: ConsoleData): Unit = {}
 
-  override def onTerminate(data: ConsoleData): Unit = {
+  override def onStop(data: ConsoleData): Unit = {
     cancelTimer(flushTimerName)
     if (!data.complete) onFlush(data)
   }
