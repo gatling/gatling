@@ -66,12 +66,7 @@ class DefaultStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extend
 
   override def logUser(userMessage: UserMessage): Unit = dispatch(userMessage)
 
-  override def logRequest(session: Session, requestName: String): Unit =
-    dispatch(RequestMessage(session.scenario,
-      session.userId,
-      session.groupHierarchy,
-      requestName,
-      nowMillis))
+  override def logRequest(session: Session, requestName: String): Unit = {}
 
   override def logResponse(session: Session,
                            requestName: String,

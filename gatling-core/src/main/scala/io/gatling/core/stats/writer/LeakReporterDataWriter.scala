@@ -78,12 +78,6 @@ class LeakReporterDataWriter extends DataWriter[LeakData] {
     events += group.userId -> group
   }
 
-  private def onRequestMessage(request: RequestMessage, data: LeakData): Unit = {
-    import data._
-    lastTouch = currentTimeMillis
-    events += request.userId -> request
-  }
-
   private def onResponseMessage(response: ResponseMessage, data: LeakData): Unit = {
     import data._
     lastTouch = currentTimeMillis
@@ -93,7 +87,6 @@ class LeakReporterDataWriter extends DataWriter[LeakData] {
   override def onMessage(message: LoadEventMessage, data: LeakData): Unit = message match {
     case user: UserMessage        => onUserMessage(user, data)
     case group: GroupMessage      => onGroupMessage(group, data)
-    case request: RequestMessage  => onRequestMessage(request, data)
     case request: ResponseMessage => onResponseMessage(request, data)
     case error: ErrorMessage      =>
   }

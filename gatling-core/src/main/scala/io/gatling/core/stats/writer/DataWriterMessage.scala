@@ -43,13 +43,6 @@ case class UserMessage(
   event: MessageEvent,
   date: Long) extends LoadEventMessage
 
-case class RequestMessage(
-  scenario: String,
-  userId: Long,
-  groupHierarchy: List[String],
-  name: String,
-  start: Long) extends LoadEventMessage
-
 case class ResponseMessage(
   scenario: String,
   userId: Long,
