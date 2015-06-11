@@ -29,24 +29,25 @@ import io.gatling.http.util.HttpHelper
 object CssParser extends StrictLogging {
 
   val InlineStyleImageUrls = """url\((.*)\)""".r
-  val StyleImportsUrls = """@import.* url\((.*)\)""".r
+  val StyleImportsUrls = """@import url\((.*)\)""".r
 
-  def extractUrls(string: CharSequence, regex: Regex): Iterator[String] = {
+  def extractUrls(string: CharSequence, regex: Regex): Iterator[String] =
     regex.findAllIn(string).matchData.map { m =>
       val raw = m.group(1)
       extractUrl(raw, 0, raw.length)
     }.flatten
-  }
 
   val SingleQuoteEscapeChar = Some('\'')
   val DoubleQuoteEscapeChar = Some('"')
   val AtImportChars = "@import".toCharArray
   val UrlStartChars = "url(".toCharArray
 
-  def extractUrl(string: String, start: Int, end: Int): Option[String] = {
-
-    var protectChar: Option[Char] = None
-    var broken = false
+  def extractUrl(string: String, start: Int, end: Int): Option[String] =
+    if (string.isEmpty) {
+      None
+    } else {
+      var protectChar: Option[Char] = None
+      var broken = false
 
       @tailrec
       def trimLeft(cur: Int): Int = (string.charAt(cur): @switch) match {
@@ -93,20 +94,20 @@ object CssParser extends StrictLogging {
         case _ => cur
       }
 
-    val trimmedStart = trimLeft(start)
-    val trimmedEnd = trimRight(end)
+      val trimmedStart = trimLeft(start)
+      val trimmedEnd = trimRight(end)
 
-    if (!broken) {
-      if (string.charAt(trimmedStart) == '#')
+      if (!broken) {
+        if (string.charAt(trimmedStart) == '#')
         // anchors are not real urls
+          None
+        else
+          Some(string.substring(trimmedStart, trimmedEnd))
+      } else {
+        logger.info(s"css url $string broken")
         None
-      else
-        Some(string.substring(trimmedStart, trimmedEnd))
-    } else {
-      logger.info(s"css url $string broken")
-      None
+      }
     }
-  }
 
   def extractResources(cssURI: Uri, cssContent: String): List[EmbeddedResource] = {
 
