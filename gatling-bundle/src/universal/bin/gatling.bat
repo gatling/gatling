@@ -38,7 +38,7 @@ goto :noHome
 
 :gotHome
 
-set GATLING_CONF="%GATLING_HOME%"\conf
+if not defined GATLING_CONF set GATLING_CONF="%GATLING_HOME%"\conf
 
 echo GATLING_HOME is set to "%GATLING_HOME%"
 
