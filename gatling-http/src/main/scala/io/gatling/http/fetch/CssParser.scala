@@ -47,57 +47,57 @@ object CssParser extends StrictLogging {
       var protectChar: Option[Char] = None
       var broken = false
 
-      @tailrec
-      def trimLeft(cur: Int): Int = (string.charAt(cur): @switch) match {
-        case ' ' | '\r' | '\n' => trimLeft(cur + 1)
-        case '\'' =>
-          protectChar match {
-            case None =>
-              protectChar = SingleQuoteEscapeChar
-              trimLeft(cur + 1)
+        @tailrec
+        def trimLeft(cur: Int): Int = (string.charAt(cur): @switch) match {
+          case ' ' | '\r' | '\n' => trimLeft(cur + 1)
+          case '\'' =>
+            protectChar match {
+              case None =>
+                protectChar = SingleQuoteEscapeChar
+                trimLeft(cur + 1)
+              case _ =>
+                broken = true
+                cur
+
+            }
+          case '"' =>
+            protectChar match {
+              case None =>
+                protectChar = DoubleQuoteEscapeChar
+                trimLeft(cur + 1)
+              case _ =>
+                broken = true
+                cur
+            }
+          case _ => cur
+        }
+
+        @tailrec
+        def trimRight(cur: Int): Int = (string.charAt(cur - 1): @switch) match {
+          case ' ' | '\r' | '\n' => trimRight(cur - 1)
+          case '\'' => protectChar match {
+            case `SingleQuoteEscapeChar` =>
+              trimRight(cur - 1)
             case _ =>
               broken = true
               cur
-
           }
-        case '"' =>
-          protectChar match {
-            case None =>
-              protectChar = DoubleQuoteEscapeChar
-              trimLeft(cur + 1)
+          case '"' => protectChar match {
+            case `DoubleQuoteEscapeChar` =>
+              trimRight(cur - 1)
             case _ =>
               broken = true
               cur
           }
-        case _ => cur
-      }
-
-      @tailrec
-      def trimRight(cur: Int): Int = (string.charAt(cur - 1): @switch) match {
-        case ' ' | '\r' | '\n' => trimRight(cur - 1)
-        case '\'' => protectChar match {
-          case `SingleQuoteEscapeChar` =>
-            trimRight(cur - 1)
-          case _ =>
-            broken = true
-            cur
+          case _ => cur
         }
-        case '"' => protectChar match {
-          case `DoubleQuoteEscapeChar` =>
-            trimRight(cur - 1)
-          case _ =>
-            broken = true
-            cur
-        }
-        case _ => cur
-      }
 
       val trimmedStart = trimLeft(start)
       val trimmedEnd = trimRight(end)
 
       if (!broken) {
         if (string.charAt(trimmedStart) == '#')
-        // anchors are not real urls
+          // anchors are not real urls
           None
         else
           Some(string.substring(trimmedStart, trimmedEnd))
