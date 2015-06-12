@@ -25,7 +25,7 @@ object Dependencies {
   private val boon                          = "io.fastjson"                            % "boon"                                % "0.33"
   private val jsonpath                      = "io.gatling"                            %% "jsonpath"                            % "0.6.4"
   private val joddLagarto                   = "org.jodd"                               % "jodd-lagarto"                        % "3.6.6"
-  private val boopickle                     = "me.chrons"                             %% "boopickle"                           % "0.1.3"
+  private val boopickle                     = "me.chrons"                             %% "boopickle"                           % "0.1.4"
   private val jzlib                         = "com.jcraft"                             % "jzlib"                               % "1.1.3"
   private val redisClient                   = "net.debasishg"                         %% "redisclient"                         % "2.15"
   private val zinc                          = "com.typesafe.zinc"                      % "zinc"                                % "0.3.7" exclude("org.scala-lang", "scala-compiler")
