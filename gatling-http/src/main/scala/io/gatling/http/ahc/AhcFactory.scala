@@ -42,7 +42,7 @@ private[gatling] object AhcFactory {
   val AhcFactorySystemProperty = "gatling.ahcFactory"
 
   def apply(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): AhcFactory =
-    sys.props.get(AhcFactorySystemProperty).map(newInstance[AhcFactory](_, system, coreComponents))
+    sys.props.get(AhcFactorySystemProperty).map(newInstance[AhcFactory](_, system, coreComponents, configuration))
       .getOrElse(new DefaultAhcFactory(system, coreComponents))
 }
 
@@ -108,7 +108,7 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
     nettyConfig
   }
 
-  private def newAhcConfigBuilder(applicationThreadPool: ExecutorService, nettyConfig: NettyAsyncHttpProviderConfig) = {
+  private[gatling] def newAhcConfigBuilder(applicationThreadPool: ExecutorService, nettyConfig: NettyAsyncHttpProviderConfig) = {
     val ahcConfigBuilder = new AsyncHttpClientConfig.Builder()
       .setAllowPoolingConnections(ahcConfig.allowPoolingConnections)
       .setAllowPoolingSslConnections(ahcConfig.allowPoolingSslConnections)
