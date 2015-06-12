@@ -33,7 +33,6 @@ import io.gatling.http.response.Response
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient._
-import org.asynchttpclient.request._
 import org.asynchttpclient.proxy._
 
 object HttpProtocol extends StrictLogging {
