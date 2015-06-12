@@ -22,8 +22,17 @@ object ReflectionHelper {
 
   def newInstance[T](className: String, params: Object*): T = {
     val clazz = Class.forName(className)
-    val constructor = clazz.getConstructor(params.map(_.getClass): _*)
-    constructor.newInstance(params: _*).asInstanceOf[T]
-  }
 
+    val constructors = clazz.getConstructors.filter { constructor =>
+      val types = constructor.getParameterTypes
+
+      types.length == params.length && params.zip(types).forall { case (o, t) => t.isAssignableFrom(o.getClass) }
+    }
+
+    constructors.toList match {
+      case constructor :: Nil => constructor.newInstance(params: _*).asInstanceOf[T]
+      case Nil                => throw new IllegalArgumentException("No constructor matching parameter types")
+      case _                  => throw new IllegalArgumentException("More than one constructor matching parameter types")
+    }
+  }
 }
