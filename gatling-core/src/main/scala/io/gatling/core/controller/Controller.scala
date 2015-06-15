@@ -45,7 +45,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
 
   startWith(WaitingToStart, NoData)
 
-  // -- STEP 1 :  Waiting for the Runner to start the Controller -- //
+  // -- STEP 1 :  Waiting for Gatling to start the Controller -- //
 
   when(WaitingToStart) {
     case Event(Start(scenarios), NoData) =>
