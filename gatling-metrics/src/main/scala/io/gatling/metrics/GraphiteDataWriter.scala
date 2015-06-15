@@ -82,7 +82,7 @@ class GraphiteDataWriter extends DataWriter {
   override def initialized: Receive = super.initialized.orElse {
     case Send =>
       val requestMetrics = requestsByPath.mapValues(_.metricsByStatus).toMap
-      val currentUserBreakdowns = usersByScenario.mapValues(UsersBreakdown(_)).toMap
+      val currentUserBreakdowns = usersByScenario.mapValues(_.breakDown).toMap
 
       // Reset all metrics
       requestsByPath.foreach { case (_, buff) => buff.clear() }

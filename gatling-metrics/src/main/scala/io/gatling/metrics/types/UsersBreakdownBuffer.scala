@@ -20,42 +20,36 @@ import io.gatling.core.result.writer.UserMessage
 
 class UsersBreakdownBuffer(val nbUsers: Int) {
 
-  private var _active = 0
-  private var activeBuffer = 0
-  private var _waiting = nbUsers
-  private var _done = 0
-  private var doneBuffer = 0
+  private var previousActive = 0
+  private var previousEnd = 0
+  private var thisStart = 0
+  private var thisEnd = 0
+
+  private var start = 0
+  private var end = 0
+  private var waiting = nbUsers
 
   def add(userMessage: UserMessage): Unit = userMessage.event match {
     case Start =>
-      _active += 1
-      _waiting -= 1
+      start += 1
+      thisStart += 1
+      waiting -= 1
 
     case End =>
-      activeBuffer += 1
-      doneBuffer += 1
+      end += 1
+      thisEnd += 1
   }
 
-  def active: Int = {
-    _active -= activeBuffer
-    activeBuffer = 0
-    _active
+  def breakDown: UsersBreakdown = {
+
+    previousActive += thisStart - previousEnd
+    previousEnd = thisEnd
+    thisStart = 0
+    thisEnd = 0
+
+    UsersBreakdown(nbUsers, previousActive, waiting, end)
   }
-
-  def waiting: Int = _waiting
-
-  def done: Int = {
-    _done += doneBuffer
-    doneBuffer = 0
-    _done
   }
-
-}
-
-object UsersBreakdown {
-  def apply(buf: UsersBreakdownBuffer): UsersBreakdown =
-    UsersBreakdown(buf.nbUsers, buf.active, buf.waiting, buf.done)
-}
 
 case class UsersBreakdown(nbUsers: Int, active: Int, waiting: Int, done: Int)
 
