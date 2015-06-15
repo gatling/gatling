@@ -17,27 +17,28 @@ package io.gatling.http.action.polling
 
 import scala.concurrent.duration.FiniteDuration
 
-import akka.actor.{ ActorSystem, ActorRef }
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
 import io.gatling.http.request.builder.HttpRequestBuilder
 
+import akka.actor.ActorRef
+
 class PollingStartBuilder(pollerName: String,
                           period: Expression[FiniteDuration],
-                          requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration) extends HttpActionBuilder {
+                          requestBuilder: HttpRequestBuilder) extends HttpActionBuilder {
 
-  override def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) = {
+  override def build(ctx: ScenarioContext, next: ActorRef) = {
+    import ctx._
+    implicit val configuration = ctx.configuration
     val hc = httpComponents(protocolComponentsRegistry)
-    val requestDef = requestBuilder.build(hc, ctx.throttled)
-    system.actorOf(PollingStartAction.props(pollerName, period, requestDef, ctx.coreComponents.statsEngine, next), actorName("pollingStart"))
+    val requestDef = requestBuilder.build(hc, throttled)
+    system.actorOf(PollingStartAction.props(pollerName, period, requestDef, coreComponents.statsEngine, next), actorName("pollingStart"))
   }
 }
 
 class PollingStopBuilder(pollerName: String) extends HttpActionBuilder {
 
-  override def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) =
-    system.actorOf(PollingStopAction.props(pollerName, ctx.coreComponents.statsEngine, next), actorName("pollingStop"))
+  override def build(ctx: ScenarioContext, next: ActorRef) =
+    ctx.system.actorOf(PollingStopAction.props(pollerName, ctx.coreComponents.statsEngine, next), actorName("pollingStop"))
 }

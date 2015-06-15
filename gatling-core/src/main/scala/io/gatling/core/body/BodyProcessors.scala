@@ -34,7 +34,7 @@ object BodyProcessors {
     ByteArrayBody(gzippedBytes)
   }
 
-  def stream(implicit configuration: GatlingConfiguration) = (body: Body) => {
+  val Stream = (body: Body) => {
 
     val stream = body match {
       case stringBody: StringBody       => stringBody.asBytes.bytes.map(new FastByteArrayInputStream(_))

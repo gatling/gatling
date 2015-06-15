@@ -28,7 +28,7 @@ import org.asynchttpclient.request.body.multipart.{ ByteArrayPart, FilePart, Par
 
 object BodyPart {
 
-  def rawFileBodyPart(name: Option[Expression[String]], filePath: Expression[String])(implicit configuration: GatlingConfiguration, rawFileBodies: RawFileBodies): BodyPart =
+  def rawFileBodyPart(name: Option[Expression[String]], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): BodyPart =
     byteArrayBodyPart(name, rawFileBodies.asBytes(filePath)).fileName(rawFileBodies.asFile(filePath).map(_.getName))
 
   def elFileBodyPart(name: Option[Expression[String]], filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
@@ -52,6 +52,7 @@ object BodyPart {
       new ByteArrayPart(name, resolvedBytes, contentType.orNull, charset.orNull, fileName.orNull, contentId.orNull, transferEncoding.orNull)
     }
 
+  // FIXME should we, depending on file size, go with either in memory or file streaming?
   private def fileBodyPartBuilder(file: Expression[File])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
     session => for {
       resolvedFile <- file(session)
@@ -96,7 +97,7 @@ case class BodyPart(
 
     } yield {
       dispositionType.foreach(part.setDispositionType)
-      customHeaders.foreach { case (name, value) => part.addCustomHeader(name, value) }
+      customHeaders.foreach { case (headerName, headerValue) => part.addCustomHeader(headerName, headerValue) }
       part
     }
 }

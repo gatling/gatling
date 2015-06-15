@@ -17,12 +17,12 @@ package io.gatling.core.action.builder
 
 import scala.collection.mutable
 
-import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.{ Feed, SingletonFeed }
 import io.gatling.core.feeder.FeederBuilder
-import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.session.Expression
+
+import akka.actor.ActorRef
 
 object FeedBuilder {
 
@@ -32,10 +32,9 @@ object FeedBuilder {
 
 class FeedBuilder(feederBuilder: FeederBuilder[_], number: Expression[Int]) extends ActionBuilder {
 
-  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) = {
-
-    val feederInstance = FeedBuilder.Instances.getOrElseUpdate(feederBuilder, system.actorOf(SingletonFeed.props(feederBuilder.build(system)), actorName("singletonFeed")))
-
-    system.actorOf(Feed.props(feederInstance, ctx.coreComponents.controller, number, ctx.coreComponents.statsEngine, next), actorName("feed"))
+  def build(ctx: ScenarioContext, next: ActorRef) = {
+    import ctx._
+    val feederInstance = FeedBuilder.Instances.getOrElseUpdate(feederBuilder, system.actorOf(SingletonFeed.props(feederBuilder.build(ctx)), actorName("singletonFeed")))
+    system.actorOf(Feed.props(feederInstance, coreComponents.controller, number, coreComponents.statsEngine, next), actorName("feed"))
   }
 }

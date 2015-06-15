@@ -15,21 +15,21 @@
  */
 package io.gatling.core.action.builder
 
-import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.{ GroupEnd, GroupStart }
 import io.gatling.core.session.Expression
-import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.structure.ScenarioContext
+
+import akka.actor.ActorRef
 
 object GroupBuilder {
 
   def start(groupName: Expression[String]) = new ActionBuilder {
-    def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) =
-      system.actorOf(GroupStart.props(groupName, ctx.coreComponents.statsEngine, next), actorName("groupStart"))
+    def build(ctx: ScenarioContext, next: ActorRef) =
+      ctx.system.actorOf(GroupStart.props(groupName, ctx.coreComponents.statsEngine, next), actorName("groupStart"))
   }
 
   val End = new ActionBuilder {
-    def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) =
-      system.actorOf(GroupEnd.props(ctx.coreComponents.statsEngine, next), actorName("groupEnd"))
+    def build(ctx: ScenarioContext, next: ActorRef) =
+      ctx.system.actorOf(GroupEnd.props(ctx.coreComponents.statsEngine, next), actorName("groupEnd"))
   }
 }

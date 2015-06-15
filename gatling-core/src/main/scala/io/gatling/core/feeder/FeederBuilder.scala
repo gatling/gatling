@@ -15,18 +15,14 @@
  */
 package io.gatling.core.feeder
 
-import akka.actor.ActorSystem
-
-import scala.concurrent.forkjoin.ThreadLocalRandom
-
-import io.gatling.core.util.RoundRobin
+import io.gatling.core.structure.ScenarioContext
 
 trait FeederBuilder[T] {
-  def build(system: ActorSystem): Feeder[T]
+  def build(ctx: ScenarioContext): Feeder[T]
 }
 
 case class FeederWrapper[T](feeder: Feeder[T]) extends FeederBuilder[T] {
-  def build(system: ActorSystem) = feeder
+  def build(ctx: ScenarioContext) = feeder
 }
 
 case class RecordSeqFeederBuilder[T](records: IndexedSeq[Record[T]], strategy: FeederStrategy = Queue) extends FeederBuilder[T] {
@@ -38,15 +34,7 @@ case class RecordSeqFeederBuilder[T](records: IndexedSeq[Record[T]], strategy: F
     copy[Any](records = records.map(_.map { case (key, value) => key -> fullConversion(key -> value) }))
   }
 
-  def build(system: ActorSystem): Feeder[T] = strategy match {
-    case Queue => records.iterator
-    case Random => new Feeder[T] {
-      def hasNext = records.length != 0
-      def next = records(ThreadLocalRandom.current.nextInt(records.length))
-    }
-    case Shuffle  => scala.util.Random.shuffle(records).iterator
-    case Circular => RoundRobin(records)
-  }
+  def build(ctx: ScenarioContext): Feeder[T] = strategy.feeder(records, ctx)
 
   def queue = copy(strategy = Queue)
   def random = copy(strategy = Random)

@@ -22,15 +22,16 @@ import io.gatling.core.structure.ScenarioContext
 import io.gatling.jms.protocol.{ JmsProtocol, JmsComponents }
 import io.gatling.jms.request.JmsAttributes
 
-import akka.actor.{ ActorRef, ActorSystem }
+import akka.actor.ActorRef
 
 case class JmsReqReplyActionBuilder(attributes: JmsAttributes)(implicit configuration: GatlingConfiguration) extends ActionBuilder {
 
   def jmsComponents(protocolComponentsRegistry: ProtocolComponentsRegistry): JmsComponents =
     protocolComponentsRegistry.components(JmsProtocol.JmsProtocolKey)
 
-  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) = {
-    val statsEngine = ctx.coreComponents.statsEngine
+  def build(ctx: ScenarioContext, next: ActorRef) = {
+    import ctx._
+    val statsEngine = coreComponents.statsEngine
     val tracker = system.actorOf(JmsRequestTrackerActor.props(statsEngine), actorName("jmsRequestTracker"))
     system.actorOf(JmsReqReplyAction.props(attributes, jmsComponents(protocolComponentsRegistry).jmsProtocol, tracker, statsEngine, next), actorName("jmsReqReply"))
   }

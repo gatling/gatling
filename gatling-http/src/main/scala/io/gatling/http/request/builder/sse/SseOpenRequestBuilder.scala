@@ -15,7 +15,6 @@
  */
 package io.gatling.http.request.builder.sse
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.{ HeaderValues, HeaderNames }
 import io.gatling.http.action.sse._
@@ -29,12 +28,12 @@ object SseOpenRequestBuilder {
   val SseHeaderValueExpression = HeaderValues.TextEventStream.expression
   val CacheControlNoCacheValueExpression = HeaderValues.NoCache.expression
 
-  def apply(requestName: Expression[String], url: Expression[String], sseName: String)(implicit configuration: GatlingConfiguration) =
+  def apply(requestName: Expression[String], url: Expression[String], sseName: String) =
     new SseOpenRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), sseName)
       .header(HeaderNames.Accept, SseHeaderValueExpression)
       .header(HeaderNames.CacheControl, CacheControlNoCacheValueExpression)
 
-  implicit def toActionBuilder(requestBuilder: SseOpenRequestBuilder)(implicit configuration: GatlingConfiguration): SseOpenActionBuilder =
+  implicit def toActionBuilder(requestBuilder: SseOpenRequestBuilder): SseOpenActionBuilder =
     new SseOpenActionBuilder(requestBuilder.commonAttributes.requestName, requestBuilder.sseName, requestBuilder)
 }
 
@@ -43,6 +42,6 @@ case class SseOpenRequestBuilder(commonAttributes: CommonAttributes, sseName: St
 
   override private[http] def newInstance(commonAttributes: CommonAttributes) = new SseOpenRequestBuilder(commonAttributes, sseName)
 
-  def build(httpComponents: HttpComponents)(implicit configuration: GatlingConfiguration): Expression[Request] =
+  def build(httpComponents: HttpComponents): Expression[Request] =
     new SseRequestExpressionBuilder(commonAttributes, httpComponents).build
 }

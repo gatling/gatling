@@ -15,13 +15,13 @@
  */
 package io.gatling.core
 
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.validation.Validation
-
 import scala.concurrent.duration._
+import scala.reflect.ClassTag
 
 import io.gatling.core.assertion.AssertionSupport
+import io.gatling.core.body.BodyProcessors
 import io.gatling.core.check.CheckSupport
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.controller.inject.InjectionSupport
 import io.gatling.core.controller.throttle.ThrottlingSupport
 import io.gatling.core.feeder.FeederSupport
@@ -32,8 +32,6 @@ import io.gatling.core.session._
 import io.gatling.core.session.el._
 import io.gatling.core.validation._
 
-import scala.reflect.ClassTag
-
 trait CoreDsl extends StructureSupport
     with PauseSupport
     with CheckSupport
@@ -43,8 +41,8 @@ trait CoreDsl extends StructureSupport
     with AssertionSupport
     with CoreDefaultImplicits {
 
-  def gzipBody(implicit configuration: GatlingConfiguration) = io.gatling.core.body.BodyProcessors.gzip
-  def streamBody(implicit configuration: GatlingConfiguration) = io.gatling.core.body.BodyProcessors.stream
+  def gzipBody(implicit configuration: GatlingConfiguration) = BodyProcessors.gzip
+  def streamBody = BodyProcessors.Stream
 
   implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
   implicit def value2Success[T](value: T): Validation[T] = value.success

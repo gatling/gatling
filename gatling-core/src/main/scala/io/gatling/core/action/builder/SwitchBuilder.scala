@@ -17,28 +17,28 @@ package io.gatling.core.action.builder
 
 import scala.collection.breakOut
 
-import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Switch
-import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.session._
 import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
+
+import akka.actor.ActorRef
 
 class SwitchBuilder(value: Expression[Any], possibilities: List[(Any, ChainBuilder)], elseNext: Option[ChainBuilder]) extends ActionBuilder {
 
   require(possibilities.size >= 2, "Switch requires at least 2 possibilities")
 
-  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) = {
+  def build(ctx: ScenarioContext, next: ActorRef) = {
 
     val possibleActions: Map[Any, ActorRef] = possibilities.map {
       case (percentage, possibility) =>
-        val possibilityAction = possibility.build(system, ctx, protocolComponentsRegistry, next)
+        val possibilityAction = possibility.build(ctx, next)
         (percentage, possibilityAction)
     }(breakOut)
 
-    val elseNextActor = elseNext.map(_.build(system, ctx, protocolComponentsRegistry, next)).getOrElse(next)
+    val elseNextActor = elseNext.map(_.build(ctx, next)).getOrElse(next)
 
     val nextAction = value.map(resolvedValue => possibleActions.getOrElse(resolvedValue, elseNextActor))
 
-    system.actorOf(Switch.props(nextAction, ctx.coreComponents.statsEngine, next), actorName("switch"))
+    ctx.system.actorOf(Switch.props(nextAction, ctx.coreComponents.statsEngine, next), actorName("switch"))
   }
 }

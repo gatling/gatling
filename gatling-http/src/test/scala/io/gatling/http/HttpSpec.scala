@@ -71,7 +71,7 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     // FIXME should initialize with this
     val protocols = Protocols(protocolCustomizer(httpProtocol))
     val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[ActorRef])
-    val actor = sb.build(system, ScenarioContext(coreComponents, Constant, throttled = false), new ProtocolComponentsRegistry(system, coreComponents, protocols), self)
+    val actor = sb.build(ScenarioContext(system, coreComponents, new ProtocolComponentsRegistry(system, coreComponents, protocols), configuration, Constant, throttled = false), self)
     actor ! Session("TestSession", 0)
     expectMsgClass(timeout, classOf[Session])
   }

@@ -15,11 +15,10 @@
  */
 package io.gatling.http.action
 
-import akka.actor.{ ActorSystem, ActorRef }
-import io.gatling.core.config.GatlingConfiguration
-import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.request.builder.HttpRequestBuilder
+
+import akka.actor.ActorRef
 
 /**
  * Builder for HttpRequestActionBuilder
@@ -27,11 +26,13 @@ import io.gatling.http.request.builder.HttpRequestBuilder
  * @constructor creates an HttpRequestActionBuilder
  * @param requestBuilder the builder for the request that will be sent
  */
-class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration) extends HttpActionBuilder {
+class HttpRequestActionBuilder(requestBuilder: HttpRequestBuilder) extends HttpActionBuilder {
 
-  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef): ActorRef = {
+  def build(ctx: ScenarioContext, next: ActorRef): ActorRef = {
+    import ctx._
+    implicit val configuration = ctx.configuration
     val hc = httpComponents(protocolComponentsRegistry)
-    val httpRequest = requestBuilder.build(hc, ctx.throttled)
-    system.actorOf(HttpRequestAction.props(httpRequest, ctx.coreComponents.statsEngine, hc.httpEngine, next), actorName("httpRequest"))
+    val httpRequest = requestBuilder.build(hc, throttled)
+    system.actorOf(HttpRequestAction.props(httpRequest, coreComponents.statsEngine, hc.httpEngine, next), actorName("httpRequest"))
   }
 }

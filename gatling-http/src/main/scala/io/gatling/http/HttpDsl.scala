@@ -22,7 +22,7 @@ import io.gatling.core.stats.message.KO
 import io.gatling.http.action.{ FlushCacheBuilder, AddCookieBuilder, CookieDSL }
 import io.gatling.http.check.HttpCheckSupport
 import io.gatling.http.check.ws.WsCheckSupport
-import io.gatling.http.cookie.{ CookieJar, CookieSupport }
+import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.feeder.SitemapFeederSupport
 import io.gatling.http.protocol.{ HttpProtocolBuilder, HttpProxyBuilder }
 import io.gatling.http.request.{ BodyPart, ExtraInfo }
@@ -37,18 +37,17 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SitemapFeederSup
 
   val Proxy = HttpProxyBuilder.apply _
 
-  def http(requestName: Expression[String])(implicit configuration: GatlingConfiguration) = new Http(requestName)
-  def addCookie(cookie: CookieDSL)(implicit configuration: GatlingConfiguration) =
-    new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(CookieJar.UnspecifiedMaxAge))
+  def http(requestName: Expression[String]) = new Http(requestName)
+  def addCookie(cookie: CookieDSL) = AddCookieBuilder(cookie)
   def flushSessionCookies = CookieSupport.FlushSessionCookies
   def flushCookieJar = CookieSupport.FlushCookieJar
-  def flushHttpCache(implicit configuration: GatlingConfiguration) = new FlushCacheBuilder
+  def flushHttpCache = new FlushCacheBuilder
 
-  def sse(requestName: Expression[String])(implicit configuration: GatlingConfiguration) = new Sse(requestName)
-  def sse(requestName: Expression[String], sseName: String)(implicit configuration: GatlingConfiguration) = new Sse(requestName, sseName)
-  def ws(requestName: Expression[String])(implicit configuration: GatlingConfiguration) = new Ws(requestName)
-  def ws(requestName: Expression[String], wsName: String)(implicit configuration: GatlingConfiguration) = new Ws(requestName, wsName)
-  def polling(implicit configuration: GatlingConfiguration) = new Polling()
+  def sse(requestName: Expression[String]) = new Sse(requestName)
+  def sse(requestName: Expression[String], sseName: String) = new Sse(requestName, sseName)
+  def ws(requestName: Expression[String]) = new Ws(requestName)
+  def ws(requestName: Expression[String], wsName: String) = new Ws(requestName, wsName)
+  def polling = new Polling()
 
   val HttpHeaderNames = HeaderNames
   val HttpHeaderValues = HeaderValues
@@ -70,9 +69,9 @@ trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SitemapFeederSup
   def StringBodyPart(name: Expression[String], string: Expression[String])(implicit configuration: GatlingConfiguration): BodyPart =
     BodyPart.stringBodyPart(Some(name), string)
 
-  def RawFileBodyPart(filePath: Expression[String])(implicit configuration: GatlingConfiguration, rawFileBodies: RawFileBodies): BodyPart =
+  def RawFileBodyPart(filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): BodyPart =
     BodyPart.rawFileBodyPart(None, filePath)
-  def RawFileBodyPart(name: Expression[String], filePath: Expression[String])(implicit configuration: GatlingConfiguration, rawFileBodies: RawFileBodies): BodyPart =
+  def RawFileBodyPart(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): BodyPart =
     BodyPart.rawFileBodyPart(Some(name), filePath)
 
   def ByteArrayBodyPart(bytes: Expression[Array[Byte]]): BodyPart = BodyPart.byteArrayBodyPart(None, bytes)

@@ -25,12 +25,14 @@ import io.gatling.http.protocol.{ HttpProtocol, HttpComponents }
 
 import org.asynchttpclient.{ Request, RequestBuilderBase, SignatureCalculator }
 import org.asynchttpclient.uri.Uri
+import org.mockito.Mockito.when
 
 class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
   // Default config
   implicit val configuration = GatlingConfiguration.loadForTest()
   implicit val httpEngine = mock[HttpEngine]
+  when(httpEngine.configuration) thenReturn configuration
   implicit val httpCaches = new HttpCaches
   val httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, httpCaches)
 

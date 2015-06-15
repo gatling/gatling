@@ -18,14 +18,13 @@ package io.gatling.core.action.builder
 import scala.annotation.tailrec
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
-import com.typesafe.scalalogging.StrictLogging
-
-import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.action.Switch
-import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.{ ScenarioContext, ChainBuilder }
 import io.gatling.core.validation.SuccessWrapper
+
+import akka.actor.ActorRef
+import com.typesafe.scalalogging.StrictLogging
 
 object RandomSwitchBuilder {
 
@@ -52,15 +51,17 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
   if (sum == Accuracy && elseNext.isDefined)
     logger.warn("Random switch has a 100% sum, yet a else is defined?!")
 
-  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef) = {
+  def build(ctx: ScenarioContext, next: ActorRef) = {
+
+    import ctx._
 
     val possibleActions = possibilities.map {
       case (percentage, possibility) =>
-        val possibilityAction = possibility.build(system, ctx, protocolComponentsRegistry, next)
+        val possibilityAction = possibility.build(ctx, next)
         (percentage, possibilityAction)
     }
 
-    val elseNextActor = elseNext.map(_.build(system, ctx, protocolComponentsRegistry, next)).getOrElse(next)
+    val elseNextActor = elseNext.map(_.build(ctx, next)).getOrElse(next)
 
     val nextAction: Expression[ActorRef] = _ => {
 
@@ -76,6 +77,6 @@ class RandomSwitchBuilder(possibilities: List[(Int, ChainBuilder)], elseNext: Op
 
       determineNextAction(randomWithinAccuracy, possibleActions).success
     }
-    system.actorOf(Switch.props(nextAction, ctx.coreComponents.statsEngine, next), actorName("randomSwitch"))
+    system.actorOf(Switch.props(nextAction, coreComponents.statsEngine, next), actorName("randomSwitch"))
   }
 }

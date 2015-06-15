@@ -15,7 +15,6 @@
  */
 package io.gatling.http.request.builder.sse
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ SessionPrivateAttributes, Expression }
 import io.gatling.http.action.sse._
 import io.gatling.http.action.ws.WsSetCheckActionBuilder
@@ -25,7 +24,7 @@ object Sse {
   val DefaultSseName = SessionPrivateAttributes.PrivateAttributePrefix + "http.sse"
 }
 
-class Sse(requestName: Expression[String], sseName: String = Sse.DefaultSseName)(implicit configuration: GatlingConfiguration) {
+class Sse(requestName: Expression[String], sseName: String = Sse.DefaultSseName) {
 
   def sseName(sseName: String) = new Sse(requestName, sseName)
   def open(url: Expression[String]) = SseOpenRequestBuilder(requestName, url, sseName)

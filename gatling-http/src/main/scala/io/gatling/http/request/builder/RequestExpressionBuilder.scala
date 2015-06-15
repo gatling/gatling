@@ -19,7 +19,6 @@ import java.net.InetAddress
 
 import scala.util.control.NonFatal
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation._
 import io.gatling.http.HeaderNames
@@ -39,12 +38,13 @@ object RequestExpressionBuilder {
   val BuildRequestErrorMapper = "Failed to build request: " + _
 }
 
-abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, httpComponents: HttpComponents)(implicit configuration: GatlingConfiguration)
+abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, httpComponents: HttpComponents)
     extends LazyLogging {
 
   import RequestExpressionBuilder._
   val protocol = httpComponents.httpProtocol
   val httpCaches = httpComponents.httpCaches
+  protected val charset = httpComponents.httpEngine.configuration.core.charset
 
   def makeAbsolute(url: String): Validation[String]
 
@@ -169,7 +169,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
     (session: Session) => {
       val requestBuilder = new AHCRequestBuilder(commonAttributes.method, disableUrlEncoding)
 
-      requestBuilder.setBodyCharset(configuration.core.charset)
+      requestBuilder.setBodyCharset(charset)
 
       if (!protocol.enginePart.shareConnections)
         requestBuilder.setConnectionPoolPartitioning(new ChannelPoolPartitioning(session))

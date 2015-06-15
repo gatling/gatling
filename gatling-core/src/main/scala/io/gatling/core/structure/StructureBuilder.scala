@@ -30,8 +30,8 @@ trait StructureBuilder[B <: StructureBuilder[B]]
     with Errors[B]
     with Groups[B] {
 
-  private[gatling] def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, exit: ActorRef): ActorRef =
-    actionBuilders.foldLeft(exit) { (next, actionBuilder) =>
-      actionBuilder.build(system, ctx, protocolComponentsRegistry, next)
+  private[gatling] def build(ctx: ScenarioContext, chainNext: ActorRef): ActorRef =
+    actionBuilders.foldLeft(chainNext) { (next, actionBuilder) =>
+      actionBuilder.build(ctx, next)
     }
 }

@@ -16,7 +16,6 @@
 package io.gatling.http.request.builder
 
 import io.gatling.core.body.{ Body, RawFileBodies }
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.http.{ HeaderValues, HeaderNames }
 import io.gatling.http.action.HttpRequestActionBuilder
@@ -41,7 +40,7 @@ case class HttpAttributes(
 
 object HttpRequestBuilder {
 
-  implicit def toActionBuilder(requestBuilder: HttpRequestBuilder)(implicit configuration: GatlingConfiguration) =
+  implicit def toActionBuilder(requestBuilder: HttpRequestBuilder) =
     new HttpRequestActionBuilder(requestBuilder)
 
   val MultipartFormDataValueExpression = HeaderValues.MultipartFormData.expression
@@ -132,7 +131,7 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
    * @param httpComponents the HttpComponents
    * @param throttled if throttling is enabled
    */
-  def build(httpComponents: HttpComponents, throttled: Boolean)(implicit configuration: GatlingConfiguration): HttpRequestDef = {
+  def build(httpComponents: HttpComponents, throttled: Boolean): HttpRequestDef = {
 
     val httpProtocol = httpComponents.httpProtocol
 

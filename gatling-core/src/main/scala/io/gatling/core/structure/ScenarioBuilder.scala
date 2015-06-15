@@ -17,6 +17,7 @@ package io.gatling.core.structure
 
 import scala.concurrent.duration.Duration
 
+import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.protocol.{ ProtocolComponentsRegistry, Protocols, Protocol }
 
 import akka.actor.ActorSystem
@@ -82,22 +83,27 @@ case class PopulationBuilder(
    * @param globalThrottling the optional throttling profile
    * @return the scenario
    */
-  private[core] def build(system: ActorSystem, coreComponents: CoreComponents, protocolComponentsRegistry: ProtocolComponentsRegistry, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[Throttling]): Scenario = {
+  private[core] def build(system: ActorSystem, coreComponents: CoreComponents, protocolComponentsRegistry: ProtocolComponentsRegistry, globalProtocols: Protocols, globalPauseType: PauseType, globalThrottling: Option[Throttling])(implicit configuration: GatlingConfiguration): Scenario = {
 
     val resolvedPauseType = globalThrottling.orElse(scenarioThrottling).map { _ =>
       logger.info("Throttle is enabled, disabling pauses")
       Disabled
     }.orElse(pauseType).getOrElse(globalPauseType)
 
-    val ctx = ScenarioContext(coreComponents, resolvedPauseType, globalThrottling.isDefined || scenarioThrottling.isDefined)
-
     // beware, have to set scenarioProtocols into mutable protocolComponents
     protocolComponentsRegistry.setScenarioProtocols(scenarioProtocols)
 
-    val entry = scenarioBuilder.build(system, ctx, protocolComponentsRegistry, coreComponents.exit)
+    val ctx = ScenarioContext(system, coreComponents, protocolComponentsRegistry, configuration, resolvedPauseType, globalThrottling.isDefined || scenarioThrottling.isDefined)
+
+    val entry = scenarioBuilder.build(ctx, coreComponents.exit)
 
     new Scenario(scenarioBuilder.name, entry, protocolComponentsRegistry.onExit, injectionProfile, ctx)
   }
 }
 
-case class ScenarioContext(coreComponents: CoreComponents, pauseType: PauseType, throttled: Boolean)
+case class ScenarioContext(system: ActorSystem,
+                           coreComponents: CoreComponents,
+                           protocolComponentsRegistry: ProtocolComponentsRegistry,
+                           configuration: GatlingConfiguration,
+                           pauseType: PauseType,
+                           throttled: Boolean)

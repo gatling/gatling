@@ -15,12 +15,11 @@
  */
 package io.gatling.core.feeder
 
-import akka.actor.ActorSystem
-
 import scala.collection.immutable
 
 import io.gatling.BaseSpec
 import io.gatling.core.config.GatlingConfiguration
+import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.validation.Failure
 
 class FeederBuilderSpec extends BaseSpec with FeederSupport {
@@ -41,7 +40,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   }
 
   "RecordSeqFeederBuilder" should "build a Feeder with a queue strategy" in {
-    val queuedFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).queue.build(mock[ActorSystem])
+    val queuedFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).queue.build(mock[ScenarioContext])
     queuedFeeder.toArray shouldBe Array(Map("1" -> "Test"), Map("2" -> "Test"))
   }
 
@@ -52,7 +51,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
     val testsOutcome: immutable.IndexedSeq[Boolean] =
       (1 to 3).map { _ =>
-        val randomFeeder = RecordSeqFeederBuilder(orderedMaps).random.build(mock[ActorSystem])
+        val randomFeeder = RecordSeqFeederBuilder(orderedMaps).random.build(mock[ScenarioContext])
         randomFeeder.hasNext shouldBe true
         val retrievedMaps = fiftyTimes.map(_ => randomFeeder.next())
         retrievedMaps != orderedMaps
@@ -68,7 +67,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
 
     val shuffledOutcome: immutable.IndexedSeq[IndexedSeq[Record[String]]] =
       (1 to 3).map { _ =>
-        val shuffleFeeder = RecordSeqFeederBuilder(orderedMaps).shuffle.build(mock[ActorSystem])
+        val shuffleFeeder = RecordSeqFeederBuilder(orderedMaps).shuffle.build(mock[ScenarioContext])
         shuffleFeeder.hasNext shouldBe true
         fiftyTimes.map(_ => shuffleFeeder.next())
       }
@@ -78,7 +77,7 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   }
 
   it should "build a Feeder with a circular strategy" in {
-    val circularFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).circular.build(mock[ActorSystem])
+    val circularFeeder = RecordSeqFeederBuilder(IndexedSeq(Map("1" -> "Test"), Map("2" -> "Test"))).circular.build(mock[ScenarioContext])
     circularFeeder.next()
     circularFeeder.next()
     circularFeeder.next() shouldBe Map("1" -> "Test")
@@ -100,9 +99,9 @@ class FeederBuilderSpec extends BaseSpec with FeederSupport {
   }
 
   "FeederBuilder" should "have working implicit conversions" in {
-    IndexedSeq(Map("1" -> "Test")).build(mock[ActorSystem]) shouldBe a[Feeder[_]]
-    val convertedObj = Array(Map("1" -> "Test")).build(mock[ActorSystem])
+    IndexedSeq(Map("1" -> "Test")).build(mock[ScenarioContext]) shouldBe a[Feeder[_]]
+    val convertedObj = Array(Map("1" -> "Test")).build(mock[ScenarioContext])
     convertedObj shouldBe a[Feeder[_]]
-    convertedObj.build(mock[ActorSystem]) shouldBe a[Feeder[_]]
+    convertedObj.build(mock[ScenarioContext]) shouldBe a[Feeder[_]]
   }
 }

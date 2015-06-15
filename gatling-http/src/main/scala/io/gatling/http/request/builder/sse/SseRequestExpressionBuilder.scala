@@ -15,7 +15,6 @@
  */
 package io.gatling.http.request.builder.sse
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.protocol.HttpComponents
@@ -25,7 +24,7 @@ import io.gatling.http.util.HttpHelper
 import org.asynchttpclient.{ RequestBuilder => AHCRequestBuilder }
 import org.asynchttpclient.uri.Uri
 
-class SseRequestExpressionBuilder(commonAttributes: CommonAttributes, httpComponents: HttpComponents)(implicit configuration: GatlingConfiguration)
+class SseRequestExpressionBuilder(commonAttributes: CommonAttributes, httpComponents: HttpComponents)
     extends RequestExpressionBuilder(commonAttributes, httpComponents) {
 
   override protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {

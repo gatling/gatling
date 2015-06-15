@@ -15,7 +15,6 @@
  */
 package io.gatling.http.request.builder
 
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Expression
 
 import org.asynchttpclient.uri.Uri
@@ -23,7 +22,7 @@ import org.asynchttpclient.uri.Uri
 /**
  * @param requestName the name of the request
  */
-class Http(requestName: Expression[String])(implicit configuration: GatlingConfiguration) {
+class Http(requestName: Expression[String]) {
 
   def get(url: Expression[String]) = httpRequest("GET", url)
   def get(uri: Uri) = httpRequest("GET", Right(uri))

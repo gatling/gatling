@@ -16,14 +16,14 @@
 package io.gatling.http.action
 
 import io.gatling.core.action.SessionHook
-import io.gatling.core.protocol.ProtocolComponentsRegistry
+import io.gatling.http.cookie.CookieJar
 import io.gatling.http.protocol.HttpProtocol
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.cookie.CookieSupport.storeCookie
 
-import akka.actor.{ ActorSystem, ActorRef }
+import akka.actor.ActorRef
 import org.asynchttpclient.cookie.Cookie
 import org.asynchttpclient.uri.Uri
 
@@ -42,6 +42,9 @@ object AddCookieBuilder {
   val NoBaseUrlFailure = "Neither cookie domain nor baseURL".failure
   val RootSuccess = "/".success
   val DefaultPath: Expression[String] = _ => RootSuccess
+
+  def apply(cookie: CookieDSL) =
+    new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(CookieJar.UnspecifiedMaxAge))
 }
 
 class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Long) extends HttpActionBuilder {
@@ -56,7 +59,9 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
     }
   }
 
-  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef): ActorRef = {
+  def build(ctx: ScenarioContext, next: ActorRef): ActorRef = {
+
+    import ctx._
 
     val hc = httpComponents(protocolComponentsRegistry)
     val resolvedDomain = domain.getOrElse(defaultDomain(hc.httpProtocol))
@@ -70,6 +75,6 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
       cookie = new Cookie(name, value, false, domain, path, maxAge, false, false)
     } yield storeCookie(session, domain, path, cookie)
 
-    system.actorOf(SessionHook.props(expression, ctx.coreComponents.statsEngine, next, interruptable = true), actorName("addCookie"))
+    system.actorOf(SessionHook.props(expression, coreComponents.statsEngine, next, interruptable = true), actorName("addCookie"))
   }
 }

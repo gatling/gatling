@@ -15,8 +15,8 @@
  */
 package io.gatling.core.feeder
 
-import akka.actor.ActorSystem
 import io.gatling.BaseSpec
+import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.json.JsonParsers
 
@@ -26,14 +26,14 @@ class JsonFeederSpec extends BaseSpec with FeederSupport {
   implicit val jsonParsers = JsonParsers()
 
   "jsonFile" should "handle proper JSON file" in {
-    val data = jsonFile("test.json").build(mock[ActorSystem]).toArray
+    val data = jsonFile("test.json").build(mock[ScenarioContext]).toArray
 
     data.size shouldBe 2
     data(0)("id") shouldBe 19434
   }
 
   "jsonUrl" should "retrieve and handle proper JSON file" in {
-    val data = jsonUrl(getClass.getClassLoader.getResource("test.json").toString).build(mock[ActorSystem]).toArray
+    val data = jsonUrl(getClass.getClassLoader.getResource("test.json").toString).build(mock[ScenarioContext]).toArray
     data.size shouldBe 2
     data(0)("id") shouldBe 19434
   }
@@ -42,5 +42,4 @@ class JsonFeederSpec extends BaseSpec with FeederSupport {
     an[IllegalArgumentException] should be thrownBy
       new JsonFeederFileParser().stream(this.getClass.getClassLoader.getResourceAsStream("empty.json"))
   }
-
 }

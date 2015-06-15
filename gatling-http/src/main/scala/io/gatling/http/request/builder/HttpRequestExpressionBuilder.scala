@@ -18,7 +18,6 @@ package io.gatling.http.request.builder
 import scala.collection.JavaConversions._
 
 import io.gatling.core.body._
-import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
 import io.gatling.http.{ HeaderNames, HeaderValues }
@@ -32,7 +31,7 @@ import org.asynchttpclient.{ RequestBuilder => AHCRequestBuilder }
 import org.asynchttpclient.request.body.generator.InputStreamBodyGenerator
 import org.asynchttpclient.request.body.multipart.StringPart
 
-class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, httpComponents: HttpComponents)(implicit configuration: GatlingConfiguration)
+class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, httpComponents: HttpComponents)
     extends RequestExpressionBuilder(commonAttributes, httpComponents) {
 
   def makeAbsolute(url: String): Validation[String] =
@@ -68,7 +67,7 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
         httpAttributes.formParams.resolveParamJList(session).map { params =>
           for {
             param <- params
-          } requestBuilder.addBodyPart(new StringPart(param.getName, param.getValue, null, configuration.core.charset))
+          } requestBuilder.addBodyPart(new StringPart(param.getName, param.getValue, null, charset))
 
           requestBuilder
         }
@@ -81,7 +80,7 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
 
   def configureParts(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
 
-    require(!httpAttributes.body.isDefined || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
+    require(httpAttributes.body.isEmpty || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
       def setBody(body: Body): Validation[AHCRequestBuilder] =
         body match {

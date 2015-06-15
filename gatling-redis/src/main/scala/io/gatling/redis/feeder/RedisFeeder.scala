@@ -15,10 +15,10 @@
  */
 package io.gatling.redis.feeder
 
-import akka.actor.ActorSystem
-import com.redis.{ RedisClient, RedisClientPool }
-
 import io.gatling.core.feeder.{ FeederBuilder, Feeder }
+import io.gatling.core.structure.ScenarioContext
+
+import com.redis.{ RedisClient, RedisClientPool }
 
 /**
  * Class for feeding data from Redis DB, using LPOP, SPOP or
@@ -43,8 +43,8 @@ object RedisFeeder {
   def apply(clientPool: RedisClientPool, key: String, redisCommand: RedisCommand = LPOP): FeederBuilder[String] =
     new FeederBuilder[String] {
 
-      def build(system: ActorSystem): Feeder[String] = {
-        system.registerOnTermination(clientPool.close)
+      def build(ctx: ScenarioContext): Feeder[String] = {
+        ctx.system.registerOnTermination(clientPool.close)
 
           def next = clientPool.withClient { client =>
             val value = redisCommand(client, key)

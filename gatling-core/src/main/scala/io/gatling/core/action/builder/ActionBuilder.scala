@@ -15,10 +15,10 @@
  */
 package io.gatling.core.action.builder
 
-import akka.actor.{ ActorSystem, ActorRef }
 import io.gatling.core.akka.ActorNames
-import io.gatling.core.protocol.ProtocolComponentsRegistry
 import io.gatling.core.structure.ScenarioContext
+
+import akka.actor.ActorRef
 
 /**
  * Top level abstraction for components in charge of building Actions.
@@ -27,11 +27,9 @@ import io.gatling.core.structure.ScenarioContext
 trait ActionBuilder extends ActorNames {
 
   /**
-   * @param system the ActorSystem
-   * @param next the Action that will be chained with the Action build by this builder
    * @param ctx the scenario context
-   * @param protocolComponentsRegistry the ProtocolComponents registry
+   * @param next the Action that will be chained with the Action build by this builder
    * @return the resulting Action actor
    */
-  def build(system: ActorSystem, ctx: ScenarioContext, protocolComponentsRegistry: ProtocolComponentsRegistry, next: ActorRef): ActorRef
+  def build(ctx: ScenarioContext, next: ActorRef): ActorRef
 }
