@@ -61,7 +61,7 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
     import data._
 
     val requestsMetrics = requestsByPath.mapValues(_.metricsByStatus).toMap
-    val usersBreakdowns = usersByScenario.mapValues(UserBreakdown(_)).toMap
+    val usersBreakdowns = usersByScenario.mapValues(_.breakDown).toMap
 
     // Reset all metrics
     requestsByPath.foreach { case (_, buff) => buff.clear() }

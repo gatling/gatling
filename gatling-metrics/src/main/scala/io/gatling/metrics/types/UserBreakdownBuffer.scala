@@ -20,41 +20,35 @@ import io.gatling.core.stats.writer.UserMessage
 
 private[metrics] class UserBreakdownBuffer(val totalUserEstimate: Int) {
 
-  private var _active = 0
-  private var activeBuffer = 0
-  private var _waiting = totalUserEstimate
-  private var _done = 0
-  private var doneBuffer = 0
+  private var previousActive = 0
+  private var previousEnd = 0
+  private var thisStart = 0
+  private var thisEnd = 0
+
+  private var start = 0
+  private var end = 0
+  private var waiting = totalUserEstimate
 
   def add(userMessage: UserMessage): Unit = userMessage.event match {
     case Start =>
-      _active += 1
-      _waiting -= 1
+      start += 1
+      thisStart += 1
+      waiting -= 1
 
     case End =>
-      activeBuffer += 1
-      doneBuffer += 1
+      end += 1
+      thisEnd += 1
   }
 
-  def active: Int = {
-    _active -= activeBuffer
-    activeBuffer = 0
-    _active
+  def breakDown: UserBreakdown = {
+
+    previousActive += thisStart - previousEnd
+    previousEnd = thisEnd
+    thisStart = 0
+    thisEnd = 0
+
+    UserBreakdown(totalUserEstimate, previousActive, waiting, end)
   }
-
-  def waiting: Int = math.max(0, _waiting)
-
-  def done: Int = {
-    _done += doneBuffer
-    doneBuffer = 0
-    _done
-  }
-
-}
-
-private[metrics] object UserBreakdown {
-  def apply(buf: UserBreakdownBuffer): UserBreakdown =
-    UserBreakdown(buf.totalUserEstimate, buf.active, buf.waiting, buf.done)
 }
 
 private[metrics] case class UserBreakdown(nbUsers: Int, active: Int, waiting: Int, done: Int)
