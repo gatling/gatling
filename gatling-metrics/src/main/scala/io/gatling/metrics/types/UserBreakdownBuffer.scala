@@ -47,8 +47,8 @@ private[metrics] class UserBreakdownBuffer(val totalUserEstimate: Int) {
     thisStart = 0
     thisEnd = 0
 
-    UserBreakdown(totalUserEstimate, previousActive, waiting, end)
+    UserBreakdown(previousActive, math.max(waiting, 0), end)
   }
 }
 
-private[metrics] case class UserBreakdown(nbUsers: Int, active: Int, waiting: Int, done: Int)
+private[metrics] case class UserBreakdown(active: Int, waiting: Int, done: Int)
