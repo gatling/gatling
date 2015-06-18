@@ -49,9 +49,9 @@ object ConsoleSummary {
 
         val width = OutputLength - 6 // []3d%
 
-        val donePercent = floor(100 * doneCount.toDouble / totalUserEstimate).toInt
-        val done = floor(width * doneCount.toDouble / totalUserEstimate).toInt
-        val active = ceil(width * activeCount.toDouble / totalUserEstimate).toInt
+        val donePercent = floor(100 * doneCount.toDouble / userCount).toInt
+        val done = floor(width * doneCount.toDouble / userCount).toInt
+        val active = ceil(width * activeCount.toDouble / userCount).toInt
         val waiting = width - done - active
 
         fast"""${writeSubTitle(scenarioName)}

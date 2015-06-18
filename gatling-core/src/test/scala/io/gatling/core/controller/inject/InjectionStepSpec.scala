@@ -33,7 +33,7 @@ class InjectionStepSpec extends BaseSpec {
   val rampScheduling = ramp.chain(Iterator.empty).toList
 
   it should "schedule with a correct interval" in {
-    val interval0 = rampScheduling(1) - rampScheduling(0)
+    val interval0 = rampScheduling(1) - rampScheduling.head
     val interval1 = rampScheduling(2) - rampScheduling(1)
 
     rampScheduling.length shouldBe ramp.users
@@ -57,7 +57,7 @@ class InjectionStepSpec extends BaseSpec {
 
   val waiting = NothingForInjection(1 second)
   "NothingForInjection" should "return the correct number of users" in {
-    waiting.totalUserEstimate shouldBe 0
+    waiting.users shouldBe 0
   }
 
   it should "return the correct injection duration" in {
@@ -101,7 +101,7 @@ class InjectionStepSpec extends BaseSpec {
   }
 
   it should "provides an injection scheduling with the correct values" in {
-    rampRateScheduling(0) shouldBe Duration.Zero
+    rampRateScheduling.head shouldBe Duration.Zero
     rampRateScheduling(1) shouldBe (488 milliseconds)
   }
 
@@ -170,8 +170,8 @@ class InjectionStepSpec extends BaseSpec {
     // Inject 1000 users per second for 60 seconds
     val inject = PoissonInjection(60 seconds, 1000.0, 1000.0, seed = 0L) // Seed with 0, to ensure tests are deterministic
     val scheduling = inject.chain(Iterator(0.seconds)).toVector // Chain to an injector with a zero timer
-    scheduling.size shouldBe (inject.totalUserEstimate + 1) +- 1000 // Poisson injection is non deterministic
-    scheduling.size shouldBe 60001 +- 1000 // 60000 for the users injected by PoissonInjection, plus the 0 second one
+    scheduling.size shouldBe (inject.users + 1)
+    scheduling.size shouldBe 60001 +- 200 // 60000 for the users injected by PoissonInjection, plus the 0 second one
     scheduling.last shouldBe (60 seconds)
     scheduling(scheduling.size - 2).toMillis shouldBe 60000L +- 5L
     scheduling.head.toMillis shouldBe 0L +- 5L
@@ -182,11 +182,11 @@ class InjectionStepSpec extends BaseSpec {
     // ramp from 0 to 1000 users per second over 60 seconds
     val inject = PoissonInjection(60.seconds, 0.0, 1000.0, seed = 0L) // Seed with 0, to ensure tests are deterministic
     val scheduling = inject.chain(Iterator(0.seconds)).toVector // Chain to an injector with a zero timer
-    scheduling.size shouldBe (inject.totalUserEstimate + 1) +- 1000 // Poisson injection is non deterministic
-    scheduling.size shouldBe 30001 +- 1000 // 30000 for the users injected by PoissonInjection, plus the 0 second one
+    scheduling.size shouldBe (inject.users + 1)
+    scheduling.size shouldBe 30001 +- 500 // 30000 for the users injected by PoissonInjection, plus the 0 second one
     scheduling.last shouldBe (60 seconds)
     scheduling(scheduling.size - 2).toMillis shouldBe 60000L +- 5L
-    scheduling.head.toMillis shouldBe 0L +- 1000L
+    scheduling.head.toMillis shouldBe 0L +- 200L
     scheduling(7500).toMillis shouldBe 30000L +- 1000L // Half-way through ramp-up we should have run a quarter of users
   }
 

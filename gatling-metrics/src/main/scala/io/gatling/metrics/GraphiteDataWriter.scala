@@ -49,8 +49,8 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
 
     val pattern: GraphitePathPattern = new OldGraphitePathPattern(runMessage, configuration)
 
-    usersByScenario.update(pattern.allUsersPath, new UserBreakdownBuffer(scenarios.map(_.totalUserEstimate).sum))
-    scenarios.foreach(scenario => usersByScenario += (pattern.usersPath(scenario.name) -> new UserBreakdownBuffer(scenario.totalUserEstimate)))
+    usersByScenario.update(pattern.allUsersPath, new UserBreakdownBuffer(scenarios.map(_.userCount).sum))
+    scenarios.foreach(scenario => usersByScenario += (pattern.usersPath(scenario.name) -> new UserBreakdownBuffer(scenario.userCount)))
 
     setTimer(flushTimerName, Flush, configuration.data.graphite.writeInterval seconds, repeat = true)
 

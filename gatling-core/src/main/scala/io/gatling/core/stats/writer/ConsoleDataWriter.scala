@@ -23,7 +23,7 @@ import scala.concurrent.duration.DurationInt
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.stats.message.{ End, Start, KO, OK }
 
-class UserCounters(val totalUserEstimate: Int) {
+class UserCounters(val userCount: Int) {
 
   private var _activeCount: Int = 0
   private var _doneCount: Int = 0
@@ -33,7 +33,7 @@ class UserCounters(val totalUserEstimate: Int) {
 
   def userStart(): Unit = { _activeCount += 1 }
   def userDone(): Unit = { _activeCount -= 1; _doneCount += 1 }
-  def waitingCount: Int = math.max(totalUserEstimate - _activeCount - _doneCount, 0)
+  def waitingCount: Int = math.max(userCount - _activeCount - _doneCount, 0)
 }
 
 class RequestCounters(var successfulCount: Int = 0, var failedCount: Int = 0)
@@ -58,7 +58,7 @@ class ConsoleDataWriter extends DataWriter[ConsoleData] {
 
     val data = new ConsoleData(configuration, currentTimeMillis)
 
-    scenarios.foreach(scenario => data.usersCounters.put(scenario.name, new UserCounters(scenario.totalUserEstimate)))
+    scenarios.foreach(scenario => data.usersCounters.put(scenario.name, new UserCounters(scenario.userCount)))
 
     setTimer(flushTimerName, Flush, 5 seconds, repeat = true)
 

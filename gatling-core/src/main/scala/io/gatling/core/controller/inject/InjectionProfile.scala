@@ -23,6 +23,6 @@ import scala.concurrent.duration.FiniteDuration
  * @param injectionSteps the number of users that will behave as this scenario says
  */
 case class InjectionProfile(injectionSteps: Iterable[InjectionStep]) {
-  val totalUserEstimate = injectionSteps.map(_.totalUserEstimate).sum
+  val userCount = injectionSteps.map(_.users).sum
   val allUsers = injectionSteps.foldRight(Iterator.empty: Iterator[FiniteDuration]) { (step, iterator) => step.chain(iterator) }
 }

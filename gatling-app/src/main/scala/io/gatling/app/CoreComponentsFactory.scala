@@ -60,7 +60,7 @@ private[gatling] class DefaultCoreComponentsFactory extends CoreComponentsFactor
       system.actorOf(Props(clazz), clazz.getName)
     }
 
-    val shortScenarioDescriptions = simulationParams.populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.totalUserEstimate))
+    val shortScenarioDescriptions = simulationParams.populationBuilders.map(pb => ShortScenarioDescription(pb.scenarioBuilder.name, pb.injectionProfile.userCount))
 
     val responses = dataWriters.map(_ ? Init(configuration, simulationParams.assertions, runMessage, shortScenarioDescriptions))
 
