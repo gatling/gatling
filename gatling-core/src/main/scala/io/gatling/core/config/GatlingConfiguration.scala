@@ -181,7 +181,14 @@ object GatlingConfiguration extends StrictLogging {
           useProxyProperties = config.getBoolean(http.ahc.UseProxyProperties),
           webSocketTimeout = config.getInt(http.ahc.WebSocketTimeout),
           useRelativeURIsWithConnectProxies = config.getBoolean(http.ahc.UseRelativeURIsWithConnectProxies),
-          acceptAnyCertificate = config.getBoolean(http.ahc.AcceptAnyCertificate),
+          acceptAnyCertificate = {
+            val accept = config.getBoolean(http.ahc.AcceptAnyCertificate)
+            if (accept) {
+              System.setProperty("jdk.tls.allowUnsafeServerCertChange", "true")
+              System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", "true")
+            }
+            accept
+          },
           httpClientCodecMaxInitialLineLength = config.getInt(http.ahc.HttpClientCodecMaxInitialLineLength),
           httpClientCodecMaxHeaderSize = config.getInt(http.ahc.HttpClientCodecMaxHeaderSize),
           httpClientCodecMaxChunkSize = config.getInt(http.ahc.HttpClientCodecMaxChunkSize),
