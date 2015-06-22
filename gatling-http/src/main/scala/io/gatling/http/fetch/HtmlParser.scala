@@ -132,12 +132,11 @@ class HtmlParser extends StrictLogging {
                   base = Option(tag.getAttributeValue(HrefAttribute)).map(_.toString)
 
                 } else if (tag.nameEquals(LinkTagName)) {
-                  val rel = tag.getAttributeValue(RelAttribute)
-
-                  if (TagUtil.equalsToLowercase(rel, StylesheetAttributeName))
-                    addResource(tag, HrefAttribute, CssRawResource)
-                  else if (TagUtil.equalsToLowercase(rel, IconAttributeName))
-                    addResource(tag, HrefAttribute, RegularRawResource)
+                  Option(tag.getAttributeValue(RelAttribute)) match {
+                    case Some(rel) if TagUtil.equalsToLowercase(rel, StylesheetAttributeName) => addResource(tag, HrefAttribute, CssRawResource)
+                    case Some(rel) if TagUtil.equalsToLowercase(rel, IconAttributeName) => addResource(tag, HrefAttribute, RegularRawResource)
+                    case None => logger.error("Malformed HTML: <link> tag without rel attribute")
+                  }
 
                 } else if (tag.nameEquals(ImgTagName) ||
                   tag.nameEquals(BgsoundTagName) ||
