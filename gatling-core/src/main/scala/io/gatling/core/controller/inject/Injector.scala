@@ -49,7 +49,7 @@ trait Injector {
   def inject(batchWindow: FiniteDuration): Injection
 }
 
-// not thread-safe, supposed to be called only by controller with is an Actor and guarantees thread-safety
+// not thread-safe, supposed to be called only by controller which is an Actor and guarantees thread-safety
 class DefaultInjector(system: ActorSystem, statsEngine: StatsEngine, userStreams: Map[String, UserStream]) extends Injector with StrictLogging {
 
   implicit val dispatcher = system.dispatcher
@@ -71,7 +71,7 @@ class DefaultInjector(system: ActorSystem, statsEngine: StatsEngine, userStreams
     initStartTime()
     val injections = userStreams.values.map(injectUserStream(_, batchWindow))
     val totalCount = injections.map(_.count).sum
-    val totalContinue = !injections.exists(i => !i.continue)
+    val totalContinue = injections.exists(_.continue)
     Injection(totalCount, totalContinue)
   }
 
@@ -105,10 +105,11 @@ class DefaultInjector(system: ActorSystem, statsEngine: StatsEngine, userStreams
         count += 1
         val userId = newUserId()
 
-        if (continue && delay <= ZeroMs) {
+        if (delay <= ZeroMs) {
           startUser(userId)
         } else {
           // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
+          // FIXME We could be scheduling far ahead time window. Introduce a PushBack?
           system.scheduler.scheduleOnce(toMillisPrecision(delay))(startUser(userId))
         }
       }
