@@ -39,7 +39,7 @@ object Predef extends HttpCheckSupport with WsCheckSupport with SitemapFeederSup
   val Proxy = io.gatling.http.config.HttpProxyBuilder.apply _
 
   def http(requestName: Expression[String]) = new Http(requestName)
-  def addCookie(cookie: CookieDSL) = new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.expires.getOrElse(CookieJar.UnspecifiedExpires), cookie.maxAge.getOrElse(CookieJar.UnspecifiedMaxAge))
+  def addCookie(cookie: CookieDSL) = new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(CookieJar.UnspecifiedMaxAge))
   def flushSessionCookies = CookieHandling.FlushSessionCookies
   def flushCookieJar = CookieHandling.FlushCookieJar
   def flushHttpCache = CacheHandling.FlushCache

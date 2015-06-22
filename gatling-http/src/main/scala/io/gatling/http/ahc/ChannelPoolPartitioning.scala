@@ -26,6 +26,6 @@ object ChannelPoolPartitioning {
 
 class ChannelPoolPartitioning(session: Session) extends ConnectionPoolPartitioning {
 
-  def getPartitionId(uri: Uri, proxyServer: ProxyServer): String =
-    ChannelPoolPartitioning.partitionIdUserBase(session) + ConnectionPoolPartitioning.PerHostConnectionPoolPartitioning.INSTANCE.getPartitionId(uri, proxyServer)
+  def getPartitionKey(uri: Uri, proxyServer: ProxyServer): String =
+    ChannelPoolPartitioning.partitionIdUserBase(session) + ConnectionPoolPartitioning.PerHostConnectionPoolPartitioning.INSTANCE.getPartitionKey(uri, proxyServer)
 }

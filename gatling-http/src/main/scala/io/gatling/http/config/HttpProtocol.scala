@@ -175,7 +175,7 @@ case class HttpProtocol(
 
       val userBase = ChannelPoolPartitioning.partitionIdUserBase(session)
 
-      override def select(partitionId: String): Boolean = partitionId.startsWith(userBase)
+      override def select(partitionId: Object): Boolean = partitionId.asInstanceOf[String].startsWith(userBase)
     })
   }
 }

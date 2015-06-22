@@ -24,18 +24,19 @@ import io.gatling.core.action.SessionHook
 import io.gatling.core.config.Protocols
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
+import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.config.HttpProtocol
 import io.gatling.http.cookie.CookieHandling.storeCookie
 
 case class CookieDSL(name: Expression[String], value: Expression[String],
                      domain: Option[Expression[String]] = None,
                      path: Option[Expression[String]] = None,
-                     expires: Option[Long] = None,
                      maxAge: Option[Int] = None) {
 
   def withDomain(domain: Expression[String]) = copy(domain = Some(domain))
   def withPath(path: Expression[String]) = copy(path = Some(path))
-  def withExpires(expires: Long) = copy(expires = Some(expires))
+  @deprecated("Use withMaxAge instead. withExpires will be dropped in 2.2", "2.1.7")
+  def withExpires(expires: Long) = withMaxAge((expires - nowMillis).toInt / 1000)
   def withMaxAge(maxAge: Int) = copy(maxAge = Some(maxAge))
 }
 
@@ -54,7 +55,7 @@ object AddCookieBuilder {
   }
 }
 
-class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], expires: Long, maxAge: Int) extends HttpActionBuilder {
+class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Int) extends HttpActionBuilder {
 
   import AddCookieBuilder._
 
@@ -68,7 +69,7 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
       value <- value(session)
       domain <- resolvedDomain(session)
       path <- resolvedPath(session)
-      cookie = new Cookie(name, value, false, domain, path, expires, maxAge, false, false)
+      cookie = new Cookie(name, value, false, domain, path, maxAge, false, false)
     } yield storeCookie(session, domain, path, cookie)
 
     actor(actorName("addCookie"))(new SessionHook(expression, next))

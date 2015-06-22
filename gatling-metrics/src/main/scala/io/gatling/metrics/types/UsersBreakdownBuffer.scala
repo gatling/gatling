@@ -49,7 +49,7 @@ class UsersBreakdownBuffer(val nbUsers: Int) {
 
     UsersBreakdown(nbUsers, previousActive, waiting, end)
   }
-  }
+}
 
 case class UsersBreakdown(nbUsers: Int, active: Int, waiting: Int, done: Int)
 
