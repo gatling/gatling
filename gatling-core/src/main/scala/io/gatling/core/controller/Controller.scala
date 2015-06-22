@@ -52,7 +52,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       val initData = InitData(sender(), scenarios)
 
       val injector = Injector(system, statsEngine, initData.scenarios)
-      val startedData = new StartedData(initData, injector, 0L, 0L)
+      val startedData = new StartedData(initData, injector, 0L, 0L, true)
 
       simulationParams.maxDuration.foreach { maxDuration =>
         logger.debug("Setting up max duration")
@@ -71,9 +71,11 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
     val injection = startedData.injector.inject(injectorPeriod)
     if (injection.continue)
       setTimer(injectionTimer, ScheduleNextInjection, injectorPeriod, repeat = false)
+    else
+      startedData.injectionContinue = false
     startedData.expectedUsersCount += injection.count
-  }
 
+  }
   // -- STEP 2 : The Controller is fully initialized, Simulation is now running -- //
 
   when(Started) {
@@ -92,7 +94,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
 
     startedData.completedUsersCount += 1
 
-    if (startedData.completedUsersCount == startedData.expectedUsersCount)
+    if (startedData.completedUsersCount == startedData.expectedUsersCount && !startedData.injectionContinue)
       stop(startedData, None)
     else
       stay()

@@ -28,6 +28,22 @@ import io.gatling.core.util.TimeHelper._
 import akka.actor.{ Cancellable, ActorSystem }
 import com.typesafe.scalalogging.StrictLogging
 
+class PushbackIterator[T](it: Iterator[T]) extends Iterator[T] {
+
+  private var pushedbackValue: Option[T] = None
+
+  override def hasNext: Boolean = pushedbackValue.isDefined || it.hasNext
+
+  override def next(): T = pushedbackValue match {
+    case None => it.next()
+    case Some(value) =>
+      pushedbackValue = None
+      value
+  }
+
+  def pushback(value: T): Unit = pushedbackValue = Some(value)
+}
+
 object Injection {
   val Empty = Injection(0, continue = false)
 }
@@ -40,7 +56,7 @@ case class Injection(count: Long, continue: Boolean) {
 object Injector {
 
   def apply(system: ActorSystem, statsEngine: StatsEngine, scenarios: List[Scenario]): Injector = {
-    val userStreams = scenarios.map(scenario => scenario.name -> UserStream(scenario, scenario.injectionProfile.allUsers)).toMap
+    val userStreams = scenarios.map(scenario => scenario.name -> UserStream(scenario, new PushbackIterator(scenario.injectionProfile.allUsers))).toMap
     new DefaultInjector(system, statsEngine, userStreams)
   }
 }
@@ -102,15 +118,19 @@ class DefaultInjector(system: ActorSystem, statsEngine: StatsEngine, userStreams
         notLast = stream.hasNext
         val delay = startingTime - batchTimeOffset
         continue = startingTime < nextBatchTimeOffset
-        count += 1
-        val userId = newUserId()
 
-        if (delay <= ZeroMs) {
-          startUser(userId)
+        if (continue) {
+          count += 1
+          val userId = newUserId()
+
+          if (delay <= ZeroMs) {
+            startUser(userId)
+          } else {
+            // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
+            system.scheduler.scheduleOnce(toMillisPrecision(delay))(startUser(userId))
+          }
         } else {
-          // Reduce the starting time to the millisecond precision to avoid flooding the scheduler
-          // FIXME We could be scheduling far ahead time window. Introduce a PushBack?
-          system.scheduler.scheduleOnce(toMillisPrecision(delay))(startUser(userId))
+          stream.pushback(startingTime)
         }
       }
 

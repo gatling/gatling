@@ -17,13 +17,13 @@ package io.gatling.core.controller
 
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.core.controller.inject.Injector
+import io.gatling.core.controller.inject.{ PushbackIterator, Injector }
 import io.gatling.core.scenario.Scenario
 import io.gatling.core.akka.BaseActor
 
 import akka.actor.{ ActorRef, FSM }
 
-private[controller] case class UserStream(scenario: Scenario, stream: Iterator[FiniteDuration])
+private[controller] case class UserStream(scenario: Scenario, stream: PushbackIterator[FiniteDuration])
 
 private[controller] trait ControllerFSM extends BaseActor with FSM[ControllerState, ControllerData]
 
@@ -40,7 +40,8 @@ private[controller] class StartedData(
   val initData: InitData,
   val injector: Injector,
   var completedUsersCount: Long,
-  var expectedUsersCount: Long) extends ControllerData
+  var expectedUsersCount: Long,
+  var injectionContinue: Boolean) extends ControllerData
 private[controller] case class EndData(
   initData: InitData,
   exception: Option[Exception]) extends ControllerData
