@@ -58,6 +58,7 @@ object HtmlParser {
   val DataAttribute = "data".toCharArray
   val HrefAttribute = "href".toCharArray
   val IconAttributeName = "icon".toCharArray
+  val ShortcutIconAttributeName = "shortcut icon".toCharArray
   val RelAttribute = "rel".toCharArray
   val SrcAttribute = "src".toCharArray
   val StyleAttribute = StyleTagName
@@ -133,9 +134,13 @@ class HtmlParser extends StrictLogging {
 
                 } else if (tag.nameEquals(LinkTagName)) {
                   Option(tag.getAttributeValue(RelAttribute)) match {
-                    case Some(rel) if TagUtil.equalsToLowercase(rel, StylesheetAttributeName) => addResource(tag, HrefAttribute, CssRawResource)
-                    case Some(rel) if TagUtil.equalsToLowercase(rel, IconAttributeName) => addResource(tag, HrefAttribute, RegularRawResource)
-                    case None => logger.error("Malformed HTML: <link> tag without rel attribute")
+                    case Some(rel) if TagUtil.equalsToLowercase(rel, StylesheetAttributeName) =>
+                      addResource(tag, HrefAttribute, CssRawResource)
+                    case Some(rel) if TagUtil.equalsToLowercase(rel, IconAttributeName) || TagUtil.equalsToLowercase(rel, ShortcutIconAttributeName) =>
+                      addResource(tag, HrefAttribute, RegularRawResource)
+                    case None =>
+                      logger.error("Malformed HTML: <link> tag without rel attribute")
+                    case _ =>
                   }
 
                 } else if (tag.nameEquals(ImgTagName) ||
