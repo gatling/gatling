@@ -107,7 +107,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
     goto(WaitingForResourcesToStop) using EndData(startedData.initData, exception)
   }
 
-  // -- STEP 3 : Waiting for StatsEngine to terminate, discarding all other messages -- //
+  // -- STEP 3 : Waiting for StatsEngine to stop, discarding all other messages -- //
 
   when(WaitingForResourcesToStop) {
     case Event(StatsEngineStopped, endData: EndData) =>
@@ -115,7 +115,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       goto(Stopped) using NoData
 
     case Event(message, _) =>
-      logger.debug(s"Ignore message $message while waiting for StatsEngine to terminate")
+      logger.debug(s"Ignore message $message while waiting for StatsEngine to stop")
       stay()
   }
 
