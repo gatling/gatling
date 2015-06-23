@@ -139,7 +139,7 @@ class FileDataReaderSpec extends BaseSpec {
     props.put(core.directory.Results, "src/test/resources")
     implicit val configuration = GatlingConfiguration.loadForTest(props)
     val nRequestInResponseTimeRange = new FileDataReader("run_single_node_with_known_stats").numberOfRequestInResponseTimeRange().map(_._2)
-    nRequestInResponseTimeRange(0) shouldBe 1
+    nRequestInResponseTimeRange.head shouldBe 1
   }
 
   it should "indicate that 5 request had a response time in between 2500ms and 5000ms" in {

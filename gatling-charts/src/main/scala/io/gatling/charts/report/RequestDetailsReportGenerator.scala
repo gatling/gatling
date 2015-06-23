@@ -43,9 +43,6 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
           def responseTimeChartComponent: Component =
             percentilesChartComponent(dataReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
 
-          def latencyChartComponent: Component =
-            percentilesChartComponent(dataReader.latencyPercentilesOverTime, componentLibrary.getRequestDetailsLatencyChartComponent, "Latency Percentiles over Time")
-
           def percentilesChartComponent(dataSource: (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
                                         componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
                                         title: String): Component = {
@@ -77,9 +74,6 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
           def responseTimeScatterChartComponent: Component =
             scatterChartComponent(dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsResponseTimeScatterChartComponent)
 
-          def latencyScatterChartComponent: Component =
-            scatterChartComponent(dataReader.latencyAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsLatencyScatterChartComponent)
-
           def scatterChartComponent(dataSource: (Status, String, Option[Group]) => Seq[IntVsTimePlot],
                                     componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component): Component = {
 
@@ -98,11 +92,9 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
             new ErrorsTableComponent(dataReader.errors(Some(requestName), group)),
             responseTimeDistributionChartComponent,
             responseTimeChartComponent,
-            latencyChartComponent,
             requestsChartComponent,
             responsesChartComponent,
-            responseTimeScatterChartComponent,
-            latencyScatterChartComponent)
+            responseTimeScatterChartComponent)
 
         new TemplateWriter(requestFile(reportFolderName, path)).writeToFile(template.getOutput(configuration.core.charset))
       }

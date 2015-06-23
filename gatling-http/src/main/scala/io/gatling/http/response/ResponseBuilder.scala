@@ -80,8 +80,6 @@ class ResponseBuilder(request: Request,
   val computeChecksums = checksumChecks.nonEmpty
   var storeHtmlOrCss = false
   var firstByteSent = nowMillis
-  var lastByteSent = 0L
-  var firstByteReceived = 0L
   var lastByteReceived = 0L
   private var status: Option[HttpResponseStatus] = None
   private var headers: FluentCaseInsensitiveStringsMap = ResponseBuilder.EmptyHeaders
@@ -108,8 +106,6 @@ class ResponseBuilder(request: Request,
 
   def reset(): Unit = {
     firstByteSent = nowMillis
-    lastByteSent = 0L
-    firstByteReceived = 0L
     lastByteReceived = 0L
     status = None
     headers = ResponseBuilder.EmptyHeaders
@@ -117,15 +113,13 @@ class ResponseBuilder(request: Request,
     digests = initDigests()
   }
 
-  def updateLastByteSent(): Unit = lastByteSent = nowMillis
+  def updateLastByteSent(): Unit = {}
 
   def updateLastByteReceived(): Unit = lastByteReceived = nowMillis
 
   def accumulate(status: HttpResponseStatus): Unit = {
     this.status = Some(status)
-    val now = nowMillis
-    firstByteReceived = now
-    lastByteReceived = now
+    lastByteReceived = nowMillis
   }
 
   def accumulate(headers: HttpResponseHeaders): Unit = {
@@ -151,12 +145,8 @@ class ResponseBuilder(request: Request,
 
     // time measurement is imprecise due to multi-core nature
     // moreover, ProgressListener might be called AFTER ChannelHandler methods 
-    // ensure request doesn't end before starting
-    lastByteSent = max(lastByteSent, firstByteSent)
-    // ensure response doesn't start before request ends
-    firstByteReceived = max(firstByteReceived, lastByteSent)
     // ensure response doesn't end before starting
-    lastByteReceived = max(lastByteReceived, firstByteReceived)
+    lastByteReceived = max(lastByteReceived, firstByteSent)
 
     val checksums = digests.foldLeft(Map.empty[String, String]) { (map, entry) =>
       val (algo, md) = entry
@@ -189,7 +179,7 @@ class ResponseBuilder(request: Request,
       else
         ByteArrayResponseBody(chunks, resolvedCharset)
 
-    val timings = ResponseTimings(firstByteSent, lastByteSent, firstByteReceived, lastByteReceived)
+    val timings = ResponseTimings(firstByteSent, lastByteReceived)
     val rawResponse = HttpResponse(request, nettyRequest, remoteAddress, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
 
     responseProcessor match {

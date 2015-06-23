@@ -84,7 +84,7 @@ object FileDataWriter extends AssertionCodec {
     def serialize(response: ResponseMessage): Fastring = {
       import response._
       import timings._
-      fast"${RequestRecordHeader.value}$Separator$scenario$Separator$userId$Separator${serializeGroups(groupHierarchy)}$Separator$name$Separator$requestStartDate$Separator$requestEndDate$Separator$responseStartDate$Separator$responseEndDate$Separator$status$Separator${serializeMessage(message)}${serializeExtraInfo(extraInfo)}$Eol"
+      fast"${RequestRecordHeader.value}$Separator$scenario$Separator$userId$Separator${serializeGroups(groupHierarchy)}$Separator$name$Separator$startDate$Separator$endDate$Separator$status$Separator${serializeMessage(message)}${serializeExtraInfo(extraInfo)}$Eol"
     }
   }
 

@@ -15,12 +15,7 @@
  */
 package io.gatling.core.stats.message
 
-case class ResponseTimings(requestStartDate: Long,
-                           requestEndDate: Long,
-                           responseStartDate: Long,
-                           responseEndDate: Long) {
+case class ResponseTimings(startDate: Long, endDate: Long) {
 
-  val responseTime = (responseEndDate - requestStartDate).toInt
-
-  val latency = (responseStartDate - requestEndDate).toInt
+  val responseTime = (endDate - startDate).toInt
 }

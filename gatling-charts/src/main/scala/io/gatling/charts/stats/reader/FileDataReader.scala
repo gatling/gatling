@@ -91,7 +91,7 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
       line.split(FileDataWriter.Separator) match {
 
         case RawRequestRecord(array) =>
-          updateRunLimits(array(5).toLong, array(8).toLong)
+          updateRunLimits(array(5).toLong, array(6).toLong)
 
         case RawUserRecord(array) =>
           updateRunLimits(array(4).toLong, array(5).toLong)
@@ -297,9 +297,6 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
   def responseTimePercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Iterable[PercentilesVsTimePlot] =
     resultsHolder.getResponseTimePercentilesBuffers(requestName, group, status).percentiles
 
-  def latencyPercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Iterable[PercentilesVsTimePlot] =
-    resultsHolder.getLatencyPercentilesBuffers(requestName, group, status).percentiles
-
   private def timeAgainstGlobalNumberOfRequestsPerSec(buffer: PercentilesBuffers, status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
 
     val globalCountsByBucket = resultsHolder.getRequestsPerSecBuffer(None, None).counts
@@ -315,11 +312,6 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
 
   def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
     val percentilesBuffer = resultsHolder.getResponseTimePercentilesBuffers(Some(requestName), group, status)
-    timeAgainstGlobalNumberOfRequestsPerSec(percentilesBuffer, status, requestName, group)
-  }
-
-  def latencyAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group]): Seq[IntVsTimePlot] = {
-    val percentilesBuffer = resultsHolder.getLatencyPercentilesBuffers(Some(requestName), group, status)
     timeAgainstGlobalNumberOfRequestsPerSec(percentilesBuffer, status, requestName, group)
   }
 

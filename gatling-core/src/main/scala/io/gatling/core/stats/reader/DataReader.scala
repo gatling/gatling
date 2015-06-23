@@ -47,9 +47,7 @@ abstract class DataReader(runUuid: String) {
   def requestGeneralStats(requestName: Option[String] = None, group: Option[Group] = None, status: Option[Status] = None): GeneralStats
   def numberOfRequestInResponseTimeRange(requestName: Option[String] = None, group: Option[Group] = None): Seq[(String, Int)]
   def responseTimePercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Iterable[PercentilesVsTimePlot]
-  def latencyPercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Iterable[PercentilesVsTimePlot]
   def responseTimeAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group] = None): Seq[IntVsTimePlot]
-  def latencyAgainstGlobalNumberOfRequestsPerSec(status: Status, requestName: String, group: Option[Group] = None): Seq[IntVsTimePlot]
 
   def errors(requestName: Option[String], group: Option[Group]): Seq[ErrorStats]
 

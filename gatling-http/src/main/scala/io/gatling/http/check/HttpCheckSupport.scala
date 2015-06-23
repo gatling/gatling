@@ -68,5 +68,4 @@ trait HttpCheckSupport {
   val sha1 = HttpChecksumCheckBuilder.Sha1
 
   val responseTimeInMillis = HttpResponseTimeCheckBuilder.ResponseTimeInMillis
-  val latencyInMillis = HttpResponseTimeCheckBuilder.LatencyInMillis
 }

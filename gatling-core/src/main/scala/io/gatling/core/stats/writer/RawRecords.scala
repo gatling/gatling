@@ -29,7 +29,7 @@ sealed abstract class RawRecord(header: RecordHeader, recordLength: Int) {
 }
 
 object RawRunRecord extends RawRecord(RunRecordHeader, 6)
-object RawRequestRecord extends RawRecord(RequestRecordHeader, 10)
+object RawRequestRecord extends RawRecord(RequestRecordHeader, 8)
 object RawUserRecord extends RawRecord(UserRecordHeader, 5)
 object RawGroupRecord extends RawRecord(GroupRecordHeader, 7)
 object RawErrorRecord extends RawRecord(ErrorRecordHeader, 3)

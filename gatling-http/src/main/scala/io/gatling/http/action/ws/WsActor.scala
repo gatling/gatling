@@ -67,10 +67,8 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
       next ! newTx.session
   }
 
-  private def logResponse(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
-    val timings = ResponseTimings(started, ended, ended, ended)
-    statsEngine.logResponse(session, requestName, timings, status, None, errorMessage)
-  }
+  private def logResponse(session: Session, requestName: String, status: Status, startDate: Long, endDate: Long, errorMessage: Option[String] = None): Unit =
+    statsEngine.logResponse(session, requestName, ResponseTimings(startDate, endDate), status, None, errorMessage)
 
   val initialState: Receive = {
 

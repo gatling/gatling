@@ -102,21 +102,23 @@ class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracke
    */
   def executeOrFail(session: Session): Validation[Unit] = {
 
-    // send the message
-    val start = nowMillis
+    val messageProperties = resolveProperties(attributes.messageProperties, session)
 
-    val msg = resolveProperties(attributes.messageProperties, session).flatMap { messageProperties =>
+    // send the message
+    val startDate = nowMillis
+
+    val msg = messageProperties.flatMap { props =>
       attributes.message match {
-        case BytesJmsMessage(bytes) => bytes(session).map(bytes => client.sendBytesMessage(bytes, messageProperties))
-        case MapJmsMessage(map)     => map(session).map(map => client.sendMapMessage(map, messageProperties))
-        case ObjectJmsMessage(o)    => o(session).map(o => client.sendObjectMessage(o, messageProperties))
-        case TextJmsMessage(txt)    => txt(session).map(txt => client.sendTextMessage(txt, messageProperties))
+        case BytesJmsMessage(bytes) => bytes(session).map(bytes => client.sendBytesMessage(bytes, props))
+        case MapJmsMessage(map)     => map(session).map(map => client.sendMapMessage(map, props))
+        case ObjectJmsMessage(o)    => o(session).map(o => client.sendObjectMessage(o, props))
+        case TextJmsMessage(txt)    => txt(session).map(txt => client.sendTextMessage(txt, props))
       }
     }
 
     msg.map { msg =>
       // notify the tracker that a message was sent
-      tracker ! MessageSent(messageMatcher.requestID(msg), start, nowMillis, attributes.checks, session, next, attributes.requestName)
+      tracker ! MessageSent(messageMatcher.requestID(msg), startDate, attributes.checks, session, next, attributes.requestName)
       logMessage(s"Message sent ${msg.getJMSMessageID}", msg)
     }
   }

@@ -55,9 +55,6 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       def responseTimeChartComponent: Component =
         percentilesChartComponent(dataReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
 
-      def latencyChartComponent: Component =
-        percentilesChartComponent(dataReader.latencyPercentilesOverTime, componentLibrary.getRequestDetailsLatencyChartComponent, "Latency Percentiles over Time")
-
       def percentilesChartComponent(dataSource: (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
                                     componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
                                     title: String): Component = {
@@ -94,7 +91,6 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       activeSessionsChartComponent,
       responseTimeDistributionChartComponent,
       responseTimeChartComponent,
-      latencyChartComponent,
       requestsChartComponent,
       responsesChartComponent)
 

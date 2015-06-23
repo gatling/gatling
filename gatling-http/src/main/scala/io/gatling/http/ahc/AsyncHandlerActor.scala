@@ -145,7 +145,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
           context.actorOf(Props(resourceFetcherActor()), actorName("resourceFetcher"))
 
         case None =>
-          tx.next ! tx.session.increaseDrift(nowMillis - response.timings.responseEndDate)
+          tx.next ! tx.session.increaseDrift(nowMillis - response.timings.endDate)
       }
 
     } else {

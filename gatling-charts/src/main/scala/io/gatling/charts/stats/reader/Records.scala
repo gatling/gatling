@@ -48,18 +48,15 @@ private[reader] class RequestRecordParser(bucketFunction: Long => Int, runStart:
     }
     val request = strings(4)
 
-    val firstByteSentTimestamp = strings(5).toLong
-    val lastByteSentTimestamp = strings(6).toLong
-    val firstByteReceivedTimestamp = strings(7).toLong
-    val lastByteReceivedTimestamp = strings(8).toLong
+    val startDate = strings(5).toLong
+    val endDate = strings(6).toLong
 
-    val status = Status.apply(strings(9))
-    val errorMessage = if (status == KO) Some(strings(10)) else None
+    val status = Status.apply(strings(7))
+    val errorMessage = if (status == KO) Some(strings(8)) else None
 
-    val responseTime = (lastByteReceivedTimestamp - firstByteSentTimestamp).toInt
-    val latency = (firstByteReceivedTimestamp - lastByteSentTimestamp).toInt
+    val responseTime = (endDate - startDate).toInt
 
-    RequestRecord(group, request, status, bucketFunction(firstByteSentTimestamp), bucketFunction(lastByteReceivedTimestamp), responseTime, latency, errorMessage)
+    RequestRecord(group, request, status, bucketFunction(startDate), bucketFunction(endDate), responseTime, errorMessage)
   }
 }
 
@@ -99,7 +96,7 @@ private[reader] object ErrorRecordParser {
   }
 }
 
-private[reader] case class RequestRecord(group: Option[Group], name: String, status: Status, startBucket: Int, endBucket: Int, responseTime: Int, latency: Int, errorMessage: Option[String])
+private[reader] case class RequestRecord(group: Option[Group], name: String, status: Status, startBucket: Int, endBucket: Int, responseTime: Int, errorMessage: Option[String])
 private[reader] case class GroupRecord(group: Group, duration: Int, cumulatedResponseTime: Int, status: Status, startBucket: Int)
 private[reader] case class UserRecord(scenario: String, userId: String, event: MessageEvent, startBucket: Int, endBucket: Int)
 private[reader] case class ErrorRecord(message: String, date: Long)

@@ -23,26 +23,19 @@ import io.gatling.core.stats.message.Status
 private[reader] trait RequestPercentilesBuffers {
   this: Buckets =>
 
-  val requestPercentilesBuffers = mutable.Map.empty[BufferKey, (PercentilesBuffers, PercentilesBuffers)]
-
-  private def percentilesBufferPair(requestName: Option[String], group: Option[Group], status: Status): (PercentilesBuffers, PercentilesBuffers) =
-    requestPercentilesBuffers.getOrElseUpdate(BufferKey(requestName, group, Some(status)), (new PercentilesBuffers(buckets), new PercentilesBuffers(buckets)))
+  val responseTimePercentilesBuffers = mutable.Map.empty[BufferKey, PercentilesBuffers]
 
   def getResponseTimePercentilesBuffers(requestName: Option[String], group: Option[Group], status: Status): PercentilesBuffers =
-    percentilesBufferPair(requestName, group, status)._1
+    responseTimePercentilesBuffers.getOrElseUpdate(BufferKey(requestName, group, Some(status)), new PercentilesBuffers(buckets))
 
-  def getLatencyPercentilesBuffers(requestName: Option[String], group: Option[Group], status: Status): PercentilesBuffers =
-    percentilesBufferPair(requestName, group, status)._2
-
-  private def updateRequestPercentilesBuffers(requestName: Option[String], group: Option[Group], status: Status, requestStartBucket: Int, responseTime: Int, latency: Int): Unit = {
-    val (responseTimeHistogramBuffers, latencyHistogramBuffers) = percentilesBufferPair(requestName, group, status)
-    responseTimeHistogramBuffers.update(requestStartBucket, responseTime)
-    latencyHistogramBuffers.update(requestStartBucket, latency)
+  private def updateRequestPercentilesBuffers(requestName: Option[String], group: Option[Group], status: Status, requestStartBucket: Int, responseTime: Int): Unit = {
+    val responseTimePercentilesBuffers = getResponseTimePercentilesBuffers(requestName, group, status)
+    responseTimePercentilesBuffers.update(requestStartBucket, responseTime)
   }
 
   def updateRequestPercentilesBuffers(record: RequestRecord): Unit = {
     import record._
-    updateRequestPercentilesBuffers(Some(name), group, status, startBucket, responseTime, latency)
-    updateRequestPercentilesBuffers(None, None, status, startBucket, responseTime, latency)
+    updateRequestPercentilesBuffers(Some(name), group, status, startBucket, responseTime)
+    updateRequestPercentilesBuffers(None, None, status, startBucket, responseTime)
   }
 }

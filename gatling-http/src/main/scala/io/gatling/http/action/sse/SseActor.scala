@@ -15,20 +15,19 @@
  */
 package io.gatling.http.action.sse
 
-import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.{ KO, OK, Status, ResponseTimings }
+import scala.collection.mutable
 
-import akka.actor.{ Props, ActorRef }
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
-import io.gatling.core.stats.message.KO
+import io.gatling.core.stats.StatsEngine
+import io.gatling.core.stats.message.{ KO, OK, Status, ResponseTimings }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Success
 import io.gatling.http.ahc.SseTx
 import io.gatling.http.check.ws.{ WsCheck, ExpectedCount, ExpectedRange, UntilCount }
 
-import scala.collection.mutable
+import akka.actor.{ Props, ActorRef }
 
 object SseActor {
   def props(sseName: String, statsEngine: StatsEngine) =
@@ -67,10 +66,8 @@ class SseActor(sseName: String, statsEngine: StatsEngine) extends BaseActor {
       next ! newTx.session
   }
 
-  private def logRequest(session: Session, requestName: String, status: Status, started: Long, ended: Long, errorMessage: Option[String] = None): Unit = {
-    val timings = ResponseTimings(started, ended, ended, ended)
-    statsEngine.logResponse(session, requestName, timings, status, None, errorMessage)
-  }
+  private def logRequest(session: Session, requestName: String, status: Status, startDate: Long, endDate: Long, errorMessage: Option[String] = None): Unit =
+    statsEngine.logResponse(session, requestName, ResponseTimings(startDate, endDate), status, None, errorMessage)
 
   val initialState: Receive = {
 

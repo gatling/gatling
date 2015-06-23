@@ -92,16 +92,6 @@ Request/group specific charts
 
 Those charts are only available when consulting the details for a request/group.
 
-Latency over time
------------------
-
-.. image:: img/reports/charts-latency-percentiles-per-sec.png
-    :alt: LatencyOverTime
-    :scale: 70
-
-This charts displays a variety of latency percentiles over time, but only for successful requests.
-As failed requests can end prematurely or be caused by timeouts, they would have a drastic effect on the percentiles computation.
-
 Response Time against Global RPS
 --------------------------------
 
@@ -109,13 +99,4 @@ Response Time against Global RPS
     :alt: ResponseTimeOverLoad
     :scale: 70
 
-This chart shows how the response time for the given request is distributed, depending on the overnall number of request at the same time.
-
-Latency against Global RPS
---------------------------
-
-.. image:: img/reports/charts-latency-global-rps.png
-    :alt: LatencyOverLoad
-    :scale: 70
-
-This chart shows how the latency for the given request is distributed, depending on the overall number of requests at the same time.
+This chart shows how the response time for the given request is distributed, depending on the overall number of request at the same time.

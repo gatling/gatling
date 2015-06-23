@@ -124,12 +124,6 @@ Beware that, as an optimization, Gatling doesn't pile up response chunks unless 
 
 Returns the response time of this request in milliseconds = the time between starting to send the request and finishing to receive the response.
 
-.. _http-check-latency:
-
-* ``latencyInMillis``
-
-Returns the latency of this request in milliseconds = the time between finishing to send the request and starting to receive the response.
-
 .. _http-check-body-string:
 
 * ``bodyString``
