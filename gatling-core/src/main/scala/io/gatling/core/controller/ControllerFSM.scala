@@ -36,15 +36,11 @@ private[controller] case object Stopped extends ControllerState
 private[controller] sealed trait ControllerData
 private[controller] case object NoData extends ControllerData
 private[controller] case class InitData(launcher: ActorRef, scenarios: List[Scenario])
-private[controller] class StartedData(
-  val initData: InitData,
-  val injector: Injector,
-  var completedUsersCount: Long,
-  var expectedUsersCount: Long,
-  var injectionContinue: Boolean) extends ControllerData
-private[controller] case class EndData(
-  initData: InitData,
-  exception: Option[Exception]) extends ControllerData
+private[controller] class UserCounts(var completed: Long, var expected: Long) {
+  def allStopped: Boolean = completed == expected
+}
+private[controller] case class StartedData(initData: InitData, injector: Injector, userCounts: UserCounts, injectionContinue: Boolean) extends ControllerData
+private[controller] case class EndData(initData: InitData, exception: Option[Exception]) extends ControllerData
 
 sealed trait ControllerMessage
 case class Start(scenarios: List[Scenario]) extends ControllerMessage

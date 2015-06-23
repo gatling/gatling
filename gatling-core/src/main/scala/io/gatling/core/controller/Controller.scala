@@ -52,7 +52,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       val initData = InitData(sender(), scenarios)
 
       val injector = Injector(system, statsEngine, initData.scenarios)
-      val startedData = new StartedData(initData, injector, 0L, 0L, true)
+      val startedData = StartedData(initData, injector, new UserCounts(0L, 0L), injectionContinue = true)
 
       simulationParams.maxDuration.foreach { maxDuration =>
         logger.debug("Setting up max duration")
@@ -67,14 +67,15 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       goto(Started) using startedData
   }
 
-  private def inject(startedData: StartedData, window: FiniteDuration): Unit = {
+  private def inject(startedData: StartedData, window: FiniteDuration): State = {
     val injection = startedData.injector.inject(injectorPeriod)
-    if (injection.continue)
+    startedData.userCounts.expected += injection.count
+    if (injection.continue) {
       setTimer(injectionTimer, ScheduleNextInjection, injectorPeriod, repeat = false)
-    else
-      startedData.injectionContinue = false
-    startedData.expectedUsersCount += injection.count
-
+      stay()
+    } else {
+      stay() using startedData.copy(injectionContinue = false)
+    }
   }
   // -- STEP 2 : The Controller is fully initialized, Simulation is now running -- //
 
@@ -84,7 +85,6 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
 
     case Event(ScheduleNextInjection, startedData: StartedData) =>
       inject(startedData, injectorPeriod)
-      stay()
 
     case Event(ForceStop(exception), startedData: StartedData) =>
       stop(startedData, exception)
@@ -92,9 +92,9 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
 
   private def processUserMessage(startedData: StartedData): State = {
 
-    startedData.completedUsersCount += 1
+    startedData.userCounts.completed += 1
 
-    if (startedData.completedUsersCount == startedData.expectedUsersCount && !startedData.injectionContinue)
+    if (startedData.userCounts.allStopped && !startedData.injectionContinue)
       stop(startedData, None)
     else
       stay()
