@@ -17,7 +17,6 @@ package io.gatling.recorder.http.handler.user
 
 import java.io.IOException
 import java.net.InetSocketAddress
-import javax.net.ssl.SSLException
 
 import io.gatling.recorder.http.HttpProxy
 import io.gatling.recorder.http.channel.BootstrapFactory._
@@ -107,25 +106,13 @@ private[user] class HttpsUserHandler(proxy: HttpProxy) extends UserHandler(proxy
 
   override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
 
-      def handleSslException(e: Exception): Unit = {
-        logger.error(s"${e.getClass.getSimpleName} ${e.getMessage}, did you accept the certificate for $targetHostUri?")
-        proxy.controller.secureConnection(targetHostUri)
-        if (ctx.getChannel.isReadable) {
-          logger.debug(s"SSL exception, closing user channel ${ctx.getChannel.getId}")
-          ctx.getChannel.close()
-        }
-        _remoteChannel.foreach { remoteChannel =>
-          if (remoteChannel.isReadable) {
-            logger.debug(s"SSL exception, closing remote channel ${ctx.getChannel.getId} too")
-            remoteChannel.close()
-          }
-        }
-      }
-
     e.getCause match {
-      case ioe: IOException if ioe.getMessage == "Broken pipe" => handleSslException(ioe)
-      case ssle: SSLException => handleSslException(ssle)
-      case _ => super.exceptionCaught(ctx, e)
+      case e: IOException =>
+        logger.error(s"SslException, did you accept the certificate for $targetHostUri?")
+        proxy.controller.secureConnection(targetHostUri)
+      case _ =>
     }
+
+    super.exceptionCaught(ctx, e)
   }
 }

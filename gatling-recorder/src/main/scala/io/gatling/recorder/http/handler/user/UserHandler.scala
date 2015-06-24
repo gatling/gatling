@@ -62,7 +62,10 @@ private[user] abstract class UserHandler(proxy: HttpProxy) extends SimpleChannel
   def propagateRequest(userChannel: Channel, request: HttpRequest): Unit
 
   override def exceptionCaught(ctx: ChannelHandlerContext, e: ExceptionEvent): Unit = {
-    logger.error(s"Exception caught on user channel ${ctx.getChannel.getId}", e.getCause)
+    if (logger.underlying.isDebugEnabled)
+      logger.error(s"Exception caught on user channel ${ctx.getChannel.getId}", e.getCause)
+    else
+      logger.error(s"Exception caught on user channel ${ctx.getChannel.getId}: ${e.getCause.getClass.getSimpleName} ${e.getCause.getMessage}")
 
     if (ctx.getChannel.isReadable) {
       logger.debug(s"Exception, closing user channel ${ctx.getChannel.getId}")
