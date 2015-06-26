@@ -62,9 +62,9 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
       throttler.start()
 
       // inject twice: one period ahead to avoid bumps
-      inject(startedData, injectorPeriod * 2)
+      val state = inject(startedData, injectorPeriod * 2)
 
-      goto(Started) using startedData
+      goto(Started) using state.stateData
   }
 
   private def inject(startedData: StartedData, window: FiniteDuration): State = {
