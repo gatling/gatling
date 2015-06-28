@@ -88,7 +88,7 @@ object RequestElement {
       else
         RequestBodyBytes(content))
 
-    val responseBody = extractContent(request) map ResponseBodyBytes
+    val responseBody = extractContent(response) map ResponseBodyBytes
 
     val filteredRequestHeaders =
       if (configuration.http.removeCacheHeaders)
