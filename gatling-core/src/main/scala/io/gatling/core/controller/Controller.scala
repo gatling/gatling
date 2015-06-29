@@ -72,7 +72,7 @@ class Controller(statsEngine: StatsEngine, throttler: Throttler, simulationParam
     startedData.userCounts.expected += injection.count
     if (injection.continue) {
       setTimer(injectionTimer, ScheduleNextInjection, injectorPeriod, repeat = false)
-      stay()
+      stay() using startedData
     } else {
       stay() using startedData.copy(injectionContinue = false)
     }
