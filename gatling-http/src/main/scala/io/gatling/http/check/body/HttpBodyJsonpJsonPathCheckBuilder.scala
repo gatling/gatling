@@ -33,13 +33,11 @@ trait HttpBodyJsonpJsonPathOfType {
 object HttpBodyJsonpJsonPathCheckBuilder {
 
   val JsonpRegex = """^\w+(?:\[\"\w+\"\]|\.\w+)*\((.*)\);?\s*$""".r
+  val JsonpRegexFailure = "Regex could not extract JSON object from JSONP response".failure
 
   def parseJsonpString(string: String, jsonParsers: JsonParsers): Validation[Any] = string match {
-    case JsonpRegex(jsonp) =>
-      jsonParsers.safeParse(jsonp)
-
-    case _ =>
-      "Regex could not extract JSON object from JSONP response".failure
+    case JsonpRegex(jsonp) => jsonParsers.safeParse(jsonp)
+    case _                 => JsonpRegexFailure
   }
 
   def jsonpPreparer(jsonParsers: JsonParsers): Preparer[Response, Any] = response => parseJsonpString(response.body.string, jsonParsers)
