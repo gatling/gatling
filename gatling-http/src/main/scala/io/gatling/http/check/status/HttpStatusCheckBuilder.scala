@@ -17,7 +17,7 @@ package io.gatling.http.check.status
 
 import io.gatling.core.check.DefaultFindCheckBuilder
 import io.gatling.core.check.extractor._
-import io.gatling.core.session.ExpressionWrapper
+import io.gatling.core.session._
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
@@ -31,7 +31,7 @@ object HttpStatusCheckBuilder {
       case None => "Response wasn't received".failure
       case code => code.success
     }
-  }.expression
+  }.expressionSuccess
 
   val Status = new DefaultFindCheckBuilder[HttpCheck, Response, Response, Int](
     StatusExtender,

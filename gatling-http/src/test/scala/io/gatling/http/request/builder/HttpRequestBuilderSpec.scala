@@ -38,7 +38,7 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
 
   private def performTest(addSignatureCalculator: HttpRequestBuilder => HttpRequestBuilder): Unit = {
 
-    val commonAttributes = CommonAttributes("requestName".expression, "GET", Right(Uri.create("http://gatling.io")))
+    val commonAttributes = CommonAttributes("requestName".expressionSuccess, "GET", Right(Uri.create("http://gatling.io")))
 
     val builder = addSignatureCalculator(new HttpRequestBuilder(commonAttributes, HttpAttributes()))
 

@@ -17,7 +17,7 @@ package io.gatling.http.check.url
 
 import io.gatling.core.check.DefaultFindCheckBuilder
 import io.gatling.core.check.extractor._
-import io.gatling.core.session.ExpressionWrapper
+import io.gatling.core.session._
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
@@ -28,7 +28,7 @@ object CurrentLocationCheckBuilder {
   val CurrentLocationExtractor = new Extractor[Response, String] with SingleArity {
     val name = "currentLocation"
     def apply(prepared: Response) = Some(prepared.request.getUrl).success
-  }.expression
+  }.expressionSuccess
 
   val CurrentLocation = new DefaultFindCheckBuilder[HttpCheck, Response, Response, String](
     UrlExtender,

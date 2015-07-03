@@ -92,7 +92,7 @@ class HttpEngine(system: ActorSystem, val coreComponents: CoreComponents, ahcFac
           }
 
         case _ =>
-          val expression = "foo".expression
+          val expression = "foo".expressionSuccess
 
           implicit val protocol = this
 

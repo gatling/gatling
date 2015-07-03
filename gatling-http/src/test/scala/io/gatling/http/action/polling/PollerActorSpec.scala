@@ -39,7 +39,7 @@ class PollerActorSpec extends AkkaSpec {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
 
-  val requestName = "foo".expression
+  val requestName = "foo".expressionSuccess
 
   def newHttpRequestDef = HttpRequestDef(requestName, failedExpr, None, mock[HttpRequestConfig])
 

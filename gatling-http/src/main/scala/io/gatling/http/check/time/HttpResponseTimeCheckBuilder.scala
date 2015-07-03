@@ -17,7 +17,7 @@ package io.gatling.http.check.time
 
 import io.gatling.core.check.DefaultFindCheckBuilder
 import io.gatling.core.check.extractor._
-import io.gatling.core.session.{ Expression, ExpressionWrapper }
+import io.gatling.core.session._
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckBuilders._
@@ -28,7 +28,7 @@ object HttpResponseTimeCheckBuilder {
   val ResponseTimeInMillis = apply(new Extractor[Response, Int] with SingleArity {
     val name = "responseTime"
     def apply(prepared: Response) = Some(prepared.timings.responseTime).success
-  }.expression)
+  }.expressionSuccess)
 
   def apply(extractor: Expression[Extractor[Response, Int]]) = new DefaultFindCheckBuilder[HttpCheck, Response, Response, Int](
     TimeExtender,

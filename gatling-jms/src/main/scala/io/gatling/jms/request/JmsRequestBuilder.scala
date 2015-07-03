@@ -54,7 +54,7 @@ case class JmsRequestBuilderMessage(requestName: String,
 
   def textMessage(text: Expression[String]) = message(TextJmsMessage(text))
   def bytesMessage(bytes: Expression[Array[Byte]]) = message(BytesJmsMessage(bytes))
-  def mapMessage(map: Map[String, Any]): JmsRequestBuilder = mapMessage(map.expression)
+  def mapMessage(map: Map[String, Any]): JmsRequestBuilder = mapMessage(map.expressionSuccess)
   def mapMessage(map: Expression[Map[String, Any]]): JmsRequestBuilder = message(MapJmsMessage(map))
   def objectMessage(o: Expression[JSerializable]) = message(ObjectJmsMessage(o))
 

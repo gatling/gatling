@@ -46,7 +46,8 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
   val httpCaches = httpComponents.httpCaches
   protected val charset = httpComponents.httpEngine.configuration.core.charset
 
-  def makeAbsolute(url: String): Validation[Uri]
+  def makeAbsolute(url: String): Validation[Uri] =
+    protocol.makeAbsoluteHttpUri(url)
 
   def buildURI(session: Session): Validation[Uri] =
     commonAttributes.urlOrURI match {

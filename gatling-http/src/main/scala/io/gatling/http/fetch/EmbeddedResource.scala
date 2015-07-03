@@ -47,7 +47,7 @@ sealed abstract class EmbeddedResource {
         "/"
     }
 
-    val http = new Http(requestName.expression)
+    val http = new Http(requestName.expressionSuccess)
     val httpRequestDef = http.get(uri).header(HeaderNames.Accept, acceptHeader).build(httpComponents, throttled)
 
     httpRequestDef.build(requestName, session)

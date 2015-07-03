@@ -18,10 +18,10 @@ package io.gatling.core.pause
 import scala.concurrent.duration.Duration
 import scala.concurrent.forkjoin.ThreadLocalRandom
 
-import io.gatling.core.session.{ Expression, ExpressionWrapper }
+import io.gatling.core.session._
 
 sealed abstract class PauseType {
-  def generator(duration: Duration): Expression[Long] = generator(duration.expression)
+  def generator(duration: Duration): Expression[Long] = generator(duration.expressionSuccess)
   def generator(duration: Expression[Duration]): Expression[Long]
 }
 

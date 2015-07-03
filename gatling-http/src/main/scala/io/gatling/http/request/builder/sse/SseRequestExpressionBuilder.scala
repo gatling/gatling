@@ -16,10 +16,9 @@
 package io.gatling.http.request.builder.sse
 
 import io.gatling.core.session.Session
-import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper, Validation }
+import io.gatling.core.validation.Validation
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ CommonAttributes, RequestExpressionBuilder }
-import io.gatling.http.util.HttpHelper
 
 import org.asynchttpclient.{ RequestBuilder => AHCRequestBuilder }
 import org.asynchttpclient.uri.Uri
@@ -32,13 +31,4 @@ class SseRequestExpressionBuilder(commonAttributes: CommonAttributes, httpCompon
     requestBuilder.setRequestTimeout(-1)
     super.configureRequestBuilder(session, uri, requestBuilder)
   }
-
-  def makeAbsolute(url: String): Validation[Uri] =
-    if (HttpHelper.isAbsoluteHttpUrl(url))
-      Uri.create(url).success
-    else
-      protocol.baseURL match {
-        case Some(baseURL) => Uri.create(baseURL, url).success
-        case _             => s"No protocol.baseURL defined but provided url is relative : $url".failure
-      }
 }

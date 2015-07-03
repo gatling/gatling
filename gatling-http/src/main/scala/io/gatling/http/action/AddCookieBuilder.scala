@@ -18,7 +18,7 @@ package io.gatling.http.action
 import io.gatling.core.action.SessionHook
 import io.gatling.http.cookie.CookieJar
 import io.gatling.http.protocol.HttpProtocol
-import io.gatling.core.session.{ Expression, Session }
+import io.gatling.core.session._
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.core.validation.{ FailureWrapper, SuccessWrapper }
 import io.gatling.http.cookie.CookieSupport.storeCookie
@@ -38,9 +38,8 @@ case class CookieDSL(name: Expression[String], value: Expression[String],
 
 object AddCookieBuilder {
 
-  val NoBaseUrlFailure = "Neither cookie domain nor baseURL".failure
-  val RootSuccess = "/".success
-  val DefaultPath: Expression[String] = _ => RootSuccess
+  val NoBaseUrlFailure = "Neither cookie domain nor baseURL".expressionFailure
+  val DefaultPath = "/".expressionSuccess
 
   def apply(cookie: CookieDSL) =
     new AddCookieBuilder(cookie.name, cookie.value, cookie.domain, cookie.path, cookie.maxAge.getOrElse(CookieJar.UnspecifiedMaxAge))
@@ -50,13 +49,11 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
 
   import AddCookieBuilder._
 
-  private def defaultDomain(httpProtocol: HttpProtocol) = {
-    val baseUrlHost = httpProtocol.baseURL.map(_.getHost)
-    (session: Session) => baseUrlHost match {
-      case Some(host) => host.success
-      case _          => NoBaseUrlFailure
+  private def defaultDomain(httpProtocol: HttpProtocol) =
+    httpProtocol.baseURL match {
+      case Some(uri) => uri.getHost.expressionSuccess
+      case _         => NoBaseUrlFailure
     }
-  }
 
   def build(ctx: ScenarioContext, next: ActorRef): ActorRef = {
 

@@ -48,14 +48,14 @@ object RequestBuilder {
   /**
    * This is the default HTTP check used to verify that the response status is 2XX
    */
-  val OkCodesExpression = OkCodes.expression
+  val OkCodesExpression = OkCodes.expressionSuccess
 
   val DefaultHttpCheck = Status.find.in(OkCodesExpression).build
 
-  val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expression
-  val XmlHeaderValueExpression = HeaderValues.ApplicationXml.expression
-  val AllHeaderHeaderValueExpression = "*/*".expression
-  val CssHeaderHeaderValueExpression = "text/css,*/*;q=0.1".expression
+  val JsonHeaderValueExpression = HeaderValues.ApplicationJson.expressionSuccess
+  val XmlHeaderValueExpression = HeaderValues.ApplicationXml.expressionSuccess
+  val AllHeaderHeaderValueExpression = "*/*".expressionSuccess
+  val CssHeaderHeaderValueExpression = "text/css,*/*;q=0.1".expressionSuccess
 }
 
 abstract class RequestBuilder[B <: RequestBuilder[B]] {
@@ -124,7 +124,7 @@ abstract class RequestBuilder[B <: RequestBuilder[B]] {
   def proxy(httpProxy: Proxy): B = newInstance(commonAttributes.copy(proxies = Some(httpProxy.proxyServers)))
 
   def signatureCalculator(calculator: Expression[SignatureCalculator]): B = newInstance(commonAttributes.copy(signatureCalculator = Some(calculator)))
-  def signatureCalculator(calculator: SignatureCalculator): B = signatureCalculator(calculator.expression)
+  def signatureCalculator(calculator: SignatureCalculator): B = signatureCalculator(calculator.expressionSuccess)
   def signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit): B = signatureCalculator(new SignatureCalculator {
     def calculateAndAddSignature(request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(request, requestBuilder)
   })

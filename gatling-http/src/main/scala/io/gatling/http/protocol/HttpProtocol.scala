@@ -22,13 +22,15 @@ import io.gatling.core.CoreComponents
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.filter.Filters
 import io.gatling.core.protocol.{ ProtocolKey, Protocol }
-import io.gatling.core.session.Expression
+import io.gatling.core.session._
 import io.gatling.core.util.RoundRobin
+import io.gatling.core.validation._
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.request.ExtraInfoExtractor
 import io.gatling.http.response.Response
+import io.gatling.http.util.HttpHelper
 
 import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
@@ -129,6 +131,15 @@ case class HttpProtocol(
 
   private val httpBaseUrlIterator = HttpProtocol.baseUrlIterator(baseURLs)
   def baseURL: Option[Uri] = httpBaseUrlIterator.next()
+
+  def makeAbsoluteHttpUri(url: String): Validation[Uri] =
+    if (HttpHelper.isAbsoluteHttpUrl(url))
+      Uri.create(url).success
+    else
+      baseURL match {
+        case Some(root) => Uri.create(root, url).success
+        case _          => s"No protocol.baseURL defined but provided url is relative : $url".failure
+      }
 }
 
 case class HttpProtocolEnginePart(
@@ -167,6 +178,14 @@ case class HttpProtocolWsPart(
 
   private val wsBaseUrlIterator = HttpProtocol.baseUrlIterator(wsBaseURLs)
   def wsBaseURL: Option[Uri] = wsBaseUrlIterator.next()
+  def makeAbsoluteWsUri(url: String): Validation[Uri] =
+    if (HttpHelper.isAbsoluteHttpUrl(url))
+      Uri.create(url).success
+    else
+      wsBaseURL match {
+        case Some(root) => Uri.create(root, url).success
+        case _          => s"No protocol.wsBaseURL defined but provided url is relative : $url".failure
+      }
 }
 
 case class HttpProtocolProxyPart(

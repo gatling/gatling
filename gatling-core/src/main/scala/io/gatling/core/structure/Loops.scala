@@ -20,7 +20,7 @@ import java.util.UUID
 import scala.concurrent.duration.Duration
 
 import io.gatling.core.action.builder._
-import io.gatling.core.session.{ Expression, ExpressionWrapper, Session }
+import io.gatling.core.session._
 import io.gatling.core.structure.ChainBuilder.chainOf
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.SuccessWrapper
@@ -51,7 +51,7 @@ trait Loops[B] extends Execs[B] {
   }
 
   def during(duration: Duration, counterName: String = UUID.randomUUID.toString, exitASAP: Boolean = true)(chain: ChainBuilder): B =
-    during(duration.expression, counterName, exitASAP)(chain)
+    during(duration.expressionSuccess, counterName, exitASAP)(chain)
 
   def during(duration: Expression[Duration], counterName: String, exitASAP: Boolean)(chain: ChainBuilder): B = {
 

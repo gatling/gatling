@@ -97,7 +97,7 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
   def silentURI(regex: String) = newRequestPart(protocol.requestPart.copy(silentURI = Some(regex.r.pattern)))
   def disableUrlEncoding = newRequestPart(protocol.requestPart.copy(disableUrlEncoding = true))
   def signatureCalculator(calculator: Expression[SignatureCalculator]): HttpProtocolBuilder = newRequestPart(protocol.requestPart.copy(signatureCalculator = Some(calculator)))
-  def signatureCalculator(calculator: SignatureCalculator): HttpProtocolBuilder = signatureCalculator(calculator.expression)
+  def signatureCalculator(calculator: SignatureCalculator): HttpProtocolBuilder = signatureCalculator(calculator.expressionSuccess)
   def signatureCalculator(calculator: (Request, RequestBuilderBase[_]) => Unit): HttpProtocolBuilder = signatureCalculator(new SignatureCalculator {
     def calculateAndAddSignature(request: Request, requestBuilder: RequestBuilderBase[_]): Unit = calculator(request, requestBuilder)
   })

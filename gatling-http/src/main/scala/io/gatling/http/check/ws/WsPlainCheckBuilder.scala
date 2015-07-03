@@ -18,7 +18,7 @@ package io.gatling.http.check.ws
 import io.gatling.core.check.{ Extender, DefaultFindCheckBuilder }
 import io.gatling.core.check.extractor._
 import io.gatling.core.validation.SuccessWrapper
-import io.gatling.core.session.ExpressionWrapper
+import io.gatling.core.session._
 import io.gatling.http.check.ws.WsCheckBuilders._
 
 object WsPlainCheckBuilder {
@@ -26,7 +26,7 @@ object WsPlainCheckBuilder {
   val WsPlainExtractor = new Extractor[String, String] with SingleArity {
     val name = "wsMessage"
     def apply(prepared: String) = Some(prepared).success
-  }.expression
+  }.expressionSuccess
 
   def message(extender: Extender[WsCheck, String]) =
     new WsPlainCheckBuilder(extender)

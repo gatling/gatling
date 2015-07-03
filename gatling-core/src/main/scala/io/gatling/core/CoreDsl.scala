@@ -46,7 +46,7 @@ trait CoreDsl extends StructureSupport
 
   implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
   implicit def value2Success[T](value: T): Validation[T] = value.success
-  implicit def value2Expression[T](value: T): Expression[T] = value.expression
+  implicit def value2Expression[T](value: T): Expression[T] = value.expressionSuccess
 
   def scenario(scenarioName: String): ScenarioBuilder = ScenarioBuilder(scenarioName)
 

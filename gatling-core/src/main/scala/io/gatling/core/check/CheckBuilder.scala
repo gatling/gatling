@@ -16,7 +16,7 @@
 package io.gatling.core.check
 
 import io.gatling.core.check.extractor.Extractor
-import io.gatling.core.session.{ Session, Expression, ExpressionWrapper, RichExpression }
+import io.gatling.core.session._
 import io.gatling.core.validation._
 
 trait FindCheckBuilder[C <: Check[R], R, P, X] {
@@ -117,11 +117,11 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
 
   def is(expected: Expression[X]) = validate(expected.map(new IsMatcher(_)))
   def not(expected: Expression[X]) = validate(expected.map(new NotMatcher(_)))
-  def in(expected: X*) = validate(expected.toSeq.expression.map(new InMatcher(_)))
+  def in(expected: X*) = validate(expected.toSeq.expressionSuccess.map(new InMatcher(_)))
   def in(expected: Expression[Seq[X]]) = validate(expected.map(new InMatcher(_)))
-  def exists = validate(new ExistsValidator[X]().expression)
-  def notExists = validate(new NotExistsValidator[X]().expression)
-  def optional = validate(new NoopValidator[X]().expression)
+  def exists = validate(new ExistsValidator[X]().expressionSuccess)
+  def notExists = validate(new NotExistsValidator[X]().expressionSuccess)
+  def optional = validate(new NoopValidator[X]().expressionSuccess)
   def lessThan(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(expected.map(new CompareMatcher("lessThan", "less than", ordering.lt, _)))
   def lessThanOrEqual(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(expected.map(new CompareMatcher("lessThanOrEqual", "less than or equal to", ordering.lteq, _)))
   def greaterThan(expected: Expression[X])(implicit ordering: Ordering[X]) = validate(expected.map(new CompareMatcher("greaterThan", "greater than", ordering.gt, _)))

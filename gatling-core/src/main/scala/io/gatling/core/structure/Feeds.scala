@@ -17,11 +17,11 @@ package io.gatling.core.structure
 
 import io.gatling.core.action.builder.FeedBuilder
 import io.gatling.core.feeder.FeederBuilder
-import io.gatling.core.session.{ Expression, ExpressionWrapper }
+import io.gatling.core.session._
 
 object Feeds {
 
-  val oneExpression = 1.expression
+  val oneExpression = 1.expressionSuccess
 }
 
 trait Feeds[B] extends Execs[B] {

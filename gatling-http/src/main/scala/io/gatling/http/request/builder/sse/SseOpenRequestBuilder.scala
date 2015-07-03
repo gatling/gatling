@@ -25,8 +25,8 @@ import org.asynchttpclient.Request
 
 object SseOpenRequestBuilder {
 
-  val SseHeaderValueExpression = HeaderValues.TextEventStream.expression
-  val CacheControlNoCacheValueExpression = HeaderValues.NoCache.expression
+  val SseHeaderValueExpression = HeaderValues.TextEventStream.expressionSuccess
+  val CacheControlNoCacheValueExpression = HeaderValues.NoCache.expressionSuccess
 
   def apply(requestName: Expression[String], url: Expression[String], sseName: String) =
     new SseOpenRequestBuilder(CommonAttributes(requestName, "GET", Left(url)), sseName)

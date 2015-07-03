@@ -40,11 +40,11 @@ case class HttpAttributes(
 
 object HttpRequestBuilder {
 
-  implicit def toActionBuilder(requestBuilder: HttpRequestBuilder) =
+  implicit def toActionBuilder(requestBuilder: HttpRequestBuilder): HttpRequestActionBuilder =
     new HttpRequestActionBuilder(requestBuilder)
 
-  val MultipartFormDataValueExpression = HeaderValues.MultipartFormData.expression
-  val ApplicationFormUrlEncodedValueExpression = HeaderValues.ApplicationFormUrlEncoded.expression
+  val MultipartFormDataValueExpression = HeaderValues.MultipartFormData.expressionSuccess
+  val ApplicationFormUrlEncodedValueExpression = HeaderValues.ApplicationFormUrlEncoded.expressionSuccess
 }
 
 /**

@@ -24,9 +24,16 @@ package object session {
 
   type Expression[T] = Session => Validation[T]
 
-  implicit class ExpressionWrapper[T](val value: T) extends AnyVal {
-    def expression: Expression[T] = {
+  implicit class ExpressionSuccessWrapper[T](val value: T) extends AnyVal {
+    def expressionSuccess: Expression[T] = {
       val valueS = value.success
+      _ => valueS
+    }
+  }
+
+  implicit class ExpressionFailureWrapper(val message: String) extends AnyVal {
+    def expressionFailure: Expression[Nothing] = {
+      val valueS = message.failure
       _ => valueS
     }
   }
@@ -64,7 +71,7 @@ package object session {
       case (key, value) =>
         val elValue = value match {
           case s: String => s.el[Any]
-          case v         => v.expression
+          case v         => v.expressionSuccess
         }
         key -> elValue
     }
@@ -75,7 +82,7 @@ package object session {
   def map2SeqExpression(map: Map[String, Any]): Expression[Seq[(String, Any)]] = {
     val elValues: Map[String, Expression[Any]] = map.mapValues {
       case s: String => s.el[Any]
-      case v         => v.expression
+      case v         => v.expressionSuccess
     }
 
     resolveIterable(elValues)

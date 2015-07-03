@@ -41,7 +41,7 @@ object RawFileBody {
 }
 
 object ByteArrayBody {
-  def apply(string: String)(implicit configuration: GatlingConfiguration) = new ByteArrayBody(string.getBytes(configuration.core.charset).expression)
+  def apply(string: String)(implicit configuration: GatlingConfiguration) = new ByteArrayBody(string.getBytes(configuration.core.charset).expressionSuccess)
 }
 
 case class ByteArrayBody(bytes: Expression[Array[Byte]])(implicit configuration: GatlingConfiguration) extends Body with Expression[Array[Byte]] {

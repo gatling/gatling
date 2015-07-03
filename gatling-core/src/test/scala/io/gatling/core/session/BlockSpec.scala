@@ -25,7 +25,7 @@ class BlockSpec extends BaseSpec {
   def newSession = Session("scenario", 0)
 
   "LoopBlock.unapply" should "return the block's counter name if it is a instance of LoopBlock" in {
-    LoopBlock.unapply(ExitASAPLoopBlock("counter", true.expression, noSender)) shouldBe Some("counter")
+    LoopBlock.unapply(ExitASAPLoopBlock("counter", true.expressionSuccess, noSender)) shouldBe Some("counter")
     LoopBlock.unapply(ExitOnCompleteLoopBlock("counter")) shouldBe Some("counter")
   }
 
