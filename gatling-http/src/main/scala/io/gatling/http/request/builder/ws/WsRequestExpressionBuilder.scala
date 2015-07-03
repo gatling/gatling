@@ -20,15 +20,17 @@ import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ RequestExpressionBuilder, CommonAttributes }
 import io.gatling.http.util.HttpHelper
 
+import org.asynchttpclient.uri.Uri
+
 class WsRequestExpressionBuilder(commonAttributes: CommonAttributes, httpComponents: HttpComponents)
     extends RequestExpressionBuilder(commonAttributes, httpComponents) {
 
-  def makeAbsolute(url: String): Validation[String] =
+  def makeAbsolute(url: String): Validation[Uri] =
     if (HttpHelper.isAbsoluteWsUrl(url))
-      url.success
+      Uri.create(url).success
     else
       protocol.wsPart.wsBaseURL match {
-        case Some(baseURL) => (baseURL + url).success
+        case Some(baseURL) => Uri.create(baseURL, url).success
         case _             => s"No protocol.baseURL defined but provided url is relative : $url".failure
       }
 }

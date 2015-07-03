@@ -25,7 +25,6 @@ import io.gatling.http.cookie.CookieSupport.storeCookie
 
 import akka.actor.ActorRef
 import org.asynchttpclient.cookie.Cookie
-import org.asynchttpclient.uri.Uri
 
 case class CookieDSL(name: Expression[String], value: Expression[String],
                      domain: Option[Expression[String]] = None,
@@ -52,7 +51,7 @@ class AddCookieBuilder(name: Expression[String], value: Expression[String], doma
   import AddCookieBuilder._
 
   private def defaultDomain(httpProtocol: HttpProtocol) = {
-    val baseUrlHost = httpProtocol.baseURL.map(url => Uri.create(url).getHost)
+    val baseUrlHost = httpProtocol.baseURL.map(_.getHost)
     (session: Session) => baseUrlHost match {
       case Some(host) => host.success
       case _          => NoBaseUrlFailure

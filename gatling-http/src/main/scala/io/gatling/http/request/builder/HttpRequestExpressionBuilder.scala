@@ -34,12 +34,12 @@ import org.asynchttpclient.request.body.multipart.StringPart
 class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, httpComponents: HttpComponents)
     extends RequestExpressionBuilder(commonAttributes, httpComponents) {
 
-  def makeAbsolute(url: String): Validation[String] =
+  def makeAbsolute(url: String): Validation[Uri] =
     if (HttpHelper.isAbsoluteHttpUrl(url))
-      url.success
+      Uri.create(url).success
     else
       protocol.baseURL match {
-        case Some(baseURL) => (baseURL + url).success
+        case Some(baseURL) => Uri.create(baseURL, url).success
         case _             => s"No protocol.baseURL defined but provided url is relative : $url".failure
       }
 

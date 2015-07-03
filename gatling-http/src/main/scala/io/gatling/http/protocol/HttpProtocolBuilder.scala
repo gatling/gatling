@@ -29,6 +29,7 @@ import io.gatling.http.response.Response
 import io.gatling.http.util.HttpHelper
 
 import org.asynchttpclient.{ RequestBuilderBase, Realm, Request, SignatureCalculator }
+import org.asynchttpclient.uri.Uri
 
 /**
  * HttpProtocolBuilder class companion
@@ -48,9 +49,9 @@ object HttpProtocolBuilder {
  */
 case class HttpProtocolBuilder(protocol: HttpProtocol) {
 
-  def baseURL(url: String) = copy(protocol = protocol.copy(baseURLs = List(url)))
+  def baseURL(url: String) = copy(protocol = protocol.copy(baseURLs = List(Uri.create(url))))
   def baseURLs(urls: String*): HttpProtocolBuilder = baseURLs(urls.toList)
-  def baseURLs(urls: List[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseURLs = urls))
+  def baseURLs(urls: List[String]): HttpProtocolBuilder = copy(protocol = protocol.copy(baseURLs = urls.map(Uri.create)))
   def warmUp(url: String): HttpProtocolBuilder = copy(protocol = copy(protocol.copy(warmUpUrl = Some(url))))
   def disableWarmUp: HttpProtocolBuilder = copy(protocol = protocol.copy(warmUpUrl = None))
 
@@ -118,9 +119,9 @@ case class HttpProtocolBuilder(protocol: HttpProtocol) {
 
   // wsPart
   private def newWsPart(wsPart: HttpProtocolWsPart) = copy(protocol = copy(protocol.copy(wsPart = wsPart)))
-  def wsBaseURL(url: String) = newWsPart(protocol.wsPart.copy(wsBaseURLs = List(url)))
-  def wsBaseURLs(urls: String*) = newWsPart(protocol.wsPart.copy(wsBaseURLs = urls.toList))
-  def wsBaseURLs(urls: List[String]) = newWsPart(protocol.wsPart.copy(wsBaseURLs = urls))
+  def wsBaseURL(url: String) = newWsPart(protocol.wsPart.copy(wsBaseURLs = List(Uri.create(url))))
+  def wsBaseURLs(urls: String*): HttpProtocolBuilder = wsBaseURLs(urls.toList)
+  def wsBaseURLs(urls: List[String]): HttpProtocolBuilder = newWsPart(protocol.wsPart.copy(wsBaseURLs = urls.map(Uri.create)))
   def wsReconnect = newWsPart(protocol.wsPart.copy(reconnect = true))
   def wsMaxReconnects(max: Int) = newWsPart(protocol.wsPart.copy(maxReconnects = Some(max)))
 

@@ -46,23 +46,19 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
   val httpCaches = httpComponents.httpCaches
   protected val charset = httpComponents.httpEngine.configuration.core.charset
 
-  def makeAbsolute(url: String): Validation[String]
+  def makeAbsolute(url: String): Validation[Uri]
 
-  def buildURI(session: Session): Validation[Uri] = {
-
-      def createURI(url: String): Validation[Uri] =
-        try
-          Uri.create(url).success
-        catch {
+  def buildURI(session: Session): Validation[Uri] =
+    commonAttributes.urlOrURI match {
+      case Left(url) =>
+        try {
+          url(session).flatMap(makeAbsolute)
+        } catch {
           // don't use safe in order to save lambda instances
           case NonFatal(e) => s"url $url can't be parsed into a URI: ${e.getMessage}".failure
         }
-
-    commonAttributes.urlOrURI match {
-      case Left(url)  => url(session).flatMap(makeAbsolute).flatMap(createURI)
       case Right(uri) => uri.success
     }
-  }
 
   def configureAddressNameResolver(session: Session, httpCaches: HttpCaches)(requestBuilder: AHCRequestBuilder): AHCRequestBuilder = {
     if (!protocol.enginePart.shareDnsCache) {

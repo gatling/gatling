@@ -33,12 +33,12 @@ class SseRequestExpressionBuilder(commonAttributes: CommonAttributes, httpCompon
     super.configureRequestBuilder(session, uri, requestBuilder)
   }
 
-  def makeAbsolute(url: String): Validation[String] =
+  def makeAbsolute(url: String): Validation[Uri] =
     if (HttpHelper.isAbsoluteHttpUrl(url))
-      url.success
+      Uri.create(url).success
     else
       protocol.baseURL match {
-        case Some(baseURL) => (baseURL + url).success
+        case Some(baseURL) => Uri.create(baseURL, url).success
         case _             => s"No protocol.baseURL defined but provided url is relative : $url".failure
       }
 }

@@ -34,6 +34,7 @@ import akka.actor.ActorSystem
 import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient._
 import org.asynchttpclient.proxy._
+import org.asynchttpclient.uri.Uri
 
 object HttpProtocol extends StrictLogging {
 
@@ -95,7 +96,7 @@ object HttpProtocol extends StrictLogging {
         proxies = None,
         proxyExceptions = Nil))
 
-  def baseUrlIterator(urls: List[String]): Iterator[Option[String]] =
+  def baseUrlIterator(urls: List[Uri]): Iterator[Option[Uri]] =
     urls match {
       case Nil        => Iterator.continually(None)
       case url :: Nil => Iterator.continually(Some(url))
@@ -115,7 +116,7 @@ object HttpProtocol extends StrictLogging {
  * @param proxyPart the Proxy related configuration
  */
 case class HttpProtocol(
-  baseURLs: List[String],
+  baseURLs: List[Uri],
   warmUpUrl: Option[String],
   enginePart: HttpProtocolEnginePart,
   requestPart: HttpProtocolRequestPart,
@@ -127,7 +128,7 @@ case class HttpProtocol(
   type Components = HttpComponents
 
   private val httpBaseUrlIterator = HttpProtocol.baseUrlIterator(baseURLs)
-  def baseURL: Option[String] = httpBaseUrlIterator.next()
+  def baseURL: Option[Uri] = httpBaseUrlIterator.next()
 }
 
 case class HttpProtocolEnginePart(
@@ -160,12 +161,12 @@ case class HttpProtocolResponsePart(
   htmlResourcesInferringFilters: Option[Filters])
 
 case class HttpProtocolWsPart(
-    wsBaseURLs: List[String],
+    wsBaseURLs: List[Uri],
     reconnect: Boolean,
     maxReconnects: Option[Int]) {
 
   private val wsBaseUrlIterator = HttpProtocol.baseUrlIterator(wsBaseURLs)
-  def wsBaseURL: Option[String] = wsBaseUrlIterator.next()
+  def wsBaseURL: Option[Uri] = wsBaseUrlIterator.next()
 }
 
 case class HttpProtocolProxyPart(
