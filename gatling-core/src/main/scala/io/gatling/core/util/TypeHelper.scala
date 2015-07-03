@@ -30,16 +30,22 @@ object TypeHelper {
 
   implicit class TypeCaster(val value: Any) extends AnyVal {
 
-    private def valueClazz = value.getClass.getName match {
-      case "java.lang.Boolean"   => classOf[Boolean]
-      case "java.lang.Byte"      => classOf[Byte]
-      case "java.lang.Short"     => classOf[Short]
-      case "java.lang.Integer"   => classOf[Int]
-      case "java.lang.Long"      => classOf[Long]
-      case "java.lang.Float"     => classOf[Float]
-      case "java.lang.Double"    => classOf[Double]
-      case "java.lang.Character" => classOf[Char]
-      case _                     => value.getClass
+    private def valueClazz = {
+      val clazz = value.getClass
+      if (clazz.getPackage.getName == "java.lang")
+        clazz.getSimpleName match {
+          case "Boolean"   => classOf[Boolean]
+          case "Byte"      => classOf[Byte]
+          case "Short"     => classOf[Short]
+          case "Integer"   => classOf[Int]
+          case "Long"      => classOf[Long]
+          case "Float"     => classOf[Float]
+          case "Double"    => classOf[Double]
+          case "Character" => classOf[Char]
+          case _           => clazz
+        }
+      else
+        clazz
     }
 
     private def cceMessage(clazz: Class[_]) = s"Can't cast value $value of type ${value.getClass} into $clazz"
