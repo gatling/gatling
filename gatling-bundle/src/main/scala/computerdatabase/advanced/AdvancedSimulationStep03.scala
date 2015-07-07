@@ -34,7 +34,7 @@ class AdvancedSimulationStep03 extends Simulation {
       .feed(feeder) // every time a user passes here, a record is popped from the feeder and injected into the user's session
       .exec(http("Search")
         .get("/computers?f=${searchCriterion}") // use session data thanks to Gatling's EL
-        .check(css("a:contains('${searchComputerName}')", "href").saveAs("computerURL"))) // use a regex with an EL, save the result of the capture group
+        .check(css("a:contains('${searchComputerName}')", "href").saveAs("computerURL"))) // use a CSS selector with an EL, save the result of the capture group
       .pause(1)
       .exec(http("Select")
         .get("${computerURL}") // use the link previously saved
