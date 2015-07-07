@@ -13,8 +13,7 @@ class AdvancedTutorial extends Simulation {
       .get("/"))
       .pause(7)
       .exec(http("Search")
-      .get("/computers")
-      .queryParam("""f""", """macbook"""))
+      .get("/computers?f=macbook"))
       .pause(2)
       .exec(http("Select")
       .get("/computers/6"))
@@ -67,9 +66,8 @@ object Search {
     .pause(1)
     .feed(feeder) // 3
     .exec(http("Search")
-    .get("/computers")
-    .queryParam("f", "${searchCriterion}") // 4
-    .check(regex("""<a href="([^"]+)">${searchComputerName}</a>""").saveAs("computerURL"))) // 5
+    .get("/computers?f=${searchCriterion}") // 4
+    .check(css("a:contains('${searchComputerName}')", "href").saveAs("computerURL"))) // 5
     .pause(1)
     .exec(http("Select")
     .get("${computerURL}")) // 6

@@ -40,7 +40,7 @@ class AdvancedSimulationStep02 extends Simulation {
 
   object Edit {
 
-    val headers_10 = Map("Content-Type" -> """application/x-www-form-urlencoded""")
+    val headers_10 = Map("Content-Type" -> "application/x-www-form-urlencoded")
 
     val edit = exec(http("Form")
         .get("/computers/new"))
@@ -48,10 +48,10 @@ class AdvancedSimulationStep02 extends Simulation {
       .exec(http("Post")
         .post("/computers")
         .headers(headers_10)
-        .formParam("""name""", """Beautiful Computer""")
-        .formParam("""introduced""", """2012-05-30""")
-        .formParam("""discontinued""", """""")
-        .formParam("""company""", """37"""))
+        .formParam("name", "Beautiful Computer")
+        .formParam("introduced", "2012-05-30")
+        .formParam("discontinued", "")
+        .formParam("company", "37"))
   }
 
   val httpConf = http

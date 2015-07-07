@@ -18,9 +18,8 @@ class AdvancedSimulationStep03 extends Simulation {
       .pause(1)
       .feed(feeder) // every time a user passes here, a record is popped from the feeder and injected into the user's session
       .exec(http("Search")
-        .get("/computers")
-        .queryParam("""f""", "${searchCriterion}") // use session data thanks to Gatling's EL
-      .check(regex("""<a href="([^"]+)">${searchComputerName}</a>""").saveAs("computerURL"))) // use a regex with an EL, save the result of the capture group
+        .get("/computers?f=${searchCriterion}") // use session data thanks to Gatling's EL
+        .check(css("a:contains('${searchComputerName}')", "href").saveAs("computerURL"))) // use a CSS selector with an EL, save the result of the capture group
       .pause(1)
       .exec(http("Select")
         .get("${computerURL}") // use the link previously saved
@@ -49,7 +48,7 @@ class AdvancedSimulationStep03 extends Simulation {
 
   object Edit {
 
-    val headers_10 = Map("Content-Type" -> """application/x-www-form-urlencoded""")
+    val headers_10 = Map("Content-Type" -> "application/x-www-form-urlencoded")
 
     val edit = exec(http("Form")
         .get("/computers/new"))
@@ -57,10 +56,10 @@ class AdvancedSimulationStep03 extends Simulation {
       .exec(http("Post")
         .post("/computers")
         .headers(headers_10)
-        .formParam("""name""", """Beautiful Computer""")
-        .formParam("""introduced""", """2012-05-30""")
-        .formParam("""discontinued""", """""")
-        .formParam("""company""", """37"""))
+        .formParam("name", "Beautiful Computer")
+        .formParam("introduced", "2012-05-30")
+        .formParam("discontinued", "")
+        .formParam("company", "37"))
   }
 
   val httpConf = http
