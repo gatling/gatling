@@ -31,9 +31,8 @@ class AdvancedSimulationStep05 extends Simulation {
       .pause(1)
       .feed(feeder)
       .exec(http("Search")
-        .get("/computers")
-        .queryParam("""f""", "${searchCriterion}")
-        .check(regex("""<a href="([^"]+)">${searchComputerName}</a>""").saveAs("computerURL")))
+        .get("/computers?f=${searchCriterion}")
+        .check(css("a:contains('${searchComputerName}')", "href").saveAs("computerURL")))
       .pause(1)
       .exec(http("Select")
         .get("${computerURL}")
@@ -46,8 +45,7 @@ class AdvancedSimulationStep05 extends Simulation {
     // repeat is a loop resolved at RUNTIME
     val browse = repeat(4, "i") { // Note how we force the counter name so we can reuse it
       exec(http("Page ${i}")
-        .get("/computers")
-        .queryParam("""p""", "${i}"))
+        .get("/computers?p=${i}"))
         .pause(1)
     }
   }
@@ -56,7 +54,7 @@ class AdvancedSimulationStep05 extends Simulation {
 
     // Note we should be using a feeder here
 
-    val headers_10 = Map("Content-Type" -> """application/x-www-form-urlencoded""")
+    val headers_10 = Map("Content-Type" -> "application/x-www-form-urlencoded")
 
     // let's demonstrate how we can retry: let's make the request fail randomly and retry a given number of times
 
@@ -67,10 +65,10 @@ class AdvancedSimulationStep05 extends Simulation {
         .exec(http("Post")
           .post("/computers")
           .headers(headers_10)
-          .formParam("""name""", """Beautiful Computer""")
-          .formParam("""introduced""", """2012-05-30""")
-          .formParam("""discontinued""", """""")
-          .formParam("""company""", """37""").
+          .formParam("name", "Beautiful Computer")
+          .formParam("introduced", "2012-05-30")
+          .formParam("discontinued", "")
+          .formParam("company", "37").
           check(status.is(session => 200 + ThreadLocalRandom.current.nextInt(2)))) // we do a check on a condition that's been customized with a lambda. It will be evaluated every time a user executes the request
     }.exitHereIfFailed // if the chain didn't finally succeed, have the user exit the whole scenario
   }
