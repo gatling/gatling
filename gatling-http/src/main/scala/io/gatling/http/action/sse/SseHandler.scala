@@ -42,15 +42,17 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
   private val done = new AtomicBoolean
   private var state: SseState = Opening
 
-  override def onOpenConnection(): Unit = {}
+  override def onConnectionOpen(): Unit = {}
 
-  override def onConnectionOpen(): Unit = {
+  override def onConnectionOpened(connection: Any): Unit = {
     state = Open
   }
 
-  override def onPoolConnection(): Unit = {}
+  override def onConnectionPool(): Unit = {}
 
-  override def onConnectionPooled(): Unit = {}
+  override def onConnectionPooled(connection: Any): Unit = {}
+
+  override def onConnectionOffer(connection: Any): Unit = {}
 
   override def onDnsResolved(address: InetAddress): Unit = {}
 
@@ -61,7 +63,7 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
       logger.error("onRetry is not supposed to be called once done")
   }
 
-  override def onSendRequest(request: Any): Unit =
+  override def onRequestSend(request: Any): Unit =
     logger.debug(s"Request $request has been sent by the http client")
 
   override def onStatusReceived(responseStatus: HttpResponseStatus): State = {

@@ -53,20 +53,22 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
       responseBuilder.updateFirstByteSent()
     }
 
-  override def onOpenConnection(): Unit = start()
+  override def onConnectionOpen(): Unit = start()
 
-  override def onConnectionOpen(): Unit = {}
+  override def onConnectionOpened(channel: Any): Unit = {}
 
-  override def onPoolConnection(): Unit = {}
+  override def onConnectionPool(): Unit = {}
 
-  override def onConnectionPooled(): Unit = {}
+  override def onConnectionPooled(channel: Any): Unit = {}
+
+  override def onConnectionOffer(channel: Any): Unit = {}
 
   override def onDnsResolved(address: InetAddress): Unit =
     responseBuilder.setRemoteAddress(address)
 
   override def onSslHandshakeCompleted(): Unit = {}
 
-  override def onSendRequest(request: Any): Unit = {
+  override def onRequestSend(request: Any): Unit = {
     start()
     if (AsyncHandler.DebugEnabled)
       responseBuilder.setNettyRequest(request.asInstanceOf[NettyRequest])
@@ -76,12 +78,12 @@ class AsyncHandler(tx: HttpTx, httpEngine: HttpEngine) extends ProgressAsyncHand
     if (!done.get) responseBuilder.reset()
     else logger.error("onRetry is not supposed to be called once done, please report")
 
-  override def onHeaderWriteCompleted: State = {
+  override def onHeadersWritten: State = {
     if (!done.get) responseBuilder.updateLastByteSent()
     CONTINUE
   }
 
-  override def onContentWriteCompleted: State = {
+  override def onContentWriten: State = {
     if (!done.get) responseBuilder.updateLastByteSent()
     CONTINUE
   }

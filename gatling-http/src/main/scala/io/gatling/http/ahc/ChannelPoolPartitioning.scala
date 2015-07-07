@@ -23,6 +23,6 @@ import org.asynchttpclient.uri.Uri
 
 class ChannelPoolPartitioning(session: Session) extends ConnectionPoolPartitioning {
 
-  def getPartitionKey(uri: Uri, proxyServer: ProxyServer): (Long, String) =
-    (session.userId, ConnectionPoolPartitioning.PerHostConnectionPoolPartitioning.INSTANCE.getPartitionKey(uri, proxyServer))
+  def getPartitionKey(uri: Uri, virtualHost: String, proxyServer: ProxyServer): (Long, Any) =
+    (session.userId, ConnectionPoolPartitioning.PerHostConnectionPoolPartitioning.INSTANCE.getPartitionKey(uri, virtualHost, proxyServer))
 }
