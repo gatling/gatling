@@ -15,10 +15,9 @@
  */
 package io.gatling.http.request
 
-import java.io.File
 import java.nio.charset.Charset
 
-import io.gatling.core.body.{ ElFileBodies, RawFileBodies }
+import io.gatling.core.body.{ FileWithCachedBytes, ElFileBodies, RawFileBodies }
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
 import io.gatling.core.util.Io._
@@ -29,7 +28,7 @@ import org.asynchttpclient.request.body.multipart.{ ByteArrayPart, FilePart, Par
 object BodyPart {
 
   def rawFileBodyPart(name: Option[Expression[String]], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies): BodyPart =
-    byteArrayBodyPart(name, rawFileBodies.asBytes(filePath)).fileName(rawFileBodies.asFile(filePath).map(_.getName))
+    BodyPart(name, fileBodyPartBuilder(rawFileBodies.asFileWithCachedBytes(filePath)), BodyPartAttributes())
 
   def elFileBodyPart(name: Option[Expression[String]], filePath: Expression[String])(implicit configuration: GatlingConfiguration, elFileBodies: ElFileBodies): BodyPart =
     stringBodyPart(name, elFileBodies.asString(filePath))
@@ -52,12 +51,14 @@ object BodyPart {
       new ByteArrayPart(name, resolvedBytes, contentType.orNull, charset.orNull, fileName.orNull, contentId.orNull, transferEncoding.orNull)
     }
 
-  // FIXME should we, depending on file size, go with either in memory or file streaming?
-  private def fileBodyPartBuilder(file: Expression[File])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
+  private def fileBodyPartBuilder(file: Expression[FileWithCachedBytes])(name: String, contentType: Option[String], charset: Option[Charset], fileName: Option[String], contentId: Option[String], transferEncoding: Option[String]): Expression[PartBase] =
     session => for {
       resolvedFile <- file(session)
-      validatedFile <- resolvedFile.validateExistingReadable
-    } yield new FilePart(name, validatedFile, contentType.orNull, charset.orNull, fileName.orNull, contentId.orNull, transferEncoding.orNull)
+      validatedFile <- resolvedFile.file.validateExistingReadable
+    } yield resolvedFile.cachedBytes match {
+      case Some(bytes) => new ByteArrayPart(name, bytes, contentType.orNull, charset.orNull, fileName.getOrElse(validatedFile.getName), contentId.orNull, transferEncoding.orNull)
+      case None        => new FilePart(name, validatedFile, contentType.orNull, charset.orNull, fileName.getOrElse(validatedFile.getName), contentId.orNull, transferEncoding.orNull)
+    }
 }
 
 case class BodyPartAttributes(

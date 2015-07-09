@@ -117,13 +117,8 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
       withFormParam
   }
 
-  def formUpload(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies) = {
-
-    val fileName = rawFileBodies.asFile(filePath).map(_.getName)
-    val bytes = rawFileBodies.asBytes(filePath)
-
-    bodyPart(BodyPart.byteArrayBodyPart(Some(name), bytes).fileName(fileName)).asMultipartForm
-  }
+  def formUpload(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies) =
+    bodyPart(BodyPart.rawFileBodyPart(Some(name), filePath)).asMultipartForm
 
   /**
    * This method builds the request that will be sent

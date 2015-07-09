@@ -22,7 +22,11 @@ import io.gatling.core.session.Expression
 import io.gatling.core.util.Io._
 import io.gatling.core.util.Resource
 import io.gatling.core.util.cache.SelfLoadingThreadSafeCache
-import io.gatling.core.validation.Validation
+import io.gatling.core.validation._
+
+case class FileWithCachedBytes(file: File, cachedBytes: Option[Array[Byte]]) {
+  def bytes: Array[Byte] = cachedBytes.getOrElse(file.toByteArray())
+}
 
 class RawFileBodies(implicit configuration: GatlingConfiguration) {
 
@@ -32,21 +36,21 @@ class RawFileBodies(implicit configuration: GatlingConfiguration) {
   private val rawFileBodyCache =
     SelfLoadingThreadSafeCache[String, Validation[File]](configuration.core.rawFileBodiesCacheMaxCapacity, pathToFile)
 
-  def asFile(filePath: Expression[String]): Expression[File] =
+  private val rawFileBodyBytesCache =
+    SelfLoadingThreadSafeCache[String, Validation[Array[Byte]]](configuration.core.rawFileBodiesCacheMaxCapacity, pathToFileBytes)
+
+  private def cachedBytes(file: File): Validation[Option[Array[Byte]]] =
+    if (file.length > configuration.core.rawFileBodiesInMemoryMaxSize)
+      Success(None)
+    else
+      rawFileBodyBytesCache.get(file.getPath).map(Some(_))
+
+  def asFileWithCachedBytes(filePath: Expression[String]): Expression[FileWithCachedBytes] =
     session =>
       for {
         path <- filePath(session)
         file <- rawFileBodyCache.get(path)
         validatedFile <- file.validateExistingReadable
-      } yield validatedFile
-
-  private val rawFileBodyBytesCache =
-    SelfLoadingThreadSafeCache[String, Validation[Array[Byte]]](configuration.core.rawFileBodiesCacheMaxCapacity, pathToFileBytes)
-
-  def asBytes(filePath: Expression[String]): Expression[Array[Byte]] =
-    session =>
-      for {
-        path <- filePath(session)
-        bytes <- rawFileBodyBytesCache.get(path)
-      } yield bytes
+        cachedBytes <- cachedBytes(validatedFile)
+      } yield FileWithCachedBytes(validatedFile, cachedBytes)
 }

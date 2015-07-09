@@ -42,7 +42,7 @@ trait CoreDsl extends StructureSupport
     with CoreDefaultImplicits {
 
   def gzipBody(implicit configuration: GatlingConfiguration) = BodyProcessors.gzip
-  def streamBody = BodyProcessors.Stream
+  def streamBody(implicit configuration: GatlingConfiguration) = BodyProcessors.stream
 
   implicit def stringToExpression[T: ClassTag](string: String): Expression[T] = string.el
   implicit def value2Success[T](value: T): Validation[T] = value.success

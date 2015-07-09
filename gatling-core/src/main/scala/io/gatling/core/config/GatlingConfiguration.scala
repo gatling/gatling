@@ -106,6 +106,7 @@ object GatlingConfiguration extends StrictLogging {
         muteMode = config.getBoolean(core.Mute),
         elFileBodiesCacheMaxCapacity = config.getLong(core.ElFileBodiesCacheMaxCapacity),
         rawFileBodiesCacheMaxCapacity = config.getLong(core.RawFileBodiesCacheMaxCapacity),
+        rawFileBodiesInMemoryMaxSize = config.getLong(core.RawFileBodiesInMemoryMaxSize),
         extract = ExtractConfiguration(
           regex = RegexConfiguration(
             cacheMaxCapacity = config.getLong(core.extract.regex.CacheMaxCapacity)),
@@ -218,7 +219,8 @@ case class CoreConfiguration(
     directory: DirectoryConfiguration,
     muteMode: Boolean,
     elFileBodiesCacheMaxCapacity: Long,
-    rawFileBodiesCacheMaxCapacity: Long) {
+    rawFileBodiesCacheMaxCapacity: Long,
+    rawFileBodiesInMemoryMaxSize: Long) {
 
   val charset = Charset.forName(encoding)
   val codec: Codec = charset

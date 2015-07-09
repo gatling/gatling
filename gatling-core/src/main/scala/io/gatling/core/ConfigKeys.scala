@@ -25,6 +25,7 @@ object ConfigKeys {
     val Mute = "gatling.core.mute"
     val ElFileBodiesCacheMaxCapacity = "gatling.core.elFileBodiesCacheMaxCapacity"
     val RawFileBodiesCacheMaxCapacity = "gatling.core.rawFileBodiesCacheMaxCapacity"
+    val RawFileBodiesInMemoryMaxSize = "gatling.core.rawFileBodiesInMemoryMaxSize"
 
     object extract {
       object regex {

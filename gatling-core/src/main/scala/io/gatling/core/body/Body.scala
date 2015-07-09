@@ -37,7 +37,14 @@ case class StringBody(string: Expression[String])(implicit configuration: Gatlin
 }
 
 object RawFileBody {
-  def apply(filePath: Expression[String])(implicit configuration: GatlingConfiguration, rawFileBodies: RawFileBodies): ByteArrayBody = new ByteArrayBody(rawFileBodies.asBytes(filePath))
+  def apply(filePath: Expression[String])(implicit configuration: GatlingConfiguration, rawFileBodies: RawFileBodies): RawFileBody =
+    new RawFileBody(rawFileBodies.asFileWithCachedBytes(filePath))
+
+  def unapply(b: RawFileBody) = Some(b.fileWithCachedBytes)
+}
+
+class RawFileBody(val fileWithCachedBytes: Expression[FileWithCachedBytes])(implicit configuration: GatlingConfiguration, rawFileBodies: RawFileBodies) extends Body with Expression[Array[Byte]] {
+  def apply(session: Session): Validation[Array[Byte]] = fileWithCachedBytes(session).map(_.bytes)
 }
 
 object ByteArrayBody {

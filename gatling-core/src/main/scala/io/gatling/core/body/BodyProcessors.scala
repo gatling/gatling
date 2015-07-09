@@ -15,6 +15,8 @@
  */
 package io.gatling.core.body
 
+import java.io.FileInputStream
+
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.FastByteArrayInputStream
 import io.gatling.core.util.GzipHelper
@@ -25,8 +27,14 @@ object BodyProcessors {
   def gzip(implicit configuration: GatlingConfiguration) = (body: Body) => {
 
     val gzippedBytes = body match {
-      case StringBody(string)           => string.map(GzipHelper.gzip)
-      case ByteArrayBody(byteArray)     => byteArray.map(GzipHelper.gzip)
+      case StringBody(string)       => string.map(GzipHelper.gzip)
+      case ByteArrayBody(byteArray) => byteArray.map(GzipHelper.gzip)
+      case RawFileBody(fileWithCachedBytes) => fileWithCachedBytes.map { f =>
+        f.cachedBytes match {
+          case Some(bytes) => GzipHelper.gzip(bytes)
+          case None        => withCloseable(new FileInputStream(f.file))(GzipHelper.gzip(_))
+        }
+      }
       case InputStreamBody(inputStream) => inputStream.map(withCloseable(_)(GzipHelper.gzip(_)))
       case _                            => throw new UnsupportedOperationException(s"requestCompressor doesn't support $body")
     }
@@ -34,11 +42,17 @@ object BodyProcessors {
     ByteArrayBody(gzippedBytes)
   }
 
-  val Stream = (body: Body) => {
+  def stream(implicit configuration: GatlingConfiguration) = (body: Body) => {
 
     val stream = body match {
-      case stringBody: StringBody       => stringBody.asBytes.bytes.map(new FastByteArrayInputStream(_))
-      case ByteArrayBody(byteArray)     => byteArray.map(new FastByteArrayInputStream(_))
+      case stringBody: StringBody   => stringBody.asBytes.bytes.map(new FastByteArrayInputStream(_))
+      case ByteArrayBody(byteArray) => byteArray.map(new FastByteArrayInputStream(_))
+      case RawFileBody(fileWithCachedBytes) => fileWithCachedBytes.map { f =>
+        f.cachedBytes match {
+          case Some(bytes) => new FastByteArrayInputStream(bytes)
+          case None        => new FileInputStream(f.file)
+        }
+      }
       case InputStreamBody(inputStream) => inputStream
       case _                            => throw new UnsupportedOperationException(s"streamBody doesn't support $body")
     }
