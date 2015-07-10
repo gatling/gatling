@@ -84,7 +84,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
     requestBuilder
   }
 
-  def configureProxy(uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+  def configureProxy(requestBuilder: AHCRequestBuilder, uri: Uri): Validation[AHCRequestBuilder] = {
     if (!protocol.proxyPart.proxyExceptions.contains(uri.getHost)) {
       val proxies = commonAttributes.proxies.orElse(protocol.proxyPart.proxies)
       proxies.foreach {
@@ -150,7 +150,7 @@ abstract class RequestExpressionBuilder(commonAttributes: CommonAttributes, http
     }
 
   protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
-    configureProxy(uri)(requestBuilder.setUri(uri))
+    configureProxy(requestBuilder.setUri(uri), uri)
       .map(configureAddressNameResolver(session, httpCaches))
       .map(configureCookies(session, uri))
       .flatMap(configureQuery(session, uri))

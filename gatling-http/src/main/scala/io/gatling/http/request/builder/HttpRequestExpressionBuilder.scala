@@ -33,7 +33,7 @@ import org.asynchttpclient.request.body.multipart.StringPart
 class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, httpComponents: HttpComponents)
     extends RequestExpressionBuilder(commonAttributes, httpComponents) {
 
-  def configureCaches(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+  def configureCaches(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): AHCRequestBuilder = {
 
     httpCaches.contentCacheEntry(session, uri, commonAttributes.method).foreach {
       case ContentCacheEntry(_, etag, lastModified) =>
@@ -41,7 +41,7 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
         lastModified.foreach(requestBuilder.setHeader(HeaderNames.IfNoneMatch, _))
     }
 
-    requestBuilder.success
+    requestBuilder
   }
 
   def configureFormParams(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
@@ -110,7 +110,7 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
 
   override protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
     super.configureRequestBuilder(session, uri, requestBuilder)
-      .flatMap(configureCaches(session, uri))
+      .map(configureCaches(session, uri))
       .flatMap(configureFormParams(session))
       .flatMap(configureParts(session))
 }
