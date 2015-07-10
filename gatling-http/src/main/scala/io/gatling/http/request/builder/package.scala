@@ -67,17 +67,17 @@ package object builder {
         }
 
         @tailrec
-        def resolveParamJList(ahcParams: JList[Param], currentParams: List[HttpParam]): Validation[JList[Param]] =
+        def resolveParamJListRec(ahcParams: JList[Param], currentParams: List[HttpParam]): Validation[JList[Param]] =
           currentParams match {
             case Nil => ahcParams.success
             case head :: tail =>
               update(ahcParams, head) match {
-                case Success(newAhcParams) => resolveParamJList(newAhcParams, tail)
+                case Success(newAhcParams) => resolveParamJListRec(newAhcParams, tail)
                 case f                     => f
               }
           }
 
-      resolveParamJList(new JArrayList[Param](params.size), params)
+      resolveParamJListRec(new JArrayList[Param](params.size), params)
     }
   }
 }
