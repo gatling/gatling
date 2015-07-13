@@ -42,7 +42,9 @@ object ChartsFiles {
 
   def globalFile(runOn: String): Path = resultDirectory(runOn) / "index.html"
 
-  def requestFile(runOn: String, requestName: String): Path = resultDirectory(runOn) / requestName.toRequestFileName
+  def requestFile(runOn: String, requestName: String): Path = resultDirectory(runOn) / (requestName.toRequestFileName + ".html")
+
+  def groupFile(runOn: String, requestName: String): Path = resultDirectory(runOn) / (requestName.toGroupFileName + ".html")
 
   def jsStatsFile(runOn: String): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsFile
 

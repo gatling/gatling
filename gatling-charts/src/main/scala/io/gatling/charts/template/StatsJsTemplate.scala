@@ -20,42 +20,47 @@ import com.dongxiguo.fastring.Fastring.Implicits._
 import io.gatling.core.util.StringHelper.RichString
 import io.gatling.charts.FileNamingConventions
 import io.gatling.charts.component.RequestStatistics
-import io.gatling.charts.report.{ GroupContainer, RequestContainer }
+import io.gatling.charts.report.GroupContainer
 import io.gatling.charts.report.Container.{ Group, Request }
 
 class StatsJsTemplate(stats: GroupContainer) {
 
   def getOutput: Fastring = {
 
-      def renderStatsRequest(request: RequestStatistics): Fastring = {
+      def renderStats(request: RequestStatistics, path: String): Fastring = {
         val jsonStats = new StatsJsonTemplate(request, false).getOutput
 
         fast"""name: "${request.name.escapeJsDoubleQuoteString}",
 path: "${request.path.escapeJsDoubleQuoteString}",
-pathFormatted: "${request.path.toFileName}",
+pathFormatted: "$path",
 stats: $jsonStats"""
       }
 
-      def renderStatsGroup(group: GroupContainer): Fastring =
-        fast"""type: "$Group",
-${renderStatsRequest(group.stats)},
-contents: {
-${
-          group.contents.values.map {
-            case subGroup: GroupContainer => fast""""${subGroup.name.toFileName}": {
-        ${renderStatsGroup(subGroup)}
+      def renderSubGroups(group: GroupContainer): Iterable[Fastring] =
+        group.groups.values.map { subGroup =>
+          fast""""${subGroup.name.toGroupFileName}": {
+        ${renderGroup(subGroup)}
     }"""
-            case request: RequestContainer => fast""""${request.name.toFileName}": {
-        type: "$Request",
-        ${renderStatsRequest(request.stats)}
-    }"""
-          }.mkFastring(",")
         }
+
+      def renderSubRequests(group: GroupContainer): Iterable[Fastring] =
+        group.requests.values.map { request =>
+          fast""""${request.name.toRequestFileName}": {
+        type: "$Request",
+        ${renderStats(request.stats, request.stats.path.toRequestFileName)}
+    }"""
+        }
+
+      def renderGroup(group: GroupContainer): Fastring =
+        fast"""type: "$Group",
+${renderStats(group.stats, group.stats.path.toGroupFileName)},
+contents: {
+${(renderSubGroups(group) ++ renderSubRequests(group)).mkFastring(",")}
 }
 """
 
     fast"""var stats = {
-    ${renderStatsGroup(stats)}
+    ${renderGroup(stats)}
 }
 
 function fillStats(stat){

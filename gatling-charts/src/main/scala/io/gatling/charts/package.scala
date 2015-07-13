@@ -28,7 +28,7 @@ package object charts {
      *
      * @return a simplified string
      */
-    def toFileName = {
+    private def toFileName = {
 
       val trimmed = string.trim match {
         case "" => "missing_name"
@@ -40,6 +40,8 @@ package object charts {
       trimmed.clean.take(15) + "-" + bytes2Hex(md.digest).take(5)
     }
 
-    def toRequestFileName = s"req_$toFileName.html"
+    def toRequestFileName = s"req_$toFileName"
+
+    def toGroupFileName = s"group_$toFileName"
   }
 }

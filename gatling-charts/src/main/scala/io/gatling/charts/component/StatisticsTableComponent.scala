@@ -87,7 +87,7 @@ function generateHtmlRow(request, level, index, parent, group) {
     if (request.name == '$GlobalPageName')
         var url = 'index.html';
     else
-        var url ='req_' + request.pathFormatted + '.html';
+        var url = request.pathFormatted + '.html';
 
     if (group)
         var expandButtonStyle = '';
