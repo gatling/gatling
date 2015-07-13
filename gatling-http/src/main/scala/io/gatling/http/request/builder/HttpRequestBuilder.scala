@@ -36,6 +36,7 @@ case class HttpAttributes(
   body: Option[Body] = None,
   bodyParts: List[BodyPart] = Nil,
   formParams: List[HttpParam] = Nil,
+  form: Option[Expression[Map[String, Seq[String]]]] = None,
   extraInfoExtractor: Option[ExtraInfoExtractor] = None)
 
 object HttpRequestBuilder {
@@ -116,6 +117,9 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
     else
       withFormParam
   }
+
+  def form(form: Expression[Map[String, Seq[String]]]): HttpRequestBuilder =
+    newInstance(httpAttributes.copy(form = Some(form)))
 
   def formUpload(name: Expression[String], filePath: Expression[String])(implicit rawFileBodies: RawFileBodies) =
     bodyPart(BodyPart.rawFileBodyPart(Some(name), filePath)).asMultipartForm

@@ -88,6 +88,7 @@ class HttpCompileTest extends Simulation {
     }
     .group("C'est ici qu'on trouve des Poneys") {
       exec(http("Catégorie Poney").post("/")
+        .form("${theForm}")
         .formParam("baz", "${qix}")
         .multivaluedFormParam("foo", Seq("bar")))
         .exec(http("Catégorie Poney").post("/").multivaluedFormParam("foo", "${bar}"))

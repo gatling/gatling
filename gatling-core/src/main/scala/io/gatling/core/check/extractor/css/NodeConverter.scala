@@ -34,7 +34,10 @@ trait LowPriorityNodeConverterImplicits {
 
   implicit val formNodeConverter = new NodeConverter[Map[String, Seq[String]]] {
     def convert(node: Node, nodeAttribute: Option[String]): Option[Map[String, Seq[String]]] =
-      Some(Jodd.extractFormInputs(node))
+      node.getNodeName match {
+        case "form" => Some(Jodd.extractFormInputs(node))
+        case _      => None
+      }
   }
 }
 

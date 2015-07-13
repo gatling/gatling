@@ -196,10 +196,17 @@ class HttpRequest {
 
     //#multivaluedFormParam
     http("Request with multivaluedFormParam")
-      .get("myUrl")
+      .post("myUrl")
       .multivaluedFormParam("multi1", "${foo}") // where foo is the name of a Seq Session attribute
       .multivaluedFormParam("multi2", session => List("foo", "bar"))
     //#multivaluedFormParam
+
+    //#form
+    http("Request with form")
+      .post("myUrl")
+      .form("${theForm}")
+      .formParam("fieldToOverride", "newValue")
+    //#form
 
     //#formUpload
     http("My Multipart Request")

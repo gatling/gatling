@@ -250,8 +250,8 @@ You might also want to do the exact opposite, typically on a given resource whil
 
 .. _http-parameters:
 
-Parameters
-==========
+Form Parameters
+===============
 
 Requests can have parameters defined in their body.
 This is typically used for form submission, where all the values are stored as POST parameters in the body of the request.
@@ -275,6 +275,14 @@ If you'd like to pass multiple values for your parameter, but all at once, you c
 .. includecode:: code/HttpRequest.scala#multivaluedFormParam
 
 The method ``formParam`` can also take directly an `HttpParam` instance, if you want to build it by hand.
+
+* ``form(seq: Expression[Map[String, Seq[String]])``:
+
+.. includecode:: code/HttpRequest.scala#form
+
+Typically used after capturing a whole form with a ``form`` check.
+
+You can override the form field values with the ``formParam`` and the likes.
 
 .. _http-multipart-form:
 

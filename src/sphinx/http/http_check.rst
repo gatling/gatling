@@ -263,6 +263,10 @@ Gatling provides built-in support for the following types:
 Specifying a ``Node`` let you perform complex deep DOM tree traversing, typically in a ``transform`` check step.
 Node is a `Jodd Lagardo <http://jodd.org/doc/lagarto/>`_ DOM `Node <http://jodd.org/api/jodd/lagarto/dom/Node.html>`_.
 
+* ``form(expression)``
+
+This check takes a CSS selector and returns a ``Map[String, Seq[String]]`` of the form field values.
+
 .. _http-check-checksum:
 
 * ``md5`` and ``sha1``

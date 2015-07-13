@@ -44,29 +44,22 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
     requestBuilder
   }
 
-  def configureFormParams(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+  def configureFormParams(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
+    if (httpAttributes.formParams.isEmpty) {
+      requestBuilder.success
 
-      def configureFormParamsAsParams: Validation[AHCRequestBuilder] = httpAttributes.formParams match {
-        case Nil => requestBuilder.success
-        case params =>
+    } else {
+      httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session).map { resolvedFormParams =>
+        if (httpAttributes.bodyParts.isEmpty) {
           // As a side effect, requestBuilder.setFormParams() resets the body data, so, it should not be called with empty parameters
-          params.resolveParamJList(session).map(requestBuilder.setFormParams)
-      }
+          requestBuilder.setFormParams(resolvedFormParams)
 
-      def configureFormParamsAsStringParts: Validation[AHCRequestBuilder] =
-        httpAttributes.formParams.resolveParamJList(session).map { params =>
-          for {
-            param <- params
-          } requestBuilder.addBodyPart(new StringPart(param.getName, param.getValue, null, charset))
-
+        } else {
+          resolvedFormParams.foreach(param => requestBuilder.addBodyPart(new StringPart(param.getName, param.getValue, null, charset)))
           requestBuilder
         }
-
-    httpAttributes.bodyParts match {
-      case Nil => configureFormParamsAsParams
-      case _   => configureFormParamsAsStringParts
+      }
     }
-  }
 
   def configureParts(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
 

@@ -15,18 +15,41 @@
  */
 package io.gatling.http.request
 
-import java.util.{ List => JList, ArrayList => JArrayList }
+import java.util.{ ArrayList => JArrayList, Collections => JCollections, List => JList }
 
 import scala.annotation.tailrec
+import scala.collection.JavaConversions._
 
-import io.gatling.core.session.Session
+import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.validation._
 
 import org.asynchttpclient.Param
 
 package object builder {
 
+  val EmptyParamJListSuccess: Validation[JList[Param]] = JCollections.emptyList[Param].success
+
   implicit class HttpParams(val params: List[HttpParam]) extends AnyVal {
+
+    def mergeWithFormIntoParamJList(formMaybe: Option[Expression[Map[String, Seq[String]]]], session: Session): Validation[JList[Param]] = {
+
+      val formParams = params.resolveParamJList(session)
+
+      formMaybe match {
+        case Some(form) =>
+          for {
+            resolvedFormParams <- formParams
+            resolvedForm <- form(session)
+            formParamsByName = resolvedFormParams.groupBy(_.getName)
+            formFieldsByName = resolvedForm.map { case (key, values) => key -> values.map(value => new Param(key, value)) }
+            // override form with formParams
+            javaParams: JList[Param] = (formFieldsByName ++ formParamsByName).values.flatten.toSeq
+          } yield javaParams
+
+        case None =>
+          formParams
+      }
+    }
 
     def resolveParamJList(session: Session): Validation[JList[Param]] = {
 
@@ -77,7 +100,10 @@ package object builder {
               }
           }
 
-      resolveParamJListRec(new JArrayList[Param](params.size), params)
+      if (params.isEmpty)
+        EmptyParamJListSuccess
+      else
+        resolveParamJListRec(new JArrayList[Param](params.size), params)
     }
   }
 }
