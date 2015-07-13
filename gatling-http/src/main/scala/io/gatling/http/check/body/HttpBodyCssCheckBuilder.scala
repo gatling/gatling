@@ -45,7 +45,7 @@ object HttpBodyCssCheckBuilder {
 }
 
 class HttpBodyCssCheckBuilder[X: NodeConverter](private[body] val expression: Expression[String], private[body] val nodeAttribute: Option[String])(implicit extractorFactory: CssExtractorFactory)
-    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, NodeSelector, String](StringBodyExtender, HttpBodyCssCheckBuilder.cssPreparer) {
+    extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, NodeSelector, X](StringBodyExtender, HttpBodyCssCheckBuilder.cssPreparer) {
 
   import extractorFactory._
 
