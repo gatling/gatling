@@ -43,6 +43,8 @@ trait HttpCheckSupport {
   def css(selector: Expression[String], nodeAttribute: String)(implicit extractorFactory: CssExtractorFactory) =
     HttpBodyCssCheckBuilder.css(selector, Some(nodeAttribute))
 
+  def form(selector: Expression[String])(implicit extractorFactory: CssExtractorFactory) = css(selector).ofType[Map[String, Seq[String]]]
+
   def jsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
     HttpBodyJsonPathCheckBuilder.jsonPath(path)
   def jsonpJsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
