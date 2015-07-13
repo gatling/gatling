@@ -1535,6 +1535,19 @@
         </div>
 
         <div class="function">
+          <label class="function-syntax" for="form">form</label>
+          <input type="checkbox" id="form" name="form">
+
+          <div class="function-details">
+            Adds a form to the request body
+            <dl>
+              <dt>(Map[key -> Seq[value]])</dt>
+              <dd>Typically saved by a form check</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
           <label class="function-syntax" for="transformResponse">transformResponse</label>
           <input type="checkbox" id="transformResponse" name="transformResponse">
 
@@ -1784,6 +1797,19 @@
               <dd>Uses the <i>css</i> selector to extract the value to be checked.</dd>
               <dt>(expression, attr)</dt>
               <dd>Same as above, except that the extracted value is the <i>attr</i> of the selected node.</dd>
+            </dl>
+          </div>
+        </div>
+
+        <div class="function">
+          <label class="function-syntax" for="cssForm">form</label>
+          <input type="checkbox" id="cssForm" name="cssForm">
+
+          <div class="function-details">
+            Check will be applied to an extract of the HTTP response's body
+            <dl>
+              <dt>(expression)</dt>
+              <dd>Uses the <i>css</i> selector to extract the all the field values of an HTML form.</dd>
             </dl>
           </div>
         </div>
