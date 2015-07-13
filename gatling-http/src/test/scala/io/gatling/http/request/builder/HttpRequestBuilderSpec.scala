@@ -15,10 +15,13 @@
  */
 package io.gatling.http.request.builder
 
+import scala.collection.JavaConversions._
+
 import io.gatling.BaseSpec
 import io.gatling.core.ValidationValues
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.session._
+import io.gatling.core.session.el._
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.protocol.{ HttpProtocol, HttpComponents }
@@ -36,27 +39,56 @@ class HttpRequestBuilderSpec extends BaseSpec with ValidationValues {
   implicit val httpCaches = new HttpCaches
   val httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, httpCaches)
 
-  private def performTest(addSignatureCalculator: HttpRequestBuilder => HttpRequestBuilder): Unit = {
-
+  def httpRequestDef(f: HttpRequestBuilder => HttpRequestBuilder) = {
     val commonAttributes = CommonAttributes("requestName".expressionSuccess, "GET", Right(Uri.create("http://gatling.io")))
-
-    val builder = addSignatureCalculator(new HttpRequestBuilder(commonAttributes, HttpAttributes()))
-
-    val httpRequestDef = builder.build(httpComponents, throttled = false)
-    httpRequestDef.build("requestName", Session("scenarioName", 0)).map(_.ahcRequest.getHeaders.getFirstValue("X-Token")).succeeded shouldBe "foo"
+    val builder = f(new HttpRequestBuilder(commonAttributes, HttpAttributes()))
+    builder.build(httpComponents, throttled = false)
   }
 
-  "request builder" should "set signature calculator object" in {
+  "signature calculator" should "work when passed as a SignatureCalculator instance" in {
     val sigCalc = new SignatureCalculator {
       def calculateAndAddSignature(request: Request, rb: RequestBuilderBase[_]): Unit = rb.addHeader("X-Token", "foo")
     }
 
-    performTest(_.signatureCalculator(sigCalc))
+    httpRequestDef(_.signatureCalculator(sigCalc))
+      .build("requestName", Session("scenarioName", 0))
+      .map(_.ahcRequest.getHeaders.getFirstValue("X-Token")).succeeded shouldBe "foo"
   }
 
-  it should "set signature calculator function" in {
+  it should "work when passed as a function" in {
       def sigCalc(request: Request, rb: RequestBuilderBase[_]): Unit = rb.addHeader("X-Token", "foo")
 
-    performTest(_.signatureCalculator(sigCalc _))
+    httpRequestDef(_.signatureCalculator(sigCalc _))
+      .build("requestName", Session("scenarioName", 0))
+      .map(_.ahcRequest.getHeaders.getFirstValue("X-Token")).succeeded shouldBe "foo"
+  }
+
+  "form" should "work when overriding a value" in {
+
+    val form = Map("foo" -> Seq("FOO"), "bar" -> Seq("BAR"))
+    val session = Session("scenarioName", 0).set("form", form).set("formParamToOverride", "bar")
+
+    httpRequestDef(_.form("${form}".el).formParam("${formParamToOverride}".el, "BAZ".el))
+      .build("requestName", session)
+      .map(_.ahcRequest.getFormParams.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAZ")
+  }
+
+  it should "work when passing only formParams" in {
+
+    val session = Session("scenarioName", 0).set("formParam", "bar")
+
+    httpRequestDef(_.formParam("${formParam}".el, "BAR".el))
+      .build("requestName", session)
+      .map(_.ahcRequest.getFormParams.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
+  }
+
+  it should "work when passing only a form" in {
+
+    val form = Map("foo" -> Seq("FOO"), "bar" -> Seq("BAR"))
+    val session = Session("scenarioName", 0).set("form", form)
+
+    httpRequestDef(_.form("${form}".el))
+      .build("requestName", session)
+      .map(_.ahcRequest.getFormParams.collect { case param if param.getName == "bar" => param.getValue }).succeeded shouldBe Seq("BAR")
   }
 }

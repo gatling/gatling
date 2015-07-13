@@ -45,19 +45,14 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
   }
 
   def configureFormParams(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
-    if (httpAttributes.formParams.isEmpty) {
-      requestBuilder.success
+    httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session).map { resolvedFormParams =>
+      if (httpAttributes.bodyParts.isEmpty) {
+        // As a side effect, requestBuilder.setFormParams() resets the body data, so, it should not be called with empty parameters
+        requestBuilder.setFormParams(resolvedFormParams)
 
-    } else {
-      httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session).map { resolvedFormParams =>
-        if (httpAttributes.bodyParts.isEmpty) {
-          // As a side effect, requestBuilder.setFormParams() resets the body data, so, it should not be called with empty parameters
-          requestBuilder.setFormParams(resolvedFormParams)
-
-        } else {
-          resolvedFormParams.foreach(param => requestBuilder.addBodyPart(new StringPart(param.getName, param.getValue, null, charset)))
-          requestBuilder
-        }
+      } else {
+        resolvedFormParams.foreach(param => requestBuilder.addBodyPart(new StringPart(param.getName, param.getValue, null, charset)))
+        requestBuilder
       }
     }
 
