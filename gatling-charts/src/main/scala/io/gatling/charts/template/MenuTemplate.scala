@@ -22,7 +22,7 @@ import io.gatling.charts.report.Container.{ Group, Request }
 private[charts] class MenuTemplate {
   def getOutput: Fastring = fast"""	
 function getItemLink(item){
-	return 'req_' + item.pathFormatted + '.html';
+	return item.pathFormatted + '.html';
 }
 
 function setDetailsLinkUrl(){

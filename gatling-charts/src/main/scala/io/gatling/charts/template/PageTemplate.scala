@@ -52,14 +52,14 @@ private[charts] abstract class PageTemplate(title: String, isDetails: Boolean, r
 
     val pageStats =
       if (isDetails) {
-        val groupHierarchy = group.map(_.hierarchy).getOrElse(Nil)
+        val groupHierarchy = group.map(_.hierarchy).getOrElse(Nil).map(_.toGroupFileName(charset))
 
         val groupAndRequestHierarchy = requestName match {
-          case Some(req) => groupHierarchy :+ req
+          case Some(req) => groupHierarchy :+ req.toRequestFileName(charset)
           case _         => groupHierarchy
         }
 
-        s"""var pageStats = stats.contents['${groupAndRequestHierarchy.map(_.toFileName(charset)).mkString("'].contents['")}'].stats;"""
+        s"""var pageStats = stats.contents['${groupAndRequestHierarchy.mkString("'].contents['")}'].stats;"""
       } else {
         "var pageStats = stats.stats;"
       }

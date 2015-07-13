@@ -29,7 +29,7 @@ package object charts {
      *
      * @return a simplified string
      */
-    def toFileName(charset: Charset) = {
+    private def toFileName(charset: Charset) = {
 
       val trimmed = string.trim match {
         case "" => "missing_name"
@@ -41,6 +41,8 @@ package object charts {
       trimmed.clean.take(15) + "-" + bytes2Hex(md.digest).take(5)
     }
 
-    def toRequestFileName(charset: Charset) = s"req_${toFileName(charset)}.html"
+    def toRequestFileName(charset: Charset) = s"req_${toFileName(charset)}"
+
+    def toGroupFileName(charset: Charset) = s"group_${toFileName(charset)}"
   }
 }

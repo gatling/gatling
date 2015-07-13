@@ -46,7 +46,11 @@ private[charts] object ChartsFiles {
 
   def globalFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / "index.html"
 
-  def requestFile(runOn: String, requestName: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / requestName.toRequestFileName(configuration.core.charset)
+  def requestFile(runOn: String, requestName: String)(implicit configuration: GatlingConfiguration): Path =
+    resultDirectory(runOn) / (requestName.toRequestFileName(configuration.core.charset) + ".html")
+
+  def groupFile(runOn: String, requestName: String)(implicit configuration: GatlingConfiguration): Path =
+    resultDirectory(runOn) / (requestName.toGroupFileName(configuration.core.charset) + ".html")
 
   def statsJsFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / StatsJsFile
 
