@@ -16,7 +16,7 @@
 package io.gatling.compiler
 
 import java.io.{ File => JFile }
-import java.net.URLClassLoader
+import java.net.{ URL, URLClassLoader }
 import java.nio.file.Files
 import java.util.jar.{ Manifest => JManifest, Attributes }
 
@@ -54,7 +54,7 @@ object ZincCompiler extends App {
 
   private val compilerClasspath = {
     val classLoader = Thread.currentThread.getContextClassLoader.asInstanceOf[URLClassLoader]
-    val files = classLoader.getURLs.map(_.toURI).map(new JFile(_))
+    val files = classLoader.getURLs.map(url => new JFile(url.toURI))
 
     if (files.exists(_.getName.startsWith("gatlingbooter"))) {
       // yippee, we've been started by the manifest-only jar,
@@ -72,7 +72,7 @@ object ZincCompiler extends App {
 
       val classPathEntries = manifests.collect {
         case manifest if Option(manifest.getMainAttributes.getValue(Attributes.Name.MAIN_CLASS)) == Some("io.gatling.mojo.MainWithArgsInFile") =>
-          manifest.getMainAttributes.getValue(Attributes.Name.CLASS_PATH).split(" ").map(new JFile(_))
+          manifest.getMainAttributes.getValue(Attributes.Name.CLASS_PATH).split(" ").map(url => new JFile(new URL(url).toURI))
       }
 
       files ++ classPathEntries.flatten
@@ -112,7 +112,7 @@ object ZincCompiler extends App {
   private def setupZincCompiler: Setup = {
       def jarMatching(classpath: Seq[JFile], regex: String): JFile =
         classpath
-          .find(url => regex.r.findFirstMatchIn(url.toString).isDefined)
+          .find(file => regex.r.findFirstMatchIn(file.getAbsolutePath).isDefined)
           .getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
 
     val scalaCompiler = jarMatching(configuration.classpathElements, """(.*scala-compiler.*\.jar)$""")
