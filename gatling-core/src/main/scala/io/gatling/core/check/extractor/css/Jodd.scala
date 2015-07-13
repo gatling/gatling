@@ -15,8 +15,10 @@
  */
 package io.gatling.core.check.extractor.css
 
+import scala.collection.mutable
+
 import jodd.lagarto.LagartoParser
-import jodd.lagarto.dom.{ LagartoDomBuilderConfig, LagartoDOMBuilder }
+import jodd.lagarto.dom.{ Node, LagartoDomBuilderConfig, LagartoDOMBuilder }
 import jodd.log.LoggerFactory
 import jodd.log.impl.Slf4jLoggerFactory
 
@@ -54,5 +56,53 @@ object Jodd {
     val lagartoParser = new LagartoParser(string, false)
     lagartoParser.setConfig(getJoddConfig(ieVersion))
     lagartoParser
+  }
+
+  def extractFormInputs(node: Node): Map[String, Seq[String]] = {
+
+      def extractInput(node: Node, parameters: mutable.MultiMap[String, String]): Unit =
+        for {
+          typeAttr <- Option(node.getAttribute("type"))
+          nameAttr <- Option(node.getAttribute("name"))
+          valueAttr <- Option(node.getAttribute("value")).orElse(if (typeAttr == "checkbox" && node.hasAttribute("checked")) Some("on") else None)
+        } parameters.addBinding(nameAttr, valueAttr)
+
+      def extractSelect(node: Node, parameters: mutable.MultiMap[String, String]): Unit =
+        Option(node.getAttribute("name")).foreach(extractOptions(_, node, parameters))
+
+      def extractOptions(selectNameAttr: String, node: Node, parameters: mutable.MultiMap[String, String]): Unit =
+        for (i <- 0 until node.getChildNodesCount) {
+          val child = node.getChild(i)
+          child.getNodeName match {
+            case "option" =>
+              for {
+                valueAttr <- Option(child.getAttribute("value")) if child.hasAttribute("selected")
+              } parameters.addBinding(selectNameAttr, valueAttr)
+
+            case _ =>
+              extractOptions(selectNameAttr, child, parameters)
+          }
+        }
+
+      def extractTextArea(node: Node, parameters: mutable.MultiMap[String, String]): Unit =
+        for {
+          nameAttr <- Option(node.getAttribute("name"))
+          valueAttr <- Option(node.getTextContent) if valueAttr.nonEmpty
+        } parameters.addBinding(nameAttr, valueAttr)
+
+      def processForm(node: Node, parameters: mutable.MultiMap[String, String]): Unit =
+        for (i <- 0 until node.getChildNodesCount) {
+          val currentNode = node.getChild(i)
+          currentNode.getNodeName match {
+            case "input"    => extractInput(currentNode, parameters)
+            case "select"   => extractSelect(currentNode, parameters)
+            case "textarea" => extractTextArea(currentNode, parameters)
+            case _          => processForm(currentNode, parameters)
+          }
+        }
+
+    val parameters = new mutable.HashMap[String, mutable.Set[String]] with mutable.MultiMap[String, String]
+    processForm(node, parameters)
+    parameters.toMap.map { case (k, v) => k -> v.toSeq }
   }
 }
