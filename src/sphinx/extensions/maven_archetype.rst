@@ -6,6 +6,13 @@ Maven Archetype
 
 Gatling's Maven Archetype allows you to integrate Gatling and run it into your preferred IDE.
 
+Versions
+========
+
+Check out available versions on `Maven Central <http://search.maven.org/#search%7Cgav%7C1%7Cg%3A%22io.gatling.highcharts%22%20AND%20a%3A%22gatling-highcharts-maven-archetype%22>`.
+
+Beware that milestones (M versions) are undocumented and releases for Gatling customers.
+
 Prerequisites
 =============
 
