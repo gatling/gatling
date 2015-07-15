@@ -72,7 +72,7 @@ object ResponseBuilder extends StrictLogging {
 class ResponseBuilder(request: Request,
                       checksumChecks: List[ChecksumCheck],
                       bodyUsageStrategies: Set[ResponseBodyUsageStrategy],
-                      responseProcessor: Option[PartialFunction[Response, Response]],
+                      responseTransformer: Option[PartialFunction[Response, Response]],
                       storeBodyParts: Boolean,
                       inferHtmlResources: Boolean,
                       charset: Charset) {
@@ -182,9 +182,9 @@ class ResponseBuilder(request: Request,
     val timings = ResponseTimings(firstByteSent, lastByteReceived)
     val rawResponse = HttpResponse(request, nettyRequest, remoteAddress, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
 
-    responseProcessor match {
+    responseTransformer match {
       case None            => rawResponse
-      case Some(processor) => processor.applyOrElse(rawResponse, ResponseBuilder.Identity)
+      case Some(transformer) => transformer.applyOrElse(rawResponse, ResponseBuilder.Identity)
     }
   }
 }
