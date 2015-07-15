@@ -4,6 +4,13 @@ SBT plugin
 
 This SBT plugin integrates Gatling with SBT, allowing to use Gatling as a testing framework.
 
+Versions
+========
+
+Check out available available versions on `Bintray <https://bintray.com/gatling/sbt-plugins/gatling-sbt/view#>`.
+
+Beware that milestones (M versions) are undocumented and releases for Gatling customers.
+
 Setup
 =====
 
@@ -11,12 +18,12 @@ Snapshots are available on Sonatype.
 
 In ``project/plugins.sbt``, add::
 
-  addSbtPlugin("io.gatling" % "gatling-sbt" % "2.1.5")
+  addSbtPlugin("io.gatling" % "gatling-sbt" % "2.1.7")
 
 You'll also need those two dependencies::
 
-  "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.1.5" % "test"
-  "io.gatling"            % "gatling-test-framework"    % "2.1.5" % "test"
+  "io.gatling.highcharts" % "gatling-charts-highcharts" % "2.1.7" % "test"
+  "io.gatling"            % "gatling-test-framework"    % "2.1.7" % "test"
 
 And then, in your ``.scala`` build::
 
