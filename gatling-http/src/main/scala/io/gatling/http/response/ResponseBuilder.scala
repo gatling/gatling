@@ -183,7 +183,7 @@ class ResponseBuilder(request: Request,
     val rawResponse = HttpResponse(request, nettyRequest, remoteAddress, status, headers, body, checksums, bodyLength, resolvedCharset, timings)
 
     responseTransformer match {
-      case None            => rawResponse
+      case None              => rawResponse
       case Some(transformer) => transformer.applyOrElse(rawResponse, ResponseBuilder.Identity)
     }
   }
