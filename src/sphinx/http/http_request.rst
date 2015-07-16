@@ -399,10 +399,10 @@ Once bootstrapped, BodyPart has the following methods for setting additional opt
 * ``contentId(contentId: Expression[String])``
 * ``transferEncoding(transferEncoding: String)``
 
-.. _http-request-processor:
+.. _http-request-body-processor:
 
-Request processor
-=================
+Request Body Processor
+======================
 
 You might want to process the request body before it's being sent to the wire.
 
@@ -413,10 +413,10 @@ Gatling ships two built-ins:
 * ``gzipBody``: compress the request body with GZIP
 * ``streamBody``: turn the body into a stream
 
-.. _http-response-processor:
+.. _http-response-transformer:
 
-Response processors
-===================
+Response Transformers
+=====================
 
 Similarly, one might want to process the response before it's passed to the checks pipeline.
 

@@ -281,14 +281,14 @@ For example, it you'd like the dump the response body's length to ``simulation.l
 
 Gatling provides a built-in ``ExtraInfoExtractor``, ``dumpSessionOnFailure``, which dumps the user's session to ``simulation.log`` if the request failed.
 
-.. _http-protocol-processor:
+.. _http-protocol-response-transformer:
 
-Response and request processors
--------------------------------
+Response Transformers
+---------------------
 
 Some people might want to process manually the response. Gatling protocol provides a hook for that need: ``transformResponse(responseTransformer: ResponseTransformer)``
 
-.. note:: For more details see the dedicated section :ref:`here <http-response-processor>`.
+.. note:: For more details see the dedicated section :ref:`here <http-response-transformer>`.
 
 .. _http-protocol-check:
 
