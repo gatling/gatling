@@ -27,7 +27,7 @@ case class StoredCookie(cookie: Cookie, hostOnly: Boolean, persistent: Boolean, 
 
 object CookieJar {
 
-  val UnspecifiedMaxAge = Int.MinValue
+  val UnspecifiedMaxAge = Long.MinValue
 
   def requestDomain(requestUri: Uri) = requestUri.getHost.toLowerCase
 

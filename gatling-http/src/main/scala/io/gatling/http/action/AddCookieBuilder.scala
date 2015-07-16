@@ -31,13 +31,13 @@ import io.gatling.http.cookie.CookieHandling.storeCookie
 case class CookieDSL(name: Expression[String], value: Expression[String],
                      domain: Option[Expression[String]] = None,
                      path: Option[Expression[String]] = None,
-                     maxAge: Option[Int] = None) {
+                     maxAge: Option[Long] = None) {
 
   def withDomain(domain: Expression[String]) = copy(domain = Some(domain))
   def withPath(path: Expression[String]) = copy(path = Some(path))
   @deprecated("Use withMaxAge instead. withExpires will be dropped in 2.2", "2.1.7")
   def withExpires(expires: Long) = withMaxAge((expires - nowMillis).toInt / 1000)
-  def withMaxAge(maxAge: Int) = copy(maxAge = Some(maxAge))
+  def withMaxAge(maxAge: Long) = copy(maxAge = Some(maxAge))
 }
 
 object AddCookieBuilder {
@@ -55,7 +55,7 @@ object AddCookieBuilder {
   }
 }
 
-class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Int) extends HttpActionBuilder {
+class AddCookieBuilder(name: Expression[String], value: Expression[String], domain: Option[Expression[String]], path: Option[Expression[String]], maxAge: Long) extends HttpActionBuilder {
 
   import AddCookieBuilder._
 
