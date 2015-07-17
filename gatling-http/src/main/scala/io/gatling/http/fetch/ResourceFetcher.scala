@@ -202,7 +202,7 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest])(i
 
     val responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(
       resource.config.checks,
-      None,
+      resource.config.responseTransformer,
       httpProtocol.responsePart.discardResponseChunks,
       httpProtocol.responsePart.inferHtmlResources)
 
