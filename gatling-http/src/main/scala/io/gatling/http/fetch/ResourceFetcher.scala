@@ -203,7 +203,7 @@ class ResourceFetcher(primaryTx: HttpTx, initialResources: Seq[HttpRequest]) ext
     val resourceTx = primaryTx.copy(
       session = this.session,
       request = resource,
-      responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(resource.config.checks, None, protocol.responsePart.discardResponseChunks, protocol.responsePart.inferHtmlResources),
+      responseBuilderFactory = ResponseBuilder.newResponseBuilderFactory(resource.config.checks, resource.config.responseTransformer, protocol.responsePart.discardResponseChunks, protocol.responsePart.inferHtmlResources),
       next = self,
       primary = false)
 
