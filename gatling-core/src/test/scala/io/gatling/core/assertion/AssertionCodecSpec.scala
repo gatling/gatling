@@ -69,7 +69,7 @@ trait AssertionGenerator {
   } yield Assertion(path, target, condition)
 }
 
-class AssertionCodecSpec extends BaseSpec with AssertionCodec with AssertionGenerator {
+class AssertionCodecSpec extends BaseSpec with AssertionGenerator {
 
   override implicit val generatorDrivenConfig = PropertyCheckConfig(minSuccessful = 300)
 

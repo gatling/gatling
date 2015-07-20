@@ -23,7 +23,7 @@ import scala.collection.mutable
 import scala.io.Source
 
 import io.gatling.charts.stats.reader.buffers.{ CountsBuffer, PercentilesBuffers, GeneralStatsBuffer }
-import io.gatling.core.assertion.{ AssertionCodec, Assertion }
+import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.stats._
@@ -43,7 +43,7 @@ object FileDataReader {
   val SimulationFilesNamePattern = """.*\.log"""
 }
 
-class FileDataReader(runUuid: String)(implicit configuration: GatlingConfiguration) extends DataReader(runUuid) with AssertionCodec with StrictLogging {
+class FileDataReader(runUuid: String)(implicit configuration: GatlingConfiguration) extends DataReader(runUuid) with StrictLogging {
 
   import FileDataReader._
 

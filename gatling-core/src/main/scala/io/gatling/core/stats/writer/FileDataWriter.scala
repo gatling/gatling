@@ -23,14 +23,14 @@ import java.nio.channels.FileChannel
 import boopickle.Default._
 import com.dongxiguo.fastring.Fastring.Implicits._
 
-import io.gatling.core.assertion.{ AssertionCodec, Assertion }
+import io.gatling.core.assertion.Assertion
 import io.gatling.core.config.GatlingFiles.simulationLogDirectory
 import io.gatling.core.util.StringHelper._
 import io.gatling.core.util.PathHelper._
 
 import jodd.util.Base64
 
-object FileDataWriter extends AssertionCodec {
+object FileDataWriter {
 
   val Separator = '\t'
 
