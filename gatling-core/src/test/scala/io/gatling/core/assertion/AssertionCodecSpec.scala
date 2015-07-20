@@ -17,7 +17,7 @@ package io.gatling.core.assertion
 
 import io.gatling.BaseSpec
 
-import boopickle._
+import boopickle.Default._
 import org.scalacheck.{ Arbitrary, Gen }
 
 trait AssertionGenerator {

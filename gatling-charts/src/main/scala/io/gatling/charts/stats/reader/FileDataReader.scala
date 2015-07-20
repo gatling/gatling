@@ -32,7 +32,7 @@ import io.gatling.core.stats.reader.{ GeneralStats, DataReader }
 import io.gatling.core.stats.writer._
 import io.gatling.core.util.PathHelper._
 
-import boopickle._
+import boopickle.Default._
 import com.typesafe.scalalogging.StrictLogging
 import jodd.util.Base64
 

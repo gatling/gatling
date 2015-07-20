@@ -20,7 +20,7 @@ import java.nio.{ CharBuffer, ByteBuffer }
 import java.nio.charset.CharsetEncoder
 import java.nio.channels.FileChannel
 
-import boopickle.Pickle
+import boopickle.Default._
 import com.dongxiguo.fastring.Fastring.Implicits._
 
 import io.gatling.core.assertion.{ AssertionCodec, Assertion }

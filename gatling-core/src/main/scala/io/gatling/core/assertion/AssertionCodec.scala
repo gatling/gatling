@@ -16,6 +16,7 @@
 package io.gatling.core.assertion
 
 import boopickle._
+import boopickle.Default._
 
 trait AssertionCodec {
 
