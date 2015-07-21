@@ -130,6 +130,7 @@ class DefaultInjector(system: ActorSystem, statsEngine: StatsEngine, userStreams
             system.scheduler.scheduleOnce(toMillisPrecision(delay))(startUser(userId))
           }
         } else {
+          notLast = true
           stream.pushback(startingTime)
         }
       }
