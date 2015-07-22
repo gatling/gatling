@@ -45,3 +45,5 @@ gatling.conf
 recorder.conf
 gatling-compiler/src/main/resources/gatling-defaults.conf
 gatling-version.properties
+
+gatling-bundle/src/universal/conf/gatling-akka.conf
