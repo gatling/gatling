@@ -387,15 +387,18 @@ Always true, used for capture an optional value.
 
 .. _http-check-validate:
 
-* ``validate(name, validator)``
+* ``validate(validator)``
 
 Built-ins validation steps actually resolve to this method.
 
 *name* is the String that would be used to describe this part in case of a failure in the final error message.
 
-*validator* is a ``(Option[X], Session) => Validation[Option[X]]`` function that performs the validation logic.
-Input is the actual extracted value and the Session.
-Output is a the Validation: a Success containing the value to be passed to the next step, a Failure with the error message otherwise.
+*validator* is a ``Expression[Validator[X]]`` function that performs the validation logic.
+
+.. includecode:: code/Checks.scala#validator
+
+The ``apply`` method takes the actual extracted value and return a the Validation:
+a Success containing the value to be passed to the next step, a Failure with the error message otherwise.
 
 .. note:: In the case where no verifying step is defined, a ``exists`` is added implicitly.
 
