@@ -135,6 +135,13 @@ class Checks {
     status.in(200, 304)
     //#in
 
+    //#validator
+    trait Validator[A] {
+      def name: String
+      def apply(actual: Option[A]): Validation[Option[A]]
+    }
+    //#validator
+
     //#regex-count-is
     regex("""https://(.*)""").count.is(5)
     //#regex-count-is
