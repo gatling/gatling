@@ -39,6 +39,11 @@ Groups
 
 .. _groups-timings-rt:
 
+Count
+-----
+
+The counts are the number of group executions, not the sum of the counts of each individual request in that group.
+
 Response Time
 -------------
 
