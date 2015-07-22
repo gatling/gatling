@@ -48,11 +48,11 @@ The example below shows the default values.
 ::
 
   <configuration>
-    <configFolder>src/test/resources</configFolder>
-    <dataFolder>src/test/resources/data</dataFolder>
-    <resultsFolder>target/gatling/results</resultsFolder>
-    <bodiesFolder>src/test/resources/bodies</bodiesFolder>
-    <simulationsFolder>src/test/scala</simulationsFolder>
+    <configFolder>${project.basedir}/src/test/resources</configFolder>
+    <dataFolder>${project.basedir}/src/test/resources/data</dataFolder>
+    <resultsFolder>${project.basedir}/target/gatling/results</resultsFolder>
+    <bodiesFolder>${project.basedir}/src/test/resources/bodies</bodiesFolder>
+    <simulationsFolder>${project.basedir}/src/test/scala</simulationsFolder>
   <!--    <noReports>false</noReports> -->
   <!--   <reportsOnly>directoryName</reportsOnly> -->
   <!--   <simulationClass>foo.Bar</simulationClass> -->
