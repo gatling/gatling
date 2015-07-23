@@ -25,6 +25,12 @@ import io.gatling.http.ahc.HttpTx
 import org.asynchttpclient.{ Request, RequestBuilder }
 import org.asynchttpclient.uri.Uri
 
+object PermanentRedirectCacheKey {
+  def apply(request: Request) = new PermanentRedirectCacheKey(request.getUri, new Cookies(request.getCookies))
+}
+
+case class PermanentRedirectCacheKey(uri: Uri, cookies: Cookies)
+
 object PermanentRedirectCache {
   val HttpPermanentRedirectCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.redirects"
 }
@@ -33,42 +39,41 @@ trait PermanentRedirectCache {
 
   def configuration: GatlingConfiguration
 
-  private val httpPermanentRedirectCacheHandler = new SessionCacheHandler[Uri, Uri](PermanentRedirectCache.HttpPermanentRedirectCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
+  private val httpPermanentRedirectCacheHandler = new SessionCacheHandler[PermanentRedirectCacheKey, Uri](PermanentRedirectCache.HttpPermanentRedirectCacheAttributeName, configuration.http.perUserCacheMaxCapacity)
 
-  def addRedirect(session: Session, from: Uri, to: Uri): Session =
-    httpPermanentRedirectCacheHandler.addEntry(session, from, to)
+  def addRedirect(session: Session, from: Request, to: Uri): Session =
+    httpPermanentRedirectCacheHandler.addEntry(session, PermanentRedirectCacheKey(from), to)
 
-  private def permanentRedirect(session: Session, uri: Uri): Option[(Uri, Int)] = {
+  private def permanentRedirect(session: Session, request: Request): Option[(Uri, Int)] = {
 
-      @tailrec def permanentRedirect1(from: Uri, redirectCount: Int): Option[(Uri, Int)] =
+      @tailrec def permanentRedirect1(from: PermanentRedirectCacheKey, redirectCount: Int): Option[(Uri, Int)] =
 
         httpPermanentRedirectCacheHandler.getEntry(session, from) match {
-          case Some(toUri) => permanentRedirect1(toUri, redirectCount + 1)
+          case Some(toUri) => permanentRedirect1(new PermanentRedirectCacheKey(toUri, from.cookies), redirectCount + 1)
 
           case None => redirectCount match {
             case 0 => None
-            case _ => Some((from, redirectCount))
+            case _ => Some((from.uri, redirectCount))
           }
         }
 
-    permanentRedirect1(uri, 0)
+    permanentRedirect1(PermanentRedirectCacheKey(request), 0)
   }
 
   private def redirectRequest(request: Request, toUri: Uri): Request = {
     val requestBuilder = new RequestBuilder(request)
     requestBuilder.setUri(toUri)
-    requestBuilder.build()
+    requestBuilder.build
   }
 
   def applyPermanentRedirect(origTx: HttpTx): HttpTx =
     if (origTx.request.config.httpComponents.httpProtocol.requestPart.cache)
-      permanentRedirect(origTx.session, origTx.request.ahcRequest.getUri) match {
+      permanentRedirect(origTx.session, origTx.request.ahcRequest) match {
         case Some((targetUri, redirectCount)) =>
 
           val newAhcRequest = redirectRequest(origTx.request.ahcRequest, targetUri)
 
-          origTx.copy(request = origTx.request.copy(
-            ahcRequest = newAhcRequest),
+          origTx.copy(request = origTx.request.copy(ahcRequest = newAhcRequest),
             redirectCount = origTx.redirectCount + redirectCount)
 
         case None => origTx

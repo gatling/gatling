@@ -20,22 +20,22 @@ import scala.collection.JavaConversions._
 import io.gatling.core.body._
 import io.gatling.core.session.Session
 import io.gatling.core.validation.{ SuccessWrapper, Validation }
+import io.gatling.http.ahc.AhcRequestBuilder
 import io.gatling.http.{ HeaderNames, HeaderValues }
 import io.gatling.http.cache.ContentCacheEntry
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.BodyPart
 
 import org.asynchttpclient.uri.Uri
-import org.asynchttpclient.{ RequestBuilder => AHCRequestBuilder }
 import org.asynchttpclient.request.body.generator.InputStreamBodyGenerator
 import org.asynchttpclient.request.body.multipart.StringPart
 
 class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttributes: HttpAttributes, httpComponents: HttpComponents)
     extends RequestExpressionBuilder(commonAttributes, httpComponents) {
 
-  def configureCaches(session: Session, uri: Uri)(requestBuilder: AHCRequestBuilder): AHCRequestBuilder = {
+  def configureCaches(session: Session)(requestBuilder: AhcRequestBuilder): AhcRequestBuilder = {
 
-    httpCaches.contentCacheEntry(session, uri, commonAttributes.method).foreach {
+    httpCaches.contentCacheEntry(session, requestBuilder.underlyingRequest).foreach {
       case ContentCacheEntry(_, etag, lastModified) =>
         etag.foreach(requestBuilder.setHeader(HeaderNames.IfModifiedSince, _))
         lastModified.foreach(requestBuilder.setHeader(HeaderNames.IfNoneMatch, _))
@@ -44,7 +44,7 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
     requestBuilder
   }
 
-  def configureFormParams(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
+  def configureFormParams(session: Session)(requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
     httpAttributes.formParams.mergeWithFormIntoParamJList(httpAttributes.form, session).map { resolvedFormParams =>
       if (httpAttributes.bodyParts.isEmpty) {
         // As a side effect, requestBuilder.setFormParams() resets the body data, so, it should not be called with empty parameters
@@ -56,11 +56,11 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
       }
     }
 
-  def configureParts(session: Session)(requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] = {
+  def configureParts(session: Session)(requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] = {
 
     require(httpAttributes.body.isEmpty || httpAttributes.bodyParts.isEmpty, "Can't have both a body and body parts!")
 
-      def setBody(body: Body): Validation[AHCRequestBuilder] =
+      def setBody(body: Body): Validation[AhcRequestBuilder] =
         body match {
           case StringBody(string) => string(session).map(requestBuilder.setBody)
           case RawFileBody(fileWithCachedBytes) => fileWithCachedBytes(session).map { f =>
@@ -74,7 +74,7 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
           case InputStreamBody(is)           => is(session).map(is => requestBuilder.setBody(new InputStreamBodyGenerator(is)))
         }
 
-      def setBodyParts(bodyParts: List[BodyPart]): Validation[AHCRequestBuilder] = {
+      def setBodyParts(bodyParts: List[BodyPart]): Validation[AhcRequestBuilder] = {
         if (!commonAttributes.headers.contains(HeaderNames.ContentType))
           requestBuilder.addHeader(HeaderNames.ContentType, HeaderValues.MultipartFormData)
 
@@ -96,9 +96,9 @@ class HttpRequestExpressionBuilder(commonAttributes: CommonAttributes, httpAttri
     }
   }
 
-  override protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AHCRequestBuilder): Validation[AHCRequestBuilder] =
+  override protected def configureRequestBuilder(session: Session, uri: Uri, requestBuilder: AhcRequestBuilder): Validation[AhcRequestBuilder] =
     super.configureRequestBuilder(session, uri, requestBuilder)
-      .map(configureCaches(session, uri))
+      .map(configureCaches(session))
       .flatMap(configureFormParams(session))
       .flatMap(configureParts(session))
 }

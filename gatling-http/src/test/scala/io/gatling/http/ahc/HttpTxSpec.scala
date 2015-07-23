@@ -46,9 +46,6 @@ class HttpTxSpec extends BaseSpec {
       discardResponseChunks = true,
       httpComponents = httpComponents,
       explicitResources = Nil)
-
-    def addRedirect(from: String, to: String): Unit =
-      session = httpCaches.addRedirect(session, Uri.create(from), Uri.create(to))
   }
 
   def tx(ahcRequest: Request, config: HttpRequestConfig, root: Boolean) =

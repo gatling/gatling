@@ -25,13 +25,17 @@ import io.gatling.http.response.Response
 import org.asynchttpclient.Request
 import org.asynchttpclient.uri.Uri
 
+object ContentCacheKey {
+  def apply(request: Request) = new ContentCacheKey(request.getUri, request.getMethod, new Cookies(request.getCookies))
+}
+
+case class ContentCacheKey(uri: Uri, method: String, cookies: Cookies)
+
+case class ContentCacheEntry(expires: Option[Long], etag: Option[String], lastModified: Option[String])
+
 object HttpContentCache {
   val HttpContentCacheAttributeName = SessionPrivateAttributes.PrivateAttributePrefix + "http.cache.contentCache"
 }
-
-case class ContentCacheKey(uri: Uri, method: String)
-
-case class ContentCacheEntry(expires: Option[Long], etag: Option[String], lastModified: Option[String])
 
 trait HttpContentCache extends ExpiresSupport {
 
@@ -49,7 +53,7 @@ trait HttpContentCache extends ExpiresSupport {
       val lastModified = response.header(HeaderNames.LastModified)
 
       if (expires.isDefined || etag.isDefined || lastModified.isDefined) {
-        val key = ContentCacheKey(request.getUri, request.getMethod)
+        val key = ContentCacheKey(request.getUri, request.getMethod, new Cookies(request.getCookies))
         val value = ContentCacheEntry(expires, etag, lastModified)
         httpContentCacheHandler.addEntry(_, key, value)
       } else
@@ -57,9 +61,9 @@ trait HttpContentCache extends ExpiresSupport {
     } else
       Session.Identity
 
-  def contentCacheEntry(session: Session, uri: Uri, method: String): Option[ContentCacheEntry] =
-    httpContentCacheHandler.getEntry(session, ContentCacheKey(uri, method))
+  def contentCacheEntry(session: Session, request: Request): Option[ContentCacheEntry] =
+    httpContentCacheHandler.getEntry(session, ContentCacheKey(request))
 
-  def clearContentCache(session: Session, uri: Uri, method: String) =
-    httpContentCacheHandler.removeEntry(session, ContentCacheKey(uri, method))
+  def clearContentCache(session: Session, request: Request) =
+    httpContentCacheHandler.removeEntry(session, ContentCacheKey(request))
 }

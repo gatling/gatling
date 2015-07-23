@@ -20,7 +20,7 @@ import java.nio.charset.StandardCharsets._
 import io.gatling.BaseSpec
 import io.gatling.core.session.Session
 import io.gatling.core.config.GatlingConfiguration
-import io.gatling.http.ahc.HttpEngine
+import io.gatling.http.ahc.{ AhcRequestBuilder, HttpEngine }
 import io.gatling.core.stats.message.ResponseTimings
 import io.gatling.http.{ MockUtils, HeaderNames, HeaderValues }
 import io.gatling.http.response.{ HttpResponse, ResponseBody }
@@ -102,8 +102,10 @@ class CacheSupportSpec extends BaseSpec {
   class RedirectContext {
     var session = Session("mockSession", 0)
 
-    def addRedirect(from: String, to: String): Unit =
-      session = httpCaches.addRedirect(session, Uri.create(from), Uri.create(to))
+    def addRedirect(from: String, to: String): Unit = {
+      val request = new AhcRequestBuilder("GET", true).setUrl(from).build
+      session = httpCaches.addRedirect(session, request, Uri.create(to))
+    }
   }
 
   "redirect memoization" should "return transaction with no redirect cache" in new RedirectContext {

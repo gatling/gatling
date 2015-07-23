@@ -255,8 +255,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
       def cacheRedirect(originalRequest: Request, redirectUri: Uri): Session => Session =
         response.statusCode match {
           case Some(code) if HttpHelper.isPermanentRedirect(code) =>
-            val originalUri = originalRequest.getUri
-            httpCaches.addRedirect(_, originalUri, redirectUri)
+            httpCaches.addRedirect(_, originalRequest, redirectUri)
           case _ => Session.Identity
         }
 

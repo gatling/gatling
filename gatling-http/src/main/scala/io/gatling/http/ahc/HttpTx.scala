@@ -45,16 +45,16 @@ object HttpTx extends ActorNames with StrictLogging {
   private def startWithCache(origTx: HttpTx, ctx: ActorContext, httpComponents: HttpComponents)(f: HttpTx => Unit): Unit = {
     import httpComponents._
     val tx = httpComponents.httpCaches.applyPermanentRedirect(origTx)
-    val uri = tx.request.ahcRequest.getUri
-    val method = tx.request.ahcRequest.getMethod
+    val ahcRequest = tx.request.ahcRequest
+    val uri = ahcRequest.getUri
 
-    httpCaches.contentCacheEntry(tx.session, uri, method) match {
+    httpCaches.contentCacheEntry(tx.session, ahcRequest) match {
 
       case None =>
         f(tx)
 
       case Some(ContentCacheEntry(Some(expire), _, _)) if nowMillis > expire =>
-        val newTx = tx.copy(session = httpCaches.clearContentCache(tx.session, uri, method))
+        val newTx = tx.copy(session = httpCaches.clearContentCache(tx.session, ahcRequest))
         f(newTx)
 
       case _ =>

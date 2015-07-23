@@ -249,13 +249,12 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest])(i
     pendingResourcesCount += resources.size
 
     val (cached, nonCached) = resources.partition { resource =>
-      val uri = resource.ahcRequest.getUri
-      val method = resource.ahcRequest.getMethod
-      httpCaches.contentCacheEntry(session, uri, method) match {
+      val ahcRequest = resource.ahcRequest
+      httpCaches.contentCacheEntry(session, ahcRequest) match {
         case None => false
         case Some(ContentCacheEntry(Some(expire), _, _)) if nowMillis > expire =>
           // beware, side effecting
-          session = httpCaches.clearContentCache(session, uri, method)
+          session = httpCaches.clearContentCache(session, ahcRequest)
           false
         case _ => true
       }
@@ -291,15 +290,15 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest])(i
 
           case Some(request :: tail) =>
             bufferedResourcesByHost += host -> tail
-            val requestUri = request.ahcRequest.getUri
-            httpCaches.contentCacheEntry(session, requestUri, "GET") match {
+            val ahcRequest = request.ahcRequest
+            httpCaches.contentCacheEntry(session, ahcRequest) match {
               case None =>
                 // recycle token, fetch a buffered resource
                 fetchResource(request)
 
               case Some(ContentCacheEntry(Some(expire), _, _)) if nowMillis > expire =>
                 // expire reached
-                session = httpCaches.clearContentCache(session, requestUri, "GET")
+                session = httpCaches.clearContentCache(session, ahcRequest)
                 fetchResource(request)
 
               case _ =>
