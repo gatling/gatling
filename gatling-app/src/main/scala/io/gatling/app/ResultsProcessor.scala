@@ -35,7 +35,7 @@ class DefaultResultsProcessor(implicit configuration: GatlingConfiguration) exte
 
     initDataReader(runResult) match {
       case Some(reader) =>
-        val assertionResults = new AssertionValidator().validateAssertions(reader)
+        val assertionResults = AssertionValidator.validateAssertions(reader)
 
         if (reportsGenerationEnabled) {
           val reportsGenerationInputs = ReportsGenerationInputs(runResult.runId, reader, assertionResults)

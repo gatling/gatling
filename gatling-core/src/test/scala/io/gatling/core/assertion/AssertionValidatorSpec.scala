@@ -27,7 +27,6 @@ import org.mockito.Mockito.when
 class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
 
   implicit val configuration = GatlingConfiguration.loadForTest()
-  val assertionValidator = new AssertionValidator
 
   private type Conditions = List[AssertionWithPathAndTarget => Assertion]
   private type StatsModifiers = List[Stats => Stats]
@@ -75,7 +74,7 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
   }
 
   private def validateAssertions(dataReader: DataReader) =
-    assertionValidator.validateAssertions(dataReader).map(_.result).forall(identity)
+    AssertionValidator.validateAssertions(dataReader).map(_.result).forall(identity)
 
   "AssertionValidator" should "fail the assertion when the request path does not exist" in {
     val requestStats = Stats(GeneralStats.NoPlot, requestName = "bar")

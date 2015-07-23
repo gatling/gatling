@@ -33,10 +33,10 @@ case class Assertion(path: Path, target: Target, condition: Condition)
 
 sealed trait Path extends Printable
 case object Global extends Path {
-  def printable = "Global"
+  val printable = "Global"
 }
 case object ForAll extends Path {
-  def printable = "For all requests"
+  val printable = "For all requests"
 }
 case class Details(parts: List[String]) extends Path {
   def printable =
@@ -54,16 +54,16 @@ sealed trait TimeMetric extends Printable
 sealed trait CountMetric extends Printable
 
 case object AllRequests extends CountMetric {
-  def printable = "all requests"
+  val printable = "all requests"
 }
 case object FailedRequests extends CountMetric {
-  def printable = "failed requests"
+  val printable = "failed requests"
 }
 case object SuccessfulRequests extends CountMetric {
-  def printable = "successful requests"
+  val printable = "successful requests"
 }
 case object ResponseTime extends TimeMetric {
-  def printable = "response time"
+  val printable = "response time"
 }
 
 // ------------------- //
@@ -74,28 +74,28 @@ sealed trait TimeSelection extends Printable
 sealed trait CountSelection extends Printable
 
 case object Count extends CountSelection {
-  def printable = "count"
+  val printable = "count"
 }
 case object Percent extends CountSelection {
-  def printable = "percentage"
+  val printable = "percentage"
 }
 case object PerMillion extends CountSelection {
-  def printable = "per_million"
+  val printable = "per_million"
 }
 case object Min extends TimeSelection {
-  def printable = "min"
+  val printable = "min"
 }
 case object Max extends TimeSelection {
-  def printable = "max"
+  val printable = "max"
 }
 case object Mean extends TimeSelection {
-  def printable = "mean"
+  val printable = "mean"
 }
 case object StandardDeviation extends TimeSelection {
-  def printable = "standard deviation"
+  val printable = "standard deviation"
 }
 case class Percentiles(value: Double) extends TimeSelection {
-  def printable = s"${value.toRank} percentile"
+  val printable = s"${value.toRank} percentile"
 }
 
 // ---------------- //
@@ -104,13 +104,13 @@ case class Percentiles(value: Double) extends TimeSelection {
 
 sealed trait Target extends Printable
 case class CountTarget(metric: CountMetric, selection: CountSelection) extends Target {
-  def printable = s"${selection.printable} of ${metric.printable}"
+  val printable = s"${selection.printable} of ${metric.printable}"
 }
 case class TimeTarget(metric: TimeMetric, selection: TimeSelection) extends Target {
-  def printable = s"${selection.printable} of ${metric.printable}"
+  val printable = s"${selection.printable} of ${metric.printable}"
 }
 case object MeanRequestsPerSecondTarget extends Target {
-  def printable = "mean requests per second"
+  val printable = "mean requests per second"
 }
 
 // ------------------- //
@@ -121,22 +121,22 @@ sealed trait Condition extends Printable {
   def values: List[Int]
 }
 case class LessThan(value: Int) extends Condition {
-  def printable = "is less than"
+  val printable = "is less than"
   override def values = List(value)
 }
 case class GreaterThan(value: Int) extends Condition {
-  def printable = "is greater than"
+  val printable = "is greater than"
   override def values = List(value)
 }
 case class Is(value: Int) extends Condition {
-  def printable = "is"
+  val printable = "is"
   override def values = List(value)
 }
 case class Between(lowerBound: Int, upperBound: Int) extends Condition {
-  def printable = "is between"
+  val printable = "is between"
   override def values = List(lowerBound, upperBound)
 }
 case class In(elements: List[Int]) extends Condition {
-  def printable = "is in"
+  val printable = "is in"
   override def values = elements
 }

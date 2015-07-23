@@ -20,7 +20,7 @@ import io.gatling.core.stats.reader.{ GeneralStats, DataReader }
 import io.gatling.core.stats.{ RequestStatsPath, GroupStatsPath, StatsPath }
 import io.gatling.core.validation._
 
-class AssertionValidator {
+object AssertionValidator {
 
   type ValidatedRequestPath = Validation[Option[Status] => List[GeneralStats]]
   type StatsByStatus = Option[Status] => List[GeneralStats]
@@ -28,7 +28,7 @@ class AssertionValidator {
   def validateAssertions(dataReader: DataReader): List[AssertionResult] =
     dataReader.assertions.map(validateAssertion(_, dataReader))
 
-  private def validateAssertion(assertion: Assertion, dataReader: DataReader) = {
+  private def validateAssertion(assertion: Assertion, dataReader: DataReader): AssertionResult = {
 
     val printablePath = assertion.path.printable
 
