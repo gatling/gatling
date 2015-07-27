@@ -51,7 +51,8 @@ class HistogramRequestMetricsBuffer(configuration: GatlingConfiguration) extends
     MetricByStatus(
       ok = metricsOfHistogram(okHistogram),
       ko = metricsOfHistogram(koHistogram),
-      all = metricsOfHistogram(allHistogram))
+      all = metricsOfHistogram(allHistogram)
+    )
 
   private def metricsOfHistogram(histogram: AbstractHistogram): Option[Metrics] = {
     val count = histogram.getTotalCount
@@ -65,7 +66,8 @@ class HistogramRequestMetricsBuffer(configuration: GatlingConfiguration) extends
         percentile1 = histogram.getValueAtPercentile(percentile1).toInt,
         percentile2 = histogram.getValueAtPercentile(percentile2).toInt,
         percentile3 = histogram.getValueAtPercentile(percentile3).toInt,
-        percentile4 = histogram.getValueAtPercentile(percentile4).toInt))
+        percentile4 = histogram.getValueAtPercentile(percentile4).toInt
+      ))
     } else
       None
   }

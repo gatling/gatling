@@ -27,11 +27,13 @@ import io.gatling.metrics.types._
 
 import akka.actor.ActorRef
 
-case class GraphiteData(configuration: GatlingConfiguration,
-                        metricsSender: ActorRef,
-                        requestsByPath: mutable.Map[GraphitePath, RequestMetricsBuffer],
-                        usersByScenario: mutable.Map[GraphitePath, UserBreakdownBuffer],
-                        format: GraphitePathPattern) extends DataWriterData
+case class GraphiteData(
+  configuration:   GatlingConfiguration,
+  metricsSender:   ActorRef,
+  requestsByPath:  mutable.Map[GraphitePath, RequestMetricsBuffer],
+  usersByScenario: mutable.Map[GraphitePath, UserBreakdownBuffer],
+  format:          GraphitePathPattern
+) extends DataWriterData
 
 private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
 
@@ -94,10 +96,12 @@ private[gatling] class GraphiteDataWriter extends DataWriter[GraphiteData] {
 
   def onStop(data: GraphiteData): Unit = cancelTimer(flushTimerName)
 
-  private def sendMetricsToGraphite(data: GraphiteData,
-                                    epoch: Long,
-                                    requestsMetrics: Map[GraphitePath, MetricByStatus],
-                                    userBreakdowns: Map[GraphitePath, UserBreakdown]): Unit = {
+  private def sendMetricsToGraphite(
+    data:            GraphiteData,
+    epoch:           Long,
+    requestsMetrics: Map[GraphitePath, MetricByStatus],
+    userBreakdowns:  Map[GraphitePath, UserBreakdown]
+  ): Unit = {
 
     import data._
     metricsSender ! GraphiteMetrics(format.metrics(userBreakdowns, requestsMetrics), epoch)

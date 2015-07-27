@@ -23,10 +23,12 @@ import io.gatling.http.request.builder.ws.WsOpenRequestBuilder
 
 import akka.actor.ActorRef
 
-class WsOpenActionBuilder(requestName: Expression[String],
-                          wsName: String,
-                          requestBuilder: WsOpenRequestBuilder,
-                          checkBuilder: Option[WsCheckBuilder] = None)
+class WsOpenActionBuilder(
+  requestName:    Expression[String],
+  wsName:         String,
+  requestBuilder: WsOpenRequestBuilder,
+  checkBuilder:   Option[WsCheckBuilder] = None
+)
     extends HttpActionBuilder {
 
   def check(checkBuilder: WsCheckBuilder) = new WsOpenActionBuilder(requestName, wsName, requestBuilder, Some(checkBuilder))
@@ -40,10 +42,12 @@ class WsOpenActionBuilder(requestName: Expression[String],
   }
 }
 
-class WsSendActionBuilder(requestName: Expression[String],
-                          wsName: String,
-                          message: Expression[WsMessage],
-                          checkBuilder: Option[WsCheckBuilder] = None) extends HttpActionBuilder {
+class WsSendActionBuilder(
+  requestName:  Expression[String],
+  wsName:       String,
+  message:      Expression[WsMessage],
+  checkBuilder: Option[WsCheckBuilder] = None
+) extends HttpActionBuilder {
 
   def check(checkBuilder: WsCheckBuilder) = new WsSendActionBuilder(requestName, wsName, message, Some(checkBuilder))
 

@@ -78,10 +78,11 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
   }
 
   private def logRequest(
-    tx: HttpTx,
-    status: Status,
-    response: Response,
-    errorMessage: Option[String] = None): Unit = {
+    tx:           HttpTx,
+    status:       Status,
+    response:     Response,
+    errorMessage: Option[String] = None
+  ): Unit = {
 
     if (!tx.silent) {
       val fullRequestName = if (tx.redirectCount > 0)
@@ -126,7 +127,8 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
         status,
         response.status.map(httpStatus => String.valueOf(httpStatus.getStatusCode)),
         errorMessage,
-        extraInfo)
+        extraInfo
+      )
     }
   }
 

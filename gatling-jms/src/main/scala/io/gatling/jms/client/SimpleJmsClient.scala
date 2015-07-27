@@ -31,14 +31,15 @@ import io.gatling.core.config.Credentials
  */
 class SimpleJmsClient(
   connectionFactoryName: String,
-  destination: JmsDestination,
-  replyDestination: JmsDestination,
-  url: String,
-  credentials: Option[Credentials],
-  anonymousConnect: Boolean,
-  contextFactory: String,
-  deliveryMode: Int,
-  messageMatcher: JmsMessageMatcher)
+  destination:           JmsDestination,
+  replyDestination:      JmsDestination,
+  url:                   String,
+  credentials:           Option[Credentials],
+  anonymousConnect:      Boolean,
+  contextFactory:        String,
+  deliveryMode:          Int,
+  messageMatcher:        JmsMessageMatcher
+)
     extends JmsClient with StrictLogging {
 
   // create InitialContext

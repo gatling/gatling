@@ -30,24 +30,27 @@ import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response.ResponseBuilderFactory
 
 object PollerActor {
-  def props(pollerName: String,
-            period: FiniteDuration,
-            requestDef: HttpRequestDef,
-            responseBuilderFactory: ResponseBuilderFactory,
-            statsEngine: StatsEngine,
-            httpComponents: HttpComponents): Props =
+  def props(
+    pollerName:             String,
+    period:                 FiniteDuration,
+    requestDef:             HttpRequestDef,
+    responseBuilderFactory: ResponseBuilderFactory,
+    statsEngine:            StatsEngine,
+    httpComponents:         HttpComponents
+  ): Props =
     Props(new PollerActor(pollerName, period, requestDef, responseBuilderFactory, statsEngine, httpComponents))
 
   private[polling] val PollTimerName = "pollTimer"
 }
 
 class PollerActor(
-  pollerName: String,
-  period: FiniteDuration,
-  requestDef: HttpRequestDef,
+  pollerName:             String,
+  period:                 FiniteDuration,
+  requestDef:             HttpRequestDef,
   responseBuilderFactory: ResponseBuilderFactory,
-  statsEngine: StatsEngine,
-  httpComponents: HttpComponents)
+  statsEngine:            StatsEngine,
+  httpComponents:         HttpComponents
+)
     extends PollerFSM {
 
   import PollerActor.PollTimerName

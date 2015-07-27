@@ -39,7 +39,8 @@ private[ui] class SwingFrontend(controller: RecorderController)(implicit configu
       Dialog.showMessage(
         title = "Error",
         message = "You haven't selected an HAR file.",
-        messageType = Dialog.Message.Error)
+        messageType = Dialog.Message.Error
+      )
     } else {
       val possibleMatches = lookupFiles(harFilePath)
       if (possibleMatches.isEmpty) {
@@ -48,7 +49,8 @@ private[ui] class SwingFrontend(controller: RecorderController)(implicit configu
           message = """|No files that could closely match the
                        |selected file's name have been found.
                        |Please check the file's path is correct.""".stripMargin,
-          messageType = Dialog.Message.Warning)
+          messageType = Dialog.Message.Warning
+        )
       } else {
         val selector = new DialogFileSelector(configurationFrame, possibleMatches)
         selector.open()
@@ -62,7 +64,8 @@ private[ui] class SwingFrontend(controller: RecorderController)(implicit configu
     Dialog.showMessage(
       title = "Conversion complete",
       message = "Successfully converted HAR file to a Gatling simulation",
-      messageType = Dialog.Message.Info)
+      messageType = Dialog.Message.Info
+    )
   }
 
   def handleHarExportFailure(message: String): Unit = {
@@ -70,14 +73,16 @@ private[ui] class SwingFrontend(controller: RecorderController)(implicit configu
       title = "Error",
       message = s"""|Export to HAR File unsuccessful: $message.
                     |See logs for more information""".stripMargin,
-      messageType = Dialog.Message.Error)
+      messageType = Dialog.Message.Error
+    )
   }
 
   def handleFilterValidationFailures(failures: Seq[String]): Unit = {
     Dialog.showMessage(
       title = "Error",
       message = failures.mkString("\n"),
-      messageType = Dialog.Message.Error)
+      messageType = Dialog.Message.Error
+    )
   }
 
   def askSimulationOverwrite = {
@@ -85,7 +90,8 @@ private[ui] class SwingFrontend(controller: RecorderController)(implicit configu
       title = "Warning",
       message = "You are about to overwrite an existing simulation.",
       optionType = Dialog.Options.OkCancel,
-      messageType = Dialog.Message.Warning) == Dialog.Result.Ok
+      messageType = Dialog.Message.Warning
+    ) == Dialog.Result.Ok
   }
 
   def init(): Unit = {

@@ -57,14 +57,16 @@ trait LowPriorityGroupExtractorImplicits extends StrictLogging {
   implicit val groupExtractor2 = new GroupExtractor[(String, String)] {
     def extract(matcher: Matcher) = (
       safeGetGroupValue(matcher, 1),
-      safeGetGroupValue(matcher, 2))
+      safeGetGroupValue(matcher, 2)
+    )
   }
 
   implicit val groupExtractor3 = new GroupExtractor[(String, String, String)] {
     def extract(matcher: Matcher) = (
       safeGetGroupValue(matcher, 1),
       safeGetGroupValue(matcher, 2),
-      safeGetGroupValue(matcher, 3))
+      safeGetGroupValue(matcher, 3)
+    )
   }
 
   implicit val groupExtractor4 = new GroupExtractor[(String, String, String, String)] {
@@ -72,7 +74,8 @@ trait LowPriorityGroupExtractorImplicits extends StrictLogging {
       safeGetGroupValue(matcher, 1),
       safeGetGroupValue(matcher, 2),
       safeGetGroupValue(matcher, 3),
-      safeGetGroupValue(matcher, 4))
+      safeGetGroupValue(matcher, 4)
+    )
   }
 
   implicit val groupExtractor5 = new GroupExtractor[(String, String, String, String, String)] {
@@ -81,7 +84,8 @@ trait LowPriorityGroupExtractorImplicits extends StrictLogging {
       safeGetGroupValue(matcher, 2),
       safeGetGroupValue(matcher, 3),
       safeGetGroupValue(matcher, 4),
-      safeGetGroupValue(matcher, 5))
+      safeGetGroupValue(matcher, 5)
+    )
   }
 
   implicit val groupExtractor6 = new GroupExtractor[(String, String, String, String, String, String)] {
@@ -91,7 +95,8 @@ trait LowPriorityGroupExtractorImplicits extends StrictLogging {
       safeGetGroupValue(matcher, 3),
       safeGetGroupValue(matcher, 4),
       safeGetGroupValue(matcher, 5),
-      safeGetGroupValue(matcher, 6))
+      safeGetGroupValue(matcher, 6)
+    )
   }
 
   implicit val groupExtractor7 = new GroupExtractor[(String, String, String, String, String, String, String)] {
@@ -102,7 +107,8 @@ trait LowPriorityGroupExtractorImplicits extends StrictLogging {
       safeGetGroupValue(matcher, 4),
       safeGetGroupValue(matcher, 5),
       safeGetGroupValue(matcher, 6),
-      safeGetGroupValue(matcher, 7))
+      safeGetGroupValue(matcher, 7)
+    )
   }
 
   implicit val groupExtractor8 = new GroupExtractor[(String, String, String, String, String, String, String, String)] {
@@ -114,7 +120,8 @@ trait LowPriorityGroupExtractorImplicits extends StrictLogging {
       safeGetGroupValue(matcher, 5),
       safeGetGroupValue(matcher, 6),
       safeGetGroupValue(matcher, 7),
-      safeGetGroupValue(matcher, 8))
+      safeGetGroupValue(matcher, 8)
+    )
   }
 }
 

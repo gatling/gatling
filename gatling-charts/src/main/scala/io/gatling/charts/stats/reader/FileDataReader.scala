@@ -253,22 +253,28 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
   }
 
   def responseTimeDistribution(maxPlots: Int, requestName: Option[String], group: Option[Group]): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
-    distribution(maxPlots,
+    distribution(
+      maxPlots,
       resultsHolder.getRequestGeneralStatsBuffers(requestName, group, None),
       resultsHolder.getRequestGeneralStatsBuffers(requestName, group, Some(OK)),
-      resultsHolder.getRequestGeneralStatsBuffers(requestName, group, Some(KO)))
+      resultsHolder.getRequestGeneralStatsBuffers(requestName, group, Some(KO))
+    )
 
   def groupCumulatedResponseTimeDistribution(maxPlots: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
-    distribution(maxPlots,
+    distribution(
+      maxPlots,
       resultsHolder.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, None),
       resultsHolder.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, Some(OK)),
-      resultsHolder.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, Some(KO)))
+      resultsHolder.getGroupCumulatedResponseTimeGeneralStatsBuffers(group, Some(KO))
+    )
 
   def groupDurationDistribution(maxPlots: Int, group: Group): (Seq[PercentVsTimePlot], Seq[PercentVsTimePlot]) =
-    distribution(maxPlots,
+    distribution(
+      maxPlots,
       resultsHolder.getGroupDurationGeneralStatsBuffers(group, None),
       resultsHolder.getGroupDurationGeneralStatsBuffers(group, Some(OK)),
-      resultsHolder.getGroupDurationGeneralStatsBuffers(group, Some(KO)))
+      resultsHolder.getGroupDurationGeneralStatsBuffers(group, Some(KO))
+    )
 
   def requestGeneralStats(requestName: Option[String], group: Option[Group], status: Option[Status]): GeneralStats = resultsHolder
     .getRequestGeneralStatsBuffers(requestName, group, status)
@@ -288,10 +294,12 @@ class FileDataReader(runUuid: String)(implicit configuration: GatlingConfigurati
     val lowerBound = configuration.charting.indicators.lowerBound
     val higherBound = configuration.charting.indicators.higherBound
 
-    List((s"t < $lowerBound ms", counts.low),
+    List(
+      (s"t < $lowerBound ms", counts.low),
       (s"$lowerBound ms < t < $higherBound ms", counts.middle),
       (s"t > $higherBound ms", counts.high),
-      ("failed", counts.ko))
+      ("failed", counts.ko)
+    )
   }
 
   def responseTimePercentilesOverTime(status: Status, requestName: Option[String], group: Option[Group]): Iterable[PercentilesVsTimePlot] =

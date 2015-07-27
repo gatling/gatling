@@ -31,10 +31,12 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
   private type Conditions = List[AssertionWithPathAndTarget => Assertion]
   private type StatsModifiers = List[Stats => Stats]
 
-  private case class Stats(generalStats: GeneralStats,
-                           requestName: String = "",
-                           groupPath: List[String] = Nil,
-                           status: Option[Status] = None) {
+  private case class Stats(
+    generalStats: GeneralStats,
+    requestName:  String         = "",
+    groupPath:    List[String]   = Nil,
+    status:       Option[Status] = None
+  ) {
 
     def request = requestName.trimToOption
     def group = if (groupPath.nonEmpty) Some(Group(groupPath)) else None
@@ -43,9 +45,11 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
   private val SetRequestThenGroupModifiers: StatsModifiers =
     List(_.copy(requestName = "foo"), _.copy(groupPath = List("foo")))
 
-  private def mockDataReaderWithStats(metric: AssertionWithPathAndTarget,
-                                      conditions: Conditions,
-                                      stats: Stats*) = {
+  private def mockDataReaderWithStats(
+    metric:     AssertionWithPathAndTarget,
+    conditions: Conditions,
+    stats:      Stats*
+  ) = {
       def mockAssertion(dataReader: DataReader) = when(dataReader.assertions) thenReturn conditions.map(_(metric))
 
       def mockStats(stat: Stats, dataReader: DataReader) = {

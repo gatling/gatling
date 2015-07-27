@@ -62,21 +62,23 @@ object BodyPart {
 }
 
 case class BodyPartAttributes(
-    contentType: Option[Expression[String]] = None,
-    charset: Option[Charset] = None,
-    dispositionType: Option[Expression[String]] = None,
-    fileName: Option[Expression[String]] = None,
-    contentId: Option[Expression[String]] = None,
-    transferEncoding: Option[String] = None,
-    customHeaders: List[(String, Expression[String])] = Nil) {
+    contentType:      Option[Expression[String]]         = None,
+    charset:          Option[Charset]                    = None,
+    dispositionType:  Option[Expression[String]]         = None,
+    fileName:         Option[Expression[String]]         = None,
+    contentId:        Option[Expression[String]]         = None,
+    transferEncoding: Option[String]                     = None,
+    customHeaders:    List[(String, Expression[String])] = Nil
+) {
 
   lazy val customHeadersExpression: Expression[Seq[(String, String)]] = resolveIterable(customHeaders)
 }
 
 case class BodyPart(
-    name: Option[Expression[String]],
+    name:        Option[Expression[String]],
     partBuilder: (String, Option[String], Option[Charset], Option[String], Option[String], Option[String]) => Expression[PartBase], // name, fileName
-    attributes: BodyPartAttributes) {
+    attributes:  BodyPartAttributes
+) {
 
   def contentType(contentType: Expression[String]) = copy(attributes = attributes.copy(contentType = Some(contentType)))
   def charset(charset: String) = copy(attributes = attributes.copy(charset = Some(Charset.forName(charset))))

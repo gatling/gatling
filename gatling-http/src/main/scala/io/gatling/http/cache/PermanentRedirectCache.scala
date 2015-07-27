@@ -73,8 +73,10 @@ trait PermanentRedirectCache {
 
           val newAhcRequest = redirectRequest(origTx.request.ahcRequest, targetUri)
 
-          origTx.copy(request = origTx.request.copy(ahcRequest = newAhcRequest),
-            redirectCount = origTx.redirectCount + redirectCount)
+          origTx.copy(
+            request = origTx.request.copy(ahcRequest = newAhcRequest),
+            redirectCount = origTx.redirectCount + redirectCount
+          )
 
         case None => origTx
       }

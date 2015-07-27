@@ -38,11 +38,14 @@ class ScenarioSpec extends BaseSpec {
     val r4 = RequestElement("http://gatling.io/details.html", "GET", Map.empty, None, None, 200, List.empty)
 
     val scn = ScenarioDefinition(
-      List(TimedScenarioElement(1000, 1500, r1),
+      List(
+        TimedScenarioElement(1000, 1500, r1),
         TimedScenarioElement(3000, 3500, r2),
         TimedScenarioElement(5000, 5500, r3),
-        TimedScenarioElement(7000, 7500, r4)),
-      List.empty)
+        TimedScenarioElement(7000, 7500, r4)
+      ),
+      List.empty
+    )
     scn.elements shouldBe List(r1, PauseElement(DurationInt(1500) milliseconds), r2.copy(statusCode = 200), PauseElement(DurationInt(1500) milliseconds), r4)
   }
 
@@ -56,13 +59,16 @@ class ScenarioSpec extends BaseSpec {
     val r6 = RequestElement("http://gatling.io/main.css", "GET", Map.empty, None, None, 200, List.empty)
 
     val scn = ScenarioDefinition(
-      List(TimedScenarioElement(1000, 1500, r1),
+      List(
+        TimedScenarioElement(1000, 1500, r1),
         TimedScenarioElement(2000, 2001, r2),
         TimedScenarioElement(2000, 2002, r3),
         TimedScenarioElement(2000, 2003, r4),
         TimedScenarioElement(5000, 5001, r5),
-        TimedScenarioElement(5005, 5010, r6)),
-      List.empty)
+        TimedScenarioElement(5005, 5010, r6)
+      ),
+      List.empty
+    )
     scn.elements shouldBe List(r1.copy(nonEmbeddedResources = List(r3)), PauseElement(DurationInt(2997) milliseconds), r5)
   }
 }

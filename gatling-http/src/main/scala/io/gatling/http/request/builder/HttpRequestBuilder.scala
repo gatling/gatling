@@ -26,18 +26,19 @@ import io.gatling.http.request._
 import io.gatling.http.response.Response
 
 case class HttpAttributes(
-  checks: List[HttpCheck] = Nil,
-  ignoreDefaultChecks: Boolean = false,
-  silent: Option[Boolean] = None,
-  followRedirect: Boolean = true,
-  discardResponseChunks: Boolean = true,
-  responseTransformer: Option[PartialFunction[Response, Response]] = None,
-  explicitResources: List[HttpRequestBuilder] = Nil,
-  body: Option[Body] = None,
-  bodyParts: List[BodyPart] = Nil,
-  formParams: List[HttpParam] = Nil,
-  form: Option[Expression[Map[String, Seq[String]]]] = None,
-  extraInfoExtractor: Option[ExtraInfoExtractor] = None)
+  checks:                List[HttpCheck]                              = Nil,
+  ignoreDefaultChecks:   Boolean                                      = false,
+  silent:                Option[Boolean]                              = None,
+  followRedirect:        Boolean                                      = true,
+  discardResponseChunks: Boolean                                      = true,
+  responseTransformer:   Option[PartialFunction[Response, Response]]  = None,
+  explicitResources:     List[HttpRequestBuilder]                     = Nil,
+  body:                  Option[Body]                                 = None,
+  bodyParts:             List[BodyPart]                               = Nil,
+  formParams:            List[HttpParam]                              = Nil,
+  form:                  Option[Expression[Map[String, Seq[String]]]] = None,
+  extraInfoExtractor:    Option[ExtraInfoExtractor]                   = None
+)
 
 object HttpRequestBuilder {
 
@@ -174,6 +175,8 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
         followRedirect = resolvedFollowRedirect,
         discardResponseChunks = resolvedDiscardResponseChunks,
         httpComponents = httpComponents,
-        explicitResources = resolvedResources))
+        explicitResources = resolvedResources
+      )
+    )
   }
 }

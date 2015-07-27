@@ -376,7 +376,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
     outgoingProxyHttpsPort.keys,
     outputFolderChooser.chooserKeys,
     simulationPackage.keys,
-    simulationClassName.keys)
+    simulationClassName.keys
+  )
 
   private def registerValidators(): Unit = {
 
@@ -436,7 +437,8 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
       """.*\.ico""",
       """.*\.woff""",
       """.*\.(t|o)tf""",
-      """.*\.png""").foreach(blackListTable.addRow)
+      """.*\.png"""
+    ).foreach(blackListTable.addRow)
 
     filterStrategies.selection.item = BlacklistFirst
   }
@@ -459,13 +461,15 @@ private[swing] class ConfigurationFrame(frontend: RecorderFrontend)(implicit con
     SslCertUtil.generateGatlingCAPEMFiles(
       directory,
       SslServerContext.GatlingCAKeyFile,
-      SslServerContext.GatlingCACrtFile)
+      SslServerContext.GatlingCACrtFile
+    )
 
     Dialog.showMessage(
       title = "Download successful",
       message =
-        s"""|Gatling's CA certificate and key were successfully saved to
-           |$directory .""".stripMargin)
+      s"""|Gatling's CA certificate and key were successfully saved to
+           |$directory .""".stripMargin
+    )
   }
 
   /****************************************/

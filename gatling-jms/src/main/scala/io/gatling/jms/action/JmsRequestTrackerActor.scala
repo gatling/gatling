@@ -36,10 +36,11 @@ import akka.actor.{ ActorRef, Props }
 case class MessageSent(
   requestId: String,
   startDate: Long,
-  checks: List[JmsCheck],
-  session: Session,
-  next: ActorRef,
-  title: String)
+  checks:    List[JmsCheck],
+  session:   Session,
+  next:      ActorRef,
+  title:     String
+)
 
 /**
  * Advise actor a response message was received from JMS provider
@@ -95,13 +96,15 @@ class JmsRequestTrackerActor(statsEngine: StatsEngine) extends BaseActor {
   /**
    * Processes a matched message
    */
-  def processMessage(session: Session,
-                     startDate: Long,
-                     receivedDate: Long,
-                     checks: List[JmsCheck],
-                     message: Message,
-                     next: ActorRef,
-                     title: String): Unit = {
+  def processMessage(
+    session:      Session,
+    startDate:    Long,
+    receivedDate: Long,
+    checks:       List[JmsCheck],
+    message:      Message,
+    next:         ActorRef,
+    title:        String
+  ): Unit = {
 
       def executeNext(updatedSession: Session, status: Status, message: Option[String] = None) = {
         val timings = ResponseTimings(startDate, receivedDate)

@@ -23,22 +23,25 @@ import io.gatling.http.action.RequestAction
 import io.gatling.http.check.ws._
 
 object WsSendAction {
-  def props(requestName: Expression[String],
-            wsName: String,
-            message: Expression[WsMessage],
-            checkBuilder: Option[WsCheckBuilder],
-            statsEngine: StatsEngine,
-            next: ActorRef) =
+  def props(
+    requestName:  Expression[String],
+    wsName:       String,
+    message:      Expression[WsMessage],
+    checkBuilder: Option[WsCheckBuilder],
+    statsEngine:  StatsEngine,
+    next:         ActorRef
+  ) =
     Props(new WsSendAction(requestName, wsName, message, checkBuilder, statsEngine, next))
 }
 
 class WsSendAction(
   val requestName: Expression[String],
-  wsName: String,
-  message: Expression[WsMessage],
-  checkBuilder: Option[WsCheckBuilder],
-  statsEngine: StatsEngine,
-  val next: ActorRef)
+  wsName:          String,
+  message:         Expression[WsMessage],
+  checkBuilder:    Option[WsCheckBuilder],
+  statsEngine:     StatsEngine,
+  val next:        ActorRef
+)
     extends RequestAction(statsEngine)
     with WsAction {
 

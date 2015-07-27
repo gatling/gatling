@@ -55,9 +55,11 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       def responseTimeChartComponent: Component =
         percentilesChartComponent(dataReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
 
-      def percentilesChartComponent(dataSource: (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
-                                    componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
-                                    title: String): Component = {
+      def percentilesChartComponent(
+        dataSource:       (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
+        componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
+        title:            String
+      ): Component = {
         val successData = dataSource(OK, None, None)
         val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
 
@@ -70,8 +72,10 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       def responsesChartComponent: Component =
         countsChartComponent(dataReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
 
-      def countsChartComponent(dataSource: (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
-                               componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component): Component = {
+      def countsChartComponent(
+        dataSource:       (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
+        componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component
+      ): Component = {
         val counts = dataSource(None, None).sortBy(_.time)
 
         val countsSeries = new Series[CountsVsTimePlot]("", counts, List(Blue, Red, Green))
@@ -92,7 +96,8 @@ private[charts] class GlobalReportGenerator(reportsGenerationInputs: ReportsGene
       responseTimeDistributionChartComponent,
       responseTimeChartComponent,
       requestsChartComponent,
-      responsesChartComponent)
+      responsesChartComponent
+    )
 
     new TemplateWriter(globalFile(reportFolderName)).writeToFile(template.getOutput(configuration.core.charset))
   }

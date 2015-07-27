@@ -21,18 +21,21 @@ import akka.actor.{ Props, ActorRef }
 import io.gatling.http.action.RequestAction
 
 object WsCancelCheckAction {
-  def props(requestName: Expression[String],
-            wsName: String,
-            statsEngine: StatsEngine,
-            next: ActorRef) =
+  def props(
+    requestName: Expression[String],
+    wsName:      String,
+    statsEngine: StatsEngine,
+    next:        ActorRef
+  ) =
     Props(new WsCancelCheckAction(requestName, wsName, statsEngine, next))
 }
 
 class WsCancelCheckAction(
   val requestName: Expression[String],
-  wsName: String,
-  statsEngine: StatsEngine,
-  val next: ActorRef)
+  wsName:          String,
+  statsEngine:     StatsEngine,
+  val next:        ActorRef
+)
     extends RequestAction(statsEngine)
     with WsAction {
 

@@ -21,7 +21,8 @@ import io.gatling.jms.request.JmsDestination
 
 object JmsClient {
   def apply(protocol: JmsProtocol, destination: JmsDestination, replyDestination: JmsDestination): JmsClient = {
-    new SimpleJmsClient(protocol.connectionFactoryName,
+    new SimpleJmsClient(
+      protocol.connectionFactoryName,
       destination,
       replyDestination,
       protocol.url,
@@ -29,7 +30,8 @@ object JmsClient {
       protocol.anonymousConnect,
       protocol.contextFactory,
       protocol.deliveryMode,
-      protocol.messageMatcher)
+      protocol.messageMatcher
+    )
   }
 }
 

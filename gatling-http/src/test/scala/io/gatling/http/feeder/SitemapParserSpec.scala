@@ -72,25 +72,30 @@ class SitemapParserSpec extends BaseSpec {
       "loc" -> "http://www.example.com/",
       "lastmod" -> "2005-01-01",
       "changefreq" -> "monthly",
-      "priority" -> "0.8")
+      "priority" -> "0.8"
+    )
 
     records(1) shouldBe Map(
       "loc" -> "http://www.example.com/catalog?item=12&amp;desc=vacation_hawaii",
-      "changefreq" -> "weekly")
+      "changefreq" -> "weekly"
+    )
 
     records(2) shouldBe Map(
       "loc" -> "http://www.example.com/catalog?item=73&amp;desc=vacation_new_zealand",
       "lastmod" -> "2004-12-23",
-      "changefreq" -> "weekly")
+      "changefreq" -> "weekly"
+    )
 
     records(3) shouldBe Map(
       "loc" -> "http://www.example.com/catalog?item=74&amp;desc=vacation_newfoundland",
       "lastmod" -> "2004-12-23T18:00:15+00:00",
-      "priority" -> "0.3")
+      "priority" -> "0.3"
+    )
 
     records(4) shouldBe Map(
       "loc" -> "http://www.example.com/catalog?item=83&amp;desc=vacation_usa",
-      "lastmod" -> "2004-11-23")
+      "lastmod" -> "2004-11-23"
+    )
   }
 
 }

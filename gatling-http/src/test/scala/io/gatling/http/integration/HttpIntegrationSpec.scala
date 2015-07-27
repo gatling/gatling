@@ -60,12 +60,17 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
               .get("/page1")
               .check(
                 regexCheck("Hello World"),
-                currentLocation.is(s"http://localhost:$mockHttpPort/page2")))
+                currentLocation.is(s"http://localhost:$mockHttpPort/page2")
+              )
+          )
           .exec(
             http("/page3")
               .get("/page3")
               .check(
-                regexCheck("Hello Again"))))
+                regexCheck("Hello Again")
+              )
+          )
+      )
 
       session.isFailed shouldBe false
 
@@ -90,8 +95,11 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
               .get("/resourceTest/index.html")
               .check(
                 css("h1").is("Resource Test"),
-                regexCheck("<title>Resource Test</title>"))),
-        protocolCustomizer = _.inferHtmlResources(BlackList(".*/bad_resource.png")))
+                regexCheck("<title>Resource Test</title>")
+              )
+          ),
+        protocolCustomizer = _.inferHtmlResources(BlackList(".*/bad_resource.png"))
+      )
 
       session.isFailed shouldBe false
 
@@ -116,9 +124,13 @@ class HttpIntegrationSpec extends HttpSpec with CoreDsl with HttpDsl {
           .exec(
             http("/resourceTest/indexIE.html")
               .get("/resourceTest/indexIE.html")
-              .header("User-Agent",
-                "Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)")),
-        protocolCustomizer = _.inferHtmlResources())
+              .header(
+                "User-Agent",
+                "Mozilla/5.0 (Windows; U; MSIE 9.0; WIndows NT 9.0; en-US)"
+              )
+          ),
+        protocolCustomizer = _.inferHtmlResources()
+      )
 
       session.isFailed shouldBe false
 

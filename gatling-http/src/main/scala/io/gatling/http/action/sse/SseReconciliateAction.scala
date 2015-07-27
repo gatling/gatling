@@ -30,8 +30,10 @@ object SseReconciliateAction {
 class SseReconciliateAction(val requestName: Expression[String], sseName: String, statsEngine: StatsEngine, val next: ActorRef)
     extends RequestAction(statsEngine) with SseAction {
 
-  override def sendRequest(requestName: String,
-                           session: Session): Validation[Unit] =
+  override def sendRequest(
+    requestName: String,
+    session:     Session
+  ): Validation[Unit] =
     for {
       sseActor <- fetchSse(sseName, session)
     } yield sseActor ! Reconciliate(requestName, next, session)

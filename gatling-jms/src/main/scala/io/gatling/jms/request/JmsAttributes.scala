@@ -28,10 +28,11 @@ import io.gatling.core.session.Expression
  * @author jasonk@bluedevel.com
  */
 case class JmsAttributes(
-  requestName: String,
-  destination: JmsDestination,
-  replyDestination: JmsDestination,
-  selector: Option[String],
-  message: JmsMessage,
+  requestName:       String,
+  destination:       JmsDestination,
+  replyDestination:  JmsDestination,
+  selector:          Option[String],
+  message:           JmsMessage,
   messageProperties: Map[Expression[String], Expression[Any]] = Map.empty,
-  checks: List[JmsCheck] = Nil)
+  checks:            List[JmsCheck]                           = Nil
+)

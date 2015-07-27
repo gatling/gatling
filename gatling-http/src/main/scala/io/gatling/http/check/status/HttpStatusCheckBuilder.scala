@@ -36,5 +36,6 @@ object HttpStatusCheckBuilder {
   val Status = new DefaultFindCheckBuilder[HttpCheck, Response, Response, Int](
     StatusExtender,
     PassThroughResponsePreparer,
-    StatusExtractor)
+    StatusExtractor
+  )
 }

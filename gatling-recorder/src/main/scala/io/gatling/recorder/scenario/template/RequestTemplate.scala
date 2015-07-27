@@ -82,7 +82,8 @@ private[scenario] object RequestTemplate {
 			.resources(${
             request.nonEmbeddedResources.zipWithIndex.map { case (resource, i) => renderRequest(simulationClass, resource, extractedUri) }.mkString(
               """,
-            """.stripMargin)
+            """.stripMargin
+            )
           })"""
         else
           EmptyFastring

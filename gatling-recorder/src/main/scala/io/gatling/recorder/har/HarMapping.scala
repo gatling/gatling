@@ -53,9 +53,11 @@ private[har] object HarMapping {
     val startTime = parseMillisFromIso8601DateTime(entry.startedDateTime)
     // what a thing of beauty!!!
     val time = Try(entry.time.toLong).getOrElse(entry.time.toDouble.toLong)
-    Entry(startTime,
+    Entry(
+      startTime,
       startTime + time,
-      buildRequest(entry.request), buildResponse(entry.response))
+      buildRequest(entry.request), buildResponse(entry.response)
+    )
   }
 
   private def buildRequest(request: Json): Request = {

@@ -28,24 +28,27 @@ import akka.actor.{ Props, ActorRef }
 import org.asynchttpclient.Request
 
 object WsOpenAction {
-  def props(requestName: Expression[String],
-            wsName: String,
-            request: Expression[Request],
-            checkBuilder: Option[WsCheckBuilder],
-            statsEngine: StatsEngine,
-            httpComponents: HttpComponents,
-            next: ActorRef) =
+  def props(
+    requestName:    Expression[String],
+    wsName:         String,
+    request:        Expression[Request],
+    checkBuilder:   Option[WsCheckBuilder],
+    statsEngine:    StatsEngine,
+    httpComponents: HttpComponents,
+    next:           ActorRef
+  ) =
     Props(new WsOpenAction(requestName, wsName, request, checkBuilder, statsEngine, httpComponents, next))
 }
 
 class WsOpenAction(
-    requestName: Expression[String],
-    wsName: String,
-    request: Expression[Request],
-    checkBuilder: Option[WsCheckBuilder],
+    requestName:     Expression[String],
+    wsName:          String,
+    request:         Expression[Request],
+    checkBuilder:    Option[WsCheckBuilder],
     val statsEngine: StatsEngine,
-    httpComponents: HttpComponents,
-    val next: ActorRef) extends Interruptable with WsAction {
+    httpComponents:  HttpComponents,
+    val next:        ActorRef
+) extends Interruptable with WsAction {
 
   def execute(session: Session): Unit = {
 

@@ -36,17 +36,21 @@ trait StatsEngine {
 
   def logRequest(session: Session, requestName: String): Unit
 
-  def logResponse(session: Session,
-                  requestName: String,
-                  timings: ResponseTimings,
-                  status: Status,
-                  responseCode: Option[String],
-                  message: Option[String],
-                  extraInfo: List[Any] = Nil): Unit
+  def logResponse(
+    session:      Session,
+    requestName:  String,
+    timings:      ResponseTimings,
+    status:       Status,
+    responseCode: Option[String],
+    message:      Option[String],
+    extraInfo:    List[Any]       = Nil
+  ): Unit
 
-  def logGroupEnd(session: Session,
-                  group: GroupBlock,
-                  exitDate: Long): Unit
+  def logGroupEnd(
+    session:  Session,
+    group:    GroupBlock,
+    exitDate: Long
+  ): Unit
 
   def logError(session: Session, requestName: String, error: String, date: Long): Unit
 
@@ -68,13 +72,15 @@ class DefaultStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extend
 
   override def logRequest(session: Session, requestName: String): Unit = {}
 
-  override def logResponse(session: Session,
-                           requestName: String,
-                           timings: ResponseTimings,
-                           status: Status,
-                           responseCode: Option[String],
-                           message: Option[String],
-                           extraInfo: List[Any] = Nil): Unit =
+  override def logResponse(
+    session:      Session,
+    requestName:  String,
+    timings:      ResponseTimings,
+    status:       Status,
+    responseCode: Option[String],
+    message:      Option[String],
+    extraInfo:    List[Any]       = Nil
+  ): Unit =
     dispatch(ResponseMessage(
       session.scenario,
       session.userId,
@@ -84,11 +90,14 @@ class DefaultStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extend
       status,
       responseCode,
       message,
-      extraInfo))
+      extraInfo
+    ))
 
-  override def logGroupEnd(session: Session,
-                           group: GroupBlock,
-                           exitDate: Long): Unit =
+  override def logGroupEnd(
+    session:  Session,
+    group:    GroupBlock,
+    exitDate: Long
+  ): Unit =
     dispatch(GroupMessage(
       session.scenario,
       session.userId,
@@ -96,7 +105,8 @@ class DefaultStatsEngine(system: ActorSystem, dataWriters: Seq[ActorRef]) extend
       group.startDate,
       exitDate,
       group.cumulatedResponseTime,
-      group.status))
+      group.status
+    ))
 
   override def logError(session: Session, requestName: String, error: String, date: Long): Unit = dispatch(ErrorMessage(s"$error ", date))
 

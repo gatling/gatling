@@ -50,11 +50,12 @@ case class ScenarioBuilder(name: String, actionBuilders: List[ActionBuilder] = N
 }
 
 case class PopulationBuilder(
-  scenarioBuilder: ScenarioBuilder,
-  injectionProfile: InjectionProfile,
-  scenarioProtocols: Protocols = Protocols(),
+  scenarioBuilder:    ScenarioBuilder,
+  injectionProfile:   InjectionProfile,
+  scenarioProtocols:  Protocols          = Protocols(),
   scenarioThrottling: Option[Throttling] = None,
-  pauseType: Option[PauseType] = None)
+  pauseType:          Option[PauseType]  = None
+)
     extends LazyLogging {
 
   def protocols(protocols: Protocol*) = copy(scenarioProtocols = this.scenarioProtocols ++ protocols)
@@ -101,9 +102,11 @@ case class PopulationBuilder(
   }
 }
 
-case class ScenarioContext(system: ActorSystem,
-                           coreComponents: CoreComponents,
-                           protocolComponentsRegistry: ProtocolComponentsRegistry,
-                           configuration: GatlingConfiguration,
-                           pauseType: PauseType,
-                           throttled: Boolean)
+case class ScenarioContext(
+  system:                     ActorSystem,
+  coreComponents:             CoreComponents,
+  protocolComponentsRegistry: ProtocolComponentsRegistry,
+  configuration:              GatlingConfiguration,
+  pauseType:                  PauseType,
+  throttled:                  Boolean
+)

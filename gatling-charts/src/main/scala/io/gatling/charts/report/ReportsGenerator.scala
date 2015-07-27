@@ -48,10 +48,12 @@ private[gatling] class ReportsGenerator(implicit configuration: GatlingConfigura
       throw new UnsupportedOperationException("There were no requests sent during the simulation, reports won't be generated")
 
     val reportGenerators =
-      List(new AllSessionsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance),
+      List(
+        new AllSessionsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance),
         new GlobalReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance),
         new RequestDetailsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance),
-        new GroupDetailsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance))
+        new GroupDetailsReportGenerator(reportsGenerationInputs, ComponentLibrary.Instance)
+      )
 
     copyAssets()
     generateMenu()

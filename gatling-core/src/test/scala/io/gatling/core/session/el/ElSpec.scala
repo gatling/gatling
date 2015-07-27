@@ -121,7 +121,8 @@ class ElSpec extends BaseSpec with ValidationValues {
         |"bar": {
         |    "baz": "qix"
         |  }
-        |}""".stripMargin)
+        |}""".stripMargin
+    )
     val session = newSession(Map("foo" -> json))
     val expression = "${foo.bar.jsonStringify()}".el[String]
     expression(session).succeeded shouldBe """{"baz":"qix"}"""

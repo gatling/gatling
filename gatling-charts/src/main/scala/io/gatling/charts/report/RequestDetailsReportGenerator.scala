@@ -43,9 +43,11 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
           def responseTimeChartComponent: Component =
             percentilesChartComponent(dataReader.responseTimePercentilesOverTime, componentLibrary.getRequestDetailsResponseTimeChartComponent, "Response Time Percentiles over Time")
 
-          def percentilesChartComponent(dataSource: (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
-                                        componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
-                                        title: String): Component = {
+          def percentilesChartComponent(
+            dataSource:       (Status, Option[String], Option[Group]) => Iterable[PercentilesVsTimePlot],
+            componentFactory: (Long, Series[PercentilesVsTimePlot]) => Component,
+            title:            String
+          ): Component = {
             val successData = dataSource(OK, Some(requestName), group)
             val successSeries = new Series[PercentilesVsTimePlot](s"$title (${Series.OK})", successData, ReportGenerator.PercentilesColors)
 
@@ -58,8 +60,10 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
           def responsesChartComponent: Component =
             countsChartComponent(dataReader.numberOfResponsesPerSecond, componentLibrary.getResponsesChartComponent)
 
-          def countsChartComponent(dataSource: (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
-                                   componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component): Component = {
+          def countsChartComponent(
+            dataSource:       (Option[String], Option[Group]) => Seq[CountsVsTimePlot],
+            componentFactory: (Long, Series[CountsVsTimePlot], Series[PieSlice]) => Component
+          ): Component = {
 
             val counts = dataSource(Some(requestName), group).sortBy(_.time)
 
@@ -74,8 +78,10 @@ private[charts] class RequestDetailsReportGenerator(reportsGenerationInputs: Rep
           def responseTimeScatterChartComponent: Component =
             scatterChartComponent(dataReader.responseTimeAgainstGlobalNumberOfRequestsPerSec, componentLibrary.getRequestDetailsResponseTimeScatterChartComponent)
 
-          def scatterChartComponent(dataSource: (Status, String, Option[Group]) => Seq[IntVsTimePlot],
-                                    componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component): Component = {
+          def scatterChartComponent(
+            dataSource:       (Status, String, Option[Group]) => Seq[IntVsTimePlot],
+            componentFactory: (Series[IntVsTimePlot], Series[IntVsTimePlot]) => Component
+          ): Component = {
 
             val scatterPlotSuccessData = dataSource(OK, requestName, group)
             val scatterPlotFailuresData = dataSource(KO, requestName, group)

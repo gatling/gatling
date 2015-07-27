@@ -37,7 +37,8 @@ object HttpHeaderRegexCheckBuilder {
 class HttpHeaderRegexCheckBuilder[X: GroupExtractor](private[header] val headerName: Expression[String], val pattern: Expression[String])(implicit extractorFactory: HttpHeaderRegexExtractorFactory)
     extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, Response, X](
       HeaderExtender,
-      PassThroughResponsePreparer) {
+      PassThroughResponsePreparer
+    ) {
 
   val headerAndPattern = (session: Session) => for {
     headerName <- headerName(session)

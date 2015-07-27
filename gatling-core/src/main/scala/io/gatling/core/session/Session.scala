@@ -67,14 +67,15 @@ object Session {
  * @param onExit hook to execute once the user reaches the exit
  */
 case class Session(
-    scenario: String,
-    userId: Long,
+    scenario:   String,
+    userId:     Long,
     attributes: Map[String, Any] = Map.empty,
-    startDate: Long = nowMillis,
-    drift: Long = 0L,
-    baseStatus: Status = OK,
-    blockStack: List[Block] = Nil,
-    onExit: Session => Unit = Session.NothingOnExit) extends LazyLogging {
+    startDate:  Long             = nowMillis,
+    drift:      Long             = 0L,
+    baseStatus: Status           = OK,
+    blockStack: List[Block]      = Nil,
+    onExit:     Session => Unit  = Session.NothingOnExit
+) extends LazyLogging {
 
   def apply(name: String) = SessionAttribute(this, name)
   def setAll(newAttributes: (String, Any)*): Session = setAll(newAttributes.toIterable)

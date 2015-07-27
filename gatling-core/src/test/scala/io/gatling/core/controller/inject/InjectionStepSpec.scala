@@ -133,7 +133,8 @@ class InjectionStepSpec extends BaseSpec {
     scheduling shouldBe List(
       Duration.Zero, 1 second, // 1st ramp
       7 seconds, 8 seconds, // 2nd ramp after a pause
-      14 seconds, 15 seconds) // 3rd ramp after a pause
+      14 seconds, 15 seconds
+    ) // 3rd ramp after a pause
   }
 
   it should "should schedule the first and last user through the 'into' injection step" in {
@@ -142,7 +143,8 @@ class InjectionStepSpec extends BaseSpec {
       Duration.Zero, 1 second, // 1st ramp
       2 seconds, // at once in between
       2 seconds, 3 seconds, // 2nd ramp until reaching 5 users
-      4 seconds) // at once from the chained injection
+      4 seconds
+    ) // at once from the chained injection
   }
 
   val heavisideScheduling = HeavisideInjection(100, 5 seconds).chain(Iterator.empty).toList

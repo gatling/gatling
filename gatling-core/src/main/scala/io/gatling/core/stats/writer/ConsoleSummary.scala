@@ -35,13 +35,15 @@ object ConsoleSummary {
 
   def writeSubTitle(title: String): Fastring = fast"${("---- " + title + " ").rightPad(OutputLength, "-")}"
 
-  def apply(runDuration: Long,
-            usersCounters: mutable.Map[String, UserCounters],
-            globalRequestCounters: RequestCounters,
-            requestsCounters: mutable.Map[String, RequestCounters],
-            errorsCounters: mutable.Map[String, Int],
-            configuration: GatlingConfiguration,
-            time: Date = new Date) = {
+  def apply(
+    runDuration:           Long,
+    usersCounters:         mutable.Map[String, UserCounters],
+    globalRequestCounters: RequestCounters,
+    requestsCounters:      mutable.Map[String, RequestCounters],
+    errorsCounters:        mutable.Map[String, Int],
+    configuration:         GatlingConfiguration,
+    time:                  Date                                 = new Date
+  ) = {
 
       def writeUsersCounters(scenarioName: String, userCounters: UserCounters): Fastring = {
 

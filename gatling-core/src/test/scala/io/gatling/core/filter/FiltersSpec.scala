@@ -23,13 +23,15 @@ class FiltersSpec extends BaseSpec with Inspectors {
   val hosts = List(
     "http://excilys.com",
     "http://ebusinessinformation.fr",
-    "http://gatling.io")
+    "http://gatling.io"
+  )
 
   val paths = List(
     "",
     "/infos.html",
     "/assets/images/foo.png",
-    "/assets/js/bar.js")
+    "/assets/js/bar.js"
+  )
 
   val urls = for {
     host <- hosts

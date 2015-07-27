@@ -39,9 +39,10 @@ case class JmsProtocolBuilderUrlStep(connectionFactoryName: String) {
 
 case class JmsProtocolBuilderContextFactoryStep(
     connectionFactoryName: String,
-    url: String,
-    credentials: Option[Credentials] = None,
-    anonymousConnect: Boolean = true) {
+    url:                   String,
+    credentials:           Option[Credentials] = None,
+    anonymousConnect:      Boolean             = true
+) {
 
   def credentials(user: String, password: String) = copy(credentials = Some(Credentials(user, password)))
 
@@ -53,10 +54,11 @@ case class JmsProtocolBuilderContextFactoryStep(
 
 case class JmsProtocolBuilderListenerCountStep(
     connectionFactoryName: String,
-    url: String,
-    credentials: Option[Credentials],
-    anonymousConnect: Boolean,
-    contextFactory: String) {
+    url:                   String,
+    credentials:           Option[Credentials],
+    anonymousConnect:      Boolean,
+    contextFactory:        String
+) {
 
   def listenerCount(count: Int) = {
     require(count > 0, "JMS response listener count must be at least 1")
@@ -66,14 +68,15 @@ case class JmsProtocolBuilderListenerCountStep(
 
 case class JmsProtocolBuilder(
     connectionFactoryName: String,
-    url: String,
-    credentials: Option[Credentials],
-    anonymousConnect: Boolean,
-    contextFactory: String,
-    listenerCount: Int,
-    deliveryMode: Int = DeliveryMode.NON_PERSISTENT,
-    messageMatcher: JmsMessageMatcher = MessageIDMessageMatcher,
-    receiveTimeout: Option[Long] = None) {
+    url:                   String,
+    credentials:           Option[Credentials],
+    anonymousConnect:      Boolean,
+    contextFactory:        String,
+    listenerCount:         Int,
+    deliveryMode:          Int                 = DeliveryMode.NON_PERSISTENT,
+    messageMatcher:        JmsMessageMatcher   = MessageIDMessageMatcher,
+    receiveTimeout:        Option[Long]        = None
+) {
 
   def usePersistentDeliveryMode = copy(deliveryMode = DeliveryMode.PERSISTENT)
   def useNonPersistentDeliveryMode = copy(deliveryMode = DeliveryMode.NON_PERSISTENT)
@@ -91,5 +94,6 @@ case class JmsProtocolBuilder(
     listenerCount = listenerCount,
     deliveryMode = deliveryMode,
     messageMatcher = messageMatcher,
-    receiveTimeout = receiveTimeout)
+    receiveTimeout = receiveTimeout
+  )
 }

@@ -98,7 +98,8 @@ private[classloader] class FileSystemBackedClassLoader(root: Path, parent: Class
       val ctor = classOf[Package].getDeclaredConstructor(
         classOf[String], classOf[String], classOf[String],
         classOf[String], classOf[String], classOf[String],
-        classOf[String], classOf[URL], classOf[ClassLoader])
+        classOf[String], classOf[URL], classOf[ClassLoader]
+      )
       ctor.setAccessible(true)
       ctor.newInstance(name, null, null, null, null, null, null, null, this)
     })

@@ -39,19 +39,21 @@ private[charts] case class GroupedCount(name: String, count: Int, total: Int) {
   val percentage: Int = if (total == 0) 0 else math.round(count.toDouble / total * 100).toInt
 }
 
-private[charts] case class RequestStatistics(name: String,
-                                             path: String,
-                                             numberOfRequestsStatistics: Statistics[Int],
-                                             minResponseTimeStatistics: Statistics[Int],
-                                             maxResponseTimeStatistics: Statistics[Int],
-                                             meanStatistics: Statistics[Int],
-                                             stdDeviationStatistics: Statistics[Int],
-                                             percentiles1: Statistics[Int],
-                                             percentiles2: Statistics[Int],
-                                             percentiles3: Statistics[Int],
-                                             percentiles4: Statistics[Int],
-                                             groupedCounts: Seq[GroupedCount],
-                                             meanNumberOfRequestsPerSecondStatistics: Statistics[Double])
+private[charts] case class RequestStatistics(
+  name:                                    String,
+  path:                                    String,
+  numberOfRequestsStatistics:              Statistics[Int],
+  minResponseTimeStatistics:               Statistics[Int],
+  maxResponseTimeStatistics:               Statistics[Int],
+  meanStatistics:                          Statistics[Int],
+  stdDeviationStatistics:                  Statistics[Int],
+  percentiles1:                            Statistics[Int],
+  percentiles2:                            Statistics[Int],
+  percentiles3:                            Statistics[Int],
+  percentiles4:                            Statistics[Int],
+  groupedCounts:                           Seq[GroupedCount],
+  meanNumberOfRequestsPerSecondStatistics: Statistics[Double]
+)
 
 private[charts] class StatisticsTextComponent(implicit configuration: GatlingConfiguration) extends Component {
 

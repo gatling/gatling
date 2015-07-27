@@ -23,7 +23,8 @@ import org.asynchttpclient.Request
 
 case class ExtraInfo(
   requestName: String,
-  status: Status,
-  session: Session,
-  request: Request,
-  response: Response)
+  status:      Status,
+  session:     Session,
+  request:     Request,
+  response:    Response
+)

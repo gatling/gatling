@@ -99,10 +99,12 @@ class PollerActorSpec extends AkkaSpec {
     dataWriterProbe.expectMsgType[ErrorMessage]
   }
 
-  def createPollerActor(period: FiniteDuration,
-                        requestDef: HttpRequestDef,
-                        httpEngine: HttpEngine,
-                        dataWriterProbe: TestProbe) =
+  def createPollerActor(
+    period:          FiniteDuration,
+    requestDef:      HttpRequestDef,
+    httpEngine:      HttpEngine,
+    dataWriterProbe: TestProbe
+  ) =
     TestFSMRef(
       new PollerActor(
         pollerName = "testPoller",
@@ -110,7 +112,9 @@ class PollerActorSpec extends AkkaSpec {
         requestDef = requestDef,
         responseBuilderFactory = mock[ResponseBuilderFactory],
         httpComponents = HttpComponents(HttpProtocol(configuration), httpEngine, mock[HttpCaches]),
-        statsEngine = new DefaultStatsEngine(system, List(dataWriterProbe.ref))))
+        statsEngine = new DefaultStatsEngine(system, List(dataWriterProbe.ref))
+      )
+    )
 
   def failedExpr[T: ClassTag]: Expression[T] =
     session => Failure("Failed expression")

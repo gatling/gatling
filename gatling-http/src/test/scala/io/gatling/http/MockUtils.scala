@@ -40,7 +40,8 @@ object MockUtils extends MockitoSugar {
     when(request.getUri) thenReturn Uri.create(uri)
     when(protocol.requestPart) thenReturn requestPart
 
-    HttpTx(session,
+    HttpTx(
+      session,
       request = HttpRequest(
         requestName = "mockHttpTx",
         ahcRequest = request,
@@ -54,9 +55,12 @@ object MockUtils extends MockitoSugar {
           followRedirect = true,
           discardResponseChunks = true,
           httpComponents = httpComponents,
-          explicitResources = Nil)),
+          explicitResources = Nil
+        )
+      ),
       responseBuilderFactory = null,
       next = null,
-      redirectCount = redirectCount)
+      redirectCount = redirectCount
+    )
   }
 }

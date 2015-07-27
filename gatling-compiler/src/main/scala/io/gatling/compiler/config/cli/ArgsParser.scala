@@ -21,8 +21,9 @@ import io.gatling.compiler.config.cli.CommandLineConstants._
 
 private[config] case class CommandLineOverrides(
   simulationsDirectory: String = "",
-  binariesFolder: String = "",
-  classpathElements: String = "")
+  binariesFolder:       String = "",
+  classpathElements:    String = ""
+)
 
 private[config] class ArgsParser(args: Array[String]) {
 

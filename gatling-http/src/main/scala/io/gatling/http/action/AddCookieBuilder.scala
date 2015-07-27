@@ -28,8 +28,8 @@ import org.asynchttpclient.cookie.Cookie
 
 case class CookieDSL(name: Expression[String], value: Expression[String],
                      domain: Option[Expression[String]] = None,
-                     path: Option[Expression[String]] = None,
-                     maxAge: Option[Long] = None) {
+                     path:   Option[Expression[String]] = None,
+                     maxAge: Option[Long]               = None) {
 
   def withDomain(domain: Expression[String]) = copy(domain = Some(domain))
   def withPath(path: Expression[String]) = copy(path = Some(path))

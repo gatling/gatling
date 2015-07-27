@@ -41,7 +41,9 @@ class JmsIntegrationSpec extends JmsMockingSpec with CoreDsl with JmsDsl {
             .reqreply
             .destination(requestQueue)
             .textMessage("<hello>hi</hello>")
-            .check(xpath("/HELLO").find.saveAs("content"))))
+            .check(xpath("/HELLO").find.saveAs("content"))
+        )
+    )
 
     session.isFailed shouldBe false
     session("content").as[String] shouldBe "HI"

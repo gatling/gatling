@@ -26,9 +26,10 @@ object PollingStopAction {
     Props(new PollingStopAction(pollerName, statsEngine, next))
 }
 class PollingStopAction(
-  pollerName: String,
+  pollerName:  String,
   statsEngine: StatsEngine,
-  val next: ActorRef)
+  val next:    ActorRef
+)
     extends UnnamedRequestAction(statsEngine)
     with PollingAction {
 

@@ -23,12 +23,14 @@ import io.gatling.recorder.config.RecorderConfiguration
 
 private[scenario] object SimulationTemplate {
 
-  def render(packageName: String,
-             simulationClassName: String,
-             protocol: ProtocolDefinition,
-             headers: Map[Int, Seq[(String, String)]],
-             scenarioName: String,
-             scenarioElements: Either[Seq[ScenarioElement], Seq[Seq[ScenarioElement]]])(implicit config: RecorderConfiguration): String = {
+  def render(
+    packageName:         String,
+    simulationClassName: String,
+    protocol:            ProtocolDefinition,
+    headers:             Map[Int, Seq[(String, String)]],
+    scenarioName:        String,
+    scenarioElements:    Either[Seq[ScenarioElement], Seq[Seq[ScenarioElement]]]
+  )(implicit config: RecorderConfiguration): String = {
 
       def renderPackage = if (!packageName.isEmpty) fast"package $packageName\n" else ""
 

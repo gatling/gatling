@@ -30,24 +30,26 @@ import org.asynchttpclient.Request
 object SseOpenAction {
 
   def props(
-    requestName: Expression[String],
-    sseName: String,
-    request: Expression[Request],
-    checkBuilder: Option[WsCheckBuilder],
-    statsEngine: StatsEngine,
+    requestName:    Expression[String],
+    sseName:        String,
+    request:        Expression[Request],
+    checkBuilder:   Option[WsCheckBuilder],
+    statsEngine:    StatsEngine,
     httpComponents: HttpComponents,
-    next: ActorRef) =
+    next:           ActorRef
+  ) =
     Props(new SseOpenAction(requestName, sseName, request, checkBuilder, statsEngine, httpComponents, next))
 }
 
 class SseOpenAction(
-    requestName: Expression[String],
-    sseName: String,
-    request: Expression[Request],
-    checkBuilder: Option[WsCheckBuilder],
+    requestName:     Expression[String],
+    sseName:         String,
+    request:         Expression[Request],
+    checkBuilder:    Option[WsCheckBuilder],
     val statsEngine: StatsEngine,
-    httpComponents: HttpComponents,
-    val next: ActorRef) extends Interruptable with SseAction {
+    httpComponents:  HttpComponents,
+    val next:        ActorRef
+) extends Interruptable with SseAction {
 
   import httpComponents._
 

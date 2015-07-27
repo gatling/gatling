@@ -18,10 +18,11 @@ package io.gatling.http.action.sse
 import io.gatling.core.json.Json
 
 case class ServerSentEvent(
-    data: Option[String] = None,
-    name: Option[String] = None,
-    id: Option[String] = None,
-    retry: Option[Int] = None) {
+    data:  Option[String] = None,
+    name:  Option[String] = None,
+    id:    Option[String] = None,
+    retry: Option[Int]    = None
+) {
 
   def asJSONString(): String = {
 

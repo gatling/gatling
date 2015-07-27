@@ -73,7 +73,8 @@ private[charts] class GroupDetailsReportGenerator(reportsGenerationInputs: Repor
           cumulatedResponseTimeChartComponent,
           cumulatedResponseTimeDistributionChartComponent,
           durationChartComponent,
-          durationDistributionChartComponent)
+          durationDistributionChartComponent
+        )
 
         new TemplateWriter(groupFile(reportFolderName, path)).writeToFile(template.getOutput(configuration.core.charset))
       }

@@ -23,10 +23,12 @@ import io.gatling.http.request.builder.sse.SseOpenRequestBuilder
 
 import akka.actor.ActorRef
 
-class SseOpenActionBuilder(requestName: Expression[String],
-                           sseName: String,
-                           requestBuilder: SseOpenRequestBuilder,
-                           checkBuilder: Option[WsCheckBuilder] = None) extends HttpActionBuilder {
+class SseOpenActionBuilder(
+  requestName:    Expression[String],
+  sseName:        String,
+  requestBuilder: SseOpenRequestBuilder,
+  checkBuilder:   Option[WsCheckBuilder] = None
+) extends HttpActionBuilder {
 
   def check(checkBuilder: WsCheckBuilder) = new SseOpenActionBuilder(requestName, sseName, requestBuilder, Some(checkBuilder))
 

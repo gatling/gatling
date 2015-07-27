@@ -48,7 +48,8 @@ object ZincCompiler extends App {
     "-feature",
     "-unchecked",
     "-language:implicitConversions",
-    "-language:postfixOps")
+    "-language:postfixOps"
+  )
 
   Files.createDirectories(configuration.classesDirectory)
 
@@ -93,7 +94,8 @@ object ZincCompiler extends App {
       def analysisCacheMapEntry(directoryName: String) =
         (GatlingHome.toString / directoryName).jfile -> (configuration.binariesDirectory.toString / "cache" / directoryName).jfile
 
-    Inputs.inputs(classpath = configuration.classpathElements,
+    Inputs.inputs(
+      classpath = configuration.classpathElements,
       sources = sources,
       classesDirectory = configuration.classesDirectory.toFile,
       scalacOptions = compilerOptions,
@@ -106,7 +108,8 @@ object ZincCompiler extends App {
       incOptions = IncOptions(),
       outputRelations = None,
       outputProducts = None,
-      mirrorAnalysis = false)
+      mirrorAnalysis = false
+    )
   }
 
   private def setupZincCompiler: Setup = {
@@ -121,13 +124,15 @@ object ZincCompiler extends App {
     val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.toURI)
     val compilerInterfaceSrc: JFile = jarMatching(compilerClasspath, """(.*compiler-interface-.*-sources.jar)$""")
 
-    Setup.setup(scalaCompiler = scalaCompiler,
+    Setup.setup(
+      scalaCompiler = scalaCompiler,
       scalaLibrary = scalaLibrary,
       scalaExtra = List(scalaReflect),
       sbtInterface = sbtInterfaceSrc,
       compilerInterfaceSrc = compilerInterfaceSrc,
       javaHomeDir = None,
-      forkJava = false)
+      forkJava = false
+    )
   }
 
   // Setup the compiler

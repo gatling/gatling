@@ -36,7 +36,8 @@ object HttpChecksumCheckBuilder {
     new DefaultFindCheckBuilder[HttpCheck, Response, Response, String](
       checksumCheckFactory,
       PassThroughResponsePreparer,
-      extractor)
+      extractor
+    )
   }
 
   val Md5 = checksum("MD5")

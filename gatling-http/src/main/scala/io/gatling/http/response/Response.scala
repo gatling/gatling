@@ -62,16 +62,17 @@ abstract class Response {
 }
 
 case class HttpResponse(
-    request: AHCRequest,
-    nettyRequest: Option[NettyRequest],
+    request:       AHCRequest,
+    nettyRequest:  Option[NettyRequest],
     remoteAddress: Option[InetAddress],
-    status: Option[HttpResponseStatus],
-    headers: FluentCaseInsensitiveStringsMap,
-    body: ResponseBody,
-    checksums: Map[String, String],
-    bodyLength: Int,
-    charset: Charset,
-    timings: ResponseTimings) extends Response {
+    status:        Option[HttpResponseStatus],
+    headers:       FluentCaseInsensitiveStringsMap,
+    body:          ResponseBody,
+    checksums:     Map[String, String],
+    bodyLength:    Int,
+    charset:       Charset,
+    timings:       ResponseTimings
+) extends Response {
 
   def isReceived = status.isDefined
   val statusCode = status.map(_.getStatusCode)

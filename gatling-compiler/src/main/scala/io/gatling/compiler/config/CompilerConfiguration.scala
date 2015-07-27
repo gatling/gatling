@@ -26,11 +26,12 @@ import io.gatling.compiler.config.ConfigUtils._
 import io.gatling.compiler.config.cli.{ CommandLineOverrides, ArgsParser }
 
 private[compiler] case class CompilerConfiguration(
-  encoding: String,
+  encoding:             String,
   simulationsDirectory: Path,
-  binariesDirectory: Path,
-  classesDirectory: Path,
-  classpathElements: Seq[File])
+  binariesDirectory:    Path,
+  classesDirectory:     Path,
+  classpathElements:    Seq[File]
+)
 
 private[compiler] object CompilerConfiguration {
 

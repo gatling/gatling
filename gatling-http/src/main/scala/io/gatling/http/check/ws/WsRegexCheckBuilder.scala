@@ -32,11 +32,14 @@ object WsRegexCheckBuilder {
     new WsRegexCheckBuilder[String](expression, extender) with WsRegexOfType
 }
 
-class WsRegexCheckBuilder[X: GroupExtractor](private[ws] val expression: Expression[String],
-                                             private[ws] val extender: Extender[WsCheck, String])(implicit extractorFactory: RegexExtractorFactory)
+class WsRegexCheckBuilder[X: GroupExtractor](
+  private[ws] val expression: Expression[String],
+  private[ws] val extender:   Extender[WsCheck, String]
+)(implicit extractorFactory: RegexExtractorFactory)
     extends DefaultMultipleFindCheckBuilder[WsCheck, String, CharSequence, X](
       extender,
-      PassThroughMessagePreparer) {
+      PassThroughMessagePreparer
+    ) {
 
   import extractorFactory._
 

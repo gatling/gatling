@@ -27,7 +27,8 @@ class RequestMetricsBufferSpec extends BaseSpec {
   val configuration = GatlingConfiguration.loadForTest(mutable.Map(
     charting.indicators.Percentile1 -> 95,
     charting.indicators.Percentile2 -> 99,
-    http.ahc.RequestTimeout -> 60000))
+    http.ahc.RequestTimeout -> 60000
+  ))
 
   def allValues(m: Metrics) = Seq(m.max, m.min, m.percentile1, m.percentile2)
 

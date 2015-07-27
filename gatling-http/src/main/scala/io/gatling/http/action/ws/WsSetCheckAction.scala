@@ -23,20 +23,23 @@ import io.gatling.http.check.ws._
 import io.gatling.http.action.RequestAction
 
 object WsSetCheckAction {
-  def props(requestName: Expression[String],
-            checkBuilder: WsCheckBuilder,
-            wsName: String,
-            statsEngine: StatsEngine,
-            next: ActorRef) =
+  def props(
+    requestName:  Expression[String],
+    checkBuilder: WsCheckBuilder,
+    wsName:       String,
+    statsEngine:  StatsEngine,
+    next:         ActorRef
+  ) =
     Props(new WsSetCheckAction(requestName, checkBuilder, wsName, statsEngine, next))
 }
 
 class WsSetCheckAction(
   val requestName: Expression[String],
-  checkBuilder: WsCheckBuilder,
-  wsName: String,
-  statsEngine: StatsEngine,
-  val next: ActorRef)
+  checkBuilder:    WsCheckBuilder,
+  wsName:          String,
+  statsEngine:     StatsEngine,
+  val next:        ActorRef
+)
     extends RequestAction(statsEngine)
     with WsAction {
 

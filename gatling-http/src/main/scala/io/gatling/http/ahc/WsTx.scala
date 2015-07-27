@@ -40,16 +40,18 @@ object WsTx {
   }
 }
 
-case class WsTx(session: Session,
-                request: Request,
-                requestName: String,
-                protocol: HttpProtocol,
-                next: ActorRef,
-                start: Long,
-                reconnectCount: Int = 0,
-                check: Option[WsCheck] = None,
-                pendingCheckSuccesses: List[CheckResult] = Nil,
-                updates: List[Session => Session] = Nil) {
+case class WsTx(
+  session:               Session,
+  request:               Request,
+  requestName:           String,
+  protocol:              HttpProtocol,
+  next:                  ActorRef,
+  start:                 Long,
+  reconnectCount:        Int                      = 0,
+  check:                 Option[WsCheck]          = None,
+  pendingCheckSuccesses: List[CheckResult]        = Nil,
+  updates:               List[Session => Session] = Nil
+) {
 
   def applyUpdates(session: Session) = {
     val newSession = session.update(updates)

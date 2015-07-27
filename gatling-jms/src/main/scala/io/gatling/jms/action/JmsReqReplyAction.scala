@@ -123,8 +123,10 @@ class JmsReqReplyAction(attributes: JmsAttributes, protocol: JmsProtocol, tracke
     }
   }
 
-  def resolveProperties(properties: Map[Expression[String], Expression[Any]],
-                        session: Session): Validation[Map[String, Any]] = {
+  def resolveProperties(
+    properties: Map[Expression[String], Expression[Any]],
+    session:    Session
+  ): Validation[Map[String, Any]] = {
     properties.foldLeft(Map.empty[String, Any].success) {
       case (resolvedProperties, (key, value)) =>
         val newProperty: Validation[(String, Any)] =

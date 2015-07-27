@@ -22,10 +22,12 @@ import io.gatling.core.stats.message.{ Status, ResponseTimings, MessageEvent }
 
 case class ShortScenarioDescription(name: String, userCount: Int)
 
-case class RunMessage(simulationClassName: String,
-                      simulationId: String,
-                      start: Long,
-                      runDescription: String) {
+case class RunMessage(
+  simulationClassName: String,
+  simulationId:        String,
+  start:               Long,
+  runDescription:      String
+) {
 
   val runId = simulationId + "-" + start
 }
@@ -40,28 +42,31 @@ sealed trait LoadEventMessage extends DataWriterMessage
 
 case class UserMessage(
   session: Session,
-  event: MessageEvent,
-  date: Long) extends LoadEventMessage
+  event:   MessageEvent,
+  date:    Long
+) extends LoadEventMessage
 
 case class ResponseMessage(
-  scenario: String,
-  userId: Long,
+  scenario:       String,
+  userId:         Long,
   groupHierarchy: List[String],
-  name: String,
-  timings: ResponseTimings,
-  status: Status,
-  responseCode: Option[String],
-  message: Option[String],
-  extraInfo: List[Any]) extends LoadEventMessage
+  name:           String,
+  timings:        ResponseTimings,
+  status:         Status,
+  responseCode:   Option[String],
+  message:        Option[String],
+  extraInfo:      List[Any]
+) extends LoadEventMessage
 
 case class GroupMessage(
-    scenario: String,
-    userId: Long,
-    groupHierarchy: List[String],
-    startDate: Long,
-    endDate: Long,
+    scenario:              String,
+    userId:                Long,
+    groupHierarchy:        List[String],
+    startDate:             Long,
+    endDate:               Long,
     cumulatedResponseTime: Int,
-    status: Status) extends LoadEventMessage {
+    status:                Status
+) extends LoadEventMessage {
   val duration = (endDate - startDate).toInt
 }
 

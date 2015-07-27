@@ -80,7 +80,8 @@ class HtmlParserSpec extends BaseSpec {
       RegularResource("http://akka.io/resources/javascript/jquery.scrollTo-1.4.2-min.js"),
       RegularResource("http://akka.io/resources/javascript/jquery.localscroll-1.2.7-min.js"),
       RegularResource("http://akka.io/resources/javascript/jquery.serialScroll-1.2.2-min.js"),
-      RegularResource("http://akka.io/resources/javascript/sliderbox.js"))
+      RegularResource("http://akka.io/resources/javascript/sliderbox.js")
+    )
   }
 
   it should "extract IE css" in {
@@ -89,7 +90,8 @@ class HtmlParserSpec extends BaseSpec {
           <!--[if IE 9]>
             <link rel="stylesheet" type="text/css" href="style.css">
           <![endif]-->
-      """)
+      """
+    )
 
     embeddedResources("http://example.com/", html, Some(UserAgent(UserAgent.IE, 9))) shouldBe List(CssResource("http://example.com/style.css"))
   }
@@ -100,7 +102,8 @@ class HtmlParserSpec extends BaseSpec {
         <!--[if IE 6]>
           <link rel="stylesheet" type="text/css" href="style.css">
         <![endif]-->
-      """)
+      """
+    )
 
     embeddedResources("http://example.com/", html, Some(UserAgent(UserAgent.IE, 9))) shouldBe empty
   }
@@ -114,7 +117,8 @@ class HtmlParserSpec extends BaseSpec {
         <!--[if IE 7]>
           <link rel="stylesheet" type="text/css" href="style7.css">
         <![endif]-->
-      """)
+      """
+    )
 
     embeddedResources("http://example.com/", html, Some(UserAgent(UserAgent.IE, 7))) shouldBe List(CssResource("http://example.com/style7.css"))
   }
@@ -133,7 +137,8 @@ class HtmlParserSpec extends BaseSpec {
 
           <link rel="stylesheet" type="text/css" href="style9.css">
         <![endif]-->
-      """)
+      """
+    )
 
     embeddedResources("http://example.com/", html, Some(UserAgent(UserAgent.IE, 9))) shouldBe List(CssResource("http://example.com/style9.css"))
 
@@ -148,7 +153,8 @@ class HtmlParserSpec extends BaseSpec {
           <link rel="stylesheet" type="text/css" href="style55.css">
         <![endif]
         <![endif]-->
-      """)
+      """
+    )
 
     embeddedResources("http://example.com/", html, Some(UserAgent(UserAgent.IE, 5.5f))) shouldBe List(CssResource("http://example.com/style55.css"))
 
@@ -161,7 +167,8 @@ class HtmlParserSpec extends BaseSpec {
         <!--[if gt IE 5]>
           <link rel="stylesheet" type="text/css" href="style.css">
         <![endif]-->
-      """)
+      """
+    )
 
     embeddedResources("http://example.com/", html, None) shouldBe empty
   }
@@ -172,7 +179,8 @@ class HtmlParserSpec extends BaseSpec {
         <!--[if gt IE 5]>
           <link rel="stylesheet" type="text/css" href="style.css">
         <![endif]-->
-      """)
+      """
+    )
 
     embeddedResources("http://example.com/", html, Some(UserAgent("Firefox", 29.0f))) shouldBe empty
   }

@@ -26,13 +26,15 @@ class MockStatsEngine(system: ActorSystem) extends DefaultStatsEngine(system, Ni
 
   var dataWriterMsg: List[DataWriterMessage] = List()
 
-  override def logResponse(session: Session,
-                           requestName: String,
-                           timings: ResponseTimings,
-                           status: Status,
-                           responseCode: Option[String],
-                           message: Option[String] = None,
-                           extraInfo: List[Any] = Nil): Unit =
+  override def logResponse(
+    session:      Session,
+    requestName:  String,
+    timings:      ResponseTimings,
+    status:       Status,
+    responseCode: Option[String],
+    message:      Option[String]  = None,
+    extraInfo:    List[Any]       = Nil
+  ): Unit =
     handle(ResponseMessage(
       session.scenario,
       session.userId,
@@ -42,7 +44,8 @@ class MockStatsEngine(system: ActorSystem) extends DefaultStatsEngine(system, Ni
       status,
       None,
       message,
-      extraInfo))
+      extraInfo
+    ))
 
   override def logGroupEnd(session: Session, group: GroupBlock, exitDate: Long): Unit =
     handle(GroupMessage(session.scenario, session.userId, group.hierarchy, group.startDate, exitDate, group.cumulatedResponseTime, group.status))

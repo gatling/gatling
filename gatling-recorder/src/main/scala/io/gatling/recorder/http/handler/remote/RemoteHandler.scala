@@ -30,11 +30,13 @@ import org.jboss.netty.handler.ssl.SslHandler
 
 private[recorder] case class TimedHttpRequest(httpRequest: HttpRequest, sendTime: Long = nowMillis)
 
-private[handler] class RemoteHandler(controller: RecorderController,
-                                     sslServerContext: SslServerContext,
-                                     userChannel: Channel,
-                                     var performConnect: Boolean,
-                                     reconnect: Boolean)
+private[handler] class RemoteHandler(
+  controller:         RecorderController,
+  sslServerContext:   SslServerContext,
+  userChannel:        Channel,
+  var performConnect: Boolean,
+  reconnect:          Boolean
+)
     extends SimpleChannelHandler with ScalaChannelHandler with StrictLogging {
 
   override def messageReceived(ctx: ChannelHandlerContext, event: MessageEvent): Unit = {

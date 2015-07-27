@@ -78,7 +78,8 @@ private[recorder] object SslCertUtil extends StrictLogging {
           new Date(now), // notBefore
           new Date(now + 365.days.toMillis), // notAfter
           new X500Principal(dn), //subject
-          pair.getPublic) // publicKey
+          pair.getPublic
+        ) // publicKey
 
         val signer = newSigner(pair.getPrivate)
         certGen.build(signer)
@@ -129,7 +130,8 @@ private[recorder] object SslCertUtil extends StrictLogging {
         new Date(now), // notBefore
         new Date(now + 1.day.toMillis), // notAfter
         csr.getSubject, //subject
-        csr.getSubjectPublicKeyInfo) // publicKey
+        csr.getSubjectPublicKeyInfo
+      ) // publicKey
       val signer = newSigner(caKey)
       certificateFromHolder(certBuilder.build(signer))
     }

@@ -56,6 +56,7 @@ trait BrokerBasedSpec extends AkkaSpec {
       false,
       classOf[ActiveMQInitialContextFactory].getName,
       1,
-      MessageIDMessageMatcher)
+      MessageIDMessageMatcher
+    )
   }
 }

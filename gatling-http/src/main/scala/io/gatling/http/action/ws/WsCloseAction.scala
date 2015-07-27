@@ -24,17 +24,19 @@ import io.gatling.http.action.RequestAction
 object WsCloseAction {
   def props(
     requestName: Expression[String],
-    wsName: String,
+    wsName:      String,
     statsEngine: StatsEngine,
-    next: ActorRef) =
+    next:        ActorRef
+  ) =
     Props(new WsCloseAction(requestName, wsName, statsEngine, next))
 }
 
 class WsCloseAction(
   val requestName: Expression[String],
-  wsName: String,
-  statsEngine: StatsEngine,
-  val next: ActorRef)
+  wsName:          String,
+  statsEngine:     StatsEngine,
+  val next:        ActorRef
+)
     extends RequestAction(statsEngine)
     with WsAction {
 

@@ -45,19 +45,23 @@ class HttpTxSpec extends BaseSpec {
       followRedirect = false,
       discardResponseChunks = true,
       httpComponents = httpComponents,
-      explicitResources = Nil)
+      explicitResources = Nil
+    )
   }
 
   def tx(ahcRequest: Request, config: HttpRequestConfig, root: Boolean) =
-    HttpTx(null,
+    HttpTx(
+      null,
       request = HttpRequest(
         requestName = "mockHttpTx",
         ahcRequest = ahcRequest,
-        config = config),
+        config = config
+      ),
       responseBuilderFactory = null,
       root = root,
       next = null,
-      redirectCount = 0)
+      redirectCount = 0
+    )
 
   "HttpTx" should "be silent when using default protocol and containing a request forced to silent" in new Context {
 

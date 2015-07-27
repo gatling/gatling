@@ -28,19 +28,23 @@ case class JmsRequestBuilderBase(requestName: String) {
   def reqreply(implicit configuration: GatlingConfiguration) = JmsRequestBuilderQueue(requestName, JmsReqReplyActionBuilder.apply)
 }
 
-case class JmsRequestBuilderQueue(requestName: String,
-                                  factory: JmsAttributes => ActionBuilder) {
+case class JmsRequestBuilderQueue(
+  requestName: String,
+  factory:     JmsAttributes => ActionBuilder
+) {
 
   def queue(name: String) = destination(JmsQueue(name))
 
   def destination(destination: JmsDestination) = JmsRequestBuilderMessage(requestName, destination, JmsTemporaryQueue, None, factory)
 }
 
-case class JmsRequestBuilderMessage(requestName: String,
-                                    destination: JmsDestination,
-                                    replyDest: JmsDestination,
-                                    messageSelector: Option[String],
-                                    factory: JmsAttributes => ActionBuilder) {
+case class JmsRequestBuilderMessage(
+  requestName:     String,
+  destination:     JmsDestination,
+  replyDest:       JmsDestination,
+  messageSelector: Option[String],
+  factory:         JmsAttributes => ActionBuilder
+) {
   /**
    * Add a reply queue, if not specified dynamic queue is used
    */

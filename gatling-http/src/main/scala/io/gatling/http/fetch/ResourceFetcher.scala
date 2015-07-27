@@ -204,14 +204,16 @@ class ResourceFetcherActor(rootTx: HttpTx, initialResources: Seq[HttpRequest])(i
       resource.config.checks,
       resource.config.responseTransformer,
       httpProtocol.responsePart.discardResponseChunks,
-      httpProtocol.responsePart.inferHtmlResources)
+      httpProtocol.responsePart.inferHtmlResources
+    )
 
     val resourceTx = rootTx.copy(
       session = this.session,
       request = resource,
       responseBuilderFactory = responseBuilderFactory,
       next = self,
-      root = false)
+      root = false
+    )
 
     HttpTx.start(resourceTx, httpComponents)
   }

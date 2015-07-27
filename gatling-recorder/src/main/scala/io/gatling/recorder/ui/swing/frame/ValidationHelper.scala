@@ -27,10 +27,11 @@ import io.gatling.core.util.StringHelper.RichString
 private[swing] object ValidationHelper {
 
   case class Validator(
-    condition: String => Boolean,
+    condition:       String => Boolean,
     successCallback: Component => Unit = setStandardBorder,
     failureCallback: Component => Unit = setErrorBorder,
-    alwaysValid: Boolean = false)
+    alwaysValid:     Boolean           = false
+  )
 
   // Those are lazy vals to avoid unneccessary component creation when they're not needed (e.g. tests)
   private lazy val standardBorder = new TextField().border

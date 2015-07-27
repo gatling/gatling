@@ -24,22 +24,24 @@ import io.gatling.http.response.Response
 import org.asynchttpclient.{ RequestBuilder, SignatureCalculator, Request }
 
 case class HttpRequestConfig(
-  checks: List[HttpCheck],
-  responseTransformer: Option[PartialFunction[Response, Response]],
-  extraInfoExtractor: Option[ExtraInfoExtractor],
-  maxRedirects: Option[Int],
-  throttled: Boolean,
-  silent: Option[Boolean],
-  followRedirect: Boolean,
+  checks:                List[HttpCheck],
+  responseTransformer:   Option[PartialFunction[Response, Response]],
+  extraInfoExtractor:    Option[ExtraInfoExtractor],
+  maxRedirects:          Option[Int],
+  throttled:             Boolean,
+  silent:                Option[Boolean],
+  followRedirect:        Boolean,
   discardResponseChunks: Boolean,
-  httpComponents: HttpComponents,
-  explicitResources: List[HttpRequestDef])
+  httpComponents:        HttpComponents,
+  explicitResources:     List[HttpRequestDef]
+)
 
 case class HttpRequestDef(
-    requestName: Expression[String],
-    ahcRequest: Expression[Request],
+    requestName:         Expression[String],
+    ahcRequest:          Expression[Request],
     signatureCalculator: Option[Expression[SignatureCalculator]],
-    config: HttpRequestConfig) {
+    config:              HttpRequestConfig
+) {
 
   def build(requestName: String, session: Session): Validation[HttpRequest] = {
 

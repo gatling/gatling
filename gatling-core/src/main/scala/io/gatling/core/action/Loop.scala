@@ -51,20 +51,23 @@ class Loop(continueCondition: Expression[Boolean], counterName: String, exitASAP
 }
 
 object InnerLoop {
-  def props(continueCondition: Expression[Boolean],
-            loopNext: ActorRef,
-            counterName: String,
-            exitASAP: Boolean,
-            next: ActorRef) =
+  def props(
+    continueCondition: Expression[Boolean],
+    loopNext:          ActorRef,
+    counterName:       String,
+    exitASAP:          Boolean,
+    next:              ActorRef
+  ) =
     Props(new InnerLoop(continueCondition, loopNext, counterName, exitASAP, next))
 }
 
 class InnerLoop(
   continueCondition: Expression[Boolean],
-  loopNext: ActorRef,
-  counterName: String,
-  exitASAP: Boolean,
-  val next: ActorRef)
+  loopNext:          ActorRef,
+  counterName:       String,
+  exitASAP:          Boolean,
+  val next:          ActorRef
+)
     extends Chainable {
 
   /**

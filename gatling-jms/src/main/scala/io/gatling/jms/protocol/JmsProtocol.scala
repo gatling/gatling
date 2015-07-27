@@ -38,15 +38,16 @@ object JmsProtocol {
 }
 
 case class JmsProtocol(
-    contextFactory: String,
+    contextFactory:        String,
     connectionFactoryName: String,
-    url: String,
-    credentials: Option[Credentials],
-    anonymousConnect: Boolean,
-    listenerCount: Int,
-    deliveryMode: Int,
-    receiveTimeout: Option[Long],
-    messageMatcher: JmsMessageMatcher) extends Protocol {
+    url:                   String,
+    credentials:           Option[Credentials],
+    anonymousConnect:      Boolean,
+    listenerCount:         Int,
+    deliveryMode:          Int,
+    receiveTimeout:        Option[Long],
+    messageMatcher:        JmsMessageMatcher
+) extends Protocol {
 
   type Components = JmsComponents
 }

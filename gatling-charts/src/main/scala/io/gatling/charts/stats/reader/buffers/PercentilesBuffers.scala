@@ -40,7 +40,8 @@ private[reader] class PercentilesBuffers(buckets: Array[Int]) {
         case (digestO, bucketNumber) =>
           val time = buckets(bucketNumber)
           val percentiles = digestO.map { digest =>
-            Percentiles(digest.quantile(0).toInt,
+            Percentiles(
+              digest.quantile(0).toInt,
               digest.quantile(0.25).toInt,
               digest.quantile(0.5).toInt,
               digest.quantile(0.75).toInt,
@@ -49,7 +50,8 @@ private[reader] class PercentilesBuffers(buckets: Array[Int]) {
               digest.quantile(0.90).toInt,
               digest.quantile(0.95).toInt,
               digest.quantile(0.99).toInt,
-              digest.quantile(1.0).toInt)
+              digest.quantile(1.0).toInt
+            )
           }
 
           PercentilesVsTimePlot(time, percentiles)

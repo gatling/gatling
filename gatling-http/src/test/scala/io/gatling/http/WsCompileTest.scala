@@ -48,23 +48,30 @@ class WsCompileTest extends Simulation {
     .exec(
       ws("Message1")
         .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-        .check(wsAwait.within(30 seconds).expect(1).jsonPath("$.message").saveAs("message1"))).exec(
+        .check(wsAwait.within(30 seconds).expect(1).jsonPath("$.message").saveAs("message1"))
+    ).exec(
         ws("Message2")
           .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-          .check(wsListen.within(30 seconds).until(1).jsonPath("$.message").saveAs("message2"))).exec(
+          .check(wsListen.within(30 seconds).until(1).jsonPath("$.message").saveAs("message2"))
+      ).exec(
           ws("Message3")
             .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-            .check(wsAwait.within(30 seconds).expect(1).regex("$.message").saveAs("message3"))).exec(
+            .check(wsAwait.within(30 seconds).expect(1).regex("$.message").saveAs("message3"))
+        ).exec(
             ws("Message3")
               .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-              .check(wsListen.within(30 seconds).expect(1).message)).exec(
+              .check(wsListen.within(30 seconds).expect(1).message)
+          ).exec(
               ws("Message3")
-                .check(wsListen.within(30 seconds).expect(1).message)).exec(
+                .check(wsListen.within(30 seconds).expect(1).message)
+            ).exec(
                 ws("Cancel").wsName("foo")
-                  .cancelCheck).exec(
-                  ws("Message4")
-                    .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
-                    .check(wsAwait.within(30 seconds).until(1)))
+                .cancelCheck
+              ).exec(
+                ws("Message4")
+                  .sendText("""{"text": "Hello, I'm ${id} and this is message ${i}!"}""")
+                  .check(wsAwait.within(30 seconds).until(1))
+              )
     .exec(ws("Close WS").close)
     .exec(ws("Open Named", "foo").open("/bar"))
 

@@ -129,17 +129,20 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
         thresholdForPauseCreation = config.getInt(core.ThresholdForPauseCreation) milliseconds,
         saveConfig = config.getBoolean(core.SaveConfig),
         headless = config.getBoolean(core.Headless),
-        harFilePath = config.getString(core.HarFilePath).trimToOption),
+        harFilePath = config.getString(core.HarFilePath).trimToOption
+      ),
       filters = FiltersConfiguration(
         filterStrategy = FilterStrategy(config.getString(filters.FilterStrategy)),
         whiteList = WhiteList(config.getStringList(filters.WhitelistPatterns).toList),
-        blackList = BlackList(config.getStringList(filters.BlacklistPatterns).toList)),
+        blackList = BlackList(config.getStringList(filters.BlacklistPatterns).toList)
+      ),
       http = HttpConfiguration(
         automaticReferer = config.getBoolean(http.AutomaticReferer),
         followRedirect = config.getBoolean(http.FollowRedirect),
         inferHtmlResources = config.getBoolean(http.InferHtmlResources),
         removeCacheHeaders = config.getBoolean(http.RemoveCacheHeaders),
-        checkResponseBodies = config.getBoolean(http.CheckResponseBodies)),
+        checkResponseBodies = config.getBoolean(http.CheckResponseBodies)
+      ),
       proxy = ProxyConfiguration(
         port = config.getInt(proxy.Port),
         https = HttpsModeConfiguration(
@@ -147,29 +150,37 @@ private[recorder] object RecorderConfiguration extends StrictLogging {
           keyStore = KeyStoreConfiguration(
             path = config.getString(proxy.https.keyStore.Path),
             password = config.getString(proxy.https.keyStore.Password),
-            keyStoreType = KeyStoreType(config.getString(proxy.https.keyStore.Type))),
+            keyStoreType = KeyStoreType(config.getString(proxy.https.keyStore.Type))
+          ),
           certificateAuthority = CertificateAuthorityConfiguration(
             certificatePath = config.getString(proxy.https.certificateAuthority.CertificatePath),
-            privateKeyPath = config.getString(proxy.https.certificateAuthority.PrivateKeyPath))),
+            privateKeyPath = config.getString(proxy.https.certificateAuthority.PrivateKeyPath)
+          )
+        ),
         outgoing = OutgoingProxyConfiguration(
           host = config.getString(proxy.outgoing.Host).trimToOption,
           username = config.getString(proxy.outgoing.Username).trimToOption,
           password = config.getString(proxy.outgoing.Password).trimToOption,
           port = config.getInt(proxy.outgoing.Port).toOption,
-          sslPort = config.getInt(proxy.outgoing.SslPort).toOption)),
+          sslPort = config.getInt(proxy.outgoing.SslPort).toOption
+        )
+      ),
       netty = NettyConfiguration(
         maxInitialLineLength = config.getInt(netty.MaxInitialLineLength),
         maxHeaderSize = config.getInt(netty.MaxHeaderSize),
         maxChunkSize = config.getInt(netty.MaxChunkSize),
-        maxContentLength = config.getInt(netty.MaxContentLength)),
-      config)
+        maxContentLength = config.getInt(netty.MaxContentLength)
+      ),
+      config
+    )
   }
 }
 
 private[recorder] case class FiltersConfiguration(
     filterStrategy: FilterStrategy,
-    whiteList: WhiteList,
-    blackList: BlackList) {
+    whiteList:      WhiteList,
+    blackList:      BlackList
+) {
 
   def filters: Option[Filters] = filterStrategy match {
     case FilterStrategy.Disabled       => None
@@ -179,60 +190,69 @@ private[recorder] case class FiltersConfiguration(
 }
 
 private[recorder] case class CoreConfiguration(
-  mode: RecorderMode,
-  encoding: String,
-  outputFolder: String,
-  bodiesFolder: String,
-  pkg: String,
-  className: String,
+  mode:                      RecorderMode,
+  encoding:                  String,
+  outputFolder:              String,
+  bodiesFolder:              String,
+  pkg:                       String,
+  className:                 String,
   thresholdForPauseCreation: Duration,
-  saveConfig: Boolean,
-  headless: Boolean,
-  harFilePath: Option[String])
+  saveConfig:                Boolean,
+  headless:                  Boolean,
+  harFilePath:               Option[String]
+)
 
 private[recorder] case class HttpConfiguration(
-  automaticReferer: Boolean,
-  followRedirect: Boolean,
-  inferHtmlResources: Boolean,
-  removeCacheHeaders: Boolean,
-  checkResponseBodies: Boolean)
+  automaticReferer:    Boolean,
+  followRedirect:      Boolean,
+  inferHtmlResources:  Boolean,
+  removeCacheHeaders:  Boolean,
+  checkResponseBodies: Boolean
+)
 
 private[recorder] case class KeyStoreConfiguration(
-  path: String,
-  password: String,
-  keyStoreType: KeyStoreType)
+  path:         String,
+  password:     String,
+  keyStoreType: KeyStoreType
+)
 
 private[recorder] case class CertificateAuthorityConfiguration(
   certificatePath: String,
-  privateKeyPath: String)
+  privateKeyPath:  String
+)
 
 private[recorder] case class HttpsModeConfiguration(
-  mode: HttpsMode,
-  keyStore: KeyStoreConfiguration,
-  certificateAuthority: CertificateAuthorityConfiguration)
+  mode:                 HttpsMode,
+  keyStore:             KeyStoreConfiguration,
+  certificateAuthority: CertificateAuthorityConfiguration
+)
 
 private[recorder] case class OutgoingProxyConfiguration(
-  host: Option[String],
+  host:     Option[String],
   username: Option[String],
   password: Option[String],
-  port: Option[Int],
-  sslPort: Option[Int])
+  port:     Option[Int],
+  sslPort:  Option[Int]
+)
 
 private[recorder] case class ProxyConfiguration(
-  port: Int,
-  https: HttpsModeConfiguration,
-  outgoing: OutgoingProxyConfiguration)
+  port:     Int,
+  https:    HttpsModeConfiguration,
+  outgoing: OutgoingProxyConfiguration
+)
 
 private[recorder] case class NettyConfiguration(
   maxInitialLineLength: Int,
-  maxHeaderSize: Int,
-  maxChunkSize: Int,
-  maxContentLength: Int)
+  maxHeaderSize:        Int,
+  maxChunkSize:         Int,
+  maxContentLength:     Int
+)
 
 private[recorder] case class RecorderConfiguration(
-  core: CoreConfiguration,
+  core:    CoreConfiguration,
   filters: FiltersConfiguration,
-  http: HttpConfiguration,
-  proxy: ProxyConfiguration,
-  netty: NettyConfiguration,
-  config: Config)
+  http:    HttpConfiguration,
+  proxy:   ProxyConfiguration,
+  netty:   NettyConfiguration,
+  config:  Config
+)

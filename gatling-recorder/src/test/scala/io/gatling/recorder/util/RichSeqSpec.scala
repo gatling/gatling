@@ -27,7 +27,8 @@ class RichSeqSpec extends BaseSpec {
       List(1 -> 200),
       List(2 -> 304, 3 -> 304, 4 -> 200),
       List(5 -> 304, 6 -> 200),
-      List(7 -> 200))
+      List(7 -> 200)
+    )
 
     val groupedReqs = reqs.groupAsLongAs((t: (Int, Int)) => t._2 == 304)
 

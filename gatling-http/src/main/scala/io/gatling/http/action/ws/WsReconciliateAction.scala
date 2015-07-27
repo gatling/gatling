@@ -22,18 +22,21 @@ import io.gatling.core.session._
 import io.gatling.http.action.RequestAction
 
 object WsReconciliateAction {
-  def props(requestName: Expression[String],
-            wsName: String,
-            statsEngine: StatsEngine,
-            next: ActorRef) =
+  def props(
+    requestName: Expression[String],
+    wsName:      String,
+    statsEngine: StatsEngine,
+    next:        ActorRef
+  ) =
     Props(new WsReconciliateAction(requestName, wsName, statsEngine, next))
 }
 
 class WsReconciliateAction(
   val requestName: Expression[String],
-  wsName: String,
-  statsEngine: StatsEngine,
-  val next: ActorRef)
+  wsName:          String,
+  statsEngine:     StatsEngine,
+  val next:        ActorRef
+)
     extends RequestAction(statsEngine)
     with WsAction {
 

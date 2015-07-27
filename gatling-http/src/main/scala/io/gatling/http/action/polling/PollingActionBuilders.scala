@@ -24,9 +24,11 @@ import io.gatling.http.request.builder.HttpRequestBuilder
 
 import akka.actor.ActorRef
 
-class PollingStartBuilder(pollerName: String,
-                          period: Expression[FiniteDuration],
-                          requestBuilder: HttpRequestBuilder) extends HttpActionBuilder {
+class PollingStartBuilder(
+  pollerName:     String,
+  period:         Expression[FiniteDuration],
+  requestBuilder: HttpRequestBuilder
+) extends HttpActionBuilder {
 
   override def build(ctx: ScenarioContext, next: ActorRef) = {
     import ctx._

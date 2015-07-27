@@ -65,9 +65,11 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     }
   }
 
-  def runScenario(sb: ScenarioBuilder,
-                  timeout: FiniteDuration = 10.seconds,
-                  protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity)(implicit configuration: GatlingConfiguration) = {
+  def runScenario(
+    sb:                 ScenarioBuilder,
+    timeout:            FiniteDuration                             = 10.seconds,
+    protocolCustomizer: HttpProtocolBuilder => HttpProtocolBuilder = identity
+  )(implicit configuration: GatlingConfiguration) = {
     // FIXME should initialize with this
     val protocols = Protocols(protocolCustomizer(httpProtocol))
     val coreComponents = CoreComponents(mock[ActorRef], mock[Throttler], mock[StatsEngine], mock[ActorRef])
@@ -76,9 +78,11 @@ abstract class HttpSpec extends AkkaSpec with BeforeAndAfter {
     expectMsgClass(timeout, classOf[Session])
   }
 
-  def sendResponse(content: String = "",
-                   status: HttpResponseStatus = HttpResponseStatus.OK,
-                   headers: Map[String, String] = Map.empty): ChannelProcessor = ctx => {
+  def sendResponse(
+    content: String              = "",
+    status:  HttpResponseStatus  = HttpResponseStatus.OK,
+    headers: Map[String, String] = Map.empty
+  ): ChannelProcessor = ctx => {
     val response = newResponse(status)
     if (content.nonEmpty) response.setContent(ChannelBuffers.copiedBuffer(content, StandardCharsets.UTF_8))
     headers.foreach { case (k, v) => response.headers().add(k, v) }

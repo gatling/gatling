@@ -52,7 +52,8 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, statsEngine: StatsEngine
     config.checks,
     config.responseTransformer,
     config.discardResponseChunks,
-    config.httpComponents.httpProtocol.responsePart.inferHtmlResources)
+    config.httpComponents.httpProtocol.responsePart.inferHtmlResources
+  )
   val requestName = httpRequestDef.requestName
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
@@ -62,7 +63,8 @@ class HttpRequestAction(httpRequestDef: HttpRequestDef, statsEngine: StatsEngine
         session,
         httpRequest,
         responseBuilderFactory,
-        next)
+        next
+      )
 
       HttpTx.start(tx, config.httpComponents)
     }

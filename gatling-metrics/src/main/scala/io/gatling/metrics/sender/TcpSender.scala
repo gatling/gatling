@@ -25,9 +25,10 @@ import io.gatling.metrics.message.GraphiteMetrics
 import akka.io.{ IO, Tcp }
 
 private[metrics] class TcpSender(
-    remote: InetSocketAddress,
-    maxRetries: Int,
-    retryWindow: FiniteDuration) extends MetricsSender with TcpSenderFSM {
+    remote:      InetSocketAddress,
+    maxRetries:  Int,
+    retryWindow: FiniteDuration
+) extends MetricsSender with TcpSenderFSM {
 
   import Tcp._
 

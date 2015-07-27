@@ -38,7 +38,8 @@ private[charts] object ChartsFiles {
 
   val CommonJsFiles = Seq(
     JQueryFile, BootstrapFile, GatlingJsFile,
-    MomentJsFile, MenuFile, AllSessionsFile, StatsJsFile)
+    MomentJsFile, MenuFile, AllSessionsFile, StatsJsFile
+  )
 
   def menuFile(runOn: String)(implicit configuration: GatlingConfiguration): Path = resultDirectory(runOn) / GatlingJsFolder / MenuFile
 

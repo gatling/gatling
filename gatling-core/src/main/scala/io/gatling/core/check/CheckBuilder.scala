@@ -24,9 +24,11 @@ trait FindCheckBuilder[C <: Check[R], R, P, X] {
   def find: ValidatorCheckBuilder[C, R, P, X]
 }
 
-class DefaultFindCheckBuilder[C <: Check[R], R, P, X](extender: Extender[C, R],
-                                                      preparer: Preparer[R, P],
-                                                      extractor: Expression[Extractor[P, X]])
+class DefaultFindCheckBuilder[C <: Check[R], R, P, X](
+  extender:  Extender[C, R],
+  preparer:  Preparer[R, P],
+  extractor: Expression[Extractor[P, X]]
+)
     extends FindCheckBuilder[C, R, P, X] {
 
   def find: ValidatorCheckBuilder[C, R, P, X] = ValidatorCheckBuilder(extender, preparer, extractor)
@@ -41,8 +43,10 @@ trait MultipleFindCheckBuilder[C <: Check[R], R, P, X] extends FindCheckBuilder[
   def count: ValidatorCheckBuilder[C, R, P, Int]
 }
 
-abstract class DefaultMultipleFindCheckBuilder[C <: Check[R], R, P, X](extender: Extender[C, R],
-                                                                       preparer: Preparer[R, P])
+abstract class DefaultMultipleFindCheckBuilder[C <: Check[R], R, P, X](
+  extender: Extender[C, R],
+  preparer: Preparer[R, P]
+)
     extends MultipleFindCheckBuilder[C, R, P, X] {
 
   def findExtractor(occurrence: Int): Expression[Extractor[P, X]]
@@ -66,9 +70,10 @@ object ValidatorCheckBuilder {
 }
 
 case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
-    extender: Extender[C, R],
-    preparer: Preparer[R, P],
-    extractor: Expression[Extractor[P, X]]) {
+    extender:  Extender[C, R],
+    preparer:  Preparer[R, P],
+    extractor: Expression[Extractor[P, X]]
+) {
 
   import ValidatorCheckBuilder._
 
@@ -130,8 +135,9 @@ case class ValidatorCheckBuilder[C <: Check[R], R, P, X](
 
 case class CheckBuilder[C <: Check[R], R, P, X](
     validatorCheckBuilder: ValidatorCheckBuilder[C, R, P, X],
-    validator: Expression[Validator[X]],
-    saveAs: Option[String] = None) {
+    validator:             Expression[Validator[X]],
+    saveAs:                Option[String]                    = None
+) {
 
   def build: C = {
     val base = CheckBase(validatorCheckBuilder.preparer, validatorCheckBuilder.extractor, validator, saveAs)

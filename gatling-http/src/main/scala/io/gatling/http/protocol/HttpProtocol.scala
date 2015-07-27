@@ -70,7 +70,8 @@ object HttpProtocol extends StrictLogging {
         shareDnsCache = false,
         maxConnectionsPerHost = 6,
         virtualHost = None,
-        localAddress = None),
+        localAddress = None
+      ),
       requestPart = HttpProtocolRequestPart(
         headers = Map.empty,
         realm = None,
@@ -79,7 +80,8 @@ object HttpProtocol extends StrictLogging {
         disableUrlEncoding = false,
         silentResources = false,
         silentURI = None,
-        signatureCalculator = None),
+        signatureCalculator = None
+      ),
       responsePart = HttpProtocolResponsePart(
         followRedirect = true,
         maxRedirects = None,
@@ -89,14 +91,18 @@ object HttpProtocol extends StrictLogging {
         checks = Nil,
         extraInfoExtractor = None,
         inferHtmlResources = false,
-        htmlResourcesInferringFilters = None),
+        htmlResourcesInferringFilters = None
+      ),
       wsPart = HttpProtocolWsPart(
         wsBaseURLs = Nil,
         reconnect = false,
-        maxReconnects = None),
+        maxReconnects = None
+      ),
       proxyPart = HttpProtocolProxyPart(
         proxies = None,
-        proxyExceptions = Nil))
+        proxyExceptions = Nil
+      )
+    )
 
   def baseUrlIterator(urls: List[Uri]): Iterator[Option[Uri]] =
     urls match {
@@ -118,13 +124,14 @@ object HttpProtocol extends StrictLogging {
  * @param proxyPart the Proxy related configuration
  */
 case class HttpProtocol(
-  baseURLs: List[Uri],
-  warmUpUrl: Option[String],
-  enginePart: HttpProtocolEnginePart,
-  requestPart: HttpProtocolRequestPart,
+  baseURLs:     List[Uri],
+  warmUpUrl:    Option[String],
+  enginePart:   HttpProtocolEnginePart,
+  requestPart:  HttpProtocolRequestPart,
   responsePart: HttpProtocolResponsePart,
-  wsPart: HttpProtocolWsPart,
-  proxyPart: HttpProtocolProxyPart)
+  wsPart:       HttpProtocolWsPart,
+  proxyPart:    HttpProtocolProxyPart
+)
     extends Protocol {
 
   type Components = HttpComponents
@@ -143,38 +150,42 @@ case class HttpProtocol(
 }
 
 case class HttpProtocolEnginePart(
-  shareClient: Boolean,
-  shareConnections: Boolean,
+  shareClient:           Boolean,
+  shareConnections:      Boolean,
   maxConnectionsPerHost: Int,
-  shareDnsCache: Boolean,
-  virtualHost: Option[Expression[String]],
-  localAddress: Option[Expression[InetAddress]])
+  shareDnsCache:         Boolean,
+  virtualHost:           Option[Expression[String]],
+  localAddress:          Option[Expression[InetAddress]]
+)
 
 case class HttpProtocolRequestPart(
-  headers: Map[String, Expression[String]],
-  realm: Option[Expression[Realm]],
-  autoReferer: Boolean,
-  cache: Boolean,
-  disableUrlEncoding: Boolean,
-  silentURI: Option[Pattern],
-  silentResources: Boolean,
-  signatureCalculator: Option[Expression[SignatureCalculator]])
+  headers:             Map[String, Expression[String]],
+  realm:               Option[Expression[Realm]],
+  autoReferer:         Boolean,
+  cache:               Boolean,
+  disableUrlEncoding:  Boolean,
+  silentURI:           Option[Pattern],
+  silentResources:     Boolean,
+  signatureCalculator: Option[Expression[SignatureCalculator]]
+)
 
 case class HttpProtocolResponsePart(
-  followRedirect: Boolean,
-  maxRedirects: Option[Int],
-  strict302Handling: Boolean,
-  discardResponseChunks: Boolean,
-  responseTransformer: Option[PartialFunction[Response, Response]],
-  checks: List[HttpCheck],
-  extraInfoExtractor: Option[ExtraInfoExtractor],
-  inferHtmlResources: Boolean,
-  htmlResourcesInferringFilters: Option[Filters])
+  followRedirect:                Boolean,
+  maxRedirects:                  Option[Int],
+  strict302Handling:             Boolean,
+  discardResponseChunks:         Boolean,
+  responseTransformer:           Option[PartialFunction[Response, Response]],
+  checks:                        List[HttpCheck],
+  extraInfoExtractor:            Option[ExtraInfoExtractor],
+  inferHtmlResources:            Boolean,
+  htmlResourcesInferringFilters: Option[Filters]
+)
 
 case class HttpProtocolWsPart(
-    wsBaseURLs: List[Uri],
-    reconnect: Boolean,
-    maxReconnects: Option[Int]) {
+    wsBaseURLs:    List[Uri],
+    reconnect:     Boolean,
+    maxReconnects: Option[Int]
+) {
 
   private val wsBaseUrlIterator = HttpProtocol.baseUrlIterator(wsBaseURLs)
   def wsBaseURL: Option[Uri] = wsBaseUrlIterator.next()
@@ -189,5 +200,6 @@ case class HttpProtocolWsPart(
 }
 
 case class HttpProtocolProxyPart(
-  proxies: Option[(ProxyServer, ProxyServer)],
-  proxyExceptions: Seq[String])
+  proxies:         Option[(ProxyServer, ProxyServer)],
+  proxyExceptions: Seq[String]
+)

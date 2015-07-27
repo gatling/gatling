@@ -97,13 +97,15 @@ object HttpTx extends ActorNames with StrictLogging {
     }
 }
 
-case class HttpTx(session: Session,
-                  request: HttpRequest,
-                  responseBuilderFactory: ResponseBuilderFactory,
-                  next: ActorRef,
-                  root: Boolean = true,
-                  redirectCount: Int = 0,
-                  update: Session => Session = Session.Identity) {
+case class HttpTx(
+  session:                Session,
+  request:                HttpRequest,
+  responseBuilderFactory: ResponseBuilderFactory,
+  next:                   ActorRef,
+  root:                   Boolean                = true,
+  redirectCount:          Int                    = 0,
+  update:                 Session => Session     = Session.Identity
+) {
 
   val silent: Boolean = HttpTx.silent(request, root)
 }

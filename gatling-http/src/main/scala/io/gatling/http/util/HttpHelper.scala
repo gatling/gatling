@@ -62,12 +62,14 @@ object HttpHelper extends StrictLogging {
   def buildNTLMAuthRealm(username: Expression[String], password: Expression[String], ntlmDomain: Expression[String], ntlmHost: Expression[String]) =
     buildRealm(username, password, AuthScheme.NTLM, preemptive = false, Some(ntlmDomain), Some(ntlmHost))
 
-  def buildRealm(username: Expression[String],
-                 password: Expression[String],
-                 authScheme: AuthScheme,
-                 preemptive: Boolean,
-                 ntlmDomain: Option[Expression[String]],
-                 ntlmHost: Option[Expression[String]]): Expression[Realm] =
+  def buildRealm(
+    username:   Expression[String],
+    password:   Expression[String],
+    authScheme: AuthScheme,
+    preemptive: Boolean,
+    ntlmDomain: Option[Expression[String]],
+    ntlmHost:   Option[Expression[String]]
+  ): Expression[Realm] =
     (session: Session) =>
       for {
         usernameValue <- username(session)

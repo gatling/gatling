@@ -36,4 +36,5 @@ class WsPlainCheckBuilder(extender: Extender[WsCheck, String])
   extends DefaultFindCheckBuilder[WsCheck, String, String, String](
     extender,
     PassThroughMessagePreparer,
-    WsPlainCheckBuilder.WsPlainExtractor)
+    WsPlainCheckBuilder.WsPlainExtractor
+  )

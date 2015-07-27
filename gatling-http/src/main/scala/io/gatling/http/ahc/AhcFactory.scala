@@ -87,10 +87,12 @@ private[gatling] class DefaultAhcFactory(system: ActorSystem, coreComponents: Co
   }
 
   private def newChannelPool(timer: Timer): ChannelPool = {
-    new DefaultChannelPool(ahcConfig.pooledConnectionIdleTimeout,
+    new DefaultChannelPool(
+      ahcConfig.pooledConnectionIdleTimeout,
       ahcConfig.connectionTTL,
       ahcConfig.allowPoolingSslConnections,
-      timer)
+      timer
+    )
   }
 
   private def newNettyConfig(nioThreadPool: ExecutorService, timer: Timer, channelPool: ChannelPool): NettyAsyncHttpProviderConfig = {

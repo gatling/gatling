@@ -90,5 +90,6 @@ class AdvancedSimulationStep03 extends Simulation {
 
   setUp(
     users.inject(rampUsers(10) over (10 seconds)),
-    admins.inject(rampUsers(2) over (10 seconds))).protocols(httpConf)
+    admins.inject(rampUsers(2) over (10 seconds))
+  ).protocols(httpConf)
 }

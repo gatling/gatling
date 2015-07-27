@@ -36,9 +36,11 @@ object WsJsonpJsonPathCheckBuilder {
     new WsJsonpJsonPathCheckBuilder[String](path, extender, jsonParsers) with WsJsonpJsonPathOfType
 }
 
-class WsJsonpJsonPathCheckBuilder[X: JsonFilter](private[ws] val path: Expression[String],
-                                                 private[ws] val extender: Extender[WsCheck, String],
-                                                 private[ws] val jsonParsers: JsonParsers)(implicit extractorFactory: JsonPathExtractorFactory)
+class WsJsonpJsonPathCheckBuilder[X: JsonFilter](
+  private[ws] val path:        Expression[String],
+  private[ws] val extender:    Extender[WsCheck, String],
+  private[ws] val jsonParsers: JsonParsers
+)(implicit extractorFactory: JsonPathExtractorFactory)
     extends DefaultMultipleFindCheckBuilder[WsCheck, String, Any, X](extender, WsJsonpJsonPathCheckBuilder.wsJsonpPreparer(jsonParsers)) {
 
   import extractorFactory._

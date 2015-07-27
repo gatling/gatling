@@ -20,5 +20,6 @@ import io.gatling.core.stats.reader.DataReader
 
 private[gatling] case class ReportsGenerationInputs(
   reportFolderName: String,
-  dataReader: DataReader,
-  assertionResults: List[AssertionResult])
+  dataReader:       DataReader,
+  assertionResults: List[AssertionResult]
+)

@@ -29,7 +29,8 @@ private[recorder] case object HttpsMode {
   val AllHttpsModes = List(
     SelfSignedCertificate,
     ProvidedKeyStore,
-    CertificateAuthority)
+    CertificateAuthority
+  )
 
   def apply(s: String): HttpsMode =
     AllHttpsModes.find(_.toString == s).getOrElse {

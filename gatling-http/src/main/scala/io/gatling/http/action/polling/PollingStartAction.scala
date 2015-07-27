@@ -30,20 +30,23 @@ import io.gatling.http.response.ResponseBuilder
 import io.gatling.http.request.HttpRequestDef
 
 object PollingStartAction {
-  def props(pollerName: String,
-            period: Expression[FiniteDuration],
-            requestDef: HttpRequestDef,
-            statsEngine: StatsEngine,
-            next: ActorRef)(implicit configuration: GatlingConfiguration): Props =
+  def props(
+    pollerName:  String,
+    period:      Expression[FiniteDuration],
+    requestDef:  HttpRequestDef,
+    statsEngine: StatsEngine,
+    next:        ActorRef
+  )(implicit configuration: GatlingConfiguration): Props =
     Props(new PollingStartAction(pollerName, period, requestDef, statsEngine, next))
 }
 
 class PollingStartAction(
-  pollerName: String,
-  period: Expression[FiniteDuration],
-  requestDef: HttpRequestDef,
+  pollerName:      String,
+  period:          Expression[FiniteDuration],
+  requestDef:      HttpRequestDef,
   val statsEngine: StatsEngine,
-  val next: ActorRef)(implicit configuration: GatlingConfiguration)
+  val next:        ActorRef
+)(implicit configuration: GatlingConfiguration)
     extends Interruptable
     with Failable
     with PollingAction {
@@ -56,7 +59,8 @@ class PollingStartAction(
       requestDef.config.checks,
       requestDef.config.responseTransformer,
       requestDef.config.discardResponseChunks,
-      httpComponents.httpProtocol.responsePart.inferHtmlResources)
+      httpComponents.httpProtocol.responsePart.inferHtmlResources
+    )
 
       def startPolling(period: FiniteDuration): Unit = {
         logger.info(s"Starting poller $pollerName")

@@ -42,7 +42,8 @@ object Check {
                     session = checkUpdate(session),
                     tail,
                     update = update andThen checkUpdate,
-                    failure)
+                    failure
+                  )
                 case _ =>
                   checkRec(session, tail, update, failure)
               }
@@ -66,10 +67,11 @@ trait Check[R] {
 }
 
 case class CheckBase[R, P, X](
-    preparer: Preparer[R, P],
+    preparer:            Preparer[R, P],
     extractorExpression: Expression[Extractor[P, X]],
     validatorExpression: Expression[Validator[X]],
-    saveAs: Option[String]) extends Check[R] {
+    saveAs:              Option[String]
+) extends Check[R] {
 
   def check(response: R, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] = {
 

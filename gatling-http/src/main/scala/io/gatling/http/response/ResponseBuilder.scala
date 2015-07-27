@@ -45,10 +45,12 @@ object ResponseBuilder extends StrictLogging {
 
   private val IsDebugEnabled = logger.underlying.isDebugEnabled
 
-  def newResponseBuilderFactory(checks: List[HttpCheck],
-                                responseTransformer: Option[PartialFunction[Response, Response]],
-                                discardResponseChunks: Boolean,
-                                inferHtmlResources: Boolean)(implicit configuration: GatlingConfiguration): ResponseBuilderFactory = {
+  def newResponseBuilderFactory(
+    checks:                List[HttpCheck],
+    responseTransformer:   Option[PartialFunction[Response, Response]],
+    discardResponseChunks: Boolean,
+    inferHtmlResources:    Boolean
+  )(implicit configuration: GatlingConfiguration): ResponseBuilderFactory = {
 
     val checksumChecks = checks.collect {
       case checksumCheck: ChecksumCheck => checksumCheck
@@ -65,17 +67,20 @@ object ResponseBuilder extends StrictLogging {
       responseTransformer,
       storeBodyParts,
       inferHtmlResources,
-      configuration.core.charset)
+      configuration.core.charset
+    )
   }
 }
 
-class ResponseBuilder(request: Request,
-                      checksumChecks: List[ChecksumCheck],
-                      bodyUsageStrategies: Set[ResponseBodyUsageStrategy],
-                      responseTransformer: Option[PartialFunction[Response, Response]],
-                      storeBodyParts: Boolean,
-                      inferHtmlResources: Boolean,
-                      charset: Charset) {
+class ResponseBuilder(
+  request:             Request,
+  checksumChecks:      List[ChecksumCheck],
+  bodyUsageStrategies: Set[ResponseBodyUsageStrategy],
+  responseTransformer: Option[PartialFunction[Response, Response]],
+  storeBodyParts:      Boolean,
+  inferHtmlResources:  Boolean,
+  charset:             Charset
+) {
 
   val computeChecksums = checksumChecks.nonEmpty
   var storeHtmlOrCss = false

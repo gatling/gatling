@@ -44,23 +44,28 @@ abstract class GraphitePathPattern(runMessage: RunMessage, configuration: Gatlin
 
   private def byProgress(metricsEntry: (GraphitePath, UserBreakdown)): Seq[(GraphitePath, Long)] = {
     val (path, usersBreakdown) = metricsEntry
-    Seq(activeUsers(path) -> usersBreakdown.active,
+    Seq(
+      activeUsers(path) -> usersBreakdown.active,
       waitingUsers(path) -> usersBreakdown.waiting,
-      doneUsers(path) -> usersBreakdown.done)
+      doneUsers(path) -> usersBreakdown.done
+    )
   }
 
   private def byStatus(metricsEntry: (GraphitePath, MetricByStatus)): Seq[(GraphitePath, Option[Metrics])] = {
     val (path, metricByStatus) = metricsEntry
-    Seq(okResponses(path) -> metricByStatus.ok,
+    Seq(
+      okResponses(path) -> metricByStatus.ok,
       koResponses(path) -> metricByStatus.ko,
-      allResponses(path) -> metricByStatus.all)
+      allResponses(path) -> metricByStatus.all
+    )
   }
 
   private def byMetric(metricsEntry: (GraphitePath, Option[Metrics])): Seq[(GraphitePath, Long)] =
     metricsEntry match {
       case (path, None) => Seq(count(path) -> 0)
       case (path, Some(m)) =>
-        Seq(count(path) -> m.count,
+        Seq(
+          count(path) -> m.count,
           min(path) -> m.min,
           max(path) -> m.max,
           mean(path) -> m.mean,
@@ -68,7 +73,8 @@ abstract class GraphitePathPattern(runMessage: RunMessage, configuration: Gatlin
           percentiles1(path) -> m.percentile1,
           percentiles2(path) -> m.percentile2,
           percentiles3(path) -> m.percentile3,
-          percentiles4(path) -> m.percentile4)
+          percentiles4(path) -> m.percentile4
+        )
     }
 
   protected def metricRootPath: GraphitePath

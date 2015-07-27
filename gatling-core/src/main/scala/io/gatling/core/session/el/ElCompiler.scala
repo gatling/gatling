@@ -175,7 +175,7 @@ object ElCompiler {
         val stringV = staticStr.asValidation[T]
         _ => stringV
 
-        case List(dynamicPart) => dynamicPart(_).flatMap(_.asValidation[T])
+      case List(dynamicPart) => dynamicPart(_).flatMap(_.asValidation[T])
 
       case parts =>
         (session: Session) => parts.foldLeft(stringBuilder.success) { (sb, part) =>

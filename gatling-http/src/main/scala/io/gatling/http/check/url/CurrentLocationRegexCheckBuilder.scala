@@ -43,7 +43,8 @@ object CurrentLocationRegexCheckBuilder {
 class CurrentLocationRegexCheckBuilder[X: GroupExtractor](private[url] val expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory)
     extends DefaultMultipleFindCheckBuilder[HttpCheck, Response, CharSequence, X](
       StringBodyExtender,
-      UrlStringPreparer) {
+      UrlStringPreparer
+    ) {
 
   import extractorFactory._
 

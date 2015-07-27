@@ -35,13 +35,15 @@ case class ErrorStats(message: String, count: Int, totalCount: Int) {
   def percentage = count * 100.0 / totalCount
 }
 case class PercentilesVsTimePlot(time: Int, percentiles: Option[Percentiles])
-case class Percentiles(percentile0: Int,
-                       percentile25: Int,
-                       percentile50: Int,
-                       percentile75: Int,
-                       percentile80: Int,
-                       percentile85: Int,
-                       percentile90: Int,
-                       percentile95: Int,
-                       percentile99: Int,
-                       percentile100: Int)
+case class Percentiles(
+  percentile0:   Int,
+  percentile25:  Int,
+  percentile50:  Int,
+  percentile75:  Int,
+  percentile80:  Int,
+  percentile85:  Int,
+  percentile90:  Int,
+  percentile95:  Int,
+  percentile99:  Int,
+  percentile100: Int
+)
