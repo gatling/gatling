@@ -84,14 +84,14 @@ object ZincCompiler extends App {
   def setupZincCompiler: Setup = {
       def jarMatching(classpath: Seq[JFile], regex: String): JFile =
         classpath
-          .find(url => regex.r.findFirstMatchIn(url.toString).isDefined)
+          .find(file => !file.getName.startsWith(".") && regex.r.findFirstMatchIn(file.getName).isDefined)
           .getOrElse(throw new RuntimeException(s"Can't find the jar matching $regex"))
 
-    val scalaCompiler = jarMatching(configuration.classpathElements, """(.*scala-compiler.*\.jar)$""")
-    val scalaLibrary = jarMatching(configuration.classpathElements, """(.*scala-library.*\.jar)$""")
-    val scalaReflect = jarMatching(configuration.classpathElements, """(.*scala-reflect.*\.jar)$""")
+    val scalaCompiler = jarMatching(configuration.classpathElements, """scala-compiler.*\.jar$""")
+    val scalaLibrary = jarMatching(configuration.classpathElements, """scala-library.*\.jar$""")
+    val scalaReflect = jarMatching(configuration.classpathElements, """scala-reflect.*\.jar$""")
     val sbtInterfaceSrc: JFile = new JFile(classOf[Compilation].getProtectionDomain.getCodeSource.getLocation.toURI)
-    val compilerInterfaceSrc: JFile = jarMatching(compilerClasspath, """(.*compiler-interface-.*-sources.jar)$""")
+    val compilerInterfaceSrc: JFile = jarMatching(compilerClasspath, """compiler-interface-.*-sources.jar$""")
 
     Setup.setup(scalaCompiler = scalaCompiler,
       scalaLibrary = scalaLibrary,
