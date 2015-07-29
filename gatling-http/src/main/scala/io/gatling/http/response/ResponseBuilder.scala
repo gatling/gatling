@@ -73,13 +73,13 @@ object ResponseBuilder extends StrictLogging {
 }
 
 class ResponseBuilder(
-  request:             Request,
-  checksumChecks:      List[ChecksumCheck],
-  bodyUsageStrategies: Set[ResponseBodyUsageStrategy],
-  responseTransformer: Option[PartialFunction[Response, Response]],
-  storeBodyParts:      Boolean,
-  inferHtmlResources:  Boolean,
-  charset:             Charset
+    request:             Request,
+    checksumChecks:      List[ChecksumCheck],
+    bodyUsageStrategies: Set[ResponseBodyUsageStrategy],
+    responseTransformer: Option[PartialFunction[Response, Response]],
+    storeBodyParts:      Boolean,
+    inferHtmlResources:  Boolean,
+    charset:             Charset
 ) {
 
   val computeChecksums = checksumChecks.nonEmpty

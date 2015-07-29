@@ -130,16 +130,16 @@ abstract class Simulation {
 }
 
 case class SimulationParams(
-  name:                String,
-  populationBuilders:  List[PopulationBuilder],
-  globalProtocols:     Protocols,
-  globalPauseType:     PauseType,
-  globalThrottling:    Option[Throttling],
-  scenarioThrottlings: Map[String, Throttling],
-  maxDuration:         Option[FiniteDuration],
-  assertions:          Seq[Assertion],
-  beforeSteps:         List[() => Unit],
-  afterSteps:          List[() => Unit]
+    name:                String,
+    populationBuilders:  List[PopulationBuilder],
+    globalProtocols:     Protocols,
+    globalPauseType:     PauseType,
+    globalThrottling:    Option[Throttling],
+    scenarioThrottlings: Map[String, Throttling],
+    maxDuration:         Option[FiniteDuration],
+    assertions:          Seq[Assertion],
+    beforeSteps:         List[() => Unit],
+    afterSteps:          List[() => Unit]
 ) {
 
   def scenarios(system: ActorSystem, coreComponents: CoreComponents)(implicit configuration: GatlingConfiguration): List[Scenario] = {

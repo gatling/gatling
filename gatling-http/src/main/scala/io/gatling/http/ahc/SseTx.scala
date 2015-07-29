@@ -38,16 +38,16 @@ object SseTx {
 }
 
 case class SseTx(
-  session:               Session,
-  request:               Request, // FIXME should it be a HttpRequest obj???
-  requestName:           String,
-  protocol:              HttpProtocol,
-  next:                  ActorRef,
-  start:                 Long,
-  reconnectCount:        Int                      = 0,
-  check:                 Option[WsCheck]          = None,
-  pendingCheckSuccesses: List[CheckResult]        = Nil,
-  updates:               List[Session => Session] = Nil
+    session:               Session,
+    request:               Request, // FIXME should it be a HttpRequest obj???
+    requestName:           String,
+    protocol:              HttpProtocol,
+    next:                  ActorRef,
+    start:                 Long,
+    reconnectCount:        Int                      = 0,
+    check:                 Option[WsCheck]          = None,
+    pendingCheckSuccesses: List[CheckResult]        = Nil,
+    updates:               List[Session => Session] = Nil
 ) {
 
   def applyUpdates(session: Session) = {

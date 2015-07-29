@@ -32,10 +32,10 @@ class AssertionValidatorSpec extends BaseSpec with AssertionSupport {
   private type StatsModifiers = List[Stats => Stats]
 
   private case class Stats(
-    generalStats: GeneralStats,
-    requestName:  String         = "",
-    groupPath:    List[String]   = Nil,
-    status:       Option[Status] = None
+      generalStats: GeneralStats,
+      requestName:  String         = "",
+      groupPath:    List[String]   = Nil,
+      status:       Option[Status] = None
   ) {
 
     def request = requestName.trimToOption

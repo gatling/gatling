@@ -43,10 +43,10 @@ class WsOpenActionBuilder(
 }
 
 class WsSendActionBuilder(
-  requestName:  Expression[String],
-  wsName:       String,
-  message:      Expression[WsMessage],
-  checkBuilder: Option[WsCheckBuilder] = None
+    requestName:  Expression[String],
+    wsName:       String,
+    message:      Expression[WsMessage],
+    checkBuilder: Option[WsCheckBuilder] = None
 ) extends HttpActionBuilder {
 
   def check(checkBuilder: WsCheckBuilder) = new WsSendActionBuilder(requestName, wsName, message, Some(checkBuilder))

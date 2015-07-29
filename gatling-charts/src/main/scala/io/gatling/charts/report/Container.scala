@@ -35,10 +35,10 @@ private[charts] object GroupContainer {
 }
 
 private[charts] case class GroupContainer(
-  name:     String,
-  stats:    RequestStatistics,
-  requests: mutable.Map[String, RequestContainer] = mutable.LinkedHashMap.empty,
-  groups:   mutable.Map[String, GroupContainer]   = mutable.LinkedHashMap.empty
+    name:     String,
+    stats:    RequestStatistics,
+    requests: mutable.Map[String, RequestContainer] = mutable.LinkedHashMap.empty,
+    groups:   mutable.Map[String, GroupContainer]   = mutable.LinkedHashMap.empty
 ) extends Container {
 
   private def findGroup(path: List[String]) = {

@@ -29,8 +29,8 @@ case class JmsRequestBuilderBase(requestName: String) {
 }
 
 case class JmsRequestBuilderQueue(
-  requestName: String,
-  factory:     JmsAttributes => ActionBuilder
+    requestName: String,
+    factory:     JmsAttributes => ActionBuilder
 ) {
 
   def queue(name: String) = destination(JmsQueue(name))
@@ -39,11 +39,11 @@ case class JmsRequestBuilderQueue(
 }
 
 case class JmsRequestBuilderMessage(
-  requestName:     String,
-  destination:     JmsDestination,
-  replyDest:       JmsDestination,
-  messageSelector: Option[String],
-  factory:         JmsAttributes => ActionBuilder
+    requestName:     String,
+    destination:     JmsDestination,
+    replyDest:       JmsDestination,
+    messageSelector: Option[String],
+    factory:         JmsAttributes => ActionBuilder
 ) {
   /**
    * Add a reply queue, if not specified dynamic queue is used

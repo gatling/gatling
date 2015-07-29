@@ -99,14 +99,14 @@ private[recorder] object RequestElement {
 }
 
 private[recorder] case class RequestElement(
-  uri:                  String,
-  method:               String,
-  headers:              Map[String, String],
-  body:                 Option[RequestBody],
-  responseBody:         Option[ResponseBody],
-  statusCode:           Int,
-  embeddedResources:    List[EmbeddedResource],
-  nonEmbeddedResources: List[RequestElement]   = Nil
+    uri:                  String,
+    method:               String,
+    headers:              Map[String, String],
+    body:                 Option[RequestBody],
+    responseBody:         Option[ResponseBody],
+    statusCode:           Int,
+    embeddedResources:    List[EmbeddedResource],
+    nonEmbeddedResources: List[RequestElement]   = Nil
 ) extends ScenarioElement {
 
   val (baseUrl, pathQuery) = {
