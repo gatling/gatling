@@ -209,6 +209,7 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
         val originalRequest = tx.request.ahcRequest
 
         val switchToGet = originalRequest.getMethod != "GET" && (statusCode == 303 || (statusCode == 302 && !tx.request.config.protocol.responsePart.strict302Handling))
+        val keepBody = statusCode == 307 || (statusCode == 302 && tx.request.config.protocol.responsePart.strict302Handling)
 
         val newMethod = if (switchToGet) "GET" else originalRequest.getMethod
 
@@ -221,6 +222,17 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           .setVirtualHost(originalRequest.getVirtualHost)
           .setProxyServer(originalRequest.getProxyServer)
           .setRealm(originalRequest.getRealm)
+
+        if (keepBody) {
+          requestBuilder.setBodyCharset(originalRequest.getBodyCharset)
+          if (originalRequest.getFormParams.nonEmpty)
+              requestBuilder.setFormParams(originalRequest.getFormParams)
+          Option(originalRequest.getStringData).foreach(requestBuilder.setBody)
+          Option(originalRequest.getByteData).foreach(requestBuilder.setBody)
+          Option(originalRequest.getByteBufferData).foreach(requestBuilder.setBody)
+          Option(originalRequest.getByteBufferData).foreach(requestBuilder.setBody)
+          Option(originalRequest.getBodyGenerator).foreach(requestBuilder.setBody)
+        }
 
         val originalHeaders = originalRequest.getHeaders
         originalHeaders.remove(HeaderNames.Host)
