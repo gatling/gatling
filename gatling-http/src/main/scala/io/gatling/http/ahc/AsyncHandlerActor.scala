@@ -16,6 +16,7 @@
 package io.gatling.http.ahc
 
 import scala.util.control.NonFatal
+import scala.collection.JavaConversions._
 
 import io.gatling.core.akka.BaseActor
 import io.gatling.core.check.Check
@@ -203,6 +204,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
           .delete(HeaderNames.ContentType)
 
         val switchToGet = originalMethod != "GET" && (statusCode == 303 || (statusCode == 302 && !httpProtocol.responsePart.strict302Handling))
+        val keepBody = statusCode == 307 || (statusCode == 302 && httpProtocol.responsePart.strict302Handling)
 
         val requestBuilder = new RequestBuilder(if (switchToGet) "GET" else originalMethod)
           .setUri(redirectUri)
@@ -214,6 +216,17 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
           .setProxyServer(originalRequest.getProxyServer)
           .setRealm(originalRequest.getRealm)
           .setHeaders(newHeaders)
+
+        if (keepBody) {
+          requestBuilder.setBodyCharset(originalRequest.getBodyCharset)
+          if (originalRequest.getFormParams.nonEmpty)
+            requestBuilder.setFormParams(originalRequest.getFormParams)
+          Option(originalRequest.getStringData).foreach(requestBuilder.setBody)
+          Option(originalRequest.getByteData).foreach(requestBuilder.setBody)
+          Option(originalRequest.getByteBufferData).foreach(requestBuilder.setBody)
+          Option(originalRequest.getByteBufferData).foreach(requestBuilder.setBody)
+          Option(originalRequest.getBodyGenerator).foreach(requestBuilder.setBody)
+        }
 
         for (cookie <- CookieSupport.getStoredCookies(sessionWithUpdatedCookies, redirectUri))
           requestBuilder.addCookie(cookie)
