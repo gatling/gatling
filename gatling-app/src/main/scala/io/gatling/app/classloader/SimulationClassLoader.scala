@@ -56,5 +56,4 @@ private[app] class SimulationClassLoader(classLoader: ClassLoader, binaryDir: Pa
       .deepFiles
       .collect { case file if file.hasExtension("class") => classLoader.loadClass(pathToClassName(file, binaryDir)) }
       .collect { case clazz if isSimulationClass(clazz) => clazz.asInstanceOf[Class[Simulation]] }
-      .toList
 }
