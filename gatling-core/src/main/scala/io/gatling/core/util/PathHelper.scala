@@ -105,14 +105,10 @@ object PathHelper {
       else Nil
     }
 
-    private def onlyFiles(paths: List[Path]) = paths.filter(_.isFile)
+    def deepFiles = deepList().filter(_.isFile)
 
-    private def onlyDirs(paths: List[Path]) = paths.filter(_.isDirectory)
+    def deepDirs = deepList().filter(_.isDirectory)
 
-    def deepFiles = onlyFiles(deepList())
-
-    def deepDirs = onlyDirs(deepList())
-
-    def files = onlyFiles(deepList(maxDepth = 1))
+    def files = deepList(maxDepth = 1).filter(_.isFile)
   }
 }
