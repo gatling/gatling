@@ -100,7 +100,9 @@ object PathHelper {
           else deepListAux(toVisit.head, toVisit.tail, acc ++ entries, maxDepth - 1)
         }
 
-      deepListAux(path, Nil, Nil, maxDepth)
+      if (path.exists)
+        deepListAux(path, Nil, Nil, maxDepth)
+      else Nil
     }
 
     private def onlyFiles(paths: List[Path]) = paths.filter(_.isFile)
