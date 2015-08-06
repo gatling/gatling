@@ -15,6 +15,8 @@
  */
 package io.gatling.http.ahc
 
+import scala.collection.JavaConversions._
+
 import com.ning.http.client.{ Request, RequestBuilder }
 import com.ning.http.client.uri.Uri
 import com.ning.http.util.StringUtils.stringBuilder
@@ -224,13 +226,12 @@ class AsyncHandlerActor extends BaseActor with DataWriterClient {
           .setRealm(originalRequest.getRealm)
 
         if (keepBody) {
-          requestBuilder.setBodyCharset(originalRequest.getBodyCharset)
+          requestBuilder.setBodyEncoding(originalRequest.getBodyEncoding)
           if (originalRequest.getFormParams.nonEmpty)
-              requestBuilder.setFormParams(originalRequest.getFormParams)
+            requestBuilder.setFormParams(originalRequest.getFormParams)
           Option(originalRequest.getStringData).foreach(requestBuilder.setBody)
           Option(originalRequest.getByteData).foreach(requestBuilder.setBody)
-          Option(originalRequest.getByteBufferData).foreach(requestBuilder.setBody)
-          Option(originalRequest.getByteBufferData).foreach(requestBuilder.setBody)
+          Option(originalRequest.getCompositeByteData).foreach(requestBuilder.setBody)
           Option(originalRequest.getBodyGenerator).foreach(requestBuilder.setBody)
         }
 
