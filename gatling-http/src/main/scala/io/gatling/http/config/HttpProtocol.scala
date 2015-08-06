@@ -173,9 +173,12 @@ case class HttpProtocol(
     val (_, ahc) = HttpEngine.instance.httpClient(session, this)
     ahc.getProvider.asInstanceOf[NettyAsyncHttpProvider].flushChannelPoolPartitions(new ChannelPoolPartitionSelector() {
 
-      val userBase = ChannelPoolPartitioning.partitionIdUserBase(session)
+      val userId = session.userId
 
-      override def select(partitionId: Object): Boolean = partitionId.asInstanceOf[String].startsWith(userBase)
+      override def select(partitionId: Object): Boolean = partitionId match {
+        case (`userId`, _) => true
+        case _             => false
+      }
     })
   }
 }

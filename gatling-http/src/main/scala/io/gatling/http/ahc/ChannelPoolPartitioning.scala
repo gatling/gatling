@@ -15,17 +15,13 @@
  */
 package io.gatling.http.ahc
 
-import com.ning.http.client.{ ConnectionPoolPartitioning, ProxyServer }
-import com.ning.http.client.uri.Uri
 import io.gatling.core.session.Session
 
-object ChannelPoolPartitioning {
-
-  def partitionIdUserBase(session: Session) = session.userId + '|'
-}
+import com.ning.http.client.{ ConnectionPoolPartitioning, ProxyServer }
+import com.ning.http.client.uri.Uri
 
 class ChannelPoolPartitioning(session: Session) extends ConnectionPoolPartitioning {
 
-  def getPartitionKey(uri: Uri, proxyServer: ProxyServer): String =
-    ChannelPoolPartitioning.partitionIdUserBase(session) + ConnectionPoolPartitioning.PerHostConnectionPoolPartitioning.INSTANCE.getPartitionKey(uri, proxyServer)
+  def getPartitionKey(uri: Uri, proxyServer: ProxyServer): (String, Any) =
+    (session.userId, ConnectionPoolPartitioning.PerHostConnectionPoolPartitioning.INSTANCE.getPartitionKey(uri, proxyServer))
 }
