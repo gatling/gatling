@@ -16,8 +16,8 @@
 package io.gatling.http.request.builder.sse
 
 import io.gatling.core.session.{ SessionPrivateAttributes, Expression }
-import io.gatling.http.action.sse._
-import io.gatling.http.action.ws.WsSetCheckActionBuilder
+import io.gatling.http.action.async.sse._
+import io.gatling.http.action.async.ws.WsSetCheckActionBuilder
 import io.gatling.http.check.ws._
 
 object Sse {

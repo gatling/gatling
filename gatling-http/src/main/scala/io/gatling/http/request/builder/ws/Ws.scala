@@ -16,7 +16,7 @@
 package io.gatling.http.request.builder.ws
 
 import io.gatling.core.session.{ Expression, SessionPrivateAttributes }
-import io.gatling.http.action.ws._
+import io.gatling.http.action.async.ws._
 import io.gatling.http.check.ws._
 import io.gatling.http.request.builder.CommonAttributes
 

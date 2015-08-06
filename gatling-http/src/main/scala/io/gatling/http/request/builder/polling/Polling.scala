@@ -18,7 +18,7 @@ package io.gatling.http.request.builder.polling
 import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.session._
-import io.gatling.http.action.polling.{ PollingStartBuilder, PollingStopBuilder }
+import io.gatling.http.action.async.polling.{ PollingStartBuilder, PollingStopBuilder }
 import io.gatling.http.request.builder.HttpRequestBuilder
 
 object Polling {

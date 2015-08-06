@@ -17,7 +17,7 @@ package io.gatling.http.ahc
 
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
-import io.gatling.http.action.ws.WsListener
+import io.gatling.http.action.async.ws.WsListener
 import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.protocol.HttpProtocol
 

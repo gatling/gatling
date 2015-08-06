@@ -16,7 +16,7 @@
 package io.gatling.http.request.builder.ws
 
 import io.gatling.core.session.Expression
-import io.gatling.http.action.ws.WsOpenActionBuilder
+import io.gatling.http.action.async.ws.WsOpenActionBuilder
 import io.gatling.http.protocol.HttpComponents
 import io.gatling.http.request.builder.{ RequestBuilder, CommonAttributes }
 
