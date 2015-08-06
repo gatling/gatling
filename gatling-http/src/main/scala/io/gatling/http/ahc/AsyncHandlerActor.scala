@@ -223,7 +223,7 @@ class AsyncHandlerActor(statsEngine: StatsEngine, httpEngine: HttpEngine)(implic
             requestBuilder.setFormParams(originalRequest.getFormParams)
           Option(originalRequest.getStringData).foreach(requestBuilder.setBody)
           Option(originalRequest.getByteData).foreach(requestBuilder.setBody)
-          Option(originalRequest.getByteBufferData).foreach(requestBuilder.setBody)
+          Option(originalRequest.getCompositeByteData).foreach(requestBuilder.setBody)
           Option(originalRequest.getByteBufferData).foreach(requestBuilder.setBody)
           Option(originalRequest.getBodyGenerator).foreach(requestBuilder.setBody)
         }
