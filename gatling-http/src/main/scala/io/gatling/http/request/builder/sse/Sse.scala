@@ -17,7 +17,6 @@ package io.gatling.http.request.builder.sse
 
 import io.gatling.core.session.{ SessionPrivateAttributes, Expression }
 import io.gatling.http.action.async.sse._
-import io.gatling.http.action.async.ws.WsSetCheckActionBuilder
 import io.gatling.http.check.ws._
 
 object Sse {
@@ -28,7 +27,7 @@ class Sse(requestName: Expression[String], sseName: String = Sse.DefaultSseName)
 
   def sseName(sseName: String) = new Sse(requestName, sseName)
   def open(url: Expression[String]) = SseOpenRequestBuilder(requestName, url, sseName)
-  def check(checkBuilder: WsCheckBuilder) = new WsSetCheckActionBuilder(requestName, checkBuilder, sseName)
+  def check(checkBuilder: WsCheckBuilder) = new SseSetCheckActionBuilder(requestName, checkBuilder, sseName)
   def cancelCheck = new SseCancelCheckActionBuilder(requestName, sseName)
   def reconciliate() = new SseReconciliateActionBuilder(requestName, sseName)
   def close() = new SseCloseActionBuilder(requestName, sseName)
