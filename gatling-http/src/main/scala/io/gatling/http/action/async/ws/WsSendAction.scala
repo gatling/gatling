@@ -20,14 +20,14 @@ import io.gatling.core.stats.StatsEngine
 import akka.actor.{ Props, ActorRef }
 import io.gatling.core.session.{ Expression, Session }
 import io.gatling.http.action.RequestAction
-import io.gatling.http.check.ws._
+import io.gatling.http.check.async.AsyncCheckBuilder
 
 object WsSendAction {
   def props(
     requestName:  Expression[String],
     wsName:       String,
     message:      Expression[WsMessage],
-    checkBuilder: Option[WsCheckBuilder],
+    checkBuilder: Option[AsyncCheckBuilder],
     statsEngine:  StatsEngine,
     next:         ActorRef
   ) =
@@ -38,7 +38,7 @@ class WsSendAction(
   val requestName: Expression[String],
   wsName:          String,
   message:         Expression[WsMessage],
-  checkBuilder:    Option[WsCheckBuilder],
+  checkBuilder:    Option[AsyncCheckBuilder],
   statsEngine:     StatsEngine,
   val next:        ActorRef
 )

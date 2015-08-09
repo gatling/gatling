@@ -28,7 +28,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.ws
+package io.gatling.http.check.async
 
 import io.gatling.core.check.extractor.jsonpath.JsonPathExtractorFactory
 import io.gatling.core.check.extractor.regex.RegexExtractorFactory
@@ -38,42 +38,38 @@ import scala.concurrent.duration.FiniteDuration
 
 import io.gatling.core.session.Expression
 
-trait WsCheckSupport extends WsCheckDSL {
+trait AsyncCheckSupport extends AsyncCheckDSL {
 
-  implicit def wsDSLStep42Check(step: Step4): WsCheckBuilder = step.message.find.exists
+  implicit def asyncDSLStep4To2Check(step: Step4): AsyncCheckBuilder = step.message.find.exists
 }
 
-trait WsCheckDSL {
+trait AsyncCheckDSL {
 
+  // TODO: rename those !
   val wsListen = new Step2(false)
-
   val wsAwait = new Step2(true)
 
   class Step2(await: Boolean) {
-
     def within(timeout: FiniteDuration) = new Step3(await, timeout)
   }
 
   class Step3(await: Boolean, timeout: FiniteDuration) {
-
     def until(count: Int) = new Step4(await, timeout, UntilCount(count))
-
     def expect(count: Int) = new Step4(await, timeout, ExpectedCount(count))
-
     def expect(range: Range) = new Step4(await, timeout, ExpectedRange(range))
   }
 
   class Step4(await: Boolean, timeout: FiniteDuration, expectation: Expectation) {
 
     def regex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory) =
-      WsRegexCheckBuilder.regex(expression, WsCheckBuilders.extender(await, timeout, expectation))
+      AsyncRegexCheckBuilder.regex(expression, AsyncCheckBuilders.extender(await, timeout, expectation))
 
     def jsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
-      WsJsonPathCheckBuilder.jsonPath(path, WsCheckBuilders.extender(await, timeout, expectation))
+      AsyncJsonPathCheckBuilder.jsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation))
 
     def jsonpJsonPath(path: Expression[String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
-      WsJsonpJsonPathCheckBuilder.jsonpJsonPath(path, WsCheckBuilders.extender(await, timeout, expectation))
+      AsyncJsonpJsonPathCheckBuilder.jsonpJsonPath(path, AsyncCheckBuilders.extender(await, timeout, expectation))
 
-    val message = WsPlainCheckBuilder.message(WsCheckBuilders.extender(await, timeout, expectation))
+    val message = AsyncPlainCheckBuilder.message(AsyncCheckBuilders.extender(await, timeout, expectation))
   }
 }

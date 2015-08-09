@@ -26,7 +26,7 @@ import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Success
 import io.gatling.http.action.async.AsyncTx
 import io.gatling.http.ahc.HttpEngine
-import io.gatling.http.check.ws.{ ExpectedRange, UntilCount, ExpectedCount, WsCheck }
+import io.gatling.http.check.async._
 
 import akka.actor.{ Props, ActorRef }
 import org.asynchttpclient.ws.WebSocket
@@ -50,7 +50,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
     }
   }
 
-  def setCheck(tx: AsyncTx, webSocket: WebSocket, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
+  def setCheck(tx: AsyncTx, webSocket: WebSocket, requestName: String, check: AsyncCheck, next: ActorRef, session: Session): Unit = {
 
     logger.debug(s"setCheck blocking=${check.blocking} timeout=${check.timeout}")
 

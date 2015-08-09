@@ -19,16 +19,16 @@ import io.gatling.core.session._
 import io.gatling.core.validation.Validation
 import io.gatling.core.stats.StatsEngine
 import io.gatling.http.action.RequestAction
-import io.gatling.http.check.ws._
+import io.gatling.http.check.async.AsyncCheckBuilder
 
 import akka.actor.{ Props, ActorRef }
 
 object SseSetCheckAction {
-  def props(requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String, statsEngine: StatsEngine, next: ActorRef) =
+  def props(requestName: Expression[String], checkBuilder: AsyncCheckBuilder, sseName: String, statsEngine: StatsEngine, next: ActorRef) =
     Props(new SseSetCheckAction(requestName, checkBuilder, sseName, statsEngine, next))
 }
 
-class SseSetCheckAction(val requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String, statsEngine: StatsEngine, val next: ActorRef)
+class SseSetCheckAction(val requestName: Expression[String], checkBuilder: AsyncCheckBuilder, sseName: String, statsEngine: StatsEngine, val next: ActorRef)
     extends RequestAction(statsEngine) with SseAction {
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =

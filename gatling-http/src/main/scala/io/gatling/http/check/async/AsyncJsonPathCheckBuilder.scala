@@ -13,31 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.ws
+package io.gatling.http.check.async
 
 import io.gatling.core.check.{ DefaultMultipleFindCheckBuilder, Extender }
 import io.gatling.core.json.JsonParsers
 import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.core.session.Expression
 
-trait WsJsonPathOfType {
-  self: WsJsonPathCheckBuilder[String] =>
+trait AsyncJsonPathOfType {
+  self: AsyncJsonPathCheckBuilder[String] =>
 
-  def ofType[X: JsonFilter](implicit extractorFactory: JsonPathExtractorFactory) = new WsJsonPathCheckBuilder[X](path, extender, jsonParsers)
+  def ofType[X: JsonFilter](implicit extractorFactory: JsonPathExtractorFactory) = new AsyncJsonPathCheckBuilder[X](path, extender, jsonParsers)
 }
 
-object WsJsonPathCheckBuilder {
+object AsyncJsonPathCheckBuilder {
 
-  def jsonPath(path: Expression[String], extender: Extender[WsCheck, String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
-    new WsJsonPathCheckBuilder[String](path, extender, jsonParsers) with WsJsonPathOfType
+  def jsonPath(path: Expression[String], extender: Extender[AsyncCheck, String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+    new AsyncJsonPathCheckBuilder[String](path, extender, jsonParsers) with AsyncJsonPathOfType
 }
 
-class WsJsonPathCheckBuilder[X: JsonFilter](
-  private[ws] val path:        Expression[String],
-  private[ws] val extender:    Extender[WsCheck, String],
-  private[ws] val jsonParsers: JsonParsers
+class AsyncJsonPathCheckBuilder[X: JsonFilter](
+  private[async] val path:        Expression[String],
+  private[async] val extender:    Extender[AsyncCheck, String],
+  private[async] val jsonParsers: JsonParsers
 )(implicit extractorFactory: JsonPathExtractorFactory)
-    extends DefaultMultipleFindCheckBuilder[WsCheck, String, Any, X](
+    extends DefaultMultipleFindCheckBuilder[AsyncCheck, String, Any, X](
       extender,
       jsonParsers.safeParse
     ) {

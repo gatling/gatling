@@ -21,7 +21,7 @@ import io.gatling.core.session._
 import io.gatling.core.stats.message.KO
 import io.gatling.http.action.sync._
 import io.gatling.http.check.HttpCheckSupport
-import io.gatling.http.check.ws.WsCheckSupport
+import io.gatling.http.check.async.AsyncCheckSupport
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.feeder.SitemapFeederSupport
 import io.gatling.http.protocol.{ HttpProtocolBuilder, HttpProxyBuilder }
@@ -31,7 +31,7 @@ import io.gatling.http.request.builder.polling.Polling
 import io.gatling.http.request.builder.sse.Sse
 import io.gatling.http.request.builder.ws.Ws
 
-trait HttpDsl extends HttpCheckSupport with WsCheckSupport with SitemapFeederSupport {
+trait HttpDsl extends HttpCheckSupport with AsyncCheckSupport with SitemapFeederSupport {
 
   def http(implicit configuration: GatlingConfiguration) = HttpProtocolBuilder(configuration)
 

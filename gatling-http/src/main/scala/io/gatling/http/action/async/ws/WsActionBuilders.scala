@@ -18,7 +18,7 @@ package io.gatling.http.action.async.ws
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
-import io.gatling.http.check.ws._
+import io.gatling.http.check.async.AsyncCheckBuilder
 import io.gatling.http.request.builder.ws.WsOpenRequestBuilder
 
 import akka.actor.ActorRef
@@ -27,11 +27,11 @@ class WsOpenActionBuilder(
   requestName:    Expression[String],
   wsName:         String,
   requestBuilder: WsOpenRequestBuilder,
-  checkBuilder:   Option[WsCheckBuilder] = None
+  checkBuilder:   Option[AsyncCheckBuilder] = None
 )
     extends HttpActionBuilder {
 
-  def check(checkBuilder: WsCheckBuilder) = new WsOpenActionBuilder(requestName, wsName, requestBuilder, Some(checkBuilder))
+  def check(checkBuilder: AsyncCheckBuilder) = new WsOpenActionBuilder(requestName, wsName, requestBuilder, Some(checkBuilder))
 
   override def build(ctx: ScenarioContext, next: ActorRef) = {
     import ctx._
@@ -46,16 +46,16 @@ class WsSendActionBuilder(
     requestName:  Expression[String],
     wsName:       String,
     message:      Expression[WsMessage],
-    checkBuilder: Option[WsCheckBuilder] = None
+    checkBuilder: Option[AsyncCheckBuilder] = None
 ) extends HttpActionBuilder {
 
-  def check(checkBuilder: WsCheckBuilder) = new WsSendActionBuilder(requestName, wsName, message, Some(checkBuilder))
+  def check(checkBuilder: AsyncCheckBuilder) = new WsSendActionBuilder(requestName, wsName, message, Some(checkBuilder))
 
   override def build(ctx: ScenarioContext, next: ActorRef) =
     ctx.system.actorOf(WsSendAction.props(requestName, wsName, message, checkBuilder, ctx.coreComponents.statsEngine, next), actorName("wsSend"))
 }
 
-class WsSetCheckActionBuilder(requestName: Expression[String], checkBuilder: WsCheckBuilder, wsName: String) extends HttpActionBuilder {
+class WsSetCheckActionBuilder(requestName: Expression[String], checkBuilder: AsyncCheckBuilder, wsName: String) extends HttpActionBuilder {
 
   override def build(ctx: ScenarioContext, next: ActorRef) =
     ctx.system.actorOf(WsSetCheckAction.props(requestName, checkBuilder, wsName, ctx.coreComponents.statsEngine, next), actorName("wsSetCheck"))

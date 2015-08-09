@@ -19,13 +19,13 @@ import io.gatling.core.stats.StatsEngine
 
 import akka.actor.{ Props, ActorRef }
 import io.gatling.core.session._
-import io.gatling.http.check.ws._
+import io.gatling.http.check.async.AsyncCheckBuilder
 import io.gatling.http.action.RequestAction
 
 object WsSetCheckAction {
   def props(
     requestName:  Expression[String],
-    checkBuilder: WsCheckBuilder,
+    checkBuilder: AsyncCheckBuilder,
     wsName:       String,
     statsEngine:  StatsEngine,
     next:         ActorRef
@@ -35,7 +35,7 @@ object WsSetCheckAction {
 
 class WsSetCheckAction(
   val requestName: Expression[String],
-  checkBuilder:    WsCheckBuilder,
+  checkBuilder:    AsyncCheckBuilder,
   wsName:          String,
   statsEngine:     StatsEngine,
   val next:        ActorRef

@@ -21,7 +21,7 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
 import io.gatling.http.action.async.AsyncTx
-import io.gatling.http.check.ws._
+import io.gatling.http.check.async.AsyncCheckBuilder
 import io.gatling.http.protocol.HttpComponents
 
 import akka.actor.{ Props, ActorRef }
@@ -33,7 +33,7 @@ object SseOpenAction {
     requestName:    Expression[String],
     sseName:        String,
     request:        Expression[Request],
-    checkBuilder:   Option[WsCheckBuilder],
+    checkBuilder:   Option[AsyncCheckBuilder],
     statsEngine:    StatsEngine,
     httpComponents: HttpComponents,
     next:           ActorRef
@@ -45,7 +45,7 @@ class SseOpenAction(
     requestName:     Expression[String],
     sseName:         String,
     request:         Expression[Request],
-    checkBuilder:    Option[WsCheckBuilder],
+    checkBuilder:    Option[AsyncCheckBuilder],
     val statsEngine: StatsEngine,
     httpComponents:  HttpComponents,
     val next:        ActorRef

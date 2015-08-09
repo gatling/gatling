@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.ws
+package io.gatling.http.check.async
 
 import io.gatling.core.check.extractor.jsonpath._
 import io.gatling.core.check.{ Extender, DefaultMultipleFindCheckBuilder, Preparer }
@@ -21,27 +21,27 @@ import io.gatling.core.json.JsonParsers
 import io.gatling.core.session.Expression
 import io.gatling.http.check.body.HttpBodyJsonpJsonPathCheckBuilder
 
-trait WsJsonpJsonPathOfType {
-  self: WsJsonpJsonPathCheckBuilder[String] =>
+trait AsyncJsonpJsonPathOfType {
+  self: AsyncJsonpJsonPathCheckBuilder[String] =>
 
   def ofType[X: JsonFilter](implicit extractorFactory: JsonPathExtractorFactory) =
-    new WsJsonpJsonPathCheckBuilder[X](path, extender, jsonParsers)
+    new AsyncJsonpJsonPathCheckBuilder[X](path, extender, jsonParsers)
 }
 
-object WsJsonpJsonPathCheckBuilder {
+object AsyncJsonpJsonPathCheckBuilder {
 
-  def wsJsonpPreparer(jsonParsers: JsonParsers): Preparer[String, Any] = HttpBodyJsonpJsonPathCheckBuilder.parseJsonpString(_, jsonParsers)
+  def asyncJsonpPreparer(jsonParsers: JsonParsers): Preparer[String, Any] = HttpBodyJsonpJsonPathCheckBuilder.parseJsonpString(_, jsonParsers)
 
-  def jsonpJsonPath(path: Expression[String], extender: Extender[WsCheck, String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
-    new WsJsonpJsonPathCheckBuilder[String](path, extender, jsonParsers) with WsJsonpJsonPathOfType
+  def jsonpJsonPath(path: Expression[String], extender: Extender[AsyncCheck, String])(implicit extractorFactory: JsonPathExtractorFactory, jsonParsers: JsonParsers) =
+    new AsyncJsonpJsonPathCheckBuilder[String](path, extender, jsonParsers) with AsyncJsonpJsonPathOfType
 }
 
-class WsJsonpJsonPathCheckBuilder[X: JsonFilter](
-  private[ws] val path:        Expression[String],
-  private[ws] val extender:    Extender[WsCheck, String],
-  private[ws] val jsonParsers: JsonParsers
+class AsyncJsonpJsonPathCheckBuilder[X: JsonFilter](
+  private[async] val path:        Expression[String],
+  private[async] val extender:    Extender[AsyncCheck, String],
+  private[async] val jsonParsers: JsonParsers
 )(implicit extractorFactory: JsonPathExtractorFactory)
-    extends DefaultMultipleFindCheckBuilder[WsCheck, String, Any, X](extender, WsJsonpJsonPathCheckBuilder.wsJsonpPreparer(jsonParsers)) {
+    extends DefaultMultipleFindCheckBuilder[AsyncCheck, String, Any, X](extender, AsyncJsonpJsonPathCheckBuilder.asyncJsonpPreparer(jsonParsers)) {
 
   import extractorFactory._
 

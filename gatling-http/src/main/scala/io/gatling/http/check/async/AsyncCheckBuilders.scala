@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check
+package io.gatling.http.check.async
 
-import io.gatling.core.check.CheckBuilder
+import io.gatling.core.check.{ Extender, Preparer }
+import io.gatling.core.validation.SuccessWrapper
+import scala.concurrent.duration.FiniteDuration
 
-package object ws {
+object AsyncCheckBuilders {
 
-  type WsCheckBuilder = CheckBuilder[WsCheck, String, _, String]
+  def extender(await: Boolean, timeout: FiniteDuration, expectation: Expectation): Extender[AsyncCheck, String] =
+    wrapped => new AsyncCheck(wrapped, await, timeout, expectation)
+
+  val PassThroughMessagePreparer: Preparer[String, String] = (r: String) => r.success
 }

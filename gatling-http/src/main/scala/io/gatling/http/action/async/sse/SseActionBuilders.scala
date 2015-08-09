@@ -18,7 +18,7 @@ package io.gatling.http.action.async.sse
 import io.gatling.core.session.Expression
 import io.gatling.core.structure.ScenarioContext
 import io.gatling.http.action.HttpActionBuilder
-import io.gatling.http.check.ws.WsCheckBuilder
+import io.gatling.http.check.async.AsyncCheckBuilder
 import io.gatling.http.request.builder.sse.SseOpenRequestBuilder
 
 import akka.actor.ActorRef
@@ -27,10 +27,10 @@ class SseOpenActionBuilder(
     requestName:    Expression[String],
     sseName:        String,
     requestBuilder: SseOpenRequestBuilder,
-    checkBuilder:   Option[WsCheckBuilder] = None
+    checkBuilder:   Option[AsyncCheckBuilder] = None
 ) extends HttpActionBuilder {
 
-  def check(checkBuilder: WsCheckBuilder) = new SseOpenActionBuilder(requestName, sseName, requestBuilder, Some(checkBuilder))
+  def check(checkBuilder: AsyncCheckBuilder) = new SseOpenActionBuilder(requestName, sseName, requestBuilder, Some(checkBuilder))
 
   override def build(ctx: ScenarioContext, next: ActorRef): ActorRef = {
     import ctx._
@@ -41,7 +41,7 @@ class SseOpenActionBuilder(
   }
 }
 
-class SseSetCheckActionBuilder(requestName: Expression[String], checkBuilder: WsCheckBuilder, sseName: String) extends HttpActionBuilder {
+class SseSetCheckActionBuilder(requestName: Expression[String], checkBuilder: AsyncCheckBuilder, sseName: String) extends HttpActionBuilder {
 
   def build(ctx: ScenarioContext, next: ActorRef): ActorRef =
     ctx.system.actorOf(SseSetCheckAction.props(requestName, checkBuilder, sseName, ctx.coreComponents.statsEngine, next), actorName("sseSetCheck"))

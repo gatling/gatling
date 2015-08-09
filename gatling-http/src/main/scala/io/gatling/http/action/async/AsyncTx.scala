@@ -17,7 +17,7 @@ package io.gatling.http.action.async
 
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
-import io.gatling.http.check.ws.WsCheck
+import io.gatling.http.check.async.AsyncCheck
 import io.gatling.http.protocol.HttpProtocol
 
 import akka.actor.ActorRef
@@ -31,7 +31,7 @@ case class AsyncTx(
     protocol:              HttpProtocol,
     start:                 Long,
     reconnectCount:        Int                      = 0,
-    check:                 Option[WsCheck]          = None,
+    check:                 Option[AsyncCheck]       = None,
     pendingCheckSuccesses: List[CheckResult]        = Nil,
     updates:               List[Session => Session] = Nil
 ) {

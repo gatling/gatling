@@ -13,21 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.ws
+package io.gatling.http.check.async
 
 import scala.collection.mutable
 import scala.concurrent.duration.FiniteDuration
 
-import io.gatling.core.check.{ CheckResult, Check }
+import io.gatling.core.check.Check
 import io.gatling.core.session.Session
 import io.gatling.core.util.TimeHelper._
-import io.gatling.core.validation.Validation
 
 sealed trait Expectation
 case class UntilCount(count: Int) extends Expectation
 case class ExpectedCount(count: Int) extends Expectation
 case class ExpectedRange(range: Range) extends Expectation
 
-case class WsCheck(wrapped: Check[String], blocking: Boolean, timeout: FiniteDuration, expectation: Expectation, timestamp: Long = nowMillis) extends Check[String] {
-  override def check(message: String, session: Session)(implicit cache: mutable.Map[Any, Any]): Validation[CheckResult] = wrapped.check(message, session)
+case class AsyncCheck(
+    wrapped:     Check[String],
+    blocking:    Boolean,
+    timeout:     FiniteDuration,
+    expectation: Expectation,
+    timestamp:   Long           = nowMillis
+) extends Check[String] {
+  override def check(message: String, session: Session)(implicit cache: mutable.Map[Any, Any]) =
+    wrapped.check(message, session)
 }

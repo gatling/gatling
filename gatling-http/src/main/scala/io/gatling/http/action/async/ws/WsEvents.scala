@@ -16,7 +16,7 @@
 package io.gatling.http.action.async.ws
 
 import io.gatling.http.action.async.AsyncTx
-import io.gatling.http.check.ws.WsCheck
+import io.gatling.http.check.async.AsyncCheck
 import io.gatling.core.session.Session
 
 import akka.actor.ActorRef
@@ -28,15 +28,15 @@ case class OnFailedOpen(tx: AsyncTx, message: String, time: Long) extends WsEven
 case class OnTextMessage(message: String, time: Long) extends WsEvent
 case class OnByteMessage(message: Array[Byte], time: Long) extends WsEvent
 case class OnClose(status: Int, reason: String, time: Long) extends WsEvent
-case class CheckTimeout(check: WsCheck) extends WsEvent
+case class CheckTimeout(check: AsyncCheck) extends WsEvent
 
 sealed trait WsUserAction extends WsEvent {
   def requestName: String
   def next: ActorRef
   def session: Session
 }
-case class Send(requestName: String, message: WsMessage, check: Option[WsCheck], next: ActorRef, session: Session) extends WsUserAction
-case class SetCheck(requestName: String, check: WsCheck, next: ActorRef, session: Session) extends WsUserAction
+case class Send(requestName: String, message: WsMessage, check: Option[AsyncCheck], next: ActorRef, session: Session) extends WsUserAction
+case class SetCheck(requestName: String, check: AsyncCheck, next: ActorRef, session: Session) extends WsUserAction
 case class CancelCheck(requestName: String, next: ActorRef, session: Session) extends WsUserAction
 case class Close(requestName: String, next: ActorRef, session: Session) extends WsUserAction
 case class Reconciliate(requestName: String, next: ActorRef, session: Session) extends WsUserAction

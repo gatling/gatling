@@ -13,33 +13,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.ws
+package io.gatling.http.check.async
 
 import io.gatling.core.check._
 import io.gatling.core.session._
 import io.gatling.core.check.extractor.regex._
-import io.gatling.http.check.ws.WsCheckBuilders._
+import io.gatling.http.check.async.AsyncCheckBuilders._
 
-trait WsRegexOfType {
-  self: WsRegexCheckBuilder[String] =>
+trait AsyncRegexOfType {
+  self: AsyncRegexCheckBuilder[String] =>
 
-  def ofType[X: GroupExtractor](implicit extractorFactory: RegexExtractorFactory) = new WsRegexCheckBuilder[X](expression, extender)
+  def ofType[X: GroupExtractor](implicit extractorFactory: RegexExtractorFactory) = new AsyncRegexCheckBuilder[X](expression, extender)
 }
 
-object WsRegexCheckBuilder {
+object AsyncRegexCheckBuilder {
 
-  def regex(expression: Expression[String], extender: Extender[WsCheck, String])(implicit extractorFactory: RegexExtractorFactory) =
-    new WsRegexCheckBuilder[String](expression, extender) with WsRegexOfType
+  def regex(expression: Expression[String], extender: Extender[AsyncCheck, String])(implicit extractorFactory: RegexExtractorFactory) =
+    new AsyncRegexCheckBuilder[String](expression, extender) with AsyncRegexOfType
 }
 
-class WsRegexCheckBuilder[X: GroupExtractor](
-  private[ws] val expression: Expression[String],
-  private[ws] val extender:   Extender[WsCheck, String]
+class AsyncRegexCheckBuilder[X: GroupExtractor](
+  private[async] val expression: Expression[String],
+  private[async] val extender:   Extender[AsyncCheck, String]
 )(implicit extractorFactory: RegexExtractorFactory)
-    extends DefaultMultipleFindCheckBuilder[WsCheck, String, CharSequence, X](
-      extender,
-      PassThroughMessagePreparer
-    ) {
+    extends DefaultMultipleFindCheckBuilder[AsyncCheck, String, CharSequence, X](extender, PassThroughMessagePreparer) {
 
   import extractorFactory._
 

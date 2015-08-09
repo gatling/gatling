@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.check.ws
+package io.gatling.http.check.async
 
 import io.gatling.core.check.{ Extender, DefaultFindCheckBuilder }
 import io.gatling.core.check.extractor._
 import io.gatling.core.validation.SuccessWrapper
 import io.gatling.core.session._
-import io.gatling.http.check.ws.WsCheckBuilders._
+import io.gatling.http.check.async.AsyncCheckBuilders._
 
-object WsPlainCheckBuilder {
+object AsyncPlainCheckBuilder {
 
   val WsPlainExtractor = new Extractor[String, String] with SingleArity {
     val name = "wsMessage"
     def apply(prepared: String) = Some(prepared).success
   }.expressionSuccess
 
-  def message(extender: Extender[WsCheck, String]) =
-    new WsPlainCheckBuilder(extender)
+  def message(extender: Extender[AsyncCheck, String]) =
+    new AsyncPlainCheckBuilder(extender)
 }
 
-class WsPlainCheckBuilder(extender: Extender[WsCheck, String])
-  extends DefaultFindCheckBuilder[WsCheck, String, String, String](
+class AsyncPlainCheckBuilder(extender: Extender[AsyncCheck, String])
+  extends DefaultFindCheckBuilder[AsyncCheck, String, String, String](
     extender,
     PassThroughMessagePreparer,
-    WsPlainCheckBuilder.WsPlainExtractor
+    AsyncPlainCheckBuilder.WsPlainExtractor
   )

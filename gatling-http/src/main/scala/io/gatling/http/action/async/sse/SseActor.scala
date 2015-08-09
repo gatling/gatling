@@ -25,7 +25,7 @@ import io.gatling.core.stats.message.{ KO, OK, Status, ResponseTimings }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Success
 import io.gatling.http.action.async.AsyncTx
-import io.gatling.http.check.ws.{ WsCheck, ExpectedCount, ExpectedRange, UntilCount }
+import io.gatling.http.check.async._
 
 import akka.actor.{ Props, ActorRef }
 
@@ -48,7 +48,7 @@ class SseActor(sseName: String, statsEngine: StatsEngine) extends BaseActor {
     }
   }
 
-  def setCheck(tx: AsyncTx, sseStream: SseStream, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
+  def setCheck(tx: AsyncTx, sseStream: SseStream, requestName: String, check: AsyncCheck, next: ActorRef, session: Session): Unit = {
 
     logger.debug(s"setCheck blocking=${check.blocking} timeout=${check.timeout}")
 
