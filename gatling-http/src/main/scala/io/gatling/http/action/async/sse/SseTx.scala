@@ -13,12 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.async.sse
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import io.gatling.http.action.async.AsyncTx
+import io.gatling.http.ahc.HttpEngine
 
-sealed trait HttpEvent
+import akka.actor.ActorRef
 
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+object SseTx {
+
+  def start(tx: AsyncTx, sseActor: ActorRef, httpEngine: HttpEngine): Unit = {
+    val (newTx, client) = {
+      val (newSession, client) = httpEngine.httpClient(tx.session, tx.protocol)
+      (tx.copy(session = newSession), client)
+    }
+
+    val handler = new SseHandler(newTx, sseActor)
+    client.executeRequest(newTx.request, handler)
+  }
+}

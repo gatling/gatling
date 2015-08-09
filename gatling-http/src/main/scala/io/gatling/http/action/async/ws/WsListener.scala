@@ -16,13 +16,13 @@
 package io.gatling.http.action.async.ws
 
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.http.ahc.WsTx
+import io.gatling.http.action.async.AsyncTx
 
 import akka.actor.ActorRef
 import org.asynchttpclient.ws._
 import com.typesafe.scalalogging.LazyLogging
 
-class WsListener(tx: WsTx, wsActor: ActorRef)
+class WsListener(tx: AsyncTx, wsActor: ActorRef)
     extends WebSocketTextListener
     with WebSocketByteListener
     with WebSocketCloseCodeReasonListener
@@ -39,7 +39,7 @@ class WsListener(tx: WsTx, wsActor: ActorRef)
     wsActor ! OnOpen(tx, webSocket, nowMillis)
   }
 
-  def onClose(webSocket: WebSocket): Unit = {}
+  def onClose(webSocket: WebSocket): Unit = ()
 
   def onError(t: Throwable): Unit =
     state match {

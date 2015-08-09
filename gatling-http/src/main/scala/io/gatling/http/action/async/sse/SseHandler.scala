@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.xml.ws.http.HTTPException
 
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.http.ahc.SseTx
+import io.gatling.http.action.async.AsyncTx
 
 import akka.actor.ActorRef
 import org.asynchttpclient._
@@ -32,7 +32,7 @@ import org.asynchttpclient.netty.NettyResponseBodyPart
 import org.jboss.netty.handler.codec.http.HttpResponseStatus.OK
 import com.typesafe.scalalogging.StrictLogging
 
-class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
+class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     with AsyncHandlerExtensions
     with SseStream
     with EventStreamDispatcher
@@ -42,26 +42,23 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
   private val done = new AtomicBoolean
   private var state: SseState = Opening
 
-  override def onConnectionOpen(): Unit = {}
+  override def onConnectionOpen(): Unit = ()
 
-  override def onConnectionOpened(connection: Any): Unit = {
+  override def onConnectionOpened(connection: Any): Unit =
     state = Open
-  }
 
-  override def onConnectionPool(): Unit = {}
+  override def onConnectionPool(): Unit = ()
 
-  override def onConnectionPooled(connection: Any): Unit = {}
+  override def onConnectionPooled(connection: Any): Unit = ()
 
-  override def onConnectionOffer(connection: Any): Unit = {}
+  override def onConnectionOffer(connection: Any): Unit = ()
 
-  override def onDnsResolved(address: InetAddress): Unit = {}
+  override def onDnsResolved(address: InetAddress): Unit = ()
 
-  override def onSslHandshakeCompleted(): Unit = {}
+  override def onSslHandshakeCompleted(): Unit = ()
 
-  override def onRetry(): Unit = {
-    if (done.get)
-      logger.error("onRetry is not supposed to be called once done")
-  }
+  override def onRetry(): Unit =
+    if (done.get) logger.error("onRetry is not supposed to be called once done")
 
   override def onRequestSend(request: Any): Unit =
     logger.debug(s"Request $request has been sent by the http client")
@@ -136,9 +133,6 @@ class SseHandler(tx: SseTx, sseActor: ActorRef) extends AsyncHandler[Unit]
 }
 
 private sealed trait SseState
-
 private case object Opening extends SseState
-
 private case object Open extends SseState
-
 private case object Closed extends SseState

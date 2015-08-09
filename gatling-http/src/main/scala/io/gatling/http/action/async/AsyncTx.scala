@@ -13,39 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.async
 
 import io.gatling.core.check.CheckResult
 import io.gatling.core.session.Session
-import io.gatling.http.action.async.ws.WsListener
 import io.gatling.http.check.ws.WsCheck
 import io.gatling.http.protocol.HttpProtocol
 
 import akka.actor.ActorRef
 import org.asynchttpclient.Request
-import org.asynchttpclient.ws.WebSocketUpgradeHandler
 
-object WsTx {
-
-  def start(tx: WsTx, wsActor: ActorRef, httpEngine: HttpEngine): Unit = {
-    val (newTx, client) = {
-      val (newSession, client) = httpEngine.httpClient(tx.session, tx.protocol)
-      (tx.copy(session = newSession), client)
-    }
-
-    val listener = new WsListener(newTx, wsActor)
-
-    val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
-    client.executeRequest(tx.request, handler)
-  }
-}
-
-case class WsTx(
+case class AsyncTx(
     session:               Session,
-    request:               Request,
-    requestName:           String,
-    protocol:              HttpProtocol,
     next:                  ActorRef,
+    requestName:           String,
+    request:               Request,
+    protocol:              HttpProtocol,
     start:                 Long,
     reconnectCount:        Int                      = 0,
     check:                 Option[WsCheck]          = None,

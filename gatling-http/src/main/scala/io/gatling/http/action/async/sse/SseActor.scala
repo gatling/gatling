@@ -24,7 +24,7 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.{ KO, OK, Status, ResponseTimings }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Success
-import io.gatling.http.ahc.SseTx
+import io.gatling.http.action.async.AsyncTx
 import io.gatling.http.check.ws.{ WsCheck, ExpectedCount, ExpectedRange, UntilCount }
 
 import akka.actor.{ Props, ActorRef }
@@ -38,7 +38,7 @@ class SseActor(sseName: String, statsEngine: StatsEngine) extends BaseActor {
 
   override def receive = initialState
 
-  def failPendingCheck(tx: SseTx, message: String): SseTx = {
+  def failPendingCheck(tx: AsyncTx, message: String): AsyncTx = {
     tx.check match {
       case Some(c) =>
         logRequest(tx.session, tx.requestName, KO, tx.start, nowMillis, Some(message))
@@ -48,7 +48,7 @@ class SseActor(sseName: String, statsEngine: StatsEngine) extends BaseActor {
     }
   }
 
-  def setCheck(tx: SseTx, sseStream: SseStream, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
+  def setCheck(tx: AsyncTx, sseStream: SseStream, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
 
     logger.debug(s"setCheck blocking=${check.blocking} timeout=${check.timeout}")
 
@@ -97,7 +97,7 @@ class SseActor(sseName: String, statsEngine: StatsEngine) extends BaseActor {
       context.stop(self)
   }
 
-  def openState(sseStream: SseStream, tx: SseTx): Receive = {
+  def openState(sseStream: SseStream, tx: AsyncTx): Receive = {
 
       def succeedPendingCheck(results: List[CheckResult]): Unit = {
         tx.check match {
@@ -248,7 +248,7 @@ class SseActor(sseName: String, statsEngine: StatsEngine) extends BaseActor {
     }
   }
 
-  def closingState(tx: SseTx): Receive = {
+  def closingState(tx: AsyncTx): Receive = {
     case OnClose =>
       import tx._
       logRequest(session, requestName, OK, start, nowMillis)

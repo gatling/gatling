@@ -21,7 +21,7 @@ import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.validation._
 import io.gatling.http.action.RequestAction
-import io.gatling.http.ahc.{ HttpEngine, HttpTx }
+import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.request.HttpRequestDef
 import io.gatling.http.response._
 

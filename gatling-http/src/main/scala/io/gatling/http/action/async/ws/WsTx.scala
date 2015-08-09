@@ -13,12 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.async.ws
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import io.gatling.http.action.async.AsyncTx
+import io.gatling.http.ahc.HttpEngine
 
-sealed trait HttpEvent
+import akka.actor.ActorRef
+import org.asynchttpclient.ws.WebSocketUpgradeHandler
 
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+object WsTx {
+
+  def start(tx: AsyncTx, wsActor: ActorRef, httpEngine: HttpEngine): Unit = {
+    val (newTx, client) = {
+      val (newSession, client) = httpEngine.httpClient(tx.session, tx.protocol)
+      (tx.copy(session = newSession), client)
+    }
+
+    val listener = new WsListener(newTx, wsActor)
+
+    val handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build
+    client.executeRequest(tx.request, handler)
+  }
+}

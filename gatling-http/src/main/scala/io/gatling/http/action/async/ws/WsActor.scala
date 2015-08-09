@@ -24,7 +24,8 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.{ OK, KO, Status, ResponseTimings }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Success
-import io.gatling.http.ahc.{ HttpEngine, WsTx }
+import io.gatling.http.action.async.AsyncTx
+import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.check.ws.{ ExpectedRange, UntilCount, ExpectedCount, WsCheck }
 
 import akka.actor.{ Props, ActorRef }
@@ -39,7 +40,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
 
   def receive = initialState
 
-  def failPendingCheck(tx: WsTx, message: String): WsTx = {
+  def failPendingCheck(tx: AsyncTx, message: String): AsyncTx = {
     tx.check match {
       case Some(c) =>
         logResponse(tx.session, tx.requestName, KO, tx.start, nowMillis, Some(message))
@@ -49,7 +50,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
     }
   }
 
-  def setCheck(tx: WsTx, webSocket: WebSocket, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
+  def setCheck(tx: AsyncTx, webSocket: WebSocket, requestName: String, check: WsCheck, next: ActorRef, session: Session): Unit = {
 
     logger.debug(s"setCheck blocking=${check.blocking} timeout=${check.timeout}")
 
@@ -98,7 +99,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
       context.stop(self)
   }
 
-  def openState(webSocket: WebSocket, tx: WsTx): Receive = {
+  def openState(webSocket: WebSocket, tx: AsyncTx): Receive = {
 
       def handleClose(status: Int, reason: String, time: Long): Unit = {
         if (tx.protocol.wsPart.reconnect)
@@ -284,7 +285,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
     }
   }
 
-  def closingState(tx: WsTx): Receive = {
+  def closingState(tx: AsyncTx): Receive = {
     case m: OnClose =>
       import tx._
       logResponse(session, requestName, OK, start, nowMillis)
@@ -295,7 +296,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
       logger.info(s"Discarding unknown message $unexpected while in closing state")
   }
 
-  def disconnectedState(status: Int, reason: String, tx: WsTx): Receive = {
+  def disconnectedState(status: Int, reason: String, tx: AsyncTx): Receive = {
 
     case action: WsUserAction =>
       // reconnect on first client message tentative
@@ -322,7 +323,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
       logger.info(s"Discarding unknown message $unexpected while in reconnecting state")
   }
 
-  def crashedState(tx: WsTx, error: String): Receive = {
+  def crashedState(tx: AsyncTx, error: String): Receive = {
 
     case action: WsUserAction =>
       import action._

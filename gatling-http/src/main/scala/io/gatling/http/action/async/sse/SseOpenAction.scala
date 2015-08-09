@@ -20,7 +20,7 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
-import io.gatling.http.ahc.SseTx
+import io.gatling.http.action.async.AsyncTx
 import io.gatling.http.check.ws._
 import io.gatling.http.protocol.HttpComponents
 
@@ -55,7 +55,7 @@ class SseOpenAction(
 
   override def execute(session: Session): Unit = {
 
-      def open(tx: SseTx): Unit = {
+      def open(tx: AsyncTx): Unit = {
         logger.info(s"Opening and getting sse '$sseName': Scenario '${session.scenario}', UserId #${session.userId}")
         val sseActor = context.actorOf(SseActor.props(sseName, statsEngine), actorName("sseActor"))
         SseTx.start(tx, sseActor, httpEngine)
@@ -69,7 +69,7 @@ class SseOpenAction(
           requestName <- requestName(session)
           request <- request(session)
           check = checkBuilder.map(_.build)
-        } yield open(SseTx(session, request, requestName, httpProtocol, next, nowMillis, check = check))
+        } yield open(AsyncTx(session, next, requestName, request, httpProtocol, nowMillis, check = check))
     }
   }
 }

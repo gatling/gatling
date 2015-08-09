@@ -18,6 +18,8 @@ package io.gatling.http.ahc
 import java.net.InetAddress
 import java.util.concurrent.atomic.AtomicBoolean
 
+import io.gatling.http.action.sync.HttpTx
+
 import org.asynchttpclient.netty.request.NettyRequest
 import org.asynchttpclient._
 import org.asynchttpclient.handler._

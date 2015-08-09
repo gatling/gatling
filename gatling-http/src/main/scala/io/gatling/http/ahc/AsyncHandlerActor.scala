@@ -27,6 +27,7 @@ import io.gatling.core.stats.message.{ KO, OK, Status }
 import io.gatling.core.util.StringHelper.Eol
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.http.HeaderNames
+import io.gatling.http.action.sync.HttpTx
 import io.gatling.http.check.{ HttpCheck, HttpCheckScope }
 import io.gatling.http.cookie.CookieSupport
 import io.gatling.http.fetch.{ CssResourceFetched, RegularResourceFetched }

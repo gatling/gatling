@@ -15,16 +15,17 @@
  */
 package io.gatling.http.action.async.sse
 
+import io.gatling.http.action.async.AsyncTx
+
 import akka.actor.ActorRef
 import io.gatling.core.session.Session
-import io.gatling.http.ahc.SseTx
 import io.gatling.http.check.ws.WsCheck
 
 sealed trait SseEvent
-case class OnOpen(tx: SseTx, sseStream: SseStream, time: Long) extends SseEvent
-case class OnFailedOpen(tx: SseTx, errorMessage: String, time: Long) extends SseEvent
+case class OnOpen(tx: AsyncTx, sseStream: SseStream, time: Long) extends SseEvent
+case class OnFailedOpen(tx: AsyncTx, errorMessage: String, time: Long) extends SseEvent
 case class OnMessage(message: String, time: Long) extends SseEvent
-case class OnThrowable(tx: SseTx, errorMessage: String, time: Long) extends SseEvent
+case class OnThrowable(tx: AsyncTx, errorMessage: String, time: Long) extends SseEvent
 case object OnClose extends SseEvent
 case class CheckTimeout(check: WsCheck) extends SseEvent
 

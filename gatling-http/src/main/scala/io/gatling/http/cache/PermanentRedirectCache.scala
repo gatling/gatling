@@ -20,7 +20,7 @@ import scala.annotation.tailrec
 import io.gatling.core.config.GatlingConfiguration
 import io.gatling.core.util.cache.SessionCacheHandler
 import io.gatling.core.session.{ SessionPrivateAttributes, Session }
-import io.gatling.http.ahc.HttpTx
+import io.gatling.http.action.sync.HttpTx
 
 import org.asynchttpclient.{ Request, RequestBuilder }
 import org.asynchttpclient.uri.Uri

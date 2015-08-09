@@ -20,7 +20,7 @@ import io.gatling.core.session.{ Expression, Session }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.{ Failure, Success }
-import io.gatling.http.ahc.WsTx
+import io.gatling.http.action.async.AsyncTx
 import io.gatling.http.check.ws._
 import io.gatling.http.protocol.HttpComponents
 
@@ -52,7 +52,7 @@ class WsOpenAction(
 
   def execute(session: Session): Unit = {
 
-      def open(tx: WsTx): Unit = {
+      def open(tx: AsyncTx): Unit = {
         logger.info(s"Opening websocket '$wsName': Scenario '${session.scenario}', UserId #${session.userId}")
         val wsActor = context.actorOf(WsActor.props(wsName, statsEngine, httpComponents.httpEngine), actorName("wsActor"))
         WsTx.start(tx, wsActor, httpComponents.httpEngine)
@@ -66,7 +66,7 @@ class WsOpenAction(
           requestName <- requestName(session)
           request <- request(session)
           check = checkBuilder.map(_.build)
-        } yield open(WsTx(session, request, requestName, httpComponents.httpProtocol, next, nowMillis, check = check))
+        } yield open(AsyncTx(session, next, requestName, request, httpComponents.httpProtocol, nowMillis, check = check))
     }
   }
 }

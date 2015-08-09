@@ -24,7 +24,7 @@ case class ServerSentEvent(
     retry: Option[Int]    = None
 ) {
 
-  def asJSONString(): String = {
+  def asJSONString: String = {
 
     // BEWARE: assume Map4 is implemented as an Array, so order is kept
     val map = Map("event" -> name, "id" -> id, "data" -> data, "retry" -> retry)
