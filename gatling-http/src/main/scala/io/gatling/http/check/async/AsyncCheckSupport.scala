@@ -40,26 +40,26 @@ import io.gatling.core.session.Expression
 
 trait AsyncCheckSupport extends AsyncCheckDSL {
 
-  implicit def asyncDSLStep4To2Check(step: Step4): AsyncCheckBuilder = step.message.find.exists
+  implicit def checkTypeStep2Check(step: CheckTypeStep): AsyncCheckBuilder = step.message.find.exists
 }
 
 trait AsyncCheckDSL {
 
   // TODO: rename those !
-  val wsListen = new Step2(false)
-  val wsAwait = new Step2(true)
+  val wsListen = new TimeoutStep(false)
+  val wsAwait = new TimeoutStep(true)
 
-  class Step2(await: Boolean) {
-    def within(timeout: FiniteDuration) = new Step3(await, timeout)
+  class TimeoutStep(await: Boolean) {
+    def within(timeout: FiniteDuration) = new ExpectationStep(await, timeout)
   }
 
-  class Step3(await: Boolean, timeout: FiniteDuration) {
-    def until(count: Int) = new Step4(await, timeout, UntilCount(count))
-    def expect(count: Int) = new Step4(await, timeout, ExpectedCount(count))
-    def expect(range: Range) = new Step4(await, timeout, ExpectedRange(range))
+  class ExpectationStep(await: Boolean, timeout: FiniteDuration) {
+    def until(count: Int) = new CheckTypeStep(await, timeout, UntilCount(count))
+    def expect(count: Int) = new CheckTypeStep(await, timeout, ExpectedCount(count))
+    def expect(range: Range) = new CheckTypeStep(await, timeout, ExpectedRange(range))
   }
 
-  class Step4(await: Boolean, timeout: FiniteDuration, expectation: Expectation) {
+  class CheckTypeStep(await: Boolean, timeout: FiniteDuration, expectation: Expectation) {
 
     def regex(expression: Expression[String])(implicit extractorFactory: RegexExtractorFactory) =
       AsyncRegexCheckBuilder.regex(expression, AsyncCheckBuilders.extender(await, timeout, expectation))
