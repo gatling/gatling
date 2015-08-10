@@ -13,18 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.action.async.sse
+package io.gatling.http.action.async
 
-import io.gatling.http.action.async.{ UserAction, AsyncTx }
-
+import io.gatling.core.session.Session
 import io.gatling.http.check.async.AsyncCheck
 
-sealed trait SseEvent
-case class OnOpen(tx: AsyncTx, sseStream: SseStream, time: Long) extends SseEvent
-case class OnFailedOpen(tx: AsyncTx, errorMessage: String, time: Long) extends SseEvent
-case class OnMessage(message: String, time: Long) extends SseEvent
-case class OnThrowable(tx: AsyncTx, errorMessage: String, time: Long) extends SseEvent
-case object OnClose extends SseEvent
-case class CheckTimeout(check: AsyncCheck) extends SseEvent
+import akka.actor.ActorRef
 
-trait SseUserAction extends UserAction with SseEvent
+trait UserAction {
+  def requestName: String
+  def next: ActorRef
+  def session: Session
+}
+
+case class SetCheck(requestName: String, check: AsyncCheck, next: ActorRef, session: Session) extends UserAction
+case class CancelCheck(requestName: String, next: ActorRef, session: Session) extends UserAction
+case class Close(requestName: String, next: ActorRef, session: Session) extends UserAction
+case class Reconciliate(requestName: String, next: ActorRef, session: Session) extends UserAction

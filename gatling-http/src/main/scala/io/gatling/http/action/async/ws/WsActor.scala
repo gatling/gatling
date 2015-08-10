@@ -24,7 +24,7 @@ import io.gatling.core.stats.StatsEngine
 import io.gatling.core.stats.message.{ OK, KO, Status, ResponseTimings }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Success
-import io.gatling.http.action.async.AsyncTx
+import io.gatling.http.action.async._
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.check.async._
 

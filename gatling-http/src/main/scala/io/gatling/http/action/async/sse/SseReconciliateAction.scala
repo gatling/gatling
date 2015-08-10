@@ -19,6 +19,7 @@ import io.gatling.core.session.{ Session, Expression }
 import io.gatling.core.stats.StatsEngine
 import io.gatling.core.validation.Validation
 import io.gatling.http.action.RequestAction
+import io.gatling.http.action.async.Reconciliate
 
 import akka.actor.{ Props, ActorRef }
 

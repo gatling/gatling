@@ -17,6 +17,7 @@ package io.gatling.http.action.async.ws
 
 import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
+import io.gatling.http.action.async.CancelCheck
 import akka.actor.{ Props, ActorRef }
 import io.gatling.http.action.RequestAction
 

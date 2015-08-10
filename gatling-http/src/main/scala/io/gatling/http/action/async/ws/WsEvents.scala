@@ -15,7 +15,7 @@
  */
 package io.gatling.http.action.async.ws
 
-import io.gatling.http.action.async.AsyncTx
+import io.gatling.http.action.async.{ UserAction, AsyncTx }
 import io.gatling.http.check.async.AsyncCheck
 import io.gatling.core.session.Session
 
@@ -24,22 +24,14 @@ import org.asynchttpclient.ws.WebSocket
 
 sealed trait WsEvent
 case class OnOpen(tx: AsyncTx, webSocket: WebSocket, time: Long) extends WsEvent
-case class OnFailedOpen(tx: AsyncTx, message: String, time: Long) extends WsEvent
+case class OnFailedOpen(tx: AsyncTx, errorMessage: String, time: Long) extends WsEvent
 case class OnTextMessage(message: String, time: Long) extends WsEvent
 case class OnByteMessage(message: Array[Byte], time: Long) extends WsEvent
 case class OnClose(status: Int, reason: String, time: Long) extends WsEvent
 case class CheckTimeout(check: AsyncCheck) extends WsEvent
 
-sealed trait WsUserAction extends WsEvent {
-  def requestName: String
-  def next: ActorRef
-  def session: Session
-}
+sealed trait WsUserAction extends UserAction with WsEvent
 case class Send(requestName: String, message: WsMessage, check: Option[AsyncCheck], next: ActorRef, session: Session) extends WsUserAction
-case class SetCheck(requestName: String, check: AsyncCheck, next: ActorRef, session: Session) extends WsUserAction
-case class CancelCheck(requestName: String, next: ActorRef, session: Session) extends WsUserAction
-case class Close(requestName: String, next: ActorRef, session: Session) extends WsUserAction
-case class Reconciliate(requestName: String, next: ActorRef, session: Session) extends WsUserAction
 
 sealed trait WsMessage
 case class BinaryMessage(message: Array[Byte]) extends WsMessage
