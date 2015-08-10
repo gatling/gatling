@@ -23,8 +23,8 @@ trait AsyncProtocolAction {
 
   def actorFetchErrorMessage: String
 
-  final def fetchActor(sseName: String, session: Session) =
-    session(sseName)
+  final def fetchActor(actorName: String, session: Session) =
+    session(actorName)
       .validate[ActorRef]
       .mapError(m => s"$actorFetchErrorMessage: $m")
 }
