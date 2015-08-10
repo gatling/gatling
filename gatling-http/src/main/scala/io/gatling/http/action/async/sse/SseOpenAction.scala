@@ -61,7 +61,7 @@ class SseOpenAction(
         SseTx.start(tx, sseActor, httpEngine)
       }
 
-    fetchSse(sseName, session) match {
+    fetchActor(sseName, session) match {
       case _: Success[_] =>
         Failure(s"Unable to create a new SSE with name $sseName: Already exists")
       case _ =>

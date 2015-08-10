@@ -41,8 +41,6 @@ class WsReconciliateAction(
     with WsAction {
 
   override def sendRequest(requestName: String, session: Session) = {
-    for {
-      wsActor <- fetchWebSocket(wsName, session)
-    } yield wsActor ! Reconciliate(requestName, next, session)
+    for (wsActor <- fetchActor(wsName, session)) yield wsActor ! Reconciliate(requestName, next, session)
   }
 }

@@ -58,7 +58,7 @@ class WsOpenAction(
         WsTx.start(tx, wsActor, httpComponents.httpEngine)
       }
 
-    fetchWebSocket(wsName, session) match {
+    fetchActor(wsName, session) match {
       case _: Success[_] =>
         Failure(s"Unable to create a new WebSocket with name $wsName: Already exists")
       case _ =>

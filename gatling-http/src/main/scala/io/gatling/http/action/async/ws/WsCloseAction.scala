@@ -41,7 +41,5 @@ class WsCloseAction(
     with WsAction {
 
   override def sendRequest(requestName: String, session: Session) =
-    for {
-      wsActor <- fetchWebSocket(wsName, session)
-    } yield wsActor ! Close(requestName, next, session)
+    for (wsActor <- fetchActor(wsName, session)) yield wsActor ! Close(requestName, next, session)
 }

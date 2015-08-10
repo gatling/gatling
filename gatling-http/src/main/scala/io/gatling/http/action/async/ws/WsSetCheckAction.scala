@@ -44,8 +44,5 @@ class WsSetCheckAction(
     with WsAction {
 
   override def sendRequest(requestName: String, session: Session) =
-    for {
-      wsActor <- fetchWebSocket(wsName, session)
-      check = checkBuilder.build
-    } yield wsActor ! SetCheck(requestName, check, next, session)
+    for (wsActor <- fetchActor(wsName, session)) yield wsActor ! SetCheck(requestName, checkBuilder.build, next, session)
 }

@@ -15,13 +15,8 @@
  */
 package io.gatling.http.action.async.sse
 
-import akka.actor.ActorRef
-import io.gatling.core.session.Session
+import io.gatling.http.action.async.AsyncProtocolAction
 
-trait SseAction {
-
-  def fetchSse(sseName: String, session: Session) =
-    session(sseName)
-      .validate[ActorRef]
-      .mapError(m => s"Couldn't fetch open sse: $m")
+trait SseAction extends AsyncProtocolAction {
+  override val actorFetchErrorMessage = "Couldn't fetch open sse"
 }

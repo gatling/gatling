@@ -31,7 +31,5 @@ class SseCloseAction(val requestName: Expression[String], sseName: String, stats
     extends RequestAction(statsEngine) with SseAction {
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    for {
-      sseActor <- fetchSse(sseName, session)
-    } yield sseActor ! Close(requestName, next, session)
+    for (sseActor <- fetchActor(sseName, session)) yield sseActor ! Close(requestName, next, session)
 }

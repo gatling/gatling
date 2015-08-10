@@ -47,7 +47,7 @@ class WsSendAction(
 
   override def sendRequest(requestName: String, session: Session) =
     for {
-      wsActor <- fetchWebSocket(wsName, session)
+      wsActor <- fetchActor(wsName, session)
       resolvedMessage <- message(session)
       check = checkBuilder.map(_.build)
     } yield wsActor ! Send(requestName, resolvedMessage, check, next, session)

@@ -28,10 +28,8 @@ object SseCancelCheckAction {
 }
 
 class SseCancelCheckAction(val requestName: Expression[String], sseName: String, statsEngine: StatsEngine, val next: ActorRef)
-    extends RequestAction(statsEngine) {
+    extends RequestAction(statsEngine) with SseAction {
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    for {
-      sseActor <- session(sseName).validate[ActorRef]
-    } yield sseActor ! CancelCheck(requestName, next, session)
+    for (sseActor <- fetchActor(sseName, session)) yield sseActor ! CancelCheck(requestName, next, session)
 }

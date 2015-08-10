@@ -13,10 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.action.async.ws
+package io.gatling.http.action.async
 
-import io.gatling.http.action.async.AsyncProtocolAction
+import io.gatling.core.session.Session
 
-trait WsAction extends AsyncProtocolAction {
-  override val actorFetchErrorMessage = "Couldn't fetch open webSocket"
+import akka.actor.ActorRef
+
+trait AsyncProtocolAction {
+
+  def actorFetchErrorMessage: String
+
+  final def fetchActor(sseName: String, session: Session) =
+    session(sseName)
+      .validate[ActorRef]
+      .mapError(m => s"$actorFetchErrorMessage: $m")
 }

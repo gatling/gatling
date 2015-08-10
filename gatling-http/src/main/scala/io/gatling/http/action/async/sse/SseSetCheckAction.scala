@@ -32,8 +32,5 @@ class SseSetCheckAction(val requestName: Expression[String], checkBuilder: Async
     extends RequestAction(statsEngine) with SseAction {
 
   def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    for {
-      sseActor <- fetchSse(sseName, session)
-      check = checkBuilder.build
-    } yield sseActor ! SetCheck(requestName, check, next, session)
+    for (sseActor <- fetchActor(sseName, session)) yield sseActor ! SetCheck(requestName, checkBuilder.build, next, session)
 }
