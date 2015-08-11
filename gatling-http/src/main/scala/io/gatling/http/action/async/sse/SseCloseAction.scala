@@ -15,22 +15,17 @@
  */
 package io.gatling.http.action.async.sse
 
+import io.gatling.core.session.Expression
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.async.Close
+import io.gatling.http.action.async.{ CloseAction, CloseActionCreator }
 
-import akka.actor.{ Props, ActorRef }
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.core.validation.Validation
-import io.gatling.http.action.RequestAction
+import akka.actor.ActorRef
 
-object SseCloseAction {
-  def props(requestName: Expression[String], sseName: String, statsEngine: StatsEngine, next: ActorRef) =
-    Props(new SseCloseAction(requestName, sseName, statsEngine, next))
-}
+object SseCloseAction extends CloseActionCreator[SseCloseAction]
 
-class SseCloseAction(val requestName: Expression[String], sseName: String, statsEngine: StatsEngine, val next: ActorRef)
-    extends RequestAction(statsEngine) with SseAction {
-
-  def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    for (sseActor <- fetchActor(sseName, session)) yield sseActor ! Close(requestName, next, session)
-}
+class SseCloseAction(
+  requestName: Expression[String],
+  sseName:     String,
+  statsEngine: StatsEngine,
+  next:        ActorRef
+) extends CloseAction(requestName, sseName, statsEngine, next) with SseAction

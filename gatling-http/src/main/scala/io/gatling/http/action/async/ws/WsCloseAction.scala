@@ -15,32 +15,17 @@
  */
 package io.gatling.http.action.async.ws
 
+import io.gatling.core.session.Expression
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.async.Close
+import io.gatling.http.action.async.{ CloseAction, CloseActionCreator }
 
-import akka.actor.{ Props, ActorRef }
-import io.gatling.core.session.{ Expression, Session }
-import io.gatling.http.action.RequestAction
+import akka.actor.ActorRef
 
-object WsCloseAction {
-  def props(
-    requestName: Expression[String],
-    wsName:      String,
-    statsEngine: StatsEngine,
-    next:        ActorRef
-  ) =
-    Props(new WsCloseAction(requestName, wsName, statsEngine, next))
-}
+object WsCloseAction extends CloseActionCreator[WsCloseAction]
 
 class WsCloseAction(
-  val requestName: Expression[String],
-  wsName:          String,
-  statsEngine:     StatsEngine,
-  val next:        ActorRef
-)
-    extends RequestAction(statsEngine)
-    with WsAction {
-
-  override def sendRequest(requestName: String, session: Session) =
-    for (wsActor <- fetchActor(wsName, session)) yield wsActor ! Close(requestName, next, session)
-}
+  requestName: Expression[String],
+  wsName:      String,
+  statsEngine: StatsEngine,
+  next:        ActorRef
+) extends CloseAction(requestName, wsName, statsEngine, next) with WsAction
