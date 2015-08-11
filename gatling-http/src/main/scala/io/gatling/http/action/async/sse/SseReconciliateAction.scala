@@ -15,22 +15,17 @@
  */
 package io.gatling.http.action.async.sse
 
-import io.gatling.core.session.{ Session, Expression }
+import io.gatling.core.session._
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.validation.Validation
-import io.gatling.http.action.RequestAction
-import io.gatling.http.action.async.Reconciliate
+import io.gatling.http.action.async.{ ReconciliateAction, ReconciliateActionCreator }
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.ActorRef
 
-object SseReconciliateAction {
-  def props(requestName: Expression[String], sseName: String, statsEngine: StatsEngine, next: ActorRef) =
-    Props(new SseReconciliateAction(requestName, sseName, statsEngine, next))
-}
+object SseReconciliateAction extends ReconciliateActionCreator[SseReconciliateAction]
 
-class SseReconciliateAction(val requestName: Expression[String], sseName: String, statsEngine: StatsEngine, val next: ActorRef)
-    extends RequestAction(statsEngine) with SseAction {
-
-  override def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    for (sseActor <- fetchActor(sseName, session)) yield sseActor ! Reconciliate(requestName, next, session)
-}
+class SseReconciliateAction(
+  requestName: Expression[String],
+  sseName:     String,
+  statsEngine: StatsEngine,
+  next:        ActorRef
+) extends ReconciliateAction(requestName, sseName, statsEngine, next) with SseAction

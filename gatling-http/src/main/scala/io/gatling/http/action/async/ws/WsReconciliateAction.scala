@@ -15,33 +15,17 @@
  */
 package io.gatling.http.action.async.ws
 
-import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.async.Reconciliate
-
-import akka.actor.{ Props, ActorRef }
 import io.gatling.core.session._
-import io.gatling.http.action.RequestAction
+import io.gatling.core.stats.StatsEngine
+import io.gatling.http.action.async.{ ReconciliateAction, ReconciliateActionCreator }
 
-object WsReconciliateAction {
-  def props(
-    requestName: Expression[String],
-    wsName:      String,
-    statsEngine: StatsEngine,
-    next:        ActorRef
-  ) =
-    Props(new WsReconciliateAction(requestName, wsName, statsEngine, next))
-}
+import akka.actor.ActorRef
+
+object WsReconciliateAction extends ReconciliateActionCreator[WsReconciliateAction]
 
 class WsReconciliateAction(
-  val requestName: Expression[String],
-  wsName:          String,
-  statsEngine:     StatsEngine,
-  val next:        ActorRef
-)
-    extends RequestAction(statsEngine)
-    with WsAction {
-
-  override def sendRequest(requestName: String, session: Session) = {
-    for (wsActor <- fetchActor(wsName, session)) yield wsActor ! Reconciliate(requestName, next, session)
-  }
-}
+  requestName: Expression[String],
+  wsName:      String,
+  statsEngine: StatsEngine,
+  next:        ActorRef
+) extends ReconciliateAction(requestName, wsName, statsEngine, next) with WsAction
