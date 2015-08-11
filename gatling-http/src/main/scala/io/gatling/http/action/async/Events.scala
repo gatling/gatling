@@ -20,6 +20,10 @@ import io.gatling.http.check.async.AsyncCheck
 
 import akka.actor.ActorRef
 
+trait AsyncEvent
+case class OnFailedOpen(tx: AsyncTx, errorMessage: String, time: Long) extends AsyncEvent
+case class CheckTimeout(check: AsyncCheck) extends AsyncEvent
+
 trait UserAction {
   def requestName: String
   def next: ActorRef

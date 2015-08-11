@@ -16,11 +16,11 @@
 package io.gatling.http.action.async.ws
 
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.http.action.async.AsyncTx
+import io.gatling.http.action.async.{ AsyncTx, OnFailedOpen }
 
 import akka.actor.ActorRef
-import org.asynchttpclient.ws._
 import com.typesafe.scalalogging.LazyLogging
+import org.asynchttpclient.ws._
 
 class WsListener(tx: AsyncTx, wsActor: ActorRef)
     extends WebSocketTextListener

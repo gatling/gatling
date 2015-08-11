@@ -15,20 +15,18 @@
  */
 package io.gatling.http.action.async.ws
 
-import io.gatling.http.action.async.{ UserAction, AsyncTx }
+import io.gatling.http.action.async.{ AsyncEvent, UserAction, AsyncTx }
 import io.gatling.http.check.async.AsyncCheck
 import io.gatling.core.session.Session
 
 import akka.actor.ActorRef
 import org.asynchttpclient.ws.WebSocket
 
-sealed trait WsEvent
+sealed trait WsEvent extends AsyncEvent
 case class OnOpen(tx: AsyncTx, webSocket: WebSocket, time: Long) extends WsEvent
-case class OnFailedOpen(tx: AsyncTx, errorMessage: String, time: Long) extends WsEvent
 case class OnTextMessage(message: String, time: Long) extends WsEvent
 case class OnByteMessage(message: Array[Byte], time: Long) extends WsEvent
 case class OnClose(status: Int, reason: String, time: Long) extends WsEvent
-case class CheckTimeout(check: AsyncCheck) extends WsEvent
 
 sealed trait WsUserAction extends UserAction with WsEvent
 case class Send(requestName: String, message: WsMessage, check: Option[AsyncCheck], next: ActorRef, session: Session) extends WsUserAction

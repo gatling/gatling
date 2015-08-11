@@ -21,16 +21,16 @@ import java.util.concurrent.atomic.AtomicBoolean
 import javax.xml.ws.http.HTTPException
 
 import io.gatling.core.util.TimeHelper.nowMillis
-import io.gatling.http.action.async.AsyncTx
+import io.gatling.http.action.async.{ AsyncTx, OnFailedOpen }
 
 import akka.actor.ActorRef
-import org.asynchttpclient._
-import org.asynchttpclient.handler._
+import com.typesafe.scalalogging.StrictLogging
 import org.asynchttpclient.AsyncHandler.State
 import org.asynchttpclient.AsyncHandler.State.{ ABORT, CONTINUE }
+import org.asynchttpclient._
+import org.asynchttpclient.handler._
 import org.asynchttpclient.netty.NettyResponseBodyPart
 import org.jboss.netty.handler.codec.http.HttpResponseStatus.OK
-import com.typesafe.scalalogging.StrictLogging
 
 class SseHandler(tx: AsyncTx, sseActor: ActorRef) extends AsyncHandler[Unit]
     with AsyncHandlerExtensions

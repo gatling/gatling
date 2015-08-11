@@ -15,16 +15,12 @@
  */
 package io.gatling.http.action.async.sse
 
-import io.gatling.http.action.async.{ UserAction, AsyncTx }
+import io.gatling.http.action.async.{ AsyncEvent, UserAction, AsyncTx }
 
-import io.gatling.http.check.async.AsyncCheck
-
-sealed trait SseEvent
+sealed trait SseEvent extends AsyncEvent
 case class OnOpen(tx: AsyncTx, sseStream: SseStream, time: Long) extends SseEvent
-case class OnFailedOpen(tx: AsyncTx, errorMessage: String, time: Long) extends SseEvent
 case class OnMessage(message: String, time: Long) extends SseEvent
 case class OnThrowable(tx: AsyncTx, errorMessage: String, time: Long) extends SseEvent
 case object OnClose extends SseEvent
-case class CheckTimeout(check: AsyncCheck) extends SseEvent
 
 trait SseUserAction extends UserAction with SseEvent

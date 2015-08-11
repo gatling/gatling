@@ -17,18 +17,15 @@ package io.gatling.http.action.async.ws
 
 import scala.collection.mutable
 
-import io.gatling.core.akka.BaseActor
-import io.gatling.core.check.CheckResult
-import io.gatling.core.session.Session
 import io.gatling.core.stats.StatsEngine
-import io.gatling.core.stats.message.{ OK, KO, Status, ResponseTimings }
+import io.gatling.core.stats.message.{ OK, KO }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.validation.Success
 import io.gatling.http.action.async._
 import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.check.async._
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.Props
 import org.asynchttpclient.ws.WebSocket
 
 object WsActor {
@@ -36,40 +33,12 @@ object WsActor {
     Props(new WsActor(wsName, statsEngine, httpEngine))
 }
 
-class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) extends BaseActor {
+class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) extends AsyncProtocolActor(statsEngine) {
+
+  private def goToOpenState(webSocket: WebSocket): NextTxBasedBehaviour =
+    tx => openState(webSocket, tx)
 
   def receive = initialState
-
-  def failPendingCheck(tx: AsyncTx, message: String): AsyncTx = {
-    tx.check match {
-      case Some(c) =>
-        logResponse(tx.session, tx.requestName, KO, tx.start, nowMillis, Some(message))
-        tx.copy(updates = Session.MarkAsFailedUpdate :: tx.updates, pendingCheckSuccesses = Nil, check = None)
-
-      case _ => tx
-    }
-  }
-
-  def setCheck(tx: AsyncTx, webSocket: WebSocket, requestName: String, check: AsyncCheck, next: ActorRef, session: Session): Unit = {
-
-    logger.debug(s"setCheck blocking=${check.blocking} timeout=${check.timeout}")
-
-    // schedule timeout
-    scheduler.scheduleOnce(check.timeout) {
-      self ! CheckTimeout(check)
-    }
-
-    val newTx = failPendingCheck(tx, "Check didn't succeed by the time a new one was set up")
-      .applyUpdates(session)
-      .copy(requestName = requestName, start = nowMillis, check = Some(check), pendingCheckSuccesses = Nil, next = next)
-    context.become(openState(webSocket, newTx))
-
-    if (!check.blocking)
-      next ! newTx.session
-  }
-
-  private def logResponse(session: Session, requestName: String, status: Status, startDate: Long, endDate: Long, errorMessage: Option[String] = None): Unit =
-    statsEngine.logResponse(session, requestName, ResponseTimings(startDate, endDate), status, None, errorMessage)
 
   val initialState: Receive = {
 
@@ -87,7 +56,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
 
         case Some(c) =>
           // hack, reset check so that there's no pending one
-          setCheck(newTx.copy(check = None), webSocket, requestName, c, next, newSession)
+          setCheck(newTx.copy(check = None), requestName, c, next, newSession, goToOpenState(webSocket))
       }
 
     case OnFailedOpen(tx, message, end) =>
@@ -121,61 +90,6 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
         context.become(crashedState(tx, message))
       }
 
-      def succeedPendingCheck(results: List[CheckResult]): Unit = {
-        tx.check match {
-          case Some(check) =>
-            // expected count met, let's stop the check
-            logResponse(tx.session, tx.requestName, OK, tx.start, nowMillis, None)
-
-            val checkResults = results.filter(_.hasUpdate)
-
-            val newUpdates = checkResults match {
-              case Nil =>
-                // nothing to save, no update
-                tx.updates
-
-              case List(checkResult) =>
-                // one single value to save
-                checkResult.update.getOrElse(Session.Identity) :: tx.updates
-
-              case _ =>
-                // multiple values, let's pile them up
-                val mergedCaptures = checkResults
-                  .collect { case CheckResult(Some(value), Some(saveAs)) => saveAs -> value }
-                  .groupBy(_._1)
-                  .mapValues(_.flatMap(_._2 match {
-                    case s: Seq[Any] => s
-                    case v           => Seq(v)
-                  }))
-
-                val newUpdates = (session: Session) => session.setAll(mergedCaptures)
-                newUpdates :: tx.updates
-            }
-
-            if (check.blocking) {
-              // apply updates and release blocked flow
-              val newSession = tx.session.update(newUpdates)
-
-              tx.next ! newSession
-              val newTx = tx.copy(session = newSession, updates = Nil, check = None, pendingCheckSuccesses = Nil)
-              context.become(openState(webSocket, newTx))
-
-            } else {
-              // add to pending updates
-              val newTx = tx.copy(updates = newUpdates, check = None, pendingCheckSuccesses = Nil)
-              context.become(openState(webSocket, newTx))
-            }
-
-          case _ =>
-        }
-      }
-
-      def reconciliate(next: ActorRef, session: Session): Unit = {
-        val newTx = tx.applyUpdates(session)
-        context.become(openState(webSocket, newTx))
-        next ! newTx.session
-      }
-
     {
       case Send(requestName, message, check, next, session) =>
         logger.debug(s"Sending message check on WebSocket '$wsName': $message")
@@ -184,9 +98,10 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
 
         check match {
           case Some(c) =>
-            // do this immediately instead of self sending a Listen message so that other messages don't get a chance to be handled before
-            setCheck(tx, webSocket, requestName + " Check", c, next, session)
-          case _ => reconciliate(next, session)
+            // do this immediately instead of self sending a Listen message
+            // so that other messages don't get a chance to be handled before
+            setCheck(tx, requestName + " Check", c, next, session, goToOpenState(webSocket))
+          case _ => reconciliate(tx, next, session, goToOpenState(webSocket))
         }
 
         message match {
@@ -198,7 +113,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
 
       case SetCheck(requestName, check, next, session) =>
         logger.debug(s"Setting check on WebSocket '$wsName'")
-        setCheck(tx, webSocket, requestName, check, next, session)
+        setCheck(tx, requestName, check, next, session, goToOpenState(webSocket))
 
       case CancelCheck(requestName, next, session) =>
         logger.debug(s"Cancelling check on WebSocket '$wsName'")
@@ -216,8 +131,10 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
         tx.check match {
           case Some(`check`) =>
             check.expectation match {
-              case ExpectedCount(count) if count == tx.pendingCheckSuccesses.size        => succeedPendingCheck(tx.pendingCheckSuccesses)
-              case ExpectedRange(range) if range.contains(tx.pendingCheckSuccesses.size) => succeedPendingCheck(tx.pendingCheckSuccesses)
+              case ExpectedCount(count) if count == tx.pendingCheckSuccesses.size =>
+                succeedPendingCheck(tx, tx.pendingCheckSuccesses, goToOpenState(webSocket))
+              case ExpectedRange(range) if range.contains(tx.pendingCheckSuccesses.size) =>
+                succeedPendingCheck(tx, tx.pendingCheckSuccesses, goToOpenState(webSocket))
               case _ =>
                 val newTx = failPendingCheck(tx, "Check failed: Timeout")
                 context.become(openState(webSocket, newTx))
@@ -243,7 +160,8 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
               val results = result :: tx.pendingCheckSuccesses
 
               check.expectation match {
-                case UntilCount(count) if count == results.length => succeedPendingCheck(results)
+                case UntilCount(count) if count == results.length =>
+                  succeedPendingCheck(tx, results, goToOpenState(webSocket))
 
                 case _ =>
                   // let's pile up
@@ -260,7 +178,7 @@ class WsActor(wsName: String, statsEngine: StatsEngine, httpEngine: HttpEngine) 
 
       case Reconciliate(requestName, next, session) =>
         logger.debug(s"Reconciliating websocket '$wsName'")
-        reconciliate(next, session)
+        reconciliate(tx, next, session, goToOpenState(webSocket))
 
       case Close(requestName, next, session) =>
         logger.debug(s"Closing websocket '$wsName'")
