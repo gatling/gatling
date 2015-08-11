@@ -16,22 +16,18 @@
 package io.gatling.http.action.async.sse
 
 import io.gatling.core.session._
-import io.gatling.core.validation.Validation
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.RequestAction
-import io.gatling.http.action.async.SetCheck
+import io.gatling.http.action.async.{ SetCheckAction, SetCheckActionCreator }
 import io.gatling.http.check.async.AsyncCheckBuilder
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.ActorRef
 
-object SseSetCheckAction {
-  def props(requestName: Expression[String], checkBuilder: AsyncCheckBuilder, sseName: String, statsEngine: StatsEngine, next: ActorRef) =
-    Props(new SseSetCheckAction(requestName, checkBuilder, sseName, statsEngine, next))
-}
+object SseSetCheckAction extends SetCheckActionCreator[SseSetCheckAction]
 
-class SseSetCheckAction(val requestName: Expression[String], checkBuilder: AsyncCheckBuilder, sseName: String, statsEngine: StatsEngine, val next: ActorRef)
-    extends RequestAction(statsEngine) with SseAction {
-
-  def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    for (sseActor <- fetchActor(sseName, session)) yield sseActor ! SetCheck(requestName, checkBuilder.build, next, session)
-}
+class SseSetCheckAction(
+  requestName:  Expression[String],
+  checkBuilder: AsyncCheckBuilder,
+  sseName:      String,
+  statsEngine:  StatsEngine,
+  next:         ActorRef
+) extends SetCheckAction(requestName, checkBuilder, sseName, statsEngine, next) with SseAction

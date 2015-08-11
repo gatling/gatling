@@ -15,35 +15,19 @@
  */
 package io.gatling.http.action.async.ws
 
-import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.async.SetCheck
-
-import akka.actor.{ Props, ActorRef }
 import io.gatling.core.session._
+import io.gatling.core.stats.StatsEngine
+import io.gatling.http.action.async.{ SetCheckAction, SetCheckActionCreator }
 import io.gatling.http.check.async.AsyncCheckBuilder
-import io.gatling.http.action.RequestAction
 
-object WsSetCheckAction {
-  def props(
-    requestName:  Expression[String],
-    checkBuilder: AsyncCheckBuilder,
-    wsName:       String,
-    statsEngine:  StatsEngine,
-    next:         ActorRef
-  ) =
-    Props(new WsSetCheckAction(requestName, checkBuilder, wsName, statsEngine, next))
-}
+import akka.actor.ActorRef
+
+object WsSetCheckAction extends SetCheckActionCreator[WsSetCheckAction]
 
 class WsSetCheckAction(
-  val requestName: Expression[String],
-  checkBuilder:    AsyncCheckBuilder,
-  wsName:          String,
-  statsEngine:     StatsEngine,
-  val next:        ActorRef
-)
-    extends RequestAction(statsEngine)
-    with WsAction {
-
-  override def sendRequest(requestName: String, session: Session) =
-    for (wsActor <- fetchActor(wsName, session)) yield wsActor ! SetCheck(requestName, checkBuilder.build, next, session)
-}
+  requestName:  Expression[String],
+  checkBuilder: AsyncCheckBuilder,
+  wsName:       String,
+  statsEngine:  StatsEngine,
+  next:         ActorRef
+) extends SetCheckAction(requestName, checkBuilder, wsName, statsEngine, next) with WsAction
