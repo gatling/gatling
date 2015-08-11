@@ -16,21 +16,16 @@
 package io.gatling.http.action.async.sse
 
 import io.gatling.core.stats.StatsEngine
-import io.gatling.http.action.async.CancelCheck
+import io.gatling.http.action.async.{ CancelCheckAction, CancelCheckActionCreator }
 
-import akka.actor.{ Props, ActorRef }
+import akka.actor.ActorRef
 import io.gatling.core.session._
-import io.gatling.core.validation.Validation
-import io.gatling.http.action.RequestAction
 
-object SseCancelCheckAction {
-  def props(requestName: Expression[String], sseName: String, statsEngine: StatsEngine, next: ActorRef) =
-    Props(new SseCancelCheckAction(requestName, sseName, statsEngine, next))
-}
+object SseCancelCheckAction extends CancelCheckActionCreator[SseCancelCheckAction]
 
-class SseCancelCheckAction(val requestName: Expression[String], sseName: String, statsEngine: StatsEngine, val next: ActorRef)
-    extends RequestAction(statsEngine) with SseAction {
-
-  def sendRequest(requestName: String, session: Session): Validation[Unit] =
-    for (sseActor <- fetchActor(sseName, session)) yield sseActor ! CancelCheck(requestName, next, session)
-}
+class SseCancelCheckAction(
+  requestName: Expression[String],
+  sseName:     String,
+  statsEngine: StatsEngine,
+  next:        ActorRef
+) extends CancelCheckAction(requestName, sseName, statsEngine, next) with SseAction
