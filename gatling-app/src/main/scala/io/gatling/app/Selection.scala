@@ -63,15 +63,15 @@ object Selection {
 
     private def trySelectingSingleSimulation(simulationClasses: SimulationClasses): SelectedSimulationClass = {
 
-        def findSelectedSingleSimulationAmongstCompileOnes(className: String): SelectedSimulationClass =
+        def findSelectedSingleSimulationAmongstCompiledOnes(className: String): SelectedSimulationClass =
           simulationClasses.find(_.getCanonicalName == className)
 
-        def findSelectedSingleSimulationInClassload(className: String): SelectedSimulationClass =
+        def findSelectedSingleSimulationInClassloader(className: String): SelectedSimulationClass =
           Try(Class.forName(className)).toOption.collect { case clazz if classOf[Simulation].isAssignableFrom(clazz) => clazz.asInstanceOf[Class[Simulation]] }
 
         def singleSimulationFromConfig =
-          configuration.core.simulationClass flatMap { className =>
-            val found = findSelectedSingleSimulationAmongstCompileOnes(className).orElse(findSelectedSingleSimulationInClassload(className))
+          configuration.core.simulationClass.flatMap { className =>
+            val found = findSelectedSingleSimulationAmongstCompiledOnes(className).orElse(findSelectedSingleSimulationInClassloader(className))
 
             if (found.isEmpty)
               err.println(s"The requested class('$className') can not be found in the classpath or does not extends Simulation.")
