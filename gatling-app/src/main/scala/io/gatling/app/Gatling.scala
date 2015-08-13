@@ -93,15 +93,15 @@ private[app] class Gatling(overrides: ConfigOverrides, simulationClass: Selected
   }
 
   private def selectSingleSimulationIfPossible(simulations: AllSimulations): SelectedSingleSimulation = {
-      def findSelectedSingleSimulationAmongstCompileOnes(className: String): SelectedSingleSimulation =
+      def findSelectedSingleSimulationAmongstCompiledOnes(className: String): SelectedSingleSimulation =
         simulations.find(_.getCanonicalName == className)
 
-      def findSelectedSingleSimulationInClassload(className: String): SelectedSingleSimulation =
+      def findSelectedSingleSimulationInClassloader(className: String): SelectedSingleSimulation =
         Try(Class.forName(className)).toOption.collect { case clazz if classOf[Simulation].isAssignableFrom(clazz) => clazz.asInstanceOf[Class[Simulation]] }
 
       def singleSimulationFromConfig =
-        configuration.core.simulationClass flatMap { className =>
-          val found = findSelectedSingleSimulationAmongstCompileOnes(className).orElse(findSelectedSingleSimulationInClassload(className))
+        configuration.core.simulationClass.flatMap { className =>
+          val found = findSelectedSingleSimulationAmongstCompiledOnes(className).orElse(findSelectedSingleSimulationInClassloader(className))
 
           if (found.isEmpty)
             err.println(s"The requested class('$className') can not be found in the classpath or does not extends Simulation.")
