@@ -89,7 +89,7 @@ case class HttpRequestBuilder(commonAttributes: CommonAttributes, httpAttributes
 
   def processRequestBody(processor: Body => Body): HttpRequestBuilder = newInstance(httpAttributes.copy(body = httpAttributes.body.map(processor)))
 
-  def bodyPart(bodyPart: BodyPart): HttpRequestBuilder = newInstance(httpAttributes.copy(bodyParts = bodyPart :: httpAttributes.bodyParts))
+  def bodyPart(bodyPart: BodyPart): HttpRequestBuilder = newInstance(httpAttributes.copy(bodyParts = httpAttributes.bodyParts ::: List(bodyPart)))
 
   def resources(res: HttpRequestBuilder*): HttpRequestBuilder = newInstance(httpAttributes.copy(explicitResources = res.toList))
 
