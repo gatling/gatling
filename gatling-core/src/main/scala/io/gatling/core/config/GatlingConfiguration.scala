@@ -202,7 +202,6 @@ object GatlingConfiguration extends StrictLogging {
       ),
       data = DataConfiguration(
         dataWriterClasses = config.getStringList(data.Writers).map(DataConfiguration.resolveAlias(_, DataConfiguration.DataWriterAliases)),
-        dataReaderClass = DataConfiguration.resolveAlias(config.getString(data.Reader), DataConfiguration.DataReaderAliases),
         console = ConsoleDataWriterConfiguration(
           light = config.getBoolean(data.console.Light)
         ),
@@ -349,12 +348,7 @@ object DataConfiguration {
   val GraphiteDataWriterAlias = ClassAlias("graphite", "io.gatling.metrics.GraphiteDataWriter")
   val LeakReporterDataWriterAlias = ClassAlias("leak", "io.gatling.core.stats.writer.LeakReporterDataWriter")
 
-  val FileDataReaderAlias = ClassAlias("file", "io.gatling.charts.stats.reader.FileDataReader")
-
   val DataWriterAliases = Seq(ConsoleDataWriterAlias, FileDataWriterAlias, GraphiteDataWriterAlias, LeakReporterDataWriterAlias)
-    .map(alias => alias.alias -> alias.className).toMap
-
-  val DataReaderAliases = Seq(FileDataReaderAlias)
     .map(alias => alias.alias -> alias.className).toMap
 
   def resolveAlias(string: String, aliases: Map[String, String]): String = aliases.get(string) match {
@@ -365,7 +359,6 @@ object DataConfiguration {
 
 case class DataConfiguration(
     dataWriterClasses: Seq[String],
-    dataReaderClass:   String,
     file:              FileDataWriterConfiguration,
     leak:              LeakDataWriterConfiguration,
     console:           ConsoleDataWriterConfiguration,

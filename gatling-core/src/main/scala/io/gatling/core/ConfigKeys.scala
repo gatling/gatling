@@ -118,7 +118,6 @@ object ConfigKeys {
 
   object data {
     val Writers = "gatling.data.writers"
-    val Reader = "gatling.data.reader"
 
     object file {
       val BufferSize = "gatling.data.file.bufferSize"

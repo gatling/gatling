@@ -25,7 +25,7 @@ object DataReader {
   val NoPlotMagicValue = -1
 
   def newInstance(runOn: String)(implicit configuration: GatlingConfiguration) =
-    Class.forName(configuration.data.dataReaderClass)
+    Class.forName("io.gatling.charts.stats.reader.FileDataReader")
       .asInstanceOf[Class[DataReader]]
       .getConstructor(classOf[String], classOf[GatlingConfiguration])
       .newInstance(runOn, configuration)
