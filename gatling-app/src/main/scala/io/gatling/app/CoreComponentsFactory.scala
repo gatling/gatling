@@ -55,8 +55,8 @@ private[gatling] class DefaultCoreComponentsFactory extends CoreComponentsFactor
 
     implicit val dataWriterTimeOut = Timeout(5 seconds)
 
-    val dataWriters = configuration.data.dataWriterClasses.map { className =>
-      val clazz = Class.forName(className).asInstanceOf[Class[Actor]]
+    val dataWriters = configuration.data.dataWriters.map { dw =>
+      val clazz = Class.forName(dw.className).asInstanceOf[Class[Actor]]
       system.actorOf(Props(clazz), clazz.getName)
     }
 

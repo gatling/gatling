@@ -23,6 +23,7 @@ import scala.collection.mutable
 import scala.io.Codec
 
 import io.gatling.core.ConfigKeys._
+import io.gatling.core.stats.writer._
 import io.gatling.core.util.ConfigHelper.configChain
 import io.gatling.core.util.StringHelper.RichString
 
@@ -201,7 +202,7 @@ object GatlingConfiguration extends StrictLogging {
         )
       ),
       data = DataConfiguration(
-        dataWriterClasses = config.getStringList(data.Writers).map(DataConfiguration.resolveAlias(_, DataConfiguration.DataWriterAliases)),
+        dataWriters = config.getStringList(data.Writers).flatMap(DataWriterType.findByName),
         console = ConsoleDataWriterConfiguration(
           light = config.getBoolean(data.console.Light)
         ),
@@ -341,31 +342,15 @@ case class StoreConfiguration(
   algorithm: Option[String]
 )
 
-object DataConfiguration {
-
-  val ConsoleDataWriterAlias = ClassAlias("console", "io.gatling.core.stats.writer.ConsoleDataWriter")
-  val FileDataWriterAlias = ClassAlias("file", "io.gatling.core.stats.writer.FileDataWriter")
-  val GraphiteDataWriterAlias = ClassAlias("graphite", "io.gatling.metrics.GraphiteDataWriter")
-  val LeakReporterDataWriterAlias = ClassAlias("leak", "io.gatling.core.stats.writer.LeakReporterDataWriter")
-
-  val DataWriterAliases = Seq(ConsoleDataWriterAlias, FileDataWriterAlias, GraphiteDataWriterAlias, LeakReporterDataWriterAlias)
-    .map(alias => alias.alias -> alias.className).toMap
-
-  def resolveAlias(string: String, aliases: Map[String, String]): String = aliases.get(string) match {
-    case Some(clazz) => clazz
-    case None        => string
-  }
-}
-
 case class DataConfiguration(
-    dataWriterClasses: Seq[String],
-    file:              FileDataWriterConfiguration,
-    leak:              LeakDataWriterConfiguration,
-    console:           ConsoleDataWriterConfiguration,
-    graphite:          GraphiteDataWriterConfiguration
+    dataWriters: Seq[DataWriterType],
+    file:        FileDataWriterConfiguration,
+    leak:        LeakDataWriterConfiguration,
+    console:     ConsoleDataWriterConfiguration,
+    graphite:    GraphiteDataWriterConfiguration
 ) {
 
-  def fileDataWriterEnabled: Boolean = dataWriterClasses.contains(DataConfiguration.FileDataWriterAlias.className)
+  def fileDataWriterEnabled: Boolean = dataWriters.contains(FileDataWriterType)
 }
 
 case class FileDataWriterConfiguration(
@@ -397,5 +382,3 @@ case class GatlingConfiguration(
   data:     DataConfiguration,
   config:   Config
 )
-
-case class ClassAlias(alias: String, className: String)
