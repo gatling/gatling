@@ -15,12 +15,15 @@
  */
 package io.gatling.core.util
 
+import java.nio.charset.StandardCharsets
+
 import io.gatling.BaseSpec
 
-class UnsyncByteArrayInputStreamSpec extends BaseSpec {
+class FastByteArrayInputStreamSpec extends BaseSpec {
 
-  val bytes = "test string".getBytes("utf-8")
-  "BytesInputStream" should "signal eof when all bytes are read" in {
+  val bytes = "test string".getBytes(StandardCharsets.UTF_8)
+
+  "FastByteArrayInputStream" should "signal eof when all bytes are read" in {
     val byteStream = new FastByteArrayInputStream(bytes)
     byteStream.read(bytes, 0, bytes.length)
     byteStream.read(bytes, 0, 1) shouldBe -1
