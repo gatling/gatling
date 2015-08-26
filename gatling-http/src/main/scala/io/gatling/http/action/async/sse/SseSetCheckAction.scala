@@ -13,12 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.async.sse
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import io.gatling.core.session._
+import io.gatling.core.stats.StatsEngine
+import io.gatling.http.action.async.{ SetCheckAction, SetCheckActionCreator }
+import io.gatling.http.check.async.AsyncCheckBuilder
 
-sealed trait HttpEvent
+import akka.actor.ActorRef
 
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+object SseSetCheckAction extends SetCheckActionCreator[SseSetCheckAction]
+
+class SseSetCheckAction(
+  requestName:  Expression[String],
+  checkBuilder: AsyncCheckBuilder,
+  sseName:      String,
+  statsEngine:  StatsEngine,
+  next:         ActorRef
+) extends SetCheckAction(requestName, checkBuilder, sseName, statsEngine, next) with SseAction

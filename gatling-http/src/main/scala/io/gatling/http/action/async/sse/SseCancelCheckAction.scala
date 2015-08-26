@@ -13,12 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.async.sse
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import io.gatling.core.stats.StatsEngine
+import io.gatling.http.action.async.{ CancelCheckAction, CancelCheckActionCreator }
 
-sealed trait HttpEvent
+import akka.actor.ActorRef
+import io.gatling.core.session._
 
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+object SseCancelCheckAction extends CancelCheckActionCreator[SseCancelCheckAction]
+
+class SseCancelCheckAction(
+  requestName: Expression[String],
+  sseName:     String,
+  statsEngine: StatsEngine,
+  next:        ActorRef
+) extends CancelCheckAction(requestName, sseName, statsEngine, next) with SseAction

@@ -13,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.async.polling
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import akka.actor.FSM
+import io.gatling.core.akka.BaseActor
+import io.gatling.core.session.Session
 
-sealed trait HttpEvent
+private[polling] abstract class PollerFSM extends BaseActor with FSM[PollerState, PollerData]
 
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+private[polling] sealed trait PollerState
+private[polling] case object Uninitialized extends PollerState
+private[polling] case object Polling extends PollerState
+
+private[polling] sealed trait PollerData
+private[polling] case object NoData extends PollerData
+private[polling] case class PollingData(session: Session, update: Session => Session) extends PollerData

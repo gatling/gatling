@@ -17,8 +17,8 @@ package io.gatling.http.request.builder
 
 import io.gatling.core.body.{ Body, RawFileBodies }
 import io.gatling.core.session._
+import io.gatling.http.action.sync.HttpRequestActionBuilder
 import io.gatling.http.{ HeaderValues, HeaderNames }
-import io.gatling.http.action.HttpRequestActionBuilder
 import io.gatling.http.check.HttpCheck
 import io.gatling.http.check.HttpCheckScope.Status
 import io.gatling.http.protocol.HttpComponents

@@ -25,7 +25,8 @@ import io.gatling.core.stats.message.{ KO, OK, Status }
 import io.gatling.core.util.TimeHelper.nowMillis
 import io.gatling.core.util.cache._
 import io.gatling.core.validation._
-import io.gatling.http.ahc.{ HttpEngine, HttpTx }
+import io.gatling.http.action.sync.HttpTx
+import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.ContentCacheEntry
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocol }
 import io.gatling.http.request._

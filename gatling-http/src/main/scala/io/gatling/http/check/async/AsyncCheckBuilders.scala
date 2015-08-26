@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.check.async
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import io.gatling.core.check.{ Extender, Preparer }
+import io.gatling.core.validation.SuccessWrapper
+import scala.concurrent.duration.FiniteDuration
 
-sealed trait HttpEvent
+object AsyncCheckBuilders {
 
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+  def extender(await: Boolean, timeout: FiniteDuration, expectation: Expectation): Extender[AsyncCheck, String] =
+    wrapped => new AsyncCheck(wrapped, await, timeout, expectation)
+
+  val PassThroughMessagePreparer: Preparer[String, String] = (r: String) => r.success
+}

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.async.polling
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import akka.actor.ActorRef
+import io.gatling.core.session.Session
 
-sealed trait HttpEvent
-
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+private[polling] sealed trait PollingEvent
+private[polling] case class StartPolling(session: Session) extends PollingEvent
+private[polling] case object Poll extends PollingEvent
+private[polling] case class StopPolling(next: ActorRef, session: Session) extends PollingEvent

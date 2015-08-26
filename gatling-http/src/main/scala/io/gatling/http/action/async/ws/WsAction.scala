@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.async.ws
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import io.gatling.http.action.async.AsyncProtocolAction
 
-sealed trait HttpEvent
-
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+trait WsAction extends AsyncProtocolAction {
+  override val actorFetchErrorMessage = "Couldn't fetch open webSocket"
+}

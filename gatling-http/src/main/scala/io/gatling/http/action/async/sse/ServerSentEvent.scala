@@ -13,12 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.async.sse
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import io.gatling.core.json.Json
 
-sealed trait HttpEvent
+case class ServerSentEvent(
+    data:  Option[String] = None,
+    name:  Option[String] = None,
+    id:    Option[String] = None,
+    retry: Option[Int]    = None
+) {
 
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+  def asJSONString: String = {
+
+    // BEWARE: assume Map4 is implemented as an Array, so order is kept
+    val map = Map("event" -> name, "id" -> id, "data" -> data, "retry" -> retry)
+      .collect({ case (key, Some(value)) => (key, value) })
+
+    Json.stringify(map, isRootObject = true)
+  }
+}

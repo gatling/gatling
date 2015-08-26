@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.async.polling
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import akka.actor.ActorRef
 
-sealed trait HttpEvent
+import io.gatling.core.session.Session
 
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+trait PollingAction {
+
+  def fetchPoller(pollerName: String, session: Session) =
+    session(pollerName)
+      .validate[ActorRef]
+      .mapError(msg => s"Could fetch poller actor: $msg")
+}

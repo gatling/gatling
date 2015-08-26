@@ -16,7 +16,8 @@
 package io.gatling.http
 
 import io.gatling.core.session.Session
-import io.gatling.http.ahc.{ HttpEngine, HttpTx }
+import io.gatling.http.action.sync.HttpTx
+import io.gatling.http.ahc.HttpEngine
 import io.gatling.http.cache.HttpCaches
 import io.gatling.http.protocol.{ HttpComponents, HttpProtocolRequestPart, HttpProtocol }
 import io.gatling.http.request.{ HttpRequestConfig, HttpRequest }

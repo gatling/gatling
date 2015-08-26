@@ -13,12 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.async
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import io.gatling.core.session.Session
 
-sealed trait HttpEvent
+import akka.actor.ActorRef
 
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+trait AsyncProtocolAction {
+
+  def actorFetchErrorMessage: String
+
+  final def fetchActor(actorName: String, session: Session) =
+    session(actorName)
+      .validate[ActorRef]
+      .mapError(m => s"$actorFetchErrorMessage: $m")
+}

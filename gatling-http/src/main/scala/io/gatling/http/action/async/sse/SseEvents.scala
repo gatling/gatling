@@ -13,12 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.async.sse
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import io.gatling.http.action.async.{ AsyncEvent, UserAction, AsyncTx }
 
-sealed trait HttpEvent
+sealed trait SseEvent extends AsyncEvent
+case class OnOpen(tx: AsyncTx, sseStream: SseStream, time: Long) extends SseEvent
+case class OnMessage(message: String, time: Long) extends SseEvent
+case class OnThrowable(tx: AsyncTx, errorMessage: String, time: Long) extends SseEvent
+case object OnClose extends SseEvent
 
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+trait SseUserAction extends UserAction with SseEvent

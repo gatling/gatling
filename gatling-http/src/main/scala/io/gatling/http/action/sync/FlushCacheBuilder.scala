@@ -13,12 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.sync
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import io.gatling.core.action.SessionHook
+import io.gatling.core.structure.ScenarioContext
+import io.gatling.http.action.HttpActionBuilder
 
-sealed trait HttpEvent
+import akka.actor.ActorRef
 
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+class FlushCacheBuilder extends HttpActionBuilder {
+
+  def build(ctx: ScenarioContext, next: ActorRef): ActorRef = {
+    import ctx._
+    val expression = httpComponents(protocolComponentsRegistry).httpCaches.FlushCache
+    system.actorOf(SessionHook.props(expression, coreComponents.statsEngine, next, interruptable = true), actorName("flushCache"))
+  }
+}

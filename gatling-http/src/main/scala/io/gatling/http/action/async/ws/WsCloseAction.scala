@@ -13,12 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.gatling.http.ahc
+package io.gatling.http.action.async.ws
 
-import io.gatling.http.action.sync.HttpTx
-import io.gatling.http.response.Response
+import io.gatling.core.session.Expression
+import io.gatling.core.stats.StatsEngine
+import io.gatling.http.action.async.{ CloseAction, CloseActionCreator }
 
-sealed trait HttpEvent
+import akka.actor.ActorRef
 
-case class OnCompleted(tx: HttpTx, response: Response) extends HttpEvent
-case class OnThrowable(tx: HttpTx, response: Response, errorMessage: String) extends HttpEvent
+object WsCloseAction extends CloseActionCreator[WsCloseAction]
+
+class WsCloseAction(
+  requestName: Expression[String],
+  wsName:      String,
+  statsEngine: StatsEngine,
+  next:        ActorRef
+) extends CloseAction(requestName, wsName, statsEngine, next) with WsAction
