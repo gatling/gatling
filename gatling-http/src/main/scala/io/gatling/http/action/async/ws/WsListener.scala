@@ -46,10 +46,8 @@ class WsListener(tx: AsyncTx, wsActor: ActorRef)
       case Opening =>
         wsActor ! OnFailedOpen(tx, t.getMessage, nowMillis)
 
-      case Open =>
-        logger.error(s"WebSocket unexpected error '${t.getMessage}', please report", t)
-
-      case Closed => // discard
+      case _ =>
+        logger.warn(s"WebSocket unexpected error '${t.getMessage}'", t)
     }
 
   // WebSocketCloseCodeReasonListener
