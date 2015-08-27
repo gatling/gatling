@@ -67,8 +67,8 @@ private[app] class Gatling(selectedSimulationClass: SelectedSimulationClass)(imp
   private def runIfNecessary: RunResult =
     configuration.core.directory.reportsOnly match {
       case Some(reportsOnly) => RunResult(reportsOnly, hasAssertions = true)
-      case _ if configuration.http.enableGA =>
-        Ga.send(configuration.core.version)
+      case _ =>
+        if (configuration.http.enableGA) Ga.send(configuration.core.version)
         // -- Run Gatling -- //
         run(Selection(selectedSimulationClass))
     }
