@@ -58,7 +58,7 @@ object Dependencies {
   /****************************/
 
   def commonsDependencies(scalaVersion: String) =
-    Seq(scalaReflect(scalaVersion), config, fastring) ++ loggingDeps ++ testDeps
+    Seq(scalaReflect(scalaVersion), config, fastring, boopickle) ++ loggingDeps ++ testDeps
 
   val coreDependencies =
     Seq(akkaActor, jacksonCsv, boopickle, lru, scalaParserCombinators, scopt, jzlib) ++
